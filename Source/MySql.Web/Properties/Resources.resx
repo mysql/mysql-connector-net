@@ -1,0 +1,256 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="CannotDeleteAPopulatedRole" xml:space="preserve">
+    <value>Cannot delete a populated role.</value>
+  </data>
+  <data name="CannotRetrieveHashedPasswords" xml:space="preserve">
+    <value>Setting EnablePasswordRetrieval to true when PasswordFormat is Hashed is not supported.</value>
+  </data>
+  <data name="CannotUnencodeHashedPwd" xml:space="preserve">
+    <value>Cannot unencode a hashed password.</value>
+  </data>
+  <data name="ErrorInitOfMembershipProvider" xml:space="preserve">
+    <value>There was an error during membership provider initilization.</value>
+  </data>
+  <data name="ErrorInitOfRoleProvider" xml:space="preserve">
+    <value>There was an error during role provider initilization.</value>
+  </data>
+  <data name="ErrorInitProfileProvider" xml:space="preserve">
+    <value>There was an error during profile provider initilization.</value>
+  </data>
+  <data name="ErrorResettingPassword" xml:space="preserve">
+    <value>There was an error resetting the password.</value>
+  </data>
+  <data name="IncorrectPasswordAnswer" xml:space="preserve">
+    <value>Incorrect password answer.</value>
+  </data>
+  <data name="InvalidCharactersInUserName" xml:space="preserve">
+    <value>Invalid characters in user name.</value>
+  </data>
+  <data name="NewPasswordValidationFailed" xml:space="preserve">
+    <value>Change password canceled due to New password validation failure.</value>
+  </data>
+  <data name="PasswordRequiredForReset" xml:space="preserve">
+    <value>Password answer required for password reset.</value>
+  </data>
+  <data name="PasswordResetCanceledNotValid" xml:space="preserve">
+    <value>Reset password canceled due to password validation failure.</value>
+  </data>
+  <data name="PasswordResetNotEnabled" xml:space="preserve">
+    <value>Password Reset is not enabled.</value>
+  </data>
+  <data name="PasswordRetrievalNotEnabled" xml:space="preserve">
+    <value>Password Retrieval Not Enabled.</value>
+  </data>
+  <data name="ProfileUpdateFailed" xml:space="preserve">
+    <value>Profile update failed.</value>
+  </data>
+  <data name="RoleNameAlreadyExists" xml:space="preserve">
+    <value>Role name already exists.</value>
+  </data>
+  <data name="RoleNameNotFound" xml:space="preserve">
+    <value>Role name not found.</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="schema1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>schema1.sql;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="schema2" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>schema2.sql;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="schema3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>schema3.sql;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="UnableToLockOutUser" xml:space="preserve">
+    <value>Unable to lock out user.</value>
+  </data>
+  <data name="UnableToRetrieveProfileData" xml:space="preserve">
+    <value>Unable to retrieve profile data from database.</value>
+  </data>
+  <data name="UnableToUpdateFailureCount" xml:space="preserve">
+    <value>Unable to update failure count.  Membership database may be corrupt.</value>
+  </data>
+  <data name="UnsupportedPasswordFormat" xml:space="preserve">
+    <value>Unsupported password format.</value>
+  </data>
+  <data name="UserIsAlreadyInRole" xml:space="preserve">
+    <value>User is already in role.</value>
+  </data>
+  <data name="UserIsLockedOut" xml:space="preserve">
+    <value>The supplied user is locked out.</value>
+  </data>
+  <data name="UsernameNotFound" xml:space="preserve">
+    <value>Username not found.</value>
+  </data>
+  <data name="UserNotInRole" xml:space="preserve">
+    <value>User not in role.</value>
+  </data>
+  <data name="MissingOrWrongSchema" xml:space="preserve">
+    <value>Unable to initialize provider.  Missing or incorrect schema.</value>
+  </data>
+  <data name="UnableToCreateApplication" xml:space="preserve">
+    <value>Unable to create application.</value>
+  </data>
+  <data name="UnableToCreateUser" xml:space="preserve">
+    <value>Unable to create user.</value>
+  </data>
+  <data name="ChangePasswordCanceled" xml:space="preserve">
+    <value>Change password operation was canceled.</value>
+  </data>
+  <data name="NotEnoughNonAlphaNumericInPwd" xml:space="preserve">
+    <value>Non alpha numeric characters in '{0}' needs to be greater than or equal to '{1}'.</value>
+  </data>
+  <data name="PasswordNotLongEnough" xml:space="preserve">
+    <value>The length of parameter '{0}' needs to be greater or equal to '{1}'.</value>
+  </data>
+  <data name="ValidatePasswordCanceled" xml:space="preserve">
+    <value>The validate password operation was canceled.</value>
+  </data>
+  <data name="PasswordAnswerInvalid" xml:space="preserve">
+    <value>Password answer supplied is invalid.</value>
+  </data>
+  <data name="PasswordQuestionInvalid" xml:space="preserve">
+    <value>Password question supplied is invalid.</value>
+  </data>
+  <data name="schema4" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>schema4.sql;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="IllegalRoleName" xml:space="preserve">
+    <value>Role names must not be null or empty.</value>
+  </data>
+  <data name="IllegalUserName" xml:space="preserve">
+    <value>User names must not be null or empty.</value>
+  </data>
+  <data name="MonoDoesNotSupportHash" xml:space="preserve">
+    <value>The mono runtime did not support hashed passwords.  Please use clear or encrypted passwords.</value>
+  </data>
+  <data name="schema5" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>schema5.sql;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="schema6" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>schema6.sql;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="schema7" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>schema7.sql;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="schema8" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>schema8.sql;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+</root>

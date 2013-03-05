@@ -1,0 +1,31 @@
+﻿<configuration>
+  <connectionStrings>
+    <add name="LocalMySqlService" connectionString="server=localhost;user id=myuser;password=mypass;database=test" />
+  </connectionStrings>
+  <system.web>
+    <authentication mode="Forms" >
+      <forms loginUrl="login.aspx"
+        name=".ASPXFORMSAUTH" />
+    </authentication>
+    <authorization>
+      <deny users="?" />
+    </authorization>
+    <membership defaultProvider="MySQLProvider" userIsOnlineTimeWindow="15">
+      <providers>
+        <add
+          name="MySQLProvider"
+          type="MySql.Web.Security.MySQLMembershipProvider"
+          connectionStringName="LocalMySqlService"
+          applicationName="MyApplication"
+          enablePasswordRetrieval="false"
+          enablePasswordReset="true"
+          requiresQuestionAndAnswer="true"
+          requiresUniqueEmail="false"
+          passwordFormat="Hashed"
+          maxInvalidPasswordAttempts="5"
+          passwordAttemptWindow="10" />
+      </providers>
+    </membership>
+  </system.web>
+</configuration>
+

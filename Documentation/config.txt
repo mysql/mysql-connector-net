@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Config>
+	<TopicMap>
+		<Mapping name="connector-net-core" guid="052f4a92-cf0f-4dcb-a79d-6770047e150f"/>
+		<Mapping name="connector-net-visual-studio" guid="9f3f194e-ad35-4379-b04d-5dce4b34ce6a"/>
+		<Mapping name="connector-net-install" guid="733e518a-a16a-4bc2-b767-831875f277b6"/>
+		<Mapping name="connector-net-programming" guid="8b7d06e8-0177-4dd0-acca-f9c9caaa1072"/>
+		<Mapping name="connector-net-connection-options" guid="c26b6c1a-1652-4d9d-ac74-96cee9531a3b"/>
+		<Mapping name="connector-net-tutorials" guid="34e3033f-b986-4073-95c8-945f73aa79b0"/>
+		<Mapping name="connector-net-support" guid="67810605-cf21-4439-a4bd-86ee11af8f16"/>
+		<Mapping name="connector-net-versions" guid="069908d6-c522-49cc-a854-32494f1de72b"/>
+	</TopicMap>
+	<BadSections>
+		<Section id="connector-net-faq"/>
+	</BadSections>
+</Config>
+
+
