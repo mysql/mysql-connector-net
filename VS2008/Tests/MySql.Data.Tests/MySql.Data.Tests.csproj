@@ -1,0 +1,139 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{F29E5B3D-7F76-4CF9-BF5E-8E3A1377B1E4}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MySql.Data.MySqlClient.Tests</RootNamespace>
+    <AssemblyName>MySql.Data.Tests</AssemblyName>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkProfile />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NUNIT</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRules>
+    </CodeAnalysisRules>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="nunit.framework" />
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\..\Source\MySql.Data\Properties\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\Properties\AssemblyInfo.cs">
+      <Link>Properties\AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\AsyncTests.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\BaseTest.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\BlobTests.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\CharacterSetTests.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\CommandBuilderTests.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\CommandTests.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\ConnectionStringBuilder.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\ConnectionTests.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\BulkLoading.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\OutputParameters.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\PartialTrustSandbox.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\SqlServerMode.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\Logging.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\ScriptExecution.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\SqlTokenizer.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\Tokenizer.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\CultureTests.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\DataAdapterTests.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\DataReaderTests.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\DataTypeTests.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\DateTimeTests.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\EventTests.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\ExceptionTests.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\GetSchemaTests.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\InterfaceTests.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\LanguageTests.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\ParameterTests.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\PerfMonTests.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\PoolingTests.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\PreparedStatements.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\ProcedureParameters.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\SimpleTransactions.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\StoredProcedure.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\StressTests.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\Syntax.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\Syntax2.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\Threading.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\TimeoutAndCancel.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\Transactions.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\UsageAdvisor.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\Utils.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\Tests\MySql.Data.Tests\client.pfx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\..\Tests\MySql.Data.Tests\Properties\Setup.sql">
+      <Link>Properties\Setup.sql</Link>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\MySql.Data\MySql.Data.csproj">
+      <Project>{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}</Project>
+      <Name>MySql.Data</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

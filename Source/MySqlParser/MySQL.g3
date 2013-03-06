@@ -1,0 +1,28 @@
+﻿grammar MySQL;
+
+options {
+    language=CSharp3;
+    TokenLabelType=CommonToken;
+    output=AST;
+    ASTLabelType=CommonTree;
+}
+
+@lexer::namespace{MySqlParser}
+@parser::namespace{MySqlParser}
+
+/*
+ * Parser Rules
+ */
+
+public
+compileUnit
+    :   EOF
+    ;
+
+/*
+ * Lexer Rules
+ */
+
+WS
+    :   ' '
+    ;

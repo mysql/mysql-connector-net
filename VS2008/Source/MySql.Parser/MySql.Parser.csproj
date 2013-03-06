@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{C1A80300-B0B3-4DAD-990E-B04BF2D18B56}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MySql.Parser</RootNamespace>
+    <AssemblyName>MySql.Parser</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Antlr3.Runtime, Version=3.3.1.7705, Culture=neutral, PublicKeyToken=4186e2f4d936d3c2, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Source\MySqlParser\Antlr\Antlr3.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\..\Source\MySqlParser\CaseInsensitiveInputStream.cs">
+      <Link>CaseInsensitiveInputStream.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySqlParser\MySQL51Lexer.g3.cs">
+      <Link>MySQL51Lexer.g3.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySqlParser\MySQL51Parser.g3.cs">
+      <Link>MySQL51Parser.g3.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySqlParser\MySQLLexer.cs">
+      <Link>MySQLLexer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySqlParser\ParserUtils.cs">
+      <Link>ParserUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySqlParser\Properties\AssemblyInfo.cs">
+      <Link>Properties\AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySqlParser\TokenStreamRemovable.cs">
+      <Link>TokenStreamRemovable.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <!--
+  <ItemGroup>
+    <Compile Include="..\..\..\Source\MySqlParser\MySQL51Lexer.g3">
+      <Link>MySQL51Lexer.g3</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySqlParser\MySQL51Parser.g3">
+      <Link>MySQL51Parser.g3</Link>
+    </Compile>
+  </ItemGroup>
+  -->
+  <ItemGroup>
+    <Antlr3 Include="..\..\..\Source\MySqlParser\MySQL51Parser.g3">
+      <Generator>MSBuild:Compile</Generator>
+    </Antlr3>
+  </ItemGroup>
+  <ItemGroup>
+    <Antlr3 Include="..\..\..\Source\MySqlParser\MySQL51Lexer.g3">
+      <Link>MySQL51Lexer.g3</Link>
+      <Generator>MSBuild:Compile</Generator>
+    </Antlr3>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <!-- Folder containing AntlrBuildTask.dll -->
+    <AntlrBuildTaskPath>$(ProjectDir)..\..\..\Source\MySqlParser\Antlr</AntlrBuildTaskPath>
+    <!-- Path to the ANTLR Tool itself. -->
+    <AntlrToolPath>$(ProjectDir)..\..\..\Source\MySqlParser\Antlr\Antlr3.exe</AntlrToolPath>
+  </PropertyGroup>
+  <Import Project="$(ProjectDir)..\..\..\Source\MySqlParser\Antlr\Antlr3.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

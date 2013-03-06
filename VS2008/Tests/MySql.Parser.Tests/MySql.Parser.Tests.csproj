@@ -1,0 +1,209 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{32259E64-2A2F-49E8-97FE-7DD0BC3A7B86}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MySql.Parser.Tests</RootNamespace>
+    <AssemblyName>MySql.Parser.Tests</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Antlr3.Runtime, Version=3.3.1.7705, Culture=neutral, PublicKeyToken=4186e2f4d936d3c2, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Source\MySqlParser\Antlr\Antlr3.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework, Version=2.5.10.11092, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\DDL\Alter\AlterDatabase.cs">
+      <Link>DDL\Alter\AlterDatabase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\DDL\Alter\AlterEvent.cs">
+      <Link>DDL\Alter\AlterEvent.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\DDL\Alter\AlterFunction.cs">
+      <Link>DDL\Alter\AlterFunction.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\DDL\Alter\AlterLog.cs">
+      <Link>DDL\Alter\AlterLog.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\DDL\Alter\AlterProcedure.cs">
+      <Link>DDL\Alter\AlterProcedure.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\DDL\Alter\AlterServer.cs">
+      <Link>DDL\Alter\AlterServer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\DDL\Alter\AlterTable.cs">
+      <Link>DDL\Alter\AlterTable.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\DDL\Alter\AlterTablespace.cs">
+      <Link>DDL\Alter\AlterTablespace.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\DDL\Alter\AlterView.cs">
+      <Link>DDL\Alter\AlterView.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\DDL\Create\CreateDatabase.cs">
+      <Link>DDL\Create\CreateDatabase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\DDL\Create\CreateEvent.cs">
+      <Link>DDL\Create\CreateEvent.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\DDL\Create\CreateIndex.cs">
+      <Link>DDL\Create\CreateIndex.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\DDL\Create\CreateLog.cs">
+      <Link>DDL\Create\CreateLog.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\DDL\Create\CreateRoutine.cs">
+      <Link>DDL\Create\CreateRoutine.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\DDL\Create\CreateServer.cs">
+      <Link>DDL\Create\CreateServer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\DDL\Create\CreateTable.cs">
+      <Link>DDL\Create\CreateTable.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\DDL\Create\CreateTablespace.cs">
+      <Link>DDL\Create\CreateTablespace.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\DDL\Create\CreateTrigger.cs">
+      <Link>DDL\Create\CreateTrigger.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\DDL\Create\CreateView.cs">
+      <Link>DDL\Create\CreateView.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\DDL\Drop\DropDatabase.cs">
+      <Link>DDL\Drop\DropDatabase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\DDL\Drop\DropEvent.cs">
+      <Link>DDL\Drop\DropEvent.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\DDL\Drop\DropIndex.cs">
+      <Link>DDL\Drop\DropIndex.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\DDL\Drop\DropRoutine.cs">
+      <Link>DDL\Drop\DropRoutine.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\DDL\Drop\DropTable.cs">
+      <Link>DDL\Drop\DropTable.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\DDL\Drop\DropTrigger.cs">
+      <Link>DDL\Drop\DropTrigger.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\DDL\Drop\DropView.cs">
+      <Link>DDL\Drop\DropView.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\DDL\Show\Show.cs">
+      <Link>DDL\Show\Show.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\DML\Delete.cs">
+      <Link>DML\Delete.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\DML\Insert.cs">
+      <Link>DML\Insert.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\DML\Select.cs">
+      <Link>DML\Select.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\DML\Update.cs">
+      <Link>DML\Update.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\Infrastructure\TokenStreamRemovable.cs">
+      <Link>Infrastructure\TokenStreamRemovable.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\Other\AccountManagement.cs">
+      <Link>Other\AccountManagement.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\Other\Call.cs">
+      <Link>Other\Call.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\Other\CompoundStatements.cs">
+      <Link>Other\CompoundStatements.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\Other\Expression.cs">
+      <Link>Other\Expression.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\Other\Handler.cs">
+      <Link>Other\Handler.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\Other\Intellisense.cs">
+      <Link>Other\Intellisense.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\Other\LoadDataInfile.cs">
+      <Link>Other\LoadDataInfile.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\Other\Other.cs">
+      <Link>Other\Other.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\Other\RenameDatabase.cs">
+      <Link>Other\RenameDatabase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\Other\RenameTable.cs">
+      <Link>Other\RenameTable.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\Other\Replace.cs">
+      <Link>Other\Replace.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\Other\Transaction.cs">
+      <Link>Other\Transaction.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\Other\TruncateTable.cs">
+      <Link>Other\TruncateTable.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\Utility.cs">
+      <Link>Utility.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\MySql.Parser\MySql.Parser.csproj">
+      <Project>{C1A80300-B0B3-4DAD-990E-B04BF2D18B56}</Project>
+      <Name>MySql.Parser</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

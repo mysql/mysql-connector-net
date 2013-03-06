@@ -1,0 +1,1183 @@
+<topic id="9f3f194e-ad35-4379-b04d-5dce4b34ce6a" revisionNumber="1">
+  <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <section address="connector-net-visual-studio">
+      <title>Connector/Net Visual Studio Integration</title>
+      <content>
+        <autoOutline />
+        <para>
+    When  is installed on Microsoft Windows, Visual Studio
+    integration components are also installed and initialized. This
+    enables the developer to work seamlessly with  in the familiar
+    Visual Studio environment, as described in the following sections of
+    the manual.
+  </para>
+        <para>
+     supports Visual Studio versions 2005, 2008, and 2010.
+    However, only  version 6.3 and higher fully integrate with
+    Visual Studio 2010, although applications using earlier versions of
+    the connector can be built with the Visual Studio 2010 environment
+    using .NET 2.x frameworks.
+  </para>
+        <para>
+    Visual Studio 2010 support was introduced with  6.3.2. From
+    version 6.3.2 the connector ships with both .NET 2.x and .NET 4.x
+    versions of the entity framework support files,
+    <legacyBold>mysql.data.ef.dll</legacyBold> and
+    <legacyBold>mysql.visualstudio.dll</legacyBold>. The .NET 4.x versions
+    are required to enable new integration features supported in Visual
+    Studio 2010, including:
+  </para>
+        <list class="bullet">
+          <listItem>
+            <para>
+        New DDL T4 template for the Entity Framework (EF) - This enables
+        developers to design an EF model from scratch and use the native
+        Visual Studio 2010 facility to generate MySQL DDL from that
+        model. This is done by creating the model, and with the model
+        open, choosing the SSDLToMySQL template in the properties
+        window. The correct DDL is then generated. The developer can
+        then save this code as a <legacyBold>.mysql</legacyBold> file in
+        their project and execute it against the MySQL server.
+      </para>
+          </listItem>
+          <listItem>
+            <para>
+        New SQL Editor - A new SQL editor has been included that enables
+        connections to servers to execute SQL. This is activated by
+        creating a new file with a <legacyBold>.mysql</legacyBold>
+        extension. A new template is also included to allow creation of
+        this file type using the Visual Studio 2010 main menu item
+        <ui>File</ui>, <ui>New</ui>. Note that the
+        MySQL SQL Editor is also available in 2005 and 2008.
+      </para>
+          </listItem>
+        </list>
+      </content>
+    </section>
+    <section address="connector-net-visual-studio-making-a-connection">
+      <title>Making a Connection</title>
+      <content>
+        <para>
+      Once the connector is installed, you can use it to create, modify,
+      and delete connections to MySQL databases. To create a connection
+      with a MySQL database, perform the following steps:
+    </para>
+        <list class="bullet">
+          <listItem>
+            <para>
+          Start Visual Studio, and open the Server Explorer window
+          (<ui>View</ui>, <ui>Server Explorer</ui>
+          option in the main Visual Studio menu, or
+          ,  keyboard
+          shortcuts).
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Right-click the Data Connections node, and choose the
+          <ui>Add Connection...</ui> menu item.
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Add Connection dialog opens. Press the
+          <math>Change</math> button to choose MySQL Database
+          as a data source.
+
+          <mediaLink><para /><caption>Add Connection Context Menu</caption><image xlink:href="connector-net-visual-studio-add-connection" /></mediaLink><para /></para>
+          </listItem>
+          <listItem>
+            <para> dialog opens. Choose
+           in the list of data
+          sources (or the  option, if
+          MySQL Database is absent), and then choose  in the combo box
+          of data providers.
+
+          <mediaLink><para /><caption>Choose Data Source</caption><image xlink:href="connector-net-visual-studio-choose-data-source" /></mediaLink><para /></para>
+          </listItem>
+          <listItem>
+            <para>
+          Input the connection settings: the server host name (for
+          example, localhost if the MySQL server is installed on the
+          local machine), the user name, the password, and the default
+          schema name. Note that you must specify the default schema
+          name to open the connection.
+
+          <mediaLink><para /><caption>Add Connection Dialog</caption><image xlink:href="connector-net-visual-studio-add-connection-dialog" /></mediaLink><para /></para>
+          </listItem>
+          <listItem>
+            <para>
+          You can also set the port to connect with the MySQL server by
+          pressing the <math>Advanced</math> button. To test
+          connection with the MySQL server, set the server host name,
+          the user name, and the password, and press the <math>Test
+          Connection</math> button. If the test succeeds, the
+          success confirmation dialog opens.
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          After you set all settings and test the connection, press
+          <math>OK</math>. The newly created connection is
+          displayed in Server Explorer. Now you can work with the MySQL
+          server through standard Server Explorer GUI.
+
+          <mediaLink><para /><caption>New Data Connection</caption><image xlink:href="connector-net-visual-studio-new-data-connection" /></mediaLink><para /></para>
+          </listItem>
+        </list>
+        <para>
+      After the connection is successfully established, all settings are
+      saved for future use. When you start Visual Studio for the next
+      time, open the connection node in Server Explorer to establish a
+      connection to the MySQL server again.
+    </para>
+        <para>
+      To modify and delete a connection, use the Server Explorer context
+      menu for the corresponding node. You can modify any of the
+      settings by overwriting the existing values with new ones. Note
+      that the connection may be modified or deleted only if no active
+      editor for its objects is opened: otherwise, you may lose your
+      data.
+    </para>
+      </content>
+    </section>
+    <section address="connector-net-visual-studio-intellisense">
+      <title>Using IntelliSense in the SQL Editor</title>
+      <content>
+        <para>
+      IntelliSense support is available starting in Connector/Net 6.5.
+      Once you have established a connection, for example, using the
+      <math>Connect to MySql</math> toolbar button, you can
+      get autocompletion as you type, or by pressing
+      . Depending on the context, the
+      autocompletion dialog can show the list of available tables, table
+      columns, or stored procedures (with the routine's signature as a
+      tooltip). Typing some characters before pressing
+       filters the choices to those items
+      starting with that prefix.
+    </para>
+      </content>
+    </section>
+    <section address="connector-net-visual-studio-editing-tables">
+      <title>Editing Tables</title>
+      <content>
+        <autoOutline />
+        <para>
+      Connector/Net contains a table editor, which enables the visual
+      creation and modification of tables.
+    </para>
+        <para>
+      The Table Designer can be accessed through a mouse action on
+      table-type node of Server Explorer. To create a new table,
+      right-click the  node (under the
+      connection node) and choose the <ui>Create Table</ui>
+      command from the context menu.
+    </para>
+        <para>
+      To modify an existing table, double-click the node of the table to
+      modify, or right-click this node and choose the
+      <ui>Design</ui> item from the context menu. Either of
+      the commands opens the Table Designer.
+    </para>
+        <para>
+      The table editor is implemented in the manner of the well-known
+      Query Browser Table Editor, but with minor differences.
+    </para>
+        <mediaLink>
+          <para />
+          <caption>Editing New Table</caption>
+          <image xlink:href="connector-net-visual-studio-editing-new-table" />
+        </mediaLink>
+        <para />
+        <para>
+      Table Designer consists of the following parts:
+    </para>
+        <list class="bullet">
+          <listItem>
+            <para>
+          Columns Editor - a data grid on top of the Table Designer. Use
+          the Columns grid for column creation, modification, and
+          deletion.
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Indexes tab - a tab on bottom of the Table Designer. Use the
+          Indexes tab for indexes management.
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Foreign Keys tab - a tab on bottom of the Table Designer. Use
+          the Foreign Keys tab for foreign keys management.
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Column Details tab - a tab on bottom of the Table Designer.
+          Use the Column Details tab to set advanced column options.
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Properties window - a standard Visual Studio Properties
+          window, where the properties of the edited table are
+          displayed. Use the Properties window to set the table
+          properties.
+        </para>
+          </listItem>
+        </list>
+        <para>
+      Each of these areas is discussed in more detail in subsequent
+      sections.
+    </para>
+        <para>
+      To save changes you have made in the Table Designer, use either
+      <math>Save</math> or <math>Save All</math>
+      button of the Visual Studio main toolbar, or press
+      . If you have not already named the
+      table, you will be prompted to do so.
+    </para>
+        <mediaLink>
+          <para />
+          <caption>Choose Table Name</caption>
+          <image xlink:href="connector-net-visual-studio-choose-table-name" />
+        </mediaLink>
+        <para />
+        <para>
+      Once the table is created, you can view it in the Server Explorer.
+    </para>
+        <mediaLink>
+          <para />
+          <caption>Newly Created Table</caption>
+          <image xlink:href="connector-net-visual-studio-newly-created-table" />
+        </mediaLink>
+        <para />
+        <para>
+      The Table Designer main menu enables you to set a Primary Key
+      column, edit Relationships such as Foreign Keys, and create
+      Indexes.
+    </para>
+        <mediaLink>
+          <para />
+          <caption>Table Designer Main Menu</caption>
+          <image xlink:href="connector-net-visual-studio-table-desginer-menu-item" />
+        </mediaLink>
+        <para />
+      </content>
+    </section>
+    <section address="connector-net-visual-studio-editing-tables-column-editor">
+      <title>Column Editor</title>
+      <content>
+        <para>
+        You can use the Column Editor to set or change the name, data
+        type, default value, and other properties of a table column. To
+        set the focus to a needed cell of a grid, use the mouse click.
+        Also you can move through the grid using 
+        and + keys.
+      </para>
+        <para>
+        To set or change the name, data type, default value and comment
+        of a column, activate the appropriate cell and type the desired
+        value.
+      </para>
+        <para>
+        To set or unset flag-type column properties (<literal>NOT
+        NULL</literal>, auto incremented, flags), check or uncheck the
+        corresponding check boxes. Note that the set of column flags
+        depends on its data type.
+      </para>
+        <para>
+        To reorder columns, index columns or foreign key columns in the
+        Column Editor, select the whole column to reorder by clicking
+        the selector column on the left of the column grid. Then move
+        the column by using  (to move the
+        column up) or  (to move the column
+        down) keys.
+      </para>
+        <para>
+        To delete a column, select it by clicking the selector column on
+        the left of the column grid, then press the
+         button on a keyboard.
+      </para>
+      </content>
+    </section>
+    <section address="connector-net-visual-studio-editing-tables-indexes">
+      <title>Editing Indexes</title>
+      <content>
+        <para>
+        Indexes management is performed using the
+         dialog.
+      </para>
+        <para>
+        To add an index, select <ui>Table Designer</ui>,
+        <ui>Indexes/Keys...</ui> from the main menu, and click
+        <ui>Add</ui> to add a new index. You can then set the
+        index name, index kind, index type, and a set of index columns.
+      </para>
+        <mediaLink>
+          <para />
+          <caption>Indexes Dialog</caption>
+          <image xlink:href="connector-net-visual-studio-indexes-dialog" />
+        </mediaLink>
+        <para />
+        <para>
+        To remove an index, select it in the list box on the left, and
+        click the <math>Delete</math> button.
+      </para>
+        <para>
+        To change index settings, select the needed index in the list
+        box on the left. The detailed information about the index is
+        displayed in the panel on the right hand side. Change the
+        desired values.
+      </para>
+      </content>
+    </section>
+    <section address="connector-net-visual-studio-editing-tables-foreign-keys">
+      <title>Editing Foreign Keys</title>
+      <content>
+        <para>
+        Foreign Keys management is performed using the  dialog.
+      </para>
+        <para>
+        To add a foreign key, select <ui>Table Designer</ui>,
+        <ui>Relationships...</ui> from the main menu. This
+        displays the 
+        dialog. Click <math>Add</math>. You can then set the
+        foreign key name, referenced table name, foreign key columns,
+        and actions upon update and delete.
+      </para>
+        <para>
+        To remove a foreign key, select it in the list box on the left,
+        and click the <math>Delete</math> button.
+      </para>
+        <para>
+        To change foreign key settings, select the required foreign key
+        in the list box on the left. The detailed information about the
+        foreign key is displayed in the right hand panel. Change the
+        desired values.
+      </para>
+        <mediaLink>
+          <para />
+          <caption>Foreign Key Relationships Dialog</caption>
+          <image xlink:href="connector-net-visual-studio-foreign-key-relationships" />
+        </mediaLink>
+        <para />
+      </content>
+    </section>
+    <section address="connector-net-visual-studio-editing-tables-column-details">
+      <title>Column Properties</title>
+      <content>
+        <para>
+        The  tab can be used to
+        set column options. In addition to the general column properties
+        presented in the Column Editor, in the  tab you can set additional properties such
+        as Character Set, Collation and Precision.
+      </para>
+      </content>
+    </section>
+    <section address="connector-net-visual-studio-editing-tables-table-properties">
+      <title>Table Properties</title>
+      <content>
+        <para>
+        To bring up Table Properties select the table and right-click to
+        activate the context menu. Select <ui>Properties</ui>.
+        The  dockable window will
+        be displayed.
+      </para>
+        <mediaLink>
+          <para />
+          <caption>Table Properties Menu Item</caption>
+          <image xlink:href="connector-net-visual-studio-table-properties-menu" />
+        </mediaLink>
+        <para />
+        <para>
+        The following table properties can be set:
+      </para>
+        <list class="bullet">
+          <listItem>
+            <para>
+            Auto Increment
+          </para>
+          </listItem>
+          <listItem>
+            <para>
+            Average Row Length
+          </para>
+          </listItem>
+          <listItem>
+            <para>
+            Character Set
+          </para>
+          </listItem>
+          <listItem>
+            <para>
+            Collation
+          </para>
+          </listItem>
+          <listItem>
+            <para>
+            Comment
+          </para>
+          </listItem>
+          <listItem>
+            <para>
+            Data Directory
+          </para>
+          </listItem>
+          <listItem>
+            <para>
+            Index Directory
+          </para>
+          </listItem>
+          <listItem>
+            <para>
+            Maximum Rows
+          </para>
+          </listItem>
+          <listItem>
+            <para>
+            Minimum Rows
+          </para>
+          </listItem>
+          <listItem>
+            <para>
+            Name
+          </para>
+          </listItem>
+          <listItem>
+            <para>
+            Row Format
+          </para>
+          </listItem>
+          <listItem>
+            <para>
+            Schema
+          </para>
+          </listItem>
+          <listItem>
+            <para>
+            Storage Engine
+          </para>
+          </listItem>
+        </list>
+        <para>
+        The property <literal>Schema</literal> is read-only.
+      </para>
+        <mediaLink>
+          <para />
+          <caption>Table Properties</caption>
+          <image xlink:href="connector-net-visual-studio-selecting-table-properties" />
+        </mediaLink>
+        <para />
+      </content>
+    </section>
+    <section address="connector-net-visual-studio-editing-views">
+      <title>Editing Views</title>
+      <content>
+        <para>
+      To create a new view, right-click the Views node under the
+      connection node in Server Explorer. From the node's context menu,
+      choose the <ui>Create View</ui> command. This command
+      opens the SQL Editor.
+    </para>
+        <mediaLink>
+          <para />
+          <caption>Editing View SQL</caption>
+          <image xlink:href="connector-net-visual-studio-views-edit-sql" />
+        </mediaLink>
+        <para />
+        <para>
+      You can then enter the SQL for your view.
+    </para>
+        <mediaLink>
+          <para />
+          <caption>View SQL Added</caption>
+          <image xlink:href="connector-net-visual-studio-views-sql-added" />
+        </mediaLink>
+        <para />
+        <para>
+      To modify an existing view, double-click a node of the view to
+      modify, or right-click this node and choose the <ui>Alter
+      View</ui> command from a context menu. Either of the commands
+      opens the SQL Editor.
+    </para>
+        <para>
+      All other view properties can be set in the Properties window.
+      These properties are:
+    </para>
+        <list class="bullet">
+          <listItem>
+            <para>
+          Catalog
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Check Option
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Definer
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Definition
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Definer
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Is Updateable
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Name
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Schema
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Security Type
+        </para>
+          </listItem>
+        </list>
+        <para>
+      Some of these properties can have arbitrary text values, others
+      accept values from a predefined set. In the latter case, set the
+      desired value with an embedded combobox.
+    </para>
+        <para>
+      The properties <literal>Is Updatable</literal> and
+      <literal>Schema</literal> are readonly.
+    </para>
+        <para>
+      To save changes you have made, use either
+      <math>Save</math> or <math>Save All</math>
+      buttons of the Visual Studio main toolbar, or press
+      .
+    </para>
+        <mediaLink>
+          <para />
+          <caption>View SQL Saved</caption>
+          <image xlink:href="connector-net-visual-studio-views-sql-saved" />
+        </mediaLink>
+        <para />
+      </content>
+    </section>
+    <section address="connector-net-visual-studio-editing-stored-procedures-and-functions">
+      <title>Editing Stored Procedures and Functions</title>
+      <content>
+        <para>
+      To create a new stored procedure, right-click the  node under the connection node in Server
+      Explorer. From the node's context menu, choose the
+       command. This command opens
+      the SQL Editor.
+    </para>
+        <mediaLink>
+          <para />
+          <caption>Edit Stored Procedure SQL</caption>
+          <image xlink:href="connector-net-visual-studio-stored-procedure-edit" />
+        </mediaLink>
+        <para />
+        <para>
+      To create a new stored function, right-click the
+       node under the connection node in
+      Server Explorer. From the node's context menu, choose the
+       command.
+    </para>
+        <para>
+      To modify an existing stored routine (procedure or function),
+      double-click the node of the routine to modify, or right-click
+      this node and choose the 
+      command from the context menu. Either of the commands opens the
+      SQL Editor.
+    </para>
+        <para>
+      To create or alter the routine definition using SQL Editor, type
+      this definition in the SQL Editor using standard SQL. All other
+      routine properties can be set in the Properties window. These
+      properties are:
+    </para>
+        <list class="bullet">
+          <listItem>
+            <para>
+          Body
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Catalog
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Comment
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Creation Time
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Data Access
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Definer
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Definition
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          External Name
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          External Language
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Is Deterministic
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Last Modified
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Name
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Parameter Style
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Returns
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Schema
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Security Type
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Specific Name
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          SQL Mode
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          SQL Path
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Type
+        </para>
+          </listItem>
+        </list>
+        <para>
+      Some of these properties can have arbitrary text values, others
+      accept values from a predefined set. In the latter case, set the
+      desired value using the embedded combo box.
+    </para>
+        <para>
+      You can also set all the options directly in the SQL Editor, using
+      the standard <literal>CREATE PROCEDURE</literal> or
+      <literal>CREATE FUNCTION</literal> statement. However,
+      it is recommended to use the Properties window instead.
+    </para>
+        <para>
+      To save changes you have made, use either
+       or  buttons
+      of the Visual Studio main toolbar, or press
+      .
+    </para>
+        <mediaLink>
+          <para />
+          <caption>Stored Procedure SQL Saved</caption>
+          <image xlink:href="connector-net-visual-studio-stored-procedure-saved" />
+        </mediaLink>
+        <para />
+      </content>
+    </section>
+    <section address="connector-net-visual-studio-editing-triggers">
+      <title>Editing Triggers</title>
+      <content>
+        <para>
+      To create a new trigger, right-click the node of the table in
+      which to add the trigger. From the node's context menu, choose the
+       command. This command opens
+      the SQL Editor.
+    </para>
+        <para>
+      To modify an existing trigger, double-click the node of the
+      trigger to modify, or right-click this node and choose the
+       command from the context menu.
+      Either of the commands opens the SQL Editor.
+    </para>
+        <para>
+      To create or alter the trigger definition using SQL Editor, type
+      the trigger statement in the SQL Editor using standard SQL.
+    </para>
+        <alert class="note">
+          <para>
+        Enter only the trigger statement, that is, the part of the
+        <literal>CREATE TRIGGER</literal> query that is
+        placed after the <literal>FOR EACH ROW</literal> clause.
+      </para>
+        </alert>
+        <para>
+      All other trigger properties are set in the Properties window.
+      These properties are:
+    </para>
+        <list class="bullet">
+          <listItem>
+            <para>
+          Definer
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Event Manipulation
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Name
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Timing
+        </para>
+          </listItem>
+        </list>
+        <para>
+      Some of these properties can have arbitrary text values, others
+      accept values from a predefined set. In the latter case, set the
+      desired value using the embedded combo box.
+    </para>
+        <para>
+      The properties <literal>Event Table</literal>,
+      <literal>Schema</literal>, and <literal>Server</literal> in the
+      Properties window are read-only.
+    </para>
+        <para>
+      To save changes you have made, use either
+      <math>Save</math> or <math>Save All</math>
+      buttons of the Visual Studio main toolbar, or press
+      . Before changes are saved, you will be
+      asked to confirm the execution of the corresponding SQL query in a
+      confirmation dialog.
+    </para>
+      </content>
+    </section>
+    <section address="connector-net-visual-studio-editing-user-defined-functions-udf">
+      <title>Editing User Defined Functions (UDF)</title>
+      <content>
+        <para>
+      To create a new User Defined Function (UDF), right-click the
+       node under the connection node in Server
+      Explorer. From the node's context menu, choose the <ui>Create
+      UDF</ui> command. This command opens the UDF Editor.
+    </para>
+        <para>
+      To modify an existing UDF, double-click the node of the UDF to
+      modify, or right-click this node and choose the <ui>Alter
+      UDF</ui> command from the context menu. Either of these
+      commands opens the UDF Editor.
+    </para>
+        <para>
+      The UDF editor enables you to set the following properties:
+    </para>
+        <list class="bullet">
+          <listItem>
+            <para>
+          Name
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          So-name (DLL name)
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Return type
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Is Aggregate
+        </para>
+          </listItem>
+        </list>
+        <para>
+      There are text fields for both names, a combo box for the return
+      type, and a check box to indicate if the UDF is aggregate. All
+      these options are also accessible using the Properties window.
+    </para>
+        <para>
+      The property <literal>Server</literal> in the Properties window is
+      read-only.
+    </para>
+        <para>
+      To save changes you have made, use either
+      <math>Save</math> or <math>Save All</math>
+      buttons of the Visual Studio main toolbar, or press
+      . Before changes are saved, you will be
+      asked to confirm the execution of the corresponding SQL query in a
+      confirmation dialog.
+    </para>
+      </content>
+    </section>
+    <section address="connector-net-visual-studio-cloning-database-objects">
+      <title>Cloning Database Objects</title>
+      <content>
+        <para>
+      Tables, views, stored procedures, and functions can be cloned
+      using the appropriate Clone command from the context menu:
+      <ui>Clone Table</ui>, <ui>Clone View</ui>,
+      <ui>Clone Routine</ui>. The clone commands open the
+      corresponding editor for a new object: the  for cloning a table, and the  for cloning a view or a routine.
+    </para>
+        <para>
+      The editor is filled with values of the original object. You can
+      modify these values in a usual manner.
+    </para>
+        <para>
+      To save the cloned object, use either Save or Save All buttons of
+      the Visual Studio main toolbar, or press
+      . Before changes are saved, you will be
+      asked to confirm the execution of the corresponding SQL query in a
+      confirmation dialog.
+    </para>
+      </content>
+    </section>
+    <section address="connector-net-visual-studio-dropping-database-objects">
+      <title>Dropping Database Objects</title>
+      <content>
+        <para>
+      Tables, views, stored routines, triggers, and UDFs can be dropped
+      with the appropriate Drop command selected from its context menu:
+      <ui>Drop Table</ui>, <ui>Drop View</ui>,
+      <ui>Drop Routine</ui>, <ui>Drop Trigger</ui>,
+      <ui>Drop UDF</ui>.
+    </para>
+        <para>
+      You will be asked to confirm the execution of the corresponding
+      drop query in a confirmation dialog.
+    </para>
+        <para>
+      Dropping of multiple objects is not supported.
+    </para>
+      </content>
+    </section>
+    <section address="connector-net-visual-studio-entity-framework">
+      <title>Using the ADO.NET Entity Framework</title>
+      <content>
+        <para>
+      Connector/Net 6.0 introduced support for the ADO.NET Entity
+      Framework. ADO.NET Entity Framework was included with .NET
+      Framework 3.5 Service Pack 1, and Visual Studio 2008 Service Pack
+      1. ADO.NET Entity Framework was released on 11th August 2008.
+    </para>
+        <para>
+      ADO.NET Entity Framework provides an Object Relational Mapping
+      (ORM) service, mapping the relational database schema to objects.
+      The ADO.NET Entity Framework defines several layers, these can be
+      summarized as:
+    </para>
+        <list class="bullet">
+          <listItem>
+            <para>
+              <legacyBold>Logical</legacyBold> - this layer defines
+          the relational data and is defined by the Store Schema
+          Definition Language (SSDL).
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+              <legacyBold>Conceptual</legacyBold> - this layer
+          defines the .NET classes and is defined by the Conceptual
+          Schema Definition Language (CSDL)
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+              <legacyBold>Mapping</legacyBold> - this layer defines
+          the mapping from .NET classes to relational tables and
+          associations, and is defined by Mapping Specification Language
+          (MSL).
+        </para>
+          </listItem>
+        </list>
+        <para>
+      Connector/Net integrates with Visual Studio 2008 to provide a
+      range of helpful tools to assist the developer.
+    </para>
+        <para>
+      A full treatment of ADO.NET Entity Framework is beyond the scope
+      of this manual. If you are unfamiliar with ADO.NET, review the
+      <externalLink><linkText>Microsoft
+      ADO.NET Entity Framework documentation</linkText><linkUri>http://msdn.microsoft.com/en-us/library/aa697427(VS.80).aspx</linkUri></externalLink>.
+    </para>
+        <para>
+      Tutorials on getting started with ADO.NET Entity Framework are
+      available. See
+      <link xlink:href="34e3033f-b986-4073-95c8-945f73aa79b0#connector-net-tutorials-entity-framework-winform-data-source">Tutorial: Using an Entity Framework Entity as a Windows Forms Data
+      Source</link>
+      and
+      <link xlink:href="34e3033f-b986-4073-95c8-945f73aa79b0#connector-net-tutorials-entity-framework-databinding-linq-entities">Tutorial: Databinding in ASP.NET using LINQ on Entities</link>.
+    </para>
+      </content>
+    </section>
+    <section address="connector-net-website-config">
+      <title>MySQL Website Configuration Tool</title>
+      <content>
+        <para>
+       6.1 introduced the MySQL Website Configuration Tool. This
+      is a facility available in Visual Studio that enables you to
+      configure the Membership, Role, Session State and Profile
+      Provider, without having to resort to editing configuration files.
+      You set your configuration options within the tool, and the tool
+      modifies your <legacyBold>web.config</legacyBold> file accordingly.
+    </para>
+        <para>
+      The MySQL Website Configuration Tool appears as a small icon on
+      the Solution Explorer toolbar in Visual Studio, as show by the
+      following screenshot:
+    </para>
+        <mediaLink>
+          <para />
+          <caption>MySQL Website Configuration Tool</caption>
+          <image xlink:href="connector-net-website-config-tool" />
+        </mediaLink>
+        <para />
+        <para>
+      Clicking the Website Configuration Tool icon launches the wizard
+      and displays the first screen:
+    </para>
+        <mediaLink>
+          <para />
+          <caption>MySQL Website Configuration Tool - Membership</caption>
+          <image xlink:href="connector-net-website-config-tool-membership" />
+        </mediaLink>
+        <para />
+        <para>
+      This allows you to enable use of the MySQL Membership Provider.
+      Click the check box to enable this. You can now enter the name of
+      the application that you are creating the configuration for. You
+      can also enter a description for the application.
+    </para>
+        <para>
+      You can then click the <math>Edit...</math> button to
+      launch the Connection String Editor:
+    </para>
+        <mediaLink>
+          <para />
+          <caption>MySQL Website Configuration Tool - Connection String Editor</caption>
+          <image xlink:href="connector-net-website-config-tool-string-editor" />
+        </mediaLink>
+        <para />
+        <para>
+      Note that if you have already defined a connection string for the
+      providers manually in <legacyBold>web.config</legacyBold>, or
+      previously using the tool, this will be automatically loaded and
+      displayed, and can then be modified in this dialog.
+    </para>
+        <para>
+      You can also ensure that the necessary schemas are created
+      automatically for you by selecting the Autogenerate Schema check
+      box. These schemas are used to store membership information. The
+      database used to storage is the one specified in the connection
+      string.
+    </para>
+        <para>
+      You can also ensure that exceptions generated by the application
+      will be written to the event log by selecting the  check box.
+    </para>
+        <para>
+      Clicking the <math>Advanced...</math> button launches a
+      dialog that enables you to set Membership Options. These options
+      dictate such variables as password length required when a user
+      signs up, whether the password is encrypted and whether the user
+      can reset their password or not.
+    </para>
+        <mediaLink>
+          <para />
+          <caption>MySQL Website Configuration Tool - Advanced Options</caption>
+          <image xlink:href="connector-net-website-config-tool-options" />
+        </mediaLink>
+        <para />
+        <para>
+      Once information has been set up as required for configuration of
+      the Membership Provider, the <math>Next</math> button
+      can be clicked to display the Roles Provider screen:
+    </para>
+        <mediaLink>
+          <para />
+          <caption>MySQL Website Configuration Tool - Roles</caption>
+          <image xlink:href="connector-net-website-config-tool-roles" />
+        </mediaLink>
+        <para />
+        <para>
+      Again the connection string can be edited, a description added and
+      Autogenerate Schema can be enabled before clicking
+      <math>Next</math> to go to the Profiles Provider screen:
+    </para>
+        <mediaLink>
+          <para />
+          <caption>MySQL Website Configuration Tool - Profiles</caption>
+          <image xlink:href="connector-net-website-config-tool-profiles" />
+        </mediaLink>
+        <para />
+        <para>
+      This screen display similar options to the previous screens.
+    </para>
+        <para>
+      Click <math>Next</math> to proceed to the Session State
+      configuration page:
+    </para>
+        <mediaLink>
+          <para />
+          <caption>MySQL Website Configuration Tool - Session State</caption>
+          <image xlink:href="connector-net-website-config-tool-session-state" />
+        </mediaLink>
+        <para />
+        <para>
+      Once you have set up the Session State Provider as required, click
+      <math>Finish</math> to exit the wizard.
+    </para>
+        <para>
+      At this point, it is necessary to select the
+       to . Launch the ASP.NET Configuration Tool and
+      select the Security tab. Click the  link and ensure that the  radio button is selected. You can now examine
+      the database you created to store membership information. All the
+      necessary tables will have been created for you:
+    </para>
+        <mediaLink>
+          <para />
+          <caption>MySQL Website Configuration Tool - Tables</caption>
+          <image xlink:href="connector-net-website-config-tool-tables" />
+        </mediaLink>
+        <para />
+      </content>
+    </section>
+    <section address="connector-net-sql-editor">
+      <title>MySQL SQL Editor</title>
+      <content>
+        <para>
+       6.3.2 introduced a new MySQL SQL Editor. The easiest way to
+      invoke the editor is by selecting the <ui>New</ui>,
+      <ui>File</ui> menu item from the Visual Studio main
+      menu. This displays the  dialog:
+    </para>
+        <mediaLink>
+          <para />
+          <caption>MySQL SQL Editor - New File</caption>
+          <image xlink:href="connector-net-sql-editor-new-file-dialog" />
+        </mediaLink>
+        <para />
+        <para>
+      From the  dialog, select the MySQL
+      template, and then double-click the  document, or click the
+      <math>Open</math> button.
+    </para>
+        <para>
+      The MySQL SQL Editor will be displayed. You can now enter SQL code
+      as required, or connect to a MySQL server. Click the
+      <math>Connect to MySQL</math> button in the MySQL SQL
+      Editor toolbar. You can enter the connection details into the
+       dialog that is displayed.
+      You can enter the server name, user ID, password and database to
+      connect to, or click the <math>Advanced</math> button to
+      select other connection string options. Click the
+      <math>Connect</math> button to connect to the MySQL
+      server. To execute your SQL code against the server, click the
+      <math>Run SQL</math> button on the toolbar.
+    </para>
+        <mediaLink>
+          <para />
+          <caption>MySQL SQL Editor - Query</caption>
+          <image xlink:href="connector-net-sql-editor-query" />
+        </mediaLink>
+        <para />
+        <para>
+      The results from any queries are displayed on the
+       tab. Any errors are displayed on the
+       tab.
+    </para>
+      </content>
+    </section>
+    <section address="connector-net-ddl-t4-ef">
+      <title>DDL T4 Template Macro</title>
+      <content>
+        <para>
+       6.3 introduced the ability to convert an Entity Framework
+      model to MySQL  code. Starting
+      with a blank model, an entity model can be developed in Visual
+      Studio's designer. Once the model has been created, the model's
+      properties can be selected, and in the Database Script Generation
+      category of the model's properties, the property  can be found. The value
+       can then be selected from
+      the drop-down listbox.
+    </para>
+        <mediaLink>
+          <para />
+          <caption>DDL T4 Template Macro - Model Properties</caption>
+          <image xlink:href="connector-net-ddl-t4-ef-properties" />
+        </mediaLink>
+        <para />
+        <para>
+      Right-clicking the model design area will display a
+      context-sensitive menu. Selecting  from the menu will display the . The wizard can then be used to
+      generate MySQL DDL code.
+    </para>
+        <mediaLink>
+          <para />
+          <caption>DDL T4 Template Macro - Generate Database Wizard</caption>
+          <image xlink:href="connector-net-ddl-t4-ef-generate" />
+        </mediaLink>
+        <para />
+      </content>
+    </section>
+  </developerConceptualDocument>
+</topic>

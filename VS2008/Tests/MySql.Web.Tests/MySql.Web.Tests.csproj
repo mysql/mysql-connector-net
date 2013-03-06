@@ -1,0 +1,149 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{83462D15-E576-4079-BBC9-9EE1CF0B24DD}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MySql.Web.Tests</RootNamespace>
+    <AssemblyName>MySql.Web.Tests</AssemblyName>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkProfile />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;CLR2</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="nunit.framework" />
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\..\Source\MySql.Data\Properties\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Web.Tests\BaseTest.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Web.Tests\ProfileTests.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Web.Tests\RoleManagement.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Web.Tests\SchemaTests.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Web.Tests\Properties\AssemblyInfo.cs">
+      <Link>Properties\AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Web.Tests\SessionTests.cs">
+      <Link>SessionTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Web.Tests\TestProfile.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Web.Tests\UserManagement.cs" />
+    <Compile Include="SessionLocking\Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="SessionLocking\InitSessionLocking.aspx.cs">
+      <DependentUpon>InitSessionLocking.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="SessionLocking\InitSessionLocking.aspx.designer.cs">
+      <DependentUpon>InitSessionLocking.aspx.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SessionLocking\read.aspx.cs">
+      <DependentUpon>read.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="SessionLocking\read.aspx.designer.cs">
+      <DependentUpon>read.aspx.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SessionLocking\write.aspx.cs">
+      <DependentUpon>write.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="SessionLocking\write.aspx.designer.cs">
+      <DependentUpon>write.aspx.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SessionLocking\write2.aspx.cs">
+      <DependentUpon>write2.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="SessionLocking\write2.aspx.designer.cs">
+      <DependentUpon>write2.aspx.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\Tests\MySql.Web.Tests\App.config" />
+    <None Include="SessionLockingBuild.bat" />
+    <None Include="SessionLocking\Web.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\MySql.Data\MySql.Data.csproj">
+      <Project>{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}</Project>
+      <Name>MySql.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\MySql.Web\MySql.Web.csproj">
+      <Project>{C28B1166-1380-445D-AEC1-8A18B990DD18}</Project>
+      <Name>MySql.Web</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MySql.Data.Tests\MySql.Data.Tests.csproj">
+      <Project>{F29E5B3D-7F76-4CF9-BF5E-8E3A1377B1E4}</Project>
+      <Name>MySql.Data.Tests</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="SessionLocking\Global.asax" />
+    <Content Include="SessionLocking\InitSessionLocking.aspx" />
+    <Content Include="SessionLocking\read.aspx" />
+    <Content Include="SessionLocking\web_config_src.txt" />
+    <Content Include="SessionLocking\write.aspx" />
+    <Content Include="SessionLocking\write2.aspx" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <PreBuildEvent>call "$(ProjectDir)SessionLockingBuild.bat" "$(ProjectDir)SessionLocking" "$(ProjectDir)$(OutDir)SessionLocking"</PreBuildEvent>
+  </PropertyGroup>
+</Project>

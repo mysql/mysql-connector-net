@@ -1,0 +1,175 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{EDED3135-95D2-4BCE-A810-F3F2AD7935B7}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MySql.Data.Entity</RootNamespace>
+    <AssemblyName>MySql.Data.Entity</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.Entity" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\..\Source\MySql.Data.Entity\Properties\SchemaMapping.msl">
+      <Link>Properties\SchemaMapping.msl</Link>
+    </EmbeddedResource>
+    <Compile Include="..\..\..\Source\MySql.Data\Properties\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Data.Entity\EFMySqlDataReader.cs" />
+    <Compile Include="..\..\..\Source\MySql.Data.Entity\EFMySqlCommand.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Data.Entity\Fragments\TableFragment.cs">
+      <Link>Fragments\TableFragment.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Data.Entity\Fragments\InputFragment.cs">
+      <Link>Fragments\InputFragment.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Data.Entity\Fragments\JoinFragment.cs">
+      <Link>Fragments\JoinFragment.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Data.Entity\Fragments\SqlFragment.cs">
+      <Link>Fragments\SqlFragment.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Data.Entity\Generators\DeleteGenerator.cs">
+      <Link>Generators\DeleteGenerator.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Data.Entity\Generators\FunctionGenerator.cs">
+      <SubType>Code</SubType>
+      <Link>Generators\FunctionGenerator.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Data.Entity\Generators\FunctionProcessor.cs">
+      <Link>Generators\FunctionProcessor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Data.Entity\Generators\InsertGenerator.cs">
+      <Link>Generators\InsertGenerator.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Data.Entity\Generators\Scope.cs">
+      <Link>Generators\Scope.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Data.Entity\Generators\SelectGenerator.cs">
+      <Link>Generators\SelectGenerator.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Data.Entity\Generators\SqlGenerator.cs">
+      <Link>Generators\SqlGenerator.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Data.Entity\Generators\UpdateGenerator.cs">
+      <Link>Generators\UpdateGenerator.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Data.Entity\Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <Link>Properties\Resources.Designer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Data.Entity\Statements\DeleteStatement.cs">
+      <Link>Statements\DeleteStatement.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Data.Entity\Statements\InsertStatement.cs">
+      <Link>Statements\InsertStatement.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Data.Entity\Metadata.cs" />
+    <Compile Include="..\..\..\Source\MySql.Data.Entity\ProviderManifest.cs" />
+    <Compile Include="..\..\..\Source\MySql.Data.Entity\Properties\AssemblyInfo.cs">
+      <Link>Properties\AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Data.Entity\ProviderServices.cs" />
+    <Compile Include="..\..\..\Source\MySql.Data.Entity\Statements\SelectStatement.cs">
+      <Link>Statements\SelectStatement.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Data.Entity\Statements\UpdateStatement.cs">
+      <Link>Statements\UpdateStatement.cs</Link>
+    </Compile>
+    <EmbeddedResource Include="..\..\..\Source\MySql.Data.Entity\Properties\ProviderManifest.xml">
+      <Link>Properties\ProviderManifest.xml</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\..\Source\MySql.Data.Entity\Properties\SchemaDefinition-5.0.ssdl">
+      <Link>Properties\SchemaDefinition-5.0.ssdl</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\..\Source\MySql.Data.Entity\Properties\SchemaDefinition-5.5.ssdl">
+      <Link>Properties\SchemaDefinition-5.5.ssdl</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\..\Source\MySql.Data.Entity\Properties\SchemaDefinition-5.1.ssdl">
+      <Link>Properties\SchemaDefinition-5.1.ssdl</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\..\Source\MySql.Data.Entity\Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <Link>Properties\Resources.resx</Link>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MySql.Data\MySql.Data.csproj">
+      <Project>{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}</Project>
+      <Name>MySql.Data</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\..\Source\MySql.Data.Entity\Properties\SchemaDefinition-5.6.ssdl">
+      <Link>Properties\SchemaDefinition-5.6.ssdl</Link>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>

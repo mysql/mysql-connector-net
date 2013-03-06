@@ -1,0 +1,114 @@
+
+6.5.6
+- Fix internal bug "Parser cannot recognize row_count in grammar version 5.6" (id task 326).
+- Fixed missing keywords not working as ids (wihout quoting) in parser: value, status, unknown & some unit tests from Arnaud feedback.
+- Fix for Datetime precision doesn't work with code first or model first. (Oracle bug #15972773).
+- Fix for Support for current_timestamp as default for datetime with ef for server 5.6 (Oracle bug #15935094).
+- Adding support for Geometry type. Unit Tests included. Supporting server 5.1 and further.
+- Added support for new connect attributes feature in server 5.6 (Oracle bug #15935112).
+- Added protocol support for password expiration (Oracle bug #15935104).
+- Added to parser missing "alter user ... password expire".
+- Fix for "Debugger error on stored procedure", which is actually a parser bug (parser was expecting decimal both precision & scale), (bug MySql #67975, Oracle bug #16079735).
+- Added support for password hashing with appropriate strength for server 5.6 (Oracle bug #15935128).
+- Fix for GetSchema returning MySqlException instead of ArgumentException when passing an invalid collection name
+  (Oracle bug #16271425, MySql bug #67901).
+- Fix for EF 4.3 failing when FK identifiers are too long (MySql bug #67285, Oracle bug #16286397).
+- Fix for race condition on ConnectionStringBuilder when using multiple threads 
+  (MySql bug #68217, Oracle bug #16310698).
+- Fix for stored routines being edited from Server explorer appear as ALTER, which may led
+  to syntax errors, which may led to Intellisense to stop working (Oracle bug #16357595).
+- Fix for Error in Server Explorer when refreshing a table or view (Oracle bug #16363908).
+- Fix for Intellisense not available for Views (Oracle bug #16384218).
+- Fix for "When saving a new stored procedure, it raises a windows error message", due to 
+  using definer (Oracle bug #16363828).
+- Fix for "The first time a new stored routine is saved, after save, Intellisense doesn't work (Oracle bug #16384238).
+- Fix for "Error when saving after changing an existing stored routine name in SQL in the editor" (Oracle bug #16390757).
+- Fix for server explorer error opening a remote connection (Oracle bug #16357786).
+- Fix for password expiration, new password dialog failed (Oracle bug #16357752).
+- Fix for InvalidCastException thrown when executing an stored function (MySql bug #64633, Oracle bug #13864627).
+- Fix for Default Command Timeout not applying for EFMySqlCommand (MySql bug #67171, Oracle bug #14825670).
+
+
+6.5.5
+- Fix for ArgumentNull exception when using Take().Count() in a LINQ to Entities query (bug MySql #64749, Oracle bug #13913047).
+- Fix for type varchar changed to bit when saving in Table Designer (Oracle bug #13916560).
+- Fix for error when trying to change the name of an Index on the Indexes/Keys editor; along with this fix now users can change the Index type of a new Index which could not be done
+  in previous versions, and when changing the Index name the change is reflected on the list view at the left side of the Index/Keys editor (Oracle bug #13613801).
+- Fix for stored procedure call using only its name with EF code first (MySql bug #64999, Oracle bug #14008699). 
+- Fix for List.Contains generates a bunch of ORs instead of more efficient IN clause in 
+  LINQ to Entities (Oracle bug #14016344, MySql bug #64934).
+- Fix for performance issue in generated EF query: .NET StartsWith/Contains/EndsWith produces MySql's locate instead of Like (MySql bug #64935, Oracle bug #14009363).
+- Fix for script generated for code first contains wrong alter table and wrong declaration for byte[] (MySql bug #64216, Oracle bug #13900091).
+- Fix and code contribution for bug Timed out sessions are removed without notification which allow to enable the Expired CallBack when Session Provider times out any session (bug MySql #62266 Oracle bug # 13354935)
+- Fix for Exception thrown when using cascade delete in an EDM Model-First in Entity Framework (Oracle bug #14008752, MySql bug #64779).
+- Fix for Session locking issue with MySqlSessionStateStore (MySql bug #63997, Oracble bug #13733054).
+- Fixed deleting a user profile using Profile provider (MySQL bug #64470, Oracle bug #13790123)
+- Fix for bug Cannot Create an Entity with a Key of Type String (MySQL bug #65289, Oracle bug #14540202). This fix checks if the type has a FixedLength facet set in order to create a char otherwise should create varchar, mediumtext or longtext types when using a String CLR type in Code First or Model First also tested in Database First. Unit tests added for Code First and ProviderManifest.
+- Fix for bug "CacheServerProperties can cause 'Packet too large' error". The issue was due to a missing reading of Max_allowed_packet server property when CacheServerProperties is in true, since the value was read only in the first connection but the following pooled connections had a wrong value causing a Packet too large error. Including also a unit test for this scenario. All unit test passed. MySQL Bug #66578 Orabug #14593547.
+- Fix for handling unnamed parameter in MySQLCommand. This fix allows the mysqlcommand to handle parameters without requiring naming (e.g. INSERT INTO Test (id,name) VALUES (?, ?) ) (MySQL Bug #66060, Oracle bug #14499549).
+- Fixed inheritance on Entity Framework Code First scenarios. Discriminator column is created using its correct type as varchar(128) (MySql bug #63920 and Oracle bug #13582335).
+- Fixed "Trying to customize column precision in Code First does not work" (MySql bug #65001, Oracle bug #14469048).
+- Fixed bug ASP.NET Membership database fails on MySql database UTF32 (MySQL bug #65144, Oracle bug #14495292).
+- Fix for MySqlCommand.LastInsertedId holding only 32 bit values (MySql bug #65452, Oracle bug #14171960) by changing
+  several internal declaration of lastinsertid from int to long.
+- Fixed "Decimal type should have digits at right of decimal point", now default is 2, but user's changes in 
+  EDM designer are recognized (MySql bug #65127, Oracle bug #14474342).
+- Fix for NullReferenceException when saving an uninitialized row in Entity Framework (MySql bug #66066, Oracle bug #14479715).
+- Fix for error when calling RoleProvider.RemoveUserFromRole(): causes an exception due to a wrong table being used (MySql bug #65805, Oracle bug #14405338).
+- Fix for "Memory Leak on MySql.Data.MySqlClient.MySqlCommand", too many MemoryStream's instances created (MySql bug #65696, Oracle bug #14468204).
+- Added ANTLR attribution notice (Oracle bug #14379162).
+- Fixed Entity Framework + mysql connector/net in partial trust throws exceptions (MySql bug #65036, Oracle bug #14668820).
+- Added support in Parser for Datetime and Time types with precision when using Server 5.6 (No bug Number).
+- Small improvement on MySqlPoolManager CleanIdleConnections for better mysqlpoolmanager idlecleanuptimer at startup (MySql bug #66472 and Oracle bug #14652624).
+- Fix for bug TIMESTAMP values are mistakenly represented as DateTime with Kind = Local (Mysql bug #66964, Oracle bug #14740705).
+- Fix for bug Keyword not supported. Parameter name: AttachDbFilename (Mysql bug #66880, Oracle bug #14733472).
+- Added support to MySql script file to retrieve data when using "SHOW" statements.
+- Fix for Package Load Failure in Visual Studio 2005 (MySql bug #63073, Oracle bug #13491674).
+- Fix for bug "Unable to connect using IPv6 connections" (MySQL bug #67253, Oracle bug #14835718).
+- Added auto-generated values for Guid identity columns (MySql bug #67450, Oracle bug #15834176).
+- Fix for method FirstOrDefault not supported in some LINQ to Entities queries (MySql bug #67377, Oracle bug #15856964). 
+
+6.5.4
+- Fix for Duplicate table name don't allow you to change table name (Oracle bug #13785918).
+- Fix for Comment turns green the whole line (Oracle bug #13613856).
+- Fix for CommandText property set method performance improvement (MySql bug #64012, Oracle bug #13739383).
+- Fix for Foreign Keys not imported in Entity Model Wizard (Oracle bug #13800109).
+
+6.5.3
+- Return datetime values for timestamp fields as DateTimeKind.Local (MySQL bug #63812, Oracle bug #13591554)
+- Fix for "Connector/Net Generates Incorrect SELECT Clause after UPDATE" (MySql bug #62134, Oracle bug #13491689). 
+- Fix for Error on intellisense when typing "-" (Orable Bug #13522344). 
+- Fix for VS IS SHOWING AN ERROR WHEN TRYING TO CREATE A FOREIGN KEY (Oracle bug #13511776).
+- Made parser fully compliant with MySql 5.1.
+- Fixed creation Trigger dialog bug (Oracle bug #13511801)
+- Fix for Error when changing data length in table designer in varchar columns. (Oracle bug #13611677).
+- Fix for Bug in Visual Studio Table Designer on editing column name the changes were not visually detected until focus is switched (Oracle bug #13613755).
+- Fix for VS let you close the FK dialog even when the created FK do not have any data (Oracle bug #13613839).
+- Fix for error when creating index through VS table designer. (Oracle bug # 13613765 - INDEX/KEYS ERROR MODIFYING COLUMNS FIELD).
+- Fix on Bug #62801 (mysql.dev) #13491698 Orabug DB Strange behaviour with Include in LINQ-to-Entities. Changes on SelectStatement class on method GetDefaultColumnsForFragment to assign the table name when adding a new column. 
+  The table name added for the new column had the wrong context of the fragment which was the cause of the problem. This fix assign the context right after the creation of the new ColumnFragment object. 
+  Added Unit Tests VS2010 and VS2008.
+- Fix for EF4.1, Code First, CreateDatabaseScript() generates an invalid MySQL script (MySQL bug #62150, Oracle bug #13582837).
+- Fix for Connections not closed properly when using pooling (MySql bug #63942, Oracle bug #13629471).
+- Changed behavior when MySqlCommand.CommandText is null, now it throws an InvalidOperationException instead of 
+  NullReferenceException on ExecuteReader (MySql bug #64092, Oracle bug #13624659)
+- Fixed Foreign Key Relationship list refresh when deleting a relationship (Oracle bug #13610283)
+- Fixed unable to delete rows on Foreign Key Relationship screen (Oracle bug #13610235)
+- Hides selected columns on Foreign Key Relationship screen (Oracle bug #13615258)
+- Fix for unexpected closing of Add Function Import window when pressing Get Column Information (Oracle bug #13511736).
+- Fix for bug where an attempt to save table data after the first save has occurred would fail (Oracle bug #13613714).
+- Fix for ENTITY FRAMEWORK MODEL FAILS WHEN IS CREATED FROM DATABASE (Oracle bug #13610452).
+- Fix for Bug on Installer failing to add registry entry causing that when creating a Project targeting .net framework different than 4.0v library was not listed. (Mysql bug #60462 Oracle bug #13491678).
+- Fixed MySqlTime parsing to handle milliseconds (Oracle bug #13708884)
+- Fix for SEXP-1ST FK RENAMED WHEN ADDING A NEW ONE (Oracle bug #13613824)
+- Fix for Error when using Intellisense Quick Info (Oracle Bug #13739891).
+- Fix for bug MySqlDateTime when using milliseconds precision minor than 6 in the column definition. (MySql #64867 Oracle bug #13881444 ).
+
+6.5.0
+- Added exception interception
+- Implemented proper partial trust support
+- Added command interception
+- Integrated new parser and enhanced intellisense support
+- Milliseconds are now supported when using MySQL 5.6 or later
+- Made MySqlDateTime serializable (MySQL bug #40555, Oracle bug #11750161).
+- Fix for Error on intellisense when typing "-" (Orable Bug #13522344).
