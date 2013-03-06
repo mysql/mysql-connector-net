@@ -47,20 +47,7 @@ using System.Collections.Generic;
 
 namespace MySql.Data.Entity.CodeFirst.Tests
 {
-  /*
-  public static class ExtensionMethods
-  {
-    public static string ToTraceString<T>(this IQueryable<T> t)
-    {
-      // try to cast to ObjectQuery<T>
-      ObjectQuery<T> oqt = t as ObjectQuery<T>;
-      if (oqt != null)
-        return oqt.ToTraceString();
-      return "";
-    }
-  }
-  */
-
+ 
   [TestFixture]
   public class CodeFirstTests : BaseCodeFirstTest
   {
@@ -453,7 +440,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
     [Test]
     public void FirstOrDefaultNested()
     {
-	  ReInitDb();
+    ReInitDb();
       using (MovieDBContext ctx = new MovieDBContext())
       {
         ctx.Database.Initialize(true);
@@ -528,7 +515,32 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 
       }
     }
-       
+
+
+    [Test]  
+    public void CanUseDistanceGeometryFunction()
+    {
+      using (DistribuitorsContext context = new DistribuitorsContext())
+      {
+        context.Database.Delete();
+        context.Database.Create();
+
+        context.Distributors.Add(new Distributor()
+        {
+          Name = "Graphic Design Institute",
+          point = DbGeometry.FromText("POINT(-122.336106 47.605049)"),
+        });
+        context.SaveChanges();
+
+        var points = (from p in context.Distributors
+                      select p.point);
+
+        foreach (var item in points)
+          Assert.AreEqual(0.0, DbGeometry.FromText("POINT(-122.336106 47.605049)").Distance(item));
+      }
+    }
+
+
  
     [Test]
     public void CanUseDimensionFunction()

@@ -378,12 +378,20 @@ namespace MySql.Data.Entity
 
     public override DbGeometry GeometryFromProviderValue(object providerValue)
     {
-      return  providerValue == null ?  null :  DbSpatialServices.CreateGeometry(this, providerValue);
+      if (providerValue == null)
+        throw new ArgumentNullException("provider value");
+
+      var myGeom = new MySqlGeometry();
+
+      if (MySqlGeometry.TryParse(providerValue.ToString(), out myGeom))      
+       return DbGeometry.FromText(providerValue.ToString());              
+      else
+        return null;      
     }
 
     public override DbGeometry GeometryFromText(string wellKnownText, int coordinateSystemId)
     {
-      if (String.IsNullOrEmpty(wellKnownText) == null)
+      if (String.IsNullOrEmpty(wellKnownText))
         throw new ArgumentNullException("wellKnownText");
 
       var geomValue = DbGeometry.FromText(wellKnownText, coordinateSystemId);
