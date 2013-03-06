@@ -1,0 +1,20 @@
+﻿<?xml version="1.0"?>
+<!--
+  For more information on how to configure your ASP.NET application, please visit
+  http://go.microsoft.com/fwlink/?LinkId=169433
+  -->
+<configuration>
+  <system.web>
+	<sessionState mode="Custom" cookieless="true" regenerateExpiredSessionId="true" customProvider="MySqlSessionStateProvider">
+      <providers>
+        <add name="MySqlSessionStateProvider" type="MySql.Web.SessionState.MySqlSessionStateStore, MySql.Web" applicationName="/" description="" connectionStringName="LocalMySqlServer" writeExceptionsToEventLog="False" autogenerateschema="True" />
+      </providers>
+    </sessionState>
+	<compilation targetFramework="4.0" />  
+  </system.web>
+  <connectionStrings>
+    <add name="ApplicationServices" connectionString="data source=.\SQLEXPRESS;Integrated Security=SSPI;AttachDBFilename=|DataDirectory|\aspnetdb.mdf;User Instance=true" providerName="System.Data.SqlClient" />
+    <remove name="LocalMySqlServer" />
+    <add name="LocalMySqlServer" connectionString="connection_string_here" providerName="MySql.Data.MySqlClient" />
+  </connectionStrings>  
+</configuration>

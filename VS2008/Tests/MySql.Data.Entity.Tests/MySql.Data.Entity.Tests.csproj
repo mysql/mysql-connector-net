@@ -1,0 +1,206 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{D37B3572-767F-4622-A835-844B0EBEFD5B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MySql.Data.Entity.Tests</RootNamespace>
+    <AssemblyName>MySql.Data.Entity.Tests</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="nunit.framework, Version=2.5.10.11092, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL" />
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.Entity">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.Entity.Design">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Security" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\..\Source\MySql.Data\Properties\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests\BaseEdmTest.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests\AggregateOperators.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests\CanonicalFunctions.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests\DataTypeTests.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests\ProviderServicesTests.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests\ProceduresAndFunctions.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests\JoinTests.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests\SchemaInformation.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests\Wizard.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests\RelationalOperators.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests\SetOperators.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests\Paging.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests\OrderingAndGrouping.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests\InsertTests.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests\UpdateTests.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests\DeleteTests.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests\RestrictionOperators.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests\Properties\AssemblyInfo.cs">
+      <Link>Properties\AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="booksModel.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>booksModel.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="Model1.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Model1.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="Model2.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Model2.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="Model3.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Model3.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="ModelFirstModel1.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ModelFirstModel1.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\SQLSyntax.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>SQLSyntax.resx</DependentUpon>
+    </Compile>
+    <Compile Include="TestModel.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TestModel.edmx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\Tests\MySql.Data.Entity.Tests\App.Config" />
+    <None Include="..\..\..\Tests\MySql.Data.Entity.Tests\ModelFirstModel1.edmx.sql">
+      <Link>ModelFirstModel1.edmx.sql</Link>
+    </None>
+    <EntityDeploy Include="ModelFirstModel1.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>ModelFirstModel1.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <EntityDeploy Include="booksModel.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>booksModel.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <EntityDeploy Include="Model3.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>Model3.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <EntityDeploy Include="Model2.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>Model2.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <EntityDeploy Include="Model1.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>Model1.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <EntityDeploy Include="TestModel.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>TestModel.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <EmbeddedResource Include="..\..\..\Tests\MySql.Data.Entity.Tests\Properties\procs.sql">
+      <Link>Properties\procs.sql</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\..\Tests\MySql.Data.Entity.Tests\Properties\Resources.resx">
+      <Link>Properties\Resources.resx</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\..\Tests\MySql.Data.Entity.Tests\Properties\schema.sql">
+      <Link>Properties\schema.sql</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\SQLSyntax.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>SQLSyntax.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\MySql.Data.Entity\MySql.Data.Entity.csproj">
+      <Project>{EDED3135-95D2-4BCE-A810-F3F2AD7935B7}</Project>
+      <Name>MySql.Data.Entity</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\MySql.Data\MySql.Data.csproj">
+      <Project>{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}</Project>
+      <Name>MySql.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MySql.Data.Tests\MySql.Data.Tests.csproj">
+      <Project>{F29E5B3D-7F76-4CF9-BF5E-8E3A1377B1E4}</Project>
+      <Name>MySql.Data.Tests</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,571 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MySql.Data.VisualStudio</RootNamespace>
+    <AssemblyName>MySql.VisualStudio</AssemblyName>
+    <SignAssembly>false</SignAssembly>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+    <ProjectGuid>{DC3517FF-AC26-4755-9B7A-EF658FF69593}</ProjectGuid>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Antlr3.Runtime, Version=3.3.1.7705, Culture=neutral, PublicKeyToken=4186e2f4d936d3c2, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Source\MySqlParser\Antlr\Antlr3.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="EnvDTE, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="EnvDTE80, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="Microsoft.Data.ConnectionUI, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.VisualStudio.CommandBars, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="Microsoft.VisualStudio.Data, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.VisualStudio.OLE.Interop, Version=7.1.40304.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="Microsoft.VisualStudio.Package.LanguageService, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.VisualStudio.Shell, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.VisualStudio.Shell.Interop, Version=7.1.40304.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="Microsoft.VisualStudio.Shell.Interop.8.0, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="Microsoft.VisualStudio.TextManager.Interop, Version=7.1.40304.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="Microsoft.VisualStudio.TextManager.Interop.8.0, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Configuration.Install" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Design" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\..\Source\MySql.Data\common\MySqlTokenizer.cs">
+      <Link>LanguageService\MySqlTokenizer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Data\Properties\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\DDEX\MySqlNewPasswordDialog.cs">
+      <Link>DDEX\MySqlNewPasswordDialog.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\DDEX\MySqlNewPasswordDialog.designer.cs">
+      <Link>DDEX\MySqlNewPasswordDialog.designer.cs</Link>
+      <DependentUpon>MySqlNewPasswordDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\BaseEditorControl.cs">
+      <SubType>UserControl</SubType>
+      <Link>Editors\BaseEditorControl.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\DbObjects\CollationTypeConverter.cs">
+      <Link>DbObjects\CollationTypeConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\DbObjects\CharacterSetTypeConverter.cs">
+      <Link>DbObjects\CharacterSetTypeConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\DbObjects\DataRowHelpers.cs">
+      <Link>DbObjects\DataRowHelpers.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\DbObjects\DataTypeConverter.cs">
+      <Link>DbObjects\DataTypeConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\DbObjects\ForeignKey.cs">
+      <Link>DbObjects\ForeignKey.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\DbObjects\Index.cs">
+      <Link>DbObjects\Index.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\DbObjects\IndexColumnTypeConverter.cs">
+      <Link>DbObjects\IndexColumnTypeConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\DbObjects\Metadata.cs">
+      <Link>DbObjects\Metadata.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\DbObjects\NumericTypeConverter.cs">
+      <Link>DbObjects\NumericTypeConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\DbObjects\ObjectComparer.cs">
+      <Link>DbObjects\ObjectComparer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\DbObjects\TableEngineTypeConverters.cs">
+      <Link>DbObjects\TableEngineTypeConverters.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\DbObjects\Enums.cs">
+      <Link>DbObjects\Enums.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\DbObjects\Table.cs">
+      <Link>DbObjects\Table.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\DbObjects\TablePartCollection.cs">
+      <Link>DbObjects\TablePartCollection.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\DDEX\MySqlConnectionProperties.cs">
+      <Link>DDEX\MySqlConnectionProperties.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\DDEX\MySqlConnectionSupport.cs">
+      <Link>DDEX\MySqlConnectionSupport.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\DDEX\MySqlConnectionUIControl.cs">
+      <Link>DDEX\MySqlConnectionUIControl.cs</Link>
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\DDEX\MySqlConnectionUIControl.designer.cs">
+      <DependentUpon>MySqlConnectionUIControl.cs</DependentUpon>
+      <Link>DDEX\MySqlConnectionUIControl.designer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\DDEX\MySqlDataConnectionPromptDialog.cs">
+      <Link>DDEX\MySqlDataConnectionPromptDialog.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\DDEX\MySqlDataConnectionPromptDialog.Designer.cs">
+      <DependentUpon>MySqlDataConnectionPromptDialog.cs</DependentUpon>
+      <Link>DDEX\MySqlDataConnectionPromptDialog.Designer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\DDEX\MySqlDataObjectEnumerator.cs">
+      <Link>DDEX\MySqlDataObjectEnumerator.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\DDEX\MySqlDataObjectIdentifierConverter.cs">
+      <Link>DDEX\MySqlDataObjectIdentifierConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\DDEX\MySqlDataObjectSupport.cs">
+      <Link>DDEX\MySqlDataObjectSupport.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\DDEX\MySqlDataSourceInformation.cs">
+      <Link>DDEX\MySqlDataSourceInformation.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\DDEX\MySqlDataSourceSpecializer.cs">
+      <Link>DDEX\MySqlDataSourceSpecializer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\DDEX\MySqlDataViewCommandHandler.cs">
+      <Link>DDEX\MySqlDataViewCommandHandler.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\DDEX\MySqlDataViewSupport.cs">
+      <Link>DDEX\MySqlDataViewSupport.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\DbObjects\ColumnWithTypeDescriptor.cs">
+      <Link>DbObjects\ColumnWithTypeDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\DDEX\StoredProcedureColumnEnumerator.cs">
+      <Link>DDEX\StoredProcedureColumnEnumerator.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\VSCodeEditorUserControl.cs">
+      <SubType>UserControl</SubType>
+      <Link>Editors\VSCodeEditorUserControl.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\ConnectDialog.cs">
+      <SubType>Form</SubType>
+      <Link>Editors\ConnectDialog.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\ConnectDialog.Designer.cs">
+      <DependentUpon>ConnectDialog.cs</DependentUpon>
+      <Link>Editors\ConnectDialog.Designer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\CustomPropertyDescriptor.cs">
+      <Link>Editors\CustomPropertyDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\ForeignKeyDialog.cs">
+      <SubType>Form</SubType>
+      <Link>Editors\ForeignKeyDialog.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\ForeignKeyDialog.Designer.cs">
+      <DependentUpon>ForeignKeyDialog.cs</DependentUpon>
+      <Link>Editors\ForeignKeyDialog.Designer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\GenerateChangeScriptDialog.cs">
+      <SubType>Form</SubType>
+      <Link>Editors\GenerateChangeScriptDialog.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\GenerateChangeScriptDialog.Designer.cs">
+      <DependentUpon>GenerateChangeScriptDialog.cs</DependentUpon>
+      <Link>Editors\GenerateChangeScriptDialog.Designer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\IEditor.cs">
+      <Link>Editors\IEditor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\IndexColumnEditorDialog.cs">
+      <SubType>Form</SubType>
+      <Link>Editors\IndexColumnEditorDialog.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\IndexColumnEditorDialog.Designer.cs">
+      <DependentUpon>IndexColumnEditorDialog.cs</DependentUpon>
+      <Link>Editors\IndexColumnEditorDialog.Designer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\MyComboBox.cs">
+      <SubType>Component</SubType>
+      <Link>Editors\MyComboBox.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\MyDataGridViewRowHeaderCell.cs">
+      <Link>Editors\MyDataGridViewRowHeaderCell.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\MyDescriptionAttribute.cs">
+      <Link>Editors\MyDescriptionAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\MySplitter.cs">
+      <SubType>Component</SubType>
+      <Link>Editors\MySplitter.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\ServiceBroker.cs">
+      <Link>Editors\ServiceBroker.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\SqlEditor.cs">
+      <SubType>UserControl</SubType>
+      <Link>Editors\SqlEditor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\SqlEditor.Designer.cs">
+      <DependentUpon>SqlEditor.cs</DependentUpon>
+      <Link>Editors\SqlEditor.Designer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\SqlEditorFactory.cs">
+      <Link>Editors\SqlEditorFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\SqlEditorPane.cs">
+      <Link>Editors\SqlEditorPane.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\TableEditorPane.cs">
+      <Link>Editors\TableEditorPane.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\TableIndexDialog.cs">
+      <SubType>Form</SubType>
+      <Link>Editors\TableIndexDialog.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\TableIndexDialog.Designer.cs">
+      <DependentUpon>TableIndexDialog.cs</DependentUpon>
+      <Link>Editors\TableIndexDialog.Designer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\TableNamePromptDialog.cs">
+      <SubType>Form</SubType>
+      <Link>Editors\TableNamePromptDialog.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\TableNamePromptDialog.Designer.cs">
+      <DependentUpon>TableNamePromptDialog.cs</DependentUpon>
+      <Link>Editors\TableNamePromptDialog.Designer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\UDFEditor.cs">
+      <SubType>Form</SubType>
+      <Link>Editors\UDFEditor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\UDFEditor.Designer.cs">
+      <DependentUpon>UDFEditor.cs</DependentUpon>
+      <Link>Editors\UDFEditor.Designer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\VS2005ColorTable.cs">
+      <Link>Editors\VS2005ColorTable.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\VS2005PropertyGrid.cs">
+      <SubType>Component</SubType>
+      <Link>Editors\VS2005PropertyGrid.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\VSCodeEditor.cs">
+      <Link>Editors\VSCodeEditor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\VSCodeEditorWindow.cs">
+      <Link>Editors\VSCodeEditorWindow.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\YesNoTypeConverter.cs">
+      <Link>Editors\YesNoTypeConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\LanguageService\LanguageServiceUtil.cs">
+      <Link>LanguageService\LanguageServiceUtil.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\LanguageService\MySqlLanguageService.cs">
+      <Link>LanguageService\MySqlLanguageService.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Editors\TableEditor.cs">
+      <SubType>UserControl</SubType>
+      <Link>Editors\TableEditor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Guids.cs" />
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\LanguageService\MySqlScanner.cs">
+      <Link>LanguageService\MySqlScanner.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\LanguageService\Tokenizer.cs">
+      <Link>LanguageService\Tokenizer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\MyInstaller.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\MySqlProviderObjectFactory.cs" />
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Nodes\BaseNode.cs">
+      <Link>Nodes\BaseNode.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\DbObjects\Column.cs">
+      <Link>DbObjects\Column.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Nodes\TriggerNode.cs">
+      <Link>Nodes\TriggerNode.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Nodes\UDFNode.cs">
+      <Link>Nodes\UDFNode.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Nodes\DocumentNode.cs">
+      <Link>Nodes\DocumentNode.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Nodes\ViewNode.cs">
+      <Link>Nodes\ViewNode.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Nodes\StoredProcedureNode.cs">
+      <Link>Nodes\StoredProcedureNode.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Nodes\TableNode.cs">
+      <Link>Nodes\TableNode.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\PkgCmdID.cs" />
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <Link>Properties\Resources.Designer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\VsPkg.cs" />
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\Properties\AssemblyInfo.cs">
+      <Link>Properties\AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\WebConfig\ConnectionStringEditorDlg.cs">
+      <SubType>Form</SubType>
+      <Link>WebConfig\ConnectionStringEditorDlg.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\WebConfig\ConnectionStringEditorDlg.Designer.cs">
+      <DependentUpon>ConnectionStringEditorDlg.cs</DependentUpon>
+      <Link>WebConfig\ConnectionStringEditorDlg.Designer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\WebConfig\GenericConfig.cs">
+      <Link>WebConfig\GenericConfig.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\WebConfig\MembershipConfig.cs">
+      <Link>WebConfig\MembershipConfig.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\WebConfig\MembershipOptionsDlg.cs">
+      <SubType>Form</SubType>
+      <Link>WebConfig\MembershipOptionsDlg.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\WebConfig\MembershipOptionsDlg.Designer.cs">
+      <DependentUpon>MembershipOptionsDlg.cs</DependentUpon>
+      <Link>WebConfig\MembershipOptionsDlg.Designer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\WebConfig\ProfileConfig.cs">
+      <Link>WebConfig\ProfileConfig.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\WebConfig\RoleConfig.cs">
+      <Link>WebConfig\RoleConfig.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\WebConfig\SessionStateConfig.cs">
+      <Link>WebConfig\SessionStateConfig.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\WebConfig\WebConfig.cs">
+      <Link>WebConfig\WebConfig.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\WebConfig\WebConfigDlg.cs">
+      <SubType>Form</SubType>
+      <Link>WebConfig\WebConfigDlg.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.VisualStudio\WebConfig\WebConfigDlg.Designer.cs">
+      <DependentUpon>WebConfigDlg.cs</DependentUpon>
+      <Link>WebConfig\WebConfigDlg.Designer.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\..\Source\MySql.VisualStudio\Properties\Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+      <MergeWithCTO>true</MergeWithCTO>
+      <Link>Properties\Resources.resx</Link>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\..\Source\MySql.VisualStudio\DDEX\MySqlConnectionUIControl.resx">
+      <DependentUpon>MySqlConnectionUIControl.cs</DependentUpon>
+      <SubType>Designer</SubType>
+      <Link>DDEX\MySqlConnectionUIControl.resx</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\..\Source\MySql.VisualStudio\DDEX\MySqlDataConnectionPromptDialog.resx">
+      <DependentUpon>MySqlDataConnectionPromptDialog.cs</DependentUpon>
+      <Link>DDEX\MySqlDataConnectionPromptDialog.resx</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\..\Source\MySql.VisualStudio\DDEX\MySqlDataObjectSupport.xml">
+      <Link>DDEX\MySqlDataObjectSupport.xml</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\..\Source\MySql.VisualStudio\DDEX\MySqlDataViewSupport.xml">
+      <Link>DDEX\MySqlDataViewSupport.xml</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\..\Source\MySql.VisualStudio\DDEX\MySqlNewPasswordDialog.resx">
+      <Link>DDEX\MySqlNewPasswordDialog.resx</Link>
+      <DependentUpon>MySqlNewPasswordDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\..\Source\MySql.VisualStudio\Editors\ConnectDialog.resx">
+      <DependentUpon>ConnectDialog.cs</DependentUpon>
+      <Link>Editors\ConnectDialog.resx</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\..\Source\MySql.VisualStudio\Editors\ForeignKeyDialog.resx">
+      <DependentUpon>ForeignKeyDialog.cs</DependentUpon>
+      <Link>Editors\ForeignKeyDialog.resx</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\..\Source\MySql.VisualStudio\Editors\GenerateChangeScriptDialog.resx">
+      <DependentUpon>GenerateChangeScriptDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+      <Link>Editors\GenerateChangeScriptDialog.resx</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\..\Source\MySql.VisualStudio\Editors\IndexColumnEditorDialog.resx">
+      <DependentUpon>IndexColumnEditorDialog.cs</DependentUpon>
+      <Link>Editors\IndexColumnEditorDialog.resx</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\..\Source\MySql.VisualStudio\Editors\SqlEditor.resx">
+      <DependentUpon>SqlEditor.cs</DependentUpon>
+      <Link>Editors\SqlEditor.resx</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\..\Source\MySql.VisualStudio\Editors\TableEditor.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>TableEditor.cs</DependentUpon>
+      <Link>Editors\TableEditor.resx</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\..\Source\MySql.VisualStudio\Editors\TableIndexDialog.resx">
+      <DependentUpon>TableIndexDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+      <Link>Editors\TableIndexDialog.resx</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\..\Source\MySql.VisualStudio\Editors\TableNamePromptDialog.resx">
+      <DependentUpon>TableNamePromptDialog.cs</DependentUpon>
+      <Link>Editors\TableNamePromptDialog.resx</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\..\Source\MySql.VisualStudio\Editors\UDFEditor.resx">
+      <DependentUpon>UDFEditor.cs</DependentUpon>
+      <SubType>Designer</SubType>
+      <Link>Editors\UDFEditor.resx</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\..\Source\MySql.VisualStudio\WebConfig\ConnectionStringEditorDlg.resx">
+      <DependentUpon>ConnectionStringEditorDlg.cs</DependentUpon>
+      <Link>WebConfig\ConnectionStringEditorDlg.resx</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\..\Source\MySql.VisualStudio\WebConfig\MembershipOptionsDlg.resx">
+      <DependentUpon>MembershipOptionsDlg.cs</DependentUpon>
+      <Link>WebConfig\MembershipOptionsDlg.resx</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\..\Source\MySql.VisualStudio\WebConfig\WebConfigDlg.resx">
+      <DependentUpon>WebConfigDlg.cs</DependentUpon>
+      <Link>WebConfig\WebConfigDlg.resx</Link>
+    </EmbeddedResource>
+    <None Include="..\..\..\Source\MySql.VisualStudio\Resources\ArrowKey.bmp">
+      <Link>Resources\ArrowKey.bmp</Link>
+    </None>
+    <None Include="..\..\..\Source\MySql.VisualStudio\Resources\Key.bmp">
+      <Link>Resources\Key.bmp</Link>
+    </None>
+    <None Include="..\..\..\Source\MySql.VisualStudio\Resources\bannrbmp.bmp">
+      <Link>Resources\bannrbmp.bmp</Link>
+    </None>
+    <None Include="..\..\..\Source\MySql.VisualStudio\Resources\sql_editor_connect.bmp">
+      <Link>Resources\sql_editor_connect.bmp</Link>
+    </None>
+    <None Include="..\..\..\Source\MySql.VisualStudio\Resources\sql_editor_runsql.bmp">
+      <Link>Resources\sql_editor_runsql.bmp</Link>
+    </None>
+    <None Include="..\..\..\Source\MySql.VisualStudio\Resources\sql_editor_validatesql.bmp">
+      <Link>Resources\sql_editor_validatesql.bmp</Link>
+    </None>
+    <None Include="..\..\..\Source\MySql.VisualStudio\Resources\sql_editor_executionplan.bmp">
+      <Link>Resources\sql_editor_executionplan.bmp</Link>
+    </None>
+    <None Include="..\..\..\Source\MySql.VisualStudio\Resources\sql_editor_banner.bmp">
+      <Link>Resources\sql_editor_banner.bmp</Link>
+    </None>
+    <None Include="..\..\..\Source\MySql.VisualStudio\Resources\sql_editor_disconnect.bmp">
+      <Link>Resources\sql_editor_disconnect.bmp</Link>
+    </None>
+    <Content Include="..\..\..\Source\MySql.VisualStudio\Templates\MySQL Script.mysql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>Templates\MySQL Script.mysql</Link>
+    </Content>
+    <Content Include="..\..\..\Source\MySql.VisualStudio\Templates\MySqlDataProviderPackage.vsdir">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>Templates\MySqlDataProviderPackage.vsdir</Link>
+    </Content>
+    <None Include="..\..\..\Source\MySql.VisualStudio\Resources\401.ico">
+      <Link>Resources\401.ico</Link>
+    </None>
+    <Content Include="..\..\..\Source\MySql.VisualStudio\Resources\icon.bmp">
+      <Link>Resources\icon.bmp</Link>
+    </Content>
+    <Content Include="..\..\..\Source\MySql.VisualStudio\Resources\Package.ico">
+      <Link>Resources\Package.ico</Link>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <VSCTCompile Include="..\..\..\Source\MySql.VisualStudio\PkgCmd.vsct">
+      <ResourceName>1000</ResourceName>
+    </VSCTCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MySql.Data\MySql.Data.csproj">
+      <Project>{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}</Project>
+      <Name>MySql.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MySql.Parser\MySql.Parser.csproj">
+      <Project>{C1A80300-B0B3-4DAD-990E-B04BF2D18B56}</Project>
+      <Name>MySql.Parser</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <PropertyGroup>
+    <RegisterOutputPackage>false</RegisterOutputPackage>
+    <RegisterWithCodebase>true</RegisterWithCodebase>
+    <!-- Make sure we are 2005 compatible, and don't rely on RegPkg.exe 
+         of VS2008 which uses Microsoft.VisualStudio.Shell.9.0 -->
+    <UseVS2005MPF>true</UseVS2005MPF>
+    <!-- Don't try to run as a normal user (RANA), 
+         create experimental hive in HKEY_LOCAL_MACHINE -->
+    <RegisterWithRanu>false</RegisterWithRanu>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="C:\Program Files\Visual Studio 2005 SDK\2007.02\VisualStudioIntegration\Tools\Build\Microsoft.VsSDK.targets" Condition="!Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v9.0\VSSDK\Microsoft.VsSDK.targets')" />
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v9.0\VSSDK\Microsoft.VsSDK.targets" Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v9.0\VSSDK\Microsoft.VsSDK.targets')" />
+  <Import Project="VSCT_overrides.targets" Condition="!Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v9.0\VSSDK\Microsoft.VsSDK.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

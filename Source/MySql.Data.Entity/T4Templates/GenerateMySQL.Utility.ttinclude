@@ -1,0 +1,191 @@
+<#
+// ++++++++++++++++++++++++++++++++++++++++++++++++++
+// NOTE: This include template also requires an assembly
+// reference to $(DevEnvDir)\Microsoft.Data.Entity.Design.DatabaseGeneration.dll
+// and a namespace reference to Microsoft.Data.Entity.Design.DatabaseGeneration 
+// in the parent template. Commented-out examples are provided below (replace '!' with '#'):
+// <!@ assembly name="$(DevEnvDir)Microsoft.Data.Entity.Design.DatabaseGeneration.dll" !>
+// <!@ import namespace="Microsoft.Data.Entity.Design.DatabaseGeneration" !>
+// ++++++++++++++++++++++++++++++++++++++++++++++++++
+#>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="System.Data.Entity" #>
+<#@ assembly name="System.Data.Entity.Design" #>
+<#@ assembly name="System.Xml" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Data.Entity.Design" #>
+<#@ import namespace="System.Data.Metadata.Edm" #>
+<#@ import namespace="System.Runtime.Remoting.Messaging" #>
+<#@ import namespace="System.Text.RegularExpressions" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Xml" #>
+<#+
+// ++++++++++++++++++++++++++++++++++++++++++++++++++
+// Common Helper properties and methods for the T4 templates 
+// used by the 'Generate Database' feature
+// in the Entity Designer.
+// ++++++++++++++++++++++++++++++++++++++++++++++++++
+
+private static readonly string PROVIDER_NAME_MYSQL = "MySql.Data.MySqlClient";
+
+/// <summary>
+/// Determine if the given provider invariant name is MySQL
+/// </summary>
+private bool IsMySql
+{
+    get
+    {
+        return (this.ProviderInvariantName.Equals(PROVIDER_NAME_MYSQL, StringComparison.Ordinal));
+    }
+}
+
+/// <summary>
+/// Escape identifiers enclosed by backticks within the template
+/// </summary>
+private static string MyId(string userIdentifier) 
+{
+    if (String.IsNullOrEmpty(userIdentifier)) return userIdentifier;
+    return userIdentifier.Replace("`", "``");
+}
+
+private static bool IsIdentity(EdmProperty property, Version targetVersion)
+{
+    return (property.GetStoreGeneratedPatternValue(targetVersion, DataSpace.SSpace) == StoreGeneratedPattern.Identity
+        && true == IsIntegerOrDecimalType(property));
+}
+
+private static string WriteMySqlType(EdmProperty property)
+{
+    if (property.TypeUsage.EdmType.Name == "guid")
+        return "CHAR(36) BINARY";
+    else if( property.TypeUsage.EdmType.Name == "nchar" ) {
+        if( property.TypeUsage.Facets.Contains( "FixedLength" ) &&
+          (( bool )property.TypeUsage.Facets[ "FixedLength" ].Value )) {
+            return string.Format( "varchar( {0} )", property.TypeUsage.Facets[ "MaxLength" ].Value );
+        } else {
+            return string.Format( "char( {0} )", property.TypeUsage.Facets[ "MaxLength" ].Value );
+        }
+    } else if( ( property.TypeUsage.EdmType.Name == "nvarchar" ) && 
+           ( property.TypeUsage.Facets.Contains( "FixedLength" ) ) &&
+           !(( bool )property.TypeUsage.Facets[ "FixedLength" ].Value ) ) {
+        int len = ( int )( property.TypeUsage.Facets[ "MaxLength" ].Value );
+        if( ( len > 255 ) && ( len < 65536 )) {
+            return "TEXT";
+        } else if( ( len >= 65536  ) && ( len < 16777216 ) ) {
+            return "MEDIUMTEXT";
+        } else if( ( len >= 16777216 ) && ( len < 4294967296 ) ) {
+            return "LONGTEXT";
+        }
+
+    } else if( property.TypeUsage.EdmType.Name == "varbinary" ) {
+        int len = ( int )( property.TypeUsage.Facets[ "MaxLength" ].Value );
+        if( ( len > 255 ) && ( len < 65536 )) {
+            return "BLOB";
+        } else if( ( len >= 65536 ) && ( len < 16777216 ) ) {
+            return "MEDIUMBLOB";
+        } else if( ( len >= 16777216 ) && ( len < 4294967296 ) ) {
+            return "LONGBLOB";
+        }
+    } else if( property.TypeUsage.EdmType.Name == "decimal" ) {
+        int precision = 0;
+        int scale = 0;
+        if( property.TypeUsage.Facets.Contains( "Precision" ) )
+            precision = Convert.ToInt32( property.TypeUsage.Facets[ "Precision" ].Value );
+        if( property.TypeUsage.Facets.Contains( "Scale" ) )
+            scale = Convert.ToInt32( property.TypeUsage.Facets[ "Scale" ].Value );
+        if( precision == 0 ) precision = 10;
+        if( scale == 0 ) scale = 2;
+        return string.Format( "decimal( {0}, {1} )", precision, scale );
+    }
+    return property.ToStoreType();
+}
+
+/// <summary>
+/// If the property has a StoreGeneratedPattern=Identity annotation and
+/// is of an integer or decimal type, write 'IDENTITY(1,1)', otherwise an empty string
+/// </summary>
+private static string WriteMySqlIdentity(EdmProperty property, Version targetVersion)
+{
+    if (IsIdentity(property, targetVersion))
+    {
+        return "AUTO_INCREMENT PRIMARY KEY";
+    }
+    return String.Empty;
+}
+
+/// <summary>
+/// Write out the columns of a table given the Properties of an EntityType,
+/// escaping the identifier names.
+/// </summary>
+private static string WriteMySqlColumns(IEnumerable<EdmProperty> properties, char delimiter)
+{
+    StringBuilder serializedProperties = new StringBuilder();
+    foreach (EdmProperty property in properties)
+    {
+        serializedProperties.Append(string.Format("`{0}`", MyId(property.Name)));
+        serializedProperties.Append(delimiter + " ");
+    }
+    return serializedProperties.ToString().Trim().TrimEnd(delimiter);
+}
+
+private static string GetProviderManifestToken(string edmxPath)
+{
+    XmlDocument xmlDocument = new XmlDocument();
+    xmlDocument.Load(edmxPath);
+    XmlNamespaceManager namespaceMgr = new XmlNamespaceManager(xmlDocument.NameTable);
+    
+    string edmxNamespace = "http://schemas.microsoft.com/ado/2008/10/edmx";
+    
+    namespaceMgr.AddNamespace("edmx", edmxNamespace);
+     
+    foreach (var node in xmlDocument.SelectSingleNode("/edmx:Edmx/edmx:Runtime/edmx:StorageModels", namespaceMgr).ChildNodes)
+    {
+      if (((XmlNode)node).Name.Equals("Schema") && ((XmlNode)node).Attributes.GetNamedItem("ProviderManifestToken") != null)
+      {
+          return ((XmlNode)node).Attributes["ProviderManifestToken"].Value;
+      }
+    }
+    return String.Empty;
+}
+
+
+
+/// <summary>
+private static string GetConnectionString(string edmxPath, EnvDTE.Project project)
+{
+    string configurationFilename=null;	
+    Configuration config;
+    
+    if (project == null || String.IsNullOrEmpty(edmxPath)) return String.Empty;	
+                
+    // lookup for the config file
+    foreach (EnvDTE.ProjectItem item in project.ProjectItems)
+    {
+        if (Regex.IsMatch(item.Name,"(app|web).config",RegexOptions.IgnoreCase))
+        {
+            configurationFilename=item.get_FileNames(0);
+            break;
+        }
+    }
+
+    if(!string.IsNullOrEmpty(configurationFilename))
+    {		
+        ExeConfigurationFileMap configFile = null;
+        configFile = new ExeConfigurationFileMap();
+        configFile.ExeConfigFilename=configurationFilename;
+        config = System.Configuration.ConfigurationManager.OpenMappedExeConfiguration(configFile, ConfigurationUserLevel.None);
+
+        var modelName = Path.GetFileNameWithoutExtension(edmxPath);
+    
+        foreach(var item in config.ConnectionStrings.ConnectionStrings)
+        {				
+          var connectionString =((ConnectionStringSettings)(item));
+          if (connectionString.ConnectionString.IndexOf("provider=MySql.Data.MySqlClient",StringComparison.OrdinalIgnoreCase) >= 0 && connectionString.ConnectionString.IndexOf(modelName + ".msl", StringComparison.OrdinalIgnoreCase) >= 0)		  
+            return connectionString.ConnectionString;									  			
+        }
+    }
+    return String.Empty;	
+}
+
+#>

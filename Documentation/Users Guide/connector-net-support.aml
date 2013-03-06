@@ -1,0 +1,107 @@
+<topic id="67810605-cf21-4439-a4bd-86ee11af8f16" revisionNumber="1">
+  <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <section address="connector-net-support">
+      <title>Connector/Net Support</title>
+      <content>
+        <autoOutline />
+        <para>
+    The developers of Connector/Net greatly value the input of our users
+    in the software development process. If you find Connector/Net
+    lacking some feature important to you, or if you discover a bug and
+    need to file a bug report, please use the instructions in
+    <link xlink:href="bug-reports"></link>.
+  </para>
+      </content>
+    </section>
+    <section address="connector-net-support-community">
+      <title>Connector/Net Community Support</title>
+      <content>
+        <list class="bullet">
+          <listItem>
+            <para>
+          Community support for Connector/Net can be found through the
+          forums at <externalLink><linkText>http://forums.mysql.com</linkText><linkUri>http://forums.mysql.com</linkUri></externalLink>.
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Community support for Connector/Net can also be found through
+          the mailing lists at <externalLink><linkText>http://lists.mysql.com</linkText><linkUri>http://lists.mysql.com</linkUri></externalLink>.
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Paid support is available from Oracle. Additional information
+          is available at <externalLink><linkText>http://dev.mysql.com/support/</linkText><linkUri>http://dev.mysql.com/support/</linkUri></externalLink>.
+        </para>
+          </listItem>
+        </list>
+      </content>
+    </section>
+    <section address="connector-net-support-bug-report">
+      <title>How to Report Connector/Net Problems or Bugs</title>
+      <content>
+        <para>
+      If you encounter difficulties or problems with Connector/Net,
+      contact the Connector/Net community, as explained in
+      <link xlink:href="67810605-cf21-4439-a4bd-86ee11af8f16#connector-net-support-community">Connector/Net Community Support</link>.
+    </para>
+        <para>
+      First try to execute the same SQL statements and commands from the
+       client program or from
+      <literal>admndemo</literal>. This helps you determine whether the
+      error is in Connector/Net or MySQL.
+    </para>
+        <para>
+      If reporting a problem, ideally include the following information
+      with the email:
+    </para>
+        <list class="bullet">
+          <listItem>
+            <para>
+          Operating system and version.
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Connector/Net version.
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          MySQL server version.
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Copies of error messages or other unexpected output.
+        </para>
+          </listItem>
+          <listItem>
+            <para>
+          Simple reproducible sample.
+        </para>
+          </listItem>
+        </list>
+        <para>
+      Remember that the more information you can supply to us, the more
+      likely it is that we can fix the problem.
+    </para>
+        <para>
+      If you believe the problem to be a bug, then you must report the
+      bug through <externalLink><linkText>http://bugs.mysql.com/</linkText><linkUri>http://bugs.mysql.com/</linkUri></externalLink>.
+    </para>
+      </content>
+    </section>
+    <section address="connector-net-support-changehistory">
+      <title>Connector/Net Change History</title>
+      <content>
+        <para>
+      The Connector/Net Change History (Changelog) is located with the
+      main Changelog for MySQL. See
+      <link xlink:href="connector-net-news"></link>.
+    </para>
+      </content>
+    </section>
+  </developerConceptualDocument>
+</topic>

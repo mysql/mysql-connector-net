@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySqlParser", "MySqlParser.csproj", "{06163AD1-3F06-43AE-A4F9-967F7F6432C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySqlParser.Tests", "..\MySqlParser.Tests\MySqlParser.Tests.csproj", "{247973E1-8535-4930-8940-83B06097D5DA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{06163AD1-3F06-43AE-A4F9-967F7F6432C3} = {06163AD1-3F06-43AE-A4F9-967F7F6432C3}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{06163AD1-3F06-43AE-A4F9-967F7F6432C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06163AD1-3F06-43AE-A4F9-967F7F6432C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06163AD1-3F06-43AE-A4F9-967F7F6432C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06163AD1-3F06-43AE-A4F9-967F7F6432C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{247973E1-8535-4930-8940-83B06097D5DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{247973E1-8535-4930-8940-83B06097D5DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{247973E1-8535-4930-8940-83B06097D5DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{247973E1-8535-4930-8940-83B06097D5DA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

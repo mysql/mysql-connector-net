@@ -1,0 +1,9 @@
+Connector/Net 6.6  Release Notes
+------------------------------------
+
+Welcome to the release notes for Connector/Net 6.6
+
+What's new in 6.6
+--------------------
+
+Be sure and check the documenation for more information on these new features.

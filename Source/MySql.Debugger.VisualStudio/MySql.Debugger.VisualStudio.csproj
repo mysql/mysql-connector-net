@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{A746219A-78F3-4D53-8308-68DB3D13EF78}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MySql.Debugger.VisualStudio</RootNamespace>
+    <AssemblyName>MySql.Debugger.VisualStudio</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.VisualStudio.Debugger.Interop.10.0, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.VisualStudio.Debugger.InteropA, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="Microsoft.VisualStudio.Shell.10.0, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="System" />
+    <Reference Include="System.Configuration.Install" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AD7Breakpoint.cs" />
+    <Compile Include="AD7DebugErrorBreakpoint.cs" />
+    <Compile Include="AD7DebugErrorBreakpointResolution.cs" />
+    <Compile Include="AD7DebugExpression.cs" />
+    <Compile Include="AD7DebugExpressionContext.cs" />
+    <Compile Include="AD7DocumentContext.cs" />
+    <Compile Include="AD7Engine.cs" />
+    <Compile Include="AD7EnumDebugErrorBreakpoints.cs" />
+    <Compile Include="AD7Events.cs" />
+    <Compile Include="AD7Guids.cs" />
+    <Compile Include="AD7Process.cs" />
+    <Compile Include="AD7ProgramNode.cs" />
+    <Compile Include="AD7ProgramProvider.cs" />
+    <Compile Include="AD7Property.cs" />
+    <Compile Include="AD7StackFrame.cs" />
+    <Compile Include="DebuggerManager.cs" />
+    <Compile Include="Dialogs\StoredRoutineArgumentsDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\StoredRoutineArgumentsDlg.designer.cs">
+      <DependentUpon>StoredRoutineArgumentsDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="HRESULT.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Installer.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Installer.Designer.cs">
+      <DependentUpon>Installer.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MySql.Data\MySql.Data.csproj">
+      <Project>{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}</Project>
+      <Name>MySql.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MySql.Debugger\MySql.Debugger.csproj">
+      <Project>{1969DE06-EC8C-41CE-AAEE-F54B27D309BA}</Project>
+      <Name>MySql.Debugger</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Dialogs\StoredRoutineArgumentsDlg.resx">
+      <DependentUpon>StoredRoutineArgumentsDlg.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

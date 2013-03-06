@@ -1,0 +1,151 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{0004FB3B-F647-424E-8B2B-85CB000E3CC8}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MySql.Debugger.VisualStudio</RootNamespace>
+    <AssemblyName>MySql.Debugger.VisualStudio</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkSubset>
+    </TargetFrameworkSubset>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.VisualStudio.Debugger.Interop.10.0, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.VisualStudio.Debugger.InteropA, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="Microsoft.VisualStudio.Shell.9.0, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="System" />
+    <Reference Include="System.Configuration.Install" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\..\Source\MySql.Debugger.VisualStudio\AD7Breakpoint.cs">
+      <Link>AD7Breakpoint.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger.VisualStudio\AD7DebugErrorBreakpoint.cs">
+      <Link>AD7DebugErrorBreakpoint.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger.VisualStudio\AD7DebugErrorBreakpointResolution.cs">
+      <Link>AD7DebugErrorBreakpointResolution.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger.VisualStudio\AD7DebugExpression.cs">
+      <Link>AD7DebugExpression.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger.VisualStudio\AD7DebugExpressionContext.cs">
+      <Link>AD7DebugExpressionContext.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger.VisualStudio\AD7DocumentContext.cs">
+      <Link>AD7DocumentContext.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger.VisualStudio\AD7Engine.cs">
+      <Link>AD7Engine.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger.VisualStudio\Ad7EnumDebugErrorBreakpoints.cs">
+      <Link>Ad7EnumDebugErrorBreakpoints.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger.VisualStudio\AD7Events.cs">
+      <Link>AD7Events.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger.VisualStudio\AD7Guids.cs">
+      <Link>AD7Guids.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger.VisualStudio\AD7Process.cs">
+      <Link>AD7Process.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger.VisualStudio\AD7ProgramNode.cs">
+      <Link>AD7ProgramNode.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger.VisualStudio\AD7ProgramProvider.cs">
+      <Link>AD7ProgramProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger.VisualStudio\AD7Property.cs">
+      <Link>AD7Property.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger.VisualStudio\AD7StackFrame.cs">
+      <Link>AD7StackFrame.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger.VisualStudio\DebuggerManager.cs">
+      <Link>DebuggerManager.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger.VisualStudio\Dialogs\StoredRoutineArgumentsDlg.cs">
+      <Link>Dialogs\StoredRoutineArgumentsDlg.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger.VisualStudio\Dialogs\StoredRoutineArgumentsDlg.designer.cs">
+      <Link>Dialogs\StoredRoutineArgumentsDlg.designer.cs</Link>
+      <DependentUpon>StoredRoutineArgumentsDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger.VisualStudio\HRESULT.cs">
+      <Link>HRESULT.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger.VisualStudio\Installer.cs">
+      <Link>Installer.cs</Link>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger.VisualStudio\Installer.designer.cs">
+      <Link>Installer.designer.cs</Link>
+      <DependentUpon>Installer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger.VisualStudio\Properties\AssemblyInfo.cs">
+      <Link>Properties\AssemblyInfo.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MySql.Data\MySql.Data.csproj">
+      <Project>{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}</Project>
+      <Name>MySql.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MySql.Debugger\MySql.Debugger.csproj">
+      <Project>{428C8471-6FA9-4873-9D99-DECCA001A81E}</Project>
+      <Name>MySql.Debugger</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\..\Source\MySql.Debugger.VisualStudio\Dialogs\StoredRoutineArgumentsDlg.resx">
+      <Link>Dialogs\StoredRoutineArgumentsDlg.resx</Link>
+      <DependentUpon>StoredRoutineArgumentsDlg.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

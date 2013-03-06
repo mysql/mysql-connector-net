@@ -1,0 +1,3 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v9.0\VSSDK\Microsoft.VsSDK.targets"/>
+</Project>

@@ -1,0 +1,1327 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VSDataViewSupport xmlns="http://tempuri.org/VSDataViewSupport.xsd">
+
+  <!-- Defined views -->
+  <DataViews>
+    <DataView name="MySQL_Default">
+      <DisplayName>Default</DisplayName>
+      <HierarchyRef name="CommonBase">
+        <SubHierarchyRef name="DefaultView"/>
+      </HierarchyRef>
+    </DataView>
+  </DataViews>
+
+  <!-- common hierarchy -->
+  <Hierarchies>
+    <Hierarchy name="CommonBase">
+      <StaticConnectionNode>
+        <InitialDisplayName>{Root.Server}({Root.Schema})</InitialDisplayName>
+        <CommandBindings>
+          <!--commandHandler="Microsoft.VisualStudio.DataTools.DBPackage.VDT_CommandHandler_TableTools">-->
+          <CommandBinding name="NewQuery" guid="501822E1-B5AF-11d0-B4DC-00A0C91506EF"
+                          cmdid="13608"
+                          handler="884DD964-5327-461f-9F06-6484DD540F8F">
+            <Parameter value="NewQuery"/>
+            <Parameter value="Query"/>
+            <Parameter value="HighLevel"/>
+          </CommandBinding>
+          <CommandBinding name="AddNewTable" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                          cmdid="500" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+            <Parameter value="HighLevel"/>
+          </CommandBinding>
+          <CommandBinding name="AddNewView" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                          cmdid="501" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+            <Parameter value="HighLevel"/>
+          </CommandBinding>
+          <CommandBinding name="AddNewProcedure" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                          cmdid="502" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+            <Parameter value="HighLevel"/>
+          </CommandBinding>
+          <CommandBinding name="AddNewFunction" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                          cmdid="503" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+            <Parameter value="HighLevel"/>
+          </CommandBinding>
+          <CommandBinding name="AddNewUDF" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                          cmdid="504" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+            <Parameter value="HighLevel"/>
+          </CommandBinding>
+        </CommandBindings>
+        <Children>
+          <SubHierarchyParamRef index="0"/>
+        </Children>
+      </StaticConnectionNode>
+    </Hierarchy>
+  </Hierarchies>
+
+  <SubHierarchies>
+    <!-- default view -->
+    <SubHierarchy name="DefaultView">
+      <StaticNode nid="Tables">
+        <DisplayName resource="Node_Tables"/>
+        <CommandBindings>
+          <CommandBinding name="NewQuery" guid="501822E1-B5AF-11d0-B4DC-00A0C91506EF" cmdid="13608" handler="884DD964-5327-461f-9F06-6484DD540F8F">
+            <Parameter value="NewQuery"/>
+            <Parameter value="Query"/>
+          </CommandBinding>
+          <CommandBinding name="CreateTable"
+                          guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                          cmdid="256"
+                          handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler" />
+          <CommandBinding name="AddNewTable" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                          cmdid="500" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+            <Parameter value="HighLevel"/>
+          </CommandBinding>
+          <CommandBinding name="AddNewView" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                          cmdid="501" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+            <Parameter value="HighLevel"/>
+          </CommandBinding>
+          <CommandBinding name="AddNewProcedure" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                          cmdid="502" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+            <Parameter value="HighLevel"/>
+          </CommandBinding>
+          <CommandBinding name="AddNewFunction" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                          cmdid="503" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+            <Parameter value="HighLevel"/>
+          </CommandBinding>
+          <CommandBinding name="AddNewUDF" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                          cmdid="504" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+            <Parameter value="HighLevel"/>
+          </CommandBinding>
+        </CommandBindings>
+        <Children>
+          <Selection type="Table" restrictions="null,{Root.Schema}" hideWhen="False AND False">
+            <SelectionNode nid="Table">
+              <Icon name="Table"/>
+              <Children>
+                <Selection type="Column" restrictions="null,{Table.Schema},{Table.Name}"
+                           hideWhen="False AND False">
+                  <SelectionNode>
+                    <Icon name="Column"/>
+                  </SelectionNode>
+                </Selection>
+                <Selection type="Trigger" restrictions="null,{Table.Schema},{Table.Name}"
+                           minSourceVersion="5.0.0" hideWhen="False AND False">
+                  <SelectionNode nid="Trigger">
+                    <DisplayName>{Name}</DisplayName>
+                    <Icon name="Trigger"/>
+                  </SelectionNode>
+                </Selection>
+              </Children>
+            </SelectionNode>
+          </Selection>
+        </Children>
+      </StaticNode>
+
+      <!-- views -->
+      <StaticNode nid="Views" minSourceVersion="5.0.0">
+        <DisplayName resource="Node_Views" />
+        <CommandBindings>
+          <CommandBinding name="NewQuery" guid="501822E1-B5AF-11d0-B4DC-00A0C91506EF" cmdid="13608" handler="884DD964-5327-461f-9F06-6484DD540F8F">
+            <Parameter value="NewQuery"/>
+            <Parameter value="Query"/>
+          </CommandBinding>
+          <CommandBinding name="CreateView"
+                          guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                          cmdid="272"
+                          handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler" />
+          <CommandBinding name="New" guid="501822E1-B5AF-11d0-B4DC-00A0C91506EF" cmdid="13601"  handler="Microsoft.VisualStudio.DataTools.DBPackage.VDT_CommandHandler_TableTools">
+            <Parameter value="New"/>
+            <Parameter value="View"/>
+          </CommandBinding>
+          <CommandBinding name="AddNewTable" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                          cmdid="500" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+            <Parameter value="HighLevel"/>
+          </CommandBinding>
+          <CommandBinding name="AddNewView" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                          cmdid="501" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+            <Parameter value="HighLevel"/>
+          </CommandBinding>
+          <CommandBinding name="AddNewProcedure" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                          cmdid="502" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+            <Parameter value="HighLevel"/>
+          </CommandBinding>
+          <CommandBinding name="AddNewFunction" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                          cmdid="503" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+            <Parameter value="HighLevel"/>
+          </CommandBinding>
+          <CommandBinding name="AddNewUDF" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                          cmdid="504" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+            <Parameter value="HighLevel"/>
+          </CommandBinding>
+        </CommandBindings>
+        <Children>
+          <Selection type="View" restrictions="{Root.Database},{Root.Schema},null" hideWhen="False AND False">
+            <SelectionNode nid="View">
+              <Icon name="View" />
+              <Children>
+                <Selection type="ViewColumn" restrictions="{View.Database},{View.Schema},{View.Name}" hideWhen="False AND False">
+                  <SelectionNode>
+                    <Icon name="Column" />
+                  </SelectionNode>
+                </Selection>
+              </Children>
+            </SelectionNode>
+          </Selection>
+        </Children>
+      </StaticNode>
+
+
+      <!-- Stored procedures -->
+      <StaticNode nid="StoredProcedures" minSourceVersion="5.0.0">
+        <DisplayName resource="Node_StoredProcedures" />
+        <CommandBindings>
+          <CommandBinding name="NewQuery" guid="501822E1-B5AF-11d0-B4DC-00A0C91506EF" cmdid="13608" handler="884DD964-5327-461f-9F06-6484DD540F8F">
+            <Parameter value="NewQuery"/>
+            <Parameter value="Query"/>
+          </CommandBinding>
+          <CommandBinding name="CreateStoredProcedure"
+                          guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                          cmdid="288"
+                          handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler" />
+          <CommandBinding name="AddNewTable" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                          cmdid="500" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+            <Parameter value="HighLevel"/>
+          </CommandBinding>
+          <CommandBinding name="AddNewView" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                          cmdid="501" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+            <Parameter value="HighLevel"/>
+          </CommandBinding>
+          <CommandBinding name="AddNewProcedure" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                          cmdid="502" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+            <Parameter value="HighLevel"/>
+          </CommandBinding>
+          <CommandBinding name="AddNewFunction" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                          cmdid="503" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+            <Parameter value="HighLevel"/>
+          </CommandBinding>
+          <CommandBinding name="AddNewUDF" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                          cmdid="504" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+            <Parameter value="HighLevel"/>
+          </CommandBinding>
+        </CommandBindings>
+        <Children>
+          <Selection type="StoredProcedure"
+                     restrictions="null,{Root.Database},null,PROCEDURE" hideWhen="False AND False">
+            <SelectionNode nid="StoredProcedure">
+              <Icon name="StoredProcedure" />
+              <Children>
+                <Selection type="StoredProcedureParameter"
+                           restrictions="null,{StoredProcedure.Database},{StoredProcedure.Name},PROCEDURE"
+                           hideWhen="False AND False">
+                  <SelectionNode>
+                    <Icon when="{Mode} = 'IN'" name="InputParameter" />
+                    <Icon when="{Mode} = 'OUT'" name="OutputParameter" />
+                    <Icon when="{Mode} = 'INOUT'" name="OutputParameter" />
+                  </SelectionNode>
+                </Selection>
+              </Children>
+            </SelectionNode>
+          </Selection>
+        </Children>
+      </StaticNode>
+
+      <!-- Stored functions -->
+      <StaticNode nid="Functions" minSourceVersion="5.0.0">
+        <DisplayName resource="Node_Functions" />
+        <CommandBindings>
+          <CommandBinding name="CreateFunction" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D" cmdid="304" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler" />
+          <CommandBinding name="NewQuery" guid="501822E1-B5AF-11d0-B4DC-00A0C91506EF" cmdid="13608" handler="884DD964-5327-461f-9F06-6484DD540F8F">
+            <Parameter value="NewQuery"/>
+            <Parameter value="Query"/>
+          </CommandBinding>
+          <CommandBinding name="AddNewTable" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                          cmdid="500" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+            <Parameter value="HighLevel"/>
+          </CommandBinding>
+          <CommandBinding name="AddNewView" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                          cmdid="501" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+            <Parameter value="HighLevel"/>
+          </CommandBinding>
+          <CommandBinding name="AddNewProcedure" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                          cmdid="502" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+            <Parameter value="HighLevel"/>
+          </CommandBinding>
+          <CommandBinding name="AddNewFunction" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                          cmdid="503" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+            <Parameter value="HighLevel"/>
+          </CommandBinding>
+          <CommandBinding name="AddNewUDF" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                          cmdid="504" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+            <Parameter value="HighLevel"/>
+          </CommandBinding>
+        </CommandBindings>
+        <Children>
+          <Selection type="StoredProcedure"
+                     restrictions="{Root.Database},{Root.Schema},null,FUNCTION"
+                     minSourceVersion="5.0.0" hideWhen="False AND False">
+            <SelectionNode nid="StoredFunction">
+              <Icon name="ScalarValuedFunction" />
+              <Children>
+                <Selection type="StoredProcedureParameter"
+                           restrictions="null,{StoredFunction.Database},{StoredFunction.Name},FUNCTION"
+                           filter="Ordinal > 0" hideWhen="False AND False">
+                  <SelectionNode>
+                    <Icon when="{IsResult} = 'YES'" name="ReturnValue" />
+                    <Icon when="{Mode} = 'IN'" name="InputParameter" />
+                    <Icon when="{Mode} = 'OUT'" name="OutputParameter" />
+                    <Icon when="{Mode} = 'INOUT'" name="OutputParameter" />
+                  </SelectionNode>
+                </Selection>
+              </Children>
+            </SelectionNode>
+          </Selection>
+        </Children>
+      </StaticNode>
+
+      <!-- User defined functions -->
+      <StaticNode nid="UDFs">
+        <DisplayName resource="Node_UDFs" />
+        <CommandBindings>
+          <CommandBinding name="CreateUDF" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D" cmdid="336" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler" />
+          <CommandBinding name="NewQuery" guid="501822E1-B5AF-11d0-B4DC-00A0C91506EF" cmdid="13608" handler="884DD964-5327-461f-9F06-6484DD540F8F">
+            <Parameter value="NewQuery"/>
+            <Parameter value="Query"/>
+          </CommandBinding>
+          <CommandBinding name="AddNewTable" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                          cmdid="500" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+            <Parameter value="HighLevel"/>
+          </CommandBinding>
+          <CommandBinding name="AddNewView" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                          cmdid="501" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+            <Parameter value="HighLevel"/>
+          </CommandBinding>
+          <CommandBinding name="AddNewProcedure" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                          cmdid="502" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+            <Parameter value="HighLevel"/>
+          </CommandBinding>
+          <CommandBinding name="AddNewFunction" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                          cmdid="503" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+            <Parameter value="HighLevel"/>
+          </CommandBinding>
+          <CommandBinding name="AddNewUDF" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                          cmdid="504" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+            <Parameter value="HighLevel"/>
+          </CommandBinding>
+        </CommandBindings>
+        <Children>
+          <Selection type="UDF" restrictions="null" hideWhen="False AND False">
+            <SelectionNode nid="UDF">
+              <Icon name="UserDefinedType" />
+            </SelectionNode>
+          </Selection>
+        </Children>
+      </StaticNode>
+    </SubHierarchy>
+  </SubHierarchies>
+
+
+  <TypeExtensions>
+    <TypeExtension name="Table">
+      <DisplayName resource="Type_Table"/>
+      <Identifier>
+        <Part name="Database">
+          <DisplayName resource="DisplayName_Object_Database"/>
+          <Category resource="Category_Identifier"/>
+          <Description resource="Description_Object_Database"/>
+        </Part>
+        <Part name="Schema">
+          <DisplayName resource="DisplayName_Object_Schema"/>
+          <Category resource="Category_Identifier"/>
+          <Description resource="Description_Object_Schema"/>
+        </Part>
+        <Part name="Name">
+          <DisplayName resource="DisplayName_Object_Name"/>
+          <Category resource="Category_Identifier"/>
+          <Description resource="Description_Object_Name"/>
+        </Part>
+      </Identifier>
+      <Properties>
+        <Property name="Type">
+          <DisplayName resource="DisplayName_Table_Type"/>
+          <Category resource="Category_Base"/>
+          <Description resource="Description_Table_Type"/>
+        </Property>
+        <Property name="Engine">
+          <DisplayName resource="DisplayName_Table_Engine"/>
+          <Category resource="Category_Base"/>
+          <Description resource="Description_Table_Engine"/>
+        </Property>
+        <Property name="Version">
+          <DisplayName resource="DisplayName_Table_Version"/>
+          <Category resource="Category_Base"/>
+          <Description resource="Description_Table_Version"/>
+        </Property>
+        <Property name="RowFormat">
+          <DisplayName resource="DisplayName_Table_RowFormat"/>
+          <Category resource="Category_Advanced"/>
+          <Description resource="Description_Table_RowFormat"/>
+        </Property>
+        <Property name="TableRows">
+          <DisplayName resource="DisplayName_Table_TableRows"/>
+          <Category resource="Category_Statistic"/>
+          <Description resource="Description_Table_TableRows"/>
+        </Property>
+        <Property name="AverageRowLength">
+          <DisplayName resource="DisplayName_Table_AverageRowLength"/>
+          <Category resource="Category_Statistic"/>
+          <Description resource="Description_Table_AverageRowLength"/>
+        </Property>
+        <Property name="DataLength">
+          <DisplayName resource="DisplayName_Table_DataLength"/>
+          <Category resource="Category_Statistic"/>
+          <Description resource="Description_Table_DataLength"/>
+        </Property>
+        <Property name="MaxDataLength">
+          <DisplayName resource="DisplayName_Table_MaxDataLength"/>
+          <Category resource="Category_Statistic"/>
+          <Description resource="Description_Table_MaxDataLength"/>
+        </Property>
+        <Property name="IndexLength">
+          <DisplayName resource="DisplayName_Table_IndexLength"/>
+          <Category resource="Category_Statistic"/>
+          <Description resource="Description_Table_IndexLength"/>
+        </Property>
+        <Property name="DataFree">
+          <DisplayName resource="DisplayName_Table_DataFree"/>
+          <Category resource="Category_Statistic"/>
+          <Description resource="Description_Table_DataFree"/>
+        </Property>
+        <Property name="AutoIncrement">
+          <DisplayName resource="DisplayName_Table_AutoIncrement"/>
+          <Category resource="Category_Advanced"/>
+          <Description resource="Description_Table_AutoIncrement"/>
+        </Property>
+        <Property name="CreateDateTime">
+          <DisplayName resource="DisplayName_Object_CreationTime"/>
+          <Category resource="Category_Statistic"/>
+          <Description resource="Description_Object_CreationTime"/>
+        </Property>
+        <Property name="UpdateDateTime">
+          <DisplayName resource="DisplayName_Table_UpdateDateTime"/>
+          <Category resource="Category_Statistic"/>
+          <Description resource="Description_Table_UpdateDateTime"/>
+        </Property>
+        <Property name="CheckDateTime">
+          <DisplayName resource="DisplayName_Table_CheckDateTime"/>
+          <Category resource="Category_Statistic"/>
+          <Description resource="Description_Table_CheckDateTime"/>
+        </Property>
+        <Property name="Collation">
+          <DisplayName resource="DisplayName_Object_Collation"/>
+          <Category resource="Category_Base"/>
+          <Description resource="Description_Object_Collation"/>
+        </Property>
+        <Property name="Checksum">
+          <DisplayName resource="DisplayName_Table_Checksum"/>
+          <Category resource="Category_Statistic"/>
+          <Description resource="Description_Table_Checksum"/>
+        </Property>
+        <Property name="CreateOptions">
+          <DisplayName resource="DisplayName_Table_CreateOptions"/>
+          <Category resource="Category_Advanced"/>
+          <Description resource="Description_Table_CreateOptions"/>
+        </Property>
+        <Property name="Comment">
+          <DisplayName resource="DisplayName_Object_Comment"/>
+          <Category resource="Category_Base"/>
+          <Description resource="Description_Object_Comment"/>
+        </Property>
+      </Properties>
+
+      <CommandBindings defaultCommand="Design">
+        <CommandBinding name="Design" guid="501822E1-B5AF-11d0-B4DC-00A0C91506EF" cmdid="12291" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="Design"/>
+        </CommandBinding>
+        <CommandBinding name="DropTable" guid="5efc7975-14bc-11cf-9b2b-00aa00573819" cmdid="17" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="Table"/>
+        </CommandBinding>
+        <CommandBinding name="CreateTrigger" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D" cmdid="320" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler" />
+        <CommandBinding name="Browse_Data" guid="501822E1-B5AF-11d0-B4DC-00A0C91506EF" cmdid="12384"
+                        handler="884DD964-5327-461f-9F06-6484DD540F8F">
+          <Parameter value="Open"/>
+        </CommandBinding>
+        <CommandBinding name="NewQuery" guid="501822E1-B5AF-11d0-B4DC-00A0C91506EF" cmdid="13608"
+                        handler="884DD964-5327-461f-9F06-6484DD540F8F">
+          <Parameter value="NewQuery"/>
+          <Parameter value="Query"/>
+        </CommandBinding>
+
+        <!-- global data menus -->
+        <CommandBinding name="AddNewTable" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="500" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewView" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="501" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewProcedure" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="502" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewFunction" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="503" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewUDF" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="504" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+      </CommandBindings>
+    </TypeExtension>
+
+    <TypeExtension name="View">
+      <DisplayName resource="Type_View" />
+      <Identifier>
+        <Part name="Database">
+          <DisplayName resource="DisplayName_Object_Database" />
+          <Category resource="Category_Identifier" />
+          <Description resource="Description_Object_Database" />
+        </Part>
+        <Part name="Schema">
+          <DisplayName resource="DisplayName_Object_Schema" />
+          <Category resource="Category_Identifier" />
+          <Description resource="Description_Object_Schema" />
+        </Part>
+        <Part name="Name">
+          <DisplayName resource="DisplayName_Object_Name" />
+          <Category resource="Category_Identifier" />
+          <Description resource="Description_Object_Name" />
+        </Part>
+      </Identifier>
+      <Properties>
+        <Property name="Definition">
+          <DisplayName resource="DisplayName_View_Definition" />
+          <Category resource="Category_Base" />
+          <Description resource="Description_View_Definition" />
+        </Property>
+        <Property name="CheckOption">
+          <DisplayName resource="DisplayName_View_CheckOption" />
+          <Category resource="Category_Advanced" />
+          <Description resource="Description_View_CheckOption" />
+          <StandardValues>
+            <StandardValue value="NONE" resource="Value_None" />
+            <StandardValue value="LOCAL" resource="Value_Local" />
+            <StandardValue value="CASCADE" resource="Value_Cascade" />
+          </StandardValues>
+        </Property>
+        <Property name="IsUpdatable">
+          <DisplayName resource="DisplayName_View_IsUpdatable" />
+          <Category resource="Category_Advanced" />
+          <Description resource="Description_View_IsUpdatable" />
+          <StandardValues>
+            <StandardValue value="YES" resource="Value_Yes" />
+            <StandardValue value="NO" resource="Value_No" />
+          </StandardValues>
+        </Property>
+        <Property name="Definer">
+          <DisplayName resource="DisplayName_Object_Definer" />
+          <Category resource="Category_Advanced" />
+          <Description resource="Description_Object_Definer" />
+        </Property>
+        <Property name="SecurityType">
+          <DisplayName resource="DisplayName_Object_SecurityType" />
+          <Category resource="Category_Security" />
+          <Description resource="Description_Object_SecurityType" />
+          <StandardValues>
+            <StandardValue value="DEFINER" resource="Value_Definer" />
+            <StandardValue value="INVOKER" resource="Value_Invoker" />
+          </StandardValues>
+        </Property>
+      </Properties>
+
+      <CommandBindings defaultCommand="AlterView">
+        <CommandBinding name="AlterView" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D" cmdid="273" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler" />
+
+        <CommandBinding name="DropView" guid="5efc7975-14bc-11cf-9b2b-00aa00573819" cmdid="17" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="View"/>
+        </CommandBinding>
+
+        <CommandBinding name="Browse_Data" guid="501822E1-B5AF-11d0-B4DC-00A0C91506EF" cmdid="12384"
+                        handler="884DD964-5327-461f-9F06-6484DD540F8F">
+          <Parameter value="Open"/>
+        </CommandBinding>
+        <!-- global data menus -->
+        <CommandBinding name="NewQuery" guid="501822E1-B5AF-11d0-B4DC-00A0C91506EF" cmdid="13608"
+                        handler="884DD964-5327-461f-9F06-6484DD540F8F">
+          <Parameter value="NewQuery"/>
+          <Parameter value="Query"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewTable" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="500" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewView" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="501" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewProcedure" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="502" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewFunction" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="503" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewUDF" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="504" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+      </CommandBindings>
+    </TypeExtension>
+    <!--
+      Extension to Column type
+    -->
+    <TypeExtension name="Column">
+      <DisplayName resource="Type_Column"/>
+      <Identifier>
+        <Part name="Database">
+          <DisplayName resource="DisplayName_Object_Database"/>
+          <Category resource="Category_Identifier"/>
+          <Description resource="Description_Object_Database"/>
+        </Part>
+        <Part name="Schema">
+          <DisplayName resource="DisplayName_Object_Schema"/>
+          <Category resource="Category_Identifier"/>
+          <Description resource="Description_Object_Schema"/>
+        </Part>
+        <Part name="Table">
+          <DisplayName resource="DisplayName_Object_Table"/>
+          <Category resource="Category_Identifier"/>
+          <Description resource="Description_Object_Table"/>
+        </Part>
+        <Part name="Name">
+          <DisplayName resource="DisplayName_Object_Name"/>
+          <Category resource="Category_Identifier"/>
+          <Description resource="Description_Object_Name"/>
+        </Part>
+      </Identifier>
+      <Properties>
+        <Property name="Ordinal">
+          <DisplayName resource="DisplayName_Column_Ordinal"/>
+          <Category resource="Category_Base"/>
+          <Description resource="Description_Column_Ordinal"/>
+        </Property>
+        <Property name="Default">
+          <DisplayName resource="DisplayName_Column_Default"/>
+          <Category resource="Category_Base"/>
+          <Description resource="Description_Column_Default"/>
+        </Property>
+        <Property name="Nullable">
+          <DisplayName resource="DisplayName_Column_Nullable"/>
+          <Category resource="Category_Base"/>
+          <Description resource="Description_Column_Nullable"/>
+          <StandardValues>
+            <StandardValue value="YES" resource="Value_Yes" />
+            <StandardValue value="NO" resource="Value_No" />
+          </StandardValues>
+        </Property>
+        <Property name="SqlType">
+          <DisplayName resource="DisplayName_Column_SqlType"/>
+          <Category resource="Category_DataType"/>
+          <Description resource="Description_Column_SqlType"/>
+        </Property>
+        <Property name="MySqlType">
+          <DisplayName resource="DisplayName_Object_MySqlType"/>
+          <Category resource="Category_DataType"/>
+          <Description resource="Description_Object_MySqlType"/>
+        </Property>
+        <Property name="Length">
+          <DisplayName resource="DisplayName_Object_Length"/>
+          <Category resource="Category_DataType"/>
+          <Description resource="Description_Object_Length"/>
+        </Property>
+        <Property name="OctetLength">
+          <DisplayName resource="DisplayName_Column_OctetLength"/>
+          <Category resource="Category_DataType"/>
+          <Description resource="Description_Column_OctetLength"/>
+        </Property>
+        <Property name="Precision">
+          <DisplayName resource="DisplayName_Object_Precision"/>
+          <Category resource="Category_DataType"/>
+          <Description resource="Description_Object_Precision"/>
+        </Property>
+        <Property name="Scale">
+          <DisplayName resource="DisplayName_Object_Scale"/>
+          <Category resource="Category_DataType"/>
+          <Description resource="Description_Object_Scale"/>
+        </Property>
+        <Property name="CharacterSet">
+          <DisplayName resource="DisplayName_Object_CharacterSet"/>
+          <Category resource="Category_Base"/>
+          <Description resource="Description_Object_CharacterSet"/>
+        </Property>
+        <Property name="Collation">
+          <DisplayName resource="DisplayName_Object_Collation"/>
+          <Category resource="Category_Base"/>
+          <Description resource="Description_Object_Collation"/>
+        </Property>
+        <Property name="ColumnKey">
+          <DisplayName resource="DisplayName_Column_ColumnKey"/>
+          <Category resource="Category_Base"/>
+          <Description resource="Description_Column_ColumnKey"/>
+          <StandardValues>
+            <StandardValue value="PRI" resource="Value_PrimaryKey" />
+            <StandardValue value="UNI" resource="Value_UniqueIndexed" />
+            <StandardValue value="MUL" resource="Value_Indexed" />
+          </StandardValues>
+        </Property>
+        <Property name="Extra">
+          <DisplayName resource="DisplayName_Column_Extra"/>
+          <Category resource="Category_Advanced"/>
+          <Description resource="Description_Column_Extra"/>
+        </Property>
+        <Property name="Privileges">
+          <DisplayName resource="DisplayName_Column_Privileges"/>
+          <Category resource="Category_Advanced"/>
+          <Description resource="Description_Column_Privileges"/>
+        </Property>
+        <Property name="Comment">
+          <DisplayName resource="DisplayName_Object_Comment"/>
+          <Category resource="Category_Base"/>
+          <Description resource="Description_Object_Comment"/>
+        </Property>
+      </Properties>
+      <CommandBindings>
+        <!-- global data menus -->
+        <CommandBinding name="NewQuery" guid="501822E1-B5AF-11d0-B4DC-00A0C91506EF" cmdid="13608" handler="884DD964-5327-461f-9F06-6484DD540F8F">
+          <Parameter value="NewQuery"/>
+          <Parameter value="Query"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewTable" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="500" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewView" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="501" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewProcedure" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="502" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewFunction" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="503" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewUDF" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="504" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+      </CommandBindings>
+    </TypeExtension>
+
+    <!-- ViewColumn type extension -->
+    <TypeExtension name="ViewColumn">
+      <DisplayName resource="Type_ViewColumn" />
+      <Identifier>
+        <Part name="Database">
+          <DisplayName resource="DisplayName_Object_Database" />
+          <Category resource="Category_Identifier" />
+          <Description resource="Description_Object_Database" />
+        </Part>
+        <Part name="Schema">
+          <DisplayName resource="DisplayName_Object_Schema" />
+          <Category resource="Category_Identifier" />
+          <Description resource="Description_Object_Schema" />
+        </Part>
+        <Part name="View">
+          <DisplayName resource="DisplayName_Object_View" />
+          <Category resource="Category_Identifier" />
+          <Description resource="Description_Object_View" />
+        </Part>
+        <Part name="Name">
+          <DisplayName resource="DisplayName_Object_Name" />
+          <Category resource="Category_Identifier" />
+          <Description resource="Description_Object_Name" />
+        </Part>
+      </Identifier>
+      <Properties>
+        <Property name="Ordinal">
+          <DisplayName resource="DisplayName_Column_Ordinal" />
+          <Category resource="Category_Base" />
+          <Description resource="Description_Column_Ordinal" />
+        </Property>
+        <Property name="Default">
+          <DisplayName resource="DisplayName_Column_Default" />
+          <Category resource="Category_Base" />
+          <Description resource="Description_Column_Default" />
+        </Property>
+        <Property name="Nullable">
+          <DisplayName resource="DisplayName_Column_Nullable" />
+          <Category resource="Category_Base" />
+          <Description resource="Description_Column_Nullable" />
+          <StandardValues>
+            <StandardValue value="YES" resource="Value_Yes" />
+            <StandardValue value="NO" resource="Value_No" />
+          </StandardValues>
+        </Property>
+        <Property name="SqlType">
+          <DisplayName resource="DisplayName_Column_SqlType" />
+          <Category resource="Category_DataType" />
+          <Description resource="Description_Column_SqlType" />
+        </Property>
+        <Property name="MySqlType">
+          <DisplayName resource="DisplayName_Object_MySqlType" />
+          <Category resource="Category_DataType" />
+          <Description resource="Description_Object_MySqlType" />
+        </Property>
+        <Property name="Length">
+          <DisplayName resource="DisplayName_Object_Length" />
+          <Category resource="Category_DataType" />
+          <Description resource="Description_Object_Length" />
+        </Property>
+        <Property name="OctetLength">
+          <DisplayName resource="DisplayName_Column_OctetLength" />
+          <Category resource="Category_DataType" />
+          <Description resource="Description_Column_OctetLength" />
+        </Property>
+        <Property name="Precision">
+          <DisplayName resource="DisplayName_Object_Precision" />
+          <Category resource="Category_DataType" />
+          <Description resource="Description_Object_Precision" />
+        </Property>
+        <Property name="Scale">
+          <DisplayName resource="DisplayName_Object_Scale" />
+          <Category resource="Category_DataType" />
+          <Description resource="Description_Object_Scale" />
+        </Property>
+        <Property name="CharacterSet">
+          <DisplayName resource="DisplayName_Object_CharacterSet" />
+          <Category resource="Category_Base" />
+          <Description resource="Description_Object_CharacterSet" />
+        </Property>
+        <Property name="Collation">
+          <DisplayName resource="DisplayName_Object_Collation" />
+          <Category resource="Category_Base" />
+          <Description resource="Description_Object_Collation"/>
+        </Property>
+        <Property name="ColumnKey">
+          <DisplayName resource="DisplayName_Column_ColumnKey" />
+          <Category resource="Category_Base" />
+          <Description resource="Description_Column_ColumnKey" />
+          <StandardValues>
+            <StandardValue value="PRI" resource="Value_PrimaryKey" />
+            <StandardValue value="UNI" resource="Value_UniqueIndexed" />
+            <StandardValue value="MUL" resource="Value_Indexed" />
+          </StandardValues>
+        </Property>
+        <Property name="Extra">
+          <DisplayName resource="DisplayName_Column_Extra" />
+          <Category resource="Category_Advanced" />
+          <Description resource="Description_Column_Extra"/>
+        </Property>
+        <Property name="Privileges">
+          <DisplayName resource="DisplayName_Column_Privileges" />
+          <Category resource="Category_Advanced" />
+          <Description resource="Description_Column_Privileges" />
+        </Property>
+        <Property name="Comment">
+          <DisplayName resource="DisplayName_Object_Comment" />
+          <Category resource="Category_Base" />
+          <Description resource="Description_Object_Comment" />
+        </Property>
+      </Properties>
+      <CommandBindings>
+        <!-- global data menus -->
+        <CommandBinding name="NewQuery" guid="501822E1-B5AF-11d0-B4DC-00A0C91506EF" cmdid="13608" handler="884DD964-5327-461f-9F06-6484DD540F8F">
+          <Parameter value="NewQuery"/>
+          <Parameter value="Query"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewTable" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="500" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewView" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="501" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewProcedure" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="502" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewFunction" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="503" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewUDF" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="504" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+      </CommandBindings>
+    </TypeExtension>
+
+    <!-- Stored procedure -->
+    <TypeExtension name="StoredProcedure">
+      <DisplayName resource="Type_StoredProcedure" />
+      <Identifier>
+        <Part name="Database">
+          <DisplayName resource="DisplayName_Object_Database" />
+          <Category resource="Category_Identifier" />
+          <Description resource="Description_Object_Database" />
+        </Part>
+        <Part name="Schema">
+          <DisplayName resource="DisplayName_Object_Schema" />
+          <Category resource="Category_Identifier" />
+          <Description resource="Description_Object_Schema" />
+        </Part>
+        <Part name="Type">
+          <DisplayName resource="DisplayName_StoredProcedure_Type" />
+          <Category resource="Category_Identifier" />
+          <Description resource="Description_StoredProcedure_Type" />
+          <StandardValues>
+            <StandardValue value="PROCEDURE" resource="Value_Procedure" />
+            <StandardValue value="FUNCTION" resource="Value_Function" />
+          </StandardValues>
+        </Part>
+        <Part name="Name">
+          <DisplayName resource="DisplayName_Object_Name" />
+          <Category resource="Category_Identifier" />
+          <Description resource="Description_Object_Name" />
+        </Part>
+      </Identifier>
+      <Properties>
+        <Property name="SpecificName">
+          <DisplayName resource="DisplayName_StoredProcedure_SpecificName" />
+          <Category resource="Category_Advanced" />
+          <Description resource="Description_StoredProcedure_SpecificName" />
+        </Property>
+        <Property name="Returns">
+          <DisplayName resource="DisplayName_Routine_Returns" />
+          <Category resource="Category_DataType" />
+          <Description resource="Description_Routine_Returns" />
+        </Property>
+        <Property name="Body">
+          <DisplayName resource="DisplayName_StoredProcedure_Body" />
+          <Category resource="Category_Advanced" />
+          <Description resource="Description_StoredProcedure_Body" />
+          <StandardValues>
+            <StandardValue value="SQL" resource="Value_Sql" />
+          </StandardValues>
+        </Property>
+        <Property name="Definition">
+          <DisplayName resource="DisplayName_StoredProcedure_Definition" />
+          <Category resource="Category_Base" />
+          <Description resource="Description_StoredProcedure_Definition" />
+        </Property>
+        <Property name="ExternalName">
+          <DisplayName resource="DisplayName_StoredProcedure_ExternalName" />
+          <Category resource="Category_Advanced" />
+          <Description resource="Description_StoredProcedure_ExternalName" />
+          <StandardValues>
+            <StandardValue value="NULL" resource="Value_Null" />
+          </StandardValues>
+        </Property>
+        <Property name="ExternalLanguage">
+          <DisplayName resource="DisplayName_StoredProcedure_ExternalLanguage" />
+          <Category resource="Category_Advanced" />
+          <Description resource="Description_StoredProcedure_ExternalLanguage" />
+        </Property>
+        <Property name="ParameterStyle">
+          <DisplayName resource="DisplayName_StoredProcedure_ParameterStyle" />
+          <Category resource="Category_Advanced" />
+          <Description resource="Description_StoredProcedure_ParameterStyle" />
+          <StandardValues>
+            <StandardValue value="SQL" resource="Value_Sql" />
+          </StandardValues>
+        </Property>
+        <Property name="IsDeterministic">
+          <DisplayName resource="DisplayName_StoredProcedure_IsDeterministic" />
+          <Category resource="Category_Advanced" />
+          <Description resource="Description_StoredProcedure_IsDeterministic" />
+          <StandardValues>
+            <StandardValue value="YES" resource="Value_Yes" />
+            <StandardValue value="NO" resource="Value_No" />
+          </StandardValues>
+        </Property>
+        <Property name="DataAccess">
+          <DisplayName resource="DisplayName_StoredProcedure_DataAccess" />
+          <Category resource="Category_Advanced" />
+          <Description resource="Description_StoredProcedure_DataAccess" />
+          <StandardValues>
+            <StandardValue value="CONTAINS_SQL" resource="Value_ContainsSql" />
+            <StandardValue value="NO_SQL" resource="Value_NoSql" />
+            <StandardValue value="READS_SQL_DATA" resource="Value_ReadsSqlData" />
+            <StandardValue value="MODIFIES_SQL_DATA" resource="Value_ModifiesSqlData" />
+          </StandardValues>
+        </Property>
+        <Property name="SqlPath">
+          <DisplayName resource="DisplayName_StoredProcedure_SqlPath" />
+          <Category resource="Category_Advanced" />
+          <Description resource="Description_StoredProcedure_SqlPath" />
+          <StandardValues>
+            <StandardValue value="NULL" resource="Value_Null" />
+          </StandardValues>
+        </Property>
+        <Property name="SecurityType">
+          <DisplayName resource="DisplayName_Object_SecurityType" />
+          <Category resource="Category_Security" />
+          <Description resource="Description_Object_SecurityType" />
+          <StandardValues>
+            <StandardValue value="DEFINER" resource="Value_Definer" />
+            <StandardValue value="INVOKER" resource="Value_Invoker" />
+          </StandardValues>
+        </Property>
+        <Property name="CreationTime">
+          <DisplayName resource="DisplayName_Object_CreationTime" />
+          <Category resource="Category_Advanced" />
+          <Description resource="Description_Object_CreationTime" />
+        </Property>
+        <Property name="LastModified">
+          <DisplayName resource="DisplayName_StoredProcedure_LastModified" />
+          <Category resource="Category_Advanced" />
+          <Description resource="Description_StoredProcedure_LastModified" />
+        </Property>
+        <Property name="Mode">
+          <DisplayName resource="DisplayName_Object_Mode" />
+          <Category resource="Category_Advanced" />
+          <Description resource="Description_Object_Mode" />
+        </Property>
+        <Property name="Comment">
+          <DisplayName resource="DisplayName_StoredProcedure_Comment" />
+          <Category resource="Category_Advanced" />
+          <Description resource="Description_StoredProcedure_Comment" />
+        </Property>
+        <Property name="Definer">
+          <DisplayName resource="DisplayName_Object_Definer" />
+          <Category resource="Category_Advanced" />
+          <Description resource="Description_Object_Definer" />
+        </Property>
+      </Properties>
+      <CommandBindings defaultCommand="AlterStoredProcedure">
+        <CommandBinding name="AlterStoredProcedure" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D" cmdid="289" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler" />
+        <CommandBinding name="DebugStoredProcedure" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D" cmdid="290" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler" />
+        <CommandBinding name="DropProcedure" guid="5efc7975-14bc-11cf-9b2b-00aa00573819" cmdid="17" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="StoredProcedure"/>
+        </CommandBinding>
+        <!-- global data menus -->
+        <CommandBinding name="NewQuery" guid="501822E1-B5AF-11d0-B4DC-00A0C91506EF" cmdid="13608" handler="884DD964-5327-461f-9F06-6484DD540F8F">
+          <Parameter value="NewQuery"/>
+          <Parameter value="Query"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewTable" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="500" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewView" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="501" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewProcedure" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="502" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewFunction" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="503" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewUDF" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="504" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+      </CommandBindings>
+    </TypeExtension>
+
+    <!-- Stored procedure parameter -->
+    <TypeExtension name="StoredProcedureParameter">
+      <DisplayName resource="Type_StoredProcedureParameter"/>
+      <Identifier>
+        <Part name="Database">
+          <DisplayName resource="DisplayName_Object_Database" />
+          <Category resource="Category_Identifier" />
+          <Description resource="Description_Object_Database" />
+        </Part>
+        <Part name="Schema">
+          <DisplayName resource="DisplayName_Object_Schema" />
+          <Category resource="Category_Identifier" />
+          <Description resource="Description_Object_Schema" />
+        </Part>
+        <Part name="StoredProcedure">
+          <DisplayName resource="DisplayName_Parameter_StoredProcedure" />
+          <Category resource="Category_Identifier" />
+          <Description resource="Description_Parameter_StoredProcedure" />
+        </Part>
+        <Part name="StoredProcedureType">
+          <DisplayName resource="DisplayName_StoredProcedure_Type" />
+          <Category resource="Category_Identifier" />
+          <Description resource="Description_StoredProcedure_Type" />
+          <StandardValues>
+            <StandardValue value="PROCEDURE" resource="Value_Procedure" />
+            <StandardValue value="FUNCTION" resource="Value_Function" />
+          </StandardValues>
+        </Part>
+        <Part name="Name">
+          <DisplayName resource="DisplayName_Object_Name" />
+          <Category resource="Category_Identifier" />
+          <Description resource="Description_Object_Name" />
+        </Part>
+      </Identifier>
+      <Properties>
+        <Property name="Ordinal">
+          <DisplayName resource="DisplayName_Parameter_Ordinal" />
+          <Category resource="Category_Base" />
+          <Description resource="Description_Parameter_Ordinal" />
+        </Property>
+        <Property name="SystemType">
+          <DisplayName resource="DisplayName_Object_MySqlType" />
+          <Category resource="Category_DataType" />
+          <Description resource="Description_Object_MySqlType" />
+        </Property>
+        <Property name="CharacterSet">
+          <DisplayName resource="DisplayName_Object_CharacterSet" />
+          <Category resource="Category_DataType" />
+          <Description resource="Description_Object_CharacterSet" />
+        </Property>
+        <Property name="Length">
+          <DisplayName resource="DisplayName_Object_Length" />
+          <Category resource="Category_DataType" />
+          <Description resource="Description_Object_Length" />
+        </Property>
+        <Property name="Precision">
+          <DisplayName resource="DisplayName_Object_Precision" />
+          <Category resource="Category_DataType" />
+          <Description resource="Description_Object_Precision" />
+        </Property>
+        <Property name="Scale">
+          <DisplayName resource="DisplayName_Object_Scale" />
+          <Category resource="Category_DataType" />
+          <Description resource="Description_Object_Scale" />
+        </Property>
+        <Property name="Mode">
+          <DisplayName resource="DisplayName_Parameter_Mode" />
+          <Category resource="Category_Base" />
+          <Description resource="Description_Parameter_Mode" />
+          <StandardValues>
+            <StandardValue value="IN" resource="Value_IN" />
+            <StandardValue value="OUT" resource="Value_OUT" />
+            <StandardValue value="INOUT" resource="Value_INOUT" />
+          </StandardValues>
+        </Property>
+      </Properties>
+      <CommandBindings>
+        <!-- global data menus -->
+        <CommandBinding name="NewQuery" guid="501822E1-B5AF-11d0-B4DC-00A0C91506EF" cmdid="13608" handler="884DD964-5327-461f-9F06-6484DD540F8F">
+          <Parameter value="NewQuery"/>
+          <Parameter value="Query"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewTable" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="500" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewView" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="501" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewProcedure" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="502" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewFunction" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="503" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewUDF" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="504" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+      </CommandBindings>
+    </TypeExtension>
+
+    <!-- Trigger -->
+    <TypeExtension name="Trigger">
+      <DisplayName resource="Type_Trigger" />
+      <Identifier>
+        <Part name="Database">
+          <DisplayName resource="DisplayName_Object_Database" />
+          <Category resource="Category_Identifier" />
+          <Description resource="Description_Object_Database" />
+        </Part>
+        <Part name="Schema">
+          <DisplayName resource="DisplayName_Object_Schema" />
+          <Category resource="Category_Identifier" />
+          <Description resource="Description_Object_Schema" />
+        </Part>
+        <Part name="EventTable">
+          <DisplayName resource="DisplayName_Trigger_EventTable" />
+          <Category resource="Category_Identifier" />
+          <Description resource="Description_Trigger_EventTable" />
+        </Part>
+        <Part name="Name">
+          <DisplayName resource="DisplayName_Object_Name" />
+          <Category resource="Category_Identifier" />
+          <Description resource="Description_Object_Name" />
+        </Part>
+      </Identifier>
+      <Properties>
+        <Property name="EventManipulation">
+          <DisplayName resource="DisplayName_Trigger_EventManipulation" />
+          <Category resource="Category_Base" />
+          <Description resource="Description_Trigger_EventManipulation" />
+          <StandardValues>
+            <StandardValue value="INSERT" resource="Value_Insert" />
+            <StandardValue value="UPDATE" resource="Value_Update" />
+            <StandardValue value="DELETE" resource="Value_Delete" />
+          </StandardValues>
+        </Property>
+        <Property name="EventCatalog">
+          <DisplayName resource="DisplayName_Trigger_EventCatalog" />
+          <Category resource="Category_Advanced" />
+          <Description resource="Description_Trigger_EventCatalog" />
+        </Property>
+        <Property name="EventSchema">
+          <DisplayName resource="DisplayName_Trigger_EventSchema" />
+          <Category resource="Category_Advanced" />
+          <Description resource="Description_Trigger_EventSchema" />
+        </Property>
+        <Property name="Order">
+          <DisplayName resource="DisplayName_Trigger_Order" />
+          <Category resource="Category_Base" />
+          <Description resource="Description_Trigger_Order" />
+        </Property>
+        <Property name="Condition">
+          <DisplayName resource="DisplayName_Trigger_Condition" />
+          <Category resource="Category_Base" />
+          <Description resource="Description_Trigger_Condition" />
+        </Property>
+        <Property name="Statement">
+          <DisplayName resource="DisplayName_Trigger_Statement" />
+          <Category resource="Category_Base" />
+          <Description resource="Description_Trigger_Statement" />
+        </Property>
+        <Property name="Orientation">
+          <DisplayName resource="DisplayName_Trigger_Orientation" />
+          <Category resource="Category_Base" />
+          <Description resource="Description_Trigger_Orientation" />
+        </Property>
+        <Property name="Timing">
+          <DisplayName resource="DisplayName_Trigger_Timing" />
+          <Category resource="Category_Base" />
+          <Description resource="Description_Trigger_Timing" />
+          <StandardValues>
+            <StandardValue value="AFTER" resource="Value_After" />
+            <StandardValue value="Before" resource="Value_Before" />
+          </StandardValues>
+        </Property>
+        <Property name="RefToOldTable">
+          <DisplayName resource="DisplayName_Trigger_RefToOldTable" />
+          <Category resource="Category_Advanced" />
+          <Description resource="Description_Trigger_RefToOldTable" />
+        </Property>
+        <Property name="RefToNewTable">
+          <DisplayName resource="DisplayName_Trigger_RefToNewTable" />
+          <Category resource="Category_Advanced" />
+          <Description resource="Description_Trigger_RefToNewTable" />
+        </Property>
+        <Property name="RefToOldRow">
+          <DisplayName resource="DisplayName_Trigger_RefToOldRow" />
+          <Category resource="Category_Advanced" />
+          <Description resource="Description_Trigger_RefToOldRow" />
+        </Property>
+        <Property name="RefToNewRow">
+          <DisplayName resource="DisplayName_Trigger_RefToNewRow" />
+          <Category resource="Category_Advanced" />
+          <Description resource="Description_Trigger_RefToNewRow" />
+        </Property>
+        <Property name="CreationTime">
+          <DisplayName resource="DisplayName_Object_CreationTime" />
+          <Category resource="Category_Advanced" />
+          <Description resource="Description_Object_CreationTime" />
+        </Property>
+        <Property name="Mode">
+          <DisplayName resource="DisplayName_Object_Mode" />
+          <Category resource="Category_Advanced" />
+          <Description resource="Description_Object_Mode" />
+        </Property>
+        <Property name="Definer">
+          <DisplayName resource="DisplayName_Object_Definer" />
+          <Category resource="Category_Advanced" />
+          <Description resource="Description_Object_Definer" />
+        </Property>
+      </Properties>
+      <CommandBindings defaultCommand="AlterTrigger">
+        <CommandBinding name="AlterTrigger" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D" cmdid="321" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler" />
+        <CommandBinding name="DropTrigger" guid="5efc7975-14bc-11cf-9b2b-00aa00573819" cmdid="17" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="Trigger"/>
+        </CommandBinding>
+        <!-- global data menus -->
+        <CommandBinding name="AddNewTable" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="500" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewView" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="501" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewProcedure" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="502" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewFunction" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="503" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewUDF" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="504" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+      </CommandBindings>
+    </TypeExtension>
+
+    <!-- User defined function -->
+    <TypeExtension name="UDF">
+      <DisplayName resource="Type_UDF" />
+      <Identifier>
+        <Part name="Name">
+          <DisplayName resource="DisplayName_Object_Name" />
+          <Category resource="Category_Identifier" />
+          <Description resource="Description_Object_Name" />
+        </Part>
+      </Identifier>
+      <Properties>
+        <Property name="ReturnType">
+          <DisplayName resource="DisplayName_Routine_Returns" />
+          <Category resource="Category_DataType" />
+          <Description resource="Description_Routine_Returns" />
+          <StandardValues>
+            <StandardValue value="0" resource="Value_String" />
+            <StandardValue value="1" resource="Value_Real" />
+            <StandardValue value="2" resource="Value_Integer" />
+            <StandardValue value="3" resource="Value_Row" />
+            <StandardValue value="4" resource="Value_Decimal" />
+          </StandardValues>
+        </Property>
+        <Property name="LibraryName">
+          <DisplayName resource="DisplayName_UDF_Dll" />
+          <Category resource="Category_Base" />
+          <Description resource="Description_UDF_Dll" />
+        </Property>
+      </Properties>
+      <CommandBindings defaultCommand="DeleteUDF">
+        <CommandBinding name="DeleteUDF" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D" cmdid="337" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler" />
+        <!-- global data menus -->
+        <CommandBinding name="AddNewTable" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="500" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewView" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="501" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewProcedure" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="502" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewFunction" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="503" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+        <CommandBinding name="AddNewUDF" guid="B87CB51F-8A01-4c5e-BF3E-5D0565D5397D"
+                        cmdid="504" handler="MySql.Data.VisualStudio.MySqlDataViewCommandHandler">
+          <Parameter value="HighLevel"/>
+        </CommandBinding>
+      </CommandBindings>
+    </TypeExtension>
+  </TypeExtensions>
+
+  <Resources baseName="MySql.Data.VisualStudio.Properties.Resources" />
+</VSDataViewSupport>

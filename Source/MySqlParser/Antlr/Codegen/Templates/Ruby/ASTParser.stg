@@ -1,0 +1,144 @@
+group ASTParser;
+gatedAction(block) ::= <<
+<if(backtracking)>
+if <actions.(actionScope).synpredgate>
+  <block>
+end
+<else>
+<block>
+<endif>
+>>
+
+@ruleBody.setErrorReturnValue() ::= <<
+return_value.tree = @adaptor.create_error_node( @input, return_value.start, @input.look(-1), re )<\n>
+>>
+
+tokenRef(token,label,elementIndex,hetero) ::= <<
+<super.tokenRef(...)>
+<gatedAction({
+tree_for_<label> = <createNodeFromToken(...)>
+@adaptor.add_child( root_0, tree_for_<label> )
+})>
+>>
+
+tokenRefBang(token,label,elementIndex) ::= "<super.tokenRef(...)>"
+
+tokenRefRuleRoot(token,label,elementIndex,hetero) ::= <<
+<super.tokenRef(...)>
+<gatedAction({
+tree_for_<label> = <createNodeFromToken(...)>
+root_0 = @adaptor.become_root( tree_for_<label>, root_0 )
+})>
+>>
+
+tokenRefBangAndListLabel(token,label,elementIndex,hetero) ::= <<
+<tokenRefBang(...)>
+<addToList(elem={<label; format="label">},...)>
+>>
+
+tokenRefAndListLabel(token,label,elementIndex,hetero) ::= <<
+<tokenRef(...)>
+<addToList(elem={<label; format="label">},...)>
+>>
+
+tokenRefRuleRootAndListLabel(token,label,hetero,elementIndex) ::= <<
+<tokenRefRuleRoot(...)>
+<addToList(elem={<label; format="label">},...)>
+>>
+
+matchSet(s,label,hetero,elementIndex,postmatchCode) ::= <<
+<super.matchSet(..., postmatchCode={<gatedAction({@adaptor.add_child( root_0, <createNodeFromToken(...)> )})>})>
+>>
+
+matchRuleBlockSet(s,label,hetero,elementIndex,postmatchCode,treeLevel="0") ::= <<
+<matchSet(...)>
+>>
+
+
+
+matchSetBang(s,label,elementIndex,postmatchCode) ::= "<super.matchSet(...)>"
+matchSetRuleRoot(s,label,hetero,elementIndex,debug) ::= <<
+<if(label)>
+<label; format="label"> = @input.look<\n>
+<endif>
+<super.matchSet(..., postmatchCode={<gatedAction({root_0 = @adaptor.become_root( <createNodeFromToken(...)>, root_0 )})>})>
+>>
+matchSetRuleRootAndListLabel(s,label,hetero,elementIndex,debug) ::= <<
+<matchSetRuleRoot(...)>
+<addToList(elem={<label; format="label">},...)>
+>>
+
+
+
+ruleRef(rule,label,elementIndex,args,scope) ::= <<
+<super.ruleRef(...)>
+<gatedAction({@adaptor.add_child( root_0, <label; format="label">.tree )})>
+>>
+
+
+
+ruleRefBang(rule,label,elementIndex,args,scope) ::= "<super.ruleRef(...)>"
+
+
+
+ruleRefRuleRoot(rule,label,elementIndex,args,scope) ::= <<
+<super.ruleRef(...)>
+<gatedAction({root_0 = @adaptor.become_root( <label; format="label">.tree, root_0 )})>
+>>
+
+
+
+ruleRefAndListLabel(rule,label,elementIndex,args,scope) ::= <<
+<ruleRef(...)>
+<addToList(elem={<label; format="label">.tree},...)>
+>>
+
+
+
+ruleRefBangAndListLabel(rule,label,elementIndex,args,scope) ::= <<
+<ruleRefBang(...)>
+<addToList(elem={<label; format="label">.tree},...)>
+>>
+
+
+
+ruleRefRuleRootAndListLabel(rule,label,elementIndex,args,scope) ::= <<
+<ruleRefRuleRoot(...)>
+<addToList(elem={<label; format="label">.tree},...)>
+>>
+
+wildcard(label,elementIndex) ::= <<
+<super.wildcard(...)>
+<gatedAction({
+tree_for_<label> = @adaptor.create_with_payload( <label; format="label"> )
+@adaptor.add_child( root_0, tree_for_<label> )
+})>
+>>
+
+wildcardBang(label,elementIndex) ::= "<super.wildcard(...)>"
+
+wildcardRuleRoot(label,elementIndex) ::= <<
+<super.wildcard(...)>
+<gatedAction({
+tree_for_<label> = @adaptor.create_with_payload( <label; format="label"> )
+root_0 = @adaptor.become_root( tree_for_<label>, root_0 )
+})>
+>>
+
+createNodeFromToken(label,hetero) ::= <<
+<if(hetero)>
+<hetero; format="constantPath">.new( <label; format="label"> )
+<else>
+@adaptor.create_with_payload( <label; format="label"> )
+<endif>
+>>
+
+ruleCleanUp() ::= <<
+<super.ruleCleanUp()>
+<gatedAction({
+return_value.tree = @adaptor.rule_post_processing( root_0 )
+@adaptor.set_token_boundaries( return_value.tree, return_value.start, return_value.stop )
+})>
+>>
+
+

@@ -1,0 +1,125 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{428C8471-6FA9-4873-9D99-DECCA001A81E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MySql.Debugger</RootNamespace>
+    <AssemblyName>MySql.Debugger</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Antlr3.Runtime, Version=3.3.1.7705, Culture=neutral, PublicKeyToken=4186e2f4d936d3c2, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Source\MySqlParser\Antlr\Antlr3.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\..\Source\MySql.Debugger\Breakpoint.cs">
+      <Link>Breakpoint.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger\BreakpointKey.cs">
+      <Link>BreakpointKey.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger\BreakpointKeyDictionaryComparer.cs">
+      <Link>BreakpointKeyDictionaryComparer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger\DebugAbortedException.cs">
+      <Link>DebugAbortedException.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger\Debugger.cs">
+      <Link>Debugger.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger\DebuggerException.cs">
+      <Link>DebuggerException.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger\DebugSyntaxException.cs">
+      <Link>DebugSyntaxException.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger\Enums.cs">
+      <Link>Enums.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger\MetaRoutine.cs">
+      <Link>MetaRoutine.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger\MetaTrigger.cs">
+      <Link>MetaTrigger.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger\Properties\AssemblyInfo.cs">
+      <Link>Properties\AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger\RoutineInfo.cs">
+      <Link>RoutineInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger\RoutineScope.cs">
+      <Link>RoutineScope.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger\StoreType.cs">
+      <Link>StoreType.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Source\MySql.Debugger\Watch.cs">
+      <Link>Watch.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MySql.Data\MySql.Data.csproj">
+      <Project>{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}</Project>
+      <Name>MySql.Data</Name>
+      <Private>False</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\MySql.Parser\MySql.Parser.csproj">
+      <Project>{C1A80300-B0B3-4DAD-990E-B04BF2D18B56}</Project>
+      <Name>MySql.Parser</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\..\Source\MySql.Debugger\MySql Scripts\Logic.sql">
+      <Link>MySql Scripts\Logic.sql</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\..\Source\MySql.Debugger\MySql Scripts\Schema.sql">
+      <Link>MySql Scripts\Schema.sql</Link>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

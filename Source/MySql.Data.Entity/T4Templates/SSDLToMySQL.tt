@@ -1,0 +1,183 @@
+<# 
+//---------------------------------------------------------------------
+// <copyright file="SsdlToMySql.tt" company="Oracle">
+//      Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//---------------------------------------------------------------------
+// This T4 template generates MySQL from an instance of 
+// System.Data.Metadata.Edm.StoreItemCollection, an object representation
+// of the SSDL. This MySQL is compatible with MySQL 4.1 and higher.
+//---------------------------------------------------------------------
+// Note: We will resolve all paths in assembly directives at runtime, taking 
+// macros into account (e.g. $(DevEnvDir), $(ProjectDir), etc.)
+#>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="System.Data.Entity" #>
+<#@ assembly name="System.Data.Entity.Design" #>
+<#@ assembly name="$(DevEnvDir)Microsoft.Data.Entity.Design.DatabaseGeneration.dll"#>
+<#@ assembly name="MySql.Data.Entity" #>
+<#@ assembly name="EnvDTE" #>
+<#@ assembly name="System.Configuration.dll" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Data.Entity.Design" #>
+<#@ import namespace="System.Data.Metadata.Edm" #>
+<#@ import namespace="Microsoft.Data.Entity.Design.DatabaseGeneration" #>
+<#@ import namespace="System.Runtime.Remoting.Messaging" #>
+<#@ import namespace="System.Text.RegularExpressions" #>
+<#@ import namespace="MySql.Data.MySqlClient" #>
+<#@ import namespace="System.Configuration" #>
+<#@ template language="C#" debug="true" hostspecific="true" #>
+<#@ include file="GenerateTSQL.Utility.ttinclude"#>
+<#@ include file="GenerateMySQL.Utility.ttinclude"#>
+<#@ output extension = ".mysql" #>
+
+<#
+// +++++++++++++++++++++++++++++++++++++++++++++++++
+// Setup for the template (initializing variables, etc.)
+// +++++++++++++++++++++++++++++++++++++++++++++++++
+
+    MySqlScriptServices service = new MySqlScriptServices();
+    string databaseName = this.GetInput<string>(EdmParameterBag.ParameterName.DatabaseName.ToString());
+    string edmxPath = this.GetInput<string>(EdmParameterBag.ParameterName.EdmxPath.ToString());    
+    Version targetVersion = this.GetInput<Version>(EdmParameterBag.ParameterName.TargetVersion.ToString());
+
+    if (false == InitializeAndValidateExistingStore()) 
+    {
+#>
+-- Warning: There were errors validating the existing SSDL. Drop statements
+-- will not be generated.
+<#
+    }
+#>
+
+-- -----------------------------------------------------------
+-- Entity Designer DDL Script for MySQL Server 4.1 and higher
+-- -----------------------------------------------------------
+-- Date Created: <#=DateTime.Now#>
+<#
+    if (!String.IsNullOrEmpty(edmxPath))
+    {
+#>
+-- Generated from EDMX file: <#=MyId(edmxPath)#>
+-- Target version: <#=MyId(targetVersion.ToString())#>
+<#
+    }
+#>
+-- --------------------------------------------------
+
+<#  if (!String.IsNullOrEmpty(databaseName))
+    {
+#>
+DROP DATABASE IF EXISTS `<#=MyId(databaseName)#>`;
+CREATE DATABASE `<#=MyId(databaseName)#>`;
+USE `<#=MyId(databaseName)#>`;
+<#
+    }
+#>
+
+-- --------------------------------------------------
+-- Dropping existing FOREIGN KEY constraints
+-- NOTE: if the constraint does not exist, an ignorable error will be reported.
+-- --------------------------------------------------
+
+<#
+    foreach (AssociationSet associationSet in ExistingStore.GetAllAssociationSets())
+    {
+        ReferentialConstraint constraint = associationSet.ElementType.ReferentialConstraints.Single();
+        string constraintName = MyId(WriteFKConstraintName(constraint));
+        AssociationSetEnd dependentSetEnd = associationSet.AssociationSetEnds.Where(ase => ase.CorrespondingAssociationEndMember == constraint.ToRole).Single();
+        string dependentTableName = MyId(dependentSetEnd.EntitySet.GetTableName());
+        
+#>
+--    ALTER TABLE `<#=dependentTableName#>` DROP CONSTRAINT `<#=constraintName#>`;
+<#
+    }
+#>
+
+-- --------------------------------------------------
+-- Dropping existing tables
+-- --------------------------------------------------
+SET foreign_key_checks = 0;
+<#
+    foreach (EntitySet entitySet in ExistingStore.GetAllEntitySets())
+    { 
+        string tableName = MyId(entitySet.GetTableName());
+#>
+    DROP TABLE IF EXISTS `<#=tableName#>`;
+<#
+    }
+#>
+SET foreign_key_checks = 1;
+
+-- --------------------------------------------------
+-- Creating all tables
+-- --------------------------------------------------
+
+<#
+
+    EnvDTE.DTE env = (EnvDTE.DTE)((IServiceProvider)this.Host).GetService(typeof(EnvDTE.DTE));      
+    string serverVersion = GetProviderManifestToken(edmxPath);
+    string connection = String.Empty;
+    
+    if (String.IsNullOrEmpty(serverVersion))
+     {
+        connection = GetConnectionString(edmxPath, (EnvDTE.Project)((Array)env.ActiveSolutionProjects).GetValue(0));	
+        connection = !String.IsNullOrEmpty(connection) ? connection.Substring(connection.IndexOf(";provider connection string=", StringComparison.OrdinalIgnoreCase) + ";provider connection string=".Length): connection;
+     }
+
+    foreach (EntitySet entitySet in Store.GetAllEntitySets())
+    {
+        string tableName = MyId(entitySet.GetTableName());		
+        string tableScript = service.GetTableCreateScript(entitySet, connection, serverVersion);
+#>
+<#=tableScript#>
+
+<#
+    }
+#>
+
+
+-- --------------------------------------------------
+-- Creating all FOREIGN KEY constraints
+-- --------------------------------------------------
+
+<#
+    foreach (AssociationSet associationSet in Store.GetAllAssociationSets())
+    {
+        ReferentialConstraint constraint = associationSet.ElementType.ReferentialConstraints.Single();
+        AssociationSetEnd dependentSetEnd = associationSet.AssociationSetEnds.Where(ase => ase.CorrespondingAssociationEndMember == constraint.ToRole).Single();
+        AssociationSetEnd principalSetEnd = associationSet.AssociationSetEnds.Where(ase => ase.CorrespondingAssociationEndMember == constraint.FromRole).Single();
+        string dependentTableName = MyId(dependentSetEnd.EntitySet.GetTableName());
+        string principalTableName = MyId(principalSetEnd.EntitySet.GetTableName());
+#>
+-- Creating foreign key on <#=WriteMySqlColumns(constraint.ToProperties, ',')#> in table '<#=dependentTableName#>'
+
+ALTER TABLE `<#=dependentTableName#>`
+ADD CONSTRAINT `<#=WriteFKConstraintName(constraint)#>`
+    FOREIGN KEY (<#=WriteMySqlColumns(constraint.ToProperties, ',')#>)
+    REFERENCES `<#=principalTableName#>`
+        (<#=WriteMySqlColumns(constraint.FromProperties, ',')#>)
+    ON DELETE <#=GetDeleteAction(constraint)#> ON UPDATE NO ACTION;
+<#      
+        // if the foreign keys are part of the primary key on the dependent end, then we should not add a constraint.
+        if (!dependentSetEnd.EntitySet.ElementType.GetKeyProperties().Take(constraint.ToProperties.Count()).OrderBy(r => r.Name).SequenceEqual(constraint.ToProperties.OrderBy(r => r.Name)))
+        {
+#>
+
+-- Creating non-clustered index for FOREIGN KEY '<#=WriteFKConstraintName(constraint)#>'
+
+CREATE INDEX `IX_<#=WriteFKConstraintName(constraint)#>` 
+    ON `<#=dependentTableName#>`
+    (<#=WriteMySqlColumns(constraint.ToProperties, ',')#>);
+<#      
+        }
+#>
+
+<#
+    }
+#>
+-- --------------------------------------------------
+-- Script has ended
+-- --------------------------------------------------
