@@ -1,0 +1,42 @@
+<project name="TableEditor" default="default" xmlns="http://nant.sf.net/schemas/nant-0.84.win32.net-1.0.xsd">
+	<description>TableEditor sample</description>
+
+	<property name="buildType" value="release"/>
+	
+	<if test="${not property::exists('debug')}">
+		<property name="debug" value="false"/>
+	</if>
+
+    <if test="${(debug)}">
+		<property name="buildType" value="debug"/>
+	</if>
+
+	<target name="default">
+		<property name="framework" value="net-1.0"/>
+		<call target="base"/>
+		<property name="framework" value="net-1.1"/>
+		<call target="base"/>
+	</target>	
+
+	<target name="base">
+		<property name="nant.settings.currentframework" value="${framework}"/>
+		<mkdir dir="bin/${framework}/${buildType}" failonerror="false"/>
+		
+		<vbc output="bin/${framework}/${buildType}/TableEditor.exe" target="winexe" debug="${debug}" main="Form1">
+			<references>
+				<include name="../../../bin/${framework}/${buildType}/MySql.Data.dll"/>
+				<include name="System.dll"/>
+				<include name="System.Data.dll"/>
+				<include name="System.Drawing.dll"/>
+				<include name="System.Windows.Forms.dll" />
+				<include name="System.XML.dll"/>
+			</references>
+			<sources>
+				<include name="assemblyInfo.vb"/>
+				<include name="form1.vb"/>
+			</sources>
+		</vbc>
+	</target>
+	
+	
+</project>
