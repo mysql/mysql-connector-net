@@ -1,20 +1,15 @@
 
 6.7.0
 - Fix for bug Keyword not supported. Parameter name: AttachDbFilename (Mysql bug #66880, Oracle bug #14733472).
-- Added support to MySql script file to retrieve data when using "SHOW" statements.
-- Fix for Package Load Failure in Visual Studio 2005 (MySql bug #63073, Oracle bug #13491674).
 - Fix for bug "Unable to connect using IPv6 connections" (MySQL bug #67253, Oracle bug #14835718).
 - Added auto-generated values for Guid identity columns (MySql bug #67450, Oracle bug #15834176).
 - Fix for method FirstOrDefault not supported in some LINQ to Entities queries (MySql bug #67377, Oracle bug #15856964). 
-- Fix internal bug "Parser cannot recognize row_count in grammar version 5.6" (id task 326).
 - Fixed missing keywords not working as ids (wihout quoting) in parser: value, status, unknown & some unit tests from Arnaud feedback.
 - Fix for Datetime precision doesn't work with code first or model first. (Oracle bug #15972773).
 - Fix for Support for current_timestamp as default for datetime with ef for server 5.6 (Oracle bug #15935094).
 - Adding support for Geometry type. Unit Tests included. Supporting server 5.1 and further.
 - Added support for new connect attributes feature in server 5.6 (Oracle bug #15935112).
 - Added protocol support for password expiration (Oracle bug #15935104).
-- Added to parser missing "alter user ... password expire".
-- Fix for "Debugger error on stored procedure", which is actually a parser bug (parser was expecting decimal both precision & scale), (bug MySql #67975, Oracle bug #16079735).
 - Added support for password hashing with appropriate strength for server 5.6 (Oracle bug #15935128).
 - Added a more friendly message for error when trying to authenticate with old password.
 - Fix for GetSchema returning MySqlException instead of ArgumentException when passing an invalid collection name
@@ -22,8 +17,6 @@
 - Fix for EF 4.3 failing when FK identifiers are too long (MySql bug #67285, Oracle bug #16286397).
 - Fix for race condition on ConnectionStringBuilder when using multiple threads 
   (MySql bug #68217, Oracle bug #16310698).
-- Fix for server explorer error opening a remote connection (Oracle bug #16357786).
-- Fix for password expiration, new password dialog failed (Oracle bug #16357752).  
 - Fix for Specifying delete cascade in EF migrations does not work (MySql bug #68457, Oracle bug #16398432).
 - Fix for InvalidCastException thrown when executing an stored function (MySql bug #64633, Oracle bug #13864627).
 - Fix for Default Command Timeout not applying for EFMySqlCommand (MySql bug #67171, Oracle bug #14825670).

@@ -73,17 +73,17 @@
 		</PropertyGroup>
 	</When>
 	
-	<When Condition="'$(Configuration)|$(Platform)' == 'Debug-2.0|AnyCPU'">
+	<When Condition="'$(Configuration)|$(Platform)' == 'Debug-2.0|AnyCPU' and '$(VisualStudioVersion)' == '11.0' ">
 		<PropertyGroup>
 			<DefineConstants>DEBUG;TRACE; NET_40_OR_GREATER; NET_45_OR_GREATER</DefineConstants>
 		</PropertyGroup>
 	</When>
-	<When Condition="'$(Configuration)|$(Platform)' == 'Debug-2.0|AnyCPU'">
+	<When Condition="'$(Configuration)|$(Platform)' == 'Debug-2.0|AnyCPU' and '$(VisualStudioVersion)' == '10.0' ">
 		<PropertyGroup>
 			<DefineConstants>DEBUG;TRACE; NET_40_OR_GREATER</DefineConstants>
 		</PropertyGroup>
 	</When>
-	<When Condition="'$(Configuration)|$(Platform)' == 'Debug-2.0|AnyCPU'">
+	<When Condition="'$(Configuration)|$(Platform)' == 'Debug-2.0|AnyCPU' and '$(VisualStudioVersion)' == '9.0' ">
 		<PropertyGroup>
 			<DefineConstants>DEBUG;TRACE</DefineConstants>
 		</PropertyGroup>
