@@ -464,11 +464,7 @@ namespace MySql.Data.MySqlClient
     [DisplayName("_platform")]
     public string Platform
     {
-#if CLR4
-      get { return Environment.Is64BitOperatingSystem ? "x64" : "x32"; }
-#else
-      get { return Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE") == "AMD64" ? "x64" : "x32"; }
-#endif
+      get { return Is64BitOS() ? "x86_64" : "x86_32"; }
     }
 
     [DisplayName("program_name")]
@@ -476,8 +472,7 @@ namespace MySql.Data.MySqlClient
     {
       get
       {
-        string name = string.Empty;
-        name = Environment.CommandLine;
+        string name = Environment.CommandLine;
         try
         {
           string path = Environment.CommandLine.Substring(0, Environment.CommandLine.IndexOf("\" ")).Trim('"');
@@ -485,7 +480,11 @@ namespace MySql.Data.MySqlClient
           if (Assembly.GetEntryAssembly() != null)
             name = Assembly.GetEntryAssembly().ManifestModule.Name;
         }
-        catch (Exception ex) { System.Diagnostics.Debug.WriteLine(ex.ToString()); }
+        catch (Exception ex)
+        {
+          name = string.Empty;
+          System.Diagnostics.Debug.WriteLine(ex.ToString());
+        }
         return name;
       }
     }
@@ -495,7 +494,28 @@ namespace MySql.Data.MySqlClient
     {
       get
       {
-        string os = Environment.OSVersion.VersionString;
+        string os = string.Empty;
+        try
+        {
+          os = Environment.OSVersion.Platform.ToString();
+          if (os == "Win32NT")
+          {
+            os = "Win";
+            os += Is64BitOS() ? "64" : "32";
+          }
+        }
+        catch (Exception ex) { System.Diagnostics.Debug.WriteLine(ex.ToString()); }
+
+        return os;
+      }
+    }
+
+    [DisplayName("_os_details")]
+    public string OSDetails
+    {
+      get
+      {
+        string os = string.Empty;
         try
         {
           var searcher = new System.Management.ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem");
@@ -527,6 +547,16 @@ namespace MySql.Data.MySqlClient
         return thread;
       }
     }
+
+    private bool Is64BitOS()
+    {
+#if CLR4
+      return Environment.Is64BitOperatingSystem;
+#else
+      return Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE") == "AMD64";
+#endif
+    }
+
 #endif
   }
 }
