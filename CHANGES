@@ -20,4 +20,5 @@
 - Fix for Specifying delete cascade in EF migrations does not work (MySql bug #68457, Oracle bug #16398432).
 - Fix for InvalidCastException thrown when executing an stored function (MySql bug #64633, Oracle bug #13864627).
 - Fix for Default Command Timeout not applying for EFMySqlCommand (MySql bug #67171, Oracle bug #14825670).
-- Fix for Cannot use geometry function on new instances created with ef code first Oracle bug #16446399.
+- Fix for Cannot use geometry function on new instances created with ef code first (Oracle bug #16446399).
+- Fix for Bug Assemblies for .net 4.5 are not included in the installation (Oracle Bug #16463655).
