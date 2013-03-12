@@ -7,7 +7,7 @@ PROCESS
 
 #################################################################################################################### 
 -->
-<ProviderManifest Namespace="MySql" xmlns="http://schemas.microsoft.com/ado/2006/04/edm/providermanifest">
+<ProviderManifest Namespace="MySql" xmlns="http://schemas.microsoft.com/ado/2009/02/edm/ssdl">
   <Types>
     <Type Name ="guid" PrimitiveTypeKind ="Guid"/>
     <Type Name="bool" PrimitiveTypeKind="Boolean"/>
@@ -176,8 +176,12 @@ PROCESS
         <FixedLength DefaultValue="false" Constant="true" />
       </FacetDescriptions>
     </Type>
-
-
+    <Type Name="geometry" PrimitiveTypeKind="Geometry">
+      <FacetDescriptions>
+        <SRID Minimum="0" Maximum="9999" DefaultValue="Variable" Constant="false" />
+        <IsStrict DefaultValue="true" Constant="false" />
+      </FacetDescriptions>
+    </Type>
   </Types>
   <Functions>
     <!-- ### AGGREGAfTES ### -->
@@ -1748,7 +1752,7 @@ PROCESS
     <!-- Release_Lock -->
     <Function Name="RELEASE_LOCK" BuiltIn="true">
       <ReturnType Type="Int32" />
-      <Parameter Name="str" Type="String" Mode="In"/>
+     <Parameter Name="str" Type="String" Mode="In"/>
     </Function>
 
     <!-- Sleep -->
@@ -1761,7 +1765,7 @@ PROCESS
     <Function Name="UUID" BuiltIn="true">
       <ReturnType Type="String" />
     </Function>
-
+    
     <!-- Values (???) -->
   </Functions>
 </ProviderManifest>
