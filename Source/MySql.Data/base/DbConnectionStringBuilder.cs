@@ -22,20 +22,21 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 using System.Globalization;
 
 namespace MySql.Data.MySqlClient
 {
-    public class DbConnectionStringBuilder : IDictionary, ICollection, IEnumerable, ICustomTypeDescriptor
-	{
-        private Hashtable hash;
+    public class DbConnectionStringBuilder : IDictionary, ICollection, IEnumerable
+    {
+        private HashSet<string> hash;
         private bool browsable;
 
         public DbConnectionStringBuilder()
         {
-            hash = new Hashtable(StringComparer.InvariantCultureIgnoreCase);
+            hash = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             browsable = false;
         }
 
@@ -159,69 +160,6 @@ namespace MySql.Data.MySqlClient
 
         #endregion
 
-        #region ICustomTypeDescriptor Members
-
-        public AttributeCollection GetAttributes()
-        {
-            throw new Exception("The method or operation is not implemented.");
-        }
-
-        public string GetClassName()
-        {
-            throw new Exception("The method or operation is not implemented.");
-        }
-
-        public string GetComponentName()
-        {
-            throw new Exception("The method or operation is not implemented.");
-        }
-
-        public TypeConverter GetConverter()
-        {
-            throw new Exception("The method or operation is not implemented.");
-        }
-
-        public EventDescriptor GetDefaultEvent()
-        {
-            throw new Exception("The method or operation is not implemented.");
-        }
-
-        public PropertyDescriptor GetDefaultProperty()
-        {
-            throw new Exception("The method or operation is not implemented.");
-        }
-
-        public object GetEditor(Type editorBaseType)
-        {
-            throw new Exception("The method or operation is not implemented.");
-        }
-
-        public EventDescriptorCollection GetEvents(Attribute[] attributes)
-        {
-            throw new Exception("The method or operation is not implemented.");
-        }
-
-        public EventDescriptorCollection GetEvents()
-        {
-            throw new Exception("The method or operation is not implemented.");
-        }
-
-        public PropertyDescriptorCollection GetProperties(Attribute[] attributes)
-        {
-            throw new Exception("The method or operation is not implemented.");
-        }
-
-        public PropertyDescriptorCollection GetProperties()
-        {
-            throw new Exception("The method or operation is not implemented.");
-        }
-
-        public object GetPropertyOwner(PropertyDescriptor pd)
-        {
-            throw new Exception("The method or operation is not implemented.");
-        }
-
-        #endregion
 
         public virtual object TryGetValue(string keyword, out object value)
         {
