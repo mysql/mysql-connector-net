@@ -44,8 +44,8 @@ namespace MySql.Data.MySqlClient
     protected DateTime creationTime;
     protected string serverCharSet;
     protected int serverCharSetIndex;
-    protected Hashtable serverProps;
-    protected Hashtable charSets;
+    protected Dictionary<string,string> serverProps;
+    protected Dictionary<int,string> charSets;
     protected long maxPacketSize;
     internal int timeZoneOffset;
     private DateTime idleSince;    
@@ -146,7 +146,7 @@ namespace MySql.Data.MySqlClient
       set { serverCharSetIndex = value; }
     }
 
-    internal Hashtable CharacterSets
+    internal Dictionary<int,string> CharacterSets
     {
       get { return charSets; }
     }
@@ -288,7 +288,7 @@ namespace MySql.Data.MySqlClient
           charSet = serverCharSet;
       }
 
-      if (serverProps.Contains("max_allowed_packet"))
+      if (serverProps.ContainsKey("max_allowed_packet"))
         maxPacketSize = Convert.ToInt64(serverProps["max_allowed_packet"]);
 
       // now tell the server which character set we will send queries in and which charset we
@@ -320,10 +320,10 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     /// <param name="connection"></param>
     /// <returns></returns>
-    private Hashtable LoadServerProperties(MySqlConnection connection)
+    private Dictionary<string,string> LoadServerProperties(MySqlConnection connection)
     {
       // load server properties
-      Hashtable hash = new Hashtable();
+      Dictionary<string, string> hash = new Dictionary<string, string>();
       MySqlCommand cmd = new MySqlCommand("SHOW VARIABLES", connection);
       try
       {
@@ -375,7 +375,7 @@ namespace MySql.Data.MySqlClient
       {
         using (MySqlDataReader reader = cmd.ExecuteReader())
         {
-          charSets = new Hashtable();
+          charSets = new Dictionary<int, string>();
           while (reader.Read())
           {
             charSets[Convert.ToInt32(reader["id"], NumberFormatInfo.InvariantInfo)] =

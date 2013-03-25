@@ -34,7 +34,7 @@ namespace MySql.Data.MySqlClient
   /// </summary>
   internal class MySqlPoolManager
   {
-    private static Hashtable pools = new Hashtable();
+    private static Dictionary<string, MySqlPool> pools = new Dictionary<string, MySqlPool>();
     private static List<MySqlPool> clearingPools = new List<MySqlPool>();
 
     // Timeout in seconds, after which an unused (idle) connection 
@@ -95,7 +95,7 @@ namespace MySql.Data.MySqlClient
     {
       string text = GetKey(settings);
 
-      lock (pools.SyncRoot)
+      lock (pools)
       {
         MySqlPool pool = (pools[text] as MySqlPool);
 
@@ -150,7 +150,7 @@ namespace MySql.Data.MySqlClient
 
     private static void ClearPoolByText(string key)
     {
-      lock (pools.SyncRoot)
+      lock (pools)
       {
         // if pools doesn't have it, then this pool must already have been cleared
         if (!pools.ContainsKey(key)) return;
@@ -169,7 +169,7 @@ namespace MySql.Data.MySqlClient
 
     public static void ClearAllPools()
     {
-      lock (pools.SyncRoot)
+      lock (pools)
       {
         // Create separate keys list.
         List<string> keys = new List<string>(pools.Count);
@@ -195,7 +195,7 @@ namespace MySql.Data.MySqlClient
     public static void CleanIdleConnections(object obj)
     {
       List<Driver> oldDrivers = new List<Driver>();
-      lock (pools.SyncRoot)
+      lock (pools)
       {
         foreach (string key in pools.Keys)
         {

@@ -26,13 +26,13 @@ using System.Diagnostics;
 using System.IO;
 using MySql.Data.Common;
 using MySql.Data.Types;
-using System.Security.Cryptography.X509Certificates;
 using MySql.Data.MySqlClient.Properties;
 using System.Text;
 using MySql.Data.MySqlClient.Authentication;
 using System.Reflection;
 using System.ComponentModel;
-#if !CF
+#if !CF && !RT
+using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
 using System.Security.Authentication;
 using System.Globalization;
@@ -191,28 +191,10 @@ namespace MySql.Data.MySqlClient
       // connect to one of our specified hosts
       try
       {
-#if !CF
-        if (Settings.ConnectionProtocol == MySqlConnectionProtocol.SharedMemory)
-        {
-          SharedMemoryStream str = new SharedMemoryStream(Settings.SharedMemoryName);
-          str.Open(Settings.ConnectionTimeout);
-          baseStream = str;
-        }
-        else
-        {
-#endif
-          string pipeName = Settings.PipeName;
-          if (Settings.ConnectionProtocol != MySqlConnectionProtocol.NamedPipe)
-            pipeName = null;
-          StreamCreator sc = new StreamCreator(Settings.Server, Settings.Port, pipeName,
-              Settings.Keepalive, this.Version);
+        baseStream = StreamCreator.GetStream(Settings);
 #if !CF
          if (Settings.IncludeSecurityAsserts)
             MySqlSecurityPermission.CreatePermissionSet(false).Assert();
-#endif
-          baseStream = sc.GetStream(Settings.ConnectionTimeout);
-#if !CF
-        }
 #endif
       }
       catch (System.Security.SecurityException)
@@ -320,7 +302,7 @@ namespace MySql.Data.MySqlClient
       stream.MaxBlockSize = maxSinglePacket;
     }
 
-#if !CF
+#if !CF && !RT
 
     #region SSL
 

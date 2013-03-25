@@ -21,6 +21,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
+using System.IO;
 
 namespace MySql.Data.Common
 {
@@ -38,6 +39,9 @@ namespace MySql.Data.Common
 
     public static bool IsWindows()
     {
+#if NETFX_CORE
+      return true;
+#else
       OperatingSystem os = Environment.OSVersion;
       switch (os.Platform)
       {
@@ -47,6 +51,19 @@ namespace MySql.Data.Common
           return true;
       }
       return false;
+#endif
+    }
+
+    public static char DirectorySeparatorChar
+    {
+      get
+      {
+#if NETFX_CORE
+        return '\\';
+#else
+          return Path.DirectorySeparatorChar;
+#endif
+      }
     }
 
     public static bool IsMono()

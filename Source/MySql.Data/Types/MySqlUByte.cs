@@ -55,11 +55,6 @@ namespace MySql.Data.Types
       get { return MySqlDbType.UByte; }
     }
 
-    DbType IMySqlValue.DbType
-    {
-      get { return DbType.Byte; }
-    }
-
     object IMySqlValue.Value
     {
       get { return mValue; }

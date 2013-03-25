@@ -29,7 +29,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Text;
 using System.Collections;
-#if !CF
+#if !CF && !RT
 using System.ComponentModel.Design.Serialization;
 #endif
 
@@ -38,10 +38,10 @@ namespace MySql.Data.MySqlClient
   /// <summary>
   /// Represents a parameter to a <see cref="MySqlCommand"/>, and optionally, its mapping to <see cref="DataSet"/> columns. This class cannot be inherited.
   /// </summary>
-#if !CF
+#if !CF && !RT
   [TypeConverter(typeof(MySqlParameterConverter))]
 #endif
-  public sealed class MySqlParameter : DbParameter, IDataParameter, IDbDataParameter, ICloneable
+  public sealed class MySqlParameter : BaseParameter, ICloneable
   {
     private const int UNSIGNED_MASK = 0x8000;
     private object paramValue;
@@ -211,9 +211,7 @@ namespace MySql.Data.MySqlClient
     /// Gets or sets a value indicating whether the parameter is input-only, output-only, bidirectional, or a stored procedure return value parameter.
     /// As of MySql version 4.1 and earlier, input-only is the only valid choice.
     /// </summary>
-#if !CF
     [Category("Data")]
-#endif
     public override ParameterDirection Direction
     {
       get { return direction; }
@@ -223,9 +221,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets or sets a value indicating whether the parameter accepts null values.
     /// </summary>
-#if !CF
     [Browsable(false)]
-#endif
     public override Boolean IsNullable
     {
       get { return isNullable; }
@@ -252,9 +248,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets or sets the name of the MySqlParameter.
     /// </summary>
-#if !CF
     [Category("Misc")]
-#endif
     public override String ParameterName
     {
       get { return paramName; }
@@ -269,9 +263,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets or sets the maximum number of digits used to represent the <see cref="Value"/> property.
     /// </summary>
-#if !CF
     [Category("Data")]
-#endif
     public byte Precision
     {
       get { return precision; }
@@ -281,9 +273,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets or sets the number of decimal places to which <see cref="Value"/> is resolved.
     /// </summary>
-#if !CF
     [Category("Data")]
-#endif
     public byte Scale
     {
       get { return scale; }
@@ -293,9 +283,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets or sets the maximum size, in bytes, of the data within the column.
     /// </summary>
-#if !CF
     [Category("Data")]
-#endif
     public override int Size
     {
       get { return size; }
@@ -305,9 +293,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets or sets the name of the source column that is mapped to the <see cref="DataSet"/> and used for loading or returning the <see cref="Value"/>.
     /// </summary>
-#if !CF
     [Category("Data")]
-#endif
     public override String SourceColumn
     {
       get { return sourceColumn; }
@@ -317,9 +303,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets or sets the <see cref="DataRowVersion"/> to use when loading <see cref="Value"/>.
     /// </summary>
-#if !CF
     [Category("Data")]
-#endif
     public override DataRowVersion SourceVersion
     {
       get { return sourceVersion; }

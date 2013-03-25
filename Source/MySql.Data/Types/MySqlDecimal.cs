@@ -74,11 +74,6 @@ namespace MySql.Data.Types
     }
 
 
-    DbType IMySqlValue.DbType
-    {
-      get { return DbType.Decimal; }
-    }
-
     object IMySqlValue.Value
     {
       get { return this.Value; }

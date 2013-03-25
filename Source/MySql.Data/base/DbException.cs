@@ -25,7 +25,7 @@ using System.Runtime.InteropServices;
 
 namespace MySql.Data.MySqlClient
 {
-	public abstract class DbException : ExternalException
+	public abstract class DbException : Exception
 	{
         private int errorCode;
 

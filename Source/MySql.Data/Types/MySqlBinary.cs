@@ -59,11 +59,6 @@ namespace MySql.Data.Types
       get { return type; }
     }
 
-    DbType IMySqlValue.DbType
-    {
-      get { return DbType.Binary; }
-    }
-
     object IMySqlValue.Value
     {
       get { return mValue; }

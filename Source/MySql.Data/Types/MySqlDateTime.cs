@@ -208,16 +208,6 @@ namespace MySql.Data.Types
       get { return type; }
     }
 
-    DbType IMySqlValue.DbType
-    {
-      get
-      {
-        if (type == MySqlDbType.Date || type == MySqlDbType.Newdate)
-          return DbType.Date;
-        return DbType.DateTime;
-      }
-    }
-
     object IMySqlValue.Value
     {
       get { return GetDateTime(); }

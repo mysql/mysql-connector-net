@@ -57,11 +57,6 @@ namespace MySql.Data.Types
       get { return MySqlDbType.Double; }
     }
 
-    DbType IMySqlValue.DbType
-    {
-      get { return DbType.Double; }
-    }
-
     object IMySqlValue.Value
     {
       get { return mValue; }

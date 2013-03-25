@@ -55,11 +55,6 @@ namespace MySql.Data.Types
       get { return MySqlDbType.Time; }
     }
 
-    DbType IMySqlValue.DbType
-    {
-      get { return DbType.Time; }
-    }
-
     object IMySqlValue.Value
     {
       get { return mValue; }

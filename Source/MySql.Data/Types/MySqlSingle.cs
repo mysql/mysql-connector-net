@@ -56,11 +56,6 @@ namespace MySql.Data.Types
       get { return MySqlDbType.Float; }
     }
 
-    DbType IMySqlValue.DbType
-    {
-      get { return DbType.Single; }
-    }
-
     object IMySqlValue.Value
     {
       get { return mValue; }

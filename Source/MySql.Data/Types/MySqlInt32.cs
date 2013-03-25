@@ -65,11 +65,6 @@ namespace MySql.Data.Types
       get { return MySqlDbType.Int32; }
     }
 
-    DbType IMySqlValue.DbType
-    {
-      get { return DbType.Int32; }
-    }
-
     object IMySqlValue.Value
     {
       get { return mValue; }

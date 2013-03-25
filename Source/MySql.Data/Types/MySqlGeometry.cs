@@ -151,11 +151,6 @@ namespace MySql.Data.Types
       get { return _type; }
     }
 
-    DbType IMySqlValue.DbType 
-    {
-      get { return DbType.Binary; }
-    }
-
     public bool IsNull
     {
       get { return _isNull; }

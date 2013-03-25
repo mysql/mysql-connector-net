@@ -23,9 +23,9 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Data.SqlTypes;
 using System.Collections;
 using MySql.Data.Types;
-using System.Data.SqlTypes;
 using System.Collections.Generic;
 using System.Globalization;
 using MySql.Data.MySqlClient.Properties;
@@ -34,7 +34,7 @@ using MySql.Data.Common;
 namespace MySql.Data.MySqlClient
 {
   /// <include file='docs/MySqlDataReader.xml' path='docs/ClassSummary/*'/>
-  public sealed class MySqlDataReader : DbDataReader, IDataReader, IDataRecord
+  public sealed class MySqlDataReader : BaseDataReader, IDisposable
   {
     // The DataReader should always be open when returned to the user.
     private bool isOpen = true;
@@ -899,11 +899,6 @@ namespace MySql.Data.MySqlClient
 
 
     #endregion
-
-    IDataReader IDataRecord.GetData(int i)
-    {
-      return base.GetData(i);
-    }
 
     /// <summary>
     /// Gets a value indicating whether the column contains non-existent or missing values.

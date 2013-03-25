@@ -21,11 +21,11 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Data;
-using System.Data.Common;
 using System.IO;
 using System.Collections;
 using System.Text;
+using System.Data;
+using System.Data.Common;
 using MySql.Data.Common;
 using System.ComponentModel;
 using System.Threading;
@@ -33,7 +33,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Collections.Generic;
 using MySql.Data.MySqlClient.Properties;
-#if !CF
+#if !CF 
 using System.Transactions;
 using MySql.Data.MySqlClient.LoadBalancing;
 #endif
@@ -41,7 +41,7 @@ using MySql.Data.MySqlClient.LoadBalancing;
 namespace MySql.Data.MySqlClient
 {
   /// <include file='docs/mysqlcommand.xml' path='docs/ClassSummary/*'/> 
-#if !CF
+#if !CF && !RT
   [System.Drawing.ToolboxBitmap(typeof(MySqlCommand), "MySqlClient.resources.command.bmp")]
   [System.ComponentModel.DesignerCategory("Code")]
 #endif
@@ -109,20 +109,16 @@ namespace MySql.Data.MySqlClient
 
 
     /// <include file='docs/mysqlcommand.xml' path='docs/LastInseredId/*'/>
-#if !CF
     [Browsable(false)]
-#endif
     public Int64 LastInsertedId
     {
       get { return lastInsertedId; }
     }
 
     /// <include file='docs/mysqlcommand.xml' path='docs/CommandText/*'/>
-#if !CF
     [Category("Data")]
     [Description("Command text to execute")]
     [Editor("MySql.Data.Common.Design.SqlCommandTextEditor,MySqlClient.Design", typeof(System.Drawing.Design.UITypeEditor))]
-#endif
     public override string CommandText
     {
       get { return cmdText; }
@@ -140,11 +136,9 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <include file='docs/mysqlcommand.xml' path='docs/CommandTimeout/*'/>
-#if !CF
     [Category("Misc")]
     [Description("Time to wait for command to execute")]
     [DefaultValue(30)]
-#endif
     public override int CommandTimeout
     {
       get { return useDefaultTimeout ? 30 : commandTimeout; }
@@ -171,9 +165,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <include file='docs/mysqlcommand.xml' path='docs/CommandType/*'/>
-#if !CF
     [Category("Data")]
-#endif
     public override CommandType CommandType
     {
       get { return cmdType; }
@@ -181,19 +173,15 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <include file='docs/mysqlcommand.xml' path='docs/IsPrepared/*'/>
-#if !CF
     [Browsable(false)]
-#endif
     public bool IsPrepared
     {
       get { return statement != null && statement.IsPrepared; }
     }
 
     /// <include file='docs/mysqlcommand.xml' path='docs/Connection/*'/>
-#if !CF
     [Category("Behavior")]
     [Description("Connection used by the command")]
-#endif
     public new MySqlConnection Connection
     {
       get { return connection; }
@@ -226,11 +214,9 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <include file='docs/mysqlcommand.xml' path='docs/Parameters/*'/>
-#if !CF
     [Category("Data")]
     [Description("The parameters collection")]
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-#endif
     public new MySqlParameterCollection Parameters
     {
       get { return parameters; }
@@ -238,9 +224,7 @@ namespace MySql.Data.MySqlClient
 
 
     /// <include file='docs/mysqlcommand.xml' path='docs/Transaction/*'/>
-#if !CF
     [Browsable(false)]
-#endif
     public new MySqlTransaction Transaction
     {
       get { return curTransaction; }
@@ -920,17 +904,17 @@ namespace MySql.Data.MySqlClient
       {
         // if the command starts with insert and is "simple" enough, then
         // we can use the multi-value form of insert
-        if (String.Compare(CommandText.Substring(0, 6), "INSERT", true) == 0)
+        if (String.Compare(CommandText.Substring(0, 6), "INSERT", StringComparison.OrdinalIgnoreCase) == 0)
         {
           MySqlCommand cmd = new MySqlCommand("SELECT @@sql_mode", Connection);
-          string sql_mode = cmd.ExecuteScalar().ToString().ToUpper(CultureInfo.InvariantCulture);
+          string sql_mode = StringUtility.ToUpperInvariant(cmd.ExecuteScalar().ToString());
           MySqlTokenizer tokenizer = new MySqlTokenizer(CommandText);
           tokenizer.AnsiQuotes = sql_mode.IndexOf("ANSI_QUOTES") != -1;
           tokenizer.BackslashEscapes = sql_mode.IndexOf("NO_BACKSLASH_ESCAPES") == -1;
-          string token = tokenizer.NextToken().ToLower(CultureInfo.InvariantCulture);
+          string token = StringUtility.ToLowerInvariant(tokenizer.NextToken());
           while (token != null)
           {
-            if (token.ToUpper(CultureInfo.InvariantCulture) == "VALUES" &&
+            if (StringUtility.ToUpperInvariant(token) == "VALUES" &&
                 !tokenizer.Quoted)
             {
               token = tokenizer.NextToken();
@@ -957,7 +941,7 @@ namespace MySql.Data.MySqlClient
                 batchableCommandText += token;
               token = tokenizer.NextToken();
               if (token != null && (token == "," ||
-                  token.ToUpper(CultureInfo.InvariantCulture) == "ON"))
+                  StringUtility.ToUpperInvariant(token) == "ON"))
               {
                 batchableCommandText = null;
                 break;
@@ -988,9 +972,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets or sets a value indicating whether the command object should be visible in a Windows Form Designer control. 
     /// </summary>
-#if !CF
     [Browsable(false)]
-#endif
     public override bool DesignTimeVisible
     {
       get

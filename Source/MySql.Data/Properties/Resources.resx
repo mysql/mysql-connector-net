@@ -511,4 +511,10 @@
   <data name="LoadBalancing_ConnectionAttemptFailed" xml:space="preserve">
     <value>Attempt to connect to '{0}' server failed.</value>
   </data>
+  <data name="UnknownConnectionProtocol" xml:space="preserve">
+    <value>Unknown connection protocol</value>
+  </data>
+  <data name="NoUnixSocketsOnWindows" xml:space="preserve">
+    <value>Unix sockets are not supported on Windows.</value>
+  </data>
 </root>

@@ -33,22 +33,20 @@ namespace MySql.Data.MySqlClient
   /// Represents a collection of parameters relevant to a <see cref="MySqlCommand"/> as well as their respective mappings to columns in a <see cref="System.Data.DataSet"/>. This class cannot be inherited.
   /// </summary>
   /// <include file='docs/MySqlParameterCollection.xml' path='MyDocs/MyMembers[@name="Class"]/*'/>
-#if !CF
   [Editor("MySql.Data.MySqlClient.Design.DBParametersEditor,MySql.Design", typeof(System.Drawing.Design.UITypeEditor))]
   [ListBindable(true)]
-#endif
   public sealed class MySqlParameterCollection : DbParameterCollection
   {
     List<DbParameter> items = new List<DbParameter>();
-    private Hashtable indexHashCS;
-    private Hashtable indexHashCI;
+    private Dictionary<string,int> indexHashCS;
+    private Dictionary<string,int> indexHashCI;
     //turns to true if any parameter is unnamed
     internal bool containsUnnamedParameters;
 
     internal MySqlParameterCollection(MySqlCommand cmd)
     {
-      indexHashCS = new Hashtable();
-      indexHashCI = new Hashtable(StringComparer.CurrentCultureIgnoreCase);
+      indexHashCS = new Dictionary<string, int>();
+      indexHashCI = new Dictionary<string,int>(StringComparer.CurrentCultureIgnoreCase);
       containsUnnamedParameters = false;
       Clear();
     }
@@ -468,13 +466,13 @@ namespace MySql.Data.MySqlClient
       while (true)
       {
         string name = "Parameter" + index.ToString();
-        if (!indexHashCI.Contains(name)) break;
+        if (!indexHashCI.ContainsKey(name)) break;
         index++;
       }
       return index;
     }
 
-    private static void AdjustHash(Hashtable hash, string parameterName, int keyIndex, bool addEntry)
+    private static void AdjustHash(Dictionary<string,int> hash, string parameterName, int keyIndex, bool addEntry)
     {
       if (!hash.ContainsKey(parameterName)) return;
       int index = (int)hash[parameterName];

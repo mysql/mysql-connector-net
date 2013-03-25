@@ -108,6 +108,7 @@
     <Compile Include="Authentication\NativePasswordPlugins.cs" />
     <Compile Include="Authentication\Sha256AuthenticationPlugin.cs" />
     <Compile Include="Authentication\WindowsAuthenticationPlugin.cs" />
+    <Compile Include="base\BaseDataReader.cs" />
     <Compile Include="BulkLoader.cs" />
     <Compile Include="CharSetMap.cs" />
     <Compile Include="command.cs" />
@@ -144,12 +145,10 @@
     <Compile Include="LoadBalancing\LoadBalancingConfiguration.cs" />
     <Compile Include="LoadBalancing\LoadBalancingManager.cs" />
     <Compile Include="LoadBalancing\LoadBalancingServerSelector.cs" />
-
-    <Compile Include="Memcached\BinaryClient.cs" />    
+    <Compile Include="Memcached\BinaryClient.cs" />
     <Compile Include="Memcached\TextClient.cs" />
     <Compile Include="Memcached\MemcachedException.cs" />
     <Compile Include="Memcached\Client.cs" />
-
     <Compile Include="MySqlClientFactory.cs" />
     <Compile Include="MySqlClientPermission.cs" />
     <Compile Include="MySqlConfiguration.cs" />

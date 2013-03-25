@@ -59,16 +59,6 @@ namespace MySql.Data.Types
       get { return MySqlDbType.Byte; }
     }
 
-    DbType IMySqlValue.DbType
-    {
-      get
-      {
-        if (TreatAsBoolean)
-          return DbType.Boolean;
-        return DbType.SByte;
-      }
-    }
-
     object IMySqlValue.Value
     {
       get

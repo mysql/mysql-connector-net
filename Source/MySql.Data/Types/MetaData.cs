@@ -73,7 +73,7 @@ namespace MySql.Data.Types
 
     public static bool SupportScale(string typename)
     {
-      string lowerType = typename.ToLower(CultureInfo.InvariantCulture);
+      string lowerType = StringUtility.ToLowerInvariant(typename);
       switch (lowerType)
       {
         case "numeric":
@@ -87,7 +87,7 @@ namespace MySql.Data.Types
     public static MySqlDbType NameToType(string typeName, bool unsigned,
        bool realAsFloat, MySqlConnection connection)
     {
-      switch (typeName.ToUpper(CultureInfo.InvariantCulture))
+      switch (StringUtility.ToUpperInvariant(typeName))
       {
         case "CHAR": return MySqlDbType.String;
         case "VARCHAR": return MySqlDbType.VarChar;

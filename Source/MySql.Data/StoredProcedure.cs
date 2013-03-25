@@ -103,7 +103,8 @@ namespace MySql.Data.MySqlClient
       int x = dtd.Length - 1;
       while (x > 0 && (Char.IsLetterOrDigit(dtd[x]) || dtd[x] == ' '))
         x--;
-      return dtd.Substring(x).ToUpper(CultureInfo.InvariantCulture);
+      string dtdSubstring = dtd.Substring(x);
+      return StringUtility.ToUpperInvariant(dtdSubstring);
     }
 
     private string FixProcedureName(string name)

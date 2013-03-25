@@ -25,7 +25,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+#if RT
+using Windows.Security.Cryptography;
+#else
 using System.Security.Cryptography;
+#endif
 using System.Text;
 using MySql.Data.Common;
 using MySql.Data.MySqlClient.Properties;

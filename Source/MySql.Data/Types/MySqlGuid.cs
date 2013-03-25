@@ -66,11 +66,6 @@ namespace MySql.Data.Types
       get { return MySqlDbType.Guid; }
     }
 
-    DbType IMySqlValue.DbType
-    {
-      get { return DbType.Guid; }
-    }
-
     object IMySqlValue.Value
     {
       get { return mValue; }

@@ -25,7 +25,11 @@ using System;
 using MySql.Data.MySqlClient.Properties;
 using MySql.Data.Common;
 using System.Text;
+#if RT
+using Windows.Security.Cryptography;
+#else
 using System.Security.Cryptography;
+#endif
 
 namespace MySql.Data.MySqlClient.Authentication
 {

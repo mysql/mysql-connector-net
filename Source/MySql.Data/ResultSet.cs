@@ -37,8 +37,8 @@ namespace MySql.Data.MySqlClient
     private bool[] uaFieldsUsed;
     private MySqlField[] fields;
     private IMySqlValue[] values;
-    private Hashtable fieldHashCS;
-    private Hashtable fieldHashCI;
+    private Dictionary<string, int> fieldHashCS;
+    private Dictionary<string, int> fieldHashCI;
     private int rowIndex;
     private bool readDone;
     private bool isSequential;
@@ -327,8 +327,8 @@ namespace MySql.Data.MySqlClient
 
       values = new IMySqlValue[numCols];
       uaFieldsUsed = new bool[numCols];
-      fieldHashCS = new Hashtable();
-      fieldHashCI = new Hashtable(StringComparer.InvariantCultureIgnoreCase);
+      fieldHashCS = new Dictionary<string, int>();
+      fieldHashCI = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
       for (int i = 0; i < fields.Length; i++)
       {

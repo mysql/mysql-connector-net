@@ -24,36 +24,34 @@ using System;
 using System.ComponentModel;
 using System.Data;
 using System.Data.Common;
-#if !CF
+using IsolationLevel = System.Data.IsolationLevel;
+#if !CF && !RT
 using System.Drawing;
 using System.Drawing.Design;
 using System.Transactions;
 using MySql.Data.MySqlClient.LoadBalancing;
 #endif
 using System.Text;
-using IsolationLevel = System.Data.IsolationLevel;
 using MySql.Data.Common;
 using System.Diagnostics;
 using MySql.Data.MySqlClient.Properties;
+using MySql.Data.MySqlClient.LoadBalancing;
 
 namespace MySql.Data.MySqlClient
 {
   /// <include file='docs/MySqlConnection.xml' path='docs/ClassSummary/*'/>
-#if !CF
   [ToolboxBitmap(typeof(MySqlConnection), "MySqlClient.resources.connection.bmp")]
   [DesignerCategory("Code")]
   [ToolboxItem(true)]
-#endif
   public sealed class MySqlConnection : DbConnection, ICloneable
   {
     internal ConnectionState connectionState;
     internal Driver driver;
-    private MySqlConnectionStringBuilder settings;
     internal bool hasBeenOpen;
     private SchemaProvider schemaProvider;
     private ProcedureCache procedureCache;
     private bool isInUse;
-#if !CF
+#if !CF && !RT
     private PerformanceMonitor perfMonitor;
     private ExceptionInterceptor exceptionInterceptor;
     internal CommandInterceptor commandInterceptor;
@@ -72,7 +70,7 @@ namespace MySql.Data.MySqlClient
     public MySqlConnection()
     {
       //TODO: add event data to StateChange docs
-      settings = new MySqlConnectionStringBuilder();
+      Settings = new MySqlConnectionStringBuilder();
       database = String.Empty;
     }
 
@@ -98,10 +96,7 @@ namespace MySql.Data.MySqlClient
       get { return procedureCache; }
     }
 
-    internal MySqlConnectionStringBuilder Settings
-    {
-      get { return settings; }
-    }
+    internal MySqlConnectionStringBuilder Settings { get; private set; }
 
     internal MySqlDataReader Reader
     {
@@ -153,9 +148,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Returns the id of the server thread this connection is executing on
     /// </summary>
-#if !CF
     [Browsable(false)]
-#endif
     public int ServerThread
     {
       get { return driver.ThreadID; }
@@ -164,27 +157,21 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets the name of the MySQL server to which to connect.
     /// </summary>
-#if !CF
     [Browsable(true)]
-#endif
     public override string DataSource
     {
-      get { return settings.Server; }
+      get { return Settings.Server; }
     }
 
     /// <include file='docs/MySqlConnection.xml' path='docs/ConnectionTimeout/*'/>
-#if !CF
     [Browsable(true)]
-#endif
     public override int ConnectionTimeout
     {
-      get { return (int)settings.ConnectionTimeout; }
+      get { return (int)Settings.ConnectionTimeout; }
     }
 
     /// <include file='docs/MySqlConnection.xml' path='docs/Database/*'/>
-#if !CF
     [Browsable(true)]
-#endif
     public override string Database
     {
       get { return database; }
@@ -193,47 +180,39 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Indicates if this connection should use compression when communicating with the server.
     /// </summary>
-#if !CF
     [Browsable(false)]
-#endif
     public bool UseCompression
     {
-      get { return settings.UseCompression; }
+      get { return Settings.UseCompression; }
     }
 
     /// <include file='docs/MySqlConnection.xml' path='docs/State/*'/>
-#if !CF
     [Browsable(false)]
-#endif
     public override ConnectionState State
     {
       get { return connectionState; }
     }
 
     /// <include file='docs/MySqlConnection.xml' path='docs/ServerVersion/*'/>
-#if !CF
     [Browsable(false)]
-#endif
     public override string ServerVersion
     {
       get { return driver.Version.ToString(); }
     }
 
     /// <include file='docs/MySqlConnection.xml' path='docs/ConnectionString/*'/>
-#if !CF
     [Editor("MySql.Data.MySqlClient.Design.ConnectionStringTypeEditor,MySqlClient.Design", typeof(UITypeEditor))]
     [Browsable(true)]
     [Category("Data")]
     [Description(
       "Information used to connect to a DataSource, such as 'Server=xxx;UserId=yyy;Password=zzz;Database=dbdb'.")]
-#endif
     public override string ConnectionString
     {
       get
       {
         // Always return exactly what the user set.
         // Security-sensitive information may be removed.
-        return settings.GetConnectionString(!hasBeenOpen || settings.PersistSecurityInfo);
+        return Settings.GetConnectionString(!hasBeenOpen || Settings.PersistSecurityInfo);
       }
       set
       {
@@ -257,10 +236,10 @@ namespace MySql.Data.MySqlClient
           }
         }
 
-        settings = newSettings;
+        Settings = newSettings;
 
-        if (settings.Database != null && settings.Database.Length > 0)
-          this.database = settings.Database;
+        if (Settings.Database != null && Settings.Database.Length > 0)
+          this.database = Settings.Database;
 
         if (driver != null)
           driver.Settings = newSettings;
@@ -476,7 +455,7 @@ namespace MySql.Data.MySqlClient
       }
       // if we are auto enlisting in a current transaction, then we will be
       // treating the connection as pooled
-      if (settings.AutoEnlist && Transaction.Current != null)
+      if (Settings.AutoEnlist && Transaction.Current != null)
       {
         driver = DriverTransactionManager.GetDriverInTransaction(Transaction.Current);
         if (driver != null &&
@@ -488,15 +467,15 @@ namespace MySql.Data.MySqlClient
 
       try
       {
-        MySqlConnectionStringBuilder currentSettings = settings;
+        MySqlConnectionStringBuilder currentSettings = Settings;
 
 #if !CF
         // Load balancing 
-        if (LoadBalancingManager.IsLoadBalancingGroup(settings.Server))
+        if (LoadBalancingManager.IsLoadBalancingGroup(Settings.Server))
         {
           if (driver == null)
           {
-            LoadBalancingManager.GetNewConnection(settings.Server, false, this);
+            LoadBalancingManager.GetNewConnection(Settings.Server, false, this);
             return;
           }
           else
@@ -504,7 +483,7 @@ namespace MySql.Data.MySqlClient
         }
 #endif
 
-        if (settings.Pooling)
+        if (Settings.Pooling)
         {
           MySqlPool pool = MySqlPoolManager.GetPool(currentSettings);
           if (driver == null || !driver.IsOpen)
@@ -516,7 +495,7 @@ namespace MySql.Data.MySqlClient
         {
           if (driver == null || !driver.IsOpen)
             driver = Driver.Create(currentSettings);
-          procedureCache = new ProcedureCache((int)settings.ProcedureCacheSize);
+          procedureCache = new ProcedureCache((int)Settings.ProcedureCacheSize);
         }
       }
       catch (Exception ex)
@@ -535,20 +514,23 @@ namespace MySql.Data.MySqlClient
 
       if (!(driver.SupportsPasswordExpiration && driver.IsPasswordExpired))
       {
-        if (settings.Database != null && settings.Database != String.Empty)
-          ChangeDatabase(settings.Database);
+        if (Settings.Database != null && Settings.Database != String.Empty)
+          ChangeDatabase(Settings.Database);
       }
 
       // setup our schema provider
+#if !RT
       schemaProvider = new ISSchemaProvider(this);
-#if !CF
+#endif
+
+#if !CF && !RT
       perfMonitor = new PerformanceMonitor(this);
 #endif
 
       // if we are opening up inside a current transaction, then autoenlist
       // TODO: control this with a connection string option
 #if !MONO && !CF
-      if (Transaction.Current != null && settings.AutoEnlist)
+      if (Transaction.Current != null && Settings.AutoEnlist)
         EnlistTransaction(Transaction.Current);
 #endif
 
@@ -578,27 +560,18 @@ namespace MySql.Data.MySqlClient
 #endif
     }
 
-    #region ICloneable
-
     /// <summary>
     /// Creates a new MySqlConnection object with the exact same ConnectionString value
     /// </summary>
     /// <returns>A cloned MySqlConnection object</returns>
-    public MySqlConnection Clone()
+    public object Clone()
     {
       MySqlConnection clone = new MySqlConnection();
-      string connectionString = settings.ConnectionString;
+      string connectionString = Settings.ConnectionString;
       if (connectionString != null)
         clone.ConnectionString = connectionString;
       return clone;
     }
-
-    object ICloneable.Clone()
-    {
-      return this.Clone();
-    }
-
-    #endregion
 
     #region IDisposeable
 
@@ -642,7 +615,7 @@ namespace MySql.Data.MySqlClient
 
     internal void CloseFully()
     {
-      if (settings.Pooling && driver.IsOpen)
+      if (Settings.Pooling && driver.IsOpen)
       {
         // if we are in a transaction, roll it back
         if (driver.HasStatus(ServerStatusFlags.InTransaction))
@@ -828,9 +801,19 @@ namespace MySql.Data.MySqlClient
     }
     #endregion
 
-
     #region GetSchema Support
 
+    internal MySqlSchemaCollection GetSchema(string collectionName, string[] restrictionValues)
+    {
+      if (collectionName == null)
+        collectionName = SchemaProvider.MetaCollection;
+
+      string[] restrictions = schemaProvider.CleanRestrictions(restrictionValues);
+      MySqlSchemaCollection c = schemaProvider.GetSchema(collectionName, restrictions);
+      return c;
+    }
+
+#if !RT
     /// <summary>
     /// Returns schema information for the data source of this <see cref="DbConnection"/>. 
     /// </summary>
@@ -871,6 +854,7 @@ namespace MySql.Data.MySqlClient
       DataTable dt = schemaProvider.GetSchema(collectionName, restrictions);
       return dt;
     }
+#endif
 
     #endregion
 

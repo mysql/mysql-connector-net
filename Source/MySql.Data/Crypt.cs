@@ -26,10 +26,11 @@ using System.Globalization;
 using System.Text;
 using MySql.Data.Common;
 using MySql.Data.MySqlClient.Properties;
+#if RT
+using Windows.Security.Cryptography;
+#else
 using System.Security.Cryptography;
-//#if CF
-//using OpenNETCF.Security.Cryptography;
-//#endif
+#endif
 
 namespace MySql.Data.MySqlClient
 {
