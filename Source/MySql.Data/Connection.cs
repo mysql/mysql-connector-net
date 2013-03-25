@@ -803,7 +803,7 @@ namespace MySql.Data.MySqlClient
 
     #region GetSchema Support
 
-    internal MySqlSchemaCollection GetSchema(string collectionName, string[] restrictionValues)
+    public MySqlSchemaCollection GetSchema(string collectionName, string[] restrictionValues)
     {
       if (collectionName == null)
         collectionName = SchemaProvider.MetaCollection;

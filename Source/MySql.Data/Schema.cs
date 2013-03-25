@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MySql.Data.MySqlClient.Properties;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,10 +25,10 @@ namespace MySql.Data.MySqlClient
 
     internal Dictionary<string, int> Mapping;
     public string Name { get; set; }
-    public ICollection Columns { get { return columns; } }
-    public ICollection Rows { get { return rows; } }
+    public IList<SchemaColumn> Columns { get { return columns; } }
+    public IList<MySqlSchemaRow> Rows { get { return rows; } }
 
-    public SchemaColumn AddColumn(string name, Type t)
+    internal SchemaColumn AddColumn(string name, Type t)
     {
       SchemaColumn c = new SchemaColumn();
       c.Name = name;
@@ -37,7 +38,35 @@ namespace MySql.Data.MySqlClient
       return c;
     }
 
-    public MySqlSchemaRow AddRow()
+    internal int ColumnIndex(string name)
+    {
+      int index = -1;
+      for (int i = 0; i < columns.Count; i++)
+      {
+        SchemaColumn c = columns[i];
+        if (String.Compare(c.Name, name, StringComparison.OrdinalIgnoreCase) != 0) continue;
+        index = i;
+        break;
+      }
+      return index;
+    }
+
+    internal void RemoveColumn(string name)
+    {
+      int index = ColumnIndex(name);
+      if (index == -1)
+        throw new InvalidOperationException();
+      columns.RemoveAt(index);
+      foreach (MySqlSchemaRow row in rows)
+        row.RemoveAt(index);
+    }
+
+    internal bool ContainsColumn(string name)
+    {
+      return ColumnIndex(name) >= 0;
+    }
+
+    internal MySqlSchemaRow AddRow()
     {
       MySqlSchemaRow r = new MySqlSchemaRow(this);
       rows.Add(r);
@@ -54,7 +83,7 @@ namespace MySql.Data.MySqlClient
       collection = c;
     }
 
-    public object this[string s]
+    internal object this[string s]
     {
       get { return GetValueForName(s); }
       set { SetValueForName(s, value); }

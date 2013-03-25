@@ -456,7 +456,7 @@ namespace MySql.Data.Types
       return val.GetDateTime();
     }
 
-    internal static void SetDSInfo(DataTable dsTable)
+    internal static void SetDSInfo(MySqlSchemaCollection sc)
     {
       string[] types = new string[] { "DATE", "DATETIME", "TIMESTAMP" };
       MySqlDbType[] dbtype = new MySqlDbType[] { MySqlDbType.Date, 
@@ -467,7 +467,7 @@ namespace MySql.Data.Types
       // collection and then it wil be cached.
       for (int x = 0; x < types.Length; x++)
       {
-        DataRow row = dsTable.NewRow();
+        MySqlSchemaRow row = sc.AddRow();
         row["TypeName"] = types[x];
         row["ProviderDbType"] = dbtype[x];
         row["ColumnSize"] = 0;
@@ -491,7 +491,6 @@ namespace MySql.Data.Types
         row["LiteralPrefix"] = null;
         row["LiteralSuffix"] = null;
         row["NativeDataType"] = null;
-        dsTable.Rows.Add(row);
       }
     }
 

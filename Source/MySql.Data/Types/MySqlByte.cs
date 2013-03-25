@@ -128,12 +128,12 @@ namespace MySql.Data.Types
       set { treatAsBool = value; }
     }
 
-    internal static void SetDSInfo(DataTable dsTable)
+    internal static void SetDSInfo(MySqlSchemaCollection sc)
     {
       // we use name indexing because this method will only be called
       // when GetSchema is called for the DataSourceInformation 
       // collection and then it wil be cached.
-      DataRow row = dsTable.NewRow();
+      MySqlSchemaRow row = sc.AddRow();
       row["TypeName"] = "TINYINT";
       row["ProviderDbType"] = MySqlDbType.Byte;
       row["ColumnSize"] = 0;
@@ -157,7 +157,6 @@ namespace MySql.Data.Types
       row["LiteralPrefix"] = null;
       row["LiteralSuffix"] = null;
       row["NativeDataType"] = null;
-      dsTable.Rows.Add(row);
     }
   }
 }
