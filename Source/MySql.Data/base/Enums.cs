@@ -31,6 +31,14 @@ namespace System.Data
       SequentialAccess,
       CloseConnection
     }
+
+    public enum DataRowVersion
+    {
+      Original, 
+      Current,
+      Proposed,
+      Default
+    }
 }
 
 namespace System.ComponentModel

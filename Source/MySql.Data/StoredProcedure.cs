@@ -35,7 +35,6 @@ namespace MySql.Data.MySqlClient
   internal class StoredProcedure : PreparableStatement
   {
     private string outSelect;
-    private DataTable parametersTable;
     private string resolvedCommandText;
     private bool serverProvidingOutputParameters;
 
@@ -86,16 +85,11 @@ namespace MySql.Data.MySqlClient
       return retValue + key.ToString();
     }
 
-    private void GetParameters(string procName, out DataTable proceduresTable,
-        out DataTable parametersTable)
+    private ProcedureCacheEntry GetParameters(string procName)
     {
       string procCacheKey = GetCacheKey(procName);
-      DataSet ds = Connection.ProcedureCache.GetProcedure(Connection, procName, procCacheKey);
-      lock (ds)
-      {
-        proceduresTable = ds.Tables["procedures"];
-        parametersTable = ds.Tables["procedure parameters"];
-      }
+      ProcedureCacheEntry entry = Connection.ProcedureCache.GetProcedure(Connection, procName, procCacheKey);
+      return entry;
     }
 
     public static string GetFlags(string dtd)
@@ -117,7 +111,7 @@ namespace MySql.Data.MySqlClient
       return String.Format("{0}.{1}", parts[0], parts[1]);
     }
 
-    private MySqlParameter GetAndFixParameter(string spName, DataRow param, bool realAsFloat, MySqlParameter returnParameter)
+    private MySqlParameter GetAndFixParameter(string spName, MySqlSchemaRow param, bool realAsFloat, MySqlParameter returnParameter)
     {
       string mode = (string)param["PARAMETER_MODE"];
       string pName = (string)param["PARAMETER_NAME"];
@@ -146,14 +140,13 @@ namespace MySql.Data.MySqlClient
       MySqlParameterCollection newParms = new MySqlParameterCollection(command);
       MySqlParameter returnParameter = GetReturnParameter();
 
-      DataTable procTable;
-      GetParameters(spName, out procTable, out parametersTable);
-      if (procTable.Rows.Count == 0)
+      ProcedureCacheEntry entry = GetParameters(spName);
+      if (entry.procedure == null || entry.procedure.Rows.Count == 0)
         throw new InvalidOperationException(String.Format(Resources.RoutineNotFound, spName));
 
-      bool realAsFloat = procTable.Rows[0]["SQL_MODE"].ToString().IndexOf("REAL_AS_FLOAT") != -1;
+      bool realAsFloat = entry.procedure.Rows[0]["SQL_MODE"].ToString().IndexOf("REAL_AS_FLOAT") != -1;
 
-      foreach (DataRow param in parametersTable.Rows)
+      foreach (MySqlSchemaRow param in entry.parameters.Rows)
         newParms.Add(GetAndFixParameter(spName, param, realAsFloat, returnParameter));
       return newParms;
     }
