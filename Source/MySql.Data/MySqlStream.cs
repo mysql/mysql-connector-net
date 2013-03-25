@@ -74,14 +74,23 @@ namespace MySql.Data.MySqlClient
       else
         stream = timedStream;
 
+#if RT
+      inStream = baseStream;
+#else
       inStream = new BufferedStream(stream);
+#endif
       outStream = stream;
     }
 
     public void Close()
     {
+#if RT
+      outStream.Dispose();
+      inStream.Dispose();
+#else
       outStream.Close();
       inStream.Close();
+#endif
       timedStream.Close();
     }
 

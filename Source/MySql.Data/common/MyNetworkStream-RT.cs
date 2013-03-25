@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using Windows.Networking;
 using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace MySql.Data.Common
 {
@@ -102,14 +103,41 @@ namespace MySql.Data.Common
       }
     }
 
-    public override int Read(byte[] buffer, int offset, int count)
+    public async override Task<int> Read(byte[] buffer, int offset, int count)
     {
-      throw new NotImplementedException();
+      CancellationTokenSource cts = new CancellationTokenSource();
+      try
+      {
+        cts.CancelAfter(base.ReadTimeout);
+        Windows.Storage.Streams.Buffer tempBuffer = new Windows.Storage.Streams.Buffer((uint)count);
+        var returnValue = await streamSocket.InputStream.ReadAsync(tempBuffer, (uint)count, InputStreamOptions.Partial).AsTask(cts.Token);
+        buffer = tempBuffer.ToArray();
+        return (int)returnValue.Length;
+      }
+      catch (TaskCanceledException)
+      {
+        streamSocket.Dispose();
+        streamSocket = null;
+        throw new TimeoutException(Resources.Timeout);
+      }
     }
 
-    public override void Write(byte[] buffer, int offset, int count)
+    public async override void Write(byte[] buffer, int offset, int count)
     {
-      throw new NotImplementedException();
+      CancellationTokenSource cts = new CancellationTokenSource();
+      try
+      {
+        cts.CancelAfter(base.WriteTimeout);
+        Windows.Storage.Streams.Buffer tempBuffer = new Windows.Storage.Streams.Buffer((uint)count);
+        buffer.CopyTo(0, tempBuffer, (uint)offset, count);
+        await streamSocket.OutputStream.WriteAsync(tempBuffer).AsTask(cts.Token);
+      }
+      catch (TaskCanceledException)
+      {
+        streamSocket.Dispose();
+        streamSocket = null;
+        throw new TimeoutException(Resources.Timeout);
+      }
     }
 
     public static MyNetworkStream CreateStream(MySqlConnectionStringBuilder settings, bool unix)

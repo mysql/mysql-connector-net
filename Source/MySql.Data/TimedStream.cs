@@ -22,7 +22,6 @@
 
 using System;
 using System.IO;
-using System.Net.Sockets;
 using System.Diagnostics;
 using MySql.Data.Common;
 
@@ -271,7 +270,10 @@ namespace MySql.Data.MySqlClient
       if (isClosed)
         return;
       isClosed = true;
+#if !RT
       baseStream.Close();
+#endif
+      baseStream.Dispose();
     }
 
     public void ResetTimeout(int newTimeout)
