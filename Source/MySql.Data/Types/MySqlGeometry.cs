@@ -341,12 +341,12 @@ namespace MySql.Data.Types
       return false; 
     }
     
-    public static void SetDSInfo(DataTable dsTable)
+    public static void SetDSInfo(MySqlSchemaCollection dsTable)
     {
       // we use name indexing because this method will only be called
       // when GetSchema is called for the DataSourceInformation 
       // collection and then it wil be cached.
-      DataRow row = dsTable.NewRow();
+      MySqlSchemaRow row = dsTable.AddRow();
       row["TypeName"] = "GEOMETRY";
       row["ProviderDbType"] = MySqlDbType.Geometry;
       row["ColumnSize"] = GEOMETRY_LENGTH;
@@ -370,7 +370,6 @@ namespace MySql.Data.Types
       row["LiteralPrefix"] = DBNull.Value;
       row["LiteralSuffix"] = DBNull.Value;
       row["NativeDataType"] = DBNull.Value;
-      dsTable.Rows.Add(row);
     }
  }
 }

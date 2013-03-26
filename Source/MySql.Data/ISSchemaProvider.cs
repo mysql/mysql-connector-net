@@ -270,10 +270,8 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    private void GetParametersForRoutineFromIS(MySqlSchemaCollection dt, string[] restrictions)
+    private MySqlSchemaCollection GetParametersForRoutineFromIS(string[] restrictions)
     {
-      Debug.Assert(dt != null);
-
       string[] keys = new string[5];
       keys[0] = "SPECIFIC_CATALOG";
       keys[1] = "SPECIFIC_SCHEMA";
@@ -287,39 +285,37 @@ namespace MySql.Data.MySqlClient
       if (!String.IsNullOrEmpty(where))
         sql.AppendFormat(CultureInfo.InvariantCulture, " WHERE {0}", where);
 
-      MySqlDataAdapter da = new MySqlDataAdapter(sql.ToString(), connection);
-      da.Fill(dt);
+      MySqlSchemaCollection coll = QueryCollection("parameters", sql.ToString());
 
-      if ((dt.Rows.Count != 0) && ((string)dt.Rows[0]["routine_type"] == "FUNCTION"))
+      if ((coll.Rows.Count != 0) && ((string)coll.Rows[0]["routine_type"] == "FUNCTION"))
       {
         // update missing data for the first row (function return value).
         // (using sames valus than GetParametersFromShowCreate).
-        dt.Rows[0]["parameter_mode"] = "IN";
-        dt.Rows[0]["parameter_name"] = "return_value"; // "FUNCTION";
+        coll.Rows[0]["parameter_mode"] = "IN";
+        coll.Rows[0]["parameter_name"] = "return_value"; // "FUNCTION";
       }
+      return coll;
     }
 
     private MySqlSchemaCollection GetParametersFromIS(string[] restrictions, MySqlSchemaCollection routines)
     {
-      MySqlSchemaCollection parms = new MySqlSchemaCollection();
+      MySqlSchemaCollection parms = null;
 
       if (routines == null || routines.Rows.Count == 0)
       {
         if (restrictions == null)
         {
-          // first fill our table with the proper structure
-          MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM INFORMATION_SCHEMA.PARAMETERS WHERE 1=2", connection);
-          da.Fill(parms);
+          parms = QueryCollection("parameters", "SELECT * FROM INFORMATION_SCHEMA.PARAMETERS WHERE 1=2");
         }
         else
-          GetParametersForRoutineFromIS(parms, restrictions);
+          parms = GetParametersForRoutineFromIS(restrictions);
       }
-      else foreach (DataRow routine in routines.Rows)
+      else foreach (MySqlSchemaRow routine in routines.Rows)
         {
           if (restrictions != null && restrictions.Length >= 3)
             restrictions[2] = routine["ROUTINE_NAME"].ToString();
 
-          GetParametersForRoutineFromIS(parms, restrictions);
+          parms = GetParametersForRoutineFromIS(restrictions);
         }
       parms.Name = "Procedure Parameters";
       return parms;
@@ -571,7 +567,7 @@ namespace MySql.Data.MySqlClient
         if (String.Compare(token, "FUNCTION", StringComparison.OrdinalIgnoreCase) == 0 &&
             nameToRestrict == null)
         {
-          parametersTable.Rows.Add(parametersTable.NewRow());
+          parametersTable.AddRow();
           InitParameterRow(row, parametersTable.Rows[0]);
         }
         token = tokenizer.NextToken();

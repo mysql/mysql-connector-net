@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -72,16 +73,33 @@ namespace MySql.Data.MySqlClient
       rows.Add(r);
       return r;
     }
+
+#if !RT
+    internal DataTable AsDataTable()
+    {
+      DataTable dt = new DataTable(Name);
+      foreach (SchemaColumn col in Columns)
+        dt.Columns.Add(col.Name, col.Type);
+      foreach (MySqlSchemaRow row in Rows)
+      {
+        DataRow newRow = dt.NewRow();
+        for (int i = 0; i < dt.Columns.Count; i++)
+          newRow[i] = row[i];
+        dt.Rows.Add(newRow);
+      }
+      return dt;
+    }
+#endif
   }
 
   public class MySqlSchemaRow : List<object>
   {
-    private MySqlSchemaCollection collection;
-
     public MySqlSchemaRow(MySqlSchemaCollection c)
     {
-      collection = c;
+      Collection = c;
     }
+
+    internal MySqlSchemaCollection Collection { get; private set; }
 
     internal object this[string s]
     {
@@ -91,14 +109,22 @@ namespace MySql.Data.MySqlClient
 
     private void SetValueForName(string colName, object value)
     {
-      int index = collection.Mapping[colName];
+      int index = Collection.Mapping[colName];
       this[index] = value;
     }
 
     private object GetValueForName(string colName)
     {
-      int index = collection.Mapping[colName];
+      int index = Collection.Mapping[colName];
       return this[index];
+    }
+
+    internal void CopyRow(MySqlSchemaRow row)
+    {
+      if (Collection.Columns.Count != row.Collection.Columns.Count)
+        throw new InvalidOperationException("column count doesn't match");
+      for (int i = 0; i < Collection.Columns.Count; i++)
+        row[i] = this[i];
     }
   }
 

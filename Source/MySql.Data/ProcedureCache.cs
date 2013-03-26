@@ -150,7 +150,7 @@ namespace MySql.Data.MySqlClient
       string[] restrictions = new string[4];
       restrictions[1] = schema.Length > 0 ? schema : connection.CurrentDatabase();
       restrictions[2] = name;
-      MySqlSchemaCollection proc = connection.GetSchema("procedures", restrictions);
+      MySqlSchemaCollection proc = connection.GetSchemaCollection("procedures", restrictions);
       if (proc.Rows.Count > 1)
         throw new MySqlException(Resources.ProcAndFuncSameName);
       if (proc.Rows.Count == 0)

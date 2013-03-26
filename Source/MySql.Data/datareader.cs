@@ -697,6 +697,8 @@ namespace MySql.Data.MySqlClient
       return resultSet.GetOrdinal(name);
     }
 
+#if !RT
+
     /// <summary>
     /// Returns a DataTable that describes the column metadata of the MySqlDataReader.
     /// </summary>
@@ -768,6 +770,9 @@ namespace MySql.Data.MySqlClient
 
       return dataTableSchema;
     }
+
+#endif
+
 
     /// <include file='docs/MySqlDataReader.xml' path='docs/GetStringS/*'/>
     public string GetString(string column)

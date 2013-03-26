@@ -35,7 +35,7 @@ using System.Collections.Generic;
 namespace MySql.Data.MySqlClient
 {
   /// <include file='docs/MySqlCommandBuilder.xml' path='docs/class/*'/>
-#if !CF
+#if !CF && !RT
   [ToolboxItem(false)]
   [System.ComponentModel.DesignerCategory("Code")]
 #endif
@@ -88,11 +88,9 @@ namespace MySql.Data.MySqlClient
 
       try
       {
-        DataSet ds = command.Connection.ProcedureCache.GetProcedure(command.Connection, spName, null);
-        DataTable parameters = ds.Tables["Procedure Parameters"];
-        DataTable procTable = ds.Tables["Procedures"];
+        ProcedureCacheEntry entry = command.Connection.ProcedureCache.GetProcedure(command.Connection, spName, null);
         command.Parameters.Clear();
-        foreach (DataRow row in parameters.Rows)
+        foreach (MySqlSchemaRow row in entry.parameters.Rows)
         {
           MySqlParameter p = new MySqlParameter();
           p.ParameterName = String.Format("@{0}", row["PARAMETER_NAME"]);
@@ -100,7 +98,7 @@ namespace MySql.Data.MySqlClient
             p.ParameterName = "@RETURN_VALUE";
           p.Direction = GetDirection(row);
           bool unsigned = StoredProcedure.GetFlags(row["DTD_IDENTIFIER"].ToString()).IndexOf("UNSIGNED") != -1;
-          bool real_as_float = procTable.Rows[0]["SQL_MODE"].ToString().IndexOf("REAL_AS_FLOAT") != -1;
+          bool real_as_float = entry.procedure.Rows[0]["SQL_MODE"].ToString().IndexOf("REAL_AS_FLOAT") != -1;
           p.MySqlDbType = MetaData.NameToType(row["DATA_TYPE"].ToString(),
             unsigned, real_as_float, command.Connection);
           if (!row["CHARACTER_MAXIMUM_LENGTH"].Equals(DBNull.Value))
@@ -120,7 +118,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    private static List<string> GetPossibleValues(DataRow row)
+    private static List<string> GetPossibleValues(MySqlSchemaRow row)
     {
       string[] types = new string[] { "ENUM", "SET" };
       string dtdIdentifier = row["DTD_IDENTIFIER"].ToString().Trim();
@@ -155,7 +153,7 @@ namespace MySql.Data.MySqlClient
       return values;
     }
 
-    private static ParameterDirection GetDirection(DataRow row)
+    private static ParameterDirection GetDirection(MySqlSchemaRow row)
     {
       string mode = row["PARAMETER_MODE"].ToString();
       int ordinal = Convert.ToInt32(row["ORDINAL_POSITION"]);

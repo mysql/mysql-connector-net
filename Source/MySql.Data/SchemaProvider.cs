@@ -284,17 +284,16 @@ namespace MySql.Data.MySqlClient
         string sql = String.Format("SHOW INDEX FROM `{0}`.`{1}`",
           MySqlHelper.DoubleQuoteString((string)table["TABLE_SCHEMA"]),
           MySqlHelper.DoubleQuoteString((string)table["TABLE_NAME"]));
-        MySqlDataAdapter da = new MySqlDataAdapter(sql, connection);
-        DataTable indexes = new DataTable();
-        da.Fill(indexes);
-        foreach (DataRow index in indexes.Rows)
+        MySqlSchemaCollection indexes = QueryCollection("indexes", sql);
+
+        foreach (MySqlSchemaRow index in indexes.Rows)
         {
           long seq_index = (long)index["SEQ_IN_INDEX"];
           if (seq_index != 1) continue;
           if (restrictions != null && restrictions.Length == 4 &&
             restrictions[3] != null &&
             !index["KEY_NAME"].Equals(restrictions[3])) continue;
-          DataRow row = dt.NewRow();
+          MySqlSchemaRow row = dt.AddRow();
           row["INDEX_CATALOG"] = null;
           row["INDEX_SCHEMA"] = table["TABLE_SCHEMA"];
           row["INDEX_NAME"] = index["KEY_NAME"];
@@ -303,7 +302,6 @@ namespace MySql.Data.MySqlClient
           row["PRIMARY"] = index["KEY_NAME"].Equals("PRIMARY");
           row["TYPE"] = index["INDEX_TYPE"];
           row["COMMENT"] = index["COMMENT"];
-          dt.Rows.Add(row);
         }
       }
 
@@ -556,7 +554,7 @@ namespace MySql.Data.MySqlClient
       for (int i = 0; i < srcColumns.Count; i++)
       {
         MySqlSchemaRow newRow = fkTable.AddRow();
-        newRow.ItemArray = row.ItemArray;
+        row.CopyRow(newRow);
         newRow["COLUMN_NAME"] = srcColumns[i];
         newRow["ORDINAL_POSITION"] = i;
         newRow["REFERENCED_COLUMN_NAME"] = targetColumns[i];
@@ -1049,7 +1047,5 @@ namespace MySql.Data.MySqlClient
       }
       return c;
     }
-
-
   }
 }

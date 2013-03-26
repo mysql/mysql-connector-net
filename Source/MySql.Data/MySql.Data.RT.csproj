@@ -121,7 +121,6 @@
     <Compile Include="BulkLoader.cs" />
     <Compile Include="CharSetMap.cs" />
     <Compile Include="command.cs" />
-    <Compile Include="CommandBuilder.cs" />
     <Compile Include="common\Cache.cs" />
     <Compile Include="common\ContextString.cs" />
     <Compile Include="common\MyNetworkStream-RT.cs" />

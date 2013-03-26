@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient
 {
+  internal class SerializableAttribute : Attribute
+  {
+  }
+
   internal class BrowsableAttribute : Attribute
   {
     public BrowsableAttribute(bool value)

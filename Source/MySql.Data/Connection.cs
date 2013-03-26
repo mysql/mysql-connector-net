@@ -519,9 +519,7 @@ namespace MySql.Data.MySqlClient
       }
 
       // setup our schema provider
-#if !RT
       schemaProvider = new ISSchemaProvider(this);
-#endif
 
 #if !CF && !RT
       perfMonitor = new PerformanceMonitor(this);
@@ -803,7 +801,7 @@ namespace MySql.Data.MySqlClient
 
     #region GetSchema Support
 
-    public MySqlSchemaCollection GetSchema(string collectionName, string[] restrictionValues)
+    public MySqlSchemaCollection GetSchemaCollection(string collectionName, string[] restrictionValues)
     {
       if (collectionName == null)
         collectionName = SchemaProvider.MetaCollection;
@@ -851,8 +849,8 @@ namespace MySql.Data.MySqlClient
         collectionName = SchemaProvider.MetaCollection;
 
       string[] restrictions = schemaProvider.CleanRestrictions(restrictionValues);
-      DataTable dt = schemaProvider.GetSchema(collectionName, restrictions);
-      return dt;
+      MySqlSchemaCollection c = schemaProvider.GetSchema(collectionName, restrictions);
+      return c.AsDataTable();
     }
 #endif
 
