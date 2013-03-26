@@ -231,10 +231,8 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets or sets the MySqlDbType of the parameter.
     /// </summary>
-#if !CF
     [Category("Data")]
     [DbProviderSpecificTypeProperty(true)]
-#endif
     public MySqlDbType MySqlDbType
     {
       get { return mySqlDbType; }

@@ -93,4 +93,11 @@ namespace MySql.Data.MySqlClient
     {
     }
   }
+
+  internal class DbProviderSpecificTypePropertyAttribute : Attribute
+  {
+    public DbProviderSpecificTypePropertyAttribute(bool b)
+    {
+    }
+  }
 }

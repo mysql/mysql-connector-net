@@ -148,7 +148,6 @@
     <Compile Include="LoadBalancing\LoadBalancingServerSelector.cs" />
     <Compile Include="Memcached\BinaryClient.cs" />
     <Compile Include="Memcached\TextClient.cs" />
-    <Compile Include="Memcached\MemcachedException.cs" />
     <Compile Include="Memcached\Client.cs" />
     <Compile Include="MySqlClientFactory.cs" />
     <Compile Include="MySqlClientPermission.cs" />
