@@ -20,15 +20,15 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NETFX_CORE;SLIM;RT</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NETFX_CORE;RT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <WarningLevel>0</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;NETFX_CORE;SLIM;RT</DefineConstants>
+    <DefineConstants>TRACE;NETFX_CORE;RT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -119,6 +119,7 @@
     <Compile Include="base\ICloneable.cs" />
     <Compile Include="base\MySqlNullValueException.cs" />
     <Compile Include="base\System.Data\ParameterDirection.cs" />
+    <Compile Include="base\Timer.cs" />
     <Compile Include="BulkLoader.cs" />
     <Compile Include="CharSetMap.cs" />
     <Compile Include="command.cs" />
