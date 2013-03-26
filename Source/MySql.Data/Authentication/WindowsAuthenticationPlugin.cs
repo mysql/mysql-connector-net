@@ -33,7 +33,7 @@ namespace MySql.Data.MySqlClient.Authentication
   /// <summary>
   /// 
   /// </summary>
-#if !CF
+#if !CF && !RT
   [SuppressUnmanagedCodeSecurityAttribute()]
 #endif
   internal class MySqlWindowsAuthenticationPlugin : MySqlAuthenticationPlugin

@@ -179,6 +179,7 @@
     <Compile Include="SchemaProvider.cs" />
     <Compile Include="Statement.cs" />
     <Compile Include="StoredProcedure.cs" />
+    <Compile Include="SystemPerformanceMonitor.cs" />
     <Compile Include="TableCache.cs" />
     <Compile Include="TimedStream.cs" />
     <Compile Include="TracingDriver.cs" />

@@ -23,7 +23,6 @@
 using System;
 using System.Reflection;
 using System.ComponentModel;
-using System.Security.Permissions;
 
 namespace MySql.Data.MySqlClient
 {

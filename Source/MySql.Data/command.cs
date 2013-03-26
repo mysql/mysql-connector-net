@@ -576,7 +576,7 @@ namespace MySql.Data.MySqlClient
 
     private void EnsureCommandIsReadOnly(string sql)
     {
-      sql = sql.ToLower(CultureInfo.InvariantCulture);
+      sql = StringUtility.ToLowerInvariant(sql);
       if (!sql.StartsWith("select") && !sql.StartsWith("show"))
         Throw(new MySqlException(Resources.ReplicatedConnectionsAllowOnlyReadonlyStatements));
       if (sql.EndsWith("for update") || sql.EndsWith("lock in share mode"))

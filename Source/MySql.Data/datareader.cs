@@ -23,7 +23,6 @@
 using System;
 using System.Data;
 using System.Data.Common;
-using System.Data.SqlTypes;
 using System.Collections;
 using MySql.Data.Types;
 using System.Collections.Generic;
@@ -1043,7 +1042,11 @@ namespace MySql.Data.MySqlClient
       IMySqlValue v = resultSet[index];
 
       if (checkNull && v.IsNull)
-        throw new SqlNullValueException();
+#if RT
+        throw new MySqlNullValueException()
+#else
+        throw new System.Data.SqlTypes.SqlNullValueException();
+#endif
 
       return v;
     }

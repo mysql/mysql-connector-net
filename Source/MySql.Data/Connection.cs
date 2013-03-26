@@ -51,8 +51,8 @@ namespace MySql.Data.MySqlClient
     private SchemaProvider schemaProvider;
     private ProcedureCache procedureCache;
     private bool isInUse;
-#if !CF && !RT
     private PerformanceMonitor perfMonitor;
+#if !CF && !RT
     private ExceptionInterceptor exceptionInterceptor;
     internal CommandInterceptor commandInterceptor;
 #endif
@@ -83,13 +83,10 @@ namespace MySql.Data.MySqlClient
 
     #region Interal Methods & Properties
 
-#if !CF
     internal PerformanceMonitor PerfMonitor
     {
       get { return perfMonitor; }
     }
-
-#endif
 
     internal ProcedureCache ProcedureCache
     {
@@ -246,7 +243,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-#if !CF && !__MonoCS__
+#if !CF && !__MonoCS__ && !RT
 
     protected override DbProviderFactory DbProviderFactory
     {
@@ -521,9 +518,7 @@ namespace MySql.Data.MySqlClient
       // setup our schema provider
       schemaProvider = new ISSchemaProvider(this);
 
-#if !CF && !RT
       perfMonitor = new PerformanceMonitor(this);
-#endif
 
       // if we are opening up inside a current transaction, then autoenlist
       // TODO: control this with a connection string option

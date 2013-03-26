@@ -117,6 +117,7 @@
     <Compile Include="base\Enums.cs" />
     <Compile Include="base\Extras.cs" />
     <Compile Include="base\ICloneable.cs" />
+    <Compile Include="base\MySqlNullValueException.cs" />
     <Compile Include="base\System.Data\ParameterDirection.cs" />
     <Compile Include="BulkLoader.cs" />
     <Compile Include="CharSetMap.cs" />
@@ -158,10 +159,10 @@
     <Compile Include="MySqlPoolManager.cs" />
     <Compile Include="MySqlScript.cs" />
     <Compile Include="MySqlStream.cs" />
-    <Compile Include="MySqlTrace.cs" />
     <Compile Include="NativeDriver.cs" />
     <Compile Include="parameter.cs" />
     <Compile Include="parameter_collection.cs" />
+    <Compile Include="PerformanceMonitor.cs" />
     <Compile Include="PreparableStatement.cs" />
     <Compile Include="ProcedureCache.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
