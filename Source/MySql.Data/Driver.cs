@@ -50,7 +50,7 @@ namespace MySql.Data.MySqlClient
     internal int timeZoneOffset;
     private DateTime idleSince;    
 
-#if !CF
+#if !CF && !RT
     protected MySqlPromotableTransaction currentTransaction;
     protected bool inActiveUse;
 #endif
@@ -111,7 +111,7 @@ namespace MySql.Data.MySqlClient
       set { encoding = value; }
     }
 
-#if !CF
+#if !CF && !RT
     public MySqlPromotableTransaction CurrentTransaction
     {
       get { return currentTransaction; }

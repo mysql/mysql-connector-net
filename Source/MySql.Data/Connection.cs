@@ -261,7 +261,7 @@ namespace MySql.Data.MySqlClient
 
     #region Transactions
 
-#if !MONO && !CF
+#if !MONO && !CF && !RT
     /// <summary>
     /// Enlists in the specified transaction. 
     /// </summary>
