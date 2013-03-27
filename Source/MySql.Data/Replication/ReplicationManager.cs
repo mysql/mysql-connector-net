@@ -20,65 +20,83 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.MySqlClient.Properties;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 
-namespace MySql.Data.MySqlClient.LoadBalancing
+namespace MySql.Data.MySqlClient.Replication
 {
-  public static class LoadBalancingManager
+  public static class ReplicationManager
   {
-    private static Dictionary<string, LoadBalancingServerSelector> selectors = new Dictionary<string, LoadBalancingServerSelector>();
+    private static List<ReplicationServerGroup> groups = new List<ReplicationServerGroup>();
+    //private static Dictionary<string, ReplicationServerSelector> selectors = new Dictionary<string, ReplicationServerSelector>();
 
-    static LoadBalancingManager()
+    static ReplicationManager()
     {
+      Groups = groups;
+
+#if !CF && !RT
       // load up our selectors
       if (MySqlConfiguration.Settings == null) return;
 
-      foreach (var group in MySqlConfiguration.Settings.LoadBalancing.ServerGroups)
+      foreach (var group in MySqlConfiguration.Settings.Replication.ServerGroups)
       {
-        LoadBalancingServerSelector selector = null;
-        if (string.IsNullOrEmpty(group.SelectorType))
-          selector = new LoadBalancingRoundRobinSelector(group);
-        else
-          selector = CreateSelector(group.SelectorType);
-        selectors.Add(group.Name, selector);
+        ReplicationServerGroup g = AddGroup(group.Name, group.GroupType);
+        foreach (var server in group.Servers)
+          g.AddServer(server.Name, server.IsMaster, server.ConnectionString);
       }
+#endif
     }
 
-    public static LoadBalancingServerConfigurationElement GetServer(string group, bool isMaster)
-    {
-      if (!IsLoadBalancingGroup(group)) return null;
-      LoadBalancingServerSelector selector = selectors[group];
-      LoadBalancingServerConfigurationElement server = selector.GetServer(isMaster);
-      if (server == null) throw new MySqlException(Properties.Resources.LoadBalancing_NoAvailableServer);
+    public static IList<ReplicationServerGroup> Groups { get; private set; }
 
-      return server;
+    public static ReplicationServerGroup AddGroup(string name, string groupType = null)
+    {
+      if (groupType == null)
+        groupType = "MySql.Data.MySqlClient.Replication.ReplicationRoundRobinServerGroup";
+      Type t = Type.GetType(groupType);
+      ReplicationServerGroup g = (ReplicationServerGroup)Activator.CreateInstance(t, name) as ReplicationServerGroup;
+      groups.Add(g);
+      return g;
     }
 
-    public static LoadBalancingServerGroupConfigurationElement GetGroup(string group)
+    public static ReplicationServer GetServer(string groupName, bool isMaster)
     {
-      if (!IsLoadBalancingGroup(group)) return null;
-      foreach (var serverGroup in MySqlConfiguration.Settings.LoadBalancing.ServerGroups)
+      ReplicationServerGroup group = GetGroup(groupName);
+      return group.GetServer(isMaster);
+    }
+
+    public static ReplicationServerGroup GetGroup(string groupName)
+    {
+      ReplicationServerGroup group = null;
+      foreach (ReplicationServerGroup g in groups)
       {
-        if (serverGroup.Name == group) return serverGroup;
+        if (String.Compare(g.Name, groupName, StringComparison.OrdinalIgnoreCase) != 0) continue;
+        group = g;
+        break;
       }
-      return null;
+      if (group == null)
+        throw new MySqlException(String.Format(Resources.ReplicationGroupNotFound, groupName));
+      return group;
     }
 
-    public static bool IsLoadBalancingGroup(string group)
+    public static bool IsReplicationGroup(string groupName)
     {
-      return selectors.ContainsKey(group);
+      foreach (ReplicationServerGroup g in groups)
+        if (String.Compare(g.Name, groupName, StringComparison.OrdinalIgnoreCase) == 0) return true;
+      return false;
     }
 
-    public static void GetNewConnection(string group, bool master, MySqlConnection connection)
+    public static void GetNewConnection(string groupName, bool master, MySqlConnection connection)
     {
       do
       {
-        if (!IsLoadBalancingGroup(group)) return;
+        if (!IsReplicationGroup(groupName)) return;
 
-        LoadBalancingServerConfigurationElement server = GetServer(group, master);
+        ReplicationServerGroup group = GetGroup(groupName);
+        ReplicationServer server = group.GetServer(master);
 
         Driver driver = new Driver(new MySqlConnectionStringBuilder(server.ConnectionString));
         if (connection.driver == null
@@ -102,8 +120,8 @@ namespace MySql.Data.MySqlClient.LoadBalancing
             worker.DoWork += delegate(object sender, DoWorkEventArgs e)
             {
               bool isRunning = false;
-              LoadBalancingServerConfigurationElement server1 = e.Argument as LoadBalancingServerConfigurationElement;
-              int retryTime = LoadBalancingManager.GetGroup(group).RetryTime;
+              ReplicationServer server1 = e.Argument as ReplicationServer;
+              int retryTime = ReplicationManager.GetGroup(groupName).RetryTime;
               System.Timers.Timer timer = new System.Timers.Timer(retryTime * 1000.0);
 
 
@@ -123,7 +141,7 @@ namespace MySql.Data.MySqlClient.LoadBalancing
                 catch
                 {
                   MySqlTrace.LogWarning(0,
-                    string.Format(Properties.Resources.LoadBalancing_ConnectionAttemptFailed, server1.Name));
+                    string.Format(Properties.Resources.Replication_ConnectionAttemptFailed, server1.Name));
                 }
                 finally
                 {
@@ -141,12 +159,6 @@ namespace MySql.Data.MySqlClient.LoadBalancing
         else
           return;
       } while (true);
-    }
-
-    private static LoadBalancingServerSelector CreateSelector(string type)
-    {
-      Type t = Type.GetType(type);
-      return Activator.CreateInstance(t) as LoadBalancingServerSelector;
     }
   }
 }

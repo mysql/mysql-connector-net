@@ -24,46 +24,32 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MySql.Data.MySqlClient.LoadBalancing
+namespace MySql.Data.MySqlClient.Replication
 {
   /// <summary>
   /// 
   /// </summary>
-  public abstract class LoadBalancingServerSelector
+  public class ReplicationRoundRobinServerGroup : ReplicationServerGroup
   {
-    protected LoadBalancingServerGroupConfigurationElement Group { get; set; }
+    private int nextServer;
 
-    public LoadBalancingServerSelector(LoadBalancingServerGroupConfigurationElement group)
+    public ReplicationRoundRobinServerGroup(string name) : base(name)
     {
-      this.Group = group;
+      nextServer = -1;
     }
 
-    public abstract LoadBalancingServerConfigurationElement GetServer(bool master);
-  }
-
-  /// <summary>
-  /// 
-  /// </summary>
-  public class LoadBalancingRoundRobinSelector : LoadBalancingServerSelector
-  {
-    int index = -1;
-    private int nextServer = 0;
-
-    public LoadBalancingRoundRobinSelector(LoadBalancingServerGroupConfigurationElement group) : base(group)
+    public override ReplicationServer GetServer(bool isMaster)
     {
-    }
-
-    public override LoadBalancingServerConfigurationElement GetServer(bool master)
-    {
-      for (int i = 0; i < Group.Servers.Count; i++)
+      for (int i = 0; i < Servers.Count; i++)
       {
-        LoadBalancingServerConfigurationElement server = Group.GetElementAt(nextServer);
-        nextServer = ++nextServer % Group.Servers.Count;
-        //if (srv.Status == ServerStatusEnum.Unavailable) continue;
-        if (!server.IsAvailable || (master && !server.IsMaster)) continue;
-        return server;
+        nextServer++;
+        if (nextServer == Servers.Count)
+          nextServer = 0;
+        ReplicationServer s = Servers[nextServer];
+        if (!s.IsAvailable) continue;
+        if (s.IsMaster != isMaster) continue;
+        return s;
       }
-
       return null;
     }
   }

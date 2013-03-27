@@ -143,10 +143,10 @@
     <Compile Include="Interceptors\Interceptor.cs" />
     <Compile Include="Interceptors\ExceptionInterceptor.cs" />
     <Compile Include="ISSchemaProvider.cs" />
-    <Compile Include="LoadBalancing\LoadBalancingConfiguration.cs" />
-    <Compile Include="LoadBalancing\LoadBalancingManager.cs" />
-    <Compile Include="LoadBalancing\LoadBalancingServerSelector.cs" />
     <Compile Include="Memcached\BinaryClient.cs" />
+    <Compile Include="Memcached\MemcachedException.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Memcached\TextClient.cs" />
     <Compile Include="Memcached\Client.cs" />
     <Compile Include="MySqlClientFactory.cs" />
@@ -173,6 +173,11 @@
     <Compile Include="ProcedureCache.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\VersionInfo.cs" />
+    <Compile Include="Replication\ReplicationConfiguration.cs" />
+    <Compile Include="Replication\ReplicationManager.cs" />
+    <Compile Include="Replication\ReplicationRoundRobinServerGroup.cs" />
+    <Compile Include="Replication\ReplicationServer.cs" />
+    <Compile Include="Replication\ReplicationServerGroup.cs" />
     <Compile Include="ResultSet.cs" />
     <Compile Include="Schema.cs" />
     <Compile Include="SchemaProvider.cs" />

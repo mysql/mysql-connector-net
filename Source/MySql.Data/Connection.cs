@@ -29,13 +29,12 @@ using IsolationLevel = System.Data.IsolationLevel;
 using System.Drawing;
 using System.Drawing.Design;
 using System.Transactions;
-using MySql.Data.MySqlClient.LoadBalancing;
 #endif
 using System.Text;
 using MySql.Data.Common;
 using System.Diagnostics;
 using MySql.Data.MySqlClient.Properties;
-using MySql.Data.MySqlClient.LoadBalancing;
+using MySql.Data.MySqlClient.Replication;
 
 namespace MySql.Data.MySqlClient
 {
@@ -466,19 +465,17 @@ namespace MySql.Data.MySqlClient
       {
         MySqlConnectionStringBuilder currentSettings = Settings;
 
-#if !CF
         // Load balancing 
-        if (LoadBalancingManager.IsLoadBalancingGroup(Settings.Server))
+        if (ReplicationManager.IsReplicationGroup(Settings.Server))
         {
           if (driver == null)
           {
-            LoadBalancingManager.GetNewConnection(Settings.Server, false, this);
+            ReplicationManager.GetNewConnection(Settings.Server, false, this);
             return;
           }
           else
             currentSettings = driver.Settings;
         }
-#endif
 
         if (Settings.Pooling)
         {

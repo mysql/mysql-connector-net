@@ -58,16 +58,16 @@ namespace MySql.Data.MySqlClient
       get { return (GenericConfigurationElementCollection<AuthenticationPluginConfigurationElement>)this["AuthenticationPlugins"]; }
     }
 
-    [ConfigurationProperty("LoadBalancing", IsRequired = true)]
-    public LoadBalancingConfigurationElement LoadBalancing
+    [ConfigurationProperty("Replication", IsRequired = true)]
+    public ReplicationConfigurationElement Replication
     {
       get
       {
-        return (LoadBalancingConfigurationElement)this["LoadBalancing"];
+        return (ReplicationConfigurationElement)this["Replication"];
       }
       set
       {
-        this["LoadBalancing"] = value;
+        this["Replication"] = value;
       }
     }
 

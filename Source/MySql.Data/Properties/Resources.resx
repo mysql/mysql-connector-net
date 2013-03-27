@@ -505,10 +505,10 @@
   <data name="OldPasswordsNotSupported" xml:space="preserve">
     <value>Authentication with old password no longer supported, use 4.1 style passwords.</value>
   </data>
-  <data name="LoadBalancing_NoAvailableServer" xml:space="preserve">
+  <data name="Replication_NoAvailableServer" xml:space="preserve">
     <value>No available server found.</value>
   </data>
-  <data name="LoadBalancing_ConnectionAttemptFailed" xml:space="preserve">
+  <data name="Replication_ConnectionAttemptFailed" xml:space="preserve">
     <value>Attempt to connect to '{0}' server failed.</value>
   </data>
   <data name="UnknownConnectionProtocol" xml:space="preserve">
@@ -516,5 +516,11 @@
   </data>
   <data name="NoUnixSocketsOnWindows" xml:space="preserve">
     <value>Unix sockets are not supported on Windows.</value>
+  </data>
+  <data name="ReplicationServerNotFound" xml:space="preserve">
+    <value>Replicated server not found: '{0}'</value>
+  </data>
+  <data name="ReplicationGroupNotFound" xml:space="preserve">
+    <value>Replication group '{0}' not found.</value>
   </data>
 </root>

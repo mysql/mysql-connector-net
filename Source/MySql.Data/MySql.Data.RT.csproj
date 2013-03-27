@@ -146,8 +146,6 @@
     <Compile Include="Interceptors\ExceptionInterceptor.cs" />
     <Compile Include="Interceptors\Interceptor.cs" />
     <Compile Include="ISSchemaProvider.cs" />
-    <Compile Include="LoadBalancing\LoadBalancingManager.cs" />
-    <Compile Include="LoadBalancing\LoadBalancingServerSelector.cs" />
     <Compile Include="Memcached\BinaryClient.cs" />
     <Compile Include="Memcached\Client.cs" />
     <Compile Include="Memcached\MemcachedException.cs">
@@ -171,6 +169,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs" />
     <Compile Include="Properties\VersionInfo.cs" />
+    <Compile Include="Replication\ReplicationManager.cs" />
+    <Compile Include="Replication\ReplicationRoundRobinServerGroup.cs" />
+    <Compile Include="Replication\ReplicationServer.cs" />
+    <Compile Include="Replication\ReplicationServerGroup.cs" />
     <Compile Include="ResultSet.cs" />
     <Compile Include="Runtime.cs" />
     <Compile Include="Schema.cs" />

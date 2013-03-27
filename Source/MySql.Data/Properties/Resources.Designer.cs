@@ -549,24 +549,6 @@ namespace MySql.Data.MySqlClient.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Attempt to connect to &apos;{0}&apos; server failed..
-        /// </summary>
-        public static string LoadBalancing_ConnectionAttemptFailed {
-            get {
-                return ResourceManager.GetString("LoadBalancing_ConnectionAttemptFailed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to No available server found..
-        /// </summary>
-        public static string LoadBalancing_NoAvailableServer {
-            get {
-                return ResourceManager.GetString("LoadBalancing_NoAvailableServer", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Mixing named and unnamed parameters is not allowed..
         /// </summary>
         public static string MixedParameterNamingNotAllowed {
@@ -869,6 +851,42 @@ namespace MySql.Data.MySqlClient.Properties {
         public static string ReplicatedConnectionsAllowOnlyReadonlyStatements {
             get {
                 return ResourceManager.GetString("ReplicatedConnectionsAllowOnlyReadonlyStatements", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Attempt to connect to &apos;{0}&apos; server failed..
+        /// </summary>
+        public static string Replication_ConnectionAttemptFailed {
+            get {
+                return ResourceManager.GetString("Replication_ConnectionAttemptFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No available server found..
+        /// </summary>
+        public static string Replication_NoAvailableServer {
+            get {
+                return ResourceManager.GetString("Replication_NoAvailableServer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Replication group &apos;{0}&apos; not found..
+        /// </summary>
+        public static string ReplicationGroupNotFound {
+            get {
+                return ResourceManager.GetString("ReplicationGroupNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Replicated server not found: &apos;{0}&apos;.
+        /// </summary>
+        public static string ReplicationServerNotFound {
+            get {
+                return ResourceManager.GetString("ReplicationServerNotFound", resourceCulture);
             }
         }
         
