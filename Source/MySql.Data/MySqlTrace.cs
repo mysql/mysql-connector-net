@@ -34,7 +34,7 @@ namespace MySql.Data.MySqlClient
     private static string qaHost;
     private static bool qaEnabled = false;
 
-#if !CF
+#if !CF && !RT
     private static TraceSource source = new TraceSource("mysql");
 
     static MySqlTrace()
@@ -98,7 +98,7 @@ namespace MySql.Data.MySqlClient
 
     internal static void LogInformation(int id, string msg)
     {
-#if !CF
+#if !CF && !RT
       Source.TraceEvent(TraceEventType.Information, id, msg, MySqlTraceEventType.NonQuery, -1);
       Trace.TraceInformation(msg);
 #endif
@@ -106,7 +106,7 @@ namespace MySql.Data.MySqlClient
 
     internal static void LogWarning(int id, string msg)
     {
-#if !CF
+#if !CF && !RT
       Source.TraceEvent(TraceEventType.Warning, id, msg, MySqlTraceEventType.NonQuery, -1);
       Trace.TraceWarning(msg);
 #endif
@@ -114,13 +114,13 @@ namespace MySql.Data.MySqlClient
 
     internal static void LogError(int id, string msg)
     {
-#if !CF
+#if !CF && !RT
       Source.TraceEvent(TraceEventType.Error, id, msg, MySqlTraceEventType.NonQuery, -1);
       Trace.TraceError(msg);
 #endif
     }
 
-#if !CF
+#if !CF && !RT
     internal static void TraceEvent(TraceEventType eventType,
         MySqlTraceEventType mysqlEventType, string msgFormat, params object[] args)
     {

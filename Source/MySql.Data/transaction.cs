@@ -21,13 +21,14 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
+#if !RT
 using System.Data;
-using System.Data.Common;
+#endif
 
 namespace MySql.Data.MySqlClient
 {
   /// <include file='docs/MySqlTransaction.xml' path='docs/Class/*'/>
-  public sealed class MySqlTransaction : DbTransaction
+  public sealed partial class MySqlTransaction : IDisposable
   {
     private IsolationLevel level;
     private MySqlConnection conn;
@@ -72,18 +73,12 @@ namespace MySql.Data.MySqlClient
       get { return level; }
     }
 
-    protected override DbConnection DbConnection
-    {
-      get { return conn; }
-    }
-
     #endregion
 
-    protected override void Dispose(bool disposing)
+    public void Dispose()
     {
       if ((conn != null && conn.State == ConnectionState.Open || conn.SoftClosed) && open)
         Rollback();
-      base.Dispose(disposing);
     }
 
     /// <include file='docs/MySqlTransaction.xml' path='docs/Commit/*'/>
@@ -109,5 +104,6 @@ namespace MySql.Data.MySqlClient
       cmd.ExecuteNonQuery();
       open = false;
     }
+
   }
 }

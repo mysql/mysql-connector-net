@@ -21,7 +21,9 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
+#if !RT
 using System.Data.Common;
+#endif
 #if !CF && !RT
 using System.Runtime.Serialization;
 #endif

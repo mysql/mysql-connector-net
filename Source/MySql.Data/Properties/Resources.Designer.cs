@@ -594,6 +594,15 @@ namespace MySql.Data.MySqlClient.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The new value must be a MySqlParameter object..
+        /// </summary>
+        public static string NewValueShouldBeMySqlParameter {
+            get {
+                return ResourceManager.GetString("NewValueShouldBeMySqlParameter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid attempt to call NextResult when the reader is closed..
         /// </summary>
         public static string NextResultIsClosed {
@@ -1301,6 +1310,15 @@ namespace MySql.Data.MySqlClient.Properties {
         public static string UnknownConnectionProtocol {
             get {
                 return ResourceManager.GetString("UnknownConnectionProtocol", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Value &apos;{0}&apos; is not of the correct type..
+        /// </summary>
+        public static string ValueNotCorrectType {
+            get {
+                return ResourceManager.GetString("ValueNotCorrectType", resourceCulture);
             }
         }
         

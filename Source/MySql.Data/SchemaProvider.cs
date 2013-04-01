@@ -21,8 +21,6 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Data;
-using System.Data.Common;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
@@ -34,6 +32,10 @@ using System.Collections;
 using System.Text.RegularExpressions;
 using MySql.Data.MySqlClient.Properties;
 using System.Collections.Generic;
+#if !RT
+using System.Data;
+using System.Data.Common;
+#endif
 
 namespace MySql.Data.MySqlClient
 {
@@ -681,7 +683,7 @@ namespace MySql.Data.MySqlClient
 
     private MySqlSchemaCollection GetDataSourceInformation()
     {
-#if CF
+#if CF || RT
       throw new NotSupportedException();
 #else
       MySqlSchemaCollection dt = new MySqlSchemaCollection("DataSourceInformation");

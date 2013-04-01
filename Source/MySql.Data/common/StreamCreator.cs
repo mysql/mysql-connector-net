@@ -69,7 +69,7 @@ namespace MySql.Data.Common
         case MySqlConnectionProtocol.Tcp: return GetTcpStream(settings);
         case MySqlConnectionProtocol.UnixSocket: return GetUnixSocketStream(settings);
         case MySqlConnectionProtocol.SharedMemory: return GetSharedMemoryStream(settings);
-#if !CF
+#if !CF && !RT
         case MySqlConnectionProtocol.NamedPipe: return GetNamedPipeStream(settings);
 #endif
       }

@@ -90,7 +90,7 @@ namespace MySql.Data.MySqlClient
     {
       baseStream.Close();
       base.Close();
-#if !CF
+#if !CF && !RT
       cache.Dispose();
 #else
       System.Reflection.MethodInfo dynMethod = cache.GetType().GetMethod("Dispose", 
@@ -287,7 +287,7 @@ namespace MySql.Data.MySqlClient
       cache.SetLength(0);
       if (compressedBuffer != null)
       {
-#if !CF      
+#if !CF && !RT
         compressedBuffer.Dispose();
 #else
         System.Reflection.MethodInfo dynMethod = cache.GetType().GetMethod("Dispose",

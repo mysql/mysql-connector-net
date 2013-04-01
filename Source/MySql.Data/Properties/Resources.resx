@@ -523,4 +523,10 @@
   <data name="ReplicationGroupNotFound" xml:space="preserve">
     <value>Replication group '{0}' not found.</value>
   </data>
+  <data name="NewValueShouldBeMySqlParameter" xml:space="preserve">
+    <value>The new value must be a MySqlParameter object.</value>
+  </data>
+  <data name="ValueNotCorrectType" xml:space="preserve">
+    <value>Value '{0}' is not of the correct type.</value>
+  </data>
 </root>

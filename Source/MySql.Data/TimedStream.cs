@@ -58,7 +58,7 @@ namespace MySql.Data.MySqlClient
     public TimedStream(Stream baseStream)
     {
       this.baseStream = baseStream;
-#if !CF
+#if !CF && !RT
       timeout = baseStream.ReadTimeout;
 #else
             timeout = System.Threading.Timeout.Infinite;
@@ -105,7 +105,7 @@ namespace MySql.Data.MySqlClient
       {
         if (ShouldResetStreamTimeout(lastReadTimeout, streamTimeout))
         {
-#if !CF
+#if !CF && !RT
           baseStream.ReadTimeout = streamTimeout;
 #endif
           lastReadTimeout = streamTimeout;
@@ -115,7 +115,7 @@ namespace MySql.Data.MySqlClient
       {
         if (ShouldResetStreamTimeout(lastWriteTimeout, streamTimeout))
         {
-#if !CF
+#if !CF && !RT
           baseStream.WriteTimeout = streamTimeout;
 #endif
           lastWriteTimeout = streamTimeout;

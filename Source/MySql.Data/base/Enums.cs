@@ -5,13 +5,6 @@ using System.Text;
 
 namespace System.Data
 {
-    public enum CommandType
-    {
-      Text,
-      StoredProcedure,
-      TableDirect
-    }
-
     public enum UpdateRowSource
     {
       None,
@@ -20,24 +13,6 @@ namespace System.Data
       Both
     }
 
-    public enum CommandBehavior
-    {
-      Default, 
-      SingleResult,
-      SchemaOnly,
-      KeyInfo,
-      SingleRow,
-      SequentialAccess,
-      CloseConnection
-    }
-
-    public enum DataRowVersion
-    {
-      Original, 
-      Current,
-      Proposed,
-      Default
-    }
 }
 
 namespace System.ComponentModel

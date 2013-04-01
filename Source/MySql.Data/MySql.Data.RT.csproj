@@ -79,7 +79,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;NETFX_CORE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NETFX_CORE;RT</DefineConstants>
     <NoWarn>;2008</NoWarn>
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
@@ -89,7 +89,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE;NETFX_CORE</DefineConstants>
+    <DefineConstants>TRACE;NETFX_CORE;RT</DefineConstants>
     <Optimize>true</Optimize>
     <NoWarn>;2008</NoWarn>
     <DebugType>pdbonly</DebugType>
@@ -108,18 +108,14 @@
     <Compile Include="Authentication\Sha256AuthenticationPlugin.cs" />
     <Compile Include="Authentication\WindowsAuthenticationPlugin.cs" />
     <Compile Include="base\Attributes.cs" />
-    <Compile Include="base\BaseDataReader.cs" />
-    <Compile Include="base\DbCommand.cs" />
-    <Compile Include="base\DbConnection.cs" />
     <Compile Include="base\DbConnectionStringBuilder.cs" />
     <Compile Include="base\DbException.cs" />
-    <Compile Include="base\DbParameter.cs" />
     <Compile Include="base\Enums.cs" />
     <Compile Include="base\Extras.cs" />
     <Compile Include="base\ICloneable.cs" />
     <Compile Include="base\MySqlNullValueException.cs" />
-    <Compile Include="base\System.Data\ParameterDirection.cs" />
-    <Compile Include="base\Timer.cs" />
+    <Compile Include="extensions\RT\MySqlConnectionStringBuilder.cs" />
+    <Compile Include="extensions\RT\Timer.cs" />
     <Compile Include="BulkLoader.cs" />
     <Compile Include="CharSetMap.cs" />
     <Compile Include="command.cs" />
@@ -141,10 +137,13 @@
     <Compile Include="datareader.cs" />
     <Compile Include="Driver.cs" />
     <Compile Include="Exception.cs" />
+    <Compile Include="extensions\RT\MySqlCommand.cs" />
+    <Compile Include="extensions\RT\MySqlConnection.cs" />
+    <Compile Include="extensions\RT\MySqlDataReader.cs" />
+    <Compile Include="extensions\RT\MySqlParameter.cs" />
+    <Compile Include="extensions\RT\MySqlParameterCollection.cs" />
+    <Compile Include="extensions\RT\MySqlTransaction.cs" />
     <Compile Include="Field.cs" />
-    <Compile Include="Interceptors\CommandInterceptor.cs" />
-    <Compile Include="Interceptors\ExceptionInterceptor.cs" />
-    <Compile Include="Interceptors\Interceptor.cs" />
     <Compile Include="ISSchemaProvider.cs" />
     <Compile Include="Memcached\BinaryClient.cs" />
     <Compile Include="Memcached\Client.cs" />
@@ -152,7 +151,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Memcached\TextClient.cs" />
-    <Compile Include="MySqlConnectionStringBuilder.cs" />
+    <Compile Include="MySqlConnectionStringBuilder.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="MysqlDefs.cs" />
     <Compile Include="MySqlError.cs" />
     <Compile Include="MySqlPacket.cs" />
@@ -160,6 +161,7 @@
     <Compile Include="MySqlPoolManager.cs" />
     <Compile Include="MySqlScript.cs" />
     <Compile Include="MySqlStream.cs" />
+    <Compile Include="MySqlTrace.cs" />
     <Compile Include="NativeDriver.cs" />
     <Compile Include="parameter.cs" />
     <Compile Include="parameter_collection.cs" />

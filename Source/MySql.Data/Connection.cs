@@ -22,13 +22,15 @@
 
 using System;
 using System.ComponentModel;
+#if !RT
 using System.Data;
 using System.Data.Common;
-using IsolationLevel = System.Data.IsolationLevel;
+#endif
 #if !CF && !RT
 using System.Drawing;
 using System.Drawing.Design;
 using System.Transactions;
+using IsolationLevel = System.Data.IsolationLevel;
 #endif
 using System.Text;
 using MySql.Data.Common;
@@ -39,10 +41,7 @@ using MySql.Data.MySqlClient.Replication;
 namespace MySql.Data.MySqlClient
 {
   /// <include file='docs/MySqlConnection.xml' path='docs/ClassSummary/*'/>
-  [ToolboxBitmap(typeof(MySqlConnection), "MySqlClient.resources.connection.bmp")]
-  [DesignerCategory("Code")]
-  [ToolboxItem(true)]
-  public sealed class MySqlConnection : DbConnection, ICloneable
+  public sealed partial class MySqlConnection : IDisposable
   {
     internal ConnectionState connectionState;
     internal Driver driver;
@@ -121,7 +120,7 @@ namespace MySql.Data.MySqlClient
     {
       get
       {
-#if !CF
+#if !CF && !RT
         return (State == ConnectionState.Closed) &&
           driver != null &&
           driver.CurrentTransaction != null;
@@ -258,6 +257,8 @@ namespace MySql.Data.MySqlClient
 
     #endregion
 
+    partial void AssertPermissions();
+
     #region Transactions
 
 #if !MONO && !CF && !RT
@@ -385,7 +386,7 @@ namespace MySql.Data.MySqlClient
       // in parallel
       lock (driver)
       {
-#if !CF
+#if !CF && !RT
         if (Transaction.Current != null &&
           Transaction.Current.TransactionInformation.Status == TransactionStatus.Aborted)
         {
@@ -432,23 +433,17 @@ namespace MySql.Data.MySqlClient
       if (State == ConnectionState.Open)
         Throw(new InvalidOperationException(Resources.ConnectionAlreadyOpen));
 
-#if !CF
+#if !CF && !RT
       // start up our interceptors
       exceptionInterceptor = new ExceptionInterceptor(this);
       commandInterceptor = new CommandInterceptor(this);
 #endif
 
-      SetState(ConnectionState.Connecting, true);      
+      SetState(ConnectionState.Connecting, true);
 
-#if !CF
-      // Security Asserts can only be done when the assemblies 
-      // are put in the GAC as documented in 
-      // http://msdn.microsoft.com/en-us/library/ff648665.aspx
-      if (this.Settings.IncludeSecurityAsserts)
-      {
-        PermissionDemand();
-        MySqlSecurityPermission.CreatePermissionSet(true).Assert(); 
-      }
+      AssertPermissions();
+
+#if !CF && !RT
       // if we are auto enlisting in a current transaction, then we will be
       // treating the connection as pooled
       if (Settings.AutoEnlist && Transaction.Current != null)
@@ -519,7 +514,7 @@ namespace MySql.Data.MySqlClient
 
       // if we are opening up inside a current transaction, then autoenlist
       // TODO: control this with a connection string option
-#if !MONO && !CF
+#if !MONO && !CF && !RT
       if (Transaction.Current != null && Settings.AutoEnlist)
         EnlistTransaction(Transaction.Current);
 #endif
@@ -537,19 +532,6 @@ namespace MySql.Data.MySqlClient
       return c;
     }
 
-    internal void PermissionDemand()
-    {
-      MySqlConnectionStringBuilder connectionSettings = this.Settings;
-
-      if ((connectionSettings == null) || connectionSettings.ConnectionString.Length == 0)
-      {
-        Throw(new MySqlException(Resources.ConnectionNotSet));
-      }
-#if !CF
-      this.Settings.DemandPermissions();
-#endif
-    }
-
     /// <summary>
     /// Creates a new MySqlConnection object with the exact same ConnectionString value
     /// </summary>
@@ -561,29 +543,6 @@ namespace MySql.Data.MySqlClient
       if (connectionString != null)
         clone.ConnectionString = connectionString;
       return clone;
-    }
-
-    #region IDisposeable
-
-    protected override void Dispose(bool disposing)
-    {
-      if (State == ConnectionState.Open)
-        Close();
-      base.Dispose(disposing);
-    }
-
-    #endregion
-
-    protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
-    {
-      if (isolationLevel == IsolationLevel.Unspecified)
-        return BeginTransaction();
-      return BeginTransaction(isolationLevel);
-    }
-
-    protected override DbCommand CreateDbCommand()
-    {
-      return CreateCommand();
     }
 
     internal void Abort()
@@ -636,11 +595,11 @@ namespace MySql.Data.MySqlClient
       // will be null on the second time through
       if (driver != null)
       {
-#if !CF
+#if !CF && !RT
         if (driver.CurrentTransaction == null)
 #endif
           CloseFully();
-#if !CF
+#if !CF && !RT
         else
           driver.IsInActiveUse = false;
 #endif
@@ -791,8 +750,6 @@ namespace MySql.Data.MySqlClient
     }
     #endregion
 
-    #region GetSchema Support
-
     public MySqlSchemaCollection GetSchemaCollection(string collectionName, string[] restrictionValues)
     {
       if (collectionName == null)
@@ -802,51 +759,6 @@ namespace MySql.Data.MySqlClient
       MySqlSchemaCollection c = schemaProvider.GetSchema(collectionName, restrictions);
       return c;
     }
-
-#if !RT
-    /// <summary>
-    /// Returns schema information for the data source of this <see cref="DbConnection"/>. 
-    /// </summary>
-    /// <returns>A <see cref="DataTable"/> that contains schema information. </returns>
-    public override DataTable GetSchema()
-    {
-      return GetSchema(null);
-    }
-
-    /// <summary>
-    /// Returns schema information for the data source of this 
-    /// <see cref="DbConnection"/> using the specified string for the schema name. 
-    /// </summary>
-    /// <param name="collectionName">Specifies the name of the schema to return. </param>
-    /// <returns>A <see cref="DataTable"/> that contains schema information. </returns>
-    public override DataTable GetSchema(string collectionName)
-    {
-      if (collectionName == null)
-        collectionName = SchemaProvider.MetaCollection;
-
-      return GetSchema(collectionName, null);
-    }
-
-    /// <summary>
-    /// Returns schema information for the data source of this <see cref="DbConnection"/>
-    /// using the specified string for the schema name and the specified string array 
-    /// for the restriction values. 
-    /// </summary>
-    /// <param name="collectionName">Specifies the name of the schema to return.</param>
-    /// <param name="restrictionValues">Specifies a set of restriction values for the requested schema.</param>
-    /// <returns>A <see cref="DataTable"/> that contains schema information.</returns>
-    public override DataTable GetSchema(string collectionName, string[] restrictionValues)
-    {
-      if (collectionName == null)
-        collectionName = SchemaProvider.MetaCollection;
-
-      string[] restrictions = schemaProvider.CleanRestrictions(restrictionValues);
-      MySqlSchemaCollection c = schemaProvider.GetSchema(collectionName, restrictions);
-      return c.AsDataTable();
-    }
-#endif
-
-    #endregion
 
     #region Pool Routines
 
@@ -866,13 +778,19 @@ namespace MySql.Data.MySqlClient
 
     internal void Throw(Exception ex)
     {
-#if !CF
+#if !CF && !RT
       if (exceptionInterceptor == null)
         throw ex;
       exceptionInterceptor.Throw(ex);
 #else
       throw ex;
 #endif
+    }
+
+    public void Dispose()
+    {
+      if (State == ConnectionState.Open)
+        Close();
     }
   }
 

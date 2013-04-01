@@ -24,8 +24,10 @@ using System;
 using System.IO;
 using System.Collections;
 using System.Text;
+#if !RT
 using System.Data;
 using System.Data.Common;
+#endif
 using MySql.Data.Common;
 using System.ComponentModel;
 using System.Threading;
@@ -34,28 +36,19 @@ using System.Globalization;
 using System.Collections.Generic;
 using MySql.Data.MySqlClient.Properties;
 using MySql.Data.MySqlClient.Replication;
-#if !CF 
-using System.Transactions;
-#endif
 
 namespace MySql.Data.MySqlClient
 {
   /// <include file='docs/mysqlcommand.xml' path='docs/ClassSummary/*'/> 
-#if !CF && !RT
-  [System.Drawing.ToolboxBitmap(typeof(MySqlCommand), "MySqlClient.resources.command.bmp")]
-  [System.ComponentModel.DesignerCategory("Code")]
-#endif
-  public sealed class MySqlCommand : DbCommand, ICloneable
+  public sealed partial class MySqlCommand : ICloneable, IDisposable
   {
     MySqlConnection connection;
     MySqlTransaction curTransaction;
     string cmdText;
     CommandType cmdType;
     long updatedRowCount;
-    UpdateRowSource updatedRowSource;
     MySqlParameterCollection parameters;
     private IAsyncResult asyncResult;
-    private bool designTimeVisible;
     internal Int64 lastInsertedId;
     private PreparableStatement statement;
     private int commandTimeout;
@@ -74,10 +67,9 @@ namespace MySql.Data.MySqlClient
     /// <include file='docs/mysqlcommand.xml' path='docs/ctor1/*'/>
     public MySqlCommand()
     {
-      designTimeVisible = true;
       cmdType = CommandType.Text;
       parameters = new MySqlParameterCollection(this);
-      updatedRowSource = UpdateRowSource.Both;
+      UpdatedRowSource = UpdateRowSource.Both;
       cmdText = String.Empty;
       useDefaultTimeout = true;
     }
@@ -243,16 +235,6 @@ namespace MySql.Data.MySqlClient
       set { cacheAge = value; }
     }
 
-    /*		/// <include file='docs/mysqlcommand.xml' path='docs/UpdatedRowSource/*'/>
-    #if !CF
-            [Category("Behavior")]
-    #endif
-            public override UpdateRowSource UpdatedRowSource
-            {
-                get { return updatedRowSource;  }
-                set { updatedRowSource = value; }
-            }*/
-
     internal List<MySqlCommand> Batch
     {
       get { return batch; }
@@ -328,7 +310,7 @@ namespace MySql.Data.MySqlClient
     {
       int records = -1;
 
-#if !CF
+#if !CF && !RT
       // give our interceptors a shot at it first
       if ( connection != null && 
            connection.commandInterceptor != null &&
@@ -401,7 +383,7 @@ namespace MySql.Data.MySqlClient
     /// <include file='docs/mysqlcommand.xml' path='docs/ExecuteReader1/*'/>
     public new MySqlDataReader ExecuteReader(CommandBehavior behavior)
     {
-#if !CF
+#if !CF && !RT
       // give our interceptors a shot at it first
       MySqlDataReader interceptedReader = null;
       if ( connection != null &&
@@ -435,7 +417,7 @@ namespace MySql.Data.MySqlClient
         {
           Throw(new MySqlException(Resources.DataReaderOpen));
         }
-#if !CF
+#if !CF && !RT
         System.Transactions.Transaction curTrans = System.Transactions.Transaction.Current;
 
         if (curTrans != null)
@@ -445,7 +427,7 @@ namespace MySql.Data.MySqlClient
             inRollback = driver.CurrentTransaction.InRollback;
           if (!inRollback)
           {
-            TransactionStatus status = TransactionStatus.InDoubt;
+            System.Transactions.TransactionStatus status = System.Transactions.TransactionStatus.InDoubt;
             try
             {
               // in some cases (during state transitions) this throws
@@ -453,11 +435,11 @@ namespace MySql.Data.MySqlClient
               // whether transaction was aborted or not.
               status = curTrans.TransactionInformation.Status;
             }
-            catch (TransactionException)
+            catch (System.Transactions.TransactionException)
             {
             }
-            if (status == TransactionStatus.Aborted)
-              Throw(new TransactionAbortedException());
+            if (status == System.Transactions.TransactionStatus.Aborted)
+              Throw(new System.Transactions.TransactionAbortedException());
           }
         }
 #endif
@@ -595,7 +577,7 @@ namespace MySql.Data.MySqlClient
       lastInsertedId = -1;
       object val = null;
 
-#if !CF
+#if !CF && !RT
       // give our interceptors a shot at it first
       if (connection != null &&
           connection.commandInterceptor.ExecuteScalar(CommandText, ref val))
@@ -957,81 +939,18 @@ namespace MySql.Data.MySqlClient
 
     #endregion
 
-    protected override void Dispose(bool disposing)
-    {
-      if (disposing)
-      {
-        if (statement != null && statement.IsPrepared)
-          statement.CloseStatement();
-      }
-      base.Dispose(disposing);
-    }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the command object should be visible in a Windows Form Designer control. 
-    /// </summary>
-    [Browsable(false)]
-    public override bool DesignTimeVisible
-    {
-      get
-      {
-        return designTimeVisible;
-      }
-      set
-      {
-        designTimeVisible = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets how command results are applied to the DataRow when used by the 
-    /// Update method of the DbDataAdapter. 
-    /// </summary>
-    public override UpdateRowSource UpdatedRowSource
-    {
-      get
-      {
-        return updatedRowSource;
-      }
-      set
-      {
-        updatedRowSource = value;
-      }
-    }
-
-    protected override DbParameter CreateDbParameter()
-    {
-      return new MySqlParameter();
-    }
-
-    protected override DbConnection DbConnection
-    {
-      get { return Connection; }
-      set { Connection = (MySqlConnection)value; }
-    }
-
-    protected override DbParameterCollection DbParameterCollection
-    {
-      get { return Parameters; }
-    }
-
-    protected override DbTransaction DbTransaction
-    {
-      get { return Transaction; }
-      set { Transaction = (MySqlTransaction)value; }
-    }
-
-    protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
-    {
-      return ExecuteReader(behavior);
-    }
-
     // This method is used to throw all exceptions from this class.  
     private void Throw(Exception ex)
     {
       if (connection != null)
         connection.Throw(ex);
       throw ex;
+    }
+
+    public void Dispose()
+    {
+      if (statement != null && statement.IsPrepared)
+        statement.CloseStatement();
     }
   }
 }

@@ -20,8 +20,6 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.Data.MySqlClient;
-using MySql.Data.MySqlClient.Properties;
 using System;
 using System.IO;
 using System.Threading;
@@ -30,6 +28,8 @@ using Windows.Networking;
 using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
 using System.Runtime.InteropServices.WindowsRuntime;
+using MySql.Data.MySqlClient;
+using MySql.Data.MySqlClient.Properties;
 
 namespace MySql.Data.Common
 {
@@ -81,26 +81,45 @@ namespace MySql.Data.Common
 
     public override int ReadTimeout
     {
-      get
-      {
-        return base.ReadTimeout;
-      }
-      set
-      {
-        base.ReadTimeout = value;
-      }
+      get  { return base.ReadTimeout; }
+      set  { base.ReadTimeout = value; }
     }
 
     public override int WriteTimeout
     {
-      get
-      {
-        return base.WriteTimeout;
-      }
-      set
-      {
-        base.WriteTimeout = value;
-      }
+      get { return base.WriteTimeout; }
+      set { base.WriteTimeout = value; }
+    }
+
+    public override bool CanSeek
+    {
+      get { return false; }
+    }
+
+    public override bool CanTimeout
+    {
+      get { return true; }
+    }
+
+    public override long Position
+    {
+      get  { throw new NotImplementedException();  }
+      set  { throw new NotImplementedException();  }
+    }
+
+    public override long Length
+    {
+      get { throw new NotImplementedException(); }
+    }
+
+    public override long Seek(long offset, SeekOrigin origin)
+    {
+      throw new NotImplementedException();
+    }
+
+    public override void SetLength(long value)
+    {
+      throw new NotImplementedException();
     }
 
     public async override Task<int> Read(byte[] buffer, int offset, int count)
