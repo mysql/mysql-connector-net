@@ -188,7 +188,11 @@ namespace zlib
 			return ((long)SupportClass.ReadInput(BaseStream, tmp, 0, tmp.Length));
 		}
 
+#if RT
+    public void Close()
+#else
 		public override void Close()
+#endif
 		{
 			in_Renamed.Close();
 		}

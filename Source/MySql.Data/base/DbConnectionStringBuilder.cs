@@ -160,6 +160,10 @@ namespace MySql.Data.MySqlClient
 
     #endregion
 
+    public virtual bool Remove(string key)
+    {
+      return this.Remove((object)key);
+    }
 
     public virtual object TryGetValue(string keyword, out object value)
     {

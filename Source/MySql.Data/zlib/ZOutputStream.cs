@@ -191,7 +191,12 @@ namespace zlib
 			z.free();
 			z = null;
 		}
+
+#if RT
+    public void Close()
+#else
 		public override void  Close()
+#endif
 		{
 			try
 			{

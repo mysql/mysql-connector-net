@@ -86,7 +86,11 @@ namespace MySql.Data.MySqlClient
 
     #endregion
 
+#if RT
+    public void Close()
+#else
     public override void Close()
+#endif
     {
       baseStream.Close();
       base.Close();

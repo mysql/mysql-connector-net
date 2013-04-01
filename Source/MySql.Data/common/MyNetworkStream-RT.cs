@@ -34,18 +34,20 @@ using Windows.Foundation;
 
 namespace MySql.Data.Common
 {
-  internal class MyNetworkStream : Stream
+  internal class MyNetworkStream : Stream, IDisposable
   {
     DataReader dataReader;
     DataWriter dataWriter;
     StreamSocket streamSocket;
     private int timeout;
+    private bool readable, writeable;
 
     public MyNetworkStream(string host, int port, int timeout)
     {
       Server = host;
       Port = port;
       this.timeout = timeout;
+      readable = writeable = false;
     }
 
     public string Server { get; private set; }
@@ -56,6 +58,7 @@ namespace MySql.Data.Common
       await OpenConnection();
       dataReader = new DataReader(streamSocket.InputStream);
       dataWriter = new DataWriter(streamSocket.OutputStream);
+      readable = writeable = true;
     }
 
     private async Task OpenConnection()
@@ -92,6 +95,16 @@ namespace MySql.Data.Common
       set { base.WriteTimeout = value; }
     }
 
+    public override bool CanRead
+    {
+      get { return readable; }
+    }
+
+    public override bool CanWrite 
+    { 
+      get { return writeable; }
+    }
+
     public override bool CanSeek
     {
       get { return false; }
@@ -121,6 +134,10 @@ namespace MySql.Data.Common
     public override void SetLength(long value)
     {
       throw new NotImplementedException();
+    }
+
+    public override void Flush()
+    {
     }
 
     public override int Read(byte[] buffer, int offset, int count)
@@ -171,5 +188,12 @@ namespace MySql.Data.Common
       return s;
     }
 
+
+    void Dispose()
+    {
+      streamSocket.Dispose();
+      streamSocket = null;
+      readable = writeable = false;
+    }
   }
 }
