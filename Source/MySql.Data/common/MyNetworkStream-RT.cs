@@ -30,13 +30,14 @@ using Windows.Storage.Streams;
 using System.Runtime.InteropServices.WindowsRuntime;
 using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.Properties;
+using Windows.Foundation;
 
 namespace MySql.Data.Common
 {
   internal class MyNetworkStream : Stream
   {
-    IInputStream reader;
-    IOutputStream writer;
+    DataReader dataReader;
+    DataWriter dataWriter;
     StreamSocket streamSocket;
     private int timeout;
 
@@ -53,8 +54,8 @@ namespace MySql.Data.Common
     public async void Open()
     {
       await OpenConnection();
-      reader = streamSocket.InputStream;
-      writer = streamSocket.OutputStream;
+      dataReader = new DataReader(streamSocket.InputStream);
+      dataWriter = new DataWriter(streamSocket.OutputStream);
     }
 
     private async Task OpenConnection()
@@ -122,16 +123,20 @@ namespace MySql.Data.Common
       throw new NotImplementedException();
     }
 
-    public async override Task<int> Read(byte[] buffer, int offset, int count)
+    public override int Read(byte[] buffer, int offset, int count)
     {
-      CancellationTokenSource cts = new CancellationTokenSource();
+      dataReader.InputStreamOptions = InputStreamOptions.Partial;
+
       try
       {
-        cts.CancelAfter(base.ReadTimeout);
-        Windows.Storage.Streams.Buffer tempBuffer = new Windows.Storage.Streams.Buffer((uint)count);
-        var returnValue = await streamSocket.InputStream.ReadAsync(tempBuffer, (uint)count, InputStreamOptions.Partial).AsTask(cts.Token);
-        buffer = tempBuffer.ToArray();
-        return (int)returnValue.Length;
+        CancellationTokenSource cts = new CancellationTokenSource(base.ReadTimeout);
+        DataReaderLoadOperation op = dataReader.LoadAsync((uint)count);
+
+        Task<uint> read = op.AsTask<uint>(cts.Token);
+        read.Wait();
+        // hnere we need to put the bytes read into the buffer
+        dataReader.ReadBuffer(read.Result).CopyTo(0, buffer, offset, (int)read.Result);
+        return (int)read.Result;
       }
       catch (TaskCanceledException)
       {
@@ -141,15 +146,15 @@ namespace MySql.Data.Common
       }
     }
 
-    public async override void Write(byte[] buffer, int offset, int count)
+    public override void Write(byte[] byteBuffer, int offset, int count)
     {
-      CancellationTokenSource cts = new CancellationTokenSource();
+      CancellationTokenSource cts = new CancellationTokenSource(base.WriteTimeout);
       try
       {
-        cts.CancelAfter(base.WriteTimeout);
-        Windows.Storage.Streams.Buffer tempBuffer = new Windows.Storage.Streams.Buffer((uint)count);
-        buffer.CopyTo(0, tempBuffer, (uint)offset, count);
-        await streamSocket.OutputStream.WriteAsync(tempBuffer).AsTask(cts.Token);
+        dataWriter.WriteBuffer(byteBuffer.AsBuffer(), (uint)offset, (uint)count);
+        DataWriterStoreOperation op = dataWriter.StoreAsync();
+        Task<uint> write = op.AsTask<uint>(cts.Token);
+        write.Wait();
       }
       catch (TaskCanceledException)
       {
