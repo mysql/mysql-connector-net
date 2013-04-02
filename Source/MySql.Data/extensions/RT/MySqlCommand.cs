@@ -5,6 +5,10 @@ namespace MySql.Data.MySqlClient
 {
   public sealed partial class MySqlCommand : RTCommand
   {
+    protected MySqlParameter CreateDbParameter()
+    {
+      return new MySqlParameter();
+    }
   }
 
   public abstract class RTCommand

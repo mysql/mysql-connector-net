@@ -114,6 +114,7 @@
     <Compile Include="base\Extras.cs" />
     <Compile Include="base\ICloneable.cs" />
     <Compile Include="base\MySqlNullValueException.cs" />
+    <Compile Include="base\ThreadAbortException.cs" />
     <Compile Include="extensions\RT\MySqlConnectionStringBuilder.cs" />
     <Compile Include="extensions\RT\Timer.cs" />
     <Compile Include="BulkLoader.cs" />

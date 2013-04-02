@@ -332,6 +332,7 @@ namespace MySql.Data.MySqlClient
         return 64;
       return 32;
     }
+
   }
 
 }

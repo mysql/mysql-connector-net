@@ -10,6 +10,16 @@ namespace MySql.Data.MySqlClient
   [DesignerCategory("Code")]
   public sealed partial class MySqlCommand : DbCommand
   {
+    partial void Constructor()
+    {
+      UpdatedRowSource = UpdateRowSource.Both;
+    }
+
+    partial void PartialClone(MySqlCommand clone)
+    {
+      clone.UpdatedRowSource = UpdatedRowSource;
+    }
+
     /// <summary>
     /// Gets or sets how command results are applied to the DataRow when used by the 
     /// Update method of the DbDataAdapter. 

@@ -69,10 +69,12 @@ namespace MySql.Data.MySqlClient
     {
       cmdType = CommandType.Text;
       parameters = new MySqlParameterCollection(this);
-      UpdatedRowSource = UpdateRowSource.Both;
       cmdText = String.Empty;
       useDefaultTimeout = true;
+      Constructor();
     }
+
+    partial void Constructor();
 
     /// <include file='docs/mysqlcommand.xml' path='docs/ctor2/*'/>
     public MySqlCommand(string cmdText)
@@ -851,9 +853,9 @@ namespace MySql.Data.MySqlClient
       clone.commandTimeout = commandTimeout;
       clone.useDefaultTimeout = useDefaultTimeout;
       clone.batchableCommandText = batchableCommandText;
-      clone.UpdatedRowSource = UpdatedRowSource;
       clone.EnableCaching = EnableCaching;
       clone.CacheAge = CacheAge;
+      PartialClone(clone);
 
       foreach (MySqlParameter p in parameters)
       {
@@ -861,6 +863,8 @@ namespace MySql.Data.MySqlClient
       }
       return clone;
     }
+
+    partial void PartialClone(MySqlCommand clone);
 
     object ICloneable.Clone()
     {

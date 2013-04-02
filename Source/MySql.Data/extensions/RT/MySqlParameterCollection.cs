@@ -5,8 +5,12 @@ using MySql.Data.MySqlClient.Properties;
 
 namespace MySql.Data.MySqlClient
 {
-  public sealed partial class MySqlParameterCollection : RTParameterCollection
+  public sealed partial class MySqlParameterCollection : RTParameterCollection, IEnumerable
   {
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+      return items.GetEnumerator();
+    }
   }
 
   public abstract class RTParameterCollection
