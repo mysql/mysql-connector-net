@@ -58,6 +58,8 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.ExecuteNonQuery();
       cmd.CommandText = "grant execute on procedure `spMyTwice` to 'tester2'@'localhost'";
       cmd.ExecuteNonQuery();
+      cmd.CommandText = "grant select on table mysql.proc to 'tester2'@'localhost'";
+      cmd.ExecuteNonQuery();
       cmd.CommandText = "flush privileges";
       cmd.ExecuteNonQuery();
       MySqlConnection con2 = new MySqlConnection(
