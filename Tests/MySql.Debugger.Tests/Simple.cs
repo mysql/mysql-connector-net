@@ -1501,5 +1501,61 @@ END
         dbg.Stop();
       }
     }
+
+    /// <summary>
+    /// This fixes BUG 16002371 - MYSQL.DEBUGGER MODULE PARSES INCORRECTLY CAUSING SYNTAX ERROR.
+    /// </summary>
+    [Test]
+    public void BrokenInstrumentation()
+    {
+      string sql =
+        @"
+DELIMITER // 
+
+CREATE PROCEDURE rewards_report1 ( 
+    IN min_monthly_purchases TINYINT UNSIGNED 
+) 
+    READS SQL DATA 
+    COMMENT 'Provides a customizable report on best customers' 
+proc: BEGIN 
+
+    DECLARE something int; 
+    SELECT min_monthly_purchase;   
+END // 
+";
+      Debugger dbg = new Debugger();
+      try
+      {
+        dbg.Connection = new MySqlConnection(TestUtils.CONNECTION_STRING);
+        dbg.UtilityConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
+        dbg.LockingConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
+        DumpConnectionThreads(dbg);
+        MySqlScript script = new MySqlScript(dbg.Connection, sql);
+        script.Execute();
+        sql =
+@"CREATE PROCEDURE rewards_report1 ( 
+    IN min_monthly_purchases TINYINT UNSIGNED 
+) 
+    READS SQL DATA 
+    COMMENT 'Provides a customizable report on best customers' 
+proc: BEGIN 
+
+    DECLARE something int; 
+    SELECT min_monthly_purchases;
+END;
+";
+        dbg.SqlInput = sql;
+        dbg.SteppingType = SteppingTypeEnum.StepInto;
+        dbg.OnBreakpoint += (bp) =>
+        {
+          Debug.WriteLine(string.Format("breakpoint at line {0}:{1},{2}", bp.RoutineName, bp.Line, bp.StartColumn));
+        };
+        dbg.Run(new string[] { "3" }, new string[0]);
+      }
+      finally
+      {
+        dbg.RestoreRoutinesBackup();
+      }
+    }
   }
 }

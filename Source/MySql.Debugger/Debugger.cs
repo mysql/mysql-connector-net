@@ -1232,13 +1232,16 @@ namespace MySql.Debugger
       if (!string.IsNullOrEmpty(routine._leaveLabel))
       {
         sql.Append(routine._leaveLabel).Append(" : ");
+        ITree labelTree = beginEnd.GetChild(0);
+        routine.BeginEnd.Children.Remove(labelTree);
+        beginEnd = routine.BeginEnd;
       }
       sql.AppendLine( "begin" );
       sql.AppendLine("#begin scope");
       // Generate recursive code:
       routine._endOfDeclare = false;
       GenerateInstrumentedCodeRecursive(beginEnd.Children, routine, sql);
-      // Generate scope exit:
+      // Generate scope exit:s
       if (routine.Type != RoutineInfoType.Function)
       {
         IToken tk = routine.TokenStream.Get(beginEnd.TokenStopIndex);

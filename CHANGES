@@ -17,7 +17,7 @@
 - Fix for Specifying delete cascade in EF migrations does not work (MySql bug #68457, Oracle bug #16398432).
 - Fix for InvalidCastException thrown when executing an stored function (MySql bug #64633, Oracle bug #13864627).
 - Fix for Default Command Timeout not applying for EFMySqlCommand (MySql bug #67171, Oracle bug #14825670).
-
+- Fix for Debugger cannot debug stored procedures with a main begin labeled and declare statements included (Oracle bug #16002371).
 
 
 6.6.5
