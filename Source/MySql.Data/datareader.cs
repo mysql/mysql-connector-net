@@ -31,6 +31,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using MySql.Data.MySqlClient.Properties;
 using MySql.Data.Common;
+using MySql.Data.MySqlClient;
+using System.Threading;
 
 namespace MySql.Data.MySqlClient
 {
@@ -72,8 +74,11 @@ namespace MySql.Data.MySqlClient
       affectedRows = -1;
       this.statement = statement;
 
-      if (cmd.CommandType == CommandType.StoredProcedure &&
-      cmd.UpdatedRowSource == UpdateRowSource.FirstReturnedRecord)
+      if (cmd.CommandType == CommandType.StoredProcedure 
+#if !RT
+        && cmd.UpdatedRowSource == UpdateRowSource.FirstReturnedRecord
+#endif
+      )
       {
         disableZeroAffectedRows = true;
       }
@@ -909,7 +914,7 @@ namespace MySql.Data.MySqlClient
         connection.HandleTimeoutOrThreadAbort(tex);
         throw; // unreached
       }
-      catch (System.Threading.ThreadAbortException taex)
+      catch (ThreadAbortException taex)
       {
         connection.HandleTimeoutOrThreadAbort(taex);
         throw;
@@ -972,7 +977,7 @@ namespace MySql.Data.MySqlClient
         AdjustOutputTypes();
 
       // now read the output parameters data row
-      if ((commandBehavior & System.Data.CommandBehavior.SchemaOnly) != 0) return;
+      if ((commandBehavior & CommandBehavior.SchemaOnly) != 0) return;
       resultSet.NextRow(commandBehavior);
 
       string prefix = "@" + StoredProcedure.ParameterPrefix;

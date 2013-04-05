@@ -60,7 +60,7 @@ namespace MySql.Data.MySqlClient.Authentication
         try
         {
           Type t = Type.GetType(pi.Type);
-          MySqlAuthenticationPlugin o = (MySqlAuthenticationPlugin)t.Assembly.CreateInstance(t.FullName);
+          MySqlAuthenticationPlugin o = (MySqlAuthenticationPlugin)Activator.CreateInstance(t);
           return o;
         }
         catch (Exception e)

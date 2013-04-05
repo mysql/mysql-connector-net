@@ -26,9 +26,11 @@ using System.ComponentModel;
 using System.Data;
 using System.Data.Common;
 #endif
-#if !CF && !RT
+#if !CF
 using System.Drawing;
 using System.Drawing.Design;
+#endif
+#if !CF && !RT
 using System.Transactions;
 using IsolationLevel = System.Data.IsolationLevel;
 #endif

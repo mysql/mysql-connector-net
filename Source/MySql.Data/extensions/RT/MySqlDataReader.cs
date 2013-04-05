@@ -8,8 +8,6 @@ namespace MySql.Data.MySqlClient
 
   public abstract class RTDataReader
   {
-    private RTDataReader() { }
-
     public abstract int FieldCount { get; }
     public abstract bool HasRows { get; }
     public abstract bool IsClosed { get; }

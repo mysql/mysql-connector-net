@@ -70,7 +70,7 @@ namespace MySql.Data.MySqlClient
       }
       catch (NotSupportedException)
       {
-        return Encoding.GetEncoding(0);
+        return Encoding.GetEncoding("utf-8");
       }
     }
 

@@ -8,6 +8,16 @@ namespace MySql.Data.MySqlClient
 {
   public sealed partial class MySqlConnection : RTConnection
   {
+    public delegate void StateChangeEventHandler(object sender, StateChangeEventArgs e);
+
+    public event StateChangeEventHandler StateChange;
+
+    protected void OnStateChange(StateChangeEventArgs stateChange)
+    {
+      StateChangeEventHandler handler = StateChange;
+      if (handler != null)
+        handler(this, stateChange);
+    }
   }
 
   public abstract class RTConnection

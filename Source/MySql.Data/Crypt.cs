@@ -86,7 +86,7 @@ namespace MySql.Data.MySqlClient
       // if we have no password, then we just return 2 zero bytes
       if (password.Length == 0) return new byte[1];
 
-      SHA1 sha = new SHA1CryptoServiceProvider(); 
+      SHA1 sha = new SHA1CryptoServiceProvider();
 
       byte[] firstHash = sha.ComputeHash(Encoding.Default.GetBytes(password));
       byte[] secondHash = sha.ComputeHash(firstHash);

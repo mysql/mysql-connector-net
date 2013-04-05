@@ -68,7 +68,7 @@ namespace MySql.Data.MySqlClient.Memcached
     /// </summary>
     public virtual void Close()
     {
-      stream.Close();
+      stream.Dispose();
     }
 
     protected Client(string server, uint port)

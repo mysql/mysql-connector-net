@@ -37,13 +37,13 @@ namespace MySql.Data.MySqlClient.Memcached
 
     private enum OpCodes : byte
     {
-      	Get = 0x00,
+        Get = 0x00,
         Set = 0x01,
         Add = 0x02,
         Replace = 0x03,
         Delete = 0x04,
-	    Increment = 0x05,
-	    Decrement = 0x06,
+        Increment = 0x05,
+        Decrement = 0x06,
         Quit = 0x07,
         Flush = 0x08, 
         GetK = 0x0c,
@@ -180,7 +180,7 @@ namespace MySql.Data.MySqlClient.Memcached
       byte[] res = GetResponse();
       byte[] bValue = new byte[res[4] - 4];
       Array.Copy(res, 28, bValue, 0, res[4] - 4);
-      value = encoding.GetString(bValue);
+      value = encoding.GetString(bValue, 0, bValue.Length);
     }
 
     /// <summary>
