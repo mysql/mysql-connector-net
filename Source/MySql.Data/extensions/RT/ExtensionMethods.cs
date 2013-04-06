@@ -21,5 +21,18 @@ namespace MySql.Data.MySqlClient
     {
       stream.Dispose();
     }
+
+    public static string ToLower(this String newString, System.Globalization.CultureInfo culture)
+    {
+      if (culture == System.Globalization.CultureInfo.InvariantCulture)
+        return newString.ToLowerInvariant();
+      else
+        return newString.ToLower();
+    }
+
+    public static string ToLongTimeString(this DateTime dateTime)
+    {
+      return dateTime.ToString(System.Globalization.DateTimeFormatInfo.CurrentInfo.LongTimePattern);
+    }
   }
 }

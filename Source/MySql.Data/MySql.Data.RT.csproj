@@ -161,6 +161,7 @@
     </Compile>
     <Compile Include="MysqlDefs.cs" />
     <Compile Include="MySqlError.cs" />
+    <Compile Include="MySqlHelper.cs" />
     <Compile Include="MySqlPacket.cs" />
     <Compile Include="MySqlPool.cs" />
     <Compile Include="MySqlPoolManager.cs" />

@@ -325,7 +325,7 @@ namespace MySql.Data.MySqlClient
         return String.Empty;
       //            byte[] buf = new byte[length];
       Read(tempBuffer, 0, (int)length);
-      return ASCIIEncoding.ASCII.GetString(tempBuffer, 0, (int)length);
+      return Encoding.GetEncoding("us-ascii").GetString(tempBuffer, 0, (int)length);
       //return encoding.GetString(tempBuffer, 0, (int)length); //buf.Length);
     }
 

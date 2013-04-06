@@ -603,7 +603,7 @@ namespace MySql.Data.MySqlClient
         // we need to parse it before this check so we are correctly
         // positioned for the next parameter
         if (nameToRestrict == null ||
-            String.Compare(parmRow["PARAMETER_NAME"].ToString(), nameToRestrict, true) == 0)
+            String.Compare(parmRow["PARAMETER_NAME"].ToString(), nameToRestrict, StringComparison.OrdinalIgnoreCase) == 0)
           parametersTable.Rows.Add(parmRow);
       }
 

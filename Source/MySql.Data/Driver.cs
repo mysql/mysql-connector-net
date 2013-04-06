@@ -72,7 +72,7 @@ namespace MySql.Data.MySqlClient
 
     public Driver(MySqlConnectionStringBuilder settings)
     {
-      encoding = Encoding.GetEncoding(1252);
+      encoding = Encoding.GetEncoding("Windows-1252");
       if (encoding == null)
         throw new MySqlException(Resources.DefaultEncodingNotFound);
       connectionString = settings;
@@ -192,7 +192,7 @@ namespace MySql.Data.MySqlClient
     public static Driver Create(MySqlConnectionStringBuilder settings)
     {
       Driver d = null;
-#if !CF
+#if !CF && !RT
       try
       {
         if (MySqlTrace.QueryAnalysisEnabled || settings.Logging || settings.UseUsageAdvisor)

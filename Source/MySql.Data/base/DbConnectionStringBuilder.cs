@@ -129,9 +129,9 @@ namespace MySql.Data.MySqlClient
 
     #region ICollection Members
 
-    public void CopyTo(Array array, int index)
+    void ICollection.CopyTo(Array array, int index)
     {
-      hash.CopyTo(array, index);
+      throw new NotSupportedException();
     }
 
     public int Count
@@ -141,12 +141,12 @@ namespace MySql.Data.MySqlClient
 
     public bool IsSynchronized
     {
-      get { return hash.IsSynchronized; }
+      get { throw new NotSupportedException(); }
     }
 
     public object SyncRoot
     {
-      get { return hash.SyncRoot; }
+      get { throw new NotSupportedException(); }
     }
 
     #endregion
@@ -162,7 +162,8 @@ namespace MySql.Data.MySqlClient
 
     public virtual bool Remove(string key)
     {
-      return this.Remove((object)key);
+      this.Remove((object)key);
+      return !Contains(key);
     }
 
     public virtual object TryGetValue(string keyword, out object value)
