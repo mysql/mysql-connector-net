@@ -192,7 +192,7 @@ namespace MySql.Data.MySqlClient
       try
       {
         baseStream = StreamCreator.GetStream(Settings);
-#if !CF
+#if !CF && !RT
          if (Settings.IncludeSecurityAsserts)
             MySqlSecurityPermission.CreatePermissionSet(false).Assert();
 #endif
@@ -263,7 +263,7 @@ namespace MySql.Data.MySqlClient
       packet.Clear();
       packet.WriteInteger((int)connectionFlags, 4);
 
-#if !CF
+#if !CF && !RT
       if ((serverCaps & ClientFlags.SSL) == 0)
       {
         if ((Settings.SslMode != MySqlSslMode.None)

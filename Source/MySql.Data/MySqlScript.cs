@@ -293,7 +293,7 @@ namespace MySql.Data.MySqlClient
               }
             }
 
-            int delimiterPos = token.IndexOf(currentDelimiter, StringComparison.InvariantCultureIgnoreCase);
+            int delimiterPos = token.IndexOf(currentDelimiter, StringComparison.OrdinalIgnoreCase);
             if (delimiterPos != -1)
             {
               int endPos = tokenizer.StopIndex - token.Length + delimiterPos;

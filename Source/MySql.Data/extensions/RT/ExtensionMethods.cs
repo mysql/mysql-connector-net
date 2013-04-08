@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient
@@ -33,6 +34,11 @@ namespace MySql.Data.MySqlClient
     public static string ToLongTimeString(this DateTime dateTime)
     {
       return dateTime.ToString(System.Globalization.DateTimeFormatInfo.CurrentInfo.LongTimePattern);
+    }
+
+    public static bool WaitOne(this WaitHandle waitHandle, int millisecondsTimeout, bool exitContext)
+    {
+      return waitHandle.WaitOne(millisecondsTimeout);
     }
   }
 }

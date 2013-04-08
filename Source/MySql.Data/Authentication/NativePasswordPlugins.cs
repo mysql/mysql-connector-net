@@ -24,11 +24,11 @@ using System.IO;
 using System;
 using MySql.Data.MySqlClient.Properties;
 using MySql.Data.Common;
-using System.Text;
-#if RT
-using Windows.Security.Cryptography;
-#else
 using System.Security.Cryptography;
+#if RT
+using MySql.Data.MySqlClient.RT;
+#else
+using System.Text;
 #endif
 
 namespace MySql.Data.MySqlClient.Authentication

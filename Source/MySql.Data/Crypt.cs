@@ -23,13 +23,13 @@
 
 using System;
 using System.Globalization;
-using System.Text;
 using MySql.Data.Common;
 using MySql.Data.MySqlClient.Properties;
-#if RT
-using Windows.Security.Cryptography;
-#else
 using System.Security.Cryptography;
+#if RT
+using MySql.Data.MySqlClient.RT;
+#else
+using System.Text;
 #endif
 
 namespace MySql.Data.MySqlClient

@@ -118,8 +118,10 @@
     <Compile Include="base\ThreadAbortException.cs" />
     <Compile Include="extensions\RT\ArrayList.cs" />
     <Compile Include="extensions\RT\DbNull.cs" />
+    <Compile Include="extensions\RT\Encoding.cs" />
     <Compile Include="extensions\RT\ExtensionMethods.cs" />
     <Compile Include="extensions\RT\MySqlConnectionStringBuilder.cs" />
+    <Compile Include="extensions\RT\SHA1.cs" />
     <Compile Include="extensions\RT\Timer.cs" />
     <Compile Include="BulkLoader.cs" />
     <Compile Include="CharSetMap.cs" />
