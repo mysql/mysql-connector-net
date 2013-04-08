@@ -1,4 +1,8 @@
 
+6.7.1
+- Fix for Bug Assemblies for .net 4.5 are not included in the installation (Oracle Bug #16463655).
+- Fix for Bug Geometry Provider Incompatible Exception (Oracle Bug # 16453250).
+
 6.7.0
 - Fix for bug Keyword not supported. Parameter name: AttachDbFilename (Mysql bug #66880, Oracle bug #14733472).
 - Fix for bug "Unable to connect using IPv6 connections" (MySQL bug #67253, Oracle bug #14835718).
@@ -21,5 +25,5 @@
 - Fix for InvalidCastException thrown when executing an stored function (MySql bug #64633, Oracle bug #13864627).
 - Fix for Default Command Timeout not applying for EFMySqlCommand (MySql bug #67171, Oracle bug #14825670).
 - Fix for Cannot use geometry function on new instances created with ef code first (Oracle bug #16446399).
-- Fix for Bug Assemblies for .net 4.5 are not included in the installation (Oracle Bug #16463655).
-- Fix for Bug Geometry Provider Incompatible Exception (Oracle Bug # 16453250).
+
+
