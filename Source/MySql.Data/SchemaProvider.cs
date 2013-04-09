@@ -831,10 +831,14 @@ namespace MySql.Data.MySqlClient
     private static MySqlSchemaCollection GetReservedWords()
     {
       MySqlSchemaCollection dt = new MySqlSchemaCollection("ReservedWords");
+#if !RT
       dt.AddColumn(DbMetaDataColumnNames.ReservedWord, typeof(string));
-
       Stream str = Assembly.GetExecutingAssembly().GetManifestResourceStream(
         "MySql.Data.MySqlClient.Properties.ReservedWords.txt");
+#else
+      dt.AddColumn("ReservedWord", typeof(string));
+      Stream str = typeof(SchemaProvider).GetTypeInfo().Assembly.GetManifestResourceStream("MySql.Data.MySqlClient.Properties.ReservedWords.txt");
+#endif
       StreamReader sr = new StreamReader(str);
       string line = sr.ReadLine();
       while (line != null)
@@ -848,7 +852,7 @@ namespace MySql.Data.MySqlClient
         }
         line = sr.ReadLine();
       }
-      sr.Close();
+      sr.Dispose();
       str.Close();
 
       return dt;

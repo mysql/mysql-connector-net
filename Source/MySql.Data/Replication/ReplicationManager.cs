@@ -122,6 +122,7 @@ namespace MySql.Data.MySqlClient.Replication
               bool isRunning = false;
               ReplicationServer server1 = e.Argument as ReplicationServer;
               int retryTime = ReplicationManager.GetGroup(groupName).RetryTime;
+#if !RT
               System.Timers.Timer timer = new System.Timers.Timer(retryTime * 1000.0);
 
 
@@ -151,6 +152,36 @@ namespace MySql.Data.MySqlClient.Replication
               timer.Elapsed += elapsedEvent;
               timer.Start();
               elapsedEvent(sender, null);
+#else
+              Windows.UI.Xaml.DispatcherTimer timer = new Windows.UI.Xaml.DispatcherTimer();
+              TimeSpan ts = new TimeSpan(retryTime * 1000);
+              System.EventHandler<object> elapsedEvent = (TickSender, TickEventArgs) =>
+              {
+                  if (isRunning) return;
+                  try
+                  {
+                      isRunning = true;
+                      using (MySqlConnection connectionFailed = new MySqlConnection(server.ConnectionString))
+                      {
+                          connectionFailed.Open();
+                          server1.IsAvailable = true;
+                          timer.Stop();
+                      }
+                  }
+                  catch
+                  {
+                      MySqlTrace.LogWarning(0,
+                        string.Format(Properties.Resources.Replication_ConnectionAttemptFailed, server1.Name));
+                  }
+                  finally
+                  {
+                      isRunning = false;
+                  }
+              };
+              timer.Tick += elapsedEvent;
+              elapsedEvent(sender, null);
+              timer.Start();
+#endif
             };
 
             worker.RunWorkerAsync(server);
