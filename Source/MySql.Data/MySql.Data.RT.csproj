@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -123,6 +123,7 @@
     <Compile Include="extensions\RT\FileStream.cs" />
     <Compile Include="extensions\RT\MySqlConnectionStringBuilder.cs" />
     <Compile Include="extensions\RT\SHA1.cs" />
+    <Compile Include="extensions\RT\MySqlTrace.cs"
     <Compile Include="extensions\RT\Timer.cs" />
     <Compile Include="BulkLoader.cs" />
     <Compile Include="CharSetMap.cs" />
@@ -170,7 +171,7 @@
     <Compile Include="MySqlPoolManager.cs" />
     <Compile Include="MySqlScript.cs" />
     <Compile Include="MySqlStream.cs" />
-    <Compile Include="MySqlTrace.cs" />
+    
     <Compile Include="NativeDriver.cs" />
     <Compile Include="parameter.cs" />
     <Compile Include="parameter_collection.cs" />

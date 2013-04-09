@@ -211,7 +211,11 @@ namespace zlib
 			finally
 			{
 				end();
+#if RT
+                out_Renamed.Dispose();
+#else
 				out_Renamed.Close();
+#endif
 				out_Renamed = null;
 			}
 		}

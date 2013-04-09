@@ -150,6 +150,7 @@
     <Compile Include="extensions\NonRT\MySqlDateTime.cs" />
     <Compile Include="extensions\NonRT\MySqlParameter.cs" />
     <Compile Include="extensions\NonRT\MySqlParameterCollection.cs" />
+    <Compile Include="extensions\NonRT\MySqlTrace.cs" />
     <Compile Include="extensions\NonRT\MySqlTransaction.cs" />
     <Compile Include="Field.cs" />
     <Compile Include="Installer.cs">
@@ -180,7 +181,6 @@
     <Compile Include="MySqlScript.cs" />
     <Compile Include="MySqlSecurityPermission.cs" />
     <Compile Include="MySqlStream.cs" />
-    <Compile Include="MySqlTrace.cs" />
     <Compile Include="NativeDriver.cs" />
     <Compile Include="parameter.cs" />
     <Compile Include="parameter_collection.cs" />

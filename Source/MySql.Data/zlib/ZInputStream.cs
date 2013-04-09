@@ -194,7 +194,11 @@ namespace zlib
 		public override void Close()
 #endif
 		{
+#if RT
+            in_Renamed.Dispose();
+#else
 			in_Renamed.Close();
+#endif
 		}
 	}
 }

@@ -153,7 +153,7 @@ namespace MySql.Data.MySqlClient.Memcached
       // set key flags exptime 
       sb.Append(string.Format("{0} {1} 0 {2} ", cmd, key, (int)(expiration.TotalSeconds)));
       byte[] buf = encoding.GetBytes(data.ToString());
-      string s = encoding.GetString(buf);
+      string s = encoding.GetString(buf, 0, buf.Length);
       sb.Append(s.Length.ToString());
       sb.AppendFormat(" {0}", casUnique);
       sb.Append("\r\n");
@@ -177,7 +177,7 @@ namespace MySql.Data.MySqlClient.Memcached
       // set key flags exptime 
       sb.Append(string.Format("{0} {1} 0 {2} ", cmd, key, (int)(expiration.TotalSeconds)));
       byte[] buf = encoding.GetBytes(data.ToString());
-      string s = encoding.GetString(buf);
+      string s = encoding.GetString(buf, 0, buf.Length);
       sb.Append(s.Length.ToString());
       sb.Append("\r\n");
       sb.Append(s);
@@ -200,7 +200,7 @@ namespace MySql.Data.MySqlClient.Memcached
       // set key 
       sb.Append(string.Format("{0} {1} ", cmd, key ));
       byte[] buf = encoding.GetBytes(data.ToString());
-      string s = encoding.GetString(buf);
+      string s = encoding.GetString(buf, 0, buf.Length);
       if ((cmd == PROTOCOL_APPEND) || (cmd == PROTOCOL_PREPEND))
       {
         sb.Append("0 0 ");
@@ -262,7 +262,7 @@ namespace MySql.Data.MySqlClient.Memcached
 
     private void ValidateErrorResponse(byte[] res)
     {
-      string s = encoding.GetString(res);
+      string s = encoding.GetString(res, 0, res.Length);
       if ((s.StartsWith(ERR_ERROR, StringComparison.OrdinalIgnoreCase)) ||
           (s.StartsWith(ERR_CLIENT_ERROR, StringComparison.OrdinalIgnoreCase)) ||
           (s.StartsWith(ERR_SERVER_ERROR, StringComparison.OrdinalIgnoreCase)))
@@ -280,14 +280,14 @@ namespace MySql.Data.MySqlClient.Memcached
     private KeyValuePair<string, object>[] ParseGetResponse(byte[] input)
     {
       // VALUE key2 10 9 2\r\n111222333\r\nEND\r\n
-      string[] sInput = encoding.GetString(input).Split(new string[] { "\r\n" }, StringSplitOptions.None);
+      string[] sInput = encoding.GetString(input, 0, input.Length).Split(new string[] { "\r\n" }, StringSplitOptions.None);
       List<KeyValuePair<string, object>> l = new List<KeyValuePair<string, object>>();
       int i = 0;
       string key = "";
       KeyValuePair<string, object> kvp;
       while ((sInput[i] != END) && (i < sInput.Length))
       {
-        if (sInput[i].StartsWith(VALUE, StringComparison.InvariantCultureIgnoreCase))
+        if (sInput[i].StartsWith(VALUE, StringComparison.OrdinalIgnoreCase))
         {
           key = sInput[i].Split(' ')[1];
         }
