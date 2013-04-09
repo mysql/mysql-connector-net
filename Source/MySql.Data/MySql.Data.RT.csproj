@@ -123,7 +123,7 @@
     <Compile Include="extensions\RT\FileStream.cs" />
     <Compile Include="extensions\RT\MySqlConnectionStringBuilder.cs" />
     <Compile Include="extensions\RT\SHA1.cs" />
-    <Compile Include="extensions\RT\MySqlTrace.cs"
+    <Compile Include="extensions\RT\MySqlTrace.cs" />
     <Compile Include="extensions\RT\Timer.cs" />
     <Compile Include="BulkLoader.cs" />
     <Compile Include="CharSetMap.cs" />
