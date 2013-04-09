@@ -35,7 +35,10 @@ namespace MySql.Data.MySqlClient
   {
     public DisplayNameAttribute(string s)
     {
+      DisplayName = s;
     }
+
+    public virtual string DisplayName { get; private set; }
   }
 
   internal class PasswordPropertyTextAttribute : Attribute

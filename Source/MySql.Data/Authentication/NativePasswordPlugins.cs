@@ -26,9 +26,9 @@ using MySql.Data.MySqlClient.Properties;
 using MySql.Data.Common;
 using System.Security.Cryptography;
 #if RT
-using MySql.Data.MySqlClient.RT;
+using AliasText = MySql.Data.MySqlClient.RT;
 #else
-using System.Text;
+using AliasText = System.Text;
 #endif
 
 namespace MySql.Data.MySqlClient.Authentication
@@ -82,7 +82,7 @@ namespace MySql.Data.MySqlClient.Authentication
 
       SHA1 sha = new SHA1CryptoServiceProvider();
 
-      byte[] firstHash = sha.ComputeHash(Encoding.Default.GetBytes(password));
+      byte[] firstHash = sha.ComputeHash(AliasText.Encoding.Default.GetBytes(password));
       byte[] secondHash = sha.ComputeHash(firstHash);
 
       byte[] input = new byte[seedBytes.Length + secondHash.Length];

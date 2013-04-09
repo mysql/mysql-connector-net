@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -39,6 +40,11 @@ namespace MySql.Data.MySqlClient
     public static bool WaitOne(this WaitHandle waitHandle, int millisecondsTimeout, bool exitContext)
     {
       return waitHandle.WaitOne(millisecondsTimeout);
+    }
+
+    public static PropertyInfo[] GetProperties(this Type type)
+    {
+      return type.GetRuntimeProperties().ToArray();
     }
   }
 }

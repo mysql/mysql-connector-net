@@ -31,6 +31,9 @@ using System.Text;
 using MySql.Data.MySqlClient.Authentication;
 using System.Reflection;
 using System.ComponentModel;
+#if RT
+using System.Linq;
+#endif
 #if !CF && !RT
 using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
@@ -905,7 +908,11 @@ namespace MySql.Data.MySqlClient
         foreach (PropertyInfo property in attrs.GetType().GetProperties())
         {
           string name = property.Name;
+#if RT
+          object[] customAttrs = property.GetCustomAttributes(typeof(DisplayNameAttribute), false).ToArray<object>();
+#else
           object[] customAttrs = property.GetCustomAttributes(typeof(DisplayNameAttribute), false);
+#endif
           if (customAttrs.Length > 0)
             name = (customAttrs[0] as DisplayNameAttribute).DisplayName;
 
