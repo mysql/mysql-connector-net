@@ -9,6 +9,9 @@ using System.ComponentModel;
 
 namespace MySql.Data.MySqlClient
 {
+    /// <summary>
+    /// An implementation of the missing System.ComponentModel.BackgroundWorker in RT.
+    /// </summary>
     public class BackgroundWorker : DependencyObject
     {
         public BackgroundWorker()
