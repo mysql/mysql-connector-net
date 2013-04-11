@@ -209,12 +209,11 @@ namespace MySql.Data.MySqlClient
     /// <returns>The zero-based location of the <see cref="MySqlParameter"/> in the collection.</returns>
     public override int IndexOf(string parameterName)
     {
-      object o = indexHashCS[parameterName];
-      if (o == null)
-        o = indexHashCI[parameterName];
-      if (o == null)
+      int i = -1;
+      if (!indexHashCS.TryGetValue(parameterName, out i) &&
+        !indexHashCI.TryGetValue(parameterName, out i))
         return -1;
-      return (int)o;
+      return i;
     }
 
     /// <summary>

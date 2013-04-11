@@ -11,6 +11,9 @@ namespace MySql.Data.MySqlClient
   {
     private List<SchemaColumn> columns = new List<SchemaColumn>();
     private List<MySqlSchemaRow> rows = new List<MySqlSchemaRow>();
+#if !RT
+    private DataTable _table = null;
+#endif
 
     public MySqlSchemaCollection()
     {
@@ -21,6 +24,30 @@ namespace MySql.Data.MySqlClient
     {
       Name = name;
     }
+
+#if !RT
+    public MySqlSchemaCollection(DataTable dt)
+    {
+      // cache the original datatable to avoid the overhead of creating again whenever possible.
+      _table = dt;
+      int i = 0;
+      foreach (DataColumn dc in dt.Columns)
+      {
+        columns.Add(new SchemaColumn() { Name = dc.ColumnName, Type = dc.DataType });
+        Mapping.Add(dc.ColumnName, i++);
+      }
+
+      foreach (DataRow dr in dt.Rows)
+      {
+        MySqlSchemaRow row = new MySqlSchemaRow(this);
+        for (i = 0; i < columns.Count; i++)
+        {
+          row[i] = dr[i];
+        }
+        rows.Add(row);
+      }
+    }
+#endif
 
     internal Dictionary<string, int> Mapping;
     public string Name { get; set; }
@@ -75,6 +102,7 @@ namespace MySql.Data.MySqlClient
 #if !RT
     internal DataTable AsDataTable()
     {
+      if (_table != null) return _table;
       DataTable dt = new DataTable(Name);
       foreach (SchemaColumn col in Columns)
         dt.Columns.Add(col.Name, col.Type);
@@ -95,6 +123,13 @@ namespace MySql.Data.MySqlClient
     public MySqlSchemaRow(MySqlSchemaCollection c)
     {
       Collection = c;
+      InitMetadata();
+    }
+
+    internal void InitMetadata()
+    {
+      for( int i = 0; i < Collection.Mapping.Keys.Count; i++ )
+        this.Add(null);
     }
 
     internal MySqlSchemaCollection Collection { get; private set; }

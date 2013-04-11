@@ -21,19 +21,20 @@ namespace MySql.Data.MySqlClient
       options.Add(new MySqlConnectionStringOption("server", "host,data source,datasource,address,addr,network address", typeof(string), "localhost", false));
       options.Add(new MySqlConnectionStringOption("database", "initial catalog", typeof(string), null, false));
       options.Add(new MySqlConnectionStringOption("protocol", "connection protocol, connectionprotocol", typeof(MySqlConnectionProtocol), MySqlConnectionProtocol.Sockets, false));
-      options.Add(new MySqlConnectionStringOption("port", null, typeof(uint), 3306, false));
+      options.Add(new MySqlConnectionStringOption("port", null, typeof(uint), ( uint )3306, false));
       options.Add(new MySqlConnectionStringOption("pipe", "pipe name,pipename", typeof(string), "MYSQL", false));
       options.Add(new MySqlConnectionStringOption("compress", "use compression,usecompression", typeof(bool), false, false));
-      options.Add(new MySqlConnectionStringOption("allow batch", "allowbatch", typeof(bool), true, false));
+      options.Add(new MySqlConnectionStringOption("allowbatch", "allowbatch", typeof(bool), true, false));
       options.Add(new MySqlConnectionStringOption("logging", null, typeof(bool), false, false));
-      options.Add(new MySqlConnectionStringOption("shared memory name", "sharedmemoryname", typeof(string), "MYSQL", false));
+      options.Add(new MySqlConnectionStringOption("sharedmemoryname", "sharedmemoryname", typeof(string), "MYSQL", false));
       options.Add(new MySqlConnectionStringOption("useoldsyntax", "old syntax,oldsyntax,use old syntax", typeof(bool), false, true));
-      options.Add(new MySqlConnectionStringOption("connectiontimeout", "connection timeout,connect timeout", typeof(uint), 15, false));
-      options.Add(new MySqlConnectionStringOption("defaultcommandtimeout", "command timeout,default command timeout", typeof(uint), 30, false));
+      options.Add(new MySqlConnectionStringOption("connectiontimeout", "connection timeout,connect timeout", typeof(uint), ( uint )15, false));
+      options.Add(new MySqlConnectionStringOption("defaultcommandtimeout", "command timeout,default command timeout", typeof(uint), ( uint )30, false));
+      options.Add(new MySqlConnectionStringOption("usedefaultcommandtimeoutforef", "use default command timeout for ef", typeof(bool), false, false));
 
       // authentication options
       options.Add(new MySqlConnectionStringOption("userid", "uid,username,user name,user,user id", typeof(string), null, false));
-      options.Add(new MySqlConnectionStringOption("password", "pwd", typeof(string), null, false));
+      options.Add(new MySqlConnectionStringOption("password", "pwd", typeof(string), "", false));
       options.Add(new MySqlConnectionStringOption("persistsecurityinfo", "persist security info", typeof(bool), false, false));
 #if !CF
       options.Add(new MySqlConnectionStringOption("encrypt", null, typeof(bool), false, true));
@@ -48,7 +49,7 @@ namespace MySql.Data.MySqlClient
       options.Add(new MySqlConnectionStringOption("allowzerodatetime", "allow zero datetime", typeof(bool), false, false));
       options.Add(new MySqlConnectionStringOption("convertzerodatetime", "convert zero datetime", typeof(bool), false, false));
       options.Add(new MySqlConnectionStringOption("useusageadvisor", "use usage advisor,usage advisor", typeof(bool), false, false));
-      options.Add(new MySqlConnectionStringOption("procedurecachesize", "procedure cache size,procedure cache,procedurecache", typeof(uint), 25, false));
+      options.Add(new MySqlConnectionStringOption("procedurecachesize", "procedure cache size,procedure cache,procedurecache", typeof(uint), ( uint )25, false));
       options.Add(new MySqlConnectionStringOption("useperformancemonitor", "use performance monitor,useperfmon,perfmon", typeof(bool), false, false));
       options.Add(new MySqlConnectionStringOption("ignoreprepare", "ignore prepare", typeof(bool), true, false));
       options.Add(new MySqlConnectionStringOption("useprocedurebodies", "use procedure bodies,procedure bodies", typeof(bool), true, true));
@@ -60,12 +61,12 @@ namespace MySql.Data.MySqlClient
       options.Add(new MySqlConnectionStringOption("functionsreturnstring", "functions return string", typeof(bool), false, false));
       options.Add(new MySqlConnectionStringOption("useaffectedrows", "use affected rows", typeof(bool), false, false));
       options.Add(new MySqlConnectionStringOption("oldguids", "old guids", typeof(bool), false, false));
-      options.Add(new MySqlConnectionStringOption("keepalive", "keep alive", typeof(uint), 0, false));
+      options.Add(new MySqlConnectionStringOption("keepalive", "keep alive", typeof(uint), (uint)0, false));
       options.Add(new MySqlConnectionStringOption("sqlservermode", "sql server mode", typeof(bool), false, false));
       options.Add(new MySqlConnectionStringOption("tablecaching", "table cache,tablecache", typeof(bool), false, false));
-      options.Add(new MySqlConnectionStringOption("defaulttablecacheage", "default table cache age", typeof(uint), 60, false));
+      options.Add(new MySqlConnectionStringOption("defaulttablecacheage", "default table cache age", typeof(int), ( int ) 0, false));
       options.Add(new MySqlConnectionStringOption("checkparameters", "check parameters", typeof(bool), true, false));
-      options.Add(new MySqlConnectionStringOption("replication", null, typeof(bool), true, false));
+      options.Add(new MySqlConnectionStringOption("replication", null, typeof(bool), false, false));
       options.Add(new MySqlConnectionStringOption("exceptioninterceptors", "exception interceptors", typeof(string), null, false));
       options.Add(new MySqlConnectionStringOption("commandinterceptors", "command interceptors", typeof(string), null, false));
 #if !CF
@@ -73,18 +74,18 @@ namespace MySql.Data.MySqlClient
 #endif
 
       // pooling options
-      options.Add(new MySqlConnectionStringOption("connectionlifetime", "connection lifetime", typeof(uint), 0, false));
+      options.Add(new MySqlConnectionStringOption("connectionlifetime", "connection lifetime", typeof(uint), ( uint )0, false));
       options.Add(new MySqlConnectionStringOption("pooling", null, typeof(bool), true, false));
-      options.Add(new MySqlConnectionStringOption("minpoolsize", "min pool size,minimum pool size", typeof(uint), 0, false));
-      options.Add(new MySqlConnectionStringOption("maxpoolsize", "max pool size,maximum pool size", typeof(uint), 100, false));
+      options.Add(new MySqlConnectionStringOption("minpoolsize", "min pool size,minimum pool size", typeof(uint), ( uint )0, false));
+      options.Add(new MySqlConnectionStringOption("maxpoolsize", "max pool size,maximum pool size", typeof(uint), ( uint )100, false));
       options.Add(new MySqlConnectionStringOption("connectionreset", "connection reset", typeof(bool), false, false));
       options.Add(new MySqlConnectionStringOption("cacheserverproperties", "cache server properties", typeof(bool), false, false));
 
       // language and charset options
-      options.Add(new MySqlConnectionStringOption("characterset", "character set,charset", typeof(bool), false, false));
+      options.Add(new MySqlConnectionStringOption("characterset", "character set,charset", typeof(string), "", false));
       options.Add(new MySqlConnectionStringOption("treatblobsasutf8", "treat blobs as utf8", typeof(bool), false, false));
-      options.Add(new MySqlConnectionStringOption("blobasutf8includepattern", null, typeof(string), false, false));
-      options.Add(new MySqlConnectionStringOption("blobasutf8excludepattern", null, typeof(string), false, false));
+      options.Add(new MySqlConnectionStringOption("blobasutf8includepattern", null, typeof(string), "", false));
+      options.Add(new MySqlConnectionStringOption("blobasutf8excludepattern", null, typeof(string), "", false));
 #if !CF
       options.Add(new MySqlConnectionStringOption("sslmode", "ssl mode", typeof(MySqlSslMode), MySqlSslMode.None, false));
 #endif
@@ -181,8 +182,8 @@ namespace MySql.Data.MySqlClient
     [RefreshProperties(RefreshProperties.All)]
     public bool AllowBatch
     {
-      get { return (bool)values["allow batch"]; }
-      set { SetValue("allow batch", value); }
+      get { return (bool)values["allowbatch"]; }
+      set { SetValue("allowbatch", value); }
     }
 
     /// <summary>
@@ -207,8 +208,8 @@ namespace MySql.Data.MySqlClient
     [RefreshProperties(RefreshProperties.All)]
     public string SharedMemoryName
     {
-      get { return (string)values["Shared Memory Name"]; }
-      set { SetValue("Shared Memory Name", value); }
+      get { return (string)values["sharedmemoryname"]; }
+      set { SetValue("sharedmemoryname", value); }
     }
 
     /// <summary>
@@ -277,8 +278,8 @@ namespace MySql.Data.MySqlClient
     [RefreshProperties(RefreshProperties.All)]
     public uint DefaultCommandTimeout
     {
-      get { return (uint)values["Default Command Timeout"]; }
-      set { SetValue("Default Command Timeout", value); }
+      get { return (uint)values["defaultcommandtimeout"]; }
+      set { SetValue("defaultcommandtimeout", value); }
     }
 
     #endregion
@@ -323,8 +324,8 @@ namespace MySql.Data.MySqlClient
     [RefreshProperties(RefreshProperties.All)]
     public bool PersistSecurityInfo
     {
-      get { return (bool)values["pPersistsecurityinfo"]; }
-      set { SetValue("pPersistsecurityinfo", value); }
+      get { return (bool)values["persistsecurityinfo"]; }
+      set { SetValue("persistsecurityinfo", value); }
     }
 
 #if !CF
@@ -494,8 +495,8 @@ namespace MySql.Data.MySqlClient
     [Obsolete("Use CheckParameters instead")]
     public bool UseProcedureBodies
     {
-      get { return (bool)values["Use Procedure Bodies"]; }
-      set { SetValue("Use Procedure Bodies", value); }
+      get { return (bool)values["useprocedurebodies"]; }
+      set { SetValue("useprocedurebodies", value); }
     }
 
     [Category("Advanced")]
@@ -692,8 +693,8 @@ namespace MySql.Data.MySqlClient
     [RefreshProperties(RefreshProperties.All)]
     public uint ConnectionLifeTime
     {
-      get { return (uint)values["connectionlifeTime"]; }
-      set { SetValue("connectionlifeTime", value); }
+      get { return (uint)values["connectionlifetime"]; }
+      set { SetValue("connectionlifetime", value); }
     }
 
     /// <summary>
@@ -720,7 +721,7 @@ namespace MySql.Data.MySqlClient
     [RefreshProperties(RefreshProperties.All)]
     public uint MinimumPoolSize
     {
-      get { return (uint)values["miunpoolsize"]; }
+      get { return (uint)values["minpoolsize"]; }
       set { SetValue("minpoolsize", value); }
     }
 
@@ -837,6 +838,18 @@ namespace MySql.Data.MySqlClient
 
     #endregion
 
+    #region Backwards compatibility properties
+    [DisplayName("Use Default Command Timeout For EF")]
+    [Category("Backwards Compatibility")]
+    [Description("Enforces the command timeout of EFMySqlCommand to the value provided in 'DefaultCommandTimeout' property")]
+    [DefaultValue(false)]
+    public bool UseDefaultCommandTimeoutForEF
+    {
+      get { return (bool)values["usedefaultcommandtimeoutforef"]; }
+      set { SetValue("usedefaultcommandtimeoutforef", value); }
+    }
+    #endregion
+
     internal bool HasProcAccess { get; set; }
 
     public override object this[string keyword]
@@ -863,12 +876,15 @@ namespace MySql.Data.MySqlClient
       foreach (var option in options)
         if (option.DefaultValue != null)
           values[option.Keyword] = option.DefaultValue;
+        else
+          values[option.Keyword] = null;
     }
 
     private void SetValue(string keyword, object value)
     {
       MySqlConnectionStringOption option = GetOption(keyword);
-      option.ValidateValue(value);
+      if (option.Keyword == "keepalive") { System.Diagnostics.Debugger.Break(); }
+      option.ValidateValue(ref value);
 
       // remove all related keywords
       option.Clean(this);
@@ -950,20 +966,26 @@ namespace MySql.Data.MySqlClient
         builder.Remove(syn);
     }
 
-    public void ValidateValue(object value)
+    public void ValidateValue(ref object value)
     {
       string typeName = BaseType.Name;
       Type valueType = value.GetType();
-      if (valueType.Name != "String" && BaseType == valueType) return;
+      if (valueType.Name == "String" && BaseType == valueType) return;
 
       bool b;
-      if (typeName == "Boolean" && Boolean.TryParse(value.ToString(), out b)) return;
+      if (typeName == "Boolean" && Boolean.TryParse(value.ToString(), out b)) { value = b; return; }
 
       UInt64 uintVal;
-      if (typeName.StartsWith("UInt") && UInt64.TryParse(value.ToString(), out uintVal)) return;
+      if (typeName.StartsWith("UInt64") && UInt64.TryParse(value.ToString(), out uintVal)) { value = uintVal; return; }
+
+      UInt32 uintVal32;
+      if (typeName.StartsWith("UInt32") && UInt32.TryParse(value.ToString(), out uintVal32)) { value = uintVal32; return; }
 
       Int64 intVal;
-      if (typeName.StartsWith("Int") && Int64.TryParse(value.ToString(), out intVal)) return;
+      if (typeName.StartsWith("Int64") && Int64.TryParse(value.ToString(), out intVal)) { value = intVal;  return; }
+
+      Int32 intVal32;
+      if (typeName.StartsWith("Int32") && Int32.TryParse(value.ToString(), out intVal32)) { value = intVal32; return; }
 
       object objValue;
 #if RT
@@ -971,7 +993,10 @@ namespace MySql.Data.MySqlClient
 #else
       Type baseType = BaseType.BaseType;
 #endif
-      if (baseType != null && baseType.Name == "Enum" && ParseEnum(value.ToString(), out objValue)) return;
+      if (baseType != null && baseType.Name == "Enum" && ParseEnum(value.ToString(), out objValue)) 
+      {
+        value = objValue;  return;
+      }
 
       throw new ArgumentException(String.Format(Resources.ValueNotCorrectType, value));
     }

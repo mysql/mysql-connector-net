@@ -327,7 +327,7 @@ namespace MySql.Data.MySqlClient
 
       values = new IMySqlValue[numCols];
       uaFieldsUsed = new bool[numCols];
-      fieldHashCS = new Dictionary<string, int>();
+      fieldHashCS = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
       fieldHashCI = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
       for (int i = 0; i < fields.Length; i++)

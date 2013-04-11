@@ -60,7 +60,7 @@ namespace MySql.Data.MySqlClient
 
         lock (procHash)
         {
-          proc = procHash[hash];
+          procHash.TryGetValue(hash, out proc);
         }
       }
       if (proc == null)
