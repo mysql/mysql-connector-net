@@ -118,8 +118,9 @@ namespace MySql.Data.MySqlClient
 #endif
   }
 
-  public class MySqlSchemaRow : List<object>
+  public class MySqlSchemaRow //: List<object>
   {
+    private object[] data;
     public MySqlSchemaRow(MySqlSchemaCollection c)
     {
       Collection = c;
@@ -128,8 +129,9 @@ namespace MySql.Data.MySqlClient
 
     internal void InitMetadata()
     {
-      for( int i = 0; i < Collection.Mapping.Keys.Count; i++ )
-        this.Add(null);
+      //for( int i = 0; i < Collection.Mapping.Keys.Count; i++ )
+      //  this.Add(null);
+      data = new object[Collection.Mapping.Count];
     }
 
     internal MySqlSchemaCollection Collection { get; private set; }
@@ -138,6 +140,24 @@ namespace MySql.Data.MySqlClient
     {
       get { return GetValueForName(s); }
       set { SetValueForName(s, value); }
+    }
+
+    internal object this[int i]
+    {
+      get { return data[i]; }
+      set { data[i] = value; }
+    }
+
+    internal void RemoveAt(int i)
+    {
+      int j;
+      if (i < 0 || i >= data.Length)
+        throw new ArgumentOutOfRangeException();
+      object[] newData = new object[data.Length - 1];
+      for (j = 0; j < i; j++)
+        newData[j] = data[j];
+      for ( j = i + 1; j < data.Length; j++)
+        newData[j - 1] = data[j];
     }
 
     private void SetValueForName(string colName, object value)
