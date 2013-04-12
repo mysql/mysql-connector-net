@@ -1,4 +1,4 @@
-// Copyright © 2004, 2011, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -678,13 +678,13 @@ namespace MySql.Data.MySqlClient
         row["DTD_IDENTIFIER"] = dtd.ToString();
 
       // now default the collation if one wasn't given
-      if (row["COLLATION_NAME"].ToString().Length == 0 &&
-          row["CHARACTER_SET_NAME"].ToString().Length > 0)
+      if ( string.IsNullOrEmpty( ( string )row["COLLATION_NAME"] ) &&
+          !string.IsNullOrEmpty( ( string )row["CHARACTER_SET_NAME"] ))
         row["COLLATION_NAME"] = CharSetMap.GetDefaultCollation(
             row["CHARACTER_SET_NAME"].ToString(), connection);
 
       // now set the octet length
-      if (row["CHARACTER_MAXIMUM_LENGTH"] != DBNull.Value)
+      if (row["CHARACTER_MAXIMUM_LENGTH"] != null)
         row["CHARACTER_OCTET_LENGTH"] =
             CharSetMap.GetMaxLength(row["CHARACTER_SET_NAME"].ToString(), connection) *
             (int)row["CHARACTER_MAXIMUM_LENGTH"];
@@ -695,9 +695,9 @@ namespace MySql.Data.MySqlClient
     private static string GetDataTypeDefaults(string type, MySqlSchemaRow row)
     {
       string format = "({0},{1})";
-
+      object precision = row["NUMERIC_PRECISION"];
       if (MetaData.IsNumericType(type) &&
-          row["NUMERIC_PRECISION"].ToString().Length == 0)
+          string.IsNullOrEmpty( ( string )row["NUMERIC_PRECISION"] ) )
       {
         row["NUMERIC_PRECISION"] = 10;
         row["NUMERIC_SCALE"] = 0;

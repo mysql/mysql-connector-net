@@ -188,7 +188,15 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    internal IMySqlValue ValueObject { get; private set; }
+    private IMySqlValue _valueObject;
+    internal IMySqlValue ValueObject
+    {
+      get { return _valueObject; }
+      private set
+      {
+        _valueObject = value;
+      }
+    }
 
     /// <summary>
     /// Returns the possible values for this parameter if this parameter is of type
@@ -296,7 +304,9 @@ namespace MySql.Data.MySqlClient
           case "Double": MySqlDbType = MySqlDbType.Double; break;
 
           case "Decimal": MySqlDbType = MySqlDbType.Decimal; break;
-          case "Object": MySqlDbType = MySqlDbType.Blob; break;
+          case "Object": 
+          default:
+            MySqlDbType = MySqlDbType.Blob; break;
         }
       }
     }

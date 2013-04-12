@@ -17,7 +17,7 @@ namespace MySql.Data.MySqlClient
 
     public MySqlSchemaCollection()
     {
-      Mapping = new Dictionary<string,int>();
+      Mapping = new Dictionary<string,int>( StringComparer.OrdinalIgnoreCase );
     }
 
     public MySqlSchemaCollection(string name) : this()
@@ -158,6 +158,7 @@ namespace MySql.Data.MySqlClient
         newData[j] = data[j];
       for ( j = i + 1; j < data.Length; j++)
         newData[j - 1] = data[j];
+      data = newData;
     }
 
     private void SetValueForName(string colName, object value)

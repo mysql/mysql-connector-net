@@ -24,9 +24,9 @@ namespace MySql.Data.MySqlClient
       options.Add(new MySqlConnectionStringOption("port", null, typeof(uint), ( uint )3306, false));
       options.Add(new MySqlConnectionStringOption("pipe", "pipe name,pipename", typeof(string), "MYSQL", false));
       options.Add(new MySqlConnectionStringOption("compress", "use compression,usecompression", typeof(bool), false, false));
-      options.Add(new MySqlConnectionStringOption("allowbatch", "allowbatch", typeof(bool), true, false));
+      options.Add(new MySqlConnectionStringOption("allowbatch", "allow batch", typeof(bool), true, false));
       options.Add(new MySqlConnectionStringOption("logging", null, typeof(bool), false, false));
-      options.Add(new MySqlConnectionStringOption("sharedmemoryname", "sharedmemoryname", typeof(string), "MYSQL", false));
+      options.Add(new MySqlConnectionStringOption("sharedmemoryname", "shared memory name", typeof(string), "MYSQL", false));
       options.Add(new MySqlConnectionStringOption("useoldsyntax", "old syntax,oldsyntax,use old syntax", typeof(bool), false, true));
       options.Add(new MySqlConnectionStringOption("connectiontimeout", "connection timeout,connect timeout", typeof(uint), ( uint )15, false));
       options.Add(new MySqlConnectionStringOption("defaultcommandtimeout", "command timeout,default command timeout", typeof(uint), ( uint )30, false));
@@ -968,11 +968,21 @@ namespace MySql.Data.MySqlClient
 
     public void ValidateValue(ref object value)
     {
+      bool b;
       string typeName = BaseType.Name;
       Type valueType = value.GetType();
-      if (valueType.Name == "String" && BaseType == valueType) return;
-
-      bool b;
+      if (valueType.Name == "String" ) {
+        if( BaseType == valueType) return;
+        else if (BaseType == typeof(bool))
+        {          
+          if (string.Compare("yes", ( string )value, true) == 0) value = true;
+          else if (string.Compare("no", (string)value, true) == 0) value = false;
+          else if (Boolean.TryParse(value.ToString(), out b)) value = b;
+          else throw new ArgumentException(String.Format(Resources.ValueNotCorrectType, value));
+          return;
+        }
+      }
+      
       if (typeName == "Boolean" && Boolean.TryParse(value.ToString(), out b)) { value = b; return; }
 
       UInt64 uintVal;
