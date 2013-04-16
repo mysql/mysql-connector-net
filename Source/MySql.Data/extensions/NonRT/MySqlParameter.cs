@@ -69,6 +69,7 @@ namespace MySql.Data.MySqlClient
     partial void Init()
     {
       SourceVersion = DataRowVersion.Current;
+      Direction = ParameterDirection.Input;
     }
 
     /// <summary>

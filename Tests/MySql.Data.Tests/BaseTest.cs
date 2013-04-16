@@ -128,7 +128,7 @@ namespace MySql.Data.MySqlClient.Tests
 
     protected virtual string GetConnectionInfo()
     {
-      return String.Format("protocol=sockets;port={0};", port);
+      return String.Format("protocol=sockets;port={0};Default Command Timeout=1000000;", port);
     }
 
     protected string GetConnectionString(string userId, string pw, bool persistSecurityInfo, bool includedb)

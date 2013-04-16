@@ -99,6 +99,12 @@ namespace MySql.Data.MySqlClient
       return r;
     }
 
+    internal MySqlSchemaRow NewRow()
+    {
+      MySqlSchemaRow r = new MySqlSchemaRow(this);
+      return r;
+    }
+
 #if !RT
     internal DataTable AsDataTable()
     {
@@ -118,7 +124,7 @@ namespace MySql.Data.MySqlClient
 #endif
   }
 
-  public class MySqlSchemaRow //: List<object>
+  public class MySqlSchemaRow
   {
     private object[] data;
     public MySqlSchemaRow(MySqlSchemaCollection c)
@@ -129,8 +135,6 @@ namespace MySql.Data.MySqlClient
 
     internal void InitMetadata()
     {
-      //for( int i = 0; i < Collection.Mapping.Keys.Count; i++ )
-      //  this.Add(null);
       data = new object[Collection.Mapping.Count];
     }
 

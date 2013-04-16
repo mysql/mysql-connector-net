@@ -883,7 +883,6 @@ namespace MySql.Data.MySqlClient
     private void SetValue(string keyword, object value)
     {
       MySqlConnectionStringOption option = GetOption(keyword);
-      if (option.Keyword == "keepalive") { System.Diagnostics.Debugger.Break(); }
       option.ValidateValue(ref value);
 
       // remove all related keywords

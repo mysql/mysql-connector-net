@@ -579,7 +579,7 @@ namespace MySql.Data.MySqlClient
 
       while (token != ")")
       {
-        MySqlSchemaRow parmRow = parametersTable.AddRow();
+        MySqlSchemaRow parmRow = parametersTable.NewRow();
         InitParameterRow(row, parmRow);
         parmRow["ORDINAL_POSITION"] = pos++;
 
