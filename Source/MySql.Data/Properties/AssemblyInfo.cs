@@ -42,7 +42,9 @@ using System.Security;
 [assembly: CLSCompliant(false)]
 #if !CF
 [assembly: AssemblyTitle("MySql.Data.dll")]
+#if !RT
 [assembly: AllowPartiallyTrustedCallers()]
+#endif
 #else
 [assembly: AssemblyTitle("MySql.Data.CF.dll")]
 #endif

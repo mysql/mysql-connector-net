@@ -25,6 +25,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 using System.Security;
+using System.Resources;
 
 //
 // Version information for an assembly consists of the following four values:
@@ -38,3 +39,4 @@ using System.Security;
 // by using the '*' as shown below:
 
 [assembly: AssemblyVersion("6.7.0")]
+[assembly: NeutralResourcesLanguage("en-US")]

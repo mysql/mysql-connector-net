@@ -97,7 +97,8 @@ namespace MySql.Data.MySqlClient
 
       lock (pools)
       {
-        MySqlPool pool = (pools[text] as MySqlPool);
+        MySqlPool pool;
+        pools.TryGetValue(text, out pool);
 
         if (pool == null)
         {

@@ -19,7 +19,7 @@ namespace MySql.Data.MySqlClient
     {
       // Server options
       options.Add(new MySqlConnectionStringOption("server", "host,data source,datasource,address,addr,network address", typeof(string), "localhost", false));
-      options.Add(new MySqlConnectionStringOption("database", "initial catalog", typeof(string), null, false));
+      options.Add(new MySqlConnectionStringOption("database", "initial catalog", typeof(string), string.Empty, false));
       options.Add(new MySqlConnectionStringOption("protocol", "connection protocol, connectionprotocol", typeof(MySqlConnectionProtocol), MySqlConnectionProtocol.Sockets, false));
       options.Add(new MySqlConnectionStringOption("port", null, typeof(uint), ( uint )3306, false));
       options.Add(new MySqlConnectionStringOption("pipe", "pipe name,pipename", typeof(string), "MYSQL", false));
@@ -975,8 +975,8 @@ namespace MySql.Data.MySqlClient
         if( BaseType == valueType) return;
         else if (BaseType == typeof(bool))
         {          
-          if (string.Compare("yes", ( string )value, true) == 0) value = true;
-          else if (string.Compare("no", (string)value, true) == 0) value = false;
+          if (string.Compare("yes", ( string )value, StringComparison.OrdinalIgnoreCase) == 0) value = true;
+          else if (string.Compare("no", (string)value, StringComparison.OrdinalIgnoreCase) == 0) value = false;
           else if (Boolean.TryParse(value.ToString(), out b)) value = b;
           else throw new ArgumentException(String.Format(Resources.ValueNotCorrectType, value));
           return;
@@ -999,7 +999,7 @@ namespace MySql.Data.MySqlClient
 
       object objValue;
 #if RT
-      Type baseType =  BaseType.GetTypeInfo().BaseType;
+      Type baseType = BaseType.GetTypeInfo().BaseType;
 #else
       Type baseType = BaseType.BaseType;
 #endif

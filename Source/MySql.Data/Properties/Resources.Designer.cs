@@ -10,7 +10,9 @@
 
 namespace MySql.Data.MySqlClient.Properties {
     using System;
-    
+#if RT
+    using System.Reflection;
+#endif
     
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
@@ -39,8 +41,12 @@ namespace MySql.Data.MySqlClient.Properties {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
+#if RT
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MySql.Data.RT.Properties.Resources", typeof(Resources).GetTypeInfo().Assembly);
+#else
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MySql.Data.MySqlClient.Properties.Resources", typeof(Resources).Assembly);
-                    resourceMan = temp;
+#endif
+                  resourceMan = temp;
                 }
                 return resourceMan;
             }

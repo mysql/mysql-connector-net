@@ -235,11 +235,13 @@
     <Compile Include="zlib\ZStreamException.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PRIResource Include="Properties\Resources.resx" />
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Properties\keywords.txt" />
-    <Content Include="Properties\ReservedWords.txt" />
+    <EmbeddedResource Include="Properties\keywords.txt" />
+    <EmbeddedResource Include="Properties\ReservedWords.txt" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '11.0' ">
     <VisualStudioVersion>11.0</VisualStudioVersion>

@@ -53,7 +53,7 @@ namespace MySql.Data.Common
     public string Server { get; private set; }
     public int Port { get; private set; }
 
-    public async void Open()
+    public async Task Open()
     {
       await OpenConnection();
       dataReader = new DataReader(streamSocket.InputStream);
@@ -72,6 +72,7 @@ namespace MySql.Data.Common
       try
       {
         cts.CancelAfter(timeout*1000);
+        streamSocket.Control.KeepAlive = true;
         await streamSocket.ConnectAsync(host, Port.ToString()).AsTask(cts.Token);
       }
       catch (TaskCanceledException)
@@ -187,7 +188,6 @@ namespace MySql.Data.Common
       s.Open();
       return s;
     }
-
 
     void Dispose()
     {
