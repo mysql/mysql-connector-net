@@ -53,15 +53,15 @@ namespace MySql.Data.Common
     public string Server { get; private set; }
     public int Port { get; private set; }
 
-    public async Task Open()
+    public void Open()
     {
-      await OpenConnection();
+      OpenConnection();
       dataReader = new DataReader(streamSocket.InputStream);
       dataWriter = new DataWriter(streamSocket.OutputStream);
       readable = writeable = true;
     }
 
-    private async Task OpenConnection()
+    private void OpenConnection()
     {
       streamSocket = new StreamSocket();
 
@@ -73,7 +73,8 @@ namespace MySql.Data.Common
       {
         cts.CancelAfter(timeout*1000);
         streamSocket.Control.KeepAlive = true;
-        await streamSocket.ConnectAsync(host, Port.ToString()).AsTask(cts.Token);
+        var task = streamSocket.ConnectAsync(host, Port.ToString()).AsTask(cts.Token);
+        task.Wait();
       }
       catch (TaskCanceledException)
       {
@@ -147,12 +148,12 @@ namespace MySql.Data.Common
 
       try
       {
-        CancellationTokenSource cts = new CancellationTokenSource(base.ReadTimeout);
-        DataReaderLoadOperation op = dataReader.LoadAsync((uint)count);
-
-        Task<uint> read = op.AsTask<uint>(cts.Token);
+        //CancellationTokenSource cts = new CancellationTokenSource(base.ReadTimeout);
+        //DataReaderLoadOperation op = dataReader.LoadAsync((uint)count);
+        //Task<uint> read = op.AsTask<uint>(cts.Token);
+        Task<uint> read = dataReader.LoadAsync((uint)count).AsTask();
         read.Wait();
-        // hnere we need to put the bytes read into the buffer
+        // here we need to put the bytes read into the buffer
         dataReader.ReadBuffer(read.Result).CopyTo(0, buffer, offset, (int)read.Result);
         return (int)read.Result;
       }
@@ -166,12 +167,13 @@ namespace MySql.Data.Common
 
     public override void Write(byte[] byteBuffer, int offset, int count)
     {
-      CancellationTokenSource cts = new CancellationTokenSource(base.WriteTimeout);
       try
       {
+        //CancellationTokenSource cts = new CancellationTokenSource(base.WriteTimeout);
         dataWriter.WriteBuffer(byteBuffer.AsBuffer(), (uint)offset, (uint)count);
         DataWriterStoreOperation op = dataWriter.StoreAsync();
-        Task<uint> write = op.AsTask<uint>(cts.Token);
+        //Task<uint> write = op.AsTask<uint>(cts.Token);
+        Task<uint> write = op.AsTask();
         write.Wait();
       }
       catch (TaskCanceledException)

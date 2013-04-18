@@ -209,7 +209,9 @@ namespace MySql.Data.MySqlClient
           // make roo for the next block
           packet.Length += length;
 
-          ReadFully(inStream, packet.Buffer, offset, length);
+          byte[] tempBuffer = new byte[length];
+          ReadFully(inStream, tempBuffer, offset, length);
+          packet.Write(tempBuffer);
           offset += length;
 
           // if this block was < maxBlock then it's last one in a multipacket series

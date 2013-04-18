@@ -145,6 +145,14 @@ namespace MySql.Data.MySqlClient
       return ReadInteger(c);
     }
 
+    public void SetByte(long position, byte value)
+    {
+      long currentPosition = buffer.Position;
+      buffer.Position = position;
+      buffer.WriteByte(value);
+      buffer.Position = currentPosition;
+    }
+
     #endregion
 
     #region Integer methods

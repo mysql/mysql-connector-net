@@ -507,7 +507,7 @@ namespace MySql.Data.MySqlClient
     public void SendQuery(MySqlPacket queryPacket)
     {
       warnings = 0;
-      queryPacket.Buffer[4] = (byte)DBCmd.QUERY;
+      queryPacket.SetByte(4, (byte)DBCmd.QUERY);
       ExecutePacket(queryPacket);
       // the server will respond in one of several ways with the first byte indicating
       // the type of response.
@@ -747,7 +747,7 @@ namespace MySql.Data.MySqlClient
     public void ExecuteStatement(MySqlPacket packetToExecute)
     {
       warnings = 0;
-      packetToExecute.Buffer[4] = (byte)DBCmd.EXECUTE;
+      packetToExecute.SetByte(4, (byte)DBCmd.EXECUTE);
       ExecutePacket(packetToExecute);
       serverStatus |= ServerStatusFlags.AnotherQuery;
     }

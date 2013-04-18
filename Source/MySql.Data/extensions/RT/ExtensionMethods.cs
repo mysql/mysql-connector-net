@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace MySql.Data.MySqlClient
 {
@@ -13,10 +14,7 @@ namespace MySql.Data.MySqlClient
   {
     public static byte[] GetBuffer(this Stream stream)
     {
-      int len = (int)(stream.Length - stream.Position);
-      byte[] temp = new byte[len];
-      stream.Read(temp, (int)stream.Position, len);
-      return temp;
+      return ((MemoryStream)stream).GetWindowsRuntimeBuffer().ToArray();
     }
 
     public static void Close(this Stream stream)
