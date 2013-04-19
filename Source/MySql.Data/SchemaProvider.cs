@@ -355,7 +355,6 @@ namespace MySql.Data.MySqlClient
             row["COLUMN_NAME"] = col_name;
             row["ORDINAL_POSITION"] = reader.GetValue(reader.GetOrdinal("SEQ_IN_INDEX"));
             row["SORT_ORDER"] = reader.GetString("COLLATION");
-            dt.Rows.Add(row);
           }
         }
       }

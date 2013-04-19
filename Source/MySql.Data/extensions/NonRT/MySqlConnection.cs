@@ -80,5 +80,16 @@ namespace MySql.Data.MySqlClient
         MySqlSecurityPermission.CreatePermissionSet(true).Assert(); 
       }
     }
+
+    #region IDisposeable
+
+    protected override void Dispose(bool disposing)
+    {
+      if (State == ConnectionState.Open)
+        Close();
+      base.Dispose(disposing);
+    }
+
+    #endregion
   }
 }

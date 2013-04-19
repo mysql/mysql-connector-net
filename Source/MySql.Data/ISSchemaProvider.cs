@@ -685,9 +685,13 @@ namespace MySql.Data.MySqlClient
 
       // now set the octet length
       if (row["CHARACTER_MAXIMUM_LENGTH"] != null)
+      {
+        if (row["CHARACTER_SET_NAME"] == null)
+          row["CHARACTER_SET_NAME"] = "";
         row["CHARACTER_OCTET_LENGTH"] =
-            CharSetMap.GetMaxLength(row["CHARACTER_SET_NAME"].ToString(), connection) *
+            CharSetMap.GetMaxLength(( string )row["CHARACTER_SET_NAME"], connection) *
             (int)row["CHARACTER_MAXIMUM_LENGTH"];
+      }
 
       return token;
     }
