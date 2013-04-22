@@ -26,7 +26,7 @@ namespace MySql.Data.MySqlClient
     }
 
 #if !RT
-    public MySqlSchemaCollection(DataTable dt)
+    public MySqlSchemaCollection(DataTable dt) : this()
     {
       // cache the original datatable to avoid the overhead of creating again whenever possible.
       _table = dt;
@@ -116,7 +116,7 @@ namespace MySql.Data.MySqlClient
       {
         DataRow newRow = dt.NewRow();
         for (int i = 0; i < dt.Columns.Count; i++)
-          newRow[i] = row[i];
+          newRow[i] = row[i] == null ? DBNull.Value : row[i];
         dt.Rows.Add(newRow);
       }
       return dt;

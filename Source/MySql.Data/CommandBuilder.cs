@@ -1,4 +1,4 @@
-// Copyright © 2004, 2011, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -101,11 +101,11 @@ namespace MySql.Data.MySqlClient
           bool real_as_float = entry.procedure.Rows[0]["SQL_MODE"].ToString().IndexOf("REAL_AS_FLOAT") != -1;
           p.MySqlDbType = MetaData.NameToType(row["DATA_TYPE"].ToString(),
             unsigned, real_as_float, command.Connection);
-          if (!row["CHARACTER_MAXIMUM_LENGTH"].Equals(DBNull.Value))
+          if (row["CHARACTER_MAXIMUM_LENGTH"] != null )
             p.Size = (int)row["CHARACTER_MAXIMUM_LENGTH"];
-          if (!row["NUMERIC_PRECISION"].Equals(DBNull.Value))
+          if (row["NUMERIC_PRECISION"] != null)
             p.Precision = Convert.ToByte(row["NUMERIC_PRECISION"]);
-          if (!row["NUMERIC_SCALE"].Equals(DBNull.Value))
+          if (row["NUMERIC_SCALE"] != null )
             p.Scale = Convert.ToByte(row["NUMERIC_SCALE"]);
           if (p.MySqlDbType == MySqlDbType.Set || p.MySqlDbType == MySqlDbType.Enum)
             p.PossibleValues = GetPossibleValues(row);

@@ -1029,9 +1029,10 @@ namespace MySql.Data.MySqlClient
       this(keyword, synonyms, baseType, defaultValue, obsolete,
        delegate(MySqlConnectionStringBuilder msb, MySqlConnectionStringOption sender, object value)
        {
-         if( typeof( Enum ).IsAssignableFrom( sender.BaseType ) )
-           msb.SetValue( sender.Keyword, Enum.Parse( sender.BaseType, ( string )value, true ));
-         else
+         sender.ValidateValue(ref value);
+         //if ( sender.BaseType.IsEnum )
+         //  msb.SetValue( sender.Keyword, Enum.Parse( sender.BaseType, ( string )value, true ));
+         //else
            msb.SetValue( sender.Keyword, Convert.ChangeType(value, sender.BaseType));
        },
        delegate(MySqlConnectionStringBuilder msb, MySqlConnectionStringOption sender)
@@ -1073,12 +1074,13 @@ namespace MySql.Data.MySqlClient
     public void ValidateValue(ref object value)
     {
       bool b;
+      if (value == null) return;
       string typeName = BaseType.Name;
       Type valueType = value.GetType();
       if (valueType.Name == "String" ) {
         if( BaseType == valueType) return;
         else if (BaseType == typeof(bool))
-        {          
+        {
           if (string.Compare("yes", ( string )value, StringComparison.OrdinalIgnoreCase) == 0) value = true;
           else if (string.Compare("no", (string)value, StringComparison.OrdinalIgnoreCase) == 0) value = false;
           else if (Boolean.TryParse(value.ToString(), out b)) value = b;

@@ -28,6 +28,7 @@ namespace MySql.Data.MySqlClient.Tests
   using MySql.Data.MySqlClient.Memcached;
   using NUnit.Framework;
 
+  /*
   /// <summary>
   /// This class implements all the unit tests for the memcached client implementation 
   /// of Connector/NET.
@@ -151,4 +152,5 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.AreEqual("hello4", s);
     }
   }
+   * */
 }
