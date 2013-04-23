@@ -1,4 +1,4 @@
-﻿// Copyright © 2004,2010, Oracle and/or its affiliates.  All rights reserved.
+﻿// Copyright © 2004,2013, Oracle and/or its affiliates.  All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -113,6 +113,7 @@ namespace MySql.Web.Tests
 
     private void SetSessionItemExpiredCallback(bool includeCallback)
     {
+      _evt = new AutoResetEvent(false);
       calledId = null;
             
       CreateSessionData(1, DateTime.Now.Subtract(new TimeSpan(1, 0, 0)));
@@ -137,14 +138,16 @@ namespace MySql.Web.Tests
     public void expireCallback(string id, SessionStateStoreData item)
     {
       calledId = id;
+      _evt.Set();
     }
 
+    private AutoResetEvent _evt;
 
     [Test]
     public void SessionItemWithExpireCallback()
     {
-      SetSessionItemExpiredCallback(true);      
-      
+      SetSessionItemExpiredCallback(true);
+      _evt.WaitOne();
       Assert.AreEqual(strSessionID, calledId);
       
       int i = 0;
@@ -279,22 +282,35 @@ public class ThreadRequestData
           {
             ThreadRequestData data = (ThreadRequestData)data1;
             Debug.WriteLine( string.Format( "Requesting {0}", data.pageName ) );
-            HttpWebRequest req1 = 
-              (HttpWebRequest)WebRequest.Create(string.Format(@"{0}{1}", url, data.pageName ));
-            req1.Timeout = 2000000;
-            WebResponse res1 = req1.GetResponse();
-            Debug.WriteLine( string.Format( "Response from {0}", data.pageName) );
-            Stream s = res1.GetResponseStream();
-            while (s.ReadByte() != -1)
-              ;
-            res1.Close();
-            if( data.FirstDateToUpdate )
+            try
             {
-              firstDt = DateTime.Now;
-            } else {
-              secondDt = DateTime.Now;
-            }            
-            data.signal.Set();
+              HttpWebRequest req1 =
+                (HttpWebRequest)WebRequest.Create(string.Format(@"{0}{1}", url, data.pageName));
+              req1.Timeout = 2000000;
+              WebResponse res1 = req1.GetResponse();
+              Debug.WriteLine(string.Format("Response from {0}", data.pageName));
+              Stream s = res1.GetResponseStream();
+              while (s.ReadByte() != -1)
+                ;
+              res1.Close();
+              if (data.FirstDateToUpdate)
+              {
+                firstDt = DateTime.Now;
+              }
+              else
+              {
+                secondDt = DateTime.Now;
+              }
+            }
+            catch (Exception e)
+            {
+              Debug.WriteLine( string.Format( "Server error: {0}",  e.ToString()));
+              throw;
+            }
+            finally
+            {
+              data.signal.Set();
+            }
           };
         
         Thread t = new Thread( ts );

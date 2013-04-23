@@ -63,7 +63,7 @@ namespace MySql.Data.MySqlClient
       options.Add(new MySqlConnectionStringOption("usedefaultcommandtimeoutforef", "use default command timeout for ef", typeof(bool), false, false));
 
       // authentication options
-      options.Add(new MySqlConnectionStringOption("userid", "uid,username,user name,user,user id", typeof(string), "", false));
+      options.Add(new MySqlConnectionStringOption("user id", "uid,username,user name,user,userid", typeof(string), "", false));
       options.Add(new MySqlConnectionStringOption("password", "pwd", typeof(string), "", false));
       options.Add(new MySqlConnectionStringOption("persistsecurityinfo", "persist security info", typeof(bool), false, false));
 #if !CF
@@ -367,8 +367,8 @@ namespace MySql.Data.MySqlClient
     [RefreshProperties(RefreshProperties.All)]
     public string UserID
     {
-      get { return (string)values["userid"]; }
-      set { SetValue("userid", value); }
+      get { return (string)values["user id"]; }
+      set { SetValue("user id", value); }
     }
 
     /// <summary>
