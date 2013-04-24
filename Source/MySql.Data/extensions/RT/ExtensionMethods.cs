@@ -22,6 +22,11 @@ namespace MySql.Data.MySqlClient
       stream.Dispose();
     }
 
+    public static void Close(this StreamReader stream)
+    {
+      stream.Dispose();
+    }
+
     public static string ToLower(this String newString, System.Globalization.CultureInfo culture)
     {
       if (culture == System.Globalization.CultureInfo.InvariantCulture)

@@ -4,12 +4,15 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
-namespace MySql.Data.MySqlClient
+namespace System
 {
   internal class SerializableAttribute : Attribute
   {
   }
+}
 
+namespace System.ComponentModel
+{
   internal class BrowsableAttribute : Attribute
   {
     public BrowsableAttribute(bool value)

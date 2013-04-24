@@ -239,6 +239,11 @@ namespace MySql.Data.MySqlClient
       return hash.ContainsKey(keyword); 
     }
 
+    public string ToString()
+    {
+      return GetConnectionString();
+    }
+
     /*        private void ParseConnectionString(string value)
             {
                 String[] keyvalues = src.Split(';');

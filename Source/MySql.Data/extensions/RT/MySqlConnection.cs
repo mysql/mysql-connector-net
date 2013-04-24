@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient
 {
-  public sealed partial class MySqlConnection : RTConnection
-  {
-    public delegate void StateChangeEventHandler(object sender, StateChangeEventArgs e);
+  public delegate void StateChangeEventHandler(object sender, StateChangeEventArgs e);
 
+  public sealed partial class MySqlConnection : RTConnection, ICloneable, IDisposable
+  {
     public event StateChangeEventHandler StateChange;
 
     protected void OnStateChange(StateChangeEventArgs stateChange)
@@ -17,6 +17,12 @@ namespace MySql.Data.MySqlClient
       StateChangeEventHandler handler = StateChange;
       if (handler != null)
         handler(this, stateChange);
+    }
+
+    void IDisposable.Dispose()
+    {
+      if (State == ConnectionState.Open)
+        Close();
     }
   }
 

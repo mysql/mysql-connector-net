@@ -34,12 +34,12 @@ namespace MySql.Data.MySqlClient
 
   public enum CommandBehavior
   {
-    Default,
-    SingleResult,
-    SchemaOnly,
-    KeyInfo,
-    SingleRow,
-    SequentialAccess,
-    CloseConnection
+    Default = 0,
+    SingleResult = 1,
+    SchemaOnly = 2,
+    KeyInfo = 4,
+    SingleRow = 8,
+    SequentialAccess = 16,
+    CloseConnection = 32
   }
 }

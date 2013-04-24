@@ -328,30 +328,22 @@ namespace MySql.Data.MySqlClient
       try
       {
         using (MySqlDataReader reader = cmd.ExecuteReader())
-        {         
-            while (reader.Read())
-            {
-              string key = reader.GetString(0);
-              string value = reader.GetString(1);
-              hash[key] = value;
-            }         
+        {
+          while (reader.Read())
+          {
+            string key = reader.GetString(0);
+            string value = reader.GetString(1);
+            hash[key] = value;
+          }
         }
         // Get time zone offset as numerical value
         timeZoneOffset = GetTimeZoneOffset(connection);
         return hash;
       }
-      catch (Exception ex)  // expecting the must set password exception
+      catch (Exception ex)
       {
-        if (((MySqlException)ex).Number == 1820)
-        {
-          this.IsPasswordExpired = true;
-          return null;
-        }
-        else
-        {
-          MySqlTrace.LogError(ThreadID, ex.Message);
-          throw;
-        }
+        MySqlTrace.LogError(ThreadID, ex.Message);
+        throw;
       }
     }
 

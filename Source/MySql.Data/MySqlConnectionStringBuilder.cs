@@ -52,11 +52,11 @@ namespace MySql.Data.MySqlClient
                 + value + " seconds). Changed to max. possible value" +
                 +timeout + " seconds)");
           }
-          msb.SetValue("Connect Timeout", timeout);
+          msb.SetValue("connectiontimeout", timeout);
         },
         delegate(MySqlConnectionStringBuilder msb, MySqlConnectionStringOption sender)
         {
-          return (uint)msb.values["Connect Timeout"];
+          return (uint)msb.values["connectiontimeout"];
         }
         ));
       options.Add(new MySqlConnectionStringOption("defaultcommandtimeout", "command timeout,default command timeout", typeof(uint), ( uint )30, false));

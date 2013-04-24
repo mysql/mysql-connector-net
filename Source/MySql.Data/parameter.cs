@@ -306,7 +306,11 @@ namespace MySql.Data.MySqlClient
           case "Decimal": MySqlDbType = MySqlDbType.Decimal; break;
           case "Object": 
           default:
+#if RT
+            if (t.GetTypeInfo().BaseType == typeof(Enum))
+#else
             if( t.BaseType == typeof( Enum ) )
+#endif
               MySqlDbType = MySqlDbType.Int32;
             else 
               MySqlDbType = MySqlDbType.Blob; 

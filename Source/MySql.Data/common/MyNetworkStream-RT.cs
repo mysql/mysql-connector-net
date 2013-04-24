@@ -41,6 +41,8 @@ namespace MySql.Data.Common
     StreamSocket streamSocket;
     private int timeout;
     private bool readable, writeable;
+    private int readTimeout = System.Threading.Timeout.Infinite;
+    private int writeTimeout = System.Threading.Timeout.Infinite;
 
     public MyNetworkStream(string host, int port, int timeout)
     {
@@ -87,14 +89,14 @@ namespace MySql.Data.Common
 
     public override int ReadTimeout
     {
-      get  { return base.ReadTimeout; }
-      set  { base.ReadTimeout = value; }
+      get  { return readTimeout; }
+      set  { readTimeout = value; }
     }
 
     public override int WriteTimeout
     {
-      get { return base.WriteTimeout; }
-      set { base.WriteTimeout = value; }
+      get { return writeTimeout; }
+      set { writeTimeout = value; }
     }
 
     public override bool CanRead
@@ -148,10 +150,9 @@ namespace MySql.Data.Common
 
       try
       {
-        //CancellationTokenSource cts = new CancellationTokenSource(base.ReadTimeout);
-        //DataReaderLoadOperation op = dataReader.LoadAsync((uint)count);
-        //Task<uint> read = op.AsTask<uint>(cts.Token);
-        Task<uint> read = dataReader.LoadAsync((uint)count).AsTask();
+        CancellationTokenSource cts = new CancellationTokenSource(readTimeout);
+        DataReaderLoadOperation op = dataReader.LoadAsync((uint)count);
+        Task<uint> read = op.AsTask<uint>(cts.Token);
         read.Wait();
         // here we need to put the bytes read into the buffer
         dataReader.ReadBuffer(read.Result).CopyTo(0, buffer, offset, (int)read.Result);
@@ -169,11 +170,10 @@ namespace MySql.Data.Common
     {
       try
       {
-        //CancellationTokenSource cts = new CancellationTokenSource(base.WriteTimeout);
+        CancellationTokenSource cts = new CancellationTokenSource(writeTimeout);
         dataWriter.WriteBuffer(byteBuffer.AsBuffer(), (uint)offset, (uint)count);
         DataWriterStoreOperation op = dataWriter.StoreAsync();
-        //Task<uint> write = op.AsTask<uint>(cts.Token);
-        Task<uint> write = op.AsTask();
+        Task<uint> write = op.AsTask<uint>(cts.Token);
         write.Wait();
       }
       catch (TaskCanceledException)

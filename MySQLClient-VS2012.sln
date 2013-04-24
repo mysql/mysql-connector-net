@@ -18,8 +18,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.Data.Entity.Migration
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.LoadBalancing.Tests", "Tests\MySql.LoadBalancing.Tests\MySql.LoadBalancing.Tests.csproj", "{8DE7265B-0880-4E02-93EA-14EF8DADF47D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.Data.RT", "Source\MySql.Data\MySql.Data.RT.csproj", "{DC8C3F78-4530-49CC-A2E4-75EDF109A655}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -160,26 +158,6 @@ Global
 		{8DE7265B-0880-4E02-93EA-14EF8DADF47D}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{8DE7265B-0880-4E02-93EA-14EF8DADF47D}.Release|x64.ActiveCfg = Release|Any CPU
 		{8DE7265B-0880-4E02-93EA-14EF8DADF47D}.Release|x86.ActiveCfg = Release|Any CPU
-		{DC8C3F78-4530-49CC-A2E4-75EDF109A655}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DC8C3F78-4530-49CC-A2E4-75EDF109A655}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DC8C3F78-4530-49CC-A2E4-75EDF109A655}.Debug|ARM.ActiveCfg = Debug|ARM
-		{DC8C3F78-4530-49CC-A2E4-75EDF109A655}.Debug|ARM.Build.0 = Debug|ARM
-		{DC8C3F78-4530-49CC-A2E4-75EDF109A655}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{DC8C3F78-4530-49CC-A2E4-75EDF109A655}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{DC8C3F78-4530-49CC-A2E4-75EDF109A655}.Debug|x64.ActiveCfg = Debug|x64
-		{DC8C3F78-4530-49CC-A2E4-75EDF109A655}.Debug|x64.Build.0 = Debug|x64
-		{DC8C3F78-4530-49CC-A2E4-75EDF109A655}.Debug|x86.ActiveCfg = Debug|x86
-		{DC8C3F78-4530-49CC-A2E4-75EDF109A655}.Debug|x86.Build.0 = Debug|x86
-		{DC8C3F78-4530-49CC-A2E4-75EDF109A655}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DC8C3F78-4530-49CC-A2E4-75EDF109A655}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DC8C3F78-4530-49CC-A2E4-75EDF109A655}.Release|ARM.ActiveCfg = Release|ARM
-		{DC8C3F78-4530-49CC-A2E4-75EDF109A655}.Release|ARM.Build.0 = Release|ARM
-		{DC8C3F78-4530-49CC-A2E4-75EDF109A655}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{DC8C3F78-4530-49CC-A2E4-75EDF109A655}.Release|Mixed Platforms.Build.0 = Release|x86
-		{DC8C3F78-4530-49CC-A2E4-75EDF109A655}.Release|x64.ActiveCfg = Release|x64
-		{DC8C3F78-4530-49CC-A2E4-75EDF109A655}.Release|x64.Build.0 = Release|x64
-		{DC8C3F78-4530-49CC-A2E4-75EDF109A655}.Release|x86.ActiveCfg = Release|x86
-		{DC8C3F78-4530-49CC-A2E4-75EDF109A655}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

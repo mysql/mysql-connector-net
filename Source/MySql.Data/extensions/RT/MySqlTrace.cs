@@ -60,7 +60,7 @@ namespace MySql.Data.MySqlClient
 
         public static void LogError(int id, string msg)
         {
-            throw new NotImplementedException();
+            //TODO implement
         }
 
         public static void TraceEvent(TraceEventType eventType, MySqlTraceEventType mysqlEventType, string msgFormat, params object[] args)
