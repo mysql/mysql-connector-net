@@ -345,6 +345,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           if (dr.GetInt32(0) == threadId) processStillAlive = true;
         }
+        dr.Close();
         
         if (!processStillAlive) break;
         System.Threading.Thread.Sleep(500);
