@@ -71,8 +71,11 @@ namespace MySql.Data.Common
         case MySqlConnectionProtocol.UnixSocket: throw new NotImplementedException();
         case MySqlConnectionProtocol.SharedMemory: throw new NotImplementedException();
 #else
-        case MySqlConnectionProtocol.UnixSocket: return GetUnixSocketStream(settings);
+#if !CF
+        case MySqlConnectionProtocol.UnixSocket: return GetUnixSocketStream(settings);        
         case MySqlConnectionProtocol.SharedMemory: return GetSharedMemoryStream(settings);
+#endif
+        
 #endif
 #if !CF && !RT
         case MySqlConnectionProtocol.NamedPipe: return GetNamedPipeStream(settings);

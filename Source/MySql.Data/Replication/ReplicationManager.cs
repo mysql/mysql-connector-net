@@ -52,7 +52,12 @@ namespace MySql.Data.MySqlClient.Replication
 
     public static IList<ReplicationServerGroup> Groups { get; private set; }
 
-    public static ReplicationServerGroup AddGroup(string name, string groupType = null)
+    public static ReplicationServerGroup AddGroup(string name )
+    {
+      return AddGroup( name, null );
+    }
+
+    public static ReplicationServerGroup AddGroup(string name, string groupType)
     {
       if (groupType == null)
         groupType = "MySql.Data.MySqlClient.Replication.ReplicationRoundRobinServerGroup";

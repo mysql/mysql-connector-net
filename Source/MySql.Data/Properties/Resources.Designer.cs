@@ -23,7 +23,9 @@ namespace MySql.Data.MySqlClient.Properties {
     // with the /str option, or rebuild your VS project.
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+#if !CF
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
+#endif
     public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;

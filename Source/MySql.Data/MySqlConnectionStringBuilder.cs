@@ -46,7 +46,11 @@ namespace MySql.Data.MySqlClient
       options.Add(new MySqlConnectionStringOption("connectiontimeout", "connection timeout,connect timeout", typeof(uint), (uint)15, false,
         delegate(MySqlConnectionStringBuilder msb, MySqlConnectionStringOption sender, object Value)
         {
-          uint value = ( uint )Convert.ChangeType(Value, sender.BaseType);
+#if !CF
+          uint value = (uint)Convert.ChangeType(Value, sender.BaseType);          
+#else
+          uint value = (uint)Convert.ChangeType(Value, sender.BaseType, System.Globalization.CultureInfo.CurrentCulture);
+#endif
           // Timeout in milliseconds should not exceed maximum for 32 bit
           // signed integer (~24 days). We truncate the value if it exceeds 
           // maximum (MySqlCommand.CommandTimeout uses the same technique
@@ -1036,9 +1040,9 @@ namespace MySql.Data.MySqlClient
     public MySqlConnectionStringOption(string keyword, string synonyms, Type baseType, object defaultValue, bool obsolete, 
       SetterDelegate setter, GetterDelegate getter )
     {
-      Keyword = keyword.ToLowerInvariant();
+      Keyword = StringUtility.ToLowerInvariant(keyword);
       if (synonyms != null)
-        Synonyms = synonyms.ToLowerInvariant().Split(',');
+        Synonyms = StringUtility.ToLowerInvariant( synonyms ).Split(',');
       BaseType = baseType;
       Obsolete = obsolete;
       DefaultValue = defaultValue;
@@ -1054,7 +1058,11 @@ namespace MySql.Data.MySqlClient
          //if ( sender.BaseType.IsEnum )
          //  msb.SetValue( sender.Keyword, Enum.Parse( sender.BaseType, ( string )value, true ));
          //else
+#if !CF
            msb.SetValue( sender.Keyword, Convert.ChangeType(value, sender.BaseType));
+#else
+           msb.SetValue( sender.Keyword, Convert.ChangeType(value, sender.BaseType, System.Globalization.CultureInfo.CurrentCulture));
+#endif
        },
        delegate(MySqlConnectionStringBuilder msb, MySqlConnectionStringOption sender)
        {
@@ -1104,12 +1112,17 @@ namespace MySql.Data.MySqlClient
         {
           if (string.Compare("yes", ( string )value, StringComparison.OrdinalIgnoreCase) == 0) value = true;
           else if (string.Compare("no", (string)value, StringComparison.OrdinalIgnoreCase) == 0) value = false;
+#if !CF
           else if (Boolean.TryParse(value.ToString(), out b)) value = b;
+#else
+          else if (TryParseUtility.TryParse(value.ToString(), out b)) value = b;
+#endif
           else throw new ArgumentException(String.Format(Resources.ValueNotCorrectType, value));
           return;
         }
       }
       
+#if !CF
       if (typeName == "Boolean" && Boolean.TryParse(value.ToString(), out b)) { value = b; return; }
 
       UInt64 uintVal;
@@ -1123,6 +1136,21 @@ namespace MySql.Data.MySqlClient
 
       Int32 intVal32;
       if (typeName.StartsWith("Int32") && Int32.TryParse(value.ToString(), out intVal32)) { value = intVal32; return; }
+#else
+      if (typeName == "Boolean" && TryParseUtility.TryParse(value.ToString(), out b)) { value = b; return; }
+
+      UInt64 uintVal;
+      if (typeName.StartsWith("UInt64") && TryParseUtility.TryParse(value.ToString(), out uintVal)) { value = uintVal; return; }
+
+      UInt32 uintVal32;
+      if (typeName.StartsWith("UInt32") && TryParseUtility.TryParse(value.ToString(), out uintVal32)) { value = uintVal32; return; }
+
+      Int64 intVal;
+      if (typeName.StartsWith("Int64") && TryParseUtility.TryParse(value.ToString(), out intVal)) { value = intVal; return; }
+
+      Int32 intVal32;
+      if (typeName.StartsWith("Int32") && TryParseUtility.TryParse(value.ToString(), out intVal32)) { value = intVal32; return; }
+#endif
 
       object objValue;
 #if RT

@@ -851,7 +851,11 @@ namespace MySql.Data.MySqlClient
         }
         line = sr.ReadLine();
       }
+#if !CF
       sr.Dispose();
+#else
+      sr.Close();
+#endif
       str.Close();
 
       return dt;

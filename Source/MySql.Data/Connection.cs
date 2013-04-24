@@ -28,8 +28,8 @@ using System.Data.Common;
 #endif
 #if !CF
 using System.Drawing;
-using System.Drawing.Design;
 #endif
+using System.Drawing.Design;
 #if !CF && !RT
 using System.Transactions;
 using IsolationLevel = System.Data.IsolationLevel;
@@ -38,7 +38,9 @@ using System.Text;
 using MySql.Data.Common;
 using System.Diagnostics;
 using MySql.Data.MySqlClient.Properties;
+#if !CF
 using MySql.Data.MySqlClient.Replication;
+#endif
 
 namespace MySql.Data.MySqlClient
 {
@@ -51,7 +53,9 @@ namespace MySql.Data.MySqlClient
     private SchemaProvider schemaProvider;
     private ProcedureCache procedureCache;
     private bool isInUse;
+#if !CF
     private PerformanceMonitor perfMonitor;
+#endif
 #if !CF && !RT
     private ExceptionInterceptor exceptionInterceptor;
     internal CommandInterceptor commandInterceptor;
@@ -83,10 +87,12 @@ namespace MySql.Data.MySqlClient
 
     #region Interal Methods & Properties
 
+#if !CF
     internal PerformanceMonitor PerfMonitor
     {
       get { return perfMonitor; }
     }
+#endif
 
     internal ProcedureCache ProcedureCache
     {
@@ -461,6 +467,7 @@ namespace MySql.Data.MySqlClient
       try
       {
         MySqlConnectionStringBuilder currentSettings = Settings;
+#if !CF        
 
         // Load balancing 
         if (ReplicationManager.IsReplicationGroup(Settings.Server))
@@ -473,6 +480,7 @@ namespace MySql.Data.MySqlClient
           else
             currentSettings = driver.Settings;
         }
+#endif
 
         if (Settings.Pooling)
         {
@@ -512,7 +520,9 @@ namespace MySql.Data.MySqlClient
       // setup our schema provider
       schemaProvider = new ISSchemaProvider(this);
 
+#if !CF
       perfMonitor = new PerformanceMonitor(this);
+#endif
 
       // if we are opening up inside a current transaction, then autoenlist
       // TODO: control this with a connection string option

@@ -35,7 +35,9 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Collections.Generic;
 using MySql.Data.MySqlClient.Properties;
+#if !CF
 using MySql.Data.MySqlClient.Replication;
+#endif
 
 namespace MySql.Data.MySqlClient
 {
@@ -405,11 +407,13 @@ namespace MySql.Data.MySqlClient
 
       string sql = cmdText.Trim(';');
 
+#if !CF
       // Load balancing getting a new connection
       if (connection.hasBeenOpen)
       {
         ReplicationManager.GetNewConnection(connection.Settings.Server, !IsReadOnlyCommand(sql), connection);
       }
+#endif
 
       lock (driver)
       {
@@ -419,6 +423,7 @@ namespace MySql.Data.MySqlClient
         {
           Throw(new MySqlException(Resources.DataReaderOpen));
         }
+
 #if !CF && !RT
         System.Transactions.Transaction curTrans = System.Transactions.Transaction.Current;
 

@@ -277,7 +277,9 @@ namespace MySql.Data.MySqlClient
 #if !RT
       baseStream.Close();
 #endif
+#if !CF
       baseStream.Dispose();
+#endif
     }
 
     public void ResetTimeout(int newTimeout)
