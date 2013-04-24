@@ -84,7 +84,6 @@
     </Compile>
     <Compile Include="CharSetMap.cs" />
     <Compile Include="command.cs">
-      <SubType>Component</SubType>
     </Compile>
     <Compile Include="CommandBuilder.cs">
       <SubType>Component</SubType>
@@ -121,7 +120,6 @@
     </Compile>
     <Compile Include="CompressedStream.cs" />
     <Compile Include="Connection.cs">
-      <SubType>Component</SubType>
     </Compile>
     <Compile Include="Crypt.cs" />
     <Compile Include="dataadapter.cs">
