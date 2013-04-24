@@ -12,11 +12,11 @@ namespace MySql.Data.MySqlClient
 {
   public sealed partial class MySqlConnectionStringBuilder 
   {
-    internal Dictionary<string, object> _values = new Dictionary<string, object>();
-    internal Dictionary<string, object> values
-    {
-      get { lock (this) { return _values; } }
-    }
+    internal Dictionary<string, object> values = new Dictionary<string, object>();
+    //internal Dictionary<string, object> values
+    //{
+    //  get { lock (this) { return _values; } }
+    //}
 
     private static MySqlConnectionStringOptionCollection options = new MySqlConnectionStringOptionCollection();
 
@@ -167,16 +167,22 @@ namespace MySql.Data.MySqlClient
     {
       HasProcAccess = true;
       // Populate initial values
-      for (int i = 0; i < options.Options.Count; i++)
+      lock (this)
       {
-        values[options.Options[i].Keyword] = options.Options[i].DefaultValue;
+        for (int i = 0; i < options.Options.Count; i++)
+        {
+          values[options.Options[i].Keyword] = options.Options[i].DefaultValue;
+        }
       }
     }
 
     public MySqlConnectionStringBuilder(string connStr)
       : base()
     {
-      ConnectionString = connStr;
+      lock (this)
+      {
+        ConnectionString = connStr;
+      }
     }
 
     #region Server Properties
@@ -950,11 +956,14 @@ namespace MySql.Data.MySqlClient
     public override void Clear()
     {
       base.Clear();
-      foreach (var option in options.Options)
-        if (option.DefaultValue != null)
-          values[option.Keyword] = option.DefaultValue;
-        else
-          values[option.Keyword] = null;
+      lock (this)
+      {
+        foreach (var option in options.Options)
+          if (option.DefaultValue != null)
+            values[option.Keyword] = option.DefaultValue;
+          else
+            values[option.Keyword] = null;
+      }
     }
 
     internal void SetValue(string keyword, object value)
@@ -993,9 +1002,14 @@ namespace MySql.Data.MySqlClient
 
     public override bool Remove(string keyword)
     {
-      if (!base.Remove(keyword)) return false;
+      bool removed = false;
+      lock (this) { removed = base.Remove(keyword); }
+      if (!removed) return false;
       MySqlConnectionStringOption option = GetOption(keyword);
-      values[option.Keyword] = option.DefaultValue;
+      lock (this)
+      {
+        values[option.Keyword] = option.DefaultValue;
+      }
       return true;
     }
 
