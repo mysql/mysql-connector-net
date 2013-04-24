@@ -12,7 +12,12 @@ namespace MySql.Data.MySqlClient
 {
   public sealed partial class MySqlConnectionStringBuilder 
   {
-    internal Dictionary<string, object> values = new Dictionary<string, object>();
+    internal Dictionary<string, object> _values = new Dictionary<string, object>();
+    internal Dictionary<string, object> values
+    {
+      get { lock (this) { return _values; } }
+    }
+
     private static MySqlConnectionStringOptionCollection options = new MySqlConnectionStringOptionCollection();
 
     static MySqlConnectionStringBuilder()
@@ -962,10 +967,12 @@ namespace MySql.Data.MySqlClient
 
       if (value != null)
       {
-        // set value for the given keyword
-        values[option.Keyword] = value;
-        //if( base[ keyword ] != value )
+        lock (this)
+        {
+          // set value for the given keyword
+          values[option.Keyword] = value;
           base[keyword] = value;
+        }
       }
     }
 

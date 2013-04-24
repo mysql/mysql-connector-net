@@ -239,7 +239,6 @@ namespace MySql.Data.MySqlClient.Tests
       catch (InvalidOperationException ioe)
       {
         //Assert.AreEqual("Collection was modified; enumeration operation may not execute.", ioe.Message );
-        Debugger.Break();
         Assert.Fail();
       }
     }
