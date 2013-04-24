@@ -494,7 +494,7 @@ namespace MySql.Data.Entity
 
 #if NET_45_OR_GREATER
       sb.Append("insert into `" + op.Table + "` (`migrationId`, `model`, `productVersion`) ");
-      sb.AppendFormat(" values ( '{0}', '{1}', {2} ) ",
+      sb.AppendFormat(" values ( '{0}', '{1}', '{2}') ",
                       op.MigrationId,
                       "0x" + model.ToString(),
                       op.ProductVersion);
