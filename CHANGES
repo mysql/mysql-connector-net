@@ -2,6 +2,7 @@
 - Fix for Bug "REPAIR" option on connector/net_installer, raise an exception (Oracle Bug #16630567).
 - Fix for Bug Entity Framework 5.0 (.net 4.0) with mysql connector/net 6.7.0 alpha (Oracle Bug #16694050).
 - Added WinRT support.
+- Fix for Incorrect assemblies runtime version installed (Oracle Bug #16725274).
 
 6.7.1
 - Fix for Bug Assemblies for .net 4.5 are not included in the installation (Oracle Bug #16463655).
