@@ -303,7 +303,7 @@ namespace MySql.Data.MySqlClient
     {
       string colName = String.Empty;
       if (OriginalColumnName != null)
-        colName = OriginalColumnName.ToUpper(CultureInfo.InvariantCulture);
+        colName = StringUtility.ToUpperInvariant(OriginalColumnName);
       if (colName.StartsWith("CHAR(", StringComparison.Ordinal))
         binaryOk = false;
     }
@@ -396,7 +396,7 @@ namespace MySql.Data.MySqlClient
 
     private void SetFieldEncoding()
     {
-      Hashtable charSets = driver.CharacterSets;
+      Dictionary<int,string> charSets = driver.CharacterSets;
       DBVersion version = driver.Version;
 
       if (charSets == null || CharacterSetIndex == -1) return;

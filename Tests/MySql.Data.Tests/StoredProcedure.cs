@@ -887,7 +887,7 @@ namespace MySql.Data.MySqlClient.Tests
         ISSchemaProvider isp = new ISSchemaProvider(c);
         string[] rest = isp.CleanRestrictions(restrictions);
 
-        DataTable parametersTable = isp.GetProcedureParameters(rest, procTable);
+        MySqlSchemaCollection parametersTable = isp.GetProcedureParameters(rest, new MySqlSchemaCollection( procTable ));
 
         Assert.IsNotNull(parametersTable);
       }

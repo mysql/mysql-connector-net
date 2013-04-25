@@ -25,7 +25,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+#if RT
+using Windows.Security.Cryptography;
+#else
 using System.Security.Cryptography;
+#endif
 using System.Text;
 using MySql.Data.Common;
 using MySql.Data.MySqlClient.Properties;
@@ -62,7 +66,7 @@ namespace MySql.Data.MySqlClient.Authentication
 
     public override object GetPassword()
     {
-#if !CF
+#if !CF && !RT
       if (Settings.SslMode != MySqlSslMode.None)
       {
         // send as clear text, since the channel is already encrypted
@@ -91,7 +95,7 @@ namespace MySql.Data.MySqlClient.Authentication
 #else
         throw new NotImplementedException( "You can use sha256 plugin only in SSL connections in this implementation." );
 #endif 
-#if !CF
+#if !CF && !RT
       }
 #endif
     }

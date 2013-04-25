@@ -33,7 +33,7 @@ namespace MySql.Data.MySqlClient.Authentication
   /// <summary>
   /// 
   /// </summary>
-#if !CF
+#if !CF && !RT
   [SuppressUnmanagedCodeSecurityAttribute()]
 #endif
   internal class MySqlWindowsAuthenticationPlugin : MySqlAuthenticationPlugin
@@ -47,7 +47,7 @@ namespace MySql.Data.MySqlClient.Authentication
     protected override void CheckConstraints()
     {
       string platform = String.Empty;
-
+#if !RT
       int p = (int)Environment.OSVersion.Platform;
       if ((p == 4) || (p == 128))
         platform = "Unix";
@@ -56,6 +56,7 @@ namespace MySql.Data.MySqlClient.Authentication
 
       if (!String.IsNullOrEmpty(platform))
         throw new MySqlException(String.Format(Resources.WinAuthNotSupportOnPlatform, platform));
+#endif
       base.CheckConstraints();
     }
 
@@ -186,9 +187,13 @@ namespace MySql.Data.MySqlClient.Authentication
         break;
       }
       if (index == -1)
+#if RT
+        targetName = System.Text.Encoding.UTF8.GetString(AuthenticationData, 0, AuthenticationData.Length);
+#else
         targetName = System.Text.Encoding.UTF8.GetString(AuthenticationData);
+#endif
       else
-        targetName = System.Text.Encoding.UTF8.GetString(AuthenticationData, 0, index);
+          targetName = System.Text.Encoding.UTF8.GetString(AuthenticationData, 0, index);
       return targetName;
     }
 
@@ -219,7 +224,7 @@ namespace MySql.Data.MySqlClient.Authentication
     const int SECPKG_ATTR_SIZES = 0;
     const int STANDARD_CONTEXT_ATTRIBUTES = 0;
 
-    [DllImport("secur32", CharSet = CharSet.Auto)]
+    [DllImport("secur32", CharSet = CharSet.Unicode)]
     static extern int AcquireCredentialsHandle(
         string pszPrincipal,
         string pszPackage,
@@ -231,7 +236,7 @@ namespace MySql.Data.MySqlClient.Authentication
         ref SECURITY_HANDLE phCredential,
         ref SECURITY_INTEGER ptsExpiry);
 
-    [DllImport("secur32", CharSet = CharSet.Auto, SetLastError = true)]
+    [DllImport("secur32", CharSet = CharSet.Unicode, SetLastError = true)]
     static extern int InitializeSecurityContext(
         ref SECURITY_HANDLE phCredential,
         IntPtr phContext,
@@ -246,7 +251,7 @@ namespace MySql.Data.MySqlClient.Authentication
         out uint pfContextAttr,
         out SECURITY_INTEGER ptsExpiry);
 
-    [DllImport("secur32", CharSet = CharSet.Auto, SetLastError = true)]
+    [DllImport("secur32", CharSet = CharSet.Unicode, SetLastError = true)]
     static extern int InitializeSecurityContext(
         ref SECURITY_HANDLE phCredential,
         ref SECURITY_HANDLE phContext,
@@ -261,21 +266,21 @@ namespace MySql.Data.MySqlClient.Authentication
         out uint pfContextAttr,
         out SECURITY_INTEGER ptsExpiry);
 
-    [DllImport("secur32", CharSet = CharSet.Auto, SetLastError = true)]
+    [DllImport("secur32", CharSet = CharSet.Unicode, SetLastError = true)]
     static extern int CompleteAuthToken(
         ref SECURITY_HANDLE phContext,
         ref SecBufferDesc pToken);
 
-    [DllImport("secur32.Dll", CharSet = CharSet.Auto, SetLastError = false)]
+    [DllImport("secur32.Dll", CharSet = CharSet.Unicode, SetLastError = false)]
     public static extern int QueryContextAttributes(
         ref SECURITY_HANDLE phContext,
         uint ulAttribute,
         out SecPkgContext_Sizes pContextAttributes);
 
-    [DllImport("secur32.Dll", CharSet = CharSet.Auto, SetLastError = false)]
+    [DllImport("secur32.Dll", CharSet = CharSet.Unicode, SetLastError = false)]
     public static extern int FreeCredentialsHandle(ref SECURITY_HANDLE pCred);
 
-    [DllImport("secur32.Dll", CharSet = CharSet.Auto, SetLastError = false)]
+    [DllImport("secur32.Dll", CharSet = CharSet.Unicode, SetLastError = false)]
     public static extern int DeleteSecurityContext(ref SECURITY_HANDLE pCred);
 
     #endregion

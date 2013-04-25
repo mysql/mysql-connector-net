@@ -22,7 +22,9 @@
 
 using System;
 using NUnit.Framework;
+#if !RT
 using System.Configuration;
+#endif
 using System.Data;
 using MySql.Data.MySqlClient;
 using System.Reflection;
@@ -69,7 +71,7 @@ namespace MySql.Data.MySqlClient.Tests
       password = "test";
       string portString = null;
 
-#if !CF
+#if !CF && !RT
       rootUser = ConfigurationManager.AppSettings["rootuser"];
       rootPassword = ConfigurationManager.AppSettings["rootpassword"];
       host = ConfigurationManager.AppSettings["host"];
@@ -97,7 +99,12 @@ namespace MySql.Data.MySqlClient.Tests
     {
       // we don't use FileVersion because it's not available
       // on the compact framework
+#if RT
+      AssemblyName assemblyName = new AssemblyName("MySql.Data.RT");
+      string fullname = Assembly.Load(assemblyName).FullName;
+#else
       string fullname = Assembly.GetExecutingAssembly().FullName;
+#endif
       string[] parts = fullname.Split(new char[] { '=' });
       string[] versionParts = parts[1].Split(new char[] { '.' });
       database0 = String.Format("db{0}{1}{2}-a", versionParts[0], versionParts[1], port - 3300);
@@ -128,7 +135,7 @@ namespace MySql.Data.MySqlClient.Tests
 
     protected virtual string GetConnectionInfo()
     {
-      return String.Format("protocol=sockets;port={0};", port);
+      return String.Format("protocol=sockets;port={0};Default Command Timeout=1000000;", port);
     }
 
     protected string GetConnectionString(string userId, string pw, bool persistSecurityInfo, bool includedb)
@@ -202,11 +209,19 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.ExecuteNonQuery();
       }
 
-      Assembly executingAssembly = Assembly.GetExecutingAssembly();
-#if !CF
-      Stream stream = executingAssembly.GetManifestResourceStream("MySql.Data.MySqlClient.Tests.Properties.Setup.sql");
+#if RT
+      AssemblyName assemblyName = new AssemblyName("MySql.Data.RT.Tests");
+      Assembly executingAssembly = Assembly.Load(assemblyName);
 #else
+      Assembly executingAssembly = Assembly.GetExecutingAssembly();
+#endif
+
+#if CF
       Stream stream = executingAssembly.GetManifestResourceStream("MySql.Data.CF.Tests.Properties.Setup.sql");
+#elif RT
+      Stream stream = executingAssembly.GetManifestResourceStream("MySql.Data.RT.Tests.Properties.Setup.sql");
+#else
+      Stream stream = executingAssembly.GetManifestResourceStream("MySql.Data.MySqlClient.Tests.Properties.Setup.sql");
 #endif
       StreamReader sr = new StreamReader(stream);
       string sql = sr.ReadToEnd();
@@ -218,7 +233,9 @@ namespace MySql.Data.MySqlClient.Tests
 
       ExecuteSQLAsRoot(sql);
       Open();
+#if !RT
       numProcessesRunning = CountProcesses();
+#endif
     }
 
     protected void ExecuteSQLAsRoot(string sql)
@@ -227,6 +244,7 @@ namespace MySql.Data.MySqlClient.Tests
       s.Execute();
     }
 
+#if !RT
     private void CheckOrphanedConnections()
     {
       // wait up to 5 seconds for our connection to close
@@ -259,13 +277,16 @@ namespace MySql.Data.MySqlClient.Tests
         suExecSQL(String.Format("KILL {0}", id));
       }
     }
+#endif
 
     [TearDown]
     public virtual void Teardown()
     {
       MySqlConnection.ClearAllPools();
 
+#if !RT
       CheckOrphanedConnections();
+#endif
 
       conn.Close();
       if (Version.Major < 5)
@@ -318,12 +339,14 @@ namespace MySql.Data.MySqlClient.Tests
       bool processStillAlive = false;
       while (true)
       {
-        MySqlDataAdapter da = new MySqlDataAdapter("SHOW PROCESSLIST", conn);
-        DataTable dt = new DataTable();
-        da.Fill(dt);
-        foreach (DataRow row in dt.Rows)
-          if (row["Id"].Equals(threadId))
-            processStillAlive = true;
+        MySqlCommand cmdProcess = new MySqlCommand("SHOW PROCESSLIST", conn);
+        MySqlDataReader dr = cmdProcess.ExecuteReader();
+        while (dr.Read())
+        {
+          if (dr.GetInt32(0) == threadId) processStillAlive = true;
+        }
+        dr.Close();
+        
         if (!processStillAlive) break;
         System.Threading.Thread.Sleep(500);
       }
@@ -358,11 +381,13 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.ExecuteNonQuery();
     }
 
-    protected IDataReader execReader(string sql)
+    protected MySqlDataReader execReader(string sql)
     {
       MySqlCommand cmd = new MySqlCommand(sql, conn);
       return cmd.ExecuteReader();
     }
+
+#if !RT
 
     protected int CountProcesses()
     {
@@ -387,6 +412,8 @@ namespace MySql.Data.MySqlClient.Tests
       da.Fill(dt);
       return dt;
     }
+
+#endif
 
     private void SetupRootConnection()
     {

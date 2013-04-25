@@ -1,4 +1,4 @@
-﻿// Copyright © 2009, 2011, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2009, 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -37,8 +37,8 @@ namespace MySql.Data.MySqlClient
     private bool[] uaFieldsUsed;
     private MySqlField[] fields;
     private IMySqlValue[] values;
-    private Hashtable fieldHashCS;
-    private Hashtable fieldHashCI;
+    private Dictionary<string, int> fieldHashCS;
+    private Dictionary<string, int> fieldHashCI;
     private int rowIndex;
     private bool readDone;
     private bool isSequential;
@@ -141,14 +141,13 @@ namespace MySql.Data.MySqlClient
     public int GetOrdinal(string name)
     {
       // first we try a quick hash lookup
-      object ordinal = fieldHashCS[name];
-      if (ordinal != null)
-        return (int)ordinal;
+      int ordinal;
+      if (fieldHashCS.TryGetValue(name, out ordinal))
+        return ordinal;
 
-      // ok that failed so we use our CI hash
-      ordinal = fieldHashCI[name];
-      if (ordinal != null)
-        return (int)ordinal;
+      // ok that failed so we use our CI hash      
+      if (fieldHashCI.TryGetValue( name, out ordinal ))
+        return ordinal;
 
       // Throw an exception if the ordinal cannot be found.
       throw new IndexOutOfRangeException(
@@ -327,8 +326,8 @@ namespace MySql.Data.MySqlClient
 
       values = new IMySqlValue[numCols];
       uaFieldsUsed = new bool[numCols];
-      fieldHashCS = new Hashtable();
-      fieldHashCI = new Hashtable(StringComparer.InvariantCultureIgnoreCase);
+      fieldHashCS = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+      fieldHashCI = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
       for (int i = 0; i < fields.Length; i++)
       {

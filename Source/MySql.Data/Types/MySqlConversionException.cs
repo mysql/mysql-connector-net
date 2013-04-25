@@ -21,15 +21,14 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
+using MySql.Data.MySqlClient;
 
 namespace MySql.Data.Types
 {
   /// <summary>
   /// Summary description for MySqlConversionException.
   /// </summary>
-#if !CF
   [Serializable]
-#endif
   public class MySqlConversionException : Exception
   {
     /// <summary>Ctor</summary>

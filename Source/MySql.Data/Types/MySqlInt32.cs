@@ -65,11 +65,6 @@ namespace MySql.Data.Types
       get { return MySqlDbType.Int32; }
     }
 
-    DbType IMySqlValue.DbType
-    {
-      get { return DbType.Int32; }
-    }
-
     object IMySqlValue.Value
     {
       get { return mValue; }
@@ -120,7 +115,7 @@ namespace MySql.Data.Types
 
     #endregion
 
-    internal static void SetDSInfo(DataTable dsTable)
+    internal static void SetDSInfo(MySqlSchemaCollection sc)
     {
       string[] types = new string[] { "INT", "YEAR", "MEDIUMINT" };
       MySqlDbType[] dbtype = new MySqlDbType[] { MySqlDbType.Int32, 
@@ -131,7 +126,7 @@ namespace MySql.Data.Types
       // collection and then it wil be cached.
       for (int x = 0; x < types.Length; x++)
       {
-        DataRow row = dsTable.NewRow();
+        MySqlSchemaRow row = sc.AddRow();
         row["TypeName"] = types[x];
         row["ProviderDbType"] = dbtype[x];
         row["ColumnSize"] = 0;
@@ -155,7 +150,6 @@ namespace MySql.Data.Types
         row["LiteralPrefix"] = null;
         row["LiteralSuffix"] = null;
         row["NativeDataType"] = null;
-        dsTable.Rows.Add(row);
       }
     }
   }

@@ -27,7 +27,7 @@ namespace MySql.Data.MySqlClient.Memcached
   using System.Text;
   using System.IO;
   using System.Net;
-  using System.Net.Sockets;
+  //using System.Net.Sockets;
   using MySql.Data.Common;
   using MySql.Data.MySqlClient.Properties;
 
@@ -60,8 +60,7 @@ namespace MySql.Data.MySqlClient.Memcached
     /// </summary>
     public virtual void Open()
     {
-      StreamCreator sc = new StreamCreator(server, port, null, 10, new DBVersion());
-      this.stream = sc.GetStream(60);
+      this.stream = StreamCreator.GetStream(server, port, null, 10, new DBVersion(), 60);
     }
 
     /// <summary>
@@ -69,7 +68,7 @@ namespace MySql.Data.MySqlClient.Memcached
     /// </summary>
     public virtual void Close()
     {
-      stream.Close();
+      stream.Dispose();
     }
 
     protected Client(string server, uint port)

@@ -27,17 +27,17 @@ using System.Text;
 
 namespace MySql.Data.MySqlClient
 {
-  public sealed class LoadBalancingConfigurationElement : ConfigurationElement
+  public sealed class ReplicationConfigurationElement : ConfigurationElement
   {
     [ConfigurationProperty("ServerGroups", IsRequired = true)]
-    [ConfigurationCollection(typeof(LoadBalancingServerGroupConfigurationElement), AddItemName = "Group")]
-    public GenericConfigurationElementCollection<LoadBalancingServerGroupConfigurationElement> ServerGroups
+    [ConfigurationCollection(typeof(ReplicationServerGroupConfigurationElement), AddItemName = "Group")]
+    public GenericConfigurationElementCollection<ReplicationServerGroupConfigurationElement> ServerGroups
     {
-      get { return (GenericConfigurationElementCollection<LoadBalancingServerGroupConfigurationElement>)this["ServerGroups"]; }
+      get { return (GenericConfigurationElementCollection<ReplicationServerGroupConfigurationElement>)this["ServerGroups"]; }
     }
   }
 
-  public sealed class LoadBalancingServerGroupConfigurationElement : ConfigurationElement
+  public sealed class ReplicationServerGroupConfigurationElement : ConfigurationElement
   {
     [ConfigurationProperty("name", IsRequired = true)]
     public string Name
@@ -46,11 +46,11 @@ namespace MySql.Data.MySqlClient
       set { this["name"] = value; }
     }
 
-    [ConfigurationProperty("selectorType", IsRequired = false)]
-    public string SelectorType
+    [ConfigurationProperty("groupType", IsRequired = false)]
+    public string GroupType
     {
-      get { return (string)this["selectorType"]; }
-      set { this["selectorType"] = value; }
+      get { return (string)this["groupType"]; }
+      set { this["groupType"] = value; }
     }
 
     [ConfigurationProperty("retryTime", IsRequired = false, DefaultValue = 60)]
@@ -61,28 +61,15 @@ namespace MySql.Data.MySqlClient
     }
 
     [ConfigurationProperty("Servers")]
-    [ConfigurationCollection(typeof(LoadBalancingServerConfigurationElement), AddItemName = "Server")]
-    public GenericConfigurationElementCollection<LoadBalancingServerConfigurationElement> Servers
+    [ConfigurationCollection(typeof(ReplicationServerConfigurationElement), AddItemName = "Server")]
+    public GenericConfigurationElementCollection<ReplicationServerConfigurationElement> Servers
     {
-      get { return (GenericConfigurationElementCollection<LoadBalancingServerConfigurationElement>)this["Servers"]; }
-    }
-
-
-    public LoadBalancingServerConfigurationElement GetElementAt(int index)
-    {
-      LoadBalancingServerConfigurationElement[] elements = new LoadBalancingServerConfigurationElement[Servers.Count];
-      Servers.CopyTo(elements, 0);
-      return elements[index];
+      get { return (GenericConfigurationElementCollection<ReplicationServerConfigurationElement>)this["Servers"]; }
     }
   }
 
-  public sealed class LoadBalancingServerConfigurationElement : ConfigurationElement
+  public sealed class ReplicationServerConfigurationElement : ConfigurationElement
   {
-    public LoadBalancingServerConfigurationElement() : base()
-    {
-      IsAvailable = true;
-    }
-
     [ConfigurationProperty("name", IsRequired = true)]
     public string Name
     {
@@ -102,12 +89,6 @@ namespace MySql.Data.MySqlClient
     {
       get { return (string)this["connectionstring"]; }
       set { this["connectionstring"] = value; }
-    }
-
-    internal bool IsAvailable
-    {
-      get; 
-      set; 
     }
   }
 }

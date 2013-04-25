@@ -23,7 +23,6 @@
 using System;
 using System.Reflection;
 using System.ComponentModel;
-using System.Security.Permissions;
 
 namespace MySql.Data.MySqlClient
 {
@@ -428,6 +427,7 @@ namespace MySql.Data.MySqlClient
       get { return "MySql Connector/NET"; }
     }
 
+#if !RT
     [DisplayName("_pid")]
     public string PID
     {
@@ -557,6 +557,7 @@ namespace MySql.Data.MySqlClient
 #endif
     }
 
+#endif
 #endif
   }
 }

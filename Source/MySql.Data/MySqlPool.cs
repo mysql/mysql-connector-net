@@ -105,7 +105,7 @@ namespace MySql.Data.MySqlClient
       get { return beingCleared; }
     }
 
-    internal Hashtable ServerProperties { get; set; }
+    internal Dictionary<string,string> ServerProperties { get; set; }
 
     #endregion
 

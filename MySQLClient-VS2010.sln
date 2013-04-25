@@ -266,7 +266,6 @@ Global
 		{F533FC43-6C05-4A64-8AF6-72B690EB06C3}.Commercial|x86.Build.0 = Commercial|x86
 		{F533FC43-6C05-4A64-8AF6-72B690EB06C3}.Debug|Any CPU.ActiveCfg = Commercial|x86
 		{F533FC43-6C05-4A64-8AF6-72B690EB06C3}.Debug|Mixed Platforms.ActiveCfg = Commercial|x86
-		{F533FC43-6C05-4A64-8AF6-72B690EB06C3}.Debug|Mixed Platforms.Build.0 = Commercial|x86
 		{F533FC43-6C05-4A64-8AF6-72B690EB06C3}.Debug|x64.ActiveCfg = Commercial|x86
 		{F533FC43-6C05-4A64-8AF6-72B690EB06C3}.Debug|x86.ActiveCfg = Commercial|x86
 		{F533FC43-6C05-4A64-8AF6-72B690EB06C3}.Debug|x86.Build.0 = Commercial|x86

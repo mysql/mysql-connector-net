@@ -44,13 +44,13 @@ namespace MySql.Data.MySqlClient
     protected DateTime creationTime;
     protected string serverCharSet;
     protected int serverCharSetIndex;
-    protected Hashtable serverProps;
-    protected Hashtable charSets;
+    protected Dictionary<string,string> serverProps;
+    protected Dictionary<int,string> charSets;
     protected long maxPacketSize;
     internal int timeZoneOffset;
     private DateTime idleSince;    
 
-#if !CF
+#if !CF && !RT
     protected MySqlPromotableTransaction currentTransaction;
     protected bool inActiveUse;
 #endif
@@ -72,7 +72,7 @@ namespace MySql.Data.MySqlClient
 
     public Driver(MySqlConnectionStringBuilder settings)
     {
-      encoding = Encoding.GetEncoding(1252);
+      encoding = Encoding.GetEncoding("Windows-1252");
       if (encoding == null)
         throw new MySqlException(Resources.DefaultEncodingNotFound);
       connectionString = settings;
@@ -111,7 +111,7 @@ namespace MySql.Data.MySqlClient
       set { encoding = value; }
     }
 
-#if !CF
+#if !CF && !RT
     public MySqlPromotableTransaction CurrentTransaction
     {
       get { return currentTransaction; }
@@ -146,7 +146,7 @@ namespace MySql.Data.MySqlClient
       set { serverCharSetIndex = value; }
     }
 
-    internal Hashtable CharacterSets
+    internal Dictionary<int,string> CharacterSets
     {
       get { return charSets; }
     }
@@ -192,7 +192,7 @@ namespace MySql.Data.MySqlClient
     public static Driver Create(MySqlConnectionStringBuilder settings)
     {
       Driver d = null;
-#if !CF
+#if !CF && !RT
       try
       {
         if (MySqlTrace.QueryAnalysisEnabled || settings.Logging || settings.UseUsageAdvisor)
@@ -288,7 +288,7 @@ namespace MySql.Data.MySqlClient
           charSet = serverCharSet;
       }
 
-      if (serverProps.Contains("max_allowed_packet"))
+      if (serverProps.ContainsKey("max_allowed_packet"))
         maxPacketSize = Convert.ToInt64(serverProps["max_allowed_packet"]);
 
       // now tell the server which character set we will send queries in and which charset we
@@ -320,38 +320,30 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     /// <param name="connection"></param>
     /// <returns></returns>
-    private Hashtable LoadServerProperties(MySqlConnection connection)
+    private Dictionary<string,string> LoadServerProperties(MySqlConnection connection)
     {
       // load server properties
-      Hashtable hash = new Hashtable();
+      Dictionary<string, string> hash = new Dictionary<string, string>();
       MySqlCommand cmd = new MySqlCommand("SHOW VARIABLES", connection);
       try
       {
         using (MySqlDataReader reader = cmd.ExecuteReader())
-        {         
-            while (reader.Read())
-            {
-              string key = reader.GetString(0);
-              string value = reader.GetString(1);
-              hash[key] = value;
-            }         
+        {
+          while (reader.Read())
+          {
+            string key = reader.GetString(0);
+            string value = reader.GetString(1);
+            hash[key] = value;
+          }
         }
         // Get time zone offset as numerical value
         timeZoneOffset = GetTimeZoneOffset(connection);
         return hash;
       }
-      catch (Exception ex)  // expecting the must set password exception
+      catch (Exception ex)
       {
-        if (((MySqlException)ex).Number == 1820)
-        {
-          this.IsPasswordExpired = true;
-          return null;
-        }
-        else
-        {
-          MySqlTrace.LogError(ThreadID, ex.Message);
-          throw;
-        }
+        MySqlTrace.LogError(ThreadID, ex.Message);
+        throw;
       }
     }
 
@@ -375,7 +367,7 @@ namespace MySql.Data.MySqlClient
       {
         using (MySqlDataReader reader = cmd.ExecuteReader())
         {
-          charSets = new Hashtable();
+          charSets = new Dictionary<int, string>();
           while (reader.Read())
           {
             charSets[Convert.ToInt32(reader["id"], NumberFormatInfo.InvariantInfo)] =

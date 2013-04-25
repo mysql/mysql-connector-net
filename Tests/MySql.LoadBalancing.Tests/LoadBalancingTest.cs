@@ -106,8 +106,6 @@ namespace MySql.LoadBalancing.Tests
       }
     }
 
-
-
     #region Private methods
 
     private int GetPort(MySqlConnection connection)

@@ -33,8 +33,7 @@ namespace MySql.Data.Types
   /// <summary>
   /// 
   /// </summary>
-  [Serializable]
-  public struct MySqlDateTime : IMySqlValue, IConvertible, IComparable
+  public partial struct MySqlDateTime : IMySqlValue, IComparable
   {
     private bool isNull;
     private MySqlDbType type;
@@ -206,16 +205,6 @@ namespace MySql.Data.Types
     MySqlDbType IMySqlValue.MySqlDbType
     {
       get { return type; }
-    }
-
-    DbType IMySqlValue.DbType
-    {
-      get
-      {
-        if (type == MySqlDbType.Date || type == MySqlDbType.Newdate)
-          return DbType.Date;
-        return DbType.DateTime;
-      }
     }
 
     object IMySqlValue.Value
@@ -466,7 +455,7 @@ namespace MySql.Data.Types
       return val.GetDateTime();
     }
 
-    internal static void SetDSInfo(DataTable dsTable)
+    internal static void SetDSInfo(MySqlSchemaCollection sc)
     {
       string[] types = new string[] { "DATE", "DATETIME", "TIMESTAMP" };
       MySqlDbType[] dbtype = new MySqlDbType[] { MySqlDbType.Date, 
@@ -477,7 +466,7 @@ namespace MySql.Data.Types
       // collection and then it wil be cached.
       for (int x = 0; x < types.Length; x++)
       {
-        DataRow row = dsTable.NewRow();
+        MySqlSchemaRow row = sc.AddRow();
         row["TypeName"] = types[x];
         row["ProviderDbType"] = dbtype[x];
         row["ColumnSize"] = 0;
@@ -501,99 +490,8 @@ namespace MySql.Data.Types
         row["LiteralPrefix"] = null;
         row["LiteralSuffix"] = null;
         row["NativeDataType"] = null;
-        dsTable.Rows.Add(row);
       }
     }
-
-    #region IConvertible Members
-
-    ulong IConvertible.ToUInt64(IFormatProvider provider)
-    {
-      return 0;
-    }
-
-    sbyte IConvertible.ToSByte(IFormatProvider provider)
-    {
-      // TODO:  Add MySqlDateTime.ToSByte implementation
-      return 0;
-    }
-
-    double IConvertible.ToDouble(IFormatProvider provider)
-    {
-      return 0;
-    }
-
-    DateTime IConvertible.ToDateTime(IFormatProvider provider)
-    {
-      return this.GetDateTime();
-    }
-
-    float IConvertible.ToSingle(IFormatProvider provider)
-    {
-      return 0;
-    }
-
-    bool IConvertible.ToBoolean(IFormatProvider provider)
-    {
-      return false;
-    }
-
-    int IConvertible.ToInt32(IFormatProvider provider)
-    {
-      return 0;
-    }
-
-    ushort IConvertible.ToUInt16(IFormatProvider provider)
-    {
-      return 0;
-    }
-
-    short IConvertible.ToInt16(IFormatProvider provider)
-    {
-      return 0;
-    }
-
-    string System.IConvertible.ToString(IFormatProvider provider)
-    {
-      return null;
-    }
-
-    byte IConvertible.ToByte(IFormatProvider provider)
-    {
-      return 0;
-    }
-
-    char IConvertible.ToChar(IFormatProvider provider)
-    {
-      return '\0';
-    }
-
-    long IConvertible.ToInt64(IFormatProvider provider)
-    {
-      return 0;
-    }
-
-    System.TypeCode IConvertible.GetTypeCode()
-    {
-      return new System.TypeCode();
-    }
-
-    decimal IConvertible.ToDecimal(IFormatProvider provider)
-    {
-      return 0;
-    }
-
-    object IConvertible.ToType(Type conversionType, IFormatProvider provider)
-    {
-      return null;
-    }
-
-    uint IConvertible.ToUInt32(IFormatProvider provider)
-    {
-      return 0;
-    }
-
-    #endregion
 
     #region IComparable Members
 

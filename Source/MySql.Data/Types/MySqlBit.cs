@@ -58,11 +58,6 @@ namespace MySql.Data.Types
       get { return MySqlDbType.Bit; }
     }
 
-    DbType IMySqlValue.DbType
-    {
-      get { return DbType.UInt64; }
-    }
-
     object IMySqlValue.Value
     {
       get
@@ -115,12 +110,12 @@ namespace MySql.Data.Types
       packet.Position += len;
     }
 
-    public static void SetDSInfo(DataTable dsTable)
+    internal static void SetDSInfo(MySqlSchemaCollection sc)
     {
       // we use name indexing because this method will only be called
       // when GetSchema is called for the DataSourceInformation 
       // collection and then it wil be cached.
-      DataRow row = dsTable.NewRow();
+      MySqlSchemaRow row = sc.AddRow();
       row["TypeName"] = "BIT";
       row["ProviderDbType"] = MySqlDbType.Bit;
       row["ColumnSize"] = 64;
@@ -144,7 +139,6 @@ namespace MySql.Data.Types
       row["LiteralPrefix"] = DBNull.Value;
       row["LiteralSuffix"] = DBNull.Value;
       row["NativeDataType"] = DBNull.Value;
-      dsTable.Rows.Add(row);
     }
   }
 }

@@ -23,8 +23,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MySql.Data.MySqlClient.Properties;
 using System.Reflection;
+using MySql.Data.MySqlClient.Properties;
 using System.Data.Common;
 using System.Data;
 

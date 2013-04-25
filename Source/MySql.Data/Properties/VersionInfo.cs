@@ -1,4 +1,4 @@
-// Copyright (C) 2004-2007 MySQL AB
+// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -25,6 +25,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 using System.Security;
+using System.Resources;
 
 //
 // Version information for an assembly consists of the following four values:
@@ -37,4 +38,5 @@ using System.Security;
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
 
-[assembly: AssemblyVersion("6.7.1")]
+[assembly: AssemblyVersion("6.7.2")]
+[assembly: NeutralResourcesLanguage("en-US")]

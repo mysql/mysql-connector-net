@@ -191,7 +191,12 @@ namespace zlib
 			z.free();
 			z = null;
 		}
+
+#if RT
+    public void Close()
+#else
 		public override void  Close()
+#endif
 		{
 			try
 			{
@@ -206,7 +211,11 @@ namespace zlib
 			finally
 			{
 				end();
+#if RT
+                out_Renamed.Dispose();
+#else
 				out_Renamed.Close();
+#endif
 				out_Renamed = null;
 			}
 		}

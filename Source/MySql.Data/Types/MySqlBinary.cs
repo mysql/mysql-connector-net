@@ -59,11 +59,6 @@ namespace MySql.Data.Types
       get { return type; }
     }
 
-    DbType IMySqlValue.DbType
-    {
-      get { return DbType.Binary; }
-    }
-
     object IMySqlValue.Value
     {
       get { return mValue; }
@@ -181,7 +176,7 @@ namespace MySql.Data.Types
 
     #endregion
 
-    public static void SetDSInfo(DataTable dsTable)
+    public static void SetDSInfo(MySqlSchemaCollection sc)
     {
       string[] types = new string[] { "BLOB", "TINYBLOB", "MEDIUMBLOB", "LONGBLOB", "BINARY", "VARBINARY" };
       MySqlDbType[] dbtype = new MySqlDbType[] { MySqlDbType.Blob, 
@@ -195,7 +190,7 @@ namespace MySql.Data.Types
       // collection and then it wil be cached.
       for (int x = 0; x < types.Length; x++)
       {
-        DataRow row = dsTable.NewRow();
+        MySqlSchemaRow row = sc.AddRow();
         row["TypeName"] = types[x];
         row["ProviderDbType"] = dbtype[x];
         row["ColumnSize"] = sizes[x];
@@ -219,7 +214,6 @@ namespace MySql.Data.Types
         row["LiteralPrefix"] = "0x";
         row["LiteralSuffix"] = DBNull.Value;
         row["NativeDataType"] = DBNull.Value;
-        dsTable.Rows.Add(row);
       }
     }
   }

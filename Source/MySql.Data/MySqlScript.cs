@@ -159,7 +159,7 @@ namespace MySql.Data.MySqlClient
       try
       {
         string mode = connection.driver.Property("sql_mode");
-        mode = mode.ToUpper(CultureInfo.InvariantCulture);
+        mode = StringUtility.ToUpperInvariant(mode);
         bool ansiQuotes = mode.IndexOf("ANSI_QUOTES") != -1;
         bool noBackslashEscapes = mode.IndexOf("NO_BACKSLASH_ESCAPES") != -1;
 
@@ -293,7 +293,7 @@ namespace MySql.Data.MySqlClient
               }
             }
 
-            int delimiterPos = token.IndexOf(currentDelimiter, StringComparison.InvariantCultureIgnoreCase);
+            int delimiterPos = token.IndexOf(currentDelimiter, StringComparison.OrdinalIgnoreCase);
             if (delimiterPos != -1)
             {
               int endPos = tokenizer.StopIndex - token.Length + delimiterPos;

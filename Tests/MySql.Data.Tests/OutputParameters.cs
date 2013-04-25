@@ -1,4 +1,4 @@
-// Copyright © 2011, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -110,7 +110,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.Parameters.AddWithValue("?strVal", "beginning");
       cmd.Parameters.AddWithValue("?numVal", 33);
-      cmd.Parameters.AddWithValue("?outVal", MySqlDbType.Int32);
+      cmd.Parameters.Add("?outVal", MySqlDbType.Int32);
       cmd.Parameters[0].Direction = ParameterDirection.InputOutput;
       cmd.Parameters[1].Direction = ParameterDirection.InputOutput;
       cmd.Parameters[2].Direction = ParameterDirection.Output;

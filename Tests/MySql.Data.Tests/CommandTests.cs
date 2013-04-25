@@ -1,4 +1,4 @@
-// Copyright © 2004, 2011, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -190,11 +190,13 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     [Test]
-    public void CloneCommand()
+    public virtual void CloneCommand()
     {
       MySqlCommand cmd = new MySqlCommand();
       MySqlCommand newCommand = cmd.Clone();
+#if !RT
       IDbCommand newCommand2 = (IDbCommand)(cmd as ICloneable).Clone();
+#endif
     }
 
     [Test]
@@ -324,6 +326,7 @@ namespace MySql.Data.MySqlClient.Tests
           }
         }
     */
+#if !RT
     /// <summary>
     /// Bug #7248 There is already an open DataReader associated with this Connection which must 
     /// </summary>
@@ -340,6 +343,7 @@ namespace MySql.Data.MySqlClient.Tests
       DataSet ds = new DataSet();
       da.Fill(ds);
     }
+#endif
 
     /// <summary>
     /// Bug #11991 ExecuteScalar 
@@ -576,7 +580,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !CF
+#if !CF && !RT
     /// <summary>
     /// Bug #59616	Only INSERTs are batched
     /// </summary>
@@ -627,8 +631,13 @@ namespace MySql.Data.MySqlClient.Tests
       {
         connection.Open();
         MySqlCommand command = new MySqlCommand("SELECT PrimaryKey FROM TableWithDateAsPrimaryKey", connection);
+#if RT
+        MySqlDataReader reader = command.ExecuteReader(CommandBehavior.KeyInfo);
+        while (reader.Read()) ;
+#else
         IDataReader reader = command.ExecuteReader(CommandBehavior.KeyInfo);
         DataTable dataTableSchema = reader.GetSchemaTable();
+#endif
         command.Cancel();
         reader.Close();
 
@@ -636,8 +645,13 @@ namespace MySql.Data.MySqlClient.Tests
         reader = command.ExecuteReader(CommandBehavior.KeyInfo);
         Assert.IsNotNull(reader);
 
+#if RT
+        while (reader.Read()) ;
+        Assert.AreEqual("PrimaryKey", reader.GetName(0));
+#else
         dataTableSchema = reader.GetSchemaTable();
         Assert.AreEqual("PrimaryKey", dataTableSchema.Rows[0][dataTableSchema.Columns[0]]);
+#endif
 
         reader.Close();
       }
@@ -700,6 +714,7 @@ alter table longids AUTO_INCREMENT = 2147483640;";
 
   #region Configs
 
+#if !RT
   public class CommandTestsSocketCompressed : CommandTests
   {
     protected override string GetConnectionInfo()
@@ -707,8 +722,9 @@ alter table longids AUTO_INCREMENT = 2147483640;";
       return String.Format("port={0};compress=true", port);
     }
   }
+#endif
 
-#if !CF
+#if !CF && !RT
   [Category("Pipe")]
   public class CommandTestsPipe : CommandTests
   {

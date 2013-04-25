@@ -35,12 +35,12 @@ namespace MySql.Data.MySqlClient
   {
     protected MySqlCommand command;
     protected string commandText;
-    private ArrayList buffers;
+    private List<MySqlPacket> buffers;
 
     private Statement(MySqlCommand cmd)
     {
       command = cmd;
-      buffers = new ArrayList();
+      buffers = new List<MySqlPacket>();
     }
 
     public Statement(MySqlCommand cmd, string text)

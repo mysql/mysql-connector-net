@@ -1,4 +1,4 @@
-// Copyright © 2004, 2011, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -74,14 +74,23 @@ namespace MySql.Data.MySqlClient
       else
         stream = timedStream;
 
+#if RT
+      inStream = baseStream;
+#else
       inStream = new BufferedStream(stream);
+#endif
       outStream = stream;
     }
 
     public void Close()
     {
+#if RT
+      outStream.Dispose();
+      inStream.Dispose();
+#else
       outStream.Close();
       inStream.Close();
+#endif
       timedStream.Close();
     }
 
@@ -200,7 +209,13 @@ namespace MySql.Data.MySqlClient
           // make roo for the next block
           packet.Length += length;
 
+#if RT
+          byte[] tempBuffer = new byte[length];
+          ReadFully(inStream, tempBuffer, offset, length);
+          packet.Write(tempBuffer);
+#else
           ReadFully(inStream, packet.Buffer, offset, length);
+#endif
           offset += length;
 
           // if this block was < maxBlock then it's last one in a multipacket series

@@ -1,4 +1,4 @@
-// Copyright © 2004, 2011, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -26,10 +26,10 @@ using System.Text;
 using MySql.Data.Common;
 using System.Globalization;
 using System.Diagnostics;
-using System.Data.SqlTypes;
 using MySql.Data.Types;
 using System.Collections;
 using MySql.Data.MySqlClient.Properties;
+using System.Collections.Generic;
 
 namespace MySql.Data.MySqlClient
 {
@@ -40,9 +40,9 @@ namespace MySql.Data.MySqlClient
     {
     }
 
-    protected override DataTable GetCollections()
+    protected override MySqlSchemaCollection GetCollections()
     {
-      DataTable dt = base.GetCollections();
+      MySqlSchemaCollection dt = base.GetCollections();
 
       object[][] collections = new object[][] 
             {
@@ -57,9 +57,9 @@ namespace MySql.Data.MySqlClient
       return dt;
     }
 
-    protected override DataTable GetRestrictions()
+    protected override MySqlSchemaCollection GetRestrictions()
     {
-      DataTable dt = base.GetRestrictions();
+      MySqlSchemaCollection dt = base.GetRestrictions();
 
       object[][] restrictions = new object[][] 
             {
@@ -88,54 +88,54 @@ namespace MySql.Data.MySqlClient
       return dt;
     }
 
-    public override DataTable GetDatabases(string[] restrictions)
+    public override MySqlSchemaCollection GetDatabases(string[] restrictions)
     {
       string[] keys = new string[1];
       keys[0] = "SCHEMA_NAME";
-      DataTable dt = Query("SCHEMATA", "", keys, restrictions);
-      dt.Columns[1].ColumnName = "database_name";
-      dt.TableName = "Databases";
+      MySqlSchemaCollection dt = Query("SCHEMATA", "", keys, restrictions);
+      dt.Columns[1].Name = "database_name";
+      dt.Name = "Databases";
       return dt;
     }
 
-    public override DataTable GetTables(string[] restrictions)
+    public override MySqlSchemaCollection GetTables(string[] restrictions)
     {
       string[] keys = new string[4];
       keys[0] = "TABLE_CATALOG";
       keys[1] = "TABLE_SCHEMA";
       keys[2] = "TABLE_NAME";
       keys[3] = "TABLE_TYPE";
-      DataTable dt = Query("TABLES", "TABLE_TYPE != 'VIEW'", keys, restrictions);
-      dt.TableName = "Tables";
+      MySqlSchemaCollection dt = Query("TABLES", "TABLE_TYPE != 'VIEW'", keys, restrictions);
+      dt.Name = "Tables";
       return dt;
     }
 
-    public override DataTable GetColumns(string[] restrictions)
+    public override MySqlSchemaCollection GetColumns(string[] restrictions)
     {
       string[] keys = new string[4];
       keys[0] = "TABLE_CATALOG";
       keys[1] = "TABLE_SCHEMA";
       keys[2] = "TABLE_NAME";
       keys[3] = "COLUMN_NAME";
-      DataTable dt = Query("COLUMNS", null, keys, restrictions);
-      dt.Columns.Remove("CHARACTER_OCTET_LENGTH");
-      dt.TableName = "Columns";
+      MySqlSchemaCollection dt = Query("COLUMNS", null, keys, restrictions);
+      dt.RemoveColumn("CHARACTER_OCTET_LENGTH");
+      dt.Name = "Columns";
       QuoteDefaultValues(dt);
       return dt;
     }
 
-    private DataTable GetViews(string[] restrictions)
+    private MySqlSchemaCollection GetViews(string[] restrictions)
     {
       string[] keys = new string[3];
       keys[0] = "TABLE_CATALOG";
       keys[1] = "TABLE_SCHEMA";
       keys[2] = "TABLE_NAME";
-      DataTable dt = Query("VIEWS", null, keys, restrictions);
-      dt.TableName = "Views";
+      MySqlSchemaCollection dt = Query("VIEWS", null, keys, restrictions);
+      dt.Name = "Views";
       return dt;
     }
 
-    private DataTable GetViewColumns(string[] restrictions)
+    private MySqlSchemaCollection GetViewColumns(string[] restrictions)
     {
       StringBuilder where = new StringBuilder();
       StringBuilder sql = new StringBuilder(
@@ -161,24 +161,24 @@ namespace MySql.Data.MySqlClient
       }
       if (where.Length > 0)
         sql.AppendFormat(CultureInfo.InvariantCulture, " WHERE {0}", where);
-      DataTable dt = GetTable(sql.ToString());
-      dt.TableName = "ViewColumns";
-      dt.Columns[0].ColumnName = "VIEW_CATALOG";
-      dt.Columns[1].ColumnName = "VIEW_SCHEMA";
-      dt.Columns[2].ColumnName = "VIEW_NAME";
+      MySqlSchemaCollection dt = GetTable(sql.ToString());
+      dt.Name = "ViewColumns";
+      dt.Columns[0].Name = "VIEW_CATALOG";
+      dt.Columns[1].Name = "VIEW_SCHEMA";
+      dt.Columns[2].Name = "VIEW_NAME";
       QuoteDefaultValues(dt);
       return dt;
     }
 
-    private DataTable GetTriggers(string[] restrictions)
+    private MySqlSchemaCollection GetTriggers(string[] restrictions)
     {
       string[] keys = new string[4];
       keys[0] = "TRIGGER_CATALOG";
       keys[1] = "TRIGGER_SCHEMA";
       keys[2] = "EVENT_OBJECT_TABLE";
       keys[3] = "TRIGGER_NAME";
-      DataTable dt = Query("TRIGGERS", null, keys, restrictions);
-      dt.TableName = "Triggers";
+      MySqlSchemaCollection dt = Query("TRIGGERS", null, keys, restrictions);
+      dt.Name = "Triggers";
       return dt;
     }
 
@@ -189,7 +189,7 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     /// <param name="restrictions"></param>
     /// <returns></returns>
-    public override DataTable GetProcedures(string[] restrictions)
+    public override MySqlSchemaCollection GetProcedures(string[] restrictions)
     {
       try
       {
@@ -210,24 +210,24 @@ namespace MySql.Data.MySqlClient
       keys[2] = "ROUTINE_NAME";
       keys[3] = "ROUTINE_TYPE";
 
-      DataTable dt = Query("ROUTINES", null, keys, restrictions);
-      dt.TableName = "Procedures";
+      MySqlSchemaCollection dt = Query("ROUTINES", null, keys, restrictions);
+      dt.Name = "Procedures";
       return dt;
     }
 
-    private DataTable GetProceduresWithParameters(string[] restrictions)
+    private MySqlSchemaCollection GetProceduresWithParameters(string[] restrictions)
     {
-      DataTable dt = GetProcedures(restrictions);
-      dt.Columns.Add("ParameterList", typeof(string));
+      MySqlSchemaCollection dt = GetProcedures(restrictions);
+      dt.AddColumn("ParameterList", typeof(string));
 
-      foreach (DataRow row in dt.Rows)
+      foreach (MySqlSchemaRow row in dt.Rows)
       {
         row["ParameterList"] = GetProcedureParameterLine(row);
       }
       return dt;
     }
 
-    private string GetProcedureParameterLine(DataRow isRow)
+    private string GetProcedureParameterLine(MySqlSchemaRow isRow)
     {
       string sql = "SHOW CREATE {0} `{1}`.`{2}`";
       sql = String.Format(sql, isRow["ROUTINE_TYPE"], isRow["ROUTINE_SCHEMA"],
@@ -269,10 +269,8 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    private void GetParametersForRoutineFromIS(DataTable dt, string[] restrictions)
+    private MySqlSchemaCollection GetParametersForRoutineFromIS(string[] restrictions)
     {
-      Debug.Assert(dt != null);
-
       string[] keys = new string[5];
       keys[0] = "SPECIFIC_CATALOG";
       keys[1] = "SPECIFIC_SCHEMA";
@@ -286,62 +284,60 @@ namespace MySql.Data.MySqlClient
       if (!String.IsNullOrEmpty(where))
         sql.AppendFormat(CultureInfo.InvariantCulture, " WHERE {0}", where);
 
-      MySqlDataAdapter da = new MySqlDataAdapter(sql.ToString(), connection);
-      da.Fill(dt);
+      MySqlSchemaCollection coll = QueryCollection("parameters", sql.ToString());
 
-      if ((dt.Rows.Count != 0) && ((string)dt.Rows[0]["routine_type"] == "FUNCTION"))
+      if ((coll.Rows.Count != 0) && ((string)coll.Rows[0]["routine_type"] == "FUNCTION"))
       {
         // update missing data for the first row (function return value).
         // (using sames valus than GetParametersFromShowCreate).
-        dt.Rows[0]["parameter_mode"] = "IN";
-        dt.Rows[0]["parameter_name"] = "return_value"; // "FUNCTION";
+        coll.Rows[0]["parameter_mode"] = "IN";
+        coll.Rows[0]["parameter_name"] = "return_value"; // "FUNCTION";
       }
+      return coll;
     }
 
-    private DataTable GetParametersFromIS(string[] restrictions, DataTable routines)
+    private MySqlSchemaCollection GetParametersFromIS(string[] restrictions, MySqlSchemaCollection routines)
     {
-      DataTable parms = new DataTable();
+      MySqlSchemaCollection parms = null;
 
       if (routines == null || routines.Rows.Count == 0)
       {
         if (restrictions == null)
         {
-          // first fill our table with the proper structure
-          MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM INFORMATION_SCHEMA.PARAMETERS WHERE 1=2", connection);
-          da.Fill(parms);
+          parms = QueryCollection("parameters", "SELECT * FROM INFORMATION_SCHEMA.PARAMETERS WHERE 1=2");
         }
         else
-          GetParametersForRoutineFromIS(parms, restrictions);
+          parms = GetParametersForRoutineFromIS(restrictions);
       }
-      else foreach (DataRow routine in routines.Rows)
+      else foreach (MySqlSchemaRow routine in routines.Rows)
         {
           if (restrictions != null && restrictions.Length >= 3)
             restrictions[2] = routine["ROUTINE_NAME"].ToString();
 
-          GetParametersForRoutineFromIS(parms, restrictions);
+          parms = GetParametersForRoutineFromIS(restrictions);
         }
-      parms.TableName = "Procedure Parameters";
+      parms.Name = "Procedure Parameters";
       return parms;
     }
 
-    internal DataTable CreateParametersTable()
+    internal MySqlSchemaCollection CreateParametersTable()
     {
-      DataTable dt = new DataTable("Procedure Parameters");
-      dt.Columns.Add("SPECIFIC_CATALOG", typeof(string));
-      dt.Columns.Add("SPECIFIC_SCHEMA", typeof(string));
-      dt.Columns.Add("SPECIFIC_NAME", typeof(string));
-      dt.Columns.Add("ORDINAL_POSITION", typeof(Int32));
-      dt.Columns.Add("PARAMETER_MODE", typeof(string));
-      dt.Columns.Add("PARAMETER_NAME", typeof(string));
-      dt.Columns.Add("DATA_TYPE", typeof(string));
-      dt.Columns.Add("CHARACTER_MAXIMUM_LENGTH", typeof(Int32));
-      dt.Columns.Add("CHARACTER_OCTET_LENGTH", typeof(Int32));
-      dt.Columns.Add("NUMERIC_PRECISION", typeof(byte));
-      dt.Columns.Add("NUMERIC_SCALE", typeof(Int32));
-      dt.Columns.Add("CHARACTER_SET_NAME", typeof(string));
-      dt.Columns.Add("COLLATION_NAME", typeof(string));
-      dt.Columns.Add("DTD_IDENTIFIER", typeof(string));
-      dt.Columns.Add("ROUTINE_TYPE", typeof(string));
+      MySqlSchemaCollection dt = new MySqlSchemaCollection("Procedure Parameters");
+      dt.AddColumn("SPECIFIC_CATALOG", typeof(string));
+      dt.AddColumn("SPECIFIC_SCHEMA", typeof(string));
+      dt.AddColumn("SPECIFIC_NAME", typeof(string));
+      dt.AddColumn("ORDINAL_POSITION", typeof(Int32));
+      dt.AddColumn("PARAMETER_MODE", typeof(string));
+      dt.AddColumn("PARAMETER_NAME", typeof(string));
+      dt.AddColumn("DATA_TYPE", typeof(string));
+      dt.AddColumn("CHARACTER_MAXIMUM_LENGTH", typeof(Int32));
+      dt.AddColumn("CHARACTER_OCTET_LENGTH", typeof(Int32));
+      dt.AddColumn("NUMERIC_PRECISION", typeof(byte));
+      dt.AddColumn("NUMERIC_SCALE", typeof(Int32));
+      dt.AddColumn("CHARACTER_SET_NAME", typeof(string));
+      dt.AddColumn("COLLATION_NAME", typeof(string));
+      dt.AddColumn("DTD_IDENTIFIER", typeof(string));
+      dt.AddColumn("ROUTINE_TYPE", typeof(string));
       return dt;
     }
 
@@ -350,15 +346,15 @@ namespace MySql.Data.MySqlClient
     /// Restrictions supported are:
     /// schema, name, type, parameter name
     /// </summary>
-    public virtual DataTable GetProcedureParameters(string[] restrictions,
-        DataTable routines)
+    public virtual MySqlSchemaCollection GetProcedureParameters(string[] restrictions,
+        MySqlSchemaCollection routines)
     {
       bool is55 = connection.driver.Version.isAtLeast(5, 5, 3);
 
       try
       {
         // we want to avoid using IS if  we can as it is painfully slow
-        DataTable dt = CreateParametersTable();
+        MySqlSchemaCollection dt = CreateParametersTable();
         GetParametersFromShowCreate(dt, restrictions, routines);
         return dt;
       }
@@ -371,9 +367,9 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    protected override DataTable GetSchemaInternal(string collection, string[] restrictions)
+    protected override MySqlSchemaCollection GetSchemaInternal(string collection, string[] restrictions)
     {
-      DataTable dt = base.GetSchemaInternal(collection, restrictions);
+      MySqlSchemaCollection dt = base.GetSchemaInternal(collection, restrictions);
       if (dt != null)
         return dt;
 
@@ -413,7 +409,7 @@ namespace MySql.Data.MySqlClient
       return where.ToString();
     }
 
-    private DataTable Query(string table_name, string initial_where,
+    private MySqlSchemaCollection Query(string table_name, string initial_where,
         string[] keys, string[] values)
     {
       StringBuilder query = new StringBuilder("SELECT * FROM INFORMATION_SCHEMA.");
@@ -427,15 +423,29 @@ namespace MySql.Data.MySqlClient
       return GetTable(query.ToString());
     }
 
-    private DataTable GetTable(string sql)
+    private MySqlSchemaCollection GetTable(string sql)
     {
-      DataTable table = new DataTable();
-      MySqlDataAdapter da = new MySqlDataAdapter(sql, connection);
-      da.Fill(table);
-      return table;
+      MySqlSchemaCollection c = new MySqlSchemaCollection();
+      MySqlCommand cmd = new MySqlCommand(sql, connection);
+      MySqlDataReader reader = cmd.ExecuteReader();
+
+      // add columns
+      for (int i = 0; i < reader.FieldCount; i++)
+        c.AddColumn(reader.GetName(i), reader.GetFieldType(i));
+
+      using (reader)
+      {
+        while (reader.Read())
+        {
+          MySqlSchemaRow row = c.AddRow();
+          for (int i = 0; i < reader.FieldCount; i++)
+            row[i] = reader.GetValue(i);
+        }
+      }
+      return c;
     }
 
-    public override DataTable GetForeignKeys(string[] restrictions)
+    public override MySqlSchemaCollection GetForeignKeys(string[] restrictions)
     {
       if (!connection.driver.Version.isAtLeast(5, 1, 16))
         return base.GetForeignKeys(restrictions);
@@ -468,7 +478,7 @@ namespace MySql.Data.MySqlClient
       return GetTable(sql);
     }
 
-    public override DataTable GetForeignKeyColumns(string[] restrictions)
+    public override MySqlSchemaCollection GetForeignKeyColumns(string[] restrictions)
     {
       if (!connection.driver.Version.isAtLeast(5, 0, 6))
         return base.GetForeignKeyColumns(restrictions);
@@ -494,8 +504,8 @@ namespace MySql.Data.MySqlClient
 
     #region Procedures Support Rouines
 
-    internal void GetParametersFromShowCreate(DataTable parametersTable,
-        string[] restrictions, DataTable routines)
+    internal void GetParametersFromShowCreate(MySqlSchemaCollection parametersTable,
+        string[] restrictions, MySqlSchemaCollection routines)
     {
       // this allows us to pass in a pre-populated routines table
       // and avoid the querying for them again.
@@ -505,7 +515,7 @@ namespace MySql.Data.MySqlClient
 
       MySqlCommand cmd = connection.CreateCommand();
 
-      foreach (DataRow routine in routines.Rows)
+      foreach (MySqlSchemaRow routine in routines.Rows)
       {
         string showCreateSql = String.Format("SHOW CREATE {0} `{1}`.`{2}`",
             routine["ROUTINE_TYPE"], routine["ROUTINE_SCHEMA"],
@@ -525,7 +535,11 @@ namespace MySql.Data.MySqlClient
             ParseProcedureBody(parametersTable, body, routine, nameToRestrict);
           }
         }
-        catch (SqlNullValueException snex)
+#if RT
+        catch (MySqlNullValueException snex)
+#else
+          catch (System.Data.SqlTypes.SqlNullValueException snex)
+#endif
         {
           throw new InvalidOperationException(
               String.Format(Resources.UnableToRetrieveParameters, routine["ROUTINE_NAME"]), snex);
@@ -533,10 +547,10 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    private void ParseProcedureBody(DataTable parametersTable, string body,
-        DataRow row, string nameToRestrict)
+    private void ParseProcedureBody(MySqlSchemaCollection parametersTable, string body,
+        MySqlSchemaRow row, string nameToRestrict)
     {
-      ArrayList modes = new ArrayList(new string[3] { "IN", "OUT", "INOUT" });
+      List<string> modes = new List<string>(new string[3] { "IN", "OUT", "INOUT" });
 
       string sqlMode = row["SQL_MODE"].ToString();
 
@@ -553,10 +567,10 @@ namespace MySql.Data.MySqlClient
       // 0 and should appear first.
       while (token != "(")
       {
-        if (String.Compare(token, "FUNCTION", true) == 0 &&
+        if (String.Compare(token, "FUNCTION", StringComparison.OrdinalIgnoreCase) == 0 &&
             nameToRestrict == null)
         {
-          parametersTable.Rows.Add(parametersTable.NewRow());
+          parametersTable.AddRow();
           InitParameterRow(row, parametersTable.Rows[0]);
         }
         token = tokenizer.NextToken();
@@ -565,12 +579,12 @@ namespace MySql.Data.MySqlClient
 
       while (token != ")")
       {
-        DataRow parmRow = parametersTable.NewRow();
+        MySqlSchemaRow parmRow = parametersTable.NewRow();
         InitParameterRow(row, parmRow);
         parmRow["ORDINAL_POSITION"] = pos++;
 
         // handle mode and name for the parameter
-        string mode = token.ToUpper(CultureInfo.InvariantCulture);
+        string mode = StringUtility.ToUpperInvariant(token);
         if (!tokenizer.Quoted && modes.Contains(mode))
         {
           parmRow["PARAMETER_MODE"] = mode;
@@ -589,15 +603,15 @@ namespace MySql.Data.MySqlClient
         // we need to parse it before this check so we are correctly
         // positioned for the next parameter
         if (nameToRestrict == null ||
-            String.Compare(parmRow["PARAMETER_NAME"].ToString(), nameToRestrict, true) == 0)
+            String.Compare(parmRow["PARAMETER_NAME"].ToString(), nameToRestrict, StringComparison.OrdinalIgnoreCase) == 0)
           parametersTable.Rows.Add(parmRow);
       }
 
       // now parse out the return parameter if there is one.
-      token = tokenizer.NextToken().ToUpper(CultureInfo.InvariantCulture);
-      if (String.Compare(token, "RETURNS", true) == 0)
+      token = StringUtility.ToUpperInvariant(tokenizer.NextToken());
+      if (String.Compare(token, "RETURNS", StringComparison.OrdinalIgnoreCase) == 0)
       {
-        DataRow parameterRow = parametersTable.Rows[0];
+        MySqlSchemaRow parameterRow = parametersTable.Rows[0];
         parameterRow["PARAMETER_NAME"] = "RETURN_VALUE";
         ParseDataType(parameterRow, tokenizer);
       }
@@ -606,7 +620,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Initializes a new row for the procedure parameters table.
     /// </summary>
-    private static void InitParameterRow(DataRow procedure, DataRow parameter)
+    private static void InitParameterRow(MySqlSchemaRow procedure, MySqlSchemaRow parameter)
     {
       parameter["SPECIFIC_CATALOG"] = null;
       parameter["SPECIFIC_SCHEMA"] = procedure["ROUTINE_SCHEMA"];
@@ -619,10 +633,10 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     ///  Parses out the elements of a procedure parameter data type.
     /// </summary>
-    private string ParseDataType(DataRow row, MySqlTokenizer tokenizer)
+    private string ParseDataType(MySqlSchemaRow row, MySqlTokenizer tokenizer)
     {
       StringBuilder dtd = new StringBuilder(
-          tokenizer.NextToken().ToUpper(CultureInfo.InvariantCulture));
+          StringUtility.ToUpperInvariant(tokenizer.NextToken()));
       row["DATA_TYPE"] = dtd.ToString();
       string type = row["DATA_TYPE"].ToString();
 
@@ -640,20 +654,20 @@ namespace MySql.Data.MySqlClient
 
       while (token != ")" &&
              token != "," &&
-             String.Compare(token, "begin", true) != 0 &&
-             String.Compare(token, "return", true) != 0)
+             String.Compare(token, "begin", StringComparison.OrdinalIgnoreCase) != 0 &&
+             String.Compare(token, "return", StringComparison.OrdinalIgnoreCase) != 0)
       {
-        if (String.Compare(token, "CHARACTER", true) == 0 ||
-            String.Compare(token, "BINARY", true) == 0)
+        if (String.Compare(token, "CHARACTER", StringComparison.OrdinalIgnoreCase) == 0 ||
+            String.Compare(token, "BINARY", StringComparison.OrdinalIgnoreCase) == 0)
         { }  // we don't need to do anything with this
-        else if (String.Compare(token, "SET", true) == 0 ||
-                 String.Compare(token, "CHARSET", true) == 0)
+        else if (String.Compare(token, "SET", StringComparison.OrdinalIgnoreCase) == 0 ||
+                 String.Compare(token, "CHARSET", StringComparison.OrdinalIgnoreCase) == 0)
           row["CHARACTER_SET_NAME"] = tokenizer.NextToken();
-        else if (String.Compare(token, "ASCII", true) == 0)
+        else if (String.Compare(token, "ASCII", StringComparison.OrdinalIgnoreCase) == 0)
           row["CHARACTER_SET_NAME"] = "latin1";
-        else if (String.Compare(token, "UNICODE", true) == 0)
+        else if (String.Compare(token, "UNICODE", StringComparison.OrdinalIgnoreCase) == 0)
           row["CHARACTER_SET_NAME"] = "ucs2";
-        else if (String.Compare(token, "COLLATE", true) == 0)
+        else if (String.Compare(token, "COLLATE", StringComparison.OrdinalIgnoreCase) == 0)
           row["COLLATION_NAME"] = tokenizer.NextToken();
         else
           dtd.AppendFormat(CultureInfo.InvariantCulture, " {0}", token);
@@ -664,26 +678,30 @@ namespace MySql.Data.MySqlClient
         row["DTD_IDENTIFIER"] = dtd.ToString();
 
       // now default the collation if one wasn't given
-      if (row["COLLATION_NAME"].ToString().Length == 0 &&
-          row["CHARACTER_SET_NAME"].ToString().Length > 0)
+      if ( string.IsNullOrEmpty( ( string )row["COLLATION_NAME"] ) &&
+          !string.IsNullOrEmpty( ( string )row["CHARACTER_SET_NAME"] ))
         row["COLLATION_NAME"] = CharSetMap.GetDefaultCollation(
             row["CHARACTER_SET_NAME"].ToString(), connection);
 
       // now set the octet length
-      if (row["CHARACTER_MAXIMUM_LENGTH"] != DBNull.Value)
+      if (row["CHARACTER_MAXIMUM_LENGTH"] != null)
+      {
+        if (row["CHARACTER_SET_NAME"] == null)
+          row["CHARACTER_SET_NAME"] = "";
         row["CHARACTER_OCTET_LENGTH"] =
-            CharSetMap.GetMaxLength(row["CHARACTER_SET_NAME"].ToString(), connection) *
+            CharSetMap.GetMaxLength(( string )row["CHARACTER_SET_NAME"], connection) *
             (int)row["CHARACTER_MAXIMUM_LENGTH"];
+      }
 
       return token;
     }
 
-    private static string GetDataTypeDefaults(string type, DataRow row)
+    private static string GetDataTypeDefaults(string type, MySqlSchemaRow row)
     {
       string format = "({0},{1})";
-
+      object precision = row["NUMERIC_PRECISION"];
       if (MetaData.IsNumericType(type) &&
-          row["NUMERIC_PRECISION"].ToString().Length == 0)
+          string.IsNullOrEmpty( ( string )row["NUMERIC_PRECISION"] ) )
       {
         row["NUMERIC_PRECISION"] = 10;
         row["NUMERIC_SCALE"] = 0;
@@ -695,7 +713,7 @@ namespace MySql.Data.MySqlClient
       return String.Empty;
     }
 
-    private static void ParseDataTypeSize(DataRow row, string size)
+    private static void ParseDataTypeSize(MySqlSchemaRow row, string size)
     {
       size = size.Trim('(', ')');
       string[] parts = size.Split(',');
