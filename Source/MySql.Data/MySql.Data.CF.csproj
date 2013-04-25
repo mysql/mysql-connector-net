@@ -29,6 +29,9 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
+    <BaseOutputPath>$(TargetFrameworkVersion)\</BaseOutputPath>
+    <BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>obj\$(TargetFrameworkVersion)\</IntermediateOutputPath>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>TRACE;DEBUG;CF</DefineConstants>
     <NoStdLib>true</NoStdLib>
@@ -42,6 +45,9 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
+    <BaseOutputPath>$(TargetFrameworkVersion)\</BaseOutputPath>
+    <BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>obj\$(TargetFrameworkVersion)\</IntermediateOutputPath>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE;CF</DefineConstants>
     <NoStdLib>true</NoStdLib>
@@ -84,6 +90,7 @@
     </Compile>
     <Compile Include="CharSetMap.cs" />
     <Compile Include="command.cs">
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="CommandBuilder.cs">
       <SubType>Component</SubType>
@@ -120,6 +127,7 @@
     </Compile>
     <Compile Include="CompressedStream.cs" />
     <Compile Include="Connection.cs">
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="Crypt.cs" />
     <Compile Include="dataadapter.cs">
