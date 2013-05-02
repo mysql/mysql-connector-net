@@ -46,6 +46,11 @@ namespace MySql.Data.MySqlClient
       if (State == ConnectionState.Open)
         Close();
     }
+
+    ~MySqlConnection()
+    {
+      this.Dispose();
+    }
   }
 
   public abstract class RTConnection

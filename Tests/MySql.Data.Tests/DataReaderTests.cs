@@ -1,4 +1,4 @@
-// Copyright © 2004, 2011, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -153,6 +153,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+#if !RT
     /// <summary>
     /// Bug #59989	MysqlDataReader.GetSchemaTable returns incorrect Values an types
     /// </summary>
@@ -190,6 +191,7 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.AreEqual(3, dt.Rows[6]["NumericScale"]);
       }
     }
+#endif
 
     [Test]
     public void CloseConnectionBehavior()
@@ -577,9 +579,13 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", conn);
       using (MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.SchemaOnly))
       {
+#if RT
+        Assert.AreEqual(5, reader.FieldCount);
+#else
         DataTable table = reader.GetSchemaTable();
         Assert.AreEqual(5, table.Rows.Count);
         Assert.AreEqual(22, table.Columns.Count);
+#endif
         Assert.IsFalse(reader.Read());
       }
     }
@@ -631,12 +637,19 @@ namespace MySql.Data.MySqlClient.Tests
           reader.GetString(reader.GetOrdinal("Sub_part"));
           Assert.Fail("We should not get here");
         }
+#if RT
+        catch (MySqlNullValueException)
+        {
+        }
+#else
         catch (System.Data.SqlTypes.SqlNullValueException)
         {
         }
+#endif
       }
     }
 
+#if !RT
     /// <summary>
     /// Bug #23538 Exception thrown when GetSchemaTable is called and "fields" is null. 
     /// </summary>
@@ -655,6 +668,7 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.IsNull(dt);
       }
     }
+#endif
 
     /// <summary>
     /// Bug #24765  	Retrieving empty fields results in check for isDBNull
@@ -673,6 +687,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+#if !RT
     /// <summary>
     /// Bug #30204  	Incorrect ConstraintException
     /// </summary>
@@ -701,6 +716,7 @@ namespace MySql.Data.MySqlClient.Tests
       row["ID_B"] = 4;
       dt.Rows.Add(row);
     }
+#endif
 
     [Test]
     public void CloseConnectionBehavior2()

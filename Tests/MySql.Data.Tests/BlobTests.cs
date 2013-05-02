@@ -1,4 +1,4 @@
-// Copyright © 2004, 2011, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -182,8 +182,19 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.Clear();
       cmd.Parameters.AddWithValue("?t1", DBNull.Value);
       string str = "This is my text value";
+#if RT
+      cmd.Parameters.Add(new MySqlParameter("?b1", MySqlDbType.LongBlob, str.Length)
+      {
+        Direction = ParameterDirection.Input,
+        IsNullable = true,
+        Precision = 0,
+        Scale = 0,
+        Value = str
+      });
+#else
       cmd.Parameters.Add(new MySqlParameter("?b1", MySqlDbType.LongBlob, str.Length,
         ParameterDirection.Input, true, 0, 0, "b1", DataRowVersion.Current, str));
+#endif
       rows = cmd.ExecuteNonQuery();
       Assert.AreEqual(1, rows, "Checking insert rowcount");
 
@@ -206,6 +217,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+#if !RT
     [Test]
     public void UpdateDataSet()
     {
@@ -238,6 +250,7 @@ namespace MySql.Data.MySqlClient.Tests
       for (int y = 0; y < inBuf.Length; y++)
         Assert.AreEqual(inBuf[y], outBuf[y], "checking array data");
     }
+#endif
 
     [Test]
     public void GetCharsOnLongTextColumn()
@@ -315,7 +328,7 @@ namespace MySql.Data.MySqlClient.Tests
   }
 
   #region Configs
-#if !CF
+#if !CF && !RT
   [Category("Compressed")]
   public class BlobTestsSocketCompressed : BlobTests
   {

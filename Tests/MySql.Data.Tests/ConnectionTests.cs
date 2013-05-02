@@ -924,9 +924,12 @@ namespace MySql.Data.MySqlClient.Tests
       c.StateChange += new StateChangeEventHandler(check.stateChangeHandler);
       c.Open();
       threadId = c.ServerThread;
+      WeakReference wr = new WeakReference(c);
+      Assert.IsTrue(wr.IsAlive);
       c = null;
       GC.Collect();
       GC.WaitForPendingFinalizers();
+      Assert.IsFalse(wr.IsAlive);
       Assert.IsTrue(check.closed);
 
       MySqlCommand cmd = new MySqlCommand("KILL " + threadId, conn);
