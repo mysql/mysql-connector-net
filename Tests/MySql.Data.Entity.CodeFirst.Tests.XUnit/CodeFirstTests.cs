@@ -105,8 +105,11 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     {
       using (MovieDBContext db = new MovieDBContext())
       {
+        db.Database.Delete();
+        db.Database.CreateIfNotExists();
+        
         db.Database.ExecuteSqlCommand(
-@"DROP TABLE IF EXISTS `test3`.`MovieReleases`");
+@"DROP TABLE IF EXISTS `MovieReleases`");
 
         db.Database.ExecuteSqlCommand(
 @"CREATE TABLE IF NOT EXISTS `MovieReleases` (
