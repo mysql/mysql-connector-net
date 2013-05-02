@@ -398,7 +398,7 @@ namespace MySql.Data.MySqlClient.Tests.XUnit
       cmd.Parameters.AddWithValue("?p_user", 4);
       if (prepare) cmd.Prepare();
       Exception ex = Assert.Throws<InvalidOperationException>(() => cmd.ExecuteNonQuery());
-      Assert.Equal(ex.Message, "Attempt to call stored function '`db655-a`.`fnTest`' without specifying a return parameter");      
+      Assert.Equal(ex.Message, "Attempt to call stored function '`" + st.database0 + "`.`fnTest`' without specifying a return parameter");
     }
 
     /// <summary>
