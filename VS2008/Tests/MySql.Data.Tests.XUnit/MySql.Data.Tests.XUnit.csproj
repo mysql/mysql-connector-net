@@ -93,21 +93,6 @@
     <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\LoggingTests.cs">
       <Link>LoggingTests.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\MediumTrust\MediumTrustDomain.cs">
-      <Link>MediumTrust\MediumTrustDomain.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\MediumTrust\MediumTrustFixtureAttribute.cs">
-      <Link>MediumTrust\MediumTrustFixtureAttribute.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\MediumTrust\MediumTrustTestClassCommand.cs">
-      <Link>MediumTrust\MediumTrustTestClassCommand.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\MediumTrust\MediumTrustTestCommand.cs">
-      <Link>MediumTrust\MediumTrustTestCommand.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\MediumTrust\MySql.MediumTrustsTests.cs">
-      <Link>MediumTrust\MySql.MediumTrustsTests.cs</Link>
-    </Compile>
     <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\MySqlBulkLoaderTests.cs">
       <Link>MySqlBulkLoaderTests.cs</Link>
     </Compile>

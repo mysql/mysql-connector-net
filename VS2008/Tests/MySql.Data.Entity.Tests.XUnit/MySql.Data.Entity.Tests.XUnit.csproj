@@ -1,0 +1,231 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{FC7AFAEB-0801-4620-8178-B545875A9393}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MySql.Data.Entity.Tests.XUnit</RootNamespace>
+    <AssemblyName>MySql.Data.Entity.Tests.XUnit</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.Entity">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.Entity.Design">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Security" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="xunit, Version=1.9.1.1600, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\XUnit_1.9.1\xunit.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\..\Source\MySql.Data\Properties\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests.XUnit\AggregateOperators.cs">
+      <Link>AggregateOperators.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests.XUnit\CanonicalFunctions.cs">
+      <Link>CanonicalFunctions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests.XUnit\DataTypeTests.cs">
+      <Link>DataTypeTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests.XUnit\DatesTypesTests.cs">
+      <Link>DatesTypesTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests.XUnit\DeleteTests.cs">
+      <Link>DeleteTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests.XUnit\InsertTests.cs">
+      <Link>InsertTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests.XUnit\JoinTests.cs">
+      <Link>JoinTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests.XUnit\OrderingAndGrouping.cs">
+      <Link>OrderingAndGrouping.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests.XUnit\Paging.cs">
+      <Link>Paging.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests.XUnit\ProceduresAndFunctions.cs">
+      <Link>ProceduresAndFunctions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests.XUnit\Properties\AssemblyInfo.cs">
+      <Link>Properties\AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests.XUnit\ProviderServicesTests.cs">
+      <Link>ProviderServicesTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests.XUnit\RelationalOperators.cs">
+      <Link>RelationalOperators.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests.XUnit\RestrictionOperators.cs">
+      <Link>RestrictionOperators.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests.XUnit\SchemaInformation.cs">
+      <Link>SchemaInformation.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests.XUnit\SetOperators.cs">
+      <Link>SetOperators.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests.XUnit\SetUpEntityTests.cs">
+      <Link>SetUpEntityTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests.XUnit\UpdateTests.cs">
+      <Link>UpdateTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests.XUnit\Wizard.cs">
+      <Link>Wizard.cs</Link>
+    </Compile>
+    <Compile Include="booksModel.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>booksModel.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="Model1.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Model1.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="Model2.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Model2.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="Model3.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Model3.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="ModelFirstModel1.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ModelFirstModel1.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\SQLSyntax.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>SQLSyntax.resx</DependentUpon>
+    </Compile>
+    <Compile Include="TestModel.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TestModel.edmx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\MySql.Data.Entity\MySql.Data.Entity.csproj">
+      <Project>{EDED3135-95D2-4BCE-A810-F3F2AD7935B7}</Project>
+      <Name>MySql.Data.Entity</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\MySql.Data\MySql.Data.csproj">
+      <Project>{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}</Project>
+      <Name>MySql.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MySql.Data.Tests.XUnit\MySql.Data.Tests.XUnit.csproj">
+      <Project>{A20688EC-2D39-4BD8-BD59-90997A78E192}</Project>
+      <Name>MySql.Data.Tests.XUnit</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EntityDeploy Include="TestModel.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>TestModel.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+  </ItemGroup>
+  <ItemGroup>
+    <EntityDeploy Include="booksModel.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>booksModel.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+  </ItemGroup>
+  <ItemGroup>
+    <EntityDeploy Include="Model1.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>Model1.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+  </ItemGroup>
+  <ItemGroup>
+    <EntityDeploy Include="Model2.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>Model2.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+  </ItemGroup>
+  <ItemGroup>
+    <EntityDeploy Include="Model3.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>Model3.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+  </ItemGroup>
+  <ItemGroup>
+    <EntityDeploy Include="ModelFirstModel1.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>ModelFirstModel1.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\Tests\MySql.Data.Entity.Tests.XUnit\App.config">
+      <Link>App.config</Link>
+    </None>
+    <None Include="..\..\..\Tests\MySql.Data.Entity.Tests.XUnit\ModelFirstModel1.edmx.sql">
+      <Link>ModelFirstModel1.edmx.sql</Link>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\SQLSyntax.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>SQLSyntax.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
