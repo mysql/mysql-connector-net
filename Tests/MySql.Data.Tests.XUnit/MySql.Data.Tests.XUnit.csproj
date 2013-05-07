@@ -8,7 +8,7 @@
     <ProjectGuid>{B6D69BF8-ADEE-4C4E-8D58-8ECE128B1D1F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MySql.Data.MySqlClient.Tests.Xunit</RootNamespace>
+    <RootNamespace>MySql.Data.MySqlClient.Tests.XUnit</RootNamespace>
     <AssemblyName>MySql.Data.Tests.XUnit</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

@@ -95,7 +95,7 @@ namespace MySql.Data.MySqlClient.Tests.XUnit
 
       Assembly executingAssembly = Assembly.GetExecutingAssembly();
 #if !CF
-      Stream stream = executingAssembly.GetManifestResourceStream("MySql.Data.MySqlClient.Tests.Xunit.Properties.Setup.sql");
+      Stream stream = executingAssembly.GetManifestResourceStream("MySql.Data.MySqlClient.Tests.XUnit.Properties.Setup.sql");
 #else
       Stream stream = executingAssembly.GetManifestResourceStream("MySql.Data.CF.Tests.Properties.Setup.sql");
 #endif

@@ -38,6 +38,7 @@ namespace MySql.Data.Entity.Tests.XUnit
       st = data;
     }
 
+#if CLR4    
     [Fact]
     public void CanCreateDBScriptWithDateTimePrecision()
     {
@@ -72,5 +73,6 @@ namespace MySql.Data.Entity.Tests.XUnit
         c.Close();
       }
     }
+#endif
   }
 }

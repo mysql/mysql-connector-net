@@ -29,8 +29,10 @@ using System.Reflection;
 using System.Threading;
 using System.Data;
 using System.Collections;
+#if CLR4
 using System.Timers;
 using System.Threading.Tasks;
+#endif
 using System.Diagnostics;
 
 namespace MySql.Data.MySqlClient.Tests.XUnit

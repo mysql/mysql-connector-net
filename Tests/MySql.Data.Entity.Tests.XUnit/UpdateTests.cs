@@ -30,7 +30,6 @@ using MySql.Data.MySqlClient.Tests;
 using System.Data.EntityClient;
 using System.Data.Common;
 using System.Data.Objects;
-using MySql.Data.Entity.Tests.XUnit.Properties;
 using Xunit;
 using MySql.Data.MySqlClient.Tests.XUnit;
 
@@ -98,7 +97,7 @@ namespace MySql.Data.Entity.Tests.XUnit
           Match m = rx.Match(s);
           if (m.Success)
           {
-            st.CheckSql(m.Groups["item"].Value, SQLSyntax.UpdateWithSelect);
+            st.CheckSql(m.Groups["item"].Value, MySql.Data.Entity.Tests.XUnit.Properties.SQLSyntax.UpdateWithSelect);
             //TODO:check assert.fail commented.
             //Assert.Pass(); 
           }

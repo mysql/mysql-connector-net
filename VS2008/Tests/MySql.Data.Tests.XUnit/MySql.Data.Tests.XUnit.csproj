@@ -1,0 +1,230 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{A20688EC-2D39-4BD8-BD59-90997A78E192}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MySql.Data.MySqlClient.Tests.XUnit</RootNamespace>
+    <AssemblyName>MySql.Data.Tests.XUnit</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="xunit, Version=1.9.1.1600, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\XUnit_1.9.1\xunit.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\..\Source\MySql.Data\Properties\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\AsyncTests.cs">
+      <Link>AsyncTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\BlobTests.cs">
+      <Link>BlobTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\CharacterSetTests.cs">
+      <Link>CharacterSetTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\CultureTests.cs">
+      <Link>CultureTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\DataTypeTests.cs">
+      <Link>DataTypeTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\DateTimeTests.cs">
+      <Link>DateTimeTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\EventTests.cs">
+      <Link>EventTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\ExceptionTests.cs">
+      <Link>ExceptionTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\GenericListener.cs">
+      <Link>GenericListener.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\GetSchemaTests.cs">
+      <Link>GetSchemaTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\InterfaceTests.cs">
+      <Link>InterfaceTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\LanguageTests.cs">
+      <Link>LanguageTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\LoggingTests.cs">
+      <Link>LoggingTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\MediumTrust\MediumTrustDomain.cs">
+      <Link>MediumTrust\MediumTrustDomain.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\MediumTrust\MediumTrustFixtureAttribute.cs">
+      <Link>MediumTrust\MediumTrustFixtureAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\MediumTrust\MediumTrustTestClassCommand.cs">
+      <Link>MediumTrust\MediumTrustTestClassCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\MediumTrust\MediumTrustTestCommand.cs">
+      <Link>MediumTrust\MediumTrustTestCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\MediumTrust\MySql.MediumTrustsTests.cs">
+      <Link>MediumTrust\MySql.MediumTrustsTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\MySqlBulkLoaderTests.cs">
+      <Link>MySqlBulkLoaderTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\MySqlCommandBuilderTests.cs">
+      <Link>MySqlCommandBuilderTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\MySqlCommandTests.cs">
+      <Link>MySqlCommandTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\MySqlConnectionStringBuilderTests.cs">
+      <Link>MySqlConnectionStringBuilderTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\MySqlConnectionTests.cs">
+      <Link>MySqlConnectionTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\MySqlDataAdapterTests.cs">
+      <Link>MySqlDataAdapterTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\MySqlDataReaderTests.cs">
+      <Link>MySqlDataReaderTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\MySQLHelperTests.cs">
+      <Link>MySQLHelperTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\OutputParametersBatch.cs">
+      <Link>OutputParametersBatch.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\ParameterTests.cs">
+      <Link>ParameterTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\PartialTrustSandbox.cs">
+      <Link>PartialTrustSandbox.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\PerfMonTests.cs">
+      <Link>PerfMonTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\PoolingTests.cs">
+      <Link>PoolingTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\PreparedStatements.cs">
+      <Link>PreparedStatements.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\ProcedureParameterTests.cs">
+      <Link>ProcedureParameterTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\Properties\AssemblyInfo.cs">
+      <Link>Properties\AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\ScriptExecution.cs">
+      <Link>ScriptExecution.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\SetUp.cs">
+      <Link>SetUp.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\SimpleTransactions.cs">
+      <Link>SimpleTransactions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\SqlServerMode.cs">
+      <Link>SqlServerMode.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\SqlTokenizer.cs">
+      <Link>SqlTokenizer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\StoredProcedure.cs">
+      <Link>StoredProcedure.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\StoredProcedureWithAccess.cs">
+      <Link>StoredProcedureWithAccess.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\StressTests.cs">
+      <Link>StressTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\Syntax.cs">
+      <Link>Syntax.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\Syntax2.cs">
+      <Link>Syntax2.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\ThreadingTests.cs">
+      <Link>ThreadingTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\TimeoutAndCancel.cs">
+      <Link>TimeoutAndCancel.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\Tokenizer.cs">
+      <Link>Tokenizer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\Transactions.cs">
+      <Link>Transactions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\TypeTests.cs">
+      <Link>TypeTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\UsageAdvisorTests.cs">
+      <Link>UsageAdvisorTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests.XUnit\Utils.cs">
+      <Link>Utils.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\MySql.Data\MySql.Data.csproj">
+      <Project>{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}</Project>
+      <Name>MySql.Data</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\..\Tests\MySql.Data.Tests.XUnit\Properties\Setup.sql">
+      <Link>Properties\Setup.sql</Link>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
