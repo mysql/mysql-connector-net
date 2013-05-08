@@ -1,4 +1,4 @@
-// Copyright © 2008, 2011, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -27,20 +27,26 @@ using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.Tests;
 using System.Data.EntityClient;
 using System.Data.Common;
-using NUnit.Framework;
 using System.Data.Objects;
 using System.Collections.Generic;
 using MySql.Data.Entity.Tests.Properties;
+using Xunit;
 
 namespace MySql.Data.Entity.Tests
 {
-  [TestFixture]
-  public class RestrictionOperators : BaseEdmTest
+  public class RestrictionOperators : IUseFixture<SetUpEntityTests>
   {
-    [Test]
+    private SetUpEntityTests st;
+
+    public void SetFixture(SetUpEntityTests data)
+    {
+      st = data;
+    }
+
+    [Fact]
     public void SimpleSelect()
     {
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Toys", conn);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Toys", st.conn);
       DataTable toys = new DataTable();
       da.Fill(toys);
       int i = 0;
@@ -49,19 +55,19 @@ namespace MySql.Data.Entity.Tests
       {
         var query = context.CreateQuery<Toy>("SELECT VALUE c FROM Toys AS c");
         string sql = query.ToTraceString();
-        CheckSql(sql, SQLSyntax.SimpleSelect);
+        st.CheckSql(sql, SQLSyntax.SimpleSelect);
 
         foreach (Toy t in query)
         {
-          Assert.AreEqual(toys.Rows[i++]["name"], t.Name);
+          Assert.Equal(toys.Rows[i++]["name"], t.Name);
         }
       }
     }
 
-    [Test]
+    [Fact]
     public void SimpleSelectWithFilter()
     {
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Toys WHERE minage=4", conn);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Toys WHERE minage=4", st.conn);
       DataTable toys = new DataTable();
       da.Fill(toys);
       int i = 0;
@@ -70,17 +76,17 @@ namespace MySql.Data.Entity.Tests
       {
         var query = context.CreateQuery<Toy>("SELECT VALUE t FROM Toys AS t WHERE t.MinAge=4");
         string sql = query.ToTraceString();
-        CheckSql(sql, SQLSyntax.SimpleSelectWithFilter);
+        st.CheckSql(sql, SQLSyntax.SimpleSelectWithFilter);
 
         foreach (Toy t in query)
-          Assert.AreEqual(toys.Rows[i++]["name"], t.Name);
+          Assert.Equal(toys.Rows[i++]["name"], t.Name);
       }
     }
 
-    [Test]
+    [Fact]
     public void SimpleSelectWithParam()
     {
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Toys WHERE minage>3", conn);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Toys WHERE minage>3", st.conn);
       DataTable toys = new DataTable();
       da.Fill(toys);
       int i = 0;
@@ -90,19 +96,19 @@ namespace MySql.Data.Entity.Tests
         var query = context.CreateQuery<Toy>("SELECT VALUE t FROM Toys AS t WHERE t.MinAge>@age");
         query.Parameters.Add(new ObjectParameter("age", 3));
         string sql = query.ToTraceString();
-        CheckSql(sql, SQLSyntax.SimpleSelectWithParam);
+        st.CheckSql(sql, SQLSyntax.SimpleSelectWithParam);
 
         foreach (Toy t in query)
         {
-          Assert.AreEqual(toys.Rows[i++]["name"], t.Name);
+          Assert.Equal(toys.Rows[i++]["name"], t.Name);
         }
       }
     }
 
-    [Test]
+    [Fact]
     public void WhereLiteralOnRelation()
     {
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT id FROM Companies WHERE city = 'Dallas'", conn);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT id FROM Companies WHERE city = 'Dallas'", st.conn);
       DataTable dt = new DataTable();
       da.Fill(dt);
 
@@ -112,18 +118,18 @@ namespace MySql.Data.Entity.Tests
         ObjectQuery<Company> query = context.CreateQuery<Company>(eSql);
 
         string sql = query.ToTraceString();
-        CheckSql(sql, SQLSyntax.WhereLiteralOnRelation);
+        st.CheckSql(sql, SQLSyntax.WhereLiteralOnRelation);
 
         int i = 0;
         foreach (Company c in query)
-          Assert.AreEqual(dt.Rows[i++]["id"], c.Id);
+          Assert.Equal(dt.Rows[i++]["id"], c.Id);
       }
     }
 
-    [Test]
+    [Fact]
     public void SelectWithComplexType()
     {
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT c.LastName FROM Employees AS c WHERE c.Age > 20", conn);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT c.LastName FROM Employees AS c WHERE c.Age > 20", st.conn);
       DataTable dt = new DataTable();
       da.Fill(dt);
 
@@ -133,19 +139,19 @@ namespace MySql.Data.Entity.Tests
         ObjectQuery<DbDataRecord> query = context.CreateQuery<DbDataRecord>(eSql);
 
         string sql = query.ToTraceString();
-        CheckSql(sql, SQLSyntax.SelectWithComplexType);
+        st.CheckSql(sql, SQLSyntax.SelectWithComplexType);
 
         int i = 0;
         foreach (DbDataRecord s in query)
-          Assert.AreEqual(dt.Rows[i++][0], s.GetString(0));
+          Assert.Equal(dt.Rows[i++][0], s.GetString(0));
       }
     }
 
-    [Test]
+    [Fact]
     public void WhereWithRelatedEntities1()
     {
       MySqlDataAdapter da = new MySqlDataAdapter(
-          "SELECT c.* FROM Toys t LEFT JOIN Companies c ON c.id=t.SupplierId WHERE c.State='TX'", conn);
+          "SELECT c.* FROM Toys t LEFT JOIN Companies c ON c.id=t.SupplierId WHERE c.State='TX'", st.conn);
       DataTable dt = new DataTable();
       da.Fill(dt);
 
@@ -155,22 +161,22 @@ namespace MySql.Data.Entity.Tests
         ObjectQuery<Toy> query = context.CreateQuery<Toy>(eSql);
 
         string sql = query.ToTraceString();
-        CheckSql(sql, SQLSyntax.WhereWithRelatedEntities1);
+        st.CheckSql(sql, SQLSyntax.WhereWithRelatedEntities1);
 
         int i = 0;
         foreach (Toy t in query)
         {
-          Assert.AreEqual(dt.Rows[i++]["id"], t.Id);
+          Assert.Equal(dt.Rows[i++]["id"], t.Id);
         }
       }
     }
 
-    [Test]
+    [Fact]
     public void WhereWithRelatedEntities2()
     {
       MySqlDataAdapter da = new MySqlDataAdapter(
           @"SELECT c.* FROM Toys t LEFT JOIN Companies c ON c.Id=t.SupplierId 
-                    WHERE c.State<>'TX' AND c.State<>'AZ'", conn);
+                    WHERE c.State<>'TX' AND c.State<>'AZ'", st.conn);
       DataTable dt = new DataTable();
       da.Fill(dt);
 
@@ -181,22 +187,22 @@ namespace MySql.Data.Entity.Tests
         ObjectQuery<Toy> query = context.CreateQuery<Toy>(eSql);
 
         string sql = query.ToTraceString();
-        CheckSql(sql, SQLSyntax.WhereWithRelatedEntities2);
+        st.CheckSql(sql, SQLSyntax.WhereWithRelatedEntities2);
 
         int i = 0;
         foreach (Toy t in query)
         {
-          Assert.AreEqual(dt.Rows[i++]["id"], t.Id);
+          Assert.Equal(dt.Rows[i++]["id"], t.Id);
         }
       }
     }
 
-    [Test]
+    [Fact]
     public void Exists()
     {
       MySqlDataAdapter da = new MySqlDataAdapter(
           @"SELECT c.* FROM Companies c WHERE EXISTS 
-                    (SELECT * FROM Toys t WHERE t.SupplierId=c.Id && t.MinAge < 4)", conn);
+                    (SELECT * FROM Toys t WHERE t.SupplierId=c.Id && t.MinAge < 4)", st.conn);
       DataTable dt = new DataTable();
       da.Fill(dt);
 
@@ -207,11 +213,11 @@ namespace MySql.Data.Entity.Tests
         ObjectQuery<Company> query = context.CreateQuery<Company>(eSql);
 
         string sql = query.ToTraceString();
-        CheckSql(sql, SQLSyntax.Exists);
+        st.CheckSql(sql, SQLSyntax.Exists);
 
         int i = 0;
         foreach (Company c in query)
-          Assert.AreEqual(dt.Rows[i++]["id"], c.Id);
+          Assert.Equal(dt.Rows[i++]["id"], c.Id);
       }
     }
   }

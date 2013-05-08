@@ -1,4 +1,4 @@
-﻿// Copyright © 2012, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -26,56 +26,56 @@ using System.Linq;
 using System.Text;
 using Antlr.Runtime;
 using Antlr.Runtime.Tree;
-using NUnit.Framework;
+using Xunit;
 
 
 namespace MySql.Parser.Tests.Create
 {
-  [TestFixture]
+  
   public class CreateTable
   {
-    [Test]
+    [Fact]
     public void Simple()
     {
       MySQL51Parser.program_return r = Utility.ParseSql("CREATE TABLE T1 ( id int, name varchar( 20 ) )");
     }
 
-    [Test]
+    [Fact]
     public void CreateSelect()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(
           @"CREATE TABLE test (a INT NOT NULL AUTO_INCREMENT,
-				PRIMARY KEY (a) )
-				ENGINE=MyISAM SELECT b,c FROM test2;");
+        PRIMARY KEY (a) )
+        ENGINE=MyISAM SELECT b,c FROM test2;");
     }
 
-    [Test]
+    [Fact]
     public void Complex1()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(
           @"CREATE TABLE IF NOT EXISTS `schema`.`Employee` (
-				`idEmployee` VARCHAR(45) NOT NULL ,
-				`Name` VARCHAR(255) NULL ,
-				`idAddresses` VARCHAR(45) NULL ,
-				PRIMARY KEY (`idEmployee`) ,
-				CONSTRAINT `fkEmployee_Addresses`
-				FOREIGN KEY `fkEmployee_Addresses` (`idAddresses`)
-				REFERENCES `schema`.`Addresses` (`idAddresses`)
-				ON DELETE NO ACTION
-				ON UPDATE NO ACTION)
-				ENGINE = InnoDB,
-				DEFAULT CHARACTER SET = utf8,
-				COLLATE = utf8_bin");
+        `idEmployee` VARCHAR(45) NOT NULL ,
+        `Name` VARCHAR(255) NULL ,
+        `idAddresses` VARCHAR(45) NULL ,
+        PRIMARY KEY (`idEmployee`) ,
+        CONSTRAINT `fkEmployee_Addresses`
+        FOREIGN KEY `fkEmployee_Addresses` (`idAddresses`)
+        REFERENCES `schema`.`Addresses` (`idAddresses`)
+        ON DELETE NO ACTION
+        ON UPDATE NO ACTION)
+        ENGINE = InnoDB,
+        DEFAULT CHARACTER SET = utf8,
+        COLLATE = utf8_bin");
     }
 
-    [Test]
+    [Fact]
     public void MergeUnion()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(
           "create temporary table tmp2 ( Id int primary key, Name varchar( 50 ) ) engine merge union (tmp1);");
     }
 
-    [Test]
+    [Fact]
     public void AllOptions()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(
@@ -89,7 +89,7 @@ row_format = dynamic, union = ( `db1`.`table2` );
 ");
     }
 
-    [Test]
+    [Fact]
     public void Partition()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(
@@ -97,7 +97,7 @@ row_format = dynamic, union = ( `db1`.`table2` );
 PARTITION BY HASH ( YEAR(col3) );");
     }
 
-    [Test]
+    [Fact]
     public void Partition2()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(
@@ -106,7 +106,7 @@ PARTITION BY KEY(col3)
 PARTITIONS 4;");
     }
 
-    [Test]
+    [Fact]
     public void Partition3()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(
@@ -115,7 +115,7 @@ PARTITION BY LINEAR KEY(col3)
 PARTITIONS 5;");
     }
 
-    [Test]
+    [Fact]
     public void Partition4()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(
@@ -133,7 +133,7 @@ PARTITION p5 VALUES LESS THAN MAXVALUE
 );");
     }
 
-    [Test]
+    [Fact]
     public void Partition5()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(
@@ -149,7 +149,7 @@ PARTITION r3 VALUES IN (4, 8, 12, 16, 20, 24)
 );");
     }
 
-    [Test]
+    [Fact]
     public void Partition6()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(
@@ -173,7 +173,7 @@ INDEX DIRECTORY = '/var/appdata/98/idx'
 ");
     }
 
-    [Test]
+    [Fact]
     public void Partition7()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(
@@ -183,7 +183,7 @@ INDEX DIRECTORY = '/var/appdata/98/idx'
         PARTITION p1 VALUES IN (1) )");
     }
 
-    [Test]
+    [Fact]
     public void Partition8()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(
@@ -196,7 +196,7 @@ INDEX DIRECTORY = '/var/appdata/98/idx'
       PARTITION p4 VALUES LESS THAN (MAXVALUE) )");
     }
 
-    [Test]
+    [Fact]
     public void Partition9()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(
@@ -206,7 +206,7 @@ PARTITIONS 4;
 ");
     }
 
-    [Test]
+    [Fact]
     public void Partition10()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(
@@ -218,7 +218,7 @@ PARTITION BY KEY()
 PARTITIONS 4;");
     }
 
-    [Test]
+    [Fact]
     public void Partition11()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(
@@ -236,7 +236,7 @@ PARTITIONS 4;");
 ");
     }
 
-    [Test]
+    [Fact]
     public void Partition12()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(
@@ -244,7 +244,7 @@ PARTITIONS 4;");
 PARTITION BY HASH ( YEAR(col3) );");
     }
 
-    [Test]
+    [Fact]
     public void Partition13()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(
@@ -252,7 +252,7 @@ PARTITION BY HASH ( YEAR(col3) );");
 PARTITION BY HASH ( YEAR(col3) );");
     }
 
-    [Test]
+    [Fact]
     public void PartitionColumns_51()
     {
       StringBuilder sb;
@@ -270,10 +270,10 @@ PARTITION BY RANGE COLUMNS(joined) (
     PARTITION p2 VALUES LESS THAN ('1980-01-01'),
     PARTITION p3 VALUES LESS THAN ('1990-01-01'),
     PARTITION p4 VALUES LESS THAN MAXVALUE;", true, out sb, new Version(5, 1));
-      Assert.IsTrue(sb.ToString().IndexOf(" no viable alternative at input 'COLUMNS'") != -1);
+      Assert.True(sb.ToString().IndexOf(" no viable alternative at input 'COLUMNS'") != -1);
     }
 
-    [Test]
+    [Fact]
     public void PartitionColumns_55()
     {
       StringBuilder sb;
@@ -293,7 +293,7 @@ PARTITION BY RANGE COLUMNS(joined) (
     PARTITION p4 VALUES LESS THAN MAXVALUE );", false, out sb, new Version(5, 5));
     }
 
-    [Test]
+    [Fact]
     public void PartitionColumns_2_55()
     {
       StringBuilder sb;
@@ -313,7 +313,7 @@ PARTITION BY LIST COLUMNS(joined) (
     PARTITION p4 VALUES LESS THAN MAXVALUE );", false, out sb, new Version(5, 5));
     }
 
-    [Test]
+    [Fact]
     public void PartitionColumns_3_55()
     {
       StringBuilder sb;
@@ -326,7 +326,7 @@ PARTITION BY RANGE (year_col) (
 PARTITION p0 VALUES LESS THAN (1991, 1995, 1999, 2002, 2006));", false, out sb, new Version(5, 5));
     }
 
-    [Test]
+    [Fact]
     public void PartitionColumns_2_51()
     {
       StringBuilder sb;
@@ -344,17 +344,17 @@ PARTITION BY LIST COLUMNS(joined) (
     PARTITION p2 VALUES LESS THAN ('1980-01-01'),
     PARTITION p3 VALUES LESS THAN ('1990-01-01'),
     PARTITION p4 VALUES LESS THAN MAXVALUE;", true, out sb, new Version(5, 1));
-      Assert.IsTrue(sb.ToString().IndexOf("'columns'", StringComparison.OrdinalIgnoreCase ) != -1);
+      Assert.True(sb.ToString().IndexOf("'columns'", StringComparison.OrdinalIgnoreCase ) != -1);
     }
 
-    [Test]
+    [Fact]
     public void Select()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(
           @"CREATE TABLE bar (m INT) SELECT n FROM foo;");
     }
 
-    [Test]
+    [Fact]
     public void Select2()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(
@@ -365,35 +365,35 @@ PARTITION BY LIST COLUMNS(joined) (
 
     }
 
-    [Test]
+    [Fact]
     public void Select3()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(
           @"CREATE TABLE bar (UNIQUE (n)) SELECT n FROM foo;");
     }
 
-    [Test]
+    [Fact]
     public void Select4()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(
           @"CREATE TABLE foo (a TINYINT NOT NULL) SELECT b+1 AS a FROM bar;");
     }
 
-    [Test]
+    [Fact]
     public void Default()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(
           @"CREATE TABLE t1 (i1 INT DEFAULT 0, i2 INT, i3 INT, i4 INT);");
     }
 
-    [Test]
+    [Fact]
     public void IfNotExists()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(
           @"CREATE TABLE IF NOT EXISTS t1 (c1 CHAR(10)) SELECT 1, 2;");
     }
 
-    [Test]
+    [Fact]
     public void Enum()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(
@@ -405,7 +405,7 @@ PARTITION BY LIST COLUMNS(joined) (
 );");
     }
 
-    [Test]
+    [Fact]
     public void Enum2()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(
@@ -417,13 +417,13 @@ PARTITION BY LIST COLUMNS(joined) (
 );");
     }
 
-    //[Test]
+    //[Fact]
     //public void f1()
     //{
     //    MySQL51Parser.program_return r = Utility.ParseSql("");
     //}
 
-    [Test]
+    [Fact]
     public void TableType50()
     {
       StringBuilder sb;
@@ -436,7 +436,7 @@ PARTITION BY LIST COLUMNS(joined) (
 ) type=innodb;", false, out sb, new Version(5, 0));
     }
 
-    [Test]
+    [Fact]
     public void TableType51()
     {
       StringBuilder sb;
@@ -447,10 +447,10 @@ PARTITION BY LIST COLUMNS(joined) (
   c2 BLOB,
   c3 ENUM('a','b','c') CHARACTER SET binary
 ) type=innodb;", true, out sb, new Version(5, 1));
-      Assert.IsTrue(sb.ToString().IndexOf("missing EndOfFile at 'type'") != -1);
+      Assert.True(sb.ToString().IndexOf("missing EndOfFile at 'type'") != -1);
     }
 
-    [Test]
+    [Fact]
     public void Charset()
     {
       StringBuilder sb;
@@ -460,7 +460,7 @@ PARTITION BY LIST COLUMNS(joined) (
   PRIMARY KEY (`ID`) ) ENGINE=MyISAM AUTO_INCREMENT=4080 DEFAULT CHARSET=latin1;", false, out sb );
     }
 
-    [Test]
+    [Fact]
     public void Charset2()
     {
       StringBuilder sb;      

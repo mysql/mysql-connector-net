@@ -1,4 +1,4 @@
-﻿// Copyright © 2012, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -26,22 +26,21 @@ using System.Linq;
 using System.Text;
 using Antlr.Runtime;
 using Antlr.Runtime.Tree;
-using NUnit.Framework;
-
+using Xunit;
 
 namespace MySql.Parser.Tests
 {
-  [TestFixture]
+  
   public class Replace
   {
-    [Test]
+    [Fact]
     public void Simple()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(
         @"REPLACE INTO T SELECT * FROM T;");
     }
 
-    [Test]
+    [Fact]
     public void Simple2()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(
@@ -50,16 +49,16 @@ SET `session_id`='3580cc4e61117c0785372c426eddd11c',
 `user_id` = 'XXX', `page` = '/', `lastview` = NOW();");
     }
 
-    [Test]
+    [Fact]
     public void WithPartition_55()
     {
       StringBuilder sb;
       MySQL51Parser.program_return r = Utility.ParseSql(
         @"replace into employees PARTITION (p3) VALUES (20, 'Jan', 'Jones', 1, 3);", true, out sb, new Version(5, 5));
-      Assert.IsTrue(sb.ToString().IndexOf("partition", StringComparison.OrdinalIgnoreCase ) != -1);
+      Assert.True(sb.ToString().IndexOf("partition", StringComparison.OrdinalIgnoreCase ) != -1);
     }
 
-    [Test]
+    [Fact]
     public void WithPartition_56()
     {
       StringBuilder sb;

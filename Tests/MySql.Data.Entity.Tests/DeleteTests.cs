@@ -1,4 +1,4 @@
-// Copyright � 2008, 2010, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,24 +21,38 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Data;
-using System.Threading;
-using MySql.Data.MySqlClient;
-using NUnit.Framework;
-using MySql.Data.MySqlClient.Tests;
-using System.Data.EntityClient;
-using System.Data.Common;
-using System.Data.Objects;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using Xunit;
+using System.Data.EntityClient;
+using MySql.Data.MySqlClient;
+using System.Data;
+using System.Data.Objects;
 
 namespace MySql.Data.Entity.Tests
 {
-  [TestFixture]
-  public class DeleteTests : BaseEdmTest
+  public class DeleteTests : IUseFixture<SetUpEntityTests>
   {
-    [Test]
+    private SetUpEntityTests st;
+
+    public void SetFixture(SetUpEntityTests data)
+    {
+      st = data;
+    }    
+
+    [Fact]
     public void SimpleDeleteAllRows()
     {
+      //Make sure the table exists
+      var createTableSql = "CREATE TABLE IF NOT EXISTS Toys ( `Id` INT NOT NULL AUTO_INCREMENT, `SupplierId` INT NOT NULL, `Name` varchar(100) NOT NULL,`MinAge` int NOT NULL, CONSTRAINT PK_Toys PRIMARY KEY (Id) ) ENGINE=InnoDB;";
+      if (st.conn.State != ConnectionState.Open)
+        st.conn.Open();
+
+      MySqlHelper.ExecuteNonQuery(st.conn, createTableSql);
+      MySqlHelper.ExecuteNonQuery(st.conn, "DELETE FROM Toys");
+      MySqlHelper.ExecuteNonQuery(st.conn, "INSERT INTO Toys VALUES (1, 3, 'Slinky', 2), (2, 2, 'Rubiks Cube', 5), (3, 1, 'Lincoln Logs', 3), (4, 4, 'Legos', 4)");
+      
       using (testEntities context = new testEntities())
       {
         foreach (Toy t in context.Toys)
@@ -50,19 +64,29 @@ namespace MySql.Data.Entity.Tests
             (MySqlConnection)ec.StoreConnection);
         DataTable dt = new DataTable();
         da.Fill(dt);
-        Assert.AreEqual(0, dt.Rows.Count);
+        Assert.Equal(0, dt.Rows.Count);
       }
     }
 
-    [Test]
+    [Fact]
     public void SimpleDeleteRowByParameter()
     {
+      //Make sure the table exists
+      var createTableSql = "CREATE TABLE IF NOT EXISTS Toys ( `Id` INT NOT NULL AUTO_INCREMENT, `SupplierId` INT NOT NULL, `Name` varchar(100) NOT NULL,`MinAge` int NOT NULL, CONSTRAINT PK_Toys PRIMARY KEY (Id)) ENGINE=InnoDB;";
+      if (st.conn.State != ConnectionState.Open)
+        st.conn.Open();
+
+      MySqlHelper.ExecuteNonQuery(st.conn, createTableSql);
+      MySqlHelper.ExecuteNonQuery(st.conn, "DELETE FROM Toys");
+      MySqlHelper.ExecuteNonQuery(st.conn, "INSERT INTO Toys VALUES (1, 3, 'Slinky', 2), (2, 2, 'Rubiks Cube', 5), (3, 1, 'Lincoln Logs', 3), (4, 4, 'Legos', 4)");
+      
+      
       using (testEntities context = new testEntities())
-      {
-        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM toys WHERE minage=3", conn);
+      {                
+        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM toys WHERE minage=3", st.conn);
         DataTable dt = new DataTable();
         da.Fill(dt);
-        Assert.IsTrue(dt.Rows.Count > 0);
+        Assert.True(dt.Rows.Count > 0);
 
         ObjectQuery<Toy> toys = context.Toys.Where("it.MinAge = @age", new ObjectParameter("age", 3));
         foreach (Toy t in toys)
@@ -71,7 +95,7 @@ namespace MySql.Data.Entity.Tests
 
         dt.Clear();
         da.Fill(dt);
-        Assert.AreEqual(0, dt.Rows.Count);
+        Assert.Equal(0, dt.Rows.Count);
       }
     }
 
@@ -79,8 +103,8 @@ namespace MySql.Data.Entity.Tests
     /// Fix for bug Cascading delete using CreateDatabase in Entity Framework
     /// (http://bugs.mysql.com/bug.php?id=64779) using ModelFirst.
     /// </summary>
-    [Test]
-    public void OnDeleteCascade()
+    [Fact]
+    public void XOnDeleteCascade()
     {
 #if CLR4
       using (ModelFirstModel1Container ctx = new ModelFirstModel1Container())
@@ -105,19 +129,19 @@ namespace MySql.Data.Entity.Tests
         var a = from st in ctx.Students select st;
         Student s = a.First();
         s.Kardexes.Load();
-        Assert.AreEqual( "Einstein, Albert", s.Name );
+        Assert.Equal("Einstein, Albert", s.Name);
         Kardex k = s.Kardexes.First();
-        Assert.AreEqual(9.0, k.Score);
-        ctx.DeleteObject( s );
+        Assert.Equal(9.0, k.Score);
+        ctx.DeleteObject(s);
         ctx.SaveChanges();
       }
 
       using (ModelFirstModel1Container ctx = new ModelFirstModel1Container())
       {
         var q = from st in ctx.Students select st;
-        Assert.AreEqual(0, q.Count());
+        Assert.Equal(0, q.Count());
         var q2 = from k in ctx.Kardexes select k;
-        Assert.AreEqual(0, q2.Count());
+        Assert.Equal(0, q2.Count());
       }
     }
   }

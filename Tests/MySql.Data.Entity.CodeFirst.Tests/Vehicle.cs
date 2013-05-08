@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -19,7 +19,6 @@
 // You should have received a copy of the GNU General Public License along 
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
-
 
 using System;
 using System.Collections.Generic;
@@ -93,6 +92,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
   {
     public int Id { get; set; }
     public int Year { get; set; }
+    
     [MaxLength(1024)]
     public string Name { get; set; }
   }
@@ -188,24 +188,15 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     protected override void OnModelCreating(DbModelBuilder modelBuilder)
     {
       modelBuilder.Entity<Product>()
-        .Property(f => f.DateTimeWithPrecision)
-        .HasColumnType("DateTime")
-        .HasPrecision(3);
+    .Property(f => f.DateTimeWithPrecision)
+    .HasColumnType("DateTime")
+    .HasPrecision(3);
 
       modelBuilder.Entity<Product>()
-        .Property(f => f.TimeStampWithPrecision)
-        .HasColumnType("Timestamp")
-        .HasPrecision(3);
+    .Property(f => f.TimeStampWithPrecision)
+    .HasColumnType("Timestamp")
+    .HasPrecision(3);
     }
-
-    public ProductsDbContext()
-    {
-      Database.SetInitializer<ProductsDbContext>(new ProductsDbInitializer());
-    }
-  }
-
-  public class ProductsDbInitializer : DropCreateDatabaseReallyAlways<ProductsDbContext>
-  {
   }
 
   public class Names

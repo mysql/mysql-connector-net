@@ -1,4 +1,4 @@
-﻿// Copyright © 2012, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -26,21 +26,21 @@ using System.Linq;
 using System.Text;
 using Antlr.Runtime;
 using Antlr.Runtime.Tree;
-using NUnit.Framework;
+using Xunit;
 
 
 namespace MySql.Parser.Tests
 {
-  [TestFixture]
+  
   public class Explain
   {
-    [Test]
+    [Fact]
     public void Explain1()
     {
       MySQL51Parser.program_return r = Utility.ParseSql("explain tbl", false);
     }
 
-    [Test]
+    [Fact]
     public void Explain2()
     {
       StringBuilder sb;
@@ -48,31 +48,31 @@ namespace MySql.Parser.Tests
         "explain extended select * from tbl", false, out sb, new Version(5, 1));
     }
 
-    [Test]
+    [Fact]
     public void Explain3()
     {
       StringBuilder sb;
       MySQL51Parser.program_return r = Utility.ParseSql(
         "explain partitions select * from tbl", true, out sb, new Version(5, 0));
-      Assert.IsTrue(sb.ToString().IndexOf("no viable alternative at input 'partitions'", StringComparison.OrdinalIgnoreCase ) != -1);
+      Assert.True(sb.ToString().IndexOf("no viable alternative at input 'partitions'", StringComparison.OrdinalIgnoreCase ) != -1);
     }
 
-    [Test]
+    [Fact]
     public void Explain4()
     {
       MySQL51Parser.program_return r = Utility.ParseSql("explain partitions select * from tbl", false);
     }
 
-    [Test]
+    [Fact]
     public void ExplainDelete_55()
     {
       StringBuilder sb;
       MySQL51Parser.program_return r = Utility.ParseSql(
         "explain DELETE from t1;", true, out sb, new Version(5, 5));
-      Assert.IsTrue(sb.ToString().IndexOf("delete", StringComparison.OrdinalIgnoreCase) != -1);
+      Assert.True(sb.ToString().IndexOf("delete", StringComparison.OrdinalIgnoreCase) != -1);
     }
 
-    [Test]
+    [Fact]
     public void ExplainDelete_56()
     {
       StringBuilder sb;
@@ -80,16 +80,16 @@ namespace MySql.Parser.Tests
         "explain DELETE from t1;", false, out sb, new Version(5, 6));
     }
 
-    [Test]
+    [Fact]
     public void ExplainInsert_55()
     {
       StringBuilder sb;
       MySQL51Parser.program_return r = Utility.ParseSql(
         "explain INSERT into t1 ( col1, col2 ) values ( '', 1 );", true, out sb, new Version(5, 5));
-      Assert.IsTrue(sb.ToString().IndexOf("insert", StringComparison.OrdinalIgnoreCase) != -1);
+      Assert.True(sb.ToString().IndexOf("insert", StringComparison.OrdinalIgnoreCase) != -1);
     }
 
-    [Test]
+    [Fact]
     public void ExplainInsert_56()
     {
       StringBuilder sb;
@@ -97,16 +97,16 @@ namespace MySql.Parser.Tests
         "explain INSERT into t1 ( col1, col2 ) values ( '', 1 );", false, out sb, new Version(5, 6));
     }
 
-    [Test]
+    [Fact]
     public void ExplainReplace_55()
     {
       StringBuilder sb;
       MySQL51Parser.program_return r = Utility.ParseSql(
         "explain format = json REPLACE into t1 ( col1, col2 ) values ( '', 1 );", true, out sb, new Version(5, 5));
-      Assert.IsTrue(sb.ToString().IndexOf("missing EndOfFile at '='", StringComparison.OrdinalIgnoreCase) != -1);
+      Assert.True(sb.ToString().IndexOf("missing EndOfFile at '='", StringComparison.OrdinalIgnoreCase) != -1);
     }
 
-    [Test]
+    [Fact]
     public void ExplainReplace_56()
     {
       StringBuilder sb;
@@ -114,16 +114,16 @@ namespace MySql.Parser.Tests
         "explain format = json REPLACE into t1 ( col1, col2 ) values ( '', 1 );", false, out sb, new Version(5, 6));
     }
 
-    [Test]
+    [Fact]
     public void ExplainUpdate_55()
     {
       StringBuilder sb;
       MySQL51Parser.program_return r = Utility.ParseSql(
         "explain format = traditional UPDATE t1 set col1 = val1, col2 = val2;", true, out sb, new Version(5, 5));
-      Assert.IsTrue(sb.ToString().IndexOf("missing EndOfFile at '='", StringComparison.OrdinalIgnoreCase) != -1);
+      Assert.True(sb.ToString().IndexOf("missing EndOfFile at '='", StringComparison.OrdinalIgnoreCase) != -1);
     }
 
-    [Test]
+    [Fact]
     public void ExplainUpdate_56()
     {
       StringBuilder sb;

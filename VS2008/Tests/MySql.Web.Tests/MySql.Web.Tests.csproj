@@ -53,18 +53,20 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="nunit.framework" />
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
+    <Reference Include="xunit, Version=1.9.1.1600, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\XUnit_1.9.1\xunit.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\..\Source\MySql.Data\Properties\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Tests\MySql.Web.Tests\BaseTest.cs" />
     <Compile Include="..\..\..\Tests\MySql.Web.Tests\ProfileTests.cs" />
     <Compile Include="..\..\..\Tests\MySql.Web.Tests\RoleManagement.cs" />
     <Compile Include="..\..\..\Tests\MySql.Web.Tests\SchemaTests.cs" />
@@ -73,6 +75,9 @@
     </Compile>
     <Compile Include="..\..\..\Tests\MySql.Web.Tests\SessionTests.cs">
       <Link>SessionTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Web.Tests\SetUpWeb.cs">
+      <Link>SetUpWeb.cs</Link>
     </Compile>
     <Compile Include="..\..\..\Tests\MySql.Web.Tests\TestProfile.cs" />
     <Compile Include="..\..\..\Tests\MySql.Web.Tests\UserManagement.cs" />

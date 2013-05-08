@@ -1,4 +1,4 @@
-﻿// Copyright © 2012, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -26,21 +26,21 @@ using System.Linq;
 using System.Text;
 using Antlr.Runtime;
 using Antlr.Runtime.Tree;
-using NUnit.Framework;
+using Xunit;
 
 
 namespace MySql.Parser.Tests
 {
-  [TestFixture]
+  
   public class LoadDataInfile
   {
-    [Test]
+    [Fact]
     public void Simple()
     {
       MySQL51Parser.program_return r = Utility.ParseSql("LOAD DATA INFILE 'data.txt' INTO TABLE db2.my_table;");
     }
 
-    [Test]
+    [Fact]
     public void Simple2()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"
@@ -49,14 +49,14 @@ FIELDS TERMINATED BY '\t' ENCLOSED BY '' ESCAPED BY '\\'
 LINES TERMINATED BY '\n' STARTING BY '';");
     }
 
-    [Test]
+    [Fact]
     public void Simple3()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"LOAD DATA INFILE '/tmp/test.txt' INTO TABLE test
   FIELDS TERMINATED BY ','  LINES STARTING BY 'xxx';");
     }
 
-    [Test]
+    [Fact]
     public void Simple4()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"SELECT * INTO OUTFILE 'data.txt'
@@ -64,40 +64,40 @@ LINES TERMINATED BY '\n' STARTING BY '';");
   FROM table2;");
     }
 
-    [Test]
+    [Fact]
     public void Simple5()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"LOAD DATA INFILE 'data.txt' INTO TABLE table2
   FIELDS TERMINATED BY ',';");
     }
 
-    [Test]
+    [Fact]
     public void Simple6()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"LOAD DATA INFILE 'data.txt' INTO TABLE table2
   FIELDS TERMINATED BY '\t';");
     }
 
-    [Test]
+    [Fact]
     public void Simple7()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(
         "LOAD DATA INFILE 'data.txt' INTO TABLE tbl_name  FIELDS TERMINATED BY ',' ENCLOSED BY '\"'  LINES TERMINATED BY '\\r\\n'  IGNORE 1 LINES;");
     }
 
-    [Test]
+    [Fact]
     public void Simple8()
     {
       MySQL51Parser.program_return r = Utility.ParseSql("LOAD DATA INFILE 'persondata.txt' INTO TABLE persondata;");
     }
     
-    [Test]
+    [Fact]
     public void Simple9()
     {
       MySQL51Parser.program_return r = Utility.ParseSql("LOAD DATA INFILE 'persondata.txt' INTO TABLE persondata (col1,col2);");
     }
 
-    [Test]
+    [Fact]
     public void Simple10()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"LOAD DATA INFILE 'file.txt'
@@ -107,7 +107,7 @@ LINES TERMINATED BY '\n' STARTING BY '';");
 ");
     }
 
-    [Test]
+    [Fact]
     public void Simple11()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"LOAD DATA INFILE 'file.txt'
@@ -116,7 +116,7 @@ LINES TERMINATED BY '\n' STARTING BY '';");
   SET column3 = CURRENT_TIMESTAMP;");
     }
 
-    [Test]
+    [Fact]
     public void Simple12()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"
@@ -125,7 +125,7 @@ LOAD DATA INFILE 'file.txt'
   (column1, @dummy, column2, @dummy, column3);");
     }
 
-    [Test]
+    [Fact]
     public void Simple13()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"
@@ -133,7 +133,7 @@ LOAD DATA INFILE '/tmp/bit_test.txt'
   INTO TABLE bit_test (@var1) SET b= CAST(@var1 AS UNSIGNED);");
     }
 
-//    [Test]
+//    [Fact]
 //    public void Simple14()
 //    {
 //      MySQL51Parser.program_return r = Utility.ParseSql(@"LOAD DATA INFILE 'C:/bobsfile.txt' INTO TABLE mydatabase.mytable 
@@ -141,7 +141,7 @@ LOAD DATA INFILE '/tmp/bit_test.txt'
 //FIELDS ENCLOSED BY ''; ");
 //    }
 
-    [Test]
+    [Fact]
     public void Simple15()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"load data infile '/tmp/xxx.dat' 
@@ -158,7 +158,7 @@ col3 = str_to_date(@col3, '%m/%d/%Y'),
 col4 = str_to_date(@col4, '%d/%m/%Y');");
     }
 
-    [Test]
+    [Fact]
     public void Simple16()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"LOAD DATA LOCAL INFILE '<file name>' INTO TABLE WindData
@@ -173,7 +173,7 @@ WindEast=SUBSTR(@var1,51,6),
 WindSamples=SUBSTR(@var1,61,4);");
     }
 
-    [Test]
+    [Fact]
     public void Simple17()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"LOAD DATA LOCAL INFILE 'C:/path/to/mytable.txt' IGNORE
@@ -184,13 +184,13 @@ SET float_col = replace(@float_col, ',', '.');
 ");
     }
 
-    //[Test]
+    //[Fact]
     //public void Simple18()
     //{
     //  MySQL51Parser.program_return r = Utility.ParseSql("LOAD DATA INFILE '/data/input/myinfile.txt';");
     //}
 
-    [Test]
+    [Fact]
     public void Simple19()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"LOAD DATA INFILE '/tmp/names.dmp' IGNORE INTO TABLE Names (@var)
@@ -199,7 +199,7 @@ Name=Trim(SUBSTR(@var,2,17)),
 Gender=SUBSTR(@var,1,1);");
     }
 
-    [Test]
+    [Fact]
     public void Simple20()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(
@@ -208,7 +208,7 @@ Gender=SUBSTR(@var,1,1);");
         "lon, msa, pmsa, @city_abbreviation, ma, zip_type) SET allow_registrations = 1, zip = IF(@preferred='P', @zip, NULL);");
     }
 
-    [Test]
+    [Fact]
     public void WithPartition_55()
     {
       StringBuilder sb;
@@ -222,10 +222,10 @@ LINES TERMINATED BY '\n'
 lon, msa, pmsa, @city_abbreviation, ma, zip_type)
 SET allow_registrations = 1, zip = IF(@preferred='P', @zip, NULL)	 
 ;", true, out sb, new Version(5, 5));
-      Assert.IsTrue(sb.ToString().IndexOf("partition") != -1);
+      Assert.True(sb.ToString().IndexOf("partition") != -1);
     }
 
-    [Test]
+    [Fact]
     public void WithPartition_56()
     {
       StringBuilder sb;

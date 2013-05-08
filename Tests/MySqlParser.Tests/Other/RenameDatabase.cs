@@ -1,4 +1,4 @@
-﻿// Copyright © 2012, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -24,37 +24,38 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NUnit.Framework;
+
 using Antlr.Runtime;
 using Antlr.Runtime.Tree;
+using Xunit;
 
 
 namespace MySql.Parser.Tests
 {
-	[TestFixture]
+	
 	public class RenameDatabase
 	{
-		[Test]
+		[Fact]
 		public void Simple()
 		{
 			MySQL51Parser.program_return r = Utility.ParseSql("RENAME DATABASE `db1` TO `db2`");
 			/*
-			Assert.AreEqual(1, statements.Count);
-			Assert.IsTrue(statements[0] is RenameDatabaseStatement);
+			Assert.Equal(1, statements.Count);
+			Assert.True(statements[0] is RenameDatabaseStatement);
 			RenameDatabaseStatement ds = statements[0] as RenameDatabaseStatement;
 
-			Assert.AreEqual("`db1`", ds.OldName.Text);
-			Assert.AreEqual("`db2`", ds.NewName.Text);
+			Assert.Equal("`db1`", ds.OldName.Text);
+			Assert.Equal("`db2`", ds.NewName.Text);
 			 * */
 		}
 
-		[Test]
+		[Fact]
 		public void MissingFromDbName()
 		{
 			MySQL51Parser.program_return r = Utility.ParseSql("RENAME DATABASE ", true);
 		}
 
-		[Test]
+		[Fact]
 		public void MissingToDbName()
 		{
 			MySQL51Parser.program_return r = Utility.ParseSql("RENAME DATABASE db1 TO", true);

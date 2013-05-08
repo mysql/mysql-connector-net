@@ -1,4 +1,4 @@
-// Copyright © 2008, 2011, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,6 +20,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+
 using System;
 using System.Data;
 using System.Threading;
@@ -27,17 +28,24 @@ using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.Tests;
 using System.Data.EntityClient;
 using System.Data.Common;
-using NUnit.Framework;
 using System.Data.Objects;
 using MySql.Data.Entity.Tests.Properties;
 using System.Linq;
+using Xunit;
+using MySql.Data.Entity.Tests;
 
 namespace MySql.Data.Entity.Tests
 {
-  [TestFixture]
-  public class RelationalOperators : BaseEdmTest
+  public class RelationalOperators : IUseFixture<SetUpEntityTests>
   {
-    [Test]
+    private SetUpEntityTests st;
+
+    public void SetFixture(SetUpEntityTests data)
+    {
+      st = data;
+    }
+
+    [Fact]
     public void Except()
     {
       /*            using (TestDB.TestDB db = new TestDB.TestDB())
@@ -51,28 +59,28 @@ namespace MySql.Data.Entity.Tests
                   }*/
     }
 
-    [Test]
+    [Fact]
     public void Intersect()
     {
     }
 
-    [Test]
+    [Fact]
     public void CrossJoin()
     {
     }
 
-    [Test]
+    [Fact]
     public void Union()
     {
     }
 
-    [Test]
+    [Fact]
     public void UnionAll()
     {
       using (testEntities context = new testEntities())
       {
         MySqlDataAdapter da = new MySqlDataAdapter(
-            "SELECT t.Id FROM Toys t UNION ALL SELECT c.Id FROM Companies c", conn);
+            "SELECT t.Id FROM Toys t UNION ALL SELECT c.Id FROM Companies c", st.conn);
         DataTable dt = new DataTable();
         da.Fill(dt);
 
@@ -81,21 +89,21 @@ namespace MySql.Data.Entity.Tests
         ObjectQuery<DbDataRecord> query = context.CreateQuery<DbDataRecord>(entitySQL);
 
         string sql = query.ToTraceString();
-        CheckSql(sql, SQLSyntax.UnionAll);
+        st.CheckSql(sql, SQLSyntax.UnionAll);
 
         int i = 0;
         foreach (DbDataRecord r in query)
         {
           i++;
         }
-        Assert.AreEqual(dt.Rows.Count, i);
+        Assert.Equal(dt.Rows.Count, i);
       }
     }
 
     /// <summary>
     /// Bug #60652	Query returns BLOB type but no BLOBs are in the database.        
     /// </summary>
-    [Test]
+    [Fact]
     public void UnionAllWithBitColumnsDoesNotThrow()
     {
       using (testEntities entities = new testEntities())
@@ -110,7 +118,7 @@ namespace MySql.Data.Entity.Tests
         foreach (Computer computer in computers)
         {
           Assert.NotNull(computer);
-          Assert.IsTrue(computer.Id > 0);
+          Assert.True(computer.Id > 0);
         }
       }
     }

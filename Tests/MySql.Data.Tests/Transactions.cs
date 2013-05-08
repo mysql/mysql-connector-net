@@ -1,4 +1,4 @@
-// Copyright © 2004, 2011, Oracle and/or its affiliates. All rights reserved.
+ï»¿// Copyright Â© 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,118 +21,84 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Data;
-using System.IO;
-using NUnit.Framework;
+using System.Collections.Generic;
+using System.Text;
+using Xunit;
 using System.Transactions;
 using System.Data.Common;
+using System.Data;
 using System.Threading;
 using System.Diagnostics;
-using System.Text;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  [TestFixture]
-  public class Transactions : BaseTest
+  public class Transactions : IUseFixture<SetUpClass>, IDisposable
   {
+    private SetUpClass st;
+
+    public void SetFixture(SetUpClass data)
+    {
+      st = data;
+    }
+
+    public void Dispose()
+    {
+      //Nothing to clean      
+    }
+
     void TransactionScopeInternal(bool commit)
     {
-      createTable("CREATE TABLE Test (key2 VARCHAR(1), name VARCHAR(100), name2 VARCHAR(100))", "INNODB");
-      using (MySqlConnection c = new MySqlConnection(GetConnectionString(true)))
+      st.execSQL("DROP TABLE IF EXISTS Test");
+      st.createTable("CREATE TABLE Test (key2 VARCHAR(1), name VARCHAR(100), name2 VARCHAR(100))", "INNODB");
+      using (MySqlConnection c = new MySqlConnection(st.GetConnectionString(true)))
       {
         MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES ('a', 'name', 'name2')", c);
 
         using (TransactionScope ts = new TransactionScope())
         {
-          c.Open();
-
+          c.Open();          
           cmd.ExecuteNonQuery();
-
           if (commit)
             ts.Complete();
         }
 
         cmd.CommandText = "SELECT COUNT(*) FROM Test";
         object count = cmd.ExecuteScalar();
-        Assert.AreEqual(commit ? 1 : 0, count);
+        Assert.Equal(commit ? 1 : 0, Convert.ToInt32(count));
       }
     }
 
-    [Test]
+    [Fact]
     public void TransactionScopeRollback()
     {
+      Debug.Print("Enter TransactionScopeRollback");
       TransactionScopeInternal(false);
+      Debug.Print("Out TransactionScopeRollback");
     }
 
-    [Test]
+    [Fact]
     public void TransactionScopeCommit()
     {
+      Debug.Print("Enter TranscationScopeCommit");
       TransactionScopeInternal(true);
+      Debug.Print("Out TranscationScopeCommit");
     }
 
-    // The following block is not currently supported
-    /*        void TransactionScopeMultipleInternal(bool commit)
-            {
-                MySqlConnection c1 = new MySqlConnection(GetConnectionString(true));
-                MySqlConnection c2 = new MySqlConnection(GetConnectionString(true));
-                MySqlCommand cmd1 = new MySqlCommand("INSERT INTO Test VALUES ('a', 'name', 'name2')", c1);
-                MySqlCommand cmd2 = new MySqlCommand("INSERT INTO Test VALUES ('b', 'name', 'name2')", c1);
-
-                try
-                {
-                    using (TransactionScope ts = new TransactionScope())
-                    {
-                        c1.Open();
-                        cmd1.ExecuteNonQuery();
-
-                        c2.Open();
-                        cmd2.ExecuteNonQuery();
-
-                        if (commit)
-                            ts.Complete();
-                    }
-
-                    cmd1.CommandText = "SELECT COUNT(*) FROM Test";
-                    object count = cmd1.ExecuteScalar();
-                    Assert.AreEqual(commit ? 2 : 0, count);
-                }
-                catch (Exception ex)
-                {
-                    Assert.Fail(ex.Message);
-                }
-                finally
-                {
-                    if (c1 != null)
-                        c1.Close();
-                    if (c2 != null)
-                        c2.Close();
-                }
-            }
-
-            [Test]
-            public void TransactionScopeMultipleRollback()
-            {
-                TransactionScopeMultipleInternal(false);
-            }
-
-            [Test]
-            public void TransactionScopeMultipleCommit()
-            {
-                TransactionScopeMultipleInternal(true);
-            }
-    */
     /// <summary>
-    /// Bug #34448 Connector .Net 5.2.0 with Transactionscope doesn´t use specified IsolationLevel 
+    /// Bug #34448 Connector .Net 5.2.0 with Transactionscope doesnÂ´t use specified IsolationLevel 
     /// </summary>
-    [Test]
+    [Fact]
     public void TransactionScopeWithIsolationLevel()
     {
+
+      Debug.Print("Enter TransactionScopeWithIsolationLevel");
+      
       TransactionOptions opts = new TransactionOptions();
       opts.IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted;
 
       using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, opts))
       {
-        string connStr = GetConnectionString(true);
+        string connStr = st.GetConnectionString(true);
         using (MySqlConnection myconn = new MySqlConnection(connStr))
         {
           myconn.Open();
@@ -141,21 +107,25 @@ namespace MySql.Data.MySqlClient.Tests
           {
             reader.Read();
             string level = reader.GetString(1);
-            Assert.AreEqual("READ-COMMITTED", level);
+            Assert.Equal("READ-COMMITTED", level);
           }
         }
       }
+      Debug.Print("Out TransactionScopeWithIsolationLevel");
     }
 
     /// <summary>
     /// Bug #27289 Transaction is not rolledback when connection close 
     /// </summary>
-    [Test]
+    [Fact]
     public void RollingBackOnClose()
     {
-      execSQL("CREATE TABLE Test (id INT) ENGINE=InnoDB");
+      Debug.Print("Enter RollingBackOnClose");
 
-      string connStr = GetPoolingConnectionString();
+      st.execSQL("DROP TABLE IF EXISTS Test");
+      st.execSQL("CREATE TABLE Test (id INT) ENGINE=InnoDB");
+
+      string connStr = st.GetPoolingConnectionString();
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -170,104 +140,112 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlCommand cmd2 = new MySqlCommand("SELECT COUNT(*) from Test", c2);
         c2.BeginTransaction();
         object count = cmd2.ExecuteScalar();
-        Assert.AreEqual(0, count);
+        Assert.Equal(0, Convert.ToInt32(count));
       }
 
       MySqlConnection connection = new MySqlConnection(connStr);
       connection.Open();
-      KillConnection(connection);
+      st.KillConnection(connection);
+      Debug.Print("Enter RollingBackOnClose");
     }
 
     /// <summary>
     /// NullReferenceException thrown on TransactionScope dispose
     /// </summary>
-    [Test]
-    public void LockedTable()
-    {
-      string connStr = GetConnectionString(true);
+//    [Fact]
+//    public void LockedTable()
+//    {
 
-      connStr = String.Format(@"Use Affected Rows=true;allow user variables=yes;Server=localhost;Port={0};
-            Database={1};Uid=root;Connect Timeout=35;default command timeout=90;charset=utf8", this.port, database0);
+//      Debug.Print("Enter LockedTable");
+
+//      string connStr = st.GetConnectionString(true);
+      
+//      st.execSQL("DROP TABLE IF EXISTS t1");
+//      st.execSQL("DROP TABLE IF EXISTS t2");
+
+//      connStr = String.Format(@"Use Affected Rows=true;allow user variables=yes;Server=localhost;Port={0};
+//            Database={1};Uid=root;Connect Timeout=35;default command timeout=90;charset=utf8", st.port, st.database0);
 
 
-      execSQL(@"CREATE TABLE `t1` (
-                `Key` int(10) unsigned NOT NULL auto_increment,
-                `Val` varchar(100) NOT NULL,
-                `Val2` varchar(100) NOT NULL default '',
-                PRIMARY KEY  (`Key`)
-                ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1");
-      execSQL(@"CREATE TABLE `t2` (
-                `Key` int(10) unsigned NOT NULL auto_increment,
-                `Val` varchar(100) NOT NULL,
-                PRIMARY KEY  (`Key`)
-                ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1");
+//      st.execSQL(@"CREATE TABLE `t1` (
+//                `Key` int(10) unsigned NOT NULL auto_increment,
+//                `Val` varchar(100) NOT NULL,
+//                `Val2` varchar(100) NOT NULL default '',
+//                PRIMARY KEY  (`Key`)
+//                ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1");
+//      st.execSQL(@"CREATE TABLE `t2` (
+//                `Key` int(10) unsigned NOT NULL auto_increment,
+//                `Val` varchar(100) NOT NULL,
+//                PRIMARY KEY  (`Key`)
+//                ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1");
 
-      execSQL("lock tables t2 read");
+//      st.execSQL("lock tables t2 read");      
 
-      using (TransactionScope scope = new TransactionScope())
-      {
-        using (MySqlConnection conn = new MySqlConnection(connStr))
-        using (MySqlCommand cmd = conn.CreateCommand())
-        {
-          conn.Open();
-          cmd.CommandText = @"insert into t1 (Val,Val2) values (?value1, ?value2)"; ;
-          cmd.CommandTimeout = 5;
-          cmd.Parameters.AddWithValue("?value1", new Random().Next());
-          cmd.Parameters.AddWithValue("?value2", new Random().Next());
-          cmd.ExecuteNonQuery();
-        }
+//      using (TransactionScope scope = new TransactionScope())
+//      {
+//        using (MySqlConnection conn = new MySqlConnection(connStr))
+//        using (MySqlCommand cmd = conn.CreateCommand())
+//        {
+//          conn.Open();                
+//          cmd.CommandText = @"insert into t1 (Val,Val2) values (?value1, ?value2)"; ;
+//          cmd.CommandTimeout = 5;
+//          cmd.Parameters.AddWithValue("?value1", new Random().Next());
+//          cmd.Parameters.AddWithValue("?value2", new Random().Next());
+//          cmd.ExecuteNonQuery();
+//        }
 
-        using (MySqlConnection conn = new MySqlConnection(connStr))
-        using (MySqlCommand cmd = conn.CreateCommand())
-        {
-          conn.Open();
-          cmd.CommandText = @"insert into t2 (Val) values (?value)";
-          cmd.CommandTimeout = 5;
-          cmd.Parameters.AddWithValue("?value", new Random().Next());
-          try
-          {
-            cmd.ExecuteNonQuery();
-          }
-          catch (MySqlException ex)
-          {
-            Assert.IsTrue(ex.InnerException is TimeoutException);
-          }
-        }
+//        using (MySqlConnection conn = new MySqlConnection(connStr))
+//        using (MySqlCommand cmd = conn.CreateCommand())
+//        {
+//          conn.Open();          
+//          cmd.CommandText = @"insert into t2 (Val) values (?value)";
+//          cmd.CommandTimeout = 5;
+//          cmd.Parameters.AddWithValue("?value", new Random().Next());
+//          Exception ex = Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());
+//          Assert.Equal(ex.Message, "Timeout expired.  The timeout period elapsed prior to completion of the operation or the server is not responding.");         
+//        }               
 
-        scope.Complete();
-      }
+//        scope.Complete();
+//      }     
 
-      MySqlPoolManager.ClearAllPools();
-    }
+//      MySqlPoolManager.ClearAllPools();
+      
+//      Debug.Print("Out LockedTable");
+//    }
 
 
     /// <summary>
     /// Bug #22042 mysql-connector-net-5.0.0-alpha BeginTransaction 
     /// </summary>
-    [Test]
+    [Fact]
     public void Bug22042()
     {
+      Debug.Print("Enter Bug22042");
       DbProviderFactory factory =
           new MySql.Data.MySqlClient.MySqlClientFactory();
       using (DbConnection conexion = factory.CreateConnection())
       {
-        conexion.ConnectionString = GetConnectionString(true);
+        conexion.ConnectionString = st.GetConnectionString(true);
         conexion.Open();
         DbTransaction trans = conexion.BeginTransaction();
         trans.Rollback();
       }
+      
+      Debug.Print("Out Bug22042");
     }
 
     /// <summary>
     /// Bug #26754  	EnlistTransaction throws false MySqlExeption "Already enlisted"
     /// </summary>
-    [Test]
+    [Fact]
     public void EnlistTransactionNullTest()
     {
+      Debug.Print("Enter EnlistTransactionNullTest");
+
       try
       {
         MySqlCommand cmd = new MySqlCommand();
-        cmd.Connection = conn;
+        cmd.Connection = st.conn;
         cmd.Connection.EnlistTransaction(null);
       }
       catch { }
@@ -275,23 +253,26 @@ namespace MySql.Data.MySqlClient.Tests
       using (TransactionScope ts = new TransactionScope())
       {
         MySqlCommand cmd = new MySqlCommand();
-        cmd.Connection = conn;
+        cmd.Connection = st.conn;
         cmd.Connection.EnlistTransaction(Transaction.Current);
       }
+      Debug.Print("Out EnlistTransactionNullTest");
     }
 
     /// <summary>
     /// Bug #26754  	EnlistTransaction throws false MySqlExeption "Already enlisted"
     /// </summary>
-    [Test]
+    [Fact]
     public void EnlistTransactionWNestedTrxTest()
     {
-      MySqlTransaction t = conn.BeginTransaction();
+      Debug.Print("Enter EnlistTransactionWNestedTrxTest");
+
+      MySqlTransaction t = st.conn.BeginTransaction();
 
       using (TransactionScope ts = new TransactionScope())
       {
         MySqlCommand cmd = new MySqlCommand();
-        cmd.Connection = conn;
+        cmd.Connection = st.conn;
         try
         {
           cmd.Connection.EnlistTransaction(Transaction.Current);
@@ -307,35 +288,47 @@ namespace MySql.Data.MySqlClient.Tests
       using (TransactionScope ts = new TransactionScope())
       {
         MySqlCommand cmd = new MySqlCommand();
-        cmd.Connection = conn;
+        cmd.Connection = st.conn;
         cmd.Connection.EnlistTransaction(Transaction.Current);
       }
+
+      Debug.Print("Out EnlistTransactionWNestedTrxTest");
+
     }
 
-    [Test]
+    [Fact]
     public void ManualEnlistment()
     {
-      createTable("CREATE TABLE Test (key2 VARCHAR(1), name VARCHAR(100), name2 VARCHAR(100))", "INNODB");
-      string connStr = GetConnectionString(true) + ";auto enlist=false";
+      Debug.Print("Enter ManualEnlistment");
+
+      st.execSQL("DROP TABLE IF EXISTS Test");
+      st.createTable("CREATE TABLE Test (key2 VARCHAR(1), name VARCHAR(100), name2 VARCHAR(100))", "INNODB");
+      string connStr = st.GetConnectionString(true) + ";auto enlist=false";
       MySqlConnection c = null;
       using (TransactionScope ts = new TransactionScope())
       {
         c = new MySqlConnection(connStr);
         c.Open();
-
-        MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES ('a', 'name', 'name2')", c);
+        MySqlCommand cmd = new MySqlCommand("LOCK TABLES test WRITE;", c);
         cmd.ExecuteNonQuery();
+        cmd = new MySqlCommand("INSERT INTO Test VALUES ('a', 'name', 'name2')", c);
+        cmd.ExecuteNonQuery();
+        st.execSQL("UNLOCK TABLES");
       }
-      MySqlCommand cmd2 = new MySqlCommand("SELECT COUNT(*) FROM Test", conn);
-      Assert.AreEqual(1, cmd2.ExecuteScalar());
+      MySqlCommand cmd2 = new MySqlCommand("LOCK TABLES test READ; SELECT COUNT(*) FROM test", c);
+      Assert.Equal(1, Convert.ToInt32(cmd2.ExecuteScalar()));
+      st.execSQL("UNLOCK TABLES");
       c.Dispose();
-      KillPooledConnection(connStr);
+      st.KillPooledConnection(connStr);
+
+      Debug.Print("Out ManualEnlistment");
     }
 
     private void ManuallyEnlistingInitialConnection(bool complete)
     {
-      createTable("CREATE TABLE Test (key2 VARCHAR(1), name VARCHAR(100), name2 VARCHAR(100))", "INNODB");
-      string connStr = GetConnectionString(true) + ";auto enlist=false";
+      st.execSQL("DROP TABLE IF EXISTS Test");
+      st.createTable("CREATE TABLE Test (key2 VARCHAR(1), name VARCHAR(100), name2 VARCHAR(100))", "INNODB");
+      string connStr = st.GetConnectionString(true) + ";auto enlist=false";
 
       using (TransactionScope ts = new TransactionScope())
       {
@@ -358,27 +351,32 @@ namespace MySql.Data.MySqlClient.Tests
           ts.Complete();
       }
 
-      KillPooledConnection(connStr);
+      st.KillPooledConnection(connStr);
     }
 
-    [Test]
-    public void ManuallyEnlistingInitialConnection()
+    [Fact]
+    public void ManuallyEnlistingInitialConnectionTest()
     {
+      Debug.Print("Enter ManuallyEnlistingInitialConnectionTest");
       ManuallyEnlistingInitialConnection(true);
+      Debug.Print("Out ManuallyEnlistingInitialConnectionTest");
     }
 
-    [Test]
+    [Fact]
     public void ManuallyEnlistingInitialConnectionNoComplete()
     {
+      Debug.Print("Enter ManuallyEnlistingInitialConnectionNoComplete");
       ManuallyEnlistingInitialConnection(false);
+      Debug.Print("Out ManuallyEnlistingInitialConnectionNoComplete");
     }
 
-    [Test]
+    [Fact]
     public void ManualEnlistmentWithActiveConnection()
     {
+      Debug.Print("Enter ManualEnlistmentWithActiveConnection");
       using (TransactionScope ts = new TransactionScope())
       {
-        string connStr = GetConnectionString(true);
+        string connStr = st.GetConnectionString(true);
 
         using (MySqlConnection c1 = new MySqlConnection(connStr))
         {
@@ -398,14 +396,15 @@ namespace MySql.Data.MySqlClient.Tests
           }
         }
       }
+      Debug.Print("Out ManualEnlistmentWithActiveConnection");
     }
 
-    [Test]
+    [Fact]
     public void AttemptToEnlistTwoConnections()
     {
       using (TransactionScope ts = new TransactionScope())
       {
-        string connStr = GetConnectionString(true);
+        string connStr = st.GetConnectionString(true);
 
         using (MySqlConnection c1 = new MySqlConnection(connStr))
         {
@@ -433,17 +432,21 @@ namespace MySql.Data.MySqlClient.Tests
         bool expectInnerChangesVisible,
         bool expectOuterChangesVisible)
     {
-      createTable("CREATE TABLE T(str varchar(10))", "INNODB");
+      st.createTable("CREATE TABLE T(str varchar(10))", "INNODB");
       try
       {
         using (TransactionScope outer = new TransactionScope())
         {
-          string connStr = GetConnectionString(true);
+          string connStr = st.GetConnectionString(true);
           using (MySqlConnection c1 = new MySqlConnection(connStr))
           {
             c1.Open();
-            MySqlCommand cmd1 = new MySqlCommand("INSERT INTO T VALUES ('outer')", c1);
+            //MySqlCommand cmd1 = new MySqlCommand("LOCK TABLES T WRITE;", c1);
+            //cmd1.ExecuteNonQuery();
+            MySqlCommand  cmd1 = new MySqlCommand("INSERT INTO T VALUES ('outer')", c1);
             cmd1.ExecuteNonQuery();
+            //cmd1 = new MySqlCommand("UNLOCK TABLES", c1);
+            //cmd1.ExecuteNonQuery();          
             using (TransactionScope inner = new TransactionScope(nestedOption))
             {
 
@@ -463,33 +466,37 @@ namespace MySql.Data.MySqlClient.Tests
                 c2 = new MySqlConnection(connStr);
                 c2.Open();
               }
-
-              MySqlCommand cmd2 =
-                      new MySqlCommand("INSERT INTO T VALUES ('inner')", c2);
+              //MySqlCommand cmd2 = new MySqlCommand("LOCK TABLES T WRITE;", c2);
+              //cmd2.ExecuteNonQuery();
+              MySqlCommand  cmd2 = new MySqlCommand("INSERT INTO T VALUES ('inner')", c2);
               cmd2.ExecuteNonQuery();
-
+              //cmd2 = new MySqlCommand("UNLOCK TABLES", c2);
+              //cmd2.ExecuteNonQuery();
               if (innerComplete)
-                inner.Complete();
+              {
+                inner.Complete();                
+              }
 
               // Dispose connection if it was created.
               if (c2 != c1)
                 c2.Dispose();
-            }
+            }          
           }
-          if (outerComplete)
-            outer.Complete();
+
+          if (outerComplete)         
+            outer.Complete();            
 
         }
         bool innerChangesVisible =
-           ((long)MySqlHelper.ExecuteScalar(conn, "select count(*) from T where str = 'inner'") == 1);
+           ((long)MySqlHelper.ExecuteScalar(st.conn, "select count(*) from T where str = 'inner'") == 1);
         bool outerChangesVisible =
-            ((long)MySqlHelper.ExecuteScalar(conn, "select count(*) from T where str = 'outer'") == 1);
-        Assert.AreEqual(innerChangesVisible, expectInnerChangesVisible);
-        Assert.AreEqual(outerChangesVisible, expectOuterChangesVisible);
+            ((long)MySqlHelper.ExecuteScalar(st.conn, "select count(*) from T where str = 'outer'") == 1);
+        Assert.Equal(innerChangesVisible, expectInnerChangesVisible);
+        Assert.Equal(outerChangesVisible, expectOuterChangesVisible);
       }
       finally
       {
-        MySqlHelper.ExecuteNonQuery(conn, "DROP TABLE T");
+        MySqlHelper.ExecuteNonQuery(st.conn, "DROP TABLE T");
       }
     }
 
@@ -497,24 +504,24 @@ namespace MySql.Data.MySqlClient.Tests
     /// Test inner/outer scope behavior, with different scope options, 
     /// completing either inner or outer scope, or both.
     /// </summary>
-    [Test]
+    [Fact]
     public void NestedScope()
     {
 
+      Debug.Print("Enter NestedScope");
       // inner scope joins the ambient scope, neither inner not outer  scope completes
       // Expect empty table.
       NestedScopeInternalTest(TransactionScopeOption.Required, false, false, false, false);
 
       // inner scope joins the ambient scope, inner does not complete, outer completes
       // Expect exception while disposing outer transaction
-      try
-      {
-        NestedScopeInternalTest(TransactionScopeOption.Required, false, true, false, false);
-        Assert.Fail("expected TransactionAborted exception");
-      }
-      catch (TransactionAbortedException)
-      {
-      }
+      //try
+      //{
+        Assert.Throws<TransactionAbortedException>(() => NestedScopeInternalTest(TransactionScopeOption.Required, false, true, false, false));        
+      //}
+      //catch (TransactionAbortedException)
+      //{
+      //}
 
       // inner scope joins the ambient scope, inner completes, outer does not
       // Expect empty table.
@@ -556,6 +563,8 @@ namespace MySql.Data.MySqlClient.Tests
 
       // inner scope supresses transaction, both complete
       NestedScopeInternalTest(TransactionScopeOption.Suppress, true, true, true, true);
+      
+      Debug.Print("Enter NestedScope");
     }
 
 
@@ -563,11 +572,11 @@ namespace MySql.Data.MySqlClient.Tests
     private void ReusingSameConnection(bool pooling, bool complete)
     {
       int c1Thread;
-      execSQL("TRUNCATE TABLE Test");
+      st.execSQL("TRUNCATE TABLE Test");
 
       using (TransactionScope ts = new TransactionScope(TransactionScopeOption.RequiresNew, TimeSpan.MaxValue))
       {
-        string connStr = GetConnectionString(true);
+        string connStr = st.GetConnectionString(true);
         if (!pooling)
           connStr += ";pooling=false";
 
@@ -584,55 +593,60 @@ namespace MySql.Data.MySqlClient.Tests
           c2.Open();
           MySqlCommand cmd2 = new MySqlCommand("INSERT INTO Test (key2) VALUES ('b')", c2);
           cmd2.ExecuteNonQuery();
-          Assert.AreEqual(c1Thread, c2.ServerThread);
+          Assert.Equal(c1Thread, c2.ServerThread);
         }
 
         if (complete)
           ts.Complete();
       }
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", conn);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", st.conn);
       DataTable dt = new DataTable();
       da.Fill(dt);
       if (complete)
       {
-        Assert.AreEqual(2, dt.Rows.Count);
-        Assert.AreEqual("a", dt.Rows[0][0]);
-        Assert.AreEqual("b", dt.Rows[1][0]);
+        Assert.Equal(2, dt.Rows.Count);
+        Assert.Equal("a", dt.Rows[0][0]);
+        Assert.Equal("b", dt.Rows[1][0]);
       }
       else
       {
-        Assert.AreEqual(0, dt.Rows.Count);
+        Assert.Equal(0, dt.Rows.Count);
       }
     }
 
-    [Test]
-    public void ReusingSameConnection()
+    [Fact]
+    public void ReusingSameConnectionTest()
     {
-      createTable("CREATE TABLE Test (key2 VARCHAR(1), name VARCHAR(100), name2 VARCHAR(100))", "INNODB");
+      Debug.Print("Enter ReusingSameConnectionTest");
+      st.execSQL("DROP TABLE IF EXISTS Test");
+      st.createTable("CREATE TABLE Test (key2 VARCHAR(1), name VARCHAR(100), name2 VARCHAR(100))", "INNODB");
       ReusingSameConnection(true, true);
-      //            Assert.AreEqual(processes + 1, CountProcesses());
+      //            Assert.Equal(processes + 1, CountProcesses());
 
       ReusingSameConnection(true, false);
-      //          Assert.AreEqual(processes + 1, CountProcesses());
+      //          Assert.Equal(processes + 1, CountProcesses());
 
       ReusingSameConnection(false, true);
-      //        Assert.AreEqual(processes + 1, CountProcesses());
+      //        Assert.Equal(processes + 1, CountProcesses());
 
       ReusingSameConnection(false, false);
-      //      Assert.AreEqual(processes + 1, CountProcesses());
+      //      Assert.Equal(processes + 1, CountProcesses());
+      Debug.Print("Out ReusingSameConnectionTest");
     }
 
     /// <summary>
     /// bug#35330 - even if transaction scope has expired, rows can be inserted into
     /// the table, due to race condition with the thread doing rollback
     /// </summary>
-    [Test]
+    [Fact]
     public void ScopeTimeoutWithMySqlHelper()
     {
-      execSQL("DROP TABLE IF EXISTS Test");
-      createTable("CREATE TABLE Test (id int)", "INNODB");
-      string connStr = GetConnectionString(true);
+
+      Debug.Print("Enter ScopeTimeoutWithMySqlHelper");
+      st.execSQL("DROP TABLE IF EXISTS Test");
+      st.createTable("CREATE TABLE Test (id int)", "INNODB");
+      string connStr = st.GetConnectionString(true);
       using (new TransactionScope(TransactionScopeOption.RequiresNew, TimeSpan.FromSeconds(1)))
       {
         try
@@ -647,7 +661,8 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
       long count = (long)MySqlHelper.ExecuteScalar(connStr, "select count(*) from test");
-      Assert.AreEqual(0, count);
+      Assert.Equal(0, count);
+      Debug.Print("Out ScopeTimeoutWithMySqlHelper");
     }
 
     /// <summary>
@@ -656,12 +671,14 @@ namespace MySql.Data.MySqlClient.Tests
     /// and  checks that no command is possible after scope has expired and 
     /// rollback by timer thread is finished.
     /// </summary>
-    [Test]
+    [Fact]
     public void AttemptToUseConnectionAfterScopeTimeout()
     {
-      execSQL("DROP TABLE IF EXISTS Test");
-      createTable("CREATE TABLE Test (id int)", "INNODB");
-      string connStr = GetConnectionString(true);
+
+      Debug.Print("Enter AttemptToUseConnectionAfterScopeTimeout"); 
+      st.execSQL("DROP TABLE IF EXISTS Test");
+      st.createTable("CREATE TABLE Test (id int)", "INNODB");
+      string connStr = st.GetConnectionString(true);
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -688,20 +705,21 @@ namespace MySql.Data.MySqlClient.Tests
           // Wait until timeout thread finishes rollback then try to 
           // use an aborted connection.
           Thread.Sleep(500);
-          try
-          {
-            cmd.ExecuteNonQuery();
-            Assert.Fail("Using aborted transaction");
-          }
-          catch (TransactionAbortedException)
-          {
-          }
+          //try
+          //{
+            
+            Assert.Throws<TransactionAbortedException>(() => cmd.ExecuteNonQuery());
+          //}
+          //catch (TransactionAbortedException)
+          //{
+          //}
         }
-        Assert.IsTrue(c.State == ConnectionState.Open);
+        Assert.True(c.State == ConnectionState.Open);
         cmd.CommandText = "select count(*) from Test";
         long count = (long)cmd.ExecuteScalar();
-        Assert.AreEqual(0, count);
+        Assert.Equal(0, count);
       }
+      Debug.Print("Out AttemptToUseConnectionAfterScopeTimeout"); 
     }
 
 
@@ -709,9 +727,11 @@ namespace MySql.Data.MySqlClient.Tests
     /// Bug#54681 : Null Reference exception when using transaction
     /// scope in more that one thread
     /// </summary>
-    [Test]
+    [Fact]
     public void TransactionScopeWithThreads()
     {
+
+      Debug.Print("Enter TransactionScopeWithThreads"); 
       // use transaction scope in the current thread
       DoThreadWork();
 
@@ -720,30 +740,34 @@ namespace MySql.Data.MySqlClient.Tests
       Thread t = new Thread(new ThreadStart(DoThreadWork));
       t.Start();
       t.Join();
+      Debug.Print("Out TransactionScopeWithThreads"); 
+
     }
 
-    [Test]
-    [ExpectedException(typeof(NotSupportedException))]
+    [Fact]
     public void SnapshotIsolationLevelThrowsNotSupportedException()
     {
-      using (MySqlConnection connection = new MySqlConnection(GetConnectionString(true)))
+      Debug.Print("Enter SnapshotIsolationLevelThrowsNotSupportedException"); 
+      using (MySqlConnection connection = new MySqlConnection(st.GetConnectionString(true)))
       {
-        connection.Open();
-        MySqlTransaction transaction = connection.BeginTransaction(System.Data.IsolationLevel.Snapshot);
-        transaction.Commit();
+        connection.Open();        
+        Exception ex = Assert.Throws<NotSupportedException>(() => connection.BeginTransaction(System.Data.IsolationLevel.Snapshot));
+        Assert.Equal(ex.Message, "Snapshot isolation level is not supported.");
       }
+      Debug.Print("Out SnapshotIsolationLevelThrowsNotSupportedException");
     }
 
     private void DoThreadWork()
     {
       using (TransactionScope ts = new TransactionScope())
       {
-        string connStr = GetConnectionString(true);
+        string connStr = st.GetConnectionString(true);
         using (MySqlConnection c1 = new MySqlConnection(connStr))
         {
           c1.Open();
         }
       }
     }
+
   }
 }

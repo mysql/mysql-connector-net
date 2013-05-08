@@ -1,4 +1,4 @@
-// Copyright � 2004, 2010, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,38 +20,48 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+
 using System;
+using System.Collections.Generic;
+using System.Text;
+using Xunit;
 using System.Data;
-using System.Threading;
-using MySql.Data.MySqlClient;
-using NUnit.Framework;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  /// <summary>
-  /// Summary description for BlobTests.
-  /// </summary>
-  [TestFixture]
-  public class SqlServerMode : BaseTest
+  public class SqlServerMode : IUseFixture<SetUpClass>, IDisposable
   {
-    public SqlServerMode()
+    private SetUpClass st;
+
+    public void SetFixture(SetUpClass data)
     {
-      csAdditions += ";sqlservermode=yes;";
+      st = data;
+      st.csAdditions += ";sqlservermode=yes;";
+      if (st.conn.connectionState == ConnectionState.Open)
+        st.conn.Close();
+      st.conn.ConnectionString += st.csAdditions;
+      st.conn.Open();
     }
 
-    [Test]
+    public void Dispose()
+    {
+      st.execSQL("DROP TABLE IF EXISTS TEST");
+    }    
+
+    [Fact]
     public void Simple()
     {
-      execSQL("CREATE TABLE Test (id INT, name VARCHAR(20))");
-      execSQL("INSERT INTO Test VALUES (1, 'A')");
+      st.execSQL("CREATE TABLE Test (id INT, name VARCHAR(20))");
+      st.execSQL("INSERT INTO Test VALUES (1, 'A')");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT [id], [name] FROM [Test]", conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT [id], [name] FROM [Test]", st.conn);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
-        Assert.AreEqual(1, reader.GetInt32(0));
-        Assert.AreEqual("A", reader.GetString(1));
+        Assert.Equal(1, reader.GetInt32(0));
+        Assert.Equal("A", reader.GetString(1));
       }
     }
+
   }
 }

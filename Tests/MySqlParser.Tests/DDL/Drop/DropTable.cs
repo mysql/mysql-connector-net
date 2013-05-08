@@ -1,4 +1,4 @@
-﻿// Copyright © 2012, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -24,119 +24,119 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NUnit.Framework;
 using Antlr.Runtime;
 using Antlr.Runtime.Tree;
+using Xunit;
 
 namespace MySql.Parser.Tests.DDL.Drop
 {
-	[TestFixture]
+	
 	public class DropTable
 	{
-		[Test]
+		[Fact]
 		public void SimpleNoSchema()
 		{			
 			MySQL51Parser.program_return r = Utility.ParseSql("DROP TABLE `tablename`");
 			/*
-			Assert.AreEqual(1, statements.Count);
-			Assert.IsTrue(statements[0] is DropTableStatement);
+			Assert.Equal(1, statements.Count);
+			Assert.True(statements[0] is DropTableStatement);
 			DropTableStatement ds = statements[0] as DropTableStatement;
-			Assert.AreEqual(1, ds.ToDrop.Count);
-			Assert.IsNull(ds.ToDrop[0].Database);
-			Assert.AreEqual("`tablename`", ds.ToDrop[0].Name.Text);*/
+			Assert.Equal(1, ds.ToDrop.Count);
+			Assert.Null(ds.ToDrop[0].Database);
+			Assert.Equal("`tablename`", ds.ToDrop[0].Name.Text);*/
 		}
 
-		[Test]
+		[Fact]
 		public void SimpleWithSchema()
 		{			
 			MySQL51Parser.program_return r = Utility.ParseSql("DROP TABLE `schema1`.`tablename`");
 			/*
-			Assert.AreEqual(1, statements.Count);
-			Assert.IsTrue(statements[0] is DropTableStatement);
+			Assert.Equal(1, statements.Count);
+			Assert.True(statements[0] is DropTableStatement);
 			DropTableStatement ds = statements[0] as DropTableStatement;
-			Assert.AreEqual(1, ds.ToDrop.Count);
-			Assert.AreEqual("`schema1`", ds.ToDrop[0].Database.Text);
-			Assert.AreEqual("`tablename`", ds.ToDrop[0].Name.Text);
+			Assert.Equal(1, ds.ToDrop.Count);
+			Assert.Equal("`schema1`", ds.ToDrop[0].Database.Text);
+			Assert.Equal("`tablename`", ds.ToDrop[0].Name.Text);
 			 * */
 		}
 
-		[Test]
+		[Fact]
 		public void MissingTableName()
 		{
 			MySQL51Parser.program_return r = Utility.ParseSql("DROP TABLE", true);			
 		}
 
-		[Test]
+		[Fact]
 		public void MultipleTables()
 		{			
 			MySQL51Parser.program_return r = Utility.ParseSql("DROP TABLE `table1`, schema2.table2, `schema3`.`table3`, table4");
 			/*
-			Assert.AreEqual(1, statements.Count);
-			Assert.IsTrue(statements[0] is DropTableStatement);
+			Assert.Equal(1, statements.Count);
+			Assert.True(statements[0] is DropTableStatement);
 			DropTableStatement ds = statements[0] as DropTableStatement;
-			Assert.AreEqual(4, ds.ToDrop.Count);
+			Assert.Equal(4, ds.ToDrop.Count);
 
-			Assert.IsNull(ds.ToDrop[0].Database);
-			Assert.AreEqual("`table1`", ds.ToDrop[0].Name.Text);
+			Assert.Null(ds.ToDrop[0].Database);
+			Assert.Equal("`table1`", ds.ToDrop[0].Name.Text);
 
-			Assert.AreEqual("schema2", ds.ToDrop[1].Database.Text);
-			Assert.AreEqual("table2", ds.ToDrop[1].Name.Text);
+			Assert.Equal("schema2", ds.ToDrop[1].Database.Text);
+			Assert.Equal("table2", ds.ToDrop[1].Name.Text);
 
-			Assert.AreEqual("`schema3`", ds.ToDrop[2].Database.Text);
-			Assert.AreEqual("`table3`", ds.ToDrop[2].Name.Text);
+			Assert.Equal("`schema3`", ds.ToDrop[2].Database.Text);
+			Assert.Equal("`table3`", ds.ToDrop[2].Name.Text);
 
-			Assert.IsNull(ds.ToDrop[3].Database);
-			Assert.AreEqual("table4", ds.ToDrop[3].Name.Text);
+			Assert.Null(ds.ToDrop[3].Database);
+			Assert.Equal("table4", ds.ToDrop[3].Name.Text);
 			 * */
 		}
 
-		[Test]
+		[Fact]
 		public void IfExists()
 		{			
 			MySQL51Parser.program_return r = Utility.ParseSql("DROP TABLE IF EXISTS `tablename`");
 			/*
-			Assert.AreEqual(1, statements.Count);
-			Assert.IsTrue(statements[0] is DropTableStatement);
+			Assert.Equal(1, statements.Count);
+			Assert.True(statements[0] is DropTableStatement);
 			DropTableStatement ds = statements[0] as DropTableStatement;
-			Assert.AreEqual(1, ds.ToDrop.Count);
-			Assert.AreEqual("`tablename`", ds.ToDrop[0].Name.Text);
-			Assert.IsTrue(ds.IfExists);
+			Assert.Equal(1, ds.ToDrop.Count);
+			Assert.Equal("`tablename`", ds.ToDrop[0].Name.Text);
+			Assert.True(ds.IfExists);
 			 * */
 		}
 
-		[Test]
+		[Fact]
 		public void Temporary()
 		{
 			MySQL51Parser.program_return r = Utility.ParseSql("DROP TEMPORARY TABLE IF EXISTS `tablename`");
 			/*
-			Assert.AreEqual(1, statements.Count);
-			Assert.IsTrue(statements[0] is DropTableStatement);
+			Assert.Equal(1, statements.Count);
+			Assert.True(statements[0] is DropTableStatement);
 			DropTableStatement ds = statements[0] as DropTableStatement;
-			Assert.AreEqual(1, ds.ToDrop.Count);
-			Assert.AreEqual("`tablename`", ds.ToDrop[0].Name.Text);
-			Assert.IsTrue(ds.Temporary);
+			Assert.Equal(1, ds.ToDrop.Count);
+			Assert.Equal("`tablename`", ds.ToDrop[0].Name.Text);
+			Assert.True(ds.Temporary);
 			 * */
 		}
 
-		[Test]
+		[Fact]
 		public void CascadeOrRestrict()
 		{			
 			MySQL51Parser.program_return r = Utility.ParseSql("DROP TABLE IF EXISTS `tablename` CASCADE");
 			/*
 			DropTableStatement ds = statements[0] as DropTableStatement;
-			Assert.IsTrue(ds.Cascade);
-			Assert.IsFalse(ds.Restrict);
+			Assert.True(ds.Cascade);
+			Assert.False(ds.Restrict);
 			*/
 			r = Utility.ParseSql("DROP TABLE IF EXISTS `tablename` RESTRICT");
 			/*
 			ds = statements[0] as DropTableStatement;
-			Assert.IsFalse(ds.Cascade);
-			Assert.IsTrue(ds.Restrict);
+			Assert.False(ds.Cascade);
+			Assert.True(ds.Restrict);
 			*/
 			
 		}
 
-		[Test]
+		[Fact]
 		public void CascadeAndRestrict()
 		{
 			MySQL51Parser.program_return r = 

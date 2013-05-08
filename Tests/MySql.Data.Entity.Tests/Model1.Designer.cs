@@ -8,15 +8,15 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.ComponentModel;
+using System.Data.EntityClient;
 using System.Data.Objects;
 using System.Data.Objects.DataClasses;
-using System.Data.EntityClient;
-using System.ComponentModel;
-using System.Xml.Serialization;
+using System.Linq;
 using System.Runtime.Serialization;
+using System.Xml.Serialization;
 
 [assembly: EdmSchemaAttribute()]
-
 namespace MySql.Data.Entity.Tests
 {
     #region Contexts
@@ -95,6 +95,7 @@ namespace MySql.Data.Entity.Tests
         private ObjectSet<Shelter> _Shelters;
 
         #endregion
+
         #region AddTo Methods
     
         /// <summary>
@@ -114,11 +115,11 @@ namespace MySql.Data.Entity.Tests
         }
 
         #endregion
+
     }
-    
 
     #endregion
-    
+
     #region Entities
     
     /// <summary>
@@ -147,6 +148,7 @@ namespace MySql.Data.Entity.Tests
         }
 
         #endregion
+
         #region Primitive Properties
     
         /// <summary>
@@ -225,6 +227,7 @@ namespace MySql.Data.Entity.Tests
         partial void OnShelterIdChanged();
 
         #endregion
+
     
     }
     
@@ -250,6 +253,7 @@ namespace MySql.Data.Entity.Tests
         }
 
         #endregion
+
         #region Primitive Properties
     
         /// <summary>
@@ -280,9 +284,11 @@ namespace MySql.Data.Entity.Tests
         partial void OnIdChanged();
 
         #endregion
+
     
     }
 
     #endregion
+
     
 }

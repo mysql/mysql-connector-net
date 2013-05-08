@@ -1,4 +1,4 @@
-// Copyright � 2008, 2011, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,26 +21,30 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Data;
-using System.Threading;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using Xunit;
 using MySql.Data.MySqlClient;
-using NUnit.Framework;
-using MySql.Data.MySqlClient.Tests;
-using System.Data.EntityClient;
-using System.Data.Common;
-using System.Data.Objects;
+using System.Data;
 using System.Globalization;
+using System.Threading;
 
 namespace MySql.Data.Entity.Tests
 {
-  [TestFixture]
-  public class DataTypeTests : BaseEdmTest
+  public class DataTypeTests : IUseFixture<SetUpEntityTests>
   {
+    private SetUpEntityTests st;
+
+    public void SetFixture(SetUpEntityTests data)
+    {
+      st = data;
+    }
+
     /// <summary>
     /// Bug #45457 DbType Time is not supported in entity framework
     /// </summary>
-    [Test]
+    [Fact]
     public void TimeType()
     {
       using (testEntities context = new testEntities())
@@ -57,10 +61,10 @@ namespace MySql.Data.Entity.Tests
         context.AddToChildren(c);
         context.SaveChanges();
 
-        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM EmployeeChildren WHERE id=20", conn);
+        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM EmployeeChildren WHERE id=20", st.conn);
         DataTable dt = new DataTable();
         da.Fill(dt);
-        Assert.AreEqual(birth, dt.Rows[0]["birthtime"]);
+        Assert.Equal(birth, dt.Rows[0]["birthtime"]);
       }
     }
 
@@ -68,7 +72,7 @@ namespace MySql.Data.Entity.Tests
     /// Bug #45077	Insert problem with Connector/NET 6.0.3 and entity framework
     /// Bug #45175	Wrong SqlType for unsigned smallint when generating Entity Framework Model
     /// </summary>
-    [Test]
+    [Fact]
     public void UnsignedValues()
     {
       using (testEntities context = new testEntities())
@@ -82,7 +86,7 @@ namespace MySql.Data.Entity.Tests
     /// <summary>
     /// Bug #44455	insert and update error with entity framework
     /// </summary>
-    [Test]
+    [Fact]
     public void DoubleValuesNonEnglish()
     {
       CultureInfo curCulture = Thread.CurrentThread.CurrentCulture;
@@ -95,8 +99,7 @@ namespace MySql.Data.Entity.Tests
       {
         using (testEntities context = new testEntities())
         {
-          Child c = new Child();
-          c.Id = 20;
+          Child c = new Child();          
           c.EmployeeID = 1;
           c.FirstName = "Bam bam";
           c.LastName = "Rubble";
@@ -116,7 +119,7 @@ namespace MySql.Data.Entity.Tests
     /// <summary>
     /// Bug #46311	TimeStamp table column Entity Framework issue.
     /// </summary>
-    [Test]
+    [Fact]
     public void TimestampColumn()
     {
       DateTime now = DateTime.Now;
@@ -130,29 +133,29 @@ namespace MySql.Data.Entity.Tests
 
         c = context.Children.First();
         dt = c.Modified;
-        Assert.AreEqual(now, dt);
+        Assert.Equal(now, dt);
       }
     }
 
     /// <summary>
     /// Bug #48417	Invalid cast from 'System.String' to 'System.Guid'
     /// </summary>
-    [Test]
+    [Fact]
     public void GuidType()
     {
       using (testEntities context = new testEntities())
       {
         DataTypeTest dtt = context.DataTypeTests.First();
         string guidAsChar = dtt.idAsChar;
-        Assert.AreEqual(0, String.Compare(guidAsChar, dtt.id.ToString(), true));
-        Assert.AreEqual(0, String.Compare(guidAsChar, dtt.id2.ToString(), true));
+        Assert.Equal(0, String.Compare(guidAsChar, dtt.id.ToString(), true));
+        Assert.Equal(0, String.Compare(guidAsChar, dtt.id2.ToString(), true));
       }
     }
 
     /// <summary>
     /// Bug #62246	Connector/Net Incorrectly Maps Decimal To AnsiString
     /// </summary>
-    [Test]
+    [Fact]
     public void CanSetDbTypeDecimalFromNewDecimalParameter()
     {
       MySqlParameter newDecimalParameter = new MySqlParameter
@@ -165,7 +168,7 @@ namespace MySql.Data.Entity.Tests
         IsNullable = true
       };
 
-      Assert.AreEqual(DbType.Decimal, newDecimalParameter.DbType);
+      Assert.Equal(DbType.Decimal, newDecimalParameter.DbType);
     }
   }
 }

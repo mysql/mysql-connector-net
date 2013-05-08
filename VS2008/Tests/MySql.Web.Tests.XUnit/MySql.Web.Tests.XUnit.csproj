@@ -134,10 +134,6 @@
       <Project>{C28B1166-1380-445D-AEC1-8A18B990DD18}</Project>
       <Name>MySql.Web</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MySql.Data.Tests.XUnit\MySql.Data.Tests.XUnit.csproj">
-      <Project>{A20688EC-2D39-4BD8-BD59-90997A78E192}</Project>
-      <Name>MySql.Data.Tests.XUnit</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

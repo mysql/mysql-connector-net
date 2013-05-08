@@ -1,4 +1,4 @@
-// Copyright © 2004, 2010, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,25 +21,34 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Data;
-using System.IO;
-using System.Globalization;
-using System.Threading;
-using NUnit.Framework;
+using System.Collections.Generic;
+using System.Text;
+using Xunit;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  [TestFixture]
-  public class LanguageTests : BaseTest
+  public class LanguageTests : IUseFixture<SetUpClass>, IDisposable
   {
-    [Test]
+    private SetUpClass st;
+
+    public void SetFixture(SetUpClass data)
+    {
+      st = data;
+    }
+
+    public void Dispose()
+    {
+      st.execSQL("DROP TABLE IF EXISTS TEST");
+    }
+
+    [Fact]
     public void Unicode()
     {
-      if (Version < new Version(4, 1)) return;
+      if (st.Version < new Version(4, 1)) return;
 
-      execSQL("CREATE TABLE Test (u2 varchar(255) CHARACTER SET ucs2)");
+      st.execSQL("CREATE TABLE Test (u2 varchar(255) CHARACTER SET ucs2)");
 
-      using (MySqlConnection c = new MySqlConnection(conn.ConnectionString + ";charset=utf8"))
+      using (MySqlConnection c = new MySqlConnection(st.conn.ConnectionString + ";charset=utf8"))
       {
         c.Open();
 
@@ -51,7 +60,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           reader.Read();
           string s1 = reader.GetString(0);
-          Assert.AreEqual("困巫忘否役", s1);
+          Assert.Equal("困巫忘否役", s1);
         }
       }
     }
@@ -59,27 +68,27 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #13806  	Does not support Code Page 932
     /// </summary>
-    [Test]
+    [Fact]
     public void CP932()
     {
-      using (MySqlConnection c = new MySqlConnection(GetConnectionString(true) + ";charset=cp932"))
+      using (MySqlConnection c = new MySqlConnection(st.GetConnectionString(true) + ";charset=cp932"))
       {
         c.Open();
 
         MySqlCommand cmd = new MySqlCommand("SELECT '涯割晦叶角'", c);
         string s = (string)cmd.ExecuteScalar();
-        Assert.AreEqual("涯割晦叶角", s);
+        Assert.Equal("涯割晦叶角", s);
       }
     }
 
-    [Test]
+    [Fact]
     public void UTF8()
     {
-      if (Version < new Version(4, 1)) return;
+      if (st.Version < new Version(4, 1)) return;
 
-      execSQL("CREATE TABLE Test (id int, name VARCHAR(200) CHAR SET utf8)");
+      st.execSQL("CREATE TABLE Test (id int, name VARCHAR(200) CHAR SET utf8)");
 
-      using (MySqlConnection c = new MySqlConnection(conn.ConnectionString + ";charset=utf8"))
+      using (MySqlConnection c = new MySqlConnection(st.conn.ConnectionString + ";charset=utf8"))
       {
         c.Open();
 
@@ -111,33 +120,33 @@ namespace MySql.Data.MySqlClient.Tests
         using (MySqlDataReader reader = cmd.ExecuteReader())
         {
           reader.Read();
-          Assert.AreEqual("ЁЄЉҖҚ", reader.GetString(1));
+          Assert.Equal("ЁЄЉҖҚ", reader.GetString(1));
           reader.Read();
-          Assert.AreEqual("兣冘凥凷冋", reader.GetString(1));
+          Assert.Equal("兣冘凥凷冋", reader.GetString(1));
           reader.Read();
-          Assert.AreEqual("困巫忘否役", reader.GetString(1));
+          Assert.Equal("困巫忘否役", reader.GetString(1));
           reader.Read();
-          Assert.AreEqual("涯割晦叶角", reader.GetString(1));
+          Assert.Equal("涯割晦叶角", reader.GetString(1));
           reader.Read();
-          Assert.AreEqual("ברחפע", reader.GetString(1));
+          Assert.Equal("ברחפע", reader.GetString(1));
           reader.Read();
-          Assert.AreEqual("ψόβΩΞ", reader.GetString(1));
+          Assert.Equal("ψόβΩΞ", reader.GetString(1));
           reader.Read();
-          Assert.AreEqual("þðüçöÝÞÐÜÇÖ", reader.GetString(1));
+          Assert.Equal("þðüçöÝÞÐÜÇÖ", reader.GetString(1));
           reader.Read();
-          Assert.AreEqual("ฅๆษ", reader.GetString(1));
+          Assert.Equal("ฅๆษ", reader.GetString(1));
         }
       }
     }
 
-    [Test]
+    [Fact]
     public void UTF8PreparedAndUsingParameters()
     {
-      if (Version < new Version(4, 1)) return;
+      if (st.Version < new Version(4, 1)) return;
 
-      execSQL("CREATE TABLE Test (name VARCHAR(200) CHAR SET utf8)");
+      st.execSQL("CREATE TABLE Test (name VARCHAR(200) CHAR SET utf8)");
 
-      using (MySqlConnection c = new MySqlConnection(conn.ConnectionString + ";charset=utf8"))
+      using (MySqlConnection c = new MySqlConnection(st.conn.ConnectionString + ";charset=utf8"))
       {
         c.Open();
 
@@ -173,35 +182,35 @@ namespace MySql.Data.MySqlClient.Tests
         using (MySqlDataReader reader = cmd.ExecuteReader())
         {
           reader.Read();
-          Assert.AreEqual("ЁЄЉҖҚ", reader.GetString(0));
+          Assert.Equal("ЁЄЉҖҚ", reader.GetString(0));
           reader.Read();
-          Assert.AreEqual("兣冘凥凷冋", reader.GetString(0));
+          Assert.Equal("兣冘凥凷冋", reader.GetString(0));
           reader.Read();
-          Assert.AreEqual("困巫忘否役", reader.GetString(0));
+          Assert.Equal("困巫忘否役", reader.GetString(0));
           reader.Read();
-          Assert.AreEqual("涯割晦叶角", reader.GetString(0));
+          Assert.Equal("涯割晦叶角", reader.GetString(0));
           reader.Read();
-          Assert.AreEqual("ברחפע", reader.GetString(0));
+          Assert.Equal("ברחפע", reader.GetString(0));
           reader.Read();
-          Assert.AreEqual("ψόβΩΞ", reader.GetString(0));
+          Assert.Equal("ψόβΩΞ", reader.GetString(0));
           reader.Read();
-          Assert.AreEqual("þðüçöÝÞÐÜÇÖ", reader.GetString(0));
+          Assert.Equal("þðüçöÝÞÐÜÇÖ", reader.GetString(0));
           reader.Read();
-          Assert.AreEqual("ฅๆษ", reader.GetString(0));
+          Assert.Equal("ฅๆษ", reader.GetString(0));
         }
       }
     }
 
-    [Test]
+    [Fact]
     public void Chinese()
     {
-      if (Version < new Version(4, 1)) return;
+      if (st.Version < new Version(4, 1)) return;
 
-      using (MySqlConnection c = new MySqlConnection(conn.ConnectionString + ";charset=utf8"))
+      using (MySqlConnection c = new MySqlConnection(st.conn.ConnectionString + ";charset=utf8"))
       {
         c.Open();
 
-        execSQL("CREATE TABLE Test (id int, name VARCHAR(200) CHAR SET big5, name2 VARCHAR(200) CHAR SET gb2312)");
+        st.execSQL("CREATE TABLE Test (id int, name VARCHAR(200) CHAR SET big5, name2 VARCHAR(200) CHAR SET gb2312)");
 
         MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1, '困巫忘否役', '涝搞谷侪魍' )", c);
         cmd.ExecuteNonQuery();
@@ -210,20 +219,20 @@ namespace MySql.Data.MySqlClient.Tests
         using (MySqlDataReader reader = cmd.ExecuteReader())
         {
           reader.Read();
-          Assert.AreEqual("困巫忘否役", reader.GetString(1));
-          Assert.AreEqual("涝搞谷侪魍", reader.GetString(2));
+          Assert.Equal("困巫忘否役", reader.GetString(1));
+          Assert.Equal("涝搞谷侪魍", reader.GetString(2));
         }
       }
     }
 
-    [Test]
+    [Fact]
     public void Turkish()
     {
-      if (Version < new Version(4, 1)) return;
+      if (st.Version < new Version(4, 1)) return;
 
-      execSQL("CREATE TABLE Test (id int, name VARCHAR(200) CHAR SET latin5 )");
+      st.execSQL("CREATE TABLE Test (id int, name VARCHAR(200) CHAR SET latin5 )");
 
-      using (MySqlConnection c = new MySqlConnection(conn.ConnectionString + ";charset=utf8"))
+      using (MySqlConnection c = new MySqlConnection(st.conn.ConnectionString + ";charset=utf8"))
       {
         c.Open();
 
@@ -235,19 +244,19 @@ namespace MySql.Data.MySqlClient.Tests
         using (MySqlDataReader reader = cmd.ExecuteReader())
         {
           reader.Read();
-          Assert.AreEqual("ĞËÇÄŞ", reader.GetString(1));
+          Assert.Equal("ĞËÇÄŞ", reader.GetString(1));
         }
       }
     }
 
-    [Test]
+    [Fact]
     public void Russian()
     {
-      if (Version < new Version(4, 1)) return;
+      if (st.Version < new Version(4, 1)) return;
 
-      execSQL("CREATE TABLE Test (id int, name VARCHAR(200) CHAR SET cp1251)");
+      st.execSQL("CREATE TABLE Test (id int, name VARCHAR(200) CHAR SET cp1251)");
 
-      using (MySqlConnection c = new MySqlConnection(conn.ConnectionString + ";charset=utf8"))
+      using (MySqlConnection c = new MySqlConnection(st.conn.ConnectionString + ";charset=utf8"))
       {
         c.Open();
 
@@ -258,34 +267,35 @@ namespace MySql.Data.MySqlClient.Tests
         using (MySqlDataReader reader = cmd.ExecuteReader())
         {
           reader.Read();
-          Assert.AreEqual("щьеи", reader.GetString(1));
+          Assert.Equal("щьеи", reader.GetString(1));
         }
       }
     }
 
-    [Test]
+    [Fact]
     public void VariousCollations()
     {
-      if (Version < new Version(4, 1)) return;
-
-      createTable(@"CREATE TABLE `test_tbl`(`test` VARCHAR(255) NOT NULL) 
+      if (st.Version < new Version(4, 1)) return;
+      
+      st.execSQL("DROP TABLE IF EXISTS test_tb");
+      st.createTable(@"CREATE TABLE `test_tbl`(`test` VARCHAR(255) NOT NULL) 
                             CHARACTER SET utf8 COLLATE utf8_swedish_ci", "MYISAM");
-      execSQL("INSERT INTO test_tbl VALUES ('myval')");
-      MySqlCommand cmd = new MySqlCommand("SELECT test FROM test_tbl", conn);
+      st.execSQL("INSERT INTO test_tbl VALUES ('myval')");
+      MySqlCommand cmd = new MySqlCommand("SELECT test FROM test_tbl", st.conn);
       cmd.ExecuteScalar();
     }
 
     /// <summary>
     /// Bug #25651 SELECT does not work properly when WHERE contains UTF-8 characters 
     /// </summary>
-    [Test]
+    [Fact]
     public void UTF8Parameters()
     {
-      execSQL("CREATE TABLE test (id int(11) NOT NULL, " +
+      st.execSQL("CREATE TABLE test (id int(11) NOT NULL, " +
           "value varchar(100) NOT NULL, PRIMARY KEY (id)) " +
           "ENGINE=MyISAM DEFAULT CHARSET=utf8");
 
-      string conString = GetConnectionString(true) + ";charset=utf8";
+      string conString = st.GetConnectionString(true) + ";charset=utf8";
       using (MySqlConnection con = new MySqlConnection(conString))
       {
         con.Open();
@@ -297,7 +307,7 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.Parameters.Add("?parameter", MySqlDbType.VarString);
         cmd.Parameters[0].Value = "šđčćžŠĐČĆŽ";
         object o = cmd.ExecuteScalar();
-        Assert.AreEqual(1, o);
+        Assert.Equal(1, o);
       }
     }
   }

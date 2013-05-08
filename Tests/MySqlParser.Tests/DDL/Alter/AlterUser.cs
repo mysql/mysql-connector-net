@@ -26,15 +26,15 @@ namespace MySql.Parser.Tests
   using System.Collections.Generic;
   using System.Linq;
   using System.Text;
-  using NUnit.Framework;
   using Antlr.Runtime;
   using Antlr.Runtime.Tree;
   using MySql.Parser;
+  using Xunit;
 
-  [TestFixture]
+  
   public class AlterUser
   {
-    [Test]
+    [Fact]
     public void Simple()
     {
       StringBuilder sb;
@@ -42,13 +42,13 @@ namespace MySql.Parser.Tests
         @"ALTER USER 'jeffrey'@'localhost' PASSWORD EXPIRE;", false, out sb, new Version( 5, 6 ) );
     }
 
-    [Test]
+    [Fact]
     public void Simple55()
     {
       StringBuilder sb;
       MySQL51Parser.program_return r = Utility.ParseSql(
         @"ALTER USER 'jeffrey'@'localhost' PASSWORD EXPIRE;", true, out sb, new Version(5, 5));
-      Assert.IsTrue( sb.ToString().IndexOf( "user", StringComparison.InvariantCultureIgnoreCase ) 
+      Assert.True( sb.ToString().IndexOf( "user", StringComparison.InvariantCultureIgnoreCase ) 
         != -1 );
     }
   }

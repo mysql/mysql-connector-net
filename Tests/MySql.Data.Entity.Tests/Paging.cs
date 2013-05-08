@@ -1,4 +1,4 @@
-// Copyright © 2008, 2011, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -18,7 +18,7 @@
 //
 // You should have received a copy of the GNU General Public License along 
 // with this program; if not, write to the Free Software Foundation, Inc., 
-// 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA 
+// 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
 using System.Data;
@@ -28,110 +28,116 @@ using MySql.Data.MySqlClient.Tests;
 using System.Linq;
 using System.Data.EntityClient;
 using System.Data.Common;
-using NUnit.Framework;
 using System.Data.Objects;
 using MySql.Data.Entity.Tests.Properties;
+using Xunit;
 
-namespace MySql.Data.Entity.Tests
-{
-  [TestFixture]
-  public class Paging : BaseEdmTest
+namespace MySql.Data.Entity.Tests.XUnit
+{  
+  public class Paging : IUseFixture<SetUpEntityTests>
   {
-    [Test]
+    private SetUpEntityTests st;
+
+    public void SetFixture(SetUpEntityTests data)
+    {
+      st = data;
+    }
+  
+    [Fact]
     public void Top()
     {
       using (testEntities context = new testEntities())
       {
-        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Companies LIMIT 2", conn);
+        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Companies LIMIT 2", st.conn);
         DataTable dt = new DataTable();
         da.Fill(dt);
 
         int i = 0;
         var query = context.Companies.Top("2");
         string sql = query.ToTraceString();
-        CheckSql(sql, SQLSyntax.Top);
+        st.CheckSql(sql, SQLSyntax.Top);
 
         foreach (Company c in query)
         {
-          Assert.AreEqual(dt.Rows[i++]["id"], c.Id);
+          Assert.Equal(dt.Rows[i++]["id"], c.Id);
         }
       }
     }
 
-    [Test]
+    [Fact]
     public void Skip()
     {
       using (testEntities context = new testEntities())
       {
-        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Companies LIMIT 3,20", conn);
+        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Companies LIMIT 3,20", st.conn);
         DataTable dt = new DataTable();
         da.Fill(dt);
 
         int i = 0;
         var query = context.Companies.Skip("it.Id", "3");
         string sql = query.ToTraceString();
-        CheckSql(sql, SQLSyntax.Skip);
+        st.CheckSql(sql, SQLSyntax.Skip);
 
         foreach (Company c in query)
         {
-          Assert.AreEqual(dt.Rows[i++]["id"], c.Id);
+          Assert.Equal(dt.Rows[i++]["id"], c.Id);
         }
       }
     }
 
-    [Test]
+    [Fact]
     public void SkipAndTakeSimple()
     {
       using (testEntities context = new testEntities())
       {
-        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Companies LIMIT 2,2", conn);
+        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Companies LIMIT 2,2", st.conn);
         DataTable dt = new DataTable();
         da.Fill(dt);
 
         int i = 0;
         var query = context.Companies.Skip("it.Id", "2").Top("2");
         string sql = query.ToTraceString();
-        CheckSql(sql, SQLSyntax.SkipAndTakeSimple);
+        st.CheckSql(sql, SQLSyntax.SkipAndTakeSimple);
 
         foreach (Company c in query)
         {
-          Assert.AreEqual(dt.Rows[i++]["id"], c.Id);
+          Assert.Equal(dt.Rows[i++]["id"], c.Id);
         }
-        Assert.AreEqual(2, i);
+        Assert.Equal(2, i);
       }
     }
 
     /// <summary>
     /// Bug #45723 Entity Framework DbSortExpression not processed when using Skip & Take  
     /// </summary>
-    [Test]
+    [Fact]
     public void SkipAndTakeWithOrdering()
     {
       using (testEntities context = new testEntities())
       {
-        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Companies ORDER BY Name DESC LIMIT 2,2", conn);
+        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Companies ORDER BY Name DESC LIMIT 2,2", st.conn);
         DataTable dt = new DataTable();
         da.Fill(dt);
 
         int i = 0;
         var query = context.Companies.OrderByDescending(q => q.Name).Skip(2).Take(2);
         string sql = query.ToTraceString();
-        CheckSql(sql, SQLSyntax.SkipAndTakeWithOrdering);
+        st.CheckSql(sql, SQLSyntax.SkipAndTakeWithOrdering);
         foreach (Company c in query)
-          Assert.AreEqual(dt.Rows[i++]["Name"], c.Name);
+          Assert.Equal(dt.Rows[i++]["Name"], c.Name);
       }
     }
 
     /// <summary>
     /// Tests fix for bug #64749 - Entity Framework - Take().Count() fails with EntityCommandCompilationException.
     /// </summary>
-    [Test]
+    [Fact]
     public void TakeWithCount()
     {
       using (testEntities context = new testEntities())
       {
         int cnt = context.Companies.Take(2).Count();
-        Assert.AreEqual(2, cnt);
+        Assert.Equal(2, cnt);
       }
     }
   }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -35,20 +35,38 @@ using System.Threading;
 using MySql.Data.Entity.CodeFirst.Tests.Properties;
 using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.Tests;
-using NUnit.Framework;
 using System.Xml.Linq;
 using System.Collections.Generic;
+using Xunit;
+
 
 namespace MySql.Data.Entity.CodeFirst.Tests
 {
-  [TestFixture]
-  public class CodeFirstTests : BaseCodeFirstTest
+  public class CodeFirstTests : IUseFixture<SetUpCodeFirstTests>, IDisposable
   {
+    private SetUpCodeFirstTests st;
+
+    public void SetFixture(SetUpCodeFirstTests data)
+    {
+      st = data;
+    }
+
+    public void Dispose()
+    {
+      ReInitDb();
+    }
+
+    private void ReInitDb()
+    {
+      st.suExecSQL(string.Format("drop database if exists `{0}`", st.conn.Database));
+      st.suExecSQL(string.Format("create database `{0}`", st.conn.Database));
+    }
+
     /// <summary>
     /// Tests for fix of http://bugs.mysql.com/bug.php?id=61230
     /// ("The provider did not return a ProviderManifestToken string.").
     /// </summary>
-    [Test]
+    [Fact]
     public void SimpleCodeFirstSelect()
     {
       MovieDBContext db = new MovieDBContext();
@@ -63,7 +81,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     /// Tests for fix of http://bugs.mysql.com/bug.php?id=62150
     /// ("EF4.1, Code First, CreateDatabaseScript() generates an invalid MySQL script.").
     /// </summary>
-    [Test]
+    [Fact]
     public void AlterTableTest()
     {
       ReInitDb();
@@ -82,16 +100,19 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     /// <summary>
     /// Fix for "Connector/Net Generates Incorrect SELECT Clause after UPDATE" (MySql bug #62134, Oracle bug #13491689).
     /// </summary>
-    [Test]
+    [Fact]
     public void ConcurrencyCheck()
     {
       using (MovieDBContext db = new MovieDBContext())
       {
+        db.Database.Delete();
+        db.Database.CreateIfNotExists();
+        
         db.Database.ExecuteSqlCommand(
-@"DROP TABLE IF EXISTS `test3`.`MovieReleases`");
+@"DROP TABLE IF EXISTS `MovieReleases`");
 
         db.Database.ExecuteSqlCommand(
-@"CREATE TABLE `MovieReleases` (
+@"CREATE TABLE IF NOT EXISTS `MovieReleases` (
   `Id` int(11) NOT NULL,
   `Name` varbinary(45) NOT NULL,
   `Timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -122,18 +143,18 @@ namespace MySql.Data.Entity.CodeFirst.Tests
           Match m = rx.Match(s);
           if (m.Success)
           {
-            CheckSql(m.Groups["item"].Value, SQLSyntax.UpdateWithSelect);
-            Assert.Pass();
+            st.CheckSql(m.Groups["item"].Value, SQLSyntax.UpdateWithSelect);
+            //Assert.Pass();
           }
         }
-        Assert.Fail();
+        //Assert.Fail();
       }
     }
 
     /// <summary>
     /// This tests fix for http://bugs.mysql.com/bug.php?id=64216.
     /// </summary>
-    [Test]
+    [Fact]
     public void CheckByteArray()
     {
       MovieDBContext db = new MovieDBContext();
@@ -142,13 +163,13 @@ namespace MySql.Data.Entity.CodeFirst.Tests
         ((IObjectContextAdapter)db).ObjectContext.CreateDatabaseScript();
       Regex rx = new Regex(@"`Data` (?<type>[^\),]*)", RegexOptions.Compiled | RegexOptions.Singleline);
       Match m = rx.Match(dbCreationScript);
-      Assert.AreEqual("longblob", m.Groups["type"].Value);
+      Assert.Equal("longblob", m.Groups["type"].Value);
     }
 
 /// <summary>
     /// Validates a stored procedure call using Code First
     /// Bug #14008699
-    [Test]
+    [Fact]
     public void CallStoredProcedure()
     {
       using (MovieDBContext context = new MovieDBContext())
@@ -156,7 +177,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
         context.Database.Initialize(true);
         int count = context.Database.SqlQuery<int>("GetCount").First();
 
-        Assert.AreEqual(5, count);
+        Assert.Equal(5, count);
       }
     }
 
@@ -164,7 +185,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     /// Tests for fix of http://bugs.mysql.com/bug.php?id=63920
     /// Maxlength error when it's used code-first and inheritance (discriminator generated column)
     /// </summary>
-    [Test]
+    [Fact]
     public void Bug63920_Test1()
     {
       ReInitDb();
@@ -187,7 +208,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
           records = Convert.ToInt32(cmd.ExecuteScalar());
         }
 
-        Assert.AreEqual(context.Vehicles.Count(), records);
+        Assert.Equal(context.Vehicles.Count(), records);
       }
     }
 
@@ -195,7 +216,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     /// Tests for fix of http://bugs.mysql.com/bug.php?id=63920
     /// Key reference generation script error when it's used code-first and a single table for the inherited models
     /// </summary>
-    [Test]
+    [Fact]
     public void Bug63920_Test2()
     {
       ReInitDb();
@@ -218,7 +239,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
           records = Convert.ToInt32(cmd.ExecuteScalar());
         }
 
-        Assert.AreEqual(context.Vehicles.Count(), records);
+        Assert.Equal(context.Vehicles.Count(), records);
       }     
     }
 
@@ -226,31 +247,19 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     /// This test fix for precision customization for columns bug (http://bugs.mysql.com/bug.php?id=65001), 
     /// Trying to customize column precision in Code First does not work).
     /// </summary>
-    [Test]
+    [Fact]
     public void TestPrecisionNscale()
     {
       MovieDBContext db = new MovieDBContext();
       db.Database.Initialize(true);
       var l = db.Movies.ToList();
-      IDataReader r = execReader( string.Format( 
+      IDataReader r = st.execReader( string.Format( 
 @"select numeric_precision, numeric_scale from information_schema.columns 
-where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'", conn.Database ));
+where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'", st.conn.Database ));
       r.Read();
-      Assert.AreEqual( 16, r.GetInt32( 0 ) );
-      Assert.AreEqual( 2, r.GetInt32( 1 ) );
-    }
-
-    [TearDown]
-    public void TearDown()
-    {
-      ReInitDb();
-    }
-
-    private void ReInitDb()
-    {
-      this.suExecSQL( string.Format( "drop database if exists `{0}`", conn.Database ));
-      this.suExecSQL(string.Format("create database `{0}`", conn.Database));
-    }
+      Assert.Equal( 16, r.GetInt32( 0 ) );
+      Assert.Equal( 2, r.GetInt32( 1 ) );
+    }       
 
     /// <summary>
     /// Test String types to StoreType for String
@@ -261,7 +270,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
     /// Max Length left empty will be nvarchar(max)
     /// Max Length(100) will be nvarchar(100)                
     /// </summary>
-    [Test]
+    [Fact]
     public void TestStringTypeToStoreType()
     {
       using (VehicleDbContext3 context = new VehicleDbContext3())
@@ -279,9 +288,9 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
           MySqlDataReader reader = query.ExecuteReader();
           while (reader.Read())
           {
-            Assert.AreEqual("Description", reader[0].ToString());
-            Assert.AreEqual("NO", reader[1].ToString());
-            Assert.AreEqual("mediumtext", reader[2].ToString());
+            Assert.Equal("Description", reader[0].ToString());
+            Assert.Equal("NO", reader[1].ToString());
+            Assert.Equal("mediumtext", reader[2].ToString());
           }
           reader.Close();
 
@@ -289,10 +298,10 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
           reader = query.ExecuteReader();
           while (reader.Read())
           {
-            Assert.AreEqual("Name", reader[0].ToString());
-            Assert.AreEqual("NO", reader[1].ToString());
-            Assert.AreEqual("varchar", reader[2].ToString());
-            Assert.AreEqual("255", reader[3].ToString());
+            Assert.Equal("Name", reader[0].ToString());
+            Assert.Equal("NO", reader[1].ToString());
+            Assert.Equal("varchar", reader[2].ToString());
+            Assert.Equal("255", reader[3].ToString());
           }
           reader.Close();
 
@@ -300,10 +309,10 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
           reader = query.ExecuteReader();
           while (reader.Read())
           {
-            Assert.AreEqual("LongDescription", reader[0].ToString());
-            Assert.AreEqual("NO", reader[1].ToString());
-            Assert.AreEqual("longtext", reader[2].ToString());
-            Assert.AreEqual("4294967295", reader[3].ToString());
+            Assert.Equal("LongDescription", reader[0].ToString());
+            Assert.Equal("NO", reader[1].ToString());
+            Assert.Equal("longtext", reader[2].ToString());
+            Assert.Equal("4294967295", reader[3].ToString());
           }
         }
       }
@@ -313,7 +322,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
     /// Test fix for http://bugs.mysql.com/bug.php?id=66066 / http://clustra.no.oracle.com/orabugs/bug.php?id=14479715
     /// (Using EF, crash when generating insert with no values.).
     /// </summary>
-    [Test]
+    [Fact]
     public void AddingEmptyRow()
     {
       using (MovieDBContext ctx = new MovieDBContext())
@@ -326,7 +335,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       using (MovieDBContext ctx2 = new MovieDBContext())
       {
         var q = from esc in ctx2.EntitySingleColumns where esc.Id == 1 select esc;
-        Assert.AreEqual(1, q.Count());
+        Assert.Equal(1, q.Count());
       }
     }
 
@@ -334,7 +343,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
     /// Test for identity columns when type is Integer or Guid (auto-generate
     /// values)
     /// </summary>
-    [Test]
+    [Fact]
     public void IdentityTest()
     {
       using (VehicleDbContext context = new VehicleDbContext())
@@ -375,23 +384,23 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
           // Validates Guid
           MySqlCommand cmd = new MySqlCommand("SELECT * FROM Manufacturers", conn);
           MySqlDataReader dr = cmd.ExecuteReader();
-          if (!dr.HasRows)
-            Assert.Fail("No records found");
+          Assert.False(!dr.HasRows, "No records found");
+
           while (dr.Read())
           {
             string name = dr.GetString(1);
             switch (name)
             {
               case "Nissan":
-                Assert.AreEqual(dr.GetGuid(0), nissan.ManufacturerId);
-                Assert.AreEqual(dr.GetGuid(2), nissan.GroupIdentifier);
+                Assert.Equal(dr.GetGuid(0), nissan.ManufacturerId);
+                Assert.Equal(dr.GetGuid(2), nissan.GroupIdentifier);
                 break;
               case "Ford":
-                Assert.AreEqual(dr.GetGuid(0), ford.ManufacturerId);
-                Assert.AreEqual(dr.GetGuid(2), ford.GroupIdentifier);
+                Assert.Equal(dr.GetGuid(0), ford.ManufacturerId);
+                Assert.Equal(dr.GetGuid(2), ford.GroupIdentifier);
                 break;
               default:
-                Assert.Fail();
+                //Assert.Fail();
                 break;
             }
           }
@@ -401,20 +410,20 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
           cmd = new MySqlCommand("SELECT * FROM Distributors", conn);
           dr = cmd.ExecuteReader();
           if (!dr.HasRows)
-            Assert.Fail("No records found");
+            //Assert.Fail("No records found");
           while (dr.Read())
           {
             string name = dr.GetString(1);
             switch (name)
             {
               case "Distributor1":
-                Assert.AreEqual(dr.GetInt32(0), dis1.DistributorId);
+                Assert.Equal(dr.GetInt32(0), dis1.DistributorId);
                 break;
               case "Distributor2":
-                Assert.AreEqual(dr.GetInt32(0), dis2.DistributorId);
+                Assert.Equal(dr.GetInt32(0), dis2.DistributorId);
                 break;
               default:
-                Assert.Fail();
+                //Assert.Fail();
                 break;
             }
           }
@@ -426,10 +435,9 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
     /// <summary>
     /// This test the fix for bug 67377.
     /// </summary>
-    [Test]
+    [Fact]
     public void FirstOrDefaultNested()
     {
-      ReInitDb();
       using (MovieDBContext ctx = new MovieDBContext())
       {
         ctx.Database.Initialize(true);
@@ -450,10 +458,10 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
      /// <summary>
     /// SUPPORT FOR DATE TYPES WITH PRECISION
     /// </summary>
-    [Test]
+    [Fact]
     public void CanDefineDatesWithPrecisionFor56()
     {
-      if (Version < new Version(5, 6)) return;
+      if (st.Version < new Version(5, 6)) return;
 
       using (var db = new ProductsDbContext())
       {
@@ -466,10 +474,10 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
           MySqlDataReader reader = query.ExecuteReader();
           while (reader.Read())
           {
-            Assert.AreEqual("DateTimeWithPrecision", reader[0].ToString());
-            Assert.AreEqual("NO", reader[1].ToString());
-            Assert.AreEqual("datetime", reader[2].ToString());
-            Assert.AreEqual("3", reader[3].ToString());
+            Assert.Equal("DateTimeWithPrecision", reader[0].ToString());
+            Assert.Equal("NO", reader[1].ToString());
+            Assert.Equal("datetime", reader[2].ToString());
+            Assert.Equal("3", reader[3].ToString());
           }
           reader.Close();
 
@@ -478,10 +486,10 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
           reader = query.ExecuteReader();
           while (reader.Read())
           {
-            Assert.AreEqual("TimeStampWithPrecision", reader[0].ToString());
-            Assert.AreEqual("NO", reader[1].ToString());
-            Assert.AreEqual("timestamp", reader[2].ToString());
-            Assert.AreEqual("3", reader[3].ToString());
+            Assert.Equal("TimeStampWithPrecision", reader[0].ToString());
+            Assert.Equal("NO", reader[1].ToString());
+            Assert.Equal("timestamp", reader[2].ToString());
+            Assert.Equal("3", reader[3].ToString());
           }
           reader.Close();
         }
@@ -492,16 +500,15 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
     /// <summary>
     /// Orabug #15935094 SUPPORT FOR CURRENT_TIMESTAMP AS DEFAULT FOR DATETIME WITH EF
     /// </summary>
-    [Test]
+    [Fact]
     public void CanDefineDateTimeAndTimestampWithIdentity()
     {
-      ReInitDb();
-      if (Version < new Version(5, 6)) return;
+
+      if (st.Version < new Version(5, 6)) return;
 
       using (var db = new ProductsDbContext())
       {
-        //db.Database.CreateIfNotExists();
-        db.Database.Initialize(true);
+        db.Database.CreateIfNotExists();
         Product product = new Product
         {
           //Omitting Identity Columns
@@ -516,33 +523,15 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         updateProduct.DateTimeWithPrecision = new DateTime(2012, 3, 18, 23, 9, 7, 6);
         db.SaveChanges();
 
-        Assert.AreNotEqual(null, db.Products.First().Timestamp);
-        Assert.AreNotEqual(null, db.Products.First().DateCreated);
-        Assert.AreEqual(new DateTime(2012, 3, 18, 23, 9, 7, 6), db.Products.First().DateTimeWithPrecision);
-        Assert.AreEqual(1, db.Products.Count());
+        Assert.NotNull(db.Products.First().Timestamp);
+        Assert.NotNull(db.Products.First().DateCreated);
+        Assert.Equal(new DateTime(2012, 3, 18, 23, 9, 7, 6), db.Products.First().DateTimeWithPrecision);
+        Assert.Equal(1, db.Products.Count());
 
         db.Database.Delete();
       }
-    }
+    } 
 
-    /// <summary>
-    /// Test of fix for bug Support for EntityFramework 4.3 Code First Generated Identifiers (MySql Bug #67285, Oracle bug #16286397).
-    /// FKs are renamed to met http://dev.mysql.com/doc/refman/5.0/en/identifiers.html limitations.
-    /// </summary>
-    [Test]
-    public void LongIdentifiersInheritanceTPT()
-    {
-      ReInitDb();
-      using (DinosauriaDBContext db = new DinosauriaDBContext())
-      {
-        db.Database.Initialize(true);
-        Tyrannosauridae ty = new Tyrannosauridae() { Id = 1, Name = "Genghis Rex", SpecieName = "TRex", Weight = 1000 };
-        db.dinos.Add(ty);
-        Oviraptorosauria ovi = new Oviraptorosauria() { Id = 2, EggsPerYear = 100, Name = "John the Velociraptor", SpecieName = "Oviraptor" };
-        db.dinos.Add(ovi);
-        db.SaveChanges();
-      }
-    }
   }
 }
 
