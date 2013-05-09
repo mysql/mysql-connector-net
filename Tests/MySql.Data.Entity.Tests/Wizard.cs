@@ -1,4 +1,4 @@
-// Copyright © 2008, 2011, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -26,34 +26,40 @@ using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.Tests;
 using System.Data.EntityClient;
 using System.Data.Common;
-using NUnit.Framework;
 using System.Data.Objects;
 using System.Data.Entity.Design;
 using System.Linq;
 using Store;
 using System.Configuration;
 using System.Xml;
+using Xunit;
 
 
 namespace MySql.Data.Entity.Tests
 {
   // This test unit covers the tests that the wizard runs when generating a model
   // from an existing database
-  [TestFixture]
-  public class WizardTests : BaseEdmTest
+  public class WizardTests : IUseFixture<SetUpEntityTests>
   {
+    private SetUpEntityTests st;
+
+    public void SetFixture(SetUpEntityTests data)
+    {
+      st = data;
+    }
+
     private EntityConnection GetConnection()
     {
       return EntityStoreSchemaGenerator.CreateStoreSchemaConnection(
-          "MySql.Data.MySqlClient", string.Format(@"server=localhost;uid=root;database=test;pooling=false; port={0}", this.port));
+          "MySql.Data.MySqlClient", string.Format(@"server=localhost;uid=root;database=test;pooling=false; port={0}", st.port));
     }
 
-    [Test]
+    [Fact]
     public void SelectAllTables()
     {
-      execSQL("CREATE TABLE test (id int)");
+      st.execSQL("CREATE TABLE IF NOT EXISTS test (id int)");
 
-      System.Data.DataTable dt = conn.GetSchema("Tables");
+      System.Data.DataTable dt = st.conn.GetSchema("Tables");
 
       using (EntityConnection ec = GetConnection())
       {
@@ -62,18 +68,18 @@ namespace MySql.Data.Entity.Tests
           int i = 0;
           var q = si.Tables.Select("it.CatalogName, it.SchemaName, it.Name").OrderBy("it.Name, it.SchemaName");
           foreach (DbDataRecord t in q)
-            Assert.AreEqual(dt.Rows[i++]["TABLE_NAME"], t.GetString(2));
+            Assert.Equal(dt.Rows[i++]["TABLE_NAME"], t.GetString(2));
         }
       }
     }
 
-    [Test]
+    [Fact]
     public void SelectAllViews()
     {
-      execSQL("CREATE TABLE test (id int)");
-      execSQL("CREATE VIEW view1 as SELECT * FROM test");
+      st.execSQL("CREATE TABLE IF NOT EXISTS test(id int)");
+      st.execSQL("CREATE VIEW view1 as SELECT * FROM test");
 
-      System.Data.DataTable dt = conn.GetSchema("Views");
+      System.Data.DataTable dt = st.conn.GetSchema("Views");
 
       using (EntityConnection ec = GetConnection())
       {
@@ -82,51 +88,39 @@ namespace MySql.Data.Entity.Tests
           int i = 0;
           var q = si.Views.Select("it.CatalogName, it.SchemaName, it.Name").OrderBy("it.Name, it.SchemaName");
           foreach (DbDataRecord t in q)
-            Assert.AreEqual(dt.Rows[i++]["TABLE_NAME"], t.GetString(2));
+            Assert.Equal(dt.Rows[i++]["TABLE_NAME"], t.GetString(2));
         }
       }
     }
 
-    [Test]
+    [Fact]
     public void GetDbProviderManifestTokenReturnsCorrectSchemaVersion()
     {
-      if (Version < new Version(5, 0)) return;
+      if (st.Version < new Version(5, 0)) return;
 
       MySqlProviderServices services = new MySqlProviderServices();
-      string token = services.GetProviderManifestToken(conn);
+      string token = services.GetProviderManifestToken(st.conn);
 
-      if (Version < new Version(5, 1))
-        Assert.AreEqual("5.0", token);
-      else if (Version < new Version(5, 5))
-        Assert.AreEqual("5.1", token);
-      else if (Version < new Version(5, 6))
-        Assert.AreEqual("5.5", token);
+      if (st.Version < new Version(5, 1))
+        Assert.Equal("5.0", token);
+      else if (st.Version < new Version(5, 5))
+        Assert.Equal("5.1", token);
+      else if (st.Version < new Version(5, 6))
+        Assert.Equal("5.5", token);
       else
-        Assert.AreEqual("5.6", token);
+        Assert.Equal("5.6", token);
     }
 
-    [Test]
+    [Fact]
     public void GetStoreSchemaDescriptionDoesNotThrowForServer50OrGreater()
     {
-      if (Version < new Version(5, 0)) return;
+      if (st.Version < new Version(5, 0)) return;
 
-      MySqlProviderManifest manifest = new MySqlProviderManifest(Version.Major + "." + Version.Minor);
+      MySqlProviderManifest manifest = new MySqlProviderManifest(st.Version.Major + "." + st.Version.Minor);
       using (XmlReader reader = manifest.GetInformation(DbProviderManifest.StoreSchemaDefinition))
       {
-        Assert.IsNotNull(reader);
+        Assert.NotNull(reader);
       }
-    }
-  }
-
-  public static class ExtensionMethods
-  {
-    public static string ToTraceString<T>(this IQueryable<T> t)
-    {
-      // try to cast to ObjectQuery<T>
-      ObjectQuery<T> oqt = t as ObjectQuery<T>;
-      if (oqt != null)
-        return oqt.ToTraceString();
-      return "";
     }
   }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2012, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -24,17 +24,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NUnit.Framework;
+
 using Antlr.Runtime;
 using Antlr.Runtime.Tree;
+using Xunit;
 
 
 namespace MySql.Parser.Tests
 {
-  [TestFixture]
+  
   public class Signal
   {
-    [Test]
+    [Fact]
     public void Signal_51()
     {
       StringBuilder sb;
@@ -58,10 +59,10 @@ BEGIN
       SET MESSAGE_TEXT = 'An error occurred', MYSQL_ERRNO = 1001;
   END IF;
 END;", true, out sb, new Version(5, 1));
-      Assert.IsTrue(sb.ToString().IndexOf("no viable alternative", StringComparison.OrdinalIgnoreCase) != -1);
+      Assert.True(sb.ToString().IndexOf("no viable alternative", StringComparison.OrdinalIgnoreCase) != -1);
     }
 
-    [Test]
+    [Fact]
     public void Signal_1_55()
     {
       StringBuilder sb;
@@ -88,7 +89,7 @@ END;
 ", false, out sb, new Version(5, 5));
     }
 
-    [Test]
+    [Fact]
     public void Signal_2_55()
     {
       StringBuilder sb;
@@ -102,7 +103,7 @@ BEGIN
 END;", false, out sb, new Version(5, 5));
     }
 
-    [Test]
+    [Fact]
     public void Signal_3_55()
     {
       StringBuilder sb;
@@ -117,7 +118,7 @@ BEGIN
 END;", false, out sb, new Version(5, 5));
     }
 
-    [Test]
+    [Fact]
     public void Signal_4_55()
     {
       StringBuilder sb;
@@ -131,7 +132,7 @@ END;
 ", false, out sb, new Version(5, 5));
     }
 
-    [Test]
+    [Fact]
     public void Signal_5_55()
     {
       StringBuilder sb;
@@ -150,7 +151,7 @@ BEGIN
 END;", false, out sb, new Version(5, 5));
     }
 
-    [Test]
+    [Fact]
     public void Signal_6_55()
     {
       StringBuilder sb;
@@ -167,7 +168,7 @@ BEGIN
 END;", false, out sb, new Version(5, 5));
     }
 
-    [Test]
+    [Fact]
     public void Signal_7_55()
     {
       StringBuilder sb;
@@ -180,7 +181,7 @@ BEGIN
 END;", false, out sb, new Version(5, 5));
     }
 
-    [Test]
+    [Fact]
     public void Signal_8_55()
     {
       StringBuilder sb;
@@ -203,7 +204,7 @@ CALL p();
 SHOW ERRORS;", false, out sb, new Version(5, 6));
     }
 
-    [Test]
+    [Fact]
     public void Signal_9_55()
     {
       StringBuilder sb;
@@ -222,7 +223,7 @@ END;
 CALL p();", false, out sb, new Version(5, 6));
     }
 
-    [Test]
+    [Fact]
     public void Signal_10_55()
     {
       StringBuilder sb;

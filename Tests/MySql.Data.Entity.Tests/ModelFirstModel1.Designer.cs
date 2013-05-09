@@ -8,12 +8,13 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.ComponentModel;
+using System.Data.EntityClient;
 using System.Data.Objects;
 using System.Data.Objects.DataClasses;
-using System.Data.EntityClient;
-using System.ComponentModel;
-using System.Xml.Serialization;
+using System.Linq;
 using System.Runtime.Serialization;
+using System.Xml.Serialization;
 
 [assembly: EdmSchemaAttribute()]
 #region EDM Relationship Metadata
@@ -103,6 +104,7 @@ namespace MySql.Data.Entity.Tests
         private ObjectSet<Kardex> _Kardexes;
 
         #endregion
+
         #region AddTo Methods
     
         /// <summary>
@@ -122,11 +124,11 @@ namespace MySql.Data.Entity.Tests
         }
 
         #endregion
+
     }
-    
 
     #endregion
-    
+
     #region Entities
     
     /// <summary>
@@ -155,6 +157,7 @@ namespace MySql.Data.Entity.Tests
         }
 
         #endregion
+
         #region Primitive Properties
     
         /// <summary>
@@ -233,6 +236,7 @@ namespace MySql.Data.Entity.Tests
         partial void OnScoreChanged();
 
         #endregion
+
     
         #region Navigation Properties
     
@@ -275,6 +279,7 @@ namespace MySql.Data.Entity.Tests
         }
 
         #endregion
+
     }
     
     /// <summary>
@@ -301,6 +306,7 @@ namespace MySql.Data.Entity.Tests
         }
 
         #endregion
+
         #region Primitive Properties
     
         /// <summary>
@@ -355,6 +361,7 @@ namespace MySql.Data.Entity.Tests
         partial void OnNameChanged();
 
         #endregion
+
     
         #region Navigation Properties
     
@@ -381,8 +388,10 @@ namespace MySql.Data.Entity.Tests
         }
 
         #endregion
+
     }
 
     #endregion
+
     
 }

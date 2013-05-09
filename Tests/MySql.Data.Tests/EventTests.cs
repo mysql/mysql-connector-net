@@ -1,4 +1,4 @@
-// Copyright � 2004, 2010, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,25 +21,35 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
+using System.Collections.Generic;
+using System.Text;
+using Xunit;
 using System.Data;
-using System.IO;
-using System.Globalization;
-using System.Threading;
-using NUnit.Framework;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  [TestFixture]
-  public class EventTests : BaseTest
+  public class EventTests : IUseFixture<SetUpClass>, IDisposable
   {
-    [Test]
+    private SetUpClass st;
+
+    public void SetFixture(SetUpClass data)
+    {
+      st = data;  
+    }
+
+    public void Dispose()
+    {
+      st.execSQL("DROP TABLE IF EXISTS TEST");
+    }
+
+    [Fact]
     public void Warnings()
     {
-      if (Version < new Version(4, 1)) return;
+      if (st.Version < new Version(4, 1)) return;
 
-      execSQL("CREATE TABLE Test (name VARCHAR(10))");
+      st.execSQL("CREATE TABLE Test (name VARCHAR(10))");
 
-      string connStr = GetConnectionString(true);
+      string connStr = st.GetConnectionString(true);
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -58,13 +68,13 @@ namespace MySql.Data.MySqlClient.Tests
 
     private void WarningsInfoMessage(object sender, MySqlInfoMessageEventArgs args)
     {
-      Assert.AreEqual(1, args.errors.Length);
+      Assert.Equal(1, args.errors.Length);
     }
 
-    [Test]
+    [Fact]
     public void StateChange()
     {
-      MySqlConnection c = new MySqlConnection(GetConnectionString(true));
+      MySqlConnection c = new MySqlConnection(st.GetConnectionString(true));
       c.StateChange += new StateChangeEventHandler(StateChangeHandler);
       c.Open();
       c.Close();

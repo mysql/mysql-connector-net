@@ -1,4 +1,4 @@
-﻿// Copyright © 2012, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -26,20 +26,21 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using NUnit.Framework;
+
 using Antlr.Runtime;
 using Antlr.Runtime.Tree;
 using MySql.Parser;
+using Xunit;
 
 namespace MySql.Parser.Tests
 {
   /// <summary>
   /// Tests to verify the error reporting interface for Intellisense client.
   /// </summary>
-  [TestFixture]
+  
   public class Intellisense
   {
-    [Test]
+    [Fact]
     public void SelectSimpleTableCompletion()
     {
       StringBuilder sb;
@@ -52,7 +53,7 @@ namespace MySql.Parser.Tests
         expectedToken == "simple_table_ref_no_alias_existing");
     }
 
-    [Test]
+    [Fact]
     public void SelectSimpleTableCompletionWitBeginEnd()
     {
       StringBuilder sb;
@@ -65,7 +66,7 @@ namespace MySql.Parser.Tests
         expectedToken == "simple_table_ref_no_alias_existing");
     }
 
-    [Test]
+    [Fact]
     public void SelectSimpleTableCompletionWitBeginEnd2()
     {
       StringBuilder sb;
@@ -78,7 +79,7 @@ namespace MySql.Parser.Tests
         expectedToken == "simple_table_ref_no_alias_existing");
     }
 
-    [Test]
+    [Fact]
     public void SelectSimpleTableCompletionWitBeginEnd3()
     {
       StringBuilder sb;
@@ -91,7 +92,7 @@ namespace MySql.Parser.Tests
         expectedToken == "simple_table_ref_no_alias_existing");
     }
 
-    [Test]
+    [Fact]
     public void SelectJoinTableCompletion()
     {
       StringBuilder sb;
@@ -105,49 +106,49 @@ namespace MySql.Parser.Tests
         expectedToken == "simple_table_ref_no_alias_existing");
     }
 
-    [Test]
+    [Fact]
     public void TruncateTableCompletion()
     {
       TestTableExpected("truncate table ");
     }
 
-    [Test]
+    [Fact]
     public void TruncateTableCompletion2()
     {
       //TestTableExpected("truncate table db.t");
     }
 
-    [Test]
+    [Fact]
     public void ShowCreateTableCompletion()
     {
       TestTableExpected("show create table ");
     }
 
-    [Test]
+    [Fact]
     public void DropTableCompletion()
     {
       TestTableExpected("drop table ");
     }
 
-    [Test]
+    [Fact]
     public void UpdateTableCompletion()
     {
       TestTableExpected("update ");
     }
 
-    [Test]
+    [Fact]
     public void DeleteFromTableCompletion()
     {
       TestTableExpected("delete from ");
     }
 
-    [Test]
+    [Fact]
     public void InsertIntoTableCompletion()
     {
       TestTableExpected("insert into ");
     }
 
-    [Test]
+    [Fact]
     public void RenameTableCompletion()
     {
       TestTableExpected("rename table ");
@@ -165,7 +166,7 @@ namespace MySql.Parser.Tests
         expectedToken == "simple_table_ref_no_alias_existing");
     }
 
-    [Test]
+    [Fact]
     public void CallProcedureNameCompletion()
     {
       StringBuilder sb;
@@ -178,7 +179,7 @@ namespace MySql.Parser.Tests
       //Assert.True(((CommonErrorNode)r.Tree).Text == "call");
     }
 
-    [Test]
+    [Fact]
     public void SelectColumnCompletionWithTables()
     {
       StringBuilder sb;
@@ -191,7 +192,7 @@ namespace MySql.Parser.Tests
       List<TableWithAlias> tables = new List<TableWithAlias>();
       ParserUtils.GetTables((ITree)r.Tree, tables);
       List<string> tablesUsed = new string[] { "fromtable", "computer" }.ToList();
-      Assert.AreEqual(tablesUsed.Count, tables.Count);
+      Assert.Equal(tablesUsed.Count, tables.Count);
       foreach (TableWithAlias ta in tables)
       {
         Assert.True(tablesUsed.Contains(ta.TableName.ToLower()));
@@ -206,7 +207,7 @@ namespace MySql.Parser.Tests
       //  List<TableWithAlias> tables = new List<TableWithAlias>();
       //  ParserUtils.GetTables((ITree)r.Tree, tables);
       //  List<string> tablesUsed = new string[] { "fromtable", "computer" }.ToList();
-      //  Assert.AreEqual(tablesUsed.Count, tables.Count);        
+      //  Assert.Equal(tablesUsed.Count, tables.Count);        
       //  foreach (TableWithAlias ta in tables)
       //  {
       //    Assert.True(tablesUsed.Contains(ta.TableName.ToLower() ));
@@ -214,7 +215,7 @@ namespace MySql.Parser.Tests
       //}
     }    
 
-    [Test]
+    [Fact]
     public void SelectColumnCompletionWithTableWithAlias()
     {
       StringBuilder sb;
@@ -229,12 +230,12 @@ namespace MySql.Parser.Tests
       List<TableWithAlias> tablesUsed = new List<TableWithAlias>();
       tablesUsed.Add(new TableWithAlias("fromtable", "a"));
       tablesUsed.Add(new TableWithAlias("computer", "B"));
-      Assert.AreEqual(tablesUsed.Count, tables.Count);
+      Assert.Equal(tablesUsed.Count, tables.Count);
       foreach (TableWithAlias ta in tablesUsed)
       {
         Assert.True(tables.Contains(ta));
       }
-      Assert.AreEqual(tablesUsed.Count, tables.Count);      
+      Assert.Equal(tablesUsed.Count, tables.Count);      
       //Assert.True(sb.ToString().EndsWith("no viable alternative at input 'FROM'\r\n",
       //  StringComparison.CurrentCultureIgnoreCase));
       //Match m = new Regex(@"select (?<columns>.*) (?<from>from .*$)").Match(sql);
@@ -247,7 +248,7 @@ namespace MySql.Parser.Tests
       //  List<TableWithAlias> tablesUsed = new List<TableWithAlias>();
       //  tablesUsed.Add( new TableWithAlias( "fromtable", "a" ) );
       //  tablesUsed.Add( new TableWithAlias( "computer", "B" ) );
-      //  Assert.AreEqual(tablesUsed.Count, tables.Count);
+      //  Assert.Equal(tablesUsed.Count, tables.Count);
       //  foreach (TableWithAlias ta in tablesUsed)
       //  {          
       //    Assert.True(tables.Contains(ta));
@@ -255,7 +256,7 @@ namespace MySql.Parser.Tests
       //}
     }
 
-    [Test]
+    [Fact]
     public void SelectColumnCompletionWithTableWithDatabase()
     {
       StringBuilder sb;
@@ -270,12 +271,12 @@ namespace MySql.Parser.Tests
       List<TableWithAlias> tablesUsed = new List<TableWithAlias>();
       tablesUsed.Add(new TableWithAlias("test2", "fromtable", ""));
       tablesUsed.Add(new TableWithAlias("test1", "computer", "B"));
-      Assert.AreEqual(tablesUsed.Count, tables.Count);
+      Assert.Equal(tablesUsed.Count, tables.Count);
       foreach (TableWithAlias ta in tablesUsed)
       {
         Assert.True(tables.Contains(ta));
       }
-      Assert.AreEqual(tablesUsed.Count, tables.Count);      
+      Assert.Equal(tablesUsed.Count, tables.Count);      
       //Assert.True(sb.ToString().EndsWith("no viable alternative at input 'FROM'\r\n",
       //  StringComparison.CurrentCultureIgnoreCase));
       //Match m = new Regex(@"select (?<columns>.*) (?<from>from .*$)").Match(sql);
@@ -288,7 +289,7 @@ namespace MySql.Parser.Tests
       //  List<TableWithAlias> tablesUsed = new List<TableWithAlias>();
       //  tablesUsed.Add(new TableWithAlias( "test2", "fromtable", ""));
       //  tablesUsed.Add(new TableWithAlias( "test1", "computer", "B"));
-      //  Assert.AreEqual(tablesUsed.Count, tables.Count);
+      //  Assert.Equal(tablesUsed.Count, tables.Count);
       //  foreach (TableWithAlias ta in tablesUsed)
       //  {
       //    Assert.True(tables.Contains(ta));
@@ -296,7 +297,7 @@ namespace MySql.Parser.Tests
       //}
     }
 
-    [Test]
+    [Fact]
     public void SelectColumnCompletionWithoutFrom()
     {
       // "select" 
@@ -309,7 +310,7 @@ namespace MySql.Parser.Tests
       //Assert.True(r.Tree is CommonErrorNode);
     }
 
-    [Test]
+    [Fact]
     public void SelectColumnCompletionWithoutFrom2()
     {
       // "select" 
@@ -323,7 +324,7 @@ namespace MySql.Parser.Tests
         "select", StringComparison.CurrentCultureIgnoreCase ));
     }
 
-    [Test]
+    [Fact]
     public void SelectTableCompletionIncorrect()
     {
       // "select" 
@@ -337,7 +338,7 @@ namespace MySql.Parser.Tests
       Assert.False(expectedToken == "column_name");
     }
 
-    [Test]
+    [Fact]
     public void ColumnCompletionAtSelectWhere()
     {
       StringBuilder sb;
@@ -351,7 +352,7 @@ namespace MySql.Parser.Tests
       Assert.True(tables.Count != 0);
     }
 
-    [Test]
+    [Fact]
     public void ColumnCompletionAtUpdateWhere()
     {
       StringBuilder sb;
@@ -365,7 +366,7 @@ namespace MySql.Parser.Tests
       Assert.True(tables.Count != 0);
     }
 
-    [Test]
+    [Fact]
     public void ColumnCompletionAtUpdateWhereWithMinus()
     {
       StringBuilder sb;
@@ -379,7 +380,7 @@ namespace MySql.Parser.Tests
       Assert.True(tables.Count != 0);
     }
 
-    [Test]
+    [Fact]
     public void ColumnCompletionAtUpdateWhereWithMinus2()
     {      
       StringBuilder sb;
@@ -393,7 +394,7 @@ namespace MySql.Parser.Tests
       Assert.True(tables.Count != 0);
     }    
     
-    [Test]
+    [Fact]
     public void ColumnCompletionOnExpression()
     {      
       StringBuilder sb;
@@ -407,7 +408,7 @@ namespace MySql.Parser.Tests
       Assert.True(tables.Count != 0);
     }
 
-    [Test]
+    [Fact]
     public void ColumnCompletionOnExpression2()
     {      
       StringBuilder sb;
@@ -421,7 +422,7 @@ namespace MySql.Parser.Tests
       Assert.True(tables.Count != 0);
     }
 
-    [Test]
+    [Fact]
     public void ColumnCompletionOnExpression3()
     {      
       StringBuilder sb;
@@ -435,7 +436,7 @@ namespace MySql.Parser.Tests
       Assert.True(tables.Count != 0);
     }
 
-    [Test]
+    [Fact]
     public void ColumnCompletionOnExpression4()
     {      
       StringBuilder sb;
@@ -449,7 +450,7 @@ namespace MySql.Parser.Tests
       Assert.True(tables.Count != 0);
     }
 
-    [Test]
+    [Fact]
     public void ColumnCompletionOnExpression5()
     {      
       StringBuilder sb;
@@ -463,7 +464,7 @@ namespace MySql.Parser.Tests
       Assert.True(tables.Count != 0);
     }
 
-    [Test]
+    [Fact]
     public void ColumnCompletionOnExpression6()
     {      
       StringBuilder sb;
@@ -477,7 +478,7 @@ namespace MySql.Parser.Tests
       Assert.True(tables.Count != 0);
     }
 
-    [Test]
+    [Fact]
     public void ColumnCompletionOnExpression7()
     {      
       StringBuilder sb;
@@ -491,7 +492,7 @@ namespace MySql.Parser.Tests
       Assert.True(tables.Count != 0);
     }
 
-    [Test]
+    [Fact]
     public void ColumnCompletionOnExpression8()
     {      
       StringBuilder sb;
@@ -505,7 +506,7 @@ namespace MySql.Parser.Tests
       Assert.True(tables.Count != 0);
     }
 
-    [Test]
+    [Fact]
     public void ColumnCompletionOnExpression9()
     {      
       StringBuilder sb;
@@ -519,7 +520,7 @@ namespace MySql.Parser.Tests
       Assert.True(tables.Count != 0);
     }
 
-    [Test]
+    [Fact]
     public void ColumnCompletionOnExpression10()
     {      
       StringBuilder sb;
@@ -533,7 +534,7 @@ namespace MySql.Parser.Tests
       Assert.True(tables.Count != 0);
     }
 
-    [Test]
+    [Fact]
     public void ColumnCompletionOnExpression11()
     {      
       StringBuilder sb;
@@ -547,7 +548,7 @@ namespace MySql.Parser.Tests
       Assert.True(tables.Count != 0);
     }
 
-    [Test]
+    [Fact]
     public void ColumnCompletionOnExpression12()
     {      
       StringBuilder sb;
@@ -561,7 +562,7 @@ namespace MySql.Parser.Tests
       Assert.True(tables.Count != 0);
     }
 
-    [Test]
+    [Fact]
     public void NonColumnCompletionOnExpression12()
     {      
       StringBuilder sb;
@@ -575,7 +576,7 @@ namespace MySql.Parser.Tests
       Assert.True(tables.Count == 1);
     }
 
-    [Test]
+    [Fact]
     public void ColumnCompletionOnExpression13()
     {      
       StringBuilder sb;
@@ -589,7 +590,7 @@ namespace MySql.Parser.Tests
       Assert.True(tables.Count != 0);
     }
 
-    [Test]
+    [Fact]
     public void NonColumnCompletionOnExpression13()
     {      
       StringBuilder sb;
@@ -603,7 +604,7 @@ namespace MySql.Parser.Tests
       Assert.True(tables.Count != 0);
     }
 
-    [Test]
+    [Fact]
     public void ColumnCompletionOnExpression14()
     {
       StringBuilder sb;
@@ -617,7 +618,7 @@ namespace MySql.Parser.Tests
       Assert.True(tables.Count != 0);
     }
 
-    [Test]
+    [Fact]
     public void ColumnCompletionOnExpression15()
     {
       StringBuilder sb;
@@ -631,7 +632,7 @@ namespace MySql.Parser.Tests
       Assert.True(tables.Count != 0);
     }
 
-    [Test]
+    [Fact]
     public void ColumnCompletionOnExpression16()
     {
       StringBuilder sb;
@@ -645,7 +646,7 @@ namespace MySql.Parser.Tests
       Assert.True(tables.Count != 0);
     }
 
-    [Test]
+    [Fact]
     public void ColumnCompletionOnExpression17()
     {
       StringBuilder sb;
@@ -660,7 +661,7 @@ namespace MySql.Parser.Tests
       Assert.True(tables.Count != 0);
     }
 
-    [Test]
+    [Fact]
     public void ColumnCompletionOnExpression18()
     {
       StringBuilder sb;
@@ -675,7 +676,7 @@ namespace MySql.Parser.Tests
       Assert.True(tables.Count == 0);
     }
 
-    [Test]
+    [Fact]
     public void ColumnCompletionOnExpression19()
     {
       StringBuilder sb;
@@ -690,7 +691,7 @@ namespace MySql.Parser.Tests
       Assert.True(tables.Count == 0);
     }
     
-    [Test]
+    [Fact]
     public void RegressionTest2()
     {      
       StringBuilder sb;
@@ -699,7 +700,7 @@ namespace MySql.Parser.Tests
       Assert.True( sb.ToString().EndsWith( "no viable alternative at input '-'\r\n" ));
     }
 
-    [Test]
+    [Fact]
     public void ColumnCompletionAtDeleteWhere()
     {
       // "delete from t where "
@@ -714,7 +715,7 @@ namespace MySql.Parser.Tests
       Assert.True(tables.Count != 0);
     }
 
-    [Test]
+    [Fact]
     public void ColumnCompletionAtInsert()
     {
       // "insert into ta("
@@ -731,7 +732,7 @@ namespace MySql.Parser.Tests
       Assert.True(tables.Count != 0);
     }
 
-    [Test]
+    [Fact]
     public void ColumnCompletionAtInsertPartialList()
     {
       // "insert into ta( a,  "
@@ -748,7 +749,7 @@ namespace MySql.Parser.Tests
       Assert.True(tables.Count != 0);
     }
 
-    [Test]
+    [Fact]
     public void ColumnCompletionAtInsertSelect()
     {      
       StringBuilder sb;
@@ -762,7 +763,7 @@ namespace MySql.Parser.Tests
       Assert.True(tables.Count != 0);
     }
 
-    [Test]
+    [Fact]
     public void ColumnCompletionAtInsertSelectWithFrom()
     {
       StringBuilder sb;
@@ -776,7 +777,7 @@ namespace MySql.Parser.Tests
       Assert.True(tables.Count != 0);
     }
 
-    [Test]
+    [Fact]
     public void ColumnCompletionAtUpdate()
     {
       // "update t set "
@@ -791,7 +792,7 @@ namespace MySql.Parser.Tests
       Assert.True(tables.Count != 0);
     }
 
-    [Test]
+    [Fact]
     public void ColumnCompletionBeginEnd()
     {
       StringBuilder sb;
@@ -805,7 +806,7 @@ namespace MySql.Parser.Tests
       Assert.True(tables.Count != 0);
     }
 
-    [Test]
+    [Fact]
     public void ColumnCompletionBeginEnd2()
     {
       StringBuilder sb;

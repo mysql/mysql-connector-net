@@ -1,4 +1,4 @@
-﻿// Copyright © 2012, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -24,17 +24,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NUnit.Framework;
 using Antlr.Runtime;
 using Antlr.Runtime.Tree;
+using Xunit;
 
 
 namespace MySql.Parser.Tests
 {
-  [TestFixture]
+  
   public class CreateRoutine
   {
-    [Test]
+    [Fact]
     public void SimpleProc()
     {
       string sql = @"
@@ -47,7 +47,7 @@ CREATE PROCEDURE simpleproc (OUT param1 INT)
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void SimpleProc2()
     {
       string sql = @"
@@ -62,7 +62,7 @@ END;
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void CreateProcWithSec()
     {
       string sql = @"CREATE DEFINER = 'admin'@'localhost' PROCEDURE account_count()
@@ -75,7 +75,7 @@ END;";
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void ComplexProc()
     {
       string sql = @"
@@ -100,24 +100,24 @@ END;";
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void CreateProcWithSec2()
     {
       string sql = @"create DEFINER=`root`@`localhost` PROCEDURE `spTest2`()
 begin
     declare n,x,y,z int;
-	declare str varchar(1100);
+  declare str varchar(1100);
     set n = 1;
-	set str = 'Armando';
+  set str = 'Armando';
 
     while n < 10 do
     begin
     
         set n = n + 1;
-		set x = n * 2;
-		set y = n * 5;
-		set z = n * 10;
-		set str = CONCAT(str, 'o');
+    set x = n * 2;
+    set y = n * 5;
+    set z = n * 10;
+    set str = CONCAT(str, 'o');
     
     end;
     end while;
@@ -129,7 +129,7 @@ end;";
     }
     
 
-    [Test]
+    [Fact]
     public void SimpleFunc()
     {
       string sql = @"CREATE FUNCTION hello (s CHAR(20))
@@ -140,7 +140,7 @@ end;";
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void ComplexFunc()
     {
       string sql = @"CREATE FUNCTION fnGetXMLinfoVraag4 (xmlTag varchar(30),message text) returns varchar(255)
@@ -163,7 +163,7 @@ end";
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void ComplexFunc2()
     {
       string sql = @"
@@ -182,7 +182,7 @@ END;
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void SimpleCompare()
     {
       string sql = @"CREATE FUNCTION SimpleCompare(n INT, m INT)
@@ -205,7 +205,7 @@ END;
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void VerboseCompare()
     {
       string sql = @"CREATE FUNCTION VerboseCompare (n INT, m INT)
@@ -232,21 +232,21 @@ END;
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void WithoutName()
     {
       string sql = @"create procedure ( id int, name varchar( 10 ))
 begin
-	create table test3( id2 int );
-	insert into test3 (1), (2), (3);
-	# insert into test3 values (1), (2), (3);
+  create table test3( id2 int );
+  insert into test3 (1), (2), (3);
+  # insert into test3 values (1), (2), (3);
 end";
       StringBuilder sb;
       MySQL51Parser.program_return r =
         Utility.ParseSql(sql, true, out sb);
     }
 
-    [Test]
+    [Fact]
     public void NameIsKeyword()
     {
       string sql = @"
@@ -263,7 +263,7 @@ END";
       MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void DifferentDeclareOrders()
     {
       string sql = @"
@@ -285,7 +285,7 @@ END";
       MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void SetSession()
     {
       string sql = @"
@@ -313,7 +313,7 @@ end;";
       MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void RoutineWithRowcount51()
     {
       string sql = @"CREATE DEFINER=`root`@`localhost` PROCEDURE `count`() 
@@ -330,7 +330,7 @@ END;
       MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb, new Version(5, 1));
     }
 
-    [Test]
+    [Fact]
     public void RoutineWithRowcount56()
     {
       string sql = @"CREATE DEFINER=`root`@`localhost` PROCEDURE `count`() 
@@ -347,7 +347,7 @@ END;
       MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb, new Version( 5, 6 ));
     }
 
-    [Test]
+    [Fact]
     public void WithBunchOfDeclares()
     {
       string sql = @"create procedure sp()

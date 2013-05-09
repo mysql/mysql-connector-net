@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -73,12 +73,15 @@
     </Reference>
     <Reference Include="System.Security" />
     <Reference Include="System.Xml" />
+    <Reference Include="xunit, Version=1.9.1.1600, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\XUnit_1.9.1\xunit.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\..\Source\MySql.Data\Properties\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests\BaseEdmTest.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests\AggregateOperators.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests\CanonicalFunctions.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests\DataTypeTests.cs" />
@@ -86,6 +89,9 @@
     <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests\ProceduresAndFunctions.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests\JoinTests.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests\SchemaInformation.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests\SetUpEntityTests.cs">
+      <Link>SetUpEntityTests.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests\Wizard.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests\RelationalOperators.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Entity.Tests\SetOperators.cs" />

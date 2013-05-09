@@ -1,4 +1,4 @@
-﻿// Copyright © 2012, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -25,54 +25,54 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using NUnit.Framework;
 using Antlr.Runtime;
 using Antlr.Runtime.Tree;
+using Xunit;
 
 namespace MySql.Parser.Tests
 {
-  [TestFixture]
+  
   public class Select
   {
-    [Test]
+    [Fact]
     public void SelectSimple()
     {
       MySQL51Parser.program_return r = Utility.ParseSql("select * from `t`");
       //CommonTree ct = r.Tree as CommonTree;
-      //Assert.AreEqual( "select", ct.Text );
-      //Assert.AreEqual( 2, ct.ChildCount );
-      //Assert.AreEqual("into_from", ct.Children[1].Text.ToLower());
+      //Assert.Equal( "select", ct.Text );
+      //Assert.Equal( 2, ct.ChildCount );
+      //Assert.Equal("into_from", ct.Children[1].Text.ToLower());
 
-      //Assert.AreEqual( "from", ct.Children[ 1 ].GetChild( 0 ).Text );
-      //Assert.AreEqual(1, ct.Children[1].GetChild(0).ChildCount);
-      //Assert.AreEqual("TABLE", ct.Children[1].GetChild(0).GetChild(0).Text);
-      //Assert.AreEqual(1, ct.Children[1].GetChild(0).GetChild(0).ChildCount);
-      //Assert.AreEqual( "`t`", ct.Children[ 1 ].GetChild( 0 ).GetChild( 0 ).GetChild( 0 ).Text );
+      //Assert.Equal( "from", ct.Children[ 1 ].GetChild( 0 ).Text );
+      //Assert.Equal(1, ct.Children[1].GetChild(0).ChildCount);
+      //Assert.Equal("TABLE", ct.Children[1].GetChild(0).GetChild(0).Text);
+      //Assert.Equal(1, ct.Children[1].GetChild(0).GetChild(0).ChildCount);
+      //Assert.Equal( "`t`", ct.Children[ 1 ].GetChild( 0 ).GetChild( 0 ).GetChild( 0 ).Text );
 
-      //Assert.AreEqual( "COLUMNS", ct.Children[ 0 ].Text );
-      //Assert.AreEqual( 1, ct.Children[ 0 ].ChildCount );
-      //Assert.AreEqual( "SELECT_EXPR", ct.Children[ 0 ].GetChild( 0 ).Text );
-      //Assert.AreEqual( 1, ct.Children[ 0 ].GetChild( 0 ).ChildCount );
-      //Assert.AreEqual( "*", ct.Children[ 0 ].GetChild( 0 ).GetChild( 0 ).Text );
+      //Assert.Equal( "COLUMNS", ct.Children[ 0 ].Text );
+      //Assert.Equal( 1, ct.Children[ 0 ].ChildCount );
+      //Assert.Equal( "SELECT_EXPR", ct.Children[ 0 ].GetChild( 0 ).Text );
+      //Assert.Equal( 1, ct.Children[ 0 ].GetChild( 0 ).ChildCount );
+      //Assert.Equal( "*", ct.Children[ 0 ].GetChild( 0 ).GetChild( 0 ).Text );
     }
 
-    [Test]
+    [Fact]
     public void UnionTest()
     {
       Utility.ParseSql(@"(SELECT a FROM t1 WHERE a=10 AND B=1)
-				UNION
-				(SELECT a FROM t2 WHERE a=11 AND B=2)
-				union all ( select 1, 2, 3, t.* from t1 straight_join t2 )
-				");
+        UNION
+        (SELECT a FROM t2 WHERE a=11 AND B=2)
+        union all ( select 1, 2, 3, t.* from t1 straight_join t2 )
+        ");
     }
 
-    [Test]
+    [Fact]
     public void CompoundOperatorsTest()
     {
       Utility.ParseSql("select a from t where ( a <= b )");
     }
 
-    [Test]
+    [Fact]
     public void LimitTest()
     {
       Utility.ParseSql("select a, b, c from Table1 limit 100");
@@ -80,147 +80,147 @@ namespace MySql.Parser.Tests
       Utility.ParseSql("select a, b, c from Table1 where ( a = 1 ) limit 200 offset 100");
     }
 
-    [Test]
+    [Fact]
     public void OrderByTest()
     {
       Utility.ParseSql("select a, b, c from Table1 order by c asc, b desc, 2 asc");
       Utility.ParseSql("select a, b, c from Table1 order by null");
     }
 
-    [Test]
+    [Fact]
     public void WhereTestBroken()
     {
       Utility.ParseSql("select a from", true);
     }
 
-    [Test]
+    [Fact]
     public void WhereBetweenTest()
     {
       Utility.ParseSql("select a from `table` where `a` between 1 and 2");
     }
 
-    [Test]
+    [Fact]
     public void WhereBetweenTest2()
     {
       Utility.ParseSql("select `a` from `table` where ( `a` between 1 and 2 )");
     }
 
-    [Test]
+    [Fact]
     public void JoinTest()
     {
       Utility.ParseSql("select `a`, `b`, `c` from `tabA` inner join `tabB` on `tabA`.`KeyId` = `tabB`.`ForeignKeyId`;");
     }
 
-    [Test]
+    [Fact]
     public void StarSimpleTest()
     {
       Utility.ParseSql("select * from TabA");
     }
 
-    [Test]
+    [Fact]
     public void StarComplexTest()
     {
       Utility.ParseSql(@"select t1.*, t2.*, t3.*, * from t1 inner join t2 on t1.Id = t2.ParentId 
-				  inner join t3 on t2.Id = t3.ParentId ");
+          inner join t3 on t2.Id = t3.ParentId ");
     }
 
-    [Test]
+    [Fact]
     public void SimpleCrossJoinWithoutOnTest()
     {
       Utility.ParseSql("select * from t1 cross join t2");
     }
 
-    [Test]
+    [Fact]
     public void SimpleCrossJoinTest()
     {
       Utility.ParseSql("select * from t1 cross join t2 on t1.col1 = t2.col2");
     }
 
-    [Test]
+    [Fact]
     public void SimpleInnerJoinWithoutOnTest()
     {
       Utility.ParseSql("select * from t1 inner join t2");
     }
 
-    [Test]
+    [Fact]
     public void SimpleInnerJoinTest()
     {
       Utility.ParseSql("select * from t1 inner join t2 on t1.col1 = t2.col2");
     }
 
-    [Test]
+    [Fact]
     public void SimpleStraightJoinWithoutOnTest()
     {
       Utility.ParseSql("select * from t1 straight_join t2");
     }
 
-    [Test]
+    [Fact]
     public void SimpleStraightJoinTest()
     {
       Utility.ParseSql("select * from t1 straight_join t2 on t1.col1 = t2.col2");
     }
 
-    [Test]
+    [Fact]
     public void SimpleLeftJoinTest()
     {
       Utility.ParseSql("select * from t1 left join t2 on t1.col1 = t2.col2");
     }
 
-    [Test]
+    [Fact]
     public void SimpleRightJoinTest()
     {
       Utility.ParseSql("select * from t1 right join t2 on t1.col1 = t2.col2");
     }
 
-    [Test]
+    [Fact]
     public void SimpleLeftOuterJoinTest()
     {
       Utility.ParseSql("select * from t1 left outer join t2 on t1.col1 = t2.col2");
     }
 
-    [Test]
+    [Fact]
     public void SimpleRightOuterJoinTest()
     {
       Utility.ParseSql("select * from t1 right outer join t2 on t1.col1 = t2.col2");
     }
 
-    [Test]
+    [Fact]
     public void SimpleNaturalJoinTest()
     {
       Utility.ParseSql("select * from t1 natural join t2");
     }
 
-    [Test]
+    [Fact]
     public void SimpleNaturalLeftJoinTest()
     {
       Utility.ParseSql("select * from t1 natural left join t2");
     }
 
-    [Test]
+    [Fact]
     public void SimpleNaturalLeftOuterJoinTest()
     {
       Utility.ParseSql("select * from t1 natural left outer join t2");
     }
 
-    [Test]
+    [Fact]
     public void SimpleNaturalRightJoinTest()
     {
       Utility.ParseSql("select * from t1 natural right join t2");
     }
 
-    [Test]
+    [Fact]
     public void SimpleNaturalRightOuterJoinTest()
     {
       Utility.ParseSql("select * from t1 natural right outer join t2");
     }
 
-    [Test]
+    [Fact]
     public void SimpleInnerJoinSimplestOnConditionalTest()
     {
       Utility.ParseSql("select * from t1 inner join t2 on true");
     }
 
-    [Test]
+    [Fact]
     public void MissingOnClausuleForJoinsTest()
     {
       Utility.ParseSql("select * from t1 left join t2", true);
@@ -230,32 +230,32 @@ namespace MySql.Parser.Tests
       Utility.ParseSql("select * from t1 right outer join t2", true);
     }
 
-    [Test]
+    [Fact]
     public void WithoutFromTestTest()
     {
       Utility.ParseSql("select 1, 2, 3");
     }
 
-    [Test]
+    [Fact]
     public void OdbcJoinTest()
     {
       Utility.ParseSql("select * from { oj TabA left outer join TabB on TabA.ID = TabB.ID }");
     }
 
-    [Test]
+    [Fact]
     public void LikeConditionTest()
     {
       Utility.ParseSql("select * from t where a like 'ab'");
     }
 
-    [Test]
+    [Fact]
     public void T()
     {
       Utility.ParseSql("select * from mysql.user limit 2;");
       //Utility.ParseSql("select * from t where a between b");
     }
 
-    [Test]
+    [Fact]
     public void MissingTable()
     {
       StringBuilder sb;
@@ -263,7 +263,7 @@ namespace MySql.Parser.Tests
         Utility.ParseSql("select * from", true, out sb);
     }
     /*
-      [Test]
+      [Fact]
       public void Tx1()
       {
         StringBuilder sb;
@@ -272,7 +272,7 @@ namespace MySql.Parser.Tests
           "select  \nfrom t; \n delete from tbl1", false, out sb);
       }
 
-      [Test]
+      [Fact]
       public void MissingColumn()
       {
         MySQL51Parser.program_return r =
@@ -280,7 +280,7 @@ namespace MySql.Parser.Tests
         //Utility.ParseSql("select c1 from t2, t3;");
       }
 
-      [Test]
+      [Fact]
       public void Tx2()
       {
         StringBuilder sb;
@@ -288,7 +288,7 @@ namespace MySql.Parser.Tests
           Utility.ParseSql("delete from", false, out sb);
       }
 
-      [Test]
+      [Fact]
       public void Tx3()
       {
         StringBuilder sb;
@@ -296,7 +296,7 @@ namespace MySql.Parser.Tests
           Utility.ParseSql("select from table1 inner join table2 on true", true, out sb);
       }
 
-      [Test]
+      [Fact]
       public void Tx4()
       {
         StringBuilder sb;
@@ -304,7 +304,7 @@ namespace MySql.Parser.Tests
           Utility.ParseSql("select * from table1 inner join table2 on true", false, out sb);
       }
 
-      [Test]
+      [Fact]
       public void Tx5()
       {
         // "select c, from table1 "
@@ -322,7 +322,7 @@ namespace MySql.Parser.Tests
 
         
 */
-    [Test]
+    [Fact]
     public void Tx6()
     {
       // "select c, from table1 "
@@ -344,7 +344,7 @@ select `computer`.`Brand`  from `facility` as a;
         false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void Subquery()
     {
       StringBuilder sb;
@@ -352,7 +352,7 @@ select `computer`.`Brand`  from `facility` as a;
         Utility.ParseSql("SELECT * FROM t1 WHERE column1 = (SELECT column1 FROM t2);", false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void Subquery2()
     {
       StringBuilder sb;
@@ -366,23 +366,23 @@ select `computer`.`Brand`  from `facility` as a;
      * This might need a semantic predicate to be resolved.
      * */
     /*
-    [Test]
+    [Fact]
     public void NestedLimitTest()
     {
         Utility.ParseSql("(SELECT * from T LIMIT 1) LIMIT 2;");
     }
      * */
 
-    [Test]
+    [Fact]
     public void WithPartition_55()
     {
       StringBuilder sb;
       MySQL51Parser.program_return r = Utility.ParseSql(
         @"SELECT * FROM employees PARTITION (p1);", true, out sb, new Version(5, 5));
-      Assert.IsTrue(sb.ToString().IndexOf("missing EndOfFile at '('", StringComparison.OrdinalIgnoreCase) != -1);
+      Assert.True(sb.ToString().IndexOf("missing EndOfFile at '('", StringComparison.OrdinalIgnoreCase) != -1);
     }
 
-    [Test]
+    [Fact]
     public void WithPartition_56()
     {
       StringBuilder sb;
@@ -390,7 +390,7 @@ select `computer`.`Brand`  from `facility` as a;
         @"SELECT * FROM employees PARTITION (p1);", false, out sb, new Version(5, 6));
     }
 
-    [Test]
+    [Fact]
     public void WithPartition_2_56()
     {
       StringBuilder sb;
@@ -399,7 +399,7 @@ select `computer`.`Brand`  from `facility` as a;
 WHERE lname LIKE 'S%';", false, out sb, new Version(5, 6));
     }
 
-    [Test]
+    [Fact]
     public void WithPartition_3_56()
     {
       StringBuilder sb;
@@ -408,7 +408,7 @@ WHERE lname LIKE 'S%';", false, out sb, new Version(5, 6));
     FROM employees PARTITION (p0) ORDER BY lname;", false, out sb, new Version(5, 6));
     }
 
-    [Test]
+    [Fact]
     public void WithPartition_4_56()
     {
       StringBuilder sb;
@@ -418,7 +418,7 @@ WHERE lname LIKE 'S%';", false, out sb, new Version(5, 6));
     GROUP BY store_id HAVING c > 4;", false, out sb, new Version(5, 6));
     }
 
-    [Test]
+    [Fact]
     public void WithPartition_5_56()
     {
       StringBuilder sb;
@@ -427,7 +427,7 @@ WHERE lname LIKE 'S%';", false, out sb, new Version(5, 6));
     FROM employees_sub PARTITION (p2sp1);", false, out sb, new Version(5, 6));
     }
 
-    [Test]
+    [Fact]
     public void WithPartition_6_56()
     {
       StringBuilder sb;
@@ -441,37 +441,37 @@ WHERE lname LIKE 'S%';", false, out sb, new Version(5, 6));
      ORDER BY e.lname;", false, out sb, new Version(5, 6));
     }
 
-    [Test]
+    [Fact]
     public void Arnaud1()
     {
       StringBuilder sb;
       MySQL51Parser.program_return r = Utility.ParseSql(@"
 ( 
-	SELECT COUNT( * ) `c` 
-	FROM meetings LEFT JOIN users jt1 
-	ON jt1 . id = meetings . assigned_user_id AND jt1 . deleted = ? AND jt1 . deleted = ? 
-	INNER JOIN meetings_contacts 
-		ON ( meetings . id = meetings_contacts . meeting_id AND meetings_contacts . contact_id = ? )
-	WHERE ( meetings_contacts . deleted = ? AND meetings . deleted = ? AND ( meetings . status = ? ) ) AND meetings . deleted = ?
+  SELECT COUNT( * ) `c` 
+  FROM meetings LEFT JOIN users jt1 
+  ON jt1 . id = meetings . assigned_user_id AND jt1 . deleted = ? AND jt1 . deleted = ? 
+  INNER JOIN meetings_contacts 
+    ON ( meetings . id = meetings_contacts . meeting_id AND meetings_contacts . contact_id = ? )
+  WHERE ( meetings_contacts . deleted = ? AND meetings . deleted = ? AND ( meetings . status = ? ) ) AND meetings . deleted = ?
 )
 UNION ALL ( 
-	SELECT COUNT( * ) `c`
-	FROM tasks LEFT JOIN contacts contacts 
-	ON contacts . id = tasks . contact_id AND contacts . deleted = ? AND contacts . deleted = ?
-		LEFT JOIN users jt1 
-		ON jt1 . id = tasks . assigned_user_id AND jt1 . deleted = ? AND jt1 . deleted = ? 
-		WHERE ( tasks . contact_id = ? AND tasks . deleted = ? AND ( tasks . status = ? OR tasks . status = ? OR tasks . status = ? ) ) AND tasks . deleted = ? 
+  SELECT COUNT( * ) `c`
+  FROM tasks LEFT JOIN contacts contacts 
+  ON contacts . id = tasks . contact_id AND contacts . deleted = ? AND contacts . deleted = ?
+    LEFT JOIN users jt1 
+    ON jt1 . id = tasks . assigned_user_id AND jt1 . deleted = ? AND jt1 . deleted = ? 
+    WHERE ( tasks . contact_id = ? AND tasks . deleted = ? AND ( tasks . status = ? OR tasks . status = ? OR tasks . status = ? ) ) AND tasks . deleted = ? 
 ) UNION ALL ( 
-	SELECT COUNT( * ) `c`
-	FROM calls LEFT JOIN users jt1 
-	ON jt1 . id = calls . assigned_user_id AND jt1 . deleted = ? AND jt1 . deleted = ? 
-	INNER JOIN calls_contacts 
-	ON ( calls . id = calls_contacts . call_id AND calls_contacts . contact_id = ? ) 
-	WHERE ( calls_contacts . deleted = ? AND calls . deleted = ? AND ( calls . status = ? ) ) AND calls . deleted = ?
+  SELECT COUNT( * ) `c`
+  FROM calls LEFT JOIN users jt1 
+  ON jt1 . id = calls . assigned_user_id AND jt1 . deleted = ? AND jt1 . deleted = ? 
+  INNER JOIN calls_contacts 
+  ON ( calls . id = calls_contacts . call_id AND calls_contacts . contact_id = ? ) 
+  WHERE ( calls_contacts . deleted = ? AND calls . deleted = ? AND ( calls . status = ? ) ) AND calls . deleted = ?
 )", false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void Arnaud2()
     {
       StringBuilder sb;
@@ -493,7 +493,7 @@ GROUP BY instance_attribute_id ) AS `i` ON `o` . instance_attribute_id = `i` . i
 ORDER BY id", false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void Arnaud3()
     {
       StringBuilder sb;

@@ -1,4 +1,4 @@
-// Copyright � 2004, 2011, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,39 +21,55 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Data;
-using System.IO;
+using System.Collections.Generic;
+using System.Text;
+using Xunit;
 using System.Threading;
-using NUnit.Framework;
+using System.Data;
 using System.Globalization;
+using System.IO;
+using System.ComponentModel;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  [TestFixture]
-  public class TimeoutAndCancel : BaseTest
+  public class TimeoutAndCancel : IUseFixture<SetUpClass>, IDisposable
   {
+    private SetUpClass st;
     private delegate void CommandInvokerDelegate(MySqlCommand cmdToRun);
     private ManualResetEvent resetEvent = new ManualResetEvent(false);
+
+
+    public void SetFixture(SetUpClass data)
+    {
+      st = data;
+    }
+
+    public void Dispose()
+    {
+      st.execSQL("DROP TABLE IF EXISTS TEST");
+      st.execSQL("DROP PROCEDURE IF EXISTS spTest");
+
+    }
 
     private void CommandRunner(MySqlCommand cmdToRun)
     {
       object o = cmdToRun.ExecuteScalar();
       resetEvent.Set();
-      Assert.IsNull(o);
+      Assert.Null(o);
     }
 
-    [Test]
+    [Fact]
     public void CancelSingleQuery()
     {
-      if (Version < new Version(5, 0)) return;
+      if (st.Version < new Version(5, 0)) return;
 
       // first we need a routine that will run for a bit
-      execSQL(@"CREATE PROCEDURE spTest(duration INT) 
-				BEGIN 
-					SELECT SLEEP(duration);
-				END");
+      st.execSQL(@"CREATE PROCEDURE spTest(duration INT) 
+        BEGIN 
+          SELECT SLEEP(duration);
+        END");
 
-      MySqlCommand cmd = new MySqlCommand("spTest", conn);
+      MySqlCommand cmd = new MySqlCommand("spTest", st.conn);
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.Parameters.AddWithValue("duration", 10);
 
@@ -71,10 +87,10 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     int stateChangeCount;
-    [Test]
+    [Fact]
     public void WaitTimeoutExpiring()
     {
-      string connStr = GetConnectionString(true);
+      string connStr = st.GetConnectionString(true);
       MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder(connStr);
 
       if (sb.ConnectionProtocol == MySqlConnectionProtocol.NamedPipe)
@@ -103,11 +119,11 @@ namespace MySql.Data.MySqlClient.Tests
         }
         catch (Exception ex)
         {
-          Assert.IsTrue(ex.Message.StartsWith("Fatal", StringComparison.OrdinalIgnoreCase));
+          Assert.True(ex.Message.StartsWith("Fatal", StringComparison.OrdinalIgnoreCase));
         }
 
-        Assert.AreEqual(1, stateChangeCount);
-        Assert.AreEqual(ConnectionState.Closed, c.State);
+        Assert.Equal(1, stateChangeCount);
+        Assert.Equal(ConnectionState.Closed, c.State);
       }
 
       using (MySqlConnection c = new MySqlConnection(connStr))
@@ -116,7 +132,7 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlCommand cmd = new MySqlCommand("SELECT now() as thetime, database() as db", c);
         using (MySqlDataReader r = cmd.ExecuteReader())
         {
-          Assert.IsTrue(r.Read());
+          Assert.True(r.Read());
         }
       }
     }
@@ -126,92 +142,92 @@ namespace MySql.Data.MySqlClient.Tests
       stateChangeCount++;
     }
 
-    [Test]
+    [Fact]
     public void TimeoutExpiring()
     {
-      if (version < new Version(5, 0)) return;
+      if (st.version < new Version(5, 0)) return;
 
       DateTime start = DateTime.Now;
-      try
-      {
-        MySqlCommand cmd = new MySqlCommand("SELECT SLEEP(200)", conn);
+      //try
+      //{
+        MySqlCommand cmd = new MySqlCommand("SELECT SLEEP(200)", st.conn);
         cmd.CommandTimeout = 1;
-        cmd.ExecuteReader(CommandBehavior.SingleRow);
-        Assert.Fail("Should not get to this point");
-      }
-      catch (MySqlException ex)
-      {
+        Exception ex = Assert.Throws<MySqlException>(() => cmd.ExecuteReader(CommandBehavior.SingleRow));
+        //Assert.Fail("Should not get to this point");
+      //}
+      //catch (MySqlException ex)
+      //{
         TimeSpan ts = DateTime.Now.Subtract(start);
-        Assert.IsTrue(ts.TotalSeconds <= 3);
-        Assert.IsTrue(ex.Message.StartsWith("Timeout expired", StringComparison.OrdinalIgnoreCase), "Message is wrong " + ex.Message);
-      }
+        Assert.True(ts.TotalSeconds <= 3);
+        Assert.True(ex.Message.StartsWith("Timeout expired", StringComparison.OrdinalIgnoreCase), "Message is wrong " + ex.Message);
+      //}
 
-      long x = (long)(new MySqlCommand("select 10", conn).ExecuteScalar());
-      Assert.AreEqual(10, x);
+      long x = (long)(new MySqlCommand("select 10", st.conn).ExecuteScalar());
+      Assert.Equal(10, x);
 
     }
 
-    [Test]
+    [Fact]
     public void TimeoutNotExpiring()
     {
-      if (Version < new Version(5, 0)) return;
+      if (st.Version < new Version(5, 0)) return;
 
-      MySqlCommand cmd = new MySqlCommand("SELECT SLEEP(1)", conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT SLEEP(1)", st.conn);
       cmd.CommandTimeout = 2;
       cmd.ExecuteNonQuery();
     }
 
-    [Test]
+    [Fact]
     public void TimeoutNotExpiring2()
     {
-      if (Version < new Version(5, 0)) return;
+      if (st.Version < new Version(5, 0)) return;
 
-      MySqlCommand cmd = new MySqlCommand("SELECT SLEEP(1)", conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT SLEEP(1)", st.conn);
       cmd.CommandTimeout = 0; // infinite timeout
       cmd.ExecuteNonQuery();
     }
 
-    [Test]
+    [Fact]
     public void TimeoutDuringBatch()
     {
-      if (Version < new Version(5, 0)) return;
+      if (st.Version < new Version(5, 0)) return;
 
-      execSQL(@"CREATE PROCEDURE spTest(duration INT) 
-				BEGIN 
-					SELECT SLEEP(duration);
-				END");
+      st.execSQL(@"CREATE PROCEDURE spTest(duration INT) 
+        BEGIN 
+          SELECT SLEEP(duration);
+        END");
 
-      execSQL("CREATE TABLE test (id INT)");
+      st.execSQL("CREATE TABLE test (id INT)");
 
       MySqlCommand cmd = new MySqlCommand(
-        "call spTest(5);INSERT INTO test VALUES(4)", conn);
+        "call spTest(5);INSERT INTO test VALUES(4)", st.conn);
       cmd.CommandTimeout = 2;
-      try
-      {
-        cmd.ExecuteNonQuery();
-        Assert.Fail("This should have timed out");
-      }
-      catch (MySqlException ex)
-      {
-        Assert.IsTrue(ex.Message.StartsWith("Timeout expired", StringComparison.OrdinalIgnoreCase), "Message is wrong" + ex);
-      }
+      //try
+      //{
+        Exception ex = Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());
+      //  Assert.Fail("This should have timed out");
+      //}
+      //catch (MySqlException ex)
+      //{
+        Assert.True(ex.Message.StartsWith("Timeout expired", StringComparison.OrdinalIgnoreCase), "Message is wrong" + ex);
+      //}
 
       // Check that connection is still usable
-      MySqlCommand cmd2 = new MySqlCommand("select 10", conn);
+      MySqlCommand cmd2 = new MySqlCommand("select 10", st.conn);
       long res = (long)cmd2.ExecuteScalar();
-      Assert.AreEqual(10, res);
+      Assert.Equal(10, res);
     }
 
-    [Test]
+    [Fact]
     public void CancelSelect()
     {
-      if (Version < new Version(5, 0)) return;
+      if (st.Version < new Version(5, 0)) return;
 
-      execSQL("CREATE TABLE Test (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(20))");
+      st.execSQL("CREATE TABLE Test (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(20))");
       for (int i = 0; i < 1000; i++)
-        execSQL("INSERT INTO Test VALUES (NULL, 'my string')");
+        st.execSQL("INSERT INTO Test VALUES (NULL, 'my string')");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", st.conn);
       cmd.CommandTimeout = 0;
       int rows = 0;
       using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -231,28 +247,28 @@ namespace MySql.Data.MySqlClient.Tests
           }
           catch (MySqlException ex)
           {
-            Assert.IsTrue(ex.Number == (int)MySqlErrorCode.QueryInterrupted);
+            Assert.True(ex.Number == (int)MySqlErrorCode.QueryInterrupted);
             if (rows < 1000)
             {
               bool readOK = reader.Read();
-              Assert.IsFalse(readOK);
+              Assert.False(readOK);
             }
           }
 
         }
       }
-      Assert.IsTrue(rows < 1000);
+      Assert.True(rows < 1000);
     }
 
     /// <summary>
     /// Bug #40091	mysql driver 5.2.3.0 connection pooling issue
     /// </summary>
-    [Test]
+    [Fact]
     public void ConnectionStringModifiedAfterCancel()
     {
-      if (Version.Major < 5) return;
+      if (st.Version.Major < 5) return;
 
-      string connStr = GetPoolingConnectionString();
+      string connStr = st.GetPoolingConnectionString();
       MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder(connStr);
 
       if (sb.ConnectionProtocol == MySqlConnectionProtocol.NamedPipe)
@@ -279,29 +295,29 @@ namespace MySql.Data.MySqlClient.Tests
         }
         catch (MySqlException ex)
         {
-          Assert.IsTrue(ex.InnerException is TimeoutException);
-          Assert.IsTrue(c.State == ConnectionState.Open);
+          Assert.True(ex.InnerException is TimeoutException);
+          Assert.True(c.State == ConnectionState.Open);
         }
         string connStr2 = c.ConnectionString.ToLower(CultureInfo.InvariantCulture);
-        Assert.AreEqual(connStr1.ToLower(CultureInfo.InvariantCulture), connStr2);
+        Assert.Equal(connStr1.ToLower(CultureInfo.InvariantCulture), connStr2);
       }
-      execSQL("kill " + threadId);
+      st.execSQL("kill " + threadId);
     }
 
 
     /// <summary>
     /// Bug #45978	Silent problem when net_write_timeout is exceeded
     /// </summary>
-    [Test]
+    [Fact]
     public void NetWriteTimeoutExpiring()
     {
       // net_write_timeout did not apply to named pipes connections before MySQL 5.1.41.
-      if (Version < new Version(5, 1, 41) && (GetConnectionInfo().IndexOf("protocol=namedpipe") >= 0 || GetConnectionInfo().IndexOf("protocol=sharedmemory") >= 0)) return;
+      if (st.Version < new Version(5, 1, 41) && (st.GetConnectionInfo().IndexOf("protocol=namedpipe") >= 0 || st.GetConnectionInfo().IndexOf("protocol=sharedmemory") >= 0)) return;
 
-      execSQL("CREATE TABLE Test(id int, blob1 longblob)");
+      st.execSQL("CREATE TABLE Test(id int, blob1 longblob)");
       int rows = 1000;
       byte[] b1 = Utils.CreateBlob(5000);
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (@id, @b1)", conn);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (@id, @b1)", st.conn);
       cmd.Parameters.Add("@id", MySqlDbType.Int32);
       cmd.Parameters.AddWithValue("@name", b1);
       for (int i = 0; i < rows; i++)
@@ -310,7 +326,7 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.ExecuteNonQuery();
       }
 
-      string connStr = GetConnectionString(true);
+      string connStr = st.GetConnectionString(true);
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -330,9 +346,7 @@ namespace MySql.Data.MySqlClient.Tests
             // normally and then the problem, described above, occurs
             for (; i < rows; i++)
             {
-
-              if (!reader.Read())
-                Assert.Fail("unexpected 'false' from reader.Read");
+              Assert.False(!reader.Read(),"unexpected 'false' from reader.Read");
               if (i % 10 == 0)
                 Thread.Sleep(1);
               object v = reader.GetValue(1);
@@ -347,7 +361,7 @@ namespace MySql.Data.MySqlClient.Tests
             if (currentException is EndOfStreamException)
               return;
 
-            if ((GetConnectionInfo().IndexOf("protocol=namedpipe") >= 0 || GetConnectionInfo().IndexOf("protocol=sharedmemory") >= 0) && currentException is MySqlException)
+            if ((st.GetConnectionInfo().IndexOf("protocol=namedpipe") >= 0 || st.GetConnectionInfo().IndexOf("protocol=sharedmemory") >= 0) && currentException is MySqlException)
               return;
 
             currentException = currentException.InnerException;
@@ -358,34 +372,34 @@ namespace MySql.Data.MySqlClient.Tests
 
         // IT is relatively hard to predict where
         Console.WriteLine("Warning: all reads completed!");
-        Assert.IsTrue(i == rows);
+        Assert.True(i == rows);
       }
     }
   }
 
   #region Configs
 
-  public class TimeoutAndCancelSocketCompressed : TimeoutAndCancel
+  public class TimeoutAndCancelSocketCompressed : SetUpClass
   {
-    protected override string GetConnectionInfo()
+    internal protected override string GetConnectionInfo()
     {
       return String.Format("port={0};compress=true", port);
     }
   }
 #if !CF
   [Category("Pipe")]
-  public class TimeoutAndCancelPipe : TimeoutAndCancel
+  public class TimeoutAndCancelPipe : SetUpClass
   {
-    protected override string GetConnectionInfo()
+    internal protected override string GetConnectionInfo()
     {
       return String.Format("protocol=namedpipe;pipe name={0}", pipeName);
     }
   }
 
   [Category("SharedMemory")]
-  public class TimeoutAndCancelSharedMemory : TimeoutAndCancel
+  public class TimeoutAndCancelSharedMemory : SetUpClass
   {
-    protected override string GetConnectionInfo()
+    internal protected override string GetConnectionInfo()
     {
       return String.Format("protocol=sharedmemory; shared memory name={0}",
         memoryName);
@@ -394,5 +408,4 @@ namespace MySql.Data.MySqlClient.Tests
 #endif
 
   #endregion
-
 }

@@ -1,4 +1,4 @@
-// Copyright � 2004, 2010, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,33 +20,29 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-//  This code was contributed by Sean Wright (srwright@alcor.concordia.ca) on 2007-01-12
-//  The copyright was assigned and transferred under the terms of
-//  the MySQL Contributor License Agreement (CLA)
-
-using NUnit.Framework;
-using System.Web.Security;
-using System.Collections.Specialized;
-using System.Data;
 using System;
-using System.Configuration.Provider;
+using System.Collections.Generic;
+
+using System.Text;
+using Xunit;
 using MySql.Web.Security;
+using System.Collections.Specialized;
+using System.Web.Security;
 
 namespace MySql.Web.Tests
 {
-  [TestFixture]
-  public class RoleManagement : BaseWebTest
+  public class RoleManagement : IUseFixture<SetUpWeb>, IDisposable
   {
+    private SetUpWeb st;
     private MySQLMembershipProvider membershipProvider;
     private MySQLRoleProvider roleProvider;
 
-    [SetUp]
-    public override void Setup()
+    public void SetFixture(SetUpWeb data)
     {
-      base.Setup();
+      st = data;
 
-      execSQL("DROP TABLE IF EXISTS mysql_membership");
-      execSQL("DROP TABLE IF EXISTS mysql_roles");
+      st.execSQL("DROP TABLE IF EXISTS mysql_membership");
+      st.execSQL("DROP TABLE IF EXISTS mysql_roles");
 
       membershipProvider = new MySQLMembershipProvider();
       NameValueCollection config = new NameValueCollection();
@@ -55,25 +51,9 @@ namespace MySql.Web.Tests
       membershipProvider.Initialize(null, config);
     }
 
-    [Test]
-    public void CreateAndDeleteRoles()
+    public void Dispose()
     {
-      roleProvider = new MySQLRoleProvider();
-      NameValueCollection config = new NameValueCollection();
-      config.Add("connectionStringName", "LocalMySqlServer");
-      config.Add("applicationName", "/");
-      roleProvider.Initialize(null, config);
-
-      // Add the role
-      roleProvider.CreateRole("Administrator");
-      string[] roles = roleProvider.GetAllRoles();
-      Assert.AreEqual(1, roles.Length);
-      Assert.AreEqual("Administrator", roles[0]);
-
-      // now delete the role
-      roleProvider.DeleteRole("Administrator", false);
-      roles = roleProvider.GetAllRoles();
-      Assert.AreEqual(0, roles.Length);
+     //Nothing to clean
     }
 
     private void AddUser(string username, string password)
@@ -81,45 +61,7 @@ namespace MySql.Web.Tests
       MembershipCreateStatus status;
       membershipProvider.CreateUser(username, password, "foo@bar.com", null,
         null, true, null, out status);
-      if (status != MembershipCreateStatus.Success)
-        Assert.Fail("User creation failed");
-    }
-
-    [Test]
-    public void AddUserToRole()
-    {
-      roleProvider = new MySQLRoleProvider();
-      NameValueCollection config = new NameValueCollection();
-      config.Add("connectionStringName", "LocalMySqlServer");
-      config.Add("applicationName", "/");
-      roleProvider.Initialize(null, config);
-
-      AddUser("eve", "eveeve!");
-      roleProvider.CreateRole("Administrator");
-      roleProvider.AddUsersToRoles(new string[] { "eve" },
-        new string[] { "Administrator" });
-      Assert.IsTrue(roleProvider.IsUserInRole("eve", "Administrator"));
-
-      roleProvider.RemoveUsersFromRoles(new string[] { "eve" }, new string[] { "Administrator" });
-      Assert.IsFalse(roleProvider.IsUserInRole("eve", "Administrator"));
-    }
-
-    /// <summary>
-    /// Bug #38243 Not Handling non existing user when calling AddUsersToRoles method 
-    /// </summary>
-    [Test]
-    public void AddNonExistingUserToRole()
-    {
-      roleProvider = new MySQLRoleProvider();
-      NameValueCollection config = new NameValueCollection();
-      config.Add("connectionStringName", "LocalMySqlServer");
-      config.Add("applicationName", "/");
-      roleProvider.Initialize(null, config);
-
-      roleProvider.CreateRole("Administrator");
-      roleProvider.AddUsersToRoles(new string[] { "eve" },
-        new string[] { "Administrator" });
-      Assert.IsTrue(roleProvider.IsUserInRole("eve", "Administrator"));
+      Assert.False(status != MembershipCreateStatus.Success, "User creation failed");
     }
 
     private void AttemptToAddUserToRole(string username, string role)
@@ -134,7 +76,76 @@ namespace MySql.Web.Tests
       }
     }
 
-    [Test]
+
+    [Fact]
+    public void CreateAndDeleteRoles()
+    {
+      roleProvider = new MySQLRoleProvider();
+      NameValueCollection config = new NameValueCollection();
+      config.Add("connectionStringName", "LocalMySqlServer");
+      config.Add("applicationName", "/");
+      roleProvider.Initialize(null, config);
+
+      // Add the role
+      roleProvider.CreateRole("Administrator");
+      string[] roles = roleProvider.GetAllRoles();
+      Assert.Equal(1, roles.Length);
+      Assert.Equal("Administrator", roles[0]);
+      roleProvider.DeleteRole("Administrator", false);
+    }   
+
+    [Fact]
+    public void AddUserToRole()
+    {
+      roleProvider = new MySQLRoleProvider();
+      NameValueCollection config = new NameValueCollection();
+      config.Add("connectionStringName", "LocalMySqlServer");
+      config.Add("applicationName", "/");
+      roleProvider.Initialize(null, config);
+
+      AddUser("eve", "eveeve!");
+      roleProvider.CreateRole("Administrator");
+
+      roleProvider.AddUsersToRoles(new string[] { "eve" },
+        new string[] { "Administrator" });
+      Assert.True(roleProvider.IsUserInRole("eve", "Administrator"));
+
+      roleProvider.RemoveUsersFromRoles(new string[] { "eve" }, new string[] { "Administrator" });
+      Assert.False(roleProvider.IsUserInRole("eve", "Administrator"));
+
+      roleProvider.DeleteRole("Administrator", false);      
+      Assert.Equal(0, roleProvider.GetAllRoles().Length);
+
+      //clean up
+      membershipProvider.DeleteUser("eve", true);
+
+    }
+
+    /// <summary>
+    /// Bug #38243 Not Handling non existing user when calling AddUsersToRoles method 
+    /// </summary>
+    [Fact]
+    public void AddNonExistingUserToRole()
+    {
+      roleProvider = new MySQLRoleProvider();
+      NameValueCollection config = new NameValueCollection();
+      config.Add("connectionStringName", "LocalMySqlServer");
+      config.Add("applicationName", "/");
+      roleProvider.Initialize(null, config);
+
+      roleProvider.CreateRole("Administrator");
+      roleProvider.AddUsersToRoles(new string[] { "eve" },
+        new string[] { "Administrator" });
+      Assert.True(roleProvider.IsUserInRole("eve", "Administrator"));
+
+      //Cleanup
+      roleProvider.RemoveUsersFromRoles(new string[] { "eve" }, new string[] { "Administrator" });
+      roleProvider.DeleteRole("Administrator", false);      
+      
+    }
+
+
+    [Fact]
     public void IllegalRoleAndUserNames()
     {
       roleProvider = new MySQLRoleProvider();
@@ -148,22 +159,31 @@ namespace MySql.Web.Tests
       roleProvider.CreateRole("Administrator");
       AttemptToAddUserToRole(null, "Administrator");
       AttemptToAddUserToRole("", "Administrator");
+
+      //Cleanup
+      roleProvider.DeleteRole("Administrator", false); 
     }
 
-    [Test]
+    [Fact]
     public void AddUserToRoleWithRoleClass()
     {
+
       Roles.CreateRole("Administrator");
       MembershipCreateStatus status;
       Membership.CreateUser("eve", "eve1@eve", "eve@boo.com",
         "question", "answer", true, null, out status);
-      Assert.AreEqual(MembershipCreateStatus.Success, status);
+      Assert.Equal(MembershipCreateStatus.Success, status);
 
       Roles.AddUserToRole("eve", "Administrator");
-      Assert.IsTrue(Roles.IsUserInRole("eve", "Administrator"));
+      Assert.True(Roles.IsUserInRole("eve", "Administrator"));
+      
+      //Cleanup     
+      Membership.DeleteUser("eve");
+      Roles.DeleteRole("Administrator");
+
     }
 
-    [Test]
+    [Fact]
     public void IsUserInRoleCrossDomain()
     {
       MySQLMembershipProvider provider = new MySQLMembershipProvider();
@@ -199,14 +219,21 @@ namespace MySql.Web.Tests
       roleProvider.CreateRole("Administrator");
       roleProvider.AddUsersToRoles(new string[] { "foo" },
         new string[] { "Administrator" });
-      Assert.IsFalse(r2.IsUserInRole("foo", "Administrator"));
+      Assert.False(r2.IsUserInRole("foo", "Administrator"));
+
+      roleProvider.DeleteRole("Administrator", false);
+      Assert.Equal(0, roleProvider.GetAllRoles().Length);
+
+      //Cleanup
+      provider.DeleteUser("foo",true);      
+
     }
 
     /// <summary>
     /// Testing fix for Calling RoleProvider.RemoveUserFromRole() causes an exception due to a wrong table being used.
     /// http://clustra.no.oracle.com/orabugs/bug.php?id=14405338 / http://bugs.mysql.com/bug.php?id=65805.
     /// </summary>
-    [Test]
+    [Fact]
     public void TestUserRemoveFindFromRole()
     {
       roleProvider = new MySQLRoleProvider();
@@ -219,12 +246,18 @@ namespace MySql.Web.Tests
       roleProvider.CreateRole("Administrator");
       roleProvider.AddUsersToRoles(new string[] { "eve" },
         new string[] { "Administrator" });
-      Assert.IsTrue(roleProvider.IsUserInRole("eve", "Administrator"));
+      Assert.True(roleProvider.IsUserInRole("eve", "Administrator"));
       string[] users = roleProvider.FindUsersInRole("Administrator", "eve");
-      Assert.AreEqual( 1, users.Length );
-      Assert.AreEqual("eve", users[0]);
-      roleProvider.RemoveUsersFromRoles(new string[] { "eve" }, new string[] { "Administrator" } );
-      Assert.IsFalse(roleProvider.IsUserInRole("eve", "Administrator"));
+      Assert.Equal(1, users.Length);
+      Assert.Equal("eve", users[0]);
+      roleProvider.RemoveUsersFromRoles(new string[] { "eve" }, new string[] { "Administrator" });
+      Assert.False(roleProvider.IsUserInRole("eve", "Administrator"));
+      
+      //Cleanup
+      membershipProvider.DeleteUser("eve", true);
+      roleProvider.DeleteRole("Administrator", false);     
+     
     }
+
   }
 }

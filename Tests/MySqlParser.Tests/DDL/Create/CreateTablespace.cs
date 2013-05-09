@@ -1,4 +1,4 @@
-﻿// Copyright © 2012, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -26,14 +26,14 @@ using System.Linq;
 using System.Text;
 using Antlr.Runtime;
 using Antlr.Runtime.Tree;
-using NUnit.Framework;
+using Xunit;
 
 namespace MySql.Parser.Tests.Create
 {
-  [TestFixture]
+  
   public class CreateTablespace
   {
-    [Test]
+    [Fact]
     public void Simple()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(

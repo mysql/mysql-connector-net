@@ -1,4 +1,4 @@
-﻿// Copyright © 2012, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,25 +20,26 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Antlr.Runtime;
 using Antlr.Runtime.Tree;
-using NUnit.Framework;
+using Xunit;
 
 
 namespace MySql.Parser.Tests
 {
-  [TestFixture]
+  
   public class AlterTablespace
   {
-	[Test]
-	public void Simple()
-	{
+  [Fact]
+  public void Simple()
+  {
       MySQL51Parser.program_return r = Utility.ParseSql(
         "alter tablespace tsid add datafile '/usr/bin/mysql/datafiles/mydat1' engine = ndb;");
-	}
+  }
   }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2012, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -25,16 +25,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using NUnit.Framework;
+
 using Antlr.Runtime;
 using MySql.Parser;
+using Xunit;
 
 namespace MySql.Parser.Tests
 {
-  [TestFixture]
+  
   public class TokenStreamRemovable
   {
-    [Test]
+    [Fact]
     public void TestTokenRemove()
     {
       string sql = "select *, a, c, d from table1 where a is null";

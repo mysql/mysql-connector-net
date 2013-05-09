@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema xmlns="http://schemas.microsoft.com/ado/2009/02/edm/ssdl" Namespace="testModel.Store" Alias="Self" Provider="MySql.Data.MySqlClient" ProviderManifestToken="5.1"  xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator">
+      <Schema xmlns="http://schemas.microsoft.com/ado/2009/02/edm/ssdl" Namespace="testModel.Store" Alias="Self" Provider="MySql.Data.MySqlClient" ProviderManifestToken="5.5"  xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator">
         <EntityContainer Name="testContainer" >
           <EntitySet Name="Employees" EntityType="testModel.Store.Employees" />
           <EntitySet Name="EmployeeChildren" EntityType="testModel.Store.EmployeeChildren" />

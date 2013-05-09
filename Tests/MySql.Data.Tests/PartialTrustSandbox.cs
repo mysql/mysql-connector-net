@@ -1,4 +1,4 @@
-﻿// Copyright © 2011, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -26,6 +26,7 @@ using System.Text;
 using System.Security;
 using System.Security.Permissions;
 using System.Net;
+using MySql.Data.MySqlClient;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -52,7 +53,7 @@ namespace MySql.Data.MySqlClient.Tests
     public static AppDomain CreateFullTrustDomain()
     {
       AppDomainSetup setup = new AppDomainSetup() { ApplicationBase = AppDomain.CurrentDomain.BaseDirectory, PrivateBinPath = AppDomain.CurrentDomain.RelativeSearchPath };
-      return AppDomain.CreateDomain("Partial Trust Sandbox", AppDomain.CurrentDomain.Evidence, setup );
+      return AppDomain.CreateDomain("Partial Trust Sandbox", AppDomain.CurrentDomain.Evidence, setup);
     }
 
     public MySqlConnection TryOpenConnection(string connectionString)

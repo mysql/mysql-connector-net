@@ -1,4 +1,4 @@
-// Copyright � 2004, 2011, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,25 +21,38 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Data;
+using System.Collections.Generic;
+using System.Text;
 using MySql.Data.MySqlClient;
-using NUnit.Framework;
+using MySql.Data.MySqlClient.Properties;
+using Xunit;
+using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  [TestFixture]
-  public class AsyncTests : BaseTest
+  public class AsyncTests : IUseFixture<SetUpClass>, IDisposable
   {
-    [Test]
-    public void ExecuteNonQuery()
-    {
-      if (Version < new Version(5, 0)) return;
+    private SetUpClass st;
 
-      execSQL("CREATE TABLE test (id int)");
-      execSQL("CREATE PROCEDURE spTest() BEGIN SET @x=0; REPEAT INSERT INTO test VALUES(@x); " +
+    public void SetFixture(SetUpClass data)
+    {
+      st = data;    
+    }
+
+    [Fact]
+    public void ExecuteNonQuery()
+    {      
+      if (st.Version < new Version(5, 0)) return;
+
+      if (st.conn.State != ConnectionState.Open)
+        st.conn.Open();
+      
+      st.execSQL("CREATE TABLE test (id int)");
+
+      st.execSQL("CREATE PROCEDURE spTest() BEGIN SET @x=0; REPEAT INSERT INTO test VALUES(@x); " +
         "SET @x=@x+1; UNTIL @x = 300 END REPEAT; END");
 
-      MySqlCommand proc = new MySqlCommand("spTest", conn);
+      MySqlCommand proc = new MySqlCommand("spTest", st.conn);
       proc.CommandType = CommandType.StoredProcedure;
       IAsyncResult iar = proc.BeginExecuteNonQuery();
       int count = 0;
@@ -49,24 +62,29 @@ namespace MySql.Data.MySqlClient.Tests
         System.Threading.Thread.Sleep(20);
       }
       proc.EndExecuteNonQuery(iar);
-      Assert.IsTrue(count > 0);
+
+
+      Assert.True(count > 0);
 
       proc.CommandType = CommandType.Text;
       proc.CommandText = "SELECT COUNT(*) FROM test";
       object cnt = proc.ExecuteScalar();
-      Assert.AreEqual(300, cnt);
+      Assert.Equal(300, Convert.ToInt32(cnt));
     }
 
-    [Test]
+    [Fact]
     public void ExecuteReader()
     {
-      if (Version < new Version(5, 0)) return;
+      if (st.Version < new Version(5, 0)) return;
 
-      execSQL("CREATE TABLE test (id int)");
-      execSQL("CREATE PROCEDURE spTest() BEGIN INSERT INTO test VALUES(1); " +
+      if (st.conn.State != ConnectionState.Open)
+        st.conn.Open();
+      
+      st.execSQL("CREATE TABLE test (id int)");
+      st.execSQL("CREATE PROCEDURE spTest() BEGIN INSERT INTO test VALUES(1); " +
         "SELECT SLEEP(2); SELECT 'done'; END");
 
-      MySqlCommand proc = new MySqlCommand("spTest", conn);
+      MySqlCommand proc = new MySqlCommand("spTest", st.conn);
       proc.CommandType = CommandType.StoredProcedure;
       IAsyncResult iar = proc.BeginExecuteReader();
       int count = 0;
@@ -78,36 +96,37 @@ namespace MySql.Data.MySqlClient.Tests
 
       using (MySqlDataReader reader = proc.EndExecuteReader(iar))
       {
-        Assert.IsNotNull(reader);
-        Assert.IsTrue(count > 0, "count > 0");
-        Assert.IsTrue(reader.Read(), "can read");
-        Assert.IsTrue(reader.NextResult());
-        Assert.IsTrue(reader.Read());
-        Assert.AreEqual("done", reader.GetString(0));
+        Assert.NotNull(reader);
+        Assert.True(count > 0, "count > 0");
+        Assert.True(reader.Read(), "can read");
+        Assert.True(reader.NextResult());
+        Assert.True(reader.Read());
+        Assert.Equal("done", reader.GetString(0));
         reader.Close();
 
         proc.CommandType = CommandType.Text;
         proc.CommandText = "SELECT COUNT(*) FROM test";
         object cnt = proc.ExecuteScalar();
-        Assert.AreEqual(1, cnt);
+        Assert.Equal(1, Convert.ToInt32(cnt));
       }
     }
 
-    [Test]
+    [Fact]
     public void ThrowingExceptions()
     {
-      MySqlCommand cmd = new MySqlCommand("SELECT xxx", conn);
-      IAsyncResult r = cmd.BeginExecuteReader();
-      try
-      {
-        using (MySqlDataReader reader = cmd.EndExecuteReader(r))
-        {
-          Assert.Fail("EndExecuteReader should have thrown an exception");
-        }
-      }
-      catch (MySqlException)
-      {
-      }
+      if (st.conn.State != ConnectionState.Open)
+        st.conn.Open();
+
+      MySqlCommand cmd = new MySqlCommand("SELECT xxx", st.conn);
+      IAsyncResult r = cmd.BeginExecuteReader();      
+      Exception ex = Assert.Throws<MySqlException>(() => cmd.EndExecuteReader(r));
+      Assert.Equal("Unknown column 'xxx' in 'field list'", ex.Message);
+    }
+
+    public void Dispose()
+    {
+      st.execSQL("DROP TABLE IF EXISTS test");
+      st.execSQL("DROP PROCEDURE IF EXISTS spTest");
     }
   }
 }

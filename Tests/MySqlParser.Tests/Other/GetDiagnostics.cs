@@ -1,4 +1,4 @@
-﻿// Copyright © 2012, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -24,26 +24,27 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NUnit.Framework;
+
 using Antlr.Runtime;
 using Antlr.Runtime.Tree;
+using Xunit;
 
 
 namespace MySql.Parser.Tests
 {
-  [TestFixture]
+  
   public class GetDiagnostics
   {
-    [Test]
+    [Fact]
     public void Simple_55()
     {
       StringBuilder sb;
       MySQL51Parser.program_return r = Utility.ParseSql(
         @"GET DIAGNOSTICS CONDITION 1 @errno = MYSQL_ERRNO;", true, out sb, new Version(5, 5));
-      Assert.IsTrue(sb.ToString().IndexOf("rule savepoint_ident failed predicate: { input.LT(1).Text.ToLower() == \"savepoint\" }?") != -1);
+      Assert.True(sb.ToString().IndexOf("rule savepoint_ident failed predicate: { input.LT(1).Text.ToLower() == \"savepoint\" }?") != -1);
     }
 
-    [Test]
+    [Fact]
     public void Simple_56()
     {
       StringBuilder sb;
@@ -51,7 +52,7 @@ namespace MySql.Parser.Tests
         @"GET DIAGNOSTICS CONDITION 1 @errno = MYSQL_ERRNO;", false, out sb, new Version(5, 6));
     }
 
-    [Test]
+    [Fact]
     public void Simple_2_56()
     {
       StringBuilder sb;
@@ -59,7 +60,7 @@ namespace MySql.Parser.Tests
         @"GET DIAGNOSTICS @cno = NUMBER;", false, out sb, new Version(5, 6));
     }
 
-    [Test]
+    [Fact]
     public void Simple_3_56()
     {
       StringBuilder sb;
@@ -67,7 +68,7 @@ namespace MySql.Parser.Tests
         @"GET DIAGNOSTICS CONDITION @cno @errno = MYSQL_ERRNO;", false, out sb, new Version(5, 6));
     }
 
-    [Test]
+    [Fact]
     public void Compound_56()
     {
       StringBuilder sb;
@@ -100,7 +101,7 @@ BEGIN
 END;", false, out sb, new Version(5, 6));
     }
 
-    [Test]
+    [Fact]
     public void Compound__2_56()
     {
       StringBuilder sb;
@@ -109,7 +110,7 @@ END;", false, out sb, new Version(5, 6));
 @p3 = SCHEMA_NAME, @p4 = TABLE_NAME;", false, out sb, new Version(5, 6));
     }
 
-    [Test]
+    [Fact]
     public void Compound_3_56()
     {
       StringBuilder sb;
@@ -118,7 +119,7 @@ END;", false, out sb, new Version(5, 6));
     @p1 = RETURNED_SQLSTATE, @p2 = MESSAGE_TEXT;", false, out sb, new Version(5, 6));
     }
 
-    [Test]
+    [Fact]
     public void Compound_4_56()
     {
       StringBuilder sb;

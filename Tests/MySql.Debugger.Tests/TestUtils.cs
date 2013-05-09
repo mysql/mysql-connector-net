@@ -1,4 +1,4 @@
-﻿// Copyright © 2004, 2012, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -29,8 +29,8 @@ namespace MySql.Debugger.Tests
 {
   public class TestUtils
   {
-    public static readonly string CONNECTION_STRING = "server=localhost;User Id=root;database=test;Allow User Variables=true;Pooling=false;Allow Zero DateTime=true;";
-    public static readonly string CONNECTION_STRING_DBG = "server=localhost;User Id=root;database=ServerSideDebugger;Allow User Variables=true;Pooling=false;Allow Zero DateTime=true;";
-    public static readonly string CONNECTION_STRING_WITHOUT_DB = "server=localhost;User Id=root;Allow User Variables=true;Pooling=false;Allow Zero DateTime=true;";
+    public static readonly string CONNECTION_STRING = "server=localhost;User Id=root;database=test;Port=3305;Allow User Variables=true;Pooling=false;Allow Zero DateTime=true;";
+    public static readonly string CONNECTION_STRING_DBG = "server=localhost;User Id=root;database=ServerSideDebugger;Port=3305;Allow User Variables=true;Pooling=false;Allow Zero DateTime=true;";
+    public static readonly string CONNECTION_STRING_WITHOUT_DB = "server=localhost;User Id=root;Port=3305;Allow User Variables=true;Pooling=false;Allow Zero DateTime=true;";
   }
 }

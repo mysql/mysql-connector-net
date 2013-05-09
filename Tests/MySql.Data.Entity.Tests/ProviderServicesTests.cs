@@ -1,4 +1,4 @@
-﻿// Copyright © 2011, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -26,113 +26,117 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MySql.Data.MySqlClient;
-using NUnit.Framework;
 using System.Threading;
 using System.Globalization;
+using Xunit;
+using System.Data;
 
 namespace MySql.Data.Entity.Tests
 {
-  [TestFixture]
-  public class ProviderServicesTests : BaseEdmTest
+  public class ProviderServicesTests : IUseFixture<SetUpEntityTests>, IDisposable
   {
+    private SetUpEntityTests st;
+
+    public void SetFixture(SetUpEntityTests data)
+    {
+      st = data;
+    }
     private CultureInfo originalCulture;
 
-    public override void Setup()
+    public ProviderServicesTests():base()
     {
-      originalCulture = Thread.CurrentThread.CurrentCulture;
-      base.Setup();
+      originalCulture = Thread.CurrentThread.CurrentCulture;      
     }
 
 #if CLR4
-    [Test]
+    [Fact]
     public void CreateDatabase()
     {
-      suExecSQL("GRANT ALL ON `modeldb`.* to 'test'@'localhost'");
-      suExecSQL("FLUSH PRIVILEGES");
+      st.suExecSQL("GRANT ALL ON `modeldb`.* to 'test'@'localhost'");
+      st.suExecSQL("FLUSH PRIVILEGES");
 
       using (Model1Container ctx = new Model1Container())
       {
-        Assert.IsFalse(ctx.DatabaseExists());
+        Assert.False(ctx.DatabaseExists());
         ctx.CreateDatabase();
-        Assert.IsTrue(ctx.DatabaseExists());
+        Assert.True(ctx.DatabaseExists());
       }
     }
 
-    [Test]
+    [Fact]
     public void CreateDatabaseScript()
     {
       using (testEntities ctx = new testEntities())
-      {
+      {        
         string s = ctx.CreateDatabaseScript();
       }
     }
 
-    [Test]
+    [Fact]
     public void DeleteDatabase()
     {
-      suExecSQL("GRANT ALL ON `modeldb`.* to 'test'@'localhost'");
-      suExecSQL("FLUSH PRIVILEGES");
+      st.suExecSQL("GRANT ALL ON `modeldb`.* to 'test'@'localhost'");
+      st.suExecSQL("FLUSH PRIVILEGES");
 
       using (Model1Container ctx = new Model1Container())
       {
-        Assert.IsFalse(ctx.DatabaseExists());
+        Assert.False(ctx.DatabaseExists());
         ctx.CreateDatabase();
-        Assert.IsTrue(ctx.DatabaseExists());
+        Assert.True(ctx.DatabaseExists());
         ctx.DeleteDatabase();
-        Assert.IsFalse(ctx.DatabaseExists());
+        Assert.False(ctx.DatabaseExists());
       }
     }
 
-    [Test]
+    [Fact]
     public void DatabaseExists()
     {
-      suExecSQL("GRANT ALL ON `modeldb`.* to 'test'@'localhost'");
-      suExecSQL("FLUSH PRIVILEGES");
+      st.suExecSQL("GRANT ALL ON `modeldb`.* to 'test'@'localhost'");
+      st.suExecSQL("FLUSH PRIVILEGES");
 
       using (Model1Container ctx = new Model1Container())
       {
-        Assert.IsFalse(ctx.DatabaseExists());
+        Assert.False(ctx.DatabaseExists());
         ctx.CreateDatabase();
-        Assert.IsTrue(ctx.DatabaseExists());
+        Assert.True(ctx.DatabaseExists());
         ctx.DeleteDatabase();
-        Assert.IsFalse(ctx.DatabaseExists());
+        Assert.False(ctx.DatabaseExists());
       }
     }
 #endif
 
-    [Test]
+    [Fact]
     public void GetDbProviderManifestTokenDoesNotThrowWhenLocalized()
     {
       Thread.CurrentThread.CurrentCulture = new CultureInfo("fr-CA");
 
-      using (MySqlConnection connection = new MySqlConnection(GetConnectionString(true)))
+      using (MySqlConnection connection = new MySqlConnection(st.GetConnectionString(true)))
       {
         MySqlProviderServices providerServices = new MySqlProviderServices();
         string token = null;
 
         Assert.DoesNotThrow(delegate() { token = providerServices.GetProviderManifestToken(connection); });
-        Assert.IsNotNull(token);
+        Assert.NotNull(token);
       }
     }
 
-    [Test]
+    [Fact]
     public void GetDbProviderManifestTokenDoesNotThrowWhenMissingPersistSecurityInfo()
     {
-      using (MySqlConnection connection = new MySqlConnection(GetConnectionString(this.user, this.password, false, true)))
-      {
-        MySqlProviderServices providerServices = new MySqlProviderServices();
-        string token = null;
-        connection.Open();
-        Assert.DoesNotThrow(delegate() { token = providerServices.GetProviderManifestToken(connection); });
-        Assert.IsNotNull(token);
-        connection.Close();
-      }
+      var conn = new MySqlConnection(st.rootConn.ConnectionString);
+      conn.Open();
+      MySqlProviderServices providerServices = new MySqlProviderServices();
+      string token = null;
+
+      Assert.DoesNotThrow(delegate() { token = providerServices.GetProviderManifestToken(conn); });
+      Assert.NotNull(token);
+      conn.Close();      
     }
 
-    public override void Teardown()
+    public void Dispose()
     {
       Thread.CurrentThread.CurrentCulture = originalCulture;
-      base.Teardown();
+      st.Dispose();
     }
   }
 }

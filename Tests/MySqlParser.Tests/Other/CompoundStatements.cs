@@ -1,4 +1,4 @@
-﻿// Copyright © 2012, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -24,16 +24,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NUnit.Framework;
+
 using Antlr.Runtime;
 using Antlr.Runtime.Tree;
+using Xunit;
 
 namespace MySql.Parser.Tests
 {
-  [TestFixture]
+  
   public class CompoundStatements
   {
-    [Test]
+    [Fact]
     public void Iterate()
     {
       StringBuilder sb;
@@ -54,7 +55,7 @@ END;
   false, out sb);
     }
 
-//    [Test]
+//    [Fact]
 //    public void Handler()
 //    {
 //      StringBuilder sb;
@@ -66,7 +67,7 @@ END;
       
 //    }
 
-//    [Test]
+//    [Fact]
 //    public void Handler2()
 //    {
 //      StringBuilder sb;
@@ -78,7 +79,7 @@ END;
 //  END;", false);
 //    }
 
-//    [Test]
+//    [Fact]
 //    public void Handler3()
 //    {
 //      StringBuilder sb;
@@ -89,7 +90,7 @@ END;
 //    -- body of handler
 //  END;", false);
 //    }
-    [Test]
+    [Fact]
     public void Handler()
     {
       StringBuilder sb;
@@ -107,7 +108,7 @@ END;
         false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void Handler2()
     {
       StringBuilder sb;
@@ -120,7 +121,7 @@ end;",
         false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void Handler3()
     {
       StringBuilder sb;
@@ -133,7 +134,7 @@ end;",
         false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void Timestamp50()
     {
       StringBuilder sb;
@@ -144,10 +145,10 @@ begin
   DECLARE mystamp timestamp( 20 );
 END;",
         true, out sb, new Version( 5, 0 ));
-      Assert.IsTrue(sb.Length != 0);
+      Assert.True(sb.Length != 0);
     }
 
-    [Test]
+    [Fact]
     public void Timestamp51()
     {
       StringBuilder sb;

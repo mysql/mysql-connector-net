@@ -1,4 +1,4 @@
-// Copyright � 2004, 2010, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,71 +21,65 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
+using System.Collections.Generic;
+using System.Text;
+using Xunit;
 using System.Data;
-using System.IO;
-using System.Threading;
-using NUnit.Framework;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  [TestFixture]
-  public class ExceptionTests : BaseTest
+  public class ExceptionTests : IUseFixture<SetUpClass>, IDisposable
   {
-    public override void Setup()
+    private SetUpClass st;
+
+    public void SetFixture(SetUpClass data)
     {
-      base.Setup();
-      execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100))");
+      st = data;
+      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100))");
     }
 
-    [Test]
+    public void Dispose()
+    {
+      st.execSQL("DROP TABLE IF EXISTS TEST");
+    }
+
+    [Fact]
     public void Timeout()
     {
       for (int i = 1; i < 10; i++)
-        execSQL("INSERT INTO Test VALUES (" + i + ", 'This is a long text string that I am inserting')");
+        st.execSQL("INSERT INTO Test VALUES (" + i + ", 'This is a long text string that I am inserting')");
 
       // we create a new connection so our base one is not closed
-      MySqlConnection c2 = new MySqlConnection(conn.ConnectionString);
+      MySqlConnection c2 = new MySqlConnection(st.conn.ConnectionString);
       c2.Open();
 
-      KillConnection(c2);
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", c2);
-      MySqlDataReader reader = null;
-
-      try
-      {
-        reader = cmd.ExecuteReader();
-        reader.Read();
-        reader.Read();
-        reader.Close();
-        Assert.Fail("We should not reach this code");
-      }
-      catch (Exception)
-      {
-        Assert.AreEqual(ConnectionState.Closed, c2.State);
-      }
-      finally
-      {
-        if (reader != null) reader.Close();
-        c2.Close();
-      }
+      st.KillConnection(c2);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", c2);     
+      Exception ex = Assert.Throws<InvalidOperationException>(() =>  cmd.ExecuteReader());
+      Assert.Equal(ex.Message, "Connection must be valid and open.");     
+      Assert.Equal(ConnectionState.Closed, c2.State);
+      c2.Close();
+      
     }
 #if !CF
     /// <summary>
     /// Bug #27436 Add the MySqlException.Number property value to the Exception.Data Dictionary  
     /// </summary>
-    [Test]
+    [Fact]
     public void ErrorData()
     {
-      MySqlCommand cmd = new MySqlCommand("SELEDT 1", conn);
+      MySqlCommand cmd = new MySqlCommand("SELEDT 1", st.conn);
       try
       {
         cmd.ExecuteNonQuery();
       }
       catch (Exception ex)
       {
-        Assert.AreEqual(1064, ex.Data["Server Error Code"]);
+        Assert.Equal(1064, ex.Data["Server Error Code"]);
       }
     }
 #endif
+
+
   }
 }

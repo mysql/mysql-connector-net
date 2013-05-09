@@ -1,4 +1,4 @@
-// Copyright � 2004, 2010, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,35 +21,41 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
+using System.Collections.Generic;
+using System.Text;
+using Xunit;
 using System.Data;
-using System.IO;
-using NUnit.Framework;
-using System.Data.Common;
 using System.Reflection;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  [TestFixture]
-  public class SimpleTransactions : BaseTest
+  public class SimpleTransactions  : IUseFixture<SetUpClass>, IDisposable
   {
-    public override void Setup()
+    private SetUpClass st;
+
+    public void SetFixture(SetUpClass data)
     {
-      base.Setup();
-      createTable("CREATE TABLE Test (key2 VARCHAR(1), name VARCHAR(100), name2 VARCHAR(100))", "INNODB");
+      st = data;
+      st.createTable("CREATE TABLE Test (key2 VARCHAR(1), name VARCHAR(100), name2 VARCHAR(100))", "INNODB");
     }
 
-    [Test]
+    public void Dispose()
+    {
+      st.execSQL("DROP TABLE IF EXISTS TEST");      
+    }
+
+    [Fact]
     public void TestReader()
     {
-      execSQL("INSERT INTO Test VALUES('P', 'Test1', 'Test2')");
+      st.execSQL("INSERT INTO Test VALUES('P', 'Test1', 'Test2')");
 
-      MySqlTransaction txn = conn.BeginTransaction();
+      MySqlTransaction txn = st.conn.BeginTransaction();
       MySqlConnection c = txn.Connection;
-      Assert.AreEqual(conn, c);
+      Assert.Equal(st.conn, c);
       MySqlCommand cmd = new MySqlCommand("SELECT name, name2 FROM Test WHERE key2='P'",
-        conn, txn);
+        st.conn, txn);
       MySqlTransaction t2 = cmd.Transaction;
-      Assert.AreEqual(txn, t2);
+      Assert.Equal(txn, t2);
       MySqlDataReader reader = null;
       try
       {
@@ -59,7 +65,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
       catch (Exception ex)
       {
-        Assert.Fail(ex.Message);
+        Assert.False(ex.Message != string.Empty, ex.Message);
         txn.Rollback();
       }
       finally
@@ -71,29 +77,30 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #22400 Nested transactions 
     /// </summary>
-    [Test]
+    [Fact]
     public void NestedTransactions()
     {
-      MySqlTransaction t1 = conn.BeginTransaction();
-      try
-      {
-        MySqlTransaction t2 = conn.BeginTransaction();
-        Assert.Fail("Exception should have been thrown");
-        t2.Rollback();
-      }
-      catch (InvalidOperationException)
-      {
-      }
-      finally
-      {
+      MySqlTransaction t1 = st.conn.BeginTransaction();
+      //try
+      //{
+        Exception ex = Assert.Throws<InvalidOperationException>(() => { st.conn.BeginTransaction(); });
+        Assert.Equal(ex.Message, "Nested transactions are not supported.");
+        ////Assert.Fail("Exception should have been thrown");
+        //t2.Rollback();
+      //}
+      //catch (InvalidOperationException)
+      //{
+      //}
+      //finally
+      //{
         t1.Rollback();
-      }
+      //}
     }
 
-    [Test]
+    [Fact]
     public void BeginTransactionOnPreviouslyOpenConnection()
     {
-      string connStr = GetConnectionString(true);
+      string connStr = st.GetConnectionString(true);
       MySqlConnection c = new MySqlConnection(connStr);
       c.Open();
       c.Close();
@@ -103,7 +110,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
       catch (Exception ex)
       {
-        Assert.AreEqual("The connection is not open.", ex.Message);
+        Assert.Equal("The connection is not open.", ex.Message);
       }
     }
 
@@ -112,13 +119,13 @@ namespace MySql.Data.MySqlClient.Tests
     /// This test is not a perfect test of this bug as the kill connection is not quite the
     /// same as unplugging the network but it's the best I've figured out so far
     /// </summary>
-    [Test]
+    [Fact]
     public void CommitAfterConnectionDead()
     {
-      execSQL("DROP TABLE IF EXISTS Test");
-      execSQL("CREATE TABLE Test(id INT, name VARCHAR(20))");
+      st.execSQL("DROP TABLE IF EXISTS Test");
+      st.execSQL("CREATE TABLE Test(id INT, name VARCHAR(20))");
 
-      string connStr = GetConnectionString(true) + ";pooling=false";
+      string connStr = st.GetConnectionString(true) + ";pooling=false";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -128,16 +135,16 @@ namespace MySql.Data.MySqlClient.Tests
         {
           cmd.ExecuteNonQuery();
         }
-        KillConnection(c);
-        try
-        {
-          trans.Commit();
-          Assert.Fail("Should have thrown an exception");
-        }
-        catch (Exception)
-        {
-        }
-        Assert.AreEqual(ConnectionState.Closed, c.State);
+        st.KillConnection(c);
+        //try
+        //{
+        Exception ex = Assert.Throws<InvalidOperationException>(() => trans.Commit());
+        Assert.Equal(ex.Message, "Connection must be valid and open to commit transaction");
+        //}
+        //catch (Exception)
+        //{
+        //}
+        Assert.Equal(ConnectionState.Closed, c.State);
         c.Close();    // this should work even though we are closed
       }
     }
@@ -145,11 +152,11 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #39817	Transaction Dispose does not roll back
     /// </summary>
-    [Test]
+    [Fact]
     public void DisposingCallsRollback()
     {
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES ('a', 'b', 'c')", conn);
-      MySqlTransaction txn = conn.BeginTransaction();
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES ('a', 'b', 'c')", st.conn);
+      MySqlTransaction txn = st.conn.BeginTransaction();
       using (txn)
       {
         cmd.ExecuteNonQuery();
@@ -158,7 +165,8 @@ namespace MySql.Data.MySqlClient.Tests
       Type t = txn.GetType();
       FieldInfo fi = t.GetField("open", BindingFlags.Instance | BindingFlags.NonPublic);
       bool isOpen = (bool)fi.GetValue(txn);
-      Assert.IsFalse(isOpen);
+      Assert.False(isOpen);
     }
+
   }
 }

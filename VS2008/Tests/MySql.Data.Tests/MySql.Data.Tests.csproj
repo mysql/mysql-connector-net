@@ -56,39 +56,38 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="nunit.framework" />
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Xml" />
+    <Reference Include="xunit, Version=1.9.1.1600, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\XUnit_1.9.1\xunit.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\..\Source\MySql.Data\Properties\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\GenericListener.cs">
+      <Link>GenericListener.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\AsyncTests.cs" />
-    <Compile Include="..\..\..\Tests\MySql.Data.Tests\BaseTest.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\BlobTests.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\CharacterSetTests.cs" />
-    <Compile Include="..\..\..\Tests\MySql.Data.Tests\CommandBuilderTests.cs" />
-    <Compile Include="..\..\..\Tests\MySql.Data.Tests\CommandTests.cs" />
-    <Compile Include="..\..\..\Tests\MySql.Data.Tests\ConnectionStringBuilder.cs" />
-    <Compile Include="..\..\..\Tests\MySql.Data.Tests\ConnectionTests.cs" />
-    <Compile Include="..\..\..\Tests\MySql.Data.Tests\BulkLoading.cs" />
-    <Compile Include="..\..\..\Tests\MySql.Data.Tests\OutputParameters.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\PartialTrustSandbox.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\SetUp.cs">
+      <Link>SetUp.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\SqlServerMode.cs" />
-    <Compile Include="..\..\..\Tests\MySql.Data.Tests\Logging.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\ScriptExecution.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\SqlTokenizer.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\Tokenizer.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\CultureTests.cs" />
-    <Compile Include="..\..\..\Tests\MySql.Data.Tests\DataAdapterTests.cs" />
-    <Compile Include="..\..\..\Tests\MySql.Data.Tests\DataReaderTests.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\DataTypeTests.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\DateTimeTests.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\EventTests.cs" />
@@ -100,16 +99,13 @@
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\PerfMonTests.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\PoolingTests.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\PreparedStatements.cs" />
-    <Compile Include="..\..\..\Tests\MySql.Data.Tests\ProcedureParameters.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\SimpleTransactions.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\StoredProcedure.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\StressTests.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\Syntax.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\Syntax2.cs" />
-    <Compile Include="..\..\..\Tests\MySql.Data.Tests\Threading.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\TimeoutAndCancel.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\Transactions.cs" />
-    <Compile Include="..\..\..\Tests\MySql.Data.Tests\UsageAdvisor.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\Utils.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -8,8 +8,8 @@
     <ProjectGuid>{247973E1-8535-4930-8940-83B06097D5DA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MySqlParser.Tests</RootNamespace>
-    <AssemblyName>MySqlParser.Tests</AssemblyName>
+    <RootNamespace>MySql.Parser.Tests</RootNamespace>
+    <AssemblyName>MySql.Parser.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -31,19 +31,19 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Antlr3.Runtime">
+    <Reference Include="Antlr3.Runtime, Version=3.3.1.7705, Culture=neutral, PublicKeyToken=4186e2f4d936d3c2, processorArchitecture=MSIL">
       <HintPath>..\..\Source\MySqlParser\Antlr\Antlr3.Runtime.dll</HintPath>
     </Reference>
-    <Reference Include="nunit.framework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="xunit, Version=1.9.1.1600, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>C:\Program Files (x86)\XUnit_1.9.1\xunit.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DDL\Alter\AlterDatabase.cs" />
@@ -66,7 +66,6 @@
     <Compile Include="DDL\Create\CreateTablespace.cs" />
     <Compile Include="DDL\Create\CreateTrigger.cs" />
     <Compile Include="DDL\Create\CreateView.cs" />
-    <Compile Include="Other\AccountManagement.cs" />
     <Compile Include="DDL\Drop\DropDatabase.cs" />
     <Compile Include="DDL\Drop\DropEvent.cs" />
     <Compile Include="DDL\Drop\DropIndex.cs" />
@@ -74,6 +73,13 @@
     <Compile Include="DDL\Drop\DropTable.cs" />
     <Compile Include="DDL\Drop\DropTrigger.cs" />
     <Compile Include="DDL\Drop\DropView.cs" />
+    <Compile Include="DDL\Show\Show.cs" />
+    <Compile Include="DML\Delete.cs" />
+    <Compile Include="DML\Insert.cs" />
+    <Compile Include="DML\Select.cs" />
+    <Compile Include="DML\Update.cs" />
+    <Compile Include="Infrastructure\TokenStreamRemovable.cs" />
+    <Compile Include="Other\AccountManagement.cs" />
     <Compile Include="Other\Call.cs" />
     <Compile Include="Other\CompoundStatements.cs" />
     <Compile Include="Other\Explain.cs" />
@@ -82,7 +88,6 @@
     <Compile Include="Other\GetDiagnostics.cs" />
     <Compile Include="Other\Handler.cs" />
     <Compile Include="Other\Intellisense.cs" />
-    <Compile Include="Infrastructure\TokenStreamRemovable.cs" />
     <Compile Include="Other\LoadDataInfile.cs" />
     <Compile Include="Other\Other.cs" />
     <Compile Include="Other\RenameDatabase.cs" />
@@ -91,11 +96,6 @@
     <Compile Include="Other\Signal.cs" />
     <Compile Include="Other\Transaction.cs" />
     <Compile Include="Other\TruncateTable.cs" />
-    <Compile Include="DDL\Show\Show.cs" />
-    <Compile Include="DML\Delete.cs" />
-    <Compile Include="DML\Insert.cs" />
-    <Compile Include="DML\Select.cs" />
-    <Compile Include="DML\Update.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility.cs" />
   </ItemGroup>

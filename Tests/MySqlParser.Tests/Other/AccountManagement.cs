@@ -1,4 +1,4 @@
-﻿// Copyright © 2012, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -24,16 +24,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NUnit.Framework;
 using Antlr.Runtime;
 using Antlr.Runtime.Tree;
+using Xunit;
 
 namespace MySql.Parser.Tests
 {
-  [TestFixture]
+  
   public class AccountManagement
   {
-    [Test]
+    [Fact]
     public void CreateUser1()
     {
       string sql = @"CREATE USER 'jeffrey'@'localhost' IDENTIFIED BY 'mypass';";
@@ -42,7 +42,7 @@ namespace MySql.Parser.Tests
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void CreateUser2()
     {
       string sql = @"CREATE USER 'jeffrey'@'localhost';";
@@ -51,7 +51,7 @@ namespace MySql.Parser.Tests
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void CreateUser3()
     {
       string sql = @"CREATE USER 'jeffrey'@'localhost'
@@ -61,7 +61,7 @@ IDENTIFIED BY PASSWORD '*90E462C37378CED12064BB3388827D2BA3A9B689';";
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void CreateUser4()
     {
       string sql = @"CREATE USER 'jeffrey'@'localhost'
@@ -72,7 +72,7 @@ IDENTIFIED BY PASSWORD '*90E462C37378CED12064BB3388827D2BA3A9B689';";
         Utility.ParseSql(sql, false, out sb);
     }
     
-    [Test]
+    [Fact]
     public void DropUser()
     {
       string sql = @"DROP USER 'jeffrey'@'localhost';";
@@ -81,7 +81,7 @@ IDENTIFIED BY PASSWORD '*90E462C37378CED12064BB3388827D2BA3A9B689';";
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void DropUser2()
     {
       string sql = @"DROP USER 'jeffrey'@'localhost', 'me'@'localhost';";
@@ -90,7 +90,7 @@ IDENTIFIED BY PASSWORD '*90E462C37378CED12064BB3388827D2BA3A9B689';";
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void Grant()
     {
       string sql = @"GRANT ALL ON db1.* TO 'jeffrey'@'localhost';";
@@ -99,7 +99,7 @@ IDENTIFIED BY PASSWORD '*90E462C37378CED12064BB3388827D2BA3A9B689';";
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void Grant2()
     {
       string sql = @"GRANT SELECT ON db2.invoice TO 'jeffrey'@'localhost';";
@@ -108,7 +108,7 @@ IDENTIFIED BY PASSWORD '*90E462C37378CED12064BB3388827D2BA3A9B689';";
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void Grant3()
     {
       string sql = @"GRANT USAGE ON *.* TO 'jeffrey'@'localhost' WITH MAX_QUERIES_PER_HOUR 90;";
@@ -117,7 +117,7 @@ IDENTIFIED BY PASSWORD '*90E462C37378CED12064BB3388827D2BA3A9B689';";
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void Grant4()
     {
       string sql = @"GRANT ALL ON *.* TO 'someuser'@'somehost';";
@@ -126,7 +126,7 @@ IDENTIFIED BY PASSWORD '*90E462C37378CED12064BB3388827D2BA3A9B689';";
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void Grant5()
     {
       string sql = @"GRANT SELECT, INSERT ON *.* TO 'someuser'@'somehost';";
@@ -135,7 +135,7 @@ IDENTIFIED BY PASSWORD '*90E462C37378CED12064BB3388827D2BA3A9B689';";
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void Grant6()
     {
       string sql = @"GRANT ALL ON mydb.* TO 'someuser'@'somehost';";
@@ -144,7 +144,7 @@ IDENTIFIED BY PASSWORD '*90E462C37378CED12064BB3388827D2BA3A9B689';";
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void Grant7()
     {
       string sql = @"GRANT SELECT, INSERT ON mydb.* TO 'someuser'@'somehost';";
@@ -153,7 +153,7 @@ IDENTIFIED BY PASSWORD '*90E462C37378CED12064BB3388827D2BA3A9B689';";
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void Grant8()
     {
       string sql = @"GRANT SELECT (col1), INSERT (col1,col2) ON mydb.mytbl TO 'someuser'@'somehost';";
@@ -162,7 +162,7 @@ IDENTIFIED BY PASSWORD '*90E462C37378CED12064BB3388827D2BA3A9B689';";
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void Grant9()
     {
       string sql = @"GRANT CREATE ROUTINE ON mydb.* TO 'someuser'@'somehost';";
@@ -171,7 +171,7 @@ IDENTIFIED BY PASSWORD '*90E462C37378CED12064BB3388827D2BA3A9B689';";
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void Grant10()
     {
       string sql = @"GRANT EXECUTE ON PROCEDURE mydb.myproc TO 'someuser'@'somehost';";
@@ -180,7 +180,7 @@ IDENTIFIED BY PASSWORD '*90E462C37378CED12064BB3388827D2BA3A9B689';";
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void Grant11()
     {
       string sql = @"GRANT ALL ON test.* TO ''@'localhost'";
@@ -189,7 +189,7 @@ IDENTIFIED BY PASSWORD '*90E462C37378CED12064BB3388827D2BA3A9B689';";
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void Grant12()
     {
       string sql = @"GRANT USAGE ON *.* TO ''@'localhost' WITH MAX_QUERIES_PER_HOUR 500 MAX_UPDATES_PER_HOUR 100;";
@@ -198,7 +198,7 @@ IDENTIFIED BY PASSWORD '*90E462C37378CED12064BB3388827D2BA3A9B689';";
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void Grant13()
     {
       string sql = @"GRANT ALL PRIVILEGES ON test.* TO 'root'@'localhost' IDENTIFIED BY 'goodsecret' REQUIRE SSL;";
@@ -207,7 +207,7 @@ IDENTIFIED BY PASSWORD '*90E462C37378CED12064BB3388827D2BA3A9B689';";
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void Grant14()
     {
       string sql = @"GRANT ALL PRIVILEGES ON test.* TO 'root'@'localhost'
@@ -217,7 +217,7 @@ IDENTIFIED BY PASSWORD '*90E462C37378CED12064BB3388827D2BA3A9B689';";
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void Grant15()
     {
       string sql = @"GRANT ALL PRIVILEGES ON test.* TO 'root'@'localhost'
@@ -229,7 +229,7 @@ IDENTIFIED BY PASSWORD '*90E462C37378CED12064BB3388827D2BA3A9B689';";
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void Grant16()
     {
       string sql = @"GRANT ALL PRIVILEGES ON test.* TO 'root'@'localhost'
@@ -242,7 +242,7 @@ IDENTIFIED BY PASSWORD '*90E462C37378CED12064BB3388827D2BA3A9B689';";
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void Grant17()
     {
       string sql = @"GRANT ALL PRIVILEGES ON test.* TO 'root'@'localhost'
@@ -253,7 +253,7 @@ IDENTIFIED BY PASSWORD '*90E462C37378CED12064BB3388827D2BA3A9B689';";
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void Grant18()
     {
       string sql = @"GRANT ALL PRIVILEGES ON test.* TO 'root'@'localhost'
@@ -267,7 +267,7 @@ IDENTIFIED BY PASSWORD '*90E462C37378CED12064BB3388827D2BA3A9B689';";
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void Grant19()
     {
       string sql = @"GRANT REPLICATION CLIENT ON *.* TO 'user'@'10.10.10.%'";
@@ -276,7 +276,7 @@ IDENTIFIED BY PASSWORD '*90E462C37378CED12064BB3388827D2BA3A9B689';";
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void Grant20()
     {
       string sql = @"GRANT USAGE ON *.* TO 'bob'@'%.loc.gov' IDENTIFIED BY 'newpass';";
@@ -285,17 +285,17 @@ IDENTIFIED BY PASSWORD '*90E462C37378CED12064BB3388827D2BA3A9B689';";
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void GrantProxy51()
     {
       string sql = @"GRANT PROXY ON 'localuser'@'localhost' TO 'externaluser'@'somehost';";
       StringBuilder sb;
       MySQL51Parser.program_return r =
         Utility.ParseSql(sql, true, out sb, new Version( 5, 1 ));
-      Assert.IsTrue(sb.ToString().IndexOf("no viable alternative at input 'GRANT'") != -1);
+      Assert.True(sb.ToString().IndexOf("no viable alternative at input 'GRANT'") != -1);
     }
 
-    [Test]
+    [Fact]
     public void GrantProxy55()
     {
       string sql = @"GRANT PROXY ON 'localuser'@'localhost' TO 'externaluser'@'somehost';";
@@ -304,7 +304,7 @@ IDENTIFIED BY PASSWORD '*90E462C37378CED12064BB3388827D2BA3A9B689';";
         Utility.ParseSql(sql, false, out sb, new Version( 5, 5 ));
     }
 
-    [Test]
+    [Fact]
     public void Rename()
     {
       string sql = "RENAME USER 'jeffrey'@'localhost' TO 'jeff'@'127.0.0.1';";
@@ -313,7 +313,7 @@ IDENTIFIED BY PASSWORD '*90E462C37378CED12064BB3388827D2BA3A9B689';";
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void Revoke()
     {
       string sql = "REVOKE INSERT ON *.* FROM 'jeffrey'@'localhost';";
@@ -322,7 +322,7 @@ IDENTIFIED BY PASSWORD '*90E462C37378CED12064BB3388827D2BA3A9B689';";
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void Revoke2()
     {
       string sql = "REVOKE ALL PRIVILEGES, GRANT OPTION FROM 'jeffrey'@'localhost', 'jeff'@'127.0.0.1', 'me'@'localhost'";
@@ -331,17 +331,17 @@ IDENTIFIED BY PASSWORD '*90E462C37378CED12064BB3388827D2BA3A9B689';";
         Utility.ParseSql(sql, false, out sb);
     }
 
-    [Test]
+    [Fact]
     public void RevokeProxy51()
     {
       string sql = "REVOKE PROXY ON 'jeffrey'@'localhost' FROM 'jeff'@'127.0.0.1', 'me'@'localhost'";
       StringBuilder sb;
       MySQL51Parser.program_return r =
         Utility.ParseSql(sql, true, out sb, new Version( 5, 1 ));
-      Assert.IsTrue(sb.ToString().IndexOf("no viable alternative at input 'REVOKE'") != -1);
+      Assert.True(sb.ToString().IndexOf("no viable alternative at input 'REVOKE'") != -1);
     }
 
-    [Test]
+    [Fact]
     public void RevokeProxy55()
     {
       string sql = "REVOKE PROXY ON 'jeffrey'@'localhost' FROM 'jeff'@'127.0.0.1', 'me'@'localhost'";
@@ -350,7 +350,7 @@ IDENTIFIED BY PASSWORD '*90E462C37378CED12064BB3388827D2BA3A9B689';";
         Utility.ParseSql(sql, false, out sb, new Version( 5, 5 ));
     }
 
-    [Test]
+    [Fact]
     public void SetPassword()
     {
       string sql = "SET PASSWORD FOR 'bob'@'%.loc.gov' = PASSWORD('newpass');";

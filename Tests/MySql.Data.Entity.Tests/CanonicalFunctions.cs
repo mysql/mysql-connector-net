@@ -1,4 +1,4 @@
-// Copyright � 2008, 2011, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -22,48 +22,54 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Threading;
-using MySql.Data.MySqlClient;
-using MySql.Data.MySqlClient.Tests;
-using MySql.Data.Entity.Tests.Properties;
-using System.Data.EntityClient;
-using System.Data.Common;
-using NUnit.Framework;
-using System.Data.Objects;
 using System.Linq;
+using System.Text;
+using Xunit;
+using System.Data.EntityClient;
+using System.Data.Objects;
+using System.Data.Common;
+using MySql.Data.Entity.Tests.Properties;
 
 namespace MySql.Data.Entity.Tests
 {
-  [TestFixture]
-  public class CanonicalFunctions : BaseEdmTest
+  public class CanonicalFunctions : IUseFixture<SetUpEntityTests>, IDisposable
   {
+    private SetUpEntityTests st;
+
+    public void SetFixture(SetUpEntityTests data)
+    {
+      st = data;
+    }
+
+    public void Dispose()
+    { }
+
     private EntityConnection GetEntityConnection()
     {
       string connectionString = String.Format(
-          "metadata=TestDB.csdl|TestDB.msl|TestDB.ssdl;provider=MySql.Data.MySqlClient; provider connection string=\"{0}\"", GetConnectionString(true));
+          "metadata=TestDB.csdl|TestDB.msl|TestDB.ssdl;provider=MySql.Data.MySqlClient; provider connection string=\"{0}\"", st.GetConnectionString(true));
       EntityConnection connection = new EntityConnection(connectionString);
       return connection;
     }
 
-    [Test]
+    [Fact]
     public void Bitwise()
     {
       using (testEntities context = new testEntities())
       {
         ObjectQuery<Int32> q = context.CreateQuery<Int32>("BitwiseAnd(255,15)");
         foreach (int i in q)
-          Assert.AreEqual(15, i);
+          Assert.Equal(15, i);
         q = context.CreateQuery<Int32>("BitwiseOr(240,31)");
         foreach (int i in q)
-          Assert.AreEqual(255, i);
+          Assert.Equal(255, i);
         q = context.CreateQuery<Int32>("BitwiseXor(255,15)");
         foreach (int i in q)
-          Assert.AreEqual(240, i);
+          Assert.Equal(240, i);
       }
     }
 
-    [Test]
+    [Fact]
     public void CurrentDateTime()
     {
       DateTime current = DateTime.Now;
@@ -73,15 +79,15 @@ namespace MySql.Data.Entity.Tests
         ObjectQuery<DateTime> q = context.CreateQuery<DateTime>("CurrentDateTime()");
         foreach (DateTime dt in q)
         {
-          Assert.AreEqual(current.Year, dt.Year);
-          Assert.AreEqual(current.Month, dt.Month);
-          Assert.AreEqual(current.Day, dt.Day);
+          Assert.Equal(current.Year, dt.Year);
+          Assert.Equal(current.Month, dt.Month);
+          Assert.Equal(current.Day, dt.Day);
           // we don't check time as that will be always be different
         }
       }
     }
 
-    [Test]
+    [Fact]
     public void YearMonthDay()
     {
       using (testEntities context = new testEntities())
@@ -91,14 +97,14 @@ namespace MySql.Data.Entity.Tests
                         FROM Companies AS c WHERE c.Id=1");
         foreach (DbDataRecord record in q)
         {
-          Assert.AreEqual(1996, record[1]);
-          Assert.AreEqual(11, record[2]);
-          Assert.AreEqual(15, record[3]);
+          Assert.Equal(1996, record[1]);
+          Assert.Equal(11, record[2]);
+          Assert.Equal(15, record[3]);
         }
       }
     }
 
-    [Test]
+    [Fact]
     public void HourMinuteSecond()
     {
       using (testEntities context = new testEntities())
@@ -108,29 +114,29 @@ namespace MySql.Data.Entity.Tests
                         FROM Companies AS c WHERE c.Id=1");
         foreach (DbDataRecord record in q)
         {
-          Assert.AreEqual(5, record[1]);
-          Assert.AreEqual(18, record[2]);
-          Assert.AreEqual(23, record[3]);
+          Assert.Equal(5, record[1]);
+          Assert.Equal(18, record[2]);
+          Assert.Equal(23, record[3]);
         }
       }
     }
 
-    [Test]
+    [Fact]
     public void IndexOf()
     {
       using (testEntities context = new testEntities())
       {
         ObjectQuery<Int32> q = context.CreateQuery<Int32>(@"IndexOf('needle', 'haystackneedle')");
         foreach (int index in q)
-          Assert.AreEqual(9, index);
+          Assert.Equal(9, index);
 
         q = context.CreateQuery<Int32>(@"IndexOf('haystack', 'needle')");
         foreach (int index in q)
-          Assert.AreEqual(0, index);
+          Assert.Equal(0, index);
       }
     }
 
-    [Test]
+    [Fact]
     public void LeftRight()
     {
       using (testEntities context = new testEntities())
@@ -138,21 +144,21 @@ namespace MySql.Data.Entity.Tests
         string entitySQL = "CONCAT(LEFT('foo',3),RIGHT('bar',3))";
         ObjectQuery<String> query = context.CreateQuery<String>(entitySQL);
         foreach (string s in query)
-          Assert.AreEqual("foobar", s);
+          Assert.Equal("foobar", s);
 
         entitySQL = "CONCAT(LEFT('foobar',3),RIGHT('barfoo',3))";
         query = context.CreateQuery<String>(entitySQL);
         foreach (string s in query)
-          Assert.AreEqual("foofoo", s);
+          Assert.Equal("foofoo", s);
 
         entitySQL = "CONCAT(LEFT('foobar',8),RIGHT('barfoo',8))";
         query = context.CreateQuery<String>(entitySQL);
         foreach (string s in query)
-          Assert.AreEqual("foobarbarfoo", s);
+          Assert.Equal("foobarbarfoo", s);
       }
     }
 
-    [Test]
+    [Fact]
     public void Length()
     {
       using (testEntities context = new testEntities())
@@ -160,28 +166,28 @@ namespace MySql.Data.Entity.Tests
         string entitySQL = "Length('abc')";
         ObjectQuery<Int32> query = context.CreateQuery<Int32>(entitySQL);
         foreach (int len in query)
-          Assert.AreEqual(3, len);
+          Assert.Equal(3, len);
       }
     }
 
-    [Test]
+    [Fact]
     public void Trims()
     {
       using (testEntities context = new testEntities())
       {
         ObjectQuery<string> query = context.CreateQuery<string>("LTrim('   text   ')");
         foreach (string s in query)
-          Assert.AreEqual("text   ", s);
+          Assert.Equal("text   ", s);
         query = context.CreateQuery<string>("RTrim('   text   ')");
         foreach (string s in query)
-          Assert.AreEqual("   text", s);
+          Assert.Equal("   text", s);
         query = context.CreateQuery<string>("Trim('   text   ')");
         foreach (string s in query)
-          Assert.AreEqual("text", s);
+          Assert.Equal("text", s);
       }
     }
 
-    [Test]
+    [Fact]
     public void Round()
     {
       using (testEntities context = new testEntities())
@@ -194,16 +200,16 @@ namespace MySql.Data.Entity.Tests
                     FROM Orders AS o WHERE o.Id=1");
         foreach (DbDataRecord r in q)
         {
-          Assert.AreEqual(1, r[0]);
-          Assert.AreEqual(65.3, r[1]);
-          Assert.AreEqual(65, r[2]);
-          Assert.AreEqual(65, r[3]);
-          Assert.AreEqual(66, r[4]);
+          Assert.Equal(1, r[0]);
+          Assert.Equal(65.3, r[1]);
+          Assert.Equal(65, Convert.ToInt32(r[2]));
+          Assert.Equal(65, Convert.ToInt32(r[3]));
+          Assert.Equal(66, Convert.ToInt32(r[4]));
         }
       }
     }
 
-    [Test]
+    [Fact]
     public void Substring()
     {
       using (testEntities context = new testEntities())
@@ -211,11 +217,11 @@ namespace MySql.Data.Entity.Tests
         ObjectQuery<string> query = context.CreateQuery<string>("SUBSTRING('foobarfoo',4,3)");
         query = context.CreateQuery<string>("SUBSTRING('foobarfoo',4,30)");
         foreach (string s in query)
-          Assert.AreEqual("barfoo", s);
+          Assert.Equal("barfoo", s);
       }
     }
 
-    [Test]
+    [Fact]
     public void ToUpperToLowerReverse()
     {
       using (testEntities context = new testEntities())
@@ -225,14 +231,14 @@ namespace MySql.Data.Entity.Tests
                     Reverse(c.Name) FROM Companies AS c WHERE c.Id=1");
         foreach (DbDataRecord r in q)
         {
-          Assert.AreEqual("HASBRO", r[0]);
-          Assert.AreEqual("hasbro", r[1]);
-          Assert.AreEqual("orbsaH", r[2]);
+          Assert.Equal("HASBRO", r[0]);
+          Assert.Equal("hasbro", r[1]);
+          Assert.Equal("orbsaH", r[2]);
         }
       }
     }
 
-    [Test]
+    [Fact]
     public void Replace()
     {
       using (testEntities context = new testEntities())
@@ -240,12 +246,12 @@ namespace MySql.Data.Entity.Tests
         ObjectQuery<string> q = context.CreateQuery<string>(
             @"Replace('abcdefghi', 'def', 'zzz')");
         foreach (string s in q)
-          Assert.AreEqual("abczzzghi", s);
+          Assert.Equal("abczzzghi", s);
       }
     }
 
 #if CLR4
-    [Test]
+    [Fact]
     public void CanRoundToNonZeroDigits()
     {
 
@@ -256,8 +262,8 @@ namespace MySql.Data.Entity.Tests
                                         Round(o.Freight, 2) AS [Rounded Freight]
                                         FROM Orders AS o WHERE o.Id=10").First();
 
-        Assert.AreEqual(350.54721, order[1]);
-        Assert.AreEqual(350.55, order[2]);
+        Assert.Equal(350.54721, order[1]);
+        Assert.Equal(350.55, order[2]);
       }
     }
 #endif
@@ -267,7 +273,7 @@ namespace MySql.Data.Entity.Tests
     /// Fix for bug "Using List.Contains in Linq to EF generates many ORs instead of more efficient IN"
     /// (http://bugs.mysql.com/bug.php?id=64934 / http://www.google.com ).
     /// </summary>
-    [Test]
+    [Fact]
     public void ListContains2In()
     {
       using (testEntities context = new testEntities())
@@ -286,12 +292,12 @@ namespace MySql.Data.Entity.Tests
         string query;
 #if CLR4
         query = q.ToTraceString();
-        CheckSql(query, SQLSyntax.InExpressionSimple);
-        Assert.AreEqual(3, q.Count());
+        st.CheckSql(query, SQLSyntax.InExpressionSimple);
+        Assert.Equal(3, q.Count());
         foreach (var e in q)
         {
-          Assert.AreEqual(data1[i, 0], e.LastName);
-          Assert.AreEqual(data1[i, 1], e.FirstName);
+          Assert.Equal(data1[i, 0], e.LastName);
+          Assert.Equal(data1[i, 1], e.FirstName);
           i++;
         }
 
@@ -306,8 +312,8 @@ namespace MySql.Data.Entity.Tests
             orderby e.LastName, e.FirstName
             select e;
         query = q.ToTraceString();
-        CheckSql(SQLSyntax.InExpressionComplex, query);
-        Assert.AreEqual(6, q.Count());
+        st.CheckSql(SQLSyntax.InExpressionComplex, query);
+        Assert.Equal(6, q.Count());
         string[,] data2 = new string[,] { { "Doo", "Scooby" }, { "Flintstone", "Fred" }, 
           { "Rubble", "Barney" }, { "Rubble", "Betty" }, { "Slate", "S" }, 
           { "Underdog", "J" }
@@ -315,8 +321,8 @@ namespace MySql.Data.Entity.Tests
         i = 0;
         foreach (var e in q)
         {
-          Assert.AreEqual(data2[i, 0], e.LastName);
-          Assert.AreEqual(data2[i, 1], e.FirstName);
+          Assert.Equal(data2[i, 0], e.LastName);
+          Assert.Equal(data2[i, 1], e.FirstName);
           i++;
         }
 #endif
@@ -329,13 +335,13 @@ namespace MySql.Data.Entity.Tests
             orderby e.LastName, e.FirstName
             select e;
         query = q.ToTraceString();
-        CheckSql(query, SQLSyntax.InExpressionSimple);
-        Assert.AreEqual(3, q.Count());
+        st.CheckSql(query, SQLSyntax.InExpressionSimple);
+        Assert.Equal(3, q.Count());
         i = 0;
         foreach (var e in q)
         {
-          Assert.AreEqual(data1[i, 0], e.LastName);
-          Assert.AreEqual(data1[i, 1], e.FirstName);
+          Assert.Equal(data1[i, 0], e.LastName);
+          Assert.Equal(data1[i, 1], e.FirstName);
           i++;
         }
       }
@@ -345,39 +351,43 @@ namespace MySql.Data.Entity.Tests
     /// Fix for bug LINQ to SQL's StartsWith() and Contains() generate slow LOCATE() 
     /// instead of LIKE (bug http://bugs.mysql.com/bug.php?id=64935 / http://clustra.no.oracle.com/orabugs/14009363).
     /// </summary>
-    [Test]
+    [Fact]
     public void ConversionToLike()
     {
       // Generates queries for each LIKE + wildcards case and checks SQL generated.
       using (testEntities ctx = new testEntities())
       {
         // Like 'pattern%'
-        var q = from c in ctx.Employees where c.FirstName.StartsWith( "B" ) 
-                orderby c.FirstName select c;
-        string query = q.ToTraceString();
-        CheckSql(query, SQLSyntax.StartsWithTranslatedToLike);
-        Assert.AreEqual(2, q.Count());
-        Assert.AreEqual("Barney", q.First().FirstName);
-        Assert.AreEqual("Betty", q.Skip(1).First().FirstName);
-        // Like '%pattern%'
-        q = from c in ctx.Employees where c.FirstName.Contains("r") 
-            orderby c.FirstName select c;
-        query = q.ToTraceString();
-        CheckSql(query, SQLSyntax.ContainsTranslatedToLike);
-        Assert.AreEqual(2, q.Count());
-        Assert.AreEqual("Barney", q.First().FirstName);
-        Assert.AreEqual("Fred", q.Skip(1).First().FirstName);
-        // Like '%pattern'
-        q = from c in ctx.Employees
-                where c.FirstName.EndsWith("y")
+        var q = from c in ctx.Employees
+                where c.FirstName.StartsWith("B")
                 orderby c.FirstName
                 select c;
+        string query = q.ToTraceString();
+        st.CheckSql(query, SQLSyntax.StartsWithTranslatedToLike);
+        Assert.Equal(2, q.Count());
+        Assert.Equal("Barney", q.First().FirstName);
+        Assert.Equal("Betty", q.Skip(1).First().FirstName);
+        // Like '%pattern%'
+        q = from c in ctx.Employees
+            where c.FirstName.Contains("r")
+            orderby c.FirstName
+            select c;
         query = q.ToTraceString();
-        CheckSql(query, SQLSyntax.EndsWithTranslatedToLike);
-        Assert.AreEqual(3, q.Count());
-        Assert.AreEqual("Barney", q.First().FirstName);
-        Assert.AreEqual("Betty", q.Skip(1).First().FirstName);
-        Assert.AreEqual("Scooby", q.Skip(2).First().FirstName);
+        st.CheckSql(query, SQLSyntax.ContainsTranslatedToLike);
+        Assert.Equal(2, q.Count());
+        Assert.Equal("Barney", q.First().FirstName);
+        Assert.Equal("Fred", q.Skip(1).First().FirstName);
+        // Like '%pattern'
+        q = from c in ctx.Employees
+            where c.FirstName.EndsWith("y")
+            orderby c.FirstName
+            select c;
+        query = q.ToTraceString();
+        st.CheckSql(query, SQLSyntax.EndsWithTranslatedToLike);
+        Assert.Equal(3, q.Count());
+        Assert.Equal("Barney", q.First().FirstName);
+        Assert.Equal("Betty", q.Skip(1).First().FirstName);
+        Assert.Equal("Scooby", q.Skip(2).First().FirstName);
       }
     }
   }

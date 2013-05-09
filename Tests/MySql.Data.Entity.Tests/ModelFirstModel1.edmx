@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-    <Schema Namespace="ModelFirstModel1.Store" Alias="Self" Provider="MySql.Data.MySqlClient" ProviderManifestToken="5.1" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/02/edm/ssdl">
+    <Schema Namespace="ModelFirstModel1.Store" Alias="Self" Provider="MySql.Data.MySqlClient" ProviderManifestToken="2005" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/02/edm/ssdl">
   <EntityContainer Name="ModelFirstModel1StoreContainer">
     <EntitySet Name="Students" EntityType="ModelFirstModel1.Store.Students" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="Kardexes" EntityType="ModelFirstModel1.Store.Kardexes" store:Type="Tables" Schema="dbo" />

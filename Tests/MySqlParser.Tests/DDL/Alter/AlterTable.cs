@@ -1,4 +1,4 @@
-﻿// Copyright © 2012, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -26,226 +26,226 @@ using System.Linq;
 using System.Text;
 using Antlr.Runtime;
 using Antlr.Runtime.Tree;
-using NUnit.Framework;
+using Xunit;
 
 namespace MySql.Parser.Tests
 {
-  [TestFixture]
+  
   public class AlterTable
   {
-    [Test]
+    [Fact]
     public void Engine()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE t1 ENGINE = InnoDB;");
     }
 
-    [Test]
+    [Fact]
     public void AutoIncrement()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE t2 AUTO_INCREMENT = 2;");
     }
 
-    [Test]
+    [Fact]
     public void DropColumn()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE t2 DROP COLUMN c, DROP COLUMN d;");
     }
 
-    [Test]
+    [Fact]
     public void ChangeColumn()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE t1 CHANGE a b INTEGER;");
     }
 
-    [Test]
+    [Fact]
     public void ChangeColumn2()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE t1 CHANGE b b BIGINT NOT NULL;");
     }
 
-    [Test]
+    [Fact]
     public void ModifyColumn()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE t1 MODIFY b BIGINT NOT NULL;");
     }
 
-    [Test]
+    [Fact]
     public void ModifyColumn2()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE t1 MODIFY col1 BIGINT UNSIGNED DEFAULT 1 COMMENT 'my column';");
     }
 
-    [Test]
+    [Fact]
     public void ForeignKey()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE tbl_name DROP FOREIGN KEY fk_symbol;");
     }
 
-    [Test]
+    [Fact]
     public void DiscardTablespace()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE tbl_name DISCARD TABLESPACE;");
     }
 
-    [Test]
+    [Fact]
     public void ImportTablespace()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE tbl_name IMPORT TABLESPACE;");
     }
 
-    [Test]
+    [Fact]
     public void ConvertCharacter()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE tbl_name CONVERT TO CHARACTER SET charset_name;");
     }
 
-    [Test]
+    [Fact]
     public void ModifyChar()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE t MODIFY latin1_text_col TEXT CHARACTER SET utf8;");
     }
 
-    [Test]
+    [Fact]
     public void ModifyColumn3()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE t1 CHANGE c1 c1 BLOB;");
     }
 
-    [Test]
+    [Fact]
     public void ModifyColumn4()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE t1 CHANGE c1 c1 TEXT CHARACTER SET utf8;");
     }
 
-    [Test]
+    [Fact]
     public void DefaultCharset()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE tbl_name DEFAULT CHARACTER SET charset_name;");
     }
 
-    [Test]
+    [Fact]
     public void ChangeColumn3()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"alter table Temp_Table change column ID ID int unsigned;");
     }
 
-    [Test]
+    [Fact]
     public void ConvertCharacter2()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE tablename CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;");
     }
 
-    [Test]
+    [Fact]
     public void DropPrimary()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE mytable DROP PRIMARY KEY, ADD PRIMARY KEY(col1,col2);");
     }
     
-    [Test]
+    [Fact]
     public void ChangeColumn4()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE tablex CHANGE colx colx int AFTER coly;");
     }
 
-    [Test]
+    [Fact]
     public void AddColumn()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(
 @"ALTER TABLE mytable ADD COLUMN dummy1 VARCHAR(40) AFTER id, ADD COLUMN dummy2 VARCHAR(12) AFTER dummy1;");
     }
 
-    [Test]
+    [Fact]
     public void ModifyColumn5()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE table_name MODIFY column_to_move varchar( 20 ) AFTER column_to_reference;");
     }
 
-    [Test]
+    [Fact]
     public void ChangeColumn5()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE tablename CHANGE columnname columnname TIMESTAMP DEFAULT CURRENT_TIMESTAMP;");
     }
 
-    [Test]
+    [Fact]
     public void AddColumn2()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE books ADD COLUMN `author` int(10) unsigned NOT NULL ;");
     }
 
-    [Test]
+    [Fact]
     public void AddIndex()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE books ADD INDEX (author) ;");
     }
 
-    [Test]
+    [Fact]
     public void AddForeignKey()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE books ADD FOREIGN KEY (author) REFERENCES `users` (`id`) ;");
     }
 
-    [Test]
+    [Fact]
     public void ChangeColumn6()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE tablex CHANGE colx colx int AFTER coly;");
     }
 
-    [Test]
+    [Fact]
     public void Rename()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE t1 RENAME t2;");
     }
 
-    [Test]
+    [Fact]
     public void ModifyColumn6()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE t2 MODIFY a TINYINT NOT NULL, CHANGE b c CHAR(20);");
     }
 
-    [Test]
+    [Fact]
     public void AddColumn3()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE t2 ADD d TIMESTAMP;");
     }
 
-    [Test]
+    [Fact]
     public void DropColumn2()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE t2 DROP COLUMN c;");
     }
 
-    [Test]
+    [Fact]
     public void AddColumn4()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE t2 ADD c INT UNSIGNED NOT NULL AUTO_INCREMENT,
   ADD PRIMARY KEY (c);");
     }
 
-    //[Test]
+    //[Fact]
     //public void StorageDisk()
     //{
     //  MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE t1 TABLESPACE ts_1 STORAGE DISK;");
     //}
     
-    //[Test]
+    //[Fact]
     //public void StorageDisk2()
     //{
     //  MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE t2 STORAGE DISK;");
     //}
 
-    //[Test]
+    //[Fact]
     //public void Tablespace()
     //{
     //  MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE t2 TABLESPACE ts_1 STORAGE DISK;");
     //}
 
-    [Test]
+    [Fact]
     public void Modify7()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE t3 MODIFY c2 INT STORAGE MEMORY;");
     }
 
-    [Test]
+    [Fact]
     public void AddColumn5()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"CREATE TABLE t2 LIKE t1;
@@ -253,13 +253,13 @@ ALTER TABLE t2 ADD id INT AUTO_INCREMENT PRIMARY KEY;
 INSERT INTO t2 SELECT * FROM t1 ORDER BY col1, col2;");
     }
 
-    [Test]
+    [Fact]
     public void Rename2()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE t2 RENAME t1;");
     }
 
-    [Test]
+    [Fact]
     public void Partition()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE t1
@@ -278,13 +278,13 @@ PARTITION BY RANGE (year_col) (
 ");
     }
 
-    [Test]
+    [Fact]
     public void Partition2()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE t1 DROP PARTITION p0, p1;");
     }
 
-    [Test]
+    [Fact]
     public void Partition3()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"CREATE TABLE t2 (
@@ -296,87 +296,87 @@ PARTITIONS 6;
 ");
     }
 
-    [Test]
+    [Fact]
     public void Partition4()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE t2 COALESCE PARTITION 2;");
     }
 
-    [Test]
+    [Fact]
     public void Partition5()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER ONLINE TABLE table1 REORGANIZE PARTITION;");
     }
 
-    [Test]
+    [Fact]
     public void Partition6()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE t1 ANALYZE PARTITION p1, ANALYZE PARTITION p2;");
     }
 
-    [Test]
+    [Fact]
     public void Partition7()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE t1 ANALYZE PARTITION p1, CHECK PARTITION p2;");
     }
 
-    [Test]
+    [Fact]
     public void Partition8()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE t1 ANALYZE PARTITION p1, p2;");
     }
 
-    [Test]
+    [Fact]
     public void Partition9()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE t1 ANALYZE PARTITION p1;");
     }
 
-    [Test]
+    [Fact]
     public void Partition10()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE t1 CHECK PARTITION p2;");
     }
 
-    [Test]
+    [Fact]
     public void OnlineAddColumn()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER ONLINE TABLE t1 ADD COLUMN c3 INT COLUMN_FORMAT DYNAMIC STORAGE MEMORY;");
     }
 
-    [Test]
+    [Fact]
     public void OnlineAddColumn2()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER ONLINE TABLE t1 ADD COLUMN c3 INT COLUMN_FORMAT DYNAMIC;");
     }
 
-    [Test]
+    [Fact]
     public void OnlineAddColumn3()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER ONLINE TABLE t1 ADD COLUMN c3 INT STORAGE MEMORY;");
     }
 
-    [Test]
+    [Fact]
     public void OnlineAddColumn4()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER ONLINE TABLE t1
-	ADD COLUMN c2 INT,
-	ADD COLUMN c3 INT;");
+  ADD COLUMN c2 INT,
+  ADD COLUMN c3 INT;");
     }
 
-    [Test]
+    [Fact]
     public void OnlineAddColumn5()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER ONLINE TABLE t1 ADD COLUMN c2 INT, ADD COLUMN c3 INT;");
     }
 
-    [Test]
+    [Fact]
     public void OnlineAddColumn6()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER ONLINE TABLE t2 ADD COLUMN c2 INT;");
     }
 
-    [Test]
+    [Fact]
     public void TableType50()
     {
       StringBuilder sb;
@@ -384,25 +384,25 @@ PARTITIONS 6;
           @"alter TABLE t type=innodb;", false, out sb, new Version(5, 0));
     }
 
-    [Test]
+    [Fact]
     public void TableType51()
     {
       StringBuilder sb;
       MySQL51Parser.program_return r = Utility.ParseSql(
           @"alter TABLE t type=innodb;", true, out sb, new Version(5, 1));
-      Assert.IsTrue(sb.ToString().IndexOf(" no viable alternative at input 'type'") != -1);
+      Assert.True(sb.ToString().IndexOf(" no viable alternative at input 'type'") != -1);
     }
 
-    [Test]
+    [Fact]
     public void TruncatePartition51()
     {
       StringBuilder sb;
       MySQL51Parser.program_return r = Utility.ParseSql(
           @"alter table t1 truncate partition ( p1, p2 );", true, out sb, new Version(5, 1));
-      Assert.IsTrue(sb.ToString().IndexOf("no viable alternative at input 'truncate'", StringComparison.OrdinalIgnoreCase) != -1);
+      Assert.True(sb.ToString().IndexOf("no viable alternative at input 'truncate'", StringComparison.OrdinalIgnoreCase) != -1);
     }
 
-    [Test]
+    [Fact]
     public void TruncatePartition55()
     {
       StringBuilder sb;
@@ -410,25 +410,25 @@ PARTITIONS 6;
           @"alter table t1 truncate partition ( p1, p2 );", false, out sb, new Version(5, 5));      
     }
 
-    [Test]
+    [Fact]
     public void Algorithm_55()
     {
       StringBuilder sb;
       MySQL51Parser.program_return r = Utility.ParseSql(
         @"alter table t1 add column myname varchar( 20 ), algorithm = copy;", true, out sb, new Version(5, 5));
-      Assert.IsTrue(sb.ToString().IndexOf("algorithm") != -1);
+      Assert.True(sb.ToString().IndexOf("algorithm") != -1);
     }
 
-    [Test]
+    [Fact]
     public void Lock_55()
     {
       StringBuilder sb;
       MySQL51Parser.program_return r = Utility.ParseSql(
         @"alter table t1 add column myname varchar( 20 ), lock = none;", true, out sb, new Version(5, 5));
-      Assert.IsTrue(sb.ToString().IndexOf("lock") != -1);
+      Assert.True(sb.ToString().IndexOf("lock") != -1);
     }
 
-    [Test]
+    [Fact]
     public void Algorithm_56_1()
     {
       StringBuilder sb;
@@ -436,7 +436,7 @@ PARTITIONS 6;
           @"alter table t1 	algorithm = default;", false, out sb, new Version(5, 6));
     }
 
-    [Test]
+    [Fact]
     public void Algorithm_56_2()
     {
       StringBuilder sb;
@@ -444,7 +444,7 @@ PARTITIONS 6;
           @"alter table t1 	add column myname varchar( 20 ), algorithm = copy;", false, out sb, new Version(5, 6));
     }
 
-    [Test]
+    [Fact]
     public void Algorithm_56_3()
     {
       StringBuilder sb;
@@ -452,7 +452,7 @@ PARTITIONS 6;
           @"alter table t1 	drop column myname, algorithm = inplace;", false, out sb, new Version(5, 6));
     }
 
-    [Test]
+    [Fact]
     public void Lock_56_1()
     {
       StringBuilder sb;
@@ -460,7 +460,7 @@ PARTITIONS 6;
           @"alter table t1 	lock = default;", false, out sb, new Version(5, 6));
     }
 
-    [Test]
+    [Fact]
     public void Lock_56_2()
     {
       StringBuilder sb;
@@ -468,7 +468,7 @@ PARTITIONS 6;
           @"alter table t1 	add column myname varchar( 20 ), lock = none;", false, out sb, new Version(5, 6));
     }
 
-    [Test]
+    [Fact]
     public void Lock_56_3()
     {
       StringBuilder sb;
@@ -476,7 +476,7 @@ PARTITIONS 6;
           @"alter table t1 	add column myname varchar( 20 ), lock = shared;", false, out sb, new Version(5, 6));
     }
 
-    [Test]
+    [Fact]
     public void Lock_56_4()
     {
       StringBuilder sb;
@@ -484,7 +484,7 @@ PARTITIONS 6;
           @"alter table t1 	drop column myname, lock = exclusive;", false, out sb, new Version(5, 6));
     }
 
-    [Test]
+    [Fact]
     public void Lock_56_5()
     {
       StringBuilder sb;
@@ -492,44 +492,44 @@ PARTITIONS 6;
           @"alter table t1 	drop column myname, lock = exclusive, exchange partition p1 with table t2;", false, out sb, new Version(5, 6));
     }
 
-    [Test]
+    [Fact]
     public void AddColumnDateTime()
     {      
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE mytable ADD COLUMN dummydatetime DATETIME AFTER id;");
     }
 
-    [Test]    
+    [Fact]    
     public void AddColumnDateTimeWithPrecisionFailAtNotSupportedVersion()
     {
       StringBuilder sb;
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE mytable ADD COLUMN dummydatetime DATETIME(1) AFTER id;", true, out sb, new Version(5, 5));
-      Assert.IsTrue(sb.ToString().IndexOf("no viable alternative at input '1'") != -1);
+      Assert.True(sb.ToString().IndexOf("no viable alternative at input '1'") != -1);
     }
 
 
-    [Test]
+    [Fact]
     public void AddColumnDateTimeWithPrecision()
     {
       StringBuilder sb;
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE mytable ADD COLUMN dummydatetime DATETIME(1) AFTER id;", false, out sb, new Version(5, 6));
     }
 
-    [Test]
+    [Fact]
     public void AddColumnTimeWithPrecision()
     {
       StringBuilder sb;
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE mytable ADD COLUMN dummydatetime TIME(1) AFTER id;", false, out sb, new Version(5, 6));
     }
 
-    [Test]
+    [Fact]
     public void AddColumnTimeWithPrecisionFailAtNotSupportedVersion()
     {
       StringBuilder sb;
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE mytable ADD COLUMN dummydatetime TIME(1) AFTER id;", true, out sb, new Version(5, 5));
-      Assert.IsTrue(sb.ToString().IndexOf("no viable alternative at input '1'") != -1);
+      Assert.True(sb.ToString().IndexOf("no viable alternative at input '1'") != -1);
     }
 
-    [Test]
+    [Fact]
     public void AddColumnTimeStamptWithPrecision()
     {
       StringBuilder sb;
