@@ -53,13 +53,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\Tests\MySql.Debugger.Tests.XUnit\SetUp.cs">
+    <Compile Include="..\..\..\Tests\MySql.Debugger.Tests\SetUp.cs">
       <Link>SetUp.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Tests\MySql.Debugger.Tests.XUnit\Simple.cs">
+    <Compile Include="..\..\..\Tests\MySql.Debugger.Tests\Simple.cs">
       <Link>Simple.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Tests\MySql.Debugger.Tests.XUnit\TestUtils.cs">
+    <Compile Include="..\..\..\Tests\MySql.Debugger.Tests\TestUtils.cs">
       <Link>TestUtils.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
