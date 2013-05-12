@@ -20,54 +20,59 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NUnit.Framework;
-using System.Resources;
+using Xunit;
 using MySql.Data.MySqlClient;
 
 namespace MySql.Data.Entity.Tests
 {
- [TestFixture]
-  public class DatesTypesTests : BaseEdmTest
-  { 
-  
-   [Test] 
-   public void CanCreateDBScriptWithDateTimePrecision()
-   {
-     if (Version < new Version(5, 6, 5)) return;
+  public class DatesTypesTests : IUseFixture<SetUpEntityTests>
+  {
+    private SetUpEntityTests st;
 
-     MySqlConnection c = new MySqlConnection(conn.ConnectionString);
-     c.Open();     
+    public void SetFixture(SetUpEntityTests data)
+    {
+      st = data;
+    }
 
-     var script = new MySqlScript(c);
-     using (var ctx = new datesTypesEntities())
-     {
-       MySqlCommand query = new MySqlCommand("Create database test_types", c);
-       query.Connection = c;
-       query.ExecuteNonQuery();     
-       c.ChangeDatabase("test_types");
-     
-       script.Query = ctx.CreateDatabaseScript();     
-       script.Execute();      
-       
-       query = new MySqlCommand("Select Column_name, Is_Nullable, Data_Type, DateTime_Precision from information_schema.Columns where table_schema ='" + c.Database + "' and table_name = 'Products' and column_name ='DateTimeWithPrecision'", c);
-       query.Connection = c;
-       MySqlDataReader reader = query.ExecuteReader();
-       while (reader.Read())
-       {
-          Assert.AreEqual("DateTimeWithPrecision", reader[0].ToString());
-          Assert.AreEqual("NO", reader[1].ToString());
-          Assert.AreEqual("datetime", reader[2].ToString());
-          Assert.AreEqual("3", reader[3].ToString());
-       }
-       reader.Close();
-       ctx.DeleteDatabase();
-       c.Close();
-     }
-   }
+#if CLR4    
+    [Fact]
+    public void CanCreateDBScriptWithDateTimePrecision()
+    {
+      if (st.Version < new Version(5, 6, 5)) return;
+
+      MySqlConnection c = new MySqlConnection(st.conn.ConnectionString);
+      c.Open();
+
+      var script = new MySqlScript(c);
+      using (var ctx = new datesTypesEntities())
+      {
+        MySqlCommand query = new MySqlCommand("Create database test_types", c);
+        query.Connection = c;
+        query.ExecuteNonQuery();
+        c.ChangeDatabase("test_types");
+
+        script.Query = ctx.CreateDatabaseScript();
+        script.Execute();
+
+        query = new MySqlCommand("Select Column_name, Is_Nullable, Data_Type, DateTime_Precision from information_schema.Columns where table_schema ='" + c.Database + "' and table_name = 'Products' and column_name ='DateTimeWithPrecision'", c);
+        query.Connection = c;
+        MySqlDataReader reader = query.ExecuteReader();
+        while (reader.Read())
+        {
+          Assert.Equal("DateTimeWithPrecision", reader[0].ToString());
+          Assert.Equal("NO", reader[1].ToString());
+          Assert.Equal("datetime", reader[2].ToString());
+          Assert.Equal("3", reader[3].ToString());
+        }
+        reader.Close();
+        ctx.DeleteDatabase();
+        c.Close();
+      }
+    }
+#endif
   }
 }

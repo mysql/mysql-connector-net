@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -7,14 +7,14 @@
     <Framework Condition=" '$(Framework)' == '' and '$(VisualStudioVersion)' == '11.0'">4.5</Framework>
     <Framework Condition=" '$(Framework)' == ''">2.0</Framework>
     <TargetFrameworkVersion Condition="'$(Framework)'!=''">v$(Framework)</TargetFrameworkVersion>
-    <ProjectGuid>{8DE7265B-0880-4E02-93EA-14EF8DADF47D}</ProjectGuid>
+    <ProjectGuid>{B9701389-FD12-48F3-AFB0-227C1F1DE4F5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MySql.LoadBalancing.Tests</RootNamespace>
-    <AssemblyName>MySql.LoadBalancing.Tests</AssemblyName>
+    <RootNamespace>MySql.LoadBalancing.Tests.XUnit</RootNamespace>
+    <AssemblyName>MySql.LoadBalancing.Tests.XUnit</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
-    <DefineConstants Condition=" $(Framework) >= '4.0' ">NET_40_OR_GREATER</DefineConstants>
+    <DefineConstants Condition=" $(Framework) &gt;= '4.0' ">NET_40_OR_GREATER</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -42,7 +42,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="nunit.framework" />
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -51,9 +50,11 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="xunit, Version=1.9.1.1600, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>C:\Program Files (x86)\XUnit_1.9.1\xunit.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BaseTest.cs" />
     <Compile Include="LoadBalancingTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -61,6 +62,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="SetUp.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

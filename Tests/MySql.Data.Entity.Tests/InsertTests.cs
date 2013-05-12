@@ -1,4 +1,4 @@
-// Copyright © 2008, 2011, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -24,21 +24,27 @@ using System;
 using System.Data;
 using System.Threading;
 using MySql.Data.MySqlClient;
-using NUnit.Framework;
 using MySql.Data.MySqlClient.Tests;
 using System.Data.EntityClient;
 using System.Data.Common;
 using System.Data.Objects;
+using Xunit;
 
 namespace MySql.Data.Entity.Tests
 {
-  [TestFixture]
-  public class InsertTests : BaseEdmTest
+  public class InsertTests : IUseFixture<SetUpEntityTests>
   {
-    [Test]
+    private SetUpEntityTests st;
+
+    public void SetFixture(SetUpEntityTests data)
+    {
+      st = data;
+    }
+
+    [Fact]
     public void InsertSingleRow()
     {
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM companies", conn);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM companies", st.conn);
       DataTable dt = new DataTable();
       da.Fill(dt);
       DataRow lastRow = dt.Rows[dt.Rows.Count - 1];
@@ -64,20 +70,20 @@ namespace MySql.Data.Entity.Tests
         da.Fill(afterInsert);
         lastRow = afterInsert.Rows[afterInsert.Rows.Count - 1];
 
-        Assert.AreEqual(dt.Rows.Count + 1, afterInsert.Rows.Count);
-        Assert.AreEqual(lastId + 1, lastRow["id"]);
-        Assert.AreEqual("Yoyo", lastRow["name"]);
-        Assert.AreEqual(486, lastRow["numemployees"]);
+        Assert.Equal(dt.Rows.Count + 1, afterInsert.Rows.Count);
+        Assert.Equal(lastId + 1, lastRow["id"]);
+        Assert.Equal("Yoyo", lastRow["name"]);
+        Assert.Equal(486, lastRow["numemployees"]);
         DateTime insertedDT = (DateTime)lastRow["dateBegan"];
-        Assert.AreEqual(dateBegan.Date, insertedDT.Date);
-        Assert.AreEqual("212 My Street.", lastRow["address"]);
-        Assert.AreEqual("Helena", lastRow["city"]);
-        Assert.AreEqual("MT", lastRow["state"]);
-        Assert.AreEqual("44558", lastRow["zipcode"]);
+        Assert.Equal(dateBegan.Date, insertedDT.Date);
+        Assert.Equal("212 My Street.", lastRow["address"]);
+        Assert.Equal("Helena", lastRow["city"]);
+        Assert.Equal("MT", lastRow["state"]);
+        Assert.Equal("44558", lastRow["zipcode"]);
       }
     }
 
-    [Test]
+    [Fact]
     public void CanInsertRowWithDefaultTimeStamp()
     {
       using (testEntities context = new testEntities())
@@ -89,7 +95,7 @@ namespace MySql.Data.Entity.Tests
         context.AddToProducts(product);
         context.SaveChanges();
 
-        Assert.AreEqual(DateTime.Today.Day, product.CreatedDate.Day);
+        Assert.Equal(DateTime.Today.Day, product.CreatedDate.Day);
       }
     }
   }

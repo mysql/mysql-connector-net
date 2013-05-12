@@ -1,4 +1,4 @@
-// Copyright � 2004, 2010, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,25 +21,37 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Data;
-using MySql.Data.MySqlClient;
-using NUnit.Framework;
+using System.Collections.Generic;
+using System.Text;
+using Xunit;
 using System.Data.Common;
+using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  [TestFixture]
-  public class InterfaceTests : BaseTest
+  public class InterfaceTests : IUseFixture<SetUpClass>, IDisposable
   {
+    private SetUpClass st;
+
+    public void SetFixture(SetUpClass data)
+    {
+      st = data;
+    }
+
+    public void Dispose()
+    {
+      //Nothing to clean
+    }
+
 #if !CF
-    [Test]
+    [Fact]
     public void ClientFactory()
     {
       DbProviderFactory f = new MySqlClientFactory();
       using (DbConnection c = f.CreateConnection())
       {
         DbConnectionStringBuilder cb = f.CreateConnectionStringBuilder();
-        cb.ConnectionString = GetConnectionString(true);
+        cb.ConnectionString = st.GetConnectionString(true);
         c.ConnectionString = cb.ConnectionString;
         c.Open();
 
@@ -54,5 +66,6 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 #endif
+
   }
 }

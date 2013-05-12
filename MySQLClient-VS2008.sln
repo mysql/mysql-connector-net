@@ -11,13 +11,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.Data.Tests", "Tests\M
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.Web.Tests", "Tests\MySql.Web.Tests\MySql.Web.Tests.csproj", "{83462D15-E576-4079-BBC9-9EE1CF0B24DD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.Data.CF.Tests", "Tests\MySql.Data.Tests\MySql.Data.CF.Tests.csproj", "{710D9251-17A3-4429-9A91-63F03267F310}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.Data.Entity", "Source\MySql.Data.Entity\MySql.Data.Entity.csproj", "{EDED3135-95D2-4BCE-A810-F3F2AD7935B7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.Data.Entity.Tests", "Tests\MySql.Data.Entity.Tests\MySql.Data.Entity.Tests.csproj", "{D37B3572-767F-4622-A835-844B0EBEFD5B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.Data.Entity.Tests", "Tests\MySql.Data.Entity.Tests\MySql.Data.Entity.Tests.csproj", "{2B44356E-1455-42F8-85D2-43271AEB2908}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.LoadBalancing.Tests", "Tests\MySql.LoadBalancing.Tests\MySql.LoadBalancing.Tests.csproj", "{8DE7265B-0880-4E02-93EA-14EF8DADF47D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.LoadBalancing.Tests", "Tests\MySql.LoadBalancing.Tests\MySql.LoadBalancing.Tests.csproj", "{B9701389-FD12-48F3-AFB0-227C1F1DE4F5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,22 +43,18 @@ Global
 		{83462D15-E576-4079-BBC9-9EE1CF0B24DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{83462D15-E576-4079-BBC9-9EE1CF0B24DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{83462D15-E576-4079-BBC9-9EE1CF0B24DD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{710D9251-17A3-4429-9A91-63F03267F310}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{710D9251-17A3-4429-9A91-63F03267F310}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{710D9251-17A3-4429-9A91-63F03267F310}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{710D9251-17A3-4429-9A91-63F03267F310}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EDED3135-95D2-4BCE-A810-F3F2AD7935B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EDED3135-95D2-4BCE-A810-F3F2AD7935B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EDED3135-95D2-4BCE-A810-F3F2AD7935B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EDED3135-95D2-4BCE-A810-F3F2AD7935B7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D37B3572-767F-4622-A835-844B0EBEFD5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D37B3572-767F-4622-A835-844B0EBEFD5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D37B3572-767F-4622-A835-844B0EBEFD5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D37B3572-767F-4622-A835-844B0EBEFD5B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8DE7265B-0880-4E02-93EA-14EF8DADF47D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8DE7265B-0880-4E02-93EA-14EF8DADF47D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8DE7265B-0880-4E02-93EA-14EF8DADF47D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8DE7265B-0880-4E02-93EA-14EF8DADF47D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B44356E-1455-42F8-85D2-43271AEB2908}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B44356E-1455-42F8-85D2-43271AEB2908}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B44356E-1455-42F8-85D2-43271AEB2908}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B44356E-1455-42F8-85D2-43271AEB2908}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9701389-FD12-48F3-AFB0-227C1F1DE4F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9701389-FD12-48F3-AFB0-227C1F1DE4F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9701389-FD12-48F3-AFB0-227C1F1DE4F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9701389-FD12-48F3-AFB0-227C1F1DE4F5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

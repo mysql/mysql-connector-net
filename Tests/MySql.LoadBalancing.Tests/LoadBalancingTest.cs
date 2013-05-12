@@ -24,33 +24,34 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NUnit.Framework;
 using MySql.Data.MySqlClient;
+using Xunit;
 
 namespace MySql.LoadBalancing.Tests
 {
-  class LoadBalancingTest : BaseTest
+ public class LoadBalancingTest : IUseFixture<SetUp>
   {
+
+   private SetUp st;
+
+   public void SetFixture(SetUp data)
+    {
+      st = data;
+    } 
+
     /// <summary>
     /// Validates that the slave is readonly
     /// </summary>
-    [Test]
+    [Fact]
     public void _SlaveAsReadOnly()
     {
-      using (MySqlConnection conn = new MySqlConnection(ConnectionStringSlave))
+      using (MySqlConnection conn = new MySqlConnection(st.ConnectionStringSlave))
       {
         conn.Open();
-        try
-        {
-          ExecuteNonQuery(conn, "INSERT INTO orders VALUES(null, 1, 'James')");
-          Assert.Fail("Slave is not readonly.");
-        }
-        catch (MySqlException ex)
-        {
-          // Error 1290: The MySQL server is running with the --read-only option so
-          // it cannot execute this statement
-          Assert.AreEqual(1290, ex.Number);
-        }
+        MySqlException ex = Assert.Throws<MySqlException>(() => st.ExecuteNonQuery(conn, "INSERT INTO orders VALUES(null, 1, 'James')"));       
+        // Error 1290: The MySQL server is running with the --read-only option so
+        // it cannot execute this statement
+        Assert.Equal(1290, ex.Number);        
       }
     }
 
@@ -59,50 +60,41 @@ namespace MySql.LoadBalancing.Tests
     /// master and slave; also validates that all non-read statements are sent
     /// to the master
     /// </summary>
-    [Test]
+    [Fact]
     public void RoundRobinWithWritting()
     {
-      using (MySqlConnection conn = new MySqlConnection(ConnectionString))
+      using (MySqlConnection conn = new MySqlConnection(st.ConnectionString))
       {
         conn.Open();
 
-        ExecuteNonQuery(conn, "INSERT INTO orders VALUES(null, 1, 'James')");
-        ExecuteNonQuery(conn, "INSERT INTO order_details VALUES(1, 1, 1, 0, 0)");
-        ExecuteNonQuery(conn, "INSERT INTO order_details VALUES(1, 2, 1, 0, 0)");
+        st.ExecuteNonQuery(conn, "INSERT INTO orders VALUES(null, 1, 'James')");
+        st.ExecuteNonQuery(conn, "INSERT INTO order_details VALUES(1, 1, 1, 0, 0)");
+        st.ExecuteNonQuery(conn, "INSERT INTO order_details VALUES(1, 2, 1, 0, 0)");
 
-        Assert.AreEqual(slavePort, GetPort(conn));
-        Assert.AreEqual(masterPort, GetPort(conn));
-        Assert.AreEqual(slavePort, GetPort(conn));
-        Assert.AreEqual(masterPort, GetPort(conn));
+        Assert.Equal(st.slavePort, GetPort(conn));
+        Assert.Equal(st.masterPort, GetPort(conn));
+        Assert.Equal(st.slavePort, GetPort(conn));
+        Assert.Equal(st.masterPort, GetPort(conn));
 
-        ExecuteNonQuery(conn, "INSERT INTO order_details VALUES(1, 3, 1, 0, 0)");
+        st.ExecuteNonQuery(conn, "INSERT INTO order_details VALUES(1, 3, 1, 0, 0)");
       }
     }
 
     /// <summary>
     /// Test for a master connection failure
     /// </summary>
-    [Test]
+    [Fact]
     public void RoundRobinReadOnly()
     {
       using (MySqlConnection conn = new MySqlConnection("server=Group2;"))
       {
         conn.Open();
-
-        Assert.AreEqual(slavePort, GetPort(conn));
-        Assert.AreEqual(masterPort, GetPort(conn));
-        Assert.AreEqual(slavePort, GetPort(conn));
-        Assert.AreEqual(masterPort, GetPort(conn));
-
-        try
-        {
-          ExecuteNonQuery(conn, "INSERT INTO orders VALUES(null, 1, 'James')");
-          Assert.Fail("Exception should be thrown");
-        }
-        catch (MySqlException ex)
-        {
-          Assert.AreEqual(MySql.Data.MySqlClient.Properties.Resources.LoadBalancing_NoAvailableServer, ex.Message);
-        }
+        Assert.Equal(st.slavePort, GetPort(conn));
+        Assert.Equal(st.masterPort, GetPort(conn));
+        Assert.Equal(st.slavePort, GetPort(conn));
+        Assert.Equal(st.masterPort, GetPort(conn));        
+        MySqlException ex = Assert.Throws<MySqlException>(() => st.ExecuteNonQuery(conn, "INSERT INTO orders VALUES(null, 1, 'James')"));
+        Assert.Equal(MySql.Data.MySqlClient.Properties.Resources.LoadBalancing_NoAvailableServer, ex.Message);        
       }
     }
 
@@ -110,7 +102,7 @@ namespace MySql.LoadBalancing.Tests
 
     private int GetPort(MySqlConnection connection)
     {
-      MySqlDataReader dr = ExecuteQuery(connection, "SHOW VARIABLES LIKE 'port';");
+      MySqlDataReader dr = st.ExecuteQuery(connection, "SHOW VARIABLES LIKE 'port';");
 
       dr.Read();
       int port = dr.GetInt32(1);

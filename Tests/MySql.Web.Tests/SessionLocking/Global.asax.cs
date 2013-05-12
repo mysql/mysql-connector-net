@@ -26,8 +26,8 @@
 
 using System;
 using System.Collections.Generic;
-#if NET_40_OR_GREATER
-using System.Linq;
+#if CLR4
+
 #endif
 using System.Web;
 using System.Web.Security;

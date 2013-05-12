@@ -22,6 +22,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections;
+using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -41,7 +43,7 @@ namespace MySql.Data.MySqlClient
         public static SourceSwitch Switch
         {
             get
-            {   
+            {
                 throw new NotImplementedException();
             }
             set
@@ -89,10 +91,10 @@ namespace MySql.Data.MySqlClient
         {
             throw new NotImplementedException();
         }
-    }    
+    }
 
     // These types are just placeholders to keep same api for MySqlTrace in both .NET & RT (ie. they supply missing types in .NET for RT).
-    public enum TraceEventType 
+    public enum TraceEventType
     {
         Critical = 1,
         Error = 2,
@@ -107,7 +109,7 @@ namespace MySql.Data.MySqlClient
 
     public class TraceSource
     {
-        public void TraceEvent( TraceEventType type, int id, string msg, MySqlTraceEventType type2, int code)
+        public void TraceEvent(TraceEventType type, int id, string msg, MySqlTraceEventType type2, int code)
         {
             throw new NotImplementedException();
         }
@@ -118,29 +120,29 @@ namespace MySql.Data.MySqlClient
         }
     }
 
-    public class SourceSwitch 
+    public class SourceSwitch
     {
 
     }
 
     internal static class Trace
     {
-        internal static void TraceInformation( string msg )
+        internal static void TraceInformation(string msg)
         {
             throw new NotImplementedException();
         }
 
-        internal static void TraceWarning( string msg )
+        internal static void TraceWarning(string msg)
         {
             throw new NotImplementedException();
         }
 
-        internal static void TraceError( string msg )
+        internal static void TraceError(string msg)
         {
             throw new NotImplementedException();
         }
 
-        internal static void TraceEven( string msg )
+        internal static void TraceEven(string msg)
         {
             throw new NotImplementedException();
         }

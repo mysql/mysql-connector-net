@@ -103,18 +103,17 @@
     <EmbeddedResource Include="Properties\Setup.sql" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BaseTest.cs" />
     <Compile Include="BlobTests.cs" />
-    <Compile Include="CommandTests.cs" />
-    <Compile Include="ConnectionTests.cs" />
-    <Compile Include="DataReaderTests.cs" />
+    <Compile Include="MySqlCommandTests.cs" />
+    <Compile Include="MySqlConnectionTests.cs" />
+    <Compile Include="MySqlDataReaderTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SetUp.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="nunit.framework, Version=2.6.2.12296, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files (x86)\NUnit 2.6.2\bin\framework\nunit.framework.dll</HintPath>
+    <Reference Include="xunit">
+      <HintPath>C:\Program Files (x86)\xUnit_1.9.1\xunit.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

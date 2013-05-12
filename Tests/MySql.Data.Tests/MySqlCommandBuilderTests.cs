@@ -1,4 +1,4 @@
-// Copyright � 2004, 2011, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,24 +21,29 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
+using System.Collections.Generic;
+using System.Text;
+using Xunit;
 using System.Data;
-using NUnit.Framework;
+
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  [TestFixture]
-  public class CommandBuilderTests : BaseTest
+  public class MySqlCommandBuilderTests : IUseFixture<SetUpClass>, IDisposable
   {
-    public CommandBuilderTests()
+    private SetUpClass st;
+
+    public void SetFixture(SetUpClass data)
     {
+      st = data;
     }
 
-    [Test]
+    [Fact]
     public void MultiWord()
     {
-      execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME,  `multi word` int, PRIMARY KEY(id))");
+      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME,  `multi word` int, PRIMARY KEY(id))");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", conn);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", st.conn);
       MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
       DataTable dt = new DataTable();
       da.Fill(dt);
@@ -51,85 +56,78 @@ namespace MySql.Data.MySqlClient.Tests
       row["multi word"] = 2;
       dt.Rows.Add(row);
       da.Update(dt);
-      Assert.AreEqual(1, dt.Rows.Count);
-      Assert.AreEqual(2, dt.Rows[0]["multi word"]);
+      Assert.Equal(1, dt.Rows.Count);
+      Assert.Equal(2, dt.Rows[0]["multi word"]);
 
       dt.Rows[0]["multi word"] = 3;
       da.Update(dt);
       cb.Dispose();
-      Assert.AreEqual(1, dt.Rows.Count);
-      Assert.AreEqual(3, dt.Rows[0]["multi word"]);
+      Assert.Equal(1, dt.Rows.Count);
+      Assert.Equal(3, dt.Rows[0]["multi word"]);
     }
 
-    [Test]
+    [Fact]
     public void LastOneWins()
     {
-      execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME,  `multi word` int, PRIMARY KEY(id))");
-      execSQL("INSERT INTO Test (id, name) VALUES (1, 'Test')");
+      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME,  `multi word` int, PRIMARY KEY(id))");
+      st.execSQL("INSERT INTO Test (id, name) VALUES (1, 'Test')");
 
       MySqlCommandBuilder cb = new MySqlCommandBuilder(
-          new MySqlDataAdapter("SELECT * FROM Test", conn));
+          new MySqlDataAdapter("SELECT * FROM Test", st.conn));
       MySqlDataAdapter da = cb.DataAdapter;
       cb.ConflictOption = ConflictOption.OverwriteChanges;
       DataTable dt = new DataTable();
       da.Fill(dt);
-      Assert.AreEqual(1, dt.Rows.Count);
+      Assert.Equal(1, dt.Rows.Count);
 
-      execSQL("UPDATE Test SET name='Test2' WHERE id=1");
+      st.execSQL("UPDATE Test SET name='Test2' WHERE id=1");
 
       dt.Rows[0]["name"] = "Test3";
-      Assert.AreEqual(1, da.Update(dt));
+      Assert.Equal(1, da.Update(dt));
 
       dt.Rows.Clear();
       da.Fill(dt);
-      Assert.AreEqual(1, dt.Rows.Count);
-      Assert.AreEqual("Test3", dt.Rows[0]["name"]);
+      Assert.Equal(1, dt.Rows.Count);
+      Assert.Equal("Test3", dt.Rows[0]["name"]);
     }
 
-    [Test]
+    [Fact]
     public void NotLastOneWins()
     {
-      execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME,  `multi word` int, PRIMARY KEY(id))");
-      execSQL("INSERT INTO Test (id, name) VALUES (1, 'Test')");
+      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME,  `multi word` int, PRIMARY KEY(id))");
+      st.execSQL("INSERT INTO Test (id, name) VALUES (1, 'Test')");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", conn);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", st.conn);
       MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
       cb.ConflictOption = ConflictOption.CompareAllSearchableValues;
       DataTable dt = new DataTable();
       da.Fill(dt);
-      Assert.AreEqual(1, dt.Rows.Count);
+      Assert.Equal(1, dt.Rows.Count);
 
-      execSQL("UPDATE Test SET name='Test2' WHERE id=1");
-
-      try
-      {
-        dt.Rows[0]["name"] = "Test3";
-        da.Update(dt);
-        Assert.Fail("This should not work");
-      }
-      catch (DBConcurrencyException)
-      {
-      }
+      st.execSQL("UPDATE Test SET name='Test2' WHERE id=1");
+      dt.Rows[0]["name"] = "Test3";
+      Exception ex = Assert.Throws<DBConcurrencyException>(() => (da.Update(dt)));
+      Assert.Equal(ex.Message, "Concurrency violation: the UpdateCommand affected 0 of the expected 1 records.");
 
       dt.Rows.Clear();
       da.Fill(dt);
-      Assert.AreEqual(1, dt.Rows.Count);
-      Assert.AreEqual("Test2", dt.Rows[0]["name"]);
+      Assert.Equal(1, dt.Rows.Count);
+      Assert.Equal("Test2", dt.Rows[0]["name"]);
     }
 
     /// <summary>
     /// Bug #8574 - MySqlCommandBuilder unable to support sub-queries
     /// Bug #11947 - MySQLCommandBuilder mishandling CONCAT() aliased column
     /// </summary>
-    [Test]
+    [Fact]
     public void UsingFunctions()
     {
-      execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME,  `multi word` int, PRIMARY KEY(id))");
-      execSQL("INSERT INTO Test (id, name) VALUES (1,'test1')");
-      execSQL("INSERT INTO Test (id, name) VALUES (2,'test2')");
-      execSQL("INSERT INTO Test (id, name) VALUES (3,'test3')");
+      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME,  `multi word` int, PRIMARY KEY(id))");
+      st.execSQL("INSERT INTO Test (id, name) VALUES (1,'test1')");
+      st.execSQL("INSERT INTO Test (id, name) VALUES (2,'test2')");
+      st.execSQL("INSERT INTO Test (id, name) VALUES (3,'test3')");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT id, name, now() as ServerTime FROM Test", conn);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT id, name, now() as ServerTime FROM Test", st.conn);
       MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
       DataTable dt = new DataTable();
       da.Fill(dt);
@@ -140,9 +138,9 @@ namespace MySql.Data.MySqlClient.Tests
       da.SelectCommand.CommandText = "SELECT id, name, CONCAT(name, '  boo') as newname from Test where id=4";
       dt.Clear();
       da.Fill(dt);
-      Assert.AreEqual(1, dt.Rows.Count);
-      Assert.AreEqual("test1", dt.Rows[0]["name"]);
-      Assert.AreEqual("test1  boo", dt.Rows[0]["newname"]);
+      Assert.Equal(1, dt.Rows.Count);
+      Assert.Equal("test1", dt.Rows[0]["name"]);
+      Assert.Equal("test1  boo", dt.Rows[0]["newname"]);
 
       dt.Rows[0]["id"] = 5;
       da.Update(dt);
@@ -150,8 +148,8 @@ namespace MySql.Data.MySqlClient.Tests
       dt.Clear();
       da.SelectCommand.CommandText = "SELECT * FROM Test WHERE id=5";
       da.Fill(dt);
-      Assert.AreEqual(1, dt.Rows.Count);
-      Assert.AreEqual("test1", dt.Rows[0]["name"]);
+      Assert.Equal(1, dt.Rows.Count);
+      Assert.Equal("test1", dt.Rows[0]["name"]);
 
       da.SelectCommand.CommandText = "SELECT *, now() as stime FROM Test WHERE id<4";
       cb = new MySqlCommandBuilder(da);
@@ -162,20 +160,20 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #8382  	Commandbuilder does not handle queries to other databases than the default one-
     /// </summary>
-    [Test]
+    [Fact]
     public void DifferentDatabase()
     {
-      if (Version < new Version(4, 1)) return;
+      if (st.Version < new Version(4, 1)) return;
 
-      execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME,  `multi word` int, PRIMARY KEY(id))");
-      execSQL("INSERT INTO Test (id, name) VALUES (1,'test1')");
-      execSQL("INSERT INTO Test (id, name) VALUES (2,'test2')");
-      execSQL("INSERT INTO Test (id, name) VALUES (3,'test3')");
+      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME,  `multi word` int, PRIMARY KEY(id))");
+      st.execSQL("INSERT INTO Test (id, name) VALUES (1,'test1')");
+      st.execSQL("INSERT INTO Test (id, name) VALUES (2,'test2')");
+      st.execSQL("INSERT INTO Test (id, name) VALUES (3,'test3')");
 
-      conn.ChangeDatabase(database1);
+      st.conn.ChangeDatabase(st.database1);
 
       MySqlDataAdapter da = new MySqlDataAdapter(
-          String.Format("SELECT id, name FROM `{0}`.Test", database0), conn);
+          String.Format("SELECT id, name FROM `{0}`.Test", st.database0), st.conn);
       MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
       DataSet ds = new DataSet();
       da.Fill(ds);
@@ -187,18 +185,18 @@ namespace MySql.Data.MySqlClient.Tests
       ds.AcceptChanges();
       cb.Dispose();
 
-      conn.ChangeDatabase(database0);
+      st.conn.ChangeDatabase(st.database0);
     }
 
     /// <summary>
     /// Bug #13036  	Returns error when field names contain any of the following chars %<>()/ etc
     /// </summary>
-    [Test]
+    [Fact]
     public void SpecialCharactersInFieldNames()
     {
-      execSQL("CREATE TABLE Test (`col%1` int PRIMARY KEY, `col()2` int, `col<>3` int, `col/4` int)");
+      st.execSQL("CREATE TABLE Test (`col%1` int PRIMARY KEY, `col()2` int, `col<>3` int, `col/4` int)");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", conn);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", st.conn);
       MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
       cb.ToString();  // keep the compiler happy
       DataTable dt = new DataTable();
@@ -215,14 +213,14 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #14631  	"#42000Query was empty"
     /// </summary>
-    [Test]
+    [Fact]
     public void SemicolonAtEndOfSQL()
     {
-      execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100), PRIMARY KEY(id))");
-      execSQL("INSERT INTO Test VALUES(1, 'Data')");
+      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100), PRIMARY KEY(id))");
+      st.execSQL("INSERT INTO Test VALUES(1, 'Data')");
 
       DataSet ds = new DataSet();
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM `Test`;", conn);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM `Test`;", st.conn);
       da.FillSchema(ds, SchemaType.Source, "Test");
 
       MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
@@ -234,19 +232,19 @@ namespace MySql.Data.MySqlClient.Tests
       dt.Clear();
       da.Fill(dt);
       cb.Dispose();
-      Assert.AreEqual(1, dt.Rows.Count);
-      Assert.AreEqual(2, dt.Rows[0]["id"]);
+      Assert.Equal(1, dt.Rows.Count);
+      Assert.Equal(2, dt.Rows[0]["id"]);
     }
 
     /// <summary>
     /// Bug #23862 Problem with CommandBuilder 'GetInsertCommand' method 
     /// </summary>
-    [Test]
+    [Fact]
     public void AutoIncrementColumnsOnInsert()
     {
-      execSQL("CREATE TABLE Test (id INT UNSIGNED NOT NULL AUTO_INCREMENT, " +
+      st.execSQL("CREATE TABLE Test (id INT UNSIGNED NOT NULL AUTO_INCREMENT, " +
           "name VARCHAR(100), PRIMARY KEY(id))");
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", conn);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", st.conn);
       MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
 
       da.InsertCommand = cb.GetInsertCommand();
@@ -256,7 +254,7 @@ namespace MySql.Data.MySqlClient.Tests
       DataTable dt = new DataTable();
       da.Fill(dt);
       dt.Columns[0].AutoIncrement = true;
-      Assert.IsTrue(dt.Columns[0].AutoIncrement);
+      Assert.True(dt.Columns[0].AutoIncrement);
       dt.Columns[0].AutoIncrementSeed = -1;
       dt.Columns[0].AutoIncrementStep = -1;
       DataRow row = dt.NewRow();
@@ -267,21 +265,21 @@ namespace MySql.Data.MySqlClient.Tests
 
       dt.Clear();
       da.Fill(dt);
-      Assert.AreEqual(1, dt.Rows.Count);
-      Assert.AreEqual(1, dt.Rows[0]["id"]);
-      Assert.AreEqual("Test", dt.Rows[0]["name"]);
+      Assert.Equal(1, dt.Rows.Count);
+      Assert.Equal(1, dt.Rows[0]["id"]);
+      Assert.Equal("Test", dt.Rows[0]["name"]);
       cb.Dispose();
     }
 
     /// <summary>
     /// Bug #25569 UpdateRowSource.FirstReturnedRecord does not work 
     /// </summary>
-    [Test]
+    [Fact]
     public void AutoIncrementColumnsOnInsert2()
     {
-      execSQL("CREATE TABLE Test (id INT UNSIGNED NOT NULL " +
+      st.execSQL("CREATE TABLE Test (id INT UNSIGNED NOT NULL " +
           "AUTO_INCREMENT PRIMARY KEY, name VARCHAR(20))");
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", conn);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", st.conn);
       MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
 
       MySqlCommand cmd = (MySqlCommand)(cb.GetInsertCommand() as ICloneable).Clone();
@@ -297,27 +295,27 @@ namespace MySql.Data.MySqlClient.Tests
       row["name"] = "Test";
       dt.Rows.Add(row);
       da.Update(dt);
-      Assert.AreEqual(1, dt.Rows[0]["id"]);
-      Assert.AreEqual("Test", dt.Rows[0]["name"]);
+      Assert.Equal(1, Convert.ToInt32(dt.Rows[0]["id"]));
+      Assert.Equal("Test", dt.Rows[0]["name"]);
 
       row = dt.NewRow();
       row["name"] = "Test2";
       dt.Rows.Add(row);
       da.Update(dt);
-      Assert.AreEqual(2, dt.Rows[1]["id"]);
-      Assert.AreEqual("Test2", dt.Rows[1]["name"]);
+      Assert.Equal(2, Convert.ToInt32(dt.Rows[1]["id"]));
+      Assert.Equal("Test2", dt.Rows[1]["name"]);
 
-      Assert.AreEqual(1, dt.Rows[0]["id"]);
+      Assert.Equal(1, Convert.ToInt32(dt.Rows[0]["id"]));
     }
 
-    [Test]
+    [Fact]
     public void MultiUpdate()
     {
-      execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME,  `multi word` int, PRIMARY KEY(id))");
-      execSQL("INSERT INTO  Test (id, name) VALUES (1, 'test1')");
-      execSQL("INSERT INTO  Test (id, name) VALUES (2, 'test2')");
-      execSQL("INSERT INTO  Test (id, name) VALUES (3, 'test3')");
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", conn);
+      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME,  `multi word` int, PRIMARY KEY(id))");
+      st.execSQL("INSERT INTO  Test (id, name) VALUES (1, 'test1')");
+      st.execSQL("INSERT INTO  Test (id, name) VALUES (2, 'test2')");
+      st.execSQL("INSERT INTO  Test (id, name) VALUES (3, 'test3')");
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", st.conn);
       MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
       DataTable dt = new DataTable();
       da.Fill(dt);
@@ -347,17 +345,17 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #30077  	MySqlDataAdapter.Update() exception due to date field format
     /// </summary>
-    [Test]
+    [Fact]
     public void UpdatingWithDateInKey()
     {
-      execSQL("CREATE TABLE Test (cod INT, dt DATE, PRIMARY KEY(cod, dt))");
+      st.execSQL("CREATE TABLE Test (cod INT, dt DATE, PRIMARY KEY(cod, dt))");
 
-      execSQL("INSERT INTO Test (cod, dt) VALUES (1, '2006-1-1')");
-      execSQL("INSERT INTO Test (cod, dt) VALUES (2, '2006-1-2')");
-      execSQL("INSERT INTO Test (cod, dt) VALUES (3, '2006-1-3')");
-      execSQL("INSERT INTO Test (cod, dt) VALUES (4, '2006-1-4')");
+      st.execSQL("INSERT INTO Test (cod, dt) VALUES (1, '2006-1-1')");
+      st.execSQL("INSERT INTO Test (cod, dt) VALUES (2, '2006-1-2')");
+      st.execSQL("INSERT INTO Test (cod, dt) VALUES (3, '2006-1-3')");
+      st.execSQL("INSERT INTO Test (cod, dt) VALUES (4, '2006-1-4')");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test ORDER BY cod", conn);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test ORDER BY cod", st.conn);
       MySqlCommandBuilder bld = new MySqlCommandBuilder(da);
       bld.ConflictOption = ConflictOption.OverwriteChanges;
       DataTable dt = new DataTable();
@@ -368,24 +366,29 @@ namespace MySql.Data.MySqlClient.Tests
       dt.Clear();
       da.SelectCommand.CommandText = "SELECT * FROM Test WHERE cod=6";
       da.Fill(dt);
-      Assert.AreEqual(6, dt.Rows[0]["cod"]);
+      Assert.Equal(6, dt.Rows[0]["cod"]);
     }
 
     /// <summary>
     /// Bug #35492 Please implement DbCommandBuilder.QuoteIdentifier 
     /// </summary>
-    [Test]
+    [Fact]
     public void QuoteAndUnquoteIdentifiers()
     {
       MySqlCommandBuilder cb = new MySqlCommandBuilder();
-      Assert.AreEqual("`boo`", cb.QuoteIdentifier("boo"));
-      Assert.AreEqual("`bo``o`", cb.QuoteIdentifier("bo`o"));
-      Assert.AreEqual("`boo`", cb.QuoteIdentifier("`boo`"));
+      Assert.Equal("`boo`", cb.QuoteIdentifier("boo"));
+      Assert.Equal("`bo``o`", cb.QuoteIdentifier("bo`o"));
+      Assert.Equal("`boo`", cb.QuoteIdentifier("`boo`"));
 
       // now do the unquoting
-      Assert.AreEqual("boo", cb.UnquoteIdentifier("`boo`"));
-      Assert.AreEqual("`boo", cb.UnquoteIdentifier("`boo"));
-      Assert.AreEqual("bo`o", cb.UnquoteIdentifier("`bo``o`"));
+      Assert.Equal("boo", cb.UnquoteIdentifier("`boo`"));
+      Assert.Equal("`boo", cb.UnquoteIdentifier("`boo"));
+      Assert.Equal("bo`o", cb.UnquoteIdentifier("`bo``o`"));
+    }
+
+    public void Dispose()
+    {
+      st.execSQL("DROP TABLE IF EXISTS TEST");    
     }
   }
 }

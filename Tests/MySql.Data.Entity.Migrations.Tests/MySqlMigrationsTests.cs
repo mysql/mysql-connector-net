@@ -1,4 +1,4 @@
-﻿// Copyright © 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NUnit.Framework;
+using Xunit;
 using System.Data.Entity;
 using System.Data.Entity.Migrations;
 using System.Data.Entity.Migrations.Sql;
@@ -40,9 +40,16 @@ using System.Data.EntityClient;
 
 namespace MySql.Data.Entity.Migrations.Tests
 {
-  public class MySqlMigrationsTests : BaseMigrationsTests
+  public class MySqlMigrationsTests : IUseFixture<SetUpMigrationsTests>
   {
     private MySqlProviderManifest ProviderManifest;
+
+    private SetUpMigrationsTests st;
+
+    public void SetFixture(SetUpMigrationsTests data)
+    {
+      st = data;
+    }    
 
     private MySqlConnection GetConnectionFromContext(DbContext ctx)
     {
@@ -52,13 +59,13 @@ namespace MySql.Data.Entity.Migrations.Tests
     /// <summary>
     /// Add int32 type column to existing table
     /// </summary>
-    [Test]
+    [Fact]
     public void AddColumnOperationMigration()
     {
       var migrationOperations = new List<MigrationOperation>();
 
       if (ProviderManifest == null)
-      ProviderManifest = new MySqlProviderManifest(Version.ToString());
+      ProviderManifest = new MySqlProviderManifest(st.Version.ToString());
 
       TypeUsage tu = TypeUsage.CreateDefaultTypeUsage(PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int32));
       TypeUsage result = ProviderManifest.GetStoreType(tu);
@@ -80,15 +87,15 @@ namespace MySql.Data.Entity.Migrations.Tests
         using (MySqlConnection conn = new MySqlConnection(context.Database.Connection.ConnectionString))
         {
           if (conn.State == System.Data.ConnectionState.Closed) conn.Open();
-          Assert.AreEqual(true, GenerateAndExecuteMySQLStatements(migrationOperations));
+          Assert.Equal(true, GenerateAndExecuteMySQLStatements(migrationOperations));
           
           MySqlCommand query = new MySqlCommand("Select Column_name, Is_Nullable, Data_Type from information_schema.Columns where table_schema ='" + conn.Database + "' and table_name = 'Blogs' and column_name ='TotalPosts'" , conn);
           MySqlDataReader reader = query.ExecuteReader();
           while (reader.Read())
           {
-            Assert.AreEqual("TotalPosts", reader[0].ToString());
-            Assert.AreEqual("NO", reader[1].ToString());
-            Assert.AreEqual("int", reader[2].ToString());
+            Assert.Equal("TotalPosts", reader[0].ToString());
+            Assert.Equal("NO", reader[1].ToString());
+            Assert.Equal("int", reader[2].ToString());
           }
           reader.Close();
           conn.Close();
@@ -100,7 +107,7 @@ namespace MySql.Data.Entity.Migrations.Tests
     /// CreateTable operation
     /// with the following columns int PostId string Title string Body 
     /// </summary>
-    [Test]
+    [Fact]
     public void CreateTableOperationMigration()
     {
 
@@ -117,12 +124,12 @@ namespace MySql.Data.Entity.Migrations.Tests
         using (var conn = new MySqlConnection(context.Database.Connection.ConnectionString))
         {
           if (conn.State == System.Data.ConnectionState.Closed) conn.Open();
-          Assert.AreEqual(true, GenerateAndExecuteMySQLStatements(migrationOperations));
+          Assert.Equal(true, GenerateAndExecuteMySQLStatements(migrationOperations));
           MySqlCommand query = new MySqlCommand("Select Column_name from information_schema.Columns where table_schema ='" + conn.Database + "' and table_name = 'Posts'", conn);
           MySqlDataReader reader = query.ExecuteReader();
           while (reader.Read())
           {
-            Assert.AreEqual(1, createTableOperation.Columns.Where(t => t.Name.Equals(reader[0].ToString())).Count());
+            Assert.Equal(1, createTableOperation.Columns.Where(t => t.Name.Equals(reader[0].ToString())).Count());
           }
           reader.Close();
           conn.Close();
@@ -134,7 +141,7 @@ namespace MySql.Data.Entity.Migrations.Tests
     /// CreateForeignKey operation
     /// between Blogs and Posts table
     /// </summary>
-    [Test]
+    [Fact]
     public void CreateForeignKeyOperation()
     {
       var migrationOperations = new List<MigrationOperation>();
@@ -146,7 +153,7 @@ namespace MySql.Data.Entity.Migrations.Tests
       // Add column BlogId to create the constraints
 
       if (ProviderManifest == null)
-        ProviderManifest = new MySqlProviderManifest(Version.ToString());
+        ProviderManifest = new MySqlProviderManifest(st.Version.ToString());
 
       TypeUsage tu = TypeUsage.CreateDefaultTypeUsage(PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int32));
       TypeUsage result = ProviderManifest.GetStoreType(tu);
@@ -182,7 +189,7 @@ namespace MySql.Data.Entity.Migrations.Tests
         if (context.Database.Exists()) context.Database.Delete();
         context.Database.Create();        
 
-        Assert.AreEqual(true, GenerateAndExecuteMySQLStatements(migrationOperations));
+        Assert.Equal(true, GenerateAndExecuteMySQLStatements(migrationOperations));
 
         using (var conn = new MySqlConnection(context.Database.Connection.ConnectionString))
         {
@@ -190,11 +197,11 @@ namespace MySql.Data.Entity.Migrations.Tests
           // check for foreign key creation
           MySqlCommand query = new MySqlCommand("select Count(*) from information_schema.table_constraints where constraint_type = 'foreign key' and constraint_schema = '" + conn.Database + "' and constraint_name = 'FKBlogs'", conn);
           int rows = Convert.ToInt32(query.ExecuteScalar());
-          Assert.AreEqual(1, rows);
+          Assert.Equal(1, rows);
           // check for table creation          
           query = new MySqlCommand("select Count(*) from information_schema.Tables WHERE `table_name` = 'Posts' and `table_schema` = '" + conn.Database + "' ", conn);          
           rows = Convert.ToInt32(query.ExecuteScalar());
-          Assert.AreEqual(1, rows);                    
+          Assert.Equal(1, rows);                    
           conn.Close();
         }
 
@@ -208,7 +215,7 @@ namespace MySql.Data.Entity.Migrations.Tests
           {
             r.Read();
             string sql = r.GetString(1);
-            Assert.IsTrue(sql.IndexOf(
+            Assert.True(sql.IndexOf(
               " CONSTRAINT `FKBlogs` FOREIGN KEY (`BlogId`) REFERENCES `blogs` (`BlogId`) ON DELETE CASCADE ON UPDATE CASCADE",
               StringComparison.OrdinalIgnoreCase) != -1);
           }
@@ -225,7 +232,7 @@ namespace MySql.Data.Entity.Migrations.Tests
     /// Remove PK and the autoincrement property for the column
     /// </summary>
 
-    [Test]
+    [Fact]
     public void DropPrimaryKeyOperationWithAnonymousArguments()
     {
 
@@ -246,7 +253,7 @@ namespace MySql.Data.Entity.Migrations.Tests
         context.Database.Create();
         
 
-        Assert.AreEqual(true, GenerateAndExecuteMySQLStatements(migrationOperations));
+        Assert.Equal(true, GenerateAndExecuteMySQLStatements(migrationOperations));
 
         using (var conn = new MySqlConnection(context.Database.Connection.ConnectionString))
         {
@@ -255,21 +262,21 @@ namespace MySql.Data.Entity.Migrations.Tests
           // check for table creation          
           var query = new MySqlCommand("select Count(*) from information_schema.Tables WHERE `table_name` = 'Posts' and `table_schema` = '" + conn.Database + "' ", conn);
           int rows = Convert.ToInt32(query.ExecuteScalar());
-          Assert.AreEqual(1, rows);
+          Assert.Equal(1, rows);
 
           // check if PK exists          
           query = new MySqlCommand("select Count(*) from information_schema.table_constraints where `constraint_type` = 'primary key' and `constraint_schema` = '" + conn.Database + "' and table_name= 'Posts'", conn);
           rows = Convert.ToInt32(query.ExecuteScalar());
-          Assert.AreEqual(0, rows);
+          Assert.Equal(0, rows);
          
           //check the definition of the column that was PK
           query = new MySqlCommand("Select Column_name, Is_Nullable, Data_Type from information_schema.Columns where table_schema ='" + conn.Database + "' and table_name = 'Posts' and column_name ='PostId'", conn);
           MySqlDataReader reader = query.ExecuteReader();
           while (reader.Read())
           {
-            Assert.AreEqual("PostId", reader[0].ToString());
-            Assert.AreEqual("NO", reader[1].ToString());
-            Assert.AreEqual("int", reader[2].ToString());
+            Assert.Equal("PostId", reader[0].ToString());
+            Assert.Equal("NO", reader[1].ToString());
+            Assert.Equal("int", reader[2].ToString());
           }
           reader.Close();
           conn.Close();
@@ -281,7 +288,7 @@ namespace MySql.Data.Entity.Migrations.Tests
     /// <summary>
     /// Drop primary key. No anonymous arguments
     /// </summary>
-    [Test]
+    [Fact]
     public void DropPrimaryKeyOperation()
     {
 
@@ -302,7 +309,7 @@ namespace MySql.Data.Entity.Migrations.Tests
         context.Database.Create();
 
 
-        Assert.AreEqual(true, GenerateAndExecuteMySQLStatements(migrationOperations));
+        Assert.Equal(true, GenerateAndExecuteMySQLStatements(migrationOperations));
 
         using (var conn = new MySqlConnection(context.Database.Connection.ConnectionString))
         {
@@ -311,21 +318,21 @@ namespace MySql.Data.Entity.Migrations.Tests
           // check for table creation          
           var query = new MySqlCommand("select Count(*) from information_schema.Tables WHERE `table_name` = 'Posts' and `table_schema` = '" + conn.Database + "' ", conn);
           int rows = Convert.ToInt32(query.ExecuteScalar());
-          Assert.AreEqual(1, rows);
+          Assert.Equal(1, rows);
 
           // check if PK exists          
           query = new MySqlCommand("select Count(*) from information_schema.table_constraints where `constraint_type` = 'primary key' and `constraint_schema` = '" + conn.Database + "' and table_name= 'Posts'", conn);
           rows = Convert.ToInt32(query.ExecuteScalar());
-          Assert.AreEqual(0, rows);
+          Assert.Equal(0, rows);
 
           //check the definition of the column that was PK
           query = new MySqlCommand("Select Column_name, Is_Nullable, Data_Type from information_schema.Columns where table_schema ='" + conn.Database + "' and table_name = 'Posts' and column_name ='PostId'", conn);
           MySqlDataReader reader = query.ExecuteReader();
           while (reader.Read())
           {
-            Assert.AreEqual("PostId", reader[0].ToString());
-            Assert.AreEqual("NO", reader[1].ToString());
-            Assert.AreEqual("int", reader[2].ToString());
+            Assert.Equal("PostId", reader[0].ToString());
+            Assert.Equal("NO", reader[1].ToString());
+            Assert.Equal("int", reader[2].ToString());
           }
           reader.Close();
           conn.Close();
@@ -349,7 +356,7 @@ namespace MySql.Data.Entity.Migrations.Tests
       TypeUsage result;
 
       if (ProviderManifest == null)
-        ProviderManifest = new MySqlProviderManifest(Version.ToString());
+        ProviderManifest = new MySqlProviderManifest(st.Version.ToString());
 
       var createTableOperation = new CreateTableOperation("Posts");
 

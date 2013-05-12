@@ -9,12 +9,12 @@
     <UpgradeBackupLocation />
   </PropertyGroup>
   <Choose>
-	<When Condition=" '$(VisualStudioVersion)' == '11.0'">
+    <When Condition=" '$(VisualStudioVersion)' == '11.0'">
       <PropertyGroup>
         <ProductVersion>9.0.30729</ProductVersion>
         <SchemaVersion>2.0</SchemaVersion>
         <Framework>4.5</Framework>
-		<TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+        <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
         <DefineConstants>NET_40_OR_GREATER</DefineConstants>
       </PropertyGroup>
     </When>
@@ -23,7 +23,7 @@
         <ProductVersion>9.0.30729</ProductVersion>
         <SchemaVersion>2.0</SchemaVersion>
         <Framework>4.0</Framework>
-		<TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+        <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
         <DefineConstants>NET_40_OR_GREATER</DefineConstants>
       </PropertyGroup>
     </When>
@@ -33,7 +33,7 @@
         <ProductVersion>9.0.30729</ProductVersion>
         <SchemaVersion>2.0</SchemaVersion>
         <Framework>3.5</Framework>
-		<TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+        <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
       </PropertyGroup>
     </Otherwise>
   </Choose>
@@ -46,7 +46,7 @@
     <Framework Condition=" '$(Framework)' == ''">3.5</Framework>
     <Framework>3.5</Framework>
     <TargetFrameworkVersion Condition="'$(Framework)'==''">v4.0</TargetFrameworkVersion>-->
-    <ProjectGuid>{D37B3572-767F-4622-A835-844B0EBEFD5B}</ProjectGuid>
+    <ProjectGuid>{2B44356E-1455-42F8-85D2-43271AEB2908}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MySql.Data.Entity.Tests</RootNamespace>
@@ -97,93 +97,90 @@
   </PropertyGroup>
   <Choose>
     <When Condition=" '$(VisualStudioVersion)' == '11.0'">
-		<ItemGroup>
-			<Reference Include="EntityFramework, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL" Condition="$(Framework) &gt;= '4.0'">
-			  <SpecificVersion>False</SpecificVersion>
-			  <HintPath>C:\Program Files (x86)\Microsoft ADO.NET Entity Framework 5.0.0\lib\net45\EntityFramework.dll</HintPath>
-			</Reference>
-			<Reference Include="System.Data.Entity" />
-			<Reference Include="System.Core">
-			  <RequiredTargetFramework>4.0</RequiredTargetFramework>
-			</Reference>
-			<Reference Include="nunit.framework" />
-			<Reference Include="System" />
-			<Reference Include="System.Configuration" />
-			<Reference Include="System.Data" />
-			<Reference Include="System.Data.Entity.Design" />
-			<Reference Include="System.Runtime.Serialization" />
-			<Reference Include="System.Security" />
-			<Reference Include="System.Xml" />
-			<Reference Include="System.Linq" />
-		</ItemGroup>
-		<ItemGroup>
-			<Compile Include="DatesTypesTests.cs">
-				<SubType>Code</SubType>
-			</Compile>
-		</ItemGroup>
-	</When>
-	<When Condition=" '$(VisualStudioVersion)' == '10.0'">
-		<ItemGroup>
-                        <Reference Include="EntityFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL" Condition="$(Framework) &gt;= '4.0'">
-			  <SpecificVersion>False</SpecificVersion>
-			        <HintPath>C:\Program Files (x86)\Microsoft ADO.NET Entity Framework 4.3.1\lib\net40\EntityFramework.dll</HintPath>
-			</Reference>
-			<Reference Include="System.Data.Entity" />
-			<Reference Include="System.Core">
-			  <RequiredTargetFramework>4.0</RequiredTargetFramework>
-			</Reference>
-			<Reference Include="nunit.framework" />
-			<Reference Include="System" />
-			<Reference Include="System.Configuration" />
-			<Reference Include="System.Data" />
-			<Reference Include="System.Data.Entity.Design" />
-			<Reference Include="System.Runtime.Serialization" />
-			<Reference Include="System.Security" />
-			<Reference Include="System.Xml" />
-			<Reference Include="System.Linq" />
-		</ItemGroup>
-		<ItemGroup>
-			<Compile Include="DatesTypesTests.cs">
-				<SubType>Code</SubType>
-			</Compile>
-		</ItemGroup>
-	</When>
-	<Otherwise>
-		<ItemGroup>
-			<Reference Include="System.Data.Linq" >
-				<RequiredTargetFramework>3.5</RequiredTargetFramework>
-			</Reference>
-			<Reference Include="System.Core">
-			  <RequiredTargetFramework>3.5</RequiredTargetFramework>
-			</Reference>
-			<Reference Include="nunit.framework" />
-			<Reference Include="System" />
-			<Reference Include="System.Configuration" />
-			<Reference Include="System.Data" />
-			<Reference Include="System.Data.Entity" >
-                          <RequiredTargetFramework>3.5</RequiredTargetFramework>
-			</Reference>
-			<Reference Include="System.Data.Entity.Design" />
-			<Reference Include="System.Runtime.Serialization" />
-			<Reference Include="System.Security" />
-			<Reference Include="System.Xml" />			
-		</ItemGroup>		
-	</Otherwise>
+      <ItemGroup>
+        <Reference Include="EntityFramework, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL" Condition="$(Framework) &gt;= '4.0'">
+          <SpecificVersion>False</SpecificVersion>
+          <HintPath>C:\Program Files (x86)\Microsoft ADO.NET Entity Framework 5.0.0\lib\net45\EntityFramework.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Data.Entity" />
+        <Reference Include="System.Core">
+          <RequiredTargetFramework>4.0</RequiredTargetFramework>
+        </Reference>
+        <Reference Include="nunit.framework" />
+        <Reference Include="System" />
+        <Reference Include="System.Configuration" />
+        <Reference Include="System.Data" />
+        <Reference Include="System.Data.Entity.Design" />
+        <Reference Include="System.Runtime.Serialization" />
+        <Reference Include="System.Security" />
+        <Reference Include="System.Xml" />
+        <Reference Include="System.Linq" />
+      </ItemGroup>
+      <ItemGroup>
+        <Compile Include="DatesTypesTests.cs">
+          <SubType>Code</SubType>
+        </Compile>
+      </ItemGroup>
+    </When>
+    <When Condition=" '$(VisualStudioVersion)' == '10.0'">
+      <ItemGroup>
+        <Reference Include="EntityFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL" Condition="$(Framework) &gt;= '4.0'">
+          <SpecificVersion>False</SpecificVersion>
+          <HintPath>C:\Program Files (x86)\Microsoft ADO.NET Entity Framework 4.3.1\lib\net40\EntityFramework.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Data.Entity" />
+        <Reference Include="System.Core">
+          <RequiredTargetFramework>4.0</RequiredTargetFramework>
+        </Reference>
+        <Reference Include="System" />
+        <Reference Include="System.Configuration" />
+        <Reference Include="System.Data" />
+        <Reference Include="System.Data.Entity.Design" />
+        <Reference Include="System.Runtime.Serialization" />
+        <Reference Include="System.Security" />
+        <Reference Include="System.Xml" />
+      </ItemGroup>
+      <ItemGroup>
+        <Compile Include="DatesTypesTests.cs">
+          <SubType>Code</SubType>
+        </Compile>
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <Reference Include="System.Data.Linq">
+          <RequiredTargetFramework>3.5</RequiredTargetFramework>
+        </Reference>
+        <Reference Include="System.Core">
+          <RequiredTargetFramework>3.5</RequiredTargetFramework>
+        </Reference>
+        <Reference Include="nunit.framework" />
+        <Reference Include="System" />
+        <Reference Include="System.Configuration" />
+        <Reference Include="System.Data" />
+        <Reference Include="System.Data.Entity">
+          <RequiredTargetFramework>3.5</RequiredTargetFramework>
+        </Reference>
+        <Reference Include="System.Data.Entity.Design" />
+        <Reference Include="System.Runtime.Serialization" />
+        <Reference Include="System.Security" />
+        <Reference Include="System.Xml" />
+      </ItemGroup>
+    </Otherwise>
   </Choose>
-  
   <ItemGroup>
     <Compile Include="..\..\Source\MySql.Data\Properties\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="BaseEdmTest.cs" />
     <Compile Include="AggregateOperators.cs" />
     <Compile Include="CanonicalFunctions.cs" />
-    <Compile Include="DataTypeTests.cs" />	
+    <Compile Include="DataTypeTests.cs" />
     <Compile Include="ProviderManifestTests.cs" />
     <Compile Include="ProviderServicesTests.cs" />
     <Compile Include="ProceduresAndFunctions.cs" />
     <Compile Include="JoinTests.cs" />
     <Compile Include="SchemaInformation.cs" />
+    <Compile Include="SetUpEntityTests.cs" />
     <Compile Include="Wizard.cs" />
     <Compile Include="RelationalOperators.cs" />
     <Compile Include="SetOperators.cs" />
@@ -196,7 +193,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Choose>
-	<When Condition="'$(Framework)' == '4.5'">
+    <When Condition="'$(Framework)' == '4.5'">
       <ItemGroup>
         <Compile Include="v4.x\BooksModel.Designer.cs">
           <AutoGen>True</AutoGen>
@@ -233,11 +230,11 @@
           <DesignTime>True</DesignTime>
           <DependentUpon>SQLSyntax.resx</DependentUpon>
         </Compile>
-		<Compile Include="v4.x\DatesTypesModel.Designer.cs"> 
-		  <DependentUpon>DatesTypesModel.edmx</DependentUpon>
-		  <DesignTime>True</DesignTime>
-		  <AutoGen>True</AutoGen>
-		</Compile>
+        <Compile Include="v4.x\DatesTypesModel.Designer.cs">
+          <DependentUpon>DatesTypesModel.edmx</DependentUpon>
+          <DesignTime>True</DesignTime>
+          <AutoGen>True</AutoGen>
+        </Compile>
         <!-- <None Include="v3.5\*.*"/> -->
       </ItemGroup>
     </When>
@@ -278,11 +275,11 @@
           <DesignTime>True</DesignTime>
           <DependentUpon>SQLSyntax.resx</DependentUpon>
         </Compile>
-		<Compile Include="v4.x\DatesTypesModel.Designer.cs"> 
-		  <DependentUpon>DatesTypesModel.edmx</DependentUpon>
-		  <DesignTime>True</DesignTime>
-		  <AutoGen>True</AutoGen>
-		</Compile>
+        <Compile Include="v4.x\DatesTypesModel.Designer.cs">
+          <DependentUpon>DatesTypesModel.edmx</DependentUpon>
+          <DesignTime>True</DesignTime>
+          <AutoGen>True</AutoGen>
+        </Compile>
         <!-- <None Include="v3.5\*.*"/> -->
       </ItemGroup>
     </When>
@@ -336,18 +333,18 @@
       <Name>MySql.Data</Name>
     </ProjectReference>
     <ProjectReference Include="..\MySql.Data.Tests\MySql.Data.Tests.csproj">
-      <Project>{F29E5B3D-7F76-4CF9-BF5E-8E3A1377B1E4}</Project>
+      <Project>{f29e5b3d-7f76-4cf9-bf5e-8e3a1377b1e4}</Project>
       <Name>MySql.Data.Tests</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>
-	<When Condition="'$(Framework)' == '4.5'">
+    <When Condition="'$(Framework)' == '4.5'">
       <ItemGroup>
         <!-- <Message Text="- - -Supporting 4.0" /> -->
         <EmbeddedResource Include="v4.x\SQLSyntax.resx">
           <Generator>ResXFileCodeGenerator</Generator>
           <LastGenOutput>SQLSyntax.Designer.cs</LastGenOutput>
-		  <LogicalName>MySql.Data.Entity.Tests.Properties.SQLSyntax.resources</LogicalName>
+          <LogicalName>MySql.Data.Entity.Tests.XUnit.Properties.SQLSyntax.resources</LogicalName>
         </EmbeddedResource>
         <None Include="App.Config">
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -356,37 +353,37 @@
         <EntityDeploy Include="v4.x\BooksModel.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>BooksModel.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
         </EntityDeploy>
         <EntityDeploy Include="v4.x\Model1.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>Model1.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
         </EntityDeploy>
         <EntityDeploy Include="v4.x\Model2.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>Model2.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
         </EntityDeploy>
         <EntityDeploy Include="v4.x\Model3.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>Model3.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
         </EntityDeploy>
         <EntityDeploy Include="v4.x\ModelFirstModel1.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>ModelFirstModel1.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
         </EntityDeploy>
         <EntityDeploy Include="v4.x\TestModel.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>TestModel.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
         </EntityDeploy>
-		<EntityDeploy Include="v4.x\DatesTypesModel.edmx">
+        <EntityDeploy Include="v4.x\DatesTypesModel.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>DatesTypesModel.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
         </EntityDeploy>
         <EmbeddedResource Include="Properties\procs.sql" />
         <EmbeddedResource Include="Properties\schema.sql" />
@@ -401,7 +398,7 @@
         <EmbeddedResource Include="v4.x\SQLSyntax.resx">
           <Generator>ResXFileCodeGenerator</Generator>
           <LastGenOutput>SQLSyntax.Designer.cs</LastGenOutput>
-		  <LogicalName>MySql.Data.Entity.Tests.Properties.SQLSyntax.resources</LogicalName>
+          <LogicalName>MySql.Data.Entity.Tests.XUnit.Properties.SQLSyntax.resources</LogicalName>
         </EmbeddedResource>
         <None Include="App.Config">
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -410,37 +407,37 @@
         <EntityDeploy Include="v4.x\BooksModel.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>BooksModel.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
         </EntityDeploy>
         <EntityDeploy Include="v4.x\Model1.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>Model1.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
         </EntityDeploy>
         <EntityDeploy Include="v4.x\Model2.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>Model2.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
         </EntityDeploy>
         <EntityDeploy Include="v4.x\Model3.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>Model3.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
         </EntityDeploy>
         <EntityDeploy Include="v4.x\ModelFirstModel1.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>ModelFirstModel1.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
         </EntityDeploy>
         <EntityDeploy Include="v4.x\TestModel.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>TestModel.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
         </EntityDeploy>
-		<EntityDeploy Include="v4.x\DatesTypesModel.edmx">
+        <EntityDeploy Include="v4.x\DatesTypesModel.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>DatesTypesModel.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
         </EntityDeploy>
         <EmbeddedResource Include="Properties\procs.sql" />
         <EmbeddedResource Include="Properties\schema.sql" />
@@ -459,7 +456,7 @@
         <EmbeddedResource Include="v3.5\SQLSyntax.resx">
           <Generator>ResXFileCodeGenerator</Generator>
           <LastGenOutput>SQLSyntax.Designer.cs</LastGenOutput>
-		  <LogicalName>MySql.Data.Entity.Tests.Properties.SQLSyntax.resources</LogicalName>
+          <LogicalName>MySql.Data.Entity.Tests.XUnit.Properties.SQLSyntax.resources</LogicalName>
         </EmbeddedResource>
         <None Include="App.Config">
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -468,32 +465,32 @@
         <EntityDeploy Include="v3.5\Model2.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>Model2.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
         </EntityDeploy>
         <EntityDeploy Include="v3.5\Model3.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>Model3.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
         </EntityDeploy>
         <EntityDeploy Include="v3.5\ModelFirstModel1.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>ModelFirstModel1.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
         </EntityDeploy>
         <EntityDeploy Include="v3.5\TestModel.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>TestModel.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
         </EntityDeploy>
         <EntityDeploy Include="v3.5\booksModel.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>booksModel1.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
         </EntityDeploy>
         <EntityDeploy Include="v3.5\Model1.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>Model11.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
         </EntityDeploy>
         <!--
 		<EntityDeploy Include="DatesTypesModel.edmx">
@@ -518,13 +515,14 @@
       <Project>{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}</Project>
       <Name>MySql.Data</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MySql.Data.Tests\MySql.Data.Tests.csproj">
-      <Project>{F29E5B3D-7F76-4CF9-BF5E-8E3A1377B1E4}</Project>
-      <Name>MySql.Data.Tests</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="ModelFirstModel1.edmx.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="xunit">
+      <HintPath>C:\Program Files (x86)\XUnit_1.9.1\xunit.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -537,9 +535,6 @@
     <PreBuildEvent>
     </PreBuildEvent>
   </PropertyGroup>
-  
-  
   <Import Project="EdmxArtifactsRenamingv4.x.targets" Condition="'$(Framework)' == '4.0' or '$(Framework)' == '4.5'" />
   <Import Project="EdmxArtifactsRenamingv3.5.targets" Condition="'$(Framework)' == '3.5'" />
-	  
 </Project>

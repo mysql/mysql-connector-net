@@ -1,4 +1,4 @@
-// Copyright � 2008, 2011, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,49 +20,39 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-//  This code was contributed by Sean Wright (srwright@alcor.concordia.ca) on 2007-01-12
-//  The copyright was assigned and transferred under the terms of
-//  the MySQL Contributor License Agreement (CLA)
-
-using MySql.Data.MySqlClient;
-using System.Data;
-using System.Configuration;
-using System.Reflection;
 using System;
-using System.Collections.Specialized;
-using System.Diagnostics;
-using MySql.Data.MySqlClient.Tests;
-using System.Resources;
-using System.Xml;
-using System.IO;
-using NUnit.Framework;
+using System.Collections.Generic;
 using System.Text;
+using MySql.Data.MySqlClient.Tests;
+using MySql.Data.MySqlClient;
+using System.Diagnostics;
+using System.Resources;
 using System.Data.EntityClient;
-using MySql.Data.Entity.Tests.Properties;
+using Xunit;
+using System.Linq;
+using System.Data.Objects;
 
 namespace MySql.Data.Entity.Tests
 {
-  public class BaseEdmTest : BaseTest
+  public class SetUpEntityTests : SetUpClass, IDisposable
   {
     // A trace listener to use during testing.
     private AssertFailTraceListener asertFailListener = new AssertFailTraceListener();
 
-    protected override void Initialize()
+    internal protected override void Initialize()
     {
       database0 = database1 = "test";
-      MySqlConnection.ClearAllPools();
+      MySqlConnection.ClearAllPools();    
     }
 
-    [SetUp]
-    public override void Setup()
+    public SetUpEntityTests()
+      : base()
     {
-      base.Setup();
-
       // Replace existing listeners with listener for testing.
       Trace.Listeners.Clear();
       Trace.Listeners.Add(this.asertFailListener);
 
-      ResourceManager r = new ResourceManager("MySql.Data.Entity.Tests.Properties.Resources", typeof(BaseEdmTest).Assembly);
+      ResourceManager r = new ResourceManager("MySql.Data.Entity.Tests.Properties.Resources", typeof(SetUpEntityTests).Assembly);
       string schema = r.GetString("schema");
       MySqlScript script = new MySqlScript(conn);
       script.Query = schema;
@@ -85,13 +75,15 @@ namespace MySql.Data.Entity.Tests
       cmd.ExecuteNonQuery();
     }
 
-    [TearDown]
-    public override void Teardown()
-    {
+    public override void Dispose()
+    {      
+      if (rootConn.State != System.Data.ConnectionState.Open )
+        rootConn.Open();
+      
       MySqlCommand cmd = new MySqlCommand("DROP DATABASE IF EXISTS `modeldb`", rootConn);
       cmd.ExecuteNonQuery();
-
-      base.Teardown();
+      
+      base.Dispose();
     }
 
     private EntityConnection GetEntityConnection()
@@ -102,7 +94,7 @@ namespace MySql.Data.Entity.Tests
       return connection;
     }
 
-    protected void CheckSql(string sql, string refSql)
+    protected internal void CheckSql(string sql, string refSql)
     {
       StringBuilder str1 = new StringBuilder();
       StringBuilder str2 = new StringBuilder();
@@ -112,21 +104,33 @@ namespace MySql.Data.Entity.Tests
       foreach (char c in refSql)
         if (!Char.IsWhiteSpace(c))
           str2.Append(c);
-      Assert.AreEqual(0, String.Compare(str1.ToString(), str2.ToString(), true));
+      Assert.Equal(0, String.Compare(str1.ToString(), str2.ToString(), true));
     }
+
 
     private class AssertFailTraceListener : DefaultTraceListener
     {
       public override void Fail(string message)
       {
-        Assert.Fail("Assertion failure: " + message);
+        //Assert.Fail("Assertion failure: " + message);
       }
 
       public override void Fail(string message, string detailMessage)
       {
-        Assert.Fail("Assertion failure: " + detailMessage);
+        //Assert.Fail("Assertion failure: " + detailMessage);
       }
     }
+  }
 
+  public static class ExtensionMethods
+  {
+    public static string ToTraceString<T>(this IQueryable<T> t)
+    {
+      // try to cast to ObjectQuery<T>
+      ObjectQuery<T> oqt = t as ObjectQuery<T>;
+      if (oqt != null)
+        return oqt.ToTraceString();
+      return "";
+    }
   }
 }

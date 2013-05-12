@@ -24,23 +24,22 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NUnit.Framework;
 using System.Reflection;
 using MySql.Data.MySqlClient;
 using System.Configuration;
 
 namespace MySql.LoadBalancing.Tests
 {
-  public class BaseTest
+  public class SetUp : IDisposable
   {
     protected string databaseName;
-    protected int masterPort;
-    protected int slavePort;
-    protected string server;
+    protected internal int masterPort;
+    protected internal int slavePort;
+    protected internal string server;
     private MySqlConnectionStringBuilder connStringRootMaster;
     private MySqlConnectionStringBuilder connStringSlave;
 
-    protected string ConnectionString
+    protected internal string ConnectionString
     {
       get
       {
@@ -48,7 +47,7 @@ namespace MySql.LoadBalancing.Tests
       }
     }
 
-    protected string ConnectionStringNoDb
+    protected internal string ConnectionStringNoDb
     {
       get
       {
@@ -56,7 +55,7 @@ namespace MySql.LoadBalancing.Tests
       }
     }
 
-    protected string ConnectionStringRootMaster
+    protected internal string ConnectionStringRootMaster
     {
       get
       {
@@ -64,7 +63,7 @@ namespace MySql.LoadBalancing.Tests
       }
     }
 
-    protected string ConnectionStringSlave
+    protected internal string ConnectionStringSlave
     {
       get
       {
@@ -72,15 +71,27 @@ namespace MySql.LoadBalancing.Tests
       }
     }
 
-
-
-    public BaseTest()
+    public SetUp()
     {
       Initialize();
       LoadBaseConfiguration();
+
+      using (MySqlConnection connection = new MySqlConnection(ConnectionStringRootMaster))
+      {
+        connection.Open();
+        MySqlScript script = new MySqlScript(connection);
+
+        // Sets users
+        script.Query = Properties.Resources._01_Startup_root_script;
+        script.Execute();
+
+        // Sets database objects
+        script.Query = string.Format(Properties.Resources._02_Startup_script, databaseName);
+        script.Execute();
+      }
     }
 
-    protected void LoadBaseConfiguration()
+    protected internal void LoadBaseConfiguration()
     {
       string masterPortString = ValueIfEmpty(ConfigurationManager.AppSettings["masterPort"], "3305");
       string slavePortString = ValueIfEmpty(ConfigurationManager.AppSettings["slavePort"], "3307");
@@ -112,27 +123,9 @@ namespace MySql.LoadBalancing.Tests
       string[] versionParts = parts[1].Split(new char[] { '.' });
       databaseName = String.Format("dblb{0}{1}", versionParts[0], versionParts[1]);
     }
-
-    [SetUp]
-    public void Setup()
-    {
-      using (MySqlConnection connection = new MySqlConnection(ConnectionStringRootMaster))
-      {
-        connection.Open();
-        MySqlScript script = new MySqlScript(connection);
-
-        // Sets users
-        script.Query = Properties.Resources._01_Startup_root_script;
-        script.Execute();
-
-        // Sets database objects
-        script.Query = string.Format(Properties.Resources._02_Startup_script, databaseName);
-        script.Execute();
-      }
-    }
-
-    //[TearDown]
-    public void Teardown()
+    
+  
+    public void Dispose()
     {
       using (MySqlConnection connection = new MySqlConnection(ConnectionStringRootMaster))
       {
@@ -145,13 +138,13 @@ namespace MySql.LoadBalancing.Tests
       }
     }
 
-    protected MySqlDataReader ExecuteQuery(MySqlConnection connection, string query)
+    protected internal MySqlDataReader ExecuteQuery(MySqlConnection connection, string query)
     {
       MySqlCommand cmd = new MySqlCommand(query, connection);
       return cmd.ExecuteReader();
     }
 
-    protected int ExecuteNonQuery(MySqlConnection connection, string query)
+    protected internal int ExecuteNonQuery(MySqlConnection connection, string query)
     {
       MySqlCommand cmd = new MySqlCommand(query, connection);
       return cmd.ExecuteNonQuery();

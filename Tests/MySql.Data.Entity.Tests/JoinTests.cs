@@ -1,4 +1,4 @@
-// Copyright © 2008, 2011, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,11 +20,11 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+
 using System;
 using System.Data;
 using System.Threading;
 using MySql.Data.MySqlClient;
-using NUnit.Framework;
 using MySql.Data.MySqlClient.Tests;
 using System.Data.EntityClient;
 using System.Data.Common;
@@ -33,18 +33,25 @@ using System.Linq;
 using MySql.Data.Entity.Tests.Properties;
 using System.Collections;
 using System.Diagnostics;
+using Xunit;
 
 namespace MySql.Data.Entity.Tests
 {
-  [TestFixture]
-  public class JoinTests : BaseEdmTest
+  public class JoinTests : IUseFixture<SetUpEntityTests>
   {
-    [Test]
+    private SetUpEntityTests st;
+
+    public void SetFixture(SetUpEntityTests data)
+    {
+      st = data;
+    }
+
+    [Fact]
     public void SimpleJoin()
     {
       MySqlDataAdapter da = new MySqlDataAdapter(
           @"SELECT b.id,b.name,a.name as author_name from books b JOIN
-                    authors a ON b.author_id=a.id", conn);
+                    authors a ON b.author_id=a.id", st.conn);
       DataTable dt = new DataTable();
       da.Fill(dt);
 
@@ -61,21 +68,21 @@ namespace MySql.Data.Entity.Tests
                 };
 
         string sql = q.ToTraceString();
-        CheckSql(sql, SQLSyntax.SimpleJoin);
+        st.CheckSql(sql, SQLSyntax.SimpleJoin);
 
         int i = 0;
         foreach (var o in q)
-          Assert.AreEqual(dt.Rows[i++][0], o.bookId);
-        Assert.AreEqual(dt.Rows.Count, i);
+          Assert.Equal(dt.Rows[i++][0], o.bookId);
+        Assert.Equal(dt.Rows.Count, i);
       }
     }
 
-    [Test]
+    [Fact]
     public void SimpleJoinWithPredicate()
     {
       MySqlDataAdapter da = new MySqlDataAdapter(
           @"SELECT b.id,b.name,a.name as author_name from books b JOIN
-                    authors a ON b.author_id=a.id WHERE b.pages > 300", conn);
+                    authors a ON b.author_id=a.id WHERE b.pages > 300", st.conn);
       DataTable dt = new DataTable();
       da.Fill(dt);
 
@@ -93,16 +100,16 @@ namespace MySql.Data.Entity.Tests
                 };
 
         string sql = q.ToTraceString();
-        CheckSql(sql, SQLSyntax.SimpleJoinWithPredicate);
+        st.CheckSql(sql, SQLSyntax.SimpleJoinWithPredicate);
 
         int i = 0;
         foreach (var o in q)
-          Assert.AreEqual(dt.Rows[i++][0], o.bookId);
-        Assert.AreEqual(dt.Rows.Count, i);
+          Assert.Equal(dt.Rows[i++][0], o.bookId);
+        Assert.Equal(dt.Rows.Count, i);
       }
     }
 
-    [Test]
+    [Fact]
     public void JoinOnRightSideAsDerivedTable()
     {
       using (testEntities context = new testEntities())
@@ -113,7 +120,7 @@ namespace MySql.Data.Entity.Tests
                 where child.BirthWeight > 7
                 select child;
         string sql = q.ToTraceString();
-        CheckSql(sql, SQLSyntax.JoinOnRightSideAsDerivedTable);
+        st.CheckSql(sql, SQLSyntax.JoinOnRightSideAsDerivedTable);
 
         foreach (Child c in q)
         {
@@ -121,7 +128,7 @@ namespace MySql.Data.Entity.Tests
       }
     }
 
-    [Test]
+    [Fact]
     public void JoinOfUnionsOnRightSideofJoin()
     {
       using (testEntities context = new testEntities())
@@ -139,15 +146,15 @@ namespace MySql.Data.Entity.Tests
                                 ON Union1.Id = Union2.Id) ON c.Id = Union1.Id";
         ObjectQuery<DbDataRecord> query = context.CreateQuery<DbDataRecord>(eSql);
         string sql = query.ToTraceString();
-        CheckSql(sql, SQLSyntax.JoinOfUnionsOnRightSideOfJoin);
+        st.CheckSql(sql, SQLSyntax.JoinOfUnionsOnRightSideOfJoin);
         foreach (DbDataRecord record in query)
         {
-          Assert.AreEqual(6, record.FieldCount);
+          Assert.Equal(6, record.FieldCount);
         }
       }
     }
 
-    [Test]
+    [Fact]
     public void t()
     {
       using (testEntities context = new testEntities())
@@ -166,7 +173,7 @@ namespace MySql.Data.Entity.Tests
     /// Tests for bug http://bugs.mysql.com/bug.php?id=61729 
     /// (Skip/Take Clauses Causes Null Reference Exception in 6.3.7 and 6.4.1 Only).
     /// </summary>
-    [Test]
+    [Fact]
     public void JoinOfNestedUnionsWithLimit()
     {
       using (testEntities context = new testEntities())
@@ -180,26 +187,26 @@ namespace MySql.Data.Entity.Tests
         foreach (var o in q.Where(p => p.Id > 0).OrderBy(p => p.Name).ThenByDescending(p => p.Id).Skip(0).Take(32).ToList())
         {
            switch (i)
-	          {
+            {
              case 0:
-               Assert.AreEqual(5, o.Id);
-               Assert.AreEqual("Debt of Honor", o.Name);
+               Assert.Equal(5, o.Id);
+               Assert.Equal("Debt of Honor", o.Name);
              break;
              case 1:
-               Assert.AreEqual(1, o.Id);
-               Assert.AreEqual("Debt of Honor", o.Name);
+               Assert.Equal(1, o.Id);
+               Assert.Equal("Debt of Honor", o.Name);
              break;
              case 4:
-               Assert.AreEqual(3, o.Id);
-               Assert.AreEqual("Rainmaker", o.Name);
+               Assert.Equal(3, o.Id);
+               Assert.Equal("Rainmaker", o.Name);
              break;             
-	          }
+            }
            i++;
         }
       }
     }
 
-    [Test]
+    [Fact]
     public void JoinOnRightSideNameClash()
     {
       using (testEntities context = new testEntities())
@@ -209,10 +216,10 @@ namespace MySql.Data.Entity.Tests
                                 JOIN testEntities.Books AS b ON a.Id = b.Id) ON c.Id = a.Id";
         ObjectQuery<DbDataRecord> query = context.CreateQuery<DbDataRecord>(eSql);
         string sql = query.ToTraceString();
-        CheckSql(sql, SQLSyntax.JoinOnRightSideNameClash);
+        st.CheckSql(sql, SQLSyntax.JoinOnRightSideNameClash);
         foreach (DbDataRecord record in query)
         {
-          Assert.AreEqual(6, record.FieldCount);
+          Assert.Equal(6, record.FieldCount);
         }
       }
     }
@@ -220,7 +227,7 @@ namespace MySql.Data.Entity.Tests
     /// <summary>
     /// Test for fix of Oracle bug 12807366.
     /// </summary>
-    [Test]
+    [Fact]
     public void JoinsAndConcatsWithComposedKeys()
     {
       using (testEntities1 ctx = new testEntities1())
@@ -245,7 +252,7 @@ namespace MySql.Data.Entity.Tests
     /// <summary>
     /// Test to fix Oracle bug 13491698
     /// </summary>
-    [Test]
+    [Fact]
     public void CanIncludeWithEagerLoading()
     {
       var myarray = new ArrayList();
@@ -253,7 +260,7 @@ namespace MySql.Data.Entity.Tests
       {
         var author = db.myauthors.Include("mybooks.myeditions").AsEnumerable().First();
         var strquery = ((ObjectQuery)db.myauthors.Include("mybooks.myeditions").AsEnumerable()).ToTraceString();
-        CheckSql(strquery, SQLSyntax.JoinUsingInclude);
+        st.CheckSql(strquery, SQLSyntax.JoinUsingInclude);
         foreach (var book in author.mybooks.ToList())
         {
           foreach (var edition in book.myeditions.ToList())
@@ -262,12 +269,12 @@ namespace MySql.Data.Entity.Tests
           }
         }
         myarray.Sort();
-        Assert.AreEqual(0, myarray.IndexOf("Another Book First Edition"));
-        Assert.AreEqual(1, myarray.IndexOf("Another Book Second Edition"));
-        Assert.AreEqual(2, myarray.IndexOf("Another Book Third Edition"));
-        Assert.AreEqual(3, myarray.IndexOf("Some Book First Edition"));
-        Assert.AreEqual(myarray.Count, 4);
+        Assert.Equal(0, myarray.IndexOf("Another Book First Edition"));
+        Assert.Equal(1, myarray.IndexOf("Another Book Second Edition"));
+        Assert.Equal(2, myarray.IndexOf("Another Book Third Edition"));
+        Assert.Equal(3, myarray.IndexOf("Some Book First Edition"));
+        Assert.Equal(myarray.Count, 4);
       }
-    }
+    }   
   }
 }

@@ -23,14 +23,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
-using System.Data.Entity.ModelConfiguration.Conventions;
 #if NET_45_OR_GREATER
 using System.ComponentModel.DataAnnotations.Schema;
 #endif
+
 
 namespace MySql.Data.Entity.CodeFirst.Tests
 {

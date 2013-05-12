@@ -1,4 +1,4 @@
-﻿// Copyright © 2011, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -26,7 +26,6 @@ using System.Configuration;
 using System.Data;
 using System.Linq;
 using System.Text;
-using NUnit.Framework;
 using System.Data.Entity;
 using System.Data.Entity.Migrations;
 using System.Data.Entity.Migrations.Infrastructure;
@@ -34,21 +33,19 @@ using MySql.Data.Entity;
 using MySql.Data.MySqlClient;
 using System.Diagnostics;
 using MySql.Data.MySqlClient.Tests;
+using MySql.Data.MySqlClient.Tests;
 
 
 namespace MySql.Data.Entity.Migrations.Tests
 {
-  public class BaseMigrationsTests : BaseTest
+  public class SetUpMigrationsTests : SetUpClass, IDisposable
   {
 
-    private Configuration configuration;        
-    
-    public DbMigrator Migrator;
-        
-    [SetUp]
-    public override void Setup()
-    {
-      base.Setup();
+    private Configuration configuration;            
+    public DbMigrator Migrator;        
+   
+    public SetUpMigrationsTests():base()
+    {            
       configuration = new Configuration();
       DataSet dataSet = ConfigurationManager.GetSection("system.data") as System.Data.DataSet;
       DataView vi = dataSet.Tables[0].DefaultView;
@@ -64,18 +61,18 @@ namespace MySql.Data.Entity.Migrations.Tests
       Migrator = new DbMigrator(configuration);
     }
 
-    [TearDown]
-    public override void Teardown()
+    public override void Dispose()
     {
+      base.Dispose();
+
       using (BlogContext context = new BlogContext())
       {
         if (context.Database.Exists())
         {
-          context.Database.Delete();          
+          context.Database.Delete();
         }
       }
     }
-
   }
 
   internal sealed class Configuration : DbMigrationsConfiguration<BlogContext>

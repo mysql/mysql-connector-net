@@ -1,4 +1,4 @@
-﻿// Copyright © 2004,2013, Oracle and/or its affiliates.  All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,34 +20,36 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-//  This code was contributed by Sean Wright (srwright@alcor.concordia.ca) on 2007-01-12
-//  The copyright was assigned and transferred under the terms of
-//  the MySQL Contributor License Agreement (CLA)
-
-using NUnit.Framework;
 using System;
-using MySql.Web.SessionState;
-using MySql.Data.MySqlClient;
-using System.Web.SessionState;
+using System.Collections.Generic;
+using System.Text;
+using Xunit;
 using System.Threading;
-using System.Collections.Specialized;
+using System.Web.SessionState;
 using System.IO;
+using MySql.Data.MySqlClient;
+using MySql.Web.SessionState;
+using System.Collections.Specialized;
 using System.Net;
-using System.Configuration;
 using System.Diagnostics;
+using System.Configuration;
 
 namespace MySql.Web.Tests
 {
-  [TestFixture]
-  class SessionTests : BaseWebTest
-  {           
-    string strSessionID;
-    string calledId;
+  public class SessionTests : IUseFixture<SetUpWeb>, IDisposable
+  {
+    private SetUpWeb st;
+    private string strSessionID { get; set; }
+    private string calledId { get; set; }
 
-    [SetUp]
-    public override void Setup()
+    public void SetFixture(SetUpWeb data)
     {
-      base.Setup();          
+      st = data;
+    }
+
+    public void Dispose()
+    {
+     MySqlHelper.ExecuteScalar(st.conn, "DELETE FROM my_aspnet_sessions");
     }
 
     private byte[] Serialize(SessionStateItemCollection items)
@@ -65,12 +67,12 @@ namespace MySql.Web.Tests
 
     private void CreateSessionData(int AppId, DateTime timeCreated)
     {
-      MySqlCommand cmd = new MySqlCommand();        
+      MySqlCommand cmd = new MySqlCommand();
       strSessionID = System.Guid.NewGuid().ToString();
-     
+
       //DateTime now = DateTime.Now;
       //DateTime lastHour = now.Subtract(new TimeSpan(1, 0, 0));
-           
+
       SessionStateItemCollection collection = new SessionStateItemCollection();
       collection["FirstName"] = "Some";
       collection["LastName"] = "Name";
@@ -79,8 +81,8 @@ namespace MySql.Web.Tests
       string sql = @"INSERT INTO my_aspnet_sessions VALUES (
             @sessionId, @appId, @created, @expires, @lockdate, @lockid, @timeout,
             @locked, @items, @flags)";
- 
-      cmd = new MySqlCommand(sql, conn);
+
+      cmd = new MySqlCommand(sql, st.conn);
       cmd.Parameters.AddWithValue("@sessionId", strSessionID);
       cmd.Parameters.AddWithValue("@appId", AppId);
       cmd.Parameters.AddWithValue("@created", timeCreated);
@@ -113,9 +115,8 @@ namespace MySql.Web.Tests
 
     private void SetSessionItemExpiredCallback(bool includeCallback)
     {
-      _evt = new AutoResetEvent(false);
       calledId = null;
-            
+
       CreateSessionData(1, DateTime.Now.Subtract(new TimeSpan(1, 0, 0)));
 
       MySqlSessionStateStore session = new MySqlSessionStateStore();
@@ -123,7 +124,7 @@ namespace MySql.Web.Tests
       NameValueCollection config = new NameValueCollection();
       config.Add("connectionStringName", "LocalMySqlServer");
       config.Add("applicationName", "/");
-      config.Add("enableExpireCallback", includeCallback ? "true" : "false");      
+      config.Add("enableExpireCallback", includeCallback ? "true" : "false");
       session.Initialize("SessionProvTest", config);
       if (includeCallback) session.SetItemExpireCallback(expireCallback);
       Thread.Sleep(1000);
@@ -132,81 +133,79 @@ namespace MySql.Web.Tests
 
     private long CountSessions()
     {
-      return (long)MySqlHelper.ExecuteScalar(conn, "SELECT COUNT(*) FROM my_aspnet_sessions");
+      return (long)MySqlHelper.ExecuteScalar(st.conn, "SELECT COUNT(*) FROM my_aspnet_sessions");
     }
 
     public void expireCallback(string id, SessionStateStoreData item)
     {
       calledId = id;
-      _evt.Set();
     }
 
-    private AutoResetEvent _evt;
 
-    [Test]
+    [Fact]
     public void SessionItemWithExpireCallback()
     {
       SetSessionItemExpiredCallback(true);
-      _evt.WaitOne();
-      Assert.AreEqual(strSessionID, calledId);
-      
+
+      Assert.Equal(strSessionID, calledId);
+
       int i = 0;
-      while (((long)MySqlHelper.ExecuteScalar(conn, "SELECT Count(*) FROM my_aspnet_sessions;") != 0) && (i < 10))
+      while (((long)MySqlHelper.ExecuteScalar(st.conn, "SELECT Count(*) FROM my_aspnet_sessions;") != 0) && (i < 10))
       {
         Thread.Sleep(500);
         i++;
       }
 
-      Assert.AreEqual(0, CountSessions());
+      Assert.Equal(0, CountSessions());
     }
 
 
-    [Test]
+    [Fact]
     public void SessionItemWithoutExpireCallback()
     {
       SetSessionItemExpiredCallback(false);
-      Assert.AreNotEqual(strSessionID, calledId);
-      
+      Assert.NotEqual(strSessionID, calledId);
+
       int i = 0;
-      while (((long)MySqlHelper.ExecuteScalar(conn, "SELECT Count(*) FROM my_aspnet_sessions;") != 0) && (i < 10))
+      while (((long)MySqlHelper.ExecuteScalar(st.conn, "SELECT Count(*) FROM my_aspnet_sessions;") != 0) && (i < 10))
       {
         Thread.Sleep(500);
         i++;
       }
 
-      Assert.AreEqual(0, CountSessions());
+      Assert.Equal(0, CountSessions());
     }
 
-    [Test]
+    [Fact]
     public void DeleteSessionAppSpecific()
     {
       // create two sessions of different appId
       // it should delete only 1
-      CreateSessionData(1, DateTime.Now.Subtract(new TimeSpan(1, 0, 0)));      
-      CreateSessionData(2, DateTime.Now.Subtract(new TimeSpan(1, 0, 0)));      
+      CreateSessionData(1, DateTime.Now.Subtract(new TimeSpan(1, 0, 0)));
+      CreateSessionData(2, DateTime.Now.Subtract(new TimeSpan(1, 0, 0)));
 
       MySqlSessionStateStore session = new MySqlSessionStateStore();
 
       NameValueCollection config = new NameValueCollection();
       config.Add("connectionStringName", "LocalMySqlServer");
       config.Add("applicationName", "/");
-      config.Add("enableExpireCallback", "false" );
+      config.Add("enableExpireCallback", "false");
       session.Initialize("SessionTests", config);
-      
+
       session.Dispose();
 
       int i = 0;
-      while (((long)MySqlHelper.ExecuteScalar(conn, "SELECT Count(*) FROM my_aspnet_sessions;") != 0) && (i < 10))
+      while (((long)MySqlHelper.ExecuteScalar(st.conn, "SELECT Count(*) FROM my_aspnet_sessions;") != 0) && (i < 10))
       {
         Thread.Sleep(500);
         i++;
       }
 
-      Assert.AreEqual(1, CountSessions());
+      Assert.Equal(1, CountSessions());
 
     }
 
-public class ThreadRequestData
+    public class ThreadRequestData
     {
       public string pageName;
       public ManualResetEvent signal;
@@ -214,10 +213,9 @@ public class ThreadRequestData
     }
 
     delegate WebResponse GetResponse();
-    delegate void ThreadRequest( ThreadRequestData data );
+    delegate void ThreadRequest(ThreadRequestData data);
 
-    [Test]
-    [Timeout(1000000)]
+    [Fact(Timeout=1000000)]
     public void SessionLocking()
     {
       // Copy updated configuration file for web server process 
@@ -229,7 +227,7 @@ public class ThreadRequestData
 
       string text = File.ReadAllText(webconfigPathSrc);
       text = text.Replace("connection_string_here", css.ConnectionString);
-      Version ver = System.Environment.Version;      
+      Version ver = System.Environment.Version;
       if (ver.Major != 4)
       {
         text = text.Replace("<compilation targetFramework=\"4.0\" />", "");
@@ -238,8 +236,8 @@ public class ThreadRequestData
       File.WriteAllText(webconfigPath, text);
 
       int port = 12224;
-      
-      string webserverPath ;
+
+      string webserverPath;
       if (ver.Major == 4)
       {
         webserverPath = @"C:\Program Files (x86)\Common Files\microsoft shared\DevServer\10.0\WebDev.WebServer40.exe";
@@ -251,7 +249,7 @@ public class ThreadRequestData
       string webserverArgs = string.Format(" /port:{0} /path:{1}\\SessionLocking", port,
         Path.GetFullPath(@"."));
 
-      DirectoryInfo di = new DirectoryInfo(Path.GetFullPath(curDir));            
+      DirectoryInfo di = new DirectoryInfo(Path.GetFullPath(curDir));
       Directory.CreateDirectory(Path.GetFullPath(@".\SessionLocking\bin"));
       foreach (FileInfo fi in di.GetFiles("*.dll"))
       {
@@ -278,49 +276,40 @@ public class ThreadRequestData
         re[0] = new ManualResetEvent(false);
         re[1] = new ManualResetEvent(false);
         ParameterizedThreadStart ts =
-          ( object data1 ) =>
+          (object data1) =>
           {
             ThreadRequestData data = (ThreadRequestData)data1;
-            Debug.WriteLine( string.Format( "Requesting {0}", data.pageName ) );
-            try
+            Debug.WriteLine(string.Format("Requesting {0}", data.pageName));
+            HttpWebRequest req1 =
+              (HttpWebRequest)WebRequest.Create(string.Format(@"{0}{1}", url, data.pageName));
+            req1.Timeout = 2000000;
+            WebResponse res1 = req1.GetResponse();
+            Debug.WriteLine(string.Format("Response from {0}", data.pageName));
+            Stream s = res1.GetResponseStream();
+            while (s.ReadByte() != -1)
+              ;
+            res1.Close();
+            if (data.FirstDateToUpdate)
             {
-              HttpWebRequest req1 =
-                (HttpWebRequest)WebRequest.Create(string.Format(@"{0}{1}", url, data.pageName));
-              req1.Timeout = 2000000;
-              WebResponse res1 = req1.GetResponse();
-              Debug.WriteLine(string.Format("Response from {0}", data.pageName));
-              Stream s = res1.GetResponseStream();
-              while (s.ReadByte() != -1)
-                ;
-              res1.Close();
-              if (data.FirstDateToUpdate)
-              {
-                firstDt = DateTime.Now;
-              }
-              else
-              {
-                secondDt = DateTime.Now;
-              }
+              firstDt = DateTime.Now;
             }
-            catch (Exception e)
+            else
             {
-              Debug.WriteLine( string.Format( "Server error: {0}",  e.ToString()));
-              throw;
+              secondDt = DateTime.Now;
             }
-            finally
-            {
-              data.signal.Set();
-            }
+            data.signal.Set();
           };
-        
-        Thread t = new Thread( ts );
+
+        Thread t = new Thread(ts);
         Thread t2 = new Thread(ts);
-        t.Start( new ThreadRequestData() {
-          pageName = "write.aspx", 
+        t.Start(new ThreadRequestData()
+        {
+          pageName = "write.aspx",
           FirstDateToUpdate = true,
-          signal = re[ 0 ] 
-        } );
-        t2.Start(new ThreadRequestData() {
+          signal = re[0]
+        });
+        t2.Start(new ThreadRequestData()
+        {
           pageName = "read.aspx",
           FirstDateToUpdate = false,
           signal = re[1]
@@ -339,7 +328,7 @@ public class ThreadRequestData
         // OK if wait is less than session timeout
         Debug.WriteLine(string.Empty);
         Debug.WriteLine(totalMillisecs);
-        Assert.IsTrue(totalMillisecs < 30000);
+        Assert.True(totalMillisecs < 30000);
       }
       finally
       {
@@ -350,9 +339,9 @@ public class ThreadRequestData
     public volatile static ManualResetEvent mtxReader = null;
     public volatile static ManualResetEvent mtxWriter = null;
 
-    public static void WaitSyncCreation( bool writer )
+    public static void WaitSyncCreation(bool writer)
     {
-      if ( writer )
+      if (writer)
       {
         while (true)
         {
@@ -375,5 +364,7 @@ public class ThreadRequestData
         mtxReader.WaitOne();
       }
     }
+
+
   }
 }
