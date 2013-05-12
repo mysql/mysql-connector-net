@@ -40,7 +40,9 @@ namespace MySql.Data.MySqlClient.Tests
       permissions.AddPermission(new SecurityPermission(SecurityPermissionFlag.RemotingConfiguration));
       permissions.AddPermission(new SmtpPermission(SmtpAccess.Connect));
       permissions.AddPermission(new SqlClientPermission(PermissionState.Unrestricted));
+#if NET_40_OR_GREATER
       permissions.AddPermission(new TypeDescriptorPermission(PermissionState.Unrestricted));
+#endif
       permissions.AddPermission(new WebPermission(PermissionState.Unrestricted));
       permissions.AddPermission(new ReflectionPermission(ReflectionPermissionFlag.RestrictedMemberAccess));
       permissions.AddPermission(new MySqlClientPermission(PermissionState.Unrestricted));
@@ -48,11 +50,13 @@ namespace MySql.Data.MySqlClient.Tests
 
       AppDomainSetup setup = new AppDomainSetup() { ApplicationBase = AppDomain.CurrentDomain.BaseDirectory };
 
+#if NET_40_OR_GREATER
       setup.PartialTrustVisibleAssemblies = new string[]
             {
                 "System.Web, PublicKey=002400000480000094000000060200000024000052534131000400000100010007d1fa57c4aed9f0a32e84aa0faefd0de9e8fd6aec8f87fb03766c834c99921eb23be79ad9d5dcc1dd9ad236132102900b723cf980957fc4e177108fc607774f29e8320e92ea05ece4e821c0a5efe8f1645c4c0c93c1ab99285d622caa652c1dfad63d745d6f2de5f17e5eaf0fc4963d261c8a12436518206dc093344d5ad293",
                 "MySql.Data, PublicKey=0024000004800000940000000602000000240000525341310004000001000100d973bda91f71752c78294126974a41a08643168271f65fc0fb3cd45f658da01fbca75ac74067d18e7afbf1467d7a519ce0248b13719717281bb4ddd4ecd71a580dfe0912dfc3690b1d24c7e1975bf7eed90e4ab14e10501eedf763bff8ac204f955c9c15c2cf4ebf6563d8320b6ea8d1ea3807623141f4b81ae30a6c886b3ee1"             
             };
+#endif
 
       _domain = AppDomain.CreateDomain("MediumTrustSandbox", null, setup, permissions);
       return _domain;
@@ -76,8 +80,11 @@ namespace MySql.Data.MySqlClient.Tests
       commandLineParams.AppendFormat("/i \"{0}\"", fullPathAssembly);
 
       ProcessStartInfo processStartInfo = new ProcessStartInfo();
-
+#if NET_40_OR_GREATER
       command.AppendFormat("\"{0}\"", @Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86).ToString() + @"\Microsoft SDKs\Windows\v7.0A\Bin\NETFX 4.0 Tools\" + "gacutil.exe");
+#else
+      command.AppendFormat("\"{0}\"", @Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles).ToString() + @"\Microsoft SDKs\Windows\v7.0A\Bin\NETFX 4.0 Tools\" + "gacutil.exe");
+#endif
       processStartInfo.FileName = command.ToString();
       processStartInfo.Arguments = commandLineParams.ToString();
       processStartInfo.UseShellExecute = false;
@@ -95,8 +102,11 @@ namespace MySql.Data.MySqlClient.Tests
       commandLineParams.AppendFormat("/u \"{0}\"", "mysql.data");
 
       ProcessStartInfo processStartInfo = new ProcessStartInfo();
-
+#if NET_40_OR_GREATER
       command.AppendFormat("\"{0}\"", @Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86).ToString() + @"\Microsoft SDKs\Windows\v7.0A\Bin\NETFX 4.0 Tools\" + "gacutil.exe");
+#else
+      command.AppendFormat("\"{0}\"", @Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles).ToString() + @"\Microsoft SDKs\Windows\v7.0A\Bin\NETFX 4.0 Tools\" + "gacutil.exe");
+#endif
       processStartInfo.FileName = command.ToString();
       processStartInfo.Arguments = commandLineParams.ToString();
       processStartInfo.UseShellExecute = false;

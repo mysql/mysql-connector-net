@@ -49,7 +49,7 @@ namespace MySql.Data.MySqlClient.Tests.Xunit
           continue;
         }
 
-        yield return new MediumTrustTestCommand(testCommand);
+        yield return new MediumTrustTestCommand(testCommand, null);
       }
     }
 

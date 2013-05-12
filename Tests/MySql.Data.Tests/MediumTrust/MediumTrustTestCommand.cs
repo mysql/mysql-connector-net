@@ -13,7 +13,7 @@ namespace MySql.Data.MySqlClient.Tests.Xunit.MediumTrust
     private readonly IDictionary<MethodInfo, object> _fixtures;
 
 
-    public MediumTrustTestCommand(ITestCommand command,IDictionary<MethodInfo, object> fixtures = null)
+    public MediumTrustTestCommand(ITestCommand command,IDictionary<MethodInfo, object> fixtures)
     {
       this._command = command;
       this._fixtures = fixtures;
