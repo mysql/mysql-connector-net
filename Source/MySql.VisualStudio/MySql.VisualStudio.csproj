@@ -240,6 +240,7 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Guids.cs" />
+    <Compile Include="LanguageService\MySqlLanguageService.cs" />
     <Compile Include="LanguageService\MySqlScanner.cs" />
     <Compile Include="LanguageService\LanguageServiceConnection.cs" />
     <Compile Include="LanguageService\MySqlClassifier.cs" />
@@ -254,9 +255,6 @@
     <Compile Include="LanguageService\MySqlQuickInfoControllerProvider.cs" />
     <Compile Include="LanguageService\MySqlQuickInfoSource.cs" />
     <Compile Include="LanguageService\MySqlQuickInfoSourceProvider.cs" />
-    <Compile Include="LanguageService\MySqlTokenTag.cs" />
-    <Compile Include="LanguageService\MySqlTokenTagger.cs" />
-    <Compile Include="LanguageService\MySqlTokenTagProvider.cs" />
     <Compile Include="LanguageService\MySqlTokenType.cs" />
     <Compile Include="LanguageService\Tokenizer.cs" />
     <Compile Include="LanguageService\LanguageServiceUtil.cs" />

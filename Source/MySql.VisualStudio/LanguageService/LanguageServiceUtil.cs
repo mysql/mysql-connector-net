@@ -36,6 +36,29 @@ namespace MySql.Data.VisualStudio
 {
   internal static class LanguageServiceUtil
   {
+    private static Version _version;
+    private static string _sql = "";
+
+    private static CommonTokenStream _lastTokenizedStream = null;
+
+    public static CommonTokenStream GetTokenStream(string sql, Version version)
+    {
+      if (_sql == sql && _version == version)
+      {
+        return _lastTokenizedStream;
+      }
+      else
+      {
+        // The grammar supports upper case only
+        MemoryStream ms = new MemoryStream(ASCIIEncoding.ASCII.GetBytes(sql));
+        CaseInsensitiveInputStream input = new CaseInsensitiveInputStream(ms);
+        MySQLLexer lexer = new MySQLLexer(input);
+        lexer.MySqlVersion = version;
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        return _lastTokenizedStream = tokens;
+      }
+    }
+
     internal static MySQL51Parser.program_return ParseSql(string sql)
     {
       return ParseSql(sql, false);
@@ -109,6 +132,25 @@ namespace MySql.Data.VisualStudio
         i++;
       version = new Version(versionString.Substring(0, i));
       return version;
+    }
+
+    /// <summary>
+    /// Gets MySql server version from the connection string (useful for recognize the exact syntax for that version in
+    /// the parser's grammar and scanner).
+    /// </summary>
+    /// <returns></returns>
+    internal static Version GetVersion()
+    {
+      DbConnection con = GetConnection();
+      if (con != null)
+      {
+        return GetVersion(con.ServerVersion);
+      }
+      else
+      {
+        // default to server 5.1
+        return new Version(5, 1);
+      }
     }
 
     public static DbConnection GetConnection()

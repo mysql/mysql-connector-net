@@ -344,10 +344,13 @@ namespace MySql.Data.VisualStudio
           // use db only if no alias defined and db was explicitely used.
           string tblTempl = (hasDbExplicit && string.IsNullOrEmpty(ta.Alias)) ? "`{0}`.`{1}`.`{2}`" : "`{1}`.`{2}`";
           dicColumns.TryGetValue(key, out cols);
-          foreach (string col in cols)
+          if (cols != null)
           {
-            columns.Add(string.Format(tblTempl, ta.Database,
-              !string.IsNullOrEmpty(ta.Alias) ? ta.Alias : ta.TableName, col));
+            foreach (string col in cols)
+            {
+              columns.Add(string.Format(tblTempl, ta.Database,
+                !string.IsNullOrEmpty(ta.Alias) ? ta.Alias : ta.TableName, col));
+            }
           }
         }
       }

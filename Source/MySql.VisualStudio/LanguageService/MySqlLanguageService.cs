@@ -1,4 +1,4 @@
-﻿// Copyright © 2008, 2010, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2008, 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -44,7 +44,7 @@ namespace MySql.Data.VisualStudio
         ShowCompletion        = true,
         MatchBracesAtCaret    = true   // Match braces while typing 
         )]
-  class MySqlLanguageService : LanguageService
+  class MySqlLanguageService : Microsoft.VisualStudio.Package.LanguageService
   {
     private LanguagePreferences preferences;
 
@@ -67,8 +67,11 @@ namespace MySql.Data.VisualStudio
 
     public override IScanner GetScanner(IVsTextLines buffer)
     {
-      return null;
-      //return new MySqlScanner();
+#if CLR4 || NET_40_OR_GREATER
+      return null;  // rely on MEF for colorizing
+#else
+      return new MySqlScanner();
+#endif
     }
 
     public override LanguagePreferences GetLanguagePreferences()
