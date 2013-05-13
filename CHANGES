@@ -2,6 +2,8 @@
 - Fix for bug If using repair option, then vs2010 doesnt allow to connect to db (Oracle bug #16238242).
 - Fix for bug "Can't change the name for a view in view editor" (Oracle bug #13805346).
 - Fix for "Cannot change the name for a Foreign Key in table designer" (Oracle bug #16238068).
+- Fix for error when trying to set primary key for a column with same name as mysql keyword (like INT) in table designer
+  (Oracle bug #16238102).
 
 
 6.6.6
