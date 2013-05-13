@@ -5,6 +5,8 @@
 - Fix for "Cannot change the name for a Foreign Key in table designer" (Oracle bug #16238068).
 - Fix for error when trying to set primary key for a column with same name as mysql keyword (like INT) in table designer
   (Oracle bug #16238102).
+- Fix for databases not displayed in connect dialog for mysql script when correcting credentials, after entering a bad password
+  (Oracle bug #13805337).
 
 
 6.5.6
