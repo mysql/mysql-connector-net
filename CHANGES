@@ -1,5 +1,6 @@
 6.5.7
 - Fix for bug If using repair option, then vs2010 doesnt allow to connect to db (Oracle bug #16238242).
+- Fix for bug "Can't change the name for a view in view editor" (Oracle bug #13805346).
 
 6.5.6
 - Fix internal bug "Parser cannot recognize row_count in grammar version 5.6" (id task 326).
