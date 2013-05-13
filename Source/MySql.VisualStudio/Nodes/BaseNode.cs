@@ -1,4 +1,4 @@
-// Copyright © 2008, 2010, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2008, 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -39,6 +39,7 @@ using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.VisualStudio.OLE.Interop;
 using MySql.Data.VisualStudio.Editors;
 using Microsoft.VisualStudio.Shell;
+using MySql.Data.MySqlClient;
 
 namespace MySql.Data.VisualStudio
 {
@@ -50,6 +51,8 @@ namespace MySql.Data.VisualStudio
     private static string defaultStorageEngine;
     public DataViewHierarchyAccessor HierarchyAccessor;
     public bool IsNew;
+
+    protected string OldObjectDefinition { get; set; }
 
     public BaseNode(DataViewHierarchyAccessor hierarchyAccessor, int id)
     {
@@ -341,8 +344,34 @@ namespace MySql.Data.VisualStudio
       try
       {
         DbCommand cmd = conn.CreateCommand();
-        cmd.CommandText = sql;
-        cmd.ExecuteNonQuery();
+        if (!string.IsNullOrEmpty(OldObjectDefinition))
+        {
+          int idx = sql.IndexOf(';');
+          if (idx != -1)
+          {
+            cmd.CommandText = sql.Substring(0, idx);
+            cmd.ExecuteNonQuery();
+
+            try
+            {
+              cmd.CommandText = sql.Substring(idx + 1);
+              cmd.ExecuteNonQuery();
+            }
+            catch (MySqlException)
+            {
+              // Some objects (like views/stored routines) are altered by dropping/recreating them, if the recreation part fails, 
+              // we ensure here the old object is created again (will work most of the time, save of connection lost scensarios)
+              cmd = conn.CreateCommand();
+              cmd.CommandText = OldObjectDefinition;
+              cmd.ExecuteNonQuery();
+            }
+          }
+        }
+        else
+        {
+          cmd.CommandText = sql;
+          cmd.ExecuteNonQuery();
+        }
       }
       finally
       {

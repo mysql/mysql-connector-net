@@ -100,7 +100,9 @@ namespace MySql.Data.VisualStudio
           DataTable views = this.GetSchema("Views", restrictions);
           if (views.Rows.Count != 1)
             throw new Exception(String.Format("There is no view with the name '{0}'", Name));
-          editor.Text = String.Format("ALTER VIEW `{0}` AS \r\n{1}",
+          editor.Text = String.Format("CREATE VIEW `{0}` AS \r\n{1}",
+              Name, views.Rows[0]["VIEW_DEFINITION"].ToString());
+          OldObjectDefinition = String.Format("CREATE VIEW `{0}` AS \r\n{1}",
               Name, views.Rows[0]["VIEW_DEFINITION"].ToString());
           Dirty = false;
           OnDataLoaded();
@@ -114,7 +116,14 @@ namespace MySql.Data.VisualStudio
 
     public override string GetSaveSql()
     {
-      return editor.Text;
+      if (IsNew)
+      {
+        return editor.Text;
+      }
+      else
+      {
+        return string.Format("{0};{1};", GetDropSQL(), editor.Text );
+      }
     }
 
     #region IVsTextBufferProvider Members
