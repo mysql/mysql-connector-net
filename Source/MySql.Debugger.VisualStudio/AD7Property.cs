@@ -1,4 +1,4 @@
-﻿// Copyright © 2004, 2012, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -33,6 +33,7 @@ namespace MySql.Debugger.VisualStudio
 {
   public class AD7Property : IDebugProperty2
   {
+    private bool _readOnly = false;
     private AD7ProgramNode _node;
     private RoutineScope _rs;
     private static Dictionary<string, decimal> numberTypeMax = new Dictionary<string, decimal>()
@@ -73,12 +74,17 @@ namespace MySql.Debugger.VisualStudio
     public string Value { get; set; }
     public string TypeName { get; set; }
 
-    public AD7Property(string name, AD7ProgramNode node, RoutineScope rs)
+    public AD7Property(string name, AD7ProgramNode node, RoutineScope rs) : this( name, node, rs, false )
     {
-      Debug.WriteLine("AD7Property ctor (string,AD7ProgramNode,RoutineScope)");
+    }
+
+    public AD7Property(string name, AD7ProgramNode node, RoutineScope rs, bool readOnly)
+    {
+      Debug.WriteLine("AD7Property ctor (string,AD7ProgramNode,RoutineScope,bool)");
       Name = name;
       _node = node;
       _rs = rs;
+      _readOnly = readOnly;
       TypeName = null;
       StoreType st;
       if (_node.Debugger.Debugger.ScopeVariables.TryGetValue(name, out st))
@@ -159,6 +165,10 @@ namespace MySql.Debugger.VisualStudio
       {
         pPropertyInfo[0].bstrType = TypeName;
         pPropertyInfo[0].dwFields |= enum_DEBUGPROP_INFO_FLAGS.DEBUGPROP_INFO_TYPE;
+      }
+      if (_readOnly)
+      {
+        pPropertyInfo[0].dwAttrib |= enum_DBG_ATTRIB_FLAGS.DBG_ATTRIB_VALUE_READONLY;
       }
 
       return VSConstants.S_OK;

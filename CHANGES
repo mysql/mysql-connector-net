@@ -1,4 +1,5 @@
 
+
 6.6.6
 - Fix for GetSchema returning MySqlException instead of ArgumentException when passing an invalid collection name
   (Oracle bug #16271425, MySql bug #67901).
@@ -28,6 +29,7 @@
   (Oracle bug #13805337).
 - Fix for Debugger fails trying to debug a stored routine in a MySql server hosted in linux without lower_case_table_names option enabled
   (MySql bug #69065, Oracle bug #16770384).
+- Fix for Debugger issue, Values through watch tab shouldn't allow to be modified (Oracle bug #14545448).
 
 
 6.6.5

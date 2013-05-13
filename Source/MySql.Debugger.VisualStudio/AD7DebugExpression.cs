@@ -1,4 +1,4 @@
-﻿// Copyright © 2004, 2012, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -67,7 +67,7 @@ namespace MySql.Debugger.VisualStudio
         ppResult = null;
         return VSConstants.E_NOTIMPL;
       }
-      AD7Property prop = new AD7Property( _expr,_stackFrame.Node, _stackFrame._rs );
+      AD7Property prop = new AD7Property( _expr,_stackFrame.Node, _stackFrame._rs, true );
       ppResult = prop;
       // Send evaluation complete event
       DebuggerManager.Instance._events.ExpressionEvalCompleted( 
