@@ -1,4 +1,4 @@
-﻿// Copyright © 2008, 2010, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2008, 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -100,7 +100,6 @@ namespace MySql.Data.VisualStudio
     private void database_DropDown(object sender, EventArgs e)
     {
       if (populated) return;
-      populated = true;
       try
       {
         using (DbConnection c = factory.CreateConnection())
@@ -115,6 +114,7 @@ namespace MySql.Data.VisualStudio
               database.Items.Add(reader.GetString(0));
           }
         }
+        populated = true;
       }
       catch (Exception)
       {
