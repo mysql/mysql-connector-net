@@ -1,12 +1,3 @@
-6.6.7
-- Fix for bug If using repair option, then vs2010 doesnt allow to connect to db (Oracle bug #16238242).
-- Fix for bug "Can't change the name for a view in view editor" (Oracle bug #13805346).
-- Fix for "Cannot change the name for a Foreign Key in table designer" (Oracle bug #16238068).
-- Fix for error when trying to set primary key for a column with same name as mysql keyword (like INT) in table designer
-  (Oracle bug #16238102).
-- Fix for databases not displayed in connect dialog for mysql script when correcting credentials, after entering a bad password
-  (Oracle bug #13805337).
-
 
 6.6.6
 - Fix for GetSchema returning MySqlException instead of ArgumentException when passing an invalid collection name
@@ -28,6 +19,13 @@
 - Fix for InvalidCastException thrown when executing an stored function (MySql bug #64633, Oracle bug #13864627).
 - Fix for Default Command Timeout not applying for EFMySqlCommand (MySql bug #67171, Oracle bug #14825670).
 - Fix for Debugger cannot debug stored procedures with a main begin labeled and declare statements included (Oracle bug #16002371).
+- Fix for bug If using repair option, then vs2010 doesnt allow to connect to db (Oracle bug #16238242).
+- Fix for bug "Can't change the name for a view in view editor" (Oracle bug #13805346).
+- Fix for "Cannot change the name for a Foreign Key in table designer" (Oracle bug #16238068).
+- Fix for error when trying to set primary key for a column with same name as mysql keyword (like INT) in table designer
+  (Oracle bug #16238102).
+- Fix for databases not displayed in connect dialog for mysql script when correcting credentials, after entering a bad password
+  (Oracle bug #13805337).
 - Fix for Debugger fails trying to debug a stored routine in a MySql server hosted in linux without lower_case_table_names option enabled
   (MySql bug #69065, Oracle bug #16770384).
 
