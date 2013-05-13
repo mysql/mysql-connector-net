@@ -1,4 +1,4 @@
-// Copyright © 2008, 2010, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2008-2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -211,13 +211,13 @@ namespace MySql.Data.VisualStudio.DbObjects
           sql.AppendFormat("DROP FOREIGN KEY `{0}`, ", oldFk.Name);
         sql.Append("ADD ");
       }
-      sql.AppendFormat("FOREIGN KEY `{0}`", Name);
+      sql.AppendFormat("CONSTRAINT `{0}` FOREIGN KEY ", Name);
 
       sql.Append("(");
       string delimiter = "";
       foreach (FKColumnPair c in Columns)
       {
-        sql.AppendFormat("{0}{1}", delimiter, c.Column);
+        sql.AppendFormat("{0}`{1}`", delimiter, c.Column);
         delimiter = ", ";
       }
       sql.Append(")");
@@ -225,7 +225,7 @@ namespace MySql.Data.VisualStudio.DbObjects
       delimiter = "";
       foreach (FKColumnPair c in Columns)
       {
-        sql.AppendFormat("{0}{1}", delimiter, c.ReferencedColumn);
+        sql.AppendFormat("{0}`{1}`", delimiter, c.ReferencedColumn);
         delimiter = ", ";
       }
       sql.Append(")");
