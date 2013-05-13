@@ -30,6 +30,7 @@
 - Fix for Debugger fails trying to debug a stored routine in a MySql server hosted in linux without lower_case_table_names option enabled
   (MySql bug #69065, Oracle bug #16770384).
 - Fix for Debugger issue, Values through watch tab shouldn't allow to be modified (Oracle bug #14545448).
+- Fix for Visual Studio Mysql editor colors cannot be customized (Oracle bug #16453324, MySql bug #67994).
 
 
 6.6.5

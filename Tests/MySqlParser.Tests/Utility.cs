@@ -44,7 +44,6 @@ namespace MySql.Parser.Tests
       // The grammar supports upper case only
       MemoryStream ms = new MemoryStream(ASCIIEncoding.ASCII.GetBytes(sql/*.ToUpper() */));
       CaseInsensitiveInputStream input = new CaseInsensitiveInputStream(ms);
-      //ANTLRInputStream input = new ANTLRInputStream(ms);
       MySQLLexer lexer = new MySQLLexer(input);
       lexer.MySqlVersion = version;
       CommonTokenStream tokens = new CommonTokenStream(lexer);
@@ -58,7 +57,6 @@ namespace MySql.Parser.Tests
       {
         if (0 != parser.NumberOfSyntaxErrors)
           Assert.Equal("", sb.ToString());
-        //Assert.Equal( 0, parser.NumberOfSyntaxErrors);
       }
       else
       {

@@ -1,4 +1,4 @@
-﻿// Copyright © 2011, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2011-2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -31,10 +31,10 @@ namespace MySql.Data.VisualStudio
   /// <summary>
   /// Represents the provider that causes the MySQL classifier to be added to the set of classifiers.
   /// </summary>
-  [Export(typeof(ITaggerProvider))]
+  [Export(typeof(IClassifierProvider))]
   [ContentType("MySql")]
   [TagType(typeof(ClassificationTag))]
-  internal sealed class MySqlClassifierProvider : /*IClassifierProvider*/ ITaggerProvider
+  internal sealed class MySqlClassifierProvider : IClassifierProvider
   {
     /// <summary>
     /// The MySQL content type.
@@ -58,23 +58,13 @@ namespace MySql.Data.VisualStudio
     [Import]
     internal IClassificationTypeRegistryService ClassificationTypeRegistry = null;
 
-    /// <summary>
-    /// The <see cref="IBufferTagAggregatorFactoryService"/>.
-    /// </summary>
-    [Import]
-    internal IBufferTagAggregatorFactoryService AggregatorFactory = null;
+    #region IClassifier
 
-    /// <summary>
-    /// Creates the a tagger of the <see cref="MySqlClassifier"/> type for the given buffer.
-    /// </summary>
-    /// <typeparam name="T">The type of the tag.</typeparam>
-    /// <param name="buffer">The <see cref="ITextBuffer"/></param>
-    /// <returns>The created tagger.</returns>
-    public ITagger<T> CreateTagger<T>(ITextBuffer buffer) where T : ITag
+    public IClassifier GetClassifier(ITextBuffer textBuffer)
     {
-      ITagAggregator<MySqlTokenTag> mySqlTagAggregator = this.AggregatorFactory.CreateTagAggregator<MySqlTokenTag>(buffer);
-
-      return new MySqlClassifier(buffer, mySqlTagAggregator, ClassificationTypeRegistry) as ITagger<T>;
+      return textBuffer.Properties.GetOrCreateSingletonProperty<MySqlClassifier>(delegate { return new MySqlClassifier(ClassificationTypeRegistry); });
     }
+
+    #endregion
   }
 }
