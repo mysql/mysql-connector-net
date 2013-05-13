@@ -10,9 +10,9 @@ begin
     declare nextId int;
     declare returnValue varchar( 50 );
     
-    set nextId = ( select max( `serversidedebugger`.`DebugCallStack`.`Id` ) from `serversidedebugger`.`DebugCallStack` where `serversidedebugger`.`DebugCallStack`.`DebugSessionId` = pDebugSessionId );
-    set returnValue = ( select RoutineName from `serversidedebugger`.`DebugCallStack` 
-        where ( `serversidedebugger`.`DebugCallStack`.`DebugSessionId` = pDebugSessionId ) and ( `serversidedebugger`.`DebugCallStack`.`Id` = nextId ));
+    set nextId = ( select max( `serversidedebugger`.`debugcallstack`.`Id` ) from `serversidedebugger`.`debugcallstack` where `serversidedebugger`.`debugcallstack`.`DebugSessionId` = pDebugSessionId );
+    set returnValue = ( select RoutineName from `serversidedebugger`.`debugcallstack` 
+        where ( `serversidedebugger`.`debugcallstack`.`DebugSessionId` = pDebugSessionId ) and ( `serversidedebugger`.`debugcallstack`.`Id` = nextId ));
     return returnValue;
 
 end //
@@ -20,11 +20,11 @@ end //
 CREATE PROCEDURE `CleanupScope`( pDebugSessionId int )
 begin
   
-  delete from `serversidedebugger`.`DebugScope` 
-	where ( `serversidedebugger`.`DebugScope`.`DebugSessionId` = pDebugSessionId ) and 
-		( `serversidedebugger`.`DebugScope`.`DebugScopeLevel` = (select `serversidedebugger`.`debugdata`.`Val` from `serversidedebugger`.`debugdata` where `serversidedebugger`.`debugdata`.`id` = 1 limit 1 ) );
-  update `serversidedebugger`.`DebugData` set `serversidedebugger`.`DebugData`.`Val` = `serversidedebugger`.`DebugData`.`Val` - 1 
-	where `serversidedebugger`.`DebugData`.`Id` = 1;
+  delete from `serversidedebugger`.`debugscope` 
+	where ( `serversidedebugger`.`debugscope`.`DebugSessionId` = pDebugSessionId ) and 
+		( `serversidedebugger`.`debugscope`.`DebugScopeLevel` = (select `serversidedebugger`.`debugdata`.`Val` from `serversidedebugger`.`debugdata` where `serversidedebugger`.`debugdata`.`id` = 1 limit 1 ) );
+  update `serversidedebugger`.`debugdata` set `serversidedebugger`.`debugdata`.`Val` = `serversidedebugger`.`debugdata`.`Val` - 1 
+	where `serversidedebugger`.`debugdata`.`Id` = 1;
 
 end //
 
@@ -32,7 +32,7 @@ end //
 CREATE PROCEDURE `DumpScopeVar`( pDebugSessionId int, pDebugScopeLevel int, pVarName varchar( 30 ), pVarValue binary )
 begin
   
-  replace `serversidedebugger`.`DebugScope`( DebugSessionId, DebugScopeLevel, VarName, VarValue ) values ( pDebugSessionId, pDebugScopeLevel, pVarName, pVarValue );
+  replace `serversidedebugger`.`debugscope`( DebugSessionId, DebugScopeLevel, VarName, VarValue ) values ( pDebugSessionId, pDebugScopeLevel, pVarName, pVarValue );
   
 end //
 
@@ -57,10 +57,10 @@ CREATE PROCEDURE `Pop`( pDebugSessionId int )
 begin
 
     declare nextId int;
-    set nextId = ( select max( `serversidedebugger`.`DebugCallStack`.`Id` ) from `serversidedebugger`.`DebugCallStack` 
-		where `serversidedebugger`.`DebugCallStack`.`DebugSessionId` = pDebugSessionId );
-    delete from `serversidedebugger`.`DebugCallStack` where ( `serversidedebugger`.`DebugCallStack`.`DebugSessionId` = pDebugSessionId ) 
-		and ( `serversidedebugger`.`DebugCallStack`.`Id` = nextId );
+    set nextId = ( select max( `serversidedebugger`.`debugcallstack`.`Id` ) from `serversidedebugger`.`debugcallstack` 
+		where `serversidedebugger`.`debugcallstack`.`DebugSessionId` = pDebugSessionId );
+    delete from `serversidedebugger`.`debugcallstack` where ( `serversidedebugger`.`debugcallstack`.`DebugSessionId` = pDebugSessionId ) 
+		and ( `serversidedebugger`.`debugcallstack`.`Id` = nextId );
 
 end //
 
@@ -68,14 +68,14 @@ end //
 CREATE PROCEDURE `Push`( pDebugSessionId int, pRoutineName varchar( 50 ) )
 begin
 
-    insert into `serversidedebugger`.`DebugCallStack`( DebugSessionId, RoutineName ) values ( pDebugSessionId, pRoutineName );
+    insert into `serversidedebugger`.`debugcallstack`( DebugSessionId, RoutineName ) values ( pDebugSessionId, pRoutineName );
 
 end //
 
 create procedure SetDebugScopeVar( pDebugSessionId int, pDebugScopeLevel int, pVarName varchar( 30 ), pVarValue varbinary( 50000 ) )
 begin
 
-	insert into `serversidedebugger`.`DebugScope`( DebugSessionId, DebugScopeLevel, VarName, VarValue ) values ( pDebugSessionId, pDebugScopeLevel, pVarName, pVarValue );
+	insert into `serversidedebugger`.`debugscope`( DebugSessionId, DebugScopeLevel, VarName, VarValue ) values ( pDebugSessionId, pDebugScopeLevel, pVarName, pVarValue );
 
 end //
 
@@ -84,9 +84,9 @@ begin
 	
 	declare pId int;
 	
-	set pId = ( select max( Id ) from `serversidedebugger`.`DebugScope` 
+	set pId = ( select max( Id ) from `serversidedebugger`.`debugscope` 
 		where ( DebugSessionId = pDebugSessionId ) and ( DebugScopeLevel = pDebugScopeLevel ) and ( VarName = pVarName ) );
-	select pVarValue = VarValue from `serversidedebugger`.`DebugScope` 
+	select pVarValue = VarValue from `serversidedebugger`.`debugscope` 
 		where ( DebugSessionId = pDebugSessionId ) and ( DebugScopeLevel = pDebugScopeLevel ) and ( VarName = pVarName ) and ( Id = pId );
 	
 end //

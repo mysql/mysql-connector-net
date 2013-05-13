@@ -120,7 +120,7 @@ drop procedure if exists `SimpleNonScalar` //
 CREATE PROCEDURE `SimpleNonScalar`()
 begin
  
-    update CalcData set z = DoSum( x, y );
+    update calcdata set z = DoSum( x, y );
 
 end //
 drop function if exists `DoSum`
@@ -161,7 +161,7 @@ insert into `calcdata`( x, y, z ) values ( 6, 7, 0 ) //
 @"CREATE PROCEDURE `SimpleNonScalar`()
 begin
  
-    update CalcData set z = DoSum( x, y );
+    update calcdata set z = DoSum( x, y );
 
 end;
 ";
@@ -188,7 +188,7 @@ drop procedure if exists `SimpleScalar` //
 CREATE PROCEDURE `SimpleScalar`()
 begin
  
-    update CalcData set z = DoSum( x, y ) where x = 5;
+    update calcdata set z = DoSum( x, y ) where x = 5;
 
 end //
 drop function if exists `DoSum`
@@ -229,7 +229,7 @@ insert into `calcdata`( x, y, z ) values ( 6, 7, 0 ) //
 @"CREATE PROCEDURE `SimpleScalar`()
 begin
  
-    update CalcData set z = DoSum( x, y ) where x = 5;
+    update calcdata set z = DoSum( x, y ) where x = 5;
 
 end;
 ";
@@ -268,7 +268,7 @@ drop procedure if exists `DummyCall`
 create procedure DummyCall()
 begin
 
-    update CalcData set z = -1;
+    update calcdata set z = -1;
 
 end
 //
@@ -331,7 +331,7 @@ drop procedure if exists `DummyCall`
 create procedure DummyCall()
 begin
 
-    update CalcData set z = -1;
+    update calcdata set z = -1;
 
 end
 //
@@ -767,14 +767,14 @@ end;
         @"
 delimiter //
 
-drop table if exists TriggerTable //
+drop table if exists triggertable //
 
-create table TriggerTable ( 
+create table triggertable ( 
   myid int,
   myname varchar( 30 )
 ) //
 
-create trigger trTriggerTable before insert on TriggerTable for each row
+create trigger trTriggerTable before insert on triggertable for each row
 begin
 
     set new.myid = new.myid + 1;
@@ -786,7 +786,7 @@ drop procedure if exists DoInsertTriggerTable //
 create procedure DoInsertTriggerTable()
 begin
 
-  insert into TriggerTable( myid, myname ) values ( 1, 'val' );
+  insert into triggertable( myid, myname ) values ( 1, 'val' );
 
 end //
 ";
@@ -803,7 +803,7 @@ end //
 @"create procedure DoInsertTriggerTable()
 begin
 
-  insert into TriggerTable( myid, myname ) values ( 1, 'val' );
+  insert into triggertable( myid, myname ) values ( 1, 'val' );
 
 end;
 ";
@@ -828,14 +828,14 @@ end;
         @"
 delimiter //
 
-drop table if exists TriggerTable //
+drop table if exists triggertable //
 
-create table TriggerTable ( 
+create table triggertable ( 
   myid int,
   myname varchar( 30 )
 ) //
 
-create trigger trTriggerTable before insert on TriggerTable for each row
+create trigger trTriggerTable before insert on triggertable for each row
 begin
 
     set new.myid = new.myid + 1;
@@ -847,7 +847,7 @@ drop procedure if exists DoInsertTriggerTable //
 create procedure DoInsertTriggerTable()
 begin
 
-  replace into TriggerTable( myid, myname ) values ( 1, 'val' );
+replace into triggertable( myid, myname ) values ( 1, 'val' );
 
 end //
 ";
@@ -864,7 +864,7 @@ end //
 @"create procedure DoInsertTriggerTable()
 begin
 
-  replace into TriggerTable( myid, myname ) values ( 1, 'val' );
+  replace into triggertable( myid, myname ) values ( 1, 'val' );
 
 end;
 ";
@@ -889,21 +889,21 @@ end;
         @"
 delimiter //
 
-drop table if exists TriggerTable //
+drop table if exists triggertable //
 
-create table TriggerTable ( 
+create table triggertable ( 
   myid int,
   myname varchar( 30 )
 ) //
 
-create trigger trTriggerTable before insert on TriggerTable for each row
+create trigger trTriggerTable before insert on triggertable for each row
     set new.myid = new.myid + 1;
 //
 
 drop procedure if exists DoInsertTriggerTable //
 
 create procedure DoInsertTriggerTable()
-  replace into TriggerTable( myid, myname ) values ( 1, 'val' );
+  replace into triggertable( myid, myname ) values ( 1, 'val' );
 //
 ";
       Debugger dbg = new Debugger();
@@ -917,7 +917,7 @@ create procedure DoInsertTriggerTable()
         script.Execute();
         sql =
 @"create procedure DoInsertTriggerTable()
-  replace into TriggerTable( myid, myname ) values ( 1, 'val' );
+  replace into triggertable( myid, myname ) values ( 1, 'val' );
 ";
         dbg.SqlInput = sql;
         dbg.SteppingType = SteppingTypeEnum.StepInto;
@@ -956,9 +956,9 @@ create procedure DoInsertTriggerTable()
         @"
 delimiter //
 
-drop table if exists InformationTable //
+drop table if exists informationtable //
 
-create table InformationTable ( 
+create table informationtable ( 
   myid int auto_increment,
   myname varchar( 30 ),
   primary key ( myid )
@@ -974,13 +974,13 @@ begin
   declare my_row_count int;
   declare flag int;
 
-  insert into InformationTable( myname ) values ( 'val' );
-  insert into InformationTable( myname ) values ( 'val2' );
-  insert into InformationTable( myname ) values ( 'val3' );
+  insert into informationtable( myname ) values ( 'val' );
+  insert into informationtable( myname ) values ( 'val2' );
+  insert into informationtable( myname ) values ( 'val3' );
   set my_last_insert_id = last_insert_id();
-  select * from InformationTable limit 10;  
+  select * from informationtable limit 10;  
   set my_found_rows = found_rows();
-  update InformationTable set myname = concat( myname, 'x' );
+  update informationtable set myname = concat( myname, 'x' );
   set my_row_count = row_count();
  
   if ( my_last_insert_id = 3 ) and ( my_row_count = 3 ) and ( my_found_rows = 3 ) then
@@ -1010,13 +1010,13 @@ begin
   declare my_row_count int;
   declare flag int;
 
-  insert into InformationTable( myname ) values ( 'val' );
-  insert into InformationTable( myname ) values ( 'val2' );
-  insert into InformationTable( myname ) values ( 'val3' );
+  insert into informationtable( myname ) values ( 'val' );
+  insert into informationtable( myname ) values ( 'val2' );
+  insert into informationtable( myname ) values ( 'val3' );
   set my_last_insert_id = last_insert_id();
-  select * from InformationTable limit 10;  
+  select * from informationtable limit 10;  
   set my_found_rows = found_rows();
-  update InformationTable set myname = concat( myname, 'x' );
+  update informationtable set myname = concat( myname, 'x' );
   set my_row_count = row_count();
  
   if ( my_last_insert_id = 3 ) and ( my_row_count = 3 ) and ( my_found_rows = 3 ) then
@@ -1128,20 +1128,29 @@ end ;
     /// </summary>
     [Fact]
     public void DataIsNull()
-    {      
-      var conn = new MySqlConnection(TestUtils.CONNECTION_STRING);
-      conn.Open();
-      var cmd = new MySqlCommand("Create Table If Not Exists Customer (store_id int, first_name varchar(30), last_name varchar(30), email varchar(30), address_id int, create_date datetime)", conn);
-      cmd.ExecuteNonQuery();
+    {
       string sql =
         @"
 delimiter //
 
+CREATE TABLE customer
+(
+  `customer_id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,  
+  `store_id` int(11) DEFAULT NULL,  
+  `first_name` varchar(45) NOT NULL,
+  `last_name` varchar(45) NOT NULL,
+  `email` varchar(50) DEFAULT NULL,
+  `address_id` smallint(5) unsigned NOT NULL,
+  `active` tinyint(1) NOT NULL DEFAULT '1',
+  `create_date` datetime NOT NULL,
+  `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`customer_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 //
 drop procedure if exists `new_customer` //
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `new_customer`() 
 BEGIN 
-  INSERT INTO `test`.`customer` (`store_id`, `first_name`, `last_name`, `email`, `address_id`, `create_date` ) 
+  INSERT INTO `customer` (`store_id`, `first_name`, `last_name`, `email`, `address_id`, `create_date` ) 
   VALUES ( 1, ""Armando"", ""Lopez"", ""armand2099@gmail.com"", 1, NOW() ); 
 END
 //
@@ -1158,7 +1167,7 @@ END
         sql =
 @"CREATE DEFINER=`root`@`localhost` PROCEDURE `new_customer`() 
 BEGIN 
-  INSERT INTO `test`.`customer` (`store_id`, `first_name`, `last_name`, `email`, `address_id`, `create_date` ) 
+  INSERT INTO `customer` (`store_id`, `first_name`, `last_name`, `email`, `address_id`, `create_date` ) 
   VALUES ( 1, ""Armando"", ""Lopez"", ""armand2099@gmail.com"", 1, NOW() ); 
 END;
 ";
@@ -1173,10 +1182,6 @@ END;
       finally
       {
         dbg.RestoreRoutinesBackup();
-
-        cmd = new MySqlCommand("Drop Table Customer", conn);
-        cmd.ExecuteNonQuery();
-        conn.Close();
       }
     }
 

@@ -28,6 +28,8 @@
 - Fix for InvalidCastException thrown when executing an stored function (MySql bug #64633, Oracle bug #13864627).
 - Fix for Default Command Timeout not applying for EFMySqlCommand (MySql bug #67171, Oracle bug #14825670).
 - Fix for Debugger cannot debug stored procedures with a main begin labeled and declare statements included (Oracle bug #16002371).
+- Fix for Debugger fails trying to debug a stored routine in a MySql server hosted in linux without lower_case_table_names option enabled
+  (MySql bug #69065, Oracle bug #16770384).
 
 
 6.6.5
