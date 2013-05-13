@@ -378,6 +378,5 @@ namespace MySql.Data.VisualStudio.Editors
     {
       (foreignKeyBindingSource.Current as ForeignKey).Name = fkName.Text;
     }
-
   }
 }
