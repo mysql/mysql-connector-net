@@ -39,24 +39,38 @@ namespace MySql.Data.VisualStudio
     private static Version _version;
     private static string _sql = "";
 
-    private static CommonTokenStream _lastTokenizedStream = null;
+    // Cache of parsed text.
+    // This cache is organized by input text then by server version (for each combination of the previous two,
+    // returns a CommonTokenStream).
+    private static Dictionary<string,  Dictionary<Version, TokenStreamRemovable>> _parserCache = 
+      new Dictionary<string, Dictionary<Version, TokenStreamRemovable>>();
+    
+    private static TokenStreamRemovable _lastTokenizedStream = null;
 
-    public static CommonTokenStream GetTokenStream(string sql, Version version)
+    public static TokenStreamRemovable GetTokenStream(string sql, Version version)
     {
-      if (_sql == sql && _version == version)
+      Dictionary<Version, TokenStreamRemovable> lines = null;      
+      if (_parserCache.TryGetValue(sql, out lines))
       {
-        return _lastTokenizedStream;
+        TokenStreamRemovable tsr = null;
+        if( lines.TryGetValue( version, out tsr ) )
+          return tsr;
       }
-      else
+      // no cache entry, then parse
+      // The grammar supports upper case only
+      MemoryStream ms = new MemoryStream(ASCIIEncoding.ASCII.GetBytes(sql));
+      CaseInsensitiveInputStream input = new CaseInsensitiveInputStream(ms);
+      MySQLLexer lexer = new MySQLLexer(input);
+      lexer.MySqlVersion = version;
+      TokenStreamRemovable tokens = new TokenStreamRemovable(lexer);
+
+      if (lines == null)
       {
-        // The grammar supports upper case only
-        MemoryStream ms = new MemoryStream(ASCIIEncoding.ASCII.GetBytes(sql));
-        CaseInsensitiveInputStream input = new CaseInsensitiveInputStream(ms);
-        MySQLLexer lexer = new MySQLLexer(input);
-        lexer.MySqlVersion = version;
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        return _lastTokenizedStream = tokens;
+        lines = new Dictionary<Version, TokenStreamRemovable>();        
+        _parserCache.Add(sql, lines);
       }
+      lines.Add(version, tokens);
+      return tokens;
     }
 
     internal static MySQL51Parser.program_return ParseSql(string sql)

@@ -85,7 +85,7 @@ namespace MySql.Data.VisualStudio
     /// </summary>
     public static DbConnection GetCurrentConnection()
     {
-      if (Dte == null) return null;
+      if ((Dte == null ) || ( Dte.ActiveDocument == null)) return null;
       string curDoc = Dte.ActiveDocument.FullName;
       BaseNode node = null;
       if (dic.TryGetValue(curDoc, out node))
