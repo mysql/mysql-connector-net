@@ -60,15 +60,15 @@ namespace MySql.Data.VisualStudio
       int startIndex;
       ITextSnapshotLine containingLine = null;
       SnapshotSpan snapshotSpan;
-      Version version = LanguageServiceUtil.GetVersion();
+      Version version = LanguageServiceUtil.GetVersion();      
+
       foreach (var line in span.Snapshot.Lines)
       {
         containingLine = line.Start.GetContainingLine();
-
-        CommonTokenStream tokenStream = LanguageServiceUtil.GetTokenStream(containingLine.GetText(), version);
+        string sql = containingLine.GetText();
+        CommonTokenStream tokenStream = LanguageServiceUtil.GetTokenStream(sql, version);
         tokenStream.Fill();
         List<IToken> tokens = tokenStream.GetTokens();
-
         for (int i = 0; i < tokens.Count; i++)
         {
           IToken tok = tokens[i];
@@ -82,7 +82,7 @@ namespace MySql.Data.VisualStudio
             result.Add(new ClassificationSpan(snapshotSpan, mySqlTypes[GetTokenType(tok)]));
           }
         }
-      }
+      }      
       return result;
     }
 

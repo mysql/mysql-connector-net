@@ -59,16 +59,11 @@ namespace MySql.Data.VisualStudio
     /// <returns></returns>
     private CommonTokenStream RemoveToken(string sql, SnapshotPoint snapPos)
     {
-      MemoryStream ms = new MemoryStream(ASCIIEncoding.ASCII.GetBytes(sql));
-      CaseInsensitiveInputStream input = new CaseInsensitiveInputStream(ms);
-      //ANTLRInputStream input = new ANTLRInputStream(ms);
       Version ver = LanguageServiceUtil.GetVersion(LanguageServiceUtil.GetConnection().ServerVersion);
-      MySQLLexer lexer = new MySQLLexer(input);
-      lexer.MySqlVersion = ver;
-      TokenStreamRemovable tokens = new TokenStreamRemovable(lexer);      
+      TokenStreamRemovable tokens = LanguageServiceUtil.GetTokenStream(sql, ver);
       IToken tr = null;
       int position = snapPos.Position;
-      tokens.Fill();      
+      tokens.Fill();
       if (!char.IsWhiteSpace(snapPos.GetChar()))
       {
         foreach (IToken t in tokens.GetTokens())
