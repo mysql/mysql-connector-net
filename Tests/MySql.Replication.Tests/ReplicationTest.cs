@@ -27,9 +27,9 @@ using System.Text;
 using MySql.Data.MySqlClient;
 using Xunit;
 
-namespace MySql.LoadBalancing.Tests
+namespace MySql.Replication.Tests
 {
- public class LoadBalancingTest : IUseFixture<SetUp>
+ public class ReplicationTest : IUseFixture<SetUp>
   {
 
    private SetUp st;
@@ -94,7 +94,7 @@ namespace MySql.LoadBalancing.Tests
         Assert.Equal(st.slavePort, GetPort(conn));
         Assert.Equal(st.masterPort, GetPort(conn));        
         MySqlException ex = Assert.Throws<MySqlException>(() => st.ExecuteNonQuery(conn, "INSERT INTO orders VALUES(null, 1, 'James')"));
-        Assert.Equal(MySql.Data.MySqlClient.Properties.Resources.LoadBalancing_NoAvailableServer, ex.Message);        
+        Assert.Equal(MySql.Data.MySqlClient.Properties.Resources.Replication_NoAvailableServer, ex.Message);
       }
     }
 

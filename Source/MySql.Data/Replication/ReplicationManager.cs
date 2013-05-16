@@ -43,7 +43,7 @@ namespace MySql.Data.MySqlClient.Replication
 
       foreach (var group in MySqlConfiguration.Settings.Replication.ServerGroups)
       {
-        ReplicationServerGroup g = AddGroup(group.Name, group.GroupType);
+        ReplicationServerGroup g = AddGroup(group.Name, group.GroupType, group.RetryTime);
         foreach (var server in group.Servers)
           g.AddServer(server.Name, server.IsMaster, server.ConnectionString);
       }
@@ -52,17 +52,17 @@ namespace MySql.Data.MySqlClient.Replication
 
     public static IList<ReplicationServerGroup> Groups { get; private set; }
 
-    public static ReplicationServerGroup AddGroup(string name )
+    public static ReplicationServerGroup AddGroup(string name, int retryTime)
     {
-      return AddGroup( name, null );
+      return AddGroup( name, null, retryTime);
     }
 
-    public static ReplicationServerGroup AddGroup(string name, string groupType)
+    public static ReplicationServerGroup AddGroup(string name, string groupType, int retryTime)
     {
-      if (groupType == null)
+      if (string.IsNullOrEmpty(groupType))
         groupType = "MySql.Data.MySqlClient.Replication.ReplicationRoundRobinServerGroup";
       Type t = Type.GetType(groupType);
-      ReplicationServerGroup g = (ReplicationServerGroup)Activator.CreateInstance(t, name) as ReplicationServerGroup;
+      ReplicationServerGroup g = (ReplicationServerGroup)Activator.CreateInstance(t, name, retryTime) as ReplicationServerGroup;
       groups.Add(g);
       return g;
     }
@@ -102,6 +102,9 @@ namespace MySql.Data.MySqlClient.Replication
 
         ReplicationServerGroup group = GetGroup(groupName);
         ReplicationServer server = group.GetServer(master);
+
+        if (server == null)
+          throw new MySqlException(Properties.Resources.Replication_NoAvailableServer);
 
         Driver driver = new Driver(new MySqlConnectionStringBuilder(server.ConnectionString));
         if (connection.driver == null

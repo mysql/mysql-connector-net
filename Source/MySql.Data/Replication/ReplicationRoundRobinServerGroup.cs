@@ -33,7 +33,7 @@ namespace MySql.Data.MySqlClient.Replication
   {
     private int nextServer;
 
-    public ReplicationRoundRobinServerGroup(string name) : base(name)
+    public ReplicationRoundRobinServerGroup(string name, int retryTime) : base(name, retryTime)
     {
       nextServer = -1;
     }
@@ -47,7 +47,7 @@ namespace MySql.Data.MySqlClient.Replication
           nextServer = 0;
         ReplicationServer s = Servers[nextServer];
         if (!s.IsAvailable) continue;
-        if (s.IsMaster != isMaster) continue;
+        if (isMaster && !s.IsMaster) continue;
         return s;
       }
       return null;

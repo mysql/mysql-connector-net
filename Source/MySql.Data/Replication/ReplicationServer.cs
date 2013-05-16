@@ -33,6 +33,7 @@ namespace MySql.Data.MySqlClient.Replication
       Name = name;
       IsMaster = isMaster;
       ConnectionString = connectionString;
+      IsAvailable = true;
     }
 
     public string Name { get; private set; }

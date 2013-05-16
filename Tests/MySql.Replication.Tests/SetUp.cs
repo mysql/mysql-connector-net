@@ -28,7 +28,7 @@ using System.Reflection;
 using MySql.Data.MySqlClient;
 using System.Configuration;
 
-namespace MySql.LoadBalancing.Tests
+namespace MySql.Replication.Tests
 {
   public class SetUp : IDisposable
   {

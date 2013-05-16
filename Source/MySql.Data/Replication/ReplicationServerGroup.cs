@@ -32,9 +32,11 @@ namespace MySql.Data.MySqlClient.Replication
   {
     List<ReplicationServer> servers = new List<ReplicationServer>();
 
-    internal ReplicationServerGroup(string name)
+    internal ReplicationServerGroup(string name, int retryTime)
     {
       Servers = servers;
+      Name = name;
+      RetryTime = retryTime;
     }
 
     public string Name { get; private set; }
