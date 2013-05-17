@@ -93,7 +93,7 @@ namespace MySql.Data.MySqlClient.Tests
             }
 
 #if RT
-            AssemblyName assemblyName = new AssemblyName("MySql.Data.RT.Tests.XUnit");
+            AssemblyName assemblyName = new AssemblyName("MySql.Data.RT.Tests");
             Assembly executingAssembly = Assembly.Load(assemblyName);
 #else
       Assembly executingAssembly = Assembly.GetExecutingAssembly();
@@ -102,7 +102,7 @@ namespace MySql.Data.MySqlClient.Tests
 #if CF
             Stream stream = executingAssembly.GetManifestResourceStream("MySql.Data.CF.Tests.Properties.Setup.sql");
 #elif RT            
-            Stream stream = executingAssembly.GetManifestResourceStream("MySql.Data.RT.Tests.XUnit.Properties.Setup.sql");
+            Stream stream = executingAssembly.GetManifestResourceStream("MySql.Data.RT.Tests.Properties.Setup.sql");
 #else
       Stream stream = executingAssembly.GetManifestResourceStream("MySql.Data.MySqlClient.Tests.Properties.Setup.sql");
 #endif

@@ -107,6 +107,7 @@
     <Compile Include="MySqlCommandTests.cs" />
     <Compile Include="MySqlConnectionTests.cs" />
     <Compile Include="MySqlDataReaderTests.cs" />
+    <Compile Include="OutputParametersBatch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SetUp.cs" />
     <Compile Include="Utils.cs" />

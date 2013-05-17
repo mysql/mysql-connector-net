@@ -283,6 +283,13 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.Add("?Table1Id", MySqlDbType.Int32);
       cmd.Parameters["?Table1Id"].Direction = ParameterDirection.Output;
 
+#if RT
+      using (MySqlDataReader dr = cmd.ExecuteReader())
+      {
+        dr.Read();
+        Assert.False(dr.HasRows);
+      }
+#else
       DataSet ds = new DataSet();
       if (prepare) cmd.Prepare();
       MySqlDataAdapter da = new MySqlDataAdapter(cmd);
@@ -294,6 +301,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         // on 5.1 this throws an exception that no rows were returned.
       }
+#endif
     }
 
    [Fact]
@@ -419,12 +427,20 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.Parameters.Add("?id", MySqlDbType.Int32);
       cmd.Parameters[0].Direction = ParameterDirection.Output;
-      MySqlDataAdapter da = new MySqlDataAdapter(cmd);
+
+#if RT
+      using (MySqlDataReader dr = cmd.ExecuteReader())
+      {
+        dr.Read();
+      }
+#else
+     MySqlDataAdapter da = new MySqlDataAdapter(cmd);
       DataTable dt = new DataTable();
       if (prepare) cmd.Prepare();
       cmd.ExecuteNonQuery();
       da.Fill(dt);
       da.FillSchema(dt, SchemaType.Mapped);
+#endif
     }
 
    [Fact]

@@ -74,12 +74,12 @@ namespace MySql.Data.MySqlClient
 
         public static void LogInformation(int id, string msg)
         {
-            throw new NotImplementedException();
+          //TODO implement
         }
 
         public static void LogWarning(int id, string msg)
         {
-            throw new NotImplementedException();
+          //TODO implement
         }
 
         public static void LogError(int id, string msg)

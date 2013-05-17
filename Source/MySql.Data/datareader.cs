@@ -74,14 +74,14 @@ namespace MySql.Data.MySqlClient
       affectedRows = -1;
       this.statement = statement;
 
-      if (cmd.CommandType == CommandType.StoredProcedure 
 #if !RT
+      if (cmd.CommandType == CommandType.StoredProcedure 
         && cmd.UpdatedRowSource == UpdateRowSource.FirstReturnedRecord
-#endif
       )
       {
         disableZeroAffectedRows = true;
       }
+#endif
     }
 
     #region Properties
