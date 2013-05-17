@@ -32,10 +32,10 @@ namespace MySql.Replication.Tests
 {
   public class SetUp : IDisposable
   {
-    protected string databaseName;
+    protected internal string databaseName;
     protected internal int masterPort;
     protected internal int slavePort;
-    protected internal string server;
+    protected internal string groupName;
     private MySqlConnectionStringBuilder connStringRootMaster;
     private MySqlConnectionStringBuilder connStringSlave;
 
@@ -51,7 +51,7 @@ namespace MySql.Replication.Tests
     {
       get
       {
-        return string.Format("server={0};", server);
+        return string.Format("server={0};", groupName);
       }
     }
 
@@ -93,24 +93,17 @@ namespace MySql.Replication.Tests
 
     protected internal void LoadBaseConfiguration()
     {
-      string masterPortString = ValueIfEmpty(ConfigurationManager.AppSettings["masterPort"], "3305");
-      string slavePortString = ValueIfEmpty(ConfigurationManager.AppSettings["slavePort"], "3307");
-      server = ValueIfEmpty(ConfigurationManager.AppSettings["server"], "Group1");
+      ReplicationServerGroupConfigurationElement group1 = (ConfigurationManager.GetSection("MySQL") as MySqlConfiguration).Replication.ServerGroups.ToArray()[0];
+      ReplicationServerConfigurationElement masterConfiguration = group1.Servers.ToArray()[0];
+      ReplicationServerConfigurationElement slaveConfiguration = group1.Servers.ToArray()[1];
 
-      masterPort = int.Parse(masterPortString);
-      slavePort = int.Parse(slavePortString);
+      groupName = group1.Name;
 
-      connStringRootMaster = new MySqlConnectionStringBuilder();
-      connStringRootMaster.UserID = ValueIfEmpty(ConfigurationManager.AppSettings["rootuser"], "root");
-      connStringRootMaster.Password = ValueIfEmpty(ConfigurationManager.AppSettings["rootpassword"], string.Empty);
-      connStringRootMaster.Server = ValueIfEmpty(ConfigurationManager.AppSettings["host"], "localhost");
-      connStringRootMaster.Port = (uint)masterPort;
+      connStringRootMaster = new MySqlConnectionStringBuilder(masterConfiguration.ConnectionString);
+      masterPort = (int)connStringRootMaster.Port;
 
-      connStringSlave = new MySqlConnectionStringBuilder();
-      connStringSlave.UserID = ValueIfEmpty(ConfigurationManager.AppSettings["slaveUser"], "lbuser");
-      connStringSlave.Password = ValueIfEmpty(ConfigurationManager.AppSettings["slavePassword"], "lbpass");
-      connStringSlave.Server = ValueIfEmpty(ConfigurationManager.AppSettings["slaveHost"], "localhost");
-      connStringSlave.Port = (uint)slavePort;
+      connStringSlave = new MySqlConnectionStringBuilder(slaveConfiguration.ConnectionString);
+      slavePort = (int)connStringSlave.Port;
       connStringSlave.Database = databaseName;
     }
 

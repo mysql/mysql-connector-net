@@ -29,7 +29,7 @@ using Xunit;
 
 namespace MySql.Replication.Tests
 {
- public class ReplicationTest : IUseFixture<SetUp>
+ public class ReplicationTest : IUseFixture<SetUp>, IDisposable
   {
 
    private SetUp st;
@@ -37,7 +37,19 @@ namespace MySql.Replication.Tests
    public void SetFixture(SetUp data)
     {
       st = data;
-    } 
+    }
+
+   public void Dispose()
+   {
+     MySqlConnectionStringBuilder connString = new MySqlConnectionStringBuilder(st.ConnectionStringRootMaster);
+     connString.Database = st.databaseName;
+     using (MySqlConnection conn = new MySqlConnection(connString.ToString()))
+     {
+       conn.Open();
+       st.ExecuteNonQuery(conn, "DELETE FROM orders");
+       st.ExecuteNonQuery(conn, "DELETE FROM order_details");
+     }
+   }
 
     /// <summary>
     /// Validates that the slave is readonly
@@ -61,7 +73,7 @@ namespace MySql.Replication.Tests
     /// to the master
     /// </summary>
     [Fact]
-    public void RoundRobinWithWritting()
+    public void RoundRobinWritting()
     {
       using (MySqlConnection conn = new MySqlConnection(st.ConnectionString))
       {
@@ -89,12 +101,44 @@ namespace MySql.Replication.Tests
       using (MySqlConnection conn = new MySqlConnection("server=Group2;"))
       {
         conn.Open();
-        Assert.Equal(st.slavePort, GetPort(conn));
-        Assert.Equal(st.masterPort, GetPort(conn));
-        Assert.Equal(st.slavePort, GetPort(conn));
-        Assert.Equal(st.masterPort, GetPort(conn));        
-        MySqlException ex = Assert.Throws<MySqlException>(() => st.ExecuteNonQuery(conn, "INSERT INTO orders VALUES(null, 1, 'James')"));
+
+        
+         MySqlException ex = Assert.Throws<MySqlException>(() => st.ExecuteNonQuery(conn, "INSERT INTO orders VALUES(null, 1, 'James')"));
+        
         Assert.Equal(MySql.Data.MySqlClient.Properties.Resources.Replication_NoAvailableServer, ex.Message);
+
+        int currentPort = GetPort(conn);
+        Assert.True(currentPort != (currentPort = GetPort(conn)), "1st try");
+        Assert.True(currentPort != (currentPort = GetPort(conn)), "2nd try");
+        Assert.True(currentPort != (currentPort = GetPort(conn)), "3rd try");
+        Assert.True(currentPort != (currentPort = GetPort(conn)), "4th try");
+      }
+    }
+
+    /// <summary>
+    /// Validates that data inserted in master is replicated into slave
+    /// </summary>
+    [Fact]
+    public void RoundRobinValidateSlaveData()
+    {
+      using (MySqlConnection conn = new MySqlConnection(st.ConnectionString))
+      {
+        conn.Open();
+
+        st.ExecuteNonQuery(conn, "INSERT INTO orders VALUES(null, 2, 'Bruce')");
+      }
+      
+      // Waits for replication on slave
+      System.Threading.Thread.Sleep(3000);
+
+      // validates data on slave
+      using (MySqlConnection slaveConn = new MySqlConnection(st.ConnectionStringSlave))
+      {
+        slaveConn.Open();
+        MySqlDataReader dr = st.ExecuteQuery(slaveConn, "SELECT * FROM orders");
+        Assert.True(dr.Read());
+        Assert.Equal(2, dr.GetValue(1));
+        Assert.Equal("Bruce", dr.GetValue(2));
       }
     }
 
