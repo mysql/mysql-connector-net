@@ -161,6 +161,19 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void SetDbType()
     {
+#if RT
+      MySqlCommand cmd = st.conn.CreateCommand();
+      MySqlParameter prm = cmd.CreateParameter();
+      prm.MySqlDbType = MySqlDbType.Int64;
+      Assert.Equal(MySqlDbType.Int64, prm.MySqlDbType);
+      prm.Value = 3;
+      Assert.Equal(MySqlDbType.Int64, prm.MySqlDbType);
+
+      MySqlParameter p = new MySqlParameter("name", MySqlDbType.Int64);
+      Assert.Equal(MySqlDbType.Int64, p.MySqlDbType);
+      p.Value = 3;
+      Assert.Equal(MySqlDbType.Int64, p.MySqlDbType);
+#else
       IDbCommand cmd = st.conn.CreateCommand();
       IDbDataParameter prm = cmd.CreateParameter();
       prm.DbType = DbType.Int64;
@@ -174,9 +187,10 @@ namespace MySql.Data.MySqlClient.Tests
       p.Value = 3;
       Assert.Equal(DbType.Int64, p.DbType);
       Assert.Equal(MySqlDbType.Int64, p.MySqlDbType);
+#endif
     }
 
-#if !CF
+#if !CF && !RT
     [Fact]
     public void UseOldSyntaxGivesWarning()
     {
@@ -252,8 +266,13 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void DefaultType()
     {
+#if RT
+      MySqlCommand cmd = st.conn.CreateCommand();
+      MySqlParameter p = cmd.CreateParameter();
+#else
       IDbCommand cmd = st.conn.CreateCommand();
       IDbDataParameter p = cmd.CreateParameter();
+#endif
       p.ParameterName = "?boo";
       p.Value = "test";
       MySqlParameter mp = (MySqlParameter)p;
@@ -299,6 +318,23 @@ namespace MySql.Data.MySqlClient.Tests
       st.execSQL("DROP TABLE Test");
       st.execSQL("CREATE TABLE Test (id int auto_increment primary key, foo int)");
 
+#if RT
+      MySqlCommand c = new MySqlCommand("INSERT INTO Test (foo) values (?foo)", st.conn);
+      c.Parameters.Add("?foo", MySqlDbType.Int32);
+      c.ExecuteNonQuery();
+
+      c.Parameters[0].Value = 2;
+      c.ExecuteNonQuery();
+
+      c.CommandText = "SELECT * FROM Test";
+      using (MySqlDataReader dr = c.ExecuteReader())
+      {
+        Assert.True(dr.Read());
+        Assert.Equal(DBNull.Value, dr.GetValue(1));
+        Assert.True(dr.Read());
+        Assert.Equal(2, dr.GetValue(1));
+      }
+#else
       MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", st.conn);
       MySqlCommand c = new MySqlCommand("INSERT INTO Test (foo) values (?foo)", st.conn);
       c.Parameters.Add("?foo", MySqlDbType.Int32, 0, "foo");
@@ -317,6 +353,7 @@ namespace MySql.Data.MySqlClient.Tests
       da.Fill(dt);
       Assert.Equal(2, dt.Rows.Count);
       Assert.Equal(2, dt.Rows[1]["foo"]);
+#endif
     }
 
     /// <summary>
@@ -398,6 +435,7 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal(ex.Message, "Parameter '?id' has already been defined.");
     }
 
+#if !RT
     /// <summary>
     /// Bug #26904 MySqlParameterCollection fails to add MySqlParameter that previously removed 
     /// </summary>
@@ -447,6 +485,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlParameter p = cmd.Parameters["?id6"];
       Assert.Equal("?id6", p.ParameterName);
     }
+#endif
 
     /// <summary>
     /// Bug #29312  	System.FormatException if parameter not found
@@ -479,10 +518,12 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters[0].Size = 10;
       cmd.ExecuteNonQuery();
 
+#if !RT
       MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", st.conn);
       DataTable dt = new DataTable();
       da.Fill(dt);
       Assert.Equal("123", dt.Rows[0][0]);
+#endif
 
       cmd.Parameters.Clear();
       cmd.Parameters.Add("?p1", MySqlDbType.VarChar);
@@ -490,11 +531,23 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters[0].Size = 10;
       cmd.ExecuteNonQuery();
 
+#if RT
+      MySqlCommand newValueCommand = new MySqlCommand("SELECT * FROM Test", st.conn);
+      using (MySqlDataReader dr = newValueCommand.ExecuteReader())
+      {
+        Assert.True(dr.Read());
+        Assert.Equal("123", dr.GetString(0));
+        Assert.True(dr.Read());
+        Assert.Equal("1234567890", dr.GetString(0));
+      }
+#else
       dt.Clear();
       da.Fill(dt);
       Assert.Equal("1234567890", dt.Rows[1][0]);
+#endif
     }
 
+#if !RT
     /// <summary>
     /// Bug #32093 MySqlParameter Constructor does not allow Direction of anything other than Input 
     /// </summary>
@@ -509,6 +562,7 @@ namespace MySql.Data.MySqlClient.Tests
           ParameterDirection.Output, true, 0, 0, "id", DataRowVersion.Current, 0);
       Assert.Equal(ParameterDirection.Output, p1.Direction);
     }
+#endif
 
     /// <summary>
     /// Bug #13991 oldsyntax configuration and ParameterMarker value bug 
@@ -543,6 +597,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+#if !RT
     /// <summary>
     /// Bug #62194	MySQL Parameter constructor doesn't set
     /// all properties: IsNullable, Precision and Scale
@@ -584,6 +639,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       Assert.Equal(p.Scale, Byte.MaxValue);
     }
+#endif
 
     /// <summary>
     /// Bug #66060 #14499549 "Parameter '?' must be defined" error, when using unnamed parameters
