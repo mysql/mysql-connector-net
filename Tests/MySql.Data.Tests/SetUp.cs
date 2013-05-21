@@ -161,7 +161,7 @@ namespace MySql.Data.MySqlClient.Tests
       if (string.IsNullOrEmpty(host))
         host = "localhost";
       if (string.IsNullOrEmpty(portString))
-        port = 3306;
+        port = 3305;
       else
         port = int.Parse(portString);
       if (string.IsNullOrEmpty(pipeName))

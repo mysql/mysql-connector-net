@@ -94,7 +94,9 @@
     </None>
     <None Include="packages.config" />
     <None Include="SessionLockingBuild.bat" />
-    <None Include="SessionLocking\Web.config" />
+    <None Include="SessionLocking\Web.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\MySql.Data\MySql.Data.csproj">
