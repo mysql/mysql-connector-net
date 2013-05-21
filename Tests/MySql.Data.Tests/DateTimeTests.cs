@@ -901,6 +901,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         Assert.True(DateTime.TryParse(reader.GetDateTime(0).ToString(), out tempDate));
       }
+      reader.Close();
     }
 #endif
 

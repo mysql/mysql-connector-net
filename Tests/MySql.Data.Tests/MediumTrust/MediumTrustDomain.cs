@@ -83,7 +83,7 @@ namespace MySql.Data.MySqlClient.Tests
       processStartInfo.UseShellExecute = false;
       processStartInfo.Verb = "runas";
       var process = Process.Start(processStartInfo);
-      process.WaitForExit();
+      process.WaitForExit(10000);
     }
 
 
