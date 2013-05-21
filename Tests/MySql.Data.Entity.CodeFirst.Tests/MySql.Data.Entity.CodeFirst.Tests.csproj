@@ -54,6 +54,7 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="CodeFirstTests.cs" />
+    <Compile Include="Dinosauria.cs" />
     <Compile Include="Movie.cs" />
     <Compile Include="SetUpCodeFirstTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

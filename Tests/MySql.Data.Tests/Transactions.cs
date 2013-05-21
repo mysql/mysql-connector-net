@@ -70,18 +70,14 @@ namespace MySql.Data.MySqlClient.Tests
 
     [Fact]
     public void TransactionScopeRollback()
-    {
-      Debug.Print("Enter TransactionScopeRollback");
+    {      
       TransactionScopeInternal(false);
-      Debug.Print("Out TransactionScopeRollback");
     }
 
     [Fact]
     public void TransactionScopeCommit()
     {
-      Debug.Print("Enter TranscationScopeCommit");
       TransactionScopeInternal(true);
-      Debug.Print("Out TranscationScopeCommit");
     }
 
     /// <summary>
@@ -90,9 +86,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void TransactionScopeWithIsolationLevel()
     {
-
-      Debug.Print("Enter TransactionScopeWithIsolationLevel");
-      
       TransactionOptions opts = new TransactionOptions();
       opts.IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted;
 
@@ -111,7 +104,6 @@ namespace MySql.Data.MySqlClient.Tests
           }
         }
       }
-      Debug.Print("Out TransactionScopeWithIsolationLevel");
     }
 
     /// <summary>
@@ -120,8 +112,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void RollingBackOnClose()
     {
-      Debug.Print("Enter RollingBackOnClose");
-
       st.execSQL("DROP TABLE IF EXISTS Test");
       st.execSQL("CREATE TABLE Test (id INT) ENGINE=InnoDB");
 
@@ -146,7 +136,6 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlConnection connection = new MySqlConnection(connStr);
       connection.Open();
       st.KillConnection(connection);
-      Debug.Print("Enter RollingBackOnClose");
     }
 
     /// <summary>
@@ -220,7 +209,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Bug22042()
     {
-      Debug.Print("Enter Bug22042");
       DbProviderFactory factory =
           new MySql.Data.MySqlClient.MySqlClientFactory();
       using (DbConnection conexion = factory.CreateConnection())
@@ -230,8 +218,6 @@ namespace MySql.Data.MySqlClient.Tests
         DbTransaction trans = conexion.BeginTransaction();
         trans.Rollback();
       }
-      
-      Debug.Print("Out Bug22042");
     }
 
     /// <summary>
@@ -240,8 +226,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void EnlistTransactionNullTest()
     {
-      Debug.Print("Enter EnlistTransactionNullTest");
-
       try
       {
         MySqlCommand cmd = new MySqlCommand();
@@ -256,7 +240,6 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.Connection = st.conn;
         cmd.Connection.EnlistTransaction(Transaction.Current);
       }
-      Debug.Print("Out EnlistTransactionNullTest");
     }
 
     /// <summary>
@@ -265,8 +248,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void EnlistTransactionWNestedTrxTest()
     {
-      Debug.Print("Enter EnlistTransactionWNestedTrxTest");
-
       MySqlTransaction t = st.conn.BeginTransaction();
 
       using (TransactionScope ts = new TransactionScope())
@@ -291,16 +272,11 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.Connection = st.conn;
         cmd.Connection.EnlistTransaction(Transaction.Current);
       }
-
-      Debug.Print("Out EnlistTransactionWNestedTrxTest");
-
     }
 
     [Fact]
     public void ManualEnlistment()
     {
-      Debug.Print("Enter ManualEnlistment");
-
       st.execSQL("DROP TABLE IF EXISTS Test");
       st.createTable("CREATE TABLE Test (key2 VARCHAR(1), name VARCHAR(100), name2 VARCHAR(100))", "INNODB");
       string connStr = st.GetConnectionString(true) + ";auto enlist=false";
@@ -320,8 +296,6 @@ namespace MySql.Data.MySqlClient.Tests
       st.execSQL("UNLOCK TABLES");
       c.Dispose();
       st.KillPooledConnection(connStr);
-
-      Debug.Print("Out ManualEnlistment");
     }
 
     private void ManuallyEnlistingInitialConnection(bool complete)
@@ -356,24 +330,19 @@ namespace MySql.Data.MySqlClient.Tests
 
     [Fact]
     public void ManuallyEnlistingInitialConnectionTest()
-    {
-      Debug.Print("Enter ManuallyEnlistingInitialConnectionTest");
+    { 
       ManuallyEnlistingInitialConnection(true);
-      Debug.Print("Out ManuallyEnlistingInitialConnectionTest");
     }
 
     [Fact]
     public void ManuallyEnlistingInitialConnectionNoComplete()
     {
-      Debug.Print("Enter ManuallyEnlistingInitialConnectionNoComplete");
       ManuallyEnlistingInitialConnection(false);
-      Debug.Print("Out ManuallyEnlistingInitialConnectionNoComplete");
     }
 
     [Fact]
     public void ManualEnlistmentWithActiveConnection()
     {
-      Debug.Print("Enter ManualEnlistmentWithActiveConnection");
       using (TransactionScope ts = new TransactionScope())
       {
         string connStr = st.GetConnectionString(true);
@@ -396,7 +365,6 @@ namespace MySql.Data.MySqlClient.Tests
           }
         }
       }
-      Debug.Print("Out ManualEnlistmentWithActiveConnection");
     }
 
     [Fact]
@@ -506,9 +474,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// </summary>
     [Fact]
     public void NestedScope()
-    {
-
-      Debug.Print("Enter NestedScope");
+    { 
       // inner scope joins the ambient scope, neither inner not outer  scope completes
       // Expect empty table.
       NestedScopeInternalTest(TransactionScopeOption.Required, false, false, false, false);
@@ -563,11 +529,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       // inner scope supresses transaction, both complete
       NestedScopeInternalTest(TransactionScopeOption.Suppress, true, true, true, true);
-      
-      Debug.Print("Enter NestedScope");
     }
-
-
 
     private void ReusingSameConnection(bool pooling, bool complete)
     {
@@ -618,7 +580,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ReusingSameConnectionTest()
     {
-      Debug.Print("Enter ReusingSameConnectionTest");
       st.execSQL("DROP TABLE IF EXISTS Test");
       st.createTable("CREATE TABLE Test (key2 VARCHAR(1), name VARCHAR(100), name2 VARCHAR(100))", "INNODB");
       ReusingSameConnection(true, true);
@@ -632,7 +593,6 @@ namespace MySql.Data.MySqlClient.Tests
 
       ReusingSameConnection(false, false);
       //      Assert.Equal(processes + 1, CountProcesses());
-      Debug.Print("Out ReusingSameConnectionTest");
     }
 
     /// <summary>
@@ -642,8 +602,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ScopeTimeoutWithMySqlHelper()
     {
-
-      Debug.Print("Enter ScopeTimeoutWithMySqlHelper");
       st.execSQL("DROP TABLE IF EXISTS Test");
       st.createTable("CREATE TABLE Test (id int)", "INNODB");
       string connStr = st.GetConnectionString(true);
@@ -662,7 +620,6 @@ namespace MySql.Data.MySqlClient.Tests
       }
       long count = (long)MySqlHelper.ExecuteScalar(connStr, "select count(*) from test");
       Assert.Equal(0, count);
-      Debug.Print("Out ScopeTimeoutWithMySqlHelper");
     }
 
     /// <summary>
@@ -674,8 +631,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void AttemptToUseConnectionAfterScopeTimeout()
     {
-
-      Debug.Print("Enter AttemptToUseConnectionAfterScopeTimeout"); 
       st.execSQL("DROP TABLE IF EXISTS Test");
       st.createTable("CREATE TABLE Test (id int)", "INNODB");
       string connStr = st.GetConnectionString(true);
@@ -719,7 +674,6 @@ namespace MySql.Data.MySqlClient.Tests
         long count = (long)cmd.ExecuteScalar();
         Assert.Equal(0, count);
       }
-      Debug.Print("Out AttemptToUseConnectionAfterScopeTimeout"); 
     }
 
 
@@ -730,8 +684,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void TransactionScopeWithThreads()
     {
-
-      Debug.Print("Enter TransactionScopeWithThreads"); 
       // use transaction scope in the current thread
       DoThreadWork();
 
@@ -740,21 +692,17 @@ namespace MySql.Data.MySqlClient.Tests
       Thread t = new Thread(new ThreadStart(DoThreadWork));
       t.Start();
       t.Join();
-      Debug.Print("Out TransactionScopeWithThreads"); 
-
     }
 
     [Fact]
     public void SnapshotIsolationLevelThrowsNotSupportedException()
     {
-      Debug.Print("Enter SnapshotIsolationLevelThrowsNotSupportedException"); 
       using (MySqlConnection connection = new MySqlConnection(st.GetConnectionString(true)))
       {
         connection.Open();        
         Exception ex = Assert.Throws<NotSupportedException>(() => connection.BeginTransaction(System.Data.IsolationLevel.Snapshot));
         Assert.Equal(ex.Message, "Snapshot isolation level is not supported.");
       }
-      Debug.Print("Out SnapshotIsolationLevelThrowsNotSupportedException");
     }
 
     private void DoThreadWork()
@@ -768,6 +716,5 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
     }
-
   }
 }
