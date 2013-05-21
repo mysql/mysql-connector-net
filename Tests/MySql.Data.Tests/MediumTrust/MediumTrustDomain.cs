@@ -10,6 +10,7 @@ using System.Data.SqlClient;
 using MySql.Data.MySqlClient;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 
 
 namespace MySql.Data.MySqlClient.Tests.Xunit
@@ -22,8 +23,24 @@ namespace MySql.Data.MySqlClient.Tests.Xunit
 
     public MediumTrustDomain()
     {
-      fullPathAssembly = @Path.GetFullPath(@".\..\..\..\..\Source\MySql.Data\bin\Release\MySql.Data.dll");
-      registerAssembly();    
+      Assembly a = System.Reflection.Assembly.GetExecutingAssembly();
+      foreach (var item in a.GetReferencedAssemblies())
+      {
+        if (item.Name.Contains("MySql.Data"))
+        {
+          if (item.Version == new Version(6, 7))
+#if CLR4
+            fullPathAssembly = @Path.GetFullPath(@".\..\..\..\..\Source\MySql.Data\bin\v4.0\Release\MySql.Data.dll");
+#else
+            fullPathAssembly = @Path.GetFullPath(@".\..\..\..\..\Source\MySql.Data\bin\v4.5\Release\MySql.Data.dll");                   
+#endif
+          else
+            fullPathAssembly = @Path.GetFullPath(@".\..\..\..\..\Source\MySql.Data\bin\Release\MySql.Data.dll");
+          break;
+        }
+      }   
+      if (!string.IsNullOrEmpty(fullPathAssembly))
+        registerAssembly();    
     }
 
     public AppDomain CreatePartialTrustAppDomain()
