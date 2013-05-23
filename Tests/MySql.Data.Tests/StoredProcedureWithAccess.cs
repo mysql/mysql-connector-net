@@ -98,9 +98,15 @@ namespace MySql.Data.MySqlClient.Tests
       string[] restrictions = new string[5];
       restrictions[1] = st.database0;
       restrictions[2] = "spTest";
+#if RT
+      MySqlSchemaCollection dt = st.conn.GetSchemaCollection("Procedure Parameters", restrictions);
+      string tableName = dt.Name;
+#else
       DataTable dt = st.conn.GetSchema("Procedure Parameters", restrictions);
+      string tableName = dt.TableName;
+#endif
       Assert.True(dt.Rows.Count == 2);
-      Assert.Equal("Procedure Parameters", dt.TableName);
+      Assert.Equal("Procedure Parameters", tableName);
       Assert.Equal(st.database0.ToLower(), dt.Rows[0]["SPECIFIC_SCHEMA"].ToString().ToLower());
       Assert.Equal("sptest", dt.Rows[0]["SPECIFIC_NAME"].ToString().ToLower());
       Assert.Equal("id", dt.Rows[0]["PARAMETER_NAME"].ToString().ToLower());
@@ -108,8 +114,12 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("IN", dt.Rows[0]["PARAMETER_MODE"]);
 
       restrictions[4] = "name";
+#if RT
+      dt = st.conn.GetSchemaCollection("Procedure Parameters", restrictions);
+#else
       dt.Clear();
       dt = st.conn.GetSchema("Procedure Parameters", restrictions);
+#endif
       Assert.Equal(1, dt.Rows.Count);
       Assert.Equal("sptest", dt.Rows[0]["SPECIFIC_NAME"].ToString().ToLower());
       Assert.Equal("name", dt.Rows[0]["PARAMETER_NAME"].ToString().ToLower());
@@ -122,9 +132,13 @@ namespace MySql.Data.MySqlClient.Tests
       restrictions[4] = null;
       restrictions[1] = st.database0;
       restrictions[2] = "spFunc";
+#if RT
+      dt = st.conn.GetSchemaCollection("Procedure Parameters", restrictions);
+#else
       dt = st.conn.GetSchema("Procedure Parameters", restrictions);
+#endif
       Assert.True(dt.Rows.Count == 2);
-      Assert.Equal("Procedure Parameters", dt.TableName);
+      Assert.Equal("Procedure Parameters", tableName);
       Assert.Equal(st.database0.ToLower(), dt.Rows[0]["SPECIFIC_SCHEMA"].ToString().ToLower());
       Assert.Equal("spfunc", dt.Rows[0]["SPECIFIC_NAME"].ToString().ToLower());
       Assert.Equal(0, dt.Rows[0]["ORDINAL_POSITION"]);
@@ -147,16 +161,28 @@ namespace MySql.Data.MySqlClient.Tests
       string[] restrictions = new string[4];
       restrictions[1] = st.database0;
       restrictions[2] = "spTest";
+#if RT
+      MySqlSchemaCollection procs = st.conn.GetSchemaCollection("PROCEDURES", restrictions);
+#else
       DataTable procs = st.conn.GetSchema("PROCEDURES", restrictions);
+#endif
       Assert.Equal(1, procs.Rows.Count);
       Assert.Equal("spTest", procs.Rows[0][0]);
       Assert.Equal(st.database0.ToLower(), procs.Rows[0][2].ToString().ToLower(CultureInfo.InvariantCulture));
       Assert.Equal("spTest", procs.Rows[0][3]);
 
+#if RT
+      MySqlSchemaCollection parameters = st.conn.GetSchemaCollection("PROCEDURE PARAMETERS", restrictions);
+#else
       DataTable parameters = st.conn.GetSchema("PROCEDURE PARAMETERS", restrictions);
+#endif
       Assert.Equal(4, parameters.Rows.Count);
 
+#if RT
+      MySqlSchemaRow row = parameters.Rows[0];
+#else
       DataRow row = parameters.Rows[0];
+#endif
       Assert.Equal(st.database0.ToLower(CultureInfo.InvariantCulture),
           row["SPECIFIC_SCHEMA"].ToString().ToLower(CultureInfo.InvariantCulture));
       Assert.Equal("spTest", row["SPECIFIC_NAME"]);
@@ -190,6 +216,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("FLOAT", row["DATA_TYPE"].ToString().ToUpper(CultureInfo.InvariantCulture));
     }
 
+#if !RT
     /// <summary>
     /// Bug #27679  	MySqlCommandBuilder.DeriveParameters ignores UNSIGNED flag
     /// </summary>
@@ -402,5 +429,6 @@ namespace MySql.Data.MySqlClient.Tests
       // Do the update
       Assert.Equal(numToInsert, adapter.Update(data));
     }
+#endif
   }
 }

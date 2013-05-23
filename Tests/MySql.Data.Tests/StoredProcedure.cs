@@ -27,7 +27,9 @@ using Xunit;
 using System.Data;
 using System.Globalization;
 using System.Threading;
+#if !RT
 using System.Data.Common;
+#endif
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -229,6 +231,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(false, reader.Read());
       reader.Close();
 
+#if !RT
       DataSet ds = new DataSet();
       MySqlCommand cmd2 = new MySqlCommand("spTest", st.conn);
       cmd2.CommandType = CommandType.StoredProcedure;
@@ -242,13 +245,16 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(1, Convert.ToInt32(ds.Tables[0].Rows[0][0]));
       Assert.Equal(2, Convert.ToInt32(ds.Tables[1].Rows[0][0]));
       Assert.Null(fillError);
+#endif
     }
 
+#if !RT
     private static void da_FillError(object sender, FillErrorEventArgs e)
     {
       fillError = e.Errors.Message;
       e.Continue = true;
     }
+#endif
 
     [Fact]
     public void ExecuteWithCreate()
@@ -442,6 +448,19 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.AddWithValue("?str", "Second record");
       cmd.ExecuteNonQuery();
 
+#if RT
+      MySqlCommand cmdSelect = new MySqlCommand("SELECT * FROM Test", st.conn);
+      using (MySqlDataReader dr = cmdSelect.ExecuteReader())
+      {
+        Assert.True(dr.Read());
+        Assert.Equal(1, dr.GetInt32("id"));
+        Assert.Equal("First record", dr.GetString("name"));
+
+        Assert.True(dr.Read());
+        Assert.Equal(2, dr.GetInt32("id"));
+        Assert.Equal("Second record", dr.GetString("name"));
+      }
+#else
       MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", st.conn);
       DataTable dt = new DataTable();
       da.Fill(dt);
@@ -450,6 +469,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(2, dt.Rows[1]["id"]);
       Assert.Equal("First record", dt.Rows[0]["name"]);
       Assert.Equal("Second record", dt.Rows[1]["name"]);
+#endif
     }
 
     /// <summary>
@@ -476,7 +496,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.ExecuteNonQuery();
     }
 
-#if !CF
+#if !CF && !RT
     //[Explicit]
     [Fact]
     public void ProcedureCache()
@@ -554,7 +574,11 @@ namespace MySql.Data.MySqlClient.Tests
 
       MySqlCommand c = new MySqlCommand("spTest", st.conn);
       c.CommandType = CommandType.StoredProcedure;
+#if RT
+      MySqlParameter p = c.CreateParameter();
+#else
       IDataParameter p = c.CreateParameter();
+#endif
       p.ParameterName = "?pp";
       p.Value = 10;
       c.Parameters.Add(p);
@@ -568,7 +592,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !CF
+#if !CF && !RT
 
     /// <summary>
     /// Bug #22452 MySql.Data.MySqlClient.MySqlException: 
@@ -628,6 +652,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+#if !RT
     /// <summary>
     /// Bug #25609 MySqlDataAdapter.FillSchema 
     /// </summary>
@@ -651,6 +676,7 @@ namespace MySql.Data.MySqlClient.Tests
       da.FillSchema(schema, SchemaType.Source);
       Assert.Equal(2, schema.Columns.Count);
     }
+#endif
 
     /// <summary>
     /// Bug #26139 MySqlCommand.LastInsertedId doesn't work for stored procedures 
@@ -686,12 +712,18 @@ namespace MySql.Data.MySqlClient.Tests
       st.execSQL(@"CREATE PROCEDURE spTest(in _val bigint unsigned)
             BEGIN insert into  Test set f1=_val; END");
 
+#if RT
+      MySqlCommand cmd = new MySqlCommand();
+      MySqlParameter param = cmd.CreateParameter();
+      param.MySqlDbType = MySqlDbType.UInt64;
+#else
       DbCommand cmd = new MySqlCommand();
+      DbParameter param = cmd.CreateParameter();
+      param.DbType = DbType.UInt64;
+#endif
       cmd.Connection = st.conn;
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.CommandText = "spTest";
-      DbParameter param = cmd.CreateParameter();
-      param.DbType = DbType.UInt64;
       param.Direction = ParameterDirection.Input;
       param.ParameterName = "?_val";
       ulong bigval = long.MaxValue;
@@ -737,6 +769,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+#if !RT
     [Fact]
     public void AmbiguousColumns()
     {
@@ -762,6 +795,7 @@ namespace MySql.Data.MySqlClient.Tests
       //{
       //}
     }
+#endif
 
     /// <summary>
     /// Bug #41034 .net parameter not found in the collection
@@ -797,11 +831,30 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlCommand cmd = new MySqlCommand(spName, c);
         cmd.CommandType = CommandType.StoredProcedure;
         cmd.Parameters.AddWithValue("?p_2", ("World"));
-        cmd.Parameters[0].DbType = DbType.AnsiString;
         cmd.Parameters[0].Direction = ParameterDirection.Input;
         cmd.Parameters.AddWithValue("?p_1", ("Hello"));
-        cmd.Parameters[1].DbType = DbType.AnsiString;
         cmd.Parameters[1].Direction = ParameterDirection.Input;
+#if RT
+        cmd.Parameters[0].MySqlDbType = MySqlDbType.String;
+        cmd.Parameters[1].MySqlDbType = MySqlDbType.String;
+
+        using (MySqlDataReader dr = cmd.ExecuteReader())
+        {
+          Assert.True(dr.Read());
+          if (!isOwner)
+          {
+            Assert.Equal("World", dr.GetValue(0));
+            Assert.Equal("Hello", dr.GetValue(1));
+          }
+          else
+          {
+            Assert.Equal("Hello", dr.GetString("P1"));
+            Assert.Equal("World", dr.GetString("P2"));
+          }
+        }
+#else
+        cmd.Parameters[0].DbType = DbType.AnsiString;
+        cmd.Parameters[1].DbType = DbType.AnsiString;
         MySqlDataAdapter da = new MySqlDataAdapter(cmd);
         DataTable dt = new DataTable();
         da.Fill(dt);
@@ -815,6 +868,7 @@ namespace MySql.Data.MySqlClient.Tests
           Assert.Equal("Hello", dt.Rows[0]["P1"]);
           Assert.Equal("World", dt.Rows[0]["P2"]);
         }
+#endif
       }
     }
 
@@ -830,6 +884,7 @@ namespace MySql.Data.MySqlClient.Tests
       ParametersInReverseOrderInternal(true);
     }
 
+#if !RT
     [Fact]
     public void DeriveParameters()
     {
@@ -844,6 +899,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommandBuilder.DeriveParameters(cmd);
       Assert.Equal(2, cmd.Parameters.Count);
     }
+#endif
 
     /// <summary>
     /// Bug #52562 Sometimes we need to reload cached function parameters 
@@ -893,7 +949,11 @@ namespace MySql.Data.MySqlClient.Tests
         string[] restrictions = new string[4];
         restrictions[1] = c.Database;
         restrictions[2] = "spTest";
+#if RT
+        string procTable = "table";
+#else
         DataTable procTable = c.GetSchema("procedures", restrictions);
+#endif
         ISSchemaProvider isp = new ISSchemaProvider(c);
         string[] rest = isp.CleanRestrictions(restrictions);
 

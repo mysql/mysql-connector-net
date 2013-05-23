@@ -109,8 +109,13 @@
     <Compile Include="MySqlDataReaderTests.cs" />
     <Compile Include="OutputParametersBatch.cs" />
     <Compile Include="ParameterTests.cs" />
+    <Compile Include="PoolingTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ScriptExecution.cs" />
     <Compile Include="SetUp.cs" />
+    <Compile Include="StoredProcedure.cs" />
+    <Compile Include="StoredProcedureWithAccess.cs" />
+    <Compile Include="Transactions.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -57,6 +57,14 @@ namespace MySql.Data.MySqlClient
         return newString.ToLower();
     }
 
+    public static string ToUpper(this String newString, System.Globalization.CultureInfo culture)
+    {
+      if (culture == System.Globalization.CultureInfo.InvariantCulture)
+        return newString.ToUpperInvariant();
+      else
+        return newString.ToUpper();
+    }
+
     public static string ToLongTimeString(this DateTime dateTime)
     {
       return dateTime.ToString(System.Globalization.DateTimeFormatInfo.CurrentInfo.LongTimePattern);

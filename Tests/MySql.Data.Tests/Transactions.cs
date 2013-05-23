@@ -24,8 +24,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Xunit;
+#if !RT
 using System.Transactions;
 using System.Data.Common;
+#endif
 using System.Data;
 using System.Threading;
 using System.Diagnostics;
@@ -46,6 +48,7 @@ namespace MySql.Data.MySqlClient.Tests
       //Nothing to clean      
     }
 
+#if !RT
     void TransactionScopeInternal(bool commit)
     {
       st.execSQL("DROP TABLE IF EXISTS Test");
@@ -105,6 +108,7 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
     }
+#endif
 
     /// <summary>
     /// Bug #27289 Transaction is not rolledback when connection close 
@@ -203,6 +207,7 @@ namespace MySql.Data.MySqlClient.Tests
 //    }
 
 
+#if !RT
     /// <summary>
     /// Bug #22042 mysql-connector-net-5.0.0-alpha BeginTransaction 
     /// </summary>
@@ -716,5 +721,6 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
     }
+#endif
   }
 }

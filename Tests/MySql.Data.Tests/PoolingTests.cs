@@ -28,7 +28,9 @@ using System.Reflection;
 using System.Threading;
 using System.Data;
 using System.Collections;
+#if !RT
 using System.Timers;
+#endif
 #if NET_40_OR_GREATER
 using System.Threading.Tasks;
 #endif
@@ -134,6 +136,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.False(threadId == secondThreadId);
     }
 
+#if !RT
     [Fact]
     public void ReclaimBrokenConnection()
     {
@@ -154,7 +157,6 @@ namespace MySql.Data.MySqlClient.Tests
 
       // now we do something on the first connection
       
-
       ex = Assert.Throws<InvalidOperationException>(() => c.ChangeDatabase("mysql"));
       Assert.True(ex.Message.Contains("The connection is not open."));
   
@@ -164,6 +166,7 @@ namespace MySql.Data.MySqlClient.Tests
       st.KillConnection(connection);
       connection.Close();
     }
+#endif
 
     [Fact]
     public void TestUserReset()
@@ -187,7 +190,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !CF
+#if !CF && !RT
     // Test that thread does not come to pool after abort
     [Fact]
     public void TestAbort()
@@ -250,7 +253,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !CF
+#if !CF && !RT
 
     private void PoolingWorker(object cn)
     {
@@ -328,6 +331,18 @@ namespace MySql.Data.MySqlClient.Tests
 
     bool IsConnectionAlive(int serverThread)
     {
+#if RT
+      MySqlCommand cmd = new MySqlCommand("SHOW PROCESSLIST", st.conn);
+      using (MySqlDataReader dr = cmd.ExecuteReader())
+      {
+        while (dr.Read())
+        {
+          if (dr.GetInt64("id") == serverThread)
+            return true;
+        }
+      }
+      return false;
+#else
       MySqlDataAdapter da = new MySqlDataAdapter("SHOW PROCESSLIST", st.conn);
       DataTable dt = new DataTable();
       da.Fill(dt);
@@ -335,6 +350,7 @@ namespace MySql.Data.MySqlClient.Tests
         if ((long)row["Id"] == serverThread)
           return true;
       return false;
+#endif
     }
 
 #if CLR4
@@ -470,8 +486,12 @@ namespace MySql.Data.MySqlClient.Tests
     private static List<MySqlPool> GetClearingPools()
     {
       Type poolManagerType = typeof(MySqlPoolManager);
+#if RT
+      FieldInfo clearingPoolsFI = poolManagerType.GetRuntimeField("clearingPools");
+#else
       FieldInfo clearingPoolsFI = poolManagerType.GetField("clearingPools",
         BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance);
+#endif
       return clearingPoolsFI.GetValue(null) as List<MySqlPool>;
     }
 
@@ -568,7 +588,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !CF
+#if !CF && !RT
     private void CacheServerPropertiesInternal(bool cache)
     {
       string connStr = st.GetPoolingConnectionString() +
