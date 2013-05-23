@@ -344,7 +344,7 @@
         <EmbeddedResource Include="v4.x\SQLSyntax.resx">
           <Generator>ResXFileCodeGenerator</Generator>
           <LastGenOutput>SQLSyntax.Designer.cs</LastGenOutput>
-          <LogicalName>MySql.Data.Entity.Tests.XUnit.Properties.SQLSyntax.resources</LogicalName>
+          <LogicalName>MySql.Data.Entity.Tests.Properties.SQLSyntax.resources</LogicalName>
         </EmbeddedResource>
         <None Include="App.Config">
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -353,37 +353,37 @@
         <EntityDeploy Include="v4.x\BooksModel.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>BooksModel.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
         </EntityDeploy>
         <EntityDeploy Include="v4.x\Model1.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>Model1.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
         </EntityDeploy>
         <EntityDeploy Include="v4.x\Model2.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>Model2.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
         </EntityDeploy>
         <EntityDeploy Include="v4.x\Model3.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>Model3.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
         </EntityDeploy>
         <EntityDeploy Include="v4.x\ModelFirstModel1.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>ModelFirstModel1.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
         </EntityDeploy>
         <EntityDeploy Include="v4.x\TestModel.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>TestModel.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
         </EntityDeploy>
         <EntityDeploy Include="v4.x\DatesTypesModel.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>DatesTypesModel.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
         </EntityDeploy>
         <EmbeddedResource Include="Properties\procs.sql" />
         <EmbeddedResource Include="Properties\schema.sql" />
@@ -398,7 +398,7 @@
         <EmbeddedResource Include="v4.x\SQLSyntax.resx">
           <Generator>ResXFileCodeGenerator</Generator>
           <LastGenOutput>SQLSyntax.Designer.cs</LastGenOutput>
-          <LogicalName>MySql.Data.Entity.Tests.XUnit.Properties.SQLSyntax.resources</LogicalName>
+          <LogicalName>MySql.Data.Entity.Tests.Properties.SQLSyntax.resources</LogicalName>
         </EmbeddedResource>
         <None Include="App.Config">
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -407,37 +407,37 @@
         <EntityDeploy Include="v4.x\BooksModel.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>BooksModel.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
         </EntityDeploy>
         <EntityDeploy Include="v4.x\Model1.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>Model1.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
         </EntityDeploy>
         <EntityDeploy Include="v4.x\Model2.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>Model2.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
         </EntityDeploy>
         <EntityDeploy Include="v4.x\Model3.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>Model3.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
         </EntityDeploy>
         <EntityDeploy Include="v4.x\ModelFirstModel1.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>ModelFirstModel1.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
         </EntityDeploy>
         <EntityDeploy Include="v4.x\TestModel.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>TestModel.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
         </EntityDeploy>
         <EntityDeploy Include="v4.x\DatesTypesModel.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>DatesTypesModel.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
         </EntityDeploy>
         <EmbeddedResource Include="Properties\procs.sql" />
         <EmbeddedResource Include="Properties\schema.sql" />
@@ -456,7 +456,7 @@
         <EmbeddedResource Include="v3.5\SQLSyntax.resx">
           <Generator>ResXFileCodeGenerator</Generator>
           <LastGenOutput>SQLSyntax.Designer.cs</LastGenOutput>
-          <LogicalName>MySql.Data.Entity.Tests.XUnit.Properties.SQLSyntax.resources</LogicalName>
+          <LogicalName>MySql.Data.Entity.Tests.Properties.SQLSyntax.resources</LogicalName>
         </EmbeddedResource>
         <None Include="App.Config">
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -465,32 +465,32 @@
         <EntityDeploy Include="v3.5\Model2.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>Model2.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
         </EntityDeploy>
         <EntityDeploy Include="v3.5\Model3.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>Model3.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
         </EntityDeploy>
         <EntityDeploy Include="v3.5\ModelFirstModel1.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>ModelFirstModel1.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
         </EntityDeploy>
         <EntityDeploy Include="v3.5\TestModel.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>TestModel.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
         </EntityDeploy>
         <EntityDeploy Include="v3.5\booksModel.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>booksModel1.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
         </EntityDeploy>
         <EntityDeploy Include="v3.5\Model1.edmx">
           <Generator>EntityModelCodeGenerator</Generator>
           <LastGenOutput>Model11.Designer.cs</LastGenOutput>
-          <CustomToolNamespace>MySql.Data.Entity.Tests.XUnit</CustomToolNamespace>
+          <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
         </EntityDeploy>
         <!--
 		<EntityDeploy Include="DatesTypesModel.edmx">
