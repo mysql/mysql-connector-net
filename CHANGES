@@ -1,4 +1,4 @@
-6.7.3
+6.7.3-beta2
 - Fix for bug in Replication & load balancing (Oracle bug #16762427)
 - Added support for Entity Framework 5.0 when using .net 4.0 (WorkItem #228).
 
