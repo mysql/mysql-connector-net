@@ -27,9 +27,8 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
-#if NET_45_OR_GREATER
 using System.ComponentModel.DataAnnotations.Schema;
-#endif
+
 
 
 namespace MySql.Data.Entity.CodeFirst.Tests

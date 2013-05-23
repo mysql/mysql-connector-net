@@ -28,8 +28,9 @@ using System.Data.Entity;
 using System.ComponentModel.DataAnnotations;
 #if NET_45_OR_GREATER
 using System.Data.Spatial;
-using System.ComponentModel.DataAnnotations.Schema;
 #endif
+using System.ComponentModel.DataAnnotations.Schema;
+
 
 
 namespace MySql.Data.Entity.CodeFirst.Tests

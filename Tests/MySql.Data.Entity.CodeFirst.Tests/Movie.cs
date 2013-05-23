@@ -28,9 +28,7 @@ using System.Linq;
 using System.Text;
 using System.Data.Entity;
 using System.Data.Entity.ModelConfiguration.Conventions;
-#if NET_45_OR_GREATER
 using System.ComponentModel.DataAnnotations.Schema;
-#endif
 
 
 

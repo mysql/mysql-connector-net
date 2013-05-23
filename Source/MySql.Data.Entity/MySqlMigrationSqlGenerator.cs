@@ -492,20 +492,13 @@ namespace MySql.Data.Entity
       foreach (byte item in op.Model)
         model.Append(item.ToString("X2"));
 
-#if NET_45_OR_GREATER
+
       sb.Append("insert into `" + op.Table + "` (`migrationId`, `model`, `productVersion`) ");
       sb.AppendFormat(" values ( '{0}', '{1}', '{2}') ",
                       op.MigrationId,
                       "0x" + model.ToString(),
                       op.ProductVersion);
-#else
-      sb.Append("insert into `" + op.Table + "` (`migrationId`, `createdOn`, `model`, `productVersion`) ");
-      sb.AppendFormat(" values ( '{0}', '{1}', {2}, '{3}' ) ",
-                      op.MigrationId,
-                      op.CreatedOn.ToString("yyyy-MM-dd hh:mm:ss"),
-                      "0x" + model.ToString(),
-                      op.ProductVersion);
-#endif
+
       return new MigrationStatement { Sql = sb.ToString() };
     
     }

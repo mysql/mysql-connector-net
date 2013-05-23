@@ -1,5 +1,6 @@
 6.7.3
 - Fix for bug in Replication & load balancing (Oracle bug #16762427)
+- Added support for Entity Framework 5.0 when using .net 4.0 (WorkItem #228).
 
 6.7.2
 - Fix for Bug "REPAIR" option on connector/net_installer, raise an exception (Oracle Bug #16630567).
