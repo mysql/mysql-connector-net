@@ -41,6 +41,7 @@ namespace MySql.Web.Tests
     private SetUpWeb st;
     private string strSessionID { get; set; }
     private string calledId { get; set; }
+    private AutoResetEvent _evt { get; set; }
 
     public void SetFixture(SetUpWeb data)
     {
@@ -107,7 +108,7 @@ namespace MySql.Web.Tests
       // set our last run table to 1 hour ago
       cmd.CommandText = "UPDATE my_aspnet_sessioncleanup SET LastRun=@lastHour WHERE ApplicationId = @ApplicationId";
       cmd.Parameters.Clear();
-      cmd.Parameters.AddWithValue("@lastHour", timeCreated);
+      cmd.Parameters.AddWithValue("@lastHour", DateTime.Now.Subtract(new TimeSpan(1, 0, 0)));
       cmd.Parameters.AddWithValue("@ApplicationId", AppId);
       cmd.ExecuteNonQuery();
     }
@@ -115,6 +116,7 @@ namespace MySql.Web.Tests
 
     private void SetSessionItemExpiredCallback(bool includeCallback)
     {
+      _evt = new AutoResetEvent(false);
       calledId = null;
 
       CreateSessionData(1, DateTime.Now.Subtract(new TimeSpan(1, 0, 0)));
@@ -139,6 +141,7 @@ namespace MySql.Web.Tests
     public void expireCallback(string id, SessionStateStoreData item)
     {
       calledId = id;
+      _evt.Set();
     }
 
 
@@ -146,6 +149,7 @@ namespace MySql.Web.Tests
     public void SessionItemWithExpireCallback()
     {
       SetSessionItemExpiredCallback(true);
+      _evt.WaitOne();
 
       Assert.Equal(strSessionID, calledId);
 
@@ -181,7 +185,7 @@ namespace MySql.Web.Tests
     {
       // create two sessions of different appId
       // it should delete only 1
-      CreateSessionData(1, DateTime.Now.Subtract(new TimeSpan(1, 0, 0)));
+      CreateSessionData(1, DateTime.Now.Subtract(new TimeSpan(1, 10, 0)));
       CreateSessionData(2, DateTime.Now.Subtract(new TimeSpan(1, 0, 0)));
 
       MySqlSessionStateStore session = new MySqlSessionStateStore();
@@ -192,15 +196,14 @@ namespace MySql.Web.Tests
       config.Add("enableExpireCallback", "false");
       session.Initialize("SessionTests", config);
 
-      session.Dispose();
-
       int i = 0;
-      while (((long)MySqlHelper.ExecuteScalar(st.conn, "SELECT Count(*) FROM my_aspnet_sessions;") != 0) && (i < 10))
+      while (CountSessions() == 2 && (i < 10))
       {
         Thread.Sleep(500);
         i++;
       }
 
+      session.Dispose();
       Assert.Equal(1, CountSessions());
 
     }
@@ -280,24 +283,35 @@ namespace MySql.Web.Tests
           {
             ThreadRequestData data = (ThreadRequestData)data1;
             Debug.WriteLine(string.Format("Requesting {0}", data.pageName));
-            HttpWebRequest req1 =
-              (HttpWebRequest)WebRequest.Create(string.Format(@"{0}{1}", url, data.pageName));
-            req1.Timeout = 2000000;
-            WebResponse res1 = req1.GetResponse();
-            Debug.WriteLine(string.Format("Response from {0}", data.pageName));
-            Stream s = res1.GetResponseStream();
-            while (s.ReadByte() != -1)
-              ;
-            res1.Close();
-            if (data.FirstDateToUpdate)
+            try
             {
-              firstDt = DateTime.Now;
+              HttpWebRequest req1 =
+                (HttpWebRequest)WebRequest.Create(string.Format(@"{0}{1}", url, data.pageName));
+              req1.Timeout = 2000000;
+              WebResponse res1 = req1.GetResponse();
+              Debug.WriteLine(string.Format("Response from {0}", data.pageName));
+              Stream s = res1.GetResponseStream();
+              while (s.ReadByte() != -1)
+                ;
+              res1.Close();
+              if (data.FirstDateToUpdate)
+              {
+                firstDt = DateTime.Now;
+              }
+              else
+              {
+                secondDt = DateTime.Now;
+              }
             }
-            else
+            catch (Exception e)
             {
-              secondDt = DateTime.Now;
+              Debug.WriteLine(string.Format("Server error: {0}", e.ToString()));
+              throw;
             }
-            data.signal.Set();
+            finally
+            {
+              data.signal.Set();
+            }
           };
 
         Thread t = new Thread(ts);

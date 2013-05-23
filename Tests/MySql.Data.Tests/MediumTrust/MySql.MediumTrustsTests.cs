@@ -15,34 +15,16 @@ namespace MySql.Data.MySqlClient.Tests.Xunit
 
  [RunWith(typeof(MediumTrustTestClassCommand))] 
  [MediumTrustFixture]
- public class MySqlMediumTrustTests : MarshalByRefObject, IDisposable
-  {
-
-   private SetUpClass st { get; set; }
-
-   private string db {get; set;}
+ public class MySqlMediumTrustTests : MarshalByRefObject
+  {   
    
-   public MySqlMediumTrustTests()
-   {    
-     st = new SetUpClass();   
-   }
-
     [Fact]
     public void TestConnectionStrings()
-    {
-      if(st != null)  st.suExecSQL("Create database Medium_TrustDB");
+    {      
       MySqlConnection c = new MySqlConnection();
-      c.ConnectionString = "server=localhost;userid=root;database=Medium_TrustDB;port=3305;includesecurityasserts=true;";
+      c.ConnectionString = "server=localhost;userid=root;database=mysql;port=3305;includesecurityasserts=true;";
       c.Open();
-      c.Close();
-      st.suExecSQL("Drop database Medium_TrustDB");
-    }
-
-    public void Dispose()
-    {
-     if (st != null)
-      st.Dispose();
-      // TODO: to add more operations when disposing  
+      c.Close();     
     }
   }
 }
