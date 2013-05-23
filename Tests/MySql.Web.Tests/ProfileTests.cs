@@ -31,6 +31,7 @@ using System.Reflection;
 using System.Configuration;
 using System.Data;
 using System.Web.Profile;
+using MySql.Data.MySqlClient;
 
 namespace MySql.Web.Tests
 {
@@ -41,11 +42,16 @@ namespace MySql.Web.Tests
     public void SetFixture(SetUpWeb data)
     {
       st = data;
+      st.rootConn.Close();
+      st.rootConn = new MySqlConnection("server=localhost;userid=root;pwd=;database=" + st.conn.Database + ";port=" + st.port);
+      st.rootConn.Open();
     }
 
     public void Dispose()
     {
-      //Nothing to clean
+      st.ExecuteSQLAsRoot("Delete from my_aspnet_profiles");
+      st.ExecuteSQLAsRoot("Delete from my_aspnet_users");      
+      st.ExecuteSQLAsRoot("Delete from my_aspnet_applications");
     }
 
     private MySQLProfileProvider InitProfileProvider()
@@ -77,21 +83,26 @@ namespace MySql.Web.Tests
       provider.SetPropertyValues(ctx, values);
 
       DataTable dt = st.FillTable("SELECT * FROM my_aspnet_applications");
-      Assert.Equal(1, dt.Rows.Count);
+      Assert.True(1 == dt.Rows.Count, "Rows count on table my_aspnet_applications is not 1");      
+      
       dt = st.FillTable("SELECT * FROM my_aspnet_users");
-      Assert.Equal(1, dt.Rows.Count);
+      Assert.True(1 == dt.Rows.Count, "Rows count on table my_aspnet_users is not 1");            
+
+
       dt = st.FillTable("SELECT * FROM my_aspnet_profiles");
-      Assert.Equal(1, dt.Rows.Count);
+      Assert.True(1 == dt.Rows.Count, "Rows count on table my_aspnet_profiles is not 1");                       
 
       values["color"].PropertyValue = "green";
       provider.SetPropertyValues(ctx, values);
 
       dt = st.FillTable("SELECT * FROM my_aspnet_applications");
-      Assert.Equal(1, dt.Rows.Count);
+      Assert.True(1 == dt.Rows.Count, "Rows count on table my_aspnet_applications is not 1 after setting property");      
+
       dt = st.FillTable("SELECT * FROM my_aspnet_users");
-      Assert.Equal(1, dt.Rows.Count);
+      Assert.True(1 == dt.Rows.Count, "Rows count on table my_aspnet_users is not 1 after setting property");            
+
       dt = st.FillTable("SELECT * FROM my_aspnet_profiles");
-      Assert.Equal(1, dt.Rows.Count);
+      Assert.True(1 == dt.Rows.Count, "Rows count on table my_aspnet_profiles is not 1 after setting property");                       
     }
 
     [Fact]
@@ -112,12 +123,15 @@ namespace MySql.Web.Tests
 
       provider.SetPropertyValues(ctx, values);
 
-      DataTable dt = st.FillTable("SELECT * FROM my_aspnet_applications");
-      Assert.Equal(0, dt.Rows.Count);
-      dt = st.FillTable("SELECT * FROM my_aspnet_users");
-      Assert.Equal(0, dt.Rows.Count);
+      DataTable dt = st.FillTable("SELECT * FROM my_aspnet_applications");      
+      Assert.True(0 == dt.Rows.Count, "Table my_aspnet_applications Rows is not 0");
+
+      dt = st.FillTable("SELECT * FROM my_aspnet_users");      
+      Assert.True(0 == dt.Rows.Count, "Table my_aspnet_users Rows is not 0");
+
       dt = st.FillTable("SELECT * FROM my_aspnet_profiles");
-      Assert.Equal(0, dt.Rows.Count);
+      Assert.True(0 == dt.Rows.Count, "Table my_aspnet_profiles Rows is not 0");
+      
     }
 
     [Fact]
