@@ -520,5 +520,61 @@ ORDER BY
 RAND()
 LIMIT 1", false, out sb);
     }
+
+    [Fact]
+    public void MixingParenthesisInTable()
+    {
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(@"select * from (( select * from actor )) as t limit 1", false, out sb);
+    }
+
+    [Fact]
+    public void MixingParenthesisInTable2()
+    {
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(@"select * from ( actor ) as t limit 1", true, out sb);
+    }
+
+    [Fact]
+    public void MixingParenthesisInTable3()
+    {
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(@"select * from ( actor ) limit 1", false, out sb);
+    }
+
+    [Fact]
+    public void MixingParenthesisInTable4()
+    {
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(@"select * from ( actor ), film limit 1", false, out sb);
+    }
+
+    [Fact]
+    public void MixingParenthesisInTable5()
+    {
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(@"select * from ( actor ), ( film  ) limit 1", false, out sb);
+    }
+
+    [Fact]
+    public void MixingParenthesisInTable6()
+    {
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(@"select * from (( actor )) limit 1", false, out sb);
+    }
+
+    [Fact]
+    public void MixingParenthesisInTable7()
+    {
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(@"select * from (( actor )), film limit 1", false, out sb);
+    }
+
+    [Fact]
+    public void MixingParenthesisInTable8()
+    {
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(@"select * from (( actor )), ((( film  ))) limit 1", false, out sb);
+    }
   }
 }

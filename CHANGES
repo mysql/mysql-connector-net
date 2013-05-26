@@ -31,6 +31,7 @@
   (MySql bug #69065, Oracle bug #16770384).
 - Fix for Debugger issue, Values through watch tab shouldn't allow to be modified (Oracle bug #14545448).
 - Fix for Visual Studio Mysql editor colors cannot be customized (Oracle bug #16453324, MySql bug #67994).
+- Fix for Parser fails to recognizes a complex view (Oracle bug #16815427).
 
 
 6.6.5
