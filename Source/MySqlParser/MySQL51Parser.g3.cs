@@ -1,4 +1,4 @@
-﻿// Copyright © 2012, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -71,7 +71,12 @@ namespace MySql.Parser
       errKeywords.Add("column_name", "");
       errKeywords.Add("proc_name", "");
     }
-	}
+
+    protected virtual bool IsSelectSeen()
+    {
+      return false;
+    }
+  }
 
   public class MySQLParser : MySQL51Parser
   {
@@ -210,6 +215,13 @@ namespace MySql.Parser
 #endif
     {
       Scope.Pop();
+    }
+
+    protected override bool IsSelectSeen()
+    {
+      int i = 1;
+      while (input.LA(i) == MySQL51Lexer.LPAREN) i++;
+      return (input.LA(i) == MySQL51Lexer.SELECT);
     }
 
     public override string GetErrorMessage(

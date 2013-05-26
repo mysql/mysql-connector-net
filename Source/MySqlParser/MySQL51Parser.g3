@@ -800,9 +800,15 @@ table_ref
 	;
 	
 table_factor
-	:	simple_table_ref_alias_with_partition index_hint_list? {$table_references::count++;} -> ^(TABLE simple_table_ref_alias_with_partition index_hint_list?)
-	|	LPAREN select RPAREN AS? ident		{$table_references::count++;} -> ^(SUBSELECT select ^(ALIAS ident))
-    //|   LPAREN table_ref {$table_references::count++;} (COMMA table_ref {$table_references::count++;} )* RPAREN   -> ^(TABLE table_ref+)
+scope
+{
+	bool isSelectSeen;
+}
+@init { $table_factor::isSelectSeen = IsSelectSeen(); }
+	:	( simple_table_ref_alias_with_partition index_hint_list? {$table_references::count++;} -> ^(TABLE simple_table_ref_alias_with_partition index_hint_list?) )
+	| ( { !$table_factor::isSelectSeen }? ( ( LPAREN ) => ( LPAREN table_ref RPAREN ) ) -> ^( TABLE table_ref ) ) 
+	| ( ( LPAREN ) => LPAREN select RPAREN AS? ident		{$table_references::count++;} -> 
+		^(SUBSELECT select ^(ALIAS ident)) )     //|   LPAREN table_ref {$table_references::count++;} (COMMA table_ref {$table_references::count++;} )* RPAREN   -> ^(TABLE table_ref+)
 	/* ident in the following should really by 'OJ', but the parser accepts any identifier in its place 
 	|	LCURLY ident t1=table_ref LEFT OUTER JOIN t2=table_ref join_condition_on RCURLY 
 			-> ^(ident $t1 $t2 join_condition_on) */
@@ -859,8 +865,8 @@ simple_table_ref_alias
 	;
 
 table_alias
-	:	{ input.LT(1).Text.ToLower() == "as" }? AS alias=ident	-> ^(ALIAS $alias)
-	|	alias=ident	-> ^(ALIAS $alias)
+	:	( { input.LT(1).Text.ToLower() == "as" }? AS alias=ident	-> ^(ALIAS $alias) )
+	|	( alias=ident	-> ^(ALIAS $alias) )
 	;
 
 field_name

@@ -8,6 +8,7 @@
 - Fix for databases not displayed in connect dialog for mysql script when correcting credentials, after entering a bad password
   (Oracle bug #13805337).
 - Fix for Visual Studio Mysql editor colors cannot be customized (Oracle bug #16453324, MySql bug #67994).
+- Fix for Parser fails to recognizes a complex view (Oracle bug #16815427).
 
 
 6.5.6
