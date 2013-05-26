@@ -1126,4 +1126,7 @@ Check that the server is running, the database exists and the user Error establi
   <data name="NewPassword_ProvideNewPassword" xml:space="preserve">
     <value>Please provide a new password</value>
   </data>
+  <data name="AutoIncrementPrimaryKey" xml:space="preserve">
+    <value>Any autoincrement columns needs to be set as primary key.</value>
+  </data>
 </root>

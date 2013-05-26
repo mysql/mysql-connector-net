@@ -145,6 +145,15 @@ namespace MySql.Data.VisualStudio.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Any autoincrement columns needs to be set as primary key..
+        /// </summary>
+        public static string AutoIncrementPrimaryKey {
+            get {
+                return ResourceManager.GetString("AutoIncrementPrimaryKey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         public static System.Drawing.Bitmap bannrbmp {
