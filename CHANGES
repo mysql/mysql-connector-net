@@ -1,6 +1,3 @@
-- Fix for Entity Framework when inserts data having Identity columns (Oracle bug #16494585).
-
-
 6.6.6
 - Fix for GetSchema returning MySqlException instead of ArgumentException when passing an invalid collection name
   (Oracle bug #16271425, MySql bug #67901).
@@ -35,6 +32,7 @@
 - Fix for Parser fails to recognizes a complex view (Oracle bug #16815427).
 - Fix for Altering table's primary key in designer not working (Oracle bug #16866053).
 - Fix for Connector/NET cannot read data from a MySql table using UTF-16/UTF-32 (MySql bug #69169, Oracle bug #16776818).
+- Fix for Entity Framework when inserts data having Identity columns (Oracle bug #16494585).
 
 
 6.6.5
