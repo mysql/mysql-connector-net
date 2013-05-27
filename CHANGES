@@ -1,3 +1,4 @@
+- Fix for Entity Framework when inserts data having Identity columns (Oracle bug #16494585).
 
 
 6.6.6
