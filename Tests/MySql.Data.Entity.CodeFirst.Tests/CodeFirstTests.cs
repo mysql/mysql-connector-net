@@ -348,6 +348,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
     {
       using (VehicleDbContext context = new VehicleDbContext())
       {
+        context.Database.ExecuteSqlCommand("SET GLOBAL sql_mode='STRICT_ALL_TABLES'");
         if (context.Database.Exists()) context.Database.Delete();
         context.Database.CreateIfNotExists();
 

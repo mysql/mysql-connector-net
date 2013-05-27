@@ -1,6 +1,13 @@
+
+6.7.4
+- Fix for Entity Framework when inserts data having Identity columns (Oracle bug #16494585).
+- Fix for Connector/NET cannot read data from a MySql table using UTF-16/UTF-32 (MySql bug #69169, Oracle bug #16776818).
+
+
 6.7.3
 - Fix for bug in Replication & load balancing (Oracle bug #16762427)
 - Added support for Entity Framework 5.0 when using .net 4.0 (WorkItem #228).
+
 
 6.7.2
 - Fix for Bug "REPAIR" option on connector/net_installer, raise an exception (Oracle Bug #16630567).
@@ -9,9 +16,11 @@
 - Fix for Incorrect assemblies runtime version installed (Oracle Bug #16725274).
 - Fix for Core assemblies not listed in add reference dialog for .net 4.5 (Oracle Bug #16704115).
 
+
 6.7.1
 - Fix for Bug Assemblies for .net 4.5 are not included in the installation (Oracle Bug #16463655).
 - Fix for Bug Geometry Provider Incompatible Exception (Oracle Bug # 16453250).
+
 
 6.7.0
 - Fix for bug Keyword not supported. Parameter name: AttachDbFilename (Mysql bug #66880, Oracle bug #14733472).

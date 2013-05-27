@@ -371,6 +371,125 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(20, ds.Tables[0].Columns["longname"].MaxLength);
     }
 
+   /// <summary>
+   /// Test for fix of Connector/NET cannot read data from a MySql table using UTF-16/UTF-32
+   /// (MySql bug #69169, Oracle bug #16776818).
+   /// </summary>
+   [Fact]
+   public void UsingUtf16()
+   {
+     MySqlConnection con = new MySqlConnection(st.GetConnectionString(true));
+     con.Open();
+     try
+     {
+       MySqlCommand cmd = new MySqlCommand("", con);
+       cmd.CommandText = "drop table if exists `actor`";
+       cmd.ExecuteNonQuery();
+       cmd.CommandText = @"CREATE TABLE `actor` (
+    `actor_id` smallint(5) unsigned NOT NULL DEFAULT '0',
+    `first_name` varchar(45) NOT NULL,
+    `last_name` varchar(45) NOT NULL,
+    `last_update` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00'
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf16";
+       cmd.ExecuteNonQuery();
+
+       string[] firstNames = new string[] { "PENELOPE", "NICK", "ED" };
+       string[] lastNames = new string[] { "GUINESS", "WAHLBERG", "CHASE" };
+       DateTime[] lastUpdates = new DateTime[] { 
+          new DateTime(2006, 2, 15, 4, 34, 33), new DateTime(2007, 2, 15, 4, 34, 33), new DateTime(2008, 4, 15, 4, 34, 33) };
+       for (int i = 0; i < firstNames.Length; i++)
+       {
+         cmd.CommandText = string.Format(
+           "insert into `actor`( actor_id, first_name, last_name, last_update ) values ( {0}, '{1}', '{2}', '{3}' )",
+           i, firstNames[i], lastNames[i], lastUpdates[i].ToString("yyyy/MM/dd hh:mm:ss"));
+         cmd.ExecuteNonQuery();
+       }
+
+       cmd.CommandText = "select actor_id, first_name, last_name, last_update from `actor`";
+
+       using (MySqlDataReader r = cmd.ExecuteReader())
+       {
+         int j = 0;
+         while (r.Read())
+         {
+           for (int i = 0; i < r.FieldCount; i++)
+           {
+             Assert.True(j == r.GetInt32(0));
+             Assert.True(firstNames[j] == r.GetString(1));
+             Assert.True(lastNames[j] == r.GetString(2));
+             Assert.True(lastUpdates[j] == r.GetDateTime(3));
+           }
+           j++;
+         }
+       }
+     }
+     finally {
+       MySqlCommand cmd = new MySqlCommand("drop table if exists `actor`", con);
+       cmd.ExecuteNonQuery();
+       con.Close(); 
+     }
+   }
+
+   /// <summary>
+   /// 2nd part of tests for fix of Connector/NET cannot read data from a MySql table using UTF-16/UTF-32
+   /// (MySql bug #69169, Oracle bug #16776818).
+   /// </summary>
+   [Fact]
+   public void UsingUtf32()
+   {
+     MySqlConnection con = new MySqlConnection(st.GetConnectionString(true));
+     con.Open();
+     try
+     {
+       MySqlCommand cmd = new MySqlCommand("", con);
+       cmd.CommandText = "drop table if exists `actor`";
+       cmd.ExecuteNonQuery();
+       cmd.CommandText = @"CREATE TABLE `actor` (
+    `actor_id` smallint(5) unsigned NOT NULL DEFAULT '0',
+    `first_name` varchar(45) NOT NULL,
+    `last_name` varchar(45) NOT NULL,
+    `last_update` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00'
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf32";
+       cmd.ExecuteNonQuery();
+
+       string[] firstNames = new string[] { "PENELOPE", "NICK", "ED" };
+       string[] lastNames = new string[] { "GUINESS", "WAHLBERG", "CHASE" };
+       DateTime[] lastUpdates = new DateTime[] { 
+          new DateTime(2006, 2, 15, 4, 34, 33), new DateTime(2007, 2, 15, 4, 34, 33), new DateTime(2008, 4, 15, 4, 34, 33) };
+       for (int i = 0; i < firstNames.Length; i++)
+       {
+         cmd.CommandText = string.Format(
+           "insert into `actor`( actor_id, first_name, last_name, last_update ) values ( {0}, '{1}', '{2}', '{3}' )",
+           i, firstNames[i], lastNames[i], lastUpdates[i].ToString("yyyy/MM/dd hh:mm:ss"));
+         cmd.ExecuteNonQuery();
+       }
+
+       cmd.CommandText = "select actor_id, first_name, last_name, last_update from `actor`";
+
+       using (MySqlDataReader r = cmd.ExecuteReader())
+       {
+         int j = 0;
+         while (r.Read())
+         {
+           for (int i = 0; i < r.FieldCount; i++)
+           {
+             Assert.True(j == r.GetInt32(0));
+             Assert.True(firstNames[j] == r.GetString(1));
+             Assert.True(lastNames[j] == r.GetString(2));
+             Assert.True(lastUpdates[j] == r.GetDateTime(3));
+           }
+           j++;
+         }
+       }
+     }
+     finally {
+       MySqlCommand cmd = new MySqlCommand("drop table if exists `actor`", con);
+       cmd.ExecuteNonQuery();
+       con.Close(); 
+     }
+   }
+
+
    public void Dispose()
    {
      st.execSQL("DROP TABLE IF EXISTS TEST");
