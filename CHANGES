@@ -11,6 +11,7 @@
 - Fix for Visual Studio Mysql editor colors cannot be customized (Oracle bug #16453324, MySql bug #67994).
 - Fix for Parser fails to recognizes a complex view (Oracle bug #16815427).
 - Fix for Altering table's primary key in designer not working (Oracle bug #16866053).
+- Fix for Connector/NET cannot read data from a MySql table using UTF-16/UTF-32 (MySql bug #69169, Oracle bug #16776818).
 
 
 6.5.6
