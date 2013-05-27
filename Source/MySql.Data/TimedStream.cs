@@ -22,7 +22,6 @@
 
 using System;
 using System.IO;
-using System.Net.Sockets;
 using System.Diagnostics;
 using MySql.Data.Common;
 
@@ -59,7 +58,7 @@ namespace MySql.Data.MySqlClient
     public TimedStream(Stream baseStream)
     {
       this.baseStream = baseStream;
-#if !CF
+#if !CF && !RT
       timeout = baseStream.ReadTimeout;
 #else
             timeout = System.Threading.Timeout.Infinite;
@@ -106,7 +105,7 @@ namespace MySql.Data.MySqlClient
       {
         if (ShouldResetStreamTimeout(lastReadTimeout, streamTimeout))
         {
-#if !CF
+#if !CF && !RT
           baseStream.ReadTimeout = streamTimeout;
 #endif
           lastReadTimeout = streamTimeout;
@@ -116,7 +115,7 @@ namespace MySql.Data.MySqlClient
       {
         if (ShouldResetStreamTimeout(lastWriteTimeout, streamTimeout))
         {
-#if !CF
+#if !CF && !RT
           baseStream.WriteTimeout = streamTimeout;
 #endif
           lastWriteTimeout = streamTimeout;
@@ -266,12 +265,21 @@ namespace MySql.Data.MySqlClient
       set { baseStream.WriteTimeout = value; }
     }
 
+#if RT
+    public void Close()
+#else
     public override void Close()
+#endif
     {
       if (isClosed)
         return;
       isClosed = true;
+#if !RT
       baseStream.Close();
+#endif
+#if !CF
+      baseStream.Dispose();
+#endif
     }
 
     public void ResetTimeout(int newTimeout)

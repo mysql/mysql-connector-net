@@ -1,4 +1,4 @@
-﻿// Copyright © 2004, 2010, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,13 +20,11 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-//  This code was contributed by Sean Wright (srwright@alcor.concordia.ca) on 2007-01-12
-//  The copyright was assigned and transferred under the terms of
-//  the MySQL Contributor License Agreement (CLA)
-
 using System;
 using System.Collections.Generic;
+
 using System.Text;
+using Xunit;
 using System.Web.Profile;
 using System.Web.Security;
 

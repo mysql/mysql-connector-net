@@ -1,4 +1,4 @@
-// Copyright (c) 2011 Oracle, Inc. All Rights Reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,20 +21,31 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Data;
-using System.Threading;
-using MySql.Data.MySqlClient;
-using NUnit.Framework;
+using System.Collections.Generic;
+using System.Text;
+using Xunit;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  [TestFixture]
-  public class ReplicationTests : BaseTest
+  public class ReplicationTests: IUseFixture<SetUpClass>, IDisposable
   {
-    [Test]
+    private SetUpClass st;
+
+    public void SetFixture(SetUpClass data)
+    {
+      st = data;      
+    }
+
+    public void Dispose()
+    {
+      //Nothing to clean
+    }
+   
+    
+    [Fact]
     public void Simple()
     {
-      using (MySqlConnection connection = new MySqlConnection(GetConnectionString(true) + ";replication=yes"))
+      using (MySqlConnection connection = new MySqlConnection(st.GetConnectionString(true) + ";replication=yes"))
       {
         MySqlCommand cmd = new MySqlCommand("SET @v=1", connection);
         try
@@ -44,7 +55,7 @@ namespace MySql.Data.MySqlClient.Tests
         }
         catch (MySqlException ex)
         {
-          Assert.IsTrue(ex.Message.Contains("Replicated"));
+          Assert.True(ex.Message.Contains("Replicated"));
         }
       }
     }

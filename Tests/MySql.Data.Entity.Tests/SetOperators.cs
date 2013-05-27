@@ -1,4 +1,4 @@
-// Copyright © 2008, 2011, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -27,21 +27,27 @@ using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.Tests;
 using System.Data.EntityClient;
 using System.Data.Common;
-using NUnit.Framework;
 using System.Data.Objects;
 using System.Linq;
 using MySql.Data.Entity.Tests.Properties;
+using Xunit;
+using MySql.Data.Entity.Tests;
 
 namespace MySql.Data.Entity.Tests
-{
-  [TestFixture]
-  public class SetOperators : BaseEdmTest
+{  
+  public class SetOperators : IUseFixture<SetUpEntityTests>
   {
-    [Test]
+    private SetUpEntityTests st;
+
+    public void SetFixture(SetUpEntityTests data)
+    {
+      st = data;
+    }
+    [Fact]
     public void Any()
     {
       MySqlDataAdapter da = new MySqlDataAdapter(
-          @"SELECT a.id FROM authors a WHERE NOT EXISTS(SELECT * FROM books b WHERE b.author_id=a.id)", conn);
+          @"SELECT a.id FROM authors a WHERE NOT EXISTS(SELECT * FROM books b WHERE b.author_id=a.id)", st.conn);
       DataTable dt = new DataTable();
       da.Fill(dt);
 
@@ -52,17 +58,17 @@ namespace MySql.Data.Entity.Tests
         var authors = from a in context.Authors where !a.Books.Any() select a;
 
         string sql = authors.ToTraceString();
-        CheckSql(sql, SQLSyntax.Any);
+        st.CheckSql(sql, SQLSyntax.Any);
 
         foreach (Author a in authors)
-          Assert.AreEqual(dt.Rows[i++]["id"], a.Id);
+          Assert.Equal(dt.Rows[i++]["id"], a.Id);
       }
     }
 
-    [Test]
+    [Fact]
     public void FirstSimple()
     {
-      MySqlCommand cmd = new MySqlCommand("SELECT id FROM orders", conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT id FROM orders", st.conn);
       int id = (int)cmd.ExecuteScalar();
 
       using (testEntities context = new testEntities())
@@ -71,14 +77,14 @@ namespace MySql.Data.Entity.Tests
                 select o;
         Order order = q.First() as Order;
 
-        Assert.AreEqual(id, order.Id);
+        Assert.Equal(id, order.Id);
       }
     }
 
-    [Test]
+    [Fact]
     public void FirstPredicate()
     {
-      MySqlCommand cmd = new MySqlCommand("SELECT id FROM orders WHERE freight > 100", conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT id FROM orders WHERE freight > 100", st.conn);
       int id = (int)cmd.ExecuteScalar();
 
       using (testEntities context = new testEntities())
@@ -87,16 +93,16 @@ namespace MySql.Data.Entity.Tests
                 where o.Freight > 100
                 select o;
         Order order = q.First() as Order;
-        Assert.AreEqual(id, order.Id);
+        Assert.Equal(id, order.Id);
       }
     }
 
-    [Test]
+    [Fact]
     public void Distinct()
     {
       using (testEntities context = new testEntities())
       {
-        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Companies LIMIT 2", conn);
+        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Companies LIMIT 2", st.conn);
         DataTable dt = new DataTable();
         da.Fill(dt);
 
@@ -104,7 +110,7 @@ namespace MySql.Data.Entity.Tests
         var query = context.Companies.Top("2");
         foreach (Company c in query)
         {
-          Assert.AreEqual(dt.Rows[i++]["id"], c.Id);
+          Assert.Equal(dt.Rows[i++]["id"], c.Id);
         }
       }
     }

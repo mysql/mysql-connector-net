@@ -23,13 +23,14 @@
 
 using System;
 using System.Globalization;
-using System.Text;
 using MySql.Data.Common;
 using MySql.Data.MySqlClient.Properties;
 using System.Security.Cryptography;
-//#if CF
-//using OpenNETCF.Security.Cryptography;
-//#endif
+#if RT
+using MySql.Data.MySqlClient.RT;
+#else
+using System.Text;
+#endif
 
 namespace MySql.Data.MySqlClient
 {
@@ -85,7 +86,7 @@ namespace MySql.Data.MySqlClient
       // if we have no password, then we just return 2 zero bytes
       if (password.Length == 0) return new byte[1];
 
-      SHA1 sha = new SHA1CryptoServiceProvider(); 
+      SHA1 sha = new SHA1CryptoServiceProvider();
 
       byte[] firstHash = sha.ComputeHash(Encoding.Default.GetBytes(password));
       byte[] secondHash = sha.ComputeHash(firstHash);

@@ -3,6 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <TargetFrameworkProfile />
     <!--
     <Framework Condition=" '$(Framework)' == '' and '$(VisualStudioVersion)' == '10.0'">4.0</Framework>
     <Framework Condition=" '$(Framework)' == '' and '$(VisualStudioVersion)' == '11.0'">4.5</Framework>
@@ -71,22 +72,30 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
+    <BaseOutputPath>$(TargetFrameworkVersion)\</BaseOutputPath>
+    <BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>obj\$(TargetFrameworkVersion)\</IntermediateOutputPath>
     <OutputPath>bin\$(TargetFrameworkVersion)\Debug\</OutputPath>
     <DefineConstants>$(DefineConstants);DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <UseVSHostingProcess>true</UseVSHostingProcess>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
+    <BaseOutputPath>$(TargetFrameworkVersion)\</BaseOutputPath>
+    <BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>obj\$(TargetFrameworkVersion)\</IntermediateOutputPath>
     <OutputPath>bin\$(TargetFrameworkVersion)\Release\</OutputPath>
     <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile>bin\Release\MySql.Data.XML</DocumentationFile>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -110,7 +119,9 @@
     <Compile Include="Authentication\WindowsAuthenticationPlugin.cs" />
     <Compile Include="BulkLoader.cs" />
     <Compile Include="CharSetMap.cs" />
-    <Compile Include="command.cs" />
+    <Compile Include="command.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="CommandBuilder.cs" />
     <Compile Include="common\Cache.cs" />
     <Compile Include="common\ContextString.cs" />
@@ -123,6 +134,7 @@
     <Compile Include="common\QueryNormalizer.cs" />
     <Compile Include="common\SharedMemoryStream.cs" />
     <Compile Include="common\StreamCreator.cs" />
+    <Compile Include="common\StringUtility.cs" />
     <Compile Include="common\Version.cs" />
     <Compile Include="CompressedStream.cs" />
     <Compile Include="Connection.cs">
@@ -133,6 +145,19 @@
     <Compile Include="datareader.cs" />
     <Compile Include="Driver.cs" />
     <Compile Include="Exception.cs" />
+    <Compile Include="extensions\NonRT\MySqlCommand.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="extensions\NonRT\MySqlConnection.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="extensions\NonRT\MySqlConnectionStringBuilder.cs" />
+    <Compile Include="extensions\NonRT\MySqlDataReader.cs" />
+    <Compile Include="extensions\NonRT\MySqlDateTime.cs" />
+    <Compile Include="extensions\NonRT\MySqlParameter.cs" />
+    <Compile Include="extensions\NonRT\MySqlParameterCollection.cs" />
+    <Compile Include="extensions\NonRT\MySqlTrace.cs" />
+    <Compile Include="extensions\NonRT\MySqlTransaction.cs" />
     <Compile Include="Field.cs" />
     <Compile Include="Installer.cs">
       <SubType>Component</SubType>
@@ -141,15 +166,12 @@
     <Compile Include="Interceptors\Interceptor.cs" />
     <Compile Include="Interceptors\ExceptionInterceptor.cs" />
     <Compile Include="ISSchemaProvider.cs" />
-    <Compile Include="LoadBalancing\LoadBalancingConfiguration.cs" />
-    <Compile Include="LoadBalancing\LoadBalancingManager.cs" />
-    <Compile Include="LoadBalancing\LoadBalancingServerSelector.cs" />
-
-    <Compile Include="Memcached\BinaryClient.cs" />    
+    <Compile Include="Memcached\BinaryClient.cs" />
+    <Compile Include="Memcached\MemcachedException.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Memcached\TextClient.cs" />
-    <Compile Include="Memcached\MemcachedException.cs" />
     <Compile Include="Memcached\Client.cs" />
-
     <Compile Include="MySqlClientFactory.cs" />
     <Compile Include="MySqlClientPermission.cs" />
     <Compile Include="MySqlConfiguration.cs" />
@@ -165,7 +187,6 @@
     <Compile Include="MySqlScript.cs" />
     <Compile Include="MySqlSecurityPermission.cs" />
     <Compile Include="MySqlStream.cs" />
-    <Compile Include="MySqlTrace.cs" />
     <Compile Include="NativeDriver.cs" />
     <Compile Include="parameter.cs" />
     <Compile Include="parameter_collection.cs" />
@@ -174,10 +195,17 @@
     <Compile Include="ProcedureCache.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\VersionInfo.cs" />
+    <Compile Include="Replication\ReplicationConfiguration.cs" />
+    <Compile Include="Replication\ReplicationManager.cs" />
+    <Compile Include="Replication\ReplicationRoundRobinServerGroup.cs" />
+    <Compile Include="Replication\ReplicationServer.cs" />
+    <Compile Include="Replication\ReplicationServerGroup.cs" />
     <Compile Include="ResultSet.cs" />
+    <Compile Include="Schema.cs" />
     <Compile Include="SchemaProvider.cs" />
     <Compile Include="Statement.cs" />
     <Compile Include="StoredProcedure.cs" />
+    <Compile Include="SystemPerformanceMonitor.cs" />
     <Compile Include="TableCache.cs" />
     <Compile Include="TimedStream.cs" />
     <Compile Include="TracingDriver.cs" />

@@ -21,20 +21,23 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
+#if !RT
 using System.Data;
 using System.Data.Common;
+#endif
 using System.Collections;
 using MySql.Data.Types;
-using System.Data.SqlTypes;
 using System.Collections.Generic;
 using System.Globalization;
 using MySql.Data.MySqlClient.Properties;
 using MySql.Data.Common;
+using MySql.Data.MySqlClient;
+using System.Threading;
 
 namespace MySql.Data.MySqlClient
 {
   /// <include file='docs/MySqlDataReader.xml' path='docs/ClassSummary/*'/>
-  public sealed class MySqlDataReader : DbDataReader, IDataReader, IDataRecord
+  public sealed partial class MySqlDataReader : IDisposable
   {
     // The DataReader should always be open when returned to the user.
     private bool isOpen = true;
@@ -71,11 +74,14 @@ namespace MySql.Data.MySqlClient
       affectedRows = -1;
       this.statement = statement;
 
-      if (cmd.CommandType == CommandType.StoredProcedure &&
-      cmd.UpdatedRowSource == UpdateRowSource.FirstReturnedRecord)
+#if !RT
+      if (cmd.CommandType == CommandType.StoredProcedure 
+        && cmd.UpdatedRowSource == UpdateRowSource.FirstReturnedRecord
+      )
       {
         disableZeroAffectedRows = true;
       }
+#endif
     }
 
     #region Properties
@@ -98,15 +104,6 @@ namespace MySql.Data.MySqlClient
     internal CommandBehavior CommandBehavior
     {
       get { return commandBehavior; }
-    }
-
-    /// <summary>
-    /// Gets a value indicating the depth of nesting for the current row.  This method is not 
-    /// supported currently and always returns 0.
-    /// </summary>
-    public override int Depth
-    {
-      get { return 0; }
     }
 
     /// <summary>
@@ -377,7 +374,7 @@ namespace MySql.Data.MySqlClient
 
     private object ChangeType(IMySqlValue value, int fieldIndex, Type newType)
     {
-#if !CF
+#if !CF && !RT
       resultSet.Fields[fieldIndex].AddTypeConversion(newType);
 #endif
       return Convert.ChangeType(value.Value, newType, CultureInfo.InvariantCulture);
@@ -531,27 +528,6 @@ namespace MySql.Data.MySqlClient
         return ((MySqlDouble)v).Value;
       return Convert.ToDouble(v.Value);
     }
-#if !CF
-    public MySqlGeometry GetMySqlGeometry(int i)
-    {
-      try
-      {
-        IMySqlValue v = GetFieldValue(i, false);
-        if (v is MySqlGeometry || v is MySqlBinary)
-          return new MySqlGeometry(MySqlDbType.Geometry, (Byte[])v.Value);
-      }
-      catch
-      {
-        Throw(new Exception("Can't get MySqlGeometry from value"));
-      }
-      return new MySqlGeometry(true);
-    }
-
-    public MySqlGeometry GetMySqlGeometry(string column)
-    {
-      return GetMySqlGeometry(GetOrdinal(column));
-    }
-#endif
 
     public Type GetFieldType(string column)
     {
@@ -697,78 +673,6 @@ namespace MySql.Data.MySqlClient
       return resultSet.GetOrdinal(name);
     }
 
-    /// <summary>
-    /// Returns a DataTable that describes the column metadata of the MySqlDataReader.
-    /// </summary>
-    /// <returns></returns>
-    public override DataTable GetSchemaTable()
-    {
-      // Only Results from SQL SELECT Queries 
-      // get a DataTable for schema of the result
-      // otherwise, DataTable is null reference
-      if (FieldCount == 0) return null;
-
-      DataTable dataTableSchema = new DataTable("SchemaTable");
-
-      dataTableSchema.Columns.Add("ColumnName", typeof(string));
-      dataTableSchema.Columns.Add("ColumnOrdinal", typeof(int));
-      dataTableSchema.Columns.Add("ColumnSize", typeof(int));
-      dataTableSchema.Columns.Add("NumericPrecision", typeof(int));
-      dataTableSchema.Columns.Add("NumericScale", typeof(int));
-      dataTableSchema.Columns.Add("IsUnique", typeof(bool));
-      dataTableSchema.Columns.Add("IsKey", typeof(bool));
-      DataColumn dc = dataTableSchema.Columns["IsKey"];
-      dc.AllowDBNull = true; // IsKey can have a DBNull
-      dataTableSchema.Columns.Add("BaseCatalogName", typeof(string));
-      dataTableSchema.Columns.Add("BaseColumnName", typeof(string));
-      dataTableSchema.Columns.Add("BaseSchemaName", typeof(string));
-      dataTableSchema.Columns.Add("BaseTableName", typeof(string));
-      dataTableSchema.Columns.Add("DataType", typeof(Type));
-      dataTableSchema.Columns.Add("AllowDBNull", typeof(bool));
-      dataTableSchema.Columns.Add("ProviderType", typeof(int));
-      dataTableSchema.Columns.Add("IsAliased", typeof(bool));
-      dataTableSchema.Columns.Add("IsExpression", typeof(bool));
-      dataTableSchema.Columns.Add("IsIdentity", typeof(bool));
-      dataTableSchema.Columns.Add("IsAutoIncrement", typeof(bool));
-      dataTableSchema.Columns.Add("IsRowVersion", typeof(bool));
-      dataTableSchema.Columns.Add("IsHidden", typeof(bool));
-      dataTableSchema.Columns.Add("IsLong", typeof(bool));
-      dataTableSchema.Columns.Add("IsReadOnly", typeof(bool));
-
-      int ord = 1;
-      for (int i = 0; i < FieldCount; i++)
-      {
-        MySqlField f = resultSet.Fields[i];
-        DataRow r = dataTableSchema.NewRow();
-        r["ColumnName"] = f.ColumnName;
-        r["ColumnOrdinal"] = ord++;
-        r["ColumnSize"] = f.IsTextField ? f.ColumnLength / f.MaxLength : f.ColumnLength;
-        int prec = f.Precision;
-        int pscale = f.Scale;
-        if (prec != -1)
-          r["NumericPrecision"] = (short)prec;
-        if (pscale != -1)
-          r["NumericScale"] = (short)pscale;
-        r["DataType"] = GetFieldType(i);
-        r["ProviderType"] = (int)f.Type;
-        r["IsLong"] = f.IsBlob && f.ColumnLength > 255;
-        r["AllowDBNull"] = f.AllowsNull;
-        r["IsReadOnly"] = false;
-        r["IsRowVersion"] = false;
-        r["IsUnique"] = f.IsUnique;
-        r["IsKey"] = f.IsPrimaryKey;
-        r["IsAutoIncrement"] = f.IsAutoIncrement;
-        r["BaseSchemaName"] = f.DatabaseName;
-        r["BaseCatalogName"] = null;
-        r["BaseTableName"] = f.RealTableName;
-        r["BaseColumnName"] = f.OriginalColumnName;
-
-        dataTableSchema.Rows.Add(r);
-      }
-
-      return dataTableSchema;
-    }
-
     /// <include file='docs/MySqlDataReader.xml' path='docs/GetStringS/*'/>
     public string GetString(string column)
     {
@@ -900,11 +804,6 @@ namespace MySql.Data.MySqlClient
 
     #endregion
 
-    IDataReader IDataRecord.GetData(int i)
-    {
-      return base.GetData(i);
-    }
-
     /// <summary>
     /// Gets a value indicating whether the column contains non-existent or missing values.
     /// </summary>
@@ -1015,7 +914,7 @@ namespace MySql.Data.MySqlClient
         connection.HandleTimeoutOrThreadAbort(tex);
         throw; // unreached
       }
-      catch (System.Threading.ThreadAbortException taex)
+      catch (ThreadAbortException taex)
       {
         connection.HandleTimeoutOrThreadAbort(taex);
         throw;
@@ -1043,7 +942,11 @@ namespace MySql.Data.MySqlClient
       IMySqlValue v = resultSet[index];
 
       if (checkNull && v.IsNull)
-        throw new SqlNullValueException();
+#if RT
+        throw new MySqlNullValueException();
+#else
+        throw new System.Data.SqlTypes.SqlNullValueException();
+#endif
 
       return v;
     }
@@ -1057,7 +960,7 @@ namespace MySql.Data.MySqlClient
       dummyCommand.InternallyCreated = true;
       try
       {
-        IDataReader reader = dummyCommand.ExecuteReader(); // ExecuteReader catches the exception and returns null, which is expected.
+        dummyCommand.ExecuteReader(); // ExecuteReader catches the exception and returns null, which is expected.
       }
       catch (MySqlException ex)
       {
@@ -1074,7 +977,7 @@ namespace MySql.Data.MySqlClient
         AdjustOutputTypes();
 
       // now read the output parameters data row
-      if ((commandBehavior & System.Data.CommandBehavior.SchemaOnly) != 0) return;
+      if ((commandBehavior & CommandBehavior.SchemaOnly) != 0) return;
       resultSet.NextRow(commandBehavior);
 
       string prefix = "@" + StoredProcedure.ParameterPrefix;
@@ -1120,17 +1023,9 @@ namespace MySql.Data.MySqlClient
       throw ex;
     }
 
-    #region IEnumerator
-
-    /// <summary>
-    /// Returns an <see cref="IEnumerator"/> that iterates through the <see cref="MySqlDataReader"/>. 
-    /// </summary>
-    /// <returns></returns>
-    public override IEnumerator GetEnumerator()
+    public void Dispose()
     {
-      return new DbEnumerator(this, (commandBehavior & CommandBehavior.CloseConnection) != 0);
+      Close();
     }
-
-    #endregion
   }
 }

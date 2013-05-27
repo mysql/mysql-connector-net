@@ -29,6 +29,9 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
+    <BaseOutputPath>$(TargetFrameworkVersion)\</BaseOutputPath>
+    <BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>obj\$(TargetFrameworkVersion)\</IntermediateOutputPath>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>TRACE;DEBUG;CF</DefineConstants>
     <NoStdLib>true</NoStdLib>
@@ -42,6 +45,9 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
+    <BaseOutputPath>$(TargetFrameworkVersion)\</BaseOutputPath>
+    <BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>obj\$(TargetFrameworkVersion)\</IntermediateOutputPath>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE;CF</DefineConstants>
     <NoStdLib>true</NoStdLib>
@@ -71,6 +77,8 @@
     <Compile Include="Authentication\Sha256AuthenticationPlugin.cs">
       <Link>Authentication\Sha256AuthenticationPlugin.cs</Link>
     </Compile>
+    <Compile Include="base\Extras.cs" />
+    <Compile Include="common\StringUtility.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>
     </Compile>
@@ -128,6 +136,21 @@
     <Compile Include="datareader.cs" />
     <Compile Include="Driver.cs" />
     <Compile Include="Exception.cs" />
+    <Compile Include="extensions\NonRT\MySqlCommand.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="extensions\NonRT\MySqlConnection.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="extensions\NonRT\MySqlConnectionStringBuilder.cs" />
+    <Compile Include="extensions\NonRT\MySqlDataReader.cs" />
+    <Compile Include="extensions\NonRT\MySqlDateTime.cs" />
+    <Compile Include="extensions\NonRT\MySqlParameter.cs" />
+    <Compile Include="extensions\NonRT\MySqlParameterCollection.cs" />
+    <Compile Include="extensions\NonRT\MySqlTrace.cs" />
+    <Compile Include="extensions\NonRT\MySqlTransaction.cs" />
+    <Compile Include="base\Attributes.cs" />
+    <Compile Include="base\Enums.cs" />
     <Compile Include="Field.cs" />
     <Compile Include="ISSchemaProvider.cs" />
     <Compile Include="MySqlConnectionStringBuilder.cs" />
@@ -139,13 +162,13 @@
     <Compile Include="MySqlPoolManager.cs" />
     <Compile Include="MySqlScript.cs" />
     <Compile Include="MySqlStream.cs" />
-    <Compile Include="MySqlTrace.cs" />
     <Compile Include="NativeDriver.cs" />
     <Compile Include="parameter.cs" />
     <Compile Include="parameter_collection.cs" />
     <Compile Include="PreparableStatement.cs" />
     <Compile Include="ProcedureCache.cs" />
     <Compile Include="ResultSet.cs" />
+    <Compile Include="Schema.cs" />
     <Compile Include="SchemaProvider.cs" />
     <Compile Include="Statement.cs" />
     <Compile Include="StoredProcedure.cs" />
@@ -275,7 +298,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Authentication\" />
-    <Folder Include="common\" />
     <Folder Include="Properties\" />
     <Folder Include="Types\" />
     <Folder Include="zlib\" />

@@ -20,15 +20,10 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.MySqlClient;
+using MySql.Data.MySqlClient.Properties;
 using System;
 using System.IO;
-using System.Net;
-using System.Net.Sockets;
-using System.Reflection;
-using System.Diagnostics;
-using MySql.Data.MySqlClient.Properties;
-using System.Runtime.InteropServices;
-using MySql.Data.MySqlClient;
 
 
 namespace MySql.Data.Common
@@ -56,221 +51,68 @@ namespace MySql.Data.Common
       this.driverVersion = driverVersion;
     }
 
-    private Stream GetStreamFromHost(string pipeName, string hostName, uint timeout)
+    public static Stream GetStream(string server, uint port, string pipename, uint keepalive, DBVersion v, uint timeout)
     {
-      Stream stream = null;
-      if (pipeName != null && pipeName.Length != 0)
-      {
-#if !CF
-        stream = NamedPipeStream.Create(pipeName, hostName, timeout);
-#endif
-      }
-      else
-      {
-        IPHostEntry ipHE = GetHostEntry(hostName);
-        foreach (IPAddress address in ipHE.AddressList)
-        {
-          try
-          {
-            stream = CreateSocketStream(address, false);
-            if (stream != null) break;
-          }
-          catch (Exception ex)
-          {
-            SocketException socketException = ex as SocketException;
-            // if the exception is a ConnectionRefused then we eat it as we may have other address
-            // to attempt
-            if (socketException == null) throw;
-#if !CF
-            if (socketException.SocketErrorCode != SocketError.ConnectionRefused) throw;
-#endif
-          }
-        }
-      }
-      return stream;
+      MySqlConnectionStringBuilder settings = new MySqlConnectionStringBuilder();
+      settings.Server = server;
+      settings.Port = port;
+      settings.PipeName = pipename;
+      settings.Keepalive = keepalive;
+      settings.ConnectionTimeout = timeout;
+      return GetStream(settings);
     }
 
-    public Stream GetStream(uint timeout)
+    public static Stream GetStream(MySqlConnectionStringBuilder settings)
     {
-      timeOut = timeout;
-
-      if (hostList.StartsWith("/", StringComparison.Ordinal))
-        return CreateSocketStream(null, true);
-
-      string[] dnsHosts = hostList.Split(',');
-
-      Random random = new Random((int)DateTime.Now.Ticks);
-      int index = random.Next(dnsHosts.Length);
-      int pos = 0;
-      Stream stream = null;
-
-      while (stream == null && pos < dnsHosts.Length)
+      switch (settings.ConnectionProtocol)
       {
-        stream = GetStreamFromHost(pipeName, dnsHosts[index++], timeout);
-        if (index == dnsHosts.Length) index = 0;
-        pos++;
-      }
-      return stream;
-    }
-
-    private IPHostEntry ParseIPAddress(string hostname)
-    {
-      IPHostEntry ipHE = null;
-#if !CF
-      IPAddress addr;
-      if (IPAddress.TryParse(hostname, out addr))
-      {
-        ipHE = new IPHostEntry();
-        ipHE.AddressList = new IPAddress[1];
-        ipHE.AddressList[0] = addr;
-      }
-#endif
-      return ipHE;
-    }
-
-#if CF
-        IPHostEntry GetDnsHostEntry(string hostname)
-        {
-            return Dns.GetHostEntry(hostname);
-        }
+        case MySqlConnectionProtocol.Tcp: return GetTcpStream(settings);
+#if RT
+        case MySqlConnectionProtocol.UnixSocket: throw new NotImplementedException();
+        case MySqlConnectionProtocol.SharedMemory: throw new NotImplementedException();
 #else
-    IPHostEntry GetDnsHostEntry(string hostname)
-    {
-      LowResolutionStopwatch stopwatch = new LowResolutionStopwatch();
-
-      try
-      {
-        stopwatch.Start();
-        return Dns.GetHostEntry(hostname);
-      }
-      catch (SocketException ex)
-      {
-        string message = String.Format(Resources.GetHostEntryFailed,
-        stopwatch.Elapsed, hostname, ex.SocketErrorCode,
-        ex.ErrorCode, ex.NativeErrorCode);
-        throw new Exception(message, ex);
-      }
-      finally
-      {
-        stopwatch.Stop();
-      }
-    }
-#endif
-
-    private IPHostEntry GetHostEntry(string hostname)
-    {
-      IPHostEntry ipHE = ParseIPAddress(hostname);
-      if (ipHE != null) return ipHE;
-      return GetDnsHostEntry(hostname);
-    }
-
 #if !CF
-
-    private static EndPoint CreateUnixEndPoint(string host)
-    {
-      // first we need to load the Mono.posix assembly			
-      Assembly a = Assembly.Load(@"Mono.Posix, Version=2.0.0.0, 				
-                Culture=neutral, PublicKeyToken=0738eb9f132ed756");
-
-      // then we need to construct a UnixEndPoint object
-      EndPoint ep = (EndPoint)a.CreateInstance("Mono.Posix.UnixEndPoint",
-          false, BindingFlags.CreateInstance, null,
-          new object[1] { host }, null, null);
-      return ep;
+        case MySqlConnectionProtocol.UnixSocket: return GetUnixSocketStream(settings);        
+        case MySqlConnectionProtocol.SharedMemory: return GetSharedMemoryStream(settings);
+#endif
+        
+#endif
+#if !CF && !RT
+        case MySqlConnectionProtocol.NamedPipe: return GetNamedPipeStream(settings);
+#endif
+      }
+      throw new InvalidOperationException(Resources.UnknownConnectionProtocol);
     }
-#endif
 
-    private Stream CreateSocketStream(IPAddress ip, bool unix)
+    private static Stream GetTcpStream(MySqlConnectionStringBuilder settings)
     {
-      EndPoint endPoint;
-#if !CF
-      if (!Platform.IsWindows() && unix)
-        endPoint = CreateUnixEndPoint(hostList);
-      else
-#endif
-      
-      endPoint = new IPEndPoint(ip, (int)port);
+      MyNetworkStream s = MyNetworkStream.CreateStream(settings, false);
+      return s;
+    }
 
-      Socket socket = unix ?
-          new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.IP) :
-          new Socket(ip.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-      if (keepalive > 0)
-      {
-        SetKeepAlive(socket, keepalive);
-      }
+#if !CF && !RT
+    private static Stream GetUnixSocketStream(MySqlConnectionStringBuilder settings)
+    {
+      if (Platform.IsWindows())
+        throw new InvalidOperationException(Resources.NoUnixSocketsOnWindows);
 
+      MyNetworkStream s = MyNetworkStream.CreateStream(settings, true);
+      return s;
+    }
 
-      IAsyncResult ias = socket.BeginConnect(endPoint, null, null);
-      if (!ias.AsyncWaitHandle.WaitOne((int)timeOut * 1000, false))
-      {
-        socket.Close();
-        return null;
-      }
-      try
-      {
-        socket.EndConnect(ias);
-      }
-      catch (Exception)
-      {
-        socket.Close();
-        throw;
-      }
-      MyNetworkStream stream = new MyNetworkStream(socket, true);
-      GC.SuppressFinalize(socket);
-      GC.SuppressFinalize(stream);
+    private static Stream GetSharedMemoryStream(MySqlConnectionStringBuilder settings)
+    {
+      SharedMemoryStream str = new SharedMemoryStream(settings.SharedMemoryName);
+      str.Open(settings.ConnectionTimeout);
+      return str;
+    }
+
+    private static Stream GetNamedPipeStream(MySqlConnectionStringBuilder settings)
+    {
+      Stream stream = NamedPipeStream.Create(settings.PipeName, settings.Server, settings.ConnectionTimeout);
       return stream;
     }
-
-
-
-    /// <summary>
-    /// Set keepalive + timeout on socket.
-    /// </summary>
-    /// <param name="s">socket</param>
-    /// <param name="time">keepalive timeout, in seconds</param>
-    private static void SetKeepAlive(Socket s, uint time)
-    {
-
-#if !CF
-      uint on = 1;
-      uint interval = 1000; // default interval = 1 sec
-
-      uint timeMilliseconds;
-      if (time > UInt32.MaxValue / 1000)
-        timeMilliseconds = UInt32.MaxValue;
-      else
-        timeMilliseconds = time * 1000;
-
-      // Use Socket.IOControl to implement equivalent of
-      // WSAIoctl with  SOL_KEEPALIVE_VALS 
-
-      // the native structure passed to WSAIoctl is
-      //struct tcp_keepalive {
-      //    ULONG onoff;
-      //    ULONG keepalivetime;
-      //    ULONG keepaliveinterval;
-      //};
-      // marshal the equivalent of the native structure into a byte array
-
-      byte[] inOptionValues = new byte[12];
-      BitConverter.GetBytes(on).CopyTo(inOptionValues, 0);
-      BitConverter.GetBytes(time).CopyTo(inOptionValues, 4);
-      BitConverter.GetBytes(interval).CopyTo(inOptionValues, 8);
-      try
-      {
-        // call WSAIoctl via IOControl
-        s.IOControl(IOControlCode.KeepAliveValues, inOptionValues, null);
-        return;
-      }
-      catch (NotImplementedException)
-      {
-        // Mono throws not implemented currently
-      }
 #endif
-      // Fallback if Socket.IOControl is not available ( Compact Framework )
-      // or not implemented ( Mono ). Keepalive option will still be set, but
-      // with timeout is kept default.
-      s.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
-    }
+
   }
 }

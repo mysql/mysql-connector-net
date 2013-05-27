@@ -23,9 +23,12 @@
 using System;
 using System.Text;
 using System.IO;
-using System.Data;
+using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Data;
 using MySql.Data.MySqlClient.Properties;
+using MySql.Data.Common;
+
 namespace MySql.Data.MySqlClient
 {
   /// <summary>
@@ -54,8 +57,8 @@ namespace MySql.Data.MySqlClient
     private char escapeChar;
     private MySqlBulkLoaderPriority priority;
     private MySqlBulkLoaderConflictOption conflictOption;
-    private StringCollection columns;
-    private StringCollection expressions;
+    private List<string> columns;
+    private List<string> expressions;
 
     public MySqlBulkLoader(MySqlConnection connection)
     {
@@ -65,8 +68,8 @@ namespace MySql.Data.MySqlClient
       LineTerminator = defaultLineTerminator;
       FieldQuotationCharacter = Char.MinValue;
       ConflictOption = MySqlBulkLoaderConflictOption.None;
-      columns = new StringCollection();
-      expressions = new StringCollection();
+      columns = new List<string>();
+      expressions = new List<string>();
     }
 
     #region Properties
@@ -228,7 +231,7 @@ namespace MySql.Data.MySqlClient
     /// Gets the columns.
     /// </summary>
     /// <value>The columns.</value>
-    public StringCollection Columns
+    public List<string> Columns
     {
       get { return columns; }
     }
@@ -237,7 +240,7 @@ namespace MySql.Data.MySqlClient
     /// Gets the expressions.
     /// </summary>
     /// <value>The expressions.</value>
-    public StringCollection Expressions
+    public List<string> Expressions
     {
       get { return expressions; }
     }
@@ -287,7 +290,7 @@ namespace MySql.Data.MySqlClient
       if (Local)
         sql.Append("LOCAL ");
       sql.Append("INFILE ");
-      if (Path.DirectorySeparatorChar == '\\')
+      if (Platform.DirectorySeparatorChar == '\\')
         sql.AppendFormat("'{0}' ", FileName.Replace(@"\", @"\\"));
       else
         sql.AppendFormat("'{0}' ", FileName);

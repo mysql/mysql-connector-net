@@ -7,7 +7,7 @@ PROCESS
 
 #################################################################################################################### 
 -->
-<ProviderManifest Namespace="MySql" xmlns="http://schemas.microsoft.com/ado/2009/02/edm/ssdl">
+<ProviderManifest Namespace="MySql" xmlns="http://schemas.microsoft.com/ado/2006/04/edm/providermanifest">
   <Types>
     <Type Name ="guid" PrimitiveTypeKind ="Guid"/>
     <Type Name="bool" PrimitiveTypeKind="Boolean"/>

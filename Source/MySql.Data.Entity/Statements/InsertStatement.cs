@@ -40,6 +40,10 @@ namespace MySql.Data.Entity
 
     public override void WriteSql(StringBuilder sql)
     {
+      // changes sql_mode to allow inserting data without identity columns
+      if (ReturningSelect != null && ReturningSelect.Columns.Count > 0)
+        sql.Append("SET SESSION sql_mode='ANSI';");
+
       sql.Append("INSERT INTO ");
       Target.WriteSql(sql);
       if (Sets.Count > 0)

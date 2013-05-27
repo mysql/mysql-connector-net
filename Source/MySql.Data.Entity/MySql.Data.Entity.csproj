@@ -81,6 +81,9 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
+    <BaseOutputPath>$(TargetFrameworkVersion)\</BaseOutputPath>
+    <BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>obj\$(TargetFrameworkVersion)\</IntermediateOutputPath>
     <OutputPath>bin\$(TargetFrameworkVersion)\Debug\</OutputPath>
     <BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\Debug\</BaseIntermediateOutputPath>
     <DefineConstants>$(DefineConstants);DEBUG;TRACE</DefineConstants>
@@ -91,6 +94,9 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
+    <BaseOutputPath>$(TargetFrameworkVersion)\</BaseOutputPath>
+    <BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>obj\$(TargetFrameworkVersion)\</IntermediateOutputPath>
     <OutputPath>bin\$(TargetFrameworkVersion)\Release\</OutputPath>
     <BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\Release\</BaseIntermediateOutputPath>
     <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
@@ -115,9 +121,9 @@
     </When>
     <When Condition="'$(Framework)' == '4.0'">
       <ItemGroup>
-        <Reference Include="EntityFramework, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL" Condition="$(Framework) &gt;= '4.0'">
+        <Reference Include="EntityFramework, Version=4.4.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL" Condition="$(Framework) &gt;= '4.0'">
           <SpecificVersion>False</SpecificVersion>
-          <HintPath>C:\Program Files (x86)\Microsoft ADO.NET Entity Framework 4.3.1\lib\net40\EntityFramework.dll</HintPath>
+          <HintPath>C:\Program Files (x86)\Microsoft ADO.NET Entity Framework 5.0.0\lib\net40\EntityFramework.dll</HintPath>
         </Reference>
         <Reference Include="System" />
         <Reference Include="System.Core" />

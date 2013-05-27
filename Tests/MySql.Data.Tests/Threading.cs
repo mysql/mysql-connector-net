@@ -131,7 +131,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    private Exception lastException;
+    private volatile Exception lastException;
 
     /// <summary>
     /// Bug #54012  	MySql Connector/NET is not hardened to deal with 
@@ -183,20 +183,20 @@ namespace MySql.Data.MySqlClient.Tests
 
       Assert.IsInstanceOf(typeof(ThreadAbortException), lastException);
     }
-
-
+    
     /// <summary>
     /// Test fix for bug Connection String Cache corrupted when using Multithreading + MySqlScript
     /// (http://bugs.mysql.com/bug.php?id=68217).
     /// </summary>
     [Test]
+    [Timeout(100000)]
     public void MultipleThreadsMysqlScript()
     {
       //GenericListener myListener = new GenericListener();
       ManualResetEvent ev = new ManualResetEvent(false);
       ArrayList threads = new ArrayList();
       //System.Diagnostics.Trace.Listeners.Add(myListener);
-
+      lastException = null;
       for (int i = 0; i < 20; i++)
       {
         ParameterizedThreadStart ts = new ParameterizedThreadStart(MultipleThreadsWorkerScript);
@@ -211,10 +211,12 @@ namespace MySql.Data.MySqlClient.Tests
       int x = 0;
       while (x < threads.Count)
       {
-        while ((threads[x] as Thread).IsAlive)
+        while ((threads[x] as Thread).IsAlive && lastException == null)
           Thread.Sleep(50);
         x++;
       }
+      if (lastException != null)
+        Assert.Fail("At least one of the threads got \"{0}\"", lastException.Message);
     }
 
     private void MultipleThreadsWorkerScript(object ev)
@@ -239,8 +241,12 @@ namespace MySql.Data.MySqlClient.Tests
       catch (InvalidOperationException ioe)
       {
         //Assert.AreEqual("Collection was modified; enumeration operation may not execute.", ioe.Message );
-        Debugger.Break();
-        Assert.Fail();
+        //Assert.Fail();
+        lastException = ioe;
+      }
+      catch (Exception e)
+      {
+        lastException = e;
       }
     }
   }

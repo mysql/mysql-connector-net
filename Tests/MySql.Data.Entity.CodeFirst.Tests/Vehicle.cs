@@ -1,4 +1,4 @@
-﻿// Copyright © 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,7 +20,6 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,16 +28,13 @@ using System.Data.Entity;
 using System.ComponentModel.DataAnnotations;
 #if NET_45_OR_GREATER
 using System.Data.Spatial;
-using System.ComponentModel.DataAnnotations.Schema;
 #endif
+using System.ComponentModel.DataAnnotations.Schema;
+
+
 
 namespace MySql.Data.Entity.CodeFirst.Tests
 {
-  public class DistribuitorsContext : DbContext
-  {
-    public DbSet<Distributor> Distributors { get; set; }
-  }
-   
   public class VehicleDbContext : DbContext
   {
     public DbSet<Vehicle> Vehicles { get; set; }
@@ -101,6 +97,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
   {
     public int Id { get; set; }
     public int Year { get; set; }
+    
     [MaxLength(1024)]
     public string Name { get; set; }
   }
@@ -136,7 +133,6 @@ namespace MySql.Data.Entity.CodeFirst.Tests
   {
     public string BikeProperty { get; set; }
   }
-  
   public class Vehicle2
   {
     public int Id { get; set; }
@@ -168,18 +164,8 @@ namespace MySql.Data.Entity.CodeFirst.Tests
   {
     public int DistributorId { get; set; }
     public string Name { get; set; }
- #if NET_45_OR_GREATER
-    public DbGeometry point { get; set; }
-#endif
   }
 
-  public class SPoint
-  {
-    public int id { get; set; }
-#if NET_45_OR_GREATER
-    public DbGeometry point { get; set; }
-#endif
-  }
 
   public class Product
   {
@@ -207,25 +193,16 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     protected override void OnModelCreating(DbModelBuilder modelBuilder)
     {
       modelBuilder.Entity<Product>()
-        .Property(f => f.DateTimeWithPrecision)
-        .HasColumnType("DateTime")
-        .HasPrecision(3);
+    .Property(f => f.DateTimeWithPrecision)
+    .HasColumnType("DateTime")
+    .HasPrecision(3);
 
       modelBuilder.Entity<Product>()
-        .Property(f => f.TimeStampWithPrecision)
-        .HasColumnType("Timestamp")
-        .HasPrecision(3);
-    }
-
-    public ProductsDbContext()
-    {
-      Database.SetInitializer<ProductsDbContext>(new ProductsDbInitializer());
+    .Property(f => f.TimeStampWithPrecision)
+    .HasColumnType("Timestamp")
+    .HasPrecision(3);
     }
   }
-
-  public class ProductsDbInitializer : DropCreateDatabaseReallyAlways<ProductsDbContext>
-  {
-  }  
 
   public class Names
   {
@@ -242,16 +219,11 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     protected override void OnModelCreating(DbModelBuilder modelBuilder)
     {
       modelBuilder.Entity<Names>()
-        .Property(f => f.DateCreated)
-        .HasColumnType("DateTime")
-        .HasPrecision(9);
+    .Property(f => f.DateCreated)
+    .HasColumnType("DateTime")
+    .HasPrecision(9);
     }
   }
 
-
-  public class SpatialDbContext : DbContext
-  {
-    public DbSet<SPoint> SPoints { get; set; }  
-  }
 
 }

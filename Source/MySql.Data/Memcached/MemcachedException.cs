@@ -29,7 +29,7 @@ namespace MySql.Data.MySqlClient.Memcached
   /// <summary>
   /// TODO: Update summary.
   /// </summary>
-  public class MemcachedException : ApplicationException
+  public class MemcachedException : Exception
   {
     public MemcachedException(string msg)
       : base(msg)

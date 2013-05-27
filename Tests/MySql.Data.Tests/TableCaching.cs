@@ -1,4 +1,4 @@
-// Copyright � 2011, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,38 +21,42 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Data;
-using System.IO;
-using NUnit.Framework;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Text;
+using Xunit;
+using System.Data;
 using System.Threading;
+using System.Diagnostics;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  [TestFixture]
-  public class TableCaching : BaseTest
+  public class TableCaching : IUseFixture<SetUpClass>, IDisposable
   {
-    public override void Setup()
-    {
-      TableCache.DumpCache();
+    private SetUpClass st;
 
-      base.Setup();
+    public void SetFixture(SetUpClass data)
+    {
+      st = data;
+      TableCache.DumpCache();
     }
 
-    [Test]
+    public void Dispose()
+    {
+      st.execSQL("DROP TABLE IF EXISTS TEST");
+    }
+
+    [Fact]
     public void SimpleTableCaching()
     {
-      execSQL("CREATE TABLE test (id INT, name VARCHAR(20), name2 VARCHAR(20))");
-      execSQL("INSERT INTO test VALUES (1, 'boo', 'hoo'), (2, 'first', 'last'), (3, 'fred', 'flintstone')");
+      st.execSQL("CREATE TABLE test (id INT, name VARCHAR(20), name2 VARCHAR(20))");
+      st.execSQL("INSERT INTO test VALUES (1, 'boo', 'hoo'), (2, 'first', 'last'), (3, 'fred', 'flintstone')");
 
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
       GenericListener listener = new GenericListener();
       MySqlTrace.Listeners.Add(listener);
 
-      string connStr = GetConnectionString(true) + ";logging=true;table cache=true";
+      string connStr = st.GetConnectionString(true) + ";logging=true;table cache=true";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -64,21 +68,21 @@ namespace MySql.Data.MySqlClient.Tests
         ConsumeReader(cmd);
       }
 
-      Assert.AreEqual(1, listener.Find("Resultset Opened: field(s) = 3"));
-    }
+      Assert.Equal(1, listener.Find("Resultset Opened: field(s) = 3"));
+    } 
 
-    [Test]
+    [Fact]
     public void ConnectionStringExpiry()
     {
-      execSQL("CREATE TABLE test3 (id INT, name VARCHAR(20), name2 VARCHAR(20))");
-      execSQL("INSERT INTO test3 VALUES (1, 'boo', 'hoo'), (2, 'first', 'last'), (3, 'fred', 'flintstone')");
+      st.execSQL("CREATE TABLE test3 (id INT, name VARCHAR(20), name2 VARCHAR(20))");
+      st.execSQL("INSERT INTO test3 VALUES (1, 'boo', 'hoo'), (2, 'first', 'last'), (3, 'fred', 'flintstone')");
 
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
       GenericListener listener = new GenericListener();
       MySqlTrace.Listeners.Add(listener);
 
-      string connStr = GetConnectionString(true) + ";logging=true;table cache=true;default table cache age=1";
+      string connStr = st.GetConnectionString(true) + ";logging=true;table cache=true;default table cache age=1";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -92,21 +96,21 @@ namespace MySql.Data.MySqlClient.Tests
         ConsumeReader(cmd);
       }
 
-      Assert.AreEqual(2, listener.Find("Resultset Opened: field(s) = 3"));
+      Assert.Equal(2, listener.Find("Resultset Opened: field(s) = 3"));
     }
 
-    [Test]
+    [Fact]
     public void SettingAgeOnCommand()
     {
-      execSQL("CREATE TABLE test2 (id INT, name VARCHAR(20), name2 VARCHAR(20))");
-      execSQL("INSERT INTO test2 VALUES (1, 'boo', 'hoo'), (2, 'first', 'last'), (3, 'fred', 'flintstone')");
+      st.execSQL("CREATE TABLE test2 (id INT, name VARCHAR(20), name2 VARCHAR(20))");
+      st.execSQL("INSERT INTO test2 VALUES (1, 'boo', 'hoo'), (2, 'first', 'last'), (3, 'fred', 'flintstone')");
 
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
       GenericListener listener = new GenericListener();
       MySqlTrace.Listeners.Add(listener);
 
-      string connStr = GetConnectionString(true) + ";logging=true;table cache=true;default table cache age=1";
+      string connStr = st.GetConnectionString(true) + ";logging=true;table cache=true;default table cache age=1";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -122,7 +126,7 @@ namespace MySql.Data.MySqlClient.Tests
         ConsumeReader(cmd);
       }
 
-      Assert.AreEqual(1, listener.Find("Resultset Opened: field(s) = 3"));
+      Assert.Equal(1, listener.Find("Resultset Opened: field(s) = 3"));
     }
 
     private void ConsumeReader(MySqlCommand cmd)
@@ -130,18 +134,18 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
-        Assert.AreEqual(1, reader.GetInt32(0));
-        Assert.AreEqual("boo", reader.GetString(1));
-        Assert.AreEqual("hoo", reader.GetString(2));
+        Assert.Equal(1, reader.GetInt32(0));
+        Assert.Equal("boo", reader.GetString(1));
+        Assert.Equal("hoo", reader.GetString(2));
         reader.Read();
-        Assert.AreEqual(2, reader.GetInt32(0));
-        Assert.AreEqual("first", reader.GetString(1));
-        Assert.AreEqual("last", reader.GetString(2));
+        Assert.Equal(2, reader.GetInt32(0));
+        Assert.Equal("first", reader.GetString(1));
+        Assert.Equal("last", reader.GetString(2));
         reader.Read();
-        Assert.AreEqual(3, reader.GetInt32(0));
-        Assert.AreEqual("fred", reader.GetString(1));
-        Assert.AreEqual("flintstone", reader.GetString(2));
-        Assert.IsFalse(reader.Read());
+        Assert.Equal(3, reader.GetInt32(0));
+        Assert.Equal("fred", reader.GetString(1));
+        Assert.Equal("flintstone", reader.GetString(2));
+        Assert.False(reader.Read());
       }
     }
   }

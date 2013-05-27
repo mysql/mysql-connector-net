@@ -145,6 +145,14 @@ namespace MySql.Data.MySqlClient
       return ReadInteger(c);
     }
 
+    public void SetByte(long position, byte value)
+    {
+      long currentPosition = buffer.Position;
+      buffer.Position = position;
+      buffer.WriteByte(value);
+      buffer.Position = currentPosition;
+    }
+
     #endregion
 
     #region Integer methods
@@ -325,7 +333,7 @@ namespace MySql.Data.MySqlClient
         return String.Empty;
       //            byte[] buf = new byte[length];
       Read(tempBuffer, 0, (int)length);
-      return ASCIIEncoding.ASCII.GetString(tempBuffer, 0, (int)length);
+      return Encoding.GetEncoding("us-ascii").GetString(tempBuffer, 0, (int)length);
       //return encoding.GetString(tempBuffer, 0, (int)length); //buf.Length);
     }
 

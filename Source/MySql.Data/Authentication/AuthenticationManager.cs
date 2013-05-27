@@ -36,7 +36,7 @@ namespace MySql.Data.MySqlClient.Authentication
       {
         plugins["mysql_native_password"] = new PluginInfo("MySql.Data.MySqlClient.Authentication.MySqlNativePasswordPlugin");
         plugins["sha256_password"] = new PluginInfo("MySql.Data.MySqlClient.Authentication.Sha256AuthenticationPlugin");
-#if !CF
+#if !CF && !RT
         plugins["authentication_windows_client"] = new PluginInfo("MySql.Data.MySqlClient.Authentication.MySqlWindowsAuthenticationPlugin");
         if (MySqlConfiguration.Settings != null && MySqlConfiguration.Settings.AuthenticationPlugins != null)
         {
@@ -60,7 +60,7 @@ namespace MySql.Data.MySqlClient.Authentication
         try
         {
           Type t = Type.GetType(pi.Type);
-          MySqlAuthenticationPlugin o = (MySqlAuthenticationPlugin)t.Assembly.CreateInstance(t.FullName);
+          MySqlAuthenticationPlugin o = (MySqlAuthenticationPlugin)Activator.CreateInstance(t);
           return o;
         }
         catch (Exception e)

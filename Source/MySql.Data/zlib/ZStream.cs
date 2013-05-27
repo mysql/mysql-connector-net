@@ -42,6 +42,11 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * and contributors of zlib.
 */
 using System;
+
+#if RT
+using System.Diagnostics;
+#endif
+
 namespace zlib
 {
 
@@ -179,8 +184,13 @@ namespace zlib
 
 			if (dstate.pending_buf.Length <= dstate.pending_out || next_out.Length <= next_out_index || dstate.pending_buf.Length < (dstate.pending_out + len) || next_out.Length < (next_out_index + len))
 			{
+#if !RT
 				System.Console.Out.WriteLine(dstate.pending_buf.Length + ", " + dstate.pending_out + ", " + next_out.Length + ", " + next_out_index + ", " + len);
 				System.Console.Out.WriteLine("avail_out=" + avail_out);
+#else
+                Debug.WriteLine(dstate.pending_buf.Length + ", " + dstate.pending_out + ", " + next_out.Length + ", " + next_out_index + ", " + len);
+                Debug.WriteLine("avail_out=" + avail_out);
+#endif
 			}
 
 			Array.Copy(dstate.pending_buf, dstate.pending_out, next_out, next_out_index, len);

@@ -98,6 +98,7 @@ namespace MySql.Data.MySqlClient
     }
     #endregion
 
+#if !RT
     #region ExecuteDataSet
 
     /// <summary>
@@ -218,6 +219,7 @@ namespace MySql.Data.MySqlClient
     }
 
     #endregion
+#endif
 
     #region ExecuteDataReader
 

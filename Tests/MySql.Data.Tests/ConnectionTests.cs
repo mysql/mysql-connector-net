@@ -26,10 +26,12 @@ using System.Diagnostics;
 using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.Properties;
 using NUnit.Framework;
-using System.Configuration;
 using System.Security;
-using System.Security.Permissions;
 using System.Net;
+#if !RT
+using System.Configuration;
+using System.Security.Permissions;
+#endif
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -49,7 +51,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.AreEqual("", c.Database, "Database");
       Assert.AreEqual(String.Empty, c.DataSource, "DataSource");
       Assert.AreEqual(false, c.UseCompression, "Use Compression");
-      Assert.AreEqual(System.Data.ConnectionState.Closed, c.State, "State");
+      Assert.AreEqual(ConnectionState.Closed, c.State, "State");
 
       c = new MySqlConnection("connection timeout=25; user id=myuser; " +
           "password=mypass; database=Test;server=myserver; use compression=true; " +
@@ -59,7 +61,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.AreEqual("Test", c.Database, "Database");
       Assert.AreEqual("myserver", c.DataSource, "DataSource");
       Assert.AreEqual(true, c.UseCompression, "Use Compression");
-      Assert.AreEqual(System.Data.ConnectionState.Closed, c.State, "State");
+      Assert.AreEqual(ConnectionState.Closed, c.State, "State");
 
       c.ConnectionString = "connection timeout=15; user id=newuser; " +
           "password=newpass; port=3308; database=mydb; data source=myserver2; " +
@@ -70,9 +72,10 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.AreEqual("mydb", c.Database, "Database");
       Assert.AreEqual("myserver2", c.DataSource, "DataSource");
       Assert.AreEqual(true, c.UseCompression, "Use Compression");
-      Assert.AreEqual(System.Data.ConnectionState.Closed, c.State, "State");
+      Assert.AreEqual(ConnectionState.Closed, c.State, "State");
     }
 
+#if !RT
     //*
     [Test]
     public void TestSha256SecurityWithoutSSL()
@@ -288,8 +291,9 @@ namespace MySql.Data.MySqlClient.Tests
         ExecuteSQLAsRoot(string.Format("drop user '{0}'@'localhost'", user));
       }
     } //*/   
+#endif
 
-#if !CF  //No Security.Principal on CF
+#if !CF && !RT  //No Security.Principal on CF
 
     [Test]
     public void TestIntegratedSecurityNoPoolingWithoutUser()
@@ -920,9 +924,12 @@ namespace MySql.Data.MySqlClient.Tests
       c.StateChange += new StateChangeEventHandler(check.stateChangeHandler);
       c.Open();
       threadId = c.ServerThread;
+      WeakReference wr = new WeakReference(c);
+      Assert.IsTrue(wr.IsAlive);
       c = null;
       GC.Collect();
       GC.WaitForPendingFinalizers();
+      Assert.IsFalse(wr.IsAlive);
       Assert.IsTrue(check.closed);
 
       MySqlCommand cmd = new MySqlCommand("KILL " + threadId, conn);
@@ -1049,7 +1056,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !CF
+#if !CF && !RT
     [Test]
     public void CanOpenConnectionInMediumTrust()
     {
@@ -1190,18 +1197,25 @@ namespace MySql.Data.MySqlClient.Tests
       int numClientsAborted = r.GetInt32( 1 );
       r.Close();
 
+#if !RT
       AppDomain appDomain = FullTrustSandbox.CreateFullTrustDomain();
       
 
       FullTrustSandbox sandbox = (FullTrustSandbox)appDomain.CreateInstanceAndUnwrap(
           typeof(FullTrustSandbox).Assembly.FullName,
           typeof(FullTrustSandbox).FullName);
-      
+#endif
+
       try
       {
         for (int i = 0; i < 200; i++)
         {
+#if RT
+          MySqlConnection connection = new MySqlConnection(GetPoolingConnectionString());
+          connection.Open();
+#else
           MySqlConnection connection = sandbox.TryOpenConnection(GetPoolingConnectionString());
+#endif
           Assert.IsNotNull(connection);
           Assert.IsTrue(connection.State == ConnectionState.Open);
           connection.Close();
@@ -1209,7 +1223,9 @@ namespace MySql.Data.MySqlClient.Tests
       }
       finally
       {
+#if !RT
         AppDomain.Unload(appDomain);
+#endif
       }
       r = cmd.ExecuteReader();
       r.Read();
@@ -1305,7 +1321,7 @@ namespace MySql.Data.MySqlClient.Tests
         }
         else
         {
-          System.Diagnostics.Debug.Write("Password expire not supported in this server version.");
+          System.Diagnostics.Debug.WriteLine("Password expire not supported in this server version.");
         }
       }
     }

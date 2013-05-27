@@ -26,13 +26,16 @@ using System.Diagnostics;
 using System.IO;
 using MySql.Data.Common;
 using MySql.Data.Types;
-using System.Security.Cryptography.X509Certificates;
 using MySql.Data.MySqlClient.Properties;
 using System.Text;
 using MySql.Data.MySqlClient.Authentication;
 using System.Reflection;
 using System.ComponentModel;
-#if !CF
+#if RT
+using System.Linq;
+#endif
+#if !CF && !RT
+using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
 using System.Security.Authentication;
 using System.Globalization;
@@ -191,28 +194,10 @@ namespace MySql.Data.MySqlClient
       // connect to one of our specified hosts
       try
       {
-#if !CF
-        if (Settings.ConnectionProtocol == MySqlConnectionProtocol.SharedMemory)
-        {
-          SharedMemoryStream str = new SharedMemoryStream(Settings.SharedMemoryName);
-          str.Open(Settings.ConnectionTimeout);
-          baseStream = str;
-        }
-        else
-        {
-#endif
-          string pipeName = Settings.PipeName;
-          if (Settings.ConnectionProtocol != MySqlConnectionProtocol.NamedPipe)
-            pipeName = null;
-          StreamCreator sc = new StreamCreator(Settings.Server, Settings.Port, pipeName,
-              Settings.Keepalive, this.Version);
-#if !CF
+        baseStream = StreamCreator.GetStream(Settings);
+#if !CF && !RT
          if (Settings.IncludeSecurityAsserts)
             MySqlSecurityPermission.CreatePermissionSet(false).Assert();
-#endif
-          baseStream = sc.GetStream(Settings.ConnectionTimeout);
-#if !CF
-        }
 #endif
       }
       catch (System.Security.SecurityException)
@@ -281,7 +266,7 @@ namespace MySql.Data.MySqlClient
       packet.Clear();
       packet.WriteInteger((int)connectionFlags, 4);
 
-#if !CF
+#if !CF && !RT
       if ((serverCaps & ClientFlags.SSL) == 0)
       {
         if ((Settings.SslMode != MySqlSslMode.None)
@@ -320,7 +305,7 @@ namespace MySql.Data.MySqlClient
       stream.MaxBlockSize = maxSinglePacket;
     }
 
-#if !CF
+#if !CF && !RT
 
     #region SSL
 
@@ -522,7 +507,7 @@ namespace MySql.Data.MySqlClient
     public void SendQuery(MySqlPacket queryPacket)
     {
       warnings = 0;
-      queryPacket.Buffer[4] = (byte)DBCmd.QUERY;
+      queryPacket.SetByte(4, (byte)DBCmd.QUERY);
       ExecutePacket(queryPacket);
       // the server will respond in one of several ways with the first byte indicating
       // the type of response.
@@ -762,7 +747,7 @@ namespace MySql.Data.MySqlClient
     public void ExecuteStatement(MySqlPacket packetToExecute)
     {
       warnings = 0;
-      packetToExecute.Buffer[4] = (byte)DBCmd.EXECUTE;
+      packetToExecute.SetByte(4, (byte)DBCmd.EXECUTE);
       ExecutePacket(packetToExecute);
       serverStatus |= ServerStatusFlags.AnotherQuery;
     }
@@ -923,7 +908,11 @@ namespace MySql.Data.MySqlClient
         foreach (PropertyInfo property in attrs.GetType().GetProperties())
         {
           string name = property.Name;
+#if RT
+          object[] customAttrs = property.GetCustomAttributes(typeof(DisplayNameAttribute), false).ToArray<object>();
+#else
           object[] customAttrs = property.GetCustomAttributes(typeof(DisplayNameAttribute), false);
+#endif
           if (customAttrs.Length > 0)
             name = (customAttrs[0] as DisplayNameAttribute).DisplayName;
 

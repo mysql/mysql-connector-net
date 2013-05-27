@@ -31,7 +31,6 @@ namespace MySql.Data.Types
   {
     bool IsNull { get; }
     MySqlDbType MySqlDbType { get; }
-    DbType DbType { get; }
     object Value { get; /*set;*/ }
     Type SystemType { get; }
     string MySqlTypeName { get; }

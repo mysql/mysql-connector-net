@@ -21,8 +21,6 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Data;
-using System.Data.Common;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
@@ -33,6 +31,11 @@ using System.Collections.Specialized;
 using System.Collections;
 using System.Text.RegularExpressions;
 using MySql.Data.MySqlClient.Properties;
+using System.Collections.Generic;
+#if !RT
+using System.Data;
+using System.Data.Common;
+#endif
 
 namespace MySql.Data.MySqlClient
 {
@@ -46,21 +49,21 @@ namespace MySql.Data.MySqlClient
       connection = connectionToUse;
     }
 
-    public virtual DataTable GetSchema(string collection, String[] restrictions)
+    public virtual MySqlSchemaCollection GetSchema(string collection, String[] restrictions)
     {
       if (connection.State != ConnectionState.Open)
         throw new MySqlException("GetSchema can only be called on an open connection.");
 
-      collection = collection.ToUpper(CultureInfo.InvariantCulture);
+      collection = StringUtility.ToUpperInvariant(collection);
 
-      DataTable dt = GetSchemaInternal(collection, restrictions);
+      MySqlSchemaCollection c = GetSchemaInternal(collection, restrictions);
 
-      if (dt == null)
+      if (c == null)
         throw new ArgumentException("Invalid collection name");
-      return dt;
+      return c;
     }
 
-    public virtual DataTable GetDatabases(string[] restrictions)
+    public virtual MySqlSchemaCollection GetDatabases(string[] restrictions)
     {
       Regex regex = null;
       int caseSetting = Int32.Parse(connection.driver.Property("lower_case_table_names"));
@@ -74,80 +77,75 @@ namespace MySql.Data.MySqlClient
         if (restrictions != null && restrictions.Length >= 1)
           sql = sql + " LIKE '" + restrictions[0] + "'";
       }
-      else if (restrictions != null && restrictions.Length >= 1 && restrictions[0] != null)
+
+      MySqlSchemaCollection c = QueryCollection("Databases", sql);
+
+      if (caseSetting != 0 && restrictions != null && restrictions.Length >= 1 && restrictions[0] != null)
         regex = new Regex(restrictions[0], RegexOptions.IgnoreCase);
 
-      MySqlDataAdapter da = new MySqlDataAdapter(sql, connection);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
+      MySqlSchemaCollection c2 = new MySqlSchemaCollection("Databases");
+      c2.AddColumn("CATALOG_NAME", typeof(string));
+      c2.AddColumn("SCHEMA_NAME", typeof(string));
 
-      DataTable table = new DataTable("Databases");
-      table.Columns.Add("CATALOG_NAME", typeof(string));
-      table.Columns.Add("SCHEMA_NAME", typeof(string));
-
-      foreach (DataRow row in dt.Rows)
+      foreach (MySqlSchemaRow row in c.Rows)
       {
-        if (caseSetting != 0 && regex != null &&
-          !regex.Match(row[0].ToString()).Success) continue;
-
-        DataRow newRow = table.NewRow();
+        if (regex != null && !regex.Match(row[0].ToString()).Success) continue;
+        MySqlSchemaRow newRow = c2.AddRow();
         newRow[1] = row[0];
-        table.Rows.Add(newRow);
       }
-
-      return table;
+      return c2;
     }
 
-    public virtual DataTable GetTables(string[] restrictions)
+    public virtual MySqlSchemaCollection GetTables(string[] restrictions)
     {
-      DataTable dt = new DataTable("Tables");
-      dt.Columns.Add("TABLE_CATALOG", typeof(string));
-      dt.Columns.Add("TABLE_SCHEMA", typeof(string));
-      dt.Columns.Add("TABLE_NAME", typeof(string));
-      dt.Columns.Add("TABLE_TYPE", typeof(string));
-      dt.Columns.Add("ENGINE", typeof(string));
-      dt.Columns.Add("VERSION", typeof(ulong));
-      dt.Columns.Add("ROW_FORMAT", typeof(string));
-      dt.Columns.Add("TABLE_ROWS", typeof(ulong));
-      dt.Columns.Add("AVG_ROW_LENGTH", typeof(ulong));
-      dt.Columns.Add("DATA_LENGTH", typeof(ulong));
-      dt.Columns.Add("MAX_DATA_LENGTH", typeof(ulong));
-      dt.Columns.Add("INDEX_LENGTH", typeof(ulong));
-      dt.Columns.Add("DATA_FREE", typeof(ulong));
-      dt.Columns.Add("AUTO_INCREMENT", typeof(ulong));
-      dt.Columns.Add("CREATE_TIME", typeof(DateTime));
-      dt.Columns.Add("UPDATE_TIME", typeof(DateTime));
-      dt.Columns.Add("CHECK_TIME", typeof(DateTime));
-      dt.Columns.Add("TABLE_COLLATION", typeof(string));
-      dt.Columns.Add("CHECKSUM", typeof(ulong));
-      dt.Columns.Add("CREATE_OPTIONS", typeof(string));
-      dt.Columns.Add("TABLE_COMMENT", typeof(string));
+      MySqlSchemaCollection c = new MySqlSchemaCollection("Tables");
+      c.AddColumn("TABLE_CATALOG", typeof(string));
+      c.AddColumn("TABLE_SCHEMA", typeof(string));
+      c.AddColumn("TABLE_NAME", typeof(string));
+      c.AddColumn("TABLE_TYPE", typeof(string));
+      c.AddColumn("ENGINE", typeof(string));
+      c.AddColumn("VERSION", typeof(ulong));
+      c.AddColumn("ROW_FORMAT", typeof(string));
+      c.AddColumn("TABLE_ROWS", typeof(ulong));
+      c.AddColumn("AVG_ROW_LENGTH", typeof(ulong));
+      c.AddColumn("DATA_LENGTH", typeof(ulong));
+      c.AddColumn("MAX_DATA_LENGTH", typeof(ulong));
+      c.AddColumn("INDEX_LENGTH", typeof(ulong));
+      c.AddColumn("DATA_FREE", typeof(ulong));
+      c.AddColumn("AUTO_INCREMENT", typeof(ulong));
+      c.AddColumn("CREATE_TIME", typeof(DateTime));
+      c.AddColumn("UPDATE_TIME", typeof(DateTime));
+      c.AddColumn("CHECK_TIME", typeof(DateTime));
+      c.AddColumn("TABLE_COLLATION", typeof(string));
+      c.AddColumn("CHECKSUM", typeof(ulong));
+      c.AddColumn("CREATE_OPTIONS", typeof(string));
+      c.AddColumn("TABLE_COMMENT", typeof(string));
 
       // we have to new up a new restriction array here since
       // GetDatabases takes the database in the first slot
       string[] dbRestriction = new string[4];
       if (restrictions != null && restrictions.Length >= 2)
         dbRestriction[0] = restrictions[1];
-      DataTable databases = GetDatabases(dbRestriction);
+      MySqlSchemaCollection databases = GetDatabases(dbRestriction);
 
       if (restrictions != null)
         Array.Copy(restrictions, dbRestriction,
                Math.Min(dbRestriction.Length, restrictions.Length));
 
-      foreach (DataRow db in databases.Rows)
+      foreach (MySqlSchemaRow row in databases.Rows)
       {
-        dbRestriction[1] = db["SCHEMA_NAME"].ToString();
-        FindTables(dt, dbRestriction);
+        dbRestriction[1] = row["SCHEMA_NAME"].ToString();
+        FindTables(c, dbRestriction);
       }
-      return dt;
+      return c;
     }
 
-    protected void QuoteDefaultValues(DataTable dt)
+    protected void QuoteDefaultValues(MySqlSchemaCollection schemaCollection)
     {
-      if (dt == null) return;
-      if (!dt.Columns.Contains("COLUMN_DEFAULT")) return;
+      if (schemaCollection == null) return;
+      if (!schemaCollection.ContainsColumn("COLUMN_DEFAULT")) return;
 
-      foreach (DataRow row in dt.Rows)
+      foreach (MySqlSchemaRow row in schemaCollection.Rows)
       {
         object defaultValue = row["COLUMN_DEFAULT"];
         if (MetaData.IsTextType(row["DATA_TYPE"].ToString()))
@@ -155,28 +153,28 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    public virtual DataTable GetColumns(string[] restrictions)
+    public virtual MySqlSchemaCollection GetColumns(string[] restrictions)
     {
-      DataTable dt = new DataTable("Columns");
-      dt.Columns.Add("TABLE_CATALOG", typeof(string));
-      dt.Columns.Add("TABLE_SCHEMA", typeof(string));
-      dt.Columns.Add("TABLE_NAME", typeof(string));
-      dt.Columns.Add("COLUMN_NAME", typeof(string));
-      dt.Columns.Add("ORDINAL_POSITION", typeof(ulong));
-      dt.Columns.Add("COLUMN_DEFAULT", typeof(string));
-      dt.Columns.Add("IS_NULLABLE", typeof(string));
-      dt.Columns.Add("DATA_TYPE", typeof(string));
-      dt.Columns.Add("CHARACTER_MAXIMUM_LENGTH", typeof(ulong));
-      dt.Columns.Add("CHARACTER_OCTET_LENGTH", typeof(ulong));
-      dt.Columns.Add("NUMERIC_PRECISION", typeof(ulong));
-      dt.Columns.Add("NUMERIC_SCALE", typeof(ulong));
-      dt.Columns.Add("CHARACTER_SET_NAME", typeof(string));
-      dt.Columns.Add("COLLATION_NAME", typeof(string));
-      dt.Columns.Add("COLUMN_TYPE", typeof(string));
-      dt.Columns.Add("COLUMN_KEY", typeof(string));
-      dt.Columns.Add("EXTRA", typeof(string));
-      dt.Columns.Add("PRIVILEGES", typeof(string));
-      dt.Columns.Add("COLUMN_COMMENT", typeof(string));
+      MySqlSchemaCollection c = new MySqlSchemaCollection("Columns");
+      c.AddColumn("TABLE_CATALOG", typeof(string));
+      c.AddColumn("TABLE_SCHEMA", typeof(string));
+      c.AddColumn("TABLE_NAME", typeof(string));
+      c.AddColumn("COLUMN_NAME", typeof(string));
+      c.AddColumn("ORDINAL_POSITION", typeof(ulong));
+      c.AddColumn("COLUMN_DEFAULT", typeof(string));
+      c.AddColumn("IS_NULLABLE", typeof(string));
+      c.AddColumn("DATA_TYPE", typeof(string));
+      c.AddColumn("CHARACTER_MAXIMUM_LENGTH", typeof(ulong));
+      c.AddColumn("CHARACTER_OCTET_LENGTH", typeof(ulong));
+      c.AddColumn("NUMERIC_PRECISION", typeof(ulong));
+      c.AddColumn("NUMERIC_SCALE", typeof(ulong));
+      c.AddColumn("CHARACTER_SET_NAME", typeof(string));
+      c.AddColumn("COLLATION_NAME", typeof(string));
+      c.AddColumn("COLUMN_TYPE", typeof(string));
+      c.AddColumn("COLUMN_KEY", typeof(string));
+      c.AddColumn("EXTRA", typeof(string));
+      c.AddColumn("PRIVILEGES", typeof(string));
+      c.AddColumn("COLUMN_COMMENT", typeof(string));
 
       // we don't allow restricting on table type here
       string columnName = null;
@@ -185,17 +183,17 @@ namespace MySql.Data.MySqlClient
         columnName = restrictions[3];
         restrictions[3] = null;
       }
-      DataTable tables = GetTables(restrictions);
+      MySqlSchemaCollection tables = GetTables(restrictions);
 
-      foreach (DataRow row in tables.Rows)
-        LoadTableColumns(dt, row["TABLE_SCHEMA"].ToString(),
+      foreach (MySqlSchemaRow row in tables.Rows)
+        LoadTableColumns(c, row["TABLE_SCHEMA"].ToString(),
                  row["TABLE_NAME"].ToString(), columnName);
 
-      QuoteDefaultValues(dt);
-      return dt;
+      QuoteDefaultValues(c);
+      return c;
     }
 
-    private void LoadTableColumns(DataTable dt, string schema,
+    private void LoadTableColumns(MySqlSchemaCollection schemaCollection, string schema,
                     string tableName, string columnRestriction)
     {
       string sql = String.Format("SHOW FULL COLUMNS FROM `{0}`.`{1}`",
@@ -210,7 +208,7 @@ namespace MySql.Data.MySqlClient
           string colName = reader.GetString(0);
           if (columnRestriction != null && colName != columnRestriction)
             continue;
-          DataRow row = dt.NewRow();
+          MySqlSchemaRow row = schemaCollection.AddRow();
           row["TABLE_CATALOG"] = DBNull.Value;
           row["TABLE_SCHEMA"] = schema;
           row["TABLE_NAME"] = tableName;
@@ -231,12 +229,11 @@ namespace MySql.Data.MySqlClient
           row["PRIVILEGES"] = reader.GetString(7);
           row["COLUMN_COMMENT"] = reader.GetString(8);
           ParseColumnRow(row);
-          dt.Rows.Add(row);
         }
       }
     }
 
-    private static void ParseColumnRow(DataRow row)
+    private static void ParseColumnRow(MySqlSchemaRow row)
     {
       // first parse the character set name
       string charset = row["CHARACTER_SET_NAME"].ToString();
@@ -264,17 +261,17 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    public virtual DataTable GetIndexes(string[] restrictions)
+    public virtual MySqlSchemaCollection GetIndexes(string[] restrictions)
     {
-      DataTable dt = new DataTable("Indexes");
-      dt.Columns.Add("INDEX_CATALOG", typeof(string));
-      dt.Columns.Add("INDEX_SCHEMA", typeof(string));
-      dt.Columns.Add("INDEX_NAME", typeof(string));
-      dt.Columns.Add("TABLE_NAME", typeof(string));
-      dt.Columns.Add("UNIQUE", typeof(bool));
-      dt.Columns.Add("PRIMARY", typeof(bool));
-      dt.Columns.Add("TYPE", typeof(string));
-      dt.Columns.Add("COMMENT", typeof(string));
+      MySqlSchemaCollection dt = new MySqlSchemaCollection("Indexes");
+      dt.AddColumn("INDEX_CATALOG", typeof(string));
+      dt.AddColumn("INDEX_SCHEMA", typeof(string));
+      dt.AddColumn("INDEX_NAME", typeof(string));
+      dt.AddColumn("TABLE_NAME", typeof(string));
+      dt.AddColumn("UNIQUE", typeof(bool));
+      dt.AddColumn("PRIMARY", typeof(bool));
+      dt.AddColumn("TYPE", typeof(string));
+      dt.AddColumn("COMMENT", typeof(string));
 
       // Get the list of tables first
       int max = restrictions == null ? 4 : restrictions.Length;
@@ -282,24 +279,23 @@ namespace MySql.Data.MySqlClient
       if (restrictions != null)
         restrictions.CopyTo(tableRestrictions, 0);
       tableRestrictions[3] = "BASE TABLE";
-      DataTable tables = GetTables(tableRestrictions);
+      MySqlSchemaCollection tables = GetTables(tableRestrictions);
 
-      foreach (DataRow table in tables.Rows)
+      foreach (MySqlSchemaRow table in tables.Rows)
       {
         string sql = String.Format("SHOW INDEX FROM `{0}`.`{1}`",
           MySqlHelper.DoubleQuoteString((string)table["TABLE_SCHEMA"]),
           MySqlHelper.DoubleQuoteString((string)table["TABLE_NAME"]));
-        MySqlDataAdapter da = new MySqlDataAdapter(sql, connection);
-        DataTable indexes = new DataTable();
-        da.Fill(indexes);
-        foreach (DataRow index in indexes.Rows)
+        MySqlSchemaCollection indexes = QueryCollection("indexes", sql);
+
+        foreach (MySqlSchemaRow index in indexes.Rows)
         {
           long seq_index = (long)index["SEQ_IN_INDEX"];
           if (seq_index != 1) continue;
           if (restrictions != null && restrictions.Length == 4 &&
             restrictions[3] != null &&
             !index["KEY_NAME"].Equals(restrictions[3])) continue;
-          DataRow row = dt.NewRow();
+          MySqlSchemaRow row = dt.AddRow();
           row["INDEX_CATALOG"] = null;
           row["INDEX_SCHEMA"] = table["TABLE_SCHEMA"];
           row["INDEX_NAME"] = index["KEY_NAME"];
@@ -308,32 +304,31 @@ namespace MySql.Data.MySqlClient
           row["PRIMARY"] = index["KEY_NAME"].Equals("PRIMARY");
           row["TYPE"] = index["INDEX_TYPE"];
           row["COMMENT"] = index["COMMENT"];
-          dt.Rows.Add(row);
         }
       }
 
       return dt;
     }
 
-    public virtual DataTable GetIndexColumns(string[] restrictions)
+    public virtual MySqlSchemaCollection GetIndexColumns(string[] restrictions)
     {
-      DataTable dt = new DataTable("IndexColumns");
-      dt.Columns.Add("INDEX_CATALOG", typeof(string));
-      dt.Columns.Add("INDEX_SCHEMA", typeof(string));
-      dt.Columns.Add("INDEX_NAME", typeof(string));
-      dt.Columns.Add("TABLE_NAME", typeof(string));
-      dt.Columns.Add("COLUMN_NAME", typeof(string));
-      dt.Columns.Add("ORDINAL_POSITION", typeof(int));
-      dt.Columns.Add("SORT_ORDER", typeof(string));
+      MySqlSchemaCollection dt = new MySqlSchemaCollection("IndexColumns");
+      dt.AddColumn("INDEX_CATALOG", typeof(string));
+      dt.AddColumn("INDEX_SCHEMA", typeof(string));
+      dt.AddColumn("INDEX_NAME", typeof(string));
+      dt.AddColumn("TABLE_NAME", typeof(string));
+      dt.AddColumn("COLUMN_NAME", typeof(string));
+      dt.AddColumn("ORDINAL_POSITION", typeof(int));
+      dt.AddColumn("SORT_ORDER", typeof(string));
 
       int max = restrictions == null ? 4 : restrictions.Length;
       string[] tableRestrictions = new string[Math.Max(max, 4)];
       if (restrictions != null)
         restrictions.CopyTo(tableRestrictions, 0);
       tableRestrictions[3] = "BASE TABLE";
-      DataTable tables = GetTables(tableRestrictions);
+      MySqlSchemaCollection tables = GetTables(tableRestrictions);
 
-      foreach (DataRow table in tables.Rows)
+      foreach (MySqlSchemaRow table in tables.Rows)
       {
         string sql = String.Format("SHOW INDEX FROM `{0}`.`{1}`",
                        table["TABLE_SCHEMA"], table["TABLE_NAME"]);
@@ -352,7 +347,7 @@ namespace MySql.Data.MySqlClient
               if (restrictions.Length >= 5 && restrictions[4] != null &&
                 col_name != restrictions[4]) continue;
             }
-            DataRow row = dt.NewRow();
+            MySqlSchemaRow row = dt.AddRow();
             row["INDEX_CATALOG"] = null;
             row["INDEX_SCHEMA"] = table["TABLE_SCHEMA"];
             row["INDEX_NAME"] = key_name;
@@ -360,7 +355,6 @@ namespace MySql.Data.MySqlClient
             row["COLUMN_NAME"] = col_name;
             row["ORDINAL_POSITION"] = reader.GetValue(reader.GetOrdinal("SEQ_IN_INDEX"));
             row["SORT_ORDER"] = reader.GetString("COLLATION");
-            dt.Rows.Add(row);
           }
         }
       }
@@ -368,21 +362,21 @@ namespace MySql.Data.MySqlClient
       return dt;
     }
 
-    public virtual DataTable GetForeignKeys(string[] restrictions)
+    public virtual MySqlSchemaCollection GetForeignKeys(string[] restrictions)
     {
-      DataTable dt = new DataTable("Foreign Keys");
-      dt.Columns.Add("CONSTRAINT_CATALOG", typeof(string));
-      dt.Columns.Add("CONSTRAINT_SCHEMA", typeof(string));
-      dt.Columns.Add("CONSTRAINT_NAME", typeof(string));
-      dt.Columns.Add("TABLE_CATALOG", typeof(string));
-      dt.Columns.Add("TABLE_SCHEMA", typeof(string));
-      dt.Columns.Add("TABLE_NAME", typeof(string));
-      dt.Columns.Add("MATCH_OPTION", typeof(string));
-      dt.Columns.Add("UPDATE_RULE", typeof(string));
-      dt.Columns.Add("DELETE_RULE", typeof(string));
-      dt.Columns.Add("REFERENCED_TABLE_CATALOG", typeof(string));
-      dt.Columns.Add("REFERENCED_TABLE_SCHEMA", typeof(string));
-      dt.Columns.Add("REFERENCED_TABLE_NAME", typeof(string));
+      MySqlSchemaCollection dt = new MySqlSchemaCollection("Foreign Keys");
+      dt.AddColumn("CONSTRAINT_CATALOG", typeof(string));
+      dt.AddColumn("CONSTRAINT_SCHEMA", typeof(string));
+      dt.AddColumn("CONSTRAINT_NAME", typeof(string));
+      dt.AddColumn("TABLE_CATALOG", typeof(string));
+      dt.AddColumn("TABLE_SCHEMA", typeof(string));
+      dt.AddColumn("TABLE_NAME", typeof(string));
+      dt.AddColumn("MATCH_OPTION", typeof(string));
+      dt.AddColumn("UPDATE_RULE", typeof(string));
+      dt.AddColumn("DELETE_RULE", typeof(string));
+      dt.AddColumn("REFERENCED_TABLE_CATALOG", typeof(string));
+      dt.AddColumn("REFERENCED_TABLE_SCHEMA", typeof(string));
+      dt.AddColumn("REFERENCED_TABLE_NAME", typeof(string));
 
       // first we use our restrictions to get a list of tables that should be
       // consulted.  We save the keyname restriction since GetTables doesn't 
@@ -394,31 +388,31 @@ namespace MySql.Data.MySqlClient
         restrictions[3] = null;
       }
 
-      DataTable tables = GetTables(restrictions);
+      MySqlSchemaCollection tables = GetTables(restrictions);
 
       // now for each table retrieved, we call our helper function to
       // parse it's foreign keys
-      foreach (DataRow table in tables.Rows)
+      foreach (MySqlSchemaRow table in tables.Rows)
         GetForeignKeysOnTable(dt, table, keyName, false);
 
       return dt;
     }
 
-    public virtual DataTable GetForeignKeyColumns(string[] restrictions)
+    public virtual MySqlSchemaCollection GetForeignKeyColumns(string[] restrictions)
     {
-      DataTable dt = new DataTable("Foreign Keys");
-      dt.Columns.Add("CONSTRAINT_CATALOG", typeof(string));
-      dt.Columns.Add("CONSTRAINT_SCHEMA", typeof(string));
-      dt.Columns.Add("CONSTRAINT_NAME", typeof(string));
-      dt.Columns.Add("TABLE_CATALOG", typeof(string));
-      dt.Columns.Add("TABLE_SCHEMA", typeof(string));
-      dt.Columns.Add("TABLE_NAME", typeof(string));
-      dt.Columns.Add("COLUMN_NAME", typeof(string));
-      dt.Columns.Add("ORDINAL_POSITION", typeof(int));
-      dt.Columns.Add("REFERENCED_TABLE_CATALOG", typeof(string));
-      dt.Columns.Add("REFERENCED_TABLE_SCHEMA", typeof(string));
-      dt.Columns.Add("REFERENCED_TABLE_NAME", typeof(string));
-      dt.Columns.Add("REFERENCED_COLUMN_NAME", typeof(string));
+      MySqlSchemaCollection dt = new MySqlSchemaCollection("Foreign Keys");
+      dt.AddColumn("CONSTRAINT_CATALOG", typeof(string));
+      dt.AddColumn("CONSTRAINT_SCHEMA", typeof(string));
+      dt.AddColumn("CONSTRAINT_NAME", typeof(string));
+      dt.AddColumn("TABLE_CATALOG", typeof(string));
+      dt.AddColumn("TABLE_SCHEMA", typeof(string));
+      dt.AddColumn("TABLE_NAME", typeof(string));
+      dt.AddColumn("COLUMN_NAME", typeof(string));
+      dt.AddColumn("ORDINAL_POSITION", typeof(int));
+      dt.AddColumn("REFERENCED_TABLE_CATALOG", typeof(string));
+      dt.AddColumn("REFERENCED_TABLE_SCHEMA", typeof(string));
+      dt.AddColumn("REFERENCED_TABLE_NAME", typeof(string));
+      dt.AddColumn("REFERENCED_COLUMN_NAME", typeof(string));
 
       // first we use our restrictions to get a list of tables that should be
       // consulted.  We save the keyname restriction since GetTables doesn't 
@@ -430,11 +424,11 @@ namespace MySql.Data.MySqlClient
         restrictions[3] = null;
       }
 
-      DataTable tables = GetTables(restrictions);
+      MySqlSchemaCollection tables = GetTables(restrictions);
 
       // now for each table retrieved, we call our helper function to
       // parse it's foreign keys
-      foreach (DataRow table in tables.Rows)
+      foreach (MySqlSchemaRow table in tables.Rows)
         GetForeignKeysOnTable(dt, table, keyName, true);
       return dt;
     }
@@ -459,13 +453,13 @@ namespace MySql.Data.MySqlClient
     /// <param name="tableToParse">The table to get the foeign key info for.</param>
     /// <param name="filterName">Only get foreign keys that match this name.</param>
     /// <param name="includeColumns">Should column information be included in the table.</param>
-    private void GetForeignKeysOnTable(DataTable fkTable, DataRow tableToParse,
+    private void GetForeignKeysOnTable(MySqlSchemaCollection fkTable, MySqlSchemaRow tableToParse,
                        string filterName, bool includeColumns)
     {
       string sqlMode = GetSqlMode();
 
       if (filterName != null)
-        filterName = filterName.ToLower(CultureInfo.InvariantCulture);
+        filterName = StringUtility.ToLowerInvariant(filterName); 
 
       string sql = string.Format("SHOW CREATE TABLE `{0}`.`{1}`",
                      tableToParse["TABLE_SCHEMA"], tableToParse["TABLE_NAME"]);
@@ -475,7 +469,7 @@ namespace MySql.Data.MySqlClient
       {
         reader.Read();
         body = reader.GetString(1);
-        lowerBody = body.ToLower(CultureInfo.InvariantCulture);
+        lowerBody = StringUtility.ToLowerInvariant(body);
       }
 
       MySqlTokenizer tokenizer = new MySqlTokenizer(lowerBody);
@@ -494,11 +488,11 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    private static void ParseConstraint(DataTable fkTable, DataRow table,
+    private static void ParseConstraint(MySqlSchemaCollection fkTable, MySqlSchemaRow table,
       MySqlTokenizer tokenizer, bool includeColumns)
     {
       string name = tokenizer.NextToken();
-      DataRow row = fkTable.NewRow();
+      MySqlSchemaRow row = fkTable.AddRow();
 
       // make sure this constraint is a FK
       string token = tokenizer.NextToken();
@@ -515,7 +509,7 @@ namespace MySql.Data.MySqlClient
       row["REFERENCED_TABLE_CATALOG"] = null;
       row["CONSTRAINT_NAME"] = name.Trim(new char[] { '\'', '`' });
 
-      ArrayList srcColumns = includeColumns ? ParseColumns(tokenizer) : null;
+      List<string> srcColumns = includeColumns ? ParseColumns(tokenizer) : null;
 
       // now look for the references section
       while (token != "references" || tokenizer.Quoted)
@@ -535,7 +529,7 @@ namespace MySql.Data.MySqlClient
       }
 
       // if we are supposed to include columns, read the target columns
-      ArrayList targetColumns = includeColumns ? ParseColumns(tokenizer) : null;
+      List<string> targetColumns = includeColumns ? ParseColumns(tokenizer) : null;
 
       if (includeColumns)
         ProcessColumns(fkTable, row, srcColumns, targetColumns);
@@ -543,9 +537,9 @@ namespace MySql.Data.MySqlClient
         fkTable.Rows.Add(row);
     }
 
-    private static ArrayList ParseColumns(MySqlTokenizer tokenizer)
+    private static List<string> ParseColumns(MySqlTokenizer tokenizer)
     {
-      ArrayList sc = new ArrayList();
+      List<string> sc = new List<string>();
       string token = tokenizer.NextToken();
       while (token != ")")
       {
@@ -556,61 +550,57 @@ namespace MySql.Data.MySqlClient
       return sc;
     }
 
-    private static void ProcessColumns(DataTable fkTable, DataRow row,
-      ArrayList srcColumns, ArrayList targetColumns)
+    private static void ProcessColumns(MySqlSchemaCollection fkTable, MySqlSchemaRow row, List<string> srcColumns, List<string> targetColumns)
     {
       for (int i = 0; i < srcColumns.Count; i++)
       {
-        DataRow newRow = fkTable.NewRow();
-        newRow.ItemArray = row.ItemArray;
-        newRow["COLUMN_NAME"] = (string)srcColumns[i];
+        MySqlSchemaRow newRow = fkTable.AddRow();
+        row.CopyRow(newRow);
+        newRow["COLUMN_NAME"] = srcColumns[i];
         newRow["ORDINAL_POSITION"] = i;
-        newRow["REFERENCED_COLUMN_NAME"] = (string)targetColumns[i];
+        newRow["REFERENCED_COLUMN_NAME"] = targetColumns[i];
         fkTable.Rows.Add(newRow);
       }
     }
 
     #endregion
 
-    public virtual DataTable GetUsers(string[] restrictions)
+    public virtual MySqlSchemaCollection GetUsers(string[] restrictions)
     {
       StringBuilder sb = new StringBuilder("SELECT Host, User FROM mysql.user");
       if (restrictions != null && restrictions.Length > 0)
         sb.AppendFormat(CultureInfo.InvariantCulture, " WHERE User LIKE '{0}'", restrictions[0]);
 
-      MySqlDataAdapter da = new MySqlDataAdapter(sb.ToString(), connection);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
-      dt.TableName = "Users";
-      dt.Columns[0].ColumnName = "HOST";
-      dt.Columns[1].ColumnName = "USERNAME";
+      MySqlSchemaCollection c = QueryCollection("Users", sb.ToString());
+      c.Columns[0].Name = "HOST";
+      c.Columns[1].Name = "USERNAME";
 
-      return dt;
+      return c;
     }
 
-    public virtual DataTable GetProcedures(string[] restrictions)
+    public virtual MySqlSchemaCollection GetProcedures(string[] restrictions)
     {
-      DataTable dt = new DataTable("Procedures");
-      dt.Columns.Add(new DataColumn("SPECIFIC_NAME", typeof(string)));
-      dt.Columns.Add(new DataColumn("ROUTINE_CATALOG", typeof(string)));
-      dt.Columns.Add(new DataColumn("ROUTINE_SCHEMA", typeof(string)));
-      dt.Columns.Add(new DataColumn("ROUTINE_NAME", typeof(string)));
-      dt.Columns.Add(new DataColumn("ROUTINE_TYPE", typeof(string)));
-      dt.Columns.Add(new DataColumn("DTD_IDENTIFIER", typeof(string)));
-      dt.Columns.Add(new DataColumn("ROUTINE_BODY", typeof(string)));
-      dt.Columns.Add(new DataColumn("ROUTINE_DEFINITION", typeof(string)));
-      dt.Columns.Add(new DataColumn("EXTERNAL_NAME", typeof(string)));
-      dt.Columns.Add(new DataColumn("EXTERNAL_LANGUAGE", typeof(string)));
-      dt.Columns.Add(new DataColumn("PARAMETER_STYLE", typeof(string)));
-      dt.Columns.Add(new DataColumn("IS_DETERMINISTIC", typeof(string)));
-      dt.Columns.Add(new DataColumn("SQL_DATA_ACCESS", typeof(string)));
-      dt.Columns.Add(new DataColumn("SQL_PATH", typeof(string)));
-      dt.Columns.Add(new DataColumn("SECURITY_TYPE", typeof(string)));
-      dt.Columns.Add(new DataColumn("CREATED", typeof(DateTime)));
-      dt.Columns.Add(new DataColumn("LAST_ALTERED", typeof(DateTime)));
-      dt.Columns.Add(new DataColumn("SQL_MODE", typeof(string)));
-      dt.Columns.Add(new DataColumn("ROUTINE_COMMENT", typeof(string)));
-      dt.Columns.Add(new DataColumn("DEFINER", typeof(string)));
+      MySqlSchemaCollection dt = new MySqlSchemaCollection("Procedures");
+      dt.AddColumn("SPECIFIC_NAME", typeof(string));
+      dt.AddColumn("ROUTINE_CATALOG", typeof(string));
+      dt.AddColumn("ROUTINE_SCHEMA", typeof(string));
+      dt.AddColumn("ROUTINE_NAME", typeof(string));
+      dt.AddColumn("ROUTINE_TYPE", typeof(string));
+      dt.AddColumn("DTD_IDENTIFIER", typeof(string));
+      dt.AddColumn("ROUTINE_BODY", typeof(string));
+      dt.AddColumn("ROUTINE_DEFINITION", typeof(string));
+      dt.AddColumn("EXTERNAL_NAME", typeof(string));
+      dt.AddColumn("EXTERNAL_LANGUAGE", typeof(string));
+      dt.AddColumn("PARAMETER_STYLE", typeof(string));
+      dt.AddColumn("IS_DETERMINISTIC", typeof(string));
+      dt.AddColumn("SQL_DATA_ACCESS", typeof(string));
+      dt.AddColumn("SQL_PATH", typeof(string));
+      dt.AddColumn("SECURITY_TYPE", typeof(string));
+      dt.AddColumn("CREATED", typeof(DateTime));
+      dt.AddColumn("LAST_ALTERED", typeof(DateTime));
+      dt.AddColumn("SQL_MODE", typeof(string));
+      dt.AddColumn("ROUTINE_COMMENT", typeof(string));
+      dt.AddColumn("DEFINER", typeof(string));
 
       StringBuilder sql = new StringBuilder("SELECT * FROM mysql.proc WHERE 1=1");
       if (restrictions != null)
@@ -631,14 +621,14 @@ namespace MySql.Data.MySqlClient
       {
         while (reader.Read())
         {
-          DataRow row = dt.NewRow();
+          MySqlSchemaRow row = dt.AddRow();
           row["SPECIFIC_NAME"] = reader.GetString("specific_name");
           row["ROUTINE_CATALOG"] = DBNull.Value;
           row["ROUTINE_SCHEMA"] = reader.GetString("db");
           row["ROUTINE_NAME"] = reader.GetString("name");
           string routineType = reader.GetString("type");
           row["ROUTINE_TYPE"] = routineType;
-          row["DTD_IDENTIFIER"] = routineType.ToLower(CultureInfo.InvariantCulture) == "function" ?
+          row["DTD_IDENTIFIER"] = StringUtility.ToLowerInvariant(routineType) == "function" ?
             (object)reader.GetString("returns") : DBNull.Value;
           row["ROUTINE_BODY"] = "SQL";
           row["ROUTINE_DEFINITION"] = reader.GetString("body");
@@ -654,14 +644,13 @@ namespace MySql.Data.MySqlClient
           row["SQL_MODE"] = reader.GetString("sql_mode");
           row["ROUTINE_COMMENT"] = reader.GetString("comment");
           row["DEFINER"] = reader.GetString("definer");
-          dt.Rows.Add(row);
         }
       }
 
       return dt;
     }
 
-    protected virtual DataTable GetCollections()
+    protected virtual MySqlSchemaCollection GetCollections()
     {
       object[][] collections = new object[][]
         {
@@ -681,45 +670,45 @@ namespace MySql.Data.MySqlClient
           new object[] {"UDF", 1, 1}
         };
 
-      DataTable dt = new DataTable("MetaDataCollections");
-      dt.Columns.Add(new DataColumn("CollectionName", typeof(string)));
-      dt.Columns.Add(new DataColumn("NumberOfRestrictions", typeof(int)));
-      dt.Columns.Add(new DataColumn("NumberOfIdentifierParts", typeof(int)));
+      MySqlSchemaCollection dt = new MySqlSchemaCollection("MetaDataCollections");
+      dt.AddColumn("CollectionName", typeof(string));
+      dt.AddColumn("NumberOfRestrictions", typeof(int));
+      dt.AddColumn("NumberOfIdentifierParts", typeof(int));
 
       FillTable(dt, collections);
 
       return dt;
     }
 
-    private DataTable GetDataSourceInformation()
+    private MySqlSchemaCollection GetDataSourceInformation()
     {
-#if CF
+#if CF || RT
       throw new NotSupportedException();
 #else
-      DataTable dt = new DataTable("DataSourceInformation");
-      dt.Columns.Add("CompositeIdentifierSeparatorPattern", typeof(string));
-      dt.Columns.Add("DataSourceProductName", typeof(string));
-      dt.Columns.Add("DataSourceProductVersion", typeof(string));
-      dt.Columns.Add("DataSourceProductVersionNormalized", typeof(string));
-      dt.Columns.Add("GroupByBehavior", typeof(GroupByBehavior));
-      dt.Columns.Add("IdentifierPattern", typeof(string));
-      dt.Columns.Add("IdentifierCase", typeof(IdentifierCase));
-      dt.Columns.Add("OrderByColumnsInSelect", typeof(bool));
-      dt.Columns.Add("ParameterMarkerFormat", typeof(string));
-      dt.Columns.Add("ParameterMarkerPattern", typeof(string));
-      dt.Columns.Add("ParameterNameMaxLength", typeof(int));
-      dt.Columns.Add("ParameterNamePattern", typeof(string));
-      dt.Columns.Add("QuotedIdentifierPattern", typeof(string));
-      dt.Columns.Add("QuotedIdentifierCase", typeof(IdentifierCase));
-      dt.Columns.Add("StatementSeparatorPattern", typeof(string));
-      dt.Columns.Add("StringLiteralPattern", typeof(string));
-      dt.Columns.Add("SupportedJoinOperators", typeof(SupportedJoinOperators));
+      MySqlSchemaCollection dt = new MySqlSchemaCollection("DataSourceInformation");
+      dt.AddColumn("CompositeIdentifierSeparatorPattern", typeof(string));
+      dt.AddColumn("DataSourceProductName", typeof(string));
+      dt.AddColumn("DataSourceProductVersion", typeof(string));
+      dt.AddColumn("DataSourceProductVersionNormalized", typeof(string));
+      dt.AddColumn("GroupByBehavior", typeof(GroupByBehavior));
+      dt.AddColumn("IdentifierPattern", typeof(string));
+      dt.AddColumn("IdentifierCase", typeof(IdentifierCase));
+      dt.AddColumn("OrderByColumnsInSelect", typeof(bool));
+      dt.AddColumn("ParameterMarkerFormat", typeof(string));
+      dt.AddColumn("ParameterMarkerPattern", typeof(string));
+      dt.AddColumn("ParameterNameMaxLength", typeof(int));
+      dt.AddColumn("ParameterNamePattern", typeof(string));
+      dt.AddColumn("QuotedIdentifierPattern", typeof(string));
+      dt.AddColumn("QuotedIdentifierCase", typeof(IdentifierCase));
+      dt.AddColumn("StatementSeparatorPattern", typeof(string));
+      dt.AddColumn("StringLiteralPattern", typeof(string));
+      dt.AddColumn("SupportedJoinOperators", typeof(SupportedJoinOperators));
 
       DBVersion v = connection.driver.Version;
       string ver = String.Format("{0:0}.{1:0}.{2:0}",
                      v.Major, v.Minor, v.Build);
 
-      DataRow row = dt.NewRow();
+      MySqlSchemaRow row = dt.AddRow();
       row["CompositeIdentifierSeparatorPattern"] = "\\.";
       row["DataSourceProductName"] = "MySQL";
       row["DataSourceProductVersion"] = connection.ServerVersion;
@@ -745,32 +734,32 @@ namespace MySql.Data.MySqlClient
 #endif
     }
 
-    private static DataTable GetDataTypes()
+    private static MySqlSchemaCollection GetDataTypes()
     {
-      DataTable dt = new DataTable("DataTypes");
-      dt.Columns.Add(new DataColumn("TypeName", typeof(string)));
-      dt.Columns.Add(new DataColumn("ProviderDbType", typeof(int)));
-      dt.Columns.Add(new DataColumn("ColumnSize", typeof(long)));
-      dt.Columns.Add(new DataColumn("CreateFormat", typeof(string)));
-      dt.Columns.Add(new DataColumn("CreateParameters", typeof(string)));
-      dt.Columns.Add(new DataColumn("DataType", typeof(string)));
-      dt.Columns.Add(new DataColumn("IsAutoincrementable", typeof(bool)));
-      dt.Columns.Add(new DataColumn("IsBestMatch", typeof(bool)));
-      dt.Columns.Add(new DataColumn("IsCaseSensitive", typeof(bool)));
-      dt.Columns.Add(new DataColumn("IsFixedLength", typeof(bool)));
-      dt.Columns.Add(new DataColumn("IsFixedPrecisionScale", typeof(bool)));
-      dt.Columns.Add(new DataColumn("IsLong", typeof(bool)));
-      dt.Columns.Add(new DataColumn("IsNullable", typeof(bool)));
-      dt.Columns.Add(new DataColumn("IsSearchable", typeof(bool)));
-      dt.Columns.Add(new DataColumn("IsSearchableWithLike", typeof(bool)));
-      dt.Columns.Add(new DataColumn("IsUnsigned", typeof(bool)));
-      dt.Columns.Add(new DataColumn("MaximumScale", typeof(short)));
-      dt.Columns.Add(new DataColumn("MinimumScale", typeof(short)));
-      dt.Columns.Add(new DataColumn("IsConcurrencyType", typeof(bool)));
-      dt.Columns.Add(new DataColumn("IsLiteralSupported", typeof(bool)));
-      dt.Columns.Add(new DataColumn("LiteralPrefix", typeof(string)));
-      dt.Columns.Add(new DataColumn("LiteralSuffix", typeof(string)));
-      dt.Columns.Add(new DataColumn("NativeDataType", typeof(string)));
+      MySqlSchemaCollection dt = new MySqlSchemaCollection("DataTypes");
+      dt.AddColumn("TypeName", typeof(string));
+      dt.AddColumn("ProviderDbType", typeof(int));
+      dt.AddColumn("ColumnSize", typeof(long));
+      dt.AddColumn("CreateFormat", typeof(string));
+      dt.AddColumn("CreateParameters", typeof(string));
+      dt.AddColumn("DataType", typeof(string));
+      dt.AddColumn("IsAutoincrementable", typeof(bool));
+      dt.AddColumn("IsBestMatch", typeof(bool));
+      dt.AddColumn("IsCaseSensitive", typeof(bool));
+      dt.AddColumn("IsFixedLength", typeof(bool));
+      dt.AddColumn("IsFixedPrecisionScale", typeof(bool));
+      dt.AddColumn("IsLong", typeof(bool));
+      dt.AddColumn("IsNullable", typeof(bool));
+      dt.AddColumn("IsSearchable", typeof(bool));
+      dt.AddColumn("IsSearchableWithLike", typeof(bool));
+      dt.AddColumn("IsUnsigned", typeof(bool));
+      dt.AddColumn("MaximumScale", typeof(short));
+      dt.AddColumn("MinimumScale", typeof(short));
+      dt.AddColumn("IsConcurrencyType", typeof(bool));
+      dt.AddColumn("IsLiteralSupported", typeof(bool));
+      dt.AddColumn("LiteralPrefix", typeof(string));
+      dt.AddColumn("LiteralSuffix", typeof(string));
+      dt.AddColumn("NativeDataType", typeof(string));
 
       // have each one of the types contribute to the datatypes collection
       MySqlBit.SetDSInfo(dt);
@@ -793,7 +782,7 @@ namespace MySql.Data.MySqlClient
       return dt;
     }
 
-    protected virtual DataTable GetRestrictions()
+    protected virtual MySqlSchemaCollection GetRestrictions()
     {
       object[][] restrictions = new object[][]
         {
@@ -827,24 +816,28 @@ namespace MySql.Data.MySqlClient
           new object[] {"UDF", "Name", "", 0}
         };
 
-      DataTable dt = new DataTable("Restrictions");
-      dt.Columns.Add(new DataColumn("CollectionName", typeof(string)));
-      dt.Columns.Add(new DataColumn("RestrictionName", typeof(string)));
-      dt.Columns.Add(new DataColumn("RestrictionDefault", typeof(string)));
-      dt.Columns.Add(new DataColumn("RestrictionNumber", typeof(int)));
+      MySqlSchemaCollection dt = new MySqlSchemaCollection("Restrictions");
+      dt.AddColumn("CollectionName", typeof(string));
+      dt.AddColumn("RestrictionName", typeof(string));
+      dt.AddColumn("RestrictionDefault", typeof(string));
+      dt.AddColumn("RestrictionNumber", typeof(int));
 
       FillTable(dt, restrictions);
 
       return dt;
     }
 
-    private static DataTable GetReservedWords()
+    private static MySqlSchemaCollection GetReservedWords()
     {
-      DataTable dt = new DataTable("ReservedWords");
-      dt.Columns.Add(new DataColumn(DbMetaDataColumnNames.ReservedWord, typeof(string)));
-
+      MySqlSchemaCollection dt = new MySqlSchemaCollection("ReservedWords");
+#if !RT
+      dt.AddColumn(DbMetaDataColumnNames.ReservedWord, typeof(string));
       Stream str = Assembly.GetExecutingAssembly().GetManifestResourceStream(
         "MySql.Data.MySqlClient.Properties.ReservedWords.txt");
+#else
+      dt.AddColumn("ReservedWord", typeof(string));
+      Stream str = typeof(SchemaProvider).GetTypeInfo().Assembly.GetManifestResourceStream("MySql.Data.MySqlClient.Properties.ReservedWords.txt");
+#endif
       StreamReader sr = new StreamReader(str);
       string line = sr.ReadLine();
       while (line != null)
@@ -853,30 +846,32 @@ namespace MySql.Data.MySqlClient
         foreach (string s in keywords)
         {
           if (String.IsNullOrEmpty(s)) continue;
-          DataRow row = dt.NewRow();
+          MySqlSchemaRow row = dt.AddRow();
           row[0] = s;
-          dt.Rows.Add(row);
         }
         line = sr.ReadLine();
       }
+#if !CF
+      sr.Dispose();
+#else
       sr.Close();
+#endif
       str.Close();
 
       return dt;
     }
 
-    protected static void FillTable(DataTable dt, object[][] data)
+    protected static void FillTable(MySqlSchemaCollection dt, object[][] data)
     {
       foreach (object[] dataItem in data)
       {
-        DataRow row = dt.NewRow();
+        MySqlSchemaRow row = dt.AddRow();
         for (int i = 0; i < dataItem.Length; i++)
           row[i] = dataItem[i];
-        dt.Rows.Add(row);
       }
     }
 
-    private void FindTables(DataTable schemaTable, string[] restrictions)
+    private void FindTables(MySqlSchemaCollection schema, string[] restrictions)
     {
       StringBuilder sql = new StringBuilder();
       StringBuilder where = new StringBuilder();
@@ -898,7 +893,7 @@ namespace MySql.Data.MySqlClient
       {
         while (reader.Read())
         {
-          DataRow row = schemaTable.NewRow();
+          MySqlSchemaRow row = schema.AddRow();
           row["TABLE_CATALOG"] = null;
           row["TABLE_SCHEMA"] = restrictions[1];
           row["TABLE_NAME"] = reader.GetString(0);
@@ -920,7 +915,6 @@ namespace MySql.Data.MySqlClient
           row["CHECKSUM"] = reader.GetValue(15);
           row["CREATE_OPTIONS"] = GetString(reader, 16);
           row["TABLE_COMMENT"] = GetString(reader, 17);
-          schemaTable.Rows.Add(row);
         }
       }
     }
@@ -932,7 +926,7 @@ namespace MySql.Data.MySqlClient
       return reader.GetString(index);
     }
 
-    public virtual DataTable GetUDF(string[] restrictions)
+    public virtual MySqlSchemaCollection GetUDF(string[] restrictions)
     {
       string sql = "SELECT name,ret,dl FROM mysql.func";
       if (restrictions != null)
@@ -941,10 +935,10 @@ namespace MySql.Data.MySqlClient
           sql += String.Format(" WHERE name LIKE '{0}'", restrictions[0]);
       }
 
-      DataTable dt = new DataTable("User-defined Functions");
-      dt.Columns.Add("NAME", typeof(string));
-      dt.Columns.Add("RETURN_TYPE", typeof(int));
-      dt.Columns.Add("LIBRARY_NAME", typeof(string));
+      MySqlSchemaCollection dt = new MySqlSchemaCollection("User-defined Functions");
+      dt.AddColumn("NAME", typeof(string));
+      dt.AddColumn("RETURN_TYPE", typeof(int));
+      dt.AddColumn("LIBRARY_NAME", typeof(string));
 
       MySqlCommand cmd = new MySqlCommand(sql, connection);
       try
@@ -953,11 +947,10 @@ namespace MySql.Data.MySqlClient
         {
           while (reader.Read())
           {
-            DataRow row = dt.NewRow();
+            MySqlSchemaRow row = dt.AddRow();
             row[0] = reader.GetString(0);
             row[1] = reader.GetInt32(1);
             row[2] = reader.GetString(2);
-            dt.Rows.Add(row);
           }
         }
       }
@@ -971,7 +964,7 @@ namespace MySql.Data.MySqlClient
       return dt;
     }
 
-    protected virtual DataTable GetSchemaInternal(string collection, string[] restrictions)
+    protected virtual MySqlSchemaCollection GetSchemaInternal(string collection, string[] restrictions)
     {
       switch (collection)
       {
@@ -1041,6 +1034,27 @@ namespace MySql.Data.MySqlClient
         }
       }
       return restrictions;
+    }
+
+    protected MySqlSchemaCollection QueryCollection(string name, string sql)
+    {
+      MySqlSchemaCollection c = new MySqlSchemaCollection(name);
+      MySqlCommand cmd = new MySqlCommand(sql, connection);
+      MySqlDataReader reader = cmd.ExecuteReader();
+
+      for (int i = 0; i < reader.FieldCount; i++)
+        c.AddColumn(reader.GetName(i), reader.GetFieldType(i));
+
+      using (reader)
+      {
+        while (reader.Read())
+        {
+          MySqlSchemaRow row = c.AddRow();
+          for (int i = 0; i < reader.FieldCount; i++)
+            row[i] = reader.GetValue(i);
+        }
+      }
+      return c;
     }
   }
 }
