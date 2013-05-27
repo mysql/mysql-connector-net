@@ -31,6 +31,7 @@ using System.Windows.Forms;
 using MySql.Data.VisualStudio.Editors;
 using System.Diagnostics;
 using Microsoft.VisualStudio.Shell.Interop;
+using MySql.Data.VisualStudio.Properties;
 
 namespace MySql.Data.VisualStudio
 {
@@ -44,6 +45,33 @@ namespace MySql.Data.VisualStudio
       NodeId = "Table";
       //commandGroupGuid = GuidList.DavinciCommandSet;
       DocumentNode.RegisterNode(this);
+      Saving += new EventHandler(TableNode_Saving);
+    }
+
+    void TableNode_Saving(object sender, EventArgs e)
+    {
+      // Some useful validations
+      bool hasAutoIncr = false;
+      bool hasPK = false;
+      for (int i = 0; i < table.Columns.Count; i++)
+      {
+        if (table.Columns[i].AutoIncrement)
+        {
+          hasAutoIncr = true;
+          break;
+        }
+      }
+
+      for (int i = 0; i < table.Indexes.Count; i++)
+      {
+        if (table.Indexes[i].IsPrimary)
+        {
+          hasPK = true;
+          break;
+        }
+      }
+      if (hasAutoIncr && !hasPK)
+        throw new ArgumentException( Resources.AutoIncrementPrimaryKey );
     }
 
     #region Properties
