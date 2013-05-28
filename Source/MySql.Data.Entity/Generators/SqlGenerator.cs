@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2008 MySQL AB, 2008-2009 Sun Microsystems, Inc.
+﻿// Copyright © 2008, 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -39,10 +39,19 @@ namespace MySql.Data.Entity
     protected Scope scope = new Scope();
     protected int propertyLevel;
     protected Dictionary<EdmMember, SqlFragment> values;
+    protected internal Stack<OpType> Ops = new Stack<OpType>();
 
     public SqlGenerator()
     {
       Parameters = new List<MySqlParameter>();
+    }
+
+    protected internal OpType GetTopOp() 
+    {
+      if (Ops.Count == 0)
+        return OpType.Join;
+      else
+        return Ops.Peek();
     }
 
     #region Properties
@@ -93,7 +102,7 @@ namespace MySql.Data.Entity
       SelectStatement select = input as SelectStatement;
       UnionFragment union = input as UnionFragment;
 
-      if (select != null)
+      if (select != null)      
         select.HasDifferentNameForColumn(column);
       else if (union != null)
         union.HasDifferentNameForColumn(column);
@@ -445,7 +454,7 @@ namespace MySql.Data.Entity
 
     protected virtual SelectStatement GenerateReturningSql(DbModificationCommandTree tree, DbExpression returning)
     {
-      SelectStatement select = new SelectStatement();
+      SelectStatement select = new SelectStatement(this);
 
       Debug.Assert(returning is DbNewInstanceExpression);
       VisitNewInstanceExpression(select, returning as DbNewInstanceExpression);

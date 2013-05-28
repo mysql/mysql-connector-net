@@ -61,6 +61,36 @@ namespace MySql.Data.Entity.CodeFirst.Tests.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to SELECT
+        ///`Project1`.`HarborId`, 
+        ///`Project1`.`Description`, 
+        ///`Project1`.`C2` AS `C1`, 
+        ///`Project1`.`ShipId`, 
+        ///`Project1`.`HarborId1`, 
+        ///`Project1`.`Description1`, 
+        ///`Project1`.`C1` AS `C2`, 
+        ///`Project1`.`CrewMemberId`, 
+        ///`Project1`.`ShipId1`, 
+        ///`Project1`.`RankId`, 
+        ///`Project1`.`ClearanceId`, 
+        ///`Project1`.`Description2`, 
+        ///`Project1`.`RankId1`, 
+        ///`Project1`.`Description3`, 
+        ///`Project1`.`ClearanceId1`, 
+        ///`Project1`.`Description4`
+        ///FROM (SELECT
+        ///`Extent1`.`HarborId`, 
+        ///`Extent1`.`Description`, 
+        ///`Join3`.`ShipId`, 
+        ///`Join3`.`Harb [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string ShipQueryMalformedDueMultipleProjecttionsCorrected {
+            get {
+                return ResourceManager.GetString("ShipQueryMalformedDueMultipleProjecttionsCorrected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to UPDATE `MovieReleases` SET `Name`=&apos;Director\&apos;s Cut&apos; WHERE (`Id` = 1) AND (`Name` = &apos;Commercial&apos;); SELECT `Timestamp` FROM `MovieReleases`  WHERE  row_count() &gt; 0 and (`Id` = 1) AND (`Name` = &apos;Director\&apos;s Cut&apos;).
         /// </summary>
         internal static string UpdateWithSelect {

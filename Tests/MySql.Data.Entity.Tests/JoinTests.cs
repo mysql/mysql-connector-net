@@ -32,6 +32,7 @@ using System.Data.Objects;
 using System.Linq;
 using MySql.Data.Entity.Tests.Properties;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Xunit;
 
@@ -145,11 +146,37 @@ namespace MySql.Data.Entity.Tests
                                 (SELECT b.Id, b.Name FROM testEntities.Books AS b)) AS Union2
                                 ON Union1.Id = Union2.Id) ON c.Id = Union1.Id";
         ObjectQuery<DbDataRecord> query = context.CreateQuery<DbDataRecord>(eSql);
+
+        string[] data = new string[] { 
+          "1,Hasbro,1,Slinky,1,Tom Clancy",
+          "1,Hasbro,1,Target,1,Tom Clancy",
+          "1,Hasbro,1,Slinky,1,Debt of Honor",
+          "1,Hasbro,1,Target,1,Debt of Honor",
+          "2,Acme,2,K-Mart,2,Insomnia",
+          "2,Acme,2,Rubiks Cube,2,Stephen King",
+          "2,Acme,2,K-Mart,2,Stephen King",
+          "2,Acme,2,Rubiks Cube,2,Insomnia",
+          "3,Bandai America,3,Wal-Mart,3,Rainmaker",
+          "3,Bandai America,3,Lincoln Logs,3,John Grisham",
+          "3,Bandai America,3,Wal-Mart,3,John Grisham",
+          "3,Bandai America,3,Lincoln Logs,3,Rainmaker",
+          "4,Lego Group,4,Legos,4,Hallo",
+          "4,Lego Group,4,Legos,4,Dean Koontz" 
+        };
+        Dictionary<string, string> outData = new Dictionary<string, string>();
         string sql = query.ToTraceString();
         st.CheckSql(sql, SQLSyntax.JoinOfUnionsOnRightSideOfJoin);
+        // check data integrity
         foreach (DbDataRecord record in query)
         {
-          Assert.Equal(6, record.FieldCount);
+          outData.Add(string.Format("{0},{1},{2},{3},{4},{5}", record.GetInt32( 0 ),
+            record.GetString( 1 ), record.GetInt32( 2 ), record.GetString( 3 ), 
+            record.GetInt32( 4 ), record.GetString( 5 )), null);
+        }
+        Assert.Equal(data.Length, outData.Count);
+        for( int i = 0; i < data.Length; i++ )
+        {
+          Assert.True(outData.ContainsKey(data[i]));
         }
       }
     }
