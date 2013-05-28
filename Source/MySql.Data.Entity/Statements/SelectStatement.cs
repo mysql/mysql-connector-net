@@ -1,4 +1,4 @@
-﻿// Copyright © 2008, 2011, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2008, 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -34,11 +34,13 @@ namespace MySql.Data.Entity
   {
     private Dictionary<string, ColumnFragment> columnHash;
     private bool hasRenamedColumns;
+    private SqlGenerator generator;
 
-    public SelectStatement()
+    public SelectStatement(SqlGenerator generator)
       : base(null)
     {
       Columns = new List<ColumnFragment>();
+      this.generator = generator;
     }
 
     public InputFragment From;
@@ -198,11 +200,19 @@ namespace MySql.Data.Entity
       else if (input is JoinFragment || input is UnionFragment)
       {
         Debug.Assert(input.Left != null);
+        if (input is UnionFragment)
+        {
+          generator.Ops.Push(OpType.Union);
+        }
         columns = GetDefaultColumnsForFragment(input.Left);
         if (input is JoinFragment && input.Right != null)
         {
           List<ColumnFragment> right = GetDefaultColumnsForFragment(input.Right);
           columns.AddRange(right);
+        }
+        if (input is UnionFragment)
+        {
+          generator.Ops.Pop();
         }
       }
       else if (input is SelectStatement)
@@ -213,9 +223,19 @@ namespace MySql.Data.Entity
           ColumnFragment newColumn = new ColumnFragment(cf.TableName,
               string.IsNullOrEmpty(cf.ColumnAlias) ? cf.ActualColumnName : cf.ColumnAlias
               );
-          newColumn.PushInput(cf.ActualColumnName);
-          if (cf.TableName != null && cf.ColumnAlias == null)
-            newColumn.PushInput(cf.TableName);
+          if ( generator.GetTopOp() == OpType.Join )
+          {
+            newColumn.ColumnAlias = cf.ColumnAlias;
+            newColumn.PushInput(cf.ColumnName);
+            if (cf.TableName != null)
+              newColumn.PushInput(cf.TableName);
+          }
+          else
+          {
+            newColumn.PushInput(cf.ActualColumnName);
+            if (cf.TableName != null && cf.ColumnAlias == null)
+              newColumn.PushInput(cf.TableName);
+          }
           if (select.Name != null)
           {
             newColumn.PushInput(select.Name);      // add the scope 

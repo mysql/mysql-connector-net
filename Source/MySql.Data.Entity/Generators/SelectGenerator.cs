@@ -1,4 +1,4 @@
-﻿// Copyright © 2008, 2011, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2008, 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -33,7 +33,7 @@ namespace MySql.Data.Entity
 {
   class SelectGenerator : SqlGenerator
   {
-    Stack<SelectStatement> selectStatements = new Stack<SelectStatement>();
+    Stack<SelectStatement> selectStatements = new Stack<SelectStatement>();    
 
     #region Properties
 
@@ -157,7 +157,7 @@ namespace MySql.Data.Entity
       InputFragment input = VisitInputExpression(inputBinding.Expression, inputBinding.VariableName, inputBinding.VariableType);
       DbExpressionBinding applyBinding = expression.Apply;
       InputFragment apply = VisitInputExpression(applyBinding.Expression, applyBinding.VariableName, applyBinding.VariableType);
-      SelectStatement select = new SelectStatement();
+      SelectStatement select = new SelectStatement(this);
       bool isInputSelect = false;
       if (!(input is TableFragment))
       {
@@ -172,7 +172,7 @@ namespace MySql.Data.Entity
         SelectStatement applySel = apply as SelectStatement;
         foreach (ColumnFragment f in applySel.Columns)
         {
-          SelectStatement newColSelect = new SelectStatement();
+          SelectStatement newColSelect = new SelectStatement(this);
           newColSelect.From = applySel.From;
 		  newColSelect.Where = applySel.Where;
           if (isInputSelect)
@@ -219,7 +219,7 @@ namespace MySql.Data.Entity
     }
 
     public override SqlFragment Visit(DbJoinExpression expression)
-    {
+    { 
       return HandleJoinExpression(expression.Left, expression.Right,
           expression.ExpressionKind, expression.JoinCondition);
     }
@@ -252,7 +252,7 @@ namespace MySql.Data.Entity
     public SelectStatement WrapIfNotCompatible(SelectStatement select, DbExpressionKind expressionKind)
     {
       if (select.IsCompatible(expressionKind)) return select;
-      SelectStatement newSelect = new SelectStatement();
+      SelectStatement newSelect = new SelectStatement(this);
       select.Wrap(scope);
       select.Scoped = true;
       newSelect.From = select;
@@ -268,7 +268,7 @@ namespace MySql.Data.Entity
       }
       else if (fragment is JoinFragment && isRightPart)
       {
-        SelectStatement select = new SelectStatement();
+        SelectStatement select = new SelectStatement(this);
         select.From = fragment;
         select.Name = fragment.Name;
         select.Wrap(scope);
@@ -281,7 +281,7 @@ namespace MySql.Data.Entity
     {
       Debug.Assert(expression.ResultType.EdmType is CollectionType);
 
-      SelectStatement s = new SelectStatement();
+      SelectStatement s = new SelectStatement(this);
 
       ColumnFragment c = new ColumnFragment(null, null);
       if (expression.Arguments.Count != 0)
@@ -312,7 +312,7 @@ namespace MySql.Data.Entity
       InputFragment fragment = VisitInputExpression(e, name, type);
       if (fragment is SelectStatement) return (fragment as SelectStatement);
 
-      SelectStatement s = new SelectStatement();
+      SelectStatement s = new SelectStatement(this);
 
       // if the fragment is a union then it needs to be wrapped
       if (fragment is UnionFragment)
@@ -377,7 +377,7 @@ namespace MySql.Data.Entity
       UnionFragment f = new UnionFragment();
       Debug.Assert(expression.Left is DbProjectExpression);
       Debug.Assert(expression.Right is DbProjectExpression);
-
+      
       SelectStatement left = VisitInputExpressionEnsureSelect(expression.Left, null, null);
       Debug.Assert(left.Name == null);
       //            left.Wrap(null);
@@ -385,9 +385,9 @@ namespace MySql.Data.Entity
       SelectStatement right = VisitInputExpressionEnsureSelect(expression.Right, null, null);
       Debug.Assert(right.Name == null);
       //          right.Wrap(null);
-
       f.Left = left;
       f.Right = right;
+      
       return f;
     }
   }
