@@ -1,4 +1,4 @@
-- Fix for Entity Framework when inserts data having Identity columns (Oracle bug #16494585).
+
 
 6.5.7
 - Fix for bug If using repair option, then vs2010 doesnt allow to connect to db (Oracle bug #16238242).
@@ -12,7 +12,8 @@
 - Fix for Parser fails to recognizes a complex view (Oracle bug #16815427).
 - Fix for Altering table's primary key in designer not working (Oracle bug #16866053).
 - Fix for Connector/NET cannot read data from a MySql table using UTF-16/UTF-32 (MySql bug #69169, Oracle bug #16776818).
-
+- Fix for Entity Framework when inserts data having Identity columns (Oracle bug #16494585).
+- Fix for Malformed query in Entity Framework when eager loading due to multiple projections (MySql bug #67183, Oracle bug #16872852).
 
 6.5.6
 - Fix internal bug "Parser cannot recognize row_count in grammar version 5.6" (id task 326).

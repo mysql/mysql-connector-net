@@ -1,4 +1,4 @@
-﻿// Copyright © 2008, 2011, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2008, 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -365,11 +365,14 @@ namespace MySql.Data.Entity
       if (!(obj is PropertyFragment)) return false;
       PropertyFragment prop = obj as PropertyFragment;
       Debug.Assert(Properties != null && prop.Properties != null);
-
       int aIndex = Properties.Count - 1;
       int bIndex = prop.Properties.Count - 1;
+      int cnt = 0;
       while (aIndex >= 0 && bIndex >= 0)
+      {
         if (String.Compare(Properties[aIndex--], prop.Properties[bIndex--], true) != 0) return false;
+        if (++cnt == 2) break;
+      }
       return true;
     }
 

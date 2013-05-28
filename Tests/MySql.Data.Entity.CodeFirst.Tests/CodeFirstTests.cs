@@ -531,8 +531,113 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 
         db.Database.Delete();
       }
-    } 
+    }
 
+    /// <summary>
+    /// Test fix for http://bugs.mysql.com/bug.php?id=67183
+    /// (Malformed Query while eager loading with EF 4 due to multiple projections).
+    /// </summary>
+    [Fact]
+    public void ShipTest()
+    {
+      using (var context = new ShipContext())
+      {
+        context.Database.Initialize(true);
+
+        var harbor = new Harbor
+        {
+          Ships = new HashSet<Ship>
+            {
+                new Ship
+                {
+                    CrewMembers = new HashSet<CrewMember>
+                    {
+                        new CrewMember
+                        {
+                            Rank = new Rank { Description = "Rank A" },
+                            Clearance = new Clearance { Description = "Clearance A" },
+                            Description = "CrewMember A"
+                        },
+                        new CrewMember
+                        {
+                            Rank = new Rank { Description = "Rank B" },
+                            Clearance = new Clearance { Description = "Clearance B" },
+                            Description = "CrewMember B"
+                        }
+                    },
+                    Description = "Ship AB"
+                },
+                new Ship
+                {
+                    CrewMembers = new HashSet<CrewMember>
+                    {
+                        new CrewMember
+                        {
+                            Rank = new Rank { Description = "Rank C" },
+                            Clearance = new Clearance { Description = "Clearance C" },
+                            Description = "CrewMember C"
+                        },
+                        new CrewMember
+                        {
+                            Rank = new Rank { Description = "Rank D" },
+                            Clearance = new Clearance { Description = "Clearance D" },
+                            Description = "CrewMember D"
+                        }
+                    },
+                    Description = "Ship CD"
+                }
+            },
+          Description = "Harbor ABCD"
+        };
+
+        context.Harbors.Add(harbor);
+        context.SaveChanges();
+      }
+
+      using (var context = new ShipContext())
+      {
+        DbSet<Harbor> dbSet = context.Set<Harbor>();
+        IQueryable<Harbor> query = dbSet;
+        query = query.Include(entity => entity.Ships);
+        query = query.Include(entity => entity.Ships.Select(s => s.CrewMembers));
+        query = query.Include(entity => entity.Ships.Select(s => s.CrewMembers.Select(cm => cm.Rank)));
+        query = query.Include(entity => entity.Ships.Select(s => s.CrewMembers.Select(cm => cm.Clearance)));
+
+        string[] data = new string[] { 
+          "1,Harbor ABCD,1,1,1,Ship AB,1,1,1,1,1,CrewMember A,1,Rank A,1,Clearance A",
+          "1,Harbor ABCD,1,1,1,Ship AB,1,2,1,2,2,CrewMember B,2,Rank B,2,Clearance B",
+          "1,Harbor ABCD,1,2,1,Ship CD,1,3,2,3,3,CrewMember C,3,Rank C,3,Clearance C",
+          "1,Harbor ABCD,1,2,1,Ship CD,1,4,2,4,4,CrewMember D,4,Rank D,4,Clearance D"
+        };
+        Dictionary<string, string> outData = new Dictionary<string, string>();
+
+        var sqlString = query.ToString();
+        st.CheckSql(sqlString, SQLSyntax.ShipQueryMalformedDueMultipleProjecttionsCorrected);
+        // see below for the generated SQL query
+
+        var harbor = query.Single();
+        
+        foreach (var ship in harbor.Ships)
+        {
+          foreach (var crewMember in ship.CrewMembers)
+          {
+            outData.Add(string.Format( 
+              "{0},{1},1,{2},{3},{4},1,{5},{6},{7},{8},{9},{10},{11},{12},{13}",
+              harbor.HarborId, harbor.Description, ship.ShipId, harbor.HarborId,
+              ship.Description, crewMember.CrewMemberId, crewMember.ShipId, crewMember.RankId,
+              crewMember.ClearanceId, crewMember.Description, crewMember.Rank.RankId,
+              crewMember.Rank.Description, crewMember.Clearance.ClearanceId,
+              crewMember.Clearance.Description), null);
+          }
+        }
+        // check data integrity
+        Assert.Equal(outData.Count, data.Length);
+        for (int i = 0; i < data.Length; i++)
+        {
+          Assert.True(outData.ContainsKey(data[i]));
+        }
+      }
+    }
   }
 }
 
