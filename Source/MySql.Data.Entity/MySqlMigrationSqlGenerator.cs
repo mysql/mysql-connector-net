@@ -334,7 +334,7 @@ namespace MySql.Data.Entity
       sb.Append("insert into `" + op.Table + "` (`migrationId`, `createdOn`, `model`, `productVersion`) ");
       sb.AppendFormat(" values ( '{0}', '{1}', {2}, '{3}' ) ",
                       op.MigrationId,
-                      op.CreatedOn.ToString("yyyy-MM-dd hh:mm:ss"),
+                      op.CreatedOn.ToString("yyyy-MM-dd HH:mm:ss"),
                       "0x" + model.ToString(),
                       op.ProductVersion);
 
