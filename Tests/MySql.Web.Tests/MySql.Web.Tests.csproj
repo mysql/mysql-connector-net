@@ -92,7 +92,6 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="packages.config" />
     <None Include="SessionLockingBuild.bat" />
     <None Include="SessionLocking\Web.config">
       <SubType>Designer</SubType>
