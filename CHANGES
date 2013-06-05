@@ -4,6 +4,8 @@
 - Fix for Connector/NET cannot read data from a MySql table using UTF-16/UTF-32 (MySql bug #69169, Oracle bug #16776818).
 - Fix for Malformed query in Entity Framework when eager loading due to multiple projections (MySql bug #67183, Oracle bug #16872852).
 - Fix for database objects with 'dbo' prefix when using automatic migrations in Entity Framework 5.0 (Oracle bug #16909439).
+- Fix for bug IIS application pool reset worker process causes website to crash (Oracle bug #16909237, Mysql Bug #67665).  
+
 
 6.7.3
 - Fix for bug in Replication & load balancing (Oracle bug #16762427)
