@@ -35,7 +35,8 @@
 - Fix for Entity Framework when inserts data having Identity columns (Oracle bug #16494585).
 - Fix for Malformed query in Entity Framework when eager loading due to multiple projections (MySql bug #67183, Oracle bug #16872852).
 - Fix for Migrations in Entity Framework when tries to update database that is already updated (Oracle bug #16869202, MySql bug#68889).
-- Fix for bug IIS application pool reset worker process causes website to crash (Oracle bug #16909237, Mysql Bug #67665).  
+- Fix for bug IIS application pool reset worker process causes website to crash (Oracle bug #16909237, Mysql Bug #67665).
+- Fix for intellisense completion, now Views are displayed together with Tables calling intellisense (Oracle Bug #16881451).
  
 
 6.6.5
