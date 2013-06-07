@@ -2890,6 +2890,8 @@ alter_specification_table options { backtrack=true; memoize=true; }
   | ( DISABLE KEYS )
   | ( ENABLE KEYS )
   | ( RENAME TO? newtablename=ident )
+  | { this.mysqlVersion >= 5.7 }? => ( RENAME ( type=INDEX | type=KEY ) old_index_name=ident TO new_index_name=ident
+		                               -> ^( RENAME ^( $type $old_index_name $new_index_name )))
   | ( ORDER BY ordercolname+=ident ( COMMA ordercolname+=ident )* )
   | ( CONVERT TO charset_def collate? )
   | ( DEFAULT? charset_equals collate_equals? )

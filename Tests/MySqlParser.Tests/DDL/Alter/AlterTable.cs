@@ -260,6 +260,24 @@ INSERT INTO t2 SELECT * FROM t1 ORDER BY col1, col2;");
     }
 
     [Fact]
+    public void Rename_Index()
+    {
+      MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE t2 RENAME INDEX Idx1 to Idx2;", false, new Version(5, 7));
+    }
+
+    [Fact]
+    public void Rename_Key()
+    {
+      MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE t2 RENAME KEY K1 to K2;", false, new Version(5, 7));
+    }
+
+    [Fact]
+    public void Invalid_Rename_Index()
+    {
+      MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE t2 RENAME INDEX Idx1 to Idx2;", true, new Version(5, 6));
+    }
+
+    [Fact]
     public void Partition()
     {
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE t1

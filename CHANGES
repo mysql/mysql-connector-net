@@ -16,6 +16,7 @@
 - Fix for Malformed query in Entity Framework when eager loading due to multiple projections (MySql bug #67183, Oracle bug #16872852).
 - Fix for bug IIS application pool reset worker process causes website to crash (Oracle bug #16909237, Mysql Bug #67665).
 - Fix for intellisense completion, now Views are displayed together with Tables calling intellisense (Oracle Bug #16881451).
+- Fix for parser syntax, now the parser supports the clause ALTER TABLE table_name RENAME {INDEX|KEY} old_index_name TO new_index_name introduced in MySql 5.7.
 
 6.5.6
 - Fix internal bug "Parser cannot recognize row_count in grammar version 5.6" (id task 326).
