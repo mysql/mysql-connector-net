@@ -37,7 +37,7 @@
 - Fix for Migrations in Entity Framework when tries to update database that is already updated (Oracle bug #16869202, MySql bug#68889).
 - Fix for bug IIS application pool reset worker process causes website to crash (Oracle bug #16909237, Mysql Bug #67665).
 - Fix for intellisense completion, now Views are displayed together with Tables calling intellisense (Oracle Bug #16881451).
- 
+- Fix for parser syntax, now the parser supports the clause ALTER TABLE table_name RENAME {INDEX|KEY} old_index_name TO new_index_name introduced in MySql 5.7. (Oracle Bug #16881481)
 
 6.6.5
 - Fix for bug Keyword not supported. Parameter name: AttachDbFilename (Mysql bug #66880, Oracle bug #14733472).
