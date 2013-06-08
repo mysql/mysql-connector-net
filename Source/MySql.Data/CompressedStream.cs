@@ -307,6 +307,7 @@ namespace MySql.Data.MySqlClient
     private bool InputDone()
     {
       // if we have not done so yet, see if we can calculate how many bytes we are expecting
+      if ( baseStream is TimedStream && (( TimedStream )baseStream ).IsClosed ) return false;
       if (cache.Length < 4) return false;
       byte[] buf = cache.GetBuffer();
       int expectedLen = buf[0] + (buf[1] << 8) + (buf[2] << 16);

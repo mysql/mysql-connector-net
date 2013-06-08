@@ -32,23 +32,16 @@ using System.ComponentModel;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class TimeoutAndCancel : IUseFixture<SetUpClass>, IDisposable
+  public class TimeoutAndCancel : SpecialFixtureWithCustomConnectionString
   {
-    private SetUpClass st;
     private delegate void CommandInvokerDelegate(MySqlCommand cmdToRun);
     private ManualResetEvent resetEvent = new ManualResetEvent(false);
 
-
-    public void SetFixture(SetUpClass data)
-    {
-      st = data;
-    }
-
-    public void Dispose()
+    protected override void Dispose(bool disposing)
     {
       st.execSQL("DROP TABLE IF EXISTS TEST");
       st.execSQL("DROP PROCEDURE IF EXISTS spTest");
-
+      base.Dispose(disposing);
     }
 
     private void CommandRunner(MySqlCommand cmdToRun)
@@ -376,36 +369,4 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
   }
-
-  #region Configs
-
-  public class TimeoutAndCancelSocketCompressed : SetUpClass
-  {
-    internal protected override string GetConnectionInfo()
-    {
-      return String.Format("port={0};compress=true", port);
-    }
-  }
-#if !CF
-  [Category("Pipe")]
-  public class TimeoutAndCancelPipe : SetUpClass
-  {
-    internal protected override string GetConnectionInfo()
-    {
-      return String.Format("protocol=namedpipe;pipe name={0}", pipeName);
-    }
-  }
-
-  [Category("SharedMemory")]
-  public class TimeoutAndCancelSharedMemory : SetUpClass
-  {
-    internal protected override string GetConnectionInfo()
-    {
-      return String.Format("protocol=sharedmemory; shared memory name={0}",
-        memoryName);
-    }
-  }
-#endif
-
-  #endregion
 }

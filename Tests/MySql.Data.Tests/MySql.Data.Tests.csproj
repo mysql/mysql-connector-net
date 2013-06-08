@@ -37,8 +37,10 @@
     <Reference Include="System.EnterpriseServices" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Xml" />
-    <Reference Include="xunit, Version=1.9.1.1600, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+    <!--<Reference Include="xunit, Version=1.9.1.1600, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL"> -->
+    <Reference Include="xunit">
       <HintPath>C:\Program Files (x86)\XUnit_1.9.1\xunit.dll</HintPath>
+      <Private>True</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -47,7 +49,17 @@
     </Compile>
     <Compile Include="AsyncTests.cs" />
     <Compile Include="BlobTests.cs" />
+    <Compile Include="BlobTestsPipeCompressed.cs" />
+    <Compile Include="BlobTestsSharedMemory.cs" />
+    <Compile Include="BlobTestsSharedMemoryCompressed.cs" />
+    <Compile Include="BlobTestsSocketCompressed.cs" />
+    <Compile Include="BlobTestsPipe.cs" />
     <Compile Include="CharacterSetTests.cs" />
+    <Compile Include="MySqlCommandTestsPipe.cs" />
+    <Compile Include="MySqlCommandTestsPipeCompressed.cs" />
+    <Compile Include="MySqlCommandTestsSharedMemory.cs" />
+    <Compile Include="MySqlCommandTestsSharedMemoryCompressed.cs" />
+    <Compile Include="MySqlCommandTestsSocketCompressed.cs" />
     <Compile Include="CultureTests.cs" />
     <Compile Include="DataTypeTests.cs" />
     <Compile Include="DateTimeTests.cs" />
@@ -71,11 +83,19 @@
     <Compile Include="MySqlDataReaderTests.cs" />
     <Compile Include="MySQLHelperTests.cs" />
     <Compile Include="OutputParametersBatch.cs" />
+    <Compile Include="OutputParametersBatchPrepared.cs" />
+    <Compile Include="OutputParametersNoBatch.cs" />
+    <Compile Include="OutputParametersNoBatchPrepared.cs" />
     <Compile Include="ParameterTests.cs" />
     <Compile Include="PartialTrustSandbox.cs" />
     <Compile Include="PerfMonTests.cs" />
     <Compile Include="PoolingTests.cs" />
     <Compile Include="PreparedStatements.cs" />
+    <Compile Include="PreparedStatementsPipe.cs" />
+    <Compile Include="PreparedStatementsPipeCompressed.cs" />
+    <Compile Include="PreparedStatementsSharedMemory.cs" />
+    <Compile Include="PreparedStatementsSharedMemoryCompressed.cs" />
+    <Compile Include="PreparedStatementsSocketCompressed.cs" />
     <Compile Include="ProcedureParameterTests.cs" />
     <Compile Include="ReplicationTests.cs" />
     <Compile Include="ScriptExecution.cs" />
@@ -87,11 +107,19 @@
     <Compile Include="StoredProcedure.cs" />
     <Compile Include="StoredProcedureWithAccess.cs" />
     <Compile Include="StressTests.cs" />
+    <Compile Include="StressTestsPipe.cs" />
+    <Compile Include="StressTestsPipeCompressed.cs" />
+    <Compile Include="StressTestsSharedMemory.cs" />
+    <Compile Include="StressTestsSharedMemoryCompressed.cs" />
+    <Compile Include="StressTestsSocketCompressed.cs" />
     <Compile Include="Syntax.cs" />
     <Compile Include="Syntax2.cs" />
     <Compile Include="TableCaching.cs" />
     <Compile Include="ThreadingTests.cs" />
     <Compile Include="TimeoutAndCancel.cs" />
+    <Compile Include="TimeoutAndCancelPipe.cs" />
+    <Compile Include="TimeoutAndCancelSharedMemory.cs" />
+    <Compile Include="TimeoutAndCancelSocketCompressed.cs" />
     <Compile Include="Tokenizer.cs" />
     <Compile Include="Transactions.cs" />
     <Compile Include="TypeTests.cs" />
