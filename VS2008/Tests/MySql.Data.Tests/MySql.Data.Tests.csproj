@@ -61,7 +61,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Xml" />
-    <Reference Include="xunit, Version=1.9.1.1600, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+    <Reference Include="xunit">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files (x86)\XUnit_1.9.1\xunit.dll</HintPath>
     </Reference>
@@ -70,8 +70,77 @@
     <Compile Include="..\..\..\Source\MySql.Data\Properties\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\BlobTestsPipe.cs">
+      <Link>BlobTestsPipe.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\BlobTestsPipeCompressed.cs">
+      <Link>BlobTestsPipeCompressed.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\BlobTestsSharedMemory.cs">
+      <Link>BlobTestsSharedMemory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\BlobTestsSharedMemoryCompressed.cs">
+      <Link>BlobTestsSharedMemoryCompressed.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\BlobTestsSocketCompressed.cs">
+      <Link>BlobTestsSocketCompressed.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\GenericListener.cs">
       <Link>GenericListener.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\LoggingTests.cs">
+      <Link>LoggingTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\MySqlBulkLoaderTests.cs">
+      <Link>MySqlBulkLoaderTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\MySqlCommandBuilderTests.cs">
+      <Link>MySqlCommandBuilderTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\MySqlCommandTests.cs">
+      <Link>MySqlCommandTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\MySqlCommandTestsPipe.cs">
+      <Link>MySqlCommandTestsPipe.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\MySqlCommandTestsPipeCompressed.cs">
+      <Link>MySqlCommandTestsPipeCompressed.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\MySqlCommandTestsSharedMemory.cs">
+      <Link>MySqlCommandTestsSharedMemory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\MySqlCommandTestsSharedMemoryCompressed.cs">
+      <Link>MySqlCommandTestsSharedMemoryCompressed.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\MySqlCommandTestsSocketCompressed.cs">
+      <Link>MySqlCommandTestsSocketCompressed.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\MySqlConnectionStringBuilderTests.cs">
+      <Link>MySqlConnectionStringBuilderTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\MySqlConnectionTests.cs">
+      <Link>MySqlConnectionTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\MySqlDataAdapterTests.cs">
+      <Link>MySqlDataAdapterTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\MySqlDataReaderTests.cs">
+      <Link>MySqlDataReaderTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\MySQLHelperTests.cs">
+      <Link>MySQLHelperTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\OutputParametersBatch.cs">
+      <Link>OutputParametersBatch.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\OutputParametersBatchPrepared.cs">
+      <Link>OutputParametersBatchPrepared.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\OutputParametersNoBatch.cs">
+      <Link>OutputParametersNoBatch.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\OutputParametersNoBatchPrepared.cs">
+      <Link>OutputParametersNoBatchPrepared.cs</Link>
     </Compile>
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>
@@ -86,6 +155,39 @@
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\SqlServerMode.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\ScriptExecution.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\SqlTokenizer.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\StoredProcedureWithAccess.cs">
+      <Link>StoredProcedureWithAccess.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\StressTestsPipe.cs">
+      <Link>StressTestsPipe.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\StressTestsPipeCompressed.cs">
+      <Link>StressTestsPipeCompressed.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\StressTestsSharedMemory.cs">
+      <Link>StressTestsSharedMemory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\StressTestsSharedMemoryCompressed.cs">
+      <Link>StressTestsSharedMemoryCompressed.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\StressTestsSocketCompressed.cs">
+      <Link>StressTestsSocketCompressed.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\TableCaching.cs">
+      <Link>TableCaching.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\ThreadingTests.cs">
+      <Link>ThreadingTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\TimeoutAndCancelPipe.cs">
+      <Link>TimeoutAndCancelPipe.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\TimeoutAndCancelSharedMemory.cs">
+      <Link>TimeoutAndCancelSharedMemory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\TimeoutAndCancelSocketCompressed.cs">
+      <Link>TimeoutAndCancelSocketCompressed.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\Tokenizer.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\CultureTests.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\DataTypeTests.cs" />
@@ -106,6 +208,12 @@
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\Syntax2.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\TimeoutAndCancel.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\Transactions.cs" />
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\TypeTests.cs">
+      <Link>TypeTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySql.Data.Tests\UsageAdvisorTests.cs">
+      <Link>UsageAdvisorTests.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\Utils.cs" />
   </ItemGroup>
   <ItemGroup>

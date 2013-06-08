@@ -32,18 +32,8 @@ using System.Security.Authentication;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class BlobTests : IUseFixture<SetUpClass>, IDisposable
+  public class BlobTests : SpecialFixtureWithCustomConnectionString
   {
-    private SetUpClass st;
-
-    public void SetFixture(SetUpClass data)
-    {      
-      st = data;
-
-      if (st.conn.State != ConnectionState.Open)
-        st.conn.Open();    
-    }
-
     [Fact]    
     public void InsertBinary()
     {
@@ -330,62 +320,5 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal(ex.Message, "Packets larger than max_allowed_packet are not allowed.");
       }
     }
-
-    public void Dispose()
-    {      
-    }
-
   }
-
-#region Configs
-#if !CF
-  [Category("Compressed")]
-  public class BlobTestsSocketCompressed : SetUpClass
-  {
-    internal protected override string GetConnectionInfo()
-    {
-      return String.Format("port={0};compress=true", port);
-    }
-  }
-
-  [Category("Pipe")]
-  public class BlobTestsPipe : SetUpClass
-  {
-    internal protected override string GetConnectionInfo()
-    {
-      return String.Format("protocol=pipe;pipe name={0}", pipeName);
-    }
-  }
-
-  [Category("Compressed")]
-  //[Category("Pipe")]
-  public class BlobTestsPipeCompressed : SetUpClass
-  {
-    internal protected override string GetConnectionInfo()
-    {
-      return String.Format("protocol=pipe;pipe name={0};compress=true", pipeName);
-    }
-  }
-
-  [Category("SharedMemory")]
-  public class BlobTestsSharedMemory : SetUpClass
-  {
-    internal protected override string GetConnectionInfo()
-    {
-      return String.Format("protocol=memory; shared memory name={0}", memoryName);
-    }
-  }
-
-  [Category("Compressed")]
-  //[Category("SharedMemory")]
-  public class BlobTestsSharedMemoryCompressed : SetUpClass
-  {
-    internal protected override string GetConnectionInfo()
-    {
-      return String.Format("protocol=memory; shared memory name={0};compress=true", memoryName);
-    }
-  }
-#endif
-#endregion
-
 }

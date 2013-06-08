@@ -31,18 +31,12 @@ using System.Threading;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class MySqlCommandTests : IUseFixture<SetUpClass>, IDisposable
+  public class MySqlCommandTests : SpecialFixtureWithCustomConnectionString
   {
-    private SetUpClass st;
-
-    public void SetFixture(SetUpClass data)
-    {
-      st = data;
-    }
-
-    public void Dispose()
+    protected override void Dispose( bool disposing )
     {
       st.execSQL("DROP TABLE IF EXISTS TEST");
+      base.Dispose( disposing );
     }
     
    [Fact]
@@ -585,56 +579,5 @@ alter table longids AUTO_INCREMENT = 2147483640;";
         conn.Close();
       }
     }
-
-  #region Configs
-
-  public class CommandTestsSocketCompressed : SetUpClass
-  {
-    internal protected override string GetConnectionInfo()
-    {
-      return String.Format("port={0};compress=true", port);
-    }
-  }
-
-#if !CF
-  [Category("Pipe")]
-  public class CommandTestsPipe : SetUpClass
-  {
-    internal protected override string GetConnectionInfo()
-    {
-      return String.Format("protocol=namedpipe;pipe name={0}", pipeName);
-    }
-  }
-
-  [Category("Compressed")]
-  //[Category("Pipe")]
-  public class CommandTestsPipeCompressed : SetUpClass
-  {
-    internal protected override string GetConnectionInfo()
-    {
-      return String.Format("protocol=namedpipe;pipe name={0};compress=true", pipeName);
-    }
-  }
-
-  [Category("SharedMemory")]
-  public class CommandTestsSharedMemory : SetUpClass
-  {
-    internal protected override string GetConnectionInfo()
-    {
-      return String.Format("protocol=sharedmemory; shared memory name={0}", memoryName);
-    }
-  }
-
-  [Category("Compressed")]
-  //[Category("SharedMemory")]
-  public class CommandTestsSharedMemoryCompressed : SetUpClass
-  {
-    internal protected override string GetConnectionInfo()
-    {
-      return String.Format("protocol=sharedmemory; shared memory name={0};compress=true", memoryName);
-    }
-  }
-#endif
-  #endregion
   }
 }

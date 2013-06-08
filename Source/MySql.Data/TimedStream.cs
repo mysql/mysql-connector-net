@@ -45,6 +45,7 @@ namespace MySql.Data.MySqlClient
     LowResolutionStopwatch stopwatch;
     bool isClosed;
 
+    internal bool IsClosed { get { return isClosed; } }
 
     enum IOKind
     {

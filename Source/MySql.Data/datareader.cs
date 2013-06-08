@@ -30,6 +30,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using MySql.Data.MySqlClient.Properties;
 using MySql.Data.Common;
+using System.Text.RegularExpressions;
+
 
 namespace MySql.Data.MySqlClient
 {
