@@ -28,23 +28,19 @@ using System.ComponentModel;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class StressTests : IUseFixture<SetUpClass>, IDisposable
+  public class StressTests : SpecialFixtureWithCustomConnectionString
   {
-    private SetUpClass st;
-
-    private static string fillError = null;
-
-
-    public void SetFixture(SetUpClass data)
+    public override void SetFixture(SetUpClassPerTestInit data)
     {
-      st = data;
+      base.SetFixture(data);
       st.execSQL("CREATE TABLE Test (id INT NOT NULL, name varchar(100), blob1 LONGBLOB, text1 TEXT, " +
         "PRIMARY KEY(id))");
     }
 
-    public void Dispose()
+    protected override void Dispose(bool disposing)
     {
-      st.execSQL("DROP TABLE IF EXISTS TEST");     
+      st.execSQL("DROP TABLE IF EXISTS TEST");
+      base.Dispose(disposing);
     }
 #if !CF
 
@@ -134,56 +130,4 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
   }
-
-  #region Configs
-
-#if !CF
-  [Category("Compressed")]
-  public class StressTestsSocketCompressed : SetUpClass
-  {
-    internal protected override string GetConnectionInfo()
-    {
-      return String.Format("port={0};compress=true", port);
-    }
-  }
-
-  [Category("Pipe")]
-  public class StressTestsPipe : SetUpClass
-  {
-    internal protected override string GetConnectionInfo()
-    {
-      return String.Format("protocol=pipe;pipe name={0}", pipeName);
-    }
-  }
-
-  [Category("Compressed")]
-  //[Category("Pipe")]
-  public class StressTestsPipeCompressed : SetUpClass
-  {
-    internal protected override string GetConnectionInfo()
-    {
-      return String.Format("protocol=pipe;pipe name={0};compress=true", pipeName);
-    }
-  }
-
-  [Category("SharedMemory")]
-  public class StressTestsSharedMemory : SetUpClass
-  {
-    internal protected override string GetConnectionInfo()
-    {
-      return String.Format("protocol=memory; shared memory name={0}", memoryName);
-    }
-  }
-
-  [Category("Compressed")]
-  //[Category("SharedMemory")]
-  public class StressTestsSharedMemoryCompressed : SetUpClass
-  {
-    internal protected override string GetConnectionInfo()
-    {
-      return String.Format("protocol=memory; shared memory name={0};compress=true", memoryName);
-    }
-  }
-#endif
-  #endregion
 }

@@ -216,7 +216,7 @@ namespace MySql.Data.Entity
 
       MigrationStatement stmt = new MigrationStatement();
       stmt.Sql = string.Format("alter table `{0}` add column `{1}`",
-        op.Table, op.Column.Name) + " " + Generate(op.Column);
+        TrimSchemaPrefix(op.Table), op.Column.Name) + " " + Generate(op.Column);
       return stmt;
     }
 
@@ -227,7 +227,7 @@ namespace MySql.Data.Entity
       MigrationStatement stmt = new MigrationStatement();
       StringBuilder sb = new StringBuilder();
       stmt.Sql = string.Format("alter table `{0}` drop column `{1}`",
-        op.Table, op.Name);
+        TrimSchemaPrefix(op.Table), op.Name);
       return stmt;
     }
 
@@ -240,7 +240,7 @@ namespace MySql.Data.Entity
       _tableName = op.Table;
 
       // for existing columns
-      sb.Append("alter table `" + op.Table + "` modify `" + column.Name + "` ");
+      sb.Append("alter table `" + TrimSchemaPrefix(op.Table) + "` modify `" + column.Name + "` ");
 
       // add definition
       sb.Append(Generate(column));
@@ -254,9 +254,9 @@ namespace MySql.Data.Entity
 
       StringBuilder sb = new StringBuilder();
 
-      sb.Append("set @columnType := (select case lower(IS_NULLABLE) when `no` then CONCAT(column_type, ` ` , `not null `)  when `yes` then column_type end from information_schema.columns where table_name = `" + op.Table + "` and column_name = `" + op.Name + "` );");
+      sb.Append("set @columnType := (select case lower(IS_NULLABLE) when `no` then CONCAT(column_type, ` ` , `not null `)  when `yes` then column_type end from information_schema.columns where table_name = `" + TrimSchemaPrefix(op.Table) + "` and column_name = `" + op.Name + "` );");
       sb.AppendLine();
-      sb.Append("set @sqlstmt := (select concat(`alter table " + op.Table + " change `" + op.Name + "` " + op.NewName + "` , @columnType));");
+      sb.Append("set @sqlstmt := (select concat(`alter table " + TrimSchemaPrefix(op.Table) + " change `" + op.Name + "` " + op.NewName + "` , @columnType));");
       sb.AppendLine();
       sb.Append("prepare stmt @sqlstmt;");
       sb.AppendLine();
@@ -383,7 +383,7 @@ namespace MySql.Data.Entity
       var sortOrder = sort != null && sort.ToString() == "Ascending" ?
                       "ASC" : "DESC";
 
-      sb.AppendFormat("index  `{0}` on `{1}` (", op.Name, op.Table);
+      sb.AppendFormat("index  `{0}` on `{1}` (", op.Name, TrimSchemaPrefix(op.Table));
       sb.Append(string.Join(",", op.Columns.Select(c => "`" + c + "` " + sortOrder)) + ") ");
 
       object indexTypeDefinition;
@@ -401,7 +401,7 @@ namespace MySql.Data.Entity
       return new MigrationStatement()
       {
         Sql = string.Format("alter table `{0}` drop index `{1}`",
-          op.Table, op.Name)
+          TrimSchemaPrefix(op.Table), op.Name)
       };
     }
 
@@ -409,15 +409,16 @@ namespace MySql.Data.Entity
     protected virtual MigrationStatement Generate(CreateTableOperation op)
     {
       StringBuilder sb = new StringBuilder();
+      string tableName = TrimSchemaPrefix(op.Name);
 
       if (_generatedTables == null)
         _generatedTables = new List<string>();
 
-      if (!_generatedTables.Contains(op.Name))
+      if (!_generatedTables.Contains(tableName))
       {
-        _generatedTables.Add(op.Name);
+        _generatedTables.Add(tableName);
       }
-      sb.Append("create table " + "`" + op.Name + "`" + " (");
+      sb.Append("create table " + "`" + tableName + "`" + " (");
 
       _tableName = op.Name;
       //columns
@@ -436,18 +437,18 @@ namespace MySql.Data.Entity
 
     protected virtual MigrationStatement Generate(DropTableOperation op)
     {
-      return new MigrationStatement() { Sql = "drop table " + "`" + op.Name + "`" };
+      return new MigrationStatement() { Sql = "drop table " + "`" + TrimSchemaPrefix(op.Name) + "`" };
     }
 
     protected virtual MigrationStatement Generate(DeleteHistoryOperation op)
     {
-      return new MigrationStatement { Sql = string.Format("delete from `{0}` where MigrationId = '{1}'", op.Table, op.MigrationId) };
+      return new MigrationStatement { Sql = string.Format("delete from `{0}` where MigrationId = '{1}'", TrimSchemaPrefix(op.Table), op.MigrationId) };
     }
 
     protected virtual MigrationStatement Generate(AddPrimaryKeyOperation op)
     {
       StringBuilder sb = new StringBuilder();
-      sb.Append("alter table `" + op.Table + "` add primary key ");
+      sb.Append("alter table `" + TrimSchemaPrefix(op.Table) + "` add primary key ");
       sb.Append(" `" + op.Name + "` ");
 
       if (op.Columns.Count > 0)
@@ -489,12 +490,10 @@ namespace MySql.Data.Entity
       StringBuilder sb = new StringBuilder();
       StringBuilder model = new StringBuilder();
 
-      foreach (byte item in op.Model)
-        model.Append(item.ToString("X2"));
+      model.Append(BitConverter.ToString(op.Model).Replace("-", ""));
 
-
-      sb.Append("insert into `" + op.Table + "` (`migrationId`, `model`, `productVersion`) ");
-      sb.AppendFormat(" values ( '{0}', '{1}', '{2}') ",
+      sb.Append("insert into `" + TrimSchemaPrefix(op.Table) + "` (`migrationId`, `model`, `productVersion`) ");
+      sb.AppendFormat(" values ( '{0}', {1}, '{2}') ",
                       op.MigrationId,
                       "0x" + model.ToString(),
                       op.ProductVersion);
@@ -521,6 +520,14 @@ namespace MySql.Data.Entity
     protected virtual MigrationStatement Generate(SqlOperation op)
     {
       return new MigrationStatement { Sql = op.Sql, SuppressTransaction = op.SuppressTransaction };
+    }
+
+    private string TrimSchemaPrefix(string table)
+    {
+      if (table.StartsWith("dbo."))
+        return table.Replace("dbo.", "");
+
+      return table;
     }
   }
 }

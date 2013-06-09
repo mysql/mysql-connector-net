@@ -28,35 +28,24 @@ using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class OutputParametersBatch : IUseFixture<SetUpClass>, IDisposable
+  public class OutputParametersBatch : SpecialFixtureWithCustomConnectionString
   {
-    protected SetUpClass st;
-
-    private string _connectionInfo = string.Empty;
+    
     protected bool prepare;
 
-    public virtual string connectionInfo
+    protected override string OnGetConnectionStringInfo()
     {
-      get
-      {
-        _connectionInfo = string.Format("allow batch=true; ignore prepare = false; port={0}", st.port);
-        return _connectionInfo;
-      }
-    }    
-
-    public void SetFixture(SetUpClass data)
-    {
-      st = data;      
+      return ";allow batch=true; ignore prepare = false;";
     }
 
-    public void Dispose()
+    protected override void Dispose(bool disposing)
     {
       st.execSQL("DROP TABLE IF EXISTS TEST");
       st.execSQL("DROP PROCEDURE IF EXISTS spTest");
       st.execSQL("DROP FUNCTION IF EXISTS fnTest");
       st.conn.Dispose();
+      base.Dispose(disposing); 
     }
-
 
     /// <summary>
     /// Bug #17814 Stored procedure fails unless DbType set explicitly
@@ -68,7 +57,7 @@ namespace MySql.Data.MySqlClient.Tests
       if (st.Version < new Version(5, 0)) return;
 
       // we don't want to run this test under no access
-      string connInfo = connectionInfo;
+      string connInfo = st.GetConnectionInfo();
       if (connInfo.IndexOf("use procedure bodies=false") != -1) return;
 
       if (st.conn.connectionState != ConnectionState.Open)
@@ -340,7 +329,7 @@ namespace MySql.Data.MySqlClient.Tests
         st.conn.Open();
 
       // we don't want this test to run in our all access fixture
-      string connInfo = connectionInfo;
+      string connInfo = st.GetConnectionInfo();
       if (connInfo.IndexOf("use procedure bodies=false") == -1)
         return;
 
@@ -403,8 +392,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.Parameters.AddWithValue("?p_kiosk", 2);
       cmd.Parameters.AddWithValue("?p_user", 4);
-      if (prepare) cmd.Prepare();
-      Exception ex = Assert.Throws<InvalidOperationException>(() => cmd.ExecuteNonQuery());
+      Exception ex = Assert.Throws<InvalidOperationException>(() => { if (prepare) cmd.Prepare(); cmd.ExecuteNonQuery(); });
       Assert.Equal(ex.Message, "Attempt to call stored function '`" + st.database0 + "`.`fnTest`' without specifying a return parameter");
     }
 
@@ -620,53 +608,4 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(0, Convert.ToInt32(cmd.Parameters[0].Value));
     }
   }
-
-  #region Configs
-
-  public class OutputParametersNoBatch : OutputParametersBatch
-  {
-
-    private string _connectionInfo = string.Empty;
-
-    public override string connectionInfo
-    {
-      get
-      {
-        this.prepare = true;
-        _connectionInfo = string.Format("allow batch=false; port={0}", st.port);
-        return _connectionInfo;
-      }
-    }      
-  }
-
-  public class OutputParametersBatchPrepared : OutputParametersBatch
-  {    
-    private string _connectionInfo = string.Empty;
-    
-    public override string connectionInfo
-    {
-      get
-      {
-        this.prepare = true;
-        _connectionInfo = string.Format("allow batch=true; ignore prepare = false; port={0}", st.port);
-        return _connectionInfo;
-      }
-    }    
-  }
-
-  public class OutputParametersNoBatchPrepared : OutputParametersBatch
-  {
-    private string _connectionInfo = string.Empty;
-
-    public override string connectionInfo
-    {
-      get
-      {
-        this.prepare = true;
-        _connectionInfo = string.Format("allow batch=false; ignore prepare=false; port={0}", st.port);
-        return _connectionInfo;
-      }
-    }
-  }
-  #endregion
 }
