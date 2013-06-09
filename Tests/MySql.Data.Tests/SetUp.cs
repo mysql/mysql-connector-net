@@ -80,6 +80,16 @@ namespace MySql.Data.MySqlClient.Tests
 
         public SetUpClass()
         {
+          Init();
+        }
+
+        internal protected virtual void Init()
+        {
+            MyInit();
+        }
+
+        internal protected void MyInit()
+        {
             LoadBaseConfiguration();
             Initialize();
 
@@ -120,7 +130,6 @@ namespace MySql.Data.MySqlClient.Tests
             numProcessesRunning = CountProcesses();
 #endif
         }
-
 
         protected void SetAccountPerms(bool includeProc)
         {
@@ -194,14 +203,20 @@ namespace MySql.Data.MySqlClient.Tests
 
         internal protected virtual string GetConnectionInfo()
         {
-            return String.Format("protocol=sockets;port={0};", port);
+            if( OnGetConnectionStringInfo != null )
+                return OnGetConnectionStringInfo();
+            return String.Format(";protocol=sockets;port={0};", port);
         }
+
+        public delegate string GetConnectionStringInfoCallback();
+
+        public event GetConnectionStringInfoCallback OnGetConnectionStringInfo;
 
         internal protected string GetConnectionString(string userId, string pw, bool persistSecurityInfo, bool includedb)
         {
             string connStr = String.Format("server={0};user id={1};pooling=false;" +
-                 "persist security info={2};connection reset=true;allow user variables=true;",
-                 host, userId, persistSecurityInfo.ToString().ToLower());
+                 "persist security info={2};connection reset=true;allow user variables=true;port={3};",
+                 host, userId, persistSecurityInfo.ToString().ToLower(),port);
             if (pw != null)
                 connStr += String.Format(";password={0};", pw);
             if (includedb)
@@ -274,7 +289,7 @@ namespace MySql.Data.MySqlClient.Tests
 #endif
 
 
-        private void DropDatabase(string name)
+        protected void DropDatabase(string name)
         {
             for (int i = 0; i < 5; i++)
             {
@@ -293,7 +308,7 @@ namespace MySql.Data.MySqlClient.Tests
         }
 
 #if !RT
-        private void CheckOrphanedConnections()
+        protected void CheckOrphanedConnections()
         {
             // wait up to 5 seconds for our connection to close
             int procs = CountProcesses();
@@ -312,7 +327,7 @@ namespace MySql.Data.MySqlClient.Tests
             }
         }
 
-        private void KillOrphanedConnections()
+        protected void KillOrphanedConnections()
         {
             MySqlDataAdapter da = new MySqlDataAdapter("SHOW PROCESSLIST", rootConn);
             DataTable dt = new DataTable();
@@ -424,5 +439,58 @@ namespace MySql.Data.MySqlClient.Tests
             conn.Close();
 
         }
+  }
+
+  /// <summary>
+  /// This Setup class changes the initialization semantic to be exeucuted once per unit test, instead of once per Fixture class.
+  /// </summary>
+  public class SetUpClassPerTestInit : SetUpClass
+  {
+    public SetUpClassPerTestInit()
+    {
+      // No initialization
+    }
+
+    protected internal override void Init()
+    {
+      // Does nothing, so constructor of base class does nothing.
+    }
+  }
+
+  /// <summary>
+  /// This is a companion of the previous class to allow customization before inialization code.
+  /// </summary>
+  public class SpecialFixtureWithCustomConnectionString : IUseFixture<SetUpClassPerTestInit>, IDisposable
+  {
+    protected SetUpClassPerTestInit st;
+
+    public virtual void SetFixture(SetUpClassPerTestInit data)
+    {
+      st = data;
+      st.OnGetConnectionStringInfo += new SetUpClass.GetConnectionStringInfoCallback(OnGetConnectionStringInfo);
+      st.MyInit();
+      //if (st.conn.State != ConnectionState.Open)
+      //  st.conn.Open();
+    }
+    
+    /// <summary>
+    /// Override to provide special connect options like using pipes, compression, etc.
+    /// </summary>
+    /// <returns></returns>
+    protected virtual string OnGetConnectionStringInfo()
+    {
+      return "protocol=sockets;";
+    }
+
+    public void Dispose()
+    {
+      Dispose(true);
+    }
+
+    protected virtual void Dispose( bool disposing )
+    {
+      if (!disposing) return;
+      st.Dispose();
+    }
   }
 }
