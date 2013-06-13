@@ -28,6 +28,9 @@ using System.Text;
 
 namespace MySql.Data.MySqlClient.Replication
 {
+  /// <summary>
+  /// Manager for Replication & Load Balancing features
+  /// </summary>
   public static class ReplicationManager
   {
     private static List<ReplicationServerGroup> groups = new List<ReplicationServerGroup>();
@@ -50,13 +53,29 @@ namespace MySql.Data.MySqlClient.Replication
 #endif
     }
 
+    /// <summary>
+    /// Returns Replication Server Group List
+    /// </summary>
     public static IList<ReplicationServerGroup> Groups { get; private set; }
 
+    /// <summary>
+    /// Adds a Default Server Group to the list
+    /// </summary>
+    /// <param name="name">Group name</param>
+    /// <param name="retryTime">Time between reconnections for failed servers</param>
+    /// <returns>Replication Server Group added</returns>
     public static ReplicationServerGroup AddGroup(string name, int retryTime)
     {
       return AddGroup( name, null, retryTime);
     }
 
+    /// <summary>
+    /// Adds a Server Group to the list
+    /// </summary>
+    /// <param name="name">Group name</param>
+    /// <param name="groupType">ServerGroup type reference</param>
+    /// <param name="retryTime">Time between reconnections for failed servers</param>
+    /// <returns>Server Group added</returns>
     public static ReplicationServerGroup AddGroup(string name, string groupType, int retryTime)
     {
       if (string.IsNullOrEmpty(groupType))
@@ -67,12 +86,23 @@ namespace MySql.Data.MySqlClient.Replication
       return g;
     }
 
+    /// <summary>
+    /// Gets a server using the ServerGroup type
+    /// </summary>
+    /// <param name="groupName">Group name</param>
+    /// <param name="isMaster">True if the server to return must be a master</param>
+    /// <returns>Replication Server defined by the Load Balancing plugin</returns>
     public static ReplicationServer GetServer(string groupName, bool isMaster)
     {
       ReplicationServerGroup group = GetGroup(groupName);
       return group.GetServer(isMaster);
     }
 
+    /// <summary>
+    /// Gets a Server Group by name
+    /// </summary>
+    /// <param name="groupName">Group name</param>
+    /// <returns>Server Group if found, otherwise throws an MySqlException</returns>
     public static ReplicationServerGroup GetGroup(string groupName)
     {
       ReplicationServerGroup group = null;
@@ -87,6 +117,11 @@ namespace MySql.Data.MySqlClient.Replication
       return group;
     }
 
+    /// <summary>
+    /// Validates if the group name exists
+    /// </summary>
+    /// <param name="groupName"></param>
+    /// <returns>True if group name is found, otherwise false</returns>
     public static bool IsReplicationGroup(string groupName)
     {
       foreach (ReplicationServerGroup g in groups)
@@ -94,6 +129,12 @@ namespace MySql.Data.MySqlClient.Replication
       return false;
     }
 
+    /// <summary>
+    /// Gets a new connection from a server group
+    /// </summary>
+    /// <param name="groupName">Group name</param>
+    /// <param name="master">True if the server connection to return must be a master</param>
+    /// <param name="connection">MySqlConnection object</param>
     public static void GetNewConnection(string groupName, bool master, MySqlConnection connection)
     {
       do

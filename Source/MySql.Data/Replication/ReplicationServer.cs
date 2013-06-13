@@ -26,6 +26,9 @@ using System.Text;
 
 namespace MySql.Data.MySqlClient.Replication
 {
+  /// <summary>
+  /// Represents a server in Replication environment
+  /// </summary>
   public class ReplicationServer
   {
     public ReplicationServer(string name, bool isMaster, string connectionString)
@@ -36,9 +39,21 @@ namespace MySql.Data.MySqlClient.Replication
       IsAvailable = true;
     }
 
+    /// <summary>
+    /// Server name
+    /// </summary>
     public string Name { get; private set; }
+    /// <summary>
+    /// Defines if the server is master (True) or slave
+    /// </summary>
     public bool IsMaster { get; private set; }
+    /// <summary>
+    /// Connection string used to connect to the server
+    /// </summary>
     public string ConnectionString { get; private set; }
+    /// <summary>
+    /// Defines if the server is available to be considered in load balancing
+    /// </summary>
     public bool IsAvailable { get; set; }
   }
 }
