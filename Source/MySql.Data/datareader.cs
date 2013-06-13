@@ -804,6 +804,13 @@ namespace MySql.Data.MySqlClient
 
     #endregion
 
+#if !RT
+    IDataReader IDataRecord.GetData(int i)
+    {
+      return base.GetData(i);
+    }
+#endif
+
     /// <summary>
     /// Gets a value indicating whether the column contains non-existent or missing values.
     /// </summary>
