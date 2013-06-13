@@ -638,6 +638,80 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         }
       }
     }
+
+    /// <summary>
+    /// Tests fix for bug http://bugs.mysql.com/bug.php?id=68513, Error in LINQ to Entities query when using Distinct().Count().
+    /// </summary>
+    [Fact]
+    public void DistinctCount()
+    {
+      ReInitDb();
+      using (SiteDbContext ctx = new SiteDbContext())
+      {
+        ctx.Database.Initialize(true);
+        visitante v1 = new visitante() { nCdSite = 1, nCdVisitante = 1, sDsIp = "x1" };
+        visitante v2 = new visitante() { nCdSite = 1, nCdVisitante = 2, sDsIp = "x2" };
+        site s1 = new site() { nCdSite = 1, sDsTitulo = "MyNewsPage" };
+        site s2 = new site() { nCdSite = 2, sDsTitulo = "MySearchPage" };
+        ctx.Visitante.Add(v1);
+        ctx.Visitante.Add(v2);
+        ctx.Site.Add(s1);
+        ctx.Site.Add(s2);
+        ctx.SaveChanges();
+
+        var q = (from vis in ctx.Visitante.Include("site")
+                  group vis by vis.nCdSite into g
+                  select new retorno
+                  {
+                    Key = g.Key,
+                    Online = g.Select(e => e.sDsIp).Distinct().Count()
+                  });
+        string sql = q.ToString();
+        st.CheckSql(sql, SQLSyntax.CountGroupBy);
+        var q2 = q.ToList<retorno>();
+        foreach( var row in q2 )
+        {
+        }
+      }
+    }
+
+    /// <summary>
+    /// Tests fix for bug http://bugs.mysql.com/bug.php?id=68513, Error in LINQ to Entities query when using Distinct().Count().
+    /// </summary>
+    [Fact]
+    public void DistinctCount2()
+    {
+      ReInitDb();
+      using (SiteDbContext ctx = new SiteDbContext())
+      {
+        ctx.Database.Initialize(true);
+        visitante v1 = new visitante() { nCdSite = 1, nCdVisitante = 1, sDsIp = "x1" };
+        visitante v2 = new visitante() { nCdSite = 1, nCdVisitante = 2, sDsIp = "x2" };
+        site s1 = new site() { nCdSite = 1, sDsTitulo = "MyNewsPage" };
+        site s2 = new site() { nCdSite = 2, sDsTitulo = "MySearchPage" };
+        pagina p1 = new pagina() { nCdPagina = 1, nCdVisitante = 1, sDsTitulo = "index.html" };
+        ctx.Visitante.Add(v1);
+        ctx.Visitante.Add(v2);
+        ctx.Site.Add(s1);
+        ctx.Site.Add(s2);
+        ctx.Pagina.Add(p1);
+        ctx.SaveChanges();
+        
+        var q = (from pag in ctx.Pagina.Include("visitante").Include("site")
+                   group pag by pag.visitante.nCdSite into g
+                   select new retorno
+                   {
+                       Key = g.Key,
+                       Online = g.Select(e => e.visitante.sDsIp).Distinct().Count()
+                   });        
+        string sql = q.ToString();
+        st.CheckSql(sql, SQLSyntax.CountGroupBy2);
+        var q2 = q.ToList<retorno>();
+        foreach (var row in q2)
+        {
+        }
+      }
+    }
   }
 }
 
