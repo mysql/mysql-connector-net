@@ -17,6 +17,7 @@
 - Fix for bug IIS application pool reset worker process causes website to crash (Oracle bug #16909237, Mysql Bug #67665).
 - Fix for intellisense completion, now Views are displayed together with Tables calling intellisense (Oracle Bug #16881451).
 - Fix for bug Error in LINQ to Entities query when using Distinct().Count() (MySql Bug #68513, Oracle bug #16950146).
+- Fix for occasionally return no data when socket connection is slow, interrupted or delayed (MySql bug #69039, Oracle bug #16950212).
 
 6.5.6
 - Fix internal bug "Parser cannot recognize row_count in grammar version 5.6" (id task 326).

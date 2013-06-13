@@ -813,6 +813,7 @@ namespace MySql.Data.MySqlClient
       }
       catch (Exception)
       {
+        owner.Close();
         return false;
       }
     }
