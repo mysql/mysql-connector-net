@@ -119,7 +119,7 @@ namespace MySql.Data.MySqlClient
         r["AllowDBNull"] = f.AllowsNull;
         r["IsReadOnly"] = false;
         r["IsRowVersion"] = false;
-        r["IsUnique"] = f.IsUnique;
+        r["IsUnique"] = false;
         r["IsKey"] = f.IsPrimaryKey;
         r["IsAutoIncrement"] = f.IsAutoIncrement;
         r["BaseSchemaName"] = f.DatabaseName;
