@@ -137,7 +137,7 @@ namespace MySql.Data.Entity
         list.Append(arg.Accept(callingGenerator));
         delimiter = ", ";
       }
-      f.Argmument = list;
+      f.Argument = list;
 
       return f;
     }

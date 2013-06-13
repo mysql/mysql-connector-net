@@ -5,6 +5,7 @@
 - Fix for Malformed query in Entity Framework when eager loading due to multiple projections (MySql bug #67183, Oracle bug #16872852).
 - Fix for database objects with 'dbo' prefix when using automatic migrations in Entity Framework 5.0 (Oracle bug #16909439).
 - Fix for bug IIS application pool reset worker process causes website to crash (Oracle bug #16909237, Mysql Bug #67665).  
+- Fix for bug Error in LINQ to Entities query when using Distinct().Count() (MySql Bug #68513, Oracle bug #16950146).
 
 
 6.7.3

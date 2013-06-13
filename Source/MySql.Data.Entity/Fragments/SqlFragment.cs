@@ -234,7 +234,7 @@ namespace MySql.Data.Entity
   internal class FunctionFragment : SqlFragment
   {
     public bool Distinct;
-    public SqlFragment Argmument;
+    public SqlFragment Argument;
     public string Name;
     public bool Quoted;
 
@@ -242,7 +242,7 @@ namespace MySql.Data.Entity
     {
       string name = Quoted ? QuoteIdentifier(Name) : Name;
       sql.AppendFormat("{0}({1}", name, Distinct ? "DISTINCT " : "");
-      Argmument.WriteSql(sql);
+      Argument.WriteSql(sql);
       sql.Append(")");
     }
   }

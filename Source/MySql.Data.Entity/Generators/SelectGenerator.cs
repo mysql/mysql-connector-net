@@ -58,8 +58,72 @@ namespace MySql.Data.Entity
           Debug.Assert(fragment is SelectStatement);
           break;
       }
-
+      // Apply post-optimizations here:
+      fragment = TryFlatteningGroupBy(fragment);
       return fragment.ToString();
+    }
+
+    /// <summary>
+    /// If input sqlFragment is a group by structure, is flattened to remove some nested correlation queries.
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
+    private SqlFragment TryFlatteningGroupBy(SqlFragment input)
+    { 
+      SelectStatement select = null;
+      SelectStatement tmpFrag = null, tmpFrag2 = null, tmpFrag3 = null;
+      InputFragment table = null;
+      string objName = null, colName = null, queryName = null;
+      // First part assert is a kind-of structure we are looking for
+      tmpFrag = input as SelectStatement;
+      if (tmpFrag == null) goto NoChanges;
+      tmpFrag = ( tmpFrag ).From as SelectStatement;
+      if (tmpFrag == null) goto NoChanges;
+      queryName = tmpFrag.Name;
+      if (tmpFrag.Columns.Count < 2) goto NoChanges;
+      if (!(tmpFrag.Columns[0] is ColumnFragment)) goto NoChanges;
+      colName = objName = (tmpFrag.Columns[0] as ColumnFragment).ActualColumnName;
+      tmpFrag2 = tmpFrag.From as SelectStatement;
+      if (tmpFrag2 == null) goto NoChanges;
+      if (tmpFrag2.Columns.Count < 1 || !(tmpFrag2.Columns[0] is ColumnFragment)) goto NoChanges;
+      if (string.CompareOrdinal(objName, tmpFrag2.Columns[0].ActualColumnName) != 0) goto NoChanges;
+      if (tmpFrag.Columns[1].Literal == null ) goto NoChanges;
+      tmpFrag2 = tmpFrag.Columns[1].Literal as SelectStatement;
+      if (tmpFrag2 == null) goto NoChanges;
+      if ((tmpFrag2.Columns.Count != 1) || !(tmpFrag2.Columns[0].Literal != null)) goto NoChanges;
+      tmpFrag3 = tmpFrag2.From as SelectStatement;
+      if (tmpFrag3 == null) goto NoChanges;
+      table = tmpFrag3.From as InputFragment;
+      if (table == null) goto NoChanges;
+      FunctionFragment func = tmpFrag2.Columns[0].Literal as FunctionFragment;
+      if( tmpFrag3.Columns.Count != 1 || !( tmpFrag3.Columns[ 0 ] is ColumnFragment )) goto NoChanges;
+      if (func == null) goto NoChanges;
+      // Yes it is the kind-of type we like, then optimize it
+      select = new SelectStatement(this);      
+      table.Name = null;
+      string tableName = null;
+      TableFragment t = tmpFrag3.From as TableFragment;
+      if (t == null)
+        tableName = tmpFrag3.Columns[0].TableName;
+      else
+        tableName = t.Table;
+      select.From = table;
+      select.Columns.Add(new ColumnFragment(tableName, colName));
+      select.Columns.Add(new ColumnFragment(tableName, "C0")
+      {
+        ColumnAlias = "C1",
+        Literal = new FunctionFragment() {
+          Argument = new ColumnFragment(tableName, tmpFrag3.Columns[0].ActualColumnName),
+          Distinct = tmpFrag3.IsDistinct,
+          Name = func.Name
+        }
+      });
+      select.Wrap(null); 
+      select.Name = queryName;
+      select.AddGroupBy(select.Columns[0]);
+      (input as SelectStatement).From = select;
+NoChanges:
+      return input;
     }
 
     public override SqlFragment Visit(DbDistinctExpression expression)
@@ -139,7 +203,7 @@ namespace MySql.Data.Entity
         fragment.Name = fa.Function.Name.ToUpperInvariant();
 
       fragment.Distinct = fa.Distinct;
-      fragment.Argmument = arg;
+      fragment.Argument = arg;
       return fragment;
       //return new CastExpression(aggregate, GetDbType(functionAggregate.ResultType.EdmType));
     }
