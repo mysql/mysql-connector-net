@@ -30,9 +30,9 @@ namespace MySql.Data.MySqlClient.Replication
 {
   public abstract class ReplicationServerGroup
   {
-    List<ReplicationServer> servers = new List<ReplicationServer>();
+    protected List<ReplicationServer> servers = new List<ReplicationServer>();
 
-    internal ReplicationServerGroup(string name, int retryTime)
+    public ReplicationServerGroup(string name, int retryTime)
     {
       Servers = servers;
       Name = name;

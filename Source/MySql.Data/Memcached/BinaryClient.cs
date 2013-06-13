@@ -242,7 +242,7 @@ namespace MySql.Data.MySqlClient.Memcached
       ushort status = (ushort)(( res[ 6 ] << 8 ) | res[ 7 ] );
       if( status != 0 )
       {
-        throw new MemberAccessException( (( ResponseStatus )status ).ToString() );
+        throw new MemcachedException(((ResponseStatus)status).ToString());
       }
     }
 
