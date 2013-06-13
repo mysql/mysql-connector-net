@@ -28,6 +28,9 @@ using System.Text;
 
 namespace MySql.Data.MySqlClient.Replication
 {
+  /// <summary>
+  /// Base class used to implement load balancing features
+  /// </summary>
   public abstract class ReplicationServerGroup
   {
     protected List<ReplicationServer> servers = new List<ReplicationServer>();
@@ -43,6 +46,13 @@ namespace MySql.Data.MySqlClient.Replication
     public int RetryTime { get; private set; }
     public IList<ReplicationServer> Servers { get; private set; }
 
+    /// <summary>
+    /// Adds a server into the group
+    /// </summary>
+    /// <param name="name">Server name</param>
+    /// <param name="isMaster">True if the server to add is master, False for slave server</param>
+    /// <param name="connectionString">Connection string used by this server</param>
+    /// <returns></returns>
     public ReplicationServer AddServer(string name, bool isMaster, string connectionString)
     {
       ReplicationServer server = new ReplicationServer(name, isMaster, connectionString);
@@ -50,6 +60,10 @@ namespace MySql.Data.MySqlClient.Replication
       return server;
     }
 
+    /// <summary>
+    /// Removes a server from group
+    /// </summary>
+    /// <param name="name">Group name</param>
     public void RemoveServer(string name)
     {
       ReplicationServer serverToRemove = GetServer(name);
@@ -58,6 +72,11 @@ namespace MySql.Data.MySqlClient.Replication
       servers.Remove(serverToRemove);
     }
 
+    /// <summary>
+    /// Gets a server by name
+    /// </summary>
+    /// <param name="name">Server name</param>
+    /// <returns>Replication server</returns>
     public ReplicationServer GetServer(string name)
     {
       foreach (var server in servers)

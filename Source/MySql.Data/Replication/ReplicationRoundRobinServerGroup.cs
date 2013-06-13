@@ -27,7 +27,7 @@ using System.Text;
 namespace MySql.Data.MySqlClient.Replication
 {
   /// <summary>
-  /// 
+  /// Class that implements Round Robing Load Balancing technique
   /// </summary>
   public class ReplicationRoundRobinServerGroup : ReplicationServerGroup
   {
@@ -38,6 +38,11 @@ namespace MySql.Data.MySqlClient.Replication
       nextServer = -1;
     }
 
+    /// <summary>
+    /// Gets an available server based on Round Robin load balancing
+    /// </summary>
+    /// <param name="isMaster">True if the server to return must be a master</param>
+    /// <returns>Next available server</returns>
     public override ReplicationServer GetServer(bool isMaster)
     {
       for (int i = 0; i < Servers.Count; i++)

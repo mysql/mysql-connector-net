@@ -27,6 +27,9 @@ using System.Text;
 
 namespace MySql.Data.MySqlClient
 {
+  /// <summary>
+  /// Used to define a Replication configurarion element in configuration file
+  /// </summary>
   public sealed class ReplicationConfigurationElement : ConfigurationElement
   {
     [ConfigurationProperty("ServerGroups", IsRequired = true)]
@@ -37,6 +40,9 @@ namespace MySql.Data.MySqlClient
     }
   }
 
+  /// <summary>
+  /// Used to define a Replication server group in configuration file
+  /// </summary>
   public sealed class ReplicationServerGroupConfigurationElement : ConfigurationElement
   {
     [ConfigurationProperty("name", IsRequired = true)]
@@ -68,6 +74,9 @@ namespace MySql.Data.MySqlClient
     }
   }
 
+  /// <summary>
+  /// Defines a Replication server in configuration file
+  /// </summary>
   public sealed class ReplicationServerConfigurationElement : ConfigurationElement
   {
     [ConfigurationProperty("name", IsRequired = true)]
