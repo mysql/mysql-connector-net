@@ -285,7 +285,9 @@ namespace MySql.Data.MySqlClient
         packet.Clear();
         packet.WriteInteger((int)connectionFlags, 4);
       }
-#else
+#endif
+
+#if RT
       if (Settings.SslMode != MySqlSslMode.None)
       {
         throw new NotImplementedException("SSL not supported in this WinRT release.");
