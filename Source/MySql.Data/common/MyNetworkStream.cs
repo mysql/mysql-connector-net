@@ -1,4 +1,5 @@
-// Copyright (c) 2009 Sun Microsystems, Inc.
+// Copyright (c) 2009 Sun Microsystems, Inc., 2013 Oracle and/or its affiliates.
+// All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -89,7 +90,8 @@ namespace MySql.Data.Common
           }
           else if (IsTimeoutException(socketException))
           {
-            throw new TimeoutException(socketException.Message, e);
+            return;
+            //throw new TimeoutException(socketException.Message, e);
           }
 
         }
@@ -116,6 +118,9 @@ namespace MySql.Data.Common
         }
       }
       while (++retry < MaxRetryCount);
+      if(exception.GetBaseException() is SocketException 
+        && IsTimeoutException((SocketException)exception.GetBaseException()))
+        throw new TimeoutException(exception.Message, exception);
       throw exception;
     }
 

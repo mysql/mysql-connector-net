@@ -277,7 +277,7 @@ namespace MySql.Data.MySqlClient.Tests
         threadId = c.ServerThread;
         string connStr1 = c.ConnectionString;
 
-        MySqlCommand cmd = new MySqlCommand("SELECT SLEEP(2)", c);
+        MySqlCommand cmd = new MySqlCommand("SELECT SLEEP(5)", c);
         cmd.CommandTimeout = 1;
 
         try
