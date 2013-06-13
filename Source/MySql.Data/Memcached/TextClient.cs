@@ -28,7 +28,7 @@ namespace MySql.Data.MySqlClient.Memcached
   using System.IO;
 
   /// <summary>
-  /// TODO: Update summary.
+  /// Implementation of the Memcached text client protocol.
   /// </summary>
   public class TextClient : Client
   {
@@ -267,7 +267,7 @@ namespace MySql.Data.MySqlClient.Memcached
           (s.StartsWith(ERR_CLIENT_ERROR, StringComparison.OrdinalIgnoreCase)) ||
           (s.StartsWith(ERR_SERVER_ERROR, StringComparison.OrdinalIgnoreCase)))
       {
-        throw new MemberAccessException(s);
+        throw new MemcachedException(s);
       }
     }
 

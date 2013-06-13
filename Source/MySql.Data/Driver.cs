@@ -205,6 +205,11 @@ namespace MySql.Data.MySqlClient
         //Only rethrow if InnerException is not a SecurityException. If it is a SecurityException then 
         //we couldn't initialize MySqlTrace because we don't have unmanaged code permissions. 
       }
+#else
+      if (settings.Logging || settings.UseUsageAdvisor)
+      {
+        throw new NotImplementedException( "Logging not supported in this WinRT release." );
+      }
 #endif
       if (d == null)
         d = new Driver(settings);

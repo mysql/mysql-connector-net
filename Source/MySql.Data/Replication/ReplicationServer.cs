@@ -28,7 +28,7 @@ namespace MySql.Data.MySqlClient.Replication
 {
   public class ReplicationServer
   {
-    internal ReplicationServer(string name, bool isMaster, string connectionString)
+    public ReplicationServer(string name, bool isMaster, string connectionString)
     {
       Name = name;
       IsMaster = isMaster;
@@ -39,6 +39,6 @@ namespace MySql.Data.MySqlClient.Replication
     public string Name { get; private set; }
     public bool IsMaster { get; private set; }
     public string ConnectionString { get; private set; }
-    internal bool IsAvailable { get; set; }
+    public bool IsAvailable { get; set; }
   }
 }

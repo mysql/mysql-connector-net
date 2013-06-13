@@ -1191,6 +1191,19 @@ namespace MySql.Data.MySqlClient.Tests
           catch (MySqlException)
           { }
       }
-    
+
+      [Fact]
+      public void TestNonSupportedOptions()
+      {
+        if (st.Version < new Version(5, 1)) return;
+
+        string connstr = st.GetConnectionString(true);
+        connstr += ";CertificateFile=client.pfx;CertificatePassword=pass;SSL Mode=Required;";
+        using (MySqlConnection c = new MySqlConnection(connstr))
+        {
+          c.Open();
+          Assert.Equal(ConnectionState.Open, c.State);
+        }
+      }
   }
 }

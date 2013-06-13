@@ -27,7 +27,7 @@ namespace MySql.Data.MySqlClient.Memcached
   using System.Text;
 
   /// <summary>
-  /// TODO: Update summary.
+  /// The base exception class for all Memcached exceptions.
   /// </summary>
   public class MemcachedException : Exception
   {

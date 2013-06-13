@@ -16,7 +16,7 @@
     <Name>Documentation</Name>
     <!-- SHFB properties -->
     <OutputPath>.\Output\</OutputPath>
-    <HtmlHelpName>MySql.Data</HtmlHelpName>
+    <HtmlHelpName>ConnectorNET</HtmlHelpName>
     <ApiFilter>
       <Filter entryType="Namespace" fullName="MySql.Data.MySqlClient" isExposed="True" xmlns="">
         <Filter entryType="Class" fullName="MySql.Data.MySqlClient.CustomInstaller" filterName="CustomInstaller" isExposed="False" />
