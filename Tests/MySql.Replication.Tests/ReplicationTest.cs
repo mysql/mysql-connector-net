@@ -26,6 +26,7 @@ using System.Linq;
 using System.Text;
 using MySql.Data.MySqlClient;
 using Xunit;
+using System.Diagnostics;
 
 namespace MySql.Replication.Tests
 {
@@ -140,6 +141,84 @@ namespace MySql.Replication.Tests
         Assert.Equal(2, dr.GetValue(1));
         Assert.Equal("Bruce", dr.GetValue(2));
       }
+    }
+
+    [Fact]
+    public void ValidateLogging()
+    {
+      MySqlTrace.Listeners.Clear();
+      MySqlTrace.Switch.Level = SourceLevels.All;
+      MySql.Data.MySqlClient.Tests.GenericListener listener = new MySql.Data.MySqlClient.Tests.GenericListener();
+      MySqlTrace.Listeners.Add(listener);
+      using (MySqlConnection conn = new MySqlConnection(st.ConnectionString ))
+      {
+        conn.Open();
+
+        st.ExecuteNonQuery(conn, "INSERT INTO orders VALUES(null, 2, 'Bruce')");
+        st.ExecuteNonQuery(conn, "INSERT INTO orders VALUES(null, 1, 'James')");
+        st.ExecuteNonQuery(conn, "INSERT INTO order_details VALUES(1, 1, 1, 0, 0)");
+        st.ExecuteNonQuery(conn, "INSERT INTO order_details VALUES(1, 2, 1, 0, 0)");
+      }
+
+      // Waits for replication on slave
+      System.Threading.Thread.Sleep(3000);
+
+      // validates data on slave
+      using (MySqlConnection slaveConn = new MySqlConnection(st.ConnectionStringSlave))
+      {
+        slaveConn.Open();
+        MySqlDataReader dr = st.ExecuteQuery(slaveConn, "SELECT * FROM orders");
+        Assert.True(dr.Read());
+        Assert.Equal(2, dr.GetValue(1));
+        Assert.Equal("Bruce", dr.GetValue(2));
+      }
+      Debug.WriteLine("Start of tracing");
+      foreach (string s in listener.Strings)
+      {
+        Debug.WriteLine(s);
+      }
+      Debug.WriteLine("End of tracing");
+    }
+      
+    /// <summary>
+    /// When using transactions, load balancing must lock on the current server.
+    /// </summary>
+    [Fact]
+    public void ValidateTransactions()
+    {
+      MySqlTrace.Listeners.Clear();
+      MySqlTrace.Switch.Level = SourceLevels.All;
+      MySql.Data.MySqlClient.Tests.GenericListener listener = new MySql.Data.MySqlClient.Tests.GenericListener();
+      MySqlTrace.Listeners.Add(listener);
+      using (MySqlConnection conn = new MySqlConnection(st.ConnectionString))
+      {
+        conn.Open();
+        MySqlTransaction tx = conn.BeginTransaction();
+        st.ExecuteNonQuery(conn, "INSERT INTO orders VALUES(null, 2, 'Bruce')");
+        st.ExecuteNonQuery(conn, "INSERT INTO orders VALUES(null, 1, 'James')");
+        st.ExecuteNonQuery(conn, "INSERT INTO order_details VALUES(1, 1, 1, 0, 0)");
+        st.ExecuteNonQuery(conn, "INSERT INTO order_details VALUES(1, 2, 1, 0, 0)");
+        tx.Commit();
+      }
+
+      // Waits for replication on slave
+      System.Threading.Thread.Sleep(3000);
+
+      // validates data on slave
+      using (MySqlConnection slaveConn = new MySqlConnection(st.ConnectionStringSlave))
+      {
+        slaveConn.Open();
+        MySqlDataReader dr = st.ExecuteQuery(slaveConn, "SELECT * FROM orders");
+        Assert.True(dr.Read());
+        Assert.Equal(2, dr.GetValue(1));
+        Assert.Equal("Bruce", dr.GetValue(2));
+      }
+      Debug.WriteLine("Start of tracing");
+      foreach (string s in listener.Strings)
+      {
+        Debug.WriteLine(s);
+      }
+      Debug.WriteLine("End of tracing");
     }
 
     #region Private methods

@@ -409,7 +409,7 @@ namespace MySql.Data.MySqlClient
 
 #if !CF
       // Load balancing getting a new connection
-      if (connection.hasBeenOpen)
+      if (connection.hasBeenOpen && !driver.HasStatus(ServerStatusFlags.InTransaction))
       {
         ReplicationManager.GetNewConnection(connection.Settings.Server, !IsReadOnlyCommand(sql), connection);
       }

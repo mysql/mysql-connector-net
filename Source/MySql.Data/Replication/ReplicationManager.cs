@@ -147,7 +147,7 @@ namespace MySql.Data.MySqlClient.Replication
         if (server == null)
           throw new MySqlException(Properties.Resources.Replication_NoAvailableServer);
 
-        Driver driver = new Driver(new MySqlConnectionStringBuilder(server.ConnectionString));
+        Driver driver = Driver.Create(new MySqlConnectionStringBuilder(server.ConnectionString));
         if (connection.driver == null
           || driver.Settings.ConnectionString != connection.driver.Settings.ConnectionString)
         {
