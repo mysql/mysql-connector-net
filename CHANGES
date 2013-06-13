@@ -1,4 +1,5 @@
 
+
 6.7.4
 - Fix for Entity Framework when inserts data having Identity columns (Oracle bug #16494585).
 - Fix for Connector/NET cannot read data from a MySql table using UTF-16/UTF-32 (MySql bug #69169, Oracle bug #16776818).
