@@ -62,6 +62,42 @@ namespace MySql.Data.Entity.CodeFirst.Tests.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to SELECT
+        ///1 AS `C1`, 
+        ///`Project3`.`nCdSite`, 
+        ///`Project3`.`C1` AS `C2`
+        ///FROM (SELECT
+        ///`visitante`.`nCdSite`, 
+        ///COUNT(DISTINCT `visitante`.`sDsIp`) AS `C1`
+        ///FROM `visitante`
+        /// GROUP BY 
+        ///`visitante`.`nCdSite`) AS `Project3`.
+        /// </summary>
+        internal static string CountGroupBy {
+            get {
+                return ResourceManager.GetString("CountGroupBy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SELECT
+        ///1 AS `C1`, 
+        ///`Project3`.`nCdSite`, 
+        ///`Project3`.`C1` AS `C2`
+        ///FROM (SELECT
+        ///`Extent4`.`nCdSite`, 
+        ///COUNT(DISTINCT `Extent4`.`sDsIp`) AS `C1`
+        ///FROM `pagina` AS `Extent3` INNER JOIN `visitante` AS `Extent4` ON `Extent3`.`nCdVisitante` = `Extent4`.`nCdVisitante`
+        /// GROUP BY 
+        ///`Extent4`.`nCdSite`) AS `Project3`.
+        /// </summary>
+        internal static string CountGroupBy2 {
+            get {
+                return ResourceManager.GetString("CountGroupBy2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SELECT
         ///`Project1`.`HarborId`, 
         ///`Project1`.`Description`, 
         ///`Project1`.`C2` AS `C1`, 

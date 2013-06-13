@@ -64,6 +64,7 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <Compile Include="Ship.cs" />
+    <Compile Include="SiteDB.cs" />
     <Compile Include="Vehicle.cs" />
   </ItemGroup>
   <ItemGroup>
