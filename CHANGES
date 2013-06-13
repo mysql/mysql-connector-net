@@ -41,6 +41,8 @@
 - Fix for bug Error in LINQ to Entities query when using Distinct().Count() (MySql Bug #68513, Oracle bug #16950146).
 - Fix for occasionally return no data when socket connection is slow, interrupted or delayed (MySql bug #69039, Oracle bug #16950212).
 - Fix for ConstraintException when filling a datatable (MySql bug #65065, Oracle bug #16952323).
+- Fix for Debugging a routine produces an error when binary log is enabled (Oracle bug #16941181).  
+
 
 6.6.5
 - Fix for bug Keyword not supported. Parameter name: AttachDbFilename (Mysql bug #66880, Oracle bug #14733472).

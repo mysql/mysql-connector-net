@@ -4,7 +4,7 @@ USE `serversidedebugger` //
 
 
 
-CREATE FUNCTION `Peek`( pDebugSessionId int ) RETURNS varchar(50) CHARSET latin1
+CREATE FUNCTION `Peek`( pDebugSessionId int ) RETURNS varchar(50) CHARSET latin1 DETERMINISTIC
 begin
 
     declare nextId int;
@@ -17,7 +17,7 @@ begin
 
 end //
 
-CREATE PROCEDURE `CleanupScope`( pDebugSessionId int )
+CREATE PROCEDURE `CleanupScope`( pDebugSessionId int ) DETERMINISTIC
 begin
   
   delete from `serversidedebugger`.`debugscope` 
@@ -29,7 +29,7 @@ begin
 end //
 
 
-CREATE PROCEDURE `DumpScopeVar`( pDebugSessionId int, pDebugScopeLevel int, pVarName varchar( 30 ), pVarValue binary )
+CREATE PROCEDURE `DumpScopeVar`( pDebugSessionId int, pDebugScopeLevel int, pVarName varchar( 30 ), pVarValue binary ) DETERMINISTIC
 begin
   
   replace `serversidedebugger`.`debugscope`( DebugSessionId, DebugScopeLevel, VarName, VarValue ) values ( pDebugSessionId, pDebugScopeLevel, pVarName, pVarValue );
@@ -37,7 +37,7 @@ begin
 end //
 
 
-CREATE PROCEDURE `ExitEnterCriticalSection`( spName varchar( 30 ), lineNumber int )
+CREATE PROCEDURE `ExitEnterCriticalSection`( spName varchar( 30 ), lineNumber int ) DETERMINISTIC
 begin
     
   declare gblNetWriteTimeout int;
@@ -53,7 +53,7 @@ begin
 end //
 
 
-CREATE PROCEDURE `Pop`( pDebugSessionId int )
+CREATE PROCEDURE `Pop`( pDebugSessionId int ) DETERMINISTIC
 begin
 
     declare nextId int;
@@ -65,21 +65,21 @@ begin
 end //
 
 
-CREATE PROCEDURE `Push`( pDebugSessionId int, pRoutineName varchar( 50 ) )
+CREATE PROCEDURE `Push`( pDebugSessionId int, pRoutineName varchar( 50 ) ) DETERMINISTIC
 begin
 
     insert into `serversidedebugger`.`debugcallstack`( DebugSessionId, RoutineName ) values ( pDebugSessionId, pRoutineName );
 
 end //
 
-create procedure SetDebugScopeVar( pDebugSessionId int, pDebugScopeLevel int, pVarName varchar( 30 ), pVarValue varbinary( 50000 ) )
+create procedure SetDebugScopeVar( pDebugSessionId int, pDebugScopeLevel int, pVarName varchar( 30 ), pVarValue varbinary( 50000 ) ) DETERMINISTIC
 begin
 
 	insert into `serversidedebugger`.`debugscope`( DebugSessionId, DebugScopeLevel, VarName, VarValue ) values ( pDebugSessionId, pDebugScopeLevel, pVarName, pVarValue );
 
 end //
 
-create procedure GetDebugScopeVar( pDebugSessionId int, pDebugScopeLevel int, pVarName varchar( 30 ), out pVarValue varbinary( 50000 ))
+create procedure GetDebugScopeVar( pDebugSessionId int, pDebugScopeLevel int, pVarName varchar( 30 ), out pVarValue varbinary( 50000 )) DETERMINISTIC
 begin
 	
 	declare pId int;
