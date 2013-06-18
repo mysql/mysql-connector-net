@@ -29,6 +29,8 @@ using System.Data.EntityClient;
 using System.Data.Objects;
 using System.Data.Common;
 using MySql.Data.Entity.Tests.Properties;
+using System.Diagnostics;
+
 
 namespace MySql.Data.Entity.Tests
 {
@@ -388,6 +390,26 @@ namespace MySql.Data.Entity.Tests
         Assert.Equal("Barney", q.First().FirstName);
         Assert.Equal("Betty", q.Skip(1).First().FirstName);
         Assert.Equal("Scooby", q.Skip(2).First().FirstName);
+      }
+    }
+
+    /// <summary>
+    /// Tests fix for bug http://bugs.mysql.com/bug.php?id=69409, Entity Framework Syntax Error in Where clause.
+    /// </summary>
+    [Fact]
+    public void EFSyntaxErrorApostrophe()
+    {
+      using (testEntities ctx = new testEntities())
+      {
+        var q = from c in ctx.Employees
+            where c.FirstName.EndsWith("y'")
+            orderby c.FirstName
+            select c;
+        string query = q.ToTraceString();
+        st.CheckSql(query, SQLSyntax.EndsWithTranslatedLikeApostrophes);
+        foreach (var row in q)
+        {
+        }
       }
     }
   }

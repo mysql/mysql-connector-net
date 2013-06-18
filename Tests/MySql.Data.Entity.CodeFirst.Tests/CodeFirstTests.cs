@@ -744,16 +744,16 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       using (MovieDBContext db = new MovieDBContext())
       {
         db.Database.Initialize(true);
-        Movie m1 = new Movie() { Title = "Terminator 1", ReleaseDate = new DateTime( 1984, 10, 26 ) };
-        Movie m2 = new Movie() { Title = "The Matrix", ReleaseDate = new DateTime( 1999, 3, 31 ) };
-        Movie m3 = new Movie() { Title = "Predator", ReleaseDate = new DateTime( 1987, 6, 12 ) };
-        Movie m4 = new Movie() { Title = "Star Wars, The Sith Revenge", ReleaseDate = new DateTime( 2005, 5, 19 ) };
+        Movie m1 = new Movie() { Title = "Terminator 1", ReleaseDate = new DateTime(1984, 10, 26) };
+        Movie m2 = new Movie() { Title = "The Matrix", ReleaseDate = new DateTime(1999, 3, 31) };
+        Movie m3 = new Movie() { Title = "Predator", ReleaseDate = new DateTime(1987, 6, 12) };
+        Movie m4 = new Movie() { Title = "Star Wars, The Sith Revenge", ReleaseDate = new DateTime(2005, 5, 19) };
         db.Movies.Add(m1);
         db.Movies.Add(m2);
         db.Movies.Add(m3);
         db.Movies.Add(m4);
         db.SaveChanges();
-        DateTime filterDate = new DateTime( 1986, 1, 1 );
+        DateTime filterDate = new DateTime(1986, 1, 1);
         var q = db.Movies.Where(p => p.ReleaseDate >= filterDate).
           OrderByDescending(p => p.ReleaseDate).Take(2);
         string sql = q.ToString();
