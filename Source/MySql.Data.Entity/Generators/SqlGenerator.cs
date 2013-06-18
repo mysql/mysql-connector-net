@@ -432,13 +432,120 @@ namespace MySql.Data.Entity
 
     #endregion
 
+    #region "Optimization"
+
+    /// <summary>
+    /// If current fragment is select and its from clause is another select, try fuse the inner select with the outer select.
+    /// (Thus removing a nested query, which may have bad performance in Mysql).
+    /// </summary>
+    /// <param name="f">The fragment to probe and posibly optimize</param>
+    /// <returns>The fragment fused, or the original one.</returns>
+    protected internal InputFragment TryFusingSelect(InputFragment f)
+    {
+      SelectStatement result = f as SelectStatement;
+      if (!CanFuseSelect(f as SelectStatement)) return f;
+      result = FuseSelectWithInnerSelect(result, result.From as SelectStatement);
+      return result;
+    }
+
+    protected internal SelectStatement FuseSelectWithInnerSelect(SelectStatement outer, SelectStatement inner)
+    {
+      string oldTableName = (inner.From as TableFragment).Name;
+      string newTableName = inner.Name;
+      outer.From = inner.From;
+      //if (outer.Name != null)
+      //  outer.Name = newTableName;
+      (outer.From as TableFragment).Name = newTableName;
+      // Dispatch Where
+      if (outer.Where == null)
+      {
+        outer.Where = inner.Where;
+      }
+      else if (inner.Where != null)
+      {
+        outer.Where = new BinaryFragment() { Left = outer.Where, Right = inner.Where, Operator = "AND" };
+      }
+      VisitAndReplaceTableName(outer.Where, oldTableName, newTableName);
+      // For the next constructions, either is defined on outer or at inner, not both
+      // Dispatch Limit
+      if (outer.Limit == null)
+      {
+        outer.Limit = inner.Limit;
+        VisitAndReplaceTableName(outer.Limit, oldTableName, newTableName);
+      }
+      // Dispatch GroupBy
+      if (outer.GroupBy == null && inner.GroupBy != null)
+      {
+        foreach (SqlFragment sf in inner.GroupBy)
+          outer.AddGroupBy(sf);
+        foreach (SqlFragment sf in outer.GroupBy)
+          VisitAndReplaceTableName(sf, oldTableName, newTableName);
+      }
+      // Dispatch OrderBy
+      if (outer.OrderBy == null && inner.OrderBy != null)
+      {
+        foreach (SortFragment sf in inner.OrderBy)
+          outer.AddOrderBy(sf);
+        foreach (SortFragment sf in outer.OrderBy)
+          VisitAndReplaceTableName(sf, oldTableName, newTableName);
+      }
+      // Dispatch Skip
+      if (outer.Skip == null)
+        outer.Skip = inner.Skip;
+      return outer;
+    }
+
+    protected internal bool CanFuseSelect(SelectStatement select)
+    {
+      SelectStatement innerSelect = null;
+      if (select == null || select.Columns.Count != 0) return false;
+      innerSelect = select.From as SelectStatement;
+      if ((innerSelect == null) || !( innerSelect.From is TableFragment )) return false;
+      // Cannot fuse, unless construction is semantically compatible
+      // ie. Where's can be combined, Group by's no.
+      if ((select.Limit == null || innerSelect.Limit == null) &&
+          (select.GroupBy == null || innerSelect.GroupBy == null) &&
+          (select.OrderBy == null || innerSelect.OrderBy == null) &&
+          (select.Skip == null || innerSelect.Skip == null) && 
+          ( select.IsDistinct == innerSelect.IsDistinct ) )
+      {
+        List<ColumnFragment> cols = innerSelect.Columns;
+        for (int i = 0; i < cols.Count; i++)
+          if (cols[i].Literal != null)
+            return false;
+        return true;
+      }
+      else
+      {
+        return false;
+      }
+    }
+
+    protected internal void VisitAndReplaceTableName(SqlFragment sf, string oldTable, string newTable)
+    {
+      BinaryFragment bf = sf as BinaryFragment;
+      ColumnFragment cf = sf as ColumnFragment;
+      if (bf != null)
+      {
+        VisitAndReplaceTableName(bf.Left, oldTable, newTable);
+        VisitAndReplaceTableName(bf.Right, oldTable, newTable);
+      }
+      else if ((cf != null) && (cf.TableName == oldTable))
+      {
+        cf.TableName = newTable;
+      }
+    }
+
+    #endregion
+
     protected InputFragment VisitInputExpression(DbExpression e, string name, TypeUsage type)
     {
       SqlFragment f = e.Accept(this);
-      Debug.Assert(f is InputFragment);
+      Debug.Assert(f is InputFragment);      
 
       InputFragment inputFragment = f as InputFragment;
       inputFragment.Name = name;
+      TryFusingSelect(inputFragment);
 
       if (inputFragment is TableFragment && type != null)
         (inputFragment as TableFragment).Type = type;

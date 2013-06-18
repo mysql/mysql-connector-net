@@ -42,6 +42,7 @@
 - Fix for occasionally return no data when socket connection is slow, interrupted or delayed (MySql bug #69039, Oracle bug #16950212).
 - Fix for ConstraintException when filling a datatable (MySql bug #65065, Oracle bug #16952323).
 - Fix for Debugging a routine produces an error when binary log is enabled (Oracle bug #16941181).  
+- Fix for nested sql generated for LINQ to Entities query with Take and Order by (MySql bug #65723, Oracle bug #16973939).
 
 
 6.6.5

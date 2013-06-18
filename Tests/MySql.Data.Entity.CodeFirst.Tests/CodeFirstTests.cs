@@ -712,6 +712,46 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         }
       }
     }
+
+    /// <summary>
+    /// Tests fix for bug http://bugs.mysql.com/bug.php?id=65723, MySql Provider for EntityFramework produces "bad" SQL for OrderBy.
+    /// </summary>
+    [Fact]
+    public void BadOrderBy()
+    {
+      ReInitDb();
+      using (MovieDBContext db = new MovieDBContext())
+      {
+        db.Database.Initialize(true);
+        Movie m1 = new Movie() { Title = "Terminator 1", ReleaseDate = new DateTime( 1984, 10, 26 ) };
+        Movie m2 = new Movie() { Title = "The Matrix", ReleaseDate = new DateTime( 1999, 3, 31 ) };
+        Movie m3 = new Movie() { Title = "Predator", ReleaseDate = new DateTime( 1987, 6, 12 ) };
+        Movie m4 = new Movie() { Title = "Star Wars, The Sith Revenge", ReleaseDate = new DateTime( 2005, 5, 19 ) };
+        db.Movies.Add(m1);
+        db.Movies.Add(m2);
+        db.Movies.Add(m3);
+        db.Movies.Add(m4);
+        db.SaveChanges();
+        DateTime filterDate = new DateTime( 1986, 1, 1 );
+        var q = db.Movies.Where(p => p.ReleaseDate >= filterDate).
+          OrderByDescending(p => p.ReleaseDate).Take(2);
+        string sql = q.ToString();
+        st.CheckSql(SQLSyntax.NestedOrderBy, sql);
+        // Data integrity testing
+        Movie[] data = new Movie[] {
+          new Movie() { ID = 4, Title = "Star Wars, The Sith Revenge", ReleaseDate = new DateTime( 2005, 5, 19 ) },
+          new Movie() { ID = 2, Title = "The Matrix", ReleaseDate = new DateTime( 1999, 3, 31 ) }
+        };
+        int i = 0;
+        foreach (Movie m in q)
+        {
+          Assert.Equal(data[i].ID, m.ID);
+          Assert.Equal(data[i].Title, m.Title);
+          Assert.Equal(data[i].ReleaseDate, m.ReleaseDate);
+          i++;
+        }
+      }
+    }
   }
 }
 
