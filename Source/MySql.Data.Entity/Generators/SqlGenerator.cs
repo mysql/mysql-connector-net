@@ -601,7 +601,7 @@ namespace MySql.Data.Entity
             {
               // Case LIKE 'pattern%'
               DbConstantExpression c = (DbConstantExpression)fl.Arguments[0];
-              like.Pattern = new LiteralFragment(string.Format("'{0}%'", c.Value));
+              like.Pattern = new LiteralFragment(string.Format("'{0}%'", c.Value.ToString().Replace( "'", "''" ) ));
               return like;
             }
             else if ((fl.Arguments.Count == 2) &&
@@ -614,7 +614,7 @@ namespace MySql.Data.Entity
               if (fr1.Arguments[0] is DbConstantExpression)
               {
                 DbConstantExpression c = (DbConstantExpression)fr1.Arguments[0];
-                like.Pattern = new LiteralFragment(string.Format("'%{0}'", c.Value));
+                like.Pattern = new LiteralFragment(string.Format("'%{0}'", c.Value.ToString().Replace("'", "''") ));
                 like.Argument = fr2.Arguments[0].Accept(this);
                 return like;
               }
@@ -626,7 +626,7 @@ namespace MySql.Data.Entity
             {
               // Case LIKE '%pattern%'
               DbConstantExpression c = (DbConstantExpression)fl.Arguments[0];
-              like.Pattern = new LiteralFragment(string.Format("'%{0}%'", c.Value));
+              like.Pattern = new LiteralFragment(string.Format("'%{0}%'", c.Value.ToString().Replace("'", "''") ));
               return like;
             }
           }
