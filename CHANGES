@@ -9,6 +9,7 @@
 - Fix for bug Error in LINQ to Entities query when using Distinct().Count() (MySql Bug #68513, Oracle bug #16950146).
 - Fix for occasionally return no data when socket connection is slow, interrupted or delayed (MySql bug #69039, Oracle bug #16950212).
 - Fix for ConstraintException when filling a datatable (MySql bug #65065, Oracle bug #16952323).
+- Fix for Data Provider is not found after uninstalling Mysql for visual studio (Oracle bug #16973456).
 
 
 6.7.3

@@ -12,4 +12,4 @@ What's new in 6.7
 - Memcached client.
 
 
-Be sure and check the documenation for more information on these new features.
+Be sure and check the documentation for more information on these new features.

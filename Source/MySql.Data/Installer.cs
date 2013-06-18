@@ -45,14 +45,13 @@ namespace MySql.Data.MySqlClient
   public class CustomInstaller : Installer
   {
     /// <summary>
-    /// We override Install so we can add our assembly to the proper
-    /// machine.config files.
+    /// We are not modifying any more machine.config
+    /// in CNet since this is done at MySQL for Visual Studio    
     /// </summary>
     /// <param name="stateSaver"></param>
     public override void Install(System.Collections.IDictionary stateSaver)
     {
-      base.Install(stateSaver);
-      AddProviderToMachineConfig();
+      base.Install(stateSaver);      
     }
 
     private static void AddProviderToMachineConfig()
@@ -143,14 +142,13 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// We override Uninstall so we can remove out assembly from the
+    /// We are no longer modifying 
     /// machine.config files.
     /// </summary>
     /// <param name="savedState"></param>
     public override void Uninstall(System.Collections.IDictionary savedState)
     {
-      base.Uninstall(savedState);
-      RemoveProviderFromMachineConfig();
+      base.Uninstall(savedState);      
     }
 
     private static void RemoveProviderFromMachineConfig()
