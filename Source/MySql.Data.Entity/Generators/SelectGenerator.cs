@@ -267,21 +267,6 @@ NoChanges:
       return select;
     }
 
-    private void VisitAndReplaceTableName(SqlFragment sf, string oldTable, string newTable)
-    {
-      BinaryFragment bf = sf as BinaryFragment;
-      ColumnFragment cf = sf as ColumnFragment;
-      if (bf != null)
-      {
-        VisitAndReplaceTableName(bf.Left, oldTable, newTable);
-        VisitAndReplaceTableName(bf.Right, oldTable, newTable);
-      }
-      else if ( (cf != null) && (cf.TableName == oldTable))
-      {
-        cf.TableName = newTable;
-      }
-    }
-
     public override SqlFragment Visit(DbJoinExpression expression)
     { 
       return HandleJoinExpression(expression.Left, expression.Right,
