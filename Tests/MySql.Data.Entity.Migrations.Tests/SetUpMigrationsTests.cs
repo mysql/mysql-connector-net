@@ -79,6 +79,7 @@ namespace MySql.Data.Entity.Migrations.Tests
   {
     public Configuration()
     {
+      CodeGenerator = new MySqlMigrationCodeGenerator();
       AutomaticMigrationsEnabled = false;
       SetSqlGenerator("MySql.Data.MySqlClient", new MySql.Data.Entity.MySqlMigrationSqlGenerator());
     }

@@ -1,6 +1,7 @@
 6.7.2
 - Fix for Bug "repair" option on connector/net_installer, raise an exception (Oracle Bug # 16630567).
 
+
 6.7.4
 - Fix for Entity Framework when inserts data having Identity columns (Oracle bug #16494585).
 - Fix for Connector/NET cannot read data from a MySql table using UTF-16/UTF-32 (MySql bug #69169, Oracle bug #16776818).
@@ -10,6 +11,8 @@
 - Fix for bug Error in LINQ to Entities query when using Distinct().Count() (MySql Bug #68513, Oracle bug #16950146).
 - Fix for occasionally return no data when socket connection is slow, interrupted or delayed (MySql bug #69039, Oracle bug #16950212).
 - Fix for ConstraintException when filling a datatable (MySql bug #65065, Oracle bug #16952323).
+- Fix for Data Provider is not found after uninstalling Mysql for visual studio (Oracle bug #16973456).
+- Fix for nested sql generated for LINQ to Entities query with Take and Order by (MySql bug #65723, Oracle bug #16973939).
 
 
 6.7.3
