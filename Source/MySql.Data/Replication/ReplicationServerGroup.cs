@@ -35,6 +35,8 @@ namespace MySql.Data.MySqlClient.Replication
   {
     protected List<ReplicationServer> servers = new List<ReplicationServer>();
 
+    /// <param name="name">Group name</param>
+    /// <param name="retryTime"></param>
     public ReplicationServerGroup(string name, int retryTime)
     {
       Servers = servers;
@@ -42,8 +44,17 @@ namespace MySql.Data.MySqlClient.Replication
       RetryTime = retryTime;
     }
 
+    /// <summary>
+    /// Group name
+    /// </summary>
     public string Name { get; private set; }
+    /// <summary>
+    /// Retry time between connections to failed servers
+    /// </summary>
     public int RetryTime { get; private set; }
+    /// <summary>
+    /// Servers list in the group
+    /// </summary>
     public IList<ReplicationServer> Servers { get; private set; }
 
     /// <summary>
@@ -63,7 +74,7 @@ namespace MySql.Data.MySqlClient.Replication
     /// <summary>
     /// Removes a server from group
     /// </summary>
-    /// <param name="name">Group name</param>
+    /// <param name="name">Server name</param>
     public void RemoveServer(string name)
     {
       ReplicationServer serverToRemove = GetServer(name);
@@ -84,6 +95,11 @@ namespace MySql.Data.MySqlClient.Replication
       return null;
     }
 
+    /// <summary>
+    /// Must be implemented. Defines the next server for a custom load balancing implementation.
+    /// </summary>
+    /// <param name="isMaster">Defines if the server to return is a master or any</param>
+    /// <returns>Next server based on the load balancing implementation</returns>
     public abstract ReplicationServer GetServer(bool isMaster);
   }
 }

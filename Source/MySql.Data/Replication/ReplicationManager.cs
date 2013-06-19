@@ -87,7 +87,7 @@ namespace MySql.Data.MySqlClient.Replication
     }
 
     /// <summary>
-    /// Gets a server using the ServerGroup type
+    /// Gets the next server from a replication group
     /// </summary>
     /// <param name="groupName">Group name</param>
     /// <param name="isMaster">True if the server to return must be a master</param>
@@ -118,10 +118,10 @@ namespace MySql.Data.MySqlClient.Replication
     }
 
     /// <summary>
-    /// Validates if the group name exists
+    /// Validates if the replication group name exists
     /// </summary>
-    /// <param name="groupName"></param>
-    /// <returns>True if group name is found, otherwise false</returns>
+    /// <param name="groupName">Group name to validate</param>
+    /// <returns>True if replication group name is found, otherwise false</returns>
     public static bool IsReplicationGroup(string groupName)
     {
       foreach (ReplicationServerGroup g in groups)
@@ -130,11 +130,11 @@ namespace MySql.Data.MySqlClient.Replication
     }
 
     /// <summary>
-    /// Gets a new connection from a server group
+    /// Assigns a new server driver to the connection object
     /// </summary>
     /// <param name="groupName">Group name</param>
-    /// <param name="master">True if the server connection to return must be a master</param>
-    /// <param name="connection">MySqlConnection object</param>
+    /// <param name="master">True if the server connection to assign must be a master</param>
+    /// <param name="connection">MySqlConnection object where the new driver will be assigned</param>
     public static void GetNewConnection(string groupName, bool master, MySqlConnection connection)
     {
       do
