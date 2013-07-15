@@ -103,7 +103,8 @@ namespace MySql.Parser.Tests
       StringBuilder sb;
       MySQL51Parser.program_return r = Utility.ParseSql(
         "explain format = json REPLACE into t1 ( col1, col2 ) values ( '', 1 );", true, out sb, new Version(5, 5));
-      Assert.True(sb.ToString().IndexOf("missing EndOfFile at '='", StringComparison.OrdinalIgnoreCase) != -1);
+      //Assert.True(sb.ToString().IndexOf("missing EndOfFile at '='", StringComparison.OrdinalIgnoreCase) != -1);
+      Assert.True(sb.ToString().IndexOf("no viable alternative at input '='", StringComparison.OrdinalIgnoreCase) != -1);
     }
 
     [Fact]
@@ -120,7 +121,8 @@ namespace MySql.Parser.Tests
       StringBuilder sb;
       MySQL51Parser.program_return r = Utility.ParseSql(
         "explain format = traditional UPDATE t1 set col1 = val1, col2 = val2;", true, out sb, new Version(5, 5));
-      Assert.True(sb.ToString().IndexOf("missing EndOfFile at '='", StringComparison.OrdinalIgnoreCase) != -1);
+      //Assert.True(sb.ToString().IndexOf("missing EndOfFile at '='", StringComparison.OrdinalIgnoreCase) != -1);
+      Assert.True(sb.ToString().IndexOf("no viable alternative at input '='", StringComparison.OrdinalIgnoreCase) != -1);
     }
 
     [Fact]

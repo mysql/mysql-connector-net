@@ -80,7 +80,7 @@ namespace MySql.Parser.Tests
     }
 
     [Fact]
-    public void SelectSimpleTableCompletionWitBeginEnd3()
+    public void SelectSimpleTableCompletionWithBeginEnd3()
     {
       StringBuilder sb;
       MySQL51Parser.program_return r =
@@ -90,6 +90,14 @@ namespace MySql.Parser.Tests
       Assert.True(
         expectedToken == "table_factor" ||
         expectedToken == "simple_table_ref_no_alias_existing");
+    }
+
+    [Fact]
+    public void SelectSimpleTableCompletionWithoutBeginEnd()
+    {
+      StringBuilder sb;
+      MySQL51Parser.program_return r =
+        Utility.ParseSql("select * from end", false, out sb);
     }
 
     [Fact]

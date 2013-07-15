@@ -118,7 +118,7 @@ namespace MySql.Data.VisualStudio
       TokenMap.Add(MySQL51Lexer.ANALYZE, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.AND, MySqlTokenType.Operator);
       TokenMap.Add(MySQL51Lexer.ANY, MySqlTokenType.Operator);
-      TokenMap.Add(MySQL51Lexer.ARCHIVE, MySqlTokenType.Keyword);
+      //TokenMap.Add(MySQL51Lexer.ARCHIVE, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.AS, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.ASC, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.ASCII, MySqlTokenType.Keyword);
@@ -133,10 +133,10 @@ namespace MySql.Data.VisualStudio
       TokenMap.Add(MySQL51Lexer.AVG, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.AVG_ROW_LENGTH, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.BACKUP, MySqlTokenType.Keyword);
-      TokenMap.Add(MySQL51Lexer.BDB, MySqlTokenType.Keyword);
+      //TokenMap.Add(MySQL51Lexer.BDB, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.BEFORE, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.BEGIN, MySqlTokenType.Keyword);
-      TokenMap.Add(MySQL51Lexer.BERKELEYDB, MySqlTokenType.Keyword);
+      //TokenMap.Add(MySQL51Lexer.BERKELEYDB, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.BETWEEN, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.BIGINT, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.BINARY, MySqlTokenType.Keyword);
@@ -150,7 +150,7 @@ namespace MySql.Data.VisualStudio
       TokenMap.Add(MySQL51Lexer.BIT_AND, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.BIT_OR, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.BIT_XOR, MySqlTokenType.Keyword);
-      TokenMap.Add(MySQL51Lexer.BLACKHOLE, MySqlTokenType.Keyword);
+      //TokenMap.Add(MySQL51Lexer.BLACKHOLE, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.BLOB, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.BLOCK, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.BOOL, MySqlTokenType.Keyword);
@@ -213,7 +213,7 @@ namespace MySql.Data.VisualStudio
       TokenMap.Add(MySQL51Lexer.CPU, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.CREATE, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.CROSS, MySqlTokenType.Keyword);
-      TokenMap.Add(MySQL51Lexer.CSV, MySqlTokenType.Keyword);
+      //TokenMap.Add(MySQL51Lexer.CSV, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.CUBE, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.CURDATE, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.CURRENT, MySqlTokenType.Keyword);
@@ -290,7 +290,7 @@ namespace MySql.Data.VisualStudio
       TokenMap.Add(MySQL51Lexer.EVENT, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.EVENTS, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.EVERY, MySqlTokenType.Keyword);
-      TokenMap.Add(MySQL51Lexer.EXAMPLE, MySqlTokenType.Keyword);
+      //TokenMap.Add(MySQL51Lexer.EXAMPLE, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.EXCHANGE, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.EXCLUSIVE, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.EXECUTE, MySqlTokenType.Keyword);
@@ -305,7 +305,7 @@ namespace MySql.Data.VisualStudio
       TokenMap.Add(MySQL51Lexer.FALSE, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.FAST, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.FAULTS, MySqlTokenType.Keyword);
-      TokenMap.Add(MySQL51Lexer.FEDERATED, MySqlTokenType.Keyword);
+      //TokenMap.Add(MySQL51Lexer.FEDERATED, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.FETCH, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.FIELDS, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.FILE, MySqlTokenType.Keyword);
@@ -340,7 +340,7 @@ namespace MySql.Data.VisualStudio
       TokenMap.Add(MySQL51Lexer.HANDLER, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.HASH, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.HAVING, MySqlTokenType.Keyword);
-      TokenMap.Add(MySQL51Lexer.HEAP, MySqlTokenType.Keyword);
+      //TokenMap.Add(MySQL51Lexer.HEAP, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.HELP, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.HEXA_VALUE, MySqlTokenType.Literal);
       TokenMap.Add(MySQL51Lexer.HIGH_PRIORITY, MySqlTokenType.Keyword);
@@ -464,7 +464,7 @@ namespace MySql.Data.VisualStudio
       TokenMap.Add(MySQL51Lexer.MERGE, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.MESSAGE_TEXT, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.MICROSECOND, MySqlTokenType.Keyword);
-      TokenMap.Add(MySQL51Lexer.MID, MySqlTokenType.Keyword);
+      //TokenMap.Add(MySQL51Lexer.MID, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.MIDDLEINT, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.MIGRATE, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.MIN, MySqlTokenType.Keyword);
@@ -485,14 +485,14 @@ namespace MySql.Data.VisualStudio
       TokenMap.Add(MySQL51Lexer.MULTIPOINT, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.MULTIPOLYGON, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.MUTEX, MySqlTokenType.Keyword);
-      TokenMap.Add(MySQL51Lexer.MYISAM, MySqlTokenType.Keyword);
+      //TokenMap.Add(MySQL51Lexer.MYISAM, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.MYSQL_ERRNO, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.NAME, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.NAMES, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.NATIONAL, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.NATURAL, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.NCHAR, MySqlTokenType.Keyword);
-      TokenMap.Add(MySQL51Lexer.NDB, MySqlTokenType.Keyword);
+      //TokenMap.Add(MySQL51Lexer.NDB, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.NDBCLUSTER, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.NEW, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.NEXT, MySqlTokenType.Keyword);
@@ -632,7 +632,7 @@ namespace MySql.Data.VisualStudio
       TokenMap.Add(MySQL51Lexer.SERIALIZABLE, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.SERVER, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.SESSION, MySqlTokenType.Keyword);
-      TokenMap.Add(MySQL51Lexer.SESSION_USER, MySqlTokenType.Keyword);
+      //TokenMap.Add(MySQL51Lexer.SESSION_USER, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.SET, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.SHARE, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.SHARED, MySqlTokenType.Keyword);
@@ -675,7 +675,7 @@ namespace MySql.Data.VisualStudio
       TokenMap.Add(MySQL51Lexer.STOP, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.STORAGE, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.STRAIGHT_JOIN, MySqlTokenType.Keyword);
-      TokenMap.Add(MySQL51Lexer.STRING, MySqlTokenType.Literal);
+      TokenMap.Add(MySQL51Lexer.STRING_LEX, MySqlTokenType.Literal);
       TokenMap.Add(MySQL51Lexer.STRING_KEYWORD, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.SUBCLASS_ORIGIN, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.SUBDATE, MySqlTokenType.Keyword);
@@ -689,8 +689,8 @@ namespace MySql.Data.VisualStudio
       TokenMap.Add(MySQL51Lexer.SUSPEND, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.SWAPS, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.SWITCHES, MySqlTokenType.Keyword);
-      TokenMap.Add(MySQL51Lexer.SYSDATE, MySqlTokenType.Keyword);
-      TokenMap.Add(MySQL51Lexer.SYSTEM_USER, MySqlTokenType.Keyword);
+      //TokenMap.Add(MySQL51Lexer.SYSDATE, MySqlTokenType.Keyword);
+      //TokenMap.Add(MySQL51Lexer.SYSTEM_USER, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.TABLE, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.TABLES, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.TABLESPACE, MySqlTokenType.Keyword);
@@ -742,8 +742,8 @@ namespace MySql.Data.VisualStudio
       TokenMap.Add(MySQL51Lexer.USE_FRM, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.USING, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.UTC_DATE, MySqlTokenType.Keyword);
-      TokenMap.Add(MySQL51Lexer.UTC_TIME, MySqlTokenType.Keyword);
-      TokenMap.Add(MySQL51Lexer.UTC_TIMESTAMP, MySqlTokenType.Keyword);
+      //TokenMap.Add(MySQL51Lexer.UTC_TIME, MySqlTokenType.Keyword);
+      //TokenMap.Add(MySQL51Lexer.UTC_TIMESTAMP, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.VALUE, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.VALUES, MySqlTokenType.Keyword);
       TokenMap.Add(MySQL51Lexer.VALUE_PLACEHOLDER, MySqlTokenType.Text);

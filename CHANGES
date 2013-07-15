@@ -20,6 +20,29 @@
 - Fix for occasionally return no data when socket connection is slow, interrupted or delayed (MySql bug #69039, Oracle bug #16950212).
 - Fix for ConstraintException when filling a datatable (MySql bug #65065, Oracle bug #16952323).
 - Fix for nested sql generated for LINQ to Entities query with Take and Order by (MySql bug #65723, Oracle bug #16973939).
+- Several fixes for the parser:
+a) Added a all server supported keywords as identifiers to grammar.
+b) Solved some inconsistencies on they way begin (work) vs begin (block) was interpreted regarding server.
+c) Added to grammar missing comparison operators for 'handler table read'.
+d) Corrected several errors (instead of returning "missing EndOfFile" now returns "No viable alternative at input ...")/
+e) Added to grammar missing support for 'show count(*) warnings'.
+f) Fixed bug when case expression was accepting 'case end' (must only accept 'end').
+g) Added support for '$' in identifiers.
+h) Corrected some bugs in escape sequences (like not recognizing \b).
+i) Fixed a bug where not all session var references were recognized (@@session.var).
+j) Fixed some errors with aggregate functions (like not supporting ALL and DISTINCT).
+k) Added support for 'show full tables'.
+l) Corrected some inconsistencias with 'character set' clause among grammar statements.
+m) Corrected bad support for casting expressions
+n) Added support for missing expressions 'default' and 'values'.
+o) Added optional support for condition in 'case' expression.
+p) Made definition for column definition in DDLs more compliant with server.
+q) Added missing support for bool/boolean data types.
+r) Corrected some inconsistencies in collate for expressions.
+s) Added support for ws_nsweights & opt_ws_levels in weigth function.
+t) Corrected many arguments for functions with special syntax (like now being able to accept expressions instead of only literals).
+u) Removed some false keywords (engine names like myisam) from lexer spec.
+v) Added 200+ extra unit tests.
 
 
 6.5.6

@@ -24,7 +24,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
 using Antlr.Runtime;
 using Antlr.Runtime.Tree;
 using Xunit;
@@ -58,8 +57,9 @@ namespace MySql.Parser.Tests
     [Fact]
     public void IfSimple()
     {
+      StringBuilder sb;
       MySQL51Parser.program_return r = Utility.ParseSql(
-        "SELECT IF(1<2,'yes','no');");
+        "SELECT IF(1<2,'yes','no');", false, out sb);
     }
 
     [Fact]

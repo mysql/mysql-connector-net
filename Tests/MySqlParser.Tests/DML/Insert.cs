@@ -93,7 +93,7 @@ USING
         StringBuilder sb;
         MySQL51Parser.program_return r = Utility.ParseSql(
           @"INSERT INTO employees_copy SELECT * FROM employees PARTITION (p2);	", true, out sb, new Version(5, 5));
-        Assert.True(sb.ToString().IndexOf("missing endoffile", StringComparison.OrdinalIgnoreCase) != -1);
+        Assert.True(sb.ToString().IndexOf("no viable alternative at input 'PARTITION'", StringComparison.OrdinalIgnoreCase) != -1);
       }
 
       [Fact]

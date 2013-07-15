@@ -33,19 +33,24 @@ namespace MySql.Parser
 
 #if CSharp3Target
   partial class MySQL51Parser
-#else
+  
   public partial class MySQL51Parser
   {
   }
+#else
 
   public class MySQLParserBase : Antlr.Runtime.Parser
     //: MySQL51Parser
 #endif
-	{
+  {
+    protected internal Stack<BlockKind> _blockStack = new Stack<BlockKind>();
+
     public MySQLParserBase( ITokenStream input, RecognizerSharedState state ) : base( input, state )
     {
       // default value
       mysqlVersion = 5.1;
+
+      _blockStack.Push(BlockKind.None);
     }
 
     // holds values like 5.0, 5.1, 5.5, 5.6, etc.
@@ -78,11 +83,16 @@ namespace MySql.Parser
     }
   }
 
+  public enum BlockKind
+  {
+    None = 0,
+    BeginEnd = 1
+  }
+
   public class MySQLParser : MySQL51Parser
   {
     public MySQLParser(ITokenStream input) : base( input )
     {
-
     }
 
 #if CSharp3Target
@@ -99,8 +109,18 @@ namespace MySql.Parser
     protected override void Enter_begin_end_stmt()
 #endif
     {
-
+      _blockStack.Push( BlockKind.BeginEnd );
     }
+
+#if CSharp3Target
+      partial void LeaveRule_begin_end_stmt()
+#else
+    protected override void Leave_begin_end_stmt()
+#endif
+    {
+      _blockStack.Pop();
+    }
+
 
 #if CSharp3Target
       partial void EnterRule_drop_table()

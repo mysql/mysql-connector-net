@@ -145,7 +145,7 @@ WHERE people.person_id = tally.person_id;");
           StringBuilder sb;
           MySQL51Parser.program_return r = Utility.ParseSql(
             @"UPDATE employees PARTITION (p0) SET store_id = 2 WHERE fname = 'Jill';", true, out sb, new Version(5, 5));
-          Assert.True(sb.ToString().IndexOf("mismatched input", StringComparison.OrdinalIgnoreCase) != -1);
+          Assert.True(sb.ToString().IndexOf("no viable alternative at input 'PARTITION'", StringComparison.OrdinalIgnoreCase) != -1);
         }
 
         [Fact]

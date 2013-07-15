@@ -34,11 +34,11 @@ namespace MySql.Parser.Tests
   
   public class Other
   {
-  [Fact]
-  public void Purge()
-  {
-      MySQL51Parser.program_return r = Utility.ParseSql("PURGE BINARY LOGS TO 'mysql-bin.010';", false);
-  }
+    [Fact]
+    public void Purge()
+    {
+        MySQL51Parser.program_return r = Utility.ParseSql("PURGE BINARY LOGS TO 'mysql-bin.010';", false);
+    }
 
     [Fact]
     public void Purge2()

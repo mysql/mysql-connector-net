@@ -90,6 +90,13 @@ namespace MySql.Parser.Tests.DDL.Show
     //SHOW OPEN TABLES [FROM db_name] [like_or_where]
     //SHOW TABLE STATUS [FROM db_name] [like_or_where]
     //SHOW TRIGGERS [FROM db_name] [like_or_where]
+    [Fact]
+    public void ShowWarningCount()
+    {
+      string sql = @"SHOW COUNT(*) WARNINGS";
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
+    }
 
     [Fact]
     public void ShowFull()

@@ -123,8 +123,8 @@ COMMIT;";
     {
       string sql = "begin work";
       StringBuilder sb;
-      MySQL51Parser.program_return r =
-        Utility.ParseSql(sql, false, out sb);
+      MySQL51Parser.query_return r =
+        Utility.ParseSqlQuery(sql, false, out sb);
     }
 
     [Fact]
