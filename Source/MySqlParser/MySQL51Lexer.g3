@@ -23,7 +23,7 @@
 lexer grammar MySQL51Lexer; 
 
 options {	
-	  superClass=MySQLLexerBase;
+	superClass=MySQLLexerBase;
     language=CSharp2;
     TokenLabelType=CommonToken;
 }
@@ -39,6 +39,7 @@ ACCESSIBLE	:	'ACCESSIBLE';
 ADD	:	'ADD';
 ALL	:	'ALL';
 ALTER	:	'ALTER';
+ANALYSE :	'ANALYSE';
 ANALYZE	:	'ANALYZE';
 AND	:	'AND';
 AS	:	'AS';
@@ -48,9 +49,7 @@ AT1 :	'@';
 AUTOCOMMIT	:	'AUTOCOMMIT';
 BEFORE	:	'BEFORE';
 BETWEEN	:	'BETWEEN';
-// BIGINT	:	'BIGINT';		// datatype defined below 
 BINARY	:	'BINARY';
-//BLOB	:	'BLOB';		// datatype defined below 
 BOTH	:	'BOTH';
 BY	:	'BY';
 CALL	:	'CALL';
@@ -58,7 +57,6 @@ CASCADE	:	'CASCADE';
 CASE	:	'CASE';
 CATALOG_NAME : 'CATALOG_NAME' { $type = checkIDperVersion( 5.5, $type, MySQL51Lexer.ID ); };
 CHANGE	:	'CHANGE';
-//CHAR	:	'CHAR';		// datatype defined below 
 CHARACTER	:	'CHARACTER';
 CHECK	:	'CHECK';
 CLASS_ORIGIN : 'CLASS_ORIGIN' { $type = checkIDperVersion( 5.5, $type, MySQL51Lexer.ID ); };
@@ -73,27 +71,25 @@ CONSTRAINT_CATALOG : 'CONSTRAINT_CATALOG' { $type = checkIDperVersion( 5.5, $typ
 CONSTRAINT_NAME    : 'CONSTRAINT_NAME' { $type = checkIDperVersion( 5.5, $type, MySQL51Lexer.ID ); };
 CONSTRAINT_SCHEMA  : 'CONSTRAINT_SCHEMA' { $type = checkIDperVersion( 5.5, $type, MySQL51Lexer.ID ); };
 CONTINUE	:	'CONTINUE';
-CONVERT	:	'CONVERT';
+CONVERT	:	'CONVERT' {$type = checkFunctionAsID($type);};
 COPY    :   'COPY' { $type = checkIDperVersion( 5.6, $type, MySQL51Lexer.ID ); };
 CREATE	:	'CREATE';
 CROSS	:	'CROSS';
 CURRENT :   'CURRENT' { $type = checkIDperVersion( 5.6, $type, MySQL51Lexer.ID ); };
-CURRENT_DATE	:	'CURRENT_DATE';
-CURRENT_TIME	:	'CURRENT_TIME';
-CURRENT_TIMESTAMP	:	'CURRENT_TIMESTAMP';
-//CURRENT_USER	:	'CURRENT_USER';	//reserved, function below
+CURRENT_DATE	:	'CURRENT_DATE' {$type = checkFunctionAsID($type);};
+CURRENT_TIME	:	'CURRENT_TIME' {$type = checkFunctionAsID($type);};
+CURRENT_TIMESTAMP	:	'CURRENT_TIMESTAMP' {$type = checkFunctionAsID($type);};
 CURSOR	:	'CURSOR';
 CURSOR_NAME : 'CURSOR_NAME' { $type = checkIDperVersion( 5.5, $type, MySQL51Lexer.ID ); };
-DATABASE	:	'DATABASE';
+DATABASE	:	'DATABASE' {$type = checkFunctionAsID($type);};
 DATABASES	:	'DATABASES';
 DAY_HOUR	:	'DAY_HOUR';
 DAY_MICROSECOND	:	'DAY_MICROSECOND';
 DAY_MINUTE	:	'DAY_MINUTE';
 DAY_SECOND	:	'DAY_SECOND';
 DEC	:	'DEC';
-//DECIMAL	:	'DECIMAL';		// datatype defined below 
 DECLARE	:	'DECLARE';
-DEFAULT	:	'DEFAULT';
+DEFAULT	:	'DEFAULT' {$type = checkFunctionAsID($type);};
 DELAYED	:	'DELAYED';
 DELETE	:	'DELETE';
 DESC	:	'DESC';
@@ -103,7 +99,6 @@ DIAGNOSTICS :   'DIAGNOSTICS' { $type = checkIDperVersion( 5.6, $type, MySQL51Le
 DISTINCT	:	'DISTINCT';
 DISTINCTROW	:	'DISTINCTROW';
 DIV	:	'DIV';
-//DOUBLE	:	'DOUBLE';		// datatype defined below 
 DROP	:	'DROP';
 DUAL	:	'DUAL';
 EACH	:	'EACH';
@@ -118,7 +113,6 @@ EXPIRE	:	'EXPIRE' { $type = checkIDperVersion( 5.6, $type, MySQL51Lexer.ID ); };
 EXPLAIN	:	'EXPLAIN';
 FALSE	:	'FALSE';
 FETCH	:	'FETCH';
-//FLOAT	:	'FLOAT';		// datatype defined below 
 FLOAT4	:	'FLOAT4';
 FLOAT8	:	'FLOAT8';
 FOR	:	'FOR';
@@ -136,11 +130,11 @@ HIGH_PRIORITY	:	'HIGH_PRIORITY';
 HOUR_MICROSECOND	:	'HOUR_MICROSECOND';
 HOUR_MINUTE	:	'HOUR_MINUTE';
 HOUR_SECOND	:	'HOUR_SECOND';
-IF	:	'IF';
-IFNULL	:	'IFNULL';
+IF	:	'IF' {$type = checkFunctionAsID($type);};
+IFNULL	:	'IFNULL' {$type = checkFunctionAsID($type);};
 IGNORE	:	'IGNORE';
 IGNORE_SERVER_IDS : 'IGNORE_SERVER_IDS';
-IN	:	'IN';
+IN	:	'IN' {$type = checkFunctionAsID($type);};
 INDEX	:	'INDEX';
 INFILE	:	'INFILE';
 INNER	:	'INNER';
@@ -148,15 +142,11 @@ INNODB  : 'INNODB';
 INOUT	:	'INOUT';
 INPLACE :  'INPLACE' { $type = checkIDperVersion( 5.6, $type, MySQL51Lexer.ID ); };
 INSENSITIVE	:	'INSENSITIVE';
-//INSERT	:	'INSERT';	// reserved keyword and function below
-//INT	:	'INT';		// datatype defined below 
 INT1	:	'INT1';
 INT2	:	'INT2';
 INT3	:	'INT3';
 INT4	:	'INT4';
 INT8	:	'INT8';
-//INTEGER	:	'INTEGER';		// datatype defined below 
-//INTERVAL	:	'INTERVAL';		// reserved keyword and function below
 INTO	:	'INTO';
 IO_THREAD : 'IO_THREAD';
 IS	:	'IS';
@@ -169,42 +159,33 @@ KILL	:	'KILL';
 LABEL	:	'LABEL';
 LEADING	:	'LEADING';
 LEAVE	:	'LEAVE';
-//LEFT	:	'LEFT';	// reserved keyword and function below
 LIKE	:	'LIKE';
 LIMIT	:	'LIMIT';
 LINEAR	:	'LINEAR';
 LINES	:	'LINES';
 LOAD	:	'LOAD';
-LOCALTIME	:	'LOCALTIME';
-LOCALTIMESTAMP	:	'LOCALTIMESTAMP';
+LOCALTIME	:	'LOCALTIME' {$type = checkFunctionAsID($type);};
+LOCALTIMESTAMP	:	'LOCALTIMESTAMP' {$type = checkFunctionAsID($type);};
 LOCK	:	'LOCK';
 LONG	:	'LONG';
-//LONGBLOB	:	'LONGBLOB';		// datatype defined below 
-//LONGTEXT	:	'LONGTEXT';		// datatype defined below 
 LOOP	:	'LOOP';
 LOW_PRIORITY	:	'LOW_PRIORITY';
 MASTER_SSL_VERIFY_SERVER_CERT	:	'MASTER_SSL_VERIFY_SERVER_CERT';
 MATCH	:	'MATCH';
 MAXVALUE : 'MAXVALUE';
-//MEDIUMBLOB	:	'MEDIUMBLOB';		// datatype defined below 
-//MEDIUMINT	:	'MEDIUMINT';		// datatype defined below 
-//MEDIUMTEXT	:	'MEDIUMTEXT';		// datatype defined below 
 MESSAGE_TEXT : 'MESSAGE_TEXT' { $type = checkIDperVersion( 5.5, $type, MySQL51Lexer.ID ); };
 MIDDLEINT	:	'MIDDLEINT';		// datatype defined below 
 MINUTE_MICROSECOND	:	'MINUTE_MICROSECOND';
 MINUTE_SECOND	:	'MINUTE_SECOND';
-MOD	:	'MOD';
+MOD	:	'MOD' {$type = checkFunctionAsID($type);};
 MODIFIES	:	'MODIFIES';
-MYISAM : 'MYISAM';
 MYSQL_ERRNO : 'MYSQL_ERRNO' { $type = checkIDperVersion( 5.5, $type, MySQL51Lexer.ID ); };
 NATURAL	:	'NATURAL';
-NDB  : 'NDB';
 NOT	:	'NOT';
 NO_WRITE_TO_BINLOG	:	'NO_WRITE_TO_BINLOG';
 NNUMBER :   'NUMBER' { $type = checkIDperVersion( 5.6, $type, MySQL51Lexer.ID ); };
 NULL	:	'NULL';
-NULLIF	:	'NULLIF';
-//NUMERIC	:	'NUMERIC';		// datatype defined below 
+NULLIF	:	'NULLIF' {$type = checkFunctionAsID($type);};
 OFFLINE : 'OFFLINE';
 ON	:	'ON';
 ONLINE : 'ONLINE';
@@ -227,24 +208,22 @@ READ	:	'READ';
 READS	:	'READS';
 READ_ONLY	:	'READ_ONLY';
 READ_WRITE	:	'READ_WRITE';
-//REAL	:	'REAL';		// datatype defined below 
 REFERENCES	:	'REFERENCES';
 REGEXP	:	'REGEXP';
 RELEASE	:	'RELEASE';
 RENAME	:	'RENAME';
-REPEAT	:	'REPEAT';
-REPLACE	:	'REPLACE';
+REPEAT	:	'REPEAT' {$type = checkFunctionAsID($type);};
+REPLACE	:	'REPLACE' {$type = checkFunctionAsID($type);};
 REQUIRE	:	'REQUIRE';
 RESIGNAL : 'RESIGNAL' { $type = checkIDperVersion( 5.5, $type, MySQL51Lexer.ID ); };
 RESTRICT	:	'RESTRICT';
 RETURN	:	'RETURN';
 RETURNED_SQLSTATE : 'RETURNED_SQLSTATE';
 REVOKE	:	'REVOKE';
-//RIGHT	:	'RIGHT';	// reserved keyword and function below
 RLIKE	:	'RLIKE';
-ROW_COUNT : 'ROW_COUNT' { $type = checkIDperVersion( 5.6, $type, MySQL51Lexer.ID ); };
+ROW_COUNT : 'ROW_COUNT' { $type = checkFunctionasIDperVersion( 5.6, $type, MySQL51Lexer.ID ); };
 SCHEDULER : 'SCHEDULER';
-SCHEMA	:	'SCHEMA';
+SCHEMA	:	'SCHEMA' {$type = checkFunctionAsID($type);};
 SCHEMAS	:	'SCHEMAS';
 SECOND_MICROSECOND	:	'SECOND_MICROSECOND';
 SELECT	:	'SELECT';
@@ -253,7 +232,6 @@ SEPARATOR	:	'SEPARATOR';
 SET	:	'SET';
 SCHEMA_NAME : 'SCHEMA_NAME' { $type = checkIDperVersion( 5.5, $type, MySQL51Lexer.ID ); };
 SHOW	:	'SHOW';
-//SMALLINT	:	'SMALLINT';		// datatype defined below 
 SIGNAL  : 'SIGNAL' { $type = checkIDperVersion( 5.5, $type, MySQL51Lexer.ID ); };
 SPATIAL	:	'SPATIAL';
 SPECIFIC	:	'SPECIFIC';
@@ -272,9 +250,6 @@ TABLE	:	'TABLE';
 TABLE_NAME : 'TABLE_NAME' { $type = checkIDperVersion( 5.5, $type, MySQL51Lexer.ID ); };
 TERMINATED	:	'TERMINATED';
 THEN	:	'THEN';
-//TINYBLOB	:	'TINYBLOB';		// datatype defined below 
-//TINYINT	:	'TINYINT';		// datatype defined below 
-//TINYTEXT	:	'TINYTEXT';		// datatype defined below 
 TO	:	'TO';
 TRADITIONAL :   'TRADITIONAL' { $type = checkIDperVersion( 5.6, $type, MySQL51Lexer.ID ); };
 TRAILING	:	'TRAILING';
@@ -289,12 +264,7 @@ UPDATE	:	'UPDATE';
 USAGE	:	'USAGE';
 USE	:	'USE';
 USING	:	'USING';
-//UTC_DATE	:	'UTC_DATE';		// next three are functions defined below
-//UTC_TIME	:	'UTC_TIME';
-//UTC_TIMESTAMP	:	'UTC_TIMESTAMP';
 VALUES	:	'VALUES';
-//VARBINARY	:	'VARBINARY';		// datatype defined below 
-//VARCHAR	:	'VARCHAR';		// datatype defined below 
 VARCHARACTER	:	'VARCHARACTER';
 VARYING	:	'VARYING';
 WHEN	:	'WHEN';
@@ -318,12 +288,12 @@ ZEROFILL	:	'ZEROFILL';
 
 // $< Keywords not in SP labels
 
-ASCII	:	'ASCII';             
+ASCII	:	'ASCII' {$type = checkFunctionAsID($type);};
 BACKUP	:	'BACKUP';            
 BEGIN	:	'BEGIN';             
 BYTE	:	'BYTE';              
 CACHE	:	'CACHE';             
-CHARSET	:	'CHARSET';               
+CHARSET	:	'CHARSET' {$type = checkFunctionAsID($type);};
 CHECKSUM	:	'CHECKSUM';          
 CLOSE	:	'CLOSE';             
 COMMENT	:	'COMMENT';           
@@ -361,7 +331,7 @@ SLAVE	:	'SLAVE';
 SONAME	:	'SONAME';            
 START	:	'START';             
 STOP	:	'STOP';              
-TRUNCATE	:	'TRUNCATE';
+TRUNCATE	:	'TRUNCATE' {$type = checkFunctionAsID($type);};
 UNICODE	:	'UNICODE';           
 UNINSTALL	:	'UNINSTALL';         
 WRAPPER	:	'WRAPPER';           
@@ -373,150 +343,145 @@ UPGRADE	:	'UPGRADE';
 // $< Keywords in SP labels
 /* Keywords that we allow for labels in SPs. */
 ACTION	:	'ACTION';                   
-//ADDDATE	:	'ADDDATE';              // function defined below 
 AFTER	:	'AFTER';                
 AGAINST	:	'AGAINST';                  
 AGGREGATE	:	'AGGREGATE';            
 ALGORITHM	:	'ALGORITHM' { $type = checkIDperVersion( 5.6, $type, MySQL51Lexer.ID ); };
-ANY	:	'ANY';          
-ARCHIVE	:	'ARCHIVE';        
-AT	:	'AT';                   
-AUTHORS	:	'AUTHORS';              
-AUTO_INCREMENT	:	'AUTO_INCREMENT';                 
-AUTOEXTEND_SIZE	:	'AUTOEXTEND_SIZE';      
-AVG : 'AVG';                  
-AVG_ROW_LENGTH	:	'AVG_ROW_LENGTH';           
-BDB		:	'BDB';
-BERKELEYDB	:	'BERKELEYDB';
-BINLOG	:	'BINLOG';               
+ANY	:	'ANY';
+//ARCHIVE	:	'ARCHIVE';        
+AT	:	'AT';
+AUTHORS	:	'AUTHORS';
+AUTO_INCREMENT	:	'AUTO_INCREMENT';
+AUTOEXTEND_SIZE	:	'AUTOEXTEND_SIZE';
+AVG : 'AVG';
+AVG_ROW_LENGTH	:	'AVG_ROW_LENGTH';
+//BDB		:	'BDB';
+//BERKELEYDB	:	'BERKELEYDB';
+BINLOG	:	'BINLOG';
 // BIT	:	'BIT';                  // datatype defined below
-BLACKHOLE	:	'BLACKHOLE';
-BLOCK	:	'BLOCK';                
-BOOL	:	'BOOL';                 
-BOOLEAN	:	'BOOLEAN';              
-BTREE	:	'BTREE';                
-CASCADED	:	'CASCADED';                 
-CHAIN	:	'CHAIN';                
-CHANGED	:	'CHANGED';                  
-CIPHER	:	'CIPHER';               
-CLIENT	:	'CLIENT';               
-COALESCE	:	'COALESCE';                 
-CODE	:	'CODE';                 
-COLLATION	:	'COLLATION';            
+//BLACKHOLE	:	'BLACKHOLE';
+BLOCK	:	'BLOCK';
+BOOL	:	'BOOL';
+BOOLEAN	:	'BOOLEAN';
+BTREE	:	'BTREE';
+CASCADED	:	'CASCADED';
+CHAIN	:	'CHAIN';
+CHANGED	:	'CHANGED';
+CIPHER	:	'CIPHER';
+CLIENT	:	'CLIENT';
+COALESCE	:	'COALESCE' {$type = checkFunctionAsID($type);};
+CODE	:	'CODE';
+COLLATION	:	'COLLATION' {$type = checkFunctionAsID($type);};
 COLUMNS	:	'COLUMNS';
 // FIELDS is a synonym for COLUMNS
 FIELDS	:	'FIELDS';
-COMMITTED	:	'COMMITTED';            
-COMPACT	:	'COMPACT';              
-COMPLETION	:	'COMPLETION';           
-COMPRESSED	:	'COMPRESSED';           
-CONCURRENT	:	'CONCURRENT';               
-CONNECTION	:	'CONNECTION';           
-CONSISTENT	:	'CONSISTENT';           
-CONTEXT	:	'CONTEXT';              
-CONTRIBUTORS	:	'CONTRIBUTORS';         
-CPU	:	'CPU';      
-CSV	:	'CSV';
-CUBE	:	'CUBE';                 
-DATA	:	'DATA';                 
-DATAFILE	:	'DATAFILE';             
-// DATETIME	:	'DATETIME';                 // datatype defined below
-// DATE	:	'DATE';                 		// datatype defined below
-//DAY	:	'DAY';                  // reserved, is also function below
-DEFINER	:	'DEFINER';              
-DELAY_KEY_WRITE	:	'DELAY_KEY_WRITE';      
-DES_KEY_FILE	:	'DES_KEY_FILE';             
-DIRECTORY	:	'DIRECTORY';            
-DISABLE	:	'DISABLE';              
-DISCARD	:	'DISCARD';                  
-DISK	:	'DISK';                 
-DUMPFILE	:	'DUMPFILE';                 
-DUPLICATE	:	'DUPLICATE';            
-DYNAMIC	:	'DYNAMIC';              
-ENDS	:	'ENDS';                 
-//ENUM	:	'ENUM';          		// datatype defined below           
-ENGINE	:	'ENGINE';               
-ENGINES	:	'ENGINES';              
-ERRORS	:	'ERRORS';                   
-ESCAPE	:	'ESCAPE';               
-EVENT	:	'EVENT';                
-EVENTS	:	'EVENTS';               
+COMMITTED	:	'COMMITTED';
+COMPACT	:	'COMPACT';
+COMPLETION	:	'COMPLETION';
+COMPRESSED	:	'COMPRESSED';
+CONCURRENT	:	'CONCURRENT';
+CONNECTION	:	'CONNECTION';
+CONSISTENT	:	'CONSISTENT';
+CONTEXT	:	'CONTEXT';
+CONTRIBUTORS	:	'CONTRIBUTORS';
+CPU	:	'CPU';
+//CSV	:	'CSV';
+CUBE	:	'CUBE';
+DATA	:	'DATA';
+DATAFILE	:	'DATAFILE';
+DEFINER	:	'DEFINER';
+DELAY_KEY_WRITE	:	'DELAY_KEY_WRITE';
+DES_KEY_FILE	:	'DES_KEY_FILE';
+DIRECTORY	:	'DIRECTORY';
+DISABLE	:	'DISABLE';
+DISCARD	:	'DISCARD';
+DISK	:	'DISK';
+DUMPFILE	:	'DUMPFILE';
+DUPLICATE	:	'DUPLICATE';
+DYNAMIC	:	'DYNAMIC';
+ENDS	:	'ENDS';
+ENGINE	:	'ENGINE';
+ENGINES	:	'ENGINES';
+ERRORS	:	'ERRORS';
+ESCAPE	:	'ESCAPE';
+EVENT	:	'EVENT';
+EVENTS	:	'EVENTS';
 EVERY	:	'EVERY';
-EXAMPLE	:	'EXAMPLE';
+//EXAMPLE	:	'EXAMPLE';
 EXCLUSIVE : 'EXCLUSIVE' { $type = checkIDperVersion( 5.6, $type, MySQL51Lexer.ID ); };
-EXPANSION	:	'EXPANSION';            
-EXTENDED	:	'EXTENDED';             
-EXTENT_SIZE	:	'EXTENT_SIZE';          
-FAULTS	:	'FAULTS';               
-FAST	:	'FAST';   
-FEDERATED :	'FEDERATED';
-FOUND	:	'FOUND';                
-ENABLE	:	'ENABLE';               
-FULL	:	'FULL';                     
-FILE	:	'FILE';                 
-FIRST	:	'FIRST';                
-FIXED	:	'FIXED';                
-FRAC_SECOND	:	'FRAC_SECOND';          
-GEOMETRY	:	'GEOMETRY';             
+EXPANSION	:	'EXPANSION';
+EXTENDED	:	'EXTENDED';
+EXTENT_SIZE	:	'EXTENT_SIZE';
+FAULTS	:	'FAULTS';
+FAST	:	'FAST';
+//FEDERATED :	'FEDERATED';
+FOUND	:	'FOUND';
+ENABLE	:	'ENABLE';
+FULL	:	'FULL';
+FILE	:	'FILE';
+FIRST	:	'FIRST';
+FIXED	:	'FIXED';
+FRAC_SECOND	:	'FRAC_SECOND';
+GEOMETRY	:	'GEOMETRY';
 GEOMETRYCOLLECTION	:	'GEOMETRYCOLLECTION';
 //GET_FORMAT	:	'GET_FORMAT';               //function defined below
-GRANTS	:	'GRANTS';                   
-GLOBAL	:	'GLOBAL';               
-HASH	:	'HASH';    
-HEAP	:	'HEAP';             
-HOSTS	:	'HOSTS';                
+GRANTS	:	'GRANTS';
+GLOBAL	:	'GLOBAL';
+HASH	:	'HASH';
+//HEAP	:	'HEAP';             
+HOSTS	:	'HOSTS';
 //HOUR	:	'HOUR';                 //reserved, also function below
-IDENTIFIED	:	'IDENTIFIED';           
-INVOKER	:	'INVOKER';              
-IMPORT	:	'IMPORT';                   
-INDEXES	:	'INDEXES';                  
-INITIAL_SIZE	:	'INITIAL_SIZE';         
-IO	:	'IO';                   
-IPC	:	'IPC';                  
-ISOLATION	:	'ISOLATION';                
-ISSUER	:	'ISSUER';               
-INNOBASE	:	'INNOBASE';             
-INSERT_METHOD	:	'INSERT_METHOD';            
-KEY_BLOCK_SIZE	:	'KEY_BLOCK_SIZE';           
-LAST	:	'LAST';                 
-LEAVES	:	'LEAVES';                   
-LESS	:	'LESS';                 
-LEVEL	:	'LEVEL';                
+IDENTIFIED	:	'IDENTIFIED';
+INVOKER	:	'INVOKER';
+IMPORT	:	'IMPORT';
+INDEXES	:	'INDEXES';
+INITIAL_SIZE	:	'INITIAL_SIZE';
+IO	:	'IO';
+IPC	:	'IPC';
+ISOLATION	:	'ISOLATION';
+ISSUER	:	'ISSUER';
+INNOBASE	:	'INNOBASE';
+INSERT_METHOD	:	'INSERT_METHOD';
+KEY_BLOCK_SIZE	:	'KEY_BLOCK_SIZE';
+LAST	:	'LAST';
+LEAVES	:	'LEAVES';
+LESS	:	'LESS';
+LEVEL	:	'LEVEL';
 LINESTRING	:	'LINESTRING';               // geometry function
-LIST	:	'LIST';                 
-LOCAL	:	'LOCAL';                
-LOCKS	:	'LOCKS';                
-LOGFILE	:	'LOGFILE';              
-LOGS	:	'LOGS';                 
-MAX_ROWS	:	'MAX_ROWS';                 
-MASTER	:	'MASTER';               
-MASTER_HOST	:	'MASTER_HOST';          
-MASTER_PORT	:	'MASTER_PORT';          
-MASTER_LOG_FILE	:	'MASTER_LOG_FILE';      
-MASTER_LOG_POS	:	'MASTER_LOG_POS';       
-MASTER_USER	:	'MASTER_USER';          
-MASTER_PASSWORD	:	'MASTER_PASSWORD';      
-MASTER_SERVER_ID	:	'MASTER_SERVER_ID';     
-MASTER_CONNECT_RETRY	:	'MASTER_CONNECT_RETRY'; 
-MASTER_SSL	:	'MASTER_SSL';           
-MASTER_SSL_CA	:	'MASTER_SSL_CA';        
-MASTER_SSL_CAPATH	:	'MASTER_SSL_CAPATH';    
-MASTER_SSL_CERT	:	'MASTER_SSL_CERT';      
-MASTER_SSL_CIPHER	:	'MASTER_SSL_CIPHER';    
-MASTER_SSL_KEY	:	'MASTER_SSL_KEY';       
-MAX_CONNECTIONS_PER_HOUR	:	'MAX_CONNECTIONS_PER_HOUR'; 
-MAX_QUERIES_PER_HOUR	:	'MAX_QUERIES_PER_HOUR';     
-MAX_SIZE	:	'MAX_SIZE';             
-MAX_UPDATES_PER_HOUR	:	'MAX_UPDATES_PER_HOUR';     
-MAX_USER_CONNECTIONS	:	'MAX_USER_CONNECTIONS'; 
-MAX_VALUE	:	'MAX_VALUE';            
-MEDIUM	:	'MEDIUM';               
-MEMORY	:	'MEMORY';               
-MERGE	:	'MERGE';                
-MICROSECOND	:	'MICROSECOND';          
-MIGRATE	:	'MIGRATE';              
+LIST	:	'LIST';
+LOCAL	:	'LOCAL';
+LOCKS	:	'LOCKS';
+LOGFILE	:	'LOGFILE';
+LOGS	:	'LOGS';
+MAX_ROWS	:	'MAX_ROWS';
+MASTER	:	'MASTER';
+MASTER_HOST	:	'MASTER_HOST';
+MASTER_PORT	:	'MASTER_PORT';
+MASTER_LOG_FILE	:	'MASTER_LOG_FILE';
+MASTER_LOG_POS	:	'MASTER_LOG_POS';
+MASTER_USER	:	'MASTER_USER';
+MASTER_PASSWORD	:	'MASTER_PASSWORD';
+MASTER_SERVER_ID	:	'MASTER_SERVER_ID';
+MASTER_CONNECT_RETRY	:	'MASTER_CONNECT_RETRY';
+MASTER_SSL	:	'MASTER_SSL';
+MASTER_SSL_CA	:	'MASTER_SSL_CA';
+MASTER_SSL_CAPATH	:	'MASTER_SSL_CAPATH';
+MASTER_SSL_CERT	:	'MASTER_SSL_CERT';
+MASTER_SSL_CIPHER	:	'MASTER_SSL_CIPHER';
+MASTER_SSL_KEY	:	'MASTER_SSL_KEY';
+MAX_CONNECTIONS_PER_HOUR	:	'MAX_CONNECTIONS_PER_HOUR';
+MAX_QUERIES_PER_HOUR	:	'MAX_QUERIES_PER_HOUR';
+MAX_SIZE	:	'MAX_SIZE';
+MAX_UPDATES_PER_HOUR	:	'MAX_UPDATES_PER_HOUR';
+MAX_USER_CONNECTIONS	:	'MAX_USER_CONNECTIONS';
+MAX_VALUE	:	'MAX_VALUE';
+MEDIUM	:	'MEDIUM';
+MEMORY	:	'MEMORY';
+MERGE	:	'MERGE';
+MICROSECOND	:	'MICROSECOND' {$type = checkFunctionAsID($type);};
+MIGRATE	:	'MIGRATE';
 //MINUTE	:	'MINUTE';               // also function
-MIN_ROWS	:	'MIN_ROWS';                 
+MIN_ROWS	:	'MIN_ROWS';
 MODIFY	:	'MODIFY';               
 MODE	:	'MODE';                 
 //MONTH	:	'MONTH';         		// also function       
@@ -536,16 +501,15 @@ NODEGROUP	:	'NODEGROUP';
 NONE	:	'NONE';                 
 NVARCHAR	:	'NVARCHAR';             
 OFFSET	:	'OFFSET';               
-//OLD : 'OLD';
-OLD_PASSWORD	:	'OLD_PASSWORD';             
+OLD_PASSWORD	:	'OLD_PASSWORD';
 ONE_SHOT	:	'ONE_SHOT';             
 ONE	:	'ONE';                  
-PACK_KEYS	:	'PACK_KEYS';            
+PACK_KEYS	:	'PACK_KEYS';
 PAGE	:	'PAGE';                 
 PARTIAL	:	'PARTIAL';                  
 PARTITIONING	:	'PARTITIONING';         
 PARTITIONS	:	'PARTITIONS';           
-PASSWORD	:	'PASSWORD';                 
+PASSWORD	:	'PASSWORD';
 PHASE	:	'PHASE';                
 PLUGIN	:	'PLUGIN';               
 PLUGINS	:	'PLUGINS';              
@@ -558,7 +522,7 @@ PROCESS	:	'PROCESS';
 PROCESSLIST	:	'PROCESSLIST';          
 PROFILE	:	'PROFILE';              
 PROFILES	:	'PROFILES';             
-QUARTER	:	'QUARTER';              
+QUARTER	:	'QUARTER' {$type = checkFunctionAsID($type);};
 QUERY	:	'QUERY';                
 QUICK	:	'QUICK';                    
 REBUILD	:	'REBUILD';              
@@ -615,15 +579,12 @@ TABLES	:	'TABLES';
 TABLESPACE	:	'TABLESPACE';               
 TEMPORARY	:	'TEMPORARY';                
 TEMPTABLE	:	'TEMPTABLE';            
-//TEXT	:	'TEXT';                 // datatype defined below
 THAN	:	'THAN';                 
 TRANSACTION	:	'TRANSACTION';          
 TRANSACTIONAL	:	'TRANSACTIONAL';        
 TRIGGERS	:	'TRIGGERS';             
-//TIMESTAMP	:	'TIMESTAMP';                // datatype defined below
-//TIMESTAMP_ADD	:	'TIMESTAMP_ADD';            // function defined below
-//TIMESTAMP_DIFF	:	'TIMESTAMP_DIFF';           // function defined below
-//TIME	:	'TIME';                 // datatype defined below
+TIMESTAMPADD	:	'TIMESTAMPADD' {$type = checkFunctionAsID($type);};            // function defined below
+TIMESTAMPDIFF	:	'TIMESTAMPDIFF' {$type = checkFunctionAsID($type);};           // function defined below//TIME	:	'TIME';                 // datatype defined below
 TYPES	:	'TYPES';                
 TYPE	:	('TYPE' (WS|EOF))=> 'TYPE';
 UDF_RETURNS	:	'UDF_RETURNS';          
@@ -634,14 +595,13 @@ UNDO_BUFFER_SIZE	:	'UNDO_BUFFER_SIZE';
 UNDOFILE	:	'UNDOFILE';             
 UNKNOWN	:	'UNKNOWN';              
 UNTIL	:	'UNTIL';                
-//USER	:	'USER';                     		// also function
 USE_FRM	:	'USE_FRM';                  
 VARIABLES	:	'VARIABLES';                
 VIEW	:	'VIEW';                 
 VALUE	:	'VALUE';                
 WARNINGS	:	'WARNINGS';                 
 WAIT	:	'WAIT';                 
-WEEK	:	'WEEK';                 // also function
+WEEK	:	'WEEK' {$type = checkFunctionAsID($type);};                 // also function
 WORK	:	'WORK';                 
 X509	:	'X509';                
 XML		:   'XML' { $type = checkIDperVersion( 5.5, $type, MySQL51Lexer.ID ); };
@@ -666,57 +626,56 @@ RCURLY	:	'}';
 /** functions must be directly followed by '(' to be considered a keyword (and thus a function name)
  * TODO: this is the place to support the SQL mode IGNORE_SPACE
  */
-//ADDDATE	:	'ADDDATE';	// duplicate from the keywords list
-BIT_AND	:	'BIT_AND' {$type = checkFunctionAsID($type);};
-BIT_OR	:	'BIT_OR' {$type = checkFunctionAsID($type);};
-BIT_XOR	:	'BIT_XOR' {$type = checkFunctionAsID($type);};
-CAST	:	'CAST' {$type = checkFunctionAsID($type);};
-COUNT	:	'COUNT' {$type = checkFunctionAsID($type);};
+BIT_AND	:	'BIT_AND';
+BIT_OR	:	'BIT_OR';
+BIT_XOR	:	'BIT_XOR';
+CAST	:	'CAST' {$type = checkFunctionAsNotId($type);};
+COUNT	:	'COUNT' {$type = checkFunctionAsNotId($type);};
 //CURDATE	:	'CURDATE';	//below
 //CURTIME	:	'CURTIME';	//below
-DATE_ADD	:	'DATE_ADD' {$type = checkFunctionAsID($type);};
-DATE_SUB	:	'DATE_SUB' {$type = checkFunctionAsID($type);};
+DATE_ADD	:	'DATE_ADD';
+DATE_SUB	:	'DATE_SUB';
 //EXTRACT	:	'EXTRACT';	//below
-GROUP_CONCAT	:	'GROUP_CONCAT' {$type = checkFunctionAsID($type);};
-MAX	:	'MAX' {$type = checkFunctionAsID($type);};
-MID	:	'MID' {$type = checkFunctionAsID($type);};
-MIN	:	'MIN' {$type = checkFunctionAsID($type);};
+GROUP_CONCAT	:	'GROUP_CONCAT';
+MAX	:	'MAX';
+//MID	:	'MID';
+MIN	:	'MIN';
 //NOW	:	'NOW';	//below
 //POSITION	:	'POSITION';	//below
-SESSION_USER	:	'SESSION_USER' {$type = checkFunctionAsID($type);};
-STD	:	'STD' {$type = checkFunctionAsID($type);};
-STDDEV	:	'STDDEV' {$type = checkFunctionAsID($type);};
-STDDEV_POP	:	'STDDEV_POP' {$type = checkFunctionAsID($type);};
-STDDEV_SAMP	:	'STDDEV_SAMP' {$type = checkFunctionAsID($type);};
+//SESSION_USER	:	'SESSION_USER' {$type = checkFunctionAsID($type);};
+STD	:	'STD';
+STDDEV	:	'STDDEV';
+STDDEV_POP	:	'STDDEV_POP';
+STDDEV_SAMP	:	'STDDEV_SAMP';
 //SUBDATE	:	'SUBDATE';			// duplicate from the keywords list
-SUBSTR	:	'SUBSTR' {$type = checkFunctionAsID($type);};
+SUBSTR	:	'SUBSTR';
 //SUBSTRING	:	'SUBSTRING';	//below
-SUM	:	'SUM' {$type = checkFunctionAsID($type);};
+SUM	:	'SUM';
 // SYSDATE	:	'SYSDATE';	//below
-SYSTEM_USER	:	'SYSTEM_USER' {$type = checkFunctionAsID($type);};
+//SYSTEM_USER	:	'SYSTEM_USER' {$type = checkFunctionAsID($type);};
 //TRIM	:	'TRIM';	//below
-VARIANCE	:	'VARIANCE' {$type = checkFunctionAsID($type);};
-VAR_POP	:	'VAR_POP' {$type = checkFunctionAsID($type);};
-VAR_SAMP	:	'VAR_SAMP' {$type = checkFunctionAsID($type);};
+VARIANCE	:	'VARIANCE';
+VAR_POP	:	'VAR_POP';
+VAR_SAMP	:	'VAR_SAMP';
 
 /* non-keywords */
-ADDDATE	:	'ADDDATE' {$type = checkFunctionAsID($type);};
-CURDATE	:	'CURDATE' {$type = checkFunctionAsID($type);};
+ADDDATE	:	'ADDDATE';
+CURDATE	:	'CURDATE';
 CURTIME	:	'CURTIME' {$type = checkFunctionAsID($type);};
-DATE_ADD_INTERVAL	:	'DATE_ADD_INTERVAL' {$type = checkFunctionAsID($type);};
-DATE_SUB_INTERVAL	:	'DATE_SUB_INTERVAL' {$type = checkFunctionAsID($type);};
-EXTRACT	:	'EXTRACT' {$type = checkFunctionAsID($type);};
-GET_FORMAT	:	'GET_FORMAT' {$type = checkFunctionAsID($type);};
+DATE_ADD_INTERVAL	:	'DATE_ADD_INTERVAL';
+DATE_SUB_INTERVAL	:	'DATE_SUB_INTERVAL';
+EXTRACT	:	'EXTRACT';
+GET_FORMAT	:	'GET_FORMAT';
 NOW	:	'NOW' {$type = checkFunctionAsID($type);};
-POSITION	:	'POSITION' {$type = checkFunctionAsID($type);};
-SUBDATE	:	'SUBDATE' {$type = checkFunctionAsID($type);};
-SUBSTRING	:	'SUBSTRING' {$type = checkFunctionAsID($type);};
-SYSDATE	:	'SYSDATE' {$type = checkFunctionAsID($type);};
-TIMESTAMP_ADD	:	'TIMESTAMP_ADD' {$type = checkFunctionAsID($type);};
-TIMESTAMP_DIFF	:	'TIMESTAMP_DIFF' {$type = checkFunctionAsID($type);};
-UTC_DATE	:	'UTC_DATE' {$type = checkFunctionAsID($type);};
-UTC_TIMESTAMP	:	'UTC_TIMESTAMP' {$type = checkFunctionAsID($type);};
-UTC_TIME	:	'UTC_TIME' {$type = checkFunctionAsID($type);};
+POSITION	:	'POSITION';
+SUBDATE	:	'SUBDATE';
+SUBSTRING	:	'SUBSTRING';
+//SYSDATE	:	'SYSDATE' {$type = checkFunctionAsID($type);};
+TIMESTAMP_ADD	:	'TIMESTAMP_ADD';
+TIMESTAMP_DIFF	:	'TIMESTAMP_DIFF';
+UTC_DATE	:	'UTC_DATE';
+//UTC_TIMESTAMP	:	'UTC_TIMESTAMP' {$type = checkFunctionAsID($type);};
+//UTC_TIME	:	'UTC_TIME' {$type = checkFunctionAsID($type);};
 
 /* conflict with keywords, or geometry functions */
 // the following keywords are handled by the ident parser rule where they are allowed as identifiers 
@@ -747,22 +706,22 @@ UTC_TIME	:	'UTC_TIME' {$type = checkFunctionAsID($type);};
 
 /* keywords that can also be function names */
 CHAR	:	'CHAR'; // reserved
-CURRENT_USER	:	'CURRENT_USER';// reserved
+CURRENT_USER	:	'CURRENT_USER';
 DATE	:	'DATE' {$type = checkFunctionAsID($type, MySQL51Lexer.DATE);};
 DAY	:	'DAY'; // {$type = checkFunctionAsID($type);}; // not affected by IGNORE_SPACE since 5.1.13
-HOUR	:	'HOUR' {$type = checkFunctionAsID($type, MySQL51Lexer.HOUR );};
+HOUR	:	'HOUR';
 INSERT	:	'INSERT'; // reserved
 INTERVAL	:	'INTERVAL'; // reserved
-LEFT	:	'LEFT'; // reserved
-MINUTE	:	'MINUTE' {$type = checkFunctionAsID($type, MySQL51Lexer.MINUTE);};
-MONTH	:	'MONTH' {$type = checkFunctionAsID($type, MySQL51Lexer.MONTH);};
-RIGHT	:	'RIGHT'; // reserved
-SECOND	:	'SECOND' {$type = checkFunctionAsID($type, MySQL51Lexer.SECOND);};
-TIME	:	'TIME' {$type = checkFunctionAsID($type, MySQL51Lexer.TIME);};
-TIMESTAMP	:	'TIMESTAMP' {$type = checkFunctionAsID($type, MySQL51Lexer.TIMESTAMP);};
-TRIM	:	'TRIM' {$type = checkFunctionAsID($type);};
-USER	:	'USER' {$type = checkFunctionAsID($type, MySQL51Lexer.USER);};
-YEAR	:	'YEAR' {$type = checkFunctionAsID($type, MySQL51Lexer.YEAR);};
+LEFT	:	'LEFT' {$type = checkFunctionAsID($type);}; // reserved
+MINUTE	:	'MINUTE';
+MONTH	:	'MONTH';
+RIGHT	:	'RIGHT' {$type = checkFunctionAsID($type);}; // reserved
+SECOND	:	'SECOND';
+TIME	:	'TIME';
+TIMESTAMP	:	'TIMESTAMP';
+TRIM	:	'TRIM';
+USER	:	'USER' {$type = checkFunctionAsID($type);};
+YEAR	:	'YEAR';
 
 
 // $> Builtin SQL Functions
@@ -874,7 +833,7 @@ HEXA_VALUE
  * Binary and hexadecimal are syntactically equivalent to strings but have a different meaning and should not be tokenized as STRING. See below.
  */
 //fragment
-STRING
+STRING_LEX
 	:	'N'?			// "introducer" for the national character set (UTF8 for MySQL 4.1 and up). must immediately precede the first quote character.
 		(	'"' 
 			(	('""')=> '""'
@@ -924,7 +883,7 @@ ID  : '`' (options{greedy=false;}: (~('`'))+) '`'
 
 fragment
 REAL_ID
-	:	('A'..'Z'|'_') ('0'..'9'|'A'..'Z'|'_')*		// TODO: what are the valid characters?
+	:	('$'|'A'..'Z'|'_') ('$'|'0'..'9'|'A'..'Z'|'_')*		// TODO: what are the valid characters?
 	;
 
 
@@ -937,10 +896,10 @@ ESCAPE_SEQUENCE
 		(	'0'
 		|	'\''
 		|	'"'
-		|	'b'
-		|	'n'		// TODO currently this clashes with \N == NULL. add predicate!
-		|	'r'
-		|	't'
+		|	'B'
+		|	'N'		// TODO currently this clashes with \N == NULL. add predicate!
+		|	'R'
+		|	'T'
 		|	'Z'		// this is UPPERCASE! -> use ANTLRNoCaseStringStream.trueCaseLA() in predicate to resolve
 		|	'\\'
 		|	'%'
@@ -997,7 +956,7 @@ COMMENT_RULE
 	:	(	C_COMMENT 
 		|	POUND_COMMENT
 		|	MINUS_MINUS_COMMENT
-		|	{input.LA(3)==' ' || input.LA(3) == '\t' || input.LA(3) == '\n' || input.LA(3) == '\r'}?=> DASHDASH_COMMENT
+		//|	{input.LA(3)==' ' || input.LA(3) == '\t' || input.LA(3) == '\n' || input.LA(3) == '\r'}?=> DASHDASH_COMMENT
 		)
 		{$channel=98;}
 	;

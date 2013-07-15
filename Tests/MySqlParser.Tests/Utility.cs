@@ -39,6 +39,40 @@ namespace MySql.Parser.Tests
       return ParseSql(sql, expectErrors, out sb, new Version(5, 1));
     }
 
+    public static MySQL51Parser.query_return ParseSqlQuery(string sql, bool expectErrors, out StringBuilder sb)
+    {
+      return ParseSqlQuery(sql, expectErrors, out sb, new Version(5, 1));
+    }
+
+    public static MySQL51Parser.query_return ParseSqlQuery(string sql, bool expectErrors, out StringBuilder sb, Version version)
+    {
+      // The grammar supports upper case only
+      MemoryStream ms = new MemoryStream(ASCIIEncoding.ASCII.GetBytes(sql/*.ToUpper() */));
+      CaseInsensitiveInputStream input = new CaseInsensitiveInputStream(ms);
+      MySQLLexer lexer = new MySQLLexer(input);
+      lexer.MySqlVersion = version;
+      StringBuilder sbLex = new StringBuilder();
+      lexer.TraceDestination = new StringWriter(sbLex);
+      CommonTokenStream tokens = new CommonTokenStream(lexer);
+      MySQLParser parser = new MySQLParser(tokens);
+      parser.MySqlVersion = version;
+      sb = new StringBuilder();
+      TextWriter tw = new StringWriter(sb);
+      parser.TraceDestination = tw;
+      MySQL51Parser.query_return r = parser.query();
+      if (!expectErrors)
+      {
+        if (0 != parser.NumberOfSyntaxErrors)
+          Assert.Equal("", sb.ToString());
+        Assert.Equal("", sbLex.ToString());
+      }
+      else
+      {
+        Assert.NotEqual(0, parser.NumberOfSyntaxErrors);
+      }
+      return r;
+    }
+
     public static MySQL51Parser.program_return ParseSql(string sql, bool expectErrors, out StringBuilder sb, Version version )
     {
       // The grammar supports upper case only
@@ -46,6 +80,8 @@ namespace MySql.Parser.Tests
       CaseInsensitiveInputStream input = new CaseInsensitiveInputStream(ms);
       MySQLLexer lexer = new MySQLLexer(input);
       lexer.MySqlVersion = version;
+      StringBuilder sbLex = new StringBuilder();
+      lexer.TraceDestination = new StringWriter(sbLex);
       CommonTokenStream tokens = new CommonTokenStream(lexer);
       MySQLParser parser = new MySQLParser(tokens);
       parser.MySqlVersion = version;
@@ -57,6 +93,7 @@ namespace MySql.Parser.Tests
       {
         if (0 != parser.NumberOfSyntaxErrors)
           Assert.Equal("", sb.ToString());
+        Assert.Equal("", sbLex.ToString());
       }
       else
       {

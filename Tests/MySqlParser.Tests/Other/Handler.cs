@@ -56,6 +56,30 @@ namespace MySql.Parser.Tests
     [Fact]
     public void Simple4()
     {
+      MySQL51Parser.program_return r = Utility.ParseSql("HANDLER table1 READ my_idx < (col_a_val,col_b_val) where ( col_b_val is null );");
+    }
+
+    [Fact]
+    public void Simple5()
+    {
+      MySQL51Parser.program_return r = Utility.ParseSql("HANDLER table1 READ my_idx <= (col_a_val,col_b_val) where ( col_b_val is null ) limit 10;");
+    }
+
+    [Fact]
+    public void Simple6()
+    {
+      MySQL51Parser.program_return r = Utility.ParseSql("HANDLER table2 READ my_idx >= (col_a_val) limit 10;");
+    }
+
+    [Fact]
+    public void Simple7()
+    {
+      MySQL51Parser.program_return r = Utility.ParseSql("HANDLER table2 READ my_idx > (col_a_val) limit 10;");
+    }
+
+    [Fact]
+    public void Simple8()
+    {
       MySQL51Parser.program_return r = Utility.ParseSql("HANDLER tbl_name READ `PRIMARY` FIRST;");
     }
   }

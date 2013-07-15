@@ -1,5 +1,4 @@
-﻿
-// Copyright © 2012, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -52,6 +51,11 @@ namespace MySql.Parser
       return proposedType;
     }
 
+    public virtual int checkFunctionAsNotId(int proposedType)
+    {
+      return proposedType;
+    }
+
     public int checkFunctionAsID(int proposedType, int alternativeProposedType)
     {
       return (input.LA(1) != '(') ? alternativeProposedType : proposedType;
@@ -67,6 +71,12 @@ namespace MySql.Parser
     public int checkIDperVersion(double version, int proposedType, int alternativeProposedType)
     {
       return (mysqlVersion >= version) ? proposedType : alternativeProposedType;
+    }
+
+    public int checkFunctionasIDperVersion(double version, int proposedType, int alternativeProposedType)
+    {
+      if (mysqlVersion < version) return alternativeProposedType;
+      else return (input.LA(1) != '(') ? proposedType : alternativeProposedType;
     }
 
     // holds values like 5.0, 5.1, 5.5, 5.6, etc.
@@ -108,7 +118,19 @@ namespace MySql.Parser
 
     public override int checkFunctionAsID(int proposedType)
     {
+      return (input.LA(1) == '(') ? ID : proposedType;
+    }
+
+    public override int checkFunctionAsNotId(int proposedType)
+    {
       return (input.LA(1) != '(') ? ID : proposedType;
+    }
+
+    protected virtual void EnterRule(string ruleName, int ruleIndex) 
+    {
+      if (ruleName == "create_tablespace")
+      {
+      }
     }
   }
 }
