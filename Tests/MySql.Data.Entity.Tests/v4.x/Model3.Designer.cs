@@ -8,10 +8,15 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+#if !EF6
 [assembly: global::System.Data.Objects.DataClasses.EdmSchemaAttribute()]
 [assembly: global::System.Data.Objects.DataClasses.EdmRelationshipAttribute("testModel1", "fk_VideoGamePlatform_Platform", "gamingplatform", global::System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(MySql.Data.Entity.Tests.gamingplatform), "videogameplatform", global::System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.videogameplatform))]
 [assembly: global::System.Data.Objects.DataClasses.EdmRelationshipAttribute("testModel1", "fk_VideoGamePlatform_VideoGameTitle", "videogametitle", global::System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(MySql.Data.Entity.Tests.videogametitle), "videogameplatform", global::System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.videogameplatform))]
-
+#else
+[assembly: global::System.Data.Entity.Core.Objects.DataClasses.EdmSchemaAttribute()]
+[assembly: global::System.Data.Entity.Core.Objects.DataClasses.EdmRelationshipAttribute("testModel1", "fk_VideoGamePlatform_Platform", "gamingplatform", global::System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.One, typeof(MySql.Data.Entity.Tests.gamingplatform), "videogameplatform", global::System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.videogameplatform))]
+[assembly: global::System.Data.Entity.Core.Objects.DataClasses.EdmRelationshipAttribute("testModel1", "fk_VideoGamePlatform_VideoGameTitle", "videogametitle", global::System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.One, typeof(MySql.Data.Entity.Tests.videogametitle), "videogameplatform", global::System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.videogameplatform))]
+#endif
 // Original file name:
 // Generation date: 1/14/2013 3:17:12 PM
 namespace MySql.Data.Entity.Tests
@@ -19,8 +24,12 @@ namespace MySql.Data.Entity.Tests
     
     /// <summary>
     /// There are no comments for testEntities1 in the schema.
-    /// </summary>
-    public partial class testEntities1 : global::System.Data.Objects.ObjectContext
+  /// </summary>
+#if !EF6
+  public partial class testEntities1 : global::System.Data.Objects.ObjectContext
+#else
+  public partial class testEntities1 : global::System.Data.Entity.Core.Objects.ObjectContext
+#endif
     {
         /// <summary>
         /// Initializes a new testEntities1 object using the connection string found in the 'testEntities1' section of the application configuration file.
@@ -41,8 +50,13 @@ namespace MySql.Data.Entity.Tests
         /// <summary>
         /// Initialize a new testEntities1 object.
         /// </summary>
+#if !EF6
         public testEntities1(global::System.Data.EntityClient.EntityConnection connection) : 
-                base(connection, "testEntities1")
+          base(connection, "testEntities1")
+#else
+        public testEntities1(global::System.Data.Entity.Core.EntityClient.EntityConnection connection) :
+          base(connection, "testEntities1")
+#endif
         {
             this.OnContextCreated();
         }
@@ -51,7 +65,11 @@ namespace MySql.Data.Entity.Tests
         /// There are no comments for gamingplatform in the schema.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
+#if !EF6
         public global::System.Data.Objects.ObjectQuery<gamingplatform> gamingplatform
+#else
+        public global::System.Data.Entity.Core.Objects.ObjectQuery<gamingplatform> gamingplatform
+#endif
         {
             get
             {
@@ -63,12 +81,20 @@ namespace MySql.Data.Entity.Tests
             }
         }
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
-        private global::System.Data.Objects.ObjectQuery<gamingplatform> _gamingplatform;
+#if !EF6 
+    private global::System.Data.Objects.ObjectQuery<gamingplatform> _gamingplatform; 
+#else 
+    private global::System.Data.Entity.Core.Objects.ObjectQuery<gamingplatform> _gamingplatform; 
+#endif
         /// <summary>
         /// There are no comments for videogameplatform in the schema.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
-        public global::System.Data.Objects.ObjectQuery<videogameplatform> videogameplatform
+#if !EF6 
+    public global::System.Data.Objects.ObjectQuery<videogameplatform> videogameplatform 
+#else 
+    public global::System.Data.Entity.Core.Objects.ObjectQuery<videogameplatform> videogameplatform 
+#endif
         {
             get
             {
@@ -80,12 +106,20 @@ namespace MySql.Data.Entity.Tests
             }
         }
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
-        private global::System.Data.Objects.ObjectQuery<videogameplatform> _videogameplatform;
+#if !EF6 
+    private global::System.Data.Objects.ObjectQuery<videogameplatform> _videogameplatform; 
+#else 
+    private global::System.Data.Entity.Core.Objects.ObjectQuery<videogameplatform> _videogameplatform; 
+#endif
         /// <summary>
         /// There are no comments for videogametitle in the schema.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
-        public global::System.Data.Objects.ObjectQuery<videogametitle> videogametitle
+#if !EF6 
+    public global::System.Data.Objects.ObjectQuery<videogametitle> videogametitle 
+#else 
+    public global::System.Data.Entity.Core.Objects.ObjectQuery<videogametitle> videogametitle 
+#endif
         {
             get
             {
@@ -97,7 +131,11 @@ namespace MySql.Data.Entity.Tests
             }
         }
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
-        private global::System.Data.Objects.ObjectQuery<videogametitle> _videogametitle;
+#if !EF6 
+    private global::System.Data.Objects.ObjectQuery<videogametitle> _videogametitle; 
+#else 
+    private global::System.Data.Entity.Core.Objects.ObjectQuery<videogametitle> _videogametitle; 
+#endif
         /// <summary>
         /// There are no comments for gamingplatform in the schema.
         /// </summary>
@@ -129,10 +167,18 @@ namespace MySql.Data.Entity.Tests
     /// <KeyProperties>
     /// Id
     /// </KeyProperties>
-    [global::System.Data.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName="testModel1", Name="gamingplatform")]
+#if !EF6 
+  [global::System.Data.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName="testModel1", Name="gamingplatform")] 
+#else 
+  [global::System.Data.Entity.Core.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName="testModel1", Name="gamingplatform")] 
+#endif
     [global::System.Runtime.Serialization.DataContractAttribute(IsReference=true)]
     [global::System.Serializable()]
-    public partial class gamingplatform : global::System.Data.Objects.DataClasses.EntityObject
+#if !EF6 
+  public partial class gamingplatform : global::System.Data.Objects.DataClasses.EntityObject 
+#else 
+  public partial class gamingplatform : global::System.Data.Entity.Core.Objects.DataClasses.EntityObject 
+#endif
     {
         /// <summary>
         /// Create a new gamingplatform object.
@@ -148,7 +194,11 @@ namespace MySql.Data.Entity.Tests
         /// <summary>
         /// There are no comments for property Id in the schema.
         /// </summary>
-        [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
+#if !EF6 
+    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)] 
+#else 
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)] 
+#endif
         [global::System.Runtime.Serialization.DataMemberAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
         public int Id
@@ -161,7 +211,11 @@ namespace MySql.Data.Entity.Tests
             {
                 this.OnIdChanging(value);
                 this.ReportPropertyChanging("Id");
-                this._Id = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value);
+#if !EF6 
+                this._Id = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value); 
+#else 
+                this._Id = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value); 
+#endif
                 this.ReportPropertyChanged("Id");
                 this.OnIdChanged();
             }
@@ -175,7 +229,11 @@ namespace MySql.Data.Entity.Tests
         /// <summary>
         /// There are no comments for property Name in the schema.
         /// </summary>
-        [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()]
+#if !EF6 
+        [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()] 
+#else 
+        [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute()] 
+#endif
         [global::System.Runtime.Serialization.DataMemberAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
         public string Name
@@ -188,7 +246,11 @@ namespace MySql.Data.Entity.Tests
             {
                 this.OnNameChanging(value);
                 this.ReportPropertyChanging("Name");
-                this._Name = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
+#if !EF6 
+                this._Name = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true); 
+#else 
+                this._Name = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, true); 
+#endif
                 this.ReportPropertyChanged("Name");
                 this.OnNameChanged();
             }
@@ -202,7 +264,11 @@ namespace MySql.Data.Entity.Tests
         /// <summary>
         /// There are no comments for property Developer in the schema.
         /// </summary>
-        [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()]
+#if !EF6 
+        [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()] 
+#else 
+        [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute()] 
+#endif
         [global::System.Runtime.Serialization.DataMemberAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
         public string Developer
@@ -215,7 +281,11 @@ namespace MySql.Data.Entity.Tests
             {
                 this.OnDeveloperChanging(value);
                 this.ReportPropertyChanging("Developer");
-                this._Developer = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
+#if !EF6 
+                this._Developer = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true); 
+#else 
+                this._Developer = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, true); 
+#endif
                 this.ReportPropertyChanged("Developer");
                 this.OnDeveloperChanged();
             }
@@ -229,22 +299,38 @@ namespace MySql.Data.Entity.Tests
         /// <summary>
         /// There are no comments for videogameplatform in the schema.
         /// </summary>
-        [global::System.Data.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("testModel1", "fk_VideoGamePlatform_Platform", "videogameplatform")]
+#if !EF6 
+        [global::System.Data.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("testModel1", "fk_VideoGamePlatform_Platform", "videogameplatform")] 
+#else   
+        [global::System.Data.Entity.Core.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("testModel1", "fk_VideoGamePlatform_Platform", "videogameplatform")] 
+#endif
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
         [global::System.Xml.Serialization.XmlIgnoreAttribute()]
         [global::System.Xml.Serialization.SoapIgnoreAttribute()]
         [global::System.Runtime.Serialization.DataMemberAttribute()]
-        public global::System.Data.Objects.DataClasses.EntityCollection<videogameplatform> videogameplatform
+#if !EF6 
+      public global::System.Data.Objects.DataClasses.EntityCollection<videogameplatform> videogameplatform 
+#else 
+      public global::System.Data.Entity.Core.Objects.DataClasses.EntityCollection<videogameplatform> videogameplatform 
+#endif
         {
             get
             {
-                return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedCollection<videogameplatform>("testModel1.fk_VideoGamePlatform_Platform", "videogameplatform");
+#if !EF6 
+                return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedCollection<videogameplatform>("testModel1.fk_VideoGamePlatform_Platform", "videogameplatform"); 
+#else 
+                return ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedCollection<videogameplatform>("testModel1.fk_VideoGamePlatform_Platform", "videogameplatform"); 
+#endif
             }
             set
             {
                 if ((value != null))
                 {
-                    ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedCollection<videogameplatform>("testModel1.fk_VideoGamePlatform_Platform", "videogameplatform", value);
+#if !EF6 
+                    ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedCollection<videogameplatform>("testModel1.fk_VideoGamePlatform_Platform", "videogameplatform", value); 
+#else 
+                    ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedCollection<videogameplatform>("testModel1.fk_VideoGamePlatform_Platform", "videogameplatform", value); 
+#endif
                 }
             }
         }
@@ -256,10 +342,18 @@ namespace MySql.Data.Entity.Tests
     /// IdGamingPlatform
     /// IdVideoGameTitle
     /// </KeyProperties>
-    [global::System.Data.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName="testModel1", Name="videogameplatform")]
+#if !EF6 
+    [global::System.Data.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName="testModel1", Name="videogameplatform")] 
+#else 
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName="testModel1", Name="videogameplatform")] 
+#endif
     [global::System.Runtime.Serialization.DataContractAttribute(IsReference=true)]
     [global::System.Serializable()]
-    public partial class videogameplatform : global::System.Data.Objects.DataClasses.EntityObject
+#if !EF6 
+    public partial class videogameplatform : global::System.Data.Objects.DataClasses.EntityObject 
+#else 
+    public partial class videogameplatform : global::System.Data.Entity.Core.Objects.DataClasses.EntityObject 
+#endif
     {
         /// <summary>
         /// Create a new videogameplatform object.
@@ -277,7 +371,11 @@ namespace MySql.Data.Entity.Tests
         /// <summary>
         /// There are no comments for property IdGamingPlatform in the schema.
         /// </summary>
-        [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
+#if !EF6 
+        [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)] 
+#else 
+        [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)] 
+#endif
         [global::System.Runtime.Serialization.DataMemberAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
         public int IdGamingPlatform
@@ -290,7 +388,11 @@ namespace MySql.Data.Entity.Tests
             {
                 this.OnIdGamingPlatformChanging(value);
                 this.ReportPropertyChanging("IdGamingPlatform");
-                this._IdGamingPlatform = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value);
+#if !EF6 
+                this._IdGamingPlatform = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value); 
+#else 
+                this._IdGamingPlatform = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value); 
+#endif
                 this.ReportPropertyChanged("IdGamingPlatform");
                 this.OnIdGamingPlatformChanged();
             }
@@ -304,7 +406,11 @@ namespace MySql.Data.Entity.Tests
         /// <summary>
         /// There are no comments for property IdVideoGameTitle in the schema.
         /// </summary>
-        [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
+#if !EF6 
+        [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)] 
+#else 
+        [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)] 
+#endif
         [global::System.Runtime.Serialization.DataMemberAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
         public int IdVideoGameTitle
@@ -317,7 +423,11 @@ namespace MySql.Data.Entity.Tests
             {
                 this.OnIdVideoGameTitleChanging(value);
                 this.ReportPropertyChanging("IdVideoGameTitle");
-                this._IdVideoGameTitle = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value);
+#if !EF6 
+                this._IdVideoGameTitle = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value); 
+#else 
+                this._IdVideoGameTitle = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value); 
+#endif
                 this.ReportPropertyChanged("IdVideoGameTitle");
                 this.OnIdVideoGameTitleChanged();
             }
@@ -331,7 +441,11 @@ namespace MySql.Data.Entity.Tests
         /// <summary>
         /// There are no comments for property Category in the schema.
         /// </summary>
-        [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()]
+#if !EF6 
+        [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()] 
+#else 
+        [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute()] 
+#endif
         [global::System.Runtime.Serialization.DataMemberAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
         public string Category
@@ -344,7 +458,11 @@ namespace MySql.Data.Entity.Tests
             {
                 this.OnCategoryChanging(value);
                 this.ReportPropertyChanging("Category");
-                this._Category = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
+#if !EF6 
+                this._Category = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true); 
+#else 
+                this._Category = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, true); 
+#endif
                 this.ReportPropertyChanged("Category");
                 this.OnCategoryChanged();
             }
@@ -358,7 +476,11 @@ namespace MySql.Data.Entity.Tests
         /// <summary>
         /// There are no comments for gamingplatform in the schema.
         /// </summary>
-        [global::System.Data.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("testModel1", "fk_VideoGamePlatform_Platform", "gamingplatform")]
+#if !EF6 
+        [global::System.Data.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("testModel1", "fk_VideoGamePlatform_Platform", "gamingplatform")] 
+#else 
+        [global::System.Data.Entity.Core.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("testModel1", "fk_VideoGamePlatform_Platform", "gamingplatform")] 
+#endif
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
         [global::System.Xml.Serialization.XmlIgnoreAttribute()]
         [global::System.Xml.Serialization.SoapIgnoreAttribute()]
@@ -367,11 +489,19 @@ namespace MySql.Data.Entity.Tests
         {
             get
             {
-                return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<gamingplatform>("testModel1.fk_VideoGamePlatform_Platform", "gamingplatform").Value;
+#if !EF6 
+                return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<gamingplatform>("testModel1.fk_VideoGamePlatform_Platform", "gamingplatform").Value; 
+#else 
+                return ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<gamingplatform>("testModel1.fk_VideoGamePlatform_Platform", "gamingplatform").Value; 
+#endif
             }
             set
             {
-                ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<gamingplatform>("testModel1.fk_VideoGamePlatform_Platform", "gamingplatform").Value = value;
+#if !EF6 
+                ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<gamingplatform>("testModel1.fk_VideoGamePlatform_Platform", "gamingplatform").Value = value; 
+#else 
+                ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<gamingplatform>("testModel1.fk_VideoGamePlatform_Platform", "gamingplatform").Value = value; 
+#endif
             }
         }
         /// <summary>
@@ -380,24 +510,40 @@ namespace MySql.Data.Entity.Tests
         [global::System.ComponentModel.BrowsableAttribute(false)]
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
         [global::System.Runtime.Serialization.DataMemberAttribute()]
-        public global::System.Data.Objects.DataClasses.EntityReference<gamingplatform> gamingplatformReference
+#if !EF6 
+        public global::System.Data.Objects.DataClasses.EntityReference<gamingplatform> gamingplatformReference 
+#else 
+        public global::System.Data.Entity.Core.Objects.DataClasses.EntityReference<gamingplatform> gamingplatformReference 
+#endif
         {
             get
             {
-                return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<gamingplatform>("testModel1.fk_VideoGamePlatform_Platform", "gamingplatform");
+#if !EF6 
+                return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<gamingplatform>("testModel1.fk_VideoGamePlatform_Platform", "gamingplatform"); 
+#else 
+                return ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<gamingplatform>("testModel1.fk_VideoGamePlatform_Platform", "gamingplatform"); 
+#endif
             }
             set
             {
                 if ((value != null))
                 {
-                    ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedReference<gamingplatform>("testModel1.fk_VideoGamePlatform_Platform", "gamingplatform", value);
+#if !EF6 
+                    ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedReference<gamingplatform>("testModel1.fk_VideoGamePlatform_Platform", "gamingplatform", value); 
+#else 
+                    ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedReference<gamingplatform>("testModel1.fk_VideoGamePlatform_Platform", "gamingplatform", value); 
+#endif
                 }
             }
         }
         /// <summary>
         /// There are no comments for videogametitle in the schema.
         /// </summary>
-        [global::System.Data.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("testModel1", "fk_VideoGamePlatform_VideoGameTitle", "videogametitle")]
+#if !EF6 
+        [global::System.Data.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("testModel1", "fk_VideoGamePlatform_VideoGameTitle", "videogametitle")] 
+#else 
+        [global::System.Data.Entity.Core.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("testModel1", "fk_VideoGamePlatform_VideoGameTitle", "videogametitle")] 
+#endif
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
         [global::System.Xml.Serialization.XmlIgnoreAttribute()]
         [global::System.Xml.Serialization.SoapIgnoreAttribute()]
@@ -406,11 +552,19 @@ namespace MySql.Data.Entity.Tests
         {
             get
             {
-                return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<videogametitle>("testModel1.fk_VideoGamePlatform_VideoGameTitle", "videogametitle").Value;
+#if !EF6 
+                return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<videogametitle>("testModel1.fk_VideoGamePlatform_VideoGameTitle", "videogametitle").Value; 
+#else 
+                return ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<videogametitle>("testModel1.fk_VideoGamePlatform_VideoGameTitle", "videogametitle").Value; 
+#endif
             }
             set
             {
-                ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<videogametitle>("testModel1.fk_VideoGamePlatform_VideoGameTitle", "videogametitle").Value = value;
+#if !EF6 
+                ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<videogametitle>("testModel1.fk_VideoGamePlatform_VideoGameTitle", "videogametitle").Value = value; 
+#else 
+                ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<videogametitle>("testModel1.fk_VideoGamePlatform_VideoGameTitle", "videogametitle").Value = value; 
+#endif
             }
         }
         /// <summary>
@@ -419,17 +573,29 @@ namespace MySql.Data.Entity.Tests
         [global::System.ComponentModel.BrowsableAttribute(false)]
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
         [global::System.Runtime.Serialization.DataMemberAttribute()]
-        public global::System.Data.Objects.DataClasses.EntityReference<videogametitle> videogametitleReference
+#if !EF6 
+        public global::System.Data.Objects.DataClasses.EntityReference<videogametitle> videogametitleReference 
+#else 
+        public global::System.Data.Entity.Core.Objects.DataClasses.EntityReference<videogametitle> videogametitleReference 
+#endif
         {
             get
             {
-                return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<videogametitle>("testModel1.fk_VideoGamePlatform_VideoGameTitle", "videogametitle");
+#if !EF6 
+                return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<videogametitle>("testModel1.fk_VideoGamePlatform_VideoGameTitle", "videogametitle"); 
+#else 
+                return ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<videogametitle>("testModel1.fk_VideoGamePlatform_VideoGameTitle", "videogametitle"); 
+#endif
             }
             set
             {
                 if ((value != null))
                 {
-                    ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedReference<videogametitle>("testModel1.fk_VideoGamePlatform_VideoGameTitle", "videogametitle", value);
+#if !EF6 
+                    ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedReference<videogametitle>("testModel1.fk_VideoGamePlatform_VideoGameTitle", "videogametitle", value); 
+#else 
+                    ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedReference<videogametitle>("testModel1.fk_VideoGamePlatform_VideoGameTitle", "videogametitle", value); 
+#endif
                 }
             }
         }
@@ -440,10 +606,18 @@ namespace MySql.Data.Entity.Tests
     /// <KeyProperties>
     /// Id
     /// </KeyProperties>
-    [global::System.Data.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName="testModel1", Name="videogametitle")]
+#if !EF6 
+    [global::System.Data.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName="testModel1", Name="videogametitle")] 
+#else 
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName="testModel1", Name="videogametitle")] 
+#endif
     [global::System.Runtime.Serialization.DataContractAttribute(IsReference=true)]
     [global::System.Serializable()]
-    public partial class videogametitle : global::System.Data.Objects.DataClasses.EntityObject
+#if !EF6 
+    public partial class videogametitle : global::System.Data.Objects.DataClasses.EntityObject 
+#else 
+  public partial class videogametitle : global::System.Data.Entity.Core.Objects.DataClasses.EntityObject 
+#endif
     {
         /// <summary>
         /// Create a new videogametitle object.
@@ -459,7 +633,11 @@ namespace MySql.Data.Entity.Tests
         /// <summary>
         /// There are no comments for property Id in the schema.
         /// </summary>
-        [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
+#if !EF6 
+        [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)] 
+#else 
+        [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)] 
+#endif
         [global::System.Runtime.Serialization.DataMemberAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
         public int Id
@@ -472,7 +650,11 @@ namespace MySql.Data.Entity.Tests
             {
                 this.OnIdChanging(value);
                 this.ReportPropertyChanging("Id");
-                this._Id = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value);
+#if !EF6 
+                this._Id = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value); 
+#else 
+                this._Id = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value); 
+#endif
                 this.ReportPropertyChanged("Id");
                 this.OnIdChanged();
             }
@@ -486,7 +668,11 @@ namespace MySql.Data.Entity.Tests
         /// <summary>
         /// There are no comments for property Name in the schema.
         /// </summary>
-        [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()]
+#if !EF6 
+        [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()] 
+#else 
+        [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute()] 
+#endif
         [global::System.Runtime.Serialization.DataMemberAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
         public string Name
@@ -499,7 +685,11 @@ namespace MySql.Data.Entity.Tests
             {
                 this.OnNameChanging(value);
                 this.ReportPropertyChanging("Name");
-                this._Name = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
+#if !EF6 
+                this._Name = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true); 
+#else 
+                this._Name = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, true); 
+#endif
                 this.ReportPropertyChanged("Name");
                 this.OnNameChanged();
             }
@@ -513,7 +703,11 @@ namespace MySql.Data.Entity.Tests
         /// <summary>
         /// There are no comments for property Developer in the schema.
         /// </summary>
-        [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()]
+#if !EF6 
+        [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()] 
+#else 
+        [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute()] 
+#endif
         [global::System.Runtime.Serialization.DataMemberAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
         public string Developer
@@ -526,7 +720,11 @@ namespace MySql.Data.Entity.Tests
             {
                 this.OnDeveloperChanging(value);
                 this.ReportPropertyChanging("Developer");
-                this._Developer = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
+#if !EF6 
+                this._Developer = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true); 
+#else 
+                this._Developer = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, true); 
+#endif
                 this.ReportPropertyChanged("Developer");
                 this.OnDeveloperChanged();
             }
@@ -540,22 +738,38 @@ namespace MySql.Data.Entity.Tests
         /// <summary>
         /// There are no comments for videogameplatform in the schema.
         /// </summary>
-        [global::System.Data.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("testModel1", "fk_VideoGamePlatform_VideoGameTitle", "videogameplatform")]
+#if !EF6 
+        [global::System.Data.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("testModel1", "fk_VideoGamePlatform_VideoGameTitle", "videogameplatform")] 
+#else 
+        [global::System.Data.Entity.Core.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("testModel1", "fk_VideoGamePlatform_VideoGameTitle", "videogameplatform")] 
+#endif
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
         [global::System.Xml.Serialization.XmlIgnoreAttribute()]
         [global::System.Xml.Serialization.SoapIgnoreAttribute()]
         [global::System.Runtime.Serialization.DataMemberAttribute()]
-        public global::System.Data.Objects.DataClasses.EntityCollection<videogameplatform> videogameplatform
+#if !EF6 
+        public global::System.Data.Objects.DataClasses.EntityCollection<videogameplatform> videogameplatform 
+#else 
+        public global::System.Data.Entity.Core.Objects.DataClasses.EntityCollection<videogameplatform> videogameplatform 
+#endif
         {
             get
             {
-                return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedCollection<videogameplatform>("testModel1.fk_VideoGamePlatform_VideoGameTitle", "videogameplatform");
+#if !EF6 
+                return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedCollection<videogameplatform>("testModel1.fk_VideoGamePlatform_VideoGameTitle", "videogameplatform"); 
+#else 
+                return ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedCollection<videogameplatform>("testModel1.fk_VideoGamePlatform_VideoGameTitle", "videogameplatform");
+#endif
             }
             set
             {
                 if ((value != null))
                 {
-                    ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedCollection<videogameplatform>("testModel1.fk_VideoGamePlatform_VideoGameTitle", "videogameplatform", value);
+#if !EF6 
+                    ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedCollection<videogameplatform>("testModel1.fk_VideoGamePlatform_VideoGameTitle", "videogameplatform", value); 
+#else 
+                    ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedCollection<videogameplatform>("testModel1.fk_VideoGamePlatform_VideoGameTitle", "videogameplatform", value); 
+#endif
                 }
             }
         }

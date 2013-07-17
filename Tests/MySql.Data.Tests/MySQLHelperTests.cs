@@ -25,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Xunit;
+using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -61,5 +62,86 @@ namespace MySql.Data.MySqlClient.Tests
 
       Assert.True("test\"name\"" == name, "Update result with quotation mark");
     }
+
+#if NET_40_OR_GREATER
+    #region Async
+    [Fact]
+    public void ExecuteNonQueryAsync()
+    {
+      if (st.Version < new Version(5, 0)) return;
+
+      st.execSQL("CREATE TABLE test (id int)");
+
+      st.execSQL("CREATE PROCEDURE spTest() BEGIN SET @x=0; REPEAT INSERT INTO test VALUES(@x); " +
+        "SET @x=@x+1; UNTIL @x = 100 END REPEAT; END");
+
+      System.Threading.Tasks.Task<int> result = MySqlHelper.ExecuteNonQueryAsync(st.conn, "call spTest", null);
+      Assert.NotEqual(-1, result.Result);
+
+      MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM test;", st.conn);
+      cmd.CommandType = System.Data.CommandType.Text;
+      object cnt = cmd.ExecuteScalar();
+      Assert.Equal(100, Convert.ToInt32(cnt));
+    }
+    [Fact]
+    public void ExecuteDataSetAsync()
+    {
+      st.execSQL("CREATE TABLE table1 (`key` INT, PRIMARY KEY(`key`))");
+      st.execSQL("CREATE TABLE table2 (`key` INT, PRIMARY KEY(`key`))");
+      st.execSQL("INSERT INTO table1 VALUES (1)");
+      st.execSQL("INSERT INTO table2 VALUES (1)");
+
+      string sql = "SELECT table1.key FROM table1 WHERE table1.key=1; " +
+                   "SELECT table2.key FROM table2 WHERE table2.key=1";
+      DataSet ds = MySqlHelper.ExecuteDatasetAsync(st.conn, sql, null).Result;
+      Assert.Equal(2, ds.Tables.Count);
+      Assert.Equal(1, ds.Tables[0].Rows.Count);
+      Assert.Equal(1, ds.Tables[1].Rows.Count);
+      Assert.Equal(1, ds.Tables[0].Rows[0]["key"]);
+      Assert.Equal(1, ds.Tables[1].Rows[0]["key"]);
+    }
+    [Fact]
+    public void ExecuteReaderAsync()
+    {
+      if (st.Version < new Version(5, 0)) return;
+
+      if (st.conn.State != ConnectionState.Open)
+        st.conn.Open();
+
+      st.execSQL("CREATE TABLE test (id int)");
+      st.execSQL("CREATE PROCEDURE spTest() BEGIN INSERT INTO test VALUES(1); " +
+                 "SELECT SLEEP(2); SELECT 'done'; END");
+
+      using (MySqlDataReader reader = MySqlHelper.ExecuteReaderAsync(st.conn, "call sptest").Result)
+      {
+        Assert.NotNull(reader);
+        Assert.True(reader.Read(), "can read");
+        Assert.True(reader.NextResult());
+        Assert.True(reader.Read());
+        Assert.Equal("done", reader.GetString(0));
+        reader.Close();
+
+        MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM test", st.conn);
+        cmd.CommandType = CommandType.Text;
+        object cnt = cmd.ExecuteScalar();
+        Assert.Equal(1, Convert.ToInt32(cnt));
+      }
+    }
+    [Fact]
+    public void ExecuteScalarAsync()
+    {
+      if (st.Version < new Version(5, 0)) return;
+
+      if (st.conn.connectionState != ConnectionState.Open)
+        st.conn.Open();
+
+      st.execSQL("CREATE TABLE table1 (`key` INT, PRIMARY KEY(`key`))");
+      st.execSQL("INSERT INTO table1 VALUES (1)");
+
+      object result = MySqlHelper.ExecuteScalarAsync(st.conn, "SELECT table1.key FROM table1 WHERE table1.key=1;").Result;
+      Assert.Equal(1, int.Parse(result.ToString()));
+    }
+    #endregion
+#endif
   }
 }

@@ -24,10 +24,17 @@ using System;
 using System.Threading;
 using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.Tests;
+#if !EF6
 using System.Data.EntityClient;
-using System.Data.Common;
 using System.Data.Objects;
 using System.Data.Entity.Design;
+#else
+using System.Data.Entity.Core.Common;
+using System.Data.Entity.Core.EntityClient;
+using System.Data.Entity.Core.Objects;
+using System.Data.Entity.ModelConfiguration.Design;
+#endif
+using System.Data.Common;
 using System.Linq;
 using Store;
 using System.Configuration;
@@ -50,8 +57,10 @@ namespace MySql.Data.Entity.Tests
 
     private EntityConnection GetConnection()
     {
-      return EntityStoreSchemaGenerator.CreateStoreSchemaConnection(
-          "MySql.Data.MySqlClient", string.Format(@"server=localhost;uid=root;database=test;pooling=false; port={0}", st.port));
+      //THE CLASS ntityStoreSchemaGenerator IS NOT PRESENT ON EF6, WE NEED TO ADD A WORKAROUND TO REPLACE THIS FUNCTIONALITY
+      //return EntityStoreSchemaGenerator.CreateStoreSchemaConnection(
+      //    "MySql.Data.MySqlClient", string.Format(@"server=localhost;uid=root;database=test;pooling=false; port={0}", st.port));
+      return null;
     }
 
     [Fact]
@@ -117,7 +126,11 @@ namespace MySql.Data.Entity.Tests
       if (st.Version < new Version(5, 0)) return;
 
       MySqlProviderManifest manifest = new MySqlProviderManifest(st.Version.Major + "." + st.Version.Minor);
+#if !EF6
       using (XmlReader reader = manifest.GetInformation(DbProviderManifest.StoreSchemaDefinition))
+#else
+      using (XmlReader reader = manifest.GetInformation(DbXmlEnabledProviderManifest.StoreSchemaDefinition))
+#endif
       {
         Assert.NotNull(reader);
       }

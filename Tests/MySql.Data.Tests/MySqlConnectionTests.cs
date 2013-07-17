@@ -1205,5 +1205,122 @@ namespace MySql.Data.MySqlClient.Tests
           Assert.Equal(ConnectionState.Open, c.State);
         }
       }
+
+#if NET_40_OR_GREATER
+      #region Async
+      [Fact]
+      public void TransactionAsync()
+      {
+        st.execSQL("Create Table Test(key2 varchar(50), name varchar(50), name2 varchar(50))");
+        st.execSQL("INSERT INTO Test VALUES('P', 'Test1', 'Test2')");
+
+        MySqlTransaction txn = st.conn.BeginTransactionAsync().Result;
+        MySqlConnection c = txn.Connection;
+        Assert.Equal(st.conn, c);
+        MySqlCommand cmd = new MySqlCommand("SELECT name, name2 FROM Test WHERE key2='P'", st.conn, txn);
+        MySqlTransaction t2 = cmd.Transaction;
+        Assert.Equal(txn, t2);
+        MySqlDataReader reader = null;
+        try
+        {
+          reader = cmd.ExecuteReader();
+          reader.Close();
+          txn.Commit();
+        }
+        catch (Exception ex)
+        {
+          Assert.False(ex.Message != string.Empty, ex.Message);
+          txn.Rollback();
+        }
+        finally
+        {
+          if (reader != null) reader.Close();
+        }
+      }
+      [Fact]
+      public void ChangeDataBaseAsync()
+      {
+        if (st.Version < new Version(4, 1)) return;
+
+        st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME,  `multi word` int, PRIMARY KEY(id))");
+        st.execSQL("INSERT INTO Test (id, name) VALUES (1,'test1')");
+        st.execSQL("INSERT INTO Test (id, name) VALUES (2,'test2')");
+        st.execSQL("INSERT INTO Test (id, name) VALUES (3,'test3')");
+
+        st.conn.ChangeDataBaseAsync(st.database1);
+        System.Threading.Thread.Sleep(1000);
+
+        MySqlDataAdapter da = new MySqlDataAdapter(
+            String.Format("SELECT id, name FROM `{0}`.Test", st.database0), st.conn);
+        MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
+        DataSet ds = new DataSet();
+        da.Fill(ds);
+
+        ds.Tables[0].Rows[0]["id"] = 4;
+        DataSet changes = ds.GetChanges();
+        da.Update(changes);
+        ds.Merge(changes);
+        ds.AcceptChanges();
+        cb.Dispose();
+
+        st.conn.ChangeDataBaseAsync(st.database0);
+        System.Threading.Thread.Sleep(1000);
+      }
+      [Fact]
+      public void OpenAndCloseConnectionAsync()
+      {
+        string connStr2 = st.GetConnectionString(false);
+        MySqlConnection c = new MySqlConnection(connStr2);
+        c.OpenAsync();
+        while (c.State != ConnectionState.Open)
+        {
+          System.Threading.Thread.Sleep(500);
+        }
+        c.CloseAsync();
+        while (c.State != ConnectionState.Closed)
+        {
+          System.Threading.Thread.Sleep(500);
+        }
+      }
+      [Fact]
+      public void ClearPoolAsync()
+      {
+        MySqlConnection c1 = new MySqlConnection(st.GetConnectionString(true));
+        MySqlConnection c2 = new MySqlConnection(st.GetConnectionString(true));
+        c1.Open();
+        c2.Open();
+        c1.Close();
+        c2.Close();
+        c1.ClearPoolAsync(c1);
+        System.Threading.Thread.Sleep(500);
+        c2.ClearPoolAsync(c1);
+        System.Threading.Thread.Sleep(500);
+      }
+      [Fact]
+      public void ClearAllPoolsAsync()
+      {
+        MySqlConnection c1 = new MySqlConnection(st.GetConnectionString(true));
+        MySqlConnection c2 = new MySqlConnection(st.GetConnectionString(true));
+        c1.Open();
+        c2.Open();
+        c1.Close();
+        c2.Close();
+        c1.ClearAllPoolsAsync();
+        System.Threading.Thread.Sleep(500);
+        c2.ClearAllPoolsAsync();
+        System.Threading.Thread.Sleep(500);
+      }
+      [Fact]
+      public void GetSchemaCollectionAsync()
+      {
+        MySqlConnection c1 = new MySqlConnection(st.GetConnectionString(true));
+
+        c1.Open();
+        var schemaColl = c1.GetSchemaCollectionAsync(SchemaProvider.MetaCollection, null).Result;
+        c1.Close();
+        Assert.NotNull(schemaColl);
+      }
+      #endregion
+#endif
   }
 }

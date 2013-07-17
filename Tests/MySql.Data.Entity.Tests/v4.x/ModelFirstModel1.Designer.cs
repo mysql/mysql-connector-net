@@ -9,18 +9,26 @@
 
 using System;
 using System.ComponentModel;
+#if !EF6
 using System.Data.EntityClient;
 using System.Data.Objects;
 using System.Data.Objects.DataClasses;
+#else
+using System.Data.Entity.Core.EntityClient;
+using System.Data.Entity.Core.Objects;
+using System.Data.Entity.Core.Objects.DataClasses;
+#endif
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 
 [assembly: EdmSchemaAttribute()]
 #region EDM Relationship Metadata
-
+#if !EF6
 [assembly: EdmRelationshipAttribute("ModelFirstModel1", "StudentKardex", "Student", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(MySql.Data.Entity.Tests.Student), "Kardex", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.Kardex), true)]
-
+#else
+[assembly: EdmRelationshipAttribute("ModelFirstModel1", "StudentKardex", "Student", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.One, typeof(MySql.Data.Entity.Tests.Student), "Kardex", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.Kardex), true)]
+#endif
 #endregion
 
 namespace MySql.Data.Entity.Tests

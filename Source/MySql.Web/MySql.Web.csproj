@@ -38,7 +38,7 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <DefineConstants Condition=" $(Framework) >= '4.0' ">NET_40_OR_GREATER</DefineConstants>
+    <DefineConstants Condition=" $(Framework) &gt;= '4.0' ">NET_40_OR_GREATER</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -72,6 +72,27 @@
     <DocumentationFile>bin\release\webdocs.xml</DocumentationFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugEF6|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\DebugEF6\</OutputPath>
+    <DefineConstants>NET_40_OR_GREATER;DEBUG;TRACE</DefineConstants>
+    <NoWarn>1699</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseEF6|AnyCPU'">
+    <OutputPath>bin\ReleaseEF6\</OutputPath>
+    <DefineConstants>NET_40_OR_GREATER;TRACE</DefineConstants>
+    <DocumentationFile>bin\release\webdocs.xml</DocumentationFile>
+    <Optimize>true</Optimize>
+    <NoWarn>1699</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -79,7 +100,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Management" />
     <Reference Include="System.Web" />
-    <Reference Include="System.Web.ApplicationServices" Condition="$(Framework) >= '3.5'"/>
+    <Reference Include="System.Web.ApplicationServices" Condition="$(Framework) &gt;= '3.5'" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>

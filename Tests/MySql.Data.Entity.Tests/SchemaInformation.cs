@@ -8,6 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+#if !EF6
 [assembly: global::System.Data.Objects.DataClasses.EdmSchemaAttribute()]
 [assembly: global::System.Data.Objects.DataClasses.EdmRelationshipAttribute("Store", "TableOrViewColumn", "Parent", global::System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(Store.TableOrView), "Column", global::System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(Store.Column))]
 [assembly: global::System.Data.Objects.DataClasses.EdmRelationshipAttribute("Store", "TableOrViewConstraint", "Parent", global::System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(Store.TableOrView), "Constraint", global::System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(Store.Constraint))]
@@ -16,6 +17,16 @@
 [assembly: global::System.Data.Objects.DataClasses.EdmRelationshipAttribute("Store", "ToForeignKeyColumn", "ForeignKey", global::System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(Store.ForeignKey), "Column", global::System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(Store.Column))]
 [assembly: global::System.Data.Objects.DataClasses.EdmRelationshipAttribute("Store", "FromForeignKeyColumn", "ForeignKey", global::System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(Store.ForeignKey), "Column", global::System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(Store.Column))]
 [assembly: global::System.Data.Objects.DataClasses.EdmRelationshipAttribute("Store", "RoutineParameter", "Routine", global::System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(Store.Routine), "Parameter", global::System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(Store.Parameter))]
+#else
+[assembly: global::System.Data.Entity.Core.Objects.DataClasses.EdmSchemaAttribute()]
+[assembly: global::System.Data.Entity.Core.Objects.DataClasses.EdmRelationshipAttribute("Store", "TableOrViewColumn", "Parent", global::System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.One, typeof(Store.TableOrView), "Column", global::System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(Store.Column))]
+[assembly: global::System.Data.Entity.Core.Objects.DataClasses.EdmRelationshipAttribute("Store", "TableOrViewConstraint", "Parent", global::System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.One, typeof(Store.TableOrView), "Constraint", global::System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(Store.Constraint))]
+[assembly: global::System.Data.Entity.Core.Objects.DataClasses.EdmRelationshipAttribute("Store", "TableOrViewConstraintColumn", "Constraint", global::System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(Store.TableOrViewColumnConstraint), "Column", global::System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(Store.Column))]
+[assembly: global::System.Data.Entity.Core.Objects.DataClasses.EdmRelationshipAttribute("Store", "ConstraintForeignKey", "Constraint", global::System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.One, typeof(Store.ForeignKeyConstraint), "ForeignKey", global::System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(Store.ForeignKey))]
+[assembly: global::System.Data.Entity.Core.Objects.DataClasses.EdmRelationshipAttribute("Store", "ToForeignKeyColumn", "ForeignKey", global::System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(Store.ForeignKey), "Column", global::System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.One, typeof(Store.Column))]
+[assembly: global::System.Data.Entity.Core.Objects.DataClasses.EdmRelationshipAttribute("Store", "FromForeignKeyColumn", "ForeignKey", global::System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(Store.ForeignKey), "Column", global::System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.One, typeof(Store.Column))]
+[assembly: global::System.Data.Entity.Core.Objects.DataClasses.EdmRelationshipAttribute("Store", "RoutineParameter", "Routine", global::System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.One, typeof(Store.Routine), "Parameter", global::System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(Store.Parameter))]
+#endif
 
 // Original file name: SchemaInformation.cs
 // Generation date: 2/11/2009 2:18:33 PM
@@ -25,7 +36,7 @@ namespace Store
   /// <summary>
   /// There are no comments for SchemaInformation in the schema.
   /// </summary>
-  public partial class SchemaInformation : global::System.Data.Objects.ObjectContext
+  public partial class SchemaInformation : global::System.Data.Entity.Core.Objects.ObjectContext
   {
     /// <summary>
     /// Initializes a new SchemaInformation object using the connection string found in the 'SchemaInformation' section of the application configuration file.
@@ -46,8 +57,13 @@ namespace Store
     /// <summary>
     /// Initialize a new SchemaInformation object.
     /// </summary>
-    public SchemaInformation(global::System.Data.EntityClient.EntityConnection connection) :
-      base(connection, "SchemaInformation")
+#if !EF6
+    public SchemaInformation(global::System.Data.EntityClient.EntityConnection connection) 
+    : base(connection, "SchemaInformation")
+#else
+    public SchemaInformation(global::System.Data.Entity.Core.EntityClient.EntityConnection connection)
+      : base(connection, "SchemaInformation")
+#endif
     {
       this.OnContextCreated();
     }
@@ -55,7 +71,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Tables in the schema.
     /// </summary>
-    public global::System.Data.Objects.ObjectQuery<Table> Tables
+    public global::System.Data.Entity.Core.Objects.ObjectQuery<Table> Tables
     {
       get
       {
@@ -66,11 +82,11 @@ namespace Store
         return this._Tables;
       }
     }
-    private global::System.Data.Objects.ObjectQuery<Table> _Tables;
+    private global::System.Data.Entity.Core.Objects.ObjectQuery<Table> _Tables;
     /// <summary>
     /// There are no comments for TableColumns in the schema.
     /// </summary>
-    public global::System.Data.Objects.ObjectQuery<Column> TableColumns
+    public global::System.Data.Entity.Core.Objects.ObjectQuery<Column> TableColumns
     {
       get
       {
@@ -81,11 +97,11 @@ namespace Store
         return this._TableColumns;
       }
     }
-    private global::System.Data.Objects.ObjectQuery<Column> _TableColumns;
+    private global::System.Data.Entity.Core.Objects.ObjectQuery<Column> _TableColumns;
     /// <summary>
     /// There are no comments for TableConstraints in the schema.
     /// </summary>
-    public global::System.Data.Objects.ObjectQuery<Constraint> TableConstraints
+    public global::System.Data.Entity.Core.Objects.ObjectQuery<Constraint> TableConstraints
     {
       get
       {
@@ -96,11 +112,11 @@ namespace Store
         return this._TableConstraints;
       }
     }
-    private global::System.Data.Objects.ObjectQuery<Constraint> _TableConstraints;
+    private global::System.Data.Entity.Core.Objects.ObjectQuery<Constraint> _TableConstraints;
     /// <summary>
     /// There are no comments for TableForeignKeys in the schema.
     /// </summary>
-    public global::System.Data.Objects.ObjectQuery<ForeignKey> TableForeignKeys
+    public global::System.Data.Entity.Core.Objects.ObjectQuery<ForeignKey> TableForeignKeys
     {
       get
       {
@@ -111,11 +127,11 @@ namespace Store
         return this._TableForeignKeys;
       }
     }
-    private global::System.Data.Objects.ObjectQuery<ForeignKey> _TableForeignKeys;
+    private global::System.Data.Entity.Core.Objects.ObjectQuery<ForeignKey> _TableForeignKeys;
     /// <summary>
     /// There are no comments for Views in the schema.
     /// </summary>
-    public global::System.Data.Objects.ObjectQuery<View> Views
+    public global::System.Data.Entity.Core.Objects.ObjectQuery<View> Views
     {
       get
       {
@@ -126,11 +142,11 @@ namespace Store
         return this._Views;
       }
     }
-    private global::System.Data.Objects.ObjectQuery<View> _Views;
+    private global::System.Data.Entity.Core.Objects.ObjectQuery<View> _Views;
     /// <summary>
     /// There are no comments for ViewColumns in the schema.
     /// </summary>
-    public global::System.Data.Objects.ObjectQuery<Column> ViewColumns
+    public global::System.Data.Entity.Core.Objects.ObjectQuery<Column> ViewColumns
     {
       get
       {
@@ -141,11 +157,11 @@ namespace Store
         return this._ViewColumns;
       }
     }
-    private global::System.Data.Objects.ObjectQuery<Column> _ViewColumns;
+    private global::System.Data.Entity.Core.Objects.ObjectQuery<Column> _ViewColumns;
     /// <summary>
     /// There are no comments for ViewConstraints in the schema.
     /// </summary>
-    public global::System.Data.Objects.ObjectQuery<Constraint> ViewConstraints
+    public global::System.Data.Entity.Core.Objects.ObjectQuery<Constraint> ViewConstraints
     {
       get
       {
@@ -156,11 +172,11 @@ namespace Store
         return this._ViewConstraints;
       }
     }
-    private global::System.Data.Objects.ObjectQuery<Constraint> _ViewConstraints;
+    private global::System.Data.Entity.Core.Objects.ObjectQuery<Constraint> _ViewConstraints;
     /// <summary>
     /// There are no comments for ViewForeignKeys in the schema.
     /// </summary>
-    public global::System.Data.Objects.ObjectQuery<ForeignKey> ViewForeignKeys
+    public global::System.Data.Entity.Core.Objects.ObjectQuery<ForeignKey> ViewForeignKeys
     {
       get
       {
@@ -171,11 +187,11 @@ namespace Store
         return this._ViewForeignKeys;
       }
     }
-    private global::System.Data.Objects.ObjectQuery<ForeignKey> _ViewForeignKeys;
+    private global::System.Data.Entity.Core.Objects.ObjectQuery<ForeignKey> _ViewForeignKeys;
     /// <summary>
     /// There are no comments for Functions in the schema.
     /// </summary>
-    public global::System.Data.Objects.ObjectQuery<Function> Functions
+    public global::System.Data.Entity.Core.Objects.ObjectQuery<Function> Functions
     {
       get
       {
@@ -186,11 +202,11 @@ namespace Store
         return this._Functions;
       }
     }
-    private global::System.Data.Objects.ObjectQuery<Function> _Functions;
+    private global::System.Data.Entity.Core.Objects.ObjectQuery<Function> _Functions;
     /// <summary>
     /// There are no comments for FunctionParameters in the schema.
     /// </summary>
-    public global::System.Data.Objects.ObjectQuery<Parameter> FunctionParameters
+    public global::System.Data.Entity.Core.Objects.ObjectQuery<Parameter> FunctionParameters
     {
       get
       {
@@ -201,11 +217,11 @@ namespace Store
         return this._FunctionParameters;
       }
     }
-    private global::System.Data.Objects.ObjectQuery<Parameter> _FunctionParameters;
+    private global::System.Data.Entity.Core.Objects.ObjectQuery<Parameter> _FunctionParameters;
     /// <summary>
     /// There are no comments for Procedures in the schema.
     /// </summary>
-    public global::System.Data.Objects.ObjectQuery<Procedure> Procedures
+    public global::System.Data.Entity.Core.Objects.ObjectQuery<Procedure> Procedures
     {
       get
       {
@@ -216,11 +232,11 @@ namespace Store
         return this._Procedures;
       }
     }
-    private global::System.Data.Objects.ObjectQuery<Procedure> _Procedures;
+    private global::System.Data.Entity.Core.Objects.ObjectQuery<Procedure> _Procedures;
     /// <summary>
     /// There are no comments for ProcedureParameters in the schema.
     /// </summary>
-    public global::System.Data.Objects.ObjectQuery<Parameter> ProcedureParameters
+    public global::System.Data.Entity.Core.Objects.ObjectQuery<Parameter> ProcedureParameters
     {
       get
       {
@@ -231,7 +247,7 @@ namespace Store
         return this._ProcedureParameters;
       }
     }
-    private global::System.Data.Objects.ObjectQuery<Parameter> _ProcedureParameters;
+    private global::System.Data.Entity.Core.Objects.ObjectQuery<Parameter> _ProcedureParameters;
     /// <summary>
     /// There are no comments for Tables in the schema.
     /// </summary>
@@ -320,10 +336,10 @@ namespace Store
   /// <summary>
   /// There are no comments for ComplexType Store.TypeSpecification in the schema.
   /// </summary>
-  [global::System.Data.Objects.DataClasses.EdmComplexTypeAttribute(NamespaceName = "Store", Name = "TypeSpecification")]
+  [global::System.Data.Entity.Core.Objects.DataClasses.EdmComplexTypeAttribute(NamespaceName = "Store", Name = "TypeSpecification")]
   [global::System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
   [global::System.Serializable()]
-  public partial class TypeSpecification : global::System.Data.Objects.DataClasses.ComplexObject
+  public partial class TypeSpecification : global::System.Data.Entity.Core.Objects.DataClasses.ComplexObject
   {
     /// <summary>
     /// Create a new TypeSpecification object.
@@ -336,15 +352,15 @@ namespace Store
     {
       TypeSpecification typeSpecification = new TypeSpecification();
       typeSpecification.TypeName = typeName;
-      typeSpecification.Collation = global::System.Data.Objects.DataClasses.StructuralObject.VerifyComplexObjectIsNotNull(collation, "Collation");
-      typeSpecification.CharacterSet = global::System.Data.Objects.DataClasses.StructuralObject.VerifyComplexObjectIsNotNull(characterSet, "CharacterSet");
+      typeSpecification.Collation = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.VerifyComplexObjectIsNotNull(collation, "Collation");
+      typeSpecification.CharacterSet = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.VerifyComplexObjectIsNotNull(characterSet, "CharacterSet");
       typeSpecification.IsMultiSet = isMultiSet;
       return typeSpecification;
     }
     /// <summary>
     /// There are no comments for Property TypeName in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public string TypeName
     {
@@ -356,7 +372,7 @@ namespace Store
       {
         this.OnTypeNameChanging(value);
         this.ReportPropertyChanging("TypeName");
-        this._TypeName = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, false);
+        this._TypeName = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, false);
         this.ReportPropertyChanged("TypeName");
         this.OnTypeNameChanged();
       }
@@ -367,7 +383,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property MaxLength in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public global::System.Nullable<int> MaxLength
     {
@@ -379,7 +395,7 @@ namespace Store
       {
         this.OnMaxLengthChanging(value);
         this.ReportPropertyChanging("MaxLength");
-        this._MaxLength = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value);
+        this._MaxLength = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value);
         this.ReportPropertyChanged("MaxLength");
         this.OnMaxLengthChanged();
       }
@@ -390,7 +406,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property Precision in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public global::System.Nullable<int> Precision
     {
@@ -402,7 +418,7 @@ namespace Store
       {
         this.OnPrecisionChanging(value);
         this.ReportPropertyChanging("Precision");
-        this._Precision = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value);
+        this._Precision = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value);
         this.ReportPropertyChanged("Precision");
         this.OnPrecisionChanged();
       }
@@ -413,7 +429,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property DateTimePrecision in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public global::System.Nullable<int> DateTimePrecision
     {
@@ -425,7 +441,7 @@ namespace Store
       {
         this.OnDateTimePrecisionChanging(value);
         this.ReportPropertyChanging("DateTimePrecision");
-        this._DateTimePrecision = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value);
+        this._DateTimePrecision = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value);
         this.ReportPropertyChanged("DateTimePrecision");
         this.OnDateTimePrecisionChanged();
       }
@@ -436,7 +452,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property Scale in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public global::System.Nullable<int> Scale
     {
@@ -448,7 +464,7 @@ namespace Store
       {
         this.OnScaleChanging(value);
         this.ReportPropertyChanging("Scale");
-        this._Scale = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value);
+        this._Scale = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value);
         this.ReportPropertyChanged("Scale");
         this.OnScaleChanged();
       }
@@ -459,7 +475,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property Collation in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmComplexPropertyAttribute()]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmComplexPropertyAttribute()]
     [global::System.ComponentModel.DesignerSerializationVisibility(global::System.ComponentModel.DesignerSerializationVisibility.Content)]
     [global::System.Xml.Serialization.XmlElement(IsNullable = true)]
     [global::System.Xml.Serialization.SoapElement(IsNullable = true)]
@@ -489,7 +505,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property CharacterSet in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmComplexPropertyAttribute()]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmComplexPropertyAttribute()]
     [global::System.ComponentModel.DesignerSerializationVisibility(global::System.ComponentModel.DesignerSerializationVisibility.Content)]
     [global::System.Xml.Serialization.XmlElement(IsNullable = true)]
     [global::System.Xml.Serialization.SoapElement(IsNullable = true)]
@@ -519,7 +535,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property IsMultiSet in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public bool IsMultiSet
     {
@@ -531,7 +547,7 @@ namespace Store
       {
         this.OnIsMultiSetChanging(value);
         this.ReportPropertyChanging("IsMultiSet");
-        this._IsMultiSet = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value);
+        this._IsMultiSet = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value);
         this.ReportPropertyChanged("IsMultiSet");
         this.OnIsMultiSetChanged();
       }
@@ -543,15 +559,15 @@ namespace Store
   /// <summary>
   /// There are no comments for ComplexType Store.Collation in the schema.
   /// </summary>
-  [global::System.Data.Objects.DataClasses.EdmComplexTypeAttribute(NamespaceName = "Store", Name = "Collation")]
+  [global::System.Data.Entity.Core.Objects.DataClasses.EdmComplexTypeAttribute(NamespaceName = "Store", Name = "Collation")]
   [global::System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
   [global::System.Serializable()]
-  public partial class Collation : global::System.Data.Objects.DataClasses.ComplexObject
+  public partial class Collation : global::System.Data.Entity.Core.Objects.DataClasses.ComplexObject
   {
     /// <summary>
     /// There are no comments for Property CatalogName in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public string CatalogName
     {
@@ -563,7 +579,7 @@ namespace Store
       {
         this.OnCatalogNameChanging(value);
         this.ReportPropertyChanging("CatalogName");
-        this._CatalogName = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
+        this._CatalogName = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
         this.ReportPropertyChanged("CatalogName");
         this.OnCatalogNameChanged();
       }
@@ -574,7 +590,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property SchemaName in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public string SchemaName
     {
@@ -586,7 +602,7 @@ namespace Store
       {
         this.OnSchemaNameChanging(value);
         this.ReportPropertyChanging("SchemaName");
-        this._SchemaName = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
+        this._SchemaName = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
         this.ReportPropertyChanged("SchemaName");
         this.OnSchemaNameChanged();
       }
@@ -597,7 +613,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property Name in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public string Name
     {
@@ -609,7 +625,7 @@ namespace Store
       {
         this.OnNameChanging(value);
         this.ReportPropertyChanging("Name");
-        this._Name = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
+        this._Name = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
         this.ReportPropertyChanged("Name");
         this.OnNameChanged();
       }
@@ -621,15 +637,15 @@ namespace Store
   /// <summary>
   /// There are no comments for ComplexType Store.CharacterSet in the schema.
   /// </summary>
-  [global::System.Data.Objects.DataClasses.EdmComplexTypeAttribute(NamespaceName = "Store", Name = "CharacterSet")]
+  [global::System.Data.Entity.Core.Objects.DataClasses.EdmComplexTypeAttribute(NamespaceName = "Store", Name = "CharacterSet")]
   [global::System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
   [global::System.Serializable()]
-  public partial class CharacterSet : global::System.Data.Objects.DataClasses.ComplexObject
+  public partial class CharacterSet : global::System.Data.Entity.Core.Objects.DataClasses.ComplexObject
   {
     /// <summary>
     /// There are no comments for Property CatalogName in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public string CatalogName
     {
@@ -641,7 +657,7 @@ namespace Store
       {
         this.OnCatalogNameChanging(value);
         this.ReportPropertyChanging("CatalogName");
-        this._CatalogName = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
+        this._CatalogName = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
         this.ReportPropertyChanged("CatalogName");
         this.OnCatalogNameChanged();
       }
@@ -652,7 +668,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property SchemaName in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public string SchemaName
     {
@@ -664,7 +680,7 @@ namespace Store
       {
         this.OnSchemaNameChanging(value);
         this.ReportPropertyChanging("SchemaName");
-        this._SchemaName = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
+        this._SchemaName = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
         this.ReportPropertyChanged("SchemaName");
         this.OnSchemaNameChanged();
       }
@@ -675,7 +691,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property Name in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public string Name
     {
@@ -687,7 +703,7 @@ namespace Store
       {
         this.OnNameChanging(value);
         this.ReportPropertyChanging("Name");
-        this._Name = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
+        this._Name = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
         this.ReportPropertyChanged("Name");
         this.OnNameChanged();
       }
@@ -702,17 +718,17 @@ namespace Store
   /// <KeyProperties>
   /// Id
   /// </KeyProperties>
-  [global::System.Data.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "Store", Name = "TableOrView")]
+  [global::System.Data.Entity.Core.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "Store", Name = "TableOrView")]
   [global::System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
   [global::System.Serializable()]
   [global::System.Runtime.Serialization.KnownTypeAttribute(typeof(global::Store.Table))]
   [global::System.Runtime.Serialization.KnownTypeAttribute(typeof(global::Store.View))]
-  public abstract partial class TableOrView : global::System.Data.Objects.DataClasses.EntityObject
+  public abstract partial class TableOrView : global::System.Data.Entity.Core.Objects.DataClasses.EntityObject
   {
     /// <summary>
     /// There are no comments for Property Id in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty = true, IsNullable = false)]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty = true, IsNullable = false)]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public string Id
     {
@@ -724,7 +740,7 @@ namespace Store
       {
         this.OnIdChanging(value);
         this.ReportPropertyChanging("Id");
-        this._Id = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, false);
+        this._Id = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, false);
         this.ReportPropertyChanged("Id");
         this.OnIdChanged();
       }
@@ -735,7 +751,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property Name in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public string Name
     {
@@ -747,7 +763,7 @@ namespace Store
       {
         this.OnNameChanging(value);
         this.ReportPropertyChanging("Name");
-        this._Name = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, false);
+        this._Name = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, false);
         this.ReportPropertyChanged("Name");
         this.OnNameChanged();
       }
@@ -758,7 +774,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property CatalogName in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public string CatalogName
     {
@@ -770,7 +786,7 @@ namespace Store
       {
         this.OnCatalogNameChanging(value);
         this.ReportPropertyChanging("CatalogName");
-        this._CatalogName = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
+        this._CatalogName = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
         this.ReportPropertyChanged("CatalogName");
         this.OnCatalogNameChanged();
       }
@@ -781,7 +797,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property SchemaName in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public string SchemaName
     {
@@ -793,7 +809,7 @@ namespace Store
       {
         this.OnSchemaNameChanging(value);
         this.ReportPropertyChanging("SchemaName");
-        this._SchemaName = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
+        this._SchemaName = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
         this.ReportPropertyChanged("SchemaName");
         this.OnSchemaNameChanged();
       }
@@ -804,42 +820,42 @@ namespace Store
     /// <summary>
     /// There are no comments for Columns in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("Store", "TableOrViewColumn", "Column")]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("Store", "TableOrViewColumn", "Column")]
     [global::System.Xml.Serialization.XmlIgnoreAttribute()]
     [global::System.Xml.Serialization.SoapIgnoreAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
-    public global::System.Data.Objects.DataClasses.EntityCollection<Column> Columns
+    public global::System.Data.Entity.Core.Objects.DataClasses.EntityCollection<Column> Columns
     {
       get
       {
-        return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedCollection<Column>("Store.TableOrViewColumn", "Column");
+        return ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedCollection<Column>("Store.TableOrViewColumn", "Column");
       }
       set
       {
         if ((value != null))
         {
-          ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedCollection<Column>("Store.TableOrViewColumn", "Column", value);
+          ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedCollection<Column>("Store.TableOrViewColumn", "Column", value);
         }
       }
     }
     /// <summary>
     /// There are no comments for Constraints in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("Store", "TableOrViewConstraint", "Constraint")]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("Store", "TableOrViewConstraint", "Constraint")]
     [global::System.Xml.Serialization.XmlIgnoreAttribute()]
     [global::System.Xml.Serialization.SoapIgnoreAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
-    public global::System.Data.Objects.DataClasses.EntityCollection<Constraint> Constraints
+    public global::System.Data.Entity.Core.Objects.DataClasses.EntityCollection<Constraint> Constraints
     {
       get
       {
-        return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedCollection<Constraint>("Store.TableOrViewConstraint", "Constraint");
+        return ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedCollection<Constraint>("Store.TableOrViewConstraint", "Constraint");
       }
       set
       {
         if ((value != null))
         {
-          ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedCollection<Constraint>("Store.TableOrViewConstraint", "Constraint", value);
+          ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedCollection<Constraint>("Store.TableOrViewConstraint", "Constraint", value);
         }
       }
     }
@@ -850,7 +866,7 @@ namespace Store
   /// <KeyProperties>
   /// Id
   /// </KeyProperties>
-  [global::System.Data.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "Store", Name = "Table")]
+  [global::System.Data.Entity.Core.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "Store", Name = "Table")]
   [global::System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
   [global::System.Serializable()]
   public partial class Table : TableOrView
@@ -874,10 +890,10 @@ namespace Store
   /// <KeyProperties>
   /// Id
   /// </KeyProperties>
-  [global::System.Data.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "Store", Name = "Column")]
+  [global::System.Data.Entity.Core.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "Store", Name = "Column")]
   [global::System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
   [global::System.Serializable()]
-  public partial class Column : global::System.Data.Objects.DataClasses.EntityObject
+  public partial class Column : global::System.Data.Entity.Core.Objects.DataClasses.EntityObject
   {
     /// <summary>
     /// Create a new Column object.
@@ -896,7 +912,7 @@ namespace Store
       column.Name = name;
       column.Ordinal = ordinal;
       column.IsNullable = isNullable;
-      column.ColumnType = global::System.Data.Objects.DataClasses.StructuralObject.VerifyComplexObjectIsNotNull(columnType, "ColumnType");
+      column.ColumnType = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.VerifyComplexObjectIsNotNull(columnType, "ColumnType");
       column.IsIdentity = isIdentity;
       column.IsStoreGenerated = isStoreGenerated;
       return column;
@@ -904,7 +920,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property Id in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty = true, IsNullable = false)]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty = true, IsNullable = false)]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public string Id
     {
@@ -916,7 +932,7 @@ namespace Store
       {
         this.OnIdChanging(value);
         this.ReportPropertyChanging("Id");
-        this._Id = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, false);
+        this._Id = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, false);
         this.ReportPropertyChanged("Id");
         this.OnIdChanged();
       }
@@ -927,7 +943,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property Name in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public string Name
     {
@@ -939,7 +955,7 @@ namespace Store
       {
         this.OnNameChanging(value);
         this.ReportPropertyChanging("Name");
-        this._Name = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, false);
+        this._Name = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, false);
         this.ReportPropertyChanged("Name");
         this.OnNameChanged();
       }
@@ -950,7 +966,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property Ordinal in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public int Ordinal
     {
@@ -962,7 +978,7 @@ namespace Store
       {
         this.OnOrdinalChanging(value);
         this.ReportPropertyChanging("Ordinal");
-        this._Ordinal = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value);
+        this._Ordinal = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value);
         this.ReportPropertyChanged("Ordinal");
         this.OnOrdinalChanged();
       }
@@ -973,7 +989,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property IsNullable in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public bool IsNullable
     {
@@ -985,7 +1001,7 @@ namespace Store
       {
         this.OnIsNullableChanging(value);
         this.ReportPropertyChanging("IsNullable");
-        this._IsNullable = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value);
+        this._IsNullable = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value);
         this.ReportPropertyChanged("IsNullable");
         this.OnIsNullableChanged();
       }
@@ -996,7 +1012,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property ColumnType in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmComplexPropertyAttribute()]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmComplexPropertyAttribute()]
     [global::System.ComponentModel.DesignerSerializationVisibility(global::System.ComponentModel.DesignerSerializationVisibility.Content)]
     [global::System.Xml.Serialization.XmlElement(IsNullable = true)]
     [global::System.Xml.Serialization.SoapElement(IsNullable = true)]
@@ -1026,7 +1042,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property IsIdentity in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public bool IsIdentity
     {
@@ -1038,7 +1054,7 @@ namespace Store
       {
         this.OnIsIdentityChanging(value);
         this.ReportPropertyChanging("IsIdentity");
-        this._IsIdentity = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value);
+        this._IsIdentity = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value);
         this.ReportPropertyChanged("IsIdentity");
         this.OnIsIdentityChanged();
       }
@@ -1049,7 +1065,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property IsStoreGenerated in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public bool IsStoreGenerated
     {
@@ -1061,7 +1077,7 @@ namespace Store
       {
         this.OnIsStoreGeneratedChanging(value);
         this.ReportPropertyChanging("IsStoreGenerated");
-        this._IsStoreGenerated = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value);
+        this._IsStoreGenerated = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value);
         this.ReportPropertyChanged("IsStoreGenerated");
         this.OnIsStoreGeneratedChanged();
       }
@@ -1072,7 +1088,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property Default in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public string Default
     {
@@ -1084,7 +1100,7 @@ namespace Store
       {
         this.OnDefaultChanging(value);
         this.ReportPropertyChanging("Default");
-        this._Default = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
+        this._Default = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
         this.ReportPropertyChanged("Default");
         this.OnDefaultChanged();
       }
@@ -1095,7 +1111,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Parent in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("Store", "TableOrViewColumn", "Parent")]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("Store", "TableOrViewColumn", "Parent")]
     [global::System.Xml.Serialization.XmlIgnoreAttribute()]
     [global::System.Xml.Serialization.SoapIgnoreAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
@@ -1103,11 +1119,11 @@ namespace Store
     {
       get
       {
-        return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<TableOrView>("Store.TableOrViewColumn", "Parent").Value;
+        return ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<TableOrView>("Store.TableOrViewColumn", "Parent").Value;
       }
       set
       {
-        ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<TableOrView>("Store.TableOrViewColumn", "Parent").Value = value;
+        ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<TableOrView>("Store.TableOrViewColumn", "Parent").Value = value;
       }
     }
     /// <summary>
@@ -1115,80 +1131,80 @@ namespace Store
     /// </summary>
     [global::System.ComponentModel.BrowsableAttribute(false)]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
-    public global::System.Data.Objects.DataClasses.EntityReference<TableOrView> ParentReference
+    public global::System.Data.Entity.Core.Objects.DataClasses.EntityReference<TableOrView> ParentReference
     {
       get
       {
-        return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<TableOrView>("Store.TableOrViewColumn", "Parent");
+        return ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<TableOrView>("Store.TableOrViewColumn", "Parent");
       }
       set
       {
         if ((value != null))
         {
-          ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedReference<TableOrView>("Store.TableOrViewColumn", "Parent", value);
+          ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedReference<TableOrView>("Store.TableOrViewColumn", "Parent", value);
         }
       }
     }
     /// <summary>
     /// There are no comments for Constraints in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("Store", "TableOrViewConstraintColumn", "Constraint")]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("Store", "TableOrViewConstraintColumn", "Constraint")]
     [global::System.Xml.Serialization.XmlIgnoreAttribute()]
     [global::System.Xml.Serialization.SoapIgnoreAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
-    public global::System.Data.Objects.DataClasses.EntityCollection<TableOrViewColumnConstraint> Constraints
+    public global::System.Data.Entity.Core.Objects.DataClasses.EntityCollection<TableOrViewColumnConstraint> Constraints
     {
       get
       {
-        return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedCollection<TableOrViewColumnConstraint>("Store.TableOrViewConstraintColumn", "Constraint");
+        return ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedCollection<TableOrViewColumnConstraint>("Store.TableOrViewConstraintColumn", "Constraint");
       }
       set
       {
         if ((value != null))
         {
-          ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedCollection<TableOrViewColumnConstraint>("Store.TableOrViewConstraintColumn", "Constraint", value);
+          ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedCollection<TableOrViewColumnConstraint>("Store.TableOrViewConstraintColumn", "Constraint", value);
         }
       }
     }
     /// <summary>
     /// There are no comments for ToForeignKeys in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("Store", "ToForeignKeyColumn", "ForeignKey")]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("Store", "ToForeignKeyColumn", "ForeignKey")]
     [global::System.Xml.Serialization.XmlIgnoreAttribute()]
     [global::System.Xml.Serialization.SoapIgnoreAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
-    public global::System.Data.Objects.DataClasses.EntityCollection<ForeignKey> ToForeignKeys
+    public global::System.Data.Entity.Core.Objects.DataClasses.EntityCollection<ForeignKey> ToForeignKeys
     {
       get
       {
-        return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedCollection<ForeignKey>("Store.ToForeignKeyColumn", "ForeignKey");
+        return ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedCollection<ForeignKey>("Store.ToForeignKeyColumn", "ForeignKey");
       }
       set
       {
         if ((value != null))
         {
-          ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedCollection<ForeignKey>("Store.ToForeignKeyColumn", "ForeignKey", value);
+          ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedCollection<ForeignKey>("Store.ToForeignKeyColumn", "ForeignKey", value);
         }
       }
     }
     /// <summary>
     /// There are no comments for FromForeignKeys in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("Store", "FromForeignKeyColumn", "ForeignKey")]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("Store", "FromForeignKeyColumn", "ForeignKey")]
     [global::System.Xml.Serialization.XmlIgnoreAttribute()]
     [global::System.Xml.Serialization.SoapIgnoreAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
-    public global::System.Data.Objects.DataClasses.EntityCollection<ForeignKey> FromForeignKeys
+    public global::System.Data.Entity.Core.Objects.DataClasses.EntityCollection<ForeignKey> FromForeignKeys
     {
       get
       {
-        return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedCollection<ForeignKey>("Store.FromForeignKeyColumn", "ForeignKey");
+        return ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedCollection<ForeignKey>("Store.FromForeignKeyColumn", "ForeignKey");
       }
       set
       {
         if ((value != null))
         {
-          ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedCollection<ForeignKey>("Store.FromForeignKeyColumn", "ForeignKey", value);
+          ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedCollection<ForeignKey>("Store.FromForeignKeyColumn", "ForeignKey", value);
         }
       }
     }
@@ -1199,7 +1215,7 @@ namespace Store
   /// <KeyProperties>
   /// Id
   /// </KeyProperties>
-  [global::System.Data.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "Store", Name = "View")]
+  [global::System.Data.Entity.Core.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "Store", Name = "View")]
   [global::System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
   [global::System.Serializable()]
   public partial class View : TableOrView
@@ -1221,7 +1237,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property IsUpdatable in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public bool IsUpdatable
     {
@@ -1233,7 +1249,7 @@ namespace Store
       {
         this.OnIsUpdatableChanging(value);
         this.ReportPropertyChanging("IsUpdatable");
-        this._IsUpdatable = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value);
+        this._IsUpdatable = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value);
         this.ReportPropertyChanged("IsUpdatable");
         this.OnIsUpdatableChanged();
       }
@@ -1244,7 +1260,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property ViewDefinition in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public string ViewDefinition
     {
@@ -1256,7 +1272,7 @@ namespace Store
       {
         this.OnViewDefinitionChanging(value);
         this.ReportPropertyChanging("ViewDefinition");
-        this._ViewDefinition = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
+        this._ViewDefinition = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
         this.ReportPropertyChanged("ViewDefinition");
         this.OnViewDefinitionChanged();
       }
@@ -1271,17 +1287,17 @@ namespace Store
   /// <KeyProperties>
   /// Id
   /// </KeyProperties>
-  [global::System.Data.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "Store", Name = "Routine")]
+  [global::System.Data.Entity.Core.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "Store", Name = "Routine")]
   [global::System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
   [global::System.Serializable()]
   [global::System.Runtime.Serialization.KnownTypeAttribute(typeof(global::Store.Function))]
   [global::System.Runtime.Serialization.KnownTypeAttribute(typeof(global::Store.Procedure))]
-  public abstract partial class Routine : global::System.Data.Objects.DataClasses.EntityObject
+  public abstract partial class Routine : global::System.Data.Entity.Core.Objects.DataClasses.EntityObject
   {
     /// <summary>
     /// There are no comments for Property Id in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty = true, IsNullable = false)]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty = true, IsNullable = false)]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public string Id
     {
@@ -1293,7 +1309,7 @@ namespace Store
       {
         this.OnIdChanging(value);
         this.ReportPropertyChanging("Id");
-        this._Id = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, false);
+        this._Id = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, false);
         this.ReportPropertyChanged("Id");
         this.OnIdChanged();
       }
@@ -1304,7 +1320,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property CatalogName in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public string CatalogName
     {
@@ -1316,7 +1332,7 @@ namespace Store
       {
         this.OnCatalogNameChanging(value);
         this.ReportPropertyChanging("CatalogName");
-        this._CatalogName = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
+        this._CatalogName = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
         this.ReportPropertyChanged("CatalogName");
         this.OnCatalogNameChanged();
       }
@@ -1327,7 +1343,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property SchemaName in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public string SchemaName
     {
@@ -1339,7 +1355,7 @@ namespace Store
       {
         this.OnSchemaNameChanging(value);
         this.ReportPropertyChanging("SchemaName");
-        this._SchemaName = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
+        this._SchemaName = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
         this.ReportPropertyChanged("SchemaName");
         this.OnSchemaNameChanged();
       }
@@ -1350,7 +1366,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property Name in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public string Name
     {
@@ -1362,7 +1378,7 @@ namespace Store
       {
         this.OnNameChanging(value);
         this.ReportPropertyChanging("Name");
-        this._Name = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, false);
+        this._Name = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, false);
         this.ReportPropertyChanged("Name");
         this.OnNameChanged();
       }
@@ -1373,21 +1389,21 @@ namespace Store
     /// <summary>
     /// There are no comments for Parameters in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("Store", "RoutineParameter", "Parameter")]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("Store", "RoutineParameter", "Parameter")]
     [global::System.Xml.Serialization.XmlIgnoreAttribute()]
     [global::System.Xml.Serialization.SoapIgnoreAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
-    public global::System.Data.Objects.DataClasses.EntityCollection<Parameter> Parameters
+    public global::System.Data.Entity.Core.Objects.DataClasses.EntityCollection<Parameter> Parameters
     {
       get
       {
-        return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedCollection<Parameter>("Store.RoutineParameter", "Parameter");
+        return ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedCollection<Parameter>("Store.RoutineParameter", "Parameter");
       }
       set
       {
         if ((value != null))
         {
-          ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedCollection<Parameter>("Store.RoutineParameter", "Parameter", value);
+          ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedCollection<Parameter>("Store.RoutineParameter", "Parameter", value);
         }
       }
     }
@@ -1398,10 +1414,10 @@ namespace Store
   /// <KeyProperties>
   /// Id
   /// </KeyProperties>
-  [global::System.Data.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "Store", Name = "Parameter")]
+  [global::System.Data.Entity.Core.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "Store", Name = "Parameter")]
   [global::System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
   [global::System.Serializable()]
-  public partial class Parameter : global::System.Data.Objects.DataClasses.EntityObject
+  public partial class Parameter : global::System.Data.Entity.Core.Objects.DataClasses.EntityObject
   {
     /// <summary>
     /// Create a new Parameter object.
@@ -1416,13 +1432,13 @@ namespace Store
       parameter.Id = id;
       parameter.Name = name;
       parameter.Ordinal = ordinal;
-      parameter.ParameterType = global::System.Data.Objects.DataClasses.StructuralObject.VerifyComplexObjectIsNotNull(parameterType, "ParameterType");
+      parameter.ParameterType = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.VerifyComplexObjectIsNotNull(parameterType, "ParameterType");
       return parameter;
     }
     /// <summary>
     /// There are no comments for Property Id in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty = true, IsNullable = false)]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty = true, IsNullable = false)]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public string Id
     {
@@ -1434,7 +1450,7 @@ namespace Store
       {
         this.OnIdChanging(value);
         this.ReportPropertyChanging("Id");
-        this._Id = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, false);
+        this._Id = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, false);
         this.ReportPropertyChanged("Id");
         this.OnIdChanged();
       }
@@ -1445,7 +1461,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property Name in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public string Name
     {
@@ -1457,7 +1473,7 @@ namespace Store
       {
         this.OnNameChanging(value);
         this.ReportPropertyChanging("Name");
-        this._Name = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, false);
+        this._Name = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, false);
         this.ReportPropertyChanged("Name");
         this.OnNameChanged();
       }
@@ -1468,7 +1484,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property Ordinal in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public int Ordinal
     {
@@ -1480,7 +1496,7 @@ namespace Store
       {
         this.OnOrdinalChanging(value);
         this.ReportPropertyChanging("Ordinal");
-        this._Ordinal = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value);
+        this._Ordinal = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value);
         this.ReportPropertyChanged("Ordinal");
         this.OnOrdinalChanged();
       }
@@ -1491,7 +1507,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property ParameterType in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmComplexPropertyAttribute()]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmComplexPropertyAttribute()]
     [global::System.ComponentModel.DesignerSerializationVisibility(global::System.ComponentModel.DesignerSerializationVisibility.Content)]
     [global::System.Xml.Serialization.XmlElement(IsNullable = true)]
     [global::System.Xml.Serialization.SoapElement(IsNullable = true)]
@@ -1521,7 +1537,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property Mode in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public string Mode
     {
@@ -1533,7 +1549,7 @@ namespace Store
       {
         this.OnModeChanging(value);
         this.ReportPropertyChanging("Mode");
-        this._Mode = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
+        this._Mode = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
         this.ReportPropertyChanged("Mode");
         this.OnModeChanged();
       }
@@ -1544,7 +1560,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property Default in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public string Default
     {
@@ -1556,7 +1572,7 @@ namespace Store
       {
         this.OnDefaultChanging(value);
         this.ReportPropertyChanging("Default");
-        this._Default = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
+        this._Default = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
         this.ReportPropertyChanged("Default");
         this.OnDefaultChanged();
       }
@@ -1567,7 +1583,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Routine in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("Store", "RoutineParameter", "Routine")]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("Store", "RoutineParameter", "Routine")]
     [global::System.Xml.Serialization.XmlIgnoreAttribute()]
     [global::System.Xml.Serialization.SoapIgnoreAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
@@ -1575,11 +1591,11 @@ namespace Store
     {
       get
       {
-        return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<Routine>("Store.RoutineParameter", "Routine").Value;
+        return ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<Routine>("Store.RoutineParameter", "Routine").Value;
       }
       set
       {
-        ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<Routine>("Store.RoutineParameter", "Routine").Value = value;
+        ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<Routine>("Store.RoutineParameter", "Routine").Value = value;
       }
     }
     /// <summary>
@@ -1587,17 +1603,17 @@ namespace Store
     /// </summary>
     [global::System.ComponentModel.BrowsableAttribute(false)]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
-    public global::System.Data.Objects.DataClasses.EntityReference<Routine> RoutineReference
+    public global::System.Data.Entity.Core.Objects.DataClasses.EntityReference<Routine> RoutineReference
     {
       get
       {
-        return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<Routine>("Store.RoutineParameter", "Routine");
+        return ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<Routine>("Store.RoutineParameter", "Routine");
       }
       set
       {
         if ((value != null))
         {
-          ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedReference<Routine>("Store.RoutineParameter", "Routine", value);
+          ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedReference<Routine>("Store.RoutineParameter", "Routine", value);
         }
       }
     }
@@ -1608,7 +1624,7 @@ namespace Store
   /// <KeyProperties>
   /// Id
   /// </KeyProperties>
-  [global::System.Data.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "Store", Name = "Function")]
+  [global::System.Data.Entity.Core.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "Store", Name = "Function")]
   [global::System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
   [global::System.Serializable()]
   [global::System.Runtime.Serialization.KnownTypeAttribute(typeof(global::Store.ScalarFunction))]
@@ -1617,7 +1633,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property IsBuiltIn in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public global::System.Nullable<bool> IsBuiltIn
     {
@@ -1629,7 +1645,7 @@ namespace Store
       {
         this.OnIsBuiltInChanging(value);
         this.ReportPropertyChanging("IsBuiltIn");
-        this._IsBuiltIn = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value);
+        this._IsBuiltIn = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value);
         this.ReportPropertyChanged("IsBuiltIn");
         this.OnIsBuiltInChanged();
       }
@@ -1640,7 +1656,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property IsNiladic in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public global::System.Nullable<bool> IsNiladic
     {
@@ -1652,7 +1668,7 @@ namespace Store
       {
         this.OnIsNiladicChanging(value);
         this.ReportPropertyChanging("IsNiladic");
-        this._IsNiladic = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value);
+        this._IsNiladic = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value);
         this.ReportPropertyChanged("IsNiladic");
         this.OnIsNiladicChanged();
       }
@@ -1667,7 +1683,7 @@ namespace Store
   /// <KeyProperties>
   /// Id
   /// </KeyProperties>
-  [global::System.Data.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "Store", Name = "ScalarFunction")]
+  [global::System.Data.Entity.Core.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "Store", Name = "ScalarFunction")]
   [global::System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
   [global::System.Serializable()]
   public partial class ScalarFunction : Function
@@ -1683,13 +1699,13 @@ namespace Store
       ScalarFunction scalarFunction = new ScalarFunction();
       scalarFunction.Id = id;
       scalarFunction.Name = name;
-      scalarFunction.ReturnType = global::System.Data.Objects.DataClasses.StructuralObject.VerifyComplexObjectIsNotNull(returnType, "ReturnType");
+      scalarFunction.ReturnType = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.VerifyComplexObjectIsNotNull(returnType, "ReturnType");
       return scalarFunction;
     }
     /// <summary>
     /// There are no comments for Property ReturnType in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmComplexPropertyAttribute()]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmComplexPropertyAttribute()]
     [global::System.ComponentModel.DesignerSerializationVisibility(global::System.ComponentModel.DesignerSerializationVisibility.Content)]
     [global::System.Xml.Serialization.XmlElement(IsNullable = true)]
     [global::System.Xml.Serialization.SoapElement(IsNullable = true)]
@@ -1719,7 +1735,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property IsAggregate in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public global::System.Nullable<bool> IsAggregate
     {
@@ -1731,7 +1747,7 @@ namespace Store
       {
         this.OnIsAggregateChanging(value);
         this.ReportPropertyChanging("IsAggregate");
-        this._IsAggregate = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value);
+        this._IsAggregate = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value);
         this.ReportPropertyChanged("IsAggregate");
         this.OnIsAggregateChanged();
       }
@@ -1746,7 +1762,7 @@ namespace Store
   /// <KeyProperties>
   /// Id
   /// </KeyProperties>
-  [global::System.Data.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "Store", Name = "Procedure")]
+  [global::System.Data.Entity.Core.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "Store", Name = "Procedure")]
   [global::System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
   [global::System.Serializable()]
   public partial class Procedure : Routine
@@ -1770,18 +1786,18 @@ namespace Store
   /// <KeyProperties>
   /// Id
   /// </KeyProperties>
-  [global::System.Data.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "Store", Name = "Constraint")]
+  [global::System.Data.Entity.Core.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "Store", Name = "Constraint")]
   [global::System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
   [global::System.Serializable()]
   [global::System.Runtime.Serialization.KnownTypeAttribute(typeof(global::Store.TableOrViewColumnConstraint))]
   [global::System.Runtime.Serialization.KnownTypeAttribute(typeof(global::Store.ForeignKeyConstraint))]
   [global::System.Runtime.Serialization.KnownTypeAttribute(typeof(global::Store.CheckConstraint))]
-  public abstract partial class Constraint : global::System.Data.Objects.DataClasses.EntityObject
+  public abstract partial class Constraint : global::System.Data.Entity.Core.Objects.DataClasses.EntityObject
   {
     /// <summary>
     /// There are no comments for Property Id in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty = true, IsNullable = false)]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty = true, IsNullable = false)]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public string Id
     {
@@ -1793,7 +1809,7 @@ namespace Store
       {
         this.OnIdChanging(value);
         this.ReportPropertyChanging("Id");
-        this._Id = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, false);
+        this._Id = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, false);
         this.ReportPropertyChanged("Id");
         this.OnIdChanged();
       }
@@ -1804,7 +1820,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property Name in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public string Name
     {
@@ -1816,7 +1832,7 @@ namespace Store
       {
         this.OnNameChanging(value);
         this.ReportPropertyChanging("Name");
-        this._Name = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, false);
+        this._Name = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, false);
         this.ReportPropertyChanged("Name");
         this.OnNameChanged();
       }
@@ -1827,7 +1843,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property IsDeferrable in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public bool IsDeferrable
     {
@@ -1839,7 +1855,7 @@ namespace Store
       {
         this.OnIsDeferrableChanging(value);
         this.ReportPropertyChanging("IsDeferrable");
-        this._IsDeferrable = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value);
+        this._IsDeferrable = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value);
         this.ReportPropertyChanged("IsDeferrable");
         this.OnIsDeferrableChanged();
       }
@@ -1850,7 +1866,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property IsInitiallyDeferred in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public bool IsInitiallyDeferred
     {
@@ -1862,7 +1878,7 @@ namespace Store
       {
         this.OnIsInitiallyDeferredChanging(value);
         this.ReportPropertyChanging("IsInitiallyDeferred");
-        this._IsInitiallyDeferred = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value);
+        this._IsInitiallyDeferred = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value);
         this.ReportPropertyChanged("IsInitiallyDeferred");
         this.OnIsInitiallyDeferredChanged();
       }
@@ -1873,7 +1889,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Parent in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("Store", "TableOrViewConstraint", "Parent")]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("Store", "TableOrViewConstraint", "Parent")]
     [global::System.Xml.Serialization.XmlIgnoreAttribute()]
     [global::System.Xml.Serialization.SoapIgnoreAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
@@ -1881,11 +1897,11 @@ namespace Store
     {
       get
       {
-        return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<TableOrView>("Store.TableOrViewConstraint", "Parent").Value;
+        return ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<TableOrView>("Store.TableOrViewConstraint", "Parent").Value;
       }
       set
       {
-        ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<TableOrView>("Store.TableOrViewConstraint", "Parent").Value = value;
+        ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<TableOrView>("Store.TableOrViewConstraint", "Parent").Value = value;
       }
     }
     /// <summary>
@@ -1893,17 +1909,17 @@ namespace Store
     /// </summary>
     [global::System.ComponentModel.BrowsableAttribute(false)]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
-    public global::System.Data.Objects.DataClasses.EntityReference<TableOrView> ParentReference
+    public global::System.Data.Entity.Core.Objects.DataClasses.EntityReference<TableOrView> ParentReference
     {
       get
       {
-        return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<TableOrView>("Store.TableOrViewConstraint", "Parent");
+        return ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<TableOrView>("Store.TableOrViewConstraint", "Parent");
       }
       set
       {
         if ((value != null))
         {
-          ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedReference<TableOrView>("Store.TableOrViewConstraint", "Parent", value);
+          ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedReference<TableOrView>("Store.TableOrViewConstraint", "Parent", value);
         }
       }
     }
@@ -1914,7 +1930,7 @@ namespace Store
   /// <KeyProperties>
   /// Id
   /// </KeyProperties>
-  [global::System.Data.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "Store", Name = "CheckConstraint")]
+  [global::System.Data.Entity.Core.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "Store", Name = "CheckConstraint")]
   [global::System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
   [global::System.Serializable()]
   public partial class CheckConstraint : Constraint
@@ -1938,7 +1954,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property Expression in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public string Expression
     {
@@ -1950,7 +1966,7 @@ namespace Store
       {
         this.OnExpressionChanging(value);
         this.ReportPropertyChanging("Expression");
-        this._Expression = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
+        this._Expression = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
         this.ReportPropertyChanged("Expression");
         this.OnExpressionChanged();
       }
@@ -1965,7 +1981,7 @@ namespace Store
   /// <KeyProperties>
   /// Id
   /// </KeyProperties>
-  [global::System.Data.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "Store", Name = "TableOrViewColumnConstraint")]
+  [global::System.Data.Entity.Core.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "Store", Name = "TableOrViewColumnConstraint")]
   [global::System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
   [global::System.Serializable()]
   [global::System.Runtime.Serialization.KnownTypeAttribute(typeof(global::Store.PrimaryKeyConstraint))]
@@ -1975,21 +1991,21 @@ namespace Store
     /// <summary>
     /// There are no comments for Columns in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("Store", "TableOrViewConstraintColumn", "Column")]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("Store", "TableOrViewConstraintColumn", "Column")]
     [global::System.Xml.Serialization.XmlIgnoreAttribute()]
     [global::System.Xml.Serialization.SoapIgnoreAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
-    public global::System.Data.Objects.DataClasses.EntityCollection<Column> Columns
+    public global::System.Data.Entity.Core.Objects.DataClasses.EntityCollection<Column> Columns
     {
       get
       {
-        return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedCollection<Column>("Store.TableOrViewConstraintColumn", "Column");
+        return ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedCollection<Column>("Store.TableOrViewConstraintColumn", "Column");
       }
       set
       {
         if ((value != null))
         {
-          ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedCollection<Column>("Store.TableOrViewConstraintColumn", "Column", value);
+          ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedCollection<Column>("Store.TableOrViewConstraintColumn", "Column", value);
         }
       }
     }
@@ -2000,7 +2016,7 @@ namespace Store
   /// <KeyProperties>
   /// Id
   /// </KeyProperties>
-  [global::System.Data.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "Store", Name = "PrimaryKeyConstraint")]
+  [global::System.Data.Entity.Core.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "Store", Name = "PrimaryKeyConstraint")]
   [global::System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
   [global::System.Serializable()]
   public partial class PrimaryKeyConstraint : TableOrViewColumnConstraint
@@ -2028,7 +2044,7 @@ namespace Store
   /// <KeyProperties>
   /// Id
   /// </KeyProperties>
-  [global::System.Data.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "Store", Name = "UniqueConstraint")]
+  [global::System.Data.Entity.Core.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "Store", Name = "UniqueConstraint")]
   [global::System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
   [global::System.Serializable()]
   public partial class UniqueConstraint : TableOrViewColumnConstraint
@@ -2056,7 +2072,7 @@ namespace Store
   /// <KeyProperties>
   /// Id
   /// </KeyProperties>
-  [global::System.Data.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "Store", Name = "ForeignKeyConstraint")]
+  [global::System.Data.Entity.Core.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "Store", Name = "ForeignKeyConstraint")]
   [global::System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
   [global::System.Serializable()]
   public partial class ForeignKeyConstraint : Constraint
@@ -2084,7 +2100,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property UpdateRule in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public string UpdateRule
     {
@@ -2096,7 +2112,7 @@ namespace Store
       {
         this.OnUpdateRuleChanging(value);
         this.ReportPropertyChanging("UpdateRule");
-        this._UpdateRule = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, false);
+        this._UpdateRule = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, false);
         this.ReportPropertyChanged("UpdateRule");
         this.OnUpdateRuleChanged();
       }
@@ -2107,7 +2123,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property DeleteRule in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public string DeleteRule
     {
@@ -2119,7 +2135,7 @@ namespace Store
       {
         this.OnDeleteRuleChanging(value);
         this.ReportPropertyChanging("DeleteRule");
-        this._DeleteRule = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, false);
+        this._DeleteRule = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, false);
         this.ReportPropertyChanged("DeleteRule");
         this.OnDeleteRuleChanged();
       }
@@ -2130,21 +2146,21 @@ namespace Store
     /// <summary>
     /// There are no comments for ForeignKeys in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("Store", "ConstraintForeignKey", "ForeignKey")]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("Store", "ConstraintForeignKey", "ForeignKey")]
     [global::System.Xml.Serialization.XmlIgnoreAttribute()]
     [global::System.Xml.Serialization.SoapIgnoreAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
-    public global::System.Data.Objects.DataClasses.EntityCollection<ForeignKey> ForeignKeys
+    public global::System.Data.Entity.Core.Objects.DataClasses.EntityCollection<ForeignKey> ForeignKeys
     {
       get
       {
-        return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedCollection<ForeignKey>("Store.ConstraintForeignKey", "ForeignKey");
+        return ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedCollection<ForeignKey>("Store.ConstraintForeignKey", "ForeignKey");
       }
       set
       {
         if ((value != null))
         {
-          ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedCollection<ForeignKey>("Store.ConstraintForeignKey", "ForeignKey", value);
+          ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedCollection<ForeignKey>("Store.ConstraintForeignKey", "ForeignKey", value);
         }
       }
     }
@@ -2155,10 +2171,10 @@ namespace Store
   /// <KeyProperties>
   /// Id
   /// </KeyProperties>
-  [global::System.Data.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "Store", Name = "ForeignKey")]
+  [global::System.Data.Entity.Core.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "Store", Name = "ForeignKey")]
   [global::System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
   [global::System.Serializable()]
-  public partial class ForeignKey : global::System.Data.Objects.DataClasses.EntityObject
+  public partial class ForeignKey : global::System.Data.Entity.Core.Objects.DataClasses.EntityObject
   {
     /// <summary>
     /// Create a new ForeignKey object.
@@ -2175,7 +2191,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property Id in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty = true, IsNullable = false)]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty = true, IsNullable = false)]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public string Id
     {
@@ -2187,7 +2203,7 @@ namespace Store
       {
         this.OnIdChanging(value);
         this.ReportPropertyChanging("Id");
-        this._Id = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, false);
+        this._Id = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, false);
         this.ReportPropertyChanged("Id");
         this.OnIdChanged();
       }
@@ -2198,7 +2214,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Property Ordinal in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
     public int Ordinal
     {
@@ -2210,7 +2226,7 @@ namespace Store
       {
         this.OnOrdinalChanging(value);
         this.ReportPropertyChanging("Ordinal");
-        this._Ordinal = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value);
+        this._Ordinal = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value);
         this.ReportPropertyChanged("Ordinal");
         this.OnOrdinalChanged();
       }
@@ -2221,7 +2237,7 @@ namespace Store
     /// <summary>
     /// There are no comments for Constraint in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("Store", "ConstraintForeignKey", "Constraint")]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("Store", "ConstraintForeignKey", "Constraint")]
     [global::System.Xml.Serialization.XmlIgnoreAttribute()]
     [global::System.Xml.Serialization.SoapIgnoreAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
@@ -2229,11 +2245,11 @@ namespace Store
     {
       get
       {
-        return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<ForeignKeyConstraint>("Store.ConstraintForeignKey", "Constraint").Value;
+        return ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<ForeignKeyConstraint>("Store.ConstraintForeignKey", "Constraint").Value;
       }
       set
       {
-        ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<ForeignKeyConstraint>("Store.ConstraintForeignKey", "Constraint").Value = value;
+        ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<ForeignKeyConstraint>("Store.ConstraintForeignKey", "Constraint").Value = value;
       }
     }
     /// <summary>
@@ -2241,24 +2257,24 @@ namespace Store
     /// </summary>
     [global::System.ComponentModel.BrowsableAttribute(false)]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
-    public global::System.Data.Objects.DataClasses.EntityReference<ForeignKeyConstraint> ConstraintReference
+    public global::System.Data.Entity.Core.Objects.DataClasses.EntityReference<ForeignKeyConstraint> ConstraintReference
     {
       get
       {
-        return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<ForeignKeyConstraint>("Store.ConstraintForeignKey", "Constraint");
+        return ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<ForeignKeyConstraint>("Store.ConstraintForeignKey", "Constraint");
       }
       set
       {
         if ((value != null))
         {
-          ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedReference<ForeignKeyConstraint>("Store.ConstraintForeignKey", "Constraint", value);
+          ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedReference<ForeignKeyConstraint>("Store.ConstraintForeignKey", "Constraint", value);
         }
       }
     }
     /// <summary>
     /// There are no comments for FromColumn in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("Store", "FromForeignKeyColumn", "Column")]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("Store", "FromForeignKeyColumn", "Column")]
     [global::System.Xml.Serialization.XmlIgnoreAttribute()]
     [global::System.Xml.Serialization.SoapIgnoreAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
@@ -2266,11 +2282,11 @@ namespace Store
     {
       get
       {
-        return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<Column>("Store.FromForeignKeyColumn", "Column").Value;
+        return ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<Column>("Store.FromForeignKeyColumn", "Column").Value;
       }
       set
       {
-        ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<Column>("Store.FromForeignKeyColumn", "Column").Value = value;
+        ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<Column>("Store.FromForeignKeyColumn", "Column").Value = value;
       }
     }
     /// <summary>
@@ -2278,24 +2294,24 @@ namespace Store
     /// </summary>
     [global::System.ComponentModel.BrowsableAttribute(false)]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
-    public global::System.Data.Objects.DataClasses.EntityReference<Column> FromColumnReference
+    public global::System.Data.Entity.Core.Objects.DataClasses.EntityReference<Column> FromColumnReference
     {
       get
       {
-        return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<Column>("Store.FromForeignKeyColumn", "Column");
+        return ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<Column>("Store.FromForeignKeyColumn", "Column");
       }
       set
       {
         if ((value != null))
         {
-          ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedReference<Column>("Store.FromForeignKeyColumn", "Column", value);
+          ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedReference<Column>("Store.FromForeignKeyColumn", "Column", value);
         }
       }
     }
     /// <summary>
     /// There are no comments for ToColumn in the schema.
     /// </summary>
-    [global::System.Data.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("Store", "ToForeignKeyColumn", "Column")]
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("Store", "ToForeignKeyColumn", "Column")]
     [global::System.Xml.Serialization.XmlIgnoreAttribute()]
     [global::System.Xml.Serialization.SoapIgnoreAttribute()]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
@@ -2303,11 +2319,11 @@ namespace Store
     {
       get
       {
-        return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<Column>("Store.ToForeignKeyColumn", "Column").Value;
+        return ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<Column>("Store.ToForeignKeyColumn", "Column").Value;
       }
       set
       {
-        ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<Column>("Store.ToForeignKeyColumn", "Column").Value = value;
+        ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<Column>("Store.ToForeignKeyColumn", "Column").Value = value;
       }
     }
     /// <summary>
@@ -2315,17 +2331,17 @@ namespace Store
     /// </summary>
     [global::System.ComponentModel.BrowsableAttribute(false)]
     [global::System.Runtime.Serialization.DataMemberAttribute()]
-    public global::System.Data.Objects.DataClasses.EntityReference<Column> ToColumnReference
+    public global::System.Data.Entity.Core.Objects.DataClasses.EntityReference<Column> ToColumnReference
     {
       get
       {
-        return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<Column>("Store.ToForeignKeyColumn", "Column");
+        return ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<Column>("Store.ToForeignKeyColumn", "Column");
       }
       set
       {
         if ((value != null))
         {
-          ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedReference<Column>("Store.ToForeignKeyColumn", "Column", value);
+          ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedReference<Column>("Store.ToForeignKeyColumn", "Column", value);
         }
       }
     }

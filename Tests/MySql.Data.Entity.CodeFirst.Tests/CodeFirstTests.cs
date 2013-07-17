@@ -38,7 +38,6 @@ using MySql.Data.MySqlClient.Tests;
 using System.Xml.Linq;
 using System.Collections.Generic;
 using Xunit;
-using MySql.Data.MySqlClient.Tests;
 
 namespace MySql.Data.Entity.CodeFirst.Tests
 {

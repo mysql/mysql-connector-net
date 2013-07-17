@@ -28,6 +28,9 @@ using System.Data;
 using System.Globalization;
 using System.IO;
 using MySql.Data.MySqlClient.Properties;
+#if NET_40_OR_GREATER
+using System.Threading.Tasks; 
+#endif
 namespace MySql.Data.MySqlClient
 {
   /// <summary>
@@ -343,6 +346,22 @@ namespace MySql.Data.MySqlClient
         tokenizer.Position = pos;
       }
     }
+
+#if NET_40_OR_GREATER
+    #region Async
+    /// <summary>
+    /// Async version of Execute
+    /// </summary>
+    /// <returns>The number of statements executed as part of the script inside.</returns>
+    public Task<int> ExecuteAsync()
+    {
+      return Task.Run(() =>
+      {
+        return Execute();
+      });
+    }
+    #endregion 
+#endif
   }
 
   /// <summary>

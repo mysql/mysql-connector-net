@@ -26,10 +26,15 @@ using System.Linq;
 using System.Text;
 using Xunit;
 using MySql.Data.MySqlClient;
-using System.Data.Objects;
 using System.Data.Common;
 using System.Data;
 using MySql.Data.Entity.Tests.Properties;
+#if EF6
+using System.Data.Entity.Core.Objects;
+#else
+using System.Data.Objects;
+#endif
+
 
 namespace MySql.Data.Entity.Tests
 {
