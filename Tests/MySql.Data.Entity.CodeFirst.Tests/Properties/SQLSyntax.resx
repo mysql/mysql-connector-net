@@ -155,6 +155,20 @@ FROM `pagina` AS `Extent3` INNER JOIN `visitante` AS `Extent4` ON `Extent3`.`nCd
    ORDER BY 
   `Project1`.`ReleaseDate` DESC LIMIT 2</value>
   </data>
+  <data name="QueryWithOrderByTakeContains" xml:space="preserve">
+    <value>SELECT
+`Project1`.`ID`, 
+`Project1`.`Title`, 
+`Project1`.`ReleaseDate`, 
+`Project1`.`Genre`, 
+`Project1`.`Price`, 
+`Project1`.`Data`, 
+`Project1`.`Director_ID`
+FROM `Movies` AS `Project1`
+ WHERE (LOCATE(@p__linq__0, `Project1`.`Title`)) &gt; 0
+ ORDER BY 
+`Project1`.`ID` DESC LIMIT 10</value>
+  </data>
   <data name="ShipQueryMalformedDueMultipleProjecttionsCorrected" xml:space="preserve">
     <value>SELECT
 `Project1`.`HarborId`, 
