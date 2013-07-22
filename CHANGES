@@ -1,16 +1,5 @@
 
-
-6.7.4
-- Fix for Entity Framework when inserts data having Identity columns (Oracle bug #16494585).
-- Fix for Connector/NET cannot read data from a MySql table using UTF-16/UTF-32 (MySql bug #69169, Oracle bug #16776818).
-- Fix for Malformed query in Entity Framework when eager loading due to multiple projections (MySql bug #67183, Oracle bug #16872852).
-- Fix for database objects with 'dbo' prefix when using automatic migrations in Entity Framework 5.0 (Oracle bug #16909439).
-- Fix for bug IIS application pool reset worker process causes website to crash (Oracle bug #16909237, Mysql Bug #67665).  
-- Fix for bug Error in LINQ to Entities query when using Distinct().Count() (MySql Bug #68513, Oracle bug #16950146).
-- Fix for occasionally return no data when socket connection is slow, interrupted or delayed (MySql bug #69039, Oracle bug #16950212).
-- Fix for ConstraintException when filling a datatable (MySql bug #65065, Oracle bug #16952323).
-- Fix for Data Provider is not found after uninstalling Mysql for visual studio (Oracle bug #16973456).
-- Fix for nested sql generated for LINQ to Entities query with Take and Order by (MySql bug #65723, Oracle bug #16973939).
+6.7.5
 - Several fixes for the parser:
 a) Added a all server supported keywords as identifiers to grammar.
 b) Solved some inconsistencies on they way begin (work) vs begin (block) was interpreted regarding server.
@@ -35,6 +24,20 @@ t) Corrected many arguments for functions with special syntax (like now being ab
 u) Removed some false keywords (engine names like myisam) from lexer spec.
 v) Added 200+ extra unit tests.
 - Fix for bad query when using LINQ to Entities with a query using Take, OrderBy & Contains in Code First (MySql bug #69751, Oracle bug #17194945).
+
+
+6.7.4
+- Fix for Entity Framework when inserts data having Identity columns (Oracle bug #16494585).
+- Fix for Connector/NET cannot read data from a MySql table using UTF-16/UTF-32 (MySql bug #69169, Oracle bug #16776818).
+- Fix for Malformed query in Entity Framework when eager loading due to multiple projections (MySql bug #67183, Oracle bug #16872852).
+- Fix for database objects with 'dbo' prefix when using automatic migrations in Entity Framework 5.0 (Oracle bug #16909439).
+- Fix for bug IIS application pool reset worker process causes website to crash (Oracle bug #16909237, Mysql Bug #67665).  
+- Fix for bug Error in LINQ to Entities query when using Distinct().Count() (MySql Bug #68513, Oracle bug #16950146).
+- Fix for occasionally return no data when socket connection is slow, interrupted or delayed (MySql bug #69039, Oracle bug #16950212).
+- Fix for ConstraintException when filling a datatable (MySql bug #65065, Oracle bug #16952323).
+- Fix for Data Provider is not found after uninstalling Mysql for visual studio (Oracle bug #16973456).
+- Fix for nested sql generated for LINQ to Entities query with Take and Order by (MySql bug #65723, Oracle bug #16973939).
+
 
 6.7.3
 - Fix for bug in Replication & load balancing (Oracle bug #16762427)
