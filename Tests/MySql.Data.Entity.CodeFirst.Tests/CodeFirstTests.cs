@@ -773,6 +773,51 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         }
       }
     }
+
+    /// <summary>
+    /// Tests fix for bug http://bugs.mysql.com/bug.php?id=69751, Invalid SQL query generated for query with Contains, OrderBy, and Take.
+    /// </summary>
+    [Fact]
+    public void BadContainsOrderByTake()
+    {
+      ReInitDb();
+      using (MovieDBContext db = new MovieDBContext())
+      {
+        db.Database.Initialize(true);
+        Movie m1 = new Movie() { Title = "Terminator 1", ReleaseDate = new DateTime(1984, 10, 26) };
+        Movie m2 = new Movie() { Title = "The Matrix", ReleaseDate = new DateTime(1999, 3, 31) };
+        Movie m3 = new Movie() { Title = "Predator", ReleaseDate = new DateTime(1987, 6, 12) };
+        Movie m4 = new Movie() { Title = "Star Wars, The Sith Revenge", ReleaseDate = new DateTime(2005, 5, 19) };
+        db.Movies.Add(m1);
+        db.Movies.Add(m2);
+        db.Movies.Add(m3);
+        db.Movies.Add(m4);
+        db.SaveChanges();
+        Movie[] data = new Movie[] {
+          new Movie() { ID = 4, Title = "Star Wars, The Sith Revenge", ReleaseDate = new DateTime( 2005, 5, 19 ) },
+          new Movie() { ID = 3, Title = "Predator", ReleaseDate = new DateTime(1987, 6, 12) },
+          new Movie() { ID = 2, Title = "The Matrix", ReleaseDate = new DateTime( 1999, 3, 31 ) },
+          new Movie() { ID = 1, Title = "Terminator 1", ReleaseDate = new DateTime(1984, 10, 26) }
+        };
+
+        string title = "T";
+        var q = from m in db.Movies
+                where m.Title.Contains(title)
+                orderby m.ID descending
+                select m;
+        var q1 = q.Take(10);
+        string sql = q1.ToString();
+        st.CheckSql(SQLSyntax.QueryWithOrderByTakeContains, sql);
+        int i = 0;
+        foreach (var row in q1)
+        {
+          Assert.Equal(data[i].ID, row.ID);
+          Assert.Equal(data[i].Title, row.Title);
+          Assert.Equal(data[i].ReleaseDate, row.ReleaseDate);
+          i++;
+        }
+      }
+    }
   }
 }
 
