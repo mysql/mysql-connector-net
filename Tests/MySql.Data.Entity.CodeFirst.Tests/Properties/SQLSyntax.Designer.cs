@@ -118,6 +118,26 @@ namespace MySql.Data.Entity.CodeFirst.Tests.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to SELECT
+        ///`Project1`.`ID`, 
+        ///`Project1`.`Title`, 
+        ///`Project1`.`ReleaseDate`, 
+        ///`Project1`.`Genre`, 
+        ///`Project1`.`Price`, 
+        ///`Project1`.`Data`, 
+        ///`Project1`.`Director_ID`
+        ///FROM `Movies` AS `Project1`
+        /// WHERE (LOCATE(@p__linq__0, `Project1`.`Title`)) &gt; 0
+        /// ORDER BY 
+        ///`Project1`.`ID` DESC LIMIT 10.
+        /// </summary>
+        internal static string QueryWithOrderByTakeContains {
+            get {
+                return ResourceManager.GetString("QueryWithOrderByTakeContains", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SELECT
         ///`Project1`.`HarborId`, 
         ///`Project1`.`Description`, 
         ///`Project1`.`C2` AS `C1`, 
