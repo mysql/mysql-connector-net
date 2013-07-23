@@ -122,15 +122,26 @@
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
     <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugEF6|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\DebugEF6\</OutputPath>
+    <DefineConstants>DEBUG;TRACE; NET_40_OR_GREATER; NET_45_OR_GREATER;EF6</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseEF6|AnyCPU'">
+    <OutputPath>bin\ReleaseEF6\</OutputPath>
+    <DefineConstants>TRACE; NET_40_OR_GREATER; NET_45_OR_GREATER;EF6</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <Choose>
-    <When Condition=" '$(VisualStudioVersion)' == '11.0'">
-      <ItemGroup>
-        <Reference Include="EntityFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-          <SpecificVersion>False</SpecificVersion>
-          <HintPath>C:\Program Files (x86)\Microsoft ADO.NET Entity Framework 5.0.0\lib\net45\EntityFramework.dll</HintPath>
-        </Reference>
-      </ItemGroup>
-    </When>
+    <When Condition=" '$(VisualStudioVersion)' == '11.0'" />
     <When Condition=" '$(VisualStudioVersion)' == '10.0'">
       <ItemGroup>
         <Reference Include="EntityFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
@@ -149,6 +160,9 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Reference Include="EntityFramework">
+      <HintPath>..\..\..\..\Program Files (x86)\Microsoft ADO.NET Entity Framework 6.0.0-beta1\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.configuration" />
@@ -170,6 +184,8 @@
     <Compile Include="CodeFirstTests.cs" />
     <Compile Include="Dinosauria.cs" />
     <Compile Include="Movie.cs" />
+    <Compile Include="MovieContextCodeBasedConfiguration.cs" />
+    <Compile Include="MyConfiguration.cs" />
     <Compile Include="Ship.cs" />
     <Compile Include="SiteDB.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

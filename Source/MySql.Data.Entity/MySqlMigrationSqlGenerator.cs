@@ -28,10 +28,16 @@ using System.Data.Common;
 using System.Data.Entity.Migrations.Sql;
 using System.Data.Entity.Migrations.Model;
 using MySql.Data.MySqlClient;
-using System.Data.Metadata.Edm;
 using System.Data.Entity.Migrations.Design;
 using System.Data.Entity.Migrations.Utilities;
 using System.Collections;
+#if EF6
+using System.Data.Entity.Core.Common;
+using System.Data.Entity.Core.Metadata.Edm;
+#else
+using System.Data.Metadata.Edm;
+#endif
+
 
 namespace MySql.Data.Entity
 {
@@ -156,6 +162,9 @@ namespace MySql.Data.Entity
   /// <summary>
   /// Implementation of a MySql's Sql generator for EF 4.3 data migrations.
   /// </summary>
+#if EF6
+  [System.Data.Entity.Infrastructure.DbProviderNameAttribute("MySql.Data.MySqlClient")]
+#endif
   public class MySqlMigrationSqlGenerator : MigrationSqlGenerator
   {
     private List<MigrationStatement> _specialStmts = new List<MigrationStatement>();
@@ -176,17 +185,19 @@ namespace MySql.Data.Entity
       _dispatcher.Add("AlterColumnOperation", (OpDispatcher)((op) => { return Generate(op as AlterColumnOperation); }));
       _dispatcher.Add("CreateIndexOperation", (OpDispatcher)((op) => { return Generate(op as CreateIndexOperation); }));
       _dispatcher.Add("CreateTableOperation", (OpDispatcher)((op) => { return Generate(op as CreateTableOperation); }));
-      _dispatcher.Add("DeleteHistoryOperation", (OpDispatcher)((op) => { return Generate(op as DeleteHistoryOperation); }));
       _dispatcher.Add("DropColumnOperation", (OpDispatcher)((op) => { return Generate(op as DropColumnOperation); }));
       _dispatcher.Add("DropForeignKeyOperation", (OpDispatcher)((op) => { return Generate(op as DropForeignKeyOperation); }));
       _dispatcher.Add("DropIndexOperation", (OpDispatcher)((op) => { return Generate(op as DropIndexOperation); }));
       _dispatcher.Add("DropPrimaryKeyOperation", (OpDispatcher)((op) => { return Generate(op as DropPrimaryKeyOperation); }));
       _dispatcher.Add("DropTableOperation", (OpDispatcher)((op) => { return Generate(op as DropTableOperation); }));
-      _dispatcher.Add("InsertHistoryOperation", (OpDispatcher)((op) => { return Generate(op as InsertHistoryOperation); }));
       _dispatcher.Add("MoveTableOperation", (OpDispatcher)((op) => { return Generate(op as MoveTableOperation); }));
       _dispatcher.Add("RenameColumnOperation", (OpDispatcher)((op) => { return Generate(op as RenameColumnOperation); }));
       _dispatcher.Add("RenameTableOperation", (OpDispatcher)((op) => { return Generate(op as RenameTableOperation); }));
       _dispatcher.Add("SqlOperation", (OpDispatcher)((op) => { return Generate(op as SqlOperation); }));
+#if !EF6
+      _dispatcher.Add("DeleteHistoryOperation", (OpDispatcher)((op) => { return Generate(op as DeleteHistoryOperation); }));
+      _dispatcher.Add("InsertHistoryOperation", (OpDispatcher)((op) => { return Generate(op as InsertHistoryOperation); }));
+#endif
     }
 
     public override IEnumerable<MigrationStatement> Generate(IEnumerable<MigrationOperation> migrationOperations, string providerManifestToken)
@@ -440,10 +451,32 @@ namespace MySql.Data.Entity
       return new MigrationStatement() { Sql = "drop table " + "`" + TrimSchemaPrefix(op.Name) + "`" };
     }
 
+#if !EF6
     protected virtual MigrationStatement Generate(DeleteHistoryOperation op)
     {
       return new MigrationStatement { Sql = string.Format("delete from `{0}` where MigrationId = '{1}'", TrimSchemaPrefix(op.Table), op.MigrationId) };
     }
+
+    protected virtual MigrationStatement Generate(InsertHistoryOperation op)
+    {
+
+      if (op == null) return null;
+
+      StringBuilder sb = new StringBuilder();
+      StringBuilder model = new StringBuilder();
+
+      model.Append(BitConverter.ToString(op.Model).Replace("-", ""));
+
+      sb.Append("insert into `" + TrimSchemaPrefix(op.Table) + "` (`migrationId`, `model`, `productVersion`) ");
+      sb.AppendFormat(" values ( '{0}', {1}, '{2}') ",
+                      op.MigrationId,
+                      "0x" + model.ToString(),
+                      op.ProductVersion);
+
+      return new MigrationStatement { Sql = sb.ToString() };
+    
+    }
+#endif
 
     protected virtual MigrationStatement Generate(AddPrimaryKeyOperation op)
     {
@@ -481,26 +514,6 @@ namespace MySql.Data.Entity
       return new MigrationStatement { Sql = sb.ToString() + " alter table `" + op.Table + "` drop primary key " };
     }
 
-
-    protected virtual MigrationStatement Generate(InsertHistoryOperation op)
-    {
-
-      if (op == null) return null;
-
-      StringBuilder sb = new StringBuilder();
-      StringBuilder model = new StringBuilder();
-
-      model.Append(BitConverter.ToString(op.Model).Replace("-", ""));
-
-      sb.Append("insert into `" + TrimSchemaPrefix(op.Table) + "` (`migrationId`, `model`, `productVersion`) ");
-      sb.AppendFormat(" values ( '{0}', {1}, '{2}') ",
-                      op.MigrationId,
-                      "0x" + model.ToString(),
-                      op.ProductVersion);
-
-      return new MigrationStatement { Sql = sb.ToString() };
-    
-    }
 
     protected virtual MigrationStatement Generate(RenameTableOperation op)
     {

@@ -1,4 +1,4 @@
-﻿// Copyright © 2008, 2011, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -22,37 +22,38 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
-using System.Diagnostics;
+using System.Threading.Tasks;
+#if NET_45_OR_GREATER
 #if EF6
-using System.Data.Entity.Core.Metadata.Edm;
-#else
-using System.Data.Metadata.Edm;
+using System.Data.Entity.Config;
+using System.Data.Entity.Infrastructure;
+using System.Data.Entity.Internal;
 #endif
-
+#endif
+using MySql.Data.MySqlClient;
 
 namespace MySql.Data.Entity
 {
-  class TableFragment : InputFragment
+  public class MySqlConfiguration
+#if EF6 
+    : DbConfiguration
+#endif
   {
-    public string Schema;
-    public string Table;
-    public SqlFragment DefiningQuery;
-    public TypeUsage Type;
-    public List<ColumnFragment> Columns;
-
-    public TableFragment()
+    public MySqlConfiguration()
     {
-      Scoped = true;
-    }
-
-    public override void WriteSql(StringBuilder sql)
-    {
-      if (DefiningQuery != null)
-        sql.AppendFormat("({0})", DefiningQuery);
-      else
-        sql.AppendFormat("{0}", QuoteIdentifier(Table));
-      base.WriteSql(sql);
+#if EF6
+      AddDbProviderFactory("MySql.Data.MySqlClient", new MySqlClientFactory());
+      AddDbProviderServices(new MySqlProviderServices());
+      AddDbSpatialServices(MySqlSpatialServices.Instance);
+      AddDependencyResolver(new MySqlProviderServices());
+      //THESE LINES CONFLICT WITH THE OVERRIDE IN CONNECTOR CLASSES, EF LOADS THIS AS PART OF ITS CODE AND THE CODE WITH CUSTOM IMPLEMENTATION IS NOT REACHED
+      //AddMigrationSqlGenerator(() => { return new MySqlMigrationSqlGenerator(); });
+      //AddMigrationSqlGenerator<MySqlMigrationSqlGenerator>(() => { return new MySqlMigrationSqlGenerator(); });
+      SetDefaultConnectionFactory(new MySqlConnectionFactory());
+      SetDefaultDbSpatialServices(MySqlSpatialServices.Instance);
+#endif
     }
   }
 }

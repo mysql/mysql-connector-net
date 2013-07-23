@@ -38,7 +38,6 @@ using MySql.Data.MySqlClient.Tests;
 using System.Xml.Linq;
 using System.Collections.Generic;
 using Xunit;
-using MySql.Data.MySqlClient.Tests;
 
 namespace MySql.Data.Entity.CodeFirst.Tests
 {
@@ -773,6 +772,31 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         }
       }
     }
+
+#if EF6
+    [Fact]
+    public void SimpleCodeFirstSelectCBC()
+    {
+      MovieCodedBasedConfigDBContext db = new MovieCodedBasedConfigDBContext();
+      db.Database.Initialize(true);
+      var l = db.Movies.ToList();
+      foreach (var i in l)
+      {
+      }
+    }
+
+    [Fact]
+    public void TestStoredProcedureMapping()
+    {
+      using (var db = new MovieCodedBasedConfigDBContext())
+      {
+        db.Database.Initialize(true);
+        var director = new Director() { Name = "Awesome Director", YearBorn = 1960 };
+        db.Directors.Add(director);
+        db.SaveChanges();
+      }
+    }
+#endif
   }
 }
 

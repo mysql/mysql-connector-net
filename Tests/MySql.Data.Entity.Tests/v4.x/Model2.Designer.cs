@@ -8,8 +8,13 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+#if !EF6
 [assembly: global::System.Data.Objects.DataClasses.EdmSchemaAttribute()]
 [assembly: global::System.Data.Objects.DataClasses.EdmRelationshipAttribute("juliotestsModel", "FK_ORDER_CUSTOMER", "customer", global::System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(MySql.Data.Entity.Tests.customer), "order", global::System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.order))]
+#else
+[assembly: global::System.Data.Entity.Core.Objects.DataClasses.EdmSchemaAttribute()]
+[assembly: global::System.Data.Entity.Core.Objects.DataClasses.EdmRelationshipAttribute("juliotestsModel", "FK_ORDER_CUSTOMER", "customer", global::System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(MySql.Data.Entity.Tests.customer), "order", global::System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.order))]
+#endif
 
 // Original file name:
 // Generation date: 1/14/2013 3:17:09 PM
@@ -19,7 +24,11 @@ namespace MySql.Data.Entity.Tests
     /// <summary>
     /// There are no comments for model2Entities in the schema.
     /// </summary>
-    public partial class model2Entities : global::System.Data.Objects.ObjectContext
+#if !EF6
+  public partial class model2Entities : global::System.Data.Objects.ObjectContext
+#else
+  public partial class model2Entities : global::System.Data.Entity.Core.Objects.ObjectContext
+#endif
     {
         /// <summary>
         /// Initializes a new model2Entities object using the connection string found in the 'model2Entities' section of the application configuration file.
@@ -40,8 +49,13 @@ namespace MySql.Data.Entity.Tests
         /// <summary>
         /// Initialize a new model2Entities object.
         /// </summary>
-        public model2Entities(global::System.Data.EntityClient.EntityConnection connection) : 
+#if !EF6
+  public model2Entities(global::System.Data.EntityClient.EntityConnection connection) : 
                 base(connection, "model2Entities")
+#else
+        public model2Entities(global::System.Data.Entity.Core.EntityClient.EntityConnection connection) :
+          base(connection, "model2Entities")
+#endif
         {
             this.OnContextCreated();
         }
@@ -50,7 +64,11 @@ namespace MySql.Data.Entity.Tests
         /// There are no comments for customer in the schema.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
+#if !EF6
         public global::System.Data.Objects.ObjectQuery<customer> customer
+#else
+        public global::System.Data.Entity.Core.Objects.ObjectQuery<customer> customer
+#endif
         {
             get
             {
@@ -62,12 +80,20 @@ namespace MySql.Data.Entity.Tests
             }
         }
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
+    #if !EF6
         private global::System.Data.Objects.ObjectQuery<customer> _customer;
+#else
+        private global::System.Data.Entity.Core.Objects.ObjectQuery<customer> _customer;
+#endif
         /// <summary>
         /// There are no comments for order in the schema.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
+#if !EF6
         public global::System.Data.Objects.ObjectQuery<order> order
+#else
+        public global::System.Data.Entity.Core.Objects.ObjectQuery<order> order
+#endif
         {
             get
             {
@@ -79,7 +105,11 @@ namespace MySql.Data.Entity.Tests
             }
         }
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
+#if !EF6
         private global::System.Data.Objects.ObjectQuery<order> _order;
+#else
+        private global::System.Data.Entity.Core.Objects.ObjectQuery<order> _order;
+#endif
         /// <summary>
         /// There are no comments for customer in the schema.
         /// </summary>
@@ -103,10 +133,15 @@ namespace MySql.Data.Entity.Tests
     /// <KeyProperties>
     /// Id
     /// </KeyProperties>
+  [global::System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
+  [global::System.Serializable()]
+#if !EF6
     [global::System.Data.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName="juliotestsModel", Name="customer")]
-    [global::System.Runtime.Serialization.DataContractAttribute(IsReference=true)]
-    [global::System.Serializable()]
     public partial class customer : global::System.Data.Objects.DataClasses.EntityObject
+#else
+  [global::System.Data.Entity.Core.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "juliotestsModel", Name = "customer")]
+  public partial class customer : global::System.Data.Entity.Core.Objects.DataClasses.EntityObject
+#endif
     {
         /// <summary>
         /// Create a new customer object.
@@ -122,7 +157,12 @@ namespace MySql.Data.Entity.Tests
         /// <summary>
         /// There are no comments for property Id in the schema.
         /// </summary>
+
+#if !EF6
         [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
+#else
+        [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty = true, IsNullable = false)]
+#endif
         [global::System.Runtime.Serialization.DataMemberAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
         public int Id
@@ -135,7 +175,12 @@ namespace MySql.Data.Entity.Tests
             {
                 this.OnIdChanging(value);
                 this.ReportPropertyChanging("Id");
+#if !EF6
                 this._Id = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value);
+#else
+                this._Id = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value);
+#endif
+                
                 this.ReportPropertyChanged("Id");
                 this.OnIdChanged();
             }
@@ -149,7 +194,11 @@ namespace MySql.Data.Entity.Tests
         /// <summary>
         /// There are no comments for property Name in the schema.
         /// </summary>
+#if !EF6
         [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()]
+#else
+        [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute()]
+#endif
         [global::System.Runtime.Serialization.DataMemberAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
         public string Name
@@ -162,7 +211,11 @@ namespace MySql.Data.Entity.Tests
             {
                 this.OnNameChanging(value);
                 this.ReportPropertyChanging("Name");
+#if !EF6
                 this._Name = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
+#else
+                this._Name = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
+#endif
                 this.ReportPropertyChanged("Name");
                 this.OnNameChanged();
             }
@@ -176,22 +229,38 @@ namespace MySql.Data.Entity.Tests
         /// <summary>
         /// There are no comments for order in the schema.
         /// </summary>
+#if !EF6
         [global::System.Data.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("juliotestsModel", "FK_ORDER_CUSTOMER", "order")]
+#else
+        [global::System.Data.Entity.Core.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("juliotestsModel", "FK_ORDER_CUSTOMER", "order")]
+#endif
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
         [global::System.Xml.Serialization.XmlIgnoreAttribute()]
         [global::System.Xml.Serialization.SoapIgnoreAttribute()]
         [global::System.Runtime.Serialization.DataMemberAttribute()]
+#if !EF6
         public global::System.Data.Objects.DataClasses.EntityCollection<order> order
+#else
+        public global::System.Data.Entity.Core.Objects.DataClasses.EntityCollection<order> order
+#endif
         {
             get
-            {
-                return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedCollection<order>("juliotestsModel.FK_ORDER_CUSTOMER", "order");
+            {  
+#if !EF6
+              return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedCollection<order>("juliotestsModel.FK_ORDER_CUSTOMER", "order");
+#else
+              return ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedCollection<order>("juliotestsModel.FK_ORDER_CUSTOMER", "order");
+#endif
             }
             set
             {
                 if ((value != null))
                 {
-                    ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedCollection<order>("juliotestsModel.FK_ORDER_CUSTOMER", "order", value);
+#if !EF6
+                  ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedCollection<order>("juliotestsModel.FK_ORDER_CUSTOMER", "order", value);
+#else
+                  ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedCollection<order>("juliotestsModel.FK_ORDER_CUSTOMER", "order", value);
+#endif
                 }
             }
         }
@@ -202,10 +271,18 @@ namespace MySql.Data.Entity.Tests
     /// <KeyProperties>
     /// Id
     /// </KeyProperties>
-    [global::System.Data.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName="juliotestsModel", Name="order")]
-    [global::System.Runtime.Serialization.DataContractAttribute(IsReference=true)]
+#if !EF6
+  [global::System.Data.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName="juliotestsModel", Name="order")]
+#else
+  [global::System.Data.Entity.Core.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName = "juliotestsModel", Name = "order")]
+#endif
+  [global::System.Runtime.Serialization.DataContractAttribute(IsReference=true)]
     [global::System.Serializable()]
-    public partial class order : global::System.Data.Objects.DataClasses.EntityObject
+#if !EF6
+  public partial class order : global::System.Data.Objects.DataClasses.EntityObject
+#else
+  public partial class order : global::System.Data.Entity.Core.Objects.DataClasses.EntityObject
+#endif
     {
         /// <summary>
         /// Create a new order object.
@@ -223,7 +300,11 @@ namespace MySql.Data.Entity.Tests
         /// <summary>
         /// There are no comments for property Id in the schema.
         /// </summary>
+#if !EF6
         [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
+#else
+        [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty = true, IsNullable = false)]
+#endif
         [global::System.Runtime.Serialization.DataMemberAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
         public int Id
@@ -236,7 +317,11 @@ namespace MySql.Data.Entity.Tests
             {
                 this.OnIdChanging(value);
                 this.ReportPropertyChanging("Id");
+#if !EF6
                 this._Id = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value);
+#else
+                this._Id = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value);
+#endif
                 this.ReportPropertyChanged("Id");
                 this.OnIdChanged();
             }
@@ -250,7 +335,11 @@ namespace MySql.Data.Entity.Tests
         /// <summary>
         /// There are no comments for property Order_Date in the schema.
         /// </summary>
+#if !EF6
         [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable=false)]
+#else
+        [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable = false)]
+#endif
         [global::System.Runtime.Serialization.DataMemberAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
         public global::System.DateTime Order_Date
@@ -263,7 +352,11 @@ namespace MySql.Data.Entity.Tests
             {
                 this.OnOrder_DateChanging(value);
                 this.ReportPropertyChanging("Order_Date");
+#if !EF6
                 this._Order_Date = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value);
+#else
+                this._Order_Date = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value);
+#endif
                 this.ReportPropertyChanged("Order_Date");
                 this.OnOrder_DateChanged();
             }
@@ -277,7 +370,11 @@ namespace MySql.Data.Entity.Tests
         /// <summary>
         /// There are no comments for customer in the schema.
         /// </summary>
+#if !EF6
         [global::System.Data.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("juliotestsModel", "FK_ORDER_CUSTOMER", "customer")]
+#else
+        [global::System.Data.Entity.Core.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("juliotestsModel", "FK_ORDER_CUSTOMER", "customer")]
+#endif
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
         [global::System.Xml.Serialization.XmlIgnoreAttribute()]
         [global::System.Xml.Serialization.SoapIgnoreAttribute()]
@@ -285,12 +382,20 @@ namespace MySql.Data.Entity.Tests
         public customer customer
         {
             get
-            {
-                return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<customer>("juliotestsModel.FK_ORDER_CUSTOMER", "customer").Value;
+          {
+#if !EF6
+              return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<customer>("juliotestsModel.FK_ORDER_CUSTOMER", "customer").Value;
+#else
+              return ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<customer>("juliotestsModel.FK_ORDER_CUSTOMER", "customer").Value;
+#endif
             }
             set
-            {
-                ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<customer>("juliotestsModel.FK_ORDER_CUSTOMER", "customer").Value = value;
+          {
+#if !EF6
+              ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<customer>("juliotestsModel.FK_ORDER_CUSTOMER", "customer").Value = value;
+#else
+              ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<customer>("juliotestsModel.FK_ORDER_CUSTOMER", "customer").Value = value;
+#endif
             }
         }
         /// <summary>
@@ -299,17 +404,29 @@ namespace MySql.Data.Entity.Tests
         [global::System.ComponentModel.BrowsableAttribute(false)]
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
         [global::System.Runtime.Serialization.DataMemberAttribute()]
+#if !EF6
         public global::System.Data.Objects.DataClasses.EntityReference<customer> customerReference
+#else
+        public global::System.Data.Entity.Core.Objects.DataClasses.EntityReference<customer> customerReference
+#endif
         {
             get
-            {
-                return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<customer>("juliotestsModel.FK_ORDER_CUSTOMER", "customer");
+          {
+#if !EF6
+              return ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<customer>("juliotestsModel.FK_ORDER_CUSTOMER", "customer");
+#else
+              return ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.GetRelatedReference<customer>("juliotestsModel.FK_ORDER_CUSTOMER", "customer");
+#endif
             }
             set
             {
                 if ((value != null))
                 {
-                    ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedReference<customer>("juliotestsModel.FK_ORDER_CUSTOMER", "customer", value);
+#if !EF6
+                  ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedReference<customer>("juliotestsModel.FK_ORDER_CUSTOMER", "customer", value);
+#else
+                  ((global::System.Data.Entity.Core.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedReference<customer>("juliotestsModel.FK_ORDER_CUSTOMER", "customer", value);
+#endif
                 }
             }
         }

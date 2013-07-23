@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">9.0</VisualStudioVersion>
@@ -15,7 +15,7 @@
         <SchemaVersion>2.0</SchemaVersion>
         <Framework>4.5</Framework>
         <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-        <DefineConstants>NET_40_OR_GREATER</DefineConstants>
+        <DefineConstants>NET_40_OR_GREATER;NET_45_OR_GREATER</DefineConstants>
       </PropertyGroup>
     </When>
     <When Condition=" '$(VisualStudioVersion)' == '10.0'">
@@ -95,14 +95,49 @@
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugEF6|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <BaseOutputPath>$(TargetFrameworkVersion)\</BaseOutputPath>
+    <OutputPath>bin\$(TargetFrameworkVersion)\DebugEF6\</OutputPath>
+    <DefineConstants>$(DefineConstants);DEBUG;TRACE;EF6</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseEF6|AnyCPU'">
+    <OutputPath>bin\$(TargetFrameworkVersion)\ReleaseEF6\</OutputPath>
+    <BaseOutputPath>$(TargetFrameworkVersion)\</BaseOutputPath>
+    <DefineConstants>$(DefineConstants);TRACE;EF6</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <Choose>
     <When Condition=" '$(VisualStudioVersion)' == '11.0'">
+      <Choose>
+        <When Condition="'$(Configuration)' == 'DebugEF6' Or '$(Configuration)' == 'ReleaseEF6'">
+          <ItemGroup>
+            <Reference Include="EntityFramework, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL" Condition="$(Framework) &gt;= '4.0'">
+              <SpecificVersion>False</SpecificVersion>
+              <HintPath>C:\Program Files (x86)\Microsoft ADO.NET Entity Framework 6.0.0-beta1\lib\net45\EntityFramework.dll</HintPath>
+            </Reference>
+          </ItemGroup>
+        </When>
+        <Otherwise>
+          <ItemGroup>
+            <Reference Include="EntityFramework, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL" Condition="$(Framework) &gt;= '4.0'">
+              <SpecificVersion>False</SpecificVersion>
+              <HintPath>C:\Program Files (x86)\Microsoft ADO.NET Entity Framework 5.0.0\lib\net45\EntityFramework.dll</HintPath>
+            </Reference>
+            <Reference Include="System.Data.Entity" />
+            <Reference Include="System.Data.Entity.Design" />
+          </ItemGroup>
+        </Otherwise>
+      </Choose>
       <ItemGroup>
-        <Reference Include="EntityFramework, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL" Condition="$(Framework) &gt;= '4.0'">
-          <SpecificVersion>False</SpecificVersion>
-          <HintPath>C:\Program Files (x86)\Microsoft ADO.NET Entity Framework 5.0.0\lib\net45\EntityFramework.dll</HintPath>
-        </Reference>
-        <Reference Include="System.Data.Entity" />
         <Reference Include="System.Core">
           <RequiredTargetFramework>4.0</RequiredTargetFramework>
         </Reference>
@@ -110,7 +145,6 @@
         <Reference Include="System" />
         <Reference Include="System.Configuration" />
         <Reference Include="System.Data" />
-        <Reference Include="System.Data.Entity.Design" />
         <Reference Include="System.Runtime.Serialization" />
         <Reference Include="System.Security" />
         <Reference Include="System.Xml" />

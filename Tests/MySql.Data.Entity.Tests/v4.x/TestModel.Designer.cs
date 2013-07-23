@@ -9,20 +9,33 @@
 
 using System;
 using System.ComponentModel;
-using System.Data.EntityClient;
-using System.Data.Objects;
-using System.Data.Objects.DataClasses;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+#if EF6
+using System.Data.Entity.Core.EntityClient;
+using System.Data.Entity.Core.Objects;
+using System.Data.Entity.Core.Objects.DataClasses;
+#else
+using System.Data.EntityClient;
+using System.Data.Objects;
+using System.Data.Objects.DataClasses;
+#endif
 
-[assembly: EdmSchemaAttribute()]
+[assembly: EdmSchema()]
 #region EDM Relationship Metadata
 
+#if !EF6
 [assembly: EdmRelationshipAttribute("testModel", "FK_Toys_Supplier", "Supplier", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(MySql.Data.Entity.Tests.Company), "Toys", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.Toy))]
 [assembly: EdmRelationshipAttribute("testModel", "FK_Orders_Shop", "Shop", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(MySql.Data.Entity.Tests.Shop), "Orders", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.Order))]
 [assembly: EdmRelationshipAttribute("testModel", "FK_Books_Authors", "Authors", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(MySql.Data.Entity.Tests.Author), "Books", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.Book))]
-[assembly: EdmRelationshipAttribute("testModel", "FK_Books_Publishers", "Publishers", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(MySql.Data.Entity.Tests.Publisher), "Books", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.Book))]
+[assembly: EdmRelationshipAttribute("testModel", "FK_Books_Publishers", "Publishers", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(MySql.Data.Entity.Tests.Publisher), "Books", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.Book))] 
+#else
+[assembly: EdmRelationshipAttribute("testModel", "FK_Toys_Supplier", "Supplier", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.One, typeof(MySql.Data.Entity.Tests.Company), "Toys", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.Toy))]
+[assembly: EdmRelationshipAttribute("testModel", "FK_Orders_Shop", "Shop", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.One, typeof(MySql.Data.Entity.Tests.Shop), "Orders", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.Order))]
+[assembly: EdmRelationshipAttribute("testModel", "FK_Books_Authors", "Authors", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.One, typeof(MySql.Data.Entity.Tests.Author), "Books", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.Book))]
+[assembly: EdmRelationshipAttribute("testModel", "FK_Books_Publishers", "Publishers", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.One, typeof(MySql.Data.Entity.Tests.Publisher), "Books", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.Book))] 
+#endif
 
 #endregion
 

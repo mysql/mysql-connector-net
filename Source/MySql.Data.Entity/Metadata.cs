@@ -22,13 +22,19 @@
 
 using System;
 using System.Data;
-using System.Data.Metadata.Edm;
-using System.Data.Common.CommandTrees;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Diagnostics;
+#if EF6
+using System.Data.Entity.Core.Common.CommandTrees;
+using System.Data.Entity.Core.Metadata.Edm;
+using System.Data.Entity.Spatial;
+#else
+using System.Data.Metadata.Edm;
+using System.Data.Common.CommandTrees;
 #if NET_45_OR_GREATER
 using System.Data.Spatial;
+#endif
 #endif
 
 

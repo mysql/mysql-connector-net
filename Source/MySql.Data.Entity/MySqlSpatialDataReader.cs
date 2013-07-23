@@ -22,7 +22,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.Spatial;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -30,6 +29,12 @@ using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 using MySql.Data.Types;
 using System.Reflection;
+#if EF6
+using System.Data.Entity.Spatial;
+#else
+using System.Data.Spatial;
+#endif
+
 
 namespace MySql.Data.Entity
 {
@@ -79,5 +84,19 @@ namespace MySql.Data.Entity
                 fieldTypeName));
       }
     }
+
+#if EF6
+    public override bool IsGeographyColumn(int ordinal)
+    {
+      //throw new NotImplementedException();
+      return false;
+    }
+
+    public override bool IsGeometryColumn(int ordinal)
+    {
+      //throw new NotImplementedException();
+      return false;
+    }
+#endif
   }
 }

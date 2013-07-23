@@ -29,13 +29,17 @@ using System.Data.Entity;
 using System.Data.Entity.Migrations;
 using System.Data.Entity.Migrations.Sql;
 using System.Data.Entity.Migrations.Infrastructure;
-using MySql.Data.MySqlClient;
-using System.Globalization;
-using System.Data.Metadata.Edm;
-using MySql.Data.Entity;
-using System.Diagnostics;
 using System.Data.Entity.Migrations.Model;
 using System.Data.Entity.Infrastructure;
+using MySql.Data.MySqlClient;
+using System.Globalization;
+#if !EF6
+using System.Data.Metadata.Edm; 
+#else
+using System.Data.Entity.Core.Metadata.Edm;
+#endif
+using MySql.Data.Entity;
+using System.Diagnostics;
 using System.Data.EntityClient;
 
 namespace MySql.Data.Entity.Migrations.Tests

@@ -1,4 +1,4 @@
-﻿// Copyright © 2008, 2011, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -22,37 +22,17 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
-using System.Diagnostics;
-#if EF6
-using System.Data.Entity.Core.Metadata.Edm;
-#else
-using System.Data.Metadata.Edm;
-#endif
+using System.Threading.Tasks;
+using MySql.Data.Entity;
 
-
-namespace MySql.Data.Entity
+namespace MySql.Data.Entity.CodeFirst.Tests
 {
-  class TableFragment : InputFragment
+  public class MyConfiguration : MySqlConfiguration
   {
-    public string Schema;
-    public string Table;
-    public SqlFragment DefiningQuery;
-    public TypeUsage Type;
-    public List<ColumnFragment> Columns;
-
-    public TableFragment()
-    {
-      Scoped = true;
-    }
-
-    public override void WriteSql(StringBuilder sql)
-    {
-      if (DefiningQuery != null)
-        sql.AppendFormat("({0})", DefiningQuery);
-      else
-        sql.AppendFormat("{0}", QuoteIdentifier(Table));
-      base.WriteSql(sql);
-    }
+    public MyConfiguration()
+      : base()
+    { }
   }
 }

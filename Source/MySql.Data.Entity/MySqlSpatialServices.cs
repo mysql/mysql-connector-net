@@ -25,12 +25,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Data.Spatial;
 using MySql.Data.Types;
 using MySql.Data.MySqlClient;
+#if EF6
+using System.Data.Entity.Spatial;
+#else
+using System.Data.Spatial;
+#endif
+
 
 namespace MySql.Data.Entity
 {
+#if EF6
+  [System.Data.Entity.Infrastructure.DbProviderNameAttribute("MySql.Data.MySqlClient")]
+#endif
   internal sealed class MySqlSpatialServices : DbSpatialServices
   {
     
