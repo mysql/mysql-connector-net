@@ -57,7 +57,11 @@ namespace MySql.Data.Entity.Migrations.Tests
 
     private MySqlConnection GetConnectionFromContext(DbContext ctx)
     {
+#if EF6
+      return (MySqlConnection)((System.Data.Entity.Core.EntityClient.EntityConnection)(((IObjectContextAdapter)ctx).ObjectContext.Connection)).StoreConnection;
+#else
       return (MySqlConnection)((EntityConnection)(((IObjectContextAdapter)ctx).ObjectContext.Connection)).StoreConnection;
+#endif
     }
 
     /// <summary>
