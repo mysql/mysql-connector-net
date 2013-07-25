@@ -46,7 +46,7 @@ namespace MySql.Parser.Tests
     public static MySQL51Parser.query_return ParseSqlQuery(string sql, bool expectErrors, out StringBuilder sb, Version version)
     {
       // The grammar supports upper case only
-      MemoryStream ms = new MemoryStream(ASCIIEncoding.ASCII.GetBytes(sql/*.ToUpper() */));
+      MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(sql));//ASCIIEncoding.ASCII.GetBytes(sql/*.ToUpper() */));
       CaseInsensitiveInputStream input = new CaseInsensitiveInputStream(ms);
       MySQLLexer lexer = new MySQLLexer(input);
       lexer.MySqlVersion = version;
@@ -75,7 +75,8 @@ namespace MySql.Parser.Tests
     public static MySQL51Parser.program_return ParseSql(string sql, bool expectErrors, out StringBuilder sb, Version version )
     {
       // The grammar supports upper case only
-      MemoryStream ms = new MemoryStream(ASCIIEncoding.ASCII.GetBytes(sql/*.ToUpper() */));
+      MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(sql));//ASCIIEncoding.ASCII.GetBytes(sql/*.ToUpper() */));
+      
       CaseInsensitiveInputStream input = new CaseInsensitiveInputStream(ms);
       MySQLLexer lexer = new MySQLLexer(input);
       lexer.MySqlVersion = version;

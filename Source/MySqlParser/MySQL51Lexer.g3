@@ -881,9 +881,22 @@ ID  : '`' (options{greedy=false;}: (~('`'))+) '`'
   | REAL_ID 
   ;
 
+/*
+Permitted characters in unquoted identifiers: 
+- ASCII: [0-9,a-z,A-Z$_] (basic Latin letters, digits 0-9, dollar, underscore) 
+- Extended: U+0080 .. U+FFFF 
+
+Permitted characters in quoted identifiers include the full Unicode Basic Multilingual Plane (BMP), except U+0000: 
+- ASCII: U+0001 .. U+007F
+- Extended: U+0080 .. U+FFFF
+
+NOTE: EVEN THAT THE LIMIT IS U+FFFF WE WILL USE U+FFFE BECAUSE ANTLR REPRESENTS FFFF AS -1, USING U+FFFF MAKES TO ANTLR USE -1 (EOF) AS THE LIMIT
+
+*/
 fragment
-REAL_ID
-	:	('$'|'A'..'Z'|'_') ('$'|'0'..'9'|'A'..'Z'|'_')*		// TODO: what are the valid characters?
+REAL_ID options{greedy=false;}
+	:	('A'..'Z'|'_'|'$'|'\u0080'..'\ufffe') ('0'..'9'|'A'..'Z'|'_'|'$'|'\u0080'..'\ufffe')* // TODO: what are the valid characters? 
+    //:	('A'..'Z'|'_') ('0'..'9'|'A'..'Z'|'_')* // TODO: what are the valid characters? 
 	;
 
 
