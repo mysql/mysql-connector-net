@@ -38,6 +38,9 @@ using MySql.Data.MySqlClient.Tests;
 using System.Xml.Linq;
 using System.Collections.Generic;
 using Xunit;
+#if EF6
+using System.Data.Entity.Migrations.History;
+#endif
 
 namespace MySql.Data.Entity.CodeFirst.Tests
 {
@@ -785,17 +788,40 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       }
     }
 
-    [Fact]
+    //TODO: THE CURRENT CLASS FROM EF THAT EXPOSES THE METHOD "modelBuilder.Entity<TEntity>().MapToStoredProcedures()" HAS NO STATIC OR VIRTUAL MEMBERS FOR IMPLEMENTATION
+    //      NEED TO VERIFY IS THERE ANY OTHER WAY TO GENERATE THE STORED PROCEDURES, THE MAP TO A STORED PROCEDURE IS AUTOMATIC BUT NOT THE GENERATION AND CONFIGURATION
+    //[Fact]
     public void TestStoredProcedureMapping()
     {
       using (var db = new MovieCodedBasedConfigDBContext())
       {
         db.Database.Initialize(true);
-        var director = new Director() { Name = "Awesome Director", YearBorn = 1960 };
-        db.Directors.Add(director);
+        var movie = new MovieCBC()
+        {
+          Title = "Sharknado",
+          Genre = "Documental",
+          Price = 1.50M,
+          ReleaseDate = DateTime.Parse("01/07/2013")
+        };
+
+        db.Movies.Add(movie);
         db.SaveChanges();
       }
     }
+
+    [Fact]
+    public void MigrationHistoryConfigurationTest()
+    {
+      MovieCodedBasedConfigDBContext db = new MovieCodedBasedConfigDBContext();
+      db.Database.Initialize(true);
+      var l = db.Movies.ToList();
+      foreach (var i in l)
+      {
+      }
+      var result = MySqlHelper.ExecuteScalar("server=localhost;User Id=root;database=test;logging=true; port=3305;", "SELECT COUNT(_MigrationId) FROM __MySqlMigrations;");
+      Assert.Equal(1, int.Parse(result.ToString()));
+    }
+
 #endif
   }
 }

@@ -26,42 +26,97 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
-using System.Data.Entity;
-using System.Data.Entity.ModelConfiguration.Conventions;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity;
 using System.Data.Entity.Config;
-
+using MySql.Data.MySqlClient;
+#if EF6
+using System.Data.Common;
+using System.Data.Entity.Migrations;
+using System.Data.Entity.Migrations.Infrastructure;
+using System.Data.Entity.Migrations.History;
+#endif
 
 namespace MySql.Data.Entity.CodeFirst.Tests
 {
-  [DbConfigurationType(typeof(MyConfiguration))]
-  public class MovieCodedBasedConfigDBContext : MovieDBContext
+  public class MovieCBC
   {
-    public DbSet<Director> Directors { get; set; }
+    public int ID { get; set; }
+    public string Title { get; set; }
+    public DateTime ReleaseDate { get; set; }
+    public string Genre { get; set; }
+    public decimal Price { get; set; }
+  }
+
+  [DbConfigurationType(typeof(MyConfiguration))]
+  public class MovieCodedBasedConfigDBContext : DbContext
+  {
+    public DbSet<MovieCBC> Movies { get; set; }
 
     public MovieCodedBasedConfigDBContext()
-      : base()
+    {
+      Database.SetInitializer<MovieCodedBasedConfigDBContext>(new MovieCBCDBInitialize<MovieCodedBasedConfigDBContext>());
+#if EF6
+      Database.SetInitializer<MovieCodedBasedConfigDBContext>(new MigrateDatabaseToLatestVersion<MovieCodedBasedConfigDBContext, Configuration>());
+#endif
+    }
+
+    protected override void OnModelCreating(DbModelBuilder modelBuilder)
+    {
+      base.OnModelCreating(modelBuilder);
+      modelBuilder.Entity<MovieCBC>().Property(x => x.Price).HasPrecision(16, 2);
+#if EF6
+      //TODO: THE CURRENT CLASS FROM EF THAT EXPOSES THE METHOD "modelBuilder.Entity<TEntity>().MapToStoredProcedures()" HAS NO STATIC OR VIRTUAL MEMBERS FOR IMPLEMENTATION
+      //      NEED TO VERIFY IS THERE ANY OTHER WAY TO GENERATE THE STORED PROCEDURES, THE MAP TO A STORED PROCEDURE IS AUTOMATIC BUT NOT THE GENERATION AND CONFIGURATION
+      //modelBuilder.Entity<MovieCBC>().MapToStoredProcedures();
+#endif
+    }
+  }
+
+  public class MovieCBCDBInitialize<TContext> : IDatabaseInitializer<TContext> where TContext : DbContext
+  {
+    public void InitializeDatabase(TContext context)
+    {
+      context.Database.Delete();
+      context.Database.CreateIfNotExists();
+      this.Seed(context);
+      context.SaveChanges();
+    }
+
+    protected virtual void Seed(TContext context)
+    {
+    }
+  }
+
+#if EF6
+  public class MyHistoryContext : MySqlHistoryContext
+  {
+    public MyHistoryContext(DbConnection existingConnection, string defaultSchema)
+      : base(existingConnection, defaultSchema)
     {
     }
 
     protected override void OnModelCreating(DbModelBuilder modelBuilder)
     {
       base.OnModelCreating(modelBuilder);
-#if EF6
-      modelBuilder.Entity<Director>().MapToStoredProcedures();
-#endif
+
+      modelBuilder.Entity<HistoryRow>().ToTable("__MySqlMigrations");
+      modelBuilder.Entity<HistoryRow>().Property(h => h.MigrationId).HasColumnName("_MigrationId");
+      modelBuilder.Entity<HistoryRow>().Property(h => h.ContextKey).HasColumnName("_ContextKey");
+      modelBuilder.Entity<HistoryRow>().Property(h => h.Model).HasColumnName("_Model");
+      modelBuilder.Entity<HistoryRow>().Property(h => h.ProductVersion).HasColumnName("_ProductVersion");
     }
   }
 
-  public class MovieDBInitializeCBC : DropCreateDatabaseReallyAlways<MovieCodedBasedConfigDBContext>
+  public class Configuration : DbMigrationsConfiguration<MovieCodedBasedConfigDBContext>
   {
-    protected override void Seed(MovieCodedBasedConfigDBContext context)
+    public Configuration()
     {
-      base.Seed(context);
-#if EF6
-      context.Database.ExecuteSqlCommand("CREATE PROCEDURE Director_Insert(in Name varchar(100), in YearBorn int) BEGIN INSERT INTO Director VALUES (Name, YearBorn); SELECT LAST_INSERT_ID() AS Id; END");
-#endif
-      context.SaveChanges();
+      CodeGenerator = new MySqlMigrationCodeGenerator();
+      AutomaticMigrationsEnabled = true;
+      SetSqlGenerator("MySql.Data.MySqlClient", new MySql.Data.Entity.MySqlMigrationSqlGenerator());
+      HistoryContextFactory = (existingConnection, defaultSchema) => new MyHistoryContext(existingConnection, defaultSchema);
     }
   }
+#endif
 }

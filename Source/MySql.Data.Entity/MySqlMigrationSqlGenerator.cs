@@ -194,9 +194,10 @@ namespace MySql.Data.Entity
       _dispatcher.Add("RenameColumnOperation", (OpDispatcher)((op) => { return Generate(op as RenameColumnOperation); }));
       _dispatcher.Add("RenameTableOperation", (OpDispatcher)((op) => { return Generate(op as RenameTableOperation); }));
       _dispatcher.Add("SqlOperation", (OpDispatcher)((op) => { return Generate(op as SqlOperation); }));
+      _dispatcher.Add("HistoryOperation", (OpDispatcher)((op) => { return Generate(op as HistoryOperation); }));
 #if !EF6
       _dispatcher.Add("DeleteHistoryOperation", (OpDispatcher)((op) => { return Generate(op as DeleteHistoryOperation); }));
-      _dispatcher.Add("InsertHistoryOperation", (OpDispatcher)((op) => { return Generate(op as InsertHistoryOperation); }));
+      _dispatcher.Add("InsertHistoryOperation", (OpDispatcher)((op) => { return Generate(op as InsertHistoryOperation); }));      
 #endif
     }
 
@@ -217,6 +218,30 @@ namespace MySql.Data.Entity
           stmts.Add(item);
       }        	        
       return stmts;
+    }
+
+
+    protected virtual MigrationStatement Generate(HistoryOperation op)
+    {
+      if (op == null) return null;
+
+      MigrationStatement stmt = new MigrationStatement();
+
+      var cmdStr = "";
+      foreach (var command in op.Commands)
+      {
+        cmdStr = ((command.CommandText).Replace("dbo.", "") + ";");
+        foreach (MySqlParameter parameter in command.Parameters)
+        {
+          if (parameter.DbType == System.Data.DbType.String)
+            cmdStr = cmdStr.Replace(parameter.ParameterName, "'" + parameter.Value.ToString() + "'");
+          else
+            cmdStr = cmdStr.Replace(parameter.ParameterName, "0x" + BitConverter.ToString((byte[])parameter.Value).Replace("-", ""));
+        }
+
+        stmt.Sql += cmdStr;
+      }
+      return stmt;
     }
 
     protected virtual MigrationStatement Generate(AddColumnOperation op)

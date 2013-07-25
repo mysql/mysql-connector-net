@@ -25,22 +25,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MySql.Data.Entity;
-#if EF6
 using System.Data.Common;
-using System.Data.Entity;
-using System.Data.Entity.Migrations;
+#if EF6
+using System.Data.Entity.Migrations.History;
 #endif
 
-namespace MySql.Data.Entity.CodeFirst.Tests
+namespace MySql.Data.Entity
 {
-  public class MyConfiguration
+  public class MySqlHistoryContext
 #if EF6
- : MySqlConfiguration
+ : HistoryContext
   {
-    public MyConfiguration()
-      : base()
+    public MySqlHistoryContext(DbConnection existingConnection, string defaultSchema)
+      : base(existingConnection, defaultSchema)
     {
+    }
+
+    protected override void OnModelCreating(System.Data.Entity.DbModelBuilder modelBuilder)
+    {
+      base.OnModelCreating(modelBuilder);
     }
   }
 #else
