@@ -394,5 +394,43 @@ LOAD XML LOCAL INFILE 'person.xml'
 LOAD XML LOCAL INFILE 'person-dump.xml'
     INTO TABLE person2;", false, out sb, new Version(5, 5));
     }
+
+    [Fact]
+    public void ValidCharacterIdenfier_SelectTable()
+    {
+      string input = "SELECT $TABLE.* FROM $TABLE;";
+      StringBuilder s = new StringBuilder();
+      MySQL51Parser.program_return r = Utility.ParseSql(input, false, new Version(5, 1));
+      Assert.Equal(input, r.Start.InputStream.ToString());
+    }
+
+    [Fact]
+    //Cyrillic Characters (Russian)
+    public void ValidCharacterIdenfier_SelectColumn()
+    {
+      string input = "SELECT $TABLE.ЌФѬыь FROM $TABLE;";
+      MySQL51Parser.program_return r = Utility.ParseSql(input, false, new Version(5, 1));
+      Assert.Equal(input, r.Start.InputStream.ToString());
+    }
+
+    [Fact]
+    //Greek Characters
+    public void ValidCharacterIdenfier_CreateTable()
+    {
+      string input = "CREATE TABLE ηΧΨΩιθη (ID int);";
+      MySQL51Parser.program_return r = Utility.ParseSql(input, false, new Version(5, 1));
+      Assert.Equal(input, r.Start.InputStream.ToString());
+    }
+
+    [Fact]
+    //Amenian Characters (Table)
+    //CJK Characters (Old Column) -> CJK=China-Japan-Korea
+    //Iragana Characters (New Column)
+    public void ValidCharacterIdentifier_AlterColumn()
+    {
+      string input = "ALTER TABLE թպոնմճ CHANGE 坄坅坆均 ウオガギ INT;";
+      MySQL51Parser.program_return r = Utility.ParseSql(input, false, new Version(5, 1));
+      Assert.Equal(input, r.Start.InputStream.ToString());
+    }
   }
 }

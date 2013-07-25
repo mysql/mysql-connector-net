@@ -58,7 +58,7 @@ namespace MySql.Data.VisualStudio
       }
       // no cache entry, then parse
       // The grammar supports upper case only
-      MemoryStream ms = new MemoryStream(ASCIIEncoding.ASCII.GetBytes(sql));
+      MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(sql));//ASCIIEncoding.ASCII.GetBytes(sql));
       CaseInsensitiveInputStream input = new CaseInsensitiveInputStream(ms);
       MySQLLexer lexer = new MySQLLexer(input);
       lexer.MySqlVersion = version;
@@ -96,7 +96,7 @@ namespace MySql.Data.VisualStudio
     {
       DbConnection con = GetConnection();
       // The grammar supports upper case only
-      MemoryStream ms = new MemoryStream(ASCIIEncoding.ASCII.GetBytes(sql));
+      MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(sql));//ASCIIEncoding.ASCII.GetBytes(sql));
       CaseInsensitiveInputStream input = new CaseInsensitiveInputStream(ms);
       //ANTLRInputStream input = new ANTLRInputStream(ms);
       MySQLLexer lexer = new MySQLLexer(input);
