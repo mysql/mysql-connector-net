@@ -639,7 +639,7 @@ namespace MySql.Debugger
       bool expectErrors = false;
       CommonTokenStream cts;
       
-      MemoryStream ms = new MemoryStream(ASCIIEncoding.ASCII.GetBytes(sql));
+      MemoryStream ms = new MemoryStream(ASCIIEncoding.UTF8.GetBytes(sql));
       CaseInsensitiveInputStream input = new CaseInsensitiveInputStream(ms);
       MySQLLexer lexer = new MySQLLexer(input);
       CommonTokenStream tokens = new CommonTokenStream(lexer);
@@ -2380,7 +2380,7 @@ ri.TriggerInfo.Table, ri.TriggerInfo.ObjectSchema);
     {
       Version ver = ParserUtils.GetVersion( _connection.ServerVersion );
       // The grammar supports upper case only
-      MemoryStream ms = new MemoryStream(ASCIIEncoding.ASCII.GetBytes(sql));
+      MemoryStream ms = new MemoryStream(ASCIIEncoding.UTF8.GetBytes(sql));
       CaseInsensitiveInputStream input = new CaseInsensitiveInputStream(ms);
       MySQLLexer lexer = new MySQLLexer(input);
       lexer.MySqlVersion = ver;
