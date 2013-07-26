@@ -75,7 +75,11 @@ namespace MySql.Data.Entity.Tests
       using (testEntities context = new testEntities())
       {
         string eSql = "SELECT VALUE BigCount(t.Id) FROM Toys AS t";
+#if EF6
+        ObjectQuery<long> q = context.CreateQuery<long>(eSql);
+#else
         ObjectQuery<Int32> q = context.CreateQuery<Int32>(eSql);
+#endif
 
         string sql = q.ToTraceString();
         st.CheckSql(sql, SQLSyntax.BigCountSimple);
@@ -230,18 +234,30 @@ namespace MySql.Data.Entity.Tests
     public void AverageSimple()
     {
       MySqlCommand trueCmd = new MySqlCommand("SELECT AVG(minAge) FROM Toys", st.conn);
+//#if EF6
+//      int avgAge = (int)trueCmd.ExecuteScalar();
+//#else
       Decimal avgAge = (Decimal)trueCmd.ExecuteScalar();
+//#endif
 
       using (testEntities context = new testEntities())
       {
         string eSql = "SELECT VALUE Avg(t.MinAge) FROM Toys AS t";
+//#if EF6
+//        ObjectQuery<int> q = context.CreateQuery<int>(eSql);
+//#else
         ObjectQuery<Decimal> q = context.CreateQuery<Decimal>(eSql);
+//#endif
 
         string sql = q.ToTraceString();
         st.CheckSql(sql, SQLSyntax.AverageSimple);
 
+//#if EF6
+//        foreach (int r in q)
+//#else
         foreach (Decimal r in q)
-          Assert.Equal(avgAge, r);
+//#endif
+        Assert.Equal(avgAge, r);
       }
     }
 

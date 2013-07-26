@@ -211,6 +211,26 @@ namespace MySql.Data.Entity
       return expression.Argument.Accept(this);
     }
 
+#if EF6
+    public override SqlFragment Visit(DbInExpression expression)
+    {
+      ColumnFragment cf = Visit(expression.Item as DbPropertyExpression) as ColumnFragment;
+      InFragment inf = new InFragment();
+      inf.Argument = cf;
+      for( int i = 0; i < expression.List.Count; i++ )
+      {
+        LiteralFragment lf = Visit( expression.List[ i ] as DbConstantExpression ) as LiteralFragment;
+        inf.InList.Add( lf );
+      }
+      return inf;
+    }
+
+    public override SqlFragment Visit(DbLambdaExpression expression)
+    {
+      throw new NotImplementedException();
+    }
+#endif
+
     public override SqlFragment Visit(DbLikeExpression expression)
     {
       LikeFragment f = new LikeFragment();
@@ -672,7 +692,12 @@ namespace MySql.Data.Entity
       f.Right = right.Accept(this);
       f.WrapRight = ShouldWrapExpression(right);
       // Optimization, try to promote to In expression
+      // NOTE: In EF6, this optimization is already done, we just implement Visit(DbInExpression).
+#if !EF6   
       return TryToPromoteToIn(f);
+#else
+      return f;
+#endif
     }
 
     protected virtual SqlFragment TryToPromoteToIn(BinaryFragment bf)

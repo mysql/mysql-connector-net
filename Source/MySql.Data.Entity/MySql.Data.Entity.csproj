@@ -86,7 +86,7 @@
     <IntermediateOutputPath>obj\$(TargetFrameworkVersion)\</IntermediateOutputPath>
     <OutputPath>bin\$(TargetFrameworkVersion)\Debug\</OutputPath>
     <BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\Debug\</BaseIntermediateOutputPath>
-    <DefineConstants>$(DefineConstants);DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NET_40_OR_GREATER; NET_45_OR_GREATER;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>

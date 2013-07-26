@@ -297,7 +297,7 @@ namespace MySql.Data.Entity.Tests
         string[,] data1 = new string[,] { { "Flintstone", "Fred" }, { "Flintstone", "Wilma" },
           { "Rubble", "Barney" } };
         string query;
-#if CLR4
+#if NET_40_OR_GREATER
         query = q.ToTraceString();
         st.CheckSql(query, SQLSyntax.InExpressionSimple);
         Assert.Equal(3, q.Count());
@@ -342,7 +342,11 @@ namespace MySql.Data.Entity.Tests
             orderby e.LastName, e.FirstName
             select e;
         query = q.ToTraceString();
+#if !EF6
         st.CheckSql(query, SQLSyntax.InExpressionSimple);
+#else
+        st.CheckSql(query, SQLSyntax.InExpressionSimpleEF6);
+#endif
         Assert.Equal(3, q.Count());
         i = 0;
         foreach (var e in q)

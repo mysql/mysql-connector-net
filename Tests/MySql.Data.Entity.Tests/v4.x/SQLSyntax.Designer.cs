@@ -226,6 +226,29 @@ namespace MySql.Data.Entity.Tests.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to SELECT
+        ///  `Project2`.`C1`, 
+        ///  `Project2`.`Id`, 
+        ///  `Project2`.`LastName`, 
+        ///  `Project2`.`FirstName`, 
+        ///  `Project2`.`Age`, 
+        ///  `Project2`.`C2`
+        ///  FROM (SELECT
+        ///  `Extent1`.`Id`, 
+        ///  `Extent1`.`LastName`, 
+        ///  `Extent1`.`FirstName`, 
+        ///  `Extent1`.`Age`, 
+        ///  CASE WHEN (NOT ((`Project1`.`C1` = 1) AND (`Project1`.`C1` IS NOT NULL))) THEN (@gp1)  ELSE (@gp2) END AS `C1`, 
+        ///  CASE WHEN (NOT ((`Project1`.`C1` = 1) AND (`Project1`.`C1` IS NOT NULL))) THEN (NULL)  ELSE (`Project1`.`Salary`) END AS `C2`
+        ///  FROM `Emp [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string EndsWithTranslatedLikeApostrophes {
+            get {
+                return ResourceManager.GetString("EndsWithTranslatedLikeApostrophes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SELECT
         ///`Project2`.`C1`, 
         ///`Project2`.`Id`, 
         ///`Project2`.`LastName`, 
@@ -246,38 +269,7 @@ namespace MySql.Data.Entity.Tests.Properties {
                 return ResourceManager.GetString("EndsWithTranslatedToLike", resourceCulture);
             }
         }
-
-        /// <summary>
-        ///   Looks up a localized string similar to SELECT
-        /// `Project2`.`C1`, 
-        ///`Project2`.`Id`, 
-        ///`Project2`.`LastName`, 
-        ///`Project2`.`FirstName`, 
-        ///`Project2`.`Age`, 
-        ///`Project2`.`C2`
-        ///FROM (SELECT
-        ///`Extent1`.`Id`, 
-        ///`Extent1`.`LastName`, 
-        ///`Extent1`.`FirstName`, 
-        ///`Extent1`.`Age`, 
-        ///CASE WHEN (NOT ((`Project1`.`C1` = 1) AND (`Project1`.`C1` IS NOT NULL))) THEN (@gp1)  ELSE (@gp2) END AS `C1`, 
-        ///CASE WHEN (NOT ((`Project1`.`C1` = 1) AND (`Project1`.`C1` IS NOT NULL))) THEN (NULL)  ELSE (`Project1`.`Salary`) END AS `C2`
-        ///FROM `Employees` AS `Extent1` LEFT OUTER JOIN (SELECT
-        ///`Extent2`.`EmployeeId`, 
-        ///`Extent2`.`Salary`, 
-        ///1 AS `C1`
-        ///FROM `SalariedEmployees` AS `Extent2`) AS `Project1` ON `Extent1`.`Id` = `Project1`.`EmployeeId`
-        /// WHERE `Extent1`.`FirstName` LIKE '%y''') AS `Project2`
-        /// ORDER BY 
-        ///`Project2`.`FirstName` ASC
-        /// </summary>
-        internal static string EndsWithTranslatedLikeApostrophes
-        {
-          get
-          {
-            return ResourceManager.GetString("EndsWithTranslatedLikeApostrophes", resourceCulture);
-          }
-        }
+        
         /// <summary>
         ///   Looks up a localized string similar to SELECT
         ///`Extent1`.`Id`, 
@@ -348,6 +340,29 @@ namespace MySql.Data.Entity.Tests.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to SELECT
+        ///`Project2`.`C1`, 
+        ///`Project2`.`Id`, 
+        ///`Project2`.`LastName`, 
+        ///`Project2`.`FirstName`, 
+        ///`Project2`.`Age`, 
+        ///`Project2`.`C2`
+        ///FROM (SELECT
+        ///`Extent1`.`Id`, 
+        ///`Extent1`.`LastName`, 
+        ///`Extent1`.`FirstName`, 
+        ///`Extent1`.`Age`, 
+        ///CASE WHEN (NOT ((`Project1`.`C1` = 1) AND (`Project1`.`C1` IS NOT NULL))) THEN (@gp1)  ELSE (@gp2) END AS `C1`, 
+        ///CASE WHEN (NOT ((`Project1`.`C1` = 1) AND (`Project1`.`C1` IS NOT NULL))) THEN (NULL)  ELSE (`Project1`.`Salary`) END AS `C2`
+        ///FROM `Employees` AS `Extent1` LEFT OU [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string InExpressionSimpleEF6 {
+            get {
+                return ResourceManager.GetString("InExpressionSimpleEF6", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SELECT
         ///`Project1`.`Id`, 
         ///`Project1`.`Name`, 
         ///`Project1`.`Pages`, 
@@ -399,7 +414,8 @@ namespace MySql.Data.Entity.Tests.Properties {
         ///`Extent3`.`Name`
         ///FROM `Shops` AS `Extent3`) AS `UnionAll1` INNER JOIN (SELECT
         ///`Extent4`.`Id`, 
-        ///`Exte [rest of string was truncated]&quot;;.
+        ///`Extent4`.`Name`
+        ///FROM `Au [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string JoinOfUnionsOnRightSideOfJoin {
             get {

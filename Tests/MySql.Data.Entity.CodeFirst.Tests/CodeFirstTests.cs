@@ -177,7 +177,11 @@ namespace MySql.Data.Entity.CodeFirst.Tests
       using (MovieDBContext context = new MovieDBContext())
       {
         context.Database.Initialize(true);
+#if EF6
+        long count = context.Database.SqlQuery<long>("GetCount").First();
+#else
         int count = context.Database.SqlQuery<int>("GetCount").First();
+#endif
 
         Assert.Equal(5, count);
       }
@@ -820,6 +824,31 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       }
       var result = MySqlHelper.ExecuteScalar("server=localhost;User Id=root;database=test;logging=true; port=3305;", "SELECT COUNT(_MigrationId) FROM __MySqlMigrations;");
       Assert.Equal(1, int.Parse(result.ToString()));
+    }
+
+    [Fact]
+    public void DbSetRangeTest()
+    {
+      ReInitDb();
+      using (MovieDBContext db = new MovieDBContext())
+      {
+        db.Database.Initialize(true);
+        Movie m1 = new Movie() { Title = "Terminator 1", ReleaseDate = new DateTime(1984, 10, 26) };
+        Movie m2 = new Movie() { Title = "The Matrix", ReleaseDate = new DateTime(1999, 3, 31) };
+        Movie m3 = new Movie() { Title = "Predator", ReleaseDate = new DateTime(1987, 6, 12) };
+        Movie m4 = new Movie() { Title = "Star Wars, The Sith Revenge", ReleaseDate = new DateTime(2005, 5, 19) };
+        db.Movies.AddRange( new Movie[] { m1, m2, m3, m4 });
+        db.SaveChanges();
+        var q = from m in db.Movies select m;
+        Assert.Equal(4, q.Count());
+        foreach (var row in q)
+        {
+        }
+        db.Movies.RemoveRange(q.ToList());
+        db.SaveChanges();
+        var q2 = from m in db.Movies select m;
+        Assert.Equal(0, q2.Count());
+      }
     }
 
 #endif

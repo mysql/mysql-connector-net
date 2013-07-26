@@ -289,5 +289,12 @@ namespace MySql.Data.MySqlClient
       s.Close();
       return resourceAsString;
     }
+
+#if EF6
+    public override bool SupportsInExpression()
+    {
+      return true;
+    }
+#endif
   }
 }
