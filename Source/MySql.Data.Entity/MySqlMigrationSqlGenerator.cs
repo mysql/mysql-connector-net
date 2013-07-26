@@ -194,7 +194,9 @@ namespace MySql.Data.Entity
       _dispatcher.Add("RenameColumnOperation", (OpDispatcher)((op) => { return Generate(op as RenameColumnOperation); }));
       _dispatcher.Add("RenameTableOperation", (OpDispatcher)((op) => { return Generate(op as RenameTableOperation); }));
       _dispatcher.Add("SqlOperation", (OpDispatcher)((op) => { return Generate(op as SqlOperation); }));
+#if EF6
       _dispatcher.Add("HistoryOperation", (OpDispatcher)((op) => { return Generate(op as HistoryOperation); }));
+#endif
 #if !EF6
       _dispatcher.Add("DeleteHistoryOperation", (OpDispatcher)((op) => { return Generate(op as DeleteHistoryOperation); }));
       _dispatcher.Add("InsertHistoryOperation", (OpDispatcher)((op) => { return Generate(op as InsertHistoryOperation); }));      
@@ -221,6 +223,7 @@ namespace MySql.Data.Entity
     }
 
 
+#if EF6
     protected virtual MigrationStatement Generate(HistoryOperation op)
     {
       if (op == null) return null;
@@ -242,7 +245,8 @@ namespace MySql.Data.Entity
         stmt.Sql += cmdStr;
       }
       return stmt;
-    }
+    } 
+#endif
 
     protected virtual MigrationStatement Generate(AddColumnOperation op)
     {
