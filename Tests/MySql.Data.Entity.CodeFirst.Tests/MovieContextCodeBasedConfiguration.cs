@@ -28,13 +28,13 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
-using System.Data.Entity.Config;
 using MySql.Data.MySqlClient;
 #if EF6
 using System.Data.Common;
 using System.Data.Entity.Migrations;
 using System.Data.Entity.Migrations.Infrastructure;
 using System.Data.Entity.Migrations.History;
+using System.Data.Entity.Config;
 #endif
 
 namespace MySql.Data.Entity.CodeFirst.Tests
@@ -48,7 +48,9 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     public decimal Price { get; set; }
   }
 
-  [DbConfigurationType(typeof(MyConfiguration))]
+#if EF6
+  [DbConfigurationType(typeof(MyConfiguration))] 
+#endif
   public class MovieCodedBasedConfigDBContext : DbContext
   {
     public DbSet<MovieCBC> Movies { get; set; }
