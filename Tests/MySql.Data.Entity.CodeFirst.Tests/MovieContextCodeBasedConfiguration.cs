@@ -34,7 +34,6 @@ using System.Data.Common;
 using System.Data.Entity.Migrations;
 using System.Data.Entity.Migrations.Infrastructure;
 using System.Data.Entity.Migrations.History;
-using System.Data.Entity.Config;
 #endif
 
 namespace MySql.Data.Entity.CodeFirst.Tests
@@ -117,7 +116,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
       CodeGenerator = new MySqlMigrationCodeGenerator();
       AutomaticMigrationsEnabled = true;
       SetSqlGenerator("MySql.Data.MySqlClient", new MySql.Data.Entity.MySqlMigrationSqlGenerator());
-      HistoryContextFactory = (existingConnection, defaultSchema) => new MyHistoryContext(existingConnection, defaultSchema);
+      SetHistoryContextFactory("MySql.Data.MySqlClient", (existingConnection, defaultSchema) => new MyHistoryContext(existingConnection, defaultSchema));
     }
   }
 #endif

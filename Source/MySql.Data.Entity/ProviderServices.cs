@@ -71,7 +71,6 @@ namespace MySql.Data.MySqlClient
   }
 
 #if EF6
-  [DbProviderName("MySql.Data.MySqlClient")]
   public sealed class MySqlProviderServices : DbProviderServices
 #else
     internal partial class MySqlProviderServices : System.Data.Common.DbProviderServices

@@ -34,6 +34,7 @@ using System.Collections;
 #if EF6
 using System.Data.Entity.Core.Common;
 using System.Data.Entity.Core.Metadata.Edm;
+using System.Data.Entity.Core.Common.CommandTrees;
 #else
 using System.Data.Metadata.Edm;
 #endif
@@ -162,9 +163,6 @@ namespace MySql.Data.Entity
   /// <summary>
   /// Implementation of a MySql's Sql generator for EF 4.3 data migrations.
   /// </summary>
-#if EF6
-  [System.Data.Entity.Infrastructure.DbProviderNameAttribute("MySql.Data.MySqlClient")]
-#endif
   public class MySqlMigrationSqlGenerator : MigrationSqlGenerator
   {
     private List<MigrationStatement> _specialStmts = new List<MigrationStatement>();
@@ -231,18 +229,42 @@ namespace MySql.Data.Entity
       MigrationStatement stmt = new MigrationStatement();
 
       var cmdStr = "";
-      foreach (var command in op.Commands)
+      SqlGenerator generator = new SelectGenerator();
+      foreach (var commandTree in op.CommandTrees)
       {
-        cmdStr = ((command.CommandText).Replace("dbo.", "") + ";");
-        foreach (MySqlParameter parameter in command.Parameters)
+        switch (commandTree.CommandTreeKind)
+        {
+          case DbCommandTreeKind.Insert:
+            generator = new InsertGenerator();
+            cmdStr = generator.GenerateSQL(commandTree);
+            break;
+          case DbCommandTreeKind.Delete:
+            generator = new DeleteGenerator();
+            break;
+          case DbCommandTreeKind.Update:
+            generator = new UpdateGenerator();
+            cmdStr = generator.GenerateSQL(commandTree);
+            break;
+          case DbCommandTreeKind.Query:
+            generator = new SelectGenerator();
+            cmdStr = generator.GenerateSQL(commandTree);
+            break;
+          case DbCommandTreeKind.Function:
+            generator = new FunctionGenerator();
+            cmdStr = generator.GenerateSQL(commandTree);
+            break;
+        }
+
+        foreach (var parameter in generator.Parameters)
         {
           if (parameter.DbType == System.Data.DbType.String)
             cmdStr = cmdStr.Replace(parameter.ParameterName, "'" + parameter.Value.ToString() + "'");
-          else
+          else if (parameter.DbType == System.Data.DbType.Binary)
             cmdStr = cmdStr.Replace(parameter.ParameterName, "0x" + BitConverter.ToString((byte[])parameter.Value).Replace("-", ""));
+          else
+            cmdStr = cmdStr.Replace(parameter.ParameterName, parameter.Value.ToString());
         }
-
-        stmt.Sql += cmdStr;
+        stmt.Sql += cmdStr.Replace("dbo", "") + ";";
       }
       return stmt;
     } 

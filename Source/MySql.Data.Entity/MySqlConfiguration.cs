@@ -27,7 +27,7 @@ using System.Text;
 using System.Threading.Tasks;
 #if NET_45_OR_GREATER
 #if EF6
-using System.Data.Entity.Config;
+using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Internal;
 #endif
@@ -41,18 +41,23 @@ namespace MySql.Data.Entity
     : DbConfiguration
 #endif
   {
+    private readonly string _providerName = "MySql.Data.MySqlClient";
     public MySqlConfiguration()
     {
 #if EF6
-      AddDbProviderFactory("MySql.Data.MySqlClient", new MySqlClientFactory());
-      AddDbProviderServices(new MySqlProviderServices());
-      AddDbSpatialServices(MySqlSpatialServices.Instance);
-      AddDependencyResolver(new MySqlProviderServices());
-      //THESE LINES CONFLICT WITH THE OVERRIDE IN CONNECTOR CLASSES, EF LOADS THIS AS PART OF ITS CODE AND THE CODE WITH CUSTOM IMPLEMENTATION IS NOT REACHED
-      //AddMigrationSqlGenerator(() => { return new MySqlMigrationSqlGenerator(); });
-      //AddMigrationSqlGenerator<MySqlMigrationSqlGenerator>(() => { return new MySqlMigrationSqlGenerator(); });
+      AddDependencyResolver(new MySqlDependencyResolver());
+
+      SetProviderFactory(_providerName, new MySqlClientFactory());
+      SetProviderServices(_providerName, new MySqlProviderServices());
       SetDefaultConnectionFactory(new MySqlConnectionFactory());
-      SetDefaultDbSpatialServices(MySqlSpatialServices.Instance);
+      SetDefaultSpatialServices(MySqlSpatialServices.Instance);
+      SetMigrationSqlGenerator(_providerName, () => { return new MySqlMigrationSqlGenerator(); });
+      SetProviderFactoryResolver(new MySqlProviderFactoryResolver());
+      SetSpatialServices(_providerName, MySqlSpatialServices.Instance);
+      SetManifestTokenResolver(new MySqlManifestTokenResolver());
+      SetProviderFactoryResolver(new MySqlProviderFactoryResolver());
+      SetHistoryContext(_providerName, (existingConnection, defaultSchema) => new MySqlHistoryContext(existingConnection, defaultSchema));
+      //TODO: SET SetExecutionStrategy() CONFIGURATION, THE IExecutionStrategy SERVICE IS GOING TO BE IMPLEMENTED ON "Connection Resiliency", FERNANDO IS WORKING ON IT
 #endif
     }
   }

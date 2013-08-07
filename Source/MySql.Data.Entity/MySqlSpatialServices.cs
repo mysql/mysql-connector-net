@@ -36,9 +36,6 @@ using System.Data.Spatial;
 
 namespace MySql.Data.Entity
 {
-#if EF6
-  [System.Data.Entity.Infrastructure.DbProviderNameAttribute("MySql.Data.MySqlClient")]
-#endif
   internal sealed class MySqlSpatialServices : DbSpatialServices
   {
     
