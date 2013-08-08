@@ -792,9 +792,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       }
     }
 
-    //TODO: THE CURRENT CLASS FROM EF THAT EXPOSES THE METHOD "modelBuilder.Entity<TEntity>().MapToStoredProcedures()" HAS NO STATIC OR VIRTUAL MEMBERS FOR IMPLEMENTATION
-    //      NEED TO VERIFY IS THERE ANY OTHER WAY TO GENERATE THE STORED PROCEDURES, THE MAP TO A STORED PROCEDURE IS AUTOMATIC BUT NOT THE GENERATION AND CONFIGURATION
-    //[Fact]
+    [Fact]
     public void TestStoredProcedureMapping()
     {
       using (var db = new MovieCodedBasedConfigDBContext())
@@ -810,9 +808,13 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 
         db.Movies.Add(movie);
         db.SaveChanges();
+        movie.Genre = "Fiction";
+        db.SaveChanges();
+        db.Movies.Remove(movie);
+        db.SaveChanges();
       }
     }
-
+    
     [Fact]
     public void MigrationHistoryConfigurationTest()
     {

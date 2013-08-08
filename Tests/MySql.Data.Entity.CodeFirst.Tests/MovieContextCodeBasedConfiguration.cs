@@ -67,9 +67,11 @@ namespace MySql.Data.Entity.CodeFirst.Tests
       base.OnModelCreating(modelBuilder);
       modelBuilder.Entity<MovieCBC>().Property(x => x.Price).HasPrecision(16, 2);
 #if EF6
-      //TODO: THE CURRENT CLASS FROM EF THAT EXPOSES THE METHOD "modelBuilder.Entity<TEntity>().MapToStoredProcedures()" HAS NO STATIC OR VIRTUAL MEMBERS FOR IMPLEMENTATION
-      //      NEED TO VERIFY IS THERE ANY OTHER WAY TO GENERATE THE STORED PROCEDURES, THE MAP TO A STORED PROCEDURE IS AUTOMATIC BUT NOT THE GENERATION AND CONFIGURATION
-      //modelBuilder.Entity<MovieCBC>().MapToStoredProcedures();
+      modelBuilder.Entity<MovieCBC>().MapToStoredProcedures(
+        sp => sp.Insert( i => i.HasName("insert_movie").Parameter(p => p.Title, "movie_name"))
+              .Update(u => u.HasName("update_movie").Parameter(p => p.Title, "movie_name"))
+              .Delete(d => d.HasName("delete_movie"))
+        );
 #endif
     }
   }

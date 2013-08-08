@@ -212,6 +212,7 @@
     <Compile Include="Generators\UpdateGenerator.cs" />
     <Compile Include="MySqlConfiguration.cs" />
     <Compile Include="MySqlConnectionFactory.cs" Condition="$(Framework) == '4.0' or $(Framework) == '4.5'" />
+    <Compile Include="MySqlDependencyResolver.cs" />
     <Compile Include="MySqlHistoryContext.cs" />
     <Compile Include="MySqlMigrationSqlGenerator.cs" Condition="$(Framework) == '4.0' or $(Framework) == '4.5'" />
     <Compile Include="MySqlSpatialServices.cs" Condition="$(Framework) == '4.5'" />
