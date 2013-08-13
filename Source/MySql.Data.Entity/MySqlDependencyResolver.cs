@@ -59,9 +59,8 @@ namespace MySql.Data.Entity
             return new MySqlProviderFactoryResolver();
           case EServiceType.IManifestTokenResolver:
             return new MySqlManifestTokenResolver();
-            //WORKING ON IT
-          //case EServiceType.IDbModelCacheKey:
-          //  return new SingletonDependencyResolver<Func<System.Data.Entity.DbContext, IDbModelCacheKey>>(new MySqlModelCacheKeyFactory().Create);
+          case EServiceType.IDbModelCacheKey:
+            return new SingletonDependencyResolver<Func<System.Data.Entity.DbContext, IDbModelCacheKey>>(new MySqlModelCacheKeyFactory().Create);
           //TODO: ADD THE SERVICE RESOLVER FOR IExecutionStrategy, THAT SERVICE MUST BE IMPLEMENTED ON "Connection Resiliency", FERNANDO IS WORKING ON IT
         }
       }
@@ -99,63 +98,66 @@ namespace MySql.Data.Entity
     }
   }
 
-  //WORKING ON IT
-  //public class MySqlModelCacheKey : IDbModelCacheKey
-  //{
-  //  private readonly Type _contextType;
-  //  private readonly string _providerName;
-  //  private readonly Type _providerType;
-  //  private readonly string _customKey;
+  //TODO: SEEMS THAT SOME CHANGES WOULD BE APPLIED TO THE IDBMODELCACHEKEY IMPLEMENTATION, SO WE NEED TO TAKE IN MIND FOR FUTURE CHANGES
+  //Reference: http://entityframework.codeplex.com/wikipage?title=Design%20Meeting%20Notes%20-%20July%2012,%202012
+  public class MySqlModelCacheKey : IDbModelCacheKey
+  {
+    private readonly Type _ctxType;
+    private readonly string _providerName;
+    private readonly Type _providerType;
+    private readonly string _customKey;
 
-  //  public MySqlModelCacheKey(Type contextType, string providerName, Type providerType, string customKey)
-  //  {
-  //    _contextType = contextType;
-  //    _providerName = providerName;
-  //    _providerType = providerType;
-  //    _customKey = customKey;
-  //  }
+    public MySqlModelCacheKey(Type contextType, string providerName, Type providerType, string customKey)
+    {
+      _ctxType = contextType;
+      _providerName = providerName;
+      _providerType = providerType;
+      _customKey = customKey;
+    }
 
-  //  public bool Equals(object other)
-  //  {
-  //    if (ReferenceEquals(null, other))
-  //      return false;
+    public bool Equals(object other)
+    {
+      if (ReferenceEquals(this, other))
+        return true;
 
-  //    if (ReferenceEquals(this, other))
-  //      return true;
+      var modelCacheKey = other as MySqlModelCacheKey;
+      return (modelCacheKey != null) && Equals(modelCacheKey);
+    }
 
-  //    var modelCacheKey = other as MySqlModelCacheKey;
-  //    return (modelCacheKey != null) && Equals(modelCacheKey);
-  //  }
+    public int GetHashCode()
+    {
+      unchecked
+      {
+        int hash = 43;
+        hash = hash * 47 + _ctxType.GetHashCode();
+        hash = hash * 47 +  _providerName.GetHashCode();
+        hash = hash * 47 + _providerType.GetHashCode();
+        hash = hash * 47 + (!string.IsNullOrWhiteSpace(_customKey) ? _customKey.GetHashCode() : 0);
+        return hash;
+      }
+    }
 
-  //  public int GetHashCode()
-  //  {
-  //    throw new NotImplementedException();
-  //  }
+    private bool Equals(MySqlModelCacheKey other)
+    {
+      return (_ctxType == other._ctxType && string.Equals(_providerName, other._providerName) && Equals(_providerType, other._providerType) && string.Equals(_customKey, other._customKey));
+    }
+  }
 
-  //  private bool Equals(MySqlModelCacheKey other)
-  //  {
-  //    return _contextType == other._contextType
-  //           && string.Equals(_providerName, other._providerName)
-  //           && Equals(_providerType, other._providerType)
-  //           && string.Equals(_customKey, other._customKey);
-  //  }
-  //}
+  internal class MySqlModelCacheKeyFactory
+  {
+    public IDbModelCacheKey Create(System.Data.Entity.DbContext context)
+    {
+      string customKey = null;
 
-  //internal class MySqlModelCacheKeyFactory
-  //{
-  //  public IDbModelCacheKey Create(System.Data.Entity.DbContext context)
-  //  {
-  //    string customKey = null;
+      var modelCacheKeyProvider = context as IDbModelCacheKeyProvider;
+      if (modelCacheKeyProvider != null)
+      {
+        customKey = modelCacheKeyProvider.CacheKey;
+      }
 
-  //    var modelCacheKeyProvider = context as IDbModelCacheKeyProvider;
-  //    if (modelCacheKeyProvider != null)
-  //    {
-  //      customKey = modelCacheKeyProvider.CacheKey;
-  //    }
-
-  //    return new MySqlModelCacheKey(context.GetType(), "MySql.Data.MySqlClient", typeof(MySqlClient.MySqlClientFactory), customKey);
-  //  }
-  //}
+      return new MySqlModelCacheKey(context.GetType(), "MySql.Data.MySqlClient", typeof(MySqlClient.MySqlClientFactory), customKey);
+    }
+  }
 
   internal enum EServiceType
   {
@@ -168,7 +170,7 @@ namespace MySql.Data.Entity
     IDbProviderFactoryResolver,
     IManifestTokenResolver,
     HistoryContext,
-    //IDbModelCacheKey //WORKING ON IT
+    IDbModelCacheKey
     //TODO: ADD THE SERVICE IExecutionStrategy, THAT SERVICE MUST BE IMPLEMENTED ON "Connection Resiliency", FERNANDO IS WORKING ON IT
   }
 #else
