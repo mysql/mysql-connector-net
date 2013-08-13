@@ -98,8 +98,6 @@ namespace MySql.Data.Entity
     }
   }
 
-  //TODO: SEEMS THAT SOME CHANGES WOULD BE APPLIED TO THE IDBMODELCACHEKEY IMPLEMENTATION, SO WE NEED TO TAKE IN MIND FOR FUTURE CHANGES
-  //Reference: http://entityframework.codeplex.com/wikipage?title=Design%20Meeting%20Notes%20-%20July%2012,%202012
   public class MySqlModelCacheKey : IDbModelCacheKey
   {
     private readonly Type _ctxType;
