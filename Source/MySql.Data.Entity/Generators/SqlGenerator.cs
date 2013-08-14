@@ -523,25 +523,9 @@ namespace MySql.Data.Entity
 
     protected internal void VisitAndReplaceTableName(SqlFragment sf, string oldTable, string newTable)
     {
-      BinaryFragment bf = sf as BinaryFragment;
-      ColumnFragment cf = sf as ColumnFragment;
-      LiteralFragment lf = sf as LiteralFragment;
-      if (bf != null)
-      {
-        VisitAndReplaceTableName(bf.Left, oldTable, newTable);
-        VisitAndReplaceTableName(bf.Right, oldTable, newTable);
-      }
-      else if ((cf != null) && (cf.TableName == oldTable))
-      {
-        cf.TableName = newTable;
-      }
-      else if (lf != null)
-      {
-        // In Code first, functions like IEnumerable.Contains, are translated to strings (LiteralFragment)
-        // instead of a FunctionFragment.
-        lf.Literal = lf.Literal.Replace(string.Format("`{0}`", oldTable),
-          string.Format("`{0}`", newTable));
-      }
+      if (sf == null) return;
+      ReplaceTableNameVisitor visitor = new ReplaceTableNameVisitor(oldTable, newTable);
+      sf.Accept(visitor);
     }
 
     #endregion

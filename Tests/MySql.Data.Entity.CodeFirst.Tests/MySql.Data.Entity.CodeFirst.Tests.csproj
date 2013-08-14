@@ -25,7 +25,7 @@
         <SchemaVersion>2.0</SchemaVersion>
         <Framework>4.5</Framework>
         <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-        <DefineConstants>NET_40_OR_GREATER; NET_45_OR_GREATER</DefineConstants>
+        <DefineConstants>NET_40_OR_GREATER; NET_45_OR_GREATER;EF5</DefineConstants>
       </PropertyGroup>
     </When>
     <When Condition=" '$(VisualStudioVersion)' == '10.0'">
@@ -34,19 +34,19 @@
         <SchemaVersion>2.0</SchemaVersion>
         <Framework>4.0</Framework>
         <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-        <DefineConstants>NET_40_OR_GREATER</DefineConstants>
+        <DefineConstants>NET_40_OR_GREATER;EF5</DefineConstants>
       </PropertyGroup>
     </When>
   </Choose>
   <Choose>
     <When Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' and '$(VisualStudioVersion)' == '11.0' ">
       <PropertyGroup>
-        <DefineConstants>DEBUG;TRACE; NET_40_OR_GREATER; NET_45_OR_GREATER</DefineConstants>
+        <DefineConstants>DEBUG;TRACE; NET_40_OR_GREATER; NET_45_OR_GREATER;EF5</DefineConstants>
       </PropertyGroup>
     </When>
     <When Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' and '$(VisualStudioVersion)' == '10.0' ">
       <PropertyGroup>
-        <DefineConstants>DEBUG;TRACE; NET_40_OR_GREATER</DefineConstants>
+        <DefineConstants>DEBUG;TRACE; NET_40_OR_GREATER;EF5</DefineConstants>
       </PropertyGroup>
     </When>
     <When Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' and '$(VisualStudioVersion)' == '9.0' ">
@@ -56,12 +56,12 @@
     </When>
     <When Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' and '$(VisualStudioVersion)' == '11.0' ">
       <PropertyGroup>
-        <DefineConstants>TRACE; NET_40_OR_GREATER; NET_45_OR_GREATER</DefineConstants>
+        <DefineConstants>TRACE; NET_40_OR_GREATER; NET_45_OR_GREATER; EF5</DefineConstants>
       </PropertyGroup>
     </When>
     <When Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' and '$(VisualStudioVersion)' == '10.0' ">
       <PropertyGroup>
-        <DefineConstants>TRACE; NET_40_OR_GREATER</DefineConstants>
+        <DefineConstants>TRACE; NET_40_OR_GREATER; EF5</DefineConstants>
       </PropertyGroup>
     </When>
     <When Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' and '$(VisualStudioVersion)' == '9.0' ">
@@ -71,12 +71,12 @@
     </When>
     <When Condition="'$(Configuration)|$(Platform)' == 'Debug-2.0|AnyCPU' and '$(VisualStudioVersion)' == '11.0' ">
       <PropertyGroup>
-        <DefineConstants>DEBUG;TRACE; NET_40_OR_GREATER; NET_45_OR_GREATER</DefineConstants>
+        <DefineConstants>DEBUG;TRACE; NET_40_OR_GREATER; NET_45_OR_GREATER; EF5</DefineConstants>
       </PropertyGroup>
     </When>
     <When Condition="'$(Configuration)|$(Platform)' == 'Debug-2.0|AnyCPU' and '$(VisualStudioVersion)' == '10.0' ">
       <PropertyGroup>
-        <DefineConstants>DEBUG;TRACE; NET_40_OR_GREATER</DefineConstants>
+        <DefineConstants>DEBUG;TRACE; NET_40_OR_GREATER; EF5</DefineConstants>
       </PropertyGroup>
     </When>
     <When Condition="'$(Configuration)|$(Platform)' == 'Debug-2.0|AnyCPU' and '$(VisualStudioVersion)' == '9.0' ">
@@ -170,8 +170,9 @@
     <Compile Include="CodeFirstTests.cs" />
     <Compile Include="Dinosauria.cs" />
     <Compile Include="Movie.cs" />
+	<Compile Include="PromotionsDB.cs" />
     <Compile Include="Ship.cs" />
-    <Compile Include="SiteDB.cs" />
+    <Compile Include="SiteDB.cs" />	
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\SQLSyntax.Designer.cs">
       <AutoGen>True</AutoGen>
