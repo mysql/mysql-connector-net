@@ -1,4 +1,4 @@
-// Copyright © 2008, 2010, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2008, 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -52,7 +52,10 @@ namespace MySql.Data.VisualStudio
     public override void LoadProperties()
     {
       if (ConnectionProperties == null)
+      {
+        MessageBox.Show(Resources.ConnectionPropertiesNull, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
         throw new Exception(Resources.ConnectionPropertiesNull);
+      }
 
       Button okButton = this.ParentForm.AcceptButton as Button;
       okButton.Click += new EventHandler(okButton_Click);
@@ -107,23 +110,27 @@ namespace MySql.Data.VisualStudio
     /// <param name="e">Additional event data. Not used.</param>
     private void SetProperty(object sender, EventArgs e)
     {
-      // Only set properties if we are not currently loading them
-      if (!loadingInProcess)
+      try
       {
-        Control source = sender as Control;
+        // Only set properties if we are not currently loading them
+        if (!loadingInProcess)
+        {
+          Control source = sender as Control;
 
-        // if the user changes the host or user id then
-        // we need to repopulate our db list
-        if (source.Tag.Equals("Server") ||
-            source.Tag.Equals("User id"))
-          dbListPopulated = false;
+          // if the user changes the host or user id then
+          // we need to repopulate our db list
+          if (source.Tag.Equals("Server") ||
+              source.Tag.Equals("User id"))
+            dbListPopulated = false;
 
-        // Tag is used to determine property name
-        if (source != null && source.Tag is string)
-          ConnectionProperties[source.Tag as string] = source.Text;
+          // Tag is used to determine property name
+          if (source != null && source.Tag is string)
+            ConnectionProperties[source.Tag as string] = source.Text;
+        }
+        dbList.Enabled = serverNameTextBox.Text.Trim().Length > 0 &&
+            userNameTextBox.Text.Trim().Length > 0;
       }
-      dbList.Enabled = serverNameTextBox.Text.Trim().Length > 0 &&
-          userNameTextBox.Text.Trim().Length > 0;
+      catch { }
     }
 
     /// <summary>
@@ -144,6 +151,7 @@ namespace MySql.Data.VisualStudio
 
     private void SavePasswordChanged(object sender, EventArgs e)
     {
+      if (ConnectionProperties == null) return;
       // Only set properties if we are not currently loading them
       if (!loadingInProcess)
         ConnectionProperties[savePasswordCheckBox.Tag as string]
