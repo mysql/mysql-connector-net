@@ -135,11 +135,11 @@ FROM `visitante`
 `Project3`.`nCdSite`, 
 `Project3`.`C1` AS `C2`
 FROM (SELECT
-`Extent4`.`nCdSite`, 
-COUNT(DISTINCT `Extent4`.`sDsIp`) AS `C1`
-FROM `pagina` AS `Extent3` INNER JOIN `visitante` AS `Extent4` ON `Extent3`.`nCdVisitante` = `Extent4`.`nCdVisitante`
+`Extent5`.`nCdSite`, 
+COUNT(DISTINCT `Extent5`.`sDsIp`) AS `C1`
+FROM `pagina` AS `Extent3` INNER JOIN `visitante` AS `Extent4` ON `Extent3`.`nCdVisitante` = `Extent4`.`nCdVisitante` LEFT OUTER JOIN `visitante` AS `Extent5` ON `Extent3`.`nCdVisitante` = `Extent5`.`nCdVisitante`
  GROUP BY 
-`Extent4`.`nCdSite`) AS `Project3`</value>
+`Extent5`.`nCdSite`) AS `Project3`</value>
   </data>
   <data name="NestedOrderBy" xml:space="preserve">
     <value>SELECT
@@ -227,7 +227,7 @@ FROM `Ships` AS `Extent2` LEFT OUTER JOIN (SELECT
 `Extent4`.`Description` AS `DESCRIPTION1`, 
 `Extent5`.`ClearanceId` AS `CLEARANCEID1`, 
 `Extent5`.`Description` AS `DESCRIPTION2`
-FROM `CrewMembers` AS `Extent3` INNER JOIN `Ranks` AS `Extent4` ON `Extent3`.`RankId` = `Extent4`.`RankId` INNER JOIN `Clearances` AS `Extent5` ON `Extent3`.`ClearanceId` = `Extent5`.`ClearanceId`) AS `Join2` ON `Extent2`.`ShipId` = `Join2`.`ShipId`) AS `Join3` ON `Extent1`.`HarborId` = `Join3`.`HarborId`) AS `Project1`
+FROM `CrewMembers` AS `Extent3` INNER JOIN `Ranks` AS `Extent4` ON `Extent3`.`RankId` = `Extent4`.`RankId` LEFT OUTER JOIN `Clearances` AS `Extent5` ON `Extent3`.`ClearanceId` = `Extent5`.`ClearanceId`) AS `Join2` ON `Extent2`.`ShipId` = `Join2`.`ShipId`) AS `Join3` ON `Extent1`.`HarborId` = `Join3`.`HarborId`) AS `Project1`
  ORDER BY 
 `Project1`.`HarborId` ASC, 
 `Project1`.`C2` ASC, 
