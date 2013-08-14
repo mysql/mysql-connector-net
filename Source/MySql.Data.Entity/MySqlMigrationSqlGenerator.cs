@@ -313,6 +313,52 @@ namespace MySql.Data.Entity
       stmt.Sql = _GenerateProcedureCmd(op);
       return stmt;
     }
+
+    private string _GenerateProcedureCmd(CreateProcedureOperation po)
+    {
+      StringBuilder sql = new StringBuilder();
+      sql.AppendLine(string.Format("CREATE PROCEDURE `{0}`({1})", po.Name.Replace("dbo.", ""), _GenerateParamSentence(po.Parameters)));
+      sql.AppendLine("BEGIN ");
+      sql.AppendLine(po.BodySql);
+      sql.AppendLine(" END");
+      return sql.ToString().Replace("@", "");
+    }
+
+    private string _GenerateParamSentence(IList<ParameterModel> Parameters)
+    {
+      StringBuilder sql = new StringBuilder();
+      foreach (ParameterModel param in Parameters)
+      {
+        sql.AppendFormat("{0} {1} {2},",
+                         (param.IsOutParameter ? "OUT" : "IN"),
+                         param.Name,
+                         _BuildParamType(param));
+      }
+
+      return sql.ToString().Substring(0, sql.ToString().LastIndexOf(","));
+    }
+
+    private string _BuildParamType(ParameterModel param)
+    {
+      string type = MySqlProviderServices.Instance.GetColumnType(_providerManifest.GetStoreType(param.TypeUsage));
+      StringBuilder sb = new StringBuilder();
+      sb.Append(type);
+
+      if (new string[] { "char", "varchar" }.Contains(type.ToLower()))
+      {
+        if (param.MaxLength.HasValue)
+        {
+          sb.AppendFormat("({0}) ", param.MaxLength.Value);
+        }
+      }
+
+      if (param.Precision.HasValue && param.Scale.HasValue)
+      {
+        sb.AppendFormat("( {0}, {1} ) ", param.Precision.Value, param.Scale.Value);
+      }
+
+      return sb.ToString();
+    }
 #endif
 
     protected virtual MigrationStatement Generate(AddColumnOperation op)
@@ -637,52 +683,6 @@ namespace MySql.Data.Entity
         return table.Replace("dbo.", "");
 
       return table;
-    }
-
-    private string _GenerateProcedureCmd(CreateProcedureOperation po)
-    {
-      StringBuilder sql = new StringBuilder();
-      sql.AppendLine(string.Format("CREATE PROCEDURE `{0}`({1})", po.Name.Replace("dbo.", ""), _GenerateParamSentence(po.Parameters)));
-      sql.AppendLine("BEGIN ");
-      sql.AppendLine(po.BodySql);
-      sql.AppendLine(" END");
-      return sql.ToString().Replace("@","");
-    }
-
-    private string _GenerateParamSentence(IList<ParameterModel> Parameters)
-    {
-      StringBuilder sql = new StringBuilder();
-      foreach (ParameterModel param in Parameters)
-      {
-        sql.AppendFormat("{0} {1} {2},", 
-                         (param.IsOutParameter ? "OUT" : "IN"),
-                         param.Name,
-                         _BuildParamType(param));
-      }
-
-      return sql.ToString().Substring(0, sql.ToString().LastIndexOf(","));
-    }
-
-    private string _BuildParamType(ParameterModel param)
-    {
-      string type = MySqlProviderServices.Instance.GetColumnType(_providerManifest.GetStoreType(param.TypeUsage));
-      StringBuilder sb = new StringBuilder();
-      sb.Append(type);
-
-      if (new string[] { "char", "varchar" }.Contains(type.ToLower()))
-      {
-        if (param.MaxLength.HasValue)
-        {
-          sb.AppendFormat("({0}) ", param.MaxLength.Value);
-        }
-      }
-
-      if (param.Precision.HasValue && param.Scale.HasValue)
-      {
-        sb.AppendFormat("( {0}, {1} ) ", param.Precision.Value, param.Scale.Value);
-      }
-
-      return sb.ToString();
     }
   }
 }

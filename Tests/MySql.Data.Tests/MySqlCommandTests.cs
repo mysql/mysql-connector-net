@@ -653,5 +653,83 @@ alter table longids AUTO_INCREMENT = 2147483640;";
         conn.Close();
       }
     }
+
+#if NET_40_OR_GREATER
+   #region Async
+   [Fact]
+   public void ExecuteNonQueryAsync()
+   {
+     if (st.Version < new Version(5, 0)) return;
+
+     st.execSQL("CREATE TABLE test (id int)");
+
+     st.execSQL("CREATE PROCEDURE spTest() BEGIN SET @x=0; REPEAT INSERT INTO test VALUES(@x); " +
+       "SET @x=@x+1; UNTIL @x = 100 END REPEAT; END");
+
+     MySqlCommand proc = new MySqlCommand("spTest", st.conn);
+     proc.CommandType = CommandType.StoredProcedure;
+     System.Threading.Tasks.Task<int> result = proc.ExecuteNonQueryAsync();
+
+     Assert.NotEqual(-1, result.Result);
+
+     MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM test;", st.conn);
+     cmd.CommandType = CommandType.Text;
+     object cnt = cmd.ExecuteScalar();
+     Assert.Equal(100, Convert.ToInt32(cnt));
+   }
+   [Fact]
+   public void ExecuteReaderAsync()
+   {
+     if (st.Version < new Version(5, 0)) return;
+
+     if (st.conn.State != ConnectionState.Open)
+       st.conn.Open();
+
+     st.execSQL("CREATE TABLE test (id int)");
+     st.execSQL("CREATE PROCEDURE spTest() BEGIN INSERT INTO test VALUES(1); " +
+       "SELECT SLEEP(2); SELECT 'done'; END");
+
+     MySqlCommand proc = new MySqlCommand("spTest", st.conn);
+     proc.CommandType = CommandType.StoredProcedure;
+
+     using (MySqlDataReader reader = proc.ExecuteReaderAsync().Result)
+     {
+       Assert.NotNull(reader);
+       Assert.True(reader.Read(), "can read");
+       Assert.True(reader.NextResult());
+       Assert.True(reader.Read());
+       Assert.Equal("done", reader.GetString(0));
+       reader.Close();
+
+       proc.CommandType = CommandType.Text;
+       proc.CommandText = "SELECT COUNT(*) FROM test";
+       object cnt = proc.ExecuteScalar();
+       Assert.Equal(1, Convert.ToInt32(cnt));
+     }
+   }
+   [Fact]
+   public void ExecuteScalarAsync()
+   {
+     if (st.Version < new Version(5, 0)) return;
+
+     if (st.conn.connectionState != ConnectionState.Open)
+       st.conn.Open();
+
+     // create our procedure
+     st.execSQL("CREATE PROCEDURE spTest( IN valin VARCHAR(50), OUT valout VARCHAR(50) ) " +
+         "BEGIN  SET valout=valin;  SELECT 'Test'; END");
+
+     MySqlCommand cmd = new MySqlCommand("spTest", st.conn);
+     cmd.CommandType = CommandType.StoredProcedure;
+     cmd.Parameters.AddWithValue("?valin", "valuein");
+     cmd.Parameters.Add(new MySqlParameter("?valout", MySqlDbType.VarChar));
+     cmd.Parameters[1].Direction = ParameterDirection.Output;
+
+     object result = cmd.ExecuteScalarAsync().Result;
+     Assert.Equal("Test", result);
+     Assert.Equal("valuein", cmd.Parameters[1].Value);
+   }
+   #endregion
+#endif
   }
 }

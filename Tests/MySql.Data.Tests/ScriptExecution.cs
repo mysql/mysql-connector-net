@@ -249,5 +249,52 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlScript script = new MySqlScript(st.conn, "DELIMITER ;");
       Assert.DoesNotThrow(delegate { script.Execute(); });
     }
+
+#if NET_40_OR_GREATER
+    #region Async
+    [Fact]
+    public void ExecuteScriptWithProceduresAsync()
+    {
+      if (st.Version < new Version(5, 0)) return;
+
+      statementCount = 0;
+      string scriptText = String.Empty;
+      for (int i = 0; i < 10; i++)
+      {
+        scriptText += String.Format(statementTemplate1, i, "$$");
+      }
+      MySqlScript script = new MySqlScript(scriptText);
+      script.StatementExecuted += new MySqlStatementExecutedEventHandler(ExecuteScriptWithProcedures_QueryExecuted);
+      script.Connection = st.conn;
+      script.Delimiter = "$$";
+      int count = script.ExecuteAsync().Result;
+      Assert.Equal(10, count);
+
+      MySqlCommand cmd = new MySqlCommand(
+        String.Format(@"SELECT COUNT(*) FROM information_schema.routines WHERE
+        routine_schema = '{0}' AND routine_name LIKE 'spTest%'",
+        st.database0), st.conn);
+      Assert.Equal(10, Convert.ToInt32(cmd.ExecuteScalar()));
+    }
+    [Fact]
+    public void ExecuteScriptWithInsertsAsync()
+    {
+      statementCount = 0;
+      string scriptText = String.Empty;
+      for (int i = 0; i < 10; i++)
+      {
+        scriptText += String.Format(statementTemplate2, i, ";");
+      }
+      MySqlScript script = new MySqlScript(scriptText);
+      script.Connection = st.conn;
+      script.StatementExecuted += new MySqlStatementExecutedEventHandler(ExecuteScriptWithInserts_StatementExecuted);
+      int count = script.ExecuteAsync().Result;
+      Assert.Equal(10, count);
+
+      MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM Test", st.conn);
+      Assert.Equal(10, Convert.ToInt32(cmd.ExecuteScalar()));
+    }
+    #endregion
+#endif
   }
 }
