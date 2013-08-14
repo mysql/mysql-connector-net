@@ -24,6 +24,8 @@ t) Corrected many arguments for functions with special syntax (like now being ab
 u) Removed some false keywords (engine names like myisam) from lexer spec.
 v) Added 200+ extra unit tests.
 - Fix for bad query when using LINQ to Entities with a query using Take, OrderBy & Contains in Code First (MySql bug #69751, Oracle bug #17194945).
+- Fix for Visual Studio parser for MySql does not recognize properly all valid identifiers (Oracle Bug #16881354).
+- Fix for LINQ to Entities error for bad aliasing in column for expression (MySql bug #69922, Oracle bug #17285548).
 
 
 6.7.4

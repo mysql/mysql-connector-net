@@ -744,15 +744,6 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       using (MovieDBContext db = new MovieDBContext())
       {
         db.Database.Initialize(true);
-        Movie m1 = new Movie() { Title = "Terminator 1", ReleaseDate = new DateTime(1984, 10, 26) };
-        Movie m2 = new Movie() { Title = "The Matrix", ReleaseDate = new DateTime(1999, 3, 31) };
-        Movie m3 = new Movie() { Title = "Predator", ReleaseDate = new DateTime(1987, 6, 12) };
-        Movie m4 = new Movie() { Title = "Star Wars, The Sith Revenge", ReleaseDate = new DateTime(2005, 5, 19) };
-        db.Movies.Add(m1);
-        db.Movies.Add(m2);
-        db.Movies.Add(m3);
-        db.Movies.Add(m4);
-        db.SaveChanges();
         DateTime filterDate = new DateTime(1986, 1, 1);
         var q = db.Movies.Where(p => p.ReleaseDate >= filterDate).
           OrderByDescending(p => p.ReleaseDate).Take(2);
@@ -784,22 +775,6 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       using (MovieDBContext db = new MovieDBContext())
       {
         db.Database.Initialize(true);
-        Movie m1 = new Movie() { Title = "Terminator 1", ReleaseDate = new DateTime(1984, 10, 26) };
-        Movie m2 = new Movie() { Title = "The Matrix", ReleaseDate = new DateTime(1999, 3, 31) };
-        Movie m3 = new Movie() { Title = "Predator", ReleaseDate = new DateTime(1987, 6, 12) };
-        Movie m4 = new Movie() { Title = "Star Wars, The Sith Revenge", ReleaseDate = new DateTime(2005, 5, 19) };
-        db.Movies.Add(m1);
-        db.Movies.Add(m2);
-        db.Movies.Add(m3);
-        db.Movies.Add(m4);
-        db.SaveChanges();
-        Movie[] data = new Movie[] {
-          new Movie() { ID = 4, Title = "Star Wars, The Sith Revenge", ReleaseDate = new DateTime( 2005, 5, 19 ) },
-          new Movie() { ID = 3, Title = "Predator", ReleaseDate = new DateTime(1987, 6, 12) },
-          new Movie() { ID = 2, Title = "The Matrix", ReleaseDate = new DateTime( 1999, 3, 31 ) },
-          new Movie() { ID = 1, Title = "Terminator 1", ReleaseDate = new DateTime(1984, 10, 26) }
-        };
-
         string title = "T";
         var q = from m in db.Movies
                 where m.Title.Contains(title)
@@ -811,10 +786,163 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         int i = 0;
         foreach (var row in q1)
         {
-          Assert.Equal(data[i].ID, row.ID);
-          Assert.Equal(data[i].Title, row.Title);
-          Assert.Equal(data[i].ReleaseDate, row.ReleaseDate);
+          Assert.Equal( MovieDBInitialize.data[i].ID, row.ID);
+          Assert.Equal( MovieDBInitialize.data[i].Title, row.Title);
+          Assert.Equal( MovieDBInitialize.data[i].ReleaseDate, row.ReleaseDate);
           i++;
+        }
+      }
+    }
+    
+    /// <summary>
+    /// Tests fix for bug http://bugs.mysql.com/bug.php?id=69922, Unknown column Extent1...
+    /// </summary>
+    [Fact]
+    public void BadAliasTable()
+    {
+      ReInitDb();
+      using (PromotionsDB db = new PromotionsDB())
+      {
+        db.Database.Initialize(true);
+        DateTime now = DateTime.Now;
+        var q = db
+          .HomePromoes
+          .Where(x =>
+             x.Active
+               &&
+             (x.ActiveFrom == null || x.ActiveFrom <= now)
+               &&
+             (x.ActiveTo == null || x.ActiveTo >= now)
+          )
+          .OrderBy(x => x.DisplayOrder).Select( d => d );
+        string sql = q.ToString();
+        foreach( var row in q )
+        {
+        }
+      }
+    }
+
+    /// <summary>
+    /// Tests other variants of bug http://bugs.mysql.com/bug.php?id=69751, Invalid SQL query generated for query with Contains, OrderBy, and Take.
+    /// </summary>
+    [Fact]
+    public void BadContainsOrderByTake2()
+    {
+      ReInitDb();
+      using (MovieDBContext db = new MovieDBContext())
+      {
+        db.Database.Initialize(true);
+        var q = db.Movies.
+                Where(m => !string.IsNullOrEmpty(m.Title) && m.Title.Contains("x")).
+                OrderByDescending(m => m.ID).
+                Skip(1).
+                Take(1);
+        string sql = q.ToString();
+#if DEBUG
+        Debug.WriteLine(sql);
+#endif
+        List<Movie> l = q.ToList();
+        foreach( Movie m in l )
+        {
+        }
+      }
+    }
+
+    /// <summary>
+    /// Tests other variants of bug http://bugs.mysql.com/bug.php?id=69751, Invalid SQL query generated for query with Contains, OrderBy, and Take.
+    /// </summary>
+    [Fact]
+    public void BadContainsOrderByTake3()
+    {
+      ReInitDb();
+      using (MovieDBContext db = new MovieDBContext())
+      {
+        db.Database.Initialize(true);
+        var q = db.Movies.
+                Where(m => !string.IsNullOrEmpty(m.Title) && m.Title.Contains("x")).
+                OrderByDescending(m => m.ID).
+                Skip(1).
+                Take(1).Select(m => new { 
+                  Id = m.ID, 
+                  CriticsScore = ( 
+                    m.Title == "Terminator 1" ? "Good" : 
+                    m.Title == "Predator" ? "Sunday best, cheese" : 
+                    m.Title == "The Matrix" ? "Really Good" :
+                    m.Title == "Star Wars, The Sith Revenge" ? "Really Good" : "Unknown" )
+                });
+        string sql = q.ToString();
+#if DEBUG
+        Debug.WriteLine(sql);
+#endif
+        foreach (var row in q)
+        {
+        }
+      }
+    }
+
+    /// <summary>
+    /// Tests other variants of bug http://bugs.mysql.com/bug.php?id=69751, Invalid SQL query generated for query with Contains, OrderBy, and Take.
+    /// </summary>
+    [Fact]
+    public void BadContainsOrderByTake4()
+    {
+      ReInitDb();
+      using (MovieDBContext db = new MovieDBContext())
+      {
+        db.Database.Initialize(true);
+        bool q = db.Movies.Any(m => m.ReleaseDate.Year > 1985);
+//        string sql = q.ToString();
+//#if DEBUG
+//        Debug.WriteLine(sql);
+//#endif
+        //foreach (var row in q)
+        //{
+        //}
+      }
+    }
+
+    /// <summary>
+    /// Tests other variants of bug http://bugs.mysql.com/bug.php?id=69751, Invalid SQL query generated for query with Contains, OrderBy, and Take.
+    /// </summary>
+    [Fact]
+    public void BadContainsOrderByTake5()
+    {
+      ReInitDb();
+      using (MovieDBContext db = new MovieDBContext())
+      {
+        db.Database.Initialize(true);
+        // TODO: add subquery like
+        // var shifts = Shifts.Where(s => !EmployeeShifts.Where(es => es.ShiftID == s.ShiftID).Any());
+        bool q = db.Movies.Where( m => m.ReleaseDate.Month != 10 ).Any(m => m.ReleaseDate.Year > 1985);
+//        string sql = q.ToString();
+//#if DEBUG
+//        Debug.WriteLine(sql);
+//#endif
+//        foreach (var row in q)
+//        {
+//        }
+      }
+    }
+
+    /// <summary>
+    /// Tests other variants of bug http://bugs.mysql.com/bug.php?id=69751, Invalid SQL query generated for query with Contains, OrderBy, and Take.
+    /// </summary>
+    [Fact]
+    public void BadContainsOrderByTake6()
+    {
+      ReInitDb();
+      using (MovieDBContext db = new MovieDBContext())
+      {
+        db.Database.Initialize(true);
+        var q = from m in db.Movies
+                where m.Title.Contains("x") && db.Medias.Where( mm => mm.Format == "Digital" ).Any()
+                select m;
+        string sql = q.ToString();
+#if DEBUG
+        Debug.WriteLine(sql);
+#endif
+        foreach (var row in q)
+        {
         }
       }
     }

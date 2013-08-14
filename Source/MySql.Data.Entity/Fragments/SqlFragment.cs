@@ -59,7 +59,87 @@ namespace MySql.Data.Entity
         sep = ", ";
       }
     }
+
+    internal abstract void Accept(SqlFragmentVisitor visitor);
   }
+
+  /// <summary>
+  /// Visitor for SqlFragment and derived classes, useful for postprocessing and optimizations.
+  /// </summary>
+  internal interface SqlFragmentVisitor
+  {
+    void Visit(SqlFragment f);
+    void Visit(IsNullFragment f);
+    void Visit(CaseFragment f);
+    void Visit(ExistsFragment f);
+    void Visit(LikeFragment f);
+    void Visit(FunctionFragment f);
+    void Visit(InFragment f);
+    void Visit(BinaryFragment f);
+    void Visit(ColumnFragment f);
+    void Visit(LiteralFragment f);
+  }
+
+  /// <summary>
+  /// Visitor to replace old table names with new table names. Used as part postprocessing of the code for fusing nested selects.
+  /// </summary>
+  internal class ReplaceTableNameVisitor : SqlFragmentVisitor
+  {
+    private string _oldTableName;
+    private string _newTableName;
+
+    internal ReplaceTableNameVisitor(string oldTableName, string newTableName)
+    {
+      _oldTableName = oldTableName;
+      _newTableName = newTableName;
+    }
+
+    public void Visit(SqlFragment f)
+    {
+    }
+
+    public void Visit(IsNullFragment f)
+    {
+    }
+
+    public void Visit(CaseFragment f)
+    {
+    }
+
+    public void Visit(ExistsFragment f)
+    {
+    }
+
+    public void Visit(LikeFragment f)
+    {
+    }
+
+    public void Visit(FunctionFragment f)
+    {
+    }
+
+    public void Visit(InFragment f)
+    { 
+    }
+
+    public void Visit(BinaryFragment f)
+    {
+    }
+
+    public void Visit(ColumnFragment f)
+    {
+      if ((f != null) && (f.TableName == _oldTableName))
+        f.TableName = _newTableName;
+    }
+
+    public void Visit(LiteralFragment f)
+    {
+      // In Code first, functions like IEnumerable.Contains, are translated to strings (LiteralFragment)
+      // instead of a FunctionFragment.
+      f.Literal = f.Literal.Replace(string.Format("`{0}`", _oldTableName),
+        string.Format("`{0}`", _newTableName));
+    }
+  }  
 
   internal class BinaryFragment : NegatableFragment
   {
@@ -95,6 +175,13 @@ namespace MySql.Data.Entity
       if (IsNegated && Operator != "=")
         sql.Append(")");
     }
+
+    internal override void Accept(SqlFragmentVisitor visitor)
+    {
+      Left.Accept(visitor);
+      Right.Accept(visitor);
+      visitor.Visit(this);
+    }
   }
 
   internal class InFragment : NegatableFragment
@@ -119,6 +206,14 @@ namespace MySql.Data.Entity
       }
       sql.Length = sql.Length - 1;
       sql.Append(" )");
+    }
+
+    internal override void Accept(SqlFragmentVisitor visitor)
+    {
+      Argument.Accept(visitor);
+      for (int i = 0; i < InList.Count; i++)
+        InList[i].Accept(visitor);
+      visitor.Visit(this);
     }
   }
 
@@ -146,6 +241,16 @@ namespace MySql.Data.Entity
         sql.Append(") ");
       }
       sql.Append("END");
+    }
+
+    internal override void Accept(SqlFragmentVisitor visitor)
+    {
+      Else.Accept(visitor);
+      for (int i = 0; i < Then.Count; i++)
+        Then[i].Accept(visitor);
+      for (int i = 0; i < When.Count; i++)
+        When[i].Accept(visitor);
+      visitor.Visit(this);
     }
   }
 
@@ -211,6 +316,11 @@ namespace MySql.Data.Entity
       if (column.ColumnAlias != ColumnAlias) return false;
       return true;
     }
+
+    internal override void Accept(SqlFragmentVisitor visitor)
+    {
+      visitor.Visit(this);
+    }
   }
 
   internal class ExistsFragment : NegatableFragment
@@ -229,6 +339,12 @@ namespace MySql.Data.Entity
       Argument.WriteSql(sql);
       sql.Append(")");
     }
+
+    internal override void Accept(SqlFragmentVisitor visitor)
+    {
+      Argument.Accept(visitor);
+      visitor.Visit(this);
+    }
   }
 
   internal class FunctionFragment : SqlFragment
@@ -245,6 +361,11 @@ namespace MySql.Data.Entity
       Argument.WriteSql(sql);
       sql.Append(")");
     }
+
+    internal override void  Accept(SqlFragmentVisitor visitor)
+    {
+      Argument.Accept(visitor);
+    }
   }
 
   internal class IsNullFragment : NegatableFragment
@@ -255,6 +376,12 @@ namespace MySql.Data.Entity
     {
       Argument.WriteSql(sql);
       sql.AppendFormat(" IS {0} NULL", IsNegated ? "NOT" : "");
+    }
+
+    internal override void Accept(SqlFragmentVisitor visitor)
+    {
+      Argument.Accept(visitor);
+      visitor.Visit(this);
     }
   }
 
@@ -277,6 +404,12 @@ namespace MySql.Data.Entity
         Escape.WriteSql(sql);
       }
     }
+
+    internal override void Accept(SqlFragmentVisitor visitor)
+    {
+      Argument.Accept(visitor);
+      visitor.Visit(this);
+    }
   }
 
   internal class ListFragment : SqlFragment
@@ -298,6 +431,12 @@ namespace MySql.Data.Entity
       foreach (SqlFragment f in Fragments)
         f.WriteSql(sql);
     }
+
+    internal override void Accept(SqlFragmentVisitor visitor)
+    {
+      for (int i = 0; i < Fragments.Count; i++)
+        Fragments[i].Accept(visitor);
+    }
   }
 
   internal class NegatableFragment : SqlFragment
@@ -313,6 +452,11 @@ namespace MySql.Data.Entity
     {
       Debug.Fail("This method should be overridden");
     }
+
+    internal override void Accept(SqlFragmentVisitor visitor)
+    {
+      throw new System.NotImplementedException();
+    }
   }
 
   internal class LiteralFragment : SqlFragment
@@ -327,6 +471,11 @@ namespace MySql.Data.Entity
     public override void WriteSql(StringBuilder sql)
     {
       sql.Append(Literal);
+    }
+
+    internal override void Accept(SqlFragmentVisitor visitor)
+    {
+      visitor.Visit(this);
     }
   }
 
@@ -383,6 +532,11 @@ namespace MySql.Data.Entity
         newPF.Properties.Add(prop);
       return newPF;
     }
+
+    internal override void Accept(SqlFragmentVisitor visitor)
+    {
+      throw new System.NotImplementedException();
+    }
   }
 
   internal class SortFragment : SqlFragment
@@ -407,6 +561,11 @@ namespace MySql.Data.Entity
       columnFragment.WriteSql(sql);
       sql.AppendFormat(" {0}", Ascending ? "ASC" : "DESC");
     }
+
+    internal override void Accept(SqlFragmentVisitor visitor)
+    {
+      Column.Accept(visitor);
+    }
   }
 
   internal class UnionFragment : InputFragment
@@ -427,6 +586,11 @@ namespace MySql.Data.Entity
       if ((Left as SelectStatement).HasDifferentNameForColumn(column))
         return true;
       return (Right as SelectStatement).HasDifferentNameForColumn(column);
+    }
+
+    internal override void Accept(SqlFragmentVisitor visitor)
+    {
+      throw new System.NotImplementedException();
     }
   }
 

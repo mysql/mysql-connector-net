@@ -318,5 +318,10 @@ namespace MySql.Data.Entity
       }
       throw new InvalidOperationException();
     }
+
+    internal override void Accept(SqlFragmentVisitor visitor)
+    {
+      throw new System.NotImplementedException();
+    }
   }
 }
