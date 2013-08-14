@@ -1,4 +1,4 @@
-﻿// Copyright © 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -22,37 +22,44 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
-using System.Data.Metadata.Edm;
-using System.Diagnostics;
+using System.Data.Entity;
+using System.ComponentModel.DataAnnotations;
 
-namespace MySql.Data.Entity
+namespace MySql.Data.Entity.CodeFirst.Tests
 {
-  class TableFragment : InputFragment
+  public class PromotionsDB: DbContext
   {
-    public string Schema;
-    public string Table;
-    public SqlFragment DefiningQuery;
-    public TypeUsage Type;
-    public List<ColumnFragment> Columns;
+    public virtual DbSet<HomePromo> HomePromoes { get; set; }
 
-    public TableFragment()
+    public PromotionsDB()
     {
-      Scoped = true;
+      Database.SetInitializer<PromotionsDB>(new PromotionsDBInitializer());
     }
+  }
 
-    public override void WriteSql(StringBuilder sql)
-    {
-      if (DefiningQuery != null)
-        sql.AppendFormat("({0})", DefiningQuery);
-      else
-        sql.AppendFormat("{0}", QuoteIdentifier(Table));
-      base.WriteSql(sql);
-    }
+  public class PromotionsDBInitializer : DropCreateDatabaseReallyAlways<PromotionsDB>
+  {
+  }
 
-    internal override void Accept(SqlFragmentVisitor visitor)
-    {
-      throw new System.NotImplementedException();
-    }
+  public class HomePromo
+  {
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    [Key]
+    public int ID { get; set; }
+
+    public string Image { get; set; }
+
+    public string Url { get; set; }
+
+    public int DisplayOrder { get; set; }
+
+    [Column("Active")]
+    public bool Active { get; set; }
+    [Column("ActiveFrom")]
+    public DateTime? ActiveFrom { get; set; }
+    [Column("ActiveTo")]
+    public DateTime? ActiveTo { get; set; }
   }
 }
