@@ -1577,5 +1577,85 @@ END;
         dbg.RestoreRoutinesBackup();
       }
     }
+
+    /// <summary>
+    /// This fixes BUG 17284598 - Error raised when using Begin-End inside another Begin-End.
+    /// </summary>
+    [Fact]
+    public void BrokenInstrumentationInCase()
+    {
+      string sql =
+        @"
+DELIMITER // 
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `proceso`()
+
+BEGIN
+    DECLARE var1 INT;
+    DECLARE var2 INT;
+
+    SET var1 = 10;
+    SET var2 = 20;
+
+    CASE var1
+        WHEN 1000 THEN SELECT var1;
+        WHEN 3000 THEN SELECT var1;
+        ELSE
+       BEGIN
+        -- multiple statements; statement list right below
+        -- performing multiple variable value setting
+            SET var1 = var1 + 10;
+            SET var2 = var2 + 10;
+           SELECT var1, var2;
+        END;
+    END CASE;
+END // 
+";
+      Debugger dbg = new Debugger();
+      try
+      {
+        dbg.Connection = new MySqlConnection(TestUtils.CONNECTION_STRING);
+        dbg.UtilityConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
+        dbg.LockingConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
+        DumpConnectionThreads(dbg);
+        MySqlScript script = new MySqlScript(dbg.Connection, sql);
+        script.Execute();
+        sql =
+@"CREATE DEFINER=`root`@`localhost` PROCEDURE `proceso`()
+
+BEGIN
+    DECLARE var1 INT;
+    DECLARE var2 INT;
+
+    SET var1 = 10;
+    SET var2 = 20;
+
+    CASE var1
+        WHEN 1000 THEN SELECT var1;
+        WHEN 3000 THEN SELECT var1;
+        ELSE
+       BEGIN
+        -- multiple statements; statement list right below
+        -- performing multiple variable value setting
+            SET var1 = var1 + 10;
+            SET var2 = var2 + 10;
+           SELECT var1, var2;
+        END;
+    END CASE;
+END;
+";
+        dbg.SqlInput = sql;
+        dbg.SteppingType = SteppingTypeEnum.StepInto;
+        dbg.OnBreakpoint += (bp) =>
+        {
+          Debug.WriteLine(string.Format("breakpoint at line {0}:{1},{2}", bp.RoutineName, bp.Line, bp.StartColumn));
+        };
+        dbg.Run(null, null);
+      }
+      finally
+      {
+        dbg.RestoreRoutinesBackup();
+      }
+    }
   }
 }

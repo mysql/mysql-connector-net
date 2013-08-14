@@ -1458,13 +1458,13 @@ namespace MySql.Debugger
               {
                 sql.Append(tc.GetChild(0).GetChild(0).Text).Append(" : ");
               }
-              sql.AppendLine("begin");
+              sql.AppendLine(" begin");
               GenerateInstrumentedCodeRecursive(tc.Children, routine, sql);
               tkTmp = tokenStream.GetTokens(tc.TokenStopIndex, tc.TokenStopIndex).Last();
               EmitInstrumentationCode(sql, routine, tkTmp.Line, tkTmp.CharPositionInLine);
               // TODO: Add END token to AST, so you can put breakpoints in the END
               //routine.RegisterStatement(tc);
-              sql.AppendLine("end;");
+              sql.AppendLine(" end;");
             }
             break;
           case "if":
@@ -1489,9 +1489,9 @@ namespace MySql.Debugger
                 CommonTree exprTree = (CommonTree)child.GetChild(idxThen - 1);
                 // Concat "elseif/if ... then"
                 if (Cmp(child.Text, "if_cond") == 0)
-                  sql.Append("if ");
+                  sql.Append(" if ");
                 else
-                  sql.Append("elseif ");
+                  sql.Append(" elseif ");
                 ConcatTokens(sql, tokenStream, exprTree.TokenStartIndex, exprTree.TokenStopIndex, true );
                 sql.AppendLine(" then ");
                 GenerateInstrumentedCodeRecursive(thenTree.Children, routine, sql);
@@ -1508,7 +1508,7 @@ namespace MySql.Debugger
                 ConcatTokens(sql, tokenStream, elseTree.TokenStartIndex, elseTree.GetChild(0).TokenStartIndex - 1);
                 GenerateInstrumentedCodeRecursive(elseTree.Children, routine, sql);
               }
-              sql.AppendLine("end if;");
+              sql.AppendLine(" end if;");
             }
             break;
           case "while":
@@ -1536,7 +1536,7 @@ namespace MySql.Debugger
                   // skip while condition & label
                   tc.Children.Skip(2).ToList(), routine, sql);
               }
-              sql.AppendLine("end while;");
+              sql.AppendLine(" end while;");
             }
             break;
           case "repeat":
@@ -1548,7 +1548,7 @@ namespace MySql.Debugger
                 hasLabel = true;
               }
               IList<ITree> childColl = tc.Children;
-              sql.AppendLine("repeat");
+              sql.AppendLine(" repeat");
               if (!hasLabel)
               {
                 GenerateInstrumentedCodeRecursive(
@@ -1563,7 +1563,7 @@ namespace MySql.Debugger
               }
               trTmp = tc.GetChild(tc.ChildCount - 1);
               EmitInstrumentationCode(sql, routine, trTmp.Line, trTmp.CharPositionInLine);
-              sql.Append("until ");
+              sql.Append(" until ");
               // Concat until condition
               ConcatTokens(sql, tokenStream, 
                 childColl[childColl.Count - 1].TokenStartIndex, 
@@ -1579,7 +1579,7 @@ namespace MySql.Debugger
                 sql.Append(tc.GetChild(0).GetChild(0).Text).Append(" : ");
                 hasLabel = true;
               }
-              sql.AppendLine("loop");
+              sql.AppendLine(" loop");
               if (hasLabel)
               {
                 // skip label children
@@ -1589,7 +1589,7 @@ namespace MySql.Debugger
               {
                 GenerateInstrumentedCodeRecursive(tc.Children, routine, sql);
               }
-              sql.AppendLine("end loop;");
+              sql.AppendLine(" end loop;");
             }
             break;
           case "declare_handler":
@@ -1617,7 +1617,7 @@ namespace MySql.Debugger
               int i = 0;
               routine.RegisterStatement(tc);
               EmitInstrumentationCode(sql, routine, tc.Line, tc.CharPositionInLine);
-              sql.AppendLine("case");
+              sql.AppendLine(" case ");
               CommonTree whenCt = (CommonTree)tc.GetChild(0);
               if (Cmp(whenCt.Text, "when") != 0)
               {
@@ -1638,10 +1638,10 @@ namespace MySql.Debugger
               if (i < tc.ChildCount)
               {
                 CommonTree elseCt = (CommonTree)tc.GetChild(tc.ChildCount - 1);
-                sql.Append(" else");
+                sql.Append(" else ");
                 GenerateInstrumentedCodeRecursive( elseCt.Children, routine, sql);
               }
-              sql.AppendLine("end case;");
+              sql.AppendLine(" end case;");
             }
             break;
           case "call":
