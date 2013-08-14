@@ -310,21 +310,21 @@ namespace MySql.Data.Entity
     protected virtual MigrationStatement Generate(CreateProcedureOperation op)
     {
       MigrationStatement stmt = new MigrationStatement();
-      stmt.Sql = _GenerateProcedureCmd(op);
+      stmt.Sql = GenerateProcedureCmd(op);
       return stmt;
     }
 
-    private string _GenerateProcedureCmd(CreateProcedureOperation po)
+    private string GenerateProcedureCmd(CreateProcedureOperation po)
     {
       StringBuilder sql = new StringBuilder();
-      sql.AppendLine(string.Format("CREATE PROCEDURE `{0}`({1})", po.Name.Replace("dbo.", ""), _GenerateParamSentence(po.Parameters)));
+      sql.AppendLine(string.Format("CREATE PROCEDURE `{0}`({1})", po.Name.Replace("dbo.", ""), GenerateParamSentence(po.Parameters)));
       sql.AppendLine("BEGIN ");
       sql.AppendLine(po.BodySql);
       sql.AppendLine(" END");
       return sql.ToString().Replace("@", "");
     }
 
-    private string _GenerateParamSentence(IList<ParameterModel> Parameters)
+    private string GenerateParamSentence(IList<ParameterModel> Parameters)
     {
       StringBuilder sql = new StringBuilder();
       foreach (ParameterModel param in Parameters)
@@ -332,13 +332,13 @@ namespace MySql.Data.Entity
         sql.AppendFormat("{0} {1} {2},",
                          (param.IsOutParameter ? "OUT" : "IN"),
                          param.Name,
-                         _BuildParamType(param));
+                         BuildParamType(param));
       }
 
       return sql.ToString().Substring(0, sql.ToString().LastIndexOf(","));
     }
 
-    private string _BuildParamType(ParameterModel param)
+    private string BuildParamType(ParameterModel param)
     {
       string type = MySqlProviderServices.Instance.GetColumnType(_providerManifest.GetStoreType(param.TypeUsage));
       StringBuilder sb = new StringBuilder();

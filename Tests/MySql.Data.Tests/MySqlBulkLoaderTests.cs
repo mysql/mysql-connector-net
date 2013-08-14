@@ -373,7 +373,7 @@ namespace MySql.Data.MySqlClient.Tests
         da.Fill(dt);
       }
       timer.Stop();
-      Console.WriteLine(string.Format("Asynchronous task finished in:{0}", _GetElapsedTime(timer)));
+      Console.WriteLine(string.Format("Asynchronous task finished in:{0}", GetElapsedTime(timer)));
       Assert.Equal(500, dt.Rows.Count);
       Assert.Equal("'Test'", dt.Rows[0][1].ToString().Trim());
     }
@@ -417,7 +417,7 @@ namespace MySql.Data.MySqlClient.Tests
           da.Fill(dt);
         }
         timer.Stop();
-        Console.WriteLine(string.Format("Asynchronous task finished in:{0}", _GetElapsedTime(timer)));
+        Console.WriteLine(string.Format("Asynchronous task finished in:{0}", GetElapsedTime(timer)));
 
         Assert.Equal(500, dt.Rows.Count);
         Assert.Equal("'Test'", dt.Rows[0][1].ToString().Trim());
@@ -465,7 +465,7 @@ namespace MySql.Data.MySqlClient.Tests
         da.Fill(dt);
       }
       timer.Stop();
-      Console.WriteLine(string.Format("Asynchronous task finished in:{0}", _GetElapsedTime(timer)));
+      Console.WriteLine(string.Format("Asynchronous task finished in:{0}", GetElapsedTime(timer)));
 
       Assert.Equal(500, dt.Rows.Count);
       Assert.Equal("col1", dt.Rows[0][1]);
@@ -507,7 +507,7 @@ namespace MySql.Data.MySqlClient.Tests
         da.Fill(dt);
       }
       timer.Stop();
-      Console.WriteLine(string.Format("Asynchronous task finished in:{0}", _GetElapsedTime(timer)));
+      Console.WriteLine(string.Format("Asynchronous task finished in:{0}", GetElapsedTime(timer)));
 
       Assert.Equal(500, dt.Rows.Count);
       Assert.Equal("col1still col1", dt.Rows[0][1]);
@@ -656,7 +656,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
     #endregion
 
-    private string _GetElapsedTime(System.Diagnostics.Stopwatch Timer)
+    private string GetElapsedTime(System.Diagnostics.Stopwatch Timer)
     {
       TimeSpan timeElapsed = Timer.Elapsed;
       return string.Format("{0}:{1}:{2}.{3} (HH:MM:SS.MS)", timeElapsed.Hours, timeElapsed.Minutes, timeElapsed.Seconds, timeElapsed.Milliseconds);
