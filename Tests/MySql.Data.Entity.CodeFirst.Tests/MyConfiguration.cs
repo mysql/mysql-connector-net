@@ -34,17 +34,17 @@ using System.Data.Entity.Migrations;
 
 namespace MySql.Data.Entity.CodeFirst.Tests
 {
-  public class MyConfiguration
-#if EF6
- : MySqlConfiguration
-  {
-    public MyConfiguration()
-      : base()
-    {
-    }
-  }
-#else
-  {
-  }
-#endif
+//  public class MyConfiguration
+//#if EF6
+// : MySqlConfiguration
+//  {
+//    public MyConfiguration()
+//      : base()
+//    {
+//    }
+//  }
+//#else
+//  {
+//  }
+//#endif
 }

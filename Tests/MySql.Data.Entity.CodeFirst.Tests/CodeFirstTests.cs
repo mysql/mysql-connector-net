@@ -853,6 +853,47 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       }
     }
 
+    [Fact]
+    public void EnumSupportTest()
+    {
+      using (var dbCtx = new EnumTestSupportContext())
+      {
+        dbCtx.Database.Initialize(true);
+        dbCtx.SchoolSchedules.Add(new SchoolSchedule() { StudentName = "Pako", Subject = SchoolSubject.History });
+        dbCtx.SaveChanges();
+
+        var schedule = (from s in dbCtx.SchoolSchedules
+                        where s.Subject == SchoolSubject.History
+                        select s).FirstOrDefault();
+
+        Assert.NotEqual(null, schedule);
+        Assert.Equal(SchoolSubject.History, schedule.Subject);
+      }
+    }
+
+    [Fact]
+    public void SpatialSupportTest()
+    {
+      using (var dbCtx = new JourneyContext())
+      {
+        dbCtx.Database.Initialize(true);
+        dbCtx.MyPlaces.Add(new MyPlace()
+        {
+          name = "JFK INTERNATIONAL AIRPORT OF NEW YORK",
+          location = System.Data.Spatial.DbGeometry.FromText("POINT(40.644047 -73.782291)"),
+        });
+        dbCtx.SaveChanges();
+
+        var place = (from p in dbCtx.MyPlaces
+                     where p.name == "JFK INTERNATIONAL AIRPORT OF NEW YORK"
+                     select p).FirstOrDefault();
+
+        var distance = (System.Data.Spatial.DbGeometry.FromText("POINT(40.717957 -73.736501)").Distance(place.location) * 100);
+
+        Assert.NotEqual(null, place);
+        Assert.Equal(8.6944880240295852D, distance.Value);
+      }
+    }
 #endif
   }
 }

@@ -48,7 +48,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
   }
 
 #if EF6
-  [DbConfigurationType(typeof(MyConfiguration))] 
+  [DbConfigurationType(typeof(MySqlConfiguration))] 
 #endif
   public class MovieCodedBasedConfigDBContext : DbContext
   {
@@ -121,5 +121,118 @@ namespace MySql.Data.Entity.CodeFirst.Tests
       SetHistoryContextFactory("MySql.Data.MySqlClient", (existingConnection, defaultSchema) => new MyHistoryContext(existingConnection, defaultSchema));
     }
   }
+
+  #region EnumSupport
+  public enum SchoolSubject
+  {
+    Math,
+    History,
+    Chemistry
+  }
+
+  public class SchoolSchedule
+  {
+    public int Id { get; set; }
+    public string StudentName { get; set; }
+    public SchoolSubject Subject { get; set; }
+  }
+
+  [DbConfigurationType(typeof(MySqlConfiguration))]
+  public class EnumTestSupportContext : DbContext
+  {
+    public DbSet<SchoolSchedule> SchoolSchedules { get; set; }
+
+    public EnumTestSupportContext()
+    {
+      Database.SetInitializer<EnumTestSupportContext>(new EnumTestSupportInitialize<EnumTestSupportContext>());
+      Database.SetInitializer<EnumTestSupportContext>(new MigrateDatabaseToLatestVersion<EnumTestSupportContext, EnumCtxConfiguration>());
+    }
+
+    protected override void OnModelCreating(DbModelBuilder modelBuilder)
+    {
+      base.OnModelCreating(modelBuilder);
+    }
+  }
+
+  public class EnumTestSupportInitialize<TContext> : IDatabaseInitializer<TContext> where TContext : DbContext
+  {
+    public void InitializeDatabase(TContext context)
+    {
+      context.Database.Delete();
+      context.Database.CreateIfNotExists();
+      this.Seed(context);
+      context.SaveChanges();
+    }
+
+    protected virtual void Seed(TContext context)
+    {
+    }
+  }
+
+  public class EnumCtxConfiguration : DbMigrationsConfiguration<EnumTestSupportContext>
+  {
+    public EnumCtxConfiguration()
+    {
+      CodeGenerator = new MySqlMigrationCodeGenerator();
+      AutomaticMigrationsEnabled = true;
+      SetSqlGenerator("MySql.Data.MySqlClient", new MySql.Data.Entity.MySqlMigrationSqlGenerator());
+      SetHistoryContextFactory("MySql.Data.MySqlClient", (existingConnection, defaultSchema) => new MyHistoryContext(existingConnection, defaultSchema));
+    }
+  }
+  #endregion
+
+  #region SpatialDataType
+  public class MyPlace
+  {
+    [Key]
+    public int Id { get; set; }
+    public string name { get; set; }
+    [NotMapped]
+    public System.Data.Spatial.DbGeometry location { get; set; }
+  }
+
+  [DbConfigurationType(typeof(MySqlConfiguration))]
+  public class JourneyContext : DbContext
+  {
+    public DbSet<MyPlace> MyPlaces { get; set; }
+    public JourneyContext()
+    {
+      Database.SetInitializer<JourneyContext>(new JourneyInitialize<JourneyContext>());
+      Database.SetInitializer<JourneyContext>(new MigrateDatabaseToLatestVersion<JourneyContext, JourneyConfiguration>());
+    }
+
+    protected override void OnModelCreating(DbModelBuilder modelBuilder)
+    {
+      base.OnModelCreating(modelBuilder);
+    }
+  }
+
+  public class JourneyInitialize<TContext> : IDatabaseInitializer<TContext> where TContext : DbContext
+  {
+    public void InitializeDatabase(TContext context)
+    {
+      context.Database.Delete();
+      context.Database.CreateIfNotExists();
+      this.Seed(context);
+      context.SaveChanges();
+    }
+
+    protected virtual void Seed(TContext context)
+    {
+    }
+  }
+
+  public class JourneyConfiguration : DbMigrationsConfiguration<JourneyContext>
+  {
+    public JourneyConfiguration()
+    {
+      CodeGenerator = new MySqlMigrationCodeGenerator();
+      AutomaticMigrationsEnabled = true;
+      SetSqlGenerator("MySql.Data.MySqlClient", new MySql.Data.Entity.MySqlMigrationSqlGenerator());
+      SetHistoryContextFactory("MySql.Data.MySqlClient", (existingConnection, defaultSchema) => new MyHistoryContext(existingConnection, defaultSchema));
+    }
+  }
+  #endregion
+
 #endif
 }
