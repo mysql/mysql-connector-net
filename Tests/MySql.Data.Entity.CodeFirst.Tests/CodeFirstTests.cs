@@ -894,6 +894,81 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         Assert.Equal(8.6944880240295852D, distance.Value);
       }
     }
+
+    [Fact]
+    public void BeginTransactionSupportTest()
+    {
+      using (var dbcontext = new MovieCodedBasedConfigDBContext())
+      {
+        dbcontext.Database.Initialize(true);
+        using (var transaction = dbcontext.Database.BeginTransaction())
+        {
+          try
+          {
+            dbcontext.Movies.Add(new MovieCBC()
+            {
+              Title = "Sharknado",
+              Genre = "Documental",
+              Price = 1.50M,
+              ReleaseDate = DateTime.Parse("01/07/2013")
+            });
+
+            dbcontext.SaveChanges();
+            var result = MySqlHelper.ExecuteScalar("server=localhost;User Id=root;database=test;logging=true; port=3305;", "select COUNT(*) from moviecbcs;");
+            Assert.Equal(0, int.Parse(result.ToString()));
+
+            transaction.Commit();
+
+            result = MySqlHelper.ExecuteScalar("server=localhost;User Id=root;database=test;logging=true; port=3305;", "select COUNT(*) from moviecbcs;");
+            Assert.Equal(1, int.Parse(result.ToString()));
+          }
+          catch (Exception)
+          {
+            transaction.Rollback();
+          }
+        }
+      }
+    }
+
+    [Fact]
+    public void UseTransactionSupportTest()
+    {
+      using (var connection = new MySqlConnection("server=localhost;User Id=root;database=test;logging=true; port=3305;"))
+      {
+        connection.Open();
+        using (var transaction = connection.BeginTransaction())
+        {
+          try
+          {
+            using (var dbcontext = new MovieCodedBasedConfigDBContext(connection, contextOwnsConnection: false))
+            {
+              dbcontext.Database.Initialize(true);
+              dbcontext.Database.UseTransaction(transaction);
+              dbcontext.Movies.Add(new MovieCBC()
+              {
+                Title = "Sharknado",
+                Genre = "Documental",
+                Price = 1.50M,
+                ReleaseDate = DateTime.Parse("01/07/2013")
+              });
+
+              dbcontext.SaveChanges();
+            }
+            var result = MySqlHelper.ExecuteScalar("server=localhost;User Id=root;database=test;logging=true; port=3305;", "select COUNT(*) from moviecbcs;");
+            Assert.Equal(0, int.Parse(result.ToString()));
+
+            transaction.Commit();
+
+            result = MySqlHelper.ExecuteScalar("server=localhost;User Id=root;database=test;logging=true; port=3305;", "select COUNT(*) from moviecbcs;");
+            Assert.Equal(1, int.Parse(result.ToString()));
+          }
+          catch (Exception)
+          {
+            transaction.Rollback();
+          }
+        }
+      }
+    }
 #endif
   }
 }

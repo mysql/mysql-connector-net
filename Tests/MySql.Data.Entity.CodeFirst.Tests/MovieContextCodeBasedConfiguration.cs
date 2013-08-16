@@ -54,6 +54,14 @@ namespace MySql.Data.Entity.CodeFirst.Tests
   {
     public DbSet<MovieCBC> Movies { get; set; }
 
+    public MovieCodedBasedConfigDBContext(DbConnection existingConnection, bool contextOwnsConnection)
+      : base(existingConnection, contextOwnsConnection)
+    {
+      Database.SetInitializer<MovieCodedBasedConfigDBContext>(new MovieCBCDBInitialize<MovieCodedBasedConfigDBContext>());
+#if EF6
+      Database.SetInitializer<MovieCodedBasedConfigDBContext>(new MigrateDatabaseToLatestVersion<MovieCodedBasedConfigDBContext, Configuration>());
+#endif
+    }
     public MovieCodedBasedConfigDBContext()
     {
       Database.SetInitializer<MovieCodedBasedConfigDBContext>(new MovieCBCDBInitialize<MovieCodedBasedConfigDBContext>());
