@@ -930,6 +930,11 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       }
     }
 
+    /// <summary>
+    /// This test covers two new features on EF6: 
+    /// 1- "DbContext.Database.UseTransaction, that use a transaction created from an open connection"
+    /// 2- "DbContext can now be created with a DbConnection that is already opened"
+    /// </summary>
     [Fact]
     public void UseTransactionSupportTest()
     {
