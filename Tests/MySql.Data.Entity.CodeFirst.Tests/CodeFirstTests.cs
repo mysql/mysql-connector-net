@@ -974,6 +974,27 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         }
       }
     }
+
+    [Fact]
+    public void HasChangesSupportTest()
+    {
+      using (var dbcontext = new MovieCodedBasedConfigDBContext())
+      {
+        dbcontext.Database.Initialize(true);
+
+        dbcontext.Movies.Add(new MovieCBC()
+        {
+          Title = "Sharknado",
+          Genre = "Documental",
+          Price = 1.50M,
+          ReleaseDate = DateTime.Parse("01/07/2013")
+        });
+
+        Assert.Equal(true, dbcontext.ChangeTracker.HasChanges());
+        dbcontext.SaveChanges();
+        Assert.Equal(false, dbcontext.ChangeTracker.HasChanges());
+      }
+    }
 #endif
   }
 }
