@@ -995,6 +995,73 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         Assert.Equal(false, dbcontext.ChangeTracker.HasChanges());
       }
     }
+
+    [Fact]
+    public void MySqlLoggingToFileSupportTest()
+    {
+      string logName = "mysql.log";
+      //if (System.IO.File.Exists(logName))
+      //  System.IO.File.Delete(logName);
+
+      using (var dbcontext = new MovieCodedBasedConfigDBContext())
+      {
+        dbcontext.Database.Log = MySqlLogger.Logger(logName, true).Write;
+
+        dbcontext.Database.Initialize(true);
+        dbcontext.Movies.Add(new MovieCBC()
+        {
+          Title = "Sharknado",
+          Genre = "Documental",
+          Price = 1.50M,
+          ReleaseDate = DateTime.Parse("01/07/2013")
+        });
+        dbcontext.SaveChanges();
+      }
+
+      Assert.Equal(true, System.IO.File.Exists(logName));
+    }
+
+    [Fact]
+    public void MySqlLoggingToConsoleSupportTest()
+    {
+      string logName = "mysql_2.log";
+      if (System.IO.File.Exists(logName))
+        System.IO.File.Delete(logName);
+
+      System.IO.FileStream file;
+      System.IO.StreamWriter writer;
+      System.IO.TextWriter txtOut = Console.Out;
+      try
+      {
+        file = new System.IO.FileStream(logName, System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.Write);
+        writer = new System.IO.StreamWriter(file);
+      }
+      catch (Exception e)
+      {
+        throw e;
+      }
+      Console.SetOut(writer);
+
+      using (var dbcontext = new MovieCodedBasedConfigDBContext())
+      {
+        dbcontext.Database.Log = new MySqlLogger(s => Console.Write(s)).Write;
+
+        dbcontext.Database.Initialize(true);
+        dbcontext.Movies.Add(new MovieCBC()
+        {
+          Title = "Sharknado",
+          Genre = "Documental",
+          Price = 1.50M,
+          ReleaseDate = DateTime.Parse("01/07/2013")
+        });
+        dbcontext.SaveChanges();
+      }
+      Console.SetOut(txtOut);
+      writer.Close();
+      file.Close();
+
+      Assert.Equal(true, System.IO.File.Exists(logName));
+    }
 #endif
   }
 }
