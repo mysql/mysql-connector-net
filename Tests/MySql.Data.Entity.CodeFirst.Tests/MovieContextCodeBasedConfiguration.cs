@@ -59,14 +59,14 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     {
       Database.SetInitializer<MovieCodedBasedConfigDBContext>(new MovieCBCDBInitialize<MovieCodedBasedConfigDBContext>());
 #if EF6
-      Database.SetInitializer<MovieCodedBasedConfigDBContext>(new MigrateDatabaseToLatestVersion<MovieCodedBasedConfigDBContext, Configuration>());
+      Database.SetInitializer<MovieCodedBasedConfigDBContext>(new MigrateDatabaseToLatestVersion<MovieCodedBasedConfigDBContext, Configuration<MovieCodedBasedConfigDBContext>>());
 #endif
     }
     public MovieCodedBasedConfigDBContext()
     {
       Database.SetInitializer<MovieCodedBasedConfigDBContext>(new MovieCBCDBInitialize<MovieCodedBasedConfigDBContext>());
 #if EF6
-      Database.SetInitializer<MovieCodedBasedConfigDBContext>(new MigrateDatabaseToLatestVersion<MovieCodedBasedConfigDBContext, Configuration>());
+      Database.SetInitializer<MovieCodedBasedConfigDBContext>(new MigrateDatabaseToLatestVersion<MovieCodedBasedConfigDBContext, Configuration<MovieCodedBasedConfigDBContext>>());
 #endif
     }
 
@@ -120,7 +120,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     }
   }
 
-  public class Configuration : DbMigrationsConfiguration<MovieCodedBasedConfigDBContext>
+  public class Configuration<TContext> : DbMigrationsConfiguration<TContext> where TContext : DbContext
   {
     public Configuration()
     {

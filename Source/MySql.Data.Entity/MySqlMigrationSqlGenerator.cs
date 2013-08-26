@@ -425,11 +425,11 @@ namespace MySql.Data.Entity
     {
 
       StringBuilder sb = new StringBuilder();
-      sb.Append("alter table `" + op.DependentTable + "` add constraint `" + op.Name + "` " +
+      sb.Append("alter table `" + TrimSchemaPrefix(op.DependentTable) + "` add constraint `" + TrimSchemaPrefix(op.Name) + "` " +
                  " foreign key ");
 
       sb.Append("(" + string.Join(",", op.DependentColumns.Select(c => "`" + c + "`")) + ") ");
-      sb.Append("references `" + op.PrincipalTable + "` ( " + string.Join(",", op.PrincipalColumns.Select(c => "`" + c + "`")) + ") ");
+      sb.Append("references `" + TrimSchemaPrefix(op.PrincipalTable) + "` ( " + string.Join(",", op.PrincipalColumns.Select(c => "`" + c + "`")) + ") ");
 
       if (op.CascadeDelete)
       {
@@ -679,7 +679,7 @@ namespace MySql.Data.Entity
 
     private string TrimSchemaPrefix(string table)
     {
-      if (table.StartsWith("dbo."))
+      if (table.StartsWith("dbo.") || table.Contains("dbo."))
         return table.Replace("dbo.", "");
 
       return table;
