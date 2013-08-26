@@ -73,7 +73,8 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     protected override void OnModelCreating(DbModelBuilder modelBuilder)
     {
       base.OnModelCreating(modelBuilder);
-      modelBuilder.Entity<MovieCBC>().Property(x => x.Price).HasPrecision(16, 2);
+      //modelBuilder.Entity<MovieCBC>().Property(x => x.Price).HasPrecision(16, 2);
+      modelBuilder.Conventions.Add<MyCustomConventions>();
 #if EF6
       modelBuilder.Entity<MovieCBC>().MapToStoredProcedures(
         sp => sp.Insert( i => i.HasName("insert_movie").Parameter(p => p.Title, "movie_name"))
@@ -242,5 +243,16 @@ namespace MySql.Data.Entity.CodeFirst.Tests
   }
   #endregion
 
+#region CustomCodeFirstConvention
+  public class MyCustomConventions : System.Data.Entity.ModelConfiguration.Conventions.Convention
+  {
+    public MyCustomConventions()
+    {
+      Properties().
+        Where(prop => typeof(decimal) == prop.GetType()).
+        Configure(config => config.HasPrecision(16, 2));
+    }
+  }
+#endregion
 #endif
 }
