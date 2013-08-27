@@ -859,7 +859,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       using (var dbCtx = new EnumTestSupportContext())
       {
         dbCtx.Database.Initialize(true);
-        dbCtx.SchoolSchedules.Add(new SchoolSchedule() { StudentName = "Pako", Subject = SchoolSubject.History });
+        dbCtx.SchoolSchedules.Add(new SchoolSchedule() { TeacherName = "Pako", Subject = SchoolSubject.History });
         dbCtx.SaveChanges();
 
         var schedule = (from s in dbCtx.SchoolSchedules
@@ -1061,6 +1061,31 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       file.Close();
 
       Assert.Equal(true, System.IO.File.Exists(logName));
+    }
+
+    [Fact]
+    public void EntityAndComplexTypeSupportTest()
+    {
+      using (var dbContext = new EntityAndComplexTypeContext())
+      {
+        dbContext.Database.Initialize(true);
+        dbContext.Students.Add(
+              new Student()
+              {
+                Name = "Pakorasu Pakolas",
+                Address = new Address() { City = "Mazatlan", Street = "Tierra de Venados 440" },
+                Schedule = new List<SchoolSchedule>() { new SchoolSchedule() { TeacherName = "Pako", Subject = SchoolSubject.History } }
+              });
+        dbContext.SaveChanges();
+
+        var student = (from s in dbContext.Students
+                        select s).FirstOrDefault();
+
+        Assert.NotEqual(null, student);
+        Assert.NotEqual(null, student.Schedule);
+        Assert.NotEqual(true, string.IsNullOrEmpty(student.Address.Street));
+        Assert.NotEqual(0, student.Schedule.Count());
+      }
     }
 #endif
   }

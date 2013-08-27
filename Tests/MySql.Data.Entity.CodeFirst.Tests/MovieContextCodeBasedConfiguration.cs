@@ -142,7 +142,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
   public class SchoolSchedule
   {
     public int Id { get; set; }
-    public string StudentName { get; set; }
+    public string TeacherName { get; set; }
     public SchoolSubject Subject { get; set; }
   }
 
@@ -243,7 +243,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
   }
   #endregion
 
-#region CustomCodeFirstConvention
+  #region CustomCodeFirstConvention
   public class MyCustomConventions : System.Data.Entity.ModelConfiguration.Conventions.Convention
   {
     public MyCustomConventions()
@@ -253,6 +253,39 @@ namespace MySql.Data.Entity.CodeFirst.Tests
         Configure(config => config.HasPrecision(16, 2));
     }
   }
-#endregion
+  #endregion
+
+  #region ComplexTypeSupport
+  public class Address
+  {
+    public string City { get; set; }
+    public string Street { get; set; }
+  }
+  public class Student
+  {
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public Address Address { get; set; }
+    public List<SchoolSchedule> Schedule { get; set; }
+  }
+
+  [DbConfigurationType(typeof(MySqlConfiguration))]
+  public class EntityAndComplexTypeContext : DbContext
+  {
+    public DbSet<Student> Students { get; set; }
+    public DbSet<SchoolSchedule> Schedules { get; set; }
+
+    public EntityAndComplexTypeContext()
+    {
+      Database.SetInitializer<EntityAndComplexTypeContext>(new MovieCBCDBInitialize<EntityAndComplexTypeContext>());
+      Database.SetInitializer<EntityAndComplexTypeContext>(new MigrateDatabaseToLatestVersion<EntityAndComplexTypeContext, Configuration<EntityAndComplexTypeContext>>());
+    }
+
+    protected override void OnModelCreating(DbModelBuilder modelBuilder)
+    {
+      base.OnModelCreating(modelBuilder);
+    }
+  }
+  #endregion
 #endif
 }

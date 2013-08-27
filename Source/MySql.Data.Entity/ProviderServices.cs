@@ -31,9 +31,6 @@ using MySql.Data.Entity.Properties;
 using System.Text;
 using System.Linq;
 using System.Globalization;
-#if NET_45_OR_GREATER
-using System.Data.Spatial;
-#endif
 using MySql.Data.Common;
 #if EF6
 using System.Data.Entity.Core.Common;
@@ -44,6 +41,9 @@ using System.Data.Entity.Infrastructure;
 #else
 using System.Data.Common.CommandTrees;
 using System.Data.Metadata.Edm;
+#if NET_45_OR_GREATER
+using System.Data.Spatial;
+#endif
 #endif
 
 namespace MySql.Data.MySqlClient
