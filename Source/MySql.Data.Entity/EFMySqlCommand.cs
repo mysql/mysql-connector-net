@@ -156,7 +156,7 @@ namespace MySql.Data.Entity
     /// <returns>Affected rows.</returns>
     public Task<int> ExecuteNonQueryAsync()
     {
-      return Task.Run(() =>
+      return Task.Factory.StartNew(() =>
       {
         return ExecuteNonQuery();
       });
@@ -168,7 +168,7 @@ namespace MySql.Data.Entity
     /// <returns>Value of the firs row in the first column.</returns>
     public Task<object> ExecuteScalarAsync()
     {
-      return Task.Run(() =>
+      return Task.Factory.StartNew(() =>
       {
         return ExecuteScalar();
       });
@@ -180,7 +180,7 @@ namespace MySql.Data.Entity
     /// <returns>Information about the task executed.</returns>
     public Task PrepareAsync()
     {
-      return Task.Run(() =>
+      return Task.Factory.StartNew(() =>
       {
         Prepare();
       });

@@ -290,7 +290,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>The number of rows inserted.</returns>
     public Task<int> LoadAsync()
     {
-      return Task.Run(() =>
+      return Task.Factory.StartNew(() =>
       {
         return Load();
       });

@@ -484,7 +484,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>DataRow containing the first row of the resultset</returns>
     public static Task<DataRow> ExecuteDataRowAsync(string connectionString, string commandText, params MySqlParameter[] parms)
     {
-      return Task.Run(() =>
+      return Task.Factory.StartNew(() =>
       {
         return ExecuteDataRow(connectionString, commandText, parms);
       });
@@ -501,7 +501,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>Rows affected</returns>
     public static Task<int> ExecuteNonQueryAsync(MySqlConnection connection, string commandText, params MySqlParameter[] commandParameters)
     {
-      return Task.Run(() =>
+      return Task.Factory.StartNew(() =>
       {
         return ExecuteNonQuery(connection, commandText, commandParameters);
       });
@@ -515,7 +515,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>Rows affected</returns>
     public static Task<int> ExecuteNonQueryAsync(string connectionString, string commandText, params MySqlParameter[] commandParameters)
     {
-      return Task.Run(() =>
+      return Task.Factory.StartNew(() =>
       {
         return ExecuteNonQuery(connectionString, commandText, commandParameters);
       });
@@ -542,7 +542,7 @@ namespace MySql.Data.MySqlClient
     /// <returns><see cref="DataSet"/> containing the resultset</returns>
     public static Task<DataSet> ExecuteDatasetAsync(string connectionString, string commandText, params MySqlParameter[] commandParameters)
     {
-      return Task.Run(() =>
+      return Task.Factory.StartNew(() =>
       {
         return ExecuteDataset(connectionString, commandText, commandParameters);
       });
@@ -566,7 +566,7 @@ namespace MySql.Data.MySqlClient
     /// <returns><see cref="DataSet"/> containing the resultset</returns>
     public static Task<DataSet> ExecuteDatasetAsync(MySqlConnection connection, string commandText, params MySqlParameter[] commandParameters)
     {
-      return Task.Run(() =>
+      return Task.Factory.StartNew(() =>
       {
         return ExecuteDataset(connection, commandText, commandParameters);
       });
@@ -580,7 +580,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="tablename">Tablename in the dataset to update</param>
     public static Task UpdateDataSetAsync(string connectionString, string commandText, DataSet ds, string tablename)
     {
-      return Task.Run(() =>
+      return Task.Factory.StartNew(() =>
       {
         UpdateDataSet(connectionString, commandText, ds, tablename);
       });
@@ -599,7 +599,7 @@ namespace MySql.Data.MySqlClient
     /// <returns><see cref="MySqlDataReader"/> object ready to read the results of the command</returns>
     private static Task<MySqlDataReader> ExecuteReaderAsync(MySqlConnection connection, MySqlTransaction transaction, string commandText, MySqlParameter[] commandParameters, bool ExternalConn)
     {
-      return Task.Run(() =>
+      return Task.Factory.StartNew(() =>
       {
         return ExecuteReader(connection, transaction, commandText, commandParameters, ExternalConn);
       });
@@ -633,7 +633,7 @@ namespace MySql.Data.MySqlClient
     /// <returns><see cref="MySqlDataReader"/> object ready to read the results of the command</returns>
     public static Task<MySqlDataReader> ExecuteReaderAsync(string connectionString, string commandText, params MySqlParameter[] commandParameters)
     {
-      return Task.Run(() =>
+      return Task.Factory.StartNew(() =>
       {
         return ExecuteReader(connectionString, commandText, commandParameters);
       });
@@ -671,7 +671,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>The first column of the first row in the result set, or a null reference if the result set is empty.</returns>
     public static Task<object> ExecuteScalarAsync(string connectionString, string commandText, params MySqlParameter[] commandParameters)
     {
-      return Task.Run(() =>
+      return Task.Factory.StartNew(() =>
       {
         return ExecuteScalar(connectionString, commandText, commandParameters);
       });
@@ -695,7 +695,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>The first column of the first row in the result set, or a null reference if the result set is empty.</returns>
     public static Task<object> ExecuteScalarAsync(MySqlConnection connection, string commandText, params MySqlParameter[] commandParameters)
     {
-      return Task.Run(() =>
+      return Task.Factory.StartNew(() =>
       {
         return ExecuteScalar(connection, commandText, commandParameters);
       });

@@ -29,8 +29,8 @@ using System.Text;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 using MySql.Data.MySqlClient;
-#if EF6
 using System.Data.Common;
+#if EF6
 using System.Data.Entity.Migrations;
 using System.Data.Entity.Migrations.Infrastructure;
 using System.Data.Entity.Migrations.History;
@@ -73,9 +73,9 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     protected override void OnModelCreating(DbModelBuilder modelBuilder)
     {
       base.OnModelCreating(modelBuilder);
+#if EF6
       //modelBuilder.Entity<MovieCBC>().Property(x => x.Price).HasPrecision(16, 2);
       modelBuilder.Conventions.Add<MyCustomConventions>();
-#if EF6
       modelBuilder.Entity<MovieCBC>().MapToStoredProcedures(
         sp => sp.Insert( i => i.HasName("insert_movie").Parameter(p => p.Title, "movie_name"))
               .Update(u => u.HasName("update_movie").Parameter(p => p.Title, "movie_name"))

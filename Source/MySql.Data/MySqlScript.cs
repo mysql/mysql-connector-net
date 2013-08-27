@@ -355,7 +355,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>The number of statements executed as part of the script inside.</returns>
     public Task<int> ExecuteAsync()
     {
-      return Task.Run(() =>
+      return Task.Factory.StartNew(() =>
       {
         return Execute();
       });

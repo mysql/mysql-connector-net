@@ -973,7 +973,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>int</returns>
     public Task<int> ExecuteNonQueryAsync()
     {
-      return Task.Run(() =>
+      return Task.Factory.StartNew(() =>
       {
         return ExecuteNonQuery();
       });
@@ -993,7 +993,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>A MySqlDataReader object</returns>
     public Task<MySqlDataReader> ExecuteReaderAsync(CommandBehavior behavior)
     {
-      return Task.Run(() =>
+      return Task.Factory.StartNew(() =>
       {
         return ExecuteReader(behavior);
       });
@@ -1004,7 +1004,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>The first column of the first row in the result set, or a null reference if the result set is empty</returns>
     public Task<object> ExecuteScalarAsync()
     {
-      return Task.Run(() =>
+      return Task.Factory.StartNew(() =>
       {
         return ExecuteScalar();
       });

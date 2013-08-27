@@ -825,7 +825,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>An object representing the new transaction.</returns>
     public Task<MySqlTransaction> BeginTransactionAsync(IsolationLevel iso)
     {
-      return Task.Run(() =>
+      return Task.Factory.StartNew(() =>
       {
         return BeginTransaction(iso);
       });
@@ -837,7 +837,7 @@ namespace MySql.Data.MySqlClient
     /// <returns></returns>
     public Task ChangeDataBaseAsync(string databaseName)
     {
-      return Task.Run(() =>
+      return Task.Factory.StartNew(() =>
       {
         ChangeDatabase(databaseName);
       });
@@ -848,7 +848,7 @@ namespace MySql.Data.MySqlClient
     /// <returns></returns>
     public Task OpenAsync()
     {
-      return Task.Run(() =>
+      return Task.Factory.StartNew(() =>
       {
         Open();
       });
@@ -859,7 +859,7 @@ namespace MySql.Data.MySqlClient
     /// <returns></returns>
     public Task CloseAsync()
     {
-      return Task.Run(() =>
+      return Task.Factory.StartNew(() =>
       {
         Close();
       });
@@ -871,7 +871,7 @@ namespace MySql.Data.MySqlClient
     /// <returns></returns>
     public Task ClearPoolAsync(MySqlConnection connection)
     {
-      return Task.Run(() =>
+      return Task.Factory.StartNew(() =>
       {
         ClearPool(connection);
       });
@@ -882,7 +882,7 @@ namespace MySql.Data.MySqlClient
     /// <returns></returns>
     public Task ClearAllPoolsAsync()
     {
-      return Task.Run(() =>
+      return Task.Factory.StartNew(() =>
       {
         ClearAllPools();
       });
@@ -895,7 +895,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>A schema collection</returns>
     public Task<MySqlSchemaCollection> GetSchemaCollectionAsync(string collectionName, string[] restrictionValues)
     {
-      return Task.Run(() =>
+      return Task.Factory.StartNew(() =>
       {
         return GetSchemaCollection(collectionName, restrictionValues);
       });
