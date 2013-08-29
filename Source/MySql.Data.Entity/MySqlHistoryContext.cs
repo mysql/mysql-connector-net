@@ -26,15 +26,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data.Common;
-#if EF6
 using System.Data.Entity.Migrations.History;
-#endif
 
 namespace MySql.Data.Entity
 {
-  public class MySqlHistoryContext
-#if EF6
- : HistoryContext
+  public class MySqlHistoryContext : HistoryContext
   {
     public MySqlHistoryContext(DbConnection existingConnection, string defaultSchema)
       : base(existingConnection, defaultSchema)
@@ -46,8 +42,4 @@ namespace MySql.Data.Entity
       base.OnModelCreating(modelBuilder);
     }
   }
-#else
-  {
-  }
-#endif
 }

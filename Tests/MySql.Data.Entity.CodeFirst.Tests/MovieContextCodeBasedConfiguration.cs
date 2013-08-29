@@ -34,6 +34,11 @@ using System.Data.Common;
 using System.Data.Entity.Migrations;
 using System.Data.Entity.Migrations.Infrastructure;
 using System.Data.Entity.Migrations.History;
+using System.Data.Entity.Spatial;
+#else
+#if NET_45_OR_GREATER
+using System.Data.Spatial;
+#endif
 #endif
 
 namespace MySql.Data.Entity.CodeFirst.Tests
@@ -197,7 +202,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     public int Id { get; set; }
     public string name { get; set; }
     [NotMapped]
-    public System.Data.Spatial.DbGeometry location { get; set; }
+    public DbGeometry location { get; set; }
   }
 
   [DbConfigurationType(typeof(MySqlConfiguration))]

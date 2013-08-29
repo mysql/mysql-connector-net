@@ -29,9 +29,6 @@ using System.Text;
 using System.Data.Entity;
 using System.Data.Entity.ModelConfiguration.Conventions;
 using System.ComponentModel.DataAnnotations.Schema;
-#if EF6
-using System.Data.Entity.Migrations;
-#endif
 
 
 namespace MySql.Data.Entity.CodeFirst.Tests
@@ -62,7 +59,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
   }
 
 #if EF6
-  [DbConfigurationType(typeof(MySqlConfiguration))]
+  [DbConfigurationType(typeof(MySqlEFConfiguration))]
 #endif
   public class MovieDBContext : DbContext
   {

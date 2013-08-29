@@ -25,16 +25,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-#if EF6
 using System.Data.Entity.Infrastructure.DependencyResolution;
 using System.Data.Entity.Infrastructure;
-#endif
 
 namespace MySql.Data.Entity
 {
-  public class MySqlDependencyResolver
-#if EF6
- : IDbDependencyResolver
+  public class MySqlDependencyResolver : IDbDependencyResolver
   {
     public object GetService(Type type, object key)
     {
@@ -51,8 +47,6 @@ namespace MySql.Data.Entity
             return new MySql.Data.Entity.MySqlMigrationSqlGenerator();
           case EServiceType.DbProviderServices:
             return new MySqlClient.MySqlProviderServices();
-          case EServiceType.DbSpatialServices:
-            return MySql.Data.Entity.MySqlSpatialServices.Instance;
           case EServiceType.IProviderInvariantName:
             return new MySqlProviderInvariantName();
           case EServiceType.IDbProviderFactoryResolver:
@@ -61,6 +55,10 @@ namespace MySql.Data.Entity
             return new MySqlManifestTokenResolver();
           case EServiceType.IDbModelCacheKey:
             return new SingletonDependencyResolver<Func<System.Data.Entity.DbContext, IDbModelCacheKey>>(new MySqlModelCacheKeyFactory().Create);
+#if NET_45_OR_GREATER
+          case EServiceType.DbSpatialServices:
+            return MySql.Data.Entity.MySqlSpatialServices.Instance;
+#endif
           //TODO: ADD THE SERVICE RESOLVER FOR IExecutionStrategy, THAT SERVICE MUST BE IMPLEMENTED ON "Connection Resiliency", FERNANDO IS WORKING ON IT
         }
       }
@@ -76,9 +74,16 @@ namespace MySql.Data.Entity
 
   public class MySqlProviderInvariantName : IProviderInvariantName
   {
+    private const string _providerName = "MySql.Data.MySqlClient";
+
     public string Name
     {
-      get { return "MySql.Data.MySqlClient"; }
+      get { return _providerName; }
+    }
+
+    public static string ProviderName
+    {
+      get { return MySqlProviderInvariantName._providerName; }
     }
   }
 
@@ -86,7 +91,7 @@ namespace MySql.Data.Entity
   {
     public System.Data.Common.DbProviderFactory ResolveProviderFactory(System.Data.Common.DbConnection connection)
     {
-      return System.Data.Common.DbProviderFactories.GetFactory(connection);
+      return System.Data.Common.DbProviderFactories.GetFactory(MySqlProviderInvariantName.ProviderName);
     }
   }
 
@@ -153,7 +158,7 @@ namespace MySql.Data.Entity
         customKey = modelCacheKeyProvider.CacheKey;
       }
 
-      return new MySqlModelCacheKey(context.GetType(), "MySql.Data.MySqlClient", typeof(MySqlClient.MySqlClientFactory), customKey);
+      return new MySqlModelCacheKey(context.GetType(), MySqlProviderInvariantName.ProviderName, typeof(MySqlClient.MySqlClientFactory), customKey);
     }
   }
 
@@ -171,8 +176,4 @@ namespace MySql.Data.Entity
     IDbModelCacheKey
     //TODO: ADD THE SERVICE IExecutionStrategy, THAT SERVICE MUST BE IMPLEMENTED ON "Connection Resiliency", FERNANDO IS WORKING ON IT
   }
-#else
-  {
-  }
-#endif
 }

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -18,7 +18,7 @@
         <SchemaVersion>2.0</SchemaVersion>
         <Framework>4.5</Framework>
         <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-        <DefineConstants>NET_40_OR_GREATER; NET_45_OR_GREATER</DefineConstants>
+        <DefineConstants>TRACE;NET_40_OR_GREATER;NET_45_OR_GREATER</DefineConstants>
         <!--
 		<DefineConstants>NET_40_OR_GREATER</DefineConstants>
 		<DefineConstants>NET_45_OR_GREATER</DefineConstants> 
@@ -31,7 +31,7 @@
         <SchemaVersion>2.0</SchemaVersion>
         <Framework>4.0</Framework>
         <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-        <DefineConstants>NET_40_OR_GREATER</DefineConstants>
+        <DefineConstants>TRACE;NET_40_OR_GREATER</DefineConstants>
       </PropertyGroup>
     </When>
     <Otherwise>
@@ -41,6 +41,7 @@
         <SchemaVersion>2.0</SchemaVersion>
         <Framework>3.5</Framework>
         <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+        <DefineConstants>TRACE</DefineConstants>
       </PropertyGroup>
     </Otherwise>
   </Choose>
@@ -86,7 +87,7 @@
     <IntermediateOutputPath>obj\$(TargetFrameworkVersion)\</IntermediateOutputPath>
     <OutputPath>bin\$(TargetFrameworkVersion)\Debug\</OutputPath>
     <BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\Debug\</BaseIntermediateOutputPath>
-    <DefineConstants>TRACE;DEBUG;NET_40_OR_GREATER; NET_45_OR_GREATER;</DefineConstants>
+    <DefineConstants>DEBUG;$(DefineConstants)</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
@@ -99,7 +100,7 @@
     <IntermediateOutputPath>obj\$(TargetFrameworkVersion)\</IntermediateOutputPath>
     <OutputPath>bin\$(TargetFrameworkVersion)\Release\</OutputPath>
     <BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\Release\</BaseIntermediateOutputPath>
-    <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
+    <DefineConstants>$(DefineConstants)</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
@@ -108,7 +109,7 @@
     <BaseOutputPath>$(TargetFrameworkVersion)\</BaseOutputPath>
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\$(TargetFrameworkVersion)\DebugEF6\</OutputPath>
-    <DefineConstants>NET_40_OR_GREATER; NET_45_OR_GREATER;DEBUG;TRACE;EF6</DefineConstants>
+    <DefineConstants>DEBUG;$(DefineConstants);EF6</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
@@ -117,7 +118,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseEF6|AnyCPU'">
     <BaseOutputPath>$(TargetFrameworkVersion)\</BaseOutputPath>
     <OutputPath>bin\$(TargetFrameworkVersion)\ReleaseEF6\</OutputPath>
-    <DefineConstants>NET_40_OR_GREATER; NET_45_OR_GREATER;TRACE;EF6</DefineConstants>
+    <DefineConstants>$(DefineConstants);EF6</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -129,15 +130,15 @@
       <Choose>
         <When Condition="'$(Configuration)' == 'DebugEF6' Or '$(Configuration)' == 'ReleaseEF6'">
           <ItemGroup>
-            <Reference Include="EntityFramework, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL" Condition="$(Framework) &gt;= '4.0'">
+            <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL" >
               <SpecificVersion>False</SpecificVersion>
-              <HintPath>C:\Program Files (x86)\Microsoft ADO.NET Entity Framework 6.0.0-beta1\lib\net45\EntityFramework.dll</HintPath>
+              <HintPath>C:\Program Files (x86)\Microsoft ADO.NET Entity Framework 6.0.0\lib\net45\EntityFramework.dll</HintPath>
             </Reference>
           </ItemGroup>
         </When>
         <Otherwise>
           <ItemGroup>
-            <Reference Include="EntityFramework, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL" Condition="$(Framework) &gt;= '4.0'">
+            <Reference Include="EntityFramework, Version=0.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL" >
               <SpecificVersion>False</SpecificVersion>
               <HintPath>C:\Program Files (x86)\Microsoft ADO.NET Entity Framework 5.0.0\lib\net45\EntityFramework.dll</HintPath>
             </Reference>
@@ -154,11 +155,26 @@
       </ItemGroup>
     </When>
     <When Condition="'$(Framework)' == '4.0'">
+      <Choose>
+        <When Condition="'$(Configuration)' == 'DebugEF6' Or '$(Configuration)' == 'ReleaseEF6'">
+          <ItemGroup>
+            <Reference Include="EntityFramework, Version=0.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL" >
+              <SpecificVersion>False</SpecificVersion>
+              <HintPath>C:\Program Files (x86)\Microsoft ADO.NET Entity Framework 6.0.0\lib\net40\EntityFramework.dll</HintPath>
+            </Reference>
+          </ItemGroup>
+        </When>
+        <Otherwise>
+          <ItemGroup>
+            <Reference Include="EntityFramework, Version=0.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL" >
+              <SpecificVersion>False</SpecificVersion>
+              <HintPath>C:\Program Files (x86)\Microsoft ADO.NET Entity Framework 5.0.0\lib\net40\EntityFramework.dll</HintPath>
+            </Reference>
+            <Reference Include="System.Data.Entity" />
+          </ItemGroup>
+        </Otherwise>
+      </Choose>
       <ItemGroup>
-        <Reference Include="EntityFramework">
-          <SpecificVersion>False</SpecificVersion>
-          <HintPath>C:\Program Files (x86)\Microsoft ADO.NET Entity Framework 6.0.0-beta1\lib\net40\EntityFramework.dll</HintPath>
-        </Reference>
         <Reference Include="System" />
         <Reference Include="System.Core" />
         <Reference Include="System.Data.DataSetExtensions" />
@@ -210,11 +226,11 @@
     <Compile Include="Generators\SelectGenerator.cs" />
     <Compile Include="Generators\SqlGenerator.cs" />
     <Compile Include="Generators\UpdateGenerator.cs" />
-    <Compile Include="MySqlConfiguration.cs" />
+    <Compile Include="MySqlConfiguration.cs" Condition="'$(Configuration)' == 'DebugEF6' Or '$(Configuration)' == 'ReleaseEF6'" />
     <Compile Include="MySqlConnectionFactory.cs" Condition="$(Framework) == '4.0' or $(Framework) == '4.5'" />
-    <Compile Include="MySqlDependencyResolver.cs" />
-    <Compile Include="MySqlHistoryContext.cs" />
-	<Compile Include="MySqlLogger.cs" />
+    <Compile Include="MySqlDependencyResolver.cs" Condition="'$(Configuration)' == 'DebugEF6' Or '$(Configuration)' == 'ReleaseEF6'" />
+    <Compile Include="MySqlHistoryContext.cs" Condition="'$(Configuration)' == 'DebugEF6' Or '$(Configuration)' == 'ReleaseEF6'" />
+	  <Compile Include="MySqlLogger.cs" Condition="'$(Configuration)' == 'DebugEF6' Or '$(Configuration)' == 'ReleaseEF6'" />
     <Compile Include="MySqlMigrationSqlGenerator.cs" Condition="$(Framework) == '4.0' or $(Framework) == '4.5'" />
     <Compile Include="MySqlSpatialServices.cs" Condition="$(Framework) == '4.5'" />
     <Compile Include="MySqlSpatialDataReader.cs" Condition="$(Framework) == '4.5'" />

@@ -26,8 +26,6 @@ using System.Data;
 using System.Data.Common;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
-using System.Data.EntityClient;
-using System.Data.Objects;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -40,6 +38,13 @@ using System.Collections.Generic;
 using Xunit;
 #if EF6
 using System.Data.Entity.Migrations.History;
+using System.Data.Entity.Spatial;
+#else
+using System.Data.EntityClient;
+using System.Data.Objects;
+#if NET_45_OR_GREATER
+using System.Data.Spatial;
+#endif
 #endif
 
 namespace MySql.Data.Entity.CodeFirst.Tests
@@ -880,7 +885,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         dbCtx.MyPlaces.Add(new MyPlace()
         {
           name = "JFK INTERNATIONAL AIRPORT OF NEW YORK",
-          location = System.Data.Spatial.DbGeometry.FromText("POINT(40.644047 -73.782291)"),
+          location = DbGeometry.FromText("POINT(40.644047 -73.782291)"),
         });
         dbCtx.SaveChanges();
 
@@ -888,7 +893,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
                      where p.name == "JFK INTERNATIONAL AIRPORT OF NEW YORK"
                      select p).FirstOrDefault();
 
-        var distance = (System.Data.Spatial.DbGeometry.FromText("POINT(40.717957 -73.736501)").Distance(place.location) * 100);
+        var distance = (DbGeometry.FromText("POINT(40.717957 -73.736501)").Distance(place.location) * 100);
 
         Assert.NotEqual(null, place);
         Assert.Equal(8.6944880240295852D, distance.Value);

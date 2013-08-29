@@ -25,10 +25,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MySql.Data.Entity;
 
 namespace MySql.Data.Entity.Migrations.Tests
 {
-  public class MyConfiguration : MySqlConfiguration
+  public class MyConfiguration : MySqlEFConfiguration
   {
     public MyConfiguration()
       : base()

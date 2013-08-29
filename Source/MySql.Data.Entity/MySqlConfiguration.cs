@@ -25,39 +25,33 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-#if NET_45_OR_GREATER
-#if EF6
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Internal;
-#endif
-#endif
 using MySql.Data.MySqlClient;
 
 namespace MySql.Data.Entity
 {
-  public class MySqlConfiguration
-#if EF6 
-    : DbConfiguration
-#endif
+  public class MySqlEFConfiguration : DbConfiguration
   {
-    private readonly string _providerName = "MySql.Data.MySqlClient";
-    public MySqlConfiguration()
+    public MySqlEFConfiguration()
     {
-#if EF6
       AddDependencyResolver(new MySqlDependencyResolver());
 
-      SetProviderFactory(_providerName, new MySqlClientFactory());
-      SetProviderServices(_providerName, new MySqlProviderServices());
+      SetProviderFactory(MySqlProviderInvariantName.ProviderName, new MySqlClientFactory());
+      SetProviderServices(MySqlProviderInvariantName.ProviderName, new MySqlProviderServices());
       SetDefaultConnectionFactory(new MySqlConnectionFactory());
-      SetDefaultSpatialServices(MySqlSpatialServices.Instance);
-      SetMigrationSqlGenerator(_providerName, () => { return new MySqlMigrationSqlGenerator(); });
+      SetMigrationSqlGenerator(MySqlProviderInvariantName.ProviderName, () => { return new MySqlMigrationSqlGenerator(); });
       SetProviderFactoryResolver(new MySqlProviderFactoryResolver());
-      SetSpatialServices(_providerName, MySqlSpatialServices.Instance);
       SetManifestTokenResolver(new MySqlManifestTokenResolver());
       SetProviderFactoryResolver(new MySqlProviderFactoryResolver());
-      SetHistoryContext(_providerName, (existingConnection, defaultSchema) => new MySqlHistoryContext(existingConnection, defaultSchema));
+      SetHistoryContext(MySqlProviderInvariantName.ProviderName, (existingConnection, defaultSchema) => new MySqlHistoryContext(existingConnection, defaultSchema));
+
       //TODO: SET SetExecutionStrategy() CONFIGURATION, THE IExecutionStrategy SERVICE IS GOING TO BE IMPLEMENTED ON "Connection Resiliency", FERNANDO IS WORKING ON IT
+
+#if NET_45_OR_GREATER
+      SetDefaultSpatialServices(MySqlSpatialServices.Instance);
+      SetSpatialServices(MySqlProviderInvariantName.ProviderName, MySqlSpatialServices.Instance);
 #endif
     }
   }

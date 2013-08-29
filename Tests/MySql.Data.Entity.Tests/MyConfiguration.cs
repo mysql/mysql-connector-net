@@ -29,7 +29,7 @@ using MySql.Data.Entity;
 
 namespace MySql.Data.Entity.Tests
 {
-  public class MyConfiguration : MySqlConfiguration
+  public class MyConfiguration : MySqlEFConfiguration
   {
     public MyConfiguration()
       : base()

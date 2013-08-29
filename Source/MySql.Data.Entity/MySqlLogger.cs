@@ -27,7 +27,6 @@ using System.IO;
 
 namespace MySql.Data.Entity
 {
-#if EF6
   public class MySqlLogger : TextWriter
   {
     private readonly Action<string> _action;
@@ -56,5 +55,4 @@ namespace MySql.Data.Entity
       return new StreamWriter(path: logPath, append: append) { AutoFlush = true };
     }
   }
-#endif
 }
