@@ -1092,6 +1092,35 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         Assert.NotEqual(0, student.Schedule.Count());
       }
     }
+
+    /// <summary>
+    /// TO RUN THIS TEST ITS NECESSARY TO ENABLE THE EXECUTION STRATEGY IN THE CLASS MySqlEFConfiguration (Source\MySql.Data.Entity\MySqlConfiguration.cs) AS WELL AS START A MYSQL SERVER INSTACE WITH THE OPTION "--max_connections=3"
+    /// WHY 3?: 1)For main process (User: root, DB: mysql). 2)For Setup Class. 3)For the connections in this test.
+    /// The expected result is that opening a third connection and trying to open a fourth(with an asynchronous task) the execution strategy implementation handle the reconnection process until the third one is closed.
+    /// </summary>
+    //[Fact] //<---DON'T FORGET ME TO RUN! =D
+    public void ExecutionStrategyTest()
+    {
+      var connection = new MySqlConnection("server=localhost;User Id=root;logging=true; port=3305;");
+      using (var dbcontext = new MovieCodedBasedConfigDBContext())
+      {
+        dbcontext.Database.Initialize(true);
+        dbcontext.Movies.Add(new MovieCBC()
+        {
+          Title = "Sharknado",
+          Genre = "Documental",
+          Price = 1.50M,
+          ReleaseDate = DateTime.Parse("01/07/2013")
+        });
+        connection.Open();
+        System.Threading.Tasks.Task.Factory.StartNew(() => { dbcontext.SaveChanges(); });
+        Thread.Sleep(1000);
+        connection.Close();
+        connection.Dispose();
+      }
+      var result = MySqlHelper.ExecuteScalar("server=localhost;User Id=root;database=test;logging=true; port=3305;", "select COUNT(*) from moviecbcs;");
+      Assert.Equal(1, int.Parse(result.ToString()));
+    }
 #endif
   }
 }

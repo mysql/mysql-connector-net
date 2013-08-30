@@ -53,7 +53,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
   }
 
 #if EF6
-  [DbConfigurationType(typeof(MySqlConfiguration))] 
+  [DbConfigurationType(typeof(MySqlEFConfiguration))] 
 #endif
   public class MovieCodedBasedConfigDBContext : DbContext
   {
@@ -151,7 +151,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     public SchoolSubject Subject { get; set; }
   }
 
-  [DbConfigurationType(typeof(MySqlConfiguration))]
+  [DbConfigurationType(typeof(MySqlEFConfiguration))]
   public class EnumTestSupportContext : DbContext
   {
     public DbSet<SchoolSchedule> SchoolSchedules { get; set; }
@@ -205,7 +205,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     public DbGeometry location { get; set; }
   }
 
-  [DbConfigurationType(typeof(MySqlConfiguration))]
+  [DbConfigurationType(typeof(MySqlEFConfiguration))]
   public class JourneyContext : DbContext
   {
     public DbSet<MyPlace> MyPlaces { get; set; }
@@ -274,7 +274,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     public List<SchoolSchedule> Schedule { get; set; }
   }
 
-  [DbConfigurationType(typeof(MySqlConfiguration))]
+  [DbConfigurationType(typeof(MySqlEFConfiguration))]
   public class EntityAndComplexTypeContext : DbContext
   {
     public DbSet<Student> Students { get; set; }

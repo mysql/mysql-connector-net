@@ -46,8 +46,9 @@ namespace MySql.Data.Entity
       SetManifestTokenResolver(new MySqlManifestTokenResolver());
       SetProviderFactoryResolver(new MySqlProviderFactoryResolver());
       SetHistoryContext(MySqlProviderInvariantName.ProviderName, (existingConnection, defaultSchema) => new MySqlHistoryContext(existingConnection, defaultSchema));
-
-      //TODO: SET SetExecutionStrategy() CONFIGURATION, THE IExecutionStrategy SERVICE IS GOING TO BE IMPLEMENTED ON "Connection Resiliency", FERNANDO IS WORKING ON IT
+      //CURRENTLY IS NOT SUPPORTED WORK WITH TRANSACTIONS AND EXECUTION STRATEGY AT THE SAME TIME: http://msdn.microsoft.com/en-US/data/dn307226
+      //IF WE SET THE EXECUTION STRATEGY HERE THAT WILL AFFECT THE USERS WHEN THEY TRY TO USE TRANSACTIONS, FOR THAT REASON EXECUTION STRATEGY WILL BE ENABLED ON DEMAND BY THEM
+      //SetExecutionStrategy(MySqlProviderInvariantName.ProviderName, () => { return new MySqlExecutionStrategy(); });
 
 #if NET_45_OR_GREATER
       SetDefaultSpatialServices(MySqlSpatialServices.Instance);

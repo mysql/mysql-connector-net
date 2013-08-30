@@ -88,9 +88,12 @@ namespace MySql.Data.Entity
 
     protected override bool ShouldRetryOn(Exception exception)
     {
+      if (exception == null)
+        return false;
+
       MySqlException myex = exception as MySqlException;
       BackoffAlgorithm algorithm = null;
-      if (errorsToRetryOn.TryGetValue(myex.Number, out algorithm))
+      if (myex != null && errorsToRetryOn.TryGetValue(myex.Number, out algorithm))
         return true;
       else
         return false;
@@ -129,7 +132,7 @@ namespace MySql.Data.Entity
     {
       double delay = ( ( Math.Pow( 2d, ++_totalRetries ) - 1d ) / 2d );
       if( _totalRetries > _maxRetries ) return null;
-      delay = Math.Min( Convert.ToDouble( _maxDelay ), delay );
+      delay = Math.Min(_maxDelay.TotalSeconds, delay );
       return TimeSpan.FromSeconds( delay );
     }
 

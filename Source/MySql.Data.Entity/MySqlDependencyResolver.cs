@@ -59,7 +59,8 @@ namespace MySql.Data.Entity
           case EServiceType.DbSpatialServices:
             return MySql.Data.Entity.MySqlSpatialServices.Instance;
 #endif
-          //TODO: ADD THE SERVICE RESOLVER FOR IExecutionStrategy, THAT SERVICE MUST BE IMPLEMENTED ON "Connection Resiliency", FERNANDO IS WORKING ON IT
+          case EServiceType.IDbExecutionStrategy:
+            return new MySqlExecutionStrategy();
         }
       }
       return null;
@@ -173,7 +174,7 @@ namespace MySql.Data.Entity
     IDbProviderFactoryResolver,
     IManifestTokenResolver,
     HistoryContext,
-    IDbModelCacheKey
-    //TODO: ADD THE SERVICE IExecutionStrategy, THAT SERVICE MUST BE IMPLEMENTED ON "Connection Resiliency", FERNANDO IS WORKING ON IT
+    IDbModelCacheKey,
+    IDbExecutionStrategy
   }
 }
