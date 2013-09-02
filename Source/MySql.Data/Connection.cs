@@ -41,6 +41,9 @@ using MySql.Data.MySqlClient.Properties;
 #if !CF
 using MySql.Data.MySqlClient.Replication;
 #endif
+#if NET_40_OR_GREATER
+using System.Threading.Tasks;
+#endif
 
 namespace MySql.Data.MySqlClient
 {
@@ -804,6 +807,101 @@ namespace MySql.Data.MySqlClient
       if (State == ConnectionState.Open)
         Close();
     }
+
+#if NET_40_OR_GREATER
+    #region Async
+    /// <summary>
+    /// Async version of BeginTransaction
+    /// </summary>
+    /// <returns>An object representing the new transaction.</returns>
+    public Task<MySqlTransaction> BeginTransactionAsync()
+    {
+      return BeginTransactionAsync(IsolationLevel.RepeatableRead);
+    }
+    /// <summary>
+    /// Async version of BeginTransaction
+    /// </summary>
+    /// <param name="iso">The isolation level under which the transaction should run. </param>
+    /// <returns>An object representing the new transaction.</returns>
+    public Task<MySqlTransaction> BeginTransactionAsync(IsolationLevel iso)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return BeginTransaction(iso);
+      });
+    }
+    /// <summary>
+    /// Async version of ChangeDataBase
+    /// </summary>
+    /// <param name="databaseName">The name of the database to use.</param>
+    /// <returns></returns>
+    public Task ChangeDataBaseAsync(string databaseName)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        ChangeDatabase(databaseName);
+      });
+    }
+    /// <summary>
+    /// Async version of Open
+    /// </summary>
+    /// <returns></returns>
+    public Task OpenAsync()
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        Open();
+      });
+    }
+    /// <summary>
+    /// Async version of Close
+    /// </summary>
+    /// <returns></returns>
+    public Task CloseAsync()
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        Close();
+      });
+    }
+    /// <summary>
+    /// Async version of ClearPool
+    /// </summary>
+    /// <param name="connection">The connection associated with the pool to be cleared.</param>
+    /// <returns></returns>
+    public Task ClearPoolAsync(MySqlConnection connection)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        ClearPool(connection);
+      });
+    }
+    /// <summary>
+    /// Async version of ClearAllPools
+    /// </summary>
+    /// <returns></returns>
+    public Task ClearAllPoolsAsync()
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        ClearAllPools();
+      });
+    }
+    /// <summary>
+    /// Async version of GetSchemaCollection
+    /// </summary>
+    /// <param name="collectionName">Name of the collection</param>
+    /// <param name="restrictionValues">Values to restrict</param>
+    /// <returns>A schema collection</returns>
+    public Task<MySqlSchemaCollection> GetSchemaCollectionAsync(string collectionName, string[] restrictionValues)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return GetSchemaCollection(collectionName, restrictionValues);
+      });
+    }
+    #endregion
+#endif
   }
 
   /// <summary>

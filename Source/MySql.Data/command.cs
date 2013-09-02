@@ -38,6 +38,9 @@ using MySql.Data.MySqlClient.Properties;
 #if !CF
 using MySql.Data.MySqlClient.Replication;
 #endif
+#if NET_40_OR_GREATER
+using System.Threading.Tasks;
+#endif
 
 namespace MySql.Data.MySqlClient
 {
@@ -961,6 +964,53 @@ namespace MySql.Data.MySqlClient
       if (statement != null && statement.IsPrepared)
         statement.CloseStatement();
     }
+
+#if NET_40_OR_GREATER
+    #region Async
+    /// <summary>
+    /// Async version of ExecuteNonQuery
+    /// </summary>
+    /// <returns>int</returns>
+    public Task<int> ExecuteNonQueryAsync()
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return ExecuteNonQuery();
+      });
+    }
+    /// <summary>
+    /// Async version of ExecuteReader
+    /// </summary>
+    /// <returns>A MySqlDataReader object</returns>
+    public Task<MySqlDataReader> ExecuteReaderAsync()
+    {
+      return ExecuteReaderAsync(CommandBehavior.Default);
+    }
+    /// <summary>
+    /// Async version of ExecuteReader
+    /// </summary>
+    /// <param name="behavior">Command Behavior</param>
+    /// <returns>A MySqlDataReader object</returns>
+    public Task<MySqlDataReader> ExecuteReaderAsync(CommandBehavior behavior)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return ExecuteReader(behavior);
+      });
+    }
+    /// <summary>
+    /// Async version of ExecuteScalar
+    /// </summary>
+    /// <returns>The first column of the first row in the result set, or a null reference if the result set is empty</returns>
+    public Task<object> ExecuteScalarAsync()
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return ExecuteScalar();
+      });
+    }
+    #endregion
+#endif
   }
 }
 

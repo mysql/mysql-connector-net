@@ -9,9 +9,15 @@
 
 using System;
 using System.ComponentModel;
+#if !EF6
 using System.Data.EntityClient;
 using System.Data.Objects;
 using System.Data.Objects.DataClasses;
+#else
+using System.Data.Entity.Core.EntityClient;
+using System.Data.Entity.Core.Objects;
+using System.Data.Entity.Core.Objects.DataClasses;
+#endif
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;

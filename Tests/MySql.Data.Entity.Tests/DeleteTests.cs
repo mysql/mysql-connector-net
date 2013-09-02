@@ -25,10 +25,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Xunit;
-using System.Data.EntityClient;
 using MySql.Data.MySqlClient;
 using System.Data;
+#if EF6
+using System.Data.Entity.Core.EntityClient;
+using System.Data.Entity.Core.Objects;
+#else
+using System.Data.EntityClient;
 using System.Data.Objects;
+#endif
+
 
 namespace MySql.Data.Entity.Tests
 {

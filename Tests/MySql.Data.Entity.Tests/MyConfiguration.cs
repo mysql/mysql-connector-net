@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -24,43 +24,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Data.Entity;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Threading.Tasks;
+using MySql.Data.Entity;
 
-namespace MySql.Data.Entity.CodeFirst.Tests
+namespace MySql.Data.Entity.Tests
 {
-  public class PromotionsDB: DbContext
+  public class MyConfiguration : MySqlEFConfiguration
   {
-    public virtual DbSet<HomePromo> HomePromoes { get; set; }
-
-    public PromotionsDB()
+    public MyConfiguration()
+      : base()
     {
-      Database.SetInitializer<PromotionsDB>(new PromotionsDBInitializer());
+      //AddMigrationSqlGenerator(() => { return new MySqlMigrationSqlGenerator(); });
+      //AddMigrationSqlGenerator<MySqlMigrationSqlGenerator>(() => { return new MySqlMigrationSqlGenerator(); });
     }
-  }
-
-  public class PromotionsDBInitializer : DropCreateDatabaseReallyAlways<PromotionsDB>
-  {
-  }
-
-  public class HomePromo
-  {
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    [Key]
-    public int ID { get; set; }
-
-    public string Image { get; set; }
-
-    public string Url { get; set; }
-
-    public int DisplayOrder { get; set; }
-
-    [Column("Active")]
-    public bool Active { get; set; }
-    [Column("ActiveFrom")]
-    public DateTime? ActiveFrom { get; set; }
-    [Column("ActiveTo")]
-    public DateTime? ActiveTo { get; set; }
   }
 }

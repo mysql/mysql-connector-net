@@ -1,4 +1,4 @@
-// Copyright © 2004, 2010, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -23,6 +23,9 @@
 using System.Data;
 using MySql.Data.MySqlClient;
 using System.Text;
+#if NET_40_OR_GREATER
+using System.Threading.Tasks;
+#endif
 
 namespace MySql.Data.MySqlClient
 {
@@ -467,5 +470,238 @@ namespace MySql.Data.MySqlClient
     }
 
     #endregion
+
+#if NET_40_OR_GREATER
+    #region Async
+
+    #region DataRow
+    /// <summary>
+    /// Async version of ExecuteDataRow
+    /// </summary>
+    /// <param name="connectionString">Settings to be used for the connection</param>
+    /// <param name="commandText">Command to execute</param>
+    /// <param name="parms">Parameters to use for the command</param>
+    /// <returns>DataRow containing the first row of the resultset</returns>
+    public static Task<DataRow> ExecuteDataRowAsync(string connectionString, string commandText, params MySqlParameter[] parms)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return ExecuteDataRow(connectionString, commandText, parms);
+      });
+    }
+    #endregion
+
+    #region NonQuery
+    /// <summary>
+    /// Async version of ExecuteNonQuery
+    /// </summary>
+    /// <param name="connection"><see cref="MySqlConnection"/> object to use</param>
+    /// <param name="commandText">SQL command to be executed</param>
+    /// <param name="commandParameters">Array of <see cref="MySqlParameter"/> objects to use with the command.</param>
+    /// <returns>Rows affected</returns>
+    public static Task<int> ExecuteNonQueryAsync(MySqlConnection connection, string commandText, params MySqlParameter[] commandParameters)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return ExecuteNonQuery(connection, commandText, commandParameters);
+      });
+    }
+    /// <summary>
+    /// Async version of ExecuteNonQuery
+    /// </summary>
+    /// <param name="connectionString"><see cref="MySqlConnection.ConnectionString"/> to use</param>
+    /// <param name="commandText">SQL command to be executed</param>
+    /// <param name="commandParameters">Array of <see cref="MySqlParameter"/> objects to use with the command.</param>
+    /// <returns>Rows affected</returns>
+    public static Task<int> ExecuteNonQueryAsync(string connectionString, string commandText, params MySqlParameter[] commandParameters)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return ExecuteNonQuery(connectionString, commandText, commandParameters);
+      });
+    }
+    #endregion
+
+    #region DataSet
+    /// <summary>
+    /// Async version of ExecuteDataset
+    /// </summary>
+    /// <param name="connectionString">Settings to be used for the connection</param>
+    /// <param name="commandText">Command to execute</param>
+    /// <returns><see cref="DataSet"/> containing the resultset</returns>
+    public static Task<DataSet> ExecuteDatasetAsync(string connectionString, string commandText)
+    {
+      return ExecuteDatasetAsync(connectionString, commandText, (MySqlParameter[])null);
+    }
+    /// <summary>
+    /// Async version of ExecuteDataset
+    /// </summary>
+    /// <param name="connectionString">Settings to be used for the connection</param>
+    /// <param name="commandText">Command to execute</param>
+    /// <param name="commandParameters">Parameters to use for the command</param>
+    /// <returns><see cref="DataSet"/> containing the resultset</returns>
+    public static Task<DataSet> ExecuteDatasetAsync(string connectionString, string commandText, params MySqlParameter[] commandParameters)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return ExecuteDataset(connectionString, commandText, commandParameters);
+      });
+    }
+    /// <summary>
+    /// Async version of ExecuteDataset
+    /// </summary>
+    /// <param name="connection"><see cref="MySqlConnection"/> object to use</param>
+    /// <param name="commandText">Command to execute</param>
+    /// <returns><see cref="DataSet"/> containing the resultset</returns>
+    public static Task<DataSet> ExecuteDatasetAsync(MySqlConnection connection, string commandText)
+    {
+      return ExecuteDatasetAsync(connection, commandText, (MySqlParameter[])null);
+    }
+    /// <summary>
+    /// Async version of ExecuteDataset
+    /// </summary>
+    /// <param name="connection"><see cref="MySqlConnection"/> object to use</param>
+    /// <param name="commandText">Command to execute</param>
+    /// <param name="commandParameters">Parameters to use for the command</param>
+    /// <returns><see cref="DataSet"/> containing the resultset</returns>
+    public static Task<DataSet> ExecuteDatasetAsync(MySqlConnection connection, string commandText, params MySqlParameter[] commandParameters)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return ExecuteDataset(connection, commandText, commandParameters);
+      });
+    }
+    /// <summary>
+    /// Async version of UpdateDataset
+    /// </summary>
+    /// <param name="connectionString">Settings to use for the update</param>
+    /// <param name="commandText">Command text to use for the update</param>
+    /// <param name="ds"><see cref="DataSet"/> containing the new data to use in the update</param>
+    /// <param name="tablename">Tablename in the dataset to update</param>
+    public static Task UpdateDataSetAsync(string connectionString, string commandText, DataSet ds, string tablename)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        UpdateDataSet(connectionString, commandText, ds, tablename);
+      });
+    }
+    #endregion
+
+    #region DataReader
+    /// <summary>
+    /// Async version of ExecuteReader
+    /// </summary>
+    /// <param name="connection"><see cref="MySqlConnection"/> object to use for the command</param>
+    /// <param name="transaction"><see cref="MySqlTransaction"/> object to use for the command</param>
+    /// <param name="commandText">Command text to use</param>
+    /// <param name="commandParameters">Array of <see cref="MySqlParameter"/> objects to use with the command</param>
+    /// <param name="ExternalConn">True if the connection should be preserved, false if not</param>
+    /// <returns><see cref="MySqlDataReader"/> object ready to read the results of the command</returns>
+    private static Task<MySqlDataReader> ExecuteReaderAsync(MySqlConnection connection, MySqlTransaction transaction, string commandText, MySqlParameter[] commandParameters, bool ExternalConn)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return ExecuteReader(connection, transaction, commandText, commandParameters, ExternalConn);
+      });
+    }
+    /// <summary>
+    /// Async version of ExecuteReader
+    /// </summary>
+    /// <param name="connectionString">Settings to use for this command</param>
+    /// <param name="commandText">Command text to use</param>
+    /// <returns><see cref="MySqlDataReader"/> object ready to read the results of the command</returns>
+    public static Task<MySqlDataReader> ExecuteReaderAsync(string connectionString, string commandText)
+    {
+      return ExecuteReaderAsync(connectionString, commandText, (MySqlParameter[])null);
+    }
+    /// <summary>
+    /// Async version of ExecuteReader
+    /// </summary>
+    /// <param name="connection"><see cref="MySqlConnection"/> object to use for the command</param>
+    /// <param name="commandText">Command text to use</param>
+    /// <returns><see cref="MySqlDataReader"/> object ready to read the results of the command</returns>
+    public static Task<MySqlDataReader> ExecuteReaderAsync(MySqlConnection connection, string commandText)
+    {
+      return ExecuteReaderAsync(connection, null, commandText, (MySqlParameter[])null, true);
+    }
+    /// <summary>
+    /// Async version of ExecuteReader
+    /// </summary>
+    /// <param name="connectionString">Settings to use for this command</param>
+    /// <param name="commandText">Command text to use</param>
+    /// <param name="commandParameters">Array of <see cref="MySqlParameter"/> objects to use with the command</param>
+    /// <returns><see cref="MySqlDataReader"/> object ready to read the results of the command</returns>
+    public static Task<MySqlDataReader> ExecuteReaderAsync(string connectionString, string commandText, params MySqlParameter[] commandParameters)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return ExecuteReader(connectionString, commandText, commandParameters);
+      });
+    }
+    /// <summary>
+    /// Async version of ExecuteReader
+    /// </summary>
+    /// <param name="connection">Connection to use for the command</param>
+    /// <param name="commandText">Command text to use</param>
+    /// <param name="commandParameters">Array of <see cref="MySqlParameter"/> objects to use with the command</param>
+    /// <returns><see cref="MySqlDataReader"/> object ready to read the results of the command</returns>
+    public static Task<MySqlDataReader> ExecuteReaderAsync(MySqlConnection connection, string commandText, params MySqlParameter[] commandParameters)
+    {
+      return ExecuteReaderAsync(connection, null, commandText, commandParameters, true);
+    }
+    #endregion
+
+    #region Scalar
+    /// <summary>
+    /// Async version of ExecuteScalar
+    /// </summary>
+    /// <param name="connectionString">Settings to use for the update</param>
+    /// <param name="commandText">Command text to use for the update</param>
+    /// <returns>The first column of the first row in the result set, or a null reference if the result set is empty.</returns>
+    public static Task<object> ExecuteScalarAsync(string connectionString, string commandText)
+    {
+      return ExecuteScalarAsync(connectionString, commandText, (MySqlParameter[])null);
+    }
+    /// <summary>
+    /// Async version of ExecuteScalar
+    /// </summary>
+    /// <param name="connectionString">Settings to use for the command</param>
+    /// <param name="commandText">Command text to use for the command</param>
+    /// <param name="commandParameters">Parameters to use for the command</param>
+    /// <returns>The first column of the first row in the result set, or a null reference if the result set is empty.</returns>
+    public static Task<object> ExecuteScalarAsync(string connectionString, string commandText, params MySqlParameter[] commandParameters)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return ExecuteScalar(connectionString, commandText, commandParameters);
+      });
+    }
+    /// <summary>
+    /// Async version of ExecuteScalar
+    /// </summary>
+    /// <param name="connection"><see cref="MySqlConnection"/> object to use</param>
+    /// <param name="commandText">Command text to use for the command</param>
+    /// <returns>The first column of the first row in the result set, or a null reference if the result set is empty.</returns>
+    public static Task<object> ExecuteScalarAsync(MySqlConnection connection, string commandText)
+    {
+      return ExecuteScalarAsync(connection, commandText, (MySqlParameter[])null);
+    }
+    /// <summary>
+    /// Async version of ExecuteScalar
+    /// </summary>
+    /// <param name="connection"><see cref="MySqlConnection"/> object to use</param>
+    /// <param name="commandText">Command text to use for the command</param>
+    /// <param name="commandParameters">Parameters to use for the command</param>
+    /// <returns>The first column of the first row in the result set, or a null reference if the result set is empty.</returns>
+    public static Task<object> ExecuteScalarAsync(MySqlConnection connection, string commandText, params MySqlParameter[] commandParameters)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return ExecuteScalar(connection, commandText, commandParameters);
+      });
+    }
+    #endregion
+    #endregion
+#endif
   }
 }

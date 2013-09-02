@@ -23,11 +23,17 @@
 using System;
 using System.Text;
 using System.Diagnostics;
-using System.Data.Common.CommandTrees;
-using System.Data.Metadata.Edm;
 using System.Collections.Generic;
 using MySql.Data.MySqlClient;
 using System.Data;
+#if EF6
+using System.Data.Entity.Core.Common.CommandTrees;
+using System.Data.Entity.Core.Metadata.Edm;
+#else
+using System.Data.Common.CommandTrees;
+using System.Data.Metadata.Edm;
+#endif
+
 
 namespace MySql.Data.Entity
 {
@@ -238,7 +244,7 @@ NoChanges:
         {
           SelectStatement newColSelect = new SelectStatement(this);
           newColSelect.From = applySel.From;
-		  newColSelect.Where = applySel.Where;
+      newColSelect.Where = applySel.Where;
           if (isInputSelect)
           {
             VisitAndReplaceTableName(newColSelect.Where, (input as SelectStatement).From.Name, input.Name);

@@ -26,8 +26,6 @@ using System.Data;
 using System.Data.Common;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
-using System.Data.EntityClient;
-using System.Data.Objects;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -38,7 +36,16 @@ using MySql.Data.MySqlClient.Tests;
 using System.Xml.Linq;
 using System.Collections.Generic;
 using Xunit;
-using MySql.Data.MySqlClient.Tests;
+#if EF6
+using System.Data.Entity.Migrations.History;
+using System.Data.Entity.Spatial;
+#else
+using System.Data.EntityClient;
+using System.Data.Objects;
+#if NET_45_OR_GREATER
+using System.Data.Spatial;
+#endif
+#endif
 
 namespace MySql.Data.Entity.CodeFirst.Tests
 {
@@ -175,7 +182,11 @@ namespace MySql.Data.Entity.CodeFirst.Tests
       using (MovieDBContext context = new MovieDBContext())
       {
         context.Database.Initialize(true);
+#if EF6
+        long count = context.Database.SqlQuery<long>("GetCount").First();
+#else
         int count = context.Database.SqlQuery<int>("GetCount").First();
+#endif
 
         Assert.Equal(5, count);
       }
@@ -946,6 +957,343 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         }
       }
     }
+#if EF6
+    [Fact]
+    public void SimpleCodeFirstSelectCBC()
+    {
+      MovieCodedBasedConfigDBContext db = new MovieCodedBasedConfigDBContext();
+      db.Database.Initialize(true);
+      var l = db.Movies.ToList();
+      foreach (var i in l)
+      {
+      }
+    }
+
+    [Fact]
+    public void TestStoredProcedureMapping()
+    {
+      using (var db = new MovieCodedBasedConfigDBContext())
+      {
+        db.Database.Initialize(true);
+        var movie = new MovieCBC()
+        {
+          Title = "Sharknado",
+          Genre = "Documental",
+          Price = 1.50M,
+          ReleaseDate = DateTime.Parse("01/07/2013")
+        };
+
+        db.Movies.Add(movie);
+        db.SaveChanges();
+        movie.Genre = "Fiction";
+        db.SaveChanges();
+        db.Movies.Remove(movie);
+        db.SaveChanges();
+      }
+    }
+    
+    [Fact]
+    public void MigrationHistoryConfigurationTest()
+    {
+      MovieCodedBasedConfigDBContext db = new MovieCodedBasedConfigDBContext();
+      db.Database.Initialize(true);
+      var l = db.Movies.ToList();
+      foreach (var i in l)
+      {
+      }
+      var result = MySqlHelper.ExecuteScalar("server=localhost;User Id=root;database=test;logging=true; port=3305;", "SELECT COUNT(_MigrationId) FROM __MySqlMigrations;");
+      Assert.Equal(1, int.Parse(result.ToString()));
+    }
+
+    [Fact]
+    public void DbSetRangeTest()
+    {
+      ReInitDb();
+      using (MovieDBContext db = new MovieDBContext())
+      {
+        db.Database.Initialize(true);
+        Movie m1 = new Movie() { Title = "Terminator 1", ReleaseDate = new DateTime(1984, 10, 26) };
+        Movie m2 = new Movie() { Title = "The Matrix", ReleaseDate = new DateTime(1999, 3, 31) };
+        Movie m3 = new Movie() { Title = "Predator", ReleaseDate = new DateTime(1987, 6, 12) };
+        Movie m4 = new Movie() { Title = "Star Wars, The Sith Revenge", ReleaseDate = new DateTime(2005, 5, 19) };
+        db.Movies.AddRange( new Movie[] { m1, m2, m3, m4 });
+        db.SaveChanges();
+        var q = from m in db.Movies select m;
+        Assert.Equal(4, q.Count());
+        foreach (var row in q)
+        {
+        }
+        db.Movies.RemoveRange(q.ToList());
+        db.SaveChanges();
+        var q2 = from m in db.Movies select m;
+        Assert.Equal(0, q2.Count());
+      }
+    }
+
+    [Fact]
+    public void EnumSupportTest()
+    {
+      using (var dbCtx = new EnumTestSupportContext())
+      {
+        dbCtx.Database.Initialize(true);
+        dbCtx.SchoolSchedules.Add(new SchoolSchedule() { TeacherName = "Pako", Subject = SchoolSubject.History });
+        dbCtx.SaveChanges();
+
+        var schedule = (from s in dbCtx.SchoolSchedules
+                        where s.Subject == SchoolSubject.History
+                        select s).FirstOrDefault();
+
+        Assert.NotEqual(null, schedule);
+        Assert.Equal(SchoolSubject.History, schedule.Subject);
+      }
+    }
+
+    [Fact]
+    public void SpatialSupportTest()
+    {
+      using (var dbCtx = new JourneyContext())
+      {
+        dbCtx.Database.Initialize(true);
+        dbCtx.MyPlaces.Add(new MyPlace()
+        {
+          name = "JFK INTERNATIONAL AIRPORT OF NEW YORK",
+          location = DbGeometry.FromText("POINT(40.644047 -73.782291)"),
+        });
+        dbCtx.SaveChanges();
+
+        var place = (from p in dbCtx.MyPlaces
+                     where p.name == "JFK INTERNATIONAL AIRPORT OF NEW YORK"
+                     select p).FirstOrDefault();
+
+        var distance = (DbGeometry.FromText("POINT(40.717957 -73.736501)").Distance(place.location) * 100);
+
+        Assert.NotEqual(null, place);
+        Assert.Equal(8.6944880240295852D, distance.Value);
+      }
+    }
+
+    [Fact]
+    public void BeginTransactionSupportTest()
+    {
+      using (var dbcontext = new MovieCodedBasedConfigDBContext())
+      {
+        dbcontext.Database.Initialize(true);
+        using (var transaction = dbcontext.Database.BeginTransaction())
+        {
+          try
+          {
+            dbcontext.Movies.Add(new MovieCBC()
+            {
+              Title = "Sharknado",
+              Genre = "Documental",
+              Price = 1.50M,
+              ReleaseDate = DateTime.Parse("01/07/2013")
+            });
+
+            dbcontext.SaveChanges();
+            var result = MySqlHelper.ExecuteScalar("server=localhost;User Id=root;database=test;logging=true; port=3305;", "select COUNT(*) from moviecbcs;");
+            Assert.Equal(0, int.Parse(result.ToString()));
+
+            transaction.Commit();
+
+            result = MySqlHelper.ExecuteScalar("server=localhost;User Id=root;database=test;logging=true; port=3305;", "select COUNT(*) from moviecbcs;");
+            Assert.Equal(1, int.Parse(result.ToString()));
+          }
+          catch (Exception)
+          {
+            transaction.Rollback();
+          }
+        }
+      }
+    }
+
+    /// <summary>
+    /// This test covers two new features on EF6: 
+    /// 1- "DbContext.Database.UseTransaction, that use a transaction created from an open connection"
+    /// 2- "DbContext can now be created with a DbConnection that is already opened"
+    /// </summary>
+    [Fact]
+    public void UseTransactionSupportTest()
+    {
+      using (var connection = new MySqlConnection("server=localhost;User Id=root;database=test;logging=true; port=3305;"))
+      {
+        connection.Open();
+        using (var transaction = connection.BeginTransaction())
+        {
+          try
+          {
+            using (var dbcontext = new MovieCodedBasedConfigDBContext(connection, contextOwnsConnection: false))
+            {
+              dbcontext.Database.Initialize(true);
+              dbcontext.Database.UseTransaction(transaction);
+              dbcontext.Movies.Add(new MovieCBC()
+              {
+                Title = "Sharknado",
+                Genre = "Documental",
+                Price = 1.50M,
+                ReleaseDate = DateTime.Parse("01/07/2013")
+              });
+
+              dbcontext.SaveChanges();
+            }
+            var result = MySqlHelper.ExecuteScalar("server=localhost;User Id=root;database=test;logging=true; port=3305;", "select COUNT(*) from moviecbcs;");
+            Assert.Equal(0, int.Parse(result.ToString()));
+
+            transaction.Commit();
+
+            result = MySqlHelper.ExecuteScalar("server=localhost;User Id=root;database=test;logging=true; port=3305;", "select COUNT(*) from moviecbcs;");
+            Assert.Equal(1, int.Parse(result.ToString()));
+          }
+          catch (Exception)
+          {
+            transaction.Rollback();
+          }
+        }
+      }
+    }
+
+    [Fact]
+    public void HasChangesSupportTest()
+    {
+      using (var dbcontext = new MovieCodedBasedConfigDBContext())
+      {
+        dbcontext.Database.Initialize(true);
+
+        dbcontext.Movies.Add(new MovieCBC()
+        {
+          Title = "Sharknado",
+          Genre = "Documental",
+          Price = 1.50M,
+          ReleaseDate = DateTime.Parse("01/07/2013")
+        });
+
+        Assert.Equal(true, dbcontext.ChangeTracker.HasChanges());
+        dbcontext.SaveChanges();
+        Assert.Equal(false, dbcontext.ChangeTracker.HasChanges());
+      }
+    }
+
+    [Fact]
+    public void MySqlLoggingToFileSupportTest()
+    {
+      string logName = "mysql.log";
+      //if (System.IO.File.Exists(logName))
+      //  System.IO.File.Delete(logName);
+
+      using (var dbcontext = new MovieCodedBasedConfigDBContext())
+      {
+        dbcontext.Database.Log = MySqlLogger.Logger(logName, true).Write;
+
+        dbcontext.Database.Initialize(true);
+        dbcontext.Movies.Add(new MovieCBC()
+        {
+          Title = "Sharknado",
+          Genre = "Documental",
+          Price = 1.50M,
+          ReleaseDate = DateTime.Parse("01/07/2013")
+        });
+        dbcontext.SaveChanges();
+      }
+
+      Assert.Equal(true, System.IO.File.Exists(logName));
+    }
+
+    [Fact]
+    public void MySqlLoggingToConsoleSupportTest()
+    {
+      string logName = "mysql_2.log";
+      if (System.IO.File.Exists(logName))
+        System.IO.File.Delete(logName);
+
+      System.IO.FileStream file;
+      System.IO.StreamWriter writer;
+      System.IO.TextWriter txtOut = Console.Out;
+      try
+      {
+        file = new System.IO.FileStream(logName, System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.Write);
+        writer = new System.IO.StreamWriter(file);
+      }
+      catch (Exception e)
+      {
+        throw e;
+      }
+      Console.SetOut(writer);
+
+      using (var dbcontext = new MovieCodedBasedConfigDBContext())
+      {
+        dbcontext.Database.Log = new MySqlLogger(s => Console.Write(s)).Write;
+
+        dbcontext.Database.Initialize(true);
+        dbcontext.Movies.Add(new MovieCBC()
+        {
+          Title = "Sharknado",
+          Genre = "Documental",
+          Price = 1.50M,
+          ReleaseDate = DateTime.Parse("01/07/2013")
+        });
+        dbcontext.SaveChanges();
+      }
+      Console.SetOut(txtOut);
+      writer.Close();
+      file.Close();
+
+      Assert.Equal(true, System.IO.File.Exists(logName));
+    }
+
+    [Fact]
+    public void EntityAndComplexTypeSupportTest()
+    {
+      using (var dbContext = new EntityAndComplexTypeContext())
+      {
+        dbContext.Database.Initialize(true);
+        dbContext.Students.Add(
+              new Student()
+              {
+                Name = "Pakorasu Pakolas",
+                Address = new Address() { City = "Mazatlan", Street = "Tierra de Venados 440" },
+                Schedule = new List<SchoolSchedule>() { new SchoolSchedule() { TeacherName = "Pako", Subject = SchoolSubject.History } }
+              });
+        dbContext.SaveChanges();
+
+        var student = (from s in dbContext.Students
+                        select s).FirstOrDefault();
+
+        Assert.NotEqual(null, student);
+        Assert.NotEqual(null, student.Schedule);
+        Assert.NotEqual(true, string.IsNullOrEmpty(student.Address.Street));
+        Assert.NotEqual(0, student.Schedule.Count());
+      }
+    }
+
+    /// <summary>
+    /// TO RUN THIS TEST ITS NECESSARY TO ENABLE THE EXECUTION STRATEGY IN THE CLASS MySqlEFConfiguration (Source\MySql.Data.Entity\MySqlConfiguration.cs) AS WELL AS START A MYSQL SERVER INSTACE WITH THE OPTION "--max_connections=3"
+    /// WHY 3?: 1)For main process (User: root, DB: mysql). 2)For Setup Class. 3)For the connections in this test.
+    /// The expected result is that opening a third connection and trying to open a fourth(with an asynchronous task) the execution strategy implementation handle the reconnection process until the third one is closed.
+    /// </summary>
+    //[Fact] //<---DON'T FORGET ME TO RUN! =D
+    public void ExecutionStrategyTest()
+    {
+      var connection = new MySqlConnection("server=localhost;User Id=root;logging=true; port=3305;");
+      using (var dbcontext = new MovieCodedBasedConfigDBContext())
+      {
+        dbcontext.Database.Initialize(true);
+        dbcontext.Movies.Add(new MovieCBC()
+        {
+          Title = "Sharknado",
+          Genre = "Documental",
+          Price = 1.50M,
+          ReleaseDate = DateTime.Parse("01/07/2013")
+        });
+        connection.Open();
+        System.Threading.Tasks.Task.Factory.StartNew(() => { dbcontext.SaveChanges(); });
+        Thread.Sleep(1000);
+        connection.Close();
+        connection.Dispose();
+      }
+      var result = MySqlHelper.ExecuteScalar("server=localhost;User Id=root;database=test;logging=true; port=3305;", "select COUNT(*) from moviecbcs;");
+      Assert.Equal(1, int.Parse(result.ToString()));
+    }
+#endif
   }
 }
 

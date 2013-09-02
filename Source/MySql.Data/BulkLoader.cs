@@ -28,6 +28,9 @@ using System.Collections.Specialized;
 using System.Data;
 using MySql.Data.MySqlClient.Properties;
 using MySql.Data.Common;
+#if NET_40_OR_GREATER
+using System.Threading.Tasks;
+#endif
 
 namespace MySql.Data.MySqlClient
 {
@@ -278,6 +281,22 @@ namespace MySql.Data.MySqlClient
           connection.Close();
       }
     }
+
+#if NET_40_OR_GREATER
+    #region Async
+    /// <summary>
+    /// Async version of Load
+    /// </summary>
+    /// <returns>The number of rows inserted.</returns>
+    public Task<int> LoadAsync()
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return Load();
+      });
+    }
+    #endregion
+#endif
 
     private string BuildSqlCommand()
     {

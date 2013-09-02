@@ -32,8 +32,12 @@ using System.Xml;
 using System.IO;
 using System.Text;
 using MySql.Data.MySqlClient.Tests;
-using System.Data.EntityClient;
 using Xunit;
+#if EF6
+using System.Data.Entity.Core.EntityClient;
+#else
+using System.Data.EntityClient;
+#endif
 
 
 namespace MySql.Data.Entity.CodeFirst.Tests

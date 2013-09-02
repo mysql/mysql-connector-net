@@ -26,9 +26,14 @@ using System.Threading;
 using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.Tests;
 using System.Linq;
+#if !EF6
 using System.Data.EntityClient;
+using System.Data.Objects; 
+#else
+using System.Data.Entity.Core.EntityClient;
+using System.Data.Entity.Core.Objects;
+#endif
 using System.Data.Common;
-using System.Data.Objects;
 using MySql.Data.Entity.Tests.Properties;
 using Xunit;
 

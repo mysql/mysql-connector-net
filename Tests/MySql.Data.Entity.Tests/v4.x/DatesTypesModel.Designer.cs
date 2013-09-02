@@ -9,14 +9,20 @@
 
 using System;
 using System.ComponentModel;
-using System.Data.EntityClient;
-using System.Data.Objects;
-using System.Data.Objects.DataClasses;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+#if EF6
+using System.Data.Entity.Core.Objects;
+using System.Data.Entity.Core.Objects.DataClasses;
+using System.Data.Entity.Core.EntityClient;
+#else
+using System.Data.EntityClient;
+using System.Data.Objects;
+using System.Data.Objects.DataClasses;
+#endif
 
-[assembly: EdmSchemaAttribute()]
+[assembly: EdmSchema()]
 namespace MySql.Data.Entity.Tests
 {
     #region Contexts

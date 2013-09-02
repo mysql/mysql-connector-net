@@ -1,4 +1,4 @@
-﻿// Copyright © 2008, 2010, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2008, 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -22,9 +22,16 @@
 
 using System;
 using System.Data.Common;
-using System.Data.Metadata.Edm;
 using System.Data;
 using MySql.Data.MySqlClient;
+#if EF6
+using System.Data.Entity.Core.Metadata.Edm;
+#else
+using System.Data.Metadata.Edm;
+#endif
+#if NET_40_OR_GREATER
+using System.Threading.Tasks;
+#endif
 
 namespace MySql.Data.Entity
 {
@@ -140,5 +147,46 @@ namespace MySql.Data.Entity
     }
 
     #endregion
+
+#if NET_40_OR_GREATER
+#region Async
+    /// <summary>
+    /// Async version of ExecuteNonQuery
+    /// </summary>
+    /// <returns>Affected rows.</returns>
+    public Task<int> ExecuteNonQueryAsync()
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return ExecuteNonQuery();
+      });
+    }
+
+    /// <summary>
+    /// Async version of ExecuteScalar
+    /// </summary>
+    /// <returns>Value of the firs row in the first column.</returns>
+    public Task<object> ExecuteScalarAsync()
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return ExecuteScalar();
+      });
+    }
+
+    /// <summary>
+    /// Async version of Prepare
+    /// </summary>
+    /// <returns>Information about the task executed.</returns>
+    public Task PrepareAsync()
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        Prepare();
+      });
+    }
+    #endregion
+#endif
+    
   }
 }

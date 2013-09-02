@@ -1,4 +1,4 @@
-// Copyright © 2004, 2010, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -25,6 +25,9 @@ using System.Data;
 using System.Data.Common;
 using System.ComponentModel;
 using System.Collections.Generic;
+#if NET_40_OR_GREATER
+using System.Threading.Tasks;
+#endif
 
 namespace MySql.Data.MySqlClient
 {
@@ -310,6 +313,323 @@ namespace MySql.Data.MySqlClient
       if (RowUpdated != null)
         RowUpdated(this, (value as MySqlRowUpdatedEventArgs));
     }
+
+#if NET_40_OR_GREATER
+    #region Async
+    #region Fill
+    /// <summary>
+    /// Async version of Fill
+    /// </summary>
+    /// <param name="dataSet">Dataset to use</param>
+    /// <returns>int</returns>
+    public Task<int> FillAsync(DataSet dataSet)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return base.Fill(dataSet);
+      });
+    }
+    /// <summary>
+    /// Async version of Fill
+    /// </summary>
+    /// <param name="dataTable">Datatable to use</param>
+    /// <returns>int</returns>
+    public Task<int> FillAsync(DataTable dataTable)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return base.Fill(dataTable);
+      });
+    }
+    /// <summary>
+    /// Async version of Fill
+    /// </summary>
+    /// <param name="dataSet">DataSet to use</param>
+    /// <param name="srcTable">Source table</param>
+    /// <returns>int</returns>
+    public Task<int> FillAsync(DataSet dataSet, string srcTable)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return base.Fill(dataSet, srcTable);
+      });
+    }
+    /// <summary>
+    /// Async version of Fill
+    /// </summary>
+    /// <param name="dataTable">Datatable to use</param>
+    /// <param name="dataReader">DataReader to use</param>
+    /// <returns>int</returns>
+    public Task<int> FillAsync(DataTable dataTable, IDataReader dataReader)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return base.Fill(dataTable, dataReader);
+      });
+    }
+    /// <summary>
+    /// Async version of Fill
+    /// </summary>
+    /// <param name="dataTable">DataTable to use</param>
+    /// <param name="command">DbCommand to use</param>
+    /// <param name="behavior">Command Behavior</param>
+    /// <returns>int</returns>
+    public Task<int> FillAsync(DataTable dataTable, IDbCommand command, CommandBehavior behavior)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return base.Fill(dataTable, command, behavior);
+      });
+    }
+    /// <summary>
+    /// Async version of Fill
+    /// </summary>
+    /// <param name="startRecord">Start record</param>
+    /// <param name="maxRecords">Max records</param>
+    /// <param name="dataTables">DataTable[] to use</param>
+    /// <returns>int</returns>
+    public Task<int> FillAsync(int startRecord, int maxRecords, params DataTable[] dataTables)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return base.Fill(startRecord, maxRecords, dataTables);
+      });
+    }
+    /// <summary>
+    /// Async version of Fill
+    /// </summary>
+    /// <param name="dataSet">DataSet to use</param>
+    /// <param name="startRecord">Start record</param>
+    /// <param name="maxRecords">Max records</param>
+    /// <param name="srcTable">Source table</param>
+    /// <returns>int</returns>
+    public Task<int> FillAsync(DataSet dataSet, int startRecord, int maxRecords, string srcTable)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return base.Fill(dataSet, startRecord, maxRecords, srcTable);
+      });
+    }
+    /// <summary>
+    /// Async version of Fill
+    /// </summary>
+    /// <param name="dataSet">DataSet to use</param>
+    /// <param name="srcTable">Source table</param>
+    /// <param name="dataReader">DataReader to use</param>
+    /// <param name="startRecord">Start record</param>
+    /// <param name="maxRecords">Max records</param>
+    /// <returns></returns>
+    public Task<int> FillAsync(DataSet dataSet, string srcTable, IDataReader dataReader, int startRecord, int maxRecords)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return base.Fill(dataSet, srcTable, dataReader, startRecord, maxRecords);
+      });
+    }
+    /// <summary>
+    /// Async version of Fill
+    /// </summary>
+    /// <param name="dataTables">DataTable[] to use</param>
+    /// <param name="startRecord">Start record</param>
+    /// <param name="maxRecords">Max records</param>
+    /// <param name="command">DbCommand to use</param>
+    /// <param name="behavior">Command Behavior</param>
+    /// <returns></returns>
+    public Task<int> FillAsync(DataTable[] dataTables, int startRecord, int maxRecords, IDbCommand command, CommandBehavior behavior)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return base.Fill(dataTables, startRecord, maxRecords, command, behavior);
+      });
+    }
+    /// <summary>
+    /// Async version of Fill
+    /// </summary>
+    /// <param name="dataSet">DataSet to use</param>
+    /// <param name="startRecord">Start record</param>
+    /// <param name="maxRecords">Max records</param>
+    /// <param name="srcTable">Source table</param>
+    /// <param name="command">DbCommand to use</param>
+    /// <param name="behavior">Command Behavior</param>
+    /// <returns></returns>
+    public Task<int> FillAsync(DataSet dataSet, int startRecord, int maxRecords, string srcTable, IDbCommand command, CommandBehavior behavior)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return base.Fill(dataSet, startRecord, maxRecords, srcTable, command, behavior);
+      });
+    }
+    #endregion
+
+    #region FillSchema
+    /// <summary>
+    /// Async version of FillSchema
+    /// </summary>
+    /// <param name="dataSet">DataSet to use</param>
+    /// <param name="schemaType">Schema Type</param>
+    /// <returns>DataTable[]</returns>
+    public Task<DataTable[]> FillSchemaAsync(DataSet dataSet, SchemaType schemaType)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return base.FillSchema(dataSet, schemaType);
+      });
+    }
+    /// <summary>
+    /// Async version of FillSchema
+    /// </summary>
+    /// <param name="dataSet">DataSet to use</param>
+    /// <param name="schemaType">Schema Type</param>
+    /// <param name="srcTable">Source Table</param>
+    /// <returns>DataTable[]</returns>
+    public Task<DataTable[]> FillSchemaAsync(DataSet dataSet, SchemaType schemaType, string srcTable)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return base.FillSchema(dataSet, schemaType, srcTable);
+      });
+    }
+    /// <summary>
+    /// Async version of FillSchema
+    /// </summary>
+    /// <param name="dataSet">DataSet to use</param>
+    /// <param name="schemaType">Schema Type</param>
+    /// <param name="srcTable">Source Table</param>
+    /// <param name="dataReader">DataReader to use</param>
+    /// <returns>DataTable[]</returns>
+    public Task<DataTable[]> FillSchemaAsync(DataSet dataSet, SchemaType schemaType, string srcTable, IDataReader dataReader)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return base.FillSchema(dataSet, schemaType, srcTable, dataReader);
+      });
+    }
+    /// <summary>
+    /// Async version of FillSchema
+    /// </summary>
+    /// <param name="dataSet">DataSet to use</param>
+    /// <param name="schemaType">Schema Type</param>
+    /// <param name="command">DBCommand to use</param>
+    /// <param name="srcTable">Source Table</param>
+    /// <param name="behavior">Command Behavior</param>
+    /// <returns>DataTable[]</returns>
+    public Task<DataTable[]> FillSchemaAsync(DataSet dataSet, SchemaType schemaType, IDbCommand command, string srcTable, CommandBehavior behavior)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return base.FillSchema(dataSet, schemaType, command, srcTable, behavior);
+      });
+    }
+    /// <summary>
+    /// Async version of FillSchema
+    /// </summary>
+    /// <param name="dataTable">DataTable to use</param>
+    /// <param name="schemaType">Schema Type</param>
+    /// <returns>DataTable</returns>
+    public Task<DataTable> FillSchemaAsync(DataTable dataTable, SchemaType schemaType)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return base.FillSchema(dataTable, schemaType);
+      });
+    }
+    /// <summary>
+    /// Async version of FillSchema
+    /// </summary>
+    /// <param name="dataTable">DataTable to use</param>
+    /// <param name="schemaType">Schema Type</param>
+    /// <param name="dataReader">DataReader to use</param>
+    /// <returns>DataTable</returns>
+    public Task<DataTable> FillSchemaAsync(DataTable dataTable, SchemaType schemaType, IDataReader dataReader)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return base.FillSchema(dataTable, schemaType, dataReader);
+      });
+    }
+    /// <summary>
+    /// Async version of FillSchema
+    /// </summary>
+    /// <param name="dataTable">DataTable to use</param>
+    /// <param name="schemaType">Schema Type</param>
+    /// <param name="command">DBCommand to use</param>
+    /// <param name="behavior">Command Behavior</param>
+    /// <returns>DataTable</returns>
+    public Task<DataTable> FillSchemaAsync(DataTable dataTable, SchemaType schemaType, IDbCommand command, CommandBehavior behavior)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return base.FillSchema(dataTable, schemaType, command, behavior);
+      });
+    }
+    #endregion
+
+    #region Update
+    /// <summary>
+    /// Async version of Update
+    /// </summary>
+    /// <param name="dataRows">DataRow[] to use</param>
+    /// <returns>int</returns>
+    public Task<int> UpdateAsync(DataRow[] dataRows)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return base.Update(dataRows);
+      });
+    }
+    /// <summary>
+    /// Async version of Update
+    /// </summary>
+    /// <param name="dataSet">DataSet to use</param>
+    /// <returns>int</returns>
+    public Task<int> UpdateAsync(DataSet dataSet)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return base.Update(dataSet);
+      });
+    }
+    /// <summary>
+    /// Async version of Update
+    /// </summary>
+    /// <param name="dataTable">DataTable to use</param>
+    /// <returns>int</returns>
+    public Task<int> UpdateAsync(DataTable dataTable)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return base.Update(dataTable);
+      });
+    }
+    /// <summary>
+    /// Async version of Update
+    /// </summary>
+    /// <param name="dataRows">DataRow[] to use</param>
+    /// <param name="tableMapping">Data Table Mapping</param>
+    /// <returns>int</returns>
+    public Task<int> UpdateAsync(DataRow[] dataRows, DataTableMapping tableMapping)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return base.Update(dataRows, tableMapping);
+      });
+    }
+    /// <summary>
+    /// Async version of Update
+    /// </summary>
+    /// <param name="dataSet">DataSet to use</param>
+    /// <param name="srcTable">Source Table</param>
+    /// <returns></returns>
+    public Task<int> UpdateAsync(DataSet dataSet, string srcTable)
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        return base.Update(dataSet, srcTable);
+      });
+    }
+    #endregion
+    #endregion
+#endif
   }
 
   /// <summary>

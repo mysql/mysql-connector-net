@@ -28,10 +28,17 @@ using System.Data.Common;
 using System.Data.Entity.Migrations.Sql;
 using System.Data.Entity.Migrations.Model;
 using MySql.Data.MySqlClient;
-using System.Data.Metadata.Edm;
 using System.Data.Entity.Migrations.Design;
 using System.Data.Entity.Migrations.Utilities;
 using System.Collections;
+#if EF6
+using System.Data.Entity.Core.Common;
+using System.Data.Entity.Core.Metadata.Edm;
+using System.Data.Entity.Core.Common.CommandTrees;
+#else
+using System.Data.Metadata.Edm;
+#endif
+
 
 namespace MySql.Data.Entity
 {
@@ -149,7 +156,7 @@ namespace MySql.Data.Entity
     {
       var rename = new RenameTableOperation(TrimSchemaPrefix(renameTableOperation.Name), renameTableOperation.NewName);
       base.Generate(rename, writer);
-    }    
+    }
   }
 
 
@@ -176,17 +183,23 @@ namespace MySql.Data.Entity
       _dispatcher.Add("AlterColumnOperation", (OpDispatcher)((op) => { return Generate(op as AlterColumnOperation); }));
       _dispatcher.Add("CreateIndexOperation", (OpDispatcher)((op) => { return Generate(op as CreateIndexOperation); }));
       _dispatcher.Add("CreateTableOperation", (OpDispatcher)((op) => { return Generate(op as CreateTableOperation); }));
-      _dispatcher.Add("DeleteHistoryOperation", (OpDispatcher)((op) => { return Generate(op as DeleteHistoryOperation); }));
       _dispatcher.Add("DropColumnOperation", (OpDispatcher)((op) => { return Generate(op as DropColumnOperation); }));
       _dispatcher.Add("DropForeignKeyOperation", (OpDispatcher)((op) => { return Generate(op as DropForeignKeyOperation); }));
       _dispatcher.Add("DropIndexOperation", (OpDispatcher)((op) => { return Generate(op as DropIndexOperation); }));
       _dispatcher.Add("DropPrimaryKeyOperation", (OpDispatcher)((op) => { return Generate(op as DropPrimaryKeyOperation); }));
       _dispatcher.Add("DropTableOperation", (OpDispatcher)((op) => { return Generate(op as DropTableOperation); }));
-      _dispatcher.Add("InsertHistoryOperation", (OpDispatcher)((op) => { return Generate(op as InsertHistoryOperation); }));
       _dispatcher.Add("MoveTableOperation", (OpDispatcher)((op) => { return Generate(op as MoveTableOperation); }));
       _dispatcher.Add("RenameColumnOperation", (OpDispatcher)((op) => { return Generate(op as RenameColumnOperation); }));
       _dispatcher.Add("RenameTableOperation", (OpDispatcher)((op) => { return Generate(op as RenameTableOperation); }));
       _dispatcher.Add("SqlOperation", (OpDispatcher)((op) => { return Generate(op as SqlOperation); }));
+#if EF6
+      _dispatcher.Add("HistoryOperation", (OpDispatcher)((op) => { return Generate(op as HistoryOperation); }));
+      _dispatcher.Add("CreateProcedureOperation", (OpDispatcher)((op) => { return Generate(op as CreateProcedureOperation); }));
+#endif
+#if !EF6
+      _dispatcher.Add("DeleteHistoryOperation", (OpDispatcher)((op) => { return Generate(op as DeleteHistoryOperation); }));
+      _dispatcher.Add("InsertHistoryOperation", (OpDispatcher)((op) => { return Generate(op as InsertHistoryOperation); }));      
+#endif
     }
 
     public override IEnumerable<MigrationStatement> Generate(IEnumerable<MigrationOperation> migrationOperations, string providerManifestToken)
@@ -198,7 +211,7 @@ namespace MySql.Data.Entity
       foreach (MigrationOperation op in migrationOperations)
       {
         OpDispatcher opdis = _dispatcher[op.GetType().Name];
-        stmts.Add(opdis(op));
+        stmts.Add(opdis(op)); 
       }
       if (_specialStmts.Count > 0)
       {
@@ -207,6 +220,146 @@ namespace MySql.Data.Entity
       }        	        
       return stmts;
     }
+
+#if EF6
+    protected virtual MigrationStatement Generate(HistoryOperation op)
+    {
+      if (op == null) return null;
+
+      MigrationStatement stmt = new MigrationStatement();
+
+      var cmdStr = "";
+      SqlGenerator generator = new SelectGenerator();
+      foreach (var commandTree in op.CommandTrees)
+      {
+        switch (commandTree.CommandTreeKind)
+        {
+          case DbCommandTreeKind.Insert:
+            generator = new InsertGenerator();
+            cmdStr = generator.GenerateSQL(commandTree);
+            break;
+          case DbCommandTreeKind.Delete:
+            generator = new DeleteGenerator();
+            break;
+          case DbCommandTreeKind.Update:
+            generator = new UpdateGenerator();
+            cmdStr = generator.GenerateSQL(commandTree);
+            break;
+          case DbCommandTreeKind.Query:
+            generator = new SelectGenerator();
+            cmdStr = generator.GenerateSQL(commandTree);
+            break;
+          case DbCommandTreeKind.Function:
+            generator = new FunctionGenerator();
+            cmdStr = generator.GenerateSQL(commandTree);
+            break;
+        }
+
+        foreach (var parameter in generator.Parameters)
+        {
+          if (parameter.DbType == System.Data.DbType.String)
+            cmdStr = cmdStr.Replace(parameter.ParameterName, "'" + parameter.Value.ToString() + "'");
+          else if (parameter.DbType == System.Data.DbType.Binary)
+            cmdStr = cmdStr.Replace(parameter.ParameterName, "0x" + BitConverter.ToString((byte[])parameter.Value).Replace("-", ""));
+          else
+            cmdStr = cmdStr.Replace(parameter.ParameterName, parameter.Value.ToString());
+        }
+        stmt.Sql += cmdStr.Replace("dbo", "") + ";";
+      }
+      return stmt;
+    }
+
+    public override string GenerateProcedureBody(ICollection<DbModificationCommandTree> commandTrees, string rowsAffectedParameter, string providerManifestToken)
+    {
+      MySqlConnection con = new MySqlConnection();
+      MigrationStatement stmt = new MigrationStatement();
+      _providerManifest = DbProviderServices.GetProviderServices(con).GetProviderManifest(providerManifestToken);
+
+      var cmdStr = "";
+      SqlGenerator generator = new SelectGenerator();
+      foreach (var commandTree in commandTrees)
+      {
+        switch (commandTree.CommandTreeKind)
+        {
+          case DbCommandTreeKind.Insert:
+            generator = new InsertGenerator();
+            cmdStr = generator.GenerateSQL(commandTree);
+            break;
+          case DbCommandTreeKind.Delete:
+            generator = new DeleteGenerator();
+            cmdStr = generator.GenerateSQL(commandTree);
+            break;
+          case DbCommandTreeKind.Update:
+            generator = new UpdateGenerator();
+            cmdStr = generator.GenerateSQL(commandTree);
+            break;
+          case DbCommandTreeKind.Query:
+            generator = new SelectGenerator();
+            cmdStr = generator.GenerateSQL(commandTree);
+            break;
+          case DbCommandTreeKind.Function:
+            generator = new FunctionGenerator();
+            cmdStr = generator.GenerateSQL(commandTree);
+            break;
+        }
+        stmt.Sql += cmdStr.Replace("dbo.", "") + ";";
+      }
+      return stmt.Sql;
+    }
+
+    protected virtual MigrationStatement Generate(CreateProcedureOperation op)
+    {
+      MigrationStatement stmt = new MigrationStatement();
+      stmt.Sql = GenerateProcedureCmd(op);
+      return stmt;
+    }
+
+    private string GenerateProcedureCmd(CreateProcedureOperation po)
+    {
+      StringBuilder sql = new StringBuilder();
+      sql.AppendLine(string.Format("CREATE PROCEDURE `{0}`({1})", po.Name.Replace("dbo.", ""), GenerateParamSentence(po.Parameters)));
+      sql.AppendLine("BEGIN ");
+      sql.AppendLine(po.BodySql);
+      sql.AppendLine(" END");
+      return sql.ToString().Replace("@", "");
+    }
+
+    private string GenerateParamSentence(IList<ParameterModel> Parameters)
+    {
+      StringBuilder sql = new StringBuilder();
+      foreach (ParameterModel param in Parameters)
+      {
+        sql.AppendFormat("{0} {1} {2},",
+                         (param.IsOutParameter ? "OUT" : "IN"),
+                         param.Name,
+                         BuildParamType(param));
+      }
+
+      return sql.ToString().Substring(0, sql.ToString().LastIndexOf(","));
+    }
+
+    private string BuildParamType(ParameterModel param)
+    {
+      string type = MySqlProviderServices.Instance.GetColumnType(_providerManifest.GetStoreType(param.TypeUsage));
+      StringBuilder sb = new StringBuilder();
+      sb.Append(type);
+
+      if (new string[] { "char", "varchar" }.Contains(type.ToLower()))
+      {
+        if (param.MaxLength.HasValue)
+        {
+          sb.AppendFormat("({0}) ", param.MaxLength.Value);
+        }
+      }
+
+      if (param.Precision.HasValue && param.Scale.HasValue)
+      {
+        sb.AppendFormat("( {0}, {1} ) ", param.Precision.Value, param.Scale.Value);
+      }
+
+      return sb.ToString();
+    }
+#endif
 
     protected virtual MigrationStatement Generate(AddColumnOperation op)
     {
@@ -272,11 +425,11 @@ namespace MySql.Data.Entity
     {
 
       StringBuilder sb = new StringBuilder();
-      sb.Append("alter table `" + op.DependentTable + "` add constraint `" + op.Name + "` " +
+      sb.Append("alter table `" + TrimSchemaPrefix(op.DependentTable) + "` add constraint `" + TrimSchemaPrefix(op.Name) + "` " +
                  " foreign key ");
 
       sb.Append("(" + string.Join(",", op.DependentColumns.Select(c => "`" + c + "`")) + ") ");
-      sb.Append("references `" + op.PrincipalTable + "` ( " + string.Join(",", op.PrincipalColumns.Select(c => "`" + c + "`")) + ") ");
+      sb.Append("references `" + TrimSchemaPrefix(op.PrincipalTable) + "` ( " + string.Join(",", op.PrincipalColumns.Select(c => "`" + c + "`")) + ") ");
 
       if (op.CascadeDelete)
       {
@@ -440,10 +593,32 @@ namespace MySql.Data.Entity
       return new MigrationStatement() { Sql = "drop table " + "`" + TrimSchemaPrefix(op.Name) + "`" };
     }
 
+#if !EF6
     protected virtual MigrationStatement Generate(DeleteHistoryOperation op)
     {
       return new MigrationStatement { Sql = string.Format("delete from `{0}` where MigrationId = '{1}'", TrimSchemaPrefix(op.Table), op.MigrationId) };
     }
+
+    protected virtual MigrationStatement Generate(InsertHistoryOperation op)
+    {
+
+      if (op == null) return null;
+
+      StringBuilder sb = new StringBuilder();
+      StringBuilder model = new StringBuilder();
+
+      model.Append(BitConverter.ToString(op.Model).Replace("-", ""));
+
+      sb.Append("insert into `" + TrimSchemaPrefix(op.Table) + "` (`migrationId`, `model`, `productVersion`) ");
+      sb.AppendFormat(" values ( '{0}', {1}, '{2}') ",
+                      op.MigrationId,
+                      "0x" + model.ToString(),
+                      op.ProductVersion);
+
+      return new MigrationStatement { Sql = sb.ToString() };
+    
+    }
+#endif
 
     protected virtual MigrationStatement Generate(AddPrimaryKeyOperation op)
     {
@@ -482,26 +657,6 @@ namespace MySql.Data.Entity
     }
 
 
-    protected virtual MigrationStatement Generate(InsertHistoryOperation op)
-    {
-
-      if (op == null) return null;
-
-      StringBuilder sb = new StringBuilder();
-      StringBuilder model = new StringBuilder();
-
-      model.Append(BitConverter.ToString(op.Model).Replace("-", ""));
-
-      sb.Append("insert into `" + TrimSchemaPrefix(op.Table) + "` (`migrationId`, `model`, `productVersion`) ");
-      sb.AppendFormat(" values ( '{0}', {1}, '{2}') ",
-                      op.MigrationId,
-                      "0x" + model.ToString(),
-                      op.ProductVersion);
-
-      return new MigrationStatement { Sql = sb.ToString() };
-    
-    }
-
     protected virtual MigrationStatement Generate(RenameTableOperation op)
     {
       if (op == null) return null;
@@ -524,7 +679,7 @@ namespace MySql.Data.Entity
 
     private string TrimSchemaPrefix(string table)
     {
-      if (table.StartsWith("dbo."))
+      if (table.StartsWith("dbo.") || table.Contains("dbo."))
         return table.Replace("dbo.", "");
 
       return table;

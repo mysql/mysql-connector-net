@@ -1009,5 +1009,110 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+#if NET_40_OR_GREATER
+    #region Async
+    [Fact]
+    public void FillAsync()
+    {
+      CreateDefaultTable();
+      st.execSQL("INSERT INTO Test (id, id2, name, dt) VALUES (NULL, 1, 'Name 1', Now())");
+      st.execSQL("INSERT INTO Test (id, id2, name, dt) VALUES (NULL, 2, NULL, Now())");
+      st.execSQL("INSERT INTO Test (id, id2, name, dt) VALUES (NULL, 3, '', Now())");
+
+      MySqlDataAdapter da = new MySqlDataAdapter("select * from Test", st.conn);
+      DataSet ds = new DataSet();
+      da.FillAsync(ds, "Test");
+
+      while (ds.Tables.Count == 0)
+      {
+        System.Threading.Thread.Sleep(500);
+      }
+
+      Assert.Equal(1, ds.Tables.Count);
+      Assert.Equal(3, ds.Tables[0].Rows.Count);
+
+      Assert.Equal(1, ds.Tables[0].Rows[0]["id2"]);
+      Assert.Equal(2, ds.Tables[0].Rows[1]["id2"]);
+      Assert.Equal(3, ds.Tables[0].Rows[2]["id2"]);
+
+      Assert.Equal("Name 1", ds.Tables[0].Rows[0]["name"]);
+      Assert.Equal(DBNull.Value, ds.Tables[0].Rows[1]["name"]);
+      Assert.Equal(String.Empty, ds.Tables[0].Rows[2]["name"]);
+    }
+    [Fact]
+    public void FillSchemaAsync()
+    {
+      if (st.Version < new Version(5, 0)) return;
+
+      st.execSQL("CREATE PROCEDURE spTest() BEGIN SELECT * FROM Test; END");
+      st.execSQL(@"CREATE TABLE Test(id INT AUTO_INCREMENT, name VARCHAR(20), PRIMARY KEY (id)) ");
+
+      MySqlCommand cmd = new MySqlCommand("spTest", st.conn);
+      cmd.CommandType = CommandType.StoredProcedure;
+
+      MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.SchemaOnly);
+      reader.Read();
+      reader.Close();
+
+      MySqlDataAdapter da = new MySqlDataAdapter(cmd);
+      DataTable schema = new DataTable();
+      da.FillSchemaAsync(schema, SchemaType.Source);
+      while (schema.Columns.Count == 0)
+      {
+        System.Threading.Thread.Sleep(500);
+      }
+      Assert.Equal(2, schema.Columns.Count);
+    }
+    [Fact]
+    public void UpdateAsync()
+    {
+      CreateDefaultTable();
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", st.conn);
+      MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
+      DataTable dt = new DataTable();
+      da.Fill(dt);
+
+      DataRow dr = dt.NewRow();
+      dr["id2"] = 2;
+      dr["name"] = "TestName1";
+      dt.Rows.Add(dr);
+      int count = da.UpdateAsync(dt).Result;
+
+      Assert.True(count == 1, "checking insert count");
+      Assert.True(dt.Rows[dt.Rows.Count - 1]["id"] != null, "Checking auto increment column");
+
+      dt.Rows.Clear();
+      da.Fill(dt);
+      dt.Rows[0]["id2"] = 3;
+      dt.Rows[0]["name"] = "TestName2";
+      dt.Rows[0]["ts"] = DBNull.Value;
+      DateTime day1 = new DateTime(2003, 1, 16, 12, 24, 0);
+      dt.Rows[0]["dt"] = day1;
+      dt.Rows[0]["tm"] = day1.TimeOfDay;
+      count = da.UpdateAsync(dt).Result;
+
+      Assert.True(dt.Rows[0]["ts"] != null, "checking refresh of record");
+      Assert.True(dt.Rows[0]["id2"] != null, "checking refresh of primary column");
+
+      dt.Rows.Clear();
+      da.Fill(dt);
+
+      Assert.True(count == 1, "checking update count");
+      DateTime dateTime = (DateTime)dt.Rows[0]["dt"];
+      Assert.True(day1.Date == dateTime.Date, "checking date");
+      Assert.True(day1.TimeOfDay == (TimeSpan)dt.Rows[0]["tm"], "checking time");
+
+      dt.Rows[0].Delete();
+      count = da.UpdateAsync(dt).Result;
+
+      Assert.True(count == 1, "checking insert count");
+
+      dt.Rows.Clear();
+      da.Fill(dt);
+      Assert.True(dt.Rows.Count == 0, "checking row count");
+      cb.Dispose();
+    }
+    #endregion
+#endif
   }
 }

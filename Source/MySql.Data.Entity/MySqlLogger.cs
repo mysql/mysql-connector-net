@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,46 +21,38 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Data.Entity;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.IO;
 
-namespace MySql.Data.Entity.CodeFirst.Tests
+namespace MySql.Data.Entity
 {
-  public class PromotionsDB: DbContext
+  public class MySqlLogger : TextWriter
   {
-    public virtual DbSet<HomePromo> HomePromoes { get; set; }
-
-    public PromotionsDB()
+    private readonly Action<string> _action;
+    public MySqlLogger(Action<string> action)
     {
-      Database.SetInitializer<PromotionsDB>(new PromotionsDBInitializer());
+      _action = action;
     }
-  }
 
-  public class PromotionsDBInitializer : DropCreateDatabaseReallyAlways<PromotionsDB>
-  {
-  }
+    public override void Write(char[] buffer, int index, int count)
+    {
+      Write(new string(buffer, index, count));
+    }
 
-  public class HomePromo
-  {
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    [Key]
-    public int ID { get; set; }
+    public override void Write(string value)
+    {
+      _action.Invoke(value);
+    }
 
-    public string Image { get; set; }
+    public override Encoding Encoding
+    {
+      get { return Encoding.Default; }
+    }
 
-    public string Url { get; set; }
-
-    public int DisplayOrder { get; set; }
-
-    [Column("Active")]
-    public bool Active { get; set; }
-    [Column("ActiveFrom")]
-    public DateTime? ActiveFrom { get; set; }
-    [Column("ActiveTo")]
-    public DateTime? ActiveTo { get; set; }
+    public static StreamWriter Logger(string logPath, bool append)
+    {
+      return new StreamWriter(path: logPath, append: append) { AutoFlush = true };
+    }
   }
 }

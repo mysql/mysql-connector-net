@@ -26,10 +26,12 @@ using System.Linq;
 using System.Text;
 using System.Data.Entity;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+#if !EF6
 #if NET_45_OR_GREATER
 using System.Data.Spatial;
 #endif
-using System.ComponentModel.DataAnnotations.Schema;
+#endif
 
 
 

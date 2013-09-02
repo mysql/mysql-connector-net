@@ -25,11 +25,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Xunit;
-using System.Data.EntityClient;
-using System.Data.Objects;
 using System.Data.Common;
 using MySql.Data.Entity.Tests.Properties;
 using System.Diagnostics;
+#if EF6
+using System.Data.Entity.Core.EntityClient;
+using System.Data.Entity.Core.Objects;
+#else
+using System.Data.EntityClient;
+using System.Data.Objects;
+#endif
 
 
 namespace MySql.Data.Entity.Tests
@@ -292,7 +297,7 @@ namespace MySql.Data.Entity.Tests
         string[,] data1 = new string[,] { { "Flintstone", "Fred" }, { "Flintstone", "Wilma" },
           { "Rubble", "Barney" } };
         string query;
-#if CLR4
+#if NET_40_OR_GREATER
         query = q.ToTraceString();
         st.CheckSql(query, SQLSyntax.InExpressionSimple);
         Assert.Equal(3, q.Count());
@@ -337,7 +342,11 @@ namespace MySql.Data.Entity.Tests
             orderby e.LastName, e.FirstName
             select e;
         query = q.ToTraceString();
+#if !EF6
         st.CheckSql(query, SQLSyntax.InExpressionSimple);
+#else
+        st.CheckSql(query, SQLSyntax.InExpressionSimpleEF6);
+#endif
         Assert.Equal(3, q.Count());
         i = 0;
         foreach (var e in q)

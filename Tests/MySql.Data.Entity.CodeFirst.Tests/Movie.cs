@@ -31,7 +31,6 @@ using System.Data.Entity.ModelConfiguration.Conventions;
 using System.ComponentModel.DataAnnotations.Schema;
 
 
-
 namespace MySql.Data.Entity.CodeFirst.Tests
 {
   public class Movie
@@ -67,6 +66,9 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     public float Format { get; set; }
   }
 
+#if EF6
+  [DbConfigurationType(typeof(MySqlEFConfiguration))]
+#endif
   public class MovieDBContext : DbContext
   {
     public DbSet<Movie> Movies { get; set; }
@@ -78,15 +80,22 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     public MovieDBContext()
     {
       Database.SetInitializer<MovieDBContext>(new MovieDBInitialize());
+#if EF6
+      Database.SetInitializer<MovieDBContext>(new MigrateDatabaseToLatestVersion<MovieDBContext, Configuration<MovieDBContext>>());
+#endif
     }
 
     protected override void OnModelCreating(DbModelBuilder modelBuilder)
     {
       base.OnModelCreating(modelBuilder);
+#if EF6
+      modelBuilder.Configurations.AddFromAssembly(System.Reflection.Assembly.GetExecutingAssembly());
+#else
       modelBuilder.Entity<Movie>().Property(x => x.Price).HasPrecision(16, 2);
       modelBuilder.Entity<Movie>().HasMany(p => p.Formats);
       modelBuilder.Entity<Movie>().HasMany( p => p.Medias );
-    }
+#endif
+}
   }
 
   public class EntitySingleColumn

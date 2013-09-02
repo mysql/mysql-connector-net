@@ -22,21 +22,24 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
+using System.Data.Entity.Migrations.Model;
+using System.Data.Entity.Migrations.Sql;
+using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using Xunit;
-using System.Data.Entity;
-using System.Data.Entity.Migrations;
-using System.Data.Entity.Migrations.Sql;
-using System.Data.Entity.Migrations.Infrastructure;
-using MySql.Data.MySqlClient;
-using System.Globalization;
-using System.Data.Metadata.Edm;
 using MySql.Data.Entity;
-using System.Diagnostics;
-using System.Data.Entity.Migrations.Model;
-using System.Data.Entity.Infrastructure;
+using MySql.Data.MySqlClient;
+#if EF6
+using System.Data.Entity.Core.EntityClient;
+using System.Data.Entity.Core.Metadata.Edm;
+#else
 using System.Data.EntityClient;
+using System.Data.Metadata.Edm;
+#endif
 
 namespace MySql.Data.Entity.Migrations.Tests
 {

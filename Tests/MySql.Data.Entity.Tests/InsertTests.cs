@@ -25,10 +25,16 @@ using System.Data;
 using System.Threading;
 using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.Tests;
-using System.Data.EntityClient;
 using System.Data.Common;
-using System.Data.Objects;
 using Xunit;
+#if EF6
+#else
+using System.Data.EntityClient;
+using System.Data.Objects;
+#endif
+#if NET_40_OR_GREATER
+using System.Threading.Tasks;
+#endif
 
 namespace MySql.Data.Entity.Tests
 {
@@ -98,5 +104,89 @@ namespace MySql.Data.Entity.Tests
         Assert.Equal(DateTime.Today.Day, product.CreatedDate.Day);
       }
     }
+
+    #region Async
+#if NET_40_OR_GREATER
+    [Fact]
+    public void ExecuteNonQueryAndScalarAsync()
+    {
+      if (st.Version < new Version(5, 0)) return;
+
+      st.execSQL("CREATE TABLE test (id int)");
+
+      st.execSQL("CREATE PROCEDURE spTest() BEGIN SET @x=0; REPEAT INSERT INTO test VALUES(@x); " +
+        "SET @x=@x+1; UNTIL @x = 100 END REPEAT; END");
+
+      EFMySqlCommand proc = new EFMySqlCommand() { CommandText = "spTest", Connection = st.conn };
+      proc.CommandType = CommandType.StoredProcedure;
+      System.Threading.Tasks.Task<int> result = proc.ExecuteNonQueryAsync();
+
+      Assert.NotEqual(-1, result.Result);
+
+      EFMySqlCommand cmd = new EFMySqlCommand() { CommandText = "SELECT COUNT(*) FROM test;", Connection = st.conn };
+      cmd.CommandType = CommandType.Text;
+      object cnt = cmd.ExecuteScalarAsync().Result;
+      Assert.Equal(100, Convert.ToInt32(cnt));
+    }
+    [Fact]
+    public void PrepareAsync()
+    {
+      st.execSQL("CREATE TABLE mytable (val1 varchar(20), numbercol int, numbername varchar(50));");
+      EFMySqlCommand cmd = new EFMySqlCommand() { CommandText = "INSERT INTO myTable VALUES(NULL, @number, @text)", Connection = st.conn };
+      cmd.PrepareAsync();
+
+      cmd.Parameters.Add(new MySqlParameter("@number", 1));
+      cmd.Parameters.Add(new MySqlParameter("@text", "One"));
+
+      for (int i = 1; i <= 100; i++)
+      {
+        cmd.Parameters["@number"].Value = i;
+        cmd.Parameters["@text"].Value = "A string value";
+        cmd.ExecuteNonQuery();
+      }
+    } 
+#endif
+
+#if NET_45_OR_GREATER
+    [Fact]
+    public async Task ExecuteNonQueryAndScalarAsyncAwait()
+    {
+      if (st.Version < new Version(5, 0)) return;
+
+      st.execSQL("CREATE TABLE test2 (id int)");
+      st.execSQL("DROP PROCEDURE IF EXISTS spTest");
+      st.execSQL("CREATE PROCEDURE spTest() BEGIN SET @x=0; REPEAT INSERT INTO test2 VALUES(@x); " +
+        "SET @x=@x+1; UNTIL @x = 100 END REPEAT; END");
+
+      EFMySqlCommand proc = new EFMySqlCommand() { CommandText = "spTest", Connection = st.conn };
+      proc.CommandType = CommandType.StoredProcedure;
+      int result = await proc.ExecuteNonQueryAsync();
+
+      Assert.NotEqual(-1, result);
+
+      EFMySqlCommand cmd = new EFMySqlCommand() { CommandText = "SELECT COUNT(*) FROM test2;", Connection = st.conn };
+      cmd.CommandType = CommandType.Text;
+      object cnt = await cmd.ExecuteScalarAsync();
+      Assert.Equal(100, Convert.ToInt32(cnt));
+    }
+    [Fact]
+    public async Task PrepareAsyncAwait()
+    {
+      st.execSQL("CREATE TABLE mytable2 (val1 varchar(20), numbercol int, numbername varchar(50));");
+      EFMySqlCommand cmd = new EFMySqlCommand() { CommandText = "INSERT INTO mytable2 VALUES(NULL, @number, @text)", Connection = st.conn };
+      await cmd.PrepareAsync();
+
+      cmd.Parameters.Add(new MySqlParameter("@number", 1));
+      cmd.Parameters.Add(new MySqlParameter("@text", "One"));
+
+      for (int i = 1; i <= 100; i++)
+      {
+        cmd.Parameters["@number"].Value = i;
+        cmd.Parameters["@text"].Value = "A string value";
+        cmd.ExecuteNonQuery();
+      }
+    }
+#endif
+    #endregion
   }
 }

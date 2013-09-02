@@ -27,7 +27,11 @@ using System.Text;
 using MySql.Data.MySqlClient;
 using System.Threading;
 using System.Globalization;
-using System.Data.Metadata.Edm;
+#if !EF6
+using System.Data.Metadata.Edm; 
+#else
+using System.Data.Entity.Core.Metadata.Edm; 
+#endif
 using Xunit;
 
 namespace MySql.Data.Entity.Tests
