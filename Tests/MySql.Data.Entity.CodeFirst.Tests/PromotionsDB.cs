@@ -1,4 +1,4 @@
-﻿// Copyright © 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,28 +20,47 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
-namespace MySql.Data.Entity
+using System.Data.Entity;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace MySql.Data.Entity.CodeFirst.Tests
 {
-  class DeleteStatement : SqlFragment
+  public class PromotionsDB: DbContext
   {
-    public SqlFragment Target { get; set; }
-    public SqlFragment Where { get; set; }
+    public virtual DbSet<HomePromo> HomePromoes { get; set; }
 
-    public override void WriteSql(StringBuilder sql)
+    public PromotionsDB()
     {
-      sql.Append("DELETE FROM ");
-      Target.WriteSql(sql);
-      if (Where != null)
-      {
-        sql.Append(" WHERE ");
-        Where.WriteSql(sql);
-      }
+      Database.SetInitializer<PromotionsDB>(new PromotionsDBInitializer());
     }
+  }
 
-    internal override void Accept(SqlFragmentVisitor visitor)
-    {
-      throw new System.NotImplementedException();
-    }
+  public class PromotionsDBInitializer : DropCreateDatabaseReallyAlways<PromotionsDB>
+  {
+  }
+
+  public class HomePromo
+  {
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    [Key]
+    public int ID { get; set; }
+
+    public string Image { get; set; }
+
+    public string Url { get; set; }
+
+    public int DisplayOrder { get; set; }
+
+    [Column("Active")]
+    public bool Active { get; set; }
+    [Column("ActiveFrom")]
+    public DateTime? ActiveFrom { get; set; }
+    [Column("ActiveTo")]
+    public DateTime? ActiveTo { get; set; }
   }
 }

@@ -41,8 +41,16 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     public string Genre { get; set; }
     public decimal Price { get; set; }    
     public Director Director { get; set; }
-    public List<MovieFormat> Formats { get; set; }
+    public virtual ICollection<MovieFormat> Formats { get; set; }
+    public virtual ICollection<MovieMedia> Medias { get; set; }
     public byte[] Data { get; set; }
+  }
+
+  public class MovieMedia
+  {
+    public int ID { get; set; }
+    public int MovieID { get; set; }
+    public string Format { get; set; }
   }
 
   public class Director
@@ -67,6 +75,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     public DbSet<MovieFormat> MovieFormats { get; set; }
     public DbSet<MovieRelease> MovieReleases { get; set; }
     public DbSet<EntitySingleColumn> EntitySingleColumns { get; set; }
+    public DbSet<MovieMedia> Medias { get; set; }
 
     public MovieDBContext()
     {
@@ -83,8 +92,10 @@ namespace MySql.Data.Entity.CodeFirst.Tests
       modelBuilder.Configurations.AddFromAssembly(System.Reflection.Assembly.GetExecutingAssembly());
 #else
       modelBuilder.Entity<Movie>().Property(x => x.Price).HasPrecision(16, 2);
+      modelBuilder.Entity<Movie>().HasMany(p => p.Formats);
+      modelBuilder.Entity<Movie>().HasMany( p => p.Medias );
 #endif
-    }
+}
   }
 
   public class EntitySingleColumn
@@ -106,12 +117,40 @@ namespace MySql.Data.Entity.CodeFirst.Tests
 
   public class MovieDBInitialize : DropCreateDatabaseReallyAlways<MovieDBContext>
   {
-    protected override void Seed(MovieDBContext context)
-    {
-      base.Seed(context);
+    public static Movie[] data = new Movie[] {
+          new Movie() { ID = 4, Title = "Star Wars, The Sith Revenge", ReleaseDate = new DateTime( 2005, 5, 19 ) },
+          new Movie() { ID = 3, Title = "Predator", ReleaseDate = new DateTime(1987, 6, 12) },
+          new Movie() { ID = 2, Title = "The Matrix", ReleaseDate = new DateTime( 1999, 3, 31 ) },
+          new Movie() { ID = 1, Title = "Terminator 1", ReleaseDate = new DateTime(1984, 10, 26) }
+        };
 
-      context.Database.ExecuteSqlCommand("CREATE PROCEDURE GetCount() BEGIN SELECT 5; END");
-      context.SaveChanges();
+    protected override void Seed(MovieDBContext ctx)
+    {
+      base.Seed(ctx);
+
+      ctx.Database.ExecuteSqlCommand("CREATE PROCEDURE GetCount() BEGIN SELECT 5; END");
+      Movie m1 = new Movie() { Title = "Terminator 1", ReleaseDate = new DateTime(1984, 10, 26) };
+      Movie m2 = new Movie() { Title = "The Matrix", ReleaseDate = new DateTime(1999, 3, 31) };
+      Movie m3 = new Movie() { Title = "Predator", ReleaseDate = new DateTime(1987, 6, 12) };
+      Movie m4 = new Movie() { Title = "Star Wars, The Sith Revenge", ReleaseDate = new DateTime(2005, 5, 19) };
+      ctx.Movies.Add(m1);
+      ctx.Movies.Add(m2);
+      ctx.Movies.Add(m3);
+      ctx.Movies.Add(m4);
+      ctx.SaveChanges();
+      ctx.Entry(m1).Collection(p => p.Medias).Load();
+      m1.Medias.Add( new MovieMedia() { Format = "DVD" } );
+      m1.Medias.Add( new MovieMedia() { Format = "BlueRay" } );
+      ctx.Entry(m2).Collection(p => p.Medias).Load();
+      m2.Medias.Add(new MovieMedia() { Format = "DVD" });
+      m2.Medias.Add(new MovieMedia() { Format = "Digital" });
+      ctx.Entry(m3).Collection(p => p.Medias).Load();
+      m3.Medias.Add(new MovieMedia() { Format = "DVD" });
+      m3.Medias.Add(new MovieMedia() { Format = "VHS" });
+      ctx.Entry(m4).Collection(p => p.Medias).Load();
+      m4.Medias.Add(new MovieMedia() { Format = "Digital" });
+      m4.Medias.Add(new MovieMedia() { Format = "VHS" });
+      ctx.SaveChanges();
     }
   }
 }
