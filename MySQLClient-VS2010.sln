@@ -398,7 +398,6 @@ Global
 		{F533FC43-6C05-4A64-8AF6-72B690EB06C3}.GPL|x86.Build.0 = GPL|x86
 		{F533FC43-6C05-4A64-8AF6-72B690EB06C3}.Release|Any CPU.ActiveCfg = Commercial|x86
 		{F533FC43-6C05-4A64-8AF6-72B690EB06C3}.Release|Mixed Platforms.ActiveCfg = Commercial|x86
-		{F533FC43-6C05-4A64-8AF6-72B690EB06C3}.Release|Mixed Platforms.Build.0 = Commercial|x86
 		{F533FC43-6C05-4A64-8AF6-72B690EB06C3}.Release|x64.ActiveCfg = Commercial|x86
 		{F533FC43-6C05-4A64-8AF6-72B690EB06C3}.Release|x86.ActiveCfg = Commercial|x86
 		{F533FC43-6C05-4A64-8AF6-72B690EB06C3}.Release|x86.Build.0 = Commercial|x86
