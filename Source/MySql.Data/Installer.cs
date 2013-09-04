@@ -1,4 +1,4 @@
-// Copyright © 2004, 2010, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -45,13 +45,14 @@ namespace MySql.Data.MySqlClient
   public class CustomInstaller : Installer
   {
     /// <summary>
-    /// We are not modifying any more machine.config
-    /// in CNet since this is done at MySQL for Visual Studio    
+    /// We override Install so we can add our assembly to the proper
+    /// machine.config files.
     /// </summary>
     /// <param name="stateSaver"></param>
     public override void Install(System.Collections.IDictionary stateSaver)
     {
-      base.Install(stateSaver);      
+      base.Install(stateSaver);
+      AddProviderToMachineConfig();
     }
 
     private static void AddProviderToMachineConfig()
@@ -142,13 +143,14 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// We are no longer modifying 
+    /// We override Uninstall so we can remove out assembly from the
     /// machine.config files.
     /// </summary>
     /// <param name="savedState"></param>
     public override void Uninstall(System.Collections.IDictionary savedState)
     {
-      base.Uninstall(savedState);      
+      base.Uninstall(savedState);
+      RemoveProviderFromMachineConfig();
     }
 
     private static void RemoveProviderFromMachineConfig()
