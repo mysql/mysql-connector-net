@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -70,69 +70,6 @@
     <WarningLevel>4</WarningLevel>
     <NoWarn>1699</NoWarn>
     <DocumentationFile>bin\release\webdocs.xml</DocumentationFile>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugEF6|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\DebugEF6\</OutputPath>
-    <DefineConstants>NET_40_OR_GREATER;DEBUG;TRACE</DefineConstants>
-    <NoWarn>1699</NoWarn>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseEF6|AnyCPU'">
-    <OutputPath>bin\ReleaseEF6\</OutputPath>
-    <DefineConstants>NET_40_OR_GREATER;TRACE</DefineConstants>
-    <DocumentationFile>bin\release\webdocs.xml</DocumentationFile>
-    <Optimize>true</Optimize>
-    <NoWarn>1699</NoWarn>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugEF6|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\DebugEF6\</OutputPath>
-    <DefineConstants>NET_40_OR_GREATER;DEBUG;TRACE</DefineConstants>
-    <NoWarn>1699</NoWarn>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseEF6|AnyCPU'">
-    <OutputPath>bin\ReleaseEF6\</OutputPath>
-    <DefineConstants>NET_40_OR_GREATER;TRACE</DefineConstants>
-    <DocumentationFile>bin\release\webdocs.xml</DocumentationFile>
-    <Optimize>true</Optimize>
-    <NoWarn>1699</NoWarn>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugEF6|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\DebugEF6\</OutputPath>
-    <DefineConstants>NET_40_OR_GREATER;DEBUG;TRACE</DefineConstants>
-    <NoWarn>1699</NoWarn>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseEF6|AnyCPU'">
-    <OutputPath>bin\ReleaseEF6\</OutputPath>
-    <DefineConstants>NET_40_OR_GREATER;TRACE</DefineConstants>
-    <DocumentationFile>bin\release\webdocs.xml</DocumentationFile>
-    <Optimize>true</Optimize>
-    <NoWarn>1699</NoWarn>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
