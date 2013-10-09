@@ -41,19 +41,18 @@ namespace MySql.Data.Entity
       SetProviderFactory(MySqlProviderInvariantName.ProviderName, new MySqlClientFactory());
       SetProviderServices(MySqlProviderInvariantName.ProviderName, new MySqlProviderServices());
       SetDefaultConnectionFactory(new MySqlConnectionFactory());
-      SetMigrationSqlGenerator(MySqlProviderInvariantName.ProviderName, () => { return new MySqlMigrationSqlGenerator(); });
+      SetMigrationSqlGenerator(MySqlProviderInvariantName.ProviderName, () => new MySqlMigrationSqlGenerator());
       SetProviderFactoryResolver(new MySqlProviderFactoryResolver());
       SetManifestTokenResolver(new MySqlManifestTokenResolver());
-      SetProviderFactoryResolver(new MySqlProviderFactoryResolver());
       SetHistoryContext(MySqlProviderInvariantName.ProviderName, (existingConnection, defaultSchema) => new MySqlHistoryContext(existingConnection, defaultSchema));
-      //CURRENTLY IS NOT SUPPORTED WORK WITH TRANSACTIONS AND EXECUTION STRATEGY AT THE SAME TIME: http://msdn.microsoft.com/en-US/data/dn307226
-      //IF WE SET THE EXECUTION STRATEGY HERE THAT WILL AFFECT THE USERS WHEN THEY TRY TO USE TRANSACTIONS, FOR THAT REASON EXECUTION STRATEGY WILL BE ENABLED ON DEMAND BY THEM
-      //SetExecutionStrategy(MySqlProviderInvariantName.ProviderName, () => { return new MySqlExecutionStrategy(); });
+//      //CURRENTLY IS NOT SUPPORTED WORK WITH TRANSACTIONS AND EXECUTION STRATEGY AT THE SAME TIME: http://msdn.microsoft.com/en-US/data/dn307226
+//      //IF WE SET THE EXECUTION STRATEGY HERE THAT WILL AFFECT THE USERS WHEN THEY TRY TO USE TRANSACTIONS, FOR THAT REASON EXECUTION STRATEGY WILL BE ENABLED ON DEMAND BY THEM
+//      //SetExecutionStrategy(MySqlProviderInvariantName.ProviderName, () => { return new MySqlExecutionStrategy(); });
 
-#if NET_45_OR_GREATER
+//#if NET_45_OR_GREATER
       SetDefaultSpatialServices(MySqlSpatialServices.Instance);
       SetSpatialServices(MySqlProviderInvariantName.ProviderName, MySqlSpatialServices.Instance);
-#endif
+//#endif
     }
   }
 }

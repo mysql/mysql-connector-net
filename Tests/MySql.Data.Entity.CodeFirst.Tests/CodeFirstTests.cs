@@ -959,13 +959,14 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
     }
 #if EF6
     [Fact]
-    public void SimpleCodeFirstSelectCBC()
+    public void SimpleCodeFirstSelectCbc()
     {
       MovieCodedBasedConfigDBContext db = new MovieCodedBasedConfigDBContext();
       db.Database.Initialize(true);
       var l = db.Movies.ToList();
       foreach (var i in l)
       {
+        Console.WriteLine(i);
       }
     }
 

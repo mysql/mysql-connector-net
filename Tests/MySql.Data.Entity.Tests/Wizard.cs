@@ -55,12 +55,11 @@ namespace MySql.Data.Entity.Tests
       st = data;
     }
 
+#if !EF6
     private EntityConnection GetConnection()
     {
-      //THE CLASS ntityStoreSchemaGenerator IS NOT PRESENT ON EF6, WE NEED TO ADD A WORKAROUND TO REPLACE THIS FUNCTIONALITY
-      //return EntityStoreSchemaGenerator.CreateStoreSchemaConnection(
-      //    "MySql.Data.MySqlClient", string.Format(@"server=localhost;uid=root;database=test;pooling=false; port={0}", st.port));
-      return null;
+      return EntityStoreSchemaGenerator.CreateStoreSchemaConnection(
+          "MySql.Data.MySqlClient", string.Format(@"server=localhost;uid=root;database=test;pooling=false; port={0}", st.port));
     }
 
     [Fact]
@@ -80,7 +79,8 @@ namespace MySql.Data.Entity.Tests
             Assert.Equal(dt.Rows[i++]["TABLE_NAME"], t.GetString(2));
         }
       }
-    }
+    } 
+
 
     [Fact]
     public void SelectAllViews()
@@ -101,6 +101,7 @@ namespace MySql.Data.Entity.Tests
         }
       }
     }
+#endif
 
     [Fact]
     public void GetDbProviderManifestTokenReturnsCorrectSchemaVersion()

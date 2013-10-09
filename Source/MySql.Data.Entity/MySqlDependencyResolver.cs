@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -42,9 +43,9 @@ namespace MySql.Data.Entity
           case EServiceType.DbProviderFactory:
             return new MySqlClient.MySqlClientFactory();
           case EServiceType.IDbConnectionFactory:
-            return new MySql.Data.Entity.MySqlConnectionFactory();
+            return new MySqlConnectionFactory();
           case EServiceType.MigrationSqlGenerator:
-            return new MySql.Data.Entity.MySqlMigrationSqlGenerator();
+            return new MySqlMigrationSqlGenerator();
           case EServiceType.DbProviderServices:
             return new MySqlClient.MySqlProviderServices();
           case EServiceType.IProviderInvariantName:
@@ -57,7 +58,7 @@ namespace MySql.Data.Entity
             return new SingletonDependencyResolver<Func<System.Data.Entity.DbContext, IDbModelCacheKey>>(new MySqlModelCacheKeyFactory().Create);
 #if NET_45_OR_GREATER
           case EServiceType.DbSpatialServices:
-            return MySql.Data.Entity.MySqlSpatialServices.Instance;
+            return MySqlSpatialServices.Instance;
 #endif
           case EServiceType.IDbExecutionStrategy:
             return new MySqlExecutionStrategy();
@@ -90,9 +91,9 @@ namespace MySql.Data.Entity
 
   public class MySqlProviderFactoryResolver : IDbProviderFactoryResolver
   {
-    public System.Data.Common.DbProviderFactory ResolveProviderFactory(System.Data.Common.DbConnection connection)
+    public DbProviderFactory ResolveProviderFactory(DbConnection connection)
     {
-      return System.Data.Common.DbProviderFactories.GetFactory(MySqlProviderInvariantName.ProviderName);
+      return DbProviderFactories.GetFactory(connection);
     }
   }
 
