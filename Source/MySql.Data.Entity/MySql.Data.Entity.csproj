@@ -6,12 +6,22 @@
     <!--
     <Framework Condition=" '$(Framework)' == '' and '$(VisualStudioVersion)' == '10.0'">4.0</Framework>
     <Framework Condition=" '$(Framework)' == '' and '$(VisualStudioVersion)' == '11.0'">4.5</Framework>
+    <Framework Condition=" '$(Framework)' == '' and '$(VisualStudioVersion)' == '12.0'">4.5.1</Framework>
     <Framework Condition=" '$(Framework)' == ''">2.0</Framework>
     <TargetFrameworkVersion Condition="'$(Framework)'!=''">v$(Framework)</TargetFrameworkVersion>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>-->
   </PropertyGroup>
   <Choose>
+    <When Condition=" '$(VisualStudioVersion)' == '12.0'">
+      <PropertyGroup>
+        <ProductVersion>9.0.30729</ProductVersion>
+        <SchemaVersion>2.0</SchemaVersion>
+        <Framework>4.5.1</Framework>
+        <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+        <DefineConstants>TRACE;NET_40_OR_GREATER;NET_45_OR_GREATER;NET_451_OR_GREATER;</DefineConstants>
+      </PropertyGroup>
+    </When>
     <When Condition=" '$(VisualStudioVersion)' == '11.0'">
       <PropertyGroup>
         <ProductVersion>9.0.30729</ProductVersion>
@@ -48,13 +58,6 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <!--
-    <Framework Condition=" '$(Framework)' == '' and '$(VisualStudioVersion)' == '10.0'">4.0</Framework>
-    <Framework Condition=" '$(Framework)' == '' and '$(VisualStudioVersion)' == '11.0'">4.5</Framework>
-    <Framework Condition=" '$(Framework)' == ''">3.5</Framework>
-    <TargetFrameworkVersion Condition="'$(Framework)'!=''">v$(Framework)</TargetFrameworkVersion>
-    <ProductVersion>9.0.30729</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>-->
     <ProjectGuid>{EDED3135-95D2-4BCE-A810-F3F2AD7935B7}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -76,17 +79,15 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <!-- <DefineConstants Condition=" $(Framework) &gt;= '4.0' ">NET_40_OR_GREATER</DefineConstants> -->
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <BaseOutputPath>$(TargetFrameworkVersion)\</BaseOutputPath>
-    <BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\</BaseIntermediateOutputPath>
+	<BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\Debug\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>obj\$(TargetFrameworkVersion)\</IntermediateOutputPath>
     <OutputPath>bin\$(TargetFrameworkVersion)\Debug\</OutputPath>
-    <BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\Debug\</BaseIntermediateOutputPath>
     <DefineConstants>DEBUG;$(DefineConstants)</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -95,11 +96,10 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <BaseOutputPath>$(TargetFrameworkVersion)\</BaseOutputPath>
-    <BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\</BaseIntermediateOutputPath>
+    <BaseOutputPath>$(TargetFrameworkVersion)\</BaseOutputPath>    
+	<BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\Release\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>obj\$(TargetFrameworkVersion)\</IntermediateOutputPath>
-    <OutputPath>bin\$(TargetFrameworkVersion)\Release\</OutputPath>
-    <BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\Release\</BaseIntermediateOutputPath>
+    <OutputPath>bin\$(TargetFrameworkVersion)\Release\</OutputPath>    
     <DefineConstants>$(DefineConstants)</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -126,6 +126,36 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <Choose>
+    <When Condition="'$(Framework)' == '4.5.1'">
+      <Choose>
+        <When Condition="'$(Configuration)' == 'DebugEF6' Or '$(Configuration)' == 'ReleaseEF6'">
+          <ItemGroup>
+            <Reference Include="EntityFramework, Version=0.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+              <SpecificVersion>False</SpecificVersion>
+              <HintPath>C:\Program Files (x86)\Microsoft ADO.NET Entity Framework 6.0.0\lib\net45\EntityFramework.dll</HintPath>
+              <Private>False</Private>
+            </Reference>
+          </ItemGroup>
+        </When>
+        <Otherwise>
+          <ItemGroup>
+            <Reference Include="EntityFramework, Version=0.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+              <SpecificVersion>False</SpecificVersion>
+              <HintPath>C:\Program Files (x86)\Microsoft ADO.NET Entity Framework 5.0.0\lib\net45\EntityFramework.dll</HintPath>
+              <Private>False</Private>
+            </Reference>
+            <Reference Include="System.Data.Entity" />
+          </ItemGroup>
+        </Otherwise>
+      </Choose>
+      <ItemGroup>
+        <Reference Include="System" />
+        <Reference Include="System.Core" />
+        <Reference Include="System.Data.DataSetExtensions" />
+        <Reference Include="System.Data" />
+        <Reference Include="System.Xml" />
+      </ItemGroup>
+    </When>
     <When Condition="'$(Framework)' == '4.5'">
       <Choose>
         <When Condition="'$(Configuration)' == 'DebugEF6' Or '$(Configuration)' == 'ReleaseEF6'">
@@ -231,14 +261,14 @@
     <Compile Include="Generators\SqlGenerator.cs" />
     <Compile Include="Generators\UpdateGenerator.cs" />
     <Compile Include="MySqlConfiguration.cs" Condition="'$(Configuration)' == 'DebugEF6' Or '$(Configuration)' == 'ReleaseEF6'" />
-    <Compile Include="MySqlConnectionFactory.cs" Condition="$(Framework) == '4.0' or $(Framework) == '4.5'" />
+    <Compile Include="MySqlConnectionFactory.cs" Condition="$(Framework) == '4.0' or $(Framework) == '4.5' or $(Framework) == '4.5.1'" />
     <Compile Include="MySqlDependencyResolver.cs" Condition="'$(Configuration)' == 'DebugEF6' Or '$(Configuration)' == 'ReleaseEF6'" />
     <Compile Include="MySqlExecutionStrategy.cs" Condition="'$(Configuration)' == 'DebugEF6' Or '$(Configuration)' == 'ReleaseEF6'" />
     <Compile Include="MySqlHistoryContext.cs" Condition="'$(Configuration)' == 'DebugEF6' Or '$(Configuration)' == 'ReleaseEF6'" />
     <Compile Include="MySqlLogger.cs" Condition="'$(Configuration)' == 'DebugEF6' Or '$(Configuration)' == 'ReleaseEF6'" />
-    <Compile Include="MySqlMigrationSqlGenerator.cs" Condition="$(Framework) == '4.0' or $(Framework) == '4.5'" />
-    <Compile Include="MySqlSpatialServices.cs" Condition="$(Framework) == '4.5'" />
-    <Compile Include="MySqlSpatialDataReader.cs" Condition="$(Framework) == '4.5'" />
+    <Compile Include="MySqlMigrationSqlGenerator.cs" Condition="$(Framework) == '4.0' or $(Framework) == '4.5' or $(Framework) == '4.5.1'" />
+    <Compile Include="MySqlSpatialServices.cs" Condition="$(Framework) == '4.5' or $(Framework) == '4.5.1'" />
+    <Compile Include="MySqlSpatialDataReader.cs" Condition="$(Framework) == '4.5' or $(Framework) == '4.5.1'" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -276,7 +306,7 @@
   </ItemGroup>
   <ItemGroup />
   <Choose>
-    <When Condition="'$(Framework)' == '4.5'">
+    <When Condition="'$(Framework)' == '4.5' or '$(Framework)' == '4.5.1'">
       <ItemGroup>
         <EmbeddedResource Include="Properties\4.5\ProviderManifest.xml">
           <LogicalName>MySql.Data.Entity.Properties.ProviderManifest.xml</LogicalName>
