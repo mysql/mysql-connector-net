@@ -37,6 +37,9 @@ using System.Data.Spatial;
 
 namespace MySql.Data.Entity.CodeFirst.Tests
 {
+#if EF6
+  [DbConfigurationType(typeof(MySqlEFConfiguration))]
+#endif
   public class VehicleDbContext : DbContext
   {
     public DbSet<Vehicle> Vehicles { get; set; }
@@ -62,6 +65,9 @@ namespace MySql.Data.Entity.CodeFirst.Tests
   { 
   }
 
+#if EF6
+  [DbConfigurationType(typeof(MySqlEFConfiguration))]
+#endif
   public class VehicleDbContext2 : DbContext
   {
     public DbSet<Vehicle2> Vehicles { get; set; }
@@ -183,11 +189,14 @@ namespace MySql.Data.Entity.CodeFirst.Tests
 
     public DateTime DateTimeWithPrecision { get; set; }
 
-    [Column(TypeName = "timestamp")]
+    [Column(TypeName = "TimeStamp")]
     public DateTime TimeStampWithPrecision { get; set; }
 
   }
 
+#if EF6
+  [DbConfigurationType(typeof(MySqlEFConfiguration))]
+#endif
   public class ProductsDbContext : DbContext
   {
     public DbSet<Product> Products { get; set; }

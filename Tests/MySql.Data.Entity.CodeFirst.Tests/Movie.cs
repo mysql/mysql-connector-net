@@ -90,11 +90,10 @@ namespace MySql.Data.Entity.CodeFirst.Tests
       base.OnModelCreating(modelBuilder);
 #if EF6
       modelBuilder.Configurations.AddFromAssembly(System.Reflection.Assembly.GetExecutingAssembly());
-#else
+#endif
       modelBuilder.Entity<Movie>().Property(x => x.Price).HasPrecision(16, 2);
       modelBuilder.Entity<Movie>().HasMany(p => p.Formats);
       modelBuilder.Entity<Movie>().HasMany( p => p.Medias );
-#endif
 }
   }
 
