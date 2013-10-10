@@ -93,7 +93,11 @@ namespace MySql.Data.Entity
   {
     public DbProviderFactory ResolveProviderFactory(DbConnection connection)
     {
+#if NET_45_OR_GREATER 
       return DbProviderFactories.GetFactory(connection);
+#else
+      return DbProviderFactories.GetFactory(MySqlProviderInvariantName.ProviderName);
+#endif
     }
   }
 

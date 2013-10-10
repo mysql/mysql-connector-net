@@ -204,6 +204,7 @@
               <HintPath>C:\Program Files (x86)\Microsoft ADO.NET Entity Framework 5.0.0\lib\net40\EntityFramework.dll</HintPath>
               <Private>False</Private>
             </Reference>
+            <Reference Include="System.Data.Entity" />          
           </ItemGroup>
         </Otherwise>
       </Choose>
@@ -266,8 +267,8 @@
     <Compile Include="MySqlHistoryContext.cs" Condition="'$(Configuration)' == 'DebugEF6' Or '$(Configuration)' == 'ReleaseEF6'" />
     <Compile Include="MySqlLogger.cs" Condition="'$(Configuration)' == 'DebugEF6' Or '$(Configuration)' == 'ReleaseEF6'" />
     <Compile Include="MySqlMigrationSqlGenerator.cs" Condition="'$(Framework)' == '4.0' or '$(Framework)' == '4.5' or '$(Framework)' == '4.5.1'" />
-    <Compile Include="MySqlSpatialServices.cs" Condition="( '$(Framework)' == '4.0' or '$(Framework)' == '4.5' or '$(Framework)' == '4.5.1') and ('$(Configuration)' == 'DebugEF6' Or '$(Configuration)' == 'ReleaseEF6' )" />
-    <Compile Include="MySqlSpatialDataReader.cs" Condition="( '$(Framework)' == '4.0' or '$(Framework)' == '4.5' or '$(Framework)' == '4.5.1') and ('$(Configuration)' == 'DebugEF6' Or '$(Configuration)' == 'ReleaseEF6')" />
+    <Compile Include="MySqlSpatialServices.cs" Condition="( '$(Framework)' == '4.5' or '$(Framework)' == '4.5.1') " />
+    <Compile Include="MySqlSpatialDataReader.cs" Condition="( '$(Framework)' == '4.5' or '$(Framework)' == '4.5.1') " />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
