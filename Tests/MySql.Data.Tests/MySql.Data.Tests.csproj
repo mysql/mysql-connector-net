@@ -1,6 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Choose>
+    <When Condition=" '$(VisualStudioVersion)' == '12.0'">
+      <PropertyGroup>
+        <ProductVersion>9.0.30729</ProductVersion>
+        <SchemaVersion>2.0</SchemaVersion>
+        <Framework>4.5.1</Framework>
+        <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+        <DefineConstants>NET_40_OR_GREATER;NET_45_OR_GREATER;NET_451_OR_GREATER</DefineConstants>
+      </PropertyGroup>
+    </When>
     <When Condition=" '$(VisualStudioVersion)' == '11.0'">
       <PropertyGroup>
         <ProductVersion>9.0.30729</ProductVersion>
@@ -34,6 +43,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <Framework Condition=" '$(Framework)' == '' and '$(VisualStudioVersion)' == '10.0'">4.0</Framework>
     <Framework Condition=" '$(Framework)' == '' and '$(VisualStudioVersion)' == '11.0'">4.5</Framework>
+    <Framework Condition=" '$(Framework)' == '' and '$(VisualStudioVersion)' == '12.0'">4.5.1</Framework>
     <Framework Condition=" '$(Framework)' == ''">2.0</Framework>
     <TargetFrameworkVersion Condition="'$(Framework)'!=''">v$(Framework)</TargetFrameworkVersion>
     <ProductVersion>9.0.30729</ProductVersion>
@@ -59,7 +69,9 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <DefineConstants Condition=" $(Framework) &gt;= '4.0' ">$(DefineConstants)</DefineConstants>
+    <DefineConstants 
+	Condition=" ( '$(Framework)' == '4.0' ) or ( '$(Framework)' == '4.5' ) or ( '$(Framework)' == '4.5.1' ) ">
+	NET_40_OR_GREATER</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -92,7 +104,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugEF6|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\DebugEF6\</OutputPath>
-    <DefineConstants>NET_40_OR_GREATER;DEBUG;TRACE;NET_45_OR_GREATER</DefineConstants>
+    <DefineConstants>$(DefineConstants);DEBUG;TRACE;</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
@@ -100,7 +112,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseEF6|AnyCPU'">
     <OutputPath>bin\ReleaseEF6\</OutputPath>
-    <DefineConstants>NET_40_OR_GREATER;TRACE;NET_45_OR_GREATER</DefineConstants>
+    <DefineConstants>$(DefineConstants);TRACE;</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -110,7 +122,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugEF6|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\DebugEF6\</OutputPath>
-    <DefineConstants>NET_40_OR_GREATER;DEBUG;TRACE;NET_45_OR_GREATER</DefineConstants>
+    <DefineConstants>$(DefineConstants);DEBUG;TRACE;</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
@@ -118,7 +130,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseEF6|AnyCPU'">
     <OutputPath>bin\ReleaseEF6\</OutputPath>
-    <DefineConstants>NET_40_OR_GREATER;TRACE;NET_45_OR_GREATER</DefineConstants>
+    <DefineConstants>$(DefineConstants);TRACE;</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -128,7 +140,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugEF6|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\DebugEF6\</OutputPath>
-    <DefineConstants>NET_40_OR_GREATER;DEBUG;TRACE;NET_45_OR_GREATER</DefineConstants>
+    <DefineConstants>$(DefineConstants);DEBUG;TRACE;</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
@@ -136,7 +148,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseEF6|AnyCPU'">
     <OutputPath>bin\ReleaseEF6\</OutputPath>
-    <DefineConstants>NET_40_OR_GREATER;TRACE;NET_45_OR_GREATER</DefineConstants>
+    <DefineConstants>$(DefineConstants);TRACE;</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>

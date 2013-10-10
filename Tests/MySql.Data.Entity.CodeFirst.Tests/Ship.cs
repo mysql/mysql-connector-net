@@ -76,6 +76,9 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     public string Description { get; set; }
   }
 
+#if EF6
+  [DbConfigurationType(typeof(MySqlEFConfiguration))]
+#endif
   public class ShipContext : DbContext
   {
     public DbSet<Harbor> Harbors { get; set; }

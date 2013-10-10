@@ -477,6 +477,10 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 
       using (var db = new ProductsDbContext())
       {
+        if (db.Database.Exists())
+        {
+          db.Database.Delete();
+        }
         db.Database.CreateIfNotExists();
         using (MySqlConnection conn = new MySqlConnection(db.Database.Connection.ConnectionString))
         {
@@ -520,6 +524,10 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 
       using (var db = new ProductsDbContext())
       {
+        if (db.Database.Exists())
+        {
+          db.Database.Delete();
+        }
         db.Database.CreateIfNotExists();
         Product product = new Product
         {
@@ -539,7 +547,6 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         Assert.NotNull(db.Products.First().DateCreated);
         Assert.Equal(new DateTime(2012, 3, 18, 23, 9, 7, 6), db.Products.First().DateTimeWithPrecision);
         Assert.Equal(1, db.Products.Count());
-
         db.Database.Delete();
       }
     }
@@ -644,7 +651,11 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         Dictionary<string, string> outData = new Dictionary<string, string>();
 
         var sqlString = query.ToString();
+#if EF6
+        st.CheckSql(sqlString, SQLSyntax.ShipQueryMalformedDueMultipleProjecttionsCorrectedEF6);
+#else
         st.CheckSql(sqlString, SQLSyntax.ShipQueryMalformedDueMultipleProjecttionsCorrected);
+#endif
         // see below for the generated SQL query
 
         var harbor = query.Single();
@@ -959,13 +970,14 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
     }
 #if EF6
     [Fact]
-    public void SimpleCodeFirstSelectCBC()
+    public void SimpleCodeFirstSelectCbc()
     {
       MovieCodedBasedConfigDBContext db = new MovieCodedBasedConfigDBContext();
       db.Database.Initialize(true);
       var l = db.Movies.ToList();
       foreach (var i in l)
       {
+        Console.WriteLine(i);
       }
     }
 

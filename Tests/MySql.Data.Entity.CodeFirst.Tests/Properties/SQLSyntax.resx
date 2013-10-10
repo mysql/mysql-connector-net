@@ -234,6 +234,71 @@ FROM `CrewMembers` AS `Extent3` INNER JOIN `Ranks` AS `Extent4` ON `Extent3`.`Ra
 `Project1`.`ShipId` ASC, 
 `Project1`.`C1` ASC</value>
   </data>
+  <data name="ShipQueryMalformedDueMultipleProjecttionsCorrectedEF6" xml:space="preserve">
+    <value>SELECT
+`Project1`.`HarborId`, 
+`Project1`.`Description`, 
+`Project1`.`C2` AS `C1`, 
+`Project1`.`ShipId`, 
+`Project1`.`HarborId1`, 
+`Project1`.`Description1`, 
+`Project1`.`C1` AS `C2`, 
+`Project1`.`CrewMemberId`, 
+`Project1`.`ShipId1`, 
+`Project1`.`RankId`, 
+`Project1`.`ClearanceId`, 
+`Project1`.`Description2`, 
+`Project1`.`RankId1`, 
+`Project1`.`Description3`, 
+`Project1`.`ClearanceId1`, 
+`Project1`.`Description4`
+FROM (SELECT
+`Extent1`.`HarborId`, 
+`Extent1`.`Description`, 
+`Join3`.`ShipId`, 
+`Join3`.`HarborId` AS `HarborId1`, 
+`Join3`.`Description` AS `Description1`, 
+`Join3`.`CrewMemberId`, 
+`Join3`.`SHIPID1` AS `ShipId1`, 
+`Join3`.`RankId`, 
+`Join3`.`ClearanceId`, 
+`Join3`.`DESCRIPTION1` AS `Description2`, 
+`Join3`.`RANKID1` AS `RankId1`, 
+`Join3`.`DESCRIPTION11` AS `Description3`, 
+`Join3`.`CLEARANCEID1` AS `ClearanceId1`, 
+`Join3`.`DESCRIPTION2` AS `Description4`, 
+CASE WHEN (`Join3`.`ShipId` IS  NULL) THEN (NULL)  WHEN (`Join3`.`CrewMemberId` IS  NULL) THEN (NULL)  ELSE (1) END AS `C1`, 
+CASE WHEN (`Join3`.`ShipId` IS  NULL) THEN (NULL)  ELSE (1) END AS `C2`
+FROM `Harbors` AS `Extent1` LEFT OUTER JOIN (SELECT
+`Extent2`.`ShipId`, 
+`Extent2`.`HarborId`, 
+`Extent2`.`Description`, 
+`Join2`.`CrewMemberId`, 
+`Join2`.`ShipId` AS `SHIPID1`, 
+`Join2`.`RankId`, 
+`Join2`.`ClearanceId`, 
+`Join2`.`Description` AS `DESCRIPTION1`, 
+`Join2`.`RANKID1`, 
+`Join2`.`DESCRIPTION1` AS `DESCRIPTION11`, 
+`Join2`.`CLEARANCEID1`, 
+`Join2`.`DESCRIPTION2`
+FROM `Ships` AS `Extent2` LEFT OUTER JOIN (SELECT
+`Extent3`.`CrewMemberId`, 
+`Extent3`.`ShipId`, 
+`Extent3`.`RankId`, 
+`Extent3`.`ClearanceId`, 
+`Extent3`.`Description`, 
+`Extent4`.`RankId` AS `RANKID1`, 
+`Extent4`.`Description` AS `DESCRIPTION1`, 
+`Extent5`.`ClearanceId` AS `CLEARANCEID1`, 
+`Extent5`.`Description` AS `DESCRIPTION2`
+FROM `CrewMembers` AS `Extent3` INNER JOIN `Ranks` AS `Extent4` ON `Extent3`.`RankId` = `Extent4`.`RankId` INNER JOIN `Clearances` AS `Extent5` ON `Extent3`.`ClearanceId` = `Extent5`.`ClearanceId`) AS `Join2` ON `Extent2`.`ShipId` = `Join2`.`ShipId`) AS `Join3` ON `Extent1`.`HarborId` = `Join3`.`HarborId`) AS `Project1`
+ ORDER BY 
+`Project1`.`HarborId` ASC, 
+`Project1`.`C2` ASC, 
+`Project1`.`ShipId` ASC, 
+`Project1`.`C1` ASC</value>
+  </data>
   <data name="UpdateWithSelect" xml:space="preserve">
     <value>UPDATE `MovieReleases` SET `Name`='Director\'s Cut' WHERE (`Id` = 1) AND (`Name` = 'Commercial'); SELECT `Timestamp` FROM `MovieReleases`  WHERE  row_count() &gt; 0 and (`Id` = 1) AND (`Name` = 'Director\'s Cut')</value>
   </data>

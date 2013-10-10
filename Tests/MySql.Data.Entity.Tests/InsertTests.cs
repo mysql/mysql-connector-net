@@ -113,7 +113,7 @@ namespace MySql.Data.Entity.Tests
       if (st.Version < new Version(5, 0)) return;
 
       st.execSQL("CREATE TABLE test (id int)");
-
+      st.execSQL("DROP PROCEDURE IF EXISTS spTest");
       st.execSQL("CREATE PROCEDURE spTest() BEGIN SET @x=0; REPEAT INSERT INTO test VALUES(@x); " +
         "SET @x=@x+1; UNTIL @x = 100 END REPEAT; END");
 

@@ -3,13 +3,17 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <!--
-    <Framework Condition=" '$(Framework)' == '' and '$(VisualStudioVersion)' == '10.0'">4.0</Framework>
-    <Framework Condition=" '$(Framework)' == '' and '$(VisualStudioVersion)' == '11.0'">4.5</Framework>
-    <Framework Condition=" '$(Framework)' == ''">2.0</Framework>
--->
   </PropertyGroup>
   <Choose>
+    <When Condition=" '$(VisualStudioVersion)' == '12.0'">
+      <PropertyGroup>
+        <ProductVersion>9.0.30729</ProductVersion>
+        <SchemaVersion>2.0</SchemaVersion>
+        <Framework>4.5.1</Framework>
+        <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+        <DefineConstants>NET_40_OR_GREATER; NET_45_OR_GREATER; NET_451_OR_GREATER</DefineConstants>
+      </PropertyGroup>
+    </When>
     <When Condition=" '$(VisualStudioVersion)' == '11.0'">
       <PropertyGroup>
         <ProductVersion>9.0.30729</ProductVersion>
@@ -17,10 +21,6 @@
         <Framework>4.5</Framework>
         <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
         <DefineConstants>NET_40_OR_GREATER; NET_45_OR_GREATER</DefineConstants>
-        <!--
-		<DefineConstants>NET_40_OR_GREATER</DefineConstants>
-		<DefineConstants>NET_45_OR_GREATER</DefineConstants> 
-		-->
       </PropertyGroup>
     </When>
     <When Condition=" '$(VisualStudioVersion)' == '10.0'">
@@ -66,7 +66,9 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <DefineConstants Condition=" $(Framework) &gt;= '4.0' ">NET_40_OR_GREATER</DefineConstants>
+    <DefineConstants 
+	Condition=" ( '$(Framework)' == '4.0' ) or ( '$(Framework)' == '4.5' ) or ( '$(Framework)' == '4.5.1' ) ">
+	NET_40_OR_GREATER</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -108,6 +110,11 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <Choose>
+    <When Condition=" '$(VisualStudioVersion)' == '12.0'">
+      <ItemGroup>
+        <Reference Include="System.Web.ApplicationServices" />
+      </ItemGroup>
+    </When>
     <When Condition=" '$(VisualStudioVersion)' == '11.0'">
       <ItemGroup>
         <Reference Include="System.Web.ApplicationServices" />
