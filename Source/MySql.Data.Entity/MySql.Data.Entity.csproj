@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -260,7 +260,7 @@
     <Compile Include="Generators\SelectGenerator.cs" />
     <Compile Include="Generators\SqlGenerator.cs" />
     <Compile Include="Generators\UpdateGenerator.cs" />
-    <Compile Include="MySqlConfiguration.cs" Condition="'$(Configuration)' == 'DebugEF6' Or '$(Configuration)' == 'ReleaseEF6'" />
+    <Compile Include="MySqlEFConfiguration.cs" Condition="'$(Configuration)' == 'DebugEF6' Or '$(Configuration)' == 'ReleaseEF6'" />
     <Compile Include="MySqlConnectionFactory.cs" Condition="'$(Framework)' == '4.0' or $(Framework) == '4.5' or $(Framework) == '4.5.1'" />
     <Compile Include="MySqlDependencyResolver.cs" Condition="'$(Configuration)' == 'DebugEF6' Or '$(Configuration)' == 'ReleaseEF6'" />
     <Compile Include="MySqlExecutionStrategy.cs" Condition="'$(Configuration)' == 'DebugEF6' Or '$(Configuration)' == 'ReleaseEF6'" />

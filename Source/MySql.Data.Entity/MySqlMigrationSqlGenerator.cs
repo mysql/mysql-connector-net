@@ -236,24 +236,23 @@ namespace MySql.Data.Entity
         {
           case DbCommandTreeKind.Insert:
             generator = new InsertGenerator();
-            cmdStr = generator.GenerateSQL(commandTree);
             break;
           case DbCommandTreeKind.Delete:
             generator = new DeleteGenerator();
             break;
           case DbCommandTreeKind.Update:
             generator = new UpdateGenerator();
-            cmdStr = generator.GenerateSQL(commandTree);
             break;
           case DbCommandTreeKind.Query:
             generator = new SelectGenerator();
-            cmdStr = generator.GenerateSQL(commandTree);
             break;
           case DbCommandTreeKind.Function:
             generator = new FunctionGenerator();
-            cmdStr = generator.GenerateSQL(commandTree);
             break;
+          default:
+            throw new NotImplementedException(commandTree.CommandTreeKind.ToString());
         }
+        cmdStr = generator.GenerateSQL(commandTree);
 
         foreach (var parameter in generator.Parameters)
         {
