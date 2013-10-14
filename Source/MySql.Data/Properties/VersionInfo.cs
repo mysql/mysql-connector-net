@@ -39,4 +39,5 @@ using System.Resources;
 // by using the '*' as shown below:
 
 [assembly: AssemblyVersion("6.8.0")]
+[assembly: AssemblyInformationalVersion("6.8.0")]
 [assembly: NeutralResourcesLanguage("en-US")]
