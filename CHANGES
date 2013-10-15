@@ -2,7 +2,8 @@
 6.7.5
 - Fix for bad query when using LINQ to Entities with a query using Take, OrderBy & Contains in Code First (MySql bug #69751, Oracle bug #17194945).
 - Fix for LINQ to Entities error for bad aliasing in column for expression (MySql bug #69922, Oracle bug #17285548).
-- Installer adds MySql data provider to machine.config and registers MySql.Data.dll to GAC.
+- Installer adds MySql.Data, MySql.Data.Entity, and MySql.Web to machine.config and into GAC.
+- Added MySql.Web.dll for .NET Framework 4.5
 
 
 6.7.4
