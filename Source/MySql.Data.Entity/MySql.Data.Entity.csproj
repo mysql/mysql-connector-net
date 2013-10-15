@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -89,6 +89,8 @@
     <IntermediateOutputPath>obj\$(TargetFrameworkVersion)\</IntermediateOutputPath>
     <OutputPath>bin\$(TargetFrameworkVersion)\Debug\</OutputPath>
     <DefineConstants>DEBUG;$(DefineConstants)</DefineConstants>
+    <AssemblyName>MySql.Data.Entity</AssemblyName>
+    <AssemblyName Condition="$(Framework) == '4.5' Or $(Framework) == '4.5.1'">MySql.Data.Entity.EF5</AssemblyName>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
@@ -101,6 +103,8 @@
     <IntermediateOutputPath>obj\$(TargetFrameworkVersion)\</IntermediateOutputPath>
     <OutputPath>bin\$(TargetFrameworkVersion)\Release\</OutputPath>
     <DefineConstants>$(DefineConstants)</DefineConstants>
+    <AssemblyName>MySql.Data.Entity</AssemblyName>
+    <AssemblyName Condition="$(Framework) == '4.5' Or $(Framework) == '4.5.1'">MySql.Data.Entity.EF5</AssemblyName>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
@@ -108,8 +112,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugEF6|AnyCPU'">
     <BaseOutputPath>$(TargetFrameworkVersion)\</BaseOutputPath>
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\$(TargetFrameworkVersion)\DebugEF6\</OutputPath>
+    <OutputPath>bin\$(TargetFrameworkVersion)\Debug\</OutputPath>
     <DefineConstants>DEBUG;$(DefineConstants);EF6</DefineConstants>
+    <AssemblyName>MySql.Data.Entity.EF6</AssemblyName>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
@@ -117,8 +122,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseEF6|AnyCPU'">
     <BaseOutputPath>$(TargetFrameworkVersion)\</BaseOutputPath>
-    <OutputPath>bin\$(TargetFrameworkVersion)\ReleaseEF6\</OutputPath>
+    <OutputPath>bin\$(TargetFrameworkVersion)\Release\</OutputPath>
     <DefineConstants>$(DefineConstants);EF6</DefineConstants>
+    <AssemblyName>MySql.Data.Entity.EF6</AssemblyName>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -260,7 +266,7 @@
     <Compile Include="Generators\SelectGenerator.cs" />
     <Compile Include="Generators\SqlGenerator.cs" />
     <Compile Include="Generators\UpdateGenerator.cs" />
-    <Compile Include="MySqlConfiguration.cs" Condition="'$(Configuration)' == 'DebugEF6' Or '$(Configuration)' == 'ReleaseEF6'" />
+    <Compile Include="MySqlEFConfiguration.cs" Condition="'$(Configuration)' == 'DebugEF6' Or '$(Configuration)' == 'ReleaseEF6'" />
     <Compile Include="MySqlConnectionFactory.cs" Condition="'$(Framework)' == '4.0' or $(Framework) == '4.5' or $(Framework) == '4.5.1'" />
     <Compile Include="MySqlDependencyResolver.cs" Condition="'$(Configuration)' == 'DebugEF6' Or '$(Configuration)' == 'ReleaseEF6'" />
     <Compile Include="MySqlExecutionStrategy.cs" Condition="'$(Configuration)' == 'DebugEF6' Or '$(Configuration)' == 'ReleaseEF6'" />
