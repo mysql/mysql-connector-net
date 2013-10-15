@@ -40,6 +40,7 @@ namespace MySql.Data.Entity
     protected override void OnModelCreating(System.Data.Entity.DbModelBuilder modelBuilder)
     {
       base.OnModelCreating(modelBuilder);
+      modelBuilder.Entity<HistoryRow>().HasKey(h => new { h.MigrationId });
     }
   }
 }
