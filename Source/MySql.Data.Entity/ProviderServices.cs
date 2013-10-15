@@ -511,11 +511,6 @@ namespace MySql.Data.MySqlClient
         {
           if (facets.TryGetValue("MaxLength", true, out facet))
           {
-            //if the column is nvarchar type, key member and its value is > 255 we need to decrease its value or we will receive the Error Code: 1071. 
-            //(Specified key was too long; max key length is 767 bytes)
-            if (column.TypeUsage.EdmType.Name.ToLower().Equals("nvarchar") && ((int)facet.Value > 255 && IsKeyMember))
-              sql.AppendFormat(" ({0})", 255);
-            else
               sql.AppendFormat(" ({0})", facet.Value);
           }
         }
