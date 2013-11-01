@@ -70,9 +70,9 @@
     <Reference Include="System.Security" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Xml" />
-    <!--<Reference Include="xunit, Version=1.9.1.1600, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL"> -->
+    <!--<Reference Include="xunit, Version=1.9.2.1705, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL"> -->
     <Reference Include="xunit">
-      <HintPath>C:\Program Files (x86)\XUnit_1.9.1\xunit.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\XUnit-1.9.2\xunit.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
