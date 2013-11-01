@@ -1657,5 +1657,69 @@ END;
         dbg.RestoreRoutinesBackup();
       }
     }
+
+    /// <summary>
+    /// Fix for bug Data too long for column 'pVarName' at row 1
+    /// </summary>
+    [Fact]
+    public void ReallyBigLocalVarIdentifier()
+    {
+      string sql =
+        @"
+DELIMITER // 
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `A_big_name_for_stored_procedure_if_you_ask_me_must_smaller_end1`()
+begin    
+    declare n_012345678901234567890123456789012345678901234567890123456789001234567890123456789012345678901234567890 int;
+    set n_012345678901234567890123456789012345678901234567890123456789001234567890123456789012345678901234567890 = 1;
+    while n_012345678901234567890123456789012345678901234567890123456789001234567890123456789012345678901234567890 < 5 do
+    begin
+    
+        set n_012345678901234567890123456789012345678901234567890123456789001234567890123456789012345678901234567890 = 
+          n_012345678901234567890123456789012345678901234567890123456789001234567890123456789012345678901234567890 + 1;
+    
+    end;
+    end while;
+
+end // 
+";
+      Debugger dbg = new Debugger();
+      try
+      {
+        dbg.Connection = new MySqlConnection(TestUtils.CONNECTION_STRING);
+        dbg.UtilityConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
+        dbg.LockingConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
+        DumpConnectionThreads(dbg);
+        MySqlScript script = new MySqlScript(dbg.Connection, sql);
+        script.Execute();
+        sql =
+@"CREATE DEFINER=`root`@`localhost` PROCEDURE `A_big_name_for_stored_procedure_if_you_ask_me_must_smaller_end1`()
+begin    
+    declare n_012345678901234567890123456789012345678901234567890123456789001234567890123456789012345678901234567890 int;
+    set n_012345678901234567890123456789012345678901234567890123456789001234567890123456789012345678901234567890 = 1;
+    while n_012345678901234567890123456789012345678901234567890123456789001234567890123456789012345678901234567890 < 5 do
+    begin
+    
+        set n_012345678901234567890123456789012345678901234567890123456789001234567890123456789012345678901234567890 = 
+          n_012345678901234567890123456789012345678901234567890123456789001234567890123456789012345678901234567890 + 1;
+    
+    end;
+    end while;
+
+end;
+";
+        dbg.SqlInput = sql;
+        dbg.SteppingType = SteppingTypeEnum.StepInto;
+        dbg.OnBreakpoint += (bp) =>
+        {
+          Debug.WriteLine(string.Format("breakpoint at line {0}:{1},{2}", bp.RoutineName, bp.Line, bp.StartColumn));
+        };
+        dbg.Run(null, null);
+      }
+      finally
+      {
+        dbg.RestoreRoutinesBackup();
+      }
+    }
   }
 }

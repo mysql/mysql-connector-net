@@ -1,5 +1,8 @@
 6.6.7
 - Fix for WI #782, Visual Studio package is missing calls to UnlockProviderObject.
+- Fix for Debugging routine throws error of data too long for column 'pvarname' at row 1 error (MySql bug #70159,
+Oracle bug #17568158).
+
 
 6.6.6
 - Fix for GetSchema returning MySqlException instead of ArgumentException when passing an invalid collection name

@@ -15,7 +15,7 @@ DROP TABLE IF EXISTS `debugcallstack` //
 CREATE TABLE `debugcallstack` (
   `Id` int(11) NOT NULL AUTO_INCREMENT,
   `DebugSessionId` int(11) DEFAULT NULL,
-  `RoutineName` varchar(50) DEFAULT NULL,
+  `RoutineName` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`Id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1 //
 
@@ -27,7 +27,7 @@ DROP TABLE IF EXISTS `debugdata` //
 
 CREATE TABLE `debugdata` (
   `Id` int(11) NOT NULL AUTO_INCREMENT,
-  `Name` varchar(50) DEFAULT NULL,
+  `Name` varchar(64) DEFAULT NULL,
   `Val` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`Id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1 //
@@ -68,7 +68,7 @@ CREATE TABLE `debugscope` (
   `Id` int auto_increment primary key,
   `DebugSessionId` int(11) NOT NULL DEFAULT '0',
   `DebugScopeLevel` int(11) NOT NULL DEFAULT '0',
-  `VarName` varchar(30) NOT NULL DEFAULT '',
+  `VarName` varchar(256) NOT NULL DEFAULT '',
   `VarValue` varbinary(50000) DEFAULT NULL,
   `Stamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   index `DebugScope2ndIndex` (`DebugSessionId`,`DebugScopeLevel`,`VarName`, `Id` )
