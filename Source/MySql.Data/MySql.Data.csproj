@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -111,31 +111,6 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile>bin\Release\MySql.Data.XML</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugEF6|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <BaseOutputPath>$(TargetFrameworkVersion)\</BaseOutputPath>
-    <!--<BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\DebugEF6\</BaseIntermediateOutputPath>
-    <IntermediateOutputPath>obj\$(TargetFrameworkVersion)\DebugEF6\</IntermediateOutputPath>-->
-    <OutputPath>bin\$(TargetFrameworkVersion)\DebugEF6\</OutputPath>
-    <DefineConstants>$(DefineConstants);DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseEF6|AnyCPU'">
-    <BaseOutputPath>$(TargetFrameworkVersion)\</BaseOutputPath>
-    <!--<BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\ReleaseEF6\</BaseIntermediateOutputPath>
-    <IntermediateOutputPath>obj\$(TargetFrameworkVersion)\ReleaseEF6\</IntermediateOutputPath>-->
-    <OutputPath>bin\$(TargetFrameworkVersion)\ReleaseEF6\</OutputPath>
-    <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
-    <DocumentationFile>bin\$(TargetFrameworkVersion)\ReleaseEF6\MySql.Data.XML</DocumentationFile>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

@@ -170,6 +170,7 @@ namespace MySql.Data.Entity
     private Dictionary<string, OpDispatcher> _dispatcher = new Dictionary<string, OpDispatcher>();
     private List<string> _generatedTables { get; set; }
     private string _tableName { get; set; }
+    private string _providerManifestToken;
 
     delegate MigrationStatement OpDispatcher(MigrationOperation op);
 
@@ -195,6 +196,7 @@ namespace MySql.Data.Entity
 #if EF6
       _dispatcher.Add("HistoryOperation", (OpDispatcher)((op) => { return Generate(op as HistoryOperation); }));
       _dispatcher.Add("CreateProcedureOperation", (OpDispatcher)((op) => { return Generate(op as CreateProcedureOperation); }));
+      _dispatcher.Add("UpdateDatabaseOperation", (OpDispatcher)((op) => { return Generate(op as UpdateDatabaseOperation); }));
 #endif
 #if !EF6
       _dispatcher.Add("DeleteHistoryOperation", (OpDispatcher)((op) => { return Generate(op as DeleteHistoryOperation); }));
@@ -206,10 +208,13 @@ namespace MySql.Data.Entity
     {      
       MySqlConnection con = new MySqlConnection();
       List<MigrationStatement> stmts = new List<MigrationStatement>();
+      _providerManifestToken = providerManifestToken;
       _providerManifest = DbProviderServices.GetProviderServices(con).GetProviderManifest(providerManifestToken);
 
       foreach (MigrationOperation op in migrationOperations)
       {
+        if (!_dispatcher.ContainsKey(op.GetType().Name))
+          throw new NotImplementedException(op.GetType().Name);
         OpDispatcher opdis = _dispatcher[op.GetType().Name];
         stmts.Add(opdis(op)); 
       }
@@ -222,6 +227,84 @@ namespace MySql.Data.Entity
     }
 
 #if EF6
+
+    private MigrationStatement Generate(UpdateDatabaseOperation updateDatabaseOperation)
+    {
+      if (updateDatabaseOperation == null)
+        throw new ArgumentNullException("UpdateDatabaseOperation");
+
+      MigrationStatement statement = new MigrationStatement();
+      StringBuilder sql = new StringBuilder();
+      const string idempotentScriptName = "_idempotent_script";
+      SelectGenerator generator = new SelectGenerator();
+
+      if (!updateDatabaseOperation.Migrations.Any())
+        return statement;
+
+      sql.AppendFormat("DROP PROCEDURE IF EXISTS `{0}`;", idempotentScriptName);
+      sql.AppendLine();
+      sql.AppendLine();
+
+      sql.AppendLine("DELIMITER //");
+      sql.AppendLine();
+
+      sql.AppendFormat("CREATE PROCEDURE `{0}`()", idempotentScriptName);
+      sql.AppendLine();
+      sql.AppendLine("BEGIN");
+      sql.AppendLine("  DECLARE CurrentMigration TEXT;");
+      sql.AppendLine();
+      sql.AppendLine("  IF EXISTS(SELECT 1 FROM information_schema.tables ");
+      sql.AppendLine("  WHERE table_name = '__MigrationHistory' ");
+      sql.AppendLine("  AND table_schema = DATABASE()) THEN ");
+
+      foreach (var historyQueryTree in updateDatabaseOperation.HistoryQueryTrees)
+      {
+        string historyQuery = generator.GenerateSQL(historyQueryTree);
+        ReplaceParemeters(ref historyQuery, generator.Parameters);
+        sql.AppendLine(@"    SET CurrentMigration = (" + historyQuery + ");");
+        sql.AppendLine("  END IF;");
+        sql.AppendLine();
+      }
+
+      sql.AppendLine("  IF CurrentMigration IS NULL THEN");
+      sql.AppendLine("    SET CurrentMigration = '0';");
+      sql.AppendLine("  END IF;");
+      sql.AppendLine();
+
+      // Migrations
+      foreach (var migration in updateDatabaseOperation.Migrations)
+      {
+        if (migration.Operations.Count == 0)
+          continue;
+
+        sql.AppendLine("  IF CurrentMigration < '" + migration.MigrationId + "' THEN ");
+        var statements = Generate(migration.Operations, _providerManifestToken);
+        foreach (var migrationStatement in statements)
+        {
+          string sqlStatement = migrationStatement.Sql;
+          if (!sqlStatement.EndsWith(";"))
+            sqlStatement += ";";
+          sql.AppendLine(sqlStatement);
+        }
+        sql.AppendLine("  END IF;");
+        sql.AppendLine();
+      }
+
+      sql.AppendLine("END //");
+      sql.AppendLine();
+      sql.AppendLine("DELIMITER ;");
+      sql.AppendLine();
+      sql.AppendFormat("CALL `{0}`();", idempotentScriptName);
+      sql.AppendLine();
+      sql.AppendLine();
+      sql.AppendFormat("DROP PROCEDURE IF EXISTS `{0}`;", idempotentScriptName);
+      sql.AppendLine();
+
+      statement.Sql = sql.ToString();
+
+      return statement;
+    }
+
     protected virtual MigrationStatement Generate(HistoryOperation op)
     {
       if (op == null) return null;
@@ -254,18 +337,23 @@ namespace MySql.Data.Entity
         }
         cmdStr = generator.GenerateSQL(commandTree);
 
-        foreach (var parameter in generator.Parameters)
-        {
-          if (parameter.DbType == System.Data.DbType.String)
-            cmdStr = cmdStr.Replace(parameter.ParameterName, "'" + parameter.Value.ToString() + "'");
-          else if (parameter.DbType == System.Data.DbType.Binary)
-            cmdStr = cmdStr.Replace(parameter.ParameterName, "0x" + BitConverter.ToString((byte[])parameter.Value).Replace("-", ""));
-          else
-            cmdStr = cmdStr.Replace(parameter.ParameterName, parameter.Value.ToString());
-        }
+        ReplaceParemeters(ref cmdStr, generator.Parameters);
         stmt.Sql += cmdStr.Replace("dbo", "") + ";";
       }
       return stmt;
+    }
+
+    private void ReplaceParemeters(ref string sql, IList<MySqlParameter> parameters)
+    {
+      foreach (var parameter in parameters)
+      {
+        if (parameter.DbType == System.Data.DbType.String)
+          sql = sql.Replace(parameter.ParameterName, "'" + parameter.Value.ToString() + "'");
+        else if (parameter.DbType == System.Data.DbType.Binary)
+          sql = sql.Replace(parameter.ParameterName, "0x" + BitConverter.ToString((byte[])parameter.Value).Replace("-", ""));
+        else
+          sql = sql.Replace(parameter.ParameterName, parameter.Value.ToString());
+      }
     }
 
     public override string GenerateProcedureBody(ICollection<DbModificationCommandTree> commandTrees, string rowsAffectedParameter, string providerManifestToken)
