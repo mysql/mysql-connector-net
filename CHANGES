@@ -2,6 +2,7 @@
 - Changed EF migration history table to use a single column as primary key.
 - Removed installer validation when MySql for Visual Studio is installed.
 - Added idempotent script for Entity Framework 6 migrations.
+- Fix for WI #824, Connector/NET writes wrong version for binding redirects.
 
 6.8.0
 - Fix for bad query when using LINQ to Entities with a query using Take, OrderBy & Contains in Code First (MySql bug #69751, Oracle bug #17194945).
