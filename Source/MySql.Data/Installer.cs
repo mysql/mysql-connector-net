@@ -207,7 +207,8 @@ namespace MySql.Data.MySqlClient
           mysqlNode = (XmlElement)doc.GetElementsByTagName("assemblyBinding")[0];
         }
 
-        mysqlNode = CreateNodeAssemblyBindingRedirection(mysqlNode, doc, "6.7.4.0", "6.8.0.0");
+        string newVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        mysqlNode = CreateNodeAssemblyBindingRedirection(mysqlNode, doc, "6.7.4.0", newVersion);
 
         XmlNodeList runtimeNode = doc.GetElementsByTagName("runtime");
         runtimeNode[0].AppendChild(mysqlNode);
