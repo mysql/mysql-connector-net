@@ -98,16 +98,18 @@ namespace MySql.Data.MySqlClient
 
       XmlElement dA;
       XmlElement aI;
-      XmlElement bR;      
+      XmlElement bR;
+
+      string ns = "urn:schemas-microsoft-com:asm.v1";
 
       //mysql.data
-      dA = (XmlElement)doc.CreateNode(XmlNodeType.Element, "dependentAssembly", "");
-      aI = (XmlElement)doc.CreateNode(XmlNodeType.Element, "assemblyIdentity", "");
+      dA = (XmlElement)doc.CreateNode(XmlNodeType.Element, "dependentAssembly", ns);
+      aI = (XmlElement)doc.CreateNode(XmlNodeType.Element, "assemblyIdentity", ns);
       aI.SetAttribute("name", "MySql.Data");
       aI.SetAttribute("publicKeyToken", "c5687fc88969c44d");
       aI.SetAttribute("culture", "neutral");
 
-      bR = (XmlElement)doc.CreateNode(XmlNodeType.Element, "bindingRedirect", "");
+      bR = (XmlElement)doc.CreateNode(XmlNodeType.Element, "bindingRedirect", ns);
       bR.SetAttribute("oldVersion", oldVersion);
       bR.SetAttribute("newVersion", newVersion);
       dA.AppendChild(aI);
@@ -115,13 +117,13 @@ namespace MySql.Data.MySqlClient
       mysqlNode.AppendChild(dA);
 
       //mysql.data.entity
-      dA = (XmlElement)doc.CreateNode(XmlNodeType.Element, "dependentAssembly", "");
-      aI = (XmlElement)doc.CreateNode(XmlNodeType.Element, "assemblyIdentity", "");
+      dA = (XmlElement)doc.CreateNode(XmlNodeType.Element, "dependentAssembly", ns);
+      aI = (XmlElement)doc.CreateNode(XmlNodeType.Element, "assemblyIdentity", ns);
       aI.SetAttribute("name", "MySql.Data.Entity");
       aI.SetAttribute("publicKeyToken", "c5687fc88969c44d");
       aI.SetAttribute("culture", "neutral");
 
-      bR = (XmlElement)doc.CreateNode(XmlNodeType.Element, "bindingRedirect", "");
+      bR = (XmlElement)doc.CreateNode(XmlNodeType.Element, "bindingRedirect", ns);
       bR.SetAttribute("oldVersion", oldVersion);
       bR.SetAttribute("newVersion", newVersion);
       dA.AppendChild(aI);
@@ -130,13 +132,13 @@ namespace MySql.Data.MySqlClient
 
       //mysql.web
 
-      dA = (XmlElement)doc.CreateNode(XmlNodeType.Element, "dependentAssembly", "");
-      aI = (XmlElement)doc.CreateNode(XmlNodeType.Element, "assemblyIdentity", "");
+      dA = (XmlElement)doc.CreateNode(XmlNodeType.Element, "dependentAssembly", ns);
+      aI = (XmlElement)doc.CreateNode(XmlNodeType.Element, "assemblyIdentity", ns);
       aI.SetAttribute("name", "MySql.Web");
       aI.SetAttribute("publicKeyToken", "c5687fc88969c44d");
       aI.SetAttribute("culture", "neutral");
 
-      bR = (XmlElement)doc.CreateNode(XmlNodeType.Element, "bindingRedirect", "");
+      bR = (XmlElement)doc.CreateNode(XmlNodeType.Element, "bindingRedirect", ns);
       bR.SetAttribute("oldVersion", oldVersion);
       bR.SetAttribute("newVersion", newVersion);
       dA.AppendChild(aI);
