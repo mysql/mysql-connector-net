@@ -240,10 +240,8 @@ namespace MySql.Data.MySqlClient
                 else if ((int)maxLengthFacet.Value > MEDIUMTEXT_MAXLEN) typeName = "longtext";
                 return TypeUsage.CreateStringTypeUsage(StoreTypeNameToStorePrimitiveType[typeName], isUnicode, isFixedLength, (int)maxLengthFacet.Value);
               }
-              else if (maxLengthFacet.Value != null && (maxLengthFacet.Value.ToString() == "Max"))
-                return TypeUsage.CreateStringTypeUsage(StoreTypeNameToStorePrimitiveType["longtext"], isUnicode, isFixedLength);
               else
-                return TypeUsage.CreateStringTypeUsage(StoreTypeNameToStorePrimitiveType[typeName], isUnicode, isFixedLength);
+                return TypeUsage.CreateStringTypeUsage(StoreTypeNameToStorePrimitiveType["longtext"], isUnicode, isFixedLength, LONGBLOB_MAXLEN);
             }
           }
 
