@@ -93,7 +93,15 @@ namespace MySql.Data.VisualStudio
 
     public override string GetSaveSql()
     {
-      return editor.Text;
+      string sql = ChangeSqlTypeTo(editor.Text, "CREATE").Trim();
+      if (IsNew)
+      {
+        return sql;
+      }
+      else
+      {
+        return string.Format("{0}{1}{2};", GetDropSQL(), BaseNode.SEPARATOR, sql);
+      }
     }
 
     private string GetDropSQL(string triggerName)
@@ -131,8 +139,9 @@ namespace MySql.Data.VisualStudio
 
           sql_mode = dt.Rows[0][1] as string;
           string sql = dt.Rows[0][2] as string;
+		  OldObjectDefinition = sql;
           byte[] bytes = UTF8Encoding.UTF8.GetBytes(sql);
-          editor.Text = ChangeSqlTypeTo(sql, "ALTER");
+          editor.Text = sql;
           Dirty = false;
           OnDataLoaded();
         }
@@ -157,20 +166,14 @@ namespace MySql.Data.VisualStudio
         if (!IsNew)
         {
           MakeSureWeAreNotChangingTables(sql);
-
-          // first we need to check the syntax of our changes.  THis will throw
-          // an exception if the syntax is bad
           CheckSyntax();
-
-          sql = ChangeSqlTypeTo(editor.Text.Trim(), "CREATE");
-          ExecuteSQL(GetDropSQL(Name));
         }
-        ExecuteSQL(sql);
+        ExecuteSQL(GetSaveSql());
         return true;
       }
       catch (Exception ex)
       {
-        MessageBox.Show(ex.Message, "MySQL", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         return false;
       }
     }
@@ -213,19 +216,12 @@ namespace MySql.Data.VisualStudio
 
     private void CheckSyntax()
     {
+      MySqlConnection con = ( MySqlConnection )GetCurrentConnection();
       string sql = editor.Text.Trim();
-      sql = ChangeSqlTypeTo(sql, "CREATE");
-      try
-      {
-        ExecuteSQL(sql);
-        sql = GetDropSQL(GetCurrentName());
-        ExecuteSQL(sql);
-      }
-      catch (Exception ex)
-      {
-        if (ex.Message.Contains("syntax"))
-          throw;
-      }
+      StringBuilder sb;
+      LanguageServiceUtil.ParseSql(sql, false, out sb, con.ServerVersion);
+      if (sb.Length != 0)
+        throw new Exception(string.Format("Syntax Error: {0}", sb.ToString()));
     }
 
     private string ChangeSqlTypeTo(string sql, string type)

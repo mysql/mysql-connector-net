@@ -39,6 +39,7 @@ using MySql.Data.VisualStudio.Editors;
 using MySql.Data.VisualStudio.Properties;
 using IOleServiceProvider = Microsoft.VisualStudio.OLE.Interop.IServiceProvider;
 using Microsoft.Win32;
+using MySql.Data.MySqlClient;
 
 
 namespace MySql.Data.VisualStudio
@@ -100,7 +101,14 @@ namespace MySql.Data.VisualStudio
 
     public override string GetSaveSql()
     {
-      return editor.Text;
+      if (IsNew)
+      {
+        return editor.Text;
+      }
+      else
+      {
+        return string.Format("{0}{1}{2};", GetDropSQL(), BaseNode.SEPARATOR, editor.Text);
+      }
     }
 
     private string GetDropSQL(string procName)
@@ -132,7 +140,7 @@ namespace MySql.Data.VisualStudio
         editor.Text = GetNewRoutineText();
       else
       {
-        editor.Text = GetRoutineBody();
+        editor.Text = OldObjectDefinition = GetRoutineBody();
         Dirty = false;
       }
     }
@@ -162,7 +170,7 @@ namespace MySql.Data.VisualStudio
     {
       string body = null;
 
-      DbConnection conn = (DbConnection)HierarchyAccessor.Connection.GetLockedProviderObject();
+      DbConnection conn = AcquireHierarchyAccessorConnection();
       try
       {
         DbCommand cmd = MySqlProviderObjectFactory.Factory.CreateCommand();
@@ -178,7 +186,7 @@ namespace MySql.Data.VisualStudio
       }
       finally
       {
-        HierarchyAccessor.Connection.UnlockProviderObject();
+        ReleaseHierarchyAccessorConnection();
       }
     }
 
@@ -200,35 +208,25 @@ namespace MySql.Data.VisualStudio
           // first we need to check the syntax of our changes.  THis will throw
           // an exception if the syntax is bad
           CheckSyntax();
-
-          sql = ChangeSqlTypeTo(editor.Text.Trim(), "CREATE");
-          ExecuteSQL(GetDropSQL(Name));
         }
-        ExecuteSQL(sql);
+        ExecuteSQL(GetSaveSql());
         return true;
       }
       catch (Exception ex)
       {
-        MessageBox.Show(ex.Message, "MySQL", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         return false;
       }
     }
 
     private void CheckSyntax()
     {
+      MySqlConnection con = ( MySqlConnection )GetCurrentConnection();
       string sql = editor.Text.Trim();
-      sql = ChangeSqlTypeTo(sql, "CREATE");
-      try
-      {
-        ExecuteSQL(sql);
-        sql = GetDropSQL(GetCurrentName());
-        ExecuteSQL(sql);
-      }
-      catch (Exception ex)
-      {
-        if (ex.Message.Contains("syntax"))
-          throw;
-      }
+      StringBuilder sb;
+      LanguageServiceUtil.ParseSql(sql, false, out sb, con.ServerVersion);
+      if (sb.Length != 0)
+        throw new Exception(string.Format("Syntax Error: {0}", sb.ToString()));
     }
 
     private string ChangeSqlTypeTo(string sql, string type)

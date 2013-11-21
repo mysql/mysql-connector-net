@@ -77,7 +77,14 @@ namespace MySql.Data.VisualStudio
     {
       BaseNode node = dic[oldMoniker];
       dic.Remove(oldMoniker);
-      dic.Add(newMoniker, node);
+      if (dic.ContainsKey(newMoniker))
+      {
+        dic[newMoniker] = node;
+      }
+      else
+      {
+        dic.Add(newMoniker, node);
+      }
     }
 
     /// <summary>

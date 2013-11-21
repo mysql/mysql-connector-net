@@ -140,14 +140,19 @@ namespace MySql.Data.VisualStudio
       }
       else
       {
-        DbConnection connection = (DbConnection)HierarchyAccessor.Connection.GetLockedProviderObject();
-        string[] restrictions = new string[4] { null, connection.Database, Name, null };
-        DataTable columnsTable = connection.GetSchema("Columns", restrictions);
+        DbConnection connection = AcquireHierarchyAccessorConnection();
+        try
+        {
+          string[] restrictions = new string[4] { null, connection.Database, Name, null };
+          DataTable columnsTable = connection.GetSchema("Columns", restrictions);
 
-        DataTable dt = connection.GetSchema("Tables", restrictions);
-        table = new Table(this, dt.Rows[0], columnsTable);
-
-        HierarchyAccessor.Connection.UnlockProviderObject();
+          DataTable dt = connection.GetSchema("Tables", restrictions);
+          table = new Table(this, dt.Rows[0], columnsTable);
+        }
+        finally
+        {
+          ReleaseHierarchyAccessorConnection();
+        }
       }
       OnDataLoaded();
     }

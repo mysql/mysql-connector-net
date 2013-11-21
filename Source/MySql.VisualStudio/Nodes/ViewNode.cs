@@ -122,7 +122,7 @@ namespace MySql.Data.VisualStudio
       }
       else
       {
-        return string.Format("{0};{1};", GetDropSQL(), editor.Text );
+        return string.Format("{0}{1}{2};", GetDropSQL(), BaseNode.SEPARATOR, editor.Text);
       }
     }
 

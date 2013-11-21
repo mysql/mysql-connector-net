@@ -84,6 +84,27 @@ namespace MySql.Data.VisualStudio
       return ParseSql(sql, expectErrors, out sb, out ts);
     }
 
+    internal static MySQL51Parser.program_return ParseSql(string sql, bool expectErrors, out StringBuilder sb, string version)
+    {
+      Version ver = GetVersion(version);
+      CommonTokenStream ts;
+      return ParseSql(sql, expectErrors, out sb, out ts, ver);
+    }
+
+    internal static MySQL51Parser.program_return ParseSql(
+      string sql, bool expectErrors, out StringBuilder sb, out CommonTokenStream tokensOutput, Version version)
+    {
+      // The grammar supports upper case only
+      MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(sql));//ASCIIEncoding.ASCII.GetBytes(sql));
+      CaseInsensitiveInputStream input = new CaseInsensitiveInputStream(ms);
+      //ANTLRInputStream input = new ANTLRInputStream(ms);
+      MySQLLexer lexer = new MySQLLexer(input);
+      lexer.MySqlVersion = version;
+      CommonTokenStream tokens = new CommonTokenStream(lexer);
+      tokensOutput = tokens;
+      return DoParse(tokens, expectErrors, out sb, lexer.MySqlVersion);
+    }
+
     internal static MySQL51Parser.program_return ParseSql(
       string sql, bool expectErrors, out StringBuilder sb, CommonTokenStream tokens)
     {

@@ -51,6 +51,7 @@ namespace MySql.Data.VisualStudio
     private static string defaultStorageEngine;
     public DataViewHierarchyAccessor HierarchyAccessor;
     public bool IsNew;
+    protected const string SEPARATOR = "/* separator */";
 
     protected string OldObjectDefinition { get; set; }
 
@@ -76,7 +77,23 @@ namespace MySql.Data.VisualStudio
       editorGuid = Guid.Empty;
     }
 
+    protected DbConnection AcquireHierarchyAccessorConnection()
+    {
+      DbConnection con = (DbConnection)HierarchyAccessor.Connection.GetLockedProviderObject();
+      _con = new MySqlConnection(string.Format("{0};Allow User Variables=true;", con.ConnectionString));
+      _con.Open();
+      return _con;
+    }
+
+    protected void ReleaseHierarchyAccessorConnection()
+    {
+      HierarchyAccessor.Connection.UnlockProviderObject();
+      _con.Close();
+    }
+
     #region Properties
+
+    protected MySqlConnection _con;
 
     public string Name
     {
@@ -251,7 +268,7 @@ namespace MySql.Data.VisualStudio
 
     protected virtual string GenerateUniqueName()
     {
-      DbConnection conn = (DbConnection)HierarchyAccessor.Connection.GetLockedProviderObject();
+      DbConnection conn = AcquireHierarchyAccessorConnection();
       string[] restrictions = new string[2] { null, Database };
       try
       {
@@ -272,7 +289,7 @@ namespace MySql.Data.VisualStudio
       }
       finally
       {
-        HierarchyAccessor.Connection.UnlockProviderObject();
+        ReleaseHierarchyAccessorConnection();
       }
     }
 
@@ -340,13 +357,13 @@ namespace MySql.Data.VisualStudio
 
     protected void ExecuteSQL(string sql)
     {
-      DbConnection conn = (DbConnection)HierarchyAccessor.Connection.GetLockedProviderObject();
+      DbConnection conn = AcquireHierarchyAccessorConnection();
       try
       {
         DbCommand cmd = conn.CreateCommand();
         if (!string.IsNullOrEmpty(OldObjectDefinition))
         {
-          int idx = sql.IndexOf(';');
+          int idx = sql.IndexOf( SEPARATOR );
           if (idx != -1)
           {
             cmd.CommandText = sql.Substring(0, idx);
@@ -354,7 +371,7 @@ namespace MySql.Data.VisualStudio
 
             try
             {
-              cmd.CommandText = sql.Substring(idx + 1);
+              cmd.CommandText = sql.Substring(idx + SEPARATOR.Length);
               cmd.ExecuteNonQuery();
             }
             catch (MySqlException)
@@ -375,26 +392,26 @@ namespace MySql.Data.VisualStudio
       }
       finally
       {
-        HierarchyAccessor.Connection.UnlockProviderObject();
+        ReleaseHierarchyAccessorConnection();
       }
     }
 
     public DataTable GetSchema(string schemaName, string[] restrictions)
     {
-      DbConnection conn = (DbConnection)HierarchyAccessor.Connection.GetLockedProviderObject();
+      DbConnection conn = AcquireHierarchyAccessorConnection();
       try
       {
         return conn.GetSchema(schemaName, restrictions);
       }
       finally
       {
-        HierarchyAccessor.Connection.UnlockProviderObject();
+        ReleaseHierarchyAccessorConnection();
       }
     }
 
     public DataTable GetDataTable(string sql)
     {
-      DbConnection conn = (DbConnection)HierarchyAccessor.Connection.GetLockedProviderObject();
+      DbConnection conn = AcquireHierarchyAccessorConnection();
       try
       {
         DbDataAdapter da = MySqlProviderObjectFactory.Factory.CreateDataAdapter();
@@ -408,7 +425,7 @@ namespace MySql.Data.VisualStudio
       }
       finally
       {
-        HierarchyAccessor.Connection.UnlockProviderObject();
+        ReleaseHierarchyAccessorConnection();
       }
     }
 
