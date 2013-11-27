@@ -1721,5 +1721,67 @@ end;
         dbg.RestoreRoutinesBackup();
       }
     }
+
+    /// <summary>
+    /// Fix for debugger fails to debug routine with two functions expression (Oracle bug #17865915).
+    /// </summary>
+    [Fact]
+    public void ExpressionWithTwoFunctions()
+    {
+      string sql =
+        @"
+DELIMITER // 
+
+CREATE DEFINER=`root`@`localhost` FUNCTION `GetDiff`( x int, y int ) RETURNS 
+int(11) 
+begin 
+return x - y; 
+end //
+
+CREATE DEFINER=`root`@`localhost` FUNCTION `GetSum`( a int, b int ) RETURNS 
+int(11) 
+begin 
+return a + b; 
+end //
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `TestingFunctions`() 
+begin
+
+declare result int; 
+set result = GetSum( 5, 4 ) + GetDiff( 5, 4 ); 
+
+end // 
+";
+      Debugger dbg = new Debugger();
+      try
+      {
+        dbg.Connection = new MySqlConnection(TestUtils.CONNECTION_STRING);
+        dbg.UtilityConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
+        dbg.LockingConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
+        DumpConnectionThreads(dbg);
+        MySqlScript script = new MySqlScript(dbg.Connection, sql);
+        script.Execute();
+        sql =
+@"CREATE DEFINER=`root`@`localhost` PROCEDURE `TestingFunctions`() 
+begin
+
+declare result int; 
+set result = GetSum( 5, 4 ) + GetDiff( 5, 4 ); 
+
+end;
+";
+        dbg.SqlInput = sql;
+        dbg.SteppingType = SteppingTypeEnum.StepInto;
+        dbg.OnBreakpoint += (bp) =>
+        {
+          Debug.WriteLine(string.Format("breakpoint at line {0}:{1},{2}", bp.RoutineName, bp.Line, bp.StartColumn));
+        };
+        dbg.Run(null, null);
+      }
+      finally
+      {
+        dbg.RestoreRoutinesBackup();
+      }
+    }
   }
 }

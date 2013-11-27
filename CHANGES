@@ -3,6 +3,8 @@
 - Fix for Debugging routine throws error of data too long for column 'pvarname' at row 1 error (MySql bug #70159,
 Oracle bug #17568158).
 - Fix for Error when editing/altering stored procedure/trigger (Oracle bug #17830161).
+- Fix for Debugger fails to debug routine correctly with two functions in a single expression (Oracle bug #17865915).
+
 
 6.6.6
 - Fix for GetSchema returning MySqlException instead of ArgumentException when passing an invalid collection name

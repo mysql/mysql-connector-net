@@ -181,8 +181,9 @@ namespace MySql.Debugger
 
     public void Run(string[] values, string[] InOutValues)
     {
-        string binLog_Format = null;
-        _stopping = false;
+      string oldRoutineName = "";
+      string binLog_Format = null;
+      _stopping = false;
       /*
        * - Start stepping in code.
        * - Always get sp code. 
@@ -283,16 +284,7 @@ namespace MySql.Debugger
               break;
             }
             GetCurrentScopeLevel();
-            if (_prevScopeLevel > _scopeLevel)
-            {
-              // current scope is caller
-              _scope.Pop();
-              if (_scopeLevel != 0)
-                LoadScopeVars(_scopeLevel);
-              RaiseEndScope( _scope.Peek().OwningRoutine );
-            }
-            else if (_prevScopeLevel < _scopeLevel)
-            {
+            System.Action CreateScope = () => {
               // current scope is callee, create new scope
               string routineName = GetCurrentRoutine();
               // Get new routine source code
@@ -307,10 +299,31 @@ namespace MySql.Debugger
               _scope.Push(newScope);
               LoadScopeVars(_scopeLevel);
               RaiseStartScope(_scope.Peek().OwningRoutine);
-            }
-            else
+              oldRoutineName = routineName;
+            };
+            if (_prevScopeLevel > _scopeLevel)
             {
-              LoadScopeVars(_scopeLevel);
+              // current scope is caller
+              _scope.Pop();
+              if (_scopeLevel != 0)
+                LoadScopeVars(_scopeLevel);
+              RaiseEndScope( _scope.Peek().OwningRoutine );
+            }
+            else if (_prevScopeLevel < _scopeLevel)
+            {
+              CreateScope();
+            }
+            else  // _prevScopeLevel == _scopeLevel
+            {
+              string routineName = GetCurrentRoutine();
+              if (oldRoutineName != routineName && !string.IsNullOrEmpty(oldRoutineName))
+              {
+                _scope.Pop();
+                RaiseEndScope(_scope.Peek().OwningRoutine);
+                CreateScope();
+              }
+              else
+                LoadScopeVars(_scopeLevel);
             }
             int lineNumber = GetCurrentLineNumber();
             int colNumber = GetCurrentColNumber();
