@@ -136,6 +136,7 @@ namespace MySql.Data.VisualStudio
       TextWriter tw = new StringWriter(sb);
       parser.TraceDestination = tw;
       MySQL51Parser.program_return r = null;
+      int tokCount = tokens.Count;
       try
       {
         r = parser.program();
@@ -148,6 +149,15 @@ namespace MySql.Data.VisualStudio
           sb.Append(e.Message);
         }
       }
+      /*
+       * The parser inserts a new <EOF> to the token stream, this is probably an ANTLR bug, the code here takes care of it.
+       * */
+      if (( tokens.Count - 1 ) == tokCount)
+      {
+        TokenStreamRemovable tsr = (TokenStreamRemovable)tokens;
+        tsr.Remove(tokens.Get(tokens.Count - 1));
+      }
+      tokens.Reset();
       return r;
     }
 

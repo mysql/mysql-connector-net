@@ -1,9 +1,11 @@
+
 6.6.7
 - Fix for WI #782, Visual Studio package is missing calls to UnlockProviderObject.
 - Fix for Debugging routine throws error of data too long for column 'pvarname' at row 1 error (MySql bug #70159,
 Oracle bug #17568158).
 - Fix for Error when editing/altering stored procedure/trigger (Oracle bug #17830161).
 - Fix for Debugger fails to debug routine correctly with two functions in a single expression (Oracle bug #17865915).
+- Fix for WI #853, Intellisense only works the first time.
 
 
 6.6.6
@@ -79,6 +81,7 @@ v) Added 200+ extra unit tests.
 - Fix for LINQ to Entities error for bad aliasing in column for expression (MySql bug #69922, Oracle bug #17285548).
 - Fix for In stored routine debugger, after a case else a begin-end is badly instrumented (Oracle bug #17284598).
 
+
 6.6.5
 - Fix for bug Keyword not supported. Parameter name: AttachDbFilename (Mysql bug #66880, Oracle bug #14733472).
 - Added support to MySql script file to retrieve data when using "SHOW" statements.
@@ -127,6 +130,7 @@ v) Added 200+ extra unit tests.
 - Added ANTLR attribution notice (Oracle bug #14379162).
 - Fix for debugger failing when having a routine with an if-elseif-else.
 
+
 6.6.2
 - Parser: Fix for Problems when declaring variables in certain places (wasn't accepting declare var after declare handler in a begin/end block).
 - Parser: Fix for Problems with CHARSET (previously only CHARACTER SET was recognized).
@@ -144,6 +148,7 @@ v) Added 200+ extra unit tests.
 - Debugger: Fixed a bug such that when modifying a local variable in a nested scope debug session, the value appear temporarily as "Not implemented interface".
 - Added support for Visual Studio 2012
 - Added Authentication Plugin.
+
 
 6.6.1
 - Debugger: Added Support for row_count() (together with found_rows() & last_insert_id() ).
@@ -168,6 +173,7 @@ v) Added 200+ extra unit tests.
 - Debugger & Intellisense: Parser is now fully compliant with MySql syntax 5.0, 5.1, 5.5 & 5.6.
 - Intellisense: Fixed an issue with Intellisense, such that in server explorer was only working for new routines, not for existing ones. 
 - Fixed deleting a user profile using Profile provider (MySQL bug #64470, Oracle bug #13790123)
+
 
 6.6.0
 - Fix for ArgumentNull exception when using Take().Count() in a LINQ to Entities query (bug MySql #64749, Oracle bug #13913047).
