@@ -121,8 +121,10 @@ namespace MySql.Data.VisualStudio
     {
       string sql = snapshot.GetText();
       treeStmt = null;
+      sbErrors = new StringBuilder();
       position = snapPos.Position;
       tokens = RemoveToken(sql, snapPos);
+      if (tokens.Count == 1 && tokens.Get(0).Type == MySQL51Lexer.EOF) return;
       MySQL51Parser.program_return r =
         LanguageServiceUtil.ParseSql(sql, false, out sbErrors, tokens);
       if (r == null) return;
@@ -153,8 +155,8 @@ namespace MySql.Data.VisualStudio
         int position = currentPoint.Position;
         // Get starting token
         ITree t;
-        GetCompleteStatement(snapshot, currentPoint, out sbErrors, out t);        
-        if( snapshot.Length == 0 ) return;        
+        GetCompleteStatement(snapshot, currentPoint, out sbErrors, out t);
+        if ( ( snapshot.Length == 0 ) || ( t == null )) return;
         
         string s = sbErrors.ToString();
         Match m = new Regex(@"Expected (?<item>.*)\.").Match( s );
