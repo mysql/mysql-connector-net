@@ -889,6 +889,6 @@ FROM `SalariedEmployees` AS `Extent2`) AS `Project1` ON `Extent1`.`Id` = `Projec
   FROM `SalariedEmployees` AS `Extent2`) AS `Project1` ON `Extent1`.`Id` = `Project1`.`EmployeeId`
    WHERE `Extent1`.`FirstName` LIKE '%y''') AS `Project2`
    ORDER BY 
-  `Project2`.`FirstName` ASC&lt;/value&gt;</value>
+  `Project2`.`FirstName` ASC</value>
   </data>
 </root>

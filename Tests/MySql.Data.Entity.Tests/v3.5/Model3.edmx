@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="testModel1.Store" Alias="Self" Provider="MySql.Data.MySqlClient" ProviderManifestToken="5.1" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2006/04/edm/ssdl">
+    <Schema Namespace="testModel1.Store" Alias="Self" Provider="MySql.Data.MySqlClient" ProviderManifestToken="5.6" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2006/04/edm/ssdl">
         <EntityContainer Name="testModel1StoreContainer">
           <EntitySet Name="gamingplatform" EntityType="testModel1.Store.gamingplatform" store:Type="Tables" Schema="test" />
           <EntitySet Name="videogameplatform" EntityType="testModel1.Store.videogameplatform" store:Type="Tables" Schema="test" />
@@ -22,7 +22,7 @@
           <Key>
             <PropertyRef Name="Id" />
           </Key>
-          <Property Name="Id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Id" Type="tinyint" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="varchar" MaxLength="50" />
           <Property Name="Developer" Type="varchar" MaxLength="50" />
         </EntityType>
@@ -31,7 +31,7 @@
             <PropertyRef Name="IdGamingPlatform" />
             <PropertyRef Name="IdVideoGameTitle" />
           </Key>
-          <Property Name="IdGamingPlatform" Type="int" Nullable="false" />
+          <Property Name="IdGamingPlatform" Type="tinyint" Nullable="false" />
           <Property Name="IdVideoGameTitle" Type="int" Nullable="false" />
           <Property Name="Category" Type="varchar" MaxLength="50" />
         </EntityType>
@@ -67,8 +67,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="testModel1" Alias="Self" xmlns="http://schemas.microsoft.com/ado/2006/04/edm">
@@ -89,7 +88,7 @@
           <Key>
             <PropertyRef Name="Id" />
           </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" />
+          <Property Name="Id" Type="SByte" Nullable="false" />
           <Property Name="Name" Type="String" />
           <Property Name="Developer" Type="String" />
           <NavigationProperty Name="videogameplatform" Relationship="testModel1.fk_VideoGamePlatform_Platform" FromRole="gamingplatform" ToRole="videogameplatform" />
@@ -99,7 +98,7 @@
             <PropertyRef Name="IdGamingPlatform" />
             <PropertyRef Name="IdVideoGameTitle" />
           </Key>
-          <Property Name="IdGamingPlatform" Type="Int32" Nullable="false" />
+          <Property Name="IdGamingPlatform" Type="SByte" Nullable="false" />
           <Property Name="IdVideoGameTitle" Type="Int32" Nullable="false" />
           <Property Name="Category" Type="String" />
           <NavigationProperty Name="gamingplatform" Relationship="testModel1.fk_VideoGamePlatform_Platform" FromRole="videogameplatform" ToRole="gamingplatform" />

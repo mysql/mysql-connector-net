@@ -1,5 +1,6 @@
 6.8.2
 - Fix for WI# 838, Model First is broken for string columns with unbounded length.
+- Fix for NullReferenceException when try to save entity with TINYINY or BIGINT as PK (MySql bug #70888, Oracle bug #17866076).
 
 6.8.1
 - Changed EF migration history table to use a single column as primary key.
