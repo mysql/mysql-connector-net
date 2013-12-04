@@ -1,4 +1,4 @@
-﻿// Copyright © 2008, 2011, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2008, 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -86,8 +86,13 @@ namespace MySql.Data.Entity
           if (foundIdentity)
             throw new NotSupportedException();
           foundIdentity = true;
-          if (keyMember.TypeUsage.EdmType.BaseType.Name.StartsWith("Int"))
+          PrimitiveTypeKind type = ((PrimitiveType)keyMember.TypeUsage.EdmType.BaseType).PrimitiveTypeKind;
+          if ((type == PrimitiveTypeKind.Byte) || (type == PrimitiveTypeKind.SByte) ||
+              (type == PrimitiveTypeKind.Int16) || (type == PrimitiveTypeKind.Int32) ||
+              (type == PrimitiveTypeKind.Int64))
+          {
             value = new LiteralFragment("last_insert_id()");
+	  }
           else if (keyMember.TypeUsage.EdmType.BaseType.Name == "Guid")
             value = new LiteralFragment(string.Format("ANY(SELECT guid FROM tmpIdentity_{0})", (table as MetadataItem).MetadataProperties["Table"].Value));
         }

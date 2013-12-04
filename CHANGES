@@ -7,6 +7,7 @@ Oracle bug #17568158).
 - Fix for Debugger fails to debug routine correctly with two functions in a single expression (Oracle bug #17865915).
 - Fix for WI #853, Intellisense only works the first time.
 - Fix for Error when invoking intellisense in some corner case scenarios (Oracle bug #17890216).
+- Fix for NullReferenceException when try to save entity with TINYINY or BIGINT as PK (MySql bug #70888, Oracle bug #17866076).
 
 
 6.6.6

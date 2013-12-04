@@ -98,5 +98,23 @@ namespace MySql.Data.Entity.Tests
         Assert.Equal(DateTime.Today.Day, product.CreatedDate.Day);
       }
     }
+
+    /// <summary>
+    /// Test for fix for "NullReferenceException when try to save entity with TINYINY or BIGINT as PK" (MySql bug #70888, Oracle bug #17866076).
+    /// </summary>
+    [Fact]
+    public void NullReferenceWhenInsertingPk()
+    {
+      using (testEntities1 ctx = new testEntities1())
+      {
+        gamingplatform gp = new gamingplatform() { Name="PlayStation2" };
+#if CLR4
+        ctx.gamingplatform.AddObject(gp);
+#else
+        ctx.AddTogamingplatform(gp);
+#endif
+        ctx.SaveChanges();
+      }
+    }
   }
 }
