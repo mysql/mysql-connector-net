@@ -139,7 +139,7 @@ namespace MySql.Data.Entity.Tests
         /// </summary>
         /// <param name="id">Initial value of Id.</param>
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
-        public static gamingplatform Creategamingplatform(int id)
+        public static gamingplatform Creategamingplatform(global::System.SByte id)
         {
             gamingplatform gamingplatform = new gamingplatform();
             gamingplatform.Id = id;
@@ -151,7 +151,7 @@ namespace MySql.Data.Entity.Tests
         [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
         [global::System.Runtime.Serialization.DataMemberAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
-        public int Id
+        public global::System.SByte Id
         {
             get
             {
@@ -167,9 +167,9 @@ namespace MySql.Data.Entity.Tests
             }
         }
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
-        private int _Id;
+        private global::System.SByte _Id;
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
-        partial void OnIdChanging(int value);
+        partial void OnIdChanging(global::System.SByte value);
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
         partial void OnIdChanged();
         /// <summary>
@@ -267,7 +267,7 @@ namespace MySql.Data.Entity.Tests
         /// <param name="idGamingPlatform">Initial value of IdGamingPlatform.</param>
         /// <param name="idVideoGameTitle">Initial value of IdVideoGameTitle.</param>
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
-        public static videogameplatform Createvideogameplatform(int idGamingPlatform, int idVideoGameTitle)
+        public static videogameplatform Createvideogameplatform(global::System.SByte idGamingPlatform, int idVideoGameTitle)
         {
             videogameplatform videogameplatform = new videogameplatform();
             videogameplatform.IdGamingPlatform = idGamingPlatform;
@@ -280,7 +280,7 @@ namespace MySql.Data.Entity.Tests
         [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
         [global::System.Runtime.Serialization.DataMemberAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
-        public int IdGamingPlatform
+        public global::System.SByte IdGamingPlatform
         {
             get
             {
@@ -296,9 +296,9 @@ namespace MySql.Data.Entity.Tests
             }
         }
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
-        private int _IdGamingPlatform;
+        private global::System.SByte _IdGamingPlatform;
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
-        partial void OnIdGamingPlatformChanging(int value);
+        partial void OnIdGamingPlatformChanging(global::System.SByte value);
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
         partial void OnIdGamingPlatformChanged();
         /// <summary>

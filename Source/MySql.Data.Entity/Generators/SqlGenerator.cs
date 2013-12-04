@@ -634,7 +634,7 @@ namespace MySql.Data.Entity
             if (c1.Value == c2.Value)
             {
               like.Argument = fl.Arguments[0].Accept(this);
-              like.Pattern = new LiteralFragment(string.Format("'%{0}'", c1.Value));
+              like.Pattern = new LiteralFragment(string.Format("'%{0}'", c1.Value.ToString().Replace("'", "''") ));
               return like;
             }
           }

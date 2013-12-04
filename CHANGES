@@ -4,6 +4,7 @@
 - Fix for LINQ to Entities error for bad aliasing in column for expression (MySql bug #69922, Oracle bug #17285548).
 - Installer adds MySql.Data, MySql.Data.Entity, and MySql.Web to machine.config and into GAC.
 - Added MySql.Web.dll for .NET Framework 4.5
+- Fix for NullReferenceException when try to save entity with TINYINY or BIGINT as PK (MySql bug #70888, Oracle bug #17866076).
 
 
 6.7.4
