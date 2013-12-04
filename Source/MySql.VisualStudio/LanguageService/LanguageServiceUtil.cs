@@ -49,6 +49,7 @@ namespace MySql.Data.VisualStudio
 
     public static TokenStreamRemovable GetTokenStream(string sql, Version version)
     {
+      sql = sql.TrimStart();
       Dictionary<Version, TokenStreamRemovable> lines = null;      
       if (_parserCache.TryGetValue(sql, out lines))
       {
@@ -94,6 +95,7 @@ namespace MySql.Data.VisualStudio
     internal static MySQL51Parser.program_return ParseSql(
       string sql, bool expectErrors, out StringBuilder sb, out CommonTokenStream tokensOutput, Version version)
     {
+      sql = sql.TrimStart();
       // The grammar supports upper case only
       MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(sql));//ASCIIEncoding.ASCII.GetBytes(sql));
       CaseInsensitiveInputStream input = new CaseInsensitiveInputStream(ms);
@@ -115,6 +117,7 @@ namespace MySql.Data.VisualStudio
     internal static MySQL51Parser.program_return ParseSql(
       string sql, bool expectErrors, out StringBuilder sb, out CommonTokenStream tokensOutput)
     {
+      sql = sql.TrimStart();
       DbConnection con = GetConnection();
       // The grammar supports upper case only
       MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(sql));//ASCIIEncoding.ASCII.GetBytes(sql));

@@ -87,6 +87,7 @@ namespace MySql.Data.VisualStudio
       {
         if (t.GetChild(idx).Text == "<EOF>") continue;
         child = t.GetChild(idx);
+        if( child is CommonErrorNode ) continue;
         if ( (child.Text.Equals("create", StringComparison.OrdinalIgnoreCase)) ||
               (child.Text.Equals( "begin_end", StringComparison.OrdinalIgnoreCase ) ) )
         {
