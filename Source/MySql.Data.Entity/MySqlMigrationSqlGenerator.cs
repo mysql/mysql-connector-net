@@ -163,6 +163,8 @@ namespace MySql.Data.Entity
     private Dictionary<string, OpDispatcher> _dispatcher = new Dictionary<string, OpDispatcher>();
     private List<string> _generatedTables { get; set; }
     private string _tableName { get; set; }
+    private List<string> autoIncrementCols { get; set; }
+    private List<string> primaryKeyCols { get; set; }
 
     delegate MigrationStatement OpDispatcher(MigrationOperation op);
 
@@ -187,6 +189,8 @@ namespace MySql.Data.Entity
       _dispatcher.Add("RenameColumnOperation", (OpDispatcher)((op) => { return Generate(op as RenameColumnOperation); }));
       _dispatcher.Add("RenameTableOperation", (OpDispatcher)((op) => { return Generate(op as RenameTableOperation); }));
       _dispatcher.Add("SqlOperation", (OpDispatcher)((op) => { return Generate(op as SqlOperation); }));
+	  autoIncrementCols = new List<string>();
+      primaryKeyCols = new List<string>();
     }
 
     public override IEnumerable<MigrationStatement> Generate(IEnumerable<MigrationOperation> migrationOperations, string providerManifestToken)
@@ -326,28 +330,29 @@ namespace MySql.Data.Entity
 
       if (!(op.IsNullable ?? true))
       {
-        sb.Append(" not null ");
+        sb.Append(string.Format("{0} not null ", ((!primaryKeyCols.Contains(op.Name) && op.IsIdentity) ? " unsigned" : "")));
       }
-      if (op.IsIdentity && type == "int")
+      if (op.IsIdentity && (new string[] { "tinyint", "smallint", "mediumint", "int", "bigint" }).Contains(type.ToLower()))
       {
-        sb.Append(" auto_increment primary key ");
+        sb.Append(" auto_increment ");
+        autoIncrementCols.Add(op.Name);
       }
       else
       {
-        if (op.IsIdentity && String.Compare(type,"CHAR(36) BINARY", true) == 0)
-         {
-           var createTrigger = new StringBuilder();
-           createTrigger.AppendLine(string.Format("DROP TRIGGER IF EXISTS `{0}_IdentityTgr`;", _tableName));           
-           createTrigger.AppendLine(string.Format("CREATE TRIGGER `{0}_IdentityTgr` BEFORE INSERT ON `{0}`", _tableName));           
-           createTrigger.AppendLine("FOR EACH ROW BEGIN");           
-           createTrigger.AppendLine(string.Format("SET NEW.{0} = UUID();", op.Name));           
-           createTrigger.AppendLine(string.Format("DROP TEMPORARY TABLE IF EXISTS tmpIdentity_{0};", _tableName));           
-           createTrigger.AppendLine(string.Format("CREATE TEMPORARY TABLE tmpIdentity_{0} (guid CHAR(36))ENGINE=MEMORY;", _tableName));           
-           createTrigger.AppendLine(string.Format("INSERT INTO tmpIdentity_{0} VALUES(New.{1});", _tableName, op.Name));           
-           createTrigger.AppendLine("END");          
-           var sqlOp = new SqlOperation(createTrigger.ToString());
-           _specialStmts.Add(Generate(sqlOp));           
-         }
+        if (op.IsIdentity && String.Compare(type, "CHAR(36) BINARY", true) == 0)
+        {
+          var createTrigger = new StringBuilder();
+          createTrigger.AppendLine(string.Format("DROP TRIGGER IF EXISTS `{0}_IdentityTgr`;", _tableName));
+          createTrigger.AppendLine(string.Format("CREATE TRIGGER `{0}_IdentityTgr` BEFORE INSERT ON `{0}`", _tableName));
+          createTrigger.AppendLine("FOR EACH ROW BEGIN");
+          createTrigger.AppendLine(string.Format("SET NEW.{0} = UUID();", op.Name));
+          createTrigger.AppendLine(string.Format("DROP TEMPORARY TABLE IF EXISTS tmpIdentity_{0};", _tableName));
+          createTrigger.AppendLine(string.Format("CREATE TEMPORARY TABLE tmpIdentity_{0} (guid CHAR(36))ENGINE=MEMORY;", _tableName));
+          createTrigger.AppendLine(string.Format("INSERT INTO tmpIdentity_{0} VALUES(New.{1});", _tableName, op.Name));
+          createTrigger.AppendLine("END");
+          var sqlOp = new SqlOperation(createTrigger.ToString());
+          _specialStmts.Add(Generate(sqlOp));
+        }
       }
       if (!string.IsNullOrEmpty(op.DefaultValueSql))
       {
@@ -410,7 +415,8 @@ namespace MySql.Data.Entity
     {
       StringBuilder sb = new StringBuilder();
       string tableName = TrimSchemaPrefix(op.Name);
-
+	  primaryKeyCols.Clear();
+      autoIncrementCols.Clear();
       if (_generatedTables == null)
         _generatedTables = new List<string>();
 
@@ -421,15 +427,24 @@ namespace MySql.Data.Entity
       sb.Append("create table " + "`" + tableName + "`" + " (");
 
       _tableName = op.Name;
+
+	  if (op.PrimaryKey != null)
+      {
+        op.PrimaryKey.Columns.ToList().ForEach(col => primaryKeyCols.Add(col));
+      }
+
       //columns
       sb.Append(string.Join(",", op.Columns.Select(c => "`" + c.Name + "` " + Generate(c))));
 
-      if (op.PrimaryKey != null && !sb.ToString().Contains("primary key"))
+      if (op.PrimaryKey != null)// && !sb.ToString().Contains("primary key"))
       {
         sb.Append(",");
         sb.Append("primary key ( " + string.Join(",", op.PrimaryKey.Columns.Select(c => "`" + c + "`")) + ") ");
       }
 
+	  string keyFields = ",";
+      autoIncrementCols.ForEach(col => keyFields += (!primaryKeyCols.Contains(col) ? string.Format(" KEY (`{0}`),", col) : ""));
+      sb.Append(keyFields.Substring(0, keyFields.LastIndexOf(",")));
       sb.Append(") engine=InnoDb auto_increment=0");
 
       return new MigrationStatement() { Sql = sb.ToString() };

@@ -225,5 +225,54 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     }
   }
 
+  public class AutoIncrementBugContext : DbContext
+  {
+    public DbSet<AutoIncrementBug> AutoIncrementBug { get; set; }
+
+    public AutoIncrementBugContext()
+    {
+      Database.SetInitializer<AutoIncrementBugContext>(new AutoIncrementBugInitialize<AutoIncrementBugContext>());
+      Database.SetInitializer<AutoIncrementBugContext>(new MigrateDatabaseToLatestVersion<AutoIncrementBugContext, AutoIncrementConfiguration<AutoIncrementBugContext>>());
+    }
+
+    protected override void OnModelCreating(DbModelBuilder modelBuilder)
+    {
+      base.OnModelCreating(modelBuilder);
+    }
+  }
+
+  public class AutoIncrementBugInitialize<TContext> : IDatabaseInitializer<TContext> where TContext : DbContext
+  {
+    public void InitializeDatabase(TContext context)
+    {
+      context.Database.Delete();
+      context.Database.CreateIfNotExists();
+      this.Seed(context);
+      context.SaveChanges();
+    }
+
+    protected virtual void Seed(TContext context)
+    {
+    }
+  }
+
+  public class AutoIncrementBug
+  {
+    [Key]
+    public short MyKey { get; set; }
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public long AutoIncrementBugId { get; set; }
+    public string Description { get; set; }
+  }
+
+  public class AutoIncrementConfiguration<TContext> : System.Data.Entity.Migrations.DbMigrationsConfiguration<TContext> where TContext : DbContext
+  {
+    public AutoIncrementConfiguration()
+    {
+      AutomaticMigrationsEnabled = true;
+      //CodeGenerator = new MySqlMigrationCodeGenerator();
+      SetSqlGenerator("MySql.Data.MySqlClient", new MySql.Data.Entity.MySqlMigrationSqlGenerator());
+    }
+  }
 
 }
