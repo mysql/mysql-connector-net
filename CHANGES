@@ -2,6 +2,7 @@
 - Fix for WI# 838, Model First is broken for string columns with unbounded length.
 - Fix for NullReferenceException when try to save entity with TINYINY or BIGINT as PK (MySql bug #70888, Oracle bug #17866076).
 - Fix for .Net connector does not add auto_increment to bigint columns (MySql Bug #70602).
+- Fix for Entity Framework migration with Foreign Key fails. (MySql Bug #70795).
 
 6.8.1
 - Changed EF migration history table to use a single column as primary key.
@@ -15,3 +16,4 @@
 - Fix for LINQ to Entities error for bad aliasing in column for expression (MySql bug #69922, Oracle bug #17285548).
 - Installer adds MySql data provider to machine.config and registers MySql.Data.dll to GAC.
 - Fix for bug Connector 6.7.4 does not register as dataprovider in machine.config (MySql bug #69760 , Oracle bug #17601689).
+
