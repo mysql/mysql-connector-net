@@ -579,20 +579,20 @@ namespace MySql.Data.Entity
       }
       else
       {
-        if (op.IsIdentity && String.Compare(type,"CHAR(36) BINARY", true) == 0)
-         {
-           var createTrigger = new StringBuilder();
-           createTrigger.AppendLine(string.Format("DROP TRIGGER IF EXISTS `{0}_IdentityTgr`;", TrimSchemaPrefix(_tableName)));           
-           createTrigger.AppendLine(string.Format("CREATE TRIGGER `{0}_IdentityTgr` BEFORE INSERT ON `{0}`", TrimSchemaPrefix(_tableName)));           
-           createTrigger.AppendLine("FOR EACH ROW BEGIN");           
-           createTrigger.AppendLine(string.Format("SET NEW.{0} = UUID();", op.Name));           
-           createTrigger.AppendLine(string.Format("DROP TEMPORARY TABLE IF EXISTS tmpIdentity_{0};", TrimSchemaPrefix(_tableName)));           
-           createTrigger.AppendLine(string.Format("CREATE TEMPORARY TABLE tmpIdentity_{0} (guid CHAR(36))ENGINE=MEMORY;", TrimSchemaPrefix(_tableName)));           
-           createTrigger.AppendLine(string.Format("INSERT INTO tmpIdentity_{0} VALUES(New.{1});", TrimSchemaPrefix(_tableName), op.Name));           
-           createTrigger.AppendLine("END");          
-           var sqlOp = new SqlOperation(createTrigger.ToString());
-           _specialStmts.Add(Generate(sqlOp));           
-         }
+        if (op.IsIdentity && String.Compare(type, "CHAR(36) BINARY", true) == 0)
+        {
+          var createTrigger = new StringBuilder();
+          createTrigger.AppendLine(string.Format("DROP TRIGGER IF EXISTS `{0}_IdentityTgr`;", TrimSchemaPrefix(_tableName)));
+          createTrigger.AppendLine(string.Format("CREATE TRIGGER `{0}_IdentityTgr` BEFORE INSERT ON `{0}`", TrimSchemaPrefix(_tableName)));
+          createTrigger.AppendLine("FOR EACH ROW BEGIN");
+          createTrigger.AppendLine(string.Format("SET NEW.{0} = UUID();", op.Name));
+          createTrigger.AppendLine(string.Format("DROP TEMPORARY TABLE IF EXISTS tmpIdentity_{0};", TrimSchemaPrefix(_tableName)));
+          createTrigger.AppendLine(string.Format("CREATE TEMPORARY TABLE tmpIdentity_{0} (guid CHAR(36))ENGINE=MEMORY;", TrimSchemaPrefix(_tableName)));
+          createTrigger.AppendLine(string.Format("INSERT INTO tmpIdentity_{0} VALUES(New.{1});", TrimSchemaPrefix(_tableName), op.Name));
+          createTrigger.AppendLine("END");
+          var sqlOp = new SqlOperation(createTrigger.ToString());
+          _specialStmts.Add(Generate(sqlOp));
+        }
       }
       if (!string.IsNullOrEmpty(op.DefaultValueSql))
       {
