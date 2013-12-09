@@ -171,6 +171,8 @@ namespace MySql.Data.Entity
     private List<string> _generatedTables { get; set; }
     private string _tableName { get; set; }
     private string _providerManifestToken;
+	private List<string> autoIncrementCols { get; set; }
+    private List<string> primaryKeyCols { get; set; }
 
     delegate MigrationStatement OpDispatcher(MigrationOperation op);
 
@@ -193,6 +195,8 @@ namespace MySql.Data.Entity
       _dispatcher.Add("RenameColumnOperation", (OpDispatcher)((op) => { return Generate(op as RenameColumnOperation); }));
       _dispatcher.Add("RenameTableOperation", (OpDispatcher)((op) => { return Generate(op as RenameTableOperation); }));
       _dispatcher.Add("SqlOperation", (OpDispatcher)((op) => { return Generate(op as SqlOperation); }));
+	  autoIncrementCols = new List<string>();
+      primaryKeyCols = new List<string>();
 #if EF6
       _dispatcher.Add("HistoryOperation", (OpDispatcher)((op) => { return Generate(op as HistoryOperation); }));
       _dispatcher.Add("CreateProcedureOperation", (OpDispatcher)((op) => { return Generate(op as CreateProcedureOperation); }));
@@ -566,11 +570,12 @@ namespace MySql.Data.Entity
 
       if (!(op.IsNullable ?? true))
       {
-        sb.Append(" not null ");
+        sb.Append(string.Format("{0} not null ", ((!primaryKeyCols.Contains(op.Name) && op.IsIdentity) ? " unsigned" : "")));
       }
-      if (op.IsIdentity && type == "int")
+      if (op.IsIdentity && (new string[] { "tinyint", "smallint", "mediumint", "int", "bigint" }).Contains(type.ToLower()))
       {
-        sb.Append(" auto_increment primary key ");
+        sb.Append(" auto_increment ");
+        autoIncrementCols.Add(op.Name);
       }
       else
       {
@@ -650,7 +655,8 @@ namespace MySql.Data.Entity
     {
       StringBuilder sb = new StringBuilder();
       string tableName = TrimSchemaPrefix(op.Name);
-
+	  primaryKeyCols.Clear();
+      autoIncrementCols.Clear();
       if (_generatedTables == null)
         _generatedTables = new List<string>();
 
@@ -661,15 +667,24 @@ namespace MySql.Data.Entity
       sb.Append("create table " + "`" + tableName + "`" + " (");
 
       _tableName = op.Name;
+
+	  if (op.PrimaryKey != null)
+      {
+        op.PrimaryKey.Columns.ToList().ForEach(col => primaryKeyCols.Add(col));
+      }
+
       //columns
       sb.Append(string.Join(",", op.Columns.Select(c => "`" + c.Name + "` " + Generate(c))));
 
-      if (op.PrimaryKey != null && !sb.ToString().Contains("primary key"))
+      if (op.PrimaryKey != null)// && !sb.ToString().Contains("primary key"))
       {
         sb.Append(",");
         sb.Append("primary key ( " + string.Join(",", op.PrimaryKey.Columns.Select(c => "`" + c + "`")) + ") ");
       }
 
+	  string keyFields = ",";
+      autoIncrementCols.ForEach(col => keyFields += (!primaryKeyCols.Contains(col) ? string.Format(" KEY (`{0}`),", col) : ""));
+      sb.Append(keyFields.Substring(0, keyFields.LastIndexOf(",")));
       sb.Append(") engine=InnoDb auto_increment=0");
 
       return new MigrationStatement() { Sql = sb.ToString() };
