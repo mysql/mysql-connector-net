@@ -925,6 +925,25 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         }
       }
     }
+
+    /// <summary>
+    /// Test for Mysql Bug 70602: http://bugs.mysql.com/bug.php?id=70602
+    /// </summary>
+    [Fact]
+    public void AutoIncrementBug()
+    {
+      AutoIncrementBugContext dbContext = new AutoIncrementBugContext();
+
+      dbContext.Database.Initialize(true);
+      dbContext.AutoIncrementBug.Add(new AutoIncrementBug() { Description = "Test" });
+      dbContext.SaveChanges();
+
+      using (var reader = MySqlHelper.ExecuteReader("server=localhost;User Id=root;database=AutoIncrementBug;logging=true; port=3305;", "SHOW COLUMNS FROM AUTOINCREMENTBUGS WHERE EXTRA LIKE '%AUTO_INCREMENT%'"))
+      {
+        Assert.Equal(true, reader.HasRows);
+      }
+      dbContext.Database.Delete();
+    }
   }
 }
 

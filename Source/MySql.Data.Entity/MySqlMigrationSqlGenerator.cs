@@ -41,7 +41,8 @@ namespace MySql.Data.Entity
     private Dictionary<string, OpDispatcher> dispatcher = new Dictionary<string, OpDispatcher>();
 
     private List<string> generatedTables { get; set; }
-
+    private List<string> autoIncrementCols { get; set; }
+    private List<string> primaryKeyCols { get; set; }
     delegate MigrationStatement OpDispatcher(MigrationOperation op);
 
 
@@ -65,6 +66,8 @@ namespace MySql.Data.Entity
       dispatcher.Add("RenameColumnOperation", (OpDispatcher)((op) => { return Generate(op as RenameColumnOperation); }));
       dispatcher.Add("RenameTableOperation", (OpDispatcher)((op) => { return Generate(op as RenameTableOperation); }));
       dispatcher.Add("SqlOperation", (OpDispatcher)((op) => { return Generate(op as SqlOperation); }));
+      autoIncrementCols = new List<string>();
+      primaryKeyCols = new List<string>();
     }
 
     public override IEnumerable<MigrationStatement> Generate(IEnumerable<MigrationOperation> migrationOperations, string providerManifestToken)
@@ -184,11 +187,12 @@ namespace MySql.Data.Entity
 
       if (!(op.IsNullable ?? true))
       {
-        sb.Append(" not null ");
+        sb.Append(string.Format("{0} not null ", ((!primaryKeyCols.Contains(op.Name) && op.IsIdentity) ? " unsigned" : "")));
       }
-      if (op.IsIdentity)
+      if (op.IsIdentity && (new string[] { "tinyint", "smallint", "mediumint", "int", "bigint" }).Contains(type.ToLower()))
       {
-        sb.Append(" auto_increment primary key ");
+        sb.Append(" auto_increment ");
+        autoIncrementCols.Add(op.Name);
       }
       if (!string.IsNullOrEmpty(op.DefaultValueSql))
       {
@@ -250,7 +254,8 @@ namespace MySql.Data.Entity
     protected virtual MigrationStatement Generate(CreateTableOperation op)
     {
       StringBuilder sb = new StringBuilder();
-
+      primaryKeyCols.Clear();
+      autoIncrementCols.Clear();
       if (generatedTables == null)
         generatedTables = new List<string>();
 
@@ -258,16 +263,25 @@ namespace MySql.Data.Entity
       {
         generatedTables.Add(op.Name);
       }
+
       sb.Append("create table " + "`" + op.Name + "`" + " (");
 
+      if (op.PrimaryKey != null)
+      {
+        op.PrimaryKey.Columns.ToList().ForEach(col => primaryKeyCols.Add(col));
+      }
       //columns
       sb.Append(string.Join(",", op.Columns.Select(c => "`" + c.Name + "` " + Generate(c))));
 
-      if (op.PrimaryKey != null && !sb.ToString().Contains("primary key"))
+      if (op.PrimaryKey != null)
       {
         sb.Append(",");
         sb.Append("primary key ( " + string.Join(",", op.PrimaryKey.Columns.Select(c => "`" + c + "`")) + ") ");
       }
+
+      string keyFields = ",";
+      autoIncrementCols.ForEach(col => keyFields += (!primaryKeyCols.Contains(col) ? string.Format(" KEY (`{0}`),", col) : ""));
+      sb.Append(keyFields.Substring(0, keyFields.LastIndexOf(",")));
 
       sb.Append(") engine=InnoDb auto_increment=0");
 
