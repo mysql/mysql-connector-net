@@ -98,6 +98,7 @@ namespace MySql.Data.Entity
       geoFunctions.Add("SpatialBuffer", "Buffer({0}, {1})");
       geoFunctions.Add("SpatialDifference", "Difference({0}, {1})");
       geoFunctions.Add("SpatialIntersection", "Intersection({0},{1})");
+      geoFunctions.Add("Distance", "GLength(LineString(GEOMFROMWKB(ASBINARY({0})), GEOMFROMWKB(ASBINARY({1}))))");
 
     }
 

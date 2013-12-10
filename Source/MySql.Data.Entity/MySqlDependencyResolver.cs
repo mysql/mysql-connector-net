@@ -56,10 +56,6 @@ namespace MySql.Data.Entity
             return new MySqlManifestTokenResolver();
           case EServiceType.IDbModelCacheKey:
             return new SingletonDependencyResolver<Func<System.Data.Entity.DbContext, IDbModelCacheKey>>(new MySqlModelCacheKeyFactory().Create);
-#if NET_45_OR_GREATER
-          case EServiceType.DbSpatialServices:
-            return MySqlSpatialServices.Instance;
-#endif
           case EServiceType.IDbExecutionStrategy:
             return new MySqlExecutionStrategy();
         }

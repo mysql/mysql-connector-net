@@ -112,11 +112,10 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     {
       using (MovieDBContext db = new MovieDBContext())
       {
-		db.Database.Delete();
+        db.Database.Delete();
         db.Database.CreateIfNotExists();
-		
-        db.Database.ExecuteSqlCommand(
-@"DROP TABLE IF EXISTS `MovieReleases`");
+    
+        db.Database.ExecuteSqlCommand(@"DROP TABLE IF EXISTS `MovieReleases`");
 
         db.Database.ExecuteSqlCommand(
 @"CREATE TABLE IF NOT EXISTS `MovieReleases` (
@@ -969,7 +968,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       }
     }
 
-	/// <summary>
+  /// <summary>
     /// Test for Mysql Bug 70602: http://bugs.mysql.com/bug.php?id=70602
     /// </summary>
     [Fact]
@@ -1097,10 +1096,17 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
                      where p.name == "JFK INTERNATIONAL AIRPORT OF NEW YORK"
                      select p).FirstOrDefault();
 
-        var distance = (DbGeometry.FromText("POINT(40.717957 -73.736501)").Distance(place.location) * 100);
+        var point = DbGeometry.FromText("POINT(40.717957 -73.736501)");
+
+        var distance = (point.Distance(place.location) * 100);
 
         Assert.NotEqual(null, place);
         Assert.Equal(8.6944880240295852D, distance.Value);
+
+        var distanceDB = from p in dbCtx.MyPlaces
+                         select p.location.Distance(point);
+
+        Assert.Equal(0.086944880240295852D, distanceDB.FirstOrDefault());
       }
     }
 

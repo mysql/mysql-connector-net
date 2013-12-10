@@ -201,7 +201,6 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     [Key]
     public int Id { get; set; }
     public string name { get; set; }
-    [NotMapped]
     public DbGeometry location { get; set; }
   }
 

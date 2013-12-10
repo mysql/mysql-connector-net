@@ -259,6 +259,10 @@ namespace MySql.Data.MySqlClient
         if (ValueObject.MySqlDbType == MySqlDbType.Geometry)
         {
           MySqlGeometry v = (MySqlGeometry)ValueObject;
+          if (v.IsNull && Value != null)
+          {
+            MySqlGeometry.TryParse(Value.ToString(), out v);
+          }
           ValueObject = v;
         }
 #endif
