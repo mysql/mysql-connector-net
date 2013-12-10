@@ -104,8 +104,8 @@ namespace MySql.Data.Types
       }
       else
       {
-        String s = String.Format("'{0}{1} {2:00}:{3:00}:{4:00}.{5}'",
-            negative ? "-" : "", ts.Days, ts.Hours, ts.Minutes, ts.Seconds, ts.Milliseconds);
+        String s = String.Format("'{0}{1} {2:00}:{3:00}:{4:00}.{5:000000}'",
+            negative ? "-" : "", ts.Days, ts.Hours, ts.Minutes, ts.Seconds, ts.Milliseconds * 1000);
 			
         packet.WriteStringNoNull(s);
       }
@@ -201,7 +201,11 @@ namespace MySql.Data.Types
       int msecs = 0;
 
       if (parts.Length > 3)
-        msecs = Int32.Parse(parts[3])/1000;
+      {
+        //if the data is saved in MySql as Time(3) the division by 1000 always returns 0, but handling the data as Time(6) the result is the expected
+        parts[3] = parts[3].PadRight(6, '0');
+        msecs = Int32.Parse(parts[3]) / 1000;
+      }
 
 
       if (hours < 0 || parts[0].StartsWith("-", StringComparison.Ordinal))
