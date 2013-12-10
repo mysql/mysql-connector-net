@@ -5,6 +5,7 @@
 - Fix for Entity Framework migration with Foreign Key fails. (MySql Bug #70795).
 - Fix for fields of type TIME(3) don't read milliseconds (MySql bug #70377)
 - Fix for Wrong milliseconds serialization (MySql bug #70686).
+- Fix for Stack overflow exception on spatial types
 
 6.8.1
 - Changed EF migration history table to use a single column as primary key.

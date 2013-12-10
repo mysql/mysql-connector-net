@@ -48,11 +48,6 @@ namespace MySql.Data.Entity
 //      //CURRENTLY IS NOT SUPPORTED WORK WITH TRANSACTIONS AND EXECUTION STRATEGY AT THE SAME TIME: http://msdn.microsoft.com/en-US/data/dn307226
 //      //IF WE SET THE EXECUTION STRATEGY HERE THAT WILL AFFECT THE USERS WHEN THEY TRY TO USE TRANSACTIONS, FOR THAT REASON EXECUTION STRATEGY WILL BE ENABLED ON DEMAND BY THEM
 //      //SetExecutionStrategy(MySqlProviderInvariantName.ProviderName, () => { return new MySqlExecutionStrategy(); });
-
-#if NET_45_OR_GREATER
-      SetDefaultSpatialServices(MySqlSpatialServices.Instance);
-      SetSpatialServices(MySqlProviderInvariantName.ProviderName, MySqlSpatialServices.Instance);
-#endif
     }
   }
 }
