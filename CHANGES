@@ -7,6 +7,8 @@
 - Fix for NullReferenceException when try to save entity with TINYINY or BIGINT as PK (MySql bug #70888, Oracle bug #17866076).
 - Fix for .Net connector does not add auto_increment to bigint columns (MySql Bug #70602).
 - Fix for Entity Framework migration with Foreign Key fails. (MySql Bug #70795).
+- Fix for fields of type TIME(3) don't read milliseconds (MySql bug #70377)
+- Fix for Wrong milliseconds serialization (MySql bug #70686).
 
 
 6.7.4
