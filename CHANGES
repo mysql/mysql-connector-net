@@ -8,6 +8,8 @@ Oracle bug #17568158).
 - Fix for WI #853, Intellisense only works the first time.
 - Fix for Error when invoking intellisense in some corner case scenarios (Oracle bug #17890216).
 - Fix for NullReferenceException when try to save entity with TINYINY or BIGINT as PK (MySql bug #70888, Oracle bug #17866076).
+- Fix for fields of type TIME(3) don't read milliseconds (MySql bug #70377)
+- Fix for Wrong milliseconds serialization (MySql bug #70686).
 
 
 6.6.6
