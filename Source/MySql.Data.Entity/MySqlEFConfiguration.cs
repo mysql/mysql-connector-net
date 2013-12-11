@@ -42,7 +42,9 @@ namespace MySql.Data.Entity
       SetProviderServices(MySqlProviderInvariantName.ProviderName, new MySqlProviderServices());
       SetDefaultConnectionFactory(new MySqlConnectionFactory());
       SetMigrationSqlGenerator(MySqlProviderInvariantName.ProviderName, () => new MySqlMigrationSqlGenerator());
-      SetProviderFactoryResolver(new MySqlProviderFactoryResolver());
+#if NET_45_OR_GREATER
+      SetProviderFactoryResolver(new MySqlProviderFactoryResolver()); 
+#endif
       SetManifestTokenResolver(new MySqlManifestTokenResolver());
       SetHistoryContext(MySqlProviderInvariantName.ProviderName, (existingConnection, defaultSchema) => new MySqlHistoryContext(existingConnection, defaultSchema));
 //      //CURRENTLY IS NOT SUPPORTED WORK WITH TRANSACTIONS AND EXECUTION STRATEGY AT THE SAME TIME: http://msdn.microsoft.com/en-US/data/dn307226
