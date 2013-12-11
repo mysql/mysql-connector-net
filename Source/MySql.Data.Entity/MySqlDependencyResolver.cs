@@ -50,8 +50,10 @@ namespace MySql.Data.Entity
             return new MySqlClient.MySqlProviderServices();
           case EServiceType.IProviderInvariantName:
             return new MySqlProviderInvariantName();
+#if NET_45_OR_GREATER
           case EServiceType.IDbProviderFactoryResolver:
-            return new MySqlProviderFactoryResolver();
+            return new MySqlProviderFactoryResolver(); 
+#endif
           case EServiceType.IManifestTokenResolver:
             return new MySqlManifestTokenResolver();
           case EServiceType.IDbModelCacheKey:
