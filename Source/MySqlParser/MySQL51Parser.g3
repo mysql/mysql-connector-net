@@ -2324,6 +2324,7 @@ functionCall
 	| CHAR LPAREN exprList ( USING ( ID | STRING_LEX ) )? RPAREN
 														-> ^( FUNC ^( CHAR exprList? ))
 	| COUNT LPAREN DISTINCT? ( MULT | exprList ) RPAREN	-> ^( FUNC ^( COUNT MULT? exprList? ))	
+	| DATE LPAREN date=expr RPAREN						-> ^( FUNC ^( DATE expr? ))
 	| DATE_ADD LPAREN date=expr COMMA INTERVAL interval=expr timeUnit RPAREN				-> ^(FUNC ^(DATE_ADD $date $interval timeUnit))
 	| DATE_SUB LPAREN date=expr COMMA INTERVAL interval=expr timeUnit RPAREN		-> ^(FUNC ^(DATE_SUB $date $interval timeUnit))
 	| EXTRACT LPAREN timeUnit FROM expr RPAREN			-> ^(FUNC ^(EXTRACT timeUnit expr))

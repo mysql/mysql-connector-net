@@ -10,6 +10,7 @@ Oracle bug #17568158).
 - Fix for NullReferenceException when try to save entity with TINYINY or BIGINT as PK (MySql bug #70888, Oracle bug #17866076).
 - Fix for fields of type TIME(3) don't read milliseconds (MySql bug #70377)
 - Fix for Wrong milliseconds serialization (MySql bug #70686).
+- Fix for MySql Stored Routine Debugger Fails with Stored Procedure with Leave statement (Oracle bug #17616344).
 
 
 6.6.6

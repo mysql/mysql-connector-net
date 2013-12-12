@@ -30,6 +30,7 @@ namespace MySql.Debugger.Tests
   public class TestUtils
   {
     public static readonly string CONNECTION_STRING = "server=localhost;User Id=root;database=test;Port=3305;Allow User Variables=true;Pooling=false;Allow Zero DateTime=true;";
+    public static readonly string CONNECTION_STRING_SAKILA = "server=localhost;User Id=root;database=sakila;Port=3305;Allow User Variables=true;Pooling=false;Allow Zero DateTime=true;";
     public static readonly string CONNECTION_STRING_DBG = "server=localhost;User Id=root;database=ServerSideDebugger;Port=3305;Allow User Variables=true;Pooling=false;Allow Zero DateTime=true;";
     public static readonly string CONNECTION_STRING_WITHOUT_DB = "server=localhost;User Id=root;Port=3305;Allow User Variables=true;Pooling=false;Allow Zero DateTime=true;";
   }

@@ -1662,12 +1662,7 @@ namespace MySql.Debugger
               routine.RegisterStatement(tc);
               EmitInstrumentationCode(sql, routine, tc.Line, tc.CharPositionInLine);
               ConcatTokens(sql, tokenStream, tc.TokenStartIndex, tc.TokenStopIndex);
-              // Workaround: sometimes last token of declare statement is not the expected semicolon, if so, add it.
-              if (Cmp(tokenStream.Get(tc.TokenStopIndex).Text, ";") != 0)
-              {
-                sql.Append(';');
-              }
-              // end workaround
+              EnsureEndsWithSemicolon(sql, tokenStream, tc.TokenStopIndex);
             }
             break;
           case "label":
@@ -1683,6 +1678,7 @@ namespace MySql.Debugger
                 EmitEndScopeCode(sql);
               }
               ConcatTokens(sql, tokenStream, tc.TokenStartIndex, tc.TokenStopIndex);
+              EnsureEndsWithSemicolon(sql, tokenStream, tc.TokenStopIndex);
             }
             break;
           case "return":
@@ -1691,12 +1687,7 @@ namespace MySql.Debugger
               EmitInstrumentationCode(sql, routine, tc.Line, tc.CharPositionInLine);
               EmitEndScopeCode(sql);
               ConcatTokens(sql, tokenStream, tc.TokenStartIndex, tc.TokenStopIndex);
-              // Workaround: sometimes last token of declare statement is not the expected semicolon, if so, add it.
-              if (Cmp(tokenStream.Get(tc.TokenStopIndex).Text, ";") != 0)
-              {
-                sql.Append(';');
-              }
-              // end workaround
+              EnsureEndsWithSemicolon(sql, tokenStream, tc.TokenStopIndex);
               sql.AppendLine();
             }
             break;
@@ -1712,17 +1703,21 @@ namespace MySql.Debugger
             {
               ConcatTokens(sql, tokenStream, tc.TokenStartIndex, tc.TokenStopIndex);
             }
-            // Workaround: sometimes last token of declare statement is not the expected semicolon, if so, add it.
-            if (Cmp(tokenStream.Get(tc.TokenStopIndex).Text, ";") != 0)
-            {
-              sql.Append(';');
-            }
-            // end workaround
+            EnsureEndsWithSemicolon(sql, tokenStream, tc.TokenStopIndex);
             sql.AppendLine();
             break;
         }
       }
     }
+
+    // Workaround: sometimes last token of declare statement is not the expected semicolon, if so, add it.
+    private void EnsureEndsWithSemicolon(StringBuilder sql, CommonTokenStream tokenStream, int stopIndex )
+    {
+      if (Cmp(tokenStream.Get(stopIndex).Text, ";") != 0)
+      {
+        sql.Append(';');
+      }
+    }      
 
     private StoreType GetStoreType(MySqlDataReader r, string prefix)
     {
