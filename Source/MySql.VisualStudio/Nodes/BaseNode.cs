@@ -263,6 +263,7 @@ namespace MySql.Data.VisualStudio
             String.Format(Resources.ErrorAttemptingToDrop,
             LocalizedTypeString, Name, ex.Message), Resources.ErrorTitle,
             MessageBoxButtons.OK, MessageBoxIcon.Error);
+        throw new OperationCanceledException();
       }
     }
 

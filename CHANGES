@@ -12,6 +12,7 @@ Oracle bug #17568158).
 - Fix for Wrong milliseconds serialization (MySql bug #70686).
 - Fix for MySql Stored Routine Debugger Fails with Stored Procedure with Leave statement (Oracle bug #17616344).
 - Fix for WI #886 MySql script does not show result set if comment "-- " is used at the beginning.
+- Fix for WI #855, At Server Explorer Table node is incorrectly removed (temporarily).
 
 
 6.6.6
