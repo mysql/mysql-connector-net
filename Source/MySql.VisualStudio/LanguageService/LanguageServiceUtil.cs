@@ -28,6 +28,7 @@ using System.Linq;
 #endif
 using System.IO;
 using System.Text;
+using MySql.Data.MySqlClient;
 using MySql.Parser;
 using Antlr.Runtime;
 using Antlr.Runtime.Tree;
@@ -46,6 +47,22 @@ namespace MySql.Data.VisualStudio
       new Dictionary<string, Dictionary<Version, TokenStreamRemovable>>();
     
     private static TokenStreamRemovable _lastTokenizedStream = null;
+
+    private static Dictionary<string, string> _keywords4ResultSets;
+
+    static LanguageServiceUtil()
+    {
+      _keywords4ResultSets = new Dictionary<string, string>( StringComparer.OrdinalIgnoreCase );
+      _keywords4ResultSets.Add("analyze", "");
+      _keywords4ResultSets.Add("check", "");
+      _keywords4ResultSets.Add("checksum", "");
+      _keywords4ResultSets.Add("describe", "");
+      _keywords4ResultSets.Add("explain", "");
+      _keywords4ResultSets.Add("optimize", "");
+      _keywords4ResultSets.Add("repair", "");
+      _keywords4ResultSets.Add("select", "");
+      _keywords4ResultSets.Add("show", "");
+    }
 
     public static TokenStreamRemovable GetTokenStream(string sql, Version version)
     {
@@ -235,6 +252,25 @@ namespace MySql.Data.VisualStudio
           name = t.GetChild(1).Text;
         return name.Replace("`", "");
       }
+    }
+
+    /// <summary>
+    /// Returns true is the first SQL statement in the string returns a result set 
+    /// (after parsing comments and other noise).
+    /// </summary>
+    /// <param name="sql"></param>
+    /// <param name="con"></param>
+    /// <returns></returns>
+    public static bool DoesStmtReturnResults( string sql, MySqlConnection con )
+    {
+      StringBuilder sb = new StringBuilder();
+      MySQL51Parser.program_return t = LanguageServiceUtil.ParseSql( sql, false, out sb, con.ServerVersion );
+      ITree tree = t.Tree as ITree;
+      if (tree.IsNil)
+      {
+        tree = tree.GetChild(0);
+      }
+      return _keywords4ResultSets.ContainsKey( tree.Text );
     }
   }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2008, 2010, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2008, 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -33,6 +33,7 @@ using MySql.Data.MySqlClient;
 using IOleServiceProvider = Microsoft.VisualStudio.OLE.Interop.IServiceProvider;
 using System.Globalization;
 using System.IO;
+
 
 namespace MySql.Data.VisualStudio.Editors
 {
@@ -124,8 +125,8 @@ Check that the server is running, the database exist and the user credentials ar
     private void runSqlButton_Click(object sender, EventArgs e)
     {
       string sql = codeEditor.Text.Trim();
-      if (sql.StartsWith("SELECT", StringComparison.OrdinalIgnoreCase)
-        || sql.StartsWith("SHOW", StringComparison.OrdinalIgnoreCase))
+      bool isResultSet = LanguageServiceUtil.DoesStmtReturnResults(sql, (MySqlConnection)connection);
+      if (isResultSet)
         ExecuteSelect(sql);
       else
         ExecuteScript(sql);
