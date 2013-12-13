@@ -104,6 +104,9 @@ namespace MySql.Data.VisualStudio
           return false;       
 
         // If can't prompt user for new authentication data, re-throw exception
+        if (string.IsNullOrEmpty(base.Connection.ConnectionString))
+          // If missing server & user, throw a more friendly error message
+          throw new Exception( Resources.MissingServerAndUser, ex );
         throw;
       }
 
