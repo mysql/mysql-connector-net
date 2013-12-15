@@ -14,6 +14,7 @@ Oracle bug #17568158).
 - Fix for WI #886 MySql script does not show result set if comment "-- " is used at the beginning.
 - Fix for WI #855, At Server Explorer Table node is incorrectly removed (temporarily).
 - Fix for WI #850, At Server Explorer when Openning a MySQL connection, leaving empty all fields, opens a windows with confusing message.
+- Fix for WI #843, Error occurs when displaying blob columns in results set for MySql script.
 
 
 6.6.6

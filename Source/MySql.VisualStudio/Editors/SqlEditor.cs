@@ -44,6 +44,8 @@ namespace MySql.Data.VisualStudio.Editors
     private DbProviderFactory factory;
     internal SqlEditorPane Pane { get; set; }
 
+    private bool[] _isColBlob = null;
+
     public SqlEditor()
     {
       InitializeComponent();
@@ -141,7 +143,10 @@ Check that the server is running, the database exist and the user credentials ar
       {
         da.Fill(dt);
         tabControl1.TabPages.Add(resultsPage);
+        resultsGrid.CellFormatting -= new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.resultsGrid_CellFormatting);
         resultsGrid.DataSource = dt;
+        SanitizeBlobs();
+        resultsGrid.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.resultsGrid_CellFormatting);
       }
       catch (Exception ex)
       {
@@ -150,6 +155,44 @@ Check that the server is running, the database exist and the user credentials ar
       finally
       {
         tabControl1.TabPages.Add(messagesPage);
+      }
+    }
+
+    /// <summary>
+    /// In DataGridView column with blob data type are by default associated with a DataGridViewImageColumn
+    /// this column internally uses the System.Drawing APIs to try to load images, obviously not all blobs
+    /// are images, so that fails.
+    ///   The fix implemented in this function represents blobs a a fixed &lt;Blob&gt; string.
+    /// </summary>
+    private void SanitizeBlobs()
+    {
+      DataGridViewColumnCollection coll = resultsGrid.Columns;
+      _isColBlob = new bool[coll.Count];
+      for (int i = 0; i < coll.Count; i++)
+      {
+        DataGridViewColumn col = coll[i];
+        DataGridViewTextBoxColumn newCol = null;
+        if (!(col is DataGridViewImageColumn)) continue;
+        coll.Insert(i, newCol = new DataGridViewTextBoxColumn()
+        { 
+          DataPropertyName = col.DataPropertyName, 
+          HeaderText = col.HeaderText, 
+          ReadOnly = true
+        });
+        coll.Remove(col);
+        _isColBlob[i] = true;
+      }
+    }
+
+    private void resultsGrid_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+    {
+      if( e.ColumnIndex == -1 ) return;
+      if( _isColBlob[ e.ColumnIndex ] )
+      {
+        if (e.Value == null || e.Value is DBNull)
+          e.Value = "<NULL>";
+        else
+          e.Value = "<BLOB>";
       }
     }
 
@@ -199,6 +242,5 @@ Check that the server is running, the database exist and the user credentials ar
       dbLabel.Text = String.Format("Database: {0}",
           connected ? connection.Database : "<none>");
     }
-
   }
 }
