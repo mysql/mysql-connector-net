@@ -171,8 +171,8 @@ namespace MySql.Data.VisualStudio
         {
 
           m_compList = new List<Completion>();
-          DataTable schema = connection.GetSchema("Tables");
-          schema.Merge(connection.GetSchema("Views"));
+          DataTable schema = connection.GetSchema("Tables", new string[] { null, connection.Database });
+          schema.Merge(connection.GetSchema("Views", new string[] { null, connection.Database }));
           string completionItem = null, completionItemUnq = null;
 
           foreach (DataRow row in schema.Rows)
