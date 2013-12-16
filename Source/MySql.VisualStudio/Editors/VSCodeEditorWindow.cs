@@ -95,6 +95,23 @@ namespace MySql.Data.VisualStudio.Editors
       }
     }
 
+    /// <summary>
+    /// Returns the current database, as per the last query executed.
+    /// </summary>
+    /// <returns></returns>
+    internal string GetCurrentDatabase()
+    {
+      VSCodeEditorWindow editor;
+      if (Dte.ActiveDocument == null) return null;
+      dic.TryGetValue(Dte.ActiveDocument.FullName, out editor);
+      // Null here means No connection opened for the current mysql editor, or current active window not a mysql editor.
+      if (editor == null) return null;
+      else
+      {
+        return editor.Parent.SqlEditor.CurrentDatabase;
+      }
+    }
+
     public int Exec(ref Guid pguidCmdGroup, uint nCmdID, uint nCmdexecopt, IntPtr pvaIn, IntPtr pvaOut)
     {
       VSCodeEditorWindow editor;

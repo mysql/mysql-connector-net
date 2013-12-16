@@ -232,6 +232,16 @@ namespace MySql.Data.VisualStudio
       return connection;
     }
 
+    public static string GetCurrentDatabase()
+    {
+      Editors.EditorBroker broker = MySql.Data.VisualStudio.Editors.EditorBroker.Broker;
+      if (broker != null)
+      {
+        return broker.GetCurrentDatabase();
+      }
+      return null;
+    }
+
     public static string GetRoutineName(string sql)
     {
       StringBuilder sb;

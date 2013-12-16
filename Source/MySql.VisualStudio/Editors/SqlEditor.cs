@@ -45,6 +45,7 @@ namespace MySql.Data.VisualStudio.Editors
     internal SqlEditorPane Pane { get; set; }
 
     private bool[] _isColBlob = null;
+    internal string CurrentDatabase = null;
 
     public SqlEditor()
     {
@@ -132,6 +133,18 @@ Check that the server is running, the database exist and the user credentials ar
         ExecuteSelect(sql);
       else
         ExecuteScript(sql);
+      StoreCurrentDatabase();
+    }
+
+    /// <summary>
+    /// Reads the current database from the last query executed or batch 
+    /// of queries.
+    /// </summary>
+    private void StoreCurrentDatabase()
+    {
+      MySqlConnection con = (MySqlConnection)connection;
+      MySqlCommand cmd = new MySqlCommand("select database();", con);
+      CurrentDatabase = (string)cmd.ExecuteScalar();
     }
 
     private void ExecuteSelect(string sql)

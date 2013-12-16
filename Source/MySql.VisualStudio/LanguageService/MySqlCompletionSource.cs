@@ -142,8 +142,11 @@ namespace MySql.Data.VisualStudio
     void ICompletionSource.AugmentCompletionSession(ICompletionSession session, IList<CompletionSet> completionSets)
     {
       DbConnection connection = LanguageServiceUtil.GetConnection();
-      if( connection != null && !string.IsNullOrEmpty( connection.Database ) )      
+      if( connection != null )
       {
+        string database = LanguageServiceUtil.GetCurrentDatabase();
+        if (string.IsNullOrEmpty(database)) database = connection.Database;
+        if (string.IsNullOrEmpty(database)) database = "mysql";
         if (session.TextView.Caret.Position.BufferPosition.Position == 0) return;
         SnapshotPoint currentPoint = (session.TextView.Caret.Position.BufferPosition) - 1;
         ITextStructureNavigator navigator = m_sourceProvider.NavigatorService.GetTextStructureNavigator(m_textBuffer);
@@ -171,8 +174,8 @@ namespace MySql.Data.VisualStudio
         {
 
           m_compList = new List<Completion>();
-          DataTable schema = connection.GetSchema("Tables", new string[] { null, connection.Database });
-          schema.Merge(connection.GetSchema("Views", new string[] { null, connection.Database }));
+          DataTable schema = connection.GetSchema("Tables", new string[] { null, database });
+          schema.Merge(connection.GetSchema("Views", new string[] { null, database }));
           string completionItem = null, completionItemUnq = null;
 
           foreach (DataRow row in schema.Rows)
@@ -180,7 +183,7 @@ namespace MySql.Data.VisualStudio
             completionItemUnq = row["TABLE_NAME"].ToString();
             completionItem = string.Format("`{0}`", row["TABLE_NAME"].ToString());
             m_compList.Add(new Completion(completionItemUnq, completionItem, completionItem, null, null));
-          }          
+          }
 
           completionSets.Add(new CompletionSet(
             "MySqlTokens",    //the non-localized title of the tab
@@ -192,7 +195,7 @@ namespace MySql.Data.VisualStudio
         if (expectedToken == "proc_name")        
         {          
           m_compList = new List<Completion>();
-          DataTable schema = connection.GetSchema("PROCEDURES WITH PARAMETERS", new string[] { null, connection.Database });
+          DataTable schema = connection.GetSchema("PROCEDURES WITH PARAMETERS", new string[] { null, database });
           DataView vi = schema.DefaultView;
           vi.Sort = "specific_name asc";
           string completionItem = null;
@@ -227,7 +230,7 @@ namespace MySql.Data.VisualStudio
             {
               List<TableWithAlias> tables = new List<TableWithAlias>();
               ParserUtils.GetTables(t, tables);
-              List<string> cols = GetColumns(connection, tables);
+              List<string> cols = GetColumns(connection, tables, database);
               CreateCompletionList(cols, session, completionSets);
             }
           }
@@ -312,7 +315,7 @@ namespace MySql.Data.VisualStudio
       return dicColumns;
     }
 
-    private List<string> GetColumns(DbConnection con, List<TableWithAlias> tables)
+    private List<string> GetColumns(DbConnection con, List<TableWithAlias> tables, string database)
     {
       DbCommand cmd = con.CreateCommand();
       // information_schema.columns is available from MySql 5.0 and up.
@@ -321,7 +324,7 @@ namespace MySql.Data.VisualStudio
           where ( 1 = 1 ) and ( {0} )
           order by table_schema, table_name, column_name";
       bool hasDbExplicit;
-      cmd.CommandText = BuildWhereGetColumns( con.Database, sql, tables, out hasDbExplicit);      
+      cmd.CommandText = BuildWhereGetColumns( database, sql, tables, out hasDbExplicit);
       Dictionary<string, List<string>> dicColumns = null;
       DbDataReader r = cmd.ExecuteReader();
       try
@@ -339,7 +342,7 @@ namespace MySql.Data.VisualStudio
         foreach (TableWithAlias ta in tables)
         {
           string key = string.Format("{0}.{1}", 
-            !string.IsNullOrEmpty( ta.Database )? ta.Database : con.Database.ToLower(), ta.TableName);
+            !string.IsNullOrEmpty( ta.Database )? ta.Database : database.ToLower(), ta.TableName);
           // use db only if no alias defined and db was explicitely used.
           string tblTempl = (hasDbExplicit && string.IsNullOrEmpty(ta.Alias)) ? "`{0}`.`{1}`.`{2}`" : "`{1}`.`{2}`";
           dicColumns.TryGetValue(key, out cols);
