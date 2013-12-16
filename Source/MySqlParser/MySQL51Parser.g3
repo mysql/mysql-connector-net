@@ -54,6 +54,7 @@ DATETIME_PRECISION;
 DBNAME;
 DECLARE_HANDLER;
 ENABLING;
+EXPLAIN_STMT;
 EXPR;
 EXPR_LIST;
 FOREIGNKEY_DATA_WRAPPER;
@@ -503,9 +504,11 @@ like_or_where
   ;
   
 explain
-  : EXPLAIN ( EXTENDED | explain_partitions | explain_type )? ( select_inner | explain_stmt )
-	-> ^( EXPLAIN select_inner? explain_stmt? )  
-	| EXPLAIN simple_table_ref_alias -> ^( EXPLAIN simple_table_ref_alias )
+  : (( EXPLAIN | DESCRIBE | DESC )
+	(( EXTENDED | explain_partitions | explain_type )? ( select_inner | explain_stmt )
+	-> ^( EXPLAIN_STMT select_inner? explain_stmt? )  
+	)
+	| (( EXPLAIN | DESCRIBE | DESC ) simple_table_ref_alias -> ^( EXPLAIN_STMT simple_table_ref_alias )) )
   ;
 
 explain_partitions
@@ -582,7 +585,7 @@ select_paren
 	;
 	catch[ NoViableAltException nvae ] 
 	{
-		if( nvae.DecisionNumber == 121 )
+		if( nvae.DecisionNumber == 123 )
 		{
 			nvae = new NoViableAltException( 
 					"column_name", 
@@ -1395,7 +1398,7 @@ equalityExpr
 	;
 	catch[ NoViableAltException nvae ] 
 	{
-		if( ( nvae.DecisionNumber == 203 ) && ( Scope.Peek() == "expr" ))
+		if( ( nvae.DecisionNumber == 205 ) && ( Scope.Peek() == "expr" ))
 		{
 			nvae = new NoViableAltException( 
 				"column_name", 
@@ -1497,7 +1500,7 @@ unaryExpr
 	;
 	catch[ NoViableAltException nvae ] 
 	{
-		if( ( nvae.DecisionNumber == 223 ) && ( Scope.Peek() == "expr" ))
+		if( ( nvae.DecisionNumber == 225 ) && ( Scope.Peek() == "expr" ))
 		{		
 			nvae = new NoViableAltException( 
 				"column_name", 
@@ -1528,7 +1531,7 @@ binaryCollateExpr
 	;
 	catch[ NoViableAltException nvae ] 
 	{
-		if( ( nvae.DecisionNumber == 225 ) && ( Scope.Peek() == "expr" ))
+		if( ( nvae.DecisionNumber == 227 ) && ( Scope.Peek() == "expr" ))
 		{		
 			nvae = new NoViableAltException( 
 				"column_name", 
@@ -1581,8 +1584,8 @@ primary
 	;
 	catch[ NoViableAltException nvae ] 
 	{
-		if( ( nvae.DecisionNumber == 229 ) && ( Scope.Peek() == "expr" ))
-		{		
+		if( ( nvae.DecisionNumber == 231 ) && ( Scope.Peek() == "expr" ))
+		{
 			nvae = new NoViableAltException( 
 				"column_name", 
 				nvae.DecisionNumber, 
@@ -1632,8 +1635,8 @@ case_stmt
 	;
 	catch[ NoViableAltException nvae ] 
 	{
-		if( nvae.DecisionNumber == 238 )
-		{		
+		if( nvae.DecisionNumber == 240 )
+		{
 			nvae = new NoViableAltException( 
 				"column_name", 
 				nvae.DecisionNumber, 
@@ -2493,7 +2496,7 @@ drop_table
 	;
 	catch[ NoViableAltException nvae ] 
 	{
-		if( nvae.DecisionNumber == 565 )
+		if( nvae.DecisionNumber == 567 )
 		{
 			nvae = new NoViableAltException( 
 				"simple_table_ref_no_alias_existing", 
@@ -2735,7 +2738,7 @@ sp_call options { backtrack=true; memoize=true; }
 	;
 	catch[ NoViableAltException nvae ] 
 	{
-		if( nvae.DecisionNumber == 608 )
+		if( nvae.DecisionNumber == 610 )
 		{
 			nvae = new NoViableAltException( 
 					"proc_name", 

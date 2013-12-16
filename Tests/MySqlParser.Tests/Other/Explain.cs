@@ -41,11 +41,39 @@ namespace MySql.Parser.Tests
     }
 
     [Fact]
+    public void Explain1WithDescribe()
+    {
+      MySQL51Parser.program_return r = Utility.ParseSql("describe tbl", false);
+    }
+
+    [Fact]
+    public void Explain1WithDesc()
+    {
+      MySQL51Parser.program_return r = Utility.ParseSql("desc tbl", false);
+    }
+
+    [Fact]
     public void Explain2()
     {
       StringBuilder sb;
       MySQL51Parser.program_return r = Utility.ParseSql(
         "explain extended select * from tbl", false, out sb, new Version(5, 1));
+    }
+
+    [Fact]
+    public void Explain2WithDescribe()
+    {
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(
+        "describe extended select * from tbl", false, out sb, new Version(5, 1));
+    }
+
+    [Fact]
+    public void Explain2WithDesc()
+    {
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(
+        "desc extended select * from tbl", false, out sb, new Version(5, 1));
     }
 
     [Fact]
@@ -103,7 +131,6 @@ namespace MySql.Parser.Tests
       StringBuilder sb;
       MySQL51Parser.program_return r = Utility.ParseSql(
         "explain format = json REPLACE into t1 ( col1, col2 ) values ( '', 1 );", true, out sb, new Version(5, 5));
-      //Assert.True(sb.ToString().IndexOf("missing EndOfFile at '='", StringComparison.OrdinalIgnoreCase) != -1);
       Assert.True(sb.ToString().IndexOf("no viable alternative at input '='", StringComparison.OrdinalIgnoreCase) != -1);
     }
 
@@ -113,6 +140,22 @@ namespace MySql.Parser.Tests
       StringBuilder sb;
       MySQL51Parser.program_return r = Utility.ParseSql(
         "explain format = json REPLACE into t1 ( col1, col2 ) values ( '', 1 );", false, out sb, new Version(5, 6));
+    }
+
+    [Fact]
+    public void ExplainReplace_56WithDescribe()
+    {
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(
+        "describe format = json REPLACE into t1 ( col1, col2 ) values ( '', 1 );", false, out sb, new Version(5, 6));
+    }
+
+    [Fact]
+    public void ExplainReplace_56WithDesc()
+    {
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(
+        "desc format = json REPLACE into t1 ( col1, col2 ) values ( '', 1 );", false, out sb, new Version(5, 6));
     }
 
     [Fact]

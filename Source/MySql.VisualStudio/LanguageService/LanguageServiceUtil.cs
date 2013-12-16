@@ -58,6 +58,7 @@ namespace MySql.Data.VisualStudio
       _keywords4ResultSets.Add("checksum", "");
       _keywords4ResultSets.Add("describe", "");
       _keywords4ResultSets.Add("explain", "");
+      _keywords4ResultSets.Add("explain_stmt", "");
       _keywords4ResultSets.Add("optimize", "");
       _keywords4ResultSets.Add("repair", "");
       _keywords4ResultSets.Add("select", "");

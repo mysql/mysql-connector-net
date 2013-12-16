@@ -18,6 +18,7 @@ Oracle bug #17568158).
 - Fix for Intellisense shows views from all databases, instead of only the current one (Oracle bug #17954412).
 - Fix for WI #841, On MySql script, Intellisense not working if the DB is not selected in the connection parameters
   (additionally, now if a "use <database>" is executed, Intellisense now uses that database).
+- Fix for In parser 'describe' keyword must be treated as synonym of 'explain' keyword (Oracle bug #17956087).
 
 
 6.6.6
