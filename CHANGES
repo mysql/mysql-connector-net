@@ -19,6 +19,7 @@ Oracle bug #17568158).
 - Fix for WI #841, On MySql script, Intellisense not working if the DB is not selected in the connection parameters
   (additionally, now if a "use <database>" is executed, Intellisense now uses that database).
 - Fix for In parser 'describe' keyword must be treated as synonym of 'explain' keyword (Oracle bug #17956087).
+- Fix for Case incorrect on table in SQL queries for MySqlSessionStateStore (MySql bug #69652, Oracle bug #17960855).
 
 
 6.6.6

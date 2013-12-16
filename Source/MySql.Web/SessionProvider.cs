@@ -837,7 +837,7 @@ namespace MySql.Web.SessionState
         using (MySqlConnection con = new MySqlConnection(connectionString))
         {
           con.Open();     
-          MySqlCommand cmd = new MySqlCommand("DELETE FROM my_aspnet_Sessions WHERE Expires < NOW() AND ApplicationId = @ApplicationId", con);          
+          MySqlCommand cmd = new MySqlCommand("DELETE FROM my_aspnet_sessions WHERE Expires < NOW() AND ApplicationId = @ApplicationId", con);          
           cmd.Parameters.AddWithValue("@ApplicationId", ApplicationId);
           cmd.ExecuteNonQuery();          
         }
@@ -854,7 +854,7 @@ namespace MySql.Web.SessionState
       using (MySqlConnection con = new MySqlConnection(connectionString))
         {
           con.Open();
-          MySqlCommand cmd = new MySqlCommand("SELECT SessionID, SessionItems FROM my_aspnet_Sessions WHERE Expires < NOW() AND ApplicationId = @ApplicationId", con);          
+          MySqlCommand cmd = new MySqlCommand("SELECT SessionID, SessionItems FROM my_aspnet_sessions WHERE Expires < NOW() AND ApplicationId = @ApplicationId", con);          
           cmd.Parameters.AddWithValue("@ApplicationId", ApplicationId);
 
           using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -874,7 +874,7 @@ namespace MySql.Web.SessionState
 
                 using (MySqlConnection con2 = new MySqlConnection(connectionString))
                 {                 
-                  MySqlCommand cmd2 = new MySqlCommand("DELETE FROM my_aspnet_Sessions" +
+                  MySqlCommand cmd2 = new MySqlCommand("DELETE FROM my_aspnet_sessions" +
                       " WHERE SessionId = @SessionId" +
                       " AND ApplicationId = @ApplicationId", con2);
                   cmd2.Parameters.AddWithValue("@SessionId", sid);
