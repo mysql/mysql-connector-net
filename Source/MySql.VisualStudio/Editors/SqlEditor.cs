@@ -144,7 +144,9 @@ Check that the server is running, the database exist and the user credentials ar
     {
       MySqlConnection con = (MySqlConnection)connection;
       MySqlCommand cmd = new MySqlCommand("select database();", con);
-      CurrentDatabase = (string)cmd.ExecuteScalar();
+      object val = cmd.ExecuteScalar();
+      if (val is DBNull) CurrentDatabase = "";
+      else CurrentDatabase = (string)val;
     }
 
     private void ExecuteSelect(string sql)
