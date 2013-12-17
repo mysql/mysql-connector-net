@@ -135,12 +135,19 @@ namespace MySql.Data.MySqlClient
       {
         if (mySqlDbProviderServicesInstance == null)
         {
-
           string fullName = Assembly.GetExecutingAssembly().FullName;
-          fullName = fullName.Replace("MySql.Data", "MySql.Data.Entity");
-          fullName = String.Format("MySql.Data.MySqlClient.MySqlProviderServices, {0}", fullName);
+          string assemblyName = fullName.Replace("MySql.Data", "MySql.Data.Entity");
+          string assemblyEf5Name = fullName.Replace("MySql.Data", "MySql.Data.Entity.EF5");
+          fullName = String.Format("MySql.Data.MySqlClient.MySqlProviderServices, {0}", assemblyEf5Name);
 
           Type providerServicesType = Type.GetType(fullName, false);
+          if (providerServicesType == null)
+          {
+            fullName = String.Format("MySql.Data.MySqlClient.MySqlProviderServices, {0}", assemblyName);
+            providerServicesType = Type.GetType(fullName, false);
+            if (providerServicesType == null)
+              throw new DllNotFoundException(fullName);
+          }
           mySqlDbProviderServicesInstance = providerServicesType.GetField("Instance",
               BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance);
         }
