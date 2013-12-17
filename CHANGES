@@ -8,6 +8,7 @@
 - Fix for Stack overflow exception on spatial types
 - Fix for error using MySqlProviderFactoryResolver with NetFramework 4.0 and EF6 (Tracker Work Item #897)
 - Fix for Case incorrect on table in SQL queries for MySqlSessionStateStore (MySql bug #69652, Oracle bug #17960855).
+- Fix for rename column operation in Entity Framework migrations (MySQL Bug #71102, Oracle Bug #17959787). 
 
 6.8.1
 - Changed EF migration history table to use a single column as primary key.
