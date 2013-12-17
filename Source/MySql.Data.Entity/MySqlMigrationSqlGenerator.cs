@@ -498,15 +498,15 @@ namespace MySql.Data.Entity
 
       StringBuilder sb = new StringBuilder();
 
-      sb.Append("set @columnType := (select case lower(IS_NULLABLE) when `no` then CONCAT(column_type, ` ` , `not null `)  when `yes` then column_type end from information_schema.columns where table_name = `" + TrimSchemaPrefix(op.Table) + "` and column_name = `" + op.Name + "` );");
+      sb.Append("set @columnType := (select case lower(IS_NULLABLE) when 'no' then CONCAT(column_type, ' not null ')  when 'yes' then column_type end from information_schema.columns where table_name = '" + TrimSchemaPrefix(op.Table) + "' and column_name = '" + op.Name + "');");
       sb.AppendLine();
-      sb.Append("set @sqlstmt := (select concat(`alter table " + TrimSchemaPrefix(op.Table) + " change `" + op.Name + "` " + op.NewName + "` , @columnType));");
+      sb.Append("set @sqlstmt := (select concat('alter table `" + TrimSchemaPrefix(op.Table) + "` change `" + op.Name + "` `" + op.NewName + "` ' , @columnType));");
       sb.AppendLine();
-      sb.Append("prepare stmt @sqlstmt;");
+      sb.Append("prepare stmt from @sqlstmt;");
       sb.AppendLine();
       sb.Append("execute stmt;");
       sb.AppendLine();
-      sb.Append("deallocate prepare stmt");
+      sb.Append("deallocate prepare stmt;");
       return new MigrationStatement { Sql = sb.ToString() };
 
     }
