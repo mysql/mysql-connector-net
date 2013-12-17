@@ -1,3 +1,9 @@
+6.8.3
+- Fix for error using MySqlProviderFactoryResolver with NetFramework 4.0 and EF6 (Tracker Work Item #897)
+- Fix for Case incorrect on table in SQL queries for MySqlSessionStateStore (MySql bug #69652, Oracle bug #17960855).
+- Fix for rename column operation in Entity Framework migrations (MySQL Bug #71102, Oracle Bug #17959787). 
+- Fix for WI #911 Installer failing when .Net Framework 4 is not installed.
+
 6.8.2
 - Fix for WI# 838, Model First is broken for string columns with unbounded length.
 - Fix for NullReferenceException when try to save entity with TINYINY or BIGINT as PK (MySql bug #70888, Oracle bug #17866076).
@@ -6,10 +12,6 @@
 - Fix for fields of type TIME(3) don't read milliseconds (MySql bug #70377)
 - Fix for Wrong milliseconds serialization (MySql bug #70686).
 - Fix for Stack overflow exception on spatial types
-- Fix for error using MySqlProviderFactoryResolver with NetFramework 4.0 and EF6 (Tracker Work Item #897)
-- Fix for Case incorrect on table in SQL queries for MySqlSessionStateStore (MySql bug #69652, Oracle bug #17960855).
-- Fix for rename column operation in Entity Framework migrations (MySQL Bug #71102, Oracle Bug #17959787). 
-- Fix for WI #911 Installer failing when .Net Framework 4 is not installed.
 
 6.8.1
 - Changed EF migration history table to use a single column as primary key.
@@ -23,4 +25,3 @@
 - Fix for LINQ to Entities error for bad aliasing in column for expression (MySql bug #69922, Oracle bug #17285548).
 - Installer adds MySql data provider to machine.config and registers MySql.Data.dll to GAC.
 - Fix for bug Connector 6.7.4 does not register as dataprovider in machine.config (MySql bug #69760 , Oracle bug #17601689).
-
