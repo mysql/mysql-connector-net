@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">Any CPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{F29E5B3D-7F76-4CF9-BF5E-8E3A1377B1E4}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -180,21 +180,6 @@
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\StoredProcedureWithAccess.cs">
       <Link>StoredProcedureWithAccess.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Tests\MySql.Data.Tests\StressTestsPipe.cs">
-      <Link>StressTestsPipe.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\Tests\MySql.Data.Tests\StressTestsPipeCompressed.cs">
-      <Link>StressTestsPipeCompressed.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\Tests\MySql.Data.Tests\StressTestsSharedMemory.cs">
-      <Link>StressTestsSharedMemory.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\Tests\MySql.Data.Tests\StressTestsSharedMemoryCompressed.cs">
-      <Link>StressTestsSharedMemoryCompressed.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\Tests\MySql.Data.Tests\StressTestsSocketCompressed.cs">
-      <Link>StressTestsSocketCompressed.cs</Link>
-    </Compile>
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\TableCaching.cs">
       <Link>TableCaching.cs</Link>
     </Compile>
@@ -225,7 +210,6 @@
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\PreparedStatements.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\SimpleTransactions.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\StoredProcedure.cs" />
-    <Compile Include="..\..\..\Tests\MySql.Data.Tests\StressTests.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\Syntax.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\Syntax2.cs" />
     <Compile Include="..\..\..\Tests\MySql.Data.Tests\TimeoutAndCancel.cs" />

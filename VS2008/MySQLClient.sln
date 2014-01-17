@@ -26,6 +26,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.Parser.Tests", "Tests
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.Debugger.Tests", "Tests\MySql.Debugger.Tests\MySql.Debugger.Tests.csproj", "{CC4AA9CD-68A1-4447-B495-A97BB4141BD3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.Data.Tests.Stress", "Tests\MySql.Data.Tests.Stress\MySql.Data.Tests.Stress.csproj", "{A70AB25F-BF26-44A3-829C-59AD6360C27B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -84,6 +86,10 @@ Global
 		{CC4AA9CD-68A1-4447-B495-A97BB4141BD3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CC4AA9CD-68A1-4447-B495-A97BB4141BD3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CC4AA9CD-68A1-4447-B495-A97BB4141BD3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A70AB25F-BF26-44A3-829C-59AD6360C27B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A70AB25F-BF26-44A3-829C-59AD6360C27B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A70AB25F-BF26-44A3-829C-59AD6360C27B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A70AB25F-BF26-44A3-829C-59AD6360C27B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
