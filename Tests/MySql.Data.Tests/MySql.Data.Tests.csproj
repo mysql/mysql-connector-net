@@ -141,12 +141,6 @@
     <Compile Include="SqlTokenizer.cs" />
     <Compile Include="StoredProcedure.cs" />
     <Compile Include="StoredProcedureWithAccess.cs" />
-    <Compile Include="StressTests.cs" />
-    <Compile Include="StressTestsPipe.cs" />
-    <Compile Include="StressTestsPipeCompressed.cs" />
-    <Compile Include="StressTestsSharedMemory.cs" />
-    <Compile Include="StressTestsSharedMemoryCompressed.cs" />
-    <Compile Include="StressTestsSocketCompressed.cs" />
     <Compile Include="Syntax.cs" />
     <Compile Include="Syntax2.cs" />
     <Compile Include="TableCaching.cs" />
