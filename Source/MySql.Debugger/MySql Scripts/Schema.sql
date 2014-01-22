@@ -38,7 +38,8 @@ CREATE TABLE `debugdata` (
 
 LOCK TABLES `debugdata` WRITE //
 
-INSERT INTO `debugdata` VALUES (1,'ScopeLevel','-1'),(2,'last_insert_id','0'),(3,'row_count','0'),( 4, 'NoDebugging', '0' ) //
+-- When changing values here, don't forget to update DebugDataEnum in Enum.cs
+INSERT INTO `debugdata` VALUES (1,'ScopeLevel','-1'),(2,'last_insert_id','0'),(3,'row_count','0'),( 4, 'NoDebugging', '0' ),( 5, 'found_rows', '0') //
 
 UNLOCK TABLES //
 

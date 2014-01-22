@@ -22,6 +22,8 @@ Oracle bug #17568158).
 - Fix for Case incorrect on table in SQL queries for MySqlSessionStateStore (MySql bug #69652, Oracle bug #17960855).
 - Fix for rename column operation in Entity Framework migrations (MySQL Bug #71102, Oracle Bug #17959787). 
 - Fix for WI #910 Connect to MySQL window is not retrieving the tables.
+- Fix for MySql Debugger does not evaluate last_insert_id function in watch expression correctly 
+  (although it uses the right value in user debuggee code). (Oracle bug #18111085).
 
 
 6.6.6

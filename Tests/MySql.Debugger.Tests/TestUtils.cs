@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -22,8 +22,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using Xunit;
+
 
 namespace MySql.Debugger.Tests
 {
@@ -33,5 +36,42 @@ namespace MySql.Debugger.Tests
     public static readonly string CONNECTION_STRING_SAKILA = "server=localhost;User Id=root;database=sakila;Port=3305;Allow User Variables=true;Pooling=false;Allow Zero DateTime=true;";
     public static readonly string CONNECTION_STRING_DBG = "server=localhost;User Id=root;database=ServerSideDebugger;Port=3305;Allow User Variables=true;Pooling=false;Allow Zero DateTime=true;";
     public static readonly string CONNECTION_STRING_WITHOUT_DB = "server=localhost;User Id=root;Port=3305;Allow User Variables=true;Pooling=false;Allow Zero DateTime=true;";
+  }
+
+  public class SteppingTraceInfo
+  {
+    public SteppingTraceInfo(string RoutineName, int Line, int Column)
+    {
+      this.RoutineName = RoutineName;
+      this.Line = Line;
+      this.Column = Column;
+    }
+
+    public string RoutineName { get; set; }
+    public int Line { get; set; }
+    public int Column { get; set; }
+  }
+
+  public class SteppingTraceInfoList : List<SteppingTraceInfo>
+  {
+    private int i = 0;
+
+    public SteppingTraceInfoList(SteppingTraceInfo[] a)
+    {
+      this.AddRange(a);
+    }
+
+    public void AssertBreakpoint(Breakpoint bp)
+    {
+      SteppingTraceInfo sti = this[i++];
+      Assert.Equal(sti.RoutineName, bp.RoutineName);
+      Assert.Equal(sti.Line, bp.Line);
+      Assert.Equal(sti.Column, bp.StartColumn);
+    }
+
+    public void AssertFinal()
+    {
+      Assert.Equal(this.Count, i);
+    }
   }
 }

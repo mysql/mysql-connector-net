@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -45,10 +45,24 @@ namespace MySql.Debugger.Tests
       st = data;
     }
 
-
     [Fact]
     public void VerySimpleTest()
     {
+      SteppingTraceInfo[] info = new SteppingTraceInfo[] { 
+        new SteppingTraceInfo("test.spTest", 4, 4),
+        new SteppingTraceInfo("test.spTest", 5, 4),
+        new SteppingTraceInfo("test.spTest", 8, 8),
+        new SteppingTraceInfo("test.spTest", 10, 7),
+        new SteppingTraceInfo("test.spTest", 8, 8),
+        new SteppingTraceInfo("test.spTest", 10, 7),
+        new SteppingTraceInfo("test.spTest", 8, 8),
+        new SteppingTraceInfo("test.spTest", 10, 7),
+        new SteppingTraceInfo("test.spTest", 8, 8),
+        new SteppingTraceInfo("test.spTest", 10, 7),
+        new SteppingTraceInfo("test.spTest", 13, 0)
+      };
+      SteppingTraceInfoList l = new SteppingTraceInfoList(info);
+
       string sql = 
 @"create procedure spTest()
 begin
@@ -71,7 +85,6 @@ end;
         dbg.SqlInput = sql;
         dbg.Connection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         dbg.UtilityConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
-        dbg.LockingConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         DumpConnectionThreads(dbg);
         MySqlScript script = new MySqlScript(dbg.Connection, string.Format( "delimiter // drop procedure if exists spTest; {0} //", sql ));
         script.Execute();
@@ -79,11 +92,10 @@ end;
         dbg.SetBreakpoint( sql, 8);
         dbg.SetBreakpoint( sql, 13);
         dbg.SteppingType = SteppingTypeEnum.StepInto;
-        bool bpHit = false;
         int i = 0;
         dbg.OnBreakpoint += (bp) =>
         {
-          bpHit = true;
+          l.AssertBreakpoint(bp);
           int val = 0;
           if (bp.Line == 8 || bp.Line == 13)
           {
@@ -103,17 +115,33 @@ end;
           }
         };
         dbg.Run(new string[0], null);
-        Assert.True(bpHit);
+        l.AssertFinal();
       }
       finally
       {
         dbg.RestoreRoutinesBackup();
+        dbg.Stop();
       }
     }
 
     [Fact]
     public void NonScalarFunction()
     {
+      SteppingTraceInfo[] info = new SteppingTraceInfo[] { 
+        new SteppingTraceInfo("test.SimpleNonScalar", 4, 4),
+        new SteppingTraceInfo("test.DoSum", 7, 4),
+        new SteppingTraceInfo("test.DoSum", 8, 4),
+        new SteppingTraceInfo("test.DoSum", 9, 4),
+        new SteppingTraceInfo("test.DoSum", 7, 4),
+        new SteppingTraceInfo("test.DoSum", 8, 4),
+        new SteppingTraceInfo("test.DoSum", 9, 4),
+        new SteppingTraceInfo("test.DoSum", 7, 4),
+        new SteppingTraceInfo("test.DoSum", 8, 4),
+        new SteppingTraceInfo("test.DoSum", 9, 4),
+        new SteppingTraceInfo("test.SimpleNonScalar", 6, 0)
+      };
+      SteppingTraceInfoList l = new SteppingTraceInfoList(info);
+
       string sql =
         @"delimiter //
 drop procedure if exists `SimpleNonScalar` //
@@ -153,7 +181,6 @@ insert into `calcdata`( x, y, z ) values ( 6, 7, 0 ) //
       {
         dbg.Connection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         dbg.UtilityConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
-        dbg.LockingConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         DumpConnectionThreads(dbg);
         MySqlScript script = new MySqlScript(dbg.Connection, sql);
         script.Execute();
@@ -169,19 +196,30 @@ end;
         dbg.SteppingType = SteppingTypeEnum.StepInto;
         dbg.OnBreakpoint += (bp) =>
         {
-          Debug.WriteLine(string.Format("NonScalarFunction breakpoint at line {0}:{1}", bp.RoutineName, bp.Line));
+          l.AssertBreakpoint( bp );
         };
         dbg.Run(new string[0], null);
+        l.AssertFinal();
       }
       finally
       {
         dbg.RestoreRoutinesBackup();
+        dbg.Stop();
       }
     }
 
     [Fact]
     public void ScalarFunctionCall2()
     {
+      SteppingTraceInfo[] info = new SteppingTraceInfo[] { 
+        new SteppingTraceInfo("test.SimpleScalar", 4, 4),
+        new SteppingTraceInfo("test.DoSum", 7, 4),
+        new SteppingTraceInfo("test.DoSum", 8, 4),
+        new SteppingTraceInfo("test.DoSum", 9, 4),
+        new SteppingTraceInfo("test.SimpleScalar", 6, 0)
+      };
+      SteppingTraceInfoList l = new SteppingTraceInfoList(info);
+
       string sql =
         @"delimiter //
 drop procedure if exists `SimpleScalar` //
@@ -221,7 +259,6 @@ insert into `calcdata`( x, y, z ) values ( 6, 7, 0 ) //
       {
         dbg.Connection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         dbg.UtilityConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
-        dbg.LockingConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         DumpConnectionThreads(dbg);
         MySqlScript script = new MySqlScript(dbg.Connection, sql);
         script.Execute();
@@ -236,7 +273,7 @@ end;
         dbg.SqlInput = sql;
         dbg.SteppingType = SteppingTypeEnum.StepInto;
         dbg.OnBreakpoint += (bp) => {
-          Debug.WriteLine(string.Format("NonScalarFunction breakpoint at line {0}:{1}", bp.RoutineName, bp.Line));
+          l.AssertBreakpoint( bp );
           if ( (bp.RoutineName == "test6.DoSum") && ( bp.Line == 9 ) )
           {
             dbg.CurrentScope.Variables["a1"].Value = 100;
@@ -244,16 +281,26 @@ end;
           }
         };
         dbg.Run(new string[0], null);
+        l.AssertFinal();
       }
       finally
       {
         dbg.RestoreRoutinesBackup();
+        dbg.Stop();
       }
     }
 
     [Fact]
     public void NestedCall()
     {
+      SteppingTraceInfo[] info = new SteppingTraceInfo[] { 
+        new SteppingTraceInfo("test.NestedCall", 4, 4),
+        new SteppingTraceInfo("test.dummyCall", 4, 4),
+        new SteppingTraceInfo("test.dummyCall", 6, 0),
+        new SteppingTraceInfo("test.NestedCall", 6, 0)
+      };
+      SteppingTraceInfoList l = new SteppingTraceInfoList(info);
+
       string sql =
         @"delimiter //
 drop procedure if exists `NestedCall` //
@@ -288,7 +335,6 @@ insert into `calcdata`( x, y, z ) values ( 6, 7, 0 ) //
       {
         dbg.Connection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         dbg.UtilityConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
-        dbg.LockingConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         DumpConnectionThreads(dbg);
         MySqlScript script = new MySqlScript(dbg.Connection, sql);
         script.Execute();
@@ -303,19 +349,29 @@ end;
         dbg.SqlInput = sql;
         dbg.SteppingType = SteppingTypeEnum.StepInto;
         dbg.OnBreakpoint += (bp) => {
-          Debug.WriteLine(string.Format("NonScalarFunction breakpoint at line {0}:{1}", bp.RoutineName, bp.Line));
+          l.AssertBreakpoint(bp);
         };
         dbg.Run(new string[0], null);
+        l.AssertFinal();
       }
       finally
       {
         dbg.RestoreRoutinesBackup();
+        dbg.Stop();
       }
     }
 
     [Fact]
     public void NestedCallWithVars()
     {
+      SteppingTraceInfo[] info = new SteppingTraceInfo[] { 
+          new SteppingTraceInfo("test.NestedCall", 4, 4),
+          new SteppingTraceInfo("test.dummyCall", 4, 4),
+          new SteppingTraceInfo("test.dummyCall", 6, 0),
+          new SteppingTraceInfo("test.NestedCall", 6, 0)
+      };
+      SteppingTraceInfoList l = new SteppingTraceInfoList(info);
+
       string sql =
         @"delimiter //
 drop procedure if exists `NestedCall` //
@@ -351,7 +407,6 @@ insert into `calcdata`( x, y, z ) values ( 6, 7, 0 ) //
       {
         dbg.Connection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         dbg.UtilityConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
-        dbg.LockingConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         DumpConnectionThreads(dbg);
         MySqlScript script = new MySqlScript(dbg.Connection, sql);
         script.Execute();
@@ -367,19 +422,31 @@ end;
         dbg.SteppingType = SteppingTypeEnum.StepInto;
         dbg.OnBreakpoint += (bp) =>
         {
-          Debug.WriteLine(string.Format("NonScalarFunction breakpoint at line {0}:{1}", bp.RoutineName, bp.Line));
+          l.AssertBreakpoint( bp );
         };
         dbg.Run(new string[0], null);
+        l.AssertFinal();
       }
       finally
       {
         dbg.RestoreRoutinesBackup();
+        dbg.Stop();
       }
     }
 
     [Fact]
     public void ScalarFunctionCall()
     {
+      SteppingTraceInfo[] info = new SteppingTraceInfo[] { 
+        new SteppingTraceInfo("test.NestedFunction", 5, 4),
+        new SteppingTraceInfo("test.DoSum", 8, 4),
+        new SteppingTraceInfo("test.DoSum", 9, 4),
+        new SteppingTraceInfo("test.DoSum", 10, 4),
+        new SteppingTraceInfo("test.NestedFunction", 6, 4),
+        new SteppingTraceInfo("test.NestedFunction", 8, 0)
+      };
+      SteppingTraceInfoList l = new SteppingTraceInfoList(info);
+
       string sql =
         @"delimiter //
 
@@ -416,7 +483,6 @@ end
       {
         dbg.Connection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         dbg.UtilityConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
-        dbg.LockingConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         DumpConnectionThreads(dbg);
         MySqlScript script = new MySqlScript(dbg.Connection, sql);
         script.Execute();
@@ -434,19 +500,83 @@ end;
         dbg.SteppingType = SteppingTypeEnum.StepInto;
         dbg.OnBreakpoint += (bp) =>
         {
-          Debug.WriteLine(string.Format("NonScalarFunction breakpoint at line {0}:{1}", bp.RoutineName, bp.Line));
+          l.AssertBreakpoint(bp);
         };
         dbg.Run(new string[0], null);
+        l.AssertFinal();
       }
       finally
       {
         dbg.RestoreRoutinesBackup();
+        dbg.Stop();
       }
     }
 
     [Fact]
     public void CommaSeparatedDeclare()
     {
+      SteppingTraceInfo[] info = new SteppingTraceInfo[] { 
+          new SteppingTraceInfo("test.spTest2", 5, 4),
+          new SteppingTraceInfo("test.spTest2", 6, 2),
+          new SteppingTraceInfo("test.spTest2", 8, 4),
+          new SteppingTraceInfo("test.spTest2", 11, 8),
+          new SteppingTraceInfo("test.spTest2", 12, 4),
+          new SteppingTraceInfo("test.spTest2", 13, 4),
+          new SteppingTraceInfo("test.spTest2", 14, 4),
+          new SteppingTraceInfo("test.spTest2", 15, 4),
+          new SteppingTraceInfo("test.spTest2", 17, 7),
+          new SteppingTraceInfo("test.spTest2", 11, 8),
+          new SteppingTraceInfo("test.spTest2", 12, 4),
+          new SteppingTraceInfo("test.spTest2", 13, 4),
+          new SteppingTraceInfo("test.spTest2", 14, 4),
+          new SteppingTraceInfo("test.spTest2", 15, 4),
+          new SteppingTraceInfo("test.spTest2", 17, 7),
+          new SteppingTraceInfo("test.spTest2", 11, 8),
+          new SteppingTraceInfo("test.spTest2", 12, 4),
+          new SteppingTraceInfo("test.spTest2", 13, 4),
+          new SteppingTraceInfo("test.spTest2", 14, 4),
+          new SteppingTraceInfo("test.spTest2", 15, 4),
+          new SteppingTraceInfo("test.spTest2", 17, 7),
+          new SteppingTraceInfo("test.spTest2", 11, 8),
+          new SteppingTraceInfo("test.spTest2", 12, 4),
+          new SteppingTraceInfo("test.spTest2", 13, 4),
+          new SteppingTraceInfo("test.spTest2", 14, 4),
+          new SteppingTraceInfo("test.spTest2", 15, 4),
+          new SteppingTraceInfo("test.spTest2", 17, 7),
+          new SteppingTraceInfo("test.spTest2", 11, 8),
+          new SteppingTraceInfo("test.spTest2", 12, 4),
+          new SteppingTraceInfo("test.spTest2", 13, 4),
+          new SteppingTraceInfo("test.spTest2", 14, 4),
+          new SteppingTraceInfo("test.spTest2", 15, 4),
+          new SteppingTraceInfo("test.spTest2", 17, 7),
+          new SteppingTraceInfo("test.spTest2", 11, 8),
+          new SteppingTraceInfo("test.spTest2", 12, 4),
+          new SteppingTraceInfo("test.spTest2", 13, 4),
+          new SteppingTraceInfo("test.spTest2", 14, 4),
+          new SteppingTraceInfo("test.spTest2", 15, 4),
+          new SteppingTraceInfo("test.spTest2", 17, 7),
+          new SteppingTraceInfo("test.spTest2", 11, 8),
+          new SteppingTraceInfo("test.spTest2", 12, 4),
+          new SteppingTraceInfo("test.spTest2", 13, 4),
+          new SteppingTraceInfo("test.spTest2", 14, 4),
+          new SteppingTraceInfo("test.spTest2", 15, 4),
+          new SteppingTraceInfo("test.spTest2", 17, 7),
+          new SteppingTraceInfo("test.spTest2", 11, 8),
+          new SteppingTraceInfo("test.spTest2", 12, 4),
+          new SteppingTraceInfo("test.spTest2", 13, 4),
+          new SteppingTraceInfo("test.spTest2", 14, 4),
+          new SteppingTraceInfo("test.spTest2", 15, 4),
+          new SteppingTraceInfo("test.spTest2", 17, 7),
+          new SteppingTraceInfo("test.spTest2", 11, 8),
+          new SteppingTraceInfo("test.spTest2", 12, 4),
+          new SteppingTraceInfo("test.spTest2", 13, 4),
+          new SteppingTraceInfo("test.spTest2", 14, 4),
+          new SteppingTraceInfo("test.spTest2", 15, 4),
+          new SteppingTraceInfo("test.spTest2", 17, 7),
+          new SteppingTraceInfo("test.spTest2", 20, 0)
+      };
+      SteppingTraceInfoList l = new SteppingTraceInfoList(info);
+
       string sql =
         @"delimiter //
 drop procedure if exists spTest2 //
@@ -478,7 +608,6 @@ end
       {
         dbg.Connection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         dbg.UtilityConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
-        dbg.LockingConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         DumpConnectionThreads(dbg);
         MySqlScript script = new MySqlScript(dbg.Connection, sql);
         script.Execute();
@@ -507,19 +636,36 @@ end;
         dbg.SqlInput = sql;
         dbg.SteppingType = SteppingTypeEnum.StepInto;
         dbg.OnBreakpoint += (bp) => {
-          Debug.WriteLine(string.Format("NonScalarFunction breakpoint at line {0}:{1}", bp.RoutineName, bp.Line));
+          l.AssertBreakpoint(bp);
         };
         dbg.Run(new string[0], null);
+        l.AssertFinal();
       }
       finally
       {
         dbg.RestoreRoutinesBackup();
+        dbg.Stop();
       }
     }
 
     [Fact]
     public void LoopWithIfs()
     {
+      SteppingTraceInfo[] info = new SteppingTraceInfo[] { 
+          new SteppingTraceInfo("test.doloopif", 4, 2),
+          new SteppingTraceInfo("test.doloopif", 6, 4),
+          new SteppingTraceInfo("test.doloopif", 7, 6),
+          new SteppingTraceInfo("test.doloopif", 6, 4),
+          new SteppingTraceInfo("test.doloopif", 7, 6),
+          new SteppingTraceInfo("test.doloopif", 6, 4),
+          new SteppingTraceInfo("test.doloopif", 7, 6),
+          new SteppingTraceInfo("test.doloopif", 6, 4),
+          new SteppingTraceInfo("test.doloopif", 9, 6),
+          new SteppingTraceInfo("test.doloopif", 12, 2),
+          new SteppingTraceInfo("test.doloopif", 13, 0)
+      };
+      SteppingTraceInfoList l = new SteppingTraceInfoList(info);
+
       string sql =
         @"delimiter //
 drop procedure if exists doloopif //
@@ -545,7 +691,6 @@ END
       {
         dbg.Connection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         dbg.UtilityConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
-        dbg.LockingConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         DumpConnectionThreads(dbg);
         MySqlScript script = new MySqlScript(dbg.Connection, sql);
         script.Execute();
@@ -568,19 +713,32 @@ END;
         dbg.SteppingType = SteppingTypeEnum.StepInto;
         dbg.OnBreakpoint += (bp) =>
         {
-          Debug.WriteLine(string.Format("NonScalarFunction breakpoint at line {0}:{1}", bp.RoutineName, bp.Line));
+          l.AssertBreakpoint(bp);
         };
         dbg.Run(new string[1] { "3" }, null);
+        l.AssertFinal();
       }
       finally
       {
         dbg.RestoreRoutinesBackup();
+        dbg.Stop();
       }
     }
 
     [Fact]
     public void DoHandler()
     {
+      SteppingTraceInfo[] info = new SteppingTraceInfo[] { 
+        new SteppingTraceInfo("test.dohandler", 5, 2),
+        new SteppingTraceInfo("test.dohandler", 6, 2),
+        new SteppingTraceInfo("test.dohandler", 7, 2),
+        new SteppingTraceInfo("test.dohandler", 8, 2),
+        new SteppingTraceInfo("test.dohandler", 4, 40),
+        new SteppingTraceInfo("test.dohandler", 9, 2),
+        new SteppingTraceInfo("test.dohandler", 11, 0)
+      };
+      SteppingTraceInfoList l = new SteppingTraceInfoList(info);
+
       string sql =
         @"
 delimiter //
@@ -609,7 +767,6 @@ END //
       {
         dbg.Connection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         dbg.UtilityConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
-        dbg.LockingConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         DumpConnectionThreads(dbg);
         MySqlScript script = new MySqlScript(dbg.Connection, sql);
         script.Execute();
@@ -630,19 +787,44 @@ END;
         dbg.SteppingType = SteppingTypeEnum.StepInto;
         dbg.OnBreakpoint += (bp) =>
         {
-          Debug.WriteLine(string.Format("NonScalarFunction breakpoint at line {0}:{1}", bp.RoutineName, bp.Line));
+          l.AssertBreakpoint( bp );
         };
         dbg.Run(new string[0], null);
+        l.AssertFinal();
       }
       finally
       {
         dbg.RestoreRoutinesBackup();
+        dbg.Stop();
       }
     }
 
     [Fact]
     public void DoRepeat()
     {
+      SteppingTraceInfo[] info = new SteppingTraceInfo[] { 
+        new SteppingTraceInfo("test.DoRepeat", 12, 8),
+        new SteppingTraceInfo("test.DoRepeat", 15, 8),
+        new SteppingTraceInfo("test.DoRepeat", 16, 11),
+        new SteppingTraceInfo("test.DoRepeat", 17, 10),
+        new SteppingTraceInfo("test.DoRepeat", 12, 8),
+        new SteppingTraceInfo("test.DoRepeat", 15, 8),
+        new SteppingTraceInfo("test.DoRepeat", 16, 11),
+        new SteppingTraceInfo("test.DoRepeat", 17, 10),
+        new SteppingTraceInfo("test.DoRepeat", 12, 8),
+        new SteppingTraceInfo("test.DoRepeat", 15, 8),
+        new SteppingTraceInfo("test.DoRepeat", 16, 11),
+        new SteppingTraceInfo("test.DoRepeat", 17, 10),
+        new SteppingTraceInfo("test.DoRepeat", 12, 8),
+        new SteppingTraceInfo("test.DoRepeat", 15, 8),
+        new SteppingTraceInfo("test.DoRepeat", 16, 11),
+        new SteppingTraceInfo("test.DoRepeat", 17, 10),
+        new SteppingTraceInfo("test.DoRepeat", 12, 8),
+        new SteppingTraceInfo("test.DoRepeat", 13, 10),
+        new SteppingTraceInfo("test.DoRepeat", 18, 0)
+      };
+      SteppingTraceInfoList l = new SteppingTraceInfoList(info);
+
       string sql =
         @"
 delimiter //
@@ -674,7 +856,6 @@ END  //
       {
         dbg.Connection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         dbg.UtilityConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
-        dbg.LockingConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         DumpConnectionThreads(dbg);
         MySqlScript script = new MySqlScript(dbg.Connection, sql);
         script.Execute();
@@ -702,19 +883,28 @@ END;
         dbg.SteppingType = SteppingTypeEnum.StepInto;
         dbg.OnBreakpoint += (bp) =>
         {
-          Debug.WriteLine(string.Format("NonScalarFunction breakpoint at line {0}:{1}", bp.RoutineName, bp.Line));
+          l.AssertBreakpoint(bp);
         };
         dbg.Run(new string[0], null);
+        l.AssertFinal();
       }
       finally
       {
         dbg.RestoreRoutinesBackup();
+        dbg.Stop();
       }
     }
 
     [Fact]
     public void MutipleInsert()
     {
+      SteppingTraceInfo[] info = new SteppingTraceInfo[] { 
+        new SteppingTraceInfo("test.MultipleInsert", 3, 2),
+        new SteppingTraceInfo("test.MultipleInsert", 4, 2),
+        new SteppingTraceInfo("test.MultipleInsert", 5, 0)
+      };
+      SteppingTraceInfoList l = new SteppingTraceInfoList(info);
+
       string sql =
         @"
 delimiter //
@@ -735,7 +925,6 @@ end //
       {
         dbg.Connection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         dbg.UtilityConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
-        dbg.LockingConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         DumpConnectionThreads(dbg);
         MySqlScript script = new MySqlScript(dbg.Connection, sql);
         script.Execute();
@@ -750,19 +939,29 @@ end;
         dbg.SteppingType = SteppingTypeEnum.StepInto;
         dbg.OnBreakpoint += (bp) =>
         {
-          Debug.WriteLine(string.Format("NonScalarFunction breakpoint at line {0}:{1}", bp.RoutineName, bp.Line));
+          l.AssertBreakpoint(bp);
         };
         dbg.Run(new string[] { "3", "'a'" }, null);
+        l.AssertFinal();
       }
       finally
       {
         dbg.RestoreRoutinesBackup();
+        dbg.Stop();
       }
     }
 
     [Fact]
     public void SteppingIntoTriggers()
     {
+      SteppingTraceInfo[] info = new SteppingTraceInfo[] { 
+        new SteppingTraceInfo("test.DoInsertTriggerTable", 4, 2),
+        new SteppingTraceInfo("test.trTriggerTable", 3, 4),
+        new SteppingTraceInfo("test.trTriggerTable", 5, 0),
+        new SteppingTraceInfo("test.DoInsertTriggerTable", 6, 0)
+      };
+      SteppingTraceInfoList l = new SteppingTraceInfoList(info);
+
       string sql =
         @"
 delimiter //
@@ -795,7 +994,6 @@ end //
       {
         dbg.Connection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         dbg.UtilityConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
-        dbg.LockingConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         DumpConnectionThreads(dbg);
         MySqlScript script = new MySqlScript(dbg.Connection, sql);
         script.Execute();
@@ -811,19 +1009,29 @@ end;
         dbg.SteppingType = SteppingTypeEnum.StepInto;
         dbg.OnBreakpoint += (bp) =>
         {
-          Debug.WriteLine(string.Format("NonScalarFunction breakpoint at line {0}:{1}", bp.RoutineName, bp.Line));
+          l.AssertBreakpoint(bp);
         };
         dbg.Run(new string[0], null);
+        l.AssertFinal();
       }
       finally
       {
         dbg.RestoreRoutinesBackup();
+        dbg.Stop();
       }
     }
 
     [Fact]
     public void SteppingIntoTriggers2()
     {
+      SteppingTraceInfo[] info = new SteppingTraceInfo[] { 
+        new SteppingTraceInfo("test.DoInsertTriggerTable", 4, 2),
+        new SteppingTraceInfo("test.trTriggerTable", 3, 4),
+        new SteppingTraceInfo("test.trTriggerTable", 5, 0),
+        new SteppingTraceInfo("test.DoInsertTriggerTable", 6, 0)
+      };
+      SteppingTraceInfoList l = new SteppingTraceInfoList(info);
+
       string sql =
         @"
 delimiter //
@@ -856,7 +1064,6 @@ end //
       {
         dbg.Connection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         dbg.UtilityConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
-        dbg.LockingConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         DumpConnectionThreads(dbg);
         MySqlScript script = new MySqlScript(dbg.Connection, sql);
         script.Execute();
@@ -872,19 +1079,29 @@ end;
         dbg.SteppingType = SteppingTypeEnum.StepInto;
         dbg.OnBreakpoint += (bp) =>
         {
-          Debug.WriteLine(string.Format("NonScalarFunction breakpoint at line {0}:{1}", bp.RoutineName, bp.Line));
+          l.AssertBreakpoint(bp);
         };
         dbg.Run(new string[0], null);
+        l.AssertFinal();
       }
       finally
       {
         dbg.RestoreRoutinesBackup();
+        dbg.Stop();
       }
     }
 
     [Fact]
     public void RoutineWithoutBeginEndBlock()
     {
+      SteppingTraceInfo[] info = new SteppingTraceInfo[] { 
+        new SteppingTraceInfo("test.DoInsertTriggerTable", 4, 0),
+        new SteppingTraceInfo("test.trTriggerTable", 3, 0),
+        new SteppingTraceInfo("test.trTriggerTable", 4, 0),
+        new SteppingTraceInfo("test.DoInsertTriggerTable", 5, 0)
+      };
+      SteppingTraceInfoList l = new SteppingTraceInfoList(info);
+
       string sql =
         @"
 delimiter //
@@ -911,7 +1128,6 @@ create procedure DoInsertTriggerTable()
       {
         dbg.Connection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         dbg.UtilityConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
-        dbg.LockingConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         DumpConnectionThreads(dbg);
         MySqlScript script = new MySqlScript(dbg.Connection, sql);
         script.Execute();
@@ -927,7 +1143,7 @@ create procedure DoInsertTriggerTable()
         //Watch w4 = dbg.SetWatch("old.myname");
         dbg.OnBreakpoint += (bp) =>
         {
-          Debug.WriteLine(string.Format("breakpoint at line {0}:{1}", bp.RoutineName, bp.Line));
+          l.AssertBreakpoint(bp);
           if ( bp.RoutineName == "test6.trTriggerTable")
           {
             if (bp.Line == 3)
@@ -941,6 +1157,7 @@ create procedure DoInsertTriggerTable()
           }
         };
         dbg.Run(new string[0], null);
+        l.AssertFinal();
       }
       finally
       {
@@ -952,6 +1169,22 @@ create procedure DoInsertTriggerTable()
     [Fact]
     public void InformationFunctions()
     {
+      SteppingTraceInfo[] info = new SteppingTraceInfo[] { 
+        new SteppingTraceInfo( "test.DoTestInformationFunctions",  9, 2),
+        new SteppingTraceInfo( "test.DoTestInformationFunctions", 10, 2 ),
+        new SteppingTraceInfo( "test.DoTestInformationFunctions", 11, 2 ),
+        new SteppingTraceInfo( "test.DoTestInformationFunctions", 12, 2 ),
+        new SteppingTraceInfo( "test.DoTestInformationFunctions", 13, 2 ),
+        new SteppingTraceInfo( "test.DoTestInformationFunctions", 14, 2 ),
+        new SteppingTraceInfo( "test.DoTestInformationFunctions", 15, 2 ),
+        new SteppingTraceInfo( "test.DoTestInformationFunctions", 16, 2 ),
+        new SteppingTraceInfo( "test.DoTestInformationFunctions", 18, 2 ),
+        new SteppingTraceInfo( "test.DoTestInformationFunctions", 19, 4 ),
+        new SteppingTraceInfo( "test.DoTestInformationFunctions", 23, 2 ),
+        new SteppingTraceInfo( "test.DoTestInformationFunctions", 25, 0 )
+      };
+      SteppingTraceInfoList l = new SteppingTraceInfoList(info);
+      
       string sql =
         @"
 delimiter //
@@ -997,7 +1230,6 @@ end //
       {
         dbg.Connection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         dbg.UtilityConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
-        dbg.LockingConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         DumpConnectionThreads(dbg);
         MySqlScript script = new MySqlScript(dbg.Connection, sql);
         script.Execute();
@@ -1034,24 +1266,53 @@ end;
         Watch w2 = dbg.SetWatch( "my_last_insert_id" );
         Watch w3 = dbg.SetWatch( "my_row_count" );
         Watch w4 = dbg.SetWatch( "my_found_rows" );
+        Watch waLastInsertId = dbg.SetWatch("last_insert_id()");
+        Watch waRowCount = dbg.SetWatch("row_count()");
+        Watch waFoundRows = dbg.SetWatch("found_rows()");
         dbg.OnBreakpoint += (bp) =>
         {
-          Debug.WriteLine(string.Format("breakpoint at line {0}:{1}", bp.RoutineName, bp.Line));
-          if (bp.Line == 23)
+          l.AssertBreakpoint(bp);
+          switch (bp.Line)
           {
-            Debug.WriteLine("At line 23, checking locals values");
-            Assert.Equal(1, Convert.ToInt32( w.Eval() ) );
-            Assert.Equal(3, Convert.ToInt32(w2.Eval()));
-            Assert.Equal(3, Convert.ToInt32(w3.Eval()));
-            Assert.Equal(3, Convert.ToInt32(w4.Eval()));
-            Debug.WriteLine("Locals values just right");
+            case 23:
+              {
+                Assert.Equal(1, Convert.ToInt32(w.Eval()));
+                Assert.Equal(3, Convert.ToInt32(w2.Eval()));
+                Assert.Equal(3, Convert.ToInt32(w3.Eval()));
+                Assert.Equal(3, Convert.ToInt32(w4.Eval()));
+              } break;
+            case 10:
+              {
+                Assert.Equal(1, Convert.ToInt32( waLastInsertId.Eval()) );
+              } break;
+            case 11:
+              {
+                Assert.Equal(2, Convert.ToInt32( waLastInsertId.Eval()) );
+              } break;
+            case 12:
+              {
+                // last_insert_id
+                Assert.Equal( 3, Convert.ToInt32( waLastInsertId.Eval() ));
+              } break;
+            case 14:
+              {
+                // found_rows
+                Assert.Equal(3, Convert.ToInt32( waFoundRows.Eval() ));
+              } break;
+            case 16:
+              {
+                // row_count
+                Assert.Equal(3, Convert.ToInt32( waRowCount.Eval() ));
+              } break;
           }
         };
         dbg.Run(new string[0], null);
+        l.AssertFinal();
       }
       finally
       {
         dbg.RestoreRoutinesBackup();
+        dbg.Stop();
       }
     }
 
@@ -1062,6 +1323,15 @@ end;
     [Fact]
     public void EvaluatingAndChangingSessionVariables()
     {
+      SteppingTraceInfo[] info = new SteppingTraceInfo[] { 
+        new SteppingTraceInfo("test.PlayWithSessionVars", 4, 2),
+        new SteppingTraceInfo("test.PlayWithSessionVars", 5, 2),
+        new SteppingTraceInfo("test.PlayWithSessionVars", 6, 2),
+        new SteppingTraceInfo("test.PlayWithSessionVars", 7, 2),
+        new SteppingTraceInfo("test.PlayWithSessionVars", 9, 0)
+      };
+      SteppingTraceInfoList l = new SteppingTraceInfoList(info);
+
       string sql =
         @"
 delimiter //
@@ -1083,7 +1353,6 @@ end //
       {
         dbg.Connection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         dbg.UtilityConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
-        dbg.LockingConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         DumpConnectionThreads(dbg);
         MySqlScript script = new MySqlScript(dbg.Connection, sql);
         script.Execute();
@@ -1103,7 +1372,7 @@ end ;
         Watch w = dbg.SetWatch("@x1");
         dbg.OnBreakpoint += (bp) =>
         {
-          Debug.WriteLine(string.Format("breakpoint at line {0}:{1}", bp.RoutineName, bp.Line));
+          l.AssertBreakpoint(bp);
           if (bp.Line == 6)
           { 
             Assert.Equal(1, Convert.ToInt32(w.Eval()));
@@ -1116,10 +1385,12 @@ end ;
           }
         };
         dbg.Run(new string[0], null);
+        l.AssertFinal();
       }
       finally
       {        
         dbg.RestoreRoutinesBackup();
+        dbg.Stop();
       }
     }
 
@@ -1129,6 +1400,12 @@ end ;
     [Fact]
     public void DataIsNull()
     {
+      SteppingTraceInfo[] info = new SteppingTraceInfo[] { 
+        new SteppingTraceInfo("test.new_customer", 3, 2),
+        new SteppingTraceInfo("test.new_customer", 5, 0)
+      };
+      SteppingTraceInfoList l = new SteppingTraceInfoList(info);
+
       string sql =
         @"
 delimiter //
@@ -1160,7 +1437,6 @@ END
       {
         dbg.Connection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         dbg.UtilityConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
-        dbg.LockingConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         DumpConnectionThreads(dbg);
         MySqlScript script = new MySqlScript(dbg.Connection, sql);
         script.Execute();
@@ -1175,13 +1451,15 @@ END;
         dbg.SteppingType = SteppingTypeEnum.StepInto;
         dbg.OnBreakpoint += (bp) =>
         {
-          Debug.WriteLine(string.Format("breakpoint at line {0}:{1}", bp.RoutineName, bp.Line));
+          l.AssertBreakpoint(bp);
         };
         dbg.Run(new string[0], null);
+        l.AssertFinal();
       }
       finally
       {
         dbg.RestoreRoutinesBackup();
+        dbg.Stop();
       }
     }
 
@@ -1189,6 +1467,12 @@ END;
     [Fact]
     public void CharsetIssue()
     {
+      SteppingTraceInfo[] info = new SteppingTraceInfo[] { 
+        new SteppingTraceInfo("test.create_proc", 3, 2),
+        new SteppingTraceInfo("test.create_proc", 6, 0)
+      };
+      SteppingTraceInfoList l = new SteppingTraceInfoList(info);
+
       string sql =
         @"
 delimiter //
@@ -1209,7 +1493,6 @@ END //
       {
         dbg.Connection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         dbg.UtilityConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
-        dbg.LockingConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         DumpConnectionThreads(dbg);
         MySqlScript script = new MySqlScript(dbg.Connection, sql);
         script.Execute();
@@ -1225,19 +1508,83 @@ END ;
         dbg.SteppingType = SteppingTypeEnum.StepInto;
         dbg.OnBreakpoint += (bp) =>
         {
-          Debug.WriteLine(string.Format("breakpoint at line {0}:{1}", bp.RoutineName, bp.Line));
+          l.AssertBreakpoint(bp);
         };
         dbg.Run(new string[0], null);
+        l.AssertFinal();
       }
       finally
       {
         dbg.RestoreRoutinesBackup();
+        dbg.Stop();
       }
     }
 
     [Fact]
     public void ColumnNumber()
     {
+      SteppingTraceInfo[] info = new SteppingTraceInfo[] {
+        new SteppingTraceInfo("test.sp_testMultiline", 5, 1),
+        new SteppingTraceInfo("test.sp_testMultiline", 6, 1),
+        new SteppingTraceInfo("test.sp_testMultiline", 7, 1),
+        new SteppingTraceInfo("test.sp_testMultiline", 11, 1),
+        new SteppingTraceInfo("test.sp_testMultiline", 11, 16),
+        new SteppingTraceInfo("test.sp_testMultiline", 12, 1),
+        new SteppingTraceInfo("test.sp_testMultiline", 13, 1),
+        new SteppingTraceInfo("test.sp_testMultiline", 14, 3),
+        new SteppingTraceInfo("test.sp_testMultiline", 14, 34),
+        new SteppingTraceInfo("test.sp_testMultiline", 11, 1),
+        new SteppingTraceInfo("test.sp_testMultiline", 11, 16),
+        new SteppingTraceInfo("test.sp_testMultiline", 12, 1),
+        new SteppingTraceInfo("test.sp_testMultiline", 13, 1),
+        new SteppingTraceInfo("test.sp_testMultiline", 14, 3),
+        new SteppingTraceInfo("test.sp_testMultiline", 14, 34),
+        new SteppingTraceInfo("test.sp_testMultiline", 11, 1),
+        new SteppingTraceInfo("test.sp_testMultiline", 11, 16),
+        new SteppingTraceInfo("test.sp_testMultiline", 12, 1),
+        new SteppingTraceInfo("test.sp_testMultiline", 13, 1),
+        new SteppingTraceInfo("test.sp_testMultiline", 14, 3),
+        new SteppingTraceInfo("test.sp_testMultiline", 14, 34),
+        new SteppingTraceInfo("test.sp_testMultiline", 11, 1),
+        new SteppingTraceInfo("test.sp_testMultiline", 11, 16),
+        new SteppingTraceInfo("test.sp_testMultiline", 12, 1),
+        new SteppingTraceInfo("test.sp_testMultiline", 13, 1),
+        new SteppingTraceInfo("test.sp_testMultiline", 14, 3),
+        new SteppingTraceInfo("test.sp_testMultiline", 14, 34),
+        new SteppingTraceInfo("test.sp_testMultiline", 11, 1),
+        new SteppingTraceInfo("test.sp_testMultiline", 11, 16),
+        new SteppingTraceInfo("test.sp_testMultiline", 12, 1),
+        new SteppingTraceInfo("test.sp_testMultiline", 13, 1),
+        new SteppingTraceInfo("test.sp_testMultiline", 14, 3),
+        new SteppingTraceInfo("test.sp_testMultiline", 14, 34),
+        new SteppingTraceInfo("test.sp_testMultiline", 11, 1),
+        new SteppingTraceInfo("test.sp_testMultiline", 11, 16),
+        new SteppingTraceInfo("test.sp_testMultiline", 12, 1),
+        new SteppingTraceInfo("test.sp_testMultiline", 13, 1),
+        new SteppingTraceInfo("test.sp_testMultiline", 14, 3),
+        new SteppingTraceInfo("test.sp_testMultiline", 14, 34),
+        new SteppingTraceInfo("test.sp_testMultiline", 11, 1),
+        new SteppingTraceInfo("test.sp_testMultiline", 11, 16),
+        new SteppingTraceInfo("test.sp_testMultiline", 12, 1),
+        new SteppingTraceInfo("test.sp_testMultiline", 13, 1),
+        new SteppingTraceInfo("test.sp_testMultiline", 14, 3),
+        new SteppingTraceInfo("test.sp_testMultiline", 14, 34),
+        new SteppingTraceInfo("test.sp_testMultiline", 11, 1),
+        new SteppingTraceInfo("test.sp_testMultiline", 11, 16),
+        new SteppingTraceInfo("test.sp_testMultiline", 12, 1),
+        new SteppingTraceInfo("test.sp_testMultiline", 13, 1),
+        new SteppingTraceInfo("test.sp_testMultiline", 14, 3),
+        new SteppingTraceInfo("test.sp_testMultiline", 14, 34),
+        new SteppingTraceInfo("test.sp_testMultiline", 11, 1),
+        new SteppingTraceInfo("test.sp_testMultiline", 11, 16),
+        new SteppingTraceInfo("test.sp_testMultiline", 12, 1),
+        new SteppingTraceInfo("test.sp_testMultiline", 13, 1),
+        new SteppingTraceInfo("test.sp_testMultiline", 14, 3),
+        new SteppingTraceInfo("test.sp_testMultiline", 14, 34),
+        new SteppingTraceInfo("test.sp_testMultiline", 16, 0)
+      };
+      SteppingTraceInfoList l = new SteppingTraceInfoList(info);
+
       string sql =
         @"
 delimiter //
@@ -1266,7 +1613,6 @@ END //
       {
         dbg.Connection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         dbg.UtilityConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
-        dbg.LockingConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         DumpConnectionThreads(dbg);
         MySqlScript script = new MySqlScript(dbg.Connection, sql);
         script.Execute();
@@ -1292,19 +1638,31 @@ END ;
         dbg.SteppingType = SteppingTypeEnum.StepInto;
         dbg.OnBreakpoint += (bp) =>
         {
-          Debug.WriteLine(string.Format("breakpoint at line {0}:{1},{2}", bp.RoutineName, bp.Line, bp.StartColumn));
+          l.AssertBreakpoint(bp);
         };
         dbg.Run(new string[0], null);
+        l.AssertFinal();
       }
       finally
       {
         dbg.RestoreRoutinesBackup();
+        dbg.Stop();
       }
     }
 
     [Fact]
     public void NameIsKeyword()
     {
+      SteppingTraceInfo[] info = new SteppingTraceInfo[] { 
+          new SteppingTraceInfo("test.count", 4, 2),
+          new SteppingTraceInfo("test.count", 5, 2),
+          new SteppingTraceInfo("test.count", 6, 2),
+          new SteppingTraceInfo("test.count", 7, 2),
+          new SteppingTraceInfo("test.count", 8, 2),
+          new SteppingTraceInfo("test.count", 9, 0)
+      };
+      SteppingTraceInfoList l = new SteppingTraceInfoList(info);
+
       string sql =
         @"
 delimiter //
@@ -1330,7 +1688,6 @@ END //
       {
         dbg.Connection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         dbg.UtilityConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
-        dbg.LockingConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         DumpConnectionThreads(dbg);
         MySqlScript script = new MySqlScript(dbg.Connection, sql);
         script.Execute();
@@ -1349,19 +1706,50 @@ END;
         dbg.SteppingType = SteppingTypeEnum.StepInto;
         dbg.OnBreakpoint += (bp) =>
         {
-          Debug.WriteLine(string.Format("breakpoint at line {0}:{1}", bp.RoutineName, bp.Line));
+          l.AssertBreakpoint(bp);
         };
         dbg.Run(new string[0], null);
+        l.AssertFinal();
       }
       finally
       {
         dbg.RestoreRoutinesBackup();
+        dbg.Stop();
       }
     }
 
     [Fact]
     public void FibonacciGeneration()
     {
+      SteppingTraceInfo[] info = new SteppingTraceInfo[] { 
+          new SteppingTraceInfo("test.spClientFiboGen", 7, 4),
+          new SteppingTraceInfo("test.spClientFiboGen", 8, 4),
+          new SteppingTraceInfo("test.spClientFiboGen", 9, 4),
+          new SteppingTraceInfo("test.spClientFiboGen", 11, 4),
+          new SteppingTraceInfo("test.spClientFiboGen", 12, 4),
+          new SteppingTraceInfo("test.spClientFiboGen", 14, 4),
+          new SteppingTraceInfo("test.spClientFiboGen", 15, 8),
+          new SteppingTraceInfo("test.spFiboGen", 7, 4),
+          new SteppingTraceInfo("test.spFiboGen", 10, 8),
+          new SteppingTraceInfo("test.spFiboGen", 17, 0),
+          new SteppingTraceInfo("test.spClientFiboGen", 16, 8),
+          new SteppingTraceInfo("test.spClientFiboGen", 17, 8),
+          new SteppingTraceInfo("test.spClientFiboGen", 15, 8),
+          new SteppingTraceInfo("test.spFiboGen", 7, 4),
+          new SteppingTraceInfo("test.spFiboGen", 8, 8),
+          new SteppingTraceInfo("test.spFiboGen", 17, 0),
+          new SteppingTraceInfo("test.spClientFiboGen", 16, 8),
+          new SteppingTraceInfo("test.spClientFiboGen", 17, 8),
+          new SteppingTraceInfo("test.spClientFiboGen", 15, 8),
+          new SteppingTraceInfo("test.spFiboGen", 7, 4),
+          new SteppingTraceInfo("test.spFiboGen", 8, 8),
+          new SteppingTraceInfo("test.spFiboGen", 17, 0),
+          new SteppingTraceInfo("test.spClientFiboGen", 16, 8),
+          new SteppingTraceInfo("test.spClientFiboGen", 17, 8),
+          new SteppingTraceInfo("test.spClientFiboGen", 20, 0)
+      };
+      SteppingTraceInfoList l = new SteppingTraceInfoList(info);
+
       string sql =
         @"
 delimiter //
@@ -1417,7 +1805,6 @@ end
       {
         dbg.Connection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         dbg.UtilityConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
-        dbg.LockingConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         DumpConnectionThreads(dbg);
         MySqlScript script = new MySqlScript(dbg.Connection, sql);
         script.Execute();
@@ -1447,13 +1834,15 @@ end;
         dbg.SteppingType = SteppingTypeEnum.StepInto;
         dbg.OnBreakpoint += (bp) =>
         {
-          Debug.WriteLine(string.Format("breakpoint at line {0}:{1},{2}", bp.RoutineName, bp.Line, bp.StartColumn));
+          l.AssertBreakpoint(bp);
         };
         dbg.Run( new string[] { "3" }, new string[ 0 ] );
+        l.AssertFinal();
       }
       finally
       {
         dbg.RestoreRoutinesBackup();
+        dbg.Stop();
       }
     }
 
@@ -1461,12 +1850,8 @@ end;
     {
       dbg.Connection.Open();
       dbg.UtilityConnection.Open();
-      dbg.LockingConnection.Open();
-      //dbg.LockingConnection2.Open();
       Debug.WriteLine(string.Format("Debugger thread id: {0}", dbg.UtilityConnection.ServerThread));
       Debug.WriteLine(string.Format("Debuggee thread id: {0}", dbg.Connection.ServerThread));
-      Debug.WriteLine(string.Format("Locking thread id: {0}", dbg.LockingConnection.ServerThread));
-      //Debug.WriteLine(string.Format("Locking2 thread id: {0}", dbg.LockingConnection2.ServerThread));
     }
 
     /// <summary>
@@ -1475,6 +1860,15 @@ end;
     [Fact]
     public void ArgumentsTest()
     {
+      SteppingTraceInfo[] info = new SteppingTraceInfo[] { 
+        new SteppingTraceInfo("test.pr_ArgumentsTest", 4, 2),
+        new SteppingTraceInfo("test.pr_ArgumentsTest", 5, 2),
+        new SteppingTraceInfo("test.pr_ArgumentsTest", 6, 2),
+        new SteppingTraceInfo("test.pr_ArgumentsTest", 7, 4),
+        new SteppingTraceInfo("test.pr_ArgumentsTest", 11, 0)
+      };
+      SteppingTraceInfoList l = new SteppingTraceInfoList(info);
+
       string fullSql = @"DELIMITER //
 DROP PROCEDURE IF EXISTS pr_ArgumentsTest //
 ";
@@ -1496,24 +1890,39 @@ END
       {
         dbg.Connection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         dbg.UtilityConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
-        dbg.LockingConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         DumpConnectionThreads(dbg);
         MySqlScript script = new MySqlScript(dbg.Connection, fullSql + procedureSql + @"//");
         script.Execute();
 
         dbg.SqlInput = procedureSql;
+        dbg.OnBreakpoint += (bp) =>
+        {
+          l.AssertBreakpoint(bp);
+        };
+        dbg.SteppingType = SteppingTypeEnum.StepInto;
         dbg.Run(new string[] { "1", "@dbg_var1", "@dbg_var2", "@dbg_var3" }, new string[] { "@dbg_var2 = '3'", "@dbg_var3 = 'abc'" });
+        l.AssertFinal();
         Assert.Equal("1", dbg.ScopeVariables["param1"].Value);
         Assert.Equal("1", dbg.ScopeVariables["param2"].Value);
         Assert.Equal("4", dbg.ScopeVariables["param3"].Value);
         Assert.Equal("xyz", dbg.ScopeVariables["param4"].Value);
         dbg.RestoreRoutinesBackup();
 
+        info = new SteppingTraceInfo[] { 
+          new SteppingTraceInfo("test.pr_ArgumentsTest", 4, 2),
+          new SteppingTraceInfo("test.pr_ArgumentsTest", 5, 2),
+          new SteppingTraceInfo("test.pr_ArgumentsTest", 6, 2),
+          new SteppingTraceInfo("test.pr_ArgumentsTest", 9, 4),
+          new SteppingTraceInfo("test.pr_ArgumentsTest", 11, 0),
+        };
+        l = new SteppingTraceInfoList(info);
+
         dbg.Run(new string[] { "1", "@dbg_var1", "@dbg_var2", "@dbg_var3" }, new string[] { "@dbg_var2 = '3'", "@dbg_var3 = 'mysql'" });
         Assert.Equal("1", dbg.ScopeVariables["param1"].Value);
         Assert.Equal("1", dbg.ScopeVariables["param2"].Value);
         Assert.Equal("4", dbg.ScopeVariables["param3"].Value);
         Assert.Equal(DBNull.Value, dbg.ScopeVariables["param4"].Value);
+        l.AssertFinal();
       }
       finally
       {
@@ -1528,6 +1937,12 @@ END
     [Fact]
     public void BrokenInstrumentation()
     {
+      SteppingTraceInfo[] info = new SteppingTraceInfo[] { 
+        new SteppingTraceInfo("test.rewards_report1", 9, 4),
+        new SteppingTraceInfo("test.rewards_report1", 10, 0)
+      };
+      SteppingTraceInfoList l = new SteppingTraceInfoList(info);
+
       string sql =
         @"
 DELIMITER // 
@@ -1548,7 +1963,6 @@ END //
       {
         dbg.Connection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         dbg.UtilityConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
-        dbg.LockingConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         DumpConnectionThreads(dbg);
         MySqlScript script = new MySqlScript(dbg.Connection, sql);
         script.Execute();
@@ -1568,13 +1982,15 @@ END;
         dbg.SteppingType = SteppingTypeEnum.StepInto;
         dbg.OnBreakpoint += (bp) =>
         {
-          Debug.WriteLine(string.Format("breakpoint at line {0}:{1},{2}", bp.RoutineName, bp.Line, bp.StartColumn));
+          l.AssertBreakpoint(bp);
         };
         dbg.Run(new string[] { "3" }, new string[0]);
+        l.AssertFinal();
       }
       finally
       {
         dbg.RestoreRoutinesBackup();
+        dbg.Stop();
       }
     }
 
@@ -1584,6 +2000,18 @@ END;
     [Fact]
     public void BrokenInstrumentationInCase()
     {
+      SteppingTraceInfo[] info = new SteppingTraceInfo[] { 
+        new SteppingTraceInfo("test.proceso", 7, 4),
+        new SteppingTraceInfo("test.proceso", 8, 4),
+        new SteppingTraceInfo("test.proceso", 10, 9),
+        new SteppingTraceInfo("test.proceso", 17, 12),
+        new SteppingTraceInfo("test.proceso", 18, 12),
+        new SteppingTraceInfo("test.proceso", 19, 11),
+        new SteppingTraceInfo("test.proceso", 20, 11),
+        new SteppingTraceInfo("test.proceso", 22, 0)
+      };
+      SteppingTraceInfoList l = new SteppingTraceInfoList(info);
+
       string sql =
         @"
 DELIMITER // 
@@ -1616,7 +2044,6 @@ END //
       {
         dbg.Connection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         dbg.UtilityConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
-        dbg.LockingConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         DumpConnectionThreads(dbg);
         MySqlScript script = new MySqlScript(dbg.Connection, sql);
         script.Execute();
@@ -1648,13 +2075,15 @@ END;
         dbg.SteppingType = SteppingTypeEnum.StepInto;
         dbg.OnBreakpoint += (bp) =>
         {
-          Debug.WriteLine(string.Format("breakpoint at line {0}:{1},{2}", bp.RoutineName, bp.Line, bp.StartColumn));
+          l.AssertBreakpoint(bp);
         };
         dbg.Run(null, null);
+        l.AssertFinal();
       }
       finally
       {
         dbg.RestoreRoutinesBackup();
+        dbg.Stop();
       }
     }
 
@@ -1664,6 +2093,21 @@ END;
     [Fact]
     public void ReallyBigLocalVarIdentifier()
     {
+      SteppingTraceInfo[] info = new SteppingTraceInfo[] { 
+        new SteppingTraceInfo("test.A_big_name_for_stored_procedure_if_you_ask_me_must_smaller_end1", 4, 4),
+        new SteppingTraceInfo("test.A_big_name_for_stored_procedure_if_you_ask_me_must_smaller_end1", 5, 4),
+        new SteppingTraceInfo("test.A_big_name_for_stored_procedure_if_you_ask_me_must_smaller_end1", 8, 8),
+        new SteppingTraceInfo("test.A_big_name_for_stored_procedure_if_you_ask_me_must_smaller_end1", 11, 7),
+        new SteppingTraceInfo("test.A_big_name_for_stored_procedure_if_you_ask_me_must_smaller_end1", 8, 8),
+        new SteppingTraceInfo("test.A_big_name_for_stored_procedure_if_you_ask_me_must_smaller_end1", 11, 7),
+        new SteppingTraceInfo("test.A_big_name_for_stored_procedure_if_you_ask_me_must_smaller_end1", 8, 8),
+        new SteppingTraceInfo("test.A_big_name_for_stored_procedure_if_you_ask_me_must_smaller_end1", 11, 7),
+        new SteppingTraceInfo("test.A_big_name_for_stored_procedure_if_you_ask_me_must_smaller_end1", 8, 8),
+        new SteppingTraceInfo("test.A_big_name_for_stored_procedure_if_you_ask_me_must_smaller_end1", 11, 7),
+        new SteppingTraceInfo("test.A_big_name_for_stored_procedure_if_you_ask_me_must_smaller_end1", 14, 0)
+      };
+      SteppingTraceInfoList l = new SteppingTraceInfoList(info);
+
       string sql =
         @"
 DELIMITER // 
@@ -1688,7 +2132,6 @@ end //
       {
         dbg.Connection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         dbg.UtilityConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
-        dbg.LockingConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         DumpConnectionThreads(dbg);
         MySqlScript script = new MySqlScript(dbg.Connection, sql);
         script.Execute();
@@ -1712,13 +2155,15 @@ end;
         dbg.SteppingType = SteppingTypeEnum.StepInto;
         dbg.OnBreakpoint += (bp) =>
         {
-          Debug.WriteLine(string.Format("breakpoint at line {0}:{1},{2}", bp.RoutineName, bp.Line, bp.StartColumn));
+          l.AssertBreakpoint(bp);
         };
         dbg.Run(null, null);
+        l.AssertFinal();
       }
       finally
       {
         dbg.RestoreRoutinesBackup();
+        dbg.Stop();
       }
     }
 
@@ -1728,6 +2173,14 @@ end;
     [Fact]
     public void ExpressionWithTwoFunctions()
     {
+      SteppingTraceInfo[] info = new SteppingTraceInfo[] { 
+        new SteppingTraceInfo("test.TestingFunctions", 5, 0),
+        new SteppingTraceInfo("test.GetSum", 3, 0),
+        new SteppingTraceInfo("test.GetDiff", 3, 0),
+        new SteppingTraceInfo("test.TestingFunctions", 7, 0)
+      };
+      SteppingTraceInfoList l = new SteppingTraceInfoList(info);
+
       string sql =
         @"
 DELIMITER // 
@@ -1757,7 +2210,6 @@ end //
       {
         dbg.Connection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         dbg.UtilityConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
-        dbg.LockingConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
         DumpConnectionThreads(dbg);
         MySqlScript script = new MySqlScript(dbg.Connection, sql);
         script.Execute();
@@ -1774,13 +2226,15 @@ end;
         dbg.SteppingType = SteppingTypeEnum.StepInto;
         dbg.OnBreakpoint += (bp) =>
         {
-          Debug.WriteLine(string.Format("breakpoint at line {0}:{1},{2}", bp.RoutineName, bp.Line, bp.StartColumn));
+          l.AssertBreakpoint(bp);
         };
         dbg.Run(null, null);
+        l.AssertFinal();
       }
       finally
       {
         dbg.RestoreRoutinesBackup();
+        dbg.Stop();
       }
     }
 
@@ -1790,6 +2244,21 @@ end;
     [Fact]
     public void SakilaRewardsReport()
     {
+      SteppingTraceInfo[] info = new SteppingTraceInfo[] { 
+          new SteppingTraceInfo("sakila.rewards_report", 15, 4),
+          new SteppingTraceInfo("sakila.rewards_report", 19, 4),
+          new SteppingTraceInfo("sakila.rewards_report", 25, 4),
+          new SteppingTraceInfo("sakila.rewards_report", 26, 4),
+          new SteppingTraceInfo("sakila.rewards_report", 27, 4),
+          new SteppingTraceInfo("sakila.rewards_report", 33, 4),
+          new SteppingTraceInfo("sakila.rewards_report", 39, 4),
+          new SteppingTraceInfo("sakila.rewards_report", 48, 4),
+          new SteppingTraceInfo("sakila.rewards_report", 54, 4),
+          new SteppingTraceInfo("sakila.rewards_report", 59, 4),
+          new SteppingTraceInfo("sakila.rewards_report", 60, 0)
+      };
+      SteppingTraceInfoList l = new SteppingTraceInfoList(info);
+
       string sql =
         @" /* nothing, already exists in sakila */";
       Debugger dbg = new Debugger();
@@ -1797,7 +2266,6 @@ end;
       {
         dbg.Connection = new MySqlConnection(TestUtils.CONNECTION_STRING_SAKILA );
         dbg.UtilityConnection = new MySqlConnection(TestUtils.CONNECTION_STRING_SAKILA);
-        dbg.LockingConnection = new MySqlConnection(TestUtils.CONNECTION_STRING_SAKILA);
         DumpConnectionThreads(dbg);
         MySqlScript script = new MySqlScript(dbg.Connection, sql);
         script.Execute();
@@ -1867,13 +2335,15 @@ END;
         dbg.SteppingType = SteppingTypeEnum.StepInto;
         dbg.OnBreakpoint += (bp) =>
         {
-          Debug.WriteLine(string.Format("breakpoint at line {0}:{1},{2}", bp.RoutineName, bp.Line, bp.StartColumn));
+          l.AssertBreakpoint(bp);
         };
         dbg.Run( new string[] { "10", "1", "@x" }, new string[] { "@x=1" });
+        l.AssertFinal();
       }
       finally
       {
         dbg.RestoreRoutinesBackup();
+        dbg.Stop();
       }
     }
   }

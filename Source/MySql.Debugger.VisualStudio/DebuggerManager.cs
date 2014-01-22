@@ -1,4 +1,4 @@
-﻿// Copyright © 2004, 2012, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2004, 2014, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -118,7 +118,6 @@ namespace MySql.Debugger.VisualStudio
       _connection = new MySqlConnection(_node.ConnectionString);
       _debugger.Connection = new MySqlConnection(_connection.ConnectionString);
       _debugger.UtilityConnection = new MySqlConnection(_connection.ConnectionString);
-      _debugger.LockingConnection = new MySqlConnection(_connection.ConnectionString);
       _debugger.Connection.Open();
       _debugger.OnStartDebugger += () => { _debugger.CurrentScope.FileName = this.tempFileName; };
 

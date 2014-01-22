@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2014, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -76,7 +76,6 @@ namespace MySql.Data.VisualStudio
           return tsr;
       }
       // no cache entry, then parse
-      // The grammar supports upper case only
       MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(sql));//ASCIIEncoding.ASCII.GetBytes(sql));
       CaseInsensitiveInputStream input = new CaseInsensitiveInputStream(ms);
       MySQLLexer lexer = new MySQLLexer(input);
@@ -114,7 +113,6 @@ namespace MySql.Data.VisualStudio
       string sql, bool expectErrors, out StringBuilder sb, out CommonTokenStream tokensOutput, Version version)
     {
       sql = sql.TrimStart();
-      // The grammar supports upper case only
       MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(sql));//ASCIIEncoding.ASCII.GetBytes(sql));
       CaseInsensitiveInputStream input = new CaseInsensitiveInputStream(ms);
       //ANTLRInputStream input = new ANTLRInputStream(ms);
@@ -137,7 +135,6 @@ namespace MySql.Data.VisualStudio
     {
       sql = sql.TrimStart();
       DbConnection con = GetConnection();
-      // The grammar supports upper case only
       MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(sql));//ASCIIEncoding.ASCII.GetBytes(sql));
       CaseInsensitiveInputStream input = new CaseInsensitiveInputStream(ms);
       //ANTLRInputStream input = new ANTLRInputStream(ms);

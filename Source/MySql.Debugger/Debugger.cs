@@ -1,4 +1,4 @@
-﻿// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2004, 2014, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -79,20 +79,6 @@ namespace MySql.Debugger
       }
     }
 
-    private MySqlConnection _lockingCon;
-
-    public MySqlConnection LockingConnection
-    {
-      get
-      {
-        return _lockingCon;
-      }
-      set
-      {
-        _lockingCon = value;
-      }
-    }
-
     private string _sqlInput;
 
     /// <summary>
@@ -102,6 +88,17 @@ namespace MySql.Debugger
     {
       get { return _sqlInput; }
       set { _sqlInput = value; }
+    }
+
+    // Dictionary with list of information functions (and their read query)
+    private static Dictionary<string, string> _dicInformationFunctions = null;
+
+    static Debugger()
+    {
+      _dicInformationFunctions = new Dictionary<string, string>();
+      _dicInformationFunctions.Add("last_insert_id", VAR_DBG_LAST_INSERT_ID_READ );
+      _dicInformationFunctions.Add("found_rows", VAR_DBG_FOUND_ROWS_READ );
+      _dicInformationFunctions.Add("row_count", VAR_DBG_ROW_COUNT_READ );
     }
 
     public Debugger()
@@ -200,8 +197,6 @@ namespace MySql.Debugger
         _connection.Open();
       if ((_utilCon.State & ConnectionState.Open) == 0)
         _utilCon.Open();
-      if ((_lockingCon.State & ConnectionState.Open) == 0)
-        _lockingCon.Open();
       try
       {
         // config binlo
@@ -363,7 +358,6 @@ namespace MySql.Debugger
         cmd.ExecuteNonQuery();
         _utilCon.Close(); 
         } catch { }
-        try { _lockingCon.Close(); } catch { }
         try { _connection.Close(); } catch { }
         IsRunning = false;
         if (RestoreAtExit)
@@ -527,14 +521,23 @@ namespace MySql.Debugger
 
     private void GetCurrentScopeLevel()
     {
-      _scopeLevel = Convert.ToInt32(ExecuteScalar("select `serversidedebugger`.`debugdata`.`Val` from `serversidedebugger`.`debugdata` where `serversidedebugger`.`debugdata`.`Id` = 1"));
+      _scopeLevel = Convert.ToInt32(GetDebugDataVar((int)DebugDataEnum.ScopeLevel));
     }
 
     private void SetCurrentScopeLevel(int newScope)
     {
       _scopeLevel = newScope;
-      ExecuteRaw(string.Format("update `serversidedebugger`.`debugdata` set `serversidedebugger`.`debugdata`.`Val` = {0} where `serversidedebugger`.`debugdata`.`Id` = 1;", newScope));
-      //ExecuteScalar(string.Format("set {0} = {1};", VAR_DBG_SCOPE_LEVEL, newScope));
+      SetDebugDataVar((int)DebugDataEnum.ScopeLevel, newScope);
+    }
+
+    private void SetDebugDataVar(int Id, object data)
+    {
+      ExecuteRaw(string.Format(VAR_DBG_DATA_WRITE, Id, data));
+    }
+
+    private object GetDebugDataVar(int Id)
+    {
+      return ExecuteScalar( string.Format( VAR_DBG_DATA_READ, Id ));
     }
 
     private bool _stopping = false;
@@ -583,15 +586,9 @@ namespace MySql.Debugger
 
     private void SetDebuggerLock()
     {
-      MySqlCommand cmd = new MySqlCommand(string.Format("set @@global.net_write_timeout = {0} + 1;", NET_WRITE_TIMEOUT_BASE_VALUE), _lockingCon);
+      MySqlCommand cmd = new MySqlCommand(string.Format("set @@global.net_write_timeout = {0} + 1;", NET_WRITE_TIMEOUT_BASE_VALUE), _utilCon );
       cmd.ExecuteNonQuery();
-    }
-
-    private void ReleaseDebuggerLock()
-    {
-      MySqlCommand cmd = new MySqlCommand("unlock tables;", _lockingCon);
-      cmd.ExecuteNonQuery();
-    }
+    }    
 
     private void ReleaseDebuggeeLock()
     {
@@ -763,8 +760,6 @@ namespace MySql.Debugger
         if (st.VarKind == VarKindEnum.Internal) continue;
         if (st.ValueChanged)
         {
-          //sql.Append("replace `serversidedebugger`.`DebugScope`( DebugSessionId, DebugScopeLevel, VarName, VarValue ) ").
-          //  AppendFormat("values ( {0}, {1}, '{2}', cast( {3} as binary ) );", DebugSessionId, _scopeLevel, st.Name, st.WrapValue()).AppendLine();
           sql.AppendFormat(" call `serversidedebugger`.`SetDebugScopeVar`( {0}, {1}, '{2}', cast( {3} as binary ) );", DebugSessionId, _scopeLevel, st.Name, st.WrapValue()).AppendLine();
           st.ValueChanged = false;
         }
@@ -994,11 +989,11 @@ namespace MySql.Debugger
         cmd.ExecuteNonQuery();
         cmd.CommandText = "set session transaction isolation level read uncommitted;";
         cmd.ExecuteNonQuery();
-        cmd.CommandText = string.Format( "set {0} = last_insert_id();", VAR_DBG_LAST_INSERT_ID);
+        cmd.CommandText = VAR_DBG_LAST_INSERT_ID_WRITE;
         cmd.ExecuteNonQuery();
-        cmd.CommandText = string.Format("set {0} = found_rows();", VAR_DBG_FOUND_ROWS);
+        cmd.CommandText = VAR_DBG_FOUND_ROWS_WRITE;
         cmd.ExecuteNonQuery();
-        cmd.CommandText = string.Format("set {0} = row_count();", VAR_DBG_ROW_COUNT);
+        cmd.CommandText = VAR_DBG_ROW_COUNT_WRITE;
         cmd.ExecuteNonQuery();
 
         cmd.CommandText = string.Format("SELECT @@GLOBAL.binlog_format;");
@@ -1007,8 +1002,6 @@ namespace MySql.Debugger
         cmd.ExecuteNonQuery();
 
         SetNoDebuggingFlag(0, _connection);
-        //cmd.CommandText = string.Format("set {0} = 0;", VAR_DBG_SCOPE_LEVEL);
-        //cmd.ExecuteNonQuery();
 
         // run the command
         cmd.CommandText = _sqlToRun;
@@ -1160,11 +1153,11 @@ namespace MySql.Debugger
       StringBuilder preInscode = new StringBuilder();
       // track internal variables...
       // Workaround: row_count() is affected by any precious SET statement, so must be first
-      preInscode.AppendFormat("set {0} = row_count();", VAR_DBG_ROW_COUNT);
+      preInscode.Append(VAR_DBG_ROW_COUNT_WRITE);
       preInscode.AppendLine();
-      preInscode.AppendFormat("set {0} = last_insert_id();", VAR_DBG_LAST_INSERT_ID);
+      preInscode.Append(VAR_DBG_LAST_INSERT_ID_WRITE);
       preInscode.AppendLine();
-      preInscode.AppendFormat("set {0} = found_rows();", VAR_DBG_FOUND_ROWS);
+      preInscode.Append(VAR_DBG_FOUND_ROWS_WRITE);
       preInscode.AppendLine();
       preInscode.Append(" call `serversidedebugger`.`SetDebugScopeVar`( {3}, {0}, '@@@lineno', {1} );" ).AppendLine();      
       preInscode.Append(" call `serversidedebugger`.`SetDebugScopeVar`( {3}, {0}, '@@@colno', {4} );").AppendLine();      
@@ -1362,46 +1355,42 @@ namespace MySql.Debugger
       for (int i = StartTokenIndex; i <= EndTokenIndex; i++)
       {
         IToken tok = cts.Get(i);
+        string funcTemplate;
         if (((i + 1) <= EndTokenIndex) && (cts.Get(i + 1).Type == MySQL51Parser.LPAREN) &&
-          ((i + 2) <= EndTokenIndex) && (cts.Get(i + 2).Type == MySQL51Parser.RPAREN))
+          ((i + 2) <= EndTokenIndex) && (cts.Get(i + 2).Type == MySQL51Parser.RPAREN) &&
+          _dicInformationFunctions.TryGetValue(tok.Text, out funcTemplate))
         {
-          if (Cmp(tok.Text, "last_insert_id") == 0)
-          {
-            sb.Append(VAR_DBG_LAST_INSERT_ID);
-            i += 2;
-            continue;
-          }
-          else if (Cmp(tok.Text, "row_count") == 0) 
-          {
-            sb.Append(VAR_DBG_ROW_COUNT);
-            i += 2;
-            continue;
-          }
-          else if (Cmp(tok.Text, "found_rows") == 0)
-          {
-            sb.Append(VAR_DBG_FOUND_ROWS);
-            i += 2;
-            continue;
-          }
+          sb.Append(funcTemplate);
+          i += 2;
         }
-        sb.Append(tok.Text);
+        else
+        {
+          sb.Append(tok.Text);
+        }
       }
     }
 
     // Session variables
     private const string VAR_DBG_BINARY_BUF = "@dbg_binary_buf";
-    private const string VAR_DBG_ROW_COUNT = "@dbg_row_count";
-    private const string VAR_DBG_LAST_INSERT_ID = "@dbg_last_insert_id";
-    private const string VAR_DBG_FOUND_ROWS = "@dbg_found_rows";
-    //private const string VAR_DBG_SCOPE_LEVEL = "@dbg_ScopeLevel";
-    private const string VAR_DBG_SCOPE_LEVEL = "(select `serversidedebugger`.`debugdata`.`Val` from `serversidedebugger`.`debugdata` where `serversidedebugger`.`debugdata`.`id` = 1 limit 1 )";
+    
+    private static readonly string VAR_DBG_ROW_COUNT_READ = string.Format( VAR_DBG_DATA_READ, (int)DebugDataEnum.RowCount );
+    private static readonly string VAR_DBG_ROW_COUNT_WRITE = string.Format( VAR_DBG_DATA_WRITE, ( int )DebugDataEnum.RowCount, "row_count()" );
+    private static readonly string VAR_DBG_LAST_INSERT_ID_READ = string.Format( VAR_DBG_DATA_READ, ( int )DebugDataEnum.LastInsertId );
+    private static readonly string VAR_DBG_LAST_INSERT_ID_WRITE = string.Format( VAR_DBG_DATA_WRITE, ( int )DebugDataEnum.LastInsertId, "last_insert_id()" );
+    private static readonly string VAR_DBG_FOUND_ROWS_READ = string.Format( VAR_DBG_DATA_READ, ( int )DebugDataEnum.FoundRows );
+    private static readonly string VAR_DBG_FOUND_ROWS_WRITE = string.Format(VAR_DBG_DATA_WRITE, (int)DebugDataEnum.FoundRows, "found_rows()" );
+
+    private const string VAR_DBG_DATA_READ = "(select `serversidedebugger`.`debugdata`.`Val` from `serversidedebugger`.`debugdata` where `serversidedebugger`.`debugdata`.`Id` = {0} limit 1)";
+    private const string VAR_DBG_DATA_WRITE = "update `serversidedebugger`.`debugdata` set `serversidedebugger`.`debugdata`.`Val` = {1} where `serversidedebugger`.`debugdata`.`Id` = {0};";
+    private static readonly string VAR_DBG_SCOPE_LEVEL = string.Format( VAR_DBG_DATA_READ, ( int )DebugDataEnum.ScopeLevel );
     private const string VAR_DBG_NO_DEBUGGING = "@dbg_NoDebugging";
+    
 
     private void EmitBeginScopeCode( StringBuilder sql, RoutineInfo ri )
     {
       sql.AppendFormat("if {0} = 0 then ", VAR_DBG_NO_DEBUGGING);
       sql.AppendLine();
-      sql.Append("update `serversidedebugger`.`debugdata` set `serversidedebugger`.`debugdata`.`Val` = `serversidedebugger`.`debugdata`.`Val` + 1 where `serversidedebugger`.`debugdata`.`Id` = 1;");
+      sql.AppendFormat( VAR_DBG_DATA_WRITE, ( int )DebugDataEnum.ScopeLevel, "`serversidedebugger`.`debugdata`.`Val` + 1" );
       sql.AppendLine();
       sql.AppendFormat("call `serversidedebugger`.`Push`( {0}, '{1}' );", DebugSessionId, ri.FullName );
       sql.AppendLine();
@@ -1988,10 +1977,6 @@ ri.TriggerInfo.Table, ri.TriggerInfo.ObjectSchema);
       return routines;
     }
 
-    //// cache of metadata for routines & triggers
-    //private List<MetaRoutine> routines = new List<MetaRoutine>();
-    //private List<MetaTrigger> triggers = new List<MetaTrigger>();
-
     /// <summary>
     /// Given an statement's AST gets all the triggers associated with it.
     /// </summary>
@@ -2326,18 +2311,20 @@ ri.TriggerInfo.Table, ri.TriggerInfo.ObjectSchema);
     {
       Dictionary<string, StoreType> vars = rs.Variables;
       StringBuilder sb = new StringBuilder();
-
-      //foreach (IToken tok in cts.GetTokens(t.TokenStartIndex, t.TokenStopIndex))
+      
       for (int i = t.TokenStartIndex; i <= t.TokenStopIndex; i++)
       {
         IToken tok = cts.Get(i);
         IToken tok2 = null;
         StoreType st = null;
-        if ((tok.Type == MySQL51Parser.AT1) && ((i + 1) <= t.TokenStopIndex) &&
-           ((tok2 = cts.Get(i + 1)).Type == MySQL51Parser.ID))
+        string funcTemplate;
+        int endTokenIndex = t.TokenStopIndex;
+        int nextTokenType = ((i + 1) <= endTokenIndex) ? cts.Get(i + 1).Type : -1;
+        int nextTokenType2 = ((i + 2) <= endTokenIndex) ? cts.Get(i + 2).Type : -1;
+        if ((tok.Type == MySQL51Parser.AT1) && nextTokenType == MySQL51Parser.ID )
         {
+          tok2 = cts.Get(i + 1);
           string id = string.Format("@{0}", tok2.Text );
-          // TODO: What about qualified names line a.b? There's no way to add variables like that (until we support triggers and new.col).
           if (vars.TryGetValue(id, out st))
           {
             i++;
@@ -2345,10 +2332,9 @@ ri.TriggerInfo.Table, ri.TriggerInfo.ObjectSchema);
           }
         }
         else if (((tok.Type == MySQL51Parser.NEW) || ( Cmp( tok.Text, "old" ) == 0 )) &&
-          ((i + 1) <= t.TokenStopIndex) &&
-          ( cts.Get( i + 1 ).Type == MySQL51Parser.DOT ) && ( ( i + 2 ) <= t.TokenStopIndex ) &&
-          ( ( tok2 = cts.Get( i + 2 ) ).Type == MySQL51Parser.ID ))
+          nextTokenType == MySQL51Parser.DOT && nextTokenType2 == MySQL51Parser.ID )
         {
+          tok2 = cts.Get(i + 2);
           string id = string.Format("{0}.{1}", tok.Text, tok2.Text );
           if (vars.TryGetValue(id, out st))
           {
@@ -2363,6 +2349,13 @@ ri.TriggerInfo.Table, ri.TriggerInfo.ObjectSchema);
         else if (vars.TryGetValue(tok.Text, out st))
         {
           sb.Append(StoreType.WrapValue(st.Value));
+        }
+        else if ( nextTokenType == MySQL51Parser.LPAREN && nextTokenType2 == MySQL51Parser.RPAREN &&
+          // First look for the '(' & ')', then for keyword (which is most expensive)
+          _dicInformationFunctions.TryGetValue(tok.Text, out funcTemplate) )
+        {
+          sb.Append(funcTemplate);
+          i += 2;
         }
         else
         {
@@ -2387,7 +2380,6 @@ ri.TriggerInfo.Table, ri.TriggerInfo.ObjectSchema);
     public MySQL51Parser.program_return ParseSql(string sql, bool expectErrors, out StringBuilder sb, out CommonTokenStream cts)
     {
       Version ver = ParserUtils.GetVersion( _connection.ServerVersion );
-      // The grammar supports upper case only
       MemoryStream ms = new MemoryStream(ASCIIEncoding.UTF8.GetBytes(sql));
       CaseInsensitiveInputStream input = new CaseInsensitiveInputStream(ms);
       MySQLLexer lexer = new MySQLLexer(input);

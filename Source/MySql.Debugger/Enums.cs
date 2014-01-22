@@ -1,4 +1,4 @@
-﻿// Copyright © 2004, 2012, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2004, 2014, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -75,5 +75,17 @@ namespace MySql.Debugger
     Session = 2,
     Global = 3,
     Internal = 4
+  }
+
+  /// <summary>
+  /// List of ids data rows in debugdata (as generaged in script Schema.sql).
+  /// </summary>
+  public enum DebugDataEnum : int
+  {
+    ScopeLevel = 1,
+    LastInsertId = 2,
+    RowCount = 3,
+    NoDebugging = 4,
+    FoundRows = 5
   }
 }
