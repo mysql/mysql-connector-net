@@ -6,7 +6,7 @@
     <Framework Condition=" '$(Framework)' == '' and '$(VisualStudioVersion)' == '10.0'">4.0</Framework>
     <Framework Condition=" '$(Framework)' == '' and '$(VisualStudioVersion)' == '11.0'">4.5</Framework>
     <Framework Condition=" '$(Framework)' == '' and '$(VisualStudioVersion)' == '12.0'">4.5.1</Framework>
-    <Framework Condition=" '$(Framework)' == ''">2.0</Framework>
+    <Framework Condition=" '$(Framework)' == ''">3.5</Framework>
     <!--    <FrameworkVar>$([System.Convert]::ToString( $(Framework) ) )</FrameworkVar> -->
     <TargetFrameworkVersion Condition="'$(Framework)'!=''">v$(Framework)</TargetFrameworkVersion>
     <ProjectGuid>{2D442A7A-B938-4168-A736-21A41CAD5DD2}</ProjectGuid>
