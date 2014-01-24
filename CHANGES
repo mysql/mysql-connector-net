@@ -24,6 +24,7 @@ Oracle bug #17568158).
 - Fix for WI #910 Connect to MySQL window is not retrieving the tables.
 - Fix for MySql Debugger does not evaluate last_insert_id function in watch expression correctly 
   (although it uses the right value in user debuggee code). (Oracle bug #18111085).
+- Changed debugger's database name to ".serversidedebugger" so it is hidden by default in MySql Workbench.
 
 
 6.6.6

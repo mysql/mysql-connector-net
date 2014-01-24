@@ -725,7 +725,7 @@ namespace MySql.Debugger
     private Dictionary<string, StoreType> LoadScopeVars(int DebugScopeLevel)
     {
       string sql =
-        @"select cast( `serversidedebugger`.`debugscope`.`VarValue` as {3} ) from `serversidedebugger`.`debugscope` where `serversidedebugger`.`debugscope`.`DebugSessionId` = {0} and `serversidedebugger`.`debugscope`.`DebugScopeLevel` = {1} and `serversidedebugger`.`debugscope`.`VarName` = '{2}' and `serversidedebugger`.`debugscope`.`Id` = ( select max( `serversidedebugger`.`debugscope`.`Id` ) from `serversidedebugger`.`debugscope` where `serversidedebugger`.`debugscope`.`DebugSessionId` = {0} and `serversidedebugger`.`debugscope`.`DebugScopeLevel` = {1} and `serversidedebugger`.`debugscope`.`VarName` = '{2}' )";
+        @"select cast( `.serversidedebugger`.`debugscope`.`VarValue` as {3} ) from `.serversidedebugger`.`debugscope` where `.serversidedebugger`.`debugscope`.`DebugSessionId` = {0} and `.serversidedebugger`.`debugscope`.`DebugScopeLevel` = {1} and `.serversidedebugger`.`debugscope`.`VarName` = '{2}' and `.serversidedebugger`.`debugscope`.`Id` = ( select max( `.serversidedebugger`.`debugscope`.`Id` ) from `.serversidedebugger`.`debugscope` where `.serversidedebugger`.`debugscope`.`DebugSessionId` = {0} and `.serversidedebugger`.`debugscope`.`DebugScopeLevel` = {1} and `.serversidedebugger`.`debugscope`.`VarName` = '{2}' )";
       Dictionary<string, StoreType> vars = CurrentScope.Variables;
       MySqlCommand cmd = new MySqlCommand(sql, _utilCon);
       foreach (StoreType st in vars.Values)
@@ -760,7 +760,7 @@ namespace MySql.Debugger
         if (st.VarKind == VarKindEnum.Internal) continue;
         if (st.ValueChanged)
         {
-          sql.AppendFormat(" call `serversidedebugger`.`SetDebugScopeVar`( {0}, {1}, '{2}', cast( {3} as binary ) );", DebugSessionId, _scopeLevel, st.Name, st.WrapValue()).AppendLine();
+          sql.AppendFormat(" call `.serversidedebugger`.`SetDebugScopeVar`( {0}, {1}, '{2}', cast( {3} as binary ) );", DebugSessionId, _scopeLevel, st.Name, st.WrapValue()).AppendLine();
           st.ValueChanged = false;
         }
       }
@@ -1159,13 +1159,13 @@ namespace MySql.Debugger
       preInscode.AppendLine();
       preInscode.Append(VAR_DBG_FOUND_ROWS_WRITE);
       preInscode.AppendLine();
-      preInscode.Append(" call `serversidedebugger`.`SetDebugScopeVar`( {3}, {0}, '@@@lineno', {1} );" ).AppendLine();      
-      preInscode.Append(" call `serversidedebugger`.`SetDebugScopeVar`( {3}, {0}, '@@@colno', {4} );").AppendLine();      
+      preInscode.Append(" call `.serversidedebugger`.`SetDebugScopeVar`( {3}, {0}, '@@@lineno', {1} );" ).AppendLine();      
+      preInscode.Append(" call `.serversidedebugger`.`SetDebugScopeVar`( {3}, {0}, '@@@colno', {4} );").AppendLine();      
       // ...and user variables
       foreach (StoreType st in args.Values)
       {
         if (st.VarKind == VarKindEnum.Internal) continue;        
-        preInscode.AppendLine("call `serversidedebugger`.`SetDebugScopeVar`( {3}, {0}, ").
+        preInscode.AppendLine("call `.serversidedebugger`.`SetDebugScopeVar`( {3}, {0}, ").
           AppendFormat("'{0}', cast( {0} as binary ) );", st.Name).AppendLine();
       }
       StringBuilder postInscode = new StringBuilder();
@@ -1173,8 +1173,8 @@ namespace MySql.Debugger
       {
         if (st.VarKind == VarKindEnum.Internal) continue;
         postInscode.AppendFormat(
-          @"set {0} = ( select cast( `serversidedebugger`.`debugscope`.`VarValue` as {1} ) from `serversidedebugger`.`debugscope` where `serversidedebugger`.`debugscope`.`DebugSessionId` = {2} ", st.Name, st.GetCastExpressionFromBinary(), DebugSessionId).
-          AppendFormat(" and `serversidedebugger`.`debugscope`.`DebugScopeLevel` = {0} and `serversidedebugger`.`debugscope`.`VarName` = '{1}' and `serversidedebugger`.`debugscope`.`Id` = ( select max( `serversidedebugger`.`debugscope`.`Id` ) from `serversidedebugger`.`debugscope` where `serversidedebugger`.`debugscope`.`DebugSessionId` = {2} and `serversidedebugger`.`debugscope`.`DebugScopeLevel` = {0} and `serversidedebugger`.`debugscope`.`VarName` = '{1}' ));",
+          @"set {0} = ( select cast( `.serversidedebugger`.`debugscope`.`VarValue` as {1} ) from `.serversidedebugger`.`debugscope` where `.serversidedebugger`.`debugscope`.`DebugSessionId` = {2} ", st.Name, st.GetCastExpressionFromBinary(), DebugSessionId).
+          AppendFormat(" and `.serversidedebugger`.`debugscope`.`DebugScopeLevel` = {0} and `.serversidedebugger`.`debugscope`.`VarName` = '{1}' and `.serversidedebugger`.`debugscope`.`Id` = ( select max( `.serversidedebugger`.`debugscope`.`Id` ) from `.serversidedebugger`.`debugscope` where `.serversidedebugger`.`debugscope`.`DebugSessionId` = {2} and `.serversidedebugger`.`debugscope`.`DebugScopeLevel` = {0} and `.serversidedebugger`.`debugscope`.`VarName` = '{1}' ));",
             "{0}", st.Name, DebugSessionId );
         postInscode.AppendLine();
       }
@@ -1303,15 +1303,15 @@ namespace MySql.Debugger
       sql.AppendFormat("if {0} = 0 then ", VAR_DBG_NO_DEBUGGING);
       sql.AppendLine();
       sql.AppendFormat(routine.PreInstrumentationCode, VAR_DBG_SCOPE_LEVEL, lineno, routine.FullName, DebugSessionId, colno);
-      sql.AppendLine(string.Format("call `serversidedebugger`.`ExitEnterCriticalSection`( '{0}', {1} );", routine.Name, lineno ));
+      sql.AppendLine(string.Format("call `.serversidedebugger`.`ExitEnterCriticalSection`( '{0}', {1} );", routine.Name, lineno ));
       sql.AppendFormat(routine.PostInstrumentationCode, VAR_DBG_SCOPE_LEVEL, DebugSessionId);
       sql.AppendLine(" end if;");
     }
 
     private void CleanupScopeAll()
     {
-      ExecuteRaw(string.Format("delete from `serversidedebugger`.`debugscope` where DebugSessionId = {0}", DebugSessionId));
-      ExecuteRaw(string.Format("delete from `serversidedebugger`.`debugcallstack` where DebugSessionId = {0}", DebugSessionId));
+      ExecuteRaw(string.Format("delete from `.serversidedebugger`.`debugscope` where DebugSessionId = {0}", DebugSessionId));
+      ExecuteRaw(string.Format("delete from `.serversidedebugger`.`debugcallstack` where DebugSessionId = {0}", DebugSessionId));
     }
     
     /// <summary>
@@ -1331,7 +1331,7 @@ namespace MySql.Debugger
     {
       ConcatTokens(sb, cts, StartTokenIndex, EndTokenIndex);
       // TODO: disabled for now, because is a half-baked solution (ie. how to edit locals values after the breakpoint?)
-      //sb.AppendFormat("( `serversidedebugger`.`ExitEnterCriticalSectionFunction`( {0} ) ", ShortCircuitResult ? "1" : "0" );
+      //sb.AppendFormat("( `.serversidedebugger`.`ExitEnterCriticalSectionFunction`( {0} ) ", ShortCircuitResult ? "1" : "0" );
       //if (ShortCircuitResult)
       //  sb.Append(" and ( ");
       //else
@@ -1380,8 +1380,8 @@ namespace MySql.Debugger
     private static readonly string VAR_DBG_FOUND_ROWS_READ = string.Format( VAR_DBG_DATA_READ, ( int )DebugDataEnum.FoundRows );
     private static readonly string VAR_DBG_FOUND_ROWS_WRITE = string.Format(VAR_DBG_DATA_WRITE, (int)DebugDataEnum.FoundRows, "found_rows()" );
 
-    private const string VAR_DBG_DATA_READ = "(select `serversidedebugger`.`debugdata`.`Val` from `serversidedebugger`.`debugdata` where `serversidedebugger`.`debugdata`.`Id` = {0} limit 1)";
-    private const string VAR_DBG_DATA_WRITE = "update `serversidedebugger`.`debugdata` set `serversidedebugger`.`debugdata`.`Val` = {1} where `serversidedebugger`.`debugdata`.`Id` = {0};";
+    private const string VAR_DBG_DATA_READ = "(select `.serversidedebugger`.`debugdata`.`Val` from `.serversidedebugger`.`debugdata` where `.serversidedebugger`.`debugdata`.`Id` = {0} limit 1)";
+    private const string VAR_DBG_DATA_WRITE = "update `.serversidedebugger`.`debugdata` set `.serversidedebugger`.`debugdata`.`Val` = {1} where `.serversidedebugger`.`debugdata`.`Id` = {0};";
     private static readonly string VAR_DBG_SCOPE_LEVEL = string.Format( VAR_DBG_DATA_READ, ( int )DebugDataEnum.ScopeLevel );
     private const string VAR_DBG_NO_DEBUGGING = "@dbg_NoDebugging";
     
@@ -1390,9 +1390,9 @@ namespace MySql.Debugger
     {
       sql.AppendFormat("if {0} = 0 then ", VAR_DBG_NO_DEBUGGING);
       sql.AppendLine();
-      sql.AppendFormat( VAR_DBG_DATA_WRITE, ( int )DebugDataEnum.ScopeLevel, "`serversidedebugger`.`debugdata`.`Val` + 1" );
+      sql.AppendFormat( VAR_DBG_DATA_WRITE, ( int )DebugDataEnum.ScopeLevel, "`.serversidedebugger`.`debugdata`.`Val` + 1" );
       sql.AppendLine();
-      sql.AppendFormat("call `serversidedebugger`.`Push`( {0}, '{1}' );", DebugSessionId, ri.FullName );
+      sql.AppendFormat("call `.serversidedebugger`.`Push`( {0}, '{1}' );", DebugSessionId, ri.FullName );
       sql.AppendLine();
       sql.Append("end if;");
       sql.AppendLine();
@@ -1402,9 +1402,9 @@ namespace MySql.Debugger
     {
       sql.AppendFormat("if {0} = 0 then ", VAR_DBG_NO_DEBUGGING);
       sql.AppendLine();
-      sql.Append("call `serversidedebugger`.`CleanupScope`( 1 );");
+      sql.Append("call `.serversidedebugger`.`CleanupScope`( 1 );");
       sql.AppendLine();
-      sql.AppendFormat("call `serversidedebugger`.`Pop`( {0} );", DebugSessionId );
+      sql.AppendFormat("call `.serversidedebugger`.`Pop`( {0} );", DebugSessionId );
       sql.AppendLine();
       sql.Append("end if;");
       sql.AppendLine();
@@ -1413,7 +1413,7 @@ namespace MySql.Debugger
     private string GetCurrentRoutine()
     {
       object o = ExecuteScalar( string.Format( 
-        "select `serversidedebugger`.`Peek`( {0} );", DebugSessionId ) );
+        "select `.serversidedebugger`.`Peek`( {0} );", DebugSessionId ) );
       if (o == DBNull.Value)
         return null;
       else

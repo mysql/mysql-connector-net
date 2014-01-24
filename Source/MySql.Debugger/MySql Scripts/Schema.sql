@@ -1,10 +1,10 @@
 ﻿
 
-drop database if exists `serversidedebugger` //
+drop database if exists `.serversidedebugger` //
 
-CREATE DATABASE `serversidedebugger` //
+CREATE DATABASE `.serversidedebugger` //
 
-USE `serversidedebugger` //
+USE `.serversidedebugger` //
 
 --
 -- Table structure for table `debugcallstack`
