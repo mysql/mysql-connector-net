@@ -25,6 +25,7 @@ Oracle bug #17568158).
 - Fix for MySql Debugger does not evaluate last_insert_id function in watch expression correctly 
   (although it uses the right value in user debuggee code). (Oracle bug #18111085).
 - Changed debugger's database name to ".serversidedebugger" so it is hidden by default in MySql Workbench.
+- Fix for Entity Framework Inserts broken on tables with unsigned bigint as auto increment (MySql Bug #71242).
 
 
 6.6.6
