@@ -11,6 +11,7 @@
 - Fix for Wrong milliseconds serialization (MySql bug #70686).
 - Fix for Case incorrect on table in SQL queries for MySqlSessionStateStore (MySql bug #69652, Oracle bug #17960855).
 - Fix for rename column operation in Entity Framework migrations (MySQL Bug #71102, Oracle Bug #17959787). 
+- Fix for Entity Framework Inserts broken on tables with unsigned bigint as auto increment (MySql Bug #71242).
 
 
 6.7.4
