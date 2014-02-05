@@ -1,4 +1,4 @@
-﻿// Copyright © 2008, 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2008, 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -42,6 +42,8 @@ namespace MySql.Data.Entity
   /// </summary>
   public class MySqlMigrationCodeGenerator : CSharpMigrationCodeGenerator
   {
+    private IEnumerable<KeyValuePair<CreateTableOperation, AddForeignKeyOperation>> _foreignKeys;
+    private IEnumerable<KeyValuePair<CreateTableOperation, CreateIndexOperation>> _tableIndexes;
 
     private string TrimSchemaPrefix(string table)
     {
@@ -49,6 +51,32 @@ namespace MySql.Data.Entity
         return table.Replace("dbo.", "");
 
       return table;
+    }
+
+    private string PrepareSql(string sql, bool removeNonMySqlChars)
+    {
+      var sqlResult = sql;
+      if (removeNonMySqlChars)
+      {
+        sqlResult = sql.Replace("[", "").Replace("]", "").Replace("@", "");
+      }
+      sqlResult = sqlResult.Replace("dbo.", "");
+      return sqlResult;
+    }
+
+    public override ScaffoldedMigration Generate(string migrationId, IEnumerable<MigrationOperation> operations, string sourceModel, string targetModel, string @namespace, string className)
+    {
+      _foreignKeys = (from tbl in operations.OfType<CreateTableOperation>()
+                      from fk in operations.OfType<AddForeignKeyOperation>()
+                      where tbl.Name.Equals(fk.DependentTable, StringComparison.InvariantCultureIgnoreCase)
+                      select new KeyValuePair<CreateTableOperation, AddForeignKeyOperation>(tbl, fk)).ToList();
+
+      _tableIndexes = (from tbl in operations.OfType<CreateTableOperation>()
+                       from idx in operations.OfType<CreateIndexOperation>()
+                       where tbl.Name.Equals(idx.Table, StringComparison.InvariantCultureIgnoreCase)
+                       select new KeyValuePair<CreateTableOperation, CreateIndexOperation>(tbl, idx)).ToList();
+
+      return base.Generate(migrationId, operations, sourceModel, targetModel, @namespace, className);
     }
 
     protected override void Generate(AddColumnOperation addColumnOperation, IndentedTextWriter writer)
@@ -60,8 +88,17 @@ namespace MySql.Data.Entity
     protected override void Generate(AddForeignKeyOperation addForeignKeyOperation, IndentedTextWriter writer)
     {
       addForeignKeyOperation.PrincipalTable = TrimSchemaPrefix(addForeignKeyOperation.PrincipalTable);
-      addForeignKeyOperation.DependentTable = TrimSchemaPrefix(addForeignKeyOperation.DependentTable);      
+      addForeignKeyOperation.DependentTable = TrimSchemaPrefix(addForeignKeyOperation.DependentTable);
+      addForeignKeyOperation.Name = PrepareSql(addForeignKeyOperation.Name, false);
       base.Generate(addForeignKeyOperation, writer);
+    }
+
+    protected override void GenerateInline(AddForeignKeyOperation addForeignKeyOperation, IndentedTextWriter writer)
+    {
+      writer.WriteLine();
+      writer.Write(".ForeignKey(\"" + TrimSchemaPrefix(addForeignKeyOperation.PrincipalTable) + "\", ");
+      Generate(addForeignKeyOperation.DependentColumns, writer);
+      writer.Write(addForeignKeyOperation.CascadeDelete ? ", cascadeDelete: true)" : ")");
     }
 
     protected override void Generate(AddPrimaryKeyOperation addPrimaryKeyOperation, IndentedTextWriter writer)
@@ -90,6 +127,19 @@ namespace MySql.Data.Entity
       base.Generate(createIndexOperation, writer);
     }
 
+    protected override void GenerateInline(CreateIndexOperation createIndexOperation, IndentedTextWriter writer)
+    {
+      writer.WriteLine();
+      writer.Write(".Index(");
+
+      Generate(createIndexOperation.Columns, writer);
+
+      writer.Write(createIndexOperation.IsUnique ? ", unique: true" : "");
+      writer.Write(!createIndexOperation.HasDefaultName ? string.Format(", name: {0}", TrimSchemaPrefix(createIndexOperation.Name)) : "");
+
+      writer.Write(")");
+    }
+
     protected override void Generate(CreateTableOperation createTableOperation, IndentedTextWriter writer)
     {
       var create = new CreateTableOperation(TrimSchemaPrefix(createTableOperation.Name));
@@ -100,6 +150,18 @@ namespace MySql.Data.Entity
       create.PrimaryKey = createTableOperation.PrimaryKey;
 
       base.Generate(create, writer);
+
+      System.IO.StringWriter innerWriter = writer.InnerWriter as System.IO.StringWriter;
+      if (innerWriter != null)
+      {
+        innerWriter.GetStringBuilder().Remove(innerWriter.ToString().LastIndexOf(";"), innerWriter.ToString().Length - innerWriter.ToString().LastIndexOf(";"));
+        writer.Indent++;
+        _foreignKeys.Where(tbl => tbl.Key == createTableOperation).ToList().ForEach(fk => GenerateInline(fk.Value, writer));
+        _tableIndexes.Where(tbl => tbl.Key == createTableOperation).ToList().ForEach(idx => GenerateInline(idx.Value, writer));
+        writer.WriteLine(";");
+        writer.Indent--;
+        writer.WriteLine();
+      }
     }
 
     protected override void Generate(DropColumnOperation dropColumnOperation, IndentedTextWriter writer)
@@ -112,6 +174,7 @@ namespace MySql.Data.Entity
     {
       dropForeignKeyOperation.PrincipalTable = TrimSchemaPrefix(dropForeignKeyOperation.PrincipalTable);
       dropForeignKeyOperation.DependentTable = TrimSchemaPrefix(dropForeignKeyOperation.DependentTable);
+      dropForeignKeyOperation.Name = PrepareSql(dropForeignKeyOperation.Name, false);
       base.Generate(dropForeignKeyOperation, writer);
     }
 
