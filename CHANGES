@@ -1,5 +1,6 @@
 6.8.4
 - Fix for Entity Framework Inserts broken on tables with unsigned bigint as auto increment (MySql Bug #71242).
+- Fix for code To SQL Generation Broken For Foreign Keys/Indexes On Table Create (MySQL #70079, Oracle Bug #18049272)
 
 6.8.3
 - Fix for error using MySqlProviderFactoryResolver with NetFramework 4.0 and EF6 (Tracker Work Item #897)
