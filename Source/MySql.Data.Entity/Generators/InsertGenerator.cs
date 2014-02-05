@@ -1,4 +1,4 @@
-﻿// Copyright © 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2008, 2014, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -95,7 +95,7 @@ namespace MySql.Data.Entity
           PrimitiveTypeKind type = ((PrimitiveType)keyMember.TypeUsage.EdmType.BaseType).PrimitiveTypeKind;
           if ((type == PrimitiveTypeKind.Byte) || (type == PrimitiveTypeKind.SByte) ||
               (type == PrimitiveTypeKind.Int16) || (type == PrimitiveTypeKind.Int32) ||
-              (type == PrimitiveTypeKind.Int64))
+              (type == PrimitiveTypeKind.Int64) || (type == PrimitiveTypeKind.Decimal && IsValidMySqlDataType(keyMember.TypeUsage.EdmType.FullName)))
           {
             value = new LiteralFragment("last_insert_id()");
 	  }
@@ -107,6 +107,11 @@ namespace MySql.Data.Entity
       }
       select.Where = where;      
       return select;
+    }
+	
+	private bool IsValidMySqlDataType(string dataType)
+    {
+      return (new List<string>() { "MySql.ubigint" }).Contains(dataType);
     }
   }
 }
