@@ -329,7 +329,7 @@ namespace MySql.Data.Common
 
       byte[] inOptionValues = new byte[12];
       BitConverter.GetBytes(on).CopyTo(inOptionValues, 0);
-      BitConverter.GetBytes(time).CopyTo(inOptionValues, 4);
+      BitConverter.GetBytes(timeMilliseconds).CopyTo(inOptionValues, 4);
       BitConverter.GetBytes(interval).CopyTo(inOptionValues, 8);
       try
       {
