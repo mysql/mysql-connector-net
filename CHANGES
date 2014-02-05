@@ -26,6 +26,7 @@ Oracle bug #17568158).
   (although it uses the right value in user debuggee code). (Oracle bug #18111085).
 - Changed debugger's database name to ".serversidedebugger" so it is hidden by default in MySql Workbench.
 - Fix for Entity Framework Inserts broken on tables with unsigned bigint as auto increment (MySql Bug #71242).
+- Fix for DotNet Connector keepalive in milliseconds instead of seconds (MySql Bug #69484, Oracle Bug #17981275).
 
 
 6.6.6
