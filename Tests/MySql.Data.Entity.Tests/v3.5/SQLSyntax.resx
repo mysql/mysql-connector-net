@@ -891,4 +891,23 @@ FROM `SalariedEmployees` AS `Extent2`) AS `Project1` ON `Extent1`.`Id` = `Projec
    ORDER BY 
   `Project2`.`FirstName` ASC</value>
   </data>
+  <data name="UnionWithLimit" xml:space="preserve">
+    <value>SELECT
+1 AS `C1`, 
+`UnionAll1`.`Id` AS `C2`, 
+`UnionAll1`.`Name` AS `C3`, 
+`UnionAll1`.`MinAge` AS `C4`, 
+`UnionAll1`.`SupplierId` AS `C5`
+FROM (SELECT
+`Extent1`.`Id`, 
+`Extent1`.`Name`, 
+`Extent1`.`MinAge`, 
+`Extent1`.`SupplierId`
+FROM `Toys` AS `Extent1` UNION ALL (SELECT
+`Id`, 
+`Name`, 
+`MinAge`, 
+`SupplierId`
+FROM `Toys` LIMIT 0)) AS `UnionAll1`</value>
+  </data>
 </root>

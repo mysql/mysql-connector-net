@@ -772,6 +772,24 @@ FROM `Toys` AS `Extent1` UNION ALL SELECT
 `Extent2`.`Name`
 FROM `Companies` AS `Extent2`) AS `UnionAll1`</value>
   </data>
+  <data name="UnionWithLimit" xml:space="preserve">
+    <value>SELECT
+`UnionAll1`.`Id` AS `C1`, 
+`UnionAll1`.`Name` AS `C2`, 
+`UnionAll1`.`MinAge` AS `C3`, 
+`UnionAll1`.`SupplierId` AS `C4`
+FROM (SELECT
+`Extent1`.`Id`, 
+`Extent1`.`Name`, 
+`Extent1`.`MinAge`, 
+`Extent1`.`SupplierId`
+FROM `Toys` AS `Extent1` UNION ALL (SELECT
+`Id`, 
+`Name`, 
+`MinAge`, 
+`SupplierId`
+FROM `Toys` LIMIT 0)) AS `UnionAll1`</value>
+  </data>
   <data name="UpdateWithSelect" xml:space="preserve">
     <value>UPDATE `Products` SET `Name`='Acme 2' WHERE `Id` = 1; SELECT `CreatedDate` FROM `Products` WHERE row_count() &gt; 0 and `Id` = 1</value>
   </data>
