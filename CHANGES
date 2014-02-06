@@ -27,6 +27,8 @@ Oracle bug #17568158).
 - Changed debugger's database name to ".serversidedebugger" so it is hidden by default in MySql Workbench.
 - Fix for Entity Framework Inserts broken on tables with unsigned bigint as auto increment (MySql Bug #71242).
 - Fix for DotNet Connector keepalive in milliseconds instead of seconds (MySql Bug #69484, Oracle Bug #17981275).
+- Fix for EF SQL Generator, Union Syntax (Concat operator) is missing required parentheses (may cause semantic changes 
+  when combined with Limit clause (Take operator)) (MySql bug #70828, Oracle bug #18049691).
 
 
 6.6.6
