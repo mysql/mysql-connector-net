@@ -392,6 +392,32 @@ namespace MySql.Data.Entity.Tests.Properties {
                 return ResourceManager.GetString("JoinOfNestedUnionsWithLimit", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to SELECT
+        ///`UnionAll1`.`Id` AS `C1`, 
+        ///`UnionAll1`.`Name` AS `C2`, 
+        ///`UnionAll1`.`MinAge` AS `C3`, 
+        ///`UnionAll1`.`SupplierId` AS `C4`
+        ///FROM (SELECT
+        ///`Extent1`.`Id`, 
+        ///`Extent1`.`Name`, 
+        ///`Extent1`.`MinAge`, 
+        ///`Extent1`.`SupplierId`
+        ///FROM `Toys` AS `Extent1` UNION ALL (SELECT
+        ///`Id`, 
+        ///`Name`, 
+        ///`MinAge`, 
+        ///`SupplierId`
+        ///FROM `Toys` LIMIT 0)) AS `UnionAll1`
+        /// </summary>
+        internal static string UnionWithLimit
+        {
+          get
+          {
+            return ResourceManager.GetString("UnionWithLimit", resourceCulture);
+          }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to SELECT

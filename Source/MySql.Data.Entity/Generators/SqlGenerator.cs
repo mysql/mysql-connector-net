@@ -1,4 +1,4 @@
-﻿// Copyright © 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2008, 2014, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -568,12 +568,15 @@ namespace MySql.Data.Entity
       if (inputFragment is TableFragment && type != null)
         (inputFragment as TableFragment).Type = type;
 
-      if ((inputFragment is SelectStatement) && ((inputFragment as SelectStatement).From is TableFragment))
-        ((inputFragment as SelectStatement).From as TableFragment).Type = type;
+      SelectStatement select = inputFragment as SelectStatement;
+      if ((select != null) && (select.From is TableFragment))
+      {
+        (select.From as TableFragment).Type = type;
+      }
 
       if (name != null)
         scope.Add(name, inputFragment);
-
+      
       return inputFragment;
     }
 
