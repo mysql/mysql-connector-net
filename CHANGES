@@ -2,12 +2,16 @@
 - Fix for Entity Framework Inserts broken on tables with unsigned bigint as auto increment (MySql Bug #71242).
 - Fix for code To SQL Generation Broken For Foreign Keys/Indexes On Table Create (MySQL #70079, Oracle Bug #18049272)
 - Fix for DotNet Connector keepalive in milliseconds instead of seconds (MySql Bug #69484, Oracle Bug #17981275).
+- Fix for EF SQL Generator, Union Syntax (Concat operator) is missing required parentheses (may cause semantic changes 
+  when combined with Limit clause (Take operator)) (MySql bug #70828, Oracle bug #18049691).
+
 
 6.8.3
 - Fix for error using MySqlProviderFactoryResolver with NetFramework 4.0 and EF6 (Tracker Work Item #897)
 - Fix for Case incorrect on table in SQL queries for MySqlSessionStateStore (MySql bug #69652, Oracle bug #17960855).
 - Fix for rename column operation in Entity Framework migrations (MySQL Bug #71102, Oracle Bug #17959787). 
 - Fix for WI #911 Installer failing when .Net Framework 4 is not installed.
+
 
 6.8.2
 - Fix for WI# 838, Model First is broken for string columns with unbounded length.
@@ -18,12 +22,14 @@
 - Fix for Wrong milliseconds serialization (MySql bug #70686).
 - Fix for Stack overflow exception on spatial types
 
+
 6.8.1
 - Changed EF migration history table to use a single column as primary key.
 - Removed installer validation when MySql for Visual Studio is installed.
 - Added idempotent script for Entity Framework 6 migrations.
 - Fix for WI #824, Connector/NET writes wrong version for binding redirects.
 - Fix for WI #825, Connector/NET 6.8.1 writes wrong namespace for binding redirects.
+
 
 6.8.0
 - Fix for bad query when using LINQ to Entities with a query using Take, OrderBy & Contains in Code First (MySql bug #69751, Oracle bug #17194945).

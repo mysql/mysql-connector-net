@@ -1,4 +1,4 @@
-// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -143,6 +143,28 @@ namespace MySql.Data.Entity.Tests
       {
         int cnt = context.Companies.Take(2).Count();
         Assert.Equal(2, cnt);
+      }
+    }
+
+    [Fact]
+    public void TakeWithUnion()
+    {
+      int[] ids = new int[] { 1, 2, 3, 4 };
+      string[] names = new string[] { "Slinky", "Rubiks Cube", "Lincoln Logs", "Legos" };
+      using (testEntities ctx = new testEntities())
+      {
+        var q = ctx.Toys;
+        var q2 = ctx.Toys.Take(0).Concat(q);
+        var q3 = q.Concat(q.Take(0));
+        string sql = q3.ToTraceString();
+        st.CheckSql(sql, SQLSyntax.UnionWithLimit);
+        int i = 0;
+        foreach (var row in q)
+        {
+          Assert.Equal<int>(ids[i], row.Id);
+          Assert.Equal<string>( names[ i ], row.Name );
+          i++; 
+        }
       }
     }
   }
