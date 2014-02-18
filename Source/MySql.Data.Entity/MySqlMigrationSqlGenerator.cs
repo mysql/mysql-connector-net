@@ -1,4 +1,4 @@
-﻿// Copyright © 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2008, 2014, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -145,7 +145,12 @@ namespace MySql.Data.Entity
     {
 
       StringBuilder sb = new StringBuilder();
-      sb.Append("alter table `" + op.DependentTable + "` add constraint `" + op.Name + "` " +
+      string fkName = op.Name;
+      if (fkName.Length > 64)
+      {
+        fkName = "FK_" + Guid.NewGuid().ToString().Replace("-", "");
+      }
+      sb.Append("alter table `" + TrimSchemaPrefix(op.DependentTable) + "` add constraint `" + TrimSchemaPrefix(fkName) + "` " +
                  " foreign key ");
 
       sb.Append("(" + string.Join(",", op.DependentColumns.Select(c => "`" + c + "`")) + ") ");
@@ -373,6 +378,14 @@ namespace MySql.Data.Entity
     protected virtual MigrationStatement Generate(SqlOperation op)
     {
       return new MigrationStatement { Sql = op.Sql, SuppressTransaction = op.SuppressTransaction };
+    }
+
+    private string TrimSchemaPrefix(string table)
+    {
+      if (table.StartsWith("dbo.") || table.Contains("dbo."))
+        return table.Replace("dbo.", "");
+
+      return table;
     }
   }
 }
