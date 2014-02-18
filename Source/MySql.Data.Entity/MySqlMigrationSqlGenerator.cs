@@ -339,7 +339,6 @@ namespace MySql.Data.Entity
     {
 
       StringBuilder sb = new StringBuilder();
-      sb.Append("alter table `" + TrimSchemaPrefix(op.DependentTable) + "` add constraint `" + TrimSchemaPrefix(op.Name) + "` " +
       string fkName = op.Name;
       if (fkName.Length > 64)
       {
