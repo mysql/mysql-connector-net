@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -530,6 +530,26 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         Assert.Equal(1, db.Products.Count());
 
         db.Database.Delete();
+      }
+    }
+
+
+    /// <summary>
+    /// Test of fix for bug Support for EntityFramework 4.3 Code First Generated Identifiers (MySql Bug #67285, Oracle bug #16286397).
+    /// FKs are renamed to met http://dev.mysql.com/doc/refman/5.0/en/identifiers.html limitations.
+    /// </summary>
+    [Fact]
+    public void LongIdentifiersInheritanceTPT()
+    {
+      ReInitDb();
+      using (DinosauriaDBContext db = new DinosauriaDBContext())
+      {
+        db.Database.Initialize(true);
+        Tyrannosauridae ty = new Tyrannosauridae() { Id = 1, Name = "Genghis Rex", SpecieName = "TRex", Weight = 1000 };
+        db.dinos.Add(ty);
+        Oviraptorosauria ovi = new Oviraptorosauria() { Id = 2, EggsPerYear = 100, Name = "John the Velociraptor", SpecieName = "Oviraptor" };
+        db.dinos.Add(ovi);
+        db.SaveChanges();
       }
     }
 

@@ -340,6 +340,12 @@ namespace MySql.Data.Entity
 
       StringBuilder sb = new StringBuilder();
       sb.Append("alter table `" + TrimSchemaPrefix(op.DependentTable) + "` add constraint `" + TrimSchemaPrefix(op.Name) + "` " +
+      string fkName = op.Name;
+      if (fkName.Length > 64)
+      {
+        fkName = "FK_" + Guid.NewGuid().ToString().Replace("-", "");
+      }
+      sb.Append("alter table `" + TrimSchemaPrefix(op.DependentTable) + "` add constraint `" + TrimSchemaPrefix(fkName) + "` " +
                  " foreign key ");
 
       sb.Append("(" + string.Join(",", op.DependentColumns.Select(c => "`" + c + "`")) + ") ");
