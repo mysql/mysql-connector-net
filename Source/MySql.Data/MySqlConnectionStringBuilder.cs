@@ -1,4 +1,26 @@
-﻿using System;
+﻿// Copyright © 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+//
+// MySQL Connector/NET is licensed under the terms of the GPLv2
+// <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
+// MySQL Connectors. There are special exceptions to the terms and 
+// conditions of the GPLv2 as it is applied to this software, see the 
+// FLOSS License Exception
+// <http://www.mysql.com/about/legal/licensing/foss-exception.html>.
+//
+// This program is free software; you can redistribute it and/or modify 
+// it under the terms of the GNU General Public License as published 
+// by the Free Software Foundation; version 2 of the License.
+//
+// This program is distributed in the hope that it will be useful, but 
+// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+// or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
+// for more details.
+//
+// You should have received a copy of the GNU General Public License along 
+// with this program; if not, write to the Free Software Foundation, Inc., 
+// 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
@@ -140,7 +162,7 @@ namespace MySql.Data.MySqlClient
       options.Add(new MySqlConnectionStringOption("keepalive", "keep alive", typeof(uint), (uint)0, false));
       options.Add(new MySqlConnectionStringOption("sqlservermode", "sql server mode", typeof(bool), false, false));
       options.Add(new MySqlConnectionStringOption("tablecaching", "table cache,tablecache", typeof(bool), false, false));
-      options.Add(new MySqlConnectionStringOption("defaulttablecacheage", "default table cache age", typeof(int), ( int ) 0, false));
+      options.Add(new MySqlConnectionStringOption("defaulttablecacheage", "default table cache age", typeof(int), ( int ) 60, false));
       options.Add(new MySqlConnectionStringOption("checkparameters", "check parameters", typeof(bool), true, false));
       options.Add(new MySqlConnectionStringOption("replication", null, typeof(bool), false, false));
       options.Add(new MySqlConnectionStringOption("exceptioninterceptors", "exception interceptors", typeof(string), null, false));
@@ -152,8 +174,8 @@ namespace MySql.Data.MySqlClient
       // pooling options
       options.Add(new MySqlConnectionStringOption("connectionlifetime", "connection lifetime", typeof(uint), ( uint )0, false));
       options.Add(new MySqlConnectionStringOption("pooling", null, typeof(bool), true, false));
-      options.Add(new MySqlConnectionStringOption("minpoolsize", "min pool size,minimum pool size", typeof(uint), ( uint )0, false));
-      options.Add(new MySqlConnectionStringOption("maxpoolsize", "max pool size,maximum pool size", typeof(uint), ( uint )100, false));
+      options.Add(new MySqlConnectionStringOption("minpoolsize", "minimumpoolsize,min pool size,minimum pool size", typeof(uint), (uint)0, false));
+      options.Add(new MySqlConnectionStringOption("maxpoolsize", "maximumpoolsize,max pool size,maximum pool size", typeof(uint), (uint)100, false));
       options.Add(new MySqlConnectionStringOption("connectionreset", "connection reset", typeof(bool), false, false));
       options.Add(new MySqlConnectionStringOption("cacheserverproperties", "cache server properties", typeof(bool), false, false));
 
