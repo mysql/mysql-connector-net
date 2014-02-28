@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2014, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -24,6 +24,7 @@
 using MySql.Data.MySqlClient.Properties;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 
 namespace MySql.Data.MySqlClient.Replication
@@ -99,7 +100,85 @@ namespace MySql.Data.MySqlClient.Replication
     /// Must be implemented. Defines the next server for a custom load balancing implementation.
     /// </summary>
     /// <param name="isMaster">Defines if the server to return is a master or any</param>
-    /// <returns>Next server based on the load balancing implementation</returns>
+    /// <returns>Next server based on the load balancing implementation.
+    ///   Null if no available server is found.
+    /// </returns>
     public abstract ReplicationServer GetServer(bool isMaster);
+
+    /// <summary>
+    /// Handles a failed connection to a server.
+    /// This method can be overrided to implement a custom failover handling
+    /// </summary>
+    /// <param name="server">The failed server</param>
+    public virtual void HandleFailover(ReplicationServer server)
+    {
+      BackgroundWorker worker = new BackgroundWorker();
+      worker.DoWork += delegate(object sender, DoWorkEventArgs e)
+      {
+        bool isRunning = false;
+        ReplicationServer server1 = e.Argument as ReplicationServer;
+#if !RT
+        System.Timers.Timer timer = new System.Timers.Timer(RetryTime * 1000.0);
+
+        System.Timers.ElapsedEventHandler elapsedEvent = delegate(object sender1, System.Timers.ElapsedEventArgs e1)
+        {
+          if (isRunning) return;
+          try
+          {
+            isRunning = true;
+            using (MySqlConnection connectionFailed = new MySqlConnection(server.ConnectionString))
+            {
+              connectionFailed.Open();
+              server1.IsAvailable = true;
+              timer.Stop();
+            }
+          }
+          catch
+          {
+            MySqlTrace.LogWarning(0,
+              string.Format(Properties.Resources.Replication_ConnectionAttemptFailed, server1.Name));
+          }
+          finally
+          {
+            isRunning = false;
+          }
+        };
+        timer.Elapsed += elapsedEvent;
+        timer.Start();
+        elapsedEvent(sender, null);
+#else
+              Windows.UI.Xaml.DispatcherTimer timer = new Windows.UI.Xaml.DispatcherTimer();
+              TimeSpan ts = new TimeSpan(RetryTime * 1000);
+              System.EventHandler<object> elapsedEvent = (TickSender, TickEventArgs) =>
+              {
+                  if (isRunning) return;
+                  try
+                  {
+                      isRunning = true;
+                      using (MySqlConnection connectionFailed = new MySqlConnection(server.ConnectionString))
+                      {
+                          connectionFailed.Open();
+                          server1.IsAvailable = true;
+                          timer.Stop();
+                      }
+                  }
+                  catch
+                  {
+                      MySqlTrace.LogWarning(0,
+                        string.Format(Properties.Resources.Replication_ConnectionAttemptFailed, server1.Name));
+                  }
+                  finally
+                  {
+                      isRunning = false;
+                  }
+              };
+              timer.Tick += elapsedEvent;
+              elapsedEvent(sender, null);
+              timer.Start();
+#endif
+      };
+
+      worker.RunWorkerAsync(server);
+    }
   }
 }
