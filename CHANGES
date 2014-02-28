@@ -18,6 +18,8 @@
   when combined with Limit clause (Take operator)) (MySql bug #70828, Oracle bug #18049691).
 - Fix for support for Entity Framework 4.3 Code first Identifiers for Migrations & EF6 (MySql Bug #67285, Oracle bug #16286397).
 - Added threading and custom failover support for Replication & Load balancing.
+- Fix for maximumpoolsize and minimumpoolsize as invalid properties in connection string (Oracle Bug #18182246).
+- Fix for 'default table cache age' connection string property, set default value to 60 seconds.
 
 
 6.7.4
