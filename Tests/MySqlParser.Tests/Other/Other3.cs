@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2014, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -400,6 +400,254 @@ warnings = IFNULL( VALUES( warnings ) , warnings );";
     {
       // original query was 'select * from t where where d <=concat(@d,' 23:59:59') '
       string sql = @"select * from t where d <=concat(@d,' 23:59:59') ";
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
+    }
+
+    [Fact]
+    public void TestIfWithSpaces()
+    {
+      string sql = @"select if (1, 1, if(1,1, 1))";
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
+    }
+
+    [Fact]
+    public void TestDatabaseWithSpaces()
+    {
+      string sql = @"SELECT DATABASE ();";
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
+    }
+
+    [Fact]
+    public void TestRowcountWithSpaces()
+    {
+      string sql = @"SELECT ROW_COUNT ();";
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
+    }
+
+    [Fact]
+    public void TestIfNullWithSpaces()
+    {
+      string sql = @"CREATE TABLE tmp SELECT IFNULL (1,'test') AS test;";
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
+    }
+
+    [Fact]
+    public void TestNullIfWithSpaces()
+    {
+      string sql = @"SELECT NULLIF (1,2);";
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
+    }
+
+    [Fact]
+    public void TestModWithSpaces()
+    {
+      string sql = @"SELECT MOD (34.5,3);";
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
+    }
+
+    [Fact]
+    public void TestRepeatWithSpaces()
+    {
+      string sql = @"SELECT REPEAT ('MySQL', 3);";
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
+    }
+
+    [Fact]
+    public void TestReplaceWithSpaces()
+    {
+      string sql = @"SELECT REPLACE ('www.mysql.com', 'w', 'Ww');";
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
+    }
+
+    [Fact]
+    public void TestSchemaWithSpaces()
+    {
+      string sql = @"select schema ( );";
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
+    }
+
+    [Fact]
+    public void TestCharsetWithSpaces()
+    {
+      string sql = @"SELECT CHARSET ('abc');";
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
+    }
+
+    [Fact]
+    public void TestCharsetWithSpaces3()
+    {
+      string sql = @"SELECT CHARSET (USER ());";
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
+    }
+
+    [Fact]
+    public void TestAsciiWithSpaces()
+    {
+      string sql = @"SELECT ASCII ('2');";
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
+    }
+
+    [Fact]
+    public void TestAsciiWithSpaces2()
+    {
+      string sql = @"SELECT ASCII (2);";
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
+    }
+
+    [Fact]
+    public void TestTruncateWithSpaces()
+    {
+      string sql = @"select TRUNCATE (1.223,1);";
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
+    }
+
+    [Fact]
+    public void TestCoalesceWithSpaces()
+    {
+      string sql = @"SELECT COALESCE (NULL,1);";
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
+    }
+
+    [Fact]
+    public void TestCoalesceWithSpaces2()
+    {
+      string sql = @"SELECT COALESCE (NULL,NULL,NULL);";
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
+    }
+
+    [Fact]
+    public void TestCollationWithSpaces()
+    {
+      string sql = @"SELECT COLLATION ('abc');";
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
+    }
+
+    [Fact]
+    public void TestMicrosecondWithSpaces()
+    {
+      string sql = @"SELECT MICROSECOND ('2009-12-31 23:59:59.000010');";
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
+    }
+
+    [Fact]
+    public void TestQuarterWithSpaces()
+    {
+      string sql = @"SELECT QUARTER ('2008-04-01');";
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
+    }
+
+    [Fact]
+    public void TestTimestampaddWithSpaces()
+    {
+      string sql = @"SELECT TIMESTAMPADD (MINUTE,1,'2003-01-02');";
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
+    }
+
+    [Fact]
+    public void TestTimestampaddWithSpaces2()
+    {
+      string sql = @"SELECT TIMESTAMPADD (WEEK,1,'2003-01-02');";
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
+    }
+
+    [Fact]
+    public void TestTimestampdiffWithSpaces()
+    {
+      string sql = @"SELECT TIMESTAMPDIFF (MONTH,'2003-02-01','2003-05-01');";
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
+    }
+
+    [Fact]
+    public void TestTimestampdiffWithSpaces2()
+    {
+      string sql = @"SELECT TIMESTAMPDIFF (YEAR,'2002-05-01','2001-01-01');";
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
+    }
+
+    [Fact]
+    public void TestTimestampdiffWithSpaces3()
+    {
+      string sql = @"SELECT TIMESTAMPDIFF (MINUTE,'2003-02-01','2003-05-01 12:05:55');";
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
+    }
+
+    [Fact]
+    public void TestWeekWithSpaces()
+    {
+      string sql = @"SELECT WEEK ('2008-02-20');";
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
+    }
+
+    [Fact]
+    public void TestWeekWithSpaces2()
+    {
+      string sql = @"SELECT WEEK ('2008-02-20',1);";
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
+    }
+
+    [Fact]
+    public void TestCurtimeWithSpaces()
+    {
+      string sql = @"SELECT CURTIME(), curtime( 1 );";
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
+    }
+
+    [Fact]
+    public void TestDayWithSpaces()
+    {
+      string sql = @"SELECT day ( curdate() );";
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
+    }
+
+    [Fact]
+    public void TestLeftWithSpaces()
+    {
+      string sql = @"SELECT left ( 'foobar', 5 );";
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
+    }
+
+    [Fact]
+    public void TestRightWithSpaces()
+    {
+      string sql = @"SELECT right ( 'foobar', 5 );";
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
+    }
+
+    [Fact]
+    public void TestUserWithSpaces()
+    {
+      string sql = @"SELECT user ();";
       StringBuilder sb;
       MySQL51Parser.program_return r = Utility.ParseSql(sql, false, out sb);
     }

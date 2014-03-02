@@ -55,14 +55,10 @@
     <Compile Include="TokenStreamRemovable.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Antlr3 Include="MySQL51Lexer.g3">
-      <Generator>MSBuild:Compile</Generator>
-    </Antlr3>
+    <Antlr3 Include="MySQL51Lexer.g3" />
   </ItemGroup>
   <ItemGroup>
-    <Antlr3 Include="MySQL51Parser.g3">
-      <Generator>MSBuild:Compile</Generator>
-    </Antlr3>
+    <Antlr3 Include="MySQL51Parser.g3" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="README.txt" />

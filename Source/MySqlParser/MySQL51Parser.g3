@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2014, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -2359,16 +2359,6 @@ functionCall
 	| TIME LPAREN expr RPAREN							-> ^( FUNC ^( TIME expr? ))
 	| TIMESTAMP LPAREN e1=expr ( COMMA e2=expr )? RPAREN
 														-> ^( FUNC ^( TIMESTAMP $e1 $e2 ))
-	| TIMESTAMP_ADD LPAREN
-			timestampUnit
-			interval=expr
-			date=expr
-			RPAREN										-> ^(FUNC ^(TIMESTAMP_ADD $date $interval timestampUnit))
-	| TIMESTAMP_DIFF LPAREN
-			timestampUnit
-			date1=expr
-			date2=expr
-			RPAREN										-> ^(FUNC ^(TIMESTAMP_DIFF $date1 $date2 timestampUnit))
 	| TRIM LPAREN
 		(
 		( e1=expr ( FROM e2=expr )? )					-> ^(FUNC ^(TRIM $e1 $e2?))
@@ -2392,20 +2382,60 @@ functionCall
 	| CURRENT_TIME										-> ^( FUNC ^( CURRENT_TIME ))
 	| CURRENT_TIMESTAMP									-> ^( FUNC ^( CURRENT_TIMESTAMP ))
 	| LOCALTIME											-> ^( FUNC ^( LOCALTIME ))
-	| LOCALTIMESTAMP									-> ^( FUNC ^( LOCALTIMESTAMP ))	
+	| LOCALTIMESTAMP									-> ^( FUNC ^( LOCALTIMESTAMP ))		
 	/* functions that conflict because can also be keywords with a follow up parenthesis somewhere else in the grammar */
+	| ASCII LPAREN expr RPAREN							-> ^( FUNC ^( ASCII expr ))
+	| CHARSET LPAREN expr RPAREN						-> ^( FUNC ^( CHARSET expr ))
+	| COALESCE LPAREN exprList RPAREN					-> ^( FUNC ^( COALESCE exprList ))
+	| COLLATION LPAREN expr RPAREN						-> ^( FUNC ^( COLLATION expr ))	
+	| DATABASE LPAREN RPAREN							-> ^( FUNC ^( DATABASE ))
+	| DAY LPAREN expr RPAREN							-> ^( FUNC ^( DAY expr ))
+	| IF LPAREN e+=expr COMMA e+=expr COMMA e+=expr RPAREN		
+														-> ^( FUNC ^( IF $e* ))
+	| IFNULL LPAREN ifNullArgs+=expr 
+		COMMA ifNullArgs+=expr RPAREN					-> ^( FUNC ^( IFNULL $ifNullArgs* ))
 	| INSERT LPAREN ins_str=expr COMMA ins_pos=expr COMMA ins_len=expr COMMA ins_newstr=expr RPAREN
 														-> ^( FUNC ^( INSERT $ins_str? $ins_pos? $ins_len? $ins_newstr? ))
 	| INTERVAL LPAREN exprList RPAREN					-> ^( FUNC ^( INTERVAL exprList ))
+	| LEFT LPAREN str=expr COMMA len=expr RPAREN		-> ^( FUNC ^( LEFT $str? $len ))
+	| MICROSECOND LPAREN expr RPAREN					-> ^( FUNC ^( MICROSECOND expr ))
 	| MINUTE LPAREN expr RPAREN							-> ^( FUNC ^( MINUTE expr ))
+	| MOD LPAREN args+=expr COMMA args+=expr RPAREN		-> ^( FUNC ^( MOD $args* ))
 	| MONTH LPAREN expr RPAREN							-> ^( FUNC ^( MONTH expr ))
+	| NULLIF LPAREN args+=expr COMMA args+=expr RPAREN	-> ^( FUNC ^( NULLIF $args* ))
 	| OLD_PASSWORD LPAREN expr RPAREN					-> ^( FUNC ^( OLD_PASSWORD expr ))
-	| PASSWORD LPAREN expr RPAREN						-> ^( FUNC ^( PASSWORD expr ))	
+	| PASSWORD LPAREN expr RPAREN						-> ^( FUNC ^( PASSWORD expr ))
+	| QUARTER LPAREN expr RPAREN						-> ^( FUNC ^( QUARTER expr ))
+	| RIGHT LPAREN str=expr COMMA len=expr RPAREN		-> ^( FUNC ^( RIGHT $str $len ))	
+	| REPEAT LPAREN args+=expr COMMA args+=expr RPAREN	-> ^( FUNC ^( REPEAT $args* ))
+	| REPLACE LPAREN args+=expr COMMA args+=expr COMMA args+=expr RPAREN
+														-> ^( FUNC ^( REPLACE $args* ))
 	| SECOND LPAREN expr RPAREN							-> ^( FUNC ^( SECOND expr ))
+	| SCHEMA LPAREN RPAREN								-> ^( FUNC ^( SCHEMA ))
+	| TIMESTAMPADD LPAREN
+			timestampUnit COMMA
+			interval=expr COMMA
+			date=expr
+			RPAREN										-> ^(FUNC ^(TIMESTAMPADD $date $interval timestampUnit))
+	| TIMESTAMPDIFF LPAREN
+			timestampUnit COMMA
+			date1=expr COMMA
+			date2=expr
+			RPAREN										-> ^( FUNC ^(TIMESTAMPDIFF $date1 $date2 timestampUnit))
+	| TRUNCATE LPAREN args+=expr COMMA args+=expr RPAREN
+														-> ^( FUNC ^( TRUNCATE $args* ))
+	| USER LPAREN RPAREN								-> ^( FUNC ^( USER ))
+	| (
+	  ( WEEK LPAREN date=expr ) 
+	  (
+		  ( RPAREN						-> ^( FUNC ^( WEEK $date? )) )
+		| ( COMMA mode=expr RPAREN		-> ^( FUNC ^( WEEK $date $mode? )) )
+	  )
+	  )
 	| YEAR LPAREN expr RPAREN							-> ^( FUNC ^( YEAR expr ))
 	/* generic functions we don't know */
-	| name=ID args=parenOptExprList						-> ^(FUNC ^($name $args))
-	| dbname=ID DOT name=ID args=parenOptExprList		-> ^(FUNC ^( $name $args ^( DBNAME $dbname )))
+	| name=ID funArgs=parenOptExprList						-> ^(FUNC ^($name $funArgs))
+	| dbname=ID DOT name=ID funArgs=parenOptExprList		-> ^(FUNC ^( $name $funArgs ^( DBNAME $dbname )))
 	;
 
 opt_ws_levels
@@ -2496,7 +2526,7 @@ drop_table
 	;
 	catch[ NoViableAltException nvae ] 
 	{
-		if( nvae.DecisionNumber == 567 )
+		if( nvae.DecisionNumber == 568 )
 		{
 			nvae = new NoViableAltException( 
 				"simple_table_ref_no_alias_existing", 
@@ -2738,7 +2768,7 @@ sp_call options { backtrack=true; memoize=true; }
 	;
 	catch[ NoViableAltException nvae ] 
 	{
-		if( nvae.DecisionNumber == 610 )
+		if( nvae.DecisionNumber == 611 )
 		{
 			nvae = new NoViableAltException( 
 					"proc_name", 

@@ -30,6 +30,7 @@ Oracle bug #17568158).
 - Fix for EF SQL Generator, Union Syntax (Concat operator) is missing required parentheses (may cause semantic changes 
   when combined with Limit clause (Take operator)) (MySql bug #70828, Oracle bug #18049691).
 - Fix for support for Entity Framework 4.3 Code first Identifiers for Migrations & EF6 (MySql Bug #67285, Oracle bug #16286397).
+- Fix for Parser does not parse "If (" with uneven spaces (Oracle bug #17981407).
 
 
 6.6.6
