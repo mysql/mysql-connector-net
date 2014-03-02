@@ -185,7 +185,7 @@ NOT	:	'NOT';
 NO_WRITE_TO_BINLOG	:	'NO_WRITE_TO_BINLOG';
 NNUMBER :   'NUMBER' { $type = checkIDperVersion( 5.6, $type, MySQL51Lexer.ID ); };
 NULL	:	'NULL';
-NULLIF	:	'NULLIF' {$type = checkFunctionAsID($type);};
+NULLIF	:	'NULLIF';
 OFFLINE : 'OFFLINE';
 ON	:	'ON';
 ONLINE : 'ONLINE';
@@ -895,11 +895,8 @@ NOTE: EVEN THAT THE LIMIT IS U+FFFF WE WILL USE U+FFFE BECAUSE ANTLR REPRESENTS 
 */
 fragment
 REAL_ID options{greedy=false;}
-	:	('A'..'Z'|'_'|'$'|'\u0080'..'\ufffe') ('0'..'9'|'A'..'Z'|'_'|'$'|'\u0080'..'\ufffe')* // TODO: what are the valid characters? 
-    //:	('A'..'Z'|'_') ('0'..'9'|'A'..'Z'|'_')* // TODO: what are the valid characters? 
+	:	('A'..'Z'|'_'|'$'|'\u0080'..'\ufffe') ('0'..'9'|'A'..'Z'|'_'|'$'|'\u0080'..'\ufffe')*
 	;
-
-
 
 // TODO: these are case sensitive -> specifying them as lowercase in the grammar causes them to never be matched (because ANTLR doesn't know
 // we are only serving uppercase letters. Add trueCaseLA predicates here (but beware of hoisting)

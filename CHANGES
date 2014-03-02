@@ -31,6 +31,7 @@ Oracle bug #17568158).
   when combined with Limit clause (Take operator)) (MySql bug #70828, Oracle bug #18049691).
 - Fix for support for Entity Framework 4.3 Code first Identifiers for Migrations & EF6 (MySql Bug #67285, Oracle bug #16286397).
 - Fix for Parser does not parse "If (" with uneven spaces (Oracle bug #17981407).
+- Fix for Parser does not recognize full string literal syntax (charsets, collation) (Oracle bug #18169145).
 
 
 6.6.6

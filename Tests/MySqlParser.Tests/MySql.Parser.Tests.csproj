@@ -89,6 +89,7 @@
     <Compile Include="Other\GetDiagnostics.cs" />
     <Compile Include="Other\Handler.cs" />
     <Compile Include="Other\Intellisense.cs" />
+    <Compile Include="Other\Literal.cs" />
     <Compile Include="Other\LoadDataInfile.cs" />
     <Compile Include="Other\Other.cs" />
     <Compile Include="Other\Other2.cs" />

@@ -1560,14 +1560,14 @@ intervalExpr
 	|	lhsPrim=primary	-> primary
 	;
 	
-primary 
+primary options { backtrack=true; memoize=true; }
 	:	/*lhsParen=parenExpr -> parenExpr */
 		CAST LPAREN expr AS cast_data_type RPAREN	-> ^( CAST expr? cast_data_type? )
 	|	CONVERT LPAREN expr ( ( COMMA cast_data_type ) | ( USING ( ID | STRING_LEX ) ) ) RPAREN 
 													-> ^( CONVERT expr? cast_data_type )
 	|	DEFAULT LPAREN ident RPAREN					-> ^( DEFAULT ident )
 	|	VALUES LPAREN ident RPAREN					-> ^( VALUES ident )
-	|	( lhsLit=literal )	=> literal	-> literal
+	|	( ( ID STRING_LEX ) | STRING_LEX | lhsLit=literal )	=> literal	-> literal
 	|	( subselect )	=> subselect	-> subselect
 	|	EXISTS subselect -> ^(EXISTS subselect)
 /*	|	functionCall */
@@ -1658,8 +1658,8 @@ when_expr
   : WHEN whenPri=primary THEN thenStmt=statement_list -> ^( WHEN $whenPri $thenStmt )
   ;
 
-literal
-	:	STRING_LEX^
+literal options { backtrack=true; memoize=true; }
+	:	text_literal^
 	|	NUMBER^
 	|	INT_NUMBER^
 	|	( /*{ input.LA( 1 ) == AT1 && input.LA( 2 ) != EOF && input.LA( 2 ) == AT1 && input.LA( 3 ) == GLOBAL }? => **/
@@ -1672,9 +1672,14 @@ literal
 	|	NULL^
 	|	TRUE^
 	|	FALSE^
-	|	(functionCall)=>functionCall	
+	|	(functionCall)=>functionCall
 		-> functionCall
 	|	field_name^	
+	;
+
+text_literal
+	:	( ID STRING_LEX+ collate? )	-> ^( ID STRING_LEX* )
+	|	( STRING_LEX+ collate? )	-> ^( STRING_LEX )
 	;
 // $>
 
@@ -2359,6 +2364,16 @@ functionCall
 	| TIME LPAREN expr RPAREN							-> ^( FUNC ^( TIME expr? ))
 	| TIMESTAMP LPAREN e1=expr ( COMMA e2=expr )? RPAREN
 														-> ^( FUNC ^( TIMESTAMP $e1 $e2 ))
+	| TIMESTAMP_ADD LPAREN
+			timestampUnit
+			interval=expr
+			date=expr
+			RPAREN										-> ^(FUNC ^(TIMESTAMP_ADD $date $interval timestampUnit))
+	| TIMESTAMP_DIFF LPAREN
+			timestampUnit
+			date1=expr
+			date2=expr
+			RPAREN										-> ^(FUNC ^(TIMESTAMP_DIFF $date1 $date2 timestampUnit))
 	| TRIM LPAREN
 		(
 		( e1=expr ( FROM e2=expr )? )					-> ^(FUNC ^(TRIM $e1 $e2?))
@@ -2382,7 +2397,7 @@ functionCall
 	| CURRENT_TIME										-> ^( FUNC ^( CURRENT_TIME ))
 	| CURRENT_TIMESTAMP									-> ^( FUNC ^( CURRENT_TIMESTAMP ))
 	| LOCALTIME											-> ^( FUNC ^( LOCALTIME ))
-	| LOCALTIMESTAMP									-> ^( FUNC ^( LOCALTIMESTAMP ))		
+	| LOCALTIMESTAMP									-> ^( FUNC ^( LOCALTIMESTAMP ))
 	/* functions that conflict because can also be keywords with a follow up parenthesis somewhere else in the grammar */
 	| ASCII LPAREN expr RPAREN							-> ^( FUNC ^( ASCII expr ))
 	| CHARSET LPAREN expr RPAREN						-> ^( FUNC ^( CHARSET expr ))
@@ -2526,7 +2541,7 @@ drop_table
 	;
 	catch[ NoViableAltException nvae ] 
 	{
-		if( nvae.DecisionNumber == 568 )
+		if( nvae.DecisionNumber == 573 )
 		{
 			nvae = new NoViableAltException( 
 				"simple_table_ref_no_alias_existing", 
@@ -2768,7 +2783,7 @@ sp_call options { backtrack=true; memoize=true; }
 	;
 	catch[ NoViableAltException nvae ] 
 	{
-		if( nvae.DecisionNumber == 611 )
+		if( nvae.DecisionNumber == 616 )
 		{
 			nvae = new NoViableAltException( 
 					"proc_name", 

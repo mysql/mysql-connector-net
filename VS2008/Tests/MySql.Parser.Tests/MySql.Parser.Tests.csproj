@@ -30,7 +30,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|Any CPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
@@ -48,7 +47,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-
   <ItemGroup>
     <Reference Include="Antlr3.Runtime, Version=3.3.1.7705, Culture=neutral, PublicKeyToken=4186e2f4d936d3c2, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -95,6 +93,9 @@
     </Compile>
     <Compile Include="..\..\..\Tests\MySqlParser.Tests\DDL\Alter\AlterTablespace.cs">
       <Link>DDL\Alter\AlterTablespace.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\DDL\Alter\AlterUser.cs">
+      <Link>DDL\Alter\AlterUser.cs</Link>
     </Compile>
     <Compile Include="..\..\..\Tests\MySqlParser.Tests\DDL\Alter\AlterView.cs">
       <Link>DDL\Alter\AlterView.cs</Link>
@@ -177,8 +178,20 @@
     <Compile Include="..\..\..\Tests\MySqlParser.Tests\Other\CompoundStatements.cs">
       <Link>Other\CompoundStatements.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\Other\Explain.cs">
+      <Link>Other\Explain.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\Tests\MySqlParser.Tests\Other\Expression.cs">
       <Link>Other\Expression.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\Other\FlowControlStmts.cs">
+      <Link>Other\FlowControlStmts.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\Other\GatheringTables.cs">
+      <Link>Other\GatheringTables.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\Other\GetDiagnostics.cs">
+      <Link>Other\GetDiagnostics.cs</Link>
     </Compile>
     <Compile Include="..\..\..\Tests\MySqlParser.Tests\Other\Handler.cs">
       <Link>Other\Handler.cs</Link>
@@ -186,11 +199,20 @@
     <Compile Include="..\..\..\Tests\MySqlParser.Tests\Other\Intellisense.cs">
       <Link>Other\Intellisense.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\Other\Literal.cs">
+      <Link>Other\Literal.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\Tests\MySqlParser.Tests\Other\LoadDataInfile.cs">
       <Link>Other\LoadDataInfile.cs</Link>
     </Compile>
     <Compile Include="..\..\..\Tests\MySqlParser.Tests\Other\Other.cs">
       <Link>Other\Other.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\Other\Other2.cs">
+      <Link>Other\Other2.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\Other\Other3.cs">
+      <Link>Other\Other3.cs</Link>
     </Compile>
     <Compile Include="..\..\..\Tests\MySqlParser.Tests\Other\RenameDatabase.cs">
       <Link>Other\RenameDatabase.cs</Link>
@@ -200,6 +222,9 @@
     </Compile>
     <Compile Include="..\..\..\Tests\MySqlParser.Tests\Other\Replace.cs">
       <Link>Other\Replace.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Tests\MySqlParser.Tests\Other\Signal.cs">
+      <Link>Other\Signal.cs</Link>
     </Compile>
     <Compile Include="..\..\..\Tests\MySqlParser.Tests\Other\Transaction.cs">
       <Link>Other\Transaction.cs</Link>

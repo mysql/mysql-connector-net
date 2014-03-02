@@ -1873,16 +1873,16 @@ end;
 DROP PROCEDURE IF EXISTS pr_ArgumentsTest //
 ";
       string procedureSql = @"
-CREATE PROCEDURE pr_ArgumentsTest(param1 tinyint unsigned, out param2 varchar(5), inout param3 int, inout param4 varchar(5))
-BEGIN
-  SET param2 = param1;
-  SET param3 = param3 + param1;
-  IF param4 = 'abc' THEN
-    SET param4 = 'xyz';
-  ELSE
-    SET param4 = NULL;
-  END IF;
-END
+CREATE PROCEDURE pr_ArgumentsTest(param1 tinyint unsigned, out param2 varchar(5), inout param3 int, inout param4 varchar(5)) 
+BEGIN 
+  SET param2 = param1; 
+  SET param3 = param3 + param1; 
+  IF param4 = _latin1'abc' THEN 
+    SET param4 = 'xyz'; 
+  ELSE 
+    SET param4 = NULL; 
+  END IF; 
+END 
 ";
 
       Debugger dbg = new Debugger();
