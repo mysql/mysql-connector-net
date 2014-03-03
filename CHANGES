@@ -5,13 +5,13 @@
 - Installer adds MySql.Data, MySql.Data.Entity, and MySql.Web to machine.config and into GAC.
 - Added MySql.Web.dll for .NET Framework 4.5
 - Fix for NullReferenceException when try to save entity with TINYINY or BIGINT as PK (MySql bug #70888, Oracle bug #17866076).
-- Fix for .Net connector does not add auto_increment to bigint columns (MySql Bug #70602).
-- Fix for Entity Framework migration with Foreign Key fails. (MySql Bug #70795).
-- Fix for fields of type TIME(3) don't read milliseconds (MySql bug #70377)
-- Fix for Wrong milliseconds serialization (MySql bug #70686).
+- Fix for .Net connector does not add auto_increment to bigint columns (MySql Bug #70602, Oracle Bug #17924407).
+- Fix for Entity Framework migration with Foreign Key fails. (MySql Bug #70795, Oracle Bug #17924399).
+- Fix for fields of type TIME(3) don't read milliseconds (MySql bug #70377, Oracle Bug #17923814).
+- Fix for Wrong milliseconds serialization (MySql bug #70686, Oracle Bug #17924388).
 - Fix for Case incorrect on table in SQL queries for MySqlSessionStateStore (MySql bug #69652, Oracle bug #17960855).
 - Fix for rename column operation in Entity Framework migrations (MySQL Bug #71102, Oracle Bug #17959787). 
-- Fix for Entity Framework Inserts broken on tables with unsigned bigint as auto increment (MySql Bug #71242).
+- Fix for Entity Framework Inserts broken on tables with unsigned bigint as auto increment (MySql Bug #71242, Oracle Bug #18189217).
 - Fix for code To SQL Generation Broken For Foreign Keys/Indexes On Table Create (MySQL #70079, Oracle Bug #18049272)
 - Fix for DotNet Connector keepalive in milliseconds instead of seconds (MySql Bug #69484, Oracle Bug #17981275).
 - Fix for EF SQL Generator, Union Syntax (Concat operator) is missing required parentheses (may cause semantic changes 
