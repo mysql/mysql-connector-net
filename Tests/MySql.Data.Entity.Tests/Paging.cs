@@ -146,6 +146,11 @@ namespace MySql.Data.Entity.Tests
       }
     }
 
+    /// <summary>
+    /// Fix for EF SQL Generator, Union Syntax (Concat operator) is missing required parentheses 
+    /// (may cause semantic changes when combined with Limit clause (Take operator)). 
+    /// (MySql bug #70828, Oracle bug #18049691).
+    /// </summary>
     [Fact]
     public void TakeWithUnion()
     {
@@ -156,9 +161,18 @@ namespace MySql.Data.Entity.Tests
         var q = ctx.Toys;
         var q2 = ctx.Toys.Take(0).Concat(q);
         var q3 = q.Concat(q.Take(0));
-        string sql = q3.ToTraceString();
-        st.CheckSql(sql, SQLSyntax.UnionWithLimit);
         int i = 0;
+        string sql = q2.ToTraceString();
+        st.CheckSql(sql, SQLSyntax.UnionWithLimit2);
+        foreach (var row in q2)
+        {
+          Assert.Equal<int>(ids[i], row.Id);
+          Assert.Equal<string>(names[i], row.Name);
+          i++; 
+        }
+        i = 0;
+        sql = q3.ToTraceString();
+        st.CheckSql(sql, SQLSyntax.UnionWithLimit);
         foreach (var row in q)
         {
           Assert.Equal<int>(ids[i], row.Id);
