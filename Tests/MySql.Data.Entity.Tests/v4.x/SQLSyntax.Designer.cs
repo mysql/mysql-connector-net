@@ -418,6 +418,17 @@ namespace MySql.Data.Entity.Tests.Properties {
             return ResourceManager.GetString("UnionWithLimit", resourceCulture);
           }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to SELECT ...
+        /// </summary>
+        internal static string UnionWithLimit2
+        {
+          get
+          {
+            return ResourceManager.GetString("UnionWithLimit2", resourceCulture);
+          }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to SELECT

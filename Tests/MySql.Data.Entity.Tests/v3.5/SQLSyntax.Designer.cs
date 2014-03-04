@@ -372,14 +372,14 @@ namespace MySql.Data.Entity.Tests.Properties {
         ///`UnionAll1`.`Name`, 
         ///`UnionAll2`.`Id` AS `ID1`, 
         ///`UnionAll2`.`Name` AS `NAME1`
-        ///FROM (SELECT
+        ///FROM ((SELECT
         ///`Extent2`.`Id`, 
         ///`Extent2`.`Name`
-        ///FROM `Toys` AS `Extent2` UNION ALL SELECT
+        ///FROM `Toys` AS `Extent2`) UNION ALL (SELECT
         ///`Extent3`.`Id`, 
         ///`Extent3`.`Name`
-        ///FROM `Shops` AS `Extent3`) AS `UnionAll1` INNER JOIN (SELECT
-        ///`Extent4`. [rest of string was truncated]&quot;;.
+        ///FROM `Shops` AS `Extent3`)) AS `UnionAll1` INNER JOIN ((SELECT
+        ///`Exte [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string JoinOfUnionsOnRightSideOfJoin {
             get {
@@ -951,15 +951,15 @@ namespace MySql.Data.Entity.Tests.Properties {
         ///`UnionAll1`.`C1`, 
         ///`UnionAll1`.`Id` AS `C2`, 
         ///`UnionAll1`.`Name` AS `C3`
-        ///FROM (SELECT
+        ///FROM ((SELECT
         ///1 AS `C1`, 
         ///`Extent1`.`Id`, 
         ///`Extent1`.`Name`
-        ///FROM `Toys` AS `Extent1` UNION ALL SELECT
+        ///FROM `Toys` AS `Extent1`) UNION ALL (SELECT
         ///1 AS `C1`, 
         ///`Extent2`.`Id`, 
         ///`Extent2`.`Name`
-        ///FROM `Companies` AS `Extent2`) AS `UnionAll1`.
+        ///FROM `Companies` AS `Extent2`)) AS `UnionAll1`.
         /// </summary>
         internal static string UnionAll {
             get {
@@ -974,12 +974,12 @@ namespace MySql.Data.Entity.Tests.Properties {
         ///`UnionAll1`.`Name` AS `C3`, 
         ///`UnionAll1`.`MinAge` AS `C4`, 
         ///`UnionAll1`.`SupplierId` AS `C5`
-        ///FROM (SELECT
+        ///FROM ((SELECT
         ///`Extent1`.`Id`, 
         ///`Extent1`.`Name`, 
         ///`Extent1`.`MinAge`, 
         ///`Extent1`.`SupplierId`
-        ///FROM `Toys` AS `Extent1` UNION ALL (SELECT
+        ///FROM `Toys` AS `Extent1`) UNION ALL (SELECT
         ///`Id`, 
         ///`Name`, 
         ///`MinAge`, 
@@ -989,6 +989,31 @@ namespace MySql.Data.Entity.Tests.Properties {
         internal static string UnionWithLimit {
             get {
                 return ResourceManager.GetString("UnionWithLimit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SELECT
+        ///1 AS `C1`, 
+        ///`UnionAll1`.`Id` AS `C2`, 
+        ///`UnionAll1`.`Name` AS `C3`, 
+        ///`UnionAll1`.`MinAge` AS `C4`, 
+        ///`UnionAll1`.`SupplierId` AS `C5`
+        ///FROM ((SELECT
+        ///`Id`, 
+        ///`Name`, 
+        ///`MinAge`, 
+        ///`SupplierId`
+        ///FROM `Toys` LIMIT 0) UNION ALL (SELECT
+        ///`Extent2`.`Id`, 
+        ///`Extent2`.`Name`, 
+        ///`Extent2`.`MinAge`, 
+        ///`Extent2`.`SupplierId`
+        ///FROM `Toys` AS `Extent2`)) AS `UnionAll1`.
+        /// </summary>
+        internal static string UnionWithLimit2 {
+            get {
+                return ResourceManager.GetString("UnionWithLimit2", resourceCulture);
             }
         }
         
