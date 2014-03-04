@@ -574,29 +574,13 @@ namespace MySql.Data.Entity
 
     public override void WriteInnerSql(StringBuilder sql)
     {
-      SelectStatement select = Left as SelectStatement;
-      if (select != null && select.Limit != null)
-      {
-        sql.Append('(');
-        Left.WriteSql(sql);
-        sql.Append(')');
-      }
-      else
-      {
-        Left.WriteSql(sql);
-      }
+      sql.Append('(');
+      Left.WriteSql(sql);
+      sql.Append(')');
       sql.Append(Distinct ? " UNION DISTINCT " : " UNION ALL ");
-      select = Right as SelectStatement;
-      if (select != null && select.Limit != null)
-      {
-        sql.Append('(');
-        Right.WriteSql(sql);
-        sql.Append(')');
-      }
-      else
-      {
-        Right.WriteSql(sql);
-      }
+      sql.Append('(');
+      Right.WriteSql(sql);
+      sql.Append(')');
     }
 
     public bool HasDifferentNameForColumn(ColumnFragment column)

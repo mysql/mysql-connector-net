@@ -245,19 +245,19 @@ FROM `Companies` AS `Extent1` INNER JOIN (SELECT
 `UnionAll1`.`Name`, 
 `UnionAll2`.`Id` AS `ID1`, 
 `UnionAll2`.`Name` AS `NAME1`
-FROM (SELECT
+FROM ((SELECT
 `Extent2`.`Id`, 
 `Extent2`.`Name`
-FROM `Toys` AS `Extent2` UNION ALL SELECT
+FROM `Toys` AS `Extent2`) UNION ALL (SELECT
 `Extent3`.`Id`, 
 `Extent3`.`Name`
-FROM `Shops` AS `Extent3`) AS `UnionAll1` INNER JOIN (SELECT
+FROM `Shops` AS `Extent3`)) AS `UnionAll1` INNER JOIN ((SELECT
 `Extent4`.`Id`, 
 `Extent4`.`Name`
-FROM `Authors` AS `Extent4` UNION ALL SELECT
+FROM `Authors` AS `Extent4`) UNION ALL (SELECT
 `Extent5`.`Id`, 
 `Extent5`.`Name`
-FROM `Books` AS `Extent5`) AS `UnionAll2` ON `UnionAll1`.`Id` = `UnionAll2`.`Id`) AS `Join1` ON `Extent1`.`Id` = `Join1`.`Id`</value>
+FROM `Books` AS `Extent5`)) AS `UnionAll2` ON `UnionAll1`.`Id` = `UnionAll2`.`Id`) AS `Join1` ON `Extent1`.`Id` = `Join1`.`Id`</value>
   </data>
   <data name="JoinOnRightSideAsDerivedTable" xml:space="preserve">
     <value>SELECT
@@ -609,15 +609,15 @@ FROM `Companies` AS `Extent1` LIMIT 2) AS `Limit1`</value>
 `UnionAll1`.`C1`, 
 `UnionAll1`.`Id` AS `C2`, 
 `UnionAll1`.`Name` AS `C3`
-FROM (SELECT
+FROM ((SELECT
 1 AS `C1`, 
 `Extent1`.`Id`, 
 `Extent1`.`Name`
-FROM `Toys` AS `Extent1` UNION ALL SELECT
+FROM `Toys` AS `Extent1`) UNION ALL (SELECT
 1 AS `C1`, 
 `Extent2`.`Id`, 
 `Extent2`.`Name`
-FROM `Companies` AS `Extent2`) AS `UnionAll1`</value>
+FROM `Companies` AS `Extent2`)) AS `UnionAll1`</value>
   </data>
   <data name="WhereLiteralOnRelation" xml:space="preserve">
     <value>SELECT
@@ -898,16 +898,35 @@ FROM `SalariedEmployees` AS `Extent2`) AS `Project1` ON `Extent1`.`Id` = `Projec
 `UnionAll1`.`Name` AS `C3`, 
 `UnionAll1`.`MinAge` AS `C4`, 
 `UnionAll1`.`SupplierId` AS `C5`
-FROM (SELECT
+FROM ((SELECT
 `Extent1`.`Id`, 
 `Extent1`.`Name`, 
 `Extent1`.`MinAge`, 
 `Extent1`.`SupplierId`
-FROM `Toys` AS `Extent1` UNION ALL (SELECT
+FROM `Toys` AS `Extent1`) UNION ALL (SELECT
 `Id`, 
 `Name`, 
 `MinAge`, 
 `SupplierId`
 FROM `Toys` LIMIT 0)) AS `UnionAll1`</value>
+  </data>
+  <data name="UnionWithLimit2" xml:space="preserve">
+    <value>SELECT
+1 AS `C1`, 
+`UnionAll1`.`Id` AS `C2`, 
+`UnionAll1`.`Name` AS `C3`, 
+`UnionAll1`.`MinAge` AS `C4`, 
+`UnionAll1`.`SupplierId` AS `C5`
+FROM ((SELECT
+`Id`, 
+`Name`, 
+`MinAge`, 
+`SupplierId`
+FROM `Toys` LIMIT 0) UNION ALL (SELECT
+`Extent2`.`Id`, 
+`Extent2`.`Name`, 
+`Extent2`.`MinAge`, 
+`Extent2`.`SupplierId`
+FROM `Toys` AS `Extent2`)) AS `UnionAll1`</value>
   </data>
 </root>

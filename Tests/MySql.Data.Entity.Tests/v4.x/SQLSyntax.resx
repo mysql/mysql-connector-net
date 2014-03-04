@@ -393,19 +393,19 @@ FROM `Companies` AS `Extent1` INNER JOIN (SELECT
 `UnionAll1`.`Name`, 
 `UnionAll2`.`Id` AS `ID1`, 
 `UnionAll2`.`Name` AS `NAME1`
-FROM (SELECT
+FROM ((SELECT
 `Extent2`.`Id`, 
 `Extent2`.`Name`
-FROM `Toys` AS `Extent2` UNION ALL SELECT
+FROM `Toys` AS `Extent2`) UNION ALL (SELECT
 `Extent3`.`Id`, 
 `Extent3`.`Name`
-FROM `Shops` AS `Extent3`) AS `UnionAll1` INNER JOIN (SELECT
+FROM `Shops` AS `Extent3`)) AS `UnionAll1` INNER JOIN ((SELECT
 `Extent4`.`Id`, 
 `Extent4`.`Name`
-FROM `Authors` AS `Extent4` UNION ALL SELECT
+FROM `Authors` AS `Extent4`) UNION ALL (SELECT
 `Extent5`.`Id`, 
 `Extent5`.`Name`
-FROM `Books` AS `Extent5`) AS `UnionAll2` ON `UnionAll1`.`Id` = `UnionAll2`.`Id`) AS `Join1` ON `Extent1`.`Id` = `Join1`.`Id`</value>
+FROM `Books` AS `Extent5`)) AS `UnionAll2` ON `UnionAll1`.`Id` = `UnionAll2`.`Id`) AS `Join1` ON `Extent1`.`Id` = `Join1`.`Id`</value>
   </data>
   <data name="JoinOnRightSideAsDerivedTable" xml:space="preserve">
     <value>SELECT
@@ -762,15 +762,15 @@ FROM `Companies` LIMIT 2</value>
 `UnionAll1`.`Id` AS `C1`, 
 `UnionAll1`.`Id1` AS `C2`, 
 `UnionAll1`.`Name` AS `C3`
-FROM (SELECT
+FROM ((SELECT
 `Extent1`.`Id`, 
 `Extent1`.`Id` AS `Id1`, 
 `Extent1`.`Name`
-FROM `Toys` AS `Extent1` UNION ALL SELECT
+FROM `Toys` AS `Extent1`) UNION ALL (SELECT
 `Extent2`.`Id`, 
 `Extent2`.`Id` AS `Id1`, 
 `Extent2`.`Name`
-FROM `Companies` AS `Extent2`) AS `UnionAll1`</value>
+FROM `Companies` AS `Extent2`)) AS `UnionAll1`</value>
   </data>
   <data name="UnionWithLimit" xml:space="preserve">
     <value>SELECT
@@ -778,17 +778,35 @@ FROM `Companies` AS `Extent2`) AS `UnionAll1`</value>
 `UnionAll1`.`Name` AS `C2`, 
 `UnionAll1`.`MinAge` AS `C3`, 
 `UnionAll1`.`SupplierId` AS `C4`
-FROM (SELECT
+FROM ((SELECT
 `Extent1`.`Id`, 
 `Extent1`.`Name`, 
 `Extent1`.`MinAge`, 
 `Extent1`.`SupplierId`
-FROM `Toys` AS `Extent1` UNION ALL (SELECT
+FROM `Toys` AS `Extent1`) UNION ALL (SELECT
 `Id`, 
 `Name`, 
 `MinAge`, 
 `SupplierId`
 FROM `Toys` LIMIT 0)) AS `UnionAll1`</value>
+  </data>
+  <data name="UnionWithLimit2" xml:space="preserve">
+    <value>SELECT
+  `UnionAll1`.`Id` AS `C1`, 
+  `UnionAll1`.`Name` AS `C2`, 
+  `UnionAll1`.`MinAge` AS `C3`, 
+  `UnionAll1`.`SupplierId` AS `C4`
+  FROM ((SELECT
+  `Id`, 
+  `Name`, 
+  `MinAge`, 
+  `SupplierId`
+  FROM `Toys` LIMIT 0) UNION ALL (SELECT
+  `Extent2`.`Id`, 
+  `Extent2`.`Name`, 
+  `Extent2`.`MinAge`, 
+  `Extent2`.`SupplierId`
+  FROM `Toys` AS `Extent2`)) AS `UnionAll1`</value>
   </data>
   <data name="UpdateWithSelect" xml:space="preserve">
     <value>UPDATE `Products` SET `Name`='Acme 2' WHERE `Id` = 1; SELECT `CreatedDate` FROM `Products` WHERE row_count() &gt; 0 and `Id` = 1</value>
