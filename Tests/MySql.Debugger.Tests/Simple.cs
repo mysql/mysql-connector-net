@@ -2346,5 +2346,57 @@ END;
         dbg.Stop();
       }
     }
+
+    /// <summary>
+    /// Fix for failure to debug routine with IF functions.
+    /// </summary>
+    [Fact]
+    public void WithIfFunction()
+    {
+      SteppingTraceInfo[] info = new SteppingTraceInfo[] { 
+        new SteppingTraceInfo("test.if", 3, 0),
+        new SteppingTraceInfo("test.if", 4, 0)
+      };
+      SteppingTraceInfoList l = new SteppingTraceInfoList(info);
+
+      string sql =
+        @"
+delimiter // 
+
+create definer=`root`@`localhost` procedure `if`()
+begin
+select if (1, 1, if(1,1, 1));
+end // 
+";
+      Debugger dbg = new Debugger();
+      try
+      {
+        dbg.Connection = new MySqlConnection(TestUtils.CONNECTION_STRING);
+        dbg.UtilityConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
+        DumpConnectionThreads(dbg);
+        MySqlScript script = new MySqlScript(dbg.Connection, sql);
+        script.Execute();
+        sql =
+@"create definer=`root`@`localhost` procedure `if`()
+begin
+select if (1, 1, if(1,1, 1));
+end;
+";
+        dbg.SqlInput = sql;
+        dbg.SteppingType = SteppingTypeEnum.StepInto;
+        dbg.OnBreakpoint += (bp) =>
+        {
+          l.AssertBreakpoint(bp);
+        };
+        dbg.Run(null, null);
+        l.AssertFinal();
+      }
+      finally
+      {
+        dbg.RestoreRoutinesBackup();
+        dbg.Stop();
+      }
+    }
+    
   }
 }

@@ -1186,7 +1186,7 @@ namespace MySql.Debugger
       // Instrumeting code...
       GenerateInstrumentedCode(routine, sql);
       routine.InstrumentedSourceCode = sql.ToString();
-      string sqlDrop = string.Format("drop {0} {1}", routine.Type.ToString(), routine.Name);
+      string sqlDrop = string.Format("drop {0} `{1}`", routine.Type.ToString(), routine.Name);
       string db = _utilCon.Database;
       if (!string.IsNullOrEmpty(routine.Schema))
       {
@@ -2091,8 +2091,10 @@ ri.TriggerInfo.Table, ri.TriggerInfo.ObjectSchema);
         {
           string sql;
           int cnt = Convert.ToInt32( ExecuteScalar(string.Format(
-            "select count( * ) from information_schema.routines where routine_name like '{0}' and routine_schema like '{1}'", mr.Name, 
-            string.IsNullOrEmpty( mr.Schema )? _utilCon.Database : mr.Schema )) );
+            @"select count( * ) from information_schema.routines where routine_name like '{0}'
+              and routine_schema like '{1}' and routine_type = '{2}' ", mr.Name,
+            string.IsNullOrEmpty( mr.Schema )? _utilCon.Database : mr.Schema, 
+            mr.Type.ToString() ) ));
           if (cnt == 0) continue;
           if (string.IsNullOrEmpty(mr.Schema))
             sql = string.Format("show create function `{1}`", mr.Schema, mr.Name);
