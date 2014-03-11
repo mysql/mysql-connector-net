@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL st.connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -1272,9 +1272,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Timediff()
     {
-      MySqlCommand cmd = new MySqlCommand("select timediff('2 0:1:1.0', '4 1:2:3.123456789')", st.conn);
+      MySqlCommand cmd = new MySqlCommand("select timediff('2 0:1:1.0', '4 1:2:3.123456')", st.conn);
       var result = cmd.ExecuteScalar();
-      Assert.Equal(new TimeSpan(-2, -1, -1, -2, -123), result);
+      Assert.Equal(new TimeSpan(new TimeSpan(-2, -1, -1, -2).Ticks - 1234560), result);
     }
   }
 }

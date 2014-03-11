@@ -1,4 +1,5 @@
-// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc.
+// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc.,
+// 2009, 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -105,7 +106,7 @@ namespace MySql.Data.Types
       else
       {
         String s = String.Format("'{0}{1} {2:00}:{3:00}:{4:00}.{5:000000}'",
-            negative ? "-" : "", ts.Days, ts.Hours, ts.Minutes, ts.Seconds, ts.Milliseconds * 1000);
+            negative ? "-" : "", ts.Days, ts.Hours, ts.Minutes, ts.Seconds, ts.Ticks % 10000000);
 			
         packet.WriteStringNoNull(s);
       }
@@ -198,13 +199,13 @@ namespace MySql.Data.Types
       int hours = Int32.Parse(parts[0]);
       int mins = Int32.Parse(parts[1]);
       int secs = Int32.Parse(parts[2]);
-      int msecs = 0;
+      int nanoseconds = 0;
 
       if (parts.Length > 3)
       {
         //if the data is saved in MySql as Time(3) the division by 1000 always returns 0, but handling the data as Time(6) the result is the expected
-        parts[3] = parts[3].PadRight(6, '0');
-        msecs = Int32.Parse(parts[3]) / 1000;
+        parts[3] = parts[3].PadRight(7, '0');
+        nanoseconds = int.Parse(parts[3]);
       }
 
 
@@ -212,11 +213,11 @@ namespace MySql.Data.Types
       {
         mins *= -1;
         secs *= -1;
-        msecs *= -1;
+        nanoseconds *= -1;
       }
       int days = hours / 24;
       hours = hours - (days * 24);
-      mValue = new TimeSpan(days, hours, mins, secs, msecs);
+      mValue = new TimeSpan(days, hours, mins, secs).Add(new TimeSpan(nanoseconds));
       isNull = false;
     }
   }

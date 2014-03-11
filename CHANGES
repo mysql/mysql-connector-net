@@ -8,6 +8,8 @@
 - Added threading and custom failover support for Replication & Load balancing.
 - Fix for maximumpoolsize and minimumpoolsize as invalid properties in connection string (Oracle Bug #18182246).
 - Fix for 'default table cache age' connection string property, set default value to 60 seconds.
+- Fix for MySqlDataTime.Millisecond to be a value between 0 and 999.
+- Added Microsecond to MySqlDateTime for 6-digit precision support.
 
 
 6.8.3
