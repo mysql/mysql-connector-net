@@ -1,37 +1,39 @@
 
 6.6.7
-- Fix for WI #782, Visual Studio package is missing calls to UnlockProviderObject.
+- Fix for Visual Studio package is missing calls to UnlockProviderObject.
 - Fix for Debugging routine throws error of data too long for column 'pvarname' at row 1 error (MySql bug #70159,
 Oracle bug #17568158).
 - Fix for Error when editing/altering stored procedure/trigger (Oracle bug #17830161).
 - Fix for Debugger fails to debug routine correctly with two functions in a single expression (Oracle bug #17865915).
-- Fix for WI #853, Intellisense only works the first time.
+- Fix for Intellisense only works the first time.
 - Fix for Error when invoking intellisense in some corner case scenarios (Oracle bug #17890216).
 - Fix for NullReferenceException when try to save entity with TINYINY or BIGINT as PK (MySql bug #70888, Oracle bug #17866076).
-- Fix for fields of type TIME(3) don't read milliseconds (MySql bug #70377)
-- Fix for Wrong milliseconds serialization (MySql bug #70686).
+- Fix for fields of type TIME(3) don't read milliseconds (MySql bug #70377, Oracle Bug #17923814).
+- Fix for Wrong milliseconds serialization (MySql bug #70686, Oracle Bug #17924388).
 - Fix for MySql Stored Routine Debugger Fails with Stored Procedure with Leave statement (Oracle bug #17616344).
-- Fix for WI #886 MySql script does not show result set if comment "-- " is used at the beginning.
-- Fix for WI #855, At Server Explorer Table node is incorrectly removed (temporarily).
-- Fix for WI #850, At Server Explorer when Openning a MySQL connection, leaving empty all fields, opens a windows with confusing message.
-- Fix for WI #843, Error occurs when displaying blob columns in results set for MySql script.
+- Fix for MySql script does not show result set if comment "-- " is used at the beginning.
+- Fix for At Server Explorer Table node is incorrectly removed (temporarily).
+- Fix for At Server Explorer when Openning a MySQL connection, leaving empty all fields, opens a windows with confusing message.
+- Fix for Error occurs when displaying blob columns in results set for MySql script.
 - Fix for Intellisense shows views from all databases, instead of only the current one (Oracle bug #17954412).
-- Fix for WI #841, On MySql script, Intellisense not working if the DB is not selected in the connection parameters
+- Fix for On MySql script, Intellisense not working if the DB is not selected in the connection parameters
   (additionally, now if a "use <database>" is executed, Intellisense now uses that database).
 - Fix for In parser 'describe' keyword must be treated as synonym of 'explain' keyword (Oracle bug #17956087).
 - Fix for Case incorrect on table in SQL queries for MySqlSessionStateStore (MySql bug #69652, Oracle bug #17960855).
 - Fix for rename column operation in Entity Framework migrations (MySQL Bug #71102, Oracle Bug #17959787). 
-- Fix for WI #910 Connect to MySQL window is not retrieving the tables.
+- Fix for Connect to MySQL window is not retrieving the tables.
 - Fix for MySql Debugger does not evaluate last_insert_id function in watch expression correctly 
   (although it uses the right value in user debuggee code). (Oracle bug #18111085).
 - Changed debugger's database name to ".serversidedebugger" so it is hidden by default in MySql Workbench.
-- Fix for Entity Framework Inserts broken on tables with unsigned bigint as auto increment (MySql Bug #71242).
+- Fix for Entity Framework Inserts broken on tables with unsigned bigint as auto increment (MySql Bug #71242, Oracle Bug #18189217).
 - Fix for DotNet Connector keepalive in milliseconds instead of seconds (MySql Bug #69484, Oracle Bug #17981275).
 - Fix for EF SQL Generator, Union Syntax (Concat operator) is missing required parentheses (may cause semantic changes 
   when combined with Limit clause (Take operator)) (MySql bug #70828, Oracle bug #18049691).
 - Fix for support for Entity Framework 4.3 Code first Identifiers for Migrations & EF6 (MySql Bug #67285, Oracle bug #16286397).
 - Fix for Parser does not parse "If (" with uneven spaces (Oracle bug #17981407).
 - Fix for Parser does not recognize full string literal syntax (charsets, collation) (Oracle bug #18169145).
+- Fix for MySqlDataTime.Millisecond to be a value between 0 and 999.
+- Added Microsecond to MySqlDateTime for 6-digit precision support.
 
 
 6.6.6
