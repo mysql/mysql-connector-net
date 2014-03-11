@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -46,7 +46,10 @@ namespace MySql.Data.MySqlClient.Tests
 
     public void Dispose()
     {
+      if (st.conn.Reader != null && !st.conn.Reader.IsClosed)
+        st.conn.Reader.Close();
       st.execSQL("DROP TABLE IF EXISTS TEST");
+      st.execSQL("DROP TABLE IF EXISTS t1");
     }
 
     [Fact]
@@ -419,7 +422,7 @@ namespace MySql.Data.MySqlClient.Tests
     #region DateTimeTypeTests
 
     [Fact]
-    public void CanUpdateMilliseconds()
+    public void CanUpdateMicroseconds()
     {
       if (st.Version < new Version(5, 6)) return;
       DateTime dt = DateTime.Now;
@@ -449,7 +452,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       while (rdr.Read())
       {
-        Assert.Equal("12:34:56.1230", rdr.GetDateTime(0).ToString("hh:mm:ss.ffff"));
+        Assert.Equal("12:34:56.123456", rdr.GetDateTime(0).ToString("hh:mm:ss.ffffff"));
       }
       rdr.Close();
     }
@@ -457,7 +460,7 @@ namespace MySql.Data.MySqlClient.Tests
     #endregion
 
     [Fact]
-    public void CanUpdateMillisecondsWithIgnorePrepareOnFalse()
+    public void CanUpdateMicrosecondsWithIgnorePrepareOnFalse()
     {
       if (st.Version < new Version(5, 6)) return;
       MySqlCommand cmd = new MySqlCommand();
@@ -507,7 +510,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         while (rdr.Read())
         {
-          Assert.Equal("12:34:59.9990", rdr.GetDateTime(0).ToString("hh:mm:ss.ffff"));
+          Assert.Equal("12:34:59.999999", rdr.GetDateTime(0).ToString("hh:mm:ss.ffffff"));
         }
         rdr.Close();
       }
@@ -633,7 +636,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         while (rdr.Read())
         {
-          Assert.Equal(123456, rdr.GetMySqlDateTime(0).Millisecond);
+          Assert.Equal(123456, rdr.GetMySqlDateTime(0).Microsecond);
         }
         rdr.Close();
       }
@@ -673,13 +676,13 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.Parameters.Clear();
         cmd.Connection = st.conn;
 
-        MySqlDataReader rdr = cmd.ExecuteReader();
-
-        while (rdr.Read())
+        using (MySqlDataReader rdr = cmd.ExecuteReader())
         {
-          Assert.Equal(123456, rdr.GetMySqlDateTime(0).Millisecond);
+          while (rdr.Read())
+          {
+            Assert.Equal(123456, rdr.GetMySqlDateTime(0).Microsecond);
+          }
         }
-        rdr.Close();
       }
     }
     #endregion
@@ -832,7 +835,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     [Fact]
-    public void CanSaveMillisecondsPrecision4()
+    public void CanSaveMicrosecondsPrecision4()
     {
 
       if (st.Version < new Version(5, 6)) return;
@@ -853,7 +856,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       while (rdr.Read())
       {
-        Assert.Equal("11:09:07.0600", rdr.GetDateTime(0).ToString("hh:mm:ss.ffff"));
+        Assert.Equal(dt.ToString("hh:mm:ss.ffff"), rdr.GetDateTime(0).ToString("hh:mm:ss.ffff"));
       }
       rdr.Close();
     }
@@ -905,6 +908,36 @@ namespace MySql.Data.MySqlClient.Tests
     }
 #endif
 
+    [Fact]
+    public void ReadAndWriteMicroseconds()
+    {
+      if (st.Version < new Version(5, 6, 5)) return;
+      MySqlCommand cmd = new MySqlCommand();
+      cmd.CommandText = "CREATE TABLE t1 (id int, t3 TIME(3), t6 TIME(6), d6 DATETIME(6));";
+      cmd.Connection = st.conn;
+      var result = cmd.ExecuteNonQuery();
+
+      DateTime milliseconds = new DateTime(1, 1, 1, 15, 45, 23, 123);
+      DateTime microseconds = milliseconds.AddTicks(4560);
+
+      cmd.CommandText = "INSERT INTO t1 (id, t3, t6, d6) values(1, @t3, @t6, @d6);";
+      cmd.Parameters.AddWithValue("t3", new TimeSpan(milliseconds.Ticks));
+      cmd.Parameters.AddWithValue("t6", new TimeSpan(microseconds.Ticks));
+      cmd.Parameters.AddWithValue("d6", microseconds);
+      cmd.ExecuteNonQuery();
+
+      cmd.CommandText = " SELECT * from t1";
+      using (MySqlDataReader reader = cmd.ExecuteReader())
+      {
+        Assert.True(reader.Read());
+        Assert.Equal(milliseconds.Ticks, reader.GetTimeSpan(1).Ticks);
+        Assert.Equal(microseconds.Ticks, reader.GetTimeSpan(2).Ticks);
+        Assert.Equal(microseconds.Ticks, reader.GetDateTime(3).Ticks);
+        Assert.Equal(microseconds.Millisecond, reader.GetDateTime(3).Millisecond);
+        Assert.Equal(microseconds.Millisecond, reader.GetMySqlDateTime(3).Millisecond);
+        Assert.Equal((microseconds.Ticks % 10000000) / 10, reader.GetMySqlDateTime(3).Microsecond);
+      }
+    }
 
   }
 }

@@ -505,6 +505,12 @@
   <data name="OldPasswordsNotSupported" xml:space="preserve">
     <value>Authentication with old password no longer supported, use 4.1 style passwords.</value>
   </data>
+  <data name="InvalidMicrosecondValue" xml:space="preserve">
+    <value>Microsecond must be a value between 0 and 999999.</value>
+  </data>
+  <data name="InvalidMillisecondValue" xml:space="preserve">
+    <value>Millisecond must be a value between 0 and 999. For more precision use Microsecond.</value>
+  </data>
   <data name="Replication_NoAvailableServer" xml:space="preserve">
     <value>No available server found.</value>
   </data>

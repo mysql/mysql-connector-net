@@ -1,4 +1,5 @@
-// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc.
+// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc.,
+// 2009, 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -38,7 +39,7 @@ namespace MySql.Data.Types
     private bool isNull;
     private MySqlDbType type;
     private int year, month, day, hour, minute, second;
-    private int millisecond;
+    private int millisecond, microsecond;
     public int TimezoneOffset;
 
     /// <summary>
@@ -51,9 +52,9 @@ namespace MySql.Data.Types
     /// <param name="hour">The hour to use.</param>
     /// <param name="minute">The minute to use.</param>
     /// <param name="second">The second to use.</param>
-    /// <param name="millisecond">The millisecond to use.</param>
-    public MySqlDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond)
-      : this(MySqlDbType.DateTime, year, month, day, hour, minute, second, millisecond)
+    /// <param name="microsecond">The microsecond to use.</param>
+    public MySqlDateTime(int year, int month, int day, int hour, int minute, int second, int microsecond)
+      : this(MySqlDbType.DateTime, year, month, day, hour, minute, second, microsecond)
     {
     }
 
@@ -78,6 +79,7 @@ namespace MySql.Data.Types
       hour = mdt.Hour;
       minute = mdt.Minute;
       second = mdt.Second;
+      microsecond = 0;
       millisecond = 0;
       type = MySqlDbType.DateTime;
       isNull = false;
@@ -93,7 +95,7 @@ namespace MySql.Data.Types
     }
 
     internal MySqlDateTime(MySqlDbType type, int year, int month, int day, int hour, int minute,
-      int second, int millisecond)
+      int second, int microsecond)
     {
       this.isNull = false;
       this.type = type;
@@ -103,7 +105,8 @@ namespace MySql.Data.Types
       this.hour = hour;
       this.minute = minute;
       this.second = second;
-      this.millisecond = millisecond > 0 ? millisecond : 0;
+      this.microsecond = microsecond;
+      this.millisecond = this.microsecond / 1000;
       this.TimezoneOffset = 0;
     }
 
@@ -123,7 +126,7 @@ namespace MySql.Data.Types
       hour = val.Hour;
       minute = val.Minute;
       second = val.Second;
-      millisecond = val.Millisecond;
+      Microsecond = (int)(val.Ticks % 10000000) / 10;
     }
 
     #region Properties
@@ -182,12 +185,33 @@ namespace MySql.Data.Types
     }
 
     /// <summary>
-    /// Retrieves the millisecond value of this object.
+    /// Returns the milliseconds portion of this datetime 
+    /// expressed as a value between 0 and 999
     /// </summary>
-    public int Millisecond
-    {
+    public int Millisecond {
       get { return millisecond; }
-      set { millisecond = value; }
+      set
+      {
+        if (value < 0 || value > 999)
+          throw new ArgumentOutOfRangeException("Millisecond", MySqlClient.Properties.Resources.InvalidMillisecondValue);
+        millisecond = value;
+        microsecond = value * 1000;
+      }
+    }
+
+    /// <summary>
+    /// Returns the microseconds portion of this datetime (6 digit precision)
+    /// </summary>
+    public int Microsecond
+    {
+      get { return microsecond; }
+      set
+      {
+        if (value < 0 || value > 999999)
+          throw new ArgumentOutOfRangeException("Microsecond", MySqlClient.Properties.Resources.InvalidMicrosecondValue);
+        microsecond = value;
+        millisecond = value / 1000;
+      }
     }
 
     #endregion
@@ -248,8 +272,8 @@ namespace MySql.Data.Types
                 value.Year, value.Month, value.Day);
       if (type != MySqlDbType.Date)
       {
-        val = value.Millisecond > 0 ? String.Format("{0} {1:00}:{2:00}:{3:00}.{4:000}", val,
-          value.Hour, value.Minute, value.Second, value.Millisecond) : String.Format("{0} {1:00}:{2:00}:{3:00} ", val,
+        val = value.Microsecond > 0 ? String.Format("{0} {1:00}:{2:00}:{3:00}.{4:000000}", val,
+          value.Hour, value.Minute, value.Second, value.Microsecond) : String.Format("{0} {1:00}:{2:00}:{3:00} ", val,
           value.Hour, value.Minute, value.Second);
       }
 
@@ -277,7 +301,7 @@ namespace MySql.Data.Types
         return;
       }
 
-      if (dtValue.Millisecond > 0)
+      if (dtValue.Microsecond > 0)
         packet.WriteByte(11);
       else
         packet.WriteByte(7);
@@ -298,9 +322,9 @@ namespace MySql.Data.Types
         packet.WriteByte((byte)dtValue.Second);
       }
 
-      if (dtValue.Millisecond > 0)
+      if (dtValue.Microsecond > 0)
       {
-        long val = dtValue.Millisecond < 1000 ?  dtValue.Millisecond * 1000 : dtValue.Millisecond;
+        long val = dtValue.Microsecond;
         for (int x = 0; x < 4; x++)
         {
           packet.WriteByte((byte)(val & 0xff));
@@ -329,7 +353,7 @@ namespace MySql.Data.Types
       int month = int.Parse(parts[1]);
       int day = int.Parse(parts[2]);
 
-      int hour = 0, minute = 0, second = 0, millisecond = 0;
+      int hour = 0, minute = 0, second = 0, microsecond = 0;
       if (parts.Length > 3)
       {
         hour = int.Parse(parts[3]);
@@ -339,10 +363,10 @@ namespace MySql.Data.Types
 
       if (parts.Length > 6)
       {
-        millisecond = int.Parse(parts[6]);
+        microsecond = int.Parse(parts[6].PadRight(6, '0'));
       }
 
-      return new MySqlDateTime(type, year, month, day, hour, minute, second, millisecond);
+      return new MySqlDateTime(type, year, month, day, hour, minute, second, microsecond);
     }
 
     IMySqlValue IMySqlValue.ReadValue(MySqlPacket packet, long length, bool nullVal)
@@ -358,7 +382,7 @@ namespace MySql.Data.Types
 
       long bufLength = packet.ReadByte();
       int year = 0, month = 0, day = 0;
-      int hour = 0, minute = 0, second = 0, millisecond = 0;
+      int hour = 0, minute = 0, second = 0, microsecond = 0;
       if (bufLength >= 4)
       {
         year = packet.ReadInteger(2);
@@ -375,11 +399,11 @@ namespace MySql.Data.Types
 
       if (bufLength > 7)
       {
-        millisecond = packet.Read3ByteInt();
+        microsecond = packet.Read3ByteInt();
         packet.ReadByte();
       }
 
-      return new MySqlDateTime(type, year, month, day, hour, minute, second, millisecond);
+      return new MySqlDateTime(type, year, month, day, hour, minute, second, microsecond);
     }
 
     void IMySqlValue.SkipValue(MySqlPacket packet)
@@ -396,9 +420,6 @@ namespace MySql.Data.Types
       if (!IsValidDateTime)
         throw new MySqlConversionException("Unable to convert MySQL date/time value to System.DateTime");
 
-      if ((millisecond < 0) || (millisecond >= 0x3e8))
-        millisecond = (int)(millisecond / 0x3e8);
-
       DateTimeKind kind = DateTimeKind.Unspecified;
       if (type == MySqlDbType.Timestamp)
       {
@@ -407,7 +428,8 @@ namespace MySql.Data.Types
         else 
           kind = DateTimeKind.Local;
       }
-      return new DateTime(year, month, day, hour, minute, second, millisecond, kind);
+
+      return new DateTime(year, month, day, hour, minute, second, kind).AddTicks(microsecond * 10);
     }
 
     private static string FormatDateCustom(string format, int monthVal, int dayVal, int yearVal)
@@ -432,7 +454,7 @@ namespace MySql.Data.Types
     {
       if (this.IsValidDateTime)
       {
-        DateTime d = new DateTime(year, month, day, hour, minute, second, millisecond);
+        DateTime d = new DateTime(year, month, day, hour, minute, second).AddTicks(microsecond * 10);
         return (type == MySqlDbType.Date) ? d.ToString("d") : d.ToString();
       }
 
@@ -441,7 +463,7 @@ namespace MySql.Data.Types
       if (type == MySqlDbType.Date)
         return dateString;
 
-      DateTime dt = new DateTime(1, 2, 3, hour, minute, second, millisecond);
+      DateTime dt = new DateTime(1, 2, 3, hour, minute, second).AddTicks(microsecond * 10);
       dateString = String.Format("{0} {1}", dateString, dt.ToLongTimeString());
       return dateString;
     }
@@ -517,8 +539,8 @@ namespace MySql.Data.Types
       if (Second < otherDate.Second) return -1;
       else if (Second > otherDate.Second) return 1;
 
-      if (Millisecond < otherDate.Millisecond) return -1;
-      else if (Millisecond > otherDate.Millisecond) return 1;
+      if (Microsecond < otherDate.Microsecond) return -1;
+      else if (Microsecond > otherDate.Microsecond) return 1;
 
       return 0;
     }
