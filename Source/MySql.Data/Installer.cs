@@ -1,4 +1,4 @@
-// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2014, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -72,7 +72,7 @@ namespace MySql.Data.MySqlClient
         UpdateMachineConfigs(installRoot64, true);
     }
 
-    private static void UpdateMachineConfigs(string rootPath, bool add)
+    internal static void UpdateMachineConfigs(string rootPath, bool add)
     {
       string[] dirs = new string[2] { "v2.0.50727", "v4.0.30319" };
       foreach (string frameworkDir in dirs)
@@ -90,9 +90,68 @@ namespace MySql.Data.MySqlClient
       }
     }
 
+    private static XmlElement CreateNodeAssemblyBindingRedirection(XmlElement mysqlNode, XmlDocument doc, string oldVersion, string newVersion)
+    {
+
+      if (doc == null || mysqlNode == null)
+        return null;
+
+      XmlElement dA;
+      XmlElement aI;
+      XmlElement bR;
+
+      string ns = "urn:schemas-microsoft-com:asm.v1";
+
+      //mysql.data
+      dA = (XmlElement)doc.CreateNode(XmlNodeType.Element, "dependentAssembly", ns);
+      aI = (XmlElement)doc.CreateNode(XmlNodeType.Element, "assemblyIdentity", ns);
+      aI.SetAttribute("name", "MySql.Data");
+      aI.SetAttribute("publicKeyToken", "c5687fc88969c44d");
+      aI.SetAttribute("culture", "neutral");
+
+      bR = (XmlElement)doc.CreateNode(XmlNodeType.Element, "bindingRedirect", ns);
+      bR.SetAttribute("oldVersion", oldVersion);
+      bR.SetAttribute("newVersion", newVersion);
+      dA.AppendChild(aI);
+      dA.AppendChild(bR);
+      mysqlNode.AppendChild(dA);
+
+      //mysql.data.entity
+      dA = (XmlElement)doc.CreateNode(XmlNodeType.Element, "dependentAssembly", ns);
+      aI = (XmlElement)doc.CreateNode(XmlNodeType.Element, "assemblyIdentity", ns);
+      aI.SetAttribute("name", "MySql.Data.Entity");
+      aI.SetAttribute("publicKeyToken", "c5687fc88969c44d");
+      aI.SetAttribute("culture", "neutral");
+
+      bR = (XmlElement)doc.CreateNode(XmlNodeType.Element, "bindingRedirect", ns);
+      bR.SetAttribute("oldVersion", oldVersion);
+      bR.SetAttribute("newVersion", newVersion);
+      dA.AppendChild(aI);
+      dA.AppendChild(bR);
+      mysqlNode.AppendChild(dA);
+
+      //mysql.web
+
+      dA = (XmlElement)doc.CreateNode(XmlNodeType.Element, "dependentAssembly", ns);
+      aI = (XmlElement)doc.CreateNode(XmlNodeType.Element, "assemblyIdentity", ns);
+      aI.SetAttribute("name", "MySql.Web");
+      aI.SetAttribute("publicKeyToken", "c5687fc88969c44d");
+      aI.SetAttribute("culture", "neutral");
+
+      bR = (XmlElement)doc.CreateNode(XmlNodeType.Element, "bindingRedirect", ns);
+      bR.SetAttribute("oldVersion", oldVersion);
+      bR.SetAttribute("newVersion", newVersion);
+      dA.AppendChild(aI);
+      dA.AppendChild(bR);
+      mysqlNode.AppendChild(dA);
+
+      return mysqlNode;
+    }
+
+
     private static void AddProviderToMachineConfigInDir(string path)
     {
-      string configFile = String.Format(@"{0}\machine.config", path);
+      string configFile = String.Format(@"{0}\machine.config", path);      
       if (!File.Exists(configFile)) return;
 
       // now read the config file into memory
@@ -103,6 +162,8 @@ namespace MySql.Data.MySqlClient
       // load the XML into the XmlDocument
       XmlDocument doc = new XmlDocument();
       doc.LoadXml(configXML);
+
+      doc = RemoveOldBindingRedirection(doc);
 
       // create our new node
       XmlElement newNode = (XmlElement)doc.CreateNode(XmlNodeType.Element, "add", "");
@@ -131,8 +192,31 @@ namespace MySql.Data.MySqlClient
           }
         }
       }
-
       nodes[0].AppendChild(newNode);
+
+      try
+      {
+        XmlElement mysqlNode;
+
+        //add binding redirection to our assemblies
+        if (doc.GetElementsByTagName("assemblyBinding").Count == 0)
+        {
+          mysqlNode = (XmlElement)doc.CreateNode(XmlNodeType.Element, "assemblyBinding", "");
+          mysqlNode.SetAttribute("xmlns", "urn:schemas-microsoft-com:asm.v1");
+        }
+        else
+        {
+          mysqlNode = (XmlElement)doc.GetElementsByTagName("assemblyBinding")[0];
+        }
+
+        string newVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        mysqlNode = CreateNodeAssemblyBindingRedirection(mysqlNode, doc, "6.7.4.0", newVersion);
+
+        XmlNodeList runtimeNode = doc.GetElementsByTagName("runtime");
+        runtimeNode[0].AppendChild(mysqlNode);
+      }
+      catch {}
+      
 
       // Save the document to a file and auto-indent the output.
       XmlTextWriter writer = new XmlTextWriter(configFile, null);
@@ -141,6 +225,32 @@ namespace MySql.Data.MySqlClient
       writer.Flush();
       writer.Close();
     }
+
+    private static XmlDocument RemoveOldBindingRedirection(XmlDocument doc)
+    {
+
+      if (doc.GetElementsByTagName("assemblyBinding").Count == 0) return doc;
+
+      XmlNodeList nodesDependantAssembly = doc.GetElementsByTagName("assemblyBinding")[0].ChildNodes;
+      if (nodesDependantAssembly != null)
+      {
+        int nodesCount = nodesDependantAssembly.Count;
+        for (int i = 0; i < nodesCount; i++)
+        {
+          if (nodesDependantAssembly[0].ChildNodes[0].Attributes[0].Name == "name"
+             &&
+             nodesDependantAssembly[0].ChildNodes[0].Attributes[0].Value.Contains("MySql"))
+          {
+            doc.GetElementsByTagName("assemblyBinding")[0].RemoveChild(nodesDependantAssembly[0]);
+          }
+        }
+      }
+      return doc;
+    }
+
+
+
+
 
     /// <summary>
     /// We override Uninstall so we can remove out assembly from the
@@ -195,6 +305,12 @@ namespace MySql.Data.MySqlClient
           break;
         }
       }
+
+      try
+      {
+        doc = RemoveOldBindingRedirection(doc);
+      }
+      catch { }
 
       // Save the document to a file and auto-indent the output.
       XmlTextWriter writer = new XmlTextWriter(configFile, null);
