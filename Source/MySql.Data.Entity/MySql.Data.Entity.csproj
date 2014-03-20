@@ -87,6 +87,8 @@
     <OutputPath>bin\$(TargetFrameworkVersion)\Debug\</OutputPath>
     <BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\Debug\</BaseIntermediateOutputPath>
     <DefineConstants>$(DefineConstants);DEBUG;TRACE</DefineConstants>
+    <AssemblyName>MySql.Data.Entity</AssemblyName>
+    <AssemblyName Condition="$(Framework) == '4.5' Or $(Framework) == '4.5.1'">MySql.Data.Entity.EF5</AssemblyName>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
@@ -100,6 +102,8 @@
     <OutputPath>bin\$(TargetFrameworkVersion)\Release\</OutputPath>
     <BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\Release\</BaseIntermediateOutputPath>
     <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
+    <AssemblyName>MySql.Data.Entity</AssemblyName>
+    <AssemblyName Condition="$(Framework) == '4.5' Or $(Framework) == '4.5.1'">MySql.Data.Entity.EF5</AssemblyName>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>

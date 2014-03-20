@@ -22,6 +22,8 @@
 - Fix for 'default table cache age' connection string property, set default value to 60 seconds.
 - Fix for MySqlDataTime.Millisecond to be a value between 0 and 999.
 - Added Microsecond to MySqlDateTime for 6-digit precision support.
+- Renamed MySql.Data.Entity.dll to MySql.Data.Entity.EF5.dll for Entity Framework 5 and .NET Framework 4.5 or above.
+  For EF 5 and .NET Framework 4.0 or below remains the same name.
 
 
 6.7.4

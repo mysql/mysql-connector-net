@@ -1,4 +1,4 @@
-// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc.
+// Copyright © 2004, 2014, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -135,12 +135,19 @@ namespace MySql.Data.MySqlClient
       {
         if (mySqlDbProviderServicesInstance == null)
         {
-
           string fullName = Assembly.GetExecutingAssembly().FullName;
-          fullName = fullName.Replace("MySql.Data", "MySql.Data.Entity");
-          fullName = String.Format("MySql.Data.MySqlClient.MySqlProviderServices, {0}", fullName);
+          string assemblyName = fullName.Replace("MySql.Data", "MySql.Data.Entity");
+          string assemblyEf5Name = fullName.Replace("MySql.Data", "MySql.Data.Entity.EF5");
+          fullName = String.Format("MySql.Data.MySqlClient.MySqlProviderServices, {0}", assemblyEf5Name);
 
           Type providerServicesType = Type.GetType(fullName, false);
+          if (providerServicesType == null)
+          {
+            fullName = String.Format("MySql.Data.MySqlClient.MySqlProviderServices, {0}", assemblyName);
+            providerServicesType = Type.GetType(fullName, false);
+            if (providerServicesType == null)
+              throw new DllNotFoundException(fullName);
+          }
           mySqlDbProviderServicesInstance = providerServicesType.GetField("Instance",
               BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance);
         }
