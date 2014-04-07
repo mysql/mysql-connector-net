@@ -1,4 +1,4 @@
-// Copyright © 2004, 2011, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2014, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -41,7 +41,7 @@ namespace MySql.Web.Common
   /// </summary>
   public static class SchemaManager
   {
-    private const int schemaVersion = 8;
+    private const int schemaVersion = 9;
 
     /// <summary>
     /// Gets the most recent version of the schema.
@@ -127,7 +127,7 @@ namespace MySql.Web.Common
           if (ex.Number != (int)MySqlErrorCode.NoSuchTable)
             throw;
           string[] restrictions = new string[4];
-          restrictions[2] = "mysql_Membership";
+          restrictions[2] = "mysql_membership";
           DataTable dt = conn.GetSchema("Tables", restrictions);
           if (dt.Rows.Count == 1)
             return Convert.ToInt32(dt.Rows[0]["TABLE_COMMENT"]);

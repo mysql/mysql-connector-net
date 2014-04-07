@@ -66,8 +66,7 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <DefineConstants 
-	Condition=" ( '$(Framework)' == '4.0' ) or ( '$(Framework)' == '4.5' ) or ( '$(Framework)' == '4.5.1' ) ">
+    <DefineConstants Condition=" ( '$(Framework)' == '4.0' ) or ( '$(Framework)' == '4.5' ) or ( '$(Framework)' == '4.5.1' ) ">
 	NET_40_OR_GREATER</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -181,6 +180,7 @@
     </Compile>
     <Compile Include="SessionTests.cs" />
     <Compile Include="SetUpWeb.cs" />
+    <Compile Include="SiteMapTests.cs" />
     <Compile Include="TestProfile.cs" />
     <Compile Include="UserManagement.cs" />
   </ItemGroup>
