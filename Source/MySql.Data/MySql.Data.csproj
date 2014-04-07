@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform>AnyCPU</Platform>
-<!--    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform> -->
+    <!--    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform> -->
     <TargetFrameworkProfile />
     <!--
     <Framework Condition=" '$(Framework)' == '' and '$(VisualStudioVersion)' == '10.0'">4.0</Framework>
@@ -18,7 +18,7 @@
     <When Condition=" '$(Platform)' != 'AnyCPU'">
       <PropertyGroup>
         <Platform>AnyCPU</Platform>
-      </PropertyGroup> 
+      </PropertyGroup>
     </When>
   </Choose>
   <Choose>

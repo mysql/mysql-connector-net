@@ -96,6 +96,13 @@ namespace MySql.Web.Tests
         }
       }
 
+      internal string GetConnectionString()
+      {
+        Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+        ConnectionStringSettings css = config.ConnectionStrings.ConnectionStrings["LocalMySqlServer"];
+        return css.ConnectionString;
+      }
+
       public override void Dispose()
       {
         base.Dispose();            
