@@ -127,6 +127,7 @@ namespace MySql.Web.Security
       AddRoleProvider(doc);
       AddProfileProvider(doc);
       AddSiteMapProvider(doc);
+	  AddPersonalizationProvider(doc);
 
       // Save the document to a file and auto-indent the output.
       XmlTextWriter writer = new XmlTextWriter(configFile, null);
@@ -316,6 +317,69 @@ namespace MySql.Web.Security
       providerList.AppendChild(newNode);
     }
 
+	
+	private void AddPersonalizationProvider(XmlDocument doc)
+    {
+      XmlElement webpartNode = null;
+
+      //check if webpart node exists
+      try
+      {        
+        if (doc.GetElementsByTagName("webParts").Count == 0)
+        {
+          webpartNode = (XmlElement)doc.CreateNode(XmlNodeType.Element, "webParts", "");
+          var personalizationNode = (XmlElement)doc.CreateNode(XmlNodeType.Element, "personalization", "");
+          personalizationNode.AppendChild((XmlElement)doc.CreateNode(XmlNodeType.Element, "providers", ""));
+          webpartNode.AppendChild(personalizationNode);
+
+        }
+        else
+        {
+          webpartNode = (XmlElement)doc.GetElementsByTagName("webParts")[0];
+        }
+      }
+      catch { }
+      
+      
+      // create our new node
+      XmlElement newNode = (XmlElement)doc.CreateNode(XmlNodeType.Element, "add", "");
+
+      // add the proper attributes
+      newNode.SetAttribute("name", "MySQLPersonalizationProvider");
+
+      // add the type attribute by reflecting on the executing assembly
+      Assembly a = Assembly.GetExecutingAssembly();
+      string type = String.Format("MySql.Web.Personalization.MySqlPersonalizationProvider, {0}",
+          a.FullName.Replace("Installers", "Web"));
+      newNode.SetAttribute("type", type);
+
+      newNode.SetAttribute("connectionStringName", "LocalMySqlServer");
+      newNode.SetAttribute("applicationName", "/");
+
+      XmlNodeList systemWeb = doc.GetElementsByTagName("system.web");
+      systemWeb[0].AppendChild(webpartNode);
+
+      XmlNodeList nodes = doc.GetElementsByTagName("personalization");
+      XmlNode providerPersonalizationList = nodes[0].FirstChild;
+
+
+      if (providerPersonalizationList!= null && providerPersonalizationList.ChildNodes!= null)
+      {
+        foreach (XmlNode node in providerPersonalizationList.ChildNodes)
+        {
+          string typeValue = node.Attributes["type"].Value;
+          if (typeValue.StartsWith("MySql.Web.Personalization.MySqlPersonalizationProvider", StringComparison.OrdinalIgnoreCase))
+          {
+            providerPersonalizationList.RemoveChild(node);
+            break;
+          }
+        }
+      }
+
+      providerPersonalizationList.AppendChild(newNode);
+    }
+
+		
     private void RemoveProviderFromMachineConfig()
     {
       object installRoot = Registry.GetValue(
@@ -352,6 +416,7 @@ namespace MySql.Web.Security
       RemoveRoleProvider(doc);
       RemoveProfileProvider(doc);
       RemoveSiteMapProvider(doc);
+	  RemovePersonalizationProvider(doc);
 
       // Save the document to a file and auto-indent the output.
       XmlTextWriter writer = new XmlTextWriter(configFile, null);
@@ -429,6 +494,21 @@ namespace MySql.Web.Security
       {
         string name = node.Attributes["name"].Value;
         if ( string.Compare( name, "MySqlSiteMapProvider", StringComparison.OrdinalIgnoreCase ) == 0 )
+        {
+          providersNode.RemoveChild(node);
+          break;
+        }
+      }
+    }
+	
+	private void RemovePersonalizationProvider(XmlDocument doc)
+    {
+      XmlNodeList nodes = doc.GetElementsByTagName("personalization");
+      XmlNode providersNode = nodes[0].FirstChild;
+      foreach (XmlNode node in providersNode.ChildNodes)
+      {
+        string name = node.Attributes["name"].Value;
+        if (name == "MySQLPersonalizationProvider")
         {
           providersNode.RemoveChild(node);
           break;
