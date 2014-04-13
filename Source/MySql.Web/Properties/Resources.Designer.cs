@@ -445,6 +445,21 @@ namespace MySql.Web.Properties {
             }
         }
         
+		
+		/// <summary>
+        ///   Looks up a localized string similar to DELETE FROM my_aspnet_sessioncleanup; 
+        ///
+        ///CREATE TABLE my_aspnet_personalizationperuser(
+        ///id INT PRIMARY KEY AUTO_INCREMENT,
+        ///applicationId INT NOT NULL, 
+        ///pathId VARCHAR(36) DEFAULT NULL,
+        /// </summary>
+		public static string schema10 {
+            get {
+                return ResourceManager.GetString("schema10", resourceCulture);
+            }
+        }
+		
         /// <summary>
         ///   Looks up a localized string similar to The connection string name is missing for the MySqlSiteMapProvider.
         /// </summary>

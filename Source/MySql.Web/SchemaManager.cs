@@ -41,7 +41,7 @@ namespace MySql.Web.Common
   /// </summary>
   public static class SchemaManager
   {
-    private const int schemaVersion = 9;
+    private const int schemaVersion = 10;
 
     /// <summary>
     /// Gets the most recent version of the schema.
