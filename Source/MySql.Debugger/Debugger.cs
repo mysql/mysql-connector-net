@@ -353,10 +353,10 @@ namespace MySql.Debugger
         }
         try
         {
-        MySqlCommand cmd = new MySqlCommand("", _utilCon);
-        cmd.CommandText = string.Format("set session binlog_format = '{0}'", binLog_Format);
-        cmd.ExecuteNonQuery();
-        _utilCon.Close(); 
+          MySqlCommand cmd = new MySqlCommand("", _utilCon);
+          cmd.CommandText = string.Format("set session binlog_format = '{0}'", binLog_Format);
+          cmd.ExecuteNonQuery();
+          _utilCon.Close(); 
         } catch { }
         try { _connection.Close(); } catch { }
         IsRunning = false;
@@ -981,6 +981,11 @@ namespace MySql.Debugger
       {
         // long command timeout so it spans the full debug session time.
         cmd.CommandTimeout = Int32.MaxValue / 1000;
+        
+        cmd.CommandText = string.Format("SELECT @@GLOBAL.binlog_format;");
+        binLog_Format = (string)cmd.ExecuteScalar();
+        cmd.CommandText = "set session binlog_format = 'row';";
+        cmd.ExecuteNonQuery();
 
         // net_xxx are set to avoid EndOfStreamException
         cmd.CommandText = "set net_write_timeout=999998;";
@@ -994,11 +999,6 @@ namespace MySql.Debugger
         cmd.CommandText = VAR_DBG_FOUND_ROWS_WRITE;
         cmd.ExecuteNonQuery();
         cmd.CommandText = VAR_DBG_ROW_COUNT_WRITE;
-        cmd.ExecuteNonQuery();
-
-        cmd.CommandText = string.Format("SELECT @@GLOBAL.binlog_format;");
-        binLog_Format = (string)cmd.ExecuteScalar();
-        cmd.CommandText = "set session binlog_format = 'row';";
         cmd.ExecuteNonQuery();
 
         SetNoDebuggingFlag(0, _connection);

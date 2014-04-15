@@ -129,15 +129,15 @@ end;
     {
       SteppingTraceInfo[] info = new SteppingTraceInfo[] { 
         new SteppingTraceInfo("test.SimpleNonScalar", 4, 4),
-        new SteppingTraceInfo("test.DoSum", 7, 4),
         new SteppingTraceInfo("test.DoSum", 8, 4),
         new SteppingTraceInfo("test.DoSum", 9, 4),
-        new SteppingTraceInfo("test.DoSum", 7, 4),
+        new SteppingTraceInfo("test.DoSum", 10, 4),
         new SteppingTraceInfo("test.DoSum", 8, 4),
         new SteppingTraceInfo("test.DoSum", 9, 4),
-        new SteppingTraceInfo("test.DoSum", 7, 4),
+        new SteppingTraceInfo("test.DoSum", 10, 4),
         new SteppingTraceInfo("test.DoSum", 8, 4),
         new SteppingTraceInfo("test.DoSum", 9, 4),
+        new SteppingTraceInfo("test.DoSum", 10, 4),
         new SteppingTraceInfo("test.SimpleNonScalar", 6, 0)
       };
       SteppingTraceInfoList l = new SteppingTraceInfoList(info);
@@ -153,7 +153,7 @@ begin
 end //
 drop function if exists `DoSum`
 //
-CREATE FUNCTION `DoSum`( a int, b int ) RETURNS int(11)
+CREATE FUNCTION `DoSum`( a int, b int ) RETURNS int(11) deterministic
 begin
 
     declare a1 int;
@@ -213,9 +213,9 @@ end;
     {
       SteppingTraceInfo[] info = new SteppingTraceInfo[] { 
         new SteppingTraceInfo("test.SimpleScalar", 4, 4),
-        new SteppingTraceInfo("test.DoSum", 7, 4),
         new SteppingTraceInfo("test.DoSum", 8, 4),
         new SteppingTraceInfo("test.DoSum", 9, 4),
+        new SteppingTraceInfo("test.DoSum", 10, 4),
         new SteppingTraceInfo("test.SimpleScalar", 6, 0)
       };
       SteppingTraceInfoList l = new SteppingTraceInfoList(info);
@@ -231,7 +231,7 @@ begin
 end //
 drop function if exists `DoSum`
 //
-CREATE FUNCTION `DoSum`( a int, b int ) RETURNS int(11)
+CREATE FUNCTION `DoSum`( a int, b int ) RETURNS int(11) deterministic
 begin
 
     declare a1 int;
@@ -439,9 +439,9 @@ end;
     {
       SteppingTraceInfo[] info = new SteppingTraceInfo[] { 
         new SteppingTraceInfo("test.NestedFunction", 5, 4),
-        new SteppingTraceInfo("test.DoSum", 8, 4),
         new SteppingTraceInfo("test.DoSum", 9, 4),
         new SteppingTraceInfo("test.DoSum", 10, 4),
+        new SteppingTraceInfo("test.DoSum", 11, 4),
         new SteppingTraceInfo("test.NestedFunction", 6, 4),
         new SteppingTraceInfo("test.NestedFunction", 8, 0)
       };
@@ -464,7 +464,7 @@ end
 drop function if exists `DoSum`
 //
 CREATE FUNCTION `DoSum`( a int, b int ) RETURNS int(11)
-not deterministic modifies sql data
+deterministic modifies sql data
 begin
 
 declare a1 int;
@@ -2175,8 +2175,8 @@ end;
     {
       SteppingTraceInfo[] info = new SteppingTraceInfo[] { 
         new SteppingTraceInfo("test.TestingFunctions", 5, 0),
-        new SteppingTraceInfo("test.GetSum", 3, 0),
-        new SteppingTraceInfo("test.GetDiff", 3, 0),
+        new SteppingTraceInfo("test.GetSum", 4, 0),
+        new SteppingTraceInfo("test.GetDiff", 4, 0),
         new SteppingTraceInfo("test.TestingFunctions", 7, 0)
       };
       SteppingTraceInfoList l = new SteppingTraceInfoList(info);
@@ -2186,13 +2186,13 @@ end;
 DELIMITER // 
 
 CREATE DEFINER=`root`@`localhost` FUNCTION `GetDiff`( x int, y int ) RETURNS 
-int(11) 
+int(11) deterministic
 begin 
 return x - y; 
 end //
 
 CREATE DEFINER=`root`@`localhost` FUNCTION `GetSum`( a int, b int ) RETURNS 
-int(11) 
+int(11) deterministic
 begin 
 return a + b; 
 end //
