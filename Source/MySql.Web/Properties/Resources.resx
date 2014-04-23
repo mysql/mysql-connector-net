@@ -256,10 +256,85 @@
   <data name="schema9" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>schema9.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
+  <data name="schema11" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>schema11.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
   <data name="SiteMapConnectionStringMissing" xml:space="preserve">
     <value>The connection string name is missing for the MySqlSiteMapProvider</value>
   </data>
    <data name="schema10" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>schema10.sql;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="ClearPassTokenFailed" xml:space="preserve">
+    <value>Failed to clear the token for the userid {0} in the table {1} after password update.</value>
+  </data>
+  <data name="CreateRoleFailed" xml:space="preserve">
+    <value>An unexpected error occurred while creating the role '{0}'.</value>
+  </data>
+  <data name="DeleteOAuthAccountFailed" xml:space="preserve">
+    <value>Failed to delete OAuth Account, combination of provider '{0}' and provider user id '{1}' not found.</value>
+  </data>
+  <data name="GeneratePassVerificationTokenFailed" xml:space="preserve">
+    <value>Failed to generates the PasswordVerificationToken, update not performed to Database.</value>
+  </data>
+  <data name="InvalidArgument" xml:space="preserve">
+    <value>Please provide a valid value: value provided is null or empty.</value>
+  </data>
+  <data name="InvalidArrayValue" xml:space="preserve">
+    <value>Some of the values in the arrays received are null or empty, please verify it.</value>
+  </data>
+  <data name="InvalidUser" xml:space="preserve">
+    <value>User {0} not found in the table {1}.</value>
+  </data>
+  <data name="NoConnString" xml:space="preserve">
+    <value>There is no connection string configured.</value>
+  </data>
+  <data name="PasswordExceedsMaxLength" xml:space="preserve">
+    <value>Password exceeds maximum length allowed.</value>
+  </data>
+  <data name="PasswordFormatNotSupported" xml:space="preserve">
+    <value>Password format not supported.</value>
+  </data>
+  <data name="PreviousProviderException" xml:space="preserve">
+    <value>MySqlSimpleMembershipProvider is already initialized and its schema does not match the MySqlMembershipProvider schema.</value>
+  </data>
+  <data name="RoleAlreadyExists" xml:space="preserve">
+    <value>The role '{0}' already exists.</value>
+  </data>
+  <data name="RoleInUse" xml:space="preserve">
+    <value>The role '{0}' is in use.</value>
+  </data>
+  <data name="SaveTokenFailed" xml:space="preserve">
+    <value>Failed to save the request token secret value '{0}'.</value>
+  </data>
+  <data name="SimpleMembershipAlreadyInitialized" xml:space="preserve">
+    <value>The MySqlSimpleMembershipProvider is already initialized.</value>
+  </data>
+  <data name="SimpleMembershipNotInitialized" xml:space="preserve">
+    <value>The membership provider was not initialized, it must be initialized before start using it.</value>
+  </data>
+  <data name="SimpleRoleAlreadyInitialized" xml:space="preserve">
+    <value>The MySqlSimpleRoleProvider is already initialized.</value>
+  </data>
+  <data name="UpdateTokenFailed" xml:space="preserve">
+    <value>Failed to update the request token secret value '{0}'.</value>
+  </data>
+  <data name="UserAlreadyExists" xml:space="preserve">
+    <value>User {0} already exists.</value>
+  </data>
+  <data name="UserIdColumnNotInitialized" xml:space="preserve">
+    <value>UserIdColumn configuration was not initialized.</value>
+  </data>
+  <data name="UserNameColumnNotInitialized" xml:space="preserve">
+    <value>UserNameColumn configuration was not initialized.</value>
+  </data>
+  <data name="UserNotFound" xml:space="preserve">
+    <value>User not found int the table {0}.</value>
+  </data>
+  <data name="UserTableNameNotInitilized" xml:space="preserve">
+    <value>UserTableName configuration was not initialized.</value>
+  </data>
+  <data name="UserTableNotFound" xml:space="preserve">
+    <value>Unable to find the table users {0}. Please create it or initialize the MySqlSimpleMembershipProvider with 'createTables=true'.</value>
   </data>
 </root>

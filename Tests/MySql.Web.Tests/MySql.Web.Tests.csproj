@@ -11,7 +11,7 @@
         <SchemaVersion>2.0</SchemaVersion>
         <Framework>4.5.1</Framework>
         <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
-        <DefineConstants>NET_40_OR_GREATER; NET_45_OR_GREATER; NET_451_OR_GREATER</DefineConstants>
+        <DefineConstants>NET_40_OR_GREATER;NET_45_OR_GREATER;NET_451_OR_GREATER</DefineConstants>
       </PropertyGroup>
     </When>
     <When Condition=" '$(VisualStudioVersion)' == '11.0'">
@@ -20,7 +20,7 @@
         <SchemaVersion>2.0</SchemaVersion>
         <Framework>4.5</Framework>
         <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-        <DefineConstants>NET_40_OR_GREATER; NET_45_OR_GREATER</DefineConstants>
+        <DefineConstants>NET_40_OR_GREATER;NET_45_OR_GREATER</DefineConstants>
       </PropertyGroup>
     </When>
     <When Condition=" '$(VisualStudioVersion)' == '10.0'">
@@ -66,8 +66,6 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <DefineConstants Condition=" ( '$(Framework)' == '4.0' ) or ( '$(Framework)' == '4.5' ) or ( '$(Framework)' == '4.5.1' ) ">
-	NET_40_OR_GREATER</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -134,6 +132,7 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="WebMatrix.WebData, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="xunit">
       <HintPath>C:\Program Files (x86)\XUnit-1.9.2\xunit.dll</HintPath>
     </Reference>
@@ -181,7 +180,8 @@
     </Compile>
     <Compile Include="SessionTests.cs" />
     <Compile Include="SetUpWeb.cs" />
-    <Compile Include="SiteMapTests.cs" />
+	<Compile Include="SiteMapTests.cs" />
+    <Compile Include="SimpleMembership.cs" Condition="('$(VisualStudioVersion)' == '10.0') or ('$(VisualStudioVersion)' == '11.0') or ('$(VisualStudioVersion)' == '12.0')" />
     <Compile Include="TestProfile.cs" />
     <Compile Include="UserManagement.cs" />
   </ItemGroup>
