@@ -1,2 +1,4 @@
 6.9.0
 - Added implementation of MySQLPersonalizationProvider.
+- Added SiteMap Web provider.
+- Added Simple Membership Web Provider.
