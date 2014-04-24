@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS webpages_OAuthtoken (
 
 CREATE TABLE IF NOT EXISTS webpages_Roles(
 	RoleId int auto_increment NOT NULL primary key,
-	RoleName varchar(256) NOT NULL, index(rolename));
+	RoleName varchar(256) NOT NULL);
 
 CREATE TABLE IF NOT EXISTS webpages_UsersInRoles(
 	UserId int NOT NULL,
