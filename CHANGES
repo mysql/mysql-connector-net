@@ -2,3 +2,4 @@
 - Added implementation of MySQLPersonalizationProvider.
 - Added SiteMap Web provider.
 - Added Simple Membership Web Provider.
+- Fix for open sockets connections left when connection open fails, the error happens when the client try to get a connection when the max number of connections is reached in the server. (MySql #72025, Oracle Bug #18665388).
