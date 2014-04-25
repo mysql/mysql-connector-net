@@ -34,6 +34,7 @@ Oracle bug #17568158).
 - Fix for Parser does not recognize full string literal syntax (charsets, collation) (Oracle bug #18169145).
 - Fix for MySqlDataTime.Millisecond to be a value between 0 and 999.
 - Added Microsecond to MySqlDateTime for 6-digit precision support.
+- Fix for open sockets connections left when connection open fails, the error happens when the client try to get a connection when the max number of connections is reached in the server. (MySql #72025, Oracle Bug #18665388).
 
 
 6.6.6
