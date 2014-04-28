@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -36,18 +36,18 @@ namespace MySql.Parser.Tests
   {
   
     [Fact]
-  public void Simple()
-  {
+    public void Simple()
+    {
       MySQL51Parser.program_return r = Utility.ParseSql(
         @"ALTER VIEW `view1` AS 
-select `test2`.`t`.`Title` AS `title2`, * from `test2`.`t`");
-  }
+  select `test2`.`t`.`Title` AS `title2`, * from `test2`.`t`");
+    }
 
     [Fact]
-  public void Simple2()
-  {
+    public void Simple2()
+    {
       MySQL51Parser.program_return r = Utility.ParseSql(
         @"ALTER VIEW v AS SELECT * FROM t;");
-  }
+    }
   }
 }

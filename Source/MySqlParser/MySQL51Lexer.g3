@@ -173,6 +173,7 @@ LOOP	:	'LOOP';
 LOW_PRIORITY	:	'LOW_PRIORITY';
 MASTER_SSL_VERIFY_SERVER_CERT	:	'MASTER_SSL_VERIFY_SERVER_CERT';
 MATCH	:	'MATCH';
+MAX_STATEMENT_TIME : 'MAX_STATEMENT_TIME' { $type = checkIDperVersion( 5.7, $type, MySQL51Lexer.ID ); };
 MAXVALUE : 'MAXVALUE';
 MESSAGE_TEXT : 'MESSAGE_TEXT' { $type = checkIDperVersion( 5.5, $type, MySQL51Lexer.ID ); };
 MIDDLEINT	:	'MIDDLEINT';		// datatype defined below 

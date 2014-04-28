@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -576,6 +576,20 @@ LIMIT 1", false, out sb);
     {
       StringBuilder sb;
       MySQL51Parser.program_return r = Utility.ParseSql(@"select * from (( actor )), ((( film  ))) limit 1", false, out sb);
+    }
+
+    [Fact]
+    public void MaxStatementTime56()
+    {
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(@"SELECT MAX_STATEMENT_TIME = 109 * FROM my_table;", true, out sb, new Version( 5,6 ));
+    }
+
+    [Fact]
+    public void MaxStatementTime57()
+    {
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(@"SELECT MAX_STATEMENT_TIME = 109 * FROM my_table;", false, out sb, new Version(5, 7));
     }
   }
 }
