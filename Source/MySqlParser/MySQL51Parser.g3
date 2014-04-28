@@ -3404,12 +3404,16 @@ resignal
 
 get_diagnostics
   :  { this.mysqlVersion >= 5.6 }? => (
-  ( GET CURRENT? DIAGNOSTICS
+  ( GET ( CURRENT | get_diagnostics_options57 )? DIAGNOSTICS
   (( CONDITION ( INT_NUMBER | get_diagnostics_target ) 
   get_diagnostics_condition_info_item ( COMMA get_diagnostics_condition_info_item )* ) 
   | ( get_diagnostics_stmt_info_item ( COMMA get_diagnostics_stmt_info_item )* ))
   ))
   ;
+
+get_diagnostics_options57
+  : { this.mysqlVersion >= 5.7 }? => STACKED
+  ;  
 
 get_diagnostics_stmt_info_item
   : get_diagnostics_target EQUALS ( NNUMBER | ROW_COUNT )

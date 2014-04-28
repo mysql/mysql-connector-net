@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2014, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -125,6 +125,22 @@ END;", false, out sb, new Version(5, 6));
       StringBuilder sb;
       MySQL51Parser.program_return r = Utility.ParseSql(
         @"GET DIAGNOSTICS @p1 = ROW_COUNT, @p2 = NUMBER;", false, out sb, new Version(5, 6));
+    }
+
+    [Fact]
+    public void Stacked_56()
+    {
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(
+        @"GET STACKED DIAGNOSTICS @p1 = ROW_COUNT, @p2 = NUMBER;", true, out sb, new Version(5, 6));
+    }
+
+    [Fact]
+    public void Stacked_57()
+    {
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(
+        @"GET STACKED DIAGNOSTICS @p1 = ROW_COUNT, @p2 = NUMBER;", false, out sb, new Version(5, 7));
     }
   }
 }
