@@ -3061,9 +3061,17 @@ create_trigger
     TRIGGER triggername=simple_obj_ref_no_alias ( triggertime=BEFORE | triggertime=AFTER )
 	 ( triggerevent=INSERT | triggerevent=UPDATE | triggerevent=DELETE )
 	ON tblname=simple_obj_ref_no_alias FOR EACH ROW 
+	trigger_order?
 	statement
 	-> ^( CREATE TRIGGER ( DEFINER user_specification? CURRENT_USER? )? 
-			$triggername? ^( TRIGGERTIME $triggertime? )? $triggerevent? ^( ON $tblname )? statement )
+			$triggername? ^( TRIGGERTIME $triggertime? )? $triggerevent? ^( ON $tblname )? 
+			trigger_order? statement )
+  ;
+
+trigger_order
+  :	{ this.mysqlVersion >= 5.7 }? => (
+	( FOLLOWS name=simple_obj_ref_no_alias -> ^( FOLLOWS $name ))
+  | ( PRECEDES name=simple_obj_ref_no_alias -> ^( PRECEDES $name )) )
   ;
 
 create_view
