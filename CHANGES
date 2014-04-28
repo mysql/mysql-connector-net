@@ -1,5 +1,7 @@
 6.7.6
 - Fix for open sockets connections left when connection open fails, the error happens when the client try to get a connection when the max number of connections is reached in the server. (MySql #72025, Oracle Bug #18665388).
+- Fix for Exception of "duplicate entry" in MySqlSessionProvider (MySql Bug #70409, Oracle bug #18657550).
+
 
 6.7.5
 - Fix for bad query when using LINQ to Entities with a query using Take, OrderBy & Contains in Code First (MySql bug #69751, Oracle bug #17194945).
