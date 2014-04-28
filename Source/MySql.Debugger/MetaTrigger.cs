@@ -1,4 +1,4 @@
-﻿// Copyright © 2004, 2012, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2004, 2014, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -45,7 +45,9 @@ namespace MySql.Debugger
         (other.ObjectSchema.Equals(this.ObjectSchema, StringComparison.CurrentCultureIgnoreCase)) &&
         (other.Table.Equals(this.Table, StringComparison.InvariantCulture)) &&
         (other.ActionTiming == this.ActionTiming) &&
-        (other.Event == this.Event);
+        (other.Event == this.Event) &&
+        (other.TriggerSchema == this.TriggerSchema) &&
+        (other.Name == this.Name);
     }
 
     public MetaTrigger()

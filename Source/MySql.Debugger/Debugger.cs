@@ -2048,7 +2048,9 @@ ri.TriggerInfo.Table, ri.TriggerInfo.ObjectSchema);
       MySqlCommand cmd = new MySqlCommand( string.Format( 
         @"select trigger_schema, trigger_name, event_manipulation, event_object_schema, event_object_table, 
           action_statement, action_timing from information_schema.triggers 
-          where ( event_object_schema = '{0}' ) and ( event_object_table = '{1}' )", Schema, Table ), _utilCon );
+          where ( event_object_schema = '{0}' ) and ( event_object_table = '{1}' )
+          order by event_object_schema, event_object_table, action_timing, event_manipulation, action_order", 
+        Schema, Table), _utilCon);
       MySqlDataReader r = cmd.ExecuteReader();
       try
       {

@@ -2397,6 +2397,113 @@ end;
         dbg.Stop();
       }
     }
-    
+
+    /// <summary>
+    /// Test for Multiple triggers support in debugger.
+    /// </summary>
+    /// <remarks>This test required Server v5.7.2 or higher to work.</remarks>
+    [Fact]
+    public void MultipleTriggers()
+    {
+      SteppingTraceInfo[] info = new SteppingTraceInfo[] { 
+        new SteppingTraceInfo("test.InsertLineItem", 4, 1),
+        new SteppingTraceInfo("test.trInsLineItem2", 3, 1),
+        new SteppingTraceInfo("test.trInsLineItem2", 4, 0),
+        new SteppingTraceInfo("test.trInsLineItem", 3, 1),
+        new SteppingTraceInfo("test.trInsLineItem", 4, 0),
+        new SteppingTraceInfo("test.InsertLineItem", 6, 0)
+      };
+      SteppingTraceInfoList l = new SteppingTraceInfoList(info);
+
+      string sql =
+        @"
+delimiter // 
+
+create table ProductPrice( ProductId int, Price decimal( 10, 2 ) ) engine=innodb //
+
+insert into ProductPrice( ProductId, Price ) values ( 1, 20.00 ) //
+
+create table LineItem( 
+	Id int auto_increment primary key,
+	ProductId int,
+	Quantity int,
+	Total decimal( 10, 2 )
+) engine=Innodb //
+
+create trigger trInsLineItem before insert on LineItem
+for each row 
+begin
+	-- Calculates total
+	set new.Total = new.Quantity * ( select Price from ProductPrice where ProductId = new.ProductId limit 1 );
+end
+//
+
+create trigger trInsLineItem2 before insert on LineItem 
+for each row precedes trInsLineItem
+begin
+	-- Increase quantity on one because we are on sale
+	set new.Quantity = new.Quantity + 1;
+end 
+//
+
+create procedure InsertLineItem( parProductId int, parQuantity int )
+begin
+
+	insert into LineItem( ProductId, Quantity ) values ( parProductId, parQuantity );
+
+end //
+
+";
+      Debugger dbg = new Debugger();
+      try
+      {
+        dbg.Connection = new MySqlConnection(TestUtils.CONNECTION_STRING);
+        dbg.UtilityConnection = new MySqlConnection(TestUtils.CONNECTION_STRING);
+        DumpConnectionThreads(dbg);
+        MySqlScript script = new MySqlScript(dbg.Connection, sql);
+        script.Execute();
+        sql =
+@"create procedure InsertLineItem( parProductId int, parQuantity int )
+begin
+
+	insert into LineItem( ProductId, Quantity ) values ( parProductId, parQuantity );
+
+end ;
+";
+        dbg.SqlInput = sql;
+        dbg.SteppingType = SteppingTypeEnum.StepInto;
+        dbg.OnBreakpoint += (bp) =>
+        {
+          //Debug.WriteLine("Routine: {0}, Line: {1}, Column: {2}", bp.RoutineName, bp.Line, bp.StartColumn);
+          l.AssertBreakpoint(bp);
+        };
+        dbg.Run(new string[] { "1", "5" }, null);
+        MySqlConnection con = new MySqlConnection(TestUtils.CONNECTION_STRING);
+        con.Open();
+        try
+        {
+          MySqlCommand cmd = new MySqlCommand(
+            "select `Id`, `ProductId`, `Quantity`, `Total` from `LineItem`", con);
+          using (MySqlDataReader r = cmd.ExecuteReader())
+          {
+            r.Read();
+            Assert.Equal(1, r.GetInt32(0));
+            Assert.Equal(1, r.GetInt32(1));
+            Assert.Equal(6, r.GetInt32(2));
+            Assert.Equal(120.00m, r.GetDecimal(3));
+          }
+        }
+        finally
+        {
+          con.Close();
+        }
+        l.AssertFinal();
+      }
+      finally
+      {
+        dbg.RestoreRoutinesBackup();
+        dbg.Stop();
+      }
+    }
   }
 }
