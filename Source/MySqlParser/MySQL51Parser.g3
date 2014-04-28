@@ -2956,9 +2956,13 @@ alter_procedure
   ;
 
 alter_table /*options { backtrack=true; memoize=true; }*/
-  : ALTER ( alter_table_online_options )? IGNORE? TABLE tblname=simple_obj_ref_no_alias
+  : ALTER ( alter_table_online_options )? alter_table_ignore? TABLE tblname=simple_obj_ref_no_alias
     ( alter_specification_table ( COMMA alter_specification_table )* )?
 	partition_options?
+  ;
+
+alter_table_ignore
+  : { this.mysqlVersion <= 5.6 }? => IGNORE
   ;
 
 alter_table_online_options

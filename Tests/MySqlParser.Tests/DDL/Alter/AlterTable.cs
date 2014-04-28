@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -554,5 +554,18 @@ PARTITIONS 6;
       MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER TABLE mytable ADD COLUMN dummydatetime TIMESTAMP(1) AFTER id;", false, out sb, new Version(5, 6));
     }
 
+    [Fact]
+    public void WithIgnore56()
+    {
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER IGNORE TABLE mytable ADD COLUMN dummydatetime TIMESTAMP(1) AFTER id;", false, out sb, new Version(5, 6));
+    }
+
+    [Fact]
+    public void WithIgnore57()
+    {
+      StringBuilder sb;
+      MySQL51Parser.program_return r = Utility.ParseSql(@"ALTER IGNORE TABLE mytable ADD COLUMN dummydatetime TIMESTAMP(1) AFTER id;", true, out sb, new Version(5, 7));
+    }
   }
 }
