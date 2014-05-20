@@ -337,7 +337,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("col1", dt.Rows[0][1].ToString().Trim());
     }
 
-#if NET_40_OR_GREATER
+#if NET_45_OR_GREATER
     #region AsyncTests
     [Fact]
     public void BulkLoadSimpleAsync()

@@ -106,7 +106,7 @@ namespace MySql.Data.Entity.Tests
     }
 
     #region Async
-#if NET_40_OR_GREATER
+#if NET_45_OR_GREATER
     [Fact]
     public void ExecuteNonQueryAndScalarAsync()
     {

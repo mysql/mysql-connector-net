@@ -654,7 +654,7 @@ alter table longids AUTO_INCREMENT = 2147483640;";
       }
     }
 
-#if NET_40_OR_GREATER
+#if NET_45_OR_GREATER
    #region Async
    [Fact]
    public void ExecuteNonQueryAsync()

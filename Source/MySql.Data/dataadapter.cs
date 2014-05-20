@@ -314,7 +314,7 @@ namespace MySql.Data.MySqlClient
         RowUpdated(this, (value as MySqlRowUpdatedEventArgs));
     }
 
-#if NET_40_OR_GREATER
+#if NET_45_OR_GREATER
     #region Async
     #region Fill
     /// <summary>
@@ -324,7 +324,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>int</returns>
     public Task<int> FillAsync(DataSet dataSet)
     {
-      return Task.Factory.StartNew(() =>
+      return Task.Run(() =>
       {
         return base.Fill(dataSet);
       });
@@ -336,7 +336,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>int</returns>
     public Task<int> FillAsync(DataTable dataTable)
     {
-      return Task.Factory.StartNew(() =>
+      return Task.Run(() =>
       {
         return base.Fill(dataTable);
       });
@@ -349,7 +349,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>int</returns>
     public Task<int> FillAsync(DataSet dataSet, string srcTable)
     {
-      return Task.Factory.StartNew(() =>
+      return Task.Run(() =>
       {
         return base.Fill(dataSet, srcTable);
       });
@@ -362,7 +362,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>int</returns>
     public Task<int> FillAsync(DataTable dataTable, IDataReader dataReader)
     {
-      return Task.Factory.StartNew(() =>
+      return Task.Run(() =>
       {
         return base.Fill(dataTable, dataReader);
       });
@@ -376,7 +376,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>int</returns>
     public Task<int> FillAsync(DataTable dataTable, IDbCommand command, CommandBehavior behavior)
     {
-      return Task.Factory.StartNew(() =>
+      return Task.Run(() =>
       {
         return base.Fill(dataTable, command, behavior);
       });
@@ -390,7 +390,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>int</returns>
     public Task<int> FillAsync(int startRecord, int maxRecords, params DataTable[] dataTables)
     {
-      return Task.Factory.StartNew(() =>
+      return Task.Run(() =>
       {
         return base.Fill(startRecord, maxRecords, dataTables);
       });
@@ -405,7 +405,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>int</returns>
     public Task<int> FillAsync(DataSet dataSet, int startRecord, int maxRecords, string srcTable)
     {
-      return Task.Factory.StartNew(() =>
+      return Task.Run(() =>
       {
         return base.Fill(dataSet, startRecord, maxRecords, srcTable);
       });
@@ -421,7 +421,7 @@ namespace MySql.Data.MySqlClient
     /// <returns></returns>
     public Task<int> FillAsync(DataSet dataSet, string srcTable, IDataReader dataReader, int startRecord, int maxRecords)
     {
-      return Task.Factory.StartNew(() =>
+      return Task.Run(() =>
       {
         return base.Fill(dataSet, srcTable, dataReader, startRecord, maxRecords);
       });
@@ -437,7 +437,7 @@ namespace MySql.Data.MySqlClient
     /// <returns></returns>
     public Task<int> FillAsync(DataTable[] dataTables, int startRecord, int maxRecords, IDbCommand command, CommandBehavior behavior)
     {
-      return Task.Factory.StartNew(() =>
+      return Task.Run(() =>
       {
         return base.Fill(dataTables, startRecord, maxRecords, command, behavior);
       });
@@ -454,7 +454,7 @@ namespace MySql.Data.MySqlClient
     /// <returns></returns>
     public Task<int> FillAsync(DataSet dataSet, int startRecord, int maxRecords, string srcTable, IDbCommand command, CommandBehavior behavior)
     {
-      return Task.Factory.StartNew(() =>
+      return Task.Run(() =>
       {
         return base.Fill(dataSet, startRecord, maxRecords, srcTable, command, behavior);
       });
@@ -470,7 +470,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>DataTable[]</returns>
     public Task<DataTable[]> FillSchemaAsync(DataSet dataSet, SchemaType schemaType)
     {
-      return Task.Factory.StartNew(() =>
+      return Task.Run(() =>
       {
         return base.FillSchema(dataSet, schemaType);
       });
@@ -484,7 +484,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>DataTable[]</returns>
     public Task<DataTable[]> FillSchemaAsync(DataSet dataSet, SchemaType schemaType, string srcTable)
     {
-      return Task.Factory.StartNew(() =>
+      return Task.Run(() =>
       {
         return base.FillSchema(dataSet, schemaType, srcTable);
       });
@@ -499,7 +499,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>DataTable[]</returns>
     public Task<DataTable[]> FillSchemaAsync(DataSet dataSet, SchemaType schemaType, string srcTable, IDataReader dataReader)
     {
-      return Task.Factory.StartNew(() =>
+      return Task.Run(() =>
       {
         return base.FillSchema(dataSet, schemaType, srcTable, dataReader);
       });
@@ -515,7 +515,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>DataTable[]</returns>
     public Task<DataTable[]> FillSchemaAsync(DataSet dataSet, SchemaType schemaType, IDbCommand command, string srcTable, CommandBehavior behavior)
     {
-      return Task.Factory.StartNew(() =>
+      return Task.Run(() =>
       {
         return base.FillSchema(dataSet, schemaType, command, srcTable, behavior);
       });
@@ -528,7 +528,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>DataTable</returns>
     public Task<DataTable> FillSchemaAsync(DataTable dataTable, SchemaType schemaType)
     {
-      return Task.Factory.StartNew(() =>
+      return Task.Run(() =>
       {
         return base.FillSchema(dataTable, schemaType);
       });
@@ -542,7 +542,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>DataTable</returns>
     public Task<DataTable> FillSchemaAsync(DataTable dataTable, SchemaType schemaType, IDataReader dataReader)
     {
-      return Task.Factory.StartNew(() =>
+      return Task.Run(() =>
       {
         return base.FillSchema(dataTable, schemaType, dataReader);
       });
@@ -557,7 +557,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>DataTable</returns>
     public Task<DataTable> FillSchemaAsync(DataTable dataTable, SchemaType schemaType, IDbCommand command, CommandBehavior behavior)
     {
-      return Task.Factory.StartNew(() =>
+      return Task.Run(() =>
       {
         return base.FillSchema(dataTable, schemaType, command, behavior);
       });
@@ -572,7 +572,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>int</returns>
     public Task<int> UpdateAsync(DataRow[] dataRows)
     {
-      return Task.Factory.StartNew(() =>
+      return Task.Run(() =>
       {
         return base.Update(dataRows);
       });
@@ -584,7 +584,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>int</returns>
     public Task<int> UpdateAsync(DataSet dataSet)
     {
-      return Task.Factory.StartNew(() =>
+      return Task.Run(() =>
       {
         return base.Update(dataSet);
       });
@@ -596,7 +596,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>int</returns>
     public Task<int> UpdateAsync(DataTable dataTable)
     {
-      return Task.Factory.StartNew(() =>
+      return Task.Run(() =>
       {
         return base.Update(dataTable);
       });
@@ -609,7 +609,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>int</returns>
     public Task<int> UpdateAsync(DataRow[] dataRows, DataTableMapping tableMapping)
     {
-      return Task.Factory.StartNew(() =>
+      return Task.Run(() =>
       {
         return base.Update(dataRows, tableMapping);
       });
@@ -622,7 +622,7 @@ namespace MySql.Data.MySqlClient
     /// <returns></returns>
     public Task<int> UpdateAsync(DataSet dataSet, string srcTable)
     {
-      return Task.Factory.StartNew(() =>
+      return Task.Run(() =>
       {
         return base.Update(dataSet, srcTable);
       });

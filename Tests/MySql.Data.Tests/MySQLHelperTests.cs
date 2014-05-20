@@ -63,7 +63,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True("test\"name\"" == name, "Update result with quotation mark");
     }
 
-#if NET_40_OR_GREATER
+#if NET_45_OR_GREATER
     #region Async
     [Fact]
     public void ExecuteNonQueryAsync()

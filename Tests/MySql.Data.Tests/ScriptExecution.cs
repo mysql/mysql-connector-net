@@ -250,7 +250,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.DoesNotThrow(delegate { script.Execute(); });
     }
 
-#if NET_40_OR_GREATER
+#if NET_45_OR_GREATER
     #region Async
     [Fact]
     public void ExecuteScriptWithProceduresAsync()
