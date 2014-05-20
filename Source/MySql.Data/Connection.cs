@@ -808,7 +808,7 @@ namespace MySql.Data.MySqlClient
         Close();
     }
 
-#if NET_40_OR_GREATER
+#if NET_45_OR_GREATER
     #region Async
     /// <summary>
     /// Async version of BeginTransaction
@@ -825,7 +825,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>An object representing the new transaction.</returns>
     public Task<MySqlTransaction> BeginTransactionAsync(IsolationLevel iso)
     {
-      return Task.Factory.StartNew(() =>
+      return Task.Run(() =>
       {
         return BeginTransaction(iso);
       });
@@ -837,7 +837,7 @@ namespace MySql.Data.MySqlClient
     /// <returns></returns>
     public Task ChangeDataBaseAsync(string databaseName)
     {
-      return Task.Factory.StartNew(() =>
+      return Task.Run(() =>
       {
         ChangeDatabase(databaseName);
       });
@@ -848,7 +848,7 @@ namespace MySql.Data.MySqlClient
     /// <returns></returns>
     public Task OpenAsync()
     {
-      return Task.Factory.StartNew(() =>
+      return Task.Run(() =>
       {
         Open();
       });
@@ -859,7 +859,7 @@ namespace MySql.Data.MySqlClient
     /// <returns></returns>
     public Task CloseAsync()
     {
-      return Task.Factory.StartNew(() =>
+      return Task.Run(() =>
       {
         Close();
       });
@@ -871,7 +871,7 @@ namespace MySql.Data.MySqlClient
     /// <returns></returns>
     public Task ClearPoolAsync(MySqlConnection connection)
     {
-      return Task.Factory.StartNew(() =>
+      return Task.Run(() =>
       {
         ClearPool(connection);
       });
@@ -882,7 +882,7 @@ namespace MySql.Data.MySqlClient
     /// <returns></returns>
     public Task ClearAllPoolsAsync()
     {
-      return Task.Factory.StartNew(() =>
+      return Task.Run(() =>
       {
         ClearAllPools();
       });
@@ -895,7 +895,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>A schema collection</returns>
     public Task<MySqlSchemaCollection> GetSchemaCollectionAsync(string collectionName, string[] restrictionValues)
     {
-      return Task.Factory.StartNew(() =>
+      return Task.Run(() =>
       {
         return GetSchemaCollection(collectionName, restrictionValues);
       });

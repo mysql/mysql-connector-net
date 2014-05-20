@@ -1206,7 +1206,7 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
 
-#if NET_40_OR_GREATER
+#if NET_45_OR_GREATER
       #region Async
       [Fact]
       public void TransactionAsync()

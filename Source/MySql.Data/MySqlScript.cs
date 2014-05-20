@@ -347,7 +347,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-#if NET_40_OR_GREATER
+#if NET_45_OR_GREATER
     #region Async
     /// <summary>
     /// Async version of Execute
@@ -355,7 +355,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>The number of statements executed as part of the script inside.</returns>
     public Task<int> ExecuteAsync()
     {
-      return Task.Factory.StartNew(() =>
+      return Task.Run(() =>
       {
         return Execute();
       });

@@ -148,7 +148,7 @@ namespace MySql.Data.Entity
 
     #endregion
 
-#if NET_40_OR_GREATER
+#if NET_45_OR_GREATER
 #region Async
     /// <summary>
     /// Async version of ExecuteNonQuery
@@ -156,7 +156,7 @@ namespace MySql.Data.Entity
     /// <returns>Affected rows.</returns>
     public Task<int> ExecuteNonQueryAsync()
     {
-      return Task.Factory.StartNew(() =>
+      return Task.Run(() =>
       {
         return ExecuteNonQuery();
       });
@@ -168,7 +168,7 @@ namespace MySql.Data.Entity
     /// <returns>Value of the firs row in the first column.</returns>
     public Task<object> ExecuteScalarAsync()
     {
-      return Task.Factory.StartNew(() =>
+      return Task.Run(() =>
       {
         return ExecuteScalar();
       });
@@ -180,7 +180,7 @@ namespace MySql.Data.Entity
     /// <returns>Information about the task executed.</returns>
     public Task PrepareAsync()
     {
-      return Task.Factory.StartNew(() =>
+      return Task.Run(() =>
       {
         Prepare();
       });
