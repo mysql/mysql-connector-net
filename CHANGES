@@ -6,7 +6,7 @@
 6.7.5
 - Fix for bad query when using LINQ to Entities with a query using Take, OrderBy & Contains in Code First (MySql bug #69751, Oracle bug #17194945).
 - Fix for LINQ to Entities error for bad aliasing in column for expression (MySql bug #69922, Oracle bug #17285548).
-- Installer adds MySql.Data, MySql.Data.Entity, and MySql.Web to machine.config and into GAC.
+- Installer adds MySql.Data, MySql.Data.Entity, and MySql.Web to machine.config and into GAC (MySQL Bug #69760, Oracle Bug #17601689).
 - Added MySql.Web.dll for .NET Framework 4.5
 - Fix for NullReferenceException when try to save entity with TINYINY or BIGINT as PK (MySql bug #70888, Oracle bug #17866076).
 - Fix for .Net connector does not add auto_increment to bigint columns (MySql Bug #70602, Oracle Bug #17924407).
@@ -21,7 +21,7 @@
 - Fix for EF SQL Generator, Union Syntax (Concat operator) is missing required parentheses (may cause semantic changes 
   when combined with Limit clause (Take operator)) (MySql bug #70828, Oracle bug #18049691).
 - Fix for support for Entity Framework 4.3 Code first Identifiers for Migrations & EF6 (MySql Bug #67285, Oracle bug #16286397).
-- Added threading and custom failover support for Replication & Load balancing.
+- Added threading and custom failover support for Replication & Load balancing (MySQL Bug #69832, Oracle Bug #18112966).
 - Fix for maximumpoolsize and minimumpoolsize as invalid properties in connection string (Oracle Bug #18182246).
 - Fix for 'default table cache age' connection string property, set default value to 60 seconds.
 - Fix for MySqlDataTime.Millisecond to be a value between 0 and 999.
