@@ -5,7 +5,7 @@
 - Fix for EF SQL Generator, Union Syntax (Concat operator) is missing required parentheses (may cause semantic changes 
   when combined with Limit clause (Take operator)) (MySql bug #70828, Oracle bug #18049691).
 - Fix for support for Entity Framework 4.3 Code first Identifiers for Migrations & EF6 (MySql Bug #67285, Oracle bug #16286397).
-- Added threading and custom failover support for Replication & Load balancing.
+- Added threading and custom failover support for Replication & Load balancing (MySQL Bug #69832, Oracle Bug #18112966).
 - Fix for maximumpoolsize and minimumpoolsize as invalid properties in connection string (Oracle Bug #18182246).
 - Fix for 'default table cache age' connection string property, set default value to 60 seconds.
 - Fix for MySqlDataTime.Millisecond to be a value between 0 and 999.
