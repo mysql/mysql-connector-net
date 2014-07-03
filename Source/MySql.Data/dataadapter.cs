@@ -1,4 +1,4 @@
-// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2014, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -27,6 +27,7 @@ using System.ComponentModel;
 using System.Collections.Generic;
 #if NET_40_OR_GREATER
 using System.Threading.Tasks;
+using System.Threading;
 #endif
 
 namespace MySql.Data.MySqlClient
@@ -314,7 +315,7 @@ namespace MySql.Data.MySqlClient
         RowUpdated(this, (value as MySqlRowUpdatedEventArgs));
     }
 
-#if NET_45_OR_GREATER
+#if NET_40_OR_GREATER
     #region Async
     #region Fill
     /// <summary>
@@ -324,11 +325,31 @@ namespace MySql.Data.MySqlClient
     /// <returns>int</returns>
     public Task<int> FillAsync(DataSet dataSet)
     {
-      return Task.Run(() =>
-      {
-        return base.Fill(dataSet);
-      });
+      return FillAsync(dataSet, CancellationToken.None);
     }
+
+    public Task<int> FillAsync(DataSet dataSet, CancellationToken cancellationToken)
+    {
+      var result = new TaskCompletionSource<int>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          var fillResult = base.Fill(dataSet);
+          result.SetResult(fillResult);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+
     /// <summary>
     /// Async version of Fill
     /// </summary>
@@ -336,11 +357,31 @@ namespace MySql.Data.MySqlClient
     /// <returns>int</returns>
     public Task<int> FillAsync(DataTable dataTable)
     {
-      return Task.Run(() =>
-      {
-        return base.Fill(dataTable);
-      });
+      return FillAsync(dataTable, CancellationToken.None);
     }
+
+    public Task<int> FillAsync(DataTable dataTable, CancellationToken cancellationToken)
+    {
+      var result = new TaskCompletionSource<int>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          var fillResult = base.Fill(dataTable);
+          result.SetResult(fillResult);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+
     /// <summary>
     /// Async version of Fill
     /// </summary>
@@ -349,11 +390,31 @@ namespace MySql.Data.MySqlClient
     /// <returns>int</returns>
     public Task<int> FillAsync(DataSet dataSet, string srcTable)
     {
-      return Task.Run(() =>
-      {
-        return base.Fill(dataSet, srcTable);
-      });
+      return FillAsync(dataSet, srcTable, CancellationToken.None);
     }
+
+    public Task<int> FillAsync(DataSet dataSet, string srcTable, CancellationToken cancellationToken)
+    {
+      var result = new TaskCompletionSource<int>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          var fillResult = base.Fill(dataSet, srcTable);
+          result.SetResult(fillResult);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+
     /// <summary>
     /// Async version of Fill
     /// </summary>
@@ -362,11 +423,31 @@ namespace MySql.Data.MySqlClient
     /// <returns>int</returns>
     public Task<int> FillAsync(DataTable dataTable, IDataReader dataReader)
     {
-      return Task.Run(() =>
-      {
-        return base.Fill(dataTable, dataReader);
-      });
+      return FillAsync(dataTable, dataReader, CancellationToken.None);
     }
+
+    public Task<int> FillAsync(DataTable dataTable, IDataReader dataReader, CancellationToken cancellationToken)
+    {
+      var result = new TaskCompletionSource<int>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          var fillResult = base.Fill(dataTable, dataReader);
+          result.SetResult(fillResult);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+
     /// <summary>
     /// Async version of Fill
     /// </summary>
@@ -376,11 +457,31 @@ namespace MySql.Data.MySqlClient
     /// <returns>int</returns>
     public Task<int> FillAsync(DataTable dataTable, IDbCommand command, CommandBehavior behavior)
     {
-      return Task.Run(() =>
-      {
-        return base.Fill(dataTable, command, behavior);
-      });
+      return FillAsync(dataTable, command, behavior, CancellationToken.None);
     }
+
+    public Task<int> FillAsync(DataTable dataTable, IDbCommand command, CommandBehavior behavior, CancellationToken cancellationToken)
+    {
+      var result = new TaskCompletionSource<int>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          var fillResult = base.Fill(dataTable, command, behavior);
+          result.SetResult(fillResult);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+
     /// <summary>
     /// Async version of Fill
     /// </summary>
@@ -390,11 +491,31 @@ namespace MySql.Data.MySqlClient
     /// <returns>int</returns>
     public Task<int> FillAsync(int startRecord, int maxRecords, params DataTable[] dataTables)
     {
-      return Task.Run(() =>
-      {
-        return base.Fill(startRecord, maxRecords, dataTables);
-      });
+      return FillAsync(startRecord, maxRecords, CancellationToken.None, dataTables);
     }
+
+    public Task<int> FillAsync(int startRecord, int maxRecords, CancellationToken cancellationToken, params DataTable[] dataTables)
+    {
+      var result = new TaskCompletionSource<int>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          var fillResult = base.Fill(startRecord, maxRecords, dataTables);
+          result.SetResult(fillResult);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+
     /// <summary>
     /// Async version of Fill
     /// </summary>
@@ -405,11 +526,31 @@ namespace MySql.Data.MySqlClient
     /// <returns>int</returns>
     public Task<int> FillAsync(DataSet dataSet, int startRecord, int maxRecords, string srcTable)
     {
-      return Task.Run(() =>
-      {
-        return base.Fill(dataSet, startRecord, maxRecords, srcTable);
-      });
+      return FillAsync(dataSet, startRecord, maxRecords, srcTable, CancellationToken.None);
     }
+
+    public Task<int> FillAsync(DataSet dataSet, int startRecord, int maxRecords, string srcTable, CancellationToken cancellationToken)
+    {
+      var result = new TaskCompletionSource<int>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          var fillResult = base.Fill(dataSet, startRecord, maxRecords, srcTable);
+          result.SetResult(fillResult);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+
     /// <summary>
     /// Async version of Fill
     /// </summary>
@@ -421,11 +562,31 @@ namespace MySql.Data.MySqlClient
     /// <returns></returns>
     public Task<int> FillAsync(DataSet dataSet, string srcTable, IDataReader dataReader, int startRecord, int maxRecords)
     {
-      return Task.Run(() =>
-      {
-        return base.Fill(dataSet, srcTable, dataReader, startRecord, maxRecords);
-      });
+      return FillAsync(dataSet, srcTable, dataReader, startRecord, maxRecords, CancellationToken.None);
     }
+
+    public Task<int> FillAsync(DataSet dataSet, string srcTable, IDataReader dataReader, int startRecord, int maxRecords, CancellationToken cancellationToken)
+    {
+      var result = new TaskCompletionSource<int>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          var fillResult = base.Fill(dataSet, srcTable, dataReader, startRecord, maxRecords);
+          result.SetResult(fillResult);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+
     /// <summary>
     /// Async version of Fill
     /// </summary>
@@ -437,11 +598,31 @@ namespace MySql.Data.MySqlClient
     /// <returns></returns>
     public Task<int> FillAsync(DataTable[] dataTables, int startRecord, int maxRecords, IDbCommand command, CommandBehavior behavior)
     {
-      return Task.Run(() =>
-      {
-        return base.Fill(dataTables, startRecord, maxRecords, command, behavior);
-      });
+      return FillAsync(dataTables, startRecord, maxRecords, command, behavior, CancellationToken.None);
     }
+
+    public Task<int> FillAsync(DataTable[] dataTables, int startRecord, int maxRecords, IDbCommand command, CommandBehavior behavior, CancellationToken cancellationToken)
+    {
+      var result = new TaskCompletionSource<int>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          var fillResult = base.Fill(dataTables, startRecord, maxRecords, command, behavior);
+          result.SetResult(fillResult);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+
     /// <summary>
     /// Async version of Fill
     /// </summary>
@@ -454,11 +635,31 @@ namespace MySql.Data.MySqlClient
     /// <returns></returns>
     public Task<int> FillAsync(DataSet dataSet, int startRecord, int maxRecords, string srcTable, IDbCommand command, CommandBehavior behavior)
     {
-      return Task.Run(() =>
-      {
-        return base.Fill(dataSet, startRecord, maxRecords, srcTable, command, behavior);
-      });
+      return FillAsync(dataSet, startRecord, maxRecords, srcTable, command, behavior, CancellationToken.None);
     }
+
+    public Task<int> FillAsync(DataSet dataSet, int startRecord, int maxRecords, string srcTable, IDbCommand command, CommandBehavior behavior, CancellationToken cancellationToken)
+    {
+      var result = new TaskCompletionSource<int>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          var fillResult = base.Fill(dataSet, startRecord, maxRecords, srcTable, command, behavior);
+          result.SetResult(fillResult);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+
     #endregion
 
     #region FillSchema
@@ -470,11 +671,31 @@ namespace MySql.Data.MySqlClient
     /// <returns>DataTable[]</returns>
     public Task<DataTable[]> FillSchemaAsync(DataSet dataSet, SchemaType schemaType)
     {
-      return Task.Run(() =>
-      {
-        return base.FillSchema(dataSet, schemaType);
-      });
+      return FillSchemaAsync(dataSet, schemaType, CancellationToken.None);
     }
+
+    public Task<DataTable[]> FillSchemaAsync(DataSet dataSet, SchemaType schemaType, CancellationToken cancellationToken)
+    {
+      var result = new TaskCompletionSource<DataTable[]>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          var schemaResult = base.FillSchema(dataSet, schemaType);
+          result.SetResult(schemaResult);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+
     /// <summary>
     /// Async version of FillSchema
     /// </summary>
@@ -484,11 +705,31 @@ namespace MySql.Data.MySqlClient
     /// <returns>DataTable[]</returns>
     public Task<DataTable[]> FillSchemaAsync(DataSet dataSet, SchemaType schemaType, string srcTable)
     {
-      return Task.Run(() =>
-      {
-        return base.FillSchema(dataSet, schemaType, srcTable);
-      });
+      return FillSchemaAsync(dataSet, schemaType, srcTable, CancellationToken.None);
     }
+
+    public Task<DataTable[]> FillSchemaAsync(DataSet dataSet, SchemaType schemaType, string srcTable, CancellationToken cancellationToken)
+    {
+      var result = new TaskCompletionSource<DataTable[]>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          var schemaResult = base.FillSchema(dataSet, schemaType, srcTable);
+          result.SetResult(schemaResult);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+
     /// <summary>
     /// Async version of FillSchema
     /// </summary>
@@ -499,11 +740,31 @@ namespace MySql.Data.MySqlClient
     /// <returns>DataTable[]</returns>
     public Task<DataTable[]> FillSchemaAsync(DataSet dataSet, SchemaType schemaType, string srcTable, IDataReader dataReader)
     {
-      return Task.Run(() =>
-      {
-        return base.FillSchema(dataSet, schemaType, srcTable, dataReader);
-      });
+      return FillSchemaAsync(dataSet, schemaType, srcTable, dataReader, CancellationToken.None);
     }
+
+    public Task<DataTable[]> FillSchemaAsync(DataSet dataSet, SchemaType schemaType, string srcTable, IDataReader dataReader, CancellationToken cancellationToken)
+    {
+      var result = new TaskCompletionSource<DataTable[]>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          var schemaResult = base.FillSchema(dataSet, schemaType, srcTable, dataReader);
+          result.SetResult(schemaResult);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+
     /// <summary>
     /// Async version of FillSchema
     /// </summary>
@@ -515,11 +776,31 @@ namespace MySql.Data.MySqlClient
     /// <returns>DataTable[]</returns>
     public Task<DataTable[]> FillSchemaAsync(DataSet dataSet, SchemaType schemaType, IDbCommand command, string srcTable, CommandBehavior behavior)
     {
-      return Task.Run(() =>
-      {
-        return base.FillSchema(dataSet, schemaType, command, srcTable, behavior);
-      });
+      return FillSchemaAsync(dataSet, schemaType, command, srcTable, behavior, CancellationToken.None);
     }
+
+    public Task<DataTable[]> FillSchemaAsync(DataSet dataSet, SchemaType schemaType, IDbCommand command, string srcTable, CommandBehavior behavior, CancellationToken cancellationToken)
+    {
+      var result = new TaskCompletionSource<DataTable[]>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          var schemaResult = base.FillSchema(dataSet, schemaType, command, srcTable, behavior);
+          result.SetResult(schemaResult);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+
     /// <summary>
     /// Async version of FillSchema
     /// </summary>
@@ -528,11 +809,31 @@ namespace MySql.Data.MySqlClient
     /// <returns>DataTable</returns>
     public Task<DataTable> FillSchemaAsync(DataTable dataTable, SchemaType schemaType)
     {
-      return Task.Run(() =>
-      {
-        return base.FillSchema(dataTable, schemaType);
-      });
+      return FillSchemaAsync(dataTable, schemaType, CancellationToken.None);
     }
+
+    public Task<DataTable> FillSchemaAsync(DataTable dataTable, SchemaType schemaType, CancellationToken cancellationToken)
+    {
+      var result = new TaskCompletionSource<DataTable>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          var schemaResult = base.FillSchema(dataTable, schemaType);
+          result.SetResult(schemaResult);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+
     /// <summary>
     /// Async version of FillSchema
     /// </summary>
@@ -542,11 +843,31 @@ namespace MySql.Data.MySqlClient
     /// <returns>DataTable</returns>
     public Task<DataTable> FillSchemaAsync(DataTable dataTable, SchemaType schemaType, IDataReader dataReader)
     {
-      return Task.Run(() =>
-      {
-        return base.FillSchema(dataTable, schemaType, dataReader);
-      });
+      return FillSchemaAsync(dataTable, schemaType, dataReader, CancellationToken.None);
     }
+
+    public Task<DataTable> FillSchemaAsync(DataTable dataTable, SchemaType schemaType, IDataReader dataReader, CancellationToken cancellationToken)
+    {
+      var result = new TaskCompletionSource<DataTable>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          var schemaResult = base.FillSchema(dataTable, schemaType, dataReader);
+          result.SetResult(schemaResult);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+
     /// <summary>
     /// Async version of FillSchema
     /// </summary>
@@ -557,11 +878,31 @@ namespace MySql.Data.MySqlClient
     /// <returns>DataTable</returns>
     public Task<DataTable> FillSchemaAsync(DataTable dataTable, SchemaType schemaType, IDbCommand command, CommandBehavior behavior)
     {
-      return Task.Run(() =>
-      {
-        return base.FillSchema(dataTable, schemaType, command, behavior);
-      });
+      return FillSchemaAsync(dataTable, schemaType, command, behavior, CancellationToken.None);
     }
+
+    public Task<DataTable> FillSchemaAsync(DataTable dataTable, SchemaType schemaType, IDbCommand command, CommandBehavior behavior, CancellationToken cancellationToken)
+    {
+      var result = new TaskCompletionSource<DataTable>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          var schemaResult = base.FillSchema(dataTable, schemaType, command, behavior);
+          result.SetResult(schemaResult);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+
     #endregion
 
     #region Update
@@ -572,11 +913,31 @@ namespace MySql.Data.MySqlClient
     /// <returns>int</returns>
     public Task<int> UpdateAsync(DataRow[] dataRows)
     {
-      return Task.Run(() =>
-      {
-        return base.Update(dataRows);
-      });
+      return UpdateAsync(dataRows, CancellationToken.None);
     }
+
+    public Task<int> UpdateAsync(DataRow[] dataRows, CancellationToken cancellationToken)
+    {
+      var result = new TaskCompletionSource<int>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          var update = base.Update(dataRows);
+          result.SetResult(update);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+
     /// <summary>
     /// Async version of Update
     /// </summary>
@@ -584,11 +945,31 @@ namespace MySql.Data.MySqlClient
     /// <returns>int</returns>
     public Task<int> UpdateAsync(DataSet dataSet)
     {
-      return Task.Run(() =>
-      {
-        return base.Update(dataSet);
-      });
+      return UpdateAsync(dataSet, CancellationToken.None);
     }
+
+    public Task<int> UpdateAsync(DataSet dataSet, CancellationToken cancellationToken)
+    {
+      var result = new TaskCompletionSource<int>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          var update = base.Update(dataSet);
+          result.SetResult(update);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+
     /// <summary>
     /// Async version of Update
     /// </summary>
@@ -596,11 +977,31 @@ namespace MySql.Data.MySqlClient
     /// <returns>int</returns>
     public Task<int> UpdateAsync(DataTable dataTable)
     {
-      return Task.Run(() =>
-      {
-        return base.Update(dataTable);
-      });
+      return UpdateAsync(dataTable, CancellationToken.None);
     }
+
+    public Task<int> UpdateAsync(DataTable dataTable, CancellationToken cancellationToken)
+    {
+      var result = new TaskCompletionSource<int>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          var update = base.Update(dataTable);
+          result.SetResult(update);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+
     /// <summary>
     /// Async version of Update
     /// </summary>
@@ -609,11 +1010,31 @@ namespace MySql.Data.MySqlClient
     /// <returns>int</returns>
     public Task<int> UpdateAsync(DataRow[] dataRows, DataTableMapping tableMapping)
     {
-      return Task.Run(() =>
-      {
-        return base.Update(dataRows, tableMapping);
-      });
+      return UpdateAsync(dataRows, tableMapping, CancellationToken.None);
     }
+
+    public Task<int> UpdateAsync(DataRow[] dataRows, DataTableMapping tableMapping, CancellationToken cancellationToken)
+    {
+      var result = new TaskCompletionSource<int>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          var update = base.Update(dataRows, tableMapping);
+          result.SetResult(update);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+
     /// <summary>
     /// Async version of Update
     /// </summary>
@@ -622,11 +1043,31 @@ namespace MySql.Data.MySqlClient
     /// <returns></returns>
     public Task<int> UpdateAsync(DataSet dataSet, string srcTable)
     {
-      return Task.Run(() =>
-      {
-        return base.Update(dataSet, srcTable);
-      });
+      return UpdateAsync(dataSet, srcTable, CancellationToken.None);
     }
+
+    public Task<int> UpdateAsync(DataSet dataSet, string srcTable, CancellationToken cancellationToken)
+    {
+      var result = new TaskCompletionSource<int>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          var update = base.Update(dataSet, srcTable);
+          result.SetResult(update);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+
     #endregion
     #endregion
 #endif

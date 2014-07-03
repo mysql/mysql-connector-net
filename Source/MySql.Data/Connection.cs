@@ -1,4 +1,4 @@
-// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2014, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -43,6 +43,7 @@ using MySql.Data.MySqlClient.Replication;
 #endif
 #if NET_40_OR_GREATER
 using System.Threading.Tasks;
+using System.Threading;
 #endif
 
 namespace MySql.Data.MySqlClient
@@ -808,7 +809,7 @@ namespace MySql.Data.MySqlClient
         Close();
     }
 
-#if NET_45_OR_GREATER
+#if NET_40_OR_GREATER
     #region Async
     /// <summary>
     /// Async version of BeginTransaction
@@ -816,8 +817,14 @@ namespace MySql.Data.MySqlClient
     /// <returns>An object representing the new transaction.</returns>
     public Task<MySqlTransaction> BeginTransactionAsync()
     {
-      return BeginTransactionAsync(IsolationLevel.RepeatableRead);
+      return BeginTransactionAsync(IsolationLevel.RepeatableRead, CancellationToken.None);
     }
+
+    public Task<MySqlTransaction> BeginTransactionAsync(CancellationToken cancellationToken)
+    {
+      return BeginTransactionAsync(IsolationLevel.RepeatableRead, cancellationToken);
+    }
+
     /// <summary>
     /// Async version of BeginTransaction
     /// </summary>
@@ -825,45 +832,103 @@ namespace MySql.Data.MySqlClient
     /// <returns>An object representing the new transaction.</returns>
     public Task<MySqlTransaction> BeginTransactionAsync(IsolationLevel iso)
     {
-      return Task.Run(() =>
-      {
-        return BeginTransaction(iso);
-      });
+      return BeginTransactionAsync(iso, CancellationToken.None);
     }
+
+    public Task<MySqlTransaction> BeginTransactionAsync(IsolationLevel iso, CancellationToken cancellationToken)
+    {
+      var result = new TaskCompletionSource<MySqlTransaction>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          MySqlTransaction tranResult = BeginTransaction(iso);
+          result.SetResult(tranResult);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+
+      return result.Task;
+    }
+
+    public Task ChangeDataBaseAsync(string databaseName)
+    {
+      return ChangeDataBaseAsync(databaseName, CancellationToken.None);
+    }
+
     /// <summary>
     /// Async version of ChangeDataBase
     /// </summary>
     /// <param name="databaseName">The name of the database to use.</param>
     /// <returns></returns>
-    public Task ChangeDataBaseAsync(string databaseName)
+    public Task ChangeDataBaseAsync(string databaseName, CancellationToken cancellationToken)
     {
-      return Task.Run(() =>
+      var result = new TaskCompletionSource<bool>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
       {
-        ChangeDatabase(databaseName);
-      });
+        try
+        {
+          ChangeDatabase(databaseName);
+          result.SetResult(true);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      return result.Task;
     }
-    /// <summary>
-    /// Async version of Open
-    /// </summary>
-    /// <returns></returns>
-    public Task OpenAsync()
-    {
-      return Task.Run(() =>
-      {
-        Open();
-      });
-    }
+
+    ///// <summary>
+    ///// Async version of Open
+    ///// </summary>
+    ///// <returns></returns>
+    //public Task OpenAsync()
+    //{
+    //  return Task.Run(() =>
+    //  {
+    //    Open();
+    //  });
+    //}
+
     /// <summary>
     /// Async version of Close
     /// </summary>
     /// <returns></returns>
     public Task CloseAsync()
     {
-      return Task.Run(() =>
-      {
-        Close();
-      });
+      return CloseAsync(CancellationToken.None);
     }
+
+    public Task CloseAsync(CancellationToken cancellationToken)
+    {
+      var result = new TaskCompletionSource<bool>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          Close();
+          result.SetResult(true);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else 
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+
     /// <summary>
     /// Async version of ClearPool
     /// </summary>
@@ -871,21 +936,60 @@ namespace MySql.Data.MySqlClient
     /// <returns></returns>
     public Task ClearPoolAsync(MySqlConnection connection)
     {
-      return Task.Run(() =>
-      {
-        ClearPool(connection);
-      });
+      return ClearPoolAsync(connection, CancellationToken.None);
     }
+
+    public Task ClearPoolAsync(MySqlConnection connection, CancellationToken cancellationToken)
+    {
+      var result = new TaskCompletionSource<bool>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          ClearPool(connection);
+          result.SetResult(true);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+
     /// <summary>
     /// Async version of ClearAllPools
     /// </summary>
     /// <returns></returns>
     public Task ClearAllPoolsAsync()
     {
-      return Task.Run(() =>
+      return ClearAllPoolsAsync(CancellationToken.None);
+    }
+
+    public Task ClearAllPoolsAsync(CancellationToken cancellationToken)
+    {
+      var result = new TaskCompletionSource<bool>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
       {
-        ClearAllPools();
-      });
+        try
+        {
+          ClearAllPools();
+          result.SetResult(true);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
     }
     /// <summary>
     /// Async version of GetSchemaCollection
@@ -895,10 +999,29 @@ namespace MySql.Data.MySqlClient
     /// <returns>A schema collection</returns>
     public Task<MySqlSchemaCollection> GetSchemaCollectionAsync(string collectionName, string[] restrictionValues)
     {
-      return Task.Run(() =>
+      return GetSchemaCollectionAsync(collectionName, restrictionValues, CancellationToken.None);
+    }
+
+    public Task<MySqlSchemaCollection> GetSchemaCollectionAsync(string collectionName, string[] restrictionValues, CancellationToken cancellationToken)
+    {
+      var result = new TaskCompletionSource<MySqlSchemaCollection>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
       {
-        return GetSchemaCollection(collectionName, restrictionValues);
-      });
+        try
+        {
+          var schema = GetSchemaCollection(collectionName, restrictionValues);
+          result.SetResult(schema);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
     }
     #endregion
 #endif

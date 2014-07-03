@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -25,6 +25,9 @@ using System.Collections.Generic;
 using System.Text;
 using Xunit;
 using System.Data;
+#if NET_45_OR_GREATER
+using System.Threading.Tasks;
+#endif
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -1012,21 +1015,16 @@ namespace MySql.Data.MySqlClient.Tests
 #if NET_45_OR_GREATER
     #region Async
     [Fact]
-    public void FillAsync()
+    public async Task FillAsync()
     {
-      CreateDefaultTable();
-      st.execSQL("INSERT INTO Test (id, id2, name, dt) VALUES (NULL, 1, 'Name 1', Now())");
-      st.execSQL("INSERT INTO Test (id, id2, name, dt) VALUES (NULL, 2, NULL, Now())");
-      st.execSQL("INSERT INTO Test (id, id2, name, dt) VALUES (NULL, 3, '', Now())");
+      st.execSQL("CREATE TABLE DAFillAsyncTest (id INT NOT NULL AUTO_INCREMENT, id2 INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME, ts TIMESTAMP, OriginalId INT, PRIMARY KEY(id, id2))");
+      st.execSQL("INSERT INTO DAFillAsyncTest (id, id2, name, dt) VALUES (NULL, 1, 'Name 1', Now())");
+      st.execSQL("INSERT INTO DAFillAsyncTest (id, id2, name, dt) VALUES (NULL, 2, NULL, Now())");
+      st.execSQL("INSERT INTO DAFillAsyncTest (id, id2, name, dt) VALUES (NULL, 3, '', Now())");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("select * from Test", st.conn);
+      MySqlDataAdapter da = new MySqlDataAdapter("select * from DAFillAsyncTest", st.conn);
       DataSet ds = new DataSet();
-      da.FillAsync(ds, "Test");
-
-      while (ds.Tables.Count == 0)
-      {
-        System.Threading.Thread.Sleep(500);
-      }
+      await da.FillAsync(ds, "DAFillAsyncTest");
 
       Assert.Equal(1, ds.Tables.Count);
       Assert.Equal(3, ds.Tables[0].Rows.Count);
@@ -1039,15 +1037,16 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(DBNull.Value, ds.Tables[0].Rows[1]["name"]);
       Assert.Equal(String.Empty, ds.Tables[0].Rows[2]["name"]);
     }
+
     [Fact]
-    public void FillSchemaAsync()
+    public async Task FillSchemaAsync()
     {
       if (st.Version < new Version(5, 0)) return;
 
-      st.execSQL("CREATE PROCEDURE spTest() BEGIN SELECT * FROM Test; END");
-      st.execSQL(@"CREATE TABLE Test(id INT AUTO_INCREMENT, name VARCHAR(20), PRIMARY KEY (id)) ");
+      st.execSQL("CREATE PROCEDURE DAFillSchemaAsyncSpTest() BEGIN SELECT * FROM DAFillSchemaAsyncTest; END");
+      st.execSQL(@"CREATE TABLE DAFillSchemaAsyncTest(id INT AUTO_INCREMENT, name VARCHAR(20), PRIMARY KEY (id)) ");
 
-      MySqlCommand cmd = new MySqlCommand("spTest", st.conn);
+      MySqlCommand cmd = new MySqlCommand("DAFillSchemaAsyncSpTest", st.conn);
       cmd.CommandType = CommandType.StoredProcedure;
 
       MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.SchemaOnly);
@@ -1056,18 +1055,15 @@ namespace MySql.Data.MySqlClient.Tests
 
       MySqlDataAdapter da = new MySqlDataAdapter(cmd);
       DataTable schema = new DataTable();
-      da.FillSchemaAsync(schema, SchemaType.Source);
-      while (schema.Columns.Count == 0)
-      {
-        System.Threading.Thread.Sleep(500);
-      }
+      await da.FillSchemaAsync(schema, SchemaType.Source);
       Assert.Equal(2, schema.Columns.Count);
     }
+
     [Fact]
-    public void UpdateAsync()
+    public async Task UpdateAsync()
     {
-      CreateDefaultTable();
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", st.conn);
+      st.execSQL("CREATE TABLE DAUpdateAsyncTest (id INT NOT NULL AUTO_INCREMENT, id2 INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME, ts TIMESTAMP, OriginalId INT, PRIMARY KEY(id, id2))");
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM DAUpdateAsyncTest;", st.conn);
       MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
       DataTable dt = new DataTable();
       da.Fill(dt);
@@ -1076,7 +1072,7 @@ namespace MySql.Data.MySqlClient.Tests
       dr["id2"] = 2;
       dr["name"] = "TestName1";
       dt.Rows.Add(dr);
-      int count = da.UpdateAsync(dt).Result;
+      int count = await da.UpdateAsync(dt);
 
       Assert.True(count == 1, "checking insert count");
       Assert.True(dt.Rows[dt.Rows.Count - 1]["id"] != null, "Checking auto increment column");
@@ -1089,7 +1085,7 @@ namespace MySql.Data.MySqlClient.Tests
       DateTime day1 = new DateTime(2003, 1, 16, 12, 24, 0);
       dt.Rows[0]["dt"] = day1;
       dt.Rows[0]["tm"] = day1.TimeOfDay;
-      count = da.UpdateAsync(dt).Result;
+      count = await da.UpdateAsync(dt);
 
       Assert.True(dt.Rows[0]["ts"] != null, "checking refresh of record");
       Assert.True(dt.Rows[0]["id2"] != null, "checking refresh of primary column");
@@ -1103,7 +1099,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True(day1.TimeOfDay == (TimeSpan)dt.Rows[0]["tm"], "checking time");
 
       dt.Rows[0].Delete();
-      count = da.UpdateAsync(dt).Result;
+      count = await da.UpdateAsync(dt);
 
       Assert.True(count == 1, "checking insert count");
 

@@ -1,4 +1,5 @@
-﻿// Copyright (c) 2006-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc.
+﻿// Copyright (c) 2006-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc. 
+// 2014, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -30,6 +31,7 @@ using MySql.Data.MySqlClient.Properties;
 using MySql.Data.Common;
 #if NET_40_OR_GREATER
 using System.Threading.Tasks;
+using System.Threading;
 #endif
 
 namespace MySql.Data.MySqlClient
@@ -282,7 +284,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-#if NET_45_OR_GREATER
+#if NET_40_OR_GREATER
     #region Async
     /// <summary>
     /// Async version of Load
@@ -290,10 +292,29 @@ namespace MySql.Data.MySqlClient
     /// <returns>The number of rows inserted.</returns>
     public Task<int> LoadAsync()
     {
-      return Task.Run(() =>
+      return LoadAsync(CancellationToken.None);
+    }
+
+    public Task<int> LoadAsync(CancellationToken cancellationToken)
+    {
+      var result = new TaskCompletionSource<int>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
       {
-        return Load();
-      });
+        try
+        {
+          int loadResult = Load();
+          result.SetResult(loadResult);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
     }
     #endregion
 #endif

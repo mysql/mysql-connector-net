@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -28,6 +28,9 @@ using Xunit;
 #if !RT
 using System.Configuration;
 using System.Security.Permissions;
+#endif
+#if NET_45_OR_GREATER
+using System.Threading.Tasks;
 #endif
 
 
@@ -1209,15 +1212,15 @@ namespace MySql.Data.MySqlClient.Tests
 #if NET_45_OR_GREATER
       #region Async
       [Fact]
-      public void TransactionAsync()
+      public async Task TransactionAsync()
       {
-        st.execSQL("Create Table Test(key2 varchar(50), name varchar(50), name2 varchar(50))");
-        st.execSQL("INSERT INTO Test VALUES('P', 'Test1', 'Test2')");
+        st.execSQL("Create Table CONNTransactionAsyncTest(key2 varchar(50), name varchar(50), name2 varchar(50))");
+        st.execSQL("INSERT INTO CONNTransactionAsyncTest VALUES('P', 'Test1', 'Test2')");
 
-        MySqlTransaction txn = st.conn.BeginTransactionAsync().Result;
+        MySqlTransaction txn = await st.conn.BeginTransactionAsync();
         MySqlConnection c = txn.Connection;
         Assert.Equal(st.conn, c);
-        MySqlCommand cmd = new MySqlCommand("SELECT name, name2 FROM Test WHERE key2='P'", st.conn, txn);
+        MySqlCommand cmd = new MySqlCommand("SELECT name, name2 FROM CONNTransactionAsyncTest WHERE key2='P'", st.conn, txn);
         MySqlTransaction t2 = cmd.Transaction;
         Assert.Equal(txn, t2);
         MySqlDataReader reader = null;
@@ -1237,21 +1240,21 @@ namespace MySql.Data.MySqlClient.Tests
           if (reader != null) reader.Close();
         }
       }
+
       [Fact]
-      public void ChangeDataBaseAsync()
+      public async Task ChangeDataBaseAsync()
       {
         if (st.Version < new Version(4, 1)) return;
 
-        st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME,  `multi word` int, PRIMARY KEY(id))");
-        st.execSQL("INSERT INTO Test (id, name) VALUES (1,'test1')");
-        st.execSQL("INSERT INTO Test (id, name) VALUES (2,'test2')");
-        st.execSQL("INSERT INTO Test (id, name) VALUES (3,'test3')");
+        st.execSQL("CREATE TABLE CONNChangeDBAsyncTest (id INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME,  `multi word` int, PRIMARY KEY(id))");
+        st.execSQL("INSERT INTO CONNChangeDBAsyncTest (id, name) VALUES (1,'test1')");
+        st.execSQL("INSERT INTO CONNChangeDBAsyncTest (id, name) VALUES (2,'test2')");
+        st.execSQL("INSERT INTO CONNChangeDBAsyncTest (id, name) VALUES (3,'test3')");
 
-        st.conn.ChangeDataBaseAsync(st.database1);
-        System.Threading.Thread.Sleep(1000);
+        await st.conn.ChangeDataBaseAsync(st.database1);
 
         MySqlDataAdapter da = new MySqlDataAdapter(
-            String.Format("SELECT id, name FROM `{0}`.Test", st.database0), st.conn);
+            String.Format("SELECT id, name FROM `{0}`.CONNChangeDBAsyncTest", st.database0), st.conn);
         MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
         DataSet ds = new DataSet();
         da.Fill(ds);
@@ -1263,60 +1266,50 @@ namespace MySql.Data.MySqlClient.Tests
         ds.AcceptChanges();
         cb.Dispose();
 
-        st.conn.ChangeDataBaseAsync(st.database0);
-        System.Threading.Thread.Sleep(1000);
+        await st.conn.ChangeDataBaseAsync(st.database0);
       }
+
       [Fact]
-      public void OpenAndCloseConnectionAsync()
+      public async Task OpenAndCloseConnectionAsync()
       {
         string connStr2 = st.GetConnectionString(false);
         MySqlConnection c = new MySqlConnection(connStr2);
-        c.OpenAsync();
-        while (c.State != ConnectionState.Open)
-        {
-          System.Threading.Thread.Sleep(500);
-        }
-        c.CloseAsync();
-        while (c.State != ConnectionState.Closed)
-        {
-          System.Threading.Thread.Sleep(500);
-        }
+        await c.OpenAsync();
+        await c.CloseAsync();
       }
-      [Fact]
-      public void ClearPoolAsync()
-      {
-        MySqlConnection c1 = new MySqlConnection(st.GetConnectionString(true));
-        MySqlConnection c2 = new MySqlConnection(st.GetConnectionString(true));
-        c1.Open();
-        c2.Open();
-        c1.Close();
-        c2.Close();
-        c1.ClearPoolAsync(c1);
-        System.Threading.Thread.Sleep(500);
-        c2.ClearPoolAsync(c1);
-        System.Threading.Thread.Sleep(500);
-      }
-      [Fact]
-      public void ClearAllPoolsAsync()
-      {
-        MySqlConnection c1 = new MySqlConnection(st.GetConnectionString(true));
-        MySqlConnection c2 = new MySqlConnection(st.GetConnectionString(true));
-        c1.Open();
-        c2.Open();
-        c1.Close();
-        c2.Close();
-        c1.ClearAllPoolsAsync();
-        System.Threading.Thread.Sleep(500);
-        c2.ClearAllPoolsAsync();
-        System.Threading.Thread.Sleep(500);
-      }
-      [Fact]
-      public void GetSchemaCollectionAsync()
-      {
-        MySqlConnection c1 = new MySqlConnection(st.GetConnectionString(true));
 
+      [Fact]
+      public async Task ClearPoolAsync()
+      {
+        MySqlConnection c1 = new MySqlConnection(st.GetConnectionString(true));
+        MySqlConnection c2 = new MySqlConnection(st.GetConnectionString(true));
         c1.Open();
-        var schemaColl = c1.GetSchemaCollectionAsync(SchemaProvider.MetaCollection, null).Result;
+        c2.Open();
+        c1.Close();
+        c2.Close();
+        await c1.ClearPoolAsync(c1);
+        await c2.ClearPoolAsync(c1);
+      }
+
+      [Fact]
+      public async Task ClearAllPoolsAsync()
+      {
+        MySqlConnection c1 = new MySqlConnection(st.GetConnectionString(true));
+        MySqlConnection c2 = new MySqlConnection(st.GetConnectionString(true));
+        c1.Open();
+        c2.Open();
+        c1.Close();
+        c2.Close();
+        await c1.ClearAllPoolsAsync();
+        await c2.ClearAllPoolsAsync();
+      }
+
+      [Fact]
+      public async Task GetSchemaCollectionAsync()
+      {
+        MySqlConnection c1 = new MySqlConnection(st.GetConnectionString(true));
+        c1.Open();
+        var schemaColl = await c1.GetSchemaCollectionAsync(SchemaProvider.MetaCollection, null);
         c1.Close();
         Assert.NotNull(schemaColl);
       }

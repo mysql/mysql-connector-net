@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -26,6 +26,9 @@ using System.Collections.Generic;
 using System.Text;
 using Xunit;
 using System.Data;
+#if NET_45_OR_GREATER
+using System.Threading.Tasks;
+#endif
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -66,53 +69,52 @@ namespace MySql.Data.MySqlClient.Tests
 #if NET_45_OR_GREATER
     #region Async
     [Fact]
-    public void ExecuteNonQueryAsync()
+    public async Task ExecuteNonQueryAsync()
     {
       if (st.Version < new Version(5, 0)) return;
 
-      st.execSQL("CREATE TABLE test (id int)");
+      st.execSQL("CREATE TABLE MSHNonQueryAsyncTest (id int)");
+      st.execSQL("CREATE PROCEDURE MSHNonQueryAsyncSpTest() BEGIN SET @x=0; REPEAT INSERT INTO MSHNonQueryAsyncTest VALUES(@x); SET @x=@x+1; UNTIL @x = 100 END REPEAT; END");
 
-      st.execSQL("CREATE PROCEDURE spTest() BEGIN SET @x=0; REPEAT INSERT INTO test VALUES(@x); " +
-        "SET @x=@x+1; UNTIL @x = 100 END REPEAT; END");
+      int result = await MySqlHelper.ExecuteNonQueryAsync(st.conn, "call MSHNonQueryAsyncSpTest", null);
+      Assert.NotEqual(-1, result);
 
-      System.Threading.Tasks.Task<int> result = MySqlHelper.ExecuteNonQueryAsync(st.conn, "call spTest", null);
-      Assert.NotEqual(-1, result.Result);
-
-      MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM test;", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM MSHNonQueryAsyncTest;", st.conn);
       cmd.CommandType = System.Data.CommandType.Text;
       object cnt = cmd.ExecuteScalar();
       Assert.Equal(100, Convert.ToInt32(cnt));
     }
-    [Fact]
-    public void ExecuteDataSetAsync()
-    {
-      st.execSQL("CREATE TABLE table1 (`key` INT, PRIMARY KEY(`key`))");
-      st.execSQL("CREATE TABLE table2 (`key` INT, PRIMARY KEY(`key`))");
-      st.execSQL("INSERT INTO table1 VALUES (1)");
-      st.execSQL("INSERT INTO table2 VALUES (1)");
 
-      string sql = "SELECT table1.key FROM table1 WHERE table1.key=1; " +
-                   "SELECT table2.key FROM table2 WHERE table2.key=1";
-      DataSet ds = MySqlHelper.ExecuteDatasetAsync(st.conn, sql, null).Result;
+    [Fact]
+    public async Task ExecuteDataSetAsync()
+    {
+      st.execSQL("CREATE TABLE MSHDataSetAsyncTable1 (`key` INT, PRIMARY KEY(`key`))");
+      st.execSQL("CREATE TABLE MSHDataSetAsyncTable2 (`key` INT, PRIMARY KEY(`key`))");
+      st.execSQL("INSERT INTO MSHDataSetAsyncTable1 VALUES (1)");
+      st.execSQL("INSERT INTO MSHDataSetAsyncTable2 VALUES (1)");
+
+      string sql = "SELECT MSHDataSetAsyncTable1.key FROM MSHDataSetAsyncTable1 WHERE MSHDataSetAsyncTable1.key=1; " +
+                   "SELECT MSHDataSetAsyncTable2.key FROM MSHDataSetAsyncTable2 WHERE MSHDataSetAsyncTable2.key=1";
+      DataSet ds = await MySqlHelper.ExecuteDatasetAsync(st.conn, sql, null);
       Assert.Equal(2, ds.Tables.Count);
       Assert.Equal(1, ds.Tables[0].Rows.Count);
       Assert.Equal(1, ds.Tables[1].Rows.Count);
       Assert.Equal(1, ds.Tables[0].Rows[0]["key"]);
       Assert.Equal(1, ds.Tables[1].Rows[0]["key"]);
     }
+
     [Fact]
-    public void ExecuteReaderAsync()
+    public async Task ExecuteReaderAsync()
     {
       if (st.Version < new Version(5, 0)) return;
 
       if (st.conn.State != ConnectionState.Open)
         st.conn.Open();
 
-      st.execSQL("CREATE TABLE test (id int)");
-      st.execSQL("CREATE PROCEDURE spTest() BEGIN INSERT INTO test VALUES(1); " +
-                 "SELECT SLEEP(2); SELECT 'done'; END");
+      st.execSQL("CREATE TABLE MSHReaderAsyncTest (id int)");
+      st.execSQL("CREATE PROCEDURE MSHReaderAsyncSpTest() BEGIN INSERT INTO MSHReaderAsyncTest VALUES(1); SELECT SLEEP(2); SELECT 'done'; END");
 
-      using (MySqlDataReader reader = MySqlHelper.ExecuteReaderAsync(st.conn, "call sptest").Result)
+      using (MySqlDataReader reader = await MySqlHelper.ExecuteReaderAsync(st.conn, "call MSHReaderAsyncSpTest"))
       {
         Assert.NotNull(reader);
         Assert.True(reader.Read(), "can read");
@@ -121,24 +123,25 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal("done", reader.GetString(0));
         reader.Close();
 
-        MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM test", st.conn);
+        MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM MSHReaderAsyncTest", st.conn);
         cmd.CommandType = CommandType.Text;
         object cnt = cmd.ExecuteScalar();
         Assert.Equal(1, Convert.ToInt32(cnt));
       }
     }
+
     [Fact]
-    public void ExecuteScalarAsync()
+    public async Task ExecuteScalarAsync()
     {
       if (st.Version < new Version(5, 0)) return;
 
       if (st.conn.connectionState != ConnectionState.Open)
         st.conn.Open();
 
-      st.execSQL("CREATE TABLE table1 (`key` INT, PRIMARY KEY(`key`))");
-      st.execSQL("INSERT INTO table1 VALUES (1)");
+      st.execSQL("CREATE TABLE MSHScalarAsyncTable1 (`key` INT, PRIMARY KEY(`key`))");
+      st.execSQL("INSERT INTO MSHScalarAsyncTable1 VALUES (1)");
 
-      object result = MySqlHelper.ExecuteScalarAsync(st.conn, "SELECT table1.key FROM table1 WHERE table1.key=1;").Result;
+      object result = await MySqlHelper.ExecuteScalarAsync(st.conn, "SELECT MSHScalarAsyncTable1.key FROM MSHScalarAsyncTable1 WHERE MSHScalarAsyncTable1.key=1;");
       Assert.Equal(1, int.Parse(result.ToString()));
     }
     #endregion

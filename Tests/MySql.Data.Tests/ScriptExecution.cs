@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -24,6 +24,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+#if NET_45_OR_GREATER
+using System.Threading.Tasks;
+#endif
 using Xunit;
 
 namespace MySql.Data.MySqlClient.Tests
@@ -253,45 +256,54 @@ namespace MySql.Data.MySqlClient.Tests
 #if NET_45_OR_GREATER
     #region Async
     [Fact]
-    public void ExecuteScriptWithProceduresAsync()
+    public async Task ExecuteScriptWithProceduresAsync()
     {
       if (st.Version < new Version(5, 0)) return;
-
+      string spTpl = @"CREATE PROCEDURE `SEScriptWithProceduresAsyncSpTest{0}`() NOT DETERMINISTIC CONTAINS SQL SQL SECURITY DEFINER COMMENT ''  BEGIN SELECT 1,2,3; END{1}";
       statementCount = 0;
       string scriptText = String.Empty;
       for (int i = 0; i < 10; i++)
       {
-        scriptText += String.Format(statementTemplate1, i, "$$");
+        scriptText += String.Format(spTpl, i, "$$");
       }
       MySqlScript script = new MySqlScript(scriptText);
-      script.StatementExecuted += new MySqlStatementExecutedEventHandler(ExecuteScriptWithProcedures_QueryExecuted);
+      script.StatementExecuted += new MySqlStatementExecutedEventHandler(delegate(object sender, MySqlScriptEventArgs e)
+      {
+        string stmt = String.Format(spTpl, statementCount++, null);
+        Assert.Equal(stmt, e.StatementText);
+      });
       script.Connection = st.conn;
       script.Delimiter = "$$";
-      int count = script.ExecuteAsync().Result;
+      int count = await script.ExecuteAsync();
       Assert.Equal(10, count);
 
       MySqlCommand cmd = new MySqlCommand(
-        String.Format(@"SELECT COUNT(*) FROM information_schema.routines WHERE
-        routine_schema = '{0}' AND routine_name LIKE 'spTest%'",
-        st.database0), st.conn);
+        String.Format(@"SELECT COUNT(*) FROM information_schema.routines WHERE routine_schema = '{0}' AND routine_name LIKE 'SEScriptWithProceduresAsyncSpTest%'", st.database0), st.conn);
       Assert.Equal(10, Convert.ToInt32(cmd.ExecuteScalar()));
     }
+
     [Fact]
-    public void ExecuteScriptWithInsertsAsync()
+    public async Task ExecuteScriptWithInsertsAsync()
     {
+      st.execSQL("CREATE TABLE SEScriptWithInsertsAsyncTest (id int, name varchar(50))");
+      string queryTpl = @"INSERT INTO SEScriptWithInsertsAsyncTest (id, name) VALUES ({0}, 'a "" na;me'){1}";
       statementCount = 0;
       string scriptText = String.Empty;
       for (int i = 0; i < 10; i++)
       {
-        scriptText += String.Format(statementTemplate2, i, ";");
+        scriptText += String.Format(queryTpl, i, ";");
       }
       MySqlScript script = new MySqlScript(scriptText);
       script.Connection = st.conn;
-      script.StatementExecuted += new MySqlStatementExecutedEventHandler(ExecuteScriptWithInserts_StatementExecuted);
-      int count = script.ExecuteAsync().Result;
+      script.StatementExecuted += new MySqlStatementExecutedEventHandler(delegate(object sender, MySqlScriptEventArgs e)
+      {
+        string stmt = String.Format(queryTpl, statementCount++, null);
+        Assert.Equal(stmt, e.StatementText);
+      });
+      int count = await script.ExecuteAsync();
       Assert.Equal(10, count);
 
-      MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM Test", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM SEScriptWithInsertsAsyncTest", st.conn);
       Assert.Equal(10, Convert.ToInt32(cmd.ExecuteScalar()));
     }
     #endregion

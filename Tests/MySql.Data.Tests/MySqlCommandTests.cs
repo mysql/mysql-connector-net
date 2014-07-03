@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -28,6 +28,9 @@ using System.Data;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading;
+#if NET_45_OR_GREATER
+using System.Threading.Tasks;
+#endif
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -657,42 +660,40 @@ alter table longids AUTO_INCREMENT = 2147483640;";
 #if NET_45_OR_GREATER
    #region Async
    [Fact]
-   public void ExecuteNonQueryAsync()
+   public async Task ExecuteNonQueryAsync()
    {
      if (st.Version < new Version(5, 0)) return;
 
-     st.execSQL("CREATE TABLE test (id int)");
+     st.execSQL("CREATE TABLE CMDNonQueryAsyncTest (id int)");
+     st.execSQL("CREATE PROCEDURE CMDNonQueryAsyncSpTest() BEGIN SET @x=0; REPEAT INSERT INTO CMDNonQueryAsyncTest VALUES(@x); SET @x=@x+1; UNTIL @x = 100 END REPEAT; END");
 
-     st.execSQL("CREATE PROCEDURE spTest() BEGIN SET @x=0; REPEAT INSERT INTO test VALUES(@x); " +
-       "SET @x=@x+1; UNTIL @x = 100 END REPEAT; END");
-
-     MySqlCommand proc = new MySqlCommand("spTest", st.conn);
+     MySqlCommand proc = new MySqlCommand("CMDNonQueryAsyncSpTest", st.conn);
      proc.CommandType = CommandType.StoredProcedure;
-     System.Threading.Tasks.Task<int> result = proc.ExecuteNonQueryAsync();
+     int result = await proc.ExecuteNonQueryAsync();
 
-     Assert.NotEqual(-1, result.Result);
+     Assert.NotEqual(-1, result);
 
-     MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM test;", st.conn);
+     MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM CMDNonQueryAsyncTest;", st.conn);
      cmd.CommandType = CommandType.Text;
      object cnt = cmd.ExecuteScalar();
      Assert.Equal(100, Convert.ToInt32(cnt));
    }
+
    [Fact]
-   public void ExecuteReaderAsync()
+   public async Task ExecuteReaderAsync()
    {
      if (st.Version < new Version(5, 0)) return;
 
      if (st.conn.State != ConnectionState.Open)
        st.conn.Open();
 
-     st.execSQL("CREATE TABLE test (id int)");
-     st.execSQL("CREATE PROCEDURE spTest() BEGIN INSERT INTO test VALUES(1); " +
-       "SELECT SLEEP(2); SELECT 'done'; END");
+     st.execSQL("CREATE TABLE CMDReaderAsyncTest (id int)");
+     st.execSQL("CREATE PROCEDURE CMDReaderAsyncSpTest() BEGIN INSERT INTO CMDReaderAsyncTest VALUES(1); SELECT SLEEP(2); SELECT 'done'; END");
 
-     MySqlCommand proc = new MySqlCommand("spTest", st.conn);
+     MySqlCommand proc = new MySqlCommand("CMDReaderAsyncSpTest", st.conn);
      proc.CommandType = CommandType.StoredProcedure;
 
-     using (MySqlDataReader reader = proc.ExecuteReaderAsync().Result)
+     using (MySqlDataReader reader = await proc.ExecuteReaderAsync() as MySqlDataReader)
      {
        Assert.NotNull(reader);
        Assert.True(reader.Read(), "can read");
@@ -702,30 +703,29 @@ alter table longids AUTO_INCREMENT = 2147483640;";
        reader.Close();
 
        proc.CommandType = CommandType.Text;
-       proc.CommandText = "SELECT COUNT(*) FROM test";
+       proc.CommandText = "SELECT COUNT(*) FROM CMDReaderAsyncTest";
        object cnt = proc.ExecuteScalar();
        Assert.Equal(1, Convert.ToInt32(cnt));
      }
    }
+
    [Fact]
-   public void ExecuteScalarAsync()
+   public async Task ExecuteScalarAsync()
    {
      if (st.Version < new Version(5, 0)) return;
 
      if (st.conn.connectionState != ConnectionState.Open)
        st.conn.Open();
 
-     // create our procedure
-     st.execSQL("CREATE PROCEDURE spTest( IN valin VARCHAR(50), OUT valout VARCHAR(50) ) " +
-         "BEGIN  SET valout=valin;  SELECT 'Test'; END");
+     st.execSQL("CREATE PROCEDURE CMDScalarAsyncSpTest( IN valin VARCHAR(50), OUT valout VARCHAR(50) ) BEGIN  SET valout=valin;  SELECT 'Test'; END");
 
-     MySqlCommand cmd = new MySqlCommand("spTest", st.conn);
+     MySqlCommand cmd = new MySqlCommand("CMDScalarAsyncSpTest", st.conn);
      cmd.CommandType = CommandType.StoredProcedure;
      cmd.Parameters.AddWithValue("?valin", "valuein");
      cmd.Parameters.Add(new MySqlParameter("?valout", MySqlDbType.VarChar));
      cmd.Parameters[1].Direction = ParameterDirection.Output;
 
-     object result = cmd.ExecuteScalarAsync().Result;
+     object result = await cmd.ExecuteScalarAsync();
      Assert.Equal("Test", result);
      Assert.Equal("valuein", cmd.Parameters[1].Value);
    }

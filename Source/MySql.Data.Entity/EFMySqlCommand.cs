@@ -1,4 +1,4 @@
-﻿// Copyright © 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2008, 2014, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -31,6 +31,7 @@ using System.Data.Metadata.Edm;
 #endif
 #if NET_40_OR_GREATER
 using System.Threading.Tasks;
+using System.Threading;
 #endif
 
 namespace MySql.Data.Entity
@@ -148,42 +149,37 @@ namespace MySql.Data.Entity
 
     #endregion
 
-#if NET_45_OR_GREATER
+#if NET_40_OR_GREATER
 #region Async
-    /// <summary>
-    /// Async version of ExecuteNonQuery
-    /// </summary>
-    /// <returns>Affected rows.</returns>
-    public Task<int> ExecuteNonQueryAsync()
-    {
-      return Task.Run(() =>
-      {
-        return ExecuteNonQuery();
-      });
-    }
-
-    /// <summary>
-    /// Async version of ExecuteScalar
-    /// </summary>
-    /// <returns>Value of the firs row in the first column.</returns>
-    public Task<object> ExecuteScalarAsync()
-    {
-      return Task.Run(() =>
-      {
-        return ExecuteScalar();
-      });
-    }
-
     /// <summary>
     /// Async version of Prepare
     /// </summary>
     /// <returns>Information about the task executed.</returns>
     public Task PrepareAsync()
     {
-      return Task.Run(() =>
+      return PrepareAsync(CancellationToken.None);
+    }
+
+    public Task PrepareAsync(CancellationToken cancellationToken)
+    {
+      var result = new TaskCompletionSource<bool>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
       {
-        Prepare();
-      });
+        try
+        {
+          Prepare();
+          result.SetResult(true);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
     }
     #endregion
 #endif
