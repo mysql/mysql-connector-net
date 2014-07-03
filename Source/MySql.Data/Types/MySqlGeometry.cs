@@ -1,4 +1,4 @@
-// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2013, 2014, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -61,6 +61,11 @@ namespace MySql.Data.Types
     public Double? YCoordinate
     {
       get { return _yValue; }
+    }
+
+    public int? SRID
+    {
+      get { return _srid; }
     }
 
     public MySqlGeometry(bool isNull):this(MySqlDbType.Geometry, isNull)
@@ -370,6 +375,14 @@ namespace MySql.Data.Types
       row["LiteralPrefix"] = DBNull.Value;
       row["LiteralSuffix"] = DBNull.Value;
       row["NativeDataType"] = DBNull.Value;
+    }
+
+    public string GetWKT()
+    {
+      if (!this._isNull)
+        return string.Format(CultureInfo.InvariantCulture.NumberFormat, "POINT({0} {1})", _xValue, _yValue);
+
+      return String.Empty;
     }
  }
 }
