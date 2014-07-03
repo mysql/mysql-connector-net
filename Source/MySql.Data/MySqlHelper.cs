@@ -1,4 +1,4 @@
-// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2014, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -25,6 +25,8 @@ using MySql.Data.MySqlClient;
 using System.Text;
 #if NET_40_OR_GREATER
 using System.Threading.Tasks;
+using System.Threading;
+using System;
 #endif
 
 namespace MySql.Data.MySqlClient
@@ -471,7 +473,7 @@ namespace MySql.Data.MySqlClient
 
     #endregion
 
-#if NET_45_OR_GREATER
+#if NET_40_OR_GREATER
     #region Async
 
     #region DataRow
@@ -484,11 +486,31 @@ namespace MySql.Data.MySqlClient
     /// <returns>DataRow containing the first row of the resultset</returns>
     public static Task<DataRow> ExecuteDataRowAsync(string connectionString, string commandText, params MySqlParameter[] parms)
     {
-      return Task.Run(() =>
-      {
-        return ExecuteDataRow(connectionString, commandText, parms);
-      });
+      return ExecuteDataRowAsync(connectionString, commandText, CancellationToken.None, parms);
     }
+
+    public static Task<DataRow> ExecuteDataRowAsync(string connectionString, string commandText, CancellationToken cancellationToken, params MySqlParameter[] parms)
+    {
+      var result = new TaskCompletionSource<DataRow>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          var row = ExecuteDataRow(connectionString, commandText, parms);
+          result.SetResult(row);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+
     #endregion
 
     #region NonQuery
@@ -501,11 +523,31 @@ namespace MySql.Data.MySqlClient
     /// <returns>Rows affected</returns>
     public static Task<int> ExecuteNonQueryAsync(MySqlConnection connection, string commandText, params MySqlParameter[] commandParameters)
     {
-      return Task.Run(() =>
-      {
-        return ExecuteNonQuery(connection, commandText, commandParameters);
-      });
+      return ExecuteNonQueryAsync(connection, commandText, CancellationToken.None, commandParameters);
     }
+
+    public static Task<int> ExecuteNonQueryAsync(MySqlConnection connection, string commandText, CancellationToken cancellationToken, params MySqlParameter[] commandParameters)
+    {
+      var result = new TaskCompletionSource<int>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          var queryResult = ExecuteNonQuery(connection, commandText, commandParameters);
+          result.SetResult(queryResult);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+
     /// <summary>
     /// Async version of ExecuteNonQuery
     /// </summary>
@@ -515,11 +557,31 @@ namespace MySql.Data.MySqlClient
     /// <returns>Rows affected</returns>
     public static Task<int> ExecuteNonQueryAsync(string connectionString, string commandText, params MySqlParameter[] commandParameters)
     {
-      return Task.Run(() =>
-      {
-        return ExecuteNonQuery(connectionString, commandText, commandParameters);
-      });
+      return ExecuteNonQueryAsync(connectionString, commandText, CancellationToken.None, commandParameters);
     }
+
+    public static Task<int> ExecuteNonQueryAsync(string connectionString, string commandText, CancellationToken cancellationToken, params MySqlParameter[] commandParameters)
+    {
+      var result = new TaskCompletionSource<int>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          var queryResult = ExecuteNonQuery(connectionString, commandText, commandParameters);
+          result.SetResult(queryResult);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+
     #endregion
 
     #region DataSet
@@ -531,8 +593,14 @@ namespace MySql.Data.MySqlClient
     /// <returns><see cref="DataSet"/> containing the resultset</returns>
     public static Task<DataSet> ExecuteDatasetAsync(string connectionString, string commandText)
     {
-      return ExecuteDatasetAsync(connectionString, commandText, (MySqlParameter[])null);
+      return ExecuteDatasetAsync(connectionString, commandText, CancellationToken.None, (MySqlParameter[])null);
     }
+
+    public static Task<DataSet> ExecuteDatasetAsync(string connectionString, string commandText, CancellationToken cancellationToken)
+    {
+      return ExecuteDatasetAsync(connectionString, commandText, cancellationToken, (MySqlParameter[])null);
+    }
+
     /// <summary>
     /// Async version of ExecuteDataset
     /// </summary>
@@ -542,11 +610,31 @@ namespace MySql.Data.MySqlClient
     /// <returns><see cref="DataSet"/> containing the resultset</returns>
     public static Task<DataSet> ExecuteDatasetAsync(string connectionString, string commandText, params MySqlParameter[] commandParameters)
     {
-      return Task.Run(() =>
-      {
-        return ExecuteDataset(connectionString, commandText, commandParameters);
-      });
+      return ExecuteDatasetAsync(connectionString, commandText, CancellationToken.None, commandParameters);
     }
+
+    public static Task<DataSet> ExecuteDatasetAsync(string connectionString, string commandText, CancellationToken cancellationToken, params MySqlParameter[] commandParameters)
+    {
+      var result = new TaskCompletionSource<DataSet>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          var dataset = ExecuteDataset(connectionString, commandText, commandParameters);
+          result.SetResult(dataset);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+
     /// <summary>
     /// Async version of ExecuteDataset
     /// </summary>
@@ -555,8 +643,14 @@ namespace MySql.Data.MySqlClient
     /// <returns><see cref="DataSet"/> containing the resultset</returns>
     public static Task<DataSet> ExecuteDatasetAsync(MySqlConnection connection, string commandText)
     {
-      return ExecuteDatasetAsync(connection, commandText, (MySqlParameter[])null);
+      return ExecuteDatasetAsync(connection, commandText, CancellationToken.None, (MySqlParameter[])null);
     }
+
+    public static Task<DataSet> ExecuteDatasetAsync(MySqlConnection connection, string commandText, CancellationToken cancellationToken)
+    {
+      return ExecuteDatasetAsync(connection, commandText, cancellationToken, (MySqlParameter[])null);
+    }
+
     /// <summary>
     /// Async version of ExecuteDataset
     /// </summary>
@@ -566,11 +660,31 @@ namespace MySql.Data.MySqlClient
     /// <returns><see cref="DataSet"/> containing the resultset</returns>
     public static Task<DataSet> ExecuteDatasetAsync(MySqlConnection connection, string commandText, params MySqlParameter[] commandParameters)
     {
-      return Task.Run(() =>
-      {
-        return ExecuteDataset(connection, commandText, commandParameters);
-      });
+      return ExecuteDatasetAsync(connection, commandText, CancellationToken.None, commandParameters);
     }
+
+    public static Task<DataSet> ExecuteDatasetAsync(MySqlConnection connection, string commandText, CancellationToken cancellationToken, params MySqlParameter[] commandParameters)
+    {
+      var result = new TaskCompletionSource<DataSet>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          var dataset = ExecuteDataset(connection, commandText, commandParameters);
+          result.SetResult(dataset);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+
     /// <summary>
     /// Async version of UpdateDataset
     /// </summary>
@@ -580,11 +694,31 @@ namespace MySql.Data.MySqlClient
     /// <param name="tablename">Tablename in the dataset to update</param>
     public static Task UpdateDataSetAsync(string connectionString, string commandText, DataSet ds, string tablename)
     {
-      return Task.Run(() =>
-      {
-        UpdateDataSet(connectionString, commandText, ds, tablename);
-      });
+      return UpdateDataSetAsync(connectionString, commandText, ds, tablename, CancellationToken.None);
     }
+
+    public static Task UpdateDataSetAsync(string connectionString, string commandText, DataSet ds, string tablename, CancellationToken cancellationToken)
+    {
+      var result = new TaskCompletionSource<bool>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          UpdateDataSet(connectionString, commandText, ds, tablename);
+          result.SetResult(true);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+
     #endregion
 
     #region DataReader
@@ -599,11 +733,31 @@ namespace MySql.Data.MySqlClient
     /// <returns><see cref="MySqlDataReader"/> object ready to read the results of the command</returns>
     private static Task<MySqlDataReader> ExecuteReaderAsync(MySqlConnection connection, MySqlTransaction transaction, string commandText, MySqlParameter[] commandParameters, bool ExternalConn)
     {
-      return Task.Run(() =>
-      {
-        return ExecuteReader(connection, transaction, commandText, commandParameters, ExternalConn);
-      });
+      return ExecuteReaderAsync(connection, transaction, commandText, commandParameters, ExternalConn, CancellationToken.None);
     }
+
+    private static Task<MySqlDataReader> ExecuteReaderAsync(MySqlConnection connection, MySqlTransaction transaction, string commandText, MySqlParameter[] commandParameters, bool ExternalConn, CancellationToken cancellationToken)
+    {
+      var result = new TaskCompletionSource<MySqlDataReader>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          var reader = ExecuteReader(connection, transaction, commandText, commandParameters, ExternalConn);
+          result.SetResult(reader);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+
     /// <summary>
     /// Async version of ExecuteReader
     /// </summary>
@@ -612,8 +766,14 @@ namespace MySql.Data.MySqlClient
     /// <returns><see cref="MySqlDataReader"/> object ready to read the results of the command</returns>
     public static Task<MySqlDataReader> ExecuteReaderAsync(string connectionString, string commandText)
     {
-      return ExecuteReaderAsync(connectionString, commandText, (MySqlParameter[])null);
+      return ExecuteReaderAsync(connectionString, commandText, CancellationToken.None, (MySqlParameter[])null);
     }
+
+    public static Task<MySqlDataReader> ExecuteReaderAsync(string connectionString, string commandText, CancellationToken cancellationToken)
+    {
+      return ExecuteReaderAsync(connectionString, commandText, cancellationToken, (MySqlParameter[])null);
+    }
+
     /// <summary>
     /// Async version of ExecuteReader
     /// </summary>
@@ -622,8 +782,14 @@ namespace MySql.Data.MySqlClient
     /// <returns><see cref="MySqlDataReader"/> object ready to read the results of the command</returns>
     public static Task<MySqlDataReader> ExecuteReaderAsync(MySqlConnection connection, string commandText)
     {
-      return ExecuteReaderAsync(connection, null, commandText, (MySqlParameter[])null, true);
+      return ExecuteReaderAsync(connection, null, commandText, (MySqlParameter[])null, true, CancellationToken.None);
     }
+
+    public static Task<MySqlDataReader> ExecuteReaderAsync(MySqlConnection connection, string commandText, CancellationToken cancellationToken)
+    {
+      return ExecuteReaderAsync(connection, null, commandText, (MySqlParameter[])null, true, cancellationToken);
+    }
+
     /// <summary>
     /// Async version of ExecuteReader
     /// </summary>
@@ -633,11 +799,31 @@ namespace MySql.Data.MySqlClient
     /// <returns><see cref="MySqlDataReader"/> object ready to read the results of the command</returns>
     public static Task<MySqlDataReader> ExecuteReaderAsync(string connectionString, string commandText, params MySqlParameter[] commandParameters)
     {
-      return Task.Run(() =>
-      {
-        return ExecuteReader(connectionString, commandText, commandParameters);
-      });
+      return ExecuteReaderAsync(connectionString, commandText, CancellationToken.None, commandParameters);
     }
+
+    public static Task<MySqlDataReader> ExecuteReaderAsync(string connectionString, string commandText, CancellationToken cancellationToken, params MySqlParameter[] commandParameters)
+    {
+      var result = new TaskCompletionSource<MySqlDataReader>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          var reader = ExecuteReader(connectionString, commandText, commandParameters);
+          result.SetResult(reader);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+
     /// <summary>
     /// Async version of ExecuteReader
     /// </summary>
@@ -647,8 +833,14 @@ namespace MySql.Data.MySqlClient
     /// <returns><see cref="MySqlDataReader"/> object ready to read the results of the command</returns>
     public static Task<MySqlDataReader> ExecuteReaderAsync(MySqlConnection connection, string commandText, params MySqlParameter[] commandParameters)
     {
-      return ExecuteReaderAsync(connection, null, commandText, commandParameters, true);
+      return ExecuteReaderAsync(connection, null, commandText, commandParameters, true, CancellationToken.None);
     }
+
+    public static Task<MySqlDataReader> ExecuteReaderAsync(MySqlConnection connection, string commandText, CancellationToken cancellationToken, params MySqlParameter[] commandParameters)
+    {
+      return ExecuteReaderAsync(connection, null, commandText, commandParameters, true, cancellationToken);
+    }
+
     #endregion
 
     #region Scalar
@@ -660,8 +852,14 @@ namespace MySql.Data.MySqlClient
     /// <returns>The first column of the first row in the result set, or a null reference if the result set is empty.</returns>
     public static Task<object> ExecuteScalarAsync(string connectionString, string commandText)
     {
-      return ExecuteScalarAsync(connectionString, commandText, (MySqlParameter[])null);
+      return ExecuteScalarAsync(connectionString, commandText, CancellationToken.None, (MySqlParameter[])null);
     }
+
+    public static Task<object> ExecuteScalarAsync(string connectionString, string commandText, CancellationToken cancellationToken)
+    {
+      return ExecuteScalarAsync(connectionString, commandText, cancellationToken, (MySqlParameter[])null);
+    }
+
     /// <summary>
     /// Async version of ExecuteScalar
     /// </summary>
@@ -671,11 +869,31 @@ namespace MySql.Data.MySqlClient
     /// <returns>The first column of the first row in the result set, or a null reference if the result set is empty.</returns>
     public static Task<object> ExecuteScalarAsync(string connectionString, string commandText, params MySqlParameter[] commandParameters)
     {
-      return Task.Run(() =>
-      {
-        return ExecuteScalar(connectionString, commandText, commandParameters);
-      });
+      return ExecuteScalarAsync(connectionString, commandText, CancellationToken.None, commandParameters);
     }
+
+    public static Task<object> ExecuteScalarAsync(string connectionString, string commandText, CancellationToken cancellationToken, params MySqlParameter[] commandParameters)
+    {
+      var result = new TaskCompletionSource<object>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          var scalarResult = ExecuteScalar(connectionString, commandText, commandParameters);
+          result.SetResult(scalarResult);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+
     /// <summary>
     /// Async version of ExecuteScalar
     /// </summary>
@@ -684,8 +902,14 @@ namespace MySql.Data.MySqlClient
     /// <returns>The first column of the first row in the result set, or a null reference if the result set is empty.</returns>
     public static Task<object> ExecuteScalarAsync(MySqlConnection connection, string commandText)
     {
-      return ExecuteScalarAsync(connection, commandText, (MySqlParameter[])null);
+      return ExecuteScalarAsync(connection, commandText, CancellationToken.None, (MySqlParameter[])null);
     }
+
+    public static Task<object> ExecuteScalarAsync(MySqlConnection connection, string commandText, CancellationToken cancellationToken)
+    {
+      return ExecuteScalarAsync(connection, commandText, cancellationToken, (MySqlParameter[])null);
+    }
+
     /// <summary>
     /// Async version of ExecuteScalar
     /// </summary>
@@ -695,10 +919,29 @@ namespace MySql.Data.MySqlClient
     /// <returns>The first column of the first row in the result set, or a null reference if the result set is empty.</returns>
     public static Task<object> ExecuteScalarAsync(MySqlConnection connection, string commandText, params MySqlParameter[] commandParameters)
     {
-      return Task.Run(() =>
+      return ExecuteScalarAsync(connection, commandText, CancellationToken.None, commandParameters);
+    }
+
+    public static Task<object> ExecuteScalarAsync(MySqlConnection connection, string commandText, CancellationToken cancellationToken, params MySqlParameter[] commandParameters)
+    {
+      var result = new TaskCompletionSource<object>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
       {
-        return ExecuteScalar(connection, commandText, commandParameters);
-      });
+        try
+        {
+          var scalarResult = ExecuteScalar(connection, commandText, commandParameters);
+          result.SetResult(scalarResult);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
     }
     #endregion
     #endregion

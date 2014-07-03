@@ -1,4 +1,4 @@
-// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2014, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -37,9 +37,6 @@ using System.Collections.Generic;
 using MySql.Data.MySqlClient.Properties;
 #if !CF
 using MySql.Data.MySqlClient.Replication;
-#endif
-#if NET_40_OR_GREATER
-using System.Threading.Tasks;
 #endif
 
 namespace MySql.Data.MySqlClient
@@ -964,53 +961,6 @@ namespace MySql.Data.MySqlClient
       if (statement != null && statement.IsPrepared)
         statement.CloseStatement();
     }
-
-#if NET_45_OR_GREATER
-    #region Async
-    /// <summary>
-    /// Async version of ExecuteNonQuery
-    /// </summary>
-    /// <returns>int</returns>
-    public Task<int> ExecuteNonQueryAsync()
-    {
-      return Task.Run(() =>
-      {
-        return ExecuteNonQuery();
-      });
-    }
-    /// <summary>
-    /// Async version of ExecuteReader
-    /// </summary>
-    /// <returns>A MySqlDataReader object</returns>
-    public Task<MySqlDataReader> ExecuteReaderAsync()
-    {
-      return ExecuteReaderAsync(CommandBehavior.Default);
-    }
-    /// <summary>
-    /// Async version of ExecuteReader
-    /// </summary>
-    /// <param name="behavior">Command Behavior</param>
-    /// <returns>A MySqlDataReader object</returns>
-    public Task<MySqlDataReader> ExecuteReaderAsync(CommandBehavior behavior)
-    {
-      return Task.Run(() =>
-      {
-        return ExecuteReader(behavior);
-      });
-    }
-    /// <summary>
-    /// Async version of ExecuteScalar
-    /// </summary>
-    /// <returns>The first column of the first row in the result set, or a null reference if the result set is empty</returns>
-    public Task<object> ExecuteScalarAsync()
-    {
-      return Task.Run(() =>
-      {
-        return ExecuteScalar();
-      });
-    }
-    #endregion
-#endif
   }
 }
 

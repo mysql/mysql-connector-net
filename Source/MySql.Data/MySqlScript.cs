@@ -1,4 +1,4 @@
-// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2014, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -30,6 +30,7 @@ using System.IO;
 using MySql.Data.MySqlClient.Properties;
 #if NET_40_OR_GREATER
 using System.Threading.Tasks;
+using System.Threading;
 #endif
 namespace MySql.Data.MySqlClient
 {
@@ -347,7 +348,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-#if NET_45_OR_GREATER
+#if NET_40_OR_GREATER
     #region Async
     /// <summary>
     /// Async version of Execute
@@ -355,10 +356,29 @@ namespace MySql.Data.MySqlClient
     /// <returns>The number of statements executed as part of the script inside.</returns>
     public Task<int> ExecuteAsync()
     {
-      return Task.Run(() =>
+      return ExecuteAsync(CancellationToken.None);
+    }
+
+    public Task<int> ExecuteAsync(CancellationToken cancellationToken)
+    {
+      var result = new TaskCompletionSource<int>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
       {
-        return Execute();
-      });
+        try
+        {
+          var executeResult = Execute();
+          result.SetResult(executeResult);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
     }
     #endregion
 #endif

@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -28,6 +28,9 @@ using MySql.Data.MySqlClient.Properties;
 using Xunit;
 using System.Data;
 using System.IO;
+#if NET_45_OR_GREATER
+using System.Threading.Tasks;
+#endif
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -342,8 +345,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void BulkLoadSimpleAsync()
     {
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
-
+      st.execSQL("CREATE TABLE BulkLoadSimpleAsyncTest (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
       string path = Path.GetTempFileName();
       StreamWriter sw = new StreamWriter(path);
       for (int i = 0; i < 500; i++)
@@ -352,38 +354,26 @@ namespace MySql.Data.MySqlClient.Tests
       sw.Close();
 
       MySqlBulkLoader loader = new MySqlBulkLoader(st.conn);
-      loader.TableName = "Test";
+      loader.TableName = "BulkLoadSimpleAsyncTest";
       loader.FileName = path;
       loader.Timeout = 0;
 
-      Console.WriteLine("Calling Asynchronous version of MySqlBulkLoader.Load (LoadAsync)");
-      System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
-      timer.Start();
-      loader.LoadAsync();
-      Console.WriteLine("Wait 1 seconds to give a chance to Asynchronous method to finish.");
-      System.Threading.Thread.Sleep(1000);
-
-      Console.WriteLine("Trying to get data.");
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", st.conn);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
-      while (dt.Rows.Count < 500)
-      {
-        Console.WriteLine(string.Format("Asynchronous task is still running, processed records at this time:{0}", dt.Rows.Count));
+      loader.LoadAsync().ContinueWith(loadResult => {
+        int dataLoaded = loadResult.Result;
+        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM BulkLoadSimpleAsyncTest", st.conn);
+        DataTable dt = new DataTable();
         da.Fill(dt);
-      }
-      timer.Stop();
-      Console.WriteLine(string.Format("Asynchronous task finished in:{0}", GetElapsedTime(timer)));
-      Assert.Equal(500, dt.Rows.Count);
-      Assert.Equal("'Test'", dt.Rows[0][1].ToString().Trim());
+
+        Assert.Equal(dataLoaded, dt.Rows.Count);
+        Assert.Equal("'Test'", dt.Rows[0][1].ToString().Trim());
+      }).Wait();
     }
 
     [Fact]
     public void BulkLoadReadOnlyFileAsync()
     {
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      st.execSQL("CREATE TABLE BulkLoadReadOnlyFileAsyncTest (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
 
-      // first create the external file
       string path = Path.GetTempFileName();
       StreamWriter sw = new StreamWriter(path);
       for (int i = 0; i < 500; i++)
@@ -397,30 +387,19 @@ namespace MySql.Data.MySqlClient.Tests
       try
       {
         MySqlBulkLoader loader = new MySqlBulkLoader(st.conn);
-        loader.TableName = "Test";
+        loader.TableName = "BulkLoadReadOnlyFileAsyncTest";
         loader.FileName = path;
         loader.Timeout = 0;
 
-        Console.WriteLine("Calling Asynchronous version of MySqlBulkLoader.Load (LoadAsync)");
-        System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
-        timer.Start();
-        loader.LoadAsync();
-        Console.WriteLine("Wait 1 seconds to give a chance to Asynchronous method to finish.");
-        System.Threading.Thread.Sleep(1000);
-
-        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", st.conn);
-        DataTable dt = new DataTable();
-        da.Fill(dt);
-        while (dt.Rows.Count < 500)
-        {
-          Console.WriteLine(string.Format("Asynchronous task is still running, processed records at this time:{0}", dt.Rows.Count));
+        loader.LoadAsync().ContinueWith(loadResult => {
+          int dataLoaded = loadResult.Result;
+          MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM BulkLoadReadOnlyFileAsyncTest", st.conn);
+          DataTable dt = new DataTable();
           da.Fill(dt);
-        }
-        timer.Stop();
-        Console.WriteLine(string.Format("Asynchronous task finished in:{0}", GetElapsedTime(timer)));
 
-        Assert.Equal(500, dt.Rows.Count);
-        Assert.Equal("'Test'", dt.Rows[0][1].ToString().Trim());
+          Assert.Equal(dataLoaded, dt.Rows.Count);
+          Assert.Equal("'Test'", dt.Rows[0][1].ToString().Trim());
+        }).Wait();
       }
       finally
       {
@@ -432,9 +411,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void BulkLoadFieldQuotingAsync()
     {
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), name2 VARCHAR(250), PRIMARY KEY(id))");
+      st.execSQL("CREATE TABLE BulkLoadFieldQuotingAsyncTest (id INT NOT NULL, name VARCHAR(250), name2 VARCHAR(250), PRIMARY KEY(id))");
 
-      // first create the external file
       string path = Path.GetTempFileName();
       StreamWriter sw = new StreamWriter(path);
       for (int i = 0; i < 500; i++)
@@ -443,39 +421,28 @@ namespace MySql.Data.MySqlClient.Tests
       sw.Close();
 
       MySqlBulkLoader loader = new MySqlBulkLoader(st.conn);
-      loader.TableName = "Test";
+      loader.TableName = "BulkLoadFieldQuotingAsyncTest";
       loader.FileName = path;
       loader.Timeout = 0;
       loader.FieldQuotationCharacter = '`';
       loader.FieldQuotationOptional = true;
 
-      Console.WriteLine("Calling Asynchronous version of MySqlBulkLoader.Load (LoadAsync)");
-      System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
-      timer.Start();
-      loader.LoadAsync();
-      Console.WriteLine("Wait 1 seconds to give a chance to Asynchronous method to finish.");
-      System.Threading.Thread.Sleep(1000);
-
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", st.conn);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
-      while (dt.Rows.Count < 500)
-      {
-        Console.WriteLine(string.Format("Asynchronous task is still running, processed records at this time:{0}", dt.Rows.Count));
+      loader.LoadAsync().ContinueWith(loadResult => {
+        int dataLoaded = loadResult.Result;
+        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM BulkLoadFieldQuotingAsyncTest", st.conn);
+        DataTable dt = new DataTable();
         da.Fill(dt);
-      }
-      timer.Stop();
-      Console.WriteLine(string.Format("Asynchronous task finished in:{0}", GetElapsedTime(timer)));
 
-      Assert.Equal(500, dt.Rows.Count);
-      Assert.Equal("col1", dt.Rows[0][1]);
-      Assert.Equal("col2", dt.Rows[0][2].ToString().Trim());
+        Assert.Equal(dataLoaded, dt.Rows.Count);
+        Assert.Equal("col1", dt.Rows[0][1]);
+        Assert.Equal("col2", dt.Rows[0][2].ToString().Trim());
+      }).Wait();
     }
 
     [Fact]
     public void BulkLoadEscapingAsync()
     {
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), name2 VARCHAR(250), PRIMARY KEY(id))");
+      st.execSQL("CREATE TABLE BulkLoadEscapingAsyncTest (id INT NOT NULL, name VARCHAR(250), name2 VARCHAR(250), PRIMARY KEY(id))");
 
       string path = Path.GetTempFileName();
       StreamWriter sw = new StreamWriter(path);
@@ -485,39 +452,28 @@ namespace MySql.Data.MySqlClient.Tests
       sw.Close();
 
       MySqlBulkLoader loader = new MySqlBulkLoader(st.conn);
-      loader.TableName = "Test";
+      loader.TableName = "BulkLoadEscapingAsyncTest";
       loader.FileName = path;
       loader.Timeout = 0;
       loader.EscapeCharacter = '\t';
       loader.FieldTerminator = ",";
 
-      Console.WriteLine("Calling Asynchronous version of MySqlBulkLoader.Load (LoadAsync)");
-      System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
-      timer.Start();
-      loader.LoadAsync();
-      Console.WriteLine("Wait 1 seconds to give a chance to Asynchronous method to finish.");
-      System.Threading.Thread.Sleep(1000);
-
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", st.conn);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
-      while (dt.Rows.Count < 500)
-      {
-        Console.WriteLine(string.Format("Asynchronous task is still running, processed records at this time:{0}", dt.Rows.Count));
+      loader.LoadAsync().ContinueWith(loadResult => {
+        int dataLoaded = loadResult.Result;
+        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM BulkLoadEscapingAsyncTest", st.conn);
+        DataTable dt = new DataTable();
         da.Fill(dt);
-      }
-      timer.Stop();
-      Console.WriteLine(string.Format("Asynchronous task finished in:{0}", GetElapsedTime(timer)));
 
-      Assert.Equal(500, dt.Rows.Count);
-      Assert.Equal("col1still col1", dt.Rows[0][1]);
-      Assert.Equal("col2", dt.Rows[0][2].ToString().Trim());
+        Assert.Equal(dataLoaded, dt.Rows.Count);
+        Assert.Equal("col1still col1", dt.Rows[0][1]);
+        Assert.Equal("col2", dt.Rows[0][2].ToString().Trim());
+      }).Wait();
     }
 
     [Fact]
     public void BulkLoadConflictOptionReplaceAsync()
     {
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      st.execSQL("CREATE TABLE BulkLoadConflictOptionReplaceAsyncTest (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
 
       string path = Path.GetTempFileName();
       StreamWriter sw = new StreamWriter(path);
@@ -527,16 +483,12 @@ namespace MySql.Data.MySqlClient.Tests
       sw.Close();
 
       MySqlBulkLoader loader = new MySqlBulkLoader(st.conn);
-      loader.TableName = "Test";
+      loader.TableName = "BulkLoadConflictOptionReplaceAsyncTest";
       loader.FileName = path;
       loader.Timeout = 0;
       loader.FieldTerminator = ",";
 
-      Console.WriteLine("Calling Asynchronous version of MySqlBulkLoader.Load (LoadAsync)");
-      loader.LoadAsync();
-
-      Console.WriteLine("Wait 1 seconds to give a chance to Asynchronous method to finish.");
-      System.Threading.Thread.Sleep(1000);
+      loader.LoadAsync().Wait();
 
       path = Path.GetTempFileName();
       sw = new StreamWriter(path);
@@ -546,18 +498,14 @@ namespace MySql.Data.MySqlClient.Tests
       sw.Close();
 
       loader = new MySqlBulkLoader(st.conn);
-      loader.TableName = "Test";
+      loader.TableName = "BulkLoadConflictOptionReplaceAsyncTest";
       loader.FileName = path;
       loader.Timeout = 0;
       loader.FieldTerminator = ",";
       loader.ConflictOption = MySqlBulkLoaderConflictOption.Replace;
 
-      Console.WriteLine("Calling Asynchronous version of MySqlBulkLoader.Load (LoadAsync) with duplicated keys.");
-      loader.LoadAsync();
-      Console.WriteLine("Wait 1 seconds to give a chance to Asynchronous method to finish.");
-      System.Threading.Thread.Sleep(1000);
-
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", st.conn);
+      loader.LoadAsync().Wait();
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM BulkLoadConflictOptionReplaceAsyncTest", st.conn);
       DataTable dt = new DataTable();
       da.Fill(dt);
       Assert.Equal(20, dt.Rows.Count);
@@ -567,7 +515,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void BulkLoadConflictOptionIgnoreAsync()
     {
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      st.execSQL("CREATE TABLE BulkLoadConflictOptionIgnoreAsyncTest (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
 
       string path = Path.GetTempFileName();
       StreamWriter sw = new StreamWriter(path);
@@ -577,51 +525,43 @@ namespace MySql.Data.MySqlClient.Tests
       sw.Close();
 
       MySqlBulkLoader loader = new MySqlBulkLoader(st.conn);
-      loader.TableName = "Test";
+      loader.TableName = "BulkLoadConflictOptionIgnoreAsyncTest";
       loader.FileName = path;
       loader.Timeout = 0;
       loader.FieldTerminator = ",";
 
-      Console.WriteLine("Calling Asynchronous version of MySqlBulkLoader.Load (LoadAsync)");
-      loader.LoadAsync();
-
-      Console.WriteLine("Wait 1 seconds to give a chance to Asynchronous method to finish.");
-      System.Threading.Thread.Sleep(1000);
-
-      path = Path.GetTempFileName();
-      sw = new StreamWriter(path);
-      for (int i = 0; i < 20; i++)
-        sw.WriteLine(i + ",col2");
-      sw.Flush();
-      sw.Close();
+      loader.LoadAsync().ContinueWith(loadResult => {
+        int dataLoaded = loadResult.Result;
+        path = Path.GetTempFileName();
+        sw = new StreamWriter(path);
+        for (int i = 0; i < dataLoaded; i++)
+          sw.WriteLine(i + ",col2");
+        sw.Flush();
+        sw.Close();
+      }).Wait();
 
       loader = new MySqlBulkLoader(st.conn);
-      loader.TableName = "Test";
+      loader.TableName = "BulkLoadConflictOptionIgnoreAsyncTest";
       loader.FileName = path;
       loader.Timeout = 0;
       loader.FieldTerminator = ",";
       loader.ConflictOption = MySqlBulkLoaderConflictOption.Ignore;
 
-      Console.WriteLine("Calling Asynchronous version of MySqlBulkLoader.Load (LoadAsync)  with duplicated keys.");
-      loader.LoadAsync();
-
-      Console.WriteLine("Wait 1 seconds to give a chance to Asynchronous method to finish.");
-      System.Threading.Thread.Sleep(1000);
-
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", st.conn);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
-      Assert.Equal(20, dt.Rows.Count);
-      Assert.Equal("col1", dt.Rows[0][1].ToString().Trim());
+      loader.LoadAsync().ContinueWith(loadResult => {
+        int dataLoaded = loadResult.Result;
+        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM BulkLoadConflictOptionIgnoreAsyncTest", st.conn);
+        DataTable dt = new DataTable();
+        da.Fill(dt);
+        Assert.Equal(20, dt.Rows.Count);
+        Assert.Equal("col1", dt.Rows[0][1].ToString().Trim());
+      }).Wait();
     }
 
     [Fact]
     public void BulkLoadColumnOrderAsync()
     {
-      st.execSQL(@"CREATE TABLE Test (id INT NOT NULL, n1 VARCHAR(250), n2 VARCHAR(250), 
-            n3 VARCHAR(250), PRIMARY KEY(id))");
+      st.execSQL(@"CREATE TABLE BulkLoadColumnOrderAsyncTest (id INT NOT NULL, n1 VARCHAR(250), n2 VARCHAR(250), n3 VARCHAR(250), PRIMARY KEY(id))");
 
-      // first create the external file
       string path = Path.GetTempFileName();
       StreamWriter sw = new StreamWriter(path);
       for (int i = 0; i < 20; i++)
@@ -630,7 +570,7 @@ namespace MySql.Data.MySqlClient.Tests
       sw.Close();
 
       MySqlBulkLoader loader = new MySqlBulkLoader(st.conn);
-      loader.TableName = "Test";
+      loader.TableName = "BulkLoadColumnOrderAsyncTest";
       loader.FileName = path;
       loader.Timeout = 0;
       loader.FieldTerminator = ",";
@@ -640,19 +580,16 @@ namespace MySql.Data.MySqlClient.Tests
       loader.Columns.Add("n2");
       loader.Columns.Add("n1");
 
-      Console.WriteLine("Calling Asynchronous version of MySqlBulkLoader.Load (LoadAsync)");
-      loader.LoadAsync();
-
-      Console.WriteLine("Wait 1 seconds to give a chance to Asynchronous method to finish.");
-      System.Threading.Thread.Sleep(1000);
-
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", st.conn);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
-      Assert.Equal(20, dt.Rows.Count);
-      Assert.Equal("col1", dt.Rows[0][1]);
-      Assert.Equal("col2", dt.Rows[0][2]);
-      Assert.Equal("col3", dt.Rows[0][3].ToString().Trim());
+      loader.LoadAsync().ContinueWith(loadResult => {
+        int dataLoaded = loadResult.Result;
+        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM BulkLoadColumnOrderAsyncTest", st.conn);
+        DataTable dt = new DataTable();
+        da.Fill(dt);
+        Assert.Equal(20, dt.Rows.Count);
+        Assert.Equal("col1", dt.Rows[0][1]);
+        Assert.Equal("col2", dt.Rows[0][2]);
+        Assert.Equal("col3", dt.Rows[0][3].ToString().Trim());
+      }).Wait();
     }
     #endregion
 

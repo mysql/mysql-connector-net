@@ -1,3 +1,6 @@
+6.9.2
+- Add async/await compatible methods
+
 6.9.1
 - Fix for Exception of "duplicate entry" in MySqlSessionProvider (MySql Bug #70409, Oracle bug #18657550).
 

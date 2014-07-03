@@ -1,4 +1,4 @@
-// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2013, 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -108,63 +108,21 @@ namespace MySql.Data.Entity.Tests
     #region Async
 #if NET_45_OR_GREATER
     [Fact]
-    public void ExecuteNonQueryAndScalarAsync()
-    {
-      if (st.Version < new Version(5, 0)) return;
-
-      st.execSQL("CREATE TABLE test (id int)");
-      st.execSQL("DROP PROCEDURE IF EXISTS spTest");
-      st.execSQL("CREATE PROCEDURE spTest() BEGIN SET @x=0; REPEAT INSERT INTO test VALUES(@x); " +
-        "SET @x=@x+1; UNTIL @x = 100 END REPEAT; END");
-
-      EFMySqlCommand proc = new EFMySqlCommand() { CommandText = "spTest", Connection = st.conn };
-      proc.CommandType = CommandType.StoredProcedure;
-      System.Threading.Tasks.Task<int> result = proc.ExecuteNonQueryAsync();
-
-      Assert.NotEqual(-1, result.Result);
-
-      EFMySqlCommand cmd = new EFMySqlCommand() { CommandText = "SELECT COUNT(*) FROM test;", Connection = st.conn };
-      cmd.CommandType = CommandType.Text;
-      object cnt = cmd.ExecuteScalarAsync().Result;
-      Assert.Equal(100, Convert.ToInt32(cnt));
-    }
-    [Fact]
-    public void PrepareAsync()
-    {
-      st.execSQL("CREATE TABLE mytable (val1 varchar(20), numbercol int, numbername varchar(50));");
-      EFMySqlCommand cmd = new EFMySqlCommand() { CommandText = "INSERT INTO myTable VALUES(NULL, @number, @text)", Connection = st.conn };
-      cmd.PrepareAsync();
-
-      cmd.Parameters.Add(new MySqlParameter("@number", 1));
-      cmd.Parameters.Add(new MySqlParameter("@text", "One"));
-
-      for (int i = 1; i <= 100; i++)
-      {
-        cmd.Parameters["@number"].Value = i;
-        cmd.Parameters["@text"].Value = "A string value";
-        cmd.ExecuteNonQuery();
-      }
-    } 
-#endif
-
-#if NET_45_OR_GREATER
-    [Fact]
     public async Task ExecuteNonQueryAndScalarAsyncAwait()
     {
       if (st.Version < new Version(5, 0)) return;
 
-      st.execSQL("CREATE TABLE test2 (id int)");
-      st.execSQL("DROP PROCEDURE IF EXISTS spTest");
-      st.execSQL("CREATE PROCEDURE spTest() BEGIN SET @x=0; REPEAT INSERT INTO test2 VALUES(@x); " +
+      st.execSQL("CREATE TABLE NonQueryAndScalarAsyncAwaitTest (id int)");
+      st.execSQL("CREATE PROCEDURE NonQueryAndScalarAsyncAwaitSpTest() BEGIN SET @x=0; REPEAT INSERT INTO NonQueryAndScalarAsyncAwaitTest VALUES(@x); " +
         "SET @x=@x+1; UNTIL @x = 100 END REPEAT; END");
 
-      EFMySqlCommand proc = new EFMySqlCommand() { CommandText = "spTest", Connection = st.conn };
+      EFMySqlCommand proc = new EFMySqlCommand() { CommandText = "NonQueryAndScalarAsyncAwaitSpTest", Connection = st.conn };
       proc.CommandType = CommandType.StoredProcedure;
       int result = await proc.ExecuteNonQueryAsync();
 
       Assert.NotEqual(-1, result);
 
-      EFMySqlCommand cmd = new EFMySqlCommand() { CommandText = "SELECT COUNT(*) FROM test2;", Connection = st.conn };
+      EFMySqlCommand cmd = new EFMySqlCommand() { CommandText = "SELECT COUNT(*) FROM NonQueryAndScalarAsyncAwaitTest;", Connection = st.conn };
       cmd.CommandType = CommandType.Text;
       object cnt = await cmd.ExecuteScalarAsync();
       Assert.Equal(100, Convert.ToInt32(cnt));
@@ -172,8 +130,8 @@ namespace MySql.Data.Entity.Tests
     [Fact]
     public async Task PrepareAsyncAwait()
     {
-      st.execSQL("CREATE TABLE mytable2 (val1 varchar(20), numbercol int, numbername varchar(50));");
-      EFMySqlCommand cmd = new EFMySqlCommand() { CommandText = "INSERT INTO mytable2 VALUES(NULL, @number, @text)", Connection = st.conn };
+      st.execSQL("CREATE TABLE PrepareAsyncAwaitTest (val1 varchar(20), numbercol int, numbername varchar(50));");
+      EFMySqlCommand cmd = new EFMySqlCommand() { CommandText = "INSERT INTO PrepareAsyncAwaitTest VALUES(NULL, @number, @text)", Connection = st.conn };
       await cmd.PrepareAsync();
 
       cmd.Parameters.Add(new MySqlParameter("@number", 1));
