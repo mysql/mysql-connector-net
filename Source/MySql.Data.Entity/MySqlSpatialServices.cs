@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2014, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -389,7 +389,7 @@ namespace MySql.Data.Entity
       var myGeom = new MySqlGeometry();
 
       if (MySqlGeometry.TryParse(providerValue.ToString(), out myGeom))      
-       return DbGeometry.FromText(providerValue.ToString());              
+       return DbGeometry.FromText(myGeom.GetWKT(), myGeom.SRID.Value);
       else
         return null;      
     }
@@ -987,6 +987,5 @@ namespace MySql.Data.Entity
     }   
 
     #endregion
-
   }
 }
