@@ -1,5 +1,6 @@
 6.9.2
 - Add async/await compatible methods
+- Fix for Unable to read geometry column when it has been set with a SRID value. (MySql Bug #71869, Oracle Bug #19137999)
 
 6.9.1
 - Fix for Exception of "duplicate entry" in MySqlSessionProvider (MySql Bug #70409, Oracle bug #18657550).
