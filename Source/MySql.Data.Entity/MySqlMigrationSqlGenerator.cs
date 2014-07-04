@@ -51,7 +51,7 @@ namespace MySql.Data.Entity
   {
     private IEnumerable<KeyValuePair<CreateTableOperation, AddForeignKeyOperation>> _foreignKeys;
     private IEnumerable<KeyValuePair<CreateTableOperation, CreateIndexOperation>> _tableIndexes;
-
+    
     private string TrimSchemaPrefix(string table)
     {
       if (table.StartsWith("dbo."))
@@ -236,6 +236,7 @@ namespace MySql.Data.Entity
     private string _providerManifestToken;
 	private List<string> autoIncrementCols { get; set; }
     private List<string> primaryKeyCols { get; set; }
+    private IEnumerable<AddPrimaryKeyOperation> _pkOperations;
 
     delegate MigrationStatement OpDispatcher(MigrationOperation op);
 
@@ -277,6 +278,10 @@ namespace MySql.Data.Entity
       List<MigrationStatement> stmts = new List<MigrationStatement>();
       _providerManifestToken = providerManifestToken;
       _providerManifest = DbProviderServices.GetProviderServices(con).GetProviderManifest(providerManifestToken);
+      
+      //verify if there is one or more add column operation, if there is then look for primary key operations
+      if ((from cols in migrationOperations.OfType<AddColumnOperation>() select cols).Count() > 0)
+        _pkOperations = (from pks in migrationOperations.OfType<AddPrimaryKeyOperation>() select pks).ToList();
 
       foreach (MigrationOperation op in migrationOperations)
       {
@@ -289,7 +294,7 @@ namespace MySql.Data.Entity
       {
         foreach (var item in _specialStmts)
           stmts.Add(item);
-      }        	        
+      }
       return stmts;
     }
 
@@ -522,8 +527,16 @@ namespace MySql.Data.Entity
       _tableName = op.Table;
 
       MigrationStatement stmt = new MigrationStatement();
-      stmt.Sql = string.Format("alter table `{0}` add column `{1}`",
-        TrimSchemaPrefix(op.Table), op.Column.Name) + " " + Generate(op.Column);
+      //verify if there is any "AddPrimaryKeyOperation" related with the column that will be added and if it is defined as identity (auto_increment)
+      bool uniqueAttr = (from pkOpe in _pkOperations
+                         where (from col in pkOpe.Columns 
+                                where col == op.Column.Name 
+                                select col).Count() > 0
+                         select pkOpe).Count() > 0 & op.Column.IsIdentity;
+
+      //if the column to be added is PK as well as identity we need to specify the column as unique to avoid the error: "Incorrect table definition there can be only one auto column and it must be defined as a key", since unique and PK are almost equivalent we'll be able to add the new column and later add the PK related to it, this because the "AddPrimaryKeyOperation" is executed after the column is added
+      stmt.Sql = string.Format("alter table `{0}` add column `{1}` {2} {3}", TrimSchemaPrefix(op.Table), op.Column.Name, Generate(op.Column), (uniqueAttr ? " unique " : ""));
+
       return stmt;
     }
 
