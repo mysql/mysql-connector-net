@@ -224,15 +224,12 @@ namespace MySql.Web.Personalization
        connection.OpenConnection(true);
        try
        {
+         sharedDataBlob = PersonalizationProviderProcedures.my_aspnet_PersonalizationAllUsers_GetPageSettings(
+                          ApplicationId, path, connection);
          if (!String.IsNullOrEmpty(userName))
          {
            userDataBlob = PersonalizationProviderProcedures.my_aspnet_PersonalizationPerUser_GetPageSettings(
                              ApplicationId, path, userName, DateTime.UtcNow, connection);
-         }
-         else
-         {
-           sharedDataBlob = PersonalizationProviderProcedures.my_aspnet_PersonalizationAllUsers_GetPageSettings(
-                            ApplicationId, path, connection);
          }
 
          connection.CloseConnection();

@@ -1,3 +1,7 @@
+6.9.3
+- Fix for Web Parts Personalization provider
+
+
 6.9.2
 - Add async/await compatible methods
 - Fix for Unable to read geometry column when it has been set with a SRID value. (MySql Bug #71869, Oracle Bug #19137999)
