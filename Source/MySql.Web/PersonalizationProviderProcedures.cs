@@ -226,7 +226,7 @@ namespace MySql.Web.Personalization
       cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
       cmd.Parameters.AddWithValue("@Path", path);
 
-      var pathId = cmd.ExecuteScalar().ToString();
+      var pathId = (cmd.ExecuteScalar() ?? "").ToString();
 
       if (string.IsNullOrEmpty(pathId))
         return null;
@@ -237,7 +237,7 @@ namespace MySql.Web.Personalization
       cmd.Parameters.AddWithValue("@UserName", userName);
 
 
-      var userId = cmd.ExecuteScalar().ToString();
+      var userId = (cmd.ExecuteScalar() ?? "").ToString();
       userId = string.IsNullOrEmpty(userId) ? "0" : userId;
 
       if (int.Parse(userId) == 0)
@@ -348,7 +348,7 @@ namespace MySql.Web.Personalization
       var cmd = new MySqlCommand("Select pathid from my_aspnet_paths as paths where paths.applicationid = @ApplicationId  and paths.loweredPath = lower(@Path)", connection.Connection);
       cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
       cmd.Parameters.AddWithValue("@Path", path);
-      var pathId = cmd.ExecuteScalar().ToString();
+      var pathId = (cmd.ExecuteScalar() ?? "").ToString();
 
       if (!string.IsNullOrEmpty(pathId))
       {
@@ -572,7 +572,7 @@ namespace MySql.Web.Personalization
       cmd.CommandText = "SELECT id FROM my_aspnet_users WHERE ApplicationId = @ApplicationId AND name = LOWER(@UserName)";
       cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
       cmd.Parameters.AddWithValue("@UserName", userName);
-      var userId = cmd.ExecuteScalar().ToString();
+      var userId = (cmd.ExecuteScalar() ?? "").ToString();
 
       userId = string.IsNullOrEmpty(userId) ? "0" : userId;
 
@@ -686,18 +686,8 @@ namespace MySql.Web.Personalization
         }
       }
       
-      cmd.Parameters.Clear();
-      cmd.CommandText = "SELECT PathId FROM my_aspnet_personalizationallusers WHERE PathId = @PathId";
-      cmd.Parameters.AddWithValue("@PathId", pathId);
-      if (cmd.ExecuteNonQuery() > 0)
-      {
-        cmd.CommandText = "UPDATE my_aspnet_personalizationallusers set PageSettings = @PageSettings, LastUpdatedDate = @CurrentTimeUtc WHERE PathId = @PathId";
-      }
-      else 
-      {
-        cmd.CommandText = "INSERT INTO my_aspnet_personalizationallusers(PathId, PageSettings, LastUpdatedDate) VALUES (@PathId, @PageSettings, @CurrentTimeUtc)";
-      }
-
+      cmd.CommandText = "INSERT INTO my_aspnet_personalizationallusers(PathId, PageSettings, LastUpdatedDate) VALUES (@PathId, @PageSettings, @CurrentTimeUtc)";
+      cmd.CommandText += " ON DUPLICATE KEY UPDATE PageSettings=Values(PageSettings), LastUpdatedDate=Values(LastUpdatedDate)";
       cmd.Parameters.Clear();
       cmd.Parameters.AddWithValue("@PageSettings", settings);
       cmd.Parameters.AddWithValue("@PathId", pathId);

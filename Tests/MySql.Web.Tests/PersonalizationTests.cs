@@ -146,7 +146,7 @@ namespace MySql.Web.Tests
       var psq = new PersonalizationStateQuery();
       psq.UsernameToMatch = @"GabPC\\Gab";
       psq.PathToMatch = "~/default.aspx";
-      psq.UserInactiveSinceDate = DateTime.UtcNow;     
+      psq.UserInactiveSinceDate = DateTime.UtcNow.AddMinutes(1);
       var collection = p.FindState(PersonalizationScope.User, psq, 1, 1, out totalRecords);
       Assert.Equal(1, totalRecords);
     }
@@ -160,7 +160,8 @@ namespace MySql.Web.Tests
       var psq = new PersonalizationStateQuery();
       psq.UsernameToMatch = @"GabPC\\Gab";
       psq.PathToMatch = "~/default.aspx";
-      psq.UserInactiveSinceDate = DateTime.UtcNow;
+      psq.UserInactiveSinceDate = DateTime.UtcNow.AddMinutes(1);
+      //System.Threading.Thread.Sleep(1000);
       totalRecords = p.GetCountOfState(PersonalizationScope.User, psq);
       Assert.Equal(1, totalRecords);    
     }
