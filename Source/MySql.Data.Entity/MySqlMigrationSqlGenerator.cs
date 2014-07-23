@@ -71,6 +71,20 @@ namespace MySql.Data.Entity
       return sqlResult;
     }
 
+    private IEnumerable<MigrationOperation> ReorderOperations(IEnumerable<MigrationOperation> operations)
+    {
+      if (operations.Where(operation => operation.GetType() == typeof(AddPrimaryKeyOperation)).Count() > 0 &&
+          operations.Where(operation => operation.GetType() == typeof(DropPrimaryKeyOperation)).Count() > 0)
+      {
+        List<MigrationOperation> reorderedOpes = new List<MigrationOperation>();
+        reorderedOpes.AddRange(operations.Where(operation => operation.GetType() == typeof(AlterColumnOperation)));
+        reorderedOpes.AddRange(operations.Where(operation => operation.GetType() == typeof(DropPrimaryKeyOperation)));
+        reorderedOpes.AddRange(operations.Where(operation => operation.GetType() != typeof(DropPrimaryKeyOperation) && operation.GetType() != typeof(AlterColumnOperation)));
+        return reorderedOpes;
+      }
+      return operations;
+    }
+
     public override ScaffoldedMigration Generate(string migrationId, IEnumerable<MigrationOperation> operations, string sourceModel, string targetModel, string @namespace, string className)
     {
       _foreignKeys = (from tbl in operations.OfType<CreateTableOperation>()
@@ -83,7 +97,7 @@ namespace MySql.Data.Entity
                        where tbl.Name.Equals(idx.Table, StringComparison.InvariantCultureIgnoreCase)
                        select new KeyValuePair<CreateTableOperation, CreateIndexOperation>(tbl, idx)).ToList();
 
-      return base.Generate(migrationId, operations, sourceModel, targetModel, @namespace, className);
+      return base.Generate(migrationId, ReorderOperations(operations), sourceModel, targetModel, @namespace, className);
     }
 
     protected override void Generate(AddColumnOperation addColumnOperation, IndentedTextWriter writer)
