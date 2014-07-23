@@ -1,6 +1,6 @@
 6.9.3
 - Fix for Web Parts Personalization provider
-
+- Fix for changing the PK between two int columns (MySql Bug #71418, Oracle bug #18923294).
 
 6.9.2
 - Add async/await compatible methods
