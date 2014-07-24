@@ -1,4 +1,5 @@
 6.8.4
+
 - Fix for Entity Framework Inserts broken on tables with unsigned bigint as auto increment (MySql Bug #71242, Oracle Bug #18189217).
 - Fix for code To SQL Generation Broken For Foreign Keys/Indexes On Table Create (MySQL #70079, Oracle Bug #18049272)
 - Fix for DotNet Connector keepalive in milliseconds instead of seconds (MySql Bug #69484, Oracle Bug #17981275).
@@ -14,6 +15,7 @@
 - Fix for Exception of "duplicate entry" in MySqlSessionProvider (MySql Bug #70409, Oracle bug #18657550).
 - Fix for Unable to read geometry column when it has been set with a SRID value. (MySql Bug #71869, Oracle Bug #19137999)
 - Fix for Exception adding a new column to an existing model as identity and PK fails when applying the migration (MySql Bug #71418, Oracle bug #18923294).
+- Fix for Error when Calling MySqlConnection.GetSchema("PROCEDURES WITH PARAMETERS", ...) (Oracle bug #19285959).
 
 
 6.8.3
@@ -46,3 +48,4 @@
 - Fix for LINQ to Entities error for bad aliasing in column for expression (MySql bug #69922, Oracle bug #17285548).
 - Installer adds MySql data provider to machine.config and registers MySql.Data.dll to GAC.
 - Fix for bug Connector 6.7.4 does not register as dataprovider in machine.config (MySql bug #69760 , Oracle bug #17601689).
+

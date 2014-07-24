@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -289,6 +289,24 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True(dt.Rows.Count == 1);
       Assert.Equal("Procedures", dt.TableName);
       Assert.Equal("spTest", dt.Rows[0][3]);
+    }
+
+    [Fact]
+    public void ProceduresWithParameters()
+    {
+      if (st.Version < new Version(5, 0)) return;
+
+      st.execSQL("DROP PROCEDURE IF EXISTS spTest");
+      st.execSQL("CREATE PROCEDURE spTest (id int) BEGIN SELECT 1; END");
+
+      string[] restrictions = new string[4];
+      restrictions[1] = st.database0;
+      restrictions[2] = "spTest";
+      DataTable dt = st.conn.GetSchema("PROCEDURES WITH PARAMETERS", restrictions);
+      Assert.True(dt.Rows.Count == 1);
+      Assert.Equal("Procedures", dt.TableName);
+      Assert.Equal("spTest", dt.Rows[0][3]);
+      Assert.Equal("id int", dt.Rows[0][31]);
     }
 
     [Fact]
