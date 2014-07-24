@@ -1,4 +1,26 @@
-﻿using MySql.Data.MySqlClient.Properties;
+﻿// Copyright © 2013, 2014 Oracle and/or its affiliates. All rights reserved.
+//
+// MySQL Connector/NET is licensed under the terms of the GPLv2
+// <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
+// MySQL Connectors. There are special exceptions to the terms and 
+// conditions of the GPLv2 as it is applied to this software, see the 
+// FLOSS License Exception
+// <http://www.mysql.com/about/legal/licensing/foss-exception.html>.
+//
+// This program is free software; you can redistribute it and/or modify 
+// it under the terms of the GNU General Public License as published 
+// by the Free Software Foundation; version 2 of the License.
+//
+// This program is distributed in the hope that it will be useful, but 
+// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+// or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
+// for more details.
+//
+// You should have received a copy of the GNU General Public License along 
+// with this program; if not, write to the Free Software Foundation, Inc., 
+// 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
+
+using MySql.Data.MySqlClient.Properties;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -18,6 +40,7 @@ namespace MySql.Data.MySqlClient
     public MySqlSchemaCollection()
     {
       Mapping = new Dictionary<string,int>( StringComparer.OrdinalIgnoreCase );
+      LogicalMappings = new Dictionary<int, int>();
     }
 
     public MySqlSchemaCollection(string name) : this()
@@ -35,6 +58,7 @@ namespace MySql.Data.MySqlClient
       {
         columns.Add(new SchemaColumn() { Name = dc.ColumnName, Type = dc.DataType });
         Mapping.Add(dc.ColumnName, i++);
+        LogicalMappings[columns.Count - 1] = columns.Count - 1;
       }
 
       foreach (DataRow dr in dt.Rows)
@@ -50,6 +74,7 @@ namespace MySql.Data.MySqlClient
 #endif
 
     internal Dictionary<string, int> Mapping;
+    internal Dictionary<int, int> LogicalMappings;
     public string Name { get; set; }
     public IList<SchemaColumn> Columns { get { return columns; } }
     public IList<MySqlSchemaRow> Rows { get { return rows; } }
@@ -61,6 +86,7 @@ namespace MySql.Data.MySqlClient
       c.Type = t;
       columns.Add(c);
       Mapping.Add(name, columns.Count-1);
+      LogicalMappings[columns.Count - 1] = columns.Count - 1;
       return c;
     }
 
@@ -83,8 +109,8 @@ namespace MySql.Data.MySqlClient
       if (index == -1)
         throw new InvalidOperationException();
       columns.RemoveAt(index);
-      foreach (MySqlSchemaRow row in rows)
-        row.RemoveAt(index);
+      for (int i = index; i < Columns.Count; i++)
+        LogicalMappings[i] = LogicalMappings[i] + 1;
     }
 
     internal bool ContainsColumn(string name)
@@ -126,7 +152,8 @@ namespace MySql.Data.MySqlClient
 
   public class MySqlSchemaRow
   {
-    private object[] data;
+    private Dictionary<int,object> data;
+
     public MySqlSchemaRow(MySqlSchemaCollection c)
     {
       Collection = c;
@@ -135,7 +162,7 @@ namespace MySql.Data.MySqlClient
 
     internal void InitMetadata()
     {
-      data = new object[Collection.Mapping.Count];
+      data = new Dictionary<int, object>();
     }
 
     internal MySqlSchemaCollection Collection { get; private set; }
@@ -148,21 +175,13 @@ namespace MySql.Data.MySqlClient
 
     internal object this[int i]
     {
-      get { return data[i]; }
-      set { data[i] = value; }
-    }
-
-    internal void RemoveAt(int i)
-    {
-      int j;
-      if (i < 0 || i >= data.Length)
-        throw new ArgumentOutOfRangeException();
-      object[] newData = new object[data.Length - 1];
-      for (j = 0; j < i; j++)
-        newData[j] = data[j];
-      for ( j = i + 1; j < data.Length; j++)
-        newData[j - 1] = data[j];
-      data = newData;
+      get {
+        int idx = Collection.LogicalMappings[i];
+        if (!data.ContainsKey(idx))
+          data[idx] = null;
+        return data[ idx ];
+      }
+      set { data[ Collection.LogicalMappings[ i ] ] = value; }
     }
 
     private void SetValueForName(string colName, object value)
@@ -174,6 +193,8 @@ namespace MySql.Data.MySqlClient
     private object GetValueForName(string colName)
     {
       int index = Collection.Mapping[colName];
+      if (!data.ContainsKey(index))
+        data[index] = null;
       return this[index];
     }
 

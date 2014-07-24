@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -67,14 +67,17 @@ namespace MySql.Data.Entity.CodeFirst.Tests
       DataSet dataSet = ConfigurationManager.GetSection("system.data") as System.Data.DataSet;
       DataView vi = dataSet.Tables[0].DefaultView;
       vi.Sort = "Name";
-      if (vi.Find("MySql") == -1)
+      int idx = -1;
+      if ( ((idx = vi.Find("MySql")) != -1 ) || (( idx = vi.Find("MySQL Data Provider")) != -1 ) )
       {
-        dataSet.Tables[0].Rows.Add("MySql"
-          , "MySql.Data.MySqlClient"
-          , "MySql.Data.MySqlClient"
-          ,
-          typeof(MySql.Data.MySqlClient.MySqlClientFactory).AssemblyQualifiedName);
+        DataRow row = vi[idx].Row;
+        dataSet.Tables[0].Rows.Remove(row);
       }
+      dataSet.Tables[0].Rows.Add("MySql"
+        , "MySql.Data.MySqlClient"
+        , "MySql.Data.MySqlClient"
+        ,
+        typeof(MySql.Data.MySqlClient.MySqlClientFactory).AssemblyQualifiedName);
     }
     
     public override void Dispose()
