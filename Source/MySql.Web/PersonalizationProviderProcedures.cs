@@ -379,8 +379,8 @@ namespace MySql.Web.Personalization
       catch
       {
         trans.Rollback();
+        throw;
       }
-      return 0;
     }
 
 
@@ -549,8 +549,9 @@ namespace MySql.Web.Personalization
         try
         {                    
           cmd.Transaction = trans;
-          cmd.CommandText = "INSERT INTO my_aspnet_paths (applicationId, path, loweredpath) values (@ApplicationId, @Path, LOWER(@Path))";
+          cmd.CommandText = "INSERT INTO my_aspnet_paths (applicationId, pathId, path, loweredpath) values (@ApplicationId, @PathId, @Path, LOWER(@Path))";
           cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
+          cmd.Parameters.AddWithValue("@PathId", pathId = Guid.NewGuid().ToString());
           cmd.Parameters.AddWithValue("@Path", path);
           cmd.ExecuteNonQuery();
           trans.Commit();
@@ -558,14 +559,8 @@ namespace MySql.Web.Personalization
         catch
         {
           trans.Rollback();
+          throw;
         }
-
-          cmd.Parameters.Clear();
-          cmd.CommandText = "SELECT PathId from my_aspnet_paths where applicationId = @ApplicationId and loweredpath = LOWER(@path)";
-          cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
-          cmd.Parameters.AddWithValue("@Path", path);
-          pathId = (string)cmd.ExecuteScalar();
-       
       }
 
       cmd.Parameters.Clear();
@@ -597,6 +592,7 @@ namespace MySql.Web.Personalization
         catch
         {
           trans.Rollback();
+          throw;
         }
 
           cmd.Parameters.Clear();
@@ -611,17 +607,18 @@ namespace MySql.Web.Personalization
         throw new Exception("User not found");
 
       cmd.Parameters.Clear();
-      cmd.CommandText = "Select PathId from my_aspnet_personalizationperuser where userid = @UserId and pathId = @PathId";
+      cmd.CommandText = "Select COUNT(*) from my_aspnet_personalizationperuser where userid = @UserId and pathId = @PathId";
       cmd.Parameters.AddWithValue("@UserId", userId);
       cmd.Parameters.AddWithValue("@PathId", pathId);
-      if (cmd.ExecuteNonQuery() > 0)
+      if ((long)cmd.ExecuteScalar() > 0)
       {
         cmd.Parameters.Clear();
-        cmd.CommandText = "UPDATE my_aspnet_personalizationperuser SET PageSettings = @PageSettings, LastUpdateDate = @CurrentTimeUtc " +
+        cmd.CommandText = "UPDATE my_aspnet_personalizationperuser SET PageSettings = @PageSettings, LastUpdatedDate = @CurrentTimeUtc " +
                           "where userid = @UserId and pathId = @PathId";
         cmd.Parameters.AddWithValue("@UserId", userId);
         cmd.Parameters.AddWithValue("@PathId", pathId);
         cmd.Parameters.AddWithValue("@PageSettings", settings);
+        cmd.Parameters.AddWithValue("@CurrentTimeUtc", DateTime.UtcNow);
         cmd.ExecuteNonQuery();
       }
       else {
@@ -667,22 +664,17 @@ namespace MySql.Web.Personalization
         try
         {          
           cmd.Transaction = trans;
-          cmd.CommandText = "INSERT INTO my_aspnet_paths (applicationId, pathId, path, loweredpath) values (@ApplicationId, @pathId, @Path, LOWER(@Path))";
+          cmd.CommandText = "INSERT INTO my_aspnet_paths (applicationId, pathId, path, loweredpath) values (@ApplicationId, @PathId, @Path, LOWER(@Path))";
           cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
-          cmd.Parameters.AddWithValue("@PathId", Guid.NewGuid().ToString());
+          cmd.Parameters.AddWithValue("@PathId", pathId = Guid.NewGuid().ToString());
           cmd.Parameters.AddWithValue("@Path", path);
           cmd.ExecuteNonQuery();
           trans.Commit();
-
-          cmd.Parameters.Clear();
-          cmd.CommandText = "SELECT PathId from my_aspnet_paths where applicationId = @ApplicationId and loweredpath = LOWER(@path)";
-          cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
-          cmd.Parameters.AddWithValue("@Path", path);
-          pathId = (string)cmd.ExecuteScalar();
         }
         catch
         {
           trans.Rollback();
+          throw;
         }
       }
       
