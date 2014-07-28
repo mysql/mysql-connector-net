@@ -293,8 +293,8 @@ namespace MySql.Data.Entity
       _providerManifestToken = providerManifestToken;
       _providerManifest = DbProviderServices.GetProviderServices(con).GetProviderManifest(providerManifestToken);
       
-      //verify if there is one or more add column operation, if there is then look for primary key operations
-      if ((from cols in migrationOperations.OfType<AddColumnOperation>() select cols).Count() > 0)
+      //verify if there is one or more add/alter column operation, if there is then look for primary key operations. Alter in case that the user wants to change the current PK column
+      if ((from cols in migrationOperations.OfType<AddColumnOperation>() select cols).Count() > 0 || (from cols in migrationOperations.OfType<AlterColumnOperation>() select cols).Count() > 0)
         _pkOperations = (from pks in migrationOperations.OfType<AddPrimaryKeyOperation>() select pks).ToList();
 
       foreach (MigrationOperation op in migrationOperations)
@@ -573,11 +573,18 @@ namespace MySql.Data.Entity
       StringBuilder sb = new StringBuilder();
       _tableName = op.Table;
 
+      //verify if there is any "AddPrimaryKeyOperation" related with the column that will be added and if it is defined as identity (auto_increment)
+      bool uniqueAttr = (from pkOpe in _pkOperations
+                         where (from col in pkOpe.Columns
+                                where col == op.Column.Name
+                                select col).Count() > 0
+                         select pkOpe).Count() > 0 & op.Column.IsIdentity;
+
       // for existing columns
       sb.Append("alter table `" + TrimSchemaPrefix(op.Table) + "` modify `" + column.Name + "` ");
 
       // add definition
-      sb.Append(Generate(column));
+      sb.Append(Generate(column) + (uniqueAttr ? " unique " : ""));
 
       return new MigrationStatement { Sql = sb.ToString() };
     }
