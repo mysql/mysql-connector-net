@@ -36,6 +36,7 @@ Oracle bug #17568158).
 - Added Microsecond to MySqlDateTime for 6-digit precision support.
 - Fix for open sockets connections left when connection open fails, the error happens when the client try to get a connection when the max number of connections is reached in the server. (MySql #72025, Oracle Bug #18665388).
 - Fix for Exception of "duplicate entry" in MySqlSessionProvider (MySql Bug #70409, Oracle bug #18657550).
+- Fix for EF provider reports ManifestProviderToken = 5.6 for server 5.7 (Oracle bug #19453814).
 
 
 6.6.6
