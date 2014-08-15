@@ -196,9 +196,10 @@
     <Compile Include="ProviderServices.cs" />
     <Compile Include="Statements\SelectStatement.cs" />
     <Compile Include="Statements\UpdateStatement.cs" />	
-	<EmbeddedResource Include="Properties\SchemaDefinition-5.0.ssdl" />
-	<EmbeddedResource Include="Properties\SchemaDefinition-5.5.ssdl" />
-	<EmbeddedResource Include="Properties\SchemaDefinition-5.1.ssdl" />
+    <EmbeddedResource Include="Properties\SchemaDefinition-5.0.ssdl" />
+    <EmbeddedResource Include="Properties\SchemaDefinition-5.5.ssdl" />
+    <EmbeddedResource Include="Properties\SchemaDefinition-5.1.ssdl" />
+    <EmbeddedResource Include="Properties\SchemaDefinition-5.7.ssdl" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
