@@ -1,5 +1,4 @@
 6.8.4
-
 - Fix for Entity Framework Inserts broken on tables with unsigned bigint as auto increment (MySql Bug #71242, Oracle Bug #18189217).
 - Fix for code To SQL Generation Broken For Foreign Keys/Indexes On Table Create (MySQL #70079, Oracle Bug #18049272)
 - Fix for DotNet Connector keepalive in milliseconds instead of seconds (MySql Bug #69484, Oracle Bug #17981275).
@@ -16,6 +15,7 @@
 - Fix for Unable to read geometry column when it has been set with a SRID value. (MySql Bug #71869, Oracle Bug #19137999)
 - Fix for Exception adding a new column to an existing model as identity and PK fails when applying the migration (MySql Bug #71418, Oracle bug #18923294).
 - Fix for Error when Calling MySqlConnection.GetSchema("PROCEDURES WITH PARAMETERS", ...) (Oracle bug #19285959).
+- Fix for EF provider reports ManifestProviderToken = 5.6 for server 5.7 (Oracle bug #19453814).
 
 
 6.8.3
