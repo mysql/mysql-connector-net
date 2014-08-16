@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -260,7 +260,8 @@ namespace MySql.Data.MySqlClient
         if (version < 5.1) return "5.0";
         if (version < 5.5) return "5.1";
         if (version < 5.6) return "5.5";
-        return "5.6";
+        if (version < 5.7) return "5.6";
+        return "5.7";
         
       }
     }
