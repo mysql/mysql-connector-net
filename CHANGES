@@ -4,6 +4,7 @@
 - Fix for Unable to read geometry column when it has been set with a SRID value. (MySql Bug #71869, Oracle Bug #19137999).
 - Fix for Error when Calling MySqlConnection.GetSchema("PROCEDURES WITH PARAMETERS", ...) (Oracle bug #19285959).
 - Fix for EF provider reports ManifestProviderToken = 5.6 for server 5.7 (Oracle bug #19453814).
+- Fix for Fluent API DbModelBuilder.HasColumnType is ignored in EF6 (Oracle bug #19456229).
 
 
 6.7.5
