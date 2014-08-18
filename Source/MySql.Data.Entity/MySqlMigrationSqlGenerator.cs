@@ -636,7 +636,15 @@ namespace MySql.Data.Entity
     {
       TypeUsage typeUsage = _providerManifest.GetStoreType(op.TypeUsage);
       StringBuilder sb = new StringBuilder();
+#if EF6
+      string type = op.StoreType;
+      if (type == null)
+      {
+        type = MySqlProviderServices.Instance.GetColumnType(typeUsage);
+      }
+#else
       string type = MySqlProviderServices.Instance.GetColumnType(typeUsage);
+#endif
 
       sb.Append(type);      
 
@@ -669,6 +677,8 @@ namespace MySql.Data.Entity
           }            
         }         
       }      
+
+      op.StoreType = type;
 
       if (!(op.IsNullable ?? true))
       {
