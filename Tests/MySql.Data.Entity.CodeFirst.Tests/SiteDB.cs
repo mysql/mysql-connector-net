@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2014, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -75,6 +75,9 @@ namespace MySql.Data.Entity.CodeFirst.Tests
         public site site { get; set; }
     }
 
+#if EF6
+  [DbConfigurationType(typeof(MySqlEFConfiguration))]
+#endif
     public class SiteDbContext : DbContext
     {
         public DbSet<visitante> Visitante { get; set; }
@@ -85,6 +88,9 @@ namespace MySql.Data.Entity.CodeFirst.Tests
         public SiteDbContext()
         {
             Database.SetInitializer<SiteDbContext>(new SiteDbInitializer());
+#if EF6
+            Database.SetInitializer<SiteDbContext>(new MigrateDatabaseToLatestVersion<SiteDbContext, Configuration<SiteDbContext>>());
+#endif
         }
     }
 
