@@ -3,6 +3,7 @@
 - Fix for changing the PK between two int columns (MySql Bug #71418, Oracle bug #18923294).
 - Fix for Error when Calling MySqlConnection.GetSchema("PROCEDURES WITH PARAMETERS", ...) (Oracle bug #19285959).
 - Fix for EF provider reports ManifestProviderToken = 5.6 for server 5.7 (Oracle bug #19453814).
+- Fix for Fluent API DbModelBuilder.HasColumnType is ignored in EF6 (Oracle bug #19456229).
 
 
 6.9.2
