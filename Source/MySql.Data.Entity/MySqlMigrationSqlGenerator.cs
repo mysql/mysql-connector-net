@@ -37,6 +37,8 @@ namespace MySql.Data.Entity
   /// </summary>
   public class MySqlMigrationSqlGenerator : MigrationSqlGenerator
   {
+    private List<MigrationStatement> _specialStmts = new List<MigrationStatement>();
+    private string _tableName { get; set; }
     private DbProviderManifest providerManifest;
     private Dictionary<string, OpDispatcher> dispatcher = new Dictionary<string, OpDispatcher>();
 
@@ -81,12 +83,19 @@ namespace MySql.Data.Entity
         OpDispatcher opdis = dispatcher[op.GetType().Name];
         stmts.Add(opdis(op));
       }
+      if (_specialStmts.Count > 0)
+      {
+        foreach (var item in _specialStmts)
+          stmts.Add(item);
+      }
       return stmts;
     }
 
     protected virtual MigrationStatement Generate(AddColumnOperation op)
     {
       if (op == null) return null;
+
+      _tableName = op.Table;
 
       MigrationStatement stmt = new MigrationStatement();
       stmt.Sql = string.Format("alter table `{0}` add column `{1}`",
@@ -111,6 +120,7 @@ namespace MySql.Data.Entity
 
       ColumnModel column = op.Column;
       StringBuilder sb = new StringBuilder();
+      _tableName = op.Table;
 
       // for existing columns
       sb.Append("alter table `" + op.Table + "` modify `" + column.Name + "` ");
@@ -211,6 +221,10 @@ namespace MySql.Data.Entity
         sb.Append(" auto_increment ");
         autoIncrementCols.Add(op.Name);
       }
+      else 
+      {
+        // nothing
+      }
       if (!string.IsNullOrEmpty(op.DefaultValueSql))
       {
         sb.Append(string.Format(" default {0}", op.DefaultValueSql));
@@ -283,12 +297,46 @@ namespace MySql.Data.Entity
 
       sb.Append("create table " + "`" + op.Name + "`" + " (");
 
+      _tableName = op.Name;
+
       if (op.PrimaryKey != null)
       {
         op.PrimaryKey.Columns.ToList().ForEach(col => primaryKeyCols.Add(col));
       }
       //columns
       sb.Append(string.Join(",", op.Columns.Select(c => "`" + c.Name + "` " + Generate(c))));
+
+      // Determine columns that are GUID & identity
+      List<ColumnModel> guidCols = new List<ColumnModel>();
+      ColumnModel guidPK = null;
+      foreach( ColumnModel opCol in op.Columns )
+      {
+        if (opCol.Type == PrimitiveTypeKind.Guid && opCol.IsIdentity && String.Compare(opCol.StoreType, "CHAR(36) BINARY", true) == 0)
+        {
+          if( primaryKeyCols.Contains( opCol.Name ) )
+            guidPK = opCol;
+          guidCols.Add(opCol);
+        } 
+      }
+
+      if (guidCols.Count != 0)
+      {
+        var createTrigger = new StringBuilder();
+        createTrigger.AppendLine(string.Format("DROP TRIGGER IF EXISTS `{0}_IdentityTgr`;", TrimSchemaPrefix(_tableName)));
+        createTrigger.AppendLine(string.Format("CREATE TRIGGER `{0}_IdentityTgr` BEFORE INSERT ON `{0}`", TrimSchemaPrefix(_tableName)));
+        createTrigger.AppendLine("FOR EACH ROW BEGIN");
+        for (int i = 0; i < guidCols.Count; i++)
+        {
+          ColumnModel opCol = guidCols[i];
+          createTrigger.AppendLine(string.Format("SET NEW.{0} = UUID();", opCol.Name));
+        }
+        createTrigger.AppendLine(string.Format("DROP TEMPORARY TABLE IF EXISTS tmpIdentity_{0};", TrimSchemaPrefix(_tableName)));
+        createTrigger.AppendLine(string.Format("CREATE TEMPORARY TABLE tmpIdentity_{0} (guid CHAR(36))ENGINE=MEMORY;", TrimSchemaPrefix(_tableName)));
+        createTrigger.AppendLine(string.Format("INSERT INTO tmpIdentity_{0} VALUES(New.{1});", TrimSchemaPrefix(_tableName), guidPK.Name));
+        createTrigger.AppendLine("END");
+        var sqlOp = new SqlOperation(createTrigger.ToString());
+        _specialStmts.Add(Generate(sqlOp));
+      }
 
       if (op.PrimaryKey != null)
       {
