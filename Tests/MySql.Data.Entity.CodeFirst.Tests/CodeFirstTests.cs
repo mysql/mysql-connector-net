@@ -709,7 +709,11 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
                     Online = g.Select(e => e.sDsIp).Distinct().Count()
                   });
         string sql = q.ToString();
+#if EF6
         st.CheckSql(sql, SQLSyntax.CountGroupBy);
+#else
+        st.CheckSql(sql, SQLSyntax.CountGroupByEF5);
+#endif
         var q2 = q.ToList<retorno>();
         foreach( var row in q2 )
         {
