@@ -408,7 +408,9 @@ namespace MySql.Data.Entity
 
       if (!(op.IsNullable ?? true))
       {
-        sb.Append(string.Format("{0} not null ", ((!primaryKeyCols.Contains(op.Name) && op.IsIdentity) ? " unsigned" : "")));
+        sb.Append(string.Format("{0} not null ", 
+          ((!primaryKeyCols.Contains(op.Name) && op.IsIdentity && op.Type != PrimitiveTypeKind.Guid ) ? " unsigned" : 
+          (( op.Type == PrimitiveTypeKind.Guid )? " default '' " : "" ) )));
       }
       if (op.IsIdentity && (new string[] { "tinyint", "smallint", "mediumint", "int", "bigint" }).Contains(type.ToLower()))
       {
