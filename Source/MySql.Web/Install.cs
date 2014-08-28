@@ -273,7 +273,7 @@ namespace MySql.Web.Security
       providerList.AppendChild(newNode);
     }
 
-    private static void AddSiteMapProvider(XmlDocument doc)
+    private void AddSiteMapProvider(XmlDocument doc)
     {
       // create our new node
       XmlElement newNode = (XmlElement)doc.CreateNode(XmlNodeType.Element, "add", "");
