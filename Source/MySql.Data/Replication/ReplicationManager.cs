@@ -145,33 +145,30 @@ namespace MySql.Data.MySqlClient.Replication
           if (!IsReplicationGroup(groupName)) return;
 
           ReplicationServerGroup group = GetGroup(groupName);
-          ReplicationServer server = group.GetServer(master);
+          ReplicationServer server = group.GetServer(master, connection.Settings);
 
           if (server == null)
             throw new MySqlException(Properties.Resources.Replication_NoAvailableServer);
 
-          Driver driver = Driver.Create(new MySqlConnectionStringBuilder(server.ConnectionString));
-          if (connection.driver == null
-            || driver.Settings.ConnectionString != connection.driver.Settings.ConnectionString)
+          try
           {
-            connection.Close();
-            connection.hasBeenOpen = false;
-            try
-            {
-              connection.driver = driver;
-              connection.Open();
-              return;
-            }
-            catch (Exception)
-            {
-              connection.driver = null;
-              server.IsAvailable = false;
-              // retry to open a failed connection and update its status
-              group.HandleFailover(server);
-            }
-          }
-          else
+            Driver driver = Driver.Create(new MySqlConnectionStringBuilder(server.ConnectionString));
+            connection.driver = driver;
             return;
+          }
+          catch (MySqlException ex)
+          {
+            connection.driver = null;
+            server.IsAvailable = false;
+            MySqlTrace.LogError(ex.Number, ex.ToString());
+            if (ex.Number == 1042)
+            {
+              // retry to open a failed connection and update its status
+              group.HandleFailover(server, ex);
+            }
+            else
+              throw;
+          }
         }
       } while (true);
     }

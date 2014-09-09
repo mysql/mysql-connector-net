@@ -43,7 +43,7 @@ namespace MySql.Data.MySqlClient.Replication
     /// </summary>
     /// <param name="isMaster">True if the server to return must be a master</param>
     /// <returns>Next available server</returns>
-    public override ReplicationServer GetServer(bool isMaster)
+    internal protected override ReplicationServer GetServer(bool isMaster)
     {
       for (int i = 0; i < Servers.Count; i++)
       {
