@@ -21,36 +21,24 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace MySql.Fabric
 {
-  [Flags]
-  public enum FabricServerModeEnum
+  internal class FabricGroup
   {
-    Offline = 0x1,
-    Read_only = 0x2,
-    Write_only = 0x4,
-    Read_Write = 0x8
-  }
+    internal string GroupId { get; set; }
+    internal string Description { get; set; }
+    internal int? FailureDetector { get; set; }
+    internal string MasterUuid { get; set; }
+    internal List<FabricServer> Servers { get; set; }
 
-  internal enum FabricServerStatusEnum
-  {
-    Faulty = 0,
-    Spare,
-    Secondary,
-    Primary
-  }
-
-  public enum FabricScopeEnum
-  {
-    Global = 1,
-    Local = 2
-  }
-
-  internal enum FabricShardIndexType : int
-  {
-    Hash = 1,
-    Range = 2,
-    List = 3
+    internal FabricGroup()
+    {
+      Servers = new List<FabricServer>();
+    }
   }
 }
