@@ -296,7 +296,7 @@ namespace MySql.Fabric
           string host = addressSrv[0];
           int port = int.Parse(addressSrv[1]);
           FabricServer server = new FabricServer(
-            Guid.Parse(rowSrv["server_uuid"] as string),
+            new Guid(rowSrv["server_uuid"] as string),
             group.GroupId,
             host,
             port,
