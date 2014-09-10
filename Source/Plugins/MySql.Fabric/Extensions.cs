@@ -28,18 +28,29 @@ namespace MySql.Fabric
   {
 #if NET_40_OR_GREATER
     public static void setFabricProperties(this MySqlConnection connection, string groupId = null,
-      string table = null, string key = null, FabricServerModeEnum? mode = null)
+      string table = null, string key = null, FabricServerModeEnum? mode = null, FabricScopeEnum? scope = null)
 #else
     public static void setFabricProperties(this MySqlConnection connection, string groupId,
-      string table, string key, FabricServerModeEnum? mode)
+      string table, string key, FabricServerModeEnum? mode, FabricScopeEnum? scope)
 #endif
     {
       if (!string.IsNullOrEmpty(groupId) && !string.IsNullOrEmpty(table))
         throw new MySqlFabricException(Properties.Resources.errorGroupAndTable);
-      if (!string.IsNullOrEmpty(groupId)) connection.Settings.FabricGroup = groupId;
-      if (!string.IsNullOrEmpty(table)) connection.Settings.ShardingTable = table;
-      if (!string.IsNullOrEmpty(key)) connection.Settings.ShardingKey = key;
+      if (!string.IsNullOrEmpty(groupId))
+      {
+        connection.Settings.FabricGroup = groupId;
+        connection.Settings.ShardingTable = null;
+        connection.Settings.ShardingKey = null;
+      }
+      if (!string.IsNullOrEmpty(table))
+      {
+        connection.Settings.ShardingTable = table;
+        connection.Settings.FabricGroup = null;
+      }
+      /*if (!string.IsNullOrEmpty(key)) */
+      connection.Settings.ShardingKey = key;
       connection.Settings.FabricServerMode = (int?)mode;
+      connection.Settings.FabricScope = (int?)scope;
     }
   }
 }
