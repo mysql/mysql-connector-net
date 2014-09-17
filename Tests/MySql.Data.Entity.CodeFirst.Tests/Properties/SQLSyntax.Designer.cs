@@ -102,6 +102,12 @@ namespace MySql.Data.Entity.CodeFirst.Tests.Properties {
                 return ResourceManager.GetString("CountGroupBy2", resourceCulture);
             }
         }
+
+        internal static string CountGroupBy2EF5 {
+            get {
+                return ResourceManager.GetString("CountGroupBy2EF5", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to SELECT
