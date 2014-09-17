@@ -25,8 +25,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
-using MySql.Data.MySqlClient;
-
 
 namespace MySql.Data.MySqlClient.Replication
 {
@@ -147,46 +145,33 @@ namespace MySql.Data.MySqlClient.Replication
           if (!IsReplicationGroup(groupName)) return;
 
           ReplicationServerGroup group = GetGroup(groupName);
-          ReplicationServer server = group.GetServer(master, connection.Settings);
+          ReplicationServer server = group.GetServer(master);
 
           if (server == null)
             throw new MySqlException(Properties.Resources.Replication_NoAvailableServer);
 
-          try
+          Driver driver = Driver.Create(new MySqlConnectionStringBuilder(server.ConnectionString));
+          if (connection.driver == null
+            || driver.Settings.ConnectionString != connection.driver.Settings.ConnectionString)
           {
-            bool isNewServer = false;
-            if (connection.driver == null || !connection.driver.IsOpen)
+            connection.Close();
+            connection.hasBeenOpen = false;
+            try
             {
-              isNewServer = true;
-            }
-            else
-            { 
-              MySqlConnectionStringBuilder msb = new MySqlConnectionStringBuilder(server.ConnectionString);
-              if (!msb.Equals(connection.driver.Settings))
-              {
-                isNewServer = true;
-              }
-            }
-            if (isNewServer)
-            {
-              Driver driver = Driver.Create(new MySqlConnectionStringBuilder(server.ConnectionString));
               connection.driver = driver;
+              connection.Open();
+              return;
             }
-            return;
-          }
-          catch (MySqlException ex)
-          {
-            connection.driver = null;
-            server.IsAvailable = false;
-            MySqlTrace.LogError(ex.Number, ex.ToString());
-            if (ex.Number == 1042)
+            catch (Exception)
             {
+              connection.driver = null;
+              server.IsAvailable = false;
               // retry to open a failed connection and update its status
-              group.HandleFailover(server, ex);
+              group.HandleFailover(server);
             }
-            else
-              throw;
           }
+          else
+            return;
         }
       } while (true);
     }

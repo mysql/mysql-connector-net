@@ -59,7 +59,6 @@ namespace MySql.Data.MySqlClient
     protected IDriver handler;
     internal MySqlDataReader reader;
     private bool disposeInProgress;
-    internal bool isFabric;
 
     /// <summary>
     /// For pooled connections, time when the driver was
@@ -298,7 +297,7 @@ namespace MySql.Data.MySqlClient
       string charSet = connectionString.CharacterSet;
       if (charSet == null || charSet.Length == 0)
       {
-        if (serverCharSetIndex >= 0 && charSets.ContainsKey(serverCharSetIndex))
+        if (serverCharSetIndex >= 0)
           charSet = (string)charSets[serverCharSetIndex];
         else
           charSet = serverCharSet;
@@ -312,11 +311,8 @@ namespace MySql.Data.MySqlClient
       MySqlCommand charSetCmd = new MySqlCommand("SET character_set_results=NULL",
                         connection);
       charSetCmd.InternallyCreated = true;
-
-      string clientCharSet;
-      serverProps.TryGetValue("character_set_client", out clientCharSet);
-      string connCharSet;
-      serverProps.TryGetValue("character_set_connection", out connCharSet);
+      object clientCharSet = serverProps["character_set_client"];
+      object connCharSet = serverProps["character_set_connection"];
       if ((clientCharSet != null && clientCharSet.ToString() != charSet) ||
         (connCharSet != null && connCharSet.ToString() != charSet))
       {
@@ -369,9 +365,7 @@ namespace MySql.Data.MySqlClient
     private int GetTimeZoneOffset( MySqlConnection con )
     {
       MySqlCommand cmd = new MySqlCommand("select timediff( curtime(), utc_time() )", con);
-      string s = cmd.ExecuteScalar() as string;
-      if (s == null) s = "0:00";
-
+      string s = cmd.ExecuteScalar().ToString();
       return int.Parse(s.Substring(0, s.IndexOf(':') ));
     }
 

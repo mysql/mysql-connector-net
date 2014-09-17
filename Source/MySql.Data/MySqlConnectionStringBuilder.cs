@@ -959,20 +959,6 @@ namespace MySql.Data.MySqlClient
     }
     #endregion
 
-    #region Fabric Properties
-
-    public string FabricGroup { get; internal set; }
-
-    public string ShardingTable { get; internal set; }
-
-    public object ShardingKey { get; internal set; }
-
-    public int? FabricServerMode { get; internal set; }
-
-    public int? FabricScope { get; internal set; }
-
-    #endregion
-
     internal bool HasProcAccess { get; set; }
 
     public override object this[string keyword]
@@ -1068,33 +1054,6 @@ namespace MySql.Data.MySqlClient
         delimiter = ";";
       }
       return conn.ToString();
-    }
-
-    public override bool Equals(object obj)
-    {
-      MySqlConnectionStringBuilder other = obj as MySqlConnectionStringBuilder;
-      if( obj == null )
-        return false;
-        
-      if( this.values.Count != other.values.Count ) return false;
-
-      foreach (KeyValuePair<string, object> kvp in this.values)
-      {
-        if (other.values.ContainsKey(kvp.Key))
-        {
-          object v = other.values[kvp.Key];
-          if (v == null && kvp.Value != null) return false;
-          if (kvp.Value == null && v != null) return false;
-          if (kvp.Value == null && v == null) return true;
-          if (!v.Equals(kvp.Value)) return false;
-        }
-        else
-        {
-          return false;
-        }
-      }
-
-      return true;
     }
   }
 

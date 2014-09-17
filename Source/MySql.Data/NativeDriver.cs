@@ -222,9 +222,8 @@ namespace MySql.Data.MySqlClient
       packet = stream.ReadPacket();
       int protocol = packet.ReadByte();
       string versionString = packet.ReadString();
-      owner.isFabric = versionString.EndsWith("fabric", StringComparison.OrdinalIgnoreCase);
       version = DBVersion.Parse(versionString);
-      if (!owner.isFabric && !version.isAtLeast(5, 0, 0))
+      if (!version.isAtLeast(5, 0, 0))
         throw new NotSupportedException(Resources.ServerTooOld);
       threadId = packet.ReadInteger(4);
       encryptionSeed = packet.ReadString();

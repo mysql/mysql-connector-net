@@ -478,6 +478,7 @@ namespace MySql.Data.MySqlClient
           if (driver == null)
           {
             ReplicationManager.GetNewConnection(Settings.Server, false, this);
+            return;
           }
           else
             currentSettings = driver.Settings;

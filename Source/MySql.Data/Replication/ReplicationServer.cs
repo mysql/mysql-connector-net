@@ -1,4 +1,4 @@
-﻿// Copyright © 2014, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -50,7 +50,7 @@ namespace MySql.Data.MySqlClient.Replication
     /// <summary>
     /// Connection string used to connect to the server
     /// </summary>
-    public string ConnectionString { get; internal set; }
+    public string ConnectionString { get; private set; }
     /// <summary>
     /// Defines if the server is available to be considered in load balancing
     /// </summary>

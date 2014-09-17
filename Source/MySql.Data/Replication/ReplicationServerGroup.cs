@@ -48,15 +48,15 @@ namespace MySql.Data.MySqlClient.Replication
     /// <summary>
     /// Group name
     /// </summary>
-    public string Name { get; protected set; }
+    public string Name { get; private set; }
     /// <summary>
     /// Retry time between connections to failed servers
     /// </summary>
-    public int RetryTime { get; protected set; }
+    public int RetryTime { get; private set; }
     /// <summary>
     /// Servers list in the group
     /// </summary>
-    protected IList<ReplicationServer> Servers { get; private set; }
+    public IList<ReplicationServer> Servers { get; private set; }
 
     /// <summary>
     /// Adds a server into the group
@@ -65,7 +65,7 @@ namespace MySql.Data.MySqlClient.Replication
     /// <param name="isMaster">True if the server to add is master, False for slave server</param>
     /// <param name="connectionString">Connection string used by this server</param>
     /// <returns></returns>
-    internal protected ReplicationServer AddServer(string name, bool isMaster, string connectionString)
+    public ReplicationServer AddServer(string name, bool isMaster, string connectionString)
     {
       ReplicationServer server = new ReplicationServer(name, isMaster, connectionString);
       servers.Add(server);
@@ -76,7 +76,7 @@ namespace MySql.Data.MySqlClient.Replication
     /// Removes a server from group
     /// </summary>
     /// <param name="name">Server name</param>
-    internal protected void RemoveServer(string name)
+    public void RemoveServer(string name)
     {
       ReplicationServer serverToRemove = GetServer(name);
       if (serverToRemove == null)
@@ -89,7 +89,7 @@ namespace MySql.Data.MySqlClient.Replication
     /// </summary>
     /// <param name="name">Server name</param>
     /// <returns>Replication server</returns>
-    internal protected ReplicationServer GetServer(string name)
+    public ReplicationServer GetServer(string name)
     {
       foreach (var server in servers)
         if (String.Compare(name, server.Name, StringComparison.OrdinalIgnoreCase) == 0) return server;
@@ -103,19 +103,14 @@ namespace MySql.Data.MySqlClient.Replication
     /// <returns>Next server based on the load balancing implementation.
     ///   Null if no available server is found.
     /// </returns>
-    internal protected abstract ReplicationServer GetServer(bool isMaster);
-
-    internal protected virtual ReplicationServer GetServer(bool isMaster, MySqlConnectionStringBuilder settings)
-    {
-      return GetServer(isMaster);
-    }
+    public abstract ReplicationServer GetServer(bool isMaster);
 
     /// <summary>
     /// Handles a failed connection to a server.
     /// This method can be overrided to implement a custom failover handling
     /// </summary>
     /// <param name="server">The failed server</param>
-    internal protected virtual void HandleFailover(ReplicationServer server)
+    public virtual void HandleFailover(ReplicationServer server)
     {
       BackgroundWorker worker = new BackgroundWorker();
       worker.DoWork += delegate(object sender, DoWorkEventArgs e)
@@ -184,16 +179,6 @@ namespace MySql.Data.MySqlClient.Replication
       };
 
       worker.RunWorkerAsync(server);
-    }
-
-    /// <summary>
-    /// Handles a failed connection to a server.
-    /// </summary>
-    /// <param name="server">The failed server</param>
-    /// <param name="exception">Exception that caused the failover</param>
-    internal protected virtual void HandleFailover(ReplicationServer server, Exception exception)
-    {
-      HandleFailover(server);
     }
   }
 }
