@@ -27,10 +27,10 @@ namespace MySql.Fabric
   public static class Extensions
   {
 #if NET_40_OR_GREATER
-    public static void setFabricProperties(this MySqlConnection connection, string groupId = null,
+    public static void SetFabricProperties(this MySqlConnection connection, string groupId = null,
       string table = null, string key = null, FabricServerModeEnum? mode = null, FabricScopeEnum? scope = null)
 #else
-    public static void setFabricProperties(this MySqlConnection connection, string groupId,
+    public static void SetFabricProperties(this MySqlConnection connection, string groupId,
       string table, string key, FabricServerModeEnum? mode, FabricScopeEnum? scope)
 #endif
     {
