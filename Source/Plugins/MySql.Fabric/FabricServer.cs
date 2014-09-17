@@ -29,7 +29,6 @@ namespace MySql.Fabric
   {
     ReplicationServer replicationServerInstance = null;
 
-    internal FabricGroup Group { get; private set; }
 
     public Guid ServerUuid { get; private set; }
 

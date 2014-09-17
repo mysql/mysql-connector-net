@@ -20,17 +20,15 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
 
 namespace MySql.Fabric
 {
-  [Flags]
   public enum FabricServerModeEnum
   {
-    Offline = 0x1,
-    Read_only = 0x2,
-    Write_only = 0x4,
-    Read_Write = 0x8
+    Offline = 0,
+    Read_only,
+    Write_only,
+    Read_Write
   }
 
   internal enum FabricServerStatusEnum
@@ -39,18 +37,5 @@ namespace MySql.Fabric
     Spare,
     Secondary,
     Primary
-  }
-
-  public enum FabricScopeEnum
-  {
-    Global = 1,
-    Local = 2
-  }
-
-  internal enum FabricShardIndexType : int
-  {
-    Hash = 1,
-    Range = 2,
-    List = 3
   }
 }

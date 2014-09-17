@@ -25,8 +25,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
-using MySql.Data.MySqlClient;
-
 
 namespace MySql.Data.MySqlClient.Replication
 {
@@ -154,24 +152,8 @@ namespace MySql.Data.MySqlClient.Replication
 
           try
           {
-            bool isNewServer = false;
-            if (connection.driver == null || !connection.driver.IsOpen)
-            {
-              isNewServer = true;
-            }
-            else
-            { 
-              MySqlConnectionStringBuilder msb = new MySqlConnectionStringBuilder(server.ConnectionString);
-              if (!msb.Equals(connection.driver.Settings))
-              {
-                isNewServer = true;
-              }
-            }
-            if (isNewServer)
-            {
-              Driver driver = Driver.Create(new MySqlConnectionStringBuilder(server.ConnectionString));
-              connection.driver = driver;
-            }
+            Driver driver = Driver.Create(new MySqlConnectionStringBuilder(server.ConnectionString));
+            connection.driver = driver;
             return;
           }
           catch (MySqlException ex)

@@ -36,19 +36,11 @@ namespace MySql.Fabric
     private string password;
     private string fabricInstance;
     private int ttl;
-    // indexed by group_id
-    private object _lockObject = new object();
-
-    internal Dictionary<string, FabricGroup> FabricGroups;
-    // indexed by mapping_id
-    internal Dictionary<int, FabricShardTable> FabricShardTables;
-    // Indexes by "schema.table"
-    internal Dictionary<string, FabricShardTable> FabricShardTablesPerTable;
+    protected List<FabricServer> FabricServers;
     protected DateTime lastUpdate = DateTime.MinValue;
 
     internal string groupIdProperty;
     internal FabricServerModeEnum? modeProperty;
-    // always in the format "schema.table"
     internal string tableProperty;
     internal object keyProperty;
 
@@ -56,10 +48,9 @@ namespace MySql.Fabric
     public FabricServerGroup(string name, int retryTime)
       : base(name, retryTime)
     {
-      FabricGroups = new Dictionary<string, FabricGroup>();
-      FabricShardTables = new Dictionary<int, FabricShardTable>();
-      FabricShardTablesPerTable = new Dictionary<string, FabricShardTable>();
+      FabricServers = new List<FabricServer>();
     }
+
 
     internal protected override ReplicationServer GetServer(bool isMaster)
     {
@@ -69,31 +60,23 @@ namespace MySql.Fabric
       FabricServerModeEnum mode = modeProperty.HasValue ? modeProperty.Value
         : (isMaster ? FabricServerModeEnum.Read_Write : FabricServerModeEnum.Read_only);
 
-      lock (_lockObject)
+      lock (FabricServers)
       {
-        /*
-         * Pick a server using this algorithm.
-         * 
-         * */
-        if (string.IsNullOrEmpty(tableProperty))
+        var serversInGroup = FabricServers.Where(i => i.GroupId == groupIdProperty
+          && (i.Mode & mode) != 0).ToList();
+
+        if (serversInGroup.Count == 0) return null;
+
+        double random_weight = new Random().NextDouble() * serversInGroup.Sum(i => i.Weight);
+        double sum_weight = 0.0;
+
+        foreach (FabricServer server in serversInGroup)
         {
-          return GetServerByGroup(mode, groupIdProperty);
+          sum_weight += server.Weight;
+          if (sum_weight > random_weight) return server.ReplicationServerInstance;
         }
-        else
-        {
-          ReplicationServer server = GetServerByShard( mode );
-          // Ensure the database is the current shard db.
-          string[] db = tableProperty.Split('.');
-          string conStr = server.ConnectionString;
-          if( conStr.IndexOf( "database=" + db[ 0 ] + ";" ) == -1 )
-          {
-            MySqlConnectionStringBuilder msb = new MySqlConnectionStringBuilder(conStr);
-            msb.Database = db[0];
-            server.ConnectionString = msb.ToString();
-          }
-          // return server
-          return server;
-        }
+
+        return serversInGroup.Last().ReplicationServerInstance;
       }
     }
 
@@ -118,56 +101,6 @@ namespace MySql.Fabric
       return GetServer(isMaster);
     }
 
-    private ReplicationServer GetServerByShard(FabricServerModeEnum mode)
-    {
-      FabricShardTable shardTable = FabricShardTablesPerTable[tableProperty];
-      foreach( FabricShardIndex idx in shardTable.Indexes )
-      {
-        if ( ShardKeyCompare( keyProperty, idx.LowerBound ) >= 0 )
-        {
-          return GetServerByGroup(mode, idx.GroupId);
-        }
-      }
-      return null;
-    }
-
-    private ReplicationServer GetServerByGroup(FabricServerModeEnum mode, string groupId)
-    {
-      var serversInGroup = FabricGroups[groupId].Servers.Where(i => (i.Mode & mode) != 0).ToList();
-
-      if (serversInGroup.Count == 0) return null;
-
-      double random_weight = new Random().NextDouble() * serversInGroup.Sum(i => i.Weight);
-      double sum_weight = 0.0;
-
-      foreach (FabricServer server in serversInGroup)
-      {
-        sum_weight += server.Weight;
-        if (sum_weight > random_weight) return server.ReplicationServerInstance;
-      }
-
-      return serversInGroup.Last().ReplicationServerInstance;
-    }
-
-    private int ShardKeyCompare(object o1, object o2)
-    {
-      int v;
-      DateTime dt;
-      if( int.TryParse( o1.ToString(), out v ) )
-      {
-        return v - int.Parse(o2.ToString());
-      }
-      else if ( DateTime.TryParse( o1.ToString(), out dt ))
-      {
-        DateTime dt2 = DateTime.Parse(o2.ToString());
-        return DateTime.Compare(dt, dt2);
-      }
-      else
-      {
-        return string.Compare(o1.ToString(), o2.ToString());
-      }
-    }
-
     internal protected override void HandleFailover(ReplicationServer server, Exception exception)
     {
       ExecuteCommand("threat report_error", server.Name);
@@ -180,6 +113,7 @@ namespace MySql.Fabric
       lastUpdate = DateTime.MinValue;
       GetServerList();
     }
+
 
     protected DataTable ExecuteCommand(string command, params string[] parameters)
     {
@@ -208,104 +142,31 @@ namespace MySql.Fabric
     protected void GetServerList()
     {
       if (lastUpdate.AddSeconds(ttl) > DateTime.Now) return;
-      //lock (FabricServers)
-      lock (_lockObject)
+      lock (FabricServers)
       {
-        if (FabricGroups.Count != 0) return;
         try
         {
-          GetGroups();
-          GetShards();
+          DataTable table = ExecuteCommand("dump servers");
+          FabricServers.Clear();
+          foreach (DataRow row in table.Rows)
+          {
+            FabricServers.Add(new FabricServer(new Guid(row["server_uuid"] as string),
+              row["group_id"] as string,
+              row["host"] as string,
+              int.Parse(row["port"] as string),
+              (FabricServerModeEnum)Enum.Parse(typeof(FabricServerModeEnum), row["mode"] as string),
+              (FabricServerStatusEnum)Enum.Parse(typeof(FabricServerStatusEnum), row["status"] as string),
+              float.Parse(row["weight"] as string),
+              username,
+              password
+              ));
+          }
           lastUpdate = DateTime.Now;
         }
         catch (Exception ex)
         {
           MySqlTrace.LogError(-1, ex.ToString());
           throw new MySqlFabricException(Properties.Resources.errorConnectFabricServer);
-        }
-      }
-    }
-
-    private void GetShards()
-    {
-      // Gather shard_tables
-      DataTable tblShards = ExecuteCommand("dump shard_tables");
-      FabricShardTables.Clear();
-      FabricShardTablesPerTable.Clear();
-      foreach (DataRow row in tblShards.Rows)
-      {
-        FabricShardTable shardTable = new FabricShardTable()
-        {
-          SchemaName = row["schema_name"] as string,
-          TableName = row["table_name"] as string,
-          ColumnName = row["column_name"] as string,
-          MappingId = int.Parse(row["mapping_id"] as string)
-        };
-        FabricShardTables.Add(shardTable.MappingId, shardTable);
-        FabricShardTablesPerTable.Add(string.Format("{0}.{1}", shardTable.SchemaName, shardTable.TableName), shardTable);
-      }
-      // Gather shard_index'es
-      DataTable tblShardIndexes = ExecuteCommand("dump shard_index");
-      foreach (DataRow rowIdx in tblShardIndexes.Rows)
-      {
-        FabricShardIndex Index = new FabricShardIndex()
-        {
-          GroupId = rowIdx["group_id"] as string,
-          LowerBound = int.Parse(rowIdx["lower_bound"] as string),
-          ShardId = int.Parse(rowIdx["shard_id"] as string),
-          MappingId = int.Parse(rowIdx["mapping_id"] as string)
-        };
-        FabricShardTable table = FabricShardTables[Index.MappingId];
-        table.Indexes.Add(Index);
-      }
-      foreach (KeyValuePair<int, FabricShardTable> kvp in FabricShardTables)
-      {
-        kvp.Value.Indexes.Sort( delegate( FabricShardIndex x, FabricShardIndex y ) {
-          return ShardKeyCompare(x.LowerBound, y.LowerBound) * -1;
-        } );
-      }
-      // Gather global group
-      DataTable tblGlobal = ExecuteCommand("dump shard_maps");
-      foreach (DataRow rowGlobal in tblGlobal.Rows)
-      {
-        int mappingId = int.Parse(rowGlobal["mapping_id"] as string);
-        FabricShardTable tbl = FabricShardTables[mappingId];
-        tbl.GlobalGroupId = rowGlobal["global_group_id"] as string;
-        tbl.TypeShard = (FabricShardIndexType)Enum.Parse(typeof(FabricShardIndexType), rowGlobal["type_name"] as string, true);
-      }
-    }
-
-    private void GetGroups()
-    {
-      DataTable tblGroups = ExecuteCommand("group lookup_groups");
-      FabricGroups.Clear();
-      foreach (DataRow row in tblGroups.Rows)
-      {
-        FabricGroup group = new FabricGroup()
-        {
-          GroupId = row["group_id"] as string,
-          Description = row["description"] as string,
-          FailureDetector = row["failure_detector"] as int?,
-          MasterUuid = row["master_uuid"] as string
-        };
-        FabricGroups.Add(group.GroupId, group);
-        DataTable tblServers = ExecuteCommand("group lookup_servers", group.GroupId);
-        foreach (DataRow rowSrv in tblServers.Rows)
-        {
-          string[] addressSrv = (rowSrv["address"] as string).Split(':');
-          string host = addressSrv[0];
-          int port = int.Parse(addressSrv[1]);
-          FabricServer server = new FabricServer(
-            Guid.Parse(rowSrv["server_uuid"] as string),
-            group.GroupId,
-            host,
-            port,
-            (FabricServerModeEnum)Enum.Parse(typeof(FabricServerModeEnum), rowSrv["mode"] as string, true),
-            (FabricServerStatusEnum)Enum.Parse(typeof(FabricServerStatusEnum), rowSrv["status"] as string, true),
-            float.Parse(rowSrv["weight"] as string),
-            username,
-            password);
-          group.Servers.Add(server);
         }
       }
     }

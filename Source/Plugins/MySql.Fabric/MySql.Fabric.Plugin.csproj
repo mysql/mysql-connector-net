@@ -77,11 +77,8 @@
     </Compile>
     <Compile Include="Enums.cs" />
     <Compile Include="Extensions.cs" />
-    <Compile Include="FabricGroup.cs" />
     <Compile Include="FabricServer.cs" />
     <Compile Include="FabricServerGroup.cs" />
-    <Compile Include="FabricShardIndex.cs" />
-    <Compile Include="FabricShardTable.cs" />
     <Compile Include="MySqlFabricException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
