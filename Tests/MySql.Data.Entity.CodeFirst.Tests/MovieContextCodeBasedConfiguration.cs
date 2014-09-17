@@ -29,6 +29,7 @@ using System.Text;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 using MySql.Data.MySqlClient;
+using MySql.Data.Entity;
 using System.Data.Common;
 #if EF6
 using System.Data.Entity.Migrations;
