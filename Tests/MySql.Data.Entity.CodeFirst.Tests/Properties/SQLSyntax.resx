@@ -117,7 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="CountGroupByEF" xml:space="preserve">
+  <data name="CountGroupBy" xml:space="preserve">
     <value>SELECT
 1 AS `C1`, 
 `Project3`.`nCdSite`, 
@@ -128,6 +128,19 @@ COUNT(DISTINCT `visitante`.`sDsIp`) AS `C1`
 FROM `visitante`
  GROUP BY 
 `visitante`.`nCdSite`) AS `Project3`</value>
+  </data>
+  <data name="CountGroupBy2EF5" xml:space="preserve"><value>
+SELECT
+1 AS `C1`, 
+`Project3`.`nCdSite`, 
+`Project3`.`C1` AS `C2`
+FROM (SELECT
+`Extent5`.`nCdSite`, 
+COUNT(DISTINCT `Extent5`.`sDsIp`) AS `C1`
+FROM `pagina` AS `Extent3` INNER JOIN `visitante` AS `Extent4` ON `Extent3`.`nCdVisitante` = `Extent4`.`nCdVisitante` LEFT OUTER JOIN `visitante` AS `Extent5` ON `Extent3`.`nCdVisitante` = `Extent5`.`nCdVisitante`
+ GROUP BY 
+`Extent5`.`nCdSite`) AS `Project3`
+  </value>
   </data>
   <data name="CountGroupBy2" xml:space="preserve">
     <value>SELECT
@@ -148,23 +161,24 @@ FROM `pagina` AS `Extent3` INNER JOIN `visitante` AS `Extent4` ON `Extent3`.`nCd
 `Project3`.`nCdSite`, 
 `Project3`.`C1` AS `C2`
 FROM (SELECT
-`visitante`.`nCdSite`, 
-COUNT(DISTINCT `visitante`.`sDsIp`) AS `C1`
-FROM `visitante`
+`Extent5`.`nCdSite`, 
+COUNT(DISTINCT `Extent5`.`sDsIp`) AS `C1`
+FROM `pagina` AS `Extent3` INNER JOIN `visitante` AS `Extent4` ON `Extent3`.`nCdVisitante` = `Extent4`.`nCdVisitante` LEFT OUTER JOIN `visitante` AS `Extent5` ON `Extent3`.`nCdVisitante` = `Extent5`.`nCdVisitante`
  GROUP BY 
-`visitante`.`nCdSite`) AS `Project3`</value>
+`Extent5`.`nCdSite`) AS `Project3`
+  </value>
   </data>
-  <data name="CountGroupBy2" xml:space="preserve">
+  <data name="CountGroupByEF5" xml:space="preserve">
     <value>SELECT
 1 AS `C1`, 
 `Project3`.`nCdSite`, 
 `Project3`.`C1` AS `C2`
 FROM (SELECT
-`Extent5`.`nCdSite`, 
-COUNT(DISTINCT `Extent5`.`sDsIp`) AS `C1`
-FROM `pagina` AS `Extent3` INNER JOIN `visitante` AS `Extent4` ON `Extent3`.`nCdVisitante` = `Extent4`.`nCdVisitante` LEFT OUTER JOIN `visitante` AS `Extent5` ON `Extent3`.`nCdVisitante` = `Extent5`.`nCdVisitante`
+`visitante`.`nCdSite`, 
+COUNT(DISTINCT `visitante`.`sDsIp`) AS `C1`
+FROM `visitante`
  GROUP BY 
-`Extent5`.`nCdSite`) AS `Project3`</value>
+`visitante`.`nCdSite`) AS `Project3`</value>
   </data>
   <data name="NestedOrderBy" xml:space="preserve">
     <value>SELECT

@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -110,6 +110,9 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     public string Name { get; set; }
   }
 
+#if EF6
+  [DbConfigurationType(typeof(MySqlEFConfiguration))]
+#endif
   public class VehicleDbContext3 : DbContext
   {
     public DbSet<Accessory> Accessories { get; set; }
@@ -203,6 +206,10 @@ namespace MySql.Data.Entity.CodeFirst.Tests
 
     protected override void OnModelCreating(DbModelBuilder modelBuilder)
     {
+      base.OnModelCreating(modelBuilder);
+
+      Database.SetInitializer<ProductsDbContext>(new ProductDBInitializer());
+
       modelBuilder.Entity<Product>()
     .Property(f => f.DateTimeWithPrecision)
     .HasColumnType("DateTime")
@@ -212,7 +219,15 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     .Property(f => f.TimeStampWithPrecision)
     .HasColumnType("Timestamp")
     .HasPrecision(3);
+
+#if EF6
+      Database.SetInitializer<ProductsDbContext>(new MigrateDatabaseToLatestVersion<ProductsDbContext, Configuration<ProductsDbContext>>());
+#endif
     }
+  }
+
+  public class ProductDBInitializer : DropCreateDatabaseReallyAlways<ProductsDbContext>
+  {
   }
 
   public class Names
@@ -223,6 +238,9 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     public DateTime DateCreated { get; set; }
   }
 
+#if EF6
+  [DbConfigurationType(typeof(MySqlEFConfiguration))]
+#endif
   public class ShortDbContext : DbContext
   {
     public DbSet<Names> Names { get; set; }
