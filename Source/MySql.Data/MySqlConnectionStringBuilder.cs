@@ -959,18 +959,6 @@ namespace MySql.Data.MySqlClient
     }
     #endregion
 
-    #region Fabric Properties
-
-    public string FabricGroup { get; internal set; }
-
-    public string ShardingTable { get; internal set; }
-
-    public object ShardingKey { get; internal set; }
-
-    public int? FabricServerMode { get; internal set; }
-
-    #endregion
-
     internal bool HasProcAccess { get; set; }
 
     public override object this[string keyword]
