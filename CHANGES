@@ -1,3 +1,7 @@
+6.9.4
+- Added a new plugin for MySql Fabric 1.5 support
+
+
 6.9.3
 - Fix for Web Parts Personalization provider
 - Fix for changing the PK between two int columns (MySql Bug #71418, Oracle bug #18923294).

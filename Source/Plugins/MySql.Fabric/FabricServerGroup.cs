@@ -25,7 +25,10 @@ using MySql.Data.MySqlClient.Replication;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace MySql.Fabric
 {
@@ -121,12 +124,18 @@ namespace MySql.Fabric
     private ReplicationServer GetServerByShard(FabricServerModeEnum mode)
     {
       FabricShardTable shardTable = FabricShardTablesPerTable[tableProperty];
+      object key = keyProperty;
+      if (shardTable.TypeShard == FabricShardIndexType.Hash) key = GetMd5Hash(key.ToString());
       foreach( FabricShardIndex idx in shardTable.Indexes )
       {
-        if ( ShardKeyCompare( keyProperty, idx.LowerBound ) >= 0 )
+        if ( ShardKeyCompare( key, idx.LowerBound, idx.Type ) >= 0 )
         {
           return GetServerByGroup(mode, idx.GroupId);
         }
+      }
+      if (shardTable.TypeShard == FabricShardIndexType.Hash)
+      {
+        return GetServerByGroup(mode, shardTable.Indexes.First().GroupId);
       }
       return null;
     }
@@ -149,23 +158,34 @@ namespace MySql.Fabric
       return serversInGroup.Last().ReplicationServerInstance;
     }
 
-    private int ShardKeyCompare(object o1, object o2)
+    private int ShardKeyCompare(object o1, object o2, FabricShardIndexType shardType)
     {
-      int v;
-      DateTime dt;
-      if( int.TryParse( o1.ToString(), out v ) )
+      if (shardType == FabricShardIndexType.Range)
       {
-        return v - int.Parse(o2.ToString());
+        int v;
+        DateTime dt;
+        if (int.TryParse(o1.ToString(), out v))
+        {
+          return v - int.Parse(o2.ToString());
+        }
+        else if (DateTime.TryParse(o1.ToString(), out dt))
+        {
+          DateTime dt2 = DateTime.Parse(o2.ToString());
+          return DateTime.Compare(dt, dt2);
+        }
+        else
+        {
+          return string.Compare(o1.ToString(), o2.ToString());
+        }
       }
-      else if ( DateTime.TryParse( o1.ToString(), out dt ))
-      {
-        DateTime dt2 = DateTime.Parse(o2.ToString());
-        return DateTime.Compare(dt, dt2);
-      }
-      else
+      else if (shardType == FabricShardIndexType.Hash)
       {
         return string.Compare(o1.ToString(), o2.ToString());
+        //return int.Parse(GetTruncatedHexString(o1.ToString()), NumberStyles.HexNumber) - 
+          //int.Parse(GetTruncatedHexString(o2.ToString()), NumberStyles.HexNumber);
       }
+      else throw new NotSupportedException(Enum.GetName(typeof(FabricShardIndexType), 
+        FabricShardIndexType.List));
     }
 
     internal protected override void HandleFailover(ReplicationServer server, Exception exception)
@@ -251,18 +271,12 @@ namespace MySql.Fabric
         FabricShardIndex Index = new FabricShardIndex()
         {
           GroupId = rowIdx["group_id"] as string,
-          LowerBound = int.Parse(rowIdx["lower_bound"] as string),
+          LowerBound = rowIdx["lower_bound"] as string,
           ShardId = int.Parse(rowIdx["shard_id"] as string),
           MappingId = int.Parse(rowIdx["mapping_id"] as string)
         };
         FabricShardTable table = FabricShardTables[Index.MappingId];
         table.Indexes.Add(Index);
-      }
-      foreach (KeyValuePair<int, FabricShardTable> kvp in FabricShardTables)
-      {
-        kvp.Value.Indexes.Sort( delegate( FabricShardIndex x, FabricShardIndex y ) {
-          return ShardKeyCompare(x.LowerBound, y.LowerBound) * -1;
-        } );
       }
       // Gather global group
       DataTable tblGlobal = ExecuteCommand("dump shard_maps");
@@ -272,6 +286,14 @@ namespace MySql.Fabric
         FabricShardTable tbl = FabricShardTables[mappingId];
         tbl.GlobalGroupId = rowGlobal["global_group_id"] as string;
         tbl.TypeShard = (FabricShardIndexType)Enum.Parse(typeof(FabricShardIndexType), rowGlobal["type_name"] as string, true);
+        tbl.Indexes.ForEach(i => i.Type = tbl.TypeShard);
+      }
+      foreach (KeyValuePair<int, FabricShardTable> kvp in FabricShardTables)
+      {
+        kvp.Value.Indexes.Sort(delegate(FabricShardIndex x, FabricShardIndex y)
+        {
+          return ShardKeyCompare(x.LowerBound, y.LowerBound, x.Type) * -1;
+        });
       }
     }
 
@@ -328,6 +350,22 @@ namespace MySql.Fabric
       }
 
       return table;
+    }
+
+    protected string GetMd5Hash(string input)
+    {
+      MD5 md5 = MD5.Create();
+      byte[] buffer = Encoding.UTF8.GetBytes(input);
+      byte[] output = md5.ComputeHash(buffer);
+
+      return BitConverter.ToString(output).Replace("-", "");
+    }
+
+    protected string GetTruncatedHexString(string hexString)
+    {
+      int max_lenght = 7;
+      if (hexString.Length > max_lenght) return hexString.Substring(0, max_lenght);
+      return hexString;
     }
   }
 }
