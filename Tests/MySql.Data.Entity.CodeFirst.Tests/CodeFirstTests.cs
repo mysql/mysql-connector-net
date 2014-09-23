@@ -75,9 +75,12 @@ namespace MySql.Data.Entity.CodeFirst.Tests
       MovieDBContext db = new MovieDBContext();
       db.Database.Initialize(true);
       var l = db.Movies.ToList();
+      int j = l.Count;
       foreach (var i in l)
       {
+        j--;
       }
+      Assert.Equal(0, j);
     }
 
     /// <summary>
@@ -94,13 +97,19 @@ namespace MySql.Data.Entity.CodeFirst.Tests
       MovieDBContext db = new MovieDBContext();      
       db.Database.Initialize(true);
       var l = db.MovieFormats.ToList();
+      int j = l.Count;
       foreach (var i in l)
       {
+        j--;
       }
+      Assert.Equal(0, j);
       MovieFormat m = new MovieFormat();
       m.Format = 8.0f;
       db.MovieFormats.Add(m);
       db.SaveChanges();
+      MovieFormat m2 = db.MovieFormats.Where(p => p.Format == 8.0f).FirstOrDefault();
+      Assert.NotNull(m2);
+      Assert.Equal( 8.0f, m2.Format);
     }
 
     /// <summary>
@@ -494,9 +503,12 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
             FirstMovieFormat = p.Formats.Count == 0 ? 0.0 : p.Formats.FirstOrDefault().Format
           });
         string sql = q.ToString();
+        int j = q.Count();
         foreach (var r in q)
         {
+          j--;
         }
+        Assert.Equal(0, j);
       }
     }
   
@@ -834,6 +846,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
           Assert.Equal(data[i].ReleaseDate, m.ReleaseDate);
           i++;
         }
+        Assert.Equal(2, i);
       }
     }
 
@@ -923,9 +936,12 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         Debug.WriteLine(sql);
 #endif
         List<Movie> l = q.ToList();
+        int j = l.Count;
         foreach( Movie m in l )
         {
+          j--;
         }
+        Assert.Equal(0, j);
       }
     }
 
@@ -958,9 +974,12 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #if DEBUG
         Debug.WriteLine(sql);
 #endif
+        int j = q.Count();
         foreach (var row in q)
         {
+          j--;
         }
+        Assert.Equal(0, j);
       }
     }
 
@@ -1034,9 +1053,12 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #if DEBUG
         Debug.WriteLine(sql);
 #endif
+        int j = q.Count();
         foreach (var row in q)
         {
+          j--;
         }
+        Assert.Equal(0, j);
       }
     }
 
