@@ -28,6 +28,7 @@ using System.Linq;
 using System.Text;
 using System.Data.Entity;
 using System.Data.Entity.ModelConfiguration.Conventions;
+using System.Data.Entity.Migrations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 
@@ -79,8 +80,9 @@ namespace MySql.Data.Entity.CodeFirst.Tests
 
     public MovieDBContext()
     {
+#if !EF6
       Database.SetInitializer<MovieDBContext>(new MovieDBInitialize());
-#if EF6
+#else
       Database.SetInitializer<MovieDBContext>(new MigrateDatabaseToLatestVersion<MovieDBContext, Configuration<MovieDBContext>>());
 #endif
     }
@@ -123,11 +125,13 @@ namespace MySql.Data.Entity.CodeFirst.Tests
           new Movie() { ID = 1, Title = "Terminator 1", ReleaseDate = new DateTime(1984, 10, 26) }
         };
 
+#if !EF6
     protected override void Seed(MovieDBContext ctx)
     {
       base.Seed(ctx);
       DoDataPopulation( ctx );
     }
+#endif
 
     internal static void DoDataPopulation( MovieDBContext ctx )
     {
