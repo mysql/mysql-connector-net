@@ -81,10 +81,16 @@ namespace MySql.Data.Entity.CodeFirst.Tests
       ReInitDb();
       MovieDBContext db = new MovieDBContext();
       db.Database.Initialize(true);
+#if EF6
+      MovieDBInitialize.DoDataPopulation(db);
+#endif
       var l = db.Movies.ToList();
+      int j = l.Count;
       foreach (var i in l)
       {
+        j--;
       }
+      Assert.Equal(0, j);
     }
 
     /// <summary>
@@ -100,14 +106,23 @@ namespace MySql.Data.Entity.CodeFirst.Tests
       ReInitDb();
       MovieDBContext db = new MovieDBContext();      
       db.Database.Initialize(true);
+#if EF6
+      MovieDBInitialize.DoDataPopulation(db);
+#endif
       var l = db.MovieFormats.ToList();
+      int j = l.Count;
       foreach (var i in l)
       {
+        j--;
       }
+      Assert.Equal(0, j);
       MovieFormat m = new MovieFormat();
       m.Format = 8.0f;
       db.MovieFormats.Add(m);
       db.SaveChanges();
+      MovieFormat m2 = db.MovieFormats.Where(p => p.Format == 8.0f).FirstOrDefault();
+      Assert.NotNull(m2);
+      Assert.Equal( 8.0f, m2.Format);
     }
 
     /// <summary>
@@ -124,7 +139,9 @@ namespace MySql.Data.Entity.CodeFirst.Tests
       {
         db.Database.Delete();
         db.Database.CreateIfNotExists();
-    
+#if EF6
+        MovieDBInitialize.DoDataPopulation(db);
+#endif        
         db.Database.ExecuteSqlCommand(@"DROP TABLE IF EXISTS `MovieReleases`");
 
         db.Database.ExecuteSqlCommand(
@@ -498,6 +515,9 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       using (MovieDBContext ctx = new MovieDBContext())
       {
         ctx.Database.Initialize(true);
+#if EF6
+        MovieDBInitialize.DoDataPopulation(ctx);
+#endif
         int DirectorId = 1;
         var q = ctx.Movies.Where(p => p.Director.ID == DirectorId).Select(p => 
           new
@@ -506,9 +526,12 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
             FirstMovieFormat = p.Formats.Count == 0 ? 0.0 : p.Formats.FirstOrDefault().Format
           });
         string sql = q.ToString();
+        int j = q.Count();
         foreach (var r in q)
         {
+          j--;
         }
+        Assert.Equal(0, j);
       }
     }
   
@@ -839,6 +862,9 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       using (MovieDBContext db = new MovieDBContext())
       {
         db.Database.Initialize(true);
+#if EF6
+        MovieDBInitialize.DoDataPopulation(db);
+#endif
         DateTime filterDate = new DateTime(1986, 1, 1);
         var q = db.Movies.Where(p => p.ReleaseDate >= filterDate).
           OrderByDescending(p => p.ReleaseDate).Take(2);
@@ -857,6 +883,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
           Assert.Equal(data[i].ReleaseDate, m.ReleaseDate);
           i++;
         }
+        Assert.Equal(2, i);
       }
     }
 
@@ -873,6 +900,9 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       using (MovieDBContext db = new MovieDBContext())
       {
         db.Database.Initialize(true);
+#if EF6
+        MovieDBInitialize.DoDataPopulation(db);
+#endif
         string title = "T";
         var q = from m in db.Movies
                 where m.Title.Contains(title)
@@ -936,6 +966,9 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       using (MovieDBContext db = new MovieDBContext())
       {
         db.Database.Initialize(true);
+#if EF6
+        MovieDBInitialize.DoDataPopulation(db);
+#endif
         var q = db.Movies.
                 Where(m => !string.IsNullOrEmpty(m.Title) && m.Title.Contains("x")).
                 OrderByDescending(m => m.ID).
@@ -946,9 +979,12 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         Debug.WriteLine(sql);
 #endif
         List<Movie> l = q.ToList();
+        int j = l.Count;
         foreach( Movie m in l )
         {
+          j--;
         }
+        Assert.Equal(0, j);
       }
     }
 
@@ -965,6 +1001,9 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       using (MovieDBContext db = new MovieDBContext())
       {
         db.Database.Initialize(true);
+#if EF6
+        MovieDBInitialize.DoDataPopulation(db);
+#endif
         var q = db.Movies.
                 Where(m => !string.IsNullOrEmpty(m.Title) && m.Title.Contains("x")).
                 OrderByDescending(m => m.ID).
@@ -981,9 +1020,12 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #if DEBUG
         Debug.WriteLine(sql);
 #endif
+        int j = q.Count();
         foreach (var row in q)
         {
+          j--;
         }
+        Assert.Equal(0, j);
       }
     }
 
@@ -1000,6 +1042,9 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       using (MovieDBContext db = new MovieDBContext())
       {
         db.Database.Initialize(true);
+#if EF6
+        MovieDBInitialize.DoDataPopulation(db);
+#endif
         bool q = db.Movies.Any(m => m.ReleaseDate.Year > 1985);
 //        string sql = q.ToString();
 //#if DEBUG
@@ -1024,6 +1069,9 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       using (MovieDBContext db = new MovieDBContext())
       {
         db.Database.Initialize(true);
+#if EF6
+        MovieDBInitialize.DoDataPopulation(db);
+#endif
         // TODO: add subquery like
         // var shifts = Shifts.Where(s => !EmployeeShifts.Where(es => es.ShiftID == s.ShiftID).Any());
         bool q = db.Movies.Where( m => m.ReleaseDate.Month != 10 ).Any(m => m.ReleaseDate.Year > 1985);
@@ -1050,6 +1098,9 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       using (MovieDBContext db = new MovieDBContext())
       {
         db.Database.Initialize(true);
+#if EF6
+        MovieDBInitialize.DoDataPopulation(db);
+#endif
         var q = from m in db.Movies
                 where m.Title.Contains("x") && db.Medias.Where( mm => mm.Format == "Digital" ).Any()
                 select m;
@@ -1057,9 +1108,12 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #if DEBUG
         Debug.WriteLine(sql);
 #endif
+        int j = q.Count();
         foreach (var row in q)
         {
+          j--;
         }
+        Assert.Equal(0, j);
       }
     }
 
