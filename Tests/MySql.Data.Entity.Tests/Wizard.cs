@@ -1,4 +1,4 @@
-// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -117,8 +117,10 @@ namespace MySql.Data.Entity.Tests
         Assert.Equal("5.1", token);
       else if (st.Version < new Version(5, 6))
         Assert.Equal("5.5", token);
-      else
+      else if (st.Version < new Version(5, 7))
         Assert.Equal("5.6", token);
+      else
+        Assert.Equal("5.7", token);
     }
 
     [Fact]

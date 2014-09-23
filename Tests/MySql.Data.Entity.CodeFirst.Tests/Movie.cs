@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -126,7 +126,11 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     protected override void Seed(MovieDBContext ctx)
     {
       base.Seed(ctx);
+      DoDataPopulation( ctx );
+    }
 
+    internal static void DoDataPopulation( MovieDBContext ctx )
+    {
       ctx.Database.ExecuteSqlCommand("CREATE PROCEDURE GetCount() BEGIN SELECT 5; END");
       Movie m1 = new Movie() { Title = "Terminator 1", ReleaseDate = new DateTime(1984, 10, 26) };
       Movie m2 = new Movie() { Title = "The Matrix", ReleaseDate = new DateTime(1999, 3, 31) };
