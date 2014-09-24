@@ -1083,6 +1083,30 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       }
       dbContext.Database.Delete();
     }
+
+    [Fact]
+    public void UnknownProjectC1()
+    {
+#if DEBUG
+      Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
+#endif
+      ReInitDb();
+      using (MovieDBContext db = new MovieDBContext())
+      {
+        db.Database.Initialize(true);
+#if EF6
+        MovieDBInitialize.DoDataPopulation(db);
+#endif
+        long myKey = 20;
+        var q = (from r in db.Movies where (r.ID == myKey) select (long)r.ID).OrderBy(p => p);
+        string sql = q.ToString();
+        st.CheckSql(sql, SQLSyntax.UnknownProjectC1);
+#if DEBUG
+        Debug.WriteLine(sql);
+#endif
+        long[] array = (from r in db.Movies where (r.ID == myKey) select (long)r.ID).OrderBy(p => p).ToArray();
+      }
+    }
   }
 }
 

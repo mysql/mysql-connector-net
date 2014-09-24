@@ -87,11 +87,13 @@ namespace MySql.Data.Entity
   {
     private string _oldTableName;
     private string _newTableName;
+    private Dictionary<string, ColumnFragment> _dicColumns;
 
-    internal ReplaceTableNameVisitor(string oldTableName, string newTableName)
+    internal ReplaceTableNameVisitor(string oldTableName, string newTableName, Dictionary<string, ColumnFragment> dicColumns)
     {
       _oldTableName = oldTableName;
       _newTableName = newTableName;
+      _dicColumns = dicColumns;
     }
 
     public void Visit(SqlFragment f)
@@ -128,8 +130,14 @@ namespace MySql.Data.Entity
 
     public void Visit(ColumnFragment f)
     {
+      ColumnFragment cf;
       if ((f != null) && (f.TableName == _oldTableName))
         f.TableName = _newTableName;
+      if (_dicColumns != null && _dicColumns.TryGetValue(f.ColumnName, out cf))
+      {
+        // remove alias
+        f.ColumnName = cf.ColumnName;
+      }
     }
 
     public void Visit(LiteralFragment f)
