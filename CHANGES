@@ -1,3 +1,7 @@
+6.9.5
+- Disabled installation on-demand in Installer (Oracle Bug #19670596).
+
+
 6.9.4
 - Added a new plugin for MySql Fabric 1.5 support
 
