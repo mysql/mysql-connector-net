@@ -1107,6 +1107,90 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         long[] array = (from r in db.Movies where (r.ID == myKey) select (long)r.ID).OrderBy(p => p).ToArray();
       }
     }
+
+    [Fact]
+    public void StartsWithTest()
+    {
+#if DEBUG
+      Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
+#endif
+      ReInitDb();
+      MovieDBContext db = new MovieDBContext();
+      db.Database.Initialize(true);
+#if EF6
+      MovieDBInitialize.DoDataPopulation(db);
+#endif
+      string term = "The";
+      var l = db.Movies.Where(p => p.Title.StartsWith( term ));
+
+      string sql = l.ToString();
+      st.CheckSql(sql, SQLSyntax.QueryWithStartsWith );
+#if DEBUG
+      Debug.WriteLine(sql);
+#endif
+      int j = l.Count();
+      foreach (var i in l)
+      {
+        j--;
+      }
+      Assert.Equal(0, j);
+    }
+
+    [Fact]
+    public void EndsWithTest()
+    {
+#if DEBUG
+      Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
+#endif
+      ReInitDb();
+      MovieDBContext db = new MovieDBContext();
+      db.Database.Initialize(true);
+#if EF6
+      MovieDBInitialize.DoDataPopulation(db);
+#endif
+      string term = "The";
+      var l = db.Movies.Where(p => p.Title.EndsWith(term));
+
+      string sql = l.ToString();
+      st.CheckSql(sql, SQLSyntax.QueryWithEndsWith );
+#if DEBUG
+      Debug.WriteLine(sql);
+#endif
+      int j = l.Count();
+      foreach (var i in l)
+      {
+        j--;
+      }
+      Assert.Equal(0, j);
+    }
+
+    [Fact]
+    public void ContainsTest()
+    {
+#if DEBUG
+      Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
+#endif
+      ReInitDb();
+      MovieDBContext db = new MovieDBContext();
+      db.Database.Initialize(true);
+#if EF6
+      MovieDBInitialize.DoDataPopulation(db);
+#endif
+      string term = "The";
+      var l = db.Movies.Where(p => p.Title.Contains(term));
+
+      string sql = l.ToString();
+      st.CheckSql(sql, SQLSyntax.QueryWithContains);
+#if DEBUG
+      Debug.WriteLine(sql);
+#endif
+      int j = l.Count();
+      foreach (var i in l)
+      {
+        j--;
+      }
+      Assert.Equal(0, j);
+    }
   }
 }
 

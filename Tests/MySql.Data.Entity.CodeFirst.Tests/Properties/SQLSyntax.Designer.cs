@@ -136,6 +136,42 @@ namespace MySql.Data.Entity.CodeFirst.Tests.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to SELECT
+        ///  `Extent1`.`ID`, 
+        ///  `Extent1`.`Title`, 
+        ///  `Extent1`.`ReleaseDate`, 
+        ///  `Extent1`.`Genre`, 
+        ///  `Extent1`.`Price`, 
+        ///  `Extent1`.`Data`, 
+        ///  `Extent1`.`Director_ID`
+        ///  FROM `Movies` AS `Extent1`
+        ///   WHERE `Extent1`.`Title` LIKE &apos;%p__linq__0%&apos;.
+        /// </summary>
+        internal static string QueryWithContains {
+            get {
+                return ResourceManager.GetString("QueryWithContains", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SELECT
+        ///  `Extent1`.`ID`, 
+        ///  `Extent1`.`Title`, 
+        ///  `Extent1`.`ReleaseDate`, 
+        ///  `Extent1`.`Genre`, 
+        ///  `Extent1`.`Price`, 
+        ///  `Extent1`.`Data`, 
+        ///  `Extent1`.`Director_ID`
+        ///  FROM `Movies` AS `Extent1`
+        ///   WHERE `Extent1`.`Title` LIKE &apos;%p__linq__0&apos;.
+        /// </summary>
+        internal static string QueryWithEndsWith {
+            get {
+                return ResourceManager.GetString("QueryWithEndsWith", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SELECT
         ///`Project1`.`ID`, 
         ///`Project1`.`Title`, 
         ///`Project1`.`ReleaseDate`, 
@@ -144,13 +180,31 @@ namespace MySql.Data.Entity.CodeFirst.Tests.Properties {
         ///`Project1`.`Data`, 
         ///`Project1`.`Director_ID`
         ///FROM `Movies` AS `Project1`
-        /// WHERE (LOCATE(@p__linq__0, `Project1`.`Title`)) &gt; 0
+        /// WHERE `Project1`.`Title` LIKE &apos;%p__linq__0%&apos;
         /// ORDER BY 
         ///`Project1`.`ID` DESC LIMIT 10.
         /// </summary>
         internal static string QueryWithOrderByTakeContains {
             get {
                 return ResourceManager.GetString("QueryWithOrderByTakeContains", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SELECT
+        ///  `Extent1`.`ID`, 
+        ///  `Extent1`.`Title`, 
+        ///  `Extent1`.`ReleaseDate`, 
+        ///  `Extent1`.`Genre`, 
+        ///  `Extent1`.`Price`, 
+        ///  `Extent1`.`Data`, 
+        ///  `Extent1`.`Director_ID`
+        ///  FROM `Movies` AS `Extent1`
+        ///   WHERE `Extent1`.`Title` LIKE &apos;p__linq__0%&apos;.
+        /// </summary>
+        internal static string QueryWithStartsWith {
+            get {
+                return ResourceManager.GetString("QueryWithStartsWith", resourceCulture);
             }
         }
         
