@@ -103,7 +103,29 @@ namespace MySql.Data.Entity
         column.TableName = input.Name;
 
       // now we need to check if our column name was possibly renamed
-      if (input is TableFragment) return column;
+      if (input is TableFragment )
+      {
+        if (!string.IsNullOrEmpty(input.Name))
+        {
+          SelectStatement sf = scope.GetFragment(input.Name) as SelectStatement;
+          if (sf != null)
+          {
+            // Special case: undo alias in case of query fusing
+            for (int i = 0; i < sf.Columns.Count; i++)
+            {
+              ColumnFragment cf = sf.Columns[i];
+              if (column.ColumnName == cf.ColumnAlias)
+              {
+                column.ColumnName = cf.ColumnName;
+                column.ColumnAlias = cf.ColumnAlias;
+                column.TableName = input.Name;
+                return column;
+              }
+            }
+          }
+        }
+        return column;
+      }
 
       SelectStatement select = input as SelectStatement;
       UnionFragment union = input as UnionFragment;
@@ -478,9 +500,14 @@ namespace MySql.Data.Entity
     {
       string oldTableName = (inner.From as TableFragment).Name;
       string newTableName = inner.Name;
+      Dictionary<string, ColumnFragment> dicColumns = new Dictionary<string, ColumnFragment>();
+
+      foreach (ColumnFragment cf in inner.Columns)
+      {
+        if (cf.ColumnAlias != null)
+          dicColumns.Add(cf.ColumnAlias, cf);
+      }
       outer.From = inner.From;
-      //if (outer.Name != null)
-      //  outer.Name = newTableName;
       (outer.From as TableFragment).Name = newTableName;
       // Dispatch Where
       if (outer.Where == null)
@@ -491,13 +518,13 @@ namespace MySql.Data.Entity
       {
         outer.Where = new BinaryFragment() { Left = outer.Where, Right = inner.Where, Operator = "AND" };
       }
-      VisitAndReplaceTableName(outer.Where, oldTableName, newTableName);
+      VisitAndReplaceTableName(outer.Where, oldTableName, newTableName, dicColumns);
       // For the next constructions, either is defined on outer or at inner, not both
       // Dispatch Limit
       if (outer.Limit == null)
       {
         outer.Limit = inner.Limit;
-        VisitAndReplaceTableName(outer.Limit, oldTableName, newTableName);
+        VisitAndReplaceTableName(outer.Limit, oldTableName, newTableName, dicColumns);
       }
       // Dispatch GroupBy
       if (outer.GroupBy == null && inner.GroupBy != null)
@@ -505,15 +532,18 @@ namespace MySql.Data.Entity
         foreach (SqlFragment sf in inner.GroupBy)
           outer.AddGroupBy(sf);
         foreach (SqlFragment sf in outer.GroupBy)
-          VisitAndReplaceTableName(sf, oldTableName, newTableName);
+          VisitAndReplaceTableName(sf, oldTableName, newTableName, dicColumns);
       }
       // Dispatch OrderBy
-      if (outer.OrderBy == null && inner.OrderBy != null)
+      if (outer.OrderBy != null || inner.OrderBy != null)
       {
-        foreach (SortFragment sf in inner.OrderBy)
-          outer.AddOrderBy(sf);
+        if (inner.OrderBy != null)
+        {
+          foreach (SortFragment sf in inner.OrderBy)
+            outer.AddOrderBy(sf);
+        }
         foreach (SortFragment sf in outer.OrderBy)
-          VisitAndReplaceTableName(sf, oldTableName, newTableName);
+          VisitAndReplaceTableName(sf, oldTableName, newTableName, dicColumns);
       }
       // Dispatch Skip
       if (outer.Skip == null)
@@ -547,10 +577,11 @@ namespace MySql.Data.Entity
       }
     }
 
-    protected internal void VisitAndReplaceTableName(SqlFragment sf, string oldTable, string newTable)
+    protected internal void VisitAndReplaceTableName(SqlFragment sf, string oldTable, string newTable, 
+      Dictionary<string, ColumnFragment> dicColumns)
     {
       if (sf == null) return;
-      ReplaceTableNameVisitor visitor = new ReplaceTableNameVisitor(oldTable, newTable);
+      ReplaceTableNameVisitor visitor = new ReplaceTableNameVisitor(oldTable, newTable, dicColumns);
       sf.Accept(visitor);
     }
 

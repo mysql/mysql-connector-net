@@ -1,5 +1,6 @@
 6.9.5
 - Disabled installation on-demand in Installer (Oracle Bug #19670596).
+- Fix for Generated SQL requests column that doesn't exist in LINQ to Entities (MySql bug #72004, Oracle bug #19681348).
 
 
 6.9.4
