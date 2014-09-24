@@ -129,7 +129,8 @@ FROM `visitante`
  GROUP BY 
 `visitante`.`nCdSite`) AS `Project3`</value>
   </data>
-  <data name="CountGroupBy2EF5" xml:space="preserve"><value>
+  <data name="CountGroupBy2EF5" xml:space="preserve">
+    <value>
 SELECT
 1 AS `C1`, 
 `Project3`.`nCdSite`, 
@@ -153,20 +154,6 @@ COUNT(DISTINCT `Extent4`.`sDsIp`) AS `C1`
 FROM `pagina` AS `Extent3` INNER JOIN `visitante` AS `Extent4` ON `Extent3`.`nCdVisitante` = `Extent4`.`nCdVisitante`
  GROUP BY 
 `Extent4`.`nCdSite`) AS `Project3`</value>
-  </data>
-
-  <data name="CountGroupByEF5" xml:space="preserve">
-    <value>SELECT
-1 AS `C1`, 
-`Project3`.`nCdSite`, 
-`Project3`.`C1` AS `C2`
-FROM (SELECT
-`Extent5`.`nCdSite`, 
-COUNT(DISTINCT `Extent5`.`sDsIp`) AS `C1`
-FROM `pagina` AS `Extent3` INNER JOIN `visitante` AS `Extent4` ON `Extent3`.`nCdVisitante` = `Extent4`.`nCdVisitante` LEFT OUTER JOIN `visitante` AS `Extent5` ON `Extent3`.`nCdVisitante` = `Extent5`.`nCdVisitante`
- GROUP BY 
-`Extent5`.`nCdSite`) AS `Project3`
-  </value>
   </data>
   <data name="CountGroupByEF5" xml:space="preserve">
     <value>SELECT
@@ -340,5 +327,21 @@ FROM `CrewMembers` AS `Extent3` INNER JOIN `Ranks` AS `Extent4` ON `Extent3`.`Ra
   </data>
   <data name="UpdateWithSelect" xml:space="preserve">
     <value>UPDATE `MovieReleases` SET `Name`='Director\'s Cut' WHERE (`Id` = 1) AND (`Name` = 'Commercial'); SELECT `Timestamp` FROM `MovieReleases`  WHERE  row_count() &gt; 0 and (`Id` = 1) AND (`Name` = 'Director\'s Cut')</value>
+  </data>
+  <data name="UnknownProjectC1" xml:space="preserve">
+    <value>SELECT
+  `Project1`.`ID` AS `C1`
+  FROM `Movies` AS `Project1`
+   WHERE (`Project1`.`ID`) = @p__linq__0
+   ORDER BY 
+  `Project1`.`ID` ASC</value>
+  </data>
+  <data name="UnknownProjectC1EF6" xml:space="preserve">
+    <value>SELECT
+`Project1`.`ID` AS `C1`
+FROM `Movies` AS `Project1`
+ WHERE (((`Project1`.`ID`) = @p__linq__0) AND (NOT ((`Project1`.`ID` IS  NULL) OR (@p__linq__0 IS  NULL)))) OR ((`Project1`.`ID` IS  NULL) AND (@p__linq__0 IS  NULL))
+ ORDER BY 
+`Project1`.`ID` ASC</value>
   </data>
 </root>
