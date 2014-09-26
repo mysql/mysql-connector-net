@@ -1598,6 +1598,95 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       }
       Assert.Equal(0, j);
     }
+
+
+    /// <summary>
+    /// Test to reproduce bug http://bugs.mysql.com/bug.php?id=73643, Exception when using IEnumera.Contains(model.property) in Where predicate
+    /// </summary>
+    [Fact]
+    public void TestContainsListWithCast()
+    {
+#if DEBUG
+      Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
+#endif
+      ReInitDb();
+      using (MovieDBContext db = new MovieDBContext())
+      {
+        db.Database.Initialize(true);
+
+        long[] longs = new long[] { 1, 2, 3 };
+        var q = db.Movies.Where(p => longs.Contains((long)p.ID));
+        string sql = q.ToString();
+#if EF6
+        st.CheckSql(sql, SQLSyntax.TestContainsListWithCast);
+#else
+        st.CheckSql(sql, SQLSyntax.TestContainsListWithCastEF5);
+#endif
+#if DEBUG
+        Debug.WriteLine(sql);
+#endif
+        var l = q.ToList();
+      }
+    }
+
+    /// <summary>
+    /// Test to reproduce bug http://bugs.mysql.com/bug.php?id=73643, Exception when using IEnumera.Contains(model.property) in Where predicate
+    /// </summary>
+    [Fact]
+    public void TestContainsListWitConstant()
+    {
+#if DEBUG
+      Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
+#endif
+      ReInitDb();
+      using( MovieDBContext db = new MovieDBContext() )
+      {
+        db.Database.Initialize(true);
+
+        List<string> strIds = new List<string>(new string[] { "two" });
+        var q = db.Movies.Where(p => strIds.Contains("two"));
+        string sql = q.ToString();
+#if EF6
+        st.CheckSql(sql, SQLSyntax.TestContainsListWitConstant );
+#else
+        st.CheckSql(sql, SQLSyntax.TestContainsListWitConstantEF5);
+#endif
+#if DEBUG
+        Debug.WriteLine(sql);
+#endif
+        var l = q.ToList();
+      }
+    }
+
+    /// <summary>
+    /// Test to reproduce bug http://bugs.mysql.com/bug.php?id=73643, Exception when using IEnumera.Contains(model.property) in Where predicate
+    /// </summary>
+    [Fact]
+    public void TestContainsListWithParameterReference()
+    {
+#if DEBUG
+      Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
+#endif
+      ReInitDb();
+      using( MovieDBContext db = new MovieDBContext() )
+      {
+        db.Database.Initialize(true);
+
+        long[] longs = new long[] { 1, 2, 3 };
+        int myNum = 1;
+        var q = db.Movies.Where(p => longs.Contains(myNum));
+        string sql = q.ToString();
+#if EF6
+        st.CheckSql(sql, SQLSyntax.TestContainsListWithParameterReference );
+#else
+        st.CheckSql(sql, SQLSyntax.TestContainsListWithParameterReferenceEF5);
+#endif
+#if DEBUG
+        Debug.WriteLine(sql);
+#endif
+        var l = q.ToList();
+      }
+    }
   }
 }
 

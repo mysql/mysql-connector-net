@@ -195,7 +195,7 @@ namespace MySql.Data.Entity
   internal class InFragment : NegatableFragment
   {
     public List<LiteralFragment> InList;
-    public ColumnFragment Argument;
+    public SqlFragment Argument;
 
     internal InFragment()
     {
