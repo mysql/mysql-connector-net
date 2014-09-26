@@ -236,9 +236,9 @@ namespace MySql.Data.Entity
 #if EF6
     public override SqlFragment Visit(DbInExpression expression)
     {
-      ColumnFragment cf = Visit(expression.Item as DbPropertyExpression) as ColumnFragment;
+      SqlFragment sf = expression.Item.Accept(this);
       InFragment inf = new InFragment();
-      inf.Argument = cf;
+      inf.Argument = sf;
       for( int i = 0; i < expression.List.Count; i++ )
       {
         LiteralFragment lf = Visit( expression.List[ i ] as DbConstantExpression ) as LiteralFragment;
