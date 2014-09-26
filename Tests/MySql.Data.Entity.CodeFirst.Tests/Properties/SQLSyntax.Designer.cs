@@ -285,6 +285,114 @@ namespace MySql.Data.Entity.CodeFirst.Tests.Properties {
                 return ResourceManager.GetString("ShipQueryMalformedDueMultipleProjecttionsCorrectedEF6", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to SELECT
+        ///  `Extent1`.`ID`, 
+        ///  `Extent1`.`Title`, 
+        ///  `Extent1`.`ReleaseDate`, 
+        ///  `Extent1`.`Genre`, 
+        ///  `Extent1`.`Price`, 
+        ///  `Extent1`.`Data`, 
+        ///  `Extent1`.`Director_ID`
+        ///  FROM `Movies` AS `Extent1`
+        ///   WHERE (@gp1 IN ( @gp2 )) AND (@gp3 IS NOT NULL).
+        /// </summary>
+        internal static string TestContainsListWitConstant {
+            get {
+                return ResourceManager.GetString("TestContainsListWitConstant", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to SELECT
+        ///`Extent1`.`ID`, 
+        ///`Extent1`.`Title`, 
+        ///`Extent1`.`ReleaseDate`, 
+        ///`Extent1`.`Genre`, 
+        ///`Extent1`.`Price`, 
+        ///`Extent1`.`Data`, 
+        ///`Extent1`.`Director_ID`
+        ///FROM `Movies` AS `Extent1`
+        /// WHERE @gp1 = @gp2.
+        /// </summary>
+        internal static string TestContainsListWitConstantEF5 {
+            get {
+                return ResourceManager.GetString("TestContainsListWitConstantEF5", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to SELECT
+        ///  `Extent1`.`ID`, 
+        ///  `Extent1`.`Title`, 
+        ///  `Extent1`.`ReleaseDate`, 
+        ///  `Extent1`.`Genre`, 
+        ///  `Extent1`.`Price`, 
+        ///  `Extent1`.`Data`, 
+        ///  `Extent1`.`Director_ID`
+        ///  FROM `Movies` AS `Extent1`
+        ///   WHERE (`Extent1`.`ID` IN ( 1,2,3 )) AND (`Extent1`.`ID` IS NOT NULL).
+        /// </summary>
+        internal static string TestContainsListWithCast {
+            get {
+                return ResourceManager.GetString("TestContainsListWithCast", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to SELECT
+        ///`Extent1`.`ID`, 
+        ///`Extent1`.`Title`, 
+        ///`Extent1`.`ReleaseDate`, 
+        ///`Extent1`.`Genre`, 
+        ///`Extent1`.`Price`, 
+        ///`Extent1`.`Data`, 
+        ///`Extent1`.`Director_ID`
+        ///FROM `Movies` AS `Extent1`
+        /// WHERE `Extent1`.`ID` IN ( 1,2,3 ).
+        /// </summary>
+        internal static string TestContainsListWithCastEF5 {
+            get {
+                return ResourceManager.GetString("TestContainsListWithCastEF5", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to SELECT
+        ///  `Extent1`.`ID`, 
+        ///  `Extent1`.`Title`, 
+        ///  `Extent1`.`ReleaseDate`, 
+        ///  `Extent1`.`Genre`, 
+        ///  `Extent1`.`Price`, 
+        ///  `Extent1`.`Data`, 
+        ///  `Extent1`.`Director_ID`
+        ///  FROM `Movies` AS `Extent1`
+        ///   WHERE (@p__linq__0 IN ( 1,2,3 )) AND (@p__linq__0 IS NOT NULL).
+        /// </summary>
+        internal static string TestContainsListWithParameterReference {
+            get {
+                return ResourceManager.GetString("TestContainsListWithParameterReference", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SELECT
+        ///`Extent1`.`ID`, 
+        ///`Extent1`.`Title`, 
+        ///`Extent1`.`ReleaseDate`, 
+        ///`Extent1`.`Genre`, 
+        ///`Extent1`.`Price`, 
+        ///`Extent1`.`Data`, 
+        ///`Extent1`.`Director_ID`
+        ///FROM `Movies` AS `Extent1`
+        /// WHERE ((1 = @p__linq__0) OR (2 = @p__linq__0)) OR (3 = @p__linq__0).
+        /// </summary>
+        internal static string TestContainsListWithParameterReferenceEF5 {
+            get {
+                return ResourceManager.GetString("TestContainsListWithParameterReferenceEF5", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to SELECT
