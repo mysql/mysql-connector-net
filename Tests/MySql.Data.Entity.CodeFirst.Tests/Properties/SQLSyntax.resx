@@ -452,4 +452,36 @@ FROM `Movies` AS `Extent1`
 FROM `Movies` AS `Extent1`
  WHERE ((1 = @p__linq__0) OR (2 = @p__linq__0)) OR (3 = @p__linq__0)</value>
   </data>
+  <data name="FirstOrDefaultNestedWithOrderBy" xml:space="preserve">
+    <value>SELECT
+  `Apply1`.`customer_id`, 
+  `Extent5`.`country`
+  FROM (SELECT
+  `Extent1`.`customer_id`, 
+  `Extent1`.`store_id`, 
+  `Extent1`.`first_name`, 
+  `Extent1`.`last_name`, 
+  `Extent1`.`email`, 
+  `Extent1`.`address_id`, 
+  `Extent1`.`active`, 
+  `Extent1`.`create_date`, 
+  `Extent1`.`last_update`, 
+  (SELECT
+  `Project1`.`address_id`
+  FROM `address` AS `Project1`
+   WHERE `Project1`.`address_id` = `Extent1`.`address_id`
+   ORDER BY 
+  `Project1`.`address_id` DESC LIMIT 1) AS `ADDRESS_ID1`, 
+  (SELECT
+  `Project1`.`city_id`
+  FROM `address` AS `Project1`
+   WHERE `Project1`.`address_id` = `Extent1`.`address_id`
+   ORDER BY 
+  `Project1`.`address_id` DESC LIMIT 1) AS `city_id`
+  FROM `customer` AS `Extent1`) AS `Apply1` INNER JOIN `store` AS `Extent3` ON `Apply1`.`store_id` = 
+    `Extent3`.`store_id` LEFT OUTER JOIN `city` AS `Extent4` ON `Apply1`.`city_id` = `Extent4`.`city_id` 
+    LEFT OUTER JOIN `country` AS `Extent5` ON `Extent4`.`country_id` = `Extent5`.`country_id`
+   ORDER BY 
+  `Apply1`.`customer_id` DESC</value>
+  </data>
 </root>

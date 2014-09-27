@@ -133,6 +133,33 @@ namespace MySql.Data.Entity.CodeFirst.Tests.Properties {
                 return ResourceManager.GetString("CountGroupByEF5", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to SELECT
+        ///  `Apply1`.`customer_id`, 
+        ///  `Extent5`.`country`
+        ///  FROM (SELECT
+        ///  `Extent1`.`customer_id`, 
+        ///  `Extent1`.`store_id`, 
+        ///  `Extent1`.`first_name`, 
+        ///  `Extent1`.`last_name`, 
+        ///  `Extent1`.`email`, 
+        ///  `Extent1`.`address_id`, 
+        ///  `Extent1`.`active`, 
+        ///  `Extent1`.`create_date`, 
+        ///  `Extent1`.`last_update`, 
+        ///  (SELECT
+        ///  `Project1`.`address_id`
+        ///  FROM `address` AS `Project1`
+        ///   WHERE `Project1`.`address_id` = `Extent1`.`address_id`
+        ///   ORDER BY 
+        ///  `Project1`.`address_id` DESC LIMIT 1) AS `ADDRESS [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string FirstOrDefaultNestedWithOrderBy {
+            get {
+                return ResourceManager.GetString("FirstOrDefaultNestedWithOrderBy", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to SELECT
