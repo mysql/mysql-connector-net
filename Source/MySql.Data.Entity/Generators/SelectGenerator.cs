@@ -244,12 +244,16 @@ NoChanges:
         {
           SelectStatement newColSelect = new SelectStatement(this);
           newColSelect.From = applySel.From;
-      newColSelect.Where = applySel.Where;
+          newColSelect.Where = applySel.Where;
           if (isInputSelect)
           {
             VisitAndReplaceTableName(newColSelect.Where, (input as SelectStatement).From.Name, input.Name, null);
           }
           newColSelect.Limit = applySel.Limit;
+          newColSelect.OrderBy = applySel.OrderBy;
+          newColSelect.Skip = applySel.Skip;
+          newColSelect.GroupBy = applySel.GroupBy;
+          newColSelect.IsDistinct = applySel.IsDistinct;
           newColSelect.Columns.Add( f );
 
           newColSelect.Wrap(scope);

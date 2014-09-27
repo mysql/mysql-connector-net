@@ -23,6 +23,7 @@
 - Fix for Generated SQL requests column that doesn't exist in LINQ to Entities (MySql bug #72004, Oracle bug #19681348).
 - Fix for MySQL Connector/NET generates incorrect SQL for LINQ 'StartsWith' queries (MySql bug #72058, Oracle bug #19680236).
 - Fix for Exception when using IEnumerable.Contains(model.property) in Where predicate (MySql bug #73643, Oracle bug #19690370).
+- Fix for Generated Sql does not contain ORDER BY statement whose is requested by LINQ (MySql bug #73549, Oracle bug #19698010).
 
 
 6.8.3
