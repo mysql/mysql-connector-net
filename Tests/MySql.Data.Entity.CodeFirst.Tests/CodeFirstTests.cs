@@ -503,6 +503,9 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
             FirstMovieFormat = p.Formats.Count == 0 ? 0.0 : p.Formats.FirstOrDefault().Format
           });
         string sql = q.ToString();
+#if DEBUG
+        Debug.WriteLine(sql);
+#endif
         int j = q.Count();
         foreach (var r in q)
         {
@@ -511,8 +514,41 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         Assert.Equal(0, j);
       }
     }
+
+    /// <summary>
+    /// This tests the fix for bug 73549, Generated Sql does not contain ORDER BY statement whose is requested by LINQ.
+    /// </summary>
+    [Fact]
+    public void FirstOrDefaultNestedWithOrderBy()
+    {
+#if DEBUG
+      Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
+#endif
+      using (SakilaDb db = new SakilaDb())
+      {
+        var q = from cu in db.customers
+                let curAddr = db.addresses.OrderByDescending(p => p.address_id).Where(p => p.address_id == cu.address_id).FirstOrDefault()
+                join sto in db.stores on cu.store_id equals sto.store_id
+                orderby cu.customer_id descending
+                select new
+                {
+                  curAddr.city.country.country1
+                };
+        string sql = q.ToString();
+        st.CheckSql(sql, SQLSyntax.FirstOrDefaultNestedWithOrderBy);
+#if DEBUG
+        Debug.WriteLine(sql);
+#endif
+        int j = q.Count();
+        foreach (var r in q)
+        {
+          //Debug.WriteLine( r.country1 );
+        }
+        Assert.Equal(599, j);
+      }
+    }
   
-     /// <summary>
+    /// <summary>
     /// SUPPORT FOR DATE TYPES WITH PRECISION
     /// </summary>
     [Fact]

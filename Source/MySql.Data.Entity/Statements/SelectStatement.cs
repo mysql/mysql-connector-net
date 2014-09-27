@@ -48,8 +48,8 @@ namespace MySql.Data.Entity
     public SqlFragment Where;
     public SqlFragment Limit;
     public SqlFragment Skip;
-    public List<SqlFragment> GroupBy { get; private set; }
-    public List<SortFragment> OrderBy { get; private set; }
+    public List<SqlFragment> GroupBy { get; internal set; }
+    public List<SortFragment> OrderBy { get; internal set; }
     public bool IsDistinct;
 
     public void AddGroupBy(SqlFragment f)
