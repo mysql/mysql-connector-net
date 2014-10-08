@@ -386,7 +386,9 @@
           <CustomToolNamespace>MySql.Data.Entity.Tests</CustomToolNamespace>
         </EntityDeploy>
         <EmbeddedResource Include="Properties\procs.sql" />
-        <EmbeddedResource Include="Properties\schema.sql" />
+        <EmbeddedResource Include="Properties\schema.sql">
+          <SubType>Designer</SubType>
+        </EmbeddedResource>
         <EmbeddedResource Include="Properties\Resources.resx">
           <SubType>Designer</SubType>
         </EmbeddedResource>

@@ -141,7 +141,25 @@ namespace MySql.Data.Entity
       MetadataProperty property;
       bool propExists = target.MetadataProperties.TryGetValue("DefiningQuery", true, out property);
       if (propExists && property.Value != null)
-        fragment.DefiningQuery = new LiteralFragment(property.Value as string);
+      {
+        
+        MetadataProperty prop2;
+
+        if( target.MetadataProperties.TryGetValue( "http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator:Type", true, out prop2 ) && ( prop2.Value as string == "Views" ))
+
+        {
+          
+          // avoid storing view query as DefiningQuery because that hurts query fusing.
+          fragment.Schema = target.MetadataProperties.GetValue("http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator:Schema", true).Value as string;
+          fragment.Table = target.Name;
+       
+        } else {
+          fragment.DefiningQuery = new LiteralFragment(property.Value as string);
+
+        }
+
+      }
+
       else
       {
         fragment.Schema = target.EntityContainer.Name;

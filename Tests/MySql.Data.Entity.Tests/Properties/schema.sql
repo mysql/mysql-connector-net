@@ -255,6 +255,10 @@ insert into `VideoGameTitle` ( Id, Name, Developer )
 	( 4, 'Resistance', 'Insomniac' ), ( 5, 'FIFA 11', 'EA' ), ( 6, 'Fallout 3', 'Bethesda' ), 
 	( 7, '3D Dot Game Heroes', 'From' ), ( 8, 'Mario Galaxy', 'Nintendo' );
 
+create view `viVideoGameTitle` as
+select vi.`Id`, vi.`Name`, vi.`Developer`
+from `VideoGameTitle` vi;
+
 create table `VideoGamePlatform` ( 
 	IdGamingPlatform int( 11 ) not null,
 	IdVideoGameTitle int( 11 ) not null,

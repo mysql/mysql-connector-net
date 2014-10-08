@@ -92,6 +92,23 @@ namespace MySql.Data.Entity.Tests
             }
         }
         private global::System.Data.Objects.ObjectQuery<videogametitle> _videogametitle;
+
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        public global::System.Data.Objects.ObjectQuery<vivideogametitle> vivideogametitle
+        {
+            get
+            {
+                if ((_vivideogametitle == null))
+                {
+                    _vivideogametitle = base.CreateQuery<vivideogametitle>("vivideogametitle");
+                }
+                return _vivideogametitle;
+            }
+        }
+        private global::System.Data.Objects.ObjectQuery<vivideogametitle> _vivideogametitle;
+
         /// <summary>
         /// There are no comments for gamingplatform in the schema.
         /// </summary>
@@ -112,6 +129,13 @@ namespace MySql.Data.Entity.Tests
         public void AddTovideogametitle(videogametitle videogametitle)
         {
             base.AddObject("videogametitle", videogametitle);
+        }
+        /// <summary>
+        /// Deprecated Method for adding a new object to the vivideogametitle EntitySet. Consider using the .Add method of the associated ObjectSet&lt;T&gt; property instead.
+        /// </summary>
+        public void AddTovivideogametitle(vivideogametitle vivideogametitle)
+        {
+            base.AddObject("vivideogametitle", vivideogametitle);
         }
     }
     /// <summary>
@@ -505,5 +529,109 @@ namespace MySql.Data.Entity.Tests
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// No Metadata Documentation available.
+    /// </summary>
+    [global::System.Data.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName="testModel1", Name="vivideogametitle")]
+    [global::System.Serializable()]
+    [global::System.Runtime.Serialization.DataContractAttribute(IsReference=true)]
+    public partial class vivideogametitle : global::System.Data.Objects.DataClasses.EntityObject
+    {
+        #region Factory Method
+    
+        /// <summary>
+        /// Create a new vivideogametitle object.
+        /// </summary>
+        /// <param name="id">Initial value of the Id property.</param>
+        public static vivideogametitle Createvivideogametitle(global::System.Int32 id)
+        {
+            vivideogametitle vivideogametitle = new vivideogametitle();
+            vivideogametitle.Id = id;
+            return vivideogametitle;
+        }
+
+        #endregion
+
+        #region Simple Properties
+
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
+        [global::System.Runtime.Serialization.DataMemberAttribute()]
+        public global::System.Int32 Id
+        {
+            get
+            {
+                return _Id;
+            }
+            set
+            {
+                if (_Id != value)
+                {
+                    OnIdChanging(value);
+                    ReportPropertyChanging("Id");
+                    _Id = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value);
+                    ReportPropertyChanged("Id");
+                    OnIdChanged();
+                }
+            }
+        }
+        private global::System.Int32 _Id;
+        partial void OnIdChanging(global::System.Int32 value);
+        partial void OnIdChanged();
+
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [global::System.Runtime.Serialization.DataMemberAttribute()]
+        public global::System.String Name
+        {
+            get
+            {
+                return _Name;
+            }
+            set
+            {
+                OnNameChanging(value);
+                ReportPropertyChanging("Name");
+                _Name = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
+                ReportPropertyChanged("Name");
+                OnNameChanged();
+            }
+        }
+        private global::System.String _Name;
+        partial void OnNameChanging(global::System.String value);
+        partial void OnNameChanged();
+
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [global::System.Runtime.Serialization.DataMemberAttribute()]
+        public global::System.String Developer
+        {
+            get
+            {
+                return _Developer;
+            }
+            set
+            {
+                OnDeveloperChanging(value);
+                ReportPropertyChanging("Developer");
+                _Developer = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
+                ReportPropertyChanged("Developer");
+                OnDeveloperChanged();
+            }
+        }
+        private global::System.String _Developer;
+        partial void OnDeveloperChanging(global::System.String value);
+        partial void OnDeveloperChanged();
+
+        #endregion
+
     }
 }
