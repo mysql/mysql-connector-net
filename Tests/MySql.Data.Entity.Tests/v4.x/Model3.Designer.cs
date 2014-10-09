@@ -630,7 +630,7 @@ namespace MySql.Data.Entity.Tests
                 {
                     OnIdChanging(value);
                     ReportPropertyChanging("Id");
-                    _Id = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, "Id");
+                    _Id = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value);
                     ReportPropertyChanged("Id");
                     OnIdChanged();
                 }
@@ -656,7 +656,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnNameChanging(value);
                 ReportPropertyChanging("Name");
-                _Name = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true, "Name");
+                _Name = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
                 ReportPropertyChanged("Name");
                 OnNameChanged();
             }
@@ -681,7 +681,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnDeveloperChanging(value);
                 ReportPropertyChanging("Developer");
-                _Developer = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true, "Developer");
+                _Developer = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
                 ReportPropertyChanged("Developer");
                 OnDeveloperChanged();
             }
