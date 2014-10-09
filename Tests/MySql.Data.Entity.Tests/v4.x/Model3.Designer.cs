@@ -130,6 +130,32 @@ namespace MySql.Data.Entity.Tests
                 return this._videogametitle;
             }
         }
+
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
+#if !EF6 
+        public global::System.Data.Objects.ObjectQuery<vivideogametitle> vivideogametitle
+#else 
+        public global::System.Data.Entity.Core.Objects.ObjectQuery<vivideogametitle> vivideogametitle
+#endif
+        {
+            get
+            {
+                if ((_vivideogametitle == null))
+                {
+                    _vivideogametitle = base.CreateQuery<vivideogametitle>("vivideogametitle");
+                }
+                return _vivideogametitle;
+            }
+        }
+#if !EF6 
+        private global::System.Data.Objects.ObjectQuery<vivideogametitle> _vivideogametitle;
+#else 
+        private global::System.Data.Entity.Core.Objects.ObjectQuery<vivideogametitle> _vivideogametitle;
+#endif
+
         [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
 #if !EF6 
     private global::System.Data.Objects.ObjectQuery<videogametitle> _videogametitle; 
@@ -616,7 +642,7 @@ namespace MySql.Data.Entity.Tests
 #if !EF6 
     public partial class videogametitle : global::System.Data.Objects.DataClasses.EntityObject 
 #else 
-  public partial class videogametitle : global::System.Data.Entity.Core.Objects.DataClasses.EntityObject 
+    public partial class videogametitle : global::System.Data.Entity.Core.Objects.DataClasses.EntityObject 
 #endif
     {
         /// <summary>
@@ -773,5 +799,144 @@ namespace MySql.Data.Entity.Tests
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// No Metadata Documentation available.
+    /// </summary>
+#if !EF6 
+    [global::System.Data.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName="testModel1", Name="vivideogametitle")]
+#else
+    [global::System.Data.Entity.Core.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName="testModel1", Name="vivideogametitle")] 
+#endif    
+    [global::System.Serializable()]
+    [global::System.Runtime.Serialization.DataContractAttribute(IsReference=true)]
+#if !EF6 
+    public partial class vivideogametitle : global::System.Data.Objects.DataClasses.EntityObject
+#else
+    public partial class vivideogametitle : global::System.Data.Entity.Core.Objects.DataClasses.EntityObject 
+#endif
+    {
+        #region Factory Method
+    
+        /// <summary>
+        /// Create a new vivideogametitle object.
+        /// </summary>
+        /// <param name="id">Initial value of the Id property.</param>
+        public static vivideogametitle Createvivideogametitle(global::System.Int32 id)
+        {
+            vivideogametitle vivideogametitle = new vivideogametitle();
+            vivideogametitle.Id = id;
+            return vivideogametitle;
+        }
+
+        #endregion
+
+        #region Simple Properties
+
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+#if !EF6 
+        [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
+#else 
+        [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
+#endif
+        [global::System.Runtime.Serialization.DataMemberAttribute()]
+        [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
+        public global::System.Int32 Id
+        {
+            get
+            {
+                return _Id;
+            }
+            set
+            {
+                if (_Id != value)
+                {
+                    OnIdChanging(value);
+                    ReportPropertyChanging("Id");
+#if !EF6 
+                    _Id = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, "Id");
+#else
+                    _Id = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, "Id");
+#endif
+                    ReportPropertyChanged("Id");
+                    OnIdChanged();
+                }
+            }
+        }
+        private global::System.Int32 _Id;
+        partial void OnIdChanging(global::System.Int32 value);
+        partial void OnIdChanged();
+
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+#if !EF6 
+        [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
+#else 
+        [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
+#endif
+        [global::System.Runtime.Serialization.DataMemberAttribute()]
+        [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
+        public global::System.String Name
+        {
+            get
+            {
+                return _Name;
+            }
+            set
+            {
+                OnNameChanging(value);
+                ReportPropertyChanging("Name");
+#if !EF6 
+                _Name = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true, "Name");
+#else
+                _Name = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, true, "Name");
+#endif
+                ReportPropertyChanged("Name");
+                OnNameChanged();
+            }
+        }
+        private global::System.String _Name;
+        partial void OnNameChanging(global::System.String value);
+        partial void OnNameChanged();
+
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+#if !EF6 
+        [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
+#else 
+        [global::System.Data.Entity.Core.Objects.DataClasses.EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
+#endif
+        [global::System.Runtime.Serialization.DataMemberAttribute()]
+        [global::System.CodeDom.Compiler.GeneratedCode("System.Data.Entity.Design.EntityClassGenerator", "4.0.0.0")]
+        public global::System.String Developer
+        {
+            get
+            {
+                return _Developer;
+            }
+            set
+            {
+                OnDeveloperChanging(value);
+                ReportPropertyChanging("Developer");
+#if !EF6 
+                _Developer = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true, "Developer");
+#else
+                _Developer = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, true, "Developer");
+#endif
+                ReportPropertyChanged("Developer");
+                OnDeveloperChanged();
+            }
+        }
+        private global::System.String _Developer;
+        partial void OnDeveloperChanging(global::System.String value);
+        partial void OnDeveloperChanged();
+
+        #endregion
+
     }
 }

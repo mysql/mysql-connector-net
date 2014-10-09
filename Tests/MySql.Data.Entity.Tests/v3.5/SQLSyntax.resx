@@ -581,6 +581,13 @@ SUM(`Extent1`.`Freight`) AS `A1`
 FROM `Orders` AS `Extent1` INNER JOIN `Shops` AS `Extent2` ON `Extent1`.`ShopId` = `Extent2`.`Id`
  WHERE `Extent2`.`Id` = 2) AS `GroupBy1`</value>
   </data>
+  <data name="TakeWithView" xml:space="preserve">
+    <value>SELECT
+  `Id`, 
+  `Name`, 
+  `Developer`
+  FROM `vivideogametitle` LIMIT 10</value>
+  </data>
   <data name="Top" xml:space="preserve">
     <value>SELECT
 `Limit1`.`Id`, 

@@ -770,6 +770,13 @@ SUM(`Extent1`.`Freight`) AS `A1`
 FROM `Orders` AS `Extent1`
  WHERE `Extent1`.`ShopId` = 2) AS `GroupBy1`</value>
   </data>
+  <data name="TakeWithView" xml:space="preserve">
+    <value>SELECT
+  `Id`, 
+  `Name`, 
+  `Developer`
+  FROM `vivideogametitle` LIMIT 10</value>
+  </data>
   <data name="Top" xml:space="preserve">
     <value>SELECT
 `Id`, 
