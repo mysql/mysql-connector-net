@@ -5,6 +5,8 @@
 - Fix for Exception when using IEnumerable.Contains(model.property) in Where predicate (MySql bug #73643, Oracle bug #19690370).
 - Fix for Generated Sql does not contain ORDER BY statement whose is requested by LINQ (MySql bug #73549, Oracle bug #19698010).
 - Fix for Web providers registration in machine.config (removed v20 suffix) (MySQL Bug #74080, Oracle Bug #19715398)
+- Fix for Error of "Every derived table must have an alias" in LINQ to Entities when using EF6 + DbFirst + View + Take
+  (MySql Bug #72148, Oracle bug #19356006).
 
 
 6.9.4

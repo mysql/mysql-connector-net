@@ -4,11 +4,18 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="testModel1.Store" Alias="Self" Provider="MySql.Data.MySqlClient" ProviderManifestToken="5.1" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+      <Schema Namespace="testModel1.Store" Alias="Self" Provider="MySql.Data.MySqlClient" ProviderManifestToken="5.1" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityContainer Name="testModel1StoreContainer">
           <EntitySet Name="gamingplatform" EntityType="testModel1.Store.gamingplatform" store:Type="Tables" Schema="test" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
           <EntitySet Name="videogameplatform" EntityType="testModel1.Store.videogameplatform" store:Type="Tables" Schema="test" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
           <EntitySet Name="videogametitle" EntityType="testModel1.Store.videogametitle" store:Type="Tables" Schema="test" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="vivideogametitle" EntityType="testModel1.Store.vivideogametitle" store:Type="Views" store:Schema="test">
+            <DefiningQuery>SELECT
+`vivideogametitle`.`Id`, 
+`vivideogametitle`.`Name`, 
+`vivideogametitle`.`Developer`
+FROM `vivideogametitle` AS `vivideogametitle`</DefiningQuery>
+          </EntitySet>
           <AssociationSet Name="fk_VideoGamePlatform_Platform" Association="testModel1.Store.fk_VideoGamePlatform_Platform">
             <End Role="gamingplatform" EntitySet="gamingplatform" />
             <End Role="videogameplatform" EntitySet="videogameplatform" />
@@ -43,6 +50,18 @@
           <Property Name="Name" Type="varchar" MaxLength="50" />
           <Property Name="Developer" Type="varchar" MaxLength="50" />
         </EntityType>
+
+<!--Errors Found During Generation:
+warning 6002: The table/view 'def.test.vivideogametitle' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="vivideogametitle">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" Nullable="false" />
+          <Property Name="Name" Type="varchar" MaxLength="50" />
+          <Property Name="Developer" Type="varchar" MaxLength="50" />
+        </EntityType>
+
         <Association Name="fk_VideoGamePlatform_Platform">
           <End Role="gamingplatform" Type="testModel1.Store.gamingplatform" Multiplicity="1" />
           <End Role="videogameplatform" Type="testModel1.Store.videogameplatform" Multiplicity="*" />
@@ -76,6 +95,7 @@
           <EntitySet Name="gamingplatform" EntityType="testModel1.gamingplatform" />
           <EntitySet Name="videogameplatform" EntityType="testModel1.videogameplatform" />
           <EntitySet Name="videogametitle" EntityType="testModel1.videogametitle" />
+          <EntitySet Name="vivideogametitle" EntityType="testModel1.vivideogametitle" />
           <AssociationSet Name="fk_VideoGamePlatform_Platform" Association="testModel1.fk_VideoGamePlatform_Platform">
             <End Role="gamingplatform" EntitySet="gamingplatform" />
             <End Role="videogameplatform" EntitySet="videogameplatform" />
@@ -114,6 +134,16 @@
           <Property Name="Developer" Type="String" />
           <NavigationProperty Name="videogameplatform" Relationship="testModel1.fk_VideoGamePlatform_VideoGameTitle" FromRole="videogametitle" ToRole="videogameplatform" />
         </EntityType>
+
+        <EntityType Name="vivideogametitle">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" />
+          <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Developer" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+        </EntityType>
+
         <Association Name="fk_VideoGamePlatform_Platform">
           <End Role="gamingplatform" Type="testModel1.gamingplatform" Multiplicity="1" />
           <End Role="videogameplatform" Type="testModel1.videogameplatform" Multiplicity="*" />
@@ -171,6 +201,17 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+
+          <EntitySetMapping Name="vivideogametitle">
+            <EntityTypeMapping TypeName="IsTypeOf( testModel1.vivideogametitle )">
+              <MappingFragment StoreEntitySet="vivideogametitle">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Developer" ColumnName="Developer" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+
           <AssociationSetMapping Name="fk_VideoGamePlatform_Platform" TypeName="testModel1.fk_VideoGamePlatform_Platform" StoreEntitySet="videogameplatform">
             <EndProperty Name="gamingplatform">
               <ScalarProperty Name="Id" ColumnName="IdGamingPlatform" />
