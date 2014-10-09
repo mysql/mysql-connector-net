@@ -916,6 +916,19 @@ namespace MySql.Data.Entity.Tests.Properties {
                 return ResourceManager.GetString("SumWithPredicate", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to SELECT
+        ///  `Id`, 
+        ///  `Name`, 
+        ///  `Developer`
+        ///  FROM `vivideogametitle` LIMIT 10.
+        /// </summary>
+        internal static string TakeWithView {
+            get {
+                return ResourceManager.GetString("TakeWithView", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to SELECT
