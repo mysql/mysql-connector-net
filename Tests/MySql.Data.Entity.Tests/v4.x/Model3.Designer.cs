@@ -857,7 +857,7 @@ namespace MySql.Data.Entity.Tests
                     OnIdChanging(value);
                     ReportPropertyChanging("Id");
 #if !EF6 
-                    _Id = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, "Id");
+                    _Id = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value);
 #else
                     _Id = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, "Id");
 #endif
@@ -891,7 +891,7 @@ namespace MySql.Data.Entity.Tests
                 OnNameChanging(value);
                 ReportPropertyChanging("Name");
 #if !EF6 
-                _Name = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true, "Name");
+                _Name = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
 #else
                 _Name = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, true, "Name");
 #endif
@@ -924,7 +924,7 @@ namespace MySql.Data.Entity.Tests
                 OnDeveloperChanging(value);
                 ReportPropertyChanging("Developer");
 #if !EF6 
-                _Developer = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true, "Developer");
+                _Developer = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
 #else
                 _Developer = global::System.Data.Entity.Core.Objects.DataClasses.StructuralObject.SetValidValue(value, true, "Developer");
 #endif
