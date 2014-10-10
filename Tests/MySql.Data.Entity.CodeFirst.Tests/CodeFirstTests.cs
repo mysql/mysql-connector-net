@@ -124,9 +124,9 @@ namespace MySql.Data.Entity.CodeFirst.Tests
       ReInitDb();
       using (MovieDBContext db = new MovieDBContext())
       {
-		db.Database.Delete();
+        db.Database.Delete();
         db.Database.CreateIfNotExists();
-		
+
         db.Database.ExecuteSqlCommand(
 @"DROP TABLE IF EXISTS `MovieReleases`");
 
@@ -1314,6 +1314,23 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         Debug.WriteLine(sql);
 #endif
         var l = q.ToList();
+      }
+    }
+
+    [Fact]
+    public void ReplaceTableNameVisitor()
+    {
+      using (SakilaDb context = new SakilaDb())
+      {
+        var date = new DateTime(2005, 6, 1);
+        var rentals = context.customers.Where(t => t.rentals.Any(r => r.rental_date < date)).OrderBy(o => o.customer_id);
+        string sql = rentals.ToString();
+        st.CheckSql(sql, SQLSyntax.ReplaceNameVisitorQuery);
+#if DEBUG
+        Debug.WriteLine(sql);
+#endif
+        var result = rentals.ToList();
+        Assert.Equal(520, rentals.Count());
       }
     }
   }

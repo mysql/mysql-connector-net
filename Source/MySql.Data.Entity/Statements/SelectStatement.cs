@@ -321,7 +321,34 @@ namespace MySql.Data.Entity
 
     internal override void Accept(SqlFragmentVisitor visitor)
     {
-      throw new System.NotImplementedException();
+      if (From != null) From.Accept(visitor);
+      if (Columns != null)
+      {
+        foreach (ColumnFragment cf in Columns)
+        {
+          cf.Accept(visitor);
+        }
+      }
+      if (Where != null) Where.Accept(visitor);
+      if (Limit != null) Limit.Accept(visitor);
+      if (Skip != null) Skip.Accept(visitor);
+      if (GroupBy != null)
+      {
+        foreach (SqlFragment grp in GroupBy)
+        {
+          grp.Accept(visitor);
+        }
+      }
+      if (OrderBy != null)
+      {
+        foreach (SortFragment sort in OrderBy)
+        {
+          sort.Accept(visitor);
+        }
+      }
+
+      visitor.Visit(this);
+
     }
   }
 }
