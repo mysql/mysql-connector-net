@@ -7,6 +7,7 @@
 - Fix for Web providers registration in machine.config (removed v20 suffix) (MySQL Bug #74080, Oracle Bug #19715398)
 - Fix for Error of "Every derived table must have an alias" in LINQ to Entities when using EF6 + DbFirst + View + Take
   (MySql Bug #72148, Oracle bug #19356006).
+- Fix for 'the method or operation is not implemented' when using linq with orderby (MySQL Bug #70722, Oracle Bug #19681723).
 
 
 6.9.4
