@@ -484,4 +484,23 @@ FROM `Movies` AS `Extent1`
    ORDER BY 
   `Apply1`.`customer_id` DESC</value>
   </data>
+  <data name="ReplaceNameVisitorQuery" xml:space="preserve">
+    <value>SELECT
+  `Project2`.`customer_id`, 
+  `Project2`.`store_id`, 
+  `Project2`.`first_name`, 
+  `Project2`.`last_name`, 
+  `Project2`.`email`, 
+  `Project2`.`address_id`, 
+  `Project2`.`active`, 
+  `Project2`.`create_date`, 
+  `Project2`.`last_update`
+  FROM `customer` AS `Project2`
+   WHERE EXISTS(SELECT
+  1 AS `C1`
+  FROM `rental` AS `Extent2`
+   WHERE (`Project2`.`customer_id` = `Extent2`.`customer_id`) AND (`Extent2`.`rental_date` &lt; @p__linq__0))
+   ORDER BY 
+  `Project2`.`customer_id` ASC</value>
+  </data>
 </root>

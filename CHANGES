@@ -26,6 +26,7 @@
 - Fix for Generated Sql does not contain ORDER BY statement whose is requested by LINQ (MySql bug #73549, Oracle bug #19698010).
 - Fix for Error of "Every derived table must have an alias" in LINQ to Entities when using EF6 + DbFirst + View + Take
   (MySql Bug #72148, Oracle bug #19356006).
+- Fix for 'the method or operation is not implemented' when using linq with orderby (MySQL Bug #70722, Oracle Bug #19681723).
 
 
 6.8.3
