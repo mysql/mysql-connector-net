@@ -68,7 +68,6 @@ namespace MySql.Data.Entity
   /// </summary>
   internal interface SqlFragmentVisitor
   {
-    void Visit(SqlFragment f);
     void Visit(IsNullFragment f);
     void Visit(CaseFragment f);
     void Visit(ExistsFragment f);
@@ -78,6 +77,12 @@ namespace MySql.Data.Entity
     void Visit(BinaryFragment f);
     void Visit(ColumnFragment f);
     void Visit(LiteralFragment f);
+    void Visit(UnionFragment f);
+    void Visit(SortFragment f);
+    void Visit(ListFragment f);
+    void Visit(SelectStatement f);
+    void Visit(TableFragment f);
+    void Visit(JoinFragment f);
   }
 
   /// <summary>
@@ -94,10 +99,6 @@ namespace MySql.Data.Entity
       _oldTableName = oldTableName;
       _newTableName = newTableName;
       _dicColumns = dicColumns;
-    }
-
-    public void Visit(SqlFragment f)
-    {
     }
 
     public void Visit(IsNullFragment f)
@@ -133,7 +134,7 @@ namespace MySql.Data.Entity
       ColumnFragment cf;
       if ((f != null) && (f.TableName == _oldTableName))
         f.TableName = _newTableName;
-      if (_dicColumns != null && _dicColumns.TryGetValue(f.ColumnName, out cf))
+      if (_dicColumns != null && f.ColumnName != null && _dicColumns.TryGetValue(f.ColumnName, out cf))
       {
         // remove alias
         f.ColumnName = cf.ColumnName;
@@ -147,6 +148,31 @@ namespace MySql.Data.Entity
       f.Literal = f.Literal.Replace(string.Format("`{0}`", _oldTableName),
         string.Format("`{0}`", _newTableName));
     }
+
+    public void Visit(UnionFragment f)
+    {
+    }
+
+    public void Visit(SortFragment f)
+    {
+    }
+
+    public void Visit(ListFragment f)
+    {
+    }
+
+    public void Visit(SelectStatement f)
+    {
+    }
+
+    public void Visit(TableFragment f)
+    {
+    }
+
+    public void Visit(JoinFragment f)
+    {
+    }
+
   }  
 
   internal class BinaryFragment : NegatableFragment
@@ -186,8 +212,8 @@ namespace MySql.Data.Entity
 
     internal override void Accept(SqlFragmentVisitor visitor)
     {
-      Left.Accept(visitor);
-      Right.Accept(visitor);
+      if (Left != null) Left.Accept(visitor);
+      if (Right != null) Right.Accept(visitor);
       visitor.Visit(this);
     }
   }
@@ -218,7 +244,9 @@ namespace MySql.Data.Entity
 
     internal override void Accept(SqlFragmentVisitor visitor)
     {
-      Argument.Accept(visitor);
+      // Most Accept methods are postorder, this one is preorden due to semantics of ApplyUnionEmulatorVisitor.
+      visitor.Visit(this);
+      if (Argument != null) Argument.Accept(visitor);
       for (int i = 0; i < InList.Count; i++)
         InList[i].Accept(visitor);
       visitor.Visit(this);
@@ -258,6 +286,7 @@ namespace MySql.Data.Entity
         Then[i].Accept(visitor);
       for (int i = 0; i < When.Count; i++)
         When[i].Accept(visitor);
+      if (Else != null) Else.Accept(visitor);
       visitor.Visit(this);
     }
   }
@@ -327,6 +356,8 @@ namespace MySql.Data.Entity
 
     internal override void Accept(SqlFragmentVisitor visitor)
     {
+      if (Literal != null) Literal.Accept(visitor);
+      //if (PropertyFragment != null) PropertyFragment.Accept(visitor);
       visitor.Visit(this);
     }
   }
@@ -416,6 +447,8 @@ namespace MySql.Data.Entity
     internal override void Accept(SqlFragmentVisitor visitor)
     {
       Argument.Accept(visitor);
+      Pattern.Accept(visitor);
+      if (Escape != null) Escape.Accept(visitor);
       visitor.Visit(this);
     }
   }
@@ -444,6 +477,7 @@ namespace MySql.Data.Entity
     {
       for (int i = 0; i < Fragments.Count; i++)
         Fragments[i].Accept(visitor);
+      visitor.Visit(this);
     }
   }
 
@@ -463,7 +497,7 @@ namespace MySql.Data.Entity
 
     internal override void Accept(SqlFragmentVisitor visitor)
     {
-      throw new System.NotImplementedException();
+      // nothing
     }
   }
 
@@ -543,7 +577,7 @@ namespace MySql.Data.Entity
 
     internal override void Accept(SqlFragmentVisitor visitor)
     {
-      throw new System.NotImplementedException();
+      // nothing
     }
   }
 
@@ -573,6 +607,7 @@ namespace MySql.Data.Entity
     internal override void Accept(SqlFragmentVisitor visitor)
     {
       Column.Accept(visitor);
+      visitor.Visit(this);
     }
   }
 
@@ -602,7 +637,7 @@ namespace MySql.Data.Entity
 
     internal override void Accept(SqlFragmentVisitor visitor)
     {
-      throw new System.NotImplementedException();
+      visitor.Visit(this);
     }
   }
 

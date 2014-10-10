@@ -1,4 +1,4 @@
-﻿// Copyright © 2008, 2011, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2008, 2014, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -82,6 +82,14 @@ namespace MySql.Data.Entity
       if (col == null)
         col = Right.GetColumnFromProperties(properties);
       return col;
+    }
+
+    internal override void Accept(SqlFragmentVisitor visitor)
+    {
+      if (Left != null)
+        Left.Accept(visitor);
+      if (Right != null)
+        Right.Accept(visitor);
     }
   }
 }
