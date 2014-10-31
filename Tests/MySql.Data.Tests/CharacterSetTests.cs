@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -494,6 +494,55 @@ namespace MySql.Data.MySqlClient.Tests
    {
      st.execSQL("DROP TABLE IF EXISTS TEST");
      st.execSQL("DROP TABLE IF EXISTS t62094");   
+   }
+
+   [Fact]
+   public void UTF16LETest()
+   {
+     using (MySqlDataReader reader = st.execReader("select _utf16le 'utf16le test';"))
+     {
+       while (reader.Read())
+       {
+         Assert.Equal("瑵ㅦ氶⁥整瑳", reader[0].ToString());
+       }
+     }
+   }
+
+   [Fact]
+   public void GEOSTD8Test()
+   {
+     MySqlConnection dbconn = new MySqlConnection(st.GetConnectionString(false));
+     try
+     {
+       using (MySqlCommand cmd = new MySqlCommand("select _geostd8 'geostd8 test';", dbconn))
+       {
+         dbconn.Open();
+         using (MySqlDataReader reader = cmd.ExecuteReader())
+         {
+           while (reader.Read())
+           {
+             Assert.Equal("geostd8 test", reader[0].ToString());
+           }
+         }
+       }
+       throw new Exception("The test should have failed with a MySqlException but it does not.");
+     }
+     catch (MySqlException ex)
+     {
+       while (ex.InnerException != null)
+         ex = (MySqlException)ex.InnerException;
+
+       Assert.Equal(typeof(MySqlException), ex.GetType());
+       Assert.Equal("Character set 'geostd8' is not supported by .Net Framework.", ex.Message);
+     }
+     catch (Exception ex)
+     {
+       Assert.Equal(typeof(MySqlException), ex.GetType());
+     }
+     finally
+     {
+       dbconn.Close();
+     }
    }
   }
 }
