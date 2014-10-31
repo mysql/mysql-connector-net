@@ -101,6 +101,13 @@ namespace MySql.Data.MySqlClient
       curTransaction = transaction;
     }
 
+    #region Destructor
+    ~MySqlCommand()
+    {
+      Dispose(false);
+    }
+    #endregion
+
     #region Properties
 
 
@@ -958,8 +965,16 @@ namespace MySql.Data.MySqlClient
 
     public void Dispose()
     {
+      Dispose(true);
+      GC.SuppressFinalize(this);
+    }
+
+    protected override void Dispose(bool disposing)
+    {
       if (statement != null && statement.IsPrepared)
         statement.CloseStatement();
+
+      base.Dispose(disposing);
     }
   }
 }
