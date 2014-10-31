@@ -64,8 +64,6 @@ namespace MySql.Data.MySqlClient
     private int cacheAge;
     private bool internallyCreated;
 
-    private static List<string> SingleWordKeywords = new List<string>(new string[] { "COMMIT", "ROLLBACK", "USE", "BEGIN", "END" });
-
     /// <include file='docs/mysqlcommand.xml' path='docs/ctor1/*'/>
     public MySqlCommand()
     {
@@ -466,9 +464,10 @@ namespace MySql.Data.MySqlClient
         else if (CommandType == CommandType.Text)
         {
           // validates single word statetment (maybe is a stored procedure call)
-          if (sql.IndexOf(" ") == -1 && !SingleWordKeywords.Contains(sql.ToUpper()))
+          if (sql.IndexOf(" ") == -1)
           {
-            sql = "call " + sql;
+            if (AddCallStatement(sql))
+              sql = "call " + sql;
           }
         }
 
@@ -847,6 +846,21 @@ namespace MySql.Data.MySqlClient
       foreach (MySqlParameter parameter in Parameters)
         size += parameter.EstimatedSize();
       return size;
+    }
+
+    /// <summary>
+    /// Verifies if a query is valid even if it has not spaces or is a stored procedure call
+    /// </summary>
+    /// <param name="query">Query to validate</param>
+    /// <returns>If it is necessary to add call statement</returns>
+    private bool AddCallStatement(string query)
+    {
+      /*PATTERN MATCHES
+       * SELECT`user`FROM`mysql`.`user`;, select(left('test',1));, do(1);, commit, rollback, use, begin, end, use`sakila`;, select`test`;, select'1'=1;, SET@test='test';
+       */
+      string pattern = @"^|COMMIT|ROLLBACK|BEGIN|END|DO\S+|SELECT\S+[FROM|\S+]|USE?\S+|SET\S+";
+      System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(pattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+      return !(regex.Matches(query).Count > 0);
     }
 
     #endregion

@@ -11,6 +11,7 @@
 - Fix for Exception "The given key was not present in the dictionary" when using utf16le charset in a query. (MySql #72737, Oracle Bug #19355906)
 - Fix for Memory leak in a loop opening a connection to the database and executing a command (MySql Bug #73122, Oracle Bug #19467233).
 - Fix for Multiple issues caused by trailing and leading white space character in params using MySql Membership Provider (MySql Bug #73411, Oracle Bug #19453313)
+- Fix for bad assumption leads to modify query adding CALL statement to the beginning of the sql query even when CommandType.Text is specified (MySql Bug #72736, Oracle Bug #19325120).
 
 
 6.9.4
