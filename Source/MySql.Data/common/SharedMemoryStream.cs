@@ -1,4 +1,4 @@
-// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc.
+// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc. 2014, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -53,6 +53,13 @@ namespace MySql.Data.Common
       }
       view = NativeMethods.MapViewOfFile(fileMapping, FILE_MAP_WRITE, 0, 0, size);
     }
+
+    #region Destructor
+    ~SharedMemory()
+    {
+      Dispose(false);
+    } 
+    #endregion
 
     public IntPtr View
     {
