@@ -1,4 +1,4 @@
-// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2014, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -49,9 +49,12 @@ namespace MySql.Data.MySqlClient
 
     public static CharacterSet GetCharacterSet(DBVersion version, string CharSetName)
     {
-      CharacterSet cs = (CharacterSet)mapping[CharSetName];
+      CharacterSet cs = null;
+      if(mapping.ContainsKey(CharSetName))
+        cs = (CharacterSet)mapping[CharSetName];
+
       if (cs == null)
-        throw new MySqlException("Character set '" + CharSetName + "' is not supported");
+        throw new MySqlException("Character set '" + CharSetName + "' is not supported by .Net Framework.");
       return cs;
     }
 
@@ -143,6 +146,7 @@ namespace MySql.Data.MySqlClient
       mapping.Add("dos", new CharacterSet("ibm437", 1));
       mapping.Add("utf8mb4", new CharacterSet("utf-8", 4));
       mapping.Add("utf16", new CharacterSet("utf-16BE", 2));
+      mapping.Add("utf16le", new CharacterSet("utf-16", 2));
       mapping.Add("utf32", new CharacterSet("utf-32BE", 4));
     }
 
