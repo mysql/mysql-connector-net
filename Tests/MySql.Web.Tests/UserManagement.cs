@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -798,5 +798,35 @@ namespace MySql.Web.Tests
       Membership.DeleteUser("code");
     }
 
+    /// <summary>
+    /// MySqlBug 73411, Oracle Bug: 19453313
+    /// </summary>
+    [Fact]
+    public void CreateUserWithLeadingAndTrailingSpaces()
+    {
+      provider = new MySQLMembershipProvider();
+      NameValueCollection config = new NameValueCollection();
+      config.Add("connectionStringName", "LocalMySqlServer");
+      config.Add("autogenerateschema", "true");
+      config.Add("applicationName", "/");
+      provider.Initialize(null, config);
+
+      MembershipCreateStatus status;
+      MembershipUser muser1 = provider.CreateUser(" with trailing space ", "dummypassword1!", "w@w1.w", "yes", "yes", true, null, out status);
+      Assert.NotEqual(null, muser1);
+      MembershipUser muser2 = provider.GetUser("with trailing space", false);
+      Assert.NotEqual(null, muser1);
+
+      Roles.CreateRole("SomeRole");
+      Assert.True(Roles.GetAllRoles().Length > 0);
+
+      bool isInRole = Roles.IsUserInRole(muser2.UserName, "SomeRole");
+      Assert.False(isInRole);
+
+      Roles.AddUserToRole(muser2.UserName, "SomeRole");
+
+      isInRole = Roles.IsUserInRole(muser2.UserName, "SomeRole");
+      Assert.True(isInRole);
+    }
   }
 }

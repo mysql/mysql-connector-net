@@ -1,4 +1,4 @@
-// Copyright © 2004, 2011, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2014, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -499,6 +499,9 @@ namespace MySql.Web.Security
         string email, string passwordQuestion, string passwordAnswer,
         bool isApproved, object providerUserKey, out MembershipCreateStatus status)
     {
+      //basis on MSDN documentation we should trim all the paramater values: http://msdn.microsoft.com/en-us/library/d8t4h2es%28v=vs.110%29.aspx
+      TrimParametersValues(ref username, ref password, ref email, ref passwordQuestion, ref passwordAnswer);
+
       ValidatePasswordEventArgs Args = new ValidatePasswordEventArgs(username, password, true);
       OnValidatingPassword(Args);
       if (Args.Cancel)
@@ -1484,6 +1487,15 @@ namespace MySql.Web.Security
           return false;
 
       return true;
+    }
+
+    private void TrimParametersValues(ref string username, ref string password, ref string email, ref string passwordQuestion, ref string passwordAnswer)
+    {
+      username = string.IsNullOrEmpty(username) ? username : username.Trim();
+      password = string.IsNullOrEmpty(password) ? password : password.Trim();
+      email = string.IsNullOrEmpty(email) ? email : email.Trim();
+      passwordQuestion = string.IsNullOrEmpty(passwordQuestion) ? passwordQuestion : passwordQuestion.Trim();
+      passwordAnswer = string.IsNullOrEmpty(passwordAnswer) ? passwordAnswer : passwordAnswer.Trim();
     }
 
     #endregion

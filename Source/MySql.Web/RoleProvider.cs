@@ -1,4 +1,4 @@
-// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc.
+// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc. 2014, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -379,7 +379,7 @@ namespace MySql.Web.Security
                         JOIN my_aspnet_users u ON uir.userId=u.id
                         JOIN my_aspnet_roles r ON uir.roleId=r.id
                         WHERE u.applicationId=@appId AND 
-                        u.name LIKE @userName AND r.name LIKE @roleName";
+                        u.name = @userName AND r.name = @roleName";
           MySqlCommand cmd = new MySqlCommand(sql, connection);
           cmd.Parameters.AddWithValue("@appId", app.FetchId(connection));
           cmd.Parameters.AddWithValue("@userName", username);
