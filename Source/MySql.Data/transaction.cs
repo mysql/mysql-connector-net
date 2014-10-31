@@ -1,4 +1,4 @@
-// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc.
+// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc. 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -41,6 +41,13 @@ namespace MySql.Data.MySqlClient
       open = true;
     }
 
+    #region Destructor
+    ~MySqlTransaction()
+    {
+      Dispose(false);
+    }
+    #endregion
+
     #region Properties
 
     /// <summary>
@@ -77,8 +84,17 @@ namespace MySql.Data.MySqlClient
 
     public void Dispose()
     {
-      if ((conn != null && conn.State == ConnectionState.Open || conn.SoftClosed) && open)
-        Rollback();
+      Dispose(true);
+      GC.SuppressFinalize(this);
+    }
+
+    internal void Dispose(bool disposing)
+    {
+      if (disposing)
+      {
+        if ((conn != null && conn.State == ConnectionState.Open || conn.SoftClosed) && open)
+          Rollback();
+      }
     }
 
     /// <include file='docs/MySqlTransaction.xml' path='docs/Commit/*'/>
