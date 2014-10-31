@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -653,5 +653,66 @@ alter table longids AUTO_INCREMENT = 2147483640;";
         conn.Close();
       }
     }
+
+   [Fact]
+   public void CommandWithoutSpacesTest()
+   {
+     string[] queries = new string[] { "select`user`from`mysql`.`user`;",
+                                       "select(left('test',1));",
+                                       "SET@test='test';",
+                                       "do(1);",
+                                       "commit",
+                                       "rollback",
+                                       //"use", //it fails because invalid syntax error
+                                       "begin",
+                                       //"end", //it fails because invalid syntax error
+                                       "use`sakila`;",
+                                       "select'test';",
+                                       "select'1'=1;" };
+
+     string logQuery = "SELECT argument FROM mysql.general_log WHERE argument = '{0}'";
+
+     st.ExecuteSQLAsRoot("SET GLOBAL log_output = 'TABLE'");
+     st.ExecuteSQLAsRoot("SET GLOBAL general_log = 'ON'");
+
+     MySqlConnection dbConn = new MySqlConnection(st.GetConnectionString(st.rootUser, st.rootPassword, true));
+     try
+     {
+       dbConn.Open();
+       using (MySqlCommand cmd = new MySqlCommand())
+       {
+         cmd.Connection = dbConn;
+         for (int ctr = 0; ctr < queries.Length; ctr++)
+         {
+           cmd.CommandText = queries[ctr];
+
+           cmd.CommandType = CommandType.Text;
+           //try
+           //{
+             cmd.ExecuteNonQuery();
+           //}
+           //catch(Exception) { }
+
+           //verify that the query executed has not the call statement
+           cmd.CommandText = string.Format(logQuery, queries[ctr].Replace("'", "''").Replace(";",""));
+           using (MySqlDataReader reader = cmd.ExecuteReader())
+           {
+             while (reader.Read())
+             {
+               Assert.False(reader[0].ToString().Contains("call"));
+  }
+           } 
+         }
+       }
+     }
+     catch (Exception ex)
+     {
+       throw ex;
+     }
+     finally
+     {
+       dbConn.Close();
+     }
+   }
   }
 }
