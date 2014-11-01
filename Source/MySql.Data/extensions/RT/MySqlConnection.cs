@@ -47,10 +47,12 @@ namespace MySql.Data.MySqlClient
         Close();
     }
 
+#if !RT
     ~MySqlConnection()
     {
       this.Dispose();
     }
+#endif
   }
 
   public abstract class RTConnection
