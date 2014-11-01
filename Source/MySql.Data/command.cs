@@ -100,10 +100,17 @@ namespace MySql.Data.MySqlClient
     }
 
     #region Destructor
+#if !RT
     ~MySqlCommand()
     {
       Dispose(false);
     }
+#else
+    ~MySqlCommand()
+    {
+      this.Dispose();
+    }
+#endif
     #endregion
 
     #region Properties
@@ -977,6 +984,7 @@ namespace MySql.Data.MySqlClient
       throw ex;
     }
 
+#if !RT
     public void Dispose()
     {
       Dispose(true);
@@ -990,6 +998,12 @@ namespace MySql.Data.MySqlClient
 
       base.Dispose(disposing);
     }
+#else
+    public void Dispose()
+    {
+      GC.SuppressFinalize(this);
+    }
+#endif
   }
 }
 
