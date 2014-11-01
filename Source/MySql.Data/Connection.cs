@@ -88,7 +88,11 @@ namespace MySql.Data.MySqlClient
     #region Destructor
     ~MySqlConnection()
     {
+#if !RT
       Dispose(false);
+#else
+      Dispose();
+#endif
     }
     #endregion
 
@@ -806,11 +810,21 @@ namespace MySql.Data.MySqlClient
 #endif
     }
 
+#if !RT
     public void Dispose()
     {
       Dispose(true);
       GC.SuppressFinalize(this);
     }
+#else
+    public void Dispose()
+    {
+      if (State == ConnectionState.Open)
+        Close();
+
+      GC.SuppressFinalize(this);
+    }
+#endif
   }
 
   /// <summary>
