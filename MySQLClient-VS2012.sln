@@ -24,6 +24,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.Fabric.Plugin", "Sour
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{80089929-1863-4A69-B4BA-429B5F0D119F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.EMTrace", "Source\Plugins\MySql.EMTrace\MySql.EMTrace.csproj", "{C41180BA-CC53-4464-A656-FCB709198880}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.EMTrace.Tests", "Tests\Plugins\MySql.EMTrace.Tests\MySql.EMTrace.Tests.csproj", "{B762DB19-5358-4AC1-8EC4-F2C2E083F722}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.EMTrace.SampleApplication", "Tests\Plugins\MySql.EMTrace.SampleApplication\MySql.EMTrace.SampleApplication.csproj", "{991949E3-5C90-46E7-9BF6-8D5539B28242}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -352,11 +358,70 @@ Global
 		{826FE771-A724-4FDC-B5E6-066C77639530}.ReleaseEF6|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{826FE771-A724-4FDC-B5E6-066C77639530}.ReleaseEF6|x64.ActiveCfg = Release|Any CPU
 		{826FE771-A724-4FDC-B5E6-066C77639530}.ReleaseEF6|x86.ActiveCfg = Release|Any CPU
+		{24348BA8-0337-40FF-9188-7622F890CECD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24348BA8-0337-40FF-9188-7622F890CECD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24348BA8-0337-40FF-9188-7622F890CECD}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{24348BA8-0337-40FF-9188-7622F890CECD}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{24348BA8-0337-40FF-9188-7622F890CECD}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{24348BA8-0337-40FF-9188-7622F890CECD}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{24348BA8-0337-40FF-9188-7622F890CECD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{24348BA8-0337-40FF-9188-7622F890CECD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24348BA8-0337-40FF-9188-7622F890CECD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24348BA8-0337-40FF-9188-7622F890CECD}.Release|ARM.ActiveCfg = Release|Any CPU
+		{24348BA8-0337-40FF-9188-7622F890CECD}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{24348BA8-0337-40FF-9188-7622F890CECD}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{24348BA8-0337-40FF-9188-7622F890CECD}.Release|x64.ActiveCfg = Release|Any CPU
+		{24348BA8-0337-40FF-9188-7622F890CECD}.Release|x86.ActiveCfg = Release|Any CPU
+		{C41180BA-CC53-4464-A656-FCB709198880}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C41180BA-CC53-4464-A656-FCB709198880}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C41180BA-CC53-4464-A656-FCB709198880}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{C41180BA-CC53-4464-A656-FCB709198880}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{C41180BA-CC53-4464-A656-FCB709198880}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{C41180BA-CC53-4464-A656-FCB709198880}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C41180BA-CC53-4464-A656-FCB709198880}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C41180BA-CC53-4464-A656-FCB709198880}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C41180BA-CC53-4464-A656-FCB709198880}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C41180BA-CC53-4464-A656-FCB709198880}.Release|ARM.ActiveCfg = Release|Any CPU
+		{C41180BA-CC53-4464-A656-FCB709198880}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{C41180BA-CC53-4464-A656-FCB709198880}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{C41180BA-CC53-4464-A656-FCB709198880}.Release|x64.ActiveCfg = Release|Any CPU
+		{C41180BA-CC53-4464-A656-FCB709198880}.Release|x86.ActiveCfg = Release|Any CPU
+		{B762DB19-5358-4AC1-8EC4-F2C2E083F722}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B762DB19-5358-4AC1-8EC4-F2C2E083F722}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B762DB19-5358-4AC1-8EC4-F2C2E083F722}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{B762DB19-5358-4AC1-8EC4-F2C2E083F722}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{B762DB19-5358-4AC1-8EC4-F2C2E083F722}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{B762DB19-5358-4AC1-8EC4-F2C2E083F722}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B762DB19-5358-4AC1-8EC4-F2C2E083F722}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B762DB19-5358-4AC1-8EC4-F2C2E083F722}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B762DB19-5358-4AC1-8EC4-F2C2E083F722}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B762DB19-5358-4AC1-8EC4-F2C2E083F722}.Release|ARM.ActiveCfg = Release|Any CPU
+		{B762DB19-5358-4AC1-8EC4-F2C2E083F722}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{B762DB19-5358-4AC1-8EC4-F2C2E083F722}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{B762DB19-5358-4AC1-8EC4-F2C2E083F722}.Release|x64.ActiveCfg = Release|Any CPU
+		{B762DB19-5358-4AC1-8EC4-F2C2E083F722}.Release|x86.ActiveCfg = Release|Any CPU
+		{991949E3-5C90-46E7-9BF6-8D5539B28242}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{991949E3-5C90-46E7-9BF6-8D5539B28242}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{991949E3-5C90-46E7-9BF6-8D5539B28242}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{991949E3-5C90-46E7-9BF6-8D5539B28242}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{991949E3-5C90-46E7-9BF6-8D5539B28242}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{991949E3-5C90-46E7-9BF6-8D5539B28242}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{991949E3-5C90-46E7-9BF6-8D5539B28242}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{991949E3-5C90-46E7-9BF6-8D5539B28242}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{991949E3-5C90-46E7-9BF6-8D5539B28242}.Release|Any CPU.Build.0 = Release|Any CPU
+		{991949E3-5C90-46E7-9BF6-8D5539B28242}.Release|ARM.ActiveCfg = Release|Any CPU
+		{991949E3-5C90-46E7-9BF6-8D5539B28242}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{991949E3-5C90-46E7-9BF6-8D5539B28242}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{991949E3-5C90-46E7-9BF6-8D5539B28242}.Release|x64.ActiveCfg = Release|Any CPU
+		{991949E3-5C90-46E7-9BF6-8D5539B28242}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{826FE771-A724-4FDC-B5E6-066C77639530} = {80089929-1863-4A69-B4BA-429B5F0D119F}
+		{C41180BA-CC53-4464-A656-FCB709198880} = {80089929-1863-4A69-B4BA-429B5F0D119F}
+		{B762DB19-5358-4AC1-8EC4-F2C2E083F722} = {80089929-1863-4A69-B4BA-429B5F0D119F}
+		{991949E3-5C90-46E7-9BF6-8D5539B28242} = {80089929-1863-4A69-B4BA-429B5F0D119F}
 	EndGlobalSection
 EndGlobal
