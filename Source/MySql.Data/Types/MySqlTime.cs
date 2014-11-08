@@ -1,5 +1,4 @@
-// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc.,
-// 2009, 2014 Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc., 2009, 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -107,7 +106,7 @@ namespace MySql.Data.Types
       {
         String s = String.Format("'{0}{1} {2:00}:{3:00}:{4:00}.{5:000000}'",
             negative ? "-" : "", ts.Days, ts.Hours, ts.Minutes, ts.Seconds, ts.Ticks % 10000000);
-			
+      
         packet.WriteStringNoNull(s);
       }
     }
