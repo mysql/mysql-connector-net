@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,6 +20,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -32,7 +33,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Oracle Corporation")]
 [assembly: AssemblyProduct("MySql.LoadBalancing.Tests")]
-[assembly: AssemblyCopyright("Copyright © 2013, Oracle and/or its affiliates. All rights reserved.")]
+[assembly: AssemblyCopyright("Copyright © Oracle Corporation 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -44,15 +45,5 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("02681727-f306-4923-8c16-717d6f1716ce")]
 
-// Version information for an assembly consists of the following four values:
-//
-//      Major Version
-//      Minor Version 
-//      Build Number
-//      Revision
-//
-// You can specify all the values or you can default the Build and Revision Numbers 
-// by using the '*' as shown below:
-// [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyDelaySign(false)]
+[assembly: AssemblyKeyName("ConnectorNet")]
