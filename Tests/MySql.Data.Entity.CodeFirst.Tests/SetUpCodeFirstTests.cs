@@ -74,6 +74,33 @@ namespace MySql.Data.Entity.CodeFirst.Tests
         , "MySql.Data.MySqlClient"
         ,
         typeof(MySql.Data.MySqlClient.MySqlClientFactory).AssemblyQualifiedName);
+
+
+      cmd = new MySqlCommand("SELECT COUNT(SCHEMA_NAME) FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'sakila'", rootConn);
+
+      if (Convert.ToInt32(cmd.ExecuteScalar() ?? 0) == 0)
+      {
+        Assembly executingAssembly = Assembly.GetExecutingAssembly();
+        using (var stream = executingAssembly.GetManifestResourceStream("MySql.Data.Entity.CodeFirst.Tests.Properties.SetupSakilaDb.sql"))
+        {
+            using (StreamReader sr = new StreamReader(stream))
+            {
+                string sql = sr.ReadToEnd();
+                MySqlScript s = new MySqlScript(rootConn, sql);
+                s.Execute();
+            }
+        }
+
+        using (var stream = executingAssembly.GetManifestResourceStream("MySql.Data.Entity.CodeFirst.Tests.Properties.SakilaDbDataScript.sql"))
+        {
+            using (StreamReader sr = new StreamReader(stream))
+            {
+                string sql = sr.ReadToEnd();
+                MySqlScript s = new MySqlScript(rootConn, sql);
+                s.Execute();
+            }
+        }
+      }
     }
     
     public override void Dispose()
