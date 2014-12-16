@@ -184,7 +184,6 @@
         <Reference Include="System.Core">
           <RequiredTargetFramework>4.0</RequiredTargetFramework>
         </Reference>
-        <Reference Include="nunit.framework" />
         <Reference Include="System" />
         <Reference Include="System.Configuration" />
         <Reference Include="System.Data" />
