@@ -1,4 +1,4 @@
-﻿// Copyright © 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2008, 2015, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -631,7 +631,7 @@ namespace MySql.Data.Entity
     {
       DbFunctionExpression fl = left as DbFunctionExpression;
       if ((fl != null) && (right is DbConstantExpression))
-      {
+      {        
         LikeFragment like = new LikeFragment();
         if (fl.Function.FullName == "Edm.IndexOf")
         {
@@ -660,27 +660,27 @@ namespace MySql.Data.Entity
               if (fr1.Arguments[0] is DbConstantExpression)
               {
                 DbConstantExpression c = (DbConstantExpression)fr1.Arguments[0];
-                like.Pattern = new LiteralFragment(string.Format("'%{0}'", c.Value.ToString().Replace("'", "''") ));
+                like.Pattern = new LiteralFragment(string.Format("'%{0}'", c.Value.ToString().Replace("'", "''") ));                
                 like.Argument = fr2.Arguments[0].Accept(this);
                 return like;
               } 
               else if( /* For EF6 */
-                (( par = fr1.Arguments[ 0 ] as DbParameterReferenceExpression  ) != null ) &&
+                (( par = fr1.Arguments[0] as DbParameterReferenceExpression  ) != null ) &&
                 (( prop = fr2.Arguments[0] as DbPropertyExpression) != null ))
               {
-                // Pattern LIKE "%..." in EF6
-                like.Pattern = new LiteralFragment(string.Format("'%{0}'", par.ParameterName));
+                // Pattern LIKE "%..." in EF6              
+                like.Pattern = par.Accept(this);                                
                 like.Argument = prop.Accept(this);
                 return like;
               }
             }
             else if( ( fl.Arguments.Count == 2) &&
-              (( par = fl.Arguments[ 0 ] as DbParameterReferenceExpression ) != null ) && 
-              (( prop = fl.Arguments[ 1 ] as DbPropertyExpression ) != null ) )
+              (( par = fl.Arguments[0] as DbParameterReferenceExpression ) != null ) && 
+              (( prop = fl.Arguments[1] as DbPropertyExpression ) != null ) )
             {
-              // Case LIKE "pattern%" in EF6
-              like.Pattern = new LiteralFragment( string.Format( "'{0}%'", par.ParameterName ));
-              like.Argument = prop.Accept( this );
+              // Case LIKE "pattern%" in EF6              
+              like.Pattern = par.Accept(this);              
+              like.Argument = prop.Accept(this);
               return like;
             }
           }
@@ -691,14 +691,14 @@ namespace MySql.Data.Entity
               if (fl.Arguments[0] is DbConstantExpression)
               {
                 // Case LIKE '%pattern%'
-                DbConstantExpression c = (DbConstantExpression)fl.Arguments[0];
-                like.Pattern = new LiteralFragment(string.Format("'%{0}%'", c.Value.ToString().Replace("'", "''")));
+                DbConstantExpression c = (DbConstantExpression)fl.Arguments[0];                
+                like.Pattern = fl.Arguments[0].Accept(this);                
                 return like;
               } 
-              else if ( ( par = fl.Arguments[ 0 ] as DbParameterReferenceExpression ) != null ) 
+              else if ((par = fl.Arguments[0] as DbParameterReferenceExpression) != null) 
               {
-                // Case LIKE "%pattern%" in EF6
-                like.Pattern = new LiteralFragment(string.Format("'%{0}%'", par.ParameterName));
+                // Case LIKE "%pattern%" in EF6                
+                like.Pattern = fl.Arguments[0].Accept(this);
                 return like;
               }
             }

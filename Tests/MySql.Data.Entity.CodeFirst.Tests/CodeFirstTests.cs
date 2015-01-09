@@ -1,4 +1,4 @@
-﻿// Copyright © 2014 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -906,7 +906,11 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
                 select m;
         var q1 = q.Take(10);
         string sql = q1.ToString();
-        st.CheckSql(SQLSyntax.QueryWithOrderByTakeContains, sql);
+//#if EF6
+        st.CheckSql(SQLSyntax.QueryWithOrderByTakeContainsEF6, sql);
+//#else
+//        st.CheckSql(SQLSyntax.QueryWithOrderByTakeContains, sql);
+//#endif
         int i = 0;
         foreach (var row in q1)
         {
@@ -1157,10 +1161,12 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       MovieDBInitialize.DoDataPopulation(db);
 #endif
       string term = "The";
-      var l = db.Movies.Where(p => p.Title.StartsWith( term ));
+      var l = db.Movies.Where(p => p.Title.StartsWith(term));
 
       string sql = l.ToString();
-      st.CheckSql(sql, SQLSyntax.QueryWithStartsWith );
+
+      st.CheckSql(sql, SQLSyntax.QueryWithStartsWith);
+
 #if DEBUG
       Debug.WriteLine(sql);
 #endif
@@ -1188,7 +1194,9 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       var l = db.Movies.Where(p => p.Title.EndsWith(term));
 
       string sql = l.ToString();
-      st.CheckSql(sql, SQLSyntax.QueryWithEndsWith );
+
+      st.CheckSql(sql, SQLSyntax.QueryWithEndsWith);
+
 #if DEBUG
       Debug.WriteLine(sql);
 #endif
@@ -1217,6 +1225,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 
       string sql = l.ToString();
       st.CheckSql(sql, SQLSyntax.QueryWithContains);
+
 #if DEBUG
       Debug.WriteLine(sql);
 #endif
