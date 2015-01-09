@@ -191,7 +191,7 @@ FROM `visitante`
 `Project1`.`Data`, 
 `Project1`.`Director_ID`
 FROM `Movies` AS `Project1`
- WHERE `Project1`.`Title` LIKE '%p__linq__0%'
+ WHERE `Project1`.`Title` LIKE @p__linq__0
  ORDER BY 
 `Project1`.`ID` DESC LIMIT 10</value>
   </data>
@@ -340,45 +340,45 @@ FROM `CrewMembers` AS `Extent3` INNER JOIN `Ranks` AS `Extent4` ON `Extent3`.`Ra
     <value>SELECT
 `Project1`.`ID` AS `C1`
 FROM `Movies` AS `Project1`
- WHERE (((`Project1`.`ID`) = @p__linq__0) AND (NOT ((`Project1`.`ID` IS  NULL) OR (@p__linq__0 IS  NULL)))) OR ((`Project1`.`ID` IS  NULL) AND (@p__linq__0 IS  NULL))
+ WHERE (`Project1`.`ID`) = @p__linq__0
  ORDER BY 
 `Project1`.`ID` ASC</value>
   </data>
   <data name="QueryWithContains" xml:space="preserve">
     <value>SELECT
-  `Extent1`.`ID`, 
-  `Extent1`.`Title`, 
-  `Extent1`.`ReleaseDate`, 
-  `Extent1`.`Genre`, 
-  `Extent1`.`Price`, 
-  `Extent1`.`Data`, 
-  `Extent1`.`Director_ID`
-  FROM `Movies` AS `Extent1`
-   WHERE `Extent1`.`Title` LIKE '%p__linq__0%'</value>
+`Extent1`.`ID`, 
+`Extent1`.`Title`, 
+`Extent1`.`ReleaseDate`, 
+`Extent1`.`Genre`, 
+`Extent1`.`Price`, 
+`Extent1`.`Data`, 
+`Extent1`.`Director_ID`
+FROM `Movies` AS `Extent1`
+ WHERE `Extent1`.`Title` LIKE @p__linq__0</value>
   </data>
   <data name="QueryWithEndsWith" xml:space="preserve">
     <value>SELECT
-  `Extent1`.`ID`, 
-  `Extent1`.`Title`, 
-  `Extent1`.`ReleaseDate`, 
-  `Extent1`.`Genre`, 
-  `Extent1`.`Price`, 
-  `Extent1`.`Data`, 
-  `Extent1`.`Director_ID`
-  FROM `Movies` AS `Extent1`
-   WHERE `Extent1`.`Title` LIKE '%p__linq__0'</value>
+`Extent1`.`ID`, 
+`Extent1`.`Title`, 
+`Extent1`.`ReleaseDate`, 
+`Extent1`.`Genre`, 
+`Extent1`.`Price`, 
+`Extent1`.`Data`, 
+`Extent1`.`Director_ID`
+FROM `Movies` AS `Extent1`
+ WHERE `Extent1`.`Title` LIKE @p__linq__0</value>
   </data>
   <data name="QueryWithStartsWith" xml:space="preserve">
     <value>SELECT
-  `Extent1`.`ID`, 
-  `Extent1`.`Title`, 
-  `Extent1`.`ReleaseDate`, 
-  `Extent1`.`Genre`, 
-  `Extent1`.`Price`, 
-  `Extent1`.`Data`, 
-  `Extent1`.`Director_ID`
-  FROM `Movies` AS `Extent1`
-   WHERE `Extent1`.`Title` LIKE 'p__linq__0%'</value>
+`Extent1`.`ID`, 
+`Extent1`.`Title`, 
+`Extent1`.`ReleaseDate`, 
+`Extent1`.`Genre`, 
+`Extent1`.`Price`, 
+`Extent1`.`Data`, 
+`Extent1`.`Director_ID`
+FROM `Movies` AS `Extent1`
+ WHERE `Extent1`.`Title` LIKE @p__linq__0</value>
   </data>
   <data name="TestContainsListWitConstant" xml:space="preserve">
     <value>SELECT
@@ -406,17 +406,17 @@ FROM `Movies` AS `Project1`
   </data>
   <data name="TestContainsListWithParameterReference" xml:space="preserve">
     <value>SELECT
-  `Extent1`.`ID`, 
-  `Extent1`.`Title`, 
-  `Extent1`.`ReleaseDate`, 
-  `Extent1`.`Genre`, 
-  `Extent1`.`Price`, 
-  `Extent1`.`Data`, 
-  `Extent1`.`Director_ID`
-  FROM `Movies` AS `Extent1`
-   WHERE (@p__linq__0 IN ( 1,2,3 )) AND (@p__linq__0 IS NOT NULL)</value>
+`Extent1`.`ID`, 
+`Extent1`.`Title`, 
+`Extent1`.`ReleaseDate`, 
+`Extent1`.`Genre`, 
+`Extent1`.`Price`, 
+`Extent1`.`Data`, 
+`Extent1`.`Director_ID`
+FROM `Movies` AS `Extent1`
+ WHERE @p__linq__0 IN ( 1,2,3 )</value>
   </data>
-<data name="TestContainsListWitConstantEF5" xml:space="preserve">
+  <data name="TestContainsListWitConstantEF5" xml:space="preserve">
     <value>SELECT
 `Extent1`.`ID`, 
 `Extent1`.`Title`, 

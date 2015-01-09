@@ -183,15 +183,15 @@ namespace MySql.Data.Entity.CodeFirst.Tests.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to SELECT
-        ///  `Extent1`.`ID`, 
-        ///  `Extent1`.`Title`, 
-        ///  `Extent1`.`ReleaseDate`, 
-        ///  `Extent1`.`Genre`, 
-        ///  `Extent1`.`Price`, 
-        ///  `Extent1`.`Data`, 
-        ///  `Extent1`.`Director_ID`
-        ///  FROM `Movies` AS `Extent1`
-        ///   WHERE `Extent1`.`Title` LIKE &apos;%p__linq__0%&apos;.
+        ///`Extent1`.`ID`, 
+        ///`Extent1`.`Title`, 
+        ///`Extent1`.`ReleaseDate`, 
+        ///`Extent1`.`Genre`, 
+        ///`Extent1`.`Price`, 
+        ///`Extent1`.`Data`, 
+        ///`Extent1`.`Director_ID`
+        ///FROM `Movies` AS `Extent1`
+        /// WHERE `Extent1`.`Title` LIKE @p__linq__0.
         /// </summary>
         internal static string QueryWithContains {
             get {
@@ -201,15 +201,15 @@ namespace MySql.Data.Entity.CodeFirst.Tests.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to SELECT
-        ///  `Extent1`.`ID`, 
-        ///  `Extent1`.`Title`, 
-        ///  `Extent1`.`ReleaseDate`, 
-        ///  `Extent1`.`Genre`, 
-        ///  `Extent1`.`Price`, 
-        ///  `Extent1`.`Data`, 
-        ///  `Extent1`.`Director_ID`
-        ///  FROM `Movies` AS `Extent1`
-        ///   WHERE `Extent1`.`Title` LIKE &apos;%p__linq__0&apos;.
+        ///`Extent1`.`ID`, 
+        ///`Extent1`.`Title`, 
+        ///`Extent1`.`ReleaseDate`, 
+        ///`Extent1`.`Genre`, 
+        ///`Extent1`.`Price`, 
+        ///`Extent1`.`Data`, 
+        ///`Extent1`.`Director_ID`
+        ///FROM `Movies` AS `Extent1`
+        /// WHERE `Extent1`.`Title` LIKE @p__linq__0.
         /// </summary>
         internal static string QueryWithEndsWith {
             get {
@@ -227,7 +227,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests.Properties {
         ///`Project1`.`Data`, 
         ///`Project1`.`Director_ID`
         ///FROM `Movies` AS `Project1`
-        /// WHERE `Project1`.`Title` LIKE &apos;%p__linq__0%&apos;
+        /// WHERE `Project1`.`Title` LIKE @p__linq__0
         /// ORDER BY 
         ///`Project1`.`ID` DESC LIMIT 10.
         /// </summary>
@@ -239,15 +239,15 @@ namespace MySql.Data.Entity.CodeFirst.Tests.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to SELECT
-        ///  `Extent1`.`ID`, 
-        ///  `Extent1`.`Title`, 
-        ///  `Extent1`.`ReleaseDate`, 
-        ///  `Extent1`.`Genre`, 
-        ///  `Extent1`.`Price`, 
-        ///  `Extent1`.`Data`, 
-        ///  `Extent1`.`Director_ID`
-        ///  FROM `Movies` AS `Extent1`
-        ///   WHERE `Extent1`.`Title` LIKE &apos;p__linq__0%&apos;.
+        ///`Extent1`.`ID`, 
+        ///`Extent1`.`Title`, 
+        ///`Extent1`.`ReleaseDate`, 
+        ///`Extent1`.`Genre`, 
+        ///`Extent1`.`Price`, 
+        ///`Extent1`.`Data`, 
+        ///`Extent1`.`Director_ID`
+        ///FROM `Movies` AS `Extent1`
+        /// WHERE `Extent1`.`Title` LIKE @p__linq__0.
         /// </summary>
         internal static string QueryWithStartsWith {
             get {
@@ -337,7 +337,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests.Properties {
                 return ResourceManager.GetString("ShipQueryMalformedDueMultipleProjecttionsCorrectedEF6", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to SELECT
         ///  `Extent1`.`ID`, 
@@ -355,7 +355,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests.Properties {
                 return ResourceManager.GetString("TestContainsListWitConstant", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to SELECT
         ///`Extent1`.`ID`, 
@@ -391,7 +391,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests.Properties {
                 return ResourceManager.GetString("TestContainsListWithCast", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to SELECT
         ///`Extent1`.`ID`, 
@@ -409,18 +409,18 @@ namespace MySql.Data.Entity.CodeFirst.Tests.Properties {
                 return ResourceManager.GetString("TestContainsListWithCastEF5", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to SELECT
-        ///  `Extent1`.`ID`, 
-        ///  `Extent1`.`Title`, 
-        ///  `Extent1`.`ReleaseDate`, 
-        ///  `Extent1`.`Genre`, 
-        ///  `Extent1`.`Price`, 
-        ///  `Extent1`.`Data`, 
-        ///  `Extent1`.`Director_ID`
-        ///  FROM `Movies` AS `Extent1`
-        ///   WHERE (@p__linq__0 IN ( 1,2,3 )) AND (@p__linq__0 IS NOT NULL).
+        ///`Extent1`.`ID`, 
+        ///`Extent1`.`Title`, 
+        ///`Extent1`.`ReleaseDate`, 
+        ///`Extent1`.`Genre`, 
+        ///`Extent1`.`Price`, 
+        ///`Extent1`.`Data`, 
+        ///`Extent1`.`Director_ID`
+        ///FROM `Movies` AS `Extent1`
+        /// WHERE @p__linq__0 IN ( 1,2,3 ).
         /// </summary>
         internal static string TestContainsListWithParameterReference {
             get {
@@ -464,7 +464,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests.Properties {
         ///   Looks up a localized string similar to SELECT
         ///`Project1`.`ID` AS `C1`
         ///FROM `Movies` AS `Project1`
-        /// WHERE (((`Project1`.`ID`) = @p__linq__0) AND (NOT ((`Project1`.`ID` IS  NULL) OR (@p__linq__0 IS  NULL)))) OR ((`Project1`.`ID` IS  NULL) AND (@p__linq__0 IS  NULL))
+        /// WHERE (`Project1`.`ID`) = @p__linq__0
         /// ORDER BY 
         ///`Project1`.`ID` ASC.
         /// </summary>
