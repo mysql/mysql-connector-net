@@ -202,6 +202,7 @@
     </Compile>
     <Compile Include="CodeFirstTests.cs" />
     <Compile Include="Dinosauria.cs" />
+    <Compile Include="ExpressionTests.cs" />
     <Compile Include="Movie.cs" />
     <Compile Include="PromotionsDB.cs" />
     <Compile Include="MovieContextCodeBasedConfiguration.cs" />
@@ -267,6 +268,7 @@
     <EmbeddedResource Include="Properties\SQLSyntax.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>SQLSyntax.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
