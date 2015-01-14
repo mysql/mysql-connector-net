@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2014 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2015 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -939,5 +939,31 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+    [Fact]
+    public void TimeZoneOffset()
+    {
+      string timeZone = "-12:00";
+      int timeZoneHours = -12;
+      if (DateTime.UtcNow.Hour >= 12)
+      {
+        timeZone = "+13:00";
+        timeZoneHours = 13;
+      }
+
+      st.ExecuteSQLAsRoot(string.Format("SET @@global.time_zone='{0}'", timeZone));
+
+      try
+      {
+        using (MySqlConnection conn2 = (MySqlConnection)st.conn.Clone())
+        {
+          conn2.Open();
+          Assert.Equal(timeZoneHours, conn2.driver.timeZoneOffset);
+        }
+      }
+      finally
+      {
+        st.ExecuteSQLAsRoot("SET @@global.time_zone=@@session.time_zone");
+      }
+    }
   }
 }
