@@ -1,4 +1,4 @@
-﻿// Copyright © 2014 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2014, 2015 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -932,11 +932,13 @@ namespace MySql.Web.Security
 
     internal string GetHashedUserPassword(int userId)
     {
-      MySqlDatabaseWrapper dbConn = new MySqlDatabaseWrapper(GetConnectionString());
-      var userPassword = dbConn.ExecuteQuerySingleRecord(string.Format("select password from {0} where userid=?;", _membershipTable), userId);
-      if (userPassword != null)
-        return userPassword[0].ToString();
-      return null;
+      using (MySqlDatabaseWrapper dbConn = new MySqlDatabaseWrapper(GetConnectionString()))
+      {
+        var userPassword = dbConn.ExecuteQuerySingleRecord(string.Format("select password from {0} where userid=?;", _membershipTable), userId);
+        if (userPassword != null)
+          return userPassword[0].ToString();
+        return null;
+      }
     }
 
     internal string HashPassword(string password)
@@ -1010,7 +1012,10 @@ namespace MySql.Web.Security
       string hashedPass = HashPassword(newPassword);
       if (hashedPass.Length > 128)
         throw new ArgumentException(Resources.PasswordExceedsMaxLength, newPassword);
-      return new MySqlDatabaseWrapper(GetConnectionString()).ExecuteNonQuery(string.Format("update {0} set password=?, PasswordChangedDate=now(), PasswordSalt='' where userid=?;", _membershipTable), hashedPass, userId);
+      using (MySqlDatabaseWrapper dbConn = new MySqlDatabaseWrapper(GetConnectionString()))
+      {
+        return dbConn.ExecuteNonQuery(string.Format("update {0} set password=?, PasswordChangedDate=now(), PasswordSalt='' where userid=?;", _membershipTable), hashedPass, userId);
+      }
     }
 
     internal void IsValidOperation(bool currentProvider)
