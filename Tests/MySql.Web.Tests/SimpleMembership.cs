@@ -1,4 +1,4 @@
-﻿// Copyright © 2014 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2014, 2015 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -40,12 +40,14 @@ namespace MySql.Web.Tests
     private readonly string _userName = "New User";
     private readonly string _pass = "password";
     private  MySqlSimpleMembershipProvider _simpleProvider;
+    private MySqlSimpleRoleProvider _simpleRoleProvider;
 
     public void SetFixture(SetUpWeb data)
     {
       _connString = data.GetConnectionString(true);
 
       _simpleProvider = new MySqlSimpleMembershipProvider();
+      _simpleRoleProvider = new MySqlSimpleRoleProvider();
 
       var _config = new NameValueCollection();
       _config.Add("connectionStringName", "LocalMySqlServer");
@@ -54,6 +56,7 @@ namespace MySql.Web.Tests
       _config.Add("userNameColumn", "UserName");
 
       _simpleProvider.Initialize("Test", _config);
+      _simpleRoleProvider.Initialize("TestRoleProvider", _config);
 
       MySqlWebSecurity.InitializeDatabaseConnection(_connString, "MySqlSimpleMembership", _userTable, _userIdColumn, _userNameColumn, true, true);
     }
@@ -62,6 +65,24 @@ namespace MySql.Web.Tests
     {
     }
 
+    [Fact]
+    public void CheckIfRoleNotExists()
+    {      
+      var roleExists = _simpleRoleProvider.RoleExists("roleName");
+      Assert.False(roleExists);
+    }
+
+    [Fact]
+    public void CheckIfRoleExists()
+    {      
+      if (!Roles.RoleExists("Administrator"))
+      {
+        _simpleRoleProvider.CreateRole("Administrator");          
+        var roleExists = _simpleRoleProvider.RoleExists("Administrator");
+        Assert.True(roleExists);
+      }              
+    }
+    
     [Fact]
     public void CreateUserAndAccountTest()
     {
@@ -75,7 +96,7 @@ namespace MySql.Web.Tests
 
         Assert.True(_simpleProvider.ValidateUser(_userName, _pass));
         //We need to mock the login because in that method there is a call to "FormsAuthentication.SetAuthCookie" which causes an "Object reference not set to an instance of an object" exception, because the test doesn't run on web application context
-        //Assert.True(MySqlWebSecurity.Login(_userName, _pass));
+        //Assert.True(MySqlWebSecurity.Login(_userName, _pass));    
       }
       catch (Exception)
       {
@@ -271,7 +292,7 @@ namespace MySql.Web.Tests
 
     //Password reset token must be assigned to the user but that field is not added in any part of the code, so maybe that field must be handled manually by the user
     // should we handle this functionality? WebMatrix.WebData.SimpleMembershipProvider doesn't handle it
-    //[Fact]
+    [Fact]
     public void PasswordResetTokenTest()
     {
       try

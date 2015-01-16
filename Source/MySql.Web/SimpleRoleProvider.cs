@@ -1,4 +1,4 @@
-﻿// Copyright © 2014 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2014, 2015 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -188,7 +188,7 @@ namespace MySql.Web.Security
         using (MySqlDatabaseWrapper dbConn = new MySqlDatabaseWrapper(GetConnectionString()))
         {
           int roleid = GetRoleId(roleName);
-          if (roleid <= 0)
+          if (roleid != 0)
           {
             throw new InvalidOperationException(string.Format(Resources.RoleAlreadyExists, roleName));
           }
@@ -491,7 +491,7 @@ namespace MySql.Web.Security
       using (MySqlDatabaseWrapper dbConn = new MySqlDatabaseWrapper(GetConnectionString()))
       {
         var roleid = dbConn.ExecuteQuerySingleRecord(string.Format("select roleid from {0} where rolename=?;", _rolesTable), role);
-        if (role != null)
+        if (roleid != null)
           return (int)role[0];
 
         return 0;
