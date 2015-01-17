@@ -1,4 +1,4 @@
-// Copyright © 2004, 2013, 2015, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2015, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -369,10 +369,12 @@ namespace MySql.Data.MySqlClient
     private int GetTimeZoneOffset( MySqlConnection con )
     {
       MySqlCommand cmd = new MySqlCommand("SELECT TIMEDIFF(NOW(), UTC_TIMESTAMP())", con);
-      string s = cmd.ExecuteScalar() as string;
-      if (s == null) s = "0:00";
+      TimeSpan? timeZoneDiff = cmd.ExecuteScalar() as TimeSpan?;
+      string timeZoneString = "0:00";
+      if (timeZoneDiff.HasValue)
+        timeZoneString = timeZoneDiff.ToString();
 
-      return int.Parse(s.Substring(0, s.IndexOf(':') ));
+      return int.Parse(timeZoneString.Substring(0, timeZoneString.IndexOf(':')));
     }
 
     /// <summary>
