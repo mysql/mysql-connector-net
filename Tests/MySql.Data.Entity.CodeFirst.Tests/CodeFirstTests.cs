@@ -1,4 +1,4 @@
-﻿// Copyright © 2015 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2014, 2015 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -1341,6 +1341,48 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         var result = rentals.ToList();
         Assert.Equal(520, rentals.Count());
       }
+    }
+
+
+    /// <summary>
+    /// Bug #70941 - Invalid SQL query when eager loading two nested collections
+    /// </summary>
+    [Fact]
+    public void InvalidQuery()
+    {
+      using (UsingUnionContext context = new UsingUnionContext())
+      {
+        if (context.Database.Exists())
+        context.Database.Delete();
+        
+        context.Database.Create();
+                
+        for (int i = 1; i <= 3; i++)
+        {
+          var order = new Order();
+          var items = new List<Item>();
+
+          items.Add(new Item { Id = 1 });
+          items.Add(new Item { Id = 2 });
+          items.Add(new Item { Id = 3 });
+
+          order.Items = items;
+          var client = new Client { Id = i };
+          client.Orders = new List<Order>();
+          client.Orders.Add(order);
+
+          context.Clients.Add(client);
+        }       
+        context.SaveChanges();
+                
+        var clients = context.Clients
+                    .Include(c => c.Orders.Select(o => o.Items))
+                    .Include(c => c.Orders.Select(o => o.Discounts)).ToList();        
+
+        Assert.Equal(clients.Count(), 3);
+        Assert.Equal(clients.Where(t => t.Id == 1).Single().Orders.Count(), 1);
+        Assert.Equal(clients.Where(t => t.Id == 1).Single().Orders.Where(j => j.Id == 1).Single().Items.Count(), 3);
+      }    
     }
   }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2008, 2015, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -217,6 +217,7 @@ NoChanges:
 
     public override SqlFragment Visit(DbApplyExpression expression)
     {
+
       DbExpressionBinding inputBinding = expression.Input;
       InputFragment input = VisitInputExpression(inputBinding.Expression, inputBinding.VariableName, inputBinding.VariableType);
       DbExpressionBinding applyBinding = expression.Apply;
@@ -232,7 +233,7 @@ NoChanges:
       select.From = input;
       select.Wrap(scope);
       if (apply is SelectStatement)
-      {        
+      {
         SelectStatement applySel = apply as SelectStatement;
         foreach (ColumnFragment f in applySel.Columns)
         {
@@ -248,16 +249,16 @@ NoChanges:
           newColSelect.Skip = applySel.Skip;
           newColSelect.GroupBy = applySel.GroupBy;
           newColSelect.IsDistinct = applySel.IsDistinct;
-          newColSelect.Columns.Add( f );
+          newColSelect.Columns.Add(f);
 
           newColSelect.Wrap(scope);
           scope.Add(applySel.From.Name, applySel.From);
-          
+
           ColumnFragment newCol = new ColumnFragment(apply.Name, f.ColumnName);
           newCol.Literal = newColSelect;
           newCol.PushInput(newCol.ColumnName);
           newCol.PushInput(apply.Name);
-          select.AddColumn( newCol, scope);
+          select.AddColumn(newCol, scope);
           if (string.IsNullOrEmpty(newCol.ColumnAlias))
           {
             newColSelect.Name = newCol.ColumnName;
@@ -268,6 +269,75 @@ NoChanges:
         scope.Remove(applySel.From);
         scope.Remove(apply);
       }
+      else if (apply is UnionFragment)
+      {
+        UnionFragment uf = apply as UnionFragment;
+        if (uf.Left == null || uf.Right == null)
+          throw new Exception("Union fragment is not properly formed.");
+
+        var left = uf.Left as SelectStatement;
+        var right = uf.Right as SelectStatement;
+
+        if (left == null || right == null)
+          throw new NotImplementedException();
+
+        var whereleft = left.Where as BinaryFragment;
+        var whereright = right.Where as BinaryFragment;
+
+        if (whereleft == null || whereright == null)
+          throw new NotImplementedException();
+        
+        LiteralFragment literalFragmentWhere = null;        
+
+        //checking where left
+        if (whereleft.Left is ColumnFragment && whereleft.Right is ColumnFragment)
+        {
+          // we replace the where part for a dummy one 
+          if (whereright.Left is ColumnFragment && whereright.Right is ColumnFragment)
+          {
+            literalFragmentWhere = new LiteralFragment("1 = 1");               
+          }
+        }
+
+        if (literalFragmentWhere == null)
+          throw new NotImplementedException();
+
+        var leftouterjoin = new JoinFragment();
+        leftouterjoin.JoinType = Metadata.GetOperator(DbExpressionKind.LeftOuterJoin);
+        leftouterjoin.Name = apply.Name;        
+
+        // validating that column fragment on the left matches the name
+        // for the input fragment
+        var leftColumnFragment = whereleft.Left as ColumnFragment;
+
+        if (leftColumnFragment == null)
+          throw new NotImplementedException();
+
+        if (!leftColumnFragment.TableName.Equals(input.Name))
+          new NotImplementedException();
+
+        var conditionJoin = new BinaryFragment();
+        conditionJoin.Left = whereleft.Left;
+
+        //update to the new reference
+        var newColumnFragment = whereright.Right as ColumnFragment;
+        if (newColumnFragment != null)
+        {          
+          newColumnFragment.TableName = uf.Name;
+        }
+        conditionJoin.Right = newColumnFragment;
+        conditionJoin.Operator = whereleft.Operator;
+
+        leftouterjoin.Condition = conditionJoin;
+
+        (uf.Left as SelectStatement).Where = literalFragmentWhere;
+        (uf.Right as SelectStatement).Where = literalFragmentWhere;
+        
+        leftouterjoin.Left = input;
+        leftouterjoin.Right = uf;
+
+        return leftouterjoin;
+      }
       return select;
     }
 
@@ -276,6 +346,7 @@ NoChanges:
       return HandleJoinExpression(expression.Left, expression.Right,
           expression.ExpressionKind, expression.JoinCondition);
     }
+
 
     private SqlFragment HandleJoinExpression(DbExpressionBinding left, DbExpressionBinding right,
         DbExpressionKind joinType, DbExpression joinCondition)
