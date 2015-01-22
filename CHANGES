@@ -5,6 +5,7 @@
 - Fix for bad assumption leads to modify query adding CALL statement to the beginning of the sql query even when CommandType.Text is specified (MySql Bug #72736, Oracle Bug #19325120).
 - Fix for Incorrect query result with Entity Framework 6 (MySql bug #74918, Oracle bug #20129927).
 - Fix for GetTimeZoneOffset to use date and time to calculate timediff (MySQL Bug #74905, Oracle Bug #20065691).
+- Fix for Invalid SQL query when eager loading two nested collections (MySQL Bug #70941, Oracle bug #18049862).
 
 6.8.4
 - Fix for Entity Framework Inserts broken on tables with unsigned bigint as auto increment (MySql Bug #71242, Oracle Bug #18189217).
