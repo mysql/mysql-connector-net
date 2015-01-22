@@ -1,4 +1,4 @@
-﻿// Copyright © 2014 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2014, 2015 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -306,5 +306,53 @@ namespace MySql.Data.Entity.CodeFirst.Tests
       SetSqlGenerator("MySql.Data.MySqlClient", new MySql.Data.Entity.MySqlMigrationSqlGenerator());
     }
   }
+
+
+  [Table("client")]
+  public class Client
+  {
+    [Key]
+    public int Id { get; set; }
+    public ICollection<Order> Orders { get; set; }
+  }
+
+  [Table("order")]
+  public class Order
+  {
+    [Key]
+    public int Id { get; set; }    
+    public ICollection<Item> Items { get; set; }
+    public ICollection<Discount> Discounts { get; set; }
+  }
+
+  [Table("item")]
+  public class Item
+  {
+    [Key]
+    public int Id { get; set; }    
+  }
+
+  [Table("discount")]
+  public class Discount
+  {
+    [Key]
+    public int Id { get; set; }
+  }
+
+
+#if EF6
+  [DbConfigurationType(typeof(MySqlEFConfiguration))]
+#endif
+  public class UsingUnionContext : DbContext
+  {
+    public DbSet<Client> Clients { get; set; }
+    public DbSet<Item> Items { get; set; }
+
+    public DbSet<Order> Orders { get; set; }
+
+    public DbSet<Discount> Discounts { get; set; } 
+  }
+
+
 
 }
