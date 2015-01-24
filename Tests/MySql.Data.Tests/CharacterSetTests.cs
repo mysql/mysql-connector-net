@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2014 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2015 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -542,6 +542,49 @@ namespace MySql.Data.MySqlClient.Tests
      finally
      {
        dbconn.Close();
+     }
+   }
+
+   [Fact]
+   public void ExtendedCharsetOnConnection()
+   {
+     MySqlConnectionStringBuilder rootSb = new MySqlConnectionStringBuilder(st.rootConn.ConnectionString);
+     rootSb.CharacterSet = "utf8";
+     using (MySqlConnection rootConnection = new MySqlConnection(rootSb.ToString()))
+     {
+       string database = "数据库";
+       string user = "用户";
+       string password = "test";
+       
+       rootConnection.Open();
+       MySqlCommand rootCommand = new MySqlCommand();
+       rootCommand.Connection = rootConnection;
+       rootCommand.CommandText = string.Format("CREATE DATABASE `{0}`;", database);
+       rootCommand.CommandText += string.Format("GRANT ALL ON `{0}`.* to '{1}'@'localhost' identified by '{2}';", database, user, password);
+       rootCommand.ExecuteNonQuery();
+
+       string connString = st.GetConnectionString(false);
+       MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder(connString);
+       sb.Database = database;
+       sb.UserID = user;
+       sb.Password = password;
+       sb.CharacterSet = "utf8";
+       try
+       {
+         using (MySqlConnection conn = new MySqlConnection(sb.ToString()))
+         {
+           conn.Open();
+           Assert.Equal(database, conn.Database);
+         }
+       }
+       finally
+       {
+         if (rootConnection.State == ConnectionState.Open)
+         {
+           rootCommand.CommandText = string.Format("DROP DATABASE `{0}`;DROP USER '{1}'@'localhost'", database, user);
+           rootCommand.ExecuteNonQuery();
+         }
+       }
      }
    }
   }
