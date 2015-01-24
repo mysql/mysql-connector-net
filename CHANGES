@@ -5,6 +5,8 @@
 - Fix for Any Call to RoleExists() returns true whether or not the role exists (MySql bug #75397, Oracle bug #20325391).
 - Fix for all dateTimes set as UTC Kind (MySQL Bug #74134, Oracle Bug #20200662).
 - Fix for Invalid SQL query when eager loading two nested collections (MySQL Bug #70941, Oracle bug #18049862).
+- Fix for chinese characters used in the connection string when connecting to MySql Server (MySQL Bug #70041, Oracle Bug #18141356).
+
 
 
 6.9.5
