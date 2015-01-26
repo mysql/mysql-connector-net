@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2014 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2015 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -532,8 +532,9 @@ namespace MySql.Data.MySqlClient.Tests
     {
       MySqlCommand cmd = new MySqlCommand("", st.conn);
       cmd.CommandText = ";";
-      Exception ex = Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());
-      Assert.Equal("You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '' at line 1", ex.Message);
+      MySqlException ex = Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());
+      // Error: 1065  Message: Query was empty
+      Assert.Equal(1065, ex.Number);
     }
 
 #if !CF && !RT
@@ -666,7 +667,7 @@ alter table longids AUTO_INCREMENT = 2147483640;";
                                        //"use", //it fails because invalid syntax error
                                        "begin",
                                        //"end", //it fails because invalid syntax error
-                                       "use`sakila`;",
+                                       "use`" + st.database0 + "`;",
                                        "select'test';",
                                        "select'1'=1;" };
 
