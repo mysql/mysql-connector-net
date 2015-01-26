@@ -1,4 +1,4 @@
-// Copyright © 2004, 2014, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2015, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -63,6 +63,7 @@ namespace MySql.Data.MySqlClient
     private bool shouldCache;
     private int cacheAge;
     private bool internallyCreated;
+    private static List<string> keywords = null;
 
     /// <include file='docs/mysqlcommand.xml' path='docs/ctor1/*'/>
     public MySqlCommand()
@@ -862,12 +863,21 @@ namespace MySql.Data.MySqlClient
     /// <returns>If it is necessary to add call statement</returns>
     private bool AddCallStatement(string query)
     {
-      /*PATTERN MATCHES
-       * SELECT`user`FROM`mysql`.`user`;, select(left('test',1));, do(1);, commit, rollback, use, begin, end, use`sakila`;, select`test`;, select'1'=1;, SET@test='test';
-       */
-      string pattern = @"^|COMMIT|ROLLBACK|BEGIN|END|DO\S+|SELECT\S+[FROM|\S+]|USE?\S+|SET\S+";
-      System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(pattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-      return !(regex.Matches(query).Count > 0);
+      if (string.IsNullOrEmpty(query)) return false;
+
+      string keyword = query.ToUpper();
+      int indexChar = keyword.IndexOfAny(new char[] { '(', '"', '@', '\'', '`' });
+      if(indexChar > 0)
+        keyword = keyword.Substring(0, indexChar);
+
+      if (keywords == null)
+#if CF
+        keywords = new List<string>(Resources.keywords.Replace("\r", "").Split('\n'));
+#else
+        keywords = new List<string>(Resources.keywords.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries));
+#endif
+
+      return !keywords.Contains(keyword);
     }
 
     #endregion
