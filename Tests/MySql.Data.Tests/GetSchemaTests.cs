@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2014 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2015 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -306,7 +306,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True(dt.Rows.Count == 1);
       Assert.Equal("Procedures", dt.TableName);
       Assert.Equal("spTest", dt.Rows[0][3]);
-      Assert.Equal("id int", dt.Rows[0][31]);
+      Assert.Equal("id int", dt.Rows[0][dt.Columns.Count - 1]);
     }
 
     [Fact]
