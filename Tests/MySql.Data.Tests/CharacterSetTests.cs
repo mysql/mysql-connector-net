@@ -499,6 +499,8 @@ namespace MySql.Data.MySqlClient.Tests
    [Fact]
    public void UTF16LETest()
    {
+     if (st.Version < new Version(5, 6)) return;
+
      using (MySqlDataReader reader = st.execReader("select _utf16le 'utf16le test';"))
      {
        while (reader.Read())
