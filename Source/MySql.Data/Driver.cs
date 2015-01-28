@@ -77,7 +77,7 @@ namespace MySql.Data.MySqlClient
       if (encoding == null)
         throw new MySqlException(Resources.DefaultEncodingNotFound);
       connectionString = settings;
-      serverCharSet = "latin1";
+      serverCharSet = "utf-8";
       serverCharSetIndex = -1;
       maxPacketSize = 1024;
       handler = new NativeDriver(this);
@@ -329,7 +329,7 @@ namespace MySql.Data.MySqlClient
       if (charSet != null)
         Encoding = CharSetMap.GetEncoding(Version, charSet);
       else
-        Encoding = CharSetMap.GetEncoding(Version, "latin1");
+        Encoding = CharSetMap.GetEncoding(Version, "utf-8");
 
       handler.Configure();
     }
