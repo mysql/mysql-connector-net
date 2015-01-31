@@ -250,10 +250,7 @@ namespace MySql.Data.Entity
       LikeFragment f = new LikeFragment();
 
       f.Argument = expression.Argument.Accept(this);
-      f.Pattern = expression.Pattern.Accept(this);
-
-      if (expression.Escape.ExpressionKind != DbExpressionKind.Null)
-        f.Escape = expression.Escape.Accept(this);
+      f.Pattern = expression.Pattern.Accept(this);      
 
       return f;
     }
@@ -691,8 +688,8 @@ namespace MySql.Data.Entity
               if (fl.Arguments[0] is DbConstantExpression)
               {
                 // Case LIKE '%pattern%'
-                DbConstantExpression c = (DbConstantExpression)fl.Arguments[0];                
-                like.Pattern = fl.Arguments[0].Accept(this);                
+                DbConstantExpression c = (DbConstantExpression)fl.Arguments[0];
+                like.Pattern = new LiteralFragment(string.Format("%{0}%", c.Value.ToString()));                
                 return like;
               } 
               else if ((par = fl.Arguments[0] as DbParameterReferenceExpression) != null) 

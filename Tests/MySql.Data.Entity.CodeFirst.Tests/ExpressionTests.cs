@@ -126,11 +126,10 @@ namespace MySql.Data.Entity.CodeFirst.Tests
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      string str = "Astaire";
+      string str = "stai";
 
       using (SakilaDb db = new SakilaDb())
-      {
-        var sql = db.actors.Where(e => e.last_name.Contains(str)).ToString();
+      {        
         var result = db.actors.Where(e => e.last_name.Contains(str)).ToArray();
         Assert.Equal(1, result.Count());        
       }
@@ -145,9 +144,23 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     {
       using (SakilaDb db = new SakilaDb())
       {
-          var result = db.actors.Where(e => e.last_name.Contains("Astaire")).ToArray();
+          var result = db.actors.Where(e => e.last_name.Contains("stai")).ToArray();
           Assert.Equal(1, result.Count());
       }
     }
+
+    /// <summary>
+    /// Using Contains on a list when using a hardcoded value
+    /// </summary>
+    [Fact]
+    public void CheckContainsWhenUsingHardCodedValueWithPorcentageSymbol()
+    {
+      using (SakilaDb db = new SakilaDb())
+      {
+        var result = db.actors.Where(e => e.last_name.Contains("%")).ToArray();
+        Assert.Equal(0, result.Count());
+      }
+    }
+
   }
 }
