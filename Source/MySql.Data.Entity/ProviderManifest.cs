@@ -29,6 +29,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using MySql.Data.Entity.Properties;
 using System.Globalization;
+using System.Text;
 #if EF6
 using System.Data.Entity.Core;
 using System.Data.Entity.Core.Common;
@@ -43,6 +44,9 @@ namespace MySql.Data.MySqlClient
   internal class MySqlProviderManifest : DbXmlEnabledProviderManifest
   {
     string manifestToken;
+	
+	internal const char LikeEscapeChar = '\u005c';
+    internal const string LikeEscapeCharToString = "\u005c";
 
     public MySqlProviderManifest(string version)
       : base(GetManifest())
@@ -288,6 +292,45 @@ namespace MySql.Data.MySqlClient
       s.Close();
       return resourceAsString;
     }
+	
+	#if NET_40_OR_GREATER		
+    public override bool SupportsEscapingLikeArgument(out char escapeCharacter)
+    {
+      escapeCharacter = LikeEscapeChar;
+      return true;
+    }
+    
+    public override string EscapeLikeArgument(string argument)
+    {
+
+      bool usedEscapeCharacter;      
+      return EscapeLikeArgument(argument, out usedEscapeCharacter);
+    }
+#endif
+    
+    internal static string EscapeLikeArgument(string argument, out bool usedEscapeChar)
+    {     
+      usedEscapeChar = false;
+      if (argument == null)
+        return string.Empty;
+
+      if (!(argument.Contains("%") || argument.Contains("_") || argument.Contains(LikeEscapeCharToString)))
+      {
+        return argument;
+      }
+      var sb = new StringBuilder(argument.Length);
+      foreach (var c in argument)
+      {
+        if (c == '%' || c == '_' || c == LikeEscapeChar)
+        {
+          sb.Append(LikeEscapeChar);
+          usedEscapeChar = true;
+        }
+        sb.Append(c);
+      }
+      return sb.ToString();
+    }
+	
 
 #if EF6
     public override bool SupportsInExpression()
