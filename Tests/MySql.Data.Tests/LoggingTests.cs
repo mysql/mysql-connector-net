@@ -76,7 +76,7 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
       //Assert.Equal(4, listener.Strings.Count);
-      Assert.Equal(23, listener.Strings.Count);
+      Assert.Equal(27, listener.Strings.Count);
       Assert.True(listener.Strings[listener.Strings.Count - 5].Contains("Query Opened: SELECT * FROM Test"));
       Assert.True(listener.Strings[listener.Strings.Count - 4].Contains("Resultset Opened: field(s) = 2, affected rows = -1, inserted id = -1"));
       Assert.True(listener.Strings[listener.Strings.Count - 3].Contains("Resultset Closed. Total rows=4, skipped rows=4, size (bytes)=32"));
@@ -101,7 +101,7 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.ExecuteNonQuery();
       }
 
-      Assert.Equal(28, listener.Strings.Count);
+      Assert.Equal(32, listener.Strings.Count);
       Assert.True(listener.Strings[listener.Strings.Count - 10].Contains("Query Opened: INSERT IGNORE INTO Test VALUES (1, 'abcdef')"));
       Assert.True(listener.Strings[listener.Strings.Count - 9].Contains("Resultset Opened: field(s) = 0, affected rows = 1, inserted id = 0"));
       Assert.True(listener.Strings[listener.Strings.Count - 8].Contains("Resultset Closed. Total rows=0, skipped rows=0, size (bytes)=0"));
@@ -133,7 +133,7 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.ExecuteNonQuery();
       }      
 
-      Assert.Equal(24, listener.Strings.Count);
+      Assert.Equal(28, listener.Strings.Count);
       Assert.True(listener.Strings[listener.Strings.Count - 5].EndsWith("SELECT ?", StringComparison.OrdinalIgnoreCase));
     }
 
