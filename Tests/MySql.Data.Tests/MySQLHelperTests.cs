@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2015 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -75,13 +75,20 @@ namespace MySql.Data.MySqlClient.Tests
       st.execSQL("CREATE PROCEDURE spTest() BEGIN SET @x=0; REPEAT INSERT INTO test VALUES(@x); " +
         "SET @x=@x+1; UNTIL @x = 100 END REPEAT; END");
 
-      System.Threading.Tasks.Task<int> result = MySqlHelper.ExecuteNonQueryAsync(st.conn, "call spTest", null);
-      Assert.NotEqual(-1, result.Result);
+      try
+      {
+        System.Threading.Tasks.Task<int> result = MySqlHelper.ExecuteNonQueryAsync(st.conn, "call spTest", null);
+        Assert.NotEqual(-1, result.Result);
 
-      MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM test;", st.conn);
-      cmd.CommandType = System.Data.CommandType.Text;
-      object cnt = cmd.ExecuteScalar();
-      Assert.Equal(100, Convert.ToInt32(cnt));
+        MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM test;", st.conn);
+        cmd.CommandType = System.Data.CommandType.Text;
+        object cnt = cmd.ExecuteScalar();
+        Assert.Equal(100, Convert.ToInt32(cnt));
+      }
+      finally
+      {
+        st.execSQL("DROP PROCEDURE spTest");
+      }
     }
     [Fact]
     public void ExecuteDataSetAsync()
@@ -91,14 +98,21 @@ namespace MySql.Data.MySqlClient.Tests
       st.execSQL("INSERT INTO table1 VALUES (1)");
       st.execSQL("INSERT INTO table2 VALUES (1)");
 
-      string sql = "SELECT table1.key FROM table1 WHERE table1.key=1; " +
-                   "SELECT table2.key FROM table2 WHERE table2.key=1";
-      DataSet ds = MySqlHelper.ExecuteDatasetAsync(st.conn, sql, null).Result;
-      Assert.Equal(2, ds.Tables.Count);
-      Assert.Equal(1, ds.Tables[0].Rows.Count);
-      Assert.Equal(1, ds.Tables[1].Rows.Count);
-      Assert.Equal(1, ds.Tables[0].Rows[0]["key"]);
-      Assert.Equal(1, ds.Tables[1].Rows[0]["key"]);
+      try
+      {
+        string sql = "SELECT table1.key FROM table1 WHERE table1.key=1; " +
+                     "SELECT table2.key FROM table2 WHERE table2.key=1";
+        DataSet ds = MySqlHelper.ExecuteDatasetAsync(st.conn, sql, null).Result;
+        Assert.Equal(2, ds.Tables.Count);
+        Assert.Equal(1, ds.Tables[0].Rows.Count);
+        Assert.Equal(1, ds.Tables[1].Rows.Count);
+        Assert.Equal(1, ds.Tables[0].Rows[0]["key"]);
+        Assert.Equal(1, ds.Tables[1].Rows[0]["key"]);
+      }
+      finally
+      {
+        st.execSQL("DROP TABLE table1;DROP TABLE table2;");
+      }
     }
     [Fact]
     public void ExecuteReaderAsync()
@@ -112,19 +126,26 @@ namespace MySql.Data.MySqlClient.Tests
       st.execSQL("CREATE PROCEDURE spTest() BEGIN INSERT INTO test VALUES(1); " +
                  "SELECT SLEEP(2); SELECT 'done'; END");
 
-      using (MySqlDataReader reader = MySqlHelper.ExecuteReaderAsync(st.conn, "call sptest").Result)
+      try
       {
-        Assert.NotNull(reader);
-        Assert.True(reader.Read(), "can read");
-        Assert.True(reader.NextResult());
-        Assert.True(reader.Read());
-        Assert.Equal("done", reader.GetString(0));
-        reader.Close();
+        using (MySqlDataReader reader = MySqlHelper.ExecuteReaderAsync(st.conn, "call sptest").Result)
+        {
+          Assert.NotNull(reader);
+          Assert.True(reader.Read(), "can read");
+          Assert.True(reader.NextResult());
+          Assert.True(reader.Read());
+          Assert.Equal("done", reader.GetString(0));
+          reader.Close();
 
-        MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM test", st.conn);
-        cmd.CommandType = CommandType.Text;
-        object cnt = cmd.ExecuteScalar();
-        Assert.Equal(1, Convert.ToInt32(cnt));
+          MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM test", st.conn);
+          cmd.CommandType = CommandType.Text;
+          object cnt = cmd.ExecuteScalar();
+          Assert.Equal(1, Convert.ToInt32(cnt));
+        }
+      }
+      finally
+      {
+        st.execSQL("DROP PROCEDURE spTest");
       }
     }
     [Fact]
@@ -135,11 +156,18 @@ namespace MySql.Data.MySqlClient.Tests
       if (st.conn.connectionState != ConnectionState.Open)
         st.conn.Open();
 
-      st.execSQL("CREATE TABLE table1 (`key` INT, PRIMARY KEY(`key`))");
-      st.execSQL("INSERT INTO table1 VALUES (1)");
+      try
+      {
+        st.execSQL("CREATE TABLE table1 (`key` INT, PRIMARY KEY(`key`))");
+        st.execSQL("INSERT INTO table1 VALUES (1)");
 
-      object result = MySqlHelper.ExecuteScalarAsync(st.conn, "SELECT table1.key FROM table1 WHERE table1.key=1;").Result;
-      Assert.Equal(1, int.Parse(result.ToString()));
+        object result = MySqlHelper.ExecuteScalarAsync(st.conn, "SELECT table1.key FROM table1 WHERE table1.key=1;").Result;
+        Assert.Equal(1, int.Parse(result.ToString()));
+      }
+      finally
+      {
+        st.execSQL("DROP TABLE table1");
+      }
     }
     #endregion
 #endif
