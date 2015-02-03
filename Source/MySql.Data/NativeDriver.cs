@@ -265,6 +265,9 @@ namespace MySql.Data.MySqlClient
 
       packet.Clear();
       packet.WriteInteger((int)connectionFlags, 4);
+      packet.WriteInteger(maxSinglePacket, 4);
+      packet.WriteByte(33); //character set utf-8
+      packet.Write(new byte[23]);
 
 #if !CF && !RT
       if ((serverCaps & ClientFlags.SSL) == 0)
@@ -284,6 +287,9 @@ namespace MySql.Data.MySqlClient
         StartSSL();
         packet.Clear();
         packet.WriteInteger((int)connectionFlags, 4);
+        packet.WriteInteger(maxSinglePacket, 4);
+        packet.WriteByte(33); //character set utf-8
+        packet.Write(new byte[23]);
       }
 #endif
 
@@ -293,10 +299,6 @@ namespace MySql.Data.MySqlClient
         throw new NotImplementedException("SSL not supported in this WinRT release.");
       }
 #endif
-
-      packet.WriteInteger(maxSinglePacket, 4);
-      packet.WriteByte(33);
-      packet.Write(new byte[23]);
 
       Authenticate(authenticationMethod, false);
 
