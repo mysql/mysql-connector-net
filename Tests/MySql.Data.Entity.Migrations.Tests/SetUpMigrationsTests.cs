@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2014 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2015 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -93,4 +93,20 @@ namespace MySql.Data.Entity.Migrations.Tests
     {
     }
   }
+
+
+  internal sealed class EF6Configuration : DbMigrationsConfiguration<BlogContext>
+  {
+    public EF6Configuration()
+    {
+      CodeGenerator = new MySqlMigrationCodeGenerator();
+      AutomaticMigrationsEnabled = true;
+      SetSqlGenerator("MySql.Data.MySqlClient", new MySql.Data.Entity.MySqlMigrationSqlGenerator());
+    }
+
+    protected override void Seed(BlogContext context)
+    {
+    }
+  }
+
 }
