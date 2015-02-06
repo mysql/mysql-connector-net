@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2014 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2015 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -540,9 +540,11 @@ namespace MySql.Data.MySqlClient.Tests
       {
           if (st.Version < new Version(4, 1)) return;
 
-          string connStr = st.GetConnectionString(true) + ";charset=utf8";
-          using (MySqlConnection c = new MySqlConnection(connStr))
+          try
           {
+            string connStr = st.GetConnectionString(true) + ";charset=utf8";
+            using (MySqlConnection c = new MySqlConnection(connStr))
+            {
               c.Open();
 
               MySqlCommand cmd = new MySqlCommand(
@@ -554,18 +556,23 @@ namespace MySql.Data.MySqlClient.Tests
               cmd.ExecuteNonQuery();
               cmd.CommandText = "INSERT INTO test (id, active) VALUES (CAST(0x123456789b AS Binary), true)";
               cmd.ExecuteNonQuery();
-          }
+            }
 
-          using (MySqlConnection d = new MySqlConnection(connStr))
-          {
+            using (MySqlConnection d = new MySqlConnection(connStr))
+            {
               d.Open();
 
               MySqlCommand cmd2 = new MySqlCommand("SELECT id, active FROM test", d);
               using (MySqlDataReader reader = cmd2.ExecuteReader())
               {
-                  Assert.True(reader.Read());
-                  Assert.True(reader.GetBoolean(1));
+                Assert.True(reader.Read());
+                Assert.True(reader.GetBoolean(1));
               }
+            }
+          }
+          finally
+          {
+            st.execSQL("DROP TABLE IF EXISTS `test`");
           }
       }
 
@@ -1182,17 +1189,6 @@ namespace MySql.Data.MySqlClient.Tests
 
       public void Dispose()
       {
-          if (st.conn.State != ConnectionState.Open)
-              st.conn.Open();
-          try
-          {
-              if (st.Version.Major < 5)
-                  st.suExecSQL("REVOKE ALL PRIVILEGES, GRANT OPTION FROM 'test'");
-              else
-                  st.suExecSQL("DROP USER 'test'@'localhost'");
-          }
-          catch (MySqlException)
-          { }
       }
 
       [Fact]
@@ -1217,27 +1213,34 @@ namespace MySql.Data.MySqlClient.Tests
         st.execSQL("Create Table CONNTransactionAsyncTest(key2 varchar(50), name varchar(50), name2 varchar(50))");
         st.execSQL("INSERT INTO CONNTransactionAsyncTest VALUES('P', 'Test1', 'Test2')");
 
-        MySqlTransaction txn = await st.conn.BeginTransactionAsync();
-        MySqlConnection c = txn.Connection;
-        Assert.Equal(st.conn, c);
-        MySqlCommand cmd = new MySqlCommand("SELECT name, name2 FROM CONNTransactionAsyncTest WHERE key2='P'", st.conn, txn);
-        MySqlTransaction t2 = cmd.Transaction;
-        Assert.Equal(txn, t2);
-        MySqlDataReader reader = null;
         try
         {
-          reader = cmd.ExecuteReader();
-          reader.Close();
-          txn.Commit();
-        }
-        catch (Exception ex)
-        {
-          Assert.False(ex.Message != string.Empty, ex.Message);
-          txn.Rollback();
+          MySqlTransaction txn = st.conn.BeginTransactionAsync().Result;
+          MySqlConnection c = txn.Connection;
+          Assert.Equal(st.conn, c);
+          MySqlCommand cmd = new MySqlCommand("SELECT name, name2 FROM CONNTransactionAsyncTest WHERE key2='P'", st.conn, txn);
+          MySqlTransaction t2 = cmd.Transaction;
+          Assert.Equal(txn, t2);
+          MySqlDataReader reader = null;
+          try
+          {
+            reader = cmd.ExecuteReader();
+            reader.Close();
+            txn.Commit();
+          }
+          catch (Exception ex)
+          {
+            Assert.False(ex.Message != string.Empty, ex.Message);
+            txn.Rollback();
+          }
+          finally
+          {
+            if (reader != null) reader.Close();
+          }
         }
         finally
         {
-          if (reader != null) reader.Close();
+          st.execSQL("DROP TABLE `CONNTransactionAsyncTest`;");
         }
       }
 
@@ -1251,22 +1254,29 @@ namespace MySql.Data.MySqlClient.Tests
         st.execSQL("INSERT INTO CONNChangeDBAsyncTest (id, name) VALUES (2,'test2')");
         st.execSQL("INSERT INTO CONNChangeDBAsyncTest (id, name) VALUES (3,'test3')");
 
-        await st.conn.ChangeDataBaseAsync(st.database1);
+        try
+        {
+          await st.conn.ChangeDataBaseAsync(st.database1);
 
-        MySqlDataAdapter da = new MySqlDataAdapter(
-            String.Format("SELECT id, name FROM `{0}`.CONNChangeDBAsyncTest", st.database0), st.conn);
-        MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
-        DataSet ds = new DataSet();
-        da.Fill(ds);
+          MySqlDataAdapter da = new MySqlDataAdapter(
+              String.Format("SELECT id, name FROM `{0}`.CONNChangeDBAsyncTest", st.database0), st.conn);
+          MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
+          DataSet ds = new DataSet();
+          da.Fill(ds);
 
-        ds.Tables[0].Rows[0]["id"] = 4;
-        DataSet changes = ds.GetChanges();
-        da.Update(changes);
-        ds.Merge(changes);
-        ds.AcceptChanges();
-        cb.Dispose();
+          ds.Tables[0].Rows[0]["id"] = 4;
+          DataSet changes = ds.GetChanges();
+          da.Update(changes);
+          ds.Merge(changes);
+          ds.AcceptChanges();
+          cb.Dispose();
 
-        await st.conn.ChangeDataBaseAsync(st.database0);
+          await st.conn.ChangeDataBaseAsync(st.database0);
+        }
+        finally
+        {
+          st.execSQL("DROP TABLE CONNChangeDBAsyncTest");
+        }
       }
 
       [Fact]

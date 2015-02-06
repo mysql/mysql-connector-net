@@ -479,7 +479,11 @@
           <LastGenOutput>SQLSyntax.Designer.cs</LastGenOutput>
           <LogicalName>MySql.Data.Entity.Tests.Properties.SQLSyntax.resources</LogicalName>
         </EmbeddedResource>
-        <None Include="App.Config">
+        <None Include="App.Config" Condition="'$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release'">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+          <SubType>Designer</SubType>
+        </None>
+        <None Include="EF6\App.Config" Condition="'$(Configuration)' == 'DebugEF6' Or '$(Configuration)' == 'ReleaseEF6'">
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
           <SubType>Designer</SubType>
         </None>
