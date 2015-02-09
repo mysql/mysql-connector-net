@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2014 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2015 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -33,7 +33,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Oracle Corporation")]
 [assembly: AssemblyProduct("MySql.LoadBalancing.Tests")]
-[assembly: AssemblyCopyright("Copyright © Oracle Corporation 2014")]
+[assembly: AssemblyCopyright("Copyright © 2013, 2015, Oracle and/or its affiliates. All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

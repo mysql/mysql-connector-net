@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2015 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -27,12 +27,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("CodeFirstMigrations")]
+[assembly: AssemblyTitle("MySql.Data.Entity.Migrations.Tests")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("CodeFirstMigrations")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2012")]
+[assembly: AssemblyCompany("Oracle")]
+[assembly: AssemblyProduct("MySql.Data.Entity.Migrations.Tests")]
+[assembly: AssemblyCopyright("Copyright © 2013, 2015, Oracle and/or its affiliates. All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
