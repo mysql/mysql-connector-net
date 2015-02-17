@@ -874,11 +874,7 @@ namespace MySql.Data.MySqlClient
         keyword = keyword.Substring(0, indexChar);
 
       if (keywords == null)
-#if CF
         keywords = new List<string>(Resources.keywords.Replace("\r", "").Split('\n'));
-#else
-        keywords = new List<string>(Resources.keywords.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries));
-#endif
 
       return !keywords.Contains(keyword);
     }
