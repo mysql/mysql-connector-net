@@ -67,6 +67,7 @@ namespace MySql.Data.MySqlClient
     private int cacheAge;
     private bool internallyCreated;
     private static List<string> keywords = null;
+    private bool disposed = false;
 
     /// <include file='docs/mysqlcommand.xml' path='docs/ctor1/*'/>
     public MySqlCommand()
@@ -1002,10 +1003,18 @@ namespace MySql.Data.MySqlClient
 
     protected override void Dispose(bool disposing)
     {
+      if (disposed)
+        return;
+
+      if (!disposing)
+        return;
+  
       if (statement != null && statement.IsPrepared)
         statement.CloseStatement();
 
       base.Dispose(disposing);
+
+      disposed = true;
     }
 #else
     public void Dispose()
