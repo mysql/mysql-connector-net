@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2014 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2015 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -37,7 +37,7 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class SetUpClass : IDisposable
   {
-          internal protected int maxPacketSize;
+        internal protected int maxPacketSize;
         internal protected MySqlConnection rootConn;
         internal protected string host;
         internal protected string user;
@@ -56,6 +56,7 @@ namespace MySql.Data.MySqlClient.Tests
         internal protected MySqlConnection conn;
         internal protected bool accessToMySqlDb;
         private int numProcessesRunning;
+        private bool disposed = false; 
 
         #region Properties
 
@@ -65,12 +66,13 @@ namespace MySql.Data.MySqlClient.Tests
             {
                 if (version == null)
                 {
-                    string versionString = rootConn.ServerVersion;
-                    int i = 0;
-                    while (i < versionString.Length &&
-                        (Char.IsDigit(versionString[i]) || versionString[i] == '.'))
-                        i++;
-                    version = new Version(versionString.Substring(0, i));
+                  string versionString = rootConn.ServerVersion;                  
+                  int i = 0;
+                  while (i < versionString.Length &&
+                      (Char.IsDigit(versionString[i]) || versionString[i] == '.'))
+                    i++;
+
+                  version = new Version(versionString.Substring(0, i));                  
                 }
                 return version;
             }
@@ -91,7 +93,7 @@ namespace MySql.Data.MySqlClient.Tests
         internal protected void MyInit()
         {
             LoadBaseConfiguration();
-            Initialize();
+            Initialize();         
 
             SetupRootConnection();
 
@@ -163,9 +165,10 @@ namespace MySql.Data.MySqlClient.Tests
             rootUser = ConfigurationManager.AppSettings["rootuser"];
             rootPassword = ConfigurationManager.AppSettings["rootpassword"];
             host = ConfigurationManager.AppSettings["host"];
-            portString = ConfigurationManager.AppSettings["port"];
-            pipeName = ConfigurationManager.AppSettings["pipename"];
+            portString = ConfigurationManager.AppSettings["port"];            
             memoryName = ConfigurationManager.AppSettings["memory_name"];
+            pipeName = ConfigurationManager.AppSettings["memory_name"];            
+            
 #endif
             if (string.IsNullOrEmpty(rootUser))
                 rootUser = "root";
@@ -178,9 +181,10 @@ namespace MySql.Data.MySqlClient.Tests
             else
                 port = int.Parse(portString);
             if (string.IsNullOrEmpty(pipeName))
-                pipeName = "MYSQL55";
+              pipeName = string.Format("MySQL{0}", Version.ToString().Substring(0, 3).Replace(".", ""));
             if (string.IsNullOrEmpty(memoryName))
-                memoryName = "MYSQL55";
+              memoryName = string.Format("MySQL{0}", Version.ToString().Substring(0, 3).Replace(".", ""));
+
         }
 
         internal protected virtual void Initialize()
@@ -419,25 +423,37 @@ namespace MySql.Data.MySqlClient.Tests
             s.Execute();
         }
 
-        public virtual void Dispose()
+        protected virtual void Dispose(bool disposing)
         {
-            MySqlConnection.ClearAllPools();
+          if (disposed)
+            return; 
+          
+            if (disposing)
+            {
+              MySqlConnection.ClearAllPools();
 
 #if !RT
-            CheckOrphanedConnections();
+              CheckOrphanedConnections();
 #endif
-
-            if (rootConn.State == ConnectionState.Closed)
+              if (rootConn.State == ConnectionState.Closed)
                 rootConn.Open();
 
-            DropDatabase(database0);
-            DropDatabase(database1);
+              DropDatabase(database0);
+              DropDatabase(database1);
 
-            DropDatabase("Perm");
+              DropDatabase("Perm");
 
-            rootConn.Close();
-            conn.Close();
+              rootConn.Close();
+              conn.Close();   
+            }
 
+            disposed = true;
+                  
+        }
+
+        public virtual void Dispose()
+        {
+          Dispose(true);
         }
   }
 
