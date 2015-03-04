@@ -91,7 +91,6 @@ namespace MySql.Data.MySqlClient.Tests
    [Fact]
     public void GetSchemaOnUTF8()
     {
-      if (st.Version.Major >= 6) return;
 
       st.execSQL("CREATE TABLE Test(name VARCHAR(40) NOT NULL, name2 VARCHAR(20)) " +
         "CHARACTER SET utf8");
@@ -109,6 +108,8 @@ namespace MySql.Data.MySqlClient.Tests
    [Fact]
     public void UTF8BlogsTruncating()
     {
+
+      st.execSQL("DROP TABLE IF EXISTS test");
       st.execSQL("CREATE TABLE test (name LONGTEXT) CHARSET utf8");
 
       string szParam = "test:éàçùêû";
