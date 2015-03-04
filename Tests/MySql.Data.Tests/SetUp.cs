@@ -181,9 +181,9 @@ namespace MySql.Data.MySqlClient.Tests
             else
                 port = int.Parse(portString);
             if (string.IsNullOrEmpty(pipeName))
-              pipeName = string.Format("MySQL{0}", Version.ToString().Substring(0, 3).Replace(".", ""));
+              pipeName = "MySQLSocket";
             if (string.IsNullOrEmpty(memoryName))
-              memoryName = string.Format("MySQL{0}", Version.ToString().Substring(0, 3).Replace(".", ""));
+              memoryName = "MySQLSocket";
 
         }
 
