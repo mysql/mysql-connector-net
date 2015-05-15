@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2015, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -185,7 +185,7 @@ namespace MySql.Data.MySqlClient
       options.Add(new MySqlConnectionStringOption("blobasutf8includepattern", null, typeof(string), "", false));
       options.Add(new MySqlConnectionStringOption("blobasutf8excludepattern", null, typeof(string), "", false));
 #if !CF
-      options.Add(new MySqlConnectionStringOption("sslmode", "ssl mode", typeof(MySqlSslMode), MySqlSslMode.None, false));
+      options.Add(new MySqlConnectionStringOption("sslmode", "ssl mode", typeof(MySqlSslMode), MySqlSslMode.Preferred, false));
 #endif
     }
 
