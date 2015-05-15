@@ -1325,5 +1325,38 @@ namespace MySql.Data.MySqlClient.Tests
       }
       #endregion
 #endif
+
+    [Fact]
+    public void SslPreferredByDefault()
+    {
+      string connectionString = st.GetConnectionString(true);
+      Assert.DoesNotContain("ssl", connectionString, StringComparison.OrdinalIgnoreCase);
+      using (MySqlConnection connection = new MySqlConnection(connectionString))
+      {
+        connection.Open();
+        MySqlCommand command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Ssl_version';", connection);
+        using (MySqlDataReader reader = command.ExecuteReader())
+        {
+          Assert.True(reader.Read());
+          Assert.Equal("TLSv1", reader.GetString(1));
+        }
+      }
+    }
+
+    [Fact]
+    public void SslOverrided()
+    {
+      string connectionString = st.GetConnectionString(true) + ";Ssl mode=None";
+      using (MySqlConnection connection = new MySqlConnection(connectionString))
+      {
+        connection.Open();
+        MySqlCommand command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Ssl_version';", connection);
+        using (MySqlDataReader reader = command.ExecuteReader())
+        {
+          Assert.True(reader.Read());
+          Assert.Equal(string.Empty, reader.GetString(1));
+        }
+      }
+    }
   }
 }
