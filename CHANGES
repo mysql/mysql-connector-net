@@ -1,3 +1,7 @@
+6.7.8
+ - Changed default SSL mode to Preferred in connection string. Now the server connections will be using SSL if server allows it by default but it's possible to override this configuration.
+
+
 6.7.7
 - Fix for Exception "The given key was not present in the dictionary" when using utf16le charset in a query. (MySql #72737, Oracle Bug #19355906)
 - Fix for Memory leak in a loop opening a connection to the database and executing a command (MySql Bug #73122, Oracle Bug #19467233).
