@@ -1,3 +1,7 @@
+6.7.9
+- Changed handshake process to use bytes instead of encoded strings.
+
+
 6.7.8
  - Changed default SSL mode to Preferred in connection string. Now the server connections will be using SSL if server allows it by default but it's possible to override this configuration.
 

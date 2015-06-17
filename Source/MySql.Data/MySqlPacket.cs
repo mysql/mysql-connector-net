@@ -1,4 +1,4 @@
-﻿// Copyright © 2004, 2011, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2004, 2015, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -354,17 +354,26 @@ namespace MySql.Data.MySqlClient
 
     public string ReadString(Encoding theEncoding)
     {
-      byte[] bits = buffer.GetBuffer();
+      byte[] bytes = ReadStringAsBytes();
+      string s = theEncoding.GetString(bytes, 0, bytes.Length);
+      return s;
+    }
+
+    public byte[] ReadStringAsBytes()
+    {
+      byte[] readBytes;
+      byte[] tempBuffer = buffer.GetBuffer();
       int end = (int)buffer.Position;
 
       while (end < (int)buffer.Length &&
-          bits[end] != 0 && (int)bits[end] != -1)
+          tempBuffer[end] != 0 && (int)tempBuffer[end] != -1)
         end++;
 
-      string s = theEncoding.GetString(bits,
-          (int)buffer.Position, end - (int)buffer.Position);
+      readBytes = new byte[end - buffer.Position];
+      Array.Copy(tempBuffer, (int)buffer.Position, readBytes, 0, (int)(end - buffer.Position));
       buffer.Position = end + 1;
-      return s;
+
+      return readBytes;
     }
 
     #endregion
