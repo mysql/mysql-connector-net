@@ -50,7 +50,7 @@ namespace MySql.Data.MySqlClient
   {
     private DBVersion version;
     private int threadId;
-    protected String encryptionSeed;
+    protected byte[] encryptionSeed;
     protected ServerStatusFlags serverStatus;
     protected MySqlStream stream;
     protected Stream baseStream;
@@ -227,7 +227,8 @@ namespace MySql.Data.MySqlClient
       if (!owner.isFabric && !version.isAtLeast(5, 0, 0))
         throw new NotSupportedException(Resources.ServerTooOld);
       threadId = packet.ReadInteger(4);
-      encryptionSeed = packet.ReadString();
+
+      byte[] seedPart1 = packet.ReadStringAsBytes();
 
       maxSinglePacket = (256 * 256 * 256) - 1;
 
@@ -247,8 +248,10 @@ namespace MySql.Data.MySqlClient
       serverCaps |= (ClientFlags)(serverCapsHigh << 16);
 
       packet.Position += 11;
-      string seedPart2 = packet.ReadString();
-      encryptionSeed += seedPart2;
+      byte[] seedPart2 = packet.ReadStringAsBytes();
+      encryptionSeed = new byte[seedPart1.Length + seedPart2.Length];
+      seedPart1.CopyTo(encryptionSeed, 0);
+      seedPart2.CopyTo(encryptionSeed, seedPart1.Length);
 
       string authenticationMethod = "";
       if ((serverCaps & ClientFlags.PLUGIN_AUTH) != 0)
@@ -488,13 +491,11 @@ namespace MySql.Data.MySqlClient
     {
       if (authMethod != null)
       {
-        byte[] seedBytes = Encoding.GetBytes(encryptionSeed);
-
         // Integrated security is a shortcut for windows auth
         if (Settings.IntegratedSecurity)
           authMethod = "authentication_windows_client";
 
-        authPlugin = MySqlAuthenticationPlugin.GetPlugin(authMethod, this, seedBytes);
+        authPlugin = MySqlAuthenticationPlugin.GetPlugin(authMethod, this, encryptionSeed);
       }
       authPlugin.Authenticate(reset);
     }
