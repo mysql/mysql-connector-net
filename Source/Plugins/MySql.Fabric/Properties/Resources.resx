@@ -126,6 +126,9 @@
   <data name="errorGroupAndTable" xml:space="preserve">
     <value>You have set a group name and a sharding table at the same time. Please set only one.</value>
   </data>
+  <data name="errorGroupNotFound" xml:space="preserve">
+    <value>Group '{0}' not found.</value>
+  </data>
   <data name="errorNoFabricSettings" xml:space="preserve">
     <value>No Fabric settins found.</value>
   </data>
