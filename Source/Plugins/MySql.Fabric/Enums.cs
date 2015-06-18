@@ -1,4 +1,4 @@
-﻿// Copyright © 2014, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2014, 2015 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -27,18 +27,18 @@ namespace MySql.Fabric
   [Flags]
   public enum FabricServerModeEnum
   {
-    Offline = 0x1,
-    Read_only = 0x2,
-    Write_only = 0x4,
-    Read_Write = 0x8
+    Offline = 0,
+    Read_only = 1,
+    Write_only = 2,
+    Read_Write = 4
   }
 
   internal enum FabricServerStatusEnum
   {
     Faulty = 0,
-    Spare,
-    Secondary,
-    Primary
+    Spare = 1,
+    Secondary = 2,
+    Primary = 3
   }
 
   public enum FabricScopeEnum

@@ -1,4 +1,4 @@
-﻿// Copyright © 2014, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2014, 2015 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -54,6 +54,7 @@ namespace MySql.Fabric
     // always in the format "schema.table"
     internal string tableProperty;
     internal object keyProperty;
+    ReplicationServer lastServer = null;
 
 
     public FabricServerGroup(string name, int retryTime)
@@ -111,14 +112,24 @@ namespace MySql.Fabric
 
         fabricConnection = new MySqlConnection(servers[0].ConnectionString);
       }
+      bool hasChanged = false;
+
+      if (groupIdProperty != settings.FabricGroup) hasChanged = true;
       groupIdProperty = settings.FabricGroup;
+      if (modeProperty != (FabricServerModeEnum?)settings.FabricServerMode) hasChanged = true;
       modeProperty = (FabricServerModeEnum?)settings.FabricServerMode;
+      if (tableProperty != settings.ShardingTable) hasChanged = true;
       tableProperty = settings.ShardingTable;
+      if (keyProperty != settings.ShardingKey) hasChanged = true;
       keyProperty = settings.ShardingKey;
 
-      GetServerList();
+      if (hasChanged)
+      {
+        GetServerList();
+        lastServer = GetServer(isMaster);
+      }
 
-      return GetServer(isMaster);
+      return lastServer;
     }
 
     private ReplicationServer GetServerByShard(FabricServerModeEnum mode)
@@ -142,7 +153,12 @@ namespace MySql.Fabric
 
     private ReplicationServer GetServerByGroup(FabricServerModeEnum mode, string groupId)
     {
-      var serversInGroup = FabricGroups[groupId].Servers.Where(i => (i.Mode & mode) != 0).ToList();
+      if (!FabricGroups.ContainsKey(groupId))
+        throw new MySqlFabricException(string.Format(Properties.Resources.errorGroupNotFound, groupId));
+
+      var serversInGroup = FabricGroups[groupId].Servers.Where(i => (i.Mode & mode) != 0 
+        && (i.Status == FabricServerStatusEnum.Primary 
+        || i.Status == FabricServerStatusEnum.Secondary)).ToList();
 
       if (serversInGroup.Count == 0) return null;
 
@@ -190,7 +206,14 @@ namespace MySql.Fabric
 
     internal protected override void HandleFailover(ReplicationServer server, Exception exception)
     {
-      ExecuteCommand("threat report_error", server.Name);
+      try
+      {
+        ExecuteCommand("threat report_error", server.Name);
+      }
+      catch (Exception ex)
+      {
+        MySqlTrace.LogError(-1, ex.ToString());
+      }
       GetServerList();
       throw exception;
     }
@@ -228,10 +251,8 @@ namespace MySql.Fabric
     protected void GetServerList()
     {
       if (lastUpdate.AddSeconds(ttl) > DateTime.Now) return;
-      //lock (FabricServers)
       lock (_lockObject)
       {
-        if (FabricGroups.Count != 0) return;
         try
         {
           GetGroups();
@@ -241,7 +262,7 @@ namespace MySql.Fabric
         catch (Exception ex)
         {
           MySqlTrace.LogError(-1, ex.ToString());
-          throw new MySqlFabricException(Properties.Resources.errorConnectFabricServer);
+          throw new MySqlFabricException(Properties.Resources.errorConnectFabricServer, ex);
         }
       }
     }

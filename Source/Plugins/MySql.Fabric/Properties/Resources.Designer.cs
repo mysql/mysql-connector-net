@@ -88,6 +88,15 @@ namespace MySql.Fabric.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Group &apos;{0}&apos; not found..
+        /// </summary>
+        internal static string errorGroupNotFound {
+            get {
+                return ResourceManager.GetString("errorGroupNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No Fabric settins found..
         /// </summary>
         internal static string errorNoFabricSettings {
