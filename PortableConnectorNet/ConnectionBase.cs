@@ -8,5 +8,8 @@ namespace PortableConnectorNet
 {
     public class ConnectionBase : IDisposable
     {
+
+      public void Dispose()
+      { }
     }
 }

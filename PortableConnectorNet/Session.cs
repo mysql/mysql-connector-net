@@ -9,31 +9,33 @@ namespace PortableConnectorNet
   internal class Session
   {
     ConnectionStringBuilder _csb;
-    RoutingServiceFabric _rounting;
+    RoutingToServer _rounting;
     XConnection _currentConnetion;
-    ProtocolInstance _protocol;
+    //ProtocolInstance _protocol;
     PlainAuthentication _authMethod;
+    int _mode;
 
     public Session(string connectionString)
     {
       _csb = new ConnectionStringBuilder(connectionString);
       _authMethod = new PlainAuthentication();
-      _rounting = new RoutingServiceFabric();
-      _protocol = new ProtocolInstance();
+      _rounting = new RoutingToServer();
+      _mode = 0;
+      //_protocol = new ProtocolInstance();
     }
 
     public void Open()
     {
-       _currentConnetion =  _rounting.GetCurrentConnection(mode);
-       _currentConnetion.Open();     
+       _currentConnetion = (XConnection)_rounting.GetCurrentConnection(_mode);
+       //_currentConnetion.Open();     
     }
 
-    public void Find(collection)
-    {}
+    //public void Find(collection)
+    //{}
 
 
-    public void Query(sqlStmt)
-    {}
+    //public void Query(sqlStmt)
+    //{}
 
     public void Execute()
     {}

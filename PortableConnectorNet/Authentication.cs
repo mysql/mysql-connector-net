@@ -11,19 +11,32 @@ internal abstract class AuthenticationBase : IDisposable
 {
 	public abstract void Authenticate();
 	protected abstract byte[] GetPassword(string password, byte[] seedBytes);
+
+  public void Dispose()
+  { }
 }
 
 
 internal class Mysql41Authentication : AuthenticationBase
 {
-	public void Authenticate();
-	protected byte[] GetPassword(string password, byte[] seedBytes);
+  public override void Authenticate()
+  { 
+  }
+  protected override byte[] GetPassword(string password, byte[] seedBytes)
+  { 
+     return new byte[1];
+  }
 }
 
   internal class PlainAuthentication : AuthenticationBase
   {
-	  public void Authenticate();
-    protected byte[] GetPassword(string password, byte[] seedBytes);
+    public override void Authenticate()
+    { 
+    }
+    protected override byte[] GetPassword(string password, byte[] seedBytes)
+    {
+      return new byte[1];
+    }
   }
 
 }

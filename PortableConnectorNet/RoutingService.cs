@@ -15,6 +15,15 @@ namespace PortableConnectorNet
 
   internal class RoutingServiceFabric
   { 
-  
+    
+  }
+
+
+  internal class RoutingToServer : RoutingService
+  {
+    public override ConnectionBase GetCurrentConnection(int mode)
+    {
+      throw new NotImplementedException();
+    }  
   }
 }

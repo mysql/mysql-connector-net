@@ -457,7 +457,7 @@ namespace Mysqlx.Connection {
     
     public override bool IsInitialized {
       get {
-        foreach (global::Mysqlx.Connection.Capability element in CapabilitiesList) {
+        foreach (global::Mysqlx.Connection.Capability element in Capabilities_List) {
           if (!element.IsInitialized) return false;
         }
         return true;

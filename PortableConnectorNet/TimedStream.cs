@@ -8,5 +8,16 @@ namespace PortableConnectorNet
 {
   internal class TimedStream : UniversalStream
   {
+
+    public override void Read()
+    {
+      throw new NotImplementedException();
+    }
+
+    public override void Write()
+    {
+      throw new NotImplementedException();
+    }
+
   }
 }
