@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PortableConnectorNet
+namespace MySql
 {
     public class ConnectionBase : IDisposable
     {
-
       public void Dispose()
       { }
     }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PortableConnectorNet
+namespace MySql.Routing
 {
   internal abstract class RoutingService
   {

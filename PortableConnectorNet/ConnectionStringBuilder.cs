@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PortableConnectorNet
+namespace MySql.Communication
 {
   internal class ConnectionStringBuilder
   {

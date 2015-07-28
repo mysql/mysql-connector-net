@@ -1,10 +1,13 @@
-﻿using System;
+﻿using MySql.Communication;
+using MySql.Routing;
+using MySql.Security;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PortableConnectorNet
+namespace MySql
 {
   internal class Session
   {
@@ -39,6 +42,9 @@ namespace PortableConnectorNet
 
     public void Execute()
     {}
+
+
+
 
   }
 }
