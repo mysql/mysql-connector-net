@@ -42,7 +42,8 @@ namespace Mysqlx.Session {
           "YRgCIAEoDBIYChBpbml0aWFsX3Jlc3BvbnNlGAMgASgMIikKFEF1dGhlbnRp" + 
           "Y2F0ZUNvbnRpbnVlEhEKCWF1dGhfZGF0YRgBIAIoDCIjCg5BdXRoZW50aWNh" + 
           "dGVPaxIRCglhdXRoX2RhdGEYASABKAwiHwoQQXV0aGVudGljYXRlRmFpbBIL" + 
-          "CgNtc2cYASABKAkiBwoFUmVzZXQiBwoFQ2xvc2U=");
+          "CgNtc2cYASABKAkiBwoFUmVzZXQiBwoFQ2xvc2VCHgocY29tLm15c3FsLmNq" + 
+          "Lm15c3FseC5wcm90b2J1Zg==");
       pbd::FileDescriptor.InternalDescriptorAssigner assigner = delegate(pbd::FileDescriptor root) {
         descriptor = root;
         internal__static_Mysqlx_Session_AuthenticateStart__Descriptor = Descriptor.MessageTypes[0];

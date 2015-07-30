@@ -41,7 +41,8 @@ namespace Mysqlx.Connection {
           "QwoMQ2FwYWJpbGl0aWVzEjMKDGNhcGFiaWxpdGllcxgBIAMoCzIdLk15c3Fs" + 
           "eC5Db25uZWN0aW9uLkNhcGFiaWxpdHkiEQoPQ2FwYWJpbGl0aWVzR2V0IkgK" + 
           "D0NhcGFiaWxpdGllc1NldBI1CgxjYXBhYmlsaXRpZXMYASACKAsyHy5NeXNx" + 
-          "bHguQ29ubmVjdGlvbi5DYXBhYmlsaXRpZXMiBwoFQ2xvc2U=");
+          "bHguQ29ubmVjdGlvbi5DYXBhYmlsaXRpZXMiBwoFQ2xvc2VCHgocY29tLm15" + 
+          "c3FsLmNqLm15c3FseC5wcm90b2J1Zg==");
       pbd::FileDescriptor.InternalDescriptorAssigner assigner = delegate(pbd::FileDescriptor root) {
         descriptor = root;
         internal__static_Mysqlx_Connection_Capability__Descriptor = Descriptor.MessageTypes[0];
@@ -457,7 +458,8 @@ namespace Mysqlx.Connection {
     
     public override bool IsInitialized {
       get {
-        foreach (global::Mysqlx.Connection.Capability element in Capabilities_List) {
+        foreach (global::Mysqlx.Connection.Capability element in capabilities_)
+        {
           if (!element.IsInitialized) return false;
         }
         return true;

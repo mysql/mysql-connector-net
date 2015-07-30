@@ -35,6 +35,14 @@ namespace PortableConnectorNetTests
       {
         Session session = new Session("connectionstring");
         session.Open();  
+
+        //var db = mysqlx.getSession( {
+        //host: 'localhost', port: '33060',
+        //dbUser: 'mike', dbPassword: 's3ce3t!' } )
+        //.getSchema('test');
+
+
+
       }
 
     //ResultSet result  =  session.SendQuery("Select * from table");

@@ -49,11 +49,12 @@
     <Compile Include="ConnectionBase.cs" />
     <Compile Include="ConnectionStringBuilder.cs" />
     <Compile Include="Message\Mysqlx.cs" />
-    <Compile Include="Message\MysqlxAdmin.cs" />
     <Compile Include="Message\MysqlxConnection.cs" />
     <Compile Include="Message\MysqlxCrud.cs" />
     <Compile Include="Message\MysqlxDatatypes.cs" />
+    <Compile Include="Message\MysqlxExpect.cs" />
     <Compile Include="Message\MysqlxExpr.cs" />
+    <Compile Include="Message\MysqlxNotice.cs" />
     <Compile Include="Message\MysqlxSession.cs" />
     <Compile Include="Message\MysqlxSql.cs" />
     <Compile Include="MyConnection.cs" />

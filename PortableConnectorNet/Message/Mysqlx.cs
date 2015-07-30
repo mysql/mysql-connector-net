@@ -24,10 +24,6 @@ namespace Mysqlx {
     internal static pb::FieldAccess.FieldAccessorTable<global::Mysqlx.Ok, global::Mysqlx.Ok.Builder> internal__static_Mysqlx_Ok__FieldAccessorTable;
     internal static pbd::MessageDescriptor internal__static_Mysqlx_Error__Descriptor;
     internal static pb::FieldAccess.FieldAccessorTable<global::Mysqlx.Error, global::Mysqlx.Error.Builder> internal__static_Mysqlx_Error__FieldAccessorTable;
-    internal static pbd::MessageDescriptor internal__static_Mysqlx_Notice__Descriptor;
-    internal static pb::FieldAccess.FieldAccessorTable<global::Mysqlx.Notice, global::Mysqlx.Notice.Builder> internal__static_Mysqlx_Notice__FieldAccessorTable;
-    internal static pbd::MessageDescriptor internal__static_Mysqlx_ParameterChangedNotification__Descriptor;
-    internal static pb::FieldAccess.FieldAccessorTable<global::Mysqlx.ParameterChangedNotification, global::Mysqlx.ParameterChangedNotification.Builder> internal__static_Mysqlx_ParameterChangedNotification__FieldAccessorTable;
     #endregion
     #region Descriptor
     public static pbd::FileDescriptor Descriptor {
@@ -37,42 +33,28 @@ namespace Mysqlx {
     
     static Mysqlx() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
-          "CgxteXNxbHgucHJvdG8SBk15c3FseBoWbXlzcWx4X2RhdGF0eXBlcy5wcm90" + 
-          "bxoRbXlzcWx4X2V4cHIucHJvdG8aEm15c3FseF9hZG1pbi5wcm90bxoQbXlz" + 
-          "cWx4X3NxbC5wcm90bxoRbXlzcWx4X2NydWQucHJvdG8aFG15c3FseF9zZXNz" + 
-          "aW9uLnByb3RvGhdteXNxbHhfY29ubmVjdGlvbi5wcm90byLHBAoOQ2xpZW50" + 
-          "TWVzc2FnZXMitAQKBFR5cGUSGAoUQ09OX0NBUEFCSUxJVElFU19HRVQQARIY" + 
-          "ChRDT05fQ0FQQUJJTElUSUVTX1NFVBACEg0KCUNPTl9DTE9TRRADEhsKF1NF" + 
-          "U1NfQVVUSEVOVElDQVRFX1NUQVJUEAQSHgoaU0VTU19BVVRIRU5USUNBVEVf" + 
-          "Q09OVElOVUUQBRIUChBTUUxfUFJFUEFSRV9TVE1UEAYSHQoZU1FMX1BSRVBB" + 
-          "UkVEX1NUTVRfRVhFQ1VURRAHEhkKFVNRTF9DVVJTT1JfRkVUQ0hfUk9XUxAI" + 
-          "Eh4KGlNRTF9DVVJTT1JfRkVUQ0hfTUVUQV9EQVRBEAkSFAoQU1FMX0NVUlNP" + 
-          "Ul9DTE9TRRAKEhQKEFNRTF9DVVJTT1JTX1BPTEwQCxIUChBTUUxfU1RNVF9F" + 
-          "WEVDVVRFEAwSFQoRQ1JVRF9QUkVQQVJFX0ZJTkQQDRIXChNDUlVEX1BSRVBB" + 
-          "UkVfSU5TRVJUEA4SFwoTQ1JVRF9QUkVQQVJFX1VQREFURRAPEhcKE0NSVURf" + 
-          "UFJFUEFSRV9ERUxFVEUQEBINCglDUlVEX0ZJTkQQERIPCgtDUlVEX0lOU0VS" + 
-          "VBASEg8KC0NSVURfVVBEQVRFEBMSDwoLQ1JVRF9ERUxFVEUQFBIbChdTUUxf" + 
-          "UFJFUEFSRURfU1RNVF9DTE9TRRAVEg4KClNFU1NfUkVTRVQQFhIOCgpTRVNT" + 
-          "X0NMT1NFEBcSGQoVQURNSU5fQ09NTUFORF9FWEVDVVRFEBgi2QMKDlNlcnZl" + 
-          "ck1lc3NhZ2VzIsYDCgRUeXBlEgYKAk9LEAESCQoFRVJST1IQAhIKCgZOT1RJ" + 
-          "Q0UQAxIiCh5QQVJBTUVURVJfQ0hBTkdFRF9OT1RJRklDQVRJT04QBBIVChFD" + 
-          "T05OX0NBUEFCSUxJVElFUxAFEh4KGlNFU1NfQVVUSEVOVElDQVRFX0NPTlRJ" + 
-          "TlVFEAYSGAoUU0VTU19BVVRIRU5USUNBVEVfT0sQBxIXChNTUUxfUFJFUEFS" + 
-          "RV9TVE1UX09LEAgSIAocU1FMX1BSRVBBUkVEX1NUTVRfRVhFQ1VURV9PSxAJ" + 
-          "EhgKFFNRTF9DT0xVTU5fTUVUQV9EQVRBEAoSCwoHU1FMX1JPVxALEhkKFVNR" + 
-          "TF9DVVJTT1JfRkVUQ0hfRE9ORRAMEh4KGlNRTF9DVVJTT1JfRkVUQ0hfU1VT" + 
-          "UEVOREVEEA0SFAoQU1FMX0NVUlNPUlNfUE9MTBAOEhcKE1NRTF9DVVJTT1Jf" + 
-          "Q0xPU0VfT0sQDxIpCiVTUUxfQ1VSU09SX0ZFVENIX0RPTkVfTU9SRV9SRVNV" + 
-          "TFRTRVRTEBASGgoWU0VTU19BVVRIRU5USUNBVEVfRkFJTBAREhcKE1NRTF9T" + 
-          "VE1UX0VYRUNVVEVfT0sQEiIRCgJPaxILCgNtc2cYASABKAkigQEKBUVycm9y" + 
-          "EigKCHNldmVyaXR5GAEgAigOMhYuTXlzcWx4LkVycm9yLlNldmVyaXR5EgwK" + 
-          "BGNvZGUYAiACKAUSEQoJc3FsX3N0YXRlGAQgAigJEgsKA21zZxgDIAIoCSIg" + 
-          "CghTZXZlcml0eRIJCgVFUlJPUhABEgkKBUZBVEFMEAIijQEKBk5vdGljZRIp" + 
-          "CghzZXZlcml0eRgBIAIoDjIXLk15c3FseC5Ob3RpY2UuU2V2ZXJpdHkSDAoE" + 
-          "Y29kZRgCIAIoBRIRCglzcWxfc3RhdGUYBCACKAkSCwoDbXNnGAMgAigJIioK" + 
-          "CFNldmVyaXR5EgsKB1dBUk5JTkcQARIICgRJTkZPEAISBwoDTE9HEAMiPAoc" + 
-          "UGFyYW1ldGVyQ2hhbmdlZE5vdGlmaWNhdGlvbhINCgVwYXJhbRgBIAIoCRIN" + 
-          "CgV2YWx1ZRgCIAIoBQ==");
+          "CgxteXNxbHgucHJvdG8SBk15c3FseBoQbXlzcWx4X3NxbC5wcm90bxoRbXlz" + 
+          "cWx4X2NydWQucHJvdG8aFG15c3FseF9zZXNzaW9uLnByb3RvGhdteXNxbHhf" + 
+          "Y29ubmVjdGlvbi5wcm90bxoTbXlzcWx4X2V4cGVjdC5wcm90bxoTbXlzcWx4" + 
+          "X25vdGljZS5wcm90byK0AgoOQ2xpZW50TWVzc2FnZXMioQIKBFR5cGUSGAoU" + 
+          "Q09OX0NBUEFCSUxJVElFU19HRVQQARIYChRDT05fQ0FQQUJJTElUSUVTX1NF" + 
+          "VBACEg0KCUNPTl9DTE9TRRADEhsKF1NFU1NfQVVUSEVOVElDQVRFX1NUQVJU" + 
+          "EAQSHgoaU0VTU19BVVRIRU5USUNBVEVfQ09OVElOVUUQBRIOCgpTRVNTX1JF" + 
+          "U0VUEAYSDgoKU0VTU19DTE9TRRAHEhQKEFNRTF9TVE1UX0VYRUNVVEUQDBIN" + 
+          "CglDUlVEX0ZJTkQQERIPCgtDUlVEX0lOU0VSVBASEg8KC0NSVURfVVBEQVRF" + 
+          "EBMSDwoLQ1JVRF9ERUxFVEUQFBIPCgtFWFBFQ1RfT1BFThAYEhAKDEVYUEVD" + 
+          "VF9DTE9TRRAZIssCCg5TZXJ2ZXJNZXNzYWdlcyK4AgoEVHlwZRIGCgJPSxAA" + 
+          "EgkKBUVSUk9SEAESFQoRQ09OTl9DQVBBQklMSVRJRVMQAhIeChpTRVNTX0FV" + 
+          "VEhFTlRJQ0FURV9DT05USU5VRRADEhgKFFNFU1NfQVVUSEVOVElDQVRFX09L" + 
+          "EAQSGgoWU0VTU19BVVRIRU5USUNBVEVfRkFJTBAFEgoKBk5PVElDRRALEhgK" + 
+          "FFNRTF9DT0xVTU5fTUVUQV9EQVRBEAwSCwoHU1FMX1JPVxANEhkKFVNRTF9S" + 
+          "RVNVTFRfRkVUQ0hfRE9ORRAOEh4KGlNRTF9SRVNVTFRfRkVUQ0hfU1VTUEVO" + 
+          "REVEEA8SKQolU1FMX1JFU1VMVF9GRVRDSF9ET05FX01PUkVfUkVTVUxUU0VU" + 
+          "UxAQEhcKE1NRTF9TVE1UX0VYRUNVVEVfT0sQESIRCgJPaxILCgNtc2cYASAB" + 
+          "KAkiiAEKBUVycm9yEi8KCHNldmVyaXR5GAEgASgOMhYuTXlzcWx4LkVycm9y" + 
+          "LlNldmVyaXR5OgVFUlJPUhIMCgRjb2RlGAIgAigNEhEKCXNxbF9zdGF0ZRgE" + 
+          "IAIoCRILCgNtc2cYAyACKAkiIAoIU2V2ZXJpdHkSCQoFRVJST1IQABIJCgVG" + 
+          "QVRBTBABQh4KHGNvbS5teXNxbC5jai5teXNxbHgucHJvdG9idWY=");
       pbd::FileDescriptor.InternalDescriptorAssigner assigner = delegate(pbd::FileDescriptor root) {
         descriptor = root;
         internal__static_Mysqlx_ClientMessages__Descriptor = Descriptor.MessageTypes[0];
@@ -91,25 +73,16 @@ namespace Mysqlx {
         internal__static_Mysqlx_Error__FieldAccessorTable = 
             new pb::FieldAccess.FieldAccessorTable<global::Mysqlx.Error, global::Mysqlx.Error.Builder>(internal__static_Mysqlx_Error__Descriptor,
                 new string[] { "Severity", "Code", "SqlState", "Msg", });
-        internal__static_Mysqlx_Notice__Descriptor = Descriptor.MessageTypes[4];
-        internal__static_Mysqlx_Notice__FieldAccessorTable = 
-            new pb::FieldAccess.FieldAccessorTable<global::Mysqlx.Notice, global::Mysqlx.Notice.Builder>(internal__static_Mysqlx_Notice__Descriptor,
-                new string[] { "Severity", "Code", "SqlState", "Msg", });
-        internal__static_Mysqlx_ParameterChangedNotification__Descriptor = Descriptor.MessageTypes[5];
-        internal__static_Mysqlx_ParameterChangedNotification__FieldAccessorTable = 
-            new pb::FieldAccess.FieldAccessorTable<global::Mysqlx.ParameterChangedNotification, global::Mysqlx.ParameterChangedNotification.Builder>(internal__static_Mysqlx_ParameterChangedNotification__Descriptor,
-                new string[] { "Param", "Value", });
         return null;
       };
       pbd::FileDescriptor.InternalBuildGeneratedFileFrom(descriptorData,
           new pbd::FileDescriptor[] {
-          global::Mysqlx.Datatypes.MysqlxDatatypes.Descriptor, 
-          global::Mysqlx.Expr.MysqlxExpr.Descriptor, 
-          global::Mysqlx.Admin.MysqlxAdmin.Descriptor, 
           global::Mysqlx.Sql.MysqlxSql.Descriptor, 
           global::Mysqlx.Crud.MysqlxCrud.Descriptor, 
           global::Mysqlx.Session.MysqlxSession.Descriptor, 
           global::Mysqlx.Connection.MysqlxConnection.Descriptor, 
+          global::Mysqlx.Expect.MysqlxExpect.Descriptor, 
+          global::Mysqlx.Notice.MysqlxNotice.Descriptor, 
           }, assigner);
     }
     #endregion
@@ -151,25 +124,15 @@ namespace Mysqlx {
         CON_CLOSE = 3,
         SESS_AUTHENTICATE_START = 4,
         SESS_AUTHENTICATE_CONTINUE = 5,
-        SQL_PREPARE_STMT = 6,
-        SQL_PREPARED_STMT_EXECUTE = 7,
-        SQL_CURSOR_FETCH_ROWS = 8,
-        SQL_CURSOR_FETCH_META_DATA = 9,
-        SQL_CURSOR_CLOSE = 10,
-        SQL_CURSORS_POLL = 11,
+        SESS_RESET = 6,
+        SESS_CLOSE = 7,
         SQL_STMT_EXECUTE = 12,
-        CRUD_PREPARE_FIND = 13,
-        CRUD_PREPARE_INSERT = 14,
-        CRUD_PREPARE_UPDATE = 15,
-        CRUD_PREPARE_DELETE = 16,
         CRUD_FIND = 17,
         CRUD_INSERT = 18,
         CRUD_UPDATE = 19,
         CRUD_DELETE = 20,
-        SQL_PREPARED_STMT_CLOSE = 21,
-        SESS_RESET = 22,
-        SESS_CLOSE = 23,
-        ADMIN_COMMAND_EXECUTE = 24,
+        EXPECT_OPEN = 24,
+        EXPECT_CLOSE = 25,
       }
       
     }
@@ -406,24 +369,19 @@ namespace Mysqlx {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     public static partial class Types {
       internal enum Type {
-        OK = 1,
-        ERROR = 2,
-        NOTICE = 3,
-        PARAMETER_CHANGED_NOTIFICATION = 4,
-        CONN_CAPABILITIES = 5,
-        SESS_AUTHENTICATE_CONTINUE = 6,
-        SESS_AUTHENTICATE_OK = 7,
-        SQL_PREPARE_STMT_OK = 8,
-        SQL_PREPARED_STMT_EXECUTE_OK = 9,
-        SQL_COLUMN_META_DATA = 10,
-        SQL_ROW = 11,
-        SQL_CURSOR_FETCH_DONE = 12,
-        SQL_CURSOR_FETCH_SUSPENDED = 13,
-        SQL_CURSORS_POLL = 14,
-        SQL_CURSOR_CLOSE_OK = 15,
-        SQL_CURSOR_FETCH_DONE_MORE_RESULTSETS = 16,
-        SESS_AUTHENTICATE_FAIL = 17,
-        SQL_STMT_EXECUTE_OK = 18,
+        OK = 0,
+        ERROR = 1,
+        CONN_CAPABILITIES = 2,
+        SESS_AUTHENTICATE_CONTINUE = 3,
+        SESS_AUTHENTICATE_OK = 4,
+        SESS_AUTHENTICATE_FAIL = 5,
+        NOTICE = 11,
+        SQL_COLUMN_META_DATA = 12,
+        SQL_ROW = 13,
+        SQL_RESULT_FETCH_DONE = 14,
+        SQL_RESULT_FETCH_SUSPENDED = 15,
+        SQL_RESULT_FETCH_DONE_MORE_RESULTSETS = 16,
+        SQL_STMT_EXECUTE_OK = 17,
       }
       
     }
@@ -931,8 +889,8 @@ namespace Mysqlx {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     public static partial class Types {
       internal enum Severity {
-        ERROR = 1,
-        FATAL = 2,
+        ERROR = 0,
+        FATAL = 1,
       }
       
     }
@@ -950,11 +908,11 @@ namespace Mysqlx {
     
     public const int CodeFieldNumber = 2;
     private bool hasCode;
-    private int code_;
+    private uint code_;
     public bool HasCode {
       get { return hasCode; }
     }
-    public int Code {
+    public uint Code {
       get { return code_; }
     }
     
@@ -980,7 +938,6 @@ namespace Mysqlx {
     
     public override bool IsInitialized {
       get {
-        if (!hasSeverity) return false;
         if (!hasCode) return false;
         if (!hasSqlState) return false;
         if (!hasMsg) return false;
@@ -995,7 +952,7 @@ namespace Mysqlx {
         output.WriteEnum(1, field_names[2], (int) Severity, Severity);
       }
       if (hasCode) {
-        output.WriteInt32(2, field_names[0], Code);
+        output.WriteUInt32(2, field_names[0], Code);
       }
       if (hasMsg) {
         output.WriteString(3, field_names[1], Msg);
@@ -1017,7 +974,7 @@ namespace Mysqlx {
           size += pb::CodedOutputStream.ComputeEnumSize(1, (int) Severity);
         }
         if (hasCode) {
-          size += pb::CodedOutputStream.ComputeInt32Size(2, Code);
+          size += pb::CodedOutputStream.ComputeUInt32Size(2, Code);
         }
         if (hasSqlState) {
           size += pb::CodedOutputStream.ComputeStringSize(4, SqlState);
@@ -1217,7 +1174,7 @@ namespace Mysqlx {
               break;
             }
             case 16: {
-              result.hasCode = input.ReadInt32(ref result.code_);
+              result.hasCode = input.ReadUInt32(ref result.code_);
               break;
             }
             case 26: {
@@ -1261,11 +1218,11 @@ namespace Mysqlx {
       public bool HasCode {
         get { return result.hasCode; }
       }
-      public int Code {
+      public uint Code {
         get { return result.Code; }
         set { SetCode(value); }
       }
-      public Builder SetCode(int value) {
+      public Builder SetCode(uint value) {
         PrepareBuilder();
         result.hasCode = true;
         result.code_ = value;
@@ -1321,747 +1278,6 @@ namespace Mysqlx {
       }
     }
     static Error() {
-      object.ReferenceEquals(global::Mysqlx.Mysqlx.Descriptor, null);
-    }
-  }
-  
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-  internal sealed partial class Notice : pb::GeneratedMessage<Notice, Notice.Builder> {
-    private Notice() { }
-    private static readonly Notice defaultInstance = new Notice().MakeReadOnly();
-    private static readonly string[] _noticeFieldNames = new string[] { "code", "msg", "severity", "sql_state" };
-    private static readonly uint[] _noticeFieldTags = new uint[] { 16, 26, 8, 34 };
-    public static Notice DefaultInstance {
-      get { return defaultInstance; }
-    }
-    
-    public override Notice DefaultInstanceForType {
-      get { return DefaultInstance; }
-    }
-    
-    protected override Notice ThisMessage {
-      get { return this; }
-    }
-    
-    public static pbd::MessageDescriptor Descriptor {
-      get { return global::Mysqlx.Mysqlx.internal__static_Mysqlx_Notice__Descriptor; }
-    }
-    
-    protected override pb::FieldAccess.FieldAccessorTable<Notice, Notice.Builder> InternalFieldAccessors {
-      get { return global::Mysqlx.Mysqlx.internal__static_Mysqlx_Notice__FieldAccessorTable; }
-    }
-    
-    #region Nested types
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-    public static partial class Types {
-      internal enum Severity {
-        WARNING = 1,
-        INFO = 2,
-        LOG = 3,
-      }
-      
-    }
-    #endregion
-    
-    public const int SeverityFieldNumber = 1;
-    private bool hasSeverity;
-    private global::Mysqlx.Notice.Types.Severity severity_ = global::Mysqlx.Notice.Types.Severity.WARNING;
-    public bool HasSeverity {
-      get { return hasSeverity; }
-    }
-    public global::Mysqlx.Notice.Types.Severity Severity {
-      get { return severity_; }
-    }
-    
-    public const int CodeFieldNumber = 2;
-    private bool hasCode;
-    private int code_;
-    public bool HasCode {
-      get { return hasCode; }
-    }
-    public int Code {
-      get { return code_; }
-    }
-    
-    public const int SqlStateFieldNumber = 4;
-    private bool hasSqlState;
-    private string sqlState_ = "";
-    public bool HasSqlState {
-      get { return hasSqlState; }
-    }
-    public string SqlState {
-      get { return sqlState_; }
-    }
-    
-    public const int MsgFieldNumber = 3;
-    private bool hasMsg;
-    private string msg_ = "";
-    public bool HasMsg {
-      get { return hasMsg; }
-    }
-    public string Msg {
-      get { return msg_; }
-    }
-    
-    public override bool IsInitialized {
-      get {
-        if (!hasSeverity) return false;
-        if (!hasCode) return false;
-        if (!hasSqlState) return false;
-        if (!hasMsg) return false;
-        return true;
-      }
-    }
-    
-    public override void WriteTo(pb::ICodedOutputStream output) {
-      int size = SerializedSize;
-      string[] field_names = _noticeFieldNames;
-      if (hasSeverity) {
-        output.WriteEnum(1, field_names[2], (int) Severity, Severity);
-      }
-      if (hasCode) {
-        output.WriteInt32(2, field_names[0], Code);
-      }
-      if (hasMsg) {
-        output.WriteString(3, field_names[1], Msg);
-      }
-      if (hasSqlState) {
-        output.WriteString(4, field_names[3], SqlState);
-      }
-      UnknownFields.WriteTo(output);
-    }
-    
-    private int memoizedSerializedSize = -1;
-    public override int SerializedSize {
-      get {
-        int size = memoizedSerializedSize;
-        if (size != -1) return size;
-        
-        size = 0;
-        if (hasSeverity) {
-          size += pb::CodedOutputStream.ComputeEnumSize(1, (int) Severity);
-        }
-        if (hasCode) {
-          size += pb::CodedOutputStream.ComputeInt32Size(2, Code);
-        }
-        if (hasSqlState) {
-          size += pb::CodedOutputStream.ComputeStringSize(4, SqlState);
-        }
-        if (hasMsg) {
-          size += pb::CodedOutputStream.ComputeStringSize(3, Msg);
-        }
-        size += UnknownFields.SerializedSize;
-        memoizedSerializedSize = size;
-        return size;
-      }
-    }
-    
-    public static Notice ParseFrom(pb::ByteString data) {
-      return ((Builder) CreateBuilder().MergeFrom(data)).BuildParsed();
-    }
-    public static Notice ParseFrom(pb::ByteString data, pb::ExtensionRegistry extensionRegistry) {
-      return ((Builder) CreateBuilder().MergeFrom(data, extensionRegistry)).BuildParsed();
-    }
-    public static Notice ParseFrom(byte[] data) {
-      return ((Builder) CreateBuilder().MergeFrom(data)).BuildParsed();
-    }
-    public static Notice ParseFrom(byte[] data, pb::ExtensionRegistry extensionRegistry) {
-      return ((Builder) CreateBuilder().MergeFrom(data, extensionRegistry)).BuildParsed();
-    }
-    public static Notice ParseFrom(global::System.IO.Stream input) {
-      return ((Builder) CreateBuilder().MergeFrom(input)).BuildParsed();
-    }
-    public static Notice ParseFrom(global::System.IO.Stream input, pb::ExtensionRegistry extensionRegistry) {
-      return ((Builder) CreateBuilder().MergeFrom(input, extensionRegistry)).BuildParsed();
-    }
-    public static Notice ParseDelimitedFrom(global::System.IO.Stream input) {
-      return CreateBuilder().MergeDelimitedFrom(input).BuildParsed();
-    }
-    public static Notice ParseDelimitedFrom(global::System.IO.Stream input, pb::ExtensionRegistry extensionRegistry) {
-      return CreateBuilder().MergeDelimitedFrom(input, extensionRegistry).BuildParsed();
-    }
-    public static Notice ParseFrom(pb::ICodedInputStream input) {
-      return ((Builder) CreateBuilder().MergeFrom(input)).BuildParsed();
-    }
-    public static Notice ParseFrom(pb::ICodedInputStream input, pb::ExtensionRegistry extensionRegistry) {
-      return ((Builder) CreateBuilder().MergeFrom(input, extensionRegistry)).BuildParsed();
-    }
-    private Notice MakeReadOnly() {
-      return this;
-    }
-    
-    public static Builder CreateBuilder() { return new Builder(); }
-    public override Builder ToBuilder() { return CreateBuilder(this); }
-    public override Builder CreateBuilderForType() { return new Builder(); }
-    public static Builder CreateBuilder(Notice prototype) {
-      return new Builder(prototype);
-    }
-    
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-    internal sealed partial class Builder : pb::GeneratedBuilder<Notice, Builder> {
-      protected override Builder ThisBuilder {
-        get { return this; }
-      }
-      public Builder() {
-        result = DefaultInstance;
-        resultIsReadOnly = true;
-      }
-      internal Builder(Notice cloneFrom) {
-        result = cloneFrom;
-        resultIsReadOnly = true;
-      }
-      
-      private bool resultIsReadOnly;
-      private Notice result;
-      
-      private Notice PrepareBuilder() {
-        if (resultIsReadOnly) {
-          Notice original = result;
-          result = new Notice();
-          resultIsReadOnly = false;
-          MergeFrom(original);
-        }
-        return result;
-      }
-      
-      public override bool IsInitialized {
-        get { return result.IsInitialized; }
-      }
-      
-      protected override Notice MessageBeingBuilt {
-        get { return PrepareBuilder(); }
-      }
-      
-      public override Builder Clear() {
-        result = DefaultInstance;
-        resultIsReadOnly = true;
-        return this;
-      }
-      
-      public override Builder Clone() {
-        if (resultIsReadOnly) {
-          return new Builder(result);
-        } else {
-          return new Builder().MergeFrom(result);
-        }
-      }
-      
-      public override pbd::MessageDescriptor DescriptorForType {
-        get { return global::Mysqlx.Notice.Descriptor; }
-      }
-      
-      public override Notice DefaultInstanceForType {
-        get { return global::Mysqlx.Notice.DefaultInstance; }
-      }
-      
-      public override Notice BuildPartial() {
-        if (resultIsReadOnly) {
-          return result;
-        }
-        resultIsReadOnly = true;
-        return result.MakeReadOnly();
-      }
-      
-      public override Builder MergeFrom(pb::IMessage other) {
-        if (other is Notice) {
-          return MergeFrom((Notice) other);
-        } else {
-          base.MergeFrom(other);
-          return this;
-        }
-      }
-      
-      public override Builder MergeFrom(Notice other) {
-        if (other == global::Mysqlx.Notice.DefaultInstance) return this;
-        PrepareBuilder();
-        if (other.HasSeverity) {
-          Severity = other.Severity;
-        }
-        if (other.HasCode) {
-          Code = other.Code;
-        }
-        if (other.HasSqlState) {
-          SqlState = other.SqlState;
-        }
-        if (other.HasMsg) {
-          Msg = other.Msg;
-        }
-        this.MergeUnknownFields(other.UnknownFields);
-        return this;
-      }
-      
-      public override Builder MergeFrom(pb::ICodedInputStream input) {
-        return MergeFrom(input, pb::ExtensionRegistry.Empty);
-      }
-      
-      public override Builder MergeFrom(pb::ICodedInputStream input, pb::ExtensionRegistry extensionRegistry) {
-        PrepareBuilder();
-        pb::UnknownFieldSet.Builder unknownFields = null;
-        uint tag;
-        string field_name;
-        while (input.ReadTag(out tag, out field_name)) {
-          if(tag == 0 && field_name != null) {
-            int field_ordinal = global::System.Array.BinarySearch(_noticeFieldNames, field_name, global::System.StringComparer.Ordinal);
-            if(field_ordinal >= 0)
-              tag = _noticeFieldTags[field_ordinal];
-            else {
-              if (unknownFields == null) {
-                unknownFields = pb::UnknownFieldSet.CreateBuilder(this.UnknownFields);
-              }
-              ParseUnknownField(input, unknownFields, extensionRegistry, tag, field_name);
-              continue;
-            }
-          }
-          switch (tag) {
-            case 0: {
-              throw pb::InvalidProtocolBufferException.InvalidTag();
-            }
-            default: {
-              if (pb::WireFormat.IsEndGroupTag(tag)) {
-                if (unknownFields != null) {
-                  this.UnknownFields = unknownFields.Build();
-                }
-                return this;
-              }
-              if (unknownFields == null) {
-                unknownFields = pb::UnknownFieldSet.CreateBuilder(this.UnknownFields);
-              }
-              ParseUnknownField(input, unknownFields, extensionRegistry, tag, field_name);
-              break;
-            }
-            case 8: {
-              object unknown;
-              if(input.ReadEnum(ref result.severity_, out unknown)) {
-                result.hasSeverity = true;
-              } else if(unknown is int) {
-                if (unknownFields == null) {
-                  unknownFields = pb::UnknownFieldSet.CreateBuilder(this.UnknownFields);
-                }
-                unknownFields.MergeVarintField(1, (ulong)(int)unknown);
-              }
-              break;
-            }
-            case 16: {
-              result.hasCode = input.ReadInt32(ref result.code_);
-              break;
-            }
-            case 26: {
-              result.hasMsg = input.ReadString(ref result.msg_);
-              break;
-            }
-            case 34: {
-              result.hasSqlState = input.ReadString(ref result.sqlState_);
-              break;
-            }
-          }
-        }
-        
-        if (unknownFields != null) {
-          this.UnknownFields = unknownFields.Build();
-        }
-        return this;
-      }
-      
-      
-      public bool HasSeverity {
-       get { return result.hasSeverity; }
-      }
-      public global::Mysqlx.Notice.Types.Severity Severity {
-        get { return result.Severity; }
-        set { SetSeverity(value); }
-      }
-      public Builder SetSeverity(global::Mysqlx.Notice.Types.Severity value) {
-        PrepareBuilder();
-        result.hasSeverity = true;
-        result.severity_ = value;
-        return this;
-      }
-      public Builder ClearSeverity() {
-        PrepareBuilder();
-        result.hasSeverity = false;
-        result.severity_ = global::Mysqlx.Notice.Types.Severity.WARNING;
-        return this;
-      }
-      
-      public bool HasCode {
-        get { return result.hasCode; }
-      }
-      public int Code {
-        get { return result.Code; }
-        set { SetCode(value); }
-      }
-      public Builder SetCode(int value) {
-        PrepareBuilder();
-        result.hasCode = true;
-        result.code_ = value;
-        return this;
-      }
-      public Builder ClearCode() {
-        PrepareBuilder();
-        result.hasCode = false;
-        result.code_ = 0;
-        return this;
-      }
-      
-      public bool HasSqlState {
-        get { return result.hasSqlState; }
-      }
-      public string SqlState {
-        get { return result.SqlState; }
-        set { SetSqlState(value); }
-      }
-      public Builder SetSqlState(string value) {
-        pb::ThrowHelper.ThrowIfNull(value, "value");
-        PrepareBuilder();
-        result.hasSqlState = true;
-        result.sqlState_ = value;
-        return this;
-      }
-      public Builder ClearSqlState() {
-        PrepareBuilder();
-        result.hasSqlState = false;
-        result.sqlState_ = "";
-        return this;
-      }
-      
-      public bool HasMsg {
-        get { return result.hasMsg; }
-      }
-      public string Msg {
-        get { return result.Msg; }
-        set { SetMsg(value); }
-      }
-      public Builder SetMsg(string value) {
-        pb::ThrowHelper.ThrowIfNull(value, "value");
-        PrepareBuilder();
-        result.hasMsg = true;
-        result.msg_ = value;
-        return this;
-      }
-      public Builder ClearMsg() {
-        PrepareBuilder();
-        result.hasMsg = false;
-        result.msg_ = "";
-        return this;
-      }
-    }
-    static Notice() {
-      object.ReferenceEquals(global::Mysqlx.Mysqlx.Descriptor, null);
-    }
-  }
-  
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-  internal sealed partial class ParameterChangedNotification : pb::GeneratedMessage<ParameterChangedNotification, ParameterChangedNotification.Builder> {
-    private ParameterChangedNotification() { }
-    private static readonly ParameterChangedNotification defaultInstance = new ParameterChangedNotification().MakeReadOnly();
-    private static readonly string[] _parameterChangedNotificationFieldNames = new string[] { "param", "value" };
-    private static readonly uint[] _parameterChangedNotificationFieldTags = new uint[] { 10, 16 };
-    public static ParameterChangedNotification DefaultInstance {
-      get { return defaultInstance; }
-    }
-    
-    public override ParameterChangedNotification DefaultInstanceForType {
-      get { return DefaultInstance; }
-    }
-    
-    protected override ParameterChangedNotification ThisMessage {
-      get { return this; }
-    }
-    
-    public static pbd::MessageDescriptor Descriptor {
-      get { return global::Mysqlx.Mysqlx.internal__static_Mysqlx_ParameterChangedNotification__Descriptor; }
-    }
-    
-    protected override pb::FieldAccess.FieldAccessorTable<ParameterChangedNotification, ParameterChangedNotification.Builder> InternalFieldAccessors {
-      get { return global::Mysqlx.Mysqlx.internal__static_Mysqlx_ParameterChangedNotification__FieldAccessorTable; }
-    }
-    
-    public const int ParamFieldNumber = 1;
-    private bool hasParam;
-    private string param_ = "";
-    public bool HasParam {
-      get { return hasParam; }
-    }
-    public string Param {
-      get { return param_; }
-    }
-    
-    public const int ValueFieldNumber = 2;
-    private bool hasValue;
-    private int value_;
-    public bool HasValue {
-      get { return hasValue; }
-    }
-    public int Value {
-      get { return value_; }
-    }
-    
-    public override bool IsInitialized {
-      get {
-        if (!hasParam) return false;
-        if (!hasValue) return false;
-        return true;
-      }
-    }
-    
-    public override void WriteTo(pb::ICodedOutputStream output) {
-      int size = SerializedSize;
-      string[] field_names = _parameterChangedNotificationFieldNames;
-      if (hasParam) {
-        output.WriteString(1, field_names[0], Param);
-      }
-      if (hasValue) {
-        output.WriteInt32(2, field_names[1], Value);
-      }
-      UnknownFields.WriteTo(output);
-    }
-    
-    private int memoizedSerializedSize = -1;
-    public override int SerializedSize {
-      get {
-        int size = memoizedSerializedSize;
-        if (size != -1) return size;
-        
-        size = 0;
-        if (hasParam) {
-          size += pb::CodedOutputStream.ComputeStringSize(1, Param);
-        }
-        if (hasValue) {
-          size += pb::CodedOutputStream.ComputeInt32Size(2, Value);
-        }
-        size += UnknownFields.SerializedSize;
-        memoizedSerializedSize = size;
-        return size;
-      }
-    }
-    
-    public static ParameterChangedNotification ParseFrom(pb::ByteString data) {
-      return ((Builder) CreateBuilder().MergeFrom(data)).BuildParsed();
-    }
-    public static ParameterChangedNotification ParseFrom(pb::ByteString data, pb::ExtensionRegistry extensionRegistry) {
-      return ((Builder) CreateBuilder().MergeFrom(data, extensionRegistry)).BuildParsed();
-    }
-    public static ParameterChangedNotification ParseFrom(byte[] data) {
-      return ((Builder) CreateBuilder().MergeFrom(data)).BuildParsed();
-    }
-    public static ParameterChangedNotification ParseFrom(byte[] data, pb::ExtensionRegistry extensionRegistry) {
-      return ((Builder) CreateBuilder().MergeFrom(data, extensionRegistry)).BuildParsed();
-    }
-    public static ParameterChangedNotification ParseFrom(global::System.IO.Stream input) {
-      return ((Builder) CreateBuilder().MergeFrom(input)).BuildParsed();
-    }
-    public static ParameterChangedNotification ParseFrom(global::System.IO.Stream input, pb::ExtensionRegistry extensionRegistry) {
-      return ((Builder) CreateBuilder().MergeFrom(input, extensionRegistry)).BuildParsed();
-    }
-    public static ParameterChangedNotification ParseDelimitedFrom(global::System.IO.Stream input) {
-      return CreateBuilder().MergeDelimitedFrom(input).BuildParsed();
-    }
-    public static ParameterChangedNotification ParseDelimitedFrom(global::System.IO.Stream input, pb::ExtensionRegistry extensionRegistry) {
-      return CreateBuilder().MergeDelimitedFrom(input, extensionRegistry).BuildParsed();
-    }
-    public static ParameterChangedNotification ParseFrom(pb::ICodedInputStream input) {
-      return ((Builder) CreateBuilder().MergeFrom(input)).BuildParsed();
-    }
-    public static ParameterChangedNotification ParseFrom(pb::ICodedInputStream input, pb::ExtensionRegistry extensionRegistry) {
-      return ((Builder) CreateBuilder().MergeFrom(input, extensionRegistry)).BuildParsed();
-    }
-    private ParameterChangedNotification MakeReadOnly() {
-      return this;
-    }
-    
-    public static Builder CreateBuilder() { return new Builder(); }
-    public override Builder ToBuilder() { return CreateBuilder(this); }
-    public override Builder CreateBuilderForType() { return new Builder(); }
-    public static Builder CreateBuilder(ParameterChangedNotification prototype) {
-      return new Builder(prototype);
-    }
-    
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-    internal sealed partial class Builder : pb::GeneratedBuilder<ParameterChangedNotification, Builder> {
-      protected override Builder ThisBuilder {
-        get { return this; }
-      }
-      public Builder() {
-        result = DefaultInstance;
-        resultIsReadOnly = true;
-      }
-      internal Builder(ParameterChangedNotification cloneFrom) {
-        result = cloneFrom;
-        resultIsReadOnly = true;
-      }
-      
-      private bool resultIsReadOnly;
-      private ParameterChangedNotification result;
-      
-      private ParameterChangedNotification PrepareBuilder() {
-        if (resultIsReadOnly) {
-          ParameterChangedNotification original = result;
-          result = new ParameterChangedNotification();
-          resultIsReadOnly = false;
-          MergeFrom(original);
-        }
-        return result;
-      }
-      
-      public override bool IsInitialized {
-        get { return result.IsInitialized; }
-      }
-      
-      protected override ParameterChangedNotification MessageBeingBuilt {
-        get { return PrepareBuilder(); }
-      }
-      
-      public override Builder Clear() {
-        result = DefaultInstance;
-        resultIsReadOnly = true;
-        return this;
-      }
-      
-      public override Builder Clone() {
-        if (resultIsReadOnly) {
-          return new Builder(result);
-        } else {
-          return new Builder().MergeFrom(result);
-        }
-      }
-      
-      public override pbd::MessageDescriptor DescriptorForType {
-        get { return global::Mysqlx.ParameterChangedNotification.Descriptor; }
-      }
-      
-      public override ParameterChangedNotification DefaultInstanceForType {
-        get { return global::Mysqlx.ParameterChangedNotification.DefaultInstance; }
-      }
-      
-      public override ParameterChangedNotification BuildPartial() {
-        if (resultIsReadOnly) {
-          return result;
-        }
-        resultIsReadOnly = true;
-        return result.MakeReadOnly();
-      }
-      
-      public override Builder MergeFrom(pb::IMessage other) {
-        if (other is ParameterChangedNotification) {
-          return MergeFrom((ParameterChangedNotification) other);
-        } else {
-          base.MergeFrom(other);
-          return this;
-        }
-      }
-      
-      public override Builder MergeFrom(ParameterChangedNotification other) {
-        if (other == global::Mysqlx.ParameterChangedNotification.DefaultInstance) return this;
-        PrepareBuilder();
-        if (other.HasParam) {
-          Param = other.Param;
-        }
-        if (other.HasValue) {
-          Value = other.Value;
-        }
-        this.MergeUnknownFields(other.UnknownFields);
-        return this;
-      }
-      
-      public override Builder MergeFrom(pb::ICodedInputStream input) {
-        return MergeFrom(input, pb::ExtensionRegistry.Empty);
-      }
-      
-      public override Builder MergeFrom(pb::ICodedInputStream input, pb::ExtensionRegistry extensionRegistry) {
-        PrepareBuilder();
-        pb::UnknownFieldSet.Builder unknownFields = null;
-        uint tag;
-        string field_name;
-        while (input.ReadTag(out tag, out field_name)) {
-          if(tag == 0 && field_name != null) {
-            int field_ordinal = global::System.Array.BinarySearch(_parameterChangedNotificationFieldNames, field_name, global::System.StringComparer.Ordinal);
-            if(field_ordinal >= 0)
-              tag = _parameterChangedNotificationFieldTags[field_ordinal];
-            else {
-              if (unknownFields == null) {
-                unknownFields = pb::UnknownFieldSet.CreateBuilder(this.UnknownFields);
-              }
-              ParseUnknownField(input, unknownFields, extensionRegistry, tag, field_name);
-              continue;
-            }
-          }
-          switch (tag) {
-            case 0: {
-              throw pb::InvalidProtocolBufferException.InvalidTag();
-            }
-            default: {
-              if (pb::WireFormat.IsEndGroupTag(tag)) {
-                if (unknownFields != null) {
-                  this.UnknownFields = unknownFields.Build();
-                }
-                return this;
-              }
-              if (unknownFields == null) {
-                unknownFields = pb::UnknownFieldSet.CreateBuilder(this.UnknownFields);
-              }
-              ParseUnknownField(input, unknownFields, extensionRegistry, tag, field_name);
-              break;
-            }
-            case 10: {
-              result.hasParam = input.ReadString(ref result.param_);
-              break;
-            }
-            case 16: {
-              result.hasValue = input.ReadInt32(ref result.value_);
-              break;
-            }
-          }
-        }
-        
-        if (unknownFields != null) {
-          this.UnknownFields = unknownFields.Build();
-        }
-        return this;
-      }
-      
-      
-      public bool HasParam {
-        get { return result.hasParam; }
-      }
-      public string Param {
-        get { return result.Param; }
-        set { SetParam(value); }
-      }
-      public Builder SetParam(string value) {
-        pb::ThrowHelper.ThrowIfNull(value, "value");
-        PrepareBuilder();
-        result.hasParam = true;
-        result.param_ = value;
-        return this;
-      }
-      public Builder ClearParam() {
-        PrepareBuilder();
-        result.hasParam = false;
-        result.param_ = "";
-        return this;
-      }
-      
-      public bool HasValue {
-        get { return result.hasValue; }
-      }
-      public int Value {
-        get { return result.Value; }
-        set { SetValue(value); }
-      }
-      public Builder SetValue(int value) {
-        PrepareBuilder();
-        result.hasValue = true;
-        result.value_ = value;
-        return this;
-      }
-      public Builder ClearValue() {
-        PrepareBuilder();
-        result.hasValue = false;
-        result.value_ = 0;
-        return this;
-      }
-    }
-    static ParameterChangedNotification() {
       object.ReferenceEquals(global::Mysqlx.Mysqlx.Descriptor, null);
     }
   }

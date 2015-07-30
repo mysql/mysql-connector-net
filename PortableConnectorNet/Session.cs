@@ -55,6 +55,11 @@ namespace MySql
        //_currentConnetion.Open();     
     }
 
+    public void GetSession()
+    { 
+    
+    }
+
     //public void Find(collection)
     //{}
 

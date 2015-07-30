@@ -46,18 +46,19 @@ namespace Mysqlx.Expr {
           "cmF0b3IYBiABKAsyFS5NeXNxbHguRXhwci5PcGVyYXRvciJaCgRUeXBlEgkK" + 
           "BUlERU5UEAESCwoHTElURVJBTBACEgwKCFZBUklBQkxFEAMSDQoJRlVOQ19D" + 
           "QUxMEAQSDAoIT1BFUkFUT1IQBRIPCgtQTEFDRUhPTERFUhAGIi8KCklkZW50" + 
-          "aWZpZXISDAoEbmFtZRgBIAIoCRITCgtzY2hlbWFfbmFtZRgCIAEoCSK2AQoQ" + 
+          "aWZpZXISDAoEbmFtZRgBIAIoCRITCgtzY2hlbWFfbmFtZRgCIAEoCSLLAQoQ" + 
           "RG9jdW1lbnRQYXRoSXRlbRIwCgR0eXBlGAEgAigOMiIuTXlzcWx4LkV4cHIu" + 
           "RG9jdW1lbnRQYXRoSXRlbS5UeXBlEg0KBXZhbHVlGAIgASgJEg0KBWluZGV4" + 
-          "GAMgASgNIlIKBFR5cGUSCgoGTUVNQkVSEAESDwoLQVJSQVlfSU5ERVgQAhIY" + 
-          "ChRBUlJBWV9JTkRFWF9BU1RFUklTSxADEhMKD0RPVUJMRV9BU1RFUklTSxAE" + 
-          "In8KEENvbHVtbklkZW50aWZpZXISNAoNZG9jdW1lbnRfcGF0aBgBIAMoCzId" + 
-          "Lk15c3FseC5FeHByLkRvY3VtZW50UGF0aEl0ZW0SDAoEbmFtZRgCIAEoCRIS" + 
-          "Cgp0YWJsZV9uYW1lGAMgASgJEhMKC3NjaGVtYV9uYW1lGAQgASgJIlcKDEZ1" + 
-          "bmN0aW9uQ2FsbBIlCgRuYW1lGAEgAigLMhcuTXlzcWx4LkV4cHIuSWRlbnRp" + 
-          "ZmllchIgCgVwYXJhbRgCIAMoCzIRLk15c3FseC5FeHByLkV4cHIiOgoIT3Bl" + 
-          "cmF0b3ISDAoEbmFtZRgBIAIoCRIgCgVwYXJhbRgCIAMoCzIRLk15c3FseC5F" + 
-          "eHByLkV4cHI=");
+          "GAMgASgNImcKBFR5cGUSCgoGTUVNQkVSEAESEwoPTUVNQkVSX0FTVEVSSVNL" + 
+          "EAISDwoLQVJSQVlfSU5ERVgQAxIYChRBUlJBWV9JTkRFWF9BU1RFUklTSxAE" + 
+          "EhMKD0RPVUJMRV9BU1RFUklTSxAFIn8KEENvbHVtbklkZW50aWZpZXISNAoN" + 
+          "ZG9jdW1lbnRfcGF0aBgBIAMoCzIdLk15c3FseC5FeHByLkRvY3VtZW50UGF0" + 
+          "aEl0ZW0SDAoEbmFtZRgCIAEoCRISCgp0YWJsZV9uYW1lGAMgASgJEhMKC3Nj" + 
+          "aGVtYV9uYW1lGAQgASgJIlcKDEZ1bmN0aW9uQ2FsbBIlCgRuYW1lGAEgAigL" + 
+          "MhcuTXlzcWx4LkV4cHIuSWRlbnRpZmllchIgCgVwYXJhbRgCIAMoCzIRLk15" + 
+          "c3FseC5FeHByLkV4cHIiOgoIT3BlcmF0b3ISDAoEbmFtZRgBIAIoCRIgCgVw" + 
+          "YXJhbRgCIAMoCzIRLk15c3FseC5FeHByLkV4cHJCHgocY29tLm15c3FsLmNq" + 
+          "Lm15c3FseC5wcm90b2J1Zg==");
       pbd::FileDescriptor.InternalDescriptorAssigner assigner = delegate(pbd::FileDescriptor root) {
         descriptor = root;
         internal__static_Mysqlx_Expr_Expr__Descriptor = Descriptor.MessageTypes[0];
@@ -1064,9 +1065,10 @@ namespace Mysqlx.Expr {
     public static partial class Types {
       internal enum Type {
         MEMBER = 1,
-        ARRAY_INDEX = 2,
-        ARRAY_INDEX_ASTERISK = 3,
-        DOUBLE_ASTERISK = 4,
+        MEMBER_ASTERISK = 2,
+        ARRAY_INDEX = 3,
+        ARRAY_INDEX_ASTERISK = 4,
+        DOUBLE_ASTERISK = 5,
       }
       
     }

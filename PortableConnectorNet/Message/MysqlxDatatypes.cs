@@ -54,7 +54,8 @@ namespace Mysqlx.Datatypes {
           "ZXMuQW55LlR5cGUSKAoGc2NhbGFyGAIgASgLMhguTXlzcWx4LkRhdGF0eXBl" + 
           "cy5TY2FsYXISJQoDb2JqGAMgASgLMhguTXlzcWx4LkRhdGF0eXBlcy5PYmpl" + 
           "Y3QSJgoFYXJyYXkYBCABKAsyFy5NeXNxbHguRGF0YXR5cGVzLkFycmF5IikK" + 
-          "BFR5cGUSCgoGU0NBTEFSEAESCgoGT0JKRUNUEAISCQoFQVJSQVkQAw==");
+          "BFR5cGUSCgoGU0NBTEFSEAESCgoGT0JKRUNUEAISCQoFQVJSQVkQA0IeChxj" + 
+          "b20ubXlzcWwuY2oubXlzcWx4LnByb3RvYnVm");
       pbd::FileDescriptor.InternalDescriptorAssigner assigner = delegate(pbd::FileDescriptor root) {
         descriptor = root;
         internal__static_Mysqlx_Datatypes_Scalar__Descriptor = Descriptor.MessageTypes[0];
