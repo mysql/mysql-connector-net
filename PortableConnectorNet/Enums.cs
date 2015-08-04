@@ -20,58 +20,13 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.Communication;
-using MySql.Routing;
-using MySql.Security;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MySql
+namespace MySql.DataAccess
 {
-  internal class Session
+  internal enum ConnectionMode
   {
-    ConnectionStringBuilder _csb;
-    RoutingToServer _rounting;
-    XConnection _currentConnetion;
-    //ProtocolInstance _protocol;
-    PlainAuthentication _authMethod;
-    int _mode;
-
-    public Session(string connectionString)
-    {
-      _csb = new ConnectionStringBuilder(connectionString);
-      _authMethod = new PlainAuthentication();
-      _rounting = new RoutingToServer();
-      _mode = 0;
-      //_protocol = new ProtocolInstance();
-    }
-
-    public void Open()
-    {
-       _currentConnetion = (XConnection)_rounting.GetCurrentConnection(_mode);
-       //_currentConnetion.Open();     
-    }
-
-    public void GetSession()
-    { 
-    
-    }
-
-    //public void Find(collection)
-    //{}
-
-
-    //public void Query(sqlStmt)
-    //{}
-
-    public void Execute()
-    {}
-
-
-
-
+    Offline = 0,
+    ReadOnly = 1,
+    WriteOnly = 2,
+    ReadWrite = 3
   }
 }

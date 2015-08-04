@@ -20,32 +20,25 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MySql.Data;
+using MySql.DataAccess;
 
-namespace MySql.Routing
+namespace MySql.RoutingService
 {
-  internal abstract class RoutingService
+  internal abstract class RoutingServiceBase
   {
-    public abstract ConnectionBase GetCurrentConnection(int mode);
-
-  }
-
-
-  internal class RoutingServiceFabric
-  { 
-    
-  }
-
-
-  internal class RoutingToServer : RoutingService
-  {
-    public override ConnectionBase GetCurrentConnection(int mode)
+    public RoutingServiceBase(MySqlConnectionStringBuilder settings)
     {
-      throw new NotImplementedException();
-    }  
+
+    }
+
+    public virtual MySqlConnectionStringBuilder GetCurrentConnection()
+    {
+      //TODO get the session mode
+      ConnectionMode mode = ConnectionMode.ReadWrite;
+      return GetCurrentConnection(mode);
+    }
+    
+    public abstract MySqlConnectionStringBuilder GetCurrentConnection(ConnectionMode mode);
   }
 }
