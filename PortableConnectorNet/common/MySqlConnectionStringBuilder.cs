@@ -68,12 +68,12 @@ namespace MySql.Data
         delegate(MySqlConnectionStringBuilder msb, MySqlConnectionStringOption sender, object Value)
         {
 #if !CF
-          uint value = (uint)Convert.ChangeType(Value, sender.BaseType);          
+          uint value = (uint)Convert.ChangeType(Value, sender.BaseType);
 #else
           uint value = (uint)Convert.ChangeType(Value, sender.BaseType, System.Globalization.CultureInfo.CurrentCulture);
 #endif
           // Timeout in milliseconds should not exceed maximum for 32 bit
-          // signed integer (~24 days). We truncate the value if it exceeds 
+          // signed integer (~24 days). We truncate the value if it exceeds
           // maximum (MySqlCommand.CommandTimeout uses the same technique
           uint timeout = Math.Min(value, Int32.MaxValue / 1000);
           if (timeout != value)
@@ -226,7 +226,7 @@ namespace MySql.Data
     }
 
     /// <summary>
-    /// Gets or sets the name of the database the connection should 
+    /// Gets or sets the name of the database the connection should
     /// initially connect to.
     /// </summary>
     [Category("Connection")]
@@ -307,7 +307,7 @@ namespace MySql.Data
     }
 
     /// <summary>
-    /// Gets or sets the base name of the shared memory objects used to 
+    /// Gets or sets the base name of the shared memory objects used to
     /// communicate with MySQL when the shared memory protocol is being used.
     /// </summary>
     [Category("Connection")]
@@ -363,7 +363,7 @@ namespace MySql.Data
       set
       {
         // Timeout in milliseconds should not exceed maximum for 32 bit
-        // signed integer (~24 days). We truncate the value if it exceeds 
+        // signed integer (~24 days). We truncate the value if it exceeds
         // maximum (MySqlCommand.CommandTimeout uses the same technique
         uint timeout = Math.Min(value, Int32.MaxValue / 1000);
         if (timeout != value)
@@ -525,7 +525,7 @@ namespace MySql.Data
     }
 
     /// <summary>
-    /// Gets or sets a boolean value indicating if zero datetime values should be 
+    /// Gets or sets a boolean value indicating if zero datetime values should be
     /// converted to DateTime.MinValue.
     /// </summary>
     [Category("Advanced")]
@@ -717,7 +717,7 @@ namespace MySql.Data
 
     [Category("Advanced")]
     [DisplayName("Table Cache")]
-    [Description(@"Enables or disables caching of TableDirect command.  
+    [Description(@"Enables or disables caching of TableDirect command.
             A value of yes enables the cache while no disables it.")]
     [DefaultValue(false)]
     public bool TableCaching
@@ -1074,7 +1074,7 @@ namespace MySql.Data
       MySqlConnectionStringBuilder other = obj as MySqlConnectionStringBuilder;
       if( obj == null )
         return false;
-        
+
       if( this.values.Count != other.values.Count ) return false;
 
       foreach (KeyValuePair<string, object> kvp in this.values)
@@ -1183,7 +1183,7 @@ namespace MySql.Data
           return;
         }
       }
-      
+
 #if !CF
       if (typeName == "Boolean" && Boolean.TryParse(value.ToString(), out b)) { value = b; return; }
 

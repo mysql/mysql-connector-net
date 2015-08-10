@@ -33,8 +33,8 @@ namespace PortableConnectorNetTests
     {
       public void TestConnection()
       {
-        Session session = new Session("connectionstring");
-        session.Open();  
+        //Session session = new Session("connectionstring");
+        //session.Open();  
 
         //var db = mysqlx.getSession( {
         //host: 'localhost', port: '33060',

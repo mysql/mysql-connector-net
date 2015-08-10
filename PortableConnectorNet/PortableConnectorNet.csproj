@@ -44,16 +44,14 @@
   <ItemGroup>
     <Compile Include="common\Platform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Authentication.cs" />
+    <Compile Include="Authentication\Authentication.cs" />
     <Compile Include="common\LowResolutionStopwatch.cs" />
-    <Compile Include="CommunicationPacket.cs" />
-    <Compile Include="CommunicationTcp.cs" />
-    <Compile Include="ConnectionBase.cs" />
-    <Compile Include="ConnectionStringBuilder.cs" />
-    <Compile Include="DataReader.cs" />
-    <Compile Include="Enums.cs" />
-    <Compile Include="Factory.cs" />
-    <Compile Include="InternalSession.cs" />
+    <Compile Include="Communication\CommunicationPacket.cs" />
+    <Compile Include="Communication\CommunicationTcp.cs" />
+    <Compile Include="Data\DataReader.cs" />
+    <Compile Include="Data\Enums.cs" />
+    <Compile Include="Data\Factory.cs" />
+    <Compile Include="Data\InternalSession.cs" />
     <Compile Include="Message\Mysqlx.cs" />
     <Compile Include="Message\MysqlxConnection.cs" />
     <Compile Include="Message\MysqlxCrud.cs" />
@@ -63,22 +61,21 @@
     <Compile Include="Message\MysqlxNotice.cs" />
     <Compile Include="Message\MysqlxSession.cs" />
     <Compile Include="Message\MysqlxSql.cs" />
-    <Compile Include="MySqlConnectionStringBuilder.cs" />
-    <Compile Include="MysqlDefs.cs" />
-    <Compile Include="MySqlException.cs" />
-    <Compile Include="MySqlTrace.cs" />
-    <Compile Include="Parameter.cs" />
+    <Compile Include="common\MySqlConnectionStringBuilder.cs" />
+    <Compile Include="common\MysqlDefs.cs" />
+    <Compile Include="common\MySqlException.cs" />
+    <Compile Include="common\MySqlTrace.cs" />
+    <Compile Include="Data\Parameter.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="ProtocolBase.cs" />
-    <Compile Include="RoutingServiceBase.cs" />
+    <Compile Include="Protocol\ProtocolBase.cs" />
+    <Compile Include="RoutingServices\RoutingServiceBase.cs" />
     <Compile Include="common\StringUtility.cs" />
-    <Compile Include="UniversalStream.cs" />
+    <Compile Include="Communication\UniversalStream.cs" />
     <Compile Include="Properties\VersionInfo.cs" />
-    <Compile Include="XConnection.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -91,6 +88,7 @@
     <Content Include="Properties\keywords.txt" />
     <Content Include="Properties\ReservedWords.txt" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

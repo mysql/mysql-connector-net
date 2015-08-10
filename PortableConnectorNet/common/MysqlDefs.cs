@@ -62,7 +62,7 @@ namespace MySql.Data
   internal enum ServerStatusFlags
   {
     InTransaction = 1, // Transaction has started
-    AutoCommitMode = 2, // Server in auto_commit mode 
+    AutoCommitMode = 2, // Server in auto_commit mode
     MoreResults = 4, // More results on server
     AnotherQuery = 8, // Multi query - next query exists
     BadIndex = 16,
@@ -117,17 +117,17 @@ namespace MySql.Data
   {
     /// <summary>
     /// <see cref="Decimal"/>
-    /// <para>A fixed precision and scale numeric value between -1038 
+    /// <para>A fixed precision and scale numeric value between -1038
     /// -1 and 10 38 -1.</para>
     /// </summary>
     Decimal = 0,
     /// <summary>
-    /// <see cref="Byte"/><para>The signed range is -128 to 127. The unsigned 
+    /// <see cref="Byte"/><para>The signed range is -128 to 127. The unsigned
     /// range is 0 to 255.</para>
     /// </summary>
     Byte = 1,
     /// <summary>
-    /// <see cref="Int16"/><para>A 16-bit signed integer. The signed range is 
+    /// <see cref="Int16"/><para>A 16-bit signed integer. The signed range is
     /// -32768 to 32767. The unsigned range is 0 to 65535</para>
     /// </summary>
     Int16 = 2,
@@ -144,20 +144,20 @@ namespace MySql.Data
     /// </summary>
     Int64 = 8,
     /// <summary>
-    /// <see cref="Single"/><para>A small (single-precision) floating-point 
-    /// number. Allowable values are -3.402823466E+38 to -1.175494351E-38, 
+    /// <see cref="Single"/><para>A small (single-precision) floating-point
+    /// number. Allowable values are -3.402823466E+38 to -1.175494351E-38,
     /// 0, and 1.175494351E-38 to 3.402823466E+38.</para>
     /// </summary>
     Float = 4,
     /// <summary>
-    /// <see cref="Double"/><para>A normal-size (double-precision) 
-    /// floating-point number. Allowable values are -1.7976931348623157E+308 
-    /// to -2.2250738585072014E-308, 0, and 2.2250738585072014E-308 to 
+    /// <see cref="Double"/><para>A normal-size (double-precision)
+    /// floating-point number. Allowable values are -1.7976931348623157E+308
+    /// to -2.2250738585072014E-308, 0, and 2.2250738585072014E-308 to
     /// 1.7976931348623157E+308.</para>
     /// </summary>
     Double = 5,
     /// <summary>
-    /// A timestamp. The range is '1970-01-01 00:00:00' to sometime in the 
+    /// A timestamp. The range is '1970-01-01 00:00:00' to sometime in the
     /// year 2037
     /// </summary>
     Timestamp = 7,
@@ -170,19 +170,19 @@ namespace MySql.Data
     /// </summary>
     Time = 11,
     ///<summary>
-    ///DateTime The supported range is '1000-01-01 00:00:00' to 
+    ///DateTime The supported range is '1000-01-01 00:00:00' to
     ///'9999-12-31 23:59:59'.
     ///</summary>
     DateTime = 12,
     ///<summary>
-    ///Datetime The supported range is '1000-01-01 00:00:00' to 
+    ///Datetime The supported range is '1000-01-01 00:00:00' to
     ///'9999-12-31 23:59:59'.
     ///</summary>
     [Obsolete("The Datetime enum value is obsolete.  Please use DateTime.")]
     Datetime = 12,
     /// <summary>
-    /// A year in 2- or 4-digit format (default is 4-digit). The 
-    /// allowable values are 1901 to 2155, 0000 in the 4-digit year 
+    /// A year in 2- or 4-digit format (default is 4-digit). The
+    /// allowable values are 1901 to 2155, 0000 in the 4-digit year
     /// format, and 1970-2069 if you use the 2-digit format (70-69).
     /// </summary>
     Year = 13,
@@ -203,20 +203,20 @@ namespace MySql.Data
     /// </summary>
     NewDecimal = 246,
     /// <summary>
-    /// An enumeration. A string object that can have only one value, 
-    /// chosen from the list of values 'value1', 'value2', ..., NULL 
-    /// or the special "" error value. An ENUM can have a maximum of 
+    /// An enumeration. A string object that can have only one value,
+    /// chosen from the list of values 'value1', 'value2', ..., NULL
+    /// or the special "" error value. An ENUM can have a maximum of
     /// 65535 distinct values
     /// </summary>
     Enum = 247,
     /// <summary>
-    /// A set. A string object that can have zero or more values, each 
-    /// of which must be chosen from the list of values 'value1', 'value2', 
+    /// A set. A string object that can have zero or more values, each
+    /// of which must be chosen from the list of values 'value1', 'value2',
     /// ... A SET can have a maximum of 64 members.
     /// </summary>
     Set = 248,
     /// <summary>
-    /// A binary column with a maximum length of 255 (2^8 - 1) 
+    /// A binary column with a maximum length of 255 (2^8 - 1)
     /// characters
     /// </summary>
     TinyBlob = 249,
@@ -225,7 +225,7 @@ namespace MySql.Data
     /// </summary>
     MediumBlob = 250,
     /// <summary>
-    /// A binary column with a maximum length of 4294967295 or 
+    /// A binary column with a maximum length of 4294967295 or
     /// 4G (2^32 - 1) bytes.
     /// </summary>
     LongBlob = 251,
@@ -282,7 +282,7 @@ namespace MySql.Data
     /// </summary>
     MediumText = 750,
     /// <summary>
-    /// A text column with a maximum length of 4294967295 or 
+    /// A text column with a maximum length of 4294967295 or
     /// 4G (2^32 - 1) characters.
     /// </summary>
     LongText = 751,
@@ -369,7 +369,7 @@ namespace MySql.Data
     Prefered = Preferred,
     /// <summary>
     /// Always use SSL. Deny connection if server does not support SSL.
-    /// Do not perform server certificate validation. 
+    /// Do not perform server certificate validation.
     /// </summary>
     Required,
     /// <summary>

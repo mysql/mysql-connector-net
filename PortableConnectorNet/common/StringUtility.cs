@@ -47,6 +47,5 @@ namespace MySql.Data
       return s.ToLowerInvariant();
 #endif
     }
-  
   }
 }
