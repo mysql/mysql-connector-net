@@ -20,107 +20,85 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.common;
 using MySql.Data;
-using MySql.Protocol;
-using MySql.RoutingServices;
+using MySql.DataAccess;
 using System;
+using System.Collections.Generic;
 
-namespace MySql.DataAccess
+namespace MySql.XDevAPI
 {
-  internal class InternalSession : IDisposable
+  public abstract class BaseSession : IDisposable
   {
-    protected MySqlConnectionStringBuilder currentSettings;
-    protected RoutingServiceBase routingService;
-    protected ProtocolBase protocol;
+    private string connectionString;
+    private InternalSession internalSession = null;
     private bool disposed = false;
 
-    public MySqlConnectionStringBuilder Settings { get; private set; }
-
-    public InternalSession(MySqlConnectionStringBuilder settings)
+    public MySqlConnectionStringBuilder Settings
     {
-      this.Settings = settings;
-
-      routingService = Factory.GetRoutingService(settings);
-      currentSettings = routingService.GetCurrentConnection();
-
-      protocol = Factory.GetProtocol(currentSettings);
-
+      get { return internalSession.Settings; }
     }
 
-    public InternalSession(string connectionString)
-      : this(new MySqlConnectionStringBuilder(connectionString))
+    public Schema Schema { get; protected set; }
+
+
+    public BaseSession(string connectionString)
     {
-      
+      this.connectionString = connectionString;
+      internalSession = new InternalSession(connectionString);
     }
 
-    public InternalSession()
-      : this(new MySqlConnectionStringBuilder())
+    public BaseSession(object connectionData)
     {
+      internalSession = new InternalSession();
+      if (!connectionData.GetType().IsGenericType)
+        throw new MySqlException("Connection Data format is incorrect.");
 
+      var values = Tools.GetDictionaryFromAnonymous(connectionData);
+      foreach (var value in values)
+      {
+        if (!Settings.ContainsKey(value.Key))
+          throw new MySqlException(string.Format("Attribute '{0}' is not defined in the connection", value.Key));
+        Settings.SetValue(value.Key, value.Value);
+      }
+      this.connectionString = Settings.ToString();
     }
 
 
-    #region Actions
-
-    public void Open()
+    public Schema GetSchema(string schema)
     {
-      protocol.OpenConnection();
+      internalSession.SetSchema(schema);
+      this.Schema = new Schema(this);
+      return this.Schema;
     }
 
-    public void Close()
+    public Schema GetDefaultSchema()
     {
-      protocol.CloseConnection();
+      return new Schema(this);
     }
 
-    public void SetSchema(string schema)
+    public Schema UseDefaultSchema()
     {
-      currentSettings.Database = schema;
+      return new Schema(this);
     }
 
-    public void ExecutePrepareStatement()
+    public List<Schema> GetSchemas()
     {
-      protocol.ExecutePrepareStatement();
+      return new List<Schema>();
     }
 
-    public void ExecuteReader(string query, params Parameter[] parameters)
+    public Type GetTopologyType()
     {
-      protocol.ExecuteReader();
+      throw new NotImplementedException();
     }
 
-    public int ExecuteStatement(string query, params Parameter[] parameters)
+    public List<Nodes> GetSlaveNodes()
     {
-      return protocol.ExecuteStatement();
+      throw new NotImplementedException();
     }
 
-    public void Find()
-    {
-      protocol.Find();
-    }
+    #region InternalMethods
 
-    public void Insert()
-    {
-      protocol.Insert();
-    }
-
-    public void Update()
-    {
-      protocol.Update();
-    }
-
-    public void Delete()
-    {
-      protocol.Delete();
-    }
-
-    public void Reset()
-    {
-      protocol.Reset();
-    }
-
-    public void ExecuteBatch()
-    {
-      protocol.ExecuteBatch();
-    }
 
     #endregion
 
@@ -140,6 +118,7 @@ namespace MySql.DataAccess
       {
         // Free any other managed objects here. 
         //
+        if (internalSession != null) internalSession.Dispose();
       }
 
       // Free any unmanaged objects here. 

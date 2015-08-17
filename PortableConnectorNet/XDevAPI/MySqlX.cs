@@ -20,10 +20,40 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using System;
 
-namespace MySql.DataAccess
+namespace MySql.XDevAPI
 {
-  public class Parameter
+  public class MySqlX
   {
+    public static Session GetSession(string connectionSting)
+    {
+      return new Session(connectionSting);
+    }
+
+    public static Session GetSession(object connectionData)
+    {
+      return new Session(connectionData);
+    }
+
+    public static NodeSession GetNodeSession(string connectionSting)
+    {
+      return new NodeSession(connectionSting);
+    }
+
+    public static NodeSession GetNodeSession(object connectionData)
+    {
+      return new NodeSession(connectionData);
+    }
+
+    public static Iterator CsvFileRowIterator()
+    {
+      throw new NotImplementedException();
+    }
+
+    public static Iterator JsonFileDocIterator()
+    {
+      throw new NotImplementedException();
+    }
   }
 }

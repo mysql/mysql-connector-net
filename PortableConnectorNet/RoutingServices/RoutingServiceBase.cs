@@ -23,14 +23,17 @@
 using MySql.Data;
 using MySql.DataAccess;
 
-namespace MySql.RoutingService
+namespace MySql.RoutingServices
 {
   internal abstract class RoutingServiceBase
   {
+    protected MySqlConnectionStringBuilder settings;
+
     public RoutingServiceBase(MySqlConnectionStringBuilder settings)
     {
-
+      this.settings = settings;
     }
+
 
     public virtual MySqlConnectionStringBuilder GetCurrentConnection()
     {

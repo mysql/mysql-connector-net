@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2014, 2015, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,10 +20,27 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using System.Collections.Generic;
+using System.Reflection;
 
-namespace MySql.DataAccess
+namespace MySql.common
 {
-  public class Parameter
+  internal static class Tools
   {
+    public static Dictionary<string, object> GetDictionaryFromAnonymous(object anonymousObject)
+    {
+      Dictionary<string, object> result = new Dictionary<string, object>();
+
+      if (!anonymousObject.GetType().IsGenericType)
+        throw new MySqlException("Couldn't get values from anonymous type.");
+
+      foreach (PropertyInfo property in anonymousObject.GetType().GetProperties())
+      {
+        object value = property.GetValue(anonymousObject);
+        result.Add(property.Name, value);
+      }
+
+      return result;
+    }
   }
 }

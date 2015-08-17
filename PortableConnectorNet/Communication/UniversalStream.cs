@@ -21,9 +21,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.Common;
-using System;
 using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace MySql.Communication

@@ -20,10 +20,19 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using System;
 
-namespace MySql.DataAccess
+namespace MySql.XDevAPI
 {
-  public class Parameter
+  public class Nodes
   {
+    public NodeSession NodeSession { get; set; }
+
+    public NodeSession OpenNodeSession()
+    {
+      throw new NotImplementedException();
+    }
+
+    public string Url { get; set; }
   }
 }

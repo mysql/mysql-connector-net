@@ -20,10 +20,34 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.DataAccess;
+using System;
 
-namespace MySql.DataAccess
+namespace MySql.XDevAPI
 {
-  public class Parameter
+  public class NodeSession : BaseSession
   {
+    public NodeSession(string connectionString)
+      : base(connectionString)
+    {
+
+    }
+
+    public NodeSession(object connectionData)
+      : base(connectionData)
+    {
+
+    }
+
+    
+    public int ExecuteSql(string query, params object[] parameters)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void Close()
+    {
+      throw new NotImplementedException();
+    }
   }
 }

@@ -20,10 +20,35 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.XDevAPI;
+using System;
+using Xunit;
 
-namespace MySql.DataAccess
+namespace MySqlX_DevAPI.Sections
 {
-  public class Parameter
+  public class Sessions
   {
+    [Fact]
+    public void SessionsTest()
+    {
+      // Passing the paramaters in the { param = value } format
+      using(var session = MySqlX.GetSession(new
+      {
+        host = "localhost",
+        port = "33060",
+        userId = "mike",
+        password = "s3ce3t!"
+      }))
+      {
+        var db = session.GetSchema("test");
+
+      }
+
+      //TODO Passing the paramaters in the URL format
+      //var db2 = MySqlX.GetSession(
+      //  @"mysqlx://user:pwd@localhost:33060");
+    }
+
+
   }
 }

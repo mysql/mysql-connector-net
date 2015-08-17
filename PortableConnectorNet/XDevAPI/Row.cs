@@ -20,10 +20,29 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using System.Collections.Generic;
+using System.Linq;
 
-namespace MySql.DataAccess
+namespace MySql.XDevAPI
 {
-  public class Parameter
+  public class Row
   {
+    private Dictionary<int, object> values = new Dictionary<int, object>();
+
+    public object this[int index]
+    {
+      get { return values[index]; }
+      set { values[index] = value; }
+    }
+
+    public object[] ItemArray
+    {
+      get { return values.Values.ToArray(); }
+    }
+
+    public void Add(object value)
+    {
+      values.Add(values.Count, value);
+    }
   }
 }

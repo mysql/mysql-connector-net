@@ -42,8 +42,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Sessions.cs" />
     <Compile Include="ConnectionTests.cs" />
+    <Compile Include="CrudOperations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Collections.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PortableConnectorNet\PortableConnectorNet.csproj">

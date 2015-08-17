@@ -20,14 +20,14 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Properties;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Text.RegularExpressions;
-using System.Text;
-using System.Globalization;
 using System.Data.Common;
-using MySql.Properties;
+using System.Globalization;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace MySql.Data
 {

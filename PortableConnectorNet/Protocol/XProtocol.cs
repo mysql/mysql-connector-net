@@ -21,31 +21,72 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.Data;
-using MySql.Protocol;
-using MySql.RoutingServices;
 using System;
 
-namespace MySql.DataAccess
+namespace MySql.Protocol
 {
-  internal class Factory
+  internal class XProtocol : ProtocolBase
   {
-    private static object lockObject = new object();
-
-
-    public static RoutingServiceBase GetRoutingService(MySqlConnectionStringBuilder settings)
+    public XProtocol(MySqlConnectionStringBuilder settings)
+      : base(settings)
     {
-      lock (lockObject)
-      {
-        return new DefaultRoutingService(settings);
-      }
+
     }
 
-    internal static ProtocolBase GetProtocol(MySqlConnectionStringBuilder settings)
+
+    public override void OpenConnection()
     {
-      lock (lockObject)
-      {
-        return new XProtocol(settings);
-      }
+      throw new NotImplementedException();
+    }
+
+    public override void CloseConnection()
+    {
+      throw new NotImplementedException();
+    }
+
+    public override void ExecutePrepareStatement()
+    {
+      throw new NotImplementedException();
+    }
+
+    public override void ExecuteReader()
+    {
+      throw new NotImplementedException();
+    }
+
+    public override int ExecuteStatement()
+    {
+      throw new NotImplementedException();
+    }
+
+    public override void Find()
+    {
+      throw new NotImplementedException();
+    }
+
+    public override void Insert()
+    {
+      throw new NotImplementedException();
+    }
+
+    public override void Update()
+    {
+      throw new NotImplementedException();
+    }
+
+    public override void Delete()
+    {
+      throw new NotImplementedException();
+    }
+
+    public override void Reset()
+    {
+      throw new NotImplementedException();
+    }
+
+    public override void ExecuteBatch()
+    {
+      throw new NotImplementedException();
     }
   }
 }

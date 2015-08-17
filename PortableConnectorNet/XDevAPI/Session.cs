@@ -21,9 +21,20 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
-namespace MySql.DataAccess
+namespace MySql.XDevAPI
 {
-  public class Parameter
+  public class Session : BaseSession
   {
+    public Session(string connectionString)
+      : base(connectionString)
+    {
+
+    }
+
+    public Session(object connectionData)
+      : base(connectionData)
+    {
+
+    }
   }
 }

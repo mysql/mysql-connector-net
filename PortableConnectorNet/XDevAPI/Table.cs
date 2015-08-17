@@ -20,10 +20,51 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using System;
 
-namespace MySql.DataAccess
+namespace MySql.XDevAPI
 {
-  public class Parameter
+  public class Table : DatabaseObject
   {
+    public Table(string name)
+    {
+      Name = name;
+    }
+
+
+    public SelectStatement Select(params string[] parameters)
+    {
+      throw new NotImplementedException();
+    }
+
+    public Table Execute()
+    {
+      throw new NotImplementedException();
+    }
+
+    public Table Execute(Action<Exception, object> function)
+    {
+      throw new NotImplementedException();
+    }
+
+    public Table Insert()
+    {
+      throw new NotImplementedException();
+    }
+
+    public Table Update()
+    {
+      throw new NotImplementedException();
+    }
+
+    public Table Delete()
+    {
+      throw new NotImplementedException();
+    }
+
+    public override bool ExistsInDatabase()
+    {
+      throw new NotImplementedException();
+    }
   }
 }
