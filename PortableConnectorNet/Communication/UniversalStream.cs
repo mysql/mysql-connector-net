@@ -22,6 +22,7 @@
 
 using MySql.Common;
 using System.IO;
+using System.Net.Sockets;
 using System.Text;
 
 namespace MySql.Communication
@@ -36,13 +37,15 @@ namespace MySql.Communication
     protected int _lastReadTimeout;
     protected int _lastWriteTimeout;
     LowResolutionStopwatch _stopwatch;
+    //TODO check if we need this
     bool _isClosed;
-    protected Stream _baseStream;
-    protected Stream _inStream;
-    protected Stream _outStream;
+    internal Stream _baseStream;
+    internal Stream _inStream;
+    internal Stream _outStream;
+    internal static NetworkStream _networkStream;
     protected byte[] _header = new byte[5];
     protected Encoding _encoding;
-
+    internal CommunicationPacket packet;
 
     public abstract bool CanRead
     {
@@ -70,7 +73,9 @@ namespace MySql.Communication
 
     public abstract void Flush();
 
-    public abstract void Close();    
+    public abstract void Close();
+
+    internal abstract void SendPacket<T>(T message, int messageId);
      
     //protected void StartTimer(IOKind op);
 

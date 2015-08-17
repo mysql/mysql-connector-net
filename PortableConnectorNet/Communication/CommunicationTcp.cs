@@ -20,9 +20,13 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data;
+using Mysqlx;
+using Mysqlx.Session;
 using System;
 using System.IO;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 
 namespace MySql.Communication
@@ -30,6 +34,7 @@ namespace MySql.Communication
   internal class CommunicationTcp : UniversalStream
   {
     internal CommunicationPacket packet;
+    internal Socket socket;
 
     public override bool CanRead
     {
@@ -45,14 +50,14 @@ namespace MySql.Communication
     {
       get { return _baseStream.CanWrite; }
     }
-
-
-
+    
+    
     public CommunicationTcp()
     {
       _maxPacketSize = ulong.MaxValue;
       _maxBlockSize = Int32.MaxValue;
     }
+
 
     public CommunicationTcp(Stream stream, Encoding encoding, bool compress = false)
       : this()
@@ -64,10 +69,133 @@ namespace MySql.Communication
     }
 
 
+    public static NetworkStream CreateStream(MySqlConnectionStringBuilder settings, bool unix)
+    {
+      NetworkStream stream = null;
+      IPHostEntry ipHE = GetHostEntry(settings.Server);
+      foreach (IPAddress address in ipHE.AddressList)
+      {
+        try
+        {
+          stream = CreateSocketStream(settings, address, unix);
+          if (stream != null) break;
+        }
+        catch (Exception ex)
+        {
+          SocketException socketException = ex as SocketException;
+          // if the exception is a ConnectionRefused then we eat it as we may have other address
+          // to attempt
+          if (socketException == null) throw;
+#if !CF
+          if (socketException.SocketErrorCode != SocketError.ConnectionRefused) throw;
+#endif
+        }
+      }
+      return stream;
+    
+    }
+
+
+    internal static NetworkStream CreateSocketStream(MySqlConnectionStringBuilder settings, IPAddress ip, bool unix)
+    {
+      EndPoint endPoint;
+      endPoint = new IPEndPoint(ip, (int)settings.Port);
+
+      Socket socket = unix ?
+          new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.IP) :
+          new Socket(ip.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
+      if (settings.Keepalive > 0)
+      {
+        SetKeepAlive(socket, settings.Keepalive);
+      }
+
+      IPEndPoint ipe = new IPEndPoint(ip, (int)settings.Port);
+      socket = new Socket(ipe.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
+      try
+      {
+      socket.Connect(ipe);
+      }
+      catch (Exception)
+      {
+        socket.Close();
+        throw;
+      }      
+            
+      _networkStream = new NetworkStream(socket, true);
+      GC.SuppressFinalize(socket);
+      
+      return _networkStream;
+
+    }
+
+
+    /// <summary>
+    /// Set keepalive + timeout on socket.
+    /// </summary>
+    /// <param name="s">socket</param>
+    /// <param name="time">keepalive timeout, in seconds</param>
+    private static void SetKeepAlive(Socket s, uint time)
+    {
+
+      uint on = 1;
+      uint interval = 1000; // default interval = 1 sec
+
+      uint timeMilliseconds;
+      if (time > UInt32.MaxValue / 1000)
+        timeMilliseconds = UInt32.MaxValue;
+      else
+        timeMilliseconds = time * 1000;
+
+      byte[] inOptionValues = new byte[12];
+      BitConverter.GetBytes(on).CopyTo(inOptionValues, 0);
+      BitConverter.GetBytes(timeMilliseconds).CopyTo(inOptionValues, 4);
+      BitConverter.GetBytes(interval).CopyTo(inOptionValues, 8);
+      try
+      {
+        // call WSAIoctl via IOControl
+        s.IOControl(IOControlCode.KeepAliveValues, inOptionValues, null);
+        return;
+      }
+      catch (NotImplementedException)
+      {
+        // Mono throws not implemented currently
+      }
+
+      // Fallback if Socket.IOControl is not available ( Compact Framework )
+      // or not implemented ( Mono ). Keepalive option will still be set, but
+      // with timeout is kept default.
+      s.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
+    }
+
+
+    private static IPHostEntry GetHostEntry(string hostname)
+    {
+      IPHostEntry ipHE = ParseIPAddress(hostname);
+      if (ipHE != null) return ipHE;
+      return Dns.GetHostEntry(hostname);
+    }
+
+    private static IPHostEntry ParseIPAddress(string hostname)
+    {
+      IPHostEntry ipHE = null;
+      IPAddress addr;
+      if (IPAddress.TryParse(hostname, out addr))
+      {
+        ipHE = new IPHostEntry();
+        ipHE.AddressList = new IPAddress[1];
+        ipHE.AddressList[0] = addr;
+      }
+      return ipHE;
+    }
+
+
+
+
     public override CommunicationPacket Read()
     {
       LoadPacket();
-
       return packet;
     }
 
@@ -96,13 +224,8 @@ namespace MySql.Communication
         int offset = 0;
         while (true)
         {
-          ReadFully(_inStream, _header, offset, _header.Length);
-          if (!BitConverter.IsLittleEndian)
-          {
-            System.Array.Reverse(_header);
-          }
-
-          _length = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(_header, 0));
+          ReadFully(_inStream, _header, offset, _header.Length);        
+          _length = BitConverter.ToInt32(_header, 0);
 
           packet.MessageType = _header[4];
           var tempBuffer = new Byte[_length - _header.Length];
@@ -137,5 +260,34 @@ namespace MySql.Communication
         numToRead -= read;
       }
     }
+
+
+    internal override void SendPacket<T>(T message, int messageId)
+    {
+      var internalStream = new MemoryStream();
+      try
+      {
+        if (typeof(T) == typeof(AuthenticateStart))
+        {
+          var authStartMessage = ((AuthenticateStart)(object)message).ToByteArray();        
+          //writting header
+          using (BinaryWriter writer = new BinaryWriter(internalStream))
+          {
+            writer.Write((Int32)authStartMessage.Length + 1);
+            writer.Write((Byte)messageId);
+            writer.Write(authStartMessage);
+            _outStream.Write(internalStream.ToArray(), 0, (Int32)internalStream.Length);            
+          }
+        }
+        _outStream.Flush();
+      }
+      finally
+      {
+        internalStream.Dispose();
+      }            
+    }
+
+
+
   }
 }

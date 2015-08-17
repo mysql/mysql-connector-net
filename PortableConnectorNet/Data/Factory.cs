@@ -20,8 +20,9 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Communication;
 using MySql.Data;
-using MySql.Protocol;
+using MySql.Procotol;
 using MySql.RoutingServices;
 using System;
 
@@ -40,11 +41,11 @@ namespace MySql.DataAccess
       }
     }
 
-    internal static ProtocolBase GetProtocol(MySqlConnectionStringBuilder settings)
+    internal static ProtocolBase<UniversalStream> GetProtocol(MySqlConnectionStringBuilder settings)
     {
       lock (lockObject)
       {
-        return new XProtocol(settings);
+        return new XProtocol(settings, "MYSQL41");
       }
     }
   }

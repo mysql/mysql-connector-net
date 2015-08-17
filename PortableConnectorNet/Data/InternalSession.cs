@@ -20,10 +20,11 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Communication;
 using MySql.Data;
-using MySql.Protocol;
 using MySql.RoutingServices;
 using System;
+using MySql.Procotol;
 
 namespace MySql.DataAccess
 {
@@ -31,7 +32,9 @@ namespace MySql.DataAccess
   {
     protected MySqlConnectionStringBuilder currentSettings;
     protected RoutingServiceBase routingService;
-    protected ProtocolBase protocol;
+    protected ProtocolBase<UniversalStream> protocol;
+    protected internal MySqlConnectionStringBuilder settings;
+    
     private bool disposed = false;
 
     public MySqlConnectionStringBuilder Settings { get; private set; }
@@ -40,9 +43,10 @@ namespace MySql.DataAccess
     {
       this.Settings = settings;
 
-      routingService = Factory.GetRoutingService(settings);
-      currentSettings = routingService.GetCurrentConnection();
+      routingService = new DefaultRoutingService(settings);
 
+      //routingService = Factory.GetRoutingService(settings);
+      currentSettings = routingService.GetCurrentConnection();
       protocol = Factory.GetProtocol(currentSettings);
 
     }

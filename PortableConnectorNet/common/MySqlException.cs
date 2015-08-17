@@ -24,24 +24,42 @@ using System;
 
 namespace MySql
 {
-  public class MySqlException : Exception
+  public sealed class MySqlException : Exception
   {
-    public MySqlException()
+
+    private bool isFatal;
+
+    /// <summary>
+    /// True if this exception was fatal and cause the closing of the connection, false otherwise.
+    /// </summary>
+    internal bool IsFatal
+    {
+      get { return isFatal; }
+    }
+
+     internal MySqlException()
       : base()
     {
 
     }
 
-    public MySqlException(string message)
+    internal MySqlException(string message)
       : base(message)
     {
 
     }
 
-    public MySqlException(string message, Exception innerException)
+    internal MySqlException(string message, Exception innerException)
       : base(message, innerException)
     {
 
     }
+
+    internal MySqlException(string msg, bool isFatal, Exception inner)
+      : base(msg, inner)
+    {
+      this.isFatal = isFatal;
+    }
+
   }
 }

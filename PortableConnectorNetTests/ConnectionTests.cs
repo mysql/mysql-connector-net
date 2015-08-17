@@ -26,15 +26,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MySql;
+using MySql.DataAccess;
+using Xunit;
+
+
 
 namespace PortableConnectorNetTests
 {
     public class ConnectionTest
     {
+      
+      [Fact]
       public void TestConnection()
       {
-        //Session session = new Session("connectionstring");
-        //session.Open();  
+        InternalSession session = new InternalSession("server=localhost;userid=root;password=mypass;port=33060;database=test;");
+        session.Open();  
 
         //var db = mysqlx.getSession( {
         //host: 'localhost', port: '33060',

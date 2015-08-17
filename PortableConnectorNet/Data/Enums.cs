@@ -29,4 +29,10 @@ namespace MySql.DataAccess
     WriteOnly = 2,
     ReadWrite = 3
   }
+
+  internal enum AuthenticationMode
+  { 
+    PlainAccess = 0,
+    MySQL41 = 1  
+  }
 }

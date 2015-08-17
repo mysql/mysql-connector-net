@@ -99,7 +99,50 @@ namespace MySql.Communication
     #region Integer Methods
     #endregion
 
-
-
   }
+
+  public enum ClientMessageId
+  {
+    ConnectionGetCapabilities = 1,
+    ConnectionSetCapabilities = 2,
+    ConnectionClose = 3,
+    AuthenticateStart = 4,
+    AuthenticateContinue = 5,
+    SqlPrepareStmt = 6,
+    SqlPreparedStmtExecute = 7,
+    SqlCursorFetchRows = 8,
+    SqlCursorFetchMetaData = 9,
+    SqlCursorClose = 10,
+    SqlCursorsPoll = 11,
+    CrudPrepareFind = 12,
+    CrudPrepareInsert = 13,
+    CrudPrepareUpdate = 14,
+    CrudPrepareDelete = 15,
+    CrudPrepareStmtClose = 16,
+    SessionReset = 17,
+    SessionClose = 18
+  }
+
+
+  public enum ServerMessageId
+  {
+    Ok = 1,
+    Error = 2,
+    Notice = 3,
+    ParameterChangedNotification = 4,
+    ConnectionCapabilities = 5,
+    AuthenticateContinue = 6,
+    AuthenticateOk = 7,
+    AuthenticateFail = 8,
+    SqlPrepareStmtOk = 9,
+    SqlPreparedStmtExecuteOk = 10,
+    SqlColumnMetaData = 11,
+    SqlRow = 12,
+    SqlCursorFetchDone = 13,
+    SqlCursorFetchSuspended = 14,
+    SqlCursorsPoll = 15,
+    SqlCursorCloseOk = 16,
+    SqlCursorFetchDoneMoreResultsets = 17
+  }
+
 }

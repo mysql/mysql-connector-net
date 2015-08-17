@@ -20,14 +20,50 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.Data;
-namespace MySql.Protocol
-{
-  internal abstract class ProtocolBase
-  {
-    public ProtocolBase(MySqlConnectionStringBuilder settings)
-    {
 
+using MySql.Communication;
+using MySql.Data;
+using MySql.Security;
+using System.Net;
+
+
+namespace MySql.Procotol
+{
+  internal abstract class ProtocolBase<UniversalStream>
+  {
+    protected UniversalStream baseStream;
+    protected string _authMode;
+    protected MySqlConnectionStringBuilder settings;
+    internal AuthenticationBase authenticationPlugin;
+
+    public ProtocolBase(MySqlConnectionStringBuilder sessionSettings, string authMode)
+    {
+      authenticationPlugin = null;
+
+      settings = sessionSettings;
+      _authMode = authMode;      
+    }
+
+    protected static IPHostEntry GetHostEntry(string hostname)
+    {
+      IPHostEntry ipHE = ParseIPAddress(hostname);
+      if (ipHE != null) return ipHE;
+      return Dns.GetHostEntry(hostname);
+    }
+
+    protected static IPHostEntry ParseIPAddress(string hostname)
+    {
+      IPHostEntry ipHE = null;
+#if !CF
+      IPAddress addr;
+      if (IPAddress.TryParse(hostname, out addr))
+      {
+        ipHE = new IPHostEntry();
+        ipHE.AddressList = new IPAddress[1];
+        ipHE.AddressList[0] = addr;
+      }
+#endif
+      return ipHE;
     }
 
     #region Actions

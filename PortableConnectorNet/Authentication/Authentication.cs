@@ -20,14 +20,66 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Communication;
+using MySql.Data;
+using MySql.DataAccess;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading.Tasks;
+using MySql;
+using Mysqlx.Session;
 
 namespace MySql.Security
 {
  
 internal abstract class AuthenticationBase : IDisposable
 {
-	public abstract void Authenticate();
+
+  protected internal AuthenticationMode _authMode;
+  protected UniversalStream universalStream;
+
+
+  public abstract string PluginName { get; }
+
+  public InternalSession session { get; set; }
+
+  public AuthenticationMode AuthenticationMode
+  {
+    get {
+      return _authMode;
+    }
+  }
+
+  public virtual string GetUsername()
+  {
+    return session.settings.UserID;      
+  }
+
+  public virtual object GetPassword()
+  {
+    return null;
+  }
+
+  protected MySqlConnectionStringBuilder Settings
+  {
+    get { return session.settings; }
+  }
+
+  protected byte[] AuthenticationData;
+
+  public AuthenticationBase(UniversalStream baseStream)
+  {
+    universalStream = baseStream;
+  }
+
+
+  public abstract AuthenticateOk Authenticate(bool reset, AuthenticateContinue message);
+
+  public abstract void AuthenticateFail(Exception ex);
+
 	protected abstract byte[] GetPassword(string password, byte[] seedBytes);
 
   public void Dispose()
@@ -37,23 +89,124 @@ internal abstract class AuthenticationBase : IDisposable
 
 internal class Mysql41Authentication : AuthenticationBase
 {
-  public override void Authenticate()
-  { 
+
+  public override string PluginName
+  {
+    get
+    {
+      return "MySql41Authentication";
+    }
+ 
   }
+
+  public Mysql41Authentication(UniversalStream baseStream): base(baseStream)
+  {  }
+
+
+
+  public override AuthenticateOk Authenticate(bool reset, AuthenticateContinue message)
+  {
+
+    byte[] salt = null;
+
+    if (message != null)
+    {
+      salt = message.AuthData.ToByteArray();
+    }
+
+    if (salt  != null)
+    {
+
+    var encoding = Encoding.GetEncoding(Settings.CharacterSet);
+
+    byte[] userBytes = encoding.GetBytes(Settings.UserID);    
+    byte[] databaseBytes = encoding.GetBytes(Settings.Database);
+    byte[] hashedPassword = GetPassword(Settings.Password, salt);
+    
+
+
+    //baseStream.SendPacket<AuthenticateContinue>(message, (int)ClientMessageId.AuthenticateContinue);
+    //this.protocol.sendSaslMysql41AuthContinue(user, password, salt, database);
+
+    CommunicationPacket packet = universalStream.Read();
+
+    if (packet != null)
+    {
+        if (packet.MessageType == (int)ServerMessageId.AuthenticateOk)
+        {
+          return AuthenticateOk.ParseFrom(packet.Buffer);
+        }    
+      }
+    }
+    return null; 
+  }
+
+
+  public override void AuthenticateFail(Exception ex)
+  {
+    throw new MySqlException(ex.Message, true, ex.InnerException);
+  }
+
   protected override byte[] GetPassword(string password, byte[] seedBytes)
-  { 
-     return new byte[1];
+  {
+    // if we have no password, then we just return 1 zero byte
+    if (password.Length == 0) return new byte[1];
+
+    SHA1 sha = new SHA1CryptoServiceProvider();
+
+    byte[] firstHash = sha.ComputeHash(Encoding.Default.GetBytes(password));
+    byte[] secondHash = sha.ComputeHash(firstHash);
+
+    byte[] input = new byte[seedBytes.Length + secondHash.Length];
+    Array.Copy(seedBytes, 0, input, 0, seedBytes.Length);
+    Array.Copy(secondHash, 0, input, seedBytes.Length, secondHash.Length);
+    byte[] thirdHash = sha.ComputeHash(input);
+
+    byte[] finalHash = new byte[thirdHash.Length + 1];
+    finalHash[0] = 0x14;
+    Array.Copy(thirdHash, 0, finalHash, 1, thirdHash.Length);
+
+    for (int i = 1; i < finalHash.Length; i++)
+      finalHash[i] = (byte)(finalHash[i] ^ firstHash[i - 1]);
+
+    if (finalHash != null && finalHash.Length == 1 && finalHash[0] == 0)
+      return null;
+
+    return finalHash;
   }
 }
 
   internal class PlainAuthentication : AuthenticationBase
   {
-    public override void Authenticate()
+
+    public override string PluginName
+    {
+      get
+      {
+        return "PlainAuthentication";
+      }      
+    }
+
+    public PlainAuthentication(UniversalStream baseStream): base(baseStream)
+    {   }
+
+    public override AuthenticateOk Authenticate(bool reset, AuthenticateContinue message)
     { 
+      //TODO
+      return null;
     }
     protected override byte[] GetPassword(string password, byte[] seedBytes)
     {
       return new byte[1];
+    }
+
+    public override void AuthenticateFail(Exception ex)
+    {
+
+      string msg = String.Format("AuthenticationFailedMessage", "server", GetUsername(), PluginName, ex.Message);
+
+      //throw new MySqlException(msg, ex);
+      //TODO
     }
   }
 

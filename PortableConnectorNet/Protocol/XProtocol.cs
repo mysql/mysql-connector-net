@@ -1,42 +1,74 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
-//
-// MySQL Connector/NET is licensed under the terms of the GPLv2
-// <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
-// MySQL Connectors. There are special exceptions to the terms and 
-// conditions of the GPLv2 as it is applied to this software, see the 
-// FLOSS License Exception
-// <http://www.mysql.com/about/legal/licensing/foss-exception.html>.
-//
-// This program is free software; you can redistribute it and/or modify 
-// it under the terms of the GNU General Public License as published 
-// by the Free Software Foundation; version 2 of the License.
-//
-// This program is distributed in the hope that it will be useful, but 
-// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-// or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
-// for more details.
-//
-// You should have received a copy of the GNU General Public License along 
-// with this program; if not, write to the Free Software Foundation, Inc., 
-// 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
-
+﻿using Google.ProtocolBuffers;
+using MySql.Communication;
 using MySql.Data;
+using MySql.Procotol;
+using MySql.Security;
+using Mysqlx.Session;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace MySql.Protocol
+namespace MySql
 {
-  internal class XProtocol : ProtocolBase
+  internal class XProtocol : ProtocolBase<UniversalStream>
   {
-    public XProtocol(MySqlConnectionStringBuilder settings)
-      : base(settings)
-    {
-
-    }
+    public XProtocol(MySqlConnectionStringBuilder sessionSettings, string authMode)
+      : base(sessionSettings, authMode)
+    {  }
 
 
     public override void OpenConnection()
     {
-      throw new NotImplementedException();
+      try
+      {
+        UniversalStream._networkStream = CommunicationTcp.CreateStream(settings, false);       
+      }
+      catch (System.Security.SecurityException)
+      {
+        throw;
+      }
+      catch
+      {
+        throw new Exception("Unable to connect to host");
+      }
+
+      if (UniversalStream._networkStream == null)
+        throw new Exception("Unable to connect to host");
+
+
+      settings.CharacterSet = settings.CharacterSet ?? "UTF8";
+
+      var encoding = Encoding.GetEncoding(settings.CharacterSet);
+
+      baseStream = new CommunicationTcp(UniversalStream._networkStream, encoding, false);
+
+      if (_authMode.Equals("MYSQL41"))
+      {
+        authenticationPlugin = new Mysql41Authentication(baseStream);
+      }      
+
+      if (authenticationPlugin.AuthenticationMode.Equals("MySql41Authentication"))
+      {
+        AuthenticateStart.Builder authStart = AuthenticateStart.CreateBuilder();       
+        authStart.SetMechName("MYSQL41");
+        AuthenticateStart message = authStart.Build();
+        baseStream._outStream.Write(message.ToByteArray(), 0, message.ToByteArray().Length);
+        baseStream.SendPacket<AuthenticateStart>(message, (int)ClientMessageId.AuthenticateStart);
+        CommunicationPacket packet = baseStream.Read();
+
+        if (packet.MessageType == (int)ServerMessageId.AuthenticateContinue)
+        {
+          AuthenticateContinue response = AuthenticateContinue.ParseFrom(packet.Buffer);
+          AuthenticateOk authOK = authenticationPlugin.Authenticate(false, response);
+          if (authOK == null)
+          {
+            throw new MySqlException("Failed authentication");
+          }
+        }
+      }      
     }
 
     public override void CloseConnection()
@@ -44,32 +76,7 @@ namespace MySql.Protocol
       throw new NotImplementedException();
     }
 
-    public override void ExecutePrepareStatement()
-    {
-      throw new NotImplementedException();
-    }
-
-    public override void ExecuteReader()
-    {
-      throw new NotImplementedException();
-    }
-
-    public override int ExecuteStatement()
-    {
-      throw new NotImplementedException();
-    }
-
-    public override void Find()
-    {
-      throw new NotImplementedException();
-    }
-
-    public override void Insert()
-    {
-      throw new NotImplementedException();
-    }
-
-    public override void Update()
+    public override void ExecuteBatch()
     {
       throw new NotImplementedException();
     }
@@ -79,14 +86,41 @@ namespace MySql.Protocol
       throw new NotImplementedException();
     }
 
+    public override void ExecutePrepareStatement()
+    {
+      throw new NotImplementedException();
+    }
+
+
+    public override int ExecuteStatement()
+    {
+      throw new NotImplementedException();
+    }
+
+    public override void ExecuteReader()
+    {
+      throw new NotImplementedException();
+    }
+
+    public override void Find()
+    {
+      throw new NotImplementedException();
+    }
+
+    public override void Update()
+    {
+      throw new NotImplementedException();
+    }
+
+    public override void Insert()
+    {
+      throw new NotImplementedException();
+    }
+
     public override void Reset()
     {
       throw new NotImplementedException();
     }
 
-    public override void ExecuteBatch()
-    {
-      throw new NotImplementedException();
-    }
   }
 }

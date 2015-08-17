@@ -39,7 +39,8 @@ namespace MySql.RoutingServices
     {
       //TODO get the session mode
       ConnectionMode mode = ConnectionMode.ReadWrite;
-      return GetCurrentConnection(mode);
+      //return GetCurrentConnection(mode);
+      return settings;
     }
 
     public abstract MySqlConnectionStringBuilder GetCurrentConnection(ConnectionMode mode);
