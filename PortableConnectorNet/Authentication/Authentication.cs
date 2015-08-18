@@ -32,6 +32,7 @@ using System.Threading.Tasks;
 using MySql;
 using Mysqlx.Session;
 using Google.ProtocolBuffers;
+using Mysqlx;
 
 namespace MySql.Security
 {
@@ -145,16 +146,22 @@ internal class Mysql41Authentication : AuthenticationBase
     AuthenticateContinue.Builder builder = AuthenticateContinue.CreateBuilder();
     builder.SetAuthData(ByteString.CopyFrom(response));
     AuthenticateContinue authCont = builder.Build();
-    universalStream.SendPacket<AuthenticateContinue>(authCont, (int)ServerMessageId.SESS_AUTHENTICATE_CONTINUE);
+    universalStream.SendPacket<AuthenticateContinue>(authCont, (int)ClientMessageId.SESS_AUTHENTICATE_CONTINUE);
 
     CommunicationPacket packet = universalStream.Read();
 
     if (packet != null)
     {
-        if (packet.MessageType == (int)ServerMessageId.SESS_AUTHENTICATE_OK)
+      if (packet.MessageType == (int)ServerMessageId.ERROR)
+      {
+        var error = Error.ParseFrom(packet.Buffer);
+        throw new Exception(error.Msg);
+      }            
+      if (packet.MessageType == (int)ServerMessageId.SESS_AUTHENTICATE_OK)
         {
           return AuthenticateOk.ParseFrom(packet.Buffer);
-        }    
+        } 
+   
       }
     }
     return null; 
@@ -169,10 +176,7 @@ internal class Mysql41Authentication : AuthenticationBase
   protected override byte[] GetPassword(string password, byte[] seedBytes)
   {
     // if we have no password, then we just return 1 zero byte
-
     var encoding = Encoding.GetEncoding(Settings.CharacterSet);
-
-    seedBytes = encoding.GetBytes("233c04571f3b18254a6e6d161c560f433175176c");        
 
     if (password.Length == 0) return new byte[1];
 
@@ -186,19 +190,16 @@ internal class Mysql41Authentication : AuthenticationBase
     Array.Copy(secondHash, 0, input, seedBytes.Length, secondHash.Length);
     byte[] thirdHash = sha.ComputeHash(input);
 
-    return thirdHash;
 
-    //----
-    //byte[] finalHash = new byte[thirdHash.Length + 1];
-    //finalHash[0] = 0x14;
-    //Array.Copy(thirdHash, 0, finalHash, 1, thirdHash.Length);
+    byte[] finalHash = new byte[thirdHash.Length];
 
-    //for (int i = 1; i < finalHash.Length; i++)
-    //  finalHash[i] = (byte)(finalHash[i] ^ firstHash[i - 1]);
+    for (int i = 0; i < thirdHash.Length; i++)
+      finalHash[i] = (byte)(thirdHash[i] ^ firstHash[i]);
 
-    //if (finalHash != null && finalHash.Length == 1 && finalHash[0] == 0)
-    //  return null;
+    if (finalHash != null && finalHash.Length == 1 && finalHash[0] == 0)
+      return null;
 
+    return finalHash;
     
   }
 }
