@@ -39,7 +39,7 @@ namespace MySql
         throw new Exception("Unable to connect to host");
 
 
-      settings.CharacterSet = settings.CharacterSet ?? "UTF8";
+      settings.CharacterSet = String.IsNullOrWhiteSpace(settings.CharacterSet) ? "UTF-8" : settings.CharacterSet;
 
       var encoding = Encoding.GetEncoding(settings.CharacterSet);
 
@@ -55,11 +55,11 @@ namespace MySql
         AuthenticateStart.Builder authStart = AuthenticateStart.CreateBuilder();       
         authStart.SetMechName("MYSQL41");
         AuthenticateStart message = authStart.Build();
-        baseStream._outStream.Write(message.ToByteArray(), 0, message.ToByteArray().Length);
-        baseStream.SendPacket<AuthenticateStart>(message, (int)ClientMessageId.AuthenticateStart);
+        baseStream.SendPacket<AuthenticateStart>(message, (int)ClientMessageId.SESS_AUTHENTICATE_START);
+
         CommunicationPacket packet = baseStream.Read();
 
-        if (packet.MessageType == (int)ServerMessageId.AuthenticateContinue)
+        if (packet.MessageType == (int)ServerMessageId.SESS_AUTHENTICATE_CONTINUE)
         {
           AuthenticateContinue response = AuthenticateContinue.ParseFrom(packet.Buffer);
           AuthenticateOk authOK = authenticationPlugin.Authenticate(false, response);

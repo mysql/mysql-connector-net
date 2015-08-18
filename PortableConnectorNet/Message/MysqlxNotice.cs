@@ -41,14 +41,14 @@ namespace Mysqlx.Notice {
           "Lldhcm5pbmcuTGV2ZWw6B1dBUk5JTkcSDAoEY29kZRgCIAIoDRILCgNtc2cY" + 
           "AyACKAkiHgoFTGV2ZWwSCAoETk9URRABEgsKB1dBUk5JTkcQAiJQChZTZXNz" + 
           "aW9uVmFyaWFibGVDaGFuZ2VkEg0KBXBhcmFtGAEgAigJEicKBXZhbHVlGAIg" + 
-          "ASgLMhguTXlzcWx4LkRhdGF0eXBlcy5TY2FsYXIipwIKE1Nlc3Npb25TdGF0" + 
+          "ASgLMhguTXlzcWx4LkRhdGF0eXBlcy5TY2FsYXIivQIKE1Nlc3Npb25TdGF0" + 
           "ZUNoYW5nZWQSOwoFcGFyYW0YASACKA4yLC5NeXNxbHguTm90aWNlLlNlc3Np" + 
           "b25TdGF0ZUNoYW5nZWQuUGFyYW1ldGVyEicKBXZhbHVlGAIgASgLMhguTXlz" + 
-          "cWx4LkRhdGF0eXBlcy5TY2FsYXIiqQEKCVBhcmFtZXRlchISCg5DVVJSRU5U" + 
+          "cWx4LkRhdGF0eXBlcy5TY2FsYXIivwEKCVBhcmFtZXRlchISCg5DVVJSRU5U" + 
           "X1NDSEVNQRABEhMKD0FDQ09VTlRfRVhQSVJFRBACEhcKE0dFTkVSQVRFRF9J" + 
           "TlNFUlRfSUQQAxIRCg1ST1dTX0FGRkVDVEVEEAQSDgoKUk9XU19GT1VORBAF" + 
           "EhAKDFJPV1NfTUFUQ0hFRBAGEhEKDVRSWF9DT01NSVRURUQQBxISCg5UUlhf" + 
-          "Uk9MTEVEQkFDSxAJQh4KHGNvbS5teXNxbC5jai5teXNxbHgucHJvdG9idWY=");
+          "Uk9MTEVEQkFDSxAJEhQKEFBST0RVQ0VEX01FU1NBR0UQCg==");
       pbd::FileDescriptor.InternalDescriptorAssigner assigner = delegate(pbd::FileDescriptor root) {
         descriptor = root;
         internal__static_Mysqlx_Notice_Frame__Descriptor = Descriptor.MessageTypes[0];
@@ -1214,6 +1214,7 @@ namespace Mysqlx.Notice {
         ROWS_MATCHED = 6,
         TRX_COMMITTED = 7,
         TRX_ROLLEDBACK = 9,
+        PRODUCED_MESSAGE = 10,
       }
       
     }

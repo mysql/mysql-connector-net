@@ -22,8 +22,6 @@ namespace Mysqlx.Session {
     internal static pb::FieldAccess.FieldAccessorTable<global::Mysqlx.Session.AuthenticateContinue, global::Mysqlx.Session.AuthenticateContinue.Builder> internal__static_Mysqlx_Session_AuthenticateContinue__FieldAccessorTable;
     internal static pbd::MessageDescriptor internal__static_Mysqlx_Session_AuthenticateOk__Descriptor;
     internal static pb::FieldAccess.FieldAccessorTable<global::Mysqlx.Session.AuthenticateOk, global::Mysqlx.Session.AuthenticateOk.Builder> internal__static_Mysqlx_Session_AuthenticateOk__FieldAccessorTable;
-    internal static pbd::MessageDescriptor internal__static_Mysqlx_Session_AuthenticateFail__Descriptor;
-    internal static pb::FieldAccess.FieldAccessorTable<global::Mysqlx.Session.AuthenticateFail, global::Mysqlx.Session.AuthenticateFail.Builder> internal__static_Mysqlx_Session_AuthenticateFail__FieldAccessorTable;
     internal static pbd::MessageDescriptor internal__static_Mysqlx_Session_Reset__Descriptor;
     internal static pb::FieldAccess.FieldAccessorTable<global::Mysqlx.Session.Reset, global::Mysqlx.Session.Reset.Builder> internal__static_Mysqlx_Session_Reset__FieldAccessorTable;
     internal static pbd::MessageDescriptor internal__static_Mysqlx_Session_Close__Descriptor;
@@ -41,9 +39,8 @@ namespace Mysqlx.Session {
           "aGVudGljYXRlU3RhcnQSEQoJbWVjaF9uYW1lGAEgAigJEhEKCWF1dGhfZGF0" + 
           "YRgCIAEoDBIYChBpbml0aWFsX3Jlc3BvbnNlGAMgASgMIikKFEF1dGhlbnRp" + 
           "Y2F0ZUNvbnRpbnVlEhEKCWF1dGhfZGF0YRgBIAIoDCIjCg5BdXRoZW50aWNh" + 
-          "dGVPaxIRCglhdXRoX2RhdGEYASABKAwiHwoQQXV0aGVudGljYXRlRmFpbBIL" + 
-          "CgNtc2cYASABKAkiBwoFUmVzZXQiBwoFQ2xvc2VCHgocY29tLm15c3FsLmNq" + 
-          "Lm15c3FseC5wcm90b2J1Zg==");
+          "dGVPaxIRCglhdXRoX2RhdGEYASABKAwiBwoFUmVzZXQiBwoFQ2xvc2VCHgoc" + 
+          "Y29tLm15c3FsLmNqLm15c3FseC5wcm90b2J1Zg==");
       pbd::FileDescriptor.InternalDescriptorAssigner assigner = delegate(pbd::FileDescriptor root) {
         descriptor = root;
         internal__static_Mysqlx_Session_AuthenticateStart__Descriptor = Descriptor.MessageTypes[0];
@@ -58,15 +55,11 @@ namespace Mysqlx.Session {
         internal__static_Mysqlx_Session_AuthenticateOk__FieldAccessorTable = 
             new pb::FieldAccess.FieldAccessorTable<global::Mysqlx.Session.AuthenticateOk, global::Mysqlx.Session.AuthenticateOk.Builder>(internal__static_Mysqlx_Session_AuthenticateOk__Descriptor,
                 new string[] { "AuthData", });
-        internal__static_Mysqlx_Session_AuthenticateFail__Descriptor = Descriptor.MessageTypes[3];
-        internal__static_Mysqlx_Session_AuthenticateFail__FieldAccessorTable = 
-            new pb::FieldAccess.FieldAccessorTable<global::Mysqlx.Session.AuthenticateFail, global::Mysqlx.Session.AuthenticateFail.Builder>(internal__static_Mysqlx_Session_AuthenticateFail__Descriptor,
-                new string[] { "Msg", });
-        internal__static_Mysqlx_Session_Reset__Descriptor = Descriptor.MessageTypes[4];
+        internal__static_Mysqlx_Session_Reset__Descriptor = Descriptor.MessageTypes[3];
         internal__static_Mysqlx_Session_Reset__FieldAccessorTable = 
             new pb::FieldAccess.FieldAccessorTable<global::Mysqlx.Session.Reset, global::Mysqlx.Session.Reset.Builder>(internal__static_Mysqlx_Session_Reset__Descriptor,
                 new string[] { });
-        internal__static_Mysqlx_Session_Close__Descriptor = Descriptor.MessageTypes[5];
+        internal__static_Mysqlx_Session_Close__Descriptor = Descriptor.MessageTypes[4];
         internal__static_Mysqlx_Session_Close__FieldAccessorTable = 
             new pb::FieldAccess.FieldAccessorTable<global::Mysqlx.Session.Close, global::Mysqlx.Session.Close.Builder>(internal__static_Mysqlx_Session_Close__Descriptor,
                 new string[] { });
@@ -979,277 +972,6 @@ namespace Mysqlx.Session {
       }
     }
     static AuthenticateOk() {
-      object.ReferenceEquals(global::Mysqlx.Session.MysqlxSession.Descriptor, null);
-    }
-  }
-  
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-  internal sealed partial class AuthenticateFail : pb::GeneratedMessage<AuthenticateFail, AuthenticateFail.Builder> {
-    private AuthenticateFail() { }
-    private static readonly AuthenticateFail defaultInstance = new AuthenticateFail().MakeReadOnly();
-    private static readonly string[] _authenticateFailFieldNames = new string[] { "msg" };
-    private static readonly uint[] _authenticateFailFieldTags = new uint[] { 10 };
-    public static AuthenticateFail DefaultInstance {
-      get { return defaultInstance; }
-    }
-    
-    public override AuthenticateFail DefaultInstanceForType {
-      get { return DefaultInstance; }
-    }
-    
-    protected override AuthenticateFail ThisMessage {
-      get { return this; }
-    }
-    
-    public static pbd::MessageDescriptor Descriptor {
-      get { return global::Mysqlx.Session.MysqlxSession.internal__static_Mysqlx_Session_AuthenticateFail__Descriptor; }
-    }
-    
-    protected override pb::FieldAccess.FieldAccessorTable<AuthenticateFail, AuthenticateFail.Builder> InternalFieldAccessors {
-      get { return global::Mysqlx.Session.MysqlxSession.internal__static_Mysqlx_Session_AuthenticateFail__FieldAccessorTable; }
-    }
-    
-    public const int MsgFieldNumber = 1;
-    private bool hasMsg;
-    private string msg_ = "";
-    public bool HasMsg {
-      get { return hasMsg; }
-    }
-    public string Msg {
-      get { return msg_; }
-    }
-    
-    public override bool IsInitialized {
-      get {
-        return true;
-      }
-    }
-    
-    public override void WriteTo(pb::ICodedOutputStream output) {
-      int size = SerializedSize;
-      string[] field_names = _authenticateFailFieldNames;
-      if (hasMsg) {
-        output.WriteString(1, field_names[0], Msg);
-      }
-      UnknownFields.WriteTo(output);
-    }
-    
-    private int memoizedSerializedSize = -1;
-    public override int SerializedSize {
-      get {
-        int size = memoizedSerializedSize;
-        if (size != -1) return size;
-        
-        size = 0;
-        if (hasMsg) {
-          size += pb::CodedOutputStream.ComputeStringSize(1, Msg);
-        }
-        size += UnknownFields.SerializedSize;
-        memoizedSerializedSize = size;
-        return size;
-      }
-    }
-    
-    public static AuthenticateFail ParseFrom(pb::ByteString data) {
-      return ((Builder) CreateBuilder().MergeFrom(data)).BuildParsed();
-    }
-    public static AuthenticateFail ParseFrom(pb::ByteString data, pb::ExtensionRegistry extensionRegistry) {
-      return ((Builder) CreateBuilder().MergeFrom(data, extensionRegistry)).BuildParsed();
-    }
-    public static AuthenticateFail ParseFrom(byte[] data) {
-      return ((Builder) CreateBuilder().MergeFrom(data)).BuildParsed();
-    }
-    public static AuthenticateFail ParseFrom(byte[] data, pb::ExtensionRegistry extensionRegistry) {
-      return ((Builder) CreateBuilder().MergeFrom(data, extensionRegistry)).BuildParsed();
-    }
-    public static AuthenticateFail ParseFrom(global::System.IO.Stream input) {
-      return ((Builder) CreateBuilder().MergeFrom(input)).BuildParsed();
-    }
-    public static AuthenticateFail ParseFrom(global::System.IO.Stream input, pb::ExtensionRegistry extensionRegistry) {
-      return ((Builder) CreateBuilder().MergeFrom(input, extensionRegistry)).BuildParsed();
-    }
-    public static AuthenticateFail ParseDelimitedFrom(global::System.IO.Stream input) {
-      return CreateBuilder().MergeDelimitedFrom(input).BuildParsed();
-    }
-    public static AuthenticateFail ParseDelimitedFrom(global::System.IO.Stream input, pb::ExtensionRegistry extensionRegistry) {
-      return CreateBuilder().MergeDelimitedFrom(input, extensionRegistry).BuildParsed();
-    }
-    public static AuthenticateFail ParseFrom(pb::ICodedInputStream input) {
-      return ((Builder) CreateBuilder().MergeFrom(input)).BuildParsed();
-    }
-    public static AuthenticateFail ParseFrom(pb::ICodedInputStream input, pb::ExtensionRegistry extensionRegistry) {
-      return ((Builder) CreateBuilder().MergeFrom(input, extensionRegistry)).BuildParsed();
-    }
-    private AuthenticateFail MakeReadOnly() {
-      return this;
-    }
-    
-    public static Builder CreateBuilder() { return new Builder(); }
-    public override Builder ToBuilder() { return CreateBuilder(this); }
-    public override Builder CreateBuilderForType() { return new Builder(); }
-    public static Builder CreateBuilder(AuthenticateFail prototype) {
-      return new Builder(prototype);
-    }
-    
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-    internal sealed partial class Builder : pb::GeneratedBuilder<AuthenticateFail, Builder> {
-      protected override Builder ThisBuilder {
-        get { return this; }
-      }
-      public Builder() {
-        result = DefaultInstance;
-        resultIsReadOnly = true;
-      }
-      internal Builder(AuthenticateFail cloneFrom) {
-        result = cloneFrom;
-        resultIsReadOnly = true;
-      }
-      
-      private bool resultIsReadOnly;
-      private AuthenticateFail result;
-      
-      private AuthenticateFail PrepareBuilder() {
-        if (resultIsReadOnly) {
-          AuthenticateFail original = result;
-          result = new AuthenticateFail();
-          resultIsReadOnly = false;
-          MergeFrom(original);
-        }
-        return result;
-      }
-      
-      public override bool IsInitialized {
-        get { return result.IsInitialized; }
-      }
-      
-      protected override AuthenticateFail MessageBeingBuilt {
-        get { return PrepareBuilder(); }
-      }
-      
-      public override Builder Clear() {
-        result = DefaultInstance;
-        resultIsReadOnly = true;
-        return this;
-      }
-      
-      public override Builder Clone() {
-        if (resultIsReadOnly) {
-          return new Builder(result);
-        } else {
-          return new Builder().MergeFrom(result);
-        }
-      }
-      
-      public override pbd::MessageDescriptor DescriptorForType {
-        get { return global::Mysqlx.Session.AuthenticateFail.Descriptor; }
-      }
-      
-      public override AuthenticateFail DefaultInstanceForType {
-        get { return global::Mysqlx.Session.AuthenticateFail.DefaultInstance; }
-      }
-      
-      public override AuthenticateFail BuildPartial() {
-        if (resultIsReadOnly) {
-          return result;
-        }
-        resultIsReadOnly = true;
-        return result.MakeReadOnly();
-      }
-      
-      public override Builder MergeFrom(pb::IMessage other) {
-        if (other is AuthenticateFail) {
-          return MergeFrom((AuthenticateFail) other);
-        } else {
-          base.MergeFrom(other);
-          return this;
-        }
-      }
-      
-      public override Builder MergeFrom(AuthenticateFail other) {
-        if (other == global::Mysqlx.Session.AuthenticateFail.DefaultInstance) return this;
-        PrepareBuilder();
-        if (other.HasMsg) {
-          Msg = other.Msg;
-        }
-        this.MergeUnknownFields(other.UnknownFields);
-        return this;
-      }
-      
-      public override Builder MergeFrom(pb::ICodedInputStream input) {
-        return MergeFrom(input, pb::ExtensionRegistry.Empty);
-      }
-      
-      public override Builder MergeFrom(pb::ICodedInputStream input, pb::ExtensionRegistry extensionRegistry) {
-        PrepareBuilder();
-        pb::UnknownFieldSet.Builder unknownFields = null;
-        uint tag;
-        string field_name;
-        while (input.ReadTag(out tag, out field_name)) {
-          if(tag == 0 && field_name != null) {
-            int field_ordinal = global::System.Array.BinarySearch(_authenticateFailFieldNames, field_name, global::System.StringComparer.Ordinal);
-            if(field_ordinal >= 0)
-              tag = _authenticateFailFieldTags[field_ordinal];
-            else {
-              if (unknownFields == null) {
-                unknownFields = pb::UnknownFieldSet.CreateBuilder(this.UnknownFields);
-              }
-              ParseUnknownField(input, unknownFields, extensionRegistry, tag, field_name);
-              continue;
-            }
-          }
-          switch (tag) {
-            case 0: {
-              throw pb::InvalidProtocolBufferException.InvalidTag();
-            }
-            default: {
-              if (pb::WireFormat.IsEndGroupTag(tag)) {
-                if (unknownFields != null) {
-                  this.UnknownFields = unknownFields.Build();
-                }
-                return this;
-              }
-              if (unknownFields == null) {
-                unknownFields = pb::UnknownFieldSet.CreateBuilder(this.UnknownFields);
-              }
-              ParseUnknownField(input, unknownFields, extensionRegistry, tag, field_name);
-              break;
-            }
-            case 10: {
-              result.hasMsg = input.ReadString(ref result.msg_);
-              break;
-            }
-          }
-        }
-        
-        if (unknownFields != null) {
-          this.UnknownFields = unknownFields.Build();
-        }
-        return this;
-      }
-      
-      
-      public bool HasMsg {
-        get { return result.hasMsg; }
-      }
-      public string Msg {
-        get { return result.Msg; }
-        set { SetMsg(value); }
-      }
-      public Builder SetMsg(string value) {
-        pb::ThrowHelper.ThrowIfNull(value, "value");
-        PrepareBuilder();
-        result.hasMsg = true;
-        result.msg_ = value;
-        return this;
-      }
-      public Builder ClearMsg() {
-        PrepareBuilder();
-        result.hasMsg = false;
-        result.msg_ = "";
-        return this;
-      }
-    }
-    static AuthenticateFail() {
       object.ReferenceEquals(global::Mysqlx.Session.MysqlxSession.Descriptor, null);
     }
   }

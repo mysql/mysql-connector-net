@@ -31,6 +31,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MySql;
 using Mysqlx.Session;
+using Google.ProtocolBuffers;
 
 namespace MySql.Security
 {
@@ -122,17 +123,30 @@ internal class Mysql41Authentication : AuthenticationBase
     byte[] userBytes = encoding.GetBytes(Settings.UserID);    
     byte[] databaseBytes = encoding.GetBytes(Settings.Database);
     byte[] hashedPassword = GetPassword(Settings.Password, salt);
-    
+   
+    //convert to hex value 
+    byte[] hex = encoding.GetBytes(string.Format("*{0}", BitConverter.ToString(hashedPassword).Replace("-", string.Empty)));
 
+    // create response
+    byte[] response = new byte[databaseBytes.Length + userBytes.Length + hex.Length + 2];
 
-    //baseStream.SendPacket<AuthenticateContinue>(message, (int)ClientMessageId.AuthenticateContinue);
-    //this.protocol.sendSaslMysql41AuthContinue(user, password, salt, database);
+    databaseBytes.CopyTo(response, 0);
+    var index = databaseBytes.Length;
+    response[index++] = 0;
+    userBytes.CopyTo(response, index);
+    index += userBytes.Length;
+    response[index++] = 0;
+    hex.CopyTo(response, index);
+    AuthenticateContinue.Builder builder = AuthenticateContinue.CreateBuilder();
+    builder.SetAuthData(ByteString.CopyFrom(response));
+    AuthenticateContinue authCont = builder.Build();
+    universalStream.SendPacket<AuthenticateContinue>(authCont, (int)ServerMessageId.SESS_AUTHENTICATE_CONTINUE);
 
     CommunicationPacket packet = universalStream.Read();
 
     if (packet != null)
     {
-        if (packet.MessageType == (int)ServerMessageId.AuthenticateOk)
+        if (packet.MessageType == (int)ServerMessageId.SESS_AUTHENTICATE_OK)
         {
           return AuthenticateOk.ParseFrom(packet.Buffer);
         }    

@@ -37,25 +37,25 @@ namespace Mysqlx.Datatypes {
     
     static MysqlxDatatypes() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
-          "ChZteXNxbHhfZGF0YXR5cGVzLnByb3RvEhBNeXNxbHguRGF0YXR5cGVzIvQC" + 
+          "ChZteXNxbHhfZGF0YXR5cGVzLnByb3RvEhBNeXNxbHguRGF0YXR5cGVzIvYC" + 
           "CgZTY2FsYXISKwoEdHlwZRgBIAIoDjIdLk15c3FseC5EYXRhdHlwZXMuU2Nh" + 
           "bGFyLlR5cGUSFAoMdl9zaWduZWRfaW50GAIgASgSEhYKDnZfdW5zaWduZWRf" + 
           "aW50GAMgASgEEhAKCHZfb3BhcXVlGAUgASgMEhAKCHZfZG91YmxlGAYgASgB" + 
           "Eg8KB3ZfZmxvYXQYByABKAISDgoGdl9ib29sGAggASgIEjEKCHZfc3RyaW5n" + 
-          "GAkgASgLMh8uTXlzcWx4LkRhdGF0eXBlcy5TY2FsYXIuU3RyaW5nGigKBlN0" + 
-          "cmluZxINCgV2YWx1ZRgBIAIoDBIPCgdjaGFyc2V0GAIgASgJIm0KBFR5cGUS" + 
-          "CgoGVl9TSU5UEAESCgoGVl9VSU5UEAISCgoGVl9OVUxMEAMSDAoIVl9PQ1RF" + 
-          "VFMQBBIMCghWX0RPVUJMRRAFEgsKB1ZfRkxPQVQQBhIKCgZWX0JPT0wQBxIM" + 
-          "CghWX1NUUklORxAIIn0KBk9iamVjdBIxCgNmbGQYASADKAsyJC5NeXNxbHgu" + 
-          "RGF0YXR5cGVzLk9iamVjdC5PYmplY3RGaWVsZBpACgtPYmplY3RGaWVsZBIL" + 
-          "CgNrZXkYASACKAkSJAoFdmFsdWUYAiACKAsyFS5NeXNxbHguRGF0YXR5cGVz" + 
-          "LkFueSItCgVBcnJheRIkCgV2YWx1ZRgBIAMoCzIVLk15c3FseC5EYXRhdHlw" + 
-          "ZXMuQW55ItMBCgNBbnkSKAoEdHlwZRgBIAIoDjIaLk15c3FseC5EYXRhdHlw" + 
-          "ZXMuQW55LlR5cGUSKAoGc2NhbGFyGAIgASgLMhguTXlzcWx4LkRhdGF0eXBl" + 
-          "cy5TY2FsYXISJQoDb2JqGAMgASgLMhguTXlzcWx4LkRhdGF0eXBlcy5PYmpl" + 
-          "Y3QSJgoFYXJyYXkYBCABKAsyFy5NeXNxbHguRGF0YXR5cGVzLkFycmF5IikK" + 
-          "BFR5cGUSCgoGU0NBTEFSEAESCgoGT0JKRUNUEAISCQoFQVJSQVkQA0IeChxj" + 
-          "b20ubXlzcWwuY2oubXlzcWx4LnByb3RvYnVm");
+          "GAkgASgLMh8uTXlzcWx4LkRhdGF0eXBlcy5TY2FsYXIuU3RyaW5nGioKBlN0" + 
+          "cmluZxINCgV2YWx1ZRgBIAIoDBIRCgljb2xsYXRpb24YAiABKAQibQoEVHlw" + 
+          "ZRIKCgZWX1NJTlQQARIKCgZWX1VJTlQQAhIKCgZWX05VTEwQAxIMCghWX09D" + 
+          "VEVUUxAEEgwKCFZfRE9VQkxFEAUSCwoHVl9GTE9BVBAGEgoKBlZfQk9PTBAH" + 
+          "EgwKCFZfU1RSSU5HEAgifQoGT2JqZWN0EjEKA2ZsZBgBIAMoCzIkLk15c3Fs" + 
+          "eC5EYXRhdHlwZXMuT2JqZWN0Lk9iamVjdEZpZWxkGkAKC09iamVjdEZpZWxk" + 
+          "EgsKA2tleRgBIAIoCRIkCgV2YWx1ZRgCIAIoCzIVLk15c3FseC5EYXRhdHlw" + 
+          "ZXMuQW55Ii0KBUFycmF5EiQKBXZhbHVlGAEgAygLMhUuTXlzcWx4LkRhdGF0" + 
+          "eXBlcy5Bbnki0wEKA0FueRIoCgR0eXBlGAEgAigOMhouTXlzcWx4LkRhdGF0" + 
+          "eXBlcy5BbnkuVHlwZRIoCgZzY2FsYXIYAiABKAsyGC5NeXNxbHguRGF0YXR5" + 
+          "cGVzLlNjYWxhchIlCgNvYmoYAyABKAsyGC5NeXNxbHguRGF0YXR5cGVzLk9i" + 
+          "amVjdBImCgVhcnJheRgEIAEoCzIXLk15c3FseC5EYXRhdHlwZXMuQXJyYXki" + 
+          "KQoEVHlwZRIKCgZTQ0FMQVIQARIKCgZPQkpFQ1QQAhIJCgVBUlJBWRADQh4K" + 
+          "HGNvbS5teXNxbC5jai5teXNxbHgucHJvdG9idWY=");
       pbd::FileDescriptor.InternalDescriptorAssigner assigner = delegate(pbd::FileDescriptor root) {
         descriptor = root;
         internal__static_Mysqlx_Datatypes_Scalar__Descriptor = Descriptor.MessageTypes[0];
@@ -65,7 +65,7 @@ namespace Mysqlx.Datatypes {
         internal__static_Mysqlx_Datatypes_Scalar_String__Descriptor = internal__static_Mysqlx_Datatypes_Scalar__Descriptor.NestedTypes[0];
         internal__static_Mysqlx_Datatypes_Scalar_String__FieldAccessorTable = 
             new pb::FieldAccess.FieldAccessorTable<global::Mysqlx.Datatypes.Scalar.Types.String, global::Mysqlx.Datatypes.Scalar.Types.String.Builder>(internal__static_Mysqlx_Datatypes_Scalar_String__Descriptor,
-                new string[] { "Value", "Charset", });
+                new string[] { "Value", "Collation", });
         internal__static_Mysqlx_Datatypes_Object__Descriptor = Descriptor.MessageTypes[1];
         internal__static_Mysqlx_Datatypes_Object__FieldAccessorTable = 
             new pb::FieldAccess.FieldAccessorTable<global::Mysqlx.Datatypes.Object, global::Mysqlx.Datatypes.Object.Builder>(internal__static_Mysqlx_Datatypes_Object__Descriptor,
@@ -136,8 +136,8 @@ namespace Mysqlx.Datatypes {
       internal sealed partial class String : pb::GeneratedMessage<String, String.Builder> {
         private String() { }
         private static readonly String defaultInstance = new String().MakeReadOnly();
-        private static readonly string[] _stringFieldNames = new string[] { "charset", "value" };
-        private static readonly uint[] _stringFieldTags = new uint[] { 18, 10 };
+        private static readonly string[] _stringFieldNames = new string[] { "collation", "value" };
+        private static readonly uint[] _stringFieldTags = new uint[] { 16, 10 };
         public static String DefaultInstance {
           get { return defaultInstance; }
         }
@@ -168,14 +168,14 @@ namespace Mysqlx.Datatypes {
           get { return value_; }
         }
         
-        public const int CharsetFieldNumber = 2;
-        private bool hasCharset;
-        private string charset_ = "";
-        public bool HasCharset {
-          get { return hasCharset; }
+        public const int CollationFieldNumber = 2;
+        private bool hasCollation;
+        private ulong collation_;
+        public bool HasCollation {
+          get { return hasCollation; }
         }
-        public string Charset {
-          get { return charset_; }
+        public ulong Collation {
+          get { return collation_; }
         }
         
         public override bool IsInitialized {
@@ -191,8 +191,8 @@ namespace Mysqlx.Datatypes {
           if (hasValue) {
             output.WriteBytes(1, field_names[1], Value);
           }
-          if (hasCharset) {
-            output.WriteString(2, field_names[0], Charset);
+          if (hasCollation) {
+            output.WriteUInt64(2, field_names[0], Collation);
           }
           UnknownFields.WriteTo(output);
         }
@@ -207,8 +207,8 @@ namespace Mysqlx.Datatypes {
             if (hasValue) {
               size += pb::CodedOutputStream.ComputeBytesSize(1, Value);
             }
-            if (hasCharset) {
-              size += pb::CodedOutputStream.ComputeStringSize(2, Charset);
+            if (hasCollation) {
+              size += pb::CodedOutputStream.ComputeUInt64Size(2, Collation);
             }
             size += UnknownFields.SerializedSize;
             memoizedSerializedSize = size;
@@ -337,8 +337,8 @@ namespace Mysqlx.Datatypes {
             if (other.HasValue) {
               Value = other.Value;
             }
-            if (other.HasCharset) {
-              Charset = other.Charset;
+            if (other.HasCollation) {
+              Collation = other.Collation;
             }
             this.MergeUnknownFields(other.UnknownFields);
             return this;
@@ -387,8 +387,8 @@ namespace Mysqlx.Datatypes {
                   result.hasValue = input.ReadBytes(ref result.value_);
                   break;
                 }
-                case 18: {
-                  result.hasCharset = input.ReadString(ref result.charset_);
+                case 16: {
+                  result.hasCollation = input.ReadUInt64(ref result.collation_);
                   break;
                 }
               }
@@ -422,24 +422,23 @@ namespace Mysqlx.Datatypes {
             return this;
           }
           
-          public bool HasCharset {
-            get { return result.hasCharset; }
+          public bool HasCollation {
+            get { return result.hasCollation; }
           }
-          public string Charset {
-            get { return result.Charset; }
-            set { SetCharset(value); }
+          public ulong Collation {
+            get { return result.Collation; }
+            set { SetCollation(value); }
           }
-          public Builder SetCharset(string value) {
-            pb::ThrowHelper.ThrowIfNull(value, "value");
+          public Builder SetCollation(ulong value) {
             PrepareBuilder();
-            result.hasCharset = true;
-            result.charset_ = value;
+            result.hasCollation = true;
+            result.collation_ = value;
             return this;
           }
-          public Builder ClearCharset() {
+          public Builder ClearCollation() {
             PrepareBuilder();
-            result.hasCharset = false;
-            result.charset_ = "";
+            result.hasCollation = false;
+            result.collation_ = 0UL;
             return this;
           }
         }

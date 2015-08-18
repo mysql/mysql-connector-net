@@ -103,46 +103,48 @@ namespace MySql.Communication
 
   public enum ClientMessageId
   {
-    ConnectionGetCapabilities = 1,
-    ConnectionSetCapabilities = 2,
-    ConnectionClose = 3,
-    AuthenticateStart = 4,
-    AuthenticateContinue = 5,
-    SqlPrepareStmt = 6,
-    SqlPreparedStmtExecute = 7,
-    SqlCursorFetchRows = 8,
-    SqlCursorFetchMetaData = 9,
-    SqlCursorClose = 10,
-    SqlCursorsPoll = 11,
-    CrudPrepareFind = 12,
-    CrudPrepareInsert = 13,
-    CrudPrepareUpdate = 14,
-    CrudPrepareDelete = 15,
-    CrudPrepareStmtClose = 16,
-    SessionReset = 17,
-    SessionClose = 18
+    CON_CAPABILITIES_GET = 1,
+    CON_CAPABILITIES_SET = 2,
+    CON_CLOSE = 3,
+
+    SESS_AUTHENTICATE_START = 4,
+    SESS_AUTHENTICATE_CONTINUE  = 5,
+    SESS_RESET = 6,
+    SESS_CLOSE = 7,
+
+    SQL_STMT_EXECUTE = 12,
+
+    CRUD_FIND = 17,
+    CRUD_INSERT = 18,
+    CRUD_UPDATE = 19,
+    CRUD_DELETE = 20,
+
+    EXPECT_OPEN = 24,
+    EXPECT_CLOSE = 25
   }
 
 
   public enum ServerMessageId
   {
-    Ok = 1,
-    Error = 2,
-    Notice = 3,
-    ParameterChangedNotification = 4,
-    ConnectionCapabilities = 5,
-    AuthenticateContinue = 6,
-    AuthenticateOk = 7,
-    AuthenticateFail = 8,
-    SqlPrepareStmtOk = 9,
-    SqlPreparedStmtExecuteOk = 10,
-    SqlColumnMetaData = 11,
-    SqlRow = 12,
-    SqlCursorFetchDone = 13,
-    SqlCursorFetchSuspended = 14,
-    SqlCursorsPoll = 15,
-    SqlCursorCloseOk = 16,
-    SqlCursorFetchDoneMoreResultsets = 17
+    OK = 0,
+    ERROR = 1,
+
+    CONN_CAPABILITIES = 2,
+
+    SESS_AUTHENTICATE_CONTINUE = 3,
+    SESS_AUTHENTICATE_OK = 4,
+
+    // NOTICE has to stay at 11 forever
+    NOTICE = 11,
+
+    RESULTSET_COLUMN_META_DATA = 12,
+    RESULTSET_ROW = 13,
+    RESULTSET_FETCH_DONE = 14,
+    RESULTSET_FETCH_SUSPENDED = 15,
+    RESULTSET_FETCH_DONE_MORE_RESULTSETS = 16,
+
+    SQL_STMT_EXECUTE_OK = 17,
+    RESULTSET_FETCH_DONE_MORE_OUT_PARAMS = 18
   }
 
 }

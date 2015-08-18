@@ -38,33 +38,33 @@ namespace Mysqlx.Expr {
     static MysqlxExpr() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           "ChFteXNxbHhfZXhwci5wcm90bxILTXlzcWx4LkV4cHIaFm15c3FseF9kYXRh" + 
-          "dHlwZXMucHJvdG8i0QIKBEV4cHISJAoEdHlwZRgBIAIoDjIWLk15c3FseC5F" + 
+          "dHlwZXMucHJvdG8i4wIKBEV4cHISJAoEdHlwZRgBIAIoDjIWLk15c3FseC5F" + 
           "eHByLkV4cHIuVHlwZRIxCgppZGVudGlmaWVyGAIgASgLMh0uTXlzcWx4LkV4" + 
           "cHIuQ29sdW1uSWRlbnRpZmllchIQCgh2YXJpYWJsZRgDIAEoCRInCghjb25z" + 
           "dGFudBgEIAEoCzIVLk15c3FseC5EYXRhdHlwZXMuQW55EjAKDWZ1bmN0aW9u" + 
           "X2NhbGwYBSABKAsyGS5NeXNxbHguRXhwci5GdW5jdGlvbkNhbGwSJwoIb3Bl" + 
-          "cmF0b3IYBiABKAsyFS5NeXNxbHguRXhwci5PcGVyYXRvciJaCgRUeXBlEgkK" + 
-          "BUlERU5UEAESCwoHTElURVJBTBACEgwKCFZBUklBQkxFEAMSDQoJRlVOQ19D" + 
-          "QUxMEAQSDAoIT1BFUkFUT1IQBRIPCgtQTEFDRUhPTERFUhAGIi8KCklkZW50" + 
-          "aWZpZXISDAoEbmFtZRgBIAIoCRITCgtzY2hlbWFfbmFtZRgCIAEoCSLLAQoQ" + 
-          "RG9jdW1lbnRQYXRoSXRlbRIwCgR0eXBlGAEgAigOMiIuTXlzcWx4LkV4cHIu" + 
-          "RG9jdW1lbnRQYXRoSXRlbS5UeXBlEg0KBXZhbHVlGAIgASgJEg0KBWluZGV4" + 
-          "GAMgASgNImcKBFR5cGUSCgoGTUVNQkVSEAESEwoPTUVNQkVSX0FTVEVSSVNL" + 
-          "EAISDwoLQVJSQVlfSU5ERVgQAxIYChRBUlJBWV9JTkRFWF9BU1RFUklTSxAE" + 
-          "EhMKD0RPVUJMRV9BU1RFUklTSxAFIn8KEENvbHVtbklkZW50aWZpZXISNAoN" + 
-          "ZG9jdW1lbnRfcGF0aBgBIAMoCzIdLk15c3FseC5FeHByLkRvY3VtZW50UGF0" + 
-          "aEl0ZW0SDAoEbmFtZRgCIAEoCRISCgp0YWJsZV9uYW1lGAMgASgJEhMKC3Nj" + 
-          "aGVtYV9uYW1lGAQgASgJIlcKDEZ1bmN0aW9uQ2FsbBIlCgRuYW1lGAEgAigL" + 
-          "MhcuTXlzcWx4LkV4cHIuSWRlbnRpZmllchIgCgVwYXJhbRgCIAMoCzIRLk15" + 
-          "c3FseC5FeHByLkV4cHIiOgoIT3BlcmF0b3ISDAoEbmFtZRgBIAIoCRIgCgVw" + 
-          "YXJhbRgCIAMoCzIRLk15c3FseC5FeHByLkV4cHJCHgocY29tLm15c3FsLmNq" + 
-          "Lm15c3FseC5wcm90b2J1Zg==");
+          "cmF0b3IYBiABKAsyFS5NeXNxbHguRXhwci5PcGVyYXRvchIQCghwb3NpdGlv" + 
+          "bhgHIAEoDSJaCgRUeXBlEgkKBUlERU5UEAESCwoHTElURVJBTBACEgwKCFZB" + 
+          "UklBQkxFEAMSDQoJRlVOQ19DQUxMEAQSDAoIT1BFUkFUT1IQBRIPCgtQTEFD" + 
+          "RUhPTERFUhAGIi8KCklkZW50aWZpZXISDAoEbmFtZRgBIAIoCRITCgtzY2hl" + 
+          "bWFfbmFtZRgCIAEoCSLLAQoQRG9jdW1lbnRQYXRoSXRlbRIwCgR0eXBlGAEg" + 
+          "AigOMiIuTXlzcWx4LkV4cHIuRG9jdW1lbnRQYXRoSXRlbS5UeXBlEg0KBXZh" + 
+          "bHVlGAIgASgJEg0KBWluZGV4GAMgASgNImcKBFR5cGUSCgoGTUVNQkVSEAES" + 
+          "EwoPTUVNQkVSX0FTVEVSSVNLEAISDwoLQVJSQVlfSU5ERVgQAxIYChRBUlJB" + 
+          "WV9JTkRFWF9BU1RFUklTSxAEEhMKD0RPVUJMRV9BU1RFUklTSxAFIn8KEENv" + 
+          "bHVtbklkZW50aWZpZXISNAoNZG9jdW1lbnRfcGF0aBgBIAMoCzIdLk15c3Fs" + 
+          "eC5FeHByLkRvY3VtZW50UGF0aEl0ZW0SDAoEbmFtZRgCIAEoCRISCgp0YWJs" + 
+          "ZV9uYW1lGAMgASgJEhMKC3NjaGVtYV9uYW1lGAQgASgJIlcKDEZ1bmN0aW9u" + 
+          "Q2FsbBIlCgRuYW1lGAEgAigLMhcuTXlzcWx4LkV4cHIuSWRlbnRpZmllchIg" + 
+          "CgVwYXJhbRgCIAMoCzIRLk15c3FseC5FeHByLkV4cHIiOgoIT3BlcmF0b3IS" + 
+          "DAoEbmFtZRgBIAIoCRIgCgVwYXJhbRgCIAMoCzIRLk15c3FseC5FeHByLkV4" + 
+          "cHJCHgocY29tLm15c3FsLmNqLm15c3FseC5wcm90b2J1Zg==");
       pbd::FileDescriptor.InternalDescriptorAssigner assigner = delegate(pbd::FileDescriptor root) {
         descriptor = root;
         internal__static_Mysqlx_Expr_Expr__Descriptor = Descriptor.MessageTypes[0];
         internal__static_Mysqlx_Expr_Expr__FieldAccessorTable = 
             new pb::FieldAccess.FieldAccessorTable<global::Mysqlx.Expr.Expr, global::Mysqlx.Expr.Expr.Builder>(internal__static_Mysqlx_Expr_Expr__Descriptor,
-                new string[] { "Type", "Identifier", "Variable", "Constant", "FunctionCall", "Operator", });
+                new string[] { "Type", "Identifier", "Variable", "Constant", "FunctionCall", "Operator", "Position", });
         internal__static_Mysqlx_Expr_Identifier__Descriptor = Descriptor.MessageTypes[1];
         internal__static_Mysqlx_Expr_Identifier__FieldAccessorTable = 
             new pb::FieldAccess.FieldAccessorTable<global::Mysqlx.Expr.Identifier, global::Mysqlx.Expr.Identifier.Builder>(internal__static_Mysqlx_Expr_Identifier__Descriptor,
@@ -100,8 +100,8 @@ namespace Mysqlx.Expr {
   internal sealed partial class Expr : pb::GeneratedMessage<Expr, Expr.Builder> {
     private Expr() { }
     private static readonly Expr defaultInstance = new Expr().MakeReadOnly();
-    private static readonly string[] _exprFieldNames = new string[] { "constant", "function_call", "identifier", "operator", "type", "variable" };
-    private static readonly uint[] _exprFieldTags = new uint[] { 34, 42, 18, 50, 8, 26 };
+    private static readonly string[] _exprFieldNames = new string[] { "constant", "function_call", "identifier", "operator", "position", "type", "variable" };
+    private static readonly uint[] _exprFieldTags = new uint[] { 34, 42, 18, 50, 56, 8, 26 };
     public static Expr DefaultInstance {
       get { return defaultInstance; }
     }
@@ -197,6 +197,16 @@ namespace Mysqlx.Expr {
       get { return operator_ ?? global::Mysqlx.Expr.Operator.DefaultInstance; }
     }
     
+    public const int PositionFieldNumber = 7;
+    private bool hasPosition;
+    private uint position_;
+    public bool HasPosition {
+      get { return hasPosition; }
+    }
+    public uint Position {
+      get { return position_; }
+    }
+    
     public override bool IsInitialized {
       get {
         if (!hasType) return false;
@@ -220,13 +230,13 @@ namespace Mysqlx.Expr {
       int size = SerializedSize;
       string[] field_names = _exprFieldNames;
       if (hasType) {
-        output.WriteEnum(1, field_names[4], (int) Type, Type);
+        output.WriteEnum(1, field_names[5], (int) Type, Type);
       }
       if (hasIdentifier) {
         output.WriteMessage(2, field_names[2], Identifier);
       }
       if (hasVariable) {
-        output.WriteString(3, field_names[5], Variable);
+        output.WriteString(3, field_names[6], Variable);
       }
       if (hasConstant) {
         output.WriteMessage(4, field_names[0], Constant);
@@ -236,6 +246,9 @@ namespace Mysqlx.Expr {
       }
       if (hasOperator) {
         output.WriteMessage(6, field_names[3], Operator);
+      }
+      if (hasPosition) {
+        output.WriteUInt32(7, field_names[4], Position);
       }
       UnknownFields.WriteTo(output);
     }
@@ -264,6 +277,9 @@ namespace Mysqlx.Expr {
         }
         if (hasOperator) {
           size += pb::CodedOutputStream.ComputeMessageSize(6, Operator);
+        }
+        if (hasPosition) {
+          size += pb::CodedOutputStream.ComputeUInt32Size(7, Position);
         }
         size += UnknownFields.SerializedSize;
         memoizedSerializedSize = size;
@@ -407,6 +423,9 @@ namespace Mysqlx.Expr {
         if (other.HasOperator) {
           MergeOperator(other.Operator);
         }
+        if (other.HasPosition) {
+          Position = other.Position;
+        }
         this.MergeUnknownFields(other.UnknownFields);
         return this;
       }
@@ -500,6 +519,10 @@ namespace Mysqlx.Expr {
               }
               input.ReadMessage(subBuilder, extensionRegistry);
               Operator = subBuilder.BuildPartial();
+              break;
+            }
+            case 56: {
+              result.hasPosition = input.ReadUInt32(ref result.position_);
               break;
             }
           }
@@ -710,6 +733,26 @@ namespace Mysqlx.Expr {
         PrepareBuilder();
         result.hasOperator = false;
         result.operator_ = null;
+        return this;
+      }
+      
+      public bool HasPosition {
+        get { return result.hasPosition; }
+      }
+      public uint Position {
+        get { return result.Position; }
+        set { SetPosition(value); }
+      }
+      public Builder SetPosition(uint value) {
+        PrepareBuilder();
+        result.hasPosition = true;
+        result.position_ = value;
+        return this;
+      }
+      public Builder ClearPosition() {
+        PrepareBuilder();
+        result.hasPosition = false;
+        result.position_ = 0;
         return this;
       }
     }

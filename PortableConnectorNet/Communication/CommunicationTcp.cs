@@ -90,7 +90,8 @@ namespace MySql.Communication
           if (socketException.SocketErrorCode != SocketError.ConnectionRefused) throw;
 #endif
         }
-      }
+      }    
+
       return stream;
     
     }
@@ -278,6 +279,19 @@ namespace MySql.Communication
             writer.Write(authStartMessage);
             _outStream.Write(internalStream.ToArray(), 0, (Int32)internalStream.Length);            
           }
+        }
+
+        if (typeof(T) == typeof(AuthenticateContinue))
+        {
+          var authContMessage = ((AuthenticateContinue)(object)message).ToByteArray();
+          //writting header
+          using (BinaryWriter writer = new BinaryWriter(internalStream))
+          {
+            writer.Write((Int32)authContMessage.Length + 1);
+            writer.Write((Byte)messageId);
+            writer.Write(authContMessage);
+            _outStream.Write(internalStream.ToArray(), 0, (Int32)internalStream.Length);
+          }        
         }
         _outStream.Flush();
       }

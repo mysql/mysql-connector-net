@@ -50,10 +50,10 @@
     <Compile Include="Data\Enums.cs" />
     <Compile Include="Data\Factory.cs" />
     <Compile Include="Data\InternalSession.cs" />
+    <Compile Include="Message\MysqlxResultset.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Authentication\Authentication.cs" />
     <Compile Include="common\LowResolutionStopwatch.cs" />
-    <Compile Include="Message\Mysqlx.cs" />
     <Compile Include="Message\MysqlxConnection.cs" />
     <Compile Include="Message\MysqlxCrud.cs" />
     <Compile Include="Message\MysqlxDatatypes.cs" />
