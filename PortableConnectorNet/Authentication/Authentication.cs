@@ -41,11 +41,13 @@ internal abstract class AuthenticationBase : IDisposable
 
   protected internal AuthenticationMode _authMode;
   protected UniversalStream universalStream;
-
+  protected MySqlConnectionStringBuilder _settings;
 
   public abstract string PluginName { get; }
 
   public InternalSession session { get; set; }
+
+
 
   public AuthenticationMode AuthenticationMode
   {
@@ -56,7 +58,7 @@ internal abstract class AuthenticationBase : IDisposable
 
   public virtual string GetUsername()
   {
-    return session.settings.UserID;      
+    return _settings.UserID;      
   }
 
   public virtual object GetPassword()
@@ -66,14 +68,15 @@ internal abstract class AuthenticationBase : IDisposable
 
   protected MySqlConnectionStringBuilder Settings
   {
-    get { return session.settings; }
+    get { return _settings; }
   }
 
   protected byte[] AuthenticationData;
 
-  public AuthenticationBase(UniversalStream baseStream)
+  public AuthenticationBase(UniversalStream baseStream, MySqlConnectionStringBuilder settings)
   {
     universalStream = baseStream;
+    _settings = settings;
   }
 
 
@@ -100,7 +103,7 @@ internal class Mysql41Authentication : AuthenticationBase
  
   }
 
-  public Mysql41Authentication(UniversalStream baseStream): base(baseStream)
+  public Mysql41Authentication(UniversalStream baseStream, MySqlConnectionStringBuilder settings): base(baseStream, settings)
   {
     _authMode = AuthenticationMode.MySQL41;
   }
@@ -166,6 +169,11 @@ internal class Mysql41Authentication : AuthenticationBase
   protected override byte[] GetPassword(string password, byte[] seedBytes)
   {
     // if we have no password, then we just return 1 zero byte
+
+    var encoding = Encoding.GetEncoding(Settings.CharacterSet);
+
+    seedBytes = encoding.GetBytes("233c04571f3b18254a6e6d161c560f433175176c");        
+
     if (password.Length == 0) return new byte[1];
 
     SHA1 sha = new SHA1CryptoServiceProvider();
@@ -178,17 +186,20 @@ internal class Mysql41Authentication : AuthenticationBase
     Array.Copy(secondHash, 0, input, seedBytes.Length, secondHash.Length);
     byte[] thirdHash = sha.ComputeHash(input);
 
-    byte[] finalHash = new byte[thirdHash.Length + 1];
-    finalHash[0] = 0x14;
-    Array.Copy(thirdHash, 0, finalHash, 1, thirdHash.Length);
+    return thirdHash;
 
-    for (int i = 1; i < finalHash.Length; i++)
-      finalHash[i] = (byte)(finalHash[i] ^ firstHash[i - 1]);
+    //----
+    //byte[] finalHash = new byte[thirdHash.Length + 1];
+    //finalHash[0] = 0x14;
+    //Array.Copy(thirdHash, 0, finalHash, 1, thirdHash.Length);
 
-    if (finalHash != null && finalHash.Length == 1 && finalHash[0] == 0)
-      return null;
+    //for (int i = 1; i < finalHash.Length; i++)
+    //  finalHash[i] = (byte)(finalHash[i] ^ firstHash[i - 1]);
 
-    return finalHash;
+    //if (finalHash != null && finalHash.Length == 1 && finalHash[0] == 0)
+    //  return null;
+
+    
   }
 }
 
@@ -203,7 +214,7 @@ internal class Mysql41Authentication : AuthenticationBase
       }      
     }
 
-    public PlainAuthentication(UniversalStream baseStream): base(baseStream)
+    public PlainAuthentication(UniversalStream baseStream, MySqlConnectionStringBuilder settings): base(baseStream, settings)
     {   }
 
     public override AuthenticateOk Authenticate(bool reset, AuthenticateContinue message)

@@ -230,8 +230,8 @@ namespace MySql.Communication
           _length = BitConverter.ToInt32(_header, 0);
 
           packet.MessageType = _header[4];
-          var tempBuffer = new Byte[_length - _header.Length];
-          ReadFully(_inStream, tempBuffer, offset, _length - _header.Length);
+          var tempBuffer = new Byte[_length - 1];
+          ReadFully(_inStream, tempBuffer, offset, _length - 1);
           packet.Write(tempBuffer);
 
           // if this block was < maxBlock then it's last one in a multipacket series

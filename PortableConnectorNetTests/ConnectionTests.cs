@@ -39,7 +39,7 @@ namespace PortableConnectorNetTests
       [Fact]
       public void TestConnection()
       {
-        InternalSession session = new InternalSession("server=localhost;userid=root;password=mypass;port=33060;database=test;");
+        InternalSession session = new InternalSession("server=localhost;userid=root;password=password1234;port=33060;database=test;");
         session.Open();  
 
         //var db = mysqlx.getSession( {

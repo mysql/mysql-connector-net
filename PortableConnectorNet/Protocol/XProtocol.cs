@@ -48,7 +48,7 @@ namespace MySql
 
       if (_authMode.Equals("MYSQL41"))
       {
-        authenticationPlugin = new Mysql41Authentication(baseStream);
+        authenticationPlugin = new Mysql41Authentication(baseStream, settings);
       }      
 
       if (authenticationPlugin.AuthenticationMode == AuthenticationMode.MySQL41)
