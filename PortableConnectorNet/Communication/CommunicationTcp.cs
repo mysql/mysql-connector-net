@@ -65,7 +65,8 @@ namespace MySql.Communication
       _baseStream = stream;
       _encoding = encoding;
       _inStream = new BufferedStream(stream);
-      _outStream = stream;      
+      _outStream = stream;
+      packet = new CommunicationPacket();
     }
 
 
