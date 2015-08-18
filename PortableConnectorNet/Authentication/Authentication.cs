@@ -101,7 +101,9 @@ internal class Mysql41Authentication : AuthenticationBase
   }
 
   public Mysql41Authentication(UniversalStream baseStream): base(baseStream)
-  {  }
+  {
+    _authMode = AuthenticationMode.MySQL41;
+  }
 
 
 

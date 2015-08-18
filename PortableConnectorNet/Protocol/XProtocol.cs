@@ -1,6 +1,7 @@
 ﻿using Google.ProtocolBuffers;
 using MySql.Communication;
 using MySql.Data;
+using MySql.DataAccess;
 using MySql.Procotol;
 using MySql.Security;
 using Mysqlx.Session;
@@ -50,7 +51,7 @@ namespace MySql
         authenticationPlugin = new Mysql41Authentication(baseStream);
       }      
 
-      if (authenticationPlugin.AuthenticationMode.Equals("MySql41Authentication"))
+      if (authenticationPlugin.AuthenticationMode == AuthenticationMode.MySQL41)
       {
         AuthenticateStart.Builder authStart = AuthenticateStart.CreateBuilder();       
         authStart.SetMechName("MYSQL41");
