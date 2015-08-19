@@ -27,6 +27,11 @@ namespace MySql.XDevAPI
 {
   public class Collection : DatabaseObject
   {
+    internal Collection(BaseSession session, string name) : base(session, name)
+    {
+
+    }
+
     public Collection Add(object item)
     {
       throw new NotImplementedException();

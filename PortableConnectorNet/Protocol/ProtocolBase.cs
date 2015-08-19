@@ -24,6 +24,8 @@
 using MySql.Communication;
 using MySql.Data;
 using MySql.Security;
+using MySql.XDevAPI;
+using System.Collections.Generic;
 using System.Net;
 
 
@@ -76,7 +78,9 @@ namespace MySql.Procotol
 
     public abstract void ExecuteReader();
 
-    public abstract int ExecuteStatement();
+    public abstract ResultSet ReadResultSet();
+    public abstract List<byte[]> ReadRow();
+    public abstract void SendExecuteStatement(string ns, string statement, object[] args);
 
     public abstract void Find();
 

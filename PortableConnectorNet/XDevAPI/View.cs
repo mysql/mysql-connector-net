@@ -26,6 +26,11 @@ namespace MySql.XDevAPI
 {
   public class View : DatabaseObject
   {
+    internal View(BaseSession session, string name) : base(session, name)
+    {
+
+    }
+
     public override bool ExistsInDatabase()
     {
       throw new NotImplementedException();

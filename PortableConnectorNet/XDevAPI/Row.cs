@@ -25,9 +25,18 @@ using System.Linq;
 
 namespace MySql.XDevAPI
 {
-  public class Row
+  public class ResultRow
   {
-    private Dictionary<int, object> values = new Dictionary<int, object>();
+    private object[] values;
+    private byte[][] valuesAsBytes;
+    private ResultSet resultSet;
+
+    internal ResultRow(ResultSet rs, int count)
+    {
+      resultSet = rs;
+      values = new object[count];
+      valuesAsBytes = new byte[count][];
+    }
 
     public object this[int index]
     {
@@ -35,14 +44,27 @@ namespace MySql.XDevAPI
       set { values[index] = value; }
     }
 
-    public object[] ItemArray
+    public string GetString(string name)
     {
-      get { return values.Values.ToArray(); }
+      return values[resultSet.IndexOf(name)].ToString();
+    }
+    public object this[string name]
+    {
+      get
+      {
+        return this[resultSet.IndexOf(name)];
+      }
     }
 
-    public void Add(object value)
+    public object[] ItemArray
     {
-      values.Add(values.Count, value);
+      get { return values; }
+    }
+
+    internal void SetValues(List<byte[]> valueBuffers)
+    {
+      for (int i = 0; i < valueBuffers.Count; i++)
+        valuesAsBytes[i] = valueBuffers[i];
     }
   }
 }

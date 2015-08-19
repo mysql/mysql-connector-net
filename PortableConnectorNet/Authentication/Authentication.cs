@@ -146,7 +146,7 @@ internal class Mysql41Authentication : AuthenticationBase
     AuthenticateContinue.Builder builder = AuthenticateContinue.CreateBuilder();
     builder.SetAuthData(ByteString.CopyFrom(response));
     AuthenticateContinue authCont = builder.Build();
-    universalStream.SendPacket<AuthenticateContinue>(authCont, (int)ClientMessageId.SESS_AUTHENTICATE_CONTINUE);
+    universalStream.SendPacket(authCont, (int)ClientMessageId.SESS_AUTHENTICATE_CONTINUE);
 
     CommunicationPacket packet = universalStream.Read();
 

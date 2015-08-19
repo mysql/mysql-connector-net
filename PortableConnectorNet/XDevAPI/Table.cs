@@ -26,9 +26,8 @@ namespace MySql.XDevAPI
 {
   public class Table : DatabaseObject
   {
-    public Table(string name)
+    public Table(BaseSession session, string name) : base(session, name)
     {
-      Name = name;
     }
 
 

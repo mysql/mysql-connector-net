@@ -29,7 +29,7 @@ namespace MySqlX_DevAPI.Sections
   {
     static Schema db = MySqlX.GetSession("").GetDefaultSchema();
 
-    static Collection myColl = new Collection();
+    static Collection myColl = new Collection(db.Session, "default");
 
 
     static void CreatingACollection()

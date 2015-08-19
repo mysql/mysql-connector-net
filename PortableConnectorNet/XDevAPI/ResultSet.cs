@@ -20,14 +20,74 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Communication;
+using MySql.Procotol;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace MySql.XDevAPI
 {
   public class ResultSet
   {
-    private List<Row> rows;
+    public List<ResultRow> Rows = new List<ResultRow>();
+    public List<Column> Columns = new List<Column>();
+    private Dictionary<string, int> nameMap = new Dictionary<string, int>();
+    internal ProtocolBase<UniversalStream> Protocol;
 
+    public int Position { get; private set; }
+    public int PageSize { get; private set; }
 
+    internal ResultSet()
+    {
+      PageSize = 20;
+      Position = 0;
+    }
+
+    public void FinishLoading()
+    {
+      while (Next()) ;
+    }
+
+    public bool Next()
+    {
+      if (Position == Rows.Count)
+        if (!PageInRows()) return false;
+      ///TODO:  support multiple resultsets
+
+      Position++;
+      return true;
+    }
+
+    private bool PageInRows()
+    {
+      for (int i = 0; i < PageSize; i++)
+        ReadRow();
+      return Position < Rows.Count;
+    }
+
+    private bool ReadRow()
+    {
+      List<byte[]> values = Protocol.ReadRow();
+      if (values == null) return false;
+      Debug.Assert(values.Count == Columns.Count, "Value count does not equal column count");
+      ResultRow row = new ResultRow(this, Columns.Count);
+      row.SetValues(values);
+      Rows.Add(row);
+      return true;
+    }
+
+    internal void AddColumn(Column c)
+    {
+      ///TODO:  add asserts or checks here
+      Columns.Add(c);
+      nameMap.Add(c.Name, Columns.Count - 1);
+    }
+
+    public int IndexOf(string name)
+    {
+      if (!nameMap.ContainsKey(name))
+        throw new MySqlException("Column not found '" + name + "'");
+      return nameMap[name];
+    }
   }
 }

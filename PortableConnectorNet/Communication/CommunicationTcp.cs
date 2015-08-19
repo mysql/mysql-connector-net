@@ -20,6 +20,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using Google.ProtocolBuffers;
 using MySql.Data;
 using Mysqlx;
 using Mysqlx.Session;
@@ -50,8 +51,8 @@ namespace MySql.Communication
     {
       get { return _baseStream.CanWrite; }
     }
-    
-    
+
+
     public CommunicationTcp()
     {
       _maxPacketSize = ulong.MaxValue;
@@ -91,10 +92,10 @@ namespace MySql.Communication
           if (socketException.SocketErrorCode != SocketError.ConnectionRefused) throw;
 #endif
         }
-      }    
+      }
 
       return stream;
-    
+
     }
 
 
@@ -117,17 +118,17 @@ namespace MySql.Communication
 
       try
       {
-      socket.Connect(ipe);
+        socket.Connect(ipe);
       }
       catch (Exception)
       {
         socket.Close();
         throw;
-      }      
-            
+      }
+
       _networkStream = new NetworkStream(socket, true);
       GC.SuppressFinalize(socket);
-      
+
       return _networkStream;
 
     }
@@ -226,7 +227,7 @@ namespace MySql.Communication
         int offset = 0;
         while (true)
         {
-          ReadFully(_inStream, _header, offset, _header.Length);        
+          ReadFully(_inStream, _header, offset, _header.Length);
           _length = BitConverter.ToInt32(_header, 0);
 
           packet.MessageType = _header[4];
@@ -242,7 +243,7 @@ namespace MySql.Communication
       }
       catch (Exception)
       {
-        
+
         throw;
       }
     }
@@ -264,42 +265,13 @@ namespace MySql.Communication
     }
 
 
-    internal override void SendPacket<T>(T message, int messageId)
+    internal override void SendPacket(IMessageLite message, int messageId)
     {
-      var internalStream = new MemoryStream();
-      try
-      {
-        if (typeof(T) == typeof(AuthenticateStart))
-        {
-          var authStartMessage = ((AuthenticateStart)(object)message).ToByteArray();        
-          //writting header
-          using (BinaryWriter writer = new BinaryWriter(internalStream))
-          {
-            writer.Write((Int32)authStartMessage.Length + 1);
-            writer.Write((Byte)messageId);
-            writer.Write(authStartMessage);
-            _outStream.Write(internalStream.ToArray(), 0, (Int32)internalStream.Length);            
-          }
-        }
-
-        if (typeof(T) == typeof(AuthenticateContinue))
-        {
-          var authContMessage = ((AuthenticateContinue)(object)message).ToByteArray();
-          //writting header
-          using (BinaryWriter writer = new BinaryWriter(internalStream))
-          {
-            writer.Write((Int32)authContMessage.Length + 1);
-            writer.Write((Byte)messageId);
-            writer.Write(authContMessage);
-            _outStream.Write(internalStream.ToArray(), 0, (Int32)internalStream.Length);
-          }        
-        }
-        _outStream.Flush();
-      }
-      finally
-      {
-        internalStream.Dispose();
-      }            
+      int size = message.SerializedSize + 1;
+      _outStream.Write(BitConverter.GetBytes(size), 0, 4);
+      _outStream.WriteByte((byte)messageId);
+      message.WriteTo(_outStream);
+      _outStream.Flush();
     }
 
 

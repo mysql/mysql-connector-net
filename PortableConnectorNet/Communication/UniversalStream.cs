@@ -20,6 +20,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using Google.ProtocolBuffers;
 using MySql.Common;
 using System.IO;
 using System.Net.Sockets;
@@ -75,7 +76,7 @@ namespace MySql.Communication
 
     public abstract void Close();
 
-    internal abstract void SendPacket<T>(T message, int messageId);
+    internal abstract void SendPacket(IMessageLite message, int messageId);
      
     //protected void StartTimer(IOKind op);
 

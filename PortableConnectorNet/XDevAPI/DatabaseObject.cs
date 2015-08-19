@@ -25,6 +25,12 @@ namespace MySql.XDevAPI
 {
   public abstract class DatabaseObject
   {
+    internal DatabaseObject(BaseSession session, string name)
+    {
+      Session = session;
+      Name = name;
+    }
+
     public BaseSession Session { get; protected set; }
 
     public Schema Schema { get; protected set; }

@@ -27,14 +27,11 @@ namespace MySqlX_DevAPI.Sections
 {
   public class CrudOperations
   {
-    Schema db = MySqlX.GetSession("server=localhost;port=33060;uid=userx;password=userx1;").GetDefaultSchema();
-
-    Collection myColl = new Collection();
-
-
     [Fact]
     public void TableSelect()
     {
+      Session s = MySqlX.GetSession("server=localhost;port=33060;uid=userx;password=userx1;");
+      Schema db = s.GetDefaultSchema();
       var employees = db.GetTable("employee");
 
       var res = employees.Select("name", "age")
@@ -55,6 +52,9 @@ namespace MySqlX_DevAPI.Sections
     [Fact]
     public void ParameterBinding()
     {
+      Session s = MySqlX.GetSession("server=localhost;port=33060;uid=userx;password=userx1;");
+      Collection myColl = new Collection(s, "default");
+
       // Collection.add() function with hardcoded values
       myColl.Add(new { name = "Sakila", age = 15 }).Run();
 
@@ -73,6 +73,9 @@ namespace MySqlX_DevAPI.Sections
     [Fact]
     public void PreparingCrudStatements()
     {
+      Session s = MySqlX.GetSession("server=localhost;port=33060;uid=userx;password=userx1;");
+      Collection myColl = new Collection(s, "default");
+
       // Only prepare a Colleciton.add() operation, but don't run it yet
       var myAdd = myColl.Add(new { name = ":1", age = ":2" });
 
@@ -91,16 +94,19 @@ namespace MySqlX_DevAPI.Sections
     [Fact]
     public void UsingIteratorsToBindParameterValues()
     {
-    // Only prepare a Collection.Add() operation, but don"t run it yet
-    var myPrep = myColl.Add(new {name= ":1", age= ":2"});
-    
-    // Binding an Iterator Object to the prepared function
-    var myIterator = MySqlX.CsvFileRowIterator().Open("foo.csv");
-    myPrep.Bind(myIterator).Run();
-    
-    // Instead of using individual parameters, and iterator can also return full docs
-    var myIterator2 = MySqlX.JsonFileDocIterator().Open("bar.json");
-    myColl.Add().Bind(myIterator2).Run();
+      Session s = MySqlX.GetSession("server=localhost;port=33060;uid=userx;password=userx1;");
+      Collection myColl = new Collection(s, "default");
+
+      // Only prepare a Collection.Add() operation, but don"t run it yet
+      var myPrep = myColl.Add(new { name = ":1", age = ":2" });
+
+      // Binding an Iterator Object to the prepared function
+      var myIterator = MySqlX.CsvFileRowIterator().Open("foo.csv");
+      myPrep.Bind(myIterator).Run();
+
+      // Instead of using individual parameters, and iterator can also return full docs
+      var myIterator2 = MySqlX.JsonFileDocIterator().Open("bar.json");
+      myColl.Add().Bind(myIterator2).Run();
 
     }
 

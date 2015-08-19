@@ -28,8 +28,7 @@ using System.Threading.Tasks;
 using MySql;
 using MySql.DataAccess;
 using Xunit;
-
-
+using MySql.XDevAPI;
 
 namespace PortableConnectorNetTests
 {
@@ -39,8 +38,8 @@ namespace PortableConnectorNetTests
       [Fact]
       public void TestConnection()
       {
-        InternalSession session = new InternalSession("server=localhost;userid=root;password=password1234;port=33060;database=test;");
-        session.Open();  
+        Session s = MySqlX.GetSession("server=localhost;userid=userx;password=userx1;port=33060;database=test;");
+        s.GetSchemas();
 
         //var db = mysqlx.getSession( {
         //host: 'localhost', port: '33060',

@@ -25,6 +25,8 @@ using MySql.Data;
 using MySql.RoutingServices;
 using System;
 using MySql.Procotol;
+using System.Collections.Generic;
+using MySql.XDevAPI;
 
 namespace MySql.DataAccess
 {
@@ -54,15 +56,20 @@ namespace MySql.DataAccess
     public InternalSession(string connectionString)
       : this(new MySqlConnectionStringBuilder(connectionString))
     {
-      
+      Open();
     }
 
     public InternalSession()
       : this(new MySqlConnectionStringBuilder())
     {
-
+      Open();
     }
 
+    public ResultSet GetResultSet(string sql)
+    {
+      protocol.SendExecuteStatement("sql", sql, null);
+      return protocol.ReadResultSet();
+    }
 
     #region Actions
 
@@ -89,11 +96,6 @@ namespace MySql.DataAccess
     public void ExecuteReader(string query, params Parameter[] parameters)
     {
       protocol.ExecuteReader();
-    }
-
-    public int ExecuteStatement(string query, params Parameter[] parameters)
-    {
-      return protocol.ExecuteStatement();
     }
 
     public void Find()

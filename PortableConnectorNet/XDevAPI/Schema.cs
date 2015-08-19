@@ -27,11 +27,9 @@ namespace MySql.XDevAPI
 {
   public class Schema : DatabaseObject
   {
-    public Schema(BaseSession session)
+    internal Schema(BaseSession session, string name) : base(session, name)
     {
-      this.Session = session;
       this.Schema = this;
-      this.Name = session.Settings.Database;
     }
 
 
@@ -39,6 +37,7 @@ namespace MySql.XDevAPI
 
     public List<Collection> GetCollections()
     {
+
       throw new NotImplementedException();
     }
 
@@ -63,7 +62,7 @@ namespace MySql.XDevAPI
 
     public Table GetTable(string name)
     {
-      return new Table(name);
+      return new Table(this.Session, name);
     }
 
     public View GetView(string name)

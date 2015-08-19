@@ -25,6 +25,7 @@ using MySql.Data;
 using MySql.DataAccess;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MySql.XDevAPI
 {
@@ -68,23 +69,28 @@ namespace MySql.XDevAPI
     public Schema GetSchema(string schema)
     {
       internalSession.SetSchema(schema);
-      this.Schema = new Schema(this);
+      this.Schema = new Schema(this, schema);
       return this.Schema;
     }
 
     public Schema GetDefaultSchema()
     {
-      return new Schema(this);
+      return new Schema(this, "default");
     }
 
     public Schema UseDefaultSchema()
     {
-      return new Schema(this);
+      return new Schema(this, "default");
     }
 
     public List<Schema> GetSchemas()
     {
-      return new List<Schema>();
+      ResultSet resultSet = internalSession.GetResultSet("select * from information_schema.schemata");
+      resultSet.FinishLoading();
+
+      var query = from row in resultSet.Rows
+                  select new Schema(this, row.GetString("schema_name"));
+      return query.ToList<Schema>();
     }
 
     public Type GetTopologyType()
