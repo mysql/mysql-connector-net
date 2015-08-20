@@ -237,17 +237,11 @@ namespace MySql.Communication
       }
     }
 
-
-    internal override void SendPacket(IMessageLite message, int messageId)
+    internal override void SendPacket(byte[] bytes)
     {
-      int size = message.SerializedSize + 1;
-      _outStream.Write(BitConverter.GetBytes(size), 0, 4);
-      _outStream.WriteByte((byte)messageId);
-      message.WriteTo(_outStream);
+      _outStream.Write(bytes, 0, bytes.Length);
       _outStream.Flush();
     }
-
-
 
   }
 }

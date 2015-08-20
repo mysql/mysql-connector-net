@@ -76,7 +76,7 @@ namespace MySql.Communication
 
     public abstract void Close();
 
-    internal abstract void SendPacket(IMessageLite message, int messageId);
+    internal abstract void SendPacket(byte[] bytes);
      
     //protected void StartTimer(IOKind op);
 

@@ -82,7 +82,7 @@ namespace MySql.Procotol
     public abstract List<byte[]> ReadRow();
     public abstract void SendExecuteStatement(string ns, string statement, object[] args);
 
-    public abstract void Find();
+    public abstract ResultSet Find(SelectStatement statement);
 
     public abstract void Insert();
 

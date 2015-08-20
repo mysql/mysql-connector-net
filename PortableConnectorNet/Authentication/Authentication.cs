@@ -33,6 +33,7 @@ using MySql;
 using Mysqlx.Session;
 using Google.ProtocolBuffers;
 using Mysqlx;
+using System.IO;
 
 namespace MySql.Security
 {
@@ -85,7 +86,7 @@ internal abstract class AuthenticationBase : IDisposable
 
   public abstract void AuthenticateFail(Exception ex);
 
-	protected abstract byte[] GetPassword(string password, byte[] seedBytes);
+  protected abstract byte[] GetPassword(string password, byte[] seedBytes);
 
   public void Dispose()
   { }
@@ -146,7 +147,17 @@ internal class Mysql41Authentication : AuthenticationBase
     AuthenticateContinue.Builder builder = AuthenticateContinue.CreateBuilder();
     builder.SetAuthData(ByteString.CopyFrom(response));
     AuthenticateContinue authCont = builder.Build();
-    universalStream.SendPacket(authCont, (int)ClientMessageId.SESS_AUTHENTICATE_CONTINUE);
+    byte[] authenticationContinueBytes;
+    using (MemoryStream stream = new MemoryStream())
+    {
+      int size = authCont.SerializedSize + 1;
+      stream.Write(BitConverter.GetBytes(size), 0, 4);
+      stream.WriteByte((byte)ClientMessageId.SESS_AUTHENTICATE_CONTINUE);
+      authCont.WriteTo(stream);
+      authenticationContinueBytes = stream.ToArray();
+    }
+
+    universalStream.SendPacket(authenticationContinueBytes);
 
     CommunicationPacket packet = universalStream.Read();
 
