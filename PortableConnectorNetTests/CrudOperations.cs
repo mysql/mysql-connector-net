@@ -58,7 +58,7 @@ namespace MySqlX_DevAPI.Sections
     {
       Session s = MySqlX.GetSession("server=localhost;port=33060;uid=userx;password=userx1;");
       Schema schema = s.GetDefaultSchema();
-      Collection myColl = new Collection(s, schema, "default");
+      Collection myColl = new Collection(schema, "default");
 
       // Collection.add() function with hardcoded values
       myColl.Add(new { name = "Sakila", age = 15 }).Run();
@@ -80,7 +80,7 @@ namespace MySqlX_DevAPI.Sections
     {
       Session s = MySqlX.GetSession("server=localhost;port=33060;uid=userx;password=userx1;");
       Schema schema = s.GetDefaultSchema();
-      Collection myColl = new Collection(s, schema, "default");
+      Collection myColl = new Collection(schema, "default");
 
       // Only prepare a Colleciton.add() operation, but don't run it yet
       var myAdd = myColl.Add(new { name = ":1", age = ":2" });
@@ -102,7 +102,7 @@ namespace MySqlX_DevAPI.Sections
     {
       Session s = MySqlX.GetSession("server=localhost;port=33060;uid=userx;password=userx1;");
       Schema schema = s.GetDefaultSchema();
-      Collection myColl = new Collection(s, schema, "default");
+      Collection myColl = new Collection(schema, "default");
 
       // Only prepare a Collection.Add() operation, but don"t run it yet
       var myPrep = myColl.Add(new { name = ":1", age = ":2" });

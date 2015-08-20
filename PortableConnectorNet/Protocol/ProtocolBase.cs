@@ -84,9 +84,6 @@ namespace MySql.Procotol
 
     public abstract Result ReadStmtExecuteResult();
 
-    public abstract void Find();
-    public abstract ResultSet Find(SelectStatement statement);
-
     public abstract void Insert();
 
     public abstract void Update();

@@ -254,7 +254,7 @@ namespace MySql
       throw new NotImplementedException();
     }
 
-    public override ResultSet Find(SelectStatement statement)
+    public ResultSet Find(SelectStatement statement)
     {
       ResultSet result = new ResultSet();
 

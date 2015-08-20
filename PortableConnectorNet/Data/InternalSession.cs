@@ -108,7 +108,7 @@ namespace MySql.DataAccess
 
     public ResultSet Find(SelectStatement statement)
     {
-      return protocol.Find(statement);
+      return (protocol as XProtocol).Find(statement);
     }
 
     public void Insert()

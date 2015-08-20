@@ -28,8 +28,8 @@ namespace MySql.XDevAPI
   {
     private ReadQueryObject selectStatement;
 
-    public Table(BaseSession session, Schema schema, string name)
-      : base(session, schema, name)
+    public Table(Schema schema, string name)
+      : base(schema, name)
     {
       selectStatement = new ReadQueryObject(this);
     }

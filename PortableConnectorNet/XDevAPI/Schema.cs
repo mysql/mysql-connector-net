@@ -27,10 +27,13 @@ namespace MySql.XDevAPI
 {
   public class Schema : DatabaseObject
   {
-    internal Schema(BaseSession session, string name) : base(session, null, name)
+    internal Schema(BaseSession session, string name) : base(null, name)
     {
-      this.Schema = this;
+      Schema = this;
+      Session = session;
     }
+
+    public BaseSession Session { get; private set; }
 
 
     #region Browse Functions
@@ -62,7 +65,7 @@ namespace MySql.XDevAPI
 
     public Table GetTable(string name)
     {
-      return new Table(this.Session, this, name);
+      return new Table(this, name);
     }
 
     public View GetView(string name)
@@ -77,7 +80,7 @@ namespace MySql.XDevAPI
     public Collection CreateCollection(string collectionName, bool ReuseExistingObject = false)
     {
       Session.InternalSession.CreateCollection(Name, collectionName);
-      return new Collection(Session, collectionName);
+      return new Collection(this, collectionName);
     }
 
     public View CreateView(string name)

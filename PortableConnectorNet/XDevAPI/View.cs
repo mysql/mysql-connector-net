@@ -26,8 +26,8 @@ namespace MySql.XDevAPI
 {
   public class View : DatabaseObject
   {
-    internal View(BaseSession session, Schema schema, string name)
-      : base(session, schema, name)
+    internal View(Schema schema, string name)
+      : base(schema, name)
     {
 
     }

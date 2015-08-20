@@ -31,6 +31,7 @@ namespace MySql.XDevAPI
 {
   public abstract class BaseSession : IDisposable
   {
+    private InternalSession _internalSession;
     private string connectionString;
     private bool disposed = false;
 
@@ -39,24 +40,22 @@ namespace MySql.XDevAPI
       get { return InternalSession.Settings; }
     }
 
-    internal InternalSession InternalSession = null;
-
     public Schema Schema { get; protected set; }
 
     internal InternalSession InternalSession
     {
-      get { return internalSession; }
+      get { return _internalSession; }
     }
 
     public BaseSession(string connectionString)
     {
       this.connectionString = connectionString;
-      InternalSession = new InternalSession(connectionString);
+      _internalSession = new InternalSession(connectionString);
     }
 
     public BaseSession(object connectionData)
     {
-      InternalSession = new InternalSession();
+      _internalSession = new InternalSession();
       if (!connectionData.GetType().IsGenericType)
         throw new MySqlException("Connection Data format is incorrect.");
 
