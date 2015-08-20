@@ -39,7 +39,7 @@ namespace PortableConnectorNetTests
       public void TestConnection()
       {
         Session s = MySqlX.GetSession("server=localhost;userid=userx;password=userx1;port=33060;database=test;");
-        s.GetSchemas();
+        List<Schema> schemas = s.GetSchemas();
 
         //var db = mysqlx.getSession( {
         //host: 'localhost', port: '33060',

@@ -34,7 +34,6 @@ namespace MySql.Communication
 {
   internal class CommunicationTcp : UniversalStream
   {
-    internal CommunicationPacket packet;
     internal Socket socket;
 
     public override bool CanRead
@@ -67,7 +66,6 @@ namespace MySql.Communication
       _encoding = encoding;
       _inStream = new BufferedStream(stream);
       _outStream = stream;
-      packet = new CommunicationPacket();
     }
 
 
@@ -198,8 +196,12 @@ namespace MySql.Communication
 
     public override CommunicationPacket Read()
     {
-      LoadPacket();
-      return packet;
+      byte[] header = new byte[5];
+      ReadFully(_inStream, header, 0, 5);
+      int length = BitConverter.ToInt32(header, 0);
+      byte[] data = new byte[length-1];
+      ReadFully(_inStream, data, 0, length-1);
+      return new CommunicationPacket(header[4], length-1, data);
     }
 
 
@@ -217,35 +219,6 @@ namespace MySql.Communication
     public override void Flush()
     {
       throw new NotImplementedException();
-    }
-
-    private void LoadPacket()
-    {
-      try
-      {
-        _length = 0;
-        int offset = 0;
-        while (true)
-        {
-          ReadFully(_inStream, _header, offset, _header.Length);
-          _length = BitConverter.ToInt32(_header, 0);
-
-          packet.MessageType = _header[4];
-          var tempBuffer = new Byte[_length - 1];
-          ReadFully(_inStream, tempBuffer, offset, _length - 1);
-          packet.Write(tempBuffer);
-
-          // if this block was < maxBlock then it's last one in a multipacket series
-          if (_length < _maxBlockSize) break;
-          offset += _length;
-
-        }
-      }
-      catch (Exception)
-      {
-
-        throw;
-      }
     }
 
     internal static void ReadFully(Stream stream, byte[] buffer, int offset, int count)

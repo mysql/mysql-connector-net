@@ -22,6 +22,7 @@
 
 using MySql.Communication;
 using MySql.Procotol;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -31,7 +32,7 @@ namespace MySql.XDevAPI
   {
     public List<ResultRow> Rows = new List<ResultRow>();
     public List<Column> Columns = new List<Column>();
-    private Dictionary<string, int> nameMap = new Dictionary<string, int>();
+    private Dictionary<string, int> nameMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
     internal ProtocolBase<UniversalStream> Protocol;
 
     public int Position { get; private set; }
@@ -61,7 +62,7 @@ namespace MySql.XDevAPI
     private bool PageInRows()
     {
       for (int i = 0; i < PageSize; i++)
-        ReadRow();
+        if (!ReadRow()) break;
       return Position < Rows.Count;
     }
 

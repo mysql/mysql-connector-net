@@ -9,11 +9,9 @@ using Mysqlx.Session;
 using Mysqlx.Sql;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.Text;
-using System.Threading.Tasks;
 using MySql.XDevAPI;
+using MySql.Protocol.X;
 
 namespace MySql
 {
@@ -121,17 +119,11 @@ namespace MySql
 
     public override List<byte[]> ReadRow()
     {
-      byte[] buffer = pendingPacket != null ? pendingPacket.Buffer : null;
+      CommunicationPacket packet = ReadPacket();
+      ///TODO:  handle this
+      if (packet.MessageType != (int)ServerMessageId.RESULTSET_ROW) return null;
 
-      if (buffer == null)
-      {
-        CommunicationPacket packet = ReadPacket();
-        ///TODO:  handle this
-        if (packet.MessageType != (int)ServerMessageId.RESULTSET_ROW) return null;
-        buffer = packet.Buffer;
-      }
-      pendingPacket = null;
-      Row protoRow = Row.ParseFrom(buffer);
+      Row protoRow = Row.ParseFrom(packet.Buffer);
       List<byte[]> values = new List<byte[]>(protoRow.FieldCount);
       for (int i = 0; i < protoRow.FieldCount; i++)
         values.Add(protoRow.GetField(i).ToByteArray());
@@ -149,7 +141,7 @@ namespace MySql
       while (packet.MessageType == (int)ServerMessageId.RESULTSET_COLUMN_META_DATA)
       {
         ColumnMetaData response = ColumnMetaData.ParseFrom(packet.Buffer);
-        resultSet.AddColumn(new Column(response.Name.ToStringUtf8()));
+        resultSet.AddColumn(DecodeColumn(response));
         packet = ReadPacket();
       }
 
@@ -160,6 +152,39 @@ namespace MySql
         pendingPacket = packet;
       resultSet.Protocol = this;
       return resultSet;
+    }
+
+    private Column DecodeColumn(ColumnMetaData colData)
+    {
+      Column c = new Column();
+      c._decoder = XValueDecoderFactory.GetValueDecoder(colData.Type);
+      c._decoder.Column = c;
+
+      if (colData.HasName)
+        c.Name = colData.Name.ToStringUtf8();
+      if (colData.HasOriginalName)
+        c.OriginalName = colData.OriginalName.ToStringUtf8();
+      if (colData.HasTable)
+        c.Table = colData.Table.ToStringUtf8();
+      if (colData.HasOriginalTable)
+        c.OriginalTable = colData.OriginalTable.ToStringUtf8();
+      if (colData.HasSchema)
+        c.Schema = colData.Schema.ToStringUtf8();
+      if (colData.HasCatalog)
+        c.Catalog = colData.Catalog.ToStringUtf8();
+      if (colData.HasCollation)
+      {
+        c._collationNumber = colData.Collation;
+        c.Collation = CollationMap.GetCollationName((int)colData.Collation);
+      }
+      if (colData.HasLength)
+        c.Length = colData.Length;
+      if (colData.HasFractionalDigits)
+        c.FractionalDigits = colData.FractionalDigits;
+      if (colData.HasFlags)
+        c._decoder.Flags = colData.Flags;
+      c._decoder.DecodeMetadata();
+      return c;
     }
 
     public override void ExecuteReader()

@@ -47,6 +47,9 @@
     <Compile Include="Communication\CommunicationPacket.cs" />
     <Compile Include="Communication\CommunicationTcp.cs" />
     <Compile Include="Data\DataReader.cs" />
+    <Compile Include="Data\DataType.cs" />
+    <Compile Include="Data\CollationMap.cs" />
+    <Compile Include="Data\CharSetMap.cs" />
     <Compile Include="Data\Enums.cs" />
     <Compile Include="Data\Factory.cs" />
     <Compile Include="Data\InternalSession.cs" />
@@ -74,7 +77,11 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <None Include="Protocol\MySQLProtocol.cs" />
+    <Compile Include="Protocol\ValueDecoder.cs" />
     <Compile Include="Protocol\ProtocolBase.cs" />
+    <Compile Include="Protocol\X\IntegerDecoder.cs" />
+    <Compile Include="Protocol\X\ByteDecoder.cs" />
+    <Compile Include="Protocol\X\XValueDecoderFactory.cs" />
     <Compile Include="RoutingServices\DefaultRoutingService.cs" />
     <Compile Include="RoutingServices\RoutingServiceBase.cs" />
     <Compile Include="common\StringUtility.cs" />
@@ -112,6 +119,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Protocol\MySQL\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
