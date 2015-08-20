@@ -71,6 +71,14 @@ namespace MySql.DataAccess
       return protocol.ReadResultSet();
     }
 
+    public void CreateCollection(string schemaName, string collectionName)
+    {
+      protocol.SendExecuteStatement("xplugin", "create_collection", schemaName, collectionName);
+      Result r = protocol.ReadStmtExecuteResult();
+      if (r.Failed)
+        throw new MySqlException(r);
+    }
+
     #region Actions
 
     public void Open()

@@ -20,6 +20,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.XDevAPI;
 using System;
 
 namespace MySql
@@ -43,6 +44,12 @@ namespace MySql
 
     }
 
+
+    internal MySqlException(Result r) : base(r.ErrorInfo.Message)
+    {
+      Error = r.ErrorInfo;
+    }
+
     internal MySqlException(string message)
       : base(message)
     {
@@ -61,5 +68,6 @@ namespace MySql
       this.isFatal = isFatal;
     }
 
+    public Result.Error Error { get; private set; }
   }
 }

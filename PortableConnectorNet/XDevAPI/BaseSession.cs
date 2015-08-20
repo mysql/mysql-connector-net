@@ -32,13 +32,14 @@ namespace MySql.XDevAPI
   public abstract class BaseSession : IDisposable
   {
     private string connectionString;
-    private InternalSession internalSession = null;
     private bool disposed = false;
 
     public MySqlConnectionStringBuilder Settings
     {
-      get { return internalSession.Settings; }
+      get { return InternalSession.Settings; }
     }
+
+    internal InternalSession InternalSession = null;
 
     public Schema Schema { get; protected set; }
 
@@ -46,12 +47,12 @@ namespace MySql.XDevAPI
     public BaseSession(string connectionString)
     {
       this.connectionString = connectionString;
-      internalSession = new InternalSession(connectionString);
+      InternalSession = new InternalSession(connectionString);
     }
 
     public BaseSession(object connectionData)
     {
-      internalSession = new InternalSession();
+      InternalSession = new InternalSession();
       if (!connectionData.GetType().IsGenericType)
         throw new MySqlException("Connection Data format is incorrect.");
 
@@ -68,7 +69,7 @@ namespace MySql.XDevAPI
 
     public Schema GetSchema(string schema)
     {
-      internalSession.SetSchema(schema);
+      InternalSession.SetSchema(schema);
       this.Schema = new Schema(this, schema);
       return this.Schema;
     }
@@ -85,7 +86,7 @@ namespace MySql.XDevAPI
 
     public List<Schema> GetSchemas()
     {
-      ResultSet resultSet = internalSession.GetResultSet("select * from information_schema.schemata");
+      ResultSet resultSet = InternalSession.GetResultSet("select * from information_schema.schemata");
       resultSet.FinishLoading();
 
       var query = from row in resultSet.Rows
@@ -124,7 +125,7 @@ namespace MySql.XDevAPI
       {
         // Free any other managed objects here. 
         //
-        if (internalSession != null) internalSession.Dispose();
+        if (InternalSession != null) InternalSession.Dispose();
       }
 
       // Free any unmanaged objects here. 

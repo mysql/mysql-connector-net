@@ -55,6 +55,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BaseTest.cs" />
+    <Compile Include="CollectionTests.cs" />
+    <Compile Include="SchemaTests.cs" />
     <Compile Include="Sessions.cs" />
     <Compile Include="ConnectionTests.cs" />
     <Compile Include="CrudOperations.cs" />

@@ -80,7 +80,9 @@ namespace MySql.Procotol
 
     public abstract ResultSet ReadResultSet();
     public abstract List<byte[]> ReadRow();
-    public abstract void SendExecuteStatement(string ns, string statement, object[] args);
+    public abstract void SendExecuteStatement(string ns, string statement, params object[] args);
+
+    public abstract Result ReadStmtExecuteResult();
 
     public abstract void Find();
 

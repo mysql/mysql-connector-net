@@ -74,9 +74,10 @@ namespace MySql.XDevAPI
 
     #region Create Functions
 
-    public Collection CreateCollection(string name, bool ReuseExistingObject = false)
+    public Collection CreateCollection(string collectionName, bool ReuseExistingObject = false)
     {
-      throw new NotImplementedException();
+      Session.InternalSession.CreateCollection(Name, collectionName);
+      return new Collection(Session, collectionName);
     }
 
     public View CreateView(string name)

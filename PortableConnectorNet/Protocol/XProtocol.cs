@@ -12,6 +12,8 @@ using System.Collections.Generic;
 using System.Text;
 using MySql.XDevAPI;
 using MySql.Protocol.X;
+using Mysqlx.Datatypes;
+using Mysqlx;
 
 namespace MySql
 {
@@ -97,9 +99,30 @@ namespace MySql
 
     private CommunicationPacket ReadPacket()
     {
-      CommunicationPacket p = pendingPacket != null ? pendingPacket : baseStream.Read();
-      pendingPacket = null;
-      return p;
+      while (true)
+      {
+        CommunicationPacket p = pendingPacket != null ? pendingPacket : baseStream.Read();
+        pendingPacket = null;
+        if (p.MessageType != (int)ServerMessageId.NOTICE) return p;
+        ProcessNotice(p);
+      }
+    }
+
+    private void ProcessNotice(CommunicationPacket packet)
+    {
+
+    }
+
+    private Any CreateAny(object arg)
+    {
+      if (arg is string)
+      {
+        Scalar.Types.String stringValue = Scalar.Types.String.CreateBuilder().SetValue(ByteString.CopyFromUtf8(arg as string)).Build();
+        Scalar scalarValue = Scalar.CreateBuilder().SetType(Scalar.Types.Type.V_STRING).SetVString(stringValue).Build();
+        return Any.CreateBuilder().SetType(Any.Types.Type.SCALAR).SetScalar(scalarValue).Build();
+      }
+      ///TODO: handle other data types
+      return null;
     }
 
     public override void SendExecuteStatement(string ns, string stmt, params object[] args)
@@ -108,13 +131,29 @@ namespace MySql
       stmtExecute.SetNamespace(ns);
       stmtExecute.SetStmt(ByteString.CopyFromUtf8(stmt));
       stmtExecute.SetCompactMetadata(false);
-      //      Scalar.Types.String stringValue = Scalar.Types.String.CreateBuilder().SetValue(ByteString.CopyFromUtf8("sakila")).Build();
-      //    Scalar scalarValue = Scalar.CreateBuilder().SetType(Scalar.Types.Type.V_STRING).SetVString(stringValue).Build();
-      //  Any a = Any.CreateBuilder().SetType(Any.Types.Type.SCALAR).SetScalar(scalarValue).Build();
-      //stmtExecute.AddArgs(a);
+      foreach (object arg in args)
+        stmtExecute.AddArgs(CreateAny(arg));
       StmtExecute msg = stmtExecute.Build();
 
       baseStream.SendPacket(msg, (int)ClientMessageId.SQL_STMT_EXECUTE);
+    }
+
+    public override Result ReadStmtExecuteResult()
+    {
+      Result r = new Result();
+      CommunicationPacket p = ReadPacket();
+      if (p.MessageType == (int)ServerMessageId.ERROR)
+      {
+        Error e = Error.ParseFrom(p.Buffer);
+        Result.Error re = new Result.Error();
+        re.Code = e.Code;
+        re.SqlState = e.SqlState;
+        re.Message = e.Msg;
+        r.ErrorInfo = re;
+      }
+      else if (p.MessageType != (int)ServerMessageId.SQL_STMT_EXECUTE_OK)
+        throw new MySqlException("Unexpected message type: " + p.MessageType);
+      return r;
     }
 
     public override List<byte[]> ReadRow()

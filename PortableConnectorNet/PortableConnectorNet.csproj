@@ -90,6 +90,7 @@
     <Compile Include="XDevAPI\Column.cs" />
     <Compile Include="XDevAPI\DatabaseObject.cs" />
     <Compile Include="Protocol\XProtocol.cs" />
+    <Compile Include="XDevAPI\Result.cs" />
     <Compile Include="XDevAPI\ResultSet.cs" />
     <Compile Include="XDevAPI\Row.cs" />
     <Compile Include="XDevAPI\SelectStatement.cs" />
