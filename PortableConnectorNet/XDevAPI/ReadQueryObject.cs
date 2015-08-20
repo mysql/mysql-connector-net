@@ -91,8 +91,9 @@ namespace MySql.XDevAPI
         where = where,
         orderBy = orderBy
       };
-      var result = databaseObject.Schema.Session.InternalSession.Find(statement);
-      return result;
+      return null;
+//      var result = databaseObject.Schema.Session.XSession.Find(statement);
+  //    return result;
     }
 
   }

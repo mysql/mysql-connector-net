@@ -23,110 +23,83 @@
 using Google.ProtocolBuffers;
 using MySql.Communication;
 using MySql.Data;
-using MySql.DataAccess;
-using MySql.Procotol;
-using MySql.Security;
 using Mysqlx.Resultset;
 using Mysqlx.Session;
 using Mysqlx.Sql;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using MySql.XDevAPI;
 using MySql.Protocol.X;
 using crud = Mysqlx.Crud;
 using Mysqlx.Expr;
-using System.IO;
 using Mysqlx.Datatypes;
 using Mysqlx;
+using System.Diagnostics;
 
-namespace MySql
+namespace MySql.Protocol
 {
-  internal class XProtocol : ProtocolBase<UniversalStream>
+  internal class XProtocol : ProtocolBase
   {
     private CommunicationPacket pendingPacket;
+    private XPacketReaderWriter _reader;
+    private XPacketReaderWriter _writer;
 
-    public XProtocol(MySqlConnectionStringBuilder sessionSettings, string authMode)
-      : base(sessionSettings, authMode)
-    {  }
-
-
-    public override void OpenConnection()
+    public XProtocol(XPacketReaderWriter reader, XPacketReaderWriter writer)
     {
-      try
+      _reader = reader;
+      _writer = writer;
+    }
+
+    #region Authentication
+
+    public void SendAuthStart(string method)
+    {
+      AuthenticateStart.Builder authStart = AuthenticateStart.CreateBuilder();
+      authStart.SetMechName(method);
+      AuthenticateStart message = authStart.Build();
+      _writer.Write(ClientMessageId.SESS_AUTHENTICATE_START, message);
+    }
+
+    public byte[] ReadAuthContinue()
+    {
+      CommunicationPacket p = ReadPacket();
+      if (p.MessageType != (int)ServerMessageId.SESS_AUTHENTICATE_CONTINUE)
+        throw new MySqlException("Unexpected message encountered during authentication handshake");
+      AuthenticateContinue response = AuthenticateContinue.ParseFrom(p.Buffer);
+      if (response.HasAuthData)
+        return response.AuthData.ToByteArray();
+      return null;
+    }
+
+    public void SendAuthContinue(byte[] data)
+    {
+      Debug.Assert(data != null);
+      AuthenticateContinue.Builder builder = AuthenticateContinue.CreateBuilder();
+      builder.SetAuthData(ByteString.CopyFrom(data));
+      AuthenticateContinue authCont = builder.Build();
+      _writer.Write(ClientMessageId.SESS_AUTHENTICATE_CONTINUE, authCont);
+    }
+
+    public void ReadAuthOk()
+    {
+      CommunicationPacket p = ReadPacket();
+      if (p.MessageType == (int)ServerMessageId.ERROR)
       {
-        UniversalStream._networkStream = CommunicationTcp.CreateStream(settings, false);       
+        var error = Error.ParseFrom(p.Buffer);
+        throw new MySqlException("Unable to connect: " + error.Msg);
       }
-      catch (System.Security.SecurityException)
-      {
-        throw;
-      }
-      catch
-      {
-        throw new Exception("Unable to connect to host");
-      }
-
-      if (UniversalStream._networkStream == null)
-        throw new Exception("Unable to connect to host");
-
-
-      settings.CharacterSet = String.IsNullOrWhiteSpace(settings.CharacterSet) ? "UTF-8" : settings.CharacterSet;
-
-      var encoding = Encoding.GetEncoding(settings.CharacterSet);
-
-      baseStream = new CommunicationTcp(UniversalStream._networkStream, encoding, false);
-
-      if (_authMode.Equals("MYSQL41"))
-      {
-        authenticationPlugin = new Mysql41Authentication(baseStream, settings);
-      }      
-
-      if (authenticationPlugin.AuthenticationMode == AuthenticationMode.MySQL41)
-      {
-        AuthenticateStart.Builder authStart = AuthenticateStart.CreateBuilder();       
-        authStart.SetMechName("MYSQL41");
-        AuthenticateStart message = authStart.Build();
-        SendPacket(message, (int)ClientMessageId.SESS_AUTHENTICATE_START);
-
-        CommunicationPacket packet = ReadPacket();
-
-        if (packet.MessageType == (int)ServerMessageId.SESS_AUTHENTICATE_CONTINUE)
-        {
-          AuthenticateContinue response = AuthenticateContinue.ParseFrom(packet.Buffer);
-          AuthenticateOk authOK = authenticationPlugin.Authenticate(false, response);
-          if (authOK == null)
-          {
-            throw new MySqlException("Failed authentication");
-          }
-        }
-      }      
+      if (p.MessageType != (int)ServerMessageId.SESS_AUTHENTICATE_OK)
+        throw new MySqlException("Unexpected message encountered during authentication handshake");
     }
 
-    public override void CloseConnection()
-    {
-      throw new NotImplementedException();
-    }
+    #endregion
 
-    public override void ExecuteBatch()
-    {
-      throw new NotImplementedException();
-    }
-
-    public override void Delete()
-    {
-      throw new NotImplementedException();
-    }
-
-    public override void ExecutePrepareStatement()
-    {
-      throw new NotImplementedException();
-    }
 
     private CommunicationPacket ReadPacket()
     {
       while (true)
       {
-        CommunicationPacket p = pendingPacket != null ? pendingPacket : baseStream.Read();
+        CommunicationPacket p = pendingPacket != null ? pendingPacket : _reader.Read();
         pendingPacket = null;
         if (p.MessageType != (int)ServerMessageId.NOTICE) return p;
         ProcessNotice(p);
@@ -150,20 +123,23 @@ namespace MySql
       return null;
     }
 
-    public override void SendExecuteStatement(string ns, string stmt, params object[] args)
+    public void SendExecuteStatement(string ns, string stmt, params object[] args)
     {
       StmtExecute.Builder stmtExecute = StmtExecute.CreateBuilder();
       stmtExecute.SetNamespace(ns);
       stmtExecute.SetStmt(ByteString.CopyFromUtf8(stmt));
       stmtExecute.SetCompactMetadata(false);
-      foreach (object arg in args)
-        stmtExecute.AddArgs(CreateAny(arg));
+      if (args != null)
+      {
+        foreach (object arg in args)
+          stmtExecute.AddArgs(CreateAny(arg));
+      }
       StmtExecute msg = stmtExecute.Build();
 
-      SendPacket(msg, (int)ClientMessageId.SQL_STMT_EXECUTE);
+      _writer.Write(ClientMessageId.SQL_STMT_EXECUTE, msg);
     }
 
-    public override Result ReadStmtExecuteResult()
+    public Result ReadStmtExecuteResult()
     {
       Result r = new Result();
       CommunicationPacket p = ReadPacket();
@@ -194,7 +170,7 @@ namespace MySql
       return values;
     }
 
-    public override ResultSet ReadResultSet()
+    public ResultSet ReadResultSet()
     {
       CommunicationPacket packet = ReadMessageHeader(ServerMessageId.RESULTSET_COLUMN_META_DATA);
       ResultSet resultSet = new ResultSet();
@@ -249,11 +225,6 @@ namespace MySql
       return c;
     }
 
-    public override void ExecuteReader()
-    {
-      throw new NotImplementedException();
-    }
-
     public ResultSet Find(SelectStatement statement)
     {
       ResultSet result = new ResultSet();
@@ -281,43 +252,15 @@ namespace MySql
       // :param order:
 
       // :param grouping:
-      
+
       // :param grouping_criteria:
 
 
       Mysqlx.Crud.Find message = builder.Build();
-      SendPacket(message, (int)ClientMessageId.CRUD_FIND);
+      _writer.Write(ClientMessageId.CRUD_FIND, message);
       return ReadResultSet();
     }
 
-    public override void Update()
-    {
-      throw new NotImplementedException();
-    }
-
-    public override void Insert()
-    {
-      throw new NotImplementedException();
-    }
-
-    public override void Reset()
-    {
-      throw new NotImplementedException();
-    }
-
-    internal void SendPacket(IMessageLite message, int messageId)
-    {
-      using (MemoryStream stream = new MemoryStream())
-      {
-        int size = message.SerializedSize + 1;
-        stream.Write(BitConverter.GetBytes(size), 0, 4);
-        stream.WriteByte((byte)messageId);
-        message.WriteTo(stream);
-        stream.Flush();
-
-        baseStream.SendPacket(stream.ToArray());
-      }
-    }
 
     internal CommunicationPacket ReadMessageHeader(ServerMessageId expectedServerMessage)
     {

@@ -21,7 +21,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.Communication;
-using MySql.Procotol;
+using MySql.Protocol;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -33,8 +33,8 @@ namespace MySql.XDevAPI
     public List<ResultRow> Rows = new List<ResultRow>();
     public List<Column> Columns = new List<Column>();
     private Dictionary<string, int> nameMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-    internal ProtocolBase<UniversalStream> Protocol;
 
+    internal ProtocolBase Protocol;
     public int Position { get; private set; }
     public int PageSize { get; private set; }
 
@@ -68,6 +68,7 @@ namespace MySql.XDevAPI
 
     private bool ReadRow()
     {
+      ///TODO:  fix this
       List<byte[]> values = Protocol.ReadRow();
       if (values == null) return false;
       Debug.Assert(values.Count == Columns.Count, "Value count does not equal column count");

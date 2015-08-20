@@ -194,48 +194,7 @@ namespace MySql.Communication
 
 
 
-    public override CommunicationPacket Read()
-    {
-      byte[] header = new byte[5];
-      ReadFully(_inStream, header, 0, 5);
-      int length = BitConverter.ToInt32(header, 0);
-      byte[] data = new byte[length-1];
-      ReadFully(_inStream, data, 0, length-1);
-      return new CommunicationPacket(header[4], length-1, data);
-    }
 
-
-    public override void Write()
-    {
-      throw new NotImplementedException();
-    }
-
-
-    public override void Close()
-    {
-      throw new NotImplementedException();
-    }
-
-    public override void Flush()
-    {
-      throw new NotImplementedException();
-    }
-
-    internal static void ReadFully(Stream stream, byte[] buffer, int offset, int count)
-    {
-      int numRead = 0;
-      int numToRead = count;
-      while (numToRead > 0)
-      {
-        int read = stream.Read(buffer, offset + numRead, numToRead);
-        if (read == 0)
-        {
-          throw new EndOfStreamException();
-        }
-        numRead += read;
-        numToRead -= read;
-      }
-    }
 
     internal override void SendPacket(byte[] bytes)
     {

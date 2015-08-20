@@ -29,78 +29,11 @@ using System.Collections.Generic;
 using System.Net;
 
 
-namespace MySql.Procotol
+namespace MySql.Protocol
 {
-  internal abstract class ProtocolBase<UniversalStream>
+  internal abstract class ProtocolBase
   {
-    protected UniversalStream baseStream;
-    protected string _authMode;
-    protected MySqlConnectionStringBuilder settings;
-    internal AuthenticationBase authenticationPlugin;
-
-    public ProtocolBase(MySqlConnectionStringBuilder sessionSettings, string authMode)
-    {
-      authenticationPlugin = null;
-
-      settings = sessionSettings;
-      _authMode = authMode;      
-    }
-
-    protected static IPHostEntry GetHostEntry(string hostname)
-    {
-      IPHostEntry ipHE = ParseIPAddress(hostname);
-      if (ipHE != null) return ipHE;
-      return Dns.GetHostEntry(hostname);
-    }
-
-    protected static IPHostEntry ParseIPAddress(string hostname)
-    {
-      IPHostEntry ipHE = null;
-#if !CF
-      IPAddress addr;
-      if (IPAddress.TryParse(hostname, out addr))
-      {
-        ipHE = new IPHostEntry();
-        ipHE.AddressList = new IPAddress[1];
-        ipHE.AddressList[0] = addr;
-      }
-#endif
-      return ipHE;
-    }
-
-    #region Actions
-
-    public abstract void OpenConnection();
-
-    public abstract void CloseConnection();
-
-    public abstract void ExecutePrepareStatement();
-
-    public abstract void ExecuteReader();
-
-    public abstract ResultSet ReadResultSet();
     public abstract List<byte[]> ReadRow();
-    public abstract void SendExecuteStatement(string ns, string statement, params object[] args);
 
-    public abstract Result ReadStmtExecuteResult();
-
-    public abstract void Insert();
-
-    public abstract void Update();
-
-    public abstract void Delete();
-
-    public abstract void Reset();
-
-    public abstract void ExecuteBatch();
-
-    #endregion
-
-
-    #region InternalMethods
-
-
-
-    #endregion
   }
 }

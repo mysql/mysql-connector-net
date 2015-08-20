@@ -45,14 +45,13 @@
     <Compile Include="common\Platform.cs" />
     <Compile Include="common\Tools.cs" />
     <Compile Include="Communication\CommunicationPacket.cs" />
-    <Compile Include="Communication\CommunicationTcp.cs" />
+    <Compile Include="Communication\MyNetworkStream.cs" />
+    <Compile Include="Communication\XPacketReaderWriter.cs" />
     <Compile Include="Data\DataReader.cs" />
     <Compile Include="Data\DataType.cs" />
     <Compile Include="Data\CollationMap.cs" />
     <Compile Include="Data\CharSetMap.cs" />
     <Compile Include="Data\Enums.cs" />
-    <Compile Include="Data\Factory.cs" />
-    <Compile Include="Data\InternalSession.cs" />
     <Compile Include="Data\SelectStatement.cs" />
     <Compile Include="Data\Statement.cs" />
     <Compile Include="Message\MysqlxResultset.cs" />
@@ -79,8 +78,8 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <None Include="Protocol\MySQLProtocol.cs" />
-    <Compile Include="Protocol\ValueDecoder.cs" />
     <Compile Include="Protocol\ProtocolBase.cs" />
+    <Compile Include="Protocol\ValueDecoder.cs" />
     <Compile Include="Protocol\X\IntegerDecoder.cs" />
     <Compile Include="Protocol\X\ByteDecoder.cs" />
     <Compile Include="Protocol\X\XValueDecoderFactory.cs" />
@@ -89,6 +88,8 @@
     <Compile Include="common\StringUtility.cs" />
     <Compile Include="Communication\UniversalStream.cs" />
     <Compile Include="Properties\VersionInfo.cs" />
+    <Compile Include="Session\InternalSession.cs" />
+    <Compile Include="Session\XInternalSession.cs" />
     <Compile Include="XDevAPI\Column.cs" />
     <Compile Include="XDevAPI\DatabaseObject.cs" />
     <Compile Include="Protocol\XProtocol.cs" />

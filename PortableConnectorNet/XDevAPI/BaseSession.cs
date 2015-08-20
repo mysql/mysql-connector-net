@@ -22,7 +22,7 @@
 
 using MySql.common;
 using MySql.Data;
-using MySql.DataAccess;
+using MySql.Session;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,10 +35,7 @@ namespace MySql.XDevAPI
     private string connectionString;
     private bool disposed = false;
 
-    public MySqlConnectionStringBuilder Settings
-    {
-      get { return InternalSession.Settings; }
-    }
+    public MySqlConnectionStringBuilder Settings { get; private set; }
 
     public Schema Schema { get; protected set; }
 
@@ -47,15 +44,20 @@ namespace MySql.XDevAPI
       get { return _internalSession; }
     }
 
+    internal XInternalSession XSession
+    {
+      get { return InternalSession as XInternalSession; }
+    }
+
     public BaseSession(string connectionString)
     {
       this.connectionString = connectionString;
-      _internalSession = new InternalSession(connectionString);
+      Settings = new MySqlConnectionStringBuilder(connectionString);
+      _internalSession = InternalSession.GetSession(Settings);
     }
 
     public BaseSession(object connectionData)
     {
-      _internalSession = new InternalSession();
       if (!connectionData.GetType().IsGenericType)
         throw new MySqlException("Connection Data format is incorrect.");
 
@@ -67,6 +69,7 @@ namespace MySql.XDevAPI
         Settings.SetValue(value.Key, value.Value);
       }
       this.connectionString = Settings.ToString();
+      _internalSession = InternalSession.GetSession(Settings);
     }
 
 
@@ -89,7 +92,7 @@ namespace MySql.XDevAPI
 
     public List<Schema> GetSchemas()
     {
-      ResultSet resultSet = InternalSession.GetResultSet("select * from information_schema.schemata");
+      ResultSet resultSet = XSession.GetResultSet("select * from information_schema.schemata");
       resultSet.FinishLoading();
 
       var query = from row in resultSet.Rows

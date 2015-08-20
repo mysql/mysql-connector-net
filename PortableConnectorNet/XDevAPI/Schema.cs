@@ -79,7 +79,7 @@ namespace MySql.XDevAPI
 
     public Collection CreateCollection(string collectionName, bool ReuseExistingObject = false)
     {
-      Session.InternalSession.CreateCollection(Name, collectionName);
+      Session.XSession.CreateCollection(Name, collectionName);
       return new Collection(this, collectionName);
     }
 
