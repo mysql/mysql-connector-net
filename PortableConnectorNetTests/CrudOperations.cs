@@ -21,6 +21,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.XDevAPI;
+using System.Collections.Generic;
 using Xunit;
 
 namespace MySqlX_DevAPI.Sections
@@ -30,14 +31,17 @@ namespace MySqlX_DevAPI.Sections
     [Fact]
     public void TableSelect()
     {
-      Session s = MySqlX.GetSession("server=localhost;port=33060;uid=userx;password=userx1;");
-      Schema db = s.GetDefaultSchema();
-      var employees = db.GetTable("employee");
+      Session s = MySqlX.GetSession("server=127.0.0.1;port=33060;uid=userx;password=userx1;");
+      Schema db = s.GetSchema("testx");
+      var employees = db.GetTable("employees");
 
-      var res = employees.Select("name", "age")
-        .Where("name like ?")
-        .OrderBy("name")
-        .Bind("m%").Execute();
+      var res = employees.Select("name")//, "age")
+        //.Where("name like :name")
+        //.OrderBy("name")
+        //.Bind(parameters)
+        .Execute();
+
+      Assert.Equal(2, res.Rows.Count);
     }
 
     [Fact]
@@ -53,7 +57,8 @@ namespace MySqlX_DevAPI.Sections
     public void ParameterBinding()
     {
       Session s = MySqlX.GetSession("server=localhost;port=33060;uid=userx;password=userx1;");
-      Collection myColl = new Collection(s, "default");
+      Schema schema = s.GetDefaultSchema();
+      Collection myColl = new Collection(s, schema, "default");
 
       // Collection.add() function with hardcoded values
       myColl.Add(new { name = "Sakila", age = 15 }).Run();
@@ -74,7 +79,8 @@ namespace MySqlX_DevAPI.Sections
     public void PreparingCrudStatements()
     {
       Session s = MySqlX.GetSession("server=localhost;port=33060;uid=userx;password=userx1;");
-      Collection myColl = new Collection(s, "default");
+      Schema schema = s.GetDefaultSchema();
+      Collection myColl = new Collection(s, schema, "default");
 
       // Only prepare a Colleciton.add() operation, but don't run it yet
       var myAdd = myColl.Add(new { name = ":1", age = ":2" });
@@ -95,7 +101,8 @@ namespace MySqlX_DevAPI.Sections
     public void UsingIteratorsToBindParameterValues()
     {
       Session s = MySqlX.GetSession("server=localhost;port=33060;uid=userx;password=userx1;");
-      Collection myColl = new Collection(s, "default");
+      Schema schema = s.GetDefaultSchema();
+      Collection myColl = new Collection(s, schema, "default");
 
       // Only prepare a Collection.Add() operation, but don"t run it yet
       var myPrep = myColl.Add(new { name = ":1", age = ":2" });

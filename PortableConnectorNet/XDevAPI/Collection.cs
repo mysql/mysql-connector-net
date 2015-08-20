@@ -27,7 +27,8 @@ namespace MySql.XDevAPI
 {
   public class Collection : DatabaseObject
   {
-    internal Collection(BaseSession session, string name) : base(session, name)
+    internal Collection(BaseSession session, Schema schema, string name)
+      : base(session, schema, name)
     {
 
     }

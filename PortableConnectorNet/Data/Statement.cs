@@ -20,54 +20,20 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
+using System.Collections.Generic;
 
-namespace MySql.XDevAPI
+namespace MySql.Data
 {
-  public class Table : DatabaseObject
+  internal abstract class Statement
   {
-    private ReadQueryObject selectStatement;
+    internal string schema = null;
+    internal string table = null;
+    internal bool isTable = true;
 
-    public Table(BaseSession session, Schema schema, string name)
-      : base(session, schema, name)
-    {
-      selectStatement = new ReadQueryObject(this);
-    }
+    internal List<string> columns;
+    internal Dictionary<string, object> parameters;
+    internal string where = null;
 
-
-    public ReadQueryObject Select(params string[] parameters)
-    {
-      return selectStatement.Select(parameters);
-    }
-
-    public ResultSet Execute()
-    {
-      return selectStatement.Execute();
-    }
-
-    public Table Execute(Action<Exception, object> function)
-    {
-      throw new NotImplementedException();
-    }
-
-    public Table Insert()
-    {
-      throw new NotImplementedException();
-    }
-
-    public Table Update()
-    {
-      throw new NotImplementedException();
-    }
-
-    public Table Delete()
-    {
-      throw new NotImplementedException();
-    }
-
-    public override bool ExistsInDatabase()
-    {
-      throw new NotImplementedException();
-    }
+    internal string query = null;
   }
 }

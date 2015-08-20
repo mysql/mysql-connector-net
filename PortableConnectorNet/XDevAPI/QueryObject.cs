@@ -23,7 +23,7 @@
 
 namespace MySql.XDevAPI
 {
-  public abstract class Statement
+  public abstract class QueryObject
   {
   }
 }

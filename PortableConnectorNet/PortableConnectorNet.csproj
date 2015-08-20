@@ -53,6 +53,8 @@
     <Compile Include="Data\Enums.cs" />
     <Compile Include="Data\Factory.cs" />
     <Compile Include="Data\InternalSession.cs" />
+    <Compile Include="Data\SelectStatement.cs" />
+    <Compile Include="Data\Statement.cs" />
     <Compile Include="Message\MysqlxResultset.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Authentication\Authentication.cs" />
@@ -90,10 +92,11 @@
     <Compile Include="XDevAPI\Column.cs" />
     <Compile Include="XDevAPI\DatabaseObject.cs" />
     <Compile Include="Protocol\XProtocol.cs" />
+    <Compile Include="XDevAPI\QueryObject.cs" />
+    <Compile Include="XDevAPI\ReadQueryObject.cs" />
     <Compile Include="XDevAPI\Result.cs" />
     <Compile Include="XDevAPI\ResultSet.cs" />
     <Compile Include="XDevAPI\Row.cs" />
-    <Compile Include="XDevAPI\SelectStatement.cs" />
     <Compile Include="XDevAPI\Session.cs" />
     <Compile Include="XDevAPI\Collection.cs" />
     <Compile Include="XDevAPI\Iterator.cs" />
@@ -102,7 +105,6 @@
     <Compile Include="XDevAPI\NodeSession.cs" />
     <Compile Include="XDevAPI\Schema.cs" />
     <Compile Include="XDevAPI\BaseSession.cs" />
-    <Compile Include="XDevAPI\Statement.cs" />
     <Compile Include="XDevAPI\Table.cs" />
     <Compile Include="XDevAPI\TopologySingleNode.cs" />
     <Compile Include="XDevAPI\View.cs" />

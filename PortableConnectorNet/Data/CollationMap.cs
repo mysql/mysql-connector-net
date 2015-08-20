@@ -41,6 +41,7 @@ namespace MySql.Data
     private static void Load()
     {
       collations.Add(33, "utf8");
+      collations.Add(8, "1252");
     }
   }
 }

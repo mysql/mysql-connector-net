@@ -20,44 +20,12 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
 using System.Collections.Generic;
 
-namespace MySql.XDevAPI
+namespace MySql.Data
 {
-  public class SelectStatement : Statement
+  internal class SelectStatement : Statement
   {
-    private List<string> projection;
-
-    private string where = null;
-
-
-    public SelectStatement Select(params string[] columns)
-    {
-      projection = new List<string>(columns);
-      return this;
-    }
-
-    public SelectStatement Where(string condition)
-    {
-      where = condition;
-      return this;
-    }
-
-    public SelectStatement OrderBy(string p)
-    {
-      throw new NotImplementedException();
-    }
-
-    public SelectStatement Bind(params string[] parameters)
-    {
-      throw new NotImplementedException();
-    }
-
-    public ResultSet Execute()
-    {
-      throw new NotImplementedException();
-    }
-
+    internal List<string> orderBy = null;
   }
 }

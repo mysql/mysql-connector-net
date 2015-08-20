@@ -43,6 +43,10 @@ namespace MySql.XDevAPI
 
     public Schema Schema { get; protected set; }
 
+    internal InternalSession InternalSession
+    {
+      get { return internalSession; }
+    }
 
     public BaseSession(string connectionString)
     {

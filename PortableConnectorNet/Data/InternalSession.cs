@@ -106,9 +106,9 @@ namespace MySql.DataAccess
       protocol.ExecuteReader();
     }
 
-    public void Find()
+    public ResultSet Find(SelectStatement statement)
     {
-      protocol.Find();
+      return protocol.Find(statement);
     }
 
     public void Insert()

@@ -1,4 +1,26 @@
-﻿using Google.ProtocolBuffers;
+﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+//
+// MySQL Connector/NET is licensed under the terms of the GPLv2
+// <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
+// MySQL Connectors. There are special exceptions to the terms and 
+// conditions of the GPLv2 as it is applied to this software, see the 
+// FLOSS License Exception
+// <http://www.mysql.com/about/legal/licensing/foss-exception.html>.
+//
+// This program is free software; you can redistribute it and/or modify 
+// it under the terms of the GNU General Public License as published 
+// by the Free Software Foundation; version 2 of the License.
+//
+// This program is distributed in the hope that it will be useful, but 
+// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+// or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
+// for more details.
+//
+// You should have received a copy of the GNU General Public License along 
+// with this program; if not, write to the Free Software Foundation, Inc., 
+// 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
+
+using Google.ProtocolBuffers;
 using MySql.Communication;
 using MySql.Data;
 using MySql.DataAccess;
@@ -12,6 +34,9 @@ using System.Collections.Generic;
 using System.Text;
 using MySql.XDevAPI;
 using MySql.Protocol.X;
+using crud = Mysqlx.Crud;
+using Mysqlx.Expr;
+using System.IO;
 using Mysqlx.Datatypes;
 using Mysqlx;
 
@@ -61,7 +86,7 @@ namespace MySql
         AuthenticateStart.Builder authStart = AuthenticateStart.CreateBuilder();       
         authStart.SetMechName("MYSQL41");
         AuthenticateStart message = authStart.Build();
-        baseStream.SendPacket(message, (int)ClientMessageId.SESS_AUTHENTICATE_START);
+        SendPacket(message, (int)ClientMessageId.SESS_AUTHENTICATE_START);
 
         CommunicationPacket packet = ReadPacket();
 
@@ -135,7 +160,7 @@ namespace MySql
         stmtExecute.AddArgs(CreateAny(arg));
       StmtExecute msg = stmtExecute.Build();
 
-      baseStream.SendPacket(msg, (int)ClientMessageId.SQL_STMT_EXECUTE);
+      SendPacket(msg, (int)ClientMessageId.SQL_STMT_EXECUTE);
     }
 
     public override Result ReadStmtExecuteResult()
@@ -171,10 +196,8 @@ namespace MySql
 
     public override ResultSet ReadResultSet()
     {
+      CommunicationPacket packet = ReadMessageHeader(ServerMessageId.RESULTSET_COLUMN_META_DATA);
       ResultSet resultSet = new ResultSet();
-      CommunicationPacket packet = ReadPacket();
-      if (packet.MessageType != (int)ServerMessageId.RESULTSET_COLUMN_META_DATA)
-        throw new MySqlException("Failed to recieve column metadata packet");
 
       // read the metadata
       while (packet.MessageType == (int)ServerMessageId.RESULTSET_COLUMN_META_DATA)
@@ -231,9 +254,40 @@ namespace MySql
       throw new NotImplementedException();
     }
 
-    public override void Find()
+    public override ResultSet Find(SelectStatement statement)
     {
-      throw new NotImplementedException();
+      ResultSet result = new ResultSet();
+
+      Mysqlx.Crud.Find.Builder builder = Mysqlx.Crud.Find.CreateBuilder();
+      // :param collection:
+      builder.SetCollection(Mysqlx.Crud.Collection.CreateBuilder()
+        .SetSchema(statement.schema)
+        .SetName(statement.table));
+      // :param data_model:
+      builder.SetDataModel(statement.isTable ? crud.DataModel.TABLE : crud.DataModel.DOCUMENT);
+      // :param projection:
+      foreach (string columnName in statement.columns)
+      {
+        builder.AddProjection(crud.Projection.CreateBuilder()
+          .SetSource(Expr.CreateBuilder()
+            .SetType(Expr.Types.Type.IDENT)
+            .SetIdentifier(ColumnIdentifier.CreateBuilder()
+              .SetName(columnName))));
+      }
+      // :param criteria:
+
+      // :param limit:
+
+      // :param order:
+
+      // :param grouping:
+      
+      // :param grouping_criteria:
+
+
+      Mysqlx.Crud.Find message = builder.Build();
+      SendPacket(message, (int)ClientMessageId.CRUD_FIND);
+      return ReadResultSet();
     }
 
     public override void Update()
@@ -251,5 +305,35 @@ namespace MySql
       throw new NotImplementedException();
     }
 
+    internal void SendPacket(IMessageLite message, int messageId)
+    {
+      using (MemoryStream stream = new MemoryStream())
+      {
+        int size = message.SerializedSize + 1;
+        stream.Write(BitConverter.GetBytes(size), 0, 4);
+        stream.WriteByte((byte)messageId);
+        message.WriteTo(stream);
+        stream.Flush();
+
+        baseStream.SendPacket(stream.ToArray());
+      }
+    }
+
+    internal CommunicationPacket ReadMessageHeader(ServerMessageId expectedServerMessage)
+    {
+      CommunicationPacket packet = ReadPacket();
+      if (packet.MessageType == (int)ServerMessageId.ERROR)
+      {
+        Mysqlx.Error errorMessage = Mysqlx.Error.ParseFrom(packet.Buffer);
+        throw new MySqlException(errorMessage.Msg);
+      }
+
+      if (packet.MessageType != (int)expectedServerMessage)
+        throw new MySqlException(string.Format("Expected {0} message but was received {1}",
+          Enum.GetName(typeof(ServerMessageId), expectedServerMessage),
+          Enum.GetName(typeof(ServerMessageId), packet.MessageType)));
+
+      return packet;
+    }
   }
 }
