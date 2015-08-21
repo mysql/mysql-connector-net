@@ -47,7 +47,8 @@ namespace MySql.XDevAPI
 
     public string GetString(string name)
     {
-      return values[resultSet.IndexOf(name)].ToString();
+      int index = resultSet.IndexOf(name);
+      return values[index].ToString();
     }
     public object this[string name]
     {

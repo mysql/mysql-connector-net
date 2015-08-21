@@ -33,15 +33,29 @@ namespace MySql.XDevAPI
     public List<ResultRow> Rows = new List<ResultRow>();
     public List<Column> Columns = new List<Column>();
     private Dictionary<string, int> nameMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-
-    internal ProtocolBase Protocol;
+    private bool _complete = false;
+    internal ProtocolBase _protocol;
     public int Position { get; private set; }
     public int PageSize { get; private set; }
 
-    internal ResultSet()
+    internal ResultSet(ProtocolBase p)
     {
+      _protocol = p;
       PageSize = 20;
-      Position = 0;
+      Position = -1;
+    }
+
+    internal void LoadMetadata()
+    {
+      ///TODO:  move this to the ctor
+      Columns = _protocol.LoadColumnMetadata();
+      for (int i = 0; i < Columns.Count; i++)
+        nameMap.Add(Columns[i].Name, i);
+    }
+
+    public object this[int index]
+    {
+      get { return GetValue(index);  }
     }
 
     public void FinishLoading()
@@ -52,11 +66,27 @@ namespace MySql.XDevAPI
     public bool Next()
     {
       if (Position == Rows.Count)
-        if (!PageInRows()) return false;
-      ///TODO:  support multiple resultsets
-
+      {
+        if (_complete) return false;
+        if (!PageInRows())
+        {
+          _complete = true;
+          return false;
+        }
+      }
       Position++;
       return true;
+    }
+
+    internal void Dump()
+    {
+      if (_complete) return;
+      while (true)
+      {
+        List<byte[]> values = _protocol.ReadRow();
+        if (values == null) break;
+      }
+      _complete = true;
     }
 
     private bool PageInRows()
@@ -69,7 +99,7 @@ namespace MySql.XDevAPI
     private bool ReadRow()
     {
       ///TODO:  fix this
-      List<byte[]> values = Protocol.ReadRow();
+      List<byte[]> values = _protocol.ReadRow();
       if (values == null) return false;
       Debug.Assert(values.Count == Columns.Count, "Value count does not equal column count");
       ResultRow row = new ResultRow(this, Columns.Count);
@@ -78,11 +108,11 @@ namespace MySql.XDevAPI
       return true;
     }
 
-    internal void AddColumn(Column c)
+    private object GetValue(int index)
     {
-      ///TODO:  add asserts or checks here
-      Columns.Add(c);
-      nameMap.Add(c.Name, Columns.Count - 1);
+      if (Position < Rows.Count)
+        throw new InvalidOperationException("No data at position");
+      return Rows[Position][index];
     }
 
     public int IndexOf(string name)

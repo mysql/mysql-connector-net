@@ -38,6 +38,11 @@ namespace MySql.XDevAPI
       throw new NotImplementedException();
     }
 
+    public void Drop()
+    {
+      Schema.Session.XSession.DropCollection(Schema.Name, Name);
+    }
+
     public void Run()
     {
       throw new NotImplementedException();

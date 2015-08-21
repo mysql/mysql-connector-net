@@ -25,6 +25,8 @@ using System.IO;
 using MySql.Data;
 using MySql.RoutingServices;
 using MySql.Security;
+using MySql.Protocol;
+using MySql.XDevAPI;
 
 namespace MySql.Session
 {
@@ -49,6 +51,8 @@ namespace MySql.Session
 
     protected abstract void Open();
     protected abstract void Close();
+    protected abstract ProtocolBase GetProtocol();
+
 
     protected MySqlConnectionStringBuilder Settings;
 
@@ -64,6 +68,34 @@ namespace MySql.Session
       return session;
     }
 
+    private Result GetResult(bool rows)
+    {
+      Result r;
+      if (rows)
+        r = new RowResult(GetProtocol());
+      else
+        r = new DocumentResult(GetProtocol());
+      r.NextResultSet();
+      return r;
+    }
+
+    public RowResult ExecuteQuery(string sql)
+    {
+      GetProtocol().SendSQL(sql);
+      return (RowResult)GetResult(true);
+    }
+
+    public object ExecuteQueryAsScalar(string sql)
+    {
+      GetProtocol().SendSQL(sql);
+      Result r= GetResult(true);
+
+      if (r.Failed)
+        throw new MySqlException("Query execution failed: " + r.ErrorInfo.Message);
+      if (!r.Next())
+        throw new MySqlException("No data returned from query.");
+      return r[0];
+    }
 
     public void SetSchema(string schema)
     {

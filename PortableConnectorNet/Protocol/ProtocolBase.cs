@@ -34,6 +34,11 @@ namespace MySql.Protocol
   internal abstract class ProtocolBase
   {
     public abstract List<byte[]> ReadRow();
+    public abstract void SendSQL(string sql);
 
+    public abstract bool HasAnotherResultSet();
+
+    public abstract List<Column> LoadColumnMetadata();
+    public abstract void CloseResult(); 
   }
 }

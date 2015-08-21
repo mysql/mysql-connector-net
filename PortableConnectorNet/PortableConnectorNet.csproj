@@ -98,6 +98,8 @@
     <Compile Include="XDevAPI\Result.cs" />
     <Compile Include="XDevAPI\ResultSet.cs" />
     <Compile Include="XDevAPI\Row.cs" />
+    <Compile Include="XDevAPI\DocumentResult.cs" />
+    <Compile Include="XDevAPI\RowResult.cs" />
     <Compile Include="XDevAPI\Session.cs" />
     <Compile Include="XDevAPI\Collection.cs" />
     <Compile Include="XDevAPI\Iterator.cs" />

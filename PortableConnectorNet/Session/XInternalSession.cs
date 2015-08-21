@@ -37,23 +37,25 @@ namespace MySql.Session
       protocol.ReadAuthOk();
     }
 
+    protected override ProtocolBase GetProtocol()
+    {
+      return protocol;
+    }
+
     protected override void Close()
     {
     }
 
+
     public void CreateCollection(string schemaName, string collectionName)
     {
-      protocol.SendExecuteStatement("xplugin", "create_collection", schemaName, collectionName);
-      Result r = protocol.ReadStmtExecuteResult();
-      if (r.Failed)
-        throw new MySqlException(r);
-    }
-    public ResultSet GetResultSet(string sql)
-    {
-      protocol.SendExecuteStatement("sql", sql, null);
-      return protocol.ReadResultSet();
+      protocol.SendNonQueryStatement("create_collection", schemaName, collectionName);
     }
 
+    public void DropCollection(string schemaName, string collectionName)
+    {
+      protocol.SendNonQueryStatement("drop_collection", schemaName, collectionName);
+    }
 
   }
 }

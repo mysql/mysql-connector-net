@@ -94,6 +94,17 @@ namespace MySql.Protocol
 
     #endregion
 
+    public override void SendSQL(string sql)
+    {
+      SendExecuteStatement("sql", sql, null);
+    }
+
+    private CommunicationPacket PeekPacket()
+    {
+      if (pendingPacket != null) return pendingPacket;
+      pendingPacket = _reader.Read();
+      return pendingPacket;
+    }
 
     private CommunicationPacket ReadPacket()
     {
@@ -141,7 +152,7 @@ namespace MySql.Protocol
 
     public Result ReadStmtExecuteResult()
     {
-      Result r = new Result();
+      Result r = new Result(this);
       CommunicationPacket p = ReadPacket();
       if (p.MessageType == (int)ServerMessageId.ERROR)
       {
@@ -157,39 +168,61 @@ namespace MySql.Protocol
       return r;
     }
 
+    public void SendNonQueryStatement(string cmd, params string[] args)
+    {
+      SendExecuteStatement("xplugin", cmd, args);
+      Result r = ReadStmtExecuteResult();
+      if (r.Failed)
+        throw new MySqlException(r);
+    }
+
     public override List<byte[]> ReadRow()
     {
-      CommunicationPacket packet = ReadPacket();
-      ///TODO:  handle this
-      if (packet.MessageType != (int)ServerMessageId.RESULTSET_ROW) return null;
+      if (PeekPacket().MessageType != (int)ServerMessageId.RESULTSET_ROW) return null;
 
-      Row protoRow = Row.ParseFrom(packet.Buffer);
+      Row protoRow = Row.ParseFrom(ReadPacket().Buffer);
       List<byte[]> values = new List<byte[]>(protoRow.FieldCount);
       for (int i = 0; i < protoRow.FieldCount; i++)
         values.Add(protoRow.GetField(i).ToByteArray());
       return values;
     }
 
-    public ResultSet ReadResultSet()
+    public override void CloseResult()
     {
-      CommunicationPacket packet = ReadMessageHeader(ServerMessageId.RESULTSET_COLUMN_META_DATA);
-      ResultSet resultSet = new ResultSet();
+      CommunicationPacket p = ReadPacket();
+      if (p.MessageType != (int)ServerMessageId.OK &&
+          p.MessageType != (int)ServerMessageId.SQL_STMT_EXECUTE_OK)
+        throw new MySqlException("Unexpected message type trying to close the result: " + p.MessageType);
+    }
 
-      // read the metadata
-      while (packet.MessageType == (int)ServerMessageId.RESULTSET_COLUMN_META_DATA)
+    public override bool HasAnotherResultSet()
+    {
+      CommunicationPacket p = PeekPacket();
+      if (p.MessageType == (int)ServerMessageId.RESULTSET_COLUMN_META_DATA) return true;
+      if (p.MessageType == (int)ServerMessageId.RESULTSET_FETCH_DONE)
       {
-        ColumnMetaData response = ColumnMetaData.ParseFrom(packet.Buffer);
-        resultSet.AddColumn(DecodeColumn(response));
-        packet = ReadPacket();
+        ReadPacket();
+        return false;
       }
+      if (p.MessageType == (int)ServerMessageId.RESULTSET_FETCH_DONE_MORE_RESULTSETS)
+      {
+        ReadPacket();
+        return true;
+      }
+      return false;
+    }
 
-      // if we have no rows then we are done
-      if (packet.MessageType == (int)ServerMessageId.RESULTSET_FETCH_DONE) return resultSet;
-
-      if (packet.MessageType == (int)ServerMessageId.RESULTSET_ROW)
-        pendingPacket = packet;
-      resultSet.Protocol = this;
-      return resultSet;
+    public override List<Column> LoadColumnMetadata()
+    {
+      List<Column> columns = new List<Column>();
+      // we assume our caller has already validated that metadata is there
+      while (true)
+      {
+        if (PeekPacket().MessageType != (int)ServerMessageId.RESULTSET_COLUMN_META_DATA) return columns;
+        CommunicationPacket p = ReadPacket();
+        ColumnMetaData response = ColumnMetaData.ParseFrom(p.Buffer);
+        columns.Add(DecodeColumn(response));
+      }
     }
 
     private Column DecodeColumn(ColumnMetaData colData)
@@ -225,9 +258,9 @@ namespace MySql.Protocol
       return c;
     }
 
-    public ResultSet Find(SelectStatement statement)
+    public Result Find(SelectStatement statement)
     {
-      ResultSet result = new ResultSet();
+      Result result = new Result(this);
 
       Mysqlx.Crud.Find.Builder builder = Mysqlx.Crud.Find.CreateBuilder();
       // :param collection:
@@ -258,25 +291,8 @@ namespace MySql.Protocol
 
       Mysqlx.Crud.Find message = builder.Build();
       _writer.Write(ClientMessageId.CRUD_FIND, message);
-      return ReadResultSet();
-    }
-
-
-    internal CommunicationPacket ReadMessageHeader(ServerMessageId expectedServerMessage)
-    {
-      CommunicationPacket packet = ReadPacket();
-      if (packet.MessageType == (int)ServerMessageId.ERROR)
-      {
-        Mysqlx.Error errorMessage = Mysqlx.Error.ParseFrom(packet.Buffer);
-        throw new MySqlException(errorMessage.Msg);
-      }
-
-      if (packet.MessageType != (int)expectedServerMessage)
-        throw new MySqlException(string.Format("Expected {0} message but was received {1}",
-          Enum.GetName(typeof(ServerMessageId), expectedServerMessage),
-          Enum.GetName(typeof(ServerMessageId), packet.MessageType)));
-
-      return packet;
+      result.NextResultSet();
+      return result;
     }
   }
 }

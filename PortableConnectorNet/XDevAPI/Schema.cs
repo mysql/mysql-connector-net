@@ -90,11 +90,18 @@ namespace MySql.XDevAPI
 
     #endregion
 
+    public void DropCollection(string name)
+    {
+      Collection c = new Collection(this, name);
+      c.Drop();
+    }
+
     #region Base Class
 
     public override bool ExistsInDatabase()
     {
-      throw new NotImplementedException();
+      string sql = String.Format("SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name like '{0}'", Name);
+      return Session.InternalSession.ExecuteQueryAsScalar(sql).Equals(1);
     }
 
     #endregion

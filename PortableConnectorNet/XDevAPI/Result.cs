@@ -20,12 +20,89 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Protocol;
 using System;
+using System.Collections.Generic;
 
 namespace MySql.XDevAPI
 {
   public class Result
   {
+    private List<ResultSet> _resultSets = new List<ResultSet>();
+    private ProtocolBase _protocol;
+    private int _position = -1;
+    protected ResultSet _activeResults;
+
+    public UInt64 RecordsAffected { get; private set; }
+    public UInt64 LastInsertId { get; private set; }
+
+    internal Result(ProtocolBase p)
+    {
+      _protocol = p;
+    }
+
+    public bool Next()
+    {
+      if (_activeResults == null) return false;
+      return _activeResults.Next();
+    }
+
+    public bool NextResultSet()
+    {
+      if (_activeResults != null)
+        _activeResults.Dump();
+      _position++;
+      if (_position == _resultSets.Count)
+      {
+        if (!_protocol.HasAnotherResultSet())
+        {
+          _protocol.CloseResult();
+          return false;
+        }
+        ResultSet rs = new ResultSet(_protocol);
+        rs.LoadMetadata();
+        _resultSets.Add(rs);
+      }
+      _activeResults = _resultSets[_position];
+      return true;
+    }
+
+    public void Buffer()
+    {
+      if (_activeResults == null)
+        throw new MySqlException("No active resultset.");
+
+      // save our position
+      int _pos = _position;
+        
+      while (true)
+      {
+        _activeResults.FinishLoading();
+        if (!NextResultSet()) break;
+      }
+
+      // restore our position
+      SetPosition(_pos);
+    }
+
+    public object this[int index]
+    {
+      get { return GetValue(index);  }
+    }
+
+    private object GetValue(int index)
+    {
+      if (_activeResults == null)
+        throw new InvalidOperationException("No active resultset");
+      return _activeResults[index];
+    }
+
+    private void SetPosition(int pos)
+    {
+      _position = pos;
+      _activeResults = _resultSets[_position];
+    }
+
     public Error ErrorInfo;
 
     public bool Failed
@@ -37,7 +114,6 @@ namespace MySql.XDevAPI
     {
       get { return !Failed;  }
     }
-
 
     public class Error
     {
