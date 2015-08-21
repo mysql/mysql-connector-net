@@ -92,7 +92,7 @@ namespace MySql.XDevAPI
 
     public List<Schema> GetSchemas()
     {
-      RowResult result = XSession.ExecuteQuery("select * from information_schema.schemata");
+      RowResult result = XSession.ExecuteQuery("select * from test.test"); // information_schema.schemata");
       result.Buffer();
 
       var query = from row in result.Rows

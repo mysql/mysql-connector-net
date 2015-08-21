@@ -21,17 +21,126 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
+using MySql.Data;
+using MySql.XDevAPI;
+using System;
+
 namespace MySql.Protocol.X
 {
   internal class IntegerDecoder : ValueDecoder
   {
-    public override void DecodeMetadata()
+    bool _signed;
+
+    public IntegerDecoder(bool signed)
     {
+      _signed = signed;
     }
 
-    public override object GetClrValue(byte[] value)
+    public override void SetMetadata()
     {
-      return null;
+      Column.DbType = _signed ? GetSignedDbType() : GetUnsignedDbType();
+      Column.ClrType = _signed ? GetSignedClrType() : GetUnsignedClrType();
+      ClrValueDecoder = _signed ? GetSignedValueDecoder() : GetUnsignedValueDecoder();
+    }
+
+    private MySQLDbType GetSignedDbType()
+    {
+      uint len = Column.Length;
+      if (len <= 4) return MySQLDbType.Byte;
+      else if (len <= 6) return MySQLDbType.Int16;
+      else if (len <= 8) return MySQLDbType.Int24;
+      else if (len <= 11) return MySQLDbType.Int32;
+      else return MySQLDbType.Int64;
+    }
+
+    private MySQLDbType GetUnsignedDbType()
+    {
+      uint len = Column.Length;
+      if (len <= 4) return MySQLDbType.UByte;
+      else if (len <= 6) return MySQLDbType.UInt16;
+      else if (len <= 8) return MySQLDbType.UInt24;
+      else if (len <= 11) return MySQLDbType.UInt32;
+      else return MySQLDbType.UInt64;
+    }
+
+    private Type GetSignedClrType()
+    {
+      uint len = Column.Length;
+      if (len <= 4) return typeof(sbyte);
+      else if (len <= 6) return typeof(Int16);
+      else if (len <= 8) return typeof(Int32);
+      else if (len <= 11) return typeof(Int32);
+      else return typeof(Int64);
+    }
+
+    private Type GetUnsignedClrType()
+    {
+      uint len = Column.Length;
+      if (len <= 4) return typeof(byte);
+      else if (len <= 6) return typeof(UInt16);
+      else if (len <= 8) return typeof(UInt32);
+      else if (len <= 11) return typeof(UInt32);
+      else return typeof(UInt64);
+    }
+
+    private ClrDecoderDelegate GetSignedValueDecoder()
+    {
+      uint len = Column.Length;
+      if (len <= 4) return SByteValueDecoder;
+      else if (len <= 6) return Int16ValueDecoder;
+      else if (len <= 8) return Int32ValueDecoder;
+      else if (len <= 11) return Int32ValueDecoder;
+      else return Int64ValueDecoder;
+    }
+
+    private ClrDecoderDelegate GetUnsignedValueDecoder()
+    {
+      uint len = Column.Length;
+      if (len <= 4) return ByteValueDecoder;
+      else if (len <= 6) return UInt16ValueDecoder;
+      else if (len <= 8) return UInt32ValueDecoder;
+      else if (len <= 11) return UInt32ValueDecoder;
+      else return UInt64ValueDecoder;
+    }
+
+    public object SByteValueDecoder(byte[] bytes)
+    {
+      return bytes[0];
+    }
+
+    public object Int16ValueDecoder(byte[] bytes)
+    {
+      return BitConverter.ToInt16(bytes, 0);
+    }
+
+    public object Int32ValueDecoder(byte[] bytes)
+    {
+      return BitConverter.ToInt32(bytes, 0);
+    }
+
+    public object Int64ValueDecoder(byte[] bytes)
+    {
+      return BitConverter.ToInt64(bytes, 0);
+    }
+
+    public object ByteValueDecoder(byte[] bytes)
+    {
+      return bytes[0];
+    }
+
+    public object UInt16ValueDecoder(byte[] bytes)
+    {
+      return BitConverter.ToUInt16(bytes, 0);
+    }
+
+    public object UInt32ValueDecoder(byte[] bytes)
+    {
+      return BitConverter.ToUInt32(bytes, 0);
+    }
+
+    public object UInt64ValueDecoder(byte[] bytes)
+    {
+      return BitConverter.ToUInt64(bytes, 0);
     }
   }
 }

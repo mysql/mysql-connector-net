@@ -48,9 +48,9 @@
     <Compile Include="Communication\MyNetworkStream.cs" />
     <Compile Include="Communication\XPacketReaderWriter.cs" />
     <Compile Include="Data\DataReader.cs" />
-    <Compile Include="Data\DataType.cs" />
     <Compile Include="Data\CollationMap.cs" />
     <Compile Include="Data\CharSetMap.cs" />
+    <Compile Include="Data\DataType.cs" />
     <Compile Include="Data\Enums.cs" />
     <Compile Include="Data\SelectStatement.cs" />
     <Compile Include="Data\Statement.cs" />
@@ -82,6 +82,7 @@
     <Compile Include="Protocol\ValueDecoder.cs" />
     <Compile Include="Protocol\X\IntegerDecoder.cs" />
     <Compile Include="Protocol\X\ByteDecoder.cs" />
+    <Compile Include="Protocol\X\XDateTimeDecoder.cs" />
     <Compile Include="Protocol\X\XValueDecoderFactory.cs" />
     <Compile Include="RoutingServices\DefaultRoutingService.cs" />
     <Compile Include="RoutingServices\RoutingServiceBase.cs" />

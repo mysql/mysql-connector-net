@@ -89,6 +89,7 @@ namespace MySql.Session
     {
       GetProtocol().SendSQL(sql);
       Result r= GetResult(true);
+      r.Buffer();
 
       if (r.Failed)
         throw new MySqlException("Query execution failed: " + r.ErrorInfo.Message);

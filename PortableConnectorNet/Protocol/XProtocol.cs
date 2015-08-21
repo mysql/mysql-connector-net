@@ -228,9 +228,9 @@ namespace MySql.Protocol
     private Column DecodeColumn(ColumnMetaData colData)
     {
       Column c = new Column();
-      c._decoder = XValueDecoderFactory.GetValueDecoder(colData.Type);
+      c._decoder = XValueDecoderFactory.GetValueDecoder(c, colData.Type);
       c._decoder.Column = c;
-
+      
       if (colData.HasName)
         c.Name = colData.Name.ToStringUtf8();
       if (colData.HasOriginalName)
@@ -246,7 +246,8 @@ namespace MySql.Protocol
       if (colData.HasCollation)
       {
         c._collationNumber = colData.Collation;
-        c.Collation = CollationMap.GetCollationName((int)colData.Collation);
+        if (c._collationNumber != 0)
+          c.Collation = CollationMap.GetCollationName((int)colData.Collation);
       }
       if (colData.HasLength)
         c.Length = colData.Length;
@@ -254,7 +255,7 @@ namespace MySql.Protocol
         c.FractionalDigits = colData.FractionalDigits;
       if (colData.HasFlags)
         c._decoder.Flags = colData.Flags;
-      c._decoder.DecodeMetadata();
+      c._decoder.SetMetadata();
       return c;
     }
 

@@ -44,7 +44,9 @@ namespace MySql.Data
     Float,
     Decimal,
     Char,
+    Binary,
     VarChar,
+    VarBinary,
     Time,
     Date,
     DateTime,
@@ -53,6 +55,14 @@ namespace MySql.Data
     Set,
     Enum,
     Null,
-    Bit
+    Bit,
+    Blob,
+    TinyBlob,
+    MediumBlob,
+    LongBlob,
+    TinyText,
+    Text,
+    MediumText,
+    LongText
   }
 }

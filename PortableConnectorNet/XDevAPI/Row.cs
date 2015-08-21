@@ -68,7 +68,7 @@ namespace MySql.XDevAPI
       for (int i = 0; i < valueBuffers.Count; i++)
       {
         valuesAsBytes[i] = valueBuffers[i];
-        values[i] = resultSet.Columns[i]._decoder.GetClrValue(valueBuffers[i]);
+        values[i] = resultSet.Columns[i]._decoder.ClrValueDecoder(valueBuffers[i]);
       }
     }
   }

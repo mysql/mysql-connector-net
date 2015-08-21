@@ -21,19 +21,21 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
+using MySql.XDevAPI;
+
 namespace MySql.Protocol.X
 {
   internal class XValueDecoderFactory
   {
-    public static ValueDecoder GetValueDecoder(Mysqlx.Resultset.ColumnMetaData.Types.FieldType type)
+    public static ValueDecoder GetValueDecoder(Column c, Mysqlx.Resultset.ColumnMetaData.Types.FieldType type)
     {
       switch (type)
       {
 //        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.BIT: return XBitDecoder();
         case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.BYTES: return new ByteDecoder();
-        //      case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.DATETIME: return XDateTimeDecoder();
-        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.SINT:
-        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.UINT: return new IntegerDecoder();
+        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.DATETIME: return new XDateTimeDecoder();
+        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.SINT: return new IntegerDecoder(true);
+        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.UINT: return new IntegerDecoder(false);
       }
       throw new MySqlException("Unknown field type " + type.ToString());
     }

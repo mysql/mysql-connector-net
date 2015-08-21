@@ -40,10 +40,9 @@ namespace PortableConnectorNetTests
     [Fact]
     public void GetInvalidSchema()
     {
-      ///TODO:  what should this do?
       Session s = GetSession();
       Schema schema = s.GetSchema("test-schema");
-
+      Assert.False(schema.ExistsInDatabase());
     }
   }
 }
