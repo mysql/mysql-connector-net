@@ -37,18 +37,19 @@ namespace Mysqlx.Notice {
           "ZGF0YXR5cGVzLnByb3RvInkKBUZyYW1lEgwKBHR5cGUYASACKA0SMQoFc2Nv" + 
           "cGUYAiABKA4yGi5NeXNxbHguTm90aWNlLkZyYW1lLlNjb3BlOgZHTE9CQUwS" + 
           "DwoHcGF5bG9hZBgDIAEoDCIeCgVTY29wZRIKCgZHTE9CQUwQARIJCgVMT0NB" + 
-          "TBACInoKB1dhcm5pbmcSNAoFbGV2ZWwYASABKA4yHC5NeXNxbHguTm90aWNl" + 
-          "Lldhcm5pbmcuTGV2ZWw6B1dBUk5JTkcSDAoEY29kZRgCIAIoDRILCgNtc2cY" + 
-          "AyACKAkiHgoFTGV2ZWwSCAoETk9URRABEgsKB1dBUk5JTkcQAiJQChZTZXNz" + 
-          "aW9uVmFyaWFibGVDaGFuZ2VkEg0KBXBhcmFtGAEgAigJEicKBXZhbHVlGAIg" + 
-          "ASgLMhguTXlzcWx4LkRhdGF0eXBlcy5TY2FsYXIivQIKE1Nlc3Npb25TdGF0" + 
-          "ZUNoYW5nZWQSOwoFcGFyYW0YASACKA4yLC5NeXNxbHguTm90aWNlLlNlc3Np" + 
-          "b25TdGF0ZUNoYW5nZWQuUGFyYW1ldGVyEicKBXZhbHVlGAIgASgLMhguTXlz" + 
-          "cWx4LkRhdGF0eXBlcy5TY2FsYXIivwEKCVBhcmFtZXRlchISCg5DVVJSRU5U" + 
-          "X1NDSEVNQRABEhMKD0FDQ09VTlRfRVhQSVJFRBACEhcKE0dFTkVSQVRFRF9J" + 
-          "TlNFUlRfSUQQAxIRCg1ST1dTX0FGRkVDVEVEEAQSDgoKUk9XU19GT1VORBAF" + 
-          "EhAKDFJPV1NfTUFUQ0hFRBAGEhEKDVRSWF9DT01NSVRURUQQBxISCg5UUlhf" + 
-          "Uk9MTEVEQkFDSxAJEhQKEFBST0RVQ0VEX01FU1NBR0UQCg==");
+          "TBACIoUBCgdXYXJuaW5nEjQKBWxldmVsGAEgASgOMhwuTXlzcWx4Lk5vdGlj" + 
+          "ZS5XYXJuaW5nLkxldmVsOgdXQVJOSU5HEgwKBGNvZGUYAiACKA0SCwoDbXNn" + 
+          "GAMgAigJIikKBUxldmVsEggKBE5PVEUQARILCgdXQVJOSU5HEAISCQoFRVJS" + 
+          "T1IQAyJQChZTZXNzaW9uVmFyaWFibGVDaGFuZ2VkEg0KBXBhcmFtGAEgAigJ" + 
+          "EicKBXZhbHVlGAIgASgLMhguTXlzcWx4LkRhdGF0eXBlcy5TY2FsYXIivQIK" + 
+          "E1Nlc3Npb25TdGF0ZUNoYW5nZWQSOwoFcGFyYW0YASACKA4yLC5NeXNxbHgu" + 
+          "Tm90aWNlLlNlc3Npb25TdGF0ZUNoYW5nZWQuUGFyYW1ldGVyEicKBXZhbHVl" + 
+          "GAIgASgLMhguTXlzcWx4LkRhdGF0eXBlcy5TY2FsYXIivwEKCVBhcmFtZXRl" + 
+          "chISCg5DVVJSRU5UX1NDSEVNQRABEhMKD0FDQ09VTlRfRVhQSVJFRBACEhcK" + 
+          "E0dFTkVSQVRFRF9JTlNFUlRfSUQQAxIRCg1ST1dTX0FGRkVDVEVEEAQSDgoK" + 
+          "Uk9XU19GT1VORBAFEhAKDFJPV1NfTUFUQ0hFRBAGEhEKDVRSWF9DT01NSVRU" + 
+          "RUQQBxISCg5UUlhfUk9MTEVEQkFDSxAJEhQKEFBST0RVQ0VEX01FU1NBR0UQ" + 
+          "Cg==");
       pbd::FileDescriptor.InternalDescriptorAssigner assigner = delegate(pbd::FileDescriptor root) {
         descriptor = root;
         internal__static_Mysqlx_Notice_Frame__Descriptor = Descriptor.MessageTypes[0];
@@ -487,6 +488,7 @@ namespace Mysqlx.Notice {
       internal enum Level {
         NOTE = 1,
         WARNING = 2,
+        ERROR = 3,
       }
       
     }

@@ -28,6 +28,12 @@ namespace Mysqlx.Expr {
     internal static pb::FieldAccess.FieldAccessorTable<global::Mysqlx.Expr.FunctionCall, global::Mysqlx.Expr.FunctionCall.Builder> internal__static_Mysqlx_Expr_FunctionCall__FieldAccessorTable;
     internal static pbd::MessageDescriptor internal__static_Mysqlx_Expr_Operator__Descriptor;
     internal static pb::FieldAccess.FieldAccessorTable<global::Mysqlx.Expr.Operator, global::Mysqlx.Expr.Operator.Builder> internal__static_Mysqlx_Expr_Operator__FieldAccessorTable;
+    internal static pbd::MessageDescriptor internal__static_Mysqlx_Expr_Object__Descriptor;
+    internal static pb::FieldAccess.FieldAccessorTable<global::Mysqlx.Expr.Object, global::Mysqlx.Expr.Object.Builder> internal__static_Mysqlx_Expr_Object__FieldAccessorTable;
+    internal static pbd::MessageDescriptor internal__static_Mysqlx_Expr_Object_ObjectField__Descriptor;
+    internal static pb::FieldAccess.FieldAccessorTable<global::Mysqlx.Expr.Object.Types.ObjectField, global::Mysqlx.Expr.Object.Types.ObjectField.Builder> internal__static_Mysqlx_Expr_Object_ObjectField__FieldAccessorTable;
+    internal static pbd::MessageDescriptor internal__static_Mysqlx_Expr_Array__Descriptor;
+    internal static pb::FieldAccess.FieldAccessorTable<global::Mysqlx.Expr.Array, global::Mysqlx.Expr.Array.Builder> internal__static_Mysqlx_Expr_Array__FieldAccessorTable;
     #endregion
     #region Descriptor
     public static pbd::FileDescriptor Descriptor {
@@ -38,33 +44,39 @@ namespace Mysqlx.Expr {
     static MysqlxExpr() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           "ChFteXNxbHhfZXhwci5wcm90bxILTXlzcWx4LkV4cHIaFm15c3FseF9kYXRh" + 
-          "dHlwZXMucHJvdG8i4wIKBEV4cHISJAoEdHlwZRgBIAIoDjIWLk15c3FseC5F" + 
+          "dHlwZXMucHJvdG8ixAMKBEV4cHISJAoEdHlwZRgBIAIoDjIWLk15c3FseC5F" + 
           "eHByLkV4cHIuVHlwZRIxCgppZGVudGlmaWVyGAIgASgLMh0uTXlzcWx4LkV4" + 
-          "cHIuQ29sdW1uSWRlbnRpZmllchIQCgh2YXJpYWJsZRgDIAEoCRInCghjb25z" + 
-          "dGFudBgEIAEoCzIVLk15c3FseC5EYXRhdHlwZXMuQW55EjAKDWZ1bmN0aW9u" + 
-          "X2NhbGwYBSABKAsyGS5NeXNxbHguRXhwci5GdW5jdGlvbkNhbGwSJwoIb3Bl" + 
-          "cmF0b3IYBiABKAsyFS5NeXNxbHguRXhwci5PcGVyYXRvchIQCghwb3NpdGlv" + 
-          "bhgHIAEoDSJaCgRUeXBlEgkKBUlERU5UEAESCwoHTElURVJBTBACEgwKCFZB" + 
-          "UklBQkxFEAMSDQoJRlVOQ19DQUxMEAQSDAoIT1BFUkFUT1IQBRIPCgtQTEFD" + 
-          "RUhPTERFUhAGIi8KCklkZW50aWZpZXISDAoEbmFtZRgBIAIoCRITCgtzY2hl" + 
-          "bWFfbmFtZRgCIAEoCSLLAQoQRG9jdW1lbnRQYXRoSXRlbRIwCgR0eXBlGAEg" + 
-          "AigOMiIuTXlzcWx4LkV4cHIuRG9jdW1lbnRQYXRoSXRlbS5UeXBlEg0KBXZh" + 
-          "bHVlGAIgASgJEg0KBWluZGV4GAMgASgNImcKBFR5cGUSCgoGTUVNQkVSEAES" + 
-          "EwoPTUVNQkVSX0FTVEVSSVNLEAISDwoLQVJSQVlfSU5ERVgQAxIYChRBUlJB" + 
-          "WV9JTkRFWF9BU1RFUklTSxAEEhMKD0RPVUJMRV9BU1RFUklTSxAFIn8KEENv" + 
-          "bHVtbklkZW50aWZpZXISNAoNZG9jdW1lbnRfcGF0aBgBIAMoCzIdLk15c3Fs" + 
-          "eC5FeHByLkRvY3VtZW50UGF0aEl0ZW0SDAoEbmFtZRgCIAEoCRISCgp0YWJs" + 
-          "ZV9uYW1lGAMgASgJEhMKC3NjaGVtYV9uYW1lGAQgASgJIlcKDEZ1bmN0aW9u" + 
-          "Q2FsbBIlCgRuYW1lGAEgAigLMhcuTXlzcWx4LkV4cHIuSWRlbnRpZmllchIg" + 
-          "CgVwYXJhbRgCIAMoCzIRLk15c3FseC5FeHByLkV4cHIiOgoIT3BlcmF0b3IS" + 
-          "DAoEbmFtZRgBIAIoCRIgCgVwYXJhbRgCIAMoCzIRLk15c3FseC5FeHByLkV4" + 
-          "cHJCHgocY29tLm15c3FsLmNqLm15c3FseC5wcm90b2J1Zg==");
+          "cHIuQ29sdW1uSWRlbnRpZmllchIQCgh2YXJpYWJsZRgDIAEoCRIpCgdsaXRl" + 
+          "cmFsGAQgASgLMhguTXlzcWx4LkRhdGF0eXBlcy5TY2FsYXISMAoNZnVuY3Rp" + 
+          "b25fY2FsbBgFIAEoCzIZLk15c3FseC5FeHByLkZ1bmN0aW9uQ2FsbBInCghv" + 
+          "cGVyYXRvchgGIAEoCzIVLk15c3FseC5FeHByLk9wZXJhdG9yEhAKCHBvc2l0" + 
+          "aW9uGAcgASgNEiMKBm9iamVjdBgIIAEoCzITLk15c3FseC5FeHByLk9iamVj" + 
+          "dBIhCgVhcnJheRgJIAEoCzISLk15c3FseC5FeHByLkFycmF5InEKBFR5cGUS" + 
+          "CQoFSURFTlQQARILCgdMSVRFUkFMEAISDAoIVkFSSUFCTEUQAxINCglGVU5D" + 
+          "X0NBTEwQBBIMCghPUEVSQVRPUhAFEg8KC1BMQUNFSE9MREVSEAYSCgoGT0JK" + 
+          "RUNUEAcSCQoFQVJSQVkQCCIvCgpJZGVudGlmaWVyEgwKBG5hbWUYASACKAkS" + 
+          "EwoLc2NoZW1hX25hbWUYAiABKAkiywEKEERvY3VtZW50UGF0aEl0ZW0SMAoE" + 
+          "dHlwZRgBIAIoDjIiLk15c3FseC5FeHByLkRvY3VtZW50UGF0aEl0ZW0uVHlw" + 
+          "ZRINCgV2YWx1ZRgCIAEoCRINCgVpbmRleBgDIAEoDSJnCgRUeXBlEgoKBk1F" + 
+          "TUJFUhABEhMKD01FTUJFUl9BU1RFUklTSxACEg8KC0FSUkFZX0lOREVYEAMS" + 
+          "GAoUQVJSQVlfSU5ERVhfQVNURVJJU0sQBBITCg9ET1VCTEVfQVNURVJJU0sQ" + 
+          "BSJ/ChBDb2x1bW5JZGVudGlmaWVyEjQKDWRvY3VtZW50X3BhdGgYASADKAsy" + 
+          "HS5NeXNxbHguRXhwci5Eb2N1bWVudFBhdGhJdGVtEgwKBG5hbWUYAiABKAkS" + 
+          "EgoKdGFibGVfbmFtZRgDIAEoCRITCgtzY2hlbWFfbmFtZRgEIAEoCSJXCgxG" + 
+          "dW5jdGlvbkNhbGwSJQoEbmFtZRgBIAIoCzIXLk15c3FseC5FeHByLklkZW50" + 
+          "aWZpZXISIAoFcGFyYW0YAiADKAsyES5NeXNxbHguRXhwci5FeHByIjoKCE9w" + 
+          "ZXJhdG9yEgwKBG5hbWUYASACKAkSIAoFcGFyYW0YAiADKAsyES5NeXNxbHgu" + 
+          "RXhwci5FeHByInQKBk9iamVjdBIsCgNmbGQYASADKAsyHy5NeXNxbHguRXhw" + 
+          "ci5PYmplY3QuT2JqZWN0RmllbGQaPAoLT2JqZWN0RmllbGQSCwoDa2V5GAEg" + 
+          "AigJEiAKBXZhbHVlGAIgAigLMhEuTXlzcWx4LkV4cHIuRXhwciIpCgVBcnJh" + 
+          "eRIgCgV2YWx1ZRgBIAMoCzIRLk15c3FseC5FeHByLkV4cHJCHgocY29tLm15" + 
+          "c3FsLmNqLm15c3FseC5wcm90b2J1Zg==");
       pbd::FileDescriptor.InternalDescriptorAssigner assigner = delegate(pbd::FileDescriptor root) {
         descriptor = root;
         internal__static_Mysqlx_Expr_Expr__Descriptor = Descriptor.MessageTypes[0];
         internal__static_Mysqlx_Expr_Expr__FieldAccessorTable = 
             new pb::FieldAccess.FieldAccessorTable<global::Mysqlx.Expr.Expr, global::Mysqlx.Expr.Expr.Builder>(internal__static_Mysqlx_Expr_Expr__Descriptor,
-                new string[] { "Type", "Identifier", "Variable", "Constant", "FunctionCall", "Operator", "Position", });
+                new string[] { "Type", "Identifier", "Variable", "Literal", "FunctionCall", "Operator", "Position", "Object", "Array", });
         internal__static_Mysqlx_Expr_Identifier__Descriptor = Descriptor.MessageTypes[1];
         internal__static_Mysqlx_Expr_Identifier__FieldAccessorTable = 
             new pb::FieldAccess.FieldAccessorTable<global::Mysqlx.Expr.Identifier, global::Mysqlx.Expr.Identifier.Builder>(internal__static_Mysqlx_Expr_Identifier__Descriptor,
@@ -85,6 +97,18 @@ namespace Mysqlx.Expr {
         internal__static_Mysqlx_Expr_Operator__FieldAccessorTable = 
             new pb::FieldAccess.FieldAccessorTable<global::Mysqlx.Expr.Operator, global::Mysqlx.Expr.Operator.Builder>(internal__static_Mysqlx_Expr_Operator__Descriptor,
                 new string[] { "Name", "Param", });
+        internal__static_Mysqlx_Expr_Object__Descriptor = Descriptor.MessageTypes[6];
+        internal__static_Mysqlx_Expr_Object__FieldAccessorTable = 
+            new pb::FieldAccess.FieldAccessorTable<global::Mysqlx.Expr.Object, global::Mysqlx.Expr.Object.Builder>(internal__static_Mysqlx_Expr_Object__Descriptor,
+                new string[] { "Fld", });
+        internal__static_Mysqlx_Expr_Object_ObjectField__Descriptor = internal__static_Mysqlx_Expr_Object__Descriptor.NestedTypes[0];
+        internal__static_Mysqlx_Expr_Object_ObjectField__FieldAccessorTable = 
+            new pb::FieldAccess.FieldAccessorTable<global::Mysqlx.Expr.Object.Types.ObjectField, global::Mysqlx.Expr.Object.Types.ObjectField.Builder>(internal__static_Mysqlx_Expr_Object_ObjectField__Descriptor,
+                new string[] { "Key", "Value", });
+        internal__static_Mysqlx_Expr_Array__Descriptor = Descriptor.MessageTypes[7];
+        internal__static_Mysqlx_Expr_Array__FieldAccessorTable = 
+            new pb::FieldAccess.FieldAccessorTable<global::Mysqlx.Expr.Array, global::Mysqlx.Expr.Array.Builder>(internal__static_Mysqlx_Expr_Array__Descriptor,
+                new string[] { "Value", });
         return null;
       };
       pbd::FileDescriptor.InternalBuildGeneratedFileFrom(descriptorData,
@@ -100,8 +124,8 @@ namespace Mysqlx.Expr {
   internal sealed partial class Expr : pb::GeneratedMessage<Expr, Expr.Builder> {
     private Expr() { }
     private static readonly Expr defaultInstance = new Expr().MakeReadOnly();
-    private static readonly string[] _exprFieldNames = new string[] { "constant", "function_call", "identifier", "operator", "position", "type", "variable" };
-    private static readonly uint[] _exprFieldTags = new uint[] { 34, 42, 18, 50, 56, 8, 26 };
+    private static readonly string[] _exprFieldNames = new string[] { "array", "function_call", "identifier", "literal", "object", "operator", "position", "type", "variable" };
+    private static readonly uint[] _exprFieldTags = new uint[] { 74, 42, 18, 34, 66, 50, 56, 8, 26 };
     public static Expr DefaultInstance {
       get { return defaultInstance; }
     }
@@ -132,6 +156,8 @@ namespace Mysqlx.Expr {
         FUNC_CALL = 4,
         OPERATOR = 5,
         PLACEHOLDER = 6,
+        OBJECT = 7,
+        ARRAY = 8,
       }
       
     }
@@ -167,14 +193,14 @@ namespace Mysqlx.Expr {
       get { return variable_; }
     }
     
-    public const int ConstantFieldNumber = 4;
-    private bool hasConstant;
-    private global::Mysqlx.Datatypes.Any constant_;
-    public bool HasConstant {
-      get { return hasConstant; }
+    public const int LiteralFieldNumber = 4;
+    private bool hasLiteral;
+    private global::Mysqlx.Datatypes.Scalar literal_;
+    public bool HasLiteral {
+      get { return hasLiteral; }
     }
-    public global::Mysqlx.Datatypes.Any Constant {
-      get { return constant_ ?? global::Mysqlx.Datatypes.Any.DefaultInstance; }
+    public global::Mysqlx.Datatypes.Scalar Literal {
+      get { return literal_ ?? global::Mysqlx.Datatypes.Scalar.DefaultInstance; }
     }
     
     public const int FunctionCallFieldNumber = 5;
@@ -207,20 +233,46 @@ namespace Mysqlx.Expr {
       get { return position_; }
     }
     
+    public const int ObjectFieldNumber = 8;
+    private bool hasObject;
+    private global::Mysqlx.Expr.Object object_;
+    public bool HasObject {
+      get { return hasObject; }
+    }
+    public global::Mysqlx.Expr.Object Object {
+      get { return object_ ?? global::Mysqlx.Expr.Object.DefaultInstance; }
+    }
+    
+    public const int ArrayFieldNumber = 9;
+    private bool hasArray;
+    private global::Mysqlx.Expr.Array array_;
+    public bool HasArray {
+      get { return hasArray; }
+    }
+    public global::Mysqlx.Expr.Array Array {
+      get { return array_ ?? global::Mysqlx.Expr.Array.DefaultInstance; }
+    }
+    
     public override bool IsInitialized {
       get {
         if (!hasType) return false;
         if (HasIdentifier) {
           if (!Identifier.IsInitialized) return false;
         }
-        if (HasConstant) {
-          if (!Constant.IsInitialized) return false;
+        if (HasLiteral) {
+          if (!Literal.IsInitialized) return false;
         }
         if (HasFunctionCall) {
           if (!FunctionCall.IsInitialized) return false;
         }
         if (HasOperator) {
           if (!Operator.IsInitialized) return false;
+        }
+        if (HasObject) {
+          if (!Object.IsInitialized) return false;
+        }
+        if (HasArray) {
+          if (!Array.IsInitialized) return false;
         }
         return true;
       }
@@ -230,25 +282,31 @@ namespace Mysqlx.Expr {
       int size = SerializedSize;
       string[] field_names = _exprFieldNames;
       if (hasType) {
-        output.WriteEnum(1, field_names[5], (int) Type, Type);
+        output.WriteEnum(1, field_names[7], (int) Type, Type);
       }
       if (hasIdentifier) {
         output.WriteMessage(2, field_names[2], Identifier);
       }
       if (hasVariable) {
-        output.WriteString(3, field_names[6], Variable);
+        output.WriteString(3, field_names[8], Variable);
       }
-      if (hasConstant) {
-        output.WriteMessage(4, field_names[0], Constant);
+      if (hasLiteral) {
+        output.WriteMessage(4, field_names[3], Literal);
       }
       if (hasFunctionCall) {
         output.WriteMessage(5, field_names[1], FunctionCall);
       }
       if (hasOperator) {
-        output.WriteMessage(6, field_names[3], Operator);
+        output.WriteMessage(6, field_names[5], Operator);
       }
       if (hasPosition) {
-        output.WriteUInt32(7, field_names[4], Position);
+        output.WriteUInt32(7, field_names[6], Position);
+      }
+      if (hasObject) {
+        output.WriteMessage(8, field_names[4], Object);
+      }
+      if (hasArray) {
+        output.WriteMessage(9, field_names[0], Array);
       }
       UnknownFields.WriteTo(output);
     }
@@ -269,8 +327,8 @@ namespace Mysqlx.Expr {
         if (hasVariable) {
           size += pb::CodedOutputStream.ComputeStringSize(3, Variable);
         }
-        if (hasConstant) {
-          size += pb::CodedOutputStream.ComputeMessageSize(4, Constant);
+        if (hasLiteral) {
+          size += pb::CodedOutputStream.ComputeMessageSize(4, Literal);
         }
         if (hasFunctionCall) {
           size += pb::CodedOutputStream.ComputeMessageSize(5, FunctionCall);
@@ -280,6 +338,12 @@ namespace Mysqlx.Expr {
         }
         if (hasPosition) {
           size += pb::CodedOutputStream.ComputeUInt32Size(7, Position);
+        }
+        if (hasObject) {
+          size += pb::CodedOutputStream.ComputeMessageSize(8, Object);
+        }
+        if (hasArray) {
+          size += pb::CodedOutputStream.ComputeMessageSize(9, Array);
         }
         size += UnknownFields.SerializedSize;
         memoizedSerializedSize = size;
@@ -414,8 +478,8 @@ namespace Mysqlx.Expr {
         if (other.HasVariable) {
           Variable = other.Variable;
         }
-        if (other.HasConstant) {
-          MergeConstant(other.Constant);
+        if (other.HasLiteral) {
+          MergeLiteral(other.Literal);
         }
         if (other.HasFunctionCall) {
           MergeFunctionCall(other.FunctionCall);
@@ -425,6 +489,12 @@ namespace Mysqlx.Expr {
         }
         if (other.HasPosition) {
           Position = other.Position;
+        }
+        if (other.HasObject) {
+          MergeObject(other.Object);
+        }
+        if (other.HasArray) {
+          MergeArray(other.Array);
         }
         this.MergeUnknownFields(other.UnknownFields);
         return this;
@@ -495,12 +565,12 @@ namespace Mysqlx.Expr {
               break;
             }
             case 34: {
-              global::Mysqlx.Datatypes.Any.Builder subBuilder = global::Mysqlx.Datatypes.Any.CreateBuilder();
-              if (result.hasConstant) {
-                subBuilder.MergeFrom(Constant);
+              global::Mysqlx.Datatypes.Scalar.Builder subBuilder = global::Mysqlx.Datatypes.Scalar.CreateBuilder();
+              if (result.hasLiteral) {
+                subBuilder.MergeFrom(Literal);
               }
               input.ReadMessage(subBuilder, extensionRegistry);
-              Constant = subBuilder.BuildPartial();
+              Literal = subBuilder.BuildPartial();
               break;
             }
             case 42: {
@@ -523,6 +593,24 @@ namespace Mysqlx.Expr {
             }
             case 56: {
               result.hasPosition = input.ReadUInt32(ref result.position_);
+              break;
+            }
+            case 66: {
+              global::Mysqlx.Expr.Object.Builder subBuilder = global::Mysqlx.Expr.Object.CreateBuilder();
+              if (result.hasObject) {
+                subBuilder.MergeFrom(Object);
+              }
+              input.ReadMessage(subBuilder, extensionRegistry);
+              Object = subBuilder.BuildPartial();
+              break;
+            }
+            case 74: {
+              global::Mysqlx.Expr.Array.Builder subBuilder = global::Mysqlx.Expr.Array.CreateBuilder();
+              if (result.hasArray) {
+                subBuilder.MergeFrom(Array);
+              }
+              input.ReadMessage(subBuilder, extensionRegistry);
+              Array = subBuilder.BuildPartial();
               break;
             }
           }
@@ -616,43 +704,43 @@ namespace Mysqlx.Expr {
         return this;
       }
       
-      public bool HasConstant {
-       get { return result.hasConstant; }
+      public bool HasLiteral {
+       get { return result.hasLiteral; }
       }
-      public global::Mysqlx.Datatypes.Any Constant {
-        get { return result.Constant; }
-        set { SetConstant(value); }
+      public global::Mysqlx.Datatypes.Scalar Literal {
+        get { return result.Literal; }
+        set { SetLiteral(value); }
       }
-      public Builder SetConstant(global::Mysqlx.Datatypes.Any value) {
+      public Builder SetLiteral(global::Mysqlx.Datatypes.Scalar value) {
         pb::ThrowHelper.ThrowIfNull(value, "value");
         PrepareBuilder();
-        result.hasConstant = true;
-        result.constant_ = value;
+        result.hasLiteral = true;
+        result.literal_ = value;
         return this;
       }
-      public Builder SetConstant(global::Mysqlx.Datatypes.Any.Builder builderForValue) {
+      public Builder SetLiteral(global::Mysqlx.Datatypes.Scalar.Builder builderForValue) {
         pb::ThrowHelper.ThrowIfNull(builderForValue, "builderForValue");
         PrepareBuilder();
-        result.hasConstant = true;
-        result.constant_ = builderForValue.Build();
+        result.hasLiteral = true;
+        result.literal_ = builderForValue.Build();
         return this;
       }
-      public Builder MergeConstant(global::Mysqlx.Datatypes.Any value) {
+      public Builder MergeLiteral(global::Mysqlx.Datatypes.Scalar value) {
         pb::ThrowHelper.ThrowIfNull(value, "value");
         PrepareBuilder();
-        if (result.hasConstant &&
-            result.constant_ != global::Mysqlx.Datatypes.Any.DefaultInstance) {
-            result.constant_ = global::Mysqlx.Datatypes.Any.CreateBuilder(result.constant_).MergeFrom(value).BuildPartial();
+        if (result.hasLiteral &&
+            result.literal_ != global::Mysqlx.Datatypes.Scalar.DefaultInstance) {
+            result.literal_ = global::Mysqlx.Datatypes.Scalar.CreateBuilder(result.literal_).MergeFrom(value).BuildPartial();
         } else {
-          result.constant_ = value;
+          result.literal_ = value;
         }
-        result.hasConstant = true;
+        result.hasLiteral = true;
         return this;
       }
-      public Builder ClearConstant() {
+      public Builder ClearLiteral() {
         PrepareBuilder();
-        result.hasConstant = false;
-        result.constant_ = null;
+        result.hasLiteral = false;
+        result.literal_ = null;
         return this;
       }
       
@@ -753,6 +841,86 @@ namespace Mysqlx.Expr {
         PrepareBuilder();
         result.hasPosition = false;
         result.position_ = 0;
+        return this;
+      }
+      
+      public bool HasObject {
+       get { return result.hasObject; }
+      }
+      public global::Mysqlx.Expr.Object Object {
+        get { return result.Object; }
+        set { SetObject(value); }
+      }
+      public Builder SetObject(global::Mysqlx.Expr.Object value) {
+        pb::ThrowHelper.ThrowIfNull(value, "value");
+        PrepareBuilder();
+        result.hasObject = true;
+        result.object_ = value;
+        return this;
+      }
+      public Builder SetObject(global::Mysqlx.Expr.Object.Builder builderForValue) {
+        pb::ThrowHelper.ThrowIfNull(builderForValue, "builderForValue");
+        PrepareBuilder();
+        result.hasObject = true;
+        result.object_ = builderForValue.Build();
+        return this;
+      }
+      public Builder MergeObject(global::Mysqlx.Expr.Object value) {
+        pb::ThrowHelper.ThrowIfNull(value, "value");
+        PrepareBuilder();
+        if (result.hasObject &&
+            result.object_ != global::Mysqlx.Expr.Object.DefaultInstance) {
+            result.object_ = global::Mysqlx.Expr.Object.CreateBuilder(result.object_).MergeFrom(value).BuildPartial();
+        } else {
+          result.object_ = value;
+        }
+        result.hasObject = true;
+        return this;
+      }
+      public Builder ClearObject() {
+        PrepareBuilder();
+        result.hasObject = false;
+        result.object_ = null;
+        return this;
+      }
+      
+      public bool HasArray {
+       get { return result.hasArray; }
+      }
+      public global::Mysqlx.Expr.Array Array {
+        get { return result.Array; }
+        set { SetArray(value); }
+      }
+      public Builder SetArray(global::Mysqlx.Expr.Array value) {
+        pb::ThrowHelper.ThrowIfNull(value, "value");
+        PrepareBuilder();
+        result.hasArray = true;
+        result.array_ = value;
+        return this;
+      }
+      public Builder SetArray(global::Mysqlx.Expr.Array.Builder builderForValue) {
+        pb::ThrowHelper.ThrowIfNull(builderForValue, "builderForValue");
+        PrepareBuilder();
+        result.hasArray = true;
+        result.array_ = builderForValue.Build();
+        return this;
+      }
+      public Builder MergeArray(global::Mysqlx.Expr.Array value) {
+        pb::ThrowHelper.ThrowIfNull(value, "value");
+        PrepareBuilder();
+        if (result.hasArray &&
+            result.array_ != global::Mysqlx.Expr.Array.DefaultInstance) {
+            result.array_ = global::Mysqlx.Expr.Array.CreateBuilder(result.array_).MergeFrom(value).BuildPartial();
+        } else {
+          result.array_ = value;
+        }
+        result.hasArray = true;
+        return this;
+      }
+      public Builder ClearArray() {
+        PrepareBuilder();
+        result.hasArray = false;
+        result.array_ = null;
         return this;
       }
     }
@@ -2600,6 +2768,954 @@ namespace Mysqlx.Expr {
       }
     }
     static Operator() {
+      object.ReferenceEquals(global::Mysqlx.Expr.MysqlxExpr.Descriptor, null);
+    }
+  }
+  
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+  internal sealed partial class Object : pb::GeneratedMessage<Object, Object.Builder> {
+    private Object() { }
+    private static readonly Object defaultInstance = new Object().MakeReadOnly();
+    private static readonly string[] _objectFieldNames = new string[] { "fld" };
+    private static readonly uint[] _objectFieldTags = new uint[] { 10 };
+    public static Object DefaultInstance {
+      get { return defaultInstance; }
+    }
+    
+    public override Object DefaultInstanceForType {
+      get { return DefaultInstance; }
+    }
+    
+    protected override Object ThisMessage {
+      get { return this; }
+    }
+    
+    public static pbd::MessageDescriptor Descriptor {
+      get { return global::Mysqlx.Expr.MysqlxExpr.internal__static_Mysqlx_Expr_Object__Descriptor; }
+    }
+    
+    protected override pb::FieldAccess.FieldAccessorTable<Object, Object.Builder> InternalFieldAccessors {
+      get { return global::Mysqlx.Expr.MysqlxExpr.internal__static_Mysqlx_Expr_Object__FieldAccessorTable; }
+    }
+    
+    #region Nested types
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+    public static partial class Types {
+      [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+      internal sealed partial class ObjectField : pb::GeneratedMessage<ObjectField, ObjectField.Builder> {
+        private ObjectField() { }
+        private static readonly ObjectField defaultInstance = new ObjectField().MakeReadOnly();
+        private static readonly string[] _objectFieldFieldNames = new string[] { "key", "value" };
+        private static readonly uint[] _objectFieldFieldTags = new uint[] { 10, 18 };
+        public static ObjectField DefaultInstance {
+          get { return defaultInstance; }
+        }
+        
+        public override ObjectField DefaultInstanceForType {
+          get { return DefaultInstance; }
+        }
+        
+        protected override ObjectField ThisMessage {
+          get { return this; }
+        }
+        
+        public static pbd::MessageDescriptor Descriptor {
+          get { return global::Mysqlx.Expr.MysqlxExpr.internal__static_Mysqlx_Expr_Object_ObjectField__Descriptor; }
+        }
+        
+        protected override pb::FieldAccess.FieldAccessorTable<ObjectField, ObjectField.Builder> InternalFieldAccessors {
+          get { return global::Mysqlx.Expr.MysqlxExpr.internal__static_Mysqlx_Expr_Object_ObjectField__FieldAccessorTable; }
+        }
+        
+        public const int KeyFieldNumber = 1;
+        private bool hasKey;
+        private string key_ = "";
+        public bool HasKey {
+          get { return hasKey; }
+        }
+        public string Key {
+          get { return key_; }
+        }
+        
+        public const int ValueFieldNumber = 2;
+        private bool hasValue;
+        private global::Mysqlx.Expr.Expr value_;
+        public bool HasValue {
+          get { return hasValue; }
+        }
+        public global::Mysqlx.Expr.Expr Value {
+          get { return value_ ?? global::Mysqlx.Expr.Expr.DefaultInstance; }
+        }
+        
+        public override bool IsInitialized {
+          get {
+            if (!hasKey) return false;
+            if (!hasValue) return false;
+            if (!Value.IsInitialized) return false;
+            return true;
+          }
+        }
+        
+        public override void WriteTo(pb::ICodedOutputStream output) {
+          int size = SerializedSize;
+          string[] field_names = _objectFieldFieldNames;
+          if (hasKey) {
+            output.WriteString(1, field_names[0], Key);
+          }
+          if (hasValue) {
+            output.WriteMessage(2, field_names[1], Value);
+          }
+          UnknownFields.WriteTo(output);
+        }
+        
+        private int memoizedSerializedSize = -1;
+        public override int SerializedSize {
+          get {
+            int size = memoizedSerializedSize;
+            if (size != -1) return size;
+            
+            size = 0;
+            if (hasKey) {
+              size += pb::CodedOutputStream.ComputeStringSize(1, Key);
+            }
+            if (hasValue) {
+              size += pb::CodedOutputStream.ComputeMessageSize(2, Value);
+            }
+            size += UnknownFields.SerializedSize;
+            memoizedSerializedSize = size;
+            return size;
+          }
+        }
+        
+        public static ObjectField ParseFrom(pb::ByteString data) {
+          return ((Builder) CreateBuilder().MergeFrom(data)).BuildParsed();
+        }
+        public static ObjectField ParseFrom(pb::ByteString data, pb::ExtensionRegistry extensionRegistry) {
+          return ((Builder) CreateBuilder().MergeFrom(data, extensionRegistry)).BuildParsed();
+        }
+        public static ObjectField ParseFrom(byte[] data) {
+          return ((Builder) CreateBuilder().MergeFrom(data)).BuildParsed();
+        }
+        public static ObjectField ParseFrom(byte[] data, pb::ExtensionRegistry extensionRegistry) {
+          return ((Builder) CreateBuilder().MergeFrom(data, extensionRegistry)).BuildParsed();
+        }
+        public static ObjectField ParseFrom(global::System.IO.Stream input) {
+          return ((Builder) CreateBuilder().MergeFrom(input)).BuildParsed();
+        }
+        public static ObjectField ParseFrom(global::System.IO.Stream input, pb::ExtensionRegistry extensionRegistry) {
+          return ((Builder) CreateBuilder().MergeFrom(input, extensionRegistry)).BuildParsed();
+        }
+        public static ObjectField ParseDelimitedFrom(global::System.IO.Stream input) {
+          return CreateBuilder().MergeDelimitedFrom(input).BuildParsed();
+        }
+        public static ObjectField ParseDelimitedFrom(global::System.IO.Stream input, pb::ExtensionRegistry extensionRegistry) {
+          return CreateBuilder().MergeDelimitedFrom(input, extensionRegistry).BuildParsed();
+        }
+        public static ObjectField ParseFrom(pb::ICodedInputStream input) {
+          return ((Builder) CreateBuilder().MergeFrom(input)).BuildParsed();
+        }
+        public static ObjectField ParseFrom(pb::ICodedInputStream input, pb::ExtensionRegistry extensionRegistry) {
+          return ((Builder) CreateBuilder().MergeFrom(input, extensionRegistry)).BuildParsed();
+        }
+        private ObjectField MakeReadOnly() {
+          return this;
+        }
+        
+        public static Builder CreateBuilder() { return new Builder(); }
+        public override Builder ToBuilder() { return CreateBuilder(this); }
+        public override Builder CreateBuilderForType() { return new Builder(); }
+        public static Builder CreateBuilder(ObjectField prototype) {
+          return new Builder(prototype);
+        }
+        
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        internal sealed partial class Builder : pb::GeneratedBuilder<ObjectField, Builder> {
+          protected override Builder ThisBuilder {
+            get { return this; }
+          }
+          public Builder() {
+            result = DefaultInstance;
+            resultIsReadOnly = true;
+          }
+          internal Builder(ObjectField cloneFrom) {
+            result = cloneFrom;
+            resultIsReadOnly = true;
+          }
+          
+          private bool resultIsReadOnly;
+          private ObjectField result;
+          
+          private ObjectField PrepareBuilder() {
+            if (resultIsReadOnly) {
+              ObjectField original = result;
+              result = new ObjectField();
+              resultIsReadOnly = false;
+              MergeFrom(original);
+            }
+            return result;
+          }
+          
+          public override bool IsInitialized {
+            get { return result.IsInitialized; }
+          }
+          
+          protected override ObjectField MessageBeingBuilt {
+            get { return PrepareBuilder(); }
+          }
+          
+          public override Builder Clear() {
+            result = DefaultInstance;
+            resultIsReadOnly = true;
+            return this;
+          }
+          
+          public override Builder Clone() {
+            if (resultIsReadOnly) {
+              return new Builder(result);
+            } else {
+              return new Builder().MergeFrom(result);
+            }
+          }
+          
+          public override pbd::MessageDescriptor DescriptorForType {
+            get { return global::Mysqlx.Expr.Object.Types.ObjectField.Descriptor; }
+          }
+          
+          public override ObjectField DefaultInstanceForType {
+            get { return global::Mysqlx.Expr.Object.Types.ObjectField.DefaultInstance; }
+          }
+          
+          public override ObjectField BuildPartial() {
+            if (resultIsReadOnly) {
+              return result;
+            }
+            resultIsReadOnly = true;
+            return result.MakeReadOnly();
+          }
+          
+          public override Builder MergeFrom(pb::IMessage other) {
+            if (other is ObjectField) {
+              return MergeFrom((ObjectField) other);
+            } else {
+              base.MergeFrom(other);
+              return this;
+            }
+          }
+          
+          public override Builder MergeFrom(ObjectField other) {
+            if (other == global::Mysqlx.Expr.Object.Types.ObjectField.DefaultInstance) return this;
+            PrepareBuilder();
+            if (other.HasKey) {
+              Key = other.Key;
+            }
+            if (other.HasValue) {
+              MergeValue(other.Value);
+            }
+            this.MergeUnknownFields(other.UnknownFields);
+            return this;
+          }
+          
+          public override Builder MergeFrom(pb::ICodedInputStream input) {
+            return MergeFrom(input, pb::ExtensionRegistry.Empty);
+          }
+          
+          public override Builder MergeFrom(pb::ICodedInputStream input, pb::ExtensionRegistry extensionRegistry) {
+            PrepareBuilder();
+            pb::UnknownFieldSet.Builder unknownFields = null;
+            uint tag;
+            string field_name;
+            while (input.ReadTag(out tag, out field_name)) {
+              if(tag == 0 && field_name != null) {
+                int field_ordinal = global::System.Array.BinarySearch(_objectFieldFieldNames, field_name, global::System.StringComparer.Ordinal);
+                if(field_ordinal >= 0)
+                  tag = _objectFieldFieldTags[field_ordinal];
+                else {
+                  if (unknownFields == null) {
+                    unknownFields = pb::UnknownFieldSet.CreateBuilder(this.UnknownFields);
+                  }
+                  ParseUnknownField(input, unknownFields, extensionRegistry, tag, field_name);
+                  continue;
+                }
+              }
+              switch (tag) {
+                case 0: {
+                  throw pb::InvalidProtocolBufferException.InvalidTag();
+                }
+                default: {
+                  if (pb::WireFormat.IsEndGroupTag(tag)) {
+                    if (unknownFields != null) {
+                      this.UnknownFields = unknownFields.Build();
+                    }
+                    return this;
+                  }
+                  if (unknownFields == null) {
+                    unknownFields = pb::UnknownFieldSet.CreateBuilder(this.UnknownFields);
+                  }
+                  ParseUnknownField(input, unknownFields, extensionRegistry, tag, field_name);
+                  break;
+                }
+                case 10: {
+                  result.hasKey = input.ReadString(ref result.key_);
+                  break;
+                }
+                case 18: {
+                  global::Mysqlx.Expr.Expr.Builder subBuilder = global::Mysqlx.Expr.Expr.CreateBuilder();
+                  if (result.hasValue) {
+                    subBuilder.MergeFrom(Value);
+                  }
+                  input.ReadMessage(subBuilder, extensionRegistry);
+                  Value = subBuilder.BuildPartial();
+                  break;
+                }
+              }
+            }
+            
+            if (unknownFields != null) {
+              this.UnknownFields = unknownFields.Build();
+            }
+            return this;
+          }
+          
+          
+          public bool HasKey {
+            get { return result.hasKey; }
+          }
+          public string Key {
+            get { return result.Key; }
+            set { SetKey(value); }
+          }
+          public Builder SetKey(string value) {
+            pb::ThrowHelper.ThrowIfNull(value, "value");
+            PrepareBuilder();
+            result.hasKey = true;
+            result.key_ = value;
+            return this;
+          }
+          public Builder ClearKey() {
+            PrepareBuilder();
+            result.hasKey = false;
+            result.key_ = "";
+            return this;
+          }
+          
+          public bool HasValue {
+           get { return result.hasValue; }
+          }
+          public global::Mysqlx.Expr.Expr Value {
+            get { return result.Value; }
+            set { SetValue(value); }
+          }
+          public Builder SetValue(global::Mysqlx.Expr.Expr value) {
+            pb::ThrowHelper.ThrowIfNull(value, "value");
+            PrepareBuilder();
+            result.hasValue = true;
+            result.value_ = value;
+            return this;
+          }
+          public Builder SetValue(global::Mysqlx.Expr.Expr.Builder builderForValue) {
+            pb::ThrowHelper.ThrowIfNull(builderForValue, "builderForValue");
+            PrepareBuilder();
+            result.hasValue = true;
+            result.value_ = builderForValue.Build();
+            return this;
+          }
+          public Builder MergeValue(global::Mysqlx.Expr.Expr value) {
+            pb::ThrowHelper.ThrowIfNull(value, "value");
+            PrepareBuilder();
+            if (result.hasValue &&
+                result.value_ != global::Mysqlx.Expr.Expr.DefaultInstance) {
+                result.value_ = global::Mysqlx.Expr.Expr.CreateBuilder(result.value_).MergeFrom(value).BuildPartial();
+            } else {
+              result.value_ = value;
+            }
+            result.hasValue = true;
+            return this;
+          }
+          public Builder ClearValue() {
+            PrepareBuilder();
+            result.hasValue = false;
+            result.value_ = null;
+            return this;
+          }
+        }
+        static ObjectField() {
+          object.ReferenceEquals(global::Mysqlx.Expr.MysqlxExpr.Descriptor, null);
+        }
+      }
+      
+    }
+    #endregion
+    
+    public const int FldFieldNumber = 1;
+    private pbc::PopsicleList<global::Mysqlx.Expr.Object.Types.ObjectField> fld_ = new pbc::PopsicleList<global::Mysqlx.Expr.Object.Types.ObjectField>();
+    public scg::IList<global::Mysqlx.Expr.Object.Types.ObjectField> FldList {
+      get { return fld_; }
+    }
+    public int FldCount {
+      get { return fld_.Count; }
+    }
+    public global::Mysqlx.Expr.Object.Types.ObjectField GetFld(int index) {
+      return fld_[index];
+    }
+    
+    public override bool IsInitialized {
+      get {
+        foreach (global::Mysqlx.Expr.Object.Types.ObjectField element in FldList) {
+          if (!element.IsInitialized) return false;
+        }
+        return true;
+      }
+    }
+    
+    public override void WriteTo(pb::ICodedOutputStream output) {
+      int size = SerializedSize;
+      string[] field_names = _objectFieldNames;
+      if (fld_.Count > 0) {
+        output.WriteMessageArray(1, field_names[0], fld_);
+      }
+      UnknownFields.WriteTo(output);
+    }
+    
+    private int memoizedSerializedSize = -1;
+    public override int SerializedSize {
+      get {
+        int size = memoizedSerializedSize;
+        if (size != -1) return size;
+        
+        size = 0;
+        foreach (global::Mysqlx.Expr.Object.Types.ObjectField element in FldList) {
+          size += pb::CodedOutputStream.ComputeMessageSize(1, element);
+        }
+        size += UnknownFields.SerializedSize;
+        memoizedSerializedSize = size;
+        return size;
+      }
+    }
+    
+    public static Object ParseFrom(pb::ByteString data) {
+      return ((Builder) CreateBuilder().MergeFrom(data)).BuildParsed();
+    }
+    public static Object ParseFrom(pb::ByteString data, pb::ExtensionRegistry extensionRegistry) {
+      return ((Builder) CreateBuilder().MergeFrom(data, extensionRegistry)).BuildParsed();
+    }
+    public static Object ParseFrom(byte[] data) {
+      return ((Builder) CreateBuilder().MergeFrom(data)).BuildParsed();
+    }
+    public static Object ParseFrom(byte[] data, pb::ExtensionRegistry extensionRegistry) {
+      return ((Builder) CreateBuilder().MergeFrom(data, extensionRegistry)).BuildParsed();
+    }
+    public static Object ParseFrom(global::System.IO.Stream input) {
+      return ((Builder) CreateBuilder().MergeFrom(input)).BuildParsed();
+    }
+    public static Object ParseFrom(global::System.IO.Stream input, pb::ExtensionRegistry extensionRegistry) {
+      return ((Builder) CreateBuilder().MergeFrom(input, extensionRegistry)).BuildParsed();
+    }
+    public static Object ParseDelimitedFrom(global::System.IO.Stream input) {
+      return CreateBuilder().MergeDelimitedFrom(input).BuildParsed();
+    }
+    public static Object ParseDelimitedFrom(global::System.IO.Stream input, pb::ExtensionRegistry extensionRegistry) {
+      return CreateBuilder().MergeDelimitedFrom(input, extensionRegistry).BuildParsed();
+    }
+    public static Object ParseFrom(pb::ICodedInputStream input) {
+      return ((Builder) CreateBuilder().MergeFrom(input)).BuildParsed();
+    }
+    public static Object ParseFrom(pb::ICodedInputStream input, pb::ExtensionRegistry extensionRegistry) {
+      return ((Builder) CreateBuilder().MergeFrom(input, extensionRegistry)).BuildParsed();
+    }
+    private Object MakeReadOnly() {
+      fld_.MakeReadOnly();
+      return this;
+    }
+    
+    public static Builder CreateBuilder() { return new Builder(); }
+    public override Builder ToBuilder() { return CreateBuilder(this); }
+    public override Builder CreateBuilderForType() { return new Builder(); }
+    public static Builder CreateBuilder(Object prototype) {
+      return new Builder(prototype);
+    }
+    
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+    internal sealed partial class Builder : pb::GeneratedBuilder<Object, Builder> {
+      protected override Builder ThisBuilder {
+        get { return this; }
+      }
+      public Builder() {
+        result = DefaultInstance;
+        resultIsReadOnly = true;
+      }
+      internal Builder(Object cloneFrom) {
+        result = cloneFrom;
+        resultIsReadOnly = true;
+      }
+      
+      private bool resultIsReadOnly;
+      private Object result;
+      
+      private Object PrepareBuilder() {
+        if (resultIsReadOnly) {
+          Object original = result;
+          result = new Object();
+          resultIsReadOnly = false;
+          MergeFrom(original);
+        }
+        return result;
+      }
+      
+      public override bool IsInitialized {
+        get { return result.IsInitialized; }
+      }
+      
+      protected override Object MessageBeingBuilt {
+        get { return PrepareBuilder(); }
+      }
+      
+      public override Builder Clear() {
+        result = DefaultInstance;
+        resultIsReadOnly = true;
+        return this;
+      }
+      
+      public override Builder Clone() {
+        if (resultIsReadOnly) {
+          return new Builder(result);
+        } else {
+          return new Builder().MergeFrom(result);
+        }
+      }
+      
+      public override pbd::MessageDescriptor DescriptorForType {
+        get { return global::Mysqlx.Expr.Object.Descriptor; }
+      }
+      
+      public override Object DefaultInstanceForType {
+        get { return global::Mysqlx.Expr.Object.DefaultInstance; }
+      }
+      
+      public override Object BuildPartial() {
+        if (resultIsReadOnly) {
+          return result;
+        }
+        resultIsReadOnly = true;
+        return result.MakeReadOnly();
+      }
+      
+      public override Builder MergeFrom(pb::IMessage other) {
+        if (other is Object) {
+          return MergeFrom((Object) other);
+        } else {
+          base.MergeFrom(other);
+          return this;
+        }
+      }
+      
+      public override Builder MergeFrom(Object other) {
+        if (other == global::Mysqlx.Expr.Object.DefaultInstance) return this;
+        PrepareBuilder();
+        if (other.fld_.Count != 0) {
+          result.fld_.Add(other.fld_);
+        }
+        this.MergeUnknownFields(other.UnknownFields);
+        return this;
+      }
+      
+      public override Builder MergeFrom(pb::ICodedInputStream input) {
+        return MergeFrom(input, pb::ExtensionRegistry.Empty);
+      }
+      
+      public override Builder MergeFrom(pb::ICodedInputStream input, pb::ExtensionRegistry extensionRegistry) {
+        PrepareBuilder();
+        pb::UnknownFieldSet.Builder unknownFields = null;
+        uint tag;
+        string field_name;
+        while (input.ReadTag(out tag, out field_name)) {
+          if(tag == 0 && field_name != null) {
+            int field_ordinal = global::System.Array.BinarySearch(_objectFieldNames, field_name, global::System.StringComparer.Ordinal);
+            if(field_ordinal >= 0)
+              tag = _objectFieldTags[field_ordinal];
+            else {
+              if (unknownFields == null) {
+                unknownFields = pb::UnknownFieldSet.CreateBuilder(this.UnknownFields);
+              }
+              ParseUnknownField(input, unknownFields, extensionRegistry, tag, field_name);
+              continue;
+            }
+          }
+          switch (tag) {
+            case 0: {
+              throw pb::InvalidProtocolBufferException.InvalidTag();
+            }
+            default: {
+              if (pb::WireFormat.IsEndGroupTag(tag)) {
+                if (unknownFields != null) {
+                  this.UnknownFields = unknownFields.Build();
+                }
+                return this;
+              }
+              if (unknownFields == null) {
+                unknownFields = pb::UnknownFieldSet.CreateBuilder(this.UnknownFields);
+              }
+              ParseUnknownField(input, unknownFields, extensionRegistry, tag, field_name);
+              break;
+            }
+            case 10: {
+              input.ReadMessageArray(tag, field_name, result.fld_, global::Mysqlx.Expr.Object.Types.ObjectField.DefaultInstance, extensionRegistry);
+              break;
+            }
+          }
+        }
+        
+        if (unknownFields != null) {
+          this.UnknownFields = unknownFields.Build();
+        }
+        return this;
+      }
+      
+      
+      public pbc::IPopsicleList<global::Mysqlx.Expr.Object.Types.ObjectField> FldList {
+        get { return PrepareBuilder().fld_; }
+      }
+      public int FldCount {
+        get { return result.FldCount; }
+      }
+      public global::Mysqlx.Expr.Object.Types.ObjectField GetFld(int index) {
+        return result.GetFld(index);
+      }
+      public Builder SetFld(int index, global::Mysqlx.Expr.Object.Types.ObjectField value) {
+        pb::ThrowHelper.ThrowIfNull(value, "value");
+        PrepareBuilder();
+        result.fld_[index] = value;
+        return this;
+      }
+      public Builder SetFld(int index, global::Mysqlx.Expr.Object.Types.ObjectField.Builder builderForValue) {
+        pb::ThrowHelper.ThrowIfNull(builderForValue, "builderForValue");
+        PrepareBuilder();
+        result.fld_[index] = builderForValue.Build();
+        return this;
+      }
+      public Builder AddFld(global::Mysqlx.Expr.Object.Types.ObjectField value) {
+        pb::ThrowHelper.ThrowIfNull(value, "value");
+        PrepareBuilder();
+        result.fld_.Add(value);
+        return this;
+      }
+      public Builder AddFld(global::Mysqlx.Expr.Object.Types.ObjectField.Builder builderForValue) {
+        pb::ThrowHelper.ThrowIfNull(builderForValue, "builderForValue");
+        PrepareBuilder();
+        result.fld_.Add(builderForValue.Build());
+        return this;
+      }
+      public Builder AddRangeFld(scg::IEnumerable<global::Mysqlx.Expr.Object.Types.ObjectField> values) {
+        PrepareBuilder();
+        result.fld_.Add(values);
+        return this;
+      }
+      public Builder ClearFld() {
+        PrepareBuilder();
+        result.fld_.Clear();
+        return this;
+      }
+    }
+    static Object() {
+      object.ReferenceEquals(global::Mysqlx.Expr.MysqlxExpr.Descriptor, null);
+    }
+  }
+  
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+  internal sealed partial class Array : pb::GeneratedMessage<Array, Array.Builder> {
+    private Array() { }
+    private static readonly Array defaultInstance = new Array().MakeReadOnly();
+    private static readonly string[] _arrayFieldNames = new string[] { "value" };
+    private static readonly uint[] _arrayFieldTags = new uint[] { 10 };
+    public static Array DefaultInstance {
+      get { return defaultInstance; }
+    }
+    
+    public override Array DefaultInstanceForType {
+      get { return DefaultInstance; }
+    }
+    
+    protected override Array ThisMessage {
+      get { return this; }
+    }
+    
+    public static pbd::MessageDescriptor Descriptor {
+      get { return global::Mysqlx.Expr.MysqlxExpr.internal__static_Mysqlx_Expr_Array__Descriptor; }
+    }
+    
+    protected override pb::FieldAccess.FieldAccessorTable<Array, Array.Builder> InternalFieldAccessors {
+      get { return global::Mysqlx.Expr.MysqlxExpr.internal__static_Mysqlx_Expr_Array__FieldAccessorTable; }
+    }
+    
+    public const int ValueFieldNumber = 1;
+    private pbc::PopsicleList<global::Mysqlx.Expr.Expr> value_ = new pbc::PopsicleList<global::Mysqlx.Expr.Expr>();
+    public scg::IList<global::Mysqlx.Expr.Expr> ValueList {
+      get { return value_; }
+    }
+    public int ValueCount {
+      get { return value_.Count; }
+    }
+    public global::Mysqlx.Expr.Expr GetValue(int index) {
+      return value_[index];
+    }
+    
+    public override bool IsInitialized {
+      get {
+        foreach (global::Mysqlx.Expr.Expr element in ValueList) {
+          if (!element.IsInitialized) return false;
+        }
+        return true;
+      }
+    }
+    
+    public override void WriteTo(pb::ICodedOutputStream output) {
+      int size = SerializedSize;
+      string[] field_names = _arrayFieldNames;
+      if (value_.Count > 0) {
+        output.WriteMessageArray(1, field_names[0], value_);
+      }
+      UnknownFields.WriteTo(output);
+    }
+    
+    private int memoizedSerializedSize = -1;
+    public override int SerializedSize {
+      get {
+        int size = memoizedSerializedSize;
+        if (size != -1) return size;
+        
+        size = 0;
+        foreach (global::Mysqlx.Expr.Expr element in ValueList) {
+          size += pb::CodedOutputStream.ComputeMessageSize(1, element);
+        }
+        size += UnknownFields.SerializedSize;
+        memoizedSerializedSize = size;
+        return size;
+      }
+    }
+    
+    public static Array ParseFrom(pb::ByteString data) {
+      return ((Builder) CreateBuilder().MergeFrom(data)).BuildParsed();
+    }
+    public static Array ParseFrom(pb::ByteString data, pb::ExtensionRegistry extensionRegistry) {
+      return ((Builder) CreateBuilder().MergeFrom(data, extensionRegistry)).BuildParsed();
+    }
+    public static Array ParseFrom(byte[] data) {
+      return ((Builder) CreateBuilder().MergeFrom(data)).BuildParsed();
+    }
+    public static Array ParseFrom(byte[] data, pb::ExtensionRegistry extensionRegistry) {
+      return ((Builder) CreateBuilder().MergeFrom(data, extensionRegistry)).BuildParsed();
+    }
+    public static Array ParseFrom(global::System.IO.Stream input) {
+      return ((Builder) CreateBuilder().MergeFrom(input)).BuildParsed();
+    }
+    public static Array ParseFrom(global::System.IO.Stream input, pb::ExtensionRegistry extensionRegistry) {
+      return ((Builder) CreateBuilder().MergeFrom(input, extensionRegistry)).BuildParsed();
+    }
+    public static Array ParseDelimitedFrom(global::System.IO.Stream input) {
+      return CreateBuilder().MergeDelimitedFrom(input).BuildParsed();
+    }
+    public static Array ParseDelimitedFrom(global::System.IO.Stream input, pb::ExtensionRegistry extensionRegistry) {
+      return CreateBuilder().MergeDelimitedFrom(input, extensionRegistry).BuildParsed();
+    }
+    public static Array ParseFrom(pb::ICodedInputStream input) {
+      return ((Builder) CreateBuilder().MergeFrom(input)).BuildParsed();
+    }
+    public static Array ParseFrom(pb::ICodedInputStream input, pb::ExtensionRegistry extensionRegistry) {
+      return ((Builder) CreateBuilder().MergeFrom(input, extensionRegistry)).BuildParsed();
+    }
+    private Array MakeReadOnly() {
+      value_.MakeReadOnly();
+      return this;
+    }
+    
+    public static Builder CreateBuilder() { return new Builder(); }
+    public override Builder ToBuilder() { return CreateBuilder(this); }
+    public override Builder CreateBuilderForType() { return new Builder(); }
+    public static Builder CreateBuilder(Array prototype) {
+      return new Builder(prototype);
+    }
+    
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+    internal sealed partial class Builder : pb::GeneratedBuilder<Array, Builder> {
+      protected override Builder ThisBuilder {
+        get { return this; }
+      }
+      public Builder() {
+        result = DefaultInstance;
+        resultIsReadOnly = true;
+      }
+      internal Builder(Array cloneFrom) {
+        result = cloneFrom;
+        resultIsReadOnly = true;
+      }
+      
+      private bool resultIsReadOnly;
+      private Array result;
+      
+      private Array PrepareBuilder() {
+        if (resultIsReadOnly) {
+          Array original = result;
+          result = new Array();
+          resultIsReadOnly = false;
+          MergeFrom(original);
+        }
+        return result;
+      }
+      
+      public override bool IsInitialized {
+        get { return result.IsInitialized; }
+      }
+      
+      protected override Array MessageBeingBuilt {
+        get { return PrepareBuilder(); }
+      }
+      
+      public override Builder Clear() {
+        result = DefaultInstance;
+        resultIsReadOnly = true;
+        return this;
+      }
+      
+      public override Builder Clone() {
+        if (resultIsReadOnly) {
+          return new Builder(result);
+        } else {
+          return new Builder().MergeFrom(result);
+        }
+      }
+      
+      public override pbd::MessageDescriptor DescriptorForType {
+        get { return global::Mysqlx.Expr.Array.Descriptor; }
+      }
+      
+      public override Array DefaultInstanceForType {
+        get { return global::Mysqlx.Expr.Array.DefaultInstance; }
+      }
+      
+      public override Array BuildPartial() {
+        if (resultIsReadOnly) {
+          return result;
+        }
+        resultIsReadOnly = true;
+        return result.MakeReadOnly();
+      }
+      
+      public override Builder MergeFrom(pb::IMessage other) {
+        if (other is Array) {
+          return MergeFrom((Array) other);
+        } else {
+          base.MergeFrom(other);
+          return this;
+        }
+      }
+      
+      public override Builder MergeFrom(Array other) {
+        if (other == global::Mysqlx.Expr.Array.DefaultInstance) return this;
+        PrepareBuilder();
+        if (other.value_.Count != 0) {
+          result.value_.Add(other.value_);
+        }
+        this.MergeUnknownFields(other.UnknownFields);
+        return this;
+      }
+      
+      public override Builder MergeFrom(pb::ICodedInputStream input) {
+        return MergeFrom(input, pb::ExtensionRegistry.Empty);
+      }
+      
+      public override Builder MergeFrom(pb::ICodedInputStream input, pb::ExtensionRegistry extensionRegistry) {
+        PrepareBuilder();
+        pb::UnknownFieldSet.Builder unknownFields = null;
+        uint tag;
+        string field_name;
+        while (input.ReadTag(out tag, out field_name)) {
+          if(tag == 0 && field_name != null) {
+            int field_ordinal = global::System.Array.BinarySearch(_arrayFieldNames, field_name, global::System.StringComparer.Ordinal);
+            if(field_ordinal >= 0)
+              tag = _arrayFieldTags[field_ordinal];
+            else {
+              if (unknownFields == null) {
+                unknownFields = pb::UnknownFieldSet.CreateBuilder(this.UnknownFields);
+              }
+              ParseUnknownField(input, unknownFields, extensionRegistry, tag, field_name);
+              continue;
+            }
+          }
+          switch (tag) {
+            case 0: {
+              throw pb::InvalidProtocolBufferException.InvalidTag();
+            }
+            default: {
+              if (pb::WireFormat.IsEndGroupTag(tag)) {
+                if (unknownFields != null) {
+                  this.UnknownFields = unknownFields.Build();
+                }
+                return this;
+              }
+              if (unknownFields == null) {
+                unknownFields = pb::UnknownFieldSet.CreateBuilder(this.UnknownFields);
+              }
+              ParseUnknownField(input, unknownFields, extensionRegistry, tag, field_name);
+              break;
+            }
+            case 10: {
+              input.ReadMessageArray(tag, field_name, result.value_, global::Mysqlx.Expr.Expr.DefaultInstance, extensionRegistry);
+              break;
+            }
+          }
+        }
+        
+        if (unknownFields != null) {
+          this.UnknownFields = unknownFields.Build();
+        }
+        return this;
+      }
+      
+      
+      public pbc::IPopsicleList<global::Mysqlx.Expr.Expr> ValueList {
+        get { return PrepareBuilder().value_; }
+      }
+      public int ValueCount {
+        get { return result.ValueCount; }
+      }
+      public global::Mysqlx.Expr.Expr GetValue(int index) {
+        return result.GetValue(index);
+      }
+      public Builder SetValue(int index, global::Mysqlx.Expr.Expr value) {
+        pb::ThrowHelper.ThrowIfNull(value, "value");
+        PrepareBuilder();
+        result.value_[index] = value;
+        return this;
+      }
+      public Builder SetValue(int index, global::Mysqlx.Expr.Expr.Builder builderForValue) {
+        pb::ThrowHelper.ThrowIfNull(builderForValue, "builderForValue");
+        PrepareBuilder();
+        result.value_[index] = builderForValue.Build();
+        return this;
+      }
+      public Builder AddValue(global::Mysqlx.Expr.Expr value) {
+        pb::ThrowHelper.ThrowIfNull(value, "value");
+        PrepareBuilder();
+        result.value_.Add(value);
+        return this;
+      }
+      public Builder AddValue(global::Mysqlx.Expr.Expr.Builder builderForValue) {
+        pb::ThrowHelper.ThrowIfNull(builderForValue, "builderForValue");
+        PrepareBuilder();
+        result.value_.Add(builderForValue.Build());
+        return this;
+      }
+      public Builder AddRangeValue(scg::IEnumerable<global::Mysqlx.Expr.Expr> values) {
+        PrepareBuilder();
+        result.value_.Add(values);
+        return this;
+      }
+      public Builder ClearValue() {
+        PrepareBuilder();
+        result.value_.Clear();
+        return this;
+      }
+    }
+    static Array() {
       object.ReferenceEquals(global::Mysqlx.Expr.MysqlxExpr.Descriptor, null);
     }
   }

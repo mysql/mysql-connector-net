@@ -63,34 +63,34 @@ namespace Mysqlx.Crud {
           "AyABKAsyES5NeXNxbHguRXhwci5FeHByInoKClVwZGF0ZVR5cGUSBwoDU0VU" + 
           "EAESDwoLSVRFTV9SRU1PVkUQAhIMCghJVEVNX1NFVBADEhAKDElURU1fUkVQ" + 
           "TEFDRRAEEg4KCklURU1fTUVSR0UQBRIQCgxBUlJBWV9JTlNFUlQQBhIQCgxB" + 
-          "UlJBWV9BUFBFTkQQByLvAgoERmluZBIrCgpjb2xsZWN0aW9uGAIgAigLMhcu" + 
+          "UlJBWV9BUFBFTkQQByLyAgoERmluZBIrCgpjb2xsZWN0aW9uGAIgAigLMhcu" + 
           "TXlzcWx4LkNydWQuQ29sbGVjdGlvbhIqCgpkYXRhX21vZGVsGAMgASgOMhYu" + 
           "TXlzcWx4LkNydWQuRGF0YU1vZGVsEisKCnByb2plY3Rpb24YBCADKAsyFy5N" + 
           "eXNxbHguQ3J1ZC5Qcm9qZWN0aW9uEiMKCGNyaXRlcmlhGAUgASgLMhEuTXlz" + 
-          "cWx4LkV4cHIuRXhwchIjCgRhcmdzGAsgAygLMhUuTXlzcWx4LkRhdGF0eXBl" + 
-          "cy5BbnkSIQoFbGltaXQYBiABKAsyEi5NeXNxbHguQ3J1ZC5MaW1pdBIhCgVv" + 
-          "cmRlchgHIAMoCzISLk15c3FseC5DcnVkLk9yZGVyEiMKCGdyb3VwaW5nGAgg" + 
-          "AygLMhEuTXlzcWx4LkV4cHIuRXhwchIsChFncm91cGluZ19jcml0ZXJpYRgJ" + 
-          "IAEoCzIRLk15c3FseC5FeHByLkV4cHIi4wEKBkluc2VydBIrCgpjb2xsZWN0" + 
-          "aW9uGAEgAigLMhcuTXlzcWx4LkNydWQuQ29sbGVjdGlvbhIqCgpkYXRhX21v" + 
-          "ZGVsGAIgASgOMhYuTXlzcWx4LkNydWQuRGF0YU1vZGVsEicKCnByb2plY3Rp" + 
-          "b24YAyADKAsyEy5NeXNxbHguQ3J1ZC5Db2x1bW4SKQoDcm93GAQgAygLMhwu" + 
-          "TXlzcWx4LkNydWQuSW5zZXJ0LlR5cGVkUm93GiwKCFR5cGVkUm93EiAKBWZp" + 
-          "ZWxkGAEgAygLMhEuTXlzcWx4LkV4cHIuRXhwciKiAgoGVXBkYXRlEisKCmNv" + 
-          "bGxlY3Rpb24YAiACKAsyFy5NeXNxbHguQ3J1ZC5Db2xsZWN0aW9uEioKCmRh" + 
-          "dGFfbW9kZWwYAyABKA4yFi5NeXNxbHguQ3J1ZC5EYXRhTW9kZWwSIwoIY3Jp" + 
-          "dGVyaWEYBCABKAsyES5NeXNxbHguRXhwci5FeHByEiMKBGFyZ3MYCCADKAsy" + 
-          "FS5NeXNxbHguRGF0YXR5cGVzLkFueRIhCgVsaW1pdBgFIAEoCzISLk15c3Fs" + 
-          "eC5DcnVkLkxpbWl0EiEKBW9yZGVyGAYgAygLMhIuTXlzcWx4LkNydWQuT3Jk" + 
-          "ZXISLwoJb3BlcmF0aW9uGAcgAygLMhwuTXlzcWx4LkNydWQuVXBkYXRlT3Bl" + 
-          "cmF0aW9uIvEBCgZEZWxldGUSKwoKY29sbGVjdGlvbhgBIAIoCzIXLk15c3Fs" + 
-          "eC5DcnVkLkNvbGxlY3Rpb24SKgoKZGF0YV9tb2RlbBgCIAEoDjIWLk15c3Fs" + 
-          "eC5DcnVkLkRhdGFNb2RlbBIjCghjcml0ZXJpYRgDIAEoCzIRLk15c3FseC5F" + 
-          "eHByLkV4cHISIwoEYXJncxgGIAMoCzIVLk15c3FseC5EYXRhdHlwZXMuQW55" + 
-          "EiEKBWxpbWl0GAQgASgLMhIuTXlzcWx4LkNydWQuTGltaXQSIQoFb3JkZXIY" + 
-          "BSADKAsyEi5NeXNxbHguQ3J1ZC5PcmRlciokCglEYXRhTW9kZWwSDAoIRE9D" + 
-          "VU1FTlQQARIJCgVUQUJMRRACQh4KHGNvbS5teXNxbC5jai5teXNxbHgucHJv" + 
-          "dG9idWY=");
+          "cWx4LkV4cHIuRXhwchImCgRhcmdzGAsgAygLMhguTXlzcWx4LkRhdGF0eXBl" + 
+          "cy5TY2FsYXISIQoFbGltaXQYBiABKAsyEi5NeXNxbHguQ3J1ZC5MaW1pdBIh" + 
+          "CgVvcmRlchgHIAMoCzISLk15c3FseC5DcnVkLk9yZGVyEiMKCGdyb3VwaW5n" + 
+          "GAggAygLMhEuTXlzcWx4LkV4cHIuRXhwchIsChFncm91cGluZ19jcml0ZXJp" + 
+          "YRgJIAEoCzIRLk15c3FseC5FeHByLkV4cHIi4wEKBkluc2VydBIrCgpjb2xs" + 
+          "ZWN0aW9uGAEgAigLMhcuTXlzcWx4LkNydWQuQ29sbGVjdGlvbhIqCgpkYXRh" + 
+          "X21vZGVsGAIgASgOMhYuTXlzcWx4LkNydWQuRGF0YU1vZGVsEicKCnByb2pl" + 
+          "Y3Rpb24YAyADKAsyEy5NeXNxbHguQ3J1ZC5Db2x1bW4SKQoDcm93GAQgAygL" + 
+          "MhwuTXlzcWx4LkNydWQuSW5zZXJ0LlR5cGVkUm93GiwKCFR5cGVkUm93EiAK" + 
+          "BWZpZWxkGAEgAygLMhEuTXlzcWx4LkV4cHIuRXhwciKlAgoGVXBkYXRlEisK" + 
+          "CmNvbGxlY3Rpb24YAiACKAsyFy5NeXNxbHguQ3J1ZC5Db2xsZWN0aW9uEioK" + 
+          "CmRhdGFfbW9kZWwYAyABKA4yFi5NeXNxbHguQ3J1ZC5EYXRhTW9kZWwSIwoI" + 
+          "Y3JpdGVyaWEYBCABKAsyES5NeXNxbHguRXhwci5FeHByEiYKBGFyZ3MYCCAD" + 
+          "KAsyGC5NeXNxbHguRGF0YXR5cGVzLlNjYWxhchIhCgVsaW1pdBgFIAEoCzIS" + 
+          "Lk15c3FseC5DcnVkLkxpbWl0EiEKBW9yZGVyGAYgAygLMhIuTXlzcWx4LkNy" + 
+          "dWQuT3JkZXISLwoJb3BlcmF0aW9uGAcgAygLMhwuTXlzcWx4LkNydWQuVXBk" + 
+          "YXRlT3BlcmF0aW9uIvQBCgZEZWxldGUSKwoKY29sbGVjdGlvbhgBIAIoCzIX" + 
+          "Lk15c3FseC5DcnVkLkNvbGxlY3Rpb24SKgoKZGF0YV9tb2RlbBgCIAEoDjIW" + 
+          "Lk15c3FseC5DcnVkLkRhdGFNb2RlbBIjCghjcml0ZXJpYRgDIAEoCzIRLk15" + 
+          "c3FseC5FeHByLkV4cHISJgoEYXJncxgGIAMoCzIYLk15c3FseC5EYXRhdHlw" + 
+          "ZXMuU2NhbGFyEiEKBWxpbWl0GAQgASgLMhIuTXlzcWx4LkNydWQuTGltaXQS" + 
+          "IQoFb3JkZXIYBSADKAsyEi5NeXNxbHguQ3J1ZC5PcmRlciokCglEYXRhTW9k" + 
+          "ZWwSDAoIRE9DVU1FTlQQARIJCgVUQUJMRRACQh4KHGNvbS5teXNxbC5jai5t" + 
+          "eXNxbHgucHJvdG9idWY=");
       pbd::FileDescriptor.InternalDescriptorAssigner assigner = delegate(pbd::FileDescriptor root) {
         descriptor = root;
         internal__static_Mysqlx_Crud_Column__Descriptor = Descriptor.MessageTypes[0];
@@ -2380,14 +2380,14 @@ namespace Mysqlx.Crud {
     }
     
     public const int ArgsFieldNumber = 11;
-    private pbc::PopsicleList<global::Mysqlx.Datatypes.Any> args_ = new pbc::PopsicleList<global::Mysqlx.Datatypes.Any>();
-    public scg::IList<global::Mysqlx.Datatypes.Any> ArgsList {
+    private pbc::PopsicleList<global::Mysqlx.Datatypes.Scalar> args_ = new pbc::PopsicleList<global::Mysqlx.Datatypes.Scalar>();
+    public scg::IList<global::Mysqlx.Datatypes.Scalar> ArgsList {
       get { return args_; }
     }
     public int ArgsCount {
       get { return args_.Count; }
     }
-    public global::Mysqlx.Datatypes.Any GetArgs(int index) {
+    public global::Mysqlx.Datatypes.Scalar GetArgs(int index) {
       return args_[index];
     }
     
@@ -2445,7 +2445,7 @@ namespace Mysqlx.Crud {
         if (HasCriteria) {
           if (!Criteria.IsInitialized) return false;
         }
-        foreach (global::Mysqlx.Datatypes.Any element in ArgsList) {
+        foreach (global::Mysqlx.Datatypes.Scalar element in ArgsList) {
           if (!element.IsInitialized) return false;
         }
         if (HasLimit) {
@@ -2516,7 +2516,7 @@ namespace Mysqlx.Crud {
         if (hasCriteria) {
           size += pb::CodedOutputStream.ComputeMessageSize(5, Criteria);
         }
-        foreach (global::Mysqlx.Datatypes.Any element in ArgsList) {
+        foreach (global::Mysqlx.Datatypes.Scalar element in ArgsList) {
           size += pb::CodedOutputStream.ComputeMessageSize(11, element);
         }
         if (hasLimit) {
@@ -2790,7 +2790,7 @@ namespace Mysqlx.Crud {
               break;
             }
             case 90: {
-              input.ReadMessageArray(tag, field_name, result.args_, global::Mysqlx.Datatypes.Any.DefaultInstance, extensionRegistry);
+              input.ReadMessageArray(tag, field_name, result.args_, global::Mysqlx.Datatypes.Scalar.DefaultInstance, extensionRegistry);
               break;
             }
           }
@@ -2947,40 +2947,40 @@ namespace Mysqlx.Crud {
         return this;
       }
       
-      public pbc::IPopsicleList<global::Mysqlx.Datatypes.Any> ArgsList {
+      public pbc::IPopsicleList<global::Mysqlx.Datatypes.Scalar> ArgsList {
         get { return PrepareBuilder().args_; }
       }
       public int ArgsCount {
         get { return result.ArgsCount; }
       }
-      public global::Mysqlx.Datatypes.Any GetArgs(int index) {
+      public global::Mysqlx.Datatypes.Scalar GetArgs(int index) {
         return result.GetArgs(index);
       }
-      public Builder SetArgs(int index, global::Mysqlx.Datatypes.Any value) {
+      public Builder SetArgs(int index, global::Mysqlx.Datatypes.Scalar value) {
         pb::ThrowHelper.ThrowIfNull(value, "value");
         PrepareBuilder();
         result.args_[index] = value;
         return this;
       }
-      public Builder SetArgs(int index, global::Mysqlx.Datatypes.Any.Builder builderForValue) {
+      public Builder SetArgs(int index, global::Mysqlx.Datatypes.Scalar.Builder builderForValue) {
         pb::ThrowHelper.ThrowIfNull(builderForValue, "builderForValue");
         PrepareBuilder();
         result.args_[index] = builderForValue.Build();
         return this;
       }
-      public Builder AddArgs(global::Mysqlx.Datatypes.Any value) {
+      public Builder AddArgs(global::Mysqlx.Datatypes.Scalar value) {
         pb::ThrowHelper.ThrowIfNull(value, "value");
         PrepareBuilder();
         result.args_.Add(value);
         return this;
       }
-      public Builder AddArgs(global::Mysqlx.Datatypes.Any.Builder builderForValue) {
+      public Builder AddArgs(global::Mysqlx.Datatypes.Scalar.Builder builderForValue) {
         pb::ThrowHelper.ThrowIfNull(builderForValue, "builderForValue");
         PrepareBuilder();
         result.args_.Add(builderForValue.Build());
         return this;
       }
-      public Builder AddRangeArgs(scg::IEnumerable<global::Mysqlx.Datatypes.Any> values) {
+      public Builder AddRangeArgs(scg::IEnumerable<global::Mysqlx.Datatypes.Scalar> values) {
         PrepareBuilder();
         result.args_.Add(values);
         return this;
@@ -4021,14 +4021,14 @@ namespace Mysqlx.Crud {
     }
     
     public const int ArgsFieldNumber = 8;
-    private pbc::PopsicleList<global::Mysqlx.Datatypes.Any> args_ = new pbc::PopsicleList<global::Mysqlx.Datatypes.Any>();
-    public scg::IList<global::Mysqlx.Datatypes.Any> ArgsList {
+    private pbc::PopsicleList<global::Mysqlx.Datatypes.Scalar> args_ = new pbc::PopsicleList<global::Mysqlx.Datatypes.Scalar>();
+    public scg::IList<global::Mysqlx.Datatypes.Scalar> ArgsList {
       get { return args_; }
     }
     public int ArgsCount {
       get { return args_.Count; }
     }
-    public global::Mysqlx.Datatypes.Any GetArgs(int index) {
+    public global::Mysqlx.Datatypes.Scalar GetArgs(int index) {
       return args_[index];
     }
     
@@ -4073,7 +4073,7 @@ namespace Mysqlx.Crud {
         if (HasCriteria) {
           if (!Criteria.IsInitialized) return false;
         }
-        foreach (global::Mysqlx.Datatypes.Any element in ArgsList) {
+        foreach (global::Mysqlx.Datatypes.Scalar element in ArgsList) {
           if (!element.IsInitialized) return false;
         }
         if (HasLimit) {
@@ -4132,7 +4132,7 @@ namespace Mysqlx.Crud {
         if (hasCriteria) {
           size += pb::CodedOutputStream.ComputeMessageSize(4, Criteria);
         }
-        foreach (global::Mysqlx.Datatypes.Any element in ArgsList) {
+        foreach (global::Mysqlx.Datatypes.Scalar element in ArgsList) {
           size += pb::CodedOutputStream.ComputeMessageSize(8, element);
         }
         if (hasLimit) {
@@ -4383,7 +4383,7 @@ namespace Mysqlx.Crud {
               break;
             }
             case 66: {
-              input.ReadMessageArray(tag, field_name, result.args_, global::Mysqlx.Datatypes.Any.DefaultInstance, extensionRegistry);
+              input.ReadMessageArray(tag, field_name, result.args_, global::Mysqlx.Datatypes.Scalar.DefaultInstance, extensionRegistry);
               break;
             }
           }
@@ -4496,40 +4496,40 @@ namespace Mysqlx.Crud {
         return this;
       }
       
-      public pbc::IPopsicleList<global::Mysqlx.Datatypes.Any> ArgsList {
+      public pbc::IPopsicleList<global::Mysqlx.Datatypes.Scalar> ArgsList {
         get { return PrepareBuilder().args_; }
       }
       public int ArgsCount {
         get { return result.ArgsCount; }
       }
-      public global::Mysqlx.Datatypes.Any GetArgs(int index) {
+      public global::Mysqlx.Datatypes.Scalar GetArgs(int index) {
         return result.GetArgs(index);
       }
-      public Builder SetArgs(int index, global::Mysqlx.Datatypes.Any value) {
+      public Builder SetArgs(int index, global::Mysqlx.Datatypes.Scalar value) {
         pb::ThrowHelper.ThrowIfNull(value, "value");
         PrepareBuilder();
         result.args_[index] = value;
         return this;
       }
-      public Builder SetArgs(int index, global::Mysqlx.Datatypes.Any.Builder builderForValue) {
+      public Builder SetArgs(int index, global::Mysqlx.Datatypes.Scalar.Builder builderForValue) {
         pb::ThrowHelper.ThrowIfNull(builderForValue, "builderForValue");
         PrepareBuilder();
         result.args_[index] = builderForValue.Build();
         return this;
       }
-      public Builder AddArgs(global::Mysqlx.Datatypes.Any value) {
+      public Builder AddArgs(global::Mysqlx.Datatypes.Scalar value) {
         pb::ThrowHelper.ThrowIfNull(value, "value");
         PrepareBuilder();
         result.args_.Add(value);
         return this;
       }
-      public Builder AddArgs(global::Mysqlx.Datatypes.Any.Builder builderForValue) {
+      public Builder AddArgs(global::Mysqlx.Datatypes.Scalar.Builder builderForValue) {
         pb::ThrowHelper.ThrowIfNull(builderForValue, "builderForValue");
         PrepareBuilder();
         result.args_.Add(builderForValue.Build());
         return this;
       }
-      public Builder AddRangeArgs(scg::IEnumerable<global::Mysqlx.Datatypes.Any> values) {
+      public Builder AddRangeArgs(scg::IEnumerable<global::Mysqlx.Datatypes.Scalar> values) {
         PrepareBuilder();
         result.args_.Add(values);
         return this;
@@ -4730,14 +4730,14 @@ namespace Mysqlx.Crud {
     }
     
     public const int ArgsFieldNumber = 6;
-    private pbc::PopsicleList<global::Mysqlx.Datatypes.Any> args_ = new pbc::PopsicleList<global::Mysqlx.Datatypes.Any>();
-    public scg::IList<global::Mysqlx.Datatypes.Any> ArgsList {
+    private pbc::PopsicleList<global::Mysqlx.Datatypes.Scalar> args_ = new pbc::PopsicleList<global::Mysqlx.Datatypes.Scalar>();
+    public scg::IList<global::Mysqlx.Datatypes.Scalar> ArgsList {
       get { return args_; }
     }
     public int ArgsCount {
       get { return args_.Count; }
     }
-    public global::Mysqlx.Datatypes.Any GetArgs(int index) {
+    public global::Mysqlx.Datatypes.Scalar GetArgs(int index) {
       return args_[index];
     }
     
@@ -4770,7 +4770,7 @@ namespace Mysqlx.Crud {
         if (HasCriteria) {
           if (!Criteria.IsInitialized) return false;
         }
-        foreach (global::Mysqlx.Datatypes.Any element in ArgsList) {
+        foreach (global::Mysqlx.Datatypes.Scalar element in ArgsList) {
           if (!element.IsInitialized) return false;
         }
         if (HasLimit) {
@@ -4823,7 +4823,7 @@ namespace Mysqlx.Crud {
         if (hasCriteria) {
           size += pb::CodedOutputStream.ComputeMessageSize(3, Criteria);
         }
-        foreach (global::Mysqlx.Datatypes.Any element in ArgsList) {
+        foreach (global::Mysqlx.Datatypes.Scalar element in ArgsList) {
           size += pb::CodedOutputStream.ComputeMessageSize(6, element);
         }
         if (hasLimit) {
@@ -5063,7 +5063,7 @@ namespace Mysqlx.Crud {
               break;
             }
             case 50: {
-              input.ReadMessageArray(tag, field_name, result.args_, global::Mysqlx.Datatypes.Any.DefaultInstance, extensionRegistry);
+              input.ReadMessageArray(tag, field_name, result.args_, global::Mysqlx.Datatypes.Scalar.DefaultInstance, extensionRegistry);
               break;
             }
           }
@@ -5176,40 +5176,40 @@ namespace Mysqlx.Crud {
         return this;
       }
       
-      public pbc::IPopsicleList<global::Mysqlx.Datatypes.Any> ArgsList {
+      public pbc::IPopsicleList<global::Mysqlx.Datatypes.Scalar> ArgsList {
         get { return PrepareBuilder().args_; }
       }
       public int ArgsCount {
         get { return result.ArgsCount; }
       }
-      public global::Mysqlx.Datatypes.Any GetArgs(int index) {
+      public global::Mysqlx.Datatypes.Scalar GetArgs(int index) {
         return result.GetArgs(index);
       }
-      public Builder SetArgs(int index, global::Mysqlx.Datatypes.Any value) {
+      public Builder SetArgs(int index, global::Mysqlx.Datatypes.Scalar value) {
         pb::ThrowHelper.ThrowIfNull(value, "value");
         PrepareBuilder();
         result.args_[index] = value;
         return this;
       }
-      public Builder SetArgs(int index, global::Mysqlx.Datatypes.Any.Builder builderForValue) {
+      public Builder SetArgs(int index, global::Mysqlx.Datatypes.Scalar.Builder builderForValue) {
         pb::ThrowHelper.ThrowIfNull(builderForValue, "builderForValue");
         PrepareBuilder();
         result.args_[index] = builderForValue.Build();
         return this;
       }
-      public Builder AddArgs(global::Mysqlx.Datatypes.Any value) {
+      public Builder AddArgs(global::Mysqlx.Datatypes.Scalar value) {
         pb::ThrowHelper.ThrowIfNull(value, "value");
         PrepareBuilder();
         result.args_.Add(value);
         return this;
       }
-      public Builder AddArgs(global::Mysqlx.Datatypes.Any.Builder builderForValue) {
+      public Builder AddArgs(global::Mysqlx.Datatypes.Scalar.Builder builderForValue) {
         pb::ThrowHelper.ThrowIfNull(builderForValue, "builderForValue");
         PrepareBuilder();
         result.args_.Add(builderForValue.Build());
         return this;
       }
-      public Builder AddRangeArgs(scg::IEnumerable<global::Mysqlx.Datatypes.Any> values) {
+      public Builder AddRangeArgs(scg::IEnumerable<global::Mysqlx.Datatypes.Scalar> values) {
         PrepareBuilder();
         result.args_.Add(values);
         return this;
