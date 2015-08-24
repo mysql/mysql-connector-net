@@ -43,6 +43,7 @@ namespace MySql.Data
       collations.Add(33, "utf8");
       collations.Add(8, "1252");
       collations.Add(63, "binary");
+      collations.Add(0, "utf8");
     }
   }
 }

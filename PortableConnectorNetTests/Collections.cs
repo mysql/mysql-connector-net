@@ -28,7 +28,7 @@ namespace MySqlX_DevAPI.Sections
   public class Collections
   {
     static Schema db = MySqlX.GetSession("").GetDefaultSchema();
-    static Collection myColl = new Collection(db, "default");
+    //static Collection myColl = new Collection(db, "default");
 
 
     static void CreatingACollection()

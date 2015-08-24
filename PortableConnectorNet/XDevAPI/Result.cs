@@ -29,16 +29,27 @@ namespace MySql.XDevAPI
   public class Result
   {
     private List<ResultSet> _resultSets = new List<ResultSet>();
+    private List<Warning> _warnings = new List<Warning>();
     private ProtocolBase _protocol;
     private int _position = -1;
     protected ResultSet _activeResults;
 
-    public UInt64 RecordsAffected { get; private set; }
-    public UInt64 LastInsertId { get; private set; }
+    public UInt64 RecordsAffected { get; internal set; }
+    public UInt64 LastInsertId { get; internal set; }
 
     internal Result(ProtocolBase p)
     {
       _protocol = p;
+    }
+
+    internal void AddWarning(Warning w)
+    {
+      _warnings.Add(w);
+    }
+
+    public IReadOnlyList<Warning> Warnings
+    {
+      get { return _warnings;  }
     }
 
     public bool Next()
@@ -56,7 +67,7 @@ namespace MySql.XDevAPI
       {
         if (!_protocol.HasAnotherResultSet())
         {
-          _protocol.CloseResult();
+          _protocol.CloseResult(this);
           return false;
         }
         ResultSet rs = new ResultSet(_protocol);
@@ -115,11 +126,27 @@ namespace MySql.XDevAPI
       get { return !Failed;  }
     }
 
+    /// <summary>
+    /// Class to represent an error in this result
+    /// </summary>
     public class Error
     {
       public UInt32 Code;
       public string SqlState;
       public string Message;
+    }
+
+    public class Warning
+    {
+      public uint Code;
+      public string Message;
+      public uint Level;
+
+      public Warning(uint code, string msg)
+      {
+        Code = code;
+        Message = msg;
+      }
     }
   }
 }

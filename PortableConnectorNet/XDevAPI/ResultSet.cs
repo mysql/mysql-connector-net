@@ -60,11 +60,14 @@ namespace MySql.XDevAPI
 
     public void FinishLoading()
     {
+      int _pos = Position;
       while (Next()) ;
+      Position = _pos == -1 ? 0 : _pos;
     }
 
     public bool Next()
     {
+      Position++;
       if (Position == Rows.Count)
       {
         if (_complete) return false;
@@ -74,7 +77,6 @@ namespace MySql.XDevAPI
           return false;
         }
       }
-      Position++;
       return true;
     }
 
@@ -110,7 +112,7 @@ namespace MySql.XDevAPI
 
     private object GetValue(int index)
     {
-      if (Position < Rows.Count)
+      if (Position == Rows.Count)
         throw new InvalidOperationException("No data at position");
       return Rows[Position][index];
     }

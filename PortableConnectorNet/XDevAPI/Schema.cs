@@ -40,8 +40,14 @@ namespace MySql.XDevAPI
 
     public List<Collection> GetCollections()
     {
-
-      throw new NotImplementedException();
+      RowResult r = Session.XSession.GetCollections(Name);
+      List<Collection> docs = new List<Collection>();
+      foreach (ResultRow row in r.Rows)
+      {
+        Collection<DbDocument> doc = new Collection<DbDocument>(this, row.GetString("name"));
+        docs.Add(doc);
+      }
+      return docs;
     }
 
     public List<Table> GetTables()
@@ -60,7 +66,11 @@ namespace MySql.XDevAPI
 
     public Collection GetCollection(string name, bool ValidateExistence = false)
     {
-      throw new NotImplementedException();
+      Collection c = new Collection<DbDocument>(this, name);
+      if (ValidateExistence)
+        if (!c.ExistsInDatabase())
+          throw new MySqlException(String.Format("Collection '{0}' does not exist.", name));
+      return c;
     }
 
     public Table GetTable(string name)
@@ -80,7 +90,7 @@ namespace MySql.XDevAPI
     public Collection CreateCollection(string collectionName, bool ReuseExistingObject = false)
     {
       Session.XSession.CreateCollection(Name, collectionName);
-      return new Collection(this, collectionName);
+      return new Collection<DbDocument>(this, collectionName);
     }
 
     public View CreateView(string name)
@@ -92,7 +102,7 @@ namespace MySql.XDevAPI
 
     public void DropCollection(string name)
     {
-      Collection c = new Collection(this, name);
+      Collection c = new Collection<DbDocument>(this, name);
       c.Drop();
     }
 

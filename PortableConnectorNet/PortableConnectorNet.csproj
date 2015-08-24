@@ -33,6 +33,10 @@
     <Reference Include="Google.ProtocolBuffers">
       <HintPath>C:\Program Files (x86)\Protobuf\Google.ProtocolBuffers.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -80,6 +84,8 @@
     <None Include="Protocol\MySQLProtocol.cs" />
     <Compile Include="Protocol\ProtocolBase.cs" />
     <Compile Include="Protocol\ValueDecoder.cs" />
+    <Compile Include="Protocol\X\Enum.cs" />
+    <Compile Include="Protocol\X\ExprUtil.cs" />
     <Compile Include="Protocol\X\IntegerDecoder.cs" />
     <Compile Include="Protocol\X\ByteDecoder.cs" />
     <Compile Include="Protocol\X\XDateTimeDecoder.cs" />
@@ -89,11 +95,14 @@
     <Compile Include="common\StringUtility.cs" />
     <Compile Include="Communication\UniversalStream.cs" />
     <Compile Include="Properties\VersionInfo.cs" />
+    <Compile Include="Serialization\JsonSerializer.cs" />
     <Compile Include="Session\InternalSession.cs" />
     <Compile Include="Session\XInternalSession.cs" />
     <Compile Include="XDevAPI\Column.cs" />
     <Compile Include="XDevAPI\DatabaseObject.cs" />
     <Compile Include="Protocol\XProtocol.cs" />
+    <Compile Include="XDevAPI\DbDocument.cs" />
+    <Compile Include="XDevAPI\GenericCollection.cs" />
     <Compile Include="XDevAPI\QueryObject.cs" />
     <Compile Include="XDevAPI\ReadQueryObject.cs" />
     <Compile Include="XDevAPI\Result.cs" />

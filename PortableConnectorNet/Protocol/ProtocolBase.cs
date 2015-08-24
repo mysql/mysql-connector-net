@@ -39,6 +39,7 @@ namespace MySql.Protocol
     public abstract bool HasAnotherResultSet();
 
     public abstract List<Column> LoadColumnMetadata();
-    public abstract void CloseResult(); 
+
+    public abstract void CloseResult(Result rs); 
   }
 }

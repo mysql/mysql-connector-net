@@ -21,6 +21,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
+using Google.ProtocolBuffers;
 using MySql.Data;
 using MySql.XDevAPI;
 using System;
@@ -103,6 +104,20 @@ namespace MySql.Protocol.X
       else return UInt64ValueDecoder;
     }
 
+    private Int64 ReadInt(byte[] bytes)
+    {
+      Int64 val = 0;
+      CodedInputStream.CreateInstance(bytes).ReadInt64(ref val);
+      return val;
+    }
+
+    private UInt64 ReadUInt(byte[] bytes)
+    {
+      UInt64 val = 0;
+      CodedInputStream.CreateInstance(bytes).ReadUInt64(ref val);
+      return val;
+    }
+
     public object SByteValueDecoder(byte[] bytes)
     {
       return bytes[0];
@@ -110,17 +125,17 @@ namespace MySql.Protocol.X
 
     public object Int16ValueDecoder(byte[] bytes)
     {
-      return BitConverter.ToInt16(bytes, 0);
+      return (Int16)ReadInt(bytes);
     }
 
     public object Int32ValueDecoder(byte[] bytes)
     {
-      return BitConverter.ToInt32(bytes, 0);
+      return (Int32)ReadInt(bytes);
     }
 
     public object Int64ValueDecoder(byte[] bytes)
     {
-      return BitConverter.ToInt64(bytes, 0);
+      return ReadInt(bytes);
     }
 
     public object ByteValueDecoder(byte[] bytes)
@@ -130,17 +145,17 @@ namespace MySql.Protocol.X
 
     public object UInt16ValueDecoder(byte[] bytes)
     {
-      return BitConverter.ToUInt16(bytes, 0);
+      return ReadUInt(bytes);
     }
 
     public object UInt32ValueDecoder(byte[] bytes)
     {
-      return BitConverter.ToUInt32(bytes, 0);
+      return ReadUInt(bytes);
     }
 
     public object UInt64ValueDecoder(byte[] bytes)
     {
-      return BitConverter.ToUInt64(bytes, 0);
+      return ReadUInt(bytes);
     }
   }
 }

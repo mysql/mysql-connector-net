@@ -20,21 +20,23 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using Google.ProtocolBuffers;
 using MySql.Communication;
 using MySql.Data;
 using Mysqlx.Resultset;
 using Mysqlx.Session;
 using Mysqlx.Sql;
-using System;
-using System.Collections.Generic;
 using MySql.XDevAPI;
 using MySql.Protocol.X;
-using crud = Mysqlx.Crud;
 using Mysqlx.Expr;
 using Mysqlx.Datatypes;
 using Mysqlx;
-using System.Diagnostics;
+using Mysqlx.Crud;
+using MySql.Protocol.X;
+using Mysqlx.Notice;
 
 namespace MySql.Protocol
 {
@@ -99,6 +101,8 @@ namespace MySql.Protocol
       SendExecuteStatement("sql", sql, null);
     }
 
+
+
     private CommunicationPacket PeekPacket()
     {
       if (pendingPacket != null) return pendingPacket;
@@ -112,25 +116,62 @@ namespace MySql.Protocol
       {
         CommunicationPacket p = pendingPacket != null ? pendingPacket : _reader.Read();
         pendingPacket = null;
-        if (p.MessageType != (int)ServerMessageId.NOTICE) return p;
-        ProcessNotice(p);
+        return p;
       }
     }
 
-    private void ProcessNotice(CommunicationPacket packet)
+    private void ProcessGlobalNotice(Mysqlx.Notice.Frame frame)
     {
-
     }
 
-    private Any CreateAny(object arg)
+    private void ProcessNotice(CommunicationPacket packet, Result rs)
     {
-      if (arg is string)
+      Frame frame = Frame.ParseFrom(packet.Buffer);
+      if (frame.Scope == Frame.Types.Scope.GLOBAL)
       {
-        Scalar.Types.String stringValue = Scalar.Types.String.CreateBuilder().SetValue(ByteString.CopyFromUtf8(arg as string)).Build();
-        Scalar scalarValue = Scalar.CreateBuilder().SetType(Scalar.Types.Type.V_STRING).SetVString(stringValue).Build();
-        return Any.CreateBuilder().SetType(Any.Types.Type.SCALAR).SetScalar(scalarValue).Build();
+        ProcessGlobalNotice(frame);
+        return;
       }
-      ///TODO: handle other data types
+
+      // if we get here the notice is local
+      switch ((NoticeType)frame.Type)
+      {
+        case NoticeType.Warning:
+          ProcessWarning(rs, frame.Payload.ToByteArray());
+          break;
+        case NoticeType.SessionStateChanged:
+          ProcessSessionStateChanged(rs, frame.Payload.ToByteArray());
+          break;
+        case NoticeType.SessionVariableChanged:
+          break;
+      }
+    }
+
+    private void ProcessSessionStateChanged(Result rs, byte[] payload)
+    {
+      SessionStateChanged state = SessionStateChanged.ParseFrom(payload);
+      switch (state.Param)
+      {
+        case SessionStateChanged.Types.Parameter.ROWS_AFFECTED: rs.RecordsAffected = state.Value.VUnsignedInt; break;
+        case SessionStateChanged.Types.Parameter.GENERATED_INSERT_ID: rs.LastInsertId = state.Value.VUnsignedInt; break;
+          // handle the other ones
+//      default: SessionStateChanged(state);
+      }
+    }
+
+    private void ProcessWarning(Result rs, byte[] payload)
+    {
+      Warning w = Warning.ParseFrom(payload);
+      Result.Warning warning = new Result.Warning(w.Code, w.Msg);
+      if (w.HasLevel)
+        warning.Level = (uint)w.Level;
+      rs.AddWarning(warning);
+    }
+
+    private Any CreateAny(object o)
+    {
+      if (o is string) return ExprUtil.BuildAny((string)o);
+      if (o is bool) return ExprUtil.BuildAny((bool)o);
       return null;
     }
 
@@ -150,30 +191,15 @@ namespace MySql.Protocol
       _writer.Write(ClientMessageId.SQL_STMT_EXECUTE, msg);
     }
 
-    public Result ReadStmtExecuteResult()
-    {
-      Result r = new Result(this);
-      CommunicationPacket p = ReadPacket();
-      if (p.MessageType == (int)ServerMessageId.ERROR)
-      {
-        Error e = Error.ParseFrom(p.Buffer);
-        Result.Error re = new Result.Error();
-        re.Code = e.Code;
-        re.SqlState = e.SqlState;
-        re.Message = e.Msg;
-        r.ErrorInfo = re;
-      }
-      else if (p.MessageType != (int)ServerMessageId.SQL_STMT_EXECUTE_OK)
-        throw new MySqlException("Unexpected message type: " + p.MessageType);
-      return r;
-    }
 
-    public void SendNonQueryStatement(string cmd, params string[] args)
+    private Result.Error DecodeError(CommunicationPacket p)
     {
-      SendExecuteStatement("xplugin", cmd, args);
-      Result r = ReadStmtExecuteResult();
-      if (r.Failed)
-        throw new MySqlException(r);
+      Error e = Error.ParseFrom(p.Buffer);
+      Result.Error re = new Result.Error();
+      re.Code = e.Code;
+      re.SqlState = e.SqlState;
+      re.Message = e.Msg;
+      return re;
     }
 
     public override List<byte[]> ReadRow()
@@ -187,12 +213,24 @@ namespace MySql.Protocol
       return values;
     }
 
-    public override void CloseResult()
+    public override void CloseResult(Result rs)
     {
-      CommunicationPacket p = ReadPacket();
-      if (p.MessageType != (int)ServerMessageId.OK &&
-          p.MessageType != (int)ServerMessageId.SQL_STMT_EXECUTE_OK)
-        throw new MySqlException("Unexpected message type trying to close the result: " + p.MessageType);
+      while (true)
+      {
+        CommunicationPacket p = PeekPacket();
+        if (p.MessageType == (int)ServerMessageId.NOTICE)
+          ProcessNotice(ReadPacket(), rs);
+        else if (p.MessageType == (int)ServerMessageId.ERROR)
+        {
+          rs.ErrorInfo = DecodeError(ReadPacket());
+          break;
+        }
+        else if (p.MessageType == (int)ServerMessageId.SQL_STMT_EXECUTE_OK)
+        {
+          ReadPacket();
+          break;
+        }
+      }
     }
 
     public override bool HasAnotherResultSet()
@@ -212,9 +250,9 @@ namespace MySql.Protocol
       return false;
     }
 
-    public override List<Column> LoadColumnMetadata()
+    public override List<XDevAPI.Column> LoadColumnMetadata()
     {
-      List<Column> columns = new List<Column>();
+      List<XDevAPI.Column> columns = new List<XDevAPI.Column>();
       // we assume our caller has already validated that metadata is there
       while (true)
       {
@@ -225,9 +263,9 @@ namespace MySql.Protocol
       }
     }
 
-    private Column DecodeColumn(ColumnMetaData colData)
+    private XDevAPI.Column DecodeColumn(ColumnMetaData colData)
     {
-      Column c = new Column();
+      XDevAPI.Column c = new XDevAPI.Column();
       c._decoder = XValueDecoderFactory.GetValueDecoder(c, colData.Type);
       c._decoder.Column = c;
       
@@ -246,8 +284,7 @@ namespace MySql.Protocol
       if (colData.HasCollation)
       {
         c._collationNumber = colData.Collation;
-        if (c._collationNumber != 0)
-          c.Collation = CollationMap.GetCollationName((int)colData.Collation);
+        c.Collation = CollationMap.GetCollationName((int)colData.Collation);
       }
       if (colData.HasLength)
         c.Length = colData.Length;
@@ -257,6 +294,16 @@ namespace MySql.Protocol
         c._decoder.Flags = colData.Flags;
       c._decoder.SetMetadata();
       return c;
+    }
+
+    public void SendInsert(string schema, string collection, string json)
+    {
+      Mysqlx.Crud.Collection coll = Mysqlx.Crud.Collection.CreateBuilder().SetSchema(schema).SetName(collection).Build();
+      Insert.Builder builder = Mysqlx.Crud.Insert.CreateBuilder().SetCollection(coll);
+      Mysqlx.Crud.Insert.Types.TypedRow typedRow = Mysqlx.Crud.Insert.Types.TypedRow.CreateBuilder().AddField(ExprUtil.ArgObjectToExpr(json, false)).Build();
+      builder.AddRow(typedRow);
+      Mysqlx.Crud.Insert msg = builder.Build();
+      _writer.Write(ClientMessageId.CRUD_INSERT, msg);
     }
 
     public Result Find(SelectStatement statement)
@@ -269,11 +316,11 @@ namespace MySql.Protocol
         .SetSchema(statement.schema)
         .SetName(statement.table));
       // :param data_model:
-      builder.SetDataModel(statement.isTable ? crud.DataModel.TABLE : crud.DataModel.DOCUMENT);
+      builder.SetDataModel(statement.isTable ? DataModel.TABLE : DataModel.DOCUMENT);
       // :param projection:
       foreach (string columnName in statement.columns)
       {
-        builder.AddProjection(crud.Projection.CreateBuilder()
+        builder.AddProjection(Projection.CreateBuilder()
           .SetSource(Expr.CreateBuilder()
             .SetType(Expr.Types.Type.IDENT)
             .SetIdentifier(ColumnIdentifier.CreateBuilder()

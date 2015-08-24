@@ -40,12 +40,20 @@ namespace PortableConnectorNetTests
     public void CreateAndDeleteCollection()
     {
       Session s = GetSession();
-      Schema test = s.GetSchema("sakila");
-      Collection books = test.CreateCollection("books");
-      ///TODO:  use old c/net to confirm creation
-//      test.DeleteCollection(books);
-      ///TODO:  use old c/net to confirm remove
+      Schema test = s.GetSchema("test");
+      Collection testColl = test.CreateCollection("test");
+      Assert.True(testColl.ExistsInDatabase());
+      test.DropCollection("test");
+      Assert.False(testColl.ExistsInDatabase());
     }
 
+    [Fact]
+    public void InsertDoc()
+    {
+      Session s = GetSession();
+      Schema test = s.GetSchema("test");
+      Collection testColl = test.CreateCollection("test");
+      Result r = testColl.Add("{ \"_id\": 1, \"foo\": 1 }");
+    }
   }
 }

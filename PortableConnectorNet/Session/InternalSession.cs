@@ -68,7 +68,7 @@ namespace MySql.Session
       return session;
     }
 
-    private Result GetResult(bool rows)
+    protected Result GetResult(bool rows)
     {
       Result r;
       if (rows)
@@ -93,8 +93,6 @@ namespace MySql.Session
 
       if (r.Failed)
         throw new MySqlException("Query execution failed: " + r.ErrorInfo.Message);
-      if (!r.Next())
-        throw new MySqlException("No data returned from query.");
       return r[0];
     }
 

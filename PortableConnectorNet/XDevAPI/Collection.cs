@@ -25,7 +25,7 @@ using System.Threading.Tasks;
 
 namespace MySql.XDevAPI
 {
-  public class Collection : DatabaseObject
+  public abstract class Collection : DatabaseObject
   {
     internal Collection(Schema schema, string name)
       : base(schema, name)
@@ -70,7 +70,12 @@ namespace MySql.XDevAPI
 
     public Collection Add()
     {
-      throw new NotImplementedException();
+      return this;
+    }
+
+    public Result Add(string json)
+    {
+      return Schema.Session.XSession.Insert(Schema.Name, Name, json);
     }
 
     public Collection Limit(int limit)
@@ -135,7 +140,9 @@ namespace MySql.XDevAPI
 
     public override bool ExistsInDatabase()
     {
-      throw new NotImplementedException();
+      string sql = String.Format("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '{0}' AND table_name = '{1}'", 
+        Schema.Name, Name);
+      return Schema.Session.InternalSession.ExecuteQueryAsScalar(sql).Equals(1);
     }
   }
 }
