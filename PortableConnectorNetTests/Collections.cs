@@ -78,12 +78,12 @@ namespace MySqlX_DevAPI.Sections
       var myColl = db.CreateCollection("myCollection");
 
       // Insert a document
-      myColl.Add(new { name = "Sakila", age = 15 }).Run();
+//      myColl.Add(new { name = "Sakila", age = 15 }).Run();
 
       // Insert several documents at once
-      myColl.Add(new[] { 
-      new { name= "Susanne", age= 24 },
-      new { name= "Mike", age= 39 } }).Run();
+  //    myColl.Add(new[] { 
+    //  new { name= "Susanne", age= 24 },
+      //new { name= "Mike", age= 39 } }).Run();
 
     }
 
