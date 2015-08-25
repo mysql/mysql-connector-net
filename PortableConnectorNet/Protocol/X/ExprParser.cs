@@ -440,7 +440,7 @@ namespace MySql.Protocol.X
         else
         {
           // otherwise, it's an identifier
-          for (; i < this.stringValue.Length && Char.IsLetter(this.stringValue[i]); ++i)
+          for (; i < this.stringValue.Length && (Char.IsLetterOrDigit(this.stringValue[i]) || this.stringValue[i] == '_'); ++i)
           {
           }
           string val = this.stringValue.Substring(start, i - start);
@@ -810,7 +810,7 @@ namespace MySql.Protocol.X
             Mysqlx.Expr.Object.Builder builder = Mysqlx.Expr.Object.CreateBuilder();
             if (CurrentTokenTypeEquals(TokenType.LSTRING))
             {
-              ParseCommaSeparatedList(new Func<Mysqlx.Expr.Object.Types.ObjectField>(() =>
+              ParseCommaSeparatedList(() =>
               {
                 string key = ConsumeToken(TokenType.LSTRING);
                 ConsumeToken(TokenType.COLON);
@@ -819,7 +819,7 @@ namespace MySql.Protocol.X
                 objectField.SetKey(key);
                 objectField.SetValue(value);
                 return objectField.Build();
-              }).Invoke());
+              }).ForEach(f => builder.AddFld(f));
             }
             ConsumeToken(TokenType.RCURLY);
             return Expr.CreateBuilder().SetType(Expr.Types.Type.OBJECT).SetObject(builder.Build()).Build();
@@ -889,8 +889,8 @@ namespace MySql.Protocol.X
               this.tokens[this.tokenPos].value = t.value + this.tokens[this.tokenPos].value;
               return AtomicExpr();
             }
-            break;
           }
+          return BuildUnaryOp(t.value, AtomicExpr());
         case TokenType.NOT:
         case TokenType.NEG:
         case TokenType.BANG:
@@ -1140,7 +1140,7 @@ namespace MySql.Protocol.X
      * @param elementParser the single element parser
      * @return a list of elements parsed
      */
-    private List<T> ParseCommaSeparatedList<T>(T elementParser)
+    private List<T> ParseCommaSeparatedList<T>(Func<T> elementParser)
     {
       List<T> elements = new List<T>();
       bool first = true;
@@ -1154,7 +1154,7 @@ namespace MySql.Protocol.X
         {
           first = false;
         }
-        elements.Add(elementParser);
+        elements.Add(elementParser.Invoke());
       }
       return elements;
     }
@@ -1164,7 +1164,7 @@ namespace MySql.Protocol.X
      */
     internal List<Order> ParseOrderSpec()
     {
-      return ParseCommaSeparatedList(new Func<Order>(() =>
+      return ParseCommaSeparatedList(() =>
       {
         Order.Builder builder = Order.CreateBuilder();
         builder.SetExpr(GetExpr());
@@ -1179,7 +1179,7 @@ namespace MySql.Protocol.X
           builder.SetDirection(Order.Types.Direction.DESC);
         }
         return builder.Build();
-      }).Invoke());
+      });
     }
 
     /**
@@ -1187,7 +1187,7 @@ namespace MySql.Protocol.X
      */
     internal List<Projection> ParseTableSelectProjection()
     {
-      return ParseCommaSeparatedList(new Func<Projection>(() =>
+      return ParseCommaSeparatedList(() =>
       {
         Projection.Builder builder = Projection.CreateBuilder();
         builder.SetSource(GetExpr());
@@ -1197,7 +1197,7 @@ namespace MySql.Protocol.X
           builder.SetAlias(ConsumeToken(TokenType.IDENT));
         }
         return builder.Build();
-      }).Invoke());
+      });
     }
 
     /**
@@ -1223,7 +1223,7 @@ namespace MySql.Protocol.X
     internal List<Projection> ParseDocumentProjection()
     {
       this.allowRelationalColumns = false;
-      return ParseCommaSeparatedList(new Func<Projection>(() =>
+      return ParseCommaSeparatedList(() =>
       {
         Projection.Builder builder = Projection.CreateBuilder();
         builder.SetSource(GetExpr());
@@ -1231,7 +1231,7 @@ namespace MySql.Protocol.X
         ConsumeToken(TokenType.AS);
         builder.SetAlias(ConsumeToken(TokenType.IDENT));
         return builder.Build();
-      }).Invoke());
+      });
     }
 
     /**
@@ -1239,7 +1239,7 @@ namespace MySql.Protocol.X
      */
     internal List<Expr> ParseExprList()
     {
-      return ParseCommaSeparatedList(this.GetExpr());
+      return ParseCommaSeparatedList(this.GetExpr);
     }
 
     /**

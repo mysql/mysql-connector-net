@@ -69,7 +69,7 @@ namespace MySql.Protocol.X
         case Scalar.Types.Type.V_STRING:
           return "\"" + EscapeLiteral(e.VString.Value.ToStringUtf8()) + "\"";
         case Scalar.Types.Type.V_DOUBLE:
-          return "" + e.VDouble;
+          return e.VDouble.ToString();
         case Scalar.Types.Type.V_BOOL:
           return e.VBool ? "TRUE" : "FALSE";
         case Scalar.Types.Type.V_NULL:
@@ -146,7 +146,7 @@ namespace MySql.Protocol.X
       {
         s += ExprToString(p) + ", ";
       }
-      s = s.Replace(", $", "");
+      s = System.Text.RegularExpressions.Regex.Replace(s, ", $", "");
       s += ")";
       return s;
     }
@@ -189,7 +189,7 @@ namespace MySql.Protocol.X
       else if ("in".Equals(name) || "not_in".Equals(name))
       {
         name = name.Replace("not_in", "not in");
-        return string.Format("{0} {1}{2}", parameters[0], name, ParamListToString(parameters.GetRange(1, parameters.Count)));
+        return string.Format("{0} {1}{2}", parameters[0], name, ParamListToString(parameters.GetRange(1, parameters.Count - 1)));
       }
       else if ("like".Equals(name) || "not_like".Equals(name))
       {
@@ -227,8 +227,8 @@ namespace MySql.Protocol.X
     static string ObjectToString(Mysqlx.Expr.Object o)
     {
       var fields = o.FldList;
-      var selectAsString = fields.Select(f => new { item = string.Format("'{0}':{1}", QuoteJsonKey(f.Key), ExprToString(f.Value)) });
-      return string.Join(", ", selectAsString);
+      var selectAsString = fields.Select(f => string.Format("'{0}':{1}", QuoteJsonKey(f.Key), ExprToString(f.Value)));
+      return "{" + string.Join(", ", selectAsString) + "}";
     }
 
     /**

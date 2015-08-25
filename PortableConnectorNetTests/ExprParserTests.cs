@@ -47,7 +47,7 @@ namespace PortableConnectorNetTests
     /// <param name="s"></param>
     private void CheckBadParse(string s)
     {
-      _testOutput.WriteLine(s);
+      //_testOutput.WriteLine(s);
       Assert.Throws<ArgumentException>(() => { Expr e = new ExprParser(s).Parse(); });
     }
 
@@ -114,6 +114,8 @@ namespace PortableConnectorNetTests
     [Fact]
     public void TestRoundTrips()
     {
+      //CheckParseRoundTrip("_id == 20", "(@.pages > 20)");
+      CheckParseRoundTrip("@.pages > 20", "(@.pages > 20)");
       CheckParseRoundTrip("now () - interval '10:20' hour_MiNuTe", "date_sub(now(), \"10:20\", \"HOUR_MINUTE\")");
       CheckParseRoundTrip("now () - interval 1 hour - interval 2 minute - interval 3 second",
               "date_sub(date_sub(date_sub(now(), 1, \"HOUR\"), 2, \"MINUTE\"), 3, \"SECOND\")");
@@ -123,10 +125,10 @@ namespace PortableConnectorNetTests
       CheckParseRoundTrip("now () - interval -2 day", "date_sub(now(), -2, \"DAY\")"); // interval exprs compile to date_add/date_sub calls
       CheckParseRoundTrip("1", "1");
       CheckParseRoundTrip("1^0", "(1 ^ 0)");
-      CheckParseRoundTrip("1e1", "10.0");
-      CheckParseRoundTrip("-1e1", "-10.0");
+      CheckParseRoundTrip("1e1", "10");
+      CheckParseRoundTrip("-1e1", "-10");
       CheckParseRoundTrip("!0", "!0");
-      CheckParseRoundTrip("1e4", "10000.0");
+      CheckParseRoundTrip("1e4", "10000");
       CheckParseRoundTrip("12e-4", "0.0012");
       CheckParseRoundTrip("a + 314.1592e-2", "(a + 3.141592)");
       CheckParseRoundTrip("a + 0.0271e+2", "(a + 2.71)");
@@ -142,7 +144,7 @@ namespace PortableConnectorNetTests
       CheckParseRoundTrip("a + b * c + d", "((a + (b * c)) + d)"); // shows precedence and associativity
       CheckParseRoundTrip("a * b + c * d", "((a * b) + (c * d))");
       CheckParseRoundTrip("(a + b) * c + d", "(((a + b) * c) + d)");
-      CheckParseRoundTrip("(field not in ('a',func('b', 2.0),'c'))", "field not in(\"a\", func(\"b\", 2.0), \"c\")");
+      CheckParseRoundTrip("(field not in ('a',func('b', 2.0),'c'))", "field not in(\"a\", func(\"b\", 2), \"c\")");
       CheckParseRoundTrip("jess.age beTwEEn 30 and death", "(jess.age between 30 AND death)");
       CheckParseRoundTrip("jess.age not BeTweeN 30 and death", "(jess.age not between 30 AND death)");
       CheckParseRoundTrip("a + b * c + d", "((a + (b * c)) + d)");
@@ -274,7 +276,7 @@ namespace PortableConnectorNetTests
       Order o1 = orderSpec[0];
       Assert.True(o1.HasDirection);
       Assert.Equal(Order.Types.Direction.DESC, o1.Direction);
-      Assert.Equal("field not in(\"a\", func(\"b\", 2.0), \"c\")", ExprUnparser.ExprToString(o1.Expr));
+      Assert.Equal("field not in(\"a\", func(\"b\", 2), \"c\")", ExprUnparser.ExprToString(o1.Expr));
       Order o2 = orderSpec[1];
       Assert.False(o2.HasDirection);
       Assert.Equal("(1 - a@**[0].*)", ExprUnparser.ExprToString(o2.Expr));
