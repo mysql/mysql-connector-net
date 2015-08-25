@@ -28,6 +28,29 @@ namespace MySqlX_DevAPI.Sections
 {
   public class Sessions
   {
+
+    [Fact]
+    public void CanGetSession()
+    {
+      // Creating session with connection string format
+      Session s = MySqlX.GetSession("server=localhost;userid=root;password=password1234;port=33060;");
+      s.GetDefaultSchema();
+      Assert.NotEqual(s, null);           
+    }
+
+
+    [Fact]
+    public void CanCloseSession()
+    {
+      // Creating session with connection string format
+      Session s = MySqlX.GetSession("server=localhost;userid=root;password=password1234;port=33060;database=test;");
+      s.GetDefaultSchema();     
+      s.Close();
+      Assert.Equal(s.XSession.SessionState, SessionState.Closed);
+    }
+
+
+
     [Fact]
     public void SessionsTest()
     {

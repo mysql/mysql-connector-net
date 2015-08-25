@@ -110,6 +110,16 @@ namespace MySql.XDevAPI
       throw new NotImplementedException();
     }
 
+
+    public void Close()
+    {
+      if (XSession.SessionState != SessionState.Closed)
+      {
+        XSession.Close();        
+      }    
+    }
+
+
     #region InternalMethods
 
 
@@ -145,5 +155,24 @@ namespace MySql.XDevAPI
     //}
 
     #endregion
+  }
+
+  public enum SessionState
+  {
+    // Summary:
+    //     The session is closed.
+    Closed = 0,
+    //
+    // Summary:
+    //     The session is open.
+    Open = 1,
+    //
+    // Summary:
+    //     The session object is connecting to the data source.
+    Connecting = 2,
+    //
+    // Summary:
+    //     The session object is executing a command. 
+    Executing = 4,
   }
 }

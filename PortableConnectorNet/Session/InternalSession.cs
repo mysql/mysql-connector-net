@@ -50,7 +50,9 @@ namespace MySql.Session
     }
 
     protected abstract void Open();
-    protected abstract void Close();
+
+    public abstract void Close();
+    
     protected abstract ProtocolBase GetProtocol();
 
 
@@ -60,6 +62,7 @@ namespace MySql.Session
     {
       return new MySQL41AuthenticationPlugin(Settings);
     }
+   
 
     public static InternalSession GetSession(MySqlConnectionStringBuilder settings)
     {
@@ -106,6 +109,8 @@ namespace MySql.Session
     //{
     //  return (protocol as XProtocol).Find(statement);
     //}
+
+    
 
 
     #region IDisposable

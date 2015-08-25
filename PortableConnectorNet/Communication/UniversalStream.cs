@@ -22,13 +22,14 @@
 
 using Google.ProtocolBuffers;
 using MySql.Common;
+using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
 
 namespace MySql.Communication
 {
-  internal abstract class UniversalStream
+  internal abstract class UniversalStream : IDisposable
   {
 
     protected int _length;
@@ -38,8 +39,7 @@ namespace MySql.Communication
     protected int _lastReadTimeout;
     protected int _lastWriteTimeout;
     LowResolutionStopwatch _stopwatch;
-    //TODO check if we need this
-    bool _isClosed;
+ 
     internal Stream _baseStream;
     internal Stream _inStream;
     internal Stream _outStream;
@@ -47,6 +47,7 @@ namespace MySql.Communication
     protected byte[] _header = new byte[5];
     protected Encoding _encoding;
     internal CommunicationPacket packet;
+    private bool disposed;
 
     public abstract bool CanRead
     {
@@ -64,8 +65,7 @@ namespace MySql.Communication
     }
 
     public UniversalStream()
-    {
-      _isClosed = false;
+    {    
       _stopwatch = new LowResolutionStopwatch();
     }
 
@@ -74,10 +74,36 @@ namespace MySql.Communication
 
     public abstract void Flush();
 
-    public abstract void Close();
+    public abstract void Close(bool isOpen);
 
     internal abstract void SendPacket(byte[] bytes);
-     
+
+    #region IDisposable
+
+    public void Dispose()
+    {
+      Dispose(true);
+      GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+      if (disposed) return;
+
+      if (disposing)
+      {
+        // Free any other managed objects here. 
+        //
+      }
+
+      // Free any unmanaged objects here. 
+      //
+      disposed = true;
+    }
+
+    #endregion
+
+
     //protected void StartTimer(IOKind op);
 
     //protected void StopTimer();

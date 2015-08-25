@@ -175,6 +175,20 @@ namespace MySql.Protocol
       return null;
     }
 
+    public void SendSessionClose()
+    {
+      Close.Builder builder = Close.CreateBuilder();
+      Mysqlx.Session.Close sessionClose = builder.Build();
+      _writer.Write(ClientMessageId.SESS_CLOSE, sessionClose);
+    }
+
+    public void SendConnectionClose()
+    {
+      Mysqlx.Connection.Close.Builder builder = Mysqlx.Connection.Close.CreateBuilder();
+      Mysqlx.Connection.Close connClose = builder.Build();
+      _writer.Write(ClientMessageId.CON_CLOSE, connClose);
+    }
+
     public void SendExecuteStatement(string ns, string stmt, params object[] args)
     {
       StmtExecute.Builder stmtExecute = StmtExecute.CreateBuilder();
@@ -341,6 +355,23 @@ namespace MySql.Protocol
       _writer.Write(ClientMessageId.CRUD_FIND, message);
       result.NextResultSet();
       return result;
+    }
+
+    internal void ReadOK()
+    {
+      CommunicationPacket p = ReadPacket();
+      if (p.MessageType == (int)ServerMessageId.ERROR)
+      {
+        var error = Error.ParseFrom(p.Buffer);
+        throw new MySqlException("Received error when closing session: " + error.Msg);
+      }
+      if (p.MessageType == (int)ServerMessageId.OK)
+      {
+        var response = Ok.ParseFrom(p.Buffer);
+        if (!(response.Msg.IndexOf("bye", 0 , StringComparison.InvariantCultureIgnoreCase) < 0))
+        return;
+      }
+      throw new MySqlException("Unexpected message encountered during closing session");
     }
   }
 }

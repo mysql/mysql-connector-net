@@ -14,6 +14,14 @@ namespace MySql.Session
     private XProtocol protocol;
     private XPacketReaderWriter _reader;
     private XPacketReaderWriter _writer;
+    private SessionState _sessionState;
+
+    public SessionState SessionState {
+      get
+      {
+        return _sessionState;      
+      }
+    }
 
     public XInternalSession(MySqlConnectionStringBuilder settings) : base(settings)
     {
@@ -30,21 +38,49 @@ namespace MySql.Session
 
       var encoding = Encoding.GetEncoding(Settings.CharacterSet);
 
+      SetState(SessionState.Connecting, false);
+
       // do the authentication
       AuthenticationPlugin plugin = GetAuthenticationPlugin();
       protocol.SendAuthStart(plugin.AuthName);
       byte[] extraData = protocol.ReadAuthContinue();
       protocol.SendAuthContinue(plugin.Continue(extraData));
       protocol.ReadAuthOk();
+      SetState(SessionState.Open, false);
+      
     }
 
+    protected void SetState(SessionState newState, bool broadcast)
+    {
+      if (newState == _sessionState && !broadcast)
+        return;
+      SessionState oldSessionState = _sessionState;
+      _sessionState = newState;
+      
+      //TODO check if we need to send this event
+      //if (broadcast)
+        //OnStateChange(new StateChangeEventArgs(oldConnectionState, connectionState));
+    }
+
+    
     protected override ProtocolBase GetProtocol()
     {
       return protocol;
     }
 
-    protected override void Close()
+    public override void Close()
     {
+      try
+      {
+        protocol.SendSessionClose();
+        protocol.ReadOK();
+        _sessionState = SessionState.Closed;
+      }
+      catch
+      {        
+        //TODO
+        throw;
+      }
     }
 
 
@@ -57,7 +93,6 @@ namespace MySql.Session
     {
       ExecuteNonQueryCmd("drop_collection", true, schemaName, collectionName);
     }
-
     private Result ExecuteNonQueryCmd(string cmd, bool throwOnFail, params object[] args)
     {
       protocol.SendExecuteStatement("xplugin", cmd, args);
