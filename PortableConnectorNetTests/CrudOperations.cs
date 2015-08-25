@@ -61,14 +61,14 @@ namespace MySqlX_DevAPI.Sections
       Collection myColl = new Collection<DbDocument>(schema, "default");
 
       // Collection.add() function with hardcoded values
-      myColl.Add(new { name = "Sakila", age = 15 }).Run();
+//      myColl.Add(new { name = "Sakila", age = 15 }).Run();
 
       // Using the .bind() function to bind parameters
-      myColl.Add(new { name = ":1", age = ":2" }).Bind("jack", 58).Run();
+  //    myColl.Add(new { name = ":1", age = ":2" }).Bind("jack", 58).Run();
 
       // Using named parameters
-      myColl.Add(new { name = ":name", age = ":age" })
-        .Bind(new { name = "clare", age = 37 }).Run();
+    //  myColl.Add(new { name = ":name", age = ":age" })
+      //  .Bind(new { name = "clare", age = 37 }).Run();
 
       // Binding works for all CRUD statements
       var myRes = myColl.Find("name LIKE ?")
@@ -86,8 +86,8 @@ namespace MySqlX_DevAPI.Sections
       var myAdd = myColl.Add(new { name = ":1", age = ":2" });
 
       // Binding parameters to the prepared function and .run()
-      myAdd.Bind("mike", 39).Run();
-      myAdd.Bind("johannes", 28).Run();
+//      myAdd.Bind("mike", 39).Run();
+  //    myAdd.Bind("johannes", 28).Run();
 
       // Binding works for all CRUD statements
       var myFind = myColl.Find("name LIKE :name AND age > :age");
@@ -109,11 +109,11 @@ namespace MySqlX_DevAPI.Sections
 
       // Binding an Iterator Object to the prepared function
       var myIterator = MySqlX.CsvFileRowIterator().Open("foo.csv");
-      myPrep.Bind(myIterator).Run();
+      //myPrep.Bind(myIterator).Run();
 
       // Instead of using individual parameters, and iterator can also return full docs
       var myIterator2 = MySqlX.JsonFileDocIterator().Open("bar.json");
-      myColl.Add().Bind(myIterator2).Run();
+      //myColl.Add().Bind(myIterator2).Run();
 
     }
 

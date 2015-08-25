@@ -73,6 +73,11 @@ namespace MySql.XDevAPI
       return c;
     }
 
+    public Collection<T> GetCollection<T>(string name)
+    {
+      return new Collection<T>(this, name);
+    }
+
     public Table GetTable(string name)
     {
       return new Table(this, name);

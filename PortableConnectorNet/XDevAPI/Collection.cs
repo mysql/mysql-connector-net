@@ -22,6 +22,7 @@
 
 using System;
 using System.Threading.Tasks;
+using MySql.Serialization;
 
 namespace MySql.XDevAPI
 {
@@ -33,10 +34,17 @@ namespace MySql.XDevAPI
 
     }
 
-    public Collection Add(object item)
+    public Result Add(object item)
     {
-      throw new NotImplementedException();
+      string s = JsonSerializer.ToJson(item);
+      return Add(s);
     }
+    public Result Add(string json)
+    {
+      json = JsonSerializer.EnsureId(json);
+      return Schema.Session.XSession.Insert(Schema.Name, Name, json);
+    }
+
 
     public void Drop()
     {
@@ -66,16 +74,6 @@ namespace MySql.XDevAPI
     public Collection One()
     {
       throw new NotImplementedException();
-    }
-
-    public Collection Add()
-    {
-      return this;
-    }
-
-    public Result Add(string json)
-    {
-      return Schema.Session.XSession.Insert(Schema.Name, Name, json);
     }
 
     public Collection Limit(int limit)
