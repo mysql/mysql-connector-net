@@ -79,7 +79,7 @@ namespace MySql.XDevAPI
       return this;
     }
 
-    public ResultSet Execute()
+    public RowResult Execute()
     {
       SelectStatement statement = new SelectStatement
       {
@@ -91,9 +91,7 @@ namespace MySql.XDevAPI
         where = where,
         orderBy = orderBy
       };
-      return null;
-//      var result = databaseObject.Schema.Session.XSession.Find(statement);
-  //    return result;
+      return (RowResult)databaseObject.Schema.Session.XSession.Find(statement);
     }
 
   }

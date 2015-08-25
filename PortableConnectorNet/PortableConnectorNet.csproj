@@ -85,7 +85,9 @@
     <Compile Include="Protocol\ProtocolBase.cs" />
     <Compile Include="Protocol\ValueDecoder.cs" />
     <Compile Include="Protocol\X\Enum.cs" />
+    <Compile Include="Protocol\X\ExprParser.cs" />
     <Compile Include="Protocol\X\ExprUtil.cs" />
+    <Compile Include="Protocol\X\ExpUnparser.cs" />
     <Compile Include="Protocol\X\IntegerDecoder.cs" />
     <Compile Include="Protocol\X\ByteDecoder.cs" />
     <Compile Include="Protocol\X\XDateTimeDecoder.cs" />

@@ -40,7 +40,7 @@ namespace MySql.XDevAPI
       return selectStatement.Select(parameters);
     }
 
-    public ResultSet Execute()
+    public Result Execute()
     {
       return selectStatement.Execute();
     }

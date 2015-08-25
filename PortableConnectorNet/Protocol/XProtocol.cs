@@ -320,7 +320,8 @@ namespace MySql.Protocol
       _writer.Write(ClientMessageId.CRUD_INSERT, msg);
     }
 
-    public Result Find(SelectStatement statement)
+    
+    public void SendFind(SelectStatement statement)
     {
       Result result = new Result(this);
 
@@ -341,6 +342,10 @@ namespace MySql.Protocol
               .SetName(columnName))));
       }
       // :param criteria:
+      builder.SetCriteria(Expr.CreateBuilder()
+        .SetType(Expr.Types.Type.LITERAL)
+        .SetVariable(statement.where));
+      // :param args:
 
       // :param limit:
 
@@ -353,8 +358,6 @@ namespace MySql.Protocol
 
       Mysqlx.Crud.Find message = builder.Build();
       _writer.Write(ClientMessageId.CRUD_FIND, message);
-      result.NextResultSet();
-      return result;
     }
 
     internal void ReadOK()

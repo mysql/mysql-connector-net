@@ -33,6 +33,7 @@
   <ItemGroup>
     <Compile Include="BaseTest.cs" />
     <Compile Include="CollectionTests.cs" />
+    <Compile Include="ExprParserTests.cs" />
     <Compile Include="SchemaTests.cs" />
     <Compile Include="Sessions.cs" />
     <Compile Include="CrudOperations.cs" />
@@ -49,6 +50,11 @@
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Google.ProtocolBuffers, Version=2.4.1.555, Culture=neutral, PublicKeyToken=17b3b1f090c3ea48, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Protobuf\Google.ProtocolBuffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
     <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
       <HintPath>..\packages\xunit.abstractions.2.0.0\lib\net35\xunit.abstractions.dll</HintPath>
       <Private>True</Private>
