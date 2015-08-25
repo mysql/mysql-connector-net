@@ -3,18 +3,16 @@
 
 namespace MySql.XDevAPI
 {
-  public class RemoveStatement : CrudStatement
+  public class RemoveStatement : FilterableStatement<RemoveStatement>
   {
-    Collection _collection;
-
-    internal RemoveStatement(Collection collection)
+    internal RemoveStatement(Collection collection, string condition) : base(collection)
     {
-      _collection = collection;
+      this.Where(condition);
     }
 
     public override DocumentResult Execute()
     {
-      throw new NotImplementedException();
+      return Collection.Schema.Session.XSession.DeleteDocs(this);
     }
   }
 }

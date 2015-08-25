@@ -35,11 +35,8 @@ namespace MySql.XDevAPI
     internal List<string> orderBy;
 
 
-
-
-    public FindStatement(DatabaseObject databaseObject)
+    public FindStatement(Collection c) : base (c)
     {
-      this.databaseObject = databaseObject;
       projection = new List<string>();
       orderBy = new List<string>();
     }

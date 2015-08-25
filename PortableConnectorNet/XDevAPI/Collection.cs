@@ -51,7 +51,7 @@ namespace MySql.XDevAPI
 
     public RemoveStatement Remove(string condition)
     {
-      RemoveStatement stmt = new RemoveStatement(this);
+      RemoveStatement stmt = new RemoveStatement(this, condition);
       return stmt;
     }
 

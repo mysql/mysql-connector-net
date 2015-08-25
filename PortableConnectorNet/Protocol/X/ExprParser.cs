@@ -1116,7 +1116,7 @@ namespace MySql.Protocol.X
      *
      * @return an X-protocol expression tree
      */
-    internal Expr Parse()
+    public Expr Parse()
     {
       try
       {

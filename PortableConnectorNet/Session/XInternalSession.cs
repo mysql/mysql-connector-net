@@ -38,11 +38,9 @@ namespace MySql.Session
     private XPacketReaderWriter _writer;
     private SessionState _sessionState;
 
-    public SessionState SessionState {
-      get
-      {
-        return _sessionState;      
-      }
+    public SessionState SessionState
+    {
+      get { return _sessionState; }
     }
 
     public XInternalSession(MySqlConnectionStringBuilder settings) : base(settings)
@@ -132,9 +130,15 @@ namespace MySql.Session
       return r;
     }
 
-    public DocumentResult Insert(string schema, string collection, string[] json)
+    public DocumentResult Insert(Collection collection, string[] json)
     {
-      protocol.SendInsert(schema, collection, json);
+      protocol.SendInsert(collection.Schema.Name, collection.Name, json);
+      return (DocumentResult)GetResult(false);
+    }
+
+    public DocumentResult DeleteDocs(RemoveStatement rs)
+    {
+      protocol.SendDocDelete(rs.Collection.Schema.Name, rs.Collection.Name, rs.FilterData);
       return (DocumentResult)GetResult(false);
     }
 

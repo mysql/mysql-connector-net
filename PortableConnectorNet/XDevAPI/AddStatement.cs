@@ -8,12 +8,10 @@ namespace MySql.XDevAPI
 {
   public class AddStatement : CrudStatement
   {
-    private Collection _collection;
     private List<string> _jsonDocs = new List<string>();
 
-    internal AddStatement(Collection collection)
+    internal AddStatement(Collection collection) : base(collection)
     {
-      _collection = collection;
     }
 
     public void Add(params object[] items)
@@ -28,7 +26,7 @@ namespace MySql.XDevAPI
 
     public override DocumentResult Execute()
     {
-      return _collection.Schema.Session.XSession.Insert(_collection.Schema.Name, _collection.Name, _jsonDocs.ToArray());
+      return Collection.Schema.Session.XSession.Insert(Collection, _jsonDocs.ToArray());
     }
 
   }

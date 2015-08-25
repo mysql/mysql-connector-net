@@ -312,8 +312,7 @@ namespace MySql.Protocol
 
     public void SendInsert(string schema, string collection, string[] rows)
     {
-      Mysqlx.Crud.Collection coll = Mysqlx.Crud.Collection.CreateBuilder().SetSchema(schema).SetName(collection).Build();
-      Insert.Builder builder = Mysqlx.Crud.Insert.CreateBuilder().SetCollection(coll);
+      Insert.Builder builder = Mysqlx.Crud.Insert.CreateBuilder().SetCollection(ExprUtil.BuildCollection(schema, collection));
       foreach (string row in rows)
       {
         Mysqlx.Crud.Insert.Types.TypedRow typedRow = Mysqlx.Crud.Insert.Types.TypedRow.CreateBuilder().AddField(ExprUtil.ArgObjectToExpr(row, false)).Build();
@@ -323,7 +322,23 @@ namespace MySql.Protocol
       _writer.Write(ClientMessageId.CRUD_INSERT, msg);
     }
 
-    
+    public void SendDocDelete(string schema, string collection, FilterParams filter)
+    {
+      var builder = Delete.CreateBuilder();
+      builder.SetCollection(ExprUtil.BuildCollection(schema, collection));
+      if (filter.HasLimit)
+      {
+        var limit = Limit.CreateBuilder().SetRowCount((ulong)filter.Limit).Build();
+        builder.SetLimit(limit);
+      }
+      if (filter.HasCondition)
+      {
+        builder.SetCriteria(filter.GetConditionExpression(false));
+      }
+      var msg = builder.Build();
+      _writer.Write(ClientMessageId.CRUD_DELETE, msg);
+    }
+
     public void SendFind(SelectStatement statement)
     {
       Result result = new Result(this);

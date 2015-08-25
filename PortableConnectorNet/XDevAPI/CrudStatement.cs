@@ -27,6 +27,14 @@ namespace MySql.XDevAPI
 {
   public abstract class CrudStatement
   {
+
+    public CrudStatement(Collection collection)
+    {
+      Collection = collection;
+    }
+
+    public Collection Collection { get; private set; }
+
     public abstract DocumentResult Execute();
 
     /// <summary>

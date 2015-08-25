@@ -106,6 +106,8 @@
     <Compile Include="XDevAPI\DatabaseObject.cs" />
     <Compile Include="Protocol\XProtocol.cs" />
     <Compile Include="XDevAPI\DbDocument.cs" />
+    <Compile Include="XDevAPI\FilterableStatement.cs" />
+    <Compile Include="XDevAPI\FilterParams.cs" />
     <Compile Include="XDevAPI\FindStatement.cs" />
     <Compile Include="XDevAPI\GenericCollection.cs" />
     <Compile Include="XDevAPI\RemoveStatement.cs" />
