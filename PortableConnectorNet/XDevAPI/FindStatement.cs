@@ -26,7 +26,7 @@ using System.Collections.Generic;
 
 namespace MySql.XDevAPI
 {
-  public class ReadQueryObject : QueryObject
+  public class FindStatement : CrudStatement
   {
     internal DatabaseObject databaseObject;
     internal List<string> projection;
@@ -37,7 +37,7 @@ namespace MySql.XDevAPI
 
 
 
-    public ReadQueryObject(DatabaseObject databaseObject)
+    public FindStatement(DatabaseObject databaseObject)
     {
       this.databaseObject = databaseObject;
       projection = new List<string>();
@@ -45,30 +45,30 @@ namespace MySql.XDevAPI
     }
 
 
-    public ReadQueryObject Select(params string[] columns)
+    public FindStatement Select(params string[] columns)
     {
       projection = new List<string>(columns);
       return this;
     }
 
-    public ReadQueryObject Where(string condition)
+    public FindStatement Where(string condition)
     {
       where = condition;
       return this;
     }
 
-    public ReadQueryObject OrderBy(string p)
+    public FindStatement OrderBy(string p)
     {
       throw new NotImplementedException();
     }
 
-    public ReadQueryObject Bind(Dictionary<string, object> namedParameters)
+    public FindStatement Bind(Dictionary<string, object> namedParameters)
     {
       this.parameters = namedParameters;
       return this;
     }
 
-    public ReadQueryObject Bind(params object[] values)
+    public FindStatement Bind(params object[] values)
     {
       this.parameters = new Dictionary<string, object>();
       int i = 0;
@@ -79,7 +79,7 @@ namespace MySql.XDevAPI
       return this;
     }
 
-    public RowResult Execute()
+    public override DocumentResult Execute()
     {
       SelectStatement statement = new SelectStatement
       {
@@ -91,7 +91,7 @@ namespace MySql.XDevAPI
         where = where,
         orderBy = orderBy
       };
-      return (RowResult)databaseObject.Schema.Session.XSession.Find(statement);
+      return databaseObject.Schema.Session.XSession.Find(statement);
     }
 
   }

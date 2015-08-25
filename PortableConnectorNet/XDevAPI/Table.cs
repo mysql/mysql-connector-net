@@ -26,24 +26,24 @@ namespace MySql.XDevAPI
 {
   public class Table : DatabaseObject
   {
-    private ReadQueryObject selectStatement;
+//    private ReadQueryObject selectStatement;
 
     public Table(Schema schema, string name)
       : base(schema, name)
     {
-      selectStatement = new ReadQueryObject(this);
+  //    selectStatement = new ReadQueryObject(this);
     }
 
 
-    public ReadQueryObject Select(params string[] parameters)
-    {
-      return selectStatement.Select(parameters);
-    }
+    //public ReadQueryObject Select(params string[] parameters)
+   // {
+     // return selectStatement.Select(parameters);
+   // }
 
-    public Result Execute()
-    {
-      return selectStatement.Execute();
-    }
+    //public Result Execute()
+    //{
+     // return selectStatement.Execute();
+   // }
 
     public Table Execute(Action<Exception, object> function)
     {

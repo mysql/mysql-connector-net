@@ -310,12 +310,15 @@ namespace MySql.Protocol
       return c;
     }
 
-    public void SendInsert(string schema, string collection, string json)
+    public void SendInsert(string schema, string collection, string[] rows)
     {
       Mysqlx.Crud.Collection coll = Mysqlx.Crud.Collection.CreateBuilder().SetSchema(schema).SetName(collection).Build();
       Insert.Builder builder = Mysqlx.Crud.Insert.CreateBuilder().SetCollection(coll);
-      Mysqlx.Crud.Insert.Types.TypedRow typedRow = Mysqlx.Crud.Insert.Types.TypedRow.CreateBuilder().AddField(ExprUtil.ArgObjectToExpr(json, false)).Build();
-      builder.AddRow(typedRow);
+      foreach (string row in rows)
+      {
+        Mysqlx.Crud.Insert.Types.TypedRow typedRow = Mysqlx.Crud.Insert.Types.TypedRow.CreateBuilder().AddField(ExprUtil.ArgObjectToExpr(row, false)).Build();
+        builder.AddRow(typedRow);
+      }
       Mysqlx.Crud.Insert msg = builder.Build();
       _writer.Write(ClientMessageId.CRUD_INSERT, msg);
     }

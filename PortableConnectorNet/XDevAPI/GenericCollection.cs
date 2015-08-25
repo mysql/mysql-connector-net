@@ -36,7 +36,7 @@ namespace MySql.XDevAPI
     {
     }
 
-    public Result Add(T value)
+    public AddStatement Add(T value)
     {
       string json = JsonSerializer.ToJson(value);
       return Add(json);

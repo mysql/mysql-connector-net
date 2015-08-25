@@ -47,40 +47,5 @@ namespace PortableConnectorNetTests
       Assert.False(testColl.ExistsInDatabase());
     }
 
-    [Fact]
-    public void InsertFreeFormDoc()
-    {
-      Session s = GetSession();
-      Schema test = s.GetSchema("test");
-      Collection testColl = test.CreateCollection("test");
-      Result r = testColl.Add("{ \"_id\": 1, \"foo\": 1 }");
-      Assert.Equal<ulong>(1, r.RecordsAffected);
-    }
-
-    [Fact]
-    public void InsertAnonymousObjectWithNoId()
-    {
-      var obj = new { name = "Sakila", age = 15 };
-
-      Session s = GetSession();
-      Schema test = s.GetSchema("test");
-      Collection testColl = test.GetCollection("test");
-      Result r = testColl.Add(obj);
-      Assert.Equal<ulong>(1, r.RecordsAffected);
-      ///TODO:  pull object and verify data
-    }
-
-    [Fact]
-    public void InsertAnonymousObjectWithId()
-    {
-      var obj = new { _id = "5", name = "Sakila", age = 15 };
-
-      Session s = GetSession();
-      Schema test = s.GetSchema("test");
-      Collection testColl = test.GetCollection("test");
-      Result r = testColl.Add(obj);
-      Assert.Equal<ulong>(1, r.RecordsAffected);
-      ///TODO:  pull object and verify data
-    }
   }
 }

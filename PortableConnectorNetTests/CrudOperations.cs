@@ -33,13 +33,13 @@ namespace MySqlX_DevAPI.Sections
     {
       Session s = MySqlX.GetSession("server=127.0.0.1;port=33060;uid=userx;password=userx1;");
       Schema db = s.GetSchema("testx");
-      var employees = db.GetTable("employees");
+//      var employees = db.GetTable("employees");
 
-      var res = employees.Select("name", "age")
-        .Where("name like :name")
+  //    var res = employees.Select("name", "age")
+    //    .Where("name like :name")
         //.OrderBy("name")
         //.Bind(parameters)
-        .Execute();
+      //  .Execute();
 
       //TODO assert the expected rows count
       //Assert.Equal(2, res.Rows.Count);

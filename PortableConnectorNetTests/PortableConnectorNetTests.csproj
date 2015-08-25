@@ -33,6 +33,8 @@
   <ItemGroup>
     <Compile Include="BaseTest.cs" />
     <Compile Include="CollectionTests.cs" />
+    <Compile Include="CrudInsertTests.cs" />
+    <Compile Include="CrudRemoveTests.cs" />
     <Compile Include="ExprParserTests.cs" />
     <Compile Include="SchemaTests.cs" />
     <Compile Include="Sessions.cs" />

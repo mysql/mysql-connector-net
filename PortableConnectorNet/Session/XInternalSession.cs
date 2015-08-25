@@ -132,16 +132,16 @@ namespace MySql.Session
       return r;
     }
 
-    public Result Insert(string schema, string collection, string json)
+    public DocumentResult Insert(string schema, string collection, string[] json)
     {
       protocol.SendInsert(schema, collection, json);
-      return GetResult(true);
+      return (DocumentResult)GetResult(false);
     }
 
-    public Result Find(SelectStatement statement)
+    public DocumentResult Find(SelectStatement statement)
     {
       protocol.SendFind(statement);
-      return (Result)GetResult(true);
+      return (DocumentResult)GetResult(false);
     }
 
 

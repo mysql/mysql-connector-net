@@ -21,9 +21,25 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
+using System.Threading.Tasks;
+
 namespace MySql.XDevAPI
 {
-  public abstract class QueryObject
+  public abstract class CrudStatement
   {
+    public abstract DocumentResult Execute();
+
+    /// <summary>
+    /// This is an incomplete implementation which will lead to problems.  We need to implement a 
+    /// scheduler that will serialize db operations
+    /// </summary>
+    /// <returns></returns>
+    public async Task<DocumentResult> ExecuteAsync()
+    {
+      return await Task.Run(() =>
+      {
+        return Execute();
+      });
+    }
   }
 }

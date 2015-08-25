@@ -29,11 +29,18 @@ using System.Threading.Tasks;
 
 namespace PortableConnectorNetTests
 {
-    public class BaseTest
+  public class BaseTest
+  {
+    protected Collection CreateCollection(string name)
     {
-        protected Session GetSession()
-        {
-            return MySqlX.GetSession("server=localhost;port=33060;uid=userx;password=userx1");
-        }
+      Session s = GetSession();
+      Schema test = s.GetSchema("test");
+      return test.CreateCollection(name);
     }
+
+    protected Session GetSession()
+    {
+      return MySqlX.GetSession("server=localhost;port=33060;uid=userx;password=userx1");
+    }
+  }
 }

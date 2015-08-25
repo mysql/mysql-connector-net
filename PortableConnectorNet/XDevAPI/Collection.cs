@@ -23,6 +23,7 @@
 using System;
 using System.Threading.Tasks;
 using MySql.Serialization;
+using System.Collections.Generic;
 
 namespace MySql.XDevAPI
 {
@@ -34,17 +35,25 @@ namespace MySql.XDevAPI
 
     }
 
-    public Result Add(object item)
+    public AddStatement Add(params object[] items)
     {
-      string s = JsonSerializer.ToJson(item);
-      return Add(s);
-    }
-    public Result Add(string json)
-    {
-      json = JsonSerializer.EnsureId(json);
-      return Schema.Session.XSession.Insert(Schema.Name, Name, json);
+      AddStatement stmt = new AddStatement(this);
+      stmt.Add(items);
+      return stmt;
     }
 
+    public AddStatement Add(params string[] json)
+    {
+      AddStatement stmt = new AddStatement(this);
+      stmt.Add(json);
+      return stmt;
+    }
+
+    public RemoveStatement Remove(string condition)
+    {
+      RemoveStatement stmt = new RemoveStatement(this);
+      return stmt;
+    }
 
     public void Drop()
     {
