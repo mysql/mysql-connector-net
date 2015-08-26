@@ -44,7 +44,7 @@ namespace MySql.XDevAPI
       List<Collection> docs = new List<Collection>();
       foreach (ResultRow row in r.Rows)
       {
-        Collection<DbDocument> doc = new Collection<DbDocument>(this, row.GetString("name"));
+        Collection<JsonDoc> doc = new Collection<JsonDoc>(this, row.GetString("name"));
         docs.Add(doc);
       }
       return docs;
@@ -66,7 +66,7 @@ namespace MySql.XDevAPI
 
     public Collection GetCollection(string name, bool ValidateExistence = false)
     {
-      Collection c = new Collection<DbDocument>(this, name);
+      Collection c = new Collection<JsonDoc>(this, name);
       if (ValidateExistence)
         if (!c.ExistsInDatabase())
           throw new MySqlException(String.Format("Collection '{0}' does not exist.", name));
@@ -95,7 +95,7 @@ namespace MySql.XDevAPI
     public Collection CreateCollection(string collectionName, bool ReuseExistingObject = false)
     {
       Session.XSession.CreateCollection(Name, collectionName);
-      return new Collection<DbDocument>(this, collectionName);
+      return new Collection<JsonDoc>(this, collectionName);
     }
 
     public View CreateView(string name)
@@ -107,7 +107,7 @@ namespace MySql.XDevAPI
 
     public void DropCollection(string name)
     {
-      Collection c = new Collection<DbDocument>(this, name);
+      Collection c = new Collection<JsonDoc>(this, name);
       c.Drop();
     }
 

@@ -310,18 +310,21 @@ namespace MySql.Protocol
       return c;
     }
 
-    public void SendInsert(string schema, string collection, string[] rows)
+    public void SendInsert(string schema, string collection, JsonDoc[] rows)
     {
       Insert.Builder builder = Mysqlx.Crud.Insert.CreateBuilder().SetCollection(ExprUtil.BuildCollection(schema, collection));
-      foreach (string row in rows)
+      foreach (JsonDoc row in rows)
       {
-        Mysqlx.Crud.Insert.Types.TypedRow typedRow = Mysqlx.Crud.Insert.Types.TypedRow.CreateBuilder().AddField(ExprUtil.ArgObjectToExpr(row, false)).Build();
+        Mysqlx.Crud.Insert.Types.TypedRow typedRow = Mysqlx.Crud.Insert.Types.TypedRow.CreateBuilder().AddField(ExprUtil.ArgObjectToExpr(row.ToString(), false)).Build();
         builder.AddRow(typedRow);
       }
       Mysqlx.Crud.Insert msg = builder.Build();
       _writer.Write(ClientMessageId.CRUD_INSERT, msg);
     }
 
+    /// <summary>
+    /// Sends the delete documents message
+    /// </summary>
     public void SendDocDelete(string schema, string collection, FilterParams filter)
     {
       var builder = Delete.CreateBuilder();

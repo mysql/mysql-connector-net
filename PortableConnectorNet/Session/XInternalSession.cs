@@ -130,7 +130,7 @@ namespace MySql.Session
       return r;
     }
 
-    public DocumentResult Insert(Collection collection, string[] json)
+    public DocumentResult Insert(Collection collection, JsonDoc[] json)
     {
       protocol.SendInsert(collection.Schema.Name, collection.Name, json);
       return (DocumentResult)GetResult(false);

@@ -33,10 +33,6 @@
     <Reference Include="Google.ProtocolBuffers">
       <HintPath>C:\Program Files (x86)\Protobuf\Google.ProtocolBuffers.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -76,12 +72,12 @@
     <Compile Include="common\MySqlException.cs" />
     <Compile Include="common\MySqlTrace.cs" />
     <Compile Include="Data\Parameter.cs" />
+    <None Include="Protocol\MySQLProtocol.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <None Include="Protocol\MySQLProtocol.cs" />
     <Compile Include="Protocol\ProtocolBase.cs" />
     <Compile Include="Protocol\ValueDecoder.cs" />
     <Compile Include="Protocol\X\Enum.cs" />
@@ -97,7 +93,7 @@
     <Compile Include="common\StringUtility.cs" />
     <Compile Include="Communication\UniversalStream.cs" />
     <Compile Include="Properties\VersionInfo.cs" />
-    <Compile Include="Serialization\JsonSerializer.cs" />
+    <Compile Include="Serialization\JsonParser.cs" />
     <Compile Include="Session\InternalSession.cs" />
     <Compile Include="Session\XInternalSession.cs" />
     <Compile Include="XDevAPI\AddStatement.cs" />
@@ -105,11 +101,11 @@
     <Compile Include="XDevAPI\CrudStatement.cs" />
     <Compile Include="XDevAPI\DatabaseObject.cs" />
     <Compile Include="Protocol\XProtocol.cs" />
-    <Compile Include="XDevAPI\DbDocument.cs" />
     <Compile Include="XDevAPI\FilterableStatement.cs" />
     <Compile Include="XDevAPI\FilterParams.cs" />
     <Compile Include="XDevAPI\FindStatement.cs" />
     <Compile Include="XDevAPI\GenericCollection.cs" />
+    <Compile Include="XDevAPI\JsonDoc.cs" />
     <Compile Include="XDevAPI\RemoveStatement.cs" />
     <Compile Include="XDevAPI\Result.cs" />
     <Compile Include="XDevAPI\ResultSet.cs" />
@@ -134,10 +130,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Properties\keywords.txt" />
-    <Content Include="Properties\ReservedWords.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

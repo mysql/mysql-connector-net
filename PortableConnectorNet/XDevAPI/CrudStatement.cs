@@ -21,6 +21,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace MySql.XDevAPI
@@ -34,6 +35,17 @@ namespace MySql.XDevAPI
     }
 
     public Collection Collection { get; private set; }
+
+    protected IEnumerable<JsonDoc> GetDocs(object[] items, bool ensureId = false)
+    {
+      foreach (object item in items)
+      {
+        JsonDoc d = new JsonDoc(item);
+        if (ensureId)
+          d.EnsureId();
+        yield return d;
+      }
+    }
 
     public abstract DocumentResult Execute();
 

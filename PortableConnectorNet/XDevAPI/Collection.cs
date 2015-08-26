@@ -24,6 +24,7 @@ using System;
 using System.Threading.Tasks;
 using MySql.Serialization;
 using System.Collections.Generic;
+using MySql.Properties;
 
 namespace MySql.XDevAPI
 {
@@ -34,6 +35,8 @@ namespace MySql.XDevAPI
     {
 
     }
+
+    #region Add Operations
 
     public AddStatement Add(params object[] items)
     {
@@ -49,11 +52,33 @@ namespace MySql.XDevAPI
       return stmt;
     }
 
+    #endregion
+
+    #region Remove Operations
+
     public RemoveStatement Remove(string condition)
     {
       RemoveStatement stmt = new RemoveStatement(this, condition);
       return stmt;
     }
+
+    public RemoveStatement Remove(object id)
+    {
+      string key = id is string ?
+        "\"" + id.ToString() + "\"" : id.ToString();
+      string condition = String.Format("_id = {0}", key);
+      RemoveStatement stmt = new RemoveStatement(this, condition);
+      return stmt;
+    }
+
+    public RemoveStatement Remove(JsonDoc doc)
+    {
+      if (!doc.HasId)
+        throw new InvalidOperationException(Resources.RemovingRequiresId);
+      return Remove(doc.Id);
+    }
+
+    #endregion
 
     public void Drop()
     {
@@ -149,7 +174,8 @@ namespace MySql.XDevAPI
     {
       string sql = String.Format("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '{0}' AND table_name = '{1}'", 
         Schema.Name, Name);
-      return Schema.Session.InternalSession.ExecuteQueryAsScalar(sql).Equals(1);
+      long count = (long)Schema.Session.InternalSession.ExecuteQueryAsScalar(sql);
+      return count != 0;
     }
   }
 }

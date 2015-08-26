@@ -38,8 +38,7 @@ namespace MySql.XDevAPI
 
     public AddStatement Add(T value)
     {
-      string json = JsonSerializer.ToJson(value);
-      return Add(json);
+      return Add(new JsonDoc(value));
     }
 
 

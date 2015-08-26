@@ -36,6 +36,7 @@
     <Compile Include="CrudInsertTests.cs" />
     <Compile Include="CrudRemoveTests.cs" />
     <Compile Include="ExprParserTests.cs" />
+    <Compile Include="JsonDocTests.cs" />
     <Compile Include="SchemaTests.cs" />
     <Compile Include="Sessions.cs" />
     <Compile Include="CrudOperations.cs" />

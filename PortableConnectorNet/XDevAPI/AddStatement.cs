@@ -8,7 +8,7 @@ namespace MySql.XDevAPI
 {
   public class AddStatement : CrudStatement
   {
-    private List<string> _jsonDocs = new List<string>();
+    private List<JsonDoc> _jsonDocs = new List<JsonDoc>();
 
     internal AddStatement(Collection collection) : base(collection)
     {
@@ -16,12 +16,12 @@ namespace MySql.XDevAPI
 
     public void Add(params object[] items)
     {
-      _jsonDocs.AddRange(JsonSerializer.ToJson(items));
+      _jsonDocs.AddRange(GetDocs(items, true));
     }
 
     public void Add(params string[] items)
     {
-      _jsonDocs.AddRange(JsonSerializer.EnsureId(items));
+      _jsonDocs.AddRange(GetDocs(items, true));
     }
 
     public override DocumentResult Execute()
