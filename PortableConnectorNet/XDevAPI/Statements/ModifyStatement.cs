@@ -46,6 +46,12 @@ namespace MySql.XDevAPI.Statements
       return this;
     }
 
+    public ModifyStatement Unset(string docPath)
+    {
+      Updates.Add(new UpdateSpec(UpdateType.ITEM_REMOVE, docPath));
+      return this;
+    }
+
 
     public override DocumentResult Execute()
     {

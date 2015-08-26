@@ -28,13 +28,39 @@ namespace PortableConnectorNetTests
   public class CrudUpdateTests : BaseTest
   {
     [Fact]
-    public void UpdateSingleDocument()
+    public void SetItemInSingleDocument()
+    {
+      Collection coll = CreateCollection("test");
+      DocumentResult result = coll.Add(new { _id = 1, name = "Book 1" }).Execute();
+      Assert.Equal<ulong>(1, result.RecordsAffected);
+
+      result = coll.Modify("_id = 1").Set("pages", "20").Execute();
+      Assert.Equal<ulong>(1, result.RecordsAffected);
+
+      coll.Drop();
+    }
+
+    [Fact]
+    public void ChangeItemInSingleDocument()
     {
       Collection coll = CreateCollection("test");
       DocumentResult result = coll.Add(new { _id = 1, name = "Book 1", pages = 20 }).Execute();
       Assert.Equal<ulong>(1, result.RecordsAffected);
 
       result = coll.Modify("_id = 1").Change("name", "Book 2").Execute();
+      Assert.Equal<ulong>(1, result.RecordsAffected);
+
+      coll.Drop();
+    }
+
+    [Fact]
+    public void RemoveItemInSingleDocument()
+    {
+      Collection coll = CreateCollection("test");
+      DocumentResult result = coll.Add(new { _id = 1, name = "Book 1", pages = 20 }).Execute();
+      Assert.Equal<ulong>(1, result.RecordsAffected);
+
+      result = coll.Modify("_id = 1").Unset("pages").Execute();
       Assert.Equal<ulong>(1, result.RecordsAffected);
 
       coll.Drop();
