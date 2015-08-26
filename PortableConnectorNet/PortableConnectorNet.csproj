@@ -30,9 +30,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Google.ProtocolBuffers">
-      <HintPath>C:\Program Files (x86)\Protobuf\Google.ProtocolBuffers.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -54,19 +51,9 @@
     <Compile Include="Data\Enums.cs" />
     <Compile Include="Data\SelectStatement.cs" />
     <Compile Include="Data\Statement.cs" />
-    <Compile Include="Message\MysqlxResultset.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Authentication\Authentication.cs" />
     <Compile Include="common\LowResolutionStopwatch.cs" />
-    <Compile Include="Message\Mysqlx.cs" />
-    <Compile Include="Message\MysqlxConnection.cs" />
-    <Compile Include="Message\MysqlxCrud.cs" />
-    <Compile Include="Message\MysqlxDatatypes.cs" />
-    <Compile Include="Message\MysqlxExpect.cs" />
-    <Compile Include="Message\MysqlxExpr.cs" />
-    <Compile Include="Message\MysqlxNotice.cs" />
-    <Compile Include="Message\MysqlxSession.cs" />
-    <Compile Include="Message\MysqlxSql.cs" />
     <Compile Include="common\MySqlConnectionStringBuilder.cs" />
     <Compile Include="common\MysqlDefs.cs" />
     <Compile Include="common\MySqlException.cs" />
@@ -78,6 +65,107 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Protobuf\AbstractBuilder.cs" />
+    <Compile Include="Protobuf\AbstractBuilderLite.cs" />
+    <Compile Include="Protobuf\AbstractMessage.cs" />
+    <Compile Include="Protobuf\AbstractMessageLite.cs" />
+    <Compile Include="Protobuf\ByteArray.cs" />
+    <Compile Include="Protobuf\ByteString.cs" />
+    <Compile Include="Protobuf\CodedInputStream.cs" />
+    <Compile Include="Protobuf\CodedOutputStream.ComputeSize.cs" />
+    <Compile Include="Protobuf\CodedOutputStream.cs" />
+    <Compile Include="Protobuf\Collections\Dictionaries.cs" />
+    <Compile Include="Protobuf\Collections\Enumerables.cs" />
+    <Compile Include="Protobuf\Collections\IPopsicleList.cs" />
+    <Compile Include="Protobuf\Collections\Lists.cs" />
+    <Compile Include="Protobuf\Collections\PopsicleList.cs" />
+    <Compile Include="Protobuf\Collections\ReadOnlyDictionary.cs" />
+    <Compile Include="Protobuf\CustomSerialization.cs" />
+    <Compile Include="Protobuf\Delegates.cs" />
+    <Compile Include="Protobuf\DescriptorProtos\CSharpOptions.cs" />
+    <Compile Include="Protobuf\DescriptorProtos\DescriptorProtoFile.cs" />
+    <Compile Include="Protobuf\DescriptorProtos\IDescriptorProto.cs" />
+    <Compile Include="Protobuf\DescriptorProtos\PartialClasses.cs" />
+    <Compile Include="Protobuf\Descriptors\DescriptorBase.cs" />
+    <Compile Include="Protobuf\Descriptors\DescriptorPool.cs" />
+    <Compile Include="Protobuf\Descriptors\DescriptorUtil.cs" />
+    <Compile Include="Protobuf\Descriptors\DescriptorValidationException.cs" />
+    <Compile Include="Protobuf\Descriptors\EnumDescriptor.cs" />
+    <Compile Include="Protobuf\Descriptors\EnumValueDescriptor.cs" />
+    <Compile Include="Protobuf\Descriptors\FieldDescriptor.cs" />
+    <Compile Include="Protobuf\Descriptors\FieldMappingAttribute.cs" />
+    <Compile Include="Protobuf\Descriptors\FieldType.cs" />
+    <Compile Include="Protobuf\Descriptors\FileDescriptor.cs" />
+    <Compile Include="Protobuf\Descriptors\IDescriptor.cs" />
+    <Compile Include="Protobuf\Descriptors\IndexedDescriptorBase.cs" />
+    <Compile Include="Protobuf\Descriptors\MappedType.cs" />
+    <Compile Include="Protobuf\Descriptors\MessageDescriptor.cs" />
+    <Compile Include="Protobuf\Descriptors\MethodDescriptor.cs" />
+    <Compile Include="Protobuf\Descriptors\PackageDescriptor.cs" />
+    <Compile Include="Protobuf\Descriptors\ServiceDescriptor.cs" />
+    <Compile Include="Protobuf\DynamicMessage.cs" />
+    <Compile Include="Protobuf\EnumLite.cs" />
+    <Compile Include="Protobuf\ExtendableBuilder.cs" />
+    <Compile Include="Protobuf\ExtendableBuilderLite.cs" />
+    <Compile Include="Protobuf\ExtendableMessage.cs" />
+    <Compile Include="Protobuf\ExtendableMessageLite.cs" />
+    <Compile Include="Protobuf\ExtensionInfo.cs" />
+    <Compile Include="Protobuf\ExtensionRegistry.cs" />
+    <Compile Include="Protobuf\ExtensionRegistryLite.cs" />
+    <Compile Include="Protobuf\FieldAccess\FieldAccessorTable.cs" />
+    <Compile Include="Protobuf\FieldAccess\IFieldAccessor.cs" />
+    <Compile Include="Protobuf\FieldAccess\ReflectionUtil.cs" />
+    <Compile Include="Protobuf\FieldAccess\RepeatedEnumAccessor.cs" />
+    <Compile Include="Protobuf\FieldAccess\RepeatedMessageAccessor.cs" />
+    <Compile Include="Protobuf\FieldAccess\RepeatedPrimitiveAccessor.cs" />
+    <Compile Include="Protobuf\FieldAccess\SingleEnumAccessor.cs" />
+    <Compile Include="Protobuf\FieldAccess\SingleMessageAccessor.cs" />
+    <Compile Include="Protobuf\FieldAccess\SinglePrimitiveAccessor.cs" />
+    <Compile Include="Protobuf\FieldSet.cs" />
+    <Compile Include="Protobuf\FrameworkPortability.cs" />
+    <Compile Include="Protobuf\GeneratedBuilder.cs" />
+    <Compile Include="Protobuf\GeneratedBuilderLite.cs" />
+    <Compile Include="Protobuf\GeneratedExtensionBase.cs" />
+    <Compile Include="Protobuf\GeneratedExtensionLite.cs" />
+    <Compile Include="Protobuf\GeneratedMessage.cs" />
+    <Compile Include="Protobuf\GeneratedMessageLite.cs" />
+    <Compile Include="Protobuf\GeneratedRepeatExtension.cs" />
+    <Compile Include="Protobuf\GeneratedSingleExtension.cs" />
+    <Compile Include="Protobuf\IBuilder.cs" />
+    <Compile Include="Protobuf\IBuilderLite.cs" />
+    <Compile Include="Protobuf\ICodedInputStream.cs" />
+    <Compile Include="Protobuf\ICodedOutputStream.cs" />
+    <Compile Include="Protobuf\IMessage.cs" />
+    <Compile Include="Protobuf\IMessageLite.cs" />
+    <Compile Include="Protobuf\InvalidProtocolBufferException.cs" />
+    <Compile Include="Protobuf\IRpcChannel.cs" />
+    <Compile Include="Protobuf\IRpcController.cs" />
+    <Compile Include="Protobuf\IRpcDispatch.cs" />
+    <Compile Include="Protobuf\IService.cs" />
+    <Compile Include="Protobuf\MessageStreamIterator.cs" />
+    <Compile Include="Protobuf\MessageStreamWriter.cs" />
+    <Compile Include="Protobuf\MessageUtil.cs" />
+    <Compile Include="Protobuf\Message\Mysqlx.cs" />
+    <Compile Include="Protobuf\Message\MysqlxConnection.cs" />
+    <Compile Include="Protobuf\Message\MysqlxCrud.cs" />
+    <Compile Include="Protobuf\Message\MysqlxDatatypes.cs" />
+    <Compile Include="Protobuf\Message\MysqlxExpect.cs" />
+    <Compile Include="Protobuf\Message\MysqlxExpr.cs" />
+    <Compile Include="Protobuf\Message\MysqlxNotice.cs" />
+    <Compile Include="Protobuf\Message\MysqlxResultset.cs" />
+    <Compile Include="Protobuf\Message\MysqlxSession.cs" />
+    <Compile Include="Protobuf\Message\MysqlxSql.cs" />
+    <Compile Include="Protobuf\NameHelpers.cs" />
+    <Compile Include="Protobuf\RpcUtil.cs" />
+    <Compile Include="Protobuf\SortedList.cs" />
+    <Compile Include="Protobuf\TextFormat.cs" />
+    <Compile Include="Protobuf\TextGenerator.cs" />
+    <Compile Include="Protobuf\TextTokenizer.cs" />
+    <Compile Include="Protobuf\ThrowHelper.cs" />
+    <Compile Include="Protobuf\UninitializedMessageException.cs" />
+    <Compile Include="Protobuf\UnknownField.cs" />
+    <Compile Include="Protobuf\UnknownFieldSet.cs" />
+    <Compile Include="Protobuf\WireFormat.cs" />
     <Compile Include="Protocol\ProtocolBase.cs" />
     <Compile Include="Protocol\ValueDecoder.cs" />
     <Compile Include="Protocol\X\Enum.cs" />
@@ -130,9 +218,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Protocol\MySQL\" />
