@@ -68,22 +68,11 @@
     <Compile Include="common\MySqlTrace.cs" />
     <Compile Include="Data\Parameter.cs" />
     <None Include="packages.config" />
-    <None Include="Protocol\MySQLProtocol.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Protobuf\Mysqlx.cs" />
-    <Compile Include="Protobuf\MysqlxConnection.cs" />
-    <Compile Include="Protobuf\MysqlxCrud.cs" />
-    <Compile Include="Protobuf\MysqlxDatatypes.cs" />
-    <Compile Include="Protobuf\MysqlxExpect.cs" />
-    <Compile Include="Protobuf\MysqlxExpr.cs" />
-    <Compile Include="Protobuf\MysqlxNotice.cs" />
-    <Compile Include="Protobuf\MysqlxResultset.cs" />
-    <Compile Include="Protobuf\MysqlxSession.cs" />
-    <Compile Include="Protobuf\MysqlxSql.cs" />
     <Compile Include="Protocol\ProtocolBase.cs" />
     <Compile Include="Protocol\ValueDecoder.cs" />
     <Compile Include="Protocol\X\Enum.cs" />
@@ -92,7 +81,18 @@
     <Compile Include="Protocol\X\ExpUnparser.cs" />
     <Compile Include="Protocol\X\IntegerDecoder.cs" />
     <Compile Include="Protocol\X\ByteDecoder.cs" />
+    <Compile Include="Protocol\X\Protobuf\Mysqlx.cs" />
+    <Compile Include="Protocol\X\Protobuf\MysqlxConnection.cs" />
+    <Compile Include="Protocol\X\Protobuf\MysqlxCrud.cs" />
+    <Compile Include="Protocol\X\Protobuf\MysqlxDatatypes.cs" />
+    <Compile Include="Protocol\X\Protobuf\MysqlxExpect.cs" />
+    <Compile Include="Protocol\X\Protobuf\MysqlxExpr.cs" />
+    <Compile Include="Protocol\X\Protobuf\MysqlxNotice.cs" />
+    <Compile Include="Protocol\X\Protobuf\MysqlxResultset.cs" />
+    <Compile Include="Protocol\X\Protobuf\MysqlxSession.cs" />
+    <Compile Include="Protocol\X\Protobuf\MysqlxSql.cs" />
     <Compile Include="Protocol\X\XDateTimeDecoder.cs" />
+    <Compile Include="Protocol\X\XProtocol.cs" />
     <Compile Include="Protocol\X\XValueDecoderFactory.cs" />
     <Compile Include="RoutingServices\DefaultRoutingService.cs" />
     <Compile Include="RoutingServices\RoutingServiceBase.cs" />
@@ -106,7 +106,6 @@
     <Compile Include="XDevAPI\Column.cs" />
     <Compile Include="XDevAPI\CrudStatement.cs" />
     <Compile Include="XDevAPI\DatabaseObject.cs" />
-    <Compile Include="Protocol\XProtocol.cs" />
     <Compile Include="XDevAPI\FilterableStatement.cs" />
     <Compile Include="XDevAPI\FilterParams.cs" />
     <Compile Include="XDevAPI\FindStatement.cs" />
@@ -139,6 +138,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Protocol\MySQL\" />
+    <Folder Include="Protocol\X\Protobuf\Message\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

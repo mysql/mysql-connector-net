@@ -21,18 +21,12 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using MySql.Communication;
-using MySql.Procotol;
 using MySql.Data;
 
-namespace MySql.Protocol
+namespace MySql.Protocol.MySQL
 {
-  internal class MySQLProtocol : ProtocolBase<UniversalStream>
+  internal class MySQLProtocol : ProtocolBase
   {
-    public MySQLProtocol(MySqlConnectionStringBuilder settings) : base(settings, "")
-    {
-
-    }
 
     public override void OpenConnection()
     {
