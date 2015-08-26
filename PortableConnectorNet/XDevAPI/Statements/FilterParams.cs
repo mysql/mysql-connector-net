@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MySql.XDevAPI
+namespace MySql.XDevAPI.Statements
 {
   internal class FilterParams
   {

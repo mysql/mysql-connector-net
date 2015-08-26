@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using MySql.Serialization;
 
 
-namespace MySql.XDevAPI
+namespace MySql.XDevAPI.Statements
 {
   public class AddStatement : CrudStatement
   {

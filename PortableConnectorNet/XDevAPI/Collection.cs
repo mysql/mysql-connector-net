@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 using MySql.Serialization;
 using System.Collections.Generic;
 using MySql.Properties;
+using MySql.XDevAPI.Statements;
 
 namespace MySql.XDevAPI
 {
@@ -80,15 +81,22 @@ namespace MySql.XDevAPI
 
     #endregion
 
+    #region Modify Operations
+
+    public ModifyStatement Modify(string condition)
+    {
+      ModifyStatement stmt = new ModifyStatement(this, condition);
+      return stmt;
+    }
+
+    #endregion
+
+
     public void Drop()
     {
       Schema.Session.XSession.DropCollection(Schema.Name, Name);
     }
 
-    public void Run()
-    {
-      throw new NotImplementedException();
-    }
 
     public Collection Bind(params object[] parameters)
     {

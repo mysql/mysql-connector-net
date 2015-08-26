@@ -1,13 +1,12 @@
 ﻿using System;
 
 
-namespace MySql.XDevAPI
+namespace MySql.XDevAPI.Statements
 {
   public class RemoveStatement : FilterableStatement<RemoveStatement>
   {
-    internal RemoveStatement(Collection collection, string condition) : base(collection)
+    internal RemoveStatement(Collection collection, string condition) : base(collection, condition)
     {
-      this.Where(condition);
     }
 
     public override DocumentResult Execute()

@@ -20,28 +20,36 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.Serialization;
-using MySql.XDevAPI.Statements;
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using static Mysqlx.Crud.UpdateOperation.Types;
 
-namespace MySql.XDevAPI
+namespace MySql.XDevAPI.Statements
 {
-  public class Collection<T> : Collection
+  public class ModifyStatement : FilterableStatement<ModifyStatement>
   {
-    public Collection(Schema s, string name) : base(s, name)
+    public ModifyStatement(Collection collection, string condition) : base(collection, condition)
     {
+      Updates = new List<UpdateSpec>();
     }
 
-    public AddStatement Add(T value)
+    internal List<UpdateSpec> Updates;
+
+    public ModifyStatement Set(string docPath, object value)
     {
-      return Add(new JsonDoc(value));
+      Updates.Add(new UpdateSpec(UpdateType.ITEM_SET, docPath).SetValue(value));
+      return this;
+    }
+
+    public ModifyStatement Change(string docPath, object value)
+    {
+      Updates.Add(new UpdateSpec(UpdateType.ITEM_REPLACE, docPath).SetValue(value));
+      return this;
     }
 
 
+    public override DocumentResult Execute()
+    {
+      return Collection.Schema.Session.XSession.ModifyDocs(this);
+    }
   }
 }

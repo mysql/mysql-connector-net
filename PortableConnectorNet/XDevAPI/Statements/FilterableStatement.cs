@@ -4,15 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MySql.XDevAPI
+namespace MySql.XDevAPI.Statements
 {
   public abstract class FilterableStatement<T> : CrudStatement
     where T : FilterableStatement<T>
   {
     private FilterParams filter = new FilterParams();
 
-    public FilterableStatement(Collection collection) : base(collection)
+    public FilterableStatement(Collection collection, string condition) : base(collection)
     {
+      Where(condition);
     }
 
     internal FilterParams FilterData

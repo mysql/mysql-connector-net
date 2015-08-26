@@ -37,6 +37,7 @@ using Mysqlx;
 using Mysqlx.Crud;
 using MySql.Protocol.X;
 using Mysqlx.Notice;
+using MySql.XDevAPI.Statements;
 
 namespace MySql.Protocol
 {
@@ -322,6 +323,19 @@ namespace MySql.Protocol
       _writer.Write(ClientMessageId.CRUD_INSERT, msg);
     }
 
+    private void ApplyFilter<T>(Func<Limit, T> setLimit, Func<Expr, T> setCriteria, FilterParams filter)
+    {
+      if (filter.HasLimit)
+      {
+        var limit = Limit.CreateBuilder().SetRowCount((ulong)filter.Limit).Build();
+        setLimit(limit);
+      }
+      if (filter.HasCondition)
+      {
+        setCriteria(filter.GetConditionExpression(false));
+      }
+    }
+
     /// <summary>
     /// Sends the delete documents message
     /// </summary>
@@ -329,17 +343,31 @@ namespace MySql.Protocol
     {
       var builder = Delete.CreateBuilder();
       builder.SetCollection(ExprUtil.BuildCollection(schema, collection));
-      if (filter.HasLimit)
-      {
-        var limit = Limit.CreateBuilder().SetRowCount((ulong)filter.Limit).Build();
-        builder.SetLimit(limit);
-      }
-      if (filter.HasCondition)
-      {
-        builder.SetCriteria(filter.GetConditionExpression(false));
-      }
+      ApplyFilter(builder.SetLimit, builder.SetCriteria, filter);
       var msg = builder.Build();
       _writer.Write(ClientMessageId.CRUD_DELETE, msg);
+    }
+
+    /// <summary>
+    /// Sends the CRUD modify message
+    /// </summary>
+    public void SendDocModify(string schema, string collection, FilterParams filter, List<UpdateSpec> updates)
+    {
+      var builder = Update.CreateBuilder();
+      builder.SetCollection(ExprUtil.BuildCollection(schema, collection));
+      ApplyFilter(builder.SetLimit, builder.SetCriteria, filter);
+
+      foreach (var update in updates)
+      {
+        var updateBuilder = UpdateOperation.CreateBuilder();
+        updateBuilder.SetOperation(update.Type);
+        updateBuilder.SetSource(update.GetSource());
+        if (update.HasValue)
+          updateBuilder.SetValue(update.GetValue());
+        builder.AddOperation(updateBuilder.Build());
+      }
+      var msg = builder.Build();
+      _writer.Write(ClientMessageId.CRUD_UPDATE, msg);
     }
 
     public void SendFind(SelectStatement statement)

@@ -20,28 +20,24 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.Serialization;
-using MySql.XDevAPI.Statements;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MySql.XDevAPI;
+using Xunit;
 
-namespace MySql.XDevAPI
+namespace PortableConnectorNetTests
 {
-  public class Collection<T> : Collection
+  public class CrudUpdateTests : BaseTest
   {
-    public Collection(Schema s, string name) : base(s, name)
+    [Fact]
+    public void UpdateSingleDocument()
     {
+      Collection coll = CreateCollection("test");
+      DocumentResult result = coll.Add(new { _id = 1, name = "Book 1", pages = 20 }).Execute();
+      Assert.Equal<ulong>(1, result.RecordsAffected);
+
+      result = coll.Modify("_id = 1").Change("name", "Book 2").Execute();
+      Assert.Equal<ulong>(1, result.RecordsAffected);
+
+      coll.Drop();
     }
-
-    public AddStatement Add(T value)
-    {
-      return Add(new JsonDoc(value));
-    }
-
-
   }
 }

@@ -20,28 +20,51 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.Serialization;
-using MySql.XDevAPI.Statements;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MySql.Protocol.X;
+using Mysqlx.Crud;
+using Mysqlx.Expr;
+using static Mysqlx.Crud.UpdateOperation.Types;
 
-namespace MySql.XDevAPI
+namespace MySql.XDevAPI.Statements
 {
-  public class Collection<T> : Collection
+  internal class UpdateSpec
   {
-    public Collection(Schema s, string name) : base(s, name)
+    public UpdateSpec(UpdateType updateType, string docPath)
     {
+      Type = updateType;
+      Path = docPath;
     }
 
-    public AddStatement Add(T value)
+    public string Path { get; private set; }
+    public UpdateType Type { get; private set; }
+    public object Value { get; private set; }
+
+    public bool HasValue
     {
-      return Add(new JsonDoc(value));
+      get { return Value != null;  }
     }
 
+    public Expr GetValue()
+    {
+      return ExprUtil.ArgObjectToExpr(Value, false);
+    }
 
+    public ColumnIdentifier GetSource()
+    {
+      var source = Path;
+      // accomodate parser's documentField() handling by removing "@"
+      if (source.Length > 0 && source[0] == '@')
+      {
+        source = source.Substring(1);
+      }
+      ExprParser p = new ExprParser(Path, false);
+      return p.DocumentField().Identifier;
+    }
+
+    public UpdateSpec SetValue(object o)
+    {
+      Value = o;
+      return this;
+    }
   }
 }

@@ -45,7 +45,7 @@ namespace MySql.XDevAPI
     public JsonDoc(object val)
     {
       if (val != null)
-        ParseObject(val);
+        values = ParseObject(val);
     }
 
     public object Id

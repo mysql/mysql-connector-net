@@ -28,6 +28,7 @@ using MySql.Security;
 using MySql.Data;
 using MySql.Protocol;
 using System.Collections.Generic;
+using MySql.XDevAPI.Statements;
 
 namespace MySql.Session
 {
@@ -139,6 +140,12 @@ namespace MySql.Session
     public DocumentResult DeleteDocs(RemoveStatement rs)
     {
       protocol.SendDocDelete(rs.Collection.Schema.Name, rs.Collection.Name, rs.FilterData);
+      return (DocumentResult)GetResult(false);
+    }
+
+    public DocumentResult ModifyDocs(ModifyStatement ms)
+    {
+      protocol.SendDocModify(ms.Collection.Schema.Name, ms.Collection.Name, ms.FilterData, ms.Updates);
       return (DocumentResult)GetResult(false);
     }
 
