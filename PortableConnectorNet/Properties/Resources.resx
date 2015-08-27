@@ -123,6 +123,9 @@
   <data name="NoDataAtIndex" xml:space="preserve">
     <value>There is no data at index {0}</value>
   </data>
+  <data name="PathNotFound" xml:space="preserve">
+    <value>Path not found '{0}'.</value>
+  </data>
   <data name="RemovingRequiresId" xml:space="preserve">
     <value>Removing a document from a collection requires an _id property.</value>
   </data>

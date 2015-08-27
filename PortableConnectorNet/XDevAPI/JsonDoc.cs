@@ -20,6 +20,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Properties;
 using MySql.Serialization;
 using System;
 using System.Collections;
@@ -44,6 +45,11 @@ namespace MySql.XDevAPI
       }
     }
 
+    public string this[string path]
+    {
+      get { return GetValue(path); }
+    }
+
     public object Id
     {
       get { return values["_id"];  }
@@ -57,6 +63,15 @@ namespace MySql.XDevAPI
     {
       if (!HasId)
         SetValue("_id", Guid.NewGuid().ToString("N"));
+    }
+
+    private string GetValue(string path)
+    {
+      if (!values.ContainsKey(path))
+        throw new InvalidOperationException(
+          String.Format(Resources.PathNotFound, path));
+      ///TODO:  implement full path here.  This is currently only one level deep
+      return values[path].ToString();
     }
 
     public void SetValue(string key, object val)

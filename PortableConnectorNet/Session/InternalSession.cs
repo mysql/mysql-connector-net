@@ -28,6 +28,7 @@ using MySql.Security;
 using MySql.Protocol;
 using MySql.XDevAPI;
 using MySql.XDevAPI.Results;
+using System.Diagnostics;
 
 namespace MySql.Session
 {
@@ -83,6 +84,7 @@ namespace MySql.Session
       GetProtocol().SendSQL(sql);
       TableResult r = new TableResult(GetProtocol());
       r.Buffer();
+      Debug.Assert(r.Next());
 
       if (r.Failed)
         throw new MySqlException("Query execution failed: " + r.ErrorInfo.Message);

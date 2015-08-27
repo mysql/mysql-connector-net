@@ -20,25 +20,30 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.Protocol;
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics;
+using MySql.Protocol;
 
 namespace MySql.XDevAPI.Results
 {
   public class DocumentResult : BufferingResult<JsonDoc>
   {
+    System.Text.Encoding _encoding = System.Text.Encoding.UTF8;
+
     internal DocumentResult(ProtocolBase protocol) : base(protocol, true)
     {
+      // this is just a single column "doc"
+      List<TableColumn>_columns = _protocol.LoadColumnMetadata();
+      Debug.Assert(_columns.Count == 1);
     }
 
     protected override JsonDoc ReadItem(bool dumping)
     {
-      throw new NotImplementedException();
+      List<byte[]> values = _protocol.ReadRow(_autoClose ? this : null);
+      if (values == null) return null;
+
+      Debug.Assert(values.Count == 1);
+      return new JsonDoc(_encoding.GetString(values[0]));
     }
   }
 }

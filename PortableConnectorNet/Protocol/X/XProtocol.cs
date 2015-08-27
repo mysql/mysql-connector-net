@@ -227,7 +227,8 @@ namespace MySql.Protocol
 
     public override List<byte[]> ReadRow(Result rs)
     {
-      if (PeekPacket().MessageType != (int)ServerMessageId.RESULTSET_ROW)
+      CommunicationPacket packet = PeekPacket();
+      if (packet.MessageType != (int)ServerMessageId.RESULTSET_ROW)
       {
         if (rs != null)
           CloseResult(rs);

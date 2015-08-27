@@ -43,7 +43,34 @@ namespace PortableConnectorNetTests
       Assert.Equal<ulong>(4, r.RecordsAffected);
 
       DocumentResult foundDocs = coll.Find("pages > 20").Execute();
+      Assert.True(foundDocs.Next());
+      Assert.True(foundDocs.Current["title"] == "Book 2");
+      Assert.True(foundDocs.Next());
+      Assert.True(foundDocs.Current["title"] == "Book 3");
+      Assert.True(foundDocs.Next());
+      Assert.True(foundDocs.Current["title"] == "Book 4");
+      Assert.False(foundDocs.Next());
+      coll.Drop();
+    }
 
+    [Fact]
+    public void SimpleFindWithLimit()
+    {
+      Collection coll = CreateCollection("test");
+      var docs = new[]
+      {
+        new {  _id = 1, title = "Book 1", pages = 20 },
+        new {  _id = 2, title = "Book 2", pages = 30 },
+        new {  _id = 3, title = "Book 3", pages = 40 },
+        new {  _id = 4, title = "Book 4", pages = 50 },
+      };
+      UpdateResult r = coll.Add(docs).Execute();
+      Assert.Equal<ulong>(4, r.RecordsAffected);
+
+      DocumentResult foundDocs = coll.Find("pages > 20").Limit(1).Execute();
+      Assert.True(foundDocs.Next());
+      Assert.True(foundDocs.Current["title"] == "Book 2");
+      Assert.False(foundDocs.Next());
       coll.Drop();
     }
   }

@@ -19,6 +19,7 @@ namespace MySql.XDevAPI.Results
       _protocol = protocol;
       _autoClose = autoClose;
       PageSize = 20;
+      _position = -1;
     }
 
     protected int Position

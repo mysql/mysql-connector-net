@@ -79,6 +79,15 @@ namespace MySql.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Path not found &apos;{0}&apos;..
+        /// </summary>
+        internal static string PathNotFound {
+            get {
+                return ResourceManager.GetString("PathNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Removing a document from a collection requires an _id property..
         /// </summary>
         internal static string RemovingRequiresId {
