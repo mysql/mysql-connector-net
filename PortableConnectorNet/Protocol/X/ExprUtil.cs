@@ -158,15 +158,20 @@ namespace MySql.Protocol.X
       else if (value is string)
         return BuildLiteralScalar((string)value);
       throw new NotSupportedException("Value of type " + value.GetType() + " is not currently supported.");
-    //} else if (value.getClass() == Expression.class) {
+      //} else if (value.getClass() == Expression.class) {
       //      return new ExprParser(((Expression) value).getExpressionString(), allowRelationalColumns).parse();
-        //} else if (value.getClass() == JsonDoc.class) {
-          //  // TODO: check how xplugin handles this
-        //} else if (value.getClass() == JsonArray.class) {
-            // TODO: check how xplugin handles this
-       // }
-        //throw new NullPointerException("TODO: other types? BigDecimal, Date, Timestamp, Time");
+      //} else if (value.getClass() == JsonDoc.class) {
+      //  // TODO: check how xplugin handles this
+      //} else if (value.getClass() == JsonArray.class) {
+      // TODO: check how xplugin handles this
+      // }
+      //throw new NullPointerException("TODO: other types? BigDecimal, Date, Timestamp, Time");
     }
 
+    public static string JoinString(string[] values)
+    {
+      if (values == null) return string.Empty;
+      return string.Join(", ", values);
+    }
   }
 }

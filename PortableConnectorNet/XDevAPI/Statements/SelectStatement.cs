@@ -20,12 +20,37 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.XDevAPI.Results;
 using System.Collections.Generic;
+using System;
 
-namespace MySql.Data
+namespace MySql.XDevAPI.Statements
 {
-  internal class SelectStatement : Statement
+  public class SelectStatement : FilterableStatement<SelectStatement, Table, TableResult>
   {
-    internal List<string> orderBy = null;
+    internal FindParams findParams = new FindParams();
+
+    public SelectStatement(Table t, params string[] projection) : base(t)
+    {
+      findParams.Projection = projection;
+    }
+
+    public SelectStatement GroupBy(params string[] groupBy)
+    {
+      findParams.GroupBy = groupBy;
+      return this;
+    }
+
+
+    public SelectStatement Having(string having)
+    {
+      findParams.GroupByCritieria = having;
+      return this;
+    }
+
+    public override TableResult Execute()
+    {
+      return CollectionOrTable.Schema.Session.XSession.FindRows(this);
+    }
   }
 }

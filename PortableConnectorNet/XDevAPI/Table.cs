@@ -20,34 +20,22 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.XDevAPI.Statements;
 using System;
 
 namespace MySql.XDevAPI
 {
   public class Table : DatabaseObject
   {
-//    private ReadQueryObject selectStatement;
-
     public Table(Schema schema, string name)
       : base(schema, name)
     {
-  //    selectStatement = new ReadQueryObject(this);
     }
 
-
-    //public ReadQueryObject Select(params string[] parameters)
-   // {
-     // return selectStatement.Select(parameters);
-   // }
-
-    //public Result Execute()
-    //{
-     // return selectStatement.Execute();
-   // }
-
-    public Table Execute(Action<Exception, object> function)
+    public SelectStatement Select(params string[] columns)
     {
-      throw new NotImplementedException();
+      SelectStatement stmt = new SelectStatement(this, columns);
+      return stmt;
     }
 
     public Table Insert()

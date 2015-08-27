@@ -149,23 +149,28 @@ namespace MySql.Session
 
     public UpdateResult DeleteDocs(RemoveStatement rs)
     {
-      protocol.SendDocDelete(rs.Collection.Schema.Name, rs.Collection.Name, rs.FilterData);
+      protocol.SendDocDelete(rs.CollectionOrTable.Schema.Name, rs.CollectionOrTable.Name, rs.FilterData);
       return GetUpdateResult();
     }
 
     public UpdateResult ModifyDocs(ModifyStatement ms)
     {
-      protocol.SendDocModify(ms.Collection.Schema.Name, ms.Collection.Name, ms.FilterData, ms.Updates);
+      protocol.SendDocModify(ms.CollectionOrTable.Schema.Name, ms.CollectionOrTable.Name, ms.FilterData, ms.Updates);
       return GetUpdateResult();
     }
 
     public DocumentResult FindDocs(FindStatement fs)
     {
-      protocol.SendFind(fs.Collection.Schema.Name, fs.Collection.Name, false, fs.FilterData);
+      protocol.SendFind(fs.CollectionOrTable.Schema.Name, fs.CollectionOrTable.Name, false, fs.FilterData, null);
       DocumentResult result = new DocumentResult(protocol);
       return result;
     }
-
+    public TableResult FindRows(SelectStatement ss)
+    {
+      protocol.SendFind(ss.CollectionOrTable.Schema.Name, ss.CollectionOrTable.Name, true, ss.FilterData, ss.findParams);
+      TableResult result = new TableResult(protocol);
+      return result;
+    }
 
   }
 }

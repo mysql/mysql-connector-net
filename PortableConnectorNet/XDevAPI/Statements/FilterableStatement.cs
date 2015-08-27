@@ -22,14 +22,15 @@
 
 namespace MySql.XDevAPI.Statements
 {
-  public abstract class FilterableStatement<T, TResult> : CrudStatement<TResult>
-    where T : FilterableStatement<T, TResult>
+  public abstract class FilterableStatement<T, TOwner, TResult> : BaseStatement<TOwner, TResult>
+    where T : FilterableStatement<T, TOwner, TResult>
   {
     private FilterParams filter = new FilterParams();
 
-    public FilterableStatement(Collection collection, string condition) : base(collection)
+    public FilterableStatement(TOwner owner, string condition = null) : base(owner)
     {
-      Where(condition);
+      if (condition != null)
+        Where(condition);
     }
 
     internal FilterParams FilterData
@@ -46,6 +47,12 @@ namespace MySql.XDevAPI.Statements
     public T Limit(long rows)
     {
       filter.Limit = rows;
+      return (T)this;
+    }
+
+    public T OrderBy(string expression)
+    {
+      filter.OrderBy = expression;
       return (T)this;
     }
   }

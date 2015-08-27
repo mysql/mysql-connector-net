@@ -359,17 +359,18 @@ namespace MySql.Protocol
       _writer.Write(ClientMessageId.CRUD_INSERT, msg);
     }
 
-    private void ApplyFilter<T>(Func<Limit, T> setLimit, Func<Expr, T> setCriteria, FilterParams filter)
+    private void ApplyFilter<T>(Func<Limit, T> setLimit, Func<Expr, T> setCriteria, Func<IEnumerable<Order>,T> setOrder, FilterParams filter)
     {
       if (filter.HasLimit)
       {
         var limit = Limit.CreateBuilder().SetRowCount((ulong)filter.Limit).Build();
         setLimit(limit);
       }
-      if (filter.HasCondition)
-      {
+      if (filter.Condition != null)
         setCriteria(filter.GetConditionExpression(false));
-      }
+      if (filter.OrderBy != null)
+        setOrder(filter.GetOrderByExpressions(false));
+
     }
 
     /// <summary>
@@ -379,7 +380,7 @@ namespace MySql.Protocol
     {
       var builder = Delete.CreateBuilder();
       builder.SetCollection(ExprUtil.BuildCollection(schema, collection));
-      ApplyFilter(builder.SetLimit, builder.SetCriteria, filter);
+      ApplyFilter(builder.SetLimit, builder.SetCriteria, builder.AddRangeOrder, filter);
       var msg = builder.Build();
       _writer.Write(ClientMessageId.CRUD_DELETE, msg);
     }
@@ -391,7 +392,7 @@ namespace MySql.Protocol
     {
       var builder = Update.CreateBuilder();
       builder.SetCollection(ExprUtil.BuildCollection(schema, collection));
-      ApplyFilter(builder.SetLimit, builder.SetCriteria, filter);
+      ApplyFilter(builder.SetLimit, builder.SetCriteria, builder.AddRangeOrder, filter);
 
       foreach (var update in updates)
       {
@@ -406,11 +407,11 @@ namespace MySql.Protocol
       _writer.Write(ClientMessageId.CRUD_UPDATE, msg);
     }
 
-    public void SendFind(string schema, string collection, bool isRelational, FilterParams filter)
+    public void SendFind(string schema, string collection, bool isRelational, FilterParams filter, FindParams findParams)
     {
       var builder = Find.CreateBuilder().SetCollection(ExprUtil.BuildCollection(schema, collection));
       builder.SetDataModel(isRelational ? DataModel.TABLE : DataModel.DOCUMENT);
-      ApplyFilter(builder.SetLimit, builder.SetCriteria, filter);
+      ApplyFilter(builder.SetLimit, builder.SetCriteria, builder.AddRangeOrder, filter);
       _writer.Write(ClientMessageId.CRUD_FIND, builder.Build());
     }
 

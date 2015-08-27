@@ -25,17 +25,13 @@ using MySql.XDevAPI.Results;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace MySql.XDevAPI
+namespace MySql.XDevAPI.Statements
 {
-  public abstract class CrudStatement<TResult>
+  public abstract class CrudStatement<TResult> : BaseStatement<Collection, TResult>
   {
-
-    public CrudStatement(Collection collection)
+    public CrudStatement(Collection collection) : base(collection)
     {
-      Collection = collection;
     }
-
-    public Collection Collection { get; private set; }
 
     protected IEnumerable<JsonDoc> GetDocs(object[] items, bool ensureId = false)
     {
@@ -48,19 +44,5 @@ namespace MySql.XDevAPI
       }
     }
 
-    public abstract TResult Execute();
-
-    /// <summary>
-    /// This is an incomplete implementation which will lead to problems.  We need to implement a 
-    /// scheduler that will serialize db operations
-    /// </summary>
-    /// <returns></returns>
-    public async Task<TResult> ExecuteAsync()
-    {
-      return await Task.Run(() =>
-      {
-        return Execute();
-      });
-    }
   }
 }

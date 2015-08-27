@@ -20,52 +20,32 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System.Collections.Generic;
-using MySql.XDevAPI.Results;
+using System.Threading.Tasks;
 
 namespace MySql.XDevAPI.Statements
 {
-  public class FindStatement : FilterableStatement<FindStatement, Collection, DocumentResult>
+  public abstract class BaseStatement<TOwner, TResult>
   {
-    internal List<string> projection;
-    internal Dictionary<string, object> parameters;
-    internal List<string> orderBy;
-
-
-    public FindStatement(Collection c, string condition) : base (c, condition)
+    public BaseStatement(TOwner owner)
     {
-      projection = new List<string>();
-      orderBy = new List<string>();
+      CollectionOrTable = owner;
     }
 
+    public TOwner CollectionOrTable { get; private set; }
 
-    public FindStatement Select(params string[] columns)
-    {
-      projection = new List<string>(columns);
-      return this;
-    }
+    public abstract TResult Execute();
 
-    public FindStatement Bind(Dictionary<string, object> namedParameters)
+    /// <summary>
+    /// This is an incomplete implementation which will lead to problems.  We need to implement a 
+    /// scheduler that will serialize db operations
+    /// </summary>
+    /// <returns></returns>
+    public async Task<TResult> ExecuteAsync()
     {
-      this.parameters = namedParameters;
-      return this;
-    }
-
-    public FindStatement Bind(params object[] values)
-    {
-      this.parameters = new Dictionary<string, object>();
-      int i = 0;
-      foreach (object value in values)
+      return await Task.Run(() =>
       {
-        this.parameters.Add(i++.ToString(), value);
-      }
-      return this;
+        return Execute();
+      });
     }
-
-    public override DocumentResult Execute()
-    {
-      return CollectionOrTable.Schema.Session.XSession.FindDocs(this);
-    }
-
   }
 }

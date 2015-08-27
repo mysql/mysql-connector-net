@@ -26,7 +26,7 @@ using MySql.XDevAPI.Results;
 
 namespace MySql.XDevAPI.Statements
 {
-  public class ModifyStatement : FilterableStatement<ModifyStatement, UpdateResult>
+  public class ModifyStatement : FilterableStatement<ModifyStatement, Collection, UpdateResult>
   {
     public ModifyStatement(Collection collection, string condition) : base(collection, condition)
     {
@@ -56,7 +56,7 @@ namespace MySql.XDevAPI.Statements
 
     public override UpdateResult Execute()
     {
-      return Collection.Schema.Session.XSession.ModifyDocs(this);
+      return CollectionOrTable.Schema.Session.XSession.ModifyDocs(this);
     }
   }
 }

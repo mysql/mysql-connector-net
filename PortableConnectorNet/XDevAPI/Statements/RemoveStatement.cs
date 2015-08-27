@@ -25,7 +25,7 @@ using MySql.XDevAPI.Results;
 
 namespace MySql.XDevAPI.Statements
 {
-  public class RemoveStatement : FilterableStatement<RemoveStatement, UpdateResult>
+  public class RemoveStatement : FilterableStatement<RemoveStatement, Collection, UpdateResult>
   {
     internal RemoveStatement(Collection collection, string condition) : base(collection, condition)
     {
@@ -33,7 +33,7 @@ namespace MySql.XDevAPI.Statements
 
     public override UpdateResult Execute()
     {
-      return Collection.Schema.Session.XSession.DeleteDocs(this);
+      return CollectionOrTable.Schema.Session.XSession.DeleteDocs(this);
     }
   }
 }

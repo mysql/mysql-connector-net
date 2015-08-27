@@ -31,6 +31,19 @@ namespace PortableConnectorNetTests
 {
   public class BaseTest
   {
+    private static Session session;
+
+    protected Table GetTable(string schema, string table)
+    {
+      return GetSession().GetSchema(schema).GetTable(table);
+    }
+
+    protected void ExecuteSQL(string schema, string sql)
+    {
+      NodeSession s;
+//      GetNodeSession().ExecuteSQL(sql);
+    }
+
     protected Collection CreateCollection(string name)
     {
       Session s = GetSession();
@@ -43,7 +56,9 @@ namespace PortableConnectorNetTests
 
     protected Session GetSession()
     {
-      return MySqlX.GetSession("server=localhost;port=33060;uid=userx;password=userx1");
+      if (session == null)
+        session = MySqlX.GetSession("server=localhost;port=33060;uid=userx;password=userx1");
+      return session;
     }
   }
 }

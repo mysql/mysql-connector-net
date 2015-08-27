@@ -20,52 +20,40 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System.Collections.Generic;
+using MySql.XDevAPI;
 using MySql.XDevAPI.Results;
+using Xunit;
 
-namespace MySql.XDevAPI.Statements
+namespace PortableConnectorNetTests
 {
-  public class FindStatement : FilterableStatement<FindStatement, Collection, DocumentResult>
+  public class BasicSelectTests : BaseTest
   {
-    internal List<string> projection;
-    internal Dictionary<string, object> parameters;
-    internal List<string> orderBy;
-
-
-    public FindStatement(Collection c, string condition) : base (c, condition)
+    [Fact]
+    public void SimpleSelect()
     {
-      projection = new List<string>();
-      orderBy = new List<string>();
+      CreateBooksTable();
+      Table books = GetTable("test", "books");
+
+      TableResult result = books.Select("name", "pages").Execute();
+      books.Delete();
     }
 
-
-    public FindStatement Select(params string[] columns)
+    [Fact]
+    public void SimpleSelectWithWhere()
     {
-      projection = new List<string>(columns);
-      return this;
+      CreateBooksTable();
+      Table books = GetTable("test", "books");
+
+      TableResult result = books.Select("name", "pages").Where("pages > 20").Execute();
+      books.Delete();
     }
 
-    public FindStatement Bind(Dictionary<string, object> namedParameters)
+    private void CreateBooksTable()
     {
-      this.parameters = namedParameters;
-      return this;
+      string sql = @"CREATE TABLE books(id INT AUTOINCREMENT, name VARCHAR(100), pages INT);
+                     INSERT INTO books VALUES (NULL, 'Moby Dick', 500);
+                     INSERT INTO books VALUES (NULL, 'A Tale of Two Cities', 250);";
+      ExecuteSQL("test", sql);
     }
-
-    public FindStatement Bind(params object[] values)
-    {
-      this.parameters = new Dictionary<string, object>();
-      int i = 0;
-      foreach (object value in values)
-      {
-        this.parameters.Add(i++.ToString(), value);
-      }
-      return this;
-    }
-
-    public override DocumentResult Execute()
-    {
-      return CollectionOrTable.Schema.Session.XSession.FindDocs(this);
-    }
-
   }
 }

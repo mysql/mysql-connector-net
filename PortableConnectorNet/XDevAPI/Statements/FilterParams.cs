@@ -1,4 +1,5 @@
 ﻿using MySql.Protocol.X;
+using Mysqlx.Crud;
 using Mysqlx.Expr;
 using System;
 using System.Collections.Generic;
@@ -13,15 +14,16 @@ namespace MySql.XDevAPI.Statements
     public long Limit = -1;
     public long Offset = -1;
     public string Condition;
+    public string OrderBy;
 
     public bool HasLimit
     {
       get { return Limit != -1; }
     }
 
-    public bool HasCondition
+    public List<Order> GetOrderByExpressions(bool allowRelational)
     {
-      get { return Condition != null; }
+      return new ExprParser(OrderBy, allowRelational).ParseOrderSpec();
     }
 
     public Expr GetConditionExpression(bool allowRelational)
