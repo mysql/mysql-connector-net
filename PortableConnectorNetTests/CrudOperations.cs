@@ -93,8 +93,8 @@ namespace MySqlX_DevAPI.Sections
       // Binding works for all CRUD statements
       var myFind = myColl.Find("name LIKE :name AND age > :age");
 
-      var myDoc = myFind.Bind(new { name = "S%", age = 18 }).Execute().One();
-      var MyOtherDoc = myFind.Bind(new { name = "M%", age = 24 }).Execute().One();
+//      var myDoc = myFind.Bind(new { name = "S%", age = 18 }).Execute().One();
+  //    var MyOtherDoc = myFind.Bind(new { name = "M%", age = 24 }).Execute().One();
 
     }
 

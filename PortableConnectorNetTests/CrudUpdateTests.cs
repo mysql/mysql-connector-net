@@ -21,6 +21,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.XDevAPI;
+using MySql.XDevAPI.Results;
 using Xunit;
 
 namespace PortableConnectorNetTests
@@ -31,7 +32,7 @@ namespace PortableConnectorNetTests
     public void SetItemInSingleDocument()
     {
       Collection coll = CreateCollection("test");
-      DocumentResult result = coll.Add(new { _id = 1, name = "Book 1" }).Execute();
+      UpdateResult result = coll.Add(new { _id = 1, name = "Book 1" }).Execute();
       Assert.Equal<ulong>(1, result.RecordsAffected);
 
       result = coll.Modify("_id = 1").Set("pages", "20").Execute();
@@ -44,7 +45,7 @@ namespace PortableConnectorNetTests
     public void ChangeItemInSingleDocument()
     {
       Collection coll = CreateCollection("test");
-      DocumentResult result = coll.Add(new { _id = 1, name = "Book 1", pages = 20 }).Execute();
+      UpdateResult result = coll.Add(new { _id = 1, name = "Book 1", pages = 20 }).Execute();
       Assert.Equal<ulong>(1, result.RecordsAffected);
 
       result = coll.Modify("_id = 1").Change("name", "Book 2").Execute();
@@ -57,7 +58,7 @@ namespace PortableConnectorNetTests
     public void RemoveItemInSingleDocument()
     {
       Collection coll = CreateCollection("test");
-      DocumentResult result = coll.Add(new { _id = 1, name = "Book 1", pages = 20 }).Execute();
+      UpdateResult result = coll.Add(new { _id = 1, name = "Book 1", pages = 20 }).Execute();
       Assert.Equal<ulong>(1, result.RecordsAffected);
 
       result = coll.Modify("_id = 1").Unset("pages").Execute();

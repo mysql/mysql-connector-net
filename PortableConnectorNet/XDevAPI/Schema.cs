@@ -20,6 +20,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.XDevAPI.Results;
 using System;
 using System.Collections.Generic;
 
@@ -40,9 +41,9 @@ namespace MySql.XDevAPI
 
     public List<Collection> GetCollections()
     {
-      RowResult r = Session.XSession.GetCollections(Name);
+      TableResult result = Session.XSession.GetTableResult("list_objects", true, Name);
       List<Collection> docs = new List<Collection>();
-      foreach (ResultRow row in r.Rows)
+      foreach (var row in result)
       {
         Collection<JsonDoc> doc = new Collection<JsonDoc>(this, row.GetString("name"));
         docs.Add(doc);

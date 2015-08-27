@@ -110,24 +110,24 @@ namespace MySqlX_DevAPI.Sections
       */
 
       // Use the collection "my_collection"
-      var myColl = db.GetCollection("my_collection");
+      //var myColl = db.GetCollection("my_collection");
 
-      // Find a single document that has a field "name" starts with an "S"
-      var docs = myColl.Find("name like ?")
-        .Bind("S%").Limit(1).Execute();
+      //// Find a single document that has a field "name" starts with an "S"
+      //var docs = myColl.Find("name like ?")
+      //  .Bind("S%").Limit(1).Execute();
 
-      Console.WriteLine(docs.First());
+      //Console.WriteLine(docs.First());
 
-      // Get all documents with a field "name" that starts with an "S"
-      docs = myColl.Find("name like ?")
-        .Bind("S%").Execute();
+      //// Get all documents with a field "name" that starts with an "S"
+      //docs = myColl.Find("name like ?")
+      //  .Bind("S%").Execute();
 
-      var myDoc = docs.Next();
-      while (myDoc != null)
-      {
-        Console.WriteLine(myDoc);
-        myDoc = docs.Next();
-      }
+      //var myDoc = docs.Next();
+      //while (myDoc != null)
+      //{
+      //  Console.WriteLine(myDoc);
+      //  myDoc = docs.Next();
+      //}
 
     }
 
@@ -155,25 +155,25 @@ namespace MySqlX_DevAPI.Sections
       */
 
       // Get two collections from the database
-      var customers = db.GetCollection("customers");
-      var orders = db.GetCollection("orders");
+      //var customers = db.GetCollection("customers");
+      //var orders = db.GetCollection("orders");
 
-      // Do a straight forward, inner join
-      var res = customers.As("c").Join(
-          orders.As("o").On("c._id = o.customer_id"))
-        .Find("o.shipped = false")
-        .Fields("o.orderDate, c.address.zip, c.name, o.total")
-        .Sort("o.orderDate DESC")
-        .Limit(25)
-        .Execute();
+      //// Do a straight forward, inner join
+      //var res = customers.As("c").Join(
+      //    orders.As("o").On("c._id = o.customer_id"))
+      //  .Find("o.shipped = false")
+      //  .Fields("o.orderDate, c.address.zip, c.name, o.total")
+      //  .Sort("o.orderDate DESC")
+      //  .Limit(25)
+      //  .Execute();
 
-      Console.WriteLine("Recent orders that have not been shipped yet:");
-      var myDoc = res.Next();
-      while (myDoc != null)
-      {
-        Console.WriteLine(myDoc);
-        myDoc = res.Next();
-      }
+      //Console.WriteLine("Recent orders that have not been shipped yet:");
+      //var myDoc = res.Next();
+      //while (myDoc != null)
+      //{
+      //  Console.WriteLine(myDoc);
+      //  myDoc = res.Next();
+      //}
 
     }
 
@@ -201,25 +201,25 @@ namespace MySqlX_DevAPI.Sections
       */
 
       // Get two collections from the database and assign Aliases
-      var orders = db.GetCollection("orders").As("o");
-      var invoices = db.GetCollection("invoices").As("i");
+      //var orders = db.GetCollection("orders").As("o");
+      //var invoices = db.GetCollection("invoices").As("i");
 
-      // Do a left outer join this time, to also get orders 
-      // that do not have an invoice yet
-      var myDocs = orders.Join(
-          invoices.On("o._id (+)= i.order_id"))
-        .Find("o.customer_id = :customerId")
-        .Fields("o.orderDate, o.orderNumber, o.items, i.invoiceDate, i.total")
-        .Sort("o.orderDate DESC")
-        .Bind(new { customerId = 35001 }).Execute();
+      //// Do a left outer join this time, to also get orders 
+      //// that do not have an invoice yet
+      //var myDocs = orders.Join(
+      //    invoices.On("o._id (+)= i.order_id"))
+      //  .Find("o.customer_id = :customerId")
+      //  .Fields("o.orderDate, o.orderNumber, o.items, i.invoiceDate, i.total")
+      //  .Sort("o.orderDate DESC")
+      //  .Bind(new { customerId = 35001 }).Execute();
 
-      Console.WriteLine("All orders of the customer:");
-      var myDoc = myDocs.Next();
-      while (myDoc != null)
-      {
-        Console.WriteLine(myDoc);
-        myDoc = myDocs.Next();
-      }
+      //Console.WriteLine("All orders of the customer:");
+      //var myDoc = myDocs.Next();
+      //while (myDoc != null)
+      //{
+      //  Console.WriteLine(myDoc);
+      //  myDoc = myDocs.Next();
+      //}
 
     }
 
@@ -261,40 +261,40 @@ namespace MySqlX_DevAPI.Sections
       */
 
       // Get two collections from the database and assign an Alias
-      var customers = db.GetCollection("customers").As("c");
-      var orders = db.GetCollection("orders").As("o");
+      //var customers = db.GetCollection("customers").As("c");
+      //var orders = db.GetCollection("orders").As("o");
 
-      // Do a straight forward join
-      var res = customers.Join(orders, "c._id = o.customer_id")
-        .Find("o.shipped = false")
-        .Fields("o.orderDate, c.address.zip, c.name, o.total")
-        .Sort("o.orderDate DESC")
-        .Limit(25)
-        .Execute();
+      //// Do a straight forward join
+      //var res = customers.Join(orders, "c._id = o.customer_id")
+      //  .Find("o.shipped = false")
+      //  .Fields("o.orderDate, c.address.zip, c.name, o.total")
+      //  .Sort("o.orderDate DESC")
+      //  .Limit(25)
+      //  .Execute();
 
-      Console.WriteLine("Recent orders that have not been shipped yet:");
-      var myDoc = res.Next();
-      while (myDoc != null)
-      {
-        Console.WriteLine(myDoc);
-        myDoc = res.Next();
-      }
+      //Console.WriteLine("Recent orders that have not been shipped yet:");
+      //var myDoc = res.Next();
+      //while (myDoc != null)
+      //{
+      //  Console.WriteLine(myDoc);
+      //  myDoc = res.Next();
+      //}
 
-      // Another join example against the products table
-      var products = db.GetCollection("products").As("p");
+      //// Another join example against the products table
+      //var products = db.GetCollection("products").As("p");
 
-      res = customers.Join(products, "c._id IN p.reviews[*].customer_id")
-        .Find("c.nickName = ?")
-        .Fields("c.name AS customer, p.name AS product")
-        .Sort("p.name")
-        .Bind("sakila")
-        .Execute();
+      //res = customers.Join(products, "c._id IN p.reviews[*].customer_id")
+      //  .Find("c.nickName = ?")
+      //  .Fields("c.name AS customer, p.name AS product")
+      //  .Sort("p.name")
+      //  .Bind("sakila")
+      //  .Execute();
 
-      Console.WriteLine("The products rated by the given customer.");
-      while ((myDoc = res.Next()) != null)
-      {
-        Console.WriteLine(myDoc);
-      }
+      //Console.WriteLine("The products rated by the given customer.");
+      //while ((myDoc = res.Next()) != null)
+      //{
+      //  Console.WriteLine(myDoc);
+      //}
 
     }
 
@@ -319,24 +319,24 @@ namespace MySqlX_DevAPI.Sections
       */
 
       // Get the customers collection
-      var customers = db.GetCollection("customers");
+      //var customers = db.GetCollection("customers");
 
-      // Get the customers with the highest productReviewScore
-      var res = customers.Find("c.productReviewScore = :maxScore")
-        .Fields("c.nickName, c.productReviewScore")
-        .Bind(new
-        {
-          maxScore = customers.Find().Fields("MAX(c2.productReviewScore)")
-        })
-        .Execute();
+      //// Get the customers with the highest productReviewScore
+      //var res = customers.Find("c.productReviewScore = :maxScore")
+      //  .Fields("c.nickName, c.productReviewScore")
+      //  .Bind(new
+      //  {
+      //    maxScore = customers.Find().Fields("MAX(c2.productReviewScore)")
+      //  })
+      //  .Execute();
 
-      Console.WriteLine("Customer(s) with the highest product review score.");
-      var myDoc = res.Next();
-      while (myDoc != null)
-      {
-        Console.WriteLine(myDoc);
-        myDoc = res.Next();
-      }
+      //Console.WriteLine("Customer(s) with the highest product review score.");
+      //var myDoc = res.Next();
+      //while (myDoc != null)
+      //{
+      //  Console.WriteLine(myDoc);
+      //  myDoc = res.Next();
+      //}
 
     }
 

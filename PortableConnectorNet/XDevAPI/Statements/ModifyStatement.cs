@@ -22,10 +22,11 @@
 
 using System.Collections.Generic;
 using static Mysqlx.Crud.UpdateOperation.Types;
+using MySql.XDevAPI.Results;
 
 namespace MySql.XDevAPI.Statements
 {
-  public class ModifyStatement : FilterableStatement<ModifyStatement>
+  public class ModifyStatement : FilterableStatement<ModifyStatement, UpdateResult>
   {
     public ModifyStatement(Collection collection, string condition) : base(collection, condition)
     {
@@ -53,7 +54,7 @@ namespace MySql.XDevAPI.Statements
     }
 
 
-    public override DocumentResult Execute()
+    public override UpdateResult Execute()
     {
       return Collection.Schema.Session.XSession.ModifyDocs(this);
     }

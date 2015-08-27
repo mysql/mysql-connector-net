@@ -20,12 +20,13 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.common;
-using MySql.Data;
-using MySql.Session;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MySQL.Common;
+using MySql.Data;
+using MySql.Session;
+using MySql.XDevAPI.Results;
 
 namespace MySql.XDevAPI
 {
@@ -92,7 +93,7 @@ namespace MySql.XDevAPI
 
     public List<Schema> GetSchemas()
     {
-      RowResult result = XSession.ExecuteQuery("select * from information_schema.schemata");
+      TableResult result = XSession.ExecuteQuery("select * from information_schema.schemata");
       result.Buffer();
 
       var query = from row in result.Rows

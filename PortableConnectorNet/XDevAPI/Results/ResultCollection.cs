@@ -20,20 +20,40 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.XDevAPI.Results;
+using System.Collections.Generic;
+using MySql.Protocol;
 
-
-namespace MySql.XDevAPI.Statements
+namespace MySql.XDevAPI.Results
 {
-  public class RemoveStatement : FilterableStatement<RemoveStatement, UpdateResult>
+  public class ResultCollection
   {
-    internal RemoveStatement(Collection collection, string condition) : base(collection, condition)
+    ProtocolBase _protocol;
+    int _position = -1;
+    List<Result> _results = new List<Result>();
+    Result _activeResult;
+
+    public IEnumerable<Result> Result
     {
+      get { return _results; }
     }
 
-    public override UpdateResult Execute()
+    public Result Next()
     {
-      return Collection.Schema.Session.XSession.DeleteDocs(this);
+      // if we are loading a table result we need to dump it
+      if (_activeResult != null && _activeResult is TableResult)
+        (_activeResult as TableResult).Dump();
+
+      // move to the next result
+      _position++;
+      if (_position == _results.Count)
+      {
+        Result rs = _protocol.GetNextResult();
+        if (rs == null) return null;
+
+        _results.Add(rs);
+      }
+      _activeResult = _results[_position];
+      return _activeResult;
     }
   }
 }

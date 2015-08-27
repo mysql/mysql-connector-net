@@ -35,9 +35,10 @@ using Mysqlx.Expr;
 using Mysqlx.Datatypes;
 using Mysqlx;
 using Mysqlx.Crud;
-using MySql.Protocol.X;
 using Mysqlx.Notice;
 using MySql.XDevAPI.Statements;
+using MySql.XDevAPI.Results;
+using MySQL.Common;
 
 namespace MySql.Protocol
 {
@@ -153,8 +154,14 @@ namespace MySql.Protocol
       SessionStateChanged state = SessionStateChanged.ParseFrom(payload);
       switch (state.Param)
       {
-        case SessionStateChanged.Types.Parameter.ROWS_AFFECTED: rs.RecordsAffected = state.Value.VUnsignedInt; break;
-        case SessionStateChanged.Types.Parameter.GENERATED_INSERT_ID: rs.LastInsertId = state.Value.VUnsignedInt; break;
+        case SessionStateChanged.Types.Parameter.ROWS_AFFECTED:
+          Tools.EnsureType(rs, typeof(UpdateResult));
+          (rs as UpdateResult).RecordsAffected = state.Value.VUnsignedInt;
+          break;
+        case SessionStateChanged.Types.Parameter.GENERATED_INSERT_ID:
+          Tools.EnsureType(rs, typeof(UpdateResult));
+          (rs as UpdateResult).LastInsertId = state.Value.VUnsignedInt;
+          break;
           // handle the other ones
 //      default: SessionStateChanged(state);
       }
@@ -248,26 +255,44 @@ namespace MySql.Protocol
       }
     }
 
-    public override bool HasAnotherResultSet()
+    public override Result GetNextResult()
     {
       CommunicationPacket p = PeekPacket();
-      if (p.MessageType == (int)ServerMessageId.RESULTSET_COLUMN_META_DATA) return true;
+      if (p.MessageType == (int)ServerMessageId.RESULTSET_COLUMN_META_DATA)
+        return new TableResult(this);
       if (p.MessageType == (int)ServerMessageId.RESULTSET_FETCH_DONE)
       {
         ReadPacket();
-        return false;
+        return null; 
       }
       if (p.MessageType == (int)ServerMessageId.RESULTSET_FETCH_DONE_MORE_RESULTSETS)
       {
         ReadPacket();
-        return true;
+        return new TableResult(this);
       }
-      return false;
+      return null;
     }
 
-    public override List<XDevAPI.Column> LoadColumnMetadata()
+    //public override bool HasAnotherResultSet()
+    //{
+    //  CommunicationPacket p = PeekPacket();
+    //  if (p.MessageType == (int)ServerMessageId.RESULTSET_COLUMN_META_DATA) return true;
+    //  if (p.MessageType == (int)ServerMessageId.RESULTSET_FETCH_DONE)
+    //  {
+    //    ReadPacket();
+    //    return false;
+    //  }
+    //  if (p.MessageType == (int)ServerMessageId.RESULTSET_FETCH_DONE_MORE_RESULTSETS)
+    //  {
+    //    ReadPacket();
+    //    return true;
+    //  }
+    //  return false;
+    //}
+
+    public override List<TableColumn> LoadColumnMetadata()
     {
-      List<XDevAPI.Column> columns = new List<XDevAPI.Column>();
+      List<TableColumn> columns = new List<TableColumn>();
       // we assume our caller has already validated that metadata is there
       while (true)
       {
@@ -278,9 +303,9 @@ namespace MySql.Protocol
       }
     }
 
-    private XDevAPI.Column DecodeColumn(ColumnMetaData colData)
+    private TableColumn DecodeColumn(ColumnMetaData colData)
     {
-      XDevAPI.Column c = new XDevAPI.Column();
+      TableColumn c = new TableColumn();
       c._decoder = XValueDecoderFactory.GetValueDecoder(c, colData.Type);
       c._decoder.Column = c;
       
@@ -370,44 +395,52 @@ namespace MySql.Protocol
       _writer.Write(ClientMessageId.CRUD_UPDATE, msg);
     }
 
-    public void SendFind(SelectStatement statement)
+    public void SendFind(string schema, string collection, bool isRelational, FilterParams filter)
     {
-      Result result = new Result(this);
-
-      Mysqlx.Crud.Find.Builder builder = Mysqlx.Crud.Find.CreateBuilder();
-      // :param collection:
-      builder.SetCollection(Mysqlx.Crud.Collection.CreateBuilder()
-        .SetSchema(statement.schema)
-        .SetName(statement.table));
-      // :param data_model:
-      builder.SetDataModel(statement.isTable ? DataModel.TABLE : DataModel.DOCUMENT);
-      // :param projection:
-      foreach (string columnName in statement.columns)
-      {
-        builder.AddProjection(Projection.CreateBuilder()
-          .SetSource(Expr.CreateBuilder()
-            .SetType(Expr.Types.Type.IDENT)
-            .SetIdentifier(ColumnIdentifier.CreateBuilder()
-              .SetName(columnName))));
-      }
-      // :param criteria:
-      builder.SetCriteria(Expr.CreateBuilder()
-        .SetType(Expr.Types.Type.LITERAL)
-        .SetVariable(statement.where));
-      // :param args:
-
-      // :param limit:
-
-      // :param order:
-
-      // :param grouping:
-
-      // :param grouping_criteria:
-
-
-      Mysqlx.Crud.Find message = builder.Build();
-      _writer.Write(ClientMessageId.CRUD_FIND, message);
+      var builder = Find.CreateBuilder().SetCollection(ExprUtil.BuildCollection(schema, collection));
+      builder.SetDataModel(isRelational ? DataModel.TABLE : DataModel.DOCUMENT);
+      ApplyFilter(builder.SetLimit, builder.SetCriteria, filter);
+      _writer.Write(ClientMessageId.CRUD_FIND, builder.Build());
     }
+
+    //public void SendFind(SelectStatement statement)
+    //{
+    //  Result result = new Result(this);
+
+    //  Mysqlx.Crud.Find.Builder builder = Mysqlx.Crud.Find.CreateBuilder();
+    //  // :param collection:
+    //  builder.SetCollection(Mysqlx.Crud.Collection.CreateBuilder()
+    //    .SetSchema(statement.schema)
+    //    .SetName(statement.table));
+    //  // :param data_model:
+    //  builder.SetDataModel(statement.isTable ? DataModel.TABLE : DataModel.DOCUMENT);
+    //  // :param projection:
+    //  foreach (string columnName in statement.columns)
+    //  {
+    //    builder.AddProjection(Projection.CreateBuilder()
+    //      .SetSource(Expr.CreateBuilder()
+    //        .SetType(Expr.Types.Type.IDENT)
+    //        .SetIdentifier(ColumnIdentifier.CreateBuilder()
+    //          .SetName(columnName))));
+    //  }
+    //  // :param criteria:
+    //  builder.SetCriteria(Expr.CreateBuilder()
+    //    .SetType(Expr.Types.Type.LITERAL)
+    //    .SetVariable(statement.where));
+    //  // :param args:
+
+    //  // :param limit:
+
+    //  // :param order:
+
+    //  // :param grouping:
+
+    //  // :param grouping_criteria:
+
+
+    //  Mysqlx.Crud.Find message = builder.Build();
+    //  _writer.Write(ClientMessageId.CRUD_FIND, message);
+    //}
 
     internal void ReadOK()
     {

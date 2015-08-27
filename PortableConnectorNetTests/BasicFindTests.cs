@@ -20,20 +20,31 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.Protocol;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MySql.XDevAPI;
+using MySql.XDevAPI.Results;
+using Xunit;
 
-namespace MySql.XDevAPI
+namespace PortableConnectorNetTests
 {
-  public class DocumentResult : Result
+  public class BasicFindTests : BaseTest
   {
-    internal DocumentResult(ProtocolBase p) : base(p)
+    [Fact]
+    public void SimpleFind()
     {
+      Collection coll = CreateCollection("test");
+      var docs = new[]
+      {
+        new {  _id = 1, title = "Book 1", pages = 20 },
+        new {  _id = 2, title = "Book 2", pages = 30 },
+        new {  _id = 3, title = "Book 3", pages = 40 },
+        new {  _id = 4, title = "Book 4", pages = 50 },
+      };
+      UpdateResult r = coll.Add(docs).Execute();
+      Assert.Equal<ulong>(4, r.RecordsAffected);
+
+      DocumentResult foundDocs = coll.Find("pages > 20").Execute();
+
+      coll.Drop();
     }
   }
 }

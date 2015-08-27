@@ -20,30 +20,25 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
 using MySql.Protocol;
-using MySql.Data;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace MySql.XDevAPI
+namespace MySql.XDevAPI.Results
 {
-  public class Column
+  public class DocumentResult : BufferingResult<JsonDoc>
   {
-    internal ValueDecoder _decoder;
-    internal UInt64 _collationNumber;
+    internal DocumentResult(ProtocolBase protocol) : base(protocol)
+    {
+    }
 
-    public string Name { get; internal set; }
-    public string OriginalName { get; internal set; }
-    public string Table { get; internal set; }
-    public string OriginalTable { get; internal set; }
-
-    public string Schema { get; internal set; }
-    public string Catalog { get; internal set;  }
-    public string Collation { get; internal set; }
-    public UInt32 Length { get; internal set; }
-    public UInt32 FractionalDigits { get; internal set; }
-    public MySQLDbType DbType { get; internal set; }
-    public Type ClrType { get; internal set; }
-
+    protected override JsonDoc ReadItem()
+    {
+      throw new NotImplementedException();
+    }
   }
 }

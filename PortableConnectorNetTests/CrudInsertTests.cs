@@ -21,6 +21,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.XDevAPI;
+using MySql.XDevAPI.Results;
 using Xunit;
 
 namespace PortableConnectorNetTests
@@ -31,7 +32,7 @@ namespace PortableConnectorNetTests
     public void InsertSingleJSONDocWithId()
     {
       Collection coll = CreateCollection("test");
-      Result r = coll.Add("{ \"_id\": 1, \"foo\": 1 }").Execute();
+      UpdateResult r = coll.Add("{ \"_id\": 1, \"foo\": 1 }").Execute();
       Assert.Equal<ulong>(1, r.RecordsAffected);
       coll.Drop();
     }
@@ -40,7 +41,7 @@ namespace PortableConnectorNetTests
     public void InsertSingleJSONDocWithoutId()
     {
       Collection coll = CreateCollection("test");
-      Result r = coll.Add("{ \"foo\": 1 }").Execute();
+      UpdateResult r = coll.Add("{ \"foo\": 1 }").Execute();
       Assert.Equal<ulong>(1, r.RecordsAffected);
       /// TODO:  retrieve doc and complete foo column
       coll.Drop();
@@ -52,7 +53,7 @@ namespace PortableConnectorNetTests
       var obj = new { _id = "5", name = "Sakila", age = 15 };
 
       Collection coll = CreateCollection("test");
-      Result r = coll.Add(obj).Execute();
+      UpdateResult r = coll.Add(obj).Execute();
       Assert.Equal<ulong>(1, r.RecordsAffected);
       ///TODO:  pull object and verify data
       coll.Drop();
@@ -64,7 +65,7 @@ namespace PortableConnectorNetTests
       var obj = new { name = "Sakila", age = 15 };
 
       Collection coll = CreateCollection("test");
-      Result r = coll.Add(obj).Execute();
+      UpdateResult r = coll.Add(obj).Execute();
       Assert.Equal<ulong>(1, r.RecordsAffected);
       ///TODO:  pull object and verify data
       coll.Drop();
@@ -81,7 +82,7 @@ namespace PortableConnectorNetTests
         new {  _id = 3, title = "Book 3", pages = 40 },
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
-      Result r = coll.Add(docs).Execute();
+      UpdateResult r = coll.Add(docs).Execute();
       Assert.Equal<ulong>(4, r.RecordsAffected);
       coll.Drop();
     }

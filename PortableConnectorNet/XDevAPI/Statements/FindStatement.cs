@@ -20,22 +20,19 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.Data;
-using System;
 using System.Collections.Generic;
+using MySql.XDevAPI.Results;
 
 namespace MySql.XDevAPI.Statements
 {
-  public class FindStatement : CrudStatement
+  public class FindStatement : FilterableStatement<FindStatement, DocumentResult>
   {
-    internal DatabaseObject databaseObject;
     internal List<string> projection;
-    internal string where = null;
     internal Dictionary<string, object> parameters;
     internal List<string> orderBy;
 
 
-    public FindStatement(Collection c) : base (c)
+    public FindStatement(Collection c, string condition) : base (c, condition)
     {
       projection = new List<string>();
       orderBy = new List<string>();
@@ -46,17 +43,6 @@ namespace MySql.XDevAPI.Statements
     {
       projection = new List<string>(columns);
       return this;
-    }
-
-    public FindStatement Where(string condition)
-    {
-      where = condition;
-      return this;
-    }
-
-    public FindStatement OrderBy(string p)
-    {
-      throw new NotImplementedException();
     }
 
     public FindStatement Bind(Dictionary<string, object> namedParameters)
@@ -78,17 +64,7 @@ namespace MySql.XDevAPI.Statements
 
     public override DocumentResult Execute()
     {
-      SelectStatement statement = new SelectStatement
-      {
-        schema = databaseObject.Schema.Name,
-        isTable = databaseObject is Table,
-        table = databaseObject.Name,
-        columns = projection,
-        parameters = parameters,
-        where = where,
-        orderBy = orderBy
-      };
-      return databaseObject.Schema.Session.XSession.Find(statement);
+      return Collection.Schema.Session.XSession.FindDocs(this);
     }
 
   }

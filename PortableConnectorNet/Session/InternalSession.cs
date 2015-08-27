@@ -27,6 +27,7 @@ using MySql.RoutingServices;
 using MySql.Security;
 using MySql.Protocol;
 using MySql.XDevAPI;
+using MySql.XDevAPI.Results;
 
 namespace MySql.Session
 {
@@ -71,27 +72,16 @@ namespace MySql.Session
       return session;
     }
 
-    protected Result GetResult(bool rows)
-    {
-      Result r;
-      if (rows)
-        r = new RowResult(GetProtocol());
-      else
-        r = new DocumentResult(GetProtocol());
-      r.NextResultSet();
-      return r;
-    }
-
-    public RowResult ExecuteQuery(string sql)
+    public TableResult ExecuteQuery(string sql)
     {
       GetProtocol().SendSQL(sql);
-      return (RowResult)GetResult(true);
+      return new TableResult(GetProtocol());
     }
 
     public object ExecuteQueryAsScalar(string sql)
     {
       GetProtocol().SendSQL(sql);
-      Result r= GetResult(true);
+      TableResult r = new TableResult(GetProtocol());
       r.Buffer();
 
       if (r.Failed)

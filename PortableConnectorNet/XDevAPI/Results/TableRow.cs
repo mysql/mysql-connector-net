@@ -20,24 +20,54 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.Protocol;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace MySql.XDevAPI
+namespace MySql.XDevAPI.Results
 {
-  public class RowResult : Result
+  public class TableRow
   {
-    internal RowResult(ProtocolBase p) : base(p)
+    private object[] values;
+    private byte[][] valuesAsBytes;
+    private TableResult _tableResult;
+
+    internal TableRow(TableResult rs, int count)
     {
+      _tableResult = rs;
+      values = new object[count];
+      valuesAsBytes = new byte[count][];
     }
 
-    public List<ResultRow> Rows
+    public object this[int index]
     {
-      get { return _activeResults.Rows;  }
+      get { return values[index]; }
+      set { values[index] = value; }
+    }
+
+    public string GetString(string name)
+    {
+      int index = _tableResult.IndexOf(name);
+      return values[index].ToString();
+    }
+    public object this[string name]
+    {
+      get
+      {
+        return this[_tableResult.IndexOf(name)];
+      }
+    }
+
+    public object[] ItemArray
+    {
+      get { return values; }
+    }
+
+    internal void SetValues(List<byte[]> valueBuffers)
+    {
+      for (int i = 0; i < valueBuffers.Count; i++)
+      {
+        valuesAsBytes[i] = valueBuffers[i];
+        values[i] = _tableResult.Columns[i]._decoder.ClrValueDecoder(valueBuffers[i]);
+      }
     }
   }
 }

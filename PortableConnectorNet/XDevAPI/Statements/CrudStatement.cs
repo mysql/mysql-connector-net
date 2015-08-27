@@ -20,20 +20,47 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+
 using MySql.XDevAPI.Results;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-
-namespace MySql.XDevAPI.Statements
+namespace MySql.XDevAPI
 {
-  public class RemoveStatement : FilterableStatement<RemoveStatement, UpdateResult>
+  public abstract class CrudStatement<TResult>
   {
-    internal RemoveStatement(Collection collection, string condition) : base(collection, condition)
+
+    public CrudStatement(Collection collection)
     {
+      Collection = collection;
     }
 
-    public override UpdateResult Execute()
+    public Collection Collection { get; private set; }
+
+    protected IEnumerable<JsonDoc> GetDocs(object[] items, bool ensureId = false)
     {
-      return Collection.Schema.Session.XSession.DeleteDocs(this);
+      foreach (object item in items)
+      {
+        JsonDoc d = new JsonDoc(item);
+        if (ensureId)
+          d.EnsureId();
+        yield return d;
+      }
+    }
+
+    public abstract TResult Execute();
+
+    /// <summary>
+    /// This is an incomplete implementation which will lead to problems.  We need to implement a 
+    /// scheduler that will serialize db operations
+    /// </summary>
+    /// <returns></returns>
+    public async Task<TResult> ExecuteAsync()
+    {
+      return await Task.Run(() =>
+      {
+        return Execute();
+      });
     }
   }
 }

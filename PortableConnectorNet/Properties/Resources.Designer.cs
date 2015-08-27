@@ -70,6 +70,15 @@ namespace MySql.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to There is no data at index {0}.
+        /// </summary>
+        internal static string NoDataAtIndex {
+            get {
+                return ResourceManager.GetString("NoDataAtIndex", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Removing a document from a collection requires an _id property..
         /// </summary>
         internal static string RemovingRequiresId {

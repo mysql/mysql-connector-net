@@ -25,20 +25,22 @@ using MySql.Communication;
 using MySql.Data;
 using MySql.Security;
 using MySql.XDevAPI;
+using MySql.XDevAPI.Results;
 using System.Collections.Generic;
 using System.Net;
 
 
 namespace MySql.Protocol
 {
-  internal abstract class ProtocolBase
+  public abstract class ProtocolBase
   {
     public abstract List<byte[]> ReadRow();
     public abstract void SendSQL(string sql);
 
-    public abstract bool HasAnotherResultSet();
+    public abstract Result GetNextResult();
+    //public abstract bool HasAnotherResultSet();
 
-    public abstract List<Column> LoadColumnMetadata();
+    public abstract List<TableColumn> LoadColumnMetadata();
 
     public abstract void CloseResult(Result rs); 
   }

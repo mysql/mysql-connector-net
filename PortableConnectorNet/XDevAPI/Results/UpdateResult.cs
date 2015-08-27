@@ -21,55 +21,13 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
-namespace MySql.XDevAPI
+namespace MySql.XDevAPI.Results
 {
-  public class ResultRow
+  public class UpdateResult : Result
   {
-    private object[] values;
-    private byte[][] valuesAsBytes;
-    private ResultSet resultSet;
 
-    internal ResultRow(ResultSet rs, int count)
-    {
-      resultSet = rs;
-      values = new object[count];
-      valuesAsBytes = new byte[count][];
-    }
-
-    public object this[int index]
-    {
-      get { return values[index]; }
-      set { values[index] = value; }
-    }
-
-    public string GetString(string name)
-    {
-      int index = resultSet.IndexOf(name);
-      return values[index].ToString();
-    }
-    public object this[string name]
-    {
-      get
-      {
-        return this[resultSet.IndexOf(name)];
-      }
-    }
-
-    public object[] ItemArray
-    {
-      get { return values; }
-    }
-
-    internal void SetValues(List<byte[]> valueBuffers)
-    {
-      for (int i = 0; i < valueBuffers.Count; i++)
-      {
-        valuesAsBytes[i] = valueBuffers[i];
-        values[i] = resultSet.Columns[i]._decoder.ClrValueDecoder(valueBuffers[i]);
-      }
-    }
+    public UInt64 RecordsAffected { get; internal set; }
+    public UInt64 LastInsertId { get; internal set; }
   }
 }

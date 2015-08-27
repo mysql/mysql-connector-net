@@ -29,6 +29,7 @@ using MySql.Data;
 using MySql.Protocol;
 using System.Collections.Generic;
 using MySql.XDevAPI.Statements;
+using MySql.XDevAPI.Results;
 
 namespace MySql.Session
 {
@@ -114,45 +115,55 @@ namespace MySql.Session
     {
       ExecuteNonQueryCmd("drop_collection", true, schemaName, collectionName);
     }
+
     private Result ExecuteNonQueryCmd(string cmd, bool throwOnFail, params object[] args)
     {
       protocol.SendExecuteStatement("xplugin", cmd, args);
-      Result r = (RowResult)GetResult(true);
-      if (throwOnFail && r.Failed)
-        throw new MySqlException(r);
-      return r;
+      Result result = GetUpdateResult();
+      if (throwOnFail && result.Failed)
+        throw new MySqlException(result);
+      return result;
     }
 
-    public RowResult GetCollections(string schemaName)
+    public TableResult GetTableResult(string cmd, bool fullyLoad, params object[] args)
     {
-      protocol.SendExecuteStatement("xplugin", "list_object", schemaName);
-      RowResult r = (RowResult)GetResult(true);
-      r.Buffer();
-      return r;
+      protocol.SendExecuteStatement("xplugin", "list_object", args);
+      TableResult result = new TableResult(protocol);
+      if (fullyLoad)
+        result.Buffer();
+      return result;
     }
 
-    public DocumentResult Insert(Collection collection, JsonDoc[] json)
+    private UpdateResult GetUpdateResult()
+    {
+      UpdateResult rs = new UpdateResult();
+      protocol.CloseResult(rs);
+      return rs;
+    }
+
+    public UpdateResult Insert(Collection collection, JsonDoc[] json)
     {
       protocol.SendInsert(collection.Schema.Name, collection.Name, json);
-      return (DocumentResult)GetResult(false);
+      return GetUpdateResult();
     }
 
-    public DocumentResult DeleteDocs(RemoveStatement rs)
+    public UpdateResult DeleteDocs(RemoveStatement rs)
     {
       protocol.SendDocDelete(rs.Collection.Schema.Name, rs.Collection.Name, rs.FilterData);
-      return (DocumentResult)GetResult(false);
+      return GetUpdateResult();
     }
 
-    public DocumentResult ModifyDocs(ModifyStatement ms)
+    public UpdateResult ModifyDocs(ModifyStatement ms)
     {
       protocol.SendDocModify(ms.Collection.Schema.Name, ms.Collection.Name, ms.FilterData, ms.Updates);
-      return (DocumentResult)GetResult(false);
+      return GetUpdateResult();
     }
 
-    public DocumentResult Find(SelectStatement statement)
+    public DocumentResult FindDocs(FindStatement fs)
     {
-      protocol.SendFind(statement);
-      return (DocumentResult)GetResult(false);
+      protocol.SendFind(fs.Collection.Schema.Name, fs.Collection.Name, false, fs.FilterData);
+      DocumentResult result = new DocumentResult(protocol);
+      return result;
     }
 
 

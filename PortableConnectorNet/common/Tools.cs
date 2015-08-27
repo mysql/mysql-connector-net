@@ -20,10 +20,12 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using System;
 using System.Collections.Generic;
 using System.Reflection;
+using MySql;
 
-namespace MySql.common
+namespace MySQL.Common
 {
   internal static class Tools
   {
@@ -41,6 +43,13 @@ namespace MySql.common
       }
 
       return result;
+    }
+
+    public static void EnsureType(object o, Type t)
+    {
+      if (o.GetType() != t)
+        throw new InvalidOperationException(
+          String.Format("Invalid state:  Expected object of type '{0}'.  Got object of type '{1}'", t.ToString(), o.GetType().ToString()));
     }
   }
 }

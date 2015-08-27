@@ -30,7 +30,7 @@ namespace MySql.Protocol
     public delegate object ClrDecoderDelegate(byte[] bytes);
 
 
-    public Column Column { get; set; }
+    public TableColumn Column { get; set; }
 
     public uint Flags { get; set; }
 

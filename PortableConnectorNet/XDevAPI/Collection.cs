@@ -103,9 +103,10 @@ namespace MySql.XDevAPI
       throw new NotImplementedException();
     }
 
-    public Collection Find(string condition)
+    public FindStatement Find(string condition)
     {
-      throw new NotImplementedException();
+      FindStatement stmt = new FindStatement(this, condition);
+      return stmt;
     }
 
     public Collection Execute()

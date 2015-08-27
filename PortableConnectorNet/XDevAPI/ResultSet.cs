@@ -30,28 +30,7 @@ namespace MySql.XDevAPI
 {
   public class ResultSet
   {
-    public List<ResultRow> Rows = new List<ResultRow>();
-    public List<Column> Columns = new List<Column>();
-    private Dictionary<string, int> nameMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-    private bool _complete = false;
-    internal ProtocolBase _protocol;
-    public int Position { get; private set; }
-    public int PageSize { get; private set; }
 
-    internal ResultSet(ProtocolBase p)
-    {
-      _protocol = p;
-      PageSize = 20;
-      Position = -1;
-    }
-
-    internal void LoadMetadata()
-    {
-      ///TODO:  move this to the ctor
-      Columns = _protocol.LoadColumnMetadata();
-      for (int i = 0; i < Columns.Count; i++)
-        nameMap.Add(Columns[i].Name, i);
-    }
 
     public object this[int index]
     {
@@ -65,63 +44,16 @@ namespace MySql.XDevAPI
       Position = _pos == -1 ? 0 : _pos;
     }
 
-    public bool Next()
-    {
-      Position++;
-      if (Position == Rows.Count)
-      {
-        if (_complete) return false;
-        if (!PageInRows())
-        {
-          _complete = true;
-          return false;
-        }
-      }
-      return true;
-    }
 
-    internal void Dump()
-    {
-      if (_complete) return;
-      while (true)
-      {
-        List<byte[]> values = _protocol.ReadRow();
-        if (values == null) break;
-      }
-      _complete = true;
-    }
 
-    private bool PageInRows()
-    {
-      for (int i = 0; i < PageSize; i++)
-        if (!ReadRow()) break;
-      return Position < Rows.Count;
-    }
 
-    private bool ReadRow()
-    {
-      ///TODO:  fix this
-      List<byte[]> values = _protocol.ReadRow();
-      if (values == null) return false;
-      Debug.Assert(values.Count == Columns.Count, "Value count does not equal column count");
-      ResultRow row = new ResultRow(this, Columns.Count);
-      row.SetValues(values);
-      Rows.Add(row);
-      return true;
-    }
 
-    private object GetValue(int index)
-    {
-      if (Position == Rows.Count)
-        throw new InvalidOperationException("No data at position");
-      return Rows[Position][index];
-    }
 
-    public int IndexOf(string name)
-    {
-      if (!nameMap.ContainsKey(name))
-        throw new MySqlException("Column not found '" + name + "'");
-      return nameMap[name];
-    }
+
+
+
+
+
+
   }
 }
