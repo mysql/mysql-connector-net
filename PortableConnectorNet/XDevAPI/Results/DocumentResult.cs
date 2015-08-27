@@ -32,11 +32,11 @@ namespace MySql.XDevAPI.Results
 {
   public class DocumentResult : BufferingResult<JsonDoc>
   {
-    internal DocumentResult(ProtocolBase protocol) : base(protocol)
+    internal DocumentResult(ProtocolBase protocol) : base(protocol, true)
     {
     }
 
-    protected override JsonDoc ReadItem()
+    protected override JsonDoc ReadItem(bool dumping)
     {
       throw new NotImplementedException();
     }

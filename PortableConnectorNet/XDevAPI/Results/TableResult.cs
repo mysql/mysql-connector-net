@@ -32,7 +32,7 @@ namespace MySql.XDevAPI.Results
     Dictionary<string, int> nameMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
     List<TableColumn> _columns = new List<TableColumn>();
 
-    internal TableResult(ProtocolBase p) : base(p)
+    internal TableResult(ProtocolBase p, bool autoClose = true) : base(p, autoClose)
     {
       LoadMetadata();
     }
@@ -73,11 +73,13 @@ namespace MySql.XDevAPI.Results
       return nameMap[name];
     }
 
-    protected override TableRow ReadItem()
+    protected override TableRow ReadItem(bool dumping)
     {
       ///TODO:  fix this
-      List<byte[]> values = _protocol.ReadRow();
+      List<byte[]> values = _protocol.ReadRow(_autoClose ? this : null);
       if (values == null) return null;
+      if (dumping) return new TableRow(this, 0);
+
       Debug.Assert(values.Count == _columns.Count, "Value count does not equal column count");
       TableRow row = new TableRow(this, _columns.Count);
       row.SetValues(values);

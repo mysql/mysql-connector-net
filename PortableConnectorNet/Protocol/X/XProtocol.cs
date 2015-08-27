@@ -39,6 +39,7 @@ using Mysqlx.Notice;
 using MySql.XDevAPI.Statements;
 using MySql.XDevAPI.Results;
 using MySQL.Common;
+using MySql.Properties;
 
 namespace MySql.Protocol
 {
@@ -155,12 +156,12 @@ namespace MySql.Protocol
       switch (state.Param)
       {
         case SessionStateChanged.Types.Parameter.ROWS_AFFECTED:
-          Tools.EnsureType(rs, typeof(UpdateResult));
-          (rs as UpdateResult).RecordsAffected = state.Value.VUnsignedInt;
+          if (rs is UpdateResult)
+            (rs as UpdateResult).RecordsAffected = state.Value.VUnsignedInt;
           break;
         case SessionStateChanged.Types.Parameter.GENERATED_INSERT_ID:
-          Tools.EnsureType(rs, typeof(UpdateResult));
-          (rs as UpdateResult).LastInsertId = state.Value.VUnsignedInt;
+          if (rs is UpdateResult)
+            (rs as UpdateResult).LastInsertId = state.Value.VUnsignedInt;
           break;
           // handle the other ones
 //      default: SessionStateChanged(state);
@@ -224,9 +225,14 @@ namespace MySql.Protocol
       return re;
     }
 
-    public override List<byte[]> ReadRow()
+    public override List<byte[]> ReadRow(Result rs)
     {
-      if (PeekPacket().MessageType != (int)ServerMessageId.RESULTSET_ROW) return null;
+      if (PeekPacket().MessageType != (int)ServerMessageId.RESULTSET_ROW)
+      {
+        if (rs != null)
+          CloseResult(rs);
+        return null;
+      }
 
       Row protoRow = Row.ParseFrom(ReadPacket().Buffer);
       List<byte[]> values = new List<byte[]>(protoRow.FieldCount);
@@ -240,7 +246,11 @@ namespace MySql.Protocol
       while (true)
       {
         CommunicationPacket p = PeekPacket();
-        if (p.MessageType == (int)ServerMessageId.NOTICE)
+        if (p.MessageType == (int)ServerMessageId.RESULTSET_FETCH_DONE_MORE_RESULTSETS)
+          throw new Exception(Resources.ThrowingAwayResults);
+        if (p.MessageType == (int)ServerMessageId.RESULTSET_FETCH_DONE)
+          ReadPacket();
+        else if (p.MessageType == (int)ServerMessageId.NOTICE)
           ProcessNotice(ReadPacket(), rs);
         else if (p.MessageType == (int)ServerMessageId.ERROR)
         {
@@ -268,7 +278,7 @@ namespace MySql.Protocol
       if (p.MessageType == (int)ServerMessageId.RESULTSET_FETCH_DONE_MORE_RESULTSETS)
       {
         ReadPacket();
-        return new TableResult(this);
+        return new TableResult(this, false);
       }
       return null;
     }

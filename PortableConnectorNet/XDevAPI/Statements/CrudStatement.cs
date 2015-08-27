@@ -41,7 +41,7 @@ namespace MySql.XDevAPI
     {
       foreach (object item in items)
       {
-        JsonDoc d = new JsonDoc(item);
+        JsonDoc d = item is JsonDoc ? item as JsonDoc : new JsonDoc(item);
         if (ensureId)
           d.EnsureId();
         yield return d;

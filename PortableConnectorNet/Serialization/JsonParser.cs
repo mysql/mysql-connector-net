@@ -30,7 +30,13 @@ namespace MySql.Serialization
     private int _pos = 0;
     private String _input;
 
-    public Dictionary<string, object> Parse(string s)
+    public static Dictionary<string, object> Parse(string s)
+    {
+      JsonParser p = new JsonParser();
+      return p.ParseInternal(s);
+    }
+
+    private Dictionary<string, object> ParseInternal(string s)
     {
       _input = s;
       return ReadGroup();
@@ -61,7 +67,7 @@ namespace MySql.Serialization
       if (t == '"') return ReadQuotedToken();
       if (t == '{') return ReadGroup();
       if (t == '[') return ReadArray();
-      throw new Exception("Unsupported JSON syntax");
+      return ReadUntilToken(',', '}');
     }
 
     private Dictionary<string,object>[] ReadArray()
@@ -95,13 +101,20 @@ namespace MySql.Serialization
       return val;
     }
 
-    private string ReadUntilToken(char end)
+    private bool TokenInGroup(char[] tokens, char c)
+    {
+      foreach (char token in tokens)
+        if (token == c) return true;
+      return false;
+    }
+
+    private string ReadUntilToken(params char[] end)
     {
       string val = "";
       while (_pos < _input.Length)
       {
         char c = _input[_pos++];
-        if (c == end)
+        if (TokenInGroup(end, c))
         {
           _pos--;
           return val;

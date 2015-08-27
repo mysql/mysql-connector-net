@@ -32,7 +32,7 @@ namespace PortableConnectorNetTests
     public void InsertSingleJSONDocWithId()
     {
       Collection coll = CreateCollection("test");
-      UpdateResult r = coll.Add("{ \"_id\": 1, \"foo\": 1 }").Execute();
+      UpdateResult r = coll.Add(@"{ ""_id"": 1, ""foo"": 1 }").Execute();
       Assert.Equal<ulong>(1, r.RecordsAffected);
       coll.Drop();
     }

@@ -33,19 +33,15 @@ namespace MySql.XDevAPI
   {
     private Dictionary<string, object> values = new Dictionary<string, object>();
 
-    public JsonDoc(string json = null)
-    {
-      if (json != null)
-      {
-        JsonParser j = new JsonParser();
-        values = j.Parse(json);
-      }
-    }
-
-    public JsonDoc(object val)
+    public JsonDoc(object val = null)
     {
       if (val != null)
-        values = ParseObject(val);
+      {
+        if (val is string)
+          values = JsonParser.Parse(val as string);
+        else
+          values = ParseObject(val);
+      }
     }
 
     public object Id

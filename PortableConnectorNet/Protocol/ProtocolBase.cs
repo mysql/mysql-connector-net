@@ -34,7 +34,7 @@ namespace MySql.Protocol
 {
   public abstract class ProtocolBase
   {
-    public abstract List<byte[]> ReadRow();
+    public abstract List<byte[]> ReadRow(Result rs);
     public abstract void SendSQL(string sql);
 
     public abstract Result GetNextResult();

@@ -12,10 +12,12 @@ namespace MySql.XDevAPI.Results
     List<T> _items = new List<T>();
     protected bool _isComplete;
     protected ProtocolBase _protocol;
+    protected bool _autoClose;
 
-    internal BufferingResult(ProtocolBase protocol)
+    internal BufferingResult(ProtocolBase protocol, bool autoClose)
     {
       _protocol = protocol;
+      _autoClose = autoClose;
       PageSize = 20;
     }
 
@@ -33,7 +35,8 @@ namespace MySql.XDevAPI.Results
 
     public void Buffer()
     {
-      while (PageInItems()) ;
+      while (!_isComplete)
+        PageInItems() ;
     }
 
     internal void Dump()
@@ -41,8 +44,7 @@ namespace MySql.XDevAPI.Results
       if (_isComplete) return;
       while (true)
       {
-        List<byte[]> values = _protocol.ReadRow();
-        if (values == null) break;
+        if (ReadItem(true) == null) break;
       }
       _isComplete = true;
     }
@@ -62,15 +64,19 @@ namespace MySql.XDevAPI.Results
       return true;
     }
 
-    protected abstract T ReadItem();
+    protected abstract T ReadItem(bool dumping);
 
     private bool PageInItems()
     {
       int count = 0;
       for (int i = 0; i < PageSize; i++)
       {
-        T item = ReadItem();
-        if (item == null) break;
+        T item = ReadItem(false);
+        if (item == null)
+        {
+          _isComplete = true;
+          break;
+        }
         _items.Add(item);
         count++;
       }

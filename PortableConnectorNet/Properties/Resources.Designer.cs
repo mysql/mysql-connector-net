@@ -88,6 +88,15 @@ namespace MySql.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The process of closing the resultset and resulted in results being lost..
+        /// </summary>
+        internal static string ThrowingAwayResults {
+            get {
+                return ResourceManager.GetString("ThrowingAwayResults", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Value &apos;{0}&apos; is not of the correct type..
         /// </summary>
         internal static string ValueNotCorrectType {
