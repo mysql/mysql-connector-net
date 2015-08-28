@@ -107,7 +107,7 @@ namespace MySql.Protocol.X
     private Int64 ReadInt(byte[] bytes)
     {
       Int64 val = 0;
-      CodedInputStream.CreateInstance(bytes).ReadInt64(ref val);
+      CodedInputStream.CreateInstance(bytes).ReadSInt64(ref val);
       return val;
     }
 
