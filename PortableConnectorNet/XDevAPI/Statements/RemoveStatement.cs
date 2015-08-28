@@ -33,7 +33,7 @@ namespace MySql.XDevAPI.Statements
 
     public override UpdateResult Execute()
     {
-      return CollectionOrTable.Schema.Session.XSession.DeleteDocs(this);
+      return CollectionOrTable.Session.XSession.DeleteDocs(this);
     }
   }
 }

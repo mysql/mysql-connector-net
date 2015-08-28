@@ -61,7 +61,7 @@ namespace MySql.XDevAPI.Statements
 
     public override DocumentResult Execute()
     {
-      return CollectionOrTable.Schema.Session.XSession.FindDocs(this);
+      return CollectionOrTable.Session.XSession.FindDocs(this);
     }
 
   }

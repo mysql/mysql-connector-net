@@ -45,7 +45,7 @@ namespace MySql.XDevAPI.Statements
 
     public override UpdateResult Execute()
     {
-      return CollectionOrTable.Schema.Session.XSession.Insert(CollectionOrTable, _jsonDocs.ToArray());
+      return CollectionOrTable.Session.XSession.Insert(CollectionOrTable, _jsonDocs.ToArray());
     }
 
   }

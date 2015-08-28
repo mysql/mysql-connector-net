@@ -85,16 +85,32 @@ namespace MySql.XDevAPI
       return c;
     }
 
+    /// <summary>
+    /// Returns a typed collection object.  This is useful for using domain objects.
+    /// </summary>
+    /// <typeparam name="T">The type of collection returned</typeparam>
+    /// <param name="name">The name of collection to get</param>
+    /// <returns>Collection object</returns>
     public Collection<T> GetCollection<T>(string name)
     {
       return new Collection<T>(this, name);
     }
 
+    /// <summary>
+    /// Gets a table object.  Upon return the object may or may not be valid.
+    /// </summary>
+    /// <param name="name">Name of the table object</param>
+    /// <returns>Table object</returns>
     public Table GetTable(string name)
     {
       return new Table(this, name);
     }
 
+    /// <summary>
+    /// Gets a view object. Upon return the object may or may not be valid.
+    /// </summary>
+    /// <param name="name">Name of the view object</param>
+    /// <returns>View object.</returns>
     public View GetView(string name)
     {
       return new View(this, name);
@@ -104,19 +120,27 @@ namespace MySql.XDevAPI
 
     #region Create Functions
 
+    /// <summary>
+    /// Creates a collection
+    /// </summary>
+    /// <param name="collectionName">Name of the collection to create</param>
+    /// <param name="ReuseExistingObject"></param>
+    /// <returns></returns>
     public Collection CreateCollection(string collectionName, bool ReuseExistingObject = false)
     {
+      Collection coll = new Collection(this, collectionName);
+      if (ReuseExistingObject && coll.ExistsInDatabase())
+        return coll;
       Session.XSession.CreateCollection(Name, collectionName);
-      return new Collection<JsonDoc>(this, collectionName);
-    }
-
-    public View CreateView(string name)
-    {
-      throw new NotImplementedException();
+      return new Collection(this, collectionName);
     }
 
     #endregion
 
+    /// <summary>
+    /// Drops the given collection
+    /// </summary>
+    /// <param name="name">Name of the collection to drop</param>
     public void DropCollection(string name)
     {
       Collection c = new Collection<JsonDoc>(this, name);
@@ -125,6 +149,10 @@ namespace MySql.XDevAPI
 
     #region Base Class
 
+    /// <summary>
+    /// Determines if this schema actually exists
+    /// </summary>
+    /// <returns>True if exists, false otherwise</returns>
     public override bool ExistsInDatabase()
     {
       string sql = String.Format("SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name like '{0}'", Name);

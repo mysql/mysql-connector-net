@@ -31,6 +31,11 @@ namespace MySql.XDevAPI
       Name = name;
     }
 
+    public BaseSession Session
+    {
+      get { return Schema.Session;  }
+    }
+
     public Schema Schema { get; protected set; }
 
     public string Name { get; protected set; }

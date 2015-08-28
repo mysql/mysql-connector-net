@@ -94,7 +94,7 @@ namespace MySql.XDevAPI
 
     public void Drop()
     {
-      Schema.Session.XSession.DropCollection(Schema.Name, Name);
+      Session.XSession.DropCollection(Schema.Name, Name);
     }
 
 
@@ -181,7 +181,7 @@ namespace MySql.XDevAPI
 
     public override bool ExistsInDatabase()
     {
-      return Schema.Session.XSession.TableExists(Schema, Name);
+      return Session.XSession.TableExists(Schema, Name);
     }
   }
 }
