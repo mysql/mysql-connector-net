@@ -64,7 +64,8 @@ namespace MySql.Session
     {
       return new MySQL41AuthenticationPlugin(Settings);
     }
-   
+
+    public SessionState SessionState { get; protected set; }
 
     public static InternalSession GetSession(MySqlConnectionStringBuilder settings)
     {

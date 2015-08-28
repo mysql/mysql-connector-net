@@ -29,6 +29,9 @@ using MySql.XDevAPI.Statements;
 
 namespace MySql.XDevAPI
 {
+  /// <summary>
+  /// Represents a collection of documnets
+  /// </summary>
   public class Collection : DatabaseObject
   {
     internal Collection(Schema schema, string name)
@@ -39,6 +42,12 @@ namespace MySql.XDevAPI
 
     #region Add Operations
 
+    /// <summary>
+    /// Add one ore more objects to the collection.  This method can take anonymous objects, 
+    /// domain objects, or just plain JSON strings.
+    /// </summary>
+    /// <param name="items">The objects to insert</param>
+    /// <returns>AddStatement</returns>
     public AddStatement Add(params object[] items)
     {
       AddStatement stmt = new AddStatement(this);
@@ -46,6 +55,12 @@ namespace MySql.XDevAPI
       return stmt;
     }
 
+    /// <summary>
+    /// Add one or more objects to the collection.  This method takes strings that are intended
+    /// to be JSON objects.
+    /// </summary>
+    /// <param name="json">JSON strings to insert</param>
+    /// <returns>AddStatement</returns>
     public AddStatement Add(params string[] json)
     {
       AddStatement stmt = new AddStatement(this);
@@ -57,12 +72,24 @@ namespace MySql.XDevAPI
 
     #region Remove Operations
 
+    /// <summary>
+    /// Creates a remove statement with the given condition.  The RemoveStatement
+    /// can then be further modified before execution.  This method is intended to remove
+    /// one or more documents from a collection.
+    /// </summary>
+    /// <param name="condition">The condition to match documents</param>
+    /// <returns>RemoveStatement</returns>
     public RemoveStatement Remove(string condition)
     {
       RemoveStatement stmt = new RemoveStatement(this, condition);
       return stmt;
     }
 
+    /// <summary>
+    /// Remove a single document from this collectoin.  The id can really be of any type.
+    /// </summary>
+    /// <param name="id">The id to match the document</param>
+    /// <returns>RemoveStatement</returns>
     public RemoveStatement Remove(object id)
     {
       string key = id is string ?
@@ -72,6 +99,11 @@ namespace MySql.XDevAPI
       return stmt;
     }
 
+    /// <summary>
+    /// Remove a single document from this collection.
+    /// </summary>
+    /// <param name="doc">The JsonDoc representing the document to remove</param>
+    /// <returns>RemoveStatement</returns>
     public RemoveStatement Remove(JsonDoc doc)
     {
       if (!doc.HasId)

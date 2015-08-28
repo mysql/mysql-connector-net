@@ -39,12 +39,7 @@ namespace MySql.Session
     private XProtocol protocol;
     private XPacketReaderWriter _reader;
     private XPacketReaderWriter _writer;
-    private SessionState _sessionState;
 
-    public SessionState SessionState
-    {
-      get { return _sessionState; }
-    }
 
     public XInternalSession(MySqlConnectionStringBuilder settings) : base(settings)
     {
@@ -85,10 +80,10 @@ namespace MySql.Session
 
     protected void SetState(SessionState newState, bool broadcast)
     {
-      if (newState == _sessionState && !broadcast)
+      if (newState == SessionState && !broadcast)
         return;
-      SessionState oldSessionState = _sessionState;
-      _sessionState = newState;
+      SessionState oldSessionState = SessionState;
+      SessionState = newState;
       
       //TODO check if we need to send this event
       //if (broadcast)
@@ -107,7 +102,7 @@ namespace MySql.Session
       {
         protocol.SendSessionClose();
         protocol.ReadOK();
-        _sessionState = SessionState.Closed;
+        SessionState = SessionState.Closed;
       }
       catch
       {        

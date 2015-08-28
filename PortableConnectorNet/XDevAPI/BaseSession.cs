@@ -36,8 +36,14 @@ namespace MySql.XDevAPI
     private string connectionString;
     private bool disposed = false;
 
+    /// <summary>
+    /// Connection settings for this session
+    /// </summary>
     public MySqlConnectionStringBuilder Settings { get; private set; }
 
+    /// <summary>
+    /// Currently active schema
+    /// </summary>
     public Schema Schema { get; protected set; }
 
     internal InternalSession InternalSession
@@ -73,17 +79,31 @@ namespace MySql.XDevAPI
       _internalSession = InternalSession.GetSession(Settings);
     }
 
+    /// <summary>
+    /// Drop the database/schema with the given name
+    /// </summary>
+    /// <param name="schema">Name of the schema</param>
     public void DropSchema(string schema)
     {
       InternalSession.ExecuteSqlNonQuery("DROP DATABASE `" + schema + "`", true, null);
     }
 
+    /// <summary>
+    /// Create a schema/database with the given name
+    /// </summary>
+    /// <param name="schema">Name of the schema/database</param>
+    /// <returns>Schema object</returns>
     public Schema CreateSchema(string schema)
     {
       InternalSession.ExecuteSqlNonQuery("CREATE DATABASE `" + schema + "`", true, null);
       return new Schema(this, schema);
     }
 
+    /// <summary>
+    /// Gets the schema with the given name
+    /// </summary>
+    /// <param name="schema">Name of the schema</param>
+    /// <returns>Schema object</returns>
     public Schema GetSchema(string schema)
     {
       InternalSession.SetSchema(schema);
@@ -91,16 +111,20 @@ namespace MySql.XDevAPI
       return this.Schema;
     }
 
-    public Schema GetDefaultSchema()
-    {
-      return new Schema(this, "default");
-    }
+    //public Schema GetDefaultSchema()
+    //{
+    //  return new Schema(this, "default");
+    //}
 
-    public Schema UseDefaultSchema()
-    {
-      return new Schema(this, "default");
-    }
+    //public Schema UseDefaultSchema()
+    //{
+    //  return new Schema(this, "default");
+    //}
 
+    /// <summary>
+    /// Get a list of schemas/databases in this session
+    /// </summary>
+    /// <returns>List<Schema></returns>
     public List<Schema> GetSchemas()
     {
       TableResult result = XSession.ExecuteQuery("select * from information_schema.schemata");
@@ -111,17 +135,43 @@ namespace MySql.XDevAPI
       return query.ToList<Schema>();
     }
 
-    public Type GetTopologyType()
+    //public Type GetTopologyType()
+    //{
+    //  throw new NotImplementedException();
+    //}
+
+    //public List<Nodes> GetSlaveNodes()
+    //{
+    //  throw new NotImplementedException();
+    //}
+
+    /// <summary>
+    /// Start a new transaction
+    /// </summary>
+    public void StartTransaction()
     {
-      throw new NotImplementedException();
+      InternalSession.ExecuteSqlNonQuery("START TRANSACTION", true, null);
     }
 
-    public List<Nodes> GetSlaveNodes()
+    /// <summary>
+    /// Commit the current transaction
+    /// </summary>
+    public void Commit()
     {
-      throw new NotImplementedException();
+      InternalSession.ExecuteSqlNonQuery("COMMIT", true, null);
     }
 
+    /// <summary>
+    /// Rollback the current transaction
+    /// </summary>
+    public void Rollback()
+    {
+      InternalSession.ExecuteSqlNonQuery("ROLLBACK", true, null);
+    }
 
+    /// <summary>
+    /// Close this session
+    /// </summary>
     public void Close()
     {
       if (XSession.SessionState != SessionState.Closed)
@@ -130,8 +180,12 @@ namespace MySql.XDevAPI
       }    
     }
 
+    /// <summary>
+    /// Implementation of the Dispose pattern.  Same as Close
+    /// </summary>
     public void Dispose()
     {
+      Close();
     }
   }
 

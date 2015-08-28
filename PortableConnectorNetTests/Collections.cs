@@ -27,17 +27,17 @@ namespace MySqlX_DevAPI.Sections
 {
   public class Collections
   {
-    static Schema db = MySqlX.GetSession("").GetDefaultSchema();
+    //static Schema db = MySqlX.GetSession("").GetDefaultSchema();
     //static Collection myColl = new Collection(db, "default");
 
 
     static void CreatingACollection()
     {
       // Create a new collection called "my_collection"
-      var myColl = db.CreateCollection("my_collection");
+//      var myColl = db.CreateCollection("my_collection");
 
       // Create a new collection or reuse existing one
-      var myExistingColl = db.CreateCollection("my_collection", ReuseExistingObject: true);
+  //    var myExistingColl = db.CreateCollection("my_collection", ReuseExistingObject: true);
 
     }
 
@@ -52,10 +52,10 @@ namespace MySqlX_DevAPI.Sections
       */
 
       // Get a collection object for "my_collection"
-      var myColl = db.GetCollection("my_collection");
+//      var myColl = db.GetCollection("my_collection");
 
       // Get a collection object but also ensure it exists in the database
-      var myColl2 = db.GetCollection("my_collection", ValidateExistence: true);
+  //    var myColl2 = db.GetCollection("my_collection", ValidateExistence: true);
 
     }
 
@@ -75,7 +75,7 @@ namespace MySqlX_DevAPI.Sections
       */
 
       // Create a new collection
-      var myColl = db.CreateCollection("myCollection");
+      //var myColl = db.CreateCollection("myCollection");
 
       // Insert a document
 //      myColl.Add(new { name = "Sakila", age = 15 }).Run();

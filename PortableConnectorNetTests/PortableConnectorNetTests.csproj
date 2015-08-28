@@ -47,7 +47,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="SchemaTests.cs" />
-    <Compile Include="Sessions.cs" />
+    <Compile Include="SessionTests.cs" />
     <Compile Include="TableSelectTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Collections.cs" />

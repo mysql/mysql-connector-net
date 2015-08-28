@@ -21,57 +21,19 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.XDevAPI;
-using System;
 using Xunit;
 
-namespace MySqlX_DevAPI.Sections
+namespace PortableConnectorNetTests 
 {
-  public class Sessions
-  {
-
-    [Fact]
-    public void CanGetSession()
-    {
-      // Creating session with connection string format
-      Session s = MySqlX.GetSession("server=localhost;userid=root;password=password1234;port=33060;");
-      s.GetDefaultSchema();
-      Assert.NotEqual(s, null);           
-    }
-
-
+  public class SessionTests : BaseTest
+  { 
     [Fact]
     public void CanCloseSession()
     {
-      // Creating session with connection string format
-      Session s = MySqlX.GetSession("server=localhost;userid=root;password=password1234;port=33060;database=test;");
-      s.GetDefaultSchema();     
+      Session s = GetSession();
+      Assert.True(s.InternalSession.SessionState == SessionState.Open);
       s.Close();
-      Assert.Equal(s.XSession.SessionState, SessionState.Closed);
+      Assert.Equal(s.InternalSession.SessionState, SessionState.Closed);
     }
-
-
-
-    [Fact]
-    public void SessionsTest()
-    {
-      // Passing the paramaters in the { param = value } format
-      using(var session = MySqlX.GetSession(new
-      {
-        host = "localhost",
-        port = "33060",
-        userId = "mike",
-        password = "s3ce3t!"
-      }))
-      {
-        var db = session.GetSchema("test");
-
-      }
-
-      //TODO Passing the paramaters in the URL format
-      //var db2 = MySqlX.GetSession(
-      //  @"mysqlx://user:pwd@localhost:33060");
-    }
-
-
   }
 }
