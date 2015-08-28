@@ -30,6 +30,7 @@ using MySql.Protocol;
 using System.Collections.Generic;
 using MySql.XDevAPI.Statements;
 using MySql.XDevAPI.Results;
+using System.Reflection;
 
 namespace MySql.Session
 {
@@ -62,14 +63,24 @@ namespace MySql.Session
 
       SetState(SessionState.Connecting, false);
 
+      GetAndSetCapabilities();
+      Authenticate();
+      SetState(SessionState.Open, false);
+    }
+
+    private void GetAndSetCapabilities()
+    {
+      protocol.SendGetCapabilities();
+    }
+
+    private void Authenticate()
+    {
       // do the authentication
       AuthenticationPlugin plugin = GetAuthenticationPlugin();
       protocol.SendAuthStart(plugin.AuthName);
       byte[] extraData = protocol.ReadAuthContinue();
       protocol.SendAuthContinue(plugin.Continue(extraData));
       protocol.ReadAuthOk();
-      SetState(SessionState.Open, false);
-      
     }
 
     protected void SetState(SessionState newState, bool broadcast)
@@ -142,13 +153,27 @@ namespace MySql.Session
     {
       return ExecuteNonQuery(true, cmd, throwOnFail, args);
     }
-
-    public TableResult GetTableResult(string cmd, bool fullyLoad, params object[] args)
+  
+    public List<T> GetObjectList<T>(Schema s, string type)
     {
-      protocol.SendExecuteStatement("xplugin", "list_object", args);
+      TableResult result = GetTableResult("list_objects", s.Name);
+      result.Buffer();
+      List<T> docs = new List<T>();
+      foreach (var row in result)
+      {
+        if (row.GetString("type") != type) continue;
+        T t = (T)Activator.CreateInstance(typeof(T),
+          BindingFlags.NonPublic | BindingFlags.Instance,
+          null, new object[] { s, row.GetString("name") }, null);
+        docs.Add(t);
+      }
+      return docs;
+    }
+
+    public TableResult GetTableResult(string cmd, params object[] args)
+    {
+      protocol.SendExecuteStatement("xplugin", cmd, args);
       TableResult result = new TableResult(protocol);
-      if (fullyLoad)
-        result.Buffer();
       return result;
     }
 

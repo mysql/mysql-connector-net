@@ -34,7 +34,7 @@ namespace MySql.XDevAPI
 
     public override bool ExistsInDatabase()
     {
-      throw new NotImplementedException();
+      return Schema.Session.XSession.TableExists(Schema, Name);
     }
   }
 }

@@ -40,6 +40,7 @@ using MySql.XDevAPI.Statements;
 using MySql.XDevAPI.Results;
 using MySQL.Common;
 using MySql.Properties;
+using Mysqlx.Connection;
 
 namespace MySql.Protocol
 {
@@ -98,6 +99,31 @@ namespace MySql.Protocol
     }
 
     #endregion
+
+    public void SendGetCapabilities()
+    {
+      _writer.Write(ClientMessageId.CON_CAPABILITIES_GET, CapabilitiesGet.CreateBuilder().Build());
+      CommunicationPacket packet = ReadPacket();
+      if (packet.MessageType != (int)ServerMessageId.CONN_CAPABILITIES)
+        ThrowUnexpectedMessage(packet.MessageType, (int)ServerMessageId.CONN_CAPABILITIES);
+      Capabilities caps = Capabilities.ParseFrom(packet.Buffer);
+      foreach (Capability cap in caps.Capabilities_List)
+      {
+        if (cap.Name == "authentication.mechanism")
+        {
+        }
+      }
+      //var builder = CapabilitiesSet.CreateBuilder();
+      //builder.Capabilities = cap;
+      //_writer.Write(ClientMessageId.CON_CAPABILITIES_SET, builder.Build());
+
+    }
+
+    private void ThrowUnexpectedMessage(int received, int expected)
+    {
+      throw new MySqlException(
+        String.Format("Expected message id: {0}.  Received message id: {1}", expected, received));
+    }
 
     public override void SendSQL(string sql)
     {
@@ -186,9 +212,7 @@ namespace MySql.Protocol
 
     public void SendSessionClose()
     {
-      Close.Builder builder = Close.CreateBuilder();
-      Mysqlx.Session.Close sessionClose = builder.Build();
-      _writer.Write(ClientMessageId.SESS_CLOSE, sessionClose);
+      _writer.Write(ClientMessageId.SESS_CLOSE, Mysqlx.Session.Close.CreateBuilder().Build());
     }
 
     public void SendConnectionClose()

@@ -39,26 +39,31 @@ namespace MySql.XDevAPI
 
     #region Browse Functions
 
+    /// <summary>
+    /// Returns a list of all collections in this schema
+    /// </summary>
+    /// <returns>List<Collection></returns>
     public List<Collection> GetCollections()
     {
-      TableResult result = Session.XSession.GetTableResult("list_objects", true, Name);
-      List<Collection> docs = new List<Collection>();
-      foreach (var row in result)
-      {
-        Collection<JsonDoc> doc = new Collection<JsonDoc>(this, row.GetString("name"));
-        docs.Add(doc);
-      }
-      return docs;
+      return Session.XSession.GetObjectList<Collection>(this, "COLLECTION");
     }
 
+    /// <summary>
+    /// Returns list of all tables in this schema
+    /// </summary>
+    /// <returns>List<Table></returns>
     public List<Table> GetTables()
     {
-      throw new NotImplementedException();
+      return Session.XSession.GetObjectList<Table>(this, "TABLE");
     }
 
+    /// <summary>
+    /// Returns list of all views in this schema
+    /// </summary>
+    /// <returns>List<View></returns>
     public List<View> GetViews()
     {
-      throw new NotImplementedException();
+      return Session.XSession.GetObjectList<View>(this, "VIEW");
     }
 
     #endregion

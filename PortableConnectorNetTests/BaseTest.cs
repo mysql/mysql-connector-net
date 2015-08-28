@@ -49,7 +49,7 @@ namespace PortableConnectorNetTests
     {
       Session s = GetSession();
       Schema test = s.GetSchema("test");
-      Collection c = test.GetCollection("test");
+      Collection c = test.GetCollection(name);
       if (c.ExistsInDatabase())
         c.Drop();
       return test.CreateCollection(name);

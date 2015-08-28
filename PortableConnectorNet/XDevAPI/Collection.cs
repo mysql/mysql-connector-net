@@ -29,7 +29,7 @@ using MySql.XDevAPI.Statements;
 
 namespace MySql.XDevAPI
 {
-  public abstract class Collection : DatabaseObject
+  public class Collection : DatabaseObject
   {
     internal Collection(Schema schema, string name)
       : base(schema, name)
