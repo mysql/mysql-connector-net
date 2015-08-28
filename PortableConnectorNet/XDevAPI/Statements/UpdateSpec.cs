@@ -23,20 +23,19 @@
 using MySql.Protocol.X;
 using Mysqlx.Crud;
 using Mysqlx.Expr;
-using static Mysqlx.Crud.UpdateOperation.Types;
 
 namespace MySql.XDevAPI.Statements
 {
   internal class UpdateSpec
   {
-    public UpdateSpec(UpdateType updateType, string docPath)
+    public UpdateSpec(UpdateOperation.Types.UpdateType updateType, string docPath)
     {
       Type = updateType;
       Path = docPath;
     }
 
     public string Path { get; private set; }
-    public UpdateType Type { get; private set; }
+    public UpdateOperation.Types.UpdateType Type { get; private set; }
     public object Value { get; private set; }
 
     public bool HasValue

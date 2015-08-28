@@ -21,7 +21,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System.Collections.Generic;
-using static Mysqlx.Crud.UpdateOperation.Types;
+using Mysqlx.Crud;
 using MySql.XDevAPI.Results;
 
 namespace MySql.XDevAPI.Statements
@@ -37,19 +37,19 @@ namespace MySql.XDevAPI.Statements
 
     public ModifyStatement Set(string docPath, object value)
     {
-      Updates.Add(new UpdateSpec(UpdateType.ITEM_SET, docPath).SetValue(value));
+      Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ITEM_SET, docPath).SetValue(value));
       return this;
     }
 
     public ModifyStatement Change(string docPath, object value)
     {
-      Updates.Add(new UpdateSpec(UpdateType.ITEM_REPLACE, docPath).SetValue(value));
+      Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ITEM_REPLACE, docPath).SetValue(value));
       return this;
     }
 
     public ModifyStatement Unset(string docPath)
     {
-      Updates.Add(new UpdateSpec(UpdateType.ITEM_REMOVE, docPath));
+      Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ITEM_REMOVE, docPath));
       return this;
     }
 
