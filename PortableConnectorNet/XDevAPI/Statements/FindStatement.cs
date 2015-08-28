@@ -28,14 +28,11 @@ namespace MySql.XDevAPI.Statements
   public class FindStatement : FilterableStatement<FindStatement, Collection, DocumentResult>
   {
     internal List<string> projection;
-    internal Dictionary<string, object> parameters;
-    internal List<string> orderBy;
+    internal string[] orderBy;
 
 
     public FindStatement(Collection c, string condition) : base (c, condition)
     {
-      projection = new List<string>();
-      orderBy = new List<string>();
     }
 
 
@@ -47,17 +44,17 @@ namespace MySql.XDevAPI.Statements
 
     public FindStatement Bind(Dictionary<string, object> namedParameters)
     {
-      this.parameters = namedParameters;
+      this.FilterData.Parameters = namedParameters;
       return this;
     }
 
     public FindStatement Bind(params object[] values)
     {
-      this.parameters = new Dictionary<string, object>();
+      this.FilterData.Parameters = new Dictionary<string, object>();
       int i = 0;
       foreach (object value in values)
       {
-        this.parameters.Add(i++.ToString(), value);
+        this.FilterData.Parameters.Add(i++.ToString(), value);
       }
       return this;
     }

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Mysqlx.Datatypes;
 
 namespace MySql.XDevAPI.Statements
 {
@@ -14,7 +15,9 @@ namespace MySql.XDevAPI.Statements
     public long Limit = -1;
     public long Offset = -1;
     public string Condition;
-    public string OrderBy;
+    public Dictionary<string, object> Parameters;
+    public bool IsRelational;
+    public string[] OrderBy;
 
     public bool HasLimit
     {
@@ -23,7 +26,7 @@ namespace MySql.XDevAPI.Statements
 
     public List<Order> GetOrderByExpressions(bool allowRelational)
     {
-      return new ExprParser(OrderBy, allowRelational).ParseOrderSpec();
+      return new ExprParser(ExprUtil.JoinString(OrderBy), allowRelational).ParseOrderSpec();
     }
 
     public Expr GetConditionExpression(bool allowRelational)
@@ -36,6 +39,16 @@ namespace MySql.XDevAPI.Statements
     //    this.placeholderNameToPosition = parser.getPlaceholderNameToPositionMap();
       //  this.args = new ArrayList<>(parser.getPositionalPlaceholderCount());
       //}
+    }
+
+    public IEnumerable<Scalar> GetArgsExpression(Dictionary<string, object> parameters)
+    {
+      List<Scalar> paramsList = new List<Scalar>();
+      foreach (var param in parameters)
+      {
+        paramsList.Add(ExprUtil.ArgObjectToScalar(param.Value));
+      }
+      return paramsList;
     }
   }
 }

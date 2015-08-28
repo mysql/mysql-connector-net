@@ -33,6 +33,7 @@ namespace MySql.XDevAPI.Statements
     public SelectStatement(Table t, params string[] projection) : base(t)
     {
       findParams.Projection = projection;
+      FilterData.IsRelational = true;
     }
 
     public SelectStatement GroupBy(params string[] groupBy)
@@ -51,6 +52,23 @@ namespace MySql.XDevAPI.Statements
     public override TableResult Execute()
     {
       return CollectionOrTable.Schema.Session.XSession.FindRows(this);
+    }
+
+    public SelectStatement Bind(Dictionary<string, object> namedParameters)
+    {
+      this.FilterData.Parameters = namedParameters;
+      return this;
+    }
+
+    public SelectStatement Bind(params object[] values)
+    {
+      this.FilterData.Parameters = new Dictionary<string, object>();
+      int i = 0;
+      foreach (object value in values)
+      {
+        this.FilterData.Parameters.Add(i++.ToString(), value);
+      }
+      return this;
     }
   }
 }

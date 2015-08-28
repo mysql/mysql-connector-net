@@ -30,7 +30,7 @@ namespace MySql.Data
     internal string table = null;
     internal bool isTable = true;
 
-    internal List<string> columns;
+    internal string[] columns;
     internal Dictionary<string, object> parameters;
     internal string where = null;
 

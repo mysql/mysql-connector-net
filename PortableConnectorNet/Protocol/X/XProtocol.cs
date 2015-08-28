@@ -359,17 +359,22 @@ namespace MySql.Protocol
       _writer.Write(ClientMessageId.CRUD_INSERT, msg);
     }
 
-    private void ApplyFilter<T>(Func<Limit, T> setLimit, Func<Expr, T> setCriteria, Func<IEnumerable<Order>,T> setOrder, FilterParams filter)
+    private void ApplyFilter<T>(Func<Limit, T> setLimit, Func<Expr, T> setCriteria, Func<IEnumerable<Order>,T> setOrder, FilterParams filter, Func<IEnumerable<Scalar>,T> addParams)
     {
       if (filter.HasLimit)
       {
-        var limit = Limit.CreateBuilder().SetRowCount((ulong)filter.Limit).Build();
-        setLimit(limit);
+        var limit = Limit.CreateBuilder().SetRowCount((ulong)filter.Limit);
+        if (filter.Offset != -1) limit.SetOffset((ulong)filter.Offset);
+        setLimit(limit.Build());
       }
-      if (filter.Condition != null)
-        setCriteria(filter.GetConditionExpression(false));
-      if (filter.OrderBy != null)
-        setOrder(filter.GetOrderByExpressions(false));
+      if (!string.IsNullOrEmpty(filter.Condition))
+      {
+        setCriteria(filter.GetConditionExpression(filter.IsRelational));
+        if (filter.Parameters != null && filter.Parameters.Count > 0)
+          addParams(filter.GetArgsExpression(filter.Parameters));
+      }
+      if (filter.OrderBy != null && filter.OrderBy.Length > 0)
+        setOrder(filter.GetOrderByExpressions(filter.IsRelational));
 
     }
 
@@ -380,7 +385,7 @@ namespace MySql.Protocol
     {
       var builder = Delete.CreateBuilder();
       builder.SetCollection(ExprUtil.BuildCollection(schema, collection));
-      ApplyFilter(builder.SetLimit, builder.SetCriteria, builder.AddRangeOrder, filter);
+      ApplyFilter(builder.SetLimit, builder.SetCriteria, builder.AddRangeOrder, filter, builder.AddRangeArgs);
       var msg = builder.Build();
       _writer.Write(ClientMessageId.CRUD_DELETE, msg);
     }
@@ -392,7 +397,7 @@ namespace MySql.Protocol
     {
       var builder = Update.CreateBuilder();
       builder.SetCollection(ExprUtil.BuildCollection(schema, collection));
-      ApplyFilter(builder.SetLimit, builder.SetCriteria, builder.AddRangeOrder, filter);
+      ApplyFilter(builder.SetLimit, builder.SetCriteria, builder.AddRangeOrder, filter, builder.AddRangeArgs);
 
       foreach (var update in updates)
       {
@@ -411,7 +416,9 @@ namespace MySql.Protocol
     {
       var builder = Find.CreateBuilder().SetCollection(ExprUtil.BuildCollection(schema, collection));
       builder.SetDataModel(isRelational ? DataModel.TABLE : DataModel.DOCUMENT);
-      ApplyFilter(builder.SetLimit, builder.SetCriteria, builder.AddRangeOrder, filter);
+      if (findParams.Projection != null && findParams.Projection.Length > 0)
+        builder.AddRangeProjection(new ExprParser(ExprUtil.JoinString(findParams.Projection)).ParseTableSelectProjection());
+      ApplyFilter(builder.SetLimit, builder.SetCriteria, builder.AddRangeOrder, filter, builder.AddRangeArgs);
       _writer.Write(ClientMessageId.CRUD_FIND, builder.Build());
     }
 

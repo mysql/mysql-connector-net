@@ -21,6 +21,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.DataAccess;
+using MySql.XDevAPI.Results;
 using System;
 
 namespace MySql.XDevAPI
@@ -40,9 +41,9 @@ namespace MySql.XDevAPI
     }
 
     
-    public int ExecuteSql(string query, params object[] parameters)
+    public Result ExecuteSql(string query, bool throwOnFail, params object[] parameters)
     {
-      throw new NotImplementedException();
+      return XSession.ExecuteSqlNonQuery(query, throwOnFail, parameters);
     }
 
     public void Close()

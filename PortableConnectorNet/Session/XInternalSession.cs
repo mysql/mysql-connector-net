@@ -118,11 +118,21 @@ namespace MySql.Session
 
     private Result ExecuteNonQueryCmd(string cmd, bool throwOnFail, params object[] args)
     {
-      protocol.SendExecuteStatement("xplugin", cmd, args);
+      return ExecuteNonQuery(false, cmd, throwOnFail, args);
+    }
+
+    private Result ExecuteNonQuery(bool isRelational, string cmd, bool throwOnFail, params object[] args)
+    {
+      protocol.SendExecuteStatement(isRelational ? "sql" : "xplugin", cmd, args);
       Result result = GetUpdateResult();
       if (throwOnFail && result.Failed)
         throw new MySqlException(result);
       return result;
+    }
+
+    public Result ExecuteSqlNonQuery(string cmd, bool throwOnFail, params object[] args)
+    {
+      return ExecuteNonQuery(true, cmd, throwOnFail, args);
     }
 
     public TableResult GetTableResult(string cmd, bool fullyLoad, params object[] args)

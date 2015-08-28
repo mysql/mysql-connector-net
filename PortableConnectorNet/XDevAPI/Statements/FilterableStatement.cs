@@ -44,15 +44,16 @@ namespace MySql.XDevAPI.Statements
       return (T)this;
     }
 
-    public T Limit(long rows)
+    public T Limit(long rows, long offset = 0)
     {
       filter.Limit = rows;
+      filter.Offset = offset;
       return (T)this;
     }
 
-    public T OrderBy(string expression)
+    public T OrderBy(params string[] order)
     {
-      filter.OrderBy = expression;
+      filter.OrderBy = order;
       return (T)this;
     }
   }

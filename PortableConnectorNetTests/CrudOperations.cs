@@ -23,26 +23,87 @@
 using MySql.XDevAPI;
 using System.Collections.Generic;
 using Xunit;
+using System.Linq;
+using MySql.XDevAPI.Statements;
 
-namespace MySqlX_DevAPI.Sections
+namespace PortableConnectorNetTests
 {
-  public class CrudOperations
+  public class CrudOperations : BaseTest
   {
-    [Fact]
-    public void TableSelect()
+    [Collection("Database")]
+    public class TableTests : IClassFixture<TableFixture>
     {
-      Session s = MySqlX.GetSession("server=127.0.0.1;port=33060;uid=userx;password=userx1;");
-      Schema db = s.GetSchema("testx");
-//      var employees = db.GetTable("employees");
+      TableFixture fixture;
 
-  //    var res = employees.Select("name", "age")
-    //    .Where("name like :name")
-        //.OrderBy("name")
-        //.Bind(parameters)
-      //  .Execute();
+      object[][] allRows = {
+        new object[] { 2, "jonh doe", (byte)38 },
+        new object[] { 4, "milton green", (byte)45 }
+      };
 
-      //TODO assert the expected rows count
-      //Assert.Equal(2, res.Rows.Count);
+      public TableTests(TableFixture fixture)
+      {
+        this.fixture = fixture;
+      }
+
+      private void MultiTableSelectTest(SelectStatement statement, object[][] expectedValues)
+      {
+        var result = statement.Execute();
+        int rowCount = 0;
+        while (result.Next())
+        {
+          rowCount++;
+        };
+
+        Assert.Equal(expectedValues.Length, rowCount);
+        Assert.Equal(expectedValues.Length, result.Rows.Count);
+        for(int i = 0; i < expectedValues.Length; i++)
+        {
+          for (int j = 0; j < expectedValues[i].Length; j++)
+          {
+            Assert.Equal(expectedValues[i][j], result.Rows.ToArray()[i][j]);
+          }
+        }
+      }
+
+      [Fact]
+      public void TableSelect()
+      {
+        Session s = fixture.DatabaseFixture.GetSession();
+        Schema db = s.GetSchema(fixture.Schema);
+        var employees = db.GetTable(fixture.Table);
+
+        MultiTableSelectTest(employees.Select(), allRows);
+        MultiTableSelectTest(employees.Select("name", "age"),
+          allRows.Select(c => new[] { c[1], c[2] }).ToArray());
+        MultiTableSelectTest(employees.Select("name", "age").Where("age == 38"),
+          allRows.Select(c => new[] { c[1], c[2] }).Where(c => (byte)c[1] == (byte)38).ToArray());
+        MultiTableSelectTest(employees.Select().Where("age == 45"),
+          allRows.Where(c => (byte)c[2] == (byte)45).ToArray());
+        MultiTableSelectTest(employees.Select().OrderBy("age"),
+          allRows.OrderBy(c => c[2]).ToArray());
+        MultiTableSelectTest(employees.Select().OrderBy("age desc"),
+          allRows.OrderByDescending(c => c[2]).ToArray());
+        MultiTableSelectTest(employees.Select().OrderBy("age desc, name"),
+          allRows.OrderByDescending(c => c[2]).ThenBy(c => c[1]).ToArray());
+        MultiTableSelectTest(employees.Select().Limit(1),
+          allRows.Take(1).ToArray());
+        MultiTableSelectTest(employees.Select().Limit(10, 1),
+          allRows.Skip(1).Take(10).ToArray());
+        MultiTableSelectTest(employees.Select().Limit(1 , 1),
+          allRows.Skip(1).Take(1).ToArray());
+        MultiTableSelectTest(employees.Select().Where("name like :name").Bind("%jon%"),
+          allRows.Where(c => c[1].ToString().Contains("jon")).ToArray());
+        MultiTableSelectTest(employees.Select().Where("name like :name").Bind("%on%"),
+          allRows.Where(c => c[1].ToString().Contains("on")).ToArray());
+        //MultiTableSelectTest(employees.Select().GroupBy("age"),
+          //allRows.GroupBy(c => new[] { c[2] }).First().ToArray());
+      }
+
+      [Fact]
+      public void TableInsert()
+      {
+
+      }
     }
 
     [Fact]
@@ -51,7 +112,7 @@ namespace MySqlX_DevAPI.Sections
       var result = MySqlX.GetNodeSession("").ExecuteSql("SELECT name, age " +
         "FROM employee " +
         "WHERE name like ? " +
-        "ORDER BY name", "m%");
+        "ORDER BY name", false, "m%");
     }
 
     [Fact]
