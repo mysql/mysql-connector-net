@@ -35,7 +35,11 @@ namespace PortableConnectorNetTests
       Table books = GetTable("test", "books");
 
       TableResult result = books.Select("name", "pages").Execute();
+      result.Buffer();
+      Assert.True(result.Columns.Count == 2);
+      Assert.True(result.Rows.Count == 2);
       books.Delete();
+      Assert.False(books.ExistsInDatabase());
     }
 
     [Fact]
@@ -44,16 +48,20 @@ namespace PortableConnectorNetTests
       CreateBooksTable();
       Table books = GetTable("test", "books");
 
-      TableResult result = books.Select("name", "pages").Where("pages > 20").Execute();
+      TableResult result = books.Select("name", "pages").Where("pages > 250").Execute();
+      result.Buffer();
+      Assert.True(result.Columns.Count == 2);
+      Assert.True(result.Rows.Count == 1);
       books.Delete();
+      Assert.False(books.ExistsInDatabase());
     }
 
     private void CreateBooksTable()
     {
-      string sql = @"CREATE TABLE books(id INT AUTOINCREMENT, name VARCHAR(100), pages INT);
-                     INSERT INTO books VALUES (NULL, 'Moby Dick', 500);
-                     INSERT INTO books VALUES (NULL, 'A Tale of Two Cities', 250);";
-      ExecuteSQL("test", sql);
+      ExecuteSQL("DROP TABLE IF EXISTS test.books");
+      ExecuteSQL("CREATE TABLE test.books(id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(100), pages INT)");
+      ExecuteSQL("INSERT INTO test.books VALUES (NULL, 'Moby Dick', 500)");
+      ExecuteSQL("INSERT INTO test.books VALUES (NULL, 'A Tale of Two Cities', 250)");
     }
   }
 }

@@ -116,6 +116,14 @@ namespace MySql.Session
       ExecuteNonQueryCmd("drop_collection", true, schemaName, collectionName);
     }
 
+    public bool TableExists(Schema schema, string name)
+    {
+      string sql = String.Format("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '{0}' AND table_name = '{1}'",
+        schema.Name, name);
+      long count = (long)ExecuteQueryAsScalar(sql);
+      return count != 0;
+    }
+
     private Result ExecuteNonQueryCmd(string cmd, bool throwOnFail, params object[] args)
     {
       return ExecuteNonQuery(false, cmd, throwOnFail, args);

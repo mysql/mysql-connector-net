@@ -20,6 +20,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.XDevAPI.Results;
 using MySql.XDevAPI.Statements;
 using System;
 
@@ -48,14 +49,14 @@ namespace MySql.XDevAPI
       throw new NotImplementedException();
     }
 
-    public Table Delete()
+    public void Delete()
     {
-      throw new NotImplementedException();
+      Schema.Session.XSession.DropCollection(Schema.Name, Name);
     }
 
     public override bool ExistsInDatabase()
     {
-      throw new NotImplementedException();
+      return Schema.Session.XSession.TableExists(Schema, Name);
     }
   }
 }

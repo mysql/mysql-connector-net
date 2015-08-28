@@ -129,7 +129,6 @@
     <Compile Include="XDevAPI\BaseSession.cs" />
     <Compile Include="XDevAPI\Statements\RemoveStatement.cs" />
     <Compile Include="XDevAPI\Statements\SelectStatement.cs" />
-    <Compile Include="XDevAPI\Statements\Statement.cs" />
     <Compile Include="XDevAPI\Statements\UpdateSpec.cs" />
     <Compile Include="XDevAPI\Table.cs" />
     <Compile Include="XDevAPI\TopologySingleNode.cs" />

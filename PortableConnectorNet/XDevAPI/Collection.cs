@@ -181,10 +181,7 @@ namespace MySql.XDevAPI
 
     public override bool ExistsInDatabase()
     {
-      string sql = String.Format("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '{0}' AND table_name = '{1}'", 
-        Schema.Name, Name);
-      long count = (long)Schema.Session.InternalSession.ExecuteQueryAsScalar(sql);
-      return count != 0;
+      return Schema.Session.XSession.TableExists(Schema, Name);
     }
   }
 }
