@@ -28,7 +28,7 @@ namespace MySql.XDevAPI
 {
   public class Table : DatabaseObject
   {
-    public Table(Schema schema, string name)
+    internal Table(Schema schema, string name)
       : base(schema, name)
     {
     }

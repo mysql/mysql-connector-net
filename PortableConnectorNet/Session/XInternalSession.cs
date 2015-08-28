@@ -119,12 +119,12 @@ namespace MySql.Session
 
     public void CreateCollection(string schemaName, string collectionName)
     {
-      ExecuteNonQueryCmd("create_collection", true, schemaName, collectionName);
+      ExecuteCmdNonQuery("create_collection", true, schemaName, collectionName);
     }
 
     public void DropCollection(string schemaName, string collectionName)
     {
-      ExecuteNonQueryCmd("drop_collection", true, schemaName, collectionName);
+      ExecuteCmdNonQuery("drop_collection", true, schemaName, collectionName);
     }
 
     public bool TableExists(Schema schema, string name)
@@ -135,25 +135,12 @@ namespace MySql.Session
       return count != 0;
     }
 
-    private Result ExecuteNonQueryCmd(string cmd, bool throwOnFail, params object[] args)
+    private UpdateResult ExecuteCmdNonQuery(string cmd, bool throwOnFail, params object[] args)
     {
-      return ExecuteNonQuery(false, cmd, throwOnFail, args);
+      protocol.SendExecuteStatement("xplugin", cmd, args);
+      return GetUpdateResult(throwOnFail);
     }
 
-    private Result ExecuteNonQuery(bool isRelational, string cmd, bool throwOnFail, params object[] args)
-    {
-      protocol.SendExecuteStatement(isRelational ? "sql" : "xplugin", cmd, args);
-      Result result = GetUpdateResult();
-      if (throwOnFail && result.Failed)
-        throw new MySqlException(result);
-      return result;
-    }
-
-    public Result ExecuteSqlNonQuery(string cmd, bool throwOnFail, params object[] args)
-    {
-      return ExecuteNonQuery(true, cmd, throwOnFail, args);
-    }
-  
     public List<T> GetObjectList<T>(Schema s, string type)
     {
       TableResult result = GetTableResult("list_objects", s.Name);
@@ -177,29 +164,22 @@ namespace MySql.Session
       return result;
     }
 
-    private UpdateResult GetUpdateResult()
-    {
-      UpdateResult rs = new UpdateResult();
-      protocol.CloseResult(rs);
-      return rs;
-    }
-
     public UpdateResult Insert(Collection collection, JsonDoc[] json)
     {
       protocol.SendInsert(collection.Schema.Name, collection.Name, json);
-      return GetUpdateResult();
+      return GetUpdateResult(false);
     }
 
     public UpdateResult DeleteDocs(RemoveStatement rs)
     {
       protocol.SendDocDelete(rs.CollectionOrTable.Schema.Name, rs.CollectionOrTable.Name, rs.FilterData);
-      return GetUpdateResult();
+      return GetUpdateResult(false);
     }
 
     public UpdateResult ModifyDocs(ModifyStatement ms)
     {
       protocol.SendDocModify(ms.CollectionOrTable.Schema.Name, ms.CollectionOrTable.Name, ms.FilterData, ms.Updates);
-      return GetUpdateResult();
+      return GetUpdateResult(false);
     }
 
     public DocumentResult FindDocs(FindStatement fs)

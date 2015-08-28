@@ -70,6 +70,12 @@ namespace MySql.XDevAPI
 
     #region Instance Functions
 
+    /// <summary>
+    /// Get a collection by name
+    /// </summary>
+    /// <param name="name">The name of the collection to get</param>
+    /// <param name="ValidateExistence">Ensure the collection exists in the schema</param>
+    /// <returns>Collection object</returns>
     public Collection GetCollection(string name, bool ValidateExistence = false)
     {
       Collection c = new Collection<JsonDoc>(this, name);
@@ -91,7 +97,7 @@ namespace MySql.XDevAPI
 
     public View GetView(string name)
     {
-      throw new NotImplementedException();
+      return new View(this, name);
     }
 
     #endregion
@@ -122,7 +128,8 @@ namespace MySql.XDevAPI
     public override bool ExistsInDatabase()
     {
       string sql = String.Format("SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name like '{0}'", Name);
-      return Session.InternalSession.ExecuteQueryAsScalar(sql).Equals(1);
+      long count = (long)Session.InternalSession.ExecuteQueryAsScalar(sql);
+      return count > 0;
     }
 
     #endregion

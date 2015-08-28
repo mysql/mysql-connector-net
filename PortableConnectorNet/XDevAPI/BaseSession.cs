@@ -73,6 +73,16 @@ namespace MySql.XDevAPI
       _internalSession = InternalSession.GetSession(Settings);
     }
 
+    public void DropSchema(string schema)
+    {
+      InternalSession.ExecuteSqlNonQuery("DROP DATABASE `" + schema + "`", true, null);
+    }
+
+    public Schema CreateSchema(string schema)
+    {
+      InternalSession.ExecuteSqlNonQuery("CREATE DATABASE `" + schema + "`", true, null);
+      return new Schema(this, schema);
+    }
 
     public Schema GetSchema(string schema)
     {
@@ -120,42 +130,9 @@ namespace MySql.XDevAPI
       }    
     }
 
-
-    #region InternalMethods
-
-
-    #endregion
-
-    #region IDisposable
-
     public void Dispose()
     {
-      Dispose(true);
-      GC.SuppressFinalize(this);
     }
-
-    protected virtual void Dispose(bool disposing)
-    {
-      if (disposed) return;
-
-      if (disposing)
-      {
-        // Free any other managed objects here. 
-        //
-        if (InternalSession != null) InternalSession.Dispose();
-      }
-
-      // Free any unmanaged objects here. 
-      //
-      disposed = true;
-    }
-
-    //~BaseSession()
-    //{
-    //  Dispose(false);
-    //}
-
-    #endregion
   }
 
   public enum SessionState

@@ -32,6 +32,11 @@ namespace MySql.XDevAPI
 
     }
 
+    public void Delete()
+    {
+      Schema.Session.XSession.DropCollection(Schema.Name, Name);
+    }
+
     public override bool ExistsInDatabase()
     {
       return Schema.Session.XSession.TableExists(Schema, Name);

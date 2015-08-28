@@ -130,8 +130,6 @@ namespace MySql.Protocol
       SendExecuteStatement("sql", sql, null);
     }
 
-
-
     private CommunicationPacket PeekPacket()
     {
       if (pendingPacket != null) return pendingPacket;

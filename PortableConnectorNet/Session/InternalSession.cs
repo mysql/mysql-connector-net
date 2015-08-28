@@ -73,6 +73,22 @@ namespace MySql.Session
       return session;
     }
 
+    public UpdateResult ExecuteSqlNonQuery(string sql, bool throwOnFail, params object[] args)
+    {
+      GetProtocol().SendSQL(sql);
+      return GetUpdateResult(throwOnFail);
+    }
+    
+
+    protected UpdateResult GetUpdateResult(bool throwOnFail)
+    {
+      UpdateResult result = new UpdateResult();
+      GetProtocol().CloseResult(result);
+      if (throwOnFail && result.Failed)
+        throw new MySqlException(result);
+      return result;
+    }
+
     public TableResult ExecuteQuery(string sql)
     {
       GetProtocol().SendSQL(sql);
@@ -95,14 +111,6 @@ namespace MySql.Session
     {
 //      currentSettings.Database = schema;
     }
-
-
-    //public ResultSet Find(SelectStatement statement)
-    //{
-    //  return (protocol as XProtocol).Find(statement);
-    //}
-
-    
 
 
     #region IDisposable

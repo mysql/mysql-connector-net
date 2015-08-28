@@ -34,6 +34,16 @@ namespace PortableConnectorNetTests
     private static Session session;
     private static NodeSession nodeSession;
 
+    protected Schema SetupSchema(string name)
+    {
+      Session s = GetSession();
+      Schema schema = s.GetSchema(name);
+      if (schema.ExistsInDatabase())
+        s.DropSchema(name);
+      schema = s.CreateSchema(name);
+      return schema;
+    }
+
     protected Table GetTable(string schema, string table)
     {
       return GetSession().GetSchema(schema).GetTable(table);
