@@ -1,4 +1,4 @@
-// Copyright © 2004, 2014, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2015, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -148,6 +148,7 @@ namespace MySql.Data.MySqlClient
       mapping.Add("utf16", new CharacterSet("utf-16BE", 2));
       mapping.Add("utf16le", new CharacterSet("utf-16", 2));
       mapping.Add("utf32", new CharacterSet("utf-32BE", 4));
+      mapping.Add("gb18030", new CharacterSet("gb18030", 4));             
     }
 
     internal static void InitCollections(MySqlConnection connection)
