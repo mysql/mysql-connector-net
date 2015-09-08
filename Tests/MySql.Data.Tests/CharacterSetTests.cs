@@ -491,6 +491,91 @@ namespace MySql.Data.MySqlClient.Tests
    }
 
 
+
+   /// <summary>
+   /// Test for new functionality on 5.7.9 supporting chinese character sets gb18030
+   /// WL #4024
+   /// (Oracle bug #21098546).
+   /// </summary>
+   [Fact]   
+   public void CanInsertChineseCharacterSetGB18030()
+   {         
+      if (st.Version < new Version(5, 7, 4)) return;
+
+      try
+      {
+          st.execSQL("CREATE TABLE Test (id int, name VARCHAR(100) CHAR SET gb18030, KEY(name(20)))");
+          using (MySqlConnection c = new MySqlConnection(st.conn.ConnectionString + ";charset=gb18030"))
+          {
+              c.Open();
+              MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1, '㭋玤䂜蚌')", c);
+              cmd.ExecuteNonQuery();
+              cmd = new MySqlCommand("INSERT INTO test VALUES(2, 0xC4EEC5ABBDBFA1A4B3E0B1DABBB3B9C520A1A4CBD5B6ABC6C2)", c);
+              cmd.ExecuteNonQuery();              
+              cmd = new MySqlCommand("SELECT id, name from test", c);              
+              var reader = cmd.ExecuteReader();
+              while (reader.Read())
+              {
+                if (reader.GetUInt32(0) == 1)
+                  Assert.Equal("㭋玤䂜蚌", reader.GetString(1));
+                if (reader.GetUInt32(0) == 2)                  
+                  Assert.Equal("念奴娇·赤壁怀古 ·苏东坡", reader.GetString(1));
+              }
+          }
+      }
+      finally
+      {
+          st.execSQL("drop table if exists `Test`");          
+      }
+   }
+
+
+
+   /// <summary>
+   /// Test for new functionality on 5.7.9 supporting chinese character sets on gb18030
+   /// WL #4024
+   /// (Oracle bug #21098546).
+   /// </summary>
+   [Fact]
+   public void CanCreateDbUsingChineseCharacterSetGB18030()
+   {
+     if (st.Version < new Version(5, 7, 4)) return;
+
+     MySqlConnectionStringBuilder rootSb = new MySqlConnectionStringBuilder(st.rootConn.ConnectionString);
+     rootSb.CharacterSet = "gb18030";
+     using (MySqlConnection rootConnection = new MySqlConnection(rootSb.ToString()))
+     {
+       string database = "㭋玤䂜蚌";    
+
+       rootConnection.Open();
+       MySqlCommand rootCommand = new MySqlCommand();
+       rootCommand.Connection = rootConnection;
+       rootCommand.CommandText = string.Format("CREATE DATABASE `{0}` CHARSET=gb18030;", database);       
+       rootCommand.ExecuteNonQuery();       
+      
+       try
+       {
+         rootSb.Database = database;
+         using (MySqlConnection conn = new MySqlConnection(rootSb.ConnectionString))
+         {           
+           conn.Open();
+           Assert.Equal(database, conn.Database);
+         }
+       }
+       finally
+       {
+         if (rootConnection.State == ConnectionState.Open)
+         {
+           rootCommand.CommandText = string.Format("DROP DATABASE `{0}`;", database);
+           rootCommand.ExecuteNonQuery();
+         }
+       }
+     }
+   }
+
+
+
+
    public void Dispose()
    {
      st.execSQL("DROP TABLE IF EXISTS TEST");
