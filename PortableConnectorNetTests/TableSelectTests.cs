@@ -28,7 +28,6 @@ using MySql.XDevAPI.Statements;
 
 namespace PortableConnectorNetTests
 {
-  [Collection("Database")]
   public class TableSelectTests : IClassFixture<TableFixture>
   {
     TableFixture fixture;
@@ -66,32 +65,32 @@ namespace PortableConnectorNetTests
     [Fact]
     public void TableSelect()
     {
-      Session s = fixture.DatabaseFixture.GetSession();
+      Session s = fixture.GetSession();
       Schema db = s.GetSchema(fixture.Schema);
-      var employees = db.GetTable(fixture.Table);
+      var table = db.GetTable(fixture.Table);
 
-      MultiTableSelectTest(employees.Select(), allRows);
-      MultiTableSelectTest(employees.Select("name", "age"),
+      MultiTableSelectTest(table.Select(), allRows);
+      MultiTableSelectTest(table.Select("name", "age"),
         allRows.Select(c => new[] { c[1], c[2] }).ToArray());
-      MultiTableSelectTest(employees.Select("name", "age").Where("age == 38"),
+      MultiTableSelectTest(table.Select("name", "age").Where("age == 38"),
         allRows.Select(c => new[] { c[1], c[2] }).Where(c => (byte)c[1] == (byte)38).ToArray());
-      MultiTableSelectTest(employees.Select().Where("age == 45"),
+      MultiTableSelectTest(table.Select().Where("age == 45"),
         allRows.Where(c => (byte)c[2] == (byte)45).ToArray());
-      MultiTableSelectTest(employees.Select().OrderBy("age"),
+      MultiTableSelectTest(table.Select().OrderBy("age"),
         allRows.OrderBy(c => c[2]).ToArray());
-      MultiTableSelectTest(employees.Select().OrderBy("age desc"),
+      MultiTableSelectTest(table.Select().OrderBy("age desc"),
         allRows.OrderByDescending(c => c[2]).ToArray());
-      MultiTableSelectTest(employees.Select().OrderBy("age desc, name"),
+      MultiTableSelectTest(table.Select().OrderBy("age desc, name"),
         allRows.OrderByDescending(c => c[2]).ThenBy(c => c[1]).ToArray());
-      MultiTableSelectTest(employees.Select().Limit(1),
+      MultiTableSelectTest(table.Select().Limit(1),
         allRows.Take(1).ToArray());
-      MultiTableSelectTest(employees.Select().Limit(10, 1),
+      MultiTableSelectTest(table.Select().Limit(10, 1),
         allRows.Skip(1).Take(10).ToArray());
-      MultiTableSelectTest(employees.Select().Limit(1, 1),
+      MultiTableSelectTest(table.Select().Limit(1, 1),
         allRows.Skip(1).Take(1).ToArray());
-      MultiTableSelectTest(employees.Select().Where("name like :name").Bind("%jon%"),
+      MultiTableSelectTest(table.Select().Where("name like :name").Bind("%jon%"),
         allRows.Where(c => c[1].ToString().Contains("jon")).ToArray());
-      MultiTableSelectTest(employees.Select().Where("name like :name").Bind("%on%"),
+      MultiTableSelectTest(table.Select().Where("name like :name").Bind("%on%"),
         allRows.Where(c => c[1].ToString().Contains("on")).ToArray());
       //MultiTableSelectTest(employees.Select().GroupBy("age"),
       //allRows.GroupBy(c => new[] { c[2] }).First().ToArray());

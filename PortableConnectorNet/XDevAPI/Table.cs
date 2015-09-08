@@ -35,13 +35,12 @@ namespace MySql.XDevAPI
 
     public SelectStatement Select(params string[] columns)
     {
-      SelectStatement stmt = new SelectStatement(this, columns);
-      return stmt;
+      return new SelectStatement(this, columns);
     }
 
-    public Table Insert()
+    public InsertStatement Insert(params string[] fields)
     {
-      throw new NotImplementedException();
+      return new InsertStatement(this, fields);
     }
 
     public Table Update()

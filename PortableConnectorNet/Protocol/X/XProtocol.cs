@@ -378,12 +378,26 @@ namespace MySql.Protocol
       return c;
     }
 
-    public void SendInsert(string schema, string collection, JsonDoc[] rows)
+    public void SendInsert(string schema, bool isRelational, string collection, object[] rows, string[] columns)
     {
       Insert.Builder builder = Mysqlx.Crud.Insert.CreateBuilder().SetCollection(ExprUtil.BuildCollection(schema, collection));
-      foreach (JsonDoc row in rows)
+      builder.SetDataModel(isRelational ? DataModel.TABLE : DataModel.DOCUMENT);
+      if(columns != null && columns.Length > 0)
       {
-        Mysqlx.Crud.Insert.Types.TypedRow typedRow = Mysqlx.Crud.Insert.Types.TypedRow.CreateBuilder().AddField(ExprUtil.ArgObjectToExpr(row.ToString(), false)).Build();
+        foreach(string column in columns)
+        {
+          builder.AddProjection(new ExprParser(column).ParseTableInsertField());
+        }
+      }
+      foreach (object row in rows)
+      {
+        Mysqlx.Crud.Insert.Types.TypedRow.Builder typedRow = Mysqlx.Crud.Insert.Types.TypedRow.CreateBuilder();
+        object[] fields = row.GetType().IsArray ? (object[])row : new object[] { row };
+        foreach (object field in fields)
+        {
+          typedRow.AddField(ExprUtil.ArgObjectToExpr(field, isRelational)).Build();
+        }
+
         builder.AddRow(typedRow);
       }
       Mysqlx.Crud.Insert msg = builder.Build();

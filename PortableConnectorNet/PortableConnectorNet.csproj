@@ -116,6 +116,7 @@
     <Compile Include="XDevAPI\Statements\FilterParams.cs" />
     <Compile Include="XDevAPI\Statements\FindParams.cs" />
     <Compile Include="XDevAPI\Statements\FindStatement.cs" />
+    <Compile Include="XDevAPI\Statements\InsertStatement.cs" />
     <Compile Include="XDevAPI\Statements\ModifyStatement.cs" />
     <Compile Include="XDevAPI\Session.cs" />
     <Compile Include="XDevAPI\Collection.cs" />

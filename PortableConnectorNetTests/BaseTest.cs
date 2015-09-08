@@ -65,14 +65,14 @@ namespace PortableConnectorNetTests
       return test.CreateCollection(name);
     }
 
-    protected Session GetSession()
+    public Session GetSession()
     {
       if (session == null)
         session = MySqlX.GetSession("server=localhost;port=33060;uid=userx;password=userx1");
       return session;
     }
 
-    protected NodeSession GetNodeSession()
+    public NodeSession GetNodeSession()
     {
       if (nodeSession == null)
         nodeSession = MySqlX.GetNodeSession("server=localhost;port=33060;uid=userx;password=userx1");

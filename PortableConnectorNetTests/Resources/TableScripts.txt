@@ -8,13 +8,19 @@ CREATE TABLE `{1}` (
   `age` TINYINT UNSIGNED NULL,
   PRIMARY KEY (`employee_id`));
 
-INSERT INTO `employees`
+INSERT INTO `{1}`
 (`name`, `age`)
 VALUES
 ('jonh doe', 38);
 
-INSERT INTO `employees`
+INSERT INTO `{1}`
 (`name`, `age`)
 VALUES
 ('milton green', 45);
 
+
+CREATE TABLE `{2}` (
+  `employee_id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(450) NOT NULL,
+  `age` TINYINT UNSIGNED NULL,
+  PRIMARY KEY (`employee_id`));

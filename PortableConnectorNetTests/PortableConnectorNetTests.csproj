@@ -48,6 +48,7 @@
     </Compile>
     <Compile Include="SchemaTests.cs" />
     <Compile Include="SessionTests.cs" />
+    <Compile Include="TableInsertTests.cs" />
     <Compile Include="TableSelectTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TableFixture.cs" />

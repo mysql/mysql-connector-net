@@ -31,6 +31,7 @@ using System.Collections.Generic;
 using MySql.XDevAPI.Statements;
 using MySql.XDevAPI.Results;
 using System.Reflection;
+using System.Linq;
 
 namespace MySql.Session
 {
@@ -162,7 +163,7 @@ namespace MySql.Session
 
     public UpdateResult Insert(Collection collection, JsonDoc[] json)
     {
-      protocol.SendInsert(collection.Schema.Name, collection.Name, json);
+      protocol.SendInsert(collection.Schema.Name, false, collection.Name, json, null);
       return GetUpdateResult(false);
     }
 
@@ -184,11 +185,18 @@ namespace MySql.Session
       DocumentResult result = new DocumentResult(protocol);
       return result;
     }
+
     public TableResult FindRows(SelectStatement ss)
     {
       protocol.SendFind(ss.CollectionOrTable.Schema.Name, ss.CollectionOrTable.Name, true, ss.FilterData, ss.findParams);
       TableResult result = new TableResult(protocol);
       return result;
+    }
+
+    public UpdateResult InsertRows(InsertStatement statement)
+    {
+      protocol.SendInsert(statement.CollectionOrTable.Schema.Name, true, statement.CollectionOrTable.Name, statement.values.ToArray(), statement.fields);
+      return GetUpdateResult(false);
     }
 
   }

@@ -150,22 +150,30 @@ namespace MySql.Protocol.X
         return BuildLiteralNullScalar();
 
       if (value is bool)
-        return BuildLiteralScalar((Boolean)value);
+        return BuildLiteralScalar(Convert.ToBoolean(value));
       else if (value is byte || value is short || value is int || value is long)
-        return BuildLiteralScalar((long)value);
+        return BuildLiteralScalar(Convert.ToInt64(value));
       else if (value is float || value is double)
-        return BuildLiteralScalar((double)value);
+        return BuildLiteralScalar(Convert.ToDouble(value));
       else if (value is string)
-        return BuildLiteralScalar((string)value);
+      {
+        try
+        {
+          // try to parse expressions
+          Expr expr = new ExprParser((string)value).Parse();
+          if (expr.HasIdentifier)
+            return BuildLiteralScalar((string)value);
+          return expr;
+        }
+        catch
+        {
+          // if can't parse, returns as literal
+          return BuildLiteralScalar((string)value);
+        }
+      }
+      else if (value is XDevAPI.JsonDoc)
+        return (BuildLiteralScalar(value.ToString()));
       throw new NotSupportedException("Value of type " + value.GetType() + " is not currently supported.");
-      //} else if (value.getClass() == Expression.class) {
-      //      return new ExprParser(((Expression) value).getExpressionString(), allowRelationalColumns).parse();
-      //} else if (value.getClass() == JsonDoc.class) {
-      //  // TODO: check how xplugin handles this
-      //} else if (value.getClass() == JsonArray.class) {
-      // TODO: check how xplugin handles this
-      // }
-      //throw new NullPointerException("TODO: other types? BigDecimal, Date, Timestamp, Time");
     }
 
     public static string JoinString(string[] values)

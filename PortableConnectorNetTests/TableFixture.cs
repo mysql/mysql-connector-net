@@ -20,34 +20,44 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.XDevAPI;
 using System;
 using Xunit;
 
 namespace PortableConnectorNetTests
 {
-  [Collection("Database")]
-  public class TableFixture : IDisposable
+  public class TableFixture : BaseTest, IDisposable
   {
-    public DatabaseFixture DatabaseFixture { get; private set; }
     public string Schema { get; private set; }
     public string Table { get; private set; }
+    public string TableInsert { get; private set; }
 
-    public TableFixture() : this(DatabaseFixture.Instance) { }
-
-    public TableFixture(DatabaseFixture fixture)
+    public TableFixture()
     {
-      this.DatabaseFixture = fixture;
       Schema = "testx";
       Table = "employees";
+      TableInsert = "tableInsert";
 
-      var nodeSession = MySql.XDevAPI.MySqlX.GetNodeSession(fixture.GetConnectionString());
+      var nodeSession = GetNodeSession();
 
-      string script = string.Format(Properties.Resources.TableScripts, Schema, Table).Replace("\r", string.Empty);
+      // Create Tables
+      string script = string.Format(Properties.Resources.TableScripts, Schema, Table, TableInsert).Replace("\r", string.Empty);
       string[] sqlInParts = script.Split(new string[] { ";\n\n\n", ";\n\n", ";\n" }, StringSplitOptions.RemoveEmptyEntries);
-      foreach(string sqlPart in sqlInParts)
+      foreach (string sqlPart in sqlInParts)
       {
+        if (string.IsNullOrWhiteSpace(sqlPart)) continue;
         nodeSession.ExecuteSql(sqlPart.Replace("\n", " "));
       }
+    }
+
+    public Table GetTable()
+    {
+      return GetSession().GetSchema(Schema).GetTable(Table);
+    }
+
+    public Table GetTableInsert()
+    {
+      return GetSession().GetSchema(Schema).GetTable(TableInsert);
     }
 
     #region IDisposable Support
