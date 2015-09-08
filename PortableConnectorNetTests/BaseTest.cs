@@ -52,7 +52,7 @@ namespace PortableConnectorNetTests
     protected void ExecuteSQL(string sql)
     {
       NodeSession nodeSession = GetNodeSession();
-      nodeSession.ExecuteSql(sql, true, null);
+      nodeSession.ExecuteSql(sql);
     }
 
     protected Collection CreateCollection(string name)

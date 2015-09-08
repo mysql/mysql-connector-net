@@ -30,10 +30,17 @@ using System.Text;
 
 namespace MySql.XDevAPI
 {
+  /// <summary>
+  /// Represents a generic documnet in JSON format
+  /// </summary>
   public class JsonDoc
   {
     private Dictionary<string, object> values = new Dictionary<string, object>();
 
+    /// <summary>
+    /// Constructs a JsonDoc with the given value.  The value can be a domain object, anonymous object, or JSON string.
+    /// </summary>
+    /// <param name="val">Value for this JsonDoc</param>
     public JsonDoc(object val = null)
     {
       if (val != null)
@@ -45,21 +52,34 @@ namespace MySql.XDevAPI
       }
     }
 
+    /// <summary>
+    /// Allows a user to get the value of a document property.
+    /// NOTE:  currently this is only supported one level deep
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
     public string this[string path]
     {
       get { return GetValue(path); }
     }
 
+    /// <summary>
+    /// Retrieves the Id of the document.
+    /// </summary>
     public object Id
     {
       get { return values["_id"];  }
     }
+
+    /// <summary>
+    /// Indicates if this document has an id (property named _id with a value)
+    /// </summary>
     public bool HasId
     {
       get { return values.ContainsKey("_id"); }
     }
 
-    public void EnsureId()
+    internal void EnsureId()
     {
       if (!HasId)
         SetValue("_id", Guid.NewGuid().ToString("N"));
@@ -74,6 +94,11 @@ namespace MySql.XDevAPI
       return values[path].ToString();
     }
 
+    /// <summary>
+    /// Allows a user to set a property on this document.
+    /// </summary>
+    /// <param name="key">Key of the property</param>
+    /// <param name="val">New property value</param>
     public void SetValue(string key, object val)
     {
       Type t = val.GetType();
@@ -95,6 +120,10 @@ namespace MySql.XDevAPI
       return values.ToArray();
     }
 
+    /// <summary>
+    /// Returns this document in Json format
+    /// </summary>
+    /// <returns>Json formatted string</returns>
     public override string ToString()
     {
       return DictToString(values);
@@ -136,6 +165,11 @@ namespace MySql.XDevAPI
       return true;
     }
 
+    /// <summary>
+    /// Compares this JsonDoc with another one
+    /// </summary>
+    /// <param name="obj">The JsonDoc to compare to</param>
+    /// <returns>True if they are equal, false otherwise</returns>
     public override bool Equals(object obj)
     {
       if (!(obj is JsonDoc))

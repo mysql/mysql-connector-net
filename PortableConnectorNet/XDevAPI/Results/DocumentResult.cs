@@ -26,6 +26,9 @@ using MySql.Protocol;
 
 namespace MySql.XDevAPI.Results
 {
+  /// <summary>
+  /// Represents the result of an operation the includes a collection of documents
+  /// </summary>
   public class DocumentResult : BufferingResult<JsonDoc>
   {
     System.Text.Encoding _encoding = System.Text.Encoding.UTF8;

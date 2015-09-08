@@ -46,7 +46,7 @@ namespace PortableConnectorNetTests
       string[] sqlInParts = script.Split(new string[] { ";\n\n\n", ";\n\n", ";\n" }, StringSplitOptions.RemoveEmptyEntries);
       foreach(string sqlPart in sqlInParts)
       {
-        nodeSession.ExecuteSql(sqlPart.Replace("\n", " "), true);
+        nodeSession.ExecuteSql(sqlPart.Replace("\n", " "));
       }
     }
 

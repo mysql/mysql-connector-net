@@ -38,12 +38,23 @@ namespace MySql.XDevAPI.Statements
       get { return filter;  }
     }
 
+    /// <summary>
+    /// Allows the user to set the where condition for this operation.
+    /// </summary>
+    /// <param name="condition">Where condition</param>
+    /// <returns>The implementing statement type</returns>
     public T Where(string condition)
     {
       filter.Condition = condition;
       return (T)this;
     }
 
+    /// <summary>
+    /// Allows the user to set the limit and offset for the operation
+    /// </summary>
+    /// <param name="rows">How many items should be returned</param>
+    /// <param name="offset">How many items should be skipped</param>
+    /// <returns>The implementing statement type</returns>
     public T Limit(long rows, long offset = 0)
     {
       filter.Limit = rows;
@@ -51,6 +62,12 @@ namespace MySql.XDevAPI.Statements
       return (T)this;
     }
 
+    /// <summary>
+    /// Allows the user to set the sorting criteria for the operation.  The strings use normal SQL syntax like
+    /// "order ASC"  or "pages DESC, age ASC"
+    /// </summary>
+    /// <param name="order">The order criteria</param>
+    /// <returns>The implementing statement type</returns>    /// <returns></returns>
     public T OrderBy(params string[] order)
     {
       filter.OrderBy = order;

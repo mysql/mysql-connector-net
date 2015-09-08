@@ -65,7 +65,8 @@ namespace MySql.Session
 
     private void GetAndSetCapabilities()
     {
-      protocol.SendGetCapabilities();
+      protocol.GetServerCapabilities();
+      protocol.SetCapabilities();
     }
 
     private void Authenticate()

@@ -25,7 +25,7 @@ using System.Collections.Generic;
 
 namespace MySql.Data
 {
-  public class CollationMap
+  internal class CollationMap
   {
     private static Dictionary<int, string> collations = new Dictionary<int, string>();
 

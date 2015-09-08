@@ -24,6 +24,9 @@ using System.Collections.Generic;
 
 namespace MySql.XDevAPI.Results
 {
+  /// <summary>
+  /// Represents a single row of data in a table
+  /// </summary>
   public class TableRow
   {
     private object[] values;
@@ -37,28 +40,38 @@ namespace MySql.XDevAPI.Results
       valuesAsBytes = new byte[count][];
     }
 
+    /// <summary>
+    /// Allows getting the value of the row at the given index.
+    /// </summary>
+    /// <param name="index">The column index to retrieve the value</param>
+    /// <returns>The value at the index</returns>
     public object this[int index]
     {
       get { return values[index]; }
-      set { values[index] = value; }
     }
 
+    /// <summary>
+    /// Retrieves the column value as a string.
+    /// </summary>
+    /// <param name="name">Name of the column</param>
+    /// <returns>The value of the column as a string</returns>
     public string GetString(string name)
     {
       int index = _tableResult.IndexOf(name);
       return values[index].ToString();
     }
+
+    /// <summary>
+    /// String based indexer into the row.  Returns the value as a CLR type
+    /// </summary>
+    /// <param name="name">The column index to get</param>
+    /// <returns>CLR value for the column</returns>
     public object this[string name]
     {
       get
       {
         return this[_tableResult.IndexOf(name)];
       }
-    }
-
-    public object[] ItemArray
-    {
-      get { return values; }
     }
 
     internal void SetValues(List<byte[]> valueBuffers)

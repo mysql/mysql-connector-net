@@ -21,9 +21,9 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
-namespace MySql.Data
+namespace MySql.Common
 {
-  public class StringUtility
+  internal class StringUtility
   {
     public static string ToUpperInvariant(string s)
     {

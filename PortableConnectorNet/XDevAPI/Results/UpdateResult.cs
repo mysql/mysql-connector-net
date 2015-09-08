@@ -24,10 +24,19 @@ using System;
 
 namespace MySql.XDevAPI.Results
 {
+  /// <summary>
+  /// A result object for non-fetch operations.
+  /// </summary>
   public class UpdateResult : Result
   {
-
+    /// <summary>
+    /// The number of records affected by the statement that generated this result.
+    /// </summary>
     public UInt64 RecordsAffected { get; internal set; }
+
+    /// <summary>
+    /// The last inserted id (if there is one) by the statement that generated this result.
+    /// </summary>
     public UInt64 LastInsertId { get; internal set; }
   }
 }

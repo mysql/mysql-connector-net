@@ -26,34 +26,54 @@ namespace MySql.XDevAPI
 {
   public class MySqlX
   {
+    /// <summary>
+    /// Opens a session to the server given
+    /// </summary>
+    /// <param name="connectionSting">Connection data for the server</param>
+    /// <returns>Session</returns>
     public static Session GetSession(string connectionSting)
     {
       return new Session(connectionSting);
     }
 
+    /// <summary>
+    /// Opens a session to the server given
+    /// </summary>
+    /// <param name="connectionData">Connection data for the server</param>
+    /// <returns>Session</returns>
     public static Session GetSession(object connectionData)
     {
       return new Session(connectionData);
     }
 
+    /// <summary>
+    /// Opens a node session to the server given
+    /// </summary>
+    /// <param name="connectionSting">Connection string for the server</param>
+    /// <returns>Session</returns>
     public static NodeSession GetNodeSession(string connectionSting)
     {
       return new NodeSession(connectionSting);
     }
 
+    /// <summary>
+    /// Opens a node session to the server given
+    /// </summary>
+    /// <param name="connectionData">Connection data for the server</param>
+    /// <returns>Session</returns>
     public static NodeSession GetNodeSession(object connectionData)
     {
       return new NodeSession(connectionData);
     }
 
-    public static Iterator CsvFileRowIterator()
-    {
-      throw new NotImplementedException();
-    }
+    //public static Iterator CsvFileRowIterator()
+    //{
+    //  throw new NotImplementedException();
+    //}
 
-    public static Iterator JsonFileDocIterator()
-    {
-      throw new NotImplementedException();
-    }
+    //public static Iterator JsonFileDocIterator()
+    //{
+    //  throw new NotImplementedException();
+    //}
   }
 }

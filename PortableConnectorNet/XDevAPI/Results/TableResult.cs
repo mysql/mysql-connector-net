@@ -27,6 +27,9 @@ using System.Diagnostics;
 
 namespace MySql.XDevAPI.Results
 {
+  /// <summary>
+  /// Repreents a resultset that contains rows of data.  
+  /// </summary>
   public class TableResult : BufferingResult<TableRow>
   {
     Dictionary<string, int> nameMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
@@ -37,11 +40,18 @@ namespace MySql.XDevAPI.Results
       LoadMetadata();
     }
 
+    /// <summary>
+    /// The columns of this resulset
+    /// </summary>
     public IReadOnlyList<TableColumn> Columns
     {
       get { return _columns.AsReadOnly(); }
     }
 
+    /// <summary>
+    /// The rows of this resultset.  This collection will be incomplete unless all the rows have been read
+    /// either by using the Next method or the Buffer method.
+    /// </summary>
     public IReadOnlyCollection<TableRow> Rows
     {
       get { return Items; }
@@ -54,11 +64,21 @@ namespace MySql.XDevAPI.Results
         nameMap.Add(_columns[i].Name, i);
     }
 
+    /// <summary>
+    /// Allows getting the value of the column value at the current index.
+    /// </summary>
+    /// <param name="index">Column index</param>
+    /// <returns>CLR  value at the column index</returns>
     public object this[int index]
     {
       get { return GetValue(index); }
     }
 
+    /// <summary>
+    /// Allows getting the value of the column value at the current index.
+    /// </summary>
+    /// <param name="index">Column index</param>
+    /// <returns>CLR  value at the column index</returns>
     private object GetValue(int index)
     {
       if (Position == Items.Count)
@@ -66,6 +86,11 @@ namespace MySql.XDevAPI.Results
       return Items[Position][index];
     }
 
+    /// <summary>
+    /// Returns the index of the given column name
+    /// </summary>
+    /// <param name="name">Name of the column to find</param>
+    /// <returns>Numeric index of column</returns>
     public int IndexOf(string name)
     {
       if (!nameMap.ContainsKey(name))

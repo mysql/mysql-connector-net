@@ -40,7 +40,7 @@ namespace MySql.Communication
     public int Length;
   }
 
-  public enum ClientMessageId
+  internal enum ClientMessageId
   {
     CON_CAPABILITIES_GET = 1,
     CON_CAPABILITIES_SET = 2,
@@ -63,7 +63,7 @@ namespace MySql.Communication
   }
 
 
-  public enum ServerMessageId
+  internal enum ServerMessageId
   {
     OK = 0,
     ERROR = 1,

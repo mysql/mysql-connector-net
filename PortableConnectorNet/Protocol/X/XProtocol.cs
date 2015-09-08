@@ -100,7 +100,7 @@ namespace MySql.Protocol
 
     #endregion
 
-    public void SendGetCapabilities()
+    public void GetServerCapabilities()
     {
       _writer.Write(ClientMessageId.CON_CAPABILITIES_GET, CapabilitiesGet.CreateBuilder().Build());
       CommunicationPacket packet = ReadPacket();
@@ -113,10 +113,19 @@ namespace MySql.Protocol
         {
         }
       }
-      //var builder = CapabilitiesSet.CreateBuilder();
-      //builder.Capabilities = cap;
-      //_writer.Write(ClientMessageId.CON_CAPABILITIES_SET, builder.Build());
+    }
 
+    public void SetCapabilities()
+    {
+      //var builder = Capabilities.CreateBuilder();
+      //var cap = Capability.CreateBuilder().SetName("tls").SetValue(ExprUtil.BuildAny("1")).Build();
+      //builder.AddCapabilities_(cap);
+      //_writer.Write(ClientMessageId.CON_CAPABILITIES_SET, builder.Build());
+      //while (true)
+      //{
+      //  CommunicationPacket p = ReadPacket();
+      //  Error e = Error.ParseFrom(p.Buffer);
+      //}
     }
 
     private void ThrowUnexpectedMessage(int received, int expected)

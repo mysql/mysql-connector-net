@@ -26,29 +26,31 @@ using System;
 
 namespace MySql.XDevAPI
 {
+  /// <summary>
+  /// NodeSession
+  /// </summary>
   public class NodeSession : BaseSession
   {
-    public NodeSession(string connectionString)
+    internal NodeSession(string connectionString)
       : base(connectionString)
     {
 
     }
 
-    public NodeSession(object connectionData)
+    internal NodeSession(object connectionData)
       : base(connectionData)
     {
 
     }
 
-    
-    public Result ExecuteSql(string query, bool throwOnFail, params object[] parameters)
+    /// <summary>
+    /// Executes the given SQL
+    /// </summary>
+    /// <param name="query">The SQL query to execute</param>
+    /// <returns>Result</returns>
+    public Result ExecuteSql(string query)
     {
-      return XSession.ExecuteSqlNonQuery(query, throwOnFail, parameters);
-    }
-
-    public void Close()
-    {
-      throw new NotImplementedException();
+      return XSession.ExecuteSqlNonQuery(query, true, null);
     }
   }
 }

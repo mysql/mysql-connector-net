@@ -21,14 +21,9 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
-using MySql.Communication;
-using MySql.Data;
-using MySql.Security;
+using System.Collections.Generic;
 using MySql.XDevAPI;
 using MySql.XDevAPI.Results;
-using System.Collections.Generic;
-using System.Net;
-
 
 namespace MySql.Protocol
 {

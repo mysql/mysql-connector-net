@@ -53,7 +53,6 @@
     <Compile Include="Communication\CommunicationPacket.cs" />
     <Compile Include="Communication\MyNetworkStream.cs" />
     <Compile Include="Communication\XPacketReaderWriter.cs" />
-    <Compile Include="Data\DataReader.cs" />
     <Compile Include="Data\CollationMap.cs" />
     <Compile Include="Data\CharSetMap.cs" />
     <Compile Include="Data\DataType.cs" />
@@ -65,7 +64,6 @@
     <Compile Include="common\MysqlDefs.cs" />
     <Compile Include="common\MySqlException.cs" />
     <Compile Include="common\MySqlTrace.cs" />
-    <Compile Include="Data\Parameter.cs" />
     <None Include="packages.config" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -96,7 +94,6 @@
     <Compile Include="RoutingServices\DefaultRoutingService.cs" />
     <Compile Include="RoutingServices\RoutingServiceBase.cs" />
     <Compile Include="common\StringUtility.cs" />
-    <Compile Include="Communication\UniversalStream.cs" />
     <Compile Include="Properties\VersionInfo.cs" />
     <Compile Include="Serialization\JsonParser.cs" />
     <Compile Include="Session\InternalSession.cs" />
@@ -122,9 +119,7 @@
     <Compile Include="XDevAPI\Statements\ModifyStatement.cs" />
     <Compile Include="XDevAPI\Session.cs" />
     <Compile Include="XDevAPI\Collection.cs" />
-    <Compile Include="XDevAPI\Iterator.cs" />
     <Compile Include="XDevAPI\MySqlX.cs" />
-    <Compile Include="XDevAPI\Nodes.cs" />
     <Compile Include="XDevAPI\NodeSession.cs" />
     <Compile Include="XDevAPI\Schema.cs" />
     <Compile Include="XDevAPI\BaseSession.cs" />
@@ -132,7 +127,6 @@
     <Compile Include="XDevAPI\Statements\SelectStatement.cs" />
     <Compile Include="XDevAPI\Statements\UpdateSpec.cs" />
     <Compile Include="XDevAPI\Table.cs" />
-    <Compile Include="XDevAPI\TopologySingleNode.cs" />
     <Compile Include="XDevAPI\View.cs" />
   </ItemGroup>
   <ItemGroup>
