@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2014 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2015 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -1276,6 +1276,53 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand cmd = new MySqlCommand("select timediff('2 0:1:1.0', '4 1:2:3.123456')", st.conn);
       var result = cmd.ExecuteScalar();
       Assert.Equal(new TimeSpan(new TimeSpan(-2, -1, -1, -2).Ticks - 1234560), result);
+    }
+
+    [Fact]
+    public void CanReadJsonValue()
+    {
+      st.execSQL("DROP TABLE IF EXISTS test");
+      st.execSQL("CREATE TABLE test(Id int NOT NULL PRIMARY KEY, jsoncolumn JSON)");
+    
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES (@id, '[1]')", st.conn);
+      cmd.Parameters.AddWithValue("@id", 1);
+      cmd.ExecuteNonQuery();
+
+      string command = @"INSERT INTO test VALUES (@id, '[""a"", {""b"": [true, false]}, [10, 20]]')";
+      cmd = new MySqlCommand(command, st.conn);
+      cmd.Parameters.AddWithValue("@id", 2);
+      cmd.ExecuteNonQuery();
+
+      cmd = new MySqlCommand("SELECT jsoncolumn from test where id = 2 ", st.conn);
+
+      using (MySqlDataReader reader = cmd.ExecuteReader())
+      {
+        Assert.True(reader.Read());
+        Assert.Equal("[\"a\", {\"b\": [true, false]}, [10, 20]]", reader.GetString(0));
+      }    
+    }
+
+    [Fact]
+    public void CanUpdateJsonValue()
+    {
+      st.execSQL("DROP TABLE IF EXISTS test");
+      st.execSQL("CREATE TABLE test(Id int NOT NULL PRIMARY KEY, jsoncolumn JSON)");
+
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES (@id, '[1]')", st.conn);
+      cmd.Parameters.AddWithValue("@id", 1);
+      cmd.ExecuteNonQuery();
+
+      string command = @"UPDATE test set jsoncolumn = '[""a"", {""b"": [true, false]}, [10, 20]]' where id = 1";
+      cmd = new MySqlCommand(command, st.conn);      
+      cmd.ExecuteNonQuery();
+
+      cmd = new MySqlCommand("SELECT jsoncolumn from test where id = 1 ", st.conn);
+
+      using (MySqlDataReader reader = cmd.ExecuteReader())
+      {
+        Assert.True(reader.Read());
+        Assert.Equal("[\"a\", {\"b\": [true, false]}, [10, 20]]", reader.GetString(0));
+      }
     }
   }
 }
