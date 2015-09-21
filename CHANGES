@@ -1,6 +1,7 @@
 6.8.7
 - Changed handshake process to use bytes instead of encoded strings.
 - Added support for Chinese character set gb18030. (Oracle bug # 21098546).
+- Added support for Json type. (WL # 8132).
 
 
 6.8.6
