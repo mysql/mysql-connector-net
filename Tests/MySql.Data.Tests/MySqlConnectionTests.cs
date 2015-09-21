@@ -1129,6 +1129,8 @@ namespace MySql.Data.MySqlClient.Tests
       [Fact]
       public void OldPasswordNotSupported()
       {
+
+          if (st.Version > new Version(5, 6)) return;
           //get value of flag 'old_passwords'
           MySqlConnectionStringBuilder csb = new MySqlConnectionStringBuilder(st.GetConnectionString(true));
           MySqlConnection con = new MySqlConnection(csb.ToString());

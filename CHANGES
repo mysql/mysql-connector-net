@@ -1,5 +1,6 @@
 6.9.8
 - Added support for Chinese character set gb18030. (Oracle bug # 21098546).
+- Added support for Json type. (WL # 8132).
 
 6.9.7
 - Changed default SSL mode to Preferred in connection string. Now the server connections will be using SSL if server allows it by default but it's possible to override this configuration.
