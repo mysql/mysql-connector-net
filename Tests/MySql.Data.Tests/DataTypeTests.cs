@@ -1281,6 +1281,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void CanReadJsonValue()
     {
+
+      if (st.Version < new Version(5, 7)) return;
+
       st.execSQL("DROP TABLE IF EXISTS test");
       st.execSQL("CREATE TABLE test(Id int NOT NULL PRIMARY KEY, jsoncolumn JSON)");
     
@@ -1305,6 +1308,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void CanUpdateJsonValue()
     {
+      if (st.Version < new Version(5, 7)) return;
+
       st.execSQL("DROP TABLE IF EXISTS test");
       st.execSQL("CREATE TABLE test(Id int NOT NULL PRIMARY KEY, jsoncolumn JSON)");
 
@@ -1323,6 +1328,45 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.True(reader.Read());
         Assert.Equal("[\"a\", {\"b\": [true, false]}, [10, 20]]", reader.GetString(0));
       }
+    }
+
+    /// Testing out Generated Columns
+    /// Using a case sensitive collation on a column
+    /// and an insensitive serch with a generated column
+    /// WL #411 
+    ///
+    [Fact]
+    public void CanUseGeneratedColumns()
+    {
+      if (st.Version < new Version(5, 7)) return;
+
+      st.execSQL("DROP TABLE IF EXISTS test");
+      st.execSQL("CREATE TABLE `Test` (`ID` int NOT NULL AUTO_INCREMENT PRIMARY KEY, `Name` char(35) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL)");
+
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO test (Name) VALUES ('Berlin')", st.conn);
+      cmd.ExecuteNonQuery();
+      cmd = new MySqlCommand("INSERT INTO test (Name) VALUES ('London')", st.conn);
+      cmd.ExecuteNonQuery();
+      cmd = new MySqlCommand("INSERT INTO test (Name) VALUES ('France')", st.conn);
+      cmd.ExecuteNonQuery();
+      cmd = new MySqlCommand("INSERT INTO test (Name) VALUES ('United Kingdom')", st.conn);
+      cmd.ExecuteNonQuery();
+      cmd = new MySqlCommand("INSERT INTO test (Name) VALUES ('Italy')", st.conn);
+      cmd.ExecuteNonQuery();
+
+      cmd = new MySqlCommand("ALTER TABLE test ADD COLUMN Name_ci char(35) CHARACTER SET utf8 AS (Name) STORED;", st.conn);
+      cmd.ExecuteNonQuery();
+
+      cmd = new MySqlCommand("ALTER TABLE test ADD INDEX (Name_ci);", st.conn);
+      cmd.ExecuteNonQuery();
+
+      cmd = new MySqlCommand("SELECT Name FROM test WHERE Name_ci='berlin'", st.conn);
+
+      using (MySqlDataReader reader = cmd.ExecuteReader())
+      {
+        Assert.True(reader.Read());
+        Assert.True(reader.GetString(0).Equals("Berlin", StringComparison.CurrentCulture));
+      }    
     }
   }
 }
