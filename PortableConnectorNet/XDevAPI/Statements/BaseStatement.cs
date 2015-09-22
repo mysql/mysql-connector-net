@@ -42,7 +42,7 @@ namespace MySql.XDevAPI.Statements
     /// <returns>Result object</returns>
     public async Task<TResult> ExecuteAsync()
     {
-      return await Task.Factory.StartNew(Execute,
+      return await Task.Factory.StartNew<TResult>(Execute,
         CancellationToken.None,
         TaskCreationOptions.None,
         CollectionOrTable.Session.scheduler);
