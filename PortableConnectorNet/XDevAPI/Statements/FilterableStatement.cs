@@ -24,6 +24,7 @@ namespace MySql.XDevAPI.Statements
 {
   public abstract class FilterableStatement<T, TOwner, TResult> : BaseStatement<TOwner, TResult>
     where T : FilterableStatement<T, TOwner, TResult>
+    where TOwner : DatabaseObject
   {
     private FilterParams filter = new FilterParams();
 

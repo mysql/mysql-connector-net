@@ -20,43 +20,40 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.XDevAPI.Results;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace MySql.XDevAPI.Statements
+namespace MySql.Session
 {
-  public class InsertStatement : BaseStatement<Table, UpdateResult>
+  internal class QueueTaskScheduler : TaskScheduler
   {
-    internal string[] fields;
-    internal List<object[]> values = new List<object[]>();
-    internal object[] parameters;
+    private readonly object lockObject = new object();
 
-    public InsertStatement(Table table, string[] fields) : base(table)
+    protected override IEnumerable<Task> GetScheduledTasks()
     {
-      this.fields = fields;
+      throw new NotImplementedException();
     }
 
-    public override UpdateResult Execute()
+    protected override void QueueTask(Task task)
     {
-      var result = CollectionOrTable.Session.XSession.InsertRows(this);
-      if(result.Succeeded) values = null;
-      return result;
+      ThreadPool.QueueUserWorkItem(_ =>
+      {
+        lock (lockObject)
+        {
+          System.Threading.Thread.CurrentThread.Name = "mysqlx";
+          base.TryExecuteTask(task);
+        }
+      });
     }
 
-    public InsertStatement Values(params object[] values)
+    protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
     {
-      this.values.Add(values);
-      return this;
+      throw new NotImplementedException();
     }
 
-    internal InsertStatement Bind(params object[] parameters)
-    {
-      this.parameters = parameters;
-      return this;
-    }
   }
 }

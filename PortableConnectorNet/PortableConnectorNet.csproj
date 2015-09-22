@@ -97,6 +97,7 @@
     <Compile Include="Properties\VersionInfo.cs" />
     <Compile Include="Serialization\JsonParser.cs" />
     <Compile Include="Session\InternalSession.cs" />
+    <Compile Include="Session\QueueTaskScheduler.cs" />
     <Compile Include="Session\XInternalSession.cs" />
     <Compile Include="XDevAPI\DatabaseObject.cs" />
     <Compile Include="XDevAPI\GenericCollection.cs" />

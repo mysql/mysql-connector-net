@@ -20,11 +20,12 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MySql.XDevAPI.Statements
 {
-  public abstract class BaseStatement<TOwner, TResult>
+  public abstract class BaseStatement<TOwner, TResult> where TOwner : DatabaseObject
   {
     public BaseStatement(TOwner owner)
     {
@@ -36,16 +37,15 @@ namespace MySql.XDevAPI.Statements
     public abstract TResult Execute();
 
     /// <summary>
-    /// This is an incomplete implementation which will lead to problems.  We need to implement a 
-    /// scheduler that will serialize db operations
+    /// Executes a statement asynchronously 
     /// </summary>
-    /// <returns></returns>
+    /// <returns>Result object</returns>
     public async Task<TResult> ExecuteAsync()
     {
-      return await Task.Run(() =>
-      {
-        return Execute();
-      });
+      return await Task.Factory.StartNew(Execute,
+        CancellationToken.None,
+        TaskCreationOptions.None,
+        CollectionOrTable.Session.scheduler);
     }
   }
 }

@@ -35,6 +35,7 @@ namespace MySql.XDevAPI
     private InternalSession _internalSession;
     private string connectionString;
     private bool disposed = false;
+    internal QueueTaskScheduler scheduler = new QueueTaskScheduler();
 
     /// <summary>
     /// Connection settings for this session

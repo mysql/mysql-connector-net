@@ -31,9 +31,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="TableAsyncTests.cs" />
     <Compile Include="BaseTest.cs" />
     <Compile Include="BasicFindTests.cs" />
     <Compile Include="BasicSelectTests.cs" />
+    <Compile Include="CollectionAsyncTests.cs" />
     <Compile Include="CollectionTests.cs" />
     <Compile Include="CrudInsertTests.cs" />
     <Compile Include="CrudRemoveTests.cs" />

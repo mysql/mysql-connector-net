@@ -26,37 +26,56 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Xunit;
 
-namespace MySql.XDevAPI.Statements
+namespace PortableConnectorNetTests
 {
-  public class InsertStatement : BaseStatement<Table, UpdateResult>
+  public class TableAsyncTests : IClassFixture<TableFixture>
   {
-    internal string[] fields;
-    internal List<object[]> values = new List<object[]>();
-    internal object[] parameters;
+    TableFixture fixture;
 
-    public InsertStatement(Table table, string[] fields) : base(table)
+    public TableAsyncTests(TableFixture fixture)
     {
-      this.fields = fields;
+      this.fixture = fixture;
+
+      fixture.GetNodeSession().ExecuteSql("DELETE FROM " + fixture.TableInsert);
     }
 
-    public override UpdateResult Execute()
+    [Fact]
+    public void MultipleTableInsertAsync()
     {
-      var result = CollectionOrTable.Session.XSession.InsertRows(this);
-      if(result.Succeeded) values = null;
-      return result;
+      var table = fixture.GetTableInsert();
+      List<Task<UpdateResult>> tasksList = new List<Task<UpdateResult>>();
+
+      for (int i = 1; i <= 200; i++)
+      {
+        tasksList.Add(table.Insert().Values(i, i, i%250).ExecuteAsync());
+      }
+
+      Assert.True(Task.WaitAll(tasksList.ToArray(), TimeSpan.FromMinutes(2)), "WaitAll timeout");
+      foreach(Task<UpdateResult> task in tasksList)
+      {
+        Assert.True(task.Result.Succeeded);
+      }
     }
 
-    public InsertStatement Values(params object[] values)
+    [Fact]
+    public void MultipleTableSelectAsync()
     {
-      this.values.Add(values);
-      return this;
-    }
+      var table = fixture.GetTable();
 
-    internal InsertStatement Bind(params object[] parameters)
-    {
-      this.parameters = parameters;
-      return this;
+      List<Task<TableResult>> tasksList = new List<Task<TableResult>>();
+
+      for(int i = 0; i < 20; i++)
+      {
+        tasksList.Add(table.Select().Limit(3, i).ExecuteAsync());
+      }
+
+      Assert.True(Task.WaitAll(tasksList.ToArray(), TimeSpan.FromMinutes(2)), "WaitAll timeout");
+      foreach (Task<TableResult> task in tasksList)
+      {
+        Assert.True(task.Result.Succeeded);
+      }
     }
   }
 }
