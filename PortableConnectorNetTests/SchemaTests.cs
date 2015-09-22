@@ -49,24 +49,22 @@ namespace PortableConnectorNetTests
     [Fact]
     public void GetAllTables()
     {
-      Schema schema = SetupSchema("test");
       Collection coll = CreateCollection("coll");
       ExecuteSQL("CREATE TABLE test.test(id int)");
 
-      List<Table> tables = schema.GetTables();
+      List<Table> tables = testSchema.GetTables();
       Assert.True(tables.Count == 1);
     }
 
     [Fact]
     public void GetAllViews()
     {
-      Schema schema = SetupSchema("test");
       Collection coll = CreateCollection("coll");
 
       ExecuteSQL("CREATE TABLE test.test(id int)");
       ExecuteSQL("CREATE VIEW test.view1 AS select * from test.test");
 
-      List<View> views = schema.GetViews();
+      List<View> views = testSchema.GetViews();
       Assert.True(views.Count == 1);
     }
   }
