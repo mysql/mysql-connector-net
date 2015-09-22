@@ -89,13 +89,23 @@ namespace MySql.Protocol
     public void ReadAuthOk()
     {
       CommunicationPacket p = ReadPacket();
-      if (p.MessageType == (int)ServerMessageId.ERROR)
+      switch ((ServerMessageId)p.MessageType)
       {
-        var error = Error.ParseFrom(p.Buffer);
-        throw new MySqlException("Unable to connect: " + error.Msg);
+        case ServerMessageId.SESS_AUTHENTICATE_OK:
+          break;
+
+        case ServerMessageId.ERROR:
+          var error = Error.ParseFrom(p.Buffer);
+          throw new MySqlException("Unable to connect: " + error.Msg);
+
+        case ServerMessageId.NOTICE:
+          ProcessNotice(p, new Result());
+          ReadAuthOk();
+          break;
+
+        default:
+          throw new MySqlException("Unexpected message encountered during authentication handshake");
       }
-      if (p.MessageType != (int)ServerMessageId.SESS_AUTHENTICATE_OK)
-        throw new MySqlException("Unexpected message encountered during authentication handshake");
     }
 
     #endregion
