@@ -461,7 +461,7 @@ namespace MySql.Protocol
     {
       var builder = Find.CreateBuilder().SetCollection(ExprUtil.BuildCollection(schema, collection));
       builder.SetDataModel(isRelational ? DataModel.TABLE : DataModel.DOCUMENT);
-      if (findParams.Projection != null && findParams.Projection.Length > 0)
+      if (findParams != null && findParams.Projection != null && findParams.Projection.Length > 0)
         builder.AddRangeProjection(new ExprParser(ExprUtil.JoinString(findParams.Projection)).ParseTableSelectProjection());
       ApplyFilter(builder.SetLimit, builder.SetCriteria, builder.AddRangeOrder, filter, builder.AddRangeArgs);
       _writer.Write(ClientMessageId.CRUD_FIND, builder.Build());

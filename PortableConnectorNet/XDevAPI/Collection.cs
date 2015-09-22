@@ -135,7 +135,7 @@ namespace MySql.XDevAPI
       throw new NotImplementedException();
     }
 
-    public FindStatement Find(string condition)
+    public FindStatement Find(string condition = null)
     {
       FindStatement stmt = new FindStatement(this, condition);
       return stmt;
@@ -186,22 +186,7 @@ namespace MySql.XDevAPI
       throw new NotImplementedException();
     }
 
-    public Collection Sort(string columns)
-    {
-      throw new NotImplementedException();
-    }
-
     public Collection Join(Collection collection, string condition)
-    {
-      throw new NotImplementedException();
-    }
-
-    public Collection Find()
-    {
-      throw new NotImplementedException();
-    }
-
-    public async Task<Collection> FindAsync(string p)
     {
       throw new NotImplementedException();
     }

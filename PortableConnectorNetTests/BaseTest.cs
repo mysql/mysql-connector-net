@@ -20,28 +20,31 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.XDevAPI;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MySql.XDevAPI;
+using Xunit;
 
 namespace PortableConnectorNetTests
 {
-  public class BaseTest
+  public class BaseTest : IDisposable
   {
-    private static Session session;
+    protected Session session;
+    protected Schema testSchema;
     private static NodeSession nodeSession;
+    protected static string schemaName;
 
-    protected Schema SetupSchema(string name)
+    static BaseTest()
     {
-      Session s = GetSession();
-      Schema schema = s.GetSchema(name);
-      if (schema.ExistsInDatabase())
-        s.DropSchema(name);
-      schema = s.CreateSchema(name);
-      return schema;
+      schemaName = "test";
+    }
+
+    public BaseTest()
+    {
+      session = GetSession();
+      testSchema = session.GetSchema(schemaName);
+      if (testSchema.ExistsInDatabase())
+        session.DropSchema(schemaName);
+      session.CreateSchema(schemaName);
     }
 
     protected Table GetTable(string schema, string table)
@@ -68,15 +71,23 @@ namespace PortableConnectorNetTests
     public Session GetSession()
     {
       if (session == null)
-        session = MySqlX.GetSession("server=localhost;port=33060;uid=userx;password=userx1");
+        session = MySqlX.GetSession("server=localhost;port=33060;uid=test;password=test");
       return session;
     }
 
     public NodeSession GetNodeSession()
     {
       if (nodeSession == null)
-        nodeSession = MySqlX.GetNodeSession("server=localhost;port=33060;uid=userx;password=userx1");
+        nodeSession = MySqlX.GetNodeSession("server=localhost;port=33060;uid=test;password=test");
       return nodeSession;
+    }
+
+    public void Dispose()
+    {
+      Session s = GetSession();
+      s.DropSchema(schemaName);
+      Schema schema = s.GetSchema(schemaName);
+      Assert.False(schema.ExistsInDatabase());
     }
   }
 }
