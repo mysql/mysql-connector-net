@@ -32,6 +32,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="TableDeleteTests.cs" />
     <Compile Include="TransactionTests.cs" />
     <Compile Include="TableAsyncTests.cs" />
     <Compile Include="BaseTest.cs" />

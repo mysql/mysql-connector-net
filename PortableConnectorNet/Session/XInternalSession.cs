@@ -169,7 +169,15 @@ namespace MySql.Session
 
     public UpdateResult DeleteDocs(RemoveStatement rs)
     {
-      protocol.SendDocDelete(rs.CollectionOrTable.Schema.Name, rs.CollectionOrTable.Name, rs.FilterData);
+      protocol.SendDelete(rs.CollectionOrTable.Schema.Name, rs.CollectionOrTable.Name, false, rs.FilterData);
+      return GetUpdateResult(false);
+    }
+
+    public UpdateResult DeleteRows(DeleteStatement statement)
+    {
+      protocol.SendDelete(statement.CollectionOrTable.Schema.Name,
+        statement.CollectionOrTable.Name, true,
+        statement.FilterData);
       return GetUpdateResult(false);
     }
 

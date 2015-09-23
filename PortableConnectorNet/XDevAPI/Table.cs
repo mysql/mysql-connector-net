@@ -48,9 +48,13 @@ namespace MySql.XDevAPI
       throw new NotImplementedException();
     }
 
-    public void Delete()
+    /// <summary>
+    /// Deletes rows from a Table
+    /// </summary>
+    /// <returns>DeleteStatement object</returns>
+    public DeleteStatement Delete()
     {
-      Session.XSession.DropCollection(Schema.Name, Name);
+      return new DeleteStatement(this, null);
     }
 
     public override bool ExistsInDatabase()

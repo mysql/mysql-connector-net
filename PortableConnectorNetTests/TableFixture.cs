@@ -34,7 +34,7 @@ namespace PortableConnectorNetTests
 
     public TableFixture()
     {
-      Schema = "testx";
+      Schema = BaseTest.schemaName;
       Table = "employees";
       TableInsert = "tableInsert";
 
@@ -70,6 +70,7 @@ namespace PortableConnectorNetTests
         if (disposing)
         {
           // TODO: dispose managed state (managed objects).
+          GetSession().DropSchema(Schema);
         }
 
         // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.

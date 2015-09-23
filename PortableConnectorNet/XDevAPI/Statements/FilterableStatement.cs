@@ -54,12 +54,11 @@ namespace MySql.XDevAPI.Statements
     /// Allows the user to set the limit and offset for the operation
     /// </summary>
     /// <param name="rows">How many items should be returned</param>
-    /// <param name="offset">How many items should be skipped</param>
     /// <returns>The implementing statement type</returns>
-    public T Limit(long rows, long offset = 0)
+    public T Limit(long rows)
     {
       filter.Limit = rows;
-      filter.Offset = offset;
+      filter.Offset = -1;
       return (T)this;
     }
 

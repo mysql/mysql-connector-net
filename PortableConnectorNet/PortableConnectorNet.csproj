@@ -113,6 +113,7 @@
     <Compile Include="XDevAPI\Statements\AddStatement.cs" />
     <Compile Include="XDevAPI\Statements\BaseStatement.cs" />
     <Compile Include="XDevAPI\Statements\CrudStatement.cs" />
+    <Compile Include="XDevAPI\Statements\DeleteStatement.cs" />
     <Compile Include="XDevAPI\Statements\FilterableStatement.cs" />
     <Compile Include="XDevAPI\Statements\FilterParams.cs" />
     <Compile Include="XDevAPI\Statements\FindParams.cs" />

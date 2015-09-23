@@ -436,9 +436,10 @@ namespace MySql.Protocol
     /// <summary>
     /// Sends the delete documents message
     /// </summary>
-    public void SendDocDelete(string schema, string collection, FilterParams filter)
+    public void SendDelete(string schema, string collection, bool isRelational, FilterParams filter)
     {
       var builder = Delete.CreateBuilder();
+      builder.SetDataModel(isRelational ? DataModel.TABLE : DataModel.DOCUMENT);
       builder.SetCollection(ExprUtil.BuildCollection(schema, collection));
       ApplyFilter(builder.SetLimit, builder.SetCriteria, builder.AddRangeOrder, filter, builder.AddRangeArgs);
       var msg = builder.Build();
