@@ -35,5 +35,14 @@ namespace PortableConnectorNetTests
       s.Close();
       Assert.Equal(s.InternalSession.SessionState, SessionState.Closed);
     }
+
+    [Fact]
+    public void NoPassword()
+    {
+      Session session = MySql.XDevAPI.MySqlX.GetSession(ConnectionStringNoPassword);
+      Assert.True(session.InternalSession.SessionState == SessionState.Open);
+      session.Close();
+      Assert.Equal(session.InternalSession.SessionState, SessionState.Closed);
+    }
   }
 }

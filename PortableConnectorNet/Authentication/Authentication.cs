@@ -101,10 +101,14 @@ namespace MySql.Security
 
       byte[] userBytes = encoding.GetBytes(_settings.UserID);
       byte[] databaseBytes = encoding.GetBytes(_settings.Database);
-      byte[] hashedPassword = GetPassword(encoding, _settings.Password, salt);
-
-      //convert to hex value 
-      byte[] hex = encoding.GetBytes(string.Format("*{0}", BitConverter.ToString(hashedPassword).Replace("-", string.Empty)));
+      byte[] hashedPassword = new byte[0];
+      byte[] hex = new byte[0];
+      if (!string.IsNullOrWhiteSpace(_settings.Password))
+      {
+        hashedPassword = GetPassword(encoding, _settings.Password, salt);
+        //convert to hex value 
+        hex = encoding.GetBytes(string.Format("*{0}", BitConverter.ToString(hashedPassword).Replace("-", string.Empty)));
+      }
 
       // create response
       byte[] response = new byte[databaseBytes.Length + userBytes.Length + hex.Length + 2];

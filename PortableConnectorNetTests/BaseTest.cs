@@ -33,9 +33,14 @@ namespace PortableConnectorNetTests
     private static NodeSession nodeSession;
     protected static string schemaName;
 
+    public static string ConnectionString { get; private set; }
+    public static string ConnectionStringNoPassword { get; private set; }
+
     static BaseTest()
     {
       schemaName = "test";
+      ConnectionString = "server=localhost;port=33060;uid=test;password=test";
+      ConnectionStringNoPassword = "server=localhost;port=33060;uid=testNoPass;";
     }
 
     public BaseTest()
@@ -71,14 +76,14 @@ namespace PortableConnectorNetTests
     public XSession GetSession()
     {
       if (session == null)
-        session = MySqlX.GetSession("server=localhost;port=33060;uid=test;password=test");
+        session = MySqlX.GetSession(ConnectionString);
       return session;
     }
 
     public NodeSession GetNodeSession()
     {
       if (nodeSession == null)
-        nodeSession = MySqlX.GetNodeSession("server=localhost;port=33060;uid=test;password=test");
+        nodeSession = MySqlX.GetNodeSession(ConnectionString);
       return nodeSession;
     }
 
