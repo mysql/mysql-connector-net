@@ -21,6 +21,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.XDevAPI;
+using MySql.XDevAPI.Results;
 using System;
 using System.Collections.Generic;
 using Xunit;
@@ -32,7 +33,7 @@ namespace PortableConnectorNetTests
     [Fact]
     public void GetSchemas()
     {
-      Session session = GetSession();
+      XSession session = GetSession();
       List<Schema> schemas = session.GetSchemas();
 
       Assert.Equal(5, schemas.Count);
@@ -41,7 +42,7 @@ namespace PortableConnectorNetTests
     [Fact]
     public void GetInvalidSchema()
     {
-      Session s = GetSession();
+      XSession s = GetSession();
       Schema schema = s.GetSchema("test-schema");
       Assert.False(schema.ExistsInDatabase());
     }
@@ -66,6 +67,22 @@ namespace PortableConnectorNetTests
 
       List<View> views = testSchema.GetViews();
       Assert.True(views.Count == 1);
+    }
+
+    [Fact]
+    public void GetCollectionAsTable()
+    {
+      Collection testCollection = CreateCollection("test");
+
+      UpdateResult r = testCollection.Add(@"{ ""_id"": 1, ""foo"": 1 }").Execute();
+      Assert.Equal<ulong>(1, r.RecordsAffected);
+
+      Table test = testSchema.GetCollectionAsTable("test");
+      Assert.True(test.ExistsInDatabase());
+
+      TableResult result = test.Select().Execute();
+      Assert.True(result.Next());
+      Assert.Equal(1, result[0]);
     }
   }
 }

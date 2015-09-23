@@ -96,6 +96,16 @@ namespace MySql.XDevAPI
     }
 
     /// <summary>
+    /// Returns the given collection as a table
+    /// </summary>
+    /// <param name="name">Name of the collection</param>
+    /// <returns>Table object</returns>
+    public Table GetCollectionAsTable(string name)
+    {
+      return GetTable(name);
+    }
+
+    /// <summary>
     /// Gets a table object.  Upon return the object may or may not be valid.
     /// </summary>
     /// <param name="name">Name of the table object</param>
