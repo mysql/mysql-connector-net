@@ -31,9 +31,9 @@ namespace MySql.XDevAPI
     /// </summary>
     /// <param name="connectionSting">Connection data for the server</param>
     /// <returns>Session</returns>
-    public static Session GetSession(string connectionSting)
+    public static XSession GetSession(string connectionSting)
     {
-      return new Session(connectionSting);
+      return new XSession(connectionSting);
     }
 
     /// <summary>
@@ -41,9 +41,9 @@ namespace MySql.XDevAPI
     /// </summary>
     /// <param name="connectionData">Connection data for the server</param>
     /// <returns>Session</returns>
-    public static Session GetSession(object connectionData)
+    public static XSession GetSession(object connectionData)
     {
-      return new Session(connectionData);
+      return new XSession(connectionData);
     }
 
     /// <summary>

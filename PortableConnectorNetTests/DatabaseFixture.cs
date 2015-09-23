@@ -39,7 +39,7 @@ namespace PortableConnectorNetTests
       return connectionString;
     }
 
-    public Session GetSession()
+    public XSession GetSession()
     {
       return MySqlX.GetSession(connectionString);
     }

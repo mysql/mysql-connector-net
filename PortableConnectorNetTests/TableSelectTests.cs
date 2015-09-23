@@ -65,7 +65,7 @@ namespace PortableConnectorNetTests
     [Fact]
     public void TableSelect()
     {
-      Session s = fixture.GetSession();
+      XSession s = fixture.GetSession();
       Schema db = s.GetSchema(fixture.Schema);
       var table = db.GetTable(fixture.Table);
 

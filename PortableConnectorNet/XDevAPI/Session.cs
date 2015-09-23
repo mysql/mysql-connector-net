@@ -23,15 +23,15 @@
 
 namespace MySql.XDevAPI
 {
-  public class Session : BaseSession
+  public class XSession : BaseSession
   {
-    public Session(string connectionString)
+    public XSession(string connectionString)
       : base(connectionString)
     {
 
     }
 
-    public Session(object connectionData)
+    public XSession(object connectionData)
       : base(connectionData)
     {
 

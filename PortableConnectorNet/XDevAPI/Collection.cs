@@ -141,30 +141,6 @@ namespace MySql.XDevAPI
       return stmt;
     }
 
-    public Collection Execute()
-    {
-      throw new NotImplementedException();
-    }
-
-    public Collection One()
-    {
-      throw new NotImplementedException();
-    }
-
-    public Collection Limit(int limit)
-    {
-      throw new NotImplementedException();
-    }
-
-    public object First()
-    {
-      throw new NotImplementedException();
-    }
-
-    public object Next()
-    {
-      throw new NotImplementedException();
-    }
 
     public Collection As(string alias)
     {

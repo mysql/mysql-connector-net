@@ -41,7 +41,7 @@ namespace PortableConnectorNetTests
     [Fact]
     public void CreateAndDeleteCollection()
     {
-      Session s = GetSession();
+      XSession s = GetSession();
       Schema test = s.GetSchema("test");
       Collection testColl = test.CreateCollection("test");
       Assert.True(testColl.ExistsInDatabase());

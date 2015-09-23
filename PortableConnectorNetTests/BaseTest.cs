@@ -28,7 +28,7 @@ namespace PortableConnectorNetTests
 {
   public class BaseTest : IDisposable
   {
-    protected Session session;
+    protected XSession session;
     protected Schema testSchema;
     private static NodeSession nodeSession;
     protected static string schemaName;
@@ -60,7 +60,7 @@ namespace PortableConnectorNetTests
 
     protected Collection CreateCollection(string name)
     {
-      Session s = GetSession();
+      XSession s = GetSession();
       Schema test = s.GetSchema("test");
       Collection c = test.GetCollection(name);
       if (c.ExistsInDatabase())
@@ -68,7 +68,7 @@ namespace PortableConnectorNetTests
       return test.CreateCollection(name);
     }
 
-    public Session GetSession()
+    public XSession GetSession()
     {
       if (session == null)
         session = MySqlX.GetSession("server=localhost;port=33060;uid=test;password=test");
@@ -84,7 +84,7 @@ namespace PortableConnectorNetTests
 
     public void Dispose()
     {
-      Session s = GetSession();
+      XSession s = GetSession();
       s.DropSchema(schemaName);
       Schema schema = s.GetSchema(schemaName);
       Assert.False(schema.ExistsInDatabase());

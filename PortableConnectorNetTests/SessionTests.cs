@@ -30,7 +30,7 @@ namespace PortableConnectorNetTests
     [Fact]
     public void CanCloseSession()
     {
-      Session s = GetSession();
+      XSession s = GetSession();
       Assert.True(s.InternalSession.SessionState == SessionState.Open);
       s.Close();
       Assert.Equal(s.InternalSession.SessionState, SessionState.Closed);
