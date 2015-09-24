@@ -26,7 +26,8 @@ using MySql.XDevAPI.Common;
 
 namespace MySql.XDevAPI.CRUD
 {
-  public abstract class CrudStatement<TResult> : BaseStatement<Collection, TResult>
+  public abstract class CrudStatement<TResult> : TargetedBaseStatement<Collection, TResult>
+    where TResult : Result
   {
     public CrudStatement(Collection collection) : base(collection)
     {

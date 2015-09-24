@@ -56,7 +56,7 @@ namespace MySql.XDevAPI.CRUD
 
     public override UpdateResult Execute()
     {
-      return CollectionOrTable.Session.XSession.ModifyDocs(this);
+      return Target.Session.XSession.ModifyDocs(this);
     }
   }
 }

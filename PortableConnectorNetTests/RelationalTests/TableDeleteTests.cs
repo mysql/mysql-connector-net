@@ -33,7 +33,7 @@ namespace PortableConnectorNetTests
     {
       this.fixture = fixture;
 
-      Assert.True(fixture.GetNodeSession().ExecuteSql("DELETE FROM " + fixture.TableInsert).Succeeded);
+      Assert.True(fixture.GetNodeSession().SQL("DELETE FROM " + fixture.TableInsert).Execute().Succeeded);
 
       //inserts data
       var tableInsert = fixture.GetTableInsert();

@@ -32,9 +32,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="TableDeleteTests.cs" />
+    <Compile Include="RelationalTests\SqlTests.cs" />
+    <Compile Include="RelationalTests\TableAsyncTests.cs" />
+    <Compile Include="RelationalTests\TableDeleteTests.cs" />
+    <Compile Include="RelationalTests\TableFixture.cs" />
+    <Compile Include="RelationalTests\TableInsertTests.cs" />
+    <Compile Include="RelationalTests\TableSelectTests.cs" />
     <Compile Include="TransactionTests.cs" />
-    <Compile Include="TableAsyncTests.cs" />
     <Compile Include="BaseTest.cs" />
     <Compile Include="BasicFindTests.cs" />
     <Compile Include="BasicSelectTests.cs" />
@@ -53,10 +57,7 @@
     </Compile>
     <Compile Include="SchemaTests.cs" />
     <Compile Include="SessionTests.cs" />
-    <Compile Include="TableInsertTests.cs" />
-    <Compile Include="TableSelectTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TableFixture.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PortableConnectorNet\PortableConnectorNet.csproj">

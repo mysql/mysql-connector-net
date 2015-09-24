@@ -169,41 +169,41 @@ namespace MySql.Session
 
     public UpdateResult DeleteDocs(RemoveStatement rs)
     {
-      protocol.SendDelete(rs.CollectionOrTable.Schema.Name, rs.CollectionOrTable.Name, false, rs.FilterData);
+      protocol.SendDelete(rs.Target.Schema.Name, rs.Target.Name, false, rs.FilterData);
       return GetUpdateResult(false);
     }
 
     public UpdateResult DeleteRows(TableDeleteStatement statement)
     {
-      protocol.SendDelete(statement.CollectionOrTable.Schema.Name,
-        statement.CollectionOrTable.Name, true,
+      protocol.SendDelete(statement.Target.Schema.Name,
+        statement.Target.Name, true,
         statement.FilterData);
       return GetUpdateResult(false);
     }
 
     public UpdateResult ModifyDocs(ModifyStatement ms)
     {
-      protocol.SendDocModify(ms.CollectionOrTable.Schema.Name, ms.CollectionOrTable.Name, ms.FilterData, ms.Updates);
+      protocol.SendDocModify(ms.Target.Schema.Name, ms.Target.Name, ms.FilterData, ms.Updates);
       return GetUpdateResult(false);
     }
 
     public DocumentResult FindDocs(FindStatement fs)
     {
-      protocol.SendFind(fs.CollectionOrTable.Schema.Name, fs.CollectionOrTable.Name, false, fs.FilterData, null);
+      protocol.SendFind(fs.Target.Schema.Name, fs.Target.Name, false, fs.FilterData, null);
       DocumentResult result = new DocumentResult(protocol);
       return result;
     }
 
     public TableResult FindRows(TableSelectStatement ss)
     {
-      protocol.SendFind(ss.CollectionOrTable.Schema.Name, ss.CollectionOrTable.Name, true, ss.FilterData, ss.findParams);
+      protocol.SendFind(ss.Target.Schema.Name, ss.Target.Name, true, ss.FilterData, ss.findParams);
       TableResult result = new TableResult(protocol);
       return result;
     }
 
     public UpdateResult InsertRows(TableInsertStatement statement)
     {
-      protocol.SendInsert(statement.CollectionOrTable.Schema.Name, true, statement.CollectionOrTable.Name, statement.values.ToArray(), statement.fields);
+      protocol.SendInsert(statement.Target.Schema.Name, true, statement.Target.Name, statement.values.ToArray(), statement.fields);
       return GetUpdateResult(false);
     }
 

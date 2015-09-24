@@ -51,7 +51,7 @@ namespace MySql.XDevAPI.Relational
 
     public override TableResult Execute()
     {
-      return CollectionOrTable.Session.XSession.FindRows(this);
+      return Target.Session.XSession.FindRows(this);
     }
 
     public TableSelectStatement Bind(Dictionary<string, object> namedParameters)

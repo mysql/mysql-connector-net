@@ -20,37 +20,22 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-
-using MySql.XDevAPI.Common;
 using MySql.XDevAPI.Relational;
+using Xunit;
 
-namespace MySql.XDevAPI
+namespace PortableConnectorNetTests.RelationalTests
 {
-  /// <summary>
-  /// NodeSession
-  /// </summary>
-  public class NodeSession : BaseSession
+  public class SqlTests : BaseTest
   {
-    internal NodeSession(string connectionString)
-      : base(connectionString)
+    [Fact]
+    public void ReturnSimpleScalar()
     {
-
-    }
-
-    internal NodeSession(object connectionData)
-      : base(connectionData)
-    {
-
-    }
-
-    /// <summary>
-    /// Returns a SqlStatement object that can be used to execute the given SQL
-    /// </summary>
-    /// <param name="sql">The SQL to execute</param>
-    /// <returns>SqlStatement object</returns>
-    public SqlStatement SQL(string sql)
-    {
-      return new SqlStatement(this, sql);
+      ExecuteSQL("CREATE TABLE test.test(id INT)");
+      ExecuteSQL("INSERT INTO test.test VALUES (1)");
+      TableResult r = GetNodeSession().SQL("SELECT * FROM test.test").Execute();
+      Assert.True(r.Next());
+      Assert.True(r.Succeeded);
+      Assert.Equal(1, r[0]);
     }
   }
 }

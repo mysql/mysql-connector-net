@@ -22,13 +22,14 @@
 
 namespace MySql.XDevAPI.Common
 {
-  public abstract class FilterableStatement<T, TOwner, TResult> : BaseStatement<TOwner, TResult>
-    where T : FilterableStatement<T, TOwner, TResult>
-    where TOwner : DatabaseObject
+  public abstract class FilterableStatement<T, TTarget, TResult> : TargetedBaseStatement<TTarget, TResult>
+    where T : FilterableStatement<T, TTarget, TResult>
+    where TTarget : DatabaseObject
+    where TResult : Result
   {
     private FilterParams filter = new FilterParams();
 
-    public FilterableStatement(TOwner owner, string condition = null) : base(owner)
+    public FilterableStatement(TTarget target, string condition = null) : base(target)
     {
       if (condition != null)
         Where(condition);

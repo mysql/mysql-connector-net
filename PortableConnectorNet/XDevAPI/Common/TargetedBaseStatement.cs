@@ -20,37 +20,17 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-
-using MySql.XDevAPI.Common;
-using MySql.XDevAPI.Relational;
-
-namespace MySql.XDevAPI
+namespace MySql.XDevAPI.Common
 {
-  /// <summary>
-  /// NodeSession
-  /// </summary>
-  public class NodeSession : BaseSession
+  public abstract class TargetedBaseStatement<TTarget, TResult> : BaseStatement<TResult>
+    where TTarget : DatabaseObject
+    where TResult : Result
   {
-    internal NodeSession(string connectionString)
-      : base(connectionString)
+    public TargetedBaseStatement(TTarget target) : base(target.Schema.Session)
     {
-
+      Target = target;
     }
 
-    internal NodeSession(object connectionData)
-      : base(connectionData)
-    {
-
-    }
-
-    /// <summary>
-    /// Returns a SqlStatement object that can be used to execute the given SQL
-    /// </summary>
-    /// <param name="sql">The SQL to execute</param>
-    /// <returns>SqlStatement object</returns>
-    public SqlStatement SQL(string sql)
-    {
-      return new SqlStatement(this, sql);
-    }
+    public TTarget Target { get; private set; }
   }
 }

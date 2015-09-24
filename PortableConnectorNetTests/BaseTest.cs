@@ -58,10 +58,12 @@ namespace PortableConnectorNetTests
       return GetSession().GetSchema(schema).GetTable(table);
     }
 
-    protected void ExecuteSQL(string sql)
+    protected TableResult ExecuteSQL(string sql)
     {
       NodeSession nodeSession = GetNodeSession();
-      nodeSession.ExecuteSql(sql);
+      TableResult r = nodeSession.SQL(sql).Execute();
+      r.Buffer();
+      return r;
     }
 
     protected Collection CreateCollection(string name)

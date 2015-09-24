@@ -104,6 +104,7 @@
     <Compile Include="XDevAPI\Common\FilterableStatement.cs" />
     <Compile Include="XDevAPI\Common\FilterParams.cs" />
     <Compile Include="XDevAPI\Common\Result.cs" />
+    <Compile Include="XDevAPI\Common\TargetedBaseStatement.cs" />
     <Compile Include="XDevAPI\Common\UpdateResult.cs" />
     <Compile Include="XDevAPI\CRUD\AddStatement.cs" />
     <Compile Include="XDevAPI\CRUD\CrudStatement.cs" />
@@ -117,6 +118,7 @@
     <Compile Include="XDevAPI\GenericCollection.cs" />
     <Compile Include="XDevAPI\JsonDoc.cs" />
     <Compile Include="XDevAPI\Relational\ResultCollection.cs" />
+    <Compile Include="XDevAPI\Relational\SqlStatement.cs" />
     <Compile Include="XDevAPI\Relational\Table.cs" />
     <Compile Include="XDevAPI\Relational\TableColumn.cs" />
     <Compile Include="XDevAPI\Relational\TableDeleteStatement.cs" />

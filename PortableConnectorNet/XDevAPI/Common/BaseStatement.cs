@@ -25,14 +25,14 @@ using System.Threading.Tasks;
 
 namespace MySql.XDevAPI.Common
 {
-  public abstract class BaseStatement<TOwner, TResult> where TOwner : DatabaseObject
+  public abstract class BaseStatement<TResult> where TResult : Result
   {
-    public BaseStatement(TOwner owner)
+    public BaseStatement(BaseSession session)
     {
-      CollectionOrTable = owner;
+      Session = session;
     }
 
-    public TOwner CollectionOrTable { get; private set; }
+    public BaseSession Session { get; private set;  }
 
     public abstract TResult Execute();
 
@@ -45,7 +45,7 @@ namespace MySql.XDevAPI.Common
       return await Task.Factory.StartNew<TResult>(Execute,
         CancellationToken.None,
         TaskCreationOptions.None,
-        CollectionOrTable.Session.scheduler);
+        Session.scheduler);
     }
   }
 }

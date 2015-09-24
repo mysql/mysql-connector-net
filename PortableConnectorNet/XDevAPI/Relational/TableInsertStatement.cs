@@ -26,7 +26,7 @@ using MySql.XDevAPI.Common;
 
 namespace MySql.XDevAPI.Relational
 {
-  public class TableInsertStatement : BaseStatement<Table, UpdateResult>
+  public class TableInsertStatement : TargetedBaseStatement<Table, UpdateResult>
   {
     internal string[] fields;
     internal List<object[]> values = new List<object[]>();
@@ -39,7 +39,7 @@ namespace MySql.XDevAPI.Relational
 
     public override UpdateResult Execute()
     {
-      var result = CollectionOrTable.Session.XSession.InsertRows(this);
+      var result = Target.Session.XSession.InsertRows(this);
       if(result.Succeeded) values = null;
       return result;
     }

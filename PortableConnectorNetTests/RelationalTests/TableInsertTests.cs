@@ -16,7 +16,7 @@ namespace PortableConnectorNetTests
     {
       this.fixture = fixture;
 
-      fixture.GetNodeSession().ExecuteSql("DELETE FROM " + fixture.TableInsert);
+      fixture.GetNodeSession().SQL("DELETE FROM " + fixture.TableInsert).Execute();
     }
 
     [Fact]
