@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace PortableConnectorNetTests
+namespace PortableConnectorNetTests.RelationalTests
 {
   public class TableInsertTests : IClassFixture<TableFixture>
   {

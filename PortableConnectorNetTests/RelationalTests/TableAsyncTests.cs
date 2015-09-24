@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace PortableConnectorNetTests
+namespace PortableConnectorNetTests.RelationalTests
 {
   public class TableAsyncTests : IClassFixture<TableFixture>
   {

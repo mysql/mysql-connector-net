@@ -23,7 +23,7 @@
 using MySql.XDevAPI.Relational;
 using Xunit;
 
-namespace PortableConnectorNetTests
+namespace PortableConnectorNetTests.RelationalTests
 {
   public class TableDeleteTests : IClassFixture<TableFixture>
   {

@@ -25,7 +25,7 @@ using MySql.XDevAPI.Relational;
 using System;
 using Xunit;
 
-namespace PortableConnectorNetTests
+namespace PortableConnectorNetTests.RelationalTests
 {
   public class TableFixture : BaseTest, IDisposable
   {
