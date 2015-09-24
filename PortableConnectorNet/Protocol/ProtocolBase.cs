@@ -23,7 +23,8 @@
 
 using System.Collections.Generic;
 using MySql.XDevAPI;
-using MySql.XDevAPI.Results;
+using MySql.XDevAPI.Common;
+using MySql.XDevAPI.Relational;
 
 namespace MySql.Protocol
 {

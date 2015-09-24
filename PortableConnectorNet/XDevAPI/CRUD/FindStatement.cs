@@ -20,47 +20,35 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.XDevAPI.Results;
 using System.Collections.Generic;
-using System;
+using MySql.XDevAPI.Common;
 
-namespace MySql.XDevAPI.Statements
+namespace MySql.XDevAPI.CRUD
 {
-  public class SelectStatement : FilterableStatement<SelectStatement, Table, TableResult>
+  public class FindStatement : FilterableStatement<FindStatement, Collection, DocumentResult>
   {
-    internal FindParams findParams = new FindParams();
+    internal List<string> projection;
+    internal string[] orderBy;
 
-    public SelectStatement(Table t, params string[] projection) : base(t)
+
+    public FindStatement(Collection c, string condition) : base (c, condition)
     {
-      findParams.Projection = projection;
-      FilterData.IsRelational = true;
     }
 
-    public SelectStatement GroupBy(params string[] groupBy)
+
+    public FindStatement Select(params string[] columns)
     {
-      findParams.GroupBy = groupBy;
+      projection = new List<string>(columns);
       return this;
     }
 
-
-    public SelectStatement Having(string having)
-    {
-      findParams.GroupByCritieria = having;
-      return this;
-    }
-
-    public override TableResult Execute()
-    {
-      return CollectionOrTable.Session.XSession.FindRows(this);
-    }
-
-    public SelectStatement Bind(Dictionary<string, object> namedParameters)
+    public FindStatement Bind(Dictionary<string, object> namedParameters)
     {
       this.FilterData.Parameters = namedParameters;
       return this;
     }
 
-    public SelectStatement Bind(params object[] values)
+    public FindStatement Bind(params object[] values)
     {
       this.FilterData.Parameters = new Dictionary<string, object>();
       int i = 0;
@@ -71,13 +59,18 @@ namespace MySql.XDevAPI.Statements
       return this;
     }
 
+    public override DocumentResult Execute()
+    {
+      return CollectionOrTable.Session.XSession.FindDocs(this);
+    }
+
     /// <summary>
     /// Allows the user to set the limit and offset for the operation
     /// </summary>
     /// <param name="rows">How many items should be returned</param>
     /// <param name="offset">How many items should be skipped</param>
     /// <returns>The implementing statement type</returns>
-    public SelectStatement Limit(long rows, long offset)
+    public FindStatement Limit(long rows, long offset)
     {
       FilterData.Limit = rows;
       FilterData.Offset = offset;

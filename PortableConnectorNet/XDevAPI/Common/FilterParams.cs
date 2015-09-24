@@ -1,14 +1,10 @@
 ﻿using MySql.Protocol.X;
 using Mysqlx.Crud;
 using Mysqlx.Expr;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Mysqlx.Datatypes;
 
-namespace MySql.XDevAPI.Statements
+namespace MySql.XDevAPI.Common
 {
   internal class FilterParams
   {

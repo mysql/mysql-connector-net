@@ -20,36 +20,64 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Protocol;
+using System;
+using System.Collections.Generic;
 
-using MySql.XDevAPI.Common;
-
-namespace MySql.XDevAPI
+namespace MySql.XDevAPI.Common
 {
-  /// <summary>
-  /// NodeSession
-  /// </summary>
-  public class NodeSession : BaseSession
+  public class Result
   {
-    internal NodeSession(string connectionString)
-      : base(connectionString)
-    {
+    private List<Warning> _warnings = new List<Warning>();
 
+    internal Result()
+    {
     }
 
-    internal NodeSession(object connectionData)
-      : base(connectionData)
+    internal void AddWarning(Warning w)
     {
+      _warnings.Add(w);
+    }
 
+    public IReadOnlyList<Warning> Warnings
+    {
+      get { return _warnings;  }
+    }
+
+
+    public Error ErrorInfo;
+
+    public bool Failed
+    {
+      get { return ErrorInfo != null;  }
+    }
+
+    public bool Succeeded
+    {
+      get { return !Failed;  }
     }
 
     /// <summary>
-    /// Executes the given SQL
+    /// Class to represent an error in this result
     /// </summary>
-    /// <param name="query">The SQL query to execute</param>
-    /// <returns>Result</returns>
-    public Result ExecuteSql(string query)
+    public class Error
     {
-      return XSession.ExecuteSqlNonQuery(query, true, null);
+      public UInt32 Code;
+      public string SqlState;
+      public string Message;
+    }
+
+    public class Warning
+    {
+      public uint Code;
+      public string Message;
+      public uint Level;
+
+      public Warning(uint code, string msg)
+      {
+        Code = code;
+        Message = msg;
+      }
     }
   }
 }

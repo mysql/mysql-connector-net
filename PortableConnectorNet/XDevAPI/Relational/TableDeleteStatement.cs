@@ -20,33 +20,21 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System.Collections.Generic;
-using System.Diagnostics;
-using MySql.Protocol;
 
-namespace MySql.XDevAPI.Results
+using MySql.XDevAPI.Common;
+
+namespace MySql.XDevAPI.Relational
 {
-  /// <summary>
-  /// Represents the result of an operation the includes a collection of documents
-  /// </summary>
-  public class DocumentResult : BufferingResult<JsonDoc>
+  public class TableDeleteStatement : FilterableStatement<TableDeleteStatement, Table, UpdateResult>
   {
-    System.Text.Encoding _encoding = System.Text.Encoding.UTF8;
-
-    internal DocumentResult(ProtocolBase protocol) : base(protocol, true)
+    public TableDeleteStatement(Table table, string condition) : base(table, condition)
     {
-      // this is just a single column "doc"
-      List<TableColumn>_columns = _protocol.LoadColumnMetadata();
-      Debug.Assert(_columns.Count == 1);
+      FilterData.IsRelational = true;
     }
 
-    protected override JsonDoc ReadItem(bool dumping)
+    public override UpdateResult Execute()
     {
-      List<byte[]> values = _protocol.ReadRow(_autoClose ? this : null);
-      if (values == null) return null;
-
-      Debug.Assert(values.Count == 1);
-      return new JsonDoc(_encoding.GetString(values[0]));
+      return CollectionOrTable.Session.XSession.DeleteRows(this);
     }
   }
 }

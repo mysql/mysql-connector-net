@@ -26,7 +26,7 @@ using System.Linq;
 using MySQL.Common;
 using MySql.Data;
 using MySql.Session;
-using MySql.XDevAPI.Results;
+using MySql.XDevAPI.Relational;
 
 namespace MySql.XDevAPI
 {

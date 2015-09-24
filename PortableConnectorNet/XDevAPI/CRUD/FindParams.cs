@@ -20,43 +20,14 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System.Collections.Generic;
-using Mysqlx.Crud;
-using MySql.XDevAPI.Results;
+using MySql.XDevAPI.Common;
 
-namespace MySql.XDevAPI.Statements
+namespace MySql.XDevAPI.CRUD
 {
-  public class ModifyStatement : FilterableStatement<ModifyStatement, Collection, UpdateResult>
+  internal class FindParams : FilterParams
   {
-    public ModifyStatement(Collection collection, string condition) : base(collection, condition)
-    {
-      Updates = new List<UpdateSpec>();
-    }
-
-    internal List<UpdateSpec> Updates;
-
-    public ModifyStatement Set(string docPath, object value)
-    {
-      Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ITEM_SET, docPath).SetValue(value));
-      return this;
-    }
-
-    public ModifyStatement Change(string docPath, object value)
-    {
-      Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ITEM_REPLACE, docPath).SetValue(value));
-      return this;
-    }
-
-    public ModifyStatement Unset(string docPath)
-    {
-      Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ITEM_REMOVE, docPath));
-      return this;
-    }
-
-
-    public override UpdateResult Execute()
-    {
-      return CollectionOrTable.Session.XSession.ModifyDocs(this);
-    }
+    public string[] GroupBy;
+    public string GroupByCritieria;
+    public string[] Projection;
   }
 }

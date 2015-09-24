@@ -23,12 +23,12 @@
 using System;
 using System.IO;
 using MySql.Data;
-using MySql.RoutingServices;
 using MySql.Security;
+using System.Diagnostics;
 using MySql.Protocol;
 using MySql.XDevAPI;
-using MySql.XDevAPI.Results;
-using System.Diagnostics;
+using MySql.XDevAPI.Common;
+using MySql.XDevAPI.Relational;
 
 namespace MySql.Session
 {

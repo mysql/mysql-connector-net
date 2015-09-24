@@ -20,36 +20,35 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-
+using System.Collections.Generic;
+using System.Diagnostics;
+using MySql.Protocol;
 using MySql.XDevAPI.Common;
+using MySql.XDevAPI.Relational;
 
-namespace MySql.XDevAPI
+namespace MySql.XDevAPI.CRUD
 {
   /// <summary>
-  /// NodeSession
+  /// Represents the result of an operation the includes a collection of documents
   /// </summary>
-  public class NodeSession : BaseSession
+  public class DocumentResult : BufferingResult<JsonDoc>
   {
-    internal NodeSession(string connectionString)
-      : base(connectionString)
-    {
+    System.Text.Encoding _encoding = System.Text.Encoding.UTF8;
 
+    internal DocumentResult(ProtocolBase protocol) : base(protocol, true)
+    {
+      // this is just a single column "doc"
+      List<TableColumn>_columns = _protocol.LoadColumnMetadata();
+      Debug.Assert(_columns.Count == 1);
     }
 
-    internal NodeSession(object connectionData)
-      : base(connectionData)
+    protected override JsonDoc ReadItem(bool dumping)
     {
+      List<byte[]> values = _protocol.ReadRow(_autoClose ? this : null);
+      if (values == null) return null;
 
-    }
-
-    /// <summary>
-    /// Executes the given SQL
-    /// </summary>
-    /// <param name="query">The SQL query to execute</param>
-    /// <returns>Result</returns>
-    public Result ExecuteSql(string query)
-    {
-      return XSession.ExecuteSqlNonQuery(query, true, null);
+      Debug.Assert(values.Count == 1);
+      return new JsonDoc(_encoding.GetString(values[0]));
     }
   }
 }

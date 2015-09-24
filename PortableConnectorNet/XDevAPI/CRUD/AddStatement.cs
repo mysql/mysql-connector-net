@@ -21,39 +21,32 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System.Collections.Generic;
-using MySql.Protocol;
+using MySql.XDevAPI.Common;
 
-namespace MySql.XDevAPI.Results
+namespace MySql.XDevAPI.CRUD
 {
-  public class ResultCollection
+  public class AddStatement : CrudStatement<UpdateResult>
   {
-    ProtocolBase _protocol;
-    int _position = -1;
-    List<Result> _results = new List<Result>();
-    Result _activeResult;
+    private List<JsonDoc> _jsonDocs = new List<JsonDoc>();
 
-    public IEnumerable<Result> Result
+    internal AddStatement(Collection collection) : base(collection)
     {
-      get { return _results; }
     }
 
-    public Result Next()
+    public void Add(params object[] items)
     {
-      // if we are loading a table result we need to dump it
-      if (_activeResult != null && _activeResult is TableResult)
-        (_activeResult as TableResult).Dump();
-
-      // move to the next result
-      _position++;
-      if (_position == _results.Count)
-      {
-        Result rs = _protocol.GetNextResult();
-        if (rs == null) return null;
-
-        _results.Add(rs);
-      }
-      _activeResult = _results[_position];
-      return _activeResult;
+      _jsonDocs.AddRange(GetDocs(items, true));
     }
+
+    public void Add(params string[] items)
+    {
+      _jsonDocs.AddRange(GetDocs(items, true));
+    }
+
+    public override UpdateResult Execute()
+    {
+      return CollectionOrTable.Session.XSession.Insert(CollectionOrTable, _jsonDocs.ToArray());
+    }
+
   }
 }

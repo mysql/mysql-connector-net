@@ -21,8 +21,8 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.XDevAPI;
-using MySql.XDevAPI.Results;
-using System;
+using MySql.XDevAPI.Common;
+using MySql.XDevAPI.Relational;
 using System.Collections.Generic;
 using Xunit;
 

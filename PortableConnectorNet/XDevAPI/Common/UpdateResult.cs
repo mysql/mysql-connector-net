@@ -22,24 +22,21 @@
 
 using System;
 
-namespace MySql.XDevAPI
+namespace MySql.XDevAPI.Common
 {
-  public class View : DatabaseObject
+  /// <summary>
+  /// A result object for non-fetch operations.
+  /// </summary>
+  public class UpdateResult : Result
   {
-    internal View(Schema schema, string name)
-      : base(schema, name)
-    {
+    /// <summary>
+    /// The number of records affected by the statement that generated this result.
+    /// </summary>
+    public UInt64 RecordsAffected { get; internal set; }
 
-    }
-
-    public void Delete()
-    {
-      Session.XSession.DropCollection(Schema.Name, Name);
-    }
-
-    public override bool ExistsInDatabase()
-    {
-      return Session.XSession.TableExists(Schema, Name);
-    }
+    /// <summary>
+    /// The last inserted id (if there is one) by the statement that generated this result.
+    /// </summary>
+    public UInt64 LastInsertId { get; internal set; }
   }
 }

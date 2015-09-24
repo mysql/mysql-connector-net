@@ -20,50 +20,29 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.Protocol.X;
-using Mysqlx.Crud;
-using Mysqlx.Expr;
+using System;
+using MySql.Protocol;
+using MySql.Data;
 
-namespace MySql.XDevAPI.Statements
+namespace MySql.XDevAPI.Relational
 {
-  internal class UpdateSpec
+  public class TableColumn
   {
-    public UpdateSpec(UpdateOperation.Types.UpdateType updateType, string docPath)
-    {
-      Type = updateType;
-      Path = docPath;
-    }
+    internal ValueDecoder _decoder;
+    internal UInt64 _collationNumber;
 
-    public string Path { get; private set; }
-    public UpdateOperation.Types.UpdateType Type { get; private set; }
-    public object Value { get; private set; }
+    public string Name { get; internal set; }
+    public string OriginalName { get; internal set; }
+    public string Table { get; internal set; }
+    public string OriginalTable { get; internal set; }
 
-    public bool HasValue
-    {
-      get { return Value != null;  }
-    }
+    public string Schema { get; internal set; }
+    public string Catalog { get; internal set;  }
+    public string Collation { get; internal set; }
+    public UInt32 Length { get; internal set; }
+    public UInt32 FractionalDigits { get; internal set; }
+    public MySQLDbType DbType { get; internal set; }
+    public Type ClrType { get; internal set; }
 
-    public Expr GetValue()
-    {
-      return ExprUtil.ArgObjectToExpr(Value, false);
-    }
-
-    public ColumnIdentifier GetSource()
-    {
-      var source = Path;
-      // accomodate parser's documentField() handling by removing "@"
-      if (source.Length > 0 && source[0] == '@')
-      {
-        source = source.Substring(1);
-      }
-      ExprParser p = new ExprParser(Path, false);
-      return p.DocumentField().Identifier;
-    }
-
-    public UpdateSpec SetValue(object o)
-    {
-      Value = o;
-      return this;
-    }
   }
 }

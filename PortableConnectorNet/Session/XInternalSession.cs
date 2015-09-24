@@ -28,10 +28,10 @@ using MySql.Security;
 using MySql.Data;
 using MySql.Protocol;
 using System.Collections.Generic;
-using MySql.XDevAPI.Statements;
-using MySql.XDevAPI.Results;
 using System.Reflection;
-using System.Linq;
+using MySql.XDevAPI.Common;
+using MySql.XDevAPI.Relational;
+using MySql.XDevAPI.CRUD;
 
 namespace MySql.Session
 {
@@ -173,7 +173,7 @@ namespace MySql.Session
       return GetUpdateResult(false);
     }
 
-    public UpdateResult DeleteRows(DeleteStatement statement)
+    public UpdateResult DeleteRows(TableDeleteStatement statement)
     {
       protocol.SendDelete(statement.CollectionOrTable.Schema.Name,
         statement.CollectionOrTable.Name, true,
@@ -194,14 +194,14 @@ namespace MySql.Session
       return result;
     }
 
-    public TableResult FindRows(SelectStatement ss)
+    public TableResult FindRows(TableSelectStatement ss)
     {
       protocol.SendFind(ss.CollectionOrTable.Schema.Name, ss.CollectionOrTable.Name, true, ss.FilterData, ss.findParams);
       TableResult result = new TableResult(protocol);
       return result;
     }
 
-    public UpdateResult InsertRows(InsertStatement statement)
+    public UpdateResult InsertRows(TableInsertStatement statement)
     {
       protocol.SendInsert(statement.CollectionOrTable.Schema.Name, true, statement.CollectionOrTable.Name, statement.values.ToArray(), statement.fields);
       return GetUpdateResult(false);

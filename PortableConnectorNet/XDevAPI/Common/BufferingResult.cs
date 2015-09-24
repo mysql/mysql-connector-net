@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using MySql.Protocol;
 using MySql.Properties;
 
-namespace MySql.XDevAPI.Results
+namespace MySql.XDevAPI.Common
 {
   public abstract class BufferingResult<T> : Result, IEnumerable<T>, IEnumerator<T>
   {

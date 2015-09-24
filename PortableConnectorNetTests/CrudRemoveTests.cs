@@ -23,7 +23,7 @@
 using System;
 using MySql.XDevAPI;
 using Xunit;
-using MySql.XDevAPI.Results;
+using MySql.XDevAPI.Common;
 
 namespace PortableConnectorNetTests
 {

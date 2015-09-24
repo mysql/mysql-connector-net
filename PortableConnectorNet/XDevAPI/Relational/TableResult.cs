@@ -22,10 +22,11 @@
 
 using System;
 using System.Collections.Generic;
-using MySql.Protocol;
 using System.Diagnostics;
+using MySql.Protocol;
+using MySql.XDevAPI.Common;
 
-namespace MySql.XDevAPI.Results
+namespace MySql.XDevAPI.Relational
 {
   /// <summary>
   /// Repreents a resultset that contains rows of data.  

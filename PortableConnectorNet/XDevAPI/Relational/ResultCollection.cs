@@ -20,46 +20,41 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.XDevAPI.Results;
-using MySql.XDevAPI.Statements;
-using System;
+using System.Collections.Generic;
+using MySql.Protocol;
+using MySql.XDevAPI.Common;
 
-namespace MySql.XDevAPI
+namespace MySql.XDevAPI.Relational
 {
-  public class Table : DatabaseObject
+  public class ResultCollection
   {
-    internal Table(Schema schema, string name)
-      : base(schema, name)
+    ProtocolBase _protocol;
+    int _position = -1;
+    List<Result> _results = new List<Result>();
+    Result _activeResult;
+
+    public IEnumerable<Result> Result
     {
+      get { return _results; }
     }
 
-    public SelectStatement Select(params string[] columns)
+    public Result Next()
     {
-      return new SelectStatement(this, columns);
-    }
+      // if we are loading a table result we need to dump it
+      if (_activeResult != null && _activeResult is TableResult)
+        (_activeResult as TableResult).Dump();
 
-    public InsertStatement Insert(params string[] fields)
-    {
-      return new InsertStatement(this, fields);
-    }
+      // move to the next result
+      _position++;
+      if (_position == _results.Count)
+      {
+        Result rs = _protocol.GetNextResult();
+        if (rs == null) return null;
 
-    public Table Update()
-    {
-      throw new NotImplementedException();
-    }
-
-    /// <summary>
-    /// Deletes rows from a Table
-    /// </summary>
-    /// <returns>DeleteStatement object</returns>
-    public DeleteStatement Delete()
-    {
-      return new DeleteStatement(this, null);
-    }
-
-    public override bool ExistsInDatabase()
-    {
-      return Session.XSession.TableExists(Schema, Name);
+        _results.Add(rs);
+      }
+      _activeResult = _results[_position];
+      return _activeResult;
     }
   }
 }

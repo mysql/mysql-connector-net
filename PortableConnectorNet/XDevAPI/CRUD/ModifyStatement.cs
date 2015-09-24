@@ -20,23 +20,43 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
+using System.Collections.Generic;
+using Mysqlx.Crud;
+using MySql.XDevAPI.Common;
 
-namespace MySql.XDevAPI.Results
+namespace MySql.XDevAPI.CRUD
 {
-  /// <summary>
-  /// A result object for non-fetch operations.
-  /// </summary>
-  public class UpdateResult : Result
+  public class ModifyStatement : FilterableStatement<ModifyStatement, Collection, UpdateResult>
   {
-    /// <summary>
-    /// The number of records affected by the statement that generated this result.
-    /// </summary>
-    public UInt64 RecordsAffected { get; internal set; }
+    public ModifyStatement(Collection collection, string condition) : base(collection, condition)
+    {
+      Updates = new List<UpdateSpec>();
+    }
 
-    /// <summary>
-    /// The last inserted id (if there is one) by the statement that generated this result.
-    /// </summary>
-    public UInt64 LastInsertId { get; internal set; }
+    internal List<UpdateSpec> Updates;
+
+    public ModifyStatement Set(string docPath, object value)
+    {
+      Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ITEM_SET, docPath).SetValue(value));
+      return this;
+    }
+
+    public ModifyStatement Change(string docPath, object value)
+    {
+      Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ITEM_REPLACE, docPath).SetValue(value));
+      return this;
+    }
+
+    public ModifyStatement Unset(string docPath)
+    {
+      Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ITEM_REMOVE, docPath));
+      return this;
+    }
+
+
+    public override UpdateResult Execute()
+    {
+      return CollectionOrTable.Session.XSession.ModifyDocs(this);
+    }
   }
 }

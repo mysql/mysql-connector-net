@@ -21,10 +21,9 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.XDevAPI;
-using System.Collections.Generic;
 using Xunit;
 using System.Linq;
-using MySql.XDevAPI.Statements;
+using MySql.XDevAPI.Relational;
 
 namespace PortableConnectorNetTests
 {
@@ -42,7 +41,7 @@ namespace PortableConnectorNetTests
       this.fixture = fixture;
     }
 
-    private void MultiTableSelectTest(SelectStatement statement, object[][] expectedValues)
+    private void MultiTableSelectTest(TableSelectStatement statement, object[][] expectedValues)
     {
       var result = statement.Execute();
       int rowCount = 0;

@@ -20,36 +20,45 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using System;
+using MySql.XDevAPI.Relational;
 
-using MySql.XDevAPI.Common;
-
-namespace MySql.XDevAPI
+namespace MySql.XDevAPI.Relational
 {
-  /// <summary>
-  /// NodeSession
-  /// </summary>
-  public class NodeSession : BaseSession
+  public class Table : DatabaseObject
   {
-    internal NodeSession(string connectionString)
-      : base(connectionString)
+    internal Table(Schema schema, string name)
+      : base(schema, name)
     {
-
     }
 
-    internal NodeSession(object connectionData)
-      : base(connectionData)
+    public TableSelectStatement Select(params string[] columns)
     {
+      return new TableSelectStatement(this, columns);
+    }
 
+    public TableInsertStatement Insert(params string[] fields)
+    {
+      return new TableInsertStatement(this, fields);
+    }
+
+    public Table Update()
+    {
+      throw new NotImplementedException();
     }
 
     /// <summary>
-    /// Executes the given SQL
+    /// Deletes rows from a Table
     /// </summary>
-    /// <param name="query">The SQL query to execute</param>
-    /// <returns>Result</returns>
-    public Result ExecuteSql(string query)
+    /// <returns>DeleteStatement object</returns>
+    public TableDeleteStatement Delete()
     {
-      return XSession.ExecuteSqlNonQuery(query, true, null);
+      return new TableDeleteStatement(this, null);
+    }
+
+    public override bool ExistsInDatabase()
+    {
+      return Session.XSession.TableExists(Schema, Name);
     }
   }
 }

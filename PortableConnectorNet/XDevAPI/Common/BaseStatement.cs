@@ -20,29 +20,32 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-
-using MySql.XDevAPI.Results;
-using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace MySql.XDevAPI.Statements
+namespace MySql.XDevAPI.Common
 {
-  public abstract class CrudStatement<TResult> : BaseStatement<Collection, TResult>
+  public abstract class BaseStatement<TOwner, TResult> where TOwner : DatabaseObject
   {
-    public CrudStatement(Collection collection) : base(collection)
+    public BaseStatement(TOwner owner)
     {
+      CollectionOrTable = owner;
     }
 
-    protected IEnumerable<JsonDoc> GetDocs(object[] items, bool ensureId = false)
-    {
-      foreach (object item in items)
-      {
-        JsonDoc d = item is JsonDoc ? item as JsonDoc : new JsonDoc(item);
-        if (ensureId)
-          d.EnsureId();
-        yield return d;
-      }
-    }
+    public TOwner CollectionOrTable { get; private set; }
 
+    public abstract TResult Execute();
+
+    /// <summary>
+    /// Executes a statement asynchronously 
+    /// </summary>
+    /// <returns>Result object</returns>
+    public async Task<TResult> ExecuteAsync()
+    {
+      return await Task.Factory.StartNew<TResult>(Execute,
+        CancellationToken.None,
+        TaskCreationOptions.None,
+        CollectionOrTable.Session.scheduler);
+    }
   }
 }

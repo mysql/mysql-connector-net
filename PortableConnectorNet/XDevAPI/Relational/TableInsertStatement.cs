@@ -20,30 +20,40 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using MySql.Protocol;
-using MySql.Data;
-using System.Text;
+using System.Collections.Generic;
+using MySql.XDevAPI.Common;
 
-namespace MySql.XDevAPI
+
+namespace MySql.XDevAPI.Relational
 {
-  public class TableColumn
+  public class TableInsertStatement : BaseStatement<Table, UpdateResult>
   {
-    internal ValueDecoder _decoder;
-    internal UInt64 _collationNumber;
+    internal string[] fields;
+    internal List<object[]> values = new List<object[]>();
+    internal object[] parameters;
 
-    public string Name { get; internal set; }
-    public string OriginalName { get; internal set; }
-    public string Table { get; internal set; }
-    public string OriginalTable { get; internal set; }
+    public TableInsertStatement(Table table, string[] fields) : base(table)
+    {
+      this.fields = fields;
+    }
 
-    public string Schema { get; internal set; }
-    public string Catalog { get; internal set;  }
-    public string Collation { get; internal set; }
-    public UInt32 Length { get; internal set; }
-    public UInt32 FractionalDigits { get; internal set; }
-    public MySQLDbType DbType { get; internal set; }
-    public Type ClrType { get; internal set; }
+    public override UpdateResult Execute()
+    {
+      var result = CollectionOrTable.Session.XSession.InsertRows(this);
+      if(result.Succeeded) values = null;
+      return result;
+    }
 
+    public TableInsertStatement Values(params object[] values)
+    {
+      this.values.Add(values);
+      return this;
+    }
+
+    internal TableInsertStatement Bind(params object[] parameters)
+    {
+      this.parameters = parameters;
+      return this;
+    }
   }
 }

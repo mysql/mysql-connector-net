@@ -20,12 +20,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.XDevAPI.Statements;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MySql.XDevAPI.Relational;
 using Xunit;
 
 namespace PortableConnectorNetTests
@@ -61,7 +56,7 @@ namespace PortableConnectorNetTests
       return result.Rows.Count;
     }
 
-    private void ExecuteDelete(DeleteStatement statement, int expectedRowsCount)
+    private void ExecuteDelete(TableDeleteStatement statement, int expectedRowsCount)
     {
       var table = fixture.GetTableInsert();
       var result = statement.Execute();

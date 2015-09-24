@@ -20,20 +20,26 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.XDevAPI.Results;
+using System;
 
-
-namespace MySql.XDevAPI.Statements
+namespace MySql.XDevAPI.Relational
 {
-  public class RemoveStatement : FilterableStatement<RemoveStatement, Collection, UpdateResult>
+  public class View : DatabaseObject
   {
-    internal RemoveStatement(Collection collection, string condition) : base(collection, condition)
+    internal View(Schema schema, string name)
+      : base(schema, name)
     {
+
     }
 
-    public override UpdateResult Execute()
+    public void Delete()
     {
-      return CollectionOrTable.Session.XSession.DeleteDocs(this);
+      Session.XSession.DropCollection(Schema.Name, Name);
+    }
+
+    public override bool ExistsInDatabase()
+    {
+      return Session.XSession.TableExists(Schema, Name);
     }
   }
 }

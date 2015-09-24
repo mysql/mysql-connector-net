@@ -22,7 +22,7 @@
 
 using System.Collections.Generic;
 
-namespace MySql.XDevAPI.Results
+namespace MySql.XDevAPI.Relational
 {
   /// <summary>
   /// Represents a single row of data in a table

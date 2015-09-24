@@ -21,11 +21,8 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Threading.Tasks;
-using MySql.Serialization;
-using System.Collections.Generic;
 using MySql.Properties;
-using MySql.XDevAPI.Statements;
+using MySql.XDevAPI.CRUD;
 
 namespace MySql.XDevAPI
 {

@@ -20,32 +20,27 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+
 using System.Collections.Generic;
-using MySql.XDevAPI.Results;
+using MySql.XDevAPI.Common;
 
-namespace MySql.XDevAPI.Statements
+namespace MySql.XDevAPI.CRUD
 {
-  public class AddStatement : CrudStatement<UpdateResult>
+  public abstract class CrudStatement<TResult> : BaseStatement<Collection, TResult>
   {
-    private List<JsonDoc> _jsonDocs = new List<JsonDoc>();
-
-    internal AddStatement(Collection collection) : base(collection)
+    public CrudStatement(Collection collection) : base(collection)
     {
     }
 
-    public void Add(params object[] items)
+    protected IEnumerable<JsonDoc> GetDocs(object[] items, bool ensureId = false)
     {
-      _jsonDocs.AddRange(GetDocs(items, true));
-    }
-
-    public void Add(params string[] items)
-    {
-      _jsonDocs.AddRange(GetDocs(items, true));
-    }
-
-    public override UpdateResult Execute()
-    {
-      return CollectionOrTable.Session.XSession.Insert(CollectionOrTable, _jsonDocs.ToArray());
+      foreach (object item in items)
+      {
+        JsonDoc d = item is JsonDoc ? item as JsonDoc : new JsonDoc(item);
+        if (ensureId)
+          d.EnsureId();
+        yield return d;
+      }
     }
 
   }

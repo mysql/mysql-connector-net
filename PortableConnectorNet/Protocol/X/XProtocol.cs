@@ -29,18 +29,17 @@ using MySql.Data;
 using Mysqlx.Resultset;
 using Mysqlx.Session;
 using Mysqlx.Sql;
-using MySql.XDevAPI;
 using MySql.Protocol.X;
 using Mysqlx.Expr;
 using Mysqlx.Datatypes;
 using Mysqlx;
 using Mysqlx.Crud;
 using Mysqlx.Notice;
-using MySql.XDevAPI.Statements;
-using MySql.XDevAPI.Results;
-using MySQL.Common;
 using MySql.Properties;
 using Mysqlx.Connection;
+using MySql.XDevAPI.Common;
+using MySql.XDevAPI.Relational;
+using MySql.XDevAPI.CRUD;
 
 namespace MySql.Protocol
 {

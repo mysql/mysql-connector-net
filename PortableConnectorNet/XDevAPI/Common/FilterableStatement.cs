@@ -20,7 +20,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-namespace MySql.XDevAPI.Statements
+namespace MySql.XDevAPI.Common
 {
   public abstract class FilterableStatement<T, TOwner, TResult> : BaseStatement<TOwner, TResult>
     where T : FilterableStatement<T, TOwner, TResult>

@@ -20,32 +20,20 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System.Threading;
-using System.Threading.Tasks;
+using MySql.XDevAPI.Common;
 
-namespace MySql.XDevAPI.Statements
+
+namespace MySql.XDevAPI.CRUD
 {
-  public abstract class BaseStatement<TOwner, TResult> where TOwner : DatabaseObject
+  public class RemoveStatement : FilterableStatement<RemoveStatement, Collection, UpdateResult>
   {
-    public BaseStatement(TOwner owner)
+    internal RemoveStatement(Collection collection, string condition) : base(collection, condition)
     {
-      CollectionOrTable = owner;
     }
 
-    public TOwner CollectionOrTable { get; private set; }
-
-    public abstract TResult Execute();
-
-    /// <summary>
-    /// Executes a statement asynchronously 
-    /// </summary>
-    /// <returns>Result object</returns>
-    public async Task<TResult> ExecuteAsync()
+    public override UpdateResult Execute()
     {
-      return await Task.Factory.StartNew<TResult>(Execute,
-        CancellationToken.None,
-        TaskCreationOptions.None,
-        CollectionOrTable.Session.scheduler);
+      return CollectionOrTable.Session.XSession.DeleteDocs(this);
     }
   }
 }

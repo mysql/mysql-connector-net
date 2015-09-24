@@ -20,64 +20,50 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.Protocol;
-using System;
-using System.Collections.Generic;
+using MySql.Protocol.X;
+using Mysqlx.Crud;
+using Mysqlx.Expr;
 
-namespace MySql.XDevAPI.Results
+namespace MySql.XDevAPI.CRUD
 {
-  public class Result
+  internal class UpdateSpec
   {
-    private List<Warning> _warnings = new List<Warning>();
-
-    internal Result()
+    public UpdateSpec(UpdateOperation.Types.UpdateType updateType, string docPath)
     {
+      Type = updateType;
+      Path = docPath;
     }
 
-    internal void AddWarning(Warning w)
+    public string Path { get; private set; }
+    public UpdateOperation.Types.UpdateType Type { get; private set; }
+    public object Value { get; private set; }
+
+    public bool HasValue
     {
-      _warnings.Add(w);
+      get { return Value != null;  }
     }
 
-    public IReadOnlyList<Warning> Warnings
+    public Expr GetValue()
     {
-      get { return _warnings;  }
+      return ExprUtil.ArgObjectToExpr(Value, false);
     }
 
-
-    public Error ErrorInfo;
-
-    public bool Failed
+    public ColumnIdentifier GetSource()
     {
-      get { return ErrorInfo != null;  }
-    }
-
-    public bool Succeeded
-    {
-      get { return !Failed;  }
-    }
-
-    /// <summary>
-    /// Class to represent an error in this result
-    /// </summary>
-    public class Error
-    {
-      public UInt32 Code;
-      public string SqlState;
-      public string Message;
-    }
-
-    public class Warning
-    {
-      public uint Code;
-      public string Message;
-      public uint Level;
-
-      public Warning(uint code, string msg)
+      var source = Path;
+      // accomodate parser's documentField() handling by removing "@"
+      if (source.Length > 0 && source[0] == '@')
       {
-        Code = code;
-        Message = msg;
+        source = source.Substring(1);
       }
+      ExprParser p = new ExprParser(Path, false);
+      return p.DocumentField().Identifier;
+    }
+
+    public UpdateSpec SetValue(object o)
+    {
+      Value = o;
+      return this;
     }
   }
 }
