@@ -42,9 +42,9 @@ namespace MySql.XDevAPI.Relational
       return new TableInsertStatement(this, fields);
     }
 
-    public Table Update()
+    public TableUpdateStatement Update()
     {
-      throw new NotImplementedException();
+      return new TableUpdateStatement(this);
     }
 
     /// <summary>

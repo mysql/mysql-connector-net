@@ -448,9 +448,10 @@ namespace MySql.Protocol
     /// <summary>
     /// Sends the CRUD modify message
     /// </summary>
-    public void SendDocModify(string schema, string collection, FilterParams filter, List<UpdateSpec> updates)
+    public void SendUpdate(string schema, string collection, bool isRelational, FilterParams filter, List<UpdateSpec> updates)
     {
       var builder = Update.CreateBuilder();
+      builder.SetDataModel(isRelational ? DataModel.TABLE : DataModel.DOCUMENT);
       builder.SetCollection(ExprUtil.BuildCollection(schema, collection));
       ApplyFilter(builder.SetLimit, builder.SetCriteria, builder.AddRangeOrder, filter, builder.AddRangeArgs);
 
@@ -458,7 +459,7 @@ namespace MySql.Protocol
       {
         var updateBuilder = UpdateOperation.CreateBuilder();
         updateBuilder.SetOperation(update.Type);
-        updateBuilder.SetSource(update.GetSource());
+        updateBuilder.SetSource(update.GetSource(isRelational));
         if (update.HasValue)
           updateBuilder.SetValue(update.GetValue());
         builder.AddOperation(updateBuilder.Build());

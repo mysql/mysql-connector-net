@@ -126,6 +126,7 @@
     <Compile Include="XDevAPI\Relational\TableResult.cs" />
     <Compile Include="XDevAPI\Relational\TableRow.cs" />
     <Compile Include="XDevAPI\Relational\TableSelectStatement.cs" />
+    <Compile Include="XDevAPI\Relational\TableUpdateStatement.cs" />
     <Compile Include="XDevAPI\Relational\View.cs" />
     <Compile Include="XDevAPI\Session.cs" />
     <Compile Include="XDevAPI\Collection.cs" />

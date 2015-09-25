@@ -38,6 +38,7 @@
     <Compile Include="RelationalTests\TableFixture.cs" />
     <Compile Include="RelationalTests\TableInsertTests.cs" />
     <Compile Include="RelationalTests\TableSelectTests.cs" />
+    <Compile Include="RelationalTests\TableUpdateTests.cs" />
     <Compile Include="TransactionTests.cs" />
     <Compile Include="BaseTest.cs" />
     <Compile Include="BasicFindTests.cs" />

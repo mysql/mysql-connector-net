@@ -40,7 +40,7 @@ namespace MySql.XDevAPI.Relational
     public override UpdateResult Execute()
     {
       var result = Target.Session.XSession.InsertRows(this);
-      if(result.Succeeded) values = null;
+      if(result.Succeeded) values = new List<object[]>();
       return result;
     }
 

@@ -48,7 +48,7 @@ namespace MySql.XDevAPI.CRUD
       return ExprUtil.ArgObjectToExpr(Value, false);
     }
 
-    public ColumnIdentifier GetSource()
+    public ColumnIdentifier GetSource(bool isRelational)
     {
       var source = Path;
       // accomodate parser's documentField() handling by removing "@"
@@ -57,7 +57,13 @@ namespace MySql.XDevAPI.CRUD
         source = source.Substring(1);
       }
       ExprParser p = new ExprParser(Path, false);
-      return p.DocumentField().Identifier;
+      ColumnIdentifier identifier;
+      if (isRelational)
+        identifier = p.ParseTableUpdateField();
+      else
+        identifier = p.DocumentField().Identifier;
+
+      return identifier;
     }
 
     public UpdateSpec SetValue(object o)

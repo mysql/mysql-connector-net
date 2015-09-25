@@ -183,7 +183,16 @@ namespace MySql.Session
 
     public UpdateResult ModifyDocs(ModifyStatement ms)
     {
-      protocol.SendDocModify(ms.Target.Schema.Name, ms.Target.Name, ms.FilterData, ms.Updates);
+      protocol.SendUpdate(ms.Target.Schema.Name, ms.Target.Name, false, ms.FilterData, ms.Updates);
+      return GetUpdateResult(false);
+    }
+
+    public UpdateResult UpdateRows(TableUpdateStatement statement)
+    {
+      protocol.SendUpdate(statement.Target.Schema.Name,
+        statement.Target.Name, true,
+        statement.FilterData,
+        statement.updates);
       return GetUpdateResult(false);
     }
 

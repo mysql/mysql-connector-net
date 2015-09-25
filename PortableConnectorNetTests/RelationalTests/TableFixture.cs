@@ -47,7 +47,7 @@ namespace PortableConnectorNetTests.RelationalTests
       foreach (string sqlPart in sqlInParts)
       {
         if (string.IsNullOrWhiteSpace(sqlPart)) continue;
-        nodeSession.SQL(sqlPart.Replace("\n", " ")).Execute();
+        nodeSession.SQL(sqlPart.Replace("\n", " ")).Execute().Buffer();
       }
     }
 
