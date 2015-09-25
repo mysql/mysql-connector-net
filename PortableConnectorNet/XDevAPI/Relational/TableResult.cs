@@ -53,7 +53,7 @@ namespace MySql.XDevAPI.Relational
     /// The rows of this resultset.  This collection will be incomplete unless all the rows have been read
     /// either by using the Next method or the Buffer method.
     /// </summary>
-    public IReadOnlyCollection<TableRow> Rows
+    public IReadOnlyList<TableRow> Rows
     {
       get { return Items; }
     }

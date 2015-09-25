@@ -33,6 +33,7 @@ namespace MySql.Protocol.X
       {
 //        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.BIT: return XBitDecoder();
         case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.BYTES: return new ByteDecoder();
+        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.TIME: return new XTimeDecoder();
         case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.DATETIME: return new XDateTimeDecoder();
         case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.SINT: return new IntegerDecoder(true);
         case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.UINT: return new IntegerDecoder(false);

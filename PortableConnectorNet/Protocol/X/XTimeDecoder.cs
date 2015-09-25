@@ -27,24 +27,21 @@ using System;
 
 namespace MySql.Protocol.X
 {
-  internal class XDateTimeDecoder : ValueDecoder
+  internal class XTimeDecoder : ValueDecoder
   {
     public override void SetMetadata()
     {
-      Column.DbType = Column.Length == 10 ? MySQLDbType.Date : MySQLDbType.DateTime;
-      Column.ClrType = typeof(DateTime);
+      Column.DbType = MySQLDbType.Time;
+      Column.ClrType = typeof(TimeSpan);
       ClrValueDecoder = ValueDecoder;
     }
 
     public object ValueDecoder(byte[] bytes)
     {
       CodedInputStream input = CodedInputStream.CreateInstance(bytes);
-      UInt64 year = 0, month = 0, day = 0;
       Int64 hour = 0, min = 0, sec = 0, usec = 0;
 
-      input.ReadUInt64(ref year);
-      input.ReadUInt64(ref month);
-      input.ReadUInt64(ref day);
+      bool negative = input.ReadRawByte() > 0;
       if (!input.IsAtEnd)
         input.ReadInt64(ref hour);
       if (!input.IsAtEnd)
@@ -53,7 +50,8 @@ namespace MySql.Protocol.X
         input.ReadInt64(ref sec);
       if (!input.IsAtEnd)
         input.ReadInt64(ref usec);
-      return new DateTime((int)year, (int)month, (int)day, (int)hour, (int)min, (int)sec, (int)(usec*1000));
+      if (negative) hour *= -1;
+      return new TimeSpan(0, (int)hour, (int)min, (int)sec, (int)usec * 1000);
     }
   }
 }

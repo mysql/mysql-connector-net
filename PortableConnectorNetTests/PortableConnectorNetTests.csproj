@@ -32,6 +32,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="RelationalTests\DateTimeTests.cs" />
     <Compile Include="RelationalTests\SqlTests.cs" />
     <Compile Include="RelationalTests\TableAsyncTests.cs" />
     <Compile Include="RelationalTests\TableDeleteTests.cs" />

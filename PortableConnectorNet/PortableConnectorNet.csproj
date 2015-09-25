@@ -88,6 +88,7 @@
     <Compile Include="Protocol\X\Protobuf\MysqlxResultset.cs" />
     <Compile Include="Protocol\X\Protobuf\MysqlxSession.cs" />
     <Compile Include="Protocol\X\Protobuf\MysqlxSql.cs" />
+    <Compile Include="Protocol\X\XTimeDecoder.cs" />
     <Compile Include="Protocol\X\XDateTimeDecoder.cs" />
     <Compile Include="Protocol\X\XProtocol.cs" />
     <Compile Include="Protocol\X\XValueDecoderFactory.cs" />
