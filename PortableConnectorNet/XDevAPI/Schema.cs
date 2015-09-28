@@ -78,7 +78,7 @@ namespace MySql.XDevAPI
     /// <returns>Collection object</returns>
     public Collection GetCollection(string name, bool ValidateExistence = false)
     {
-      Collection c = new Collection<JsonDoc>(this, name);
+      Collection c = new Collection<DbDoc>(this, name);
       if (ValidateExistence)
         if (!c.ExistsInDatabase())
           throw new MySqlException(String.Format("Collection '{0}' does not exist.", name));
@@ -153,7 +153,7 @@ namespace MySql.XDevAPI
     /// <param name="name">Name of the collection to drop</param>
     public void DropCollection(string name)
     {
-      Collection c = new Collection<JsonDoc>(this, name);
+      Collection c = new Collection<DbDoc>(this, name);
       c.Drop();
     }
 

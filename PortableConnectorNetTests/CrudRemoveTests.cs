@@ -102,15 +102,15 @@ namespace PortableConnectorNetTests
     public void RemovingDocWithNoIdThrowsException()
     {
       Collection coll = CreateCollection("test");
-      JsonDoc doc = new JsonDoc();
+      DbDoc doc = new DbDoc();
       Exception ex = Assert.Throws<InvalidOperationException>(() => coll.Remove(doc));
     }
 
     [Fact]
-    public void RemovingItemUsingJsonDoc()
+    public void RemovingItemUsingDbDoc()
     {
       Collection coll = CreateCollection("test");
-      JsonDoc doc = new JsonDoc(new { _id = 1, title = "Book 1", pages = 20 });
+      DbDoc doc = new DbDoc(new { _id = 1, title = "Book 1", pages = 20 });
       UpdateResult r = coll.Add(doc).Execute();
       Assert.Equal<ulong>(1, r.RecordsAffected);
 

@@ -33,15 +33,15 @@ namespace MySql.XDevAPI
   /// <summary>
   /// Represents a generic documnet in JSON format
   /// </summary>
-  public class JsonDoc
+  public class DbDoc
   {
     private Dictionary<string, object> values = new Dictionary<string, object>();
 
     /// <summary>
-    /// Constructs a JsonDoc with the given value.  The value can be a domain object, anonymous object, or JSON string.
+    /// Constructs a DbDoc with the given value.  The value can be a domain object, anonymous object, or JSON string.
     /// </summary>
-    /// <param name="val">Value for this JsonDoc</param>
-    public JsonDoc(object val = null)
+    /// <param name="val">Value for this DbDoc</param>
+    public DbDoc(object val = null)
     {
       if (val != null)
       {
@@ -166,15 +166,15 @@ namespace MySql.XDevAPI
     }
 
     /// <summary>
-    /// Compares this JsonDoc with another one
+    /// Compares this DbDoc with another one
     /// </summary>
-    /// <param name="obj">The JsonDoc to compare to</param>
+    /// <param name="obj">The DbDoc to compare to</param>
     /// <returns>True if they are equal, false otherwise</returns>
     public override bool Equals(object obj)
     {
-      if (!(obj is JsonDoc))
-        throw new InvalidOperationException("JsonDoc can only be compared with another JsonDoc");
-      JsonDoc toCompare = obj as JsonDoc;
+      if (!(obj is DbDoc))
+        throw new InvalidOperationException("DbDoc can only be compared with another DbDoc");
+      DbDoc toCompare = obj as DbDoc;
       return CompareDictionaries<string, object>(values, toCompare.values);
     }
 

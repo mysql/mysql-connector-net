@@ -31,7 +31,7 @@ namespace MySql.XDevAPI.CRUD
   /// <summary>
   /// Represents the result of an operation the includes a collection of documents
   /// </summary>
-  public class DocumentResult : BufferingResult<JsonDoc>
+  public class DocumentResult : BufferingResult<DbDoc>
   {
     System.Text.Encoding _encoding = System.Text.Encoding.UTF8;
 
@@ -42,13 +42,13 @@ namespace MySql.XDevAPI.CRUD
       Debug.Assert(_columns.Count == 1);
     }
 
-    protected override JsonDoc ReadItem(bool dumping)
+    protected override DbDoc ReadItem(bool dumping)
     {
       List<byte[]> values = _protocol.ReadRow(_autoClose ? this : null);
       if (values == null) return null;
 
       Debug.Assert(values.Count == 1);
-      return new JsonDoc(_encoding.GetString(values[0]));
+      return new DbDoc(_encoding.GetString(values[0]));
     }
   }
 }

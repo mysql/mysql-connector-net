@@ -116,8 +116,8 @@
     <Compile Include="XDevAPI\CRUD\RemoveStatement.cs" />
     <Compile Include="XDevAPI\CRUD\UpdateSpec.cs" />
     <Compile Include="XDevAPI\DatabaseObject.cs" />
+    <Compile Include="XDevAPI\DbDoc.cs" />
     <Compile Include="XDevAPI\GenericCollection.cs" />
-    <Compile Include="XDevAPI\JsonDoc.cs" />
     <Compile Include="XDevAPI\Relational\ResultCollection.cs" />
     <Compile Include="XDevAPI\Relational\SqlStatement.cs" />
     <Compile Include="XDevAPI\Relational\Table.cs" />

@@ -33,7 +33,7 @@ namespace MySql.XDevAPI
 
     public AddStatement Add(T value)
     {
-      return Add(new JsonDoc(value));
+      return Add(new DbDoc(value));
     }
 
 

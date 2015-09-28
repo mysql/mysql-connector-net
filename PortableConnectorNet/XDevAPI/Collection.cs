@@ -99,9 +99,9 @@ namespace MySql.XDevAPI
     /// <summary>
     /// Remove a single document from this collection.
     /// </summary>
-    /// <param name="doc">The JsonDoc representing the document to remove</param>
+    /// <param name="doc">The DbDoc representing the document to remove</param>
     /// <returns>RemoveStatement</returns>
-    public RemoveStatement Remove(JsonDoc doc)
+    public RemoveStatement Remove(DbDoc doc)
     {
       if (!doc.HasId)
         throw new InvalidOperationException(Resources.RemovingRequiresId);

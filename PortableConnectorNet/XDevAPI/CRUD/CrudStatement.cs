@@ -33,11 +33,11 @@ namespace MySql.XDevAPI.CRUD
     {
     }
 
-    protected IEnumerable<JsonDoc> GetDocs(object[] items, bool ensureId = false)
+    protected IEnumerable<DbDoc> GetDocs(object[] items, bool ensureId = false)
     {
       foreach (object item in items)
       {
-        JsonDoc d = item is JsonDoc ? item as JsonDoc : new JsonDoc(item);
+        DbDoc d = item is DbDoc ? item as DbDoc : new DbDoc(item);
         if (ensureId)
           d.EnsureId();
         yield return d;

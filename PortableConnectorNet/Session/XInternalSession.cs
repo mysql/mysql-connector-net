@@ -161,7 +161,7 @@ namespace MySql.Session
       return result;
     }
 
-    public UpdateResult Insert(Collection collection, JsonDoc[] json)
+    public UpdateResult Insert(Collection collection, DbDoc[] json)
     {
       protocol.SendInsert(collection.Schema.Name, false, collection.Name, json, null);
       return GetUpdateResult(false);

@@ -29,7 +29,7 @@ namespace PortableConnectorNetTests
   public class CrudInsertTests : BaseTest
   {
     [Fact]
-    public void InsertSingleJSONDocWithId()
+    public void InsertSingleDbDocWithId()
     {
       Collection coll = CreateCollection("test");
       UpdateResult r = coll.Add(@"{ ""_id"": 1, ""foo"": 1 }").Execute();
@@ -38,7 +38,7 @@ namespace PortableConnectorNetTests
     }
 
     [Fact]
-    public void InsertSingleJSONDocWithoutId()
+    public void InsertSingleDbDocWithoutId()
     {
       Collection coll = CreateCollection("test");
       UpdateResult r = coll.Add("{ \"foo\": 1 }").Execute();

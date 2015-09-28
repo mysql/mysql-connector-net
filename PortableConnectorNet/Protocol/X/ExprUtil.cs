@@ -171,7 +171,7 @@ namespace MySql.Protocol.X
           return BuildLiteralScalar((string)value);
         }
       }
-      else if (value is XDevAPI.JsonDoc)
+      else if (value is XDevAPI.DbDoc)
         return (BuildLiteralScalar(value.ToString()));
       throw new NotSupportedException("Value of type " + value.GetType() + " is not currently supported.");
     }

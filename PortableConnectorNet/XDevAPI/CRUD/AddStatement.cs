@@ -27,7 +27,7 @@ namespace MySql.XDevAPI.CRUD
 {
   public class AddStatement : CrudStatement<UpdateResult>
   {
-    private List<JsonDoc> _jsonDocs = new List<JsonDoc>();
+    private List<DbDoc> _DbDocs = new List<DbDoc>();
 
     internal AddStatement(Collection collection) : base(collection)
     {
@@ -35,17 +35,17 @@ namespace MySql.XDevAPI.CRUD
 
     public void Add(params object[] items)
     {
-      _jsonDocs.AddRange(GetDocs(items, true));
+      _DbDocs.AddRange(GetDocs(items, true));
     }
 
     public void Add(params string[] items)
     {
-      _jsonDocs.AddRange(GetDocs(items, true));
+      _DbDocs.AddRange(GetDocs(items, true));
     }
 
     public override UpdateResult Execute()
     {
-      return Target.Session.XSession.Insert(Target, _jsonDocs.ToArray());
+      return Target.Session.XSession.Insert(Target, _DbDocs.ToArray());
     }
 
   }
