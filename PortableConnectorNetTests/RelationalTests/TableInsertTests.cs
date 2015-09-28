@@ -37,6 +37,8 @@ namespace PortableConnectorNetTests.RelationalTests
       Assert.Equal(22, (byte)selectResult.Rows.ToArray()[0][2]);
       Assert.Equal("Patric", selectResult.Rows.ToArray()[1][1]);
       Assert.Equal(30, (byte)selectResult.Rows.ToArray()[1][2]);
+
+      Assert.Equal(2, table.Count());
     }
 
     [Fact]

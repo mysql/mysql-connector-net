@@ -126,6 +126,15 @@ namespace MySql.XDevAPI
       Session.XSession.DropCollection(Schema.Name, Name);
     }
 
+    /// <summary>
+    /// Returns the number of documents in this collection on the server.
+    /// </summary>
+    /// <returns>Number of documents</returns>
+    public long Count()
+    {
+      return Session.XSession.TableCount(Schema, Name);
+    }
+
 
     public Collection Bind(params object[] parameters)
     {

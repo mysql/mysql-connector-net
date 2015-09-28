@@ -34,7 +34,7 @@ namespace PortableConnectorNetTests
       Collection coll = CreateCollection("test");
       UpdateResult r = coll.Add(@"{ ""_id"": 1, ""foo"": 1 }").Execute();
       Assert.Equal<ulong>(1, r.RecordsAffected);
-      coll.Drop();
+      Assert.Equal(1, coll.Count());
     }
 
     [Fact]
@@ -44,7 +44,7 @@ namespace PortableConnectorNetTests
       UpdateResult r = coll.Add("{ \"foo\": 1 }").Execute();
       Assert.Equal<ulong>(1, r.RecordsAffected);
       /// TODO:  retrieve doc and complete foo column
-      coll.Drop();
+      Assert.Equal(1, coll.Count());
     }
 
     [Fact]
@@ -56,7 +56,7 @@ namespace PortableConnectorNetTests
       UpdateResult r = coll.Add(obj).Execute();
       Assert.Equal<ulong>(1, r.RecordsAffected);
       ///TODO:  pull object and verify data
-      coll.Drop();
+      Assert.Equal(1, coll.Count());
     }
 
     [Fact]
@@ -68,7 +68,7 @@ namespace PortableConnectorNetTests
       UpdateResult r = coll.Add(obj).Execute();
       Assert.Equal<ulong>(1, r.RecordsAffected);
       ///TODO:  pull object and verify data
-      coll.Drop();
+      Assert.Equal(1, coll.Count());
     }
 
     [Fact]
@@ -84,7 +84,7 @@ namespace PortableConnectorNetTests
       };
       UpdateResult r = coll.Add(docs).Execute();
       Assert.Equal<ulong>(4, r.RecordsAffected);
-      coll.Drop();
+      Assert.Equal(4, coll.Count());
     }
   }
 }

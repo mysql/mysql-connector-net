@@ -56,6 +56,15 @@ namespace MySql.XDevAPI.Relational
       return new TableDeleteStatement(this, null);
     }
 
+    /// <summary>
+    /// Returns the number of rows in the table on the server.
+    /// </summary>
+    /// <returns>Number of rows</returns>
+    public long Count()
+    {
+      return Session.XSession.TableCount(Schema, Name);
+    }
+
     public override bool ExistsInDatabase()
     {
       return Session.XSession.TableExists(Schema, Name);

@@ -32,6 +32,7 @@ using System.Reflection;
 using MySql.XDevAPI.Common;
 using MySql.XDevAPI.Relational;
 using MySql.XDevAPI.CRUD;
+using MySql.Protocol.X;
 
 namespace MySql.Session
 {
@@ -122,6 +123,13 @@ namespace MySql.Session
     public void DropCollection(string schemaName, string collectionName)
     {
       ExecuteCmdNonQuery("drop_collection", true, schemaName, collectionName);
+    }
+
+    public long TableCount(Schema schema, string name)
+    {
+      string sql = String.Format("SELECT COUNT(*) FROM {0}.{1}",
+        ExprUnparser.QuoteIdentifier(schema.Name), ExprUnparser.QuoteIdentifier(name));
+      return (long)ExecuteQueryAsScalar(sql);
     }
 
     public bool TableExists(Schema schema, string name)
