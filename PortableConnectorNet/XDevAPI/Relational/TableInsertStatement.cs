@@ -26,17 +26,24 @@ using MySql.XDevAPI.Common;
 
 namespace MySql.XDevAPI.Relational
 {
+  /// <summary>
+  /// Represents a chaining table insert statement
+  /// </summary>
   public class TableInsertStatement : TargetedBaseStatement<Table, UpdateResult>
   {
     internal string[] fields;
     internal List<object[]> values = new List<object[]>();
     internal object[] parameters;
 
-    public TableInsertStatement(Table table, string[] fields) : base(table)
+    internal TableInsertStatement(Table table, string[] fields) : base(table)
     {
       this.fields = fields;
     }
 
+    /// <summary>
+    /// Executes the insert statement
+    /// </summary>
+    /// <returns>Result of insert statement</returns>
     public override UpdateResult Execute()
     {
       var result = Target.Session.XSession.InsertRows(this);
@@ -44,6 +51,12 @@ namespace MySql.XDevAPI.Relational
       return result;
     }
 
+    /// <summary>
+    /// Values to be inserted.
+    /// Multiple rows supported.
+    /// </summary>
+    /// <param name="values"></param>
+    /// <returns>This same TableInsertStatement object</returns>
     public TableInsertStatement Values(params object[] values)
     {
       this.values.Add(values);

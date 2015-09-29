@@ -26,6 +26,9 @@ using System.Collections.Generic;
 
 namespace MySql.XDevAPI
 {
+  /// <summary>
+  /// Represents a MySql schema or database
+  /// </summary>
   public class Schema : DatabaseObject
   {
     internal Schema(BaseSession session, string name) : base(null, name)
@@ -34,6 +37,9 @@ namespace MySql.XDevAPI
       Session = session;
     }
 
+    /// <summary>
+    /// Session related to current schema
+    /// </summary>
     public BaseSession Session { get; private set; }
 
 

@@ -25,12 +25,19 @@ using MySql.XDevAPI.Common;
 
 namespace MySql.XDevAPI.CRUD
 {
+  /// <summary>
+  /// Represents a chaining collection remove statement
+  /// </summary>
   public class RemoveStatement : FilterableStatement<RemoveStatement, Collection, UpdateResult>
   {
     internal RemoveStatement(Collection collection, string condition) : base(collection, condition)
     {
     }
 
+    /// <summary>
+    /// Executes the remove statement
+    /// </summary>
+    /// <returns></returns>
     public override UpdateResult Execute()
     {
       return Target.Session.XSession.DeleteDocs(this);

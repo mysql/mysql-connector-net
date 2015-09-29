@@ -25,13 +25,24 @@ using System.Threading.Tasks;
 
 namespace MySql.XDevAPI.Common
 {
+  /// <summary>
+  /// Base abstract class for API statement
+  /// </summary>
+  /// <typeparam name="TResult"></typeparam>
   public abstract class BaseStatement<TResult> where TResult : Result
   {
+    /// <summary>
+    /// Constuctor
+    /// </summary>
+    /// <param name="session">Session where statement will be executed</param>
     public BaseStatement(BaseSession session)
     {
       Session = session;
     }
 
+    /// <summary>
+    /// Session that owns the statement
+    /// </summary>
     public BaseSession Session { get; private set;  }
 
     public abstract TResult Execute();

@@ -27,7 +27,7 @@ using MySql.XDevAPI.CRUD;
 namespace MySql.XDevAPI
 {
   /// <summary>
-  /// Represents a collection of documnets
+  /// Represents a collection of documents
   /// </summary>
   public class Collection : DatabaseObject
   {
@@ -112,6 +112,11 @@ namespace MySql.XDevAPI
 
     #region Modify Operations
 
+    /// <summary>
+    /// Modify a single document from this collection.
+    /// </summary>
+    /// <param name="condition">The condition to match documents</param>
+    /// <returns>ModifyStatement object</returns>
     public ModifyStatement Modify(string condition)
     {
       ModifyStatement stmt = new ModifyStatement(this, condition);
@@ -120,7 +125,9 @@ namespace MySql.XDevAPI
 
     #endregion
 
-
+    /// <summary>
+    /// Drop the current collection in server
+    /// </summary>
     public void Drop()
     {
       Session.XSession.DropCollection(Schema.Name, Name);
@@ -135,12 +142,11 @@ namespace MySql.XDevAPI
       return Session.XSession.TableCount(Schema, Name);
     }
 
-
-    public Collection Bind(params object[] parameters)
-    {
-      throw new NotImplementedException();
-    }
-
+    /// <summary>
+    /// Finds documents in current collection
+    /// </summary>
+    /// <param name="condition">Optional condition to match documents</param>
+    /// <returns>FindStatement object</returns>
     public FindStatement Find(string condition = null)
     {
       FindStatement stmt = new FindStatement(this, condition);
@@ -178,6 +184,10 @@ namespace MySql.XDevAPI
       throw new NotImplementedException();
     }
 
+    /// <summary>
+    /// Verifies if current collection exists in server schema
+    /// </summary>
+    /// <returns></returns>
     public override bool ExistsInDatabase()
     {
       return Session.XSession.TableExists(Schema, Name);

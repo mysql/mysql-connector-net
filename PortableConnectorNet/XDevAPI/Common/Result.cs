@@ -26,6 +26,9 @@ using System.Collections.Generic;
 
 namespace MySql.XDevAPI.Common
 {
+  /// <summary>
+  /// Represents a general statement result
+  /// </summary>
   public class Result
   {
     private List<Warning> _warnings = new List<Warning>();
@@ -39,19 +42,30 @@ namespace MySql.XDevAPI.Common
       _warnings.Add(w);
     }
 
+    /// <summary>
+    /// Warnings derived from statement execution
+    /// </summary>
     public IReadOnlyList<Warning> Warnings
     {
       get { return _warnings;  }
     }
 
-
+    /// <summary>
+    /// Error information from statement execution
+    /// </summary>
     public Error ErrorInfo;
 
+    /// <summary>
+    /// True if the statement execution failed
+    /// </summary>
     public bool Failed
     {
       get { return ErrorInfo != null;  }
     }
 
+    /// <summary>
+    /// True if the statement execution succeded
+    /// </summary>
     public bool Succeeded
     {
       get { return !Failed;  }
@@ -67,6 +81,9 @@ namespace MySql.XDevAPI.Common
       public string Message;
     }
 
+    /// <summary>
+    /// Class to represent a warning in this result
+    /// </summary>
     public class Warning
     {
       public uint Code;

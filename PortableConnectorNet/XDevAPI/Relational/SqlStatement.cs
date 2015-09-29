@@ -24,15 +24,30 @@ using MySql.XDevAPI.Common;
 
 namespace MySql.XDevAPI.Relational
 {
+  /// <summary>
+  /// Represents a sql statement
+  /// </summary>
   public class SqlStatement : BaseStatement<TableResult>
   {
+    /// <summary>
+    /// SqlStament constructor
+    /// </summary>
+    /// <param name="session">Node session the sql statement belongs to</param>
+    /// <param name="sql">Sql statement</param>
     public SqlStatement(NodeSession session, string sql) : base(session)
     {
       SQL = sql;
     }
 
+    /// <summary>
+    /// Current Sql statement
+    /// </summary>
     public string SQL { get; private set; }
 
+    /// <summary>
+    /// Execute the current sql statement
+    /// </summary>
+    /// <returns>TableResult object with the resultset and execution status</returns>
     public override TableResult Execute()
     {
       return Session.XSession.ExecuteQuery(SQL);

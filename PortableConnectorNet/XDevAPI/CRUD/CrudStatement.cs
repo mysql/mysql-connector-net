@@ -26,10 +26,14 @@ using MySql.XDevAPI.Common;
 
 namespace MySql.XDevAPI.CRUD
 {
+  /// <summary>
+  /// Represents a collection statement
+  /// </summary>
+  /// <typeparam name="TResult"></typeparam>
   public abstract class CrudStatement<TResult> : TargetedBaseStatement<Collection, TResult>
     where TResult : Result
   {
-    public CrudStatement(Collection collection) : base(collection)
+    internal CrudStatement(Collection collection) : base(collection)
     {
     }
 

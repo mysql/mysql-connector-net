@@ -22,6 +22,12 @@
 
 namespace MySql.XDevAPI.Common
 {
+  /// <summary>
+  /// Abstract class for filterable statements
+  /// </summary>
+  /// <typeparam name="T">Filterable statement</typeparam>
+  /// <typeparam name="TTarget">Database object</typeparam>
+  /// <typeparam name="TResult">Type of Result</typeparam>
   public abstract class FilterableStatement<T, TTarget, TResult> : TargetedBaseStatement<TTarget, TResult>
     where T : FilterableStatement<T, TTarget, TResult>
     where TTarget : DatabaseObject
@@ -29,6 +35,11 @@ namespace MySql.XDevAPI.Common
   {
     private FilterParams filter = new FilterParams();
 
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="target">Database object</param>
+    /// <param name="condition">Optional filter condition</param>
     public FilterableStatement(TTarget target, string condition = null) : base(target)
     {
       if (condition != null)

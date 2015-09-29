@@ -23,14 +23,26 @@
 
 namespace MySql.XDevAPI
 {
+  /// <summary>
+  /// Session that handles communication to MySql server
+  /// </summary>
   public class XSession : BaseSession
   {
+    /// <summary>
+    /// Creates XSession using a connection string
+    /// </summary>
+    /// <param name="connectionString"></param>
     public XSession(string connectionString)
       : base(connectionString)
     {
 
     }
 
+    /// <summary>
+    /// Creates XSession using an anonymous type as connection data
+    /// Example: new { server = "localhost", uid = "user", password = "somepass" }
+    /// </summary>
+    /// <param name="connectionData"></param>
     public XSession(object connectionData)
       : base(connectionData)
     {

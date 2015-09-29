@@ -25,13 +25,20 @@ using MySql.XDevAPI.Common;
 
 namespace MySql.XDevAPI.Relational
 {
+  /// <summary>
+  /// Represent a chaining table delete statement
+  /// </summary>
   public class TableDeleteStatement : FilterableStatement<TableDeleteStatement, Table, UpdateResult>
   {
-    public TableDeleteStatement(Table table, string condition) : base(table, condition)
+    internal TableDeleteStatement(Table table, string condition) : base(table, condition)
     {
       FilterData.IsRelational = true;
     }
 
+    /// <summary>
+    /// Executes the delete statement
+    /// </summary>
+    /// <returns>Result of delete execution</returns>
     public override UpdateResult Execute()
     {
       return Target.Session.XSession.DeleteRows(this);

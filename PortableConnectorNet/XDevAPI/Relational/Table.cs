@@ -25,6 +25,9 @@ using MySql.XDevAPI.Relational;
 
 namespace MySql.XDevAPI.Relational
 {
+  /// <summary>
+  /// Represents a server Table
+  /// </summary>
   public class Table : DatabaseObject
   {
     internal Table(Schema schema, string name)
@@ -32,16 +35,30 @@ namespace MySql.XDevAPI.Relational
     {
     }
 
+    /// <summary>
+    /// Selects a set of table rows
+    /// </summary>
+    /// <param name="columns">Optional column names to select</param>
+    /// <returns>TableSelectStatement object for select chain</returns>
     public TableSelectStatement Select(params string[] columns)
     {
       return new TableSelectStatement(this, columns);
     }
 
+    /// <summary>
+    /// Inserts one or multiple rows into a table
+    /// </summary>
+    /// <param name="fields">Optional list of fields for insert</param>
+    /// <returns>TableInsertStatement object for insert chain</returns>
     public TableInsertStatement Insert(params string[] fields)
     {
       return new TableInsertStatement(this, fields);
     }
 
+    /// <summary>
+    /// Updates table rows values
+    /// </summary>
+    /// <returns>TableUpdateStatement object for update chain</returns>
     public TableUpdateStatement Update()
     {
       return new TableUpdateStatement(this);
@@ -65,6 +82,10 @@ namespace MySql.XDevAPI.Relational
       return Session.XSession.TableCount(Schema, Name);
     }
 
+    /// <summary>
+    /// Verifies if the table exists in database
+    /// </summary>
+    /// <returns>True if table exists</returns>
     public override bool ExistsInDatabase()
     {
       return Session.XSession.TableExists(Schema, Name);

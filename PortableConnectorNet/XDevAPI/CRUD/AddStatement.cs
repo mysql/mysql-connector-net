@@ -25,6 +25,9 @@ using MySql.XDevAPI.Common;
 
 namespace MySql.XDevAPI.CRUD
 {
+  /// <summary>
+  /// Represent a chaining collection insert statement
+  /// </summary>
   public class AddStatement : CrudStatement<UpdateResult>
   {
     private List<DbDoc> _DbDocs = new List<DbDoc>();
@@ -33,16 +36,28 @@ namespace MySql.XDevAPI.CRUD
     {
     }
 
+    /// <summary>
+    /// Adds documents to the collection
+    /// </summary>
+    /// <param name="items">Documents to add</param>
     public void Add(params object[] items)
     {
       _DbDocs.AddRange(GetDocs(items, true));
     }
 
+    /// <summary>
+    /// Adds documents to the collection
+    /// </summary>
+    /// <param name="items">Documents to add as string</param>
     public void Add(params string[] items)
     {
       _DbDocs.AddRange(GetDocs(items, true));
     }
 
+    /// <summary>
+    /// Executes the Add statement
+    /// </summary>
+    /// <returns>Result of execution</returns>
     public override UpdateResult Execute()
     {
       return Target.Session.XSession.Insert(Target, _DbDocs.ToArray());

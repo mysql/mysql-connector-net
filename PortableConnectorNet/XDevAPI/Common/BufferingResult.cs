@@ -6,6 +6,10 @@ using MySql.Properties;
 
 namespace MySql.XDevAPI.Common
 {
+  /// <summary>
+  /// Abstract class for Buffered results
+  /// </summary>
+  /// <typeparam name="T"></typeparam>
   public abstract class BufferingResult<T> : Result, IEnumerable<T>, IEnumerator<T>
   {
     int _position;

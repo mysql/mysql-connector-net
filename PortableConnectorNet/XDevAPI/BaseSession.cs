@@ -30,6 +30,9 @@ using MySql.XDevAPI.Relational;
 
 namespace MySql.XDevAPI
 {
+  /// <summary>
+  /// Represents a base class for XSession and NodeSession
+  /// </summary>
   public abstract class BaseSession : IDisposable
   {
     private InternalSession _internalSession;
@@ -57,6 +60,10 @@ namespace MySql.XDevAPI
       get { return InternalSession as XInternalSession; }
     }
 
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="connectionString">Session connection string</param>
     public BaseSession(string connectionString)
     {
       this.connectionString = connectionString;
@@ -64,6 +71,10 @@ namespace MySql.XDevAPI
       _internalSession = InternalSession.GetSession(Settings);
     }
 
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="connectionData">Session data as anonymous type</param>
     public BaseSession(object connectionData)
     {
       if (!connectionData.GetType().IsGenericType)
@@ -190,6 +201,9 @@ namespace MySql.XDevAPI
     }
   }
 
+  /// <summary>
+  /// Session state
+  /// </summary>
   public enum SessionState
   {
     // Summary:

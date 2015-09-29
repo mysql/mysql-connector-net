@@ -26,40 +26,66 @@ using MySql.XDevAPI.CRUD;
 
 namespace MySql.XDevAPI.Relational
 {
+  /// <summary>
+  /// Represents a chaining table select statement
+  /// </summary>
   public class TableSelectStatement : FilterableStatement<TableSelectStatement, Table, TableResult>
   {
     internal FindParams findParams = new FindParams();
 
-    public TableSelectStatement(Table t, params string[] projection) : base(t)
+    internal TableSelectStatement(Table t, params string[] projection) : base(t)
     {
       findParams.Projection = projection;
       FilterData.IsRelational = true;
     }
 
+    /// <summary>
+    /// Set table aggregation
+    /// </summary>
+    /// <param name="groupBy">Column list for aggregation</param>
+    /// <returns>This same TableSelectStatement object</returns>
     public TableSelectStatement GroupBy(params string[] groupBy)
     {
       findParams.GroupBy = groupBy;
       return this;
     }
 
-
+    /// <summary>
+    /// Filter criteria for aggregated groups
+    /// </summary>
+    /// <param name="having">Filter criteria for aggregated groups</param>
+    /// <returns>This same TableSelectStatement object</returns>
     public TableSelectStatement Having(string having)
     {
       findParams.GroupByCritieria = having;
       return this;
     }
 
+    /// <summary>
+    /// Executes the select statement
+    /// </summary>
+    /// <returns>Result of execution and data</returns>
     public override TableResult Execute()
     {
       return Target.Session.XSession.FindRows(this);
     }
 
+    /// <summary>
+    /// Binds the parameter values in filter expression
+    /// </summary>
+    /// <param name="namedParameters">Values for parameters used in filter expression as Dictionary</param>
+    /// <returns>This same TableSelectStatement object</returns>
     public TableSelectStatement Bind(Dictionary<string, object> namedParameters)
     {
       this.FilterData.Parameters = namedParameters;
       return this;
     }
 
+    /// <summary>
+    /// Binds the parameter values in filter expression
+    /// </summary>
+    /// <param name="values">Values for parameters used in filter expression</param>
+    /// <returns>This same TableSelectStatement object</returns>
     public TableSelectStatement Bind(params object[] values)
     {
       this.FilterData.Parameters = new Dictionary<string, object>();
@@ -76,7 +102,7 @@ namespace MySql.XDevAPI.Relational
     /// </summary>
     /// <param name="rows">How many items should be returned</param>
     /// <param name="offset">How many items should be skipped</param>
-    /// <returns>The implementing statement type</returns>
+    /// <returns>This same TableSelectStatement object</returns>
     public TableSelectStatement Limit(long rows, long offset)
     {
       FilterData.Limit = rows;

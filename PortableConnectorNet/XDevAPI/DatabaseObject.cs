@@ -23,6 +23,9 @@
 
 namespace MySql.XDevAPI
 {
+  /// <summary>
+  /// Represents a database object
+  /// </summary>
   public abstract class DatabaseObject
   {
     internal DatabaseObject(Schema schema, string name)
@@ -31,16 +34,28 @@ namespace MySql.XDevAPI
       Name = name;
     }
 
+    /// <summary>
+    /// Session that owns the database object
+    /// </summary>
     public BaseSession Session
     {
       get { return Schema.Session;  }
     }
 
+    /// <summary>
+    /// Schema that owns the database object
+    /// </summary>
     public Schema Schema { get; protected set; }
 
+    /// <summary>
+    /// Database object name
+    /// </summary>
     public string Name { get; protected set; }
 
-
+    /// <summary>
+    /// Verifies if database object exists in database
+    /// </summary>
+    /// <returns>True if the object exists in database</returns>
     public abstract bool ExistsInDatabase();
   }
 }

@@ -30,6 +30,9 @@ using System.Threading.Tasks;
 
 namespace MySql.XDevAPI.Relational
 {
+  /// <summary>
+  /// Represents a chaining table update statement
+  /// </summary>
   public class TableUpdateStatement : FilterableStatement<TableUpdateStatement, Table, UpdateResult>
   {
     internal List<UpdateSpec> updates = new List<UpdateSpec>();
@@ -40,17 +43,33 @@ namespace MySql.XDevAPI.Relational
       FilterData.Parameters = new Dictionary<string, object>();
     }
 
+    /// <summary>
+    /// Executes the update statement
+    /// </summary>
+    /// <returns>Result of the update statement</returns>
     public override UpdateResult Execute()
     {
       return Target.Session.XSession.UpdateRows(this);
     }
 
+    /// <summary>
+    /// Column and value to be updated
+    /// </summary>
+    /// <param name="tableField">Column name</param>
+    /// <param name="value">Value to be updated</param>
+    /// <returns>This same TableUpdateStatement object</returns>
     public TableUpdateStatement Set(string tableField, object value)
     {
       updates.Add(new UpdateSpec(Mysqlx.Crud.UpdateOperation.Types.UpdateType.SET, tableField).SetValue(value));
       return this;
     }
 
+    /// <summary>
+    /// Binds the parameter values in filter expression
+    /// </summary>
+    /// <param name="name">Parameter name</param>
+    /// <param name="value">Parameter value</param>
+    /// <returns></returns>
     public TableUpdateStatement Bind(string name, object value)
     {
       FilterData.Parameters.Add(name, value);

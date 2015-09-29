@@ -26,34 +26,57 @@ using MySql.XDevAPI.Common;
 
 namespace MySql.XDevAPI.CRUD
 {
+  /// <summary>
+  /// Represents a chaining collection modify statement
+  /// </summary>
   public class ModifyStatement : FilterableStatement<ModifyStatement, Collection, UpdateResult>
   {
-    public ModifyStatement(Collection collection, string condition) : base(collection, condition)
+    internal ModifyStatement(Collection collection, string condition) : base(collection, condition)
     {
       Updates = new List<UpdateSpec>();
     }
 
     internal List<UpdateSpec> Updates;
 
+    /// <summary>
+    /// Sets key and value
+    /// </summary>
+    /// <param name="docPath">Document path key</param>
+    /// <param name="value">New value</param>
+    /// <returns>This ModifyStatement object</returns>
     public ModifyStatement Set(string docPath, object value)
     {
       Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ITEM_SET, docPath).SetValue(value));
       return this;
     }
 
+    /// <summary>
+    /// Changes value for a key
+    /// </summary>
+    /// <param name="docPath">Document path key</param>
+    /// <param name="value">New value</param>
+    /// <returns>This ModifyStatement object</returns>
     public ModifyStatement Change(string docPath, object value)
     {
       Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ITEM_REPLACE, docPath).SetValue(value));
       return this;
     }
 
+    /// <summary>
+    /// Removes a key/value from a document
+    /// </summary>
+    /// <param name="docPath"></param>
+    /// <returns>This ModifyStatement object</returns>
     public ModifyStatement Unset(string docPath)
     {
       Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ITEM_REMOVE, docPath));
       return this;
     }
 
-
+    /// <summary>
+    /// Executes the modify statement
+    /// </summary>
+    /// <returns>Result of execution</returns>
     public override UpdateResult Execute()
     {
       return Target.Session.XSession.ModifyDocs(this);

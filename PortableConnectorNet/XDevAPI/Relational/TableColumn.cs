@@ -26,22 +26,58 @@ using MySql.Data;
 
 namespace MySql.XDevAPI.Relational
 {
+  /// <summary>
+  /// Represents a table column
+  /// </summary>
   public class TableColumn
   {
     internal ValueDecoder _decoder;
     internal UInt64 _collationNumber;
 
+    /// <summary>
+    /// Column name
+    /// </summary>
     public string Name { get; internal set; }
+    /// <summary>
+    /// Original column name before an alias was applied
+    /// </summary>
     public string OriginalName { get; internal set; }
+    /// <summary>
+    /// Table name the column orginates from
+    /// </summary>
     public string Table { get; internal set; }
+    /// <summary>
+    /// Original table name the column orginates from before an alias was applied
+    /// </summary>
     public string OriginalTable { get; internal set; }
-
+    /// <summary>
+    /// Schema name the column originates from
+    /// </summary>
     public string Schema { get; internal set; }
+    /// <summary>
+    /// Catalog the schema originates from.
+    /// In MySQL protocol this is `def` by default
+    /// </summary>
     public string Catalog { get; internal set;  }
+    /// <summary>
+    /// Collation used in column
+    /// </summary>
     public string Collation { get; internal set; }
+    /// <summary>
+    /// Column lenght
+    /// </summary>
     public UInt32 Length { get; internal set; }
+    /// <summary>
+    /// Fractional decimal digits for floating point and fixed point numbers
+    /// </summary>
     public UInt32 FractionalDigits { get; internal set; }
+    /// <summary>
+    /// Mysql data type
+    /// </summary>
     public MySQLDbType DbType { get; internal set; }
+    /// <summary>
+    /// .NET Clr data type
+    /// </summary>
     public Type ClrType { get; internal set; }
 
   }

@@ -27,7 +27,7 @@ using MySql.XDevAPI.Relational;
 namespace MySql.XDevAPI
 {
   /// <summary>
-  /// NodeSession
+  /// Represents a single MySql server session
   /// </summary>
   public class NodeSession : BaseSession
   {

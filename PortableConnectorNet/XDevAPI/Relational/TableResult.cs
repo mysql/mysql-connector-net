@@ -29,7 +29,7 @@ using MySql.XDevAPI.Common;
 namespace MySql.XDevAPI.Relational
 {
   /// <summary>
-  /// Repreents a resultset that contains rows of data.  
+  /// Represents a resultset that contains rows of data.  
   /// </summary>
   public class TableResult : BufferingResult<TableRow>
   {
