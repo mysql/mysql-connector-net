@@ -173,7 +173,7 @@ namespace MySql.Data.MySqlClient.Tests
             if (string.IsNullOrEmpty(rootUser))
                 rootUser = "root";
             if (string.IsNullOrEmpty(rootPassword))
-              rootPassword = "mypass";
+              rootPassword = "";
             if (string.IsNullOrEmpty(host))
                 host = "localhost";
             if (string.IsNullOrEmpty(portString))
