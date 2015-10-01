@@ -33,6 +33,7 @@ using MySql.XDevAPI.Common;
 using MySql.XDevAPI.Relational;
 using MySql.XDevAPI.CRUD;
 using MySql.Protocol.X;
+using Mysqlx.Datatypes;
 
 namespace MySql.Session
 {
@@ -117,12 +118,38 @@ namespace MySql.Session
 
     public void CreateCollection(string schemaName, string collectionName)
     {
-      ExecuteCmdNonQuery("create_collection", true, schemaName, collectionName);
+      ExecuteCmdNonQuery(XpluginStatementCommand.XPLUGIN_STMT_CREATE_COLLECTION, true, schemaName, collectionName);
     }
 
     public void DropCollection(string schemaName, string collectionName)
     {
-      ExecuteCmdNonQuery("drop_collection", true, schemaName, collectionName);
+      ExecuteCmdNonQuery(XpluginStatementCommand.XPLUGIN_STMT_DROP_COLLECTION, true, schemaName, collectionName);
+    }
+
+    public UpdateResult CreateCollectionIndex(CreateCollectionIndexStatement statement)
+    {
+      List<object> args = new List<object>();
+      args.Add(statement.Target.Schema.Name);
+      args.Add(statement.Target.Name);
+      args.Add(statement.createIndexParams.IndexName);
+      args.Add(statement.createIndexParams.IsUnique);
+      for(int i = 0; i < statement.createIndexParams.DocPaths.Count; i++)
+      {
+        args.Add(statement.createIndexParams.DocPaths[i]);
+        args.Add(statement.createIndexParams.Types[i]);
+        args.Add(statement.createIndexParams.NotNulls[i]);
+      }
+
+      return ExecuteCmdNonQuery(XpluginStatementCommand.XPLUGIN_STMT_CREATE_COLLECTION_INDEX, false, args.ToArray());
+    }
+
+    public UpdateResult DropCollectionIndex(string schemaName, string collectionName, string indexName)
+    {
+      List<object> args = new List<object>();
+      args.Add(schemaName);
+      args.Add(collectionName);
+      args.Add(indexName);
+      return ExecuteCmdNonQuery(XpluginStatementCommand.XPLUGIN_STMT_DROP_COLLECTION_INDEX, false, args.ToArray());
     }
 
     public long TableCount(Schema schema, string name)

@@ -40,18 +40,22 @@ namespace MySql.XDevAPI.CRUD
     /// Adds documents to the collection
     /// </summary>
     /// <param name="items">Documents to add</param>
-    public void Add(params object[] items)
+    /// <returns>This AddStatement object</returns>
+    public AddStatement Add(params object[] items)
     {
       _DbDocs.AddRange(GetDocs(items, true));
+      return this;
     }
 
     /// <summary>
     /// Adds documents to the collection
     /// </summary>
     /// <param name="items">Documents to add as string</param>
-    public void Add(params string[] items)
+    /// <returns>This AddStatement object</returns>
+    public AddStatement Add(params string[] items)
     {
       _DbDocs.AddRange(GetDocs(items, true));
+      return this;
     }
 
     /// <summary>

@@ -23,6 +23,7 @@
 using System;
 using MySql.Properties;
 using MySql.XDevAPI.CRUD;
+using MySql.XDevAPI.Common;
 
 namespace MySql.XDevAPI
 {
@@ -153,41 +154,31 @@ namespace MySql.XDevAPI
       return stmt;
     }
 
-
-    public Collection As(string alias)
+    /// <summary>
+    /// Creates a collection index
+    /// </summary>
+    /// <param name="indexName">Index name</param>
+    /// <param name="isUnique">True if the index is unique</param>
+    /// <returns>CreateCollectionIndexStatement object</returns>
+    public CreateCollectionIndexStatement CreateIndex(string indexName, bool isUnique)
     {
-      throw new NotImplementedException();
+      return new CreateCollectionIndexStatement(this, indexName, isUnique);
     }
 
-    public Collection On(string condition)
+    /// <summary>
+    /// Drops a collection index
+    /// </summary>
+    /// <param name="indexName">Index name</param>
+    /// <returns>Result of drop statement</returns>
+    public UpdateResult DropIndex(string indexName)
     {
-      throw new NotImplementedException();
-    }
-
-    public Collection Join(Collection collection)
-    {
-      throw new NotImplementedException();
-    }
-
-    public Collection Fields(params string[] fields)
-    {
-      throw new NotImplementedException();
-    }
-
-    public Collection Join(Collection collection, string condition)
-    {
-      throw new NotImplementedException();
-    }
-
-    public void OnCompleted(Action completedMethod)
-    {
-      throw new NotImplementedException();
+      return Session.XSession.DropCollectionIndex(this.Schema.Name, this.Name, indexName);
     }
 
     /// <summary>
     /// Verifies if current collection exists in server schema
     /// </summary>
-    /// <returns></returns>
+    /// <returns>True if exists</returns>
     public override bool ExistsInDatabase()
     {
       return Session.XSession.TableExists(Schema, Name);
