@@ -2,6 +2,7 @@
 - Changed handshake process to use bytes instead of encoded strings.
 - Added support for Chinese character set gb18030. (Oracle bug # 21098546).
 - Added support for Json type. (WL # 8132).
+- Added changes for metadata information in generated columns with 5.7 (WL #411)
 
 
 6.8.6

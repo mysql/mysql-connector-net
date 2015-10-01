@@ -257,6 +257,34 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("BOO", dt.Rows[4]["COLUMN_DEFAULT"].ToString().ToUpper());
     }
 
+
+    ///<summary>
+    ///Testing out schema information about generated columns
+    /// only in version 5.7.6 or later    
+    ///</summary>
+    [Fact]
+    public void CanGetSchemaInformationGeneratedColumns()
+    {     
+      if (st.Version < new Version(5, 7, 6)) return;
+
+      st.execSQL("DROP TABLE IF EXISTS test");
+      st.execSQL("CREATE TABLE `Test` (`ID` int NOT NULL AUTO_INCREMENT PRIMARY KEY, `Name` char(35) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL)");
+
+      var cmd = new MySqlCommand("ALTER TABLE test ADD COLUMN Name_ci char(35) CHARACTER SET utf8 AS (Name) STORED;", st.conn);
+      cmd.ExecuteNonQuery();
+
+      DataTable dt = st.conn.GetSchema("Columns", new string[] { null, null, "test", null });
+      Assert.Equal(3, dt.Rows.Count);
+      Assert.Equal("Columns", dt.TableName);
+      if (st.Version.Major >= 5 && st.Version.Minor >= 7 && st.Version.Build >= 6)
+      {
+        Assert.Equal("char", dt.Rows[2]["DATA_TYPE"]);
+        Assert.Equal("Name", dt.Rows[2]["GENERATION_EXPRESSION"]);
+        Assert.Equal("STORED GENERATED", dt.Rows[2]["EXTRA"]);         
+      }
+    }
+
+
     /// <summary> 
     /// Bug #46270 connection.GetSchema("Columns") fails on MySQL 4.1  
     /// </summary> 

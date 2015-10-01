@@ -1,4 +1,4 @@
-// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2015, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -175,6 +175,7 @@ namespace MySql.Data.MySqlClient
       c.AddColumn("EXTRA", typeof(string));
       c.AddColumn("PRIVILEGES", typeof(string));
       c.AddColumn("COLUMN_COMMENT", typeof(string));
+      c.AddColumn("GENERATION_EXPRESSION", typeof(string));
 
       // we don't allow restricting on table type here
       string columnName = null;
@@ -228,6 +229,7 @@ namespace MySql.Data.MySqlClient
           row["EXTRA"] = reader.GetString(6);
           row["PRIVILEGES"] = reader.GetString(7);
           row["COLUMN_COMMENT"] = reader.GetString(8);
+          row["GENERATION_EXPRESION"] = reader.GetString(6).Contains("VIRTUAL") ? reader.GetString(9) : string.Empty;                     
           ParseColumnRow(row);
         }
       }
