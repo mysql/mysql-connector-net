@@ -229,7 +229,9 @@ namespace MySql.Data.MySqlClient
           row["EXTRA"] = reader.GetString(6);
           row["PRIVILEGES"] = reader.GetString(7);
           row["COLUMN_COMMENT"] = reader.GetString(8);
+#if !CF && !RT
           row["GENERATION_EXPRESION"] = reader.GetString(6).Contains("VIRTUAL") ? reader.GetString(9) : string.Empty;                     
+#endif
           ParseColumnRow(row);
         }
       }
