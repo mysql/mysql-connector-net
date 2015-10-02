@@ -127,14 +127,6 @@ namespace MySql.XDevAPI
     #endregion
 
     /// <summary>
-    /// Drop the current collection in server
-    /// </summary>
-    public void Drop()
-    {
-      Session.XSession.DropCollection(Schema.Name, Name);
-    }
-
-    /// <summary>
     /// Returns the number of documents in this collection on the server.
     /// </summary>
     /// <returns>Number of documents</returns>

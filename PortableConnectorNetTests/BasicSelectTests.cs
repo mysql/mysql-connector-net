@@ -38,8 +38,6 @@ namespace PortableConnectorNetTests
       result.Buffer();
       Assert.True(result.Columns.Count == 2);
       Assert.True(result.Rows.Count == 2);
-      books.Delete();
-      Assert.False(books.ExistsInDatabase());
     }
 
     [Fact]
@@ -52,8 +50,6 @@ namespace PortableConnectorNetTests
       result.Buffer();
       Assert.True(result.Columns.Count == 2);
       Assert.True(result.Rows.Count == 1);
-      books.Delete();
-      Assert.False(books.ExistsInDatabase());
     }
 
     private void CreateBooksTable()

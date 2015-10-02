@@ -36,7 +36,6 @@
     <Compile Include="RelationalTests\SqlTests.cs" />
     <Compile Include="RelationalTests\TableAsyncTests.cs" />
     <Compile Include="RelationalTests\TableDeleteTests.cs" />
-    <Compile Include="RelationalTests\TableFixture.cs" />
     <Compile Include="RelationalTests\TableInsertTests.cs" />
     <Compile Include="RelationalTests\TableSelectTests.cs" />
     <Compile Include="RelationalTests\TableUpdateTests.cs" />
@@ -49,7 +48,6 @@
     <Compile Include="CrudInsertTests.cs" />
     <Compile Include="CrudRemoveTests.cs" />
     <Compile Include="CrudUpdateTests.cs" />
-    <Compile Include="DatabaseFixture.cs" />
     <Compile Include="ExprParserTests.cs" />
     <Compile Include="JsonDocTests.cs" />
     <Compile Include="Properties\Resources.Designer.cs">

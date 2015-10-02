@@ -31,30 +31,22 @@ using Xunit;
 
 namespace PortableConnectorNetTests.RelationalTests
 {
-  public class TableUpdateTests : IClassFixture<TableFixture>
+  public class TableUpdateTests : BaseTest
   {
-    TableFixture fixture;
     Table table;
 
-    public TableUpdateTests(TableFixture fixture)
+    public TableUpdateTests()
     {
-      this.fixture = fixture;
+      ExecuteSQL("CREATE TABLE test.test(id INT, name VARCHAR(40), age INT)");
 
-      var deleteStatement = fixture.GetNodeSession().SQL("DELETE FROM " + fixture.TableInsert).Execute();
-      deleteStatement.Buffer();
-      Assert.True(deleteStatement.Succeeded);
-
-      //inserts data
-      table = fixture.GetTableInsert();
+      table = testSchema.GetTable("test");
       var insertStatement = table.Insert();
       int rowsToInsert = 10;
       for (int i = 1; i <= rowsToInsert; i++)
       {
-        insertStatement.Values(i, i, i);
+        insertStatement.Values(i, "", i);
       }
-      var resultInsert = insertStatement.Execute();
-      Assert.True(resultInsert.Succeeded);
-
+      Assert.True(insertStatement.Execute().Succeeded);
       Assert.Equal(rowsToInsert, CountRows());
     }
 
@@ -103,7 +95,7 @@ namespace PortableConnectorNetTests.RelationalTests
     [Fact]
     public void UpdateConditionTest()
     {
-      ValidateUpdate(table.Update().Where("employee_id = 5").Set("name", "other"));
+      ValidateUpdate(table.Update().Where("id = 5").Set("name", "other"));
     }
 
     [Fact]
@@ -111,14 +103,14 @@ namespace PortableConnectorNetTests.RelationalTests
     {
       ValidateUpdate(table.Update().Set("name", "other")
         .Set("age", 21)
-        .Set("employee_id", 30)
-        .Where("employee_id = 3"));
+        .Set("id", 30)
+        .Where("id = 3"));
     }
 
     [Fact]
     public void UpdateMultiRows()
     {
-      ValidateUpdate(table.Update().Set("age", 85).Where("employee_id % 2 = 0"));
+      ValidateUpdate(table.Update().Set("age", 85).Where("id % 2 = 0"));
     }
 
     [Fact]
@@ -130,13 +122,13 @@ namespace PortableConnectorNetTests.RelationalTests
     [Fact]
     public void UpdateOrderbyAndLimit()
     {
-      ValidateUpdate(table.Update().Set("age", 15).OrderBy("employee_id DES").Limit(5));
+      ValidateUpdate(table.Update().Set("age", 15).OrderBy("id DES").Limit(5));
     }
 
     [Fact]
     public void UpdateBind()
     {
-      ValidateUpdate(table.Update().Set("age", 55).Where("employee_id = :id or employee_id = :id2").Bind("id", 4).Bind("id2", 7));
+      ValidateUpdate(table.Update().Set("age", 55).Where("id = :id or id = :id2").Bind("id", 4).Bind("id2", 7));
     }
   }
 }

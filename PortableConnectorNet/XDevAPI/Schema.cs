@@ -159,8 +159,9 @@ namespace MySql.XDevAPI
     /// <param name="name">Name of the collection to drop</param>
     public void DropCollection(string name)
     {
-      Collection c = new Collection<DbDoc>(this, name);
-      c.Drop();
+      Collection c = GetCollection(name);
+      if (!c.ExistsInDatabase()) return;
+      Session.XSession.DropCollection(Name, name);
     }
 
     #region Base Class

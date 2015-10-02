@@ -101,7 +101,10 @@ namespace MySql.Session
       GetProtocol().SendSQL(sql);
       TableResult r = new TableResult(GetProtocol());
       r.Buffer();
-      Debug.Assert(r.Next());
+      if (!r.Next())
+      {
+        throw new MySqlException("No data found");
+      }
 
       if (r.Failed)
         throw new MySqlException("Query execution failed: " + r.ErrorInfo.Message);

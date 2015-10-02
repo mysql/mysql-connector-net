@@ -20,46 +20,36 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.XDevAPI.Common;
 using MySql.XDevAPI.Relational;
 using Xunit;
 
 namespace PortableConnectorNetTests.RelationalTests
 {
-  public class TableDeleteTests : IClassFixture<TableFixture>
+  public class TableDeleteTests : BaseTest
   {
-    TableFixture fixture;
-
-    public TableDeleteTests(TableFixture fixture)
+    public TableDeleteTests()
     {
-      this.fixture = fixture;
+      ExecuteSQL("CREATE TABLE test.test(id INT, age INT)");
 
-      Assert.True(fixture.GetNodeSession().SQL("DELETE FROM " + fixture.TableInsert).Execute().Succeeded);
-
-      //inserts data
-      var tableInsert = fixture.GetTableInsert();
-      var insertStatement = tableInsert.Insert();
+      var insertStatement = testSchema.GetTable("test").Insert();
       int rowsToInsert = 10;
       for (int i = 1; i <= rowsToInsert; i++)
       {
-        insertStatement.Values(i, i, i);
+        insertStatement.Values(i, i);
       }
       Assert.True(insertStatement.Execute().Succeeded);
-
       Assert.Equal(rowsToInsert, CountRows());
     }
 
-    private int CountRows()
+    private long CountRows()
     {
-      var result = fixture.GetTableInsert().Select().Execute();
-      Assert.True(result.Succeeded);
-      while (result.Next());
-      return result.Rows.Count;
+      return testSchema.GetTable("test").Count();
     }
 
     private void ExecuteDelete(TableDeleteStatement statement, int expectedRowsCount)
     {
-      var table = fixture.GetTableInsert();
-      var result = statement.Execute();
+      UpdateResult result = statement.Execute();
       Assert.True(result.Succeeded);
       Assert.Equal(expectedRowsCount, CountRows());
     }
@@ -67,25 +57,25 @@ namespace PortableConnectorNetTests.RelationalTests
     [Fact]
     public void DeleteAllTest()
     {
-      ExecuteDelete(fixture.GetTableInsert().Delete(), 0);
+      ExecuteDelete(testSchema.GetTable("test").Delete(), 0);
     }
 
     [Fact]
     public void DeleteConditionTest()
     {
-      ExecuteDelete(fixture.GetTableInsert().Delete().Where("age % 2 = 0"), 5);
+      ExecuteDelete(testSchema.GetTable("test").Delete().Where("age % 2 = 0"), 5);
     }
 
     [Fact]
     public void DeleteOrderbyAndLimit()
     {
-      ExecuteDelete(fixture.GetTableInsert().Delete().OrderBy("age Desc").Limit(3), 7);
+      ExecuteDelete(testSchema.GetTable("test").Delete().OrderBy("age Desc").Limit(3), 7);
     }
 
     [Fact]
     public void DeleteConditionOrderbyAndLimit()
     {
-      ExecuteDelete(fixture.GetTableInsert().Delete().Where("employee_id > 5").OrderBy("employee_id Desc").Limit(2), 8);
+      ExecuteDelete(testSchema.GetTable("test").Delete().Where("id > 5").OrderBy("id Desc").Limit(2), 8);
     }
   }
 }

@@ -80,9 +80,9 @@ namespace PortableConnectorNetTests
       Table test = testSchema.GetCollectionAsTable("test");
       Assert.True(test.ExistsInDatabase());
 
-      TableResult result = test.Select().Execute();
+      TableResult result = test.Select("_id").Execute();
       Assert.True(result.Next());
-      Assert.Equal(1, result[0]);
+      Assert.Equal("1", result[0]);
     }
   }
 }

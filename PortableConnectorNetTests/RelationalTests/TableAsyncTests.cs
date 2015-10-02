@@ -20,35 +20,31 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.XDevAPI.Common;
-using MySql.XDevAPI.Relational;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using MySql.XDevAPI.Common;
+using MySql.XDevAPI.Relational;
 using Xunit;
 
 namespace PortableConnectorNetTests.RelationalTests
 {
-  public class TableAsyncTests : IClassFixture<TableFixture>
+  public class TableAsyncTests : BaseTest
   {
-    TableFixture fixture;
-
-    public TableAsyncTests(TableFixture fixture)
+    public TableAsyncTests()
     {
-      this.fixture = fixture;
-
-      fixture.GetNodeSession().SQL("DELETE FROM " + fixture.TableInsert).Execute();
+      ExecuteSQL("CREATE TABLE test.test(id INT, age INT)");
     }
 
     [Fact]
     public void MultipleTableInsertAsync()
     {
-      var table = fixture.GetTableInsert();
+      Table table = testSchema.GetTable("test");
       List<Task<UpdateResult>> tasksList = new List<Task<UpdateResult>>();
 
       for (int i = 1; i <= 200; i++)
       {
-        tasksList.Add(table.Insert().Values(i, i, i%250).ExecuteAsync());
+        tasksList.Add(table.Insert().Values(i, i%250).ExecuteAsync());
       }
 
       Assert.True(Task.WaitAll(tasksList.ToArray(), TimeSpan.FromMinutes(2)), "WaitAll timeout");
@@ -56,12 +52,13 @@ namespace PortableConnectorNetTests.RelationalTests
       {
         Assert.True(task.Result.Succeeded);
       }
+      Assert.Equal(200, table.Count());
     }
 
     [Fact]
     public void MultipleTableSelectAsync()
     {
-      var table = fixture.GetTable();
+      Table table = testSchema.GetTable("test");
 
       List<Task<TableResult>> tasksList = new List<Task<TableResult>>();
 

@@ -57,7 +57,6 @@ namespace PortableConnectorNetTests
 
       r = coll.Remove("pages > 20").Execute();
       Assert.Equal<ulong>(3, r.RecordsAffected);
-      coll.Drop();
     }
 
     [Fact]
@@ -76,7 +75,6 @@ namespace PortableConnectorNetTests
 
       r = coll.Remove("pages > 20").Limit(1).Execute();
       Assert.Equal<ulong>(1, r.RecordsAffected);
-      coll.Drop();
     }
 
     [Fact]
@@ -95,7 +93,6 @@ namespace PortableConnectorNetTests
 
       r = coll.Remove("pages > 20").Limit(1).Execute();
       Assert.Equal<ulong>(1, r.RecordsAffected);
-      coll.Drop();
     }
 
     [Fact]
@@ -116,7 +113,6 @@ namespace PortableConnectorNetTests
 
       r = coll.Remove(doc).Execute();
       Assert.Equal<ulong>(1, r.RecordsAffected);
-      coll.Drop();
     }
   }
 }

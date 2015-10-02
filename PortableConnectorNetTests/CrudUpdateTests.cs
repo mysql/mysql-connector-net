@@ -37,8 +37,6 @@ namespace PortableConnectorNetTests
 
       result = coll.Modify("_id = 1").Set("pages", "20").Execute();
       Assert.Equal<ulong>(1, result.RecordsAffected);
-
-      coll.Drop();
     }
 
     [Fact]
@@ -50,8 +48,6 @@ namespace PortableConnectorNetTests
 
       result = coll.Modify("_id = 1").Change("name", "Book 2").Execute();
       Assert.Equal<ulong>(1, result.RecordsAffected);
-
-      coll.Drop();
     }
 
     [Fact]
@@ -63,8 +59,6 @@ namespace PortableConnectorNetTests
 
       result = coll.Modify("_id = 1").Unset("pages").Execute();
       Assert.Equal<ulong>(1, result.RecordsAffected);
-
-      coll.Drop();
     }
   }
 }

@@ -51,7 +51,6 @@ namespace PortableConnectorNetTests
       Assert.True(foundDocs.Next());
       Assert.True(foundDocs.Current["title"] == "Book 4");
       Assert.False(foundDocs.Next());
-      coll.Drop();
     }
 
     [Fact]
@@ -76,7 +75,6 @@ namespace PortableConnectorNetTests
       Assert.True(foundDocs.Next());
       Assert.True(foundDocs.Current["title"] == "Book 2");
       Assert.False(foundDocs.Next());
-      coll.Drop();
     }
 
     [Fact]
@@ -97,7 +95,6 @@ namespace PortableConnectorNetTests
       Assert.True(foundDocs.Next());
       Assert.True(foundDocs.Current["title"] == "Book 2");
       Assert.False(foundDocs.Next());
-      coll.Drop();
     }
   }
 }

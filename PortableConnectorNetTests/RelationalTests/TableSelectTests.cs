@@ -24,21 +24,25 @@ using MySql.XDevAPI;
 using Xunit;
 using System.Linq;
 using MySql.XDevAPI.Relational;
+using MySql.XDevAPI.Common;
 
 namespace PortableConnectorNetTests.RelationalTests
 {
-  public class TableSelectTests : IClassFixture<TableFixture>
+  public class TableSelectTests : BaseTest
   {
-    TableFixture fixture;
-
     object[][] allRows = {
-        new object[] { 1, "jonh doe", (byte)38 },
-        new object[] { 2, "milton green", (byte)45 }
+        new object[] { 1, "jonh doe", 38 },
+        new object[] { 2, "milton green", 45 }
       };
 
-    public TableSelectTests(TableFixture fixture)
+    public TableSelectTests()
     {
-      this.fixture = fixture;
+      ExecuteSQL("CREATE TABLE test.test (id INT, name VARCHAR(45), age INT)");
+      TableInsertStatement stmt = testSchema.GetTable("test").Insert();
+      stmt.Values(allRows[0]);
+      stmt.Values(allRows[1]);
+      UpdateResult result = stmt.Execute();
+      Assert.True(result.Succeeded);
     }
 
     private void MultiTableSelectTest(TableSelectStatement statement, object[][] expectedValues)
@@ -64,17 +68,15 @@ namespace PortableConnectorNetTests.RelationalTests
     [Fact]
     public void TableSelect()
     {
-      XSession s = fixture.GetSession();
-      Schema db = s.GetSchema(fixture.Schema);
-      var table = db.GetTable(fixture.Table);
+      var table = testSchema.GetTable("test");
 
       MultiTableSelectTest(table.Select(), allRows);
       MultiTableSelectTest(table.Select("name", "age"),
         allRows.Select(c => new[] { c[1], c[2] }).ToArray());
       MultiTableSelectTest(table.Select("name", "age").Where("age == 38"),
-        allRows.Select(c => new[] { c[1], c[2] }).Where(c => (byte)c[1] == (byte)38).ToArray());
+        allRows.Select(c => new[] { c[1], c[2] }).Where(c => (int)c[1] == 38).ToArray());
       MultiTableSelectTest(table.Select().Where("age == 45"),
-        allRows.Where(c => (byte)c[2] == (byte)45).ToArray());
+        allRows.Where(c => (int)c[2] == 45).ToArray());
       MultiTableSelectTest(table.Select().OrderBy("age"),
         allRows.OrderBy(c => c[2]).ToArray());
       MultiTableSelectTest(table.Select().OrderBy("age desc"),

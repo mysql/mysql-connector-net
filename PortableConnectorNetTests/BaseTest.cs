@@ -71,9 +71,7 @@ namespace PortableConnectorNetTests
     {
       XSession s = GetSession();
       Schema test = s.GetSchema("test");
-      Collection c = test.GetCollection(name);
-      if (c.ExistsInDatabase())
-        c.Drop();
+      test.DropCollection(name);
       return test.CreateCollection(name);
     }
 

@@ -40,6 +40,7 @@ namespace MySql.Data
 
     private static void Load()
     {
+      collations.Add(45, "utf8mb4");
       collations.Add(33, "utf8");
       collations.Add(8, "latin1");
       collations.Add(63, "binary");

@@ -35,7 +35,6 @@ namespace PortableConnectorNetTests
       List<Collection> collections = book.Schema.GetCollections();
       Assert.True(collections.Count == 1);
       Assert.True(collections[0].Name == "book");
-      book.Drop();
     }
 
     [Fact]
