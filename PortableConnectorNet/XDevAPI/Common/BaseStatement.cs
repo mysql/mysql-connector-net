@@ -29,7 +29,7 @@ namespace MySql.XDevAPI.Common
   /// Base abstract class for API statement
   /// </summary>
   /// <typeparam name="TResult"></typeparam>
-  public abstract class BaseStatement<TResult> where TResult : Result
+  public abstract class BaseStatement<TResult> where TResult : BaseResult
   {
     /// <summary>
     /// Constuctor

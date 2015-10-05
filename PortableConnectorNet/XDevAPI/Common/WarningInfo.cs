@@ -23,26 +23,18 @@
 namespace MySql.XDevAPI.Common
 {
   /// <summary>
-  /// Abstract class to select a database object target
+  /// Class to represent a warning in this result
   /// </summary>
-  /// <typeparam name="TTarget">Database object</typeparam>
-  /// <typeparam name="TResult">Execution result</typeparam>
-  public abstract class TargetedBaseStatement<TTarget, TResult> : BaseStatement<TResult>
-    where TTarget : DatabaseObject
-    where TResult : BaseResult
+  public class WarningInfo
   {
-    /// <summary>
-    /// Constructor
-    /// </summary>
-    /// <param name="target">Database object</param>
-    public TargetedBaseStatement(TTarget target) : base(target.Schema.Session)
-    {
-      Target = target;
-    }
+    public uint Code;
+    public string Message;
+    public uint Level;
 
-    /// <summary>
-    /// Database target
-    /// </summary>
-    public TTarget Target { get; private set; }
+    public WarningInfo(uint code, string msg)
+    {
+      Code = code;
+      Message = msg;
+    }
   }
 }

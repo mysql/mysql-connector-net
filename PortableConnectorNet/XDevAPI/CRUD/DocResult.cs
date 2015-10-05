@@ -22,29 +22,28 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
-using MySql.Protocol;
 using MySql.XDevAPI.Common;
 using MySql.XDevAPI.Relational;
+using MySql.Session;
 
 namespace MySql.XDevAPI.CRUD
 {
   /// <summary>
   /// Represents the result of an operation the includes a collection of documents
   /// </summary>
-  public class DocumentResult : BufferingResult<DbDoc>
+  public sealed class DocResult : BufferingResult<DbDoc>
   {
     System.Text.Encoding _encoding = System.Text.Encoding.UTF8;
 
-    internal DocumentResult(ProtocolBase protocol) : base(protocol, true)
+    internal DocResult(InternalSession session) : base(session)
     {
       // this is just a single column "doc"
-      List<TableColumn>_columns = _protocol.LoadColumnMetadata();
       Debug.Assert(_columns.Count == 1);
     }
 
     protected override DbDoc ReadItem(bool dumping)
     {
-      List<byte[]> values = _protocol.ReadRow(_autoClose ? this : null);
+      List<byte[]> values = Protocol.ReadRow(this);
       if (values == null) return null;
 
       Debug.Assert(values.Count == 1);

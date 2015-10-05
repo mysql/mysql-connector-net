@@ -28,7 +28,7 @@ namespace MySql.XDevAPI.CRUD
   /// <summary>
   /// Represents a chaining collection remove statement
   /// </summary>
-  public class RemoveStatement : FilterableStatement<RemoveStatement, Collection, UpdateResult>
+  public class RemoveStatement : FilterableStatement<RemoveStatement, Collection, Result>
   {
     internal RemoveStatement(Collection collection, string condition) : base(collection, condition)
     {
@@ -38,7 +38,7 @@ namespace MySql.XDevAPI.CRUD
     /// Executes the remove statement
     /// </summary>
     /// <returns></returns>
-    public override UpdateResult Execute()
+    public override Result Execute()
     {
       return Target.Session.XSession.DeleteDocs(this);
     }

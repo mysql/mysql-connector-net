@@ -23,22 +23,18 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using MySql.Protocol;
 using MySql.XDevAPI.Common;
+using MySql.Session;
 
 namespace MySql.XDevAPI.Relational
 {
   /// <summary>
   /// Represents a resultset that contains rows of data.  
   /// </summary>
-  public class TableResult : BufferingResult<TableRow>
+  public class InternalRowResult : BufferingResult<TableRow>
   {
-    Dictionary<string, int> nameMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-    List<TableColumn> _columns = new List<TableColumn>();
-
-    internal TableResult(ProtocolBase p, bool autoClose = true) : base(p, autoClose)
+    internal InternalRowResult(InternalSession session) : base(session)
     {
-      LoadMetadata();
     }
 
     /// <summary>
@@ -56,13 +52,6 @@ namespace MySql.XDevAPI.Relational
     public IReadOnlyList<TableRow> Rows
     {
       get { return Items; }
-    }
-
-    private void LoadMetadata()
-    {
-      _columns = _protocol.LoadColumnMetadata();
-      for (int i = 0; i < _columns.Count; i++)
-        nameMap.Add(_columns[i].Name, i);
     }
 
     /// <summary>
@@ -94,15 +83,15 @@ namespace MySql.XDevAPI.Relational
     /// <returns>Numeric index of column</returns>
     public int IndexOf(string name)
     {
-      if (!nameMap.ContainsKey(name))
+      if (NameMap.ContainsKey(name))
         throw new MySqlException("Column not found '" + name + "'");
-      return nameMap[name];
+      return NameMap[name];
     }
 
     protected override TableRow ReadItem(bool dumping)
     {
       ///TODO:  fix this
-      List<byte[]> values = _protocol.ReadRow(_autoClose ? this : null);
+      List<byte[]> values = Protocol.ReadRow(this);
       if (values == null) return null;
       if (dumping) return new TableRow(this, 0);
 

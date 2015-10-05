@@ -32,7 +32,7 @@ namespace PortableConnectorNetTests.RelationalTests
     {
       ExecuteSQL("CREATE TABLE test.test(id INT)");
       ExecuteSQL("INSERT INTO test.test VALUES (1)");
-      TableResult r = GetNodeSession().SQL("SELECT * FROM test.test").Execute();
+      SqlResult r = GetNodeSession().SQL("SELECT * FROM test.test").Execute();
       Assert.True(r.Next());
       Assert.True(r.Succeeded);
       Assert.Equal(1, r[0]);

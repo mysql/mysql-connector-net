@@ -74,13 +74,13 @@ namespace PortableConnectorNetTests
     {
       Collection testCollection = CreateCollection("test");
 
-      UpdateResult r = testCollection.Add(@"{ ""_id"": 1, ""foo"": 1 }").Execute();
+      Result r = testCollection.Add(@"{ ""_id"": 1, ""foo"": 1 }").Execute();
       Assert.Equal<ulong>(1, r.RecordsAffected);
 
       Table test = testSchema.GetCollectionAsTable("test");
       Assert.True(test.ExistsInDatabase());
 
-      TableResult result = test.Select("_id").Execute();
+      RowResult result = test.Select("_id").Execute();
       Assert.True(result.Next());
       Assert.Equal("1", result[0]);
     }

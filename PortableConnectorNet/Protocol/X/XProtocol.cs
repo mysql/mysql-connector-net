@@ -98,7 +98,8 @@ namespace MySql.Protocol
           throw new MySqlException("Unable to connect: " + error.Msg);
 
         case ServerMessageId.NOTICE:
-          ProcessNotice(p, new Result());
+          ///TODO:  fix this
+          //ProcessNotice(p, new Result(null));
           ReadAuthOk();
           break;
 
@@ -169,7 +170,7 @@ namespace MySql.Protocol
     {
     }
 
-    private void ProcessNotice(CommunicationPacket packet, Result rs)
+    private void ProcessNotice(CommunicationPacket packet, BaseResult rs)
     {
       Frame frame = Frame.ParseFrom(packet.Buffer);
       if (frame.Scope == Frame.Types.Scope.GLOBAL)
@@ -192,28 +193,26 @@ namespace MySql.Protocol
       }
     }
 
-    private void ProcessSessionStateChanged(Result rs, byte[] payload)
+    private void ProcessSessionStateChanged(BaseResult rs, byte[] payload)
     {
       SessionStateChanged state = SessionStateChanged.ParseFrom(payload);
       switch (state.Param)
       {
         case SessionStateChanged.Types.Parameter.ROWS_AFFECTED:
-          if (rs is UpdateResult)
-            (rs as UpdateResult).RecordsAffected = state.Value.VUnsignedInt;
+            rs._recordsAffected = state.Value.VUnsignedInt;
           break;
         case SessionStateChanged.Types.Parameter.GENERATED_INSERT_ID:
-          if (rs is UpdateResult)
-            (rs as UpdateResult).LastInsertId = state.Value.VUnsignedInt;
+            rs._lastInsertId = state.Value.VUnsignedInt;
           break;
           // handle the other ones
 //      default: SessionStateChanged(state);
       }
     }
 
-    private void ProcessWarning(Result rs, byte[] payload)
+    private void ProcessWarning(BaseResult rs, byte[] payload)
     {
       Warning w = Warning.ParseFrom(payload);
-      Result.Warning warning = new Result.Warning(w.Code, w.Msg);
+      WarningInfo warning = new WarningInfo(w.Code, w.Msg);
       if (w.HasLevel)
         warning.Level = (uint)w.Level;
       rs.AddWarning(warning);
@@ -255,17 +254,17 @@ namespace MySql.Protocol
     }
 
 
-    private Result.Error DecodeError(CommunicationPacket p)
+    private ErrorInfo DecodeError(CommunicationPacket p)
     {
       Error e = Error.ParseFrom(p.Buffer);
-      Result.Error re = new Result.Error();
+      ErrorInfo re = new ErrorInfo();
       re.Code = e.Code;
       re.SqlState = e.SqlState;
       re.Message = e.Msg;
       return re;
     }
 
-    public override List<byte[]> ReadRow(Result rs)
+    public override List<byte[]> ReadRow(BaseResult rs)
     {
       CommunicationPacket packet = PeekPacket();
       if (packet.MessageType != (int)ServerMessageId.RESULTSET_ROW)
@@ -282,7 +281,7 @@ namespace MySql.Protocol
       return values;
     }
 
-    public override void CloseResult(Result rs)
+    public override void CloseResult(BaseResult rs)
     {
       while (true)
       {
@@ -306,23 +305,27 @@ namespace MySql.Protocol
       }
     }
 
-    public override Result GetNextResult()
-    {
-      CommunicationPacket p = PeekPacket();
-      if (p.MessageType == (int)ServerMessageId.RESULTSET_COLUMN_META_DATA)
-        return new TableResult(this);
-      if (p.MessageType == (int)ServerMessageId.RESULTSET_FETCH_DONE)
-      {
-        ReadPacket();
-        return null; 
-      }
-      if (p.MessageType == (int)ServerMessageId.RESULTSET_FETCH_DONE_MORE_RESULTSETS)
-      {
-        ReadPacket();
-        return new TableResult(this, false);
-      }
-      return null;
-    }
+    //public override bool ReadResult(BaseResult result)
+    //{
+    //  CommunicationPacket p = PeekPacket();
+    //  if (p.MessageType == (int)ServerMessageId.RESULTSET_COLUMN_META_DATA)
+    //  {
+    //    if (!(result is XDevAPI.Common.BufferingResult<T>))
+    //  }
+    //  {
+    //    ReadResultSet(result);
+    //  if (p.MessageType == (int)ServerMessageId.RESULTSET_FETCH_DONE)
+    //  {
+    //    ReadPacket();
+    //    return null; 
+    //  }
+    //  if (p.MessageType == (int)ServerMessageId.RESULTSET_FETCH_DONE_MORE_RESULTSETS)
+    //  {
+    //    ReadPacket();
+    //    return new RowResult(this, false);
+    //  }
+    //  return null;
+    //}
 
     //public override bool HasAnotherResultSet()
     //{

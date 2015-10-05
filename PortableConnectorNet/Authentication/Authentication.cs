@@ -20,25 +20,15 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.Communication;
 using MySql.Data;
-using MySql.DataAccess;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
-using MySql;
-using Mysqlx.Session;
-using Google.ProtocolBuffers;
-using Mysqlx;
-using System.IO;
 
 namespace MySql.Security
 {
 
-  internal abstract class AuthenticationPlugin
+  public abstract class AuthenticationPlugin
   {
     public abstract string PluginName { get; }
     public abstract string AuthName { get; }

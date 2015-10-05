@@ -20,29 +20,17 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using System;
+
 namespace MySql.XDevAPI.Common
 {
   /// <summary>
-  /// Abstract class to select a database object target
+  /// Class to represent an error in this result
   /// </summary>
-  /// <typeparam name="TTarget">Database object</typeparam>
-  /// <typeparam name="TResult">Execution result</typeparam>
-  public abstract class TargetedBaseStatement<TTarget, TResult> : BaseStatement<TResult>
-    where TTarget : DatabaseObject
-    where TResult : BaseResult
+  public class ErrorInfo
   {
-    /// <summary>
-    /// Constructor
-    /// </summary>
-    /// <param name="target">Database object</param>
-    public TargetedBaseStatement(TTarget target) : base(target.Schema.Session)
-    {
-      Target = target;
-    }
-
-    /// <summary>
-    /// Database target
-    /// </summary>
-    public TTarget Target { get; private set; }
+    public UInt32 Code;
+    public string SqlState;
+    public string Message;
   }
 }

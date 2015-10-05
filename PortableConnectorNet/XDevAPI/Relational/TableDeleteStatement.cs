@@ -28,7 +28,7 @@ namespace MySql.XDevAPI.Relational
   /// <summary>
   /// Represent a chaining table delete statement
   /// </summary>
-  public class TableDeleteStatement : FilterableStatement<TableDeleteStatement, Table, UpdateResult>
+  public class TableDeleteStatement : FilterableStatement<TableDeleteStatement, Table, Result>
   {
     internal TableDeleteStatement(Table table, string condition) : base(table, condition)
     {
@@ -39,7 +39,7 @@ namespace MySql.XDevAPI.Relational
     /// Executes the delete statement
     /// </summary>
     /// <returns>Result of delete execution</returns>
-    public override UpdateResult Execute()
+    public override Result Execute()
     {
       return Target.Session.XSession.DeleteRows(this);
     }

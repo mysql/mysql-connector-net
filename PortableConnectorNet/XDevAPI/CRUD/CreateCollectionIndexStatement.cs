@@ -29,7 +29,7 @@ using System.Threading.Tasks;
 
 namespace MySql.XDevAPI.CRUD
 {
-  public class CreateCollectionIndexStatement : CrudStatement<UpdateResult>
+  public class CreateCollectionIndexStatement : CrudStatement<Result>
   {
     internal CreateIndexParams createIndexParams;
 
@@ -44,7 +44,7 @@ namespace MySql.XDevAPI.CRUD
       return this;
     }
 
-    public override UpdateResult Execute()
+    public override Result Execute()
     {
       return Session.XSession.CreateCollectionIndex(this);
     }

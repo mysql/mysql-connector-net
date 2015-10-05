@@ -20,52 +20,41 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System.Collections.Generic;
-using MySql.XDevAPI.Common;
+using System;
+using MySql.Session;
 
-namespace MySql.XDevAPI.CRUD
+namespace MySql.XDevAPI.Relational
 {
-  /// <summary>
-  /// Represent a chaining collection insert statement
-  /// </summary>
-  public class AddStatement : CrudStatement<Result>
+  public class SqlResult : InternalRowResult
   {
-    private List<DbDoc> _DbDocs = new List<DbDoc>();
-
-    internal AddStatement(Collection collection) : base(collection)
+    internal SqlResult(InternalSession session) : base(session)
     {
+
     }
 
     /// <summary>
-    /// Adds documents to the collection
+    /// The number of records affected by the statement that generated this result.
     /// </summary>
-    /// <param name="items">Documents to add</param>
-    /// <returns>This AddStatement object</returns>
-    public AddStatement Add(params object[] items)
+    public UInt64 RecordsAffected
     {
-      _DbDocs.AddRange(GetDocs(items, true));
-      return this;
+      get { return _recordsAffected; }
     }
 
     /// <summary>
-    /// Adds documents to the collection
+    /// The last inserted id (if there is one) by the statement that generated this result.
     /// </summary>
-    /// <param name="items">Documents to add as string</param>
-    /// <returns>This AddStatement object</returns>
-    public AddStatement Add(params string[] items)
+    public UInt64 LastInsertId
     {
-      _DbDocs.AddRange(GetDocs(items, true));
-      return this;
+      get { return _lastInsertId; }
     }
 
-    /// <summary>
-    /// Executes the Add statement
-    /// </summary>
-    /// <returns>Result of execution</returns>
-    public override Result Execute()
+    public bool Next()
     {
-      return Target.Session.XSession.Insert(Target, _DbDocs.ToArray());
+      Dump();
+      _columns = null;
+      _recordsAffected = 0;
+      _lastInsertId = 0;
+      return false; // _protocol.ReadResult(this);
     }
-
   }
 }

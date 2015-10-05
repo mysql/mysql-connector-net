@@ -20,81 +20,36 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.Protocol;
 using System;
-using System.Collections.Generic;
+using MySql.Session;
 
 namespace MySql.XDevAPI.Common
 {
   /// <summary>
   /// Represents a general statement result
   /// </summary>
-  public class Result
+  public class Result : BaseResult
   {
-    private List<Warning> _warnings = new List<Warning>();
-
-    internal Result()
+    internal Result(InternalSession session) : base(session)
     {
-    }
-
-    internal void AddWarning(Warning w)
-    {
-      _warnings.Add(w);
+      session.GetProtocol().CloseResult(this);
     }
 
     /// <summary>
-    /// Warnings derived from statement execution
+    /// The number of records affected by the statement that generated this result.
     /// </summary>
-    public IReadOnlyList<Warning> Warnings
+    public UInt64 RecordsAffected
     {
-      get { return _warnings;  }
+      get { return _recordsAffected; }
     }
 
     /// <summary>
-    /// Error information from statement execution
+    /// The last inserted id (if there is one) by the statement that generated this result.
     /// </summary>
-    public Error ErrorInfo;
-
-    /// <summary>
-    /// True if the statement execution failed
-    /// </summary>
-    public bool Failed
+    public UInt64 LastInsertId
     {
-      get { return ErrorInfo != null;  }
+      get { return _lastInsertId;  }
     }
 
-    /// <summary>
-    /// True if the statement execution succeded
-    /// </summary>
-    public bool Succeeded
-    {
-      get { return !Failed;  }
-    }
-
-    /// <summary>
-    /// Class to represent an error in this result
-    /// </summary>
-    public class Error
-    {
-      public UInt32 Code;
-      public string SqlState;
-      public string Message;
-    }
-
-    /// <summary>
-    /// Class to represent a warning in this result
-    /// </summary>
-    public class Warning
-    {
-      public uint Code;
-      public string Message;
-      public uint Level;
-
-      public Warning(uint code, string msg)
-      {
-        Code = code;
-        Message = msg;
-      }
-    }
   }
 }

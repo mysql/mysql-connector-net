@@ -31,7 +31,7 @@ namespace MySql.XDevAPI.Common
   public abstract class FilterableStatement<T, TTarget, TResult> : TargetedBaseStatement<TTarget, TResult>
     where T : FilterableStatement<T, TTarget, TResult>
     where TTarget : DatabaseObject
-    where TResult : Result
+    where TResult : BaseResult
   {
     private FilterParams filter = new FilterParams();
 

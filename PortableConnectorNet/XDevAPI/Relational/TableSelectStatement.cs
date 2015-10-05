@@ -29,7 +29,7 @@ namespace MySql.XDevAPI.Relational
   /// <summary>
   /// Represents a chaining table select statement
   /// </summary>
-  public class TableSelectStatement : FilterableStatement<TableSelectStatement, Table, TableResult>
+  public class TableSelectStatement : FilterableStatement<TableSelectStatement, Table, RowResult>
   {
     internal FindParams findParams = new FindParams();
 
@@ -65,7 +65,7 @@ namespace MySql.XDevAPI.Relational
     /// Executes the select statement
     /// </summary>
     /// <returns>Result of execution and data</returns>
-    public override TableResult Execute()
+    public override RowResult Execute()
     {
       return Target.Session.XSession.FindRows(this);
     }

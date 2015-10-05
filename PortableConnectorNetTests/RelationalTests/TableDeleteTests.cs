@@ -49,7 +49,7 @@ namespace PortableConnectorNetTests.RelationalTests
 
     private void ExecuteDelete(TableDeleteStatement statement, int expectedRowsCount)
     {
-      UpdateResult result = statement.Execute();
+      Result result = statement.Execute();
       Assert.True(result.Succeeded);
       Assert.Equal(expectedRowsCount, CountRows());
     }

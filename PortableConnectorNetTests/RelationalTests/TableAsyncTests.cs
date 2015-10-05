@@ -40,7 +40,7 @@ namespace PortableConnectorNetTests.RelationalTests
     public void MultipleTableInsertAsync()
     {
       Table table = testSchema.GetTable("test");
-      List<Task<UpdateResult>> tasksList = new List<Task<UpdateResult>>();
+      List<Task<Result>> tasksList = new List<Task<Result>>();
 
       for (int i = 1; i <= 200; i++)
       {
@@ -48,7 +48,7 @@ namespace PortableConnectorNetTests.RelationalTests
       }
 
       Assert.True(Task.WaitAll(tasksList.ToArray(), TimeSpan.FromMinutes(2)), "WaitAll timeout");
-      foreach(Task<UpdateResult> task in tasksList)
+      foreach(Task<Result> task in tasksList)
       {
         Assert.True(task.Result.Succeeded);
       }
@@ -60,7 +60,7 @@ namespace PortableConnectorNetTests.RelationalTests
     {
       Table table = testSchema.GetTable("test");
 
-      List<Task<TableResult>> tasksList = new List<Task<TableResult>>();
+      List<Task<RowResult>> tasksList = new List<Task<RowResult>>();
 
       for(int i = 0; i < 20; i++)
       {
@@ -68,7 +68,7 @@ namespace PortableConnectorNetTests.RelationalTests
       }
 
       Assert.True(Task.WaitAll(tasksList.ToArray(), TimeSpan.FromMinutes(2)), "WaitAll timeout");
-      foreach (Task<TableResult> task in tasksList)
+      foreach (Task<RowResult> task in tasksList)
       {
         Assert.True(task.Result.Succeeded);
       }

@@ -27,7 +27,7 @@ namespace MySql.XDevAPI.Relational
   /// <summary>
   /// Represents a sql statement
   /// </summary>
-  public class SqlStatement : BaseStatement<TableResult>
+  public class SqlStatement : BaseStatement<SqlResult>
   {
     /// <summary>
     /// SqlStament constructor
@@ -47,10 +47,10 @@ namespace MySql.XDevAPI.Relational
     /// <summary>
     /// Execute the current sql statement
     /// </summary>
-    /// <returns>TableResult object with the resultset and execution status</returns>
-    public override TableResult Execute()
+    /// <returns>RowResult object with the resultset and execution status</returns>
+    public override SqlResult Execute()
     {
-      return Session.XSession.ExecuteQuery(SQL);
+      return Session.XSession.GetSQLResult(SQL);
     }
   }
 }

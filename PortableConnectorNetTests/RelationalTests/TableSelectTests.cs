@@ -41,13 +41,13 @@ namespace PortableConnectorNetTests.RelationalTests
       TableInsertStatement stmt = testSchema.GetTable("test").Insert();
       stmt.Values(allRows[0]);
       stmt.Values(allRows[1]);
-      UpdateResult result = stmt.Execute();
+      Result result = stmt.Execute();
       Assert.True(result.Succeeded);
     }
 
     private void MultiTableSelectTest(TableSelectStatement statement, object[][] expectedValues)
     {
-      var result = statement.Execute();
+      RowResult result = statement.Execute();
       int rowCount = 0;
       while (result.Next())
       {

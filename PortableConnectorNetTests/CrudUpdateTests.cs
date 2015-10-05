@@ -32,7 +32,7 @@ namespace PortableConnectorNetTests
     public void SetItemInSingleDocument()
     {
       Collection coll = CreateCollection("test");
-      UpdateResult result = coll.Add(new { _id = 1, name = "Book 1" }).Execute();
+      Result result = coll.Add(new { _id = 1, name = "Book 1" }).Execute();
       Assert.Equal<ulong>(1, result.RecordsAffected);
 
       result = coll.Modify("_id = 1").Set("pages", "20").Execute();
@@ -43,7 +43,7 @@ namespace PortableConnectorNetTests
     public void ChangeItemInSingleDocument()
     {
       Collection coll = CreateCollection("test");
-      UpdateResult result = coll.Add(new { _id = 1, name = "Book 1", pages = 20 }).Execute();
+      Result result = coll.Add(new { _id = 1, name = "Book 1", pages = 20 }).Execute();
       Assert.Equal<ulong>(1, result.RecordsAffected);
 
       result = coll.Modify("_id = 1").Change("name", "Book 2").Execute();
@@ -54,7 +54,7 @@ namespace PortableConnectorNetTests
     public void RemoveItemInSingleDocument()
     {
       Collection coll = CreateCollection("test");
-      UpdateResult result = coll.Add(new { _id = 1, name = "Book 1", pages = 20 }).Execute();
+      Result result = coll.Add(new { _id = 1, name = "Book 1", pages = 20 }).Execute();
       Assert.Equal<ulong>(1, result.RecordsAffected);
 
       result = coll.Modify("_id = 1").Unset("pages").Execute();

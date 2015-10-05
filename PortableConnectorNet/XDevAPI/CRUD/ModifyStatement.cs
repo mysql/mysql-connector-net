@@ -29,7 +29,7 @@ namespace MySql.XDevAPI.CRUD
   /// <summary>
   /// Represents a chaining collection modify statement
   /// </summary>
-  public class ModifyStatement : FilterableStatement<ModifyStatement, Collection, UpdateResult>
+  public class ModifyStatement : FilterableStatement<ModifyStatement, Collection, Result>
   {
     internal ModifyStatement(Collection collection, string condition) : base(collection, condition)
     {
@@ -77,7 +77,7 @@ namespace MySql.XDevAPI.CRUD
     /// Executes the modify statement
     /// </summary>
     /// <returns>Result of execution</returns>
-    public override UpdateResult Execute()
+    public override Result Execute()
     {
       return Target.Session.XSession.ModifyDocs(this);
     }

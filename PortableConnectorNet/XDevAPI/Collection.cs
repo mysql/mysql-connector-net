@@ -162,7 +162,7 @@ namespace MySql.XDevAPI
     /// </summary>
     /// <param name="indexName">Index name</param>
     /// <returns>Result of drop statement</returns>
-    public UpdateResult DropIndex(string indexName)
+    public Result DropIndex(string indexName)
     {
       return Session.XSession.DropCollectionIndex(this.Schema.Name, this.Name, indexName);
     }

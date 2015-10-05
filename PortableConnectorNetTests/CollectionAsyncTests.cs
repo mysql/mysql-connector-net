@@ -35,7 +35,7 @@ namespace PortableConnectorNetTests
     public void CollectionInsert()
     {
       var coll = CreateCollection("test");
-      List<Task<UpdateResult>> tasksList = new List<Task<UpdateResult>>();
+      List<Task<Result>> tasksList = new List<Task<Result>>();
 
       for (int i = 1; i <= 200; i++)
       {
@@ -43,7 +43,7 @@ namespace PortableConnectorNetTests
       }
 
       Task.WaitAll(tasksList.ToArray(), TimeSpan.FromMinutes(2));
-      foreach(Task<UpdateResult> task in tasksList)
+      foreach(Task<Result> task in tasksList)
       {
         Assert.True(task.Result.Succeeded);
       }

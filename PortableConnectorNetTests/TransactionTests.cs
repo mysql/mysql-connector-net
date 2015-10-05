@@ -44,13 +44,13 @@ namespace PortableConnectorNetTests
       // start the transaction
       coll.Session.StartTransaction();
 
-      UpdateResult r = coll.Add(docs).Execute();
+      Result r = coll.Add(docs).Execute();
       Assert.Equal<ulong>(4, r.RecordsAffected);
 
       // now roll it back
       coll.Session.Commit();
 
-      DocumentResult foundDocs = coll.Find().Execute();
+      DocResult foundDocs = coll.Find().Execute();
       Assert.True(foundDocs.Next());
       Assert.True(foundDocs.Next());
       Assert.True(foundDocs.Next());
@@ -73,13 +73,13 @@ namespace PortableConnectorNetTests
       // start the transaction
       coll.Session.StartTransaction();
 
-      UpdateResult r = coll.Add(docs).Execute();
+      Result r = coll.Add(docs).Execute();
       Assert.Equal<ulong>(4, r.RecordsAffected);
 
       // now roll it back
       coll.Session.Rollback();
 
-      DocumentResult foundDocs = coll.Find().Execute();
+      DocResult foundDocs = coll.Find().Execute();
       Assert.False(foundDocs.Next());
     }
 

@@ -34,7 +34,7 @@ namespace PortableConnectorNetTests
       CreateBooksTable();
       Table books = GetTable("test", "books");
 
-      TableResult result = books.Select("name", "pages").Execute();
+      RowResult result = books.Select("name", "pages").Execute();
       result.Buffer();
       Assert.True(result.Columns.Count == 2);
       Assert.True(result.Rows.Count == 2);
@@ -46,7 +46,7 @@ namespace PortableConnectorNetTests
       CreateBooksTable();
       Table books = GetTable("test", "books");
 
-      TableResult result = books.Select("name", "pages").Where("pages > 250").Execute();
+      RowResult result = books.Select("name", "pages").Where("pages > 250").Execute();
       result.Buffer();
       Assert.True(result.Columns.Count == 2);
       Assert.True(result.Rows.Count == 1);

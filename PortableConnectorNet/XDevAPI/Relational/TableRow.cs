@@ -31,11 +31,11 @@ namespace MySql.XDevAPI.Relational
   {
     private object[] values;
     private byte[][] valuesAsBytes;
-    private TableResult _tableResult;
+    private InternalRowResult _RowResult;
 
-    internal TableRow(TableResult rs, int count)
+    internal TableRow(InternalRowResult rs, int count)
     {
-      _tableResult = rs;
+      _RowResult = rs;
       values = new object[count];
       valuesAsBytes = new byte[count][];
     }
@@ -57,7 +57,7 @@ namespace MySql.XDevAPI.Relational
     /// <returns>The value of the column as a string</returns>
     public string GetString(string name)
     {
-      int index = _tableResult.IndexOf(name);
+      int index = _RowResult.IndexOf(name);
       return values[index].ToString();
     }
 
@@ -70,7 +70,7 @@ namespace MySql.XDevAPI.Relational
     {
       get
       {
-        return this[_tableResult.IndexOf(name)];
+        return this[_RowResult.IndexOf(name)];
       }
     }
 
@@ -79,7 +79,7 @@ namespace MySql.XDevAPI.Relational
       for (int i = 0; i < valueBuffers.Count; i++)
       {
         valuesAsBytes[i] = valueBuffers[i];
-        values[i] = _tableResult.Columns[i]._decoder.ClrValueDecoder(valueBuffers[i]);
+        values[i] = _RowResult.Columns[i]._decoder.ClrValueDecoder(valueBuffers[i]);
       }
     }
   }

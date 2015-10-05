@@ -95,7 +95,7 @@ namespace MySql.Session
     }
 
     
-    protected override ProtocolBase GetProtocol()
+    internal override ProtocolBase GetProtocol()
     {
       return protocol;
     }
@@ -126,7 +126,7 @@ namespace MySql.Session
       ExecuteCmdNonQuery(XpluginStatementCommand.XPLUGIN_STMT_DROP_COLLECTION, true, schemaName, collectionName);
     }
 
-    public UpdateResult CreateCollectionIndex(CreateCollectionIndexStatement statement)
+    public Result CreateCollectionIndex(CreateCollectionIndexStatement statement)
     {
       List<object> args = new List<object>();
       args.Add(statement.Target.Schema.Name);
@@ -143,7 +143,7 @@ namespace MySql.Session
       return ExecuteCmdNonQuery(XpluginStatementCommand.XPLUGIN_STMT_CREATE_COLLECTION_INDEX, false, args.ToArray());
     }
 
-    public UpdateResult DropCollectionIndex(string schemaName, string collectionName, string indexName)
+    public Result DropCollectionIndex(string schemaName, string collectionName, string indexName)
     {
       List<object> args = new List<object>();
       args.Add(schemaName);
@@ -167,15 +167,15 @@ namespace MySql.Session
       return count != 0;
     }
 
-    private UpdateResult ExecuteCmdNonQuery(string cmd, bool throwOnFail, params object[] args)
+    private Result ExecuteCmdNonQuery(string cmd, bool throwOnFail, params object[] args)
     {
       protocol.SendExecuteStatement("xplugin", cmd, args);
-      return GetUpdateResult(throwOnFail);
+      return new Result(this);
     }
 
     public List<T> GetObjectList<T>(Schema s, string type)
     {
-      TableResult result = GetTableResult("list_objects", s.Name);
+      RowResult result = GetRowResult("list_objects", s.Name);
       result.Buffer();
       List<T> docs = new List<T>();
       foreach (var row in result)
@@ -189,66 +189,64 @@ namespace MySql.Session
       return docs;
     }
 
-    public TableResult GetTableResult(string cmd, params object[] args)
+    public RowResult GetRowResult(string cmd, params object[] args)
     {
       protocol.SendExecuteStatement("xplugin", cmd, args);
-      TableResult result = new TableResult(protocol);
-      return result;
+      return new RowResult(this);
     }
 
-    public UpdateResult Insert(Collection collection, DbDoc[] json)
+    public Result Insert(Collection collection, DbDoc[] json)
     {
       protocol.SendInsert(collection.Schema.Name, false, collection.Name, json, null);
-      return GetUpdateResult(false);
+      return new Result(this);
     }
 
-    public UpdateResult DeleteDocs(RemoveStatement rs)
+    public Result DeleteDocs(RemoveStatement rs)
     {
       protocol.SendDelete(rs.Target.Schema.Name, rs.Target.Name, false, rs.FilterData);
-      return GetUpdateResult(false);
+      return new Result(this);
     }
 
-    public UpdateResult DeleteRows(TableDeleteStatement statement)
+    public Result DeleteRows(TableDeleteStatement statement)
     {
       protocol.SendDelete(statement.Target.Schema.Name,
         statement.Target.Name, true,
         statement.FilterData);
-      return GetUpdateResult(false);
+      return new Result(this);
     }
 
-    public UpdateResult ModifyDocs(ModifyStatement ms)
+    public Result ModifyDocs(ModifyStatement ms)
     {
       protocol.SendUpdate(ms.Target.Schema.Name, ms.Target.Name, false, ms.FilterData, ms.Updates);
-      return GetUpdateResult(false);
+      return new Result(this);
     }
 
-    public UpdateResult UpdateRows(TableUpdateStatement statement)
+    public Result UpdateRows(TableUpdateStatement statement)
     {
       protocol.SendUpdate(statement.Target.Schema.Name,
         statement.Target.Name, true,
         statement.FilterData,
         statement.updates);
-      return GetUpdateResult(false);
+      return new Result(this);
     }
 
-    public DocumentResult FindDocs(FindStatement fs)
+    public DocResult FindDocs(FindStatement fs)
     {
       protocol.SendFind(fs.Target.Schema.Name, fs.Target.Name, false, fs.FilterData, null);
-      DocumentResult result = new DocumentResult(protocol);
+      DocResult result = new DocResult(this);
       return result;
     }
 
-    public TableResult FindRows(TableSelectStatement ss)
+    public RowResult FindRows(TableSelectStatement ss)
     {
       protocol.SendFind(ss.Target.Schema.Name, ss.Target.Name, true, ss.FilterData, ss.findParams);
-      TableResult result = new TableResult(protocol);
-      return result;
+      return new RowResult(this);
     }
 
-    public UpdateResult InsertRows(TableInsertStatement statement)
+    public Result InsertRows(TableInsertStatement statement)
     {
       protocol.SendInsert(statement.Target.Schema.Name, true, statement.Target.Name, statement.values.ToArray(), statement.fields);
-      return GetUpdateResult(false);
+      return new Result(this);
     }
 
   }

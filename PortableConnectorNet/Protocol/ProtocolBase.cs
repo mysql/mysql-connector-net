@@ -30,14 +30,15 @@ namespace MySql.Protocol
 {
   public abstract class ProtocolBase
   {
-    public abstract List<byte[]> ReadRow(Result rs);
+    public abstract List<byte[]> ReadRow(BaseResult rs);
     public abstract void SendSQL(string sql);
 
-    public abstract Result GetNextResult();
+//    public abstract bool ReadResult(BaseResult result);
+  //  public abstract BaseResult GetNextResult();
     //public abstract bool HasAnotherResultSet();
 
     public abstract List<TableColumn> LoadColumnMetadata();
 
-    public abstract void CloseResult(Result rs); 
+    public abstract void CloseResult(BaseResult rs); 
   }
 }

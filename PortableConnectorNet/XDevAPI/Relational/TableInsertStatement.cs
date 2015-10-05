@@ -29,7 +29,7 @@ namespace MySql.XDevAPI.Relational
   /// <summary>
   /// Represents a chaining table insert statement
   /// </summary>
-  public class TableInsertStatement : TargetedBaseStatement<Table, UpdateResult>
+  public class TableInsertStatement : TargetedBaseStatement<Table, Result>
   {
     internal string[] fields;
     internal List<object[]> values = new List<object[]>();
@@ -44,7 +44,7 @@ namespace MySql.XDevAPI.Relational
     /// Executes the insert statement
     /// </summary>
     /// <returns>Result of insert statement</returns>
-    public override UpdateResult Execute()
+    public override Result Execute()
     {
       var result = Target.Session.XSession.InsertRows(this);
       if(result.Succeeded) values = new List<object[]>();

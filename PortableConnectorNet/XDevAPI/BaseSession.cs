@@ -139,23 +139,12 @@ namespace MySql.XDevAPI
     /// <returns>List<Schema></returns>
     public List<Schema> GetSchemas()
     {
-      TableResult result = XSession.ExecuteQuery("select * from information_schema.schemata");
-      result.Buffer();
+      RowResult result = XSession.GetRowResult("select * from information_schema.schemata");
 
       var query = from row in result.Rows
                   select new Schema(this, row.GetString("schema_name"));
       return query.ToList<Schema>();
     }
-
-    //public Type GetTopologyType()
-    //{
-    //  throw new NotImplementedException();
-    //}
-
-    //public List<Nodes> GetSlaveNodes()
-    //{
-    //  throw new NotImplementedException();
-    //}
 
     /// <summary>
     /// Start a new transaction

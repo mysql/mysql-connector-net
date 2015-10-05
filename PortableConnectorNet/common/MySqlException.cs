@@ -68,6 +68,6 @@ namespace MySql
       this.isFatal = isFatal;
     }
 
-    public Result.Error Error { get; private set; }
+    public ErrorInfo Error { get; private set; }
   }
 }

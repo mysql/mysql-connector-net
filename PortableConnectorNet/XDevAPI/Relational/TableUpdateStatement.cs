@@ -33,7 +33,7 @@ namespace MySql.XDevAPI.Relational
   /// <summary>
   /// Represents a chaining table update statement
   /// </summary>
-  public class TableUpdateStatement : FilterableStatement<TableUpdateStatement, Table, UpdateResult>
+  public class TableUpdateStatement : FilterableStatement<TableUpdateStatement, Table, Result>
   {
     internal List<UpdateSpec> updates = new List<UpdateSpec>();
 
@@ -47,7 +47,7 @@ namespace MySql.XDevAPI.Relational
     /// Executes the update statement
     /// </summary>
     /// <returns>Result of the update statement</returns>
-    public override UpdateResult Execute()
+    public override Result Execute()
     {
       return Target.Session.XSession.UpdateRows(this);
     }

@@ -20,52 +20,61 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Protocol;
+using MySql.Session;
 using System.Collections.Generic;
-using MySql.XDevAPI.Common;
 
-namespace MySql.XDevAPI.CRUD
+namespace MySql.XDevAPI.Common
 {
-  /// <summary>
-  /// Represent a chaining collection insert statement
-  /// </summary>
-  public class AddStatement : CrudStatement<Result>
+  public abstract class BaseResult
   {
-    private List<DbDoc> _DbDocs = new List<DbDoc>();
+    private List<WarningInfo> _warnings = new List<WarningInfo>();
+    internal ulong _recordsAffected;
+    internal ulong _lastInsertId;
+    protected InternalSession _session;
 
-    internal AddStatement(Collection collection) : base(collection)
+    internal BaseResult(InternalSession session)
     {
+      _session = session;
+    }
+
+    protected ProtocolBase Protocol
+    {
+      get { return _session.GetProtocol();  }
+    }
+
+    internal void AddWarning(WarningInfo w)
+    {
+      _warnings.Add(w);
     }
 
     /// <summary>
-    /// Adds documents to the collection
+    /// Warnings derived from statement execution
     /// </summary>
-    /// <param name="items">Documents to add</param>
-    /// <returns>This AddStatement object</returns>
-    public AddStatement Add(params object[] items)
+    public IReadOnlyList<WarningInfo> Warnings
     {
-      _DbDocs.AddRange(GetDocs(items, true));
-      return this;
+      get { return _warnings; }
     }
 
     /// <summary>
-    /// Adds documents to the collection
+    /// Error information from statement execution
     /// </summary>
-    /// <param name="items">Documents to add as string</param>
-    /// <returns>This AddStatement object</returns>
-    public AddStatement Add(params string[] items)
+    public ErrorInfo ErrorInfo;
+
+    /// <summary>
+    /// True if the statement execution failed
+    /// </summary>
+    public bool Failed
     {
-      _DbDocs.AddRange(GetDocs(items, true));
-      return this;
+      get { return ErrorInfo != null; }
     }
 
     /// <summary>
-    /// Executes the Add statement
+    /// True if the statement execution succeded
     /// </summary>
-    /// <returns>Result of execution</returns>
-    public override Result Execute()
+    public bool Succeeded
     {
-      return Target.Session.XSession.Insert(Target, _DbDocs.ToArray());
+      get { return !Failed; }
     }
-
   }
 }

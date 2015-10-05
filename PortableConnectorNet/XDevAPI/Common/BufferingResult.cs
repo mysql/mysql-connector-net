@@ -23,8 +23,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using MySql.Protocol;
 using MySql.Properties;
+using MySql.XDevAPI.Relational;
+using MySql.Session;
 
 namespace MySql.XDevAPI.Common
 {
@@ -32,20 +33,29 @@ namespace MySql.XDevAPI.Common
   /// Abstract class for Buffered results
   /// </summary>
   /// <typeparam name="T"></typeparam>
-  public abstract class BufferingResult<T> : Result, IEnumerable<T>, IEnumerator<T>
+  public abstract class BufferingResult<T> : BaseResult, IEnumerable<T>, IEnumerator<T>
   {
     int _position;
     List<T> _items = new List<T>();
     protected bool _isComplete;
-    protected ProtocolBase _protocol;
-    protected bool _autoClose;
+    Dictionary<string, int> _nameMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+    internal List<TableColumn> _columns = new List<TableColumn>();
 
-    internal BufferingResult(ProtocolBase protocol, bool autoClose)
+
+    internal BufferingResult(InternalSession session) : base(session)
     {
-      _protocol = protocol;
-      _autoClose = autoClose;
+      _columns = Protocol.LoadColumnMetadata();
+      for (int i = 0; i < _columns.Count; i++)
+        _nameMap.Add(_columns[i].Name, i);
+
+      //      _autoClose = autoClose;
       PageSize = 20;
       _position = -1;
+    }
+
+    protected Dictionary<string, int> NameMap
+    {
+      get { return _nameMap;  }
     }
 
     protected int Position

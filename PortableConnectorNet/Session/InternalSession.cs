@@ -32,30 +32,22 @@ using MySql.XDevAPI.Relational;
 
 namespace MySql.Session
 {
-  internal abstract class InternalSession : IDisposable
+  public abstract class InternalSession : IDisposable
   {
     protected Stream _stream;
-    //protected MySqlConnectionStringBuilder _settings;
-    //protected RoutingServiceBase routingService;
-    //protected internal MySqlConnectionStringBuilder settings;
     
     private bool disposed = false;
 
     public InternalSession(MySqlConnectionStringBuilder settings)
     {
       Settings = settings;
-
-//      routingService = new DefaultRoutingService(settings);
-
-      //routingService = Factory.GetRoutingService(settings);
-  //    currentSettings = routingService.GetCurrentConnection();
     }
 
     protected abstract void Open();
 
     public abstract void Close();
     
-    protected abstract ProtocolBase GetProtocol();
+    internal abstract ProtocolBase GetProtocol();
 
 
     protected MySqlConnectionStringBuilder Settings;
@@ -74,41 +66,36 @@ namespace MySql.Session
       return session;
     }
 
-    public UpdateResult ExecuteSqlNonQuery(string sql, bool throwOnFail, params object[] args)
+    public Result ExecuteSqlNonQuery(string sql, params object[] args)
     {
       GetProtocol().SendSQL(sql);
-      return GetUpdateResult(throwOnFail);
-    }
-    
-
-    protected UpdateResult GetUpdateResult(bool throwOnFail)
-    {
-      UpdateResult result = new UpdateResult();
-      GetProtocol().CloseResult(result);
-      if (throwOnFail && result.Failed)
-        throw new MySqlException(result);
-      return result;
+      return new Result(this);
     }
 
-    public TableResult ExecuteQuery(string sql)
+    public RowResult GetRowResult(string sql)
     {
       GetProtocol().SendSQL(sql);
-      return new TableResult(GetProtocol());
+      return new RowResult(this);
+    }
+
+    public SqlResult GetSQLResult(string sql)
+    {
+      GetProtocol().SendSQL(sql);
+      return new SqlResult(this);
     }
 
     public object ExecuteQueryAsScalar(string sql)
     {
-      GetProtocol().SendSQL(sql);
-      TableResult r = new TableResult(GetProtocol());
-      r.Buffer();
-      if (!r.Next())
+      RowResult result = GetRowResult(sql);
+      result.Buffer();
+      if (!result.Next())
       {
         throw new MySqlException("No data found");
       }
 
-      if (r.Failed)
-        throw new MySqlException("Query execution failed: " + r.ErrorInfo.Message);
-      return r[0];
+      if (result.Failed)
+        throw new MySqlException("Query execution failed: " + result.ErrorInfo.Message);
+      return result[0];
     }
 
     public void SetSchema(string schema)

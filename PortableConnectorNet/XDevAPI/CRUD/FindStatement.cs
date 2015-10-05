@@ -28,7 +28,7 @@ namespace MySql.XDevAPI.CRUD
   /// <summary>
   /// Represents a chaining collection find statement
   /// </summary>
-  public class FindStatement : FilterableStatement<FindStatement, Collection, DocumentResult>
+  public class FindStatement : FilterableStatement<FindStatement, Collection, DocResult>
   {
     internal List<string> projection;
     internal string[] orderBy;
@@ -80,7 +80,7 @@ namespace MySql.XDevAPI.CRUD
     /// Executes the Find statement
     /// </summary>
     /// <returns>Result of execution and data</returns>
-    public override DocumentResult Execute()
+    public override DocResult Execute()
     {
       return Target.Session.XSession.FindDocs(this);
     }

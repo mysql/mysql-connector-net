@@ -35,7 +35,7 @@ namespace PortableConnectorNetTests.RelationalTests
       ExecuteSQL("CREATE TABLE test.test(DT DATETIME)");
       ExecuteSQL("INSERT INTO test.test VALUES('2001-02-03 04:05:06')");
 
-      TableResult r = GetSession().GetSchema("test").GetTable("test").Select("dt").Execute();
+      RowResult r = GetSession().GetSchema("test").GetTable("test").Select("dt").Execute();
       r.Buffer();
       Assert.True(r.Succeeded);
       Assert.Equal(1, r.Columns.Count);
@@ -53,7 +53,7 @@ namespace PortableConnectorNetTests.RelationalTests
       ExecuteSQL("CREATE TABLE test.test(DT DATE)");
       ExecuteSQL("INSERT INTO test.test VALUES('2001-02-03')");
 
-      TableResult r = GetSession().GetSchema("test").GetTable("test").Select("dt").Execute();
+      RowResult r = GetSession().GetSchema("test").GetTable("test").Select("dt").Execute();
       r.Buffer();
       Assert.True(r.Succeeded);
       Assert.Equal(1, r.Columns.Count);
@@ -71,7 +71,7 @@ namespace PortableConnectorNetTests.RelationalTests
       ExecuteSQL("CREATE TABLE test.test(DT TIMESTAMP)");
       ExecuteSQL("INSERT INTO test.test VALUES('2001-02-03')");
 
-      TableResult r = GetSession().GetSchema("test").GetTable("test").Select("dt").Execute();
+      RowResult r = GetSession().GetSchema("test").GetTable("test").Select("dt").Execute();
       r.Buffer();
       Assert.True(r.Succeeded);
       Assert.Equal(1, r.Columns.Count);
@@ -90,7 +90,7 @@ namespace PortableConnectorNetTests.RelationalTests
       ExecuteSQL("CREATE TABLE test.test(DT TIME)");
       ExecuteSQL("INSERT INTO test.test VALUES('01:02:03')");
 
-      TableResult r = GetSession().GetSchema("test").GetTable("test").Select("dt").Execute();
+      RowResult r = GetSession().GetSchema("test").GetTable("test").Select("dt").Execute();
       r.Buffer();
       Assert.True(r.Succeeded);
       Assert.Equal(1, r.Columns.Count);
@@ -108,7 +108,7 @@ namespace PortableConnectorNetTests.RelationalTests
       ExecuteSQL("CREATE TABLE test.test(DT TIME)");
       ExecuteSQL("INSERT INTO test.test VALUES('-01:02:03')");
 
-      TableResult r = GetSession().GetSchema("test").GetTable("test").Select("dt").Execute();
+      RowResult r = GetSession().GetSchema("test").GetTable("test").Select("dt").Execute();
       r.Buffer();
       Assert.True(r.Succeeded);
       Assert.Equal(1, r.Columns.Count);
