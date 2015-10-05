@@ -45,6 +45,13 @@ namespace PortableConnectorNetTests.RelationalTests
       Assert.True(result.Succeeded);
     }
 
+    [Fact]
+    public void FetchOne()
+    {
+      Table t = testSchema.GetTable("test");
+      Assert.Equal(38, t.Select("age").Execute().FetchOne()["age"]);
+    }
+
     private void MultiTableSelectTest(TableSelectStatement statement, object[][] expectedValues)
     {
       RowResult result = statement.Execute();

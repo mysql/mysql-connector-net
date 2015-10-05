@@ -39,7 +39,7 @@ namespace MySql.XDevAPI.Common
     List<T> _items = new List<T>();
     protected bool _isComplete;
     Dictionary<string, int> _nameMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-    internal List<TableColumn> _columns = new List<TableColumn>();
+    internal List<Column> _columns = new List<Column>();
 
 
     internal BufferingResult(InternalSession session) : base(session)
@@ -84,6 +84,13 @@ namespace MySql.XDevAPI.Common
         if (ReadItem(true) == null) break;
       }
       _isComplete = true;
+    }
+
+    public T FetchOne()
+    {
+      if (!Next())
+        throw new MySqlException(Resources.NoMoreData);
+      return Current;
     }
 
     public bool Next()

@@ -27,13 +27,13 @@ namespace MySql.XDevAPI.Relational
   /// <summary>
   /// Represents a single row of data in a table
   /// </summary>
-  public class TableRow
+  public class Row
   {
     private object[] values;
     private byte[][] valuesAsBytes;
     private InternalRowResult _RowResult;
 
-    internal TableRow(InternalRowResult rs, int count)
+    internal Row(InternalRowResult rs, int count)
     {
       _RowResult = rs;
       values = new object[count];

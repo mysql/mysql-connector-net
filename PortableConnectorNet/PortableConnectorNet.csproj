@@ -122,15 +122,15 @@
     <Compile Include="XDevAPI\DatabaseObject.cs" />
     <Compile Include="XDevAPI\DbDoc.cs" />
     <Compile Include="XDevAPI\GenericCollection.cs" />
+    <Compile Include="XDevAPI\Relational\Column.cs" />
     <Compile Include="XDevAPI\Relational\InternalRowResult.cs" />
+    <Compile Include="XDevAPI\Relational\Row.cs" />
     <Compile Include="XDevAPI\Relational\RowResult.cs" />
     <Compile Include="XDevAPI\Relational\SqlResult.cs" />
     <Compile Include="XDevAPI\Relational\SqlStatement.cs" />
     <Compile Include="XDevAPI\Relational\Table.cs" />
-    <Compile Include="XDevAPI\Relational\TableColumn.cs" />
     <Compile Include="XDevAPI\Relational\TableDeleteStatement.cs" />
     <Compile Include="XDevAPI\Relational\TableInsertStatement.cs" />
-    <Compile Include="XDevAPI\Relational\TableRow.cs" />
     <Compile Include="XDevAPI\Relational\TableSelectStatement.cs" />
     <Compile Include="XDevAPI\Relational\TableUpdateStatement.cs" />
     <Compile Include="XDevAPI\Relational\View.cs" />

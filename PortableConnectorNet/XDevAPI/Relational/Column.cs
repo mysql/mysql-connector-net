@@ -29,7 +29,7 @@ namespace MySql.XDevAPI.Relational
   /// <summary>
   /// Represents a table column
   /// </summary>
-  public class TableColumn
+  public class Column
   {
     internal ValueDecoder _decoder;
     internal UInt64 _collationNumber;

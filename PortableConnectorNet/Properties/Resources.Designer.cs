@@ -79,6 +79,15 @@ namespace MySql.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No more data in resultset..
+        /// </summary>
+        internal static string NoMoreData {
+            get {
+                return ResourceManager.GetString("NoMoreData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Path not found &apos;{0}&apos;..
         /// </summary>
         internal static string PathNotFound {

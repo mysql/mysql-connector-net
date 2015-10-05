@@ -27,7 +27,7 @@ namespace MySql.Protocol.X
 {
   internal class XValueDecoderFactory
   {
-    public static ValueDecoder GetValueDecoder(TableColumn c, Mysqlx.Resultset.ColumnMetaData.Types.FieldType type)
+    public static ValueDecoder GetValueDecoder(Column c, Mysqlx.Resultset.ColumnMetaData.Types.FieldType type)
     {
       switch (type)
       {

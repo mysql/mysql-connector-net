@@ -37,7 +37,7 @@ namespace MySql.Protocol
   //  public abstract BaseResult GetNextResult();
     //public abstract bool HasAnotherResultSet();
 
-    public abstract List<TableColumn> LoadColumnMetadata();
+    public abstract List<Column> LoadColumnMetadata();
 
     public abstract void CloseResult(BaseResult rs); 
   }

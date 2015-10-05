@@ -31,7 +31,7 @@ namespace MySql.XDevAPI.Relational
   /// <summary>
   /// Represents a resultset that contains rows of data.  
   /// </summary>
-  public class InternalRowResult : BufferingResult<TableRow>
+  public class InternalRowResult : BufferingResult<Row>
   {
     internal InternalRowResult(InternalSession session) : base(session)
     {
@@ -40,7 +40,7 @@ namespace MySql.XDevAPI.Relational
     /// <summary>
     /// The columns of this resulset
     /// </summary>
-    public IReadOnlyList<TableColumn> Columns
+    public IReadOnlyList<Column> Columns
     {
       get { return _columns.AsReadOnly(); }
     }
@@ -49,7 +49,7 @@ namespace MySql.XDevAPI.Relational
     /// The rows of this resultset.  This collection will be incomplete unless all the rows have been read
     /// either by using the Next method or the Buffer method.
     /// </summary>
-    public IReadOnlyList<TableRow> Rows
+    public IReadOnlyList<Row> Rows
     {
       get { return Items; }
     }
@@ -83,20 +83,20 @@ namespace MySql.XDevAPI.Relational
     /// <returns>Numeric index of column</returns>
     public int IndexOf(string name)
     {
-      if (NameMap.ContainsKey(name))
+      if (!NameMap.ContainsKey(name))
         throw new MySqlException("Column not found '" + name + "'");
       return NameMap[name];
     }
 
-    protected override TableRow ReadItem(bool dumping)
+    protected override Row ReadItem(bool dumping)
     {
       ///TODO:  fix this
       List<byte[]> values = Protocol.ReadRow(this);
       if (values == null) return null;
-      if (dumping) return new TableRow(this, 0);
+      if (dumping) return new Row(this, 0);
 
       Debug.Assert(values.Count == _columns.Count, "Value count does not equal column count");
-      TableRow row = new TableRow(this, _columns.Count);
+      Row row = new Row(this, _columns.Count);
       row.SetValues(values);
       return row;
     }

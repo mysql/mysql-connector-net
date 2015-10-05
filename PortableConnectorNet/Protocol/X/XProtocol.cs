@@ -274,7 +274,7 @@ namespace MySql.Protocol
         return null;
       }
 
-      Row protoRow = Row.ParseFrom(ReadPacket().Buffer);
+      Mysqlx.Resultset.Row protoRow = Mysqlx.Resultset.Row.ParseFrom(ReadPacket().Buffer);
       List<byte[]> values = new List<byte[]>(protoRow.FieldCount);
       for (int i = 0; i < protoRow.FieldCount; i++)
         values.Add(protoRow.GetField(i).ToByteArray());
@@ -344,9 +344,9 @@ namespace MySql.Protocol
     //  return false;
     //}
 
-    public override List<TableColumn> LoadColumnMetadata()
+    public override List<XDevAPI.Relational.Column> LoadColumnMetadata()
     {
-      List<TableColumn> columns = new List<TableColumn>();
+      List<XDevAPI.Relational.Column> columns = new List<XDevAPI.Relational.Column>();
       // we assume our caller has already validated that metadata is there
       while (true)
       {
@@ -357,9 +357,9 @@ namespace MySql.Protocol
       }
     }
 
-    private TableColumn DecodeColumn(ColumnMetaData colData)
+    private XDevAPI.Relational.Column DecodeColumn(ColumnMetaData colData)
     {
-      TableColumn c = new TableColumn();
+      XDevAPI.Relational.Column c = new XDevAPI.Relational.Column();
       c._decoder = XValueDecoderFactory.GetValueDecoder(c, colData.Type);
       c._decoder.Column = c;
       

@@ -55,7 +55,7 @@ namespace PortableConnectorNetTests.RelationalTests
       return GetRows(null).Count;
     }
 
-    private IReadOnlyCollection<TableRow> GetRows(FilterParams filter)
+    private IReadOnlyCollection<Row> GetRows(FilterParams filter)
     {
       var statement = table.Select();
       if (filter != null)
