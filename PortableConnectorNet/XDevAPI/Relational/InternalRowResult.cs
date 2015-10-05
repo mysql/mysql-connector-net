@@ -51,7 +51,7 @@ namespace MySql.XDevAPI.Relational
     /// </summary>
     public IReadOnlyList<Row> Rows
     {
-      get { return Items; }
+      get { return _items; }
     }
 
     /// <summary>
@@ -71,9 +71,9 @@ namespace MySql.XDevAPI.Relational
     /// <returns>CLR  value at the column index</returns>
     private object GetValue(int index)
     {
-      if (Position == Items.Count)
+      if (_position == _items.Count)
         throw new InvalidOperationException("No data at position");
-      return Items[Position][index];
+      return _items[_position][index];
     }
 
     /// <summary>

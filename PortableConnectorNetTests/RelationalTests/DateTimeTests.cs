@@ -36,13 +36,13 @@ namespace PortableConnectorNetTests.RelationalTests
       ExecuteSQL("INSERT INTO test.test VALUES('2001-02-03 04:05:06')");
 
       RowResult r = GetSession().GetSchema("test").GetTable("test").Select("dt").Execute();
-      r.Buffer();
+      var rows = r.FetchAll();
       Assert.True(r.Succeeded);
       Assert.Equal(1, r.Columns.Count);
       Assert.Equal(typeof(DateTime), r.Columns[0].ClrType);
       Assert.Equal(MySQLDbType.DateTime, r.Columns[0].DbType);
-      Assert.Equal(1, r.Rows.Count);
-      DateTime dt = (DateTime)r.Rows[0]["dt"];
+      Assert.Equal(1, rows.Count);
+      DateTime dt = (DateTime)rows[0]["dt"];
       DateTime test = new DateTime(2001, 2, 3, 4, 5, 6);
       Assert.Equal(test, dt);
     }
@@ -54,13 +54,13 @@ namespace PortableConnectorNetTests.RelationalTests
       ExecuteSQL("INSERT INTO test.test VALUES('2001-02-03')");
 
       RowResult r = GetSession().GetSchema("test").GetTable("test").Select("dt").Execute();
-      r.Buffer();
+      var rows = r.FetchAll();
       Assert.True(r.Succeeded);
       Assert.Equal(1, r.Columns.Count);
       Assert.Equal(typeof(DateTime), r.Columns[0].ClrType);
       Assert.Equal(MySQLDbType.Date, r.Columns[0].DbType);
-      Assert.Equal(1, r.Rows.Count);
-      DateTime dt = (DateTime)r.Rows[0]["dt"];
+      Assert.Equal(1, rows.Count);
+      DateTime dt = (DateTime)rows[0]["dt"];
       DateTime test = new DateTime(2001, 2, 3);
       Assert.Equal(test, dt);
     }
@@ -72,14 +72,14 @@ namespace PortableConnectorNetTests.RelationalTests
       ExecuteSQL("INSERT INTO test.test VALUES('2001-02-03')");
 
       RowResult r = GetSession().GetSchema("test").GetTable("test").Select("dt").Execute();
-      r.Buffer();
+      var rows = r.FetchAll();
       Assert.True(r.Succeeded);
       Assert.Equal(1, r.Columns.Count);
       Assert.Equal(typeof(DateTime), r.Columns[0].ClrType);
       ///TODO:  this should support timestamp
       Assert.Equal(MySQLDbType.DateTime, r.Columns[0].DbType);
-      Assert.Equal(1, r.Rows.Count);
-      DateTime dt = (DateTime)r.Rows[0]["dt"];
+      Assert.Equal(1, rows.Count);
+      DateTime dt = (DateTime)rows[0]["dt"];
       DateTime test = new DateTime(2001, 2, 3);
       Assert.Equal(test, dt);
     }
@@ -91,13 +91,13 @@ namespace PortableConnectorNetTests.RelationalTests
       ExecuteSQL("INSERT INTO test.test VALUES('01:02:03')");
 
       RowResult r = GetSession().GetSchema("test").GetTable("test").Select("dt").Execute();
-      r.Buffer();
+      var rows = r.FetchAll();
       Assert.True(r.Succeeded);
       Assert.Equal(1, r.Columns.Count);
       Assert.Equal(typeof(TimeSpan), r.Columns[0].ClrType);
       Assert.Equal(MySQLDbType.Time, r.Columns[0].DbType);
-      Assert.Equal(1, r.Rows.Count);
-      TimeSpan t = (TimeSpan)r.Rows[0]["dt"];
+      Assert.Equal(1, rows.Count);
+      TimeSpan t = (TimeSpan)rows[0]["dt"];
       TimeSpan test = new TimeSpan(1, 2, 3);
       Assert.Equal(test, t);
     }
@@ -109,13 +109,13 @@ namespace PortableConnectorNetTests.RelationalTests
       ExecuteSQL("INSERT INTO test.test VALUES('-01:02:03')");
 
       RowResult r = GetSession().GetSchema("test").GetTable("test").Select("dt").Execute();
-      r.Buffer();
+      var rows = r.FetchAll();
       Assert.True(r.Succeeded);
       Assert.Equal(1, r.Columns.Count);
       Assert.Equal(typeof(TimeSpan), r.Columns[0].ClrType);
       Assert.Equal(MySQLDbType.Time, r.Columns[0].DbType);
-      Assert.Equal(1, r.Rows.Count);
-      TimeSpan t = (TimeSpan)r.Rows[0]["dt"];
+      Assert.Equal(1, rows.Count);
+      TimeSpan t = (TimeSpan)rows[0]["dt"];
       TimeSpan test = new TimeSpan(-1, 2, 3);
       Assert.Equal(test, t);
     }

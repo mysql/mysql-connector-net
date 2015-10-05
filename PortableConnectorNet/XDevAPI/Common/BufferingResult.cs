@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using MySql.Properties;
 using MySql.XDevAPI.Relational;
 using MySql.Session;
+using System.Collections.ObjectModel;
 
 namespace MySql.XDevAPI.Common
 {
@@ -35,8 +36,8 @@ namespace MySql.XDevAPI.Common
   /// <typeparam name="T"></typeparam>
   public abstract class BufferingResult<T> : BaseResult, IEnumerable<T>, IEnumerator<T>
   {
-    int _position;
-    List<T> _items = new List<T>();
+    protected int _position;
+    protected List<T> _items = new List<T>();
     protected bool _isComplete;
     Dictionary<string, int> _nameMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
     internal List<Column> _columns = new List<Column>();
@@ -44,11 +45,15 @@ namespace MySql.XDevAPI.Common
 
     internal BufferingResult(InternalSession session) : base(session)
     {
-      _columns = Protocol.LoadColumnMetadata();
-      for (int i = 0; i < _columns.Count; i++)
-        _nameMap.Add(_columns[i].Name, i);
+      if (hasData)
+      {
+        _columns = Protocol.LoadColumnMetadata();
+        for (int i = 0; i < _columns.Count; i++)
+          _nameMap.Add(_columns[i].Name, i);
+      }
+      else
+        Protocol.CloseResult(this);
 
-      //      _autoClose = autoClose;
       PageSize = 20;
       _position = -1;
     }
@@ -58,22 +63,12 @@ namespace MySql.XDevAPI.Common
       get { return _nameMap;  }
     }
 
-    protected int Position
-    {
-      get { return _position;  }
-    }
-
-    protected List<T> Items
-    {
-      get { return _items;  }
-    }
-
     public int PageSize { get; private set; }
 
-    public void Buffer()
+    public ReadOnlyCollection<T> FetchAll()
     {
-      while (!_isComplete)
-        PageInItems() ;
+      while (PageInItems()) ;
+      return _items.AsReadOnly();
     }
 
     internal void Dump()
@@ -96,7 +91,7 @@ namespace MySql.XDevAPI.Common
     public bool Next()
     {
       _position++;
-      if (Position == _items.Count)
+      if (_position == _items.Count)
       {
         if (_isComplete) return false;
         if (!PageInItems())

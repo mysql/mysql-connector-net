@@ -32,10 +32,12 @@ namespace MySql.XDevAPI.Common
     internal ulong _recordsAffected;
     internal ulong _lastInsertId;
     protected InternalSession _session;
+    protected bool hasData;
 
     internal BaseResult(InternalSession session)
     {
       _session = session;
+      hasData = Protocol.HasData();
     }
 
     protected ProtocolBase Protocol

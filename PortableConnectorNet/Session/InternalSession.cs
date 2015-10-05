@@ -87,15 +87,10 @@ namespace MySql.Session
     public object ExecuteQueryAsScalar(string sql)
     {
       RowResult result = GetRowResult(sql);
-      result.Buffer();
-      if (!result.Next())
-      {
+      var rows = result.FetchAll();
+      if (rows.Count == 0)
         throw new MySqlException("No data found");
-      }
-
-      if (result.Failed)
-        throw new MySqlException("Query execution failed: " + result.ErrorInfo.Message);
-      return result[0];
+      return rows[0][0];
     }
 
     public void SetSchema(string schema)

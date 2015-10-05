@@ -33,9 +33,7 @@ namespace MySql.Protocol
     public abstract List<byte[]> ReadRow(BaseResult rs);
     public abstract void SendSQL(string sql);
 
-//    public abstract bool ReadResult(BaseResult result);
-  //  public abstract BaseResult GetNextResult();
-    //public abstract bool HasAnotherResultSet();
+    public abstract bool HasData();
 
     public abstract List<Column> LoadColumnMetadata();
 

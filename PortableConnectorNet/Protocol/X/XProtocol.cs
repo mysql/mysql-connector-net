@@ -149,6 +149,11 @@ namespace MySql.Protocol
       SendExecuteStatement("sql", sql, null);
     }
 
+    public override bool HasData()
+    {
+      return PeekPacket().MessageType == (int)ServerMessageId.RESULTSET_COLUMN_META_DATA;
+    }
+
     private CommunicationPacket PeekPacket()
     {
       if (pendingPacket != null) return pendingPacket;

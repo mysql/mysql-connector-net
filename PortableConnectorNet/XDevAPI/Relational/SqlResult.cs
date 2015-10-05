@@ -32,6 +32,11 @@ namespace MySql.XDevAPI.Relational
 
     }
 
+    public bool HasData
+    {
+      get { return hasData;  }
+    }
+
     /// <summary>
     /// The number of records affected by the statement that generated this result.
     /// </summary>

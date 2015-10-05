@@ -176,9 +176,10 @@ namespace MySql.Session
     public List<T> GetObjectList<T>(Schema s, string type)
     {
       RowResult result = GetRowResult("list_objects", s.Name);
-      result.Buffer();
+      var rows = result.FetchAll();
+
       List<T> docs = new List<T>();
-      foreach (var row in result)
+      foreach (var row in rows)
       {
         if (row.GetString("type") != type) continue;
         T t = (T)Activator.CreateInstance(typeof(T),

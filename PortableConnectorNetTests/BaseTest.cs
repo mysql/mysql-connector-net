@@ -62,7 +62,7 @@ namespace PortableConnectorNetTests
     {
       NodeSession nodeSession = GetNodeSession();
       SqlResult r = nodeSession.SQL(sql).Execute();
-      r.Buffer();
+      var rows = r.HasData ? r.FetchAll() : null;
       Assert.True(r.Succeeded);
       return r;
     }
