@@ -58,20 +58,36 @@ namespace PortableConnectorNetTests.RelationalTests
     [Fact]
     public void MultipleTableSelectAsync()
     {
-      Table table = testSchema.GetTable("test");
+      var table = testSchema.GetTable("test");
+      int rows = 100;
+      var insert = table.Insert();
+      HashSet<int> validator = new HashSet<int>();
+
+      for(int i = 1; i <= rows; i++)
+      {
+        insert.Values(i, i);
+      }
+      var result = insert.Execute();
+      Assert.True(result.Succeeded, "Insert failed");
 
       List<Task<RowResult>> tasksList = new List<Task<RowResult>>();
 
-      for(int i = 0; i < 20; i++)
+      for(int i = 1; i <= rows; i++)
       {
-        tasksList.Add(table.Select().Limit(3, i).ExecuteAsync());
+        tasksList.Add(table.Select().Where("age = :age").Bind(i).ExecuteAsync());
       }
 
       Assert.True(Task.WaitAll(tasksList.ToArray(), TimeSpan.FromMinutes(2)), "WaitAll timeout");
       foreach (Task<RowResult> task in tasksList)
       {
-        Assert.True(task.Result.Succeeded);
+        Assert.True(task.Result.Succeeded, "Select failed");
+        Assert.Equal(2, task.Result.Columns.Count);
+        Assert.Equal(1, task.Result.Rows.Count);
+        int value = (int)task.Result.Rows[0][1];
+        Assert.False(validator.Contains(value), value + " value exists");
+        validator.Add(value);
       }
+      Assert.Equal(rows, validator.Count);
     }
   }
 }

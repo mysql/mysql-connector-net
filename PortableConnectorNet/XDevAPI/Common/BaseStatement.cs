@@ -20,6 +20,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.XDevAPI.Relational;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -53,7 +54,19 @@ namespace MySql.XDevAPI.Common
     /// <returns>Result object</returns>
     public async Task<TResult> ExecuteAsync()
     {
-      return await Task.Factory.StartNew<TResult>(Execute,
+      return await Task.Factory.StartNew<TResult>(() =>
+      {
+        var result = Execute();
+        if (result is BufferingResult<DbDoc>)
+        {
+          (result as BufferingResult<DbDoc>).FetchAll();
+        }
+        else if(result is BufferingResult<Row>)
+        {
+          (result as BufferingResult<Row>).FetchAll();
+        }
+        return result;
+      },
         CancellationToken.None,
         TaskCreationOptions.None,
         Session.scheduler);

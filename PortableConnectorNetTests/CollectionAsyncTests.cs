@@ -22,6 +22,7 @@
 
 using MySql.XDevAPI;
 using MySql.XDevAPI.Common;
+using MySql.XDevAPI.CRUD;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -47,6 +48,40 @@ namespace PortableConnectorNetTests
       {
         Assert.True(task.Result.Succeeded);
       }
+    }
+
+    [Fact]
+    public void MultipleFindAsync()
+    {
+      var coll = testSchema.CreateCollection("test");
+      int docs = 100;
+      HashSet<string> validator = new HashSet<string>();
+      var addStatement = coll.Add(new { id = 1, age = 1 });
+
+      for (int i = 2; i <= docs; i++)
+      {
+        addStatement.Add(new { id = i, age = i });
+      }
+      var result = addStatement.Execute();
+      Assert.True(result.Succeeded, "Add failed");
+
+      List<Task<DocResult>> tasksList = new List<Task<DocResult>>();
+
+      for (int i = 1; i <= docs; i++)
+      {
+        tasksList.Add(coll.Find("age = :age").Bind(i).ExecuteAsync());
+      }
+
+      Assert.True(Task.WaitAll(tasksList.ToArray(), TimeSpan.FromMinutes(2)), "WaitAll timeout");
+      foreach (Task<DocResult> task in tasksList)
+      {
+        Assert.True(task.Result.Succeeded, "Find failed");
+        var doc = task.Result.FetchOne();
+        string value = task.Result.Current["age"];
+        Assert.False(validator.Contains(value), value + " value exists");
+        validator.Add(value);
+      }
+      Assert.Equal(docs, validator.Count);
     }
   }
 }
