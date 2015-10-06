@@ -35,7 +35,7 @@ namespace MySql.Session
   public abstract class InternalSession : IDisposable
   {
     protected Stream _stream;
-    
+    internal BaseResult ActiveResult;
     private bool disposed = false;
 
     public InternalSession(MySqlConnectionStringBuilder settings)

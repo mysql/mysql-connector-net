@@ -20,6 +20,8 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Properties;
+using System;
 using System.Collections.Generic;
 
 namespace MySql.XDevAPI.Relational
@@ -29,15 +31,13 @@ namespace MySql.XDevAPI.Relational
   /// </summary>
   public class Row
   {
-    private object[] values;
-    private byte[][] valuesAsBytes;
-    private InternalRowResult _RowResult;
+    private object[] _values;
+    private Dictionary<string, int> _nameMap;
 
-    internal Row(InternalRowResult rs, int count)
+    internal Row(Dictionary<string,int> nameMap, object[] values)
     {
-      _RowResult = rs;
-      values = new object[count];
-      valuesAsBytes = new byte[count][];
+      _values = values;
+      _nameMap = nameMap;
     }
 
     /// <summary>
@@ -47,7 +47,7 @@ namespace MySql.XDevAPI.Relational
     /// <returns>The value at the index</returns>
     public object this[int index]
     {
-      get { return values[index]; }
+      get { return GetValue(index); }
     }
 
     /// <summary>
@@ -57,8 +57,7 @@ namespace MySql.XDevAPI.Relational
     /// <returns>The value of the column as a string</returns>
     public string GetString(string name)
     {
-      int index = _RowResult.IndexOf(name);
-      return values[index].ToString();
+      return GetValue(name).ToString();
     }
 
     /// <summary>
@@ -70,17 +69,22 @@ namespace MySql.XDevAPI.Relational
     {
       get
       {
-        return this[_RowResult.IndexOf(name)];
+        return GetValue(name);
       }
     }
 
-    internal void SetValues(List<byte[]> valueBuffers)
+    private object GetValue(int index)
     {
-      for (int i = 0; i < valueBuffers.Count; i++)
-      {
-        valuesAsBytes[i] = valueBuffers[i];
-        values[i] = _RowResult.Columns[i]._decoder.ClrValueDecoder(valueBuffers[i]);
-      }
+      if (index < 0 || index >= _values.Length)
+        throw new IndexOutOfRangeException(String.Format(Resources.InvalidRowIndex, index));
+      return _values[index];
+    }
+
+    private object GetValue(string name)
+    {
+      if (!_nameMap.ContainsKey(name))
+        throw new InvalidOperationException(String.Format(Resources.InvalidNameIndex, name));
+      return GetValue(_nameMap[name]);
     }
   }
 }

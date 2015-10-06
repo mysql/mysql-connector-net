@@ -61,6 +61,24 @@ namespace MySql.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} is not a valid column name in the row..
+        /// </summary>
+        internal static string InvalidNameIndex {
+            get {
+                return ResourceManager.GetString("InvalidNameIndex", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} is not a valid index for the row..
+        /// </summary>
+        internal static string InvalidRowIndex {
+            get {
+                return ResourceManager.GetString("InvalidRowIndex", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Keyword not supported..
         /// </summary>
         internal static string KeywordNotSupported {

@@ -93,11 +93,14 @@ namespace MySql.XDevAPI.Relational
       ///TODO:  fix this
       List<byte[]> values = Protocol.ReadRow(this);
       if (values == null) return null;
-      if (dumping) return new Row(this, 0);
+      if (dumping) return new Row(NameMap, null);
 
       Debug.Assert(values.Count == _columns.Count, "Value count does not equal column count");
-      Row row = new Row(this, _columns.Count);
-      row.SetValues(values);
+      object[] clrValues = new object[values.Count];
+      for (int i = 0; i < values.Count; i++)
+        clrValues[i] = Columns[i]._decoder.ClrValueDecoder(values[i]);
+
+      Row row = new Row(NameMap, clrValues);
       return row;
     }
   }

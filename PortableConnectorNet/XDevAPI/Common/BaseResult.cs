@@ -37,7 +37,17 @@ namespace MySql.XDevAPI.Common
     internal BaseResult(InternalSession session)
     {
       _session = session;
+
+      // if we have an active resultset then we must buffer it entirely
+      if (session.ActiveResult != null)
+      {
+        session.ActiveResult.Buffer();
+        session.ActiveResult = null;
+      }
+
       hasData = Protocol.HasData();
+      if (hasData)
+        session.ActiveResult = this;
     }
 
     protected ProtocolBase Protocol
@@ -78,5 +88,7 @@ namespace MySql.XDevAPI.Common
     {
       get { return !Failed; }
     }
+
+    protected virtual void Buffer() { }
   }
 }

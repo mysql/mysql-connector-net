@@ -107,6 +107,7 @@ namespace MySql.XDevAPI.Common
 
     private bool PageInItems()
     {
+      if (_isComplete) return false;
       int count = 0;
       for (int i = 0; i < PageSize; i++)
       {
@@ -159,6 +160,11 @@ namespace MySql.XDevAPI.Common
     IEnumerator IEnumerable.GetEnumerator()
     {
       return this;
+    }
+
+    protected override void Buffer()
+    {
+      FetchAll();
     }
   }
 }

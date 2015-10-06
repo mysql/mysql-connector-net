@@ -61,6 +61,7 @@ namespace PortableConnectorNetTests
     protected SqlResult ExecuteSQL(string sql)
     {
       NodeSession nodeSession = GetNodeSession();
+      nodeSession.SQL("USE test").Execute();
       SqlResult r = nodeSession.SQL(sql).Execute();
       var rows = r.HasData ? r.FetchAll() : null;
       Assert.True(r.Succeeded);

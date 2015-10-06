@@ -32,13 +32,17 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="CrudTests\DocBufferingTests.cs" />
     <Compile Include="RelationalTests\DateTimeTests.cs" />
+    <Compile Include="RelationalTests\RelationalGCTests.cs" />
+    <Compile Include="RelationalTests\RowBufferingTests.cs" />
     <Compile Include="RelationalTests\SqlTests.cs" />
     <Compile Include="RelationalTests\TableAsyncTests.cs" />
     <Compile Include="RelationalTests\TableDeleteTests.cs" />
     <Compile Include="RelationalTests\TableInsertTests.cs" />
     <Compile Include="RelationalTests\TableSelectTests.cs" />
     <Compile Include="RelationalTests\TableUpdateTests.cs" />
+    <Compile Include="CrudTests\CrudGCTests.cs" />
     <Compile Include="TransactionTests.cs" />
     <Compile Include="BaseTest.cs" />
     <Compile Include="BasicFindTests.cs" />

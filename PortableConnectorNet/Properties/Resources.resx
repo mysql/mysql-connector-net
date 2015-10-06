@@ -117,6 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="InvalidNameIndex" xml:space="preserve">
+    <value>{0} is not a valid column name in the row.</value>
+  </data>
+  <data name="InvalidRowIndex" xml:space="preserve">
+    <value>{0} is not a valid index for the row.</value>
+  </data>
   <data name="KeywordNotSupported" xml:space="preserve">
     <value>Keyword not supported.</value>
   </data>
