@@ -42,7 +42,6 @@ namespace PortableConnectorNetTests.RelationalTests
       stmt.Values(allRows[0]);
       stmt.Values(allRows[1]);
       Result result = stmt.Execute();
-      Assert.True(result.Succeeded);
     }
 
     [Fact]

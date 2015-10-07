@@ -38,7 +38,7 @@ namespace PortableConnectorNetTests.RelationalTests
       {
         insertStatement.Values(i, i);
       }
-      Assert.True(insertStatement.Execute().Succeeded);
+      insertStatement.Execute();
       Assert.Equal(rowsToInsert, CountRows());
     }
 
@@ -50,7 +50,6 @@ namespace PortableConnectorNetTests.RelationalTests
     private void ExecuteDelete(TableDeleteStatement statement, int expectedRowsCount)
     {
       Result result = statement.Execute();
-      Assert.True(result.Succeeded);
       Assert.Equal(expectedRowsCount, CountRows());
     }
 

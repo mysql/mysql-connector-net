@@ -46,7 +46,7 @@ namespace PortableConnectorNetTests.RelationalTests
       {
         insertStatement.Values(i, "", i);
       }
-      Assert.True(insertStatement.Execute().Succeeded);
+      insertStatement.Execute();
       Assert.Equal(rowsToInsert, CountRows());
     }
 
@@ -65,7 +65,6 @@ namespace PortableConnectorNetTests.RelationalTests
         statement.FilterData.OrderBy = filter.OrderBy;
       }
       var result = statement.Execute();
-      Assert.True(result.Succeeded);
       while (result.Next()) ;
       return result.Rows;
     }
@@ -73,7 +72,6 @@ namespace PortableConnectorNetTests.RelationalTests
     private void ValidateUpdate(TableUpdateStatement statement)
     {
       var result = statement.Execute();
-      Assert.True(result.Succeeded);
 
       var rows = GetRows(statement.FilterData);
       foreach (var row in rows)
@@ -89,7 +87,6 @@ namespace PortableConnectorNetTests.RelationalTests
     public void EmptyUpdateTest()
     {
       var result = table.Update().Execute();
-      Assert.False(result.Succeeded);
     }
 
     [Fact]

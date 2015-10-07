@@ -27,7 +27,6 @@ namespace MySql
 {
   public sealed class MySqlException : Exception
   {
-
     private bool isFatal;
 
     /// <summary>
@@ -44,10 +43,10 @@ namespace MySql
 
     }
 
-
-    internal MySqlException(Result r) : base(r.ErrorInfo.Message)
+    internal MySqlException(UInt32 code, string sqlState, string msg) : base(msg)
     {
-      Error = r.ErrorInfo;
+      Code = code;
+      SqlState = sqlState;
     }
 
     internal MySqlException(string message)
@@ -68,6 +67,7 @@ namespace MySql
       this.isFatal = isFatal;
     }
 
-    public ErrorInfo Error { get; private set; }
+    public string SqlState { get; private set; }
+    public UInt32 Code { get; private set; }
   }
 }

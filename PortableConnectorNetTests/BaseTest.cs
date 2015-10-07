@@ -64,7 +64,6 @@ namespace PortableConnectorNetTests
       nodeSession.SQL("USE test").Execute();
       SqlResult r = nodeSession.SQL(sql).Execute();
       var rows = r.HasData ? r.FetchAll() : null;
-      Assert.True(r.Succeeded);
       return r;
     }
 

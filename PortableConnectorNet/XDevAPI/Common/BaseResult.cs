@@ -68,27 +68,6 @@ namespace MySql.XDevAPI.Common
       get { return _warnings; }
     }
 
-    /// <summary>
-    /// Error information from statement execution
-    /// </summary>
-    public ErrorInfo ErrorInfo;
-
-    /// <summary>
-    /// True if the statement execution failed
-    /// </summary>
-    public bool Failed
-    {
-      get { return ErrorInfo != null; }
-    }
-
-    /// <summary>
-    /// True if the statement execution succeded
-    /// </summary>
-    public bool Succeeded
-    {
-      get { return !Failed; }
-    }
-
     protected virtual void Buffer() { }
   }
 }

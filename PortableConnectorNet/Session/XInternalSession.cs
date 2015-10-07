@@ -105,10 +105,10 @@ namespace MySql.Session
       try
       {
         protocol.SendSessionClose();
-        protocol.ReadOK();
+        //protocol.ReadOK();
         SessionState = SessionState.Closed;
       }
-      catch
+      catch (Exception ex)
       {        
         //TODO
         throw;

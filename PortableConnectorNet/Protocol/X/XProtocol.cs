@@ -259,14 +259,10 @@ namespace MySql.Protocol
     }
 
 
-    private ErrorInfo DecodeError(CommunicationPacket p)
+    private void DecodeAndThrowError(CommunicationPacket p)
     {
       Error e = Error.ParseFrom(p.Buffer);
-      ErrorInfo re = new ErrorInfo();
-      re.Code = e.Code;
-      re.SqlState = e.SqlState;
-      re.Message = e.Msg;
-      return re;
+      throw new MySqlException(e.Code, e.SqlState, e.Msg);
     }
 
     public override List<byte[]> ReadRow(BaseResult rs)
@@ -298,10 +294,7 @@ namespace MySql.Protocol
         else if (p.MessageType == (int)ServerMessageId.NOTICE)
           ProcessNotice(ReadPacket(), rs);
         else if (p.MessageType == (int)ServerMessageId.ERROR)
-        {
-          rs.ErrorInfo = DecodeError(ReadPacket());
-          break;
-        }
+          DecodeAndThrowError(ReadPacket());
         else if (p.MessageType == (int)ServerMessageId.SQL_STMT_EXECUTE_OK)
         {
           ReadPacket();

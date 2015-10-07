@@ -44,10 +44,6 @@ namespace PortableConnectorNetTests
       }
 
       Task.WaitAll(tasksList.ToArray(), TimeSpan.FromMinutes(2));
-      foreach(Task<Result> task in tasksList)
-      {
-        Assert.True(task.Result.Succeeded);
-      }
     }
 
     [Fact]
@@ -63,7 +59,6 @@ namespace PortableConnectorNetTests
         addStatement.Add(new { id = i, age = i });
       }
       var result = addStatement.Execute();
-      Assert.True(result.Succeeded, "Add failed");
 
       List<Task<DocResult>> tasksList = new List<Task<DocResult>>();
 
@@ -75,7 +70,6 @@ namespace PortableConnectorNetTests
       Assert.True(Task.WaitAll(tasksList.ToArray(), TimeSpan.FromMinutes(2)), "WaitAll timeout");
       foreach (Task<DocResult> task in tasksList)
       {
-        Assert.True(task.Result.Succeeded, "Find failed");
         var doc = task.Result.FetchOne();
         string value = task.Result.Current["age"];
         Assert.False(validator.Contains(value), value + " value exists");

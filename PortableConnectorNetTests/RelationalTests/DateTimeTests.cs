@@ -37,7 +37,6 @@ namespace PortableConnectorNetTests.RelationalTests
 
       RowResult r = GetSession().GetSchema("test").GetTable("test").Select("dt").Execute();
       var rows = r.FetchAll();
-      Assert.True(r.Succeeded);
       Assert.Equal(1, r.Columns.Count);
       Assert.Equal(typeof(DateTime), r.Columns[0].ClrType);
       Assert.Equal(MySQLDbType.DateTime, r.Columns[0].DbType);
@@ -55,7 +54,6 @@ namespace PortableConnectorNetTests.RelationalTests
 
       RowResult r = GetSession().GetSchema("test").GetTable("test").Select("dt").Execute();
       var rows = r.FetchAll();
-      Assert.True(r.Succeeded);
       Assert.Equal(1, r.Columns.Count);
       Assert.Equal(typeof(DateTime), r.Columns[0].ClrType);
       Assert.Equal(MySQLDbType.Date, r.Columns[0].DbType);
@@ -73,7 +71,6 @@ namespace PortableConnectorNetTests.RelationalTests
 
       RowResult r = GetSession().GetSchema("test").GetTable("test").Select("dt").Execute();
       var rows = r.FetchAll();
-      Assert.True(r.Succeeded);
       Assert.Equal(1, r.Columns.Count);
       Assert.Equal(typeof(DateTime), r.Columns[0].ClrType);
       ///TODO:  this should support timestamp
@@ -92,7 +89,6 @@ namespace PortableConnectorNetTests.RelationalTests
 
       RowResult r = GetSession().GetSchema("test").GetTable("test").Select("dt").Execute();
       var rows = r.FetchAll();
-      Assert.True(r.Succeeded);
       Assert.Equal(1, r.Columns.Count);
       Assert.Equal(typeof(TimeSpan), r.Columns[0].ClrType);
       Assert.Equal(MySQLDbType.Time, r.Columns[0].DbType);
@@ -110,7 +106,6 @@ namespace PortableConnectorNetTests.RelationalTests
 
       RowResult r = GetSession().GetSchema("test").GetTable("test").Select("dt").Execute();
       var rows = r.FetchAll();
-      Assert.True(r.Succeeded);
       Assert.Equal(1, r.Columns.Count);
       Assert.Equal(typeof(TimeSpan), r.Columns[0].ClrType);
       Assert.Equal(MySQLDbType.Time, r.Columns[0].DbType);

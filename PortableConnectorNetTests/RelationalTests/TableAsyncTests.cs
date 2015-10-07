@@ -48,10 +48,6 @@ namespace PortableConnectorNetTests.RelationalTests
       }
 
       Assert.True(Task.WaitAll(tasksList.ToArray(), TimeSpan.FromMinutes(2)), "WaitAll timeout");
-      foreach(Task<Result> task in tasksList)
-      {
-        Assert.True(task.Result.Succeeded);
-      }
       Assert.Equal(200, table.Count());
     }
 
@@ -68,7 +64,6 @@ namespace PortableConnectorNetTests.RelationalTests
         insert.Values(i, i);
       }
       var result = insert.Execute();
-      Assert.True(result.Succeeded, "Insert failed");
 
       List<Task<RowResult>> tasksList = new List<Task<RowResult>>();
 
@@ -80,7 +75,6 @@ namespace PortableConnectorNetTests.RelationalTests
       Assert.True(Task.WaitAll(tasksList.ToArray(), TimeSpan.FromMinutes(2)), "WaitAll timeout");
       foreach (Task<RowResult> task in tasksList)
       {
-        Assert.True(task.Result.Succeeded, "Select failed");
         Assert.Equal(2, task.Result.Columns.Count);
         Assert.Equal(1, task.Result.Rows.Count);
         int value = (int)task.Result.Rows[0][1];
