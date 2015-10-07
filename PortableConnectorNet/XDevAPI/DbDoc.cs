@@ -146,7 +146,13 @@ namespace MySql.XDevAPI
     {
       if (val is Dictionary<string, object>)
         return DictToString(val as Dictionary<string, object>);
-      return "\"" + val.ToString() + "\"";
+      string quoteChar = "";
+      Type type = val.GetType();
+      if (val is string || val is DateTime)
+      {
+        quoteChar = "\"";
+      }
+      return quoteChar + val.ToString() + quoteChar;
     }
 
     private bool CompareDictionaries<TKey, TValue>(Dictionary<TKey, TValue> dict1, Dictionary<TKey, TValue> dict2)
@@ -158,9 +164,19 @@ namespace MySql.XDevAPI
         if (!dict2.ContainsKey(key)) return false;
         object val = dict1[key];
         object val2 = dict2[key];
-        if (val.GetType() != val2.GetType()) return false;
-        if (val is Dictionary<TKey, TValue>)
+        if(val is Dictionary<TKey, TValue>[] && val2 is Dictionary<TKey, TValue>[])
+        {
+          Dictionary<TKey, TValue>[] valArray1 = (Dictionary<TKey, TValue>[])val;
+          Dictionary<TKey, TValue>[] valArray2 = (Dictionary<TKey, TValue>[])val2;
+          if (valArray1.Length != valArray2.Length) return false;
+          for(int i = 0; i < valArray1.Length; i++)
+          {
+            if (!CompareDictionaries<TKey, TValue>(valArray1[i], valArray2[i])) return false;
+          }
+        }
+        else if (val is Dictionary<TKey, TValue> && val2 is Dictionary<TKey, TValue>)
           return CompareDictionaries<TKey, TValue>((Dictionary<TKey, TValue>)val, (Dictionary<TKey, TValue>)val2);
+        else if (!val.Equals(val2)) return false;
       }
       return true;
     }

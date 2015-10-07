@@ -21,6 +21,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.XDevAPI;
+using System;
 using Xunit;
 
 namespace PortableConnectorNetTests
@@ -34,39 +35,39 @@ namespace PortableConnectorNetTests
       d.SetValue("_id", 1);
       d.SetValue("pages", 20);
       string s = d.ToString();
-      Assert.Equal(@"{""_id"":""1"", ""pages"":""20""}", d.ToString());
+      Assert.Equal(@"{""_id"":1, ""pages"":20}", d.ToString());
     }
 
     [Fact]
     public void SimpleParse()
     {
-      DbDoc d = new DbDoc(@"{ ""id"": ""1"", ""pages"": ""20""}");
+      DbDoc d = new DbDoc(@"{ ""id"": 1, ""pages"": 20}");
       DbDoc d2 = new DbDoc();
-      d2.SetValue("id", "1");
-      d2.SetValue("pages", "20");
+      d2.SetValue("id", 1);
+      d2.SetValue("pages", 20);
       Assert.True(d.Equals(d2));
     }
 
     [Fact]
     public void NestedParse()
     {
-      DbDoc d = new DbDoc(@"{ ""id"": ""1"", ""pages"": ""20"", 
-          ""person"": { ""name"": ""Fred"", ""age"": ""45"" }
+      DbDoc d = new DbDoc(@"{ ""id"": 1, ""pages"": 20, 
+          ""person"": { ""name"": ""Fred"", ""age"": 45 }
       }");
       DbDoc d2 = new DbDoc();
-      d2.SetValue("id", "1");
-      d2.SetValue("pages", "20");
-      d2.SetValue("person", new { name = "Fred", age = "45" });
+      d2.SetValue("id", 1);
+      d2.SetValue("pages", 20);
+      d2.SetValue("person", new { name = "Fred", age = 45 });
       Assert.True(d.Equals(d2));
     }
 
     [Fact]
     public void ParseWithArray()
     {
-      DbDoc d = new DbDoc(@"{ ""id"": ""1"", ""pages"": ""20"", 
+      DbDoc d = new DbDoc(@"{ ""id"": 1, ""pages"": 20, 
           ""books"": [ 
-            { ""_id"" : ""1"", ""title"" : ""Book 1"" },
-            { ""_id"" : ""2"", ""title"" : ""Book 2"" }
+            { ""_id"" : 1, ""title"" : ""Book 1"" },
+            { ""_id"" : 2, ""title"" : ""Book 2"" }
           ]
       }");
 
@@ -76,9 +77,29 @@ namespace PortableConnectorNetTests
         new {  _id = 2, title = "Book 2" },
       };
       DbDoc d2 = new DbDoc();
-      d2.SetValue("id", "1");
-      d2.SetValue("pages", "20");
+      d2.SetValue("id", 1);
+      d2.SetValue("pages", 20);
       d2.SetValue("books", docs);
+      Assert.True(d.Equals(d2));
+    }
+
+    [Fact]
+    public void ParseLongValues()
+    {
+      DbDoc d = new DbDoc(@"{ ""id"": 1, ""pages"": " + ((long)int.MaxValue + 1) + "}");
+      DbDoc d2 = new DbDoc();
+      d2.SetValue("id", 1);
+      d2.SetValue("pages", (long)int.MaxValue + 1);
+      Assert.True(d.Equals(d2));
+    }
+
+    [Fact]
+    public void ParseFloatValues()
+    {
+      DbDoc d = new DbDoc(@"{ ""id"": 1, ""pi"": 3.14159 }");
+      DbDoc d2 = new DbDoc();
+      d2.SetValue("id", 1);
+      d2.SetValue("pi", 3.14159);
       Assert.True(d.Equals(d2));
     }
   }

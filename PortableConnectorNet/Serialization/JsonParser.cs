@@ -67,7 +67,14 @@ namespace MySql.Serialization
       if (t == '"') return ReadQuotedToken();
       if (t == '{') return ReadGroup();
       if (t == '[') return ReadArray();
-      return ReadUntilToken(',', '}');
+      string stringValue = ReadUntilToken(',', '}');
+      int intValue;
+      long longValue;
+      double doubleValue;
+      if (int.TryParse(stringValue, out intValue)) return intValue;
+      if (long.TryParse(stringValue, out longValue)) return longValue;
+      if (double.TryParse(stringValue, out doubleValue)) return doubleValue;
+      return stringValue;
     }
 
     private Dictionary<string,object>[] ReadArray()
