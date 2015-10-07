@@ -1,6 +1,7 @@
 ﻿using MySql.XDevAPI;
 using MySql.XDevAPI.Common;
 using MySql.XDevAPI.CRUD;
+using MySql.XDevAPI.Relational;
 using System;
 using Xunit;
 
@@ -11,21 +12,19 @@ namespace PortableConnectorNetTests.ResultTests
     [Fact]
     public void FetchAllNoReference()
     {
-      Collection testColl = CreateCollection("test");
-      var stmt = testColl.Add(@"{ ""_id"": 1, ""foo"": 1 }");
-      stmt.Add(@"{ ""_id"": 2, ""foo"": 2 }");
-      stmt.Add(@"{ ""_id"": 3, ""foo"": 3 }");
-      stmt.Add(@"{ ""_id"": 4, ""foo"": 4 }");
-      Result result = stmt.Execute();
-      Assert.Equal(4, (int)result.RecordsAffected);
+      ExecuteSQL("CREATE TABLE test(name VARCHAR(40), age INT)");
+      Table table = testSchema.GetTable("test");
 
-      var docResult = testColl.Find().Execute();
-      var docs = docResult.FetchAll();
-      WeakReference wr = new WeakReference(docResult);
-      docResult = null;
+      table.Insert("name", "age").Values("Henry", "22").Values("Patric", 30).Execute();
+      var result = table.Select().Execute();
+      var rows = result.FetchAll();
+      WeakReference wr = new WeakReference(result);
+      result = null;
       GC.Collect();
       Assert.False(wr.IsAlive);
-      Assert.Equal(4, docs.Count);
+      Assert.Equal(2, rows.Count);
+      Assert.Equal(22, rows[0]["age"]);
+      Assert.Equal("Patric", rows[1]["name"]);
     }
   }
 }

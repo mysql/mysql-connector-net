@@ -115,16 +115,13 @@ namespace MySql.XDevAPI.Common
         if (item == null)
         {
           _isComplete = true;
+          _session.ActiveResult = null;
           break;
         }
         _items.Add(item);
         count++;
       }
       return count > 0;
-    }
-
-    public void Dispose()
-    {
     }
 
     public T Current
@@ -165,6 +162,10 @@ namespace MySql.XDevAPI.Common
     protected override void Buffer()
     {
       FetchAll();
+    }
+
+    public void Dispose()
+    {
     }
   }
 }
