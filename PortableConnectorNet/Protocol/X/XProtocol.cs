@@ -303,45 +303,6 @@ namespace MySql.Protocol
       }
     }
 
-    //public override bool ReadResult(BaseResult result)
-    //{
-    //  CommunicationPacket p = PeekPacket();
-    //  if (p.MessageType == (int)ServerMessageId.RESULTSET_COLUMN_META_DATA)
-    //  {
-    //    if (!(result is XDevAPI.Common.BufferingResult<T>))
-    //  }
-    //  {
-    //    ReadResultSet(result);
-    //  if (p.MessageType == (int)ServerMessageId.RESULTSET_FETCH_DONE)
-    //  {
-    //    ReadPacket();
-    //    return null; 
-    //  }
-    //  if (p.MessageType == (int)ServerMessageId.RESULTSET_FETCH_DONE_MORE_RESULTSETS)
-    //  {
-    //    ReadPacket();
-    //    return new RowResult(this, false);
-    //  }
-    //  return null;
-    //}
-
-    //public override bool HasAnotherResultSet()
-    //{
-    //  CommunicationPacket p = PeekPacket();
-    //  if (p.MessageType == (int)ServerMessageId.RESULTSET_COLUMN_META_DATA) return true;
-    //  if (p.MessageType == (int)ServerMessageId.RESULTSET_FETCH_DONE)
-    //  {
-    //    ReadPacket();
-    //    return false;
-    //  }
-    //  if (p.MessageType == (int)ServerMessageId.RESULTSET_FETCH_DONE_MORE_RESULTSETS)
-    //  {
-    //    ReadPacket();
-    //    return true;
-    //  }
-    //  return false;
-    //}
-
     public override List<XDevAPI.Relational.Column> LoadColumnMetadata()
     {
       List<XDevAPI.Relational.Column> columns = new List<XDevAPI.Relational.Column>();

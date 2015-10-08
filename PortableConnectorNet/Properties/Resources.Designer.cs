@@ -133,6 +133,15 @@ namespace MySql.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to read or decode data value..
+        /// </summary>
+        internal static string UnableToDecodeDataValue {
+            get {
+                return ResourceManager.GetString("UnableToDecodeDataValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Value &apos;{0}&apos; is not of the correct type..
         /// </summary>
         internal static string ValueNotCorrectType {

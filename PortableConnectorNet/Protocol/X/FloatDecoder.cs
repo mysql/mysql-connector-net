@@ -21,26 +21,46 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
-using MySql.XDevAPI.Relational;
+using Google.ProtocolBuffers;
+using MySql.Data;
+using MySql.Properties;
+using MySql.XDevAPI;
+using System;
 
 namespace MySql.Protocol.X
 {
-  internal class XValueDecoderFactory
+  internal class FloatDecoder : ValueDecoder
   {
-    public static ValueDecoder GetValueDecoder(Column c, Mysqlx.Resultset.ColumnMetaData.Types.FieldType type)
+    bool _float;
+
+    public FloatDecoder(bool isFloat)
     {
-      switch (type)
-      {
-//        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.BIT: return XBitDecoder();
-        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.BYTES: return new ByteDecoder();
-        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.TIME: return new XTimeDecoder();
-        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.DATETIME: return new XDateTimeDecoder();
-        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.SINT: return new IntegerDecoder(true);
-        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.UINT: return new IntegerDecoder(false);
-        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.FLOAT: return new FloatDecoder(true);
-        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.DOUBLE: return new FloatDecoder(false);
-      }
-      throw new MySqlException("Unknown field type " + type.ToString());
+      _float = isFloat;
+    }
+
+    public override void SetMetadata()
+    {
+      Column.DbType = _float ? MySQLDbType.Float : MySQLDbType.Double;
+      Column.ClrType = _float ? typeof(float) : typeof(double);
+      ClrValueDecoder = FloatValueDecoder;
+      if (!_float)
+        ClrValueDecoder = DoubleValueDecoder;
+    }
+
+    private object FloatValueDecoder(byte[] bytes)
+    {
+      float value = 0;
+      if (!CodedInputStream.CreateInstance(bytes).ReadFloat(ref value))
+        throw new MySqlException(Resources.UnableToDecodeDataValue);
+      return value;
+    }
+
+    private object DoubleValueDecoder(byte[] bytes)
+    {
+      double value = 0;
+      if (!CodedInputStream.CreateInstance(bytes).ReadDouble(ref value))
+        throw new MySqlException(Resources.UnableToDecodeDataValue);
+      return value;
     }
   }
 }

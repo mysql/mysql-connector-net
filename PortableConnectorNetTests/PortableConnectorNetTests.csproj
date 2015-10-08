@@ -33,6 +33,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="CrudTests\DocBufferingTests.cs" />
+    <Compile Include="RelationalTests\DataTypeTests.cs" />
     <Compile Include="RelationalTests\DateTimeTests.cs" />
     <Compile Include="RelationalTests\RelationalGCTests.cs" />
     <Compile Include="RelationalTests\RowBufferingTests.cs" />
