@@ -1092,6 +1092,7 @@ namespace MySql.Data.MySqlClient.Tests
 
                   st.suExecSQL(string.Format("CREATE USER {0} IDENTIFIED BY '{1}1'", expiredfull, expireduser));
                   st.suExecSQL(string.Format("GRANT SELECT ON `{0}`.* TO {1}", conn.Database, expiredfull));
+
                   st.suExecSQL(string.Format("ALTER USER {0} PASSWORD EXPIRE", expiredfull));
                   conn.Close();
 
@@ -1103,7 +1104,11 @@ namespace MySql.Data.MySqlClient.Tests
                   MySqlException ex = Assert.Throws<MySqlException>(() => cmd.ExecuteScalar());
                   Assert.Equal(1820, ex.Number);
 
-                  cmd.CommandText = string.Format("SET PASSWORD = PASSWORD('{0}1')", expireduser);
+                  if (st.Version >= new Version(5, 7, 6))
+                    cmd.CommandText = string.Format("SET PASSWORD = '{0}1'", expireduser);
+                  else
+                    cmd.CommandText = string.Format("SET PASSWORD = PASSWORD('{0}1')", expireduser);
+
                   cmd.ExecuteNonQuery();
                   conn.Close();
 
