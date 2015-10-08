@@ -44,7 +44,7 @@ namespace PortableConnectorNetTests.RelationalTests
       int rowsToInsert = 10;
       for (int i = 1; i <= rowsToInsert; i++)
       {
-        insertStatement.Values(i, "", i);
+        insertStatement.Values(i, i, i);
       }
       insertStatement.Execute();
       Assert.Equal(rowsToInsert, CountRows());

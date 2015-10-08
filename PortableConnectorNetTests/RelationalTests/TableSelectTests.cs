@@ -54,11 +54,7 @@ namespace PortableConnectorNetTests.RelationalTests
     private void MultiTableSelectTest(TableSelectStatement statement, object[][] expectedValues)
     {
       RowResult result = statement.Execute();
-      int rowCount = 0;
-      while (result.Next())
-      {
-        rowCount++;
-      };
+      int rowCount = result.FetchAll().Count;
 
       Assert.Equal(expectedValues.Length, rowCount);
       Assert.Equal(expectedValues.Length, result.Rows.Count);
@@ -103,6 +99,31 @@ namespace PortableConnectorNetTests.RelationalTests
       //allRows.GroupBy(c => new[] { c[2] }).First().ToArray());
     }
 
+    [Fact]
+    public void AllColumns()
+    {
+      var table = testSchema.GetTable("test");
+      var select = table.Select("*, 42 as a_number, '43' as a_string").Execute();
+      var rows = select.FetchAll();
+      Assert.Equal(5, select.Columns.Count);
+      Assert.Equal(allRows.Length, rows.Count);
+      Assert.Equal(allRows[0][0], rows[0]["id"]);
+      Assert.Equal(allRows[0][1], rows[0]["name"]);
+      Assert.Equal(allRows[0][2], rows[0]["age"]);
+      Assert.Equal<byte>(42, (byte)rows[0]["a_number"]);
+      Assert.Equal("43", rows[0]["a_string"]);
+    }
+
+    [Fact]
+    public void CountAllColumns()
+    {
+      var table = testSchema.GetTable("test");
+      var select = table.Select("count(*) + 10").Execute();
+      var rows = select.FetchAll();
+      Assert.Equal(1, select.Columns.Count);
+      Assert.Equal(1, rows.Count);
+      Assert.Equal<long>(allRows.Length + 10, (long)rows[0][0]);
+    }
   }
 
 }

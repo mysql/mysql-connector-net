@@ -218,6 +218,10 @@ namespace MySql.Protocol.X
       {
         return string.Format("{0}{1}", name, parameters[0]);
       }
+      else if (parameters.Count == 0)
+      {
+        return name;
+      }
       else
       {
         return name + ParamListToString(parameters);

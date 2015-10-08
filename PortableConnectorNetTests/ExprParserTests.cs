@@ -199,6 +199,8 @@ namespace PortableConnectorNetTests
       CheckParseRoundTrip("a is true or a is false", "((a is TRUE) || (a is FALSE))");
       // TODO: this isn't serialized correctly by the unparser
       //checkParseRoundTrip("a@.b[0][0].c**.d.\"a weird\\\"key name\"", "");
+      CheckParseRoundTrip("*", "*");
+      CheckParseRoundTrip("count(*) + 1", "(count(*) + 1)");
     }
 
     /**
@@ -491,6 +493,18 @@ namespace PortableConnectorNetTests
       List<Projection> proj = new ExprParser("a, b as c").ParseTableSelectProjection();
       Assert.Equal(2, proj.Count);
       Assert.Equal("a", ExprUnparser.ExprToString(proj[0].Source));
+      Assert.False(proj[0].HasAlias);
+      Assert.Equal("b", ExprUnparser.ExprToString(proj[1].Source));
+      Assert.True(proj[1].HasAlias);
+      Assert.Equal("c", proj[1].Alias);
+    }
+
+    [Fact]
+    public void TestStarTableSelectProjection()
+    {
+      List<Projection> proj = new ExprParser("*, b as c").ParseTableSelectProjection();
+      Assert.Equal(2, proj.Count);
+      Assert.Equal("*", ExprUnparser.ExprToString(proj[0].Source));
       Assert.False(proj[0].HasAlias);
       Assert.Equal("b", ExprUnparser.ExprToString(proj[1].Source));
       Assert.True(proj[1].HasAlias);

@@ -563,6 +563,11 @@ namespace MySql.Protocol.X
       return Expr.CreateBuilder().SetType(Expr.Types.Type.FUNC_CALL).SetFunctionCall(b.Build()).Build();
     }
 
+    Expr StarOperator()
+    {
+      Operator op = Operator.CreateBuilder().SetName("*").Build();
+      return Expr.CreateBuilder().SetType(Expr.Types.Type.OPERATOR).SetOperator(op).Build();
+    }
     /**
      * Parse an identifier for a function call: [schema.]name
      */
@@ -908,6 +913,9 @@ namespace MySql.Protocol.X
           return ExprUtil.BuildLiteralScalar(t.type == TokenType.TRUE);
         case TokenType.AT:
           return DocumentField();
+        case TokenType.STAR:
+          // special "0-ary" consideration of "*" as an operator (for COUNT(*), etc)
+          return StarOperator();
         case TokenType.IDENT:
           this.tokenPos--; // stay on the identifier
           // check for function call which may be: func(...) or schema.func(...)

@@ -120,7 +120,7 @@ namespace MySql.Protocol.X
 
     public object SByteValueDecoder(byte[] bytes)
     {
-      return bytes[0];
+      return (byte)ReadInt(bytes);
     }
 
     public object Int16ValueDecoder(byte[] bytes)
