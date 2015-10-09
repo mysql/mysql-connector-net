@@ -793,6 +793,7 @@ namespace MySql.Protocol.X
             {
               throw new ArgumentException("Invalid placeholder name at token pos " + this.tokenPos);
             }
+            placeholderName = placeholderName.ToLowerInvariant();
             Expr.Builder placeholder = Expr.CreateBuilder().SetType(Expr.Types.Type.PLACEHOLDER);
             if (this.placeholderNameToPosition.ContainsKey(placeholderName))
             {

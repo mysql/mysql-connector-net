@@ -106,6 +106,15 @@ namespace MySql.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No placeholders..
+        /// </summary>
+        internal static string NoPlaceholders {
+            get {
+                return ResourceManager.GetString("NoPlaceholders", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Path not found &apos;{0}&apos;..
         /// </summary>
         internal static string PathNotFound {
@@ -156,6 +165,15 @@ namespace MySql.Properties {
         internal static string UnexpectedEndOfPacketFound {
             get {
                 return ResourceManager.GetString("UnexpectedEndOfPacketFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown placeholder :{0}.
+        /// </summary>
+        internal static string UnknownPlaceholder {
+            get {
+                return ResourceManager.GetString("UnknownPlaceholder", resourceCulture);
             }
         }
         

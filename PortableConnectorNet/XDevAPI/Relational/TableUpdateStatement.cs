@@ -63,17 +63,5 @@ namespace MySql.XDevAPI.Relational
       updates.Add(new UpdateSpec(Mysqlx.Crud.UpdateOperation.Types.UpdateType.SET, tableField).SetValue(value));
       return this;
     }
-
-    /// <summary>
-    /// Binds the parameter values in filter expression
-    /// </summary>
-    /// <param name="name">Parameter name</param>
-    /// <param name="value">Parameter value</param>
-    /// <returns></returns>
-    public TableUpdateStatement Bind(string name, object value)
-    {
-      FilterData.Parameters.Add(name, value);
-      return this;
-    }
   }
 }

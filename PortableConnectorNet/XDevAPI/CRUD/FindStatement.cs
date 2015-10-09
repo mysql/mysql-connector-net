@@ -50,33 +50,6 @@ namespace MySql.XDevAPI.CRUD
     }
 
     /// <summary>
-    /// Binds the parameter values in filter expression
-    /// </summary>
-    /// <param name="namedParameters">Values for parameters used in filter expression as Dictionary</param>
-    /// <returns>This FindStatement object</returns>
-    public FindStatement Bind(Dictionary<string, object> namedParameters)
-    {
-      this.FilterData.Parameters = namedParameters;
-      return this;
-    }
-
-    /// <summary>
-    /// Binds the parameter values in filter expression
-    /// </summary>
-    /// <param name="values">Values for parameters used in filter expression</param>
-    /// <returns>This FindStatement object</returns>
-    public FindStatement Bind(params object[] values)
-    {
-      this.FilterData.Parameters = new Dictionary<string, object>();
-      int i = 0;
-      foreach (object value in values)
-      {
-        this.FilterData.Parameters.Add(i++.ToString(), value);
-      }
-      return this;
-    }
-
-    /// <summary>
     /// Executes the Find statement
     /// </summary>
     /// <returns>Result of execution and data</returns>

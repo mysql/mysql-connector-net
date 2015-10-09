@@ -64,7 +64,7 @@ namespace PortableConnectorNetTests
 
       for (int i = 1; i <= docs; i++)
       {
-        tasksList.Add(coll.Find("age = :age").Bind(i).ExecuteAsync());
+        tasksList.Add(coll.Find("age = :age").Bind("AgE", i).ExecuteAsync());
       }
 
       Assert.True(Task.WaitAll(tasksList.ToArray(), TimeSpan.FromMinutes(2)), "WaitAll timeout");

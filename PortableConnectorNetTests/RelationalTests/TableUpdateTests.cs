@@ -63,6 +63,7 @@ namespace PortableConnectorNetTests.RelationalTests
         statement.FilterData.Condition = filter.Condition;
         statement.FilterData.Limit = filter.Limit;
         statement.FilterData.OrderBy = filter.OrderBy;
+        statement.FilterData.Parameters = filter.Parameters;
       }
       var result = statement.Execute();
       while (result.Next()) ;
@@ -86,7 +87,7 @@ namespace PortableConnectorNetTests.RelationalTests
     [Fact]
     public void EmptyUpdateTest()
     {
-      var result = table.Update().Execute();
+      Assert.Throws<MySql.MySqlException>(() => table.Update().Execute());
     }
 
     [Fact]
@@ -125,7 +126,7 @@ namespace PortableConnectorNetTests.RelationalTests
     [Fact]
     public void UpdateBind()
     {
-      ValidateUpdate(table.Update().Set("age", 55).Where("id = :id or id = :id2").Bind("id", 4).Bind("id2", 7));
+      ValidateUpdate(table.Update().Set("age", 55).Where("id = :id or id = :id or id = :id2").Bind("id", 4).Bind("id2", 7));
     }
   }
 }

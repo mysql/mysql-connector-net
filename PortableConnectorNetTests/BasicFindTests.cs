@@ -97,5 +97,25 @@ namespace PortableConnectorNetTests
       Assert.True(foundDocs.Current["title"] == "Book 2");
       Assert.False(foundDocs.Next());
     }
+
+    [Fact]
+    public void FindConditional()
+    {
+      Collection coll = CreateCollection("test");
+      var docs = new[]
+      {
+        new {  _id = 1, title = "Book 1", pages = 20 },
+        new {  _id = 2, title = "Book 2", pages = 30 },
+        new {  _id = 3, title = "Book 3", pages = 40 },
+        new {  _id = 4, title = "Book 4", pages = 50 },
+      };
+      Result r = coll.Add(docs).Execute();
+      Assert.Equal<ulong>(4, r.RecordsAffected);
+
+      DocResult foundDocs = coll.Find("pages = :Pages").Bind("pAges", 40).Execute();
+      Assert.True(foundDocs.Next());
+      Assert.True(foundDocs.Current["title"] == "Book 3");
+      Assert.False(foundDocs.Next());
+    }
   }
 }

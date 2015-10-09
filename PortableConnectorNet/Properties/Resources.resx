@@ -132,6 +132,9 @@
   <data name="NoMoreData" xml:space="preserve">
     <value>No more data in resultset.</value>
   </data>
+  <data name="NoPlaceholders" xml:space="preserve">
+    <value>No placeholders.</value>
+  </data>
   <data name="PathNotFound" xml:space="preserve">
     <value>Path not found '{0}'.</value>
   </data>
@@ -149,6 +152,9 @@
   </data>
   <data name="UnexpectedEndOfPacketFound" xml:space="preserve">
     <value>Unexpected end of packet found while reading data values</value>
+  </data>
+  <data name="UnknownPlaceholder" xml:space="preserve">
+    <value>Unknown placeholder :{0}</value>
   </data>
   <data name="ValueNotCorrectType" xml:space="preserve">
     <value>Value '{0}' is not of the correct type.</value>

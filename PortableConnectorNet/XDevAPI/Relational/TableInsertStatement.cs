@@ -60,11 +60,5 @@ namespace MySql.XDevAPI.Relational
       this.values.Add(values);
       return this;
     }
-
-    internal TableInsertStatement Bind(params object[] parameters)
-    {
-      this.parameters = parameters;
-      return this;
-    }
   }
 }

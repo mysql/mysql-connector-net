@@ -25,6 +25,7 @@ using Mysqlx.Crud;
 using Mysqlx.Expr;
 using System.Collections.Generic;
 using Mysqlx.Datatypes;
+using System;
 
 namespace MySql.XDevAPI.Common
 {
@@ -33,7 +34,8 @@ namespace MySql.XDevAPI.Common
     public long Limit = -1;
     public long Offset = -1;
     public string Condition;
-    public Dictionary<string, object> Parameters;
+    public Dictionary<string, object> Parameters = new Dictionary<string, object>();
+    public Dictionary<string, int> placeholderNameToPosition;
     public bool IsRelational;
     public string[] OrderBy;
 
@@ -51,20 +53,24 @@ namespace MySql.XDevAPI.Common
     {
       ExprParser parser = new ExprParser(Condition, allowRelational);
       Expr expr = parser.Parse();
+      if (parser.GetPositionalPlaceholderCount() > 0)
+      {
+        this.placeholderNameToPosition = parser.GetPlaceholderNameToPositionMap();
+      }
       return expr;
-//      if (parser.getPositionalPlaceholderCount() > 0)
-  //    {
-    //    this.placeholderNameToPosition = parser.getPlaceholderNameToPositionMap();
-      //  this.args = new ArrayList<>(parser.getPositionalPlaceholderCount());
-      //}
     }
 
     public IEnumerable<Scalar> GetArgsExpression(Dictionary<string, object> parameters)
     {
-      List<Scalar> paramsList = new List<Scalar>();
+      if (placeholderNameToPosition == null || placeholderNameToPosition.Count == 0)
+        throw new ArgumentException(Properties.Resources.NoPlaceholders);
+
+      Scalar[] paramsList = new Scalar[placeholderNameToPosition.Count];
       foreach (var param in parameters)
       {
-        paramsList.Add(ExprUtil.ArgObjectToScalar(param.Value));
+        if (!placeholderNameToPosition.ContainsKey(param.Key.ToLowerInvariant()))
+          throw new ArgumentNullException(string.Format(Properties.Resources.UnknownPlaceholder, param.Key));
+        paramsList[placeholderNameToPosition[param.Key.ToLowerInvariant()]] = ExprUtil.ArgObjectToScalar(param.Value);
       }
       return paramsList;
     }

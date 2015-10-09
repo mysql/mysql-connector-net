@@ -76,5 +76,11 @@ namespace PortableConnectorNetTests.RelationalTests
     {
       ExecuteDelete(testSchema.GetTable("test").Delete().Where("id > 5").OrderBy("id Desc").Limit(2), 8);
     }
+
+    [Fact]
+    public void DeleteBindTest()
+    {
+      ExecuteDelete(testSchema.GetTable("test").Delete().Where("age = :aGe").Bind("Age", 4), 9);
+    }
   }
 }

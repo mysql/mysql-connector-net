@@ -91,9 +91,9 @@ namespace PortableConnectorNetTests.RelationalTests
         allRows.Skip(1).Take(10).ToArray());
       MultiTableSelectTest(table.Select().Limit(1, 1),
         allRows.Skip(1).Take(1).ToArray());
-      MultiTableSelectTest(table.Select().Where("name like :name").Bind("%jon%"),
+      MultiTableSelectTest(table.Select().Where("name like :name").Bind("nAme", "%jon%"),
         allRows.Where(c => c[1].ToString().Contains("jon")).ToArray());
-      MultiTableSelectTest(table.Select().Where("name like :name").Bind("%on%"),
+      MultiTableSelectTest(table.Select().Where("name like :name").Bind("naMe", "%on%"),
         allRows.Where(c => c[1].ToString().Contains("on")).ToArray());
       //MultiTableSelectTest(employees.Select().GroupBy("age"),
       //allRows.GroupBy(c => new[] { c[2] }).First().ToArray());
@@ -123,6 +123,18 @@ namespace PortableConnectorNetTests.RelationalTests
       Assert.Equal(1, select.Columns.Count);
       Assert.Equal(1, rows.Count);
       Assert.Equal<long>(allRows.Length + 10, (long)rows[0][0]);
+    }
+
+    [Fact]
+    public void MultipleBind()
+    {
+      object[] validationRow = allRows[1];
+      var table = testSchema.GetTable("test");
+      var select = table.Select().Where("Name = :nAme && Age = :aGe").Bind("agE", validationRow[2]).Bind("naMe", validationRow[1]).Execute();
+      var rows = select.FetchAll();
+      Assert.Equal(1, rows.Count);
+      Assert.Equal(validationRow[1], rows[0]["namE"]);
+      Assert.Equal(validationRow[2], rows[0]["AGe"]);
     }
   }
 

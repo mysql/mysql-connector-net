@@ -71,33 +71,6 @@ namespace MySql.XDevAPI.Relational
     }
 
     /// <summary>
-    /// Binds the parameter values in filter expression
-    /// </summary>
-    /// <param name="namedParameters">Values for parameters used in filter expression as Dictionary</param>
-    /// <returns>This same TableSelectStatement object</returns>
-    public TableSelectStatement Bind(Dictionary<string, object> namedParameters)
-    {
-      this.FilterData.Parameters = namedParameters;
-      return this;
-    }
-
-    /// <summary>
-    /// Binds the parameter values in filter expression
-    /// </summary>
-    /// <param name="values">Values for parameters used in filter expression</param>
-    /// <returns>This same TableSelectStatement object</returns>
-    public TableSelectStatement Bind(params object[] values)
-    {
-      this.FilterData.Parameters = new Dictionary<string, object>();
-      int i = 0;
-      foreach (object value in values)
-      {
-        this.FilterData.Parameters.Add(i++.ToString(), value);
-      }
-      return this;
-    }
-
-    /// <summary>
     /// Allows the user to set the limit and offset for the operation
     /// </summary>
     /// <param name="rows">How many items should be returned</param>

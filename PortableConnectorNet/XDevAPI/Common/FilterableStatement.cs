@@ -20,6 +20,8 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using System.Collections.Generic;
+
 namespace MySql.XDevAPI.Common
 {
   /// <summary>
@@ -79,10 +81,22 @@ namespace MySql.XDevAPI.Common
     /// "order ASC"  or "pages DESC, age ASC"
     /// </summary>
     /// <param name="order">The order criteria</param>
-    /// <returns>The implementing statement type</returns>    /// <returns></returns>
+    /// <returns>The implementing statement type</returns>
     public T OrderBy(params string[] order)
     {
       filter.OrderBy = order;
+      return (T)this;
+    }
+
+    /// <summary>
+    /// Binds the parameter values in filter expression
+    /// </summary>
+    /// <param name="parameterName">Parameter name</param>
+    /// <param name="value">Value of parameter</param>
+    /// <returns>The implementing statement type</returns>
+    public T Bind(string parameterName, object value)
+    {
+      FilterData.Parameters.Add(parameterName, value);
       return (T)this;
     }
   }

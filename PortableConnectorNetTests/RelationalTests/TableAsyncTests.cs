@@ -69,7 +69,7 @@ namespace PortableConnectorNetTests.RelationalTests
 
       for(int i = 1; i <= rows; i++)
       {
-        tasksList.Add(table.Select().Where("age = :age").Bind(i).ExecuteAsync());
+        tasksList.Add(table.Select().Where("age = :age").Bind("aGe", i).ExecuteAsync());
       }
 
       Assert.True(Task.WaitAll(tasksList.ToArray(), TimeSpan.FromMinutes(2)), "WaitAll timeout");

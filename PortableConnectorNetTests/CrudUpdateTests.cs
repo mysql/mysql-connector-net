@@ -60,5 +60,21 @@ namespace PortableConnectorNetTests
       result = coll.Modify("_id = 1").Unset("pages").Execute();
       Assert.Equal<ulong>(1, result.RecordsAffected);
     }
+
+    [Fact]
+    public void SetItemAndBind()
+    {
+      Collection coll = CreateCollection("test");
+      Result result = coll.Add(new { _id = 1, name = "Book 1" })
+        .Add(new { _id = 2, name = "Book 2" }).Execute();
+      Assert.Equal<ulong>(2, result.RecordsAffected);
+
+      result = coll.Modify("_id = :ID").Bind("Id", 2).Set("pages", "20").Execute();
+      Assert.Equal<ulong>(1, result.RecordsAffected);
+
+      var docs = coll.Find().Execute().FetchAll();
+      Assert.Equal("{\"_id\":1, \"name\":\"Book 1\"}", docs[0].ToString());
+      Assert.Equal("{\"_id\":2, \"name\":\"Book 2\", \"pages\":20}", docs[1].ToString());
+    }
   }
 }
