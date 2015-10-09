@@ -32,7 +32,9 @@ namespace MySql.Protocol.X
       switch (type)
       {
 //        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.BIT: return XBitDecoder();
-        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.BYTES: return new ByteDecoder();
+        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.BYTES: return new ByteDecoder(false);
+        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.ENUM: return new ByteDecoder(true);
+        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.SET: return new SetDecoder();
         case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.TIME: return new XTimeDecoder();
         case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.DATETIME: return new XDateTimeDecoder();
         case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.SINT: return new IntegerDecoder(true);

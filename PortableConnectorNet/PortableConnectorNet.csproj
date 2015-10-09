@@ -72,6 +72,7 @@
     </Compile>
     <Compile Include="Protocol\ProtocolBase.cs" />
     <Compile Include="Protocol\ValueDecoder.cs" />
+    <Compile Include="Protocol\X\SetDecoder.cs" />
     <Compile Include="Protocol\X\Enum.cs" />
     <Compile Include="Protocol\X\ExprParser.cs" />
     <Compile Include="Protocol\X\ExprUtil.cs" />

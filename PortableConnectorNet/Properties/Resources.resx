@@ -141,8 +141,14 @@
   <data name="ThrowingAwayResults" xml:space="preserve">
     <value>The process of closing the resultset and resulted in results being lost.</value>
   </data>
+  <data name="UnableToConnect" xml:space="preserve">
+    <value>Unable to connect to any specified host.</value>
+  </data>
   <data name="UnableToDecodeDataValue" xml:space="preserve">
     <value>Unable to read or decode data value.</value>
+  </data>
+  <data name="UnexpectedEndOfPacketFound" xml:space="preserve">
+    <value>Unexpected end of packet found while reading data values</value>
   </data>
   <data name="ValueNotCorrectType" xml:space="preserve">
     <value>Value '{0}' is not of the correct type.</value>

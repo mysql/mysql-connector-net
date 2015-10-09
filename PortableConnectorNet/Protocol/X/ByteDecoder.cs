@@ -30,10 +30,16 @@ namespace MySql.Protocol.X
   internal class ByteDecoder : ValueDecoder
   {
     private Encoding _encoding;
+    private bool _isEnum;
+
+    public ByteDecoder(bool isEnum)
+    {
+      _isEnum = isEnum;
+    }
 
     public override void SetMetadata()
     {
-      Column.DbType = GetDbType();
+      Column.DbType = _isEnum ? MySQLDbType.Enum : GetDbType();
       Column.ClrType = GetClrType(Column.DbType);
       ClrValueDecoder = GetClrValueDecoder();
     }
@@ -57,7 +63,8 @@ namespace MySql.Protocol.X
           dbType == MySQLDbType.TinyText ||
           dbType == MySQLDbType.Text ||
           dbType == MySQLDbType.MediumText || 
-          dbType == MySQLDbType.LongText) return typeof(string);
+          dbType == MySQLDbType.LongText ||
+          dbType == MySQLDbType.Enum) return typeof(string);
       return typeof(byte[]);
     }
 

@@ -34,6 +34,7 @@ using MySql.XDevAPI.Relational;
 using MySql.XDevAPI.CRUD;
 using MySql.Protocol.X;
 using Mysqlx.Datatypes;
+using MySql.Properties;
 
 namespace MySql.Session
 {
@@ -51,6 +52,8 @@ namespace MySql.Session
     protected override void Open()
     {
       _stream = MyNetworkStream.CreateStream(Settings, false);
+      if (_stream == null)
+        throw new MySqlException(Resources.UnableToConnect);
       _reader = new XPacketReaderWriter(_stream);
       _writer = new XPacketReaderWriter(_stream);
       protocol = new XProtocol(_reader, _writer);
@@ -105,7 +108,7 @@ namespace MySql.Session
       try
       {
         protocol.SendSessionClose();
-        //protocol.ReadOK();
+        protocol.ReadOK();
         SessionState = SessionState.Closed;
       }
       catch (Exception ex)

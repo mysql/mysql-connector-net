@@ -67,5 +67,39 @@ namespace PortableConnectorNetTests.RelationalTests
       Assert.Equal(14.8, rows[1][0]);
       Assert.Equal(11.9, rows[2][0]);
     }
+
+    [Fact]
+    public void Set()
+    {
+      ExecuteSQL("CREATE TABLE test(rvalue SET('A','B','C','D'))");
+      ExecuteSQL("INSERT INTO test VALUES('A'), ('B,A'), ('B')");
+
+      RowResult r = GetSession().GetSchema("test").GetTable("test").Select("rvalue").Execute();
+      var rows = r.FetchAll();
+      Assert.Equal(1, r.Columns.Count);
+      Assert.Equal(typeof(string), r.Columns[0].ClrType);
+      Assert.Equal(MySQLDbType.Set, r.Columns[0].DbType);
+      Assert.Equal(3, rows.Count);
+      Assert.Equal("A", rows[0][0]);
+      Assert.Equal("A,B", rows[1][0]);
+      Assert.Equal("B", rows[2][0]);
+    }
+
+    [Fact]
+    public void Enum()
+    {
+      ExecuteSQL("CREATE TABLE test(rvalue Enum('Alpha','Beta','C','D'))");
+      ExecuteSQL("INSERT INTO test VALUES('Alpha'), ('Beta'), ('C')");
+
+      RowResult r = GetSession().GetSchema("test").GetTable("test").Select("rvalue").Execute();
+      var rows = r.FetchAll();
+      Assert.Equal(1, r.Columns.Count);
+      Assert.Equal(typeof(string), r.Columns[0].ClrType);
+      Assert.Equal(MySQLDbType.Enum, r.Columns[0].DbType);
+      Assert.Equal(3, rows.Count);
+      Assert.Equal("Alpha", rows[0][0]);
+      Assert.Equal("Beta", rows[1][0]);
+      Assert.Equal("C", rows[2][0]);
+    }
   }
 }

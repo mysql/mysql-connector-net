@@ -133,11 +133,29 @@ namespace MySql.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to connect to any specified host..
+        /// </summary>
+        internal static string UnableToConnect {
+            get {
+                return ResourceManager.GetString("UnableToConnect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to read or decode data value..
         /// </summary>
         internal static string UnableToDecodeDataValue {
             get {
                 return ResourceManager.GetString("UnableToDecodeDataValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unexpected end of packet found while reading data values.
+        /// </summary>
+        internal static string UnexpectedEndOfPacketFound {
+            get {
+                return ResourceManager.GetString("UnexpectedEndOfPacketFound", resourceCulture);
             }
         }
         

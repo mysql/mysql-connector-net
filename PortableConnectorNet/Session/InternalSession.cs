@@ -24,7 +24,6 @@ using System;
 using System.IO;
 using MySql.Data;
 using MySql.Security;
-using System.Diagnostics;
 using MySql.Protocol;
 using MySql.XDevAPI;
 using MySql.XDevAPI.Common;
