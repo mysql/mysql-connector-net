@@ -20,6 +20,8 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Serialization;
+using MySQL.Common;
 using System.Collections.Generic;
 
 namespace MySql.XDevAPI.Common
@@ -98,6 +100,40 @@ namespace MySql.XDevAPI.Common
     {
       FilterData.Parameters.Add(parameterName, value);
       return (T)this;
+    }
+
+    /// <summary>
+    /// Binds the parameter values in filter expression
+    /// </summary>
+    /// <param name="dbDocParams">Parameters as DbDoc object</param>
+    /// <returns>The implementing statement type</returns>
+    public T Bind(DbDoc dbDocParams)
+    {
+      return Bind(dbDocParams.ToString());
+    }
+
+    /// <summary>
+    /// Binds the parameter values in filter expression
+    /// </summary>
+    /// <param name="jsonParams">Parameters as JSON string</param>
+    /// <returns>The implementing statement type</returns>
+    public T Bind(string jsonParams)
+    {
+      foreach(var item in JsonParser.Parse(jsonParams))
+      {
+        Bind(item.Key, item.Value);
+      }
+      return (T)this;
+    }
+
+    /// <summary>
+    /// Binds the parameter values in filter expression
+    /// </summary>
+    /// <param name="jsonParams">Parameters as anonymous: new { param1 = value1, param2 = value2, ... }</param>
+    /// <returns>The implementing statement type</returns>
+    public T Bind(object jsonParams)
+    {
+      return Bind(new DbDoc(jsonParams));
     }
   }
 }
