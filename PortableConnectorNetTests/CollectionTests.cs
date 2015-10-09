@@ -57,10 +57,9 @@ namespace PortableConnectorNetTests
       Assert.True(testColl.ExistsInDatabase(), "ExistsInDatabase failed");
       var result = testColl.CreateIndex("testIndex", true).Field(".myId", "INT", true).Execute();
       result = testColl.Add(new { myId = 1 }).Add(new { myId = 2 }).Execute();
-      result = testColl.Add(new { myId = 1 }).Execute();
+      Assert.Throws<MySql.MySqlException>(() => testColl.Add(new { myId = 1 }).Execute());
       result = testColl.DropIndex("testIndex");
       result = testColl.Add(new { myId = 1 }).Execute();
-      ///TODO:  how to test that these work now 
     }
 
   }

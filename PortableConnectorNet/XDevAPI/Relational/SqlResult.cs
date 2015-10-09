@@ -52,14 +52,5 @@ namespace MySql.XDevAPI.Relational
     {
       get { return _lastInsertId; }
     }
-
-    public bool Next()
-    {
-      Dump();
-      _columns = null;
-      _recordsAffected = 0;
-      _lastInsertId = 0;
-      return false; // _protocol.ReadResult(this);
-    }
   }
 }

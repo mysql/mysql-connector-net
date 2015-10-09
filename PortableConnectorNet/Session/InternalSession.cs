@@ -71,7 +71,7 @@ namespace MySql.Session
       return new Result(this);
     }
 
-    public RowResult GetRowResult(string sql)
+    public RowResult GetSqlRowResult(string sql)
     {
       GetProtocol().SendSQL(sql);
       return new RowResult(this);
@@ -85,7 +85,7 @@ namespace MySql.Session
 
     public object ExecuteQueryAsScalar(string sql)
     {
-      RowResult result = GetRowResult(sql);
+      RowResult result = GetSqlRowResult(sql);
       var rows = result.FetchAll();
       if (rows.Count == 0)
         throw new MySqlException("No data found");

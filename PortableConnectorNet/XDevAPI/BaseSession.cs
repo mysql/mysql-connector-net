@@ -139,8 +139,8 @@ namespace MySql.XDevAPI
     /// <returns>List<Schema></returns>
     public List<Schema> GetSchemas()
     {
-      RowResult result = XSession.GetRowResult("select * from information_schema.schemata");
-
+      RowResult result = XSession.GetSqlRowResult("select * from information_schema.schemata");
+      result.FetchAll();
       var query = from row in result.Rows
                   select new Schema(this, row.GetString("schema_name"));
       return query.ToList<Schema>();

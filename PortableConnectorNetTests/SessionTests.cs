@@ -30,7 +30,7 @@ namespace PortableConnectorNetTests
     [Fact]
     public void CanCloseSession()
     {
-      XSession s = GetSession();
+      XSession s = MySql.XDevAPI.MySqlX.GetSession(ConnectionString);
       Assert.True(s.InternalSession.SessionState == SessionState.Open);
       s.Close();
       Assert.Equal(s.InternalSession.SessionState, SessionState.Closed);
@@ -43,6 +43,15 @@ namespace PortableConnectorNetTests
       Assert.True(session.InternalSession.SessionState == SessionState.Open);
       session.Close();
       Assert.Equal(session.InternalSession.SessionState, SessionState.Closed);
+    }
+
+    [Fact]
+    public void NodeSessionClose()
+    {
+      NodeSession session = MySql.XDevAPI.MySqlX.GetNodeSession(ConnectionString);
+      Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
+      session.Close();
+      Assert.Equal(SessionState.Closed, session.InternalSession.SessionState);
     }
   }
 }
