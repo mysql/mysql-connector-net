@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>PortableConnectorNetTests</RootNamespace>
-    <AssemblyName>PortableConnectorNetTests</AssemblyName>
+    <AssemblyName>MySql.Data.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
