@@ -53,5 +53,24 @@ namespace PortableConnectorNetTests
       session.Close();
       Assert.Equal(SessionState.Closed, session.InternalSession.SessionState);
     }
+
+    [Fact]
+    public void CountClosedSession()
+    {
+      NodeSession nodeSession = MySql.XDevAPI.MySqlX.GetNodeSession(ConnectionString);
+      int sessions = nodeSession.SQL("show processlist").Execute().FetchAll().Count;
+
+      for (int i = 0; i < 20; i++)
+      {
+        XSession session = MySql.XDevAPI.MySqlX.GetSession(ConnectionString);
+        Assert.True(session.InternalSession.SessionState == SessionState.Open);
+        session.Close();
+        Assert.Equal(session.InternalSession.SessionState, SessionState.Closed);
+      }
+      
+      int newSessions = nodeSession.SQL("show processlist").Execute().FetchAll().Count;
+      nodeSession.Close();
+      Assert.Equal(sessions, newSessions);
+    }
   }
 }

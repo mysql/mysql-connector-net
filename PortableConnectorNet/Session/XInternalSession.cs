@@ -109,6 +109,7 @@ namespace MySql.Session
       {
         protocol.SendSessionClose();
         protocol.ReadOK();
+        _stream.Dispose();
         SessionState = SessionState.Closed;
       }
       catch (Exception ex)
