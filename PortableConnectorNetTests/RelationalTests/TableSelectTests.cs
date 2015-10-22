@@ -25,6 +25,7 @@ using Xunit;
 using System.Linq;
 using MySql.XDevAPI.Relational;
 using MySql.XDevAPI.Common;
+using System;
 
 namespace PortableConnectorNetTests.RelationalTests
 {
@@ -135,6 +136,30 @@ namespace PortableConnectorNetTests.RelationalTests
       Assert.Equal(1, rows.Count);
       Assert.Equal(validationRow[1], rows[0]["namE"]);
       Assert.Equal(validationRow[2], rows[0]["AGe"]);
+    }
+
+    [Fact]
+    public void DatetimeAndMicroseconds()
+    {
+      ExecuteSQL("CREATE TABLE test.testDate (id INT, name VARCHAR(45), birthday DATETIME(6))");
+      ExecuteSQL("INSERT INTO test.testDate VALUES(1, 'JOHN', '1985-10-21 16:34:22.123456')");
+      ExecuteSQL("INSERT INTO test.testDate VALUES(1, 'BILL', '1985-10-21 10:00:45.987')");
+      var rows = GetSession().GetSchema("test").GetTable("testDate").Select().Execute().FetchAll();
+      Assert.Equal(2, rows.Count);
+      Assert.Equal(new DateTime(1985, 10, 21, 16, 34, 22).AddTicks(1234560), (DateTime)rows[0]["birthday"]);
+      Assert.Equal(new DateTime(1985, 10, 21, 10, 0, 45).AddTicks(9870000), (DateTime)rows[1]["birthday"]);
+    }
+
+    [Fact]
+    public void DatetimeAndMilliseconds()
+    {
+      ExecuteSQL("CREATE TABLE test.testDate (id INT, name VARCHAR(45), birthday DATETIME(3))");
+      ExecuteSQL("INSERT INTO test.testDate VALUES(1, 'JOHN', '1985-10-21 16:34:22.123456')");
+      ExecuteSQL("INSERT INTO test.testDate VALUES(1, 'BILL', '1985-10-21 10:00:45.098')");
+      var rows = GetSession().GetSchema("test").GetTable("testDate").Select().Execute().FetchAll();
+      Assert.Equal(2, rows.Count);
+      Assert.Equal(new DateTime(1985, 10, 21, 16, 34, 22).AddTicks(1230000), (DateTime)rows[0]["birthday"]);
+      Assert.Equal(new DateTime(1985, 10, 21, 10, 0, 45).AddTicks(980000), (DateTime)rows[1]["birthday"]);
     }
   }
 

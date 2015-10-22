@@ -53,7 +53,7 @@ namespace MySql.Protocol.X
         input.ReadInt64(ref sec);
       if (!input.IsAtEnd)
         input.ReadInt64(ref usec);
-      return new DateTime((int)year, (int)month, (int)day, (int)hour, (int)min, (int)sec, (int)(usec*1000));
+      return new DateTime((int)year, (int)month, (int)day, (int)hour, (int)min, (int)sec).AddTicks(usec * 10);
     }
   }
 }
