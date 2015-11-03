@@ -29,6 +29,9 @@ using System.Threading.Tasks;
 
 namespace MySql.Session
 {
+  /// <summary>
+  /// Implementation class for object that manages low-level work of queuing tasks onto threads.
+  /// </summary>  
   internal class QueueTaskScheduler : TaskScheduler
   {
     private readonly object lockObject = new object();

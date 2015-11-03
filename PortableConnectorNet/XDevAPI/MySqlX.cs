@@ -24,6 +24,11 @@ using System;
 
 namespace MySql.XDevAPI
 {
+
+  /// <summary>
+  /// Main class for session operations for MySQL Hybrid.
+  /// </summary>
+
   public class MySqlX
   {
     /// <summary>

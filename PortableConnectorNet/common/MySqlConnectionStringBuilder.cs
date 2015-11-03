@@ -32,6 +32,11 @@ using System.Text.RegularExpressions;
 
 namespace MySql.Data
 {
+
+
+  /// <summary>
+  /// Class implementation for a strongly typed connection string builder.
+  /// </summary>  
   public sealed partial class MySqlConnectionStringBuilder : DbConnectionStringBuilder
   {
     internal Dictionary<string, object> values = new Dictionary<string, object>();
@@ -641,6 +646,11 @@ namespace MySql.Data
       set { SetValue("treattinyasboolean", value); }
     }
 
+
+
+    /// <summary>
+    /// Gets or sets a boolean value indicating if the provider should expect user variables to appear in the SQL.
+    /// </summary>
     [Category("Advanced")]
     [DisplayName("Allow User Variables")]
     [Description("Should the provider expect user variables to appear in the SQL.")]

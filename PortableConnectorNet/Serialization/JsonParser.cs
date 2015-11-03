@@ -25,6 +25,9 @@ using System.Collections.Generic;
 
 namespace MySql.Serialization
 {
+  /// <summary>
+  /// Main class for parsing json strings
+  /// </summary>
   public  class JsonParser
   {
     private int _pos = 0;

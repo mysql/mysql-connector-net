@@ -25,13 +25,27 @@ using System;
 
 namespace MySql.RoutingServices
 {
+  /// <summary>
+  /// Class implementation for a default communication kind.
+  /// </summary>  
   internal class DefaultRoutingService : RoutingServiceBase
   {
+
+    /// <summary>
+    /// Constructor method for the communication routing service
+    /// </summary>
+    /// <param name="settings">A MySqlConnectionStringBuild setted with the information to use in the connection</param>
     public DefaultRoutingService(MySqlConnectionStringBuilder settings) : base(settings)
     {
 
     }
 
+
+    /// <summary>
+    /// Gets the current connection base on the connection mode
+    /// </summary>
+    /// <param name="mode">One of the values of ConnectionMode  Offline, ReadOnly, WriteOnly, ReadWrite</param>
+    /// <returns></returns>
     public override MySqlConnectionStringBuilder GetCurrentConnection(DataAccess.ConnectionMode mode)
     {
       return this.settings;

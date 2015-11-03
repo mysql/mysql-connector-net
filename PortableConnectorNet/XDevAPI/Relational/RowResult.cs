@@ -24,6 +24,10 @@ using MySql.Session;
 
 namespace MySql.XDevAPI.Relational
 {
+
+  /// <summary>
+  /// Inherits from InternalRowResult. Creates a resultset that contains rows of data.  
+  /// </summary>
   public sealed class RowResult : InternalRowResult
     {
       internal RowResult(InternalSession session) : base(session)

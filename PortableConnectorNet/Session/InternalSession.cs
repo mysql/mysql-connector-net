@@ -31,12 +31,21 @@ using MySql.XDevAPI.Relational;
 
 namespace MySql.Session
 {
+
+  /// <summary>
+  /// Abstract class to manage and encapsulate one or more actual connections.
+  /// </summary>  
   public abstract class InternalSession : IDisposable
   {
     protected Stream _stream;
     internal BaseResult ActiveResult;
     private bool disposed = false;
 
+    
+    /// <summary>
+    /// Creates a new session object with the values of the settings parameter.
+    /// </summary>
+    /// <param name="settings">Settings to be used in the session object</param>
     public InternalSession(MySqlConnectionStringBuilder settings)
     {
       Settings = settings;

@@ -25,6 +25,10 @@ using MySql.DataAccess;
 
 namespace MySql.RoutingServices
 {
+
+  /// <summary>
+  /// Abstract class used to define the kind of server in environments with multiple types of distributed systems.
+  /// </summary>  
   internal abstract class RoutingServiceBase
   {
     protected MySqlConnectionStringBuilder settings;

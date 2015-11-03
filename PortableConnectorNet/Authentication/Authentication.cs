@@ -28,6 +28,9 @@ using System.Text;
 namespace MySql.Security
 {
 
+  /// <summary>
+  /// Manage authentication type for secure access.
+  /// </summary>
   public abstract class AuthenticationPlugin
   {
     public abstract string PluginName { get; }
@@ -36,7 +39,9 @@ namespace MySql.Security
     public abstract byte[] Continue(byte[] data);
   }
 
-
+  /// <summary>
+  /// Implementation of MySQL41 authentication type.
+  /// </summary>
   internal class MySQL41AuthenticationPlugin : AuthenticationPlugin
   {
     private MySqlConnectionStringBuilder _settings;

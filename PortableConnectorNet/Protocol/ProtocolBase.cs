@@ -28,6 +28,11 @@ using MySql.XDevAPI.Relational;
 
 namespace MySql.Protocol
 {
+
+  /// <summary>
+  /// Abstract class for the protocol base operations in client/server communication.
+  /// </summary>  
+  /// 
   public abstract class ProtocolBase
   {
     public abstract List<byte[]> ReadRow(BaseResult rs);

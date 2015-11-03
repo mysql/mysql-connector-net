@@ -25,6 +25,10 @@ using MySql.XDevAPI.CRUD;
 
 namespace MySql.XDevAPI
 {
+
+  /// <summary>
+  /// Represents a collection of documents with a generic type.
+  /// </summary>
   public class Collection<T> : Collection
   {
     public Collection(Schema s, string name) : base(s, name)

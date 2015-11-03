@@ -38,6 +38,10 @@ using MySql.Properties;
 
 namespace MySql.Session
 {
+
+  /// <summary>
+  /// Implementation class of InternalSession to manage coonections using the Xprotocol type object.
+  /// </summary>  
   internal class XInternalSession : InternalSession
   {
     private XProtocol protocol;

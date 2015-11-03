@@ -29,6 +29,9 @@ using System.Threading.Tasks;
 
 namespace MySql.XDevAPI.CRUD
 {
+  /// <summary>
+  /// Implementation class for CRUD statements with collections using an index.
+  /// </summary> 
   public class CreateCollectionIndexStatement : CrudStatement<Result>
   {
     internal CreateIndexParams createIndexParams;

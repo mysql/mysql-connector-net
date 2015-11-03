@@ -25,6 +25,9 @@ using MySql.Session;
 
 namespace MySql.XDevAPI.Relational
 {
+  /// <summary>
+  /// Represents a resultset that contains rows of data for relational operations.
+  /// </summary>
   public class SqlResult : InternalRowResult
   {
     internal SqlResult(InternalSession session) : base(session)

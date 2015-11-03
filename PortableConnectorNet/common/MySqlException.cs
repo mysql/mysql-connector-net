@@ -25,6 +25,9 @@ using MySql.XDevAPI.Common;
 
 namespace MySql
 {
+  /// <summary>
+  /// Implemented exception type for MySql server specific
+  /// </summary>
   public sealed class MySqlException : Exception
   {
     private bool isFatal;
