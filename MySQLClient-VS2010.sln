@@ -8,13 +8,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.Web", "Source\MySql.W
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.Web.Tests", "Tests\MySql.Web.Tests\MySql.Web.Tests.csproj", "{83462D15-E576-4079-BBC9-9EE1CF0B24DD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.Data.Entity", "Source\MySql.Data.Entity\MySql.Data.Entity.csproj", "{EDED3135-95D2-4BCE-A810-F3F2AD7935B7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.Data.EntityFramework5", "Source\MySql.Data.EntityFramework5\MySql.Data.EF5.csproj", "{EDED3135-95D2-4BCE-A810-F3F2AD7935B7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.Data.Entity.Tests", "Tests\MySql.Data.Entity.Tests\MySql.Data.Entity.Tests.csproj", "{2B44356E-1455-42F8-85D2-43271AEB2908}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.EF5.Basic.Tests", "Tests\MySql.EntityFramework.Basic.Tests\MySql.EF5.Basic.Tests.csproj", "{2B44356E-1455-42F8-85D2-43271AEB2908}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.Data.Entity.CodeFirst.Tests", "Tests\MySql.Data.Entity.CodeFirst.Tests\MySql.Data.Entity.CodeFirst.Tests.csproj", "{EF3B193C-EFAE-458C-8077-CB8602365E10}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.EF5.CodeFirst.Tests", "Tests\MySql.EntityFramework.CodeFirst.Tests\MySql.EF5.CodeFirst.Tests.csproj", "{EF3B193C-EFAE-458C-8077-CB8602365E10}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.Data.Entity.Migrations.Tests", "Tests\MySql.Data.Entity.Migrations.Tests\MySql.Data.Entity.Migrations.Tests.csproj", "{A3F23E22-934F-4D35-8599-C453794A9D82}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.EF5.Migrations.Tests", "Tests\MySql.EntityFramework.Migrations.Tests\MySql.EF5.Migrations.Tests.csproj", "{A3F23E22-934F-4D35-8599-C453794A9D82}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.Replication.Tests", "Tests\MySql.Replication.Tests\MySql.Replication.Tests.csproj", "{8DE7265B-0880-4E02-93EA-14EF8DADF47D}"
 EndProject

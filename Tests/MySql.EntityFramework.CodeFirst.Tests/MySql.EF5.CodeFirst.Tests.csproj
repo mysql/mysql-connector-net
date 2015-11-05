@@ -147,8 +147,7 @@
     <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
   </PropertyGroup>
   <Choose>
-    <When Condition=" '$(VisualStudioVersion)' == '11.0' or 
-	  '$(VisualStudioVersion)' == '12.0' or '$(VisualStudioVersion)' == '14.0'">
+    <When Condition=" '$(VisualStudioVersion)' == '11.0' or &#xD;&#xA;	  '$(VisualStudioVersion)' == '12.0' or '$(VisualStudioVersion)' == '14.0'">
       <ItemGroup>
         <Reference Include="EntityFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
           <SpecificVersion>False</SpecificVersion>
@@ -184,8 +183,9 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="xunit">
-      <HintPath>C:\Program Files (x86)\XUnit-1.9.2\xunit.dll</HintPath>
+    <Reference Include="xunit, Version=1.9.2.1705, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
+      <Private>True</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -236,7 +236,7 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Source\MySql.Data.Entity\MySql.Data.Entity.csproj">
+    <ProjectReference Include="..\..\Source\MySql.Data.EntityFramework5\MySql.Data.EF5.csproj">
       <Project>{EDED3135-95D2-4BCE-A810-F3F2AD7935B7}</Project>
       <Name>MySql.Data.Entity</Name>
     </ProjectReference>
@@ -254,6 +254,7 @@
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="packages.config" />
     <None Include="SakilaModel\packages.config" />
   </ItemGroup>
   <ItemGroup>

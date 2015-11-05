@@ -113,8 +113,7 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <Choose>
-    <When Condition=" '$(VisualStudioVersion)' == '11.0' or 
-	  '$(VisualStudioVersion)' == '12.0' or '$(VisualStudioVersion)' == '14.0'">
+    <When Condition=" '$(VisualStudioVersion)' == '11.0' or &#xD;&#xA;	  '$(VisualStudioVersion)' == '12.0' or '$(VisualStudioVersion)' == '14.0'">
       <ItemGroup>
         <Reference Include="EntityFramework, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
           <SpecificVersion>False</SpecificVersion>
@@ -341,9 +340,9 @@
     </When>
   </Choose>
   <ItemGroup>
-    <ProjectReference Include="..\..\Source\MySql.Data.Entity\MySql.Data.Entity.csproj">
-      <Project>{EDED3135-95D2-4BCE-A810-F3F2AD7935B7}</Project>
-      <Name>MySql.Data.Entity</Name>
+    <ProjectReference Include="..\..\Source\MySql.Data.EntityFramework5\MySql.Data.EF5.csproj">
+      <Project>{eded3135-95d2-4bce-a810-f3f2ad7935b7}</Project>
+      <Name>MySql.Data.EF5</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\MySql.Data\MySql.Data.csproj">
       <Project>{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}</Project>
@@ -526,7 +525,7 @@
     </When>
   </Choose>
   <ItemGroup>
-    <ProjectReference Include="..\..\Source\MySql.Data.Entity\MySql.Data.Entity.csproj">
+    <ProjectReference Include="..\..\Source\MySql.Data.EntityFramework5\MySql.Data.EF5.csproj">
       <Project>{EDED3135-95D2-4BCE-A810-F3F2AD7935B7}</Project>
       <Name>MySql.Data.Entity</Name>
     </ProjectReference>
@@ -539,9 +538,13 @@
     <Content Include="ModelFirstModel1.edmx.sql" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="xunit">
-      <HintPath>C:\Program Files (x86)\XUnit-1.9.2\xunit.dll</HintPath>
+    <Reference Include="xunit, Version=1.9.2.1705, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
+      <Private>True</Private>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
