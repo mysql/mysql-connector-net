@@ -9,6 +9,24 @@
     <UpgradeBackupLocation />
   </PropertyGroup>
   <Choose>
+    <When Condition=" '$(VisualStudioVersion)' == '14.0'">
+      <PropertyGroup>
+        <ProductVersion>9.0.30729</ProductVersion>
+        <SchemaVersion>2.0</SchemaVersion>
+        <Framework>4.6</Framework>
+        <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+        <DefineConstants>NET_40_OR_GREATER;NET_45_OR_GREATER;NET_451_OR_GREATER;NET_46_OR_GREATER;</DefineConstants>
+      </PropertyGroup>
+    </When>
+    <When Condition=" '$(VisualStudioVersion)' == '12.0'">
+      <PropertyGroup>
+        <ProductVersion>9.0.30729</ProductVersion>
+        <SchemaVersion>2.0</SchemaVersion>
+        <Framework>4.5.1</Framework>
+        <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+        <DefineConstants>NET_40_OR_GREATER;NET_45_OR_GREATER;NET_451_OR_GREATER;</DefineConstants>
+      </PropertyGroup>
+    </When>
     <When Condition=" '$(VisualStudioVersion)' == '11.0'">
       <PropertyGroup>
         <ProductVersion>9.0.30729</ProductVersion>
@@ -67,7 +85,6 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <!-- <DefineConstants Condition=" '$(Framework)' &gt;= '4.0' ">NET_40_OR_GREATER</DefineConstants> -->
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -96,9 +113,10 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <Choose>
-    <When Condition=" '$(VisualStudioVersion)' == '11.0'">
+    <When Condition=" '$(VisualStudioVersion)' == '11.0' or 
+	  '$(VisualStudioVersion)' == '12.0' or '$(VisualStudioVersion)' == '14.0'">
       <ItemGroup>
-        <Reference Include="EntityFramework, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL" Condition="$(Framework) &gt;= '4.0'">
+        <Reference Include="EntityFramework, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
           <SpecificVersion>False</SpecificVersion>
           <HintPath>C:\Program Files (x86)\Microsoft ADO.NET Entity Framework 5.0.0\lib\net45\EntityFramework.dll</HintPath>
         </Reference>
@@ -123,7 +141,7 @@
     </When>
     <When Condition=" '$(VisualStudioVersion)' == '10.0'">
       <ItemGroup>
-        <Reference Include="EntityFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL" Condition="$(Framework) &gt;= '4.0'">
+        <Reference Include="EntityFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
           <SpecificVersion>False</SpecificVersion>
           <HintPath>C:\Program Files (x86)\Microsoft ADO.NET Entity Framework 5.0.0\lib\net40\EntityFramework.dll</HintPath>
         </Reference>
@@ -192,7 +210,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Choose>
-    <When Condition="'$(Framework)' == '4.5'">
+    <When Condition="'$(Framework)' == '4.5' or '$(Framework)' == '4.5.1' or '$(Framework)' == '4.6'">
       <ItemGroup>
         <Compile Include="v4.x\BooksModel.Designer.cs">
           <AutoGen>True</AutoGen>
@@ -337,7 +355,7 @@
     </ProjectReference>
   </ItemGroup>
   <Choose>
-    <When Condition="'$(Framework)' == '4.5'">
+    <When Condition="'$(Framework)' == '4.5' or '$(Framework)' == '4.5.1' or '$(Framework)' == '4.6'">
       <ItemGroup>
         <!-- <Message Text="- - -Supporting 4.0" /> -->
         <EmbeddedResource Include="v4.x\SQLSyntax.resx">
@@ -536,6 +554,6 @@
     <PreBuildEvent>
     </PreBuildEvent>
   </PropertyGroup>
-  <Import Project="EdmxArtifactsRenamingv4.x.targets" Condition="'$(Framework)' == '4.0' or '$(Framework)' == '4.5'" />
+  <Import Project="EdmxArtifactsRenamingv4.x.targets" Condition="'$(Framework)' != '3.5'" />
   <Import Project="EdmxArtifactsRenamingv3.5.targets" Condition="'$(Framework)' == '3.5'" />
 </Project>

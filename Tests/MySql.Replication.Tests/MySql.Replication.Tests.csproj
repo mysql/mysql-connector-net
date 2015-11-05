@@ -5,6 +5,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <Framework Condition=" '$(Framework)' == '' and '$(VisualStudioVersion)' == '10.0'">4.0</Framework>
     <Framework Condition=" '$(Framework)' == '' and '$(VisualStudioVersion)' == '11.0'">4.5</Framework>
+    <Framework Condition=" '$(Framework)' == '' and '$(VisualStudioVersion)' == '12.0'">4.5.1</Framework>
+    <Framework Condition=" '$(Framework)' == '' and '$(VisualStudioVersion)' == '14.0'">4.6</Framework>
     <Framework Condition=" '$(Framework)' == ''">2.0</Framework>
     <TargetFrameworkVersion Condition="'$(Framework)'!=''">v$(Framework)</TargetFrameworkVersion>
     <ProjectGuid>{8DE7265B-0880-4E02-93EA-14EF8DADF47D}</ProjectGuid>
@@ -14,7 +16,7 @@
     <AssemblyName>MySql.Replication.Tests</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
-    <DefineConstants Condition=" $(Framework) &gt;= '4.0' ">NET_40_OR_GREATER</DefineConstants>
+    <DefineConstants Condition=" '$(Framework)' != '2.0' ">NET_40_OR_GREATER</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
