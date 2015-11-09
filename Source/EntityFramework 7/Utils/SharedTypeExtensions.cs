@@ -21,16 +21,45 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics;
+using System.Reflection;
 
-namespace MySQL.Data.Entity.Metadata
+namespace MySQL.Data.Entity.Utils
 {
-  public static class MySQLAnnotationNames
+  [DebuggerStepThrough]
+  internal static class SharedTypeExtensions
   {
-    public const string Prefix = "MySQL:";
-    public const string AutoIncrement = "AutoIncrement";
+    public static Type UnwrapNullableType(this Type type) => Nullable.GetUnderlyingType(type) ?? type;
+
+    public static bool IsNullableType(this Type type)
+    {
+      var typeInfo = type.GetTypeInfo();
+
+      return !typeInfo.IsValueType
+             || (typeInfo.IsGenericType
+                 && typeInfo.GetGenericTypeDefinition() == typeof(Nullable<>));
+    }
+
+    public static bool IsInteger(this Type type)
+    {
+      type = type.UnwrapNullableType();
+
+      return type == typeof(int)
+             || type == typeof(long)
+             || type == typeof(short)
+             || type == typeof(byte)
+             || type == typeof(uint)
+             || type == typeof(ulong)
+             || type == typeof(ushort)
+             || type == typeof(sbyte)
+             || type == typeof(char);
+    }
+
+    public static bool CanBeAutoIncrement(this Type type)
+    {
+      return IsInteger(type)
+        || type == typeof(float)
+        || type == typeof(double);
+    }
   }
 }

@@ -20,17 +20,19 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Data.Entity.Metadata.Builders;
 
-namespace MySQL.Data.Entity.Metadata
+namespace MySQL.Data.Entity.Extensions
 {
-  public static class MySQLAnnotationNames
+  public static class MySQLPropertyBuilderExtensions
   {
-    public const string Prefix = "MySQL:";
-    public const string AutoIncrement = "AutoIncrement";
+    public static PropertyBuilder UseMySQLAutoIncrementColumn(
+        [NotNull] this PropertyBuilder propertyBuilder)
+    {
+      ThrowIf.Argument.IsNull(propertyBuilder, "propertyBuilder");
+
+      propertyBuilder.ValueGeneratedOnAdd();
+      return propertyBuilder;
+    }
   }
 }

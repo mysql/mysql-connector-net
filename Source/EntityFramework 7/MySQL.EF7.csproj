@@ -106,6 +106,7 @@
     <Compile Include="CodeAttributes.cs" />
     <Compile Include="Extensions\MySQLDbContextOptions.cs" />
     <Compile Include="Extensions\MySQLDbContextOptionsExtensions.cs" />
+    <Compile Include="Extensions\MySQLPropertyBuilderExtensions.cs" />
     <Compile Include="Metadata\MySQLAnnotationNames.cs" />
     <Compile Include="Metadata\MySQLAnnotationProvider.cs" />
     <Compile Include="Metadata\MySQLPropertyAnnotations.cs" />
@@ -129,6 +130,7 @@
     <Compile Include="Update\MySQLModificationCommandBatch.cs" />
     <Compile Include="Update\MySQLModificationCommandBatchFactory.cs" />
     <Compile Include="Update\MySQLUpdateSqlGenerator.cs" />
+    <Compile Include="Utils\SharedTypeExtensions.cs" />
     <Compile Include="Utils\ThrowIf.cs" />
     <Compile Include="ValueGeneration\MySQLValueGeneratorCache.cs" />
   </ItemGroup>
