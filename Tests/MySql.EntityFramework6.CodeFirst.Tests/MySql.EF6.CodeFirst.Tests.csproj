@@ -1,0 +1,256 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{28E4C01B-D299-4638-A11E-6C9E9548DBBB}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MySql.Data.Entity.CodeFirst.Tests</RootNamespace>
+    <AssemblyName>MySql.Data.Entity.CodeFirst.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation />
+  </PropertyGroup>
+  <Choose>
+    <When Condition=" '$(VisualStudioVersion)' == '14.0'">
+      <PropertyGroup>
+        <ProductVersion>9.0.30729</ProductVersion>
+        <SchemaVersion>2.0</SchemaVersion>
+        <Framework>4.6</Framework>
+        <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+        <DefineConstants>NET_40_OR_GREATER;NET_45_OR_GREATER;NET_451_OR_GREATER;NET_46_OR_GREATER;</DefineConstants>
+      </PropertyGroup>
+    </When>
+    <When Condition=" '$(VisualStudioVersion)' == '12.0'">
+      <PropertyGroup>
+        <ProductVersion>9.0.30729</ProductVersion>
+        <SchemaVersion>2.0</SchemaVersion>
+        <Framework>4.5</Framework>
+        <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+        <DefineConstants>NET_40_OR_GREATER;NET_45_OR_GREATER;NET_451_OR_GREATER;</DefineConstants>
+      </PropertyGroup>
+    </When>
+    <When Condition=" '$(VisualStudioVersion)' == '11.0'">
+      <PropertyGroup>
+        <ProductVersion>9.0.30729</ProductVersion>
+        <SchemaVersion>2.0</SchemaVersion>
+        <Framework>4.5</Framework>
+        <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+        <DefineConstants>NET_40_OR_GREATER;NET_45_OR_GREATER;</DefineConstants>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <ProductVersion>9.0.30729</ProductVersion>
+        <SchemaVersion>2.0</SchemaVersion>
+        <Framework>4.0</Framework>
+        <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+        <DefineConstants>NET_40_OR_GREATER;</DefineConstants>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <BaseOutputPath>$(TargetFrameworkVersion)\</BaseOutputPath>
+    <BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>obj\$(TargetFrameworkVersion)\</IntermediateOutputPath>
+    <OutputPath>bin\$(TargetFrameworkVersion)\Debug\</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DefineConstants>DEBUG;TRACE;$(DefineConstants);EF6</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <BaseOutputPath>$(TargetFrameworkVersion)\</BaseOutputPath>
+    <BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>obj\$(TargetFrameworkVersion)\</IntermediateOutputPath>
+    <OutputPath>bin\$(TargetFrameworkVersion)\Release\</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DefineConstants>TRACE;$(DefineConstants);EF6</DefineConstants>
+  </PropertyGroup>
+  <Choose>
+    <When Condition="$(Framework) &gt;= 4.5">
+      <ItemGroup>
+		<Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+		  <HintPath>..\..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+		  <Private>True</Private>
+		</Reference>
+      </ItemGroup>
+	</When>
+    <Otherwise>
+      <ItemGroup>
+		<Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+		  <HintPath>..\..\packages\EntityFramework.6.1.3\lib\net40\EntityFramework.dll</HintPath>
+		  <Private>True</Private>
+		</Reference>
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="xunit, Version=1.9.2.1705, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Source\MySql.Data\Properties\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\CodeFirstTests.cs" />
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\Dinosauria.cs" />
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\ExpressionTests.cs" />
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\Movie.cs" />
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\PromotionsDB.cs" />
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\MovieContextCodeBasedConfiguration.cs" />
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\SakilaModel\actor.cs">
+      <Link>SakilaModel\actor.cs</Link>
+    </Compile>
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\SakilaModel\actor_info.cs">
+      <Link>SakilaModel\actor_info.cs</Link>
+    </Compile>
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\SakilaModel\address.cs">
+      <Link>SakilaModel\address.cs</Link>
+    </Compile>
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\SakilaModel\category.cs">
+      <Link>SakilaModel\category.cs</Link>
+    </Compile>
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\SakilaModel\city.cs">
+      <Link>SakilaModel\city.cs</Link>
+    </Compile>
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\SakilaModel\country.cs">
+      <Link>SakilaModel\country.cs</Link>
+    </Compile>
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\SakilaModel\customer.cs">
+      <Link>SakilaModel\customer.cs</Link>
+    </Compile>
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\SakilaModel\customer_list.cs">
+      <Link>SakilaModel\customer_list.cs</Link>
+    </Compile>
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\SakilaModel\film.cs">
+      <Link>SakilaModel\film.cs</Link>
+    </Compile>
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\SakilaModel\film_actor.cs">
+      <Link>SakilaModel\film_actor.cs</Link>
+    </Compile>
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\SakilaModel\film_category.cs">
+      <Link>SakilaModel\film_category.cs</Link>
+    </Compile>
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\SakilaModel\film_list.cs">
+      <Link>SakilaModel\film_list.cs</Link>
+    </Compile>
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\SakilaModel\film_text.cs">
+      <Link>SakilaModel\film_text.cs</Link>
+    </Compile>
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\SakilaModel\inventory.cs">
+      <Link>SakilaModel\inventory.cs</Link>
+    </Compile>
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\SakilaModel\language.cs">
+      <Link>SakilaModel\language.cs</Link>
+    </Compile>
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\SakilaModel\nicer_but_slower_film_list.cs">
+      <Link>SakilaModel\nicer_but_slower_film_list.cs</Link>
+    </Compile>
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\SakilaModel\payment.cs">
+      <Link>SakilaModel\payment.cs</Link>
+    </Compile>
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\SakilaModel\rental.cs">
+      <Link>SakilaModel\rental.cs</Link>
+    </Compile>
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\SakilaModel\SakilaDb.cs">
+      <Link>SakilaModel\SakilaDb.cs</Link>
+    </Compile>
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\SakilaModel\sales_by_film_category.cs">
+      <Link>SakilaModel\sales_by_film_category.cs</Link>
+    </Compile>
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\SakilaModel\sales_by_store.cs">
+      <Link>SakilaModel\sales_by_store.cs</Link>
+    </Compile>
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\SakilaModel\staff.cs">
+      <Link>SakilaModel\staff.cs</Link>
+    </Compile>
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\SakilaModel\staff_list.cs">
+      <Link>SakilaModel\staff_list.cs</Link>
+    </Compile>
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\SakilaModel\store.cs">
+      <Link>SakilaModel\store.cs</Link>
+    </Compile>
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\Ship.cs" />
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\SiteDB.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\Properties\SQLSyntax.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>SQLSyntax.resx</DependentUpon>
+    </Compile>
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\SetUpCodeFirstTests.cs" />
+    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\Vehicle.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\MySql.Data.EntityFramework6\MySql.Data.EF6.csproj">
+      <Project>{04641bfd-c7e4-419e-8713-beac55f226ac}</Project>
+      <Name>MySql.Data.EF6</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\MySql.Data\MySql.Data.csproj">
+      <Project>{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}</Project>
+      <Name>MySql.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MySql.Data.Tests\MySql.Data.Tests.csproj">
+      <Project>{F29E5B3D-7F76-4CF9-BF5E-8E3A1377B1E4}</Project>
+      <Name>MySql.Data.Tests</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\MySql.EntityFramework.CodeFirst.Tests\Properties\SQLSyntax.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>SQLSyntax.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\MySql.EntityFramework.CodeFirst.Tests\Properties\SetupSakilaDb.sql">
+      <Link>Properties\SetupSakilaDb.sql</Link>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\MySql.EntityFramework.CodeFirst.Tests\Properties\SakilaDbDataScript.sql">
+      <Link>Properties\SakilaDbDataScript.sql</Link>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
