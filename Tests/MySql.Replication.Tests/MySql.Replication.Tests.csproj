@@ -6,6 +6,7 @@
     <Framework Condition=" '$(Framework)' == '' and '$(VisualStudioVersion)' == '10.0'">4.0</Framework>
     <Framework Condition=" '$(Framework)' == '' and '$(VisualStudioVersion)' == '11.0'">4.5</Framework>
     <Framework Condition=" '$(Framework)' == '' and '$(VisualStudioVersion)' == '12.0'">4.5.1</Framework>
+    <Framework Condition=" '$(Framework)' == '' and '$(VisualStudioVersion)' == '14.0'">4.6</Framework>
     <Framework Condition=" '$(Framework)' == ''">2.0</Framework>
 <!--    <FrameworkVar>$([System.Convert]::ToString( $(Framework) ) )</FrameworkVar> -->
     <TargetFrameworkVersion Condition="'$(Framework)'!=''">v$(Framework)</TargetFrameworkVersion>
@@ -16,9 +17,7 @@
     <AssemblyName>MySql.Replication.Tests</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
-    <DefineConstants 
-	Condition=" ( '$(Framework)' == '4.0' ) or ( '$(Framework)' == '4.5' ) or ( '$(Framework)' == '4.5.1' ) ">
-	NET_40_OR_GREATER</DefineConstants>
+    <DefineConstants Condition=" '$(Framework)' != '2.0' ">NET_40_OR_GREATER</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -108,8 +107,9 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="xunit">
-      <HintPath>C:\Program Files (x86)\XUnit-1.9.2\xunit.dll</HintPath>
+    <Reference Include="xunit, Version=1.9.2.1705, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
+      <Private>True</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -147,6 +147,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="Resources\01_Startup_root_script.sql" />
     <None Include="Resources\02_Startup_script.sql" />
   </ItemGroup>

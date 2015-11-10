@@ -22,6 +22,15 @@
     </When>
   </Choose>
   <Choose>
+    <When Condition=" '$(VisualStudioVersion)' == '14.0'">
+      <PropertyGroup>
+        <ProductVersion>9.0.30729</ProductVersion>
+        <SchemaVersion>2.0</SchemaVersion>
+        <Framework>4.6</Framework>
+        <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+        <DefineConstants>NET_40_OR_GREATER;NET_45_OR_GREATER;NET_451_OR_GREATER;NET_46_OR_GREATER;</DefineConstants>
+      </PropertyGroup>
+    </When>
     <When Condition=" '$(VisualStudioVersion)' == '12.0'">
       <PropertyGroup>
         <ProductVersion>9.0.30729</ProductVersion>
@@ -134,9 +143,7 @@
     <Compile Include="Authentication\WindowsAuthenticationPlugin.cs" />
     <Compile Include="BulkLoader.cs" />
     <Compile Include="CharSetMap.cs" />
-    <Compile Include="command.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="command.cs" />
     <Compile Include="CommandBuilder.cs" />
     <Compile Include="common\Cache.cs" />
     <Compile Include="common\ContextString.cs" />
@@ -152,20 +159,14 @@
     <Compile Include="common\StringUtility.cs" />
     <Compile Include="common\Version.cs" />
     <Compile Include="CompressedStream.cs" />
-    <Compile Include="Connection.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Connection.cs" />
     <Compile Include="Crypt.cs" />
     <Compile Include="dataadapter.cs" />
     <Compile Include="datareader.cs" />
     <Compile Include="Driver.cs" />
     <Compile Include="Exception.cs" />
-    <Compile Include="extensions\NonRT\MySqlCommand.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="extensions\NonRT\MySqlConnection.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="extensions\NonRT\MySqlCommand.cs" />
+    <Compile Include="extensions\NonRT\MySqlConnection.cs" />
     <Compile Include="extensions\NonRT\MySqlConnectionStringBuilder.cs" />
     <Compile Include="extensions\NonRT\MySqlDataReader.cs" />
     <Compile Include="extensions\NonRT\MySqlDateTime.cs" />
