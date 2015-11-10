@@ -1,5 +1,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.Data", "Source\MySql.Data\MySql.Data.csproj", "{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.Data.Tests", "Tests\MySql.Data.Tests\MySql.Data.Tests.csproj", "{F29E5B3D-7F76-4CF9-BF5E-8E3A1377B1E4}"
@@ -29,6 +31,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.EF6.CodeFirst.Tests", "Tests\MySql.EntityFramework6.CodeFirst.Tests\MySql.EF6.CodeFirst.Tests.csproj", "{28E4C01B-D299-4638-A11E-6C9E9548DBBB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.EF6.Migrations.Tests", "Tests\MySql.EntityFramework6.Migrations.Tests\MySql.EF6.Migrations.Tests.csproj", "{39764EF6-E15F-47BF-9929-664C52BE6D36}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySQL.EF7", "Source\EntityFramework 7\MySQL.EF7.csproj", "{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -278,6 +282,26 @@ Global
 		{39764EF6-E15F-47BF-9929-664C52BE6D36}.Release|x64.Build.0 = Release|Any CPU
 		{39764EF6-E15F-47BF-9929-664C52BE6D36}.Release|x86.ActiveCfg = Release|Any CPU
 		{39764EF6-E15F-47BF-9929-664C52BE6D36}.Release|x86.Build.0 = Release|Any CPU
+		{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}.Debug|ARM.Build.0 = Debug|Any CPU
+		{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}.Debug|x64.Build.0 = Debug|Any CPU
+		{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}.Debug|x86.Build.0 = Debug|Any CPU
+		{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}.Release|ARM.ActiveCfg = Release|Any CPU
+		{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}.Release|ARM.Build.0 = Release|Any CPU
+		{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}.Release|x64.ActiveCfg = Release|Any CPU
+		{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}.Release|x64.Build.0 = Release|Any CPU
+		{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}.Release|x86.ActiveCfg = Release|Any CPU
+		{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
