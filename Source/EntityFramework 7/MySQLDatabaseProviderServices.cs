@@ -79,6 +79,11 @@ namespace MySQL.Data.Entity
       get { return GetService<MySQLAnnotationProvider>();  }
     }
 
+    public override IMigrationsAnnotationProvider MigrationsAnnotationProvider
+    {
+      get { return GetService<MySQLMigrationsAnnotationProvider>();  }
+    }
+
     public override IHistoryRepository HistoryRepository
     {
       get { return GetService<MySQLHistoryRepository>(); }

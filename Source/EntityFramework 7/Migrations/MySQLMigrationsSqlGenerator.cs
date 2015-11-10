@@ -27,6 +27,7 @@ using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Storage;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using MySQL.Data.Entity.Metadata;
 
 namespace MySQL.Data.Entity.Migrations
 {
@@ -95,34 +96,55 @@ namespace MySQL.Data.Entity.Migrations
           .Append(SqlGenerator.DelimitIdentifier(operation.Name));
     }
 
+    protected override void ColumnDefinition(
+      [CanBeNull] string schema, 
+      [CanBeNull] string table, 
+      [NotNull] string name, 
+      [NotNull] Type clrType, 
+      [CanBeNull] string type, 
+      bool nullable, 
+      [CanBeNull] object defaultValue, 
+      [CanBeNull] string defaultValueSql, 
+      [CanBeNull] string computedColumnSql, 
+      [NotNull] IAnnotatable annotatable, 
+      [CanBeNull] IModel model, 
+      [NotNull] RelationalCommandListBuilder builder)
+    {
+      ThrowIf.Argument.IsEmpty(name, "name");
+      ThrowIf.Argument.IsNull(clrType, "clrType");
+      ThrowIf.Argument.IsNull(annotatable, "annotatable");
+      ThrowIf.Argument.IsNull(builder, "builder");
 
-    //public override void ColumnDefinition(
-    //    string schema,
-    //    string table,
-    //    string name,
-    //    string type,
-    //    bool nullable,
-    //    object defaultValue,
-    //    string defaultValueSql,
-    //    string computedColumnSql,
-    //    IAnnotatable annotatable,
-    //    IModel model,
-    //    SqlBatchBuilder builder)
-    //{
-    //  ThrowIf.Argument.IsNull(name, "name");
-    //  ThrowIf.Argument.IsNull(type, "type");
-    //  ThrowIf.Argument.IsNull(annotatable, "annotatable");
-    //  ThrowIf.Argument.IsNull(builder, "builder");
+      if (computedColumnSql != null)
+      {
+        builder
+            .Append(SqlGenerator.DelimitIdentifier(name))
+            .Append(" AS ")
+            .Append(computedColumnSql);
 
-    //  base.ColumnDefinition(schema, table, name, type, nullable, defaultValue, defaultValueSql, computedColumnSql, annotatable, model, builder);
+        return;
+      }
 
-    //  //Property p = GetProperty(model, name);
-    //  //model.
-    //  //IEntityType et = model.FindEntityType(table);
-    //  //Property p = et.GetProperty(name) as Property;
-    //}
+      var autoInc = annotatable[MySQLAnnotationNames.Prefix + MySQLAnnotationNames.AutoIncrement];
 
+      base.ColumnDefinition(
+          schema,
+          table,
+          name,
+          clrType,
+          type,
+          nullable,
+          defaultValue,
+          defaultValueSql,
+          computedColumnSql,
+          annotatable,
+          model,
+          builder);
 
-
+      if (autoInc != null && (bool)autoInc)
+      {
+        builder.Append(" AUTO_INCREMENT");
+      }
+    }
   }
 }

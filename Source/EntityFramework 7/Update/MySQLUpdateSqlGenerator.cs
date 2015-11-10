@@ -20,10 +20,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
 using System.Text;
-using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Storage;
 
@@ -48,13 +45,18 @@ namespace MySQL.Data.Entity
     protected override void AppendRowsAffectedWhereCondition(StringBuilder commandStringBuilder, int expectedRowsAffected)
     {
       ThrowIf.Argument.IsNull(commandStringBuilder, "commandStringBuilder");
-      commandStringBuilder.Append("SELECT ROW_COUNT() == " + expectedRowsAffected);
+      commandStringBuilder
+        .Append("ROW_COUNT() = " + expectedRowsAffected)
+        .AppendLine();
     }
 
     protected override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string tableName, string schemaName)
     {
       ThrowIf.Argument.IsNull(commandStringBuilder, "commandStringBuilder");
-      commandStringBuilder.Append("SELECT ROW_COUNT()");
+      commandStringBuilder
+        .Append("SELECT ROW_COUNT()")
+        .Append(SqlGenerator.BatchCommandSeparator)
+        .AppendLine();
     }
   }
 }

@@ -20,12 +20,24 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using System.Collections.Generic;
+using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
+using MySQL.Data.Entity.Metadata;
+using MySQL.Data.Entity.Utils;
 
 namespace MySQL.Data.Entity.Migrations
 {
     public class MySQLMigrationsAnnotationProvider : MigrationsAnnotationProvider
     {
-        //TODO:  implement this
+      public override IEnumerable<IAnnotation> For(IProperty property)
+    {
+      if (property.ValueGenerated == ValueGenerated.OnAdd &&
+          property.ClrType.CanBeAutoIncrement())
+      {
+        yield return new Annotation(MySQLAnnotationNames.Prefix + MySQLAnnotationNames.AutoIncrement, true);
+      }
     }
+  }
 }
