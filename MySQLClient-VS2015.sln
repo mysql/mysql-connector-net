@@ -32,7 +32,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.EF6.CodeFirst.Tests",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.EF6.Migrations.Tests", "Tests\MySql.EntityFramework6.Migrations.Tests\MySql.EF6.Migrations.Tests.csproj", "{39764EF6-E15F-47BF-9929-664C52BE6D36}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySQL.EF7", "Source\EntityFramework 7\MySQL.EF7.csproj", "{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySQL.EF7", "Source\MySql.Data.EntityFramework7\MySQL.EF7.csproj", "{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
