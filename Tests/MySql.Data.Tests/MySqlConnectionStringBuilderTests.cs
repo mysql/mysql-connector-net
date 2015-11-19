@@ -101,14 +101,12 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("database=test2", s.ConnectionString);
     }
 
-#if !CF
     [Fact]
     public void EncryptKeyword()
     {
       string connStr = "database=test;uid=root;server=localhost;encrypt=yes";
       MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder(connStr);
     }
-#endif
 
     /// <summary>
     /// Bug #51209	error on parameter without value on connectionstring
@@ -122,7 +120,6 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True(s.Pooling);
     }
 
-#if !CF
     /// <summary>
     /// Bug #59835	.Net Connector MySqlConnectionStringBuilder wrong result ContainsKey function
     /// </summary>
@@ -137,7 +134,6 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True(s.ContainsKey("host"));
       Assert.False(s.ContainsKey("badkey"));
     }
-#endif
 
     [Fact]
     public void UseProcedureBodiesSettingCheckParameters()
@@ -146,14 +142,12 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.False(s.CheckParameters);
     }
 
-#if !CF
     [Fact]
     public void EncrpytSslmode()
     {
       MySqlConnectionStringBuilder s = new MySqlConnectionStringBuilder("server=localhost;encrypt=true");
       Assert.Equal(s.SslMode, MySqlSslMode.Preferred);
     }
-#endif
 
     [Fact]    
     public void SettingInvalidKeyThrowsArgumentException()

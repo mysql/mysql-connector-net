@@ -35,9 +35,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Collections.Generic;
 using MySql.Data.MySqlClient.Properties;
-#if !CF
 using MySql.Data.MySqlClient.Replication;
-#endif
 #if NET_40_OR_GREATER
 using System.Threading.Tasks;
 #endif
@@ -331,7 +329,7 @@ namespace MySql.Data.MySqlClient
     {
       int records = -1;
 
-#if !CF && !RT
+#if !RT
       // give our interceptors a shot at it first
       if ( connection != null && 
            connection.commandInterceptor != null &&
@@ -404,7 +402,7 @@ namespace MySql.Data.MySqlClient
     /// <include file='docs/mysqlcommand.xml' path='docs/ExecuteReader1/*'/>
     public new MySqlDataReader ExecuteReader(CommandBehavior behavior)
     {
-#if !CF && !RT
+#if !RT
       // give our interceptors a shot at it first
       MySqlDataReader interceptedReader = null;
       if ( connection != null &&
@@ -424,13 +422,11 @@ namespace MySql.Data.MySqlClient
 
       string sql = cmdText.Trim(';');
 
-#if !CF
       // Load balancing getting a new connection
       if (connection.hasBeenOpen && !driver.HasStatus(ServerStatusFlags.InTransaction))
       {
         ReplicationManager.GetNewConnection(connection.Settings.Server, !IsReadOnlyCommand(sql), connection);
       }
-#endif
 
       lock (driver)
       {
@@ -441,7 +437,7 @@ namespace MySql.Data.MySqlClient
           Throw(new MySqlException(Resources.DataReaderOpen));
         }
 
-#if !CF && !RT
+#if !RT
         System.Transactions.Transaction curTrans = System.Transactions.Transaction.Current;
 
         if (curTrans != null)
@@ -602,7 +598,7 @@ namespace MySql.Data.MySqlClient
       lastInsertedId = -1;
       object val = null;
 
-#if !CF && !RT
+#if !RT
       // give our interceptors a shot at it first
       if (connection != null &&
           connection.commandInterceptor.ExecuteScalar(CommandText, ref val))

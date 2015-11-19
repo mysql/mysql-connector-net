@@ -66,7 +66,7 @@ namespace MySql.Data.MySqlClient.Authentication
 
     public override object GetPassword()
     {
-#if !CF && !RT
+#if !RT
       if (Settings.SslMode != MySqlSslMode.None)
       {
         // send as clear text, since the channel is already encrypted
@@ -95,7 +95,7 @@ namespace MySql.Data.MySqlClient.Authentication
 #else
         throw new NotImplementedException( "You can use sha256 plugin only in SSL connections in this implementation." );
 #endif 
-#if !CF && !RT
+#if !RT
       }
 #endif
     }

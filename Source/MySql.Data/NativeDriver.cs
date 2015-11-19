@@ -34,7 +34,7 @@ using System.ComponentModel;
 #if RT
 using System.Linq;
 #endif
-#if !CF && !RT
+#if !RT
 using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
 using System.Security.Authentication;
@@ -195,7 +195,7 @@ namespace MySql.Data.MySqlClient
       try
       {
         baseStream = StreamCreator.GetStream(Settings);
-#if !CF && !RT
+#if !RT
          if (Settings.IncludeSecurityAsserts)
             MySqlSecurityPermission.CreatePermissionSet(false).Assert();
 #endif
@@ -272,7 +272,7 @@ namespace MySql.Data.MySqlClient
       packet.WriteByte(33); //character set utf-8
       packet.Write(new byte[23]);
 
-#if !CF && !RT
+#if !RT
       if ((serverCaps & ClientFlags.SSL) == 0)
       {
         if ((Settings.SslMode != MySqlSslMode.None)
@@ -317,7 +317,7 @@ namespace MySql.Data.MySqlClient
       stream.MaxBlockSize = maxSinglePacket;
     }
 
-#if !CF && !RT
+#if !RT
 
     #region SSL
 
@@ -463,11 +463,9 @@ namespace MySql.Data.MySqlClient
       if ((serverCaps & ClientFlags.SECURE_CONNECTION) != 0)
         flags |= ClientFlags.SECURE_CONNECTION;
 
-#if !CF
       // if the server is capable of SSL and the user is requesting SSL
       if ((serverCaps & ClientFlags.SSL) != 0 && Settings.SslMode != MySqlSslMode.None)
         flags |= ClientFlags.SSL;
-#endif
 
       // if the server supports output parameters, then we do too
       if ((serverCaps & ClientFlags.PS_MULTI_RESULTS) != 0)

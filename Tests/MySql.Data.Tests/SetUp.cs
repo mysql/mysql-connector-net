@@ -111,9 +111,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assembly executingAssembly = Assembly.GetExecutingAssembly();
 #endif
 
-#if CF
-            Stream stream = executingAssembly.GetManifestResourceStream("MySql.Data.CF.Tests.Properties.Setup.sql");
-#elif RT            
+#if RT            
             Stream stream = executingAssembly.GetManifestResourceStream("MySql.Data.RT.Tests.Properties.Setup.sql");
 #else
       Stream stream = executingAssembly.GetManifestResourceStream("MySql.Data.MySqlClient.Tests.Properties.Setup.sql");
@@ -161,7 +159,7 @@ namespace MySql.Data.MySqlClient.Tests
             password = "test";
             string portString = null;
 
-#if !CF && !RT
+#if !RT
             rootUser = ConfigurationManager.AppSettings["rootuser"];
             rootPassword = ConfigurationManager.AppSettings["rootpassword"];
             host = ConfigurationManager.AppSettings["host"];

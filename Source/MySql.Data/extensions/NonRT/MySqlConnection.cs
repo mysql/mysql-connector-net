@@ -89,7 +89,6 @@ namespace MySql.Data.MySqlClient
       return CreateCommand();
     }
 
-#if !CF
     partial void AssertPermissions()
     {
       // Security Asserts can only be done when the assemblies 
@@ -103,7 +102,6 @@ namespace MySql.Data.MySqlClient
         MySqlSecurityPermission.CreatePermissionSet(true).Assert(); 
       }
     }
-#endif
 
     #region IDisposeable
 

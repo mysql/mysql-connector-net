@@ -25,22 +25,16 @@ using System.ComponentModel;
 #if !RT
 using System.Data;
 using System.Data.Common;
-#endif
-#if !CF
-using System.Drawing;
-#endif
-using System.Drawing.Design;
-#if !CF && !RT
 using System.Transactions;
 using IsolationLevel = System.Data.IsolationLevel;
 #endif
+using System.Drawing;
+using System.Drawing.Design;
 using System.Text;
 using MySql.Data.Common;
 using System.Diagnostics;
 using MySql.Data.MySqlClient.Properties;
-#if !CF
 using MySql.Data.MySqlClient.Replication;
-#endif
 #if NET_40_OR_GREATER
 using System.Threading.Tasks;
 #endif
@@ -56,10 +50,8 @@ namespace MySql.Data.MySqlClient
     private SchemaProvider schemaProvider;
     private ProcedureCache procedureCache;
     private bool isInUse;
-#if !CF
     private PerformanceMonitor perfMonitor;
-#endif
-#if !CF && !RT
+#if !RT
     private ExceptionInterceptor exceptionInterceptor;
     internal CommandInterceptor commandInterceptor;
 #endif
@@ -101,12 +93,10 @@ namespace MySql.Data.MySqlClient
 
     #region Interal Methods & Properties
 
-#if !CF
     internal PerformanceMonitor PerfMonitor
     {
       get { return perfMonitor; }
     }
-#endif
 
     internal ProcedureCache ProcedureCache
     {
@@ -142,7 +132,7 @@ namespace MySql.Data.MySqlClient
     {
       get
       {
-#if !CF && !RT
+#if !RT
         return (State == ConnectionState.Closed) &&
           driver != null &&
           driver.CurrentTransaction != null;
@@ -263,7 +253,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-#if !CF && !__MonoCS__ && !RT
+#if !__MonoCS__ && !RT
 
     protected override DbProviderFactory DbProviderFactory
     {
@@ -283,7 +273,7 @@ namespace MySql.Data.MySqlClient
 
     #region Transactions
 
-#if !MONO && !CF && !RT
+#if !MONO && !RT
     /// <summary>
     /// Enlists in the specified transaction. 
     /// </summary>
@@ -408,7 +398,7 @@ namespace MySql.Data.MySqlClient
       // in parallel
       lock (driver)
       {
-#if !CF && !RT
+#if !RT
         if (Transaction.Current != null &&
           Transaction.Current.TransactionInformation.Status == TransactionStatus.Aborted)
         {
@@ -455,7 +445,7 @@ namespace MySql.Data.MySqlClient
       if (State == ConnectionState.Open)
         Throw(new InvalidOperationException(Resources.ConnectionAlreadyOpen));
 
-#if !CF && !RT
+#if !RT
       // start up our interceptors
       exceptionInterceptor = new ExceptionInterceptor(this);
       commandInterceptor = new CommandInterceptor(this);
@@ -465,7 +455,7 @@ namespace MySql.Data.MySqlClient
 
       AssertPermissions();
 
-#if !CF && !RT
+#if !RT
       // if we are auto enlisting in a current transaction, then we will be
       // treating the connection as pooled
       if (Settings.AutoEnlist && Transaction.Current != null)
@@ -481,7 +471,6 @@ namespace MySql.Data.MySqlClient
       try
       {
         MySqlConnectionStringBuilder currentSettings = Settings;
-#if !CF        
 
         // Load balancing 
         if (ReplicationManager.IsReplicationGroup(Settings.Server))
@@ -494,7 +483,6 @@ namespace MySql.Data.MySqlClient
           else
             currentSettings = driver.Settings;
         }
-#endif
 
         if (Settings.Pooling)
         {
@@ -533,14 +521,11 @@ namespace MySql.Data.MySqlClient
 
       // setup our schema provider
       schemaProvider = new ISSchemaProvider(this);
-
-#if !CF
       perfMonitor = new PerformanceMonitor(this);
-#endif
 
       // if we are opening up inside a current transaction, then autoenlist
       // TODO: control this with a connection string option
-#if !MONO && !CF && !RT
+#if !MONO && !RT
       if (Transaction.Current != null && Settings.AutoEnlist)
         EnlistTransaction(Transaction.Current);
 #endif
@@ -621,11 +606,11 @@ namespace MySql.Data.MySqlClient
       // will be null on the second time through
       if (driver != null)
       {
-#if !CF && !RT
+#if !RT
         if (driver.CurrentTransaction == null)
 #endif
           CloseFully();
-#if !CF && !RT
+#if !RT
         else
           driver.IsInActiveUse = false;
 #endif
@@ -804,7 +789,7 @@ namespace MySql.Data.MySqlClient
 
     internal void Throw(Exception ex)
     {
-#if !CF && !RT
+#if !RT
       if (exceptionInterceptor == null)
         throw ex;
       exceptionInterceptor.Throw(ex);

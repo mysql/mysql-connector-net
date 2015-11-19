@@ -32,11 +32,9 @@ using System.Threading.Tasks;
 namespace MySql.Data.MySqlClient
 {
   /// <include file='docs/MySqlDataAdapter.xml' path='docs/class/*'/>
-#if !CF
   [System.Drawing.ToolboxBitmap(typeof(MySqlDataAdapter), "MySqlClient.resources.dataadapter.bmp")]
   [System.ComponentModel.DesignerCategory("Code")]
   [Designer("MySql.Data.MySqlClient.Design.MySqlDataAdapterDesigner,MySqlClient.Design")]
-#endif
   public sealed class MySqlDataAdapter : DbDataAdapter, IDbDataAdapter, IDataAdapter, ICloneable
   {
     private bool loadingDefaults;
@@ -85,9 +83,7 @@ namespace MySql.Data.MySqlClient
     #region Properties
 
     /// <include file='docs/MySqlDataAdapter.xml' path='docs/DeleteCommand/*'/>
-#if !CF
     [Description("Used during Update for deleted rows in Dataset.")]
-#endif
     public new MySqlCommand DeleteCommand
     {
       get { return (MySqlCommand)base.DeleteCommand; }
@@ -95,9 +91,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <include file='docs/MySqlDataAdapter.xml' path='docs/InsertCommand/*'/>
-#if !CF
     [Description("Used during Update for new rows in Dataset.")]
-#endif
     public new MySqlCommand InsertCommand
     {
       get { return (MySqlCommand)base.InsertCommand; }
@@ -105,10 +99,8 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <include file='docs/MySqlDataAdapter.xml' path='docs/SelectCommand/*'/>
-#if !CF
     [Description("Used during Fill/FillSchema")]
     [Category("Fill")]
-#endif
     public new MySqlCommand SelectCommand
     {
       get { return (MySqlCommand)base.SelectCommand; }
@@ -116,9 +108,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <include file='docs/MySqlDataAdapter.xml' path='docs/UpdateCommand/*'/>
-#if !CF
     [Description("Used during Update for modified rows in Dataset.")]
-#endif
     public new MySqlCommand UpdateCommand
     {
       get { return (MySqlCommand)base.UpdateCommand; }

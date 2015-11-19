@@ -229,7 +229,7 @@ namespace MySql.Data.MySqlClient
           row["EXTRA"] = reader.GetString(6);
           row["PRIVILEGES"] = reader.GetString(7);
           row["COLUMN_COMMENT"] = reader.GetString(8);
-#if !CF && !RT
+#if !RT
           row["GENERATION_EXPRESION"] = reader.GetString(6).Contains("VIRTUAL") ? reader.GetString(9) : string.Empty;                     
 #endif
           ParseColumnRow(row);
@@ -686,7 +686,7 @@ namespace MySql.Data.MySqlClient
 
     private MySqlSchemaCollection GetDataSourceInformation()
     {
-#if CF || RT
+#if RT
       throw new NotSupportedException();
 #else
       MySqlSchemaCollection dt = new MySqlSchemaCollection("DataSourceInformation");
@@ -855,11 +855,7 @@ namespace MySql.Data.MySqlClient
         }
         line = sr.ReadLine();
       }
-#if !CF
       sr.Dispose();
-#else
-      sr.Close();
-#endif
       str.Close();
 
       return dt;

@@ -496,7 +496,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.ExecuteNonQuery();
     }
 
-#if !CF && !RT
+#if !RT
     //[Explicit]
     [Fact]
     public void ProcedureCache()
@@ -592,7 +592,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !CF && !RT
+#if !RT
 
     /// <summary>
     /// Bug #22452 MySql.Data.MySqlClient.MySqlException: 

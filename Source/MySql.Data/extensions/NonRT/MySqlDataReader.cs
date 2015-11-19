@@ -39,7 +39,6 @@ namespace MySql.Data.MySqlClient
       get { return 0; }
     }
 
-#if !CF
     public MySqlGeometry GetMySqlGeometry(int i)
     {
       try
@@ -59,7 +58,6 @@ namespace MySql.Data.MySqlClient
     {
       return GetMySqlGeometry(GetOrdinal(column));
     }
-#endif
 
     /// <summary>
     /// Returns a DataTable that describes the column metadata of the MySqlDataReader.

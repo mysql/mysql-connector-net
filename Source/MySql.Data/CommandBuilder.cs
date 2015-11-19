@@ -35,7 +35,7 @@ using System.Collections.Generic;
 namespace MySql.Data.MySqlClient
 {
   /// <include file='docs/MySqlCommandBuilder.xml' path='docs/class/*'/>
-#if !CF && !RT
+#if !RT
   [ToolboxItem(false)]
   [System.ComponentModel.DesignerCategory("Code")]
 #endif

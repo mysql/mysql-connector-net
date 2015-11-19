@@ -45,7 +45,6 @@ namespace MySql.Data.Tests.Stress
       st.execSQL("DROP TABLE IF EXISTS TEST");
       base.Dispose(disposing);
     }
-#if !CF
 
     [Fact]
     public void TestMultiPacket()
@@ -101,8 +100,6 @@ namespace MySql.Data.Tests.Stress
         }
       }
     }
-
-#endif
 
     [Fact]
     public void TestSequence()

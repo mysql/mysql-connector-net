@@ -22,9 +22,7 @@
 
 using System;
 using System.ComponentModel;
-#if !CF
 using System.ComponentModel.Design.Serialization;
-#endif
 using System.Data;
 using System.Data.Common;
 using System.Globalization;
@@ -33,9 +31,7 @@ using ParameterDirection = System.Data.ParameterDirection;
 
 namespace MySql.Data.MySqlClient
 {
-#if !CF
   [TypeConverter(typeof(MySqlParameterConverter))]
-#endif
   public sealed partial class MySqlParameter : DbParameter, IDataParameter, IDbDataParameter
   {
     private DbType dbType;
@@ -304,7 +300,6 @@ namespace MySql.Data.MySqlClient
     }
   }
 
-#if !CF
   internal class MySqlParameterConverter : TypeConverter
   {
 
@@ -344,6 +339,4 @@ namespace MySql.Data.MySqlClient
       return base.ConvertTo(context, culture, value, destinationType);
     }
   }
-#endif
-
 }

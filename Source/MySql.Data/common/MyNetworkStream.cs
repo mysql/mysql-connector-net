@@ -59,20 +59,12 @@ namespace MySql.Data.Common
 
     bool IsTimeoutException(SocketException e)
     {
-#if CF
-       return (e.NativeErrorCode == 10060);
-#else
       return (e.SocketErrorCode == SocketError.TimedOut);
-#endif
     }
 
     bool IsWouldBlockException(SocketException e)
     {
-#if CF
-      return (e.NativeErrorCode == 10035);
-#else
       return (e.SocketErrorCode == SocketError.WouldBlock);
-#endif
     }
 
 
@@ -208,9 +200,7 @@ namespace MySql.Data.Common
           // if the exception is a ConnectionRefused then we eat it as we may have other address
           // to attempt
           if (socketException == null) throw;
-#if !CF
           if (socketException.SocketErrorCode != SocketError.ConnectionRefused) throw;
-#endif
         }
       }
       return stream;
@@ -219,7 +209,6 @@ namespace MySql.Data.Common
     private static IPHostEntry ParseIPAddress(string hostname)
     {
       IPHostEntry ipHE = null;
-#if !CF
       IPAddress addr;
       if (IPAddress.TryParse(hostname, out addr))
       {
@@ -227,7 +216,6 @@ namespace MySql.Data.Common
         ipHE.AddressList = new IPAddress[1];
         ipHE.AddressList[0] = addr;
       }
-#endif
       return ipHE;
     }
 
@@ -237,8 +225,6 @@ namespace MySql.Data.Common
       if (ipHE != null) return ipHE;
       return Dns.GetHostEntry(hostname);
     }
-
-#if !CF
 
     private static EndPoint CreateUnixEndPoint(string host)
     {
@@ -252,17 +238,13 @@ namespace MySql.Data.Common
           new object[1] { host }, null, null);
       return ep;
     }
-#endif
 
     private static MyNetworkStream CreateSocketStream(MySqlConnectionStringBuilder settings, IPAddress ip, bool unix)
     {
       EndPoint endPoint;
-#if !CF
       if (!Platform.IsWindows() && unix)
         endPoint = CreateUnixEndPoint(settings.Server);
       else
-#endif
-
         endPoint = new IPEndPoint(ip, (int)settings.Port);
 
       Socket socket = unix ?
@@ -304,8 +286,6 @@ namespace MySql.Data.Common
     /// <param name="time">keepalive timeout, in seconds</param>
     private static void SetKeepAlive(Socket s, uint time)
     {
-
-#if !CF
       uint on = 1;
       uint interval = 1000; // default interval = 1 sec
 
@@ -340,7 +320,6 @@ namespace MySql.Data.Common
       {
         // Mono throws not implemented currently
       }
-#endif
       // Fallback if Socket.IOControl is not available ( Compact Framework )
       // or not implemented ( Mono ). Keepalive option will still be set, but
       // with timeout is kept default.

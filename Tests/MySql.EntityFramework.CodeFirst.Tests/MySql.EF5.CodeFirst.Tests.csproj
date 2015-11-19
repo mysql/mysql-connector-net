@@ -10,12 +10,13 @@
     <AssemblyName>MySql.Data.Entity.CodeFirst.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup>
-    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">9.0</VisualStudioVersion>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
-    <OldToolsVersion>3.5</OldToolsVersion>
     <UpgradeBackupLocation />
   </PropertyGroup>
   <Choose>
@@ -25,16 +26,16 @@
         <SchemaVersion>2.0</SchemaVersion>
         <Framework>4.6</Framework>
         <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
-        <DefineConstants>NET_40_OR_GREATER;NET_45_OR_GREATER;NET_451_OR_GREATER;NET_46_OR_GREATER;</DefineConstants>
+        <DefineConstants>NET_40_OR_GREATER;NET_45_OR_GREATER;NET_451_OR_GREATER;NET_46_OR_GREATER;EF5;</DefineConstants>
       </PropertyGroup>
     </When>
     <When Condition=" '$(VisualStudioVersion)' == '12.0'">
       <PropertyGroup>
         <ProductVersion>9.0.30729</ProductVersion>
         <SchemaVersion>2.0</SchemaVersion>
-        <Framework>4.5.1</Framework>
+        <Framework>4.5</Framework>
         <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
-        <DefineConstants>NET_40_OR_GREATER;NET_45_OR_GREATER;NET_451_OR_GREATER</DefineConstants>
+        <DefineConstants>NET_40_OR_GREATER;NET_45_OR_GREATER;NET_451_OR_GREATER;EF5;</DefineConstants>
       </PropertyGroup>
     </When>
     <When Condition=" '$(VisualStudioVersion)' == '11.0'">
@@ -43,18 +44,18 @@
         <SchemaVersion>2.0</SchemaVersion>
         <Framework>4.5</Framework>
         <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-        <DefineConstants>NET_40_OR_GREATER;NET_45_OR_GREATER</DefineConstants>
+        <DefineConstants>NET_40_OR_GREATER; NET_45_OR_GREATER;EF5</DefineConstants>
       </PropertyGroup>
     </When>
-    <When Condition=" '$(VisualStudioVersion)' == '10.0'">
+    <Otherwise>
       <PropertyGroup>
         <ProductVersion>9.0.30729</ProductVersion>
         <SchemaVersion>2.0</SchemaVersion>
         <Framework>4.0</Framework>
         <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-        <DefineConstants>NET_40_OR_GREATER</DefineConstants>
+        <DefineConstants>NET_40_OR_GREATER;EF5</DefineConstants>
       </PropertyGroup>
-    </When>
+    </Otherwise>
   </Choose>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -79,36 +80,21 @@
     <WarningLevel>4</WarningLevel>
     <DefineConstants>TRACE;$(DefineConstants)</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug-2.0|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Debug-2.0\</OutputPath>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <CodeAnalysisLogFile>bin\Debug\MySql.Data.Entity.CodeFirst.Tests.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
-    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
-    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
-    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
-    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
-    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
-    <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
-  </PropertyGroup>
   <Choose>
-    <When Condition="$(VisualStudioVersion) &gt;= 11.0">
+    <When Condition="$(Framework) &gt;= 4.5">
       <ItemGroup>
-        <Reference Include="EntityFramework, Version=0.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-          <SpecificVersion>False</SpecificVersion>
-          <HintPath>C:\Program Files (x86)\Microsoft ADO.NET Entity Framework 5.0.0\lib\net45\EntityFramework.dll</HintPath>
+        <Reference Include="EntityFramework, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+          <HintPath>..\..\packages\EntityFramework.5.0.0\lib\net45\EntityFramework.dll</HintPath>
+          <Private>True</Private>
         </Reference>
       </ItemGroup>
     </When>
     <Otherwise>
       <ItemGroup>
-        <Reference Include="EntityFramework, Version=0.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+        <Reference Include="EntityFramework, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+          <HintPath>..\..\packages\EntityFramework.5.0.0\lib\net40\EntityFramework.dll</HintPath>
+          <Private>True</Private>
           <SpecificVersion>False</SpecificVersion>
-          <HintPath>C:\Program Files (x86)\Microsoft ADO.NET Entity Framework 5.0.0\lib\net40\EntityFramework.dll</HintPath>
         </Reference>
       </ItemGroup>
     </Otherwise>
@@ -118,12 +104,12 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.Entity" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="System.Data.Entity" />
     <Reference Include="xunit, Version=1.9.2.1705, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
       <HintPath>..\..\packages\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
       <Private>True</Private>
@@ -138,7 +124,6 @@
     <Compile Include="ExpressionTests.cs" />
     <Compile Include="Movie.cs" />
     <Compile Include="PromotionsDB.cs" />
-    <Compile Include="MovieContextCodeBasedConfiguration.cs" />
     <Compile Include="SakilaModel\actor.cs" />
     <Compile Include="SakilaModel\actor_info.cs" />
     <Compile Include="SakilaModel\address.cs" />
@@ -180,7 +165,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Source\MySql.Data.EntityFramework5\MySql.Data.EF5.csproj">
       <Project>{EDED3135-95D2-4BCE-A810-F3F2AD7935B7}</Project>
-      <Name>MySql.Data.Entity</Name>
+      <Name>MySql.Data.EF5</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\MySql.Data\MySql.Data.csproj">
       <Project>{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}</Project>
@@ -197,6 +182,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
+    <None Include="SakilaModel\packages.config" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\SQLSyntax.resx">
