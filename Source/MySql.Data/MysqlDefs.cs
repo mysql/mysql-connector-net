@@ -43,9 +43,7 @@ namespace MySql.Data.MySqlClient
     IGNORE_SPACE = 256, // Ignore spaces before '('
     PROTOCOL_41 = 512, // Support new 4.1 protocol
     INTERACTIVE = 1024, // This is an interactive client
-#if !CF
     SSL = 2048, // Switch to SSL after handshake
-#endif
     IGNORE_SIGPIPE = 4096, // IGNORE sigpipes
     TRANSACTIONS = 8192, // Client knows about transactions
     RESERVED = 16384,               // old 4.1 protocol flag
@@ -448,8 +446,6 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-#if !CF
-
     [DisplayName("_client_version")]
     public string ClientVersion
     {
@@ -560,8 +556,6 @@ namespace MySql.Data.MySqlClient
       return Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE") == "AMD64";
 #endif
     }
-
-#endif
 #endif
   }
 }

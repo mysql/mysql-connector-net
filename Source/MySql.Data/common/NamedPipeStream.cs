@@ -39,9 +39,7 @@ namespace MySql.Data.Common
   /// <summary>
   /// Summary description for API.
   /// </summary>
-#if !CF
   [SuppressUnmanagedCodeSecurity()]
-#endif
   internal class NamedPipeStream : Stream
   {
     SafeFileHandle handle;

@@ -3,7 +3,8 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{EDED3135-95D2-4BCE-A810-F3F2AD7935B7}</ProjectGuid>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <Choose>
     <When Condition=" '$(VisualStudioVersion)' == '14.0'">
@@ -21,7 +22,7 @@
         <SchemaVersion>2.0</SchemaVersion>
         <Framework>4.5</Framework>
         <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
-        <DefineConstants>TRACE;NET_40_OR_GREATER;NET_45_OR_GREATER;NET_451_OR_GREATER;</DefineConstants>
+        <DefineConstants>NET_40_OR_GREATER;NET_45_OR_GREATER;NET_451_OR_GREATER;</DefineConstants>
       </PropertyGroup>
     </When>
     <When Condition=" '$(VisualStudioVersion)' == '11.0'">
@@ -30,25 +31,16 @@
         <SchemaVersion>2.0</SchemaVersion>
         <Framework>4.5</Framework>
         <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-        <DefineConstants>TRACE;NET_40_OR_GREATER;NET_45_OR_GREATER</DefineConstants>
-      </PropertyGroup>
-    </When>
-    <When Condition=" '$(VisualStudioVersion)' == '10.0'">
-      <PropertyGroup>
-        <ProductVersion>9.0.30729</ProductVersion>
-        <SchemaVersion>2.0</SchemaVersion>
-        <Framework>4.0</Framework>
-        <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-        <DefineConstants>TRACE;NET_40_OR_GREATER</DefineConstants>
+        <DefineConstants>NET_40_OR_GREATER; NET_45_OR_GREATER</DefineConstants>
       </PropertyGroup>
     </When>
     <Otherwise>
       <PropertyGroup>
         <ProductVersion>9.0.30729</ProductVersion>
         <SchemaVersion>2.0</SchemaVersion>
-        <Framework>3.5</Framework>
-        <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-        <DefineConstants>TRACE</DefineConstants>
+        <Framework>4.0</Framework>
+        <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+        <DefineConstants>NET_40_OR_GREATER</DefineConstants>
       </PropertyGroup>
     </Otherwise>
   </Choose>
@@ -77,96 +69,64 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <BaseOutputPath>$(TargetFrameworkVersion)\</BaseOutputPath>
-    <BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\Debug\</BaseIntermediateOutputPath>
+    <BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>obj\$(TargetFrameworkVersion)\</IntermediateOutputPath>
     <OutputPath>bin\$(TargetFrameworkVersion)\Debug\</OutputPath>
-    <DefineConstants>DEBUG;$(DefineConstants)</DefineConstants>
+    <BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\Debug\</BaseIntermediateOutputPath>
+    <DefineConstants>$(DefineConstants);DEBUG;TRACE</DefineConstants>
     <AssemblyName>MySql.Data.Entity</AssemblyName>
-    <AssemblyName Condition="$(Framework) &gt; 4.0">MySql.Data.Entity.EF5</AssemblyName>
+    <AssemblyName Condition="$(Framework) &gt;= 4.5">MySql.Data.Entity.EF5</AssemblyName>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <BaseOutputPath>$(TargetFrameworkVersion)\</BaseOutputPath>
-    <BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\Release\</BaseIntermediateOutputPath>
+    <BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>obj\$(TargetFrameworkVersion)\</IntermediateOutputPath>
     <OutputPath>bin\$(TargetFrameworkVersion)\Release\</OutputPath>
-    <DefineConstants>$(DefineConstants)</DefineConstants>
+    <BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\Release\</BaseIntermediateOutputPath>
+    <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
     <AssemblyName>MySql.Data.Entity</AssemblyName>
-    <AssemblyName Condition="$(Framework) &gt; 4.0">MySql.Data.Entity.EF5</AssemblyName>
+    <AssemblyName Condition="$(Framework) &gt;= 4.5">MySql.Data.Entity.EF5</AssemblyName>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup>
-    <OutputType>Library</OutputType>
-  </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
   </PropertyGroup>
   <Choose>
     <When Condition="$(Framework) &gt;= 4.5">
       <ItemGroup>
-        <Reference Include="EntityFramework, Version=0.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+        <Reference Include="EntityFramework, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+          <HintPath>..\..\packages\EntityFramework.5.0.0\lib\net45\EntityFramework.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <Reference Include="EntityFramework, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+          <HintPath>..\..\packages\EntityFramework.5.0.0\lib\net40\EntityFramework.dll</HintPath>
+          <Private>True</Private>
           <SpecificVersion>False</SpecificVersion>
-          <HintPath>C:\Program Files (x86)\Microsoft ADO.NET Entity Framework 5.0.0\lib\net45\EntityFramework.dll</HintPath>
-          <Private>False</Private>
         </Reference>
-        <Reference Include="System.Data.Entity" />
       </ItemGroup>
-      <ItemGroup>
-        <Reference Include="System" />
-        <Reference Include="System.Core" />
-        <Reference Include="System.Data.DataSetExtensions" />
-        <Reference Include="System.Data" />
-        <Reference Include="System.Xml" />
-      </ItemGroup>
-    </When>
-    <When Condition="'$(Framework)' == '4.0'">
-      <ItemGroup>
-        <Reference Include="EntityFramework, Version=0.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-          <SpecificVersion>False</SpecificVersion>
-          <HintPath>C:\Program Files (x86)\Microsoft ADO.NET Entity Framework 5.0.0\lib\net40\EntityFramework.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="System.Data.Entity" />
-      </ItemGroup>
-      <ItemGroup>
-        <Reference Include="System" />
-        <Reference Include="System.Core" />
-        <Reference Include="System.Data.DataSetExtensions" />
-        <Reference Include="System.Data" />
-        <Reference Include="System.Xml" />
-      </ItemGroup>
-    </When>
-    <When Condition="'$(Framework)' == '3.5'">
-      <ItemGroup>
-        <Reference Include="System.Data.Linq">
-          <RequiredTargetFramework>3.5</RequiredTargetFramework>
-        </Reference>
-        <Reference Include="System.Core">
-          <RequiredTargetFramework>3.5</RequiredTargetFramework>
-        </Reference>
-        <Reference Include="System" />
-        <Reference Include="System.Data" />
-        <Reference Include="System.Runtime.Serialization" />
-        <Reference Include="System.Data.Entity">
-          <RequiredTargetFramework>3.5</RequiredTargetFramework>
-        </Reference>
-        <Reference Include="System.Data.DataSetExtensions" />
-        <Reference Include="System.Xml" />
-      </ItemGroup>
-    </When>
+    </Otherwise>
   </Choose>
   <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.Entity" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
     <EmbeddedResource Include="Properties\SchemaMapping.msl" />
     <Compile Include="..\MySql.Data\Properties\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
@@ -189,8 +149,8 @@
     <Compile Include="Generators\SelectGenerator.cs" />
     <Compile Include="Generators\SqlGenerator.cs" />
     <Compile Include="Generators\UpdateGenerator.cs" />
-    <Compile Include="MySqlConnectionFactory.cs" Condition="$(Framework) &gt;= 4.0" />
-    <Compile Include="MySqlMigrationSqlGenerator.cs" Condition="$(Framework) &gt;= 4.0" />
+    <Compile Include="MySqlConnectionFactory.cs" />
+    <Compile Include="MySqlMigrationSqlGenerator.cs" />
     <Compile Include="MySqlSpatialServices.cs" Condition="$(Framework) &gt;= 4.5" />
     <Compile Include="MySqlSpatialDataReader.cs" Condition="$(Framework) &gt;= 4.5" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -217,24 +177,25 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MySql.Data\MySql.Data.csproj">
+      <Project>{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}</Project>
+      <Name>MySql.Data</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
     <EmbeddedResource Include="Properties\SchemaDefinition-5.6.ssdl">
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="System.Security" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\MySql.Data\MySql.Data.csproj">
-      <Project>{e9df5ed1-4cbd-4226-b931-9a51610ac14d}</Project>
-      <Name>MySql.Data</Name>
-    </ProjectReference>
+    <None Include="packages.config" />
   </ItemGroup>
   <Choose>
     <When Condition="$(Framework) &gt;= 4.5">
       <ItemGroup>
         <EmbeddedResource Include="Properties\4.5\ProviderManifest.xml">
           <LogicalName>MySql.Data.Entity.Properties.ProviderManifest.xml</LogicalName>
+          <SubType>Designer</SubType>
         </EmbeddedResource>
       </ItemGroup>
     </When>

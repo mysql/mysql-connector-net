@@ -43,7 +43,6 @@ namespace MySql.Data.MySqlClient.Tests
       //Nothing to clean
     }
 
-#if !CF
     [Fact]
     public void ClientFactory()
     {
@@ -65,7 +64,5 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
     }
-#endif
-
   }
 }

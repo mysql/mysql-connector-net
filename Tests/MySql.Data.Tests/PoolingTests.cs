@@ -190,7 +190,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !CF && !RT
+#if !RT
     // Test that thread does not come to pool after abort
     [Fact]
     public void TestAbort()
@@ -253,7 +253,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !CF && !RT
+#if !RT
 
     private void PoolingWorker(object cn)
     {
@@ -588,7 +588,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !CF && !RT
+#if !RT
     private void CacheServerPropertiesInternal(bool cache)
     {
       string connStr = st.GetPoolingConnectionString() +

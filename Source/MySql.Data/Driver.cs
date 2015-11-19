@@ -50,7 +50,7 @@ namespace MySql.Data.MySqlClient
     internal int timeZoneOffset;
     private DateTime idleSince;    
 
-#if !CF && !RT
+#if !RT
     protected MySqlPromotableTransaction currentTransaction;
     protected bool inActiveUse;
 #endif
@@ -112,7 +112,7 @@ namespace MySql.Data.MySqlClient
       set { encoding = value; }
     }
 
-#if !CF && !RT
+#if !RT
     public MySqlPromotableTransaction CurrentTransaction
     {
       get { return currentTransaction; }
@@ -193,7 +193,7 @@ namespace MySql.Data.MySqlClient
     public static Driver Create(MySqlConnectionStringBuilder settings)
     {
       Driver d = null;
-#if !CF && !RT
+#if !RT
       try
       {
         if (MySqlTrace.QueryAnalysisEnabled || settings.Logging || settings.UseUsageAdvisor)

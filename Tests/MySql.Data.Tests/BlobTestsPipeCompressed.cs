@@ -33,7 +33,6 @@ using System.Security.Authentication;
 namespace MySql.Data.MySqlClient.Tests
 {
   #region Configs
-#if !CF
   [Category("Compressed")]
   public class BlobTestsPipeCompressed : BlobTests
   {
@@ -42,6 +41,5 @@ namespace MySql.Data.MySqlClient.Tests
       return String.Format("protocol=pipe;pipe name={0};compress=true;ssl mode=none;", st.pipeName);
     }
   }
-#endif
   #endregion
 }

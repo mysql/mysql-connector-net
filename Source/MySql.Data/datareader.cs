@@ -374,7 +374,7 @@ namespace MySql.Data.MySqlClient
 
     private object ChangeType(IMySqlValue value, int fieldIndex, Type newType)
     {
-#if !CF && !RT
+#if !RT
       resultSet.Fields[fieldIndex].AddTypeConversion(newType);
 #endif
       return Convert.ChangeType(value.Value, newType, CultureInfo.InvariantCulture);

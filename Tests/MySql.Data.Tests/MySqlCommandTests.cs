@@ -540,7 +540,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(1065, ex.Number);
     }
 
-#if !CF && !RT
+#if !RT
     /// <summary>
     /// Bug #59616	Only INSERTs are batched
     /// </summary>
