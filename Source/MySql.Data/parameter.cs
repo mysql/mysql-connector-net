@@ -166,7 +166,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets or sets the value of the parameter.
     /// </summary>
-#if !CF && !RT
+#if !RT
     [TypeConverter(typeof(StringConverter))]
     [Category("Data")]
 #endif
@@ -255,13 +255,11 @@ namespace MySql.Data.MySqlClient
           g.OldGuids = settings.OldGuids;
           ValueObject = g;
         }
-#if !CF
         if (ValueObject.MySqlDbType == MySqlDbType.Geometry)
         {
           MySqlGeometry v = (MySqlGeometry)ValueObject;
           ValueObject = v;
         }
-#endif
         ValueObject.WriteValue(packet, binary, paramValue, Size);
       }
     }

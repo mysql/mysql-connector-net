@@ -377,10 +377,8 @@ namespace MySql.Data.MySqlClient
         case MySqlDbType.JSON:
         case (MySqlDbType)Field_Type.NULL:
           return new MySqlString(type, true);
-#if !CF
         case MySqlDbType.Geometry:        
           return new MySqlGeometry(type, true);
-#endif
         case MySqlDbType.Blob:
         case MySqlDbType.MediumBlob:
         case MySqlDbType.LongBlob:

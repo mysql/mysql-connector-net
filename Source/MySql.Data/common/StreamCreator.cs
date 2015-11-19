@@ -71,13 +71,8 @@ namespace MySql.Data.Common
         case MySqlConnectionProtocol.UnixSocket: throw new NotImplementedException();
         case MySqlConnectionProtocol.SharedMemory: throw new NotImplementedException();
 #else
-#if !CF
         case MySqlConnectionProtocol.UnixSocket: return GetUnixSocketStream(settings);        
         case MySqlConnectionProtocol.SharedMemory: return GetSharedMemoryStream(settings);
-#endif
-        
-#endif
-#if !CF && !RT
         case MySqlConnectionProtocol.NamedPipe: return GetNamedPipeStream(settings);
 #endif
       }
@@ -90,7 +85,7 @@ namespace MySql.Data.Common
       return s;
     }
 
-#if !CF && !RT
+#if !RT
     private static Stream GetUnixSocketStream(MySqlConnectionStringBuilder settings)
     {
       if (Platform.IsWindows())

@@ -10,7 +10,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.Web", "Source\MySql.W
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.Web.Tests", "Tests\MySql.Web.Tests\MySql.Web.Tests.csproj", "{83462D15-E576-4079-BBC9-9EE1CF0B24DD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.Data.EntityFramework5", "Source\MySql.Data.EntityFramework5\MySql.Data.EF5.csproj", "{EDED3135-95D2-4BCE-A810-F3F2AD7935B7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.Data.EF5", "Source\MySql.Data.EntityFramework5\MySql.Data.EF5.csproj", "{EDED3135-95D2-4BCE-A810-F3F2AD7935B7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.EF5.Basic.Tests", "Tests\MySql.EntityFramework.Basic.Tests\MySql.EF5.Basic.Tests.csproj", "{2B44356E-1455-42F8-85D2-43271AEB2908}"
 EndProject

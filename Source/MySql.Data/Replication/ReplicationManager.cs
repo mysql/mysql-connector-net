@@ -41,7 +41,7 @@ namespace MySql.Data.MySqlClient.Replication
     {
       Groups = groups;
 
-#if !CF && !RT
+#if !RT
       // load up our selectors
       if (MySqlConfiguration.Settings == null) return;
 

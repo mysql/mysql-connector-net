@@ -33,7 +33,6 @@ using System.Security.Authentication;
 namespace MySql.Data.MySqlClient.Tests
 {
   #region Configs
-#if !CF
   [Category("Compressed")]
   public class BlobTestsSharedMemoryCompressed : BlobTests
   {
@@ -42,6 +41,5 @@ namespace MySql.Data.MySqlClient.Tests
       return String.Format("protocol=memory; shared memory name={0};compress=true;ssl mode=none;", st.memoryName);
     }
   }
-#endif
   #endregion
 }

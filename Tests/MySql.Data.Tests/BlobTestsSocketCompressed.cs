@@ -33,7 +33,6 @@ using System.Security.Authentication;
 namespace MySql.Data.MySqlClient.Tests
 {
   #region Configs
-#if !CF
   [Category("Compressed")]
   public class BlobTestsSocketCompressed : BlobTests
   {
@@ -42,6 +41,5 @@ namespace MySql.Data.MySqlClient.Tests
       return String.Format("port={0};compress=true", st.port);
     }
   }
-#endif
   #endregion
 }

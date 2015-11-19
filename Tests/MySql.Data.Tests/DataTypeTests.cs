@@ -792,7 +792,6 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !CF
     #region MySqlGeometry Tests
 
     [Fact]
@@ -969,7 +968,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     #endregion
-#endif
+
     /// <summary>
     /// Bug #33322 Incorrect Double/Single value saved to MySQL database using MySQL Connector for  
     /// </summary>
