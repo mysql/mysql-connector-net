@@ -33,7 +33,6 @@ using System.Security.Authentication;
 namespace MySql.Data.MySqlClient.Tests
 {
   #region Configs
-#if !CF  
   public class MySqlCommandTestsSocketCompressed : MySqlCommandTests
   {
     protected override string OnGetConnectionStringInfo()
@@ -41,6 +40,5 @@ namespace MySql.Data.MySqlClient.Tests
       return ";compress=true";
     }
   }
-#endif
   #endregion
 }

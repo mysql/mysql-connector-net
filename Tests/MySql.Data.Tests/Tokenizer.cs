@@ -41,7 +41,6 @@ namespace MySql.Data.MySqlClient.Tests
       st.execSQL("DROP TABLE IF EXISTS TEST");
     }
 
-#if !CF
     [Fact]
     public void Simple()
     {
@@ -245,7 +244,6 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("END", tokenizer.NextToken());
       Assert.Null(tokenizer.NextToken());
     }
-#endif
 
     /// <summary>
     /// Bug #44318	Tokenizer

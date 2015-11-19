@@ -190,7 +190,7 @@ namespace MySql.Data.MySqlClient.Tests
 #endif
     }
 
-#if !CF && !RT
+#if !RT
     [Fact]
     public void UseOldSyntaxGivesWarning()
     {

@@ -96,13 +96,7 @@ namespace MySql.Data.MySqlClient
       base.Close();
 #endif
       baseStream.Close();
-#if !CF
       cache.Dispose();
-#else
-      System.Reflection.MethodInfo dynMethod = cache.GetType().GetMethod("Dispose", 
-        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-      dynMethod.Invoke(this, new object[0] );
-#endif
     }
 
     public override void SetLength(long value)
@@ -293,13 +287,7 @@ namespace MySql.Data.MySqlClient
       cache.SetLength(0);
       if (compressedBuffer != null)
       {
-#if !CF
         compressedBuffer.Dispose();
-#else
-        System.Reflection.MethodInfo dynMethod = cache.GetType().GetMethod("Dispose",
-          System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        dynMethod.Invoke(this, new object[0]);
-#endif
       }
     }
 

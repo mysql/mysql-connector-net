@@ -204,7 +204,6 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !CF
     [Fact]
     public void SortingMySqlDateTimes()
     {
@@ -237,7 +236,6 @@ namespace MySql.Data.MySqlClient.Tests
         Thread.CurrentThread.CurrentUICulture = curUICulture;
       }
     }
-#endif
 
     [Fact]
     public void TestZeroDateTimeException()
@@ -861,7 +859,6 @@ namespace MySql.Data.MySqlClient.Tests
       rdr.Close();
     }
 
-#if !CF
     [Fact]
     public void ShowMicrosecondError()
     {
@@ -873,8 +870,6 @@ namespace MySql.Data.MySqlClient.Tests
       DateTime temp;
       Assert.True(DateTime.TryParse(date, out temp));
     }
-#endif
-
 
 #if NET_40_OR_GREATER
     /// <summary>

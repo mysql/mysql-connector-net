@@ -23,8 +23,6 @@
 using System;
 #if !RT
 using System.Data.Common;
-#endif
-#if !CF && !RT
 using System.Runtime.Serialization;
 #endif
 
@@ -34,7 +32,7 @@ namespace MySql.Data.MySqlClient
   /// The exception that is thrown when MySQL returns an error. This class cannot be inherited.
   /// </summary>
   /// <include file='docs/MySqlException.xml' path='MyDocs/MyMembers[@name="Class"]/*'/>
-#if !CF && !RT
+#if !RT
   [Serializable]
 #endif
   public sealed class MySqlException : DbException
@@ -66,9 +64,7 @@ namespace MySql.Data.MySqlClient
       : this(msg, inner)
     {
       errorCode = errno;
-#if !CF
       Data.Add("Server Error Code", errno);
-#endif
     }
 
     internal MySqlException(string msg, int errno)
@@ -76,7 +72,7 @@ namespace MySql.Data.MySqlClient
     {
     }
 
-#if !CF && !RT
+#if !RT
     private MySqlException(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {

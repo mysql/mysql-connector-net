@@ -48,8 +48,6 @@ namespace MySql.Data.MySqlClient.Tests
       st.execSQL("DROP TABLE IF EXISTS TEST");
     }
 
-#if !CF
-
     [Fact]
     public void TestFloats()
     {
@@ -193,6 +191,5 @@ namespace MySql.Data.MySqlClient.Tests
       }
 
     }
-#endif
   }
 }
