@@ -2,69 +2,26 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform>AnyCPU</Platform>
-    <!--    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform> -->
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <TargetFrameworkProfile />
-    <!--
-    <Framework Condition=" '$(Framework)' == '' and '$(VisualStudioVersion)' == '10.0'">4.0</Framework>
-    <Framework Condition=" '$(Framework)' == '' and '$(VisualStudioVersion)' == '11.0'">4.5</Framework>
-    <Framework Condition=" '$(Framework)' == '' and '$(VisualStudioVersion)' == '12.0'">4.5.1</Framework>
-    <Framework Condition=" '$(Framework)' == ''">2.0</Framework>
-    <TargetFrameworkVersion Condition="'$(Framework)'!=''">v$(Framework)</TargetFrameworkVersion>
-    <ProductVersion>9.0.30729</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>-->
   </PropertyGroup>
   <Choose>
-    <When Condition=" '$(Platform)' != 'AnyCPU'">
-      <PropertyGroup>
-        <Platform>AnyCPU</Platform>
-      </PropertyGroup>
-    </When>
-  </Choose>
-  <Choose>
-    <When Condition=" '$(VisualStudioVersion)' == '14.0'">
-      <PropertyGroup>
-        <ProductVersion>9.0.30729</ProductVersion>
-        <SchemaVersion>2.0</SchemaVersion>
-        <Framework>4.6</Framework>
-        <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
-        <DefineConstants>NET_40_OR_GREATER;NET_45_OR_GREATER;NET_451_OR_GREATER;NET_46_OR_GREATER;</DefineConstants>
-      </PropertyGroup>
-    </When>
-    <When Condition=" '$(VisualStudioVersion)' == '12.0'">
-      <PropertyGroup>
-        <ProductVersion>9.0.30729</ProductVersion>
-        <SchemaVersion>2.0</SchemaVersion>
-        <Framework>4.5.1</Framework>
-        <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
-        <DefineConstants>NET_40_OR_GREATER;NET_45_OR_GREATER;NET_451_OR_GREATER;</DefineConstants>
-      </PropertyGroup>
-    </When>
-    <When Condition=" '$(VisualStudioVersion)' == '11.0'">
+    <When Condition="$(VisualStudioVersion) &gt;= 11.0">
       <PropertyGroup>
         <ProductVersion>9.0.30729</ProductVersion>
         <SchemaVersion>2.0</SchemaVersion>
         <Framework>4.5</Framework>
         <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-        <DefineConstants>NET_40_OR_GREATER;NET_45_OR_GREATER</DefineConstants>
+        <DefineConstants>NET_40_OR_GREATER;NET_45_OR_GREATER;</DefineConstants>
       </PropertyGroup>
     </When>
-    <When Condition=" '$(VisualStudioVersion)' == '10.0'">
+    <Otherwise>
       <PropertyGroup>
         <ProductVersion>9.0.30729</ProductVersion>
         <SchemaVersion>2.0</SchemaVersion>
         <Framework>4.0</Framework>
         <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
         <DefineConstants>NET_40_OR_GREATER</DefineConstants>
-      </PropertyGroup>
-    </When>
-    <Otherwise>
-      <!-- When Condition=" '$(VisualStudioVersion)' == ''" > -->
-      <PropertyGroup>
-        <ProductVersion>9.0.30729</ProductVersion>
-        <SchemaVersion>2.0</SchemaVersion>
-        <Framework>3.5</Framework>
-        <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
       </PropertyGroup>
     </Otherwise>
   </Choose>
@@ -90,7 +47,6 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <!-- <DefineConstants Condition=" $(Framework) >= '4.0' ">NET_40_OR_GREATER</DefineConstants> -->
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
