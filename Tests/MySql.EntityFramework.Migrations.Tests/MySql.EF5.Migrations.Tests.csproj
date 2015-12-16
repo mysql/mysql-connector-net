@@ -116,7 +116,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\MySql.Data.EntityFramework5\MySql.Data.EF5.csproj">
-      <Project>{eded3135-95d2-4bce-a810-f3f2ad7935b7}</Project>
+      <Project>{EDED3135-95D2-4BCE-A810-F3F2AD7935B7}</Project>
       <Name>MySql.Data.EF5</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\MySql.Data\MySql.Data.csproj">

@@ -28,18 +28,13 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-#if EF6
+
 [assembly: AssemblyTitle("MySql.Data.Entity for EF7")]
 [assembly: AssemblyDescription("Entity Framework 7.0 supported")]
-#else
-[assembly: AssemblyTitle("MySql.Data.Entity")]
-[assembly: AssemblyDescription("")]
-[assembly: AllowPartiallyTrustedCallers()]
-#endif
 
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Oracle")]
-[assembly: AssemblyProduct("MySql.Data.Entity.EF7")]
+[assembly: AssemblyProduct("MySql.Data.EF7")]
 [assembly: AssemblyCopyright("Copyright © 2015, Oracle and/or its affiliates. All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

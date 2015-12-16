@@ -23,7 +23,7 @@
 using System.Data.Common;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Framework.Logging;
+using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using Microsoft.Data.Entity;
 using MySQL.Data.Entity.Extensions;

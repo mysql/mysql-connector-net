@@ -23,7 +23,7 @@
 using System;
 using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Query.Sql;
-
+using Microsoft.Data.Entity.Storage;
 
 namespace MySQL.Data.Entity.Query
 {

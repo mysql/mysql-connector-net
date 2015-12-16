@@ -58,5 +58,11 @@ namespace MySQL.Data.Entity
         .Append(SqlGenerator.BatchCommandSeparator)
         .AppendLine();
     }
+
+    public enum ResultsGrouping
+    {
+      OneResultSet,
+      OneCommandPerResultSet
+    }
   }
 }

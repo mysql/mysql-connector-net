@@ -32,7 +32,7 @@ namespace MySQL.Data.Entity.Migrations
   {
     public MySQLHistoryRepository(
         IDatabaseCreator databaseCreator,
-        ISqlStatementExecutor executor,
+        ISqlCommandBuilder sqlCommandBuilder,
         MySQLConnection connection,
         IDbContextOptions options,
         IMigrationsModelDiffer modelDiffer,
@@ -41,7 +41,7 @@ namespace MySQL.Data.Entity.Migrations
         ISqlGenerator sql)
             : base(
                   databaseCreator,
-                  executor,
+                  sqlCommandBuilder,
                   connection,
                   options,
                   modelDiffer,

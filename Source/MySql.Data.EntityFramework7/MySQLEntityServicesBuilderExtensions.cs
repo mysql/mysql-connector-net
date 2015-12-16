@@ -21,52 +21,53 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.Data.Entity.Infrastructure;
-using MySQL.Data.Entity;
 using MySQL.Data.Entity.Metadata;
 using MySQL.Data.Entity.Migrations;
 using MySQL.Data.Entity.Update;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Update;
-using Microsoft.Data.Entity.Utilities;
-using Microsoft.Framework.DependencyInjection.Extensions;
 using MySQL.Data.Entity.Query;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Microsoft.Framework.DependencyInjection
+
+namespace MySQL.Data.Entity
 {
     public static class EntityServicesBuilderExtensions
     {
+
         public static EntityFrameworkServicesBuilder AddMySQL(this EntityFrameworkServicesBuilder builder)
         {
             ThrowIf.Argument.IsNull(builder, "builder");
 
-            var service = builder.AddRelational().GetService();
+            var service = builder.AddRelational().GetInfrastructure();
 
-            service.TryAddEnumerable(ServiceDescriptor
-                      .Singleton<IDatabaseProvider, DatabaseProvider<MySQLDatabaseProviderServices, MySQLOptionsExtension>>());
+            service.TryAddEnumerable(ServiceDescriptor.Singleton<IDatabaseProvider, DatabaseProvider<MySQLDatabaseProviderServices, MySQLOptionsExtension>>());
 
-            service.TryAdd(new ServiceCollection()
-              .AddSingleton<MySQLValueGeneratorCache>()
-              .AddSingleton<MySQLTypeMapper>()
-              .AddSingleton<MySQLSqlGenerator>()
-              .AddSingleton<MySQLModelSource>()
-              .AddSingleton<MySQLAnnotationProvider>()
-              .AddSingleton<MySQLMigrationsAnnotationProvider>()
 
-              //.AddSingleton<MySQLConventionSetBuilder>()
-              .AddScoped<MySQLUpdateSqlGenerator>()
-              //.AddScoped<MySQLSequenceValueGeneratorFactory, SqlServerSequenceValueGeneratorFactory>()
-              .AddScoped<MySQLModificationCommandBatchFactory>()
-              //.AddScoped<MySQLValueGeneratorSelector>()
-              .AddScoped<MySQLDatabaseProviderServices>()
-              .AddScoped<MySQLConnection>()
-              .AddScoped<MySQLMigrationsSqlGenerator>()
-              .AddScoped<MySQLDatabaseCreator>()
-              .AddScoped<MySQLHistoryRepository>()
-              .AddScoped<MySQLCompositeMethodCallTranslator>()
-              .AddScoped<MySQLQueryGeneratorFactory>()
-              .AddScoped<MySQLCompositeMemberTranslator>());
 
-            return builder;
+          service.TryAdd(new ServiceCollection()
+        .AddSingleton<MySQLValueGeneratorCache>()
+        .AddSingleton<MySQLTypeMapper>()
+        .AddSingleton<MySQLSqlGenerator>()
+        .AddSingleton<MySQLModelSource>()
+        .AddSingleton<MySQLAnnotationProvider>()
+        .AddSingleton<MySQLMigrationsAnnotationProvider>()
+
+        //.AddSingleton<MySQLConventionSetBuilder>()
+        .AddScoped<MySQLUpdateSqlGenerator>()
+        //.AddScoped<MySQLSequenceValueGeneratorFactory, SqlServerSequenceValueGeneratorFactory>()
+        .AddScoped<MySQLModificationCommandBatchFactory>()
+        //.AddScoped<MySQLValueGeneratorSelector>()
+        .AddScoped<MySQLDatabaseProviderServices>()
+        .AddScoped<MySQLConnection>()
+        .AddScoped<MySQLMigrationsSqlGenerator>()
+        .AddScoped<MySQLDatabaseCreator>()
+        .AddScoped<MySQLHistoryRepository>()
+        .AddScoped<MySQLCompositeMethodCallTranslator>()
+        .AddScoped<MySQLQueryGeneratorFactory>()
+        .AddScoped<MySQLCompositeMemberTranslator>());
+
+      return builder;
         }
     }
 }

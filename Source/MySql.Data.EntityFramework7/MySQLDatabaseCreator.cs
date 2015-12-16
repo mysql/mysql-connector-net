@@ -37,17 +37,17 @@ namespace MySQL.Data.Entity
   {
     private readonly MySQLConnection _connection;
     private readonly IMigrationsSqlGenerator _sqlGenerator;
+    private readonly ISqlCommandBuilder _commandBuilder;
 
     public MySQLDatabaseCreator(
         MySQLConnection cxn,
         IMigrationsModelDiffer differ,
         IMigrationsSqlGenerator generator,
-        ISqlStatementExecutor executor,
-        IModel model)
-        : base(model, cxn, differ, generator, executor)
+        IModel model,
+        ISqlCommandBuilder commandBuilder)
+        : base(model, cxn, differ, generator)
     {
-      ThrowIf.Argument.IsNull(cxn, "connection");
-      ThrowIf.Argument.IsNull(executor, "executor");
+      ThrowIf.Argument.IsNull(cxn, "connection");      
       ThrowIf.Argument.IsNull(differ, "modelDiffer");
       ThrowIf.Argument.IsNull(generator, "generator");
 
@@ -58,18 +58,18 @@ namespace MySQL.Data.Entity
 
     public override void Create()
     {
-      using (var workingConnecton = _connection.CreateSystemConnection())
+      using (var workingConnection = _connection.CreateSystemConnection())
       {
-        SqlStatementExecutor.ExecuteNonQuery(workingConnecton, GetCreateOps());
+        GetCreateOps().ExecuteNonQuery(workingConnection);
         MySqlConnection.ClearPool((MySqlConnection)_connection.DbConnection);
       }
     }
 
     public override async Task CreateAsync(CancellationToken cancellationToken = default(CancellationToken))
     {
-      using (var workingConnecton = _connection.CreateSystemConnection())
+      using (var workingConnection = _connection.CreateSystemConnection())
       {
-        await SqlStatementExecutor.ExecuteNonQueryAsync(workingConnecton, GetCreateOps());
+        await GetCreateOps().ExecuteNonQueryAsync(workingConnection, cancellationToken);
         MySqlConnection.ClearPool((MySqlConnection)_connection.DbConnection);
       }
     }
@@ -93,7 +93,7 @@ namespace MySQL.Data.Entity
       MySqlConnection.ClearAllPools();
       using (var workingConnecton = _connection.CreateSystemConnection())
       {
-        SqlStatementExecutor.ExecuteNonQuery(workingConnecton, GetDropOps());
+        GetDropOps().ExecuteNonQuery(workingConnecton);
       }
     }
 
@@ -102,7 +102,7 @@ namespace MySQL.Data.Entity
       MySqlConnection.ClearAllPools();
       using (var workingConnecton = _connection.CreateSystemConnection())
       {
-        await SqlStatementExecutor.ExecuteNonQueryAsync(workingConnecton, GetDropOps(), cancellationToken);
+        await GetDropOps().ExecuteNonQueryAsync(workingConnecton, cancellationToken);
       }
     }
 
@@ -135,18 +135,18 @@ namespace MySQL.Data.Entity
     protected override bool HasTables()
     {
       string sql = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '" + _connection.DbConnection.Database + "'";
-      long count = (long)SqlStatementExecutor.ExecuteScalar(_connection, sql);
+      long count = (long)_commandBuilder.Build(sql).ExecuteScalar(_connection);
       return count != 0;
     }
 
     protected override async Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
     {
       string sql = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = `" + _connection.DbConnection.Database + "`";
-      int count = (int)await SqlStatementExecutor.ExecuteScalarAsync(_connection, sql, cancellationToken);
+      long count = (long)await _commandBuilder.Build(sql).ExecuteScalarAsync(_connection, cancellationToken);
       return count != 0;
     }
 
-    private IEnumerable<RelationalCommand> GetCreateOps()
+    private IEnumerable<IRelationalCommand> GetCreateOps()
     {
       var ops = new MigrationOperation[]
           {
@@ -155,7 +155,7 @@ namespace MySQL.Data.Entity
       return _sqlGenerator.Generate(ops);
     }
 
-    private IEnumerable<RelationalCommand> GetDropOps()
+    private IEnumerable<IRelationalCommand> GetDropOps()
     {
       var ops = new MigrationOperation[]
           {
@@ -163,7 +163,5 @@ namespace MySQL.Data.Entity
           };
       return _sqlGenerator.Generate(ops);
     }
-
-
   }
 }

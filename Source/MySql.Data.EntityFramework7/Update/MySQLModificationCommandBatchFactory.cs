@@ -30,12 +30,14 @@ namespace MySQL.Data.Entity.Update
   public class MySQLModificationCommandBatchFactory : IModificationCommandBatchFactory
   {
     private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
+    private readonly ISqlGenerator _sqlGenerator;
     private readonly MySQLUpdateSqlGenerator _updateSqlGenerator;
     private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
     private readonly IDbContextOptions _options;
 
     public MySQLModificationCommandBatchFactory(
         [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
+        [NotNull] ISqlGenerator sqlGenerator,
         [NotNull] MySQLUpdateSqlGenerator updateSqlGenerator,
         [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
         [NotNull] IDbContextOptions options)
@@ -46,6 +48,7 @@ namespace MySQL.Data.Entity.Update
       ThrowIf.Argument.IsNull(options, "options");
 
       _commandBuilderFactory = commandBuilderFactory;
+      _sqlGenerator = sqlGenerator;
       _updateSqlGenerator = updateSqlGenerator;
       _valueBufferFactoryFactory = valueBufferFactoryFactory;
       _options = options;
@@ -57,6 +60,7 @@ namespace MySQL.Data.Entity.Update
 
       return new MySQLModificationCommandBatch(
           _commandBuilderFactory,
+          _sqlGenerator,
           _updateSqlGenerator,
           _valueBufferFactoryFactory,
           optionsExtension?.MaxBatchSize);

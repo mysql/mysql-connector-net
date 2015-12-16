@@ -29,10 +29,11 @@ namespace MySQL.Data.Entity.Update
   {
     public MySQLModificationCommandBatch(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
-            [NotNull] MySQLUpdateSqlGenerator sqlGenerator,
+            [NotNull] ISqlGenerator sqlGenerator,
+            [NotNull] MySQLUpdateSqlGenerator updateSqlGenerator,
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
             [CanBeNull] int? maxBatchSize)
-        : base(commandBuilderFactory, sqlGenerator, valueBufferFactoryFactory)
+        : base(commandBuilderFactory, sqlGenerator, updateSqlGenerator, valueBufferFactoryFactory)
     {
     }
 

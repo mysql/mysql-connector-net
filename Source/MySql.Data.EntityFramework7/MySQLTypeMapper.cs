@@ -40,32 +40,32 @@ namespace MySQL.Data.Entity
     // private readonly SqlServerMaxLengthMapping _varbinarymax = new SqlServerMaxLengthMapping("varbinary(max)", DbType.Binary);
     // private readonly SqlServerMaxLengthMapping _varbinary900 = new SqlServerMaxLengthMapping("varbinary(900)", DbType.Binary);
     //    private readonly RelationalSizedTypeMapping _rowversion = new RelationalSizedTypeMapping("rowversion", DbType.Binary, 8);
-    private readonly RelationalTypeMapping _int = new RelationalTypeMapping("int", DbType.Int32);
-    private readonly RelationalTypeMapping _bigint = new RelationalTypeMapping("bigint", DbType.Int64);
-    private readonly RelationalTypeMapping _bit = new RelationalTypeMapping("bit");
-    private readonly RelationalTypeMapping _smallint = new RelationalTypeMapping("smallint", DbType.Int16);
-    private readonly RelationalTypeMapping _tinyint = new RelationalTypeMapping("tinyint", DbType.Byte);
-    private readonly RelationalTypeMapping _mediumint = new RelationalTypeMapping("mediumint", DbType.Int32);
+    private readonly RelationalTypeMapping _int = new RelationalTypeMapping("int", typeof(Int32));
+    private readonly RelationalTypeMapping _bigint = new RelationalTypeMapping("bigint", typeof(Int64)); 
+    private readonly RelationalTypeMapping _bit = new RelationalTypeMapping("bit", typeof(SByte)); 
+    private readonly RelationalTypeMapping _smallint = new RelationalTypeMapping("smallint", typeof(Int16)); 
+    private readonly RelationalTypeMapping _tinyint = new RelationalTypeMapping("tinyint", typeof(Byte));
+    //private readonly RelationalTypeMapping _mediumint = new RelationalTypeMapping("mediumint", );
 
     // private readonly SqlServerMaxLengthMapping _nchar = new SqlServerMaxLengthMapping("nchar", DbType.StringFixedLength);
     // private readonly SqlServerMaxLengthMapping _nvarchar = new SqlServerMaxLengthMapping("nvarchar");
     //  private readonly RelationalTypeMapping _varcharmax = new SqlServerMaxLengthMapping("varchar(max)", DbType.AnsiString);
     // private readonly SqlServerMaxLengthMapping _char = new SqlServerMaxLengthMapping("char", DbType.AnsiStringFixedLength);
 
-      private readonly RelationalTypeMapping _longText = new RelationalTypeMapping("longtext", DbType.String);
-    private readonly RelationalTypeMapping _mediumText = new RelationalTypeMapping("mediumtext", DbType.String);
-    private readonly RelationalTypeMapping _Text = new RelationalTypeMapping("text", DbType.String);
-    private readonly RelationalTypeMapping _tinyText = new RelationalTypeMapping("tinytext", DbType.String);
+    private readonly RelationalTypeMapping _longText = new RelationalTypeMapping("longtext", typeof(String)); 
+    private readonly RelationalTypeMapping _mediumText = new RelationalTypeMapping("mediumtext", typeof(String));
+    private readonly RelationalTypeMapping _Text = new RelationalTypeMapping("text", typeof(String));
+    private readonly RelationalTypeMapping _tinyText = new RelationalTypeMapping("tinytext", typeof(String));
 
-    private readonly RelationalSizedTypeMapping _varchar = new RelationalSizedTypeMapping("varchar(1000)", DbType.String, 1000);
+    private readonly RelationalSizedTypeMapping _varchar = new RelationalSizedTypeMapping("varchar(1000)", typeof(String), 1000);
     //private readonly SqlServerMaxLengthMapping _varbinary = new SqlServerMaxLengthMapping("varbinary", DbType.Binary);
-    private readonly RelationalTypeMapping _datetime = new RelationalTypeMapping("datetime", DbType.DateTime);
-    private readonly RelationalTypeMapping _date = new RelationalTypeMapping("date", DbType.Date);
-    private readonly RelationalTypeMapping _time = new RelationalTypeMapping("time");
-    private readonly RelationalTypeMapping _double = new RelationalTypeMapping("float");
-    private readonly RelationalTypeMapping _real = new RelationalTypeMapping("real");
+    private readonly RelationalTypeMapping _datetime = new RelationalTypeMapping("datetime", typeof(DateTime)); 
+    private readonly RelationalTypeMapping _date = new RelationalTypeMapping("date", typeof(DateTime)); 
+    private readonly RelationalTypeMapping _time = new RelationalTypeMapping("time", typeof(DateTime));
+    private readonly RelationalTypeMapping _double = new RelationalTypeMapping("float", typeof(Single)); 
+    private readonly RelationalTypeMapping _real = new RelationalTypeMapping("real", typeof(Single));
     //    private readonly RelationalTypeMapping _uniqueidentifier = new RelationalTypeMapping("uniqueidentifier");
-    private readonly RelationalTypeMapping _decimal = new RelationalTypeMapping("decimal(18, 2)");
+    private readonly RelationalTypeMapping _decimal = new RelationalTypeMapping("decimal(18, 2)", typeof(Decimal)); 
 
     private readonly Dictionary<string, RelationalTypeMapping> _simpleNameMappings;
     private readonly Dictionary<Type, RelationalTypeMapping> _simpleMappings;
@@ -90,10 +90,10 @@ namespace MySQL.Data.Entity
                     { typeof(byte), _tinyint },
                     { typeof(double), _double },
                     { typeof(char), _int },
-                    { typeof(sbyte), new RelationalTypeMapping("smallint") },
-                    { typeof(ushort), new RelationalTypeMapping("int") },
-                    { typeof(uint), new RelationalTypeMapping("bigint") },
-                    { typeof(ulong), new RelationalTypeMapping("numeric(20, 0)") },
+                    { typeof(sbyte), new RelationalTypeMapping("smallint", _smallint.GetType()) },
+                    { typeof(ushort), new RelationalTypeMapping("int", _int.GetType()) },
+                    { typeof(uint), new RelationalTypeMapping("bigint", _bigint.GetType()) },
+                    { typeof(ulong), new RelationalTypeMapping("numeric(20, 0)" ,_decimal.GetType()) },
                     { typeof(short), _smallint },
                     { typeof(float), _real },
                     { typeof(decimal), _decimal },
@@ -132,7 +132,7 @@ namespace MySQL.Data.Entity
 
     private RelationalTypeMapping GetBoundedMapping(int maxLen)
     {
-      if (maxLen <= 1000) return new RelationalTypeMapping("varchar(" + maxLen + ")", DbType.String);
+      if (maxLen <= 1000) return new RelationalTypeMapping("varchar(" + maxLen + ")", typeof(string));
       if (maxLen <= _medTextMaxLength) return _Text;
       if (maxLen <= _longTextMaxLength) return _mediumText;
       return _longText;
