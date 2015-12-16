@@ -169,7 +169,6 @@
     <Compile Include="MySQLTypeMapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Query\MySQLQueryGeneratorFactory.cs" />
-    <Compile Include="Query\MySQLQuerySqlGenerator.cs" />
     <Compile Include="Update\MySQLModificationCommandBatch.cs" />
     <Compile Include="Update\MySQLModificationCommandBatchFactory.cs" />
     <Compile Include="Update\MySQLUpdateSqlGenerator.cs" />
