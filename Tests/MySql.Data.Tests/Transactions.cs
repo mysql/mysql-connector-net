@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -721,6 +721,34 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
     }
+
+    /// <summary>
+    /// Related to bug http://bugs.mysql.com/bug.php?id=71502
+    /// </summary>
+    [Fact]
+    public void NestedTransactionException()
+    {
+      MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder(st.GetConnectionString(true));
+      sb.Pooling = true;
+      sb.ConnectionReset = false;
+      string connectionString = sb.ToString();
+      for (int i = 0; i < 5; i++)
+      {
+        using (MySqlConnection connection = new MySqlConnection(connectionString))
+        {
+          connection.Open();
+          DbTransaction trx = connection.BeginTransaction();
+          MySqlCommand cmd = new MySqlCommand("update abc", connection);
+          Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());
+          // the following condition validates 2 scenarios
+          // when trx.Dispose is not invoked (when i == 0 or 1)
+          // and when the connection is closed before calling trx.Dispose
+          if (i > 1) connection.Close();
+          trx.Dispose();
+        }
+      }
+    }
+
 #endif
   }
 }

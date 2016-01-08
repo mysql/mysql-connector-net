@@ -1,3 +1,7 @@
+6.7.10
+- Fix for Nested transactions are not supported in Entity Framework (MySQL Bug #71502, Oracle Bug #22366266).
+
+
 6.7.9
 - Changed handshake process to use bytes instead of encoded strings.
 - Added support for Chinese character set gb18030. (Oracle bug # 21098546).
