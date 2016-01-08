@@ -18,7 +18,7 @@
     <UpgradeBackupLocation />
   </PropertyGroup>
   <Choose>
-    <When Condition="$(VisualStudioVersion) >= 11.0">
+    <When Condition="$(VisualStudioVersion) &gt;= 11.0">
       <PropertyGroup>
         <ProductVersion>9.0.30729</ProductVersion>
         <SchemaVersion>2.0</SchemaVersion>
@@ -63,18 +63,18 @@
   <Choose>
     <When Condition="$(Framework) &gt;= 4.5">
       <ItemGroup>
-		<Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-		  <HintPath>..\..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
-		  <Private>True</Private>
-		</Reference>
+        <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+          <HintPath>..\..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
       </ItemGroup>
-	</When>
+    </When>
     <Otherwise>
       <ItemGroup>
-		<Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-		  <HintPath>..\..\packages\EntityFramework.6.1.3\lib\net40\EntityFramework.dll</HintPath>
-		  <Private>True</Private>
-		</Reference>
+        <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+          <HintPath>..\..\packages\EntityFramework.6.1.3\lib\net40\EntityFramework.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
       </ItemGroup>
     </Otherwise>
   </Choose>
@@ -182,9 +182,11 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>SQLSyntax.resx</DependentUpon>
+      <Link>Properties\SQLSyntax.Designer.cs</Link>
     </Compile>
     <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\SetUpCodeFirstTests.cs" />
     <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\Vehicle.cs" />
+    <Compile Include="TransactionTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
@@ -215,6 +217,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>SQLSyntax.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <Link>Properties\SQLSyntax.resx</Link>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

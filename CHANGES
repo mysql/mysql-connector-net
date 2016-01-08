@@ -1,3 +1,7 @@
+6.9.9
+- Fix for Nested transactions are not supported in Entity Framework (MySQL Bug #71502, Oracle Bug #22366266).
+
+
 6.9.8
 - Added support for Chinese character set gb18030. (Oracle bug # 21098546).
 - Added support for Json type. (WL # 8132).
