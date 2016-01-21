@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -31,26 +32,25 @@ namespace MySQL.Data.Entity
 {
   public class MySQLTypeMapper : RelationalTypeMapper
   {
+
+    private RelationalTypeMapping _varcharmapping;
+
+    //max lenght for text types considering 3-bytes character sets.
     private static int _medTextMaxLength = ((int)Math.Pow(2, 24) - 1)/3;
     private static int _textMaxLength = ((int)Math.Pow(2, 16) - 1) / 3;
     private static int _longTextMaxLength = ((int)Math.Pow(2, 32) - 1) / 3;
+    
 
-    //    private readonly SqlServerMaxLengthMapping _nvarcharmax = new SqlServerMaxLengthMapping("nvarchar(max)");
-    //  private readonly SqlServerMaxLengthMapping _nvarchar450 = new SqlServerMaxLengthMapping("nvarchar(450)");
-    // private readonly SqlServerMaxLengthMapping _varbinarymax = new SqlServerMaxLengthMapping("varbinary(max)", DbType.Binary);
-    // private readonly SqlServerMaxLengthMapping _varbinary900 = new SqlServerMaxLengthMapping("varbinary(900)", DbType.Binary);
-    //    private readonly RelationalSizedTypeMapping _rowversion = new RelationalSizedTypeMapping("rowversion", DbType.Binary, 8);
+
     private readonly RelationalTypeMapping _int = new RelationalTypeMapping("int", typeof(Int32));
     private readonly RelationalTypeMapping _bigint = new RelationalTypeMapping("bigint", typeof(Int64)); 
     private readonly RelationalTypeMapping _bit = new RelationalTypeMapping("bit", typeof(SByte)); 
     private readonly RelationalTypeMapping _smallint = new RelationalTypeMapping("smallint", typeof(Int16)); 
     private readonly RelationalTypeMapping _tinyint = new RelationalTypeMapping("tinyint", typeof(Byte));
-    //private readonly RelationalTypeMapping _mediumint = new RelationalTypeMapping("mediumint", );
+    private readonly RelationalTypeMapping _char = new RelationalTypeMapping("char", typeof(Byte));
+    
 
-    // private readonly SqlServerMaxLengthMapping _nchar = new SqlServerMaxLengthMapping("nchar", DbType.StringFixedLength);
-    // private readonly SqlServerMaxLengthMapping _nvarchar = new SqlServerMaxLengthMapping("nvarchar");
-    //  private readonly RelationalTypeMapping _varcharmax = new SqlServerMaxLengthMapping("varchar(max)", DbType.AnsiString);
-    // private readonly SqlServerMaxLengthMapping _char = new SqlServerMaxLengthMapping("char", DbType.AnsiStringFixedLength);
+    //private readonly RelationalTypeMapping _mediumint = new RelationalTypeMapping("mediumint", );
 
     private readonly RelationalTypeMapping _longText = new RelationalTypeMapping("longtext", typeof(String)); 
     private readonly RelationalTypeMapping _mediumText = new RelationalTypeMapping("mediumtext", typeof(String));
@@ -64,8 +64,8 @@ namespace MySQL.Data.Entity
     private readonly RelationalTypeMapping _time = new RelationalTypeMapping("time", typeof(DateTime));
     private readonly RelationalTypeMapping _double = new RelationalTypeMapping("float", typeof(Single)); 
     private readonly RelationalTypeMapping _real = new RelationalTypeMapping("real", typeof(Single));
-    //    private readonly RelationalTypeMapping _uniqueidentifier = new RelationalTypeMapping("uniqueidentifier");
     private readonly RelationalTypeMapping _decimal = new RelationalTypeMapping("decimal(18, 2)", typeof(Decimal)); 
+    
 
     private readonly Dictionary<string, RelationalTypeMapping> _simpleNameMappings;
     private readonly Dictionary<Type, RelationalTypeMapping> _simpleMappings;
@@ -74,8 +74,24 @@ namespace MySQL.Data.Entity
     {
       _simpleNameMappings = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
       {
+        {"bigint", _bigint},
+        { "decimal", _decimal },
+        { "double", _double },
+        { "float", _double },
+        {"int", _int},        
+        { "mediumint", _int },        
+        { "real", _real },
+        { "smallint", _smallint },
+        { "tinyint", _tinyint },
+        { "char", _char },        
+        { "varchar", _varchar},
+        { "longtext", _longText},
+        { "mediumtext", _mediumText},
+        { "text", _Text},
+        { "tinytext", _tinyText},
         { "datetime", _datetime },
-        { "varchar", _varchar }
+        { "timestamp", _datetime },
+        { "bit", _bit }
       };
 
       _simpleMappings
@@ -84,8 +100,6 @@ namespace MySQL.Data.Entity
                     { typeof(int), _int },
                     { typeof(long), _bigint },
                     { typeof(DateTime), _datetime },
-//                    { typeof(string), _varchar },
-//                    { typeof(Guid), _uniqueidentifier },
                     { typeof(bool), _bit },
                     { typeof(byte), _tinyint },
                     { typeof(double), _double },
@@ -97,8 +111,9 @@ namespace MySQL.Data.Entity
                     { typeof(short), _smallint },
                     { typeof(float), _real },
                     { typeof(decimal), _decimal },
-                  //  { typeof(TimeSpan), _time }
           };
+
+      _varcharmapping = GetBoundedMapping(_textMaxLength);
     }
 
     protected override IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings
@@ -116,6 +131,29 @@ namespace MySQL.Data.Entity
       return property.MySQL().ColumnType;
     }
 
+
+    //protected override RelationalTypeMapping GetStringMapping(
+    //      [NotNull] IProperty property,
+    //      int maxB.oundedLength,
+    //      [NotNull] Func<int, RelationalTypeMapping> boundedMapping,
+    //      [NotNull] RelationalTypeMapping unboundedMapping,
+    //      [NotNull] RelationalTypeMapping defaultMapping,
+    //      [CanBeNull] RelationalTypeMapping keyMapping = null)
+    //{
+
+    //  var maxLength = property.GetMaxLength();
+
+    //  return maxLength.HasValue
+    //          ? maxLength <= maxBoundedLength
+    //              ? _boundedStringMappings.GetOrAdd(maxLength.Value, boundedMapping)
+    //              : unboundedMapping
+    //          : ((keyMapping != null)
+    //             && (property.IsKey() || property.FindContainingEntityTypes().Any(property.IsForeignKey))
+    //              ? keyMapping
+    //              : defaultMapping);
+
+    //}
+
     protected override RelationalTypeMapping GetCustomMapping([NotNull] IProperty property)
     {
       ThrowIf.Argument.IsNull(property, "property");
@@ -132,10 +170,27 @@ namespace MySQL.Data.Entity
 
     private RelationalTypeMapping GetBoundedMapping(int maxLen)
     {
-      if (maxLen <= 1000) return new RelationalTypeMapping("varchar(" + maxLen + ")", typeof(string));
+      
       if (maxLen <= _medTextMaxLength) return _Text;
       if (maxLen <= _longTextMaxLength) return _mediumText;
       return _longText;
     }
+
+    protected override RelationalTypeMapping FindCustomMapping(IProperty property)
+    {
+      return base.FindCustomMapping(property);
+  }
+
+
+    public override RelationalTypeMapping FindMapping(Type clrType)
+    {
+      return clrType == typeof(string)
+          ? _varcharmapping
+          //: (clrType == typeof(byte[])
+          //    ? _varbinarymax
+          : base.FindMapping(clrType);
+}
+
+
   }
 }

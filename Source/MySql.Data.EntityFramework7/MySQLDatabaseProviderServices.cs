@@ -1,4 +1,4 @@
-// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -35,6 +35,7 @@ using Microsoft.Data.Entity.Query.ExpressionTranslators;
 using Microsoft.Data.Entity.Query.Sql;
 using MySQL.Data.Entity.Query;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Query.Internal;
 
 namespace MySQL.Data.Entity
 {
@@ -105,15 +106,9 @@ namespace MySQL.Data.Entity
       get { return GetService<MySQLValueGeneratorCache>(); }
     }
 
-    public override IModelSource ModelSource
-    {
-      get { return GetService<MySQLModelSource>(); }
-    }
+    public override IModelSource ModelSource => GetService<MySQLModelSource>();
 
-    public override IQueryContextFactory QueryContextFactory
-    {
-      get { throw new NotImplementedException(); }
-    }
+    public override IQueryContextFactory QueryContextFactory => GetService<RelationalQueryContextFactory>();
 
     public override IRelationalTypeMapper TypeMapper
     {
