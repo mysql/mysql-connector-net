@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -30,23 +30,29 @@ using System.Threading;
 using System.Globalization;
 using Xunit;
 using System.Data;
+using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
+using System.Data.Entity.Migrations;
+using System.Data.Entity.Migrations.Infrastructure;
+using System.Data.Objects;
 
 namespace MySql.Data.Entity.Tests
 {
-  public class ProviderServicesTests : IUseFixture<SetUpEntityTests>, IDisposable
-  {
-    private SetUpEntityTests st;
-
-    public void SetFixture(SetUpEntityTests data)
+    public class ProviderServicesTests : IUseFixture<SetUpEntityTests>, IDisposable
     {
-      st = data;
-    }
-    private CultureInfo originalCulture;
+        private SetUpEntityTests st;
 
-    public ProviderServicesTests():base()
-    {
-      originalCulture = Thread.CurrentThread.CurrentCulture;      
-    }
+        public void SetFixture(SetUpEntityTests data)
+        {
+            st = data;
+        }
+        private CultureInfo originalCulture;
+
+        public ProviderServicesTests()
+            : base()
+        {
+            originalCulture = Thread.CurrentThread.CurrentCulture;
+        }
 
 #if CLR4
     [Fact]
@@ -105,38 +111,48 @@ namespace MySql.Data.Entity.Tests
     }
 #endif
 
-    [Fact]
-    public void GetDbProviderManifestTokenDoesNotThrowWhenLocalized()
-    {
-      Thread.CurrentThread.CurrentCulture = new CultureInfo("fr-CA");
+        [Fact(Skip = "EF 5 have an known issue that is happening when the CreateDatabaseScript is called in this test and is suppose to be fixed in EF 6")]
+        public void CheckReservedWordColumnName()
+        {
+            using (ReservedWordColumnNameContainer ctx = new ReservedWordColumnNameContainer())
+            {
+                var ddl = ((IObjectContextAdapter)ctx).ObjectContext.CreateDatabaseScript();
+                Assert.Contains("ALTER TABLE `new_table` ADD PRIMARY KEY (`key`);", ddl);
+            }
+        }
 
-      using (MySqlConnection connection = new MySqlConnection(st.GetConnectionString(true)))
-      {
-        MySqlProviderServices providerServices = new MySqlProviderServices();
-        string token = null;
+        [Fact]
+        public void GetDbProviderManifestTokenDoesNotThrowWhenLocalized()
+        {
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("fr-CA");
 
-        Assert.DoesNotThrow(delegate() { token = providerServices.GetProviderManifestToken(connection); });
-        Assert.NotNull(token);
-      }
+            using (MySqlConnection connection = new MySqlConnection(st.GetConnectionString(true)))
+            {
+                MySqlProviderServices providerServices = new MySqlProviderServices();
+                string token = null;
+
+                Assert.DoesNotThrow(delegate() { token = providerServices.GetProviderManifestToken(connection); });
+                Assert.NotNull(token);
+            }
+        }
+
+        [Fact]
+        public void GetDbProviderManifestTokenDoesNotThrowWhenMissingPersistSecurityInfo()
+        {
+            var conn = new MySqlConnection(st.rootConn.ConnectionString);
+            conn.Open();
+            MySqlProviderServices providerServices = new MySqlProviderServices();
+            string token = null;
+
+            Assert.DoesNotThrow(delegate() { token = providerServices.GetProviderManifestToken(conn); });
+            Assert.NotNull(token);
+            conn.Close();
+        }
+
+        public void Dispose()
+        {
+            Thread.CurrentThread.CurrentCulture = originalCulture;
+            st.Dispose();
+        }
     }
-
-    [Fact]
-    public void GetDbProviderManifestTokenDoesNotThrowWhenMissingPersistSecurityInfo()
-    {
-      var conn = new MySqlConnection(st.rootConn.ConnectionString);
-      conn.Open();
-      MySqlProviderServices providerServices = new MySqlProviderServices();
-      string token = null;
-
-      Assert.DoesNotThrow(delegate() { token = providerServices.GetProviderManifestToken(conn); });
-      Assert.NotNull(token);
-      conn.Close();      
-    }
-
-    public void Dispose()
-    {
-      Thread.CurrentThread.CurrentCulture = originalCulture;
-      st.Dispose();
-    }
-  }
 }

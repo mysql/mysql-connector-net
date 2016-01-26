@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2014, 2015 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2014, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -443,7 +443,7 @@ namespace MySql.Data.MySqlClient
         delimiter = "";
         foreach (EdmMember m in e.KeyMembers)
         {
-          sql.AppendFormat("{0}{1}", delimiter, m.Name);
+          sql.AppendFormat("{0}`{1}`", delimiter, m.Name);
           delimiter = ", ";
         }
         sql.AppendLine(");");

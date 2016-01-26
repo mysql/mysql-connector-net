@@ -1,5 +1,6 @@
 6.7.10
 - Fix for Nested transactions are not supported in Entity Framework (MySQL Bug #71502, Oracle Bug #22366266).
+- Fix for EF5 Wrong SQL statement to set primary key (MySQL Bug 76292, Oracle Bug #20711384) 
 
 
 6.7.9
