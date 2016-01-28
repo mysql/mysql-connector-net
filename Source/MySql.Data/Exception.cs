@@ -72,6 +72,12 @@ namespace MySql.Data.MySqlClient
     {
     }
 
+    internal MySqlException(UInt32 code, string sqlState, string msg) : base(msg)
+    {
+      Code = code;
+      SqlState = sqlState;
+    }
+
 #if !RT
     private MySqlException(SerializationInfo info, StreamingContext context)
       : base(info, context)
@@ -103,5 +109,9 @@ namespace MySql.Data.MySqlClient
           errorCode == (int)MySqlErrorCode.FileSortAborted);
       }
     }
+
+    public string SqlState { get; private set; }
+
+    public UInt32 Code { get; private set; }
   }
 }
