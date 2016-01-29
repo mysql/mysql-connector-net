@@ -38,7 +38,7 @@ namespace MySqlX.Common
 
       foreach (PropertyInfo property in anonymousObject.GetType().GetProperties())
       {
-        object value = property.GetValue(anonymousObject);
+        object value = property.GetValue(anonymousObject, null);
         result.Add(property.Name, value);
       }
 

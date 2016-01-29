@@ -202,7 +202,7 @@ namespace MySqlX.XDevAPI
 
       PropertyInfo[] props = allProps ? t.GetProperties() : t.GetProperties(BindingFlags.Public);
       foreach (PropertyInfo prop in props)
-        vals.Add(prop.Name, prop.GetValue(val));
+        vals.Add(prop.Name, prop.GetValue(val, null));
       return vals;
     }
   }

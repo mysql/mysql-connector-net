@@ -48,6 +48,7 @@ namespace MySqlX.XDevAPI.Common
 
     public abstract TResult Execute();
 
+#if NET_45_OR_GREATER
     /// <summary>
     /// Executes a statement asynchronously 
     /// </summary>
@@ -71,5 +72,6 @@ namespace MySqlX.XDevAPI.Common
         TaskCreationOptions.None,
         Session.scheduler);
     }
+#endif
   }
 }

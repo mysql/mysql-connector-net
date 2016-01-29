@@ -26,6 +26,7 @@ using System.Diagnostics;
 using MySqlX.XDevAPI.Common;
 using MySqlX.Session;
 using MySql.Data.MySqlClient;
+using System.Collections.ObjectModel;
 
 namespace MySqlX.XDevAPI.Relational
 {
@@ -41,7 +42,11 @@ namespace MySqlX.XDevAPI.Relational
     /// <summary>
     /// The columns of this resulset
     /// </summary>
+#if NET_45_OR_GREATER
     public IReadOnlyList<Column> Columns
+#else
+    public ReadOnlyCollection<Column> Columns
+#endif
     {
       get { return _columns.AsReadOnly(); }
     }
@@ -50,9 +55,13 @@ namespace MySqlX.XDevAPI.Relational
     /// The rows of this resultset.  This collection will be incomplete unless all the rows have been read
     /// either by using the Next method or the Buffer method.
     /// </summary>
+#if NET_45_OR_GREATER
     public IReadOnlyList<Row> Rows
+#else
+    public ReadOnlyCollection<Row> Rows
+#endif
     {
-      get { return _items; }
+      get { return _items.AsReadOnly(); }
     }
 
     /// <summary>
