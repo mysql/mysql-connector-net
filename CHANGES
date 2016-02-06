@@ -1,9 +1,6 @@
-6.9.10
-- Fix for EF5 and EF6 wrong SQL statement to set primary key (MySQL Bug 76292, Oracle Bug #20711384) 
-
 6.9.9
 - Fix for Nested transactions are not supported in Entity Framework (MySQL Bug #71502, Oracle Bug #22366266).
-
+- Fix for EF5 and EF6 wrong SQL statement to set primary key (MySQL Bug 76292, Oracle Bug #20711384) 
 
 6.9.8
 - Added support for Chinese character set gb18030. (Oracle bug # 21098546).
