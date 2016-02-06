@@ -119,12 +119,33 @@
     <Compile Include="AggregateOperators.cs" />
     <Compile Include="CanonicalFunctions.cs" />
     <Compile Include="DataTypeTests.cs" />
+    <Compile Include="new_table.cs">
+      <DependentUpon>ReservedWordColumnName.tt</DependentUpon>
+    </Compile>
     <Compile Include="ProviderManifestTests.cs" />
     <Compile Include="ProviderServicesTests.cs" />
     <Compile Include="ProceduresAndFunctions.cs" />
     <Compile Include="JoinTests.cs" />
+    <Compile Include="ReservedWordColumnName.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ReservedWordColumnName.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ReservedWordColumnName.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ReservedWordColumnName.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ReservedWordColumnName.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ReservedWordColumnName.edmx</DependentUpon>
+    </Compile>
     <Compile Include="SchemaInformation.cs" />
     <Compile Include="SetUpEntityTests.cs" />
+    <Compile Include="table_name.cs">
+      <DependentUpon>ReservedWordColumnName.tt</DependentUpon>
+    </Compile>
     <Compile Include="Wizard.cs" />
     <Compile Include="RelationalOperators.cs" />
     <Compile Include="SetOperators.cs" />
@@ -244,6 +265,13 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EntityDeploy Include="ReservedWordColumnName.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>ReservedWordColumnName.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <None Include="ReservedWordColumnName.edmx.diagram">
+      <DependentUpon>ReservedWordColumnName.edmx</DependentUpon>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\MySql.Data.EntityFramework5\MySql.Data.EF5.csproj">
@@ -257,6 +285,16 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="ModelFirstModel1.edmx.sql" />
+    <Content Include="ReservedWordColumnName.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ReservedWordColumnName.Context.cs</LastGenOutput>
+      <DependentUpon>ReservedWordColumnName.edmx</DependentUpon>
+    </Content>
+    <Content Include="ReservedWordColumnName.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ReservedWordColumnName.cs</LastGenOutput>
+      <DependentUpon>ReservedWordColumnName.edmx</DependentUpon>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="xunit, Version=1.9.2.1705, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
@@ -266,6 +304,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
