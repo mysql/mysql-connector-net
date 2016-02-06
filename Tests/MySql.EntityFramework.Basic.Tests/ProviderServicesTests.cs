@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -30,6 +30,10 @@ using System.Threading;
 using System.Globalization;
 using Xunit;
 using System.Data;
+using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
+using System.Data.Entity.Migrations;
+using System.Data.Entity.Migrations.Infrastructure;
 
 namespace MySql.Data.Entity.Tests
 {
@@ -43,9 +47,10 @@ namespace MySql.Data.Entity.Tests
     }
     private CultureInfo originalCulture;
 
-    public ProviderServicesTests():base()
+    public ProviderServicesTests()
+        : base()
     {
-      originalCulture = Thread.CurrentThread.CurrentCulture;      
+      originalCulture = Thread.CurrentThread.CurrentCulture;
     }
 
 #if CLR4
@@ -105,6 +110,16 @@ namespace MySql.Data.Entity.Tests
     }
 #endif
 
+    [Fact(Skip = "EF 5 have an known issue that is happening when the CreateDatabaseScript is called in this test and is suppose to be fixed in EF 6 but need a lot of changes incopatibles with the current architecture")]
+    public void CheckReservedWordColumnName()
+    {
+      using (ReservedWordColumnNameContainer ctx = new ReservedWordColumnNameContainer())
+      {
+        var ddl = ((IObjectContextAdapter)ctx).ObjectContext.CreateDatabaseScript();
+        Assert.Contains("ALTER TABLE `new_table` ADD PRIMARY KEY (`key`);", ddl);
+      }
+    }
+
     [Fact]
     public void GetDbProviderManifestTokenDoesNotThrowWhenLocalized()
     {
@@ -115,7 +130,7 @@ namespace MySql.Data.Entity.Tests
         MySqlProviderServices providerServices = new MySqlProviderServices();
         string token = null;
 
-        Assert.DoesNotThrow(delegate() { token = providerServices.GetProviderManifestToken(connection); });
+        Assert.DoesNotThrow(delegate () { token = providerServices.GetProviderManifestToken(connection); });
         Assert.NotNull(token);
       }
     }
@@ -128,9 +143,9 @@ namespace MySql.Data.Entity.Tests
       MySqlProviderServices providerServices = new MySqlProviderServices();
       string token = null;
 
-      Assert.DoesNotThrow(delegate() { token = providerServices.GetProviderManifestToken(conn); });
+      Assert.DoesNotThrow(delegate () { token = providerServices.GetProviderManifestToken(conn); });
       Assert.NotNull(token);
-      conn.Close();      
+      conn.Close();
     }
 
     public void Dispose()
