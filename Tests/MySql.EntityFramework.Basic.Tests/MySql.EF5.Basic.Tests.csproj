@@ -94,6 +94,7 @@
         <Reference Include="EntityFramework, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
           <HintPath>..\..\packages\EntityFramework.5.0.0\lib\net40\EntityFramework.dll</HintPath>
           <Private>True</Private>
+          <SpecificVersion>False</SpecificVersion>
         </Reference>
       </ItemGroup>
     </Otherwise>
@@ -305,9 +306,9 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
+  <!--<ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
-  </ItemGroup>
+  </ItemGroup>-->
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets. -->
@@ -319,5 +320,5 @@
     <PreBuildEvent>
     </PreBuildEvent>
   </PropertyGroup>
-  <Import Project="EdmxArtifactsRenamingv4.x.targets" />
+  <!--<Import Project="EdmxArtifactsRenamingv4.x.targets" />-->
 </Project>
