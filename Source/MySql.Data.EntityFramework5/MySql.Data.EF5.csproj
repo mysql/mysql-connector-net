@@ -108,6 +108,8 @@
     <Reference Include="System.Data.Entity" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Xml" />
     <EmbeddedResource Include="Properties\SchemaMapping.msl" />
     <Compile Include="..\MySql.Data\Properties\VersionInfo.cs">
@@ -171,6 +173,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Choose>
     <When Condition="$(Framework) &gt;= 4.5">

@@ -103,6 +103,9 @@
     <Compile Include="..\MySql.EntityFramework.Basic.Tests\AggregateOperators.cs" />
     <Compile Include="..\MySql.EntityFramework.Basic.Tests\CanonicalFunctions.cs" />
     <Compile Include="..\MySql.EntityFramework.Basic.Tests\DataTypeTests.cs" />
+    <Compile Include="new_table.cs">
+      <DependentUpon>ReservedWordColumnName.tt</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MyConfiguration.cs" />
     <Compile Include="..\MySql.EntityFramework.Basic.Tests\ProviderManifestTests.cs" />
@@ -120,6 +123,21 @@
     <Compile Include="..\MySql.EntityFramework.Basic.Tests\UpdateTests.cs" />
     <Compile Include="..\MySql.EntityFramework.Basic.Tests\DeleteTests.cs" />
     <Compile Include="..\MySql.EntityFramework.Basic.Tests\RestrictionOperators.cs" />
+    <Compile Include="ReservedWordColumnName.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ReservedWordColumnName.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ReservedWordColumnName.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ReservedWordColumnName.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ReservedWordColumnName.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ReservedWordColumnName.edmx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\MySql.EntityFramework.Basic.Tests\v4.x\BooksModel.Designer.cs">
@@ -253,6 +271,13 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+    <EntityDeploy Include="ReservedWordColumnName.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>ReservedWordColumnName.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <None Include="ReservedWordColumnName.edmx.diagram">
+      <DependentUpon>ReservedWordColumnName.edmx</DependentUpon>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -260,6 +285,7 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
     <Reference Include="System.Xml" />
@@ -273,12 +299,25 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\MySql.EntityFramework.Basic.Tests\ModelFirstModel1.edmx.sql" />
+    <Content Include="ReservedWordColumnName.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ReservedWordColumnName.Context.cs</LastGenOutput>
+      <DependentUpon>ReservedWordColumnName.edmx</DependentUpon>
+    </Content>
+    <Content Include="ReservedWordColumnName.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ReservedWordColumnName.cs</LastGenOutput>
+      <DependentUpon>ReservedWordColumnName.edmx</DependentUpon>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="xunit, Version=1.9.2.1705, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
       <HintPath>..\..\packages\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
       <Private>True</Private>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
