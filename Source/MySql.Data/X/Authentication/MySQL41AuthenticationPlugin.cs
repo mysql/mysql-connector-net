@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -65,6 +65,8 @@ namespace MySqlX.Security
       if (!string.IsNullOrWhiteSpace(_settings.Password))
       {
         hashedPassword = Get411Password(_settings.Password, salt);
+        Array.Copy(hashedPassword, 1, hashedPassword, 0, hashedPassword.Length - 1);
+        Array.Resize(ref hashedPassword, hashedPassword.Length - 1);
         //convert to hex value 
         hex = encoding.GetBytes(string.Format("*{0}", BitConverter.ToString(hashedPassword).Replace("-", string.Empty)));
       }

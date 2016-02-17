@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -36,7 +36,7 @@ namespace MySqlX.Data.Tests
       XSession session = GetSession();
       List<Schema> schemas = session.GetSchemas();
 
-      Assert.Equal(5, schemas.Count);
+      Assert.True(schemas.Exists(s => s.Name == base.testSchema.Name));
     }
 
     [Fact]

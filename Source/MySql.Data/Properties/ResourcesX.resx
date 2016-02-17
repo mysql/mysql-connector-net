@@ -141,9 +141,6 @@
   <data name="RemovingRequiresId" xml:space="preserve">
     <value>Removing a document from a collection requires an _id property.</value>
   </data>
-  <data name="String1" xml:space="preserve">
-    <value>x</value>
-  </data>
   <data name="ThrowingAwayResults" xml:space="preserve">
     <value>The process of closing the resultset and resulted in results being lost.</value>
   </data>

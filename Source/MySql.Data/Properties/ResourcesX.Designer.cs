@@ -133,15 +133,6 @@ namespace MySqlX.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to x.
-        /// </summary>
-        internal static string String1 {
-            get {
-                return ResourceManager.GetString("String1", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to The process of closing the resultset and resulted in results being lost..
         /// </summary>
         internal static string ThrowingAwayResults {
