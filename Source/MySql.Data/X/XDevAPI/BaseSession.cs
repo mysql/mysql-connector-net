@@ -117,7 +117,6 @@ namespace MySqlX.XDevAPI
     /// <returns>Schema object</returns>
     public Schema GetSchema(string schema)
     {
-      InternalSession.SetSchema(schema);
       this.Schema = new Schema(this, schema);
       return this.Schema;
     }

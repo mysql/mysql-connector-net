@@ -61,7 +61,7 @@ namespace MySqlX.Data.Tests
     protected SqlResult ExecuteSQL(string sql)
     {
       NodeSession nodeSession = GetNodeSession();
-      nodeSession.SQL("USE test").Execute();
+      nodeSession.SetCurrentSchema(schemaName);
       SqlResult r = nodeSession.SQL(sql).Execute();
       var rows = r.HasData ? r.FetchAll() : null;
       return r;

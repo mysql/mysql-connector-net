@@ -20,6 +20,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using Xunit;
 
@@ -86,6 +87,20 @@ namespace MySqlX.Data.Tests
       using (var testSession = MySQLX.GetNodeSession(connstring))
       {
         Assert.Equal(SessionState.Open, testSession.InternalSession.SessionState);
+      }
+    }
+
+    [Fact]
+    public void NodeSession_Get_Set_CurrentSchema()
+    {
+      using(NodeSession nodeSession = MySQLX.GetNodeSession(ConnectionString))
+      {
+        Assert.Equal(SessionState.Open, nodeSession.InternalSession.SessionState);
+        Assert.Equal(null, nodeSession.GetCurrentSchema());
+        Assert.Throws<MySqlException>(() => nodeSession.SetCurrentSchema(""));
+        nodeSession.SetCurrentSchema(schemaName);
+        Assert.Equal(schemaName, nodeSession.Schema.Name);
+        Assert.Equal(schemaName, nodeSession.GetCurrentSchema().Name);
       }
     }
   }

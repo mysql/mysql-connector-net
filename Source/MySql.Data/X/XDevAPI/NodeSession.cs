@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -51,6 +51,26 @@ namespace MySqlX.XDevAPI
     public SqlStatement SQL(string sql)
     {
       return new SqlStatement(this, sql);
+    }
+
+    /// <summary>
+    /// Sets the schema in the database
+    /// </summary>
+    /// <param name="schema">Schema name to be set</param>
+    public void SetCurrentSchema(string schema)
+    {
+      InternalSession.ExecuteSqlNonQuery($"USE `{schema}`");
+      GetSchema(schema);
+    }
+
+    /// <summary>
+    /// Executes a query in the database to get the current schema
+    /// </summary>
+    /// <returns>Current Database Schema object or null if any schema is selected</returns>
+    public Schema GetCurrentSchema()
+    {
+      string schemaName = (string)InternalSession.ExecuteQueryAsScalar("SELECT DATABASE()");
+      return schemaName == null ? null : GetSchema(schemaName);
     }
   }
 }
