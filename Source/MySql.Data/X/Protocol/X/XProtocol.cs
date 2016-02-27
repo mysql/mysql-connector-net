@@ -145,9 +145,9 @@ namespace MySqlX.Protocol
         String.Format("Expected message id: {0}.  Received message id: {1}", expected, received));
     }
 
-    public override void SendSQL(string sql)
+    public override void SendSQL(string sql, params object[] args)
     {
-      SendExecuteStatement("sql", sql, null);
+      SendExecuteStatement("sql", sql, args);
     }
 
     public override bool HasData()
@@ -228,7 +228,7 @@ namespace MySqlX.Protocol
     {
       if (o is string) return ExprUtil.BuildAny((string)o);
       if (o is bool) return ExprUtil.BuildAny((bool)o);
-      return null;
+      return ExprUtil.BuildAny(o);
     }
 
     public void SendSessionClose()
@@ -442,45 +442,6 @@ namespace MySqlX.Protocol
       ApplyFilter(builder.SetLimit, builder.SetCriteria, builder.AddRangeOrder, filter, builder.AddRangeArgs);
       _writer.Write(ClientMessageId.CRUD_FIND, builder.Build());
     }
-
-    //public void SendFind(SelectStatement statement)
-    //{
-    //  Result result = new Result(this);
-
-    //  Mysqlx.Crud.Find.Builder builder = Mysqlx.Crud.Find.CreateBuilder();
-    //  // :param collection:
-    //  builder.SetCollection(Mysqlx.Crud.Collection.CreateBuilder()
-    //    .SetSchema(statement.schema)
-    //    .SetName(statement.table));
-    //  // :param data_model:
-    //  builder.SetDataModel(statement.isTable ? DataModel.TABLE : DataModel.DOCUMENT);
-    //  // :param projection:
-    //  foreach (string columnName in statement.columns)
-    //  {
-    //    builder.AddProjection(Projection.CreateBuilder()
-    //      .SetSource(Expr.CreateBuilder()
-    //        .SetType(Expr.Types.Type.IDENT)
-    //        .SetIdentifier(ColumnIdentifier.CreateBuilder()
-    //          .SetName(columnName))));
-    //  }
-    //  // :param criteria:
-    //  builder.SetCriteria(Expr.CreateBuilder()
-    //    .SetType(Expr.Types.Type.LITERAL)
-    //    .SetVariable(statement.where));
-    //  // :param args:
-
-    //  // :param limit:
-
-    //  // :param order:
-
-    //  // :param grouping:
-
-    //  // :param grouping_criteria:
-
-
-    //  Mysqlx.Crud.Find message = builder.Build();
-    //  _writer.Write(ClientMessageId.CRUD_FIND, message);
-    //}
 
     internal void ReadOK()
     {

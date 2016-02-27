@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -132,6 +132,11 @@ namespace MySqlX.Protocol.X
     public static Any BuildAny(Boolean b)
     {
       return Any.CreateBuilder().SetType(Any.Types.Type.SCALAR).SetScalar(ScalarOf(b)).Build();
+    }
+
+    public static Any BuildAny(object value)
+    {
+      return Any.CreateBuilder().SetType(Any.Types.Type.SCALAR).SetScalar(ExprUtil.ArgObjectToScalar(value)).Build();
     }
 
     public static Collection BuildCollection(String schemaName, String collectionName)

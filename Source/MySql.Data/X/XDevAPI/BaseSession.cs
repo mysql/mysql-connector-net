@@ -100,7 +100,7 @@ namespace MySqlX.XDevAPI
     /// <param name="schema">Name of the schema</param>
     public void DropSchema(string schema)
     {
-      InternalSession.ExecuteSqlNonQuery("DROP DATABASE `" + schema + "`", true, null);
+      InternalSession.ExecuteSqlNonQuery("DROP DATABASE `" + schema + "`");
     }
 
     /// <summary>
@@ -110,7 +110,7 @@ namespace MySqlX.XDevAPI
     /// <returns>Schema object</returns>
     public Schema CreateSchema(string schema)
     {
-      InternalSession.ExecuteSqlNonQuery("CREATE DATABASE `" + schema + "`", true, null);
+      InternalSession.ExecuteSqlNonQuery("CREATE DATABASE `" + schema + "`");
       return new Schema(this, schema);
     }
 
@@ -153,7 +153,7 @@ namespace MySqlX.XDevAPI
     /// </summary>
     public void StartTransaction()
     {
-      InternalSession.ExecuteSqlNonQuery("START TRANSACTION", true, null);
+      InternalSession.ExecuteSqlNonQuery("START TRANSACTION");
     }
 
     /// <summary>
@@ -161,7 +161,7 @@ namespace MySqlX.XDevAPI
     /// </summary>
     public void Commit()
     {
-      InternalSession.ExecuteSqlNonQuery("COMMIT", true, null);
+      InternalSession.ExecuteSqlNonQuery("COMMIT");
     }
 
     /// <summary>
@@ -169,7 +169,7 @@ namespace MySqlX.XDevAPI
     /// </summary>
     public void Rollback()
     {
-      InternalSession.ExecuteSqlNonQuery("ROLLBACK", true, null);
+      InternalSession.ExecuteSqlNonQuery("ROLLBACK");
     }
 
     /// <summary>

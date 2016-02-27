@@ -77,7 +77,7 @@ namespace MySqlX.Session
 
     public Result ExecuteSqlNonQuery(string sql, params object[] args)
     {
-      GetProtocol().SendSQL(sql);
+      GetProtocol().SendSQL(sql, args);
       return new Result(this);
     }
 
@@ -87,9 +87,9 @@ namespace MySqlX.Session
       return new RowResult(this);
     }
 
-    public SqlResult GetSQLResult(string sql)
+    public SqlResult GetSQLResult(string sql, object[] args)
     {
-      GetProtocol().SendSQL(sql);
+      GetProtocol().SendSQL(sql, args);
       return new SqlResult(this);
     }
 

@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -30,11 +30,28 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Fact]
     public void ReturnSimpleScalar()
     {
-      ExecuteSQL("CREATE TABLE test.test(id INT)");
-      ExecuteSQL("INSERT INTO test.test VALUES (1)");
-      SqlResult r = GetNodeSession().SQL("SELECT * FROM test.test").Execute();
+      ExecuteSQL("CREATE TABLE test(id INT)");
+      ExecuteSQL("INSERT INTO test VALUES (1)");
+      SqlResult r = GetNodeSession().SQL("SELECT * FROM test").Execute();
       Assert.True(r.Next());
       Assert.Equal(1, r[0]);
+    }
+
+    [Fact]
+    public void Bind()
+    {
+      ExecuteSQL("CREATE TABLE test(id INT, letter varchar(1))");
+      for (int i = 1; i <= 10; i++)
+        GetNodeSession().SQL("INSERT INTO test VALUES (?, ?), (?, ?)")
+          .Bind(i, ((char)('@' + i)).ToString())
+          .Bind(++i, ((char)('@' + i)).ToString())
+          .Execute();
+
+      SqlResult result = GetNodeSession().SQL("select * from test where id=?").Bind(5).Execute();
+      Assert.True(result.Next());
+      Assert.Equal(1, result.Rows.Count);
+      Assert.Equal(5, result[0]);
+      Assert.Equal("E", result[1]);
     }
   }
 }
