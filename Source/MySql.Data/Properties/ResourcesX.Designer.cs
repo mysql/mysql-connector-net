@@ -61,6 +61,24 @@ namespace MySqlX.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Connection Data is incorrect..
+        /// </summary>
+        internal static string InvalidConnectionData {
+            get {
+                return ResourceManager.GetString("InvalidConnectionData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}&apos; is not a valid connection string attribute..
+        /// </summary>
+        internal static string InvalidConnectionStringAttribute {
+            get {
+                return ResourceManager.GetString("InvalidConnectionStringAttribute", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} is not a valid column name in the row..
         /// </summary>
         internal static string InvalidNameIndex {

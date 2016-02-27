@@ -1,4 +1,4 @@
-﻿// Copyright © 2014, 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2014, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -34,7 +34,7 @@ namespace MySqlX.Common
       Dictionary<string, object> result = new Dictionary<string, object>();
 
       if (!anonymousObject.GetType().IsGenericType)
-        throw new MySqlException("Couldn't get values from anonymous type.");
+        throw new FormatException(Properties.ResourcesX.InvalidConnectionData);
 
       foreach (PropertyInfo property in anonymousObject.GetType().GetProperties())
       {
@@ -43,13 +43,6 @@ namespace MySqlX.Common
       }
 
       return result;
-    }
-
-    public static void EnsureType(object o, Type t)
-    {
-      if (o.GetType() != t)
-        throw new InvalidOperationException(
-          String.Format("Invalid state:  Expected object of type '{0}'.  Got object of type '{1}'", t.ToString(), o.GetType().ToString()));
     }
   }
 }

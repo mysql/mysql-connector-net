@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -71,6 +71,22 @@ namespace MySqlX.Data.Tests
       int newSessions = nodeSession.SQL("show processlist").Execute().FetchAll().Count;
       nodeSession.Close();
       Assert.Equal(sessions, newSessions);
+    }
+
+    [Fact]
+    public void ConnectionStringAsAnonymousType()
+    {
+      var connstring = new
+      {
+        server = session.Settings.Server,
+        port = session.Settings.Port,
+        user = session.Settings.UserID,
+        password = session.Settings.Password
+      };
+      using (var testSession = MySQLX.GetNodeSession(connstring))
+      {
+        Assert.Equal(SessionState.Open, testSession.InternalSession.SessionState);
+      }
     }
   }
 }
