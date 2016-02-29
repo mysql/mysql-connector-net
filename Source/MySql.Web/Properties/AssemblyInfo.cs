@@ -50,8 +50,5 @@ using System.Security;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 //[assembly: Guid("01520f33-9ecd-4574-96d0-5e6604e0f3aa")]
 
-#if DEBUG
 [assembly: AssemblyDelaySign(true)]
 [assembly: AssemblyKeyFileAttribute(@"..\..\ConnectorNetPublicKey.snk")]
-#endif
-[assembly: AssemblyKeyName("ConnectorNet")]
