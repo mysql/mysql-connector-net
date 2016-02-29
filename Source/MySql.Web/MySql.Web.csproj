@@ -88,8 +88,6 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Data.Schema, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-    <Reference Include="Microsoft.Data.Schema.UnitTesting, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -111,7 +109,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="MembershipProvider.cs" />
-	<Compile Include="PersonalizationConnectionHelper.cs" />
+    <Compile Include="PersonalizationConnectionHelper.cs" />
     <Compile Include="PersonalizationProvider.cs" />
     <Compile Include="PersonalizationProviderProcedures.cs" />
     <Compile Include="MySqlDatabaseWrapper.cs" Condition="('$(Framework)' == '4.0') or ('$(Framework)' == '4.5') or ('$(Framework)' == '4.5.1')" />
