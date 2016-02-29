@@ -1,0 +1,26 @@
+DROP SCHEMA IF EXISTS `{0}`;
+CREATE SCHEMA `{0}`;
+USE `{0}`;
+
+CREATE TABLE `{1}` (
+  `employee_id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(450) NOT NULL,
+  `age` TINYINT UNSIGNED NULL,
+  PRIMARY KEY (`employee_id`));
+
+INSERT INTO `{1}`
+(`name`, `age`)
+VALUES
+('jonh doe', 38);
+
+INSERT INTO `{1}`
+(`name`, `age`)
+VALUES
+('milton green', 45);
+
+
+CREATE TABLE `{2}` (
+  `employee_id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(450) NOT NULL,
+  `age` TINYINT UNSIGNED NULL,
+  PRIMARY KEY (`employee_id`));

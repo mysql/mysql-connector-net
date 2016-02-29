@@ -78,6 +78,14 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Google.ProtocolBuffers, Version=2.4.1.555, Culture=neutral, PublicKeyToken=55f7125234beb589, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Google.ProtocolBuffers.2.4.1.555\lib\net40\Google.ProtocolBuffers.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Google.ProtocolBuffers.Serialization, Version=2.4.1.555, Culture=neutral, PublicKeyToken=55f7125234beb589, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Google.ProtocolBuffers.2.4.1.555\lib\net40\Google.ProtocolBuffers.Serialization.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Configuration.Install" />
@@ -166,6 +174,11 @@
     <Compile Include="PreparableStatement.cs" />
     <Compile Include="ProcedureCache.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\ResourcesX.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ResourcesX.resx</DependentUpon>
+    </Compile>
     <Compile Include="Properties\VersionInfo.cs" />
     <Compile Include="Replication\ReplicationConfiguration.cs" />
     <Compile Include="Replication\ReplicationManager.cs" />
@@ -203,6 +216,83 @@
     <Compile Include="Types\MySqlUInt32.cs" />
     <Compile Include="Types\MySqlUInt64.cs" />
     <Compile Include="Types\MySqlValue.cs" />
+    <Compile Include="X\Authentication\MySQL41AuthenticationPlugin.cs" />
+    <Compile Include="X\common\Tools.cs" />
+    <Compile Include="X\Communication\CommunicationPacket.cs" />
+    <Compile Include="X\Communication\XPacketReaderWriter.cs" />
+    <Compile Include="X\Data\CollationMap.cs" />
+    <Compile Include="X\Data\Enums.cs" />
+    <Compile Include="X\Protocol\ProtocolBase.cs" />
+    <Compile Include="X\Protocol\ValueDecoder.cs" />
+    <Compile Include="X\Protocol\X\ByteDecoder.cs" />
+    <Compile Include="X\Protocol\X\Enum.cs" />
+    <Compile Include="X\Protocol\X\ExprParser.cs" />
+    <Compile Include="X\Protocol\X\ExprUtil.cs" />
+    <Compile Include="X\Protocol\X\ExpUnparser.cs" />
+    <Compile Include="X\Protocol\X\FloatDecoder.cs" />
+    <Compile Include="X\Protocol\X\IntegerDecoder.cs" />
+    <Compile Include="X\Protocol\X\Protobuf\Mysqlx.cs" />
+    <Compile Include="X\Protocol\X\Protobuf\MysqlxConnection.cs" />
+    <Compile Include="X\Protocol\X\Protobuf\MysqlxCrud.cs" />
+    <Compile Include="X\Protocol\X\Protobuf\MysqlxDatatypes.cs" />
+    <Compile Include="X\Protocol\X\Protobuf\MysqlxExpect.cs" />
+    <Compile Include="X\Protocol\X\Protobuf\MysqlxExpr.cs" />
+    <Compile Include="X\Protocol\X\Protobuf\MysqlxNotice.cs" />
+    <Compile Include="X\Protocol\X\Protobuf\MysqlxResultset.cs" />
+    <Compile Include="X\Protocol\X\Protobuf\MysqlxSession.cs" />
+    <Compile Include="X\Protocol\X\Protobuf\MysqlxSql.cs" />
+    <Compile Include="X\Protocol\X\SetDecoder.cs" />
+    <Compile Include="X\Protocol\X\XDateTimeDecoder.cs" />
+    <Compile Include="X\Protocol\X\XProtocol.cs" />
+    <Compile Include="X\Protocol\X\XTimeDecoder.cs" />
+    <Compile Include="X\Protocol\X\XValueDecoderFactory.cs" />
+    <Compile Include="X\RoutingServices\DefaultRoutingService.cs" />
+    <Compile Include="X\RoutingServices\RoutingServiceBase.cs" />
+    <Compile Include="X\Serialization\JsonParser.cs" />
+    <Compile Include="X\Session\InternalSession.cs" />
+    <Compile Include="X\Session\QueueTaskScheduler.cs" />
+    <Compile Include="X\Session\XInternalSession.cs" />
+    <Compile Include="X\XDevAPI\BaseSession.cs" />
+    <Compile Include="X\XDevAPI\Collection.cs" />
+    <Compile Include="X\XDevAPI\Common\BaseResult.cs" />
+    <Compile Include="X\XDevAPI\Common\BaseStatement.cs" />
+    <Compile Include="X\XDevAPI\Common\BufferingResult.cs" />
+    <Compile Include="X\XDevAPI\Common\ErrorInfo.cs" />
+    <Compile Include="X\XDevAPI\Common\FilterableStatement.cs" />
+    <Compile Include="X\XDevAPI\Common\FilterParams.cs" />
+    <Compile Include="X\XDevAPI\Common\Result.cs" />
+    <Compile Include="X\XDevAPI\Common\TargetedBaseStatement.cs" />
+    <Compile Include="X\XDevAPI\Common\WarningInfo.cs" />
+    <Compile Include="X\XDevAPI\CRUD\AddStatement.cs" />
+    <Compile Include="X\XDevAPI\CRUD\CreateCollectionIndexStatement.cs" />
+    <Compile Include="X\XDevAPI\CRUD\CreateIndexParams.cs" />
+    <Compile Include="X\XDevAPI\CRUD\CrudStatement.cs" />
+    <Compile Include="X\XDevAPI\CRUD\DocResult.cs" />
+    <Compile Include="X\XDevAPI\CRUD\FindParams.cs" />
+    <Compile Include="X\XDevAPI\CRUD\FindStatement.cs" />
+    <Compile Include="X\XDevAPI\CRUD\ModifyStatement.cs" />
+    <Compile Include="X\XDevAPI\CRUD\RemoveStatement.cs" />
+    <Compile Include="X\XDevAPI\CRUD\UpdateSpec.cs" />
+    <Compile Include="X\XDevAPI\DatabaseObject.cs" />
+    <Compile Include="X\XDevAPI\DbDoc.cs" />
+    <Compile Include="X\XDevAPI\GenericCollection.cs" />
+    <Compile Include="X\XDevAPI\Iterator.cs" />
+    <Compile Include="X\XDevAPI\MySQLX.cs" />
+    <Compile Include="X\XDevAPI\NodeSession.cs" />
+    <Compile Include="X\XDevAPI\Relational\Column.cs" />
+    <Compile Include="X\XDevAPI\Relational\InternalRowResult.cs" />
+    <Compile Include="X\XDevAPI\Relational\Row.cs" />
+    <Compile Include="X\XDevAPI\Relational\RowResult.cs" />
+    <Compile Include="X\XDevAPI\Relational\SqlResult.cs" />
+    <Compile Include="X\XDevAPI\Relational\SqlStatement.cs" />
+    <Compile Include="X\XDevAPI\Relational\Table.cs" />
+    <Compile Include="X\XDevAPI\Relational\TableDeleteStatement.cs" />
+    <Compile Include="X\XDevAPI\Relational\TableInsertStatement.cs" />
+    <Compile Include="X\XDevAPI\Relational\TableSelectStatement.cs" />
+    <Compile Include="X\XDevAPI\Relational\TableUpdateStatement.cs" />
+    <Compile Include="X\XDevAPI\Relational\View.cs" />
+    <Compile Include="X\XDevAPI\Schema.cs" />
+    <Compile Include="X\XDevAPI\Session.cs" />
     <Compile Include="zlib\Adler32.cs" />
     <Compile Include="zlib\Deflate.cs" />
     <Compile Include="zlib\InfBlocks.cs" />
@@ -225,6 +315,12 @@
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="Properties\ResourcesX.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>ResourcesX.Designer.cs</LastGenOutput>
+      <CustomToolNamespace>MySqlX.Properties</CustomToolNamespace>
+    </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Properties\keywords.txt" />
   </ItemGroup>
   <ItemGroup>
@@ -252,7 +348,9 @@
     <Content Include="docs\MySqlParameterCollection.xml" />
     <Content Include="docs\MySqlTransaction.xml" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="X\Protocol\MySQL\" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>

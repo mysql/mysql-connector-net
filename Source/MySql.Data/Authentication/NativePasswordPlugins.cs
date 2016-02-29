@@ -75,7 +75,7 @@ namespace MySql.Data.MySqlClient.Authentication
     /// <param name="password"></param>
     /// <param name="seed"></param>
     /// <returns></returns>
-    private byte[] Get411Password(string password, byte[] seedBytes)
+    protected byte[] Get411Password(string password, byte[] seedBytes)
     {
       // if we have no password, then we just return 1 zero byte
       if (password.Length == 0) return new byte[1];
