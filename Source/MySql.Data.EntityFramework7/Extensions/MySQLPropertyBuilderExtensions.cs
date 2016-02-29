@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -27,12 +27,43 @@ namespace MySQL.Data.Entity.Extensions
   public static class MySQLPropertyBuilderExtensions
   {
     public static PropertyBuilder UseMySQLAutoIncrementColumn(
-        [NotNull] this PropertyBuilder propertyBuilder)
+        [NotNull] this PropertyBuilder propertyBuilder,
+        [CanBeNull] string typeName)
     {
       ThrowIf.Argument.IsNull(propertyBuilder, "propertyBuilder");
 
       propertyBuilder.ValueGeneratedOnAdd();
       return propertyBuilder;
     }
+
+    public static PropertyBuilder ForMySQLHasColumnType(
+      [NotNull] this PropertyBuilder propertyBuilder,
+      [CanBeNull] string typeName)      
+    {
+
+      ThrowIf.Argument.IsNull(propertyBuilder, "propertyBuilder");
+
+      propertyBuilder.Metadata.MySQL().ColumnType = typeName;
+
+      return propertyBuilder;
+    }
+
+
+    public static PropertyBuilder ForMySQLHasDefaultValue(
+            [NotNull] this PropertyBuilder propertyBuilder,
+            [CanBeNull] string sql)
+    {
+      ThrowIf.Argument.IsNull(propertyBuilder, "propertyBuilder");
+
+      if (sql != null && sql.Length == 0)
+        ThrowIf.Argument.IsEmpty(sql, "sql");
+
+      propertyBuilder.ValueGeneratedOnAdd();
+      propertyBuilder.Metadata.MySQL().GeneratedValueSql = sql;
+
+      return propertyBuilder;
+
+    }
   }
+
 }

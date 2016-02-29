@@ -52,7 +52,8 @@ namespace MySQL.Data.Entity
 
     public override IDatabaseCreator Creator
     {
-      get { return GetService<MySQLDatabaseCreator>(); }
+      get {
+        return GetService<MySQLDatabaseCreator>(); }
     }
 
     public override IRelationalConnection RelationalConnection

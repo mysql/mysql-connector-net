@@ -27,13 +27,12 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Data.Entity;
 
 namespace MySQL.Data.Entity
 {
   public class MySQLTypeMapper : RelationalTypeMapper
   {
-
-    private RelationalTypeMapping _varcharmapping;
 
     //max lenght for text types considering 3-bytes character sets.
     private static int _medTextMaxLength = ((int)Math.Pow(2, 24) - 1)/3;
@@ -58,7 +57,7 @@ namespace MySQL.Data.Entity
     private readonly RelationalTypeMapping _tinyText = new RelationalTypeMapping("tinytext", typeof(String));
 
     private readonly RelationalSizedTypeMapping _varchar = new RelationalSizedTypeMapping("varchar(1000)", typeof(String), 1000);
-    //private readonly SqlServerMaxLengthMapping _varbinary = new SqlServerMaxLengthMapping("varbinary", DbType.Binary);
+    private readonly RelationalTypeMapping _varbinary = new RelationalTypeMapping("blob", typeof(byte[]));
     private readonly RelationalTypeMapping _datetime = new RelationalTypeMapping("datetime", typeof(DateTime)); 
     private readonly RelationalTypeMapping _date = new RelationalTypeMapping("date", typeof(DateTime)); 
     private readonly RelationalTypeMapping _time = new RelationalTypeMapping("time", typeof(DateTime));
@@ -91,7 +90,8 @@ namespace MySQL.Data.Entity
         { "tinytext", _tinyText},
         { "datetime", _datetime },
         { "timestamp", _datetime },
-        { "bit", _bit }
+        { "bit", _bit },
+        { "blob", _varbinary }
       };
 
       _simpleMappings
@@ -111,9 +111,9 @@ namespace MySQL.Data.Entity
                     { typeof(short), _smallint },
                     { typeof(float), _real },
                     { typeof(decimal), _decimal },
+                    { typeof(byte[]), _varbinary }
           };
-
-      _varcharmapping = GetBoundedMapping(_textMaxLength);
+   
     }
 
     protected override IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings
@@ -131,29 +131,7 @@ namespace MySQL.Data.Entity
       return property.MySQL().ColumnType;
     }
 
-
-    //protected override RelationalTypeMapping GetStringMapping(
-    //      [NotNull] IProperty property,
-    //      int maxB.oundedLength,
-    //      [NotNull] Func<int, RelationalTypeMapping> boundedMapping,
-    //      [NotNull] RelationalTypeMapping unboundedMapping,
-    //      [NotNull] RelationalTypeMapping defaultMapping,
-    //      [CanBeNull] RelationalTypeMapping keyMapping = null)
-    //{
-
-    //  var maxLength = property.GetMaxLength();
-
-    //  return maxLength.HasValue
-    //          ? maxLength <= maxBoundedLength
-    //              ? _boundedStringMappings.GetOrAdd(maxLength.Value, boundedMapping)
-    //              : unboundedMapping
-    //          : ((keyMapping != null)
-    //             && (property.IsKey() || property.FindContainingEntityTypes().Any(property.IsForeignKey))
-    //              ? keyMapping
-    //              : defaultMapping);
-
-    //}
-
+    
     protected override RelationalTypeMapping GetCustomMapping([NotNull] IProperty property)
     {
       ThrowIf.Argument.IsNull(property, "property");
@@ -161,36 +139,30 @@ namespace MySQL.Data.Entity
       ///TODO:  fix this
       //var clrType = property.ClrType.UnwrapEnumType();
 
-      if (property.ClrType == typeof(string))
-        return GetStringMapping(property, _medTextMaxLength, maxLen => GetBoundedMapping(maxLen), 
-          _longText, _varchar);
+      //if (property.ClrType == typeof(string))
+      //  return GetStringMapping(property, _medTextMaxLength, maxLen => GetBoundedMapping(maxLen), 
+      //    _longText, _varchar);
 
       return base.GetCustomMapping(property);
     }
-
-    private RelationalTypeMapping GetBoundedMapping(int maxLen)
-    {
-      
-      if (maxLen <= _medTextMaxLength) return _Text;
-      if (maxLen <= _longTextMaxLength) return _mediumText;
-      return _longText;
-    }
+  
 
     protected override RelationalTypeMapping FindCustomMapping(IProperty property)
     {
+      if (property.ClrType == typeof(String))
+      {
+        int maxLength = property.GetMaxLength() ?? 255;
+        if (maxLength <= _medTextMaxLength) return new RelationalSizedTypeMapping("varchar(" + maxLength + ")", typeof(String), maxLength); ;
+        if (maxLength <= _longTextMaxLength) return _mediumText;
+        return _longText;
+      }
+
+      if (property.ClrType == typeof(byte[]))
+      {
+        return _varbinary;
+      }
+
       return base.FindCustomMapping(property);
-  }
-
-
-    public override RelationalTypeMapping FindMapping(Type clrType)
-    {
-      return clrType == typeof(string)
-          ? _varcharmapping
-          //: (clrType == typeof(byte[])
-          //    ? _varbinarymax
-          : base.FindMapping(clrType);
-}
-
-
+    }
   }
 }

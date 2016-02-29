@@ -21,13 +21,11 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
-
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Infrastructure;
-using MySql.Data.MySqlClient;
+using Microsoft.Data.Entity.Metadata;
 using MySQL.Data.Entity.Extensions;
 using System;
-using System.Collections.Generic;
 
 namespace MySql.Data.Entity.Tests.DbContextClasses
 {
@@ -54,6 +52,10 @@ namespace MySql.Data.Entity.Tests.DbContextClasses
   {
     public DbSet<Blog> Blogs { get; set; }
     public DbSet<Post> Posts { get; set; }
+    public DbSet<Read> Reads { get; set; }
+    public DbSet<Tag> Tags { get; set; }
+
+    public DbSet<ReadTag> ReadTags { get; set; }
 
     public TestsContext()
     { }
@@ -76,26 +78,32 @@ namespace MySql.Data.Entity.Tests.DbContextClasses
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+      modelBuilder.Entity<Blog>()
+                .HasOne(p => p.RecentPost)
+                .WithOne(i => i.Blog)
+                .HasPrincipalKey<Blog>(p => new { p.BlogId, p.Url })
+                .HasForeignKey<Post>(b => b.BlogIdFK);
 
+      modelBuilder.Entity<BlogMetadata>()
+               .HasOne(p => p.Blog)
+               .WithOne(i => i.Metadata)
+               .HasForeignKey<Blog>(b => b.BlogId);
+
+
+      modelBuilder.Entity<ReadTag>()
+               .HasKey(t => new { t.ReadId, t.TagId });
+
+      modelBuilder.Entity<ReadTag>()
+          .HasOne(pt => pt.Read)
+          .WithMany(p => p.ReadTags)
+          .HasForeignKey(pt => pt.ReadId)
+          .OnDelete(DeleteBehavior.Cascade);
+          
+      modelBuilder.Entity<ReadTag>()
+          .HasOne(pt => pt.Tag)
+          .WithMany(t => t.ReadTags)
+          .HasForeignKey(pt => pt.TagId);
 
     }
-  }
-
-  public class Blog
-  {
-    public int BlogId { get; set; }
-    public string Url { get; set; }
-
-    public List<Post> Posts { get; set; }
-  }
-
-  public class Post
-  {
-    public int PostId { get; set; }
-    public string Title { get; set; }
-    public string Content { get; set; }
-
-    public int BlogId { get; set; }
-    public Blog Blog { get; set; }
   }
 }
