@@ -100,8 +100,12 @@
     <Compile Include="..\..\Source\MySql.Data\Properties\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="DbContextClasses\ConventionsContexts.cs" />
+    <Compile Include="DbContextClasses\EFFluentAPIContexts.cs" />
+    <Compile Include="DbContextClasses\EntitiesClasses.cs" />
     <Compile Include="DbContextClasses\TestsContexts.cs" />
     <Compile Include="EntityTestsFixtureClass.cs" />
+    <Compile Include="FluentAPITests.cs" />
     <Compile Include="FunctionalTests.cs" />
     <Compile Include="MySqlTestStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -110,10 +114,6 @@
     <ProjectReference Include="..\..\Source\MySql.Data.EntityFramework7\MySql.Data.EF7.csproj">
       <Project>{11e455ee-8ba8-466c-b8d6-5e5edb0767fc}</Project>
       <Name>MySql.Data.EF7</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Source\MySql.Data\MySql.Data.csproj">
-      <Project>{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}</Project>
-      <Name>MySql.Data</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

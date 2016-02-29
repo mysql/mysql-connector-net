@@ -28,11 +28,13 @@ using Microsoft.Data.Entity.Storage;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using MySQL.Data.Entity.Metadata;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace MySQL.Data.Entity.Migrations
 {
   public class MySQLMigrationsSqlGenerator : MigrationsSqlGenerator
-  {
+  {    
     public MySQLMigrationsSqlGenerator(
         [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
         [NotNull] ISqlGenerator sqlGenerator,
@@ -95,6 +97,7 @@ namespace MySQL.Data.Entity.Migrations
           .Append("DROP DATABASE IF EXISTS ")
           .Append(SqlGenerator.DelimitIdentifier(operation.Name));
     }
+    
 
     protected override void ColumnDefinition(
       [CanBeNull] string schema, 
@@ -122,40 +125,91 @@ namespace MySQL.Data.Entity.Migrations
         type = property != null
             ? TypeMapper.GetMapping(property).DefaultTypeName
             : TypeMapper.GetMapping(clrType).DefaultTypeName;
-      }
-
-
+      }      
 
       if (computedColumnSql != null)
       {
-        builder
-            .Append(SqlGenerator.DelimitIdentifier(name))
-            .Append(" AS ")
-            .Append(computedColumnSql);
+         builder
+              .Append(SqlGenerator.DelimitIdentifier(name))
+              .Append(string.Format(" {0} AS ", type))
+              .Append(" ( " + computedColumnSql + " )");
 
-        return;
+          return;
+              
       }
-
+      
+            
       var autoInc = annotatable[MySQLAnnotationNames.Prefix + MySQLAnnotationNames.AutoIncrement];
 
+
       base.ColumnDefinition(
-          schema,
-          table,
-          name,
-          clrType,
-          type,
-          nullable,
-          defaultValue,
-          defaultValueSql,
-          computedColumnSql,
-          annotatable,
-          model,
-          builder);
+      schema,
+      table,
+      name,
+      clrType,
+      type,
+      nullable,
+      defaultValue,
+      defaultValueSql,
+      computedColumnSql,
+      annotatable,
+      model,
+      builder);
 
       if (autoInc != null && (bool)autoInc)
       {
         builder.Append(" AUTO_INCREMENT");
+      }      
+    }
+
+
+    protected override void DefaultValue(
+           [CanBeNull] object defaultValue,
+           [CanBeNull] string defaultValueSql,
+           [NotNull] RelationalCommandListBuilder builder)
+    {
+      ThrowIf.Argument.IsNull(builder, nameof(builder));
+
+      if (defaultValueSql != null)
+      {
+        builder
+            .Append(" DEFAULT (")
+            .Append(defaultValueSql)
+            .Append(")");
       }
-    }  
+      else if (defaultValue != null)
+      {
+        builder
+            .Append(" DEFAULT ")
+            .Append(defaultValue);
+      }
+    }
+
+
+
+    protected override void PrimaryKeyConstraint(
+         [NotNull] AddPrimaryKeyOperation operation,
+         [CanBeNull] IModel model,
+         [NotNull] RelationalCommandListBuilder builder)
+    {
+
+      ThrowIf.Argument.IsNull(operation, "AddPrimaryKeyOperation");
+      ThrowIf.Argument.IsNull(builder, "RelationalCommandListBuider");
+
+
+      //MySQL always assign PRIMARY to the PK name no way to override that.
+      // check http://dev.mysql.com/doc/refman/5.1/en/create-table.html
+
+   
+      builder
+          .Append("PRIMARY KEY ")
+          .Append("(")
+          .Append(string.Join(", ", operation.Columns.Select(SqlGenerator.DelimitIdentifier)))
+          .Append(")");
+
+      IndexTraits(operation, model, builder);
+    }
+
+
   }
 }

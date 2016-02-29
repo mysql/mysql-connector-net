@@ -22,7 +22,9 @@
 
 
 
+using Microsoft.Data.Entity;
 using MySql.Data.MySqlClient;
+using MySQL.Data.Entity.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -33,6 +35,15 @@ using System.Threading.Tasks;
 
 namespace MySql.Data.Entity.Tests
 {
+
+  public class MyTestContext : DbContext
+  {
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+      optionsBuilder.UseMySQL(MySqlTestStore.baseConnectionString + ";database=test;");
+    }
+  }
+
   public class MySqlTestStore : IDisposable
   {
     public const string baseConnectionString = "server=localhost;userid=test;password=test;port=3305;";

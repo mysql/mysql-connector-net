@@ -37,12 +37,6 @@ namespace MySql.Data.Entity.Tests
 {
   public class FunctionalTests : IDisposable
   {
-    
-    //public void SetFixture(EntityTestsFixtureClass fixture)
-    //{
-    //  _fixture = fixture;
-    //}
-
 
     [Fact]
     public void CanConnectWithConnectionOnConfiguring()
@@ -91,7 +85,68 @@ namespace MySql.Data.Entity.Tests
 
       using (var context = serviceProvider.GetRequiredService<TestsContext>())
       {
+        context.Database.EnsureCreated();        
+        using (var cnn = new MySqlConnection(MySqlTestStore.baseConnectionString + string.Format(";database={0}", context.Database.GetDbConnection().Database)))
+        {
+          cnn.Open();
+          var cmd = new MySqlCommand(string.Format("SHOW DATABASES LIKE '{0}'", context.Database.GetDbConnection().Database), cnn);
+          var reader = cmd.ExecuteReader();
+          while (reader.Read())
+          {
+            Assert.True(string.Equals("test", reader.GetString(0), StringComparison.CurrentCultureIgnoreCase), "Database was not created");
+          }
+        }
+        context.Database.EnsureDeleted();
+      }
+    }
+
+
+    [Fact]
+    public void EnsureRelationalPatterns()
+    {
+      var serviceCollection = new ServiceCollection();
+      serviceCollection.AddEntityFramework()
+        .AddMySQL()
+        .AddDbContext<TestsContext>();
+
+      var serviceProvider = serviceCollection.BuildServiceProvider();
+
+      using (var context = serviceProvider.GetRequiredService<TestsContext>())
+      {
         context.Database.EnsureCreated();
+        using (var cnn = new MySqlConnection(MySqlTestStore.baseConnectionString + string.Format(";database={0}", context.Database.GetDbConnection().Database)))
+        {
+          cnn.Open();
+          var cmd = new MySqlCommand(string.Format("SHOW DATABASES LIKE '{0}'", context.Database.GetDbConnection().Database), cnn);
+          var reader = cmd.ExecuteReader();
+          while (reader.Read())
+          {
+            Assert.True(string.Equals("test", reader.GetString(0), StringComparison.CurrentCultureIgnoreCase), "Database was not created");
+          }
+        }
+        context.Database.EnsureDeleted();
+      }
+    }
+
+
+    [Fact]
+    public void CanUseIgnoreEntity()
+    {
+      var serviceCollection = new ServiceCollection();
+      serviceCollection.AddEntityFramework()
+        .AddMySQL()
+        .AddDbContext<SimpleContextWithIgnore>();
+
+      var serviceProvider = serviceCollection.BuildServiceProvider();
+
+      using (var context = serviceProvider.GetRequiredService<SimpleContextWithIgnore>())
+      {
+        context.Database.EnsureCreated();
+        Assert.True(context.Model.GetEntityTypes().Count() == 2, "Wrong model generation");
+        Assert.True(context.Blogs.ToList().Count == 0, "");
+        // TODO check why this is not valid
+        //Assert.True(context.Posts.ToList().Count == 0, "");
+        context.Database.EnsureDeleted();
       }
     }
 
