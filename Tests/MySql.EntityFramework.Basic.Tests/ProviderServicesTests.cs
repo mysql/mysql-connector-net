@@ -34,24 +34,25 @@ using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Migrations;
 using System.Data.Entity.Migrations.Infrastructure;
+using MySql.Data.Entity.Tests.v4.x;
 
 namespace MySql.Data.Entity.Tests
 {
-  public class ProviderServicesTests : IUseFixture<SetUpEntityTests>, IDisposable
-  {
-    private SetUpEntityTests st;
-
-    public void SetFixture(SetUpEntityTests data)
+    public class ProviderServicesTests : IUseFixture<SetUpEntityTests>, IDisposable
     {
-      st = data;
-    }
-    private CultureInfo originalCulture;
+        private SetUpEntityTests st;
 
-    public ProviderServicesTests()
-        : base()
-    {
-      originalCulture = Thread.CurrentThread.CurrentCulture;
-    }
+        public void SetFixture(SetUpEntityTests data)
+        {
+            st = data;
+        }
+        private CultureInfo originalCulture;
+
+        public ProviderServicesTests()
+            : base()
+        {
+            originalCulture = Thread.CurrentThread.CurrentCulture;
+        }
 
 #if CLR4
     [Fact]
@@ -111,47 +112,47 @@ namespace MySql.Data.Entity.Tests
 #endif
 
     [Fact(Skip = "EF 5 have an known issue that is happening when the CreateDatabaseScript is called in this test and is suppose to be fixed in EF 6 but need a lot of changes incopatibles with the current architecture")]
-    public void CheckReservedWordColumnName()
-    {
-      using (ReservedWordColumnNameContainer ctx = new ReservedWordColumnNameContainer())
-      {
-        var ddl = ((IObjectContextAdapter)ctx).ObjectContext.CreateDatabaseScript();
-        Assert.Contains("ALTER TABLE `new_table` ADD PRIMARY KEY (`key`);", ddl);
-      }
-    }
+        public void CheckReservedWordColumnName()
+        {
+            using (ReservedWordColumnNameContainer ctx = new ReservedWordColumnNameContainer())
+            {
+                var ddl = ((IObjectContextAdapter)ctx).ObjectContext.CreateDatabaseScript();
+                Assert.Contains("ALTER TABLE `table_name` ADD PRIMARY KEY (`key`);", ddl);
+            }
+        }
 
-    [Fact]
-    public void GetDbProviderManifestTokenDoesNotThrowWhenLocalized()
-    {
-      Thread.CurrentThread.CurrentCulture = new CultureInfo("fr-CA");
+        [Fact]
+        public void GetDbProviderManifestTokenDoesNotThrowWhenLocalized()
+        {
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("fr-CA");
 
-      using (MySqlConnection connection = new MySqlConnection(st.GetConnectionString(true)))
-      {
-        MySqlProviderServices providerServices = new MySqlProviderServices();
-        string token = null;
+            using (MySqlConnection connection = new MySqlConnection(st.GetConnectionString(true)))
+            {
+                MySqlProviderServices providerServices = new MySqlProviderServices();
+                string token = null;
 
         Assert.DoesNotThrow(delegate () { token = providerServices.GetProviderManifestToken(connection); });
-        Assert.NotNull(token);
-      }
-    }
+                Assert.NotNull(token);
+            }
+        }
 
-    [Fact]
-    public void GetDbProviderManifestTokenDoesNotThrowWhenMissingPersistSecurityInfo()
-    {
-      var conn = new MySqlConnection(st.rootConn.ConnectionString);
-      conn.Open();
-      MySqlProviderServices providerServices = new MySqlProviderServices();
-      string token = null;
+        [Fact]
+        public void GetDbProviderManifestTokenDoesNotThrowWhenMissingPersistSecurityInfo()
+        {
+            var conn = new MySqlConnection(st.rootConn.ConnectionString);
+            conn.Open();
+            MySqlProviderServices providerServices = new MySqlProviderServices();
+            string token = null;
 
       Assert.DoesNotThrow(delegate () { token = providerServices.GetProviderManifestToken(conn); });
-      Assert.NotNull(token);
-      conn.Close();
-    }
+            Assert.NotNull(token);
+            conn.Close();
+        }
 
-    public void Dispose()
-    {
-      Thread.CurrentThread.CurrentCulture = originalCulture;
-      st.Dispose();
+        public void Dispose()
+        {
+            Thread.CurrentThread.CurrentCulture = originalCulture;
+            st.Dispose();
+        }
     }
-  }
 }
