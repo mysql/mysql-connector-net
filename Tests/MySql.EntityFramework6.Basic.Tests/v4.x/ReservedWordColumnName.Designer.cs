@@ -1,4 +1,4 @@
-﻿// T4 code generation is enabled for model 'C:\Wex\cnet 67\Tests\MySql.EntityFramework.Basic.Tests\ReservedWordColumnName.edmx'. 
+﻿// T4 code generation is enabled for model 'C:\Wex\cnet 67\Tests\MySql.EntityFramework6.Basic.Tests\v4.x\ReservedWordColumnName.edmx'. 
 // To enable legacy code generation, change the value of the 'Code Generation Strategy' designer
 // property to 'Legacy ObjectContext'. This property is available in the Properties Window when the model
 // is open in the designer.

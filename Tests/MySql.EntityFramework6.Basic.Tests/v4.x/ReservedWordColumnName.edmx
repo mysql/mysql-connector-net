@@ -19,9 +19,9 @@
     <edmx:ConceptualModels>
       <Schema xmlns="http://schemas.microsoft.com/ado/2009/11/edm" xmlns:cg="http://schemas.microsoft.com/ado/2006/04/codegeneration" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" Namespace="ReservedWordColumnName" Alias="Self" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" annotation:UseStrongSpatialTypes="false">
         <EntityContainer Name="ReservedWordColumnNameContainer" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="new_table" EntityType="ReservedWordColumnName.new_table" />
+          <EntitySet Name="new_table" EntityType="ReservedWordColumnName.table_name" />
         </EntityContainer>
-        <EntityType Name="new_table">
+        <EntityType Name="table_name">
           <Key>
             <PropertyRef Name="key" />
           </Key>
@@ -36,7 +36,7 @@
         <Alias Key="Target" Value="ReservedWordColumnName.Store" />
         <EntityContainerMapping CdmEntityContainer="ReservedWordColumnNameContainer" StorageEntityContainer="ReservedWordColumnNameStoreContainer">
           <EntitySetMapping Name="new_table">
-            <EntityTypeMapping TypeName="ReservedWordColumnName.new_table">
+            <EntityTypeMapping TypeName="ReservedWordColumnName.table_name">
               <MappingFragment StoreEntitySet="new_table">
                 <ScalarProperty Name="key" ColumnName="key" />
               </MappingFragment>
