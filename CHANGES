@@ -1,3 +1,3 @@
-6.10.0	
+7.0.2	
 
-- Modeling features for EF 7. Pending review for ENUM type support.
+- Support for new MySQL X plugin and new DevAPI.
