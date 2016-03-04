@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace MySql.Data.Entity.Tests
+namespace MySql.Data.Entity.Tests.v4.x
 {
     using System;
     using System.Data.Entity;
@@ -25,6 +25,6 @@ namespace MySql.Data.Entity.Tests
             throw new UnintentionalCodeFirstException();
         }
     
-        public virtual DbSet<new_table> new_table { get; set; }
+        public virtual DbSet<table_name> new_table { get; set; }
     }
 }

@@ -81,18 +81,18 @@
   <Choose>
     <When Condition="$(Framework) &gt;= 4.5">
       <ItemGroup>
-		<Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-		  <HintPath>..\..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
-		  <Private>True</Private>
-		</Reference>
+        <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+          <HintPath>..\..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
       </ItemGroup>
-	</When>
+    </When>
     <Otherwise>
       <ItemGroup>
-		<Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-		  <HintPath>..\..\packages\EntityFramework.6.1.3\lib\net40\EntityFramework.dll</HintPath>
-		  <Private>True</Private>
-		</Reference>
+        <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+          <HintPath>..\..\packages\EntityFramework.6.1.3\lib\net40\EntityFramework.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
       </ItemGroup>
     </Otherwise>
   </Choose>
@@ -103,9 +103,6 @@
     <Compile Include="..\MySql.EntityFramework.Basic.Tests\AggregateOperators.cs" />
     <Compile Include="..\MySql.EntityFramework.Basic.Tests\CanonicalFunctions.cs" />
     <Compile Include="..\MySql.EntityFramework.Basic.Tests\DataTypeTests.cs" />
-    <Compile Include="new_table.cs">
-      <DependentUpon>ReservedWordColumnName.tt</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MyConfiguration.cs" />
     <Compile Include="..\MySql.EntityFramework.Basic.Tests\ProviderManifestTests.cs" />
@@ -123,20 +120,23 @@
     <Compile Include="..\MySql.EntityFramework.Basic.Tests\UpdateTests.cs" />
     <Compile Include="..\MySql.EntityFramework.Basic.Tests\DeleteTests.cs" />
     <Compile Include="..\MySql.EntityFramework.Basic.Tests\RestrictionOperators.cs" />
-    <Compile Include="ReservedWordColumnName.Context.cs">
+    <Compile Include="v4.x\ReservedWordColumnName.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>ReservedWordColumnName.Context.tt</DependentUpon>
     </Compile>
-    <Compile Include="ReservedWordColumnName.cs">
+    <Compile Include="v4.x\ReservedWordColumnName.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>ReservedWordColumnName.tt</DependentUpon>
     </Compile>
-    <Compile Include="ReservedWordColumnName.Designer.cs">
+    <Compile Include="v4.x\ReservedWordColumnName.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>ReservedWordColumnName.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="v4.x\table_name.cs">
+      <DependentUpon>ReservedWordColumnName.tt</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -271,11 +271,11 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
-    <EntityDeploy Include="ReservedWordColumnName.edmx">
+    <EntityDeploy Include="v4.x\ReservedWordColumnName.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
       <LastGenOutput>ReservedWordColumnName.Designer.cs</LastGenOutput>
     </EntityDeploy>
-    <None Include="ReservedWordColumnName.edmx.diagram">
+    <None Include="v4.x\ReservedWordColumnName.edmx.diagram">
       <DependentUpon>ReservedWordColumnName.edmx</DependentUpon>
     </None>
   </ItemGroup>
@@ -299,12 +299,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\MySql.EntityFramework.Basic.Tests\ModelFirstModel1.edmx.sql" />
-    <Content Include="ReservedWordColumnName.Context.tt">
+    <Content Include="v4.x\ReservedWordColumnName.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>ReservedWordColumnName.Context.cs</LastGenOutput>
       <DependentUpon>ReservedWordColumnName.edmx</DependentUpon>
     </Content>
-    <Content Include="ReservedWordColumnName.tt">
+    <Content Include="v4.x\ReservedWordColumnName.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>ReservedWordColumnName.cs</LastGenOutput>
       <DependentUpon>ReservedWordColumnName.edmx</DependentUpon>
@@ -318,6 +318,7 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

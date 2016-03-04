@@ -5,7 +5,7 @@
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
       <Diagram DiagramId="76890c96773448adabe87a9ae2c059fc" Name="Diagram1" >
-        <EntityTypeShape EntityType="ReservedWordColumnName.new_table" Width="1.5" PointX="0.75" PointY="0.75" />
+        <EntityTypeShape EntityType="ReservedWordColumnName.table_name" Width="1.5" PointX="0.75" PointY="0.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
