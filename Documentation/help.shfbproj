@@ -65,7 +65,7 @@
 	  <NamespaceSummaryItem name="MySql.XDevAPI.Common" isDocumented="False" />
 	  <NamespaceSummaryItem name="MySql.XDevAPI.CRUD" isDocumented="True">Set of classes for the Dev API with Hybrid MySQL technology.</NamespaceSummaryItem>
 	  <NamespaceSummaryItem name="MySql.XDevAPI.Relational" isDocumented="True">Set of classes used for managing relational table operations.</NamespaceSummaryItem>
-	  <NamespaceSummaryItem name="MySql.Security" isDocumented="True">Set of classes used for secure access user accounts in connections.</NamespaceSummaryItem></NamespaceSummaries>	  
+	  <NamespaceSummaryItem name="MySql.Security" isDocumented="True">Set of classes used for secure access user accounts in connections.</NamespaceSummaryItem>	  
       <NamespaceSummaryItem name="zlib" isDocumented="False" xmlns="" />
     </NamespaceSummaries>
     <PlugInConfigurations>
