@@ -208,7 +208,7 @@ namespace MySqlX.Protocol
             rs._recordsAffected = state.Value.VUnsignedInt;
           break;
         case SessionStateChanged.Types.Parameter.GENERATED_INSERT_ID:
-            rs._lastInsertId = state.Value.VUnsignedInt;
+            rs._autoIncrementValue = state.Value.VUnsignedInt;
           break;
           // handle the other ones
 //      default: SessionStateChanged(state);
