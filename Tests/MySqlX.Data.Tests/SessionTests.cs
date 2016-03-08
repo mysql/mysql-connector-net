@@ -93,14 +93,37 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void NodeSession_Get_Set_CurrentSchema()
     {
-      using(NodeSession nodeSession = MySQLX.GetNodeSession(ConnectionString))
+      using(NodeSession testSession = MySQLX.GetNodeSession(ConnectionString))
       {
-        Assert.Equal(SessionState.Open, nodeSession.InternalSession.SessionState);
-        Assert.Equal(null, nodeSession.GetCurrentSchema());
-        Assert.Throws<MySqlException>(() => nodeSession.SetCurrentSchema(""));
-        nodeSession.SetCurrentSchema(schemaName);
-        Assert.Equal(schemaName, nodeSession.Schema.Name);
-        Assert.Equal(schemaName, nodeSession.GetCurrentSchema().Name);
+        Assert.Equal(SessionState.Open, testSession.InternalSession.SessionState);
+        Assert.Null(testSession.GetCurrentSchema());
+        Assert.Throws<MySqlException>(() => testSession.SetCurrentSchema(""));
+        testSession.SetCurrentSchema(schemaName);
+        Assert.Equal(schemaName, testSession.Schema.Name);
+        Assert.Equal(schemaName, testSession.GetCurrentSchema().Name);
+      }
+    }
+
+    [Fact]
+    public void NodeSessionUsingSchema()
+    {
+      using (NodeSession mySession = MySQLX.GetNodeSession(ConnectionString + $";database={schemaName};"))
+      {
+        Assert.Equal(SessionState.Open, mySession.InternalSession.SessionState);
+        Assert.Equal(schemaName, mySession.Schema.Name);
+        Assert.Equal(schemaName, mySession.GetCurrentSchema().Name);
+        Assert.True(mySession.Schema.ExistsInDatabase());
+      }
+    }
+
+    [Fact]
+    public void XSessionUsingSchema()
+    {
+      using (XSession mySession = MySQLX.GetSession(ConnectionString + $";database={schemaName};"))
+      {
+        Assert.Equal(SessionState.Open, mySession.InternalSession.SessionState);
+        Assert.Equal(schemaName, mySession.Schema.Name);
+        Assert.True(mySession.Schema.ExistsInDatabase());
       }
     }
   }

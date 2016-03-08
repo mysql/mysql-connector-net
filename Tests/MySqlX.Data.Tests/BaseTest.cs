@@ -32,7 +32,7 @@ namespace MySqlX.Data.Tests
     protected XSession session;
     protected Schema testSchema;
     private static NodeSession nodeSession;
-    protected static string schemaName;
+    protected static readonly string schemaName;
 
     public static string ConnectionString { get; private set; }
     public static string ConnectionStringNoPassword { get; private set; }
@@ -70,7 +70,7 @@ namespace MySqlX.Data.Tests
     protected Collection CreateCollection(string name)
     {
       XSession s = GetSession();
-      Schema test = s.GetSchema("test");
+      Schema test = s.GetSchema(schemaName);
       test.DropCollection(name);
       return test.CreateCollection(name);
     }

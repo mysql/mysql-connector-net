@@ -70,6 +70,8 @@ namespace MySqlX.XDevAPI
       this.connectionString = connectionString;
       Settings = new MySqlConnectionStringBuilder(connectionString);
       _internalSession = InternalSession.GetSession(Settings);
+      if (!string.IsNullOrWhiteSpace(Settings.Database))
+        GetSchema(Settings.Database);
     }
 
     /// <summary>
@@ -88,6 +90,8 @@ namespace MySqlX.XDevAPI
       }
       this.connectionString = Settings.ToString();
       _internalSession = InternalSession.GetSession(Settings);
+      if (!string.IsNullOrWhiteSpace(Settings.Database))
+        GetSchema(Settings.Database);
     }
 
     /// <summary>
