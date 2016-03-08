@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -28,6 +28,7 @@ using MySqlX.Data;
 using MySqlX.Session;
 using MySqlX.XDevAPI.Relational;
 using MySql.Data.MySqlClient;
+using System.Text.RegularExpressions;
 
 namespace MySqlX.XDevAPI
 {
@@ -39,6 +40,8 @@ namespace MySqlX.XDevAPI
     private InternalSession _internalSession;
     private string connectionString;
     private bool disposed = false;
+    private const uint newDefaultPort = 33060;
+
     internal QueueTaskScheduler scheduler = new QueueTaskScheduler();
 
     /// <summary>
@@ -67,8 +70,10 @@ namespace MySqlX.XDevAPI
     /// <param name="connectionString">Session connection string</param>
     public BaseSession(string connectionString)
     {
-      this.connectionString = connectionString;
-      Settings = new MySqlConnectionStringBuilder(connectionString);
+      this.connectionString = ParseConnectionStringFromUri(connectionString);
+      if (this.connectionString.IndexOf("port", StringComparison.OrdinalIgnoreCase) == -1)
+        this.connectionString += ";port=" + newDefaultPort;
+      Settings = new MySqlConnectionStringBuilder(this.connectionString);
       _internalSession = InternalSession.GetSession(Settings);
       if (!string.IsNullOrWhiteSpace(Settings.Database))
         GetSchema(Settings.Database);
@@ -81,6 +86,8 @@ namespace MySqlX.XDevAPI
     public BaseSession(object connectionData)
     {
       var values = Tools.GetDictionaryFromAnonymous(connectionData);
+      if (!values.Keys.Any(s => s.ToLowerInvariant() == "port"))
+        values.Add("port", newDefaultPort);
       Settings = new MySqlConnectionStringBuilder();
       foreach (var value in values)
       {
@@ -179,8 +186,8 @@ namespace MySqlX.XDevAPI
     {
       if (XSession.SessionState != SessionState.Closed)
       {
-        XSession.Close();        
-      }    
+        XSession.Close();
+      }
     }
 
     /// <summary>
@@ -189,6 +196,31 @@ namespace MySqlX.XDevAPI
     public void Dispose()
     {
       Close();
+    }
+
+    internal protected string ParseConnectionStringFromUri(string connectionstring)
+    {
+      if (connectionstring.StartsWith("mysqlx://") || connectionstring.StartsWith("//"))
+      {
+        string pattern = @"^(mysqlx:)?//(?<user>[^:]+)(:(?<password>.+))?@(?<server>[^:]+)(:\s*(?<port>\d+)\s*)?$";
+        List<string> connectionParts = new List<string>();
+        string newConnectionString = null;
+
+        var matches = Regex.Matches(connectionstring, pattern, RegexOptions.ExplicitCapture);
+        if (matches.Count != 1) throw new ArgumentException(Properties.ResourcesX.InvalidConnectionString);
+        Match match = matches[0];
+        if (match.Success)
+        {
+          if (match.Groups["user"].Success) connectionParts.Add("uid=" + match.Groups["user"].Value.Trim());
+          if (match.Groups["password"].Success) connectionParts.Add("password=" + match.Groups["password"].Value.Trim());
+          if (match.Groups["server"].Success) connectionParts.Add("server=" + match.Groups["server"].Value.Trim());
+          connectionParts.Add("port=" + (match.Groups["port"].Success ? match.Groups["port"].Value.Trim() : newDefaultPort.ToString()));
+          newConnectionString = string.Join(";", connectionParts);
+        }
+
+        return newConnectionString;
+      }
+      return connectionstring;
     }
   }
 

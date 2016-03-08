@@ -22,6 +22,7 @@
 
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
+using System;
 using Xunit;
 
 namespace MySqlX.Data.Tests 
@@ -124,6 +125,44 @@ namespace MySqlX.Data.Tests
         Assert.Equal(SessionState.Open, mySession.InternalSession.SessionState);
         Assert.Equal(schemaName, mySession.Schema.Name);
         Assert.True(mySession.Schema.ExistsInDatabase());
+      }
+    }
+
+    protected void CheckConnectionStringAsUri(string connectionstring, string user, string password, string server, uint port)
+    {
+      string result = this.session.ParseConnectionStringFromUri(connectionstring);
+      MySql.Data.MySqlClient.MySqlConnectionStringBuilder csbuilder = new MySql.Data.MySqlClient.MySqlConnectionStringBuilder(result);
+      Assert.True(user == csbuilder.UserID, string.Format("Expected:{0} Current:{1} in {2}", user, csbuilder.UserID, connectionstring));
+      Assert.True(password == csbuilder.Password, string.Format("Expected:{0} Current:{1} in {2}", password, csbuilder.Password, connectionstring));
+      Assert.True(server == csbuilder.Server, string.Format("Expected:{0} Current:{1} in {2}", server, csbuilder.Server, connectionstring));
+      Assert.True(port == csbuilder.Port, string.Format("Expected:{0} Current:{1} in {2}", port, csbuilder.Port, connectionstring));
+    }
+
+    [Fact]
+    public void ConnectionStringAsUri()
+    {
+      CheckConnectionStringAsUri("mysqlx://myuser:p@ssword@localhost:33060", "myuser", "p@ssword", "localhost", 33060);
+      CheckConnectionStringAsUri("mysqlx://myuser:p@ss word@localhost:33060", "myuser", "p@ss word", "localhost", 33060);
+      CheckConnectionStringAsUri("//myuser:p@ssword@localhost:33060", "myuser", "p@ssword", "localhost", 33060);
+      CheckConnectionStringAsUri("mysqlx:// myuser : p@ssword@ localhost : 33060 ", "myuser", "p@ssword", "localhost", 33060);
+      CheckConnectionStringAsUri("mysqlx://myuser@localhost:33060", "myuser", "", "localhost", 33060);
+      CheckConnectionStringAsUri("mysqlx://myuser:p@ssword@localhost", "myuser", "p@ssword", "localhost", 33060);
+      CheckConnectionStringAsUri("mysqlx://myuser:p@ssw@rd@localhost", "myuser", "p@ssw@rd", "localhost", 33060);
+      CheckConnectionStringAsUri("mysqlx://my@user:p@ssword@localhost", "my@user", "p@ssword", "localhost", 33060);
+      CheckConnectionStringAsUri("mysqlx://myuser@localhost", "myuser", "", "localhost", 33060);
+      CheckConnectionStringAsUri("mysqlx://myuser@127.0.0.1", "myuser", "", "127.0.0.1", 33060);
+      CheckConnectionStringAsUri("mysqlx://_!\"#$s&/=-%r@localhost", "_!\"#$s&/=-%r", "", "localhost", 33060);
+      Assert.Throws<ArgumentException>(() => CheckConnectionStringAsUri("mysql://myuser@localhost", "myuser", "", "localhost", 33060));
+      Assert.Throws<ArgumentException>(() => CheckConnectionStringAsUri("myuser@localhost", "myuser", "", "localhost", 33060));
+      Assert.Throws<ArgumentException>(() => CheckConnectionStringAsUri("mysqlx://uid=myuser;server=localhost", "myuser", "", "localhost", 33060));
+    }
+
+    [Fact]
+    public void ConnectionUsingUri()
+    {
+      using (var session = MySQLX.GetNodeSession(ConnectionStringUri))
+      {
+        Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
       }
     }
   }

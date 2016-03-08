@@ -35,6 +35,7 @@ namespace MySqlX.Data.Tests
     protected static readonly string schemaName;
 
     public static string ConnectionString { get; private set; }
+    public static string ConnectionStringUri { get; private set; }
     public static string ConnectionStringNoPassword { get; private set; }
 
     static BaseTest()
@@ -42,6 +43,7 @@ namespace MySqlX.Data.Tests
       schemaName = "test";
       ConnectionString = "server=localhost;port=33060;uid=test;password=test";
       ConnectionStringNoPassword = "server=localhost;port=33060;uid=testNoPass;";
+      ConnectionStringUri = "mysqlx://test:test@localhost:33060";
     }
 
     public BaseTest()

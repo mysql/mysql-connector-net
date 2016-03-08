@@ -123,6 +123,9 @@
   <data name="InvalidConnectionStringAttribute" xml:space="preserve">
     <value>'{0}' is not a valid connection string attribute.</value>
   </data>
+  <data name="InvalidConnectionString" xml:space="preserve">
+    <value>The connection string is invalid.</value>
+  </data>
   <data name="InvalidNameIndex" xml:space="preserve">
     <value>{0} is not a valid column name in the row.</value>
   </data>

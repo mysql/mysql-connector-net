@@ -79,6 +79,15 @@ namespace MySqlX.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The connection string is invalid..
+        /// </summary>
+        internal static string InvalidConnectionString {
+            get {
+                return ResourceManager.GetString("InvalidConnectionString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} is not a valid column name in the row..
         /// </summary>
         internal static string InvalidNameIndex {
