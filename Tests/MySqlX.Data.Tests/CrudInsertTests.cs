@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -35,6 +35,8 @@ namespace MySqlX.Data.Tests
       Result r = coll.Add(@"{ ""_id"": 1, ""foo"": 1 }").Execute();
       Assert.Equal<ulong>(1, r.RecordsAffected);
       Assert.Equal(1, coll.Count());
+      Assert.False(string.IsNullOrWhiteSpace(r.DocumentId));
+      Assert.Equal(1, r.DocumentIds.Count);
     }
 
     [Fact]
@@ -43,8 +45,23 @@ namespace MySqlX.Data.Tests
       Collection coll = CreateCollection("test");
       Result r = coll.Add("{ \"foo\": 1 }").Execute();
       Assert.Equal<ulong>(1, r.RecordsAffected);
-      /// TODO:  retrieve doc and complete foo column
       Assert.Equal(1, coll.Count());
+      Assert.False(string.IsNullOrWhiteSpace(r.DocumentId));
+      Assert.Equal(1, r.DocumentIds.Count);
+    }
+
+    [Fact]
+    public void InsertMultipleDbDocWithoutId()
+    {
+      Collection coll = CreateCollection("test");
+      Result r = coll.Add("{ \"foo\": 1 }")
+        .Add("{ \"amber\": 2 }")
+        .Add("{ \"any\": 3 }")
+        .Execute();
+      Assert.Equal<ulong>(3, r.RecordsAffected);
+      Assert.Equal(3, coll.Count());
+      Assert.Throws<System.ArgumentOutOfRangeException>(() => r.DocumentId);
+      Assert.Equal(3, r.DocumentIds.Count);
     }
 
     [Fact]
@@ -57,6 +74,8 @@ namespace MySqlX.Data.Tests
       Assert.Equal<ulong>(1, r.RecordsAffected);
       ///TODO:  pull object and verify data
       Assert.Equal(1, coll.Count());
+      Assert.False(string.IsNullOrWhiteSpace(r.DocumentId));
+      Assert.Equal(1, r.DocumentIds.Count);
     }
 
     [Fact]
@@ -69,6 +88,8 @@ namespace MySqlX.Data.Tests
       Assert.Equal<ulong>(1, r.RecordsAffected);
       ///TODO:  pull object and verify data
       Assert.Equal(1, coll.Count());
+      Assert.False(string.IsNullOrWhiteSpace(r.DocumentId));
+      Assert.Equal(1, r.DocumentIds.Count);
     }
 
     [Fact]
@@ -85,6 +106,21 @@ namespace MySqlX.Data.Tests
       Result r = coll.Add(docs).Execute();
       Assert.Equal<ulong>(4, r.RecordsAffected);
       Assert.Equal(4, coll.Count());
+      Assert.Throws<System.ArgumentOutOfRangeException>(() => r.DocumentId);
+      Assert.Equal(4, r.DocumentIds.Count);
+    }
+
+    [Fact]
+    public void ValidatesDocumentIds()
+    {
+      Collection coll = CreateCollection("test");
+      Result result = coll.Add(new { name = "Book 1" }).Execute();
+      Assert.Equal<ulong>(1, result.RecordsAffected);
+
+      result = coll.Modify($"_id = '{result.DocumentId}'").Set("pages", "20").Execute();
+      Assert.Equal<ulong>(1, result.RecordsAffected);
+      Assert.Null(result.DocumentId);
+      Assert.Null(result.DocumentIds);
     }
   }
 }

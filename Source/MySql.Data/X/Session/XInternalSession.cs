@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -207,10 +207,10 @@ namespace MySqlX.Session
       return new RowResult(this);
     }
 
-    public Result Insert(Collection collection, DbDoc[] json)
+    public Result Insert(Collection collection, DbDoc[] json, List<string> newIds)
     {
       protocol.SendInsert(collection.Schema.Name, false, collection.Name, json, null);
-      return new Result(this);
+      return new Result(this) { DocumentIds = newIds } ;
     }
 
     public Result DeleteDocs(RemoveStatement rs)

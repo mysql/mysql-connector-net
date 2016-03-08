@@ -133,6 +133,15 @@ namespace MySqlX.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to More than one document id was generated.  Please use the DocumentIds property instead..
+        /// </summary>
+        internal static string MoreThanOneDocumentId {
+            get {
+                return ResourceManager.GetString("MoreThanOneDocumentId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to There is no data at index {0}.
         /// </summary>
         internal static string NoDataAtIndex {

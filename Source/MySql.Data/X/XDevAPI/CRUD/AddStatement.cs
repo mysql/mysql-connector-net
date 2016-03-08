@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -22,6 +22,7 @@
 
 using System.Collections.Generic;
 using MySqlX.XDevAPI.Common;
+using System.Linq;
 
 namespace MySqlX.XDevAPI.CRUD
 {
@@ -43,7 +44,7 @@ namespace MySqlX.XDevAPI.CRUD
     /// <returns>This AddStatement object</returns>
     public AddStatement Add(params object[] items)
     {
-      _DbDocs.AddRange(GetDocs(items, true));
+      _DbDocs.AddRange(GetDocs(items));
       return this;
     }
 
@@ -54,7 +55,7 @@ namespace MySqlX.XDevAPI.CRUD
     /// <returns>This AddStatement object</returns>
     public AddStatement Add(params string[] items)
     {
-      _DbDocs.AddRange(GetDocs(items, true));
+      _DbDocs.AddRange(GetDocs(items));
       return this;
     }
 
@@ -64,8 +65,20 @@ namespace MySqlX.XDevAPI.CRUD
     /// <returns>Result of execution</returns>
     public override Result Execute()
     {
-      return Target.Session.XSession.Insert(Target, _DbDocs.ToArray());
+      List<string> newIds = AssignIds();
+      return Target.Session.XSession.Insert(Target, _DbDocs.ToArray(), newIds);
     }
 
+    private List<string> AssignIds()
+    {
+      List<string> newIds = new List<string>();
+      foreach (DbDoc doc in _DbDocs)
+      {
+        doc.EnsureId();
+        newIds.Add(doc.Id.ToString());
+      }
+
+      return newIds;
+    }
   }
 }

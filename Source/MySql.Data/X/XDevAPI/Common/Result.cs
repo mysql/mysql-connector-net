@@ -22,6 +22,7 @@
 
 using System;
 using MySqlX.Session;
+using System.Collections.Generic;
 
 namespace MySqlX.XDevAPI.Common
 {
@@ -51,5 +52,28 @@ namespace MySqlX.XDevAPI.Common
       get { return _autoIncrementValue;  }
     }
 
+    /// <summary>
+    /// Returns the document generated Id.
+    /// For multiple document Ids use DocumentIds.
+    /// </summary>
+    public string DocumentId
+    {
+      get
+      {
+        if (DocumentIds == null || DocumentIds.Count == 0)
+          return null;
+        if (DocumentIds.Count > 1)
+          throw new ArgumentOutOfRangeException(Properties.ResourcesX.MoreThanOneDocumentId);
+        return DocumentIds[0];
+      }
+    }
+
+    /// <summary>
+    /// Returns a list of generated Ids in the order of the Add() calls
+    /// </summary>
+    public IReadOnlyList<string> DocumentIds
+    {
+      get; internal set;
+    }
   }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -37,13 +37,11 @@ namespace MySqlX.XDevAPI.CRUD
     {
     }
 
-    protected IEnumerable<DbDoc> GetDocs(object[] items, bool ensureId = false)
+    protected IEnumerable<DbDoc> GetDocs(object[] items)
     {
       foreach (object item in items)
       {
         DbDoc d = item is DbDoc ? item as DbDoc : new DbDoc(item);
-        if (ensureId)
-          d.EnsureId();
         yield return d;
       }
     }

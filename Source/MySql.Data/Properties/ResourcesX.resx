@@ -141,6 +141,9 @@
   <data name="KeywordNotSupported" xml:space="preserve">
     <value>Keyword not supported.</value>
   </data>
+  <data name="MoreThanOneDocumentId" xml:space="preserve">
+    <value>More than one document id was generated.  Please use the DocumentIds property instead.</value>
+  </data>
   <data name="NoDataAtIndex" xml:space="preserve">
     <value>There is no data at index {0}</value>
   </data>
