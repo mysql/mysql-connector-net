@@ -233,6 +233,8 @@
     <Compile Include="X\Data\Enums.cs" />
     <Compile Include="X\Protocol\ProtocolBase.cs" />
     <Compile Include="X\Protocol\ValueDecoder.cs" />
+    <Compile Include="X\Protocol\X\DecimalDecoder.cs" />
+    <Compile Include="X\Protocol\X\BitDecoder.cs" />
     <Compile Include="X\Protocol\X\ByteDecoder.cs" />
     <Compile Include="X\Protocol\X\Enum.cs" />
     <Compile Include="X\Protocol\X\ExprParser.cs" />
@@ -266,6 +268,7 @@
     <Compile Include="X\XDevAPI\Common\BaseResult.cs" />
     <Compile Include="X\XDevAPI\Common\BaseStatement.cs" />
     <Compile Include="X\XDevAPI\Common\BufferingResult.cs" />
+    <Compile Include="X\XDevAPI\Common\ColumnType.cs" />
     <Compile Include="X\XDevAPI\Common\ErrorInfo.cs" />
     <Compile Include="X\XDevAPI\Common\FilterableStatement.cs" />
     <Compile Include="X\XDevAPI\Common\FilterParams.cs" />

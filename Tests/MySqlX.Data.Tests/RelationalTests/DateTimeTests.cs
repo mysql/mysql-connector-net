@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -25,6 +25,7 @@ using MySqlX.XDevAPI.Relational;
 using Xunit;
 using MySqlX.Data;
 using MySql.Data.MySqlClient;
+using MySql.Data.MySqlClient.X.XDevAPI.Common;
 
 namespace MySqlX.Data.Tests.RelationalTests
 {
@@ -40,7 +41,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       var rows = r.FetchAll();
       Assert.Equal(1, r.Columns.Count);
       Assert.Equal(typeof(DateTime), r.Columns[0].ClrType);
-      Assert.Equal(MySqlDbType.DateTime, r.Columns[0].DbType);
+      Assert.Equal(ColumnType.DateTime, r.Columns[0].Type);
       Assert.Equal(1, rows.Count);
       DateTime dt = (DateTime)rows[0]["dt"];
       DateTime test = new DateTime(2001, 2, 3, 4, 5, 6);
@@ -57,7 +58,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       var rows = r.FetchAll();
       Assert.Equal(1, r.Columns.Count);
       Assert.Equal(typeof(DateTime), r.Columns[0].ClrType);
-      Assert.Equal(MySqlDbType.Date, r.Columns[0].DbType);
+      Assert.Equal(ColumnType.Date, r.Columns[0].Type);
       Assert.Equal(1, rows.Count);
       DateTime dt = (DateTime)rows[0]["dt"];
       DateTime test = new DateTime(2001, 2, 3);
@@ -75,7 +76,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.Equal(1, r.Columns.Count);
       Assert.Equal(typeof(DateTime), r.Columns[0].ClrType);
       ///TODO:  this should support timestamp
-      Assert.Equal(MySqlDbType.DateTime, r.Columns[0].DbType);
+      Assert.Equal(ColumnType.Timestamp, r.Columns[0].Type);
       Assert.Equal(1, rows.Count);
       DateTime dt = (DateTime)rows[0]["dt"];
       DateTime test = new DateTime(2001, 2, 3);
@@ -92,7 +93,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       var rows = r.FetchAll();
       Assert.Equal(1, r.Columns.Count);
       Assert.Equal(typeof(TimeSpan), r.Columns[0].ClrType);
-      Assert.Equal(MySqlDbType.Time, r.Columns[0].DbType);
+      Assert.Equal(ColumnType.Time, r.Columns[0].Type);
       Assert.Equal(1, rows.Count);
       TimeSpan t = (TimeSpan)rows[0]["dt"];
       TimeSpan test = new TimeSpan(1, 2, 3);
@@ -109,7 +110,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       var rows = r.FetchAll();
       Assert.Equal(1, r.Columns.Count);
       Assert.Equal(typeof(TimeSpan), r.Columns[0].ClrType);
-      Assert.Equal(MySqlDbType.Time, r.Columns[0].DbType);
+      Assert.Equal(ColumnType.Time, r.Columns[0].Type);
       Assert.Equal(1, rows.Count);
       TimeSpan t = (TimeSpan)rows[0]["dt"];
       TimeSpan test = new TimeSpan(-1, 2, 3);

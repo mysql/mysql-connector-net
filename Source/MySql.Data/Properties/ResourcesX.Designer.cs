@@ -61,6 +61,15 @@ namespace MySqlX.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Collation with id &apos;{0}&apos; not found..
+        /// </summary>
+        internal static string InvalidCollationId {
+            get {
+                return ResourceManager.GetString("InvalidCollationId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Connection Data is incorrect..
         /// </summary>
         internal static string InvalidConnectionData {
@@ -84,6 +93,15 @@ namespace MySqlX.Properties {
         internal static string InvalidConnectionString {
             get {
                 return ResourceManager.GetString("InvalidConnectionString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Decimal (BCD) format is invalid..
+        /// </summary>
+        internal static string InvalidDecimalFormat {
+            get {
+                return ResourceManager.GetString("InvalidDecimalFormat", resourceCulture);
             }
         }
         

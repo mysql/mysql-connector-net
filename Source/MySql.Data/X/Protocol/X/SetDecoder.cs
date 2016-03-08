@@ -28,6 +28,7 @@ using Google.ProtocolBuffers;
 using MySql.Data.MySqlClient;
 using MySql.Data.Common;
 using MySqlX.Properties;
+using MySql.Data.MySqlClient.X.XDevAPI.Common;
 
 namespace MySqlX.Protocol.X
 {
@@ -37,11 +38,12 @@ namespace MySqlX.Protocol.X
 
     public override void SetMetadata()
     {
-      Column.DbType = MySqlDbType.Set;
+      Column.Type = ColumnType.Set;
       Column.ClrType = typeof(string);
       ClrValueDecoder = DecodeValue;
 
-      _encoding = CharSetMap.GetEncoding(DBVersion.Parse("0.0.0"), Column.Collation);
+      string charset = Column.CollationName.Split('_')[0];
+      _encoding = CharSetMap.GetEncoding(DBVersion.Parse("0.0.0"), charset);
     }
 
     private object DecodeValue(byte[] bytes)

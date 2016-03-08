@@ -325,29 +325,31 @@ namespace MySqlX.Protocol
       c._decoder = XValueDecoderFactory.GetValueDecoder(c, colData.Type);
       c._decoder.Column = c;
       
-      if (colData.HasName)
-        c.Name = colData.Name.ToStringUtf8();
-      if (colData.HasOriginalName)
-        c.OriginalName = colData.OriginalName.ToStringUtf8();
-      if (colData.HasTable)
-        c.Table = colData.Table.ToStringUtf8();
-      if (colData.HasOriginalTable)
-        c.OriginalTable = colData.OriginalTable.ToStringUtf8();
-      if (colData.HasSchema)
-        c.Schema = colData.Schema.ToStringUtf8();
-      if (colData.HasCatalog)
-        c.Catalog = colData.Catalog.ToStringUtf8();
-      if (colData.HasCollation)
+      if (!colData.Name.IsEmpty)
+        c.ColumnLabel = colData.Name.ToStringUtf8();
+      if (!colData.OriginalName.IsEmpty)
+        c.ColumnName = colData.OriginalName.ToStringUtf8();
+      if (!colData.Table.IsEmpty)
+        c.TableLabel = colData.Table.ToStringUtf8();
+      if (!colData.OriginalTable.IsEmpty)
+        c.TableName = colData.OriginalTable.ToStringUtf8();
+      if (!colData.Schema.IsEmpty)
+        c.SchemaName = colData.Schema.ToStringUtf8();
+      if (!colData.Catalog.IsEmpty)
+        c.DatabaseName = colData.Catalog.ToStringUtf8();
+      if (colData.Collation > 0)
       {
         c._collationNumber = colData.Collation;
-        c.Collation = CollationMap.GetCollationName((int)colData.Collation);
+        c.CollationName = CollationMap.GetCollationName((int)colData.Collation);
       }
-      if (colData.HasLength)
+      if (colData.Length > 0)
         c.Length = colData.Length;
-      if (colData.HasFractionalDigits)
+      if (colData.FractionalDigits > 0)
         c.FractionalDigits = colData.FractionalDigits;
-      if (colData.HasFlags)
+      if (colData.Flags > 0)
         c._decoder.Flags = colData.Flags;
+      if (colData.ContentType > 0)
+        c._decoder.ContentType = colData.ContentType;
       c._decoder.SetMetadata();
       return c;
     }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -32,7 +32,7 @@ namespace MySqlX.Protocol.X
     {
       switch (type)
       {
-//        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.BIT: return XBitDecoder();
+        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.BIT: return new BitDecoder();
         case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.BYTES: return new ByteDecoder(false);
         case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.ENUM: return new ByteDecoder(true);
         case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.SET: return new SetDecoder();
@@ -42,6 +42,7 @@ namespace MySqlX.Protocol.X
         case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.UINT: return new IntegerDecoder(false);
         case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.FLOAT: return new FloatDecoder(true);
         case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.DOUBLE: return new FloatDecoder(false);
+        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.DECIMAL: return new DecimalDecoder();
       }
       throw new MySqlException("Unknown field type " + type.ToString());
     }

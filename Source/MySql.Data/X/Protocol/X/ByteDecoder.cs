@@ -26,6 +26,7 @@ using System;
 using MySqlX.XDevAPI;
 using MySql.Data.MySqlClient;
 using MySql.Data.Common;
+using MySql.Data.MySqlClient.X.XDevAPI.Common;
 
 namespace MySqlX.Protocol.X
 {
@@ -41,33 +42,30 @@ namespace MySqlX.Protocol.X
 
     public override void SetMetadata()
     {
-      Column.DbType = _isEnum ? MySqlDbType.Enum : GetDbType();
-      Column.ClrType = GetClrType(Column.DbType);
+      Column.Type = GetDbType();
+      Column.ClrType = GetClrType(Column.Type);
+      Column.IsPadded = (Flags & 1) != 0;
       ClrValueDecoder = GetClrValueDecoder();
     }
 
-    private MySqlDbType GetDbType()
+    private ColumnType GetDbType()
     {
-      bool isBinary = Column.Collation == "binary";
-
-      if (Column.Collation == "utf8") return MySqlDbType.VarChar;
-      if (Column.Collation == "utf8_bin") return MySqlDbType.VarBinary;
-      if (Column.Length < 256) return isBinary ? MySqlDbType.TinyBlob : MySqlDbType.TinyText;
-      if (Column.Length < 65536) return isBinary ? MySqlDbType.Blob : MySqlDbType.Text;
-      if (Column.Length < 16777216) return isBinary ? MySqlDbType.MediumBlob : MySqlDbType.MediumText;
-      return isBinary ? MySqlDbType.LongBlob : MySqlDbType.LongText;
+      if (_isEnum)
+        return ColumnType.Enum;
+      if (ContentType == (uint)ColumnContentType.Geometry)
+        return ColumnType.Geometry;
+      if (ContentType == (uint)ColumnContentType.Json)
+        return ColumnType.Json;
+      if ((Column.CollationName??"").EndsWith("_bin"))
+        return ColumnType.Bytes;
+      return ColumnType.String;
    }
 
-    private Type GetClrType(MySqlDbType dbType)
+    private Type GetClrType(ColumnType dbType)
     {
-      if (dbType == MySqlDbType.VarChar || 
-          dbType == MySqlDbType.String ||
-          dbType == MySqlDbType.VarString ||
-          dbType == MySqlDbType.TinyText ||
-          dbType == MySqlDbType.Text ||
-          dbType == MySqlDbType.MediumText || 
-          dbType == MySqlDbType.LongText ||
-          dbType == MySqlDbType.Enum) return typeof(string);
+      if (dbType == ColumnType.String || dbType == ColumnType.Json
+        || dbType == ColumnType.Enum)
+        return typeof(string);
       return typeof(byte[]);
     }
 
@@ -82,13 +80,18 @@ namespace MySqlX.Protocol.X
       if (bytes.Length == 0) return null;
 
       if (_encoding == null)
-        _encoding = CharSetMap.GetEncoding(DBVersion.Parse("0.0.0"), Column.Collation);
+      {
+        string charset = (Column.CollationName??"").Split('_')[0];
+        _encoding = CharSetMap.GetEncoding(DBVersion.Parse("0.0.0"), charset);
+      }
       return _encoding.GetString(bytes, 0, bytes.Length - 1);
     }
 
     private object ByteValueDecoder(byte[] bytes)
     {
-      return bytes;
+      byte[] newValue = new byte[bytes.Length - 1];
+      Array.Copy(bytes, newValue, newValue.Length);
+      return newValue;
     }
   }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -22,6 +22,7 @@
 
 using Google.ProtocolBuffers;
 using MySql.Data.MySqlClient;
+using MySql.Data.MySqlClient.X.XDevAPI.Common;
 using MySqlX.Data;
 using MySqlX.XDevAPI;
 using System;
@@ -32,9 +33,18 @@ namespace MySqlX.Protocol.X
   {
     public override void SetMetadata()
     {
-      Column.DbType = Column.Length == 10 ? MySqlDbType.Date : MySqlDbType.DateTime;
+      Column.Type = GetDbType();
       Column.ClrType = typeof(DateTime);
       ClrValueDecoder = ValueDecoder;
+    }
+
+    private ColumnType GetDbType()
+    {
+      if ((Flags & 1) != 0)
+        return ColumnType.Timestamp;
+      if (Column.Length == 10)
+        return ColumnType.Date;
+      return ColumnType.DateTime;
     }
 
     public object ValueDecoder(byte[] bytes)

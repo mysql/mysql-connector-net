@@ -58,6 +58,7 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="CrudTests\DocBufferingTests.cs" />
+    <Compile Include="RelationalTests\ColumnMetadataTests.cs" />
     <Compile Include="RelationalTests\DataTypeTests.cs" />
     <Compile Include="RelationalTests\DateTimeTests.cs" />
     <Compile Include="RelationalTests\RelationalGCTests.cs" />

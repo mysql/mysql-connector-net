@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -111,7 +111,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.Equal(allRows[0][0], rows[0]["id"]);
       Assert.Equal(allRows[0][1], rows[0]["name"]);
       Assert.Equal(allRows[0][2], rows[0]["age"]);
-      Assert.Equal<byte>(42, (byte)rows[0]["a_number"]);
+      Assert.Equal((sbyte)42, rows[0]["a_number"]);
       Assert.Equal("43", rows[0]["a_string"]);
     }
 

@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -24,6 +24,7 @@ using System;
 using MySqlX.Protocol;
 using MySqlX.Data;
 using MySql.Data.MySqlClient;
+using MySql.Data.MySqlClient.X.XDevAPI.Common;
 
 namespace MySqlX.XDevAPI.Relational
 {
@@ -36,34 +37,38 @@ namespace MySqlX.XDevAPI.Relational
     internal UInt64 _collationNumber;
 
     /// <summary>
-    /// Column name
+    /// Original column name
     /// </summary>
-    public string Name { get; internal set; }
+    public string ColumnName { get; internal set; }
     /// <summary>
-    /// Original column name before an alias was applied
+    /// Column name alias
     /// </summary>
-    public string OriginalName { get; internal set; }
+    public string ColumnLabel { get; internal set; }
     /// <summary>
     /// Table name the column orginates from
     /// </summary>
-    public string Table { get; internal set; }
+    public string TableName { get; internal set; }
     /// <summary>
-    /// Original table name the column orginates from before an alias was applied
+    /// Table name alias
     /// </summary>
-    public string OriginalTable { get; internal set; }
+    public string TableLabel { get; internal set; }
     /// <summary>
     /// Schema name the column originates from
     /// </summary>
-    public string Schema { get; internal set; }
+    public string SchemaName { get; internal set; }
     /// <summary>
     /// Catalog the schema originates from.
     /// In MySQL protocol this is `def` by default
     /// </summary>
-    public string Catalog { get; internal set;  }
+    public string DatabaseName { get; internal set;  }
     /// <summary>
     /// Collation used in column
     /// </summary>
-    public string Collation { get; internal set; }
+    public string CollationName { get; internal set; }
+    /// <summary>
+    /// Character set used in column
+    /// </summary>
+    public string CharacterSetName { get; internal set; }
     /// <summary>
     /// Column lenght
     /// </summary>
@@ -75,11 +80,18 @@ namespace MySqlX.XDevAPI.Relational
     /// <summary>
     /// Mysql data type
     /// </summary>
-    public MySqlDbType DbType { get; internal set; }
+    public ColumnType Type { get; internal set; }
     /// <summary>
     /// .NET Clr data type
     /// </summary>
     public Type ClrType { get; internal set; }
-
+    /// <summary>
+    /// True if it's a signed number
+    /// </summary>
+    public bool IsNumberSigned { get; internal set; }
+    /// <summary>
+    /// True if column is UINT zerofill or BYTES rightpad
+    /// </summary>
+    public bool IsPadded { get; internal set; }
   }
 }
