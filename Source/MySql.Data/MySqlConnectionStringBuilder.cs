@@ -193,7 +193,7 @@ namespace MySql.Data.MySqlClient
     }
 
     public MySqlConnectionStringBuilder(string connStr)
-      : base()
+      : this()
     {
       lock (this)
       {
