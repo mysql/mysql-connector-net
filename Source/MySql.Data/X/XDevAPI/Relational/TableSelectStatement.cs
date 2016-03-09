@@ -67,7 +67,7 @@ namespace MySqlX.XDevAPI.Relational
     /// <returns>Result of execution and data</returns>
     public override RowResult Execute()
     {
-      return Target.Session.XSession.FindRows(this);
+      return Execute(Target.Session.XSession.FindRows, this);
     }
 
     /// <summary>

@@ -55,7 +55,7 @@ namespace MySqlX.XDevAPI.CRUD
     /// <returns>Result of execution and data</returns>
     public override DocResult Execute()
     {
-      return Target.Session.XSession.FindDocs(this);
+      return Execute(Target.Session.XSession.FindDocs, this);
     }
 
     /// <summary>

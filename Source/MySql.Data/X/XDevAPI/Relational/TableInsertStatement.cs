@@ -46,7 +46,14 @@ namespace MySqlX.XDevAPI.Relational
     /// <returns>Result of insert statement</returns>
     public override Result Execute()
     {
-      return Target.Session.XSession.InsertRows(this);
+      try
+      {
+        return Target.Session.XSession.InsertRows(this);
+      }
+      finally
+      {
+        values.Clear();
+      }
     }
 
     /// <summary>

@@ -23,6 +23,7 @@
 using System.Linq;
 using MySqlX.XDevAPI.Relational;
 using Xunit;
+using MySql.Data.MySqlClient;
 
 namespace MySqlX.Data.Tests.RelationalTests
 {
@@ -71,6 +72,21 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.Equal(1, selectResult.Rows.Count);
       Assert.Equal("MARK", selectResult.Rows.ToArray()[0][0]);
       Assert.Equal(34, selectResult.Rows.ToArray()[0][1]);
+    }
+
+    [Fact]
+    public void ReuseStatement()
+    {
+      ExecuteSQL("CREATE TABLE test(name VARCHAR(40), age INT)");
+      Table table = testSchema.GetTable("test");
+
+      var stmt = table.Insert("name", "age");
+      var result = stmt.Values("upper('mark')", "50-16").Execute();
+      Assert.Equal<ulong>(1, result.RecordsAffected);
+      Assert.Throws<MySqlException>(() => result = stmt.Values("George", 34, 1).Execute());
+      result = stmt.Values("George", 34).Execute();
+      Assert.Equal<ulong>(1, result.RecordsAffected);
+      Assert.Equal(2, table.Select().Execute().FetchAll().Count);
     }
   }
 }

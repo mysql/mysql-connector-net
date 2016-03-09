@@ -73,8 +73,9 @@ namespace MySqlX.Data.Tests.RelationalTests
 
     private void ValidateUpdate(TableUpdateStatement statement)
     {
+      Dictionary<String, object> parameters = new Dictionary<string, object>(statement.FilterData.Parameters);
       var result = statement.Execute();
-
+      statement.FilterData.Parameters = parameters;
       var rows = GetRows(statement.FilterData);
       foreach (var row in rows)
       {
@@ -127,7 +128,9 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Fact]
     public void UpdateBind()
     {
-      ValidateUpdate(table.Update().Set("age", 55).Where("id = :id or id = :id or id = :id2").Bind("id", 4).Bind("id2", 7));
+      var stmt = table.Update().Set("age", 55).Where("id = :id or id = :id or id = :id2");
+      ValidateUpdate(stmt.Bind("id", 4).Bind("id2", 7));
+      ValidateUpdate(stmt.Bind("id", 5).Bind("id2", 8));
     }
   }
 }

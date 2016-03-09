@@ -79,7 +79,7 @@ namespace MySqlX.XDevAPI.CRUD
     /// <returns>Result of execution</returns>
     public override Result Execute()
     {
-      return Target.Session.XSession.ModifyDocs(this);
+      return Execute(Target.Session.XSession.ModifyDocs, this);
     }
   }
 }

@@ -122,5 +122,26 @@ namespace MySqlX.Data.Tests
       Assert.Null(result.DocumentId);
       Assert.Null(result.DocumentIds);
     }
+
+    [Fact]
+    public void ReuseStatement()
+    {
+      Collection coll = CreateCollection("test");
+      var docs = new[]
+      {
+        new {  _id = 1, title = "Book 1", pages = 20 },
+        new {  _id = 2, title = "Book 2", pages = 30 },
+        new {  _id = 3, title = "Book 3", pages = 40 },
+        new {  _id = 4, title = "Book 4", pages = 50 },
+      };
+      var stmt = coll.Add(0);
+      stmt.Execute();
+      foreach (var doc in docs)
+      {
+        Result r = stmt.Add(doc).Execute();
+        Assert.Equal<ulong>(1, r.RecordsAffected);
+      }
+      Assert.Equal(5, coll.Count());
+    }
   }
 }

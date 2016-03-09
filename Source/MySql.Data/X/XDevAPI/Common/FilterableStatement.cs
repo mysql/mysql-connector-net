@@ -23,6 +23,7 @@
 using MySqlX.Serialization;
 using MySqlX.Common;
 using System.Collections.Generic;
+using System;
 
 namespace MySqlX.XDevAPI.Common
 {
@@ -134,6 +135,18 @@ namespace MySqlX.XDevAPI.Common
     public T Bind(object jsonParams)
     {
       return Bind(new DbDoc(jsonParams));
+    }
+
+    protected virtual TResult Execute(Func<T, TResult> executeFunc, T t)
+    {
+      try
+      {
+        return executeFunc(t);
+      }
+      finally
+      {
+        FilterData.Parameters.Clear();
+      }
     }
   }
 }

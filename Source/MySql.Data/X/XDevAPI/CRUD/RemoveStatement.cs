@@ -40,7 +40,7 @@ namespace MySqlX.XDevAPI.CRUD
     /// <returns></returns>
     public override Result Execute()
     {
-      return Target.Session.XSession.DeleteDocs(this);
+      return Execute(Target.Session.XSession.DeleteDocs, this);
     }
   }
 }

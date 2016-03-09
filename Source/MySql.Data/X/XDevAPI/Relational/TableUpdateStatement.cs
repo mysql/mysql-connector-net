@@ -49,7 +49,7 @@ namespace MySqlX.XDevAPI.Relational
     /// <returns>Result of the update statement</returns>
     public override Result Execute()
     {
-      return Target.Session.XSession.UpdateRows(this);
+      return Execute(Target.Session.XSession.UpdateRows, this);
     }
 
     /// <summary>

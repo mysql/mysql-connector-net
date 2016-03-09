@@ -65,8 +65,15 @@ namespace MySqlX.XDevAPI.CRUD
     /// <returns>Result of execution</returns>
     public override Result Execute()
     {
-      List<string> newIds = AssignIds();
-      return Target.Session.XSession.Insert(Target, _DbDocs.ToArray(), newIds);
+      try
+      {
+        List<string> newIds = AssignIds();
+        return Target.Session.XSession.Insert(Target, _DbDocs.ToArray(), newIds);
+      }
+      finally
+      {
+        _DbDocs.Clear();
+      }
     }
 
     private List<string> AssignIds()

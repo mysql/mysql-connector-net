@@ -80,7 +80,9 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Fact]
     public void DeleteBindTest()
     {
-      ExecuteDelete(testSchema.GetTable("test").Delete().Where("age = :aGe").Bind("Age", 4), 9);
+      var deleteStmt = testSchema.GetTable("test").Delete().Where("age = :aGe");
+      ExecuteDelete(deleteStmt.Bind("Age", 4), 9);
+      ExecuteDelete(deleteStmt.Bind("age", 6), 8);
     }
   }
 }

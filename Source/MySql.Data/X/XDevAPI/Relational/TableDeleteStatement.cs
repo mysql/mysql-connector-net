@@ -41,7 +41,7 @@ namespace MySqlX.XDevAPI.Relational
     /// <returns>Result of delete execution</returns>
     public override Result Execute()
     {
-      return Target.Session.XSession.DeleteRows(this);
+      return Execute(Target.Session.XSession.DeleteRows, this);
     }
   }
 }
