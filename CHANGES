@@ -1,3 +1,4 @@
 6.10.0	
+- Fixed problem where mysql.proc tables would not be used for metadata even though access was available (MySQL Bug #74116, Oracle Bug #20960373)
 
 - Modeling features for EF 7. Pending review for ENUM type support.
