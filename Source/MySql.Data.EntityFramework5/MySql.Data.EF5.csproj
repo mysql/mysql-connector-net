@@ -81,6 +81,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <DocumentationFile>bin\v4.5\Release\MySql.Data.Entity.XML</DocumentationFile>
   </PropertyGroup>
   <Choose>
     <When Condition="$(Framework) &gt;= 4.5">

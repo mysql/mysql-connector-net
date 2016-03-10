@@ -84,7 +84,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <NoWarn>1699</NoWarn>
-    <DocumentationFile>bin\release\webdocs.xml</DocumentationFile>
+    <DocumentationFile>bin\v4.5\Release\MySql.Web.xml</DocumentationFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
