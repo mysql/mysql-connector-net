@@ -35,6 +35,7 @@ using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Migrations;
 using System.Data.Entity.Migrations.Infrastructure;
 using System.Data.Objects;
+using MySql.Data.Entity.Tests.v4.x;
 
 namespace MySql.Data.Entity.Tests
 {

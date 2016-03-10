@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace MySql.Data.Entity.Tests
+namespace MySql.Data.Entity.Tests.v4.x
 {
     using System;
     using System.Data.Entity;
