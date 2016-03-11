@@ -23,6 +23,7 @@
 using System;
 using MySqlX.Session;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace MySqlX.XDevAPI.Common
 {
@@ -71,7 +72,11 @@ namespace MySqlX.XDevAPI.Common
     /// <summary>
     /// Returns a list of generated Ids in the order of the Add() calls
     /// </summary>
+#if NET_45_OR_GREATER
     public IReadOnlyList<string> DocumentIds
+#else
+    public ReadOnlyCollection<string> DocumentIds
+#endif
     {
       get; internal set;
     }

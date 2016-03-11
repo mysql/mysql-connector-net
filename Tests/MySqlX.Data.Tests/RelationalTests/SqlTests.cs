@@ -49,7 +49,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.True(result.HasData);
       var row = result.FetchOne();
       Assert.NotNull(row);
-      Assert.Equal((byte)5, row[0]);
+      Assert.Equal((sbyte)5, row[0]);
       Assert.False(result.Next());
       Assert.Null(result.FetchOne());
       Assert.False(result.NextResult());
@@ -65,7 +65,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.True(result.HasData);
       var row = result.FetchOne();
       Assert.NotNull(row);
-      Assert.Equal((byte)5, row[0]);
+      Assert.Equal((sbyte)5, row[0]);
       Assert.False(result.Next());
       Assert.Null(result.FetchOne());
 
@@ -79,7 +79,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.True(result.NextResult());
       row = result.FetchOne();
       Assert.NotNull(row);
-      Assert.Equal((byte)10, row[0]);
+      Assert.Equal((sbyte)10, row[0]);
       Assert.False(result.Next());
       Assert.Null(result.FetchOne());
 

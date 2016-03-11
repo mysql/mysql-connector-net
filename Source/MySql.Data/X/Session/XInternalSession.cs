@@ -210,7 +210,7 @@ namespace MySqlX.Session
     public Result Insert(Collection collection, DbDoc[] json, List<string> newIds)
     {
       protocol.SendInsert(collection.Schema.Name, false, collection.Name, json, null);
-      return new Result(this) { DocumentIds = newIds } ;
+      return new Result(this) { DocumentIds = newIds.AsReadOnly() } ;
     }
 
     public Result DeleteDocs(RemoveStatement rs)
