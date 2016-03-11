@@ -33,7 +33,8 @@ namespace MySqlX.XDevAPI.Common
     internal ulong _recordsAffected;
     internal ulong _autoIncrementValue;
     protected InternalSession _session;
-    protected bool hasData;
+    internal bool _hasData;
+    internal bool _hasMoreResults = false;
 
     internal BaseResult(InternalSession session)
     {
@@ -46,8 +47,8 @@ namespace MySqlX.XDevAPI.Common
         session.ActiveResult = null;
       }
 
-      hasData = Protocol.HasData();
-      if (hasData)
+      _hasData = Protocol.HasData();
+      if (_hasData)
         session.ActiveResult = this;
     }
 

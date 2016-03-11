@@ -285,11 +285,16 @@ namespace MySqlX.Protocol
 
     public override void CloseResult(BaseResult rs)
     {
+      rs._hasData = false;
       while (true)
       {
         CommunicationPacket p = PeekPacket();
         if (p.MessageType == (int)ServerMessageId.RESULTSET_FETCH_DONE_MORE_RESULTSETS)
-          throw new Exception(ResourcesX.ThrowingAwayResults);
+        {
+          rs._hasMoreResults = true;
+          ReadPacket();
+          break;
+        }
         if (p.MessageType == (int)ServerMessageId.RESULTSET_FETCH_DONE)
           ReadPacket();
         else if (p.MessageType == (int)ServerMessageId.NOTICE)

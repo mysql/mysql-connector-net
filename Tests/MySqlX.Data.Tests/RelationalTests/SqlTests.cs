@@ -20,6 +20,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Relational;
 using Xunit;
 
@@ -35,6 +36,54 @@ namespace MySqlX.Data.Tests.RelationalTests
       SqlResult r = GetNodeSession().SQL("SELECT * FROM test").Execute();
       Assert.True(r.Next());
       Assert.Equal(1, r[0]);
+      Assert.False(r.NextResult());
+    }
+
+    [Fact]
+    public void ExecuteStoredProcedure()
+    {
+      ExecuteSQL("CREATE PROCEDURE `my_proc` () BEGIN SELECT 5; END");
+
+      NodeSession session = GetNodeSession();
+      var result = session.SQL("CALL my_proc()").Execute();
+      Assert.True(result.HasData);
+      var row = result.FetchOne();
+      Assert.NotNull(row);
+      Assert.Equal((byte)5, row[0]);
+      Assert.False(result.Next());
+      Assert.Null(result.FetchOne());
+      Assert.False(result.NextResult());
+    }
+
+    [Fact]
+    public void ExecuteStoredProcedureMultipleResults()
+    {
+      ExecuteSQL("CREATE PROCEDURE `my_proc` () BEGIN SELECT 5; SELECT 'A'; SELECT 5 * 2; END");
+
+      NodeSession session = GetNodeSession();
+      var result = session.SQL("CALL my_proc()").Execute();
+      Assert.True(result.HasData);
+      var row = result.FetchOne();
+      Assert.NotNull(row);
+      Assert.Equal((byte)5, row[0]);
+      Assert.False(result.Next());
+      Assert.Null(result.FetchOne());
+
+      Assert.True(result.NextResult());
+      row = result.FetchOne();
+      Assert.NotNull(row);
+      Assert.Equal("A", row[0]);
+      Assert.False(result.Next());
+      Assert.Null(result.FetchOne());
+
+      Assert.True(result.NextResult());
+      row = result.FetchOne();
+      Assert.NotNull(row);
+      Assert.Equal((byte)10, row[0]);
+      Assert.False(result.Next());
+      Assert.Null(result.FetchOne());
+
+      Assert.False(result.NextResult());
     }
 
     [Fact]

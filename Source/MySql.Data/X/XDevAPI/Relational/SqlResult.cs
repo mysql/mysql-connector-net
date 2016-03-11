@@ -35,9 +35,12 @@ namespace MySqlX.XDevAPI.Relational
 
     }
 
+    /// <summary>
+    /// Property that indicates if there result has data.
+    /// </summary>
     public bool HasData
     {
-      get { return hasData;  }
+      get { return _hasData;  }
     }
 
     /// <summary>
@@ -54,6 +57,22 @@ namespace MySqlX.XDevAPI.Relational
     public UInt64 AutoIncrementValue
     {
       get { return _autoIncrementValue; }
+    }
+
+    /// <summary>
+    /// Moves to next resultset
+    /// </summary>
+    /// <returns>True if there is a new resultset</returns>
+    public bool NextResult()
+    {
+      if (!_hasMoreResults)
+        return false;
+      _hasData = Protocol.HasData();
+      LoadCoumnData();
+      _isComplete = !_hasData;
+      _position = -1;
+      _items.Clear();
+      return _hasData;
     }
   }
 }

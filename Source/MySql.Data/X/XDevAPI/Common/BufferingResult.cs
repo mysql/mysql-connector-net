@@ -41,22 +41,12 @@ namespace MySqlX.XDevAPI.Common
     protected List<T> _items = new List<T>();
     protected bool _isComplete;
     Dictionary<string, int> _nameMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-    internal List<Column> _columns = new List<Column>();
+    internal List<Column> _columns = null;
 
 
     internal BufferingResult(InternalSession session) : base(session)
     {
-      if (hasData)
-      {
-        _columns = Protocol.LoadColumnMetadata();
-        for (int i = 0; i < _columns.Count; i++)
-        {
-          _nameMap.Add(_columns[i].ColumnName ?? _columns[i].ColumnLabel, i);
-        }
-      }
-      else
-        Protocol.CloseResult(this);
-
+      LoadCoumnData();
       PageSize = 20;
       _position = -1;
     }
@@ -67,6 +57,21 @@ namespace MySqlX.XDevAPI.Common
     }
 
     public int PageSize { get; private set; }
+
+    protected void LoadCoumnData()
+    {
+      _columns = new List<Column>();
+      if (_hasData)
+      {
+        _columns = Protocol.LoadColumnMetadata();
+        if (_columns.Count == 0)
+          _hasData = false;
+        for (int i = 0; i < _columns.Count; i++)
+          _nameMap.Add(_columns[i].Name, i);
+      }
+      else
+        Protocol.CloseResult(this);
+    }
 
     public ReadOnlyCollection<T> FetchAll()
     {
@@ -87,14 +92,14 @@ namespace MySqlX.XDevAPI.Common
     public T FetchOne()
     {
       if (!Next())
-        throw new MySqlException(ResourcesX.NoMoreData);
+        return default(T);
       return Current;
     }
 
     public bool Next()
     {
       _position++;
-      if (_position == _items.Count)
+      if (_position >= _items.Count)
       {
         if (_isComplete) return false;
         if (!PageInItems())
@@ -117,7 +122,7 @@ namespace MySqlX.XDevAPI.Common
         T item = ReadItem(false);
         if (item == null)
         {
-          _isComplete = true;
+          _isComplete = !_hasData;
           _session.ActiveResult = null;
           break;
         }
