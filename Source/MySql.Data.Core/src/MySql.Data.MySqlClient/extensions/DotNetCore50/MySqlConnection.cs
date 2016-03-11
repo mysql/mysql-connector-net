@@ -43,11 +43,6 @@ namespace MySql.Data.MySqlClient
       return CreateCommand();
     }
 
-    partial void AssertPermissions()
-    {
-      throw new NotSupportedException("This method is not supported in Net Core");
-    }
-
     #region IDisposeable
 
     protected override void Dispose(bool disposing)

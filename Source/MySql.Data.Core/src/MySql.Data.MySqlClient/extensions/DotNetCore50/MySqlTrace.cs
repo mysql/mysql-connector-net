@@ -30,24 +30,26 @@ namespace MySql.Data.MySqlClient
 {
   public sealed partial class MySqlTrace
   {
+    private static TraceSource source = new TraceSource("mysql");
+
     static MySqlTrace()
     {
-      foreach (TraceListener listener in Source.Listeners.Cast<TraceListener>().Where(listener => listener.GetType().ToString().Contains("MySql.EMTrace.EMTraceListener")))
+      foreach (TraceListener listener in source.Listeners.Cast<TraceListener>().Where(listener => listener.GetType().ToString().Contains("MySql.EMTrace.EMTraceListener")))
       {
         QueryAnalysisEnabled = true;
         break;
       }
     }
 
-    public static TraceListenerCollection Listeners { get; } = Source.Listeners;
+    public static TraceListenerCollection Listeners { get; } = source.Listeners;
 
     public static SourceSwitch Switch
     {
-      get { return Source.Switch; }
-      set { Source.Switch = value; }
+      get { return source.Switch; }
+      set { source.Switch = value; }
     }
 
-    public static bool QueryAnalysisEnabled { get; protected set; }
+    public static bool QueryAnalysisEnabled { get; set; }
 
     public static void EnableQueryAnalyzer(string host, int postInterval)
     {
@@ -58,7 +60,7 @@ namespace MySql.Data.MySqlClient
       if (l == null)
         throw new MySqlException(Resources.UnableToEnableQueryAnalysis);
 
-      Source.Listeners.Add(l);
+      source.Listeners.Add(l);
       Switch.Level = SourceLevels.All;
     }
 
@@ -67,12 +69,15 @@ namespace MySql.Data.MySqlClient
       QueryAnalysisEnabled = false;
       foreach (TraceListener l in from TraceListener l in Source.Listeners where l.GetType().ToString().Contains("EMTraceListener") select l)
       {
-        Source.Listeners.Remove(l);
+        source.Listeners.Remove(l);
         break;
       }
     }
 
-    internal static TraceSource Source { get; } = new TraceSource("mysql");
+    internal static TraceSource Source
+    {
+      get { return source; }
+    }
 
     internal static void LogInformation(int id, string msg)
     {

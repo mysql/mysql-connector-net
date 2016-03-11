@@ -358,9 +358,9 @@ namespace MySql.Data.MySqlClient
       SetState(ConnectionState.Connecting, true);
 
       AssertPermissions();
-
 #if !DNXCORE50
-      //TODO: SUPPORT FOR 452 AND 46X
+
+      ////TODO: SUPPORT FOR 452 AND 46X
       //// if we are auto enlisting in a current transaction, then we will be
       //// treating the connection as pooled
       //if (Settings.AutoEnlist && Transaction.Current != null)
@@ -371,8 +371,8 @@ namespace MySql.Data.MySqlClient
       //    !driver.Settings.EquivalentTo(this.Settings)))
       //    Throw(new NotSupportedException(Resources.MultipleConnectionsInTransactionNotSupported));
       //}
-#endif
 
+#endif
       try
       {
         MySqlConnectionStringBuilder currentSettings = Settings;

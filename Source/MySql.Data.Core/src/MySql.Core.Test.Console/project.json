@@ -1,0 +1,32 @@
+﻿{
+  "version": "1.0.0-*",
+  "description": "MySql.Core.Test.Console Console Application",
+  "authors": [ "jogan" ],
+  "tags": [ "" ],
+  "projectUrl": "",
+  "licenseUrl": "",
+
+  "compilationOptions": {
+    "emitEntryPoint": true
+  },
+
+  "dependencies": {
+  },
+
+  "commands": {
+    "MySql.Core.Test.Console": "MySql.Core.Test.Console"
+  },
+
+  "frameworks": {
+    "dnxcore50": {
+      "dependencies": {
+        "Microsoft.CSharp": "4.0.1-beta-23516",
+        "MySql.Data.MySqlClient": "1.0.0-alpha",
+        "System.Collections": "4.0.11-beta-23516",
+        "System.Console": "4.0.0-beta-23516",
+        "System.Linq": "4.0.1-beta-23516",
+        "System.Threading": "4.0.11-beta-23516"
+      }
+    }
+  }
+}
