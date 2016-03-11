@@ -1,7 +1,7 @@
 ﻿{
-  "version": "1.0.0-*",
+  "version": "1.0.0-alpha-*",
   "description": "MySql.Data.MySqlClient.Test Class Library",
-  "authors": [ "2016 Oracle" ],
+  "authors": [ "Oracle" ],
   "tags": [ "" ],
   "projectUrl": "",
   "licenseUrl": "",

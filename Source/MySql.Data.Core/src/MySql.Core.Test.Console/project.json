@@ -1,7 +1,7 @@
 ﻿{
-  "version": "1.0.0-*",
+  "version": "1.0.0-alpha-*",
   "description": "MySql.Core.Test.Console Console Application",
-  "authors": [ "jogan" ],
+  "authors": [ "Oracle" ],
   "tags": [ "" ],
   "projectUrl": "",
   "licenseUrl": "",

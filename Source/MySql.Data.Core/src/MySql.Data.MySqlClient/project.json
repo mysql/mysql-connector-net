@@ -1,7 +1,7 @@
 {
   "version": "1.0.0-alpha-*",
   "description": "MySql.Data.MySqlClient .Net Core Class Library",
-  "authors": [ "Oracle 2016" ],
+  "authors": [ "Oracle" ],
   "tags": [ "" ],
   "projectUrl": "",
   "licenseUrl": "",
