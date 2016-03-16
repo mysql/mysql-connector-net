@@ -86,6 +86,19 @@
     <DocumentationFile>bin\Release\MySql.Data.XML</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'ReleaseNET40_Only|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <BaseOutputPath>NET40_Only\</BaseOutputPath>
+    <BaseIntermediateOutputPath>obj\NET40_Only\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>obj\NET40_Only\</IntermediateOutputPath>
+    <OutputPath>bin\NET40_Only\Release\</OutputPath>
+    <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>    
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
