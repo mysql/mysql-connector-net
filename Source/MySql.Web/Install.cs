@@ -1,4 +1,4 @@
-// Copyright © 2004, 2014, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -175,7 +175,7 @@ namespace MySql.Web.Security
       // add the type attribute by reflecting on the executing assembly
       Assembly a = Assembly.GetExecutingAssembly();
       string type = String.Format("MySql.Web.Security.MySQLMembershipProvider, {0}",
-          a.FullName.Replace("Installers", "Web").Replace(".v20", string.Empty));
+          a.FullName.Replace("Installers", "Web").Replace(".NET40", string.Empty));
       newNode.SetAttribute("type", type);
 
       newNode.SetAttribute("connectionStringName", "LocalMySqlServer");
@@ -218,7 +218,7 @@ namespace MySql.Web.Security
       // add the type attribute by reflecting on the executing assembly
       Assembly a = Assembly.GetExecutingAssembly();
       string type = String.Format("MySql.Web.Security.MySQLRoleProvider, {0}",
-          a.FullName.Replace("Installers", "Web").Replace(".v20", string.Empty));
+          a.FullName.Replace("Installers", "Web").Replace(".NET40", string.Empty));
       newNode.SetAttribute("type", type);
 
       newNode.SetAttribute("connectionStringName", "LocalMySqlServer");
@@ -251,7 +251,7 @@ namespace MySql.Web.Security
       // add the type attribute by reflecting on the executing assembly
       Assembly a = Assembly.GetExecutingAssembly();
       string type = String.Format("MySql.Web.Profile.MySQLProfileProvider, {0}",
-          a.FullName.Replace("Installers", "Web").Replace(".v20", string.Empty));
+          a.FullName.Replace("Installers", "Web").Replace(".NET40", string.Empty));
       newNode.SetAttribute("type", type);
 
       newNode.SetAttribute("connectionStringName", "LocalMySqlServer");
@@ -284,7 +284,7 @@ namespace MySql.Web.Security
       // add the type attribute by reflecting on the executing assembly
       Assembly a = Assembly.GetExecutingAssembly();
       string type = String.Format("MySql.Web.SiteMap.MySqlSiteMapProvider, {0}",
-          a.FullName.Replace("Installers", "Web").Replace(".v20", string.Empty));
+          a.FullName.Replace("Installers", "Web").Replace(".NET40", string.Empty));
       newNode.SetAttribute("type", type);
 
       newNode.SetAttribute("connectionStringName", "LocalMySqlServer");
@@ -349,7 +349,7 @@ namespace MySql.Web.Security
       // add the type attribute by reflecting on the executing assembly
       Assembly a = Assembly.GetExecutingAssembly();
       string type = String.Format("MySql.Web.Personalization.MySqlPersonalizationProvider, {0}",
-          a.FullName.Replace("Installers", "Web").Replace(".v20", string.Empty));
+          a.FullName.Replace("Installers", "Web").Replace(".NET40", string.Empty));
       newNode.SetAttribute("type", type);
 
       newNode.SetAttribute("connectionStringName", "LocalMySqlServer");
