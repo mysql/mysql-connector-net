@@ -32,8 +32,11 @@ namespace MySql.Core.Test.Console
   {
     public static void Main(string[] args)
     {
-      MySqlConnection connection = new MySqlConnection("server=localhost;user id=root;password=root;persistsecurityinfo=True;port=3306;database=sakila;");
-      connection.Open();
+      string connString = "server=10.157.120.142;user id=root;password=root;persistsecurityinfo=True;port=3306;database=sakila;";
+
+      System.Console.WriteLine("Starting the demo for MySql Connector / .Net Core");      System.Console.ReadKey();
+
+      MySqlConnection connection = new MySqlConnection(connString);      connection.Open();
 
       MySqlCommand command = new MySqlCommand("SELECT * FROM sakila.category;", connection);
 

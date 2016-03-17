@@ -67,14 +67,9 @@ namespace MySql.Data.MySqlClient
     /// <returns></returns>
     public override IEnumerator GetEnumerator()
     {
-      //TODO: REVIEW FOR DOTNETCORE50
-      return ResultSet.Values.GetEnumerator();
-      //throw new NotImplementedException();
+      //TODO: REMOVE WHEN DBENUMERATOR IS INCLUDED IN SYSTEM.DATA.COMMON
+      throw new NotImplementedException();
+      //  return new DbEnumerator(this, (commandBehavior & CommandBehavior.CloseConnection) != 0);
     }
-    //TODO: REVIEW HOW TO GET THIS IMPLEMENTATION FOR NETCORE
-    //public override IEnumerator GetEnumerator()
-    //{
-    //  return new DbEnumerator(this, (commandBehavior & CommandBehavior.CloseConnection) != 0);
-    //}
   }
 }
