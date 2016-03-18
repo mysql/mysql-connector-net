@@ -102,5 +102,20 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.Equal(5, result[0]);
       Assert.Equal("E", result[1]);
     }
+
+    [Fact]
+    public void BindNull()
+    {
+      ExecuteSQL("CREATE TABLE test(id INT, letter varchar(1))");
+
+      var nodeSession = GetNodeSession();
+      var result = nodeSession.SQL("INSERT INTO test VALUES(1, ?), (2, 'B');").Bind(null).Execute();
+      Assert.Equal(2ul, result.RecordsAffected);
+
+      var sqlResult = nodeSession.SQL("SELECT * FROM test WHERE letter is ?").Bind(null).Execute().FetchAll();
+      Assert.Equal(1, sqlResult.Count);
+      Assert.Equal(1, sqlResult[0][0]);
+      Assert.Null(sqlResult[0][1]);
+    }
   }
 }
