@@ -1,0 +1,40 @@
+﻿    "net452": {
+      "frameworkAssemblies": {
+        "System.ComponentModel": "4.0.0.0",
+        "System.Configuration": "4.0.0.0",
+        "System.Configuration.Install": "4.0.0.0",
+        "System.Data": "4.0.0.0",
+        "System.Design": "4.0.0.0",
+        "System.Drawing": "4.0.0.0",
+        "System.IO": "4.0.0.0",
+        "System.Management": "4.0.0.0",
+        "System.Net": "4.0.0.0",
+        "System.Reflection": "4.0.0.0",
+        "System.Runtime.InteropServices": "4.0.10.0",
+        "System.Security": "4.0.0.0",
+        "System.Threading": "4.0.0.0",
+        "System.Threading.Tasks": "4.0.0.0",
+        "System.Transactions": "4.0.0.0",
+        "System.Xml": "4.0.0.0"
+      }
+    },
+    "net46": {
+      "frameworkAssemblies": {
+        "System.ComponentModel": "4.0.0.0",
+        "System.Configuration": "4.0.0.0",
+        "System.Configuration.Install": "4.0.0.0",
+        "System.Data": "4.0.0.0",
+        "System.Design": "4.0.0.0",
+        "System.Drawing": "4.0.0.0",
+        "System.IO": "4.0.0.0",
+        "System.Management": "4.0.0.0",
+        "System.Net": "4.0.0.0",
+        "System.Reflection": "4.0.0.0",
+        "System.Runtime.InteropServices": "4.0.20.0",
+        "System.Security": "4.0.0.0",
+        "System.Threading": "4.0.10.0",
+        "System.Threading.Tasks": "4.0.10.0",
+        "System.Transactions": "4.0.0.0",
+        "System.Xml": "4.0.0.0"
+      }
+    }

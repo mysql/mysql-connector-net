@@ -26,7 +26,6 @@ using System.Data;
 using System.Data.Common;
 using System.Security;
 using MySql.Data.MySqlClient;
-using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.extensions.DotNetCore50; //dummy class for compatibility
 
 namespace MySql.Data.MySqlClient

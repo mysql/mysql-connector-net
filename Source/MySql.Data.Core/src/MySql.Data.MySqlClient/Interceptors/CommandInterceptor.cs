@@ -68,7 +68,7 @@ namespace MySql.Data.MySqlClient.Interceptors
 
     public CommandInterceptor(MySqlConnection connection)
     {
-      this.Connection = connection;
+      Connection = connection;
 
       LoadInterceptors(connection.Settings.CommandInterceptors);
     }

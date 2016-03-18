@@ -66,7 +66,7 @@ namespace MySql.Data.MySqlClient.Interceptors
 
     public ExceptionInterceptor(MySqlConnection connection) 
     {
-      this.Connection = connection;
+      Connection = connection;
 
       LoadInterceptors(connection.Settings.ExceptionInterceptors);
 

@@ -23,6 +23,7 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 
@@ -112,7 +113,7 @@ namespace MySql.Data.MySqlClient.common
         }
       }
       while (++retry < MaxRetryCount);
-      if(exception.GetBaseException() is SocketException 
+      if (exception.GetBaseException() is SocketException
         && IsTimeoutException((SocketException)exception.GetBaseException()))
         throw new TimeoutException(exception.Message, exception);
       throw exception;
@@ -233,7 +234,7 @@ namespace MySql.Data.MySqlClient.common
     //  Assembly a = Assembly.Load(@"Mono.Posix, Version=2.0.0.0, 				
     //            Culture=neutral, PublicKeyToken=0738eb9f132ed756");
 
-      
+
     //  // then we need to construct a UnixEndPoint object
     //  EndPoint ep = (EndPoint)a.CreateInstance("Mono.Posix.UnixEndPoint",
     //      false, BindingFlags.CreateInstance, null,
@@ -252,9 +253,12 @@ namespace MySql.Data.MySqlClient.common
         endPoint = new DnsEndPoint(settings.Server, (int)settings.Port);
       }
       else
+      {
 #endif
-        endPoint = new IPEndPoint(ip, (int) settings.Port);
-
+      endPoint = new IPEndPoint(ip, (int)settings.Port);
+#if !DNXCORE50
+      }
+#endif
       Socket socket = unix ?
           new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.IP) :
           new Socket(ip.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
@@ -263,21 +267,26 @@ namespace MySql.Data.MySqlClient.common
         SetKeepAlive(socket, settings.Keepalive);
       }
 
-
+#if DNXCORE50
+      try
+      {
+        Task ias = socket.ConnectAsync(endPoint);
+        if (!ias.Wait(((int)settings.ConnectionTimeout * 1000)))
+        {
+          socket.Dispose();
+        }
+      }
+      catch (Exception)
+      {
+        socket.Dispose();
+        throw;
+      }
+#else
       IAsyncResult ias = socket.BeginConnect(endPoint, null, null);
 
-#if DNXCORE50
-      if (!ias.AsyncWaitHandle.WaitOne((int)settings.ConnectionTimeout * 1000))
-#else
       if (!ias.AsyncWaitHandle.WaitOne((int)settings.ConnectionTimeout * 1000, false))
-#endif
       {
-#if !DNXCORE50
         socket.Close();
-        return null;
-#else
-        socket.Dispose();
-#endif
       }
       try
       {
@@ -285,13 +294,11 @@ namespace MySql.Data.MySqlClient.common
       }
       catch (Exception)
       {
-#if !DNXCORE50
         socket.Close();
-#else
-        socket.Dispose();
-#endif
         throw;
       }
+#endif
+
       MyNetworkStream stream = new MyNetworkStream(socket, true);
       GC.SuppressFinalize(socket);
       GC.SuppressFinalize(stream);
