@@ -1,2 +1,5 @@
 7.0.2	
-- Support for new MySQL X plugin and new DevAPI.
+- Support for MySqlX.Session and NodeSession objects in new Dev API.
+- Support for Collection and Documents objects new Dev API.
+- Support for Relational tables in new Dev API.
+- Support for Transactions in new Dev API.
