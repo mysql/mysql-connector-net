@@ -24,6 +24,9 @@ using System;
 using MySqlX.XDevAPI;
 using Xunit;
 using MySqlX.XDevAPI.Relational;
+using System.Reflection;
+using System.IO;
+using MySql.Data.MySqlClient;
 
 namespace MySqlX.Data.Tests
 {
@@ -37,10 +40,13 @@ namespace MySqlX.Data.Tests
     public static string ConnectionString { get; private set; }
     public static string ConnectionStringUri { get; private set; }
     public static string ConnectionStringNoPassword { get; private set; }
+    public static string ConnectionStringRoot { get; private set; }
+
 
     static BaseTest()
     {
       schemaName = "test";
+      ConnectionStringRoot = "server=localhost;port=3305;uid=root;password=";
       ConnectionString = "server=localhost;port=33060;uid=test;password=test";
       ConnectionStringNoPassword = "server=localhost;port=33060;uid=testNoPass;";
       ConnectionStringUri = "mysqlx://test:test@localhost:33060";
@@ -48,6 +54,12 @@ namespace MySqlX.Data.Tests
 
     public BaseTest()
     {
+      Assembly executingAssembly = Assembly.GetExecutingAssembly();
+      Stream stream = executingAssembly.GetManifestResourceStream("MySqlX.Data.Tests.Properties.CreateUsers.sql");
+      StreamReader sr = new StreamReader(stream);
+      string sql = sr.ReadToEnd();
+      sr.Close();
+      ExecuteSqlAsRoot(sql);
       session = GetSession();
       testSchema = session.GetSchema(schemaName);
       if (testSchema.ExistsInDatabase())
@@ -89,6 +101,15 @@ namespace MySqlX.Data.Tests
       if (nodeSession == null)
         nodeSession = MySQLX.GetNodeSession(ConnectionString);
       return nodeSession;
+    }
+
+    protected void ExecuteSqlAsRoot(string sql)
+    {
+      var rootConn = new MySqlConnection(ConnectionStringRoot);
+      rootConn.Open();
+      MySqlScript s = new MySqlScript(rootConn, sql);
+      s.Execute();
+      rootConn.Close();
     }
 
     public void Dispose()
