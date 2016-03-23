@@ -165,5 +165,12 @@ namespace MySqlX.Data.Tests
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
       }
     }
+
+    [Fact]
+    public void ConnectionStringNull()
+    {
+      Assert.Throws<ArgumentNullException>(() => MySQLX.GetSession(null));
+      Assert.Throws<ArgumentNullException>(() => MySQLX.GetNodeSession(null));
+    }
   }
 }
