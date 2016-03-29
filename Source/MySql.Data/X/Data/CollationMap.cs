@@ -38,13 +38,13 @@ namespace MySqlX.Data
     public static string GetCollationName(int collation)
     {
       if (!collations.ContainsKey(collation))
-        throw new MySqlException(String.Format(Properties.ResourcesX.InvalidCollationId, collation));
+        throw new KeyNotFoundException(String.Format(Properties.ResourcesX.InvalidCollationId, collation));
       return collations[collation];
     }
 
     private static void Load()
     {
-      collations.Add(0, "utf8");
+      collations.Add(0, "utf8_general_ci");
       collations.Add(1, "big5_chinese_ci");
       collations.Add(84, "big5_bin");
       collations.Add(3, "dec8_swedish_ci");
