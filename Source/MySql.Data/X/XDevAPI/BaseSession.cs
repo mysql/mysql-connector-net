@@ -70,6 +70,8 @@ namespace MySqlX.XDevAPI
     /// <param name="connectionString">Session connection string</param>
     public BaseSession(string connectionString)
     {
+      if (string.IsNullOrWhiteSpace(connectionString))
+        throw new ArgumentNullException("connectionString");
       this.connectionString = ParseConnectionStringFromUri(connectionString);
       if (this.connectionString.IndexOf("port", StringComparison.OrdinalIgnoreCase) == -1)
         this.connectionString += ";port=" + newDefaultPort;
@@ -85,6 +87,8 @@ namespace MySqlX.XDevAPI
     /// <param name="connectionData">Session data as anonymous type</param>
     public BaseSession(object connectionData)
     {
+      if (connectionData == null)
+        throw new ArgumentNullException("connectionData");
       var values = Tools.GetDictionaryFromAnonymous(connectionData);
       if (!values.Keys.Any(s => s.ToLowerInvariant() == "port"))
         values.Add("port", newDefaultPort);

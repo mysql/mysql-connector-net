@@ -36,12 +36,12 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Fact]
     public void ColumnMetadata()
     {
-      ExecuteSQL("CREATE TABLE test(b VARCHAR(255) COLLATE latin1_swedish_ci)");
-      ExecuteSQL("INSERT INTO test VALUES('Bob')");
+      ExecuteSQL("CREATE TABLE test(b VARCHAR(255) COLLATE latin1_swedish_ci, c VARCHAR(20) CHARSET greek)");
+      ExecuteSQL("INSERT INTO test VALUES('Bob', 'Δ')");
 
-      RowResult r = GetSession().GetSchema("test").GetTable("test").Select("1 + 1 as a", "b").Execute();
+      RowResult r = GetSession().GetSchema(schemaName).GetTable("test").Select("1 + 1 as a", "b", "c").Execute();
       var rows = r.FetchAll();
-      Assert.Equal(2, r.Columns.Count);
+      Assert.Equal(3, r.Columns.Count);
       //Assert.Null(r.Columns[0].DatabaseName);
       Assert.Null(r.Columns[0].SchemaName);
       Assert.Null(r.Columns[0].TableName);
@@ -65,9 +65,74 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.Equal(255u, r.Columns[1].Length);
       Assert.Equal(0u, r.Columns[1].FractionalDigits);
       Assert.Equal(false, r.Columns[1].IsNumberSigned);
-      Assert.Null(r.Columns[1].CharacterSetName);
+      Assert.Equal("latin1", r.Columns[1].CharacterSetName);
       Assert.Equal("latin1_swedish_ci", r.Columns[1].CollationName);
       Assert.Equal(false, r.Columns[1].IsPadded);
+
+      Assert.Equal(schemaName, r.Columns[2].SchemaName);
+      Assert.Equal("test", r.Columns[2].TableName);
+      Assert.Equal("test", r.Columns[2].TableLabel);
+      Assert.Equal("c", r.Columns[2].ColumnName);
+      Assert.Equal("c", r.Columns[2].ColumnLabel);
+      Assert.Equal(ColumnType.String, r.Columns[2].Type);
+      Assert.Equal(20u, r.Columns[2].Length);
+      Assert.Equal(0u, r.Columns[2].FractionalDigits);
+      Assert.Equal(false, r.Columns[2].IsNumberSigned);
+      Assert.Equal("greek", r.Columns[2].CharacterSetName);
+      Assert.Equal("greek_general_ci", r.Columns[2].CollationName);
+      Assert.Equal(false, r.Columns[2].IsPadded);
+      Assert.Equal("Δ", rows[0][2]);
+    }
+
+    [Fact]
+    public void SchemaDefaultCharset()
+    {
+      ExecuteSQL("CREATE TABLE test(b VARCHAR(255))");
+      ExecuteSQL("INSERT INTO test VALUES('CAR')");
+
+      var defaultValues = GetNodeSession().SQL("SELECT DEFAULT_CHARACTER_SET_NAME, DEFAULT_COLLATION_NAME " +
+        $"FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '{schemaName}'; ").Execute().FetchAll();
+
+      RowResult r = GetSession().GetSchema(schemaName).GetTable("test").Select("b").Execute();
+      var rows = r.FetchAll();
+
+      Assert.Equal(schemaName, r.Columns[0].SchemaName);
+      Assert.Equal("test", r.Columns[0].TableName);
+      Assert.Equal("test", r.Columns[0].TableLabel);
+      Assert.Equal("b", r.Columns[0].ColumnName);
+      Assert.Equal("b", r.Columns[0].ColumnLabel);
+      Assert.Equal(ColumnType.String, r.Columns[0].Type);
+      Assert.Equal(255u, r.Columns[0].Length);
+      Assert.Equal(0u, r.Columns[0].FractionalDigits);
+      Assert.Equal(false, r.Columns[0].IsNumberSigned);
+      Assert.Equal(defaultValues[0][0], r.Columns[0].CharacterSetName);
+      Assert.Equal(defaultValues[0][1], r.Columns[0].CollationName);
+      Assert.Equal(false, r.Columns[0].IsPadded);
+      Assert.Equal("CAR", rows[0][0]);
+    }
+
+    [Fact]
+    public void TableDefaultCharset()
+    {
+      ExecuteSQL("CREATE TABLE test(b VARCHAR(255)) CHARSET greek");
+      ExecuteSQL("INSERT INTO test VALUES('Δ')");
+
+      RowResult r = GetSession().GetSchema(schemaName).GetTable("test").Select("b").Execute();
+      var rows = r.FetchAll();
+
+      Assert.Equal(schemaName, r.Columns[0].SchemaName);
+      Assert.Equal("test", r.Columns[0].TableName);
+      Assert.Equal("test", r.Columns[0].TableLabel);
+      Assert.Equal("b", r.Columns[0].ColumnName);
+      Assert.Equal("b", r.Columns[0].ColumnLabel);
+      Assert.Equal(ColumnType.String, r.Columns[0].Type);
+      Assert.Equal(255u, r.Columns[0].Length);
+      Assert.Equal(0u, r.Columns[0].FractionalDigits);
+      Assert.Equal(false, r.Columns[0].IsNumberSigned);
+      Assert.Equal("greek", r.Columns[0].CharacterSetName);
+      Assert.Equal("greek_general_ci", r.Columns[0].CollationName);
+      Assert.Equal(false, r.Columns[0].IsPadded);
+      Assert.Equal("Δ", rows[0][0]);
     }
   }
 }

@@ -62,7 +62,10 @@ namespace MySqlX.XDevAPI.Relational
     /// <returns>The implementing statement type</returns>
     public SqlStatement Bind(params object[] values)
     {
-      parameters.AddRange(values);
+      if (values == null)
+        parameters.Add(null);
+      else
+        parameters.AddRange(values);
       return this;
     }
   }

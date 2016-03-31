@@ -346,6 +346,7 @@ namespace MySqlX.Protocol
       {
         c._collationNumber = colData.Collation;
         c.CollationName = CollationMap.GetCollationName((int)colData.Collation);
+        c.CharacterSetName = c.CollationName.Split('_')[0];
       }
       if (colData.Length > 0)
         c.Length = colData.Length;
