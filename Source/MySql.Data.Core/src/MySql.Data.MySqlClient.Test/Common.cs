@@ -33,7 +33,7 @@ namespace MySql.Data.MySqlClient.Test
 
     protected Common()
     {
-      ConnectionString = "server=localhost;user id=root;password=root;persistsecurityinfo=True;port=3306;database=sakila;";
+      ConnectionString = "server=10.157.120.142;user id=root;password=root;persistsecurityinfo=True;port=3306;database=sakila;";
     }
 
 

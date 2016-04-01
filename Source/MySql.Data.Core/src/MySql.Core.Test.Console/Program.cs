@@ -32,7 +32,7 @@ namespace MySql.Core.Test.Console
   {
     public static void Main(string[] args)
     {
-      string connString = "server=localhost;user id=root;password=root;persistsecurityinfo=True;port=3306;database=sakila;";
+      string connString = "server=10.157.120.142;user id=root;password=root;persistsecurityinfo=True;port=3306;database=sakila;";
 
       System.Console.WriteLine("Starting the demo for MySql Connector / .Net Core");
       System.Console.ReadKey();
