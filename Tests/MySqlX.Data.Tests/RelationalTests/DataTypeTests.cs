@@ -20,6 +20,8 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Common;
+using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.X.XDevAPI.Common;
 using MySqlX.XDevAPI.Relational;
 using System;
@@ -282,6 +284,23 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.Equal(ColumnType.Geometry, r.Columns[0].Type);
       Assert.Equal("0000000001020000000400000000000000000000000000000000000000000000000000244000000000000024400000000000003440000000000000394000000000000049400000000000004E40", 
         BitConverter.ToString((byte[])rows[0][0]).Replace("-", ""));
+    }
+
+    [Fact]
+    public void BlobTypes()
+    {
+      ExecuteSQL("CREATE TABLE test(a BLOB, b TEXT)");
+      ExecuteSQL("INSERT INTO test VALUES('Car', 'Plane')");
+
+      RowResult r = GetSession().GetSchema(schemaName).GetTable("test").Select().Execute();
+      var rows = r.FetchAll();
+      Assert.Equal(2, r.Columns.Count);
+      Assert.Equal(typeof(byte[]), r.Columns[0].ClrType);
+      Assert.Equal(typeof(string), r.Columns[1].ClrType);
+      Assert.Equal(ColumnType.Bytes, r.Columns[0].Type);
+      Assert.Equal(ColumnType.String, r.Columns[1].Type);
+      Assert.Equal(CharSetMap.GetEncoding(new DBVersion(), r.Columns[0].CharacterSetName).GetBytes("Car"), rows[0][0]);
+      Assert.Equal("Plane", rows[0][1]);
     }
   }
 }

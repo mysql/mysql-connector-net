@@ -49,6 +49,8 @@ namespace MySql.Data.MySqlClient
 
     public static CharacterSet GetCharacterSet(DBVersion version, string CharSetName)
     {
+      if (CharSetName == null)
+        throw new ArgumentNullException("CharSetName is null");
       CharacterSet cs = null;
       if(mapping.ContainsKey(CharSetName))
         cs = (CharacterSet)mapping[CharSetName];
