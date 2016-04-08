@@ -4,7 +4,7 @@
       <content>
         <autoOutline />
 		<title>Introduction</title>
-<para>The MySQL Connector/Net 7.0.x getting started tutorial provides an introduction to the MySQL X DevAPI functionality introduced with MySQL 5.7. MySQL X functionality includes the new MySQL X DevAPI (DevAPI), which offers a modern, integrative way to work with relational and document data  without requiring SQL knowledge when developing .NET Framework applications.</para>
+<para>The MySQL Connector/Net 7.0.x getting started tutorial provides an introduction to the X DevAPI functionality introduced with MySQL 5.7. X functionality includes the new X DevAPI (DevAPI), which offers a modern, integrative way to work with relational and document data  without requiring SQL knowledge when developing .NET Framework applications.</para>
 
 <para>Requirements</para>
  <list class="bullet">
@@ -25,7 +25,7 @@
 <para>To install the world_x database sample, follow these steps:</para>
  <list class="bullet">
 <listItem>
-		<para>Download world_x.sql.zip from http://insidemysql.com/mysqlx/docs/mysqlx-sample-db/world_x.sql.zip</para>
+		<para>Download world_x.sql.zip from http://dev.mysql.com/doc/index-other.html</para>
 	</listItem>
 <listItem>
 	<para>Extract the installation archive to a temporary location such as /tmp/.</para>
@@ -57,9 +57,9 @@
 </listItem>
 </list>
 <para>Getting started with MySQL Connector/Net 7.0.x</para>
-<para>Creating a MySQL X Session</para>
+<para>Creating an XSession</para>
 <para>
-A MySQL X Session is a high-level database session concept that is different from working with traditional low-level MySQL connections. It is important to understand that a MySQL X Session is not the same as a traditional MySQL Session. MySQL X Sessions encapsulate one or more actual MySQL connections.</para>
+An XSession is a high-level database session concept that is different from working with traditional low-level MySQL connections. It is important to understand that an XSession is not the same as a traditional MySQL Session. XSessions encapsulate one or more actual MySQL connections.</para>
 <para>- Create a new Visual Studio Console Project targeting .NET framework 4.5 or later.</para>
 <para>- Use C# or Visual Basic as your preference. This tutorial will be done using C#.</para>
 <para>- Add a reference in your project to the MySql.Data.dll 7.0.x</para>

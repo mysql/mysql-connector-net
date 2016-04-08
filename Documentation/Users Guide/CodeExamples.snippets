@@ -3,7 +3,7 @@
 <examples>
   <item id="ClassDefinition#Define">
     <sampleCode language="CSharp">
-string schemaName = "x_world"; 
+string schemaName = "world_x"; 
 // Define the connection string
 string connectionString = "server=localhost;port=33060;uid=test;password=test";     
 XSession session = MySqlX.GetSession(connectionString); 
@@ -75,7 +75,7 @@ namespace MySQLX_Tutorial
     static void Main(string[] args)
     {
  
-      string schemaName = "x_world";
+      string schemaName = "world_x";
       string connectionString = "server=localhost;port=33060;uid=test;password=test";    
       XSession session = MySqlX.GetSession(connectionString);
       Schema schema = session.GetSchema(schemaName);
