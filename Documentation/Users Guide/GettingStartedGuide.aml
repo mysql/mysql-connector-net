@@ -4,18 +4,18 @@
       <content>
         <autoOutline />
 		<title>Introduction</title>
-<para>The MySQL Connector/Net 7.0.x getting started tutorial provides an introduction to the X DevAPI functionality introduced with MySQL 5.7. X functionality includes the new X DevAPI (DevAPI), which offers a modern, integrative way to work with relational and document data  without requiring SQL knowledge when developing .NET Framework applications.</para>
+<para>The MySQL Connector/Net 7.0.2 (or higher) getting started tutorial, provides an introduction to the X DevAPI functionality introduced with MySQL 5.7.12. X functionality includes the new X DevAPI (DevAPI), which offers a modern, integrative way to work with relational and document data  without requiring SQL knowledge when developing .NET Framework applications.</para>
 
 <para>Requirements</para>
  <list class="bullet">
  	 <listItem>
-	 	<para>Connector/Net 7.0.x</para>
+	 	<para>Connector/Net 7.0.2 or later</para>
 	 </listItem>
      <listItem>
 		<para>Visual Studio 2013/2015 Community Edition</para>
 	 </listItem>
 	 <listItem>
-	 	<para>MySQL 5.7.9 or later</para>
+	 	<para>MySQL 5.7.12 or later</para>
 	 </listItem>
  </list>
 <para>Download Sample Database</para>
@@ -25,13 +25,13 @@
 <para>To install the world_x database sample, follow these steps:</para>
  <list class="bullet">
 <listItem>
-		<para>Download world_x.sql.zip from http://dev.mysql.com/doc/index-other.html</para>
+		<para>Download world_x.zip from http://dev.mysql.com/doc/index-other.html</para>
 	</listItem>
 <listItem>
 	<para>Extract the installation archive to a temporary location such as /tmp/.</para>
 </listItem>
 <listItem>
-<para>Unpacking the archive results in a single file named world_x.sql.</para>
+<para>Unpacking the archive results in two files, one of them named world_x.sql.</para>
 </listItem>
 <listItem>
 <para>Connect to the MySQL server using the mysql command-line client with the following command:</para>
@@ -41,7 +41,7 @@
 <listItem>
 <para>Execute the world_x.sql script to create the database structure, and insert the data, by using the following command:</para>
 <para>mysql> SOURCE /temp/world_x.sql;</para>
-<para>Replace /temp/ with the path to the world.sql file on your system.</para>
+<para>Replace /temp/ with the path to the world_x.sql file on your system.</para>
 </listItem>
 
 <para>The database contains the following:</para>
@@ -56,13 +56,13 @@
 <para>CountryInfo: Information about countries in the world.</para>
 </listItem>
 </list>
-<para>Getting started with MySQL Connector/Net 7.0.x</para>
+<para>Getting started with MySQL Connector/Net 7.0.2 (or later)</para>
 <para>Creating an XSession</para>
 <para>
 An XSession is a high-level database session concept that is different from working with traditional low-level MySQL connections. It is important to understand that an XSession is not the same as a traditional MySQL Session. XSessions encapsulate one or more actual MySQL connections.</para>
 <para>- Create a new Visual Studio Console Project targeting .NET framework 4.5 or later.</para>
 <para>- Use C# or Visual Basic as your preference. This tutorial will be done using C#.</para>
-<para>- Add a reference in your project to the MySql.Data.dll 7.0.x</para>
+<para>- Add a reference in your project to the MySql.Data.dll 7.0.2</para>
 <para>- Add a reference to the Google.ProtocolBuffers.dll 2.4.1.555</para>
 <para>The following lines open the session so later on, a schema can be grabbed to make some basic operations.</para>
         <codeReference>ClassDefinition#Define</codeReference>
