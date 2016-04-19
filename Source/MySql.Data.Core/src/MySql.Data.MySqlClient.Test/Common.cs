@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -33,7 +34,10 @@ namespace MySql.Data.MySqlClient.Test
 
     protected Common()
     {
-      ConnectionString = "server=10.157.120.142;user id=root;password=root;persistsecurityinfo=True;port=3306;database=sakila;";
+      //Return the original name of the appsettings.json
+      if (File.Exists("appsettings1.json"))
+        File.Move("appsettings1.json", "appsettings.json");
+
     }
 
 

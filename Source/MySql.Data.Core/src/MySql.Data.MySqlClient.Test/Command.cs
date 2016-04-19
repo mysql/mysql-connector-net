@@ -34,11 +34,12 @@ namespace MySql.Data.MySqlClient.Test
     [Fact]
     public void CommandExecute()
     {
-      MySqlConnection connection = new MySqlConnection(ConnectionString);
+      MySqlConnection connection = new MySqlConnection();
+
       connection.Open();
 
       MySqlCommand command = new MySqlCommand("SELECT COUNT(*) FROM sakila.category;", connection);
-      //MySqlCommand command = new MySqlCommand("SELECT * FROM sakila.category;", connection);
+
       int result = Convert.ToInt32(command.ExecuteScalar());
 
       connection.Close();

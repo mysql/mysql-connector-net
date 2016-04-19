@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{F50317E3-9DBA-4F6D-8EA2-BEBBB3FB17FE}"
 EndProject
@@ -31,6 +31,7 @@ Global
 		{42229016-61AC-4ABF-88EB-354055D2AC40}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{42229016-61AC-4ABF-88EB-354055D2AC40}.Release|Any CPU.Build.0 = Release|Any CPU
 		{742DC4B9-D6D3-4063-821F-BB2FD980CE10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{742DC4B9-D6D3-4063-821F-BB2FD980CE10}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{742DC4B9-D6D3-4063-821F-BB2FD980CE10}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution

@@ -2,10 +2,15 @@
   "version": "1.0.0-alpha-*",
   "description": "MySql.Data.MySqlClient .Net Core Class Library",
   "authors": [ "Oracle" ],
-  "tags": [ "" ],
-  "projectUrl": "",
-  "licenseUrl": "",
+  "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
+  "tags": [ "MySql", ".NET Connector", "MySql Connector/NET", "netcore", ".Net Core", "MySql Conector/Net Core", "coreclr", "C/NET", "C/Net Core" ],
+  "projectUrl": "http://dev.mysql.com/downloads/",
+  "licenseUrl": "http://www.gnu.org/licenses/old-licenses/gpl-2.0.html",
+  "requireLicenseAcceptance": true,
+  "iconUrl": "http://www.mysql.com/common/logos/logo-mysql-170x115.png",
   "resourceFiles": [ "Properties/ReservedWords.txt" ],
+  "packInclude": { "content/": "content/Readme.txt" },
+  "releaseNotes": "Review Readme.txt for details.",
   "frameworks": {
     "dnxcore50": {
       "dependencies": {
@@ -84,6 +89,7 @@
         "System.Security.Cryptography.X509Certificates": "4.0.0-beta-23516",
         "System.Text.Encoding": "4.0.11-beta-23516",
         "System.Text.Encoding.Extensions": "4.0.11-beta-23516",
+        "System.Text.Encoding.CodePages":  "4.0.1-beta-23516",
         "System.Threading": "4.0.11-beta-23516",
         "System.Threading.AccessControl": "4.0.0-beta-23516",
         "System.Threading.Tasks": "4.0.11-beta-23516",

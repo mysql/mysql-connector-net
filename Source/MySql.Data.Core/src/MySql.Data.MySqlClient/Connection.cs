@@ -26,6 +26,7 @@ using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.common;
 using MySql.Data.MySqlClient.Interceptors;
@@ -65,6 +66,10 @@ namespace MySql.Data.MySqlClient
       //TODO: add event data to StateChange docs
       Settings = new MySqlConnectionStringBuilder();
       _database = String.Empty;
+
+#if DNXCORE50
+      ConnectionString = Startup.ConnectionString;
+#endif
     }
 
     /// <include file='docs/MySqlConnection.xml' path='docs/Ctor1/*'/>

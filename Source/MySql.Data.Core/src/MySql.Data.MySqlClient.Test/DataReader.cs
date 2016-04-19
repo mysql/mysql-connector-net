@@ -34,8 +34,9 @@ namespace MySql.Data.MySqlClient.Test
     public void ReadDataReader()
     {
       //Test the same result using two differents connections to the same db and table, should be the same
-      MySqlConnection connection1 = new MySqlConnection(ConnectionString);
-      MySqlConnection connection2 = new MySqlConnection(ConnectionString);
+      MySqlConnection connection1 = new MySqlConnection();
+      MySqlConnection connection2 = new MySqlConnection();
+
       connection1.Open();
       connection2.Open();
 

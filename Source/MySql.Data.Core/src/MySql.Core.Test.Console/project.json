@@ -2,9 +2,13 @@
   "version": "1.0.0-alpha-*",
   "description": "MySql.Core.Test.Console Console Application",
   "authors": [ "Oracle" ],
-  "tags": [ "" ],
-  "projectUrl": "",
-  "licenseUrl": "",
+  "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
+  "tags": [ "MySql", ".NET Connector", "MySql Connector/NET", "netcore", ".Net Core", "MySql Conector/Net Core", "coreclr", "C/NET", "C/Net Core" ],
+  "projectUrl": "http://dev.mysql.com/downloads/",
+  "licenseUrl": "http://www.gnu.org/licenses/old-licenses/gpl-2.0.html",
+  "requireLicenseAcceptance": true,
+  "iconUrl": "http://www.mysql.com/common/logos/logo-mysql-170x115.png",
+  "contentFiles": [ "appsettings.json" ],
 
   "compilationOptions": {
     "emitEntryPoint": true

@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -36,13 +37,28 @@ namespace MySql.Data.MySqlClient.Test
     [Fact]
     public void ConnectionOpen()
     {
-      MySqlConnection connection = new MySqlConnection(ConnectionString);
+      MySqlConnection connection = new MySqlConnection();
 
       connection.Open();
       Assert.True(connection.State == ConnectionState.Open);
 
       connection.Close();
       Assert.True(connection.State == ConnectionState.Closed);
+    }
+
+    [Fact]
+    public void ConnectionOpenFail()
+    {
+      if (File.Exists("appsettings.json"))
+        File.Move("appsettings.json", "appsettings1.json");
+
+      MySqlConnection connection = new MySqlConnection();
+
+      var ex = Assert.Throws<MySqlException>(() => connection.Open());
+      Assert.Equal(connection.ConnectionString, string.Empty);
+
+      if (File.Exists("appsettings1.json"))
+        File.Move("appsettings1.json", "appsettings.json");
 
     }
   }
