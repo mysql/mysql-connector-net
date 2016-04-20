@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -125,7 +125,7 @@ namespace MySqlX.Protocol.X
       }
       if (e.DocumentPathCount > 0)
       {
-        s = s + "@" + DocumentPathToString(e.DocumentPathList);
+        s = s + "$" + DocumentPathToString(e.DocumentPathList);
       }
       return s;
     }
@@ -249,7 +249,7 @@ namespace MySqlX.Protocol.X
     public static string QuoteIdentifier(string ident)
     {
       // TODO: make sure this is correct
-      if (ident.Contains("`") || ident.Contains("\"") || ident.Contains("'") || ident.Contains("@") || ident.Contains("."))
+      if (ident.Contains("`") || ident.Contains("\"") || ident.Contains("'") || ident.Contains("$") || ident.Contains("."))
       {
         return "`" + ident.Replace("`", "``") + "`";
       }
