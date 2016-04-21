@@ -252,9 +252,9 @@ namespace MySqlX.Data.Tests.RelationalTests
       RowResult r = GetSession().GetSchema("test").GetTable("test").Select().Execute();
       var rows = r.FetchAll();
       Assert.Equal(1, r.Columns.Count);
-      Assert.Equal(typeof(byte[]), r.Columns[0].ClrType);
-      Assert.Equal(ColumnType.Bytes, r.Columns[0].Type);
-      Assert.Equal(Encoding.UTF8.GetBytes("John"), rows[0][0]);
+      Assert.Equal(typeof(string), r.Columns[0].ClrType);
+      Assert.Equal(ColumnType.String, r.Columns[0].Type);
+      Assert.Equal("John", rows[0][0]);
     }
 
     [Fact]
@@ -266,9 +266,9 @@ namespace MySqlX.Data.Tests.RelationalTests
       RowResult r = GetSession().GetSchema("test").GetTable("test").Select().Execute();
       var rows = r.FetchAll();
       Assert.Equal(1, r.Columns.Count);
-      Assert.Equal(typeof(byte[]), r.Columns[0].ClrType);
-      Assert.Equal(ColumnType.Bytes, r.Columns[0].Type);
-      Assert.Equal(Encoding.UTF8.GetBytes("Mark"), rows[0][0]);
+      Assert.Equal(typeof(string), r.Columns[0].ClrType);
+      Assert.Equal(ColumnType.String, r.Columns[0].Type);
+      Assert.Equal("Mark", rows[0][0]);
     }
 
     [Fact]

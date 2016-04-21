@@ -1,6 +1,7 @@
 7.0.3
 - Added support for TLSv1.1 and TLSv1.2
 - MySqlX: Added Result to Commit() and Rollback() Session methods in order to be able to read Warnings.
+- MySqlX: Fixed binary collations as strings instead of bytes
 
 
 7.0.2

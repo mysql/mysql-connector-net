@@ -56,8 +56,7 @@ namespace MySqlX.Protocol.X
         return ColumnType.Geometry;
       if (ContentType == (uint)ColumnContentType.Json)
         return ColumnType.Json;
-      if ((Column.CollationName??"").EndsWith("_bin")
-        || (Column.CollationName??"").Equals("binary"))
+      if ((Column.CollationName??"").Equals("binary", StringComparison.OrdinalIgnoreCase))
         return ColumnType.Bytes;
       return ColumnType.String;
    }
