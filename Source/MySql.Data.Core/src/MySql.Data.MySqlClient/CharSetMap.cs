@@ -68,7 +68,10 @@ namespace MySql.Data.MySqlClient
       try
       {
         CharacterSet cs = GetCharacterSet(version, charSetName);
+
+#if DNXCORE50
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+#endif
 
         return Encoding.GetEncoding(cs.name);
       }
