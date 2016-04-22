@@ -29,6 +29,7 @@ using MySqlX.Session;
 using MySqlX.XDevAPI.Relational;
 using MySql.Data.MySqlClient;
 using System.Text.RegularExpressions;
+using MySqlX.XDevAPI.Common;
 
 namespace MySqlX.XDevAPI
 {
@@ -170,17 +171,17 @@ namespace MySqlX.XDevAPI
     /// <summary>
     /// Commit the current transaction
     /// </summary>
-    public void Commit()
+    public Result Commit()
     {
-      InternalSession.ExecuteSqlNonQuery("COMMIT");
+      return InternalSession.ExecuteSqlNonQuery("COMMIT");
     }
 
     /// <summary>
     /// Rollback the current transaction
     /// </summary>
-    public void Rollback()
+    public Result Rollback()
     {
-      InternalSession.ExecuteSqlNonQuery("ROLLBACK");
+      return InternalSession.ExecuteSqlNonQuery("ROLLBACK");
     }
 
     /// <summary>
