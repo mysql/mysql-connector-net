@@ -89,10 +89,16 @@ namespace MySql.Data.MySqlClient
       GC.SuppressFinalize(this);
     }
 
+#if RT
+    protected void Dispose(bool disposing)
+#else
     protected override void Dispose(bool disposing)
+#endif
     {
       if (disposed) return;
+#if !RT
       base.Dispose(disposing);
+#endif
       if (disposing)
       {
         if ((conn != null && conn.State == ConnectionState.Open || conn.SoftClosed) && open)
