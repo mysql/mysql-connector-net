@@ -60,6 +60,7 @@ namespace MySql.Data.MySqlClient
     private Driver owner;
     private int warnings;
     private MySqlAuthenticationPlugin authPlugin;
+    private bool isEnterprise;
 
     // Windows authentication method string, used by the protocol.
     // Also known as "client plugin name".
@@ -223,6 +224,7 @@ namespace MySql.Data.MySqlClient
       int protocol = packet.ReadByte();
       string versionString = packet.ReadString();
       owner.isFabric = versionString.EndsWith("fabric", StringComparison.OrdinalIgnoreCase);
+      isEnterprise = versionString.ToLowerInvariant().Contains("-enterprise-");
       version = DBVersion.Parse(versionString);
       if (!owner.isFabric && !version.isAtLeast(5, 0, 0))
         throw new NotSupportedException(Resources.ServerTooOld);
@@ -380,11 +382,16 @@ namespace MySql.Data.MySqlClient
           new RemoteCertificateValidationCallback(ServerCheckValidation);
       SslStream ss = new SslStream(baseStream, true, sslValidateCallback, null);
       X509CertificateCollection certs = GetClientCertificates();
-      ss.AuthenticateAsClient(Settings.Server, certs, SslProtocols.Tls, false);
+      SslProtocols sslProtocols = SslProtocols.Tls;
+#if NET_45_OR_GREATER
+      sslProtocols |= SslProtocols.Tls11;
+      if (version.isAtLeast(5, 6, 0) && isEnterprise)
+        sslProtocols |= SslProtocols.Tls12;
+#endif
+      ss.AuthenticateAsClient(Settings.Server, certs, sslProtocols, false);
       baseStream = ss;
       stream = new MySqlStream(ss, Encoding, false);
       stream.SequenceByte = 2;
-
     }
 
     private bool ServerCheckValidation(object sender, X509Certificate certificate,
@@ -411,16 +418,16 @@ namespace MySql.Data.MySqlClient
     }
 
 
-    #endregion
+#endregion
 
 #endif
 
-    #region Authentication
+      #region Authentication
 
-    /// <summary>
-    /// Return the appropriate set of connection flags for our
-    /// server capabilities and our user requested options.
-    /// </summary>
+      /// <summary>
+      /// Return the appropriate set of connection flags for our
+      /// server capabilities and our user requested options.
+      /// </summary>
     private void SetConnectionFlags(ClientFlags serverCaps)
     {
       // allow load data local infile
