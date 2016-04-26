@@ -51,6 +51,7 @@ namespace MySql.Data.Entity.Tests.DbContextClasses
     public string Content { get; set; }
 
     public int BlogIdFK { get; set; }
+
     public Blog Blog { get; set; }
   }
 

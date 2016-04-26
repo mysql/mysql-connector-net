@@ -21,27 +21,29 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Migrations.Operations;
-using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Storage;
-using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using MySQL.Data.Entity.Metadata;
 using System.Linq;
-using System.Collections.Generic;
+
 
 namespace MySQL.Data.Entity.Migrations
 {
   public class MySQLMigrationsSqlGenerator : MigrationsSqlGenerator
-  {    
+  {
+    private readonly ISqlGenerationHelper _sqlGeneratioHelper;
+
     public MySQLMigrationsSqlGenerator(
         [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
-        [NotNull] ISqlGenerator sqlGenerator,
+        [NotNull] ISqlGenerationHelper sqlGenerationHelper,
         [NotNull] IRelationalTypeMapper typeMapper,
         [NotNull] IRelationalAnnotationProvider annotations)
-            : base(commandBuilderFactory, sqlGenerator, typeMapper, annotations)
+            : base(commandBuilderFactory, sqlGenerationHelper, typeMapper, annotations)
     {
+      _sqlGeneratioHelper = sqlGenerationHelper;
     }
 
     protected override void Generate(
@@ -82,7 +84,7 @@ namespace MySQL.Data.Entity.Migrations
 
       builder
           .Append("CREATE DATABASE ")
-          .Append(SqlGenerator.DelimitIdentifier(operation.Name));
+          .Append(_sqlGeneratioHelper.DelimitIdentifier(operation.Name));
     }
 
     protected virtual void Generate(
@@ -95,7 +97,7 @@ namespace MySQL.Data.Entity.Migrations
 
       builder
           .Append("DROP DATABASE IF EXISTS ")
-          .Append(SqlGenerator.DelimitIdentifier(operation.Name));
+          .Append(_sqlGeneratioHelper.DelimitIdentifier(operation.Name));
     }
     
 
@@ -117,7 +119,7 @@ namespace MySQL.Data.Entity.Migrations
       ThrowIf.Argument.IsNull(clrType, "clrType");
       ThrowIf.Argument.IsNull(annotatable, "annotatable");
       ThrowIf.Argument.IsNull(builder, "builder");
-
+      
 
       if (type == null)
       {
@@ -130,7 +132,7 @@ namespace MySQL.Data.Entity.Migrations
       if (computedColumnSql != null)
       {
          builder
-              .Append(SqlGenerator.DelimitIdentifier(name))
+              .Append(_sqlGeneratioHelper.DelimitIdentifier(name))
               .Append(string.Format(" {0} AS ", type))
               .Append(" ( " + computedColumnSql + " )");
 
@@ -204,7 +206,7 @@ namespace MySQL.Data.Entity.Migrations
       builder
           .Append("PRIMARY KEY ")
           .Append("(")
-          .Append(string.Join(", ", operation.Columns.Select(SqlGenerator.DelimitIdentifier)))
+          .Append(string.Join(", ", operation.Columns.Select(_sqlGeneratioHelper.DelimitIdentifier)))
           .Append(")");
 
       IndexTraits(operation, model, builder);

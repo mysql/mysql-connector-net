@@ -21,12 +21,12 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Storage;
+using Microsoft.EntityFrameworkCore.Storage;
 
 
 namespace MySQL.Data.Entity
 {
-  public class MySQLSqlGenerator : RelationalSqlGenerator
+  public class MySQLSqlGenerationHelper : RelationalSqlGenerationHelper
   {
     public override string DelimitIdentifier([NotNull] string identifier)
     {

@@ -21,36 +21,44 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.Logging;
+using MySql.Data.MySqlClient;
+using MySQL.Data.Entity;
 using MySQL.Data.Entity.Extensions;
+using Xunit;
 
-
-namespace MySql.Data.Entity.Tests.DbContextClasses
+namespace MySql.Data.Entity.Tests
 {
-  public class SimpleContextWithIgnore : DbContext
+  public class MySQLConnectionTests
   {
-
-    public DbSet<Blog> Blogs { get; set; }
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    [Fact]
+    public void CanCreateConnectionString()
     {
-
-      modelBuilder.Entity<Blog>()
-                .HasOne(p => p.RecentPost)
-                .WithOne(i => i.Blog)
-                .HasForeignKey<Post>(b => b.PostId);
-
-
-      modelBuilder.Ignore<BlogMetadata>();  // ignoring entity type
-      modelBuilder.Entity<Blog>()   // ignoring property
-               .Ignore(b => b.Url);
-
+      using (var connection = new MySQLServerConnection(CreateOptions(), new Logger<MySQLServerConnection>(new LoggerFactory())))
+      {
+        Assert.IsType<MySqlConnection>(connection.DbConnection);
+      }
     }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    [Fact]
+    public void CanCreateMainConnection()
     {
-      optionsBuilder.UseMySQL(MySQLTestStore.baseConnectionString + ";database=test;");
+      using (var connection = new MySQLServerConnection(CreateOptions(), new Logger<MySQLServerConnection>(new LoggerFactory())))
+      {
+        using (var master = connection.CreateSystemConnection())
+        {
+          Assert.Equal(MySQLTestStore.baseConnectionString + "database=mysql", master.ConnectionString);          
+        }
+      }
     }
 
+    public static IDbContextOptions CreateOptions()
+    {
+      var optionsBuilder = new DbContextOptionsBuilder();
+      optionsBuilder.UseMySQL(MySQLTestStore.baseConnectionString + "database=test;");
+      return optionsBuilder.Options;
+    }
 
   }
 }

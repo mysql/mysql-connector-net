@@ -21,10 +21,10 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace MySQL.Data.Entity.Migrations
 {
@@ -32,13 +32,13 @@ namespace MySQL.Data.Entity.Migrations
   {
     public MySQLHistoryRepository(
         IDatabaseCreator databaseCreator,
-        ISqlCommandBuilder sqlCommandBuilder,
-        MySQLConnection connection,
+        IRawSqlCommandBuilder sqlCommandBuilder,
+        MySQLServerConnection connection,
         IDbContextOptions options,
         IMigrationsModelDiffer modelDiffer,
         MySQLMigrationsSqlGenerator sqlGenerator,
         IRelationalAnnotationProvider annotations,
-        ISqlGenerator sql)
+        ISqlGenerationHelper sql)
             : base(
                   databaseCreator,
                   sqlCommandBuilder,

@@ -21,27 +21,27 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System.Data.Common;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Storage;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
-using Microsoft.Data.Entity;
+using Microsoft.EntityFrameworkCore;
 using MySQL.Data.Entity.Extensions;
 
 namespace MySQL.Data.Entity
 {
-  public class MySQLConnection : RelationalConnection
+  public class MySQLServerConnection : RelationalConnection
     {
         public int flag;
 
-        public MySQLConnection(
+        public MySQLServerConnection(
           [NotNull]IDbContextOptions options, 
-          [NotNull]ILogger<MySQLConnection> logger) 
+          [NotNull]ILogger<MySQLServerConnection> logger) 
           : base(options, logger)
         {
         }
 
-        public MySQLConnection(
+        public MySQLServerConnection(
           [NotNull]IDbContextOptions options,
           [NotNull]ILogger logger)
           : base(options, logger)
@@ -54,7 +54,7 @@ namespace MySQL.Data.Entity
         }
 
 
-        public MySQLConnection CreateSystemConnection()
+        public MySQLServerConnection CreateSystemConnection()
         {
             MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(ConnectionString);
             builder.Database = "mysql";
@@ -62,7 +62,7 @@ namespace MySQL.Data.Entity
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseMySQL(builder.ConnectionString);
 
-            MySQLConnection c = new MySQLConnection(optionsBuilder.Options, Logger);
+            MySQLServerConnection c = new MySQLServerConnection(optionsBuilder.Options, Logger);
             return c;
         }
     }

@@ -21,9 +21,8 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
-using Microsoft.Data.Entity;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using MySQL.Data.Entity.Extensions;
 using System;
 
@@ -45,6 +44,21 @@ namespace MySql.Data.Entity.Tests.DbContextClasses
     {      
     }
 
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+      modelBuilder.Entity<Blog>()
+              .HasOne(p => p.RecentPost)
+              .WithOne(i => i.Blog)
+              .HasForeignKey<Post>(b => b.PostId);
+
+
+      modelBuilder.Entity<Blog>()
+            .HasOne(p => p.Metadata)
+            .WithOne(i => i.Blog)
+            .HasForeignKey<BlogMetadata>(b => b.BlogId);
+
+    }
+
   }
 
 
@@ -62,17 +76,11 @@ namespace MySql.Data.Entity.Tests.DbContextClasses
 
     public TestsContext(DbContextOptions options): base(options)
     {
-    }
-
-    public TestsContext(IServiceProvider serviceProvider, DbContextOptions options)
-                : base(serviceProvider, options)
-    {
-
-    }
+    }   
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-       optionsBuilder.UseMySQL(MySqlTestStore.baseConnectionString + ";database=test;");
+       optionsBuilder.UseMySQL(MySQLTestStore.baseConnectionString + ";database=test;");
     }
 
 

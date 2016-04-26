@@ -21,16 +21,16 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System.Text;
-using Microsoft.Data.Entity.Update;
-using Microsoft.Data.Entity.Storage;
+using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace MySQL.Data.Entity
 {
   public class MySQLUpdateSqlGenerator : UpdateSqlGenerator
   {
 
-    public MySQLUpdateSqlGenerator([NotNull] ISqlGenerator sqlGenerator)
-            : base(sqlGenerator)
+    public MySQLUpdateSqlGenerator([NotNull] ISqlGenerationHelper sqlGenerationHelper)
+            : base(sqlGenerationHelper)
     {
     }
 
@@ -38,7 +38,7 @@ namespace MySQL.Data.Entity
     {
       ThrowIf.Argument.IsNull(columnModification, "columnModification");
       ThrowIf.Argument.IsNull(commandStringBuilder, "commandStringBuilder");
-      commandStringBuilder.AppendFormat("{0}=LAST_INSERT_ID()", SqlGenerator.DelimitIdentifier(columnModification.ColumnName));
+      commandStringBuilder.AppendFormat("{0}=LAST_INSERT_ID()", SqlGenerationHelper.DelimitIdentifier(columnModification.ColumnName));
     }
 
 
@@ -50,13 +50,18 @@ namespace MySQL.Data.Entity
         .AppendLine();
     }
 
-    protected override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string tableName, string schemaName)
+    protected override ResultSetMapping AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schemaName, int commandPosition)
     {
       ThrowIf.Argument.IsNull(commandStringBuilder, "commandStringBuilder");
+      ThrowIf.Argument.IsEmpty(name, "name");
+
+
       commandStringBuilder
         .Append("SELECT ROW_COUNT()")
-        .Append(SqlGenerator.BatchCommandSeparator)
+        .Append(SqlGenerationHelper.StatementTerminator)
         .AppendLine();
+
+      return ResultSetMapping.LastInResultSet;
     }
 
     public enum ResultsGrouping

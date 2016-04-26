@@ -20,8 +20,8 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using MySQL.Data.Entity.Metadata;
 
 namespace MySQL.Data.Entity
@@ -32,7 +32,7 @@ namespace MySQL.Data.Entity
     {
       ThrowIf.Argument.IsNull(entityType, "entityType");
 
-      return new RelationalEntityTypeAnnotations(entityType, MySQLAnnotationNames.Prefix);
+      return new RelationalEntityTypeAnnotations(entityType, MySQLFullAnnotationNames.Instance);
     }
 
     public static RelationalEntityTypeAnnotations MySQL([NotNull] this EntityType entityType)
@@ -48,7 +48,7 @@ namespace MySQL.Data.Entity
     public static RelationalModelAnnotations MySQL([NotNull] this IModel model)
     {
       ThrowIf.Argument.IsNull(model, "model");
-      return new RelationalModelAnnotations(model, MySQLAnnotationNames.Prefix);
+      return new RelationalModelAnnotations(model, MySQLFullAnnotationNames.Instance);
     }
 
     public static RelationalKeyAnnotations MySQL([NotNull] this Key key)
@@ -59,13 +59,13 @@ namespace MySQL.Data.Entity
     public static RelationalKeyAnnotations MySQL([NotNull] this IKey key)
     {
       ThrowIf.Argument.IsNull(key, "key");
-      return new RelationalKeyAnnotations(key, MySQLAnnotationNames.Prefix);
+      return new RelationalKeyAnnotations(key, MySQLFullAnnotationNames.Instance);
     }
 
     public static IRelationalForeignKeyAnnotations MySQL([NotNull] this IForeignKey foreignKey)
     {
       ThrowIf.Argument.IsNull(foreignKey, "foreignKey");
-      return new RelationalForeignKeyAnnotations(foreignKey, MySQLAnnotationNames.Prefix);
+      return new RelationalForeignKeyAnnotations(foreignKey, MySQLFullAnnotationNames.Instance);
     }
 
     public static RelationalForeignKeyAnnotations MySQL([NotNull] this ForeignKey foreignKey)
@@ -81,7 +81,7 @@ namespace MySQL.Data.Entity
     public static IRelationalIndexAnnotations MySQL([NotNull] this IIndex index)
     {
       ThrowIf.Argument.IsNull(index, "index");
-      return new RelationalIndexAnnotations(index, MySQLAnnotationNames.Prefix);
+      return new RelationalIndexAnnotations(index, MySQLFullAnnotationNames.Instance);
     }
 
     public static MySQLPropertyAnnotations MySQL(this IProperty property)

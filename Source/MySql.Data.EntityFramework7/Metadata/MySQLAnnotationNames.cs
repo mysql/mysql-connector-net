@@ -20,6 +20,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,5 +33,6 @@ namespace MySQL.Data.Entity.Metadata
   {
     public const string Prefix = "MySQL:";
     public const string AutoIncrement = "AutoIncrement";
+    
   }
 }

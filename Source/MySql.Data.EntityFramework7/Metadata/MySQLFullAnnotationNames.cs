@@ -20,37 +20,18 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.EntityFrameworkCore;
-using MySQL.Data.Entity.Extensions;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-
-namespace MySql.Data.Entity.Tests.DbContextClasses
+namespace MySQL.Data.Entity.Metadata
 {
-  public class SimpleContextWithIgnore : DbContext
+  public class MySQLFullAnnotationNames : RelationalFullAnnotationNames
   {
-
-    public DbSet<Blog> Blogs { get; set; }
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    public readonly string AutoIncrement;
+    protected MySQLFullAnnotationNames(string prefix) : base(prefix)
     {
-
-      modelBuilder.Entity<Blog>()
-                .HasOne(p => p.RecentPost)
-                .WithOne(i => i.Blog)
-                .HasForeignKey<Post>(b => b.PostId);
-
-
-      modelBuilder.Ignore<BlogMetadata>();  // ignoring entity type
-      modelBuilder.Entity<Blog>()   // ignoring property
-               .Ignore(b => b.Url);
-
+      AutoIncrement = "AutoIncrement";
     }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-      optionsBuilder.UseMySQL(MySQLTestStore.baseConnectionString + ";database=test;");
-    }
-
-
+    public new static MySQLFullAnnotationNames Instance { get; } = new MySQLFullAnnotationNames(MySQLAnnotationNames.Prefix);
   }
 }

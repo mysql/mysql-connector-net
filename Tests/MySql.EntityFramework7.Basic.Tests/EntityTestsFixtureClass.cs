@@ -22,16 +22,15 @@
 
 using System;
 using System.Text;
-using MySql.Data.MySqlClient;
 using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using System.Linq;
-using Microsoft.Data.Entity;
 using MySQL.Data.Entity.Extensions;
 using MySql.Data.Entity.Tests.DbContextClasses;
 using MySQL.Data.Entity;
-
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 
 namespace MySql.Data.Entity.Tests
 {
@@ -52,20 +51,19 @@ namespace MySql.Data.Entity.Tests
 
       var serviceCollection = new ServiceCollection();
 
-      serviceCollection.AddEntityFramework()
-                    .AddMySQL()
+      serviceCollection.AddEntityFrameworkMySQL()
                     .AddDbContext<TestsContext>();
 
       _serviceProvider = serviceCollection.BuildServiceProvider();
 
     }
 
-    public void CreateContext(MySqlTestStore testStore)
+    public void CreateContext(MySQLTestStore testStore)
     {
       var optionsBuilder = new DbContextOptionsBuilder();
-      optionsBuilder.UseMySQL(MySqlTestStore.CreateConnectionString(_databaseName));
+      optionsBuilder.UseMySQL(MySQLTestStore.CreateConnectionString(_databaseName));
 
-      using (var context = new TestsContext(_serviceProvider, optionsBuilder.Options))
+      using (var context = new TestsContext(optionsBuilder.Options))
       {
         context.Database.EnsureDeleted();
         context.Database.EnsureCreated();

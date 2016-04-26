@@ -24,27 +24,28 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Migrations.Operations;
-using Microsoft.Data.Entity.Storage;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.Storage;
 using MySql.Data.MySqlClient;
-using Microsoft.Data.Entity.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations;
 using MySQL.Data.Entity.Migrations;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace MySQL.Data.Entity
 {
   public class MySQLDatabaseCreator : RelationalDatabaseCreator
   {
-    private readonly MySQLConnection _connection;
+    private readonly MySQLServerConnection _connection;
     private readonly IMigrationsSqlGenerator _sqlGenerator;
-    private readonly ISqlCommandBuilder _commandBuilder;
+    private readonly IRawSqlCommandBuilder _commandBuilder;
 
     public MySQLDatabaseCreator(
-        MySQLConnection cxn,
+        MySQLServerConnection cxn,
         IMigrationsModelDiffer differ,
         IMigrationsSqlGenerator generator,
         IModel model,
-        ISqlCommandBuilder commandBuilder)
+        IRawSqlCommandBuilder commandBuilder)
         : base(model, cxn, differ, generator)
     {
       ThrowIf.Argument.IsNull(cxn, "connection");      
@@ -144,7 +145,7 @@ namespace MySQL.Data.Entity
     protected override async Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
     {
       string sql = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = `" + _connection.DbConnection.Database + "`";
-      long count = (long)await _commandBuilder.Build(sql).ExecuteScalarAsync(_connection, cancellationToken);
+      long count = (long)await _commandBuilder.Build(sql).ExecuteScalarAsync(_connection, cancellationToken: cancellationToken);
       return count != 0;
     }
 

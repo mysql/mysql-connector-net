@@ -211,6 +211,7 @@
     <Compile Include="MySqlDataAdapterTests.cs" />
     <Compile Include="MySqlDataReaderTests.cs" />
     <Compile Include="MySQLHelperTests.cs" />
+    <Compile Include="MyTempTests.cs" />
     <Compile Include="OutputParametersBatch.cs" />
     <Compile Include="OutputParametersBatchPrepared.cs" />
     <Compile Include="OutputParametersNoBatch.cs" />

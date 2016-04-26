@@ -21,10 +21,9 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
-using Microsoft.Data.Entity;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 using MySQL.Data.Entity.Extensions;
-using System;
+
 
 namespace MySql.Data.Entity.Tests.DbContextClasses
 {
@@ -52,7 +51,7 @@ namespace MySql.Data.Entity.Tests.DbContextClasses
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-      optionsBuilder.UseMySQL(MySqlTestStore.baseConnectionString + ";database=test;");
+      optionsBuilder.UseMySQL(MySQLTestStore.baseConnectionString + ";database=test;");
     }
   }
 
@@ -77,7 +76,7 @@ namespace MySql.Data.Entity.Tests.DbContextClasses
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-      optionsBuilder.UseMySQL(MySqlTestStore.baseConnectionString + ";database=test;");
+      optionsBuilder.UseMySQL(MySQLTestStore.baseConnectionString + ";database=test;");
     }
 
   }
@@ -111,7 +110,7 @@ namespace MySql.Data.Entity.Tests.DbContextClasses
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-      optionsBuilder.UseMySQL(MySqlTestStore.baseConnectionString + ";database=test;");
+      optionsBuilder.UseMySQL(MySQLTestStore.baseConnectionString + ";database=test;");
     }
   }
 

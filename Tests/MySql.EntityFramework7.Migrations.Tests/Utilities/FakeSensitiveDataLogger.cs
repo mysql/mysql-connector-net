@@ -20,37 +20,28 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.EntityFrameworkCore;
-using MySQL.Data.Entity.Extensions;
 
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.Logging;
+using System;
 
-namespace MySql.Data.Entity.Tests.DbContextClasses
+namespace MySql.EF7.Migrations.Tests.Utilities
 {
-  public class SimpleContextWithIgnore : DbContext
+  public class FakeSensitiveDataLogger<T> : ISensitiveDataLogger<T>
   {
+     public bool LogSensitiveData { get; }
 
-    public DbSet<Blog> Blogs { get; set; }
+    public bool IsEnabled(LogLevel logLevel) => true;
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    public IDisposable BeginScope(object state)
     {
-
-      modelBuilder.Entity<Blog>()
-                .HasOne(p => p.RecentPost)
-                .WithOne(i => i.Blog)
-                .HasForeignKey<Post>(b => b.PostId);
-
-
-      modelBuilder.Ignore<BlogMetadata>();  // ignoring entity type
-      modelBuilder.Entity<Blog>()   // ignoring property
-               .Ignore(b => b.Url);
-
+      return null;     
     }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    public IDisposable BeginScopeImpl(object state) => null;
+
+    public void Log(LogLevel logLevel, int eventId, object state, Exception exception, Func<object, Exception, string> formatter)
     {
-      optionsBuilder.UseMySQL(MySQLTestStore.baseConnectionString + ";database=test;");
     }
-
-
   }
 }

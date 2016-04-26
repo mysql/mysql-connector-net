@@ -21,9 +21,9 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
-using Microsoft.Data.Entity.Query.Expressions;
-using Microsoft.Data.Entity.Query.Sql;
-using Microsoft.Data.Entity.Storage;
+using Microsoft.EntityFrameworkCore.Query.Expressions;
+using Microsoft.EntityFrameworkCore.Query.Sql;
+using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,11 +53,17 @@ namespace MySQL.Data.Entity.Query
     }
 
     public MySQLQuerySqlGenerator(
-           IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
-           ISqlGenerator sqlGenerator,
-           IParameterNameGeneratorFactory parameterNameGeneratorFactory,
-           SelectExpression selectExpression)
-            : base(relationalCommandBuilderFactory, sqlGenerator, parameterNameGeneratorFactory, selectExpression)
+            [NotNull] IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
+            [NotNull] ISqlGenerationHelper sqlGenerationHelper,
+            [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
+            [NotNull] IRelationalTypeMapper relationalTypeMapper,
+            [NotNull] SelectExpression selectExpression)
+            : base(
+                relationalCommandBuilderFactory,
+                sqlGenerationHelper,
+                parameterNameGeneratorFactory,
+                relationalTypeMapper,
+                selectExpression)
     {
     }
 
