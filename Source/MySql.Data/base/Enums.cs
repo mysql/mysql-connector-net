@@ -65,7 +65,7 @@ namespace System.ComponentModel
 
 namespace System.IO
 {
-#if !CF
+#if !CF && !NETSTANDARD1_5
   public enum FileMode
   {
     CreateNew = 1,

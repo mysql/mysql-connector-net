@@ -97,7 +97,7 @@ namespace MySql.Data.MySqlClient
       }
       throw e;
     }
-
+#if !NETSTANDARD1_5
     protected override string ResolveType(string nameOrType)
     {
       if (MySqlConfiguration.Settings != null && MySqlConfiguration.Settings.ExceptionInterceptors != null)
@@ -108,5 +108,6 @@ namespace MySql.Data.MySqlClient
       }
       return base.ResolveType(nameOrType);
     }
+#endif
   }
 }

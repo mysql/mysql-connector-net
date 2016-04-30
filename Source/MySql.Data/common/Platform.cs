@@ -37,11 +37,13 @@ namespace MySql.Data.Common
     {
     }
 
+#if !NETSTANDARD1_5
     public static bool IsWindows()
     {
+#endif
 #if NETFX_CORE
       return true;
-#else
+#elif !NETSTANDARD1_5
       OperatingSystem os = Environment.OSVersion;
       switch (os.Platform)
       {
@@ -52,7 +54,9 @@ namespace MySql.Data.Common
       }
       return false;
 #endif
+#if !NETSTANDARD1_5
     }
+#endif
 
     public static char DirectorySeparatorChar
     {

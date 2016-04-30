@@ -29,6 +29,7 @@ namespace MySql.Data.MySqlClient.Memcached
   using System.Net;
   using MySql.Data.Common;
   using MySql.Data.MySqlClient.Properties;
+  using System.Threading.Tasks;
 
   /// <summary>
   /// An interface of the client memcached protocol. This class is abstract for 
@@ -76,9 +77,9 @@ namespace MySql.Data.MySqlClient.Memcached
     /// <summary>
     /// Opens the client connection.
     /// </summary>
-    public virtual void Open()
+    public async virtual Task Open()
     {
-      this.stream = StreamCreator.GetStream(server, port, null, 10, new DBVersion(), 60);
+      this.stream = await StreamCreator.GetStream(server, port, null, 10, new DBVersion(), 60);
     }
 
     /// <summary>

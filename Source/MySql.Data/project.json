@@ -1,0 +1,31 @@
+{
+  "version": 6.9.8-rc2-001",
+  "description": "MySQL client Library targting netstandard 1.5",
+  "authors": [ "Oracle", "SapientGuardian" ],
+  "tags": [ "coreclr", "dnxcore50", "netstandard", "netcore", "mysql" ],
+  "projectUrl": "https://github.com/SapientGuardian/mysql-connector-net",
+  "licenseUrl": "http://www.gnu.org/licenses/old-licenses/gpl-2.0.html",
+  "compilationOptions": {
+    "emitEntryPoint": false
+  },
+  "dependencies": {
+    "NETStandard.Library": {
+      "type": "platform",
+      "version": "1.0.0-rc3-*"
+    },
+    "System.Net.Sockets": "4.1.0-rc3-*",
+    "System.Data.Common": "4.0.1-rc3-*",
+    "System.Net.Primitives": "4.0.11-rc3-*",
+    "System.Net.NameResolution": "4.0.0-rc3-*",
+    "System.Security.Cryptography.Algorithms": "4.1.0-rc3-*"
+  },
+  "frameworks": {
+    "netstandard1.5": {
+      "imports": "dnxcore50"
+    }
+  },
+  "exclude": [
+    "extensions\\NonRT",
+    "Replication"
+  ]
+}

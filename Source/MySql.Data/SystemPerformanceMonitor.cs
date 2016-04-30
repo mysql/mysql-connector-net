@@ -1,4 +1,4 @@
-// Copyright © 2004, 2010, Oracle and/or its affiliates. All rights reserved.
+// Copyright ï¿½ 2004, 2010, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License along 
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
-
+#if !NETSTANDARD1_5
 using System;
 using System.Diagnostics;
 using MySql.Data.MySqlClient.Properties;
@@ -50,8 +50,8 @@ namespace MySql.Data.MySqlClient
         }
       }
     }
-
-#if DEBUG
+#endif
+#if DEBUG && !NETSTANDARD1_5
     private void EnsurePerfCategoryExist()
     {
       CounterCreationDataCollection ccdc = new CounterCreationDataCollection();
@@ -69,7 +69,7 @@ namespace MySql.Data.MySqlClient
         PerformanceCounterCategory.Create(Resources.PerfMonCategoryName, null, ccdc);
     }
 #endif
-
+#if !NETSTANDARD1_5
     public void AddHardProcedureQuery()
     {
       if (!Connection.Settings.UsePerformanceMonitor ||
@@ -85,3 +85,4 @@ namespace MySql.Data.MySqlClient
     }
   }
 }
+#endif

@@ -1,4 +1,4 @@
-// Copyright © 2004, 2014 Oracle and/or its affiliates. All rights reserved.
+// Copyright ï¿½ 2004, 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -74,7 +74,7 @@ namespace MySql.Data.MySqlClient
       affectedRows = -1;
       this.statement = statement;
 
-#if !RT
+#if !RT && !NETSTANDARD1_5
       if (cmd.CommandType == CommandType.StoredProcedure 
         && cmd.UpdatedRowSource == UpdateRowSource.FirstReturnedRecord
       )
@@ -804,7 +804,7 @@ namespace MySql.Data.MySqlClient
 
     #endregion
 
-#if !RT
+#if !RT && !NETSTANDARD1_5
     IDataReader IDataRecord.GetData(int i)
     {
       return base.GetData(i);
@@ -949,7 +949,7 @@ namespace MySql.Data.MySqlClient
       IMySqlValue v = resultSet[index];
 
       if (checkNull && v.IsNull)
-#if RT
+#if RT || NETSTANDARD1_5
         throw new MySqlNullValueException();
 #else
         throw new System.Data.SqlTypes.SqlNullValueException();

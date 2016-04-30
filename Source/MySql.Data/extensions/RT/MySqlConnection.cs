@@ -47,7 +47,7 @@ namespace MySql.Data.MySqlClient
         Close();
     }
 
-#if !RT
+#if !RT && !NETSTANDARD1_5
     ~MySqlConnection()
     {
       this.Dispose();

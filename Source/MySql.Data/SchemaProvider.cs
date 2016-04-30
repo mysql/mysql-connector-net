@@ -1,4 +1,4 @@
-// Copyright © 2004, 2015, Oracle and/or its affiliates. All rights reserved.
+// Copyright ï¿½ 2004, 2015, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -686,7 +686,7 @@ namespace MySql.Data.MySqlClient
 
     private MySqlSchemaCollection GetDataSourceInformation()
     {
-#if CF || RT
+#if CF || RT || NETSTANDARD1_5
       throw new NotSupportedException();
 #else
       MySqlSchemaCollection dt = new MySqlSchemaCollection("DataSourceInformation");
@@ -834,7 +834,7 @@ namespace MySql.Data.MySqlClient
     private static MySqlSchemaCollection GetReservedWords()
     {
       MySqlSchemaCollection dt = new MySqlSchemaCollection("ReservedWords");
-#if !RT
+#if !RT && !NETSTANDARD1_5
       dt.AddColumn(DbMetaDataColumnNames.ReservedWord, typeof(string));
       Stream str = Assembly.GetExecutingAssembly().GetManifestResourceStream(
         "MySql.Data.MySqlClient.Properties.ReservedWords.txt");

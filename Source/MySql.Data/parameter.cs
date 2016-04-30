@@ -1,4 +1,4 @@
-// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright ï¿½ 2004, 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -166,7 +166,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets or sets the value of the parameter.
     /// </summary>
-#if !CF && !RT
+#if !CF && !RT && !NETSTANDARD1_5
     [TypeConverter(typeof(StringConverter))]
     [Category("Data")]
 #endif
@@ -310,7 +310,7 @@ namespace MySql.Data.MySqlClient
           case "Decimal": MySqlDbType = MySqlDbType.Decimal; break;
           case "Object": 
           default:
-#if RT
+#if RT || NETSTANDARD1_5
             if (t.GetTypeInfo().BaseType == typeof(Enum))
 #else
             if( t.BaseType == typeof( Enum ) )
@@ -327,7 +327,7 @@ namespace MySql.Data.MySqlClient
 
     public MySqlParameter Clone()
     {
-#if RT
+#if RT || NETSTANDARD1_5
       MySqlParameter clone = new MySqlParameter(paramName, mySqlDbType);
 #else
       MySqlParameter clone = new MySqlParameter(paramName, mySqlDbType, Direction, SourceColumn, SourceVersion, paramValue);

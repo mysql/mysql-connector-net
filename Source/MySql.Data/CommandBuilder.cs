@@ -1,4 +1,4 @@
-// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright ï¿½ 2004, 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -35,10 +35,11 @@ using System.Collections.Generic;
 namespace MySql.Data.MySqlClient
 {
   /// <include file='docs/MySqlCommandBuilder.xml' path='docs/class/*'/>
-#if !CF && !RT
+#if !CF && !RT && !NETSTANDARD1_5
   [ToolboxItem(false)]
   [System.ComponentModel.DesignerCategory("Code")]
 #endif
+  #if !NETSTANDARD1_5
   public sealed class MySqlCommandBuilder : DbCommandBuilder
   {
     /// <include file='docs/MySqlCommandBuilder.xml' path='docs/Ctor/*'/>
@@ -293,4 +294,5 @@ namespace MySql.Data.MySqlClient
     }
 
   }
+  #endif
 }

@@ -30,7 +30,7 @@ using System.Diagnostics;
 
 namespace MySql.Data.Common
 {
-#if !PocketPC
+#if !PocketPC && !NETSTANDARD1_5
 
   /// <summary>
   /// Helper class to encapsulate shared memory functionality

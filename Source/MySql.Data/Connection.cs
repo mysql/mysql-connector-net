@@ -1,4 +1,4 @@
-// Copyright © 2004, 2014, Oracle and/or its affiliates. All rights reserved.
+// Copyright ï¿½ 2004, 2014, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -30,7 +30,7 @@ using System.Data.Common;
 using System.Drawing;
 #endif
 using System.Drawing.Design;
-#if !CF && !RT
+#if !CF && !RT && !NETSTANDARD1_5
 using System.Transactions;
 using IsolationLevel = System.Data.IsolationLevel;
 #endif
@@ -38,7 +38,7 @@ using System.Text;
 using MySql.Data.Common;
 using System.Diagnostics;
 using MySql.Data.MySqlClient.Properties;
-#if !CF
+#if !CF && !NETSTANDARD1_5
 using MySql.Data.MySqlClient.Replication;
 #endif
 #if NET_40_OR_GREATER
@@ -92,7 +92,7 @@ namespace MySql.Data.MySqlClient
     #region Destructor
     ~MySqlConnection()
     {
-#if !RT
+#if !RT && !NETSTANDARD1_5
       Dispose(false);
 #else
       Dispose();
@@ -143,7 +143,7 @@ namespace MySql.Data.MySqlClient
     {
       get
       {
-#if !CF && !RT
+#if !CF && !RT && !NETSTANDARD1_5
         return (State == ConnectionState.Closed) &&
           driver != null &&
           driver.CurrentTransaction != null;
@@ -264,7 +264,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-#if !CF && !__MonoCS__ && !RT
+#if !CF && !__MonoCS__ && !RT && !NETSTANDARD1_5
 
     protected override DbProviderFactory DbProviderFactory
     {
@@ -284,7 +284,7 @@ namespace MySql.Data.MySqlClient
 
     #region Transactions
 
-#if !MONO && !CF && !RT
+#if !MONO && !CF && !RT && !NETSTANDARD1_5
     /// <summary>
     /// Enlists in the specified transaction. 
     /// </summary>
@@ -409,7 +409,7 @@ namespace MySql.Data.MySqlClient
       // in parallel
       lock (driver)
       {
-#if !CF && !RT
+#if !CF && !RT && !NETSTANDARD1_5
         if (Transaction.Current != null &&
           Transaction.Current.TransactionInformation.Status == TransactionStatus.Aborted)
         {
@@ -466,7 +466,7 @@ namespace MySql.Data.MySqlClient
 
       AssertPermissions();
 
-#if !CF && !RT
+#if !CF && !RT && !NETSTANDARD1_5
       // if we are auto enlisting in a current transaction, then we will be
       // treating the connection as pooled
       if (Settings.AutoEnlist && Transaction.Current != null)
@@ -482,7 +482,7 @@ namespace MySql.Data.MySqlClient
       try
       {
         MySqlConnectionStringBuilder currentSettings = Settings;
-#if !CF        
+#if !CF && !NETSTANDARD1_5
 
         // Load balancing 
         if (ReplicationManager.IsReplicationGroup(Settings.Server))
@@ -540,7 +540,7 @@ namespace MySql.Data.MySqlClient
 
       // if we are opening up inside a current transaction, then autoenlist
       // TODO: control this with a connection string option
-#if !MONO && !CF && !RT
+#if !MONO && !CF && !RT && !NETSTANDARD1_5
       if (Transaction.Current != null && Settings.AutoEnlist)
         EnlistTransaction(Transaction.Current);
 #endif
@@ -621,11 +621,11 @@ namespace MySql.Data.MySqlClient
       // will be null on the second time through
       if (driver != null)
       {
-#if !CF && !RT
+#if !CF && !RT && !NETSTANDARD1_5
         if (driver.CurrentTransaction == null)
 #endif
           CloseFully();
-#if !CF && !RT
+#if !CF && !RT && !NETSTANDARD1_5
         else
           driver.IsInActiveUse = false;
 #endif
@@ -813,7 +813,7 @@ namespace MySql.Data.MySqlClient
 #endif
     }
 
-#if !RT
+#if !RT && !NETSTANDARD1_5
     public void Dispose()
     {
       Dispose(true);

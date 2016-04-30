@@ -1,4 +1,4 @@
-// Copyright © 2004, 2015, Oracle and/or its affiliates. All rights reserved.
+// Copyright ï¿½ 2004, 2015, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -24,7 +24,7 @@ using System;
 using System.IO;
 using System.Collections;
 using System.Text;
-#if !RT
+#if !RT && !NETSTANDARD1_5
 using System.Data;
 using System.Data.Common;
 #endif
@@ -35,7 +35,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Collections.Generic;
 using MySql.Data.MySqlClient.Properties;
-#if !CF
+#if !CF && !NETSTANDARD1_5
 using MySql.Data.MySqlClient.Replication;
 #endif
 
@@ -102,7 +102,7 @@ namespace MySql.Data.MySqlClient
     }
 
     #region Destructor
-#if !RT
+#if !RT && !NETSTANDARD1_5
     ~MySqlCommand()
     {
       Dispose(false);
@@ -421,7 +421,7 @@ namespace MySql.Data.MySqlClient
 
       string sql = cmdText.Trim(';');
 
-#if !CF
+#if !CF && !NETSTANDARD1_5
       // Load balancing getting a new connection
       if (connection.hasBeenOpen && !driver.HasStatus(ServerStatusFlags.InTransaction))
       {
@@ -438,7 +438,7 @@ namespace MySql.Data.MySqlClient
           Throw(new MySqlException(Resources.DataReaderOpen));
         }
 
-#if !CF && !RT
+#if !CF && !RT && !NETSTANDARD1_5
         System.Transactions.Transaction curTrans = System.Transactions.Transaction.Current;
 
         if (curTrans != null)
@@ -991,7 +991,7 @@ namespace MySql.Data.MySqlClient
       throw ex;
     }
 
-#if !RT
+#if !RT && !NETSTANDARD1_5
     public void Dispose()
     {
       Dispose(true);
