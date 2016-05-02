@@ -29,18 +29,16 @@ namespace MySql.EF7.Migrations.Tests.Utilities
 {
   public class FakeSensitiveDataLogger<T> : ISensitiveDataLogger<T>
   {
-     public bool LogSensitiveData { get; }
+    public bool LogSensitiveData { get; }
 
     public bool IsEnabled(LogLevel logLevel) => true;
 
-    public IDisposable BeginScope(object state)
+    public IDisposable BeginScope<TState>(TState state)
     {
       return null;     
     }
 
-    public IDisposable BeginScopeImpl(object state) => null;
-
-    public void Log(LogLevel logLevel, int eventId, object state, Exception exception, Func<object, Exception, string> formatter)
+    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
     {
     }
   }
