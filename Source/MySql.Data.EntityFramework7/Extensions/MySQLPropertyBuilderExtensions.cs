@@ -65,6 +65,22 @@ namespace MySQL.Data.Entity.Extensions
       return propertyBuilder;
 
     }
+
+    public static PropertyBuilder ForMySQLHasDefaultValueSql(
+            [NotNull] this PropertyBuilder propertyBuilder,
+            [CanBeNull] string sql)
+    {
+      ThrowIf.Argument.IsNull(propertyBuilder, "propertyBuilder");
+
+      if (sql != null && sql.Length == 0)
+        ThrowIf.Argument.IsEmpty(sql, "sql");
+
+      propertyBuilder.ValueGeneratedOnAdd();
+      //propertyBuilder.Metadata.MySQL().GeneratedValueSql = sql;
+
+      propertyBuilder.Metadata.MySQL().DefaultValueSql = sql;
+      return propertyBuilder;
+    }
   }
 
 }

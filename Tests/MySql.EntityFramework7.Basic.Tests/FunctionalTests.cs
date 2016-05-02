@@ -11,7 +11,7 @@
 // it under the terms of the GNU General Public License as published 
 // by the Free Software Foundation; version 2 of the License.
 //
-// This program is distributed in the hope that it will be useful, but 
+// This program is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
 // or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
 // for more details.
@@ -49,7 +49,9 @@ namespace MySql.Data.Entity.Tests
 
       using (var context = serviceProvider.GetRequiredService<ConnectionStringInOnConfiguringTestContext>())
       {
+        context.Database.EnsureCreated();
         Assert.True(context.Posts.Any());
+        context.Database.EnsureDeleted();
       }
 
     }
@@ -147,8 +149,7 @@ namespace MySql.Data.Entity.Tests
 
     [Fact]
     public void CanUseOptionsInDbContextCtor()
-    {  
-                    
+    {                      
       using (var context = new OptionsContext(new DbContextOptions<OptionsContext>(),
                                               new MySqlConnection(MySQLTestStore.CreateConnectionString("test"))))
       {
@@ -162,8 +163,14 @@ namespace MySql.Data.Entity.Tests
 
     public void Dispose()
     {
-
-    }
+        //ensure test database is deleted
+        using (var cnn = new MySqlConnection(MySQLTestStore.baseConnectionString))
+        {
+          cnn.Open();
+          var cmd = new MySqlCommand("DROP DATABASE IF EXISTS TEST", cnn);
+          cmd.ExecuteNonQuery();
+        }
+     }
 
 
     #region ContextClasses

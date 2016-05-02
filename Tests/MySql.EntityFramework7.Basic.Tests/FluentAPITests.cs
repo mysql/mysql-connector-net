@@ -50,7 +50,7 @@ namespace MySql.Data.Entity.Tests
         var e = new Employee { FirstName = "Jos", LastName = "Stuart" };
         context.Employees.Add(e);
         context.SaveChanges();
-        var employeeComputedColumn = context.Employees.SingleOrDefault();
+        var employeeComputedColumn = context.Employees.FirstOrDefault();
         Assert.True(employeeComputedColumn.DisplayName.Equals("Stuart Jos"), "Wrong computed column");
         context.Database.EnsureDeleted();
       }
@@ -106,6 +106,7 @@ namespace MySql.Data.Entity.Tests
             Assert.True(reader.GetString(0).ToString().Equals("somecars"), "Wrong table name");
           }
         }
+        context.Database.EnsureDeleted();
       }
     }
 
@@ -132,6 +133,7 @@ namespace MySql.Data.Entity.Tests
             Assert.True(reader.GetString(0).ToString().Equals("somecars"), "Wrong table name");
           }
         }
+        context.Database.EnsureDeleted();
       }
     }
 

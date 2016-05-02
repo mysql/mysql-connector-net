@@ -119,11 +119,11 @@ namespace MySQL.Data.Entity.Migrations
       ThrowIf.Argument.IsNull(clrType, "clrType");
       ThrowIf.Argument.IsNull(annotatable, "annotatable");
       ThrowIf.Argument.IsNull(builder, "builder");
-      
+
+      var property = FindProperty(model, schema, table, name);
 
       if (type == null)
-      {
-        var property = FindProperty(model, schema, table, name);
+      {        
         type = property != null
             ? TypeMapper.GetMapping(property).DefaultTypeName
             : TypeMapper.GetMapping(clrType).DefaultTypeName;
@@ -139,10 +139,13 @@ namespace MySQL.Data.Entity.Migrations
           return;
               
       }
-      
+
+      if (defaultValue != null && property.ClrType == typeof(string))
+      {
+        defaultValue = "'" + defaultValue + "'";
+      }
             
       var autoInc = annotatable[MySQLAnnotationNames.Prefix + MySQLAnnotationNames.AutoIncrement];
-
 
       base.ColumnDefinition(
       schema,
@@ -174,10 +177,10 @@ namespace MySQL.Data.Entity.Migrations
 
       if (defaultValueSql != null)
       {
-        builder
-            .Append(" DEFAULT (")
+        builder 
+            .Append(" DEFAULT ")
             .Append(defaultValueSql)
-            .Append(")");
+            .Append(" ");
       }
       else if (defaultValue != null)
       {

@@ -23,7 +23,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using MySQL.Data.Entity.Extensions;
-
+using System;
 
 namespace MySql.Data.Entity.Tests.DbContextClasses
 {
@@ -43,8 +43,8 @@ namespace MySql.Data.Entity.Tests.DbContextClasses
 
       modelBuilder.Entity<Employee>()
              .Property(p => p.Timestamp)
-             .HasDefaultValue("0")
-             .HasDefaultValueSql("CURRENT_TIMESTAMP")
+             .HasDefaultValue(DateTime.Now)
+             .ForMySQLHasDefaultValueSql("CURRENT_TIMESTAMP")
              .ValueGeneratedOnAddOrUpdate();
 
     }
@@ -96,6 +96,16 @@ namespace MySql.Data.Entity.Tests.DbContextClasses
       modelBuilder.Entity<Blog>()
               .HasIndex(b => b.Url)
               .HasName("Index_Url");
+
+      modelBuilder.Entity<Blog>()
+           .HasOne(p => p.Metadata)
+           .WithOne(i => i.Blog)
+           .HasForeignKey<BlogMetadata>(b => b.BlogId);
+
+      modelBuilder.Entity<Blog>()
+             .HasOne(p => p.RecentPost)
+             .WithOne(i => i.Blog)
+             .HasForeignKey<Post>(b => b.PostId);
 
       modelBuilder.Entity<Car>()
                .Property(b => b.Make)

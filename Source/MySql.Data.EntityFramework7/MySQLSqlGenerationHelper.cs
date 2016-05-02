@@ -20,14 +20,23 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using JetBrains.Annotations;
+using System.Text;
 using Microsoft.EntityFrameworkCore.Storage;
-
 
 namespace MySQL.Data.Entity
 {
   public class MySQLSqlGenerationHelper : RelationalSqlGenerationHelper
   {
+
+    public override void DelimitIdentifier(StringBuilder builder, string identifier)
+    {
+      ThrowIf.Argument.IsEmpty(identifier, "identifier");
+      builder.Append('`');
+      EscapeIdentifier(builder, identifier);
+      builder.Append('`');
+    }
+
+
     public override string DelimitIdentifier([NotNull] string identifier)
     {
       ThrowIf.Argument.IsEmpty(identifier, "identifier");

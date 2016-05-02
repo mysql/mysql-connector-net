@@ -90,7 +90,7 @@ namespace MySql.Data.Entity.Tests.DbContextClasses
                 .HasOne(p => p.RecentPost)
                 .WithOne(i => i.Blog)
                 .HasPrincipalKey<Blog>(p => new { p.BlogId, p.Url })
-                .HasForeignKey<Post>(b => b.BlogIdFK);
+                .HasForeignKey<Post>(b => new { b.BlogIdFK, b.Url });
 
       modelBuilder.Entity<BlogMetadata>()
                .HasOne(p => p.Blog)
