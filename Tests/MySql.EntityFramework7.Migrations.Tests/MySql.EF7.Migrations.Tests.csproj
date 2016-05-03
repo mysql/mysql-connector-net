@@ -31,12 +31,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.EntityFrameworkCore">
-      <HintPath>..\..\packages\Microsoft.EntityFrameworkCore.1.0.0\lib\net451\Microsoft.EntityFrameworkCore.dll</HintPath>
+    <Reference Include="Microsoft.EntityFrameworkCore, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.EntityFrameworkCore.1.0.0-t160415220117\lib\net451\Microsoft.EntityFrameworkCore.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.EntityFrameworkCore.Relational">
-      <HintPath>..\..\packages\Microsoft.EntityFrameworkCore.Relational.1.0.0\lib\net451\Microsoft.EntityFrameworkCore.Relational.dll</HintPath>
+    <Reference Include="Microsoft.EntityFrameworkCore.Relational, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.EntityFrameworkCore.Relational.1.0.0-t160415220117\lib\net451\Microsoft.EntityFrameworkCore.Relational.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Extensions.Caching.Abstractions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.Extensions.Caching.Abstractions.1.0.0-rc3-20751\lib\netstandard1.0\Microsoft.Extensions.Caching.Abstractions.dll</HintPath>
