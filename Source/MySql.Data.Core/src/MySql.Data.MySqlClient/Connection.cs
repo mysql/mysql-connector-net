@@ -365,17 +365,17 @@ namespace MySql.Data.MySqlClient
       AssertPermissions();
 #if !DNXCORE50
 
-      ////TODO: SUPPORT FOR 452 AND 46X
-      //// if we are auto enlisting in a current transaction, then we will be
-      //// treating the connection as pooled
-      //if (Settings.AutoEnlist && Transaction.Current != null)
-      //{
-      //  driver = DriverTransactionManager.GetDriverInTransaction(Transaction.Current);
-      //  if (driver != null &&
-      //    (driver.IsInActiveUse ||
-      //    !driver.Settings.EquivalentTo(this.Settings)))
-      //    Throw(new NotSupportedException(Resources.MultipleConnectionsInTransactionNotSupported));
-      //}
+      //TODO: SUPPORT FOR 452 AND 46X
+      // if we are auto enlisting in a current transaction, then we will be
+      // treating the connection as pooled
+      if (Settings.AutoEnlist && Transaction.Current != null)
+      {
+        driver = DriverTransactionManager.GetDriverInTransaction(Transaction.Current);
+        if (driver != null &&
+          (driver.IsInActiveUse ||
+          !driver.Settings.EquivalentTo(this.Settings)))
+          Throw(new NotSupportedException(Resources.MultipleConnectionsInTransactionNotSupported));
+      }
 
 #endif
       try

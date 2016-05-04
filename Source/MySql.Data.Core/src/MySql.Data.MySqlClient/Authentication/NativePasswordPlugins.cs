@@ -22,7 +22,6 @@
 
 using System;
 using System.Security.Cryptography;
-
 #if DNXCORE50
 using AliasText = MySql.Data.MySqlClient.extensions.DotNetCore50;
 #else

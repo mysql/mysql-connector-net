@@ -105,12 +105,12 @@ namespace MySql.Data.MySqlClient
 #endif
 					string assemblyName = fullName.Replace("MySql.Data", "MySql.Data.Entity");
 					string assemblyEf5Name = fullName.Replace("MySql.Data", "MySql.Data.Entity.EF5");
-					fullName = $"MySql.Data.MySqlClient.Core.MySqlProviderServices, {assemblyEf5Name}";
+					fullName = $"MySql.Data.MySqlClient.MySqlProviderServices, {assemblyEf5Name}";
 
 					Type providerServicesType = Type.GetType(fullName, false);
 					if (providerServicesType == null)
 					{
-						fullName = $"MySql.Data.MySqlClient.Core.MySqlProviderServices, {assemblyName}";
+						fullName = $"MySql.Data.MySqlClient.MySqlProviderServices, {assemblyName}";
 						providerServicesType = Type.GetType(fullName, false);
 						if (providerServicesType == null)
 							throw new DllNotFoundException(fullName);
