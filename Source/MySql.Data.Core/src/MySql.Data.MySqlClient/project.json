@@ -9,15 +9,15 @@
     "licenseUrl": "http://www.gnu.org/licenses/old-licenses/gpl-2.0.html",
     "iconUrl": "http://www.mysql.com/common/logos/logo-mysql-170x115.png",
     "tags": [ "MySql", ".NET Connector", "MySql Connector/NET", "netcore", ".Net Core", "MySql Conector/Net Core", "coreclr", "C/NET", "C/Net Core" ],
-    "content/": "content/Readme.txt",
-    "releaseNotes": "Review Readme.txt for details."
+    "content": "content/Readme.txt",
+    "releaseNotes": "Review Readme.txt for details.",
+    "requireLicenseAcceptance": true
   },
 
   "buildOptions": {
     "define": [ "DNXCORE50" ],
     "warningsAsErrors": false,
     "embed": [ "Properties/ReservedWords.txt" ],
-    "requireLicenseAcceptance": true,
     "exclude": [ "Extensions/Net40/**/*.*" ]
   },
 
@@ -41,11 +41,13 @@
     "System.Net.Sockets": "4.1.0-rc2-24027",
     "System.Reflection": "4.1.0-rc2-24027",
     "System.IO.Compression": "4.1.0-rc2-24027",
-    "System.Net.NameResolution": "4.0.0-rc2-24027"
+    "System.Net.NameResolution": "4.0.0-rc2-24027",
+    "System.Security.Principal.Windows": "4.0.0-rc2-24027"
   },
 
   "frameworks": {
-    "netstandard1.5": { "imports": "DNXCORE50" }
+    "netstandard1.5": { 
+        "imports": "DNXCORE50" 
+    }
   }
-
 }
