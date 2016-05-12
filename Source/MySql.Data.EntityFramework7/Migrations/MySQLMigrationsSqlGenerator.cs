@@ -29,12 +29,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using MySQL.Data.Entity.Metadata;
 using System.Linq;
 
-
 namespace MySQL.Data.Entity.Migrations
 {
   public class MySQLMigrationsSqlGenerator : MigrationsSqlGenerator
   {
-    private readonly ISqlGenerationHelper _sqlGeneratioHelper;
+    private readonly ISqlGenerationHelper _sqlGenerationHelper;
 
     public MySQLMigrationsSqlGenerator(
         [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
@@ -43,7 +42,7 @@ namespace MySQL.Data.Entity.Migrations
         [NotNull] IRelationalAnnotationProvider annotations)
             : base(commandBuilderFactory, sqlGenerationHelper, typeMapper, annotations)
     {
-      _sqlGeneratioHelper = sqlGenerationHelper;
+      _sqlGenerationHelper = sqlGenerationHelper;
     }
 
     protected override void Generate(
@@ -84,7 +83,7 @@ namespace MySQL.Data.Entity.Migrations
 
       builder
           .Append("CREATE DATABASE ")
-          .Append(_sqlGeneratioHelper.DelimitIdentifier(operation.Name));
+          .Append(_sqlGenerationHelper.DelimitIdentifier(operation.Name));
     }
 
     protected virtual void Generate(
@@ -97,7 +96,7 @@ namespace MySQL.Data.Entity.Migrations
 
       builder
           .Append("DROP DATABASE IF EXISTS ")
-          .Append(_sqlGeneratioHelper.DelimitIdentifier(operation.Name));
+          .Append(_sqlGenerationHelper.DelimitIdentifier(operation.Name));
     }
     
 
@@ -132,15 +131,15 @@ namespace MySQL.Data.Entity.Migrations
       if (computedColumnSql != null)
       {
          builder
-              .Append(_sqlGeneratioHelper.DelimitIdentifier(name))
+              .Append(_sqlGenerationHelper.DelimitIdentifier(name))
               .Append(string.Format(" {0} AS ", type))
-              .Append(" ( " + computedColumnSql + " )");
+              .Append(" (" + computedColumnSql + ")");
 
           return;
               
       }
 
-      if (defaultValue != null && property.ClrType == typeof(string))
+      if (property != null && defaultValue != null && property.ClrType == typeof(string))
       {
         defaultValue = "'" + defaultValue + "'";
       }
@@ -177,10 +176,9 @@ namespace MySQL.Data.Entity.Migrations
 
       if (defaultValueSql != null)
       {
-        builder 
+        builder
             .Append(" DEFAULT ")
-            .Append(defaultValueSql)
-            .Append(" ");
+            .Append(defaultValueSql);            
       }
       else if (defaultValue != null)
       {
@@ -204,17 +202,90 @@ namespace MySQL.Data.Entity.Migrations
 
       //MySQL always assign PRIMARY to the PK name no way to override that.
       // check http://dev.mysql.com/doc/refman/5.1/en/create-table.html
-
-   
+      
       builder
           .Append("PRIMARY KEY ")
           .Append("(")
-          .Append(string.Join(", ", operation.Columns.Select(_sqlGeneratioHelper.DelimitIdentifier)))
+          .Append(string.Join(", ", operation.Columns.Select(_sqlGenerationHelper.DelimitIdentifier)))
           .Append(")");
 
       IndexTraits(operation, model, builder);
     }
 
+    protected override void Generate(AlterColumnOperation operation, IModel model, RelationalCommandListBuilder builder)
+    {
+      ThrowIf.Argument.IsNull(operation, "AlterColumnOperation");
+      ThrowIf.Argument.IsNull(model, "model");
+      ThrowIf.Argument.IsNull(builder, "builder");
 
+      var operationColumn = new AddColumnOperation();
+      operationColumn.Schema = operation.Schema;
+      operationColumn.Table = operation.Table;
+      operationColumn.Name = operation.Name;
+      operationColumn.ClrType = operation.ClrType;
+      operationColumn.ColumnType = operation.ColumnType;
+      operationColumn.ComputedColumnSql = operation.ComputedColumnSql;
+      operationColumn.DefaultValue = operation.DefaultValue;
+      operationColumn.DefaultValueSql = operation.DefaultValueSql;
+
+      builder
+       .Append("ALTER TABLE " + operation.Table)
+       .Append(" MODIFY ");
+
+      ColumnDefinition(operationColumn, model, builder);      
+    }
+
+    protected override void Generate(RenameTableOperation operation, IModel model, RelationalCommandListBuilder builder)
+    {
+      ThrowIf.Argument.IsNull(operation, "RenameTableOperation");
+      ThrowIf.Argument.IsNull(model, "model");
+      ThrowIf.Argument.IsNull(builder, "builder");
+
+      builder
+      .Append("ALTER TABLE " + operation.Name)
+      .Append(" RENAME " + operation.NewName);
+    }
+
+    protected override void Generate(CreateIndexOperation operation, IModel model, RelationalCommandListBuilder builder)
+    {
+
+      ThrowIf.Argument.IsNull(operation, "CreateIndexOperation");
+      ThrowIf.Argument.IsNull(model, "model");
+      ThrowIf.Argument.IsNull(builder, "builder");
+
+      builder
+      .Append("CREATE " + (operation.IsUnique ? "UNIQUE " : "") + "INDEX ");
+      
+      builder.Append(_sqlGenerationHelper.DelimitIdentifier(operation.Name) + " ON " + operation.Table + " (" + string.Join(", ", operation.Columns.Select(_sqlGenerationHelper.DelimitIdentifier)) + ")");     
+    }
+
+    protected override void Generate(RenameIndexOperation operation, IModel model, RelationalCommandListBuilder builder)
+    {
+
+      throw new NotSupportedException();
+
+      ThrowIf.Argument.IsNull(operation, "RenameIndexOperation");
+      ThrowIf.Argument.IsNull(model, "model");
+      ThrowIf.Argument.IsNull(builder, "builder");      
+
+      //table content remains the same
+      builder
+      .Append("DROP INDEX ")
+      .Append(_sqlGenerationHelper.DelimitIdentifier(operation.Name) + ", ")
+      .Append("CREATE INDEX " )
+      .Append(_sqlGenerationHelper.DelimitIdentifier(operation.Name) + " ON " + operation.Table );
+    }
+
+    protected override void Generate(DropIndexOperation operation, IModel model, RelationalCommandListBuilder builder)
+    {
+      ThrowIf.Argument.IsNull(operation, "DropIndexOperation");
+      ThrowIf.Argument.IsNull(model, "model");
+      ThrowIf.Argument.IsNull(builder, "builder");
+
+      builder
+      .Append("DROP INDEX ")
+      .Append(operation.Name)
+      .Append(" ON " + operation.Table);            
+    }
   }
 }

@@ -29,6 +29,7 @@ namespace MySql.EF7.Migrations.Tests
       }
     }
 
+    [Fact]
     public override void CreateTableOperation()
     {
       base.CreateTableOperation();
@@ -45,14 +46,75 @@ namespace MySql.EF7.Migrations.Tests
           Sql);
     }
 
-
+    [Fact]
     public override void AddColumnOperation_with_maxLength()
     {
       base.AddColumnOperation_with_maxLength();
-      Assert.Equal("", Sql);
+      Assert.Equal("ALTER TABLE `Person` ADD `Name` varchar(30);" + EOL, Sql);
+    }
+
+    [Fact]
+    public override void AddColumnOperationWithComputedValueSql()
+    {
+      base.AddColumnOperationWithComputedValueSql();
+      Assert.Equal("ALTER TABLE `People` ADD `DisplayName` varchar(50) AS  (CONCAT_WS(' ', LastName , FirstName));" + EOL, Sql);
+    }
+
+    [Fact]
+    public override void AddColumnOperationWithDefaultValueSql()
+    {
+      base.AddColumnOperationWithDefaultValueSql();
+      Assert.Equal("ALTER TABLE `People` ADD `Timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP;"  + EOL, Sql);
+    }
+
+    [Fact]
+    public override void AlterColumnOperation()
+    {
+      base.AlterColumnOperation();
+      Assert.Equal("ALTER TABLE Person MODIFY `Age` int NOT NULL DEFAULT 7;" + EOL, Sql);
     }
 
 
+    [Fact]
+    public override void AlterColumnOperationWithoutType()
+    {
+      base.AlterColumnOperationWithoutType();
+      Assert.Equal("ALTER TABLE Person MODIFY `Age` int NOT NULL;" + EOL, Sql);
+    }
 
+    [Fact]
+    public override void RenameTableOperationInSchema()
+    {
+      base.RenameTableOperationInSchema();
+      Assert.Equal("ALTER TABLE t1 RENAME t2;" + EOL, Sql);            
+    }
+
+    [Fact]
+    public override void CreateUniqueIndexOperation()
+    {
+      base.CreateUniqueIndexOperation();
+      Assert.Equal("CREATE UNIQUE INDEX `IXPersonName` ON Person (`FirstName`, `LastName`);" + EOL, Sql);
+    }
+
+    [Fact]
+    public override void CreateNonUniqueIndexOperation()
+    {
+      base.CreateNonUniqueIndexOperation();
+      
+      Assert.Equal("CREATE INDEX `IXPersonName` ON Person (`Name`);" + EOL, Sql);
+    }
+    
+    [Fact(Skip = "Rename index is only supported in 5.7")]
+    public override void RenameIndexOperation()
+    {
+      base.RenameIndexOperation();
+      Assert.Equal("DROP INDEX IXPersonName ON Person; CREATE INDEX IXNombre;" + EOL, Sql);
+    }
+    
+    public override void DropIndexOperation()
+    {
+      base.DropIndexOperation();
+      Assert.Equal("DROP INDEX IXPersonName ON Person;" + EOL, Sql);
+    }
   }
 }

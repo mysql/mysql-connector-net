@@ -47,7 +47,7 @@ namespace MySQL.Data.Entity
     private readonly RelationalTypeMapping _smallint = new RelationalTypeMapping("smallint", typeof(Int16)); 
     private readonly RelationalTypeMapping _tinyint = new RelationalTypeMapping("tinyint", typeof(Byte));
     private readonly RelationalTypeMapping _char = new RelationalTypeMapping("char", typeof(Byte));
-    private readonly RelationalTypeMapping _string = new RelationalTypeMapping("string", typeof(String));
+    private readonly RelationalTypeMapping _string = new RelationalTypeMapping("varchar", typeof(String), unicode: false);
 
 
     //private readonly RelationalTypeMapping _mediumint = new RelationalTypeMapping("mediumint", );
@@ -134,10 +134,10 @@ namespace MySQL.Data.Entity
       return property.MySQL().ColumnType;
     }
 
-    public override RelationalTypeMapping FindMapping(Type clrType, bool unicode = true)
-    {
-      return base.FindMapping(clrType, unicode);
-    }
+    //public override RelationalTypeMapping FindMapping(Type clrType, bool unicode = true)
+    //{
+    //  return base.FindMapping()
+    //}
 
 
     //protected override RelationalTypeMapping GetCustomMapping([NotNull] IProperty property)
@@ -151,7 +151,7 @@ namespace MySQL.Data.Entity
     //  //  return GetStringMapping(property, _medTextMaxLength, maxLen => GetBoundedMapping(maxLen), 
     //  //    _longText, _varchar);
 
-    //  return base.GetCustomMapping(property);      
+    //  return base.GetCustomMapping(property);
     //}
 
 

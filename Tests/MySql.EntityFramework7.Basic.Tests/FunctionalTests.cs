@@ -32,6 +32,8 @@ using MySql.Data.MySqlClient;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using System.IO;
 
 namespace MySql.Data.Entity.Tests
 {
@@ -45,15 +47,14 @@ namespace MySql.Data.Entity.Tests
       serviceCollection.AddEntityFrameworkMySQL()
         .AddDbContext<ConnectionStringInOnConfiguringTestContext>();
 
-      var serviceProvider = serviceCollection.BuildServiceProvider();
+     var serviceProvider = serviceCollection.BuildServiceProvider();  
 
       using (var context = serviceProvider.GetRequiredService<ConnectionStringInOnConfiguringTestContext>())
-      {
+      {        
         context.Database.EnsureCreated();
-        Assert.True(context.Posts.Any());
+        Assert.False(context.Posts.Any());
         context.Database.EnsureDeleted();
       }
-
     }
 
 
@@ -154,7 +155,7 @@ namespace MySql.Data.Entity.Tests
                                               new MySqlConnection(MySQLTestStore.CreateConnectionString("test"))))
       {
         context.Database.EnsureCreated();     
-        Assert.True(context.Blogs.Any());
+        Assert.False(context.Blogs.Any());
         context.Database.EnsureDeleted();
       }
 

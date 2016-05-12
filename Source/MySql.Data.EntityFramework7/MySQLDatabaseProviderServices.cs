@@ -132,10 +132,10 @@ namespace MySQL.Data.Entity
       get { return GetService<MySQLCompositeMemberTranslator>(); }
     }
 
-    public override IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory
-    {
-      get { return GetService<UntypedRelationalValueBufferFactoryFactory>(); }
-    }
+    //public override IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory
+    //{
+    //  get { return GetService<UntypedRelationalValueBufferFactoryFactory>(); }
+    //}
 
     public override IQuerySqlGeneratorFactory QuerySqlGeneratorFactory
     {

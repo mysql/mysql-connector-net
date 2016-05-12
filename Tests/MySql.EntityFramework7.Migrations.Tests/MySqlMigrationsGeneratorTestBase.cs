@@ -110,7 +110,7 @@ namespace MySql.EF7.Migrations.Tests
 
 
     [Fact]
-    public void AddColumnOperationWithComputedValueSql()
+    public virtual void AddColumnOperationWithComputedValueSql()
     {
       Generate(new AddColumnOperation
       {
@@ -126,7 +126,7 @@ namespace MySql.EF7.Migrations.Tests
     }
 
     [Fact]
-    public void AddColumnOperationWithDefaultValueSql()
+    public virtual void AddColumnOperationWithDefaultValueSql()
     {
       Generate(new AddColumnOperation
       {
@@ -149,7 +149,7 @@ namespace MySql.EF7.Migrations.Tests
                modelBuilder => modelBuilder.Entity("Person").Property<string>("Name").HasMaxLength(30),
                new AddColumnOperation
                {                
-                 Table = "People",
+                 Table = "Person",
                  Name = "Name",
                  ClrType = typeof(string),
                  IsNullable = true
@@ -157,12 +157,103 @@ namespace MySql.EF7.Migrations.Tests
 
     }
 
-    protected virtual void Generate(MigrationOperation operation)
-    {
-      var batch = SqlGenerator.Generate(new[] { operation });
 
-      Sql = String.Join("," ,
-        batch.Select(b => b.CommandText));
+    [Fact]
+    public virtual void AlterColumnOperation()
+    {
+      Generate(new AlterColumnOperation
+      {
+        Table = "Person",
+        Schema = "",
+        Name = "Age",
+        ClrType = typeof(int),
+        ColumnType = "int",
+        IsNullable = false,
+        DefaultValue = 7
+      });
+    }
+
+
+    [Fact]
+    public virtual void AlterColumnOperationWithoutType()
+    {
+      Generate(
+              new AlterColumnOperation
+              {
+                Table = "Person",
+                Name = "Age",
+                ClrType = typeof(int)
+              });
+    }
+
+
+    [Fact]
+    public virtual void RenameTableOperationInSchema()
+    { 
+       Generate(
+              new RenameTableOperation
+              {
+                Name = "t1",
+                Schema = "",
+                NewName = "t2",
+                NewSchema = ""
+              });
+    }
+
+    [Fact]
+    public virtual void CreateUniqueIndexOperation()
+    { 
+        Generate(
+            new CreateIndexOperation
+            {
+              Name = "IXPersonName",
+              Table = "Person",
+              Schema = "",
+              Columns = new[] { "FirstName", "LastName" },
+              IsUnique = true
+            });
+    }
+
+
+    [Fact]
+    public virtual void CreateNonUniqueIndexOperation()
+    { 
+        Generate(
+            new CreateIndexOperation
+            {
+              Name = "IXPersonName",
+              Table = "Person",
+              Columns = new[] { "Name" },
+              IsUnique = false
+            });
+    }
+
+    [Fact]
+    public virtual void RenameIndexOperation()
+    {
+      Generate(
+           new RenameIndexOperation
+           {
+             Name = "IXPersonName",
+             Table = "Person",
+             NewName = "IXNombre"             
+           });
+    }
+
+    [Fact]
+    public virtual void DropIndexOperation()
+    {
+      Generate(
+            new DropIndexOperation
+            {
+              Name = "IXPersonName",
+              Table = "Person"              
+            });
+    }
+
+    protected virtual void Generate(MigrationOperation operation)
+    {      
+       Generate(_ => { }, new[] { operation });
     }
 
     protected virtual void Generate(Action<ModelBuilder> buildAction, params MigrationOperation[] operation)
@@ -172,9 +263,7 @@ namespace MySql.EF7.Migrations.Tests
 
       var batch = SqlGenerator.Generate(operation, modelBuilder.Model);
 
-      Sql = string.Join(
-          "GO" + EOL + EOL,
-          batch.Select(b => b.CommandText));
+      Sql = string.Join(EOL, batch.Select(b => b.CommandText));
     }
   }
 }

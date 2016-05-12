@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -32,31 +32,46 @@ namespace MySQL.Data.Entity
 {
   public class MySQLServerConnection : RelationalConnection
     {
-        public int flag;
+      public int flag;
 
-        public MySQLServerConnection(
-          [NotNull]IDbContextOptions options, 
-          [NotNull]ILogger<MySQLServerConnection> logger) 
-          : base(options, logger)
-        {
-        }
+      private string _cnnStr
+      { 
+        get
+          {
+          if (this.DbConnection != null)
+            {
+              var cstr = ((MySqlConnectionStringBuilder)((MySqlConnection)this.DbConnection).GetType().GetProperty("Settings", System.Reflection.BindingFlags.Instance
+                          | System.Reflection.BindingFlags.NonPublic).GetValue(((MySqlConnection)this.DbConnection), null));
+              return cstr.ConnectionString;
+            }
+            return null;
+          }
+      }
 
-        public MySQLServerConnection(
-          [NotNull]IDbContextOptions options,
-          [NotNull]ILogger logger)
-          : base(options, logger)
-        {
-        }
+  
+      public MySQLServerConnection(
+            [NotNull]IDbContextOptions options, 
+            [NotNull]ILogger<MySQLServerConnection> logger) 
+            : base(options, logger)
+          {
+          }
 
-    protected override DbConnection CreateDbConnection()
+      public MySQLServerConnection(
+        [NotNull]IDbContextOptions options,
+        [NotNull]ILogger logger)
+        : base(options, logger)
+      {
+      }
+
+      protected override DbConnection CreateDbConnection()
         {
-            return new MySqlConnection(ConnectionString);
+          return new MySqlConnection(ConnectionString);
         }
 
 
         public MySQLServerConnection CreateSystemConnection()
         {
-            MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(ConnectionString);
+            MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(_cnnStr ?? ConnectionString);
             builder.Database = "mysql";
 
             var optionsBuilder = new DbContextOptionsBuilder();
