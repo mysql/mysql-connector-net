@@ -1,5 +1,5 @@
 {
-  "version": "6.9.8-rc2-001",
+  "version": "6.9.8-rc2-002",
   "description": "MySQL client Library targting netstandard 1.5",
   "authors": [ "Oracle", "SapientGuardian" ],
   "buildOptions": {
@@ -13,7 +13,7 @@
   },
   "packOptions": {
     "tags": [ "coreclr", "dnxcore50", "netstandard", "netcore", "mysql" ],
-    "projectUrl": "https://github.com/SapientGuardian/mysql-connector-net",
+    "projectUrl": "https://github.com/SapientGuardian/mysql-connector-net-netstandard1.5",
     "licenseUrl": "http://www.gnu.org/licenses/old-licenses/gpl-2.0.html"
   },
   "dependencies": {    
