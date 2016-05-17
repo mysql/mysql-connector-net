@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.Data", "Source\MySql.Data\MySql.Data.csproj", "{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}"
 EndProject
@@ -34,11 +34,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.EF6.CodeFirst.Tests",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.EF6.Migrations.Tests", "Tests\MySql.EntityFramework6.Migrations.Tests\MySql.EF6.Migrations.Tests.csproj", "{39764EF6-E15F-47BF-9929-664C52BE6D36}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.EF7.Basic.Tests", "Tests\MySql.EntityFramework7.Basic.Tests\MySql.EF7.Basic.Tests.csproj", "{0F441D9D-9ABB-47CE-991D-FCF70A912866}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.Data.EntityFrameworkCore", "Source\MySql.Data.EntityFrameworkCore\MySql.Data.EntityFrameworkCore.csproj", "{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.Data.EF7", "Source\MySql.Data.EntityFramework7\MySql.Data.EF7.csproj", "{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.EntityFrameworkCore.Basic.Tests", "Tests\MySql.EntityFrameworkCore.Basic.Tests\MySql.EntityFrameworkCore.Basic.Tests.csproj", "{0F441D9D-9ABB-47CE-991D-FCF70A912866}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.EF7.Migrations.Tests", "Tests\MySql.EntityFramework7.Migrations.Tests\MySql.EF7.Migrations.Tests.csproj", "{6C93E9D4-99D8-4E47-BF04-43B9DCDD676E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.EntityFrameworkCore.Migrations.Tests", "Tests\MySql.EntityFrameworkCore.Migrations.Tests\MySql.EntityFrameworkCore.Migrations.Tests.csproj", "{6C93E9D4-99D8-4E47-BF04-43B9DCDD676E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -288,26 +288,6 @@ Global
 		{39764EF6-E15F-47BF-9929-664C52BE6D36}.Release|x64.Build.0 = Release|Any CPU
 		{39764EF6-E15F-47BF-9929-664C52BE6D36}.Release|x86.ActiveCfg = Release|Any CPU
 		{39764EF6-E15F-47BF-9929-664C52BE6D36}.Release|x86.Build.0 = Release|Any CPU
-		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Debug|ARM.ActiveCfg = Debug|Any CPU
-		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Debug|ARM.Build.0 = Debug|Any CPU
-		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Debug|x64.Build.0 = Debug|Any CPU
-		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Debug|x86.Build.0 = Debug|Any CPU
-		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Release|ARM.ActiveCfg = Release|Any CPU
-		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Release|ARM.Build.0 = Release|Any CPU
-		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Release|x64.ActiveCfg = Release|Any CPU
-		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Release|x64.Build.0 = Release|Any CPU
-		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Release|x86.ActiveCfg = Release|Any CPU
-		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Release|x86.Build.0 = Release|Any CPU
 		{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}.Debug|ARM.ActiveCfg = Debug|Any CPU
@@ -328,6 +308,26 @@ Global
 		{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}.Release|x64.Build.0 = Release|Any CPU
 		{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}.Release|x86.ActiveCfg = Release|Any CPU
 		{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}.Release|x86.Build.0 = Release|Any CPU
+		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Debug|ARM.Build.0 = Debug|Any CPU
+		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Debug|x64.Build.0 = Debug|Any CPU
+		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Debug|x86.Build.0 = Debug|Any CPU
+		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Release|ARM.ActiveCfg = Release|Any CPU
+		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Release|ARM.Build.0 = Release|Any CPU
+		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Release|x64.ActiveCfg = Release|Any CPU
+		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Release|x64.Build.0 = Release|Any CPU
+		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Release|x86.ActiveCfg = Release|Any CPU
+		{0F441D9D-9ABB-47CE-991D-FCF70A912866}.Release|x86.Build.0 = Release|Any CPU
 		{6C93E9D4-99D8-4E47-BF04-43B9DCDD676E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6C93E9D4-99D8-4E47-BF04-43B9DCDD676E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6C93E9D4-99D8-4E47-BF04-43B9DCDD676E}.Debug|ARM.ActiveCfg = Debug|Any CPU
