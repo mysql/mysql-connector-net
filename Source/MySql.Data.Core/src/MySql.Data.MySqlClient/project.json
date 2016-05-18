@@ -3,6 +3,7 @@
   "description": "MySql.Data.MySqlClient .Net Core Class Library",
   "authors": [ "Oracle" ],
   "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
+  "preserveCompilationContext": true,
 
   "packOptions": {
     "projectUrl": "http://dev.mysql.com/downloads/",
@@ -18,13 +19,15 @@
     "define": [ "DNXCORE50" ],
     "warningsAsErrors": false,
     "embed": [ "Properties/ReservedWords.txt" ],
-    "exclude": [ "Extensions/Net40/**/*.*" ]
+    "exclude": [ "Extensions/Net40/**/*.*" ],
+    "optimize": true,
+    "xmlDoc": true
   },
 
 
   "dependencies": {
     "Microsoft.Extensions.Configuration.Json": "1.0.0-rc2-*",
-    "NetStandard.Library": "1.5.0-rc2-*",
+    "NETStandard.Library": "1.5.0-rc2-*",
     "System.Collections.NonGeneric": "4.0.1-rc2-*",
     "System.ComponentModel": "4.0.1-rc2-*",
     "System.ComponentModel.Annotations": "4.1.0-rc2-*",
@@ -48,8 +51,11 @@
   },
 
   "frameworks": {
-    "netstandard1.5": { 
-        "imports": "DNXCORE50" 
+    "netstandard1.5": {
+      "imports": [
+        "DNXCORE50",
+        "portable-net452+win81"
+      ]
     }
   }
 }

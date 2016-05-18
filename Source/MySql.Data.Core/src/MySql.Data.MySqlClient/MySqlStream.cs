@@ -50,6 +50,7 @@ namespace MySql.Data.MySqlClient
       // we default maxBlockSize to MaxValue since we will get the 'real' value in 
       // the authentication handshake and we know that value will not exceed 
       // true maxBlockSize prior to that.
+
       MaxBlockSize = Int32.MaxValue;
 
       _packet = new MySqlPacket(encoding);

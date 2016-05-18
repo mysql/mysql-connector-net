@@ -33,6 +33,8 @@ namespace MySql.Data.MySqlClient.Test
     [Fact]
     public void ReadDataReader()
     {
+      CheckAppSettings();
+
       //Test the same result using two differents connections to the same db and table, should be the same
       MySqlConnection connection1 = new MySqlConnection();
       MySqlConnection connection2 = new MySqlConnection();

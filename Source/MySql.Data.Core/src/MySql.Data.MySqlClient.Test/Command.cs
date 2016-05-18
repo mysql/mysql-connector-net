@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
+using MySql.Data.MySqlClient;
 
 namespace MySql.Data.MySqlClient.Test
 {
@@ -34,6 +35,8 @@ namespace MySql.Data.MySqlClient.Test
     [Fact]
     public void CommandExecute()
     {
+      CheckAppSettings();
+
       MySqlConnection connection = new MySqlConnection();
 
       connection.Open();

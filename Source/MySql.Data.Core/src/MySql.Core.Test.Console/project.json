@@ -1,38 +1,30 @@
-﻿{
+{
   "version": "1.0.0-alpha-*",
-  "description": "MySql.Core.Test.Console Console Application",
+  "description": "MySql.Data.MySqlClient.Test Console",
   "authors": [ "Oracle" ],
   "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
-  "tags": [ "MySql", ".NET Connector", "MySql Connector/NET", "netcore", ".Net Core", "MySql Conector/Net Core", "coreclr", "C/NET", "C/Net Core" ],
-  "projectUrl": "http://dev.mysql.com/downloads/",
-  "licenseUrl": "http://www.gnu.org/licenses/old-licenses/gpl-2.0.html",
-  "requireLicenseAcceptance": true,
-  "iconUrl": "http://www.mysql.com/common/logos/logo-mysql-170x115.png",
-  "contentFiles": [ "appsettings.json" ],
 
-  "compilationOptions": {
+  "buildOptions": {
+    "define": [ "DNXCORE50" ],
+    "warningsAsErrors": false,
+    "copyToOutput": [ "appsettings.json" ],
     "emitEntryPoint": true
   },
 
   "dependencies": {
-  },
-
-  "commands": {
-    "MySql.Core.Test.Console": "MySql.Core.Test.Console"
+    "Microsoft.NETCore.App": {
+      "type": "platform",
+      "version": "1.0.0-rc2-*"
+    },
+    "MySql.Data.MySqlClient": "1.0.0-alpha-*"
   },
 
   "frameworks": {
-    "dnxcore50": {
-      "dependencies": {
-        "Microsoft.CSharp": "4.0.1-beta-23516",
-        "MySql.Data.MySqlClient": "1.0.0-alpha",
-        "System.Collections": "4.0.11-beta-23516",
-        "runtime.win7.System.Console": "4.0.0-beta-23516",
-        "runtime.unix.System.Console": "4.0.0-beta-23516",
-        "System.Console": "4.0.0-beta-23516",
-        "System.Linq": "4.0.1-beta-23516",
-        "System.Threading": "4.0.11-beta-23516"
-      }
+    "netcoreapp1.0": {
+      "imports": [
+        "dnxcore50",
+        "portable-net452+win81"
+      ]
     }
   }
 }

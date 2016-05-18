@@ -37,6 +37,8 @@ namespace MySql.Data.MySqlClient.Test
     [Fact]
     public void ConnectionOpen()
     {
+      CheckAppSettings();
+
       MySqlConnection connection = new MySqlConnection();
 
       connection.Open();

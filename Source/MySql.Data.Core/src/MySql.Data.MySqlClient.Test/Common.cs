@@ -34,12 +34,16 @@ namespace MySql.Data.MySqlClient.Test
 
     protected Common()
     {
-      //Return the original name of the appsettings.json
-      if (File.Exists("appsettings1.json"))
-        File.Move("appsettings1.json", "appsettings.json");
-
+      CheckAppSettings();
     }
 
-
+    /// <summary>
+    /// Checks the application settings.
+    /// </summary>
+    public void CheckAppSettings()
+    {
+      if (File.Exists("appsettings1.json"))
+        File.Move("appsettings1.json", "appsettings.json");
+    }
   }
 }
