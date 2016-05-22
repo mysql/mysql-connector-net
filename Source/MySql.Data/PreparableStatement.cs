@@ -1,4 +1,4 @@
-// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright ï¿½ 2004, 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -36,7 +36,7 @@ namespace MySql.Data.MySqlClient
   {
     private int executionCount;
     private int statementId;
-#if RT
+#if RT || NETSTANDARD1_3
     RtBitArray nullMap;
 #else
     BitArray nullMap;
@@ -99,7 +99,7 @@ namespace MySql.Data.MySqlClient
       int numNullBytes = 0;
       if (paramList != null && paramList.Length > 0)
       {
-#if RT
+#if RT || NETSTANDARD1_3
           nullMap = new RtBitArray(paramList.Length);
 #else
           nullMap = new BitArray(paramList.Length);

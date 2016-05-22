@@ -29,7 +29,7 @@ using System.Text;
 
 namespace System.Data
 {
-#if !CF
+#if !CF && !NETSTANDARD1_3
     public enum UpdateRowSource
     {
       None,
@@ -65,7 +65,7 @@ namespace System.ComponentModel
 
 namespace System.IO
 {
-#if !CF
+#if !CF && !NETSTANDARD1_3
   public enum FileMode
   {
     CreateNew = 1,

@@ -24,6 +24,7 @@ using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.Properties;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
 
 namespace MySql.Data.Common
@@ -51,7 +52,7 @@ namespace MySql.Data.Common
       this.driverVersion = driverVersion;
     }
 
-    public static Stream GetStream(string server, uint port, string pipename, uint keepalive, DBVersion v, uint timeout)
+    public static Task<Stream> GetStream(string server, uint port, string pipename, uint keepalive, DBVersion v, uint timeout)
     {
       MySqlConnectionStringBuilder settings = new MySqlConnectionStringBuilder();
       settings.Server = server;
@@ -62,7 +63,7 @@ namespace MySql.Data.Common
       return GetStream(settings);
     }
 
-    public static Stream GetStream(MySqlConnectionStringBuilder settings)
+    public static Task<Stream> GetStream(MySqlConnectionStringBuilder settings)
     {
       switch (settings.ConnectionProtocol)
       {
@@ -71,26 +72,26 @@ namespace MySql.Data.Common
         case MySqlConnectionProtocol.UnixSocket: throw new NotImplementedException();
         case MySqlConnectionProtocol.SharedMemory: throw new NotImplementedException();
 #else
-#if !CF
+#if !CF && !NETSTANDARD1_3
         case MySqlConnectionProtocol.UnixSocket: return GetUnixSocketStream(settings);        
         case MySqlConnectionProtocol.SharedMemory: return GetSharedMemoryStream(settings);
 #endif
         
 #endif
-#if !CF && !RT
+#if !CF && !RT && !NETSTANDARD1_3
         case MySqlConnectionProtocol.NamedPipe: return GetNamedPipeStream(settings);
 #endif
       }
       throw new InvalidOperationException(Resources.UnknownConnectionProtocol);
     }
 
-    private static Stream GetTcpStream(MySqlConnectionStringBuilder settings)
+    private static async Task<Stream> GetTcpStream(MySqlConnectionStringBuilder settings)
     {
-      MyNetworkStream s = MyNetworkStream.CreateStream(settings, false);
+      var s = await MyNetworkStream.CreateStream(settings, false);
       return s;
     }
 
-#if !CF && !RT
+#if !CF && !RT && !NETSTANDARD1_3
     private static Stream GetUnixSocketStream(MySqlConnectionStringBuilder settings)
     {
       if (Platform.IsWindows())

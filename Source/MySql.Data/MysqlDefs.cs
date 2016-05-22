@@ -1,4 +1,4 @@
-// Copyright © 2004, 2015 Oracle and/or its affiliates. All rights reserved.
+// Copyright ï¿½ 2004, 2015 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -23,6 +23,7 @@
 using System;
 using System.Reflection;
 using System.ComponentModel;
+using System.Data;
 
 namespace MySql.Data.MySqlClient
 {
@@ -115,7 +116,7 @@ namespace MySql.Data.MySqlClient
   /// <summary>
   /// Specifies MySQL specific data type of a field, property, for use in a <see cref="MySqlParameter"/>.
   /// </summary>
-  public enum MySqlDbType
+  public enum MySqlDbType 
   {
     /// <summary>
     /// <see cref="Decimal"/>
@@ -431,7 +432,7 @@ namespace MySql.Data.MySqlClient
       get { return "MySql Connector/NET"; }
     }
 
-#if !RT
+#if !RT && !NETSTANDARD1_3
     [DisplayName("_pid")]
     public string PID
     {

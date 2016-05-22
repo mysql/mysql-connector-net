@@ -20,8 +20,11 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,11 +33,17 @@ namespace MySql.Data.MySqlClient
 {
   public delegate void StateChangeEventHandler(object sender, StateChangeEventArgs e);
 
-  public sealed partial class MySqlConnection : RTConnection, ICloneable, IDisposable
+  public sealed partial class MySqlConnection : DbConnection, IDbConnection, ICloneable, IDisposable
   {
-    public event StateChangeEventHandler StateChange;
+        public event StateChangeEventHandler StateChange;
 
-    protected void OnStateChange(StateChangeEventArgs stateChange)
+        protected override DbTransaction BeginDbTransaction(System.Data.IsolationLevel isolationLevel)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        protected void OnStateChange(StateChangeEventArgs stateChange)
     {
       StateChangeEventHandler handler = StateChange;
       if (handler != null)
@@ -47,7 +56,7 @@ namespace MySql.Data.MySqlClient
         Close();
     }
 
-#if !RT
+#if !RT && !NETSTANDARD1_3
     ~MySqlConnection()
     {
       this.Dispose();
@@ -70,15 +79,4 @@ namespace MySql.Data.MySqlClient
     public abstract void Open();
     public abstract void Close();
   }
-
-  public enum ConnectionState
-  {
-    Closed,
-    Open,
-    Connecting,
-    Executing,
-    Fetching,
-    Broken
-  }
-
 }

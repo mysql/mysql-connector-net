@@ -1,4 +1,4 @@
-// Copyright © 2004, 2015, Oracle and/or its affiliates. All rights reserved.
+// Copyright ï¿½ 2004, 2015, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -35,14 +35,14 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Collections.Generic;
 using MySql.Data.MySqlClient.Properties;
-#if !CF
+#if !CF && !NETSTANDARD1_3
 using MySql.Data.MySqlClient.Replication;
 #endif
 
 namespace MySql.Data.MySqlClient
 {
   /// <include file='docs/mysqlcommand.xml' path='docs/ClassSummary/*'/> 
-  public sealed partial class MySqlCommand : ICloneable, IDisposable
+  public sealed partial class MySqlCommand : DbCommand,IDbCommand, ICloneable, IDisposable
   {
     MySqlConnection connection;
     MySqlTransaction curTransaction;
@@ -274,17 +274,66 @@ namespace MySql.Data.MySqlClient
       set { internallyCreated = value; }
     }
 
-    #endregion
+        partial void Constructor()
+        {
+            this.UpdatedRowSource = UpdateRowSource.Both;
+        }
 
-    #region Methods
+        partial void PartialClone(MySqlCommand clone)
+        {
+            clone.UpdatedRowSource = UpdatedRowSource;
+        }
 
-    /// <summary>
-    /// Attempts to cancel the execution of a currently active command
-    /// </summary>
-    /// <remarks>
-    /// Cancelling a currently active query only works with MySQL versions 5.0.0 and higher.
-    /// </remarks>
-    public override void Cancel()
+        /// <summary>
+        /// Gets or sets how command results are applied to the DataRow when used by the 
+        /// Update method of the DbDataAdapter. 
+        /// </summary>
+        public override UpdateRowSource UpdatedRowSource { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the command object should be visible in a Windows Form Designer control. 
+        /// </summary>
+        [Browsable(false)]
+        public override bool DesignTimeVisible { get; set; }
+
+        protected override DbParameter CreateDbParameter()
+        {
+            return new MySqlParameter();
+        }
+
+        protected override DbConnection DbConnection
+        {
+            get { return (DbConnection)connection; }
+            set { connection = (MySqlConnection)value; }
+        }
+
+        protected override DbParameterCollection DbParameterCollection
+        {
+            get { return Parameters; }
+        }
+
+        protected override DbTransaction DbTransaction
+        {
+            get { return Transaction; }
+            set { Transaction = (MySqlTransaction)value; }
+        }
+
+        protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
+        {
+            return ExecuteReader(behavior);
+        }
+
+        #endregion
+
+        #region Methods
+
+        /// <summary>
+        /// Attempts to cancel the execution of a currently active command
+        /// </summary>
+        /// <remarks>
+        /// Cancelling a currently active query only works with MySQL versions 5.0.0 and higher.
+        /// </remarks>
+        public override void Cancel()
     {
       connection.CancelQuery(connection.ConnectionTimeout);
       canceled = true;
@@ -401,7 +450,7 @@ namespace MySql.Data.MySqlClient
     /// <include file='docs/mysqlcommand.xml' path='docs/ExecuteReader1/*'/>
     public new MySqlDataReader ExecuteReader(CommandBehavior behavior)
     {
-#if !CF && !RT
+#if !CF && !RT && !NETSTANDARD1_3
       // give our interceptors a shot at it first
       MySqlDataReader interceptedReader = null;
       if ( connection != null &&
@@ -421,7 +470,7 @@ namespace MySql.Data.MySqlClient
 
       string sql = cmdText.Trim(';');
 
-#if !CF
+#if !CF && !NETSTANDARD1_3
       // Load balancing getting a new connection
       if (connection.hasBeenOpen && !driver.HasStatus(ServerStatusFlags.InTransaction))
       {
@@ -438,7 +487,7 @@ namespace MySql.Data.MySqlClient
           Throw(new MySqlException(Resources.DataReaderOpen));
         }
 
-#if !CF && !RT
+#if !CF && !RT && !NETSTANDARD1_3
         System.Transactions.Transaction curTrans = System.Transactions.Transaction.Current;
 
         if (curTrans != null)
@@ -599,7 +648,7 @@ namespace MySql.Data.MySqlClient
       lastInsertedId = -1;
       object val = null;
 
-#if !CF && !RT
+#if !CF && !RT &&!NETSTANDARD1_3
       // give our interceptors a shot at it first
       if (connection != null &&
           connection.commandInterceptor.ExecuteScalar(CommandText, ref val))
@@ -1013,12 +1062,26 @@ namespace MySql.Data.MySqlClient
 
       disposed = true;
     }
+
 #else
     public void Dispose()
     {
       GC.SuppressFinalize(this);
     }
+
 #endif
-  }
+    }
+#if !NETSTANDARD1_3
+    public enum CommandBehavior
+    {
+        Default = 0,
+        SingleResult = 1,
+        SchemaOnly = 2,
+        KeyInfo = 4,
+        SingleRow = 8,
+        SequentialAccess = 16,
+        CloseConnection = 32
+    }
+#endif
 }
 

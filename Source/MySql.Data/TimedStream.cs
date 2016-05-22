@@ -59,7 +59,7 @@ namespace MySql.Data.MySqlClient
     public TimedStream(Stream baseStream)
     {
       this.baseStream = baseStream;
-#if !CF && !RT
+#if !CF && !RT && !NETSTANDARD1_3
       timeout = baseStream.ReadTimeout;
 #else
             timeout = System.Threading.Timeout.Infinite;
@@ -106,8 +106,8 @@ namespace MySql.Data.MySqlClient
       {
         if (ShouldResetStreamTimeout(lastReadTimeout, streamTimeout))
         {
-#if !CF && !RT
-          baseStream.ReadTimeout = streamTimeout;
+#if !CF && !RT && !NETSTANDARD1_3
+                    baseStream.ReadTimeout = streamTimeout;
 #endif
           lastReadTimeout = streamTimeout;
         }
@@ -116,10 +116,10 @@ namespace MySql.Data.MySqlClient
       {
         if (ShouldResetStreamTimeout(lastWriteTimeout, streamTimeout))
         {
-#if !CF && !RT
+#if !CF && !RT && !NETSTANDARD1_3
           baseStream.WriteTimeout = streamTimeout;
 #endif
-          lastWriteTimeout = streamTimeout;
+                    lastWriteTimeout = streamTimeout;
         }
       }
 
@@ -266,7 +266,7 @@ namespace MySql.Data.MySqlClient
       set { baseStream.WriteTimeout = value; }
     }
 
-#if RT
+#if RT || NETSTANDARD1_3
     public void Close()
 #else
     public override void Close()
@@ -275,11 +275,11 @@ namespace MySql.Data.MySqlClient
       if (isClosed)
         return;
       isClosed = true;
-#if !RT
+#if !RT && !NETSTANDARD1_3
       baseStream.Close();
 #endif
 #if !CF
-      baseStream.Dispose();
+            baseStream.Dispose();
 #endif
     }
 

@@ -192,7 +192,7 @@ namespace zlib
 			z = null;
 		}
 
-#if RT
+#if RT || NETSTANDARD1_3
     public void Close()
 #else
 		public override void  Close()
@@ -211,7 +211,7 @@ namespace zlib
 			finally
 			{
 				end();
-#if RT
+#if RT || NETSTANDARD1_3
                 out_Renamed.Dispose();
 #else
 				out_Renamed.Close();

@@ -25,11 +25,16 @@ using System.Data.Common;
 
 namespace MySql.Data.MySqlClient
 {
-#if !RT
+#if !RT && !NETSTANDARD1_3
   internal class BaseTransaction : DbTransaction
 #else
   internal class BaseTransaction : IDisposable
 #endif
   {
+    
+    public void Dispose()
+        {
+            throw new NotImplementedException();
+        }
   }
 }

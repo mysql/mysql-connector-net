@@ -29,7 +29,9 @@ using System.Threading;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
+#if !NETSTANDARD1_3
 using System.Security.Permissions;
+#endif
 using System.Security;
 
 
@@ -39,9 +41,11 @@ namespace MySql.Data.Common
   /// <summary>
   /// Summary description for API.
   /// </summary>
-#if !CF
+#if !CF && !NETSTANDARD1_3
   [SuppressUnmanagedCodeSecurity()]
 #endif
+
+#if !NETSTANDARD1_3
   internal class NamedPipeStream : Stream
   {
     SafeFileHandle handle;
@@ -245,6 +249,7 @@ namespace MySql.Data.Common
       return new NamedPipeStream(pipePath, FileAccess.ReadWrite, timeout);
     }
   }
+#endif
 }
 
 

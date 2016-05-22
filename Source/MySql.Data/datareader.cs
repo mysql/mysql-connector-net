@@ -1,4 +1,4 @@
-// Copyright © 2004, 2014 Oracle and/or its affiliates. All rights reserved.
+// Copyright ï¿½ 2004, 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -37,7 +37,7 @@ using System.Threading;
 namespace MySql.Data.MySqlClient
 {
   /// <include file='docs/MySqlDataReader.xml' path='docs/ClassSummary/*'/>
-  public sealed partial class MySqlDataReader : IDisposable
+  public sealed partial class MySqlDataReader : DbDataReader, IDataReader, IDisposable
   {
     // The DataReader should always be open when returned to the user.
     private bool isOpen = true;
@@ -180,7 +180,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Closes the MySqlDataReader object.
     /// </summary>
-    public override void Close()
+    public void Close()
     {
       if (!isOpen) return;
 
@@ -949,7 +949,7 @@ namespace MySql.Data.MySqlClient
       IMySqlValue v = resultSet[index];
 
       if (checkNull && v.IsNull)
-#if RT
+#if RT || NETSTANDARD1_3
         throw new MySqlNullValueException();
 #else
         throw new System.Data.SqlTypes.SqlNullValueException();

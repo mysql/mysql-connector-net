@@ -113,16 +113,8 @@ namespace MySql.Data.Common
 			byte[] buff = new byte[addr.Size];
 			for (int i=0; i<addr.Size; i++)
 				buff[i] = addr[i];
-
-			NativeMethods.connect(socket.Handle, buff, addr.Size);
-            int wsaerror = NativeMethods.WSAGetLastError();
-            if (wsaerror != 10035)
-            {
-                //  this is probably an IPV6 address
-                if (wsaerror == 10047)
-                    return false;
-                throw new SocketException(wsaerror);
-            }
+		    socket.Connect(remoteEP);
+			
 
 			// next we wait for our connect timeout or until the socket is connected
 			ArrayList write = new ArrayList();

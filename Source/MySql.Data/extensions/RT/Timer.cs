@@ -25,8 +25,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Windows.System.Threading;
-using Windows.UI.Xaml;
+
 
 namespace MySql.Data
 {
@@ -41,10 +40,11 @@ namespace MySql.Data
         period = new TimeSpan(0, 0, periodInSeconds);
         handler = callback;
         startDelay = dueTime;
-        ThreadPoolTimer tpt = ThreadPoolTimer.CreatePeriodicTimer(new TimerElapsedHandler(Elapsed), period);
+          
+          var t = new System.Threading.Timer(this.Elapsed, null, (int)dueTime, (int)period.TotalMilliseconds);        
       }
 
-      private void Elapsed(ThreadPoolTimer timer)
+      private void Elapsed(object state)
       {
         if (startDelay > 0)
         {
@@ -57,5 +57,5 @@ namespace MySql.Data
       }
     }
 
-    public delegate void TimerCallback(Object state);
+    public delegate void TimerCallback(object state);
 }

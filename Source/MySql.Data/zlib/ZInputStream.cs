@@ -188,13 +188,13 @@ namespace zlib
 			return ((long)SupportClass.ReadInput(BaseStream, tmp, 0, tmp.Length));
 		}
 
-#if RT
+#if RT || NETSTANDARD1_3
     public void Close()
 #else
 		public override void Close()
 #endif
 		{
-#if RT
+#if RT || NETSTANDARD1_3
             in_Renamed.Dispose();
 #else
 			in_Renamed.Close();

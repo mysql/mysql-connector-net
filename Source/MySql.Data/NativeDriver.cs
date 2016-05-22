@@ -1,4 +1,4 @@
-// Copyright © 2004, 2015, Oracle and/or its affiliates. All rights reserved.
+// Copyright ï¿½ 2004, 2015, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -31,10 +31,11 @@ using System.Text;
 using MySql.Data.MySqlClient.Authentication;
 using System.Reflection;
 using System.ComponentModel;
-#if RT
+using System.Threading.Tasks;
+#if RT || NETSTANDARD1_3
 using System.Linq;
 #endif
-#if !CF && !RT
+#if !CF && !RT && !NETSTANDARD1_3
 using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
 using System.Security.Authentication;
@@ -189,17 +190,18 @@ namespace MySql.Data.MySqlClient
       stream.Encoding = Encoding;
     }
 
-    public void Open()
+    public async Task Open()
     {
       // connect to one of our specified hosts
       try
       {
-        baseStream = StreamCreator.GetStream(Settings);
-#if !CF && !RT
+                //Made this sync as execution was continuing and stream hadn't opened yet.
+                baseStream = await StreamCreator.GetStream(Settings);
+#if !CF && !RT && !NETSTANDARD1_3
          if (Settings.IncludeSecurityAsserts)
             MySqlSecurityPermission.CreatePermissionSet(false).Assert();
 #endif
-      }
+            }
       catch (System.Security.SecurityException)
       {
         throw;
@@ -273,7 +275,7 @@ namespace MySql.Data.MySqlClient
       packet.WriteByte(33); //character set utf-8
       packet.Write(new byte[23]);
 
-#if !CF && !RT
+#if !CF && !RT && !NETSTANDARD1_3
       if ((serverCaps & ClientFlags.SSL) == 0)
       {
         if ((Settings.SslMode != MySqlSslMode.None)
@@ -318,7 +320,7 @@ namespace MySql.Data.MySqlClient
       stream.MaxBlockSize = maxSinglePacket;
     }
 
-#if !CF && !RT
+#if !CF && !RT && !NETSTANDARD1_3
 
     #region SSL
 
@@ -920,7 +922,7 @@ namespace MySql.Data.MySqlClient
         foreach (PropertyInfo property in attrs.GetType().GetProperties())
         {
           string name = property.Name;
-#if RT
+#if RT || NETSTANDARD1_3
           object[] customAttrs = property.GetCustomAttributes(typeof(DisplayNameAttribute), false).ToArray<object>();
 #else
           object[] customAttrs = property.GetCustomAttributes(typeof(DisplayNameAttribute), false);

@@ -1,4 +1,4 @@
-// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright ï¿½ 2004, 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -74,7 +74,7 @@ namespace MySql.Data.MySqlClient
       else
         stream = timedStream;
 
-#if RT
+#if RT || NETSTANDARD1_3
       inStream = baseStream;
 #else
       inStream = new BufferedStream(stream);
@@ -84,7 +84,7 @@ namespace MySql.Data.MySqlClient
 
     public void Close()
     {
-#if RT
+#if RT || NETSTANDARD1_3
       outStream.Dispose();
       inStream.Dispose();
 #else
@@ -209,7 +209,7 @@ namespace MySql.Data.MySqlClient
           // make roo for the next block
           packet.Length += length;
 
-#if RT
+#if RT || NETSTANDARD1_3
           byte[] tempBuffer = new byte[length];
           ReadFully(inStream, tempBuffer, offset, length);
           packet.Write(tempBuffer);

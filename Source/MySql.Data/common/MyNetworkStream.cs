@@ -26,6 +26,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace MySql.Data.Common
 {
@@ -191,30 +192,31 @@ namespace MySql.Data.Common
 
     #region Create Code
 
-    public static MyNetworkStream CreateStream(MySqlConnectionStringBuilder settings, bool unix)
-    {
-      MyNetworkStream stream = null;
-      IPHostEntry ipHE = GetHostEntry(settings.Server);
-      foreach (IPAddress address in ipHE.AddressList)
+     public static async Task<MyNetworkStream> CreateStream(MySqlConnectionStringBuilder settings, bool unix)
       {
-        try
-        {
-          stream = CreateSocketStream(settings, address, unix);
-          if (stream != null) break;
-        }
-        catch (Exception ex)
-        {
-          SocketException socketException = ex as SocketException;
-          // if the exception is a ConnectionRefused then we eat it as we may have other address
-          // to attempt
-          if (socketException == null) throw;
-#if !CF
-          if (socketException.SocketErrorCode != SocketError.ConnectionRefused) throw;
-#endif
-        }
+          MyNetworkStream stream = null;
+          IPHostEntry ipHE = await GetHostEntry(settings.Server);
+
+          foreach (IPAddress address in ipHE.AddressList)
+          {
+              try
+              {
+                  stream = CreateSocketStream(settings, address, unix);
+                  if (stream != null) break;
+              }
+              catch (Exception ex)
+              {
+                  SocketException socketException = ex as SocketException;
+                  // if the exception is a ConnectionRefused then we eat it as we may have other address
+                  // to attempt
+                  if (socketException == null) throw;
+  #if !CF
+                  if (socketException.SocketErrorCode != SocketError.ConnectionRefused) throw;
+  #endif
+              }
+          }
+          return stream;
       }
-      return stream;
-    }
 
     private static IPHostEntry ParseIPAddress(string hostname)
     {
@@ -231,14 +233,15 @@ namespace MySql.Data.Common
       return ipHE;
     }
 
-    private static IPHostEntry GetHostEntry(string hostname)
-    {
-      IPHostEntry ipHE = ParseIPAddress(hostname);
-      if (ipHE != null) return ipHE;
-      return Dns.GetHostEntry(hostname);
-    }
+    private static Task<IPHostEntry> GetHostEntry(string hostname)
+        {
+            IPHostEntry ipHE = ParseIPAddress(hostname);
+            if (ipHE != null) return Task.FromResult(ipHE);
 
-#if !CF
+            return Dns.GetHostEntryAsync(hostname);
+        }
+
+#if !CF && !NETSTANDARD1_3
 
     private static EndPoint CreateUnixEndPoint(string host)
     {
@@ -257,7 +260,7 @@ namespace MySql.Data.Common
     private static MyNetworkStream CreateSocketStream(MySqlConnectionStringBuilder settings, IPAddress ip, bool unix)
     {
       EndPoint endPoint;
-#if !CF
+#if !CF && !NETSTANDARD1_3
       if (!Platform.IsWindows() && unix)
         endPoint = CreateUnixEndPoint(settings.Server);
       else
@@ -274,21 +277,13 @@ namespace MySql.Data.Common
       }
 
 
-      IAsyncResult ias = socket.BeginConnect(endPoint, null, null);
-      if (!ias.AsyncWaitHandle.WaitOne((int)settings.ConnectionTimeout * 1000, false))
+      var connectTask = socket.ConnectAsync(endPoint);
+      if (!connectTask.Wait((int)settings.ConnectionTimeout * 1000))
       {
-        socket.Close();
-        return null;
+          socket.Dispose();
+          return null;
       }
-      try
-      {
-        socket.EndConnect(ias);
-      }
-      catch (Exception)
-      {
-        socket.Close();
-        throw;
-      }
+      
       MyNetworkStream stream = new MyNetworkStream(socket, true);
       GC.SuppressFinalize(socket);
       GC.SuppressFinalize(stream);
