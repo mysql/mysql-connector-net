@@ -33,21 +33,21 @@ using System.Threading;
 namespace MySql.Data.MySqlClient
 {
   /// <include file='docs/MySqlDataAdapter.xml' path='docs/class/*'/>
-#if !CF && !NETSTANDARD1_5
+#if !CF && !NETSTANDARD1_3
   [System.Drawing.ToolboxBitmap(typeof(MySqlDataAdapter), "MySqlClient.resources.dataadapter.bmp")]
   [System.ComponentModel.DesignerCategory("Code")]
   [Designer("MySql.Data.MySqlClient.Design.MySqlDataAdapterDesigner,MySqlClient.Design")]
 #endif
   
   public sealed class MySqlDataAdapter 
-  #if !NETSTANDARD1_5
+  #if !NETSTANDARD1_3
   : DbDataAdapter, IDbDataAdapter, IDataAdapter, ICloneable
   #endif
   {
     private bool loadingDefaults;
     private int updateBatchSize;
     List<IDbCommand> commandBatch;
-#if !NETSTANDARD1_5
+#if !NETSTANDARD1_3
     /// <summary>
     /// Occurs during Update before a command is executed against the data source. The attempt to update is made, so the event fires.
     /// </summary>
@@ -93,7 +93,7 @@ namespace MySql.Data.MySqlClient
 #if !CF
     [Description("Used during Update for deleted rows in Dataset.")]
 #endif
-#if !NETSTANDARD1_5
+#if !NETSTANDARD1_3
     public new MySqlCommand DeleteCommand
     {
       get { return (MySqlCommand)base.DeleteCommand; }
@@ -101,10 +101,10 @@ namespace MySql.Data.MySqlClient
     }
 #endif
     /// <include file='docs/MySqlDataAdapter.xml' path='docs/InsertCommand/*'/>
-#if !CF && !NETSTANDARD1_5
+#if !CF && !NETSTANDARD1_3
     [Description("Used during Update for new rows in Dataset.")]
 #endif
-#if !NETSTANDARD1_5
+#if !NETSTANDARD1_3
     public new MySqlCommand InsertCommand
     {
       get { return (MySqlCommand)base.InsertCommand; }
@@ -112,11 +112,11 @@ namespace MySql.Data.MySqlClient
     }
 #endif
     /// <include file='docs/MySqlDataAdapter.xml' path='docs/SelectCommand/*'/>
-#if !CF && !NETSTANDARD1_5
+#if !CF && !NETSTANDARD1_3
     [Description("Used during Fill/FillSchema")]
     [Category("Fill")]
 #endif
-#if !NETSTANDARD1_5
+#if !NETSTANDARD1_3
     public new MySqlCommand SelectCommand
     {
       get { return (MySqlCommand)base.SelectCommand; }
@@ -124,10 +124,10 @@ namespace MySql.Data.MySqlClient
     }
 #endif
     /// <include file='docs/MySqlDataAdapter.xml' path='docs/UpdateCommand/*'/>
-#if !CF && !NETSTANDARD1_5
+#if !CF && !NETSTANDARD1_3
     [Description("Used during Update for modified rows in Dataset.")]
 #endif
-#if !NETSTANDARD1_5    
+#if !NETSTANDARD1_3    
     public new MySqlCommand UpdateCommand
     {
       get { return (MySqlCommand)base.UpdateCommand; }
@@ -141,7 +141,7 @@ namespace MySql.Data.MySqlClient
     }
 
     #endregion
-#if !NETSTANDARD1_5
+#if !NETSTANDARD1_3
     /// <summary>
     /// Open connection if it was closed.
     /// Necessary to workaround "connection must be open and valid" error
@@ -207,7 +207,7 @@ namespace MySql.Data.MySqlClient
 #endif
 
     #region Batching Support
-#if !NETSTANDARD1_5
+#if !NETSTANDARD1_3
 
     public override int UpdateBatchSize
     {
@@ -277,7 +277,7 @@ namespace MySql.Data.MySqlClient
     }
 #endif
     #endregion
-#if !NETSTANDARD1_5
+#if !NETSTANDARD1_3
     /// <summary>
     /// Overridden. See <see cref="DbDataAdapter.CreateRowUpdatedEvent"/>.
     /// </summary>
@@ -1081,7 +1081,7 @@ namespace MySql.Data.MySqlClient
     #endregion
 #endif
   }
-#if !NETSTANDARD1_5
+#if !NETSTANDARD1_3
   /// <summary>
   /// Represents the method that will handle the <see cref="MySqlDataAdapter.RowUpdating"/> event of a <see cref="MySqlDataAdapter"/>.
   /// </summary>

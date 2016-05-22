@@ -25,6 +25,7 @@ using System.Collections;
 using System.ComponentModel;
 using System.Collections.Generic;
 using MySql.Data.MySqlClient.Properties;
+using System.Data.Common;
 
 namespace MySql.Data.MySqlClient
 {
@@ -32,7 +33,7 @@ namespace MySql.Data.MySqlClient
   /// Represents a collection of parameters relevant to a <see cref="MySqlCommand"/> as well as their respective mappings to columns in a <see cref="System.Data.DataSet"/>. This class cannot be inherited.
   /// </summary>
   /// <include file='docs/MySqlParameterCollection.xml' path='MyDocs/MyMembers[@name="Class"]/*'/>
-  public sealed partial class MySqlParameterCollection
+  public sealed partial class MySqlParameterCollection : DbParameterCollection
   {
     List<MySqlParameter> items = new List<MySqlParameter>();
     private Dictionary<string,int> indexHashCS;
@@ -47,11 +48,10 @@ namespace MySql.Data.MySqlClient
       containsUnnamedParameters = false;
       Clear();
     }
-
-    /// <summary>
-    /// Gets the number of MySqlParameter objects in the collection.
-    /// </summary>
-    public override int Count
+        /// <summary>
+        /// Gets the number of MySqlParameter objects in the collection.
+        /// </summary>
+        public override int Count
     {
       get { return items.Count; }
     }

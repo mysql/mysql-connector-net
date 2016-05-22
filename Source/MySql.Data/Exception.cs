@@ -24,7 +24,7 @@ using System;
 #if !RT
 using System.Data.Common;
 #endif
-#if !CF && !RT && !NETSTANDARD1_5
+#if !CF && !RT && !NETSTANDARD1_3
 using System.Runtime.Serialization;
 #endif
 
@@ -76,7 +76,7 @@ namespace MySql.Data.MySqlClient
     {
     }
 
-#if !CF && !RT && !NETSTANDARD1_5
+#if !CF && !RT && !NETSTANDARD1_3
     private MySqlException(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {

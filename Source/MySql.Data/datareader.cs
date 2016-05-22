@@ -37,7 +37,7 @@ using System.Threading;
 namespace MySql.Data.MySqlClient
 {
   /// <include file='docs/MySqlDataReader.xml' path='docs/ClassSummary/*'/>
-  public sealed partial class MySqlDataReader : IDisposable
+  public sealed partial class MySqlDataReader : DbDataReader, IDataReader, IDisposable
   {
     // The DataReader should always be open when returned to the user.
     private bool isOpen = true;
@@ -74,7 +74,7 @@ namespace MySql.Data.MySqlClient
       affectedRows = -1;
       this.statement = statement;
 
-#if !RT && !NETSTANDARD1_5
+#if !RT
       if (cmd.CommandType == CommandType.StoredProcedure 
         && cmd.UpdatedRowSource == UpdateRowSource.FirstReturnedRecord
       )
@@ -180,7 +180,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Closes the MySqlDataReader object.
     /// </summary>
-    public override void Close()
+    public void Close()
     {
       if (!isOpen) return;
 
@@ -804,7 +804,7 @@ namespace MySql.Data.MySqlClient
 
     #endregion
 
-#if !RT && !NETSTANDARD1_5
+#if !RT
     IDataReader IDataRecord.GetData(int i)
     {
       return base.GetData(i);
@@ -949,7 +949,7 @@ namespace MySql.Data.MySqlClient
       IMySqlValue v = resultSet[index];
 
       if (checkNull && v.IsNull)
-#if RT || NETSTANDARD1_5
+#if RT || NETSTANDARD1_3
         throw new MySqlNullValueException();
 #else
         throw new System.Data.SqlTypes.SqlNullValueException();

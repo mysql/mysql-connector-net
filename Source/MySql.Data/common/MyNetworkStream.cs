@@ -241,7 +241,7 @@ namespace MySql.Data.Common
             return Dns.GetHostEntryAsync(hostname);
         }
 
-#if !CF && !NETSTANDARD1_5
+#if !CF && !NETSTANDARD1_3
 
     private static EndPoint CreateUnixEndPoint(string host)
     {
@@ -260,7 +260,7 @@ namespace MySql.Data.Common
     private static MyNetworkStream CreateSocketStream(MySqlConnectionStringBuilder settings, IPAddress ip, bool unix)
     {
       EndPoint endPoint;
-#if !CF && !NETSTANDARD1_5
+#if !CF && !NETSTANDARD1_3
       if (!Platform.IsWindows() && unix)
         endPoint = CreateUnixEndPoint(settings.Server);
       else

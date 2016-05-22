@@ -686,7 +686,7 @@ namespace MySql.Data.MySqlClient
 
     private MySqlSchemaCollection GetDataSourceInformation()
     {
-#if CF || RT || NETSTANDARD1_5
+#if CF || RT || NETSTANDARD1_3
       throw new NotSupportedException();
 #else
       MySqlSchemaCollection dt = new MySqlSchemaCollection("DataSourceInformation");
@@ -834,7 +834,7 @@ namespace MySql.Data.MySqlClient
     private static MySqlSchemaCollection GetReservedWords()
     {
       MySqlSchemaCollection dt = new MySqlSchemaCollection("ReservedWords");
-#if !RT && !NETSTANDARD1_5
+#if !RT && !NETSTANDARD1_3
       dt.AddColumn(DbMetaDataColumnNames.ReservedWord, typeof(string));
       Stream str = Assembly.GetExecutingAssembly().GetManifestResourceStream(
         "MySql.Data.MySqlClient.Properties.ReservedWords.txt");

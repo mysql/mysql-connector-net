@@ -28,7 +28,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-#if !NETSTANDARD1_5
+#if !NETSTANDARD1_3
 using System.Runtime.InteropServices.WindowsRuntime;
 #endif
 namespace MySql.Data.MySqlClient

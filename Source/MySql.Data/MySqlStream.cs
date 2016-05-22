@@ -74,7 +74,7 @@ namespace MySql.Data.MySqlClient
       else
         stream = timedStream;
 
-#if RT || NETSTANDARD1_5
+#if RT || NETSTANDARD1_3
       inStream = baseStream;
 #else
       inStream = new BufferedStream(stream);
@@ -84,7 +84,7 @@ namespace MySql.Data.MySqlClient
 
     public void Close()
     {
-#if RT
+#if RT || NETSTANDARD1_3
       outStream.Dispose();
       inStream.Dispose();
 #else
@@ -209,7 +209,7 @@ namespace MySql.Data.MySqlClient
           // make roo for the next block
           packet.Length += length;
 
-#if RT || NETSTANDARD1_5
+#if RT || NETSTANDARD1_3
           byte[] tempBuffer = new byte[length];
           ReadFully(inStream, tempBuffer, offset, length);
           packet.Write(tempBuffer);

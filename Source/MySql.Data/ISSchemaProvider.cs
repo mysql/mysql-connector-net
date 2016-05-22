@@ -535,7 +535,7 @@ namespace MySql.Data.MySqlClient
             ParseProcedureBody(parametersTable, body, routine, nameToRestrict);
           }
         }
-#if RT || NETSTANDARD1_5
+#if RT || NETSTANDARD1_3
         catch (MySqlNullValueException snex)
 #else
           catch (System.Data.SqlTypes.SqlNullValueException snex)

@@ -69,9 +69,10 @@ namespace MySql.Data.MySqlClient
       try
       {
         CharacterSet cs = GetCharacterSet(version, CharSetName);
+		//This is through an argument exception why??
         return Encoding.GetEncoding(cs.name);
       }
-      catch (NotSupportedException)
+      catch (Exception)
       {
         return Encoding.GetEncoding("utf-8");
       }

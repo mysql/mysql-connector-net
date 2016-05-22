@@ -33,7 +33,7 @@ namespace MySql.Data.MySqlClient.Authentication
   /// <summary>
   /// 
   /// </summary>
-#if !CF && !RT && !NETSTANDARD1_5
+#if !CF && !RT && !NETSTANDARD1_3
   [SuppressUnmanagedCodeSecurityAttribute()]
 #endif
   internal class MySqlWindowsAuthenticationPlugin : MySqlAuthenticationPlugin
@@ -47,7 +47,7 @@ namespace MySql.Data.MySqlClient.Authentication
     protected override void CheckConstraints()
     {
       string platform = String.Empty;
-#if !RT && !NETSTANDARD1_5
+#if !RT && !NETSTANDARD1_3
       int p = (int)Environment.OSVersion.Platform;
       if ((p == 4) || (p == 128))
         platform = "Unix";

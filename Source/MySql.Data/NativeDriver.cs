@@ -31,10 +31,11 @@ using System.Text;
 using MySql.Data.MySqlClient.Authentication;
 using System.Reflection;
 using System.ComponentModel;
-#if RT || NETSTANDARD1_5
+using System.Threading.Tasks;
+#if RT || NETSTANDARD1_3
 using System.Linq;
 #endif
-#if !CF && !RT && !NETSTANDARD1_5
+#if !CF && !RT && !NETSTANDARD1_3
 using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
 using System.Security.Authentication;
@@ -189,17 +190,18 @@ namespace MySql.Data.MySqlClient
       stream.Encoding = Encoding;
     }
 
-    public async void Open()
+    public async Task Open()
     {
       // connect to one of our specified hosts
       try
       {
-        baseStream = await StreamCreator.GetStream(Settings);
-#if !CF && !RT && !NETSTANDARD1_5
+                //Made this sync as execution was continuing and stream hadn't opened yet.
+                baseStream = await StreamCreator.GetStream(Settings);
+#if !CF && !RT && !NETSTANDARD1_3
          if (Settings.IncludeSecurityAsserts)
             MySqlSecurityPermission.CreatePermissionSet(false).Assert();
 #endif
-      }
+            }
       catch (System.Security.SecurityException)
       {
         throw;
@@ -273,7 +275,7 @@ namespace MySql.Data.MySqlClient
       packet.WriteByte(33); //character set utf-8
       packet.Write(new byte[23]);
 
-#if !CF && !RT && !NETSTANDARD1_5
+#if !CF && !RT && !NETSTANDARD1_3
       if ((serverCaps & ClientFlags.SSL) == 0)
       {
         if ((Settings.SslMode != MySqlSslMode.None)
@@ -318,7 +320,7 @@ namespace MySql.Data.MySqlClient
       stream.MaxBlockSize = maxSinglePacket;
     }
 
-#if !CF && !RT && !NETSTANDARD1_5
+#if !CF && !RT && !NETSTANDARD1_3
 
     #region SSL
 
@@ -920,7 +922,7 @@ namespace MySql.Data.MySqlClient
         foreach (PropertyInfo property in attrs.GetType().GetProperties())
         {
           string name = property.Name;
-#if RT || NETSTANDARD1_5
+#if RT || NETSTANDARD1_3
           object[] customAttrs = property.GetCustomAttributes(typeof(DisplayNameAttribute), false).ToArray<object>();
 #else
           object[] customAttrs = property.GetCustomAttributes(typeof(DisplayNameAttribute), false);

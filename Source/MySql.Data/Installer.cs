@@ -20,7 +20,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-#if !MONO && !PocketPC && !NETSTANDARD1_5
+#if !MONO && !PocketPC && !NETSTANDARD1_3
 
 using System.Configuration.Install;
 using System.ComponentModel;

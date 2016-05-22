@@ -21,14 +21,29 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
+using System.Collections;
+using System.Data;
+using System.Data.Common;
 
 namespace MySql.Data.MySqlClient
 {
-  public sealed partial class MySqlDataReader : RTDataReader
-  {
-  }
+    public sealed partial class MySqlDataReader : DbDataReader, IDataReader
+    {
+        public override int Depth
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
 
-  public abstract class RTDataReader
+        public override IEnumerator GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public abstract class RTDataReader
   {
     public abstract int FieldCount { get; }
     public abstract bool HasRows { get; }
@@ -36,6 +51,7 @@ namespace MySql.Data.MySqlClient
     public abstract int RecordsAffected { get; }
     public abstract object this[int i] { get; }
     public abstract object this[String name] { get; }
+    
 
     public abstract void Close();
     public abstract bool GetBoolean(int i);

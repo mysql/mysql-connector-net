@@ -35,11 +35,11 @@ using System.Collections.Generic;
 namespace MySql.Data.MySqlClient
 {
   /// <include file='docs/MySqlCommandBuilder.xml' path='docs/class/*'/>
-#if !CF && !RT && !NETSTANDARD1_5
+#if !CF && !RT && !NETSTANDARD1_3
   [ToolboxItem(false)]
   [System.ComponentModel.DesignerCategory("Code")]
 #endif
-  #if !NETSTANDARD1_5
+  #if !NETSTANDARD1_3
   public sealed class MySqlCommandBuilder : DbCommandBuilder
   {
     /// <include file='docs/MySqlCommandBuilder.xml' path='docs/Ctor/*'/>

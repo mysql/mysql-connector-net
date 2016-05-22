@@ -97,7 +97,7 @@ namespace MySql.Data.MySqlClient
       }
       throw e;
     }
-#if !NETSTANDARD1_5
+#if !NETSTANDARD1_3
     protected override string ResolveType(string nameOrType)
     {
       if (MySqlConfiguration.Settings != null && MySqlConfiguration.Settings.ExceptionInterceptors != null)

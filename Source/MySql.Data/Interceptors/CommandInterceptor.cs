@@ -129,7 +129,7 @@ namespace MySql.Data.MySqlClient
       ie.Init(connection);
       interceptors.Insert(0, (BaseCommandInterceptor)o);
     }
-#if !NETSTANDARD1_5
+#if !NETSTANDARD1_3
     protected override string ResolveType(string nameOrType)
     {
       if (MySqlConfiguration.Settings != null && MySqlConfiguration.Settings.CommandInterceptors != null)

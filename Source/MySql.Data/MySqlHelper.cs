@@ -103,7 +103,7 @@ namespace MySql.Data.MySqlClient
     }
     #endregion
 
-#if !RT && !NETSTANDARD1_5
+#if !RT && !NETSTANDARD1_3
     #region ExecuteDataSet
 
     /// <summary>

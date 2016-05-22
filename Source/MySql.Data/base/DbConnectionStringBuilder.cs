@@ -26,15 +26,16 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 using System.Globalization;
+using System.Data.Common;
 
 namespace MySql.Data.MySqlClient
 {
-  public class DbConnectionStringBuilder : IDictionary, ICollection, IEnumerable
+  public class MySqlDbConnectionStringBuilder : DbConnectionStringBuilder,IDictionary, ICollection, IEnumerable
   {
     private Dictionary<string, object> hash;
     private bool browsable;
 
-    public DbConnectionStringBuilder()
+    public MySqlDbConnectionStringBuilder()
     {
       hash = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
       browsable = false;

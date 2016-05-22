@@ -33,10 +33,8 @@ using ParameterDirection = System.Data.ParameterDirection;
 
 namespace MySql.Data.MySqlClient
 {
-#if !CF
-  [TypeConverter(typeof(MySqlParameterConverter))]
-#endif
-  public sealed partial class MySqlParameter : DbParameter, IDataParameter, IDbDataParameter
+    [TypeConverter(typeof(MySqlParameterConverter))]
+    public sealed partial class MySqlParameter : DbParameter, IDataParameter, IDbDataParameter
   {
     private DbType dbType;
 

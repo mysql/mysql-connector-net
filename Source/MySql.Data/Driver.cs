@@ -30,6 +30,7 @@ using MySql.Data.MySqlClient.Properties;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Security;
+using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient
 {
@@ -50,7 +51,7 @@ namespace MySql.Data.MySqlClient
     internal int timeZoneOffset;
     private DateTime idleSince;    
 
-#if !CF && !RT && !NETSTANDARD1_5
+#if !CF && !RT && !NETSTANDARD1_3
     protected MySqlPromotableTransaction currentTransaction;
     protected bool inActiveUse;
 #endif
@@ -112,7 +113,7 @@ namespace MySql.Data.MySqlClient
       set { encoding = value; }
     }
 
-#if !CF && !RT && !NETSTANDARD1_5
+#if !CF && !RT && !NETSTANDARD1_3
     public MySqlPromotableTransaction CurrentTransaction
     {
       get { return currentTransaction; }
@@ -193,7 +194,7 @@ namespace MySql.Data.MySqlClient
     public static Driver Create(MySqlConnectionStringBuilder settings)
     {
       Driver d = null;
-#if !CF && !RT && !NETSTANDARD1_5
+#if !CF && !RT && !NETSTANDARD1_3
       try
       {
         if (MySqlTrace.QueryAnalysisEnabled || settings.Logging || settings.UseUsageAdvisor)
@@ -237,7 +238,8 @@ namespace MySql.Data.MySqlClient
     public virtual void Open()
     {
       creationTime = DateTime.Now;
-      handler.Open();
+      handler.Open().Wait();
+
       isOpen = true;
     }
 
@@ -583,7 +585,7 @@ namespace MySql.Data.MySqlClient
     ServerStatusFlags ServerStatus { get; }
     ClientFlags Flags { get; }
     void Configure();
-    void Open();
+    Task Open();
     void SendQuery(MySqlPacket packet);
     void Close(bool isOpen);
     bool Ping();
