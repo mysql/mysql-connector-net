@@ -3,7 +3,6 @@
   "description": "MySql.Data.MySqlClient .Net Core Class Library",
   "authors": [ "Oracle" ],
   "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
-  "preserveCompilationContext": true,
 
   "packOptions": {
     "projectUrl": "http://dev.mysql.com/downloads/",
@@ -21,7 +20,10 @@
     "embed": [ "Properties/ReservedWords.txt" ],
     "exclude": [ "Extensions/Net40/**/*.*" ],
     "optimize": true,
-    "xmlDoc": true
+    "xmlDoc": true,
+    "publicSign": true,
+    "keyFile": "../../../../ConnectorNetPublicKey.snk",
+    "preserveCompilationContext": true
   },
 
 
