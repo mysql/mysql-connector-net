@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -68,24 +68,24 @@ namespace MySqlX.Data.Tests
       CheckBadParse("x + interval 1 + 1");
       CheckBadParse("x * interval 1 hour");
       CheckBadParse("1.1.1");
-      CheckBadParse("a@**");
+      CheckBadParse("a$**");
       CheckBadParse("a.b.c.d > 1");
-      CheckBadParse("a@[1.1]");
-      CheckBadParse("a@[-1]");
-      CheckBadParse("a@1");
-      CheckBadParse("a@.1");
-      CheckBadParse("a@a");
-      CheckBadParse("a@.+");
-      CheckBadParse("a@(x)");
+      CheckBadParse("a$[1.1]");
+      CheckBadParse("a$[-1]");
+      CheckBadParse("a$1");
+      CheckBadParse("a$.1");
+      CheckBadParse("a$a");
+      CheckBadParse("a$.+");
+      CheckBadParse("a$(x)");
       CheckBadParse("\"xyz");
       CheckBadParse("x between 1");
       CheckBadParse("x.1 > 1");
-      CheckBadParse("x@ > 1");
+      CheckBadParse("x$ > 1");
       CheckBadParse(":>1");
       CheckBadParse(":1.1");
       CheckBadParse("cast(x as varchar)");
       CheckBadParse("not");
-      CheckBadParse("@.a[-1]");
+      CheckBadParse("$.a[-1]");
       // TODO: test bad JSON identifiers (quoting?)
     }
 
@@ -114,8 +114,8 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void TestRoundTrips()
     {
-      //CheckParseRoundTrip("_id == 20", "(@.pages > 20)");
-      CheckParseRoundTrip("@.pages > 20", "(@.pages > 20)");
+      //CheckParseRoundTrip("_id == 20", "($.pages > 20)");
+      CheckParseRoundTrip("$.pages > 20", "($.pages > 20)");
       CheckParseRoundTrip("now () - interval '10:20' hour_MiNuTe", "date_sub(now(), \"10:20\", \"HOUR_MINUTE\")");
       CheckParseRoundTrip("now () - interval 1 hour - interval 2 minute - interval 3 second",
               "date_sub(date_sub(date_sub(now(), 1, \"HOUR\"), 2, \"MINUTE\"), 3, \"SECOND\")");
@@ -153,7 +153,7 @@ namespace MySqlX.Data.Tests
               "((((a is TRUE) && (b is NULL)) && ((C + 1) > 40)) && ((thetime == now()) || hungry()))");
       CheckParseRoundTrip("a + b + -c > 2", "(((a + b) + -c) > 2)");
       CheckParseRoundTrip("now () + b + c > 2", "(((now() + b) + c) > 2)");
-      CheckParseRoundTrip("now () + @.b + c > 2", "(((now() + @.b) + c) > 2)");
+      CheckParseRoundTrip("now () + $.b + c > 2", "(((now() + $.b) + c) > 2)");
       CheckParseRoundTrip("now () - interval +2 day > some_other_time() or something_else IS NOT NULL",
               "((date_sub(now(), 2, \"DAY\") > some_other_time()) || is_not(something_else, NULL))");
       CheckParseRoundTrip("\"two quotes to one\"\"\"", null);
@@ -168,19 +168,19 @@ namespace MySqlX.Data.Tests
       CheckParseRoundTrip("a between 1 and 2", "(a between 1 AND 2)");
       CheckParseRoundTrip("a not between 1 and 2", "(a not between 1 AND 2)");
       CheckParseRoundTrip("a in (1,2,a.b(3),4,5,x)", "a in(1, 2, a.b(3), 4, 5, x)");
-      CheckParseRoundTrip("a not in (1,2,3,4,5,@.x)", "a not in(1, 2, 3, 4, 5, @.x)");
+      CheckParseRoundTrip("a not in (1,2,3,4,5,$.x)", "a not in(1, 2, 3, 4, 5, $.x)");
       CheckParseRoundTrip("a like b escape c", "a like b ESCAPE c");
       CheckParseRoundTrip("a not like b escape c", "a not like b ESCAPE c");
       CheckParseRoundTrip("(1 + 3) in (3, 4, 5)", "(1 + 3) in(3, 4, 5)");
       CheckParseRoundTrip("`a crazy \"function\"``'name'`(1 + 3) in (3, 4, 5)", "`a crazy \"function\"``'name'`((1 + 3)) in(3, 4, 5)");
-      CheckParseRoundTrip("a@.b", "a@.b");
-      CheckParseRoundTrip("a@.\"bcd\"", "a@.bcd");
-      CheckParseRoundTrip("a@.*", "a@.*");
-      CheckParseRoundTrip("a@[0].*", "a@[0].*");
-      CheckParseRoundTrip("a@[*].*", "a@[*].*");
-      CheckParseRoundTrip("a@**[0].*", "a@**[0].*");
-      CheckParseRoundTrip("@._id", "@._id");
-      CheckParseRoundTrip("@._id == :0", "(@._id == :0)");
+      CheckParseRoundTrip("a$.b", "a$.b");
+      CheckParseRoundTrip("a$.\"bcd\"", "a$.bcd");
+      CheckParseRoundTrip("a$.*", "a$.*");
+      CheckParseRoundTrip("a$[0].*", "a$[0].*");
+      CheckParseRoundTrip("a$[*].*", "a$[*].*");
+      CheckParseRoundTrip("a$**[0].*", "a$**[0].*");
+      CheckParseRoundTrip("$._id", "$._id");
+      CheckParseRoundTrip("$._id == :0", "($._id == :0)");
       CheckParseRoundTrip("'Monty!' REGEXP '.*'", "(\"Monty!\" regexp \".*\")");
       CheckParseRoundTrip("a regexp b regexp c", "((a regexp b) regexp c)");
       CheckParseRoundTrip("a + b + c", "((a + b) + c)");
@@ -198,7 +198,7 @@ namespace MySqlX.Data.Tests
       CheckParseRoundTrip("a + cast(b as unsigned integer)", "(a + cast(b AS UNSIGNED))");
       CheckParseRoundTrip("a is true or a is false", "((a is TRUE) || (a is FALSE))");
       // TODO: this isn't serialized correctly by the unparser
-      //checkParseRoundTrip("a@.b[0][0].c**.d.\"a weird\\\"key name\"", "");
+      //checkParseRoundTrip("a$.b[0][0].c**.d.\"a weird\\\"key name\"", "");
       CheckParseRoundTrip("*", "*");
       CheckParseRoundTrip("count(*) + 1", "(count(*) + 1)");
     }
@@ -209,7 +209,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void TestExprTree()
     {
-      Expr expr = new ExprParser("a like 'xyz' and @.count > 10 + 1").Parse();
+      Expr expr = new ExprParser("a like 'xyz' and $.count > 10 + 1").Parse();
       Assert.Equal(Expr.Types.Type.OPERATOR, expr.Type);
       Assert.Equal("&&", expr.Operator.Name);
       Assert.Equal(2, expr.Operator.ParamCount);
@@ -228,7 +228,7 @@ namespace MySqlX.Data.Tests
       Assert.Equal(Scalar.Types.Type.V_STRING, scalarXyz.Type);
       Assert.Equal("xyz", scalarXyz.VString.Value.ToStringUtf8());
 
-      // check right side of AND: (@.count > 10 + 1)
+      // check right side of AND: ($.count > 10 + 1)
       Expr andRight = expr.Operator.ParamList[1];
       Assert.Equal(Expr.Types.Type.OPERATOR, andRight.Type);
       Assert.Equal(">", andRight.Operator.Name);
@@ -273,7 +273,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void TestOrderByParserComplexExpressions()
     {
-      List<Order> orderSpec = new ExprParser("field not in ('a',func('b', 2.0),'c') desc, 1-a@**[0].*, now () + @.b + c > 2 asc").ParseOrderSpec();
+      List<Order> orderSpec = new ExprParser("field not in ('a',func('b', 2.0),'c') desc, 1-a$**[0].*, now () + $.b + c > 2 asc").ParseOrderSpec();
       Assert.Equal(3, orderSpec.Count);
       Order o1 = orderSpec[0];
       Assert.True(o1.HasDirection);
@@ -281,11 +281,11 @@ namespace MySqlX.Data.Tests
       Assert.Equal("field not in(\"a\", func(\"b\", 2), \"c\")", ExprUnparser.ExprToString(o1.Expr));
       Order o2 = orderSpec[1];
       Assert.False(o2.HasDirection);
-      Assert.Equal("(1 - a@**[0].*)", ExprUnparser.ExprToString(o2.Expr));
+      Assert.Equal("(1 - a$**[0].*)", ExprUnparser.ExprToString(o2.Expr));
       Order o3 = orderSpec[2];
       Assert.True(o3.HasDirection);
       Assert.Equal(Order.Types.Direction.ASC, o3.Direction);
-      Assert.Equal("(((now() + @.b) + c) > 2)", ExprUnparser.ExprToString(o3.Expr));
+      Assert.Equal("(((now() + $.b) + c) > 2)", ExprUnparser.ExprToString(o3.Expr));
     }
 
     [Fact]
@@ -385,22 +385,22 @@ namespace MySqlX.Data.Tests
     {
       List<Projection> proj;
 
-      proj = new ExprParser("@.a as a").ParseDocumentProjection();
+      proj = new ExprParser("$.a as a").ParseDocumentProjection();
       Assert.Equal(1, proj.Count);
       Assert.True(proj[0].HasAlias);
       Assert.Equal("a", proj[0].Alias);
 
-      proj = new ExprParser("@.a as a, @.b as b, @.c as c").ParseDocumentProjection();
+      proj = new ExprParser("$.a as a, $.b as b, $.c as c").ParseDocumentProjection();
     }
 
     [Fact]
     public void TestExprAsPathDocumentProjection()
     {
-      List<Projection> projList = new ExprParser("@.a as b, (1 + 1) * 100 as x, 2 as j42").ParseDocumentProjection();
+      List<Projection> projList = new ExprParser("$.a as b, (1 + 1) * 100 as x, 2 as j42").ParseDocumentProjection();
 
       Assert.Equal(3, projList.Count);
 
-      // check @.a as b
+      // check $.a as b
       Projection proj = projList[0];
       IList<DocumentPathItem> paths = proj.Source.Identifier.DocumentPathList;
       Assert.Equal(1, paths.Count);
@@ -424,7 +424,7 @@ namespace MySqlX.Data.Tests
     public void TestJsonConstructorAsDocumentProjection()
     {
       // same as we use in find().field("{...}")
-      string projString = "{'a':'value for a', 'b':1+1, 'c'::bindvar, 'd':@.member[22], 'e':{'nested':'doc'}}";
+      string projString = "{'a':'value for a', 'b':1+1, 'c'::bindvar, 'd':$.member[22], 'e':{'nested':'doc'}}";
       Projection proj = Projection.CreateBuilder().SetSource(new ExprParser(projString, false).Parse()).Build();
       Assert.Equal(Expr.Types.Type.OBJECT, proj.Source.Type);
 
@@ -433,7 +433,7 @@ namespace MySqlX.Data.Tests
                     new string[] {"a", "\"value for a\""},
                     new string[] {"b", "(1 + 1)"},
                     new string[] {"c", ":0"},
-                    new string[] {"d", "@.member[22]"},
+                    new string[] {"d", "$.member[22]"},
                     new string[] {"e", "{'nested':\"doc\"}"}};
       array.ToList().ForEach(pair =>
       {
@@ -476,7 +476,7 @@ namespace MySqlX.Data.Tests
       Assert.Equal("b", col.TableName);
       Assert.Equal("c", col.Name);
 
-      col = new ExprParser("d.e@.the_path[2]").ParseTableUpdateField();
+      col = new ExprParser("d.e$.the_path[2]").ParseTableUpdateField();
       Assert.Equal("d", col.TableName);
       Assert.Equal("e", col.Name);
       Assert.Equal(2, col.DocumentPathCount);
@@ -530,7 +530,7 @@ namespace MySqlX.Data.Tests
     {
       // tests generated by the random expression generator
       CheckParseRoundTrip("x - INTERVAL { } DAY_HOUR * { } + { }", "((date_sub(x, {}, \"DAY_HOUR\") * {}) + {})");
-      CheckParseRoundTrip("NULL - INTERVAL @ ** [ 89 ] << { '' : { } - @ . V << { '' : { } + { } REGEXP ? << { } - { } < { } | { } << { '' : : 8 + : 26 ^ { } } + { } >> { } } || { } } & { } SECOND", "date_sub(NULL, ((@**[89] << {'':((({} - @.V) << {'':(({} + {}) regexp ((:0 << ({} - {})) < ({} | (({} << ({'':((:1 + :2) ^ {})} + {})) >> {}))))}) || {})}) & {}), \"SECOND\")");
+      CheckParseRoundTrip("NULL - INTERVAL $ ** [ 89 ] << { '' : { } - $ . V << { '' : { } + { } REGEXP ? << { } - { } < { } | { } << { '' : : 8 + : 26 ^ { } } + { } >> { } } || { } } & { } SECOND", "date_sub(NULL, (($**[89] << {'':((({} - $.V) << {'':(({} + {}) regexp ((:0 << ({} - {})) < ({} | (({} << ({'':((:1 + :2) ^ {})} + {})) >> {}))))}) || {})}) & {}), \"SECOND\")");
       // TODO: check the validity of this:
       // checkParseRoundTrip("_XJl . F ( `ho` @ [*] [*] - ~ ! { '' : { } LIKE { } && : rkc & 1 & y @ ** . d [*] [*] || { } ^ { } REGEXP { } } || { } - { } ^ { } < { } IN ( ) >= { } IN ( ) )", "");
     }
@@ -539,13 +539,13 @@ namespace MySqlX.Data.Tests
     public void UnqualifiedDocPaths()
     {
       Expr expr = new ExprParser("1 + b[0]", false).Parse();
-      Assert.Equal("(1 + @.b[0])", ExprUnparser.ExprToString(expr));
+      Assert.Equal("(1 + $.b[0])", ExprUnparser.ExprToString(expr));
       expr = new ExprParser("a.*", false).Parse();
-      Assert.Equal("@.a.*", ExprUnparser.ExprToString(expr));
+      Assert.Equal("$.a.*", ExprUnparser.ExprToString(expr));
       expr = new ExprParser("bL . vT .*", false).Parse();
-      Assert.Equal("@.bL.vT.*", ExprUnparser.ExprToString(expr));
+      Assert.Equal("$.bL.vT.*", ExprUnparser.ExprToString(expr));
       expr = new ExprParser("dd ** .X", false).Parse();
-      Assert.Equal("@.dd**.X", ExprUnparser.ExprToString(expr));
+      Assert.Equal("$.dd**.X", ExprUnparser.ExprToString(expr));
     }
   }
 }

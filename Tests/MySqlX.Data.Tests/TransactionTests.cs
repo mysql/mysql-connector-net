@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,9 +20,11 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.CRUD;
+using MySqlX.XDevAPI.Relational;
 using Xunit;
 
 namespace MySqlX.Data.Tests
@@ -83,5 +85,23 @@ namespace MySqlX.Data.Tests
       Assert.False(foundDocs.Next());
     }
 
+    [Fact]
+    public void Warnings()
+    {
+      using(NodeSession session = MySQLX.GetNodeSession(ConnectionString))
+      {
+        session.SetCurrentSchema(schemaName);
+        Schema schema = session.GetSchema(schemaName);
+        session.SQL("CREATE TABLE nontrac(id INT primary key) ENGINE=MyISAM").Execute();
+        Table table = schema.GetTable("nontrac");
+        session.StartTransaction();
+        table.Insert().Values(5).Execute();
+        Assert.Throws<MySqlException>(() => { table.Insert().Values(5).Execute(); });
+        var result = session.Rollback();
+        Assert.Equal(1, result.Warnings.Count);
+        // warning message: Some non-transactional changed tables couldn't be rolled back
+        Assert.Equal(1196u, result.Warnings[0].Code);
+      }
+    }
   }
 }

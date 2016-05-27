@@ -29,6 +29,7 @@ using MySqlX.Session;
 using MySqlX.XDevAPI.Relational;
 using MySql.Data.MySqlClient;
 using System.Text.RegularExpressions;
+using MySqlX.XDevAPI.Common;
 
 namespace MySqlX.XDevAPI
 {
@@ -170,17 +171,17 @@ namespace MySqlX.XDevAPI
     /// <summary>
     /// Commit the current transaction
     /// </summary>
-    public void Commit()
+    public Result Commit()
     {
-      InternalSession.ExecuteSqlNonQuery("COMMIT");
+      return InternalSession.ExecuteSqlNonQuery("COMMIT");
     }
 
     /// <summary>
     /// Rollback the current transaction
     /// </summary>
-    public void Rollback()
+    public Result Rollback()
     {
-      InternalSession.ExecuteSqlNonQuery("ROLLBACK");
+      return InternalSession.ExecuteSqlNonQuery("ROLLBACK");
     }
 
     /// <summary>
@@ -192,14 +193,6 @@ namespace MySqlX.XDevAPI
       {
         XSession.Close();
       }
-    }
-
-    /// <summary>
-    /// Implementation of the Dispose pattern.  Same as Close
-    /// </summary>
-    public void Dispose()
-    {
-      Close();
     }
 
     internal protected string ParseConnectionStringFromUri(string connectionstring)
@@ -226,6 +219,44 @@ namespace MySqlX.XDevAPI
       }
       return connectionstring;
     }
+
+    #region IDisposable Support
+    private bool disposedValue = false; // To detect redundant calls
+
+    protected virtual void Dispose(bool disposing)
+    {
+      if (!disposedValue)
+      {
+        if (disposing)
+        {
+          // dispose managed state (managed objects).
+          Close();
+        }
+
+        // free unmanaged resources (unmanaged objects) and override a finalizer below.
+        // set large fields to null.
+
+        disposedValue = true;
+      }
+    }
+
+    // override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+    // ~BaseSession() {
+    //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+    //   Dispose(false);
+    // }
+
+    /// <summary>
+    /// This code added to correctly implement the disposable pattern.
+    /// </summary>
+    public void Dispose()
+    {
+      // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+      Dispose(true);
+      // uncomment the following line if the finalizer is overridden above.
+      // GC.SuppressFinalize(this);
+    }
+    #endregion
   }
 
   /// <summary>

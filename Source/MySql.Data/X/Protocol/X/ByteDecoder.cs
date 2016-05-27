@@ -56,7 +56,7 @@ namespace MySqlX.Protocol.X
         return ColumnType.Geometry;
       if (ContentType == (uint)ColumnContentType.Json)
         return ColumnType.Json;
-      if ((Column.CollationName??"").EndsWith("_bin"))
+      if ((Column.CollationName??"").Equals("binary", StringComparison.OrdinalIgnoreCase))
         return ColumnType.Bytes;
       return ColumnType.String;
    }
@@ -81,8 +81,8 @@ namespace MySqlX.Protocol.X
 
       if (_encoding == null)
       {
-        string charset = (Column.CollationName??"").Split('_')[0];
-        _encoding = CharSetMap.GetEncoding(DBVersion.Parse("0.0.0"), charset);
+        string charset = Column.CharacterSetName ?? string.Empty;
+        _encoding = CharSetMap.GetEncoding(new DBVersion(), charset);
       }
       return _encoding.GetString(bytes, 0, bytes.Length - 1);
     }

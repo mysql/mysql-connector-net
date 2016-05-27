@@ -35,9 +35,11 @@ using MySqlX.Protocol.X;
 using Mysqlx.Datatypes;
 using MySql.Data.MySqlClient;
 using MySql.Data.Common;
-using MySql.Data.MySqlClient.Authentication;
 using MySqlX.Security;
 using MySqlX.Properties;
+using MySql.Data.MySqlClient.common;
+using System.Linq;
+using MySql.Data.MySqlClient.Properties;
 
 namespace MySqlX.Session
 {
@@ -50,6 +52,7 @@ namespace MySqlX.Session
     private XProtocol protocol;
     private XPacketReaderWriter _reader;
     private XPacketReaderWriter _writer;
+    private bool serverSupportsTls = false;
 
 
     public XInternalSession(MySqlConnectionStringBuilder settings) : base(settings)
@@ -72,6 +75,29 @@ namespace MySqlX.Session
       SetState(SessionState.Connecting, false);
 
       GetAndSetCapabilities();
+
+      // validates TLS use
+      if (Settings.SslMode != MySqlSslMode.None)
+      {
+        if (serverSupportsTls)
+        {
+          string versionString = "5.7.0";
+          DBVersion version = DBVersion.Parse(versionString);
+
+          new Ssl(Settings, version).StartSSL(ref _stream, encoding, true);
+          _reader = new XPacketReaderWriter(_stream);
+          _writer = new XPacketReaderWriter(_stream);
+          protocol.SetXPackets(_reader, _writer);
+        }
+        else if(Settings.SslMode != MySqlSslMode.Prefered)
+        {
+          // Client requires SSL connections.
+          string message = String.Format(Resources.NoServerSSLSupport,
+              Settings.Server);
+          throw new MySqlException(message);
+        }
+      }
+
       Authenticate();
       SetState(SessionState.Open, false);
     }
@@ -79,7 +105,20 @@ namespace MySqlX.Session
     private void GetAndSetCapabilities()
     {
       protocol.GetServerCapabilities();
-      protocol.SetCapabilities();
+
+      Dictionary<string, object> clientCapabilities = new Dictionary<string, object>();
+
+      // validates TLS use
+      if (Settings.SslMode != MySqlSslMode.None)
+      {
+        var capability = protocol.Capabilities.Capabilities_List.FirstOrDefault(i => i.Name.ToLowerInvariant() == "tls");
+        if (capability != null)
+        {
+          serverSupportsTls = true;
+          clientCapabilities.Add("tls", "1");
+        }
+      }
+      protocol.SetCapabilities(clientCapabilities);
     }
 
     private void Authenticate()
@@ -115,14 +154,11 @@ namespace MySqlX.Session
       try
       {
         protocol.SendSessionClose();
-        protocol.ReadOK();
-        _stream.Dispose();
-        SessionState = SessionState.Closed;
       }
-      catch (Exception ex)
-      {        
-        //TODO
-        throw;
+      finally
+      {
+        SessionState = SessionState.Closed;
+        _stream.Dispose();
       }
     }
 

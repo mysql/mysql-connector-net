@@ -31,14 +31,9 @@ using System.Text;
 using MySql.Data.MySqlClient.Authentication;
 using System.Reflection;
 using System.ComponentModel;
+using MySql.Data.MySqlClient.common;
 #if RT
 using System.Linq;
-#endif
-#if !RT
-using System.Security.Cryptography.X509Certificates;
-using System.Net.Security;
-using System.Security.Authentication;
-using System.Globalization;
 #endif
 
 namespace MySql.Data.MySqlClient
@@ -288,7 +283,7 @@ namespace MySql.Data.MySqlClient
       else if (Settings.SslMode != MySqlSslMode.None)
       {
         stream.SendPacket(packet);
-        StartSSL();
+        stream = new Ssl(Settings, version).StartSSL(ref baseStream, Encoding);
         packet.Clear();
         packet.WriteInteger((int)connectionFlags, 4);
         packet.WriteInteger(maxSinglePacket, 4);
@@ -318,109 +313,12 @@ namespace MySql.Data.MySqlClient
       stream.MaxBlockSize = maxSinglePacket;
     }
 
-#if !RT
+      #region Authentication
 
-    #region SSL
-
-    /// <summary>
-    /// Retrieve client SSL certificates. Dependent on connection string 
-    /// settings we use either file or store based certificates.
-    /// </summary>
-    private X509CertificateCollection GetClientCertificates()
-    {
-      X509CertificateCollection certs = new X509CertificateCollection();
-
-      // Check for file-based certificate
-      if (Settings.CertificateFile != null)
-      {
-        if (!Version.isAtLeast(5, 1, 0))
-          throw new MySqlException(Properties.Resources.FileBasedCertificateNotSupported);
-
-        X509Certificate2 clientCert = new X509Certificate2(Settings.CertificateFile,
-            Settings.CertificatePassword);
-        certs.Add(clientCert);
-        return certs;
-      }
-
-      if (Settings.CertificateStoreLocation == MySqlCertificateStoreLocation.None)
-        return certs;
-
-      StoreLocation location =
-          (Settings.CertificateStoreLocation == MySqlCertificateStoreLocation.CurrentUser) ?
-          StoreLocation.CurrentUser : StoreLocation.LocalMachine;
-
-      // Check for store-based certificate
-      X509Store store = new X509Store(StoreName.My, location);
-      store.Open(OpenFlags.ReadOnly | OpenFlags.OpenExistingOnly);
-
-
-      if (Settings.CertificateThumbprint == null)
-      {
-        // Return all certificates from the store.
-        certs.AddRange(store.Certificates);
-        return certs;
-      }
-
-      // Find certificate with given thumbprint
-      certs.AddRange(store.Certificates.Find(X509FindType.FindByThumbprint,
-                Settings.CertificateThumbprint, true));
-
-      if (certs.Count == 0)
-      {
-        throw new MySqlException("Certificate with Thumbprint " +
-           Settings.CertificateThumbprint + " not found");
-      }
-      return certs;
-    }
-
-
-    private void StartSSL()
-    {
-      RemoteCertificateValidationCallback sslValidateCallback =
-          new RemoteCertificateValidationCallback(ServerCheckValidation);
-      SslStream ss = new SslStream(baseStream, true, sslValidateCallback, null);
-      X509CertificateCollection certs = GetClientCertificates();
-      ss.AuthenticateAsClient(Settings.Server, certs, SslProtocols.Tls, false);
-      baseStream = ss;
-      stream = new MySqlStream(ss, Encoding, false);
-      stream.SequenceByte = 2;
-
-    }
-
-    private bool ServerCheckValidation(object sender, X509Certificate certificate,
-                                              X509Chain chain, SslPolicyErrors sslPolicyErrors)
-    {
-      if (sslPolicyErrors == SslPolicyErrors.None)
-        return true;
-
-      if (Settings.SslMode == MySqlSslMode.Preferred ||
-          Settings.SslMode == MySqlSslMode.Required)
-      {
-        //Tolerate all certificate errors.
-        return true;
-      }
-
-      if (Settings.SslMode == MySqlSslMode.VerifyCA &&
-          sslPolicyErrors == SslPolicyErrors.RemoteCertificateNameMismatch)
-      {
-        // Tolerate name mismatch in certificate, if full validation is not requested.
-        return true;
-      }
-
-      return false;
-    }
-
-
-    #endregion
-
-#endif
-
-    #region Authentication
-
-    /// <summary>
-    /// Return the appropriate set of connection flags for our
-    /// server capabilities and our user requested options.
-    /// </summary>
+      /// <summary>
+      /// Return the appropriate set of connection flags for our
+      /// server capabilities and our user requested options.
+      /// </summary>
     private void SetConnectionFlags(ClientFlags serverCaps)
     {
       // allow load data local infile
