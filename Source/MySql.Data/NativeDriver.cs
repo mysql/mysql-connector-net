@@ -31,14 +31,9 @@ using System.Text;
 using MySql.Data.MySqlClient.Authentication;
 using System.Reflection;
 using System.ComponentModel;
+using MySql.Data.MySqlClient.common;
 #if RT
 using System.Linq;
-#endif
-#if !RT
-using System.Security.Cryptography.X509Certificates;
-using System.Net.Security;
-using System.Security.Authentication;
-using System.Globalization;
 #endif
 
 namespace MySql.Data.MySqlClient
@@ -60,7 +55,6 @@ namespace MySql.Data.MySqlClient
     private Driver owner;
     private int warnings;
     private MySqlAuthenticationPlugin authPlugin;
-    private bool isEnterprise;
 
     // Windows authentication method string, used by the protocol.
     // Also known as "client plugin name".
@@ -224,7 +218,6 @@ namespace MySql.Data.MySqlClient
       int protocol = packet.ReadByte();
       string versionString = packet.ReadString();
       owner.isFabric = versionString.EndsWith("fabric", StringComparison.OrdinalIgnoreCase);
-      isEnterprise = versionString.ToLowerInvariant().Contains("-enterprise-");
       version = DBVersion.Parse(versionString);
       if (!owner.isFabric && !version.isAtLeast(5, 0, 0))
         throw new NotSupportedException(Resources.ServerTooOld);
@@ -290,7 +283,7 @@ namespace MySql.Data.MySqlClient
       else if (Settings.SslMode != MySqlSslMode.None)
       {
         stream.SendPacket(packet);
-        StartSSL();
+        stream = new Ssl(Settings, version).StartSSL(ref baseStream, Encoding);
         packet.Clear();
         packet.WriteInteger((int)connectionFlags, 4);
         packet.WriteInteger(maxSinglePacket, 4);
@@ -319,108 +312,6 @@ namespace MySql.Data.MySqlClient
       packet.Version = version;
       stream.MaxBlockSize = maxSinglePacket;
     }
-
-#if !RT
-
-    #region SSL
-
-    /// <summary>
-    /// Retrieve client SSL certificates. Dependent on connection string 
-    /// settings we use either file or store based certificates.
-    /// </summary>
-    private X509CertificateCollection GetClientCertificates()
-    {
-      X509CertificateCollection certs = new X509CertificateCollection();
-
-      // Check for file-based certificate
-      if (Settings.CertificateFile != null)
-      {
-        if (!Version.isAtLeast(5, 1, 0))
-          throw new MySqlException(Properties.Resources.FileBasedCertificateNotSupported);
-
-        X509Certificate2 clientCert = new X509Certificate2(Settings.CertificateFile,
-            Settings.CertificatePassword);
-        certs.Add(clientCert);
-        return certs;
-      }
-
-      if (Settings.CertificateStoreLocation == MySqlCertificateStoreLocation.None)
-        return certs;
-
-      StoreLocation location =
-          (Settings.CertificateStoreLocation == MySqlCertificateStoreLocation.CurrentUser) ?
-          StoreLocation.CurrentUser : StoreLocation.LocalMachine;
-
-      // Check for store-based certificate
-      X509Store store = new X509Store(StoreName.My, location);
-      store.Open(OpenFlags.ReadOnly | OpenFlags.OpenExistingOnly);
-
-
-      if (Settings.CertificateThumbprint == null)
-      {
-        // Return all certificates from the store.
-        certs.AddRange(store.Certificates);
-        return certs;
-      }
-
-      // Find certificate with given thumbprint
-      certs.AddRange(store.Certificates.Find(X509FindType.FindByThumbprint,
-                Settings.CertificateThumbprint, true));
-
-      if (certs.Count == 0)
-      {
-        throw new MySqlException("Certificate with Thumbprint " +
-           Settings.CertificateThumbprint + " not found");
-      }
-      return certs;
-    }
-
-
-    private void StartSSL()
-    {
-      RemoteCertificateValidationCallback sslValidateCallback =
-          new RemoteCertificateValidationCallback(ServerCheckValidation);
-      SslStream ss = new SslStream(baseStream, true, sslValidateCallback, null);
-      X509CertificateCollection certs = GetClientCertificates();
-      SslProtocols sslProtocols = SslProtocols.Tls;
-#if NET_45_OR_GREATER
-      sslProtocols |= SslProtocols.Tls11;
-      if (version.isAtLeast(5, 6, 0) && isEnterprise)
-        sslProtocols |= SslProtocols.Tls12;
-#endif
-      ss.AuthenticateAsClient(Settings.Server, certs, sslProtocols, false);
-      baseStream = ss;
-      stream = new MySqlStream(ss, Encoding, false);
-      stream.SequenceByte = 2;
-    }
-
-    private bool ServerCheckValidation(object sender, X509Certificate certificate,
-                                              X509Chain chain, SslPolicyErrors sslPolicyErrors)
-    {
-      if (sslPolicyErrors == SslPolicyErrors.None)
-        return true;
-
-      if (Settings.SslMode == MySqlSslMode.Preferred ||
-          Settings.SslMode == MySqlSslMode.Required)
-      {
-        //Tolerate all certificate errors.
-        return true;
-      }
-
-      if (Settings.SslMode == MySqlSslMode.VerifyCA &&
-          sslPolicyErrors == SslPolicyErrors.RemoteCertificateNameMismatch)
-      {
-        // Tolerate name mismatch in certificate, if full validation is not requested.
-        return true;
-      }
-
-      return false;
-    }
-
-
-#endregion
-
-#endif
 
       #region Authentication
 

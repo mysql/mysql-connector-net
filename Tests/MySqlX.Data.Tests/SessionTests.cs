@@ -172,5 +172,17 @@ namespace MySqlX.Data.Tests
       Assert.Throws<ArgumentNullException>(() => MySQLX.GetSession(null));
       Assert.Throws<ArgumentNullException>(() => MySQLX.GetNodeSession(null));
     }
+
+    [Fact]
+    public void SslSession()
+    {
+      string connstring = ConnectionString + ";ssl mode=required;";
+      using(var s3 = MySQLX.GetNodeSession(connstring))
+      {
+        Assert.Equal(SessionState.Open, s3.InternalSession.SessionState);
+        var result = s3.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';").Execute().FetchAll();
+        Assert.StartsWith("TLSv1", result[0][1].ToString());
+      }
+    }
   }
 }

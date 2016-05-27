@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -56,7 +56,7 @@ namespace MySqlX.Data.Tests
       Schema test = session.GetSchema("test");
       Collection testColl = test.CreateCollection("test");
       Assert.True(testColl.ExistsInDatabase(), "ExistsInDatabase failed");
-      var result = testColl.CreateIndex("testIndex", true).Field(".myId", "INT", true).Execute();
+      var result = testColl.CreateIndex("testIndex", true).Field("$.myId", "INT", true).Execute();
       result = testColl.Add(new { myId = 1 }).Add(new { myId = 2 }).Execute();
       Assert.Throws<MySqlException>(() => testColl.Add(new { myId = 1 }).Execute());
       result = testColl.DropIndex("testIndex");

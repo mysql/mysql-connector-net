@@ -1,4 +1,4 @@
-// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc.
+// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -42,6 +42,7 @@ namespace MySql.Data.Common
       this.minor = minor;
       this.build = build;
       srcString = s;
+      IsEnterprise = s.ToLowerInvariant().Contains("-enterprise-");
     }
 
     public int Major
@@ -57,6 +58,11 @@ namespace MySql.Data.Common
     public int Build
     {
       get { return build; }
+    }
+
+    public bool IsEnterprise
+    {
+      get; private set;
     }
 
     public static DBVersion Parse(string versionString)

@@ -15,7 +15,7 @@
         <DefineConstants>NET_40_OR_GREATER</DefineConstants>
       </PropertyGroup>
     </When>
-	<When Condition="$(SolutionName) == 'MySQL-EMTrace'">
+    <When Condition="$(SolutionName) == 'MySQL-EMTrace'">
       <PropertyGroup>
         <ProductVersion>9.0.30729</ProductVersion>
         <SchemaVersion>2.0</SchemaVersion>
@@ -86,7 +86,7 @@
     <DocumentationFile>bin\Release\MySql.Data.XML</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
-   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'ReleaseNET40_Only|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'ReleaseNET40_Only|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <BaseOutputPath>NET40_Only\</BaseOutputPath>
@@ -96,7 +96,7 @@
     <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>    
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
@@ -141,6 +141,7 @@
     <Compile Include="common\Platform.cs" />
     <Compile Include="common\QueryNormalizer.cs" />
     <Compile Include="common\SharedMemoryStream.cs" />
+    <Compile Include="common\Ssl.cs" />
     <Compile Include="common\StreamCreator.cs" />
     <Compile Include="common\StringUtility.cs" />
     <Compile Include="common\Version.cs" />
