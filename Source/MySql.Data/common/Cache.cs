@@ -1,4 +1,4 @@
-// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc.
+// Copyright © 2004, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,45 +20,48 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
 using System.Collections.Generic;
 
+#if NETCORE10
+namespace MySql.Data.MySqlClient.Common
+#else
 namespace MySql.Data.Common
+#endif
 {
-  internal class Cache<KeyType, ValueType>
+  internal class Cache<TKeyType, TValueType>
   {
-    private int _capacity;
-    private Queue<KeyType> _keyQ;
-    private Dictionary<KeyType, ValueType> _contents;
+    private readonly int _capacity;
+    private readonly Queue<TKeyType> _keyQ;
+    private readonly Dictionary<TKeyType, TValueType> _contents;
 
     public Cache(int initialCapacity, int capacity)
     {
       _capacity = capacity;
-      _contents = new Dictionary<KeyType, ValueType>(initialCapacity);
+      _contents = new Dictionary<TKeyType, TValueType>(initialCapacity);
 
       if (capacity > 0)
-        _keyQ = new Queue<KeyType>(initialCapacity);
+        _keyQ = new Queue<TKeyType>(initialCapacity);
     }
 
-    public ValueType this[KeyType key]
+    public TValueType this[TKeyType key]
     {
       get
       {
-        ValueType val;
+        TValueType val;
         if (_contents.TryGetValue(key, out val))
           return val;
         else
-          return default(ValueType);
+          return default(TValueType);
       }
       set { InternalAdd(key, value); }
     }
 
-    public void Add(KeyType key, ValueType value)
+    public void Add(TKeyType key, TValueType value)
     {
       InternalAdd(key, value);
     }
 
-    private void InternalAdd(KeyType key, ValueType value)
+    private void InternalAdd(TKeyType key, TValueType value)
     {
       if (!_contents.ContainsKey(key))
       {

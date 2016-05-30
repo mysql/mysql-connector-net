@@ -1,4 +1,4 @@
-// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc.
+// Copyright © 2004, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,32 +20,35 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.Data.MySqlClient;
-using MySql.Data.MySqlClient.Properties;
+
 using System;
 using System.IO;
+using MySql.Data.MySqlClient;
+using MySql.Data.MySqlClient.Properties;
 
-
+#if NETCORE10
+namespace MySql.Data.MySqlClient.Common
+#else
 namespace MySql.Data.Common
+#endif
 {
   /// <summary>
   /// Summary description for StreamCreator.
   /// </summary>
   internal class StreamCreator
   {
-    string hostList;
-    uint port;
+    readonly string _hostList;
+    uint _port;
     string pipeName;
-    uint timeOut;
     uint keepalive;
     DBVersion driverVersion;
 
     public StreamCreator(string hosts, uint port, string pipeName, uint keepalive, DBVersion driverVersion)
     {
-      hostList = hosts;
-      if (hostList == null || hostList.Length == 0)
-        hostList = "localhost";
-      this.port = port;
+      _hostList = hosts;
+      if (string.IsNullOrEmpty(_hostList))
+        _hostList = "localhost";
+      this._port = port;
       this.pipeName = pipeName;
       this.keepalive = keepalive;
       this.driverVersion = driverVersion;
@@ -53,12 +56,15 @@ namespace MySql.Data.Common
 
     public static Stream GetStream(string server, uint port, string pipename, uint keepalive, DBVersion v, uint timeout)
     {
-      MySqlConnectionStringBuilder settings = new MySqlConnectionStringBuilder();
-      settings.Server = server;
-      settings.Port = port;
-      settings.PipeName = pipename;
-      settings.Keepalive = keepalive;
-      settings.ConnectionTimeout = timeout;
+      MySqlConnectionStringBuilder settings = new MySqlConnectionStringBuilder
+      {
+        Server = server,
+        Port = port,
+        PipeName = pipename,
+        Keepalive = keepalive,
+        ConnectionTimeout = timeout
+      };
+
       return GetStream(settings);
     }
 
@@ -67,9 +73,10 @@ namespace MySql.Data.Common
       switch (settings.ConnectionProtocol)
       {
         case MySqlConnectionProtocol.Tcp: return GetTcpStream(settings);
-#if RT
+#if NETCORE10
         case MySqlConnectionProtocol.UnixSocket: throw new NotImplementedException();
         case MySqlConnectionProtocol.SharedMemory: throw new NotImplementedException();
+        case MySqlConnectionProtocol.NamedPipe: throw new NotImplementedException();
 #else
         case MySqlConnectionProtocol.UnixSocket: return GetUnixSocketStream(settings);        
         case MySqlConnectionProtocol.SharedMemory: return GetSharedMemoryStream(settings);
@@ -81,17 +88,17 @@ namespace MySql.Data.Common
 
     private static Stream GetTcpStream(MySqlConnectionStringBuilder settings)
     {
-      MyNetworkStream s = MyNetworkStream.CreateStream(settings, false);
+      MyNetworkStream s = MyNetworkStream.CreateStream(settings, false).Result;
       return s;
     }
 
-#if !RT
+#if !NETCORE10
     private static Stream GetUnixSocketStream(MySqlConnectionStringBuilder settings)
     {
       if (Platform.IsWindows())
         throw new InvalidOperationException(Resources.NoUnixSocketsOnWindows);
 
-      MyNetworkStream s = MyNetworkStream.CreateStream(settings, true);
+      MyNetworkStream s = MyNetworkStream.CreateStream(settings, true).Result;
       return s;
     }
 

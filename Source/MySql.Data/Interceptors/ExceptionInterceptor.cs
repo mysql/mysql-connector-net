@@ -1,4 +1,4 @@
-﻿// Copyright © 2004, 2011, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -22,11 +22,15 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
+using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.Properties;
-using System.Reflection;
 
+#if NETCORE10
+namespace MySql.Data.MySqlClient.Interceptors
+#else
 namespace MySql.Data.MySqlClient
+#endif
 {
   /// <summary>
   /// BaseExceptionInterceptor is the base class that should be used for all userland 
@@ -62,51 +66,48 @@ namespace MySql.Data.MySqlClient
   /// </summary>
   internal sealed class ExceptionInterceptor : Interceptor
   {
-    List<BaseExceptionInterceptor> interceptors = new List<BaseExceptionInterceptor>();
+    readonly List<BaseExceptionInterceptor> _interceptors = new List<BaseExceptionInterceptor>();
 
     public ExceptionInterceptor(MySqlConnection connection) 
     {
-      this.connection = connection;
+      Connection = connection;
 
       LoadInterceptors(connection.Settings.ExceptionInterceptors);
 
       // we always have the standard interceptor
-      interceptors.Add(new StandardExceptionInterceptor());
+      _interceptors.Add(new StandardExceptionInterceptor());
 
     }
 
     protected override void AddInterceptor(object o)
     {
       if (o == null)
-        throw new ArgumentException(String.Format("Unable to instantiate ExceptionInterceptor"));
+        throw new ArgumentException("Unable to instantiate ExceptionInterceptor");
 
       if (!(o is BaseExceptionInterceptor))
         throw new InvalidOperationException(String.Format(Resources.TypeIsNotExceptionInterceptor,
           o.GetType()));
       BaseExceptionInterceptor ie = o as BaseExceptionInterceptor;
-      ie.Init(connection);
-      interceptors.Insert(0, (BaseExceptionInterceptor)o);
+      ie.Init(Connection);
+      _interceptors.Insert(0, (BaseExceptionInterceptor)o);
     }
 
     public void Throw(Exception exception)
     {
-      Exception e = exception;
-      foreach (BaseExceptionInterceptor ie in interceptors)
-      {
-        e = ie.InterceptException(e);
-      }
+      Exception e = _interceptors.Aggregate(exception, (current, ie) => ie.InterceptException(current));
       throw e;
     }
 
+#if !NETCORE10
     protected override string ResolveType(string nameOrType)
     {
-      if (MySqlConfiguration.Settings != null && MySqlConfiguration.Settings.ExceptionInterceptors != null)
-      {
-        foreach (InterceptorConfigurationElement e in MySqlConfiguration.Settings.ExceptionInterceptors)
-          if (String.Compare(e.Name, nameOrType, true) == 0)
-            return e.Type;
-      }
+      if (MySqlConfiguration.Settings == null || MySqlConfiguration.Settings.ExceptionInterceptors == null)
+        return base.ResolveType(nameOrType);
+      foreach (InterceptorConfigurationElement e in MySqlConfiguration.Settings.ExceptionInterceptors)
+        if (String.Compare(e.Name, nameOrType, true) == 0)
+          return e.Type;
       return base.ResolveType(nameOrType);
     }
+#endif
   }
 }

@@ -1,4 +1,4 @@
-// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,32 +21,35 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using MySql.Data.Types;
 using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
 using System.Text;
 using System.Collections;
-#if !RT
+using MySql.Data.MySqlClient;
+using MySql.Data.MySqlClient.Types;
 using System.Data;
 using System.Data.Common;
-#endif
 
 namespace MySql.Data.MySqlClient
 {
   /// <summary>
-  /// Represents a parameter to a <see cref="MySqlCommand"/>, and optionally, its mapping to <see cref="DataSet"/> columns. This class cannot be inherited.
+  /// Represents a parameter to a <see cref="MySqlCommand"/>, This class cannot be inherited.
   /// </summary>
+#if NETCORE10
+  public sealed partial class MySqlParameter
+#else
   public sealed partial class MySqlParameter : ICloneable
+#endif
   {
     private const int UNSIGNED_MASK = 0x8000;
-    private object paramValue;
-    private string paramName;
-    private MySqlDbType mySqlDbType;
-    private bool inferType = true;
+    private object _paramValue;
+    private string _paramName;
+    private MySqlDbType _mySqlDbType;
+    private bool _inferType = true;
     private const int GEOMETRY_LENGTH = 25;
 
-    #region Constructors
+#region Constructors
 
     public MySqlParameter()
     {
@@ -91,20 +94,19 @@ namespace MySql.Data.MySqlClient
 
     #region Properties
 
+#if !NETCORE10
     [Category("Misc")]
+#endif
     public override String ParameterName
     {
-      get { return paramName; }
+      get { return _paramName; }
       set { SetParameterName(value); }
     }
 
     internal MySqlParameterCollection Collection { get; set; }
     internal Encoding Encoding { get; set; }
 
-    internal bool TypeHasBeenSet
-    {
-      get { return inferType == false; }
-    }
+    internal bool TypeHasBeenSet => _inferType == false;
 
 
     internal string BaseName
@@ -121,61 +123,73 @@ namespace MySql.Data.MySqlClient
     /// Gets or sets a value indicating whether the parameter is input-only, output-only, bidirectional, or a stored procedure return value parameter.
     /// As of MySql version 4.1 and earlier, input-only is the only valid choice.
     /// </summary>
+#if !NETCORE10
     [Category("Data")]
+#endif
     public override ParameterDirection Direction { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the parameter accepts null values.
     /// </summary>
+#if !NETCORE10
     [Browsable(false)]
+#endif
     public override Boolean IsNullable { get; set; }
 
     /// <summary>
     /// Gets or sets the MySqlDbType of the parameter.
     /// </summary>
+#if !NETCORE10
     [Category("Data")]
     [DbProviderSpecificTypeProperty(true)]
+#endif
     public MySqlDbType MySqlDbType
     {
-      get { return mySqlDbType; }
+      get { return _mySqlDbType; }
       set
       {
         SetMySqlDbType(value);
-        inferType = false;
+        _inferType = false;
       }
     }
 
     /// <summary>
     /// Gets or sets the maximum number of digits used to represent the <see cref="Value"/> property.
     /// </summary>
+#if !NETCORE10
     [Category("Data")]
-    public byte Precision { get; set; }
+#endif
+    public override byte Precision { get; set; }
 
     /// <summary>
     /// Gets or sets the number of decimal places to which <see cref="Value"/> is resolved.
     /// </summary>
+#if !NETCORE10
     [Category("Data")]
-    public byte Scale { get; set; }
+#endif
+    public override byte Scale { get; set; }
 
     /// <summary>
     /// Gets or sets the maximum size, in bytes, of the data within the column.
     /// </summary>
+#if !NETCORE10
     [Category("Data")]
+#endif
     public override int Size { get; set; }
 
     /// <summary>
     /// Gets or sets the value of the parameter.
     /// </summary>
-#if !RT
     [TypeConverter(typeof(StringConverter))]
+#if !NETCORE10
     [Category("Data")]
 #endif
     public override object Value
     {
-      get { return paramValue; }
+      get { return _paramValue; }
       set
       {
-        paramValue = value;
+        _paramValue = value;
         byte[] valueAsByte = value as byte[];
         string valueAsString = value as string;
 
@@ -183,20 +197,12 @@ namespace MySql.Data.MySqlClient
           Size = valueAsByte.Length;
         else if (valueAsString != null)
           Size = valueAsString.Length;
-        if (inferType)
+        if (_inferType)
           SetTypeFromValue();
       }
     }
 
-    private IMySqlValue _valueObject;
-    internal IMySqlValue ValueObject
-    {
-      get { return _valueObject; }
-      private set
-      {
-        _valueObject = value;
-      }
-    }
+    internal IMySqlValue ValueObject { get; private set; }
 
     /// <summary>
     /// Returns the possible values for this parameter if this parameter is of type
@@ -204,27 +210,23 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     public IList PossibleValues { get; internal set; }
 
-    #endregion
+#endregion
 
     private void SetParameterName(string name)
     {
-        if (Collection != null)
-          Collection.ParameterNameChanged(this, paramName, name);
-        paramName = name;
+      Collection?.ParameterNameChanged(this, _paramName, name);
+      _paramName = name;
     }
 
     /// <summary>
     /// Overridden. Gets a string containing the <see cref="ParameterName"/>.
     /// </summary>
     /// <returns></returns>
-    public override string ToString()
-    {
-      return paramName;
-    }
+    public override string ToString() => _paramName;
 
     internal int GetPSType()
     {
-      switch (mySqlDbType)
+      switch (_mySqlDbType)
       {
         case MySqlDbType.Bit:
           return (int)MySqlDbType.Int64 | UNSIGNED_MASK;
@@ -239,13 +241,13 @@ namespace MySql.Data.MySqlClient
         case MySqlDbType.UInt16:
           return (int)MySqlDbType.Int16 | UNSIGNED_MASK;
         default:
-          return (int)mySqlDbType;
+          return (int)_mySqlDbType;
       }
     }
 
     internal void Serialize(MySqlPacket packet, bool binary, MySqlConnectionStringBuilder settings)
     {
-      if (!binary && (paramValue == null || paramValue == DBNull.Value))
+      if (!binary && (_paramValue == null || _paramValue == DBNull.Value))
         packet.WriteStringNoNull("NULL");
       else
       {
@@ -264,32 +266,32 @@ namespace MySql.Data.MySqlClient
           }
           ValueObject = v;
         }
-        ValueObject.WriteValue(packet, binary, paramValue, Size);
+        ValueObject.WriteValue(packet, binary, _paramValue, Size);
       }
     }
 
     partial void SetDbTypeFromMySqlDbType();
 
-    private void SetMySqlDbType(MySqlDbType mysql_dbtype)
+    private void SetMySqlDbType(MySqlDbType mysqlDbtype)
     {
-      mySqlDbType = mysql_dbtype;
-      ValueObject = MySqlField.GetIMySqlValue(mySqlDbType);
+      _mySqlDbType = mysqlDbtype;
+      ValueObject = MySqlField.GetIMySqlValue(_mySqlDbType);
       SetDbTypeFromMySqlDbType();
     }
 
     private void SetTypeFromValue()
     {
-      if (paramValue == null || paramValue == DBNull.Value) return;
+      if (_paramValue == null || _paramValue == DBNull.Value) return;
 
-      if (paramValue is Guid)
+      if (_paramValue is Guid)
         MySqlDbType = MySqlDbType.Guid;
-      else if (paramValue is TimeSpan)
+      else if (_paramValue is TimeSpan)
         MySqlDbType = MySqlDbType.Time;
-      else if (paramValue is bool)
+      else if (_paramValue is bool)
         MySqlDbType = MySqlDbType.Byte;
       else
       {
-        Type t = paramValue.GetType();
+        Type t = _paramValue.GetType();
         switch (t.Name)
         {
           case "SByte": MySqlDbType = MySqlDbType.Byte; break;
@@ -308,10 +310,10 @@ namespace MySql.Data.MySqlClient
           case "Decimal": MySqlDbType = MySqlDbType.Decimal; break;
           case "Object": 
           default:
-#if RT
+#if NETCORE10
             if (t.GetTypeInfo().BaseType == typeof(Enum))
 #else
-            if( t.BaseType == typeof( Enum ) )
+            if( t.BaseType == typeof(Enum))
 #endif
               MySqlDbType = MySqlDbType.Int32;
             else 
@@ -321,26 +323,28 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    #region ICloneable
+#region ICloneable
 
     public MySqlParameter Clone()
     {
-#if RT
-      MySqlParameter clone = new MySqlParameter(paramName, mySqlDbType);
-#else
-      MySqlParameter clone = new MySqlParameter(paramName, mySqlDbType, Direction, SourceColumn, SourceVersion, paramValue);
-#endif
+//#if RT
+      //MySqlParameter clone = new MySqlParameter(_paramName, _mySqlDbType);
+//#else
+      MySqlParameter clone = new MySqlParameter(_paramName, _mySqlDbType, Direction, SourceColumn, _paramValue)
+      { _inferType = _inferType};
+//#endif
       // if we have not had our type set yet then our clone should not either
-      clone.inferType = inferType;
       return clone;
     }
 
+#if !NETCORE10
     object ICloneable.Clone()
     {
       return this.Clone();
     }
+#endif
 
-    #endregion
+#endregion
 
     // this method is pretty dumb but we want it to be fast.  it doesn't return size based
     // on value and type but just on the value.
@@ -349,9 +353,9 @@ namespace MySql.Data.MySqlClient
       if (Value == null || Value == DBNull.Value)
         return 4; // size of NULL
       if (Value is byte[])
-        return (Value as byte[]).Length;
+        return ((byte[]) Value).Length;
       if (Value is string)
-        return (Value as string).Length * 4; // account for UTF-8 (yeah I know)
+        return ((string) Value).Length * 4; // account for UTF-8 (yeah I know)
       if (Value is decimal || Value is float)
         return 64;
       return 32;

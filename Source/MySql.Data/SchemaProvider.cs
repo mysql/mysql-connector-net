@@ -1,4 +1,4 @@
-// Copyright © 2004, 2015, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -25,16 +25,20 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
-using MySql.Data.Common;
-using MySql.Data.Types;
 using System.Collections.Specialized;
 using System.Collections;
 using System.Text.RegularExpressions;
-using MySql.Data.MySqlClient.Properties;
 using System.Collections.Generic;
-#if !RT
+using MySql.Data.MySqlClient;
+using MySql.Data.MySqlClient.Properties;
+using MySql.Data.MySqlClient.Types;
 using System.Data;
 using System.Data.Common;
+
+#if NETCORE10
+using MySql.Data.MySqlClient.Common;
+#else
+using MySql.Data.Common
 #endif
 
 namespace MySql.Data.MySqlClient
@@ -229,9 +233,7 @@ namespace MySql.Data.MySqlClient
           row["EXTRA"] = reader.GetString(6);
           row["PRIVILEGES"] = reader.GetString(7);
           row["COLUMN_COMMENT"] = reader.GetString(8);
-#if !RT
           row["GENERATION_EXPRESION"] = reader.GetString(6).Contains("VIRTUAL") ? reader.GetString(9) : string.Empty;                     
-#endif
           ParseColumnRow(row);
         }
       }
@@ -278,10 +280,9 @@ namespace MySql.Data.MySqlClient
       dt.AddColumn("COMMENT", typeof(string));
 
       // Get the list of tables first
-      int max = restrictions == null ? 4 : restrictions.Length;
+      int max = restrictions?.Length ?? 4;
       string[] tableRestrictions = new string[Math.Max(max, 4)];
-      if (restrictions != null)
-        restrictions.CopyTo(tableRestrictions, 0);
+      restrictions?.CopyTo(tableRestrictions, 0);
       tableRestrictions[3] = "BASE TABLE";
       MySqlSchemaCollection tables = GetTables(tableRestrictions);
 
@@ -656,8 +657,7 @@ namespace MySql.Data.MySqlClient
 
     protected virtual MySqlSchemaCollection GetCollections()
     {
-      object[][] collections = new object[][]
-        {
+      object[][] collections = {
           new object[] {"MetaDataCollections", 0, 0},
           new object[] {"DataSourceInformation", 0, 0},
           new object[] {"DataTypes", 0, 0},
@@ -694,33 +694,44 @@ namespace MySql.Data.MySqlClient
       dt.AddColumn("DataSourceProductName", typeof(string));
       dt.AddColumn("DataSourceProductVersion", typeof(string));
       dt.AddColumn("DataSourceProductVersionNormalized", typeof(string));
+#if !NETCORE10
       dt.AddColumn("GroupByBehavior", typeof(GroupByBehavior));
+#endif
       dt.AddColumn("IdentifierPattern", typeof(string));
+#if !NETCORE10
       dt.AddColumn("IdentifierCase", typeof(IdentifierCase));
+#endif
       dt.AddColumn("OrderByColumnsInSelect", typeof(bool));
       dt.AddColumn("ParameterMarkerFormat", typeof(string));
       dt.AddColumn("ParameterMarkerPattern", typeof(string));
       dt.AddColumn("ParameterNameMaxLength", typeof(int));
       dt.AddColumn("ParameterNamePattern", typeof(string));
       dt.AddColumn("QuotedIdentifierPattern", typeof(string));
+#if !NETCORE10
       dt.AddColumn("QuotedIdentifierCase", typeof(IdentifierCase));
+#endif
       dt.AddColumn("StatementSeparatorPattern", typeof(string));
       dt.AddColumn("StringLiteralPattern", typeof(string));
+#if !NETCORE10
       dt.AddColumn("SupportedJoinOperators", typeof(SupportedJoinOperators));
+#endif
 
       DBVersion v = connection.driver.Version;
-      string ver = String.Format("{0:0}.{1:0}.{2:0}",
-                     v.Major, v.Minor, v.Build);
+      string ver = $"{v.Major:0}.{v.Minor:0}.{v.Build:0}";
 
       MySqlSchemaRow row = dt.AddRow();
       row["CompositeIdentifierSeparatorPattern"] = "\\.";
       row["DataSourceProductName"] = "MySQL";
       row["DataSourceProductVersion"] = connection.ServerVersion;
       row["DataSourceProductVersionNormalized"] = ver;
+#if !NETCORE10
       row["GroupByBehavior"] = GroupByBehavior.Unrelated;
+#endif
       row["IdentifierPattern"] =
         @"(^\`\p{Lo}\p{Lu}\p{Ll}_@#][\p{Lo}\p{Lu}\p{Ll}\p{Nd}@$#_]*$)|(^\`[^\`\0]|\`\`+\`$)|(^\"" + [^\""\0]|\""\""+\""$)";
+#if !NETCORE10
       row["IdentifierCase"] = IdentifierCase.Insensitive;
+#endif
       row["OrderByColumnsInSelect"] = false;
       row["ParameterMarkerFormat"] = "{0}";
       row["ParameterMarkerPattern"] = "(@[A-Za-z0-9_$#]*)";
@@ -728,10 +739,14 @@ namespace MySql.Data.MySqlClient
       row["ParameterNamePattern"] =
         @"^[\p{Lo}\p{Lu}\p{Ll}\p{Lm}_@#][\p{Lo}\p{Lu}\p{Ll}\p{Lm}\p{Nd}\uff3f_@#\$]*(?=\s+|$)";
       row["QuotedIdentifierPattern"] = @"(([^\`]|\`\`)*)";
+#if !NETCORE10
       row["QuotedIdentifierCase"] = IdentifierCase.Sensitive;
+#endif
       row["StatementSeparatorPattern"] = ";";
       row["StringLiteralPattern"] = "'(([^']|'')*)'";
+#if !NETCORE10
       row["SupportedJoinOperators"] = 15;
+#endif
       dt.Rows.Add(row);
 
       return dt;
@@ -788,8 +803,7 @@ namespace MySql.Data.MySqlClient
 
     protected virtual MySqlSchemaCollection GetRestrictions()
     {
-      object[][] restrictions = new object[][]
-        {
+      object[][] restrictions = {
           new object[] {"Users", "Name", "", 0},
           new object[] {"Databases", "Name", "", 0},
           new object[] {"Tables", "Database", "", 0},
@@ -834,13 +848,13 @@ namespace MySql.Data.MySqlClient
     private static MySqlSchemaCollection GetReservedWords()
     {
       MySqlSchemaCollection dt = new MySqlSchemaCollection("ReservedWords");
-#if !RT
+#if !NETCORE10
       dt.AddColumn(DbMetaDataColumnNames.ReservedWord, typeof(string));
       Stream str = Assembly.GetExecutingAssembly().GetManifestResourceStream(
         "MySql.Data.MySqlClient.Properties.ReservedWords.txt");
 #else
       dt.AddColumn("ReservedWord", typeof(string));
-      Stream str = typeof(SchemaProvider).GetTypeInfo().Assembly.GetManifestResourceStream("MySql.Data.MySqlClient.Properties.ReservedWords.txt");
+      Stream str = typeof(SchemaProvider).GetTypeInfo().Assembly.GetManifestResourceStream("ReservedWords.txt");
 #endif
       StreamReader sr = new StreamReader(str);
       string line = sr.ReadLine();
@@ -856,7 +870,9 @@ namespace MySql.Data.MySqlClient
         line = sr.ReadLine();
       }
       sr.Dispose();
+#if !NETCORE10
       str.Close();
+#endif
 
       return dt;
     }
@@ -929,11 +945,8 @@ namespace MySql.Data.MySqlClient
     public virtual MySqlSchemaCollection GetUDF(string[] restrictions)
     {
       string sql = "SELECT name,ret,dl FROM mysql.func";
-      if (restrictions != null)
-      {
-        if (restrictions.Length >= 1 && !String.IsNullOrEmpty(restrictions[0]))
-          sql += String.Format(" WHERE name LIKE '{0}'", restrictions[0]);
-      }
+      if (restrictions?.Length >= 1 && !String.IsNullOrEmpty(restrictions[0]))
+        sql += $" WHERE name LIKE '{restrictions[0]}'";
 
       MySqlSchemaCollection dt = new MySqlSchemaCollection("User-defined Functions");
       dt.AddColumn("NAME", typeof(string));

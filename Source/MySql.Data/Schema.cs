@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2014 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,7 +20,6 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.Data.MySqlClient.Properties;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -29,12 +28,12 @@ using System.Text;
 
 namespace MySql.Data.MySqlClient
 {
-  public class MySqlSchemaCollection 
+  public partial class MySqlSchemaCollection 
   {
-    private List<SchemaColumn> columns = new List<SchemaColumn>();
-    private List<MySqlSchemaRow> rows = new List<MySqlSchemaRow>();
-#if !RT
-    private DataTable _table = null;
+    private readonly List<SchemaColumn> _columns = new List<SchemaColumn>();
+    private readonly List<MySqlSchemaRow> _rows = new List<MySqlSchemaRow>();
+#if !NETCORE10
+    private readonly DataTable _table = null;
 #endif
 
     public MySqlSchemaCollection()
@@ -48,54 +47,58 @@ namespace MySql.Data.MySqlClient
       Name = name;
     }
 
-#if !RT
-    public MySqlSchemaCollection(DataTable dt) : this()
-    {
-      // cache the original datatable to avoid the overhead of creating again whenever possible.
-      _table = dt;
-      int i = 0;
-      foreach (DataColumn dc in dt.Columns)
-      {
-        columns.Add(new SchemaColumn() { Name = dc.ColumnName, Type = dc.DataType });
-        Mapping.Add(dc.ColumnName, i++);
-        LogicalMappings[columns.Count - 1] = columns.Count - 1;
-      }
+#if !NETCORE10
+    //TODO: MOVE CODE TO 452 AND 46x PROJECTS extensions folder
+    //public MySqlSchemaCollection(DataTable dt) : this()
+    //{
+    //  // cache the original datatable to avoid the overhead of creating again whenever possible.
+    //  _table = dt;
+    //  int i = 0;
+    //  foreach (DataColumn dc in dt.Columns)
+    //  {
+    //    columns.Add(new SchemaColumn() { Name = dc.ColumnName, Type = dc.DataType });
+    //    Mapping.Add(dc.ColumnName, i++);
+    //    LogicalMappings[columns.Count - 1] = columns.Count - 1;
+    //  }
 
-      foreach (DataRow dr in dt.Rows)
-      {
-        MySqlSchemaRow row = new MySqlSchemaRow(this);
-        for (i = 0; i < columns.Count; i++)
-        {
-          row[i] = dr[i];
-        }
-        rows.Add(row);
-      }
-    }
+    //  foreach (DataRow dr in dt.Rows)
+    //  {
+    //    MySqlSchemaRow row = new MySqlSchemaRow(this);
+    //    for (i = 0; i < columns.Count; i++)
+    //    {
+    //      row[i] = dr[i];
+    //    }
+    //    rows.Add(row);
+    //  }
+    //}
 #endif
 
     internal Dictionary<string, int> Mapping;
     internal Dictionary<int, int> LogicalMappings;
     public string Name { get; set; }
-    public IList<SchemaColumn> Columns { get { return columns; } }
-    public IList<MySqlSchemaRow> Rows { get { return rows; } }
+    public IList<SchemaColumn> Columns => _columns;
+    public IList<MySqlSchemaRow> Rows => _rows;
 
     internal SchemaColumn AddColumn(string name, Type t)
     {
-      SchemaColumn c = new SchemaColumn();
-      c.Name = name;
-      c.Type = t;
-      columns.Add(c);
-      Mapping.Add(name, columns.Count-1);
-      LogicalMappings[columns.Count - 1] = columns.Count - 1;
+      SchemaColumn c = new SchemaColumn
+      {
+        Name = name,
+        Type = t
+      };
+
+      _columns.Add(c);
+      Mapping.Add(name, _columns.Count-1);
+      LogicalMappings[_columns.Count - 1] = _columns.Count - 1;
       return c;
     }
 
     internal int ColumnIndex(string name)
     {
       int index = -1;
-      for (int i = 0; i < columns.Count; i++)
+      for (int i = 0; i < _columns.Count; i++)
       {
-        SchemaColumn c = columns[i];
+        SchemaColumn c = _columns[i];
         if (String.Compare(c.Name, name, StringComparison.OrdinalIgnoreCase) != 0) continue;
         index = i;
         break;
@@ -108,7 +111,7 @@ namespace MySql.Data.MySqlClient
       int index = ColumnIndex(name);
       if (index == -1)
         throw new InvalidOperationException();
-      columns.RemoveAt(index);
+      _columns.RemoveAt(index);
       for (int i = index; i < Columns.Count; i++)
         LogicalMappings[i] = LogicalMappings[i] + 1;
     }
@@ -121,7 +124,7 @@ namespace MySql.Data.MySqlClient
     internal MySqlSchemaRow AddRow()
     {
       MySqlSchemaRow r = new MySqlSchemaRow(this);
-      rows.Add(r);
+      _rows.Add(r);
       return r;
     }
 
@@ -131,7 +134,7 @@ namespace MySql.Data.MySqlClient
       return r;
     }
 
-#if !RT
+#if !NETCORE10
     internal DataTable AsDataTable()
     {
       if (_table != null) return _table;
@@ -152,7 +155,7 @@ namespace MySql.Data.MySqlClient
 
   public class MySqlSchemaRow
   {
-    private Dictionary<int,object> data;
+    private Dictionary<int,object> _data;
 
     public MySqlSchemaRow(MySqlSchemaCollection c)
     {
@@ -162,10 +165,10 @@ namespace MySql.Data.MySqlClient
 
     internal void InitMetadata()
     {
-      data = new Dictionary<int, object>();
+      _data = new Dictionary<int, object>();
     }
 
-    internal MySqlSchemaCollection Collection { get; private set; }
+    internal MySqlSchemaCollection Collection { get; }
 
     internal object this[string s]
     {
@@ -177,11 +180,11 @@ namespace MySql.Data.MySqlClient
     {
       get {
         int idx = Collection.LogicalMappings[i];
-        if (!data.ContainsKey(idx))
-          data[idx] = null;
-        return data[ idx ];
+        if (!_data.ContainsKey(idx))
+          _data[idx] = null;
+        return _data[ idx ];
       }
-      set { data[ Collection.LogicalMappings[ i ] ] = value; }
+      set { _data[ Collection.LogicalMappings[ i ] ] = value; }
     }
 
     private void SetValueForName(string colName, object value)
@@ -193,8 +196,8 @@ namespace MySql.Data.MySqlClient
     private object GetValueForName(string colName)
     {
       int index = Collection.Mapping[colName];
-      if (!data.ContainsKey(index))
-        data[index] = null;
+      if (!_data.ContainsKey(index))
+        _data[index] = null;
       return this[index];
     }
 

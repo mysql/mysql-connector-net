@@ -1,4 +1,4 @@
-// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,13 +21,11 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections;
-using System.Data;
 using System.Collections.Generic;
-using MySql.Data.MySqlClient.Properties;
-using System.Diagnostics;
-using System.Text;
 using System.Globalization;
+using System.Text;
+using MySql.Data.MySqlClient;
+using MySql.Data.MySqlClient.Properties;
 
 namespace MySql.Data.MySqlClient
 {
@@ -39,15 +37,15 @@ namespace MySql.Data.MySqlClient
 
   internal class ProcedureCache
   {
-    private Dictionary<int, ProcedureCacheEntry> procHash;
-    private Queue<int> hashQueue;
-    private int maxSize;
+    private readonly Dictionary<int, ProcedureCacheEntry> _procHash;
+    private readonly Queue<int> _hashQueue;
+    private readonly int _maxSize;
 
     public ProcedureCache(int size)
     {
-      maxSize = size;
-      hashQueue = new Queue<int>(maxSize);
-      procHash = new Dictionary<int, ProcedureCacheEntry>(maxSize);
+      _maxSize = size;
+      _hashQueue = new Queue<int>(_maxSize);
+      _procHash = new Dictionary<int, ProcedureCacheEntry>(_maxSize);
     }
 
     public ProcedureCacheEntry GetProcedure(MySqlConnection conn, string spName, string cacheKey)
@@ -58,9 +56,9 @@ namespace MySql.Data.MySqlClient
       {
         int hash = cacheKey.GetHashCode();
 
-        lock (procHash)
+        lock (_procHash)
         {
-          procHash.TryGetValue(hash, out proc);
+          _procHash.TryGetValue(hash, out proc);
         }
       }
       if (proc == null)
@@ -107,19 +105,19 @@ namespace MySql.Data.MySqlClient
     private ProcedureCacheEntry AddNew(MySqlConnection connection, string spName)
     {
       ProcedureCacheEntry procData = GetProcData(connection, spName);
-      if (maxSize > 0)
+
+      if (_maxSize <= 0) return procData;
+
+      string cacheKey = GetCacheKey(spName, procData);
+      int hash = cacheKey.GetHashCode();
+      lock (_procHash)
       {
-        string cacheKey = GetCacheKey(spName, procData);
-        int hash = cacheKey.GetHashCode();
-        lock (procHash)
+        if (_procHash.Keys.Count >= _maxSize)
+          TrimHash();
+        if (!_procHash.ContainsKey(hash))
         {
-          if (procHash.Keys.Count >= maxSize)
-            TrimHash();
-          if (!procHash.ContainsKey(hash))
-          {
-            procHash[hash] = procData;
-            hashQueue.Enqueue(hash);
-          }
+          _procHash[hash] = procData;
+          _hashQueue.Enqueue(hash);
         }
       }
       return procData;
@@ -127,8 +125,8 @@ namespace MySql.Data.MySqlClient
 
     private void TrimHash()
     {
-      int oldestHash = hashQueue.Dequeue();
-      procHash.Remove(oldestHash);
+      int oldestHash = _hashQueue.Dequeue();
+      _procHash.Remove(oldestHash);
     }
 
     private static ProcedureCacheEntry GetProcData(MySqlConnection connection, string spName)

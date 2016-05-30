@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2006-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc. 2014, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2006, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,16 +21,18 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Text;
-using System.IO;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Data;
-using MySql.Data.MySqlClient.Properties;
-using MySql.Data.Common;
-#if NET_40_OR_GREATER
+using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
+using MySql.Data.MySqlClient.Properties;
+using System.IO;
+
+#if NETCORE10
+using MySql.Data.MySqlClient.Common;
+#else
+using MySql.Data.Common;
 #endif
 
 namespace MySql.Data.MySqlClient
@@ -46,23 +48,6 @@ namespace MySql.Data.MySqlClient
     private const char defaultEscapeCharacter = '\\';
 
     // fields
-    private string fieldTerminator;
-    private string lineTerminator;
-    private string charSet;
-    private string tableName;
-    private int numLinesToIgnore;
-    private MySqlConnection connection;
-    private string filename;
-    private int timeout;
-    private bool local;
-    private string linePrefix;
-    private char fieldQuotationCharacter;
-    private bool fieldQuotationOptional;
-    private char escapeChar;
-    private MySqlBulkLoaderPriority priority;
-    private MySqlBulkLoaderConflictOption conflictOption;
-    private List<string> columns;
-    private List<string> expressions;
 
     public MySqlBulkLoader(MySqlConnection connection)
     {
@@ -72,122 +57,78 @@ namespace MySql.Data.MySqlClient
       LineTerminator = defaultLineTerminator;
       FieldQuotationCharacter = Char.MinValue;
       ConflictOption = MySqlBulkLoaderConflictOption.None;
-      columns = new List<string>();
-      expressions = new List<string>();
+      Columns = new List<string>();
+      Expressions = new List<string>();
     }
 
-    #region Properties
+#region Properties
 
     /// <summary>
     /// Gets or sets the connection.
     /// </summary>
     /// <value>The connection.</value>
-    public MySqlConnection Connection
-    {
-      get { return connection; }
-      set { connection = value; }
-    }
+    public MySqlConnection Connection { get; set; }
 
     /// <summary>
     /// Gets or sets the field terminator.
     /// </summary>
     /// <value>The field terminator.</value>
-    public string FieldTerminator
-    {
-      get { return fieldTerminator; }
-      set { fieldTerminator = value; }
-    }
+    public string FieldTerminator { get; set; }
 
     /// <summary>
     /// Gets or sets the line terminator.
     /// </summary>
     /// <value>The line terminator.</value>
-    public string LineTerminator
-    {
-      get { return lineTerminator; }
-      set { lineTerminator = value; }
-    }
+    public string LineTerminator { get; set; }
 
     /// <summary>
     /// Gets or sets the name of the table.
     /// </summary>
     /// <value>The name of the table.</value>
-    public string TableName
-    {
-      get { return tableName; }
-      set { tableName = value; }
-    }
+    public string TableName { get; set; }
 
     /// <summary>
     /// Gets or sets the character set.
     /// </summary>
     /// <value>The character set.</value>
-    public string CharacterSet
-    {
-      get { return charSet; }
-      set { charSet = value; }
-    }
+    public string CharacterSet { get; set; }
 
     /// <summary>
     /// Gets or sets the name of the file.
     /// </summary>
     /// <value>The name of the file.</value>
-    public string FileName
-    {
-      get { return filename; }
-      set { filename = value; }
-    }
+    public string FileName { get; set; }
 
     /// <summary>
     /// Gets or sets the timeout.
     /// </summary>
     /// <value>The timeout.</value>
-    public int Timeout
-    {
-      get { return timeout; }
-      set { timeout = value; }
-    }
+    public int Timeout { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the filename that is to be loaded
     /// is local to the client or not
     /// </summary>
     /// <value><c>true</c> if local; otherwise, <c>false</c>.</value>
-    public bool Local
-    {
-      get { return local; }
-      set { local = value; }
-    }
+    public bool Local { get; set; }
 
     /// <summary>
     /// Gets or sets the number of lines to skip.
     /// </summary>
     /// <value>The number of lines to skip.</value>
-    public int NumberOfLinesToSkip
-    {
-      get { return numLinesToIgnore; }
-      set { numLinesToIgnore = value; }
-    }
+    public int NumberOfLinesToSkip { get; set; }
 
     /// <summary>
     /// Gets or sets the line prefix.
     /// </summary>
     /// <value>The line prefix.</value>
-    public string LinePrefix
-    {
-      get { return linePrefix; }
-      set { linePrefix = value; }
-    }
+    public string LinePrefix { get; set; }
 
     /// <summary>
     /// Gets or sets the field quotation character.
     /// </summary>
     /// <value>The field quotation character.</value>
-    public char FieldQuotationCharacter
-    {
-      get { return fieldQuotationCharacter; }
-      set { fieldQuotationCharacter = value; }
-    }
+    public char FieldQuotationCharacter { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether [field quotation optional].
@@ -195,61 +136,39 @@ namespace MySql.Data.MySqlClient
     /// <value>
     /// 	<c>true</c> if [field quotation optional]; otherwise, <c>false</c>.
     /// </value>
-    public bool FieldQuotationOptional
-    {
-      get { return fieldQuotationOptional; }
-      set { fieldQuotationOptional = value; }
-    }
+    public bool FieldQuotationOptional { get; set; }
 
     /// <summary>
     /// Gets or sets the escape character.
     /// </summary>
     /// <value>The escape character.</value>
-    public char EscapeCharacter
-    {
-      get { return escapeChar; }
-      set { escapeChar = value; }
-    }
+    public char EscapeCharacter { get; set; }
 
     /// <summary>
     /// Gets or sets the conflict option.
     /// </summary>
     /// <value>The conflict option.</value>
-    public MySqlBulkLoaderConflictOption ConflictOption
-    {
-      get { return conflictOption; }
-      set { conflictOption = value; }
-    }
+    public MySqlBulkLoaderConflictOption ConflictOption { get; set; }
 
     /// <summary>
     /// Gets or sets the priority.
     /// </summary>
     /// <value>The priority.</value>
-    public MySqlBulkLoaderPriority Priority
-    {
-      get { return priority; }
-      set { priority = value; }
-    }
+    public MySqlBulkLoaderPriority Priority { get; set; }
 
     /// <summary>
     /// Gets the columns.
     /// </summary>
     /// <value>The columns.</value>
-    public List<string> Columns
-    {
-      get { return columns; }
-    }
+    public List<string> Columns { get; }
 
     /// <summary>
     /// Gets the expressions.
     /// </summary>
     /// <value>The expressions.</value>
-    public List<string> Expressions
-    {
-      get { return expressions; }
-    }
+    public List<string> Expressions { get; }
 
-    #endregion
+#endregion
 
     /// <summary>
     /// Execute the load operation
@@ -263,28 +182,26 @@ namespace MySql.Data.MySqlClient
         throw new InvalidOperationException(Resources.ConnectionNotSet);
 
       // next we open up the connetion if it is not already open
-      if (connection.State != ConnectionState.Open)
+      if (Connection.State != ConnectionState.Open)
       {
         openedConnection = true;
-        connection.Open();
+        Connection.Open();
       }
 
       try
       {
         string sql = BuildSqlCommand();
-        MySqlCommand cmd = new MySqlCommand(sql, Connection);
-        cmd.CommandTimeout = Timeout;
+        MySqlCommand cmd = new MySqlCommand(sql, Connection) {CommandTimeout = Timeout};
         return cmd.ExecuteNonQuery();
       }
       finally
       {
         if (openedConnection)
-          connection.Close();
+          Connection.Close();
       }
     }
 
-#if NET_40_OR_GREATER
-    #region Async
+#region Async
     /// <summary>
     /// Async version of Load
     /// </summary>
@@ -315,8 +232,7 @@ namespace MySql.Data.MySqlClient
       }
       return result.Task;
     }
-    #endregion
-#endif
+#endregion
 
     private string BuildSqlCommand()
     {
@@ -357,7 +273,7 @@ namespace MySql.Data.MySqlClient
         sql.AppendFormat("FIELDS {0}", optionSql.ToString());
 
       optionSql = new StringBuilder(String.Empty);
-      if (LinePrefix != null && LinePrefix.Length > 0)
+      if (!string.IsNullOrEmpty(LinePrefix))
         optionSql.AppendFormat("STARTING BY '{0}' ", LinePrefix);
       if (LineTerminator != defaultLineTerminator)
         optionSql.AppendFormat("TERMINATED BY '{0}' ", LineTerminator);

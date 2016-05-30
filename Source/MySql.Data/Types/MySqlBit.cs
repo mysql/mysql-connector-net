@@ -1,4 +1,4 @@
-// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc.
+// Copyright © 2004, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,67 +21,39 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Data;
 using MySql.Data.MySqlClient;
 
-namespace MySql.Data.Types
+namespace MySql.Data.MySqlClient.Types
 {
   /// <summary>
   /// Summary description for MySqlUInt64.
   /// </summary>
   internal struct MySqlBit : IMySqlValue
   {
-    private ulong mValue;
-    private bool isNull;
-    private bool readAsString;
+    private ulong _value;
 
     public MySqlBit(bool isnull)
     {
-      mValue = 0;
-      isNull = isnull;
-      readAsString = false;
+      _value = 0;
+      IsNull = isnull;
+      ReadAsString = false;
     }
 
-    public bool ReadAsString
-    {
-      get { return readAsString; }
-      set { readAsString = value; }
-    }
+    public bool ReadAsString { get; set; }
 
-    public bool IsNull
-    {
-      get { return isNull; }
-    }
+    public bool IsNull { get; private set; }
 
-    MySqlDbType IMySqlValue.MySqlDbType
-    {
-      get { return MySqlDbType.Bit; }
-    }
+    MySqlDbType IMySqlValue.MySqlDbType => MySqlDbType.Bit;
 
-    object IMySqlValue.Value
-    {
-      get
-      {
-        return mValue;
-      }
-    }
+    object IMySqlValue.Value => _value;
 
-    Type IMySqlValue.SystemType
-    {
-      get
-      {
-        return typeof(UInt64);
-      }
-    }
+    Type IMySqlValue.SystemType => typeof(ulong);
 
-    string IMySqlValue.MySqlTypeName
-    {
-      get { return "BIT"; }
-    }
+    string IMySqlValue.MySqlTypeName => "BIT";
 
     public void WriteValue(MySqlPacket packet, bool binary, object value, int length)
     {
-      ulong v = (value is UInt64) ? (UInt64)value : Convert.ToUInt64(value);
+      ulong v = value as ulong? ?? Convert.ToUInt64(value);
       if (binary)
         packet.WriteInteger((long)v, 8);
       else
@@ -90,7 +62,7 @@ namespace MySql.Data.Types
 
     public IMySqlValue ReadValue(MySqlPacket packet, long length, bool isNull)
     {
-      this.isNull = isNull;
+      this.IsNull = isNull;
       if (isNull)
         return this;
 
@@ -98,9 +70,9 @@ namespace MySql.Data.Types
         length = packet.ReadFieldLength();
 
       if (ReadAsString)
-        mValue = UInt64.Parse(packet.ReadString(length));
+        _value = UInt64.Parse(packet.ReadString(length));
       else
-        mValue = (UInt64)packet.ReadBitValue((int)length);
+        _value = (UInt64)packet.ReadBitValue((int)length);
       return this;
     }
 
@@ -121,7 +93,7 @@ namespace MySql.Data.Types
       row["ColumnSize"] = 64;
       row["CreateFormat"] = "BIT";
       row["CreateParameters"] = DBNull.Value; ;
-      row["DataType"] = typeof(UInt64).ToString();
+      row["DataType"] = typeof(ulong).ToString();
       row["IsAutoincrementable"] = false;
       row["IsBestMatch"] = true;
       row["IsCaseSensitive"] = false;

@@ -1,4 +1,4 @@
-// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc.
+// Copyright © 2004, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -24,25 +24,24 @@ using System;
 using System.Collections;
 using System.Text;
 
+#if NETCORE10
+namespace MySql.Data.MySqlClient.Common
+#else
 namespace MySql.Data.Common
+#endif
 {
   internal class ContextString
   {
-    string contextMarkers;
-    bool escapeBackslash;
+    readonly bool _escapeBackslash;
 
     // Create a private ctor so the compiler doesn't give us a default one
     public ContextString(string contextMarkers, bool escapeBackslash)
     {
-      this.contextMarkers = contextMarkers;
-      this.escapeBackslash = escapeBackslash;
+      ContextMarkers = contextMarkers;
+      _escapeBackslash = escapeBackslash;
     }
 
-    public string ContextMarkers
-    {
-      get { return contextMarkers; }
-      set { contextMarkers = value; }
-    }
+    public string ContextMarkers { get; set; }
 
     public int IndexOf(string src, string target)
     {
@@ -69,17 +68,17 @@ namespace MySql.Data.Common
       {
         char c = src[i];
 
-        int contextIndex = contextMarkers.IndexOf(c);
+        int contextIndex = ContextMarkers.IndexOf(c);
 
         // if we have found the closing marker for our open marker, then close the context
-        if (contextIndex > -1 && contextMarker == contextMarkers[contextIndex] && !escaped)
+        if (contextIndex > -1 && contextMarker == ContextMarkers[contextIndex] && !escaped)
           contextMarker = Char.MinValue;
 
         // if we have found a context marker and we are not in a context yet, then start one
         else if (contextMarker == Char.MinValue && contextIndex > -1 && !escaped)
           contextMarker = c;
 
-        else if (c == '\\' && escapeBackslash)
+        else if (c == '\\' && _escapeBackslash)
           escaped = !escaped;
       }
       return contextMarker != Char.MinValue || escaped;
@@ -93,10 +92,10 @@ namespace MySql.Data.Common
 
       foreach (char c in src)
       {
-        int contextIndex = contextMarkers.IndexOf(c);
+        int contextIndex = ContextMarkers.IndexOf(c);
 
         // if we have found the closing marker for our open marker, then close the context
-        if (contextIndex > -1 && contextMarker == contextMarkers[contextIndex] && !escaped)
+        if (contextIndex > -1 && contextMarker == ContextMarkers[contextIndex] && !escaped)
           contextMarker = Char.MinValue;
 
         // if we have found a context marker and we are not in a context yet, then start one
@@ -105,7 +104,7 @@ namespace MySql.Data.Common
 
         else if (contextMarker == Char.MinValue && c == target)
           return pos;
-        else if (c == '\\' && escapeBackslash)
+        else if (c == '\\' && _escapeBackslash)
           escaped = !escaped;
         pos++;
       }
@@ -128,25 +127,23 @@ namespace MySql.Data.Common
             sb.Append(c);
           else
           {
-            if (sb.Length > 0)
-            {
-              parts.Add(sb.ToString());
-              sb.Remove(0, sb.Length);
-            }
+            if (sb.Length <= 0) continue;
+            parts.Add(sb.ToString());
+            sb.Remove(0, sb.Length);
           }
         }
-        else if (c == '\\' && escapeBackslash)
+        else if (c == '\\' && _escapeBackslash)
           escaped = !escaped;
         else
         {
-          int contextIndex = contextMarkers.IndexOf(c);
+          int contextIndex = ContextMarkers.IndexOf(c);
           if (!escaped && contextIndex != -1)
           {
             // if we have found the closing marker for our open 
             // marker, then close the context
             if ((contextIndex % 2) == 1)
             {
-              if (contextMarker == contextMarkers[contextIndex - 1])
+              if (contextMarker == ContextMarkers[contextIndex - 1])
                 contextMarker = Char.MinValue;
             }
             else
@@ -154,7 +151,7 @@ namespace MySql.Data.Common
               // if the opening and closing context markers are 
               // the same then we will always find the opening
               // marker.
-              if (contextMarker == contextMarkers[contextIndex + 1])
+              if (contextMarker == ContextMarkers[contextIndex + 1])
                 contextMarker = Char.MinValue;
               else if (contextMarker == Char.MinValue)
                 contextMarker = c;

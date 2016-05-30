@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,20 +20,20 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+
 namespace MySql.Data.MySqlClient.Memcached
 {
-  using System;
-  using System.Collections.Generic;
-  using System.Text;
-  using System.IO;
-
   /// <summary>
   /// Implementation of memcached binary client protocol.
   /// </summary>
   /// <remarks>According to http://code.google.com/p/memcached/wiki/BinaryProtocolRevamped </remarks>
   public class BinaryClient : Client
   {
-    private Encoding encoding;
+    private readonly Encoding _encoding;
 
     private enum OpCodes : byte
     {
@@ -83,7 +83,7 @@ namespace MySql.Data.MySqlClient.Memcached
 
     public BinaryClient( string server, uint port ) : base( server, port )
     {
-      encoding = Encoding.UTF8;
+      _encoding = Encoding.UTF8;
     }
 
     #region Memcached protocol interface
@@ -180,7 +180,7 @@ namespace MySql.Data.MySqlClient.Memcached
       byte[] res = GetResponse();
       byte[] bValue = new byte[res[4] - 4];
       Array.Copy(res, 28, bValue, 0, res[4] - 4);
-      value = encoding.GetString(bValue, 0, bValue.Length);
+      value = _encoding.GetString(bValue, 0, bValue.Length);
     }
 
     /// <summary>
@@ -278,8 +278,8 @@ namespace MySql.Data.MySqlClient.Memcached
     Key          (32-36): The textual string "Hello"
     Value        (37-41): The textual string "World"
        * */
-      byte[] bKey = encoding.GetBytes(key);
-      byte[] bData = encoding.GetBytes(data.ToString());
+      byte[] bKey = _encoding.GetBytes(key);
+      byte[] bData = _encoding.GetBytes(data.ToString());
       MemoryStream ms = new MemoryStream();
       // write magic
       ms.WriteByte(magic);
@@ -332,7 +332,7 @@ namespace MySql.Data.MySqlClient.Memcached
     Key          (24-29): The textual string: "Hello"
     Value               : None
        * */
-      byte[] bKey = encoding.GetBytes(key);
+      byte[] bKey = _encoding.GetBytes(key);
       MemoryStream ms = new MemoryStream();
       // write magic
       ms.WriteByte(magic);
@@ -419,7 +419,7 @@ namespace MySql.Data.MySqlClient.Memcached
     Key                 : Textual string "counter"
     Value               : None
        * */
-      byte[] bKey = encoding.GetBytes(key);
+      byte[] bKey = _encoding.GetBytes(key);
       MemoryStream ms = new MemoryStream();
       // write magic
       ms.WriteByte(magic);

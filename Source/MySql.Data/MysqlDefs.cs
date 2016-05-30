@@ -1,4 +1,4 @@
-// Copyright © 2004, 2015 Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,8 +21,14 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Reflection;
 using System.ComponentModel;
+using System.Reflection;
+
+#if NETCORE10
+using MySql.Data.MySqlClient.Common;
+#else
+using MySql.Data.Common
+#endif
 
 namespace MySql.Data.MySqlClient
 {
@@ -423,14 +429,14 @@ namespace MySql.Data.MySqlClient
 
   internal class MySqlConnectAttrs
   {
+#if !NETCORE10
     [DisplayName("_client_name")]
-    public string ClientName
-    {
-      get { return "MySql Connector/NET"; }
-    }
+#endif
+    public string ClientName => "MySql Connector/NET";
 
-#if !RT
+#if !NETCORE10
     [DisplayName("_pid")]
+#endif
     public string PID
     {
       get
@@ -446,6 +452,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
+#if !NETCORE10
     [DisplayName("_client_version")]
     public string ClientVersion
     {
@@ -454,19 +461,20 @@ namespace MySql.Data.MySqlClient
         string version = string.Empty;
         try
         {
-          version = Assembly.GetAssembly(typeof(MySqlConnectAttrs)).GetName().Version.ToString();
+          version = Assembly .GetAssembly(typeof(MySqlConnectAttrs)).GetName().Version.ToString();
         }
         catch (Exception ex) { System.Diagnostics.Debug.WriteLine(ex.ToString()); }
         return version;
       }
     }
+#endif
 
+#if !NETCORE10
     [DisplayName("_platform")]
-    public string Platform
-    {
-      get { return Is64BitOS() ? "x86_64" : "x86_32"; }
-    }
+    public string Platform => Is64BitOS() ? "x86_64" : "x86_32";
+#endif
 
+#if !NETCORE10
     [DisplayName("program_name")]
     public string ProgramName
     {
@@ -488,8 +496,11 @@ namespace MySql.Data.MySqlClient
         return name;
       }
     }
+#endif
 
+#if !NETCORE10
     [DisplayName("_os")]
+#endif
     public string OS
     {
       get
@@ -497,12 +508,18 @@ namespace MySql.Data.MySqlClient
         string os = string.Empty;
         try
         {
+          if (Platform.IsDotNetCore())
+          {
+            return ".Net Core";
+          }
+#if !NETCORE10
           os = Environment.OSVersion.Platform.ToString();
           if (os == "Win32NT")
           {
             os = "Win";
             os += Is64BitOS() ? "64" : "32";
           }
+#endif
         }
         catch (Exception ex) { System.Diagnostics.Debug.WriteLine(ex.ToString()); }
 
@@ -510,6 +527,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
+#if !NETCORE10
     [DisplayName("_os_details")]
     public string OSDetails
     {
@@ -531,8 +549,11 @@ namespace MySql.Data.MySqlClient
         return os;
       }
     }
+#endif
 
+#if !NETCORE10
     [DisplayName("_thread")]
+#endif
     public string Thread
     {
       get
@@ -548,6 +569,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
+#if !NETCORE10
     private bool Is64BitOS()
     {
 #if CLR4

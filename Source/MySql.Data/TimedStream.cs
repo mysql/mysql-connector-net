@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2009-2010 Sun Microsystems, Inc.
+﻿// Copyright © 2009, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -22,8 +22,12 @@
 
 using System;
 using System.IO;
-using System.Diagnostics;
-using MySql.Data.Common;
+
+#if NETCORE10
+using MySql.Data.MySqlClient.Common;
+#else
+using MySql.Data.Common
+#endif
 
 namespace MySql.Data.MySqlClient
 {
@@ -36,15 +40,14 @@ namespace MySql.Data.MySqlClient
 
   internal class TimedStream : Stream
   {
-    Stream baseStream;
+    readonly Stream _baseStream;
 
-    int timeout;
-    int lastReadTimeout;
-    int lastWriteTimeout;
-    LowResolutionStopwatch stopwatch;
-    bool isClosed;
+    int _timeout;
+    int _lastReadTimeout;
+    int _lastWriteTimeout;
+    readonly LowResolutionStopwatch _stopwatch;
 
-    internal bool IsClosed { get { return isClosed; } }
+    internal bool IsClosed { get; private set; }
 
     enum IOKind
     {
@@ -58,14 +61,10 @@ namespace MySql.Data.MySqlClient
     /// <param name="baseStream"> Undelying stream</param>
     public TimedStream(Stream baseStream)
     {
-      this.baseStream = baseStream;
-#if !RT
-      timeout = baseStream.ReadTimeout;
-#else
-            timeout = System.Threading.Timeout.Infinite;
-#endif
-      isClosed = false;
-      stopwatch = new LowResolutionStopwatch();
+      this._baseStream = baseStream;
+      _timeout = baseStream.ReadTimeout;
+      IsClosed = false;
+      _stopwatch = new LowResolutionStopwatch();
     }
 
 
@@ -86,87 +85,70 @@ namespace MySql.Data.MySqlClient
         return true;
       if (newValue > currentValue)
         return true;
-      if (currentValue >= newValue + 100)
-        return true;
-
-      return false;
-
+      return currentValue >= newValue + 100;
     }
     private void StartTimer(IOKind op)
     {
 
       int streamTimeout;
 
-      if (timeout == System.Threading.Timeout.Infinite)
+      if (_timeout == System.Threading.Timeout.Infinite)
         streamTimeout = System.Threading.Timeout.Infinite;
       else
-        streamTimeout = timeout - (int)stopwatch.ElapsedMilliseconds;
+        streamTimeout = _timeout - (int)_stopwatch.ElapsedMilliseconds;
 
       if (op == IOKind.Read)
       {
-        if (ShouldResetStreamTimeout(lastReadTimeout, streamTimeout))
+        if (ShouldResetStreamTimeout(_lastReadTimeout, streamTimeout))
         {
-#if !RT
-          baseStream.ReadTimeout = streamTimeout;
-#endif
-          lastReadTimeout = streamTimeout;
+          _baseStream.ReadTimeout = streamTimeout;
+          _lastReadTimeout = streamTimeout;
         }
       }
       else
       {
-        if (ShouldResetStreamTimeout(lastWriteTimeout, streamTimeout))
+        if (ShouldResetStreamTimeout(_lastWriteTimeout, streamTimeout))
         {
-#if !RT
-          baseStream.WriteTimeout = streamTimeout;
-#endif
-          lastWriteTimeout = streamTimeout;
+          _baseStream.WriteTimeout = streamTimeout;
+          _lastWriteTimeout = streamTimeout;
         }
       }
 
-      if (timeout == System.Threading.Timeout.Infinite)
+      if (_timeout == System.Threading.Timeout.Infinite)
         return;
 
-      stopwatch.Start();
+      _stopwatch.Start();
     }
     private void StopTimer()
     {
-      if (timeout == System.Threading.Timeout.Infinite)
+      if (_timeout == System.Threading.Timeout.Infinite)
         return;
 
-      stopwatch.Stop();
+      _stopwatch.Stop();
 
       // Normally, a timeout exception would be thrown  by stream itself, 
       // since we set the read/write timeout  for the stream.  However 
       // there is a gap between  end of IO operation and stopping the 
       // stop watch,  and it makes it possible for timeout to exceed 
       // even after IO completed successfully.
-      if (stopwatch.ElapsedMilliseconds > timeout)
+      if (_stopwatch.ElapsedMilliseconds > _timeout)
       {
         ResetTimeout(System.Threading.Timeout.Infinite);
         throw new TimeoutException("Timeout in IO operation");
       }
     }
-    public override bool CanRead
-    {
-      get { return baseStream.CanRead; }
-    }
+    public override bool CanRead => _baseStream.CanRead;
 
-    public override bool CanSeek
-    {
-      get { return baseStream.CanSeek; }
-    }
+    public override bool CanSeek => _baseStream.CanSeek;
 
-    public override bool CanWrite
-    {
-      get { return baseStream.CanWrite; }
-    }
+    public override bool CanWrite => _baseStream.CanWrite;
 
     public override void Flush()
     {
       try
       {
         StartTimer(IOKind.Write);
-        baseStream.Flush();
+        _baseStream.Flush();
         StopTimer();
       }
       catch (Exception e)
@@ -176,20 +158,17 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    public override long Length
-    {
-      get { return baseStream.Length; }
-    }
+    public override long Length => _baseStream.Length;
 
     public override long Position
     {
       get
       {
-        return baseStream.Position;
+        return _baseStream.Position;
       }
       set
       {
-        baseStream.Position = value;
+        _baseStream.Position = value;
       }
     }
 
@@ -198,7 +177,7 @@ namespace MySql.Data.MySqlClient
       try
       {
         StartTimer(IOKind.Read);
-        int retval = baseStream.Read(buffer, offset, count);
+        int retval = _baseStream.Read(buffer, offset, count);
         StopTimer();
         return retval;
       }
@@ -214,7 +193,7 @@ namespace MySql.Data.MySqlClient
       try
       {
         StartTimer(IOKind.Read);
-        int retval = baseStream.ReadByte();
+        int retval = _baseStream.ReadByte();
         StopTimer();
         return retval;
       }
@@ -227,12 +206,12 @@ namespace MySql.Data.MySqlClient
 
     public override long Seek(long offset, SeekOrigin origin)
     {
-      return baseStream.Seek(offset, origin);
+      return _baseStream.Seek(offset, origin);
     }
 
     public override void SetLength(long value)
     {
-      baseStream.SetLength(value);
+      _baseStream.SetLength(value);
     }
 
     public override void Write(byte[] buffer, int offset, int count)
@@ -240,7 +219,7 @@ namespace MySql.Data.MySqlClient
       try
       {
         StartTimer(IOKind.Write);
-        baseStream.Write(buffer, offset, count);
+        _baseStream.Write(buffer, offset, count);
         StopTimer();
       }
       catch (Exception e)
@@ -250,44 +229,41 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    public override bool CanTimeout
-    {
-      get { return baseStream.CanTimeout; }
-    }
+    public override bool CanTimeout => _baseStream.CanTimeout;
 
     public override int ReadTimeout
     {
-      get { return baseStream.ReadTimeout; }
-      set { baseStream.ReadTimeout = value; }
+      get { return _baseStream.ReadTimeout; }
+      set { _baseStream.ReadTimeout = value; }
     }
     public override int WriteTimeout
     {
-      get { return baseStream.WriteTimeout; }
-      set { baseStream.WriteTimeout = value; }
+      get { return _baseStream.WriteTimeout; }
+      set { _baseStream.WriteTimeout = value; }
     }
 
-#if RT
+#if NETCORE10
     public void Close()
 #else
     public override void Close()
 #endif
     {
-      if (isClosed)
+      if (IsClosed)
         return;
-      isClosed = true;
-#if !RT
-      baseStream.Close();
+      IsClosed = true;
+#if !NETCORE10
+      _baseStream.Close();
 #endif
-      baseStream.Dispose();
+      _baseStream.Dispose();
     }
 
     public void ResetTimeout(int newTimeout)
     {
       if (newTimeout == System.Threading.Timeout.Infinite || newTimeout == 0)
-        timeout = System.Threading.Timeout.Infinite;
+        _timeout = System.Threading.Timeout.Infinite;
       else
-        timeout = newTimeout;
-      stopwatch.Reset();
+        _timeout = newTimeout;
+      _stopwatch.Reset();
     }
 
 
@@ -299,7 +275,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="e">original exception</param>
     void HandleException(Exception e)
     {
-      stopwatch.Stop();
+      _stopwatch.Stop();
       ResetTimeout(-1);
     }
   }

@@ -1,4 +1,4 @@
-// Copyright © 2004, 2015, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,11 +21,15 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections;
-using System.Text;
-using MySql.Data.Common;
 using System.Collections.Generic;
-using System.Data;
+using System.Text;
+using MySql.Data.MySqlClient;
+
+#if NETCORE10
+using MySql.Data.MySqlClient.Common;
+#else
+using MySql.Data.Common
+#endif
 
 namespace MySql.Data.MySqlClient
 {
@@ -34,27 +38,27 @@ namespace MySql.Data.MySqlClient
   /// </summary>
   internal class CharSetMap
   {
-    private static Dictionary<string, string> defaultCollations;
-    private static Dictionary<string, int> maxLengths;
-    private static Dictionary<string, CharacterSet> mapping;
-    private static object lockObject;
+    private static Dictionary<string, string> _defaultCollations;
+    private static Dictionary<string, int> _maxLengths;
+    private static Dictionary<string, CharacterSet> _mapping;
+    private static readonly object LockObject;
 
     // we use a static constructor here since we only want to init
     // the mapping once
     static CharSetMap()
     {
-      lockObject = new Object();
+      LockObject = new Object();
       InitializeMapping();
     }
 
-    public static CharacterSet GetCharacterSet(DBVersion version, string CharSetName)
+    public static CharacterSet GetCharacterSet(DBVersion version, string charSetName)
     {
       CharacterSet cs = null;
-      if(mapping.ContainsKey(CharSetName))
-        cs = (CharacterSet)mapping[CharSetName];
+      if(_mapping.ContainsKey(charSetName))
+        cs = _mapping[charSetName];
 
       if (cs == null)
-        throw new MySqlException("Character set '" + CharSetName + "' is not supported by .Net Framework.");
+        throw new MySqlException("Character set '" + charSetName + "' is not supported by .Net Framework.");
       return cs;
     }
 
@@ -62,14 +66,23 @@ namespace MySql.Data.MySqlClient
     /// Returns the text encoding for a given MySQL character set name
     /// </summary>
     /// <param name="version">Version of the connection requesting the encoding</param>
-    /// <param name="CharSetName">Name of the character set to get the encoding for</param>
+    /// <param name="charSetName">Name of the character set to get the encoding for</param>
     /// <returns>Encoding object for the given character set name</returns>
-    public static Encoding GetEncoding(DBVersion version, string CharSetName)
+    public static Encoding GetEncoding(DBVersion version, string charSetName)
     {
       try
       {
-        CharacterSet cs = GetCharacterSet(version, CharSetName);
+        CharacterSet cs = GetCharacterSet(version, charSetName);
+
+#if NETCORE10
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+#endif
+
         return Encoding.GetEncoding(cs.name);
+      }
+      catch (ArgumentException)
+      {
+        return Encoding.GetEncoding("utf-8");
       }
       catch (NotSupportedException)
       {
@@ -78,7 +91,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// 
+    /// Initializes the mapping.
     /// </summary>
     private static void InitializeMapping()
     {
@@ -87,109 +100,105 @@ namespace MySql.Data.MySqlClient
 
     private static void LoadCharsetMap()
     {
-      mapping = new Dictionary<string, CharacterSet>();
+      _mapping = new Dictionary<string, CharacterSet>();
 
-      mapping.Add("latin1", new CharacterSet("windows-1252", 1));
-      mapping.Add("big5", new CharacterSet("big5", 2));
-      mapping.Add("dec8", mapping["latin1"]);
-      mapping.Add("cp850", new CharacterSet("ibm850", 1));
-      mapping.Add("hp8", mapping["latin1"]);
-      mapping.Add("koi8r", new CharacterSet("koi8-u", 1));
-      mapping.Add("latin2", new CharacterSet("latin2", 1));
-      mapping.Add("swe7", mapping["latin1"]);
-      mapping.Add("ujis", new CharacterSet("EUC-JP", 3));
-      mapping.Add("eucjpms", mapping["ujis"]);
-      mapping.Add("sjis", new CharacterSet("sjis", 2));
-      mapping.Add("cp932", mapping["sjis"]);
-      mapping.Add("hebrew", new CharacterSet("hebrew", 1));
-      mapping.Add("tis620", new CharacterSet("windows-874", 1));
-      mapping.Add("euckr", new CharacterSet("euc-kr", 2));
-      mapping.Add("euc_kr", mapping["euckr"]);
-      mapping.Add("koi8u", new CharacterSet("koi8-u", 1));
-      mapping.Add("koi8_ru", mapping["koi8u"]);
-      mapping.Add("gb2312", new CharacterSet("gb2312", 2));
-      mapping.Add("gbk", mapping["gb2312"]);
-      mapping.Add("greek", new CharacterSet("greek", 1));
-      mapping.Add("cp1250", new CharacterSet("windows-1250", 1));
-      mapping.Add("win1250", mapping["cp1250"]);
-      mapping.Add("latin5", new CharacterSet("latin5", 1));
-      mapping.Add("armscii8", mapping["latin1"]);
-      mapping.Add("utf8", new CharacterSet("utf-8", 3));
-      mapping.Add("ucs2", new CharacterSet("UTF-16BE", 2));
-      mapping.Add("cp866", new CharacterSet("cp866", 1));
-      mapping.Add("keybcs2", mapping["latin1"]);
-      mapping.Add("macce", new CharacterSet("x-mac-ce", 1));
-      mapping.Add("macroman", new CharacterSet("x-mac-romanian", 1));
-      mapping.Add("cp852", new CharacterSet("ibm852", 2));
-      mapping.Add("latin7", new CharacterSet("iso-8859-7", 1));
-      mapping.Add("cp1251", new CharacterSet("windows-1251", 1));
-      mapping.Add("win1251ukr", mapping["cp1251"]);
-      mapping.Add("cp1251csas", mapping["cp1251"]);
-      mapping.Add("cp1251cias", mapping["cp1251"]);
-      mapping.Add("win1251", mapping["cp1251"]);
-      mapping.Add("cp1256", new CharacterSet("cp1256", 1));
-      mapping.Add("cp1257", new CharacterSet("windows-1257", 1));
-      mapping.Add("ascii", new CharacterSet("us-ascii", 1));
-      mapping.Add("usa7", mapping["ascii"]);
-      mapping.Add("binary", mapping["ascii"]);
-      mapping.Add("latin3", new CharacterSet("latin3", 1));
-      mapping.Add("latin4", new CharacterSet("latin4", 1));
-      mapping.Add("latin1_de", new CharacterSet("iso-8859-1", 1));
-      mapping.Add("german1", new CharacterSet("iso-8859-1", 1));
-      mapping.Add("danish", new CharacterSet("iso-8859-1", 1));
-      mapping.Add("czech", new CharacterSet("iso-8859-2", 1));
-      mapping.Add("hungarian", new CharacterSet("iso-8859-2", 1));
-      mapping.Add("croat", new CharacterSet("iso-8859-2", 1));
-      mapping.Add("latvian", new CharacterSet("iso-8859-13", 1));
-      mapping.Add("latvian1", new CharacterSet("iso-8859-13", 1));
-      mapping.Add("estonia", new CharacterSet("iso-8859-13", 1));
-      mapping.Add("dos", new CharacterSet("ibm437", 1));
-      mapping.Add("utf8mb4", new CharacterSet("utf-8", 4));
-      mapping.Add("utf16", new CharacterSet("utf-16BE", 2));
-      mapping.Add("utf16le", new CharacterSet("utf-16", 2));
-      mapping.Add("utf32", new CharacterSet("utf-32BE", 4));
-      mapping.Add("gb18030", new CharacterSet("gb18030", 4));             
+      _mapping.Add("latin1", new CharacterSet("windows-1252", 1));
+      _mapping.Add("big5", new CharacterSet("big5", 2));
+      _mapping.Add("dec8", _mapping["latin1"]);
+      _mapping.Add("cp850", new CharacterSet("ibm850", 1));
+      _mapping.Add("hp8", _mapping["latin1"]);
+      _mapping.Add("koi8r", new CharacterSet("koi8-u", 1));
+      _mapping.Add("latin2", new CharacterSet("latin2", 1));
+      _mapping.Add("swe7", _mapping["latin1"]);
+      _mapping.Add("ujis", new CharacterSet("EUC-JP", 3));
+      _mapping.Add("eucjpms", _mapping["ujis"]);
+      _mapping.Add("sjis", new CharacterSet("sjis", 2));
+      _mapping.Add("cp932", _mapping["sjis"]);
+      _mapping.Add("hebrew", new CharacterSet("hebrew", 1));
+      _mapping.Add("tis620", new CharacterSet("windows-874", 1));
+      _mapping.Add("euckr", new CharacterSet("euc-kr", 2));
+      _mapping.Add("euc_kr", _mapping["euckr"]);
+      _mapping.Add("koi8u", new CharacterSet("koi8-u", 1));
+      _mapping.Add("koi8_ru", _mapping["koi8u"]);
+      _mapping.Add("gb2312", new CharacterSet("gb2312", 2));
+      _mapping.Add("gbk", _mapping["gb2312"]);
+      _mapping.Add("greek", new CharacterSet("greek", 1));
+      _mapping.Add("cp1250", new CharacterSet("windows-1250", 1));
+      _mapping.Add("win1250", _mapping["cp1250"]);
+      _mapping.Add("latin5", new CharacterSet("latin5", 1));
+      _mapping.Add("armscii8", _mapping["latin1"]);
+      _mapping.Add("utf8", new CharacterSet("utf-8", 3));
+      _mapping.Add("ucs2", new CharacterSet("UTF-16BE", 2));
+      _mapping.Add("cp866", new CharacterSet("cp866", 1));
+      _mapping.Add("keybcs2", _mapping["latin1"]);
+      _mapping.Add("macce", new CharacterSet("x-mac-ce", 1));
+      _mapping.Add("macroman", new CharacterSet("x-mac-romanian", 1));
+      _mapping.Add("cp852", new CharacterSet("ibm852", 2));
+      _mapping.Add("latin7", new CharacterSet("iso-8859-7", 1));
+      _mapping.Add("cp1251", new CharacterSet("windows-1251", 1));
+      _mapping.Add("win1251ukr", _mapping["cp1251"]);
+      _mapping.Add("cp1251csas", _mapping["cp1251"]);
+      _mapping.Add("cp1251cias", _mapping["cp1251"]);
+      _mapping.Add("win1251", _mapping["cp1251"]);
+      _mapping.Add("cp1256", new CharacterSet("cp1256", 1));
+      _mapping.Add("cp1257", new CharacterSet("windows-1257", 1));
+      _mapping.Add("ascii", new CharacterSet("us-ascii", 1));
+      _mapping.Add("usa7", _mapping["ascii"]);
+      _mapping.Add("binary", _mapping["ascii"]);
+      _mapping.Add("latin3", new CharacterSet("latin3", 1));
+      _mapping.Add("latin4", new CharacterSet("latin4", 1));
+      _mapping.Add("latin1_de", new CharacterSet("iso-8859-1", 1));
+      _mapping.Add("german1", new CharacterSet("iso-8859-1", 1));
+      _mapping.Add("danish", new CharacterSet("iso-8859-1", 1));
+      _mapping.Add("czech", new CharacterSet("iso-8859-2", 1));
+      _mapping.Add("hungarian", new CharacterSet("iso-8859-2", 1));
+      _mapping.Add("croat", new CharacterSet("iso-8859-2", 1));
+      _mapping.Add("latvian", new CharacterSet("iso-8859-13", 1));
+      _mapping.Add("latvian1", new CharacterSet("iso-8859-13", 1));
+      _mapping.Add("estonia", new CharacterSet("iso-8859-13", 1));
+      _mapping.Add("dos", new CharacterSet("ibm437", 1));
+      _mapping.Add("utf8mb4", new CharacterSet("utf-8", 4));
+      _mapping.Add("utf16", new CharacterSet("utf-16BE", 2));
+      _mapping.Add("utf16le", new CharacterSet("utf-16", 2));
+      _mapping.Add("utf32", new CharacterSet("utf-32BE", 4));
+      _mapping.Add("gb18030", new CharacterSet("gb18030", 4));             
     }
 
     internal static void InitCollections(MySqlConnection connection)
     {
-      defaultCollations = new Dictionary<string, string>();
-      maxLengths = new Dictionary<string, int>();
+      _defaultCollations = new Dictionary<string, string>();
+      _maxLengths = new Dictionary<string, int>();
 
       MySqlCommand cmd = new MySqlCommand("SHOW CHARSET", connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         while (reader.Read())
         {
-          defaultCollations.Add(reader.GetString(0), reader.GetString(2));
-          maxLengths.Add(reader.GetString(0), Convert.ToInt32(reader.GetValue(3)));
+          _defaultCollations.Add(reader.GetString(0), reader.GetString(2));
+          _maxLengths.Add(reader.GetString(0), Convert.ToInt32(reader.GetValue(3)));
         }
       }
     }
 
     internal static string GetDefaultCollation(string charset, MySqlConnection connection)
     {
-      lock (lockObject)
+      lock (LockObject)
       {
-        if (defaultCollations == null)
+        if (_defaultCollations == null)
           InitCollections(connection);
       }
-      if (!defaultCollations.ContainsKey(charset))
-        return null;
-      return defaultCollations[charset];
+      return !_defaultCollations.ContainsKey(charset) ? null : _defaultCollations[charset];
     }
 
     internal static int GetMaxLength(string charset, MySqlConnection connection)
     {
-      lock (lockObject)
+      lock (LockObject)
       {
-        if (maxLengths == null)
+        if (_maxLengths == null)
           InitCollections(connection);
       }
 
-      if (!maxLengths.ContainsKey(charset))
-        return 1;
-      return maxLengths[charset];
+      return !_maxLengths.ContainsKey(charset) ? 1 : _maxLengths[charset];
     }
   }
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc.
+// Copyright © 2004, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,55 +21,36 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Data;
-using MySql.Data.MySqlClient;
 using System.Globalization;
+using MySql.Data.MySqlClient;
 
-namespace MySql.Data.Types
+namespace MySql.Data.MySqlClient.Types
 {
   internal struct MySqlSingle : IMySqlValue
   {
-    private float mValue;
-    private bool isNull;
-
     public MySqlSingle(bool isNull)
     {
-      this.isNull = isNull;
-      mValue = 0.0f;
+      IsNull = isNull;
+      Value = 0.0f;
     }
 
     public MySqlSingle(float val)
     {
-      this.isNull = false;
-      mValue = val;
+      IsNull = false;
+      Value = val;
     }
 
     #region IMySqlValue Members
 
-    public bool IsNull
-    {
-      get { return isNull; }
-    }
+    public bool IsNull { get; }
 
-    MySqlDbType IMySqlValue.MySqlDbType
-    {
-      get { return MySqlDbType.Float; }
-    }
+    MySqlDbType IMySqlValue.MySqlDbType => MySqlDbType.Float;
 
-    object IMySqlValue.Value
-    {
-      get { return mValue; }
-    }
+    object IMySqlValue.Value => Value;
 
-    public float Value
-    {
-      get { return mValue; }
-    }
+    public float Value { get; }
 
-    Type IMySqlValue.SystemType
-    {
-      get { return typeof(float); }
-    }
+    Type IMySqlValue.SystemType => typeof(float);
 
     string IMySqlValue.MySqlTypeName
     {
@@ -78,7 +59,7 @@ namespace MySql.Data.Types
 
     void IMySqlValue.WriteValue(MySqlPacket packet, bool binary, object val, int length)
     {
-      Single v = (val is Single) ? (Single)val : Convert.ToSingle(val);
+      Single v = val as Single? ?? Convert.ToSingle(val);
       if (binary)
         packet.Write(BitConverter.GetBytes(v));
       else

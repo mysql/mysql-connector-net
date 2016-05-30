@@ -1,4 +1,4 @@
-﻿// Copyright © 2009, 2011, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2009, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,13 +21,17 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Text;
-using MySql.Data.Types;
-using System.Diagnostics;
 using System.Collections.Generic;
-using MySql.Data.MySqlClient.Properties;
+using System.Diagnostics;
+using System.Text;
 using System.Threading;
-using MySql.Data.Common;
+using MySql.Data.MySqlClient.Properties;
+
+#if NETCORE10
+using MySql.Data.MySqlClient.Common;
+#else
+using MySql.Data.Common
+#endif
 
 namespace MySql.Data.MySqlClient
 {
@@ -62,12 +66,12 @@ namespace MySql.Data.MySqlClient
     {
       rowSizeInBytes = 0;
       string cmdText = Encoding.GetString(p.Buffer, 5, p.Length - 5);
-      string normalized_query = null;
+      string normalizedQuery = null;
 
       if (cmdText.Length > 300)
       {
         QueryNormalizer normalizer = new QueryNormalizer();
-        normalized_query = normalizer.Normalize(cmdText);
+        normalizedQuery = normalizer.Normalize(cmdText);
         cmdText = cmdText.Substring(0, 300);
       }
 
@@ -75,9 +79,9 @@ namespace MySql.Data.MySqlClient
 
       MySqlTrace.TraceEvent(TraceEventType.Information, MySqlTraceEventType.QueryOpened,
           Resources.TraceQueryOpened, driverId, ThreadID, cmdText);
-      if (normalized_query != null)
+      if (normalizedQuery != null)
         MySqlTrace.TraceEvent(TraceEventType.Information, MySqlTraceEventType.QueryNormalized,
-            Resources.TraceQueryNormalized, driverId, ThreadID, normalized_query);
+            Resources.TraceQueryNormalized, driverId, ThreadID, normalizedQuery);
     }
 
     protected override int GetResult(int statementId, ref int affectedRows, ref long insertedId)

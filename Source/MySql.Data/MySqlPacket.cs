@@ -1,4 +1,4 @@
-﻿// Copyright © 2004, 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -22,19 +22,23 @@
 
 using System;
 using System.Diagnostics;
-using System.Text;
 using System.IO;
-using MySql.Data.Common;
+using System.Text;
 using MySql.Data.MySqlClient.Properties;
+
+#if NETCORE10
+using MySql.Data.MySqlClient.Common;
+#else
+using MySql.Data.Common
+#endif
 
 namespace MySql.Data.MySqlClient
 {
   class MySqlPacket
   {
-    private byte[] tempBuffer = new byte[256];
-    private Encoding encoding;
-    private MemoryStream buffer = new MemoryStream(5);
-    private DBVersion version;
+    private byte[] _tempBuffer = new byte[256];
+    private Encoding _encoding;
+    private readonly MemoryStream _buffer = new MemoryStream(5);
 
     private MySqlPacket()
     {
@@ -50,57 +54,73 @@ namespace MySql.Data.MySqlClient
     public MySqlPacket(MemoryStream stream)
       : this()
     {
-      buffer = stream;
+      _buffer = stream;
     }
 
     #region Properties
 
     public Encoding Encoding
     {
-      get { return encoding; }
+      get { return _encoding; }
       set
       {
         Debug.Assert(value != null);
-        encoding = value;
+        _encoding = value;
       }
     }
 
     public bool HasMoreData
     {
-      get { return buffer.Position < buffer.Length; }
+      get { return _buffer.Position < _buffer.Length; }
     }
 
     public int Position
     {
-      get { return (int)buffer.Position; }
-      set { buffer.Position = (long)value; }
+      get { return (int)_buffer.Position; }
+      set { _buffer.Position = (long)value; }
     }
 
     public int Length
     {
-      get { return (int)buffer.Length; }
-      set { buffer.SetLength(value); }
+      get { return (int)_buffer.Length; }
+      set { _buffer.SetLength(value); }
     }
 
     public bool IsLastPacket
     {
       get
       {
-        byte[] bits = buffer.GetBuffer();
+#if NET452
+        byte[] bits = _buffer.GetBuffer();
+
         return bits[0] == 0xfe && Length <= 5;
+#else
+        ArraySegment<byte> bits;
+        _buffer.TryGetBuffer(out bits);
+
+        return bits.Array[0] == 0xfe && Length <= 5;
+#endif
       }
     }
 
     public byte[] Buffer
     {
-      get { return buffer.GetBuffer(); }
+      get
+      {
+#if NET452
+        byte[] bits = _buffer.GetBuffer();
+
+        return bits;
+#else
+        ArraySegment<byte> bits;
+        _buffer.TryGetBuffer(out bits);
+
+        return bits.Array;
+#endif
+      }
     }
 
-    public DBVersion Version
-    {
-      get { return version; }
-      set { version = value; }
-    }
+    public DBVersion Version { get; set; }
 
     #endregion
 
@@ -110,21 +130,21 @@ namespace MySql.Data.MySqlClient
     }
 
 
-    #region Byte methods
+#region Byte methods
 
     public byte ReadByte()
     {
-      return (byte)buffer.ReadByte();
+      return (byte)_buffer.ReadByte();
     }
 
     public int Read(byte[] byteBuffer, int offset, int count)
     {
-      return buffer.Read(byteBuffer, offset, count);
+      return _buffer.Read(byteBuffer, offset, count);
     }
 
     public void WriteByte(byte b)
     {
-      buffer.WriteByte(b);
+      _buffer.WriteByte(b);
     }
 
     public void Write(byte[] bytesToWrite)
@@ -134,7 +154,7 @@ namespace MySql.Data.MySqlClient
 
     public void Write(byte[] bytesToWrite, int offset, int countToWrite)
     {
-      buffer.Write(bytesToWrite, offset, countToWrite);
+      _buffer.Write(bytesToWrite, offset, countToWrite);
     }
 
     public int ReadNBytes()
@@ -147,15 +167,15 @@ namespace MySql.Data.MySqlClient
 
     public void SetByte(long position, byte value)
     {
-      long currentPosition = buffer.Position;
-      buffer.Position = position;
-      buffer.WriteByte(value);
-      buffer.Position = currentPosition;
+      long currentPosition = _buffer.Position;
+      _buffer.Position = position;
+      _buffer.WriteByte(value);
+      _buffer.Position = currentPosition;
     }
 
-    #endregion
+#endregion
 
-    #region Integer methods
+#region Integer methods
 
     public long ReadFieldLength()
     {
@@ -175,8 +195,16 @@ namespace MySql.Data.MySqlClient
     {
       ulong value = 0;
 
-      int pos = (int)buffer.Position;
-      byte[] bits = buffer.GetBuffer();
+      int pos = (int)_buffer.Position;
+
+#if NET452
+      byte[] bits = _buffer.GetBuffer();
+#else
+      ArraySegment<byte> bytes;
+      _buffer.TryGetBuffer(out bytes);
+      byte[] bits = bytes.Array;
+#endif
+
       int shift = 0;
 
       for (int i = 0; i < numbytes; i++)
@@ -185,36 +213,54 @@ namespace MySql.Data.MySqlClient
         value |= bits[pos++];
         shift = 8;
       }
-      buffer.Position += numbytes;
+      _buffer.Position += numbytes;
       return value;
     }
 
     public long ReadLong(int numbytes)
     {
-      Debug.Assert((buffer.Position + numbytes) <= buffer.Length);
-      byte[] bytes = buffer.GetBuffer();
-      int pos = (int)buffer.Position;
-      buffer.Position += numbytes;
+      Debug.Assert((_buffer.Position + numbytes) <= _buffer.Length);
+
+#if NET452
+      byte[] bits = _buffer.GetBuffer();
+#else
+      ArraySegment<byte> bytes;
+      _buffer.TryGetBuffer(out bytes);
+      byte[] bits = bytes.Array;
+#endif
+
+      int pos = (int)_buffer.Position;
+      _buffer.Position += numbytes;
+
       switch (numbytes)
       {
-        case 2: return BitConverter.ToUInt16(bytes, pos);
-        case 4: return BitConverter.ToUInt32(bytes, pos);
-        case 8: return BitConverter.ToInt64(bytes, pos);
+        case 2: return BitConverter.ToUInt16(bits, pos);
+        case 4: return BitConverter.ToUInt32(bits, pos);
+        case 8: return BitConverter.ToInt64(bits, pos);
       }
       throw new NotSupportedException("Only byte lengths of 2, 4, or 8 are supported");
     }
 
     public ulong ReadULong(int numbytes)
     {
-      Debug.Assert((buffer.Position + numbytes) <= buffer.Length);
-      byte[] bytes = buffer.GetBuffer();
-      int pos = (int)buffer.Position;
-      buffer.Position += numbytes;
+      Debug.Assert((_buffer.Position + numbytes) <= _buffer.Length);
+
+#if NET452
+      byte[] bits = _buffer.GetBuffer();
+#else
+      ArraySegment<byte> bytes;
+      _buffer.TryGetBuffer(out bytes);
+      byte[] bits = bytes.Array;
+#endif
+
+      int pos = (int)_buffer.Position;
+      _buffer.Position += numbytes;
+
       switch (numbytes)
       {
-        case 2: return BitConverter.ToUInt16(bytes, pos);
-        case 4: return BitConverter.ToUInt32(bytes, pos);
-        case 8: return BitConverter.ToUInt64(bytes, pos);
+        case 2: return BitConverter.ToUInt16(bits, pos);
+        case 4: return BitConverter.ToUInt32(bits, pos);
+        case 8: return BitConverter.ToUInt64(bits, pos);
       }
       throw new NotSupportedException("Only byte lengths of 2, 4, or 8 are supported");
     }
@@ -223,8 +269,14 @@ namespace MySql.Data.MySqlClient
     {
       int value = 0;
 
-      int pos = (int)buffer.Position;
-      byte[] bits = buffer.GetBuffer();
+      int pos = (int)_buffer.Position;
+#if NET452
+      byte[] bits = _buffer.GetBuffer();
+#else
+      ArraySegment<byte> bytes;
+      _buffer.TryGetBuffer(out bytes);
+      byte[] bits = bytes.Array;
+#endif
       int shift = 0;
 
       for (int i = 0; i < 3; i++)
@@ -232,7 +284,7 @@ namespace MySql.Data.MySqlClient
         value |= (int)(bits[pos++] << shift);
         shift += 8;
       }
-      buffer.Position += 3;
+      _buffer.Position += 3;
       return value;
     }
 
@@ -257,10 +309,10 @@ namespace MySql.Data.MySqlClient
 
       for (int x = 0; x < numbytes; x++)
       {
-        tempBuffer[x] = (byte)(val & 0xff);
+        _tempBuffer[x] = (byte)(val & 0xff);
         val >>= 8;
       }
-      Write(tempBuffer, 0, numbytes);
+      Write(_tempBuffer, 0, numbytes);
     }
 
     public int ReadPackedInteger()
@@ -298,20 +350,20 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    #endregion
+#endregion
 
-    #region String methods
+#region String methods
 
     public void WriteLenString(string s)
     {
-      byte[] bytes = encoding.GetBytes(s);
+      byte[] bytes = _encoding.GetBytes(s);
       WriteLength(bytes.Length);
       Write(bytes, 0, bytes.Length);
     }
 
     public void WriteStringNoNull(string v)
     {
-      byte[] bytes = encoding.GetBytes(v);
+      byte[] bytes = _encoding.GetBytes(v);
       Write(bytes, 0, bytes.Length);
     }
 
@@ -332,8 +384,8 @@ namespace MySql.Data.MySqlClient
       if (length == 0)
         return String.Empty;
       //            byte[] buf = new byte[length];
-      Read(tempBuffer, 0, (int)length);
-      return Encoding.GetEncoding("us-ascii").GetString(tempBuffer, 0, (int)length);
+      Read(_tempBuffer, 0, (int)length);
+      return Encoding.GetEncoding("us-ascii").GetString(_tempBuffer, 0, (int)length);
       //return encoding.GetString(tempBuffer, 0, (int)length); //buf.Length);
     }
 
@@ -341,15 +393,15 @@ namespace MySql.Data.MySqlClient
     {
       if (length == 0)
         return String.Empty;
-      if (tempBuffer == null || length > tempBuffer.Length)
-        tempBuffer = new byte[length];
-      Read(tempBuffer, 0, (int)length);
-      return encoding.GetString(tempBuffer, 0, (int)length);
+      if (_tempBuffer == null || length > _tempBuffer.Length)
+        _tempBuffer = new byte[length];
+      Read(_tempBuffer, 0, (int)length);
+      return _encoding.GetString(_tempBuffer, 0, (int)length);
     }
 
     public string ReadString()
     {
-      return ReadString(encoding);
+      return ReadString(_encoding);
     }
 
     public string ReadString(Encoding theEncoding)
@@ -362,20 +414,27 @@ namespace MySql.Data.MySqlClient
     public byte[] ReadStringAsBytes()
     {
       byte[] readBytes;
-      byte[] tempBuffer = buffer.GetBuffer();
-      int end = (int)buffer.Position;
+#if NET452
+      byte[] bits = _buffer.GetBuffer();
+#else
+      ArraySegment<byte> bytes;
+      _buffer.TryGetBuffer(out bytes);
+      byte[] bits = bytes.Array;
+#endif
+      int end = (int)_buffer.Position;
+      byte[] tempBuffer = bits;
 
-      while (end < (int)buffer.Length &&
+      while (end < (int)_buffer.Length &&
           tempBuffer[end] != 0 && (int)tempBuffer[end] != -1)
         end++;
 
-      readBytes = new byte[end - buffer.Position];
-      Array.Copy(tempBuffer, (int)buffer.Position, readBytes, 0, (int)(end - buffer.Position));
-      buffer.Position = end + 1;
+      readBytes = new byte[end - _buffer.Position];
+      Array.Copy(tempBuffer, (int)_buffer.Position, readBytes, 0, (int)(end - _buffer.Position));
+      _buffer.Position = end + 1;
 
       return readBytes;
     }
 
-    #endregion
+#endregion
   }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2009, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,113 +21,77 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections;
-using System.Data;
-using MySql.Data.MySqlClient.Properties;
-using MySql.Data.Types;
-using System.Diagnostics;
 using System.Collections.Generic;
+using System.Data;
+using System.Diagnostics;
+using MySql.Data.MySqlClient;
+using MySql.Data.MySqlClient.Properties;
+using MySql.Data.MySqlClient.Types;
 
 namespace MySql.Data.MySqlClient
 {
   internal class ResultSet
   {
-    private Driver driver;
-    private bool hasRows;
-    private bool[] uaFieldsUsed;
-    private MySqlField[] fields;
-    private IMySqlValue[] values;
-    private Dictionary<string, int> fieldHashCS;
-    private Dictionary<string, int> fieldHashCI;
-    private int rowIndex;
-    private bool readDone;
-    private bool isSequential;
-    private int seqIndex;
-    private bool isOutputParameters;
-    private int affectedRows;
-    private long insertedId;
-    private int statementId;
-    private int totalRows;
-    private int skippedRows;
-    private bool cached;
-    private List<IMySqlValue[]> cachedValues;
+    private Driver _driver;
+    private bool[] _uaFieldsUsed;
+    private Dictionary<string, int> _fieldHashCs;
+    private Dictionary<string, int> _fieldHashCi;
+    private int _rowIndex;
+    private bool _readDone;
+    private bool _isSequential;
+    private int _seqIndex;
+    private readonly int _statementId;
+    private bool _cached;
+    private List<IMySqlValue[]> _cachedValues;
 
     public ResultSet(int affectedRows, long insertedId)
     {
-      this.affectedRows = affectedRows;
-      this.insertedId = insertedId;
-      readDone = true;
+      AffectedRows = affectedRows;
+      InsertedId = insertedId;
+      _readDone = true;
     }
 
     public ResultSet(Driver d, int statementId, int numCols)
     {
-      affectedRows = -1;
-      insertedId = -1;
-      driver = d;
-      this.statementId = statementId;
-      rowIndex = -1;
+      AffectedRows = -1;
+      InsertedId = -1;
+      _driver = d;
+      _statementId = statementId;
+      _rowIndex = -1;
       LoadColumns(numCols);
-      isOutputParameters = IsOutputParameterResultSet();
-      hasRows = GetNextRow();
-      readDone = !hasRows;
+      IsOutputParameters = IsOutputParameterResultSet();
+      HasRows = GetNextRow();
+      _readDone = !HasRows;
     }
 
     #region Properties
 
-    public bool HasRows
-    {
-      get { return hasRows; }
-    }
+    public bool HasRows { get; }
 
-    public int Size
-    {
-      get { return fields == null ? 0 : fields.Length; }
-    }
+    public int Size => Fields?.Length ?? 0;
 
-    public MySqlField[] Fields
-    {
-      get { return fields; }
-    }
+    public MySqlField[] Fields { get; private set; }
 
-    public IMySqlValue[] Values
-    {
-      get { return values; }
-    }
+    public IMySqlValue[] Values { get; private set; }
 
-    public bool IsOutputParameters
-    {
-      get { return isOutputParameters; }
-      set { isOutputParameters = value; }
-    }
+    public bool IsOutputParameters { get; set; }
 
-    public int AffectedRows
-    {
-      get { return affectedRows; }
-    }
+    public int AffectedRows { get; private set; }
 
-    public long InsertedId
-    {
-      get { return insertedId; }
-    }
+    public long InsertedId { get; private set; }
 
-    public int TotalRows
-    {
-      get { return totalRows; }
-    }
+    public int TotalRows { get; private set; }
 
-    public int SkippedRows
-    {
-      get { return skippedRows; }
-    }
+    public int SkippedRows { get; private set; }
 
     public bool Cached
     {
-      get { return cached; }
+      get { return _cached; }
       set
       {
-        cached = value;
-        if (cached && cachedValues == null)
-          cachedValues = new List<IMySqlValue[]>();
+        _cached = value;
+        if (_cached && _cachedValues == null)
+          _cachedValues = new List<IMySqlValue[]>();
       }
     }
 
@@ -142,11 +106,11 @@ namespace MySql.Data.MySqlClient
     {
       // first we try a quick hash lookup
       int ordinal;
-      if (fieldHashCS.TryGetValue(name, out ordinal))
+      if (_fieldHashCs.TryGetValue(name, out ordinal))
         return ordinal;
 
       // ok that failed so we use our CI hash      
-      if (fieldHashCI.TryGetValue( name, out ordinal ))
+      if (_fieldHashCi.TryGetValue( name, out ordinal ))
         return ordinal;
 
       // Throw an exception if the ordinal cannot be found.
@@ -163,51 +127,51 @@ namespace MySql.Data.MySqlClient
     {
       get
       {
-        if (rowIndex < 0)
+        if (_rowIndex < 0)
           throw new MySqlException(Resources.AttemptToAccessBeforeRead);
 
         // keep count of how many columns we have left to access
-        uaFieldsUsed[index] = true;
+        _uaFieldsUsed[index] = true;
 
-        if (isSequential && index != seqIndex)
+        if (_isSequential && index != _seqIndex)
         {
-          if (index < seqIndex)
+          if (index < _seqIndex)
             throw new MySqlException(Resources.ReadingPriorColumnUsingSeqAccess);
-          while (seqIndex < (index - 1))
-            driver.SkipColumnValue(values[++seqIndex]);
-          values[index] = driver.ReadColumnValue(index, fields[index], values[index]);
-          seqIndex = index;
+          while (_seqIndex < (index - 1))
+            _driver.SkipColumnValue(Values[++_seqIndex]);
+          Values[index] = _driver.ReadColumnValue(index, Fields[index], Values[index]);
+          _seqIndex = index;
         }
 
-        return values[index];
+        return Values[index];
       }
     }
 
     private bool GetNextRow()
     {
-      bool fetched = driver.FetchDataRow(statementId, Size);
+      bool fetched = _driver.FetchDataRow(_statementId, Size);
       if (fetched)
-        totalRows++;
+        TotalRows++;
       return fetched;
     }
 
 
     public bool NextRow(CommandBehavior behavior)
     {
-      if (readDone)
+      if (_readDone)
       {
         if (Cached) return CachedNextRow(behavior);
         return false;
       }
 
-      if ((behavior & CommandBehavior.SingleRow) != 0 && rowIndex == 0)
+      if ((behavior & CommandBehavior.SingleRow) != 0 && _rowIndex == 0)
         return false;
 
-      isSequential = (behavior & CommandBehavior.SequentialAccess) != 0;
-      seqIndex = -1;
+      _isSequential = (behavior & CommandBehavior.SequentialAccess) != 0;
+      _seqIndex = -1;
 
       // if we are at row index >= 0 then we need to fetch the data row and load it
-      if (rowIndex >= 0)
+      if (_rowIndex >= 0)
       {
         bool fetched = false;
         try
@@ -219,30 +183,30 @@ namespace MySql.Data.MySqlClient
           if (ex.IsQueryAborted)
           {
             // avoid hanging on Close()
-            readDone = true;
+            _readDone = true;
           }
           throw;
         }
 
         if (!fetched)
         {
-          readDone = true;
+          _readDone = true;
           return false;
         }
       }
 
-      if (!isSequential) ReadColumnData(false);
-      rowIndex++;
+      if (!_isSequential) ReadColumnData(false);
+      _rowIndex++;
       return true;
     }
 
     private bool CachedNextRow(CommandBehavior behavior)
     {
-      if ((behavior & CommandBehavior.SingleRow) != 0 && rowIndex == 0)
+      if ((behavior & CommandBehavior.SingleRow) != 0 && _rowIndex == 0)
         return false;
-      if (rowIndex == (totalRows - 1)) return false;
-      rowIndex++;
-      values = cachedValues[rowIndex];
+      if (_rowIndex == (TotalRows - 1)) return false;
+      _rowIndex++;
+      Values = _cachedValues[_rowIndex];
       return true;
     }
 
@@ -251,18 +215,18 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     public void Close()
     {
-      if (!readDone)
+      if (!_readDone)
       {
 
         // if we have rows but the user didn't read the first one then mark it as skipped
-        if (HasRows && rowIndex == -1)
-          skippedRows++;
+        if (HasRows && _rowIndex == -1)
+          SkippedRows++;
         try
         {
-          while (driver.IsOpen && driver.SkipDataRow())
+          while (_driver.IsOpen && _driver.SkipDataRow())
           {
-            totalRows++;
-            skippedRows++;
+            TotalRows++;
+            SkippedRows++;
           }
         }
         catch (System.IO.IOException)
@@ -270,50 +234,50 @@ namespace MySql.Data.MySqlClient
           // it is ok to eat IO exceptions here, we just want to 
           // close the result set
         }
-        readDone = true;
+        _readDone = true;
       }
-      else if (driver == null)
+      else if (_driver == null)
         CacheClose();
 
-      driver = null;
+      _driver = null;
       if (Cached) CacheReset();
     }
 
     private void CacheClose()
     {
-      skippedRows = totalRows - rowIndex - 1;
+      SkippedRows = TotalRows - _rowIndex - 1;
     }
 
     private void CacheReset()
     {
       if (!Cached) return;
-      rowIndex = -1;
-      affectedRows = -1;
-      insertedId = -1;
-      skippedRows = 0;
+      _rowIndex = -1;
+      AffectedRows = -1;
+      InsertedId = -1;
+      SkippedRows = 0;
     }
 
     public bool FieldRead(int index)
     {
       Debug.Assert(Size > index);
-      return uaFieldsUsed[index];
+      return _uaFieldsUsed[index];
     }
 
     public void SetValueObject(int i, IMySqlValue valueObject)
     {
-      Debug.Assert(values != null);
-      Debug.Assert(i < values.Length);
-      values[i] = valueObject;
+      Debug.Assert(Values != null);
+      Debug.Assert(i < Values.Length);
+      Values[i] = valueObject;
     }
 
     private bool IsOutputParameterResultSet()
     {
-      if (driver.HasStatus(ServerStatusFlags.OutputParameters)) return true;
+      if (_driver.HasStatus(ServerStatusFlags.OutputParameters)) return true;
 
-      if (fields.Length == 0) return false;
+      if (Fields.Length == 0) return false;
 
-      for (int x = 0; x < fields.Length; x++)
-        if (!fields[x].ColumnName.StartsWith("@" + StoredProcedure.ParameterPrefix, StringComparison.OrdinalIgnoreCase)) return false;
+      for (int x = 0; x < Fields.Length; x++)
+        if (!Fields[x].ColumnName.StartsWith("@" + StoredProcedure.ParameterPrefix, StringComparison.OrdinalIgnoreCase)) return false;
       return true;
     }
 
@@ -322,42 +286,41 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     private void LoadColumns(int numCols)
     {
-      fields = driver.GetColumns(numCols);
+      Fields = _driver.GetColumns(numCols);
 
-      values = new IMySqlValue[numCols];
-      uaFieldsUsed = new bool[numCols];
-      fieldHashCS = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-      fieldHashCI = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+      Values = new IMySqlValue[numCols];
+      _uaFieldsUsed = new bool[numCols];
+      _fieldHashCs = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+      _fieldHashCi = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
-      for (int i = 0; i < fields.Length; i++)
+      for (int i = 0; i < Fields.Length; i++)
       {
-        string columnName = fields[i].ColumnName;
-        if (!fieldHashCS.ContainsKey(columnName))
-          fieldHashCS.Add(columnName, i);
-        if (!fieldHashCI.ContainsKey(columnName))
-          fieldHashCI.Add(columnName, i);
-        values[i] = fields[i].GetValueObject();
+        string columnName = Fields[i].ColumnName;
+        if (!_fieldHashCs.ContainsKey(columnName))
+          _fieldHashCs.Add(columnName, i);
+        if (!_fieldHashCi.ContainsKey(columnName))
+          _fieldHashCi.Add(columnName, i);
+        Values[i] = Fields[i].GetValueObject();
       }
     }
 
     private void ReadColumnData(bool outputParms)
     {
       for (int i = 0; i < Size; i++)
-        values[i] = driver.ReadColumnValue(i, fields[i], values[i]);
+        Values[i] = _driver.ReadColumnValue(i, Fields[i], Values[i]);
 
       // if we are caching then we need to save a copy of this row of data values
       if (Cached)
-        cachedValues.Add((IMySqlValue[])values.Clone());
+        _cachedValues.Add((IMySqlValue[])Values.Clone());
 
       // we don't need to worry about caching the following since you won't have output
       // params with TableDirect commands
-      if (outputParms)
-      {
-        bool rowExists = driver.FetchDataRow(statementId, fields.Length);
-        rowIndex = 0;
-        if (rowExists)
-          throw new MySqlException(Resources.MoreThanOneOPRow);
-      }
+      if (!outputParms) return;
+
+      bool rowExists = _driver.FetchDataRow(_statementId, Fields.Length);
+      _rowIndex = 0;
+      if (rowExists)
+        throw new MySqlException(Resources.MoreThanOneOPRow);
     }
   }
 }

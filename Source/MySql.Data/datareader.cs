@@ -21,18 +21,13 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-#if !RT
 using System.Data;
-using System.Data.Common;
-#endif
-using System.Collections;
-using MySql.Data.Types;
-using System.Collections.Generic;
 using System.Globalization;
-using MySql.Data.MySqlClient.Properties;
-using MySql.Data.Common;
-using MySql.Data.MySqlClient;
 using System.Threading;
+using MySql.Data.MySqlClient;
+using MySql.Data.MySqlClient.Properties;
+using MySql.Data.MySqlClient.Types;
+using System.Data.Common;
 
 namespace MySql.Data.MySqlClient
 {
@@ -40,25 +35,21 @@ namespace MySql.Data.MySqlClient
   public sealed partial class MySqlDataReader : IDisposable
   {
     // The DataReader should always be open when returned to the user.
-    private bool isOpen = true;
-
-    private CommandBehavior commandBehavior;
-    private MySqlCommand command;
+    private bool _isOpen = true;
+    
     internal long affectedRows;
     internal Driver driver;
-    private PreparableStatement statement;
-    private ResultSet resultSet;
 
     // Used in special circumstances with stored procs to avoid exceptions from DbDataAdapter
     // If set, AffectedRows returns -1 instead of 0.
-    private bool disableZeroAffectedRows;
+    private readonly bool _disableZeroAffectedRows;
 
     /* 
      * Keep track of the connection in order to implement the
      * CommandBehavior.CloseConnection flag. A null reference means
      * normal behavior (do not automatically close).
      */
-    private MySqlConnection connection;
+    private MySqlConnection _connection;
 
     /*
      * Because the user should not be able to directly create a 
@@ -67,68 +58,45 @@ namespace MySql.Data.MySqlClient
      */
     internal MySqlDataReader(MySqlCommand cmd, PreparableStatement statement, CommandBehavior behavior)
     {
-      this.command = cmd;
-      connection = (MySqlConnection)command.Connection;
-      commandBehavior = behavior;
-      driver = connection.driver;
+      this.Command = cmd;
+      _connection = Command.Connection;
+      CommandBehavior = behavior;
+      driver = _connection.driver;
       affectedRows = -1;
-      this.statement = statement;
+      this.Statement = statement;
 
-#if !RT
       if (cmd.CommandType == CommandType.StoredProcedure 
         && cmd.UpdatedRowSource == UpdateRowSource.FirstReturnedRecord
       )
       {
-        disableZeroAffectedRows = true;
+        _disableZeroAffectedRows = true;
       }
-#endif
     }
 
     #region Properties
 
-    internal PreparableStatement Statement
-    {
-      get { return statement; }
-    }
+    internal PreparableStatement Statement { get; }
 
-    internal MySqlCommand Command
-    {
-      get { return command; }
-    }
+    internal MySqlCommand Command { get; private set; }
 
-    internal ResultSet ResultSet
-    {
-      get { return resultSet; }
-    }
+    internal ResultSet ResultSet { get; private set; }
 
-    internal CommandBehavior CommandBehavior
-    {
-      get { return commandBehavior; }
-    }
+    internal CommandBehavior CommandBehavior { get; private set; }
 
     /// <summary>
     /// Gets the number of columns in the current row.
     /// </summary>
-    public override int FieldCount
-    {
-      get { return resultSet == null ? 0 : resultSet.Size; }
-    }
+    public override int FieldCount => ResultSet?.Size ?? 0;
 
     /// <summary>
     /// Gets a value indicating whether the MySqlDataReader contains one or more rows.
     /// </summary>
-    public override bool HasRows
-    {
-      get { return resultSet == null ? false : resultSet.HasRows; }
-    }
+    public override bool HasRows => ResultSet?.HasRows ?? false;
 
     /// <summary>
     /// Gets a value indicating whether the data reader is closed.
     /// </summary>
-    public override bool IsClosed
-    {
-      get { return !isOpen; }
-    }
+    public override bool IsClosed => !_isOpen;
 
     /// <summary>
     /// Gets the number of rows changed, inserted, or deleted by execution of the SQL statement.
@@ -140,16 +108,12 @@ namespace MySql.Data.MySqlClient
       // is not completely accurate until .Close() has been called.
       get
       {
-
-        if (disableZeroAffectedRows)
-        {
-          // In special case of updating stored procedure called from 
-          // within data adapter, we return -1 to avoid exceptions 
-          // (s. Bug#54895)
-          if (affectedRows == 0)
-            return -1;
-
-        }
+        if (!_disableZeroAffectedRows) return (int) affectedRows;
+        // In special case of updating stored procedure called from 
+        // within data adapter, we return -1 to avoid exceptions 
+        // (s. Bug#54895)
+        if (affectedRows == 0)
+          return -1;
 
         return (int)affectedRows;
       }
@@ -159,40 +123,36 @@ namespace MySql.Data.MySqlClient
     /// Overloaded. Gets the value of a column in its native format.
     /// In C#, this property is the indexer for the MySqlDataReader class.
     /// </summary>
-    public override object this[int i]
-    {
-      get { return GetValue(i); }
-    }
+    public override object this[int i] => GetValue(i);
 
     /// <summary>
     /// Gets the value of a column in its native format.
     ///	[C#] In C#, this property is the indexer for the MySqlDataReader class.
     /// </summary>
-    public override object this[String name]
-    {
-      // Look up the ordinal and return 
-      // the value at that position.
-      get { return this[GetOrdinal(name)]; }
-    }
+    public override object this[String name] => this[GetOrdinal(name)];
 
     #endregion
 
     /// <summary>
     /// Closes the MySqlDataReader object.
     /// </summary>
+#if NETCORE10
+    public void Close()
+#else
     public override void Close()
+#endif
     {
-      if (!isOpen) return;
+      if (!_isOpen) return;
 
-      bool shouldCloseConnection = (commandBehavior & CommandBehavior.CloseConnection) != 0;
-      CommandBehavior originalBehavior = commandBehavior;
+      bool shouldCloseConnection = (CommandBehavior & CommandBehavior.CloseConnection) != 0;
+      CommandBehavior originalBehavior = CommandBehavior;
 
       // clear all remaining resultsets
       try
       {
         // Temporarily change to Default behavior to allow NextResult to finish properly.
         if (!originalBehavior.Equals(CommandBehavior.SchemaOnly))
-          commandBehavior = CommandBehavior.Default;
+          CommandBehavior = CommandBehavior.Default;
         while (NextResult()) { }
       }
       catch (MySqlException ex)
@@ -231,30 +191,30 @@ namespace MySql.Data.MySqlClient
       finally
       {
         // always ensure internal reader is null (Bug #55558)
-        connection.Reader = null;
-        commandBehavior = originalBehavior;
+        _connection.Reader = null;
+        CommandBehavior = originalBehavior;
       }
       // we now give the command a chance to terminate.  In the case of
       // stored procedures it needs to update out and inout parameters
-      command.Close(this);
-      commandBehavior = CommandBehavior.Default;
+      Command.Close(this);
+      CommandBehavior = CommandBehavior.Default;
 
-      if (this.command.Canceled && connection.driver.Version.isAtLeast(5, 1, 0))
+      if (this.Command.Canceled && _connection.driver.Version.isAtLeast(5, 1, 0))
       {
         // Issue dummy command to clear kill flag
         ClearKillFlag();
       }
 
       if (shouldCloseConnection)
-        connection.Close();
+        _connection.Close();
 
-      command = null;
-      connection.IsInUse = false;
-      connection = null;
-      isOpen = false;
+      Command = null;
+      _connection.IsInUse = false;
+      _connection = null;
+      _isOpen = false;
     }
 
-    #region TypeSafe Accessors
+#region TypeSafe Accessors
 
     /// <summary>
     /// Gets the value of the specified column as a Boolean.
@@ -374,9 +334,7 @@ namespace MySql.Data.MySqlClient
 
     private object ChangeType(IMySqlValue value, int fieldIndex, Type newType)
     {
-#if !RT
-      resultSet.Fields[fieldIndex].AddTypeConversion(newType);
-#endif
+      ResultSet.Fields[fieldIndex].AddTypeConversion(newType);
       return Convert.ChangeType(value.Value, newType, CultureInfo.InvariantCulture);
     }
 
@@ -439,13 +397,13 @@ namespace MySql.Data.MySqlClient
     /// <returns></returns>
     public override String GetDataTypeName(int i)
     {
-      if (!isOpen)
+      if (!_isOpen)
         Throw(new Exception("No current query in data reader"));
       if (i >= FieldCount)
         Throw(new IndexOutOfRangeException());
 
       // return the name of the type used on the backend
-      IMySqlValue v = resultSet.Values[i];
+      IMySqlValue v = ResultSet.Values[i];
       return v.MySqlTypeName;
     }
 
@@ -483,7 +441,7 @@ namespace MySql.Data.MySqlClient
       }
 
       dt.TimezoneOffset = driver.timeZoneOffset;
-      if (connection.Settings.ConvertZeroDateTime && !dt.IsValidDateTime)
+      if (_connection.Settings.ConvertZeroDateTime && !dt.IsValidDateTime)
         return DateTime.MinValue;
       else
         return dt.GetDateTime();
@@ -541,17 +499,17 @@ namespace MySql.Data.MySqlClient
     /// <returns></returns>
     public override Type GetFieldType(int i)
     {
-      if (!isOpen)
+      if (!_isOpen)
         Throw(new Exception("No current query in data reader"));
       if (i >= FieldCount)
         Throw(new IndexOutOfRangeException());
 
       // we have to use the values array directly because we can't go through
       // GetValue
-      IMySqlValue v = resultSet.Values[i];
+      IMySqlValue v = ResultSet.Values[i];
       if (v is MySqlDateTime)
       {
-        if (!connection.Settings.AllowZeroDateTime)
+        if (!_connection.Settings.AllowZeroDateTime)
           return typeof(DateTime);
         return typeof(MySqlDateTime);
       }
@@ -652,12 +610,12 @@ namespace MySql.Data.MySqlClient
     /// <returns></returns>
     public override String GetName(int i)
     {
-      if (!isOpen)
+      if (!_isOpen)
         Throw(new Exception("No current query in data reader"));
       if (i >= FieldCount)
         Throw(new IndexOutOfRangeException());
 
-      return resultSet.Fields[i].ColumnName;
+      return ResultSet.Fields[i].ColumnName;
     }
 
     /// <summary>
@@ -667,10 +625,10 @@ namespace MySql.Data.MySqlClient
     /// <returns></returns>
     public override int GetOrdinal(string name)
     {
-      if (!isOpen || resultSet == null)
+      if (!_isOpen || ResultSet == null)
         Throw(new Exception("No current query in data reader"));
 
-      return resultSet.GetOrdinal(name);
+      return ResultSet.GetOrdinal(name);
     }
 
     /// <include file='docs/MySqlDataReader.xml' path='docs/GetStringS/*'/>
@@ -687,7 +645,7 @@ namespace MySql.Data.MySqlClient
       if (val is MySqlBinary)
       {
         byte[] v = ((MySqlBinary)val).Value;
-        return resultSet.Fields[i].Encoding.GetString(v, 0, v.Length);
+        return ResultSet.Fields[i].Encoding.GetString(v, 0, v.Length);
       }
 
       return val.Value.ToString();
@@ -715,7 +673,7 @@ namespace MySql.Data.MySqlClient
     /// <returns></returns>
     public override object GetValue(int i)
     {
-      if (!isOpen)
+      if (!_isOpen)
         Throw(new Exception("No current query in data reader"));
       if (i >= FieldCount)
         Throw(new IndexOutOfRangeException());
@@ -729,9 +687,9 @@ namespace MySql.Data.MySqlClient
       if (val is MySqlDateTime)
       {
         MySqlDateTime dt = (MySqlDateTime)val;
-        if (!dt.IsValidDateTime && connection.Settings.ConvertZeroDateTime)
+        if (!dt.IsValidDateTime && _connection.Settings.ConvertZeroDateTime)
           return DateTime.MinValue;
-        else if (connection.Settings.AllowZeroDateTime)
+        else if (_connection.Settings.AllowZeroDateTime)
           return val;
         else
           return dt.GetDateTime();
@@ -804,8 +762,13 @@ namespace MySql.Data.MySqlClient
 
     #endregion
 
-#if !RT
+#if !NETCORE10
     IDataReader IDataRecord.GetData(int i)
+    {
+      return base.GetData(i);
+    }
+#else
+    public new DbDataReader GetData(int i)
     {
       return base.GetData(i);
     }
@@ -827,26 +790,26 @@ namespace MySql.Data.MySqlClient
     /// <returns></returns>
     public override bool NextResult()
     {
-      if (!isOpen)
+      if (!_isOpen)
         Throw(new MySqlException(Resources.NextResultIsClosed));
 
-      bool isCaching = command.CommandType == CommandType.TableDirect && command.EnableCaching &&
-        (commandBehavior & CommandBehavior.SequentialAccess) == 0;
+      bool isCaching = Command.CommandType == CommandType.TableDirect && Command.EnableCaching &&
+        (CommandBehavior & CommandBehavior.SequentialAccess) == 0;
 
       // this will clear out any unread data
-      if (resultSet != null)
+      if (ResultSet != null)
       {
-        resultSet.Close();
+        ResultSet.Close();
         if (isCaching)
-          TableCache.AddToCache(command.CommandText, resultSet);
+          TableCache.AddToCache(Command.CommandText, ResultSet);
       }
 
       // single result means we only return a single resultset.  If we have already
       // returned one, then we return false
       // TableDirect is basically a select * from a single table so it will generate
       // a single result also
-      if (resultSet != null &&
-        ((commandBehavior & CommandBehavior.SingleResult) != 0 || isCaching))
+      if (ResultSet != null &&
+        ((CommandBehavior & CommandBehavior.SingleResult) != 0 || isCaching))
         return false;
 
       // next load up the next resultset if any
@@ -854,48 +817,48 @@ namespace MySql.Data.MySqlClient
       {
         do
         {
-          resultSet = null;
+          ResultSet = null;
           // if we are table caching, then try to retrieve the resultSet from the cache
           if (isCaching)
-            resultSet = TableCache.RetrieveFromCache(command.CommandText,
-              command.CacheAge);
+            ResultSet = TableCache.RetrieveFromCache(Command.CommandText,
+              Command.CacheAge);
 
-          if (resultSet == null)
+          if (ResultSet == null)
           {
-            resultSet = driver.NextResult(Statement.StatementId, false);
-            if (resultSet == null) return false;
-            if (resultSet.IsOutputParameters && command.CommandType == CommandType.StoredProcedure)
+            ResultSet = driver.NextResult(Statement.StatementId, false);
+            if (ResultSet == null) return false;
+            if (ResultSet.IsOutputParameters && Command.CommandType == CommandType.StoredProcedure)
             {
-              StoredProcedure sp = statement as StoredProcedure;
+              StoredProcedure sp = Statement as StoredProcedure;
               sp.ProcessOutputParameters(this);
-              resultSet.Close();
+              ResultSet.Close();
               if (!sp.ServerProvidingOutputParameters) return false;
               // if we are using server side output parameters then we will get our ok packet
               // *after* the output parameters resultset
-              resultSet = driver.NextResult(Statement.StatementId, true);
+              ResultSet = driver.NextResult(Statement.StatementId, true);
             }
-            resultSet.Cached = isCaching;
+            ResultSet.Cached = isCaching;
           }
 
-          if (resultSet.Size == 0)
+          if (ResultSet.Size == 0)
           {
-            Command.lastInsertedId = resultSet.InsertedId;
+            Command.LastInsertedId = ResultSet.InsertedId;
             if (affectedRows == -1)
-              affectedRows = resultSet.AffectedRows;
+              affectedRows = ResultSet.AffectedRows;
             else
-              affectedRows += resultSet.AffectedRows;
+              affectedRows += ResultSet.AffectedRows;
           }
-        } while (resultSet.Size == 0);
+        } while (ResultSet.Size == 0);
 
         return true;
       }
       catch (MySqlException ex)
       {
         if (ex.IsFatal)
-          connection.Abort();
+          _connection.Abort();
         if (ex.Number == 0)
           throw new MySqlException(Resources.FatalErrorReadingResult, ex);
-        if ((commandBehavior & CommandBehavior.CloseConnection) != 0)
+        if ((CommandBehavior & CommandBehavior.CloseConnection) != 0)
           Close();
         throw;
       }
@@ -907,29 +870,32 @@ namespace MySql.Data.MySqlClient
     /// <returns></returns>
     public override bool Read()
     {
-      if (!isOpen)
+      if (!_isOpen)
         Throw(new MySqlException("Invalid attempt to Read when reader is closed."));
-      if (resultSet == null)
+      if (ResultSet == null)
         return false;
 
       try
       {
-        return resultSet.NextRow(commandBehavior);
+        return ResultSet.NextRow(CommandBehavior);
       }
       catch (TimeoutException tex)
       {
-        connection.HandleTimeoutOrThreadAbort(tex);
+        _connection.HandleTimeoutOrThreadAbort(tex);
         throw; // unreached
       }
+#if !NETCORE10
       catch (ThreadAbortException taex)
       {
-        connection.HandleTimeoutOrThreadAbort(taex);
+        _connection.HandleTimeoutOrThreadAbort(taex);
         throw;
       }
+
+#endif
       catch (MySqlException ex)
       {
         if (ex.IsFatal)
-          connection.Abort();
+          _connection.Abort();
 
         if (ex.IsQueryAborted)
         {
@@ -946,14 +912,10 @@ namespace MySql.Data.MySqlClient
       if (index < 0 || index >= FieldCount)
         Throw(new ArgumentException(Resources.InvalidColumnOrdinal));
 
-      IMySqlValue v = resultSet[index];
+      IMySqlValue v = ResultSet[index];
 
       if (checkNull && v.IsNull)
-#if RT
-        throw new MySqlNullValueException();
-#else
         throw new System.Data.SqlTypes.SqlNullValueException();
-#endif
 
       return v;
     }
@@ -963,8 +925,8 @@ namespace MySql.Data.MySqlClient
     {
       // This query will silently crash because of the Kill call that happened before.
       string dummyStatement = "SELECT * FROM bogus_table LIMIT 0"; /* dummy query used to clear kill flag */
-      MySqlCommand dummyCommand = new MySqlCommand(dummyStatement, connection);
-      dummyCommand.InternallyCreated = true;
+      MySqlCommand dummyCommand = new MySqlCommand(dummyStatement, _connection) {InternallyCreated = true};
+
       try
       {
         dummyCommand.ExecuteReader(); // ExecuteReader catches the exception and returns null, which is expected.
@@ -980,12 +942,12 @@ namespace MySql.Data.MySqlClient
       // if we are not 5.5 or later or we are not prepared then we are simulating output parameters
       // with user variables and they are also string so we have to work some magic with out
       // column types before we read the data
-      if (!driver.SupportsOutputParameters || !command.IsPrepared)
+      if (!driver.SupportsOutputParameters || !Command.IsPrepared)
         AdjustOutputTypes();
 
       // now read the output parameters data row
-      if ((commandBehavior & CommandBehavior.SchemaOnly) != 0) return;
-      resultSet.NextRow(commandBehavior);
+      if ((CommandBehavior & CommandBehavior.SchemaOnly) != 0) return;
+      ResultSet.NextRow(CommandBehavior);
 
       string prefix = "@" + StoredProcedure.ParameterPrefix;
 
@@ -994,7 +956,7 @@ namespace MySql.Data.MySqlClient
         string fieldName = GetName(i);
         if (fieldName.StartsWith(prefix))
           fieldName = fieldName.Remove(0, prefix.Length);
-        MySqlParameter parameter = command.Parameters.GetParameterFlexible(fieldName, true);
+        MySqlParameter parameter = Command.Parameters.GetParameterFlexible(fieldName, true);
         parameter.Value = GetValue(i);
       }
     }
@@ -1009,24 +971,23 @@ namespace MySql.Data.MySqlClient
       {
         string fieldName = GetName(i);
         fieldName = fieldName.Remove(0, StoredProcedure.ParameterPrefix.Length + 1);
-        MySqlParameter parameter = command.Parameters.GetParameterFlexible(fieldName, true);
+        MySqlParameter parameter = Command.Parameters.GetParameterFlexible(fieldName, true);
 
         IMySqlValue v = MySqlField.GetIMySqlValue(parameter.MySqlDbType);
         if (v is MySqlBit)
         {
           MySqlBit bit = (MySqlBit)v;
           bit.ReadAsString = true;
-          resultSet.SetValueObject(i, bit);
+          ResultSet.SetValueObject(i, bit);
         }
         else
-          resultSet.SetValueObject(i, v);
+          ResultSet.SetValueObject(i, v);
       }
     }
 
     private void Throw(Exception ex)
     {
-      if (connection != null)
-        connection.Throw(ex);
+      _connection?.Throw(ex);
       throw ex;
     }
 
@@ -1044,11 +1005,11 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    #region Destructor
+#region Destructor
     ~MySqlDataReader()
     {
       Dispose(false);
     }
-    #endregion
+#endregion
   }
 }

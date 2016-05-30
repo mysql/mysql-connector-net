@@ -277,7 +277,7 @@
     <value>There was an error parsing the foreign key definition.</value>
   </data>
   <data name="PerfMonCategoryHelp" xml:space="preserve">
-    <value>This category includes a series of counters for MySQL.</value>
+    <value>This category includes a series of counters for MySQL</value>
   </data>
   <data name="PerfMonCategoryName" xml:space="preserve">
     <value>.NET Data Provider for MySQL</value>

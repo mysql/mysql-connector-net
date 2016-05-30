@@ -1,4 +1,4 @@
-// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc.
+// Copyright © 2004, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,54 +21,35 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Data;
 using MySql.Data.MySqlClient;
 
-namespace MySql.Data.Types
+namespace MySql.Data.MySqlClient.Types
 {
   internal struct MySqlInt64 : IMySqlValue
   {
-    private long mValue;
-    private bool isNull;
-
     public MySqlInt64(bool isNull)
     {
-      this.isNull = isNull;
-      mValue = 0;
+      IsNull = isNull;
+      Value = 0;
     }
 
     public MySqlInt64(long val)
     {
-      this.isNull = false;
-      mValue = val;
+      IsNull = false;
+      Value = val;
     }
 
     #region IMySqlValue Members
 
-    public bool IsNull
-    {
-      get { return isNull; }
-    }
+    public bool IsNull { get; }
 
-    MySqlDbType IMySqlValue.MySqlDbType
-    {
-      get { return MySqlDbType.Int64; }
-    }
+    MySqlDbType IMySqlValue.MySqlDbType => MySqlDbType.Int64;
 
-    object IMySqlValue.Value
-    {
-      get { return mValue; }
-    }
+    object IMySqlValue.Value => Value;
 
-    public long Value
-    {
-      get { return mValue; }
-    }
+    public long Value { get; }
 
-    Type IMySqlValue.SystemType
-    {
-      get { return typeof(long); }
-    }
+    Type IMySqlValue.SystemType => typeof(long);
 
     string IMySqlValue.MySqlTypeName
     {
@@ -77,7 +58,7 @@ namespace MySql.Data.Types
 
     void IMySqlValue.WriteValue(MySqlPacket packet, bool binary, object val, int length)
     {
-      long v = (val is Int64) ? (Int64)val : Convert.ToInt64(val);
+      long v = val as Int64? ?? Convert.ToInt64(val);
       if (binary)
         packet.WriteInteger(v, 8);
       else

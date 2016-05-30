@@ -1,4 +1,4 @@
-// Copyright (c) 2009 Sun Microsystems, Inc., 2013, 2014 Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2009, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,14 +20,17 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.Data.MySqlClient;
 using System;
-using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Reflection;
+using System.Threading.Tasks;
+using MySql.Data.MySqlClient;
 
+#if NETCORE10
+namespace MySql.Data.MySqlClient.Common
+#else
 namespace MySql.Data.Common
+#endif
 {
   internal class MyNetworkStream : NetworkStream
   {
@@ -48,27 +51,28 @@ namespace MySql.Data.Common
     /// For each IO operation, if it throws WSAEWOULDBLOCK, we explicitely set
     /// the socket to Blocking and retry the operation once again.
     /// </summary>
-    const int MaxRetryCount = 2;
-    Socket socket;
+    private const int MaxRetryCount = 2;
+
+    readonly Socket _socket;
 
     public MyNetworkStream(Socket socket, bool ownsSocket)
       : base(socket, ownsSocket)
     {
-      this.socket = socket;
+      this._socket = socket;
     }
 
-    bool IsTimeoutException(SocketException e)
+    private static bool IsTimeoutException(SocketException e)
     {
       return (e.SocketErrorCode == SocketError.TimedOut);
     }
 
-    bool IsWouldBlockException(SocketException e)
+    private static bool IsWouldBlockException(SocketException e)
     {
       return (e.SocketErrorCode == SocketError.WouldBlock);
     }
 
 
-    void HandleOrRethrowException(Exception e)
+    private void HandleOrRethrowException(Exception e)
     {
       Exception currentException = e;
       while (currentException != null)
@@ -79,16 +83,15 @@ namespace MySql.Data.Common
           if (IsWouldBlockException(socketException))
           {
             // Workaround  for WSAEWOULDBLOCK
-            socket.Blocking = true;
+            _socket.Blocking = true;
             // return to give the caller possibility to retry the call
             return;
           }
-          else if (IsTimeoutException(socketException))
+          if (IsTimeoutException(socketException))
           {
             return;
             //throw new TimeoutException(socketException.Message, e);
           }
-
         }
         currentException = currentException.InnerException;
       }
@@ -113,7 +116,7 @@ namespace MySql.Data.Common
         }
       }
       while (++retry < MaxRetryCount);
-      if(exception.GetBaseException() is SocketException 
+      if (exception.GetBaseException() is SocketException
         && IsTimeoutException((SocketException)exception.GetBaseException()))
         throw new TimeoutException(exception.Message, exception);
       throw exception;
@@ -183,10 +186,10 @@ namespace MySql.Data.Common
 
     #region Create Code
 
-    public static MyNetworkStream CreateStream(MySqlConnectionStringBuilder settings, bool unix)
+    public static async Task<MyNetworkStream> CreateStream(MySqlConnectionStringBuilder settings, bool unix)
     {
       MyNetworkStream stream = null;
-      IPHostEntry ipHE = GetHostEntry(settings.Server);
+      IPHostEntry ipHE = await GetHostEntry(settings.Server);
       foreach (IPAddress address in ipHE.AddressList)
       {
         try
@@ -219,34 +222,46 @@ namespace MySql.Data.Common
       return ipHE;
     }
 
-    private static IPHostEntry GetHostEntry(string hostname)
+    private static async Task<IPHostEntry> GetHostEntry(string hostname)
     {
       IPHostEntry ipHE = ParseIPAddress(hostname);
       if (ipHE != null) return ipHE;
-      return Dns.GetHostEntry(hostname);
+
+      return await Dns.GetHostEntryAsync(hostname);
     }
 
-    private static EndPoint CreateUnixEndPoint(string host)
-    {
-      // first we need to load the Mono.posix assembly			
-      Assembly a = Assembly.Load(@"Mono.Posix, Version=2.0.0.0, 				
-                Culture=neutral, PublicKeyToken=0738eb9f132ed756");
+    //private static EndPoint CreateUnixEndPoint(string host)
+    //{
+    //  //TODO: REVIEW THIS, IS INCOMPATIBLE FOR DNX
+    //  // first we need to load the Mono.posix assembly			
+    //  Assembly a = Assembly.Load(@"Mono.Posix, Version=2.0.0.0, 				
+    //            Culture=neutral, PublicKeyToken=0738eb9f132ed756");
 
-      // then we need to construct a UnixEndPoint object
-      EndPoint ep = (EndPoint)a.CreateInstance("Mono.Posix.UnixEndPoint",
-          false, BindingFlags.CreateInstance, null,
-          new object[1] { host }, null, null);
-      return ep;
-    }
+
+    //  // then we need to construct a UnixEndPoint object
+    //  EndPoint ep = (EndPoint)a.CreateInstance("Mono.Posix.UnixEndPoint",
+    //      false, BindingFlags.CreateInstance, null,
+    //      new object[1] { host }, null, null);
+    //  return ep;
+    //}
 
     private static MyNetworkStream CreateSocketStream(MySqlConnectionStringBuilder settings, IPAddress ip, bool unix)
     {
       EndPoint endPoint;
+#if !NETCORE10
       if (!Platform.IsWindows() && unix)
-        endPoint = CreateUnixEndPoint(settings.Server);
+      {
+        //TODO: review the use of mono.posix
+        //endPoint = CreateUnixEndPoint(settings.Server);
+        endPoint = new DnsEndPoint(settings.Server, (int)settings.Port);
+      }
       else
-        endPoint = new IPEndPoint(ip, (int)settings.Port);
-
+      {
+#endif
+      endPoint = new IPEndPoint(ip, (int)settings.Port);
+#if !NETCORE10
+      }
+#endif
       Socket socket = unix ?
           new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.IP) :
           new Socket(ip.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
@@ -255,12 +270,26 @@ namespace MySql.Data.Common
         SetKeepAlive(socket, settings.Keepalive);
       }
 
-
+#if NETCORE10
+      try
+      {
+        Task ias = socket.ConnectAsync(endPoint);
+        if (!ias.Wait(((int)settings.ConnectionTimeout * 1000)))
+        {
+          socket.Dispose();
+        }
+      }
+      catch (Exception)
+      {
+        socket.Dispose();
+        throw;
+      }
+#else
       IAsyncResult ias = socket.BeginConnect(endPoint, null, null);
+
       if (!ias.AsyncWaitHandle.WaitOne((int)settings.ConnectionTimeout * 1000, false))
       {
         socket.Close();
-        return null;
       }
       try
       {
@@ -271,6 +300,8 @@ namespace MySql.Data.Common
         socket.Close();
         throw;
       }
+#endif
+
       MyNetworkStream stream = new MyNetworkStream(socket, true);
       GC.SuppressFinalize(socket);
       GC.SuppressFinalize(stream);
@@ -326,7 +357,7 @@ namespace MySql.Data.Common
       s.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
     }
 
-    #endregion
+#endregion
 
   }
 }

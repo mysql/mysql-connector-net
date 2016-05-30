@@ -1,4 +1,4 @@
-// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -22,9 +22,8 @@
 
 using System;
 using System.IO;
-using System.Diagnostics;
 using System.Text;
-using MySql.Data.Common;
+using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.Properties;
 
 namespace MySql.Data.MySqlClient
@@ -34,96 +33,78 @@ namespace MySql.Data.MySqlClient
   /// </summary>
   internal class MySqlStream
   {
-    private byte sequenceByte;
-    private int maxBlockSize;
-    private ulong maxPacketSize;
-    private byte[] packetHeader = new byte[4];
-    MySqlPacket packet;
-    TimedStream timedStream;
-    Stream inStream;
-    Stream outStream;
+    private readonly byte[] _packetHeader = new byte[4];
+    private readonly MySqlPacket _packet;
+    private readonly TimedStream _timedStream;
+    private readonly Stream _inStream;
+    private readonly Stream _outStream;
 
-    internal Stream BaseStream
-    {
-      get
-      {
-        return timedStream;
-      }
-    }
+    internal Stream BaseStream => _timedStream;
+
     public MySqlStream(Encoding encoding)
     {
       // we have no idea what the real value is so we start off with the max value
       // The real value will be set in NativeDriver.Configure()
-      maxPacketSize = ulong.MaxValue;
+      MaxPacketSize = ulong.MaxValue;
 
       // we default maxBlockSize to MaxValue since we will get the 'real' value in 
       // the authentication handshake and we know that value will not exceed 
       // true maxBlockSize prior to that.
-      maxBlockSize = Int32.MaxValue;
 
-      packet = new MySqlPacket(encoding);
+      MaxBlockSize = Int32.MaxValue;
+
+      _packet = new MySqlPacket(encoding);
     }
 
     public MySqlStream(Stream baseStream, Encoding encoding, bool compress)
       : this(encoding)
     {
-      timedStream = new TimedStream(baseStream);
+      _timedStream = new TimedStream(baseStream);
       Stream stream;
-      if (compress)
-        stream = new CompressedStream(timedStream);
-      else
-        stream = timedStream;
+      //TODO: ADD SUPPORT FOR 452 AND 46X
+      //if (compress)
+      //  stream = new CompressedStream(_timedStream);
+      //else
+        stream = _timedStream;
 
-#if RT
-      inStream = baseStream;
+#if NETCORE10
+      _inStream = baseStream;
 #else
-      inStream = new BufferedStream(stream);
+      _inStream = new BufferedStream(stream);
 #endif
-      outStream = stream;
+      _outStream = stream;
     }
 
     public void Close()
     {
-#if RT
-      outStream.Dispose();
-      inStream.Dispose();
+#if NETCORE10
+      _outStream.Dispose();
+      _inStream.Dispose();
 #else
-      outStream.Close();
-      inStream.Close();
+      _outStream.Close();
+      _inStream.Close();
 #endif
-      timedStream.Close();
+      _timedStream.Close();
     }
 
     #region Properties
 
     public Encoding Encoding
     {
-      get { return packet.Encoding; }
-      set { packet.Encoding = value; }
+      get { return _packet.Encoding; }
+      set { _packet.Encoding = value; }
     }
 
     public void ResetTimeout(int timeout)
     {
-      timedStream.ResetTimeout(timeout);
+      _timedStream.ResetTimeout(timeout);
     }
 
-    public byte SequenceByte
-    {
-      get { return sequenceByte; }
-      set { sequenceByte = value; }
-    }
+    public byte SequenceByte { get; set; }
 
-    public int MaxBlockSize
-    {
-      get { return maxBlockSize; }
-      set { maxBlockSize = value; }
-    }
+    public int MaxBlockSize { get; set; }
 
-    public ulong MaxPacketSize
-    {
-      get { return maxPacketSize; }
-      set { maxPacketSize = value; }
-    }
+    public ulong MaxPacketSize { get; set; }
 
     #endregion
 
@@ -143,26 +124,20 @@ namespace MySql.Data.MySqlClient
       LoadPacket();
 
       // now we check if this packet is a server error
-      if (packet.Buffer[0] == 0xff)
-      {
-        packet.ReadByte();  // read off the 0xff
+      if (_packet.Buffer[0] != 0xff) return _packet;
 
-        int code = packet.ReadInteger(2);
-        string msg = String.Empty;
+      _packet.ReadByte();  // read off the 0xff
 
-        if (packet.Version.isAtLeast(5, 5, 0))
-          msg = packet.ReadString(Encoding.UTF8);
-        else
-          msg = packet.ReadString();
+      int code = _packet.ReadInteger(2);
+      string msg = String.Empty;
 
-        if (msg.StartsWith("#", StringComparison.Ordinal))
-        {
-          msg.Substring(1, 5);  /* state code */
-          msg = msg.Substring(6);
-        }
-        throw new MySqlException(msg, code);
-      }
-      return packet;
+      msg = _packet.Version.isAtLeast(5, 5, 0) ? _packet.ReadString(Encoding.UTF8) : _packet.ReadString();
+
+      if (!msg.StartsWith("#", StringComparison.Ordinal)) throw new MySqlException(msg, code);
+
+      msg.Substring(1, 5);  /* state code */
+      msg = msg.Substring(6);
+      throw new MySqlException(msg, code);
     }
 
     /// <summary>
@@ -197,31 +172,30 @@ namespace MySql.Data.MySqlClient
     {
       try
       {
-        packet.Length = 0;
+        _packet.Length = 0;
         int offset = 0;
         while (true)
         {
-          ReadFully(inStream, packetHeader, 0, 4);
-          sequenceByte = (byte)(packetHeader[3] + 1);
-          int length = (int)(packetHeader[0] + (packetHeader[1] << 8) +
-            (packetHeader[2] << 16));
+          ReadFully(_inStream, _packetHeader, 0, 4);
+          SequenceByte = (byte)(_packetHeader[3] + 1);
+          int length = (int)(_packetHeader[0] + (_packetHeader[1] << 8) +
+            (_packetHeader[2] << 16));
 
           // make roo for the next block
-          packet.Length += length;
-
-#if RT
+          _packet.Length += length;
+//#if NETCORE10
           byte[] tempBuffer = new byte[length];
-          ReadFully(inStream, tempBuffer, offset, length);
-          packet.Write(tempBuffer);
-#else
-          ReadFully(inStream, packet.Buffer, offset, length);
-#endif
+          ReadFully(_inStream, tempBuffer, offset, length);
+          _packet.Write(tempBuffer);
+//#else
+          //ReadFully(_inStream, _packet.Buffer, offset, length);
+//#endif
           offset += length;
 
           // if this block was < maxBlock then it's last one in a multipacket series
-          if (length < maxBlockSize) break;
+          if (length < MaxBlockSize) break;
         }
-        packet.Position = 0;
+        _packet.Position = 0;
       }
       catch (IOException ioex)
       {
@@ -234,20 +208,20 @@ namespace MySql.Data.MySqlClient
       byte[] buffer = packet.Buffer;
       int length = packet.Position - 4;
 
-      if ((ulong)length > maxPacketSize)
+      if ((ulong)length > MaxPacketSize)
         throw new MySqlException(Resources.QueryTooLarge, (int)MySqlErrorCode.PacketTooLarge);
 
       int offset = 0;
       while (length > 0)
       {
-        int lenToSend = length > maxBlockSize ? maxBlockSize : length;
+        int lenToSend = length > MaxBlockSize ? MaxBlockSize : length;
         buffer[offset] = (byte)(lenToSend & 0xff);
         buffer[offset + 1] = (byte)((lenToSend >> 8) & 0xff);
         buffer[offset + 2] = (byte)((lenToSend >> 16) & 0xff);
-        buffer[offset + 3] = sequenceByte++;
+        buffer[offset + 3] = SequenceByte++;
 
-        outStream.Write(buffer, offset, lenToSend + 4);
-        outStream.Flush();
+        _outStream.Write(buffer, offset, lenToSend + 4);
+        _outStream.Flush();
         length -= lenToSend;
         offset += lenToSend;
       }
@@ -258,9 +232,9 @@ namespace MySql.Data.MySqlClient
       buffer[0] = (byte)(count & 0xff);
       buffer[1] = (byte)((count >> 8) & 0xff);
       buffer[2] = (byte)((count >> 16) & 0xff);
-      buffer[3] = sequenceByte++;
-      outStream.Write(buffer, 0, count + 4);
-      outStream.Flush();
+      buffer[3] = SequenceByte++;
+      _outStream.Write(buffer, 0, count + 4);
+      _outStream.Flush();
     }
 
     #endregion

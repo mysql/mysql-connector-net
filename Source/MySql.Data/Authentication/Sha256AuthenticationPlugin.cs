@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -25,14 +25,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-#if RT
-using Windows.Security.Cryptography;
-#else
-using System.Security.Cryptography;
-#endif
 using System.Text;
-using MySql.Data.Common;
-using MySql.Data.MySqlClient.Properties;
+using System.Security.Cryptography;
+
 #if BOUNCY_CASTLE_INCLUDED
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Security;
@@ -52,10 +47,7 @@ namespace MySql.Data.MySqlClient.Authentication
 #endif
     private byte[] rawPubkey;
 
-    public override string PluginName
-    {
-      get { return "sha256_password"; }
-    }
+    public override string PluginName => "sha256_password";
 
     protected override byte[] MoreData(byte[] data)
     {
@@ -70,7 +62,7 @@ namespace MySql.Data.MySqlClient.Authentication
       if (Settings.SslMode != MySqlSslMode.None)
       {
         // send as clear text, since the channel is already encrypted
-        byte[] passBytes = this.Encoding.GetBytes(Settings.Password);
+        byte[] passBytes = Encoding.GetBytes(Settings.Password);
         byte[] buffer = new byte[passBytes.Length + 1];
         Array.Copy(passBytes, 0, buffer, 0, passBytes.Length);
         buffer[passBytes.Length] = 0;
@@ -144,5 +136,6 @@ namespace MySql.Data.MySqlClient.Authentication
       return result;
     }
 #endif
+
   }
 }

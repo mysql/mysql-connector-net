@@ -1,4 +1,4 @@
-// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc., 2013, 2014 Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,12 +21,11 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Globalization;
-using MySql.Data.Common;
-using MySql.Data.MySqlClient.Properties;
 using System.Security.Cryptography;
-#if RT
-using MySql.Data.MySqlClient.RT;
+using MySql.Data.MySqlClient.Framework.NetCore10;
+using MySql.Data.MySqlClient.Properties;
+#if NETCORE10
+
 #else
 using System.Text;
 #endif
@@ -52,21 +51,21 @@ namespace MySql.Data.MySqlClient
     {
       // make sure we were called properly
       if (fromIndex < 0 || fromIndex >= from.Length)
-        throw new ArgumentException(Resources.IndexMustBeValid, "fromIndex");
+        throw new ArgumentException(Resources.IndexMustBeValid, nameof(fromIndex));
       if ((fromIndex + length) > from.Length)
-        throw new ArgumentException(Resources.FromAndLengthTooBig, "fromIndex");
+        throw new ArgumentException(Resources.FromAndLengthTooBig, nameof(fromIndex));
       if (from == null)
-        throw new ArgumentException(Resources.BufferCannotBeNull, "from");
+        throw new ArgumentException(Resources.BufferCannotBeNull, nameof(@from));
       if (to == null)
-        throw new ArgumentException(Resources.BufferCannotBeNull, "to");
+        throw new ArgumentException(Resources.BufferCannotBeNull, nameof(to));
       if (toIndex < 0 || toIndex >= to.Length)
-        throw new ArgumentException(Resources.IndexMustBeValid, "toIndex");
+        throw new ArgumentException(Resources.IndexMustBeValid, nameof(toIndex));
       if ((toIndex + length) > to.Length)
-        throw new ArgumentException(Resources.IndexAndLengthTooBig, "toIndex");
+        throw new ArgumentException(Resources.IndexAndLengthTooBig, nameof(toIndex));
       if (password == null || password.Length < length)
-        throw new ArgumentException(Resources.PasswordMustHaveLegalChars, "password");
+        throw new ArgumentException(Resources.PasswordMustHaveLegalChars, nameof(password));
       if (length < 0)
-        throw new ArgumentException(Resources.ParameterCannotBeNegative, "count");
+        throw new ArgumentException(Resources.ParameterCannotBeNegative, nameof(length));
 
       // now perform the work
       for (int i = 0; i < length; i++)
@@ -85,7 +84,7 @@ namespace MySql.Data.MySqlClient
       // if we have no password, then we just return 2 zero bytes
       if (password.Length == 0) return new byte[1];
 
-      SHA1 sha = new SHA1CryptoServiceProvider();
+      SHA1 sha = SHA1.Create();
 
       byte[] firstHash = sha.ComputeHash(Encoding.Default.GetBytes(password));
       byte[] secondHash = sha.ComputeHash(firstHash);
@@ -128,7 +127,7 @@ namespace MySql.Data.MySqlClient
       long max = 0x3fffffff;
       if (!new_ver)
         max = 0x01FFFFFF;
-      if (password == null || password.Length == 0)
+      if (string.IsNullOrEmpty(password))
         return password;
 
       long[] hash_seed = Hash(seed);

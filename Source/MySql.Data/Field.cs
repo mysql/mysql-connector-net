@@ -1,4 +1,4 @@
-// Copyright © 2004, 2015, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,17 +20,22 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System.Text;
-using MySql.Data.Common;
-using MySql.Data.Types;
-using System.Globalization;
-using System.Text.RegularExpressions;
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Text;
+using System.Text.RegularExpressions;
+using MySql.Data.MySqlClient;
+using MySql.Data.MySqlClient.Types;
+
+#if NETCORE10
+using MySql.Data.MySqlClient.Common;
+#else
+using MySql.Data.Common
+#endif
 
 namespace MySql.Data.MySqlClient
 {
+  [Flags]
   internal enum ColumnFlags : int
   {
     NOT_NULL = 1,
@@ -64,18 +69,12 @@ namespace MySql.Data.MySqlClient
     public string RealTableName;
     public string DatabaseName;
     public Encoding Encoding;
-    public int maxLength;
 
     // protected fields
-    protected ColumnFlags colFlags;
     protected int charSetIndex;
-    protected byte precision;
-    protected byte scale;
-    protected MySqlDbType mySqlDbType;
     protected DBVersion connVersion;
     protected Driver driver;
     protected bool binaryOk;
-    protected List<Type> typeConversions = new List<Type>();
 
     #endregion
 
@@ -83,7 +82,7 @@ namespace MySql.Data.MySqlClient
     {
       this.driver = driver;
       connVersion = driver.Version;
-      maxLength = 1;
+      MaxLength = 1;
       binaryOk = true;
     }
 
@@ -95,109 +94,49 @@ namespace MySql.Data.MySqlClient
       set { charSetIndex = value; SetFieldEncoding(); }
     }
 
-    public MySqlDbType Type
-    {
-      get { return mySqlDbType; }
-    }
+    public MySqlDbType Type { get; protected set; }
 
-    public byte Precision
-    {
-      get { return precision; }
-      set { precision = value; }
-    }
+    public byte Precision { get; set; }
 
-    public byte Scale
-    {
-      get { return scale; }
-      set { scale = value; }
-    }
+    public byte Scale { get; set; }
 
-    public int MaxLength
-    {
-      get { return maxLength; }
-      set { maxLength = value; }
-    }
+    public int MaxLength { get; set; }
 
-    public ColumnFlags Flags
-    {
-      get { return colFlags; }
-    }
+    public ColumnFlags Flags { get; protected set; }
 
-    public bool IsAutoIncrement
-    {
-      get { return (colFlags & ColumnFlags.AUTO_INCREMENT) > 0; }
-    }
+    public bool IsAutoIncrement => (Flags & ColumnFlags.AUTO_INCREMENT) > 0;
 
-    public bool IsNumeric
-    {
-      get { return (colFlags & ColumnFlags.NUMBER) > 0; }
-    }
+    public bool IsNumeric => (Flags & ColumnFlags.NUMBER) > 0;
 
-    public bool AllowsNull
-    {
-      get { return (colFlags & ColumnFlags.NOT_NULL) == 0; }
-    }
+    public bool AllowsNull => (Flags & ColumnFlags.NOT_NULL) == 0;
 
-    public bool IsUnique
-    {
-      get { return (colFlags & ColumnFlags.UNIQUE_KEY) > 0; }
-    }
+    public bool IsUnique => (Flags & ColumnFlags.UNIQUE_KEY) > 0;
 
-    public bool IsPrimaryKey
-    {
-      get { return (colFlags & ColumnFlags.PRIMARY_KEY) > 0; }
-    }
+    public bool IsPrimaryKey => (Flags & ColumnFlags.PRIMARY_KEY) > 0;
 
-    public bool IsBlob
-    {
-      get
-      {
-        return (mySqlDbType >= MySqlDbType.TinyBlob &&
-        mySqlDbType <= MySqlDbType.Blob) ||
-        (mySqlDbType >= MySqlDbType.TinyText &&
-        mySqlDbType <= MySqlDbType.Text) ||
-        (colFlags & ColumnFlags.BLOB) > 0;
-      }
-    }
+    public bool IsBlob => (Type >= MySqlDbType.TinyBlob &&
+                           Type <= MySqlDbType.Blob) ||
+                          (Type >= MySqlDbType.TinyText &&
+                           Type <= MySqlDbType.Text) ||
+                          (Flags & ColumnFlags.BLOB) > 0;
 
-    public bool IsBinary
-    {
-      get
-      {
-        return binaryOk && (CharacterSetIndex == 63);
-      }
-    }
+    public bool IsBinary => binaryOk && (CharacterSetIndex == 63);
 
-    public bool IsUnsigned
-    {
-      get { return (colFlags & ColumnFlags.UNSIGNED) > 0; }
-    }
+    public bool IsUnsigned => (Flags & ColumnFlags.UNSIGNED) > 0;
 
-    public bool IsTextField
-    {
-      get
-      {
-        return Type == MySqlDbType.VarString || Type == MySqlDbType.VarChar ||
-                    Type == MySqlDbType.String || (IsBlob && !IsBinary);
-      }
-    }
+    public bool IsTextField => Type == MySqlDbType.VarString || Type == MySqlDbType.VarChar ||
+                               Type == MySqlDbType.String || (IsBlob && !IsBinary);
 
-    public int CharacterLength
-    {
-      get { return ColumnLength / MaxLength; }
-    }
+    private int CharacterLength => ColumnLength / MaxLength;
 
-    public List<Type> TypeConversions
-    {
-      get { return typeConversions; }
-    }
+    public List<Type> TypeConversions { get; } = new List<Type>();
 
     #endregion
 
     public void SetTypeAndFlags(MySqlDbType type, ColumnFlags flags)
     {
-      colFlags = flags;
-      mySqlDbType = type;
+      Flags = flags;
+      Type = type;
 
       if (String.IsNullOrEmpty(TableName) && String.IsNullOrEmpty(RealTableName) &&
         IsBinary && driver.Settings.FunctionsReturnString)
@@ -214,19 +153,19 @@ namespace MySql.Data.MySqlClient
         switch (type)
         {
           case MySqlDbType.Byte:
-            mySqlDbType = MySqlDbType.UByte;
+            Type = MySqlDbType.UByte;
             return;
           case MySqlDbType.Int16:
-            mySqlDbType = MySqlDbType.UInt16;
+            Type = MySqlDbType.UInt16;
             return;
           case MySqlDbType.Int24:
-            mySqlDbType = MySqlDbType.UInt24;
+            Type = MySqlDbType.UInt24;
             return;
           case MySqlDbType.Int32:
-            mySqlDbType = MySqlDbType.UInt32;
+            Type = MySqlDbType.UInt32;
             return;
           case MySqlDbType.Int64:
-            mySqlDbType = MySqlDbType.UInt64;
+            Type = MySqlDbType.UInt64;
             return;
         }
       }
@@ -251,20 +190,20 @@ namespace MySql.Data.MySqlClient
             binaryOk = false;
             Encoding = System.Text.Encoding.GetEncoding("UTF-8");
             charSetIndex = -1;  // lets driver know we are in charge of encoding
-            maxLength = 4;
+            MaxLength = 4;
           }
         }
 
         if (!IsBinary)
         {
           if (type == MySqlDbType.TinyBlob)
-            mySqlDbType = MySqlDbType.TinyText;
+            Type = MySqlDbType.TinyText;
           else if (type == MySqlDbType.MediumBlob)
-            mySqlDbType = MySqlDbType.MediumText;
+            Type = MySqlDbType.MediumText;
           else if (type == MySqlDbType.Blob)
-            mySqlDbType = MySqlDbType.Text;
+            Type = MySqlDbType.Text;
           else if (type == MySqlDbType.LongBlob)
-            mySqlDbType = MySqlDbType.LongText;
+            Type = MySqlDbType.LongText;
         }
       }
 
@@ -273,24 +212,24 @@ namespace MySql.Data.MySqlClient
         CheckForExceptions();
 
       if (Type == MySqlDbType.String && CharacterLength == 36 && !driver.Settings.OldGuids)
-        mySqlDbType = MySqlDbType.Guid;
+        Type = MySqlDbType.Guid;
 
       if (!IsBinary) return;
 
       if (driver.Settings.RespectBinaryFlags)
       {
         if (type == MySqlDbType.String)
-          mySqlDbType = MySqlDbType.Binary;
+          Type = MySqlDbType.Binary;
         else if (type == MySqlDbType.VarChar ||
              type == MySqlDbType.VarString)
-          mySqlDbType = MySqlDbType.VarBinary;
+          Type = MySqlDbType.VarBinary;
       }
 
       if (CharacterSetIndex == 63)
         CharacterSetIndex = driver.ConnectionCharSetIndex;
 
       if (Type == MySqlDbType.Binary && ColumnLength == 16 && driver.Settings.OldGuids)
-        mySqlDbType = MySqlDbType.Guid;
+        Type = MySqlDbType.Guid;
     }
 
     public void AddTypeConversion(Type t)
@@ -404,7 +343,11 @@ namespace MySql.Data.MySqlClient
       CharacterSet cs = CharSetMap.GetCharacterSet(version, (string)charSets[CharacterSetIndex]);
       // starting with 6.0.4 utf8 has a maxlen of 4 instead of 3.  The old
       // 3 byte utf8 is utf8mb3
+#if !NETCORE10
       if (cs.name.ToLower(System.Globalization.CultureInfo.InvariantCulture) == "utf-8" &&
+#else
+      if (cs.name.ToLowerInvariant() == "utf-8" &&
+#endif
         version.Major >= 6)
         MaxLength = 4;
       else

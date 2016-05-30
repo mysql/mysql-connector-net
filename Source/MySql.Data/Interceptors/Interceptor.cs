@@ -1,4 +1,4 @@
-﻿// Copyright © 2004, 2011, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,12 +21,12 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using MySql.Data.MySqlClient.Properties;
-using System.Reflection;
 
+#if NETCORE10
+namespace MySql.Data.MySqlClient.Interceptors
+#else
 namespace MySql.Data.MySqlClient
+#endif
 {
   /// <summary>
   /// Interceptor is the base class for the "manager" classes such as ExceptionInterceptor,
@@ -34,7 +34,7 @@ namespace MySql.Data.MySqlClient
   /// </summary>
   internal abstract class Interceptor
   {
-    protected MySqlConnection connection;
+    protected MySqlConnection Connection;
 
     protected void LoadInterceptors(string interceptorList)
     {

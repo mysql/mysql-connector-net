@@ -1,4 +1,4 @@
-// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -24,8 +24,16 @@ using System;
 using System.Collections;
 using System.Text;
 using System.Collections.Generic;
-using MySql.Data.MySqlClient.Properties;
 using System.Data;
+using MySql.Data.MySqlClient.Properties;
+using System.Linq;
+
+#if NETCORE10
+using MySql.Data.MySqlClient.Common;
+using MySql.Data.MySqlClient.Framework.NetCore10;
+#else
+using MySql.Data.Common
+#endif
 
 namespace MySql.Data.MySqlClient
 {
@@ -34,17 +42,11 @@ namespace MySql.Data.MySqlClient
   /// </summary>
   internal class PreparableStatement : Statement
   {
-    private int executionCount;
-    private int statementId;
-#if RT
-    RtBitArray nullMap;
-#else
-    BitArray nullMap;
-#endif
-    List<MySqlParameter> parametersToSend = new List<MySqlParameter>();
-    MySqlPacket packet;
-    int dataPosition;
-    int nullMapPosition;
+    BitArray _nullMap;
+    readonly List<MySqlParameter> _parametersToSend = new List<MySqlParameter>();
+    MySqlPacket _packet;
+    int _dataPosition;
+    int _nullMapPosition;
 
     public PreparableStatement(MySqlCommand command, string text)
       : base(command, text)
@@ -53,21 +55,11 @@ namespace MySql.Data.MySqlClient
 
     #region Properties
 
-    public int ExecutionCount
-    {
-      get { return executionCount; }
-      set { executionCount = value; }
-    }
+    public int ExecutionCount { get; set; }
 
-    public bool IsPrepared
-    {
-      get { return statementId > 0; }
-    }
+    public bool IsPrepared => StatementId > 0;
 
-    public int StatementId
-    {
-      get { return statementId; }
-    }
+    public int StatementId { get; private set; }
 
     #endregion
 
@@ -75,52 +67,48 @@ namespace MySql.Data.MySqlClient
     {
       // strip out names from parameter markers
       string text;
-      List<string> parameter_names = PrepareCommandText(out text);
+      List<string> parameterNames = PrepareCommandText(out text);
 
       // ask our connection to send the prepare command
       MySqlField[] paramList = null;
-      statementId = Driver.PrepareStatement(text, ref paramList);
+      StatementId = Driver.PrepareStatement(text, ref paramList);
 
       // now we need to assign our field names since we stripped them out
       // for the prepare
-      for (int i = 0; i < parameter_names.Count; i++)
+      for (int i = 0; i < parameterNames.Count; i++)
       {
         //paramList[i].ColumnName = (string) parameter_names[i];
-        string parameterName = (string)parameter_names[i];
+        string parameterName = (string)parameterNames[i];
         MySqlParameter p = Parameters.GetParameterFlexible(parameterName, false);
         if (p == null)
           throw new InvalidOperationException(
               String.Format(Resources.ParameterNotFoundDuringPrepare, parameterName));
         p.Encoding = paramList[i].Encoding;
-        parametersToSend.Add(p);
+        _parametersToSend.Add(p);
       }
 
       // now prepare our null map
       int numNullBytes = 0;
       if (paramList != null && paramList.Length > 0)
       {
-#if RT
-          nullMap = new RtBitArray(paramList.Length);
-#else
-          nullMap = new BitArray(paramList.Length);
-#endif
-          numNullBytes = (nullMap.Count + 7) / 8;
+          _nullMap = new BitArray(paramList.Length);
+          numNullBytes = (_nullMap.Length + 7) / 8;
       }
 
-      packet = new MySqlPacket(Driver.Encoding);
+      _packet = new MySqlPacket(Driver.Encoding);
 
       // write out some values that do not change run to run
-      packet.WriteByte(0);
-      packet.WriteInteger(statementId, 4);
-      packet.WriteByte((byte)0); // flags; always 0 for 4.1
-      packet.WriteInteger(1, 4); // interation count; 1 for 4.1
-      nullMapPosition = packet.Position;
-      packet.Position += numNullBytes;  // leave room for our null map
-      packet.WriteByte(1); // rebound flag
+      _packet.WriteByte(0);
+      _packet.WriteInteger(StatementId, 4);
+      _packet.WriteByte((byte)0); // flags; always 0 for 4.1
+      _packet.WriteInteger(1, 4); // interation count; 1 for 4.1
+      _nullMapPosition = _packet.Position;
+      _packet.Position += numNullBytes;  // leave room for our null map
+      _packet.WriteByte(1); // rebound flag
       // write out the parameter types
-      foreach (MySqlParameter p in parametersToSend)
-        packet.WriteInteger(p.GetPSType(), 2);
-      dataPosition = packet.Position;
+      foreach (MySqlParameter p in _parametersToSend)
+        _packet.WriteInteger(p.GetPSType(), 2);
+      _dataPosition = _packet.Position;
     }
 
     public override void Execute()
@@ -152,22 +140,21 @@ namespace MySql.Data.MySqlClient
       //TODO:  only send rebound if parms change
 
       // now write out all non-null values
-      packet.Position = dataPosition;
-      for (int i = 0; i < parametersToSend.Count; i++)
+      _packet.Position = _dataPosition;
+      for (int i = 0; i < _parametersToSend.Count; i++)
       {
-        MySqlParameter p = parametersToSend[i];
-        nullMap[i] = (p.Value == DBNull.Value || p.Value == null) ||
+        MySqlParameter p = _parametersToSend[i];
+        _nullMap[i] = (p.Value == DBNull.Value || p.Value == null) ||
             p.Direction == ParameterDirection.Output;
-        if (nullMap[i]) continue;
-        packet.Encoding = p.Encoding;
-        p.Serialize(packet, true, Connection.Settings);
+        if (_nullMap[i]) continue;
+        _packet.Encoding = p.Encoding;
+        p.Serialize(_packet, true, Connection.Settings);
       }
-      if (nullMap != null)
-        nullMap.CopyTo(packet.Buffer, nullMapPosition);
+      _nullMap?.CopyTo(_packet.Buffer, _nullMapPosition);
 
-      executionCount++;
+      ExecutionCount++;
 
-      Driver.ExecuteStatement(packet);
+      Driver.ExecuteStatement(_packet);
     }
 
     public override bool ExecuteNext()
@@ -216,8 +203,8 @@ namespace MySql.Data.MySqlClient
     {
       if (!IsPrepared) return;
 
-      Driver.CloseStatement(statementId);
-      statementId = 0;
+      Driver.CloseStatement(StatementId);
+      StatementId = 0;
     }
   }
 }

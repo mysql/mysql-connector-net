@@ -1,4 +1,4 @@
-// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc.
+// Copyright © 2004, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,75 +21,55 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Data;
-using MySql.Data.MySqlClient;
 using System.Globalization;
+using MySql.Data.MySqlClient;
 
-namespace MySql.Data.Types
+namespace MySql.Data.MySqlClient.Types
 {
   internal struct MySqlInt32 : IMySqlValue
   {
-    private int mValue;
-    private bool isNull;
-    private bool is24Bit;
+    private readonly int _value;
+    private readonly bool _is24Bit;
 
     private MySqlInt32(MySqlDbType type)
     {
-      is24Bit = type == MySqlDbType.Int24 ? true : false;
-      isNull = true;
-      mValue = 0;
+      _is24Bit = type == MySqlDbType.Int24;
+      IsNull = true;
+      _value = 0;
     }
 
     public MySqlInt32(MySqlDbType type, bool isNull)
       : this(type)
     {
-      this.isNull = isNull;
+      IsNull = isNull;
     }
 
     public MySqlInt32(MySqlDbType type, int val)
       : this(type)
     {
-      this.isNull = false;
-      mValue = val;
+      IsNull = false;
+      _value = val;
     }
 
     #region IMySqlValue Members
 
-    public bool IsNull
-    {
-      get { return isNull; }
-    }
+    public bool IsNull { get; }
 
-    MySqlDbType IMySqlValue.MySqlDbType
-    {
-      get { return MySqlDbType.Int32; }
-    }
+    MySqlDbType IMySqlValue.MySqlDbType => MySqlDbType.Int32;
 
-    object IMySqlValue.Value
-    {
-      get { return mValue; }
-    }
+    object IMySqlValue.Value => _value;
 
-    public int Value
-    {
-      get { return mValue; }
-    }
+    public int Value => _value;
 
-    Type IMySqlValue.SystemType
-    {
-      get { return typeof(Int32); }
-    }
+    Type IMySqlValue.SystemType => typeof(Int32);
 
-    string IMySqlValue.MySqlTypeName
-    {
-      get { return is24Bit ? "MEDIUMINT" : "INT"; }
-    }
+    string IMySqlValue.MySqlTypeName => _is24Bit ? "MEDIUMINT" : "INT";
 
     void IMySqlValue.WriteValue(MySqlPacket packet, bool binary, object val, int length)
     {
-      int v = (val is Int32) ? (int)val : Convert.ToInt32(val);
+      int v = val as int? ?? Convert.ToInt32(val);
       if (binary)
-        packet.WriteInteger((long)v, is24Bit ? 3 : 4);
+        packet.WriteInteger((long)v, _is24Bit ? 3 : 4);
       else
         packet.WriteStringNoNull(v.ToString());
     }
@@ -133,7 +113,7 @@ namespace MySql.Data.Types
         row["CreateFormat"] = types[x];
         row["CreateParameters"] = null;
         row["DataType"] = "System.Int32";
-        row["IsAutoincrementable"] = dbtype[x] == MySqlDbType.Year ? false : true;
+        row["IsAutoincrementable"] = dbtype[x] != MySqlDbType.Year;
         row["IsBestMatch"] = true;
         row["IsCaseSensitive"] = false;
         row["IsFixedLength"] = true;

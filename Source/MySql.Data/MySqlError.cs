@@ -1,4 +1,4 @@
-// Copyright © 2004, 2010, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -27,44 +27,31 @@ namespace MySql.Data.MySqlClient
   /// </summary>
   public class MySqlError
   {
-    private string level;
-    private int code;
-    private string message;
-
     /// <summary></summary>
     /// <param name="level"></param>
     /// <param name="code"></param>
     /// <param name="message"></param>
     public MySqlError(string level, int code, string message)
     {
-      this.level = level;
-      this.code = code;
-      this.message = message;
+      this.Level = level;
+      this.Code = code;
+      this.Message = message;
     }
 
     /// <summary>
     /// Error level
     /// </summary>
-    public string Level
-    {
-      get { return level; }
-    }
+    public string Level { get; }
 
     /// <summary>
     /// Error code
     /// </summary>
-    public int Code
-    {
-      get { return code; }
-    }
+    public int Code { get; }
 
     /// <summary>
     /// Error message
     /// </summary>
-    public string Message
-    {
-      get { return message; }
-    }
+    public string Message { get; }
   };
 
   /// <summary>

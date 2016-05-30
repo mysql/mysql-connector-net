@@ -1,4 +1,4 @@
-// Copyright © 2004, 2014, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -22,22 +22,26 @@
 
 using System;
 using System.ComponentModel;
-#if !RT
 using System.Data;
 using System.Data.Common;
-using System.Transactions;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using MySql.Data.MySqlClient;
+using MySql.Data.MySqlClient.Interceptors;
+using MySql.Data.MySqlClient.Properties;
 using IsolationLevel = System.Data.IsolationLevel;
+
+#if NETCORE10
+using MySql.Data.MySqlClient.Common;
+#else
+using MySql.Data.Common
 #endif
+
+#if !NETCORE10
 using System.Drawing;
 using System.Drawing.Design;
-using System.Text;
-using MySql.Data.Common;
-using System.Diagnostics;
-using MySql.Data.MySqlClient.Properties;
-using MySql.Data.MySqlClient.Replication;
-#if NET_40_OR_GREATER
-using System.Threading.Tasks;
-using System.Threading;
+using System.Transactions;
 #endif
 
 namespace MySql.Data.MySqlClient
@@ -48,22 +52,17 @@ namespace MySql.Data.MySqlClient
     internal ConnectionState connectionState;
     internal Driver driver;
     internal bool hasBeenOpen;
-    private SchemaProvider schemaProvider;
-    private ProcedureCache procedureCache;
-    private bool isInUse;
-    private PerformanceMonitor perfMonitor;
-#if !RT
-    private ExceptionInterceptor exceptionInterceptor;
+    private SchemaProvider _schemaProvider;
+    private ExceptionInterceptor _exceptionInterceptor;
     internal CommandInterceptor commandInterceptor;
-#endif
-    private bool isKillQueryConnection;
-    private string database;
-    private int commandTimeout;
+    private bool _isKillQueryConnection;
+    private string _database;
+    private int _commandTimeout;
 
     /// <include file='docs/MySqlConnection.xml' path='docs/InfoMessage/*'/>
     public event MySqlInfoMessageEventHandler InfoMessage;
 
-    private static Cache<string, MySqlConnectionStringBuilder> connectionStringCache =
+    private static readonly Cache<string, MySqlConnectionStringBuilder> ConnectionStringCache =
       new Cache<string, MySqlConnectionStringBuilder>(0, 25);
 
     /// <include file='docs/MySqlConnection.xml' path='docs/DefaultCtor/*'/>
@@ -71,7 +70,11 @@ namespace MySql.Data.MySqlClient
     {
       //TODO: add event data to StateChange docs
       Settings = new MySqlConnectionStringBuilder();
-      database = String.Empty;
+      _database = String.Empty;
+
+#if NETCORE10
+      ConnectionString = Startup.ConnectionString;
+#endif
     }
 
     /// <include file='docs/MySqlConnection.xml' path='docs/Ctor1/*'/>
@@ -84,25 +87,15 @@ namespace MySql.Data.MySqlClient
     #region Destructor
     ~MySqlConnection()
     {
-#if !RT
-      Dispose(false);
-#else
       Dispose();
-#endif
     }
     #endregion
 
     #region Interal Methods & Properties
 
-    internal PerformanceMonitor PerfMonitor
-    {
-      get { return perfMonitor; }
-    }
+    internal PerformanceMonitor PerfMonitor { get; private set; }
 
-    internal ProcedureCache ProcedureCache
-    {
-      get { return procedureCache; }
-    }
+    internal ProcedureCache ProcedureCache { get; private set; }
 
     internal MySqlConnectionStringBuilder Settings { get; private set; }
 
@@ -110,44 +103,40 @@ namespace MySql.Data.MySqlClient
     {
       get
       {
-        if (driver == null)
-          return null;
-        return driver.reader;
+        return driver?.reader;
       }
       set
       {
         driver.reader = value;
-        isInUse = driver.reader != null;
+        IsInUse = driver.reader != null;
       }
     }
 
     internal void OnInfoMessage(MySqlInfoMessageEventArgs args)
     {
-      if (InfoMessage != null)
-      {
-        InfoMessage(this, args);
-      }
+      InfoMessage?.Invoke(this, args);
     }
 
     internal bool SoftClosed
     {
       get
       {
-#if !RT
+#if !NETCORE10
         return (State == ConnectionState.Closed) &&
-          driver != null &&
-          driver.CurrentTransaction != null;
+               driver != null;
+
+        //TODO: FIX to include support for transations for 452 and 46X
+        //return (State == ConnectionState.Closed) &&
+        //  Driver != null &&
+        //  Driver.CurrentTransaction != null;
 #else
-        return false;            
+        return (State == ConnectionState.Closed) &&
+               driver != null;
 #endif
       }
     }
 
-    internal bool IsInUse
-    {
-      get { return isInUse; }
-      set { isInUse = value; }
-    }
+    internal bool IsInUse { get; set; }
 
     #endregion
 
@@ -156,64 +145,58 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Returns the id of the server thread this connection is executing on
     /// </summary>
+#if !NETCORE10
     [Browsable(false)]
-    public int ServerThread
-    {
-      get { return driver.ThreadID; }
-    }
+#endif
+    public int ServerThread => driver.ThreadID;
 
     /// <summary>
     /// Gets the name of the MySQL server to which to connect.
     /// </summary>
+#if !NETCORE10
     [Browsable(true)]
-    public override string DataSource
-    {
-      get { return Settings.Server; }
-    }
+#endif
+    public override string DataSource => Settings.Server;
 
     /// <include file='docs/MySqlConnection.xml' path='docs/ConnectionTimeout/*'/>
+#if !NETCORE10
     [Browsable(true)]
-    public override int ConnectionTimeout
-    {
-      get { return (int)Settings.ConnectionTimeout; }
-    }
+#endif
+    public override int ConnectionTimeout => (int)Settings.ConnectionTimeout;
 
     /// <include file='docs/MySqlConnection.xml' path='docs/Database/*'/>
+#if !NETCORE10
     [Browsable(true)]
-    public override string Database
-    {
-      get { return database; }
-    }
+#endif
+    public override string Database => _database;
 
     /// <summary>
     /// Indicates if this connection should use compression when communicating with the server.
     /// </summary>
+#if !NETCORE10
     [Browsable(false)]
-    public bool UseCompression
-    {
-      get { return Settings.UseCompression; }
-    }
+#endif
+    public bool UseCompression => Settings.UseCompression;
 
     /// <include file='docs/MySqlConnection.xml' path='docs/State/*'/>
+#if !NETCORE10
     [Browsable(false)]
-    public override ConnectionState State
-    {
-      get { return connectionState; }
-    }
+#endif
+    public override ConnectionState State => connectionState;
 
     /// <include file='docs/MySqlConnection.xml' path='docs/ServerVersion/*'/>
+#if !NETCORE10
     [Browsable(false)]
-    public override string ServerVersion
-    {
-      get { return driver.Version.ToString(); }
-    }
+#endif
+    public override string ServerVersion => driver.Version.ToString();
 
     /// <include file='docs/MySqlConnection.xml' path='docs/ConnectionString/*'/>
+#if !NETCORE10
     [Editor("MySql.Data.MySqlClient.Design.ConnectionStringTypeEditor,MySqlClient.Design", typeof(UITypeEditor))]
     [Browsable(true)]
     [Category("Data")]
-    [Description(
-      "Information used to connect to a DataSource, such as 'Server=xxx;UserId=yyy;Password=zzz;Database=dbdb'.")]
+    [Description("Information used to connect to a DataSource, such as 'Server=xxx;UserId=yyy;Password=zzz;Database=dbdb'.")]
+#endif
     public override string ConnectionString
     {
       get
@@ -229,109 +212,41 @@ namespace MySql.Data.MySqlClient
             "Not allowed to change the 'ConnectionString' property while the connection (state=" + State + ")."));
 
         MySqlConnectionStringBuilder newSettings;
-        lock (connectionStringCache)
+        lock (ConnectionStringCache)
         {
           if (value == null)
             newSettings = new MySqlConnectionStringBuilder();
           else
           {
-            newSettings = (MySqlConnectionStringBuilder)connectionStringCache[value];
+            newSettings = ConnectionStringCache[value];
             if (null == newSettings)
             {
               newSettings = new MySqlConnectionStringBuilder(value);
-              connectionStringCache.Add(value, newSettings);
+              ConnectionStringCache.Add(value, newSettings);
             }
           }
         }
 
         Settings = newSettings;
 
-        if (Settings.Database != null && Settings.Database.Length > 0)
-          this.database = Settings.Database;
+        if (!string.IsNullOrEmpty(Settings.Database))
+          _database = Settings.Database;
 
         if (driver != null)
           driver.Settings = newSettings;
       }
     }
 
-#if !__MonoCS__ && !RT
-
-    protected override DbProviderFactory DbProviderFactory
-    {
-      get
-      {
-        return MySqlClientFactory.Instance;
-      }
-    }
-
+#if !NETCORE10
+    protected override DbProviderFactory DbProviderFactory => MySqlClientFactory.Instance;
 #endif
-
-    public bool IsPasswordExpired { get { return driver.IsPasswordExpired; } }
+    public bool IsPasswordExpired => driver.IsPasswordExpired;
 
     #endregion
 
     partial void AssertPermissions();
 
     #region Transactions
-
-#if !MONO && !RT
-    /// <summary>
-    /// Enlists in the specified transaction. 
-    /// </summary>
-    /// <param name="transaction">
-    /// A reference to an existing <see cref="System.Transactions.Transaction"/> in which to enlist.
-    /// </param>
-    public override void EnlistTransaction(Transaction transaction)
-    {
-      // enlisting in the null transaction is a noop
-      if (transaction == null)
-        return;
-
-      // guard against trying to enlist in more than one transaction
-      if (driver.CurrentTransaction != null)
-      {
-        if (driver.CurrentTransaction.BaseTransaction == transaction)
-          return;
-
-        Throw(new MySqlException("Already enlisted"));
-      }
-
-      // now see if we need to swap out drivers.  We would need to do this since
-      // we have to make sure all ops for a given transaction are done on the
-      // same physical connection.
-      Driver existingDriver = DriverTransactionManager.GetDriverInTransaction(transaction);
-      if (existingDriver != null)
-      {
-        // we can't allow more than one driver to contribute to the same connection
-        if (existingDriver.IsInActiveUse)
-          Throw(new NotSupportedException(Resources.MultipleConnectionsInTransactionNotSupported));
-
-        // there is an existing driver and it's not being currently used.
-        // now we need to see if it is using the same connection string
-        string text1 = existingDriver.Settings.ConnectionString;
-        string text2 = Settings.ConnectionString;
-        if (String.Compare(text1, text2, true) != 0)
-          Throw(new NotSupportedException(Resources.MultipleConnectionsInTransactionNotSupported));
-
-        // close existing driver
-        // set this new driver as our existing driver
-        CloseFully();
-        driver = existingDriver;
-      }
-
-      if (driver.CurrentTransaction == null)
-      {
-        MySqlPromotableTransaction t = new MySqlPromotableTransaction(this, transaction);
-        if (!transaction.EnlistPromotableSinglePhase(t))
-          Throw(new NotSupportedException(Resources.DistributedTxnNotSupported));
-
-        driver.CurrentTransaction = t;
-        DriverTransactionManager.SetDriverInTransaction(driver);
-        driver.IsInActiveUse = true;
-      }
-    }
-#endif
-
     /// <include file='docs/MySqlConnection.xml' path='docs/BeginTransaction/*'/>
     public new MySqlTransaction BeginTransaction()
     {
@@ -399,20 +314,20 @@ namespace MySql.Data.MySqlClient
       // in parallel
       lock (driver)
       {
-#if !RT
-        if (Transaction.Current != null &&
-          Transaction.Current.TransactionInformation.Status == TransactionStatus.Aborted)
-        {
-          Throw(new TransactionAbortedException());
-        }
-#endif
+        //#if !RT
+        //        if (Transaction.Current != null &&
+        //          Transaction.Current.TransactionInformation.Status == TransactionStatus.Aborted)
+        //        {
+        //          Throw(new TransactionAbortedException());
+        //        }
+        //#endif
         // We use default command timeout for SetDatabase
         using (new CommandTimer(this, (int)Settings.DefaultCommandTimeout))
         {
           driver.SetDatabase(databaseName);
         }
       }
-      this.database = databaseName;
+      this._database = databaseName;
     }
 
     internal void SetState(ConnectionState newConnectionState, bool broadcast)
@@ -446,17 +361,16 @@ namespace MySql.Data.MySqlClient
       if (State == ConnectionState.Open)
         Throw(new InvalidOperationException(Resources.ConnectionAlreadyOpen));
 
-#if !RT
       // start up our interceptors
-      exceptionInterceptor = new ExceptionInterceptor(this);
+      _exceptionInterceptor = new ExceptionInterceptor(this);
       commandInterceptor = new CommandInterceptor(this);
-#endif
 
       SetState(ConnectionState.Connecting, true);
 
       AssertPermissions();
+#if !NETCORE10
 
-#if !RT
+      //TODO: SUPPORT FOR 452 AND 46X
       // if we are auto enlisting in a current transaction, then we will be
       // treating the connection as pooled
       if (Settings.AutoEnlist && Transaction.Current != null)
@@ -467,36 +381,37 @@ namespace MySql.Data.MySqlClient
           !driver.Settings.EquivalentTo(this.Settings)))
           Throw(new NotSupportedException(Resources.MultipleConnectionsInTransactionNotSupported));
       }
-#endif
 
+#endif
       try
       {
         MySqlConnectionStringBuilder currentSettings = Settings;
 
+        //TODO: SUPPORT FOR 452 AND 46X
         // Load balancing 
-        if (ReplicationManager.IsReplicationGroup(Settings.Server))
-        {
-          if (driver == null)
-          {
-            ReplicationManager.GetNewConnection(Settings.Server, false, this);
-          }
-          else
-            currentSettings = driver.Settings;
-        }
+        //if (ReplicationManager.IsReplicationGroup(Settings.Server))
+        //{
+        //  if (driver == null)
+        //  {
+        //    ReplicationManager.GetNewConnection(Settings.Server, false, this);
+        //  }
+        //  else
+        //    currentSettings = driver.Settings;
+        //}
 
         if (Settings.Pooling)
         {
           MySqlPool pool = MySqlPoolManager.GetPool(currentSettings);
           if (driver == null || !driver.IsOpen)
             driver = pool.GetConnection();
-          procedureCache = pool.ProcedureCache;
+          ProcedureCache = pool.ProcedureCache;
 
         }
         else
         {
           if (driver == null || !driver.IsOpen)
             driver = Driver.Create(currentSettings);
-          procedureCache = new ProcedureCache((int)Settings.ProcedureCacheSize);
+          ProcedureCache = new ProcedureCache((int)Settings.ProcedureCacheSize);
         }
       }
       catch (Exception ex)
@@ -515,20 +430,20 @@ namespace MySql.Data.MySqlClient
 
       if (!(driver.SupportsPasswordExpiration && driver.IsPasswordExpired))
       {
-        if (Settings.Database != null && Settings.Database != String.Empty)
+        if (!string.IsNullOrEmpty(Settings.Database))
           ChangeDatabase(Settings.Database);
       }
 
       // setup our schema provider
-      schemaProvider = new ISSchemaProvider(this);
-      perfMonitor = new PerformanceMonitor(this);
+      _schemaProvider = new ISSchemaProvider(this);
+      PerfMonitor = new PerformanceMonitor(this);
 
-      // if we are opening up inside a current transaction, then autoenlist
-      // TODO: control this with a connection string option
-#if !MONO && !RT
-      if (Transaction.Current != null && Settings.AutoEnlist)
-        EnlistTransaction(Transaction.Current);
-#endif
+      //      // if we are opening up inside a current transaction, then autoenlist
+      //      // TODO: control this with a connection string option
+      //#if !MONO && !RT
+      //      if (Transaction.Current != null && Settings.AutoEnlist)
+      //        EnlistTransaction(Transaction.Current);
+      //#endif
 
       hasBeenOpen = true;
       SetState(ConnectionState.Open, true);
@@ -568,7 +483,7 @@ namespace MySql.Data.MySqlClient
       }
       finally
       {
-        this.isInUse = false;
+        this.IsInUse = false;
       }
       SetState(ConnectionState.Closed, true);
     }
@@ -577,12 +492,13 @@ namespace MySql.Data.MySqlClient
     {
       if (Settings.Pooling && driver.IsOpen)
       {
-        // if we are in a transaction, roll it back
-        if (driver.HasStatus(ServerStatusFlags.InTransaction))
-        {
-          MySqlTransaction t = new MySqlTransaction(this, IsolationLevel.Unspecified);
-          t.Rollback();
-        }
+        //TODO: SUPPORT FOR 452 AND 46X
+        //// if we are in a transaction, roll it back
+        //if (driver.HasStatus(ServerStatusFlags.InTransaction))
+        //{
+        //  MySql.Data.MySqlClient.MySqlTransaction t = new MySql.Data.MySqlClient.MySqlTransaction(this, IsolationLevel.Unspecified);
+        //  t.Rollback();
+        //}
 
         MySqlPoolManager.ReleaseConnection(driver);
       }
@@ -606,13 +522,15 @@ namespace MySql.Data.MySqlClient
       // will be null on the second time through
       if (driver != null)
       {
-#if !RT
-        if (driver.CurrentTransaction == null)
+#if !NETCORE10
+        //TODO: Add support for 452 and 46X
+        //if (Driver.CurrentTransaction == null)
 #endif
           CloseFully();
-#if !RT
-        else
-          driver.IsInActiveUse = false;
+#if !NETCORE10
+    //TODO: Add support for 452 and 46X
+        //else
+        //  Driver.IsInActiveUse = false;
 #endif
       }
 
@@ -621,7 +539,7 @@ namespace MySql.Data.MySqlClient
 
     internal string CurrentDatabase()
     {
-      if (Database != null && Database.Length > 0)
+      if (!string.IsNullOrEmpty(Database))
         return Database;
       MySqlCommand cmd = new MySqlCommand("SELECT database()", this);
       return cmd.ExecuteScalar().ToString();
@@ -633,7 +551,7 @@ namespace MySql.Data.MySqlClient
     {
       bool isFatal = false;
 
-      if (isKillQueryConnection)
+      if (_isKillQueryConnection)
       {
         // Special connection started to cancel a query.
         // Abort will prevent recursive connection spawning
@@ -688,11 +606,10 @@ namespace MySql.Data.MySqlClient
 
       using (MySqlConnection c = new MySqlConnection(cb.ConnectionString))
       {
-        c.isKillQueryConnection = true;
+        c._isKillQueryConnection = true;
         c.Open();
         string commandText = "KILL QUERY " + ServerThread;
-        MySqlCommand cmd = new MySqlCommand(commandText, c);
-        cmd.CommandTimeout = timeout;
+        MySqlCommand cmd = new MySqlCommand(commandText, c) {CommandTimeout = timeout};
         cmd.ExecuteNonQuery();
       }
     }
@@ -731,7 +648,7 @@ namespace MySql.Data.MySqlClient
         // Connection timeout is handled by driver
         return false;
 
-      if (commandTimeout != 0)
+      if (_commandTimeout != 0)
         // someone is trying to set a timeout while command is already
         // running. It could be for example recursive call to ExecuteReader
         // Ignore the request, as only top-level (non-recursive commands)
@@ -741,8 +658,8 @@ namespace MySql.Data.MySqlClient
       if (driver == null)
         return false;
 
-      commandTimeout = value;
-      driver.ResetTimeout(commandTimeout * 1000);
+      _commandTimeout = value;
+      driver.ResetTimeout(_commandTimeout * 1000);
       return true;
     }
 
@@ -753,11 +670,8 @@ namespace MySql.Data.MySqlClient
     {
       if (!hasBeenOpen)
         return;
-      commandTimeout = 0;
-      if (driver != null)
-      {
-        driver.ResetTimeout(0);
-      }
+      _commandTimeout = 0;
+      driver?.ResetTimeout(0);
     }
     #endregion
 
@@ -766,8 +680,8 @@ namespace MySql.Data.MySqlClient
       if (collectionName == null)
         collectionName = SchemaProvider.MetaCollection;
 
-      string[] restrictions = schemaProvider.CleanRestrictions(restrictionValues);
-      MySqlSchemaCollection c = schemaProvider.GetSchema(collectionName, restrictions);
+      string[] restrictions = _schemaProvider.CleanRestrictions(restrictionValues);
+      MySqlSchemaCollection c = _schemaProvider.GetSchema(collectionName, restrictions);
       return c;
     }
 
@@ -790,31 +704,20 @@ namespace MySql.Data.MySqlClient
     internal void Throw(Exception ex)
     {
 #if !RT
-      if (exceptionInterceptor == null)
+      if (_exceptionInterceptor == null)
         throw ex;
-      exceptionInterceptor.Throw(ex);
+      _exceptionInterceptor.Throw(ex);
 #else
       throw ex;
 #endif
     }
 
-#if !RT
-    public void Dispose()
+    public new void Dispose()
     {
       Dispose(true);
       GC.SuppressFinalize(this);
     }
-#else
-    public void Dispose()
-    {
-      if (State == ConnectionState.Open)
-        Close();
 
-      GC.SuppressFinalize(this);
-    }
-#endif
-
-#if NET_40_OR_GREATER
     #region Async
     /// <summary>
     /// Async version of BeginTransaction
@@ -1029,7 +932,6 @@ namespace MySql.Data.MySqlClient
       return result.Task;
     }
     #endregion
-#endif
   }
 
   /// <summary>
@@ -1046,7 +948,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// 
     /// </summary>
-    public MySqlError[] errors;
+    public MySqlError[] Errors;
   }
 
   /// <summary>
@@ -1055,27 +957,26 @@ namespace MySql.Data.MySqlClient
   /// </summary>
   internal class CommandTimer : IDisposable
   {
-    bool timeoutSet;
-    MySqlConnection connection;
+    private bool _timeoutSet;
+    private MySqlConnection _connection;
 
     public CommandTimer(MySqlConnection connection, int timeout)
     {
-      this.connection = connection;
+      _connection = connection;
       if (connection != null)
       {
-        timeoutSet = connection.SetCommandTimeout(timeout);
+        _timeoutSet = connection.SetCommandTimeout(timeout);
       }
     }
 
     #region IDisposable Members
     public void Dispose()
     {
-      if (timeoutSet)
-      {
-        timeoutSet = false;
-        connection.ClearCommandTimeout();
-        connection = null;
-      }
+      if (!_timeoutSet) return;
+
+      _timeoutSet = false;
+      _connection.ClearCommandTimeout();
+      _connection = null;
     }
     #endregion
   }

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2009 Sun Microsystems, Inc.
+﻿// Copyright © 2009, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -22,7 +22,11 @@
 
 using System;
 
+#if NETCORE10
+namespace MySql.Data.MySqlClient.Common
+#else
 namespace MySql.Data.Common
+#endif
 {
   /// <summary>
   /// This class is modeled after .NET Stopwatch. It provides better
@@ -31,47 +35,38 @@ namespace MySql.Data.Common
   /// when high-precision is not required (e.g for measuring IO timeouts),
   /// but not for other tasks.
   /// </summary>
-  class LowResolutionStopwatch
+  internal class LowResolutionStopwatch
   {
-    long millis;
-    long startTime;
+    long _startTime;
     public static readonly long Frequency = 1000; // measure in milliseconds
-    public static readonly bool isHighResolution = false;
+    public static readonly bool IsHighResolution = false;
 
     public LowResolutionStopwatch()
     {
-      millis = 0;
+      ElapsedMilliseconds = 0;
     }
-    public long ElapsedMilliseconds
-    {
-      get { return millis; }
-    }
+    public long ElapsedMilliseconds { get; private set; }
+
     public void Start()
     {
-      startTime = Environment.TickCount;
+      _startTime = Environment.TickCount;
     }
 
     public void Stop()
     {
       long now = Environment.TickCount;
       // Calculate time different, handle possible overflow
-      long elapsed = (now < startTime) ? Int32.MaxValue - startTime + now : now - startTime;
-      millis += elapsed;
+      long elapsed = (now < _startTime) ? Int32.MaxValue - _startTime + now : now - _startTime;
+      ElapsedMilliseconds += elapsed;
     }
 
     public void Reset()
     {
-      millis = 0;
-      startTime = 0;
+      ElapsedMilliseconds = 0;
+      _startTime = 0;
     }
 
-    public TimeSpan Elapsed
-    {
-      get
-      {
-        return new TimeSpan(0, 0, 0, 0, (int)millis);
-      }
-    }
+    public TimeSpan Elapsed => new TimeSpan(0, 0, 0, 0, (int)ElapsedMilliseconds);
 
     public static LowResolutionStopwatch StartNew()
     {
@@ -87,7 +82,7 @@ namespace MySql.Data.Common
 
     bool IsRunning()
     {
-      return (startTime != 0);
+      return (_startTime != 0);
     }
   }
 }
