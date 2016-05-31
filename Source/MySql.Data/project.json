@@ -21,16 +21,11 @@
     "compile": {
       "exclude": [
         "Framework/Net451/**/*.*",
-        "Replication/**/*.*",
+        "Replication/**/*.*",        
         "zlib/**/*.*"
       ],
       "excludeFiles": [
         "Properties/VersionInfo.cs",
-        "Common/NamedPipeStream.cs",
-        "Common/NativeMethods.cs",
-        "Common/SHA1.cs",
-        "Common/SharedMemoryStream.cs",
-        "Common/SocketStream.cs",
         "CommandBuilder.cs",
         "dataadapter.cs",
         "Installer.cs",
@@ -39,7 +34,12 @@
         "MySqlConfiguration.cs",
         "MySqlPromotableTransaction.cs",
         "MySqlSecurityPermission.cs",
-        "SystemPerformanceMonitor.cs"
+        "SystemPerformanceMonitor.cs",
+        "common/NamedPipeStream.cs",
+        "common/NativeMethods.cs",
+        "common/SHA1.cs",
+        "common/SharedMemoryStream.cs",
+        "common/SocketStream.cs"
       ]
     },
     "optimize": true,
