@@ -20,7 +20,6 @@
     "embed": [ "Properties/ReservedWords.txt" ],
     "compile": {
       "exclude": [
-        "base/**/*.*",
         "Framework/Net451/**/*.*",
         "Replication/**/*.*",
         "zlib/**/*.*"
