@@ -26,8 +26,12 @@ using System.Globalization;
 using System.Threading;
 using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.Properties;
-using MySql.Data.MySqlClient.Types;
 using System.Data.Common;
+#if NETCORE10
+using MySql.Data.MySqlClient.Types;
+#else
+using MySql.Data.Types;
+#endif
 
 namespace MySql.Data.MySqlClient
 {

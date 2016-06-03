@@ -25,11 +25,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
-#if NETCORE10
-namespace MySql.Data.MySqlClient.Common
-#else
-namespace MySql.Data.Common
-#endif
+namespace MySql.Data.MySqlClient
 {
   internal class MySqlTokenizer
   {

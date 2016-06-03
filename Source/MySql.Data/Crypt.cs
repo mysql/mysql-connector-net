@@ -22,10 +22,9 @@
 
 using System;
 using System.Security.Cryptography;
-using MySql.Data.MySqlClient.Framework.NetCore10;
 using MySql.Data.MySqlClient.Properties;
 #if NETCORE10
-
+using MySql.Data.MySqlClient.Framework.NetCore10;
 #else
 using System.Text;
 #endif

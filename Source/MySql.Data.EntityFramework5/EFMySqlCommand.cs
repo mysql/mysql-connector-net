@@ -29,7 +29,7 @@ using System.Data.Entity.Core.Metadata.Edm;
 #else
 using System.Data.Metadata.Edm;
 #endif
-#if NET_40_OR_GREATER
+#if NET_45_OR_GREATER
 using System.Threading.Tasks;
 using System.Threading;
 #endif
@@ -149,7 +149,7 @@ namespace MySql.Data.Entity
 
     #endregion
 
-#if NET_40_OR_GREATER
+#if NET_45_OR_GREATER
 #region Async
     /// <summary>
     /// Async version of Prepare

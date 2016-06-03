@@ -30,7 +30,7 @@ namespace MySql.Data.MySqlClient
 {
 #if !NETCORE10
   [Editor("MySql.Data.MySqlClient.Design.DBParametersEditor,MySql.Design", typeof(System.Drawing.Design.UITypeEditor))]
-  [ListBindable(true)
+  [ListBindable(true)]
 #endif
   public sealed partial class MySqlParameterCollection : DbParameterCollection
   {

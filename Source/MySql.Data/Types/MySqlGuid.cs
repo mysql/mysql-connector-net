@@ -24,7 +24,11 @@ using System;
 using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.Properties;
 
+#if NETCORE10
 namespace MySql.Data.MySqlClient.Types
+#else
+namespace MySql.Data.Types
+#endif
 {
 
   internal struct MySqlGuid : IMySqlValue

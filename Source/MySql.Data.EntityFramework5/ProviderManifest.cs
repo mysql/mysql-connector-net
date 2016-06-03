@@ -293,7 +293,7 @@ namespace MySql.Data.MySqlClient
       return resourceAsString;
     }
 	
-	#if NET_40_OR_GREATER		
+	#if NET_45_OR_GREATER		
     public override bool SupportsEscapingLikeArgument(out char escapeCharacter)
     {
       escapeCharacter = LikeEscapeChar;

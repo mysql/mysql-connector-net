@@ -9,33 +9,20 @@
 
 using System;
 using System.ComponentModel;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Xml.Serialization;
-#if EF6
-using System.Data.Entity.Core.EntityClient;
-using System.Data.Entity.Core.Objects;
-using System.Data.Entity.Core.Objects.DataClasses;
-#else
 using System.Data.EntityClient;
 using System.Data.Objects;
 using System.Data.Objects.DataClasses;
-#endif
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
 
-[assembly: EdmSchema()]
+[assembly: EdmSchemaAttribute()]
 #region EDM Relationship Metadata
 
-#if !EF6
 [assembly: EdmRelationshipAttribute("testModel", "FK_Toys_Supplier", "Supplier", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(MySql.Data.Entity.Tests.Company), "Toys", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.Toy))]
 [assembly: EdmRelationshipAttribute("testModel", "FK_Orders_Shop", "Shop", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(MySql.Data.Entity.Tests.Shop), "Orders", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.Order))]
 [assembly: EdmRelationshipAttribute("testModel", "FK_Books_Authors", "Authors", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(MySql.Data.Entity.Tests.Author), "Books", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.Book))]
-[assembly: EdmRelationshipAttribute("testModel", "FK_Books_Publishers", "Publishers", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(MySql.Data.Entity.Tests.Publisher), "Books", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.Book))] 
-#else
-[assembly: EdmRelationshipAttribute("testModel", "FK_Toys_Supplier", "Supplier", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.One, typeof(MySql.Data.Entity.Tests.Company), "Toys", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.Toy))]
-[assembly: EdmRelationshipAttribute("testModel", "FK_Orders_Shop", "Shop", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.One, typeof(MySql.Data.Entity.Tests.Shop), "Orders", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.Order))]
-[assembly: EdmRelationshipAttribute("testModel", "FK_Books_Authors", "Authors", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.One, typeof(MySql.Data.Entity.Tests.Author), "Books", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.Book))]
-[assembly: EdmRelationshipAttribute("testModel", "FK_Books_Publishers", "Publishers", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.One, typeof(MySql.Data.Entity.Tests.Publisher), "Books", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.Book))] 
-#endif
+[assembly: EdmRelationshipAttribute("testModel", "FK_Books_Publishers", "Publishers", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(MySql.Data.Entity.Tests.Publisher), "Books", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.Book))]
 
 #endregion
 
@@ -409,7 +396,7 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-        #region Primitive Properties
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -428,7 +415,7 @@ namespace MySql.Data.Entity.Tests
                 {
                     OnIdChanging(value);
                     ReportPropertyChanging("Id");
-                    _Id = StructuralObject.SetValidValue(value);
+                    _Id = StructuralObject.SetValidValue(value, "Id");
                     ReportPropertyChanged("Id");
                     OnIdChanged();
                 }
@@ -453,7 +440,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnNameChanging(value);
                 ReportPropertyChanging("Name");
-                _Name = StructuralObject.SetValidValue(value, false);
+                _Name = StructuralObject.SetValidValue(value, false, "Name");
                 ReportPropertyChanged("Name");
                 OnNameChanged();
             }
@@ -477,7 +464,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnAgeChanging(value);
                 ReportPropertyChanging("Age");
-                _Age = StructuralObject.SetValidValue(value);
+                _Age = StructuralObject.SetValidValue(value, "Age");
                 ReportPropertyChanged("Age");
                 OnAgeChanged();
             }
@@ -488,7 +475,6 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-    
         #region Navigation Properties
     
         /// <summary>
@@ -544,7 +530,7 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-        #region Primitive Properties
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -563,7 +549,7 @@ namespace MySql.Data.Entity.Tests
                 {
                     OnIdChanging(value);
                     ReportPropertyChanging("Id");
-                    _Id = StructuralObject.SetValidValue(value);
+                    _Id = StructuralObject.SetValidValue(value, "Id");
                     ReportPropertyChanged("Id");
                     OnIdChanged();
                 }
@@ -588,7 +574,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnNameChanging(value);
                 ReportPropertyChanging("Name");
-                _Name = StructuralObject.SetValidValue(value, false);
+                _Name = StructuralObject.SetValidValue(value, false, "Name");
                 ReportPropertyChanged("Name");
                 OnNameChanged();
             }
@@ -612,7 +598,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnPagesChanging(value);
                 ReportPropertyChanging("Pages");
-                _Pages = StructuralObject.SetValidValue(value);
+                _Pages = StructuralObject.SetValidValue(value, "Pages");
                 ReportPropertyChanged("Pages");
                 OnPagesChanged();
             }
@@ -623,7 +609,6 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-    
         #region Navigation Properties
     
         /// <summary>
@@ -737,7 +722,7 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-        #region Primitive Properties
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -756,7 +741,7 @@ namespace MySql.Data.Entity.Tests
                 {
                     OnIdChanging(value);
                     ReportPropertyChanging("Id");
-                    _Id = StructuralObject.SetValidValue(value);
+                    _Id = StructuralObject.SetValidValue(value, "Id");
                     ReportPropertyChanged("Id");
                     OnIdChanged();
                 }
@@ -781,7 +766,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnEmployeeIDChanging(value);
                 ReportPropertyChanging("EmployeeID");
-                _EmployeeID = StructuralObject.SetValidValue(value);
+                _EmployeeID = StructuralObject.SetValidValue(value, "EmployeeID");
                 ReportPropertyChanged("EmployeeID");
                 OnEmployeeIDChanged();
             }
@@ -805,7 +790,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnLastNameChanging(value);
                 ReportPropertyChanging("LastName");
-                _LastName = StructuralObject.SetValidValue(value, false);
+                _LastName = StructuralObject.SetValidValue(value, false, "LastName");
                 ReportPropertyChanged("LastName");
                 OnLastNameChanged();
             }
@@ -829,7 +814,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnFirstNameChanging(value);
                 ReportPropertyChanging("FirstName");
-                _FirstName = StructuralObject.SetValidValue(value, false);
+                _FirstName = StructuralObject.SetValidValue(value, false, "FirstName");
                 ReportPropertyChanged("FirstName");
                 OnFirstNameChanged();
             }
@@ -853,7 +838,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnBirthTimeChanging(value);
                 ReportPropertyChanging("BirthTime");
-                _BirthTime = StructuralObject.SetValidValue(value);
+                _BirthTime = StructuralObject.SetValidValue(value, "BirthTime");
                 ReportPropertyChanged("BirthTime");
                 OnBirthTimeChanged();
             }
@@ -877,7 +862,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnBirthWeightChanging(value);
                 ReportPropertyChanging("BirthWeight");
-                _BirthWeight = StructuralObject.SetValidValue(value);
+                _BirthWeight = StructuralObject.SetValidValue(value, "BirthWeight");
                 ReportPropertyChanged("BirthWeight");
                 OnBirthWeightChanged();
             }
@@ -901,7 +886,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnModifiedChanging(value);
                 ReportPropertyChanging("Modified");
-                _Modified = StructuralObject.SetValidValue(value);
+                _Modified = StructuralObject.SetValidValue(value, "Modified");
                 ReportPropertyChanged("Modified");
                 OnModifiedChanged();
             }
@@ -912,7 +897,6 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-    
     }
     
     /// <summary>
@@ -942,7 +926,7 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-        #region Primitive Properties
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -961,7 +945,7 @@ namespace MySql.Data.Entity.Tests
                 {
                     OnIdChanging(value);
                     ReportPropertyChanging("Id");
-                    _Id = StructuralObject.SetValidValue(value);
+                    _Id = StructuralObject.SetValidValue(value, "Id");
                     ReportPropertyChanged("Id");
                     OnIdChanged();
                 }
@@ -986,7 +970,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnNameChanging(value);
                 ReportPropertyChanging("Name");
-                _Name = StructuralObject.SetValidValue(value, false);
+                _Name = StructuralObject.SetValidValue(value, false, "Name");
                 ReportPropertyChanged("Name");
                 OnNameChanged();
             }
@@ -1010,7 +994,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnDateBeganChanging(value);
                 ReportPropertyChanging("DateBegan");
-                _DateBegan = StructuralObject.SetValidValue(value);
+                _DateBegan = StructuralObject.SetValidValue(value, "DateBegan");
                 ReportPropertyChanged("DateBegan");
                 OnDateBeganChanged();
             }
@@ -1034,7 +1018,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnNumEmployeesChanging(value);
                 ReportPropertyChanging("NumEmployees");
-                _NumEmployees = StructuralObject.SetValidValue(value);
+                _NumEmployees = StructuralObject.SetValidValue(value, "NumEmployees");
                 ReportPropertyChanged("NumEmployees");
                 OnNumEmployeesChanged();
             }
@@ -1080,7 +1064,6 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-    
         #region Navigation Properties
     
         /// <summary>
@@ -1120,7 +1103,7 @@ namespace MySql.Data.Entity.Tests
     [KnownTypeAttribute(typeof(TabletComputer))]
     public abstract partial class Computer : EntityObject
     {
-        #region Primitive Properties
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -1137,7 +1120,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnBrandChanging(value);
                 ReportPropertyChanging("Brand");
-                _Brand = StructuralObject.SetValidValue(value, false);
+                _Brand = StructuralObject.SetValidValue(value, false, "Brand");
                 ReportPropertyChanged("Brand");
                 OnBrandChanged();
             }
@@ -1163,7 +1146,7 @@ namespace MySql.Data.Entity.Tests
                 {
                     OnIdChanging(value);
                     ReportPropertyChanging("Id");
-                    _Id = StructuralObject.SetValidValue(value);
+                    _Id = StructuralObject.SetValidValue(value, "Id");
                     ReportPropertyChanged("Id");
                     OnIdChanged();
                 }
@@ -1175,7 +1158,6 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-    
     }
     
     /// <summary>
@@ -1203,7 +1185,7 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-        #region Primitive Properties
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -1222,7 +1204,7 @@ namespace MySql.Data.Entity.Tests
                 {
                     OnidChanging(value);
                     ReportPropertyChanging("id");
-                    _id = StructuralObject.SetValidValue(value);
+                    _id = StructuralObject.SetValidValue(value, "id");
                     ReportPropertyChanged("id");
                     OnidChanged();
                 }
@@ -1247,7 +1229,7 @@ namespace MySql.Data.Entity.Tests
             {
                 Onid2Changing(value);
                 ReportPropertyChanging("id2");
-                _id2 = StructuralObject.SetValidValue(value);
+                _id2 = StructuralObject.SetValidValue(value, "id2");
                 ReportPropertyChanged("id2");
                 Onid2Changed();
             }
@@ -1271,7 +1253,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnidAsCharChanging(value);
                 ReportPropertyChanging("idAsChar");
-                _idAsChar = StructuralObject.SetValidValue(value, true);
+                _idAsChar = StructuralObject.SetValidValue(value, true, "idAsChar");
                 ReportPropertyChanged("idAsChar");
                 OnidAsCharChanged();
             }
@@ -1282,7 +1264,6 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-    
     }
     
     /// <summary>
@@ -1310,7 +1291,7 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-        #region Primitive Properties
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -1327,7 +1308,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnColorChanging(value);
                 ReportPropertyChanging("Color");
-                _Color = StructuralObject.SetValidValue(value, true);
+                _Color = StructuralObject.SetValidValue(value, true, "Color");
                 ReportPropertyChanged("Color");
                 OnColorChanged();
             }
@@ -1338,7 +1319,6 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-    
     }
     
     /// <summary>
@@ -1369,7 +1349,7 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-        #region Primitive Properties
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -1388,7 +1368,7 @@ namespace MySql.Data.Entity.Tests
                 {
                     OnIdChanging(value);
                     ReportPropertyChanging("Id");
-                    _Id = StructuralObject.SetValidValue(value);
+                    _Id = StructuralObject.SetValidValue(value, "Id");
                     ReportPropertyChanged("Id");
                     OnIdChanged();
                 }
@@ -1413,7 +1393,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnLastNameChanging(value);
                 ReportPropertyChanging("LastName");
-                _LastName = StructuralObject.SetValidValue(value, false);
+                _LastName = StructuralObject.SetValidValue(value, false, "LastName");
                 ReportPropertyChanged("LastName");
                 OnLastNameChanged();
             }
@@ -1437,7 +1417,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnFirstNameChanging(value);
                 ReportPropertyChanging("FirstName");
-                _FirstName = StructuralObject.SetValidValue(value, false);
+                _FirstName = StructuralObject.SetValidValue(value, false, "FirstName");
                 ReportPropertyChanged("FirstName");
                 OnFirstNameChanged();
             }
@@ -1461,7 +1441,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnAgeChanging(value);
                 ReportPropertyChanging("Age");
-                _Age = StructuralObject.SetValidValue(value);
+                _Age = StructuralObject.SetValidValue(value, "Age");
                 ReportPropertyChanged("Age");
                 OnAgeChanged();
             }
@@ -1472,7 +1452,6 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-    
     }
     
     /// <summary>
@@ -1500,7 +1479,7 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-        #region Primitive Properties
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -1517,7 +1496,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnIsCertifiedChanging(value);
                 ReportPropertyChanging("IsCertified");
-                _IsCertified = StructuralObject.SetValidValue(value);
+                _IsCertified = StructuralObject.SetValidValue(value, "IsCertified");
                 ReportPropertyChanged("IsCertified");
                 OnIsCertifiedChanged();
             }
@@ -1541,7 +1520,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnSizeChanging(value);
                 ReportPropertyChanging("Size");
-                _Size = StructuralObject.SetValidValue(value, true);
+                _Size = StructuralObject.SetValidValue(value, true, "Size");
                 ReportPropertyChanged("Size");
                 OnSizeChanged();
             }
@@ -1552,7 +1531,6 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-    
     }
     
     /// <summary>
@@ -1580,7 +1558,7 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-        #region Primitive Properties
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -1599,7 +1577,7 @@ namespace MySql.Data.Entity.Tests
                 {
                     OnIdChanging(value);
                     ReportPropertyChanging("Id");
-                    _Id = StructuralObject.SetValidValue(value);
+                    _Id = StructuralObject.SetValidValue(value, "Id");
                     ReportPropertyChanged("Id");
                     OnIdChanged();
                 }
@@ -1624,7 +1602,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnFreightChanging(value);
                 ReportPropertyChanging("Freight");
-                _Freight = StructuralObject.SetValidValue(value);
+                _Freight = StructuralObject.SetValidValue(value, "Freight");
                 ReportPropertyChanged("Freight");
                 OnFreightChanged();
             }
@@ -1635,7 +1613,6 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-    
         #region Navigation Properties
     
         /// <summary>
@@ -1707,7 +1684,7 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-        #region Primitive Properties
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -1726,7 +1703,7 @@ namespace MySql.Data.Entity.Tests
                 {
                     OnIdChanging(value);
                     ReportPropertyChanging("Id");
-                    _Id = StructuralObject.SetValidValue(value);
+                    _Id = StructuralObject.SetValidValue(value, "Id");
                     ReportPropertyChanged("Id");
                     OnIdChanged();
                 }
@@ -1751,7 +1728,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnNameChanging(value);
                 ReportPropertyChanging("Name");
-                _Name = StructuralObject.SetValidValue(value, false);
+                _Name = StructuralObject.SetValidValue(value, false, "Name");
                 ReportPropertyChanged("Name");
                 OnNameChanged();
             }
@@ -1775,7 +1752,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnCreatedDateChanging(value);
                 ReportPropertyChanging("CreatedDate");
-                _CreatedDate = StructuralObject.SetValidValue(value);
+                _CreatedDate = StructuralObject.SetValidValue(value, "CreatedDate");
                 ReportPropertyChanged("CreatedDate");
                 OnCreatedDateChanged();
             }
@@ -1786,7 +1763,6 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-    
     }
     
     /// <summary>
@@ -1814,7 +1790,7 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-        #region Primitive Properties
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -1833,7 +1809,7 @@ namespace MySql.Data.Entity.Tests
                 {
                     OnidChanging(value);
                     ReportPropertyChanging("id");
-                    _id = StructuralObject.SetValidValue(value);
+                    _id = StructuralObject.SetValidValue(value, "id");
                     ReportPropertyChanged("id");
                     OnidChanged();
                 }
@@ -1858,7 +1834,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnnameChanging(value);
                 ReportPropertyChanging("name");
-                _name = StructuralObject.SetValidValue(value, false);
+                _name = StructuralObject.SetValidValue(value, false, "name");
                 ReportPropertyChanged("name");
                 OnnameChanged();
             }
@@ -1869,7 +1845,6 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-    
         #region Navigation Properties
     
         /// <summary>
@@ -1927,7 +1902,7 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-        #region Primitive Properties
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -1944,7 +1919,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnSalaryChanging(value);
                 ReportPropertyChanging("Salary");
-                _Salary = StructuralObject.SetValidValue(value);
+                _Salary = StructuralObject.SetValidValue(value, "Salary");
                 ReportPropertyChanged("Salary");
                 OnSalaryChanged();
             }
@@ -1955,7 +1930,6 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-    
     }
     
     /// <summary>
@@ -1983,7 +1957,7 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-        #region Primitive Properties
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -2002,7 +1976,7 @@ namespace MySql.Data.Entity.Tests
                 {
                     OnIdChanging(value);
                     ReportPropertyChanging("Id");
-                    _Id = StructuralObject.SetValidValue(value);
+                    _Id = StructuralObject.SetValidValue(value, "Id");
                     ReportPropertyChanged("Id");
                     OnIdChanged();
                 }
@@ -2027,7 +2001,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnNameChanging(value);
                 ReportPropertyChanging("Name");
-                _Name = StructuralObject.SetValidValue(value, false);
+                _Name = StructuralObject.SetValidValue(value, false, "Name");
                 ReportPropertyChanged("Name");
                 OnNameChanged();
             }
@@ -2051,7 +2025,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnAddressChanging(value);
                 ReportPropertyChanging("Address");
-                _Address = StructuralObject.SetValidValue(value, true);
+                _Address = StructuralObject.SetValidValue(value, true, "Address");
                 ReportPropertyChanged("Address");
                 OnAddressChanged();
             }
@@ -2075,7 +2049,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnCityChanging(value);
                 ReportPropertyChanging("City");
-                _City = StructuralObject.SetValidValue(value, true);
+                _City = StructuralObject.SetValidValue(value, true, "City");
                 ReportPropertyChanged("City");
                 OnCityChanged();
             }
@@ -2099,7 +2073,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnStateChanging(value);
                 ReportPropertyChanging("State");
-                _State = StructuralObject.SetValidValue(value, true);
+                _State = StructuralObject.SetValidValue(value, true, "State");
                 ReportPropertyChanged("State");
                 OnStateChanged();
             }
@@ -2123,7 +2097,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnZipCodeChanging(value);
                 ReportPropertyChanging("ZipCode");
-                _ZipCode = StructuralObject.SetValidValue(value, true);
+                _ZipCode = StructuralObject.SetValidValue(value, true, "ZipCode");
                 ReportPropertyChanged("ZipCode");
                 OnZipCodeChanged();
             }
@@ -2134,7 +2108,6 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-    
     }
     
     /// <summary>
@@ -2162,7 +2135,7 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-        #region Primitive Properties
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -2179,7 +2152,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnIsAvailableChanging(value);
                 ReportPropertyChanging("IsAvailable");
-                _IsAvailable = StructuralObject.SetValidValue(value);
+                _IsAvailable = StructuralObject.SetValidValue(value, "IsAvailable");
                 ReportPropertyChanged("IsAvailable");
                 OnIsAvailableChanged();
             }
@@ -2203,7 +2176,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnReleaseDateChanging(value);
                 ReportPropertyChanging("ReleaseDate");
-                _ReleaseDate = StructuralObject.SetValidValue(value);
+                _ReleaseDate = StructuralObject.SetValidValue(value, "ReleaseDate");
                 ReportPropertyChanged("ReleaseDate");
                 OnReleaseDateChanged();
             }
@@ -2214,7 +2187,6 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-    
     }
     
     /// <summary>
@@ -2244,7 +2216,7 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-        #region Primitive Properties
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -2263,7 +2235,7 @@ namespace MySql.Data.Entity.Tests
                 {
                     OnIdChanging(value);
                     ReportPropertyChanging("Id");
-                    _Id = StructuralObject.SetValidValue(value);
+                    _Id = StructuralObject.SetValidValue(value, "Id");
                     ReportPropertyChanged("Id");
                     OnIdChanged();
                 }
@@ -2288,7 +2260,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnNameChanging(value);
                 ReportPropertyChanging("Name");
-                _Name = StructuralObject.SetValidValue(value, false);
+                _Name = StructuralObject.SetValidValue(value, false, "Name");
                 ReportPropertyChanged("Name");
                 OnNameChanged();
             }
@@ -2312,7 +2284,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnMinAgeChanging(value);
                 ReportPropertyChanging("MinAge");
-                _MinAge = StructuralObject.SetValidValue(value);
+                _MinAge = StructuralObject.SetValidValue(value, "MinAge");
                 ReportPropertyChanged("MinAge");
                 OnMinAgeChanged();
             }
@@ -2323,7 +2295,6 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-    
         #region Navigation Properties
     
         /// <summary>
@@ -2380,7 +2351,7 @@ namespace MySql.Data.Entity.Tests
     [Serializable()]
     public partial class CommonAddress : ComplexObject
     {
-        #region Primitive Properties
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -2397,7 +2368,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnAddressChanging(value);
                 ReportPropertyChanging("Address");
-                _Address = StructuralObject.SetValidValue(value, true);
+                _Address = StructuralObject.SetValidValue(value, true, "Address");
                 ReportPropertyChanged("Address");
                 OnAddressChanged();
             }
@@ -2421,7 +2392,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnCityChanging(value);
                 ReportPropertyChanging("City");
-                _City = StructuralObject.SetValidValue(value, true);
+                _City = StructuralObject.SetValidValue(value, true, "City");
                 ReportPropertyChanged("City");
                 OnCityChanged();
             }
@@ -2445,7 +2416,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnStateChanging(value);
                 ReportPropertyChanging("State");
-                _State = StructuralObject.SetValidValue(value, true);
+                _State = StructuralObject.SetValidValue(value, true, "State");
                 ReportPropertyChanged("State");
                 OnStateChanged();
             }
@@ -2469,7 +2440,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnZipCodeChanging(value);
                 ReportPropertyChanging("ZipCode");
-                _ZipCode = StructuralObject.SetValidValue(value, true);
+                _ZipCode = StructuralObject.SetValidValue(value, true, "ZipCode");
                 ReportPropertyChanged("ZipCode");
                 OnZipCodeChanged();
             }
@@ -2484,5 +2455,4 @@ namespace MySql.Data.Entity.Tests
 
     #endregion
 
-    
 }

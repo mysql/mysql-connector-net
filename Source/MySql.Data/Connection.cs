@@ -26,22 +26,23 @@ using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
-using MySql.Data.MySqlClient.Interceptors;
 using MySql.Data.MySqlClient.Properties;
 using IsolationLevel = System.Data.IsolationLevel;
 
 #if NETCORE10
 using MySql.Data.MySqlClient.Common;
 #else
-using MySql.Data.Common
+using MySql.Data.Common;
 #endif
 
 #if !NETCORE10
 using System.Drawing;
 using System.Drawing.Design;
 using System.Transactions;
+#else
+using Microsoft.Extensions.Configuration;
+using MySql.Data.MySqlClient.Interceptors;
 #endif
 
 namespace MySql.Data.MySqlClient

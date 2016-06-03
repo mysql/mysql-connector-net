@@ -32,7 +32,7 @@ using System.Linq;
 using MySql.Data.MySqlClient.Common;
 using MySql.Data.MySqlClient.Framework.NetCore10;
 #else
-using MySql.Data.Common
+using MySql.Data.Common;
 #endif
 
 namespace MySql.Data.MySqlClient

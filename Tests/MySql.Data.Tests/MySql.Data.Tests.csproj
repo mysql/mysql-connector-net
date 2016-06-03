@@ -1,25 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Choose>
-    <When Condition="$(SolutionName) == 'MySQLClient-4.0'">
-      <PropertyGroup>
-        <ProductVersion>9.0.30729</ProductVersion>
-        <SchemaVersion>2.0</SchemaVersion>
-        <Framework>4.0</Framework>
-        <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-        <DefineConstants>NET_40_OR_GREATER</DefineConstants>
-      </PropertyGroup>
-    </When>
-    <Otherwise>
-      <PropertyGroup>
-        <ProductVersion>9.0.30729</ProductVersion>
-        <SchemaVersion>2.0</SchemaVersion>
-        <Framework>4.5</Framework>
-        <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-        <DefineConstants>NET_40_OR_GREATER;NET_45_OR_GREATER;</DefineConstants>
-      </PropertyGroup>
-    </Otherwise>
-  </Choose>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <Framework>4.5</Framework>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <DefineConstants>NET_45_OR_GREATER;</DefineConstants>
+  </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -49,26 +36,13 @@
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
   </PropertyGroup>
-  <Choose>
-    <When Condition="$(SolutionName) == 'MySQLClient-4.0'">
-      <PropertyGroup>
-        <ProductVersion>9.0.30729</ProductVersion>
-        <SchemaVersion>2.0</SchemaVersion>
-        <Framework>4.0</Framework>
-        <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-        <DefineConstants>NET_40_OR_GREATER</DefineConstants>
-      </PropertyGroup>
-    </When>
-    <Otherwise>
-      <PropertyGroup>
-        <ProductVersion>9.0.30729</ProductVersion>
-        <SchemaVersion>2.0</SchemaVersion>
-        <Framework>4.5</Framework>
-        <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-        <DefineConstants>NET_40_OR_GREATER;NET_45_OR_GREATER;</DefineConstants>
-      </PropertyGroup>
-    </Otherwise>
-  </Choose>
+  <PropertyGroup>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <Framework>4.5</Framework>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <DefineConstants>NET_45_OR_GREATER;</DefineConstants>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
@@ -173,84 +147,84 @@
     <Compile Include="..\..\Source\MySql.Data\Properties\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="AsyncTests.cs" />
-    <Compile Include="BlobTests.cs" />
-    <Compile Include="BlobTestsPipeCompressed.cs" />
-    <Compile Include="BlobTestsSharedMemory.cs" />
-    <Compile Include="BlobTestsSharedMemoryCompressed.cs" />
-    <Compile Include="BlobTestsSocketCompressed.cs" />
-    <Compile Include="BlobTestsPipe.cs" />
-    <Compile Include="CharacterSetTests.cs" />
-    <Compile Include="InstallerTests.cs" />
-    <Compile Include="MySqlCommandTestsPipe.cs" />
-    <Compile Include="MySqlCommandTestsPipeCompressed.cs" />
-    <Compile Include="MySqlCommandTestsSharedMemory.cs" />
-    <Compile Include="MySqlCommandTestsSharedMemoryCompressed.cs" />
-    <Compile Include="MySqlCommandTestsSocketCompressed.cs" />
-    <Compile Include="CultureTests.cs" />
-    <Compile Include="DataTypeTests.cs" />
-    <Compile Include="DateTimeTests.cs" />
-    <Compile Include="EventTests.cs" />
-    <Compile Include="ExceptionTests.cs" />
-    <Compile Include="GenericListener.cs" />
-    <Compile Include="GetSchemaTests.cs" />
-    <Compile Include="InterfaceTests.cs" />
-    <Compile Include="LanguageTests.cs" />
-    <Compile Include="LoggingTests.cs" />
-    <Compile Include="MediumTrust\MediumTrustDomain.cs" />
-    <Compile Include="MediumTrust\MediumTrustFixtureAttribute.cs" />
-    <Compile Include="MediumTrust\MediumTrustTestClassCommand.cs" />
-    <Compile Include="MediumTrust\MediumTrustTestCommand.cs" />
-    <Compile Include="MediumTrust\MySql.MediumTrustsTests.cs" />
-    <Compile Include="MediumTrust\MySqlClientPermissionTests.cs" />
-    <Compile Include="MySqlBulkLoaderTests.cs" />
-    <Compile Include="MySqlCommandBuilderTests.cs" />
-    <Compile Include="MySqlCommandTests.cs" />
-    <Compile Include="MySqlConnectionStringBuilderTests.cs" />
-    <Compile Include="MySqlConnectionTests.cs" />
-    <Compile Include="MySqlDataAdapterTests.cs" />
-    <Compile Include="MySqlDataReaderTests.cs" />
-    <Compile Include="MySQLHelperTests.cs" />
-    <Compile Include="OutputParametersBatch.cs" />
-    <Compile Include="OutputParametersBatchPrepared.cs" />
-    <Compile Include="OutputParametersNoBatch.cs" />
-    <Compile Include="OutputParametersNoBatchPrepared.cs" />
-    <Compile Include="ParameterTests.cs" />
-    <Compile Include="PartialTrustSandbox.cs" />
-    <Compile Include="PerfMonTests.cs" />
-    <Compile Include="PoolingTests.cs" />
-    <Compile Include="PreparedStatements.cs" />
-    <Compile Include="PreparedStatementsPipe.cs" />
-    <Compile Include="PreparedStatementsPipeCompressed.cs" />
-    <Compile Include="PreparedStatementsSharedMemory.cs" />
-    <Compile Include="PreparedStatementsSharedMemoryCompressed.cs" />
-    <Compile Include="PreparedStatementsSocketCompressed.cs" />
-    <Compile Include="ProcedureParameterTests.cs" />
-    <Compile Include="ReplicationTests.cs" />
-    <Compile Include="ScriptExecution.cs" />
-    <Compile Include="SetUp.cs" />
+    <Compile Include="Framework\Net451\AsyncTests.cs" />
+    <Compile Include="Framework\Net451\BlobTests.cs" />
+    <Compile Include="Framework\Net451\BlobTestsPipeCompressed.cs" />
+    <Compile Include="Framework\Net451\BlobTestsSharedMemory.cs" />
+    <Compile Include="Framework\Net451\BlobTestsSharedMemoryCompressed.cs" />
+    <Compile Include="Framework\Net451\BlobTestsSocketCompressed.cs" />
+    <Compile Include="Framework\Net451\BlobTestsPipe.cs" />
+    <Compile Include="Framework\Net451\CharacterSetTests.cs" />
+    <Compile Include="Framework\Net451\InstallerTests.cs" />
+    <Compile Include="Framework\Net451\MySqlCommandTestsPipe.cs" />
+    <Compile Include="Framework\Net451\MySqlCommandTestsPipeCompressed.cs" />
+    <Compile Include="Framework\Net451\MySqlCommandTestsSharedMemory.cs" />
+    <Compile Include="Framework\Net451\MySqlCommandTestsSharedMemoryCompressed.cs" />
+    <Compile Include="Framework\Net451\MySqlCommandTestsSocketCompressed.cs" />
+    <Compile Include="Framework\Net451\CultureTests.cs" />
+    <Compile Include="Framework\Net451\DataTypeTests.cs" />
+    <Compile Include="Framework\Net451\DateTimeTests.cs" />
+    <Compile Include="Framework\Net451\EventTests.cs" />
+    <Compile Include="Framework\Net451\ExceptionTests.cs" />
+    <Compile Include="Framework\Net451\GenericListener.cs" />
+    <Compile Include="Framework\Net451\GetSchemaTests.cs" />
+    <Compile Include="Framework\Net451\InterfaceTests.cs" />
+    <Compile Include="Framework\Net451\LanguageTests.cs" />
+    <Compile Include="Framework\Net451\LoggingTests.cs" />
+    <Compile Include="Framework\Net451\MediumTrust\MediumTrustDomain.cs" />
+    <Compile Include="Framework\Net451\MediumTrust\MediumTrustFixtureAttribute.cs" />
+    <Compile Include="Framework\Net451\MediumTrust\MediumTrustTestClassCommand.cs" />
+    <Compile Include="Framework\Net451\MediumTrust\MediumTrustTestCommand.cs" />
+    <Compile Include="Framework\Net451\MediumTrust\MySql.MediumTrustsTests.cs" />
+    <Compile Include="Framework\Net451\MediumTrust\MySqlClientPermissionTests.cs" />
+    <Compile Include="Framework\Net451\MySqlBulkLoaderTests.cs" />
+    <Compile Include="Framework\Net451\MySqlCommandBuilderTests.cs" />
+    <Compile Include="Framework\Net451\MySqlCommandTests.cs" />
+    <Compile Include="Framework\Net451\MySqlConnectionStringBuilderTests.cs" />
+    <Compile Include="Framework\Net451\MySqlConnectionTests.cs" />
+    <Compile Include="Framework\Net451\MySqlDataAdapterTests.cs" />
+    <Compile Include="Framework\Net451\MySqlDataReaderTests.cs" />
+    <Compile Include="Framework\Net451\MySQLHelperTests.cs" />
+    <Compile Include="Framework\Net451\OutputParametersBatch.cs" />
+    <Compile Include="Framework\Net451\OutputParametersBatchPrepared.cs" />
+    <Compile Include="Framework\Net451\OutputParametersNoBatch.cs" />
+    <Compile Include="Framework\Net451\OutputParametersNoBatchPrepared.cs" />
+    <Compile Include="Framework\Net451\ParameterTests.cs" />
+    <Compile Include="Framework\Net451\PartialTrustSandbox.cs" />
+    <Compile Include="Framework\Net451\PerfMonTests.cs" />
+    <Compile Include="Framework\Net451\PoolingTests.cs" />
+    <Compile Include="Framework\Net451\PreparedStatements.cs" />
+    <Compile Include="Framework\Net451\PreparedStatementsPipe.cs" />
+    <Compile Include="Framework\Net451\PreparedStatementsPipeCompressed.cs" />
+    <Compile Include="Framework\Net451\PreparedStatementsSharedMemory.cs" />
+    <Compile Include="Framework\Net451\PreparedStatementsSharedMemoryCompressed.cs" />
+    <Compile Include="Framework\Net451\PreparedStatementsSocketCompressed.cs" />
+    <Compile Include="Framework\Net451\ProcedureParameterTests.cs" />
+    <Compile Include="Framework\Net451\ReplicationTests.cs" />
+    <Compile Include="Framework\Net451\ScriptExecution.cs" />
+    <Compile Include="Framework\Net451\SetUp.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SimpleTransactions.cs" />
-    <Compile Include="SqlServerMode.cs" />
-    <Compile Include="SqlTokenizer.cs" />
-    <Compile Include="StoredProcedure.cs" />
-    <Compile Include="StoredProcedureWithAccess.cs" />
-    <Compile Include="Syntax.cs" />
-    <Compile Include="Syntax2.cs" />
-    <Compile Include="TableCaching.cs" />
-    <Compile Include="ThreadingTests.cs" />
-    <Compile Include="TimeoutAndCancel.cs" />
-    <Compile Include="TimeoutAndCancelPipe.cs" />
-    <Compile Include="TimeoutAndCancelSharedMemory.cs" />
-    <Compile Include="TimeoutAndCancelSocketCompressed.cs" />
-    <Compile Include="Tokenizer.cs" />
-    <Compile Include="Transactions.cs" />
-    <Compile Include="TypeTests.cs" />
-    <Compile Include="UsageAdvisorTests.cs" />
-    <Compile Include="Utils.cs" />
+    <Compile Include="Framework\Net451\SimpleTransactions.cs" />
+    <Compile Include="Framework\Net451\SqlServerMode.cs" />
+    <Compile Include="Framework\Net451\SqlTokenizer.cs" />
+    <Compile Include="Framework\Net451\StoredProcedure.cs" />
+    <Compile Include="Framework\Net451\StoredProcedureWithAccess.cs" />
+    <Compile Include="Framework\Net451\Syntax.cs" />
+    <Compile Include="Framework\Net451\Syntax2.cs" />
+    <Compile Include="Framework\Net451\TableCaching.cs" />
+    <Compile Include="Framework\Net451\ThreadingTests.cs" />
+    <Compile Include="Framework\Net451\TimeoutAndCancel.cs" />
+    <Compile Include="Framework\Net451\TimeoutAndCancelPipe.cs" />
+    <Compile Include="Framework\Net451\TimeoutAndCancelSharedMemory.cs" />
+    <Compile Include="Framework\Net451\TimeoutAndCancelSocketCompressed.cs" />
+    <Compile Include="Framework\Net451\Tokenizer.cs" />
+    <Compile Include="Framework\Net451\Transactions.cs" />
+    <Compile Include="Framework\Net451\TypeTests.cs" />
+    <Compile Include="Framework\Net451\UsageAdvisorTests.cs" />
+    <Compile Include="Framework\Net451\Utils.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="client.pfx">
+    <None Include="Framework\Net451\client.pfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
@@ -259,7 +233,7 @@
     <EmbeddedResource Include="Properties\Setup.sql" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="client.pfx">
+    <None Include="Framework\Net451\client.pfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

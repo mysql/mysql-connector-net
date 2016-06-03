@@ -28,7 +28,7 @@ using System.IO.Compression;
 #if NETCORE10
 using MySql.Data.MySqlClient.Common;
 #else
-using MySql.Data.Common
+using MySql.Data.Common;
 #endif
 
 namespace MySql.Data.MySqlClient

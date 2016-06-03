@@ -27,7 +27,7 @@ using System.Reflection;
 #if NETCORE10
 using MySql.Data.MySqlClient.Common;
 #else
-using MySql.Data.Common
+using MySql.Data.Common;
 #endif
 
 namespace MySql.Data.MySqlClient
@@ -508,7 +508,7 @@ namespace MySql.Data.MySqlClient
         string os = string.Empty;
         try
         {
-          if (Platform.IsDotNetCore())
+          if (Common.Platform.IsDotNetCore())
           {
             return ".Net Core";
           }

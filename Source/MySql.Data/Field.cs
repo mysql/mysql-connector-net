@@ -25,12 +25,12 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using MySql.Data.MySqlClient;
-using MySql.Data.MySqlClient.Types;
-
 #if NETCORE10
 using MySql.Data.MySqlClient.Common;
+using MySql.Data.MySqlClient.Types;
 #else
-using MySql.Data.Common
+using MySql.Data.Common;
+using MySql.Data.Types;
 #endif
 
 namespace MySql.Data.MySqlClient

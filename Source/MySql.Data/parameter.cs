@@ -27,9 +27,13 @@ using System.Reflection;
 using System.Text;
 using System.Collections;
 using MySql.Data.MySqlClient;
-using MySql.Data.MySqlClient.Types;
 using System.Data;
 using System.Data.Common;
+#if NETCORE10
+using MySql.Data.MySqlClient.Types;
+#else
+using MySql.Data.Types;
+#endif
 
 namespace MySql.Data.MySqlClient
 {
@@ -327,12 +331,12 @@ namespace MySql.Data.MySqlClient
 
     public MySqlParameter Clone()
     {
-//#if RT
-      //MySqlParameter clone = new MySqlParameter(_paramName, _mySqlDbType);
-//#else
+#if NETCORE10
       MySqlParameter clone = new MySqlParameter(_paramName, _mySqlDbType, Direction, SourceColumn, _paramValue)
+#else
+      MySqlParameter clone = new MySqlParameter(_paramName, _mySqlDbType, Direction, SourceColumn, SourceVersion , _paramValue)
+#endif
       { _inferType = _inferType};
-//#endif
       // if we have not had our type set yet then our clone should not either
       return clone;
     }

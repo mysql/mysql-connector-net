@@ -79,8 +79,8 @@ namespace MySql.Data.MySqlClient
       if (collectionName == null)
         collectionName = SchemaProvider.MetaCollection;
 
-      string[] restrictions = schemaProvider.CleanRestrictions(restrictionValues);
-      MySqlSchemaCollection c = schemaProvider.GetSchema(collectionName, restrictions);
+      string[] restrictions = _schemaProvider.CleanRestrictions(restrictionValues);
+      MySqlSchemaCollection c = _schemaProvider.GetSchema(collectionName, restrictions);
       return c.AsDataTable();
     }
 #endif

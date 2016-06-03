@@ -23,7 +23,7 @@
 using System;
 using System.Security.Cryptography;
 #if NETCORE10
-
+using AliasText = MySql.Data.MySqlClient.Framework.NetCore10;
 #else
 using AliasText = System.Text;
 #endif
@@ -76,7 +76,7 @@ namespace MySql.Data.MySqlClient.Authentication
       //SHA1 sha = new SHA1CryptoServiceProvider();
       SHA1 sha = SHA1.Create();
 
-      byte[] firstHash = sha.ComputeHash(Framework.NetCore10.Encoding.Default.GetBytes(password));
+      byte[] firstHash = sha.ComputeHash(AliasText.Encoding.Default.GetBytes(password));
       byte[] secondHash = sha.ComputeHash(firstHash);
 
       byte[] input = new byte[seedBytes.Length + secondHash.Length];

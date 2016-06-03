@@ -26,7 +26,11 @@ using System.Data;
 using System.Diagnostics;
 using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.Properties;
+#if NETCORE10
 using MySql.Data.MySqlClient.Types;
+#else
+using MySql.Data.Types;
+#endif
 
 namespace MySql.Data.MySqlClient
 {
@@ -64,7 +68,7 @@ namespace MySql.Data.MySqlClient
       _readDone = !HasRows;
     }
 
-    #region Properties
+#region Properties
 
     public bool HasRows { get; }
 
@@ -95,7 +99,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    #endregion
+#endregion
 
     /// <summary>
     /// return the ordinal for the given column name

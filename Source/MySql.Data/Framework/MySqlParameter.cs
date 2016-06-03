@@ -81,8 +81,8 @@ namespace MySql.Data.MySqlClient
 #else
     public MySqlParameter(string parameterName, MySqlDbType dbType, int size, ParameterDirection direction,
                           bool isNullable, byte precision, byte scale, string sourceColumn,
-                          DataRowVersion sourceVersion,
-                          object value)
+                          DataRowVersion sourceVersion, object value) 
+      : this(parameterName, dbType, size, sourceColumn)
 #endif
     {
       Direction = direction;
@@ -98,14 +98,19 @@ namespace MySql.Data.MySqlClient
 
 #if NETCORE10
     internal MySqlParameter(string name, MySqlDbType type, ParameterDirection dir, string col, object val)
-#else
-    internal MySqlParameter(string name, MySqlDbType type, ParameterDirection dir, string col, DataRowVersion ver, object val)
-#endif
       : this(name, type)
+
+#else
+    internal MySqlParameter(string name, MySqlDbType type, ParameterDirection dir, string col, DataRowVersion sourceVersion, object val)
+      : this(name, type)
+#endif
     {
       Direction = dir;
       SourceColumn = col;
       Value = val;
+#if !NETCORE10
+      SourceVersion = sourceVersion;
+#endif
     }
 
     partial void Init()

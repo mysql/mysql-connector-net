@@ -27,12 +27,13 @@ using System.Linq;
 using System.Text;
 using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.Properties;
-using MySql.Data.MySqlClient.Types;
 
 #if NETCORE10
 using MySql.Data.MySqlClient.Common;
+using MySql.Data.MySqlClient.Types;
 #else
-using MySql.Data.Common
+using MySql.Data.Common;
+using MySql.Data.Types;
 #endif
 
 namespace MySql.Data.MySqlClient

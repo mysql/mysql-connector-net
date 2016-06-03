@@ -25,7 +25,12 @@ using System.Collections;
 using System.Data;
 using System.Data.Common;
 using MySql.Data.MySqlClient;
+#if NETCORE10
 using MySql.Data.MySqlClient.Types;
+#else
+using MySql.Data.Types;
+#endif
+
 
 namespace MySql.Data.MySqlClient
 {
@@ -103,7 +108,7 @@ namespace MySql.Data.MySqlClient
       int ord = 1;
       for (int i = 0; i < FieldCount; i++)
       {
-        MySqlField f = resultSet.Fields[i];
+        MySqlField f = ResultSet.Fields[i];
         DataRow r = dataTableSchema.NewRow();
         r["ColumnName"] = f.ColumnName;
         r["ColumnOrdinal"] = ord++;
@@ -138,14 +143,14 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Returns an <see cref="IEnumerator"/> that iterates through the <see cref="MySqlDataReader"/>. 
     /// </summary>
-    /// <returns></returns>
+    /// <returns></returns
     public override IEnumerator GetEnumerator()
     {
       //TODO: REMOVE WHEN DBENUMERATOR IS INCLUDED IN SYSTEM.DATA.COMMON
 #if NETCORE10
       throw new NotImplementedException();
 #else
-      return new DbEnumerator(this, (commandBehavior & CommandBehavior.CloseConnection) != 0);
+      return new DbEnumerator(this, (CommandBehavior & CommandBehavior.CloseConnection) != 0);
 #endif
     }
   }

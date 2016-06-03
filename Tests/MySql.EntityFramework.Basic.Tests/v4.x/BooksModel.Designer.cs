@@ -9,30 +9,18 @@
 
 using System;
 using System.ComponentModel;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Xml.Serialization;
-#if EF6
-using System.Data.Entity.Core.Objects;
-using System.Data.Entity.Core.Objects.DataClasses;
-using System.Data.Entity.Core.EntityClient;
-#else
 using System.Data.EntityClient;
 using System.Data.Objects;
 using System.Data.Objects.DataClasses;
-#endif
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
 
-
-[assembly: EdmSchema()]
+[assembly: EdmSchemaAttribute()]
 #region EDM Relationship Metadata
 
-#if !EF6
 [assembly: EdmRelationshipAttribute("booksModel", "fk_authors_myBooks", "myauthors", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(MySql.Data.Entity.Tests.myauthor), "mybooks", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.mybook), true)]
-[assembly: EdmRelationshipAttribute("booksModel", "myeditionsinmybooks", "mybooks", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.mybook), "myeditions", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.myedition))] 
-#else
-[assembly: EdmRelationshipAttribute("booksModel", "fk_authors_myBooks", "myauthors", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.One, typeof(MySql.Data.Entity.Tests.myauthor), "mybooks", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.mybook), true)]
-[assembly: EdmRelationshipAttribute("booksModel", "myeditionsinmybooks", "mybooks", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.mybook), "myeditions", System.Data.Entity.Core.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.myedition))]
-#endif
+[assembly: EdmRelationshipAttribute("booksModel", "myeditionsinmybooks", "mybooks", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.mybook), "myeditions", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(MySql.Data.Entity.Tests.myedition))]
 
 #endregion
 
@@ -193,7 +181,7 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-        #region Primitive Properties
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -212,7 +200,7 @@ namespace MySql.Data.Entity.Tests
                 {
                     OnIdChanging(value);
                     ReportPropertyChanging("Id");
-                    _Id = StructuralObject.SetValidValue(value);
+                    _Id = StructuralObject.SetValidValue(value, "Id");
                     ReportPropertyChanged("Id");
                     OnIdChanged();
                 }
@@ -237,7 +225,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnNameChanging(value);
                 ReportPropertyChanging("Name");
-                _Name = StructuralObject.SetValidValue(value, false);
+                _Name = StructuralObject.SetValidValue(value, false, "Name");
                 ReportPropertyChanged("Name");
                 OnNameChanged();
             }
@@ -248,7 +236,6 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-    
         #region Navigation Properties
     
         /// <summary>
@@ -302,7 +289,7 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-        #region Primitive Properties
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -321,7 +308,7 @@ namespace MySql.Data.Entity.Tests
                 {
                     OnIdChanging(value);
                     ReportPropertyChanging("Id");
-                    _Id = StructuralObject.SetValidValue(value);
+                    _Id = StructuralObject.SetValidValue(value, "Id");
                     ReportPropertyChanged("Id");
                     OnIdChanged();
                 }
@@ -346,7 +333,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnAuthorIdChanging(value);
                 ReportPropertyChanging("AuthorId");
-                _AuthorId = StructuralObject.SetValidValue(value);
+                _AuthorId = StructuralObject.SetValidValue(value, "AuthorId");
                 ReportPropertyChanged("AuthorId");
                 OnAuthorIdChanged();
             }
@@ -357,7 +344,6 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-    
         #region Navigation Properties
     
         /// <summary>
@@ -449,7 +435,7 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-        #region Primitive Properties
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -468,7 +454,7 @@ namespace MySql.Data.Entity.Tests
                 {
                     OnIdChanging(value);
                     ReportPropertyChanging("Id");
-                    _Id = StructuralObject.SetValidValue(value);
+                    _Id = StructuralObject.SetValidValue(value, "Id");
                     ReportPropertyChanged("Id");
                     OnIdChanged();
                 }
@@ -493,7 +479,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnTitleChanging(value);
                 ReportPropertyChanging("Title");
-                _Title = StructuralObject.SetValidValue(value, false);
+                _Title = StructuralObject.SetValidValue(value, false, "Title");
                 ReportPropertyChanged("Title");
                 OnTitleChanged();
             }
@@ -504,7 +490,6 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-    
         #region Navigation Properties
     
         /// <summary>
@@ -535,5 +520,4 @@ namespace MySql.Data.Entity.Tests
 
     #endregion
 
-    
 }

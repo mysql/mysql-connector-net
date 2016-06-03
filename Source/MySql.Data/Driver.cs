@@ -27,12 +27,12 @@ using System.Security;
 using System.Text;
 using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.Properties;
-using MySql.Data.MySqlClient.Types;
-
 #if NETCORE10
 using MySql.Data.MySqlClient.Common;
+using MySql.Data.MySqlClient.Types;
 #else
-using MySql.Data.Common
+using MySql.Data.Common;
+using MySql.Data.Types;
 #endif
 
 namespace MySql.Data.MySqlClient
@@ -50,7 +50,6 @@ namespace MySql.Data.MySqlClient
     internal int timeZoneOffset;
 #if !NETCORE10
     //TODO: Add support for 452 and 46X
-    //protected MySqlPromotableTransaction currentTransaction;
 #endif
     private bool firstResult;
     protected IDriver handler;
@@ -100,11 +99,7 @@ namespace MySql.Data.MySqlClient
 
 #if !NETCORE10
     //TODO: ADD support for 452 and 46X
-    public MySqlPromotableTransaction CurrentTransaction
-    {
-      get { return currentTransaction; }
-      set { currentTransaction = value; }
-    }
+    public MySqlPromotableTransaction currentTransaction { get; set; }
 
     public bool IsInActiveUse { get; set; }
 #endif

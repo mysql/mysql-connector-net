@@ -9,15 +9,9 @@
 
 using System;
 using System.ComponentModel;
-#if !EF6
 using System.Data.EntityClient;
 using System.Data.Objects;
 using System.Data.Objects.DataClasses;
-#else
-using System.Data.Entity.Core.EntityClient;
-using System.Data.Entity.Core.Objects;
-using System.Data.Entity.Core.Objects.DataClasses;
-#endif
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
@@ -155,7 +149,7 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-        #region Primitive Properties
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -174,7 +168,7 @@ namespace MySql.Data.Entity.Tests
                 {
                     OnIdChanging(value);
                     ReportPropertyChanging("Id");
-                    _Id = StructuralObject.SetValidValue(value);
+                    _Id = StructuralObject.SetValidValue(value, "Id");
                     ReportPropertyChanged("Id");
                     OnIdChanged();
                 }
@@ -199,7 +193,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnNameChanging(value);
                 ReportPropertyChanging("Name");
-                _Name = StructuralObject.SetValidValue(value, false);
+                _Name = StructuralObject.SetValidValue(value, false, "Name");
                 ReportPropertyChanged("Name");
                 OnNameChanged();
             }
@@ -223,7 +217,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnShelterIdChanging(value);
                 ReportPropertyChanging("ShelterId");
-                _ShelterId = StructuralObject.SetValidValue(value);
+                _ShelterId = StructuralObject.SetValidValue(value, "ShelterId");
                 ReportPropertyChanged("ShelterId");
                 OnShelterIdChanged();
             }
@@ -234,7 +228,6 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-    
     }
     
     /// <summary>
@@ -260,7 +253,7 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-        #region Primitive Properties
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -279,7 +272,7 @@ namespace MySql.Data.Entity.Tests
                 {
                     OnIdChanging(value);
                     ReportPropertyChanging("Id");
-                    _Id = StructuralObject.SetValidValue(value);
+                    _Id = StructuralObject.SetValidValue(value, "Id");
                     ReportPropertyChanged("Id");
                     OnIdChanged();
                 }
@@ -291,10 +284,8 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-    
     }
 
     #endregion
 
-    
 }

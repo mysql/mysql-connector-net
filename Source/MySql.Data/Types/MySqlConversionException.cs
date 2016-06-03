@@ -22,12 +22,16 @@
 
 using System;
 
+#if NETCORE10
 namespace MySql.Data.MySqlClient.Types
+#else
+namespace MySql.Data.Types
+#endif
 {
   /// <summary>
   /// Summary description for MySqlConversionException.
   /// </summary>
-  #if !NETCORE10
+#if !NETCORE10
   [Serializable]
 #endif
   public class MySqlConversionException : Exception

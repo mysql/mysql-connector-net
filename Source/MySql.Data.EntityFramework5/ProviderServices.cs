@@ -271,7 +271,7 @@ namespace MySql.Data.MySqlClient
 			return new MySqlProviderManifest(manifestToken);
 		}
 
-#if NET_40_OR_GREATER
+#if NET_45_OR_GREATER
 		protected override void DbCreateDatabase(DbConnection connection, int? commandTimeout, StoreItemCollection storeItemCollection)
 		{
 			if (connection == null)

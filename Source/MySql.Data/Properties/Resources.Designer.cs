@@ -22,7 +22,7 @@ namespace MySql.Data.MySqlClient.Properties {
     // with the /str option, or rebuild your VS project.
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -35,10 +35,10 @@ namespace MySql.Data.MySqlClient.Properties {
         ///    Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MySql.Data.MySqlClient.Properties.Resources", typeof(Resources).GetTypeInfo().Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MySql.Data.Resources", typeof(Resources).GetTypeInfo().Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -50,7 +50,7 @@ namespace MySql.Data.MySqlClient.Properties {
         ///    resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -62,7 +62,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Improper MySqlCommandBuilder state: adapter is null.
         /// </summary>
-        internal static string AdapterIsNull {
+        public static string AdapterIsNull {
             get {
                 return ResourceManager.GetString("AdapterIsNull", resourceCulture);
             }
@@ -71,7 +71,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Improper MySqlCommandBuilder state: adapter&apos;s SelectCommand is null.
         /// </summary>
-        internal static string AdapterSelectIsNull {
+        public static string AdapterSelectIsNull {
             get {
                 return ResourceManager.GetString("AdapterSelectIsNull", resourceCulture);
             }
@@ -80,7 +80,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Invalid attempt to access a field before calling Read().
         /// </summary>
-        internal static string AttemptToAccessBeforeRead {
+        public static string AttemptToAccessBeforeRead {
             get {
                 return ResourceManager.GetString("AttemptToAccessBeforeRead", resourceCulture);
             }
@@ -89,7 +89,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Authentication to host &apos;{0}&apos; for user &apos;{1}&apos; using method &apos;{2}&apos; failed with message: {3}.
         /// </summary>
-        internal static string AuthenticationFailed {
+        public static string AuthenticationFailed {
             get {
                 return ResourceManager.GetString("AuthenticationFailed", resourceCulture);
             }
@@ -98,7 +98,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Authentication method &apos;{0}&apos; not supported by any of the available plugins..
         /// </summary>
-        internal static string AuthenticationMethodNotSupported {
+        public static string AuthenticationMethodNotSupported {
             get {
                 return ResourceManager.GetString("AuthenticationMethodNotSupported", resourceCulture);
             }
@@ -107,7 +107,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Version string not in acceptable format.
         /// </summary>
-        internal static string BadVersionFormat {
+        public static string BadVersionFormat {
             get {
                 return ResourceManager.GetString("BadVersionFormat", resourceCulture);
             }
@@ -116,7 +116,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to  The buffer cannot be null.
         /// </summary>
-        internal static string BufferCannotBeNull {
+        public static string BufferCannotBeNull {
             get {
                 return ResourceManager.GetString("BufferCannotBeNull", resourceCulture);
             }
@@ -125,7 +125,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to  Buffer is not large enough.
         /// </summary>
-        internal static string BufferNotLargeEnough {
+        public static string BufferNotLargeEnough {
             get {
                 return ResourceManager.GetString("BufferNotLargeEnough", resourceCulture);
             }
@@ -134,7 +134,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Canceling an executing query requires MySQL 5.0 or higher..
         /// </summary>
-        internal static string CancelNeeds50 {
+        public static string CancelNeeds50 {
             get {
                 return ResourceManager.GetString("CancelNeeds50", resourceCulture);
             }
@@ -143,7 +143,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Canceling an active query is only supported on MySQL 5.0.0 and above. .
         /// </summary>
-        internal static string CancelNotSupported {
+        public static string CancelNotSupported {
             get {
                 return ResourceManager.GetString("CancelNotSupported", resourceCulture);
             }
@@ -152,7 +152,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Parameters can only be derived for commands using the StoredProcedure command type..
         /// </summary>
-        internal static string CanNotDeriveParametersForTextCommands {
+        public static string CanNotDeriveParametersForTextCommands {
             get {
                 return ResourceManager.GetString("CanNotDeriveParametersForTextCommands", resourceCulture);
             }
@@ -161,7 +161,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to MySqlCommandBuilder does not support multi-table statements.
         /// </summary>
-        internal static string CBMultiTableNotSupported {
+        public static string CBMultiTableNotSupported {
             get {
                 return ResourceManager.GetString("CBMultiTableNotSupported", resourceCulture);
             }
@@ -170,7 +170,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to MySqlCommandBuilder cannot operate on tables with no unique or key columns.
         /// </summary>
-        internal static string CBNoKeyColumn {
+        public static string CBNoKeyColumn {
             get {
                 return ResourceManager.GetString("CBNoKeyColumn", resourceCulture);
             }
@@ -179,7 +179,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Chaos isolation level is not supported.
         /// </summary>
-        internal static string ChaosNotSupported {
+        public static string ChaosNotSupported {
             get {
                 return ResourceManager.GetString("ChaosNotSupported", resourceCulture);
             }
@@ -188,7 +188,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to The CommandText property has not been properly initialized..
         /// </summary>
-        internal static string CommandTextNotInitialized {
+        public static string CommandTextNotInitialized {
             get {
                 return ResourceManager.GetString("CommandTextNotInitialized", resourceCulture);
             }
@@ -197,7 +197,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to The connection is already open..
         /// </summary>
-        internal static string ConnectionAlreadyOpen {
+        public static string ConnectionAlreadyOpen {
             get {
                 return ResourceManager.GetString("ConnectionAlreadyOpen", resourceCulture);
             }
@@ -206,7 +206,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Connection unexpectedly terminated..
         /// </summary>
-        internal static string ConnectionBroken {
+        public static string ConnectionBroken {
             get {
                 return ResourceManager.GetString("ConnectionBroken", resourceCulture);
             }
@@ -215,7 +215,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Connection must be valid and open.
         /// </summary>
-        internal static string ConnectionMustBeOpen {
+        public static string ConnectionMustBeOpen {
             get {
                 return ResourceManager.GetString("ConnectionMustBeOpen", resourceCulture);
             }
@@ -224,7 +224,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to The connection is not open..
         /// </summary>
-        internal static string ConnectionNotOpen {
+        public static string ConnectionNotOpen {
             get {
                 return ResourceManager.GetString("ConnectionNotOpen", resourceCulture);
             }
@@ -233,7 +233,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to The connection property has not been set or is null..
         /// </summary>
-        internal static string ConnectionNotSet {
+        public static string ConnectionNotSet {
             get {
                 return ResourceManager.GetString("ConnectionNotSet", resourceCulture);
             }
@@ -242,7 +242,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Could not find specified column in results: {0}.
         /// </summary>
-        internal static string CouldNotFindColumnName {
+        public static string CouldNotFindColumnName {
             get {
                 return ResourceManager.GetString("CouldNotFindColumnName", resourceCulture);
             }
@@ -251,7 +251,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to  Count cannot be negative.
         /// </summary>
-        internal static string CountCannotBeNegative {
+        public static string CountCannotBeNegative {
             get {
                 return ResourceManager.GetString("CountCannotBeNegative", resourceCulture);
             }
@@ -260,7 +260,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to SetLength is not a valid operation on CompressedStream.
         /// </summary>
-        internal static string CSNoSetLength {
+        public static string CSNoSetLength {
             get {
                 return ResourceManager.GetString("CSNoSetLength", resourceCulture);
             }
@@ -269,7 +269,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to The given value was not in a supported format..
         /// </summary>
-        internal static string DataNotInSupportedFormat {
+        public static string DataNotInSupportedFormat {
             get {
                 return ResourceManager.GetString("DataNotInSupportedFormat", resourceCulture);
             }
@@ -278,7 +278,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to There is already an open DataReader associated with this Connection which must be closed first..
         /// </summary>
-        internal static string DataReaderOpen {
+        public static string DataReaderOpen {
             get {
                 return ResourceManager.GetString("DataReaderOpen", resourceCulture);
             }
@@ -287,7 +287,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to The default connection encoding was not found. Please report this as a bug along with your connection string and system details..
         /// </summary>
-        internal static string DefaultEncodingNotFound {
+        public static string DefaultEncodingNotFound {
             get {
                 return ResourceManager.GetString("DefaultEncodingNotFound", resourceCulture);
             }
@@ -296,7 +296,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to MySQL Connector/Net does not currently support distributed transactions..
         /// </summary>
-        internal static string DistributedTxnNotSupported {
+        public static string DistributedTxnNotSupported {
             get {
                 return ResourceManager.GetString("DistributedTxnNotSupported", resourceCulture);
             }
@@ -305,7 +305,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Error creating socket connection.
         /// </summary>
-        internal static string ErrorCreatingSocket {
+        public static string ErrorCreatingSocket {
             get {
                 return ResourceManager.GetString("ErrorCreatingSocket", resourceCulture);
             }
@@ -314,7 +314,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Fatal error encountered during command execution..
         /// </summary>
-        internal static string FatalErrorDuringExecute {
+        public static string FatalErrorDuringExecute {
             get {
                 return ResourceManager.GetString("FatalErrorDuringExecute", resourceCulture);
             }
@@ -323,7 +323,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Fatal error encountered during data read..
         /// </summary>
-        internal static string FatalErrorDuringRead {
+        public static string FatalErrorDuringRead {
             get {
                 return ResourceManager.GetString("FatalErrorDuringRead", resourceCulture);
             }
@@ -332,7 +332,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Fatal error encountered attempting to read the resultset..
         /// </summary>
-        internal static string FatalErrorReadingResult {
+        public static string FatalErrorReadingResult {
             get {
                 return ResourceManager.GetString("FatalErrorReadingResult", resourceCulture);
             }
@@ -341,7 +341,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to File based certificates are only supported when connecting to MySQL Server 5.1 or greater..
         /// </summary>
-        internal static string FileBasedCertificateNotSupported {
+        public static string FileBasedCertificateNotSupported {
             get {
                 return ResourceManager.GetString("FileBasedCertificateNotSupported", resourceCulture);
             }
@@ -350,7 +350,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to From index and length use more bytes than from contains.
         /// </summary>
-        internal static string FromAndLengthTooBig {
+        public static string FromAndLengthTooBig {
             get {
                 return ResourceManager.GetString("FromAndLengthTooBig", resourceCulture);
             }
@@ -359,7 +359,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to From index must be a valid index inside the from buffer.
         /// </summary>
-        internal static string FromIndexMustBeValid {
+        public static string FromIndexMustBeValid {
             get {
                 return ResourceManager.GetString("FromIndexMustBeValid", resourceCulture);
             }
@@ -368,7 +368,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Call to GetHostEntry failed after {0} while querying for hostname &apos;{1}&apos;: SocketErrorCode={2}, ErrorCode={3}, NativeErrorCode={4}..
         /// </summary>
-        internal static string GetHostEntryFailed {
+        public static string GetHostEntryFailed {
             get {
                 return ResourceManager.GetString("GetHostEntryFailed", resourceCulture);
             }
@@ -377,7 +377,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Retrieving procedure metadata for {0} from server..
         /// </summary>
-        internal static string HardProcQuery {
+        public static string HardProcQuery {
             get {
                 return ResourceManager.GetString("HardProcQuery", resourceCulture);
             }
@@ -386,7 +386,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Value has an unsupported format..
         /// </summary>
-        internal static string ImproperValueFormat {
+        public static string ImproperValueFormat {
             get {
                 return ResourceManager.GetString("ImproperValueFormat", resourceCulture);
             }
@@ -395,7 +395,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to An incorrect response was received from the server..
         /// </summary>
-        internal static string IncorrectTransmission {
+        public static string IncorrectTransmission {
             get {
                 return ResourceManager.GetString("IncorrectTransmission", resourceCulture);
             }
@@ -404,7 +404,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Index and length use more bytes than to has room for.
         /// </summary>
-        internal static string IndexAndLengthTooBig {
+        public static string IndexAndLengthTooBig {
             get {
                 return ResourceManager.GetString("IndexAndLengthTooBig", resourceCulture);
             }
@@ -413,7 +413,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Index must be a valid position in the buffer.
         /// </summary>
-        internal static string IndexMustBeValid {
+        public static string IndexMustBeValid {
             get {
                 return ResourceManager.GetString("IndexMustBeValid", resourceCulture);
             }
@@ -422,7 +422,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to You have specified an invalid column ordinal..
         /// </summary>
-        internal static string InvalidColumnOrdinal {
+        public static string InvalidColumnOrdinal {
             get {
                 return ResourceManager.GetString("InvalidColumnOrdinal", resourceCulture);
             }
@@ -431,7 +431,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to The requested value &apos;{0}&apos; is invalid for the given keyword &apos;{1}&apos;..
         /// </summary>
-        internal static string InvalidConnectionStringValue {
+        public static string InvalidConnectionStringValue {
             get {
                 return ResourceManager.GetString("InvalidConnectionStringValue", resourceCulture);
             }
@@ -440,7 +440,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Microsecond must be a value between 0 and 999999..
         /// </summary>
-        internal static string InvalidMicrosecondValue {
+        public static string InvalidMicrosecondValue {
             get {
                 return ResourceManager.GetString("InvalidMicrosecondValue", resourceCulture);
             }
@@ -449,7 +449,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Millisecond must be a value between 0 and 999. For more precision use Microsecond..
         /// </summary>
-        internal static string InvalidMillisecondValue {
+        public static string InvalidMillisecondValue {
             get {
                 return ResourceManager.GetString("InvalidMillisecondValue", resourceCulture);
             }
@@ -458,7 +458,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Procedure or function &apos;{0}&apos; cannot be found in database &apos;{1}&apos;..
         /// </summary>
-        internal static string InvalidProcName {
+        public static string InvalidProcName {
             get {
                 return ResourceManager.GetString("InvalidProcName", resourceCulture);
             }
@@ -467,7 +467,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to &apos;{0}&apos; is an illegal value for a boolean option..
         /// </summary>
-        internal static string InvalidValueForBoolean {
+        public static string InvalidValueForBoolean {
             get {
                 return ResourceManager.GetString("InvalidValueForBoolean", resourceCulture);
             }
@@ -476,7 +476,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Keyword does not allow null values..
         /// </summary>
-        internal static string KeywordNoNull {
+        public static string KeywordNoNull {
             get {
                 return ResourceManager.GetString("KeywordNoNull", resourceCulture);
             }
@@ -485,7 +485,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Keyword not supported..
         /// </summary>
-        internal static string KeywordNotSupported {
+        public static string KeywordNotSupported {
             get {
                 return ResourceManager.GetString("KeywordNotSupported", resourceCulture);
             }
@@ -550,7 +550,7 @@ namespace MySql.Data.MySqlClient.Properties {
         ///DISTINCTROW
         ///D [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string keywords {
+        public static string keywords {
             get {
                 return ResourceManager.GetString("keywords", resourceCulture);
             }
@@ -559,7 +559,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Mixing named and unnamed parameters is not allowed..
         /// </summary>
-        internal static string MixedParameterNamingNotAllowed {
+        public static string MixedParameterNamingNotAllowed {
             get {
                 return ResourceManager.GetString("MixedParameterNamingNotAllowed", resourceCulture);
             }
@@ -568,7 +568,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to INTERNAL ERROR:  More than one output parameter row detected..
         /// </summary>
-        internal static string MoreThanOneOPRow {
+        public static string MoreThanOneOPRow {
             get {
                 return ResourceManager.GetString("MoreThanOneOPRow", resourceCulture);
             }
@@ -577,7 +577,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Multiple simultaneous connections or connections with different connection strings inside the same transaction are not currently supported..
         /// </summary>
-        internal static string MultipleConnectionsInTransactionNotSupported {
+        public static string MultipleConnectionsInTransactionNotSupported {
             get {
                 return ResourceManager.GetString("MultipleConnectionsInTransactionNotSupported", resourceCulture);
             }
@@ -586,7 +586,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to NamedPipeStream does not support seeking.
         /// </summary>
-        internal static string NamedPipeNoSeek {
+        public static string NamedPipeNoSeek {
             get {
                 return ResourceManager.GetString("NamedPipeNoSeek", resourceCulture);
             }
@@ -595,7 +595,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to NamedPipeStream doesn&apos;t support SetLength.
         /// </summary>
-        internal static string NamedPipeNoSetLength {
+        public static string NamedPipeNoSetLength {
             get {
                 return ResourceManager.GetString("NamedPipeNoSetLength", resourceCulture);
             }
@@ -604,7 +604,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to The new value must be a MySqlParameter object..
         /// </summary>
-        internal static string NewValueShouldBeMySqlParameter {
+        public static string NewValueShouldBeMySqlParameter {
             get {
                 return ResourceManager.GetString("NewValueShouldBeMySqlParameter", resourceCulture);
             }
@@ -613,7 +613,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Invalid attempt to call NextResult when the reader is closed..
         /// </summary>
-        internal static string NextResultIsClosed {
+        public static string NextResultIsClosed {
             get {
                 return ResourceManager.GetString("NextResultIsClosed", resourceCulture);
             }
@@ -622,7 +622,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to When calling stored procedures and &apos;Use Procedure Bodies&apos; is false, all parameters must have their type explicitly set..
         /// </summary>
-        internal static string NoBodiesAndTypeNotSet {
+        public static string NoBodiesAndTypeNotSet {
             get {
                 return ResourceManager.GetString("NoBodiesAndTypeNotSet", resourceCulture);
             }
@@ -631,7 +631,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Nested transactions are not supported..
         /// </summary>
-        internal static string NoNestedTransactions {
+        public static string NoNestedTransactions {
             get {
                 return ResourceManager.GetString("NoNestedTransactions", resourceCulture);
             }
@@ -640,7 +640,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to The host {0} does not support SSL connections..
         /// </summary>
-        internal static string NoServerSSLSupport {
+        public static string NoServerSSLSupport {
             get {
                 return ResourceManager.GetString("NoServerSSLSupport", resourceCulture);
             }
@@ -649,7 +649,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Unix sockets are not supported on Windows..
         /// </summary>
-        internal static string NoUnixSocketsOnWindows {
+        public static string NoUnixSocketsOnWindows {
             get {
                 return ResourceManager.GetString("NoUnixSocketsOnWindows", resourceCulture);
             }
@@ -658,7 +658,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Cannot retrieve Windows identity for current user. Connections that use  IntegratedSecurity cannot be  pooled. Use either &apos;ConnectionReset=true&apos; or  &apos;Pooling=false&apos; in the connection string to fix..
         /// </summary>
-        internal static string NoWindowsIdentity {
+        public static string NoWindowsIdentity {
             get {
                 return ResourceManager.GetString("NoWindowsIdentity", resourceCulture);
             }
@@ -667,7 +667,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to The object is not open or has been disposed..
         /// </summary>
-        internal static string ObjectDisposed {
+        public static string ObjectDisposed {
             get {
                 return ResourceManager.GetString("ObjectDisposed", resourceCulture);
             }
@@ -676,7 +676,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to  Offset cannot be negative.
         /// </summary>
-        internal static string OffsetCannotBeNegative {
+        public static string OffsetCannotBeNegative {
             get {
                 return ResourceManager.GetString("OffsetCannotBeNegative", resourceCulture);
             }
@@ -685,7 +685,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Offset must be a valid position in buffer.
         /// </summary>
-        internal static string OffsetMustBeValid {
+        public static string OffsetMustBeValid {
             get {
                 return ResourceManager.GetString("OffsetMustBeValid", resourceCulture);
             }
@@ -694,7 +694,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Authentication with old password no longer supported, use 4.1 style passwords..
         /// </summary>
-        internal static string OldPasswordsNotSupported {
+        public static string OldPasswordsNotSupported {
             get {
                 return ResourceManager.GetString("OldPasswordsNotSupported", resourceCulture);
             }
@@ -703,7 +703,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Parameter &apos;{0}&apos; has already been defined..
         /// </summary>
-        internal static string ParameterAlreadyDefined {
+        public static string ParameterAlreadyDefined {
             get {
                 return ResourceManager.GetString("ParameterAlreadyDefined", resourceCulture);
             }
@@ -712,7 +712,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Parameter cannot have a negative value.
         /// </summary>
-        internal static string ParameterCannotBeNegative {
+        public static string ParameterCannotBeNegative {
             get {
                 return ResourceManager.GetString("ParameterCannotBeNegative", resourceCulture);
             }
@@ -721,7 +721,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Parameter cannot be null.
         /// </summary>
-        internal static string ParameterCannotBeNull {
+        public static string ParameterCannotBeNull {
             get {
                 return ResourceManager.GetString("ParameterCannotBeNull", resourceCulture);
             }
@@ -730,7 +730,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Parameter index was not found in Parameter Collection..
         /// </summary>
-        internal static string ParameterIndexNotFound {
+        public static string ParameterIndexNotFound {
             get {
                 return ResourceManager.GetString("ParameterIndexNotFound", resourceCulture);
             }
@@ -739,7 +739,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Parameter is invalid..
         /// </summary>
-        internal static string ParameterIsInvalid {
+        public static string ParameterIsInvalid {
             get {
                 return ResourceManager.GetString("ParameterIsInvalid", resourceCulture);
             }
@@ -748,7 +748,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Parameter &apos;{0}&apos; must be defined..
         /// </summary>
-        internal static string ParameterMustBeDefined {
+        public static string ParameterMustBeDefined {
             get {
                 return ResourceManager.GetString("ParameterMustBeDefined", resourceCulture);
             }
@@ -757,7 +757,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Parameter &apos;{0}&apos; was not found during prepare..
         /// </summary>
-        internal static string ParameterNotFoundDuringPrepare {
+        public static string ParameterNotFoundDuringPrepare {
             get {
                 return ResourceManager.GetString("ParameterNotFoundDuringPrepare", resourceCulture);
             }
@@ -766,7 +766,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Password must be valid and contain length characters.
         /// </summary>
-        internal static string PasswordMustHaveLegalChars {
+        public static string PasswordMustHaveLegalChars {
             get {
                 return ResourceManager.GetString("PasswordMustHaveLegalChars", resourceCulture);
             }
@@ -775,7 +775,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to This category includes a series of counters for MySQL.
         /// </summary>
-        internal static string PerfMonCategoryHelp {
+        public static string PerfMonCategoryHelp {
             get {
                 return ResourceManager.GetString("PerfMonCategoryHelp", resourceCulture);
             }
@@ -784,7 +784,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to .NET Data Provider for MySQL.
         /// </summary>
-        internal static string PerfMonCategoryName {
+        public static string PerfMonCategoryName {
             get {
                 return ResourceManager.GetString("PerfMonCategoryName", resourceCulture);
             }
@@ -793,7 +793,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to The number of times a procedures metadata had to be queried from the server..
         /// </summary>
-        internal static string PerfMonHardProcHelp {
+        public static string PerfMonHardProcHelp {
             get {
                 return ResourceManager.GetString("PerfMonHardProcHelp", resourceCulture);
             }
@@ -802,7 +802,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Hard Procedure Queries.
         /// </summary>
-        internal static string PerfMonHardProcName {
+        public static string PerfMonHardProcName {
             get {
                 return ResourceManager.GetString("PerfMonHardProcName", resourceCulture);
             }
@@ -811,7 +811,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to The number of times a procedures metadata was retrieved from the client-side cache..
         /// </summary>
-        internal static string PerfMonSoftProcHelp {
+        public static string PerfMonSoftProcHelp {
             get {
                 return ResourceManager.GetString("PerfMonSoftProcHelp", resourceCulture);
             }
@@ -820,7 +820,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Soft Procedure Queries.
         /// </summary>
-        internal static string PerfMonSoftProcName {
+        public static string PerfMonSoftProcName {
             get {
                 return ResourceManager.GetString("PerfMonSoftProcName", resourceCulture);
             }
@@ -829,7 +829,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to same name are not supported..
         /// </summary>
-        internal static string ProcAndFuncSameName {
+        public static string ProcAndFuncSameName {
             get {
                 return ResourceManager.GetString("ProcAndFuncSameName", resourceCulture);
             }
@@ -838,7 +838,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Packets larger than max_allowed_packet are not allowed..
         /// </summary>
-        internal static string QueryTooLarge {
+        public static string QueryTooLarge {
             get {
                 return ResourceManager.GetString("QueryTooLarge", resourceCulture);
             }
@@ -847,7 +847,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Reading from the stream has failed..
         /// </summary>
-        internal static string ReadFromStreamFailed {
+        public static string ReadFromStreamFailed {
             get {
                 return ResourceManager.GetString("ReadFromStreamFailed", resourceCulture);
             }
@@ -856,7 +856,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Invalid attempt to read a prior column using SequentialAccess.
         /// </summary>
-        internal static string ReadingPriorColumnUsingSeqAccess {
+        public static string ReadingPriorColumnUsingSeqAccess {
             get {
                 return ResourceManager.GetString("ReadingPriorColumnUsingSeqAccess", resourceCulture);
             }
@@ -865,7 +865,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Replicated connections allow only readonly statements..
         /// </summary>
-        internal static string ReplicatedConnectionsAllowOnlyReadonlyStatements {
+        public static string ReplicatedConnectionsAllowOnlyReadonlyStatements {
             get {
                 return ResourceManager.GetString("ReplicatedConnectionsAllowOnlyReadonlyStatements", resourceCulture);
             }
@@ -874,7 +874,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Attempt to connect to &apos;{0}&apos; server failed..
         /// </summary>
-        internal static string Replication_ConnectionAttemptFailed {
+        public static string Replication_ConnectionAttemptFailed {
             get {
                 return ResourceManager.GetString("Replication_ConnectionAttemptFailed", resourceCulture);
             }
@@ -883,7 +883,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to No available server found..
         /// </summary>
-        internal static string Replication_NoAvailableServer {
+        public static string Replication_NoAvailableServer {
             get {
                 return ResourceManager.GetString("Replication_NoAvailableServer", resourceCulture);
             }
@@ -892,7 +892,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Replication group &apos;{0}&apos; not found..
         /// </summary>
-        internal static string ReplicationGroupNotFound {
+        public static string ReplicationGroupNotFound {
             get {
                 return ResourceManager.GetString("ReplicationGroupNotFound", resourceCulture);
             }
@@ -901,7 +901,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Replicated server not found: &apos;{0}&apos;.
         /// </summary>
-        internal static string ReplicationServerNotFound {
+        public static string ReplicationServerNotFound {
             get {
                 return ResourceManager.GetString("ReplicationServerNotFound", resourceCulture);
             }
@@ -910,7 +910,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Routine &apos;{0}&apos; cannot be found. Either check the spelling or make sure you have sufficient rights to execute the routine..
         /// </summary>
-        internal static string RoutineNotFound {
+        public static string RoutineNotFound {
             get {
                 return ResourceManager.GetString("RoutineNotFound", resourceCulture);
             }
@@ -919,7 +919,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Attempt to call stored function &apos;{0}&apos; without specifying a return parameter.
         /// </summary>
-        internal static string RoutineRequiresReturnParameter {
+        public static string RoutineRequiresReturnParameter {
             get {
                 return ResourceManager.GetString("RoutineRequiresReturnParameter", resourceCulture);
             }
@@ -928,7 +928,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Connector/Net no longer supports server versions prior to 5.0.
         /// </summary>
-        internal static string ServerTooOld {
+        public static string ServerTooOld {
             get {
                 return ResourceManager.GetString("ServerTooOld", resourceCulture);
             }
@@ -937,7 +937,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Snapshot isolation level is not supported..
         /// </summary>
-        internal static string SnapshotNotSupported {
+        public static string SnapshotNotSupported {
             get {
                 return ResourceManager.GetString("SnapshotNotSupported", resourceCulture);
             }
@@ -946,7 +946,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Socket streams do not support seeking.
         /// </summary>
-        internal static string SocketNoSeek {
+        public static string SocketNoSeek {
             get {
                 return ResourceManager.GetString("SocketNoSeek", resourceCulture);
             }
@@ -955,7 +955,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Retrieving procedure metadata for {0} from procedure cache..
         /// </summary>
-        internal static string SoftProcQuery {
+        public static string SoftProcQuery {
             get {
                 return ResourceManager.GetString("SoftProcQuery", resourceCulture);
             }
@@ -964,7 +964,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Stored procedures are not supported on this version of MySQL.
         /// </summary>
-        internal static string SPNotSupported {
+        public static string SPNotSupported {
             get {
                 return ResourceManager.GetString("SPNotSupported", resourceCulture);
             }
@@ -973,7 +973,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to The stream has already been closed.
         /// </summary>
-        internal static string StreamAlreadyClosed {
+        public static string StreamAlreadyClosed {
             get {
                 return ResourceManager.GetString("StreamAlreadyClosed", resourceCulture);
             }
@@ -982,7 +982,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to  The stream does not support reading.
         /// </summary>
-        internal static string StreamNoRead {
+        public static string StreamNoRead {
             get {
                 return ResourceManager.GetString("StreamNoRead", resourceCulture);
             }
@@ -991,7 +991,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to The stream does not support writing.
         /// </summary>
-        internal static string StreamNoWrite {
+        public static string StreamNoWrite {
             get {
                 return ResourceManager.GetString("StreamNoWrite", resourceCulture);
             }
@@ -1000,7 +1000,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Timeout expired.  The timeout period elapsed prior to completion of the operation or the server is not responding..
         /// </summary>
-        internal static string Timeout {
+        public static string Timeout {
             get {
                 return ResourceManager.GetString("Timeout", resourceCulture);
             }
@@ -1009,7 +1009,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to error connecting: Timeout expired.  The timeout period elapsed prior to obtaining a connection from the pool.  This may have occurred because all pooled connections were in use and max pool size was reached..
         /// </summary>
-        internal static string TimeoutGettingConnection {
+        public static string TimeoutGettingConnection {
             get {
                 return ResourceManager.GetString("TimeoutGettingConnection", resourceCulture);
             }
@@ -1018,7 +1018,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to {0}: Connection Closed.
         /// </summary>
-        internal static string TraceCloseConnection {
+        public static string TraceCloseConnection {
             get {
                 return ResourceManager.GetString("TraceCloseConnection", resourceCulture);
             }
@@ -1027,7 +1027,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Unable to trace.  There are more than Int32.MaxValue connections in use..
         /// </summary>
-        internal static string TraceErrorMoreThanMaxValueConnections {
+        public static string TraceErrorMoreThanMaxValueConnections {
             get {
                 return ResourceManager.GetString("TraceErrorMoreThanMaxValueConnections", resourceCulture);
             }
@@ -1036,7 +1036,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to {0}: Error encountered during row fetch. Number = {1}, Message={2}.
         /// </summary>
-        internal static string TraceFetchError {
+        public static string TraceFetchError {
             get {
                 return ResourceManager.GetString("TraceFetchError", resourceCulture);
             }
@@ -1045,7 +1045,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to {0}: Connection Opened: connection string = &apos;{1}&apos;.
         /// </summary>
-        internal static string TraceOpenConnection {
+        public static string TraceOpenConnection {
             get {
                 return ResourceManager.GetString("TraceOpenConnection", resourceCulture);
             }
@@ -1054,7 +1054,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to {0}: Error encountered attempting to open result: Number={1}, Message={2}.
         /// </summary>
-        internal static string TraceOpenResultError {
+        public static string TraceOpenResultError {
             get {
                 return ResourceManager.GetString("TraceOpenResultError", resourceCulture);
             }
@@ -1063,7 +1063,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to {0}: Query Closed.
         /// </summary>
-        internal static string TraceQueryDone {
+        public static string TraceQueryDone {
             get {
                 return ResourceManager.GetString("TraceQueryDone", resourceCulture);
             }
@@ -1072,7 +1072,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to {0}: Query Normalized: {2}.
         /// </summary>
-        internal static string TraceQueryNormalized {
+        public static string TraceQueryNormalized {
             get {
                 return ResourceManager.GetString("TraceQueryNormalized", resourceCulture);
             }
@@ -1081,7 +1081,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to {0}: Query Opened: {2}.
         /// </summary>
-        internal static string TraceQueryOpened {
+        public static string TraceQueryOpened {
             get {
                 return ResourceManager.GetString("TraceQueryOpened", resourceCulture);
             }
@@ -1090,7 +1090,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to {0}: Resultset Opened: field(s) = {1}, affected rows = {2}, inserted id = {3}.
         /// </summary>
-        internal static string TraceResult {
+        public static string TraceResult {
             get {
                 return ResourceManager.GetString("TraceResult", resourceCulture);
             }
@@ -1099,7 +1099,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to {0}: Resultset Closed. Total rows={1}, skipped rows={2}, size (bytes)={3}.
         /// </summary>
-        internal static string TraceResultClosed {
+        public static string TraceResultClosed {
             get {
                 return ResourceManager.GetString("TraceResultClosed", resourceCulture);
             }
@@ -1108,7 +1108,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to {0}: Set Database: {1}.
         /// </summary>
-        internal static string TraceSetDatabase {
+        public static string TraceSetDatabase {
             get {
                 return ResourceManager.GetString("TraceSetDatabase", resourceCulture);
             }
@@ -1117,7 +1117,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to {0}: Statement closed: statement id = {1}.
         /// </summary>
-        internal static string TraceStatementClosed {
+        public static string TraceStatementClosed {
             get {
                 return ResourceManager.GetString("TraceStatementClosed", resourceCulture);
             }
@@ -1126,7 +1126,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to {0}: Statement executed: statement id = {1}.
         /// </summary>
-        internal static string TraceStatementExecuted {
+        public static string TraceStatementExecuted {
             get {
                 return ResourceManager.GetString("TraceStatementExecuted", resourceCulture);
             }
@@ -1135,7 +1135,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to {0}: Statement prepared: sql=&apos;{1}&apos;, statement id={2}.
         /// </summary>
-        internal static string TraceStatementPrepared {
+        public static string TraceStatementPrepared {
             get {
                 return ResourceManager.GetString("TraceStatementPrepared", resourceCulture);
             }
@@ -1144,7 +1144,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to {0}: Usage Advisor Warning: Query is using a bad index.
         /// </summary>
-        internal static string TraceUAWarningBadIndex {
+        public static string TraceUAWarningBadIndex {
             get {
                 return ResourceManager.GetString("TraceUAWarningBadIndex", resourceCulture);
             }
@@ -1153,7 +1153,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to {0}: Usage Advisor Warning: The field &apos;{2}&apos; was converted to the following types: {3}.
         /// </summary>
-        internal static string TraceUAWarningFieldConversion {
+        public static string TraceUAWarningFieldConversion {
             get {
                 return ResourceManager.GetString("TraceUAWarningFieldConversion", resourceCulture);
             }
@@ -1162,7 +1162,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to {0}: Usage Advisor Warning: Query does not use an index.
         /// </summary>
-        internal static string TraceUAWarningNoIndex {
+        public static string TraceUAWarningNoIndex {
             get {
                 return ResourceManager.GetString("TraceUAWarningNoIndex", resourceCulture);
             }
@@ -1171,7 +1171,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to {0}: Usage Advisor Warning: The following columns were not accessed: {2}.
         /// </summary>
-        internal static string TraceUAWarningSkippedColumns {
+        public static string TraceUAWarningSkippedColumns {
             get {
                 return ResourceManager.GetString("TraceUAWarningSkippedColumns", resourceCulture);
             }
@@ -1180,7 +1180,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to {0}: Usage Advisor Warning: Skipped {2} rows. Consider a more focused query..
         /// </summary>
-        internal static string TraceUAWarningSkippedRows {
+        public static string TraceUAWarningSkippedRows {
             get {
                 return ResourceManager.GetString("TraceUAWarningSkippedRows", resourceCulture);
             }
@@ -1189,7 +1189,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to {0}: MySql Warning: Level={1}, Code={2}, Message={3}.
         /// </summary>
-        internal static string TraceWarning {
+        public static string TraceWarning {
             get {
                 return ResourceManager.GetString("TraceWarning", resourceCulture);
             }
@@ -1198,7 +1198,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Type &apos;{0}&apos; is not derived from BaseCommandInterceptor.
         /// </summary>
-        internal static string TypeIsNotCommandInterceptor {
+        public static string TypeIsNotCommandInterceptor {
             get {
                 return ResourceManager.GetString("TypeIsNotCommandInterceptor", resourceCulture);
             }
@@ -1207,7 +1207,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Type &apos;{0}&apos; is not derived from BaseExceptionInterceptor.
         /// </summary>
-        internal static string TypeIsNotExceptionInterceptor {
+        public static string TypeIsNotExceptionInterceptor {
             get {
                 return ResourceManager.GetString("TypeIsNotExceptionInterceptor", resourceCulture);
             }
@@ -1216,7 +1216,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Unable to connect to any of the specified MySQL hosts..
         /// </summary>
-        internal static string UnableToConnectToHost {
+        public static string UnableToConnectToHost {
             get {
                 return ResourceManager.GetString("UnableToConnectToHost", resourceCulture);
             }
@@ -1225,7 +1225,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Unable to create plugin for authentication method &apos;{0}&apos;. Please see inner exception for details..
         /// </summary>
-        internal static string UnableToCreateAuthPlugin {
+        public static string UnableToCreateAuthPlugin {
             get {
                 return ResourceManager.GetString("UnableToCreateAuthPlugin", resourceCulture);
             }
@@ -1234,7 +1234,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Unable to derive stored routine parameters.  The &apos;Parameters&apos; information schema table is not available and access to the stored procedure body has been disabled..
         /// </summary>
-        internal static string UnableToDeriveParameters {
+        public static string UnableToDeriveParameters {
             get {
                 return ResourceManager.GetString("UnableToDeriveParameters", resourceCulture);
             }
@@ -1243,7 +1243,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Unable to enable query analysis.  Be sure the MySql.Data.EMTrace assembly is properly located and registered..
         /// </summary>
-        internal static string UnableToEnableQueryAnalysis {
+        public static string UnableToEnableQueryAnalysis {
             get {
                 return ResourceManager.GetString("UnableToEnableQueryAnalysis", resourceCulture);
             }
@@ -1252,7 +1252,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to An error occured attempting to enumerate the user-defined functions.  Do you have SELECT privileges on the mysql.func table?.
         /// </summary>
-        internal static string UnableToEnumerateUDF {
+        public static string UnableToEnumerateUDF {
             get {
                 return ResourceManager.GetString("UnableToEnumerateUDF", resourceCulture);
             }
@@ -1261,7 +1261,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Unable to execute stored procedure &apos;{0}&apos;..
         /// </summary>
-        internal static string UnableToExecuteSP {
+        public static string UnableToExecuteSP {
             get {
                 return ResourceManager.GetString("UnableToExecuteSP", resourceCulture);
             }
@@ -1270,7 +1270,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to There was an error parsing the foreign key definition..
         /// </summary>
-        internal static string UnableToParseFK {
+        public static string UnableToParseFK {
             get {
                 return ResourceManager.GetString("UnableToParseFK", resourceCulture);
             }
@@ -1279,7 +1279,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Unable to retrieve stored procedure metadata for routine &apos;{0}&apos;.  Either grant  SELECT privilege to mysql.proc for this user or use &quot;check parameters=false&quot; with  your connection string..
         /// </summary>
-        internal static string UnableToRetrieveParameters {
+        public static string UnableToRetrieveParameters {
             get {
                 return ResourceManager.GetString("UnableToRetrieveParameters", resourceCulture);
             }
@@ -1288,7 +1288,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Unable to start a second async operation while one is running..
         /// </summary>
-        internal static string UnableToStartSecondAsyncOp {
+        public static string UnableToStartSecondAsyncOp {
             get {
                 return ResourceManager.GetString("UnableToStartSecondAsyncOp", resourceCulture);
             }
@@ -1297,7 +1297,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Unix sockets are not supported on Windows.
         /// </summary>
-        internal static string UnixSocketsNotSupported {
+        public static string UnixSocketsNotSupported {
             get {
                 return ResourceManager.GetString("UnixSocketsNotSupported", resourceCulture);
             }
@@ -1306,7 +1306,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Unknown authentication method &apos;{0}&apos; was requested..
         /// </summary>
-        internal static string UnknownAuthenticationMethod {
+        public static string UnknownAuthenticationMethod {
             get {
                 return ResourceManager.GetString("UnknownAuthenticationMethod", resourceCulture);
             }
@@ -1315,7 +1315,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Unknown connection protocol.
         /// </summary>
-        internal static string UnknownConnectionProtocol {
+        public static string UnknownConnectionProtocol {
             get {
                 return ResourceManager.GetString("UnknownConnectionProtocol", resourceCulture);
             }
@@ -1324,7 +1324,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Value &apos;{0}&apos; is not of the correct type..
         /// </summary>
-        internal static string ValueNotCorrectType {
+        public static string ValueNotCorrectType {
             get {
                 return ResourceManager.GetString("ValueNotCorrectType", resourceCulture);
             }
@@ -1333,7 +1333,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to The requested column value could not be treated as or conveted to a Guid..
         /// </summary>
-        internal static string ValueNotSupportedForGuid {
+        public static string ValueNotSupportedForGuid {
             get {
                 return ResourceManager.GetString("ValueNotSupportedForGuid", resourceCulture);
             }
@@ -1342,7 +1342,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Windows authentication connections are not supported on {0}.
         /// </summary>
-        internal static string WinAuthNotSupportOnPlatform {
+        public static string WinAuthNotSupportOnPlatform {
             get {
                 return ResourceManager.GetString("WinAuthNotSupportOnPlatform", resourceCulture);
             }
@@ -1351,7 +1351,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Writing to the stream failed..
         /// </summary>
-        internal static string WriteToStreamFailed {
+        public static string WriteToStreamFailed {
             get {
                 return ResourceManager.GetString("WriteToStreamFailed", resourceCulture);
             }
@@ -1360,7 +1360,7 @@ namespace MySql.Data.MySqlClient.Properties {
         /// <summary>
         ///    Looks up a localized string similar to Parameter &apos;{0}&apos; is not found but a parameter with the name &apos;{1}&apos; is found. Parameter names must include the leading parameter marker..
         /// </summary>
-        internal static string WrongParameterName {
+        public static string WrongParameterName {
             get {
                 return ResourceManager.GetString("WrongParameterName", resourceCulture);
             }

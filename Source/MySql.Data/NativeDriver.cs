@@ -30,18 +30,18 @@ using System.ComponentModel;
 using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.Authentication;
 using MySql.Data.MySqlClient.Properties;
-using MySql.Data.MySqlClient.Types;
 using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
 using System.Security.Authentication;
 using System.Globalization;
-
 #if NETCORE10
 using MySql.Data.MySqlClient.Common;
+using MySql.Data.MySqlClient.Types;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 #else
-using MySql.Data.Common
+using MySql.Data.Common;
+using MySql.Data.Types;
 #endif
 
 namespace MySql.Data.MySqlClient
