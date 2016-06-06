@@ -871,7 +871,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True(DateTime.TryParse(date, out temp));
     }
 
-#if NET_40_OR_GREATER
+#if NET_45_OR_GREATER
     /// <summary>
     /// Testing new functionality for Server 5.6 
     /// On WL 5874

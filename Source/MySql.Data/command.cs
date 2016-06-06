@@ -352,7 +352,6 @@ namespace MySql.Data.MySqlClient
       return ExecuteReader(CommandBehavior.Default);
     }
 
-    partial void RepliationManagerGetNewConnection(string groupName, bool master, MySqlConnection connection);
 
     /// <include file='docs/mysqlcommand.xml' path='docs/ExecuteReader1/*'/>
     public new MySqlDataReader ExecuteReader(CommandBehavior behavior)
@@ -375,12 +374,10 @@ namespace MySql.Data.MySqlClient
       string sql = cmdText.Trim(';');
 
 #if !NETCORE10
-      //TODO: Add compatibility for 452 and 46X (code below as reference)
       // Load balancing getting a new connection
       if (connection.hasBeenOpen && !driver.HasStatus(ServerStatusFlags.InTransaction))
       {
         ReplicationManager.GetNewConnection(connection.Settings.Server, !IsReadOnlyCommand(sql), connection);
-        RepliationManagerGetNewConnection(connection.Settings.Server, !IsReadOnlyCommand(sql), connection);
       }
 #endif
 

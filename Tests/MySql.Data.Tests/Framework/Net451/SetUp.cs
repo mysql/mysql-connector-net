@@ -104,18 +104,8 @@ namespace MySql.Data.MySqlClient.Tests
                 cmd.ExecuteNonQuery();
             }
 
-#if RT
-            AssemblyName assemblyName = new AssemblyName("MySql.Data.RT.Tests");
-            Assembly executingAssembly = Assembly.Load(assemblyName);
-#else
       Assembly executingAssembly = Assembly.GetExecutingAssembly();
-#endif
-
-#if RT            
-            Stream stream = executingAssembly.GetManifestResourceStream("MySql.Data.RT.Tests.Properties.Setup.sql");
-#else
       Stream stream = executingAssembly.GetManifestResourceStream("MySql.Data.MySqlClient.Tests.Properties.Setup.sql");
-#endif
             StreamReader sr = new StreamReader(stream);
             string sql = sr.ReadToEnd();
             sr.Close();
@@ -126,9 +116,7 @@ namespace MySql.Data.MySqlClient.Tests
 
             ExecuteSQLAsRoot(sql);
             Open();
-#if !RT
             numProcessesRunning = CountProcesses();
-#endif
         }
 
         protected void SetAccountPerms(bool includeProc)
@@ -159,7 +147,6 @@ namespace MySql.Data.MySqlClient.Tests
             password = "test";
             string portString = null;
 
-#if !RT
             rootUser = ConfigurationManager.AppSettings["rootuser"];
             rootPassword = ConfigurationManager.AppSettings["rootpassword"];
             host = ConfigurationManager.AppSettings["host"];
@@ -167,7 +154,6 @@ namespace MySql.Data.MySqlClient.Tests
             memoryName = ConfigurationManager.AppSettings["memory_name"];
             pipeName = ConfigurationManager.AppSettings["memory_name"];            
             
-#endif
             if (string.IsNullOrEmpty(rootUser))
                 rootUser = "root";
             if (string.IsNullOrEmpty(rootPassword))
@@ -189,12 +175,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
             // we don't use FileVersion because it's not available
             // on the compact framework
-#if RT
-        AssemblyName assemblyName = new AssemblyName("MySql.Data.RT");
-        string fullname = Assembly.Load(assemblyName).FullName;
-#else
             string fullname = Assembly.GetExecutingAssembly().FullName;
-#endif
 
             string[] parts = fullname.Split(new char[] { '=' });
             string[] versionParts = parts[1].Split(new char[] { '.' });
@@ -261,7 +242,6 @@ namespace MySql.Data.MySqlClient.Tests
             cmd.ExecuteNonQuery();
         }
 
-#if !RT
 
         internal protected bool TableExists(string tableName)
         {
@@ -288,7 +268,6 @@ namespace MySql.Data.MySqlClient.Tests
             return dt;
         }
 
-#endif
 
 
         protected void DropDatabase(string name)
@@ -302,14 +281,11 @@ namespace MySql.Data.MySqlClient.Tests
                 }
                 catch (Exception)
                 {
-#if !RT
                     System.Threading.Thread.Sleep(1000);
-#endif
                 }
             }
         }
 
-#if !RT
         protected void CheckOrphanedConnections()
         {
             // wait up to 5 seconds for our connection to close
@@ -343,7 +319,6 @@ namespace MySql.Data.MySqlClient.Tests
             }
         }
 
-#endif
 
 
         internal protected string GetPoolingConnectionString()
@@ -430,9 +405,7 @@ namespace MySql.Data.MySqlClient.Tests
             {
               MySqlConnection.ClearAllPools();
 
-#if !RT
               CheckOrphanedConnections();
-#endif
               if (rootConn.State == ConnectionState.Closed)
                 rootConn.Open();
 

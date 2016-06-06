@@ -949,11 +949,9 @@ namespace MySql.Data.MySqlClient.Tests
         string[] restrictions = new string[4];
         restrictions[1] = c.Database;
         restrictions[2] = "spTest";
-#if RT
-        string procTable = "table";
-#else
+
         DataTable procTable = c.GetSchema("procedures", restrictions);
-#endif
+
         ISSchemaProvider isp = new ISSchemaProvider(c);
         string[] rest = isp.CleanRestrictions(restrictions);
 

@@ -28,6 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.Properties;
+using MySql.Data.MySqlClient.Replication;
 using IsolationLevel = System.Data.IsolationLevel;
 
 #if NETCORE10
@@ -124,12 +125,7 @@ namespace MySql.Data.MySqlClient
       {
 #if !NETCORE10
         return (State == ConnectionState.Closed) &&
-               driver != null;
-
-        //TODO: FIX to include support for transations for 452 and 46X
-        //return (State == ConnectionState.Closed) &&
-        //  Driver != null &&
-        //  Driver.CurrentTransaction != null;
+               driver != null && driver.currentTransaction != null;
 #else
         return (State == ConnectionState.Closed) &&
                driver != null;
@@ -390,15 +386,15 @@ namespace MySql.Data.MySqlClient
 
         //TODO: SUPPORT FOR 452 AND 46X
         // Load balancing 
-        //if (ReplicationManager.IsReplicationGroup(Settings.Server))
-        //{
-        //  if (driver == null)
-        //  {
-        //    ReplicationManager.GetNewConnection(Settings.Server, false, this);
-        //  }
-        //  else
-        //    currentSettings = driver.Settings;
-        //}
+        if (ReplicationManager.IsReplicationGroup(Settings.Server))
+        {
+          if (driver == null)
+          {
+            ReplicationManager.GetNewConnection(Settings.Server, false, this);
+          }
+          else
+            currentSettings = driver.Settings;
+        }
 
         if (Settings.Pooling)
         {
@@ -493,13 +489,15 @@ namespace MySql.Data.MySqlClient
     {
       if (Settings.Pooling && driver.IsOpen)
       {
+#if !NETCORE10
         //TODO: SUPPORT FOR 452 AND 46X
         //// if we are in a transaction, roll it back
-        //if (driver.HasStatus(ServerStatusFlags.InTransaction))
-        //{
-        //  MySql.Data.MySqlClient.MySqlTransaction t = new MySql.Data.MySqlClient.MySqlTransaction(this, IsolationLevel.Unspecified);
-        //  t.Rollback();
-        //}
+        if (driver.HasStatus(ServerStatusFlags.InTransaction))
+        {
+          MySql.Data.MySqlClient.MySqlTransaction t = new MySql.Data.MySqlClient.MySqlTransaction(this, IsolationLevel.Unspecified);
+          t.Rollback();
+        }
+#endif
 
         MySqlPoolManager.ReleaseConnection(driver);
       }
@@ -525,13 +523,13 @@ namespace MySql.Data.MySqlClient
       {
 #if !NETCORE10
         //TODO: Add support for 452 and 46X
-        //if (Driver.CurrentTransaction == null)
+        if (driver.currentTransaction == null)
 #endif
           CloseFully();
 #if !NETCORE10
-    //TODO: Add support for 452 and 46X
-        //else
-        //  Driver.IsInActiveUse = false;
+        //TODO: Add support for 452 and 46X
+        else
+          driver.IsInActiveUse = false;
 #endif
       }
 
@@ -949,7 +947,11 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// 
     /// </summary>
-    public MySqlError[] Errors;
+#if (NETCORE10)
+    public MySqlError[] Errors { get; set; }
+#else
+    public MySqlError[] errors { get; set; }
+#endif
   }
 
   /// <summary>
@@ -970,7 +972,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    #region IDisposable Members
+#region IDisposable Members
     public void Dispose()
     {
       if (!_timeoutSet) return;
@@ -979,6 +981,6 @@ namespace MySql.Data.MySqlClient
       _connection.ClearCommandTimeout();
       _connection = null;
     }
-    #endregion
+#endregion
   }
 }

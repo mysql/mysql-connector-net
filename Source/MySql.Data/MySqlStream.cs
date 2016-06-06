@@ -61,10 +61,12 @@ namespace MySql.Data.MySqlClient
     {
       _timedStream = new TimedStream(baseStream);
       Stream stream;
+#if !NETCORE10
       //TODO: ADD SUPPORT FOR 452 AND 46X
-      //if (compress)
-      //  stream = new CompressedStream(_timedStream);
-      //else
+      if (compress)
+        stream = new CompressedStream(_timedStream);
+      else
+#endif
         stream = _timedStream;
 
 #if NETCORE10

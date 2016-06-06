@@ -48,9 +48,6 @@ namespace MySql.Data.MySqlClient
     protected string serverCharSet;
     protected Dictionary<string,string> serverProps;
     internal int timeZoneOffset;
-#if !NETCORE10
-    //TODO: Add support for 452 and 46X
-#endif
     private bool firstResult;
     protected IDriver handler;
     internal MySqlDataReader reader;
@@ -98,7 +95,6 @@ namespace MySql.Data.MySqlClient
     }
 
 #if !NETCORE10
-    //TODO: ADD support for 452 and 46X
     public MySqlPromotableTransaction currentTransaction { get; set; }
 
     public bool IsInActiveUse { get; set; }
@@ -357,7 +353,11 @@ namespace MySql.Data.MySqlClient
       }
 
       MySqlInfoMessageEventArgs args = new MySqlInfoMessageEventArgs();
+#if NETCORE10
       args.Errors = warnings.ToArray();
+#else
+      args.errors = warnings.ToArray();
+#endif
       connection?.OnInfoMessage(args);
       return warnings;
     }
@@ -470,7 +470,7 @@ namespace MySql.Data.MySqlClient
         ReportWarnings(connection);
     }
 
-    #region IDisposable Members
+#region IDisposable Members
 
     protected virtual void Dispose(bool disposing)
     {
@@ -508,7 +508,7 @@ namespace MySql.Data.MySqlClient
       GC.SuppressFinalize(this);
     }
 
-    #endregion
+#endregion
   }
 
   internal interface IDriver

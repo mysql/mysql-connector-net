@@ -43,7 +43,7 @@ using System.Security;
 // COM, set the ComVisible attribute to true on that type.
 [assembly: ComVisible(false)]
 
-#if NET_40_OR_GREATER
+#if NET_45_OR_GREATER
 [assembly: SecurityRules(SecurityRuleSet.Level1)]
 #endif
 

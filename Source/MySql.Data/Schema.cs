@@ -49,28 +49,28 @@ namespace MySql.Data.MySqlClient
 
 #if !NETCORE10
     //TODO: MOVE CODE TO 452 AND 46x PROJECTS extensions folder
-    //public MySqlSchemaCollection(DataTable dt) : this()
-    //{
-    //  // cache the original datatable to avoid the overhead of creating again whenever possible.
-    //  _table = dt;
-    //  int i = 0;
-    //  foreach (DataColumn dc in dt.Columns)
-    //  {
-    //    columns.Add(new SchemaColumn() { Name = dc.ColumnName, Type = dc.DataType });
-    //    Mapping.Add(dc.ColumnName, i++);
-    //    LogicalMappings[columns.Count - 1] = columns.Count - 1;
-    //  }
+    public MySqlSchemaCollection(DataTable dt) : this()
+    {
+      // cache the original datatable to avoid the overhead of creating again whenever possible.
+      _table = dt;
+      int i = 0;
+      foreach (DataColumn dc in dt.Columns)
+      {
+        Columns.Add(new SchemaColumn() { Name = dc.ColumnName, Type = dc.DataType });
+        Mapping.Add(dc.ColumnName, i++);
+        LogicalMappings[Columns.Count - 1] = Columns.Count - 1;
+      }
 
-    //  foreach (DataRow dr in dt.Rows)
-    //  {
-    //    MySqlSchemaRow row = new MySqlSchemaRow(this);
-    //    for (i = 0; i < columns.Count; i++)
-    //    {
-    //      row[i] = dr[i];
-    //    }
-    //    rows.Add(row);
-    //  }
-    //}
+      foreach (DataRow dr in dt.Rows)
+      {
+        MySqlSchemaRow row = new MySqlSchemaRow(this);
+        for (i = 0; i < Columns.Count; i++)
+        {
+          row[i] = dr[i];
+        }
+        Rows.Add(row);
+      }
+    }
 #endif
 
     internal Dictionary<string, int> Mapping;

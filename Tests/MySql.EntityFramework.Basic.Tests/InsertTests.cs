@@ -32,7 +32,7 @@ using Xunit;
 using System.Data.EntityClient;
 using System.Data.Objects;
 #endif
-#if NET_40_OR_GREATER
+#if NET_45_OR_GREATER
 using System.Threading.Tasks;
 #endif
 

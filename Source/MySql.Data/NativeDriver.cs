@@ -162,7 +162,6 @@ namespace MySql.Data.MySqlClient
       stream.Encoding = Encoding;
     }
 
-    partial void CreatePermissionSet();
 
     public void Open()
     {
@@ -171,10 +170,9 @@ namespace MySql.Data.MySqlClient
       {
         baseStream = StreamCreator.GetStream(Settings);
 #if !NETCORE10
-        CreatePermissionSet();
         //TODO: INCLUDE THIS LINES IN A NEW PARTIAL FOR CreatePermissionSet CALL IN 46 AND 452 AND PROJECT, (CHECK DEPENDENCIES)
-         //if (Settings.IncludeSecurityAsserts)
-         //   MySqlSecurityPermission.CreatePermissionSet(false).Assert();
+        if (Settings.IncludeSecurityAsserts)
+          MySqlSecurityPermission.CreatePermissionSet(false).Assert();
 #endif
       }
       catch (System.Security.SecurityException)
