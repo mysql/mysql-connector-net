@@ -216,6 +216,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>SQLSyntax.Designer.cs</LastGenOutput>
       <LogicalName>MySql.Data.Entity.Tests.Properties.SQLSyntax.resources</LogicalName>
+      <CustomToolNamespace>MySql.Data.Entity.Tests.Properties</CustomToolNamespace>
     </EmbeddedResource>
     <None Include="App.Config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

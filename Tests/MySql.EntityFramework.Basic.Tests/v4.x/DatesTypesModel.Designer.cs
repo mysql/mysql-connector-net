@@ -9,14 +9,20 @@
 
 using System;
 using System.ComponentModel;
-using System.Data.EntityClient;
-using System.Data.Objects;
-using System.Data.Objects.DataClasses;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+#if EF6
+using System.Data.Entity.Core.Objects;
+using System.Data.Entity.Core.Objects.DataClasses;
+using System.Data.Entity.Core.EntityClient;
+#else
+using System.Data.EntityClient;
+using System.Data.Objects;
+using System.Data.Objects.DataClasses;
+#endif
 
-[assembly: EdmSchemaAttribute()]
+[assembly: EdmSchema()]
 namespace MySql.Data.Entity.Tests
 {
     #region Contexts
@@ -132,7 +138,7 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
-        #region Simple Properties
+        #region Primitive Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -151,7 +157,7 @@ namespace MySql.Data.Entity.Tests
                 {
                     OnIdChanging(value);
                     ReportPropertyChanging("Id");
-                    _Id = StructuralObject.SetValidValue(value, "Id");
+                    _Id = StructuralObject.SetValidValue(value);
                     ReportPropertyChanged("Id");
                     OnIdChanged();
                 }
@@ -176,7 +182,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnDateCreatedChanging(value);
                 ReportPropertyChanging("DateCreated");
-                _DateCreated = StructuralObject.SetValidValue(value, "DateCreated");
+                _DateCreated = StructuralObject.SetValidValue(value);
                 ReportPropertyChanged("DateCreated");
                 OnDateCreatedChanged();
             }
@@ -200,7 +206,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnTimestampChanging(value);
                 ReportPropertyChanging("Timestamp");
-                _Timestamp = StructuralObject.SetValidValue(value, "Timestamp");
+                _Timestamp = StructuralObject.SetValidValue(value);
                 ReportPropertyChanged("Timestamp");
                 OnTimestampChanged();
             }
@@ -224,7 +230,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnDateTimeWithPrecisionChanging(value);
                 ReportPropertyChanging("DateTimeWithPrecision");
-                _DateTimeWithPrecision = StructuralObject.SetValidValue(value, "DateTimeWithPrecision");
+                _DateTimeWithPrecision = StructuralObject.SetValidValue(value);
                 ReportPropertyChanged("DateTimeWithPrecision");
                 OnDateTimeWithPrecisionChanged();
             }
@@ -248,7 +254,7 @@ namespace MySql.Data.Entity.Tests
             {
                 OnTimeStampWithPrecisionChanging(value);
                 ReportPropertyChanging("TimeStampWithPrecision");
-                _TimeStampWithPrecision = StructuralObject.SetValidValue(value, "TimeStampWithPrecision");
+                _TimeStampWithPrecision = StructuralObject.SetValidValue(value);
                 ReportPropertyChanged("TimeStampWithPrecision");
                 OnTimeStampWithPrecisionChanged();
             }
@@ -259,8 +265,10 @@ namespace MySql.Data.Entity.Tests
 
         #endregion
 
+    
     }
 
     #endregion
 
+    
 }
