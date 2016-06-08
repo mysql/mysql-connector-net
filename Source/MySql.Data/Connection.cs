@@ -28,22 +28,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.Properties;
-using MySql.Data.MySqlClient.Replication;
 using IsolationLevel = System.Data.IsolationLevel;
 
 #if NETCORE10
 using MySql.Data.MySqlClient.Common;
+using Microsoft.Extensions.Configuration;
+using MySql.Data.MySqlClient.Interceptors;
 #else
 using MySql.Data.Common;
-#endif
-
-#if !NETCORE10
+using MySql.Data.MySqlClient.Replication;
 using System.Drawing;
 using System.Drawing.Design;
 using System.Transactions;
-#else
-using Microsoft.Extensions.Configuration;
-using MySql.Data.MySqlClient.Interceptors;
 #endif
 
 namespace MySql.Data.MySqlClient
@@ -386,6 +382,7 @@ namespace MySql.Data.MySqlClient
 
         //TODO: SUPPORT FOR 452 AND 46X
         // Load balancing 
+#if !NETCORE10
         if (ReplicationManager.IsReplicationGroup(Settings.Server))
         {
           if (driver == null)
@@ -395,6 +392,9 @@ namespace MySql.Data.MySqlClient
           else
             currentSettings = driver.Settings;
         }
+#else
+        currentSettings = driver.Settings;
+#endif
 
         if (Settings.Pooling)
         {
@@ -613,7 +613,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    #region Routines for timeout support.
+#region Routines for timeout support.
 
     // Problem description:
     // Sometimes, ExecuteReader is called recursively. This is the case if
@@ -672,7 +672,7 @@ namespace MySql.Data.MySqlClient
       _commandTimeout = 0;
       driver?.ResetTimeout(0);
     }
-    #endregion
+#endregion
 
     public MySqlSchemaCollection GetSchemaCollection(string collectionName, string[] restrictionValues)
     {
@@ -684,7 +684,7 @@ namespace MySql.Data.MySqlClient
       return c;
     }
 
-    #region Pool Routines
+#region Pool Routines
 
     /// <include file='docs/MySqlConnection.xml' path='docs/ClearPool/*'/>
     public static void ClearPool(MySqlConnection connection)
@@ -698,7 +698,7 @@ namespace MySql.Data.MySqlClient
       MySqlPoolManager.ClearAllPools();
     }
 
-    #endregion
+#endregion
 
     internal void Throw(Exception ex)
     {
@@ -717,7 +717,7 @@ namespace MySql.Data.MySqlClient
       GC.SuppressFinalize(this);
     }
 
-    #region Async
+#region Async
     /// <summary>
     /// Async version of BeginTransaction
     /// </summary>
@@ -930,7 +930,7 @@ namespace MySql.Data.MySqlClient
       }
       return result.Task;
     }
-    #endregion
+#endregion
   }
 
   /// <summary>
