@@ -2,6 +2,7 @@
 - Fix for Nested transactions are not supported in Entity Framework (MySQL Bug #71502, Oracle Bug #22366266).
 - Fix for EF5 and EF6 wrong SQL statement to set primary key (MySQL Bug 76292, Oracle Bug #20711384) 
 - Fixed problem where mysql.proc tables would not be used for metadata even though access was available (MySQL Bug #74116, Oracle Bug #20960373)
+- Fixed Fix for "Aborted connection" (MySQL Bug #80997, Oracle Bug # 23346197).
 
 6.8.7
 - Changed handshake process to use bytes instead of encoded strings.
