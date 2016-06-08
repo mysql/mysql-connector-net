@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2015 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -1341,7 +1341,7 @@ namespace MySql.Data.MySqlClient.Tests
         using (MySqlDataReader reader = command.ExecuteReader())
         {
           Assert.True(reader.Read());
-          Assert.Equal("TLSv1", reader.GetString(1));
+          Assert.True(reader.GetString(1).StartsWith("TLSv1"));
         }
       }
     }
@@ -1360,6 +1360,43 @@ namespace MySql.Data.MySqlClient.Tests
           Assert.Equal(string.Empty, reader.GetString(1));
         }
       }
+    }
+
+
+
+    /// <summary>
+    ///  Fix for aborted connections MySQL bug 80997 OraBug 23346197
+    /// </summary>
+    [Fact]
+    public void MarkConnectionAsClosedProperlyWhenDisposing()
+    {
+      MySqlConnection con = new MySqlConnection(st.GetConnectionString(true));
+      con.Open();
+      MySqlCommand cmd = new MySqlCommand() { Connection = con };
+      cmd.CommandText = "Flush status"; // reset values
+      cmd.ExecuteNonQuery();
+
+      AppDomain appDomain = FullTrustSandbox.CreateFullTrustDomain();
+      FullTrustSandbox sandbox = (FullTrustSandbox)appDomain.CreateInstanceAndUnwrap(
+          typeof(FullTrustSandbox).Assembly.FullName,
+          typeof(FullTrustSandbox).FullName);
+      try
+      {
+        MySqlConnection connection = sandbox.TryOpenConnection("server=localhost;userid=root;pwd=;port=3305");
+        Assert.NotNull(connection);
+        Assert.True(connection.State == ConnectionState.Open);
+      }
+      finally
+      {
+        AppDomain.Unload(appDomain);
+      }
+      cmd = new MySqlCommand("show global status like 'aborted_clients'", con);      
+      MySqlDataReader r = cmd.ExecuteReader();
+      r.Read();
+      int numClientsAborted = r.GetInt32(1);
+      r.Close();      
+      Assert.Equal(0, numClientsAborted);
+      con.Close();
     }
   }
 }
