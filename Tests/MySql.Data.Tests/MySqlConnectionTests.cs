@@ -1372,9 +1372,11 @@ namespace MySql.Data.MySqlClient.Tests
     {
       MySqlConnection con = new MySqlConnection(st.GetConnectionString(true));
       con.Open();
-      MySqlCommand cmd = new MySqlCommand() { Connection = con };
-      cmd.CommandText = "Flush status"; // reset values
-      cmd.ExecuteNonQuery();
+      var cmd = new MySqlCommand("show global status like 'aborted_clients'", con);
+      MySqlDataReader r = cmd.ExecuteReader();
+      r.Read();
+      int numClientsAborted = r.GetInt32(1);
+      r.Close();
 
       AppDomain appDomain = FullTrustSandbox.CreateFullTrustDomain();
       FullTrustSandbox sandbox = (FullTrustSandbox)appDomain.CreateInstanceAndUnwrap(
@@ -1390,12 +1392,12 @@ namespace MySql.Data.MySqlClient.Tests
       {
         AppDomain.Unload(appDomain);
       }
-      cmd = new MySqlCommand("show global status like 'aborted_clients'", con);      
-      MySqlDataReader r = cmd.ExecuteReader();
+      
+      r = cmd.ExecuteReader();
       r.Read();
-      int numClientsAborted = r.GetInt32(1);
+      int numClientsAborted2 = r.GetInt32(1);
       r.Close();      
-      Assert.Equal(0, numClientsAborted);
+      Assert.Equal(numClientsAborted, numClientsAborted);
       con.Close();
     }
   }
