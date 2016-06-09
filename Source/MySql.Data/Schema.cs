@@ -48,7 +48,6 @@ namespace MySql.Data.MySqlClient
     }
 
 #if !NETCORE10
-    //TODO: MOVE CODE TO 452 AND 46x PROJECTS extensions folder
     public MySqlSchemaCollection(DataTable dt) : this()
     {
       // cache the original datatable to avoid the overhead of creating again whenever possible.

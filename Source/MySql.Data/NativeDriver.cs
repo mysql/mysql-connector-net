@@ -329,7 +329,7 @@ namespace MySql.Data.MySqlClient
       return certs;
     }
 
-
+#if NETCORE10
     private async void StartSSL()
     {
       RemoteCertificateValidationCallback sslValidateCallback =
@@ -341,6 +341,20 @@ namespace MySql.Data.MySqlClient
 
       stream = new MySqlStream(ss, Encoding, false) {SequenceByte = 2};
     }
+#else
+    private void StartSSL()
+    {
+      RemoteCertificateValidationCallback sslValidateCallback =
+          new RemoteCertificateValidationCallback(ServerCheckValidation);
+      SslStream ss = new SslStream(baseStream, true, sslValidateCallback, null);
+      X509CertificateCollection certs = GetClientCertificates();
+      ss.AuthenticateAsClient(Settings.Server, certs, SslProtocols.Tls, false);
+      baseStream = ss;
+      stream = new MySqlStream(ss, Encoding, false);
+      stream.SequenceByte = 2;
+
+    }
+#endif
 
     private bool ServerCheckValidation(object sender, X509Certificate certificate,
                                               X509Chain chain, SslPolicyErrors sslPolicyErrors)
@@ -360,9 +374,9 @@ namespace MySql.Data.MySqlClient
     }
 
 
-    #endregion
+#endregion
 
-    #region Authentication
+#region Authentication
 
     /// <summary>
     /// Return the appropriate set of connection flags for our
@@ -445,7 +459,7 @@ namespace MySql.Data.MySqlClient
       _authPlugin.Authenticate(reset);
     }
 
-    #endregion
+#endregion
 
     public void Reset()
     {

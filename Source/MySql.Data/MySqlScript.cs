@@ -333,7 +333,8 @@ namespace MySql.Data.MySqlClient{
       tokenizer.Position = pos;
     }
 
-#region Async
+    #region Async
+#if NETCORE10
     /// <summary>
     /// Async version of Execute
     /// </summary>
@@ -364,6 +365,39 @@ namespace MySql.Data.MySqlClient{
       }
       return await result.Task;
     }
+#else
+    /// <summary>
+    /// Async version of Execute
+    /// </summary>
+    /// <returns>The number of statements executed as part of the script inside.</returns>
+    public Task<int> ExecuteAsync()
+    {
+      return ExecuteAsync(CancellationToken.None);
+    }
+
+    public Task<int> ExecuteAsync(CancellationToken cancellationToken)
+    {
+      var result = new TaskCompletionSource<int>();
+      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+      {
+        try
+        {
+          var executeResult = Execute();
+          result.SetResult(executeResult);
+        }
+        catch (Exception ex)
+        {
+          result.SetException(ex);
+        }
+      }
+      else
+      {
+        result.SetCanceled();
+      }
+      return result.Task;
+    }
+#endif
+
 #endregion
   }
 

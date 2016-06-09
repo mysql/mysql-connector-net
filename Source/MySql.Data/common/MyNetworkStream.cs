@@ -23,6 +23,7 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 
@@ -186,10 +187,35 @@ namespace MySql.Data.Common
 
     #region Create Code
 
-    public static async Task<MyNetworkStream> CreateStream(MySqlConnectionStringBuilder settings, bool unix)
+#if !NETCORE10
+    public static MyNetworkStream CreateStream(MySqlConnectionStringBuilder settings, bool unix)
     {
       MyNetworkStream stream = null;
-      IPHostEntry ipHE = await GetHostEntry(settings.Server);
+      IPHostEntry ipHE = GetHostEntry(settings.Server);
+      foreach (IPAddress address in ipHE.AddressList)
+      {
+        try
+        {
+          stream = CreateSocketStream(settings, address, unix);
+          if (stream != null) break;
+        }
+        catch (Exception ex)
+        {
+          SocketException socketException = ex as SocketException;
+          // if the exception is a ConnectionRefused then we eat it as we may have other address
+          // to attempt
+          if (socketException == null) throw;
+          if (socketException.SocketErrorCode != SocketError.ConnectionRefused) throw;
+        }
+      }
+      return stream;
+    }
+#endif
+
+    public static async Task<MyNetworkStream> CreateStreamAsync(MySqlConnectionStringBuilder settings, bool unix)
+    {
+      MyNetworkStream stream = null;
+      IPHostEntry ipHE = await GetHostEntryAsync(settings.Server);
       foreach (IPAddress address in ipHE.AddressList)
       {
         try
@@ -222,7 +248,16 @@ namespace MySql.Data.Common
       return ipHE;
     }
 
-    private static async Task<IPHostEntry> GetHostEntry(string hostname)
+#if !NETCORE10
+    private static IPHostEntry GetHostEntry(string hostname)
+    {
+      IPHostEntry ipHE = ParseIPAddress(hostname);
+      if (ipHE != null) return ipHE;
+      return Dns.GetHostEntry(hostname);
+    }
+#endif
+
+    private static async Task<IPHostEntry> GetHostEntryAsync(string hostname)
     {
       IPHostEntry ipHE = ParseIPAddress(hostname);
       if (ipHE != null) return ipHE;
@@ -230,20 +265,21 @@ namespace MySql.Data.Common
       return await Dns.GetHostEntryAsync(hostname);
     }
 
-    //private static EndPoint CreateUnixEndPoint(string host)
-    //{
-    //  //TODO: REVIEW THIS, IS INCOMPATIBLE FOR DNX
-    //  // first we need to load the Mono.posix assembly			
-    //  Assembly a = Assembly.Load(@"Mono.Posix, Version=2.0.0.0, 				
-    //            Culture=neutral, PublicKeyToken=0738eb9f132ed756");
+    #if !NETCORE10
+    private static EndPoint CreateUnixEndPoint(string host)
+    {
+      // first we need to load the Mono.posix assembly			
+      Assembly a = Assembly.Load(@"Mono.Posix, Version=2.0.0.0, 				
+                Culture=neutral, PublicKeyToken=0738eb9f132ed756");
 
 
-    //  // then we need to construct a UnixEndPoint object
-    //  EndPoint ep = (EndPoint)a.CreateInstance("Mono.Posix.UnixEndPoint",
-    //      false, BindingFlags.CreateInstance, null,
-    //      new object[1] { host }, null, null);
-    //  return ep;
-    //}
+      // then we need to construct a UnixEndPoint object
+      EndPoint ep = (EndPoint)a.CreateInstance("Mono.Posix.UnixEndPoint",
+          false, BindingFlags.CreateInstance, null,
+          new object[1] { host }, null, null);
+      return ep;
+    }
+#endif
 
     private static MyNetworkStream CreateSocketStream(MySqlConnectionStringBuilder settings, IPAddress ip, bool unix)
     {
@@ -251,9 +287,8 @@ namespace MySql.Data.Common
 #if !NETCORE10
       if (!Platform.IsWindows() && unix)
       {
-        //TODO: review the use of mono.posix
-        //endPoint = CreateUnixEndPoint(settings.Server);
-        endPoint = new DnsEndPoint(settings.Server, (int)settings.Port);
+        endPoint = CreateUnixEndPoint(settings.Server);
+        //endPoint = new DnsEndPoint(settings.Server, (int)settings.Port);
       }
       else
       {
@@ -262,6 +297,7 @@ namespace MySql.Data.Common
 #if !NETCORE10
       }
 #endif
+
       Socket socket = unix ?
           new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.IP) :
           new Socket(ip.AddressFamily, SocketType.Stream, ProtocolType.Tcp);

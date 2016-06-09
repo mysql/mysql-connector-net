@@ -88,7 +88,12 @@ namespace MySql.Data.Common
 
     private static Stream GetTcpStream(MySqlConnectionStringBuilder settings)
     {
-      MyNetworkStream s = MyNetworkStream.CreateStream(settings, false).Result;
+#if NETCORE10     
+      MyNetworkStream s = MyNetworkStream.CreateStreamAsync(settings, false).Result;
+#else
+      MyNetworkStream s = MyNetworkStream.CreateStream(settings, false);
+#endif
+
       return s;
     }
 
@@ -98,7 +103,7 @@ namespace MySql.Data.Common
       if (Platform.IsWindows())
         throw new InvalidOperationException(Resources.NoUnixSocketsOnWindows);
 
-      MyNetworkStream s = MyNetworkStream.CreateStream(settings, true).Result;
+      MyNetworkStream s = MyNetworkStream.CreateStream(settings, true);
       return s;
     }
 
