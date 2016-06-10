@@ -3,6 +3,7 @@
 - Fix for EF5 and EF6 wrong SQL statement to set primary key (MySQL Bug 76292, Oracle Bug #20711384) 
 - Fixed problem where mysql.proc tables would not be used for metadata even though access was available (MySQL Bug #74116, Oracle Bug #20960373)
 - Added support for TLSv1.1 and TLSv1.2
+- Fixed Fix for "Aborted connection" (MySQL Bug #80997, Oracle Bug # 23346197).
 
 
 6.9.8

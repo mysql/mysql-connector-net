@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2015 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -279,7 +279,7 @@ namespace MySql.Data.MySqlClient.Tests
       if (st.Version.Major >= 5 && st.Version.Minor >= 7 && st.Version.Build >= 6)
       {
         Assert.Equal("char", dt.Rows[2]["DATA_TYPE"]);
-        Assert.Equal("Name", dt.Rows[2]["GENERATION_EXPRESSION"]);
+        Assert.Equal("Name", (dt.Rows[2]["GENERATION_EXPRESSION"]).ToString().Replace("`",""));
         Assert.Equal("STORED GENERATED", dt.Rows[2]["EXTRA"]);         
       }
     }
