@@ -19,9 +19,6 @@
     "warningsAsErrors": false,
     "embed": [ "Properties/ReservedWords.txt" ],
     "resource": [ "**/*.resx" ],
-    "namedResource": {
-      "Properties.Resources": "Properties/Resources.resx"
-    },
     "compile": {
       "exclude": [
         "Framework/Net451/**/*.*",

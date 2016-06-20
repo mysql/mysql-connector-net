@@ -14,9 +14,9 @@
   "dependencies": {
     "Microsoft.NETCore.App": {
       "type": "platform",
-      "version": "1.0.0-rc2-*"
+      "version": "1.0.0-rc2-3002702"
     },
-    "MySql.Data": "1.0.0-alpha-*"
+    "MySql.Data": "6.10.0-alpha-*"
   },
 
   "frameworks": {
