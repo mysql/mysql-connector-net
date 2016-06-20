@@ -47,6 +47,7 @@ namespace MySql.Data.MySqlClient
 
     // Prefix used for to generate inout or output parameters names
     internal const string ParameterPrefix = "_cnet_param_";
+    private string resolvedCommandText;
 
     public StoredProcedure(MySqlCommand cmd, string text)
       : base(cmd, text)
@@ -60,7 +61,10 @@ namespace MySql.Data.MySqlClient
 
     public bool ServerProvidingOutputParameters { get; private set; }
 
-    public override string ResolvedCommandText { get; set; }
+    public override string ResolvedCommandText
+    {
+      get { return resolvedCommandText; }
+    }
 
     internal string GetCacheKey(string spName)
     {
@@ -157,7 +161,7 @@ namespace MySql.Data.MySqlClient
 
       // first retrieve the procedure definition from our
       // procedure cache
-      string spName = ResolvedCommandText;
+      string spName = commandText;
       if (spName.IndexOf(".") == -1 && !String.IsNullOrEmpty(Connection.Database))
         spName = Connection.Database + "." + spName;
       spName = FixProcedureName(spName);
@@ -170,7 +174,7 @@ namespace MySql.Data.MySqlClient
       string setSql = SetUserVariables(parms, preparing);
       string callSql = CreateCallStatement(spName, returnParameter, parms);
       string outSql = CreateOutputSelect(parms, preparing);
-      ResolvedCommandText = String.Format("{0}{1}{2}", setSql, callSql, outSql);
+      resolvedCommandText = String.Format("{0}{1}{2}", setSql, callSql, outSql);
     }
 
     private string SetUserVariables(MySqlParameterCollection parms, bool preparing)

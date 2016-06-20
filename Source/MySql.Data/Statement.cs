@@ -37,6 +37,7 @@ namespace MySql.Data.MySqlClient
   {
     protected  MySqlCommand command;
     private readonly List<MySqlPacket> _buffers;
+    protected string commandText;
 
     private Statement(MySqlCommand cmd)
     {
@@ -47,12 +48,15 @@ namespace MySql.Data.MySqlClient
     protected Statement(MySqlCommand cmd, string text)
       : this(cmd)
     {
-      ResolvedCommandText = text;
+      commandText = text;
     }
 
     #region Properties
 
-    public virtual string ResolvedCommandText { get; set; }
+    public virtual string ResolvedCommandText
+    {
+      get { return commandText; }
+    }
 
     protected Driver Driver => command.Connection.driver;
 

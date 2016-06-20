@@ -906,7 +906,7 @@ namespace MySql.Data.MySqlClient.Tests
       if (st.Version < new Version(5, 1)) return;
 
       string connstr = st.GetConnectionString(true);
-      connstr += ";CertificateFile=client.pfx;CertificatePassword=pass;SSL Mode=Required;";
+      connstr += @";CertificateFile=Framework\Net451\client.pfx;CertificatePassword=pass;SSL Mode=Required;";
       using (MySqlConnection c = new MySqlConnection(connstr))
       {
         c.Open();
@@ -1181,7 +1181,7 @@ namespace MySql.Data.MySqlClient.Tests
         if (st.Version < new Version(5, 1)) return;
 
         string connstr = st.GetConnectionString(true);
-        connstr += ";CertificateFile=client.pfx;CertificatePassword=pass;SSL Mode=Required;";
+        connstr += @";CertificateFile=Framework\Net451\client.pfx;CertificatePassword=pass;SSL Mode=Required;";
         using (MySqlConnection c = new MySqlConnection(connstr))
         {
           c.Open();

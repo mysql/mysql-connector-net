@@ -279,7 +279,7 @@ namespace MySql.Data.MySqlClient.Tests
       if (st.Version.Major >= 5 && st.Version.Minor >= 7 && st.Version.Build >= 6)
       {
         Assert.Equal("char", dt.Rows[2]["DATA_TYPE"]);
-        Assert.Equal("Name", dt.Rows[2]["GENERATION_EXPRESSION"]);
+        Assert.Equal("Name", dt.Rows[2]["GENERATION_EXPRESSION"].ToString().Trim('`'));
         Assert.Equal("STORED GENERATED", dt.Rows[2]["EXTRA"]);         
       }
     }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -76,7 +76,7 @@ namespace MySql.Data.MySqlClient.Tests
       // now cancel the command
       cmd.Cancel();
 
-      resetEvent.WaitOne();
+      Assert.True(resetEvent.WaitOne(30 * 1000), "timeout");
     }
 
     int stateChangeCount;
@@ -269,17 +269,14 @@ namespace MySql.Data.MySqlClient.Tests
         return;
 
       connStr = connStr.Replace("persist security info=true", "persist security info=false");
-
-      int threadId;
+      
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
-        c.Open();
-        threadId = c.ServerThread;
+        c.Open();        
         string connStr1 = c.ConnectionString;
 
         MySqlCommand cmd = new MySqlCommand("SELECT SLEEP(5)", c);
         cmd.CommandTimeout = 1;
-
         try
         {
           using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -293,8 +290,9 @@ namespace MySql.Data.MySqlClient.Tests
         }
         string connStr2 = c.ConnectionString.ToLower(CultureInfo.InvariantCulture);
         Assert.Equal(connStr1.ToLower(CultureInfo.InvariantCulture), connStr2);
+        c.Close();        
       }
-      st.execSQL("kill " + threadId);
+     
     }
 
 
