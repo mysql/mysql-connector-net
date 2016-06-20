@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- This is an example code snippets file -->
+<examples>
+  <item id="ClassDefinition#Define">
+    <sampleCode language="CSharp">
+string schemaName = "world_x"; 
+// Define the connection string
+string connectionString = "server=localhost;port=33060;uid=test;password=test";     
+XSession session = MySqlX.GetSession(connectionString); 
+// Get the schema object
+Schema schema = session.GetSchema(schemaName);
+    </sampleCode>   
+  </item>
+   <item id="ClassDefinition1#Define">
+    <sampleCode language="CSharp">
+// Use the collection 'contryinfo'
+var myCollection = schema.GetCollection("countryinfo");
+var docParams = new DbDoc(new { name1 = "Albania", _id1 = "ALB" });
+
+// Find a document
+DocResult foundDocs = myCollection.Find("Name = :name1|| _id = :_id1").Bind(docParams).Execute();
+
+while (foundDocs.Next())
+{
+	Console.WriteLine(foundDocs.Current["Name"]);
+	Console.WriteLine(foundDocs.Current["_id"]);
+}
+    </sampleCode>   
+  </item>
+    <item id="ClassDefinition2#Define">
+    <sampleCode language="CSharp">  
+  //Insert a new document with an id
+var obj = new { _id = "UKN", Name = "Unknown" };
+Result r = myCollection.Add(obj).Execute();
+ 
+- How to update an existing document
+     
+// using the same docParams object previously created
+docParams = new DbDoc(new { name1 = "Unknown", _id1 = "UKN" });
+r = myCollection.Modify("_id = :Id").Bind("id", "UKN").Set("GNP", "3308").Execute();
+if (r.RecordsAffected == 1)
+{
+  foundDocs = myCollection.Find("Name = :name1|| _id = :_id1").Bind(docParams).Execute();
+  while (foundDocs.Next())
+  {
+     Console.WriteLine(foundDocs.Current["Name"]);
+     Console.WriteLine(foundDocs.Current["_id"]);
+     Console.WriteLine(foundDocs.Current["GNP"]);
+  }
+}  
+ </sampleCode>   
+  </item>
+   <item id="ClassDefinition3#Define">
+    <sampleCode language="CSharp">    
+r = myCollection.Remove("_id = :id").Bind("id", "UKN").Execute();
+   </sampleCode>   
+  </item>
+ <item id="ClassDefinition4#Define">
+<sampleCode language="CSharp">      
+  session.Close(); 
+</sampleCode>   
+</item>
+<item id="ClassDefinition5#Define">
+<sampleCode language="CSharp">
+using MySql.XDevAPI;
+using MySql.XDevAPI.Common;
+using MySql.XDevAPI.CRUD;
+using System;
+ 
+ 
+namespace MySQLX_Tutorial
+{
+  class Program
+  {
+    static void Main(string[] args)
+    {
+ 
+      string schemaName = "world_x";
+      string connectionString = "server=localhost;port=33060;uid=test;password=test";    
+      XSession session = MySqlX.GetSession(connectionString);
+      Schema schema = session.GetSchema(schemaName);
+ 
+      // Use the collection 'contryinfo'
+      var myCollection = schema.GetCollection("countryinfo");
+      var docParams = new DbDoc(new { name1 = "Albania", _id1 = "ALB" });
+ 
+      // Find a document
+      DocResult foundDocs = myCollection.Find("Name = :name1|| _id = :_id1").Bind(docParams).Execute();
+ 
+      while (foundDocs.Next())
+      {
+        Console.WriteLine(foundDocs.Current["Name"]);
+        Console.WriteLine(foundDocs.Current["_id"]);
+      }
+ 
+      //Insert a new document with an id
+      var obj = new { _id = "UKN", Name = "Unknown" };
+      Result r = myCollection.Add(obj).Execute();
+ 
+      //update an existing document
+      docParams = new DbDoc(new { name1 = "Unknown", _id1 = "UKN" });
+      r = myCollection.Modify("_id = :Id").Bind("id", "UKN").Set("GNP", "3308").Execute();
+      if (r.RecordsAffected == 1)
+      {
+        foundDocs = myCollection.Find("Name = :name1|| _id = :_id1").Bind(docParams).Execute();
+        while (foundDocs.Next())
+        {
+          Console.WriteLine(foundDocs.Current["Name"]);
+          Console.WriteLine(foundDocs.Current["_id"]);
+          Console.WriteLine(foundDocs.Current["GNP"]);
+        }
+      }
+ 
+      // delete a row in a document
+      r = myCollection.Remove("_id = :id").Bind("id", "UKN").Execute();     
+ 
+      //close the session
+      session.Close();
+ 
+      Console.ReadKey();
+ 
+    }
+  }
+}
+</sampleCode>   
+</item>
+
+</examples>
