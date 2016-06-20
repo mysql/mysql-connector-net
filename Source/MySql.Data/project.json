@@ -47,7 +47,8 @@
     "xmlDoc": false,
     "keyFile": "../../ConnectorNetPublicKey.snk",
     "preserveCompilationContext": true,
-    "delaySign": true
+    "delaySign": true,
+    "publicSign": false
   },
 
 
