@@ -23,7 +23,7 @@
 using System;
 using System.Globalization;
 using MySql.Data.MySqlClient;
-using MySql.Data.MySqlClient.Properties;
+
 #if NETCORE10
 using MySql.Data.MySqlClient.Common;
 #else

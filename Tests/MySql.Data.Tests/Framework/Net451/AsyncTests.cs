@@ -24,7 +24,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using MySql.Data.MySqlClient;
-using MySql.Data.MySqlClient.Properties;
 using Xunit;
 using System.Data;
 #if NET_45_OR_GREATER

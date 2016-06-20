@@ -18,10 +18,14 @@
     "define": [ "NETCORE10" ],
     "warningsAsErrors": false,
     "embed": [ "Properties/ReservedWords.txt" ],
+    "resource": [ "**/*.resx" ],
+    "namedResource": {
+      "Properties.Resources": "Properties/Resources.resx"
+    },
     "compile": {
       "exclude": [
         "Framework/Net451/**/*.*",
-        "Replication/**/*.*",        
+        "Replication/**/*.*",
         "zlib/**/*.*"
       ],
       "excludeFiles": [
@@ -58,7 +62,7 @@
     "System.ComponentModel.Annotations": "4.1.0-rc2-*",
     "System.ComponentModel.Primitives": "4.0.1-rc2-*",
     "System.ComponentModel.TypeConverter": "4.0.1-rc2-*",
-    "System.Data.Common": "4.0.1-rc2-*",
+    "System.Data.Common": "4.0.1-rc2-24103",
     "System.Data.SqlClient": "4.1.0-rc2-*",
     "System.Diagnostics.Process": "4.1.0-rc2-*",
     "System.Diagnostics.TextWriterTraceListener": "4.0.0-rc2-*",

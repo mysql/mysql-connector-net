@@ -30,7 +30,7 @@ using System.Collections;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using MySql.Data.MySqlClient;
-using MySql.Data.MySqlClient.Properties;
+
 using System.Data;
 using System.Data.Common;
 #if NETCORE10

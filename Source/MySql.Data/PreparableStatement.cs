@@ -25,7 +25,7 @@ using System.Collections;
 using System.Text;
 using System.Collections.Generic;
 using System.Data;
-using MySql.Data.MySqlClient.Properties;
+
 using System.Linq;
 
 #if NETCORE10

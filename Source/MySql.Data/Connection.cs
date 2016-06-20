@@ -27,7 +27,7 @@ using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
-using MySql.Data.MySqlClient.Properties;
+
 using IsolationLevel = System.Data.IsolationLevel;
 
 #if NETCORE10
@@ -392,8 +392,6 @@ namespace MySql.Data.MySqlClient
           else
             currentSettings = driver.Settings;
         }
-#else
-        currentSettings = driver.Settings;
 #endif
 
         if (Settings.Pooling)

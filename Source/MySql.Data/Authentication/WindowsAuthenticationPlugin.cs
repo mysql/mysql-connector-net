@@ -25,7 +25,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security;
 using MySql.Data.MySqlClient;
-using MySql.Data.MySqlClient.Properties;
+
 
 namespace MySql.Data.MySqlClient.Authentication
 {

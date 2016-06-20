@@ -27,10 +27,10 @@
     "NETStandard.Library": "1.5.0-rc2-*",
     "Microsoft.NETCore.App": {
       "type": "platform",
-      "version": "1.0.0-rc2-*"
+      "version": "1.0.0-rc2-3002702"
     },
     "xunit": "2.1.0",
-    "dotnet-test-xunit": "1.0.0-rc2-*",
+    "dotnet-test-xunit": "1.0.0-*",
     "MySql.Data": "1.0.0-alpha-*"
   },
 

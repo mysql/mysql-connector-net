@@ -32,7 +32,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Collections.Generic;
 using System.Linq;
-using MySql.Data.MySqlClient.Properties;
+
 #if NETCORE10
 using MySql.Data.MySqlClient.Common;
 #else

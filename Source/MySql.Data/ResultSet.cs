@@ -25,7 +25,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using MySql.Data.MySqlClient;
-using MySql.Data.MySqlClient.Properties;
+
 #if NETCORE10
 using MySql.Data.MySqlClient.Types;
 #else

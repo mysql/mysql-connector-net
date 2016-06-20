@@ -173,6 +173,11 @@
     <Compile Include="Replication\ReplicationRoundRobinServerGroup.cs" />
     <Compile Include="Replication\ReplicationServer.cs" />
     <Compile Include="Replication\ReplicationServerGroup.cs" />
+    <Compile Include="Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="ResultSet.cs" />
     <Compile Include="Schema.cs" />
     <Compile Include="SchemaProvider.cs" />
@@ -221,20 +226,13 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\ReservedWords.txt" />
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <SubType>Designer</SubType>
+    <EmbeddedResource Include="Resources.resx">
+      <CustomToolNamespace>MySql.Data</CustomToolNamespace>
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="Properties\keywords.txt" />
+    <None Include="keywords.txt" />
     <None Include="MySql.Data.project.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\CHANGES">

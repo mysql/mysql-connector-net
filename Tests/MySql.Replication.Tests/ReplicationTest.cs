@@ -27,6 +27,7 @@ using System.Text;
 using MySql.Data.MySqlClient;
 using Xunit;
 using System.Diagnostics;
+using MySql.Data;
 
 namespace MySql.Replication.Tests
 {
@@ -106,7 +107,7 @@ namespace MySql.Replication.Tests
         
          MySqlException ex = Assert.Throws<MySqlException>(() => st.ExecuteNonQuery(conn, "INSERT INTO orders VALUES(null, 1, 'James')"));
         
-        Assert.Equal(MySql.Data.MySqlClient.Properties.Resources.Replication_NoAvailableServer, ex.Message);
+        Assert.Equal(Resources.Replication_NoAvailableServer, ex.Message);
 
         int currentPort = GetPort(conn);
         Assert.True(currentPort != (currentPort = GetPort(conn)), "1st try");

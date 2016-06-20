@@ -25,7 +25,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using MySql.Data.MySqlClient.Properties;
+
 
 namespace MySql.Data.MySqlClient
 {

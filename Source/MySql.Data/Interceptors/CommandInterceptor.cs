@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using MySql.Data.MySqlClient;
-using MySql.Data.MySqlClient.Properties;
+
 
 #if NETCORE10
 namespace MySql.Data.MySqlClient.Interceptors

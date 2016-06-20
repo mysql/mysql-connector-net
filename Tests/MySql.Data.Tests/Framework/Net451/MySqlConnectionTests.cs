@@ -23,7 +23,7 @@
 using System;
 using System.Data;
 using MySql.Data.MySqlClient;
-using MySql.Data.MySqlClient.Properties;
+
 using Xunit;
 #if !RT
 using System.Configuration;

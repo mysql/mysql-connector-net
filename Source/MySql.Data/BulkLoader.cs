@@ -26,7 +26,7 @@ using System.Data;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
-using MySql.Data.MySqlClient.Properties;
+
 using System.IO;
 
 #if NETCORE10

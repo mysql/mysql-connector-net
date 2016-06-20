@@ -29,7 +29,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using MySql.Data.MySqlClient;
-using MySql.Data.MySqlClient.Properties;
+
 
 #if NETCORE10
 using MySql.Data.MySqlClient.Common;

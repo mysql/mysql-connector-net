@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using MySql.Data.MySqlClient;
-using MySql.Data.MySqlClient.Properties;
+
 using Xunit;
 using System.Data;
 using System.ComponentModel;

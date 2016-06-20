@@ -29,7 +29,7 @@ using System.Reflection;
 using System.ComponentModel;
 using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.Authentication;
-using MySql.Data.MySqlClient.Properties;
+
 using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
 using System.Security.Authentication;
@@ -57,6 +57,7 @@ namespace MySql.Data.MySqlClient
     private BitArray _nullMap;
     private readonly Driver _owner;
     private MySqlAuthenticationPlugin _authPlugin;
+    private bool isEnterprise;
 
     // Windows authentication method string, used by the protocol.
     // Also known as "client plugin name".
@@ -197,6 +198,7 @@ namespace MySql.Data.MySqlClient
       Packet = stream.ReadPacket();
       int protocol = Packet.ReadByte();
       string versionString = Packet.ReadString();
+      isEnterprise = versionString.ToLowerInvariant().Contains("-enterprise-");
       _owner.isFabric = versionString.EndsWith("fabric", StringComparison.OrdinalIgnoreCase);
       Version = DBVersion.Parse(versionString);
       if (!_owner.isFabric && !Version.isAtLeast(5, 0, 0))
@@ -290,7 +292,7 @@ namespace MySql.Data.MySqlClient
       if (Settings.CertificateFile != null)
       {
         if (!Version.isAtLeast(5, 1, 0))
-          throw new MySqlException(Properties.Resources.FileBasedCertificateNotSupported);
+          throw new MySqlException(Resources.FileBasedCertificateNotSupported);
 
         X509Certificate2 clientCert = new X509Certificate2(Settings.CertificateFile,
             Settings.CertificatePassword);
@@ -332,29 +334,29 @@ namespace MySql.Data.MySqlClient
 #if NETCORE10
     private async void StartSSL()
     {
-      RemoteCertificateValidationCallback sslValidateCallback =
-          new RemoteCertificateValidationCallback(ServerCheckValidation);
-      SslStream ss = new SslStream(baseStream, true, sslValidateCallback, null);
-      X509CertificateCollection certs = GetClientCertificates();
-      await ss.AuthenticateAsClientAsync(Settings.Server, certs, SslProtocols.Tls, false);
-      baseStream = ss;
-
-      stream = new MySqlStream(ss, Encoding, false) {SequenceByte = 2};
-    }
 #else
     private void StartSSL()
-    {
+    { 
+#endif      
       RemoteCertificateValidationCallback sslValidateCallback =
           new RemoteCertificateValidationCallback(ServerCheckValidation);
       SslStream ss = new SslStream(baseStream, true, sslValidateCallback, null);
       X509CertificateCollection certs = GetClientCertificates();
-      ss.AuthenticateAsClient(Settings.Server, certs, SslProtocols.Tls, false);
+      SslProtocols sslProtocols = SslProtocols.Tls;
+       sslProtocols |= SslProtocols.Tls11;
+      if (Version.isAtLeast(5, 6, 0) && isEnterprise)
+        sslProtocols |= SslProtocols.Tls12;
+#if NETCORE10
+      await ss.AuthenticateAsClientAsync(Settings.Server, certs, sslProtocols, false);
+#else
+      ss.AuthenticateAsClient(Settings.Server, certs, sslProtocols, false);
+#endif
+
       baseStream = ss;
       stream = new MySqlStream(ss, Encoding, false);
       stream.SequenceByte = 2;
-
     }
-#endif
+
 
     private bool ServerCheckValidation(object sender, X509Certificate certificate,
                                               X509Chain chain, SslPolicyErrors sslPolicyErrors)

@@ -1,4 +1,4 @@
-// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc.
+// Copyright © 2009, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -23,7 +23,7 @@
 using System;
 using System.IO;
 using MySql.Data.MySqlClient;
-using MySql.Data.MySqlClient.Properties;
+
 using Microsoft.Win32.SafeHandles;
 using System.Threading;
 using System.Diagnostics;

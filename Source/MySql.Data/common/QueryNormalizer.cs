@@ -25,7 +25,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using MySql.Data.MySqlClient.Properties;
+
 
 #if NETCORE10
 namespace MySql.Data.MySqlClient.Common
