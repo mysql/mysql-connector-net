@@ -332,7 +332,7 @@ namespace MySql.Data.MySqlClient
     }
 
 #if NETCORE10
-    private async void StartSSL()
+    private void StartSSL()
     {
 #else
     private void StartSSL()
@@ -347,7 +347,7 @@ namespace MySql.Data.MySqlClient
       if (Version.isAtLeast(5, 6, 0) && isEnterprise)
         sslProtocols |= SslProtocols.Tls12;
 #if NETCORE10
-      await ss.AuthenticateAsClientAsync(Settings.Server, certs, sslProtocols, false);
+       ss.AuthenticateAsClientAsync(Settings.Server, certs, sslProtocols, false);
 #else
       ss.AuthenticateAsClient(Settings.Server, certs, sslProtocols, false);
 #endif
