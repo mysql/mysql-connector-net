@@ -22,29 +22,20 @@
 
 using System;
 using System.ComponentModel;
-using System.Globalization;
 using System.Reflection;
 using System.Text;
 using System.Collections;
-using MySql.Data.MySqlClient;
 using System.Data;
-using System.Data.Common;
-#if NETCORE10
-using MySql.Data.MySqlClient.Types;
-#else
 using MySql.Data.Types;
-#endif
+using MySql.Data.MySqlClient.Common;
+using System.Data.Common;
 
 namespace MySql.Data.MySqlClient
 {
   /// <summary>
   /// Represents a parameter to a <see cref="MySqlCommand"/>, This class cannot be inherited.
   /// </summary>
-#if NETCORE10
-  public sealed partial class MySqlParameter
-#else
   public sealed partial class MySqlParameter : ICloneable
-#endif
   {
     private const int UNSIGNED_MASK = 0x8000;
     private object _paramValue;
@@ -98,9 +89,7 @@ namespace MySql.Data.MySqlClient
 
     #region Properties
 
-#if !NETCORE10
     [Category("Misc")]
-#endif
     public override String ParameterName
     {
       get { return _paramName; }
@@ -127,26 +116,20 @@ namespace MySql.Data.MySqlClient
     /// Gets or sets a value indicating whether the parameter is input-only, output-only, bidirectional, or a stored procedure return value parameter.
     /// As of MySql version 4.1 and earlier, input-only is the only valid choice.
     /// </summary>
-#if !NETCORE10
     [Category("Data")]
-#endif
     public override ParameterDirection Direction { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the parameter accepts null values.
     /// </summary>
-#if !NETCORE10
     [Browsable(false)]
-#endif
     public override Boolean IsNullable { get; set; }
 
     /// <summary>
     /// Gets or sets the MySqlDbType of the parameter.
     /// </summary>
-#if !NETCORE10
     [Category("Data")]
     [DbProviderSpecificTypeProperty(true)]
-#endif
     public MySqlDbType MySqlDbType
     {
       get { return _mySqlDbType; }
@@ -160,34 +143,26 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets or sets the maximum number of digits used to represent the <see cref="Value"/> property.
     /// </summary>
-#if !NETCORE10
     [Category("Data")]
-#endif
     public override byte Precision { get; set; }
 
     /// <summary>
     /// Gets or sets the number of decimal places to which <see cref="Value"/> is resolved.
     /// </summary>
-#if !NETCORE10
     [Category("Data")]
-#endif
     public override byte Scale { get; set; }
 
     /// <summary>
     /// Gets or sets the maximum size, in bytes, of the data within the column.
     /// </summary>
-#if !NETCORE10
     [Category("Data")]
-#endif
     public override int Size { get; set; }
 
     /// <summary>
     /// Gets or sets the value of the parameter.
     /// </summary>
     [TypeConverter(typeof(StringConverter))]
-#if !NETCORE10
     [Category("Data")]
-#endif
     public override object Value
     {
       get { return _paramValue; }
@@ -314,11 +289,7 @@ namespace MySql.Data.MySqlClient
           case "Decimal": MySqlDbType = MySqlDbType.Decimal; break;
           case "Object": 
           default:
-#if NETCORE10
             if (t.GetTypeInfo().BaseType == typeof(Enum))
-#else
-            if( t.BaseType == typeof(Enum))
-#endif
               MySqlDbType = MySqlDbType.Int32;
             else 
               MySqlDbType = MySqlDbType.Blob; 

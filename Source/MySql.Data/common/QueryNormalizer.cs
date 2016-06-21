@@ -27,11 +27,7 @@ using System.Linq;
 using System.Text;
 
 
-#if NETCORE10
 namespace MySql.Data.MySqlClient.Common
-#else
-namespace MySql.Data.Common
-#endif
 {
   internal class QueryNormalizer
   {

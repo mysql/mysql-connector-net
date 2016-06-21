@@ -26,18 +26,13 @@ using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-
 using System.Threading.Tasks;
 using System.Threading;
 using static System.String;
-
-#if NETCORE10
 using MySql.Data.MySqlClient.Common;
-#else
-using MySql.Data.Common;
-#endif
 
-namespace MySql.Data.MySqlClient{
+namespace MySql.Data.MySqlClient
+{
   /// <summary>
   /// Provides a class capable of executing a SQL script containing
   /// multiple SQL statements including CREATE PROCEDURE statements

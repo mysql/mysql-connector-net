@@ -26,18 +26,15 @@ using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
-using MySql.Data.MySqlClient;
+using MySql.Data.MySqlClient.Common;
 
 using IsolationLevel = System.Data.IsolationLevel;
 
 #if NETCORE10
-using MySql.Data.MySqlClient.Common;
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient.Interceptors;
 #else
-using MySql.Data.Common;
 using MySql.Data.MySqlClient.Replication;
-using System.Drawing;
 using System.Drawing.Design;
 using System.Transactions;
 #endif
@@ -138,49 +135,35 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Returns the id of the server thread this connection is executing on
     /// </summary>
-#if !NETCORE10
     [Browsable(false)]
-#endif
     public int ServerThread => driver.ThreadID;
 
     /// <summary>
     /// Gets the name of the MySQL server to which to connect.
     /// </summary>
-#if !NETCORE10
     [Browsable(true)]
-#endif
     public override string DataSource => Settings.Server;
 
     /// <include file='docs/MySqlConnection.xml' path='docs/ConnectionTimeout/*'/>
-#if !NETCORE10
     [Browsable(true)]
-#endif
     public override int ConnectionTimeout => (int)Settings.ConnectionTimeout;
 
     /// <include file='docs/MySqlConnection.xml' path='docs/Database/*'/>
-#if !NETCORE10
     [Browsable(true)]
-#endif
     public override string Database => _database;
 
     /// <summary>
     /// Indicates if this connection should use compression when communicating with the server.
     /// </summary>
-#if !NETCORE10
     [Browsable(false)]
-#endif
     public bool UseCompression => Settings.UseCompression;
 
     /// <include file='docs/MySqlConnection.xml' path='docs/State/*'/>
-#if !NETCORE10
     [Browsable(false)]
-#endif
     public override ConnectionState State => connectionState;
 
-    /// <include file='docs/MySqlConnection.xml' path='docs/ServerVersion/*'/>
-#if !NETCORE10
+    /// <include file='docs/MySqlConnection.xml' path='docs/ServerVersion/*'/>#if !NETCORE10
     [Browsable(false)]
-#endif
     public override string ServerVersion => driver.Version.ToString();
 
     /// <include file='docs/MySqlConnection.xml' path='docs/ConnectionString/*'/>

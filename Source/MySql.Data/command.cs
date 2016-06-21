@@ -22,32 +22,19 @@
 
 using System;
 using System.IO;
-using System.Collections;
-using System.Text;
 using System.Data;
-using System.Data.Common;
 using System.ComponentModel;
-using System.Threading;
 using System.Diagnostics;
-using System.Globalization;
 using System.Collections.Generic;
 using System.Linq;
-
-#if NETCORE10
 using MySql.Data.MySqlClient.Common;
-#else
-using MySql.Data.Common;
 using MySql.Data.MySqlClient.Replication;
-#endif
+using System.Threading;
 
 namespace MySql.Data.MySqlClient
 {
   /// <include file='docs/mysqlcommand.xml' path='docs/ClassSummary/*'/> 
-#if !NETCORE10
   public sealed partial class MySqlCommand : ICloneable, IDisposable
-#else
-  public sealed partial class MySqlCommand : IDisposable
-#endif
   {
     MySqlConnection connection;
     string cmdText;
@@ -105,15 +92,13 @@ namespace MySql.Data.MySqlClient
 
 
     /// <include file='docs/mysqlcommand.xml' path='docs/LastInseredId/*'/>
-#if !NETCORE10
     [Browsable(false)]
-#endif
     public Int64 LastInsertedId { get; internal set; }
 
     /// <include file='docs/mysqlcommand.xml' path='docs/CommandText/*'/>
-#if !NETCORE10
     [Category("Data")]
     [Description("Command text to execute")]
+#if !NETCORE10
     [Editor("MySql.Data.Common.Design.SqlCommandTextEditor,MySqlClient.Design", typeof(System.Drawing.Design.UITypeEditor))]
 #endif
     public override string CommandText
@@ -133,10 +118,8 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <include file='docs/mysqlcommand.xml' path='docs/CommandTimeout/*'/>
-#if !NETCORE10
     [Category("Misc")]
     [Description("Time to wait for command to execute")]
-#endif
     [DefaultValue(30)]
     public override int CommandTimeout
     {
@@ -164,22 +147,16 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <include file='docs/mysqlcommand.xml' path='docs/CommandType/*'/>
-#if !NETCORE10
     [Category("Data")]
-#endif
     public override CommandType CommandType { get; set; }
 
     /// <include file='docs/mysqlcommand.xml' path='docs/IsPrepared/*'/>
-#if !NETCORE10
     [Browsable(false)]
-#endif
     public bool IsPrepared => statement != null && statement.IsPrepared;
 
     /// <include file='docs/mysqlcommand.xml' path='docs/Connection/*'/>
-#if !NETCORE10
     [Category("Behavior")]
     [Description("Connection used by the command")]
-#endif
     public new MySqlConnection Connection
     {
       get { return connection; }
@@ -211,18 +188,14 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <include file='docs/mysqlcommand.xml' path='docs/Parameters/*'/>
-#if !NETCORE10
     [Category("Data")]
     [Description("The parameters collection")]
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-#endif
     public new MySqlParameterCollection Parameters { get; }
 
 
     /// <include file='docs/mysqlcommand.xml' path='docs/Transaction/*'/>
-#if !NETCORE10
     [Browsable(false)]
-#endif
     public new MySqlTransaction Transaction { get; set; }
 
     public bool EnableCaching { get; set; }

@@ -21,15 +21,8 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-#if NETCORE10
-using MySql.Data.MySqlClient;
-#endif
 
-#if NETCORE10
-namespace MySql.Data.MySqlClient.Types
-#else
 namespace MySql.Data.Types
-#endif
 {
 #if !NETCORE10
   [Serializable]

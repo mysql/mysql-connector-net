@@ -25,15 +25,7 @@ using System.Collections;
 using System.Text;
 using System.Collections.Generic;
 using System.Data;
-
-using System.Linq;
-
-#if NETCORE10
 using MySql.Data.MySqlClient.Common;
-using MySql.Data.MySqlClient.Framework.NetCore10;
-#else
-using MySql.Data.Common;
-#endif
 
 namespace MySql.Data.MySqlClient
 {

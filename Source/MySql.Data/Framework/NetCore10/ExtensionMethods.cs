@@ -23,7 +23,7 @@
 using System;
 using System.Collections;
 
-namespace MySql.Data.MySqlClient.Framework.NetCore10
+namespace MySql.Data.MySqlClient.Common
 {
   public static class ExtensionMethods
   {

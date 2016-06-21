@@ -24,13 +24,8 @@ using System;
 using System.Globalization;
 using MySql.Data.MySqlClient;
 
-#if NETCORE10
-namespace MySql.Data.MySqlClient.Types
-#else
 namespace MySql.Data.Types
-#endif
 {
-
   public struct MySqlDecimal : IMySqlValue
   {
     private readonly string _value;

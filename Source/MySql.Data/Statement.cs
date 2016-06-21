@@ -22,14 +22,6 @@
 
 using System;
 using System.Collections.Generic;
-using MySql.Data.MySqlClient;
-
-
-#if NETCORE10
-using MySql.Data.MySqlClient.Common;
-#else
-using MySql.Data.Common;
-#endif
 
 namespace MySql.Data.MySqlClient
 {

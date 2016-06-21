@@ -25,8 +25,6 @@ using System.ComponentModel;
 using System.Data.Common;
 using System.Data;
 using System.Text;
-using MySql.Data.Common;
-using System.Collections;
 using MySql.Data.Types;
 using System.Globalization;
 

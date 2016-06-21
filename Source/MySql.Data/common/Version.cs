@@ -24,11 +24,7 @@ using System;
 using MySql.Data.MySqlClient;
 
 
-#if NETCORE10
 namespace MySql.Data.MySqlClient.Common
-#else
-namespace MySql.Data.Common
-#endif
 {
   /// <summary>
   /// Summary description for Version.

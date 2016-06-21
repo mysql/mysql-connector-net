@@ -22,26 +22,19 @@
 
 using System;
 using System.Collections;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Reflection;
 using System.ComponentModel;
-using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.Authentication;
-
 using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
 using System.Security.Authentication;
-using System.Globalization;
-#if NETCORE10
 using MySql.Data.MySqlClient.Common;
-using MySql.Data.MySqlClient.Types;
+using MySql.Data.Types;
+#if NETCORE10
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-#else
-using MySql.Data.Common;
-using MySql.Data.Types;
 #endif
 
 namespace MySql.Data.MySqlClient

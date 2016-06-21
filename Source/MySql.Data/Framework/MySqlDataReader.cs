@@ -22,15 +22,9 @@
 
 using System;
 using System.Collections;
-using System.Data;
 using System.Data.Common;
-using MySql.Data.MySqlClient;
-#if NETCORE10
-using MySql.Data.MySqlClient.Types;
-#else
 using MySql.Data.Types;
-#endif
-
+using System.Data;
 
 namespace MySql.Data.MySqlClient
 {

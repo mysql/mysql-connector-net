@@ -34,7 +34,7 @@ using System.Security;
 
 
 
-namespace MySql.Data.Common
+namespace MySql.Data.MySqlClient.Common
 {
   /// <summary>
   /// Summary description for API.

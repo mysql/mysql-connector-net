@@ -25,17 +25,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using MySql.Data.MySqlClient;
-
-
-#if NETCORE10
 using MySql.Data.MySqlClient.Common;
-#else
-using MySql.Data.Common;
-#endif
+using System.Reflection;
 
 namespace MySql.Data.MySqlClient
 {
@@ -1281,11 +1274,11 @@ namespace MySql.Data.MySqlClient
       if (typeName.StartsWith("Int32") && Int32.TryParse(value.ToString(), out intVal32)) { value = intVal32; return; }
 
       object objValue;
-#if NETCORE10
+      //#if NETCORE10
+      //    Type baseType = BaseType.GetTypeInfo().BaseType;
+      //#else
       Type baseType = BaseType.GetTypeInfo().BaseType;
-#else
-      Type baseType = BaseType.BaseType;
-#endif
+//#endif
       if (baseType != null && baseType.Name == "Enum" && ParseEnum(value.ToString(), out objValue)) 
       {
         value = objValue;  return;

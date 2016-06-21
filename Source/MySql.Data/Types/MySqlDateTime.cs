@@ -23,18 +23,9 @@
 using System;
 using System.Globalization;
 using MySql.Data.MySqlClient;
-
-#if NETCORE10
 using MySql.Data.MySqlClient.Common;
-#else
-using MySql.Data.Common;
-#endif
 
-#if NETCORE10
-namespace MySql.Data.MySqlClient.Types
-#else
 namespace MySql.Data.Types
-#endif
 {
 
   /// <summary>

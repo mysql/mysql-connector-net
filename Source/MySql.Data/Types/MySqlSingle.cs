@@ -24,11 +24,7 @@ using System;
 using System.Globalization;
 using MySql.Data.MySqlClient;
 
-#if NETCORE10
-namespace MySql.Data.MySqlClient.Types
-#else
 namespace MySql.Data.Types
-#endif
 {
   internal struct MySqlSingle : IMySqlValue
   {

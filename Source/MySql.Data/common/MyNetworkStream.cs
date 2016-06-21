@@ -27,11 +27,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 
-#if NETCORE10
 namespace MySql.Data.MySqlClient.Common
-#else
-namespace MySql.Data.Common
-#endif
 {
   internal class MyNetworkStream : NetworkStream
   {

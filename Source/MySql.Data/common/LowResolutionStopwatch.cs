@@ -22,11 +22,7 @@
 
 using System;
 
-#if NETCORE10
 namespace MySql.Data.MySqlClient.Common
-#else
-namespace MySql.Data.Common
-#endif
 {
   /// <summary>
   /// This class is modeled after .NET Stopwatch. It provides better

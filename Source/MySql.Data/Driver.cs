@@ -25,15 +25,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Security;
 using System.Text;
-using MySql.Data.MySqlClient;
-
-#if NETCORE10
 using MySql.Data.MySqlClient.Common;
-using MySql.Data.MySqlClient.Types;
-#else
-using MySql.Data.Common;
 using MySql.Data.Types;
-#endif
 
 namespace MySql.Data.MySqlClient
 {

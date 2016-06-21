@@ -27,11 +27,7 @@ using System.Threading;
 using MySql.Data.MySqlClient;
 
 using System.Data.Common;
-#if NETCORE10
-using MySql.Data.MySqlClient.Types;
-#else
 using MySql.Data.Types;
-#endif
 
 namespace MySql.Data.MySqlClient
 {

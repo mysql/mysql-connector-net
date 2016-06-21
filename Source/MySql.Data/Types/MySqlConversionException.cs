@@ -22,11 +22,7 @@
 
 using System;
 
-#if NETCORE10
-namespace MySql.Data.MySqlClient.Types
-#else
 namespace MySql.Data.Types
-#endif
 {
   /// <summary>
   /// Summary description for MySqlConversionException.
