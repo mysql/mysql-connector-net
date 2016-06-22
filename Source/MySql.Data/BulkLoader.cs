@@ -27,6 +27,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using MySql.Data.MySqlClient.Common;
+using System.IO;
 
 namespace MySql.Data.MySqlClient
 {
@@ -238,7 +239,7 @@ namespace MySql.Data.MySqlClient
       if (Local)
         sql.Append("LOCAL ");
       sql.Append("INFILE ");
-      if (Platform.DirectorySeparatorChar == '\\')
+      if (Path.DirectorySeparatorChar == '\\')
         sql.AppendFormat("'{0}' ", FileName.Replace(@"\", @"\\"));
       else
         sql.AppendFormat("'{0}' ", FileName);

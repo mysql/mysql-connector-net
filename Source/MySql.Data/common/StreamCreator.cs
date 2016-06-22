@@ -23,7 +23,10 @@
 
 using System;
 using System.IO;
-
+using System.IO.MemoryMappedFiles;
+using System.IO.Pipes;
+using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient.Common
 {
@@ -68,53 +71,49 @@ namespace MySql.Data.MySqlClient.Common
       switch (settings.ConnectionProtocol)
       {
         case MySqlConnectionProtocol.Tcp: return GetTcpStream(settings);
-#if NETCORE10
-        case MySqlConnectionProtocol.UnixSocket: throw new NotImplementedException();
-        case MySqlConnectionProtocol.SharedMemory: throw new NotImplementedException();
-        case MySqlConnectionProtocol.NamedPipe: throw new NotImplementedException();
-#else
         case MySqlConnectionProtocol.UnixSocket: return GetUnixSocketStream(settings);        
         case MySqlConnectionProtocol.SharedMemory: return GetSharedMemoryStream(settings);
         case MySqlConnectionProtocol.NamedPipe: return GetNamedPipeStream(settings);
-#endif
       }
       throw new InvalidOperationException(Resources.UnknownConnectionProtocol);
     }
 
     private static Stream GetTcpStream(MySqlConnectionStringBuilder settings)
     {
-#if NETCORE10     
-      MyNetworkStream s = MyNetworkStream.CreateStreamAsync(settings, false).Result;
-#else
-      MyNetworkStream s = MyNetworkStream.CreateStream(settings, false);
-#endif
+      TcpClient client = new TcpClient(AddressFamily.InterNetwork);
+      Task task = client.ConnectAsync(settings.Server, (int)settings.Port);
 
-      return s;
+      if (!task.Wait(((int)settings.ConnectionTimeout * 1000)))
+        throw new MySqlException(Resources.Timeout);
+      return client.GetStream();
+      //TODO:  reimplement or remove keepalive
     }
 
-#if !NETCORE10
     private static Stream GetUnixSocketStream(MySqlConnectionStringBuilder settings)
     {
       if (Platform.IsWindows())
         throw new InvalidOperationException(Resources.NoUnixSocketsOnWindows);
-
-      MyNetworkStream s = MyNetworkStream.CreateStream(settings, true);
-      return s;
+      return null;
+//      MyNetworkStream s = await MyNetworkStream.CreateStreamAsync(settings, true);
+  //    return s;
     }
 
     private static Stream GetSharedMemoryStream(MySqlConnectionStringBuilder settings)
     {
+#if NETCORE10
+      throw new NotSupportedException("Shared memory streams not currently supported.");
+#else
       SharedMemoryStream str = new SharedMemoryStream(settings.SharedMemoryName);
       str.Open(settings.ConnectionTimeout);
       return str;
+#endif
     }
 
     private static Stream GetNamedPipeStream(MySqlConnectionStringBuilder settings)
     {
-      Stream stream = NamedPipeStream.Create(settings.PipeName, settings.Server, settings.ConnectionTimeout);
-      return stream;
+      NamedPipeClientStream pipeStream = new NamedPipeClientStream(settings.Server, settings.PipeName, PipeDirection.InOut);
+      pipeStream.Connect((int)settings.ConnectionTimeout);
+      return pipeStream;
     }
-#endif
-
   }
 }

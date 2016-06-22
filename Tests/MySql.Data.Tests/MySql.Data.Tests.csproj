@@ -137,10 +137,6 @@
     <Reference Include="System.Security" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Xml" />
-    <Reference Include="xunit, Version=1.9.2.1705, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <!--<Reference Include="xunit, Version=1.9.2.1705, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL"> -->
   </ItemGroup>
   <ItemGroup>
@@ -181,7 +177,6 @@
     <Compile Include="Framework\Net451\MySqlCommandBuilderTests.cs" />
     <Compile Include="Framework\Net451\MySqlCommandTests.cs" />
     <Compile Include="Framework\Net451\MySqlConnectionStringBuilderTests.cs" />
-    <Compile Include="Framework\Net451\MySqlConnectionTests.cs" />
     <Compile Include="Framework\Net451\MySqlDataAdapterTests.cs" />
     <Compile Include="Framework\Net451\MySqlDataReaderTests.cs" />
     <Compile Include="Framework\Net451\MySQLHelperTests.cs" />
@@ -203,6 +198,7 @@
     <Compile Include="Framework\Net451\ReplicationTests.cs" />
     <Compile Include="Framework\Net451\ScriptExecution.cs" />
     <Compile Include="Framework\Net451\SetUp.cs" />
+    <Compile Include="MySqlConnectionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Framework\Net451\SimpleTransactions.cs" />
     <Compile Include="Framework\Net451\SqlServerMode.cs" />
@@ -222,6 +218,7 @@
     <Compile Include="Framework\Net451\TypeTests.cs" />
     <Compile Include="Framework\Net451\UsageAdvisorTests.cs" />
     <Compile Include="Framework\Net451\Utils.cs" />
+    <Compile Include="TestBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Framework\Net451\client.pfx">

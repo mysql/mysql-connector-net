@@ -68,7 +68,8 @@ namespace MySql.Data.MySqlClient
       _database = String.Empty;
 
 #if NETCORE10
-      ConnectionString = Startup.ConnectionString;
+      //TODO:  what is thi sabout
+      //ConnectionString = Startup.ConnectionString;
 #endif
     }
 

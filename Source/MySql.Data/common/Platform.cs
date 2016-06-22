@@ -22,6 +22,7 @@
 
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace MySql.Data.MySqlClient.Common
 {
@@ -37,11 +38,10 @@ namespace MySql.Data.MySqlClient.Common
     {
     }
 
-#if !NETCORE10
     public static bool IsWindows()
     {
-#if NETFX_CORE
-      return true;
+#if NETCORE10
+      return RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 #else
       OperatingSystem os = Environment.OSVersion;
       switch (os.Platform)
@@ -54,19 +54,7 @@ namespace MySql.Data.MySqlClient.Common
       return false;
 #endif
     }
-#endif
 
-    public static char DirectorySeparatorChar
-    {
-      get
-      {
-#if NETFX_CORE
-        return '\\';
-#else
-          return Path.DirectorySeparatorChar;
-#endif
-      }
-    }
 
     public static bool IsMono()
     {

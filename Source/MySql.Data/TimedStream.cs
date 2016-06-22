@@ -57,7 +57,7 @@ namespace MySql.Data.MySqlClient
     public TimedStream(Stream baseStream)
     {
       this._baseStream = baseStream;
-      _timeout = baseStream.ReadTimeout;
+      _timeout = 30000; // baseStream.ReadTimeout;
       IsClosed = false;
       _stopwatch = new LowResolutionStopwatch();
     }
@@ -96,15 +96,15 @@ namespace MySql.Data.MySqlClient
       {
         if (ShouldResetStreamTimeout(_lastReadTimeout, streamTimeout))
         {
-          _baseStream.ReadTimeout = streamTimeout;
-          _lastReadTimeout = streamTimeout;
+          //_baseStream.ReadTimeout = streamTimeout;
+          //_lastReadTimeout = streamTimeout;
         }
       }
       else
       {
         if (ShouldResetStreamTimeout(_lastWriteTimeout, streamTimeout))
         {
-          _baseStream.WriteTimeout = streamTimeout;
+          //_baseStream.WriteTimeout = streamTimeout;
           _lastWriteTimeout = streamTimeout;
         }
       }
@@ -228,13 +228,15 @@ namespace MySql.Data.MySqlClient
 
     public override int ReadTimeout
     {
-      get { return _baseStream.ReadTimeout; }
-      set { _baseStream.ReadTimeout = value; }
+      get { return 30000; } /// _baseStream.ReadTimeout; }
+      set { }
+      //_baseStream.ReadTimeout = value; }
     }
     public override int WriteTimeout
     {
-      get { return _baseStream.WriteTimeout; }
-      set { _baseStream.WriteTimeout = value; }
+      get { return 30000; } // _baseStream.WriteTimeout; }
+      set { }
+      //_baseStream.WriteTimeout = value; }
     }
 
 #if NETCORE10
