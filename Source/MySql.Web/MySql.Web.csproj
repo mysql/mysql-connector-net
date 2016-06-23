@@ -148,12 +148,6 @@
     <None Include="Properties\schema7.sql" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MySql.Data\MySql.Data.csproj">
-      <Project>{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}</Project>
-      <Name>MySql.Data</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Properties\schema10.sql" />
     <Content Include="Properties\schema8.sql" />
     <Content Include="Properties\schema9.sql" />

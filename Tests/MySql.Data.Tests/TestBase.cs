@@ -11,30 +11,34 @@ namespace MySql.Data.MySqlClient.Tests
 
     static TestBase()
     {
-      databaseName = "cnet_test_";
+      databaseName = "db0";
     }
 
     public TestBase()
     {
-      // cleanup
-      executeAsRoot("DROP DATABASE IF EXISTS " + databaseName);
-      List<string> users = GetUserList(false);
-      foreach (var user in users)
-        executeAsRoot(String.Format("DROP USER IF EXISTS {0}", user));
-      executeAsRoot("FLUSH PRIVILEGES");
-
-      executeAsRoot("CREATE DATABASE " + databaseName);
-      executeAsRoot("CREATE USER 'test'@'localhost' IDENTIFIED BY 'test'");
-      executeAsRoot(String.Format("GRANT ALL ON *.* TO 'test'@'localhost'", databaseName));
-      executeAsRoot("FLUSH PRIVILEGES");
       Settings = new MySqlConnectionStringBuilder();
       Settings.Server = "localhost";
-      Settings.UserID = "test";
-      Settings.Password = "test";
-      Settings.Database = databaseName;
+      Settings.UserID = "user0";
+      Settings.Password = "pwd";
+      Settings.Database = "mysql";
       Settings.AllowUserVariables = true;
       Settings.Pooling = false;
       Settings.PersistSecurityInfo = true;
+
+      // cleanup
+      for (int x = 0; x < 3; x++)
+      {
+        executeAsRoot("DROP DATABASE IF EXISTS db" + x);
+        executeAsRoot(String.Format("DROP USER IF EXISTS 'user{0}'@'localhost'", x));
+      }
+      executeAsRoot("FLUSH PRIVILEGES");
+
+      executeAsRoot("CREATE DATABASE " + databaseName);
+      executeAsRoot("CREATE USER 'user0'@'localhost' IDENTIFIED BY 'pwd'");
+      executeAsRoot(String.Format("GRANT ALL ON *.* TO 'user0'@'localhost'", databaseName));
+      executeAsRoot("FLUSH PRIVILEGES");
+
+      Settings.Database = databaseName;
     }
 
     private List<string> GetUserList(bool includeRoot)
@@ -50,25 +54,35 @@ namespace MySql.Data.MySqlClient.Tests
       return list;
     }
 
+    protected MySqlConnection GetConnection(bool asRoot = false)
+    {
+      MySqlConnectionStringBuilder s = new MySqlConnectionStringBuilder(Settings.GetConnectionString(true));
+      if (asRoot)
+      {
+        s.UserID = "root";
+        s.Password = null;
+      }
+      return new MySqlConnection(s.GetConnectionString(true));
+    }
+
     protected MySqlConnection GetRoot()
     {
-      return new MySqlConnection("server=localhost;port=3306;user id=root;database=mysql");
+      return GetConnection(true);
     }
+
+    protected void executeSQL(string sql, bool asRoot = false)
+    {
+      using (var conn = GetConnection(asRoot))
+      {
+        conn.Open();
+        MySqlCommand cmd = new MySqlCommand(sql, conn);
+        cmd.ExecuteNonQuery();
+      }
+    }
+
     protected void executeAsRoot(string sql)
     {
-      using (MySqlConnection root = GetRoot())
-      {
-        try
-        {
-          root.Open();
-          MySqlCommand cmd = new MySqlCommand(sql, root);
-          cmd.ExecuteNonQuery();
-        }
-        catch (Exception ex)
-        {
-          string s = ex.Message;
-        }
-      }
+      executeSQL(sql, true);
     }
 
     protected MySqlDataReader ExecuteReaderAsRoot(string sql)

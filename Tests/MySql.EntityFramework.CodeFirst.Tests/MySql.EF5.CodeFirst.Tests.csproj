@@ -150,14 +150,6 @@
       <Project>{EDED3135-95D2-4BCE-A810-F3F2AD7935B7}</Project>
       <Name>MySql.Data.EF5</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Source\MySql.Data\MySql.Data.csproj">
-      <Project>{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}</Project>
-      <Name>MySql.Data</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\MySql.Data.Tests\MySql.Data.Tests.csproj">
-      <Project>{F29E5B3D-7F76-4CF9-BF5E-8E3A1377B1E4}</Project>
-      <Name>MySql.Data.Tests</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

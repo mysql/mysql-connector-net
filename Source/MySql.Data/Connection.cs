@@ -271,6 +271,7 @@ namespace MySql.Data.MySqlClient
       cmd.ExecuteNonQuery();
 
       cmd.CommandText = "BEGIN";
+      cmd.CommandType = CommandType.Text;
       cmd.ExecuteNonQuery();
 
       return t;

@@ -121,9 +121,9 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.True(c.State == ConnectionState.Open);
         Assert.Equal(connStr.Database, c.Database);
 
-        executeAsRoot("CREATE DATABASE dummy");
-        c.ChangeDatabase("dummy");
-        Assert.Equal("dummy", c.Database);
+        executeAsRoot("CREATE DATABASE db1");
+        c.ChangeDatabase("db1");
+        Assert.Equal("db1", c.Database);
       }
     }
 
@@ -399,13 +399,14 @@ namespace MySql.Data.MySqlClient.Tests
     public void CaseSensitiveUserId()
     {
       MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Settings.GetConnectionString(true));
-      connStr.UserID = "Test";
+      string original_uid = connStr.UserID;
+      connStr.UserID = connStr.UserID.ToUpper();
       MySqlConnection c = new MySqlConnection(connStr.GetConnectionString(true));
       var exception = Record.Exception(() => c.Open());
       Assert.NotNull(exception);
       Assert.IsType<MySqlException>(exception);
 
-      connStr.UserID = "test";
+      connStr.UserID = original_uid;
       c = new MySqlConnection(connStr.GetConnectionString(true));
       c.Open();
       c.Close();
@@ -740,61 +741,45 @@ namespace MySql.Data.MySqlClient.Tests
     //    }
 
     #region Async
-    //    [Fact]
-    //    public async Task TransactionAsync()
-    //    {
-    //      st.execSQL("Create Table CONNTransactionAsyncTest(key2 varchar(50), name varchar(50), name2 varchar(50))");
-    //      st.execSQL("INSERT INTO CONNTransactionAsyncTest VALUES('P', 'Test1', 'Test2')");
+    [Fact]
+    public async Task TransactionAsync()
+    {
+      executeSQL("CREATE TABLE test(key2 varchar(50), name varchar(50), name2 varchar(50))");
 
-    //      MySqlTransaction txn = st.conn.BeginTransactionAsync().Result;
-    //      MySqlConnection c = txn.Connection;
-    //      Assert.Equal(st.conn, c);
-    //      MySqlCommand cmd = new MySqlCommand("SELECT name, name2 FROM CONNTransactionAsyncTest WHERE key2='P'", st.conn, txn);
-    //      MySqlTransaction t2 = cmd.Transaction;
-    //      Assert.Equal(txn, t2);
-    //      MySqlDataReader reader = null;
-    //      try
-    //      {
-    //        reader = cmd.ExecuteReader();
-    //        reader.Close();
-    //        txn.Commit();
-    //      }
-    //      catch (Exception ex)
-    //      {
-    //        Assert.False(ex.Message != string.Empty, ex.Message);
-    //        txn.Rollback();
-    //      }
-    //      finally
-    //      {
-    //        if (reader != null) reader.Close();
-    //      }
-    //    }
+      var conn = GetConnection();
+      conn.Open();
+      var txn = conn.BeginTransaction();
+      Assert.Equal(conn, txn.Connection);
 
-    //    [Fact]
-    //    public async Task ChangeDataBaseAsync()
-    //    {
-    //      executeAsRoot("CREATE TABLE CONNChangeDBAsyncTest (id INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME,  `multi word` int, PRIMARY KEY(id))");
-    //      executeAsRoot("INSERT INTO CONNChangeDBAsyncTest (id, name) VALUES (1,'test1')");
-    //      executeAsRoot("INSERT INTO CONNChangeDBAsyncTest (id, name) VALUES (2,'test2')");
-    //      executeAsRoot("INSERT INTO CONNChangeDBAsyncTest (id, name) VALUES (3,'test3')");
+      var cmd = conn.CreateCommand();
+      cmd.CommandText = "SET AUTOCOMMIT=0";
+      cmd.ExecuteNonQuery();
 
-    //      await st.conn.ChangeDataBaseAsync(st.database1);
+      cmd.CommandText = "INSERT INTO test VALUES ('P', 'Test1', 'Test2')";
+      cmd.ExecuteNonQuery();
+      txn.Rollback();
+      cmd.CommandText = "SELECT COUNT(*) FROM test";
+      long cnt = (long)cmd.ExecuteScalar();
+      Assert.True(cnt == 0);
+    }
 
-    //      MySqlDataAdapter da = new MySqlDataAdapter(
-    //          String.Format("SELECT id, name FROM `{0}`.CONNChangeDBAsyncTest", st.database0), st.conn);
-    //      MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
-    //      DataSet ds = new DataSet();
-    //      da.Fill(ds);
+    [Fact]
+    public async Task ChangeDataBaseAsync()
+    {
+      executeAsRoot("CREATE DATABASE db1");
+      executeAsRoot("CREATE TABLE db1.footest (id INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME,  `multi word` int, PRIMARY KEY(id))");
 
-    //      ds.Tables[0].Rows[0]["id"] = 4;
-    //      DataSet changes = ds.GetChanges();
-    //      da.Update(changes);
-    //      ds.Merge(changes);
-    //      ds.AcceptChanges();
-    //      cb.Dispose();
+      var conn = GetConnection();
+      using (conn)
+      {
+        conn.Open();
+        await conn.ChangeDataBaseAsync("db1");
 
-    //      await st.conn.ChangeDataBaseAsync(st.database0);
-    //    }
+        var cmd = conn.CreateCommand();
+        cmd.CommandText = "SELECT COUNT(*) FROM footest";
+        var count = cmd.ExecuteScalar();
+      }
+    }
 
     [Fact]
     public async Task OpenAndCloseConnectionAsync()
@@ -833,15 +818,15 @@ namespace MySql.Data.MySqlClient.Tests
       await c2.ClearAllPoolsAsync();
     }
 
-    //[Fact]
-    //public async Task GetSchemaCollectionAsync()
-    //{
-    //  MySqlConnection c1 = new MySqlConnection(Settings.GetConnectionString(true));
-    //  c1.Open();
-    //  var schemaColl = await c1.GetSchemaCollectionAsync(SchemaProvider.MetaCollection, null);
-    //  c1.Close();
-    //  Assert.NotNull(schemaColl);
-    //}
+    [Fact]
+    public async Task GetSchemaCollectionAsync()
+    {
+      MySqlConnection c1 = new MySqlConnection(Settings.GetConnectionString(true));
+      c1.Open();
+      var schemaColl = await c1.GetSchemaCollectionAsync("MetaDataCollections", null);
+      c1.Close();
+      Assert.NotNull(schemaColl);
+    }
 
     #endregion
 

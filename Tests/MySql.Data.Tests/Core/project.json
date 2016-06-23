@@ -19,6 +19,7 @@
     "xmlDoc": true,
     "copyToOutput": [ "appsettings.json" ],
     "compile": {
+      "include": [ "../*.cs" ],
       "exclude": [ "Framework/Net451/**/*.*", "Certificates/**/*.*" ]
     }
   },

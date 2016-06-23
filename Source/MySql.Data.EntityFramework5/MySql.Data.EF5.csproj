@@ -162,12 +162,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MySql.Data\MySql.Data.csproj">
-      <Project>{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}</Project>
-      <Name>MySql.Data</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Properties\SchemaDefinition-5.6.ssdl">
       <SubType>Designer</SubType>
     </EmbeddedResource>

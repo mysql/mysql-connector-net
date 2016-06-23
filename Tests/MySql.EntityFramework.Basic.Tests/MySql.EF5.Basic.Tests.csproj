@@ -202,14 +202,6 @@
       <Project>{eded3135-95d2-4bce-a810-f3f2ad7935b7}</Project>
       <Name>MySql.Data.EF5</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Source\MySql.Data\MySql.Data.csproj">
-      <Project>{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}</Project>
-      <Name>MySql.Data</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\MySql.Data.Tests\MySql.Data.Tests.csproj">
-      <Project>{f29e5b3d-7f76-4cf9-bf5e-8e3a1377b1e4}</Project>
-      <Name>MySql.Data.Tests</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="v4.x\SQLSyntax.resx">

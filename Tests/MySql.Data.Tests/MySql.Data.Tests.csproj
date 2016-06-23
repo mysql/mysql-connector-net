@@ -1,11 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\packages\xunit.runner.visualstudio.2.1.0\build\net20\xunit.runner.visualstudio.props" Condition="Exists('..\..\packages\xunit.runner.visualstudio.2.1.0\build\net20\xunit.runner.visualstudio.props')" />
+  <Import Project="..\..\..\packages\xunit.runner.visualstudio.2.1.0\build\net20\xunit.runner.visualstudio.props" Condition="Exists('..\..\..\packages\xunit.runner.visualstudio.2.1.0\build\net20\xunit.runner.visualstudio.props')" />
   <PropertyGroup>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <Framework>4.5</Framework>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <DefineConstants>NET_45_OR_GREATER;</DefineConstants>
+    <ResolveNuGetPackages>false</ResolveNuGetPackages>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -54,10 +59,6 @@
     <DefineConstants>TRACE;DEBUG;$(DefineConstants)</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRules>
-    </CodeAnalysisRules>
-    <RunCodeAnalysis>false</RunCodeAnalysis>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -70,7 +71,6 @@
     <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugEF6|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -79,7 +79,6 @@
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseEF6|AnyCPU'">
     <OutputPath>bin\ReleaseEF6\</OutputPath>
@@ -88,7 +87,6 @@
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugEF6|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -97,7 +95,6 @@
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseEF6|AnyCPU'">
     <OutputPath>bin\ReleaseEF6\</OutputPath>
@@ -106,7 +103,6 @@
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugEF6|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -115,7 +111,6 @@
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseEF6|AnyCPU'">
     <OutputPath>bin\ReleaseEF6\</OutputPath>
@@ -124,7 +119,6 @@
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -137,112 +131,46 @@
     <Reference Include="System.Security" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Xml" />
+    <Reference Include="xunit.abstractions">
+      <HintPath>..\..\packages\xunit.abstractions.2.0.0\lib\net35\xunit.abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="xunit.assert">
+      <HintPath>..\..\packages\xunit.assert.2.1.0\lib\dotnet\xunit.assert.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="xunit.core">
+      <HintPath>..\..\packages\xunit.extensibility.core.2.1.0\lib\dotnet\xunit.core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="xunit.execution.desktop">
+      <HintPath>..\..\packages\xunit.extensibility.execution.2.1.0\lib\net45\xunit.execution.desktop.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <!--<Reference Include="xunit, Version=1.9.2.1705, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL"> -->
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\Source\MySql.Data\Properties\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="Framework\Net451\AsyncTests.cs" />
-    <Compile Include="Framework\Net451\BlobTests.cs" />
-    <Compile Include="Framework\Net451\BlobTestsPipeCompressed.cs" />
-    <Compile Include="Framework\Net451\BlobTestsSharedMemory.cs" />
-    <Compile Include="Framework\Net451\BlobTestsSharedMemoryCompressed.cs" />
-    <Compile Include="Framework\Net451\BlobTestsSocketCompressed.cs" />
-    <Compile Include="Framework\Net451\BlobTestsPipe.cs" />
-    <Compile Include="Framework\Net451\CharacterSetTests.cs" />
-    <Compile Include="Framework\Net451\InstallerTests.cs" />
-    <Compile Include="Framework\Net451\MySqlCommandTestsPipe.cs" />
-    <Compile Include="Framework\Net451\MySqlCommandTestsPipeCompressed.cs" />
-    <Compile Include="Framework\Net451\MySqlCommandTestsSharedMemory.cs" />
-    <Compile Include="Framework\Net451\MySqlCommandTestsSharedMemoryCompressed.cs" />
-    <Compile Include="Framework\Net451\MySqlCommandTestsSocketCompressed.cs" />
-    <Compile Include="Framework\Net451\CultureTests.cs" />
-    <Compile Include="Framework\Net451\DataTypeTests.cs" />
-    <Compile Include="Framework\Net451\DateTimeTests.cs" />
-    <Compile Include="Framework\Net451\EventTests.cs" />
-    <Compile Include="Framework\Net451\ExceptionTests.cs" />
-    <Compile Include="Framework\Net451\GenericListener.cs" />
-    <Compile Include="Framework\Net451\GetSchemaTests.cs" />
-    <Compile Include="Framework\Net451\InterfaceTests.cs" />
-    <Compile Include="Framework\Net451\LanguageTests.cs" />
-    <Compile Include="Framework\Net451\LoggingTests.cs" />
-    <Compile Include="Framework\Net451\MediumTrust\MediumTrustDomain.cs" />
-    <Compile Include="Framework\Net451\MediumTrust\MediumTrustFixtureAttribute.cs" />
-    <Compile Include="Framework\Net451\MediumTrust\MediumTrustTestClassCommand.cs" />
-    <Compile Include="Framework\Net451\MediumTrust\MediumTrustTestCommand.cs" />
-    <Compile Include="Framework\Net451\MediumTrust\MySql.MediumTrustsTests.cs" />
-    <Compile Include="Framework\Net451\MediumTrust\MySqlClientPermissionTests.cs" />
-    <Compile Include="Framework\Net451\MySqlBulkLoaderTests.cs" />
-    <Compile Include="Framework\Net451\MySqlCommandBuilderTests.cs" />
-    <Compile Include="Framework\Net451\MySqlCommandTests.cs" />
-    <Compile Include="Framework\Net451\MySqlConnectionStringBuilderTests.cs" />
-    <Compile Include="Framework\Net451\MySqlDataAdapterTests.cs" />
-    <Compile Include="Framework\Net451\MySqlDataReaderTests.cs" />
-    <Compile Include="Framework\Net451\MySQLHelperTests.cs" />
-    <Compile Include="Framework\Net451\OutputParametersBatch.cs" />
-    <Compile Include="Framework\Net451\OutputParametersBatchPrepared.cs" />
-    <Compile Include="Framework\Net451\OutputParametersNoBatch.cs" />
-    <Compile Include="Framework\Net451\OutputParametersNoBatchPrepared.cs" />
-    <Compile Include="Framework\Net451\ParameterTests.cs" />
-    <Compile Include="Framework\Net451\PartialTrustSandbox.cs" />
-    <Compile Include="Framework\Net451\PerfMonTests.cs" />
-    <Compile Include="Framework\Net451\PoolingTests.cs" />
-    <Compile Include="Framework\Net451\PreparedStatements.cs" />
-    <Compile Include="Framework\Net451\PreparedStatementsPipe.cs" />
-    <Compile Include="Framework\Net451\PreparedStatementsPipeCompressed.cs" />
-    <Compile Include="Framework\Net451\PreparedStatementsSharedMemory.cs" />
-    <Compile Include="Framework\Net451\PreparedStatementsSharedMemoryCompressed.cs" />
-    <Compile Include="Framework\Net451\PreparedStatementsSocketCompressed.cs" />
-    <Compile Include="Framework\Net451\ProcedureParameterTests.cs" />
-    <Compile Include="Framework\Net451\ReplicationTests.cs" />
-    <Compile Include="Framework\Net451\ScriptExecution.cs" />
-    <Compile Include="Framework\Net451\SetUp.cs" />
     <Compile Include="MySqlConnectionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Framework\Net451\SimpleTransactions.cs" />
-    <Compile Include="Framework\Net451\SqlServerMode.cs" />
-    <Compile Include="Framework\Net451\SqlTokenizer.cs" />
-    <Compile Include="Framework\Net451\StoredProcedure.cs" />
-    <Compile Include="Framework\Net451\StoredProcedureWithAccess.cs" />
-    <Compile Include="Framework\Net451\Syntax.cs" />
-    <Compile Include="Framework\Net451\Syntax2.cs" />
-    <Compile Include="Framework\Net451\TableCaching.cs" />
-    <Compile Include="Framework\Net451\ThreadingTests.cs" />
-    <Compile Include="Framework\Net451\TimeoutAndCancel.cs" />
-    <Compile Include="Framework\Net451\TimeoutAndCancelPipe.cs" />
-    <Compile Include="Framework\Net451\TimeoutAndCancelSharedMemory.cs" />
-    <Compile Include="Framework\Net451\TimeoutAndCancelSocketCompressed.cs" />
-    <Compile Include="Framework\Net451\Tokenizer.cs" />
-    <Compile Include="Framework\Net451\Transactions.cs" />
-    <Compile Include="Framework\Net451\TypeTests.cs" />
-    <Compile Include="Framework\Net451\UsageAdvisorTests.cs" />
-    <Compile Include="Framework\Net451\Utils.cs" />
     <Compile Include="TestBase.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Framework\Net451\client.pfx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="MySql.Data.Tests.project.json" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Properties\Setup.sql" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Framework\Net451\client.pfx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\MySql.Data\MySql.Data.csproj">
-      <Project>{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}</Project>
+      <Project>{e9df5ed1-4cbd-4226-b931-9a51610ac14d}</Project>
       <Name>MySql.Data</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+    <Content Include="Properties\Setup.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
