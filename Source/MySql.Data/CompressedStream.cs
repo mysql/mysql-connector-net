@@ -1,4 +1,4 @@
-﻿// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright � 2004, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,10 +20,11 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.MySqlClient.Common;
 using System;
 using System.IO;
-using System.IO.Compression;
-using MySql.Data.MySqlClient.Common;
+using zlib;
+
 
 namespace MySql.Data.MySqlClient
 {
@@ -33,52 +34,69 @@ namespace MySql.Data.MySqlClient
   internal class CompressedStream : Stream
   {
     // writing fields
-    private readonly Stream _baseStream;
-    private readonly MemoryStream _cache;
+    private Stream baseStream;
+    private MemoryStream cache;
 
     // reading fields
-    private readonly byte[] _localByte;
-    private byte[] _inBuffer;
-    private readonly byte[] _lengthBytes;
-    private WeakReference _inBufferRef;
-    private int _inPos;
-    private int _maxInPos;
-    //private ZInputStream zInStream;
-    private GZipStream _gZipStream;
+    private byte[] localByte;
+    private byte[] inBuffer;
+    private byte[] lengthBytes;
+    private WeakReference inBufferRef;
+    private int inPos;
+    private int maxInPos;
+    private ZInputStream zInStream;
 
     public CompressedStream(Stream baseStream)
     {
-      _baseStream = baseStream;
-      _localByte = new byte[1];
-      _lengthBytes = new byte[7];
-      _cache = new MemoryStream();
-      _inBufferRef = new WeakReference(_inBuffer, false);
+      this.baseStream = baseStream;
+      localByte = new byte[1];
+      lengthBytes = new byte[7];
+      cache = new MemoryStream();
+      inBufferRef = new WeakReference(inBuffer, false);
     }
 
     #region Properties
 
 
-    public override bool CanRead => _baseStream.CanRead;
+    public override bool CanRead
+    {
+      get { return baseStream.CanRead; }
+    }
 
-    public override bool CanWrite => _baseStream.CanWrite;
+    public override bool CanWrite
+    {
+      get { return baseStream.CanWrite; }
+    }
 
-    public override bool CanSeek => _baseStream.CanSeek;
+    public override bool CanSeek
+    {
+      get { return baseStream.CanSeek; }
+    }
 
-    public override long Length => _baseStream.Length;
+    public override long Length
+    {
+      get { return baseStream.Length; }
+    }
 
     public override long Position
     {
-      get { return _baseStream.Position; }
-      set { _baseStream.Position = value; }
+      get { return baseStream.Position; }
+      set { baseStream.Position = value; }
     }
 
     #endregion
 
-    public  void Close()
+#if RT
+    public void Close()
     {
-      Dispose();
-      _baseStream.Dispose();
-      _cache.Dispose();
+      base.Dispose();
+#else
+    public override void Close()
+    {
+      base.Close();
+#endif
+      baseStream.Close();
+      cache.Dispose();
     }
 
     public override void SetLength(long value)
@@ -90,8 +108,8 @@ namespace MySql.Data.MySqlClient
     {
       try
       {
-        Read(_localByte, 0, 1);
-        return _localByte[0];
+        Read(localByte, 0, 1);
+        return localByte[0];
       }
       catch (EndOfStreamException)
       {
@@ -99,17 +117,23 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    public override bool CanTimeout => _baseStream.CanTimeout;
+    public override bool CanTimeout
+    {
+      get
+      {
+        return baseStream.CanTimeout;
+      }
+    }
 
     public override int ReadTimeout
     {
       get
       {
-        return _baseStream.ReadTimeout;
+        return baseStream.ReadTimeout;
       }
       set
       {
-        _baseStream.ReadTimeout = value;
+        baseStream.ReadTimeout = value;
       }
     }
 
@@ -117,39 +141,43 @@ namespace MySql.Data.MySqlClient
     {
       get
       {
-        return _baseStream.WriteTimeout;
+        return baseStream.WriteTimeout;
       }
       set
       {
-        _baseStream.WriteTimeout = value;
+        baseStream.WriteTimeout = value;
       }
     }
 
     public override int Read(byte[] buffer, int offset, int count)
     {
       if (buffer == null)
-        throw new ArgumentNullException(nameof(buffer), Resources.BufferCannotBeNull);
+        throw new ArgumentNullException("buffer", Resources.BufferCannotBeNull);
       if (offset < 0 || offset >= buffer.Length)
-        throw new ArgumentOutOfRangeException(nameof(offset), Resources.OffsetMustBeValid);
+        throw new ArgumentOutOfRangeException("offset", Resources.OffsetMustBeValid);
       if ((offset + count) > buffer.Length)
-        throw new ArgumentException(Resources.BufferNotLargeEnough, nameof(buffer));
+        throw new ArgumentException(Resources.BufferNotLargeEnough, "buffer");
 
-      if (_inPos == _maxInPos)
+      if (inPos == maxInPos)
         PrepareNextPacket();
 
-      int countToRead = Math.Min(count, _maxInPos - _inPos);
+      int countToRead = Math.Min(count, maxInPos - inPos);
       int countRead;
-      countRead = _gZipStream?.Read(buffer, offset, countToRead) ?? _baseStream.Read(buffer, offset, countToRead);
-      _inPos += countRead;
+      if (zInStream != null)
+        countRead = zInStream.read(buffer, offset, countToRead);
+      else
+        countRead = baseStream.Read(buffer, offset, countToRead);
+      inPos += countRead;
 
       // release the weak reference
-      if (_inPos == _maxInPos)
+      if (inPos == maxInPos)
       {
-        _gZipStream = null;
-        if (Platform.IsMono()) return countRead;
-
-        _inBufferRef = new WeakReference(_inBuffer, false);
-        _inBuffer = null;
+        zInStream = null;
+        if (!Platform.IsMono())
+        {
+          inBufferRef = new WeakReference(inBuffer, false);
+          inBuffer = null;
+        }
       }
 
       return countRead;
@@ -157,53 +185,53 @@ namespace MySql.Data.MySqlClient
 
     private void PrepareNextPacket()
     {
-      MySqlStream.ReadFully(_baseStream, _lengthBytes, 0, 7);
-      int compressedLength = _lengthBytes[0] + (_lengthBytes[1] << 8) + (_lengthBytes[2] << 16);
+      MySqlStream.ReadFully(baseStream, lengthBytes, 0, 7);
+      int compressedLength = lengthBytes[0] + (lengthBytes[1] << 8) + (lengthBytes[2] << 16);
       // lengthBytes[3] is seq
-      int unCompressedLength = _lengthBytes[4] + (_lengthBytes[5] << 8) +
-                   (_lengthBytes[6] << 16);
+      int unCompressedLength = lengthBytes[4] + (lengthBytes[5] << 8) +
+                   (lengthBytes[6] << 16);
 
       if (unCompressedLength == 0)
       {
         unCompressedLength = compressedLength;
-        _gZipStream = null;
+        zInStream = null;
       }
       else
       {
         ReadNextPacket(compressedLength);
-        MemoryStream ms = new MemoryStream(_inBuffer);
-        _gZipStream = new GZipStream(ms, CompressionLevel.Optimal);
-        //gZipStream.maxInput = compressedLength;
+        MemoryStream ms = new MemoryStream(inBuffer);
+        zInStream = new ZInputStream(ms);
+        zInStream.maxInput = compressedLength;
       }
 
-      _inPos = 0;
-      _maxInPos = unCompressedLength;
+      inPos = 0;
+      maxInPos = unCompressedLength;
     }
 
     private void ReadNextPacket(int len)
     {
       if (!Platform.IsMono())
-        _inBuffer = _inBufferRef.Target as byte[];
+        inBuffer = inBufferRef.Target as byte[];
 
-      if (_inBuffer == null || _inBuffer.Length < len)
-        _inBuffer = new byte[len];
-      MySqlStream.ReadFully(_baseStream, _inBuffer, 0, len);
+      if (inBuffer == null || inBuffer.Length < len)
+        inBuffer = new byte[len];
+      MySqlStream.ReadFully(baseStream, inBuffer, 0, len);
     }
 
     private MemoryStream CompressCache()
     {
       // small arrays almost never yeild a benefit from compressing
-      if (_cache.Length < 50)
+      if (cache.Length < 50)
         return null;
 
-      byte[] cacheBytes = _cache.ToArray();//.GetBuffer();
+      byte[] cacheBytes = cache.GetBuffer();
       MemoryStream compressedBuffer = new MemoryStream();
-      GZipStream zos = new GZipStream(compressedBuffer, CompressionLevel.Optimal);
-      zos.Write(cacheBytes, 0, (int)_cache.Length);
-      zos.Flush();
+      ZOutputStream zos = new ZOutputStream(compressedBuffer, zlibConst.Z_DEFAULT_COMPRESSION);
+      zos.Write(cacheBytes, 0, (int)cache.Length);
+      zos.finish();
 
       // if the compression hasn't helped, then just return null
-      if (compressedBuffer.Length >= _cache.Length)
+      if (compressedBuffer.Length >= cache.Length)
         return null;
       return compressedBuffer;
     }
@@ -213,7 +241,7 @@ namespace MySql.Data.MySqlClient
       long compressedLength, uncompressedLength;
 
       // we need to save the sequence byte that is written
-      byte[] cacheBuffer = _cache.ToArray();
+      byte[] cacheBuffer = cache.GetBuffer();
       byte seq = cacheBuffer[3];
       cacheBuffer[3] = 0;
 
@@ -226,14 +254,14 @@ namespace MySql.Data.MySqlClient
 
       if (compressedBuffer == null)
       {
-        compressedLength = _cache.Length;
+        compressedLength = cache.Length;
         uncompressedLength = 0;
-        memStream = _cache;
+        memStream = cache;
       }
       else
       {
         compressedLength = compressedBuffer.Length;
-        uncompressedLength = _cache.Length;
+        uncompressedLength = cache.Length;
         memStream = compressedBuffer;
       }
 
@@ -242,7 +270,7 @@ namespace MySql.Data.MySqlClient
       int bytesToWrite = (int)dataLength + 7;
       memStream.SetLength(bytesToWrite);
 
-      byte[] buffer = memStream.ToArray();
+      byte[] buffer = memStream.GetBuffer();
       Array.Copy(buffer, 0, buffer, 7, (int)dataLength);
 
       // Write length prefix
@@ -254,10 +282,13 @@ namespace MySql.Data.MySqlClient
       buffer[5] = (byte)((uncompressedLength >> 8) & 0xff);
       buffer[6] = (byte)((uncompressedLength >> 16) & 0xff);
 
-      _baseStream.Write(buffer, 0, bytesToWrite);
-      _baseStream.Flush();
-      _cache.SetLength(0);
-      compressedBuffer?.Dispose();
+      baseStream.Write(buffer, 0, bytesToWrite);
+      baseStream.Flush();
+      cache.SetLength(0);
+      if (compressedBuffer != null)
+      {
+        compressedBuffer.Dispose();
+      }
     }
 
     public override void Flush()
@@ -270,27 +301,27 @@ namespace MySql.Data.MySqlClient
     private bool InputDone()
     {
       // if we have not done so yet, see if we can calculate how many bytes we are expecting
-      if (_baseStream is TimedStream && ((TimedStream)_baseStream).IsClosed) return false;
-      if (_cache.Length < 4) return false;
-      byte[] buf = _cache.ToArray();
+      if ( baseStream is TimedStream && (( TimedStream )baseStream ).IsClosed ) return false;
+      if (cache.Length < 4) return false;
+      byte[] buf = cache.GetBuffer();
       int expectedLen = buf[0] + (buf[1] << 8) + (buf[2] << 16);
-      if (_cache.Length < (expectedLen + 4)) return false;
+      if (cache.Length < (expectedLen + 4)) return false;
       return true;
     }
 
     public override void WriteByte(byte value)
     {
-      _cache.WriteByte(value);
+      cache.WriteByte(value);
     }
 
     public override void Write(byte[] buffer, int offset, int count)
     {
-      _cache.Write(buffer, offset, count);
+      cache.Write(buffer, offset, count);
     }
 
     public override long Seek(long offset, SeekOrigin origin)
     {
-      return _baseStream.Seek(offset, origin);
+      return baseStream.Seek(offset, origin);
     }
   }
 }
