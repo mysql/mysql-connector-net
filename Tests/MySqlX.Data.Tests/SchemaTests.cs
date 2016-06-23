@@ -25,6 +25,7 @@ using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.Relational;
 using System.Collections.Generic;
 using Xunit;
+using System.Linq;
 
 namespace MySqlX.Data.Tests
 {
@@ -51,7 +52,7 @@ namespace MySqlX.Data.Tests
     public void GetAllTables()
     {
       Collection coll = CreateCollection("coll");
-      ExecuteSQL("CREATE TABLE test.test(id int)");
+      ExecuteSQL("CREATE TABLE test(id int)");
 
       List<Table> tables = testSchema.GetTables();
       Assert.True(tables.Count == 1);
@@ -62,11 +63,17 @@ namespace MySqlX.Data.Tests
     {
       Collection coll = CreateCollection("coll");
 
-      ExecuteSQL("CREATE TABLE test.test(id int)");
-      ExecuteSQL("CREATE VIEW test.view1 AS select * from test.test");
+      ExecuteSQL("CREATE TABLE test(id int)");
+      ExecuteSQL("CREATE VIEW view1 AS select * from test");
+      ExecuteSQL("CREATE VIEW view2 AS select * from test");
 
-      List<View> views = testSchema.GetViews();
-      Assert.True(views.Count == 1);
+      List<Table> tables = testSchema.GetTables();
+      Assert.Equal(3, tables.Count);
+      Assert.Equal(1, tables.Count(i => !i.IsView));
+      Assert.Equal(2, tables.Count(i => i.IsView));
+
+      List<Collection> colls = testSchema.GetCollections();
+      Assert.Equal(1, colls.Count);
     }
 
     [Fact]

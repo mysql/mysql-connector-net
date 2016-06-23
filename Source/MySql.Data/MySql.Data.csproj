@@ -316,7 +316,6 @@
     <Compile Include="X\XDevAPI\Relational\TableInsertStatement.cs" />
     <Compile Include="X\XDevAPI\Relational\TableSelectStatement.cs" />
     <Compile Include="X\XDevAPI\Relational\TableUpdateStatement.cs" />
-    <Compile Include="X\XDevAPI\Relational\View.cs" />
     <Compile Include="X\XDevAPI\Schema.cs" />
     <Compile Include="X\XDevAPI\Session.cs" />
     <Compile Include="zlib\Adler32.cs" />

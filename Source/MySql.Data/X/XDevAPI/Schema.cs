@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -61,16 +61,7 @@ namespace MySqlX.XDevAPI
     /// <returns>List<Table></returns>
     public List<Table> GetTables()
     {
-      return Session.XSession.GetObjectList<Table>(this, "TABLE");
-    }
-
-    /// <summary>
-    /// Returns list of all views in this schema
-    /// </summary>
-    /// <returns>List<View></returns>
-    public List<View> GetViews()
-    {
-      return Session.XSession.GetObjectList<View>(this, "VIEW");
+      return Session.XSession.GetObjectList<Table>(this, "TABLE", "VIEW");
     }
 
     #endregion
@@ -121,16 +112,6 @@ namespace MySqlX.XDevAPI
     public Table GetTable(string name)
     {
       return new Table(this, name);
-    }
-
-    /// <summary>
-    /// Gets a view object. Upon return the object may or may not be valid.
-    /// </summary>
-    /// <param name="name">Name of the view object</param>
-    /// <returns>View object.</returns>
-    public View GetView(string name)
-    {
-      return new View(this, name);
     }
 
     #endregion

@@ -70,6 +70,7 @@
     <Compile Include="RelationalTests\TableSelectTests.cs" />
     <Compile Include="RelationalTests\TableUpdateTests.cs" />
     <Compile Include="CrudTests\CrudGCTests.cs" />
+    <Compile Include="RelationalTests\ViewTests.cs" />
     <Compile Include="TransactionTests.cs" />
     <Compile Include="BaseTest.cs" />
     <Compile Include="BasicFindTests.cs" />

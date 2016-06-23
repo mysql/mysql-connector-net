@@ -79,20 +79,20 @@ namespace MySqlX.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &apos;{0}&apos; is not a valid connection string attribute..
-        /// </summary>
-        internal static string InvalidConnectionStringAttribute {
-            get {
-                return ResourceManager.GetString("InvalidConnectionStringAttribute", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to The connection string is invalid..
         /// </summary>
         internal static string InvalidConnectionString {
             get {
                 return ResourceManager.GetString("InvalidConnectionString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}&apos; is not a valid connection string attribute..
+        /// </summary>
+        internal static string InvalidConnectionStringAttribute {
+            get {
+                return ResourceManager.GetString("InvalidConnectionStringAttribute", resourceCulture);
             }
         }
         
@@ -156,6 +156,15 @@ namespace MySqlX.Properties {
         internal static string NoMoreData {
             get {
                 return ResourceManager.GetString("NoMoreData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Object &apos;{0}&apos; not found.
+        /// </summary>
+        internal static string NoObjectFound {
+            get {
+                return ResourceManager.GetString("NoObjectFound", resourceCulture);
             }
         }
         

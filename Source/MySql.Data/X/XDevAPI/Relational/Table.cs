@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -26,10 +26,36 @@ using MySqlX.XDevAPI.Relational;
 namespace MySqlX.XDevAPI.Relational
 {
   /// <summary>
-  /// Represents a server Table
+  /// Represents a server Table or View
   /// </summary>
   public class Table : DatabaseObject
   {
+    private bool? isView;
+
+    /// <summary>
+    /// Property to identify whether the object is a View (True)
+    /// or a Table (False).
+    /// </summary>
+    public bool IsView {
+      get
+      {
+        return CheckIsView();
+      }
+    }
+
+    private bool CheckIsView()
+    {
+      if (!isView.HasValue)
+        isView = Session.XSession.GetObjectType(Schema, Name).ToUpperInvariant() == "VIEW";
+      return isView.Value;
+    }
+
+    internal Table(Schema schema, string name, bool isView)
+      : base(schema, name)
+    {
+      this.isView = isView;
+    }
+
     internal Table(Schema schema, string name)
       : base(schema, name)
     {

@@ -220,21 +220,45 @@ namespace MySqlX.Session
       return new Result(this);
     }
 
-    public List<T> GetObjectList<T>(Schema s, string type)
+    public List<T> GetObjectList<T>(Schema s, params string[] types)
     {
+      for (int i = 0; i < types.Length; i++)
+        types[i] = types[i].ToUpperInvariant();
       RowResult result = GetRowResult("list_objects", s.Name);
       var rows = result.FetchAll();
 
       List<T> docs = new List<T>();
       foreach (var row in rows)
       {
-        if (row.GetString("type") != type) continue;
+        if (!types.Contains(row.GetString("type").ToUpperInvariant())) continue;
+
+        List<object> parameters = new List<object>(new object[] { s, row.GetString("name") });
+
+        switch (row.GetString("type").ToUpperInvariant())
+        {
+          case "TABLE":
+            parameters.Add(false);
+            break;
+          case "VIEW":
+            parameters.Add(true);
+            break;
+        }
         T t = (T)Activator.CreateInstance(typeof(T),
           BindingFlags.NonPublic | BindingFlags.Instance,
-          null, new object[] { s, row.GetString("name") }, null);
+          null, parameters.ToArray(), null);
         docs.Add(t);
       }
       return docs;
+    }
+
+    public string GetObjectType(Schema s, string name)
+    {
+      RowResult result = GetRowResult("list_objects", s.Name, name);
+      var row = result.FetchOne();
+      if (row == null)
+        throw new MySqlException(string.Format(Properties.ResourcesX.NoObjectFound, name));
+      System.Diagnostics.Debug.Assert(result.FetchOne() == null);
+      return row.GetString("type");
     }
 
     public RowResult GetRowResult(string cmd, params object[] args)
