@@ -32,7 +32,7 @@
     },
     "xunit": "2.1.0",
     "dotnet-test-xunit": "1.0.0-*",
-    "MySql.Data": "1.0.0-alpha-*"
+    "MySql.Data": "6.10.0-alpha-*"
   },
 
   "testRunner": "xunit",

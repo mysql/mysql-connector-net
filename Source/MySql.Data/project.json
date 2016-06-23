@@ -41,7 +41,8 @@
         "common/NativeMethods.cs",
         "common/SHA1.cs",
         "common/SharedMemoryStream.cs",
-        "common/SocketStream.cs"
+        "common/SocketStream.cs",
+        "CompressedStream.cs"
       ]
     },
     "optimize": true,

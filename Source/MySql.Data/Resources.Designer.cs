@@ -8,6 +8,8 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using System.Reflection;
+
 namespace MySql.Data {
     using System;
     
