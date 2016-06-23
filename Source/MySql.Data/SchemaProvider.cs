@@ -224,7 +224,7 @@ namespace MySql.Data.MySqlClient
           row["EXTRA"] = reader.GetString(6);
           row["PRIVILEGES"] = reader.GetString(7);
           row["COLUMN_COMMENT"] = reader.GetString(8);
-          row["GENERATION_EXPRESION"] = reader.GetString(6).Contains("VIRTUAL") ? reader.GetString(9) : string.Empty;                     
+          row["GENERATION_EXPRESION"] = reader.GetString(6).Contains("VIRTUAL") ? reader.GetString(9) : string.Empty;
           ParseColumnRow(row);
         }
       }
@@ -455,7 +455,7 @@ namespace MySql.Data.MySqlClient
       string sqlMode = GetSqlMode();
 
       if (filterName != null)
-        filterName = StringUtility.ToLowerInvariant(filterName); 
+        filterName = StringUtility.ToLowerInvariant(filterName);
 
       string sql = string.Format("SHOW CREATE TABLE `{0}`.`{1}`",
                      tableToParse["TABLE_SCHEMA"], tableToParse["TABLE_NAME"]);
@@ -839,31 +839,22 @@ namespace MySql.Data.MySqlClient
     private static MySqlSchemaCollection GetReservedWords()
     {
       MySqlSchemaCollection dt = new MySqlSchemaCollection("ReservedWords");
+      string reservedwords = Utils.ReadResource("MySqlClient/keywords.txt");
 #if !NETCORE10
       dt.AddColumn(DbMetaDataColumnNames.ReservedWord, typeof(string));
-      Stream str = Assembly.GetExecutingAssembly().GetManifestResourceStream(
-        "MySql.Data.MySqlClient.Properties.ReservedWords.txt");
 #else
       dt.AddColumn("ReservedWord", typeof(string));
-      Stream str = typeof(SchemaProvider).GetTypeInfo().Assembly.GetManifestResourceStream("ReservedWords.txt");
 #endif
-      StreamReader sr = new StreamReader(str);
+
+      StringReader sr = new StringReader(reservedwords);
       string line = sr.ReadLine();
       while (line != null)
       {
-        string[] keywords = line.Split(new char[] { ' ' });
-        foreach (string s in keywords)
-        {
-          if (String.IsNullOrEmpty(s)) continue;
-          MySqlSchemaRow row = dt.AddRow();
-          row[0] = s;
-        }
+        MySqlSchemaRow row = dt.AddRow();
+        row[0] = line;
         line = sr.ReadLine();
       }
       sr.Dispose();
-#if !NETCORE10
-      str.Close();
-#endif
 
       return dt;
     }

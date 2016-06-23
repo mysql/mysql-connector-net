@@ -17,7 +17,7 @@
   "buildOptions": {
     "define": [ "NETCORE10" ],
     "warningsAsErrors": false,
-    "embed": [ "Properties/ReservedWords.txt" ],
+    "embed": [ "keywords.txt" ],
     "resource": [ "**/*.resx" ],
     "compile": {
       "exclude": [

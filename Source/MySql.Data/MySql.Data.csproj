@@ -207,6 +207,7 @@
     <Compile Include="Types\MySqlUInt32.cs" />
     <Compile Include="Types\MySqlUInt64.cs" />
     <Compile Include="Types\MySqlValue.cs" />
+    <Compile Include="Utils.cs" />
     <Compile Include="zlib\Adler32.cs" />
     <Compile Include="zlib\Deflate.cs" />
     <Compile Include="zlib\InfBlocks.cs" />
@@ -223,13 +224,14 @@
     <Compile Include="zlib\ZStreamException.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Properties\ReservedWords.txt" />
     <EmbeddedResource Include="Resources.resx">
       <CustomToolNamespace>MySql.Data</CustomToolNamespace>
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="keywords.txt" />
+    <EmbeddedResource Include="keywords.txt">
+      <CustomToolNamespace>MySql.Data</CustomToolNamespace>
+    </EmbeddedResource>
     <None Include="MySql.Data.project.json" />
   </ItemGroup>
   <ItemGroup>
