@@ -29,24 +29,32 @@ namespace MySql.Data.MySqlClient.Tests
   {
 
     protected static string databaseName;
-    protected MySqlConnectionStringBuilder Settings;
+    protected static MySqlConnectionStringBuilder Settings;
+    protected static MySqlConnection root;
+    protected MySqlConnection connection;
 
     static TestBase()
     {
       databaseName = "db0";
-    }
 
-    public TestBase()
-    {
       Settings = new MySqlConnectionStringBuilder();
       Settings.Server = "localhost";
-      Settings.UserID = "user0";
-      Settings.Password = "pwd";
+      Settings.UserID = "root";
+      Settings.Password = "";
       Settings.Database = "mysql";
       Settings.AllowUserVariables = true;
       Settings.Pooling = false;
       Settings.PersistSecurityInfo = true;
+      root = new MySqlConnection(Settings.GetConnectionString(true));
+      root.Open();
 
+      Settings.UserID = "user0";
+      Settings.Password = "pwd";
+      Settings.Database = databaseName;
+    }
+
+    public TestBase()
+    {
       // cleanup
       for (int x = 0; x < 3; x++)
       {
@@ -60,7 +68,10 @@ namespace MySql.Data.MySqlClient.Tests
       executeAsRoot(String.Format("GRANT ALL ON *.* TO 'user0'@'localhost'", databaseName));
       executeAsRoot("FLUSH PRIVILEGES");
 
+
       Settings.Database = databaseName;
+      connection = new MySqlConnection(Settings.GetConnectionString(true));
+      connection.Open();
     }
 
     private List<string> GetUserList(bool includeRoot)
@@ -92,19 +103,21 @@ namespace MySql.Data.MySqlClient.Tests
       return GetConnection(true);
     }
 
-    protected void executeSQL(string sql, bool asRoot = false)
+    private void executeInternal(string sql, MySqlConnection conn)
     {
-      using (var conn = GetConnection(asRoot))
-      {
-        conn.Open();
-        MySqlCommand cmd = new MySqlCommand(sql, conn);
-        cmd.ExecuteNonQuery();
-      }
+      var cmd = conn.CreateCommand();
+      cmd.CommandText = sql;
+      cmd.ExecuteNonQuery();
+    }
+
+    protected void executeSQL(string sql)
+    {
+      executeInternal(sql, connection);
     }
 
     protected void executeAsRoot(string sql)
     {
-      executeSQL(sql, true);
+      executeInternal(sql, root);
     }
 
     protected MySqlDataReader ExecuteReaderAsRoot(string sql)

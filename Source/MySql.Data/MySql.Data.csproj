@@ -112,7 +112,6 @@
     <Compile Include="common\StreamCreator.cs" />
     <Compile Include="common\StringUtility.cs" />
     <Compile Include="common\Version.cs" />
-    <Compile Include="CompressedStream.cs" />
     <Compile Include="Connection.cs" />
     <Compile Include="Crypt.cs" />
     <Compile Include="dataadapter.cs" />
@@ -183,7 +182,6 @@
     <Compile Include="StoredProcedure.cs" />
     <Compile Include="SystemPerformanceMonitor.cs" />
     <Compile Include="TableCache.cs" />
-    <Compile Include="TimedStream.cs" />
     <Compile Include="TracingDriver.cs" />
     <Compile Include="transaction.cs" />
     <Compile Include="Types\MetaData.cs" />

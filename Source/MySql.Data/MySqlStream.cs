@@ -35,11 +35,12 @@ namespace MySql.Data.MySqlClient
   {
     private readonly byte[] _packetHeader = new byte[4];
     private readonly MySqlPacket _packet;
-    private readonly TimedStream _timedStream;
-    private readonly Stream _inStream;
-    private readonly Stream _outStream;
+    private readonly Stream stream;
+//    private readonly TimedStream _timedStream;
+  //  private readonly Stream _inStream;
+    //private readonly Stream _outStream;
 
-    internal Stream BaseStream => _timedStream;
+    //internal Stream BaseStream => _timedStream;
 
     public MySqlStream(Encoding encoding)
     {
@@ -59,37 +60,43 @@ namespace MySql.Data.MySqlClient
     public MySqlStream(Stream baseStream, Encoding encoding, bool compress)
       : this(encoding)
     {
-      _timedStream = new TimedStream(baseStream);
-      Stream stream;
-#if !NETCORE10
-      //TODO: ADD SUPPORT FOR 452 AND 46X
-      if (compress)
-        stream = new CompressedStream(_timedStream);
-      else
-#endif
-        stream = _timedStream;
+      stream = baseStream;
+//      _timedStream = new TimedStream(baseStream);
+//      Stream stream;
+//#if !NETCORE10
+//      //TODO: ADD SUPPORT FOR 452 AND 46X
+//      if (compress)
+//        stream = new CompressedStream(_timedStream);
+//      else
+//#endif
+//        stream = _timedStream;
 
-#if NETCORE10
-      _inStream = baseStream;
-#else
-      _inStream = new BufferedStream(stream);
-#endif
-      _outStream = stream;
+//#if NETCORE10
+//      _inStream = baseStream;
+//#else
+//      _inStream = new BufferedStream(stream);
+//#endif
+//      _outStream = stream;
     }
 
     public void Close()
     {
 #if NETCORE10
-      _outStream.Dispose();
-      _inStream.Dispose();
+      stream.Dispose();
 #else
-      _outStream.Close();
-      _inStream.Close();
+      stream.Close();
 #endif
-      _timedStream.Close();
+      //#if NETCORE10
+      //      _outStream.Dispose();
+      //      _inStream.Dispose();
+      //#else
+      //      _outStream.Close();
+      //      _inStream.Close();
+      //#endif
+      //      _timedStream.Close();
     }
 
-    #region Properties
+#region Properties
 
     public Encoding Encoding
     {
@@ -99,7 +106,8 @@ namespace MySql.Data.MySqlClient
 
     public void ResetTimeout(int timeout)
     {
-      _timedStream.ResetTimeout(timeout);
+      //TODO: fix this
+     // _timedStream.ResetTimeout(timeout);
     }
 
     public byte SequenceByte { get; set; }
@@ -108,9 +116,9 @@ namespace MySql.Data.MySqlClient
 
     public ulong MaxPacketSize { get; set; }
 
-    #endregion
+#endregion
 
-    #region Packet methods
+#region Packet methods
 
     /// <summary>
     /// ReadPacket is called by NativeDriver to start reading the next
@@ -124,22 +132,7 @@ namespace MySql.Data.MySqlClient
       //Debug.Assert(HasMoreData == false, "HasMoreData is true in OpenPacket");
 
       LoadPacket();
-
-      // now we check if this packet is a server error
-      if (_packet.Buffer[0] != 0xff) return _packet;
-
-      _packet.ReadByte();  // read off the 0xff
-
-      int code = _packet.ReadInteger(2);
-      string msg = String.Empty;
-
-      msg = _packet.Version.isAtLeast(5, 5, 0) ? _packet.ReadString(Encoding.UTF8) : _packet.ReadString();
-
-      if (!msg.StartsWith("#", StringComparison.Ordinal)) throw new MySqlException(msg, code);
-
-      msg.Substring(1, 5);  /* state code */
-      msg = msg.Substring(6);
-      throw new MySqlException(msg, code);
+      return _packet;
     }
 
     /// <summary>
@@ -178,7 +171,7 @@ namespace MySql.Data.MySqlClient
         int offset = 0;
         while (true)
         {
-          ReadFully(_inStream, _packetHeader, 0, 4);
+          ReadFully(stream, _packetHeader, 0, 4);
           SequenceByte = (byte)(_packetHeader[3] + 1);
           int length = (int)(_packetHeader[0] + (_packetHeader[1] << 8) +
             (_packetHeader[2] << 16));
@@ -187,7 +180,7 @@ namespace MySql.Data.MySqlClient
           _packet.Length += length;
 //#if NETCORE10
           byte[] tempBuffer = new byte[length];
-          ReadFully(_inStream, tempBuffer, offset, length);
+          ReadFully(stream, tempBuffer, offset, length);
           _packet.Write(tempBuffer);
 //#else
           //ReadFully(_inStream, _packet.Buffer, offset, length);
@@ -222,8 +215,8 @@ namespace MySql.Data.MySqlClient
         buffer[offset + 2] = (byte)((lenToSend >> 16) & 0xff);
         buffer[offset + 3] = SequenceByte++;
 
-        _outStream.Write(buffer, offset, lenToSend + 4);
-        _outStream.Flush();
+        stream.Write(buffer, offset, lenToSend + 4);
+        stream.Flush();
         length -= lenToSend;
         offset += lenToSend;
       }
@@ -235,10 +228,10 @@ namespace MySql.Data.MySqlClient
       buffer[1] = (byte)((count >> 8) & 0xff);
       buffer[2] = (byte)((count >> 16) & 0xff);
       buffer[3] = SequenceByte++;
-      _outStream.Write(buffer, 0, count + 4);
-      _outStream.Flush();
+      stream.Write(buffer, 0, count + 4);
+      stream.Flush();
     }
 
-    #endregion
+#endregion
   }
 }

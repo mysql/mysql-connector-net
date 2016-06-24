@@ -747,20 +747,23 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE test(key2 varchar(50), name varchar(50), name2 varchar(50))");
 
       var conn = GetConnection();
-      conn.Open();
-      var txn = conn.BeginTransaction();
-      Assert.Equal(conn, txn.Connection);
+      using (conn)
+      {
+        conn.Open();
+        var txn = conn.BeginTransaction();
+        Assert.Equal(conn, txn.Connection);
 
-      var cmd = conn.CreateCommand();
-      cmd.CommandText = "SET AUTOCOMMIT=0";
-      cmd.ExecuteNonQuery();
+        var cmd = conn.CreateCommand();
+        cmd.CommandText = "SET AUTOCOMMIT=0";
+        cmd.ExecuteNonQuery();
 
-      cmd.CommandText = "INSERT INTO test VALUES ('P', 'Test1', 'Test2')";
-      cmd.ExecuteNonQuery();
-      txn.Rollback();
-      cmd.CommandText = "SELECT COUNT(*) FROM test";
-      long cnt = (long)cmd.ExecuteScalar();
-      Assert.True(cnt == 0);
+        cmd.CommandText = "INSERT INTO test VALUES ('P', 'Test1', 'Test2')";
+        cmd.ExecuteNonQuery();
+        txn.Rollback();
+        cmd.CommandText = "SELECT COUNT(*) FROM test";
+        long cnt = (long)cmd.ExecuteScalar();
+        Assert.True(cnt == 0);
+      }
     }
 
     [Fact]

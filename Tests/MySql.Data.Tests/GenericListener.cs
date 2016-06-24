@@ -30,17 +30,16 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class GenericListener : TraceListener
   {
-
-    StringCollection strings;
+    List<string> strings;
     StringBuilder partial;
 
     public GenericListener()
     {
-      strings = new StringCollection();
+      strings = new List<string>();
       partial = new StringBuilder();
     }
 
-    public StringCollection Strings
+    public List<string> Strings
     {
       get { return strings; }
     }

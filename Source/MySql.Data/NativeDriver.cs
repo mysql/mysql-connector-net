@@ -100,7 +100,23 @@ namespace MySql.Data.MySqlClient
 
     internal MySqlPacket ReadPacket()
     {
-      return Packet = stream.ReadPacket();
+      MySqlPacket packet = stream.ReadPacket();
+
+      // now we check if this packet is a server error
+      if (packet.Buffer[0] != 0xff) return packet;
+
+      packet.Encoding = Encoding;
+      packet.ReadByte();  // read off the 0xff
+      int code = packet.ReadInteger(2);
+      string msg = String.Empty;
+
+      msg = packet.Version.isAtLeast(5, 5, 0) ? packet.ReadString(Encoding.UTF8) : packet.ReadString();
+
+      if (!msg.StartsWith("#", StringComparison.Ordinal)) throw new MySqlException(msg, code);
+
+      msg.Substring(1, 5);  /* state code */
+      msg = msg.Substring(6);
+      throw new MySqlException(msg, code);
     }
 
     internal void ReadOk(bool read)
@@ -108,7 +124,7 @@ namespace MySql.Data.MySqlClient
       try
       {
         if (read)
-          Packet = stream.ReadPacket();
+          Packet = ReadPacket();
         byte marker = Packet.ReadByte();
         if (marker != 0)
         {
@@ -188,7 +204,7 @@ namespace MySql.Data.MySqlClient
       stream.ResetTimeout((int)Settings.ConnectionTimeout * 1000);
 
       // read off the welcome packet and parse out it's values
-      Packet = stream.ReadPacket();
+      Packet = ReadPacket();
       int protocol = Packet.ReadByte();
       string versionString = Packet.ReadString();
       isEnterprise = versionString.ToLowerInvariant().Contains("-enterprise-");
@@ -536,7 +552,7 @@ namespace MySql.Data.MySqlClient
     {
       try
       {
-        Packet = stream.ReadPacket();
+        Packet = ReadPacket();
       }
       catch (TimeoutException)
       {
@@ -661,7 +677,7 @@ namespace MySql.Data.MySqlClient
     private void GetColumnData(MySqlField field)
     {
       stream.Encoding = Encoding;
-      Packet = stream.ReadPacket();
+      Packet = ReadPacket();
       field.Encoding = Encoding;
       field.CatalogName = Packet.ReadLenString();
       field.DatabaseName = Packet.ReadLenString();
@@ -743,7 +759,7 @@ namespace MySql.Data.MySqlClient
 
     private void ReadEOF()
     {
-      Packet = stream.ReadPacket();
+      Packet = ReadPacket();
       CheckEOF();
     }
 
@@ -759,7 +775,7 @@ namespace MySql.Data.MySqlClient
       buffer[4] = (byte)DBCmd.PREPARE;
       ExecutePacket(Packet);
 
-      Packet = stream.ReadPacket();
+      Packet = ReadPacket();
 
       int marker = Packet.ReadByte();
       if (marker != 0)
@@ -783,7 +799,7 @@ namespace MySql.Data.MySqlClient
       {
         while (numCols-- > 0)
         {
-          Packet = stream.ReadPacket();
+          Packet = ReadPacket();
           //TODO: handle streaming packets
         }
 
@@ -831,7 +847,7 @@ namespace MySql.Data.MySqlClient
 
                   lastCommandResult = statementId;
                       */
-      Packet = stream.ReadPacket();
+      Packet = ReadPacket();
       if (Packet.IsLastPacket)
       {
         CheckEOF();

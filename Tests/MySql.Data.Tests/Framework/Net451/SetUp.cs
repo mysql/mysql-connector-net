@@ -161,7 +161,7 @@ namespace MySql.Data.MySqlClient.Tests
             if (string.IsNullOrEmpty(host))
                 host = "localhost";
             if (string.IsNullOrEmpty(portString))
-                port = 3305;
+                port = 3306;
             else
                 port = int.Parse(portString);
             if (string.IsNullOrEmpty(pipeName))
@@ -447,7 +447,7 @@ namespace MySql.Data.MySqlClient.Tests
   /// <summary>
   /// This is a companion of the previous class to allow customization before inialization code.
   /// </summary>
-  public class SpecialFixtureWithCustomConnectionString : IUseFixture<SetUpClassPerTestInit>, IDisposable
+  public class SpecialFixtureWithCustomConnectionString : IClassFixture<SetUpClassPerTestInit>, IDisposable
   {
     protected SetUpClassPerTestInit st;
 
