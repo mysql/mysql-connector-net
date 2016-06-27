@@ -21,22 +21,20 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 using System.Data;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Threading;
 using System.Threading.Tasks;
-#if NET_45_OR_GREATER
-using System.Threading.Tasks;
-#endif
+using System.ComponentModel;
 
 namespace MySql.Data.MySqlClient.Tests
 {
+  [DisplayName("cmd-tests")]
   public class MySqlCommandTests : TestBase
   {
+    public MySqlCommandTests(TestSetup setup) : base(setup)
+    {
+    }
 
     /// <summary>
     /// Tests for MySql bug #64633 - System.InvalidCastException when executing a stored function.
@@ -44,17 +42,16 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void InvalidCast()
     {
-      executeAsRoot(String.Format("CREATE FUNCTION {0}.MyTwice( val int ) RETURNS INT BEGIN return val * 2; END;", Settings.Database));
-      executeAsRoot(String.Format("CREATE PROCEDURE {0}.spMyTwice( out result int, val int ) BEGIN set result = val * 2; END;", Settings.Database));
-      executeAsRoot("CREATE USER 'user1'@'localhost' IDENTIFIED BY '123';");
-      executeAsRoot(String.Format("GRANT ALL ON {0}.* TO 'user1'@'localhost'", Settings.Database));
-      executeAsRoot("GRANT EXECUTE ON FUNCTION `MyTwice` TO 'user1'@'localhost';");
-      executeAsRoot("GRANT EXECUTE ON PROCEDURE `spMyTwice` TO 'user1'@'localhost'");
+      executeAsRoot(String.Format("CREATE FUNCTION `{0}`.`MyTwice`( val int ) RETURNS INT BEGIN return val * 2; END;", Settings.Database));
+      executeAsRoot(String.Format("CREATE PROCEDURE `{0}`.`spMyTwice`( out result int, val int ) BEGIN set result = val * 2; END;", Settings.Database));
+      string user = CreateUser("1", "123");
+      executeAsRoot(String.Format("GRANT EXECUTE ON FUNCTION `{0}`.`MyTwice` TO '{1}'@'localhost';", Settings.Database, user));
+      executeAsRoot(String.Format("GRANT EXECUTE ON PROCEDURE `{0}`.`spMyTwice` TO '{1}'@'localhost'", Settings.Database, user));
       executeAsRoot("GRANT SELECT ON TABLE mysql.proc TO 'user1'@'localhost'");
       executeAsRoot("FLUSH PRIVILEGES");
 
       MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Settings.GetConnectionString(true));
-      connStr.UserID = "user1";
+      connStr.UserID = user;
       connStr.Password = "123";
       MySqlConnection con = new MySqlConnection(connStr.GetConnectionString(true));
 
@@ -469,7 +466,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void HelperTest()
     {
-      string connStr = Settings.GetConnectionString(true);
+      string connStr = connection.ConnectionString;
       using (MySqlDataReader reader = MySqlHelper.ExecuteReader(connStr, "SHOW TABLES"))
       {
         while (reader.Read())

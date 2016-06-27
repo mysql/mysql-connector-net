@@ -21,51 +21,40 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using MySql.Data.MySqlClient;
-
 using Xunit;
-using System.Data;
 using System.IO;
-#if NET_45_OR_GREATER
-using System.Threading.Tasks;
-#endif
+using System.ComponentModel;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class MySqlBulkLoaderTests : IUseFixture<SetUpClass>, IDisposable
+  [DisplayName("bulkload")]
+  public class MySqlBulkLoaderTests : TestBase
   {
-    private SetUpClass st;
-
-    public void SetFixture(SetUpClass data)
+    public MySqlBulkLoaderTests(TestSetup setup) : base(setup)
     {
-      st = data;
     }
 
     [Fact]
     public void BulkLoadSimple()
     {
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
 
       // first create the external file
       string path = Path.GetTempFileName();
-      StreamWriter sw = new StreamWriter(path);
+      StreamWriter sw = new StreamWriter(new FileStream(path, FileMode.Create));
       for (int i = 0; i < 200; i++)
         sw.WriteLine(i + "\t'Test'");
       sw.Flush();
-      sw.Close();
+      sw.Dispose();
 
-      MySqlBulkLoader loader = new MySqlBulkLoader(st.conn);
+      MySqlBulkLoader loader = new MySqlBulkLoader(connection);
       loader.TableName = "Test";
       loader.FileName = path;
       loader.Timeout = 0;
       int count = loader.Load();
       Assert.Equal(200, count);
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", st.conn);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
+      TestDataTable dt = Utils.FillDataTable("SELECT * FROM Test", connection);
       Assert.Equal(200, dt.Rows.Count);
       Assert.Equal("'Test'", dt.Rows[0][1].ToString().Trim());
     }
@@ -73,31 +62,29 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void BulkLoadReadOnlyFile()
     {
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
 
       // first create the external file
       string path = Path.GetTempFileName();
-      StreamWriter sw = new StreamWriter(path);
+      StreamWriter sw = new StreamWriter(new FileStream(path, FileMode.Create));
       for (int i = 0; i < 200; i++)
         sw.WriteLine(i + "\t'Test'");
       sw.Flush();
-      sw.Close();
+      sw.Dispose();
 
       FileInfo fi = new FileInfo(path);
       FileAttributes oldAttr = fi.Attributes;
       fi.Attributes = fi.Attributes | FileAttributes.ReadOnly;
       try
       {
-        MySqlBulkLoader loader = new MySqlBulkLoader(st.conn);
+        MySqlBulkLoader loader = new MySqlBulkLoader(connection);
         loader.TableName = "Test";
         loader.FileName = path;
         loader.Timeout = 0;
         int count = loader.Load();
         Assert.Equal(200, count);
 
-        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", st.conn);
-        DataTable dt = new DataTable();
-        da.Fill(dt);
+        TestDataTable dt = Utils.FillDataTable("SELECT * FROM Test", connection);
         Assert.Equal(200, dt.Rows.Count);
         Assert.Equal("'Test'", dt.Rows[0][1].ToString().Trim());
       }
@@ -111,17 +98,17 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void BulkLoadSimple2()
     {
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
 
       // first create the external file
       string path = Path.GetTempFileName();
-      StreamWriter sw = new StreamWriter(path);
+      StreamWriter sw = new StreamWriter(new FileStream(path, FileMode.Create));
       for (int i = 0; i < 200; i++)
         sw.Write(i + ",'Test' xxx");
       sw.Flush();
-      sw.Close();
+      sw.Dispose();
 
-      MySqlBulkLoader loader = new MySqlBulkLoader(st.conn);
+      MySqlBulkLoader loader = new MySqlBulkLoader(connection);
       loader.TableName = "Test";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -130,24 +117,24 @@ namespace MySql.Data.MySqlClient.Tests
       int count = loader.Load();
       Assert.Equal(200, count);
 
-      MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM Test", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM Test", connection);
       Assert.Equal(200, Convert.ToInt32(cmd.ExecuteScalar()));
     }
 
     [Fact]
     public void BulkLoadSimple3()
     {
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
 
       // first create the external file
       string path = Path.GetTempFileName();
-      StreamWriter sw = new StreamWriter(path);
+      StreamWriter sw = new StreamWriter(new FileStream(path, FileMode.Create));
       for (int i = 0; i < 200; i++)
         sw.Write(i + ",'Test' xxx");
       sw.Flush();
-      sw.Close();
+      sw.Dispose();
 
-      MySqlBulkLoader loader = new MySqlBulkLoader(st.conn);
+      MySqlBulkLoader loader = new MySqlBulkLoader(connection);
       loader.TableName = "Test";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -157,18 +144,18 @@ namespace MySql.Data.MySqlClient.Tests
       int count = loader.Load();
       Assert.Equal(150, count);
 
-      MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM Test", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM Test", connection);
       Assert.Equal(150, Convert.ToInt32(cmd.ExecuteScalar()));
     }
 
     [Fact]
     public void BulkLoadSimple4()
     {
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
 
       // first create the external file
       string path = Path.GetTempFileName();
-      StreamWriter sw = new StreamWriter(path);
+      StreamWriter sw = new StreamWriter(new FileStream(path, FileMode.Create));
       for (int i = 0; i < 100; i++)
         sw.Write("aaa" + i + ",'Test' xxx");
       for (int i = 100; i < 200; i++)
@@ -178,9 +165,9 @@ namespace MySql.Data.MySqlClient.Tests
       for (int i = 300; i < 400; i++)
         sw.Write("bbb" + i + ",'Test' xxx");
       sw.Flush();
-      sw.Close();
+      sw.Dispose();
 
-      MySqlBulkLoader loader = new MySqlBulkLoader(st.conn);
+      MySqlBulkLoader loader = new MySqlBulkLoader(connection);
       loader.TableName = "Test";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -190,24 +177,24 @@ namespace MySql.Data.MySqlClient.Tests
       int count = loader.Load();
       Assert.Equal(200, count);
 
-      MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM Test", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM Test", connection);
       Assert.Equal(200, Convert.ToInt32(cmd.ExecuteScalar()));
     }
 
     [Fact]
     public void BulkLoadFieldQuoting()
     {
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), name2 VARCHAR(250), PRIMARY KEY(id))");
+      executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), name2 VARCHAR(250), PRIMARY KEY(id))");
 
       // first create the external file
       string path = Path.GetTempFileName();
-      StreamWriter sw = new StreamWriter(path);
+      StreamWriter sw = new StreamWriter(new FileStream(path, FileMode.Create));
       for (int i = 0; i < 200; i++)
         sw.WriteLine(i + "\t`col1`\tcol2");
       sw.Flush();
-      sw.Close();
+      sw.Dispose();
 
-      MySqlBulkLoader loader = new MySqlBulkLoader(st.conn);
+      MySqlBulkLoader loader = new MySqlBulkLoader(connection);
       loader.TableName = "Test";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -216,9 +203,7 @@ namespace MySql.Data.MySqlClient.Tests
       int count = loader.Load();
       Assert.Equal(200, count);
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", st.conn);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
+      TestDataTable dt = Utils.FillDataTable("SELECT * FROM Test", connection);
       Assert.Equal(200, dt.Rows.Count);
       Assert.Equal("col1", dt.Rows[0][1]);
       Assert.Equal("col2", dt.Rows[0][2].ToString().Trim());
@@ -227,17 +212,17 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void BulkLoadEscaping()
     {
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), name2 VARCHAR(250), PRIMARY KEY(id))");
+      executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), name2 VARCHAR(250), PRIMARY KEY(id))");
 
       // first create the external file
       string path = Path.GetTempFileName();
-      StreamWriter sw = new StreamWriter(path);
+      StreamWriter sw = new StreamWriter(new FileStream(path, FileMode.Create));
       for (int i = 0; i < 200; i++)
         sw.WriteLine(i + ",col1\tstill col1,col2");
       sw.Flush();
-      sw.Close();
+      sw.Dispose();
 
-      MySqlBulkLoader loader = new MySqlBulkLoader(st.conn);
+      MySqlBulkLoader loader = new MySqlBulkLoader(connection);
       loader.TableName = "Test";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -246,9 +231,7 @@ namespace MySql.Data.MySqlClient.Tests
       int count = loader.Load();
       Assert.Equal(200, count);
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", st.conn);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
+      TestDataTable dt = Utils.FillDataTable("SELECT * FROM Test", connection);
       Assert.Equal(200, dt.Rows.Count);
       Assert.Equal("col1still col1", dt.Rows[0][1]);
       Assert.Equal("col2", dt.Rows[0][2].ToString().Trim());
@@ -257,17 +240,17 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void BulkLoadConflictOptionReplace()
     {
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
 
       // first create the external file
       string path = Path.GetTempFileName();
-      StreamWriter sw = new StreamWriter(path);
+      StreamWriter sw = new StreamWriter(new FileStream(path, FileMode.Create)); 
       for (int i = 0; i < 20; i++)
         sw.WriteLine(i + ",col1");
       sw.Flush();
-      sw.Close();
+      sw.Dispose();
 
-      MySqlBulkLoader loader = new MySqlBulkLoader(st.conn);
+      MySqlBulkLoader loader = new MySqlBulkLoader(connection);
       loader.TableName = "Test";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -276,13 +259,13 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(20, count);
 
       path = Path.GetTempFileName();
-      sw = new StreamWriter(path);
+      sw = new StreamWriter(new FileStream(path, FileMode.Create));
       for (int i = 0; i < 20; i++)
         sw.WriteLine(i + ",col2");
       sw.Flush();
-      sw.Close();
+      sw.Dispose();
 
-      loader = new MySqlBulkLoader(st.conn);
+      loader = new MySqlBulkLoader(connection);
       loader.TableName = "Test";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -290,9 +273,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.ConflictOption = MySqlBulkLoaderConflictOption.Replace;
       loader.Load();
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", st.conn);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
+      TestDataTable dt = Utils.FillDataTable("SELECT * FROM Test", connection);
       Assert.Equal(20, dt.Rows.Count);
       Assert.Equal("col2", dt.Rows[0][1].ToString().Trim());
     }
@@ -300,17 +281,17 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void BulkLoadConflictOptionIgnore()
     {
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
 
       // first create the external file
       string path = Path.GetTempFileName();
-      StreamWriter sw = new StreamWriter(path);
+      StreamWriter sw = new StreamWriter(new FileStream(path, FileMode.Create));
       for (int i = 0; i < 20; i++)
         sw.WriteLine(i + ",col1");
       sw.Flush();
-      sw.Close();
+      sw.Dispose();
 
-      MySqlBulkLoader loader = new MySqlBulkLoader(st.conn);
+      MySqlBulkLoader loader = new MySqlBulkLoader(connection);
       loader.TableName = "Test";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -319,13 +300,13 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(20, count);
 
       path = Path.GetTempFileName();
-      sw = new StreamWriter(path);
+      sw = new StreamWriter(new FileStream(path, FileMode.Create));
       for (int i = 0; i < 20; i++)
         sw.WriteLine(i + ",col2");
       sw.Flush();
-      sw.Close();
+      sw.Dispose();
 
-      loader = new MySqlBulkLoader(st.conn);
+      loader = new MySqlBulkLoader(connection);
       loader.TableName = "Test";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -333,36 +314,32 @@ namespace MySql.Data.MySqlClient.Tests
       loader.ConflictOption = MySqlBulkLoaderConflictOption.Ignore;
       loader.Load();
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", st.conn);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
+      TestDataTable dt = Utils.FillDataTable("SELECT * FROM Test", connection);
       Assert.Equal(20, dt.Rows.Count);
       Assert.Equal("col1", dt.Rows[0][1].ToString().Trim());
     }
 
-#if NET_45_OR_GREATER
     #region AsyncTests
     [Fact]
     public void BulkLoadSimpleAsync()
     {
-      st.execSQL("CREATE TABLE BulkLoadSimpleAsyncTest (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      executeSQL("CREATE TABLE BulkLoadSimpleAsyncTest (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
       string path = Path.GetTempFileName();
-      StreamWriter sw = new StreamWriter(path);
+      StreamWriter sw = new StreamWriter(new FileStream(path, FileMode.Create));
       for (int i = 0; i < 500; i++)
         sw.WriteLine(i + "\t'Test'");
       sw.Flush();
-      sw.Close();
+      sw.Dispose();
 
-      MySqlBulkLoader loader = new MySqlBulkLoader(st.conn);
+      MySqlBulkLoader loader = new MySqlBulkLoader(connection);
       loader.TableName = "BulkLoadSimpleAsyncTest";
       loader.FileName = path;
       loader.Timeout = 0;
 
-      loader.LoadAsync().ContinueWith(loadResult => {
+      loader.LoadAsync().ContinueWith(loadResult => 
+      {
         int dataLoaded = loadResult.Result;
-        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM BulkLoadSimpleAsyncTest", st.conn);
-        DataTable dt = new DataTable();
-        da.Fill(dt);
+        TestDataTable dt = Utils.FillDataTable("SELECT * FROM BulkLoadSimpleAsyncTest", connection);
 
         Assert.Equal(dataLoaded, dt.Rows.Count);
         Assert.Equal("'Test'", dt.Rows[0][1].ToString().Trim());
@@ -372,31 +349,30 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void BulkLoadReadOnlyFileAsync()
     {
-      st.execSQL("CREATE TABLE BulkLoadReadOnlyFileAsyncTest (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      executeSQL("CREATE TABLE BulkLoadReadOnlyFileAsyncTest (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
 
       string path = Path.GetTempFileName();
-      StreamWriter sw = new StreamWriter(path);
+      StreamWriter sw = new StreamWriter(new FileStream(path, FileMode.Create));
       for (int i = 0; i < 500; i++)
         sw.WriteLine(i + "\t'Test'");
       sw.Flush();
-      sw.Close();
+      sw.Dispose();
 
       FileInfo fi = new FileInfo(path);
       FileAttributes oldAttr = fi.Attributes;
       fi.Attributes = fi.Attributes | FileAttributes.ReadOnly;
       try
       {
-        MySqlBulkLoader loader = new MySqlBulkLoader(st.conn);
+        MySqlBulkLoader loader = new MySqlBulkLoader(connection);
         loader.TableName = "BulkLoadReadOnlyFileAsyncTest";
         loader.FileName = path;
         loader.Timeout = 0;
 
-        loader.LoadAsync().ContinueWith(loadResult => {
+        loader.LoadAsync().ContinueWith(loadResult => 
+        {
           int dataLoaded = loadResult.Result;
-          MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM BulkLoadReadOnlyFileAsyncTest", st.conn);
-          DataTable dt = new DataTable();
-          da.Fill(dt);
 
+          TestDataTable dt = Utils.FillDataTable("SELECT * FROM BulkLoadReadOnlyFileAsyncTest", connection);
           Assert.Equal(dataLoaded, dt.Rows.Count);
           Assert.Equal("'Test'", dt.Rows[0][1].ToString().Trim());
         }).Wait();
@@ -411,16 +387,16 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void BulkLoadFieldQuotingAsync()
     {
-      st.execSQL("CREATE TABLE BulkLoadFieldQuotingAsyncTest (id INT NOT NULL, name VARCHAR(250), name2 VARCHAR(250), PRIMARY KEY(id))");
+      executeSQL("CREATE TABLE BulkLoadFieldQuotingAsyncTest (id INT NOT NULL, name VARCHAR(250), name2 VARCHAR(250), PRIMARY KEY(id))");
 
       string path = Path.GetTempFileName();
-      StreamWriter sw = new StreamWriter(path);
+      StreamWriter sw = new StreamWriter(new FileStream(path, FileMode.Create));
       for (int i = 0; i < 500; i++)
         sw.WriteLine(i + "\t`col1`\tcol2");
       sw.Flush();
-      sw.Close();
+      sw.Dispose();
 
-      MySqlBulkLoader loader = new MySqlBulkLoader(st.conn);
+      MySqlBulkLoader loader = new MySqlBulkLoader(connection);
       loader.TableName = "BulkLoadFieldQuotingAsyncTest";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -429,9 +405,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       loader.LoadAsync().ContinueWith(loadResult => {
         int dataLoaded = loadResult.Result;
-        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM BulkLoadFieldQuotingAsyncTest", st.conn);
-        DataTable dt = new DataTable();
-        da.Fill(dt);
+        TestDataTable dt = Utils.FillDataTable("SELECT * FROM BulkLoadFieldQuotingAsyncTest", connection);
 
         Assert.Equal(dataLoaded, dt.Rows.Count);
         Assert.Equal("col1", dt.Rows[0][1]);
@@ -442,16 +416,16 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void BulkLoadEscapingAsync()
     {
-      st.execSQL("CREATE TABLE BulkLoadEscapingAsyncTest (id INT NOT NULL, name VARCHAR(250), name2 VARCHAR(250), PRIMARY KEY(id))");
+      executeSQL("CREATE TABLE BulkLoadEscapingAsyncTest (id INT NOT NULL, name VARCHAR(250), name2 VARCHAR(250), PRIMARY KEY(id))");
 
       string path = Path.GetTempFileName();
-      StreamWriter sw = new StreamWriter(path);
+      StreamWriter sw = new StreamWriter(new FileStream(path, FileMode.Create));
       for (int i = 0; i < 500; i++)
         sw.WriteLine(i + ",col1\tstill col1,col2");
       sw.Flush();
-      sw.Close();
+      sw.Dispose();
 
-      MySqlBulkLoader loader = new MySqlBulkLoader(st.conn);
+      MySqlBulkLoader loader = new MySqlBulkLoader(connection);
       loader.TableName = "BulkLoadEscapingAsyncTest";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -460,9 +434,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       loader.LoadAsync().ContinueWith(loadResult => {
         int dataLoaded = loadResult.Result;
-        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM BulkLoadEscapingAsyncTest", st.conn);
-        DataTable dt = new DataTable();
-        da.Fill(dt);
+        TestDataTable dt = Utils.FillDataTable("SELECT * FROM BulkLoadEscapingAsyncTest", connection);
 
         Assert.Equal(dataLoaded, dt.Rows.Count);
         Assert.Equal("col1still col1", dt.Rows[0][1]);
@@ -473,16 +445,16 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void BulkLoadConflictOptionReplaceAsync()
     {
-      st.execSQL("CREATE TABLE BulkLoadConflictOptionReplaceAsyncTest (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      executeSQL("CREATE TABLE BulkLoadConflictOptionReplaceAsyncTest (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
 
       string path = Path.GetTempFileName();
-      StreamWriter sw = new StreamWriter(path);
+      StreamWriter sw = new StreamWriter(new FileStream(path, FileMode.Create));
       for (int i = 0; i < 20; i++)
         sw.WriteLine(i + ",col1");
       sw.Flush();
-      sw.Close();
+      sw.Dispose();
 
-      MySqlBulkLoader loader = new MySqlBulkLoader(st.conn);
+      MySqlBulkLoader loader = new MySqlBulkLoader(connection);
       loader.TableName = "BulkLoadConflictOptionReplaceAsyncTest";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -491,13 +463,13 @@ namespace MySql.Data.MySqlClient.Tests
       loader.LoadAsync().Wait();
 
       path = Path.GetTempFileName();
-      sw = new StreamWriter(path);
+      sw = new StreamWriter(new FileStream(path, FileMode.Create));
       for (int i = 0; i < 20; i++)
         sw.WriteLine(i + ",col2");
       sw.Flush();
-      sw.Close();
+      sw.Dispose();
 
-      loader = new MySqlBulkLoader(st.conn);
+      loader = new MySqlBulkLoader(connection);
       loader.TableName = "BulkLoadConflictOptionReplaceAsyncTest";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -505,9 +477,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.ConflictOption = MySqlBulkLoaderConflictOption.Replace;
 
       loader.LoadAsync().Wait();
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM BulkLoadConflictOptionReplaceAsyncTest", st.conn);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
+      TestDataTable dt = Utils.FillDataTable("SELECT * FROM BulkLoadConflictOptionReplaceAsyncTest", connection);
       Assert.Equal(20, dt.Rows.Count);
       Assert.Equal("col2", dt.Rows[0][1].ToString().Trim());
     }
@@ -515,16 +485,16 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void BulkLoadConflictOptionIgnoreAsync()
     {
-      st.execSQL("CREATE TABLE BulkLoadConflictOptionIgnoreAsyncTest (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      executeSQL("CREATE TABLE BulkLoadConflictOptionIgnoreAsyncTest (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
 
       string path = Path.GetTempFileName();
-      StreamWriter sw = new StreamWriter(path);
+      StreamWriter sw = new StreamWriter(new FileStream(path, FileMode.Create));
       for (int i = 0; i < 20; i++)
         sw.WriteLine(i + ",col1");
       sw.Flush();
-      sw.Close();
+      sw.Dispose();
 
-      MySqlBulkLoader loader = new MySqlBulkLoader(st.conn);
+      MySqlBulkLoader loader = new MySqlBulkLoader(connection);
       loader.TableName = "BulkLoadConflictOptionIgnoreAsyncTest";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -533,14 +503,14 @@ namespace MySql.Data.MySqlClient.Tests
       loader.LoadAsync().ContinueWith(loadResult => {
         int dataLoaded = loadResult.Result;
         path = Path.GetTempFileName();
-        sw = new StreamWriter(path);
+        sw = new StreamWriter(new FileStream(path, FileMode.Create));
         for (int i = 0; i < dataLoaded; i++)
           sw.WriteLine(i + ",col2");
         sw.Flush();
-        sw.Close();
+        sw.Dispose();
       }).Wait();
 
-      loader = new MySqlBulkLoader(st.conn);
+      loader = new MySqlBulkLoader(connection);
       loader.TableName = "BulkLoadConflictOptionIgnoreAsyncTest";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -549,9 +519,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       loader.LoadAsync().ContinueWith(loadResult => {
         int dataLoaded = loadResult.Result;
-        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM BulkLoadConflictOptionIgnoreAsyncTest", st.conn);
-        DataTable dt = new DataTable();
-        da.Fill(dt);
+        TestDataTable dt = Utils.FillDataTable("SELECT * FROM BulkLoadConflictOptionIgnoreAsyncTest", connection);
         Assert.Equal(20, dt.Rows.Count);
         Assert.Equal("col1", dt.Rows[0][1].ToString().Trim());
       }).Wait();
@@ -560,16 +528,16 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void BulkLoadColumnOrderAsync()
     {
-      st.execSQL(@"CREATE TABLE BulkLoadColumnOrderAsyncTest (id INT NOT NULL, n1 VARCHAR(250), n2 VARCHAR(250), n3 VARCHAR(250), PRIMARY KEY(id))");
+      executeSQL(@"CREATE TABLE BulkLoadColumnOrderAsyncTest (id INT NOT NULL, n1 VARCHAR(250), n2 VARCHAR(250), n3 VARCHAR(250), PRIMARY KEY(id))");
 
       string path = Path.GetTempFileName();
-      StreamWriter sw = new StreamWriter(path);
+      StreamWriter sw = new StreamWriter(new FileStream(path, FileMode.Create));
       for (int i = 0; i < 20; i++)
         sw.WriteLine(i + ",col3,col2,col1");
       sw.Flush();
-      sw.Close();
+      sw.Dispose();
 
-      MySqlBulkLoader loader = new MySqlBulkLoader(st.conn);
+      MySqlBulkLoader loader = new MySqlBulkLoader(connection);
       loader.TableName = "BulkLoadColumnOrderAsyncTest";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -582,9 +550,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       loader.LoadAsync().ContinueWith(loadResult => {
         int dataLoaded = loadResult.Result;
-        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM BulkLoadColumnOrderAsyncTest", st.conn);
-        DataTable dt = new DataTable();
-        da.Fill(dt);
+        TestDataTable dt = Utils.FillDataTable("SELECT * FROM BulkLoadColumnOrderAsyncTest", connection);
         Assert.Equal(20, dt.Rows.Count);
         Assert.Equal("col1", dt.Rows[0][1]);
         Assert.Equal("col2", dt.Rows[0][2]);
@@ -598,23 +564,22 @@ namespace MySql.Data.MySqlClient.Tests
       TimeSpan timeElapsed = Timer.Elapsed;
       return string.Format("{0}:{1}:{2}.{3} (HH:MM:SS.MS)", timeElapsed.Hours, timeElapsed.Minutes, timeElapsed.Seconds, timeElapsed.Milliseconds);
     }
-#endif
 
     [Fact]
     public void BulkLoadColumnOrder()
     {
-      st.execSQL(@"CREATE TABLE Test (id INT NOT NULL, n1 VARCHAR(250), n2 VARCHAR(250), 
+      executeSQL(@"CREATE TABLE Test (id INT NOT NULL, n1 VARCHAR(250), n2 VARCHAR(250), 
             n3 VARCHAR(250), PRIMARY KEY(id))");
 
       // first create the external file
       string path = Path.GetTempFileName();
-      StreamWriter sw = new StreamWriter(path);
+      StreamWriter sw = new StreamWriter(new FileStream(path, FileMode.Create));
       for (int i = 0; i < 20; i++)
         sw.WriteLine(i + ",col3,col2,col1");
       sw.Flush();
-      sw.Close();
+      sw.Dispose();
 
-      MySqlBulkLoader loader = new MySqlBulkLoader(st.conn);
+      MySqlBulkLoader loader = new MySqlBulkLoader(connection);
       loader.TableName = "Test";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -627,18 +592,11 @@ namespace MySql.Data.MySqlClient.Tests
       int count = loader.Load();
       Assert.Equal(20, count);
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", st.conn);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
+      TestDataTable dt = Utils.FillDataTable("SELECT * FROM Test", connection);
       Assert.Equal(20, dt.Rows.Count);
       Assert.Equal("col1", dt.Rows[0][1]);
       Assert.Equal("col2", dt.Rows[0][2]);
       Assert.Equal("col3", dt.Rows[0][3].ToString().Trim());
-    }
-
-    public void Dispose()
-    {
-      st.execSQL("DROP TABLE IF EXISTS TEST");
     }
   }
 }

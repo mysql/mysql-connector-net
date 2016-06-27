@@ -21,29 +21,30 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using MySql.Data.MySqlClient;
-
-using Xunit;
-using System.Data;
 using System.ComponentModel;
+using System.Data;
+using Xunit;
 
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class BlobTests : SpecialFixtureWithCustomConnectionString
+  [DisplayName("blob")]
+  public class BlobTests : TestBase
   {
+    public BlobTests(TestSetup setup) : base(setup)
+    {
+    }
+
     [Fact]    
     public void InsertBinary()
     {
       int lenIn = 400000;
       byte[] dataIn = Utils.CreateBlob(lenIn);
 
-      st.execSQL("DROP TABLE IF EXISTS Test");
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, blob1 LONGBLOB, PRIMARY KEY(id))");
+      executeSQL("DROP TABLE IF EXISTS Test");
+      executeSQL("CREATE TABLE Test (id INT NOT NULL, blob1 LONGBLOB, PRIMARY KEY(id))");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?id, ?b1)", st.conn);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?id, ?b1)", connection);
       cmd.Parameters.Add(new MySqlParameter("?id", 1));
       cmd.Parameters.Add(new MySqlParameter("?b1", dataIn));
       int rows = cmd.ExecuteNonQuery();
@@ -104,21 +105,19 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void GetCharsPrepared()
     {
-      if (st.Version < new Version(4, 1)) return;
-
       InternalGetChars(true);
     }
 
     private void InternalGetChars(bool prepare)
     {    
-      st.execSQL("DROP TABLE IF EXISTS Test");
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, text1 LONGTEXT, PRIMARY KEY(id))");
+      executeSQL("DROP TABLE IF EXISTS Test");
+      executeSQL("CREATE TABLE Test (id INT NOT NULL, text1 LONGTEXT, PRIMARY KEY(id))");
 
       char[] data = new char[20000];
       for (int x = 0; x < data.Length; x++)
         data[x] = (char)(65 + (x % 20));
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (1, ?text1)", st.conn);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (1, ?text1)", connection);
       cmd.Parameters.AddWithValue("?text1", data);
       if (prepare)
         cmd.Prepare();
@@ -159,22 +158,20 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void InsertTextPrepared()
     {
-      if (st.Version < new Version(4, 1)) return;
-
       InternalInsertText(true);
     }
 
     private void InternalInsertText(bool prepare)
     {
-      st.execSQL("DROP TABLE IF EXISTS Test");
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, blob1 LONGBLOB, text1 LONGTEXT, PRIMARY KEY(id))");
+      executeSQL("DROP TABLE IF EXISTS Test");
+      executeSQL("CREATE TABLE Test (id INT NOT NULL, blob1 LONGBLOB, text1 LONGTEXT, PRIMARY KEY(id))");
 
       byte[] data = new byte[1024];
       for (int x = 0; x < 1024; x++)
         data[x] = (byte)(65 + (x % 20));
 
       // Create sample table
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (1, ?b1, ?t1)", st.conn);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (1, ?b1, ?t1)", connection);
       cmd.Parameters.Add(new MySqlParameter("?t1", data));
       cmd.Parameters.Add(new MySqlParameter("?b1", "This is my blob data"));
       if (prepare) cmd.Prepare();
@@ -186,19 +183,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.AddWithValue("?t1", DBNull.Value);
       string str = "This is my text value";
 
-#if RT
-      cmd.Parameters.Add(new MySqlParameter("?b1", MySqlDbType.LongBlob, str.Length)
-      {
-          Direction = ParameterDirection.Input,
-          IsNullable = true,
-          Precision = 0,
-          Scale = 0,
-          Value = str
-      });
-#else
-      cmd.Parameters.Add(new MySqlParameter("?b1", MySqlDbType.LongBlob, str.Length,
-      ParameterDirection.Input, true, 0, 0, "b1", DataRowVersion.Current, str));
-#endif
+      cmd.Parameters.AddWithValue("?b1", str);
 
       rows = cmd.ExecuteNonQuery();
       Assert.True(rows == 1, "Checking insert rowcount");
@@ -222,52 +207,16 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !RT
-    [Fact]
-    public void UpdateDataSet()
-    {
-      st.execSQL("DROP TABLE IF EXISTS Test");
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, blob1 LONGBLOB, text1 LONGTEXT, PRIMARY KEY(id))");
-      st.execSQL("INSERT INTO Test VALUES( 1, NULL, 'Text field' )");
-
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", st.conn);
-      MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
-
-      string s = (string)dt.Rows[0][2];
-      Assert.Equal("Text field", s);
-
-      byte[] inBuf = Utils.CreateBlob(512);
-      dt.Rows[0].BeginEdit();
-      dt.Rows[0]["blob1"] = inBuf;
-      dt.Rows[0].EndEdit();
-      DataTable changes = dt.GetChanges();
-      da.Update(changes);
-      dt.AcceptChanges();
-
-      dt.Clear();
-      da.Fill(dt);
-      cb.Dispose();
-
-      byte[] outBuf = (byte[])dt.Rows[0]["blob1"];
-      Assert.True(inBuf.Length == outBuf.Length, "checking length of updated buffer");
-     
-      for (int y = 0; y < inBuf.Length; y++)
-        Assert.True(inBuf[y] == outBuf[y], "checking array data");
-    }
-#endif
-
     [Fact]
     public void GetCharsOnLongTextColumn()
     {
-      //if (st.conn.connectionState != ConnectionState.Open)
-      //  st.conn.Open();
+      //if (connection.connectionState != ConnectionState.Open)
+      //  connection.Open();
       
-      st.execSQL("CREATE TABLE Test1 (id INT NOT NULL, blob1 LONGBLOB, text1 LONGTEXT, PRIMARY KEY(id))");
-      st.execSQL("INSERT INTO Test1 (id, text1) VALUES(1, 'Test')");
+      executeSQL("CREATE TABLE Test1 (id INT NOT NULL, blob1 LONGBLOB, text1 LONGTEXT, PRIMARY KEY(id))");
+      executeSQL("INSERT INTO Test1 (id, text1) VALUES(1, 'Test')");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT id, text1 FROM Test1", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT id, text1 FROM Test1", connection);
       char[] buf = new char[2];
 
       using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -282,9 +231,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void MediumIntBlobSize()
     {
-      st.execSQL("DROP TABLE IF EXISTS Test");      
+      executeSQL("DROP TABLE IF EXISTS Test");      
       
-      st.execSQL("CREATE TABLE test (id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, " +
+      executeSQL("CREATE TABLE test (id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, " +
          "image MEDIUMBLOB NOT NULL, imageSize MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT 0, " +
          "PRIMARY KEY (id))");
 
@@ -292,7 +241,7 @@ namespace MySql.Data.MySqlClient.Tests
       for (int x = 0; x < image.Length; x++)
         image[x] = (byte)(x % 47);
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES(NULL, ?image, ?size)", st.conn);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES(NULL, ?image, ?size)", connection);
       cmd.Parameters.AddWithValue("?image", image);
       cmd.Parameters.AddWithValue("?size", image.Length);
       cmd.ExecuteNonQuery();
@@ -318,12 +267,12 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void BlobBiggerThanMaxPacket()
     {      
-      st.suExecSQL("SET GLOBAL max_allowed_packet=" + 500 * 1024);
+      executeAsRoot("SET GLOBAL max_allowed_packet=" + 500 * 1024);
 
-      st.execSQL("DROP TABLE IF EXISTS Test");
-      st.execSQL("CREATE TABLE test (id INT(10), image BLOB)");
+      executeSQL("DROP TABLE IF EXISTS Test");
+      executeSQL("CREATE TABLE test (id INT(10), image BLOB)");
 
-      using (MySqlConnection c = new MySqlConnection(st.GetConnectionString(true)))
+      using (var c = GetConnection())
       {
         c.Open();
         byte[] image = Utils.CreateBlob(1000000);
@@ -335,5 +284,45 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal(ex.Message, "Packets larger than max_allowed_packet are not allowed.");
       }
     }
+
+#if !NETCORE10
+
+    [Fact]
+    public void UpdateDataSet()
+    {
+      executeSQL("DROP TABLE IF EXISTS Test");
+      executeSQL("CREATE TABLE Test (id INT NOT NULL, blob1 LONGBLOB, text1 LONGTEXT, PRIMARY KEY(id))");
+      executeSQL("INSERT INTO Test VALUES( 1, NULL, 'Text field' )");
+
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", connection);
+      DataTable dt = new DataTable();
+      da.Fill(dt);
+
+      MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
+
+      string s = (string)dt.Rows[0][2];
+      Assert.Equal("Text field", s);
+
+      byte[] inBuf = Utils.CreateBlob(512);
+      dt.Rows[0].BeginEdit();
+      dt.Rows[0]["blob1"] = inBuf;
+      dt.Rows[0].EndEdit();
+      DataTable changes = dt.GetChanges();
+      da.Update(changes);
+      dt.AcceptChanges();
+
+      dt.Clear();
+      da.Fill(dt);
+      cb.Dispose();
+
+      byte[] outBuf = (byte[])dt.Rows[0]["blob1"];
+      Assert.True(inBuf.Length == outBuf.Length, "checking length of updated buffer");
+     
+      for (int y = 0; y < inBuf.Length; y++)
+        Assert.True(inBuf[y] == outBuf[y], "checking array data");
+    }
+
+
+#endif
   }
 }

@@ -22,56 +22,39 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using Xunit;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class TestBase : IDisposable
+  public class TestBase : IClassFixture<TestSetup>, IDisposable
   {
-
-    protected static string databaseName;
-    protected static MySqlConnectionStringBuilder Settings;
-    protected static MySqlConnection root;
     protected MySqlConnection connection;
+    protected TestSetup Setup;
 
-    static TestBase()
+    public TestBase(TestSetup setup)
     {
-      databaseName = "db0";
-
-      Settings = new MySqlConnectionStringBuilder();
-      Settings.Server = "localhost";
-      Settings.UserID = "root";
-      Settings.Password = "";
-      Settings.Database = "mysql";
-      Settings.AllowUserVariables = true;
-      Settings.Pooling = false;
-      Settings.PersistSecurityInfo = true;
-      root = new MySqlConnection(Settings.GetConnectionString(true));
-      root.Open();
-
-      Settings.UserID = "user0";
-      Settings.Password = "pwd";
-      Settings.Database = databaseName;
+      Setup = setup;
+      Setup.Init(GetNamespace());
+      connection = Setup.GetConnection();
+      connection.Open();
     }
 
-    public TestBase()
+    private string GetNamespace()
     {
-      // cleanup
-      for (int x = 0; x < 3; x++)
+      object[] attributes =GetType().GetCustomAttributes(true);
+      foreach (var attr in attributes)
       {
-        executeAsRoot("DROP DATABASE IF EXISTS db" + x);
-        executeAsRoot(String.Format("DROP USER IF EXISTS 'user{0}'@'localhost'", x));
+        if (attr is DisplayNameAttribute)
+          return (attr as DisplayNameAttribute).DisplayName;
       }
-      executeAsRoot("FLUSH PRIVILEGES");
+      throw new Exception("No display name set for test");
+    }
 
-      executeAsRoot("CREATE DATABASE " + databaseName);
-      executeAsRoot("CREATE USER 'user0'@'localhost' IDENTIFIED BY 'pwd'");
-      executeAsRoot(String.Format("GRANT ALL ON *.* TO 'user0'@'localhost'", databaseName));
-      executeAsRoot("FLUSH PRIVILEGES");
-
-
-      Settings.Database = databaseName;
-      connection = new MySqlConnection(Settings.GetConnectionString(true));
-      connection.Open();
+    protected MySqlConnectionStringBuilder Settings
+    {
+      get { return Setup.Settings; }
     }
 
     private List<string> GetUserList(bool includeRoot)
@@ -87,42 +70,34 @@ namespace MySql.Data.MySqlClient.Tests
       return list;
     }
 
-    protected MySqlConnection GetConnection(bool asRoot = false)
+    protected string CreateUser(string postfix, string pwd)
     {
-      MySqlConnectionStringBuilder s = new MySqlConnectionStringBuilder(Settings.GetConnectionString(true));
-      if (asRoot)
-      {
-        s.UserID = "root";
-        s.Password = null;
-      }
-      return new MySqlConnection(s.GetConnectionString(true));
+      return Setup.CreateUser(postfix, pwd);
     }
 
-    protected MySqlConnection GetRoot()
+    protected string CreateDatabase(string postfix)
     {
-      return GetConnection(true);
+      return Setup.CreateDatabase(postfix);
     }
 
-    private void executeInternal(string sql, MySqlConnection conn)
+    protected MySqlConnection GetConnection(bool asRoot=false)
     {
-      var cmd = conn.CreateCommand();
-      cmd.CommandText = sql;
-      cmd.ExecuteNonQuery();
+      return Setup.GetConnection(asRoot);
     }
 
     protected void executeSQL(string sql)
     {
-      executeInternal(sql, connection);
+      Setup.executeInternal(sql, connection);
     }
 
     protected void executeAsRoot(string sql)
     {
-      executeInternal(sql, root);
+      Setup.executeInternal(sql, Setup.root);
     }
 
     protected MySqlDataReader ExecuteReaderAsRoot(string sql)
     {
-      MySqlConnection root = GetRoot();
+      var root = Setup.GetConnection(true);
       root.Open();
       MySqlCommand cmd = new MySqlCommand(sql, root);
       return cmd.ExecuteReader(System.Data.CommandBehavior.CloseConnection);
@@ -131,7 +106,7 @@ namespace MySql.Data.MySqlClient.Tests
     protected void KillConnection(MySqlConnection c)
     {
       int threadId = c.ServerThread;
-      var root = GetRoot();
+      var root = Setup.GetConnection(true);
       root.Open();
       MySqlCommand cmd = new MySqlCommand("KILL " + threadId, root);
       cmd.ExecuteNonQuery();
@@ -164,6 +139,8 @@ namespace MySql.Data.MySqlClient.Tests
 
     public void Dispose()
     {
+      if (connection != null)
+        connection.Close();
     }
   }
 }
