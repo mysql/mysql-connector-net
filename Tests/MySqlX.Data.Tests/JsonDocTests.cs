@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -26,7 +26,7 @@ using Xunit;
 
 namespace MySqlX.Data.Tests
 {
-  public class DbDocTests : BaseTest
+  public class DbDocTests
   {
     [Fact]
     public void SimpleConverstionToJson()
@@ -35,7 +35,7 @@ namespace MySqlX.Data.Tests
       d.SetValue("_id", 1);
       d.SetValue("pages", 20);
       string s = d.ToString();
-      Assert.Equal(@"{""_id"":1, ""pages"":20}", d.ToString());
+      Assert.Equal(@"{ ""_id"": 1, ""pages"": 20 }", d.ToString());
     }
 
     [Fact]
@@ -64,12 +64,20 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void ParseWithArray()
     {
-      DbDoc d = new DbDoc(@"{ ""id"": 1, ""pages"": 20, 
+      string json = @"{ ""id"": 1, ""pages"": 20, 
           ""books"": [ 
-            { ""_id"" : 1, ""title"" : ""Book 1"" },
-            { ""_id"" : 2, ""title"" : ""Book 2"" }
-          ]
-      }");
+            { ""_id"": 1, ""title"": ""Book 1"" }, 
+            { ""_id"": 2, ""title"": ""Book 2"" } 
+          ] 
+      }";
+
+      string[] lines = json.Split(new string[] { "\r\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
+      for (int i = 0; i < lines.Length; i++)
+        lines[i] = lines[i].Trim();
+
+      string noFormat = string.Join(" ", lines);
+
+      DbDoc d = new DbDoc(json);
 
       var docs = new[]
       {
@@ -81,6 +89,7 @@ namespace MySqlX.Data.Tests
       d2.SetValue("pages", 20);
       d2.SetValue("books", docs);
       Assert.True(d.Equals(d2));
+      Assert.Equal(noFormat, d2.ToString());
     }
 
     [Fact]

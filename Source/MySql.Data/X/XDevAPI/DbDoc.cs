@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -131,19 +131,30 @@ namespace MySqlX.XDevAPI
 
     private string DictToString(Dictionary<string, object> vals)
     {
-      StringBuilder json = new StringBuilder("{");
+      StringBuilder json = new StringBuilder("{ ");
       string delimiter = "";
       foreach (string key in vals.Keys)
       {
-        json.AppendFormat("{2}\"{0}\":{1}", key, GetValue(vals[key]), delimiter);
+        json.AppendFormat("{2}\"{0}\": {1}", key, GetValue(vals[key]), delimiter);
         delimiter = ", ";
       }
-      json.Append("}");
+      json.Append(" }");
       return json.ToString();
     }
 
     private string GetValue(object val)
     {
+      if(val.GetType().IsArray)
+      {
+        string values = "[ ";
+        string separator = string.Empty;
+        foreach (var item in (Array)val)
+        {
+          values += separator + GetValue(item);
+          separator = ", ";
+        }
+        return values + " ]";
+      }
       if (val is Dictionary<string, object>)
         return DictToString(val as Dictionary<string, object>);
       string quoteChar = "";

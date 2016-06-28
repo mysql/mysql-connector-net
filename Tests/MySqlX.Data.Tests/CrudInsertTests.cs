@@ -164,5 +164,25 @@ namespace MySqlX.Data.Tests
 
       Assert.Throws<ArgumentNullException>(() => coll.Add(null).Execute());
     }
+
+    [Fact]
+    public void InsertingArray()
+    {
+      var docs = new[]
+      {
+        new {  id = 1, title = "Book 1" },
+        new {  id = 2, title = "Book 2" },
+      };
+      DbDoc d2 = new DbDoc();
+      d2.SetValue("_id", 1);
+      d2.SetValue("books", docs);
+      d2.SetValue("pages", 20);
+
+      Collection coll = CreateCollection("test");
+      coll.Add(d2).Execute();
+      var result = coll.Find().Execute().FetchAll();
+      Assert.Equal(1, result.Count);
+      Assert.Equal(d2.ToString(), result[0].ToString());
+    }
   }
 }
