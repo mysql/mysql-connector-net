@@ -20,6 +20,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
 
 namespace MySql.Core.Test.Console
@@ -31,7 +32,15 @@ namespace MySql.Core.Test.Console
       System.Console.WriteLine("Starting the demo for MySql Connector / .Net Core");
       System.Console.ReadKey();
 
+      IConfiguration configuration = null;
+
+      var builder = new ConfigurationBuilder()
+      .AddJsonFile("appsettings.json");
+
+      configuration = builder.Build();
+      
       MySqlConnection connection = new MySqlConnection();
+      connection.ConnectionString = configuration?.GetSection("Data:DefaultConnection:ConnectionString").Value;
       connection.Open();
 
       MySqlCommand command = new MySqlCommand("SELECT * FROM sakila.category;", connection);
