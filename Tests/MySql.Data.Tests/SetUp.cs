@@ -21,7 +21,6 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Configuration;
 using Xunit;
 using System.Data;
 
@@ -80,19 +79,15 @@ namespace MySql.Data.MySqlClient.Tests
       baseUserName = "user-" + testNameSpace + "-";
 
       var s = new MySqlConnectionStringBuilder();
-      s.UserID = ConfigurationManager.AppSettings["rootuser"] ?? "root";
-      s.Password = ConfigurationManager.AppSettings["rootpassword"] ?? "";
-      s.Server = ConfigurationManager.AppSettings["host"] ?? "localhost";
-      s.SharedMemoryName = ConfigurationManager.AppSettings["memory_name"] ?? "MySQLSocket";
-      s.PipeName = ConfigurationManager.AppSettings["memory_name"] ?? "MySQLSocket";
+      s.UserID = "root";
+      s.Password = null;
+      s.Server = "localhost";
+      s.SharedMemoryName = "memory";
+      s.PipeName = "pipe";
       s.PersistSecurityInfo = true;
       s.AllowUserVariables = true;
       s.Pooling = false;
-      var portString = ConfigurationManager.AppSettings["port"];
-      if (String.IsNullOrEmpty(portString))
-        s.Port = 3305;
-      else
-        s.Port = UInt32.Parse(portString);
+      s.Port = 3305;
 
       RootSettings = new MySqlConnectionStringBuilder(s.GetConnectionString(true));
       Settings = new MySqlConnectionStringBuilder(s.GetConnectionString(true));

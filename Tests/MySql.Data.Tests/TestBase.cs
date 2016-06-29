@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Reflection;
 using Xunit;
 
 namespace MySql.Data.MySqlClient.Tests
@@ -43,7 +44,11 @@ namespace MySql.Data.MySqlClient.Tests
 
     private string GetNamespace()
     {
-      object[] attributes =GetType().GetCustomAttributes(true);
+#if NETCORE10
+      IEnumerable<Attribute> attributes = this.GetType().GetTypeInfo().GetCustomAttributes(true);
+#else
+      object[] attributes = this.GetType().GetCustomAttributes(true);
+#endif
       foreach (var attr in attributes)
       {
         if (attr is DisplayNameAttribute)
