@@ -127,9 +127,9 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.True(c.State == ConnectionState.Open);
         Assert.Equal(connStr.Database, c.Database);
 
-        executeAsRoot("CREATE DATABASE db1");
-        c.ChangeDatabase("db1");
-        Assert.Equal("db1", c.Database);
+        string dbName = CreateDatabase("db1");
+        c.ChangeDatabase(dbName);
+        Assert.Equal(dbName, c.Database);
       }
     }
 

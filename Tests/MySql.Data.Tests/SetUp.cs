@@ -41,7 +41,6 @@ namespace MySql.Data.MySqlClient.Tests
     internal protected string table;
     internal protected string csAdditions = String.Empty;
     internal protected bool accessToMySqlDb;
-//    private int numProcessesRunning;
     private bool disposed = false;
 
 
@@ -70,7 +69,6 @@ namespace MySql.Data.MySqlClient.Tests
 
       //ExecuteSQLAsRoot(sql);
       //Open();
-      //numProcessesRunning = CountProcesses();
     }
 
     private void LoadBaseConfiguration()
@@ -108,11 +106,19 @@ namespace MySql.Data.MySqlClient.Tests
 
     private void CleanupDatabase()
     {
-      // cleanup
-      for (int x = 0; x < 5; x++)
+      TestDataTable data = Utils.FillDataTable("SHOW DATABASES", root);
+      foreach (DataRow row in data.Rows)
       {
-        executeInternal(String.Format("DROP DATABASE IF EXISTS `{0}{1}`", baseDBName, x), root);
-        executeInternal(String.Format("DROP USER IF EXISTS '{0}{1}'@'localhost'", baseUserName, x), root);
+
+        string name = row[0].ToString();
+        if (!name.StartsWith(baseDBName)) continue;
+        executeInternal(String.Format("DROP DATABASE IF EXISTS `{0}`", name), root);
+      }
+
+      data = Utils.FillDataTable("SELECT user,host FROM mysql.user WHERE user <> 'root'", root);
+      foreach (DataRow row in data.Rows)
+      {
+        executeInternal(String.Format("DROP USER IF EXISTS '{0}'@'{1}'", row[0].ToString(), row[1].ToString()), root);
       }
       executeInternal("FLUSH PRIVILEGES", root);
     }
@@ -127,7 +133,7 @@ namespace MySql.Data.MySqlClient.Tests
       version = new Version(versionString.Substring(0, i));
     }
 
-  public MySqlConnection GetConnection(bool asRoot = false)
+    public MySqlConnection GetConnection(bool asRoot = false)
     {
       var s = asRoot ? RootSettings : Settings;
       return new MySqlConnection(s.GetConnectionString(true));
@@ -149,7 +155,11 @@ namespace MySql.Data.MySqlClient.Tests
       return userName;
     }
 
-
+    protected MySqlDataReader ExecuteReader(string sql, MySqlConnection conn)
+    {
+      MySqlCommand cmd = new MySqlCommand(sql, conn);
+      return cmd.ExecuteReader();
+    }
 
     public void executeInternal(string sql, MySqlConnection conn)
     {

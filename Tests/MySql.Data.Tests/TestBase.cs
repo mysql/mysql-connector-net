@@ -62,19 +62,6 @@ namespace MySql.Data.MySqlClient.Tests
       get { return Setup.Settings; }
     }
 
-    private List<string> GetUserList(bool includeRoot)
-    {
-      var list = new List<string>();
-      var reader = ExecuteReaderAsRoot("select user,host from mysql.user");
-      while (reader.Read())
-      {
-        string user = reader.GetString(0);
-        if (user == "root" && !includeRoot) continue;
-        list.Add(String.Format("'{0}'@'{1}'", reader.GetString(0), reader.GetString(1)));
-      }
-      return list;
-    }
-
     protected string CreateUser(string postfix, string pwd)
     {
       return Setup.CreateUser(postfix, pwd);
@@ -98,14 +85,6 @@ namespace MySql.Data.MySqlClient.Tests
     protected void executeAsRoot(string sql)
     {
       Setup.executeInternal(sql, Setup.root);
-    }
-
-    protected MySqlDataReader ExecuteReaderAsRoot(string sql)
-    {
-      var root = Setup.GetConnection(true);
-      root.Open();
-      MySqlCommand cmd = new MySqlCommand(sql, root);
-      return cmd.ExecuteReader(System.Data.CommandBehavior.CloseConnection);
     }
 
     protected void KillConnection(MySqlConnection c)

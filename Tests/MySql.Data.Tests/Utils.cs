@@ -53,11 +53,12 @@ namespace MySql.Data.MySqlClient.Tests
       var reader = cmd.ExecuteReader();
       while (reader.Read())
       {
-        List<object> row = new List<object>();
+        DataRow row = new DataRow();
         for (int index = 0; index < reader.FieldCount; index++)
-          row[index] = reader[index];
+          row.Add(reader[index]);
         dt.Rows.Add(row);
       }
+      reader.Close();
 #endif
       return dt;
     }
@@ -66,7 +67,12 @@ namespace MySql.Data.MySqlClient.Tests
 #if NETCORE10
   public class TestDataTable 
   {
-    public List<List<object>> Rows = new List<List<object>>();
+    public List<DataRow> Rows = new List<DataRow>();
+  }
+
+  public class DataRow : List<object>
+  {
+
   }
 #else
   public class TestDataTable : DataTable
