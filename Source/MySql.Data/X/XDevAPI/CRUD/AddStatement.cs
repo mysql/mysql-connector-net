@@ -23,6 +23,7 @@
 using System.Collections.Generic;
 using MySqlX.XDevAPI.Common;
 using System.Linq;
+using System;
 
 namespace MySqlX.XDevAPI.CRUD
 {
@@ -44,17 +45,9 @@ namespace MySqlX.XDevAPI.CRUD
     /// <returns>This AddStatement object</returns>
     public AddStatement Add(params object[] items)
     {
-      _DbDocs.AddRange(GetDocs(items));
-      return this;
-    }
+      if (items == null)
+        throw new ArgumentNullException();
 
-    /// <summary>
-    /// Adds documents to the collection
-    /// </summary>
-    /// <param name="items">Documents to add as string</param>
-    /// <returns>This AddStatement object</returns>
-    public AddStatement Add(params string[] items)
-    {
       _DbDocs.AddRange(GetDocs(items));
       return this;
     }
@@ -67,6 +60,9 @@ namespace MySqlX.XDevAPI.CRUD
     {
       try
       {
+        if (_DbDocs.Count == 0)
+          return new Result(null);
+
         List<string> newIds = AssignIds();
         return Target.Session.XSession.Insert(Target, _DbDocs.ToArray(), newIds);
       }

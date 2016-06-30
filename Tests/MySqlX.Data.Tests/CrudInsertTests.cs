@@ -22,6 +22,7 @@
 
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
+using System;
 using Xunit;
 
 namespace MySqlX.Data.Tests
@@ -142,6 +143,26 @@ namespace MySqlX.Data.Tests
         Assert.Equal<ulong>(1, r.RecordsAffected);
       }
       Assert.Equal(5, coll.Count());
+    }
+
+    [Fact]
+    public void EmptyDocArray()
+    {
+      Collection coll = CreateCollection("test");
+
+      var insertResult = coll.Add(new DbDoc[] { }).Execute();
+      Assert.Equal(0ul, insertResult.RecordsAffected);
+
+      var result = coll.Find().Execute().FetchAll();
+      Assert.Equal(0, result.Count);
+    }
+
+    [Fact]
+    public void NullParameter()
+    {
+      Collection coll = CreateCollection("test");
+
+      Assert.Throws<ArgumentNullException>(() => coll.Add(null).Execute());
     }
   }
 }

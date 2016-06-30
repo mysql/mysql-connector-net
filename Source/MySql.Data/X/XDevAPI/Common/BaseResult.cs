@@ -38,6 +38,7 @@ namespace MySqlX.XDevAPI.Common
 
     internal BaseResult(InternalSession session)
     {
+      if (session == null) return;
       _session = session;
 
       // if we have an active resultset then we must buffer it entirely
@@ -54,7 +55,7 @@ namespace MySqlX.XDevAPI.Common
 
     protected ProtocolBase Protocol
     {
-      get { return _session.GetProtocol();  }
+      get { return _session?.GetProtocol(); }
     }
 
     internal void AddWarning(WarningInfo w)

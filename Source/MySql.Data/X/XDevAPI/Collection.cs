@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -48,21 +48,11 @@ namespace MySqlX.XDevAPI
     /// <returns>AddStatement</returns>
     public AddStatement Add(params object[] items)
     {
+      if (items == null)
+        throw new ArgumentNullException();
+
       AddStatement stmt = new AddStatement(this);
       stmt.Add(items);
-      return stmt;
-    }
-
-    /// <summary>
-    /// Add one or more objects to the collection.  This method takes strings that are intended
-    /// to be JSON objects.
-    /// </summary>
-    /// <param name="json">JSON strings to insert</param>
-    /// <returns>AddStatement</returns>
-    public AddStatement Add(params string[] json)
-    {
-      AddStatement stmt = new AddStatement(this);
-      stmt.Add(json);
       return stmt;
     }
 

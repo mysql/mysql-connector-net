@@ -34,6 +34,7 @@ namespace MySqlX.XDevAPI.Common
   {
     internal Result(InternalSession session) : base(session)
     {
+      if (session == null) return;
       session.GetProtocol().CloseResult(this);
     }
 
