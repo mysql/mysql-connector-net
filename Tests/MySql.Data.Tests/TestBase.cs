@@ -33,28 +33,25 @@ namespace MySql.Data.MySqlClient.Tests
   {
     protected MySqlConnection connection;
     protected TestSetup Setup;
+    protected string TestNameSpace;
 
-    public TestBase(TestSetup setup)
+    public TestBase(TestSetup setup, string ns)
     {
       Setup = setup;
-      Setup.Init(GetNamespace());
+      TestNameSpace = ns;
+      Init();
       connection = Setup.GetConnection();
       connection.Open();
     }
 
-    private string GetNamespace()
+    protected virtual string Namespace
     {
-#if NETCORE10
-      IEnumerable<Attribute> attributes = this.GetType().GetTypeInfo().GetCustomAttributes(true);
-#else
-      object[] attributes = this.GetType().GetCustomAttributes(true);
-#endif
-      foreach (var attr in attributes)
-      {
-        if (attr is DisplayNameAttribute)
-          return (attr as DisplayNameAttribute).DisplayName;
-      }
-      throw new Exception("No display name set for test");
+      get { return null; }
+    }
+
+    protected virtual void Init()
+    {
+      Setup.Init(Namespace ?? TestNameSpace);
     }
 
     protected MySqlConnectionStringBuilder Settings

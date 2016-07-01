@@ -28,10 +28,9 @@ using Xunit;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  [DisplayName("blob")]
   public class BlobTests : TestBase
   {
-    public BlobTests(TestSetup setup) : base(setup)
+    public BlobTests(TestSetup setup) : base(setup, "blob")
     {
     }
 

@@ -23,14 +23,12 @@
 using System;
 using Xunit;
 using System.IO;
-using System.ComponentModel;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  [DisplayName("bulkload")]
   public class MySqlBulkLoaderTests : TestBase
   {
-    public MySqlBulkLoaderTests(TestSetup setup) : base(setup)
+    public MySqlBulkLoaderTests(TestSetup setup) : base(setup, "bulkload")
     {
     }
 

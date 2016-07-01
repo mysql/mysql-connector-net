@@ -30,10 +30,9 @@ using System.ComponentModel;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  [DisplayName("syntax")]
   public class Syntax : TestBase
   {
-    public Syntax(TestSetup setup) : base(setup)
+    public Syntax(TestSetup setup) : base(setup, "syntax")
     {
     }
 

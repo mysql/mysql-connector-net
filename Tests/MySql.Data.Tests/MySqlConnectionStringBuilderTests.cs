@@ -22,16 +22,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Text;
 using Xunit;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  [DisplayName("connectionstringbuilder")]
   public class MySqlConnectionStringBuilderTests : TestBase
   {
-    public MySqlConnectionStringBuilderTests(TestSetup setup) : base(setup)
+    public MySqlConnectionStringBuilderTests(TestSetup setup) : base(setup, "connection-string-builder")
     {
     }
 

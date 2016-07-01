@@ -21,7 +21,6 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.ComponentModel;
 using System.Data;
 using System.Threading.Tasks;
 using Xunit;
@@ -29,10 +28,9 @@ using Xunit;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  [DisplayName("connection")]
   public class MySqlConnectionTests : TestBase
   {
-    public MySqlConnectionTests(TestSetup setup) : base(setup)
+    public MySqlConnectionTests(TestSetup setup) : base(setup, "connection")
     {
     }
 

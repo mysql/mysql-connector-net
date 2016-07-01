@@ -20,48 +20,49 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-
 using System;
 using System.Collections.Generic;
 using System.Text;
 using Xunit;
-using System.Data;
+using MySql.Data.Types;
+using System.IO;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class SqlServerMode : IUseFixture<SetUpClass>, IDisposable
+  public class TypeTests : TestBase
   {
-    private SetUpClass st;
-
-    public void SetFixture(SetUpClass data)
+    public TypeTests(TestSetup setup) : base(setup, "typetests")
     {
-      st = data;
-      st.csAdditions += ";sqlservermode=yes;";
-      if (st.conn.connectionState == ConnectionState.Open)
-        st.conn.Close();
-      st.conn.ConnectionString += st.csAdditions;
-      st.conn.Open();
+   
     }
 
-    public void Dispose()
-    {
-      st.execSQL("DROP TABLE IF EXISTS TEST");
-    }    
-
+    /// <summary>
+    /// Test fix for http://bugs.mysql.com/bug.php?id=40555
+    /// Make MySql.Data.Types.MySqlDateTime serializable.
+    /// </summary>
     [Fact]
-    public void Simple()
+    public void TestSerializationMySqlDataTime()
     {
-      st.execSQL("CREATE TABLE Test (id INT, name VARCHAR(20))");
-      st.execSQL("INSERT INTO Test VALUES (1, 'A')");
-
-      MySqlCommand cmd = new MySqlCommand("SELECT [id], [name] FROM [Test]", st.conn);
-      using (MySqlDataReader reader = cmd.ExecuteReader())
-      {
-        reader.Read();
-        Assert.Equal(1, reader.GetInt32(0));
-        Assert.Equal("A", reader.GetString(1));
-      }
+      MySqlDateTime dt = new MySqlDateTime(2011, 10, 6, 11, 38, 01, 0);
+      Assert.Equal(2011, dt.Year);
+      Assert.Equal(10, dt.Month);
+      Assert.Equal(6, dt.Day);
+      Assert.Equal(11, dt.Hour);
+      Assert.Equal(38, dt.Minute);
+      Assert.Equal(1, dt.Second);
+      System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf = 
+        new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+      MemoryStream ms = new MemoryStream(1024);
+      bf.Serialize(ms, dt);
+      ms.Position = 0;
+      object o = bf.Deserialize(ms);
+      dt = (MySqlDateTime)o;
+      Assert.Equal(2011, dt.Year);
+      Assert.Equal(10, dt.Month);
+      Assert.Equal(6, dt.Day);
+      Assert.Equal(11, dt.Hour);
+      Assert.Equal(38, dt.Minute);
+      Assert.Equal(1, dt.Second);
     }
-
   }
 }

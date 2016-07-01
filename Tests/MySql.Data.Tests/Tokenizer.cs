@@ -27,18 +27,11 @@ using Xunit;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class Tokenizer : IUseFixture<SetUpClass>, IDisposable
+  public class Tokenizer : TestBase
   {
-    private SetUpClass st;
-
-    public void SetFixture(SetUpClass data)
+    public Tokenizer(TestSetup setup) : base(setup, "tokenizer")
     {
-      st = data;
-    }
 
-    public void Dispose()
-    {
-      st.execSQL("DROP TABLE IF EXISTS TEST");
     }
 
     [Fact]
@@ -251,10 +244,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void NoSpaceAroundEquals()
     {
-      st.execSQL("DROP TABLE IF EXISTS Test");
-      st.execSQL("CREATE TABLE Test(name VARCHAR(40))");
+      executeSQL("DROP TABLE IF EXISTS Test");
+      executeSQL("CREATE TABLE Test(name VARCHAR(40))");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test SET name='test -- test';", st.conn);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test SET name='test -- test';", connection);
       cmd.ExecuteNonQuery();
       cmd.CommandText = "SELECT name FROM Test";
       object o = cmd.ExecuteScalar();

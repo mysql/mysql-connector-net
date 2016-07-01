@@ -20,44 +20,41 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+
 using System;
 using System.Collections.Generic;
 using System.Text;
 using Xunit;
-using MySql.Data.Types;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.IO;
+using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class TypeTests
+  public class SqlServerMode : TestBase
   {
-    /// <summary>
-    /// Test fix for http://bugs.mysql.com/bug.php?id=40555
-    /// Make MySql.Data.Types.MySqlDateTime serializable.
-    /// </summary>
-    [Fact]
-    public void TestSerializationMySqlDataTime()
+    public SqlServerMode(TestSetup setup) : base(setup, "boo")
     {
-      MySqlDateTime dt = new MySqlDateTime(2011, 10, 6, 11, 38, 01, 0);
-      Assert.Equal(2011, dt.Year);
-      Assert.Equal(10, dt.Month);
-      Assert.Equal(6, dt.Day);
-      Assert.Equal(11, dt.Hour);
-      Assert.Equal(38, dt.Minute);
-      Assert.Equal(1, dt.Second);
-      BinaryFormatter bf = new BinaryFormatter();
-      MemoryStream ms = new MemoryStream(1024);
-      bf.Serialize(ms, dt);
-      ms.Position = 0;
-      object o = bf.Deserialize(ms);
-      dt = (MySqlDateTime)o;
-      Assert.Equal(2011, dt.Year);
-      Assert.Equal(10, dt.Month);
-      Assert.Equal(6, dt.Day);
-      Assert.Equal(11, dt.Hour);
-      Assert.Equal(38, dt.Minute);
-      Assert.Equal(1, dt.Second);
     }
+
+    protected override void Init()
+    {
+      base.Init();
+      Setup.Settings.SqlServerMode = true;
+    }
+
+    [Fact]
+    public void Simple()
+    {
+      executeSQL("CREATE TABLE Test (id INT, name VARCHAR(20))");
+      executeSQL("INSERT INTO Test VALUES (1, 'A')");
+
+      MySqlCommand cmd = new MySqlCommand("SELECT [id], [name] FROM [Test]", connection);
+      using (MySqlDataReader reader = cmd.ExecuteReader())
+      {
+        reader.Read();
+        Assert.Equal(1, reader.GetInt32(0));
+        Assert.Equal("A", reader.GetString(1));
+      }
+    }
+
   }
 }

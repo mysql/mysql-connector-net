@@ -50,6 +50,8 @@ namespace MySql.Data.MySqlClient.Tests
 
     public void Init(string ns)
     {
+      if (String.IsNullOrEmpty(ns))
+        throw new Exception("No namespace given");
       testNameSpace = ns;
       if (firstTime)
         LoadBaseConfiguration();

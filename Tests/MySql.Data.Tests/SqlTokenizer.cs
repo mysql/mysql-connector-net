@@ -32,7 +32,8 @@ namespace MySql.Data.MySqlClient.Tests
 
     public SqlTokenizer(string sql)
     {
-      tokenizer = typeof(MySqlConnection).Assembly.CreateInstance("MySql.Data.MySqlClient.MySqlTokenizer",
+      Assembly a = typeof(MySqlConnection).GetType().Assembly;
+      tokenizer = a.CreateInstance("MySql.Data.MySqlClient.MySqlTokenizer",
           false, System.Reflection.BindingFlags.CreateInstance, null,
               new object[] { sql }, null, null);
     }

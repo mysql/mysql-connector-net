@@ -25,14 +25,12 @@ using Xunit;
 using System.Data;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using System.ComponentModel;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  [DisplayName("cmd-tests")]
   public class MySqlCommandTests : TestBase
   {
-    public MySqlCommandTests(TestSetup setup) : base(setup)
+    public MySqlCommandTests(TestSetup setup) : base(setup, "command")
     {
     }
 
