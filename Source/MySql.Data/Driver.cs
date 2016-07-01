@@ -346,11 +346,7 @@ namespace MySql.Data.MySqlClient
       }
 
       MySqlInfoMessageEventArgs args = new MySqlInfoMessageEventArgs();
-#if NETCORE10
-      args.Errors = warnings.ToArray();
-#else
       args.errors = warnings.ToArray();
-#endif
       connection?.OnInfoMessage(args);
       return warnings;
     }

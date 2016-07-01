@@ -930,11 +930,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// 
     /// </summary>
-#if (NETCORE10)
-    public MySqlError[] Errors { get; set; }
-#else
     public MySqlError[] errors { get; set; }
-#endif
   }
 
   /// <summary>

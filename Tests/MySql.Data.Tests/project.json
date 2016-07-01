@@ -4,7 +4,6 @@
   "authors": [ "Oracle" ],
   "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
   "preserveCompilationContext": true,
-
   "packOptions": {
     "projectUrl": "http://dev.mysql.com/downloads/",
     "licenseUrl": "http://www.gnu.org/licenses/old-licenses/gpl-2.0.html",
@@ -18,7 +17,6 @@
     "xmlDoc": true,
     "nowarn": [ "CS1591" ]
   },
-
   "frameworks": {
     "netcoreapp1.0": {
       "imports": [
@@ -44,11 +42,12 @@
           "version": "1.0.0"
         },
         "xunit": "2.2.0-beta2-build3300",
-        "MySql.Data": "6.10.0-*",
         "dotnet-test-xunit": "2.2.0-preview2-build1029"
       }
     }
   },
-  "testRunner": "xunit"
-
+  "testRunner": "xunit",
+  "dependencies": {
+    "MySql.Data": "6.10.0-*"
+  }
 }

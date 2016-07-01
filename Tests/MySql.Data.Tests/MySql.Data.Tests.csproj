@@ -154,10 +154,14 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="BlobTests.cs" />
+    <Compile Include="EventTests.cs" />
+    <Compile Include="ExceptionTests.cs" />
     <Compile Include="Framework\Net451\TestDataTable.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="GenericListener.cs" />
+    <Compile Include="LanguageTests.cs" />
+    <Compile Include="LoggingTests.cs" />
     <Compile Include="MySqlBulkLoaderTests.cs" />
     <Compile Include="MySqlCommandTests.cs" />
     <Compile Include="MySqlConnectionStringBuilderTests.cs" />
@@ -171,6 +175,7 @@
     <Compile Include="TestBase.cs" />
     <Compile Include="Tokenizer.cs" />
     <Compile Include="TypeTests.cs" />
+    <Compile Include="UsageAdvisorTests.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
