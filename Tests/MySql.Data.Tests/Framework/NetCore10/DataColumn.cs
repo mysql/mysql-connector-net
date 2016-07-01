@@ -21,34 +21,18 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
-using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  /// <summary>
-  /// Summary description for Utils.
-  /// </summary>
-  public class Utils
+  public class DataColumn
   {
-
-    public static byte[] CreateBlob(int size)
+    public DataColumn(string name, Type type)
     {
-      byte[] buf = new byte[size];
-
-      Random r = new Random();
-      r.NextBytes(buf);
-      return buf;
+      Name = name;
+      Type = type;
     }
 
-    public static TestDataTable FillTable(string sql, MySqlConnection conn)
-    {
-      MySqlDataAdapter da = new MySqlDataAdapter(sql, conn);
-      TestDataTable dt = new TestDataTable();
-      da.Fill(dt);
-      return dt;
-    }
+    public string Name { get; set; }
+    public Type Type { get; set; }
   }
-
-
 }

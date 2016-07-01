@@ -106,7 +106,7 @@ namespace MySql.Data.MySqlClient.Tests
 
     private void CleanupDatabase()
     {
-      TestDataTable data = Utils.FillDataTable("SHOW DATABASES", root);
+      var data = Utils.FillTable("SHOW DATABASES", root);
       foreach (DataRow row in data.Rows)
       {
 
@@ -115,7 +115,7 @@ namespace MySql.Data.MySqlClient.Tests
         executeInternal(String.Format("DROP DATABASE IF EXISTS `{0}`", name), root);
       }
 
-      data = Utils.FillDataTable("SELECT user,host FROM mysql.user WHERE user <> 'root'", root);
+      data = Utils.FillTable("SELECT user,host FROM mysql.user WHERE user <> 'root'", root);
       foreach (DataRow row in data.Rows)
       {
         executeInternal(String.Format("DROP USER IF EXISTS '{0}'@'{1}'", row[0].ToString(), row[1].ToString()), root);
@@ -155,7 +155,7 @@ namespace MySql.Data.MySqlClient.Tests
       return userName;
     }
 
-    protected MySqlDataReader ExecuteReader(string sql, MySqlConnection conn)
+    public MySqlDataReader ExecuteReader(string sql, MySqlConnection conn)
     {
       MySqlCommand cmd = new MySqlCommand(sql, conn);
       return cmd.ExecuteReader();

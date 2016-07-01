@@ -25,45 +25,21 @@ using System.Collections.Generic;
 using System.Text;
 using Xunit;
 using System.Data;
+using System.ComponentModel;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class Syntax2 : IUseFixture<SetUpClass>, IDisposable
+  [DisplayName("syntax2")]
+  public class Syntax2 : TestBase
   {
-    private SetUpClass st;
-
-    private string connString = string.Empty;
-
-    public string conn
+    public Syntax2(TestSetup setup) : base(setup)
     {
-      get
-      {
-        connString = st.conn.ConnectionString;
-        connString += st.csAdditions;
-        return connString;
-      }
-    }
-
-
-    public void SetFixture(SetUpClass data)
-    {
-      st = data;
-      st.csAdditions += ";logging=true;";
-      if (st.conn.connectionState != ConnectionState.Closed)
-        st.conn.Close();
-      st.conn.ConnectionString += st.csAdditions;
-      st.conn.Open();
-    }
-
-    public void Dispose()
-    {
-      st.execSQL("DROP TABLE IF EXISTS TEST");
     }
 
     [Fact]
     public void CommentsInSQL()
     {
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
       string sql = "INSERT INTO Test /* my table */ VALUES (1 /* this is the id */, 'Test' );" +
         "/* These next inserts are just for testing \r\n" +
         "   comments */\r\n" +
@@ -72,11 +48,11 @@ namespace MySql.Data.MySqlClient.Tests
         "Test VALUES (2, 'Test2')";
 
       
-      MySqlCommand cmd = new MySqlCommand(sql, st.conn);
+      MySqlCommand cmd = new MySqlCommand(sql, connection);
       cmd.ExecuteNonQuery();
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", st.conn);
-      DataTable table = new DataTable();
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", connection);
+      TestDataTable table = new TestDataTable();
       da.Fill(table);
       Assert.Equal(1, table.Rows[0]["id"]);
       Assert.Equal("Test", table.Rows[0]["name"]);
@@ -88,8 +64,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void LastInsertid()
     {
-      st.execSQL("CREATE TABLE Test(id int auto_increment, name varchar(20), primary key(id))");
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(NULL, 'test')", st.conn);
+      executeSQL("CREATE TABLE Test(id int auto_increment, name varchar(20), primary key(id))");
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(NULL, 'test')", connection);
       cmd.ExecuteNonQuery();
       Assert.Equal(1, cmd.LastInsertedId);
 
@@ -107,14 +83,11 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ParsingBugTest()
     {
-      if (st.Version.Major < 5) return;
-
-      st.execSQL("DROP FUNCTION IF EXISTS `TestFunction`");
-      st.execSQL(@"CREATE FUNCTION `TestFunction`(A INTEGER (11), B INTEGER (11), C VARCHAR (20)) 
+      executeSQL(@"CREATE FUNCTION `TestFunction`(A INTEGER (11), B INTEGER (11), C VARCHAR (20)) 
           RETURNS int(11)
           RETURN 1");
 
-      MySqlCommand command = new MySqlCommand("TestFunction", st.conn);
+      MySqlCommand command = new MySqlCommand("TestFunction", connection);
       command.CommandType = CommandType.StoredProcedure;
       command.CommandText = "TestFunction";
       command.Parameters.AddWithValue("@A", 1);
@@ -130,9 +103,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void EscapedBackslash()
     {
-      st.execSQL("CREATE TABLE Test(id INT, name VARCHAR(20))");
+      executeSQL("CREATE TABLE Test(id INT, name VARCHAR(20))");
 
-      MySqlCommand cmd = new MySqlCommand(@"INSERT INTO Test VALUES (1, '\\=\\')", st.conn);
+      MySqlCommand cmd = new MySqlCommand(@"INSERT INTO Test VALUES (1, '\\=\\')", connection);
       cmd.ExecuteNonQuery();
     }
   }

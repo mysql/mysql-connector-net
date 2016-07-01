@@ -58,7 +58,7 @@
     <OutputPath>bin\$(TargetFrameworkVersion)\Debug\</OutputPath>
     <DefineConstants>TRACE;DEBUG;$(DefineConstants)</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <WarningLevel>2</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -154,12 +154,18 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="BlobTests.cs" />
+    <Compile Include="Framework\Net451\TestDataTable.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="GenericListener.cs" />
     <Compile Include="MySqlBulkLoaderTests.cs" />
     <Compile Include="MySqlCommandTests.cs" />
+    <Compile Include="MySqlConnectionStringBuilderTests.cs" />
     <Compile Include="MySqlConnectionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SetUp.cs" />
+    <Compile Include="Syntax.cs" />
+    <Compile Include="Syntax2.cs" />
     <Compile Include="TestBase.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>

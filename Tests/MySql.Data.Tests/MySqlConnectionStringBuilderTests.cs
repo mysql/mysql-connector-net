@@ -22,23 +22,17 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 using Xunit;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class MySqlConnectionStringBuilderTests : IUseFixture<SetUpClass>, IDisposable
+  [DisplayName("connectionstringbuilder")]
+  public class MySqlConnectionStringBuilderTests : TestBase
   {
-    private SetUpClass st;
-
-    public void SetFixture(SetUpClass data)
+    public MySqlConnectionStringBuilderTests(TestSetup setup) : base(setup)
     {
-      st = data;
-    }
-
-    public void Dispose()
-    {
-       //Nothing to clean
     }
 
     [Fact]

@@ -20,35 +20,27 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Collections.Generic;
-using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  /// <summary>
-  /// Summary description for Utils.
-  /// </summary>
-  public class Utils
+  public class MySqlDataAdapter
   {
-
-    public static byte[] CreateBlob(int size)
+    string SQL;
+    MySqlConnection connection;
+     
+    public MySqlDataAdapter(string sql, MySqlConnection conn)
     {
-      byte[] buf = new byte[size];
-
-      Random r = new Random();
-      r.NextBytes(buf);
-      return buf;
+      SQL = sql;
+      connection = conn;
     }
 
-    public static TestDataTable FillTable(string sql, MySqlConnection conn)
+    public void Fill(TestDataTable dt)
     {
-      MySqlDataAdapter da = new MySqlDataAdapter(sql, conn);
-      TestDataTable dt = new TestDataTable();
-      da.Fill(dt);
-      return dt;
+      var cmd = connection.CreateCommand();
+      cmd.CommandText = SQL;
+      using (var reader = cmd.ExecuteReader())
+        dt.Load(reader);
+
     }
   }
-
-
 }

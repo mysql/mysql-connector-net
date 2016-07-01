@@ -20,35 +20,52 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Collections.Generic;
 using System.Data;
+using System.Collections.Generic;
+using System;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  /// <summary>
-  /// Summary description for Utils.
-  /// </summary>
-  public class Utils
+  public class TestDataTable
   {
+    public List<DataColumn> Columns = new List<DataColumn>();
+    public List<DataRow> Rows = new List<DataRow>();
 
-    public static byte[] CreateBlob(int size)
+    public TestDataTable()
     {
-      byte[] buf = new byte[size];
 
-      Random r = new Random();
-      r.NextBytes(buf);
-      return buf;
     }
 
-    public static TestDataTable FillTable(string sql, MySqlConnection conn)
+    public int GetColumnIndex(string name)
     {
-      MySqlDataAdapter da = new MySqlDataAdapter(sql, conn);
-      TestDataTable dt = new TestDataTable();
-      da.Fill(dt);
-      return dt;
+      for (int x = 0; x < Columns.Count; x++)
+        if (Columns[x].Name == name) return x;
+      throw new ArgumentOutOfRangeException("Column name not found " + name);
+    }
+
+    public DataRow NewRow()
+    {
+      DataRow row = new DataRow();
+      row.OwningTable = this;
+      return row;
+    }
+
+    public void Load(MySqlDataReader reader)
+    {
+      // add the columns
+      for (int x = 0; x < reader.FieldCount; x++)
+        Columns.Add(new DataColumn(reader.GetName(x), reader.GetFieldType(x)));
+
+      // now add the rows
+      while (reader.Read())
+      {
+        DataRow row = NewRow();
+
+        object[] rowValues = new object[reader.FieldCount];
+        for (int index = 0; index < reader.FieldCount; index++)
+          row.Add(reader[index]);
+        Rows.Add(row);
+      }
     }
   }
-
-
 }

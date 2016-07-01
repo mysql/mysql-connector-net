@@ -1,4 +1,4 @@
-﻿{
+{
   "version": "6.10.0-*",
   "description": "MySql.Data.MySqlClient.Test Class Library",
   "authors": [ "Oracle" ],
@@ -15,7 +15,8 @@
   "buildOptions": {
     "warningsAsErrors": false,
     "optimize": true,
-    "xmlDoc": true
+    "xmlDoc": true,
+    "nowarn": [ "CS1591" ]
   },
 
   "frameworks": {
@@ -28,7 +29,10 @@
         "copyToOutput": [ "appsettings.json" ],
         "compile": {
           "include": [ "../*.cs" ],
-          "exclude": [ "Framework/Net451/**/*.*", "Certificates/**/*.*" ]
+          "exclude": [ 
+            "Framework/Net451/**/*.*", 
+            "Certificates/**/*.*" 
+            ]
         }
       },
       "dependencies": {

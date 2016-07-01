@@ -72,9 +72,19 @@ namespace MySql.Data.MySqlClient.Tests
       return Setup.CreateDatabase(postfix);
     }
 
+    protected MySqlConnectionStringBuilder GetConnectionSettings()
+    {
+      return new MySqlConnectionStringBuilder(Settings.GetConnectionString(true));
+    }
+
     protected MySqlConnection GetConnection(bool asRoot=false)
     {
       return Setup.GetConnection(asRoot);
+    }
+
+    protected MySqlDataReader ExecuteAsReader(string sql, MySqlConnection conn)
+    {
+      return Setup.ExecuteReader(sql, conn);
     }
 
     protected void executeSQL(string sql)
