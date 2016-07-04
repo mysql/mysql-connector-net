@@ -21,33 +21,28 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
-
-using Microsoft.Data.Entity;
+using Microsoft.EntityFrameworkCore;
 using MySql.Data.MySqlClient;
-using MySQL.Data.Entity.Extensions;
+using MySQL.Data.EntityFrameworkCore.Extensions;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace MySql.Data.Entity.Tests
+namespace MySql.Data.EntityFrameworkCore.Tests
 {
 
   public class MyTestContext : DbContext
   {
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-      optionsBuilder.UseMySQL(MySqlTestStore.baseConnectionString + ";database=test;");
+      optionsBuilder.UseMySQL(MySQLTestStore.baseConnectionString + ";database=test;");
     }
   }
 
-  public class MySqlTestStore : IDisposable
+  public class MySQLTestStore : IDisposable
   {
-    public const string baseConnectionString = "server=localhost;userid=test;password=test;port=3305;";
-    public const string rootConnectionString = "server=localhost;userid=root;password='';port=3305;";    
+    public const string baseConnectionString = "server=localhost;user id=test;password=test;port=3305;";
+    public const string rootConnectionString = "server=localhost;user id=root;password='';port=3305;";    
 
     public static void CreateDatabase(string databaseName, string script = null)
     {      

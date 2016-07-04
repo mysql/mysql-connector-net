@@ -21,14 +21,14 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.Extensions.DependencyInjection;
-using MySql.Data.Entity.Tests.DbContextClasses;
+using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using MySql.Data.MySqlClient;
-using MySQL.Data.Entity;
+using MySQL.Data.EntityFrameworkCore;
 using System;
 using System.Linq;
 using Xunit;
 
-namespace MySql.Data.Entity.Tests
+namespace MySql.Data.EntityFrameworkCore.Tests
 {
   public class FluentAPITests : IDisposable
   {
@@ -37,8 +37,7 @@ namespace MySql.Data.Entity.Tests
     public void EnsureRelationalPatterns()
     {
       var serviceCollection = new ServiceCollection();
-      serviceCollection.AddEntityFramework()
-        .AddMySQL()
+      serviceCollection.AddEntityFrameworkMySQL()
         .AddDbContext<ComputedColumnContext>();
 
       var serviceProvider = serviceCollection.BuildServiceProvider();
@@ -50,7 +49,7 @@ namespace MySql.Data.Entity.Tests
         var e = new Employee { FirstName = "Jos", LastName = "Stuart" };
         context.Employees.Add(e);
         context.SaveChanges();
-        var employeeComputedColumn = context.Employees.SingleOrDefault();
+        var employeeComputedColumn = context.Employees.FirstOrDefault();
         Assert.True(employeeComputedColumn.DisplayName.Equals("Stuart Jos"), "Wrong computed column");
         context.Database.EnsureDeleted();
       }
@@ -60,8 +59,8 @@ namespace MySql.Data.Entity.Tests
     public void CanNameAlternateKey()
     {
       var serviceCollection = new ServiceCollection();
-      serviceCollection.AddEntityFramework()
-        .AddMySQL()
+
+      serviceCollection.AddEntityFrameworkMySQL()
         .AddDbContext<KeyConventionsContext>();
 
       var serviceProvider = serviceCollection.BuildServiceProvider();
@@ -69,7 +68,7 @@ namespace MySql.Data.Entity.Tests
       using (var context = serviceProvider.GetRequiredService<KeyConventionsContext>())
       {
         context.Database.EnsureCreated();
-        using (var cnn = new MySqlConnection(MySqlTestStore.baseConnectionString))
+        using (var cnn = new MySqlConnection(MySQLTestStore.baseConnectionString))
         {
           cnn.Open();
           var cmd = new MySqlCommand("SELECT DISTINCT table_name, index_name FROM INFORMATION_SCHEMA.STATISTICS where table_name like 'car' and index_name not like 'PRIMARY' ", cnn);
@@ -88,8 +87,7 @@ namespace MySql.Data.Entity.Tests
     public void CanUseToTable()
     {
       var serviceCollection = new ServiceCollection();
-      serviceCollection.AddEntityFramework()
-        .AddMySQL()
+      serviceCollection.AddEntityFrameworkMySQL()
         .AddDbContext<TableConventionsContext>();
 
       var serviceProvider = serviceCollection.BuildServiceProvider();
@@ -97,7 +95,7 @@ namespace MySql.Data.Entity.Tests
       using (var context = serviceProvider.GetRequiredService<TableConventionsContext>())
       {
         context.Database.EnsureCreated();
-        using (var cnn = new MySqlConnection(MySqlTestStore.baseConnectionString))
+        using (var cnn = new MySqlConnection(MySQLTestStore.baseConnectionString))
         {
           cnn.Open();
           var cmd = new MySqlCommand("SELECT table_name FROM INFORMATION_SCHEMA.STATISTICS where table_schema like 'somecars' ", cnn);
@@ -107,6 +105,7 @@ namespace MySql.Data.Entity.Tests
             Assert.True(reader.GetString(0).ToString().Equals("somecars"), "Wrong table name");
           }
         }
+        context.Database.EnsureDeleted();
       }
     }
 
@@ -115,8 +114,7 @@ namespace MySql.Data.Entity.Tests
     public void CanUseConcurrency()
     {
       var serviceCollection = new ServiceCollection();
-      serviceCollection.AddEntityFramework()
-        .AddMySQL()
+      serviceCollection.AddEntityFrameworkMySQL()
         .AddDbContext<ConcurrencyTestsContext>();
 
       var serviceProvider = serviceCollection.BuildServiceProvider();
@@ -124,7 +122,7 @@ namespace MySql.Data.Entity.Tests
       using (var context = serviceProvider.GetRequiredService<ConcurrencyTestsContext>())
       {
         context.Database.EnsureCreated();
-        using (var cnn = new MySqlConnection(MySqlTestStore.baseConnectionString))
+        using (var cnn = new MySqlConnection(MySQLTestStore.baseConnectionString))
         {
           cnn.Open();
           var cmd = new MySqlCommand("SELECT table_name FROM INFORMATION_SCHEMA.STATISTICS where table_schema like 'somecars' ", cnn);
@@ -134,6 +132,7 @@ namespace MySql.Data.Entity.Tests
             Assert.True(reader.GetString(0).ToString().Equals("somecars"), "Wrong table name");
           }
         }
+        context.Database.EnsureDeleted();
       }
     }
 
@@ -142,8 +141,7 @@ namespace MySql.Data.Entity.Tests
     public void CanUseConcurrencyToken()
     {
       var serviceCollection = new ServiceCollection();
-      serviceCollection.AddEntityFramework()
-        .AddMySQL()
+      serviceCollection.AddEntityFrameworkMySQL()
         .AddDbContext<ComputedColumnContext>();
 
       var serviceProvider = serviceCollection.BuildServiceProvider();
@@ -165,7 +163,7 @@ namespace MySql.Data.Entity.Tests
     public void Dispose()
     {
       // ensure database deletion
-      using (var cnn = new MySqlConnection(MySqlTestStore.baseConnectionString))
+      using (var cnn = new MySqlConnection(MySQLTestStore.baseConnectionString))
       {
         cnn.Open();
         var cmd = new MySqlCommand("DROP DATABASE IF EXISTS test", cnn);

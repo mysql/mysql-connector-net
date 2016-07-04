@@ -11,7 +11,7 @@
 // it under the terms of the GNU General Public License as published 
 // by the Free Software Foundation; version 2 of the License.
 //
-// This program is distributed in the hope that it will be useful, but 
+// This program is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
 // or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
 // for more details.
@@ -21,19 +21,18 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
-using Microsoft.Data.Entity;
-using MySql.Data.Entity.Tests.DbContextClasses;
+using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using System;
 using System.Linq;
 using Xunit;
-using MySQL.Data.Entity;
-using MySQL.Data.Entity.Extensions;
+using MySQL.Data.EntityFrameworkCore;
+using MySQL.Data.EntityFrameworkCore.Extensions;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Data.Entity.Infrastructure;
 using MySql.Data.MySqlClient;
-using Microsoft.Data.Entity.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore;
 
-namespace MySql.Data.Entity.Tests
+namespace MySql.Data.EntityFrameworkCore.Tests
 {
   public class FunctionalTests : IDisposable
   {
@@ -42,17 +41,17 @@ namespace MySql.Data.Entity.Tests
     public void CanConnectWithConnectionOnConfiguring()
     {
       var serviceCollection = new ServiceCollection();
-      serviceCollection.AddEntityFramework()
-        .AddMySQL()
+      serviceCollection.AddEntityFrameworkMySQL()
         .AddDbContext<ConnectionStringInOnConfiguringTestContext>();
 
-      var serviceProvider = serviceCollection.BuildServiceProvider();
+     var serviceProvider = serviceCollection.BuildServiceProvider();  
 
       using (var context = serviceProvider.GetRequiredService<ConnectionStringInOnConfiguringTestContext>())
-      {
-        Assert.True(context.Posts.Any());
+      {        
+        context.Database.EnsureCreated();
+        Assert.False(context.Posts.Any());
+        context.Database.EnsureDeleted();
       }
-
     }
 
 
@@ -60,15 +59,14 @@ namespace MySql.Data.Entity.Tests
     public void CanThrowExceptionWhenNoConfiguration()
     {
       var serviceCollection = new ServiceCollection();
-      serviceCollection.AddEntityFramework()
-        .AddMySQL()
+      serviceCollection.AddEntityFrameworkMySQL()
         .AddDbContext<NoConfigurationContext>();
 
       var serviceProvider = serviceCollection.BuildServiceProvider();
 
       using (var context = serviceProvider.GetRequiredService<NoConfigurationContext>())
       {
-        Assert.Equal(CoreStrings.NoProviderConfigured, Assert.Throws<InvalidOperationException>(() => context.Blogs.Any()).Message);
+        Assert.Equal(CoreStrings.NoProviderConfigured, Assert.Throws<InvalidOperationException>(() => context.Blogs.Any()).Message);        
       }
     }
 
@@ -77,8 +75,7 @@ namespace MySql.Data.Entity.Tests
     public void CreatedDb()
     {
       var serviceCollection = new ServiceCollection();
-      serviceCollection.AddEntityFramework()
-        .AddMySQL()
+      serviceCollection.AddEntityFrameworkMySQL()
         .AddDbContext<TestsContext>();
 
       var serviceProvider = serviceCollection.BuildServiceProvider();
@@ -86,7 +83,7 @@ namespace MySql.Data.Entity.Tests
       using (var context = serviceProvider.GetRequiredService<TestsContext>())
       {
         context.Database.EnsureCreated();        
-        using (var cnn = new MySqlConnection(MySqlTestStore.baseConnectionString + string.Format(";database={0}", context.Database.GetDbConnection().Database)))
+        using (var cnn = new MySqlConnection(MySQLTestStore.baseConnectionString + string.Format(";database={0}", context.Database.GetDbConnection().Database)))
         {
           cnn.Open();
           var cmd = new MySqlCommand(string.Format("SHOW DATABASES LIKE '{0}'", context.Database.GetDbConnection().Database), cnn);
@@ -105,8 +102,7 @@ namespace MySql.Data.Entity.Tests
     public void EnsureRelationalPatterns()
     {
       var serviceCollection = new ServiceCollection();
-      serviceCollection.AddEntityFramework()
-        .AddMySQL()
+      serviceCollection.AddEntityFrameworkMySQL()
         .AddDbContext<TestsContext>();
 
       var serviceProvider = serviceCollection.BuildServiceProvider();
@@ -114,7 +110,7 @@ namespace MySql.Data.Entity.Tests
       using (var context = serviceProvider.GetRequiredService<TestsContext>())
       {
         context.Database.EnsureCreated();
-        using (var cnn = new MySqlConnection(MySqlTestStore.baseConnectionString + string.Format(";database={0}", context.Database.GetDbConnection().Database)))
+        using (var cnn = new MySqlConnection(MySQLTestStore.baseConnectionString + string.Format(";database={0}", context.Database.GetDbConnection().Database)))
         {
           cnn.Open();
           var cmd = new MySqlCommand(string.Format("SHOW DATABASES LIKE '{0}'", context.Database.GetDbConnection().Database), cnn);
@@ -133,8 +129,7 @@ namespace MySql.Data.Entity.Tests
     public void CanUseIgnoreEntity()
     {
       var serviceCollection = new ServiceCollection();
-      serviceCollection.AddEntityFramework()
-        .AddMySQL()
+      serviceCollection.AddEntityFrameworkMySQL()
         .AddDbContext<SimpleContextWithIgnore>();
 
       var serviceProvider = serviceCollection.BuildServiceProvider();
@@ -143,9 +138,7 @@ namespace MySql.Data.Entity.Tests
       {
         context.Database.EnsureCreated();
         Assert.True(context.Model.GetEntityTypes().Count() == 2, "Wrong model generation");
-        Assert.True(context.Blogs.ToList().Count == 0, "");
-        // TODO check why this is not valid
-        //Assert.True(context.Posts.ToList().Count == 0, "");
+        Assert.True(context.Blogs.ToList().Count == 0, "");        
         context.Database.EnsureDeleted();
       }
     }
@@ -154,11 +147,13 @@ namespace MySql.Data.Entity.Tests
 
     [Fact]
     public void CanUseOptionsInDbContextCtor()
-    {      
+    {                      
       using (var context = new OptionsContext(new DbContextOptions<OptionsContext>(),
-                                              new MySqlConnection(MySqlTestStore.CreateConnectionString("test"))))
+                                              new MySqlConnection(MySQLTestStore.CreateConnectionString("test"))))
       {
-        Assert.True(context.Blogs.Any());
+        context.Database.EnsureCreated();     
+        Assert.False(context.Blogs.Any());
+        context.Database.EnsureDeleted();
       }
 
     }
@@ -166,8 +161,14 @@ namespace MySql.Data.Entity.Tests
 
     public void Dispose()
     {
-
-    }
+        //ensure test database is deleted
+        using (var cnn = new MySqlConnection(MySQLTestStore.baseConnectionString))
+        {
+          cnn.Open();
+          var cmd = new MySqlCommand("DROP DATABASE IF EXISTS TEST", cnn);
+          cmd.ExecuteNonQuery();
+        }
+     }
 
 
     #region ContextClasses
@@ -202,14 +203,14 @@ namespace MySql.Data.Entity.Tests
 
     private class ConnectionStringInOnConfiguringTestContext : TestsContext
     {
-      public ConnectionStringInOnConfiguringTestContext(IServiceProvider serviceProvider, DbContextOptions options) 
-        : base(serviceProvider, options)
+      public ConnectionStringInOnConfiguringTestContext(DbContextOptions options) 
+        : base(options)
       {
 
       }
       protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
       {
-        optionsBuilder.UseMySQL(MySqlTestStore.CreateConnectionString("test"));
+        optionsBuilder.UseMySQL(MySQLTestStore.CreateConnectionString("test"));
       }
     }
 
@@ -234,8 +235,6 @@ namespace MySql.Data.Entity.Tests
         base.Dispose();
       }
     }
-
-
     #endregion
   }
 }

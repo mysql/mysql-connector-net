@@ -22,24 +22,20 @@
 
 using System;
 using System.Text;
-using MySql.Data.MySqlClient;
 using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using System.Linq;
-using Microsoft.Data.Entity;
-using MySQL.Data.Entity.Extensions;
-using MySql.Data.Entity.Tests.DbContextClasses;
-using MySQL.Data.Entity;
+using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
+using MySql.Data.EntityFrameworkCore;
+using MySql.Data.MySqlClient;
 
-
-namespace MySql.Data.Entity.Tests
+namespace MySql.Data.EntityFrameworkCore.Tests
 {
   public class EntityTestsFixtureClass : IDisposable
   {
     // A trace listener to use during testing.
-    private AssertFailTraceListener asertFailListener = new AssertFailTraceListener();
-    private string _databaseName = "TestContext";
+    private AssertFailTraceListener asertFailListener = new AssertFailTraceListener();    
     private readonly IServiceProvider _serviceProvider;
    
 
@@ -52,29 +48,34 @@ namespace MySql.Data.Entity.Tests
 
       var serviceCollection = new ServiceCollection();
 
-      serviceCollection.AddEntityFramework()
-                    .AddMySQL()
+      serviceCollection.AddEntityFrameworkMySQL()
                     .AddDbContext<TestsContext>();
 
       _serviceProvider = serviceCollection.BuildServiceProvider();
 
     }
 
-    public void CreateContext(MySqlTestStore testStore)
-    {
-      var optionsBuilder = new DbContextOptionsBuilder();
-      optionsBuilder.UseMySQL(MySqlTestStore.CreateConnectionString(_databaseName));
+    //public void CreateContext(MySQLTestStore testStore)
+    //{
+    //  var optionsBuilder = new DbContextOptionsBuilder();
+    //  optionsBuilder.UseMySQL(MySQLTestStore.CreateConnectionString(_databaseName));
 
-      using (var context = new TestsContext(_serviceProvider, optionsBuilder.Options))
-      {
-        context.Database.EnsureDeleted();
-        context.Database.EnsureCreated();
-      }
-    }
+    //  using (var context = new TestsContext(optionsBuilder.Options))
+    //  {
+    //    context.Database.EnsureDeleted();
+    //    context.Database.EnsureCreated();
+    //  }
+    //}
 
     public void Dispose()
     {
-        // TODO
+      // ensure database deletion
+      using (var cnn = new MySqlConnection(MySQLTestStore.baseConnectionString))
+      {
+        cnn.Open();
+        var cmd = new MySqlCommand("DROP DATABASE IF EXISTS test", cnn);
+        cmd.ExecuteNonQuery();
+      }
     }
    
 

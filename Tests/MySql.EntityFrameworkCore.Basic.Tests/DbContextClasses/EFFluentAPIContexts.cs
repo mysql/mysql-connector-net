@@ -21,12 +21,11 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
-using Microsoft.Data.Entity;
-using Microsoft.Data.Entity.Infrastructure;
-using MySQL.Data.Entity.Extensions;
+using Microsoft.EntityFrameworkCore;
+using MySQL.Data.EntityFrameworkCore.Extensions;
 using System;
 
-namespace MySql.Data.Entity.Tests.DbContextClasses
+namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
 {
   public class ComputedColumnContext : DbContext
   {
@@ -44,15 +43,15 @@ namespace MySql.Data.Entity.Tests.DbContextClasses
 
       modelBuilder.Entity<Employee>()
              .Property(p => p.Timestamp)
-             .HasDefaultValue("0")
-             .HasDefaultValueSql("CURRENT_TIMESTAMP")
+             .HasDefaultValue(DateTime.Now)
+             .ForMySQLHasDefaultValueSql("CURRENT_TIMESTAMP")
              .ValueGeneratedOnAddOrUpdate();
 
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-      optionsBuilder.UseMySQL(MySqlTestStore.baseConnectionString + ";database=test;");
+      optionsBuilder.UseMySQL(MySQLTestStore.baseConnectionString + ";database=test;");
     }
   }
 
@@ -77,7 +76,7 @@ namespace MySql.Data.Entity.Tests.DbContextClasses
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-      optionsBuilder.UseMySQL(MySqlTestStore.baseConnectionString + ";database=test;");
+      optionsBuilder.UseMySQL(MySQLTestStore.baseConnectionString + ";database=test;");
     }
 
   }
@@ -98,6 +97,16 @@ namespace MySql.Data.Entity.Tests.DbContextClasses
               .HasIndex(b => b.Url)
               .HasName("Index_Url");
 
+      modelBuilder.Entity<Blog>()
+           .HasOne(p => p.Metadata)
+           .WithOne(i => i.Blog)
+           .HasForeignKey<BlogMetadata>(b => b.BlogId);
+
+      modelBuilder.Entity<Blog>()
+             .HasOne(p => p.RecentPost)
+             .WithOne(i => i.Blog)
+             .HasForeignKey<Post>(b => b.PostId);
+
       modelBuilder.Entity<Car>()
                .Property(b => b.Make)
                .ForMySQLHasColumnType("varchar(100)");
@@ -111,7 +120,7 @@ namespace MySql.Data.Entity.Tests.DbContextClasses
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-      optionsBuilder.UseMySQL(MySqlTestStore.baseConnectionString + ";database=test;");
+      optionsBuilder.UseMySQL(MySQLTestStore.baseConnectionString + ";database=test;");
     }
   }
 

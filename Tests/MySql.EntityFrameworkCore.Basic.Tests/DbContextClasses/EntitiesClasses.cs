@@ -20,17 +20,11 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace MySql.Data.Entity.Tests.DbContextClasses
+namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
 {
   public class Blog
   {
@@ -51,6 +45,9 @@ namespace MySql.Data.Entity.Tests.DbContextClasses
     public string Content { get; set; }
 
     public int BlogIdFK { get; set; }
+
+    public string Url { get; set; }
+
     public Blog Blog { get; set; }
   }
 

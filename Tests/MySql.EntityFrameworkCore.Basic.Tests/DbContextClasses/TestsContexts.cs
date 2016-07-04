@@ -21,13 +21,12 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
-using Microsoft.Data.Entity;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
-using MySQL.Data.Entity.Extensions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+using MySQL.Data.EntityFrameworkCore.Extensions;
 using System;
 
-namespace MySql.Data.Entity.Tests.DbContextClasses
+namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
 {
 
   public class NoConfigurationContext : DbContext
@@ -43,6 +42,21 @@ namespace MySql.Data.Entity.Tests.DbContextClasses
 
     public SimpleContext(DbContextOptions options): base(options)
     {      
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+      modelBuilder.Entity<Blog>()
+              .HasOne(p => p.RecentPost)
+              .WithOne(i => i.Blog)
+              .HasForeignKey<Post>(b => b.PostId);
+
+
+      modelBuilder.Entity<Blog>()
+            .HasOne(p => p.Metadata)
+            .WithOne(i => i.Blog)
+            .HasForeignKey<BlogMetadata>(b => b.BlogId);
+
     }
 
   }
@@ -62,17 +76,11 @@ namespace MySql.Data.Entity.Tests.DbContextClasses
 
     public TestsContext(DbContextOptions options): base(options)
     {
-    }
-
-    public TestsContext(IServiceProvider serviceProvider, DbContextOptions options)
-                : base(serviceProvider, options)
-    {
-
-    }
+    }   
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-       optionsBuilder.UseMySQL(MySqlTestStore.baseConnectionString + ";database=test;");
+       optionsBuilder.UseMySQL(MySQLTestStore.baseConnectionString + ";database=test;");
     }
 
 
@@ -82,7 +90,7 @@ namespace MySql.Data.Entity.Tests.DbContextClasses
                 .HasOne(p => p.RecentPost)
                 .WithOne(i => i.Blog)
                 .HasPrincipalKey<Blog>(p => new { p.BlogId, p.Url })
-                .HasForeignKey<Post>(b => b.BlogIdFK);
+                .HasForeignKey<Post>(b => new { b.BlogIdFK, b.Url });
 
       modelBuilder.Entity<BlogMetadata>()
                .HasOne(p => p.Blog)
