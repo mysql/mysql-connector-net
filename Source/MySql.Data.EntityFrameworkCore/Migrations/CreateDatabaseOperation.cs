@@ -20,9 +20,9 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.Data.Entity.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
-namespace MySQL.Data.Entity.Migrations
+namespace MySQL.Data.EntityFrameworkCore.Migrations
 {
 
     public class MySQLCreateDatabaseOperation : MigrationOperation

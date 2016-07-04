@@ -20,24 +20,24 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Update;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Update;
 using System.Linq;
 
-namespace MySQL.Data.Entity.Update
+namespace MySQL.Data.EntityFrameworkCore.Update
 {
   public class MySQLModificationCommandBatchFactory : IModificationCommandBatchFactory
   {
     private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
-    private readonly ISqlGenerator _sqlGenerator;
+    private readonly ISqlGenerationHelper _sqlGenerator;
     private readonly MySQLUpdateSqlGenerator _updateSqlGenerator;
     private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
     private readonly IDbContextOptions _options;
 
     public MySQLModificationCommandBatchFactory(
         [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
-        [NotNull] ISqlGenerator sqlGenerator,
+        [NotNull] ISqlGenerationHelper sqlGenerator,
         [NotNull] MySQLUpdateSqlGenerator updateSqlGenerator,
         [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
         [NotNull] IDbContextOptions options)

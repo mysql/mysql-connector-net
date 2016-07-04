@@ -20,16 +20,16 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.Data.Entity.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace MySQL.Data.Entity.Metadata
+namespace MySQL.Data.EntityFrameworkCore.Metadata
 {
     public class MySQLPropertyAnnotations : RelationalPropertyAnnotations
     {
         private const string AUTOINC_ANNOTATION = "MySQL:AutoIncrement";
 
         public MySQLPropertyAnnotations(IProperty property)
-            : base(property, MySQLAnnotationNames.Prefix)
+            : base(property, MySQLFullAnnotationNames.Instance)
         {
         }
 

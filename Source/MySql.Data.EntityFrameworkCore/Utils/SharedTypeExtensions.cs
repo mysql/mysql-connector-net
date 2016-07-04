@@ -24,7 +24,7 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 
-namespace MySQL.Data.Entity.Utils
+namespace MySQL.Data.EntityFrameworkCore.Utils
 {
   [DebuggerStepThrough]
   internal static class SharedTypeExtensions

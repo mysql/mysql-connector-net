@@ -20,18 +20,21 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 
-namespace MySQL.Data.Entity
+namespace MySQL.Data.EntityFrameworkCore
 {
-    public class MySQLModelSource : ModelSource
-    {
+    public class MySQLModelSource : RelationalModelSource
+  {
         public MySQLModelSource(
-            IDbSetFinder setFinder,
-            ICoreConventionSetBuilder coreConventionSetBuilder)
-            : base(setFinder, coreConventionSetBuilder)
+            [NotNull] IDbSetFinder setFinder,
+            [NotNull] ICoreConventionSetBuilder coreConventionSetBuilder,
+            [NotNull] IModelCustomizer modelCustomizer,
+            [NotNull] IModelCacheKeyFactory modelCacheKeyFactory)
+            : base(setFinder, coreConventionSetBuilder, modelCustomizer, modelCacheKeyFactory)
         {
         }
     }

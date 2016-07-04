@@ -21,43 +21,50 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using Microsoft.Data.Entity.Query.Expressions;
-using Microsoft.Data.Entity.Query.Sql;
-using Microsoft.Data.Entity.Storage;
+using Microsoft.EntityFrameworkCore.Query.Expressions;
+using Microsoft.EntityFrameworkCore.Query.Sql;
+using Microsoft.EntityFrameworkCore.Storage;
 
-namespace MySQL.Data.Entity.Query
+namespace MySQL.Data.EntityFrameworkCore.Query
 {
-  public class MySQLQueryGeneratorFactory : ISqlQueryGeneratorFactory
+  public class MySQLQueryGeneratorFactory : QuerySqlGeneratorFactoryBase
   {
-    private readonly IRelationalCommandBuilderFactory _relationalCommandBuilderFactory;
-    private readonly ISqlGenerator _sqlGenerator;
-    private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
-    private readonly ISqlCommandBuilder _sqlCommandBuilder;
+    //private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
+    //private readonly ISqlGenerationHelper _sqlGenerationHelper;
+    //private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
+    //private readonly IRelationalTypeMapper _relationalTypeMapper;
 
     public MySQLQueryGeneratorFactory(IRelationalCommandBuilderFactory commandBuilderFactory,
-            ISqlGenerator sqlGenerator,
+            ISqlGenerationHelper sqlGenerationHelper,
             IParameterNameGeneratorFactory parameterNameGeneratorFactory,
-            ISqlCommandBuilder sqlCommandBuilder)
-    {
-      ThrowIf.Argument.IsNull(commandBuilderFactory, nameof(commandBuilderFactory));
-      ThrowIf.Argument.IsNull(sqlGenerator, nameof(sqlGenerator));
-      ThrowIf.Argument.IsNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory));
-
-      _relationalCommandBuilderFactory = commandBuilderFactory;
-      _sqlGenerator = sqlGenerator;
-      _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
-      _sqlCommandBuilder = sqlCommandBuilder;
+            IRelationalTypeMapper relationalTypeMapper)
+            : base(
+               commandBuilderFactory,
+               sqlGenerationHelper, 
+               parameterNameGeneratorFactory,
+               relationalTypeMapper)
+    {     
     }
 
-    public ISqlQueryGenerator CreateGenerator(SelectExpression selectExpression)
-    {
-      ThrowIf.Argument.IsNull(selectExpression, nameof(selectExpression));
-      return new MySQLQuerySqlGenerator(_relationalCommandBuilderFactory, _sqlGenerator, _parameterNameGeneratorFactory, selectExpression);
-    }
 
-    public ISqlQueryGenerator CreateRawCommandGenerator(SelectExpression selectExpression, string sql, object[] parameters)
-    {
-      throw new NotImplementedException();
-    }
+    public override IQuerySqlGenerator CreateDefault(SelectExpression selectExpression)
+        => new MySQLQuerySqlGenerator(
+            CommandBuilderFactory,
+            SqlGenerationHelper,
+            ParameterNameGeneratorFactory,
+            RelationalTypeMapper,
+            selectExpression);
+  
+
+  //public ISqlQueryGenerator CreateGenerator(SelectExpression selectExpression)
+  //{
+  //  ThrowIf.Argument.IsNull(selectExpression, nameof(selectExpression));
+  //  return new MySQLQuerySqlGenerator(_relationalCommandBuilderFactory, _sqlGenerator, _parameterNameGeneratorFactory, selectExpression);
+  //}
+
+  //public ISqlQueryGenerator CreateRawCommandGenerator(SelectExpression selectExpression, string sql, object[] parameters)
+  //{
+  //  throw new NotImplementedException();
+  //}
   }
 }

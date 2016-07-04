@@ -21,9 +21,9 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.Extensions.Logging;
-using Microsoft.Data.Entity.Query.ExpressionTranslators;
+using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 
-namespace MySQL.Data.Entity
+namespace MySQL.Data.EntityFrameworkCore
 {
   public class MySQLCompositeMethodCallTranslator : RelationalCompositeMethodCallTranslator
     {

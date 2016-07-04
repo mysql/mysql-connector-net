@@ -20,17 +20,19 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MySQL.Data.Entity.Metadata
+namespace MySQL.Data.EntityFrameworkCore.Metadata
 {
   public static class MySQLAnnotationNames
   {
     public const string Prefix = "MySQL:";
     public const string AutoIncrement = "AutoIncrement";
+    
   }
 }

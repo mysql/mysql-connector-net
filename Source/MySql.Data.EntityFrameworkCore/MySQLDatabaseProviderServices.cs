@@ -22,22 +22,22 @@
 
 using System;
 using System.Reflection;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Update;
-using Microsoft.Data.Entity.ValueGeneration;
-using MySQL.Data.Entity.Migrations;
-using MySQL.Data.Entity.Update;
-using MySQL.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Query;
-using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Query.ExpressionTranslators;
-using Microsoft.Data.Entity.Query.Sql;
-using MySQL.Data.Entity.Query;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Query.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
+using MySQL.Data.EntityFrameworkCore.Migrations;
+using MySQL.Data.EntityFrameworkCore.Update;
+using MySQL.Data.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
+using MySQL.Data.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query.Sql;
 
-namespace MySQL.Data.Entity
+namespace MySQL.Data.EntityFrameworkCore
 {
   public class MySQLDatabaseProviderServices : RelationalDatabaseProviderServices
   {
@@ -58,12 +58,12 @@ namespace MySQL.Data.Entity
 
     public override IRelationalConnection RelationalConnection
     {
-      get { return GetService<MySQLConnection>(); }
+      get { return GetService<MySQLServerConnection>(); }
     }
 
-    public override ISqlGenerator SqlGenerator
+    public override ISqlGenerationHelper SqlGenerationHelper
     {
-      get { return GetService<MySQLSqlGenerator>(); }
+      get { return GetService<MySQLSqlGenerationHelper>(); }
     }
 
     //public override IValueGeneratorSelector ValueGeneratorSelector
@@ -132,12 +132,12 @@ namespace MySQL.Data.Entity
       get { return GetService<MySQLCompositeMemberTranslator>(); }
     }
 
-    public override IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory
-    {
-      get { return GetService<UntypedRelationalValueBufferFactoryFactory>(); }
-    }
+    //public override IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory
+    //{
+    //  get { return GetService<UntypedRelationalValueBufferFactoryFactory>(); }
+    //}
 
-    public override ISqlQueryGeneratorFactory SqlQueryGeneratorFactory
+    public override IQuerySqlGeneratorFactory QuerySqlGeneratorFactory
     {
       get { return GetService<MySQLQueryGeneratorFactory>(); }
     }

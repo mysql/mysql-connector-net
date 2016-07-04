@@ -20,10 +20,10 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace MySQL.Data.Entity
+namespace MySQL.Data.EntityFrameworkCore
 {
   public class MySQLOptionsExtension : RelationalOptionsExtension
     {
@@ -37,9 +37,9 @@ namespace MySQL.Data.Entity
         }
 
 
-        public override void ApplyServices(EntityFrameworkServicesBuilder builder)
-        {            
-         builder.AddMySQL();
+        public override void ApplyServices(IServiceCollection services)
+        {
+            services.AddEntityFrameworkMySQL();
         }
     }
 }

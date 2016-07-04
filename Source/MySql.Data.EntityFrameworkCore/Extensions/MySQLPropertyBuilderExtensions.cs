@@ -20,9 +20,9 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.Data.Entity.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace MySQL.Data.Entity.Extensions
+namespace MySQL.Data.EntityFrameworkCore.Extensions
 {
   public static class MySQLPropertyBuilderExtensions
   {
@@ -59,10 +59,27 @@ namespace MySQL.Data.Entity.Extensions
         ThrowIf.Argument.IsEmpty(sql, "sql");
 
       propertyBuilder.ValueGeneratedOnAdd();
-      propertyBuilder.Metadata.MySQL().GeneratedValueSql = sql;
+      //propertyBuilder.Metadata.MySQL().GeneratedValueSql = sql;
 
+      propertyBuilder.Metadata.MySQL().DefaultValueSql = sql;
       return propertyBuilder;
 
+    }
+
+    public static PropertyBuilder ForMySQLHasDefaultValueSql(
+            [NotNull] this PropertyBuilder propertyBuilder,
+            [CanBeNull] string sql)
+    {
+      ThrowIf.Argument.IsNull(propertyBuilder, "propertyBuilder");
+
+      if (sql != null && sql.Length == 0)
+        ThrowIf.Argument.IsEmpty(sql, "sql");
+
+      propertyBuilder.ValueGeneratedOnAdd();
+      //propertyBuilder.Metadata.MySQL().GeneratedValueSql = sql;
+
+      propertyBuilder.Metadata.MySQL().DefaultValueSql = sql;
+      return propertyBuilder;
     }
   }
 

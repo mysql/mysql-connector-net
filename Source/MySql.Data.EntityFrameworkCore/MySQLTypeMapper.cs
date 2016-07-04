@@ -24,12 +24,12 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
-using Microsoft.Data.Entity;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore;
 
-namespace MySQL.Data.Entity
+namespace MySQL.Data.EntityFrameworkCore
 {
   public class MySQLTypeMapper : RelationalTypeMapper
   {
@@ -47,31 +47,36 @@ namespace MySQL.Data.Entity
     private readonly RelationalTypeMapping _smallint = new RelationalTypeMapping("smallint", typeof(Int16)); 
     private readonly RelationalTypeMapping _tinyint = new RelationalTypeMapping("tinyint", typeof(Byte));
     private readonly RelationalTypeMapping _char = new RelationalTypeMapping("char", typeof(Byte));
-    
+    private readonly RelationalTypeMapping _string = new RelationalTypeMapping("varchar", typeof(String), dbType: DbType.AnsiString, unicode: false, size: null, hasNonDefaultUnicode: true);
+
 
     //private readonly RelationalTypeMapping _mediumint = new RelationalTypeMapping("mediumint", );
 
-    private readonly RelationalTypeMapping _longText = new RelationalTypeMapping("longtext", typeof(String)); 
-    private readonly RelationalTypeMapping _mediumText = new RelationalTypeMapping("mediumtext", typeof(String));
-    private readonly RelationalTypeMapping _Text = new RelationalTypeMapping("text", typeof(String));
-    private readonly RelationalTypeMapping _tinyText = new RelationalTypeMapping("tinytext", typeof(String));
+    private readonly RelationalTypeMapping _longText = new RelationalTypeMapping("longtext", typeof(string)); 
+    private readonly RelationalTypeMapping _mediumText = new RelationalTypeMapping("mediumtext", typeof(string));
+    private readonly RelationalTypeMapping _Text = new RelationalTypeMapping("text", typeof(string));
+    private readonly RelationalTypeMapping _tinyText = new RelationalTypeMapping("tinytext", typeof(string));
 
-    private readonly RelationalSizedTypeMapping _varchar = new RelationalSizedTypeMapping("varchar(1000)", typeof(String), 1000);
+    private readonly RelationalTypeMapping _varchar = new RelationalTypeMapping("varchar(1000)", typeof(string), dbType: DbType.AnsiString, unicode: false, size: 1000, hasNonDefaultUnicode: true);
     private readonly RelationalTypeMapping _varbinary = new RelationalTypeMapping("blob", typeof(byte[]));
     private readonly RelationalTypeMapping _datetime = new RelationalTypeMapping("datetime", typeof(DateTime)); 
     private readonly RelationalTypeMapping _date = new RelationalTypeMapping("date", typeof(DateTime)); 
     private readonly RelationalTypeMapping _time = new RelationalTypeMapping("time", typeof(DateTime));
     private readonly RelationalTypeMapping _double = new RelationalTypeMapping("float", typeof(Single)); 
     private readonly RelationalTypeMapping _real = new RelationalTypeMapping("real", typeof(Single));
-    private readonly RelationalTypeMapping _decimal = new RelationalTypeMapping("decimal(18, 2)", typeof(Decimal)); 
-    
+    private readonly RelationalTypeMapping _decimal = new RelationalTypeMapping("decimal(18, 2)", typeof(Decimal));
 
-    private readonly Dictionary<string, RelationalTypeMapping> _simpleNameMappings;
-    private readonly Dictionary<Type, RelationalTypeMapping> _simpleMappings;
+
+    private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
+    private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;
+
+    //private readonly Dictionary<string, RelationalTypeMapping> _simpleNameMappings;
+    //private readonly Dictionary<Type, RelationalTypeMapping> _simpleMappings;
 
     public MySQLTypeMapper()
     {
-      _simpleNameMappings = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
+
+      _storeTypeMappings = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
       {
         {"bigint", _bigint},
         { "decimal", _decimal },
@@ -91,10 +96,11 @@ namespace MySQL.Data.Entity
         { "datetime", _datetime },
         { "timestamp", _datetime },
         { "bit", _bit },
+        { "string", _string },
         { "blob", _varbinary }
       };
 
-      _simpleMappings
+      _clrTypeMappings
           = new Dictionary<Type, RelationalTypeMapping>
           {
                     { typeof(int), _int },
@@ -111,58 +117,40 @@ namespace MySQL.Data.Entity
                     { typeof(short), _smallint },
                     { typeof(float), _real },
                     { typeof(decimal), _decimal },
+                    { typeof(string), _string },
                     { typeof(byte[]), _varbinary }
           };
    
     }
 
-    protected override IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings
-    {
-      get { return _simpleMappings; }
-    }
+    protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings()
+    => _clrTypeMappings;
 
-    protected override IReadOnlyDictionary<string, RelationalTypeMapping> SimpleNameMappings
-    {
-      get { return _simpleNameMappings; }
-    }
+    protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetStoreTypeMappings()
+    => _storeTypeMappings;
+
 
     protected override string GetColumnType(IProperty property)
     {
       return property.MySQL().ColumnType;
     }
 
-    
-    protected override RelationalTypeMapping GetCustomMapping([NotNull] IProperty property)
-    {
-      ThrowIf.Argument.IsNull(property, "property");
+    //protected override RelationalTypeMapping FindCustomMapping(IProperty property, bool unicode = true)
+    //{
+    //  if (property.ClrType == typeof(String))
+    //  {
+    //    int maxLength = property.GetMaxLength() ?? 255;
+    //    if (maxLength <= _medTextMaxLength) return new RelationalSizedTypeMapping("varchar(" + maxLength + ")", typeof(String), unicode, maxLength); ;
+    //    if (maxLength <= _longTextMaxLength) return _mediumText;
+    //    return _longText;
+    //  }
 
-      ///TODO:  fix this
-      //var clrType = property.ClrType.UnwrapEnumType();
+    //  if (property.ClrType == typeof(byte[]))
+    //  {
+    //    return _varbinary;
+    //  }
 
-      //if (property.ClrType == typeof(string))
-      //  return GetStringMapping(property, _medTextMaxLength, maxLen => GetBoundedMapping(maxLen), 
-      //    _longText, _varchar);
-
-      return base.GetCustomMapping(property);
-    }
-  
-
-    protected override RelationalTypeMapping FindCustomMapping(IProperty property)
-    {
-      if (property.ClrType == typeof(String))
-      {
-        int maxLength = property.GetMaxLength() ?? 255;
-        if (maxLength <= _medTextMaxLength) return new RelationalSizedTypeMapping("varchar(" + maxLength + ")", typeof(String), maxLength); ;
-        if (maxLength <= _longTextMaxLength) return _mediumText;
-        return _longText;
-      }
-
-      if (property.ClrType == typeof(byte[]))
-      {
-        return _varbinary;
-      }
-
-      return base.FindCustomMapping(property);
-    }
+    //  return base.FindCustomMapping(property);
+    //}
   }
 }

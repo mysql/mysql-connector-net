@@ -23,7 +23,7 @@
 using System;
 
 
-namespace MySQL.Data.Entity
+namespace MySQL.Data.EntityFrameworkCore
 {
   [AttributeUsage(AttributeTargets.All)]
   internal sealed class NotNullAttribute : Attribute

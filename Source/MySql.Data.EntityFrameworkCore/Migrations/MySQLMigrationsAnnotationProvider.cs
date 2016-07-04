@@ -21,13 +21,13 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System.Collections.Generic;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Migrations;
-using MySQL.Data.Entity.Metadata;
-using MySQL.Data.Entity.Utils;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
+using MySQL.Data.EntityFrameworkCore.Metadata;
+using MySQL.Data.EntityFrameworkCore.Utils;
 
-namespace MySQL.Data.Entity.Migrations
+namespace MySQL.Data.EntityFrameworkCore.Migrations
 {
     public class MySQLMigrationsAnnotationProvider : MigrationsAnnotationProvider
     {

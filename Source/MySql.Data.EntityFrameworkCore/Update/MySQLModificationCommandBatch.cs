@@ -20,16 +20,16 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.Data.Entity.Update;
-using Microsoft.Data.Entity.Storage;
+using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.Storage;
 
-namespace MySQL.Data.Entity.Update
+namespace MySQL.Data.EntityFrameworkCore.Update
 {
   public class MySQLModificationCommandBatch : AffectedCountModificationCommandBatch
   {
     public MySQLModificationCommandBatch(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
-            [NotNull] ISqlGenerator sqlGenerator,
+            [NotNull] ISqlGenerationHelper sqlGenerator,
             [NotNull] MySQLUpdateSqlGenerator updateSqlGenerator,
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
             [CanBeNull] int? maxBatchSize)
