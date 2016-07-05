@@ -48,6 +48,6 @@
   },
   "testRunner": "xunit",
   "dependencies": {
-    "MySql.Data": "6.10.0-IR-*"
+    "MySql.Data": "6.10.0-IR*"
   }
 }

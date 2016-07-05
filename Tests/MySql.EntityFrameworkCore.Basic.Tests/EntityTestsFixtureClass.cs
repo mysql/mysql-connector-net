@@ -48,8 +48,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
 
       var serviceCollection = new ServiceCollection();
 
-      serviceCollection.AddEntityFrameworkMySQL()
-                    .AddDbContext<TestsContext>();
+      serviceCollection.AddDbContext<TestsContext>();
 
       _serviceProvider = serviceCollection.BuildServiceProvider();
 

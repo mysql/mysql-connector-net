@@ -22,6 +22,10 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MySql.Data.Tests", "Tests\M
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MySql.Data.EntityFrameworkCore", "Source\MySql.Data.EntityFrameworkCore\MySql.Data.EntityFrameworkCore.xproj", "{E0EA25B2-FF20-4B52-9325-57BBEDD777EF}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MySql.EntityFrameworkCore.Basic.Tests", "Tests\MySql.EntityFrameworkCore.Basic.Tests\MySql.EntityFrameworkCore.Basic.Tests.xproj", "{1CAAB7D0-8D06-46B8-B3C9-8639828A6AE8}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MySql.EntityFrameworkCore.Migrations.Tests", "Tests\MySql.EntityFrameworkCore.Migrations.Tests\MySql.EntityFrameworkCore.Migrations.Tests.xproj", "{ACCD7F4B-A8E5-4642-BFD3-CDD2E3F52495}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +47,14 @@ Global
 		{E0EA25B2-FF20-4B52-9325-57BBEDD777EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E0EA25B2-FF20-4B52-9325-57BBEDD777EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E0EA25B2-FF20-4B52-9325-57BBEDD777EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1CAAB7D0-8D06-46B8-B3C9-8639828A6AE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1CAAB7D0-8D06-46B8-B3C9-8639828A6AE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1CAAB7D0-8D06-46B8-B3C9-8639828A6AE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1CAAB7D0-8D06-46B8-B3C9-8639828A6AE8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACCD7F4B-A8E5-4642-BFD3-CDD2E3F52495}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACCD7F4B-A8E5-4642-BFD3-CDD2E3F52495}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACCD7F4B-A8E5-4642-BFD3-CDD2E3F52495}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACCD7F4B-A8E5-4642-BFD3-CDD2E3F52495}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -52,5 +64,7 @@ Global
 		{742DC4B9-D6D3-4063-821F-BB2FD980CE10} = {019C5460-E964-4688-9A91-57ED26D09F4B}
 		{42229016-61AC-4ABF-88EB-354055D2AC40} = {81A599B5-6ED5-45F7-84BE-1E5F772EA38D}
 		{E0EA25B2-FF20-4B52-9325-57BBEDD777EF} = {F50317E3-9DBA-4F6D-8EA2-BEBBB3FB17FE}
+		{1CAAB7D0-8D06-46B8-B3C9-8639828A6AE8} = {81A599B5-6ED5-45F7-84BE-1E5F772EA38D}
+		{ACCD7F4B-A8E5-4642-BFD3-CDD2E3F52495} = {81A599B5-6ED5-45F7-84BE-1E5F772EA38D}
 	EndGlobalSection
 EndGlobal
