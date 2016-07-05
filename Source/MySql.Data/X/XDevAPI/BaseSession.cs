@@ -195,29 +195,48 @@ namespace MySqlX.XDevAPI
       }
     }
 
-    internal protected string ParseConnectionStringFromUri(string connectionstring)
+    internal protected string ParseConnectionStringFromUri(string uriString)
     {
-      if (connectionstring.StartsWith("mysqlx://") || connectionstring.StartsWith("//"))
+      if (Regex.IsMatch(uriString, @"^mysqlx(\+\w+)?://.*", RegexOptions.IgnoreCase))
       {
-        string pattern = @"^(mysqlx:)?//(?<user>[^:]+)(:(?<password>.+))?@(?<server>[^:]+)(:\s*(?<port>\d+)\s*)?$";
+        Uri uri = new Uri(uriString);
         List<string> connectionParts = new List<string>();
-        string newConnectionString = null;
 
-        var matches = Regex.Matches(connectionstring, pattern, RegexOptions.ExplicitCapture);
-        if (matches.Count != 1) throw new ArgumentException(Properties.ResourcesX.InvalidConnectionString);
-        Match match = matches[0];
-        if (match.Success)
+        if (string.IsNullOrWhiteSpace(uri.Host))
+          throw new UriFormatException(Properties.ResourcesX.InvalidUriData + "host");
+        connectionParts.Add("server=" + uri.Host);
+        connectionParts.Add("port=" + (uri.Port == -1 ? 33060 : uri.Port));
+
+        if (!string.IsNullOrWhiteSpace(uri.UserInfo))
         {
-          if (match.Groups["user"].Success) connectionParts.Add("uid=" + match.Groups["user"].Value.Trim());
-          if (match.Groups["password"].Success) connectionParts.Add("password=" + match.Groups["password"].Value.Trim());
-          if (match.Groups["server"].Success) connectionParts.Add("server=" + match.Groups["server"].Value.Trim());
-          connectionParts.Add("port=" + (match.Groups["port"].Success ? match.Groups["port"].Value.Trim() : newDefaultPort.ToString()));
-          newConnectionString = string.Join(";", connectionParts);
+          string[] userData = uri.UserInfo.Split(':');
+          if (userData.Length > 2)
+            throw new UriFormatException(Properties.ResourcesX.InvalidUriData + "user info");
+          connectionParts.Add("uid=" + Uri.UnescapeDataString(userData[0]));
+          if (userData.Length > 1)
+            connectionParts.Add("password=" + Uri.UnescapeDataString(userData[1]));
+        }
+        if (uri.Segments.Length > 2)
+          throw new UriFormatException(Properties.ResourcesX.InvalidUriData + "segments");
+        if (uri.Segments.Length > 1)
+        {
+          connectionParts.Add("database=" + Uri.UnescapeDataString(uri.Segments[1]));
+        }
+        if (!string.IsNullOrWhiteSpace(uri.Query))
+        {
+          string[] queries = uri.Query.Substring(1).Split(new char[] { '&' }, StringSplitOptions.RemoveEmptyEntries);
+          foreach (string query in queries)
+          {
+            string[] keyValue = query.Split('=');
+            if (keyValue.Length != 2)
+              throw new ArgumentException();
+            connectionParts.Add(Uri.UnescapeDataString(keyValue[0]) + "=" + Uri.UnescapeDataString(keyValue[1]));
+          }
         }
 
-        return newConnectionString;
+        return string.Join("; ", connectionParts);
       }
-      return connectionstring;
+      return uriString;
     }
 
     #region IDisposable Support

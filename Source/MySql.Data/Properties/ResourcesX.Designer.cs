@@ -124,6 +124,15 @@ namespace MySqlX.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid Uri .
+        /// </summary>
+        internal static string InvalidUriData {
+            get {
+                return ResourceManager.GetString("InvalidUriData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Keyword not supported..
         /// </summary>
         internal static string KeywordNotSupported {

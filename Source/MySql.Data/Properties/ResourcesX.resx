@@ -180,4 +180,7 @@
   <data name="NoObjectFound" xml:space="preserve">
     <value>Object '{0}' not found</value>
   </data>
+  <data name="InvalidUriData" xml:space="preserve">
+    <value>Invalid Uri </value>
+  </data>
 </root>
