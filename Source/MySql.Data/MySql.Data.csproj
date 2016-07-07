@@ -58,7 +58,7 @@
     <BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>obj\$(TargetFrameworkVersion)\</IntermediateOutputPath>
     <OutputPath>bin\$(TargetFrameworkVersion)\Debug\</OutputPath>
-    <DefineConstants>$(DefineConstants);DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NET_45_OR_GREATER</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
@@ -206,20 +206,6 @@
     <Compile Include="Types\MySqlUInt64.cs" />
     <Compile Include="Types\MySqlValue.cs" />
     <Compile Include="Utils.cs" />
-    <Compile Include="zlib\Adler32.cs" />
-    <Compile Include="zlib\Deflate.cs" />
-    <Compile Include="zlib\InfBlocks.cs" />
-    <Compile Include="zlib\InfCodes.cs" />
-    <Compile Include="zlib\Inflate.cs" />
-    <Compile Include="zlib\InfTree.cs" />
-    <Compile Include="zlib\StaticTree.cs" />
-    <Compile Include="zlib\SupportClass.cs" />
-    <Compile Include="zlib\Tree.cs" />
-    <Compile Include="zlib\ZInputStream.cs" />
-    <Compile Include="zlib\Zlib.cs" />
-    <Compile Include="zlib\ZOutputStream.cs" />
-    <Compile Include="zlib\ZStream.cs" />
-    <Compile Include="zlib\ZStreamException.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources.resx">

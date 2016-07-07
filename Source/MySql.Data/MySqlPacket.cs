@@ -32,7 +32,7 @@ namespace MySql.Data.MySqlClient
   {
     private byte[] _tempBuffer = new byte[256];
     private Encoding _encoding;
-    private readonly MemoryStream _buffer = new MemoryStream(5);
+    private readonly MemoryStream _buffer = new MemoryStream(128);
 
     private MySqlPacket()
     {
@@ -43,12 +43,6 @@ namespace MySql.Data.MySqlClient
       : this()
     {
       Encoding = enc;
-    }
-
-    public MySqlPacket(MemoryStream stream)
-      : this()
-    {
-      _buffer = stream;
     }
 
     #region Properties
@@ -84,35 +78,14 @@ namespace MySql.Data.MySqlClient
     {
       get
       {
-#if !NETCORE10
-        byte[] bits = _buffer.GetBuffer();
-
+        byte[] bits = GetBytes();
         return bits[0] == 0xfe && Length <= 5;
-#else
-        ArraySegment<byte> bits;
-        _buffer.TryGetBuffer(out bits);
-
-        return bits.Array[0] == 0xfe && Length <= 5;
-#endif
       }
     }
 
     public byte[] Buffer
     {
-      get
-      {
-#if !NETCORE10
-        byte[] bits = _buffer.GetBuffer();
-
-        return bits;
-#else
-        ArraySegment<byte> bits;
-
-        _buffer.TryGetBuffer(out bits);
-
-        return bits.Array;
-#endif
-      }
+      get { return GetBytes(); }
     }
 
     public DBVersion Version { get; set; }
@@ -124,8 +97,19 @@ namespace MySql.Data.MySqlClient
       Position = 4;
     }
 
+    byte[] GetBytes()
+    {
+#if !NETCORE10
+      return _buffer.GetBuffer();
+#else
+      ArraySegment<byte> bytes;
+      _buffer.TryGetBuffer(out bytes);
+      return bytes.Array;
+#endif
+    }
 
-#region Byte methods
+
+    #region Byte methods
 
     public byte ReadByte()
     {
@@ -160,17 +144,17 @@ namespace MySql.Data.MySqlClient
       return ReadInteger(c);
     }
 
-    public void SetByte(long position, byte value)
+    public void SetCommand(DBCmd cmd)
     {
       long currentPosition = _buffer.Position;
-      _buffer.Position = position;
-      _buffer.WriteByte(value);
+      _buffer.Position = 4;
+      _buffer.WriteByte((byte)cmd);
       _buffer.Position = currentPosition;
     }
 
-#endregion
+    #endregion
 
-#region Integer methods
+    #region Integer methods
 
     public long ReadFieldLength()
     {
@@ -192,14 +176,7 @@ namespace MySql.Data.MySqlClient
 
       int pos = (int)_buffer.Position;
 
-#if !NETCORE10
-      byte[] bits = _buffer.GetBuffer();
-#else
-      ArraySegment<byte> bytes;
-      _buffer.TryGetBuffer(out bytes);
-      byte[] bits = bytes.Array;
-#endif
-
+      byte[] bits = GetBytes();
       int shift = 0;
 
       for (int i = 0; i < numbytes; i++)
@@ -216,14 +193,7 @@ namespace MySql.Data.MySqlClient
     {
       Debug.Assert((_buffer.Position + numbytes) <= _buffer.Length);
 
-#if !NETCORE10
-      byte[] bits = _buffer.GetBuffer();
-#else
-      ArraySegment<byte> bytes;
-      _buffer.TryGetBuffer(out bytes);
-      byte[] bits = bytes.Array;
-#endif
-
+      byte[] bits = GetBytes();
       int pos = (int)_buffer.Position;
       _buffer.Position += numbytes;
 
@@ -240,14 +210,7 @@ namespace MySql.Data.MySqlClient
     {
       Debug.Assert((_buffer.Position + numbytes) <= _buffer.Length);
 
-#if !NETCORE10
-      byte[] bits = _buffer.GetBuffer();
-#else
-      ArraySegment<byte> bytes;
-      _buffer.TryGetBuffer(out bytes);
-      byte[] bits = bytes.Array;
-#endif
-
+      byte[] bits = GetBytes();
       int pos = (int)_buffer.Position;
       _buffer.Position += numbytes;
 
@@ -265,13 +228,7 @@ namespace MySql.Data.MySqlClient
       int value = 0;
 
       int pos = (int)_buffer.Position;
-#if !NETCORE10
-      byte[] bits = _buffer.GetBuffer();
-#else
-      ArraySegment<byte> bytes;
-      _buffer.TryGetBuffer(out bytes);
-      byte[] bits = bytes.Array;
-#endif
+      byte[] bits = GetBytes();
       int shift = 0;
 
       for (int i = 0; i < 3; i++)
@@ -345,9 +302,9 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-#endregion
+    #endregion
 
-#region String methods
+    #region String methods
 
     public void WriteLenString(string s)
     {
@@ -409,13 +366,7 @@ namespace MySql.Data.MySqlClient
     public byte[] ReadStringAsBytes()
     {
       byte[] readBytes;
-#if !NETCORE10
-      byte[] bits = _buffer.GetBuffer();
-#else
-      ArraySegment<byte> bytes;
-      _buffer.TryGetBuffer(out bytes);
-      byte[] bits = bytes.Array;
-#endif
+      byte[] bits = GetBytes();
       int end = (int)_buffer.Position;
       byte[] tempBuffer = bits;
 
@@ -430,6 +381,29 @@ namespace MySql.Data.MySqlClient
       return readBytes;
     }
 
-#endregion
+    #endregion
+
+    public void Dump(bool fromServer=false)
+    {
+      int rows = Position / 16;
+      int left = Position % 16;
+      byte[] bits = Buffer;
+      int index = 0;
+
+      if (fromServer)
+        Debug.WriteLine("============= From Server ==============");
+      else
+        Debug.WriteLine("============= To Server ==============");
+      for (int row=0; row < rows; row++)
+      {
+        for (int x = 0; x < 16; x++)
+          Debug.Write(String.Format("{0:X2} ", bits[index++]));
+        Debug.WriteLine("");
+      }
+      for (int col=0; col < left; col++)
+        Debug.Write(String.Format("{0:X2} ", bits[index++]));
+      Debug.WriteLine("");
+      Debug.WriteLine("============= End Packet ==============");
+    }
   }
 }

@@ -38,6 +38,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Timeout()
     {
+      executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100))");
       for (int i = 1; i < 10; i++)
         executeSQL("INSERT INTO Test VALUES (" + i + ", 'This is a long text string that I am inserting')");
 

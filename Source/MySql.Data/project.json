@@ -38,7 +38,8 @@
           "exclude": [
             "Framework/Net451/**/*.*",
             "Replication/**/*.*",
-            "zlib/**/*.*"
+            "zlib/**/*.*",
+            "TimeStream.cs"
           ],
           "excludeFiles": [
             "Properties/VersionInfo.cs",

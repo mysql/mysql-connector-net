@@ -24,7 +24,7 @@ using System;
 using System.IO;
 using System.Text;
 using MySql.Data.MySqlClient;
-
+using System.IO.Compression;
 
 namespace MySql.Data.MySqlClient
 {
@@ -33,14 +33,14 @@ namespace MySql.Data.MySqlClient
   /// </summary>
   internal class MySqlStream
   {
-    private readonly byte[] _packetHeader = new byte[4];
+    // header used for compressed and non-compressed packets
+    private readonly byte[] header = new byte[7];
     private readonly MySqlPacket _packet;
-    private readonly Stream stream;
-//    private readonly TimedStream _timedStream;
-  //  private readonly Stream _inStream;
-    //private readonly Stream _outStream;
-
-    //internal Stream BaseStream => _timedStream;
+    private readonly Stream baseStream;
+    private MemoryStream compBuffer = new MemoryStream(1024);
+    private Stream stream;
+    private int bytesLeft = 0;
+    private bool compressed = false;
 
     public MySqlStream(Encoding encoding)
     {
@@ -60,40 +60,14 @@ namespace MySql.Data.MySqlClient
     public MySqlStream(Stream baseStream, Encoding encoding, bool compress)
       : this(encoding)
     {
-      stream = baseStream;
-//      _timedStream = new TimedStream(baseStream);
-//      Stream stream;
-//#if !NETCORE10
-//      //TODO: ADD SUPPORT FOR 452 AND 46X
-//      if (compress)
-//        stream = new CompressedStream(_timedStream);
-//      else
-//#endif
-//        stream = _timedStream;
-
-//#if NETCORE10
-//      _inStream = baseStream;
-//#else
-//      _inStream = new BufferedStream(stream);
-//#endif
-//      _outStream = stream;
+      this.compressed = compress;
+      this.baseStream = baseStream;
+      stream = this.baseStream;
     }
 
     public void Close()
     {
-#if NETCORE10
       stream.Dispose();
-#else
-      stream.Close();
-#endif
-      //#if NETCORE10
-      //      _outStream.Dispose();
-      //      _inStream.Dispose();
-      //#else
-      //      _outStream.Close();
-      //      _inStream.Close();
-      //#endif
-      //      _timedStream.Close();
     }
 
 #region Properties
@@ -167,29 +141,29 @@ namespace MySql.Data.MySqlClient
     {
       try
       {
+        ReadCompressedIfNecessary();
+
+        _packet.Clear();
         _packet.Length = 0;
-        int offset = 0;
+
         while (true)
         {
-          ReadFully(stream, _packetHeader, 0, 4);
-          SequenceByte = (byte)(_packetHeader[3] + 1);
-          int length = (int)(_packetHeader[0] + (_packetHeader[1] << 8) +
-            (_packetHeader[2] << 16));
+          ReadFully(stream, header, 0, 4);
+          SequenceByte = (byte)(header[3] + 1);
+          int length = (int)(header[0] + (header[1] << 8) + (header[2] << 16));
 
           // make roo for the next block
           _packet.Length += length;
-//#if NETCORE10
-          byte[] tempBuffer = new byte[length];
-          ReadFully(stream, tempBuffer, offset, length);
-          _packet.Write(tempBuffer);
-//#else
-          //ReadFully(_inStream, _packet.Buffer, offset, length);
-//#endif
-          offset += length;
+          byte[] buffer = _packet.Buffer;
+          ReadFully(stream, buffer, _packet.Position, length);
+          _packet.Position += length;
 
           // if this block was < maxBlock then it's last one in a multipacket series
           if (length < MaxBlockSize) break;
         }
+#if DUMP_PACKETS
+        _packet.Dump(true);
+#endif
         _packet.Position = 0;
       }
       catch (IOException ioex)
@@ -198,8 +172,45 @@ namespace MySql.Data.MySqlClient
       }
     }
 
+    // Read in and decompress the packet if necessary
+    private void ReadCompressedIfNecessary()
+    {
+      if (!compressed || bytesLeft > 0) return;
+
+      if (stream is DeflateStream && stream != null)
+        stream.Dispose();
+
+      // see if we still have packets to read
+      //if (stream.Position < stream.Length) return;
+
+      // we don't so we load up more
+      ReadFully(baseStream, header, 0, 7);
+      int comp_len = header[0] + (header[1]<<8) + (header[2]<<16);
+      int uncomp_len = header[4] + (header[5] << 8) + (header[6] << 16);
+
+      if (uncomp_len == 0)
+      {
+        bytesLeft = comp_len;
+        stream = baseStream;
+//        uncomp_len = comp_len;
+  //      compStream.Capacity = uncomp_len;
+    //    ReadFully(stream, compStream.GetBuffer(), 0, uncomp_len);
+      }
+      else
+      {
+        bytesLeft = uncomp_len;
+        stream = new DeflateStream(baseStream, CompressionMode.Decompress, true);
+//        compStream.Capacity = uncomp_len;
+  //      ReadFully(ds, compStream.GetBuffer(), 0, uncomp_len);
+    //    ds.Dispose();
+      }
+    }
+
     public void SendPacket(MySqlPacket packet)
     {
+#if DUMP_PACKETS
+      packet.Dump();
+#endif
       byte[] buffer = packet.Buffer;
       int length = packet.Position - 4;
 

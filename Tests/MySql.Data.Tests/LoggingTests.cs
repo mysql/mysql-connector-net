@@ -45,6 +45,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void SimpleLogging()
     {
+      executeSQL("CREATE TABLE Test(id INT, name VARCHAR(200))");
       executeSQL("INSERT INTO Test VALUES (1, 'Test1')");
       executeSQL("INSERT INTO Test VALUES (2, 'Test2')");
       executeSQL("INSERT INTO Test VALUES (3, 'Test3')");

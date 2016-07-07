@@ -488,7 +488,7 @@ namespace MySql.Data.MySqlClient
     public void SendQuery(MySqlPacket queryPacket)
     {
       WarningCount = 0;
-      queryPacket.SetByte(4, (byte)DBCmd.QUERY);
+      queryPacket.SetCommand(DBCmd.QUERY);
       ExecutePacket(queryPacket);
       // the server will respond in one of several ways with the first byte indicating
       // the type of response.
@@ -729,7 +729,7 @@ namespace MySql.Data.MySqlClient
     public void ExecuteStatement(MySqlPacket packetToExecute)
     {
       WarningCount = 0;
-      packetToExecute.SetByte(4, (byte)DBCmd.EXECUTE);
+      packetToExecute.SetCommand(DBCmd.EXECUTE);
       ExecutePacket(packetToExecute);
       ServerStatus |= ServerStatusFlags.AnotherQuery;
     }

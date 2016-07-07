@@ -117,7 +117,7 @@ namespace MySql.Data.MySqlClient.Tests
         executeInternal(String.Format("DROP DATABASE IF EXISTS `{0}`", name), root);
       }
 
-      data = Utils.FillTable("SELECT user,host FROM mysql.user WHERE user <> 'root'", root);
+      data = Utils.FillTable(String.Format("SELECT user,host FROM mysql.user WHERE user LIKE '{0}%'", baseUserName), root);
       foreach (DataRow row in data.Rows)
       {
         executeInternal(String.Format("DROP USER IF EXISTS '{0}'@'{1}'", row[0].ToString(), row[1].ToString()), root);

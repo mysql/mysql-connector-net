@@ -173,7 +173,6 @@
     <Compile Include="Syntax.cs" />
     <Compile Include="Syntax2.cs" />
     <Compile Include="TestBase.cs" />
-    <Compile Include="Tokenizer.cs" />
     <Compile Include="TypeTests.cs" />
     <Compile Include="UsageAdvisorTests.cs" />
     <Compile Include="Utils.cs" />

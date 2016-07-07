@@ -4,6 +4,7 @@
     <NuGetPackageRoot>$(UserProfile)\.nuget\packages\</NuGetPackageRoot>
   </PropertyGroup>
   <ImportGroup>
-    <Import Project="$(NuGetPackageRoot)\Microsoft.DiaSymReader.Native\1.4.0-rc2\build\Microsoft.DiaSymReader.Native.props" Condition="Exists('$(NuGetPackageRoot)\Microsoft.DiaSymReader.Native\1.4.0-rc2\build\Microsoft.DiaSymReader.Native.props')" />
+    <Import Project="$(NuGetPackageRoot)\xunit.core\2.1.0\build\portable-net45+win8+wp8+wpa81\xunit.core.props" Condition="Exists('$(NuGetPackageRoot)\xunit.core\2.1.0\build\portable-net45+win8+wp8+wpa81\xunit.core.props')" />
+    <Import Project="$(NuGetPackageRoot)\xunit.runner.visualstudio\2.1.0\build\net20\xunit.runner.visualstudio.props" Condition="Exists('$(NuGetPackageRoot)\xunit.runner.visualstudio\2.1.0\build\net20\xunit.runner.visualstudio.props')" />
   </ImportGroup>
 </Project>
