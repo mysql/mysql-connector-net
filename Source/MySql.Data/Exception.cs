@@ -1,4 +1,4 @@
-// Copyright © 2004, 2010, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,10 +21,9 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-#if !RT
+using MySql.Data.MySqlClient;
 using System.Data.Common;
 using System.Runtime.Serialization;
-#endif
 
 namespace MySql.Data.MySqlClient
 {
@@ -32,14 +31,11 @@ namespace MySql.Data.MySqlClient
   /// The exception that is thrown when MySQL returns an error. This class cannot be inherited.
   /// </summary>
   /// <include file='docs/MySqlException.xml' path='MyDocs/MyMembers[@name="Class"]/*'/>
-#if !RT
+#if !NETCORE10
   [Serializable]
 #endif
   public sealed class MySqlException : DbException
   {
-    private int errorCode;
-    private bool isFatal;
-
     internal MySqlException()
     {
     }
@@ -57,13 +53,13 @@ namespace MySql.Data.MySqlClient
     internal MySqlException(string msg, bool isFatal, Exception inner)
       : base(msg, inner)
     {
-      this.isFatal = isFatal;
+      IsFatal = isFatal;
     }
 
     internal MySqlException(string msg, int errno, Exception inner)
       : this(msg, inner)
     {
-      errorCode = errno;
+      Number = errno;
       Data.Add("Server Error Code", errno);
     }
 
@@ -72,7 +68,7 @@ namespace MySql.Data.MySqlClient
     {
     }
 
-#if !RT
+#if !NETCORE10
     private MySqlException(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
@@ -82,26 +78,14 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets a number that identifies the type of error.
     /// </summary>
-    public int Number
-    {
-      get { return errorCode; }
-    }
+    public int Number { get; }
 
     /// <summary>
     /// True if this exception was fatal and cause the closing of the connection, false otherwise.
     /// </summary>
-    internal bool IsFatal
-    {
-      get { return isFatal; }
-    }
+    internal bool IsFatal { get; }
 
-    internal bool IsQueryAborted
-    {
-      get
-      {
-        return (errorCode == (int)MySqlErrorCode.QueryInterrupted ||
-          errorCode == (int)MySqlErrorCode.FileSortAborted);
-      }
-    }
+    internal bool IsQueryAborted => (Number == (int)MySqlErrorCode.QueryInterrupted ||
+                                     Number == (int)MySqlErrorCode.FileSortAborted);
   }
 }

@@ -38,41 +38,45 @@ namespace MySQL.Data.EntityFrameworkCore
   {
     private readonly MySQLServerConnection _connection;
     private readonly IMigrationsSqlGenerator _sqlGenerator;
-    private readonly IRawSqlCommandBuilder _commandBuilder;
+    private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
+
+
 
     public MySQLDatabaseCreator(
         MySQLServerConnection cxn,
         IMigrationsModelDiffer differ,
         IMigrationsSqlGenerator generator,
+        IMigrationCommandExecutor migrationCommandExecutor,
         IModel model,
-        IRawSqlCommandBuilder commandBuilder)
-        : base(model, cxn, differ, generator)
+        IRawSqlCommandBuilder rawSqlCommandBuilder)
+        : base(model, cxn, differ, generator, migrationCommandExecutor)
     {
       ThrowIf.Argument.IsNull(cxn, "connection");      
       ThrowIf.Argument.IsNull(differ, "modelDiffer");
       ThrowIf.Argument.IsNull(generator, "generator");
-      ThrowIf.Argument.IsNull(commandBuilder, "commandBuilder");
+      ThrowIf.Argument.IsNull(rawSqlCommandBuilder, "commandBuilder");
 
       cxn.flag = 1;
       _connection = cxn;
       _sqlGenerator = generator;
-      _commandBuilder = commandBuilder;
+      _rawSqlCommandBuilder = rawSqlCommandBuilder;
     }
 
     public override void Create()
     {
       using (var workingConnection = _connection.CreateSystemConnection())
       {
-        GetCreateOps().ExecuteNonQuery(workingConnection);
+        MigrationCommandExecutor.ExecuteNonQuery(GetCreateOps(), workingConnection);        
         MySqlConnection.ClearPool((MySqlConnection)_connection.DbConnection);
-      }
+      }      
+
     }
 
     public override async Task CreateAsync(CancellationToken cancellationToken = default(CancellationToken))
     {
       using (var workingConnection = _connection.CreateSystemConnection())
       {
-        await GetCreateOps().ExecuteNonQueryAsync(workingConnection, cancellationToken);
+        await MigrationCommandExecutor.ExecuteNonQueryAsync(GetCreateOps(), workingConnection, cancellationToken);
         MySqlConnection.ClearPool((MySqlConnection)_connection.DbConnection);
       }
     }
@@ -96,7 +100,7 @@ namespace MySQL.Data.EntityFrameworkCore
       MySqlConnection.ClearAllPools();
       using (var workingConnecton = _connection.CreateSystemConnection())
       {
-        GetDropOps().ExecuteNonQuery(workingConnecton);
+        MigrationCommandExecutor.ExecuteNonQuery(GetDropOps(), workingConnecton);
       }
     }
 
@@ -105,7 +109,7 @@ namespace MySQL.Data.EntityFrameworkCore
       MySqlConnection.ClearAllPools();
       using (var workingConnecton = _connection.CreateSystemConnection())
       {
-        await GetDropOps().ExecuteNonQueryAsync(workingConnecton, cancellationToken);
+        await MigrationCommandExecutor.ExecuteNonQueryAsync(GetDropOps(), workingConnecton, cancellationToken);
       }
     }
 
@@ -138,18 +142,18 @@ namespace MySQL.Data.EntityFrameworkCore
     protected override bool HasTables()
     {
       string sql = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '" + _connection.DbConnection.Database + "'";
-      long count = (long)_commandBuilder.Build(sql).ExecuteScalar(_connection);
+      long count = (long)_rawSqlCommandBuilder.Build(sql).ExecuteScalar(_connection);
       return count != 0;
     }
 
     protected override async Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
     {
       string sql = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = `" + _connection.DbConnection.Database + "`";
-      long count = (long)await _commandBuilder.Build(sql).ExecuteScalarAsync(_connection, cancellationToken: cancellationToken);
+      long count = (long)await _rawSqlCommandBuilder.Build(sql).ExecuteScalarAsync(_connection, cancellationToken: cancellationToken);
       return count != 0;
     }
 
-    private IEnumerable<IRelationalCommand> GetCreateOps()
+    private IReadOnlyList<MigrationCommand> GetCreateOps()
     {
       var ops = new MigrationOperation[]
           {
@@ -158,7 +162,7 @@ namespace MySQL.Data.EntityFrameworkCore
       return _sqlGenerator.Generate(ops);
     }
 
-    private IEnumerable<IRelationalCommand> GetDropOps()
+    private IReadOnlyList<MigrationCommand> GetDropOps()
     {
       var ops = new MigrationOperation[]
           {

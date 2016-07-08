@@ -1,4 +1,4 @@
-// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc.
+// Copyright © 2004, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,92 +21,61 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Data;
-using MySql.Data.MySqlClient;
 using System.Globalization;
+using MySql.Data.MySqlClient;
 
 namespace MySql.Data.Types
 {
-
   public struct MySqlDecimal : IMySqlValue
   {
-    private byte precision;
-    private byte scale;
-    private string mValue;
-    private bool isNull;
+    private readonly string _value;
 
     internal MySqlDecimal(bool isNull)
     {
-      this.isNull = isNull;
-      mValue = null;
-      precision = scale = 0;
+      IsNull = isNull;
+      _value = null;
+      Precision = Scale = 0;
     }
 
     internal MySqlDecimal(string val)
     {
-      this.isNull = false;
-      precision = scale = 0;
-      mValue = val;
+      this.IsNull = false;
+      Precision = Scale = 0;
+      _value = val;
     }
 
     #region IMySqlValue Members
 
-    public bool IsNull
-    {
-      get { return isNull; }
-    }
+    public bool IsNull { get; }
 
-    MySqlDbType IMySqlValue.MySqlDbType
-    {
-      get { return MySqlDbType.Decimal; }
-    }
+    MySqlDbType IMySqlValue.MySqlDbType => MySqlDbType.Decimal;
 
-    public byte Precision
-    {
-      get { return precision; }
-      set { precision = value; }
-    }
+    public byte Precision { get; set; }
 
-    public byte Scale
-    {
-      get { return scale; }
-      set { scale = value; }
-    }
+    public byte Scale { get; set; }
 
 
-    object IMySqlValue.Value
-    {
-      get { return this.Value; }
-    }
+    object IMySqlValue.Value => Value;
 
-    public decimal Value
-    {
-      get { return Convert.ToDecimal(mValue, CultureInfo.InvariantCulture); }
-    }
+    public decimal Value => Convert.ToDecimal(_value, CultureInfo.InvariantCulture);
 
     public double ToDouble()
     {
-      return Double.Parse(mValue);
+      return Double.Parse(_value);
     }
 
     public override string ToString()
     {
-      return mValue;
+      return _value;
     }
 
-    Type IMySqlValue.SystemType
-    {
-      get { return typeof(decimal); }
-    }
+    Type IMySqlValue.SystemType => typeof(decimal);
 
-    string IMySqlValue.MySqlTypeName
-    {
-      get { return "DECIMAL"; }
-    }
+    string IMySqlValue.MySqlTypeName => "DECIMAL";
 
     void IMySqlValue.WriteValue(MySqlPacket packet, bool binary, object val, int length)
     {
-      decimal v = (val is decimal) ? (decimal)val : Convert.ToDecimal(val);
+      decimal v = val as decimal? ?? Convert.ToDecimal(val);
       string valStr = v.ToString(CultureInfo.InvariantCulture);
       if (binary)
         packet.WriteLenString(valStr);
@@ -120,10 +89,7 @@ namespace MySql.Data.Types
         return new MySqlDecimal(true);
 
       string s = String.Empty;
-      if (length == -1)
-        s = packet.ReadLenString();
-      else
-        s = packet.ReadString(length);
+      s = length == -1 ? packet.ReadLenString() : packet.ReadString(length);
       return new MySqlDecimal(s);
     }
 

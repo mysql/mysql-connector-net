@@ -1,25 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Choose>
-    <When Condition="$(SolutionName) == 'MySQLClient-4.0'">
-      <PropertyGroup>
-        <ProductVersion>9.0.30729</ProductVersion>
-        <SchemaVersion>2.0</SchemaVersion>
-        <Framework>4.0</Framework>
-        <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-        <DefineConstants>NET_40_OR_GREATER</DefineConstants>
-      </PropertyGroup>
-    </When>
-    <Otherwise>
-      <PropertyGroup>
-        <ProductVersion>9.0.30729</ProductVersion>
-        <SchemaVersion>2.0</SchemaVersion>
-        <Framework>4.5</Framework>
-        <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-        <DefineConstants>NET_40_OR_GREATER;NET_45_OR_GREATER;</DefineConstants>
-      </PropertyGroup>
-    </Otherwise>
-  </Choose>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\packages\xunit.runner.visualstudio.2.1.0\build\net20\xunit.runner.visualstudio.props" Condition="Exists('..\..\packages\xunit.runner.visualstudio.2.1.0\build\net20\xunit.runner.visualstudio.props')" />
+  <Import Project="..\..\..\packages\xunit.runner.visualstudio.2.1.0\build\net20\xunit.runner.visualstudio.props" Condition="Exists('..\..\..\packages\xunit.runner.visualstudio.2.1.0\build\net20\xunit.runner.visualstudio.props')" />
+  <PropertyGroup>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <Framework>4.5</Framework>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <DefineConstants>NET_45_OR_GREATER;</DefineConstants>
+    <ResolveNuGetPackages>false</ResolveNuGetPackages>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -47,28 +39,15 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
+    <CopyNuGetImplementations>false</CopyNuGetImplementations>
   </PropertyGroup>
-  <Choose>
-    <When Condition="$(SolutionName) == 'MySQLClient-4.0'">
-      <PropertyGroup>
-        <ProductVersion>9.0.30729</ProductVersion>
-        <SchemaVersion>2.0</SchemaVersion>
-        <Framework>4.0</Framework>
-        <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-        <DefineConstants>NET_40_OR_GREATER</DefineConstants>
-      </PropertyGroup>
-    </When>
-    <Otherwise>
-      <PropertyGroup>
-        <ProductVersion>9.0.30729</ProductVersion>
-        <SchemaVersion>2.0</SchemaVersion>
-        <Framework>4.5</Framework>
-        <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-        <DefineConstants>NET_40_OR_GREATER;NET_45_OR_GREATER;</DefineConstants>
-      </PropertyGroup>
-    </Otherwise>
-  </Choose>
+  <PropertyGroup>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <Framework>4.5</Framework>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <DefineConstants>NET_45_OR_GREATER;</DefineConstants>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
@@ -79,11 +58,7 @@
     <OutputPath>bin\$(TargetFrameworkVersion)\Debug\</OutputPath>
     <DefineConstants>TRACE;DEBUG;$(DefineConstants)</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRules>
-    </CodeAnalysisRules>
-    <RunCodeAnalysis>false</RunCodeAnalysis>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <WarningLevel>2</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -96,7 +71,6 @@
     <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugEF6|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -105,7 +79,6 @@
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseEF6|AnyCPU'">
     <OutputPath>bin\ReleaseEF6\</OutputPath>
@@ -114,7 +87,6 @@
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugEF6|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -123,7 +95,6 @@
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseEF6|AnyCPU'">
     <OutputPath>bin\ReleaseEF6\</OutputPath>
@@ -132,7 +103,6 @@
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugEF6|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -141,7 +111,6 @@
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseEF6|AnyCPU'">
     <OutputPath>bin\ReleaseEF6\</OutputPath>
@@ -150,7 +119,6 @@
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -163,8 +131,20 @@
     <Reference Include="System.Security" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Xml" />
-    <Reference Include="xunit, Version=1.9.2.1705, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
+    <Reference Include="xunit.abstractions">
+      <HintPath>..\..\packages\xunit.abstractions.2.0.0\lib\net35\xunit.abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="xunit.assert">
+      <HintPath>..\..\packages\xunit.assert.2.1.0\lib\dotnet\xunit.assert.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="xunit.core">
+      <HintPath>..\..\packages\xunit.extensibility.core.2.1.0\lib\dotnet\xunit.core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="xunit.execution.desktop">
+      <HintPath>..\..\packages\xunit.extensibility.execution.2.1.0\lib\net45\xunit.execution.desktop.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <!--<Reference Include="xunit, Version=1.9.2.1705, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL"> -->
@@ -173,104 +153,41 @@
     <Compile Include="..\..\Source\MySql.Data\Properties\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="AsyncTests.cs" />
     <Compile Include="BlobTests.cs" />
-    <Compile Include="BlobTestsPipeCompressed.cs" />
-    <Compile Include="BlobTestsSharedMemory.cs" />
-    <Compile Include="BlobTestsSharedMemoryCompressed.cs" />
-    <Compile Include="BlobTestsSocketCompressed.cs" />
-    <Compile Include="BlobTestsPipe.cs" />
-    <Compile Include="CharacterSetTests.cs" />
-    <Compile Include="InstallerTests.cs" />
-    <Compile Include="MySqlCommandTestsPipe.cs" />
-    <Compile Include="MySqlCommandTestsPipeCompressed.cs" />
-    <Compile Include="MySqlCommandTestsSharedMemory.cs" />
-    <Compile Include="MySqlCommandTestsSharedMemoryCompressed.cs" />
-    <Compile Include="MySqlCommandTestsSocketCompressed.cs" />
-    <Compile Include="CultureTests.cs" />
-    <Compile Include="DataTypeTests.cs" />
-    <Compile Include="DateTimeTests.cs" />
     <Compile Include="EventTests.cs" />
     <Compile Include="ExceptionTests.cs" />
+    <Compile Include="Framework\Net451\TestDataTable.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="GenericListener.cs" />
-    <Compile Include="GetSchemaTests.cs" />
-    <Compile Include="InterfaceTests.cs" />
     <Compile Include="LanguageTests.cs" />
     <Compile Include="LoggingTests.cs" />
-    <Compile Include="MediumTrust\MediumTrustDomain.cs" />
-    <Compile Include="MediumTrust\MediumTrustFixtureAttribute.cs" />
-    <Compile Include="MediumTrust\MediumTrustTestClassCommand.cs" />
-    <Compile Include="MediumTrust\MediumTrustTestCommand.cs" />
-    <Compile Include="MediumTrust\MySql.MediumTrustsTests.cs" />
-    <Compile Include="MediumTrust\MySqlClientPermissionTests.cs" />
     <Compile Include="MySqlBulkLoaderTests.cs" />
-    <Compile Include="MySqlCommandBuilderTests.cs" />
     <Compile Include="MySqlCommandTests.cs" />
     <Compile Include="MySqlConnectionStringBuilderTests.cs" />
     <Compile Include="MySqlConnectionTests.cs" />
-    <Compile Include="MySqlDataAdapterTests.cs" />
-    <Compile Include="MySqlDataReaderTests.cs" />
-    <Compile Include="MySQLHelperTests.cs" />
-    <Compile Include="OutputParametersBatch.cs" />
-    <Compile Include="OutputParametersBatchPrepared.cs" />
-    <Compile Include="OutputParametersNoBatch.cs" />
-    <Compile Include="OutputParametersNoBatchPrepared.cs" />
-    <Compile Include="ParameterTests.cs" />
-    <Compile Include="PartialTrustSandbox.cs" />
-    <Compile Include="PerfMonTests.cs" />
-    <Compile Include="PoolingTests.cs" />
-    <Compile Include="PreparedStatements.cs" />
-    <Compile Include="PreparedStatementsPipe.cs" />
-    <Compile Include="PreparedStatementsPipeCompressed.cs" />
-    <Compile Include="PreparedStatementsSharedMemory.cs" />
-    <Compile Include="PreparedStatementsSharedMemoryCompressed.cs" />
-    <Compile Include="PreparedStatementsSocketCompressed.cs" />
-    <Compile Include="ProcedureParameterTests.cs" />
-    <Compile Include="ReplicationTests.cs" />
-    <Compile Include="ScriptExecution.cs" />
     <Compile Include="SetUp.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SimpleTransactions.cs" />
     <Compile Include="SqlServerMode.cs" />
     <Compile Include="SqlTokenizer.cs" />
-    <Compile Include="StoredProcedure.cs" />
-    <Compile Include="StoredProcedureWithAccess.cs" />
     <Compile Include="Syntax.cs" />
     <Compile Include="Syntax2.cs" />
-    <Compile Include="TableCaching.cs" />
-    <Compile Include="ThreadingTests.cs" />
-    <Compile Include="TimeoutAndCancel.cs" />
-    <Compile Include="TimeoutAndCancelPipe.cs" />
-    <Compile Include="TimeoutAndCancelSharedMemory.cs" />
-    <Compile Include="TimeoutAndCancelSocketCompressed.cs" />
-    <Compile Include="Tokenizer.cs" />
-    <Compile Include="Transactions.cs" />
+    <Compile Include="TestBase.cs" />
     <Compile Include="TypeTests.cs" />
     <Compile Include="UsageAdvisorTests.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="client.pfx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Properties\Setup.sql" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="client.pfx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\MySql.Data\MySql.Data.csproj">
-      <Project>{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}</Project>
+      <Project>{e9df5ed1-4cbd-4226-b931-9a51610ac14d}</Project>
       <Name>MySql.Data</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+    <None Include="MySql.Data.Tests.project.json" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

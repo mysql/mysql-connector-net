@@ -297,7 +297,7 @@ namespace MySql.Data.Entity.Tests
         string[,] data1 = new string[,] { { "Flintstone", "Fred" }, { "Flintstone", "Wilma" },
           { "Rubble", "Barney" } };
         string query = string.Empty;
-#if NET_40_OR_GREATER
+#if NET_45_OR_GREATER
         query = q.ToTraceString();
         st.CheckSql(query, SQLSyntax.InExpressionSimple);
         Assert.Equal(3, q.Count());

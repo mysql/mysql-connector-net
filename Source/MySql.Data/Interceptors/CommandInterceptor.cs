@@ -1,4 +1,4 @@
-﻿// Copyright © 2004, 2011, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -22,13 +22,15 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Reflection;
-using MySql.Data.MySqlClient.Properties;
-using System.Data.Common;
 using System.Data;
+using MySql.Data.MySqlClient;
 
+
+#if NETCORE10
+namespace MySql.Data.MySqlClient.Interceptors
+#else
 namespace MySql.Data.MySqlClient
+#endif
 {
   /// <summary>
   /// BaseCommandInterceptor is the base class that should be used for all userland 
@@ -63,84 +65,86 @@ namespace MySql.Data.MySqlClient
   /// CommandInterceptor is the "manager" class that keeps the list of registered interceptors
   /// for the given connection.
   /// </summary>
-  internal sealed class CommandInterceptor : Interceptor
+  internal sealed partial class CommandInterceptor : Interceptor
   {
-    bool insideInterceptor = false;
-    List<BaseCommandInterceptor> interceptors = new List<BaseCommandInterceptor>();
+    bool _insideInterceptor = false;
+    readonly List<BaseCommandInterceptor> _interceptors = new List<BaseCommandInterceptor>();
 
     public CommandInterceptor(MySqlConnection connection)
     {
-      this.connection = connection;
+      Connection = connection;
 
       LoadInterceptors(connection.Settings.CommandInterceptors);
     }
 
     public bool ExecuteScalar(string sql, ref object returnValue)
     {
-      if (insideInterceptor) return false;
-      insideInterceptor = true;
+      if (_insideInterceptor) return false;
+      _insideInterceptor = true;
 
       bool handled = false;
 
-      foreach (BaseCommandInterceptor bci in interceptors)
+      foreach (BaseCommandInterceptor bci in _interceptors)
         handled |= bci.ExecuteScalar(sql, ref returnValue);
 
-      insideInterceptor = false;
+      _insideInterceptor = false;
       return handled;
     }
 
     public bool ExecuteNonQuery(string sql, ref int returnValue)
     {
-      if (insideInterceptor) return false;
-      insideInterceptor = true;
+      if (_insideInterceptor) return false;
+      _insideInterceptor = true;
 
       bool handled = false;
 
-      foreach (BaseCommandInterceptor bci in interceptors)
+      foreach (BaseCommandInterceptor bci in _interceptors)
         handled |= bci.ExecuteNonQuery(sql, ref returnValue);
 
-      insideInterceptor = false;
+      _insideInterceptor = false;
       return handled;
     }
 
     public bool ExecuteReader(string sql, CommandBehavior behavior, ref MySqlDataReader returnValue)
     {
-      if (insideInterceptor) return false;
-      insideInterceptor = true;
+      if (_insideInterceptor) return false;
+      _insideInterceptor = true;
 
       bool handled = false;
 
-      foreach (BaseCommandInterceptor bci in interceptors)
+      foreach (BaseCommandInterceptor bci in _interceptors)
         handled |= bci.ExecuteReader(sql, behavior, ref returnValue);
 
-      insideInterceptor = false;
+      _insideInterceptor = false;
       return handled;
     }
 
     protected override void AddInterceptor(object o)
     {
       if (o == null)
-        throw new ArgumentException(String.Format("Unable to instantiate CommandInterceptor"));
+        throw new ArgumentException("Unable to instantiate CommandInterceptor");
 
       if (!(o is BaseCommandInterceptor))
         throw new InvalidOperationException(String.Format(Resources.TypeIsNotCommandInterceptor,
           o.GetType()));
-      BaseCommandInterceptor ie = o as BaseCommandInterceptor;
-      ie.Init(connection);
-      interceptors.Insert(0, (BaseCommandInterceptor)o);
+      BaseCommandInterceptor ie = (BaseCommandInterceptor) o;
+      ie.Init(Connection);
+      _interceptors.Insert(0, (BaseCommandInterceptor)o);
     }
+
 
     protected override string ResolveType(string nameOrType)
     {
-      if (MySqlConfiguration.Settings != null && MySqlConfiguration.Settings.CommandInterceptors != null)
-      {
-        foreach (InterceptorConfigurationElement e in MySqlConfiguration.Settings.CommandInterceptors)
-          if (String.Compare(e.Name, nameOrType, true) == 0)
-            return e.Type;
-      }
+#if NETCORE10
       return base.ResolveType(nameOrType);
+#else
+      if (MySqlConfiguration.Settings == null || MySqlConfiguration.Settings.CommandInterceptors == null)
+        return base.ResolveType(nameOrType);
+      foreach (InterceptorConfigurationElement e in MySqlConfiguration.Settings.CommandInterceptors)
+        if (String.Compare(e.Name, nameOrType, true) == 0)
+          return e.Type;
+      return base.ResolveType(nameOrType);
+#endif
     }
-
   }
-
 }

@@ -1,0 +1,11 @@
+﻿{
+  "runtimes": {
+    "win": {}
+  },
+  "frameworks": {
+    "net451": {}
+  },
+  "dependencies": {
+    "xunit.abstractions": "2.0.0"
+  }
+}

@@ -1,4 +1,4 @@
-﻿// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,19 +20,19 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+
 namespace MySql.Data.MySqlClient.Memcached
 {
-  using System;
-  using System.Collections.Generic;
-  using System.Text;
-  using System.IO;
-
   /// <summary>
   /// Implementation of the Memcached text client protocol.
   /// </summary>
   public class TextClient : Client
   {
-    private Encoding encoding;
+    private readonly Encoding _encoding;
 
     private static readonly string PROTOCOL_ADD = "add";
     private static readonly string PROTOCOL_APPEND = "append";
@@ -54,9 +54,9 @@ namespace MySql.Data.MySqlClient.Memcached
     private static readonly string ERR_CLIENT_ERROR = "CLIENT_ERROR";
     private static readonly string ERR_SERVER_ERROR = "SERVER_ERROR";
 
-    internal protected TextClient( string server, uint port ) : base( server, port )
+    protected internal TextClient( string server, uint port ) : base( server, port )
     {
-      encoding = Encoding.UTF8;
+      _encoding = Encoding.UTF8;
     }
 
     #region Memcached protocol interface
@@ -152,8 +152,8 @@ namespace MySql.Data.MySqlClient.Memcached
       StringBuilder sb = new StringBuilder();
       // set key flags exptime 
       sb.Append(string.Format("{0} {1} 0 {2} ", cmd, key, (int)(expiration.TotalSeconds)));
-      byte[] buf = encoding.GetBytes(data.ToString());
-      string s = encoding.GetString(buf, 0, buf.Length);
+      byte[] buf = _encoding.GetBytes(data.ToString());
+      string s = _encoding.GetString(buf, 0, buf.Length);
       sb.Append(s.Length.ToString());
       sb.AppendFormat(" {0}", casUnique);
       sb.Append("\r\n");
@@ -176,8 +176,8 @@ namespace MySql.Data.MySqlClient.Memcached
       StringBuilder sb = new StringBuilder();
       // set key flags exptime 
       sb.Append(string.Format("{0} {1} 0 {2} ", cmd, key, (int)(expiration.TotalSeconds)));
-      byte[] buf = encoding.GetBytes(data.ToString());
-      string s = encoding.GetString(buf, 0, buf.Length);
+      byte[] buf = _encoding.GetBytes(data.ToString());
+      string s = _encoding.GetString(buf, 0, buf.Length);
       sb.Append(s.Length.ToString());
       sb.Append("\r\n");
       sb.Append(s);
@@ -199,8 +199,8 @@ namespace MySql.Data.MySqlClient.Memcached
       StringBuilder sb = new StringBuilder();
       // set key 
       sb.Append(string.Format("{0} {1} ", cmd, key ));
-      byte[] buf = encoding.GetBytes(data.ToString());
-      string s = encoding.GetString(buf, 0, buf.Length);
+      byte[] buf = _encoding.GetBytes(data.ToString());
+      string s = _encoding.GetString(buf, 0, buf.Length);
       if ((cmd == PROTOCOL_APPEND) || (cmd == PROTOCOL_PREPEND))
       {
         sb.Append("0 0 ");
@@ -262,7 +262,7 @@ namespace MySql.Data.MySqlClient.Memcached
 
     private void ValidateErrorResponse(byte[] res)
     {
-      string s = encoding.GetString(res, 0, res.Length);
+      string s = _encoding.GetString(res, 0, res.Length);
       if ((s.StartsWith(ERR_ERROR, StringComparison.OrdinalIgnoreCase)) ||
           (s.StartsWith(ERR_CLIENT_ERROR, StringComparison.OrdinalIgnoreCase)) ||
           (s.StartsWith(ERR_SERVER_ERROR, StringComparison.OrdinalIgnoreCase)))
@@ -273,14 +273,14 @@ namespace MySql.Data.MySqlClient.Memcached
 
     private void SendData(string sData)
     {
-      byte[] data = encoding.GetBytes(sData);
+      byte[] data = _encoding.GetBytes(sData);
       stream.Write(data, 0, data.Length);
     }
 
     private KeyValuePair<string, object>[] ParseGetResponse(byte[] input)
     {
       // VALUE key2 10 9 2\r\n111222333\r\nEND\r\n
-      string[] sInput = encoding.GetString(input, 0, input.Length).Split(new string[] { "\r\n" }, StringSplitOptions.None);
+      string[] sInput = _encoding.GetString(input, 0, input.Length).Split(new string[] { "\r\n" }, StringSplitOptions.None);
       List<KeyValuePair<string, object>> l = new List<KeyValuePair<string, object>>();
       int i = 0;
       string key = "";

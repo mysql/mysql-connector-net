@@ -1,4 +1,4 @@
-// Copyright © 2004, 2011, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,29 +21,23 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections;
-using System.IO;
-using System.Text;
-using MySql.Data.Common;
-using System.Data;
-using MySql.Data.MySqlClient.Properties;
 using System.Collections.Generic;
 
 namespace MySql.Data.MySqlClient
 {
   internal abstract class Statement
   {
-    protected MySqlCommand command;
+    protected  MySqlCommand command;
+    private readonly List<MySqlPacket> _buffers;
     protected string commandText;
-    private List<MySqlPacket> buffers;
 
     private Statement(MySqlCommand cmd)
     {
       command = cmd;
-      buffers = new List<MySqlPacket>();
+      _buffers = new List<MySqlPacket>();
     }
 
-    public Statement(MySqlCommand cmd, string text)
+    protected Statement(MySqlCommand cmd, string text)
       : this(cmd)
     {
       commandText = text;
@@ -56,20 +50,11 @@ namespace MySql.Data.MySqlClient
       get { return commandText; }
     }
 
-    protected Driver Driver
-    {
-      get { return command.Connection.driver; }
-    }
+    protected Driver Driver => command.Connection.driver;
 
-    protected MySqlConnection Connection
-    {
-      get { return command.Connection; }
-    }
+    protected MySqlConnection Connection => command.Connection;
 
-    protected MySqlParameterCollection Parameters
-    {
-      get { return command.Parameters; }
-    }
+    protected MySqlParameterCollection Parameters => command.Parameters;
 
     #endregion
 
@@ -90,13 +75,13 @@ namespace MySql.Data.MySqlClient
 
     public virtual bool ExecuteNext()
     {
-      if (buffers.Count == 0)
+      if (_buffers.Count == 0)
         return false;
 
-      MySqlPacket packet = (MySqlPacket)buffers[0];
+      MySqlPacket packet = _buffers[0];
       //MemoryStream ms = stream.InternalBuffer;
       Driver.SendQuery(packet);
-      buffers.RemoveAt(0);
+      _buffers.RemoveAt(0);
       return true;
     }
 
@@ -115,7 +100,7 @@ namespace MySql.Data.MySqlClient
         while (index < command.Batch.Count)
         {
           MySqlCommand batchedCmd = command.Batch[index++];
-          MySqlPacket packet = (MySqlPacket)buffers[buffers.Count - 1];
+          MySqlPacket packet = (MySqlPacket)_buffers[_buffers.Count - 1];
 
           // now we make a guess if this statement will fit in our current stream
           long estimatedCmdSize = batchedCmd.EstimatedSize();
@@ -127,7 +112,7 @@ namespace MySql.Data.MySqlClient
           }
 
           // looks like we might have room for it so we remember the current end of the stream
-          buffers.RemoveAt(buffers.Count - 1);
+          _buffers.RemoveAt(_buffers.Count - 1);
           //long originalLength = packet.Length - 4;
 
           // and attempt to stream the next command
@@ -150,21 +135,21 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    private void InternalBindParameters(string sql, MySqlParameterCollection parameters,
-        MySqlPacket packet)
+    private void InternalBindParameters(string sql, MySqlParameterCollection parameters, MySqlPacket packet)
     {
       bool sqlServerMode = command.Connection.Settings.SqlServerMode;
 
       if (packet == null)
       {
-        packet = new MySqlPacket(Driver.Encoding);
-        packet.Version = Driver.Version;
+        packet = new MySqlPacket(Driver.Encoding) {Version = Driver.Version};
         packet.WriteByte(0);
       }
 
-      MySqlTokenizer tokenizer = new MySqlTokenizer(sql);
-      tokenizer.ReturnComments = true;
-      tokenizer.SqlServerMode = sqlServerMode;
+      MySqlTokenizer tokenizer = new MySqlTokenizer(sql)
+      {
+        ReturnComments = true,
+        SqlServerMode = sqlServerMode
+      };
 
       int pos = 0;
       string token = tokenizer.NextToken();
@@ -174,6 +159,7 @@ namespace MySql.Data.MySqlClient
         // serialize everything that came before the token (i.e. whitespace)
         packet.WriteStringNoNull(sql.Substring(pos, tokenizer.StartIndex - pos));
         pos = tokenizer.StopIndex;
+
         if (MySqlTokenizer.IsParameter(token))
         {
           if ((!parameters.containsUnnamedParameters && token.Length == 1 && parameterCount > 0) || parameters.containsUnnamedParameters && token.Length > 1)
@@ -184,6 +170,7 @@ namespace MySql.Data.MySqlClient
             token = null;
           parameterCount++;
         }
+
         if (token != null)
         {
           if (sqlServerMode && tokenizer.Quoted && token.StartsWith("[", StringComparison.Ordinal))
@@ -192,7 +179,7 @@ namespace MySql.Data.MySqlClient
         }
         token = tokenizer.NextToken();
       }
-      buffers.Add(packet);
+      _buffers.Add(packet);
     }
 
     protected virtual bool ShouldIgnoreMissingParameter(string parameterName)

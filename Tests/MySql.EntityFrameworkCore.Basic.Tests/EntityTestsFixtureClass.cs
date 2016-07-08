@@ -27,7 +27,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using System.Linq;
 using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
-using MySQL.Data.EntityFrameworkCore;
+using MySql.Data.EntityFrameworkCore;
 using MySql.Data.MySqlClient;
 
 namespace MySql.Data.EntityFrameworkCore.Tests
@@ -48,8 +48,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
 
       var serviceCollection = new ServiceCollection();
 
-      serviceCollection.AddEntityFrameworkMySQL()
-                    .AddDbContext<TestsContext>();
+      serviceCollection.AddDbContext<TestsContext>();
 
       _serviceProvider = serviceCollection.BuildServiceProvider();
 

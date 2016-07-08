@@ -146,7 +146,7 @@ namespace MySql.Data.MySqlClient
 
       PrimitiveType primitiveType = edmType.EdmType as PrimitiveType;
       if (primitiveType == null)
-        throw new ArgumentException(String.Format(Resources.TypeNotSupported, edmType));
+        throw new ArgumentException(String.Format(Entity.Properties.Resources.TypeNotSupported, edmType));
 
       ReadOnlyMetadataCollection<Facet> facets = edmType.Facets;
 
@@ -261,7 +261,7 @@ namespace MySql.Data.MySqlClient
           return TypeUsage.CreateDefaultTypeUsage(StoreTypeNameToStorePrimitiveType["geometry"]);
 #endif
         default:
-          throw new NotSupportedException(String.Format(Resources.NoStoreTypeForEdmType, edmType, primitiveType.PrimitiveTypeKind));
+          throw new NotSupportedException(String.Format(Entity.Properties.Resources.NoStoreTypeForEdmType, edmType, primitiveType.PrimitiveTypeKind));
       }
     }
 
@@ -293,7 +293,7 @@ namespace MySql.Data.MySqlClient
       return resourceAsString;
     }
 	
-	#if NET_40_OR_GREATER		
+	#if NET_45_OR_GREATER		
     public override bool SupportsEscapingLikeArgument(out char escapeCharacter)
     {
       escapeCharacter = LikeEscapeChar;

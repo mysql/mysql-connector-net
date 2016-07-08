@@ -1,4 +1,4 @@
-// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc., 2009, 2014 Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,59 +21,37 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Data;
 using MySql.Data.MySqlClient;
 
 namespace MySql.Data.Types
 {
   internal struct MySqlTimeSpan : IMySqlValue
   {
-    private TimeSpan mValue;
-    private bool isNull;
-
     public MySqlTimeSpan(bool isNull)
     {
-      this.isNull = isNull;
-      mValue = TimeSpan.MinValue;
+      IsNull = isNull;
+      Value = TimeSpan.MinValue;
     }
 
     public MySqlTimeSpan(TimeSpan val)
     {
-      this.isNull = false;
-      mValue = val;
+      IsNull = false;
+      Value = val;
     }
 
     #region IMySqlValue Members
 
-    public bool IsNull
-    {
-      get { return isNull; }
-    }
+    public bool IsNull { get; private set; }
 
-    MySqlDbType IMySqlValue.MySqlDbType
-    {
-      get { return MySqlDbType.Time; }
-    }
+    MySqlDbType IMySqlValue.MySqlDbType => MySqlDbType.Time;
 
-    object IMySqlValue.Value
-    {
-      get { return mValue; }
-    }
+    object IMySqlValue.Value => Value;
 
-    public TimeSpan Value
-    {
-      get { return mValue; }
-    }
+    public TimeSpan Value { get; private set; }
 
-    Type IMySqlValue.SystemType
-    {
-      get { return typeof(TimeSpan); }
-    }
+    Type IMySqlValue.SystemType => typeof(TimeSpan);
 
-    string IMySqlValue.MySqlTypeName
-    {
-      get { return "TIME"; }
-    }
+    string IMySqlValue.MySqlTypeName => "TIME";
 
     void IMySqlValue.WriteValue(MySqlPacket packet, bool binary, object val, int length)
     {
@@ -104,8 +82,7 @@ namespace MySql.Data.Types
       }
       else
       {
-        String s = String.Format("'{0}{1} {2:00}:{3:00}:{4:00}.{5:000000}'",
-            negative ? "-" : "", ts.Days, ts.Hours, ts.Minutes, ts.Seconds, ts.Ticks % 10000000);
+        String s = $"'{(negative ? "-" : "")}{ts.Days} {ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}.{ts.Ticks%10000000:000000}'";
       
         packet.WriteStringNoNull(s);
       }
@@ -128,21 +105,21 @@ namespace MySql.Data.Types
       if (bufLength > 0)
         negate = packet.ReadByte();
 
-      isNull = false;
+      IsNull = false;
       if (bufLength == 0)
-        isNull = true;
+        IsNull = true;
       else if (bufLength == 5)
-        mValue = new TimeSpan(packet.ReadInteger(4), 0, 0, 0);
+        Value = new TimeSpan(packet.ReadInteger(4), 0, 0, 0);
       else if (bufLength == 8)
-        mValue = new TimeSpan(packet.ReadInteger(4),
+        Value = new TimeSpan(packet.ReadInteger(4),
              packet.ReadByte(), packet.ReadByte(), packet.ReadByte());
       else
-        mValue = new TimeSpan(packet.ReadInteger(4),
+        Value = new TimeSpan(packet.ReadInteger(4),
              packet.ReadByte(), packet.ReadByte(), packet.ReadByte(),
              packet.ReadInteger(4) / 1000000);
 
       if (negate == 1)
-        mValue = mValue.Negate();
+        Value = Value.Negate();
       return this;
     }
 
@@ -187,8 +164,7 @@ namespace MySql.Data.Types
 
     public override string ToString()
     {
-      return String.Format("{0} {1:00}:{2:00}:{3:00}",
-        mValue.Days, mValue.Hours, mValue.Minutes, mValue.Seconds);
+      return $"{Value.Days} {Value.Hours:00}:{Value.Minutes:00}:{Value.Seconds:00}";
     }
 
     private void ParseMySql(string s)
@@ -216,8 +192,8 @@ namespace MySql.Data.Types
       }
       int days = hours / 24;
       hours = hours - (days * 24);
-      mValue = new TimeSpan(days, hours, mins, secs).Add(new TimeSpan(nanoseconds));
-      isNull = false;
+      Value = new TimeSpan(days, hours, mins, secs).Add(new TimeSpan(nanoseconds));
+      IsNull = false;
     }
   }
 }

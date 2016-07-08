@@ -29,33 +29,27 @@ using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class UsageAdvisorTests : IUseFixture<SetUpClass>, IDisposable
+  public class UsageAdvisorTests : TestBase
   {
-    private SetUpClass st;
-
-    public void SetFixture(SetUpClass data)
+    public UsageAdvisorTests(TestSetup setup) : base(setup, "usage-advisor")
     {
-      st = data;
-      st.csAdditions = ";Usage Advisor=true;";
-      if (st.conn.connectionState != ConnectionState.Closed)
-        st.conn.Close();
-      st.conn.ConnectionString += st.csAdditions;
-      st.conn.Open();
-      st.createTable("CREATE TABLE Test (id int, name VARCHAR(200))", "INNODB");
+
     }
 
-    public void Dispose()
+    protected override void Init()
     {
-      st.execSQL("DROP TABLE IF EXISTS TEST");
+      base.Init();
+      Settings.UseUsageAdvisor = true;
     }
 
     [Fact]
     public void NotReadingEveryField()
     {
-      st.execSQL("INSERT INTO Test VALUES (1, 'Test1')");
-      st.execSQL("INSERT INTO Test VALUES (2, 'Test2')");
-      st.execSQL("INSERT INTO Test VALUES (3, 'Test3')");
-      st.execSQL("INSERT INTO Test VALUES (4, 'Test4')");
+      executeSQL("CREATE TABLE Test (id int, name VARCHAR(200))");
+      executeSQL("INSERT INTO Test VALUES (1, 'Test1')");
+      executeSQL("INSERT INTO Test VALUES (2, 'Test2')");
+      executeSQL("INSERT INTO Test VALUES (3, 'Test3')");
+      executeSQL("INSERT INTO Test VALUES (4, 'Test4')");
 
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
@@ -63,7 +57,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlTrace.Listeners.Add(listener);
 
       string sql = "SELECT * FROM Test; SELECT * FROM Test WHERE id > 2";
-      MySqlCommand cmd = new MySqlCommand(sql, st.conn);
+      MySqlCommand cmd = new MySqlCommand(sql, connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -93,17 +87,18 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void NotReadingEveryRow()
     {
-      st.execSQL("INSERT INTO Test VALUES (1, 'Test1')");
-      st.execSQL("INSERT INTO Test VALUES (2, 'Test2')");
-      st.execSQL("INSERT INTO Test VALUES (3, 'Test3')");
-      st.execSQL("INSERT INTO Test VALUES (4, 'Test4')");
+      executeSQL("CREATE TABLE Test (id int, name VARCHAR(200))");
+      executeSQL("INSERT INTO Test VALUES (1, 'Test1')");
+      executeSQL("INSERT INTO Test VALUES (2, 'Test2')");
+      executeSQL("INSERT INTO Test VALUES (3, 'Test3')");
+      executeSQL("INSERT INTO Test VALUES (4, 'Test4')");
 
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
       GenericListener listener = new GenericListener();
       MySqlTrace.Listeners.Add(listener);
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test; SELECT * FROM Test WHERE id > 2", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test; SELECT * FROM Test WHERE id > 2", connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -130,14 +125,15 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void FieldConversion()
     {
-      st.execSQL("INSERT INTO Test VALUES (1, 'Test1')");
+      executeSQL("CREATE TABLE Test (id int, name VARCHAR(200))");
+      executeSQL("INSERT INTO Test VALUES (1, 'Test1')");
 
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
       GenericListener listener = new GenericListener();
       MySqlTrace.Listeners.Add(listener);
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -157,17 +153,18 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void NoIndexUsed()
     {
-      st.execSQL("INSERT INTO Test VALUES (1, 'Test1')");
-      st.execSQL("INSERT INTO Test VALUES (2, 'Test1')");
-      st.execSQL("INSERT INTO Test VALUES (3, 'Test1')");
-      st.execSQL("INSERT INTO Test VALUES (4, 'Test1')");
+      executeSQL("CREATE TABLE Test (id int, name VARCHAR(200))");
+      executeSQL("INSERT INTO Test VALUES (1, 'Test1')");
+      executeSQL("INSERT INTO Test VALUES (2, 'Test1')");
+      executeSQL("INSERT INTO Test VALUES (3, 'Test1')");
+      executeSQL("INSERT INTO Test VALUES (4, 'Test1')");
 
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
       GenericListener listener = new GenericListener();
       MySqlTrace.Listeners.Add(listener);
 
-      MySqlCommand cmd = new MySqlCommand("SELECT name FROM Test WHERE id=3", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT name FROM Test WHERE id=3", connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -184,19 +181,18 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void BadIndexUsed()
     {
-      st.execSQL("DROP TABLE IF EXISTS Test");
-      st.execSQL("CREATE TABLE Test(id INT, name VARCHAR(20) PRIMARY KEY)");
-      st.execSQL("INSERT INTO Test VALUES (1, 'Test1')");
-      st.execSQL("INSERT INTO Test VALUES (2, 'Test2')");
-      st.execSQL("INSERT INTO Test VALUES (3, 'Test3')");
-      st.execSQL("INSERT INTO Test VALUES (4, 'Test4')");
+      executeSQL("CREATE TABLE Test(id INT, name VARCHAR(20) PRIMARY KEY)");
+      executeSQL("INSERT INTO Test VALUES (1, 'Test1')");
+      executeSQL("INSERT INTO Test VALUES (2, 'Test2')");
+      executeSQL("INSERT INTO Test VALUES (3, 'Test3')");
+      executeSQL("INSERT INTO Test VALUES (4, 'Test4')");
 
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
       GenericListener listener = new GenericListener();
       MySqlTrace.Listeners.Add(listener);
 
-      MySqlCommand cmd = new MySqlCommand("SELECT name FROM Test WHERE id=3", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT name FROM Test WHERE id=3", connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();

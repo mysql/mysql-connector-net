@@ -1,4 +1,4 @@
-// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,15 +21,11 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Data;
-using System.Text;
-using MySql.Data.Common;
-using System.Globalization;
-using System.Diagnostics;
-using MySql.Data.Types;
-using System.Collections;
-using MySql.Data.MySqlClient.Properties;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Text;
+using MySql.Data.MySqlClient.Common;
+using MySql.Data.Types;
 
 namespace MySql.Data.MySqlClient
 {
@@ -44,8 +40,7 @@ namespace MySql.Data.MySqlClient
     {
       MySqlSchemaCollection dt = base.GetCollections();
 
-      object[][] collections = new object[][] 
-            {
+      object[][] collections = {
                 new object[] {"Views", 2, 3},
                 new object[] {"ViewColumns", 3, 4},
                 new object[] {"Procedure Parameters", 5, 1},
@@ -61,7 +56,7 @@ namespace MySql.Data.MySqlClient
     {
       MySqlSchemaCollection dt = base.GetRestrictions();
 
-      object[][] restrictions = new object[][] 
+      object[][] restrictions = new object[][]
             {
                 new object[] {"Procedure Parameters", "Database", "", 0},
                 new object[] {"Procedure Parameters", "Schema", "", 1},
@@ -241,12 +236,12 @@ namespace MySql.Data.MySqlClient
         // then we will get null for the body
         if (reader.IsDBNull(2)) return null;
 
-        string sql_mode = reader.GetString(1);
+        string sqlMode = reader.GetString(1);
 
         string body = reader.GetString(2);
         MySqlTokenizer tokenizer = new MySqlTokenizer(body);
-        tokenizer.AnsiQuotes = sql_mode.IndexOf("ANSI_QUOTES") != -1;
-        tokenizer.BackslashEscapes = sql_mode.IndexOf("NO_BACKSLASH_ESCAPES") == -1;
+        tokenizer.AnsiQuotes = sqlMode.IndexOf("ANSI_QUOTES") != -1;
+        tokenizer.BackslashEscapes = sqlMode.IndexOf("NO_BACKSLASH_ESCAPES") == -1;
 
         string token = tokenizer.NextToken();
         while (token != "(")
@@ -409,13 +404,13 @@ namespace MySql.Data.MySqlClient
       return where.ToString();
     }
 
-    private MySqlSchemaCollection Query(string table_name, string initial_where,
+    private MySqlSchemaCollection Query(string tableName, string initialWhere,
         string[] keys, string[] values)
     {
       StringBuilder query = new StringBuilder("SELECT * FROM INFORMATION_SCHEMA.");
-      query.Append(table_name);
+      query.Append(tableName);
 
-      string where = GetWhereClause(initial_where, keys, values);
+      string where = GetWhereClause(initialWhere, keys, values);
 
       if (where.Length > 0)
         query.AppendFormat(CultureInfo.InvariantCulture, " WHERE {0}", where);
@@ -535,11 +530,7 @@ namespace MySql.Data.MySqlClient
             ParseProcedureBody(parametersTable, body, routine, nameToRestrict);
           }
         }
-#if RT
-        catch (MySqlNullValueException snex)
-#else
-          catch (System.Data.SqlTypes.SqlNullValueException snex)
-#endif
+        catch (System.Data.SqlTypes.SqlNullValueException snex)
         {
           throw new InvalidOperationException(
               String.Format(Resources.UnableToRetrieveParameters, routine["ROUTINE_NAME"]), snex);
@@ -678,8 +669,8 @@ namespace MySql.Data.MySqlClient
         row["DTD_IDENTIFIER"] = dtd.ToString();
 
       // now default the collation if one wasn't given
-      if ( string.IsNullOrEmpty( ( string )row["COLLATION_NAME"] ) &&
-          !string.IsNullOrEmpty( ( string )row["CHARACTER_SET_NAME"] ))
+      if (string.IsNullOrEmpty((string)row["COLLATION_NAME"]) &&
+          !string.IsNullOrEmpty((string)row["CHARACTER_SET_NAME"]))
         row["COLLATION_NAME"] = CharSetMap.GetDefaultCollation(
             row["CHARACTER_SET_NAME"].ToString(), connection);
 
@@ -689,7 +680,7 @@ namespace MySql.Data.MySqlClient
         if (row["CHARACTER_SET_NAME"] == null)
           row["CHARACTER_SET_NAME"] = "";
         row["CHARACTER_OCTET_LENGTH"] =
-            CharSetMap.GetMaxLength(( string )row["CHARACTER_SET_NAME"], connection) *
+            CharSetMap.GetMaxLength((string)row["CHARACTER_SET_NAME"], connection) *
             (int)row["CHARACTER_MAXIMUM_LENGTH"];
       }
 
@@ -701,7 +692,7 @@ namespace MySql.Data.MySqlClient
       string format = "({0},{1})";
       object precision = row["NUMERIC_PRECISION"];
       if (MetaData.IsNumericType(type) &&
-          string.IsNullOrEmpty( ( string )row["NUMERIC_PRECISION"] ) )
+          string.IsNullOrEmpty((string)row["NUMERIC_PRECISION"]))
       {
         row["NUMERIC_PRECISION"] = 10;
         row["NUMERIC_SCALE"] = 0;

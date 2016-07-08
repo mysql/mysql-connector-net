@@ -1,4 +1,4 @@
-// Copyright © 2015, Oracle and/or its affiliates.  All rights reserved.
+ï»¿// Copyright Â© 2015, Oracle and/or its affiliates.  All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -35,7 +35,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Oracle")]
 [assembly: AssemblyProduct("MySql.Data.EntityFrameworkCore")]
-[assembly: AssemblyCopyright("Copyright © 2015, Oracle and/or its affiliates. All rights reserved.")]
+[assembly: AssemblyCopyright("Copyright Â© 2015, Oracle and/or its affiliates. All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -46,8 +46,8 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("540e7b3c-bd0b-4980-96d1-5d140d303f7e")]
-#if DEBUG
-[assembly: AssemblyDelaySign(true)]
-[assembly: AssemblyKeyFileAttribute(@"..\..\ConnectorNetPublicKey.snk")]
-#endif
+//#if DEBUG
+//[assembly: AssemblyDelaySign(true)]
+//[assembly: AssemblyKeyFileAttribute(@"..\ConnectorNetPublicKey.snk")]
+//#endif
 [assembly: AssemblyKeyName("ConnectorNet")]

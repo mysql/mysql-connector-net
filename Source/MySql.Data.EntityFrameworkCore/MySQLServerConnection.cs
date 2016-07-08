@@ -27,6 +27,7 @@ using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using Microsoft.EntityFrameworkCore;
 using MySQL.Data.EntityFrameworkCore.Extensions;
+using System.Reflection;
 
 namespace MySQL.Data.EntityFrameworkCore
 {

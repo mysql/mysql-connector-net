@@ -1,4 +1,4 @@
-// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc.
+// Copyright © 2004, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -22,13 +22,14 @@
 
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 
-namespace MySql.Data.Common
+namespace MySql.Data.MySqlClient.Common
 {
   internal class Platform
   {
-    private static bool inited;
-    private static bool isMono;
+    private static bool _inited;
+    private static bool _isMono;
 
     /// <summary>
     /// By creating a private ctor, we keep the compiler from creating a default ctor
@@ -39,8 +40,8 @@ namespace MySql.Data.Common
 
     public static bool IsWindows()
     {
-#if NETFX_CORE
-      return true;
+#if NETCORE10
+      return RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 #else
       OperatingSystem os = Environment.OSVersion;
       switch (os.Platform)
@@ -54,30 +55,28 @@ namespace MySql.Data.Common
 #endif
     }
 
-    public static char DirectorySeparatorChar
-    {
-      get
-      {
-#if NETFX_CORE
-        return '\\';
-#else
-          return Path.DirectorySeparatorChar;
-#endif
-      }
-    }
 
     public static bool IsMono()
     {
-      if (!inited)
+      if (!_inited)
         Init();
-      return isMono;
+      return _isMono;
     }
 
     private static void Init()
     {
-      inited = true;
+      _inited = true;
       Type t = Type.GetType("Mono.Runtime");
-      isMono = t != null;
+      _isMono = t != null;
+    }
+
+    public static bool IsDotNetCore()
+    {
+#if NETCORE10
+      return true;
+#else
+      return false;
+#endif
     }
   }
 }

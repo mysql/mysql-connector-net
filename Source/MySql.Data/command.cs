@@ -1,4 +1,4 @@
-// Copyright © 2004, 2015, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -22,20 +22,16 @@
 
 using System;
 using System.IO;
-using System.Collections;
-using System.Text;
-#if !RT
 using System.Data;
-using System.Data.Common;
-#endif
-using MySql.Data.Common;
 using System.ComponentModel;
-using System.Threading;
 using System.Diagnostics;
-using System.Globalization;
 using System.Collections.Generic;
-using MySql.Data.MySqlClient.Properties;
+using System.Linq;
+using MySql.Data.MySqlClient.Common;
 using MySql.Data.MySqlClient.Replication;
+using System.Threading;
+using System.Reflection;
+using System.Text;
 
 namespace MySql.Data.MySqlClient
 {
@@ -43,32 +39,22 @@ namespace MySql.Data.MySqlClient
   public sealed partial class MySqlCommand : ICloneable, IDisposable
   {
     MySqlConnection connection;
-    MySqlTransaction curTransaction;
     string cmdText;
-    CommandType cmdType;
     long updatedRowCount;
-    MySqlParameterCollection parameters;
     private IAsyncResult asyncResult;
-    internal Int64 lastInsertedId;
     private PreparableStatement statement;
     private int commandTimeout;
-    private bool canceled;
     private bool resetSqlSelect;
-    List<MySqlCommand> batch;
-    private string batchableCommandText;
     CommandTimer commandTimer;
     private bool useDefaultTimeout;
-    private bool shouldCache;
-    private int cacheAge;
-    private bool internallyCreated;
     private static List<string> keywords = null;
     private bool disposed = false;
 
     /// <include file='docs/mysqlcommand.xml' path='docs/ctor1/*'/>
     public MySqlCommand()
     {
-      cmdType = CommandType.Text;
-      parameters = new MySqlParameterCollection(this);
+      CommandType = System.Data.CommandType.Text;
+      Parameters = new MySqlParameterCollection(this);
       cmdText = String.Empty;
       useDefaultTimeout = true;
       Constructor();
@@ -91,42 +77,32 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <include file='docs/mysqlcommand.xml' path='docs/ctor4/*'/>
-    public MySqlCommand(string cmdText, MySqlConnection connection,
-            MySqlTransaction transaction)
-      :
-      this(cmdText, connection)
+    public MySqlCommand(string cmdText, MySqlConnection connection, MySqlTransaction transaction)
+      : this(cmdText, connection)
     {
-      curTransaction = transaction;
+      Transaction = transaction;
     }
 
-    #region Destructor
-#if !RT
+#region Destructor
     ~MySqlCommand()
     {
       Dispose(false);
     }
-#else
-    ~MySqlCommand()
-    {
-      this.Dispose();
-    }
-#endif
-    #endregion
+#endregion
 
-    #region Properties
+#region Properties
 
 
     /// <include file='docs/mysqlcommand.xml' path='docs/LastInseredId/*'/>
     [Browsable(false)]
-    public Int64 LastInsertedId
-    {
-      get { return lastInsertedId; }
-    }
+    public Int64 LastInsertedId { get; internal set; }
 
     /// <include file='docs/mysqlcommand.xml' path='docs/CommandText/*'/>
     [Category("Data")]
     [Description("Command text to execute")]
+#if !NETCORE10
     [Editor("MySql.Data.Common.Design.SqlCommandTextEditor,MySqlClient.Design", typeof(System.Drawing.Design.UITypeEditor))]
+#endif
     public override string CommandText
     {
       get { return cmdText; }
@@ -134,7 +110,7 @@ namespace MySql.Data.MySqlClient
       {
         cmdText = value ?? string.Empty;
         statement = null;
-        batchableCommandText = null;
+        BatchableCommandText = null;
         if (cmdText != null && cmdText.EndsWith("DEFAULT VALUES", StringComparison.OrdinalIgnoreCase))
         {
           cmdText = cmdText.Substring(0, cmdText.Length - 14);
@@ -174,18 +150,11 @@ namespace MySql.Data.MySqlClient
 
     /// <include file='docs/mysqlcommand.xml' path='docs/CommandType/*'/>
     [Category("Data")]
-    public override CommandType CommandType
-    {
-      get { return cmdType; }
-      set { cmdType = value; }
-    }
+    public override CommandType CommandType { get; set; }
 
     /// <include file='docs/mysqlcommand.xml' path='docs/IsPrepared/*'/>
     [Browsable(false)]
-    public bool IsPrepared
-    {
-      get { return statement != null && statement.IsPrepared; }
-    }
+    public bool IsPrepared => statement != null && statement.IsPrepared;
 
     /// <include file='docs/mysqlcommand.xml' path='docs/Connection/*'/>
     [Category("Behavior")]
@@ -207,17 +176,16 @@ namespace MySql.Data.MySqlClient
 
         // if the user has not already set the command timeout, then
         // take the default from the connection
-        if (connection != null)
-        {
-          if (useDefaultTimeout)
-          {
-            commandTimeout = (int)connection.Settings.DefaultCommandTimeout;
-            useDefaultTimeout = false;
-          }
+        if (connection == null) return;
 
-          EnableCaching = connection.Settings.TableCaching;
-          CacheAge = connection.Settings.DefaultTableCacheAge;
+        if (useDefaultTimeout)
+        {
+          commandTimeout = (int)connection.Settings.DefaultCommandTimeout;
+          useDefaultTimeout = false;
         }
+
+        EnableCaching = connection.Settings.TableCaching;
+        CacheAge = connection.Settings.DefaultTableCacheAge;
       }
     }
 
@@ -225,56 +193,28 @@ namespace MySql.Data.MySqlClient
     [Category("Data")]
     [Description("The parameters collection")]
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-    public new MySqlParameterCollection Parameters
-    {
-      get { return parameters; }
-    }
+    public new MySqlParameterCollection Parameters { get; }
 
 
     /// <include file='docs/mysqlcommand.xml' path='docs/Transaction/*'/>
     [Browsable(false)]
-    public new MySqlTransaction Transaction
-    {
-      get { return curTransaction; }
-      set { curTransaction = value; }
-    }
+    public new MySqlTransaction Transaction { get; set; }
 
-    public bool EnableCaching
-    {
-      get { return shouldCache; }
-      set { shouldCache = value; }
-    }
+    public bool EnableCaching { get; set; }
 
-    public int CacheAge
-    {
-      get { return cacheAge; }
-      set { cacheAge = value; }
-    }
+    public int CacheAge { get; set; }
 
-    internal List<MySqlCommand> Batch
-    {
-      get { return batch; }
-    }
+    internal List<MySqlCommand> Batch { get; private set; }
 
-    internal bool Canceled
-    {
-      get { return canceled; }
-    }
+    internal bool Canceled { get; private set; }
 
-    internal string BatchableCommandText
-    {
-      get { return batchableCommandText; }
-    }
+    internal string BatchableCommandText { get; private set; }
 
-    internal bool InternallyCreated
-    {
-      get { return internallyCreated; }
-      set { internallyCreated = value; }
-    }
+    internal bool InternallyCreated { get; set; }
 
-    #endregion
+#endregion
 
-    #region Methods
+#region Methods
 
     /// <summary>
     /// Attempts to cancel the execution of a currently active command
@@ -285,14 +225,14 @@ namespace MySql.Data.MySqlClient
     public override void Cancel()
     {
       connection.CancelQuery(connection.ConnectionTimeout);
-      canceled = true;
+      Canceled = true;
     }
 
     /// <summary>
     /// Creates a new instance of a <see cref="MySqlParameter"/> object.
     /// </summary>
     /// <remarks>
-    /// This method is a strongly-typed version of <see cref="IDbCommand.CreateParameter"/>.
+    /// This method is a strongly-typed version of <see cref="System.Data.IDbCommand.CreateParameter"/>.
     /// </remarks>
     /// <returns>A <see cref="MySqlParameter"/> object.</returns>
     /// 
@@ -317,7 +257,7 @@ namespace MySql.Data.MySqlClient
         Throw(new InvalidOperationException("Connection must be valid and open."));
 
       // Data readers have to be closed first
-      if (connection.IsInUse && !this.internallyCreated)
+      if (connection.IsInUse && !this.InternallyCreated)
         Throw(new MySqlException("There is already an open DataReader associated with this Connection which must be closed first."));
     }
 
@@ -326,13 +266,9 @@ namespace MySql.Data.MySqlClient
     {
       int records = -1;
 
-#if !RT
       // give our interceptors a shot at it first
-      if ( connection != null && 
-           connection.commandInterceptor != null &&
-           connection.commandInterceptor.ExecuteNonQuery(CommandText, ref records))
+      if (connection?.commandInterceptor != null && connection.commandInterceptor.ExecuteNonQuery(CommandText, ref records))
         return records;
-#endif
 
       // ok, none of our interceptors handled this so we default
       using (MySqlDataReader reader = ExecuteReader())
@@ -344,20 +280,18 @@ namespace MySql.Data.MySqlClient
 
     internal void ClearCommandTimer()
     {
-      if (commandTimer != null)
-      {
-        commandTimer.Dispose();
-        commandTimer = null;
-      }
+      if (commandTimer == null) return;
+
+      commandTimer.Dispose();
+      commandTimer = null;
     }
 
     internal void Close(MySqlDataReader reader)
     {
-      if (statement != null)
-        statement.Close(reader);
+      statement?.Close(reader);
       ResetSqlSelectLimit();
-      if (statement != null && connection != null && connection.driver != null)
-        connection.driver.CloseQuery(connection, statement.StatementId);
+      if (statement != null)
+        connection?.driver?.CloseQuery(connection, statement.StatementId);
       ClearCommandTimer();
     }
 
@@ -367,11 +301,10 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     private void ResetReader()
     {
-      if (connection != null && connection.Reader != null)
-      {
-        connection.Reader.Close();
-        connection.Reader = null;
-      }
+      if (connection?.Reader == null) return;
+
+      connection.Reader.Close();
+      connection.Reader = null;
     }
 
     /// <summary>
@@ -380,13 +313,12 @@ namespace MySql.Data.MySqlClient
     internal void ResetSqlSelectLimit()
     {
       // if we are supposed to reset the sql select limit, do that here
-      if (resetSqlSelect)
-      {
-        resetSqlSelect = false;
-        MySqlCommand command = new MySqlCommand("SET SQL_SELECT_LIMIT=DEFAULT", connection);
-        command.internallyCreated = true;
-        command.ExecuteNonQuery();
-      }
+      if (!resetSqlSelect) return;
+
+      resetSqlSelect = false;
+      MySqlCommand command = new MySqlCommand("SET SQL_SELECT_LIMIT=DEFAULT", connection);
+      command.InternallyCreated = true;
+      command.ExecuteNonQuery();
     }
 
     /// <include file='docs/mysqlcommand.xml' path='docs/ExecuteReader/*'/>
@@ -399,15 +331,12 @@ namespace MySql.Data.MySqlClient
     /// <include file='docs/mysqlcommand.xml' path='docs/ExecuteReader1/*'/>
     public new MySqlDataReader ExecuteReader(CommandBehavior behavior)
     {
-#if !RT
+
       // give our interceptors a shot at it first
       MySqlDataReader interceptedReader = null;
-      if ( connection != null &&
-           connection.commandInterceptor != null && 
-           connection.commandInterceptor.ExecuteReader(CommandText, behavior, ref interceptedReader))
+      if (connection?.commandInterceptor != null && connection.commandInterceptor.ExecuteReader(CommandText, behavior, ref interceptedReader))
         return interceptedReader;
-#endif
-      
+
       // interceptors didn't handle this so we fall through
       bool success = false;
       CheckState();
@@ -419,11 +348,13 @@ namespace MySql.Data.MySqlClient
 
       string sql = cmdText.Trim(';');
 
+#if !NETCORE10
       // Load balancing getting a new connection
       if (connection.hasBeenOpen && !driver.HasStatus(ServerStatusFlags.InTransaction))
       {
         ReplicationManager.GetNewConnection(connection.Settings.Server, !IsReadOnlyCommand(sql), connection);
       }
+#endif
 
       lock (driver)
       {
@@ -434,14 +365,15 @@ namespace MySql.Data.MySqlClient
           Throw(new MySqlException(Resources.DataReaderOpen));
         }
 
-#if !RT
+#if !NETCORE10
         System.Transactions.Transaction curTrans = System.Transactions.Transaction.Current;
 
         if (curTrans != null)
         {
           bool inRollback = false;
-          if (driver.CurrentTransaction != null)
-            inRollback = driver.CurrentTransaction.InRollback;
+          //TODO: ADD support for 452 and 46X
+          if (driver.currentTransaction != null)
+            inRollback = driver.currentTransaction.InRollback;
           if (!inRollback)
           {
             System.Transactions.TransactionStatus status = System.Transactions.TransactionStatus.InDoubt;
@@ -460,9 +392,10 @@ namespace MySql.Data.MySqlClient
           }
         }
 #endif
+
         commandTimer = new CommandTimer(connection, CommandTimeout);
 
-        lastInsertedId = -1;
+        LastInsertedId = -1;
 
         if (CommandType == CommandType.TableDirect)
           sql = "SELECT * FROM " + sql;
@@ -500,7 +433,7 @@ namespace MySql.Data.MySqlClient
         {
           MySqlDataReader reader = new MySqlDataReader(this, statement, behavior);
           connection.Reader = reader;
-          canceled = false;
+          Canceled = false;
           // execute the statement
           statement.Execute();
           // wait for data to return
@@ -513,11 +446,13 @@ namespace MySql.Data.MySqlClient
           connection.HandleTimeoutOrThreadAbort(tex);
           throw; //unreached
         }
+#if !NETCORE10
         catch (ThreadAbortException taex)
         {
           connection.HandleTimeoutOrThreadAbort(taex);
           throw;
         }
+#endif
         catch (IOException ioex)
         {
           connection.Abort(); // Closes connection without returning it to the pool
@@ -592,15 +527,13 @@ namespace MySql.Data.MySqlClient
     /// <include file='docs/mysqlcommand.xml' path='docs/ExecuteScalar/*'/>
     public override object ExecuteScalar()
     {
-      lastInsertedId = -1;
+      LastInsertedId = -1;
       object val = null;
 
-#if !RT
       // give our interceptors a shot at it first
       if (connection != null &&
           connection.commandInterceptor.ExecuteScalar(CommandText, ref val))
         return val;
-#endif
 
       using (MySqlDataReader reader = ExecuteReader())
       {
@@ -636,10 +569,7 @@ namespace MySql.Data.MySqlClient
              psSQL.Trim().Length == 0)
           return;
 
-        if (CommandType == CommandType.StoredProcedure)
-          statement = new StoredProcedure(this, CommandText);
-        else
-          statement = new PreparableStatement(this, CommandText);
+        statement = CommandType == CommandType.StoredProcedure ? new StoredProcedure(this, CommandText) : new PreparableStatement(this, CommandText);
 
         statement.Resolve(true);
         statement.Prepare();
@@ -658,12 +588,13 @@ namespace MySql.Data.MySqlClient
 
       Prepare(0);
     }
-    #endregion
+#endregion
 
-    #region Async Methods
+#region Async Methods
+    //TODO: must review, perhaps can be updated to use async and awaits instead of the old fashion way
 
     internal delegate object AsyncDelegate(int type, CommandBehavior behavior);
-    internal AsyncDelegate caller = null;
+    internal AsyncDelegate Caller;
     internal Exception thrownException;
 
     internal object AsyncExecuteWrapper(int type, CommandBehavior behavior)
@@ -709,11 +640,11 @@ namespace MySql.Data.MySqlClient
     /// the returned rows. </returns>
     public IAsyncResult BeginExecuteReader(CommandBehavior behavior)
     {
-      if (caller != null)
+      if (Caller != null)
         Throw(new MySqlException(Resources.UnableToStartSecondAsyncOp));
 
-      caller = new AsyncDelegate(AsyncExecuteWrapper);
-      asyncResult = caller.BeginInvoke(1, behavior, null, null);
+      Caller = AsyncExecuteWrapper;
+      asyncResult = Caller.BeginInvoke(1, behavior, null, null);
       return asyncResult;
     }
 
@@ -727,8 +658,8 @@ namespace MySql.Data.MySqlClient
     public MySqlDataReader EndExecuteReader(IAsyncResult result)
     {
       result.AsyncWaitHandle.WaitOne();
-      AsyncDelegate c = caller;
-      caller = null;
+      AsyncDelegate c = Caller;
+      Caller = null;
       if (thrownException != null)
         throw thrownException;
       return (MySqlDataReader)c.EndInvoke(result);
@@ -750,11 +681,11 @@ namespace MySql.Data.MySqlClient
     /// which returns the number of affected rows. </returns>
     public IAsyncResult BeginExecuteNonQuery(AsyncCallback callback, object stateObject)
     {
-      if (caller != null)
+      if (Caller != null)
         Throw(new MySqlException(Resources.UnableToStartSecondAsyncOp));
 
-      caller = new AsyncDelegate(AsyncExecuteWrapper);
-      asyncResult = caller.BeginInvoke(2, CommandBehavior.Default,
+      Caller = AsyncExecuteWrapper;
+      asyncResult = Caller.BeginInvoke(2, CommandBehavior.Default,
           callback, stateObject);
       return asyncResult;
     }
@@ -768,11 +699,11 @@ namespace MySql.Data.MySqlClient
     /// which returns the number of affected rows. </returns>
     public IAsyncResult BeginExecuteNonQuery()
     {
-      if (caller != null)
+      if (Caller != null)
         Throw(new MySqlException(Resources.UnableToStartSecondAsyncOp));
 
-      caller = new AsyncDelegate(AsyncExecuteWrapper);
-      asyncResult = caller.BeginInvoke(2, CommandBehavior.Default, null, null);
+      Caller = AsyncExecuteWrapper;
+      asyncResult = Caller.BeginInvoke(2, CommandBehavior.Default, null, null);
       return asyncResult;
     }
 
@@ -785,16 +716,16 @@ namespace MySql.Data.MySqlClient
     public int EndExecuteNonQuery(IAsyncResult asyncResult)
     {
       asyncResult.AsyncWaitHandle.WaitOne();
-      AsyncDelegate c = caller;
-      caller = null;
+      AsyncDelegate c = Caller;
+      Caller = null;
       if (thrownException != null)
         throw thrownException;
       return (int)c.EndInvoke(asyncResult);
     }
 
-    #endregion
+#endregion
 
-    #region Private Methods
+#region Private Methods
 
     /*		private ArrayList PrepareSqlBuffers(string sql)
                 {
@@ -847,10 +778,7 @@ namespace MySql.Data.MySqlClient
 
     internal long EstimatedSize()
     {
-      long size = CommandText.Length;
-      foreach (MySqlParameter parameter in Parameters)
-        size += parameter.EstimatedSize();
-      return size;
+      return CommandText.Length + Parameters.Cast<MySqlParameter>().Sum(parameter => parameter.EstimatedSize());
     }
 
     /// <summary>
@@ -864,18 +792,18 @@ namespace MySql.Data.MySqlClient
 
       string keyword = query.ToUpper();
       int indexChar = keyword.IndexOfAny(new char[] { '(', '"', '@', '\'', '`' });
-      if(indexChar > 0)
+      if (indexChar > 0)
         keyword = keyword.Substring(0, indexChar);
 
       if (keywords == null)
-        keywords = new List<string>(Resources.keywords.Replace("\r", "").Split('\n'));
+        keywords = new List<string>(Utils.ReadResource("keywords.txt").Replace("\r", "").Split('\n'));
 
       return !keywords.Contains(keyword);
     }
 
-    #endregion
+#endregion
 
-    #region ICloneable
+#region ICloneable
 
     /// <summary>
     /// Creates a clone of this MySqlCommand object.  CommandText, Connection, and Transaction properties
@@ -884,16 +812,19 @@ namespace MySql.Data.MySqlClient
     /// <returns>The cloned MySqlCommand object</returns>
     public MySqlCommand Clone()
     {
-      MySqlCommand clone = new MySqlCommand(cmdText, connection, curTransaction);
-      clone.CommandType = CommandType;
-      clone.commandTimeout = commandTimeout;
-      clone.useDefaultTimeout = useDefaultTimeout;
-      clone.batchableCommandText = batchableCommandText;
-      clone.EnableCaching = EnableCaching;
-      clone.CacheAge = CacheAge;
+      MySqlCommand clone = new MySqlCommand(cmdText, connection, Transaction)
+      {
+        CommandType = CommandType,
+        commandTimeout = commandTimeout,
+        useDefaultTimeout = useDefaultTimeout,
+        BatchableCommandText = BatchableCommandText,
+        EnableCaching = EnableCaching,
+        CacheAge = CacheAge
+      };
+
       PartialClone(clone);
 
-      foreach (MySqlParameter p in parameters)
+      foreach (MySqlParameter p in Parameters)
       {
         clone.Parameters.Add(p.Clone());
       }
@@ -902,25 +833,27 @@ namespace MySql.Data.MySqlClient
 
     partial void PartialClone(MySqlCommand clone);
 
+#if !NETCORE10
     object ICloneable.Clone()
     {
-      return this.Clone();
+      return Clone();
     }
 
-    #endregion
+#endif
+#endregion
 
-    #region Batching support
+#region Batching support
 
     internal void AddToBatch(MySqlCommand command)
     {
-      if (batch == null)
-        batch = new List<MySqlCommand>();
-      batch.Add(command);
+      if (Batch == null)
+        Batch = new List<MySqlCommand>();
+      Batch.Add(command);
     }
 
     internal string GetCommandTextForBatching()
     {
-      if (batchableCommandText == null)
+      if (BatchableCommandText == null)
       {
         // if the command starts with insert and is "simple" enough, then
         // we can use the multi-value form of insert
@@ -945,7 +878,7 @@ namespace MySql.Data.MySqlClient
               int openParenCount = 1;
               while (token != null)
               {
-                batchableCommandText += token;
+                BatchableCommandText += token;
                 token = tokenizer.NextToken();
 
                 if (token == "(")
@@ -958,12 +891,12 @@ namespace MySql.Data.MySqlClient
               }
 
               if (token != null)
-                batchableCommandText += token;
+                BatchableCommandText += token;
               token = tokenizer.NextToken();
               if (token != null && (token == "," ||
                   StringUtility.ToUpperInvariant(token) == "ON"))
               {
-                batchableCommandText = null;
+                BatchableCommandText = null;
                 break;
               }
             }
@@ -971,24 +904,22 @@ namespace MySql.Data.MySqlClient
           }
         }
         // Otherwise use the command verbatim
-        else batchableCommandText = CommandText;
+        else BatchableCommandText = CommandText;
       }
 
-      return batchableCommandText;
+      return BatchableCommandText;
     }
 
-    #endregion
+#endregion
 
     // This method is used to throw all exceptions from this class.  
     private void Throw(Exception ex)
     {
-      if (connection != null)
-        connection.Throw(ex);
+      connection?.Throw(ex);
       throw ex;
     }
 
-#if !RT
-    public void Dispose()
+    public new void Dispose()
     {
       Dispose(true);
       GC.SuppressFinalize(this);
@@ -1001,7 +932,7 @@ namespace MySql.Data.MySqlClient
 
       if (!disposing)
         return;
-  
+
       if (statement != null && statement.IsPrepared)
         statement.CloseStatement();
 
@@ -1009,12 +940,6 @@ namespace MySql.Data.MySqlClient
 
       disposed = true;
     }
-#else
-    public void Dispose()
-    {
-      GC.SuppressFinalize(this);
-    }
-#endif
   }
 }
 

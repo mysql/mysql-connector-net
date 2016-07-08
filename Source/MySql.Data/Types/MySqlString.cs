@@ -1,4 +1,4 @@
-// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc.
+// Copyright © 2004, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,63 +21,41 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Data;
-using System.IO;
 using MySql.Data.MySqlClient;
 
 namespace MySql.Data.Types
 {
   internal struct MySqlString : IMySqlValue
   {
-    private string mValue;
-    private bool isNull;
-    private MySqlDbType type;
+    private readonly MySqlDbType _type;
 
     public MySqlString(MySqlDbType type, bool isNull)
     {
-      this.type = type;
-      this.isNull = isNull;
-      mValue = String.Empty;
+      _type = type;
+      IsNull = isNull;
+      Value = String.Empty;
     }
 
     public MySqlString(MySqlDbType type, string val)
     {
-      this.type = type;
-      this.isNull = false;
-      mValue = val;
+      _type = type;
+      IsNull = false;
+      Value = val;
     }
 
     #region IMySqlValue Members
 
-    public bool IsNull
-    {
-      get { return isNull; }
-    }
+    public bool IsNull { get; }
 
-    MySqlDbType IMySqlValue.MySqlDbType
-    {
-      get { return type; }
-    }
+    MySqlDbType IMySqlValue.MySqlDbType => _type;
 
-    object IMySqlValue.Value
-    {
-      get { return mValue; }
-    }
+    object IMySqlValue.Value => Value;
 
-    public string Value
-    {
-      get { return mValue; }
-    }
+    public string Value { get; }
 
-    Type IMySqlValue.SystemType
-    {
-      get { return typeof(string); }
-    }
+    Type IMySqlValue.SystemType => typeof(string);
 
-    string IMySqlValue.MySqlTypeName
-    {
-      get { return type == MySqlDbType.Set ? "SET" : type == MySqlDbType.Enum ? "ENUM" : "VARCHAR"; }
-    }
+    string IMySqlValue.MySqlTypeName => _type == MySqlDbType.Set ? "SET" : _type == MySqlDbType.Enum ? "ENUM" : "VARCHAR";
 
 
     void IMySqlValue.WriteValue(MySqlPacket packet, bool binary, object val, int length)
@@ -98,14 +76,14 @@ namespace MySql.Data.Types
     IMySqlValue IMySqlValue.ReadValue(MySqlPacket packet, long length, bool nullVal)
     {
       if (nullVal)
-        return new MySqlString(type, true);
+        return new MySqlString(_type, true);
 
       string s = String.Empty;
       if (length == -1)
         s = packet.ReadLenString();
       else
         s = packet.ReadString(length);
-      MySqlString str = new MySqlString(type, s);
+      MySqlString str = new MySqlString(_type, s);
       return str;
     }
 

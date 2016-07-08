@@ -1,4 +1,4 @@
-// Copyright © 2004, 2011, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -25,7 +25,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using MySql.Data.MySqlClient.Properties;
+using MySql.Data.MySqlClient;
+
 
 namespace MySql.Data.MySqlClient
 {
@@ -34,76 +35,57 @@ namespace MySql.Data.MySqlClient
   /// </summary>
   internal sealed class MySqlPool
   {
-    private List<Driver> inUsePool;
-    private Queue<Driver> idlePool;
-    private MySqlConnectionStringBuilder settings;
-    private uint minSize;
-    private uint maxSize;
-    private ProcedureCache procedureCache;
-    private bool beingCleared;
-    private int available;
-    private AutoResetEvent autoEvent;
+    private readonly List<Driver> _inUsePool;
+    private readonly Queue<Driver> _idlePool;
+    private readonly uint _minSize;
+    private readonly uint _maxSize;
+    private readonly AutoResetEvent _autoEvent;
+    private int _available;
 
     private void EnqueueIdle(Driver driver)
     {
       driver.IdleSince = DateTime.Now;
-      idlePool.Enqueue(driver);
+      _idlePool.Enqueue(driver);
     }
     public MySqlPool(MySqlConnectionStringBuilder settings)
     {
-      minSize = settings.MinimumPoolSize;
-      maxSize = settings.MaximumPoolSize;
+      _minSize = settings.MinimumPoolSize;
+      _maxSize = settings.MaximumPoolSize;
 
-      available = (int)maxSize;
-      autoEvent = new AutoResetEvent(false);
+      _available = (int)_maxSize;
+      _autoEvent = new AutoResetEvent(false);
 
-      if (minSize > maxSize)
-        minSize = maxSize;
-      this.settings = settings;
-      inUsePool = new List<Driver>((int)maxSize);
-      idlePool = new Queue<Driver>((int)maxSize);
+      if (_minSize > _maxSize)
+        _minSize = _maxSize;
+      this.Settings = settings;
+      _inUsePool = new List<Driver>((int)_maxSize);
+      _idlePool = new Queue<Driver>((int)_maxSize);
 
       // prepopulate the idle pool to minSize
-      for (int i = 0; i < minSize; i++)
+      for (int i = 0; i < _minSize; i++)
         EnqueueIdle(CreateNewPooledConnection());
 
-      procedureCache = new ProcedureCache((int)settings.ProcedureCacheSize);
+      ProcedureCache = new ProcedureCache((int)settings.ProcedureCacheSize);
     }
 
     #region Properties
 
-    public MySqlConnectionStringBuilder Settings
-    {
-      get { return settings; }
-      set { settings = value; }
-    }
+    public MySqlConnectionStringBuilder Settings { get; set; }
 
-    public ProcedureCache ProcedureCache
-    {
-      get { return procedureCache; }
-    }
+    public ProcedureCache ProcedureCache { get; }
 
     /// <summary>
     /// It is assumed that this property will only be used from inside an active
     /// lock.
     /// </summary>
-    private bool HasIdleConnections
-    {
-      get { return idlePool.Count > 0; }
-    }
+    private bool HasIdleConnections => _idlePool.Count > 0;
 
-    private int NumConnections
-    {
-      get { return idlePool.Count + inUsePool.Count; }
-    }
+    private int NumConnections => _idlePool.Count + _inUsePool.Count;
 
     /// <summary>
     /// Indicates whether this pool is being cleared.
     /// </summary>
-    public bool BeingCleared
-    {
-      get { return beingCleared; }
-    }
+    public bool BeingCleared { get; private set; }
 
     internal Dictionary<string,string> ServerProperties { get; set; }
 
@@ -118,10 +100,10 @@ namespace MySql.Data.MySqlClient
 
       // if we don't have an idle connection but we have room for a new
       // one, then create it here.
-      lock ((idlePool as ICollection).SyncRoot)
+      lock ((_idlePool as ICollection).SyncRoot)
       {
         if (HasIdleConnections)
-          driver = idlePool.Dequeue();
+          driver = _idlePool.Dequeue();
       }
 
       // Obey the connection timeout
@@ -146,7 +128,7 @@ namespace MySql.Data.MySqlClient
           driver.Close();
           driver = null;
         }
-        else if (settings.ConnectionReset)
+        else if (Settings.ConnectionReset)
           // if the user asks us to ping/reset pooled connections
           // do so now
           driver.Reset();
@@ -155,9 +137,9 @@ namespace MySql.Data.MySqlClient
         driver = CreateNewPooledConnection();
 
       Debug.Assert(driver != null);
-      lock ((inUsePool as ICollection).SyncRoot)
+      lock ((_inUsePool as ICollection).SyncRoot)
       {
-        inUsePool.Add(driver);
+        _inUsePool.Add(driver);
       }
       return driver;
     }
@@ -167,36 +149,36 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     private Driver CreateNewPooledConnection()
     {
-      Debug.Assert((maxSize - NumConnections) > 0, "Pool out of sync.");
+      Debug.Assert((_maxSize - NumConnections) > 0, "Pool out of sync.");
 
-      Driver driver = Driver.Create(settings);
+      Driver driver = Driver.Create(Settings);
       driver.Pool = this;
       return driver;
     }
 
     public void ReleaseConnection(Driver driver)
     {
-      lock ((inUsePool as ICollection).SyncRoot)
+      lock ((_inUsePool as ICollection).SyncRoot)
       {
-        if (inUsePool.Contains(driver))
-          inUsePool.Remove(driver);
+        if (_inUsePool.Contains(driver))
+          _inUsePool.Remove(driver);
       }
 
-      if (driver.ConnectionLifetimeExpired() || beingCleared)
+      if (driver.ConnectionLifetimeExpired() || BeingCleared)
       {
         driver.Close();
-        Debug.Assert(!idlePool.Contains(driver));
+        Debug.Assert(!_idlePool.Contains(driver));
       }
       else
       {
-        lock ((idlePool as ICollection).SyncRoot)
+        lock ((_idlePool as ICollection).SyncRoot)
         {
           EnqueueIdle(driver);
         }
       }
 
-      Interlocked.Increment(ref available);
-      autoEvent.Set();
+      Interlocked.Increment(ref _available);
+      _autoEvent.Set();
     }
 
     /// <summary>
@@ -208,28 +190,28 @@ namespace MySql.Data.MySqlClient
     /// <param name="driver"></param>
     public void RemoveConnection(Driver driver)
     {
-      lock ((inUsePool as ICollection).SyncRoot)
+      lock ((_inUsePool as ICollection).SyncRoot)
       {
-        if (inUsePool.Contains(driver))
+        if (_inUsePool.Contains(driver))
         {
-          inUsePool.Remove(driver);
-          Interlocked.Increment(ref available);
-          autoEvent.Set();
+          _inUsePool.Remove(driver);
+          Interlocked.Increment(ref _available);
+          _autoEvent.Set();
         }
       }
 
       // if we are being cleared and we are out of connections then have
       // the manager destroy us.
-      if (beingCleared && NumConnections == 0)
+      if (BeingCleared && NumConnections == 0)
         MySqlPoolManager.RemoveClearedPool(this);
     }
 
     private Driver TryToGetDriver()
     {
-      int count = Interlocked.Decrement(ref available);
+      int count = Interlocked.Decrement(ref _available);
       if (count < 0)
       {
-        Interlocked.Increment(ref available);
+        Interlocked.Increment(ref _available);
         return null;
       }
       try
@@ -240,14 +222,14 @@ namespace MySql.Data.MySqlClient
       catch (Exception ex)
       {
         MySqlTrace.LogError(-1, ex.Message);
-        Interlocked.Increment(ref available);
+        Interlocked.Increment(ref _available);
         throw;
       }
     }
 
     public Driver GetConnection()
     {
-      int fullTimeOut = (int)settings.ConnectionTimeout * 1000;
+      int fullTimeOut = (int)Settings.ConnectionTimeout * 1000;
       int timeOut = fullTimeOut;
 
       DateTime start = DateTime.Now;
@@ -258,7 +240,12 @@ namespace MySql.Data.MySqlClient
         if (driver != null) return driver;
 
         // We have no tickets right now, lets wait for one.
-        if (!autoEvent.WaitOne(timeOut, false)) break;
+#if NETCORE10
+        if (!_autoEvent.WaitOne(timeOut)) break;
+#else
+        if (!_autoEvent.WaitOne(timeOut, false)) break;
+#endif
+
         timeOut = fullTimeOut - (int)DateTime.Now.Subtract(start).TotalMilliseconds;
       }
       throw new MySqlException(Resources.TimeoutGettingConnection);
@@ -270,15 +257,15 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     internal void Clear()
     {
-      lock ((idlePool as ICollection).SyncRoot)
+      lock ((_idlePool as ICollection).SyncRoot)
       {
         // first, mark ourselves as being cleared
-        beingCleared = true;
+        BeingCleared = true;
 
         // then we remove all connections sitting in the idle pool
-        while (idlePool.Count > 0)
+        while (_idlePool.Count > 0)
         {
-          Driver d = idlePool.Dequeue();
+          Driver d = _idlePool.Dequeue();
           d.Close();
         }
 
@@ -305,20 +292,20 @@ namespace MySql.Data.MySqlClient
       List<Driver> oldDrivers = new List<Driver>();
       DateTime now = DateTime.Now;
 
-      lock ((idlePool as ICollection).SyncRoot)
+      lock ((_idlePool as ICollection).SyncRoot)
       {
         // The drivers appear to be ordered by their age, i.e it is
         // sufficient to remove them until the first element is not
         // too old.
-        while (idlePool.Count > minSize)
+        while (_idlePool.Count > _minSize)
         {
-          Driver d = idlePool.Peek();
+          Driver d = _idlePool.Peek();
           DateTime expirationTime = d.IdleSince.Add(
             new TimeSpan(0, 0, MySqlPoolManager.maxConnectionIdleTime));
           if (expirationTime.CompareTo(now) < 0)
           {
             oldDrivers.Add(d);
-            idlePool.Dequeue();
+            _idlePool.Dequeue();
           }
           else
           {

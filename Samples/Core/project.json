@@ -1,0 +1,30 @@
+{
+  "version": "1.0.0-IR-*",
+  "description": "MySql.Data.MySqlClient.Test Console",
+  "authors": [ "Oracle" ],
+  "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
+
+  "buildOptions": {
+    "define": [ "NETCORE10" ],
+    "warningsAsErrors": false,
+    "copyToOutput": [ "appsettings.json" ],
+    "emitEntryPoint": true
+  },
+
+  "dependencies": {
+    "Microsoft.NETCore.App": {
+      "type": "platform",
+      "version": "1.0.0"
+    },
+    "MySql.Data": "6.10.0-IR-*"
+  },
+
+  "frameworks": {
+    "netcoreapp1.0": {
+      "imports": [
+        "dnxcore50",
+        "portable-net452+win81"
+      ]
+    }
+  }
+}

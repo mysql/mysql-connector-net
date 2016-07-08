@@ -21,6 +21,8 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
+using System.Collections.Generic;
+using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -38,13 +40,15 @@ namespace MySql.Data.MySqlClient.Tests
       r.NextBytes(buf);
       return buf;
     }
+
+    public static TestDataTable FillTable(string sql, MySqlConnection conn)
+    {
+      MySqlDataAdapter da = new MySqlDataAdapter(sql, conn);
+      TestDataTable dt = new TestDataTable();
+      da.Fill(dt);
+      return dt;
+    }
   }
 
-#if RT
-  public class StringCollection : System.Collections.Generic.List<string>
-  {
-
-  }
-#endif
 
 }

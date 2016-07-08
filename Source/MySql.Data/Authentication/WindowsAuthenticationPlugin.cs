@@ -20,21 +20,20 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System.IO;
 using System;
-using MySql.Data.MySqlClient.Properties;
-using MySql.Data.Common;
-using System.Runtime.InteropServices;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Security;
+using MySql.Data.MySqlClient;
+
 
 namespace MySql.Data.MySqlClient.Authentication
 {
   /// <summary>
   /// 
   /// </summary>
-#if !RT
-  [SuppressUnmanagedCodeSecurityAttribute()]
+#if !NETCORE10
+  [SuppressUnmanagedCodeSecurity()]
 #endif
   internal class MySqlWindowsAuthenticationPlugin : MySqlAuthenticationPlugin
   {
@@ -47,7 +46,8 @@ namespace MySql.Data.MySqlClient.Authentication
     protected override void CheckConstraints()
     {
       string platform = String.Empty;
-#if !RT
+      
+#if !NETCORE10
       int p = (int)Environment.OSVersion.Platform;
       if ((p == 4) || (p == 128))
         platform = "Unix";
@@ -169,7 +169,33 @@ namespace MySql.Data.MySqlClient.Authentication
       }
       continueProcessing = (ss != SEC_E_OK && ss != SEC_I_COMPLETE_NEEDED);
     }
-   
+
+    /// <summary>
+    /// Currently this method is unused
+    /// </summary>
+    /// <returns></returns>
+    private string GetTargetName()
+    {
+      return null;
+      if (AuthenticationData == null) return String.Empty;
+
+      int index = -1;
+      for (int i = 0; i < AuthenticationData.Length; i++)
+      {
+        if (AuthenticationData[i] != 0) continue;
+        index = i;
+        break;
+      }
+      if (index == -1)
+#if RT
+        targetName = System.Text.Encoding.UTF8.GetString(AuthenticationData, 0, AuthenticationData.Length);
+#else
+        targetName = System.Text.Encoding.UTF8.GetString(AuthenticationData);
+#endif
+      else
+          targetName = System.Text.Encoding.UTF8.GetString(AuthenticationData, 0, index);
+      return targetName;
+    }
 
     private void AcquireCredentials()
     {
@@ -281,9 +307,9 @@ namespace MySql.Data.MySqlClient.Authentication
     {
       ulVersion = (int)SecBufferType.SECBUFFER_VERSION;
       cBuffers = 1;
-      SecBuffer ThisSecBuffer = new SecBuffer(secBufferBytes);
-      pBuffers = Marshal.AllocHGlobal(Marshal.SizeOf(ThisSecBuffer));
-      Marshal.StructureToPtr(ThisSecBuffer, pBuffers, false);
+      SecBuffer thisSecBuffer = new SecBuffer(secBufferBytes);
+      pBuffers = Marshal.AllocHGlobal(Marshal.SizeOf(thisSecBuffer));
+      Marshal.StructureToPtr(thisSecBuffer, pBuffers, false);
     }
 
     public void Dispose()
@@ -291,8 +317,7 @@ namespace MySql.Data.MySqlClient.Authentication
       if (pBuffers != IntPtr.Zero)
       {
         Debug.Assert(cBuffers == 1);
-        SecBuffer ThisSecBuffer =
-            (SecBuffer)Marshal.PtrToStructure(pBuffers, typeof(SecBuffer));
+        SecBuffer ThisSecBuffer = Marshal.PtrToStructure< SecBuffer>(pBuffers);
         ThisSecBuffer.Dispose();
         Marshal.FreeHGlobal(pBuffers);
         pBuffers = IntPtr.Zero;
@@ -308,8 +333,7 @@ namespace MySql.Data.MySqlClient.Authentication
         throw new InvalidOperationException("Object has already been disposed!!!");
       }
       Debug.Assert(cBuffers == 1);
-      SecBuffer secBuffer = (SecBuffer)Marshal.PtrToStructure(pBuffers,
-          typeof(SecBuffer));
+      SecBuffer secBuffer = Marshal.PtrToStructure< SecBuffer>(pBuffers);
       if (secBuffer.cbBuffer > 0)
       {
         Buffer = new byte[secBuffer.cbBuffer];

@@ -28,32 +28,25 @@ using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class ExceptionTests : IUseFixture<SetUpClass>, IDisposable
+  public class ExceptionTests : TestBase
   {
-    private SetUpClass st;
-
-    public void SetFixture(SetUpClass data)
+    public ExceptionTests(TestSetup setup) : base(setup, "exception")
     {
-      st = data;
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100))");
-    }
 
-    public void Dispose()
-    {
-      st.execSQL("DROP TABLE IF EXISTS TEST");
     }
 
     [Fact]
     public void Timeout()
     {
+      executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100))");
       for (int i = 1; i < 10; i++)
-        st.execSQL("INSERT INTO Test VALUES (" + i + ", 'This is a long text string that I am inserting')");
+        executeSQL("INSERT INTO Test VALUES (" + i + ", 'This is a long text string that I am inserting')");
 
       // we create a new connection so our base one is not closed
-      MySqlConnection c2 = new MySqlConnection(st.conn.ConnectionString);
+      MySqlConnection c2 = new MySqlConnection(connection.ConnectionString);
       c2.Open();
 
-      st.KillConnection(c2);
+      KillConnection(c2);
       MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", c2);     
       Exception ex = Assert.Throws<InvalidOperationException>(() =>  cmd.ExecuteReader());
       Assert.Equal(ex.Message, "Connection must be valid and open.");     
@@ -67,7 +60,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ErrorData()
     {
-      MySqlCommand cmd = new MySqlCommand("SELEDT 1", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELEDT 1", connection);
       try
       {
         cmd.ExecuteNonQuery();

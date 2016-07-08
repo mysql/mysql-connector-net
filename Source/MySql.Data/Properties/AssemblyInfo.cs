@@ -1,4 +1,4 @@
-// Copyright © 2004, 2015, Oracle and/or its affiliates.  All rights reserved.
+ï»¿// Copyright Â© 2004, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -22,32 +22,36 @@
 
 using System;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Security;
 
-//
-// General Information about an assembly is controlled through the following 
+// General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-//
-[assembly: AssemblyDescription("ADO.Net driver for MySQL")]
+[assembly: AssemblyTitle("MySql.Data")]
+[assembly: AssemblyDescription("ADO.Net driver for MySQL for .Net Core 1.0")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Oracle")]
-[assembly: AssemblyProduct("")]
-[assembly: AssemblyCopyright("Copyright © 2004, 2015, Oracle and/or its affiliates. All rights reserved.")]
+[assembly: AssemblyProduct("MySql.Data.Core")]
+[assembly: AssemblyCopyright("Copyright Â© 2016, Oracle and/or its affiliates. All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: ComVisible(false)]
+#if !NETCORE10
+[assembly: SecurityRules(SecurityRuleSet.Level1)]
 [assembly: CLSCompliant(false)]
-[assembly: AssemblyTitle("MySql.Data.dll")]
-#if !RT
 [assembly: AllowPartiallyTrustedCallers()]
 #endif
 
-#if NET_40_OR_GREATER
-[assembly: SecurityRules(SecurityRuleSet.Level1)]
-#endif
+// Setting ComVisible to false makes the types in this assembly not visible
+// to COM components.  If you need to access a type in this assembly from
+// COM, set the ComVisible attribute to true on that type.
+[assembly: ComVisible(false)]
+
+// The following GUID is for the ID of the typelib if this project is exposed to COM
+[assembly: Guid("8f0f6915-49b2-42f8-a592-bef9a09f3811")]
+
+#if !NETCORE10
 
 //
 // In order to sign your assembly you must specify a key to use. Refer to the 
@@ -74,11 +78,13 @@ using System.Security;
 //   (*) Delay Signing is an advanced option - see the Microsoft .NET Framework
 //       documentation for more information on this.
 //
-[assembly: AssemblyDelaySign(true)]
-[assembly: AssemblyKeyFileAttribute(@"..\..\ConnectorNetPublicKey.snk")]
+[assembly: AssemblyKeyName("ConnectorNet")]
+//[assembly: AssemblyDelaySign(true)]
+//[assembly: AssemblyKeyFileAttribute(@"..\..\ConnectorNetPublicKey.snk")]
 [assembly: InternalsVisibleTo("MySql.Data.Tests, PublicKey = 0024000004800000940000000602000000240000525341310004000001000100d973bda91f71752c78294126974a41a08643168271f65fc0fb3cd45f658da01fbca75ac74067d18e7afbf1467d7a519ce0248b13719717281bb4ddd4ecd71a580dfe0912dfc3690b1d24c7e1975bf7eed90e4ab14e10501eedf763bff8ac204f955c9c15c2cf4ebf6563d8320b6ea8d1ea3807623141f4b81ae30a6c886b3ee1")]
 [assembly: InternalsVisibleTo("MySql.Data.Entity, PublicKey = 0024000004800000940000000602000000240000525341310004000001000100d973bda91f71752c78294126974a41a08643168271f65fc0fb3cd45f658da01fbca75ac74067d18e7afbf1467d7a519ce0248b13719717281bb4ddd4ecd71a580dfe0912dfc3690b1d24c7e1975bf7eed90e4ab14e10501eedf763bff8ac204f955c9c15c2cf4ebf6563d8320b6ea8d1ea3807623141f4b81ae30a6c886b3ee1")]
 [assembly: InternalsVisibleTo("MySql.Data.Entity.EF5, PublicKey = 0024000004800000940000000602000000240000525341310004000001000100d973bda91f71752c78294126974a41a08643168271f65fc0fb3cd45f658da01fbca75ac74067d18e7afbf1467d7a519ce0248b13719717281bb4ddd4ecd71a580dfe0912dfc3690b1d24c7e1975bf7eed90e4ab14e10501eedf763bff8ac204f955c9c15c2cf4ebf6563d8320b6ea8d1ea3807623141f4b81ae30a6c886b3ee1")]
 [assembly: InternalsVisibleTo("MySql.Data.Entity.EF6, PublicKey = 0024000004800000940000000602000000240000525341310004000001000100d973bda91f71752c78294126974a41a08643168271f65fc0fb3cd45f658da01fbca75ac74067d18e7afbf1467d7a519ce0248b13719717281bb4ddd4ecd71a580dfe0912dfc3690b1d24c7e1975bf7eed90e4ab14e10501eedf763bff8ac204f955c9c15c2cf4ebf6563d8320b6ea8d1ea3807623141f4b81ae30a6c886b3ee1")]
 [assembly: InternalsVisibleTo("MySql.Data.RT.Tests, PublicKey = 0024000004800000940000000602000000240000525341310004000001000100d973bda91f71752c78294126974a41a08643168271f65fc0fb3cd45f658da01fbca75ac74067d18e7afbf1467d7a519ce0248b13719717281bb4ddd4ecd71a580dfe0912dfc3690b1d24c7e1975bf7eed90e4ab14e10501eedf763bff8ac204f955c9c15c2cf4ebf6563d8320b6ea8d1ea3807623141f4b81ae30a6c886b3ee1")]
 [assembly: InternalsVisibleTo("MySql.Fabric.Plugin, PublicKey = 0024000004800000940000000602000000240000525341310004000001000100d973bda91f71752c78294126974a41a08643168271f65fc0fb3cd45f658da01fbca75ac74067d18e7afbf1467d7a519ce0248b13719717281bb4ddd4ecd71a580dfe0912dfc3690b1d24c7e1975bf7eed90e4ab14e10501eedf763bff8ac204f955c9c15c2cf4ebf6563d8320b6ea8d1ea3807623141f4b81ae30a6c886b3ee1")]
+#endif

@@ -48,7 +48,7 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
     protected override void Generate(
       [NotNull] MigrationOperation operation, 
       [CanBeNull] IModel model, 
-      [NotNull] RelationalCommandListBuilder builder)
+      [NotNull] MigrationCommandListBuilder builder)
     {
       ThrowIf.Argument.IsNull(operation, "operation");
       ThrowIf.Argument.IsNull(builder, "builder");
@@ -64,7 +64,7 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
     protected override void Generate(
       [NotNull] EnsureSchemaOperation operation, 
       [CanBeNull] IModel model, 
-      [NotNull] RelationalCommandListBuilder builder)
+      [NotNull] MigrationCommandListBuilder builder)
     {
       ThrowIf.Argument.IsNull(operation, "operation");
       ThrowIf.Argument.IsNull(builder, "builder");
@@ -75,8 +75,8 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
 
     protected virtual void Generate(
         [NotNull] MySQLCreateDatabaseOperation operation,
-        [CanBeNull] IModel model,
-        [NotNull] RelationalCommandListBuilder builder)
+        [CanBeNull] IModel model,       
+        MigrationCommandListBuilder builder)
     {
       ThrowIf.Argument.IsNull(operation, "operation");
       ThrowIf.Argument.IsNull(builder, "builder");
@@ -89,7 +89,7 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
     protected virtual void Generate(
         [NotNull] MySQLDropDatabaseOperation operation,
         [CanBeNull] IModel model,
-        [NotNull] RelationalCommandListBuilder builder)
+        [NotNull] MigrationCommandListBuilder builder)
     {
       ThrowIf.Argument.IsNull(operation, "operation");
       ThrowIf.Argument.IsNull(builder, "builder");
@@ -101,18 +101,21 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
     
 
     protected override void ColumnDefinition(
-      [CanBeNull] string schema, 
-      [CanBeNull] string table, 
-      [NotNull] string name, 
-      [NotNull] Type clrType, 
-      [CanBeNull] string type, 
-      bool nullable, 
-      [CanBeNull] object defaultValue, 
-      [CanBeNull] string defaultValueSql, 
-      [CanBeNull] string computedColumnSql, 
-      [NotNull] IAnnotatable annotatable, 
-      [CanBeNull] IModel model, 
-      [NotNull] RelationalCommandListBuilder builder)
+       string schema,
+            string table,
+            string name,
+            Type clrType,
+            string type,
+            bool? unicode,
+            int? maxLength,
+            bool rowVersion,
+            bool nullable,
+            object defaultValue,
+            string defaultValueSql,
+            string computedColumnSql,
+            IAnnotatable annotatable,
+            IModel model,
+            MigrationCommandListBuilder builder)
     {
       ThrowIf.Argument.IsEmpty(name, "name");
       ThrowIf.Argument.IsNull(clrType, "clrType");
@@ -122,10 +125,10 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
       var property = FindProperty(model, schema, table, name);
 
       if (type == null)
-      {        
+      {
         type = property != null
-            ? TypeMapper.GetMapping(property).DefaultTypeName
-            : TypeMapper.GetMapping(clrType).DefaultTypeName;
+            ? TypeMapper.GetMapping(property).StoreType
+            : TypeMapper.GetMapping(clrType).StoreType;
       }      
 
       if (computedColumnSql != null)
@@ -147,18 +150,8 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
       var autoInc = annotatable[MySQLAnnotationNames.Prefix + MySQLAnnotationNames.AutoIncrement];
 
       base.ColumnDefinition(
-      schema,
-      table,
-      name,
-      clrType,
-      type,
-      nullable,
-      defaultValue,
-      defaultValueSql,
-      computedColumnSql,
-      annotatable,
-      model,
-      builder);
+                schema, table, name, clrType, type, unicode, maxLength, rowVersion, nullable,
+                defaultValue, defaultValueSql, computedColumnSql, annotatable, model, builder);
 
       if (autoInc != null && (bool)autoInc)
       {
@@ -170,7 +163,7 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
     protected override void DefaultValue(
            [CanBeNull] object defaultValue,
            [CanBeNull] string defaultValueSql,
-           [NotNull] RelationalCommandListBuilder builder)
+           [NotNull] MigrationCommandListBuilder builder)
     {
       ThrowIf.Argument.IsNull(builder, nameof(builder));
 
@@ -193,7 +186,7 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
     protected override void PrimaryKeyConstraint(
          [NotNull] AddPrimaryKeyOperation operation,
          [CanBeNull] IModel model,
-         [NotNull] RelationalCommandListBuilder builder)
+         [NotNull] MigrationCommandListBuilder builder)
     {
 
       ThrowIf.Argument.IsNull(operation, "AddPrimaryKeyOperation");
@@ -212,7 +205,7 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
       IndexTraits(operation, model, builder);
     }
 
-    protected override void Generate(AlterColumnOperation operation, IModel model, RelationalCommandListBuilder builder)
+    protected override void Generate(AlterColumnOperation operation, IModel model, MigrationCommandListBuilder builder)
     {
       ThrowIf.Argument.IsNull(operation, "AlterColumnOperation");
       ThrowIf.Argument.IsNull(model, "model");
@@ -235,7 +228,7 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
       ColumnDefinition(operationColumn, model, builder);      
     }
 
-    protected override void Generate(RenameTableOperation operation, IModel model, RelationalCommandListBuilder builder)
+    protected override void Generate(RenameTableOperation operation, IModel model, MigrationCommandListBuilder builder)
     {
       ThrowIf.Argument.IsNull(operation, "RenameTableOperation");
       ThrowIf.Argument.IsNull(model, "model");
@@ -246,7 +239,7 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
       .Append(" RENAME " + operation.NewName);
     }
 
-    protected override void Generate(CreateIndexOperation operation, IModel model, RelationalCommandListBuilder builder)
+    protected override void Generate(CreateIndexOperation operation, IModel model, MigrationCommandListBuilder builder)
     {
 
       ThrowIf.Argument.IsNull(operation, "CreateIndexOperation");
@@ -259,24 +252,24 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
       builder.Append(_sqlGenerationHelper.DelimitIdentifier(operation.Name) + " ON " + operation.Table + " (" + string.Join(", ", operation.Columns.Select(_sqlGenerationHelper.DelimitIdentifier)) + ")");     
     }
 
-    protected override void Generate(RenameIndexOperation operation, IModel model, RelationalCommandListBuilder builder)
+    protected override void Generate(RenameIndexOperation operation, IModel model, MigrationCommandListBuilder builder)
     {
 
       throw new NotSupportedException();
 
-      ThrowIf.Argument.IsNull(operation, "RenameIndexOperation");
-      ThrowIf.Argument.IsNull(model, "model");
-      ThrowIf.Argument.IsNull(builder, "builder");      
+      //ThrowIf.Argument.IsNull(operation, "RenameIndexOperation");
+      //ThrowIf.Argument.IsNull(model, "model");
+      //ThrowIf.Argument.IsNull(builder, "builder");      
 
-      //table content remains the same
-      builder
-      .Append("DROP INDEX ")
-      .Append(_sqlGenerationHelper.DelimitIdentifier(operation.Name) + ", ")
-      .Append("CREATE INDEX " )
-      .Append(_sqlGenerationHelper.DelimitIdentifier(operation.Name) + " ON " + operation.Table );
+      ////table content remains the same
+      //builder
+      //.Append("DROP INDEX ")
+      //.Append(_sqlGenerationHelper.DelimitIdentifier(operation.Name) + ", ")
+      //.Append("CREATE INDEX " )
+      //.Append(_sqlGenerationHelper.DelimitIdentifier(operation.Name) + " ON " + operation.Table );
     }
 
-    protected override void Generate(DropIndexOperation operation, IModel model, RelationalCommandListBuilder builder)
+    protected override void Generate(DropIndexOperation operation, IModel model, MigrationCommandListBuilder builder)
     {
       ThrowIf.Argument.IsNull(operation, "DropIndexOperation");
       ThrowIf.Argument.IsNull(model, "model");

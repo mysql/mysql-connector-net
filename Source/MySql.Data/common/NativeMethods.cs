@@ -24,7 +24,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 
-namespace MySql.Data.Common
+namespace MySql.Data.MySqlClient.Common
 {
   internal class NativeMethods
   {

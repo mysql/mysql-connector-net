@@ -48,11 +48,11 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     {      
       if (script != null)
       {
-        Assembly executingAssembly = Assembly.GetExecutingAssembly();
+        Assembly executingAssembly = Assembly.GetEntryAssembly();
         Stream stream = executingAssembly.GetManifestResourceStream("MySql.Data.Entity.Tests.Properties.DatabaseSetup.sql");
         StreamReader sr = new StreamReader(stream);
         string sql = sr.ReadToEnd();
-        sr.Close();
+        sr.Dispose();
         sql = sql.Replace("[database0]", databaseName);
 
         //execute

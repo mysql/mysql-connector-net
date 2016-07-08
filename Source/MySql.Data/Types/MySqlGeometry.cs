@@ -1,4 +1,4 @@
-// Copyright © 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2013, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,7 +21,6 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Data;
 using System.Globalization;
 using MySql.Data.MySqlClient;
 
@@ -44,29 +43,18 @@ namespace MySql.Data.Types
 
   public struct MySqlGeometry : IMySqlValue
   {
-    private MySqlDbType _type;
-    private Double _xValue; 
-    private Double _yValue;
-    private int _srid;
-    private byte[] _valBinary;
-    private bool _isNull;
+    private readonly MySqlDbType _type;
+    private readonly Double _xValue; 
+    private readonly Double _yValue;
+    private readonly int _srid;
 
     private const int GEOMETRY_LENGTH = 25;
 
-    public Double? XCoordinate
-    {
-      get { return _xValue; }
-    }
+    public Double? XCoordinate => _xValue;
 
-    public Double? YCoordinate
-    {
-      get { return _yValue; }
-    }
+    public Double? YCoordinate => _yValue;
 
-    public int? SRID
-    {
-      get { return _srid; }
-    }
+    public int? SRID => _srid;
 
     public MySqlGeometry(bool isNull):this(MySqlDbType.Geometry, isNull)
     {
@@ -88,8 +76,8 @@ namespace MySql.Data.Types
       _xValue = 0;
       _yValue = 0;
       _srid = 0;
-      _valBinary = null;
-      this._isNull = isNull;
+      Value = null;
+      this.IsNull = isNull;
     }
 
 
@@ -98,30 +86,30 @@ namespace MySql.Data.Types
       this._type = type;
       this._xValue = xValue;
       this._yValue = yValue;      
-      this._isNull = false;
+      this.IsNull = false;
       this._srid = srid;
-      this._valBinary = new byte[GEOMETRY_LENGTH];
+      this.Value = new byte[GEOMETRY_LENGTH];
 
       byte[] sridBinary = BitConverter.GetBytes(srid);
 
       for (int i = 0; i < sridBinary.Length; i++)
-        _valBinary[i] = sridBinary[i];
+        Value[i] = sridBinary[i];
 
       long xVal = BitConverter.DoubleToInt64Bits(xValue);
       long yVal = BitConverter.DoubleToInt64Bits(yValue);
 
-      _valBinary[4] = 1;
-      _valBinary[5] = 1;
+      Value[4] = 1;
+      Value[5] = 1;
      
       for (int i = 0; i < 8; i++)
         {
-          _valBinary[i + 9] = (byte)(xVal & 0xff);
+          Value[i + 9] = (byte)(xVal & 0xff);
           xVal >>= 8;
         }
 
       for (int i = 0; i < 8; i++)
       {
-        _valBinary[i + 17] = (byte)(yVal & 0xff);
+        Value[i + 17] = (byte)(yVal & 0xff);
         yVal >>= 8;
       }
     }
@@ -130,7 +118,7 @@ namespace MySql.Data.Types
     {
 
       if (val == null) 
-        throw new ArgumentNullException("val");
+        throw new ArgumentNullException(nameof(val));
 
       byte[] buffValue = new byte[val.Length];
  
@@ -140,50 +128,29 @@ namespace MySql.Data.Types
       var xIndex = val.Length == GEOMETRY_LENGTH ? 9 : 5;
       var yIndex = val.Length == GEOMETRY_LENGTH ? 17 : 13;
 
-      _valBinary = buffValue;
+      Value = buffValue;
       _xValue = BitConverter.ToDouble(val, xIndex);
       _yValue = BitConverter.ToDouble(val, yIndex);
       this._srid = val.Length == GEOMETRY_LENGTH ? BitConverter.ToInt32(val, 0) : 0;
-      this._isNull = false;
+      this.IsNull = false;
       this._type = type;
     }
 
     #region IMySqlValue Members
 
    
-    MySqlDbType IMySqlValue.MySqlDbType
-    {
-      get { return _type; }
-    }
+    MySqlDbType IMySqlValue.MySqlDbType => _type;
 
-    public bool IsNull
-    {
-      get { return _isNull; }
-    }
+    public bool IsNull { get; }
 
 
-    object IMySqlValue.Value
-    {
-      get { return _valBinary; }
-    }
+    object IMySqlValue.Value => Value;
 
-    public byte[] Value
-    {
-      get { return _valBinary; }
-    }
+    public byte[] Value { get; }
 
-    Type IMySqlValue.SystemType
-    {
-      get { return typeof(byte[]); }
-    }
+    Type IMySqlValue.SystemType => typeof(byte[]);
 
-    string IMySqlValue.MySqlTypeName
-    {
-      get
-      {
-         return "GEOMETRY";
-      }      
-    }
+    string IMySqlValue.MySqlTypeName => "GEOMETRY";
 
     void IMySqlValue.WriteValue(MySqlPacket packet, bool binary, object val, int length)
     {
@@ -191,7 +158,7 @@ namespace MySql.Data.Types
      
       try
       {
-        buffToWrite = ((MySqlGeometry)val)._valBinary;        
+        buffToWrite = ((MySqlGeometry)val).Value;        
       }
       catch 
       {
@@ -202,7 +169,7 @@ namespace MySql.Data.Types
       {
         MySqlGeometry v = new MySqlGeometry(0, 0);
         MySqlGeometry.TryParse(val.ToString(), out v);
-        buffToWrite = v._valBinary;
+        buffToWrite = v.Value;
       }
 
       byte[] result = new byte[GEOMETRY_LENGTH];
@@ -273,7 +240,7 @@ namespace MySql.Data.Types
     /// http://dev.mysql.com/doc/refman/4.1/en/gis-wkt-format.html
     public override string ToString()
     {
-      if (!this._isNull)
+      if (!this.IsNull)
         return _srid != 0 ? string.Format(CultureInfo.InvariantCulture.NumberFormat, "SRID={2};POINT({0} {1})", _xValue, _yValue, _srid) : string.Format(CultureInfo.InvariantCulture.NumberFormat, "POINT({0} {1})", _xValue, _yValue);      
 
       return String.Empty;
@@ -287,7 +254,7 @@ namespace MySql.Data.Types
     public static MySqlGeometry Parse(string value)
     {
       if (String.IsNullOrEmpty(value))
-        throw new ArgumentNullException("value");
+        throw new ArgumentNullException(nameof(value));
 
       if (!(value.Contains("SRID") || value.Contains("POINT(") || value.Contains("POINT (")))
         throw new FormatException("String does not contain a valid geometry value");
@@ -379,7 +346,7 @@ namespace MySql.Data.Types
 
     public string GetWKT()
     {
-      if (!this._isNull)
+      if (!this.IsNull)
         return string.Format(CultureInfo.InvariantCulture.NumberFormat, "POINT({0} {1})", _xValue, _yValue);
 
       return String.Empty;

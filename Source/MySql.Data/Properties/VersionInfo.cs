@@ -20,11 +20,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Runtime.CompilerServices;
-using System.Security;
 using System.Resources;
 
 //
@@ -38,6 +34,6 @@ using System.Resources;
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
 
-[assembly: AssemblyVersion("6.9.8")]
-[assembly: AssemblyInformationalVersion("6.9.8")]
+[assembly: AssemblyVersion("6.10.0")]
+[assembly: AssemblyInformationalVersion("6.10.0")]
 [assembly: NeutralResourcesLanguage("en-US")]

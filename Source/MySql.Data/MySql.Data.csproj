@@ -1,27 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <Choose>
-    <When Condition="$(SolutionName) == 'MySQLClient-4.0'">
+    <When Condition="$(SolutionName) == 'MySQL-EMTrace'">
       <PropertyGroup>
         <ProductVersion>9.0.30729</ProductVersion>
         <SchemaVersion>2.0</SchemaVersion>
-        <Framework>4.0</Framework>
-        <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-        <DefineConstants>NET_40_OR_GREATER</DefineConstants>
-      </PropertyGroup>
-    </When>
-	<When Condition="$(SolutionName) == 'MySQL-EMTrace'">
-      <PropertyGroup>
-        <ProductVersion>9.0.30729</ProductVersion>
-        <SchemaVersion>2.0</SchemaVersion>
-        <Framework>4.0</Framework>
-        <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-        <DefineConstants>NET_40_OR_GREATER</DefineConstants>
+        <Framework>4.5</Framework>
+        <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+        <DefineConstants>NET_45_OR_GREATER</DefineConstants>
+        <CopyNuGetImplementations>false</CopyNuGetImplementations>
       </PropertyGroup>
     </When>
     <Otherwise>
@@ -29,8 +21,9 @@
         <ProductVersion>9.0.30729</ProductVersion>
         <SchemaVersion>2.0</SchemaVersion>
         <Framework>4.5</Framework>
-        <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-        <DefineConstants>NET_40_OR_GREATER;NET_45_OR_GREATER;</DefineConstants>
+        <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+        <DefineConstants>NET_45_OR_GREATER;</DefineConstants>
+        <CopyNuGetImplementations>false</CopyNuGetImplementations>
       </PropertyGroup>
     </Otherwise>
   </Choose>
@@ -65,7 +58,7 @@
     <BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>obj\$(TargetFrameworkVersion)\</IntermediateOutputPath>
     <OutputPath>bin\$(TargetFrameworkVersion)\Debug\</OutputPath>
-    <DefineConstants>$(DefineConstants);DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NET_45_OR_GREATER</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
@@ -112,9 +105,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Authentication\AuthenticationManager.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Authentication\AuthenticationManager.cs" />
     <Compile Include="Authentication\MySQLAuthenticationPlugin.cs" />
     <Compile Include="Authentication\NativePasswordPlugins.cs" />
     <Compile Include="Authentication\Sha256AuthenticationPlugin.cs" />
@@ -126,9 +117,7 @@
     <Compile Include="common\Cache.cs" />
     <Compile Include="common\ContextString.cs" />
     <Compile Include="common\LowResolutionStopwatch.cs" />
-    <Compile Include="common\MyNetworkStream.cs" />
     <Compile Include="common\MySqlTokenizer.cs" />
-    <Compile Include="common\NamedPipeStream.cs" />
     <Compile Include="common\NativeMethods.cs" />
     <Compile Include="common\Platform.cs" />
     <Compile Include="common\QueryNormalizer.cs" />
@@ -136,22 +125,22 @@
     <Compile Include="common\StreamCreator.cs" />
     <Compile Include="common\StringUtility.cs" />
     <Compile Include="common\Version.cs" />
-    <Compile Include="CompressedStream.cs" />
     <Compile Include="Connection.cs" />
     <Compile Include="Crypt.cs" />
     <Compile Include="dataadapter.cs" />
     <Compile Include="datareader.cs" />
     <Compile Include="Driver.cs" />
     <Compile Include="Exception.cs" />
-    <Compile Include="extensions\NonRT\MySqlCommand.cs" />
-    <Compile Include="extensions\NonRT\MySqlConnection.cs" />
-    <Compile Include="extensions\NonRT\MySqlConnectionStringBuilder.cs" />
-    <Compile Include="extensions\NonRT\MySqlDataReader.cs" />
-    <Compile Include="extensions\NonRT\MySqlDateTime.cs" />
-    <Compile Include="extensions\NonRT\MySqlParameter.cs" />
-    <Compile Include="extensions\NonRT\MySqlParameterCollection.cs" />
-    <Compile Include="extensions\NonRT\MySqlTrace.cs" />
-    <Compile Include="extensions\NonRT\MySqlTransaction.cs" />
+    <Compile Include="Framework\MySqlCommand.cs" />
+    <Compile Include="Framework\MySqlConnection.cs" />
+    <Compile Include="Framework\MySqlConnectionStringBuilder.cs" />
+    <Compile Include="Framework\MySqlDataReader.cs" />
+    <Compile Include="Framework\MySqlDateTime.cs" />
+    <Compile Include="Framework\MySqlParameter.cs" />
+    <Compile Include="Framework\MySqlParameterCollection.cs" />
+    <Compile Include="Framework\MySqlTrace.cs" />
+    <Compile Include="Framework\MySqlTransaction.cs" />
+    <Compile Include="Framework\Net451\AuthenticationManager.cs" />
     <Compile Include="Field.cs" />
     <Compile Include="Installer.cs">
       <SubType>Component</SubType>
@@ -194,6 +183,11 @@
     <Compile Include="Replication\ReplicationRoundRobinServerGroup.cs" />
     <Compile Include="Replication\ReplicationServer.cs" />
     <Compile Include="Replication\ReplicationServerGroup.cs" />
+    <Compile Include="Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="ResultSet.cs" />
     <Compile Include="Schema.cs" />
     <Compile Include="SchemaProvider.cs" />
@@ -201,7 +195,6 @@
     <Compile Include="StoredProcedure.cs" />
     <Compile Include="SystemPerformanceMonitor.cs" />
     <Compile Include="TableCache.cs" />
-    <Compile Include="TimedStream.cs" />
     <Compile Include="TracingDriver.cs" />
     <Compile Include="transaction.cs" />
     <Compile Include="Types\MetaData.cs" />
@@ -225,36 +218,18 @@
     <Compile Include="Types\MySqlUInt32.cs" />
     <Compile Include="Types\MySqlUInt64.cs" />
     <Compile Include="Types\MySqlValue.cs" />
-    <Compile Include="zlib\Adler32.cs" />
-    <Compile Include="zlib\Deflate.cs" />
-    <Compile Include="zlib\InfBlocks.cs" />
-    <Compile Include="zlib\InfCodes.cs" />
-    <Compile Include="zlib\Inflate.cs" />
-    <Compile Include="zlib\InfTree.cs" />
-    <Compile Include="zlib\StaticTree.cs" />
-    <Compile Include="zlib\SupportClass.cs" />
-    <Compile Include="zlib\Tree.cs" />
-    <Compile Include="zlib\ZInputStream.cs" />
-    <Compile Include="zlib\Zlib.cs" />
-    <Compile Include="zlib\ZOutputStream.cs" />
-    <Compile Include="zlib\ZStream.cs" />
-    <Compile Include="zlib\ZStreamException.cs" />
+    <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Properties\ReservedWords.txt" />
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <SubType>Designer</SubType>
+    <EmbeddedResource Include="Resources.resx">
+      <CustomToolNamespace>MySql.Data</CustomToolNamespace>
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="Properties\keywords.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
+    <EmbeddedResource Include="keywords.txt">
+      <CustomToolNamespace>MySql.Data</CustomToolNamespace>
+    </EmbeddedResource>
+    <None Include="MySql.Data.project.json" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\CHANGES">

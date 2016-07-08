@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2009-2010 Sun Microsystems, Inc.
+﻿// Copyright © 2009, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -22,21 +22,20 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.IO;
-using System.Diagnostics;
-using System.Collections;
-using MySql.Data.MySqlClient.Properties;
+using System.Linq;
+using System.Text;
 
-namespace MySql.Data.Common
+
+namespace MySql.Data.MySqlClient.Common
 {
   internal class QueryNormalizer
   {
-    private static List<string> keywords = new List<string>();
-    private List<Token> tokens = new List<Token>();
-    private int pos;
-    private string fullSql;
-    private string queryType;
+    private static readonly List<string> Keywords = new List<string>();
+    private readonly List<Token> _tokens = new List<Token>();
+    private int _pos;
+    private string _fullSql;
+    private string _queryType;
 
     static QueryNormalizer()
     {
@@ -44,52 +43,38 @@ namespace MySql.Data.Common
       string keyword = sr.ReadLine();
       while (keyword != null)
       {
-        keywords.Add(keyword);
+        Keywords.Add(keyword);
         keyword = sr.ReadLine();
       }
     }
 
-    public string QueryType
-    {
-      get { return queryType; }
-    }
+    public string QueryType => _queryType;
 
     public string Normalize(string sql)
     {
-      tokens.Clear();
+      _tokens.Clear();
       StringBuilder newSql = new StringBuilder();
-      fullSql = sql;
+      _fullSql = sql;
 
       TokenizeSql(sql);
-      DetermineStatementType(tokens);
-      ProcessMathSymbols(tokens);
-      CollapseValueLists(tokens);
-      CollapseInLists(tokens);
-      CollapseWhitespace(tokens);
+      DetermineStatementType(_tokens);
+      ProcessMathSymbols(_tokens);
+      CollapseValueLists(_tokens);
+      CollapseInLists(_tokens);
+      CollapseWhitespace(_tokens);
 
-      foreach (Token t in tokens)
-        if (t.Output)
-          newSql.Append(t.Text);
+      foreach (Token t in _tokens.Where(t => t.Output))
+        newSql.Append(t.Text);
 
       return newSql.ToString();
     }
 
     private void DetermineStatementType(List<Token> tok)
     {
-      foreach (Token t in tok)
+      foreach (Token t in tok.Where(t => t.Type == TokenType.Keyword))
       {
-        if (t.Type == TokenType.Keyword)
-        {
-          queryType = t.Text.ToUpperInvariant();
-          //string s = t.Text.ToLowerInvariant();
-          //if (s == "select")
-          //    queryType = "SELECT";
-          //else if (s == "update" || s == "insert")
-          //    queryType = "UPSERT";
-          //else
-          //    queryType = "OTHER";
-          break;
-        }
+        _queryType = t.Text.ToUpperInvariant();
+        break;
       }
     }
 
@@ -97,7 +82,7 @@ namespace MySql.Data.Common
     /// Mark - or + signs that are unary ops as no output
     /// </summary>
     /// <param name="tok"></param>
-    private void ProcessMathSymbols(List<Token> tok)
+    private static void ProcessMathSymbols(List<Token> tok)
     {
       Token lastToken = null;
 
@@ -117,7 +102,7 @@ namespace MySql.Data.Common
       }
     }
 
-    private void CollapseWhitespace(List<Token> tok)
+    private static void CollapseWhitespace(List<Token> tok)
     {
       Token lastToken = null;
 
@@ -169,11 +154,9 @@ namespace MySql.Data.Common
           if (tok[pos].IsRealToken) break;
         if (pos == tok.Count) break;
 
-        if (tok[pos].Text != ",")
-        {
-          pos--;
-          break;
-        }
+        if (tok[pos].Text == ",") continue;
+        pos--;
+        break;
       }
 
       // if we only have 1 value then we don't collapse
@@ -195,12 +178,12 @@ namespace MySql.Data.Common
       {
         Token t = tok[pos];
         if (t.Type != TokenType.Keyword) continue;
-        if (!(t.Text == "IN")) continue;
+        if (t.Text != "IN") continue;
         CollapseInList(tok, ref pos);
       }
     }
 
-    private Token GetNextRealToken(List<Token> tok, ref int pos)
+    private static Token GetNextRealToken(List<Token> tok, ref int pos)
     {
       while (++pos < tok.Count)
       {
@@ -209,7 +192,7 @@ namespace MySql.Data.Common
       return null;
     }
 
-    private void CollapseInList(List<Token> tok, ref int pos)
+    private static void CollapseInList(List<Token> tok, ref int pos)
     {
       Token t = GetNextRealToken(tok, ref pos);
       // Debug.Assert(t.Text == "(");
@@ -243,11 +226,11 @@ namespace MySql.Data.Common
 
     private void TokenizeSql(string sql)
     {
-      pos = 0;
+      _pos = 0;
 
-      while (pos < sql.Length)
+      while (_pos < sql.Length)
       {
-        char c = sql[pos];
+        char c = sql[_pos];
         if (LetterStartsComment(c) && ConsumeComment())
           continue;
         if (Char.IsWhiteSpace(c))
@@ -268,50 +251,48 @@ namespace MySql.Data.Common
 
     private bool IsSpecialCharacter(char c)
     {
-      if (Char.IsLetterOrDigit(c) ||
-          c == '$' || c == '_' || c == '.') return false;
-      return true;
+      return !Char.IsLetterOrDigit(c) && c != '$' && c != '_' && c != '.';
     }
 
     private bool ConsumeComment()
     {
-      char c = fullSql[pos];
+      char c = _fullSql[_pos];
       // make sure the comment starts correctly
-      if (c == '/' && ((pos + 1) >= fullSql.Length || fullSql[pos + 1] != '*')) return false;
-      if (c == '-' && ((pos + 2) >= fullSql.Length || fullSql[pos + 1] != '-' || fullSql[pos + 2] != ' ')) return false;
+      if (c == '/' && ((_pos + 1) >= _fullSql.Length || _fullSql[_pos + 1] != '*')) return false;
+      if (c == '-' && ((_pos + 2) >= _fullSql.Length || _fullSql[_pos + 1] != '-' || _fullSql[_pos + 2] != ' ')) return false;
 
       string endingPattern = "\n";
       if (c == '/')
         endingPattern = "*/";
 
-      int startingIndex = pos;
+      int startingIndex = _pos;
 
-      int index = fullSql.IndexOf(endingPattern, pos);
+      int index = _fullSql.IndexOf(endingPattern, _pos);
       if (index == -1)
-        index = fullSql.Length - 1;
+        index = _fullSql.Length - 1;
       else
         index += endingPattern.Length;
-      string comment = fullSql.Substring(pos, index - pos);
+      string comment = _fullSql.Substring(_pos, index - _pos);
       if (comment.StartsWith("/*!", StringComparison.Ordinal))
-        tokens.Add(new Token(TokenType.CommandComment, comment));
-      pos = index;
+        _tokens.Add(new Token(TokenType.CommandComment, comment));
+      _pos = index;
       return true;
     }
 
     private void ConsumeSymbol()
     {
-      char c = fullSql[pos++];
-      tokens.Add(new Token(TokenType.Symbol, c.ToString()));
+      char c = _fullSql[_pos++];
+      _tokens.Add(new Token(TokenType.Symbol, c.ToString()));
     }
 
     private void ConsumeQuotedToken(char c)
     {
       bool escaped = false;
-      int start = pos;
-      pos++;
-      while (pos < fullSql.Length)
+      int start = _pos;
+      _pos++;
+      while (_pos < _fullSql.Length)
       {
-        char x = fullSql[pos];
+        char x = _fullSql[_pos];
 
         if (x == c && !escaped) break;
 
@@ -319,24 +300,23 @@ namespace MySql.Data.Common
           escaped = false;
         else if (x == '\\')
           escaped = true;
-        pos++;
+        _pos++;
       }
-      pos++;
-      if (c == '\'')
-        tokens.Add(new Token(TokenType.String, "?"));
-      else
-        tokens.Add(new Token(TokenType.Identifier, fullSql.Substring(start, pos - start)));
+      _pos++;
+      _tokens.Add(c == '\''
+        ? new Token(TokenType.String, "?")
+        : new Token(TokenType.Identifier, _fullSql.Substring(start, _pos - start)));
     }
 
     private void ConsumeUnquotedToken()
     {
-      int startPos = pos;
-      while (pos < fullSql.Length && !IsSpecialCharacter(fullSql[pos]))
-        pos++;
-      string word = fullSql.Substring(startPos, pos - startPos);
+      int startPos = _pos;
+      while (_pos < _fullSql.Length && !IsSpecialCharacter(_fullSql[_pos]))
+        _pos++;
+      string word = _fullSql.Substring(startPos, _pos - startPos);
       double v;
       if (Double.TryParse(word, out v))
-        tokens.Add(new Token(TokenType.Number, "?"));
+        _tokens.Add(new Token(TokenType.Number, "?"));
       else
       {
         Token t = new Token(TokenType.Identifier, word);
@@ -345,20 +325,20 @@ namespace MySql.Data.Common
           t.Type = TokenType.Keyword;
           t.Text = t.Text.ToUpperInvariant();
         }
-        tokens.Add(t);
+        _tokens.Add(t);
       }
     }
 
     private void ConsumeWhitespace()
     {
-      tokens.Add(new Token(TokenType.Whitespace, " "));
-      while (pos < fullSql.Length && Char.IsWhiteSpace(fullSql[pos]))
-        pos++;
+      _tokens.Add(new Token(TokenType.Whitespace, " "));
+      while (_pos < _fullSql.Length && Char.IsWhiteSpace(_fullSql[_pos]))
+        _pos++;
     }
 
-    private bool IsKeyword(string word)
+    private static bool IsKeyword(string word)
     {
-      return keywords.Contains(word.ToUpperInvariant());
+      return Keywords.Contains(word.ToUpperInvariant());
     }
   }
 
@@ -375,16 +355,10 @@ namespace MySql.Data.Common
       Output = true;
     }
 
-    public bool IsRealToken
-    {
-      get
-      {
-        return Type != TokenType.Comment &&
-               Type != TokenType.CommandComment &&
-               Type != TokenType.Whitespace &&
-               Output;
-      }
-    }
+    public bool IsRealToken => Type != TokenType.Comment &&
+                               Type != TokenType.CommandComment &&
+                               Type != TokenType.Whitespace &&
+                               Output;
   }
 
   internal enum TokenType
