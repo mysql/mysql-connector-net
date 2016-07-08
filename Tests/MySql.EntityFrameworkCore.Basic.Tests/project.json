@@ -1,4 +1,4 @@
-﻿{
+{
   "version": "1.0.0-*",
   "description": "MySql.EntityFrameworkCore.Basic.Tests Class Library",
   "authors": [
@@ -64,5 +64,8 @@
     }
   },
   "testRunner": "xunit",
-  "dependencies": {}
+  "dependencies": {
+    "MySql.Data": "6.10.0-IR-*",
+    "MySql.Data.EntityFrameworkCore": "1.0.0-*"
+  }
 }

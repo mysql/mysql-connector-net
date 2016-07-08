@@ -212,7 +212,7 @@ namespace MySql.Data.MySqlClient
 			if (tree.ResultType != null)
 			{
 				Debug.Assert(tree.ResultType.EdmType.BuiltInTypeKind == BuiltInTypeKind.CollectionType,
-						Resources.WrongFunctionResultType);
+            Entity.Properties.Resources.WrongFunctionResultType);
 
 				CollectionType collectionType = (CollectionType)(tree.ResultType.EdmType);
 				EdmType elementType = collectionType.TypeUsage.EdmType;
@@ -237,7 +237,7 @@ namespace MySql.Data.MySqlClient
 				}
 				else
 				{
-					Debug.Fail(Resources.WrongFunctionResultType);
+					Debug.Fail(Entity.Properties.Resources.WrongFunctionResultType);
 				}
 			}
 		}
@@ -278,7 +278,7 @@ namespace MySql.Data.MySqlClient
 				throw new ArgumentNullException("connection");
 			MySqlConnection conn = connection as MySqlConnection;
 			if (conn == null)
-				throw new ArgumentException(Resources.ConnectionMustBeOfTypeMySqlConnection, "connection");
+				throw new ArgumentException(Entity.Properties.Resources.ConnectionMustBeOfTypeMySqlConnection, "connection");
 			// Ensure a valid provider manifest token.
 			string providerManifestToken = this.GetDbProviderManifestToken(connection);
 			string query = DbCreateDatabaseScript(providerManifestToken, storeItemCollection);
@@ -303,7 +303,7 @@ namespace MySql.Data.MySqlClient
 				throw new ArgumentNullException("connection");
 			MySqlConnection conn = connection as MySqlConnection;
 			if (conn == null)
-				throw new ArgumentException(Resources.ConnectionMustBeOfTypeMySqlConnection, "connection");
+				throw new ArgumentException(Entity.Properties.Resources.ConnectionMustBeOfTypeMySqlConnection, "connection");
 
 			MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder();
 			builder.ConnectionString = conn.ConnectionString;
@@ -325,7 +325,7 @@ namespace MySql.Data.MySqlClient
 				throw new ArgumentNullException("connection");
 			MySqlConnection conn = connection as MySqlConnection;
 			if (conn == null)
-				throw new ArgumentException(Resources.ConnectionMustBeOfTypeMySqlConnection, "connection");
+				throw new ArgumentException(Entity.Properties.Resources.ConnectionMustBeOfTypeMySqlConnection, "connection");
 
 			MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder();
 			builder.ConnectionString = conn.ConnectionString;

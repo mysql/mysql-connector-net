@@ -166,7 +166,6 @@
     <Compile Include="MySqlCommandTests.cs" />
     <Compile Include="MySqlConnectionStringBuilderTests.cs" />
     <Compile Include="MySqlConnectionTests.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SetUp.cs" />
     <Compile Include="SqlServerMode.cs" />
     <Compile Include="SqlTokenizer.cs" />
@@ -187,7 +186,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Properties\Setup.sql" />
+    <None Include="MySql.Data.Tests.project.json" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
