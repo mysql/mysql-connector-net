@@ -76,18 +76,21 @@ namespace MySql.Data.MySqlClient.Tests
     private void LoadBaseConfiguration()
     {
       baseDBName = "db-" + testNameSpace + "-";
-      baseUserName = "user-" + testNameSpace + "-";
+      baseUserName ="u-" + (testNameSpace.Length > 10 ? testNameSpace.Substring(0,10) : testNameSpace) + "-";
 
       var s = new MySqlConnectionStringBuilder();
       s.UserID = "root";
       s.Password = null;
       s.Server = "localhost";
+#if !NETCORE10
       s.SharedMemoryName = "memory";
       s.PipeName = "pipe";
+#endif
       s.PersistSecurityInfo = true;
       s.AllowUserVariables = true;
       s.Pooling = false;
       s.Port = 3305;
+      s.SslMode = MySqlSslMode.None;
 
       RootSettings = new MySqlConnectionStringBuilder(s.GetConnectionString(true));
       Settings = new MySqlConnectionStringBuilder(s.GetConnectionString(true));
@@ -120,7 +123,10 @@ namespace MySql.Data.MySqlClient.Tests
       data = Utils.FillTable(String.Format("SELECT user,host FROM mysql.user WHERE user LIKE '{0}%'", baseUserName), root);
       foreach (DataRow row in data.Rows)
       {
-        executeInternal(String.Format("DROP USER IF EXISTS '{0}'@'{1}'", row[0].ToString(), row[1].ToString()), root);
+        if (version >= new Version("5.7"))
+          executeInternal(String.Format("DROP USER IF EXISTS '{0}'@'{1}'", row[0].ToString(), row[1].ToString()), root);
+        else
+          executeInternal(String.Format("DROP USER '{0}'@'{1}'", row[0].ToString(), row[1].ToString()), root);
       }
       executeInternal("FLUSH PRIVILEGES", root);
     }
