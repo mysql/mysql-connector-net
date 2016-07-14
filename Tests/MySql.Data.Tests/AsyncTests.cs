@@ -34,17 +34,18 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class AsyncTests : TestBase
   {
-    protected TestSetup sp;
+    protected TestSetup ts;
 
     public AsyncTests(TestSetup setup) : base(setup, "async")
     {
-      sp = setup;
+      ts = setup;
+      ts.CreateDatabase("1");
     }
         
     [Fact]
     public void ExecuteNonQuery()
     {      
-      if (sp.version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
       if (connection.State != ConnectionState.Open)
         connection.Open();
@@ -77,7 +78,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ExecuteReader()
     {
-      if (sp.version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
       if (connection.State != ConnectionState.Open)
         connection.Open();
@@ -125,11 +126,6 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("Unknown column 'xxx' in 'field list'", ex.Message);
     }
 
-    public void Dispose()
-    {
-      executeSQL("DROP TABLE IF EXISTS test");
-      executeSQL("DROP PROCEDURE IF EXISTS spTest");
-    }
 
     #region Async
     #region PrivateMembers
@@ -190,7 +186,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task ExecuteNonQueryAsync()
     {
-      if (sp.version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
       executeSQL("CREATE TABLE NonQueryAsyncTest (id int)");
       executeSQL("CREATE PROCEDURE NonQueryAsyncSpTest() BEGIN SET @x=0; REPEAT INSERT INTO NonQueryAsyncTest VALUES(@x); SET @x=@x+1; UNTIL @x = 100 END REPEAT; END");
@@ -210,7 +206,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task ExecuteReaderAsync()
     {
-      if (sp.version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
       if (connection.State != ConnectionState.Open)
         connection.Open();
@@ -240,7 +236,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task ExecuteScalarAsync()
     {
-      if (sp.version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
       if (connection.State != ConnectionState.Open)
         connection.Open();
@@ -293,19 +289,21 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task ChangeDataBaseAsync()
     {
-      if (sp.version < new Version(4, 1)) return;
+      if (ts.version < new Version(4, 1)) return;
 
       executeSQL("CREATE TABLE ChangeDBAsyncTest (id INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME,  `multi word` int, PRIMARY KEY(id))");
       executeSQL("INSERT INTO ChangeDBAsyncTest (id, name) VALUES (1,'test1')");
       executeSQL("INSERT INTO ChangeDBAsyncTest (id, name) VALUES (2,'test2')");
       executeSQL("INSERT INTO ChangeDBAsyncTest (id, name) VALUES (3,'test3')");
 
-      await connection.ChangeDataBaseAsync(sp.baseDBName);
+      await connection.ChangeDataBaseAsync(ts.baseDBName + "1");
 
-      MySqlDataAdapter da = new MySqlDataAdapter(String.Format("SELECT id, name FROM `{0}`.ChangeDBAsyncTest", sp.baseDBName), connection);
+      MySqlDataAdapter da = new MySqlDataAdapter(String.Format("SELECT id, name FROM `{0}`.ChangeDBAsyncTest", ts.baseDBName + "0"), connection);
       MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
       DataSet ds = new DataSet();
       da.Fill(ds);
+
+      Assert.Equal(3, ds.Tables[0].Rows.Count);
 
       ds.Tables[0].Rows[0]["id"] = 4;
       DataSet changes = ds.GetChanges();
@@ -313,13 +311,13 @@ namespace MySql.Data.MySqlClient.Tests
       ds.Merge(changes);
       ds.AcceptChanges();
       cb.Dispose();
-      await connection.ChangeDataBaseAsync(sp.baseDBName);
+      await connection.ChangeDataBaseAsync(ts.baseDBName + "0");
     }
 
     [Fact]
     public async Task OpenAndCloseConnectionAsync()
     {
-      string connStr2 = sp.GetConnection(false).ConnectionString;
+      string connStr2 = ts.GetConnection(false).ConnectionString;
       MySqlConnection c = new MySqlConnection(connStr2);
       await c.OpenAsync();
       await c.CloseAsync();
@@ -328,8 +326,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task ClearPoolAsync()
     {
-      MySqlConnection c1 = new MySqlConnection(sp.GetConnection(true).ConnectionString);
-      MySqlConnection c2 = new MySqlConnection(sp.GetConnection(true).ConnectionString);
+      MySqlConnection c1 = new MySqlConnection(ts.GetConnection(true).ConnectionString);
+      MySqlConnection c2 = new MySqlConnection(ts.GetConnection(true).ConnectionString);
       c1.Open();
       c2.Open();
       c1.Close();
@@ -341,8 +339,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task ClearAllPoolsAsync()
     {
-      MySqlConnection c1 = new MySqlConnection(sp.GetConnection(true).ConnectionString);
-      MySqlConnection c2 = new MySqlConnection(sp.GetConnection(true).ConnectionString);
+      MySqlConnection c1 = new MySqlConnection(ts.GetConnection(true).ConnectionString);
+      MySqlConnection c2 = new MySqlConnection(ts.GetConnection(true).ConnectionString);
       c1.Open();
       c2.Open();
       c1.Close();
@@ -354,7 +352,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task GetSchemaCollectionAsync()
     {
-      MySqlConnection c1 = new MySqlConnection(sp.GetConnection(true).ConnectionString);
+      MySqlConnection c1 = new MySqlConnection(ts.GetConnection(true).ConnectionString);
       c1.Open();
       MySqlSchemaCollection schemaColl = await c1.GetSchemaCollectionAsync(SchemaProvider.MetaCollection, null);
       c1.Close();
@@ -391,7 +389,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task FillSchemaAsync()
     {
-      if (sp.version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
       executeSQL("CREATE PROCEDURE FillSchemaAsyncSpTest() BEGIN SELECT * FROM FillSchemaAsyncTest; END");
       executeSQL(@"CREATE TABLE FillSchemaAsyncTest(id INT AUTO_INCREMENT, name VARCHAR(20), PRIMARY KEY (id)) ");
@@ -465,7 +463,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task ExecuteScriptWithProceduresAsync()
     {
-      if (sp.version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
       string spTpl = @"CREATE PROCEDURE `ScriptWithProceduresAsyncSpTest{0}`() NOT DETERMINISTIC CONTAINS SQL SQL SECURITY DEFINER COMMENT ''  BEGIN SELECT 1,2,3; END{1}";
       statementCount = 0;
@@ -485,7 +483,7 @@ namespace MySql.Data.MySqlClient.Tests
       int count = await script.ExecuteAsync();
       Assert.Equal(10, count);
 
-      MySqlCommand cmd = new MySqlCommand(String.Format(@"SELECT COUNT(*) FROM information_schema.routines WHERE routine_schema = '{0}' AND routine_name LIKE 'ScriptWithProceduresAsyncSpTest%'", sp.baseDBName), connection);
+      MySqlCommand cmd = new MySqlCommand(String.Format(@"SELECT COUNT(*) FROM information_schema.routines WHERE routine_schema = '{0}' AND routine_name LIKE 'ScriptWithProceduresAsyncSpTest%'", ts.baseDBName + "0"), connection);
       Assert.Equal(10, Convert.ToInt32(cmd.ExecuteScalar()));
     }
 
@@ -521,7 +519,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task MSH_ExecuteNonQueryAsync()
     {
-      if (sp.version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
       executeSQL("CREATE TABLE HelperNonQueryAsyncTest (id int)");
       executeSQL("CREATE PROCEDURE HelperNonQueryAsyncSpTest() BEGIN SET @x=0; REPEAT INSERT INTO HelperNonQueryAsyncTest VALUES(@x); SET @x=@x+1; UNTIL @x = 100 END REPEAT; END");
       
@@ -555,7 +553,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task MSH_ExecuteReaderAsync()
     {
-      if (sp.version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
       if (connection.State != ConnectionState.Open)
         connection.Open();
@@ -582,7 +580,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task MSH_ExecuteScalarAsync()
     {
-      if (sp.version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
       if (connection.State != ConnectionState.Open)
         connection.Open();

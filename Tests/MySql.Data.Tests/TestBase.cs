@@ -31,7 +31,7 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class TestBase : IClassFixture<TestSetup>, IDisposable
   {
-    protected MySqlConnection connection;
+    protected MySqlConnection connection;    
     protected TestSetup Setup;
     protected string TestNameSpace;
 
@@ -128,7 +128,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    public void Dispose()
+    public virtual void Dispose()
     {
       if (connection != null)
         connection.Close();

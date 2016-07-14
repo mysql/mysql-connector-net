@@ -33,13 +33,24 @@ using System.Security.Authentication;
 namespace MySql.Data.MySqlClient.Tests
 {
   #region Configs
-  [Category("Compressed")]
-  public class BlobTestsPipeCompressed : BlobTests
+    
+  public class BlobTestsPipe : BlobTests
   {
-    protected override string OnGetConnectionStringInfo()
+    public BlobTestsPipe(TestSetup setup): base(setup , "blobtestspipe")
     {
-      return String.Format("protocol=pipe;pipe name={0};compress=true;ssl mode=none;", st.pipeName);
+
     }
+
+    public override string OnGetConnectionStringInfo()
+    {
+      return String.Format("protocol=pipe;pipe name={0};ssl mode=none;", ts.pipeName);
+    }
+
+    //[Fact]
+    //public override void InsertBinary()
+    //{
+    //  base.InsertBinary();
+    //}
   }
   #endregion
 }

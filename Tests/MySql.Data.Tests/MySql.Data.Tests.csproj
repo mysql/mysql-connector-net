@@ -154,7 +154,17 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="AsyncTests.cs" />
+    <Compile Include="AuthTests.cs" />
     <Compile Include="BlobTests.cs" />
+    <Compile Include="BlobTestsPipe.cs" />
+    <Compile Include="BlobTestsPipeCompressed.cs" />
+    <Compile Include="BlobTestsSharedMemory.cs" />
+    <Compile Include="BlobTestsSharedMemoryCompressed.cs" />
+    <Compile Include="BlobTestsSocketCompressed.cs" />
+    <Compile Include="CharacterSetTests.cs" />
+    <Compile Include="CultureTests.cs" />
+    <Compile Include="DataTypeTests.cs" />
+    <Compile Include="DateTimeTests.cs" />
     <Compile Include="EventTests.cs" />
     <Compile Include="ExceptionTests.cs" />
     <Compile Include="Framework\Net451\TestDataTable.cs">

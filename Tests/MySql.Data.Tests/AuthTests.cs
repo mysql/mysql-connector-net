@@ -22,14 +22,24 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Xunit;
 
-namespace MySql.Data.MySqlClient.Tests.Framework.Net451
+namespace MySql.Data.MySqlClient.Tests
 {
   public class AuthTests : TestBase
   {
+    protected TestSetup ts;
+
+    public AuthTests(TestSetup setup) : base (setup, "authtests")
+    {
+      ts = setup;
+    }
+
+
     [Fact]
     public void TestIntegratedSecurityNoPoolingWithoutUser()
     {
@@ -50,18 +60,21 @@ namespace MySql.Data.MySqlClient.Tests.Framework.Net451
         UserName = user;
 
       // Check if server has windows authentication plugin is installed		
-      MySqlDataReader reader = ExecuteReaderAsRoot("show plugins");
+      MySqlDataReader reader = ExecuteAsReader("show plugins", ts.GetConnection(true));
 
       bool haveWindowsAuthentication = false;
       using (reader)
       {
-        while (reader.Read())
+        if (reader.HasRows)
         {
-          string name = (string)reader["Name"];
-          if (name == PluginName)
+          while (reader.Read())
           {
-            haveWindowsAuthentication = true;
-            break;
+            string name = (string)reader["Name"];
+            if (name == PluginName)
+            {
+              haveWindowsAuthentication = true;
+              break;
+            }
           }
         }
       }
@@ -74,7 +87,7 @@ namespace MySql.Data.MySqlClient.Tests.Framework.Net451
 
       // Check if predefined proxy user exists
       string sql = string.Format("select plugin, authentication_string from mysql.user where user='{0}'", UserName);
-      using (MySqlDataReader reader2 = ExecuteReaderAsRoot(sql))
+      using (MySqlDataReader reader2 = ExecuteAsReader(sql, ts.GetConnection(true)))
       {
         if (reader2.Read())
         {
@@ -110,7 +123,7 @@ namespace MySql.Data.MySqlClient.Tests.Framework.Net451
 
 
       // Finally, use IntegratedSecurity=true for the newly created user
-      string connStr = st.GetConnectionString(true) + ";Integrated Security=SSPI";
+      string connStr = ts.GetConnection(true).ConnectionString + ";Integrated Security=SSPI";
 
       MySqlConnectionStringBuilder sb =
           new MySqlConnectionStringBuilder(connStr);
@@ -173,44 +186,52 @@ namespace MySql.Data.MySqlClient.Tests.Framework.Net451
       if (user != null)
         UserName = user;
 
-      // Check if server has windows authentication plugin is installed			
-      MySqlCommand cmd = new MySqlCommand("show plugins", st.rootConn);
+      var conn = ts.GetConnection(true); 
+      
+      if (conn.State != ConnectionState.Open)
+          conn.Open();
 
-      bool haveWindowsAuthentication = false;
-      using (MySqlDataReader r = cmd.ExecuteReader())
-      {
-        while (r.Read())
+        // Check if server has windows authentication plugin is installed			
+        MySqlCommand cmd = new MySqlCommand("show plugins", conn);
+
+        bool haveWindowsAuthentication = false;
+        using (MySqlDataReader r = cmd.ExecuteReader())
         {
-          string name = (string)r["Name"];
-          if (name == PluginName)
+          while (r.Read())
           {
-            haveWindowsAuthentication = true;
-            break;
+            string name = (string)r["Name"];
+            if (name == PluginName)
+            {
+              haveWindowsAuthentication = true;
+              break;
+            }
           }
         }
-      }
-      if (!haveWindowsAuthentication)
-        return;
 
-      bool haveAuthWindowsUser = false;
-      string pluginName = null;
-      string authenticationString = "";
+      conn.Close();
 
-      // Check if predefined proxy user exists
-      cmd.CommandText = string.Format(
-        "select plugin, authentication_string from mysql.user where user='{0}'",
-        UserName);
-      using (MySqlDataReader r = cmd.ExecuteReader())
-      {
-        if (r.Read())
+        if (!haveWindowsAuthentication)
+          return;      
+
+        bool haveAuthWindowsUser = false;
+        string pluginName = null;
+        string authenticationString = "";
+
+        // Check if predefined proxy user exists
+        cmd.CommandText = string.Format(
+          "select plugin, authentication_string from mysql.user where user='{0}'",
+          UserName);
+        using (MySqlDataReader r = cmd.ExecuteReader())
         {
-          haveAuthWindowsUser = true;
-          pluginName = (string)r["plugin"];
-          authenticationString =
-            (string)((r["authentication_string"] == DBNull.Value) ?
-            "" : r["authentication_string"]);
-        }
-      }
+          if (r.Read())
+          {
+            haveAuthWindowsUser = true;
+            pluginName = (string)r["plugin"];
+            authenticationString =
+              (string)((r["authentication_string"] == DBNull.Value) ?
+              "" : r["authentication_string"]);
+          }
+        }      
 
       // Create mapping for current Windows user=>foo_user
       String windowsUser = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
@@ -234,8 +255,9 @@ namespace MySql.Data.MySqlClient.Tests.Framework.Net451
         }
         executeAsRoot(string.Format("grant all privileges on *.* to '{0}'@'%'", UserName));
 
+        
         // Finally, use IntegratedSecurity=true for the newly created user
-        string connStr = st.GetConnectionString(true) + ";Integrated Security=SSPI";
+        string connStr = ts.GetConnection(true).ConnectionString + ";Integrated Security=SSPI";
 
         MySqlConnectionStringBuilder sb =
             new MySqlConnectionStringBuilder(connStr);

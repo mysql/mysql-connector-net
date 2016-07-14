@@ -37,6 +37,9 @@ namespace MySql.Data.MySqlClient.Tests
     public string baseUserName;
     public string testNameSpace;
     public MySqlConnection root;
+    public string pipeName;
+    public string sharedMemoryName;
+    public int port;
 
     internal protected string table;
     internal protected string csAdditions = String.Empty;
@@ -55,22 +58,14 @@ namespace MySql.Data.MySqlClient.Tests
       testNameSpace = ns;
       if (firstTime)
         LoadBaseConfiguration();
+
+      pipeName = "MySQLSocket";
+      port = 3305;
+
       MySqlConnection.ClearAllPools();
       InitializeDatabase();
       firstTime = false;
-
-      //Assembly executingAssembly = Assembly.GetExecutingAssembly();
-      //Stream stream = executingAssembly.GetManifestResourceStream("MySql.Data.MySqlClient.Tests.Properties.Setup.sql");
-      //StreamReader sr = new StreamReader(stream);
-      //string sql = sr.ReadToEnd();
-      //sr.Close();
-
-      //SetAccountPerms(accessToMySqlDb);
-      //sql = sql.Replace("[database0]", database0);
-      //sql = sql.Replace("[database1]", database1);
-
-      //ExecuteSQLAsRoot(sql);
-      //Open();
+    
     }
 
     private void LoadBaseConfiguration()
@@ -83,8 +78,8 @@ namespace MySql.Data.MySqlClient.Tests
       s.Password = null;
       s.Server = "localhost";
 #if !NETCORE10
-      s.SharedMemoryName = "memory";
-      s.PipeName = "pipe";
+      s.SharedMemoryName = "MySQLSocket";
+      s.PipeName = "MySQLSocket";
 #endif
       s.PersistSecurityInfo = true;
       s.AllowUserVariables = true;
@@ -154,6 +149,14 @@ namespace MySql.Data.MySqlClient.Tests
       return dbName;
     }
 
+    public string DropDatabase(string postfix)
+    {
+      string dbName = String.Format("{0}{1}", baseDBName, postfix);
+      executeInternal(String.Format("DROP DATABASE `{0}`", dbName), root);
+      return dbName;
+    }
+
+
     public string CreateUser(string postfix, string password)
     {
       string userName = String.Format("{0}{1}", baseUserName, postfix);
@@ -164,9 +167,13 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     public MySqlDataReader ExecuteReader(string sql, MySqlConnection conn)
-    {
-      MySqlCommand cmd = new MySqlCommand(sql, conn);
-      return cmd.ExecuteReader();
+    {      
+        if (conn.State != ConnectionState.Open)
+          conn.Open();
+
+        MySqlCommand cmd = new MySqlCommand(sql, conn);
+        return cmd.ExecuteReader(); 
+                     
     }
 
     public void executeInternal(string sql, MySqlConnection conn)
@@ -394,19 +401,7 @@ namespace MySql.Data.MySqlClient.Tests
       if (disposing)
       {
         MySqlConnection.ClearAllPools();
-        CleanupDatabase();
-
-        //CheckOrphanedConnections();
-        //if (rootConn.State == ConnectionState.Closed)
-        //  rootConn.Open();
-
-        //DropDatabase(database0);
-        //DropDatabase(database1);
-
-        //DropDatabase("Perm");
-
-        //rootConn.Close();
-        //conn.Close();
+        CleanupDatabase();        
       }
 
       disposed = true;

@@ -32,33 +32,24 @@ using System.Threading;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class DateTimeTests : IUseFixture<SetUpClass>, IDisposable
+  public class DateTimeTests : TestBase
   {
-    private SetUpClass st;
+    protected TestSetup ts;
 
-    public void SetFixture(SetUpClass data)
+    public DateTimeTests(TestSetup setup) : base(setup, "datetimetests")
     {
-      st = data;
-
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME, d DATE, " +
+      ts = setup;
+      executeSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME, d DATE, " +
         "t TIME, ts TIMESTAMP, PRIMARY KEY(id))");
     }
-
-    public void Dispose()
-    {
-      if (st.conn.Reader != null && !st.conn.Reader.IsClosed)
-        st.conn.Reader.Close();
-      st.execSQL("DROP TABLE IF EXISTS TEST");
-      st.execSQL("DROP TABLE IF EXISTS t1");
-    }
-
+    
     [Fact]
     public void ConvertZeroDateTime()
     {
-      st.execSQL("INSERT INTO Test VALUES(1, '0000-00-00', '0000-00-00', " +
+      executeSQL("INSERT INTO Test VALUES(1, '0000-00-00', '0000-00-00', " +
         "'00:00:00', NULL)");
 
-      string connStr = st.GetConnectionString(true);
+      string connStr = ts.GetConnection(false).ConnectionString;
       connStr += ";convert zero datetime=yes";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
@@ -77,11 +68,11 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void TestNotAllowZerDateAndTime()
     {
-      st.execSQL("SET SQL_MODE=''");
-      st.execSQL("INSERT INTO Test VALUES(1, 'Test', '0000-00-00', '0000-00-00', '00:00:00')");
-      st.execSQL("INSERT INTO Test VALUES(2, 'Test', '2004-11-11', '2004-11-11', '06:06:06')");
+      executeSQL("SET SQL_MODE=''");
+      executeSQL("INSERT INTO Test VALUES(1, 'Test', '0000-00-00', '0000-00-00', '00:00:00')");
+      executeSQL("INSERT INTO Test VALUES(2, 'Test', '2004-11-11', '2004-11-11', '06:06:06')");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         Assert.True(reader.Read());
@@ -103,7 +94,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void DateAdd()
     {
       MySqlCommand cmd = new MySqlCommand("select date_add(?someday, interval 1 hour)",
-        st.conn);
+        connection);
       DateTime now = DateTime.Now;
       DateTime later = now.AddHours(1);
       later = later.AddMilliseconds(later.Millisecond * -1);
@@ -126,11 +117,11 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void TestAllowZeroDateTime()
     {
-      st.execSQL("TRUNCATE TABLE Test");
-      st.execSQL("INSERT INTO Test (id, d, dt) VALUES (1, '0000-00-00', '0000-00-00 00:00:00')");
+      executeSQL("TRUNCATE TABLE Test");
+      executeSQL("INSERT INTO Test (id, d, dt) VALUES (1, '0000-00-00', '0000-00-00 00:00:00')");
 
       using (MySqlConnection c = new MySqlConnection(
-        st.conn.ConnectionString + ";pooling=false;AllowZeroDatetime=true"))
+        connection.ConnectionString + ";pooling=false;AllowZeroDatetime=true"))
       {
         c.Open();
         MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", c);
@@ -175,7 +166,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void InsertDateTimeValue()
     {
-      using (MySqlConnection c = new MySqlConnection(st.conn.ConnectionString +
+      using (MySqlConnection c = new MySqlConnection(connection.ConnectionString +
         ";allow zero datetime=yes"))
       {
         c.Open();
@@ -207,10 +198,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void SortingMySqlDateTimes()
     {
-      st.execSQL("INSERT INTO Test (id, dt) VALUES (1, '2004-10-01')");
-      st.execSQL("INSERT INTO Test (id, dt) VALUES (2, '2004-10-02')");
-      st.execSQL("INSERT INTO Test (id, dt) VALUES (3, '2004-11-01')");
-      st.execSQL("INSERT INTO Test (id, dt) VALUES (4, '2004-11-02')");
+      executeSQL("INSERT INTO Test (id, dt) VALUES (1, '2004-10-01')");
+      executeSQL("INSERT INTO Test (id, dt) VALUES (2, '2004-10-02')");
+      executeSQL("INSERT INTO Test (id, dt) VALUES (3, '2004-11-01')");
+      executeSQL("INSERT INTO Test (id, dt) VALUES (4, '2004-11-02')");
 
       CultureInfo curCulture = Thread.CurrentThread.CurrentCulture;
       CultureInfo curUICulture = Thread.CurrentThread.CurrentUICulture;
@@ -218,7 +209,7 @@ namespace MySql.Data.MySqlClient.Tests
       Thread.CurrentThread.CurrentCulture = cul;
       Thread.CurrentThread.CurrentUICulture = cul;
 
-      using (MySqlConnection c = new MySqlConnection(st.conn.ConnectionString + ";allow zero datetime=yes"))
+      using (MySqlConnection c = new MySqlConnection(connection.ConnectionString + ";allow zero datetime=yes"))
       {
         MySqlDataAdapter da = new MySqlDataAdapter("SELECT dt FROM Test", c);
         DataTable dt = new DataTable();
@@ -240,9 +231,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void TestZeroDateTimeException()
     {
-      st.execSQL("INSERT INTO Test (id, d, dt) VALUES (1, '0000-00-00', '0000-00-00 00:00:00')");
+      executeSQL("INSERT INTO Test (id, d, dt) VALUES (1, '0000-00-00', '0000-00-00 00:00:00')");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {        
         reader.Read();
@@ -257,7 +248,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void LargeDateTime()
     {
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id, dt) VALUES(?id,?dt)", st.conn);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id, dt) VALUES(?id,?dt)", connection);
       cmd.Parameters.Add(new MySqlParameter("?id", 1));
       cmd.Parameters.Add(new MySqlParameter("?dt", DateTime.Parse("9997-10-29")));
       cmd.ExecuteNonQuery();
@@ -283,12 +274,12 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void UsingDatesAsStrings()
     {
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id, dt) VALUES (1, ?dt)", st.conn);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id, dt) VALUES (1, ?dt)", connection);
       cmd.Parameters.Add("?dt", MySqlDbType.Date);
       cmd.Parameters[0].Value = "2005-03-04";
       cmd.ExecuteNonQuery();
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", st.conn);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", connection);
       DataTable dt = new DataTable();
       da.Fill(dt);
       Assert.Equal(1, dt.Rows.Count);
@@ -304,27 +295,27 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Bug19481()
     {
-      st.execSQL("DROP TABLE Test");
-      st.execSQL("CREATE TABLE Test(ID INT NOT NULL AUTO_INCREMENT, " +
+      executeSQL("DROP TABLE Test");
+      executeSQL("CREATE TABLE Test(ID INT NOT NULL AUTO_INCREMENT, " +
         "SATELLITEID VARCHAR(3) NOT NULL, ANTENNAID INT, AOS_TIMESTAMP DATETIME NOT NULL, " +
         "TEL_TIMESTAMP DATETIME, LOS_TIMESTAMP DATETIME, PRIMARY KEY (ID))");
-      st.execSQL("INSERT INTO Test VALUES (NULL,'224','0','2005-07-24 00:00:00'," +
+      executeSQL("INSERT INTO Test VALUES (NULL,'224','0','2005-07-24 00:00:00'," +
         "'2005-07-24 00:02:00','2005-07-24 00:22:00')");
-      st.execSQL("INSERT INTO Test VALUES (NULL,'155','24','2005-07-24 03:00:00'," +
+      executeSQL("INSERT INTO Test VALUES (NULL,'155','24','2005-07-24 03:00:00'," +
         "'2005-07-24 03:02:30','2005-07-24 03:20:00')");
-      st.execSQL("INSERT INTO Test VALUES (NULL,'094','34','2005-07-24 09:00:00'," +
+      executeSQL("INSERT INTO Test VALUES (NULL,'094','34','2005-07-24 09:00:00'," +
         "'2005-07-24 09:00:30','2005-07-24 09:15:00')");
-      st.execSQL("INSERT INTO Test VALUES (NULL,'224','54','2005-07-24 12:00:00'," +
+      executeSQL("INSERT INTO Test VALUES (NULL,'224','54','2005-07-24 12:00:00'," +
         "'2005-07-24 12:01:00','2005-07-24 12:33:00')");
-      st.execSQL("INSERT INTO Test VALUES (NULL,'155','25','2005-07-24 15:00:00'," +
+      executeSQL("INSERT INTO Test VALUES (NULL,'155','25','2005-07-24 15:00:00'," +
         "'2005-07-24 15:02:00','2005-07-24 15:22:00')");
-      st.execSQL("INSERT INTO Test VALUES (NULL,'094','0','2005-07-24 17:00:00'," +
+      executeSQL("INSERT INTO Test VALUES (NULL,'094','0','2005-07-24 17:00:00'," +
         "'2005-07-24 17:02:12','2005-07-24 17:20:00')");
-      st.execSQL("INSERT INTO Test VALUES (NULL,'224','24','2005-07-24 19:00:00'," +
+      executeSQL("INSERT INTO Test VALUES (NULL,'224','24','2005-07-24 19:00:00'," +
         "'2005-07-24 19:02:00','2005-07-24 19:27:00')");
-      st.execSQL("INSERT INTO Test VALUES (NULL,'155','34','2005-07-24 21:00:00'," +
+      executeSQL("INSERT INTO Test VALUES (NULL,'155','34','2005-07-24 21:00:00'," +
         "'2005-07-24 21:02:33','2005-07-24 21:22:55')");
-      st.execSQL("INSERT INTO Test VALUES (NULL,'094','55','2005-07-24 23:00:00'," +
+      executeSQL("INSERT INTO Test VALUES (NULL,'094','55','2005-07-24 23:00:00'," +
         "'2005-07-24 23:00:45','2005-07-24 23:22:23')");
 
       DateTime date = DateTime.Parse("7/24/2005", CultureInfo.GetCultureInfo("en-us"));
@@ -332,7 +323,7 @@ namespace MySql.Data.MySqlClient.Tests
       sql.AppendFormat(CultureInfo.InvariantCulture,
         @"SELECT ID, ANTENNAID, TEL_TIMESTAMP, LOS_TIMESTAMP FROM Test 
         WHERE TEL_TIMESTAMP >= '{0}'", date.ToString("u"));
-      MySqlDataAdapter da = new MySqlDataAdapter(sql.ToString(), st.conn);
+      MySqlDataAdapter da = new MySqlDataAdapter(sql.ToString(), connection);
       DataSet dataSet = new DataSet();
       da.Fill(dataSet);
     }
@@ -343,10 +334,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void PreparedZeroDateTime()
     {
-      if (st.Version < new Version(4, 1)) return;
+      if (ts.version < new Version(4, 1)) return;
 
-      st.execSQL("INSERT INTO Test VALUES(1, Now(), '0000-00-00', NULL, NULL)");
-      MySqlCommand cmd = new MySqlCommand("SELECT d FROM Test WHERE id=?id", st.conn);
+      executeSQL("INSERT INTO Test VALUES(1, Now(), '0000-00-00', NULL, NULL)");
+      MySqlCommand cmd = new MySqlCommand("SELECT d FROM Test WHERE id=?id", connection);
       cmd.Parameters.AddWithValue("?id", 1);
       cmd.Prepare();
       using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -358,10 +349,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void DateTimeInDataTable()
     {
-      st.execSQL("INSERT INTO Test VALUES(1, Now(), '0000-00-00', NULL, NULL)");
+      executeSQL("INSERT INTO Test VALUES(1, Now(), '0000-00-00', NULL, NULL)");
 
       using (MySqlConnection c = new MySqlConnection(
-        st.conn.ConnectionString + ";pooling=false;AllowZeroDatetime=true"))
+        connection.ConnectionString + ";pooling=false;AllowZeroDatetime=true"))
       {
         c.Open();
 
@@ -404,7 +395,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void DateFormat()
     {
       DateTime dt = DateTime.Now;
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1, ?dt, NULL, NULL, NULL)", st.conn);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1, ?dt, NULL, NULL, NULL)", connection);
       cmd.Parameters.AddWithValue("?dt", dt);
       cmd.ExecuteNonQuery();
 
@@ -422,29 +413,29 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void CanUpdateMicroseconds()
     {
-      if (st.Version < new Version(5, 6)) return;
+      if (ts.version < new Version(5, 6)) return;
       DateTime dt = DateTime.Now;
       MySqlCommand cmd = new MySqlCommand();
 
-      st.execSQL("DROP TABLE Test");
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME(6), d DATE, " +
+      executeSQL("DROP TABLE Test");
+      executeSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME(6), d DATE, " +
         "t TIME, ts TIMESTAMP, PRIMARY KEY(id))");
 
-      cmd.Connection = st.conn;
+      cmd.Connection = connection;
       cmd.CommandText = "INSERT INTO Test VALUES(1, ?dt, NULL, NULL, NULL)";
       cmd.Parameters.AddWithValue("?dt", dt);
       cmd.ExecuteNonQuery();
 
       //Update value
       cmd.Parameters.Clear();
-      cmd.Connection = st.conn;
+      cmd.Connection = connection;
       cmd.CommandText = "UPDATE Test SET dt=?dt";
       cmd.Parameters.Add(new MySqlParameter("?dt", "2011-01-01 12:34:56.123456"));
       cmd.ExecuteNonQuery();
 
       cmd.CommandText = "SELECT dt FROM Test";
       cmd.Parameters.Clear();
-      cmd.Connection = st.conn;
+      cmd.Connection = connection;
 
       MySqlDataReader rdr = cmd.ExecuteReader();
 
@@ -460,15 +451,15 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void CanUpdateMicrosecondsWithIgnorePrepareOnFalse()
     {
-      if (st.Version < new Version(5, 6)) return;
+      if (ts.version < new Version(5, 6)) return;
       MySqlCommand cmd = new MySqlCommand();
 
-      using (MySqlConnection c = new MySqlConnection(st.conn.ConnectionString + ";ignore prepare=False;"))
+      using (MySqlConnection c = new MySqlConnection(connection.ConnectionString + ";ignore prepare=False;"))
       {
         c.Open();
 
-        st.execSQL("DROP TABLE Test");
-        st.execSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME(6), d DATE, " +
+        executeSQL("DROP TABLE Test");
+        executeSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME(6), d DATE, " +
           "t TIME, ts TIMESTAMP, PRIMARY KEY(id))");
 
         cmd.Connection = c;
@@ -520,15 +511,15 @@ namespace MySql.Data.MySqlClient.Tests
     // reference http://msdn.microsoft.com/en-us/library/system.timespan.frommilliseconds.aspx
     public void CanUpdateMillisecondsUsingTimeType()
     {
-      if (st.Version < new Version(5, 6)) return;
+      if (ts.version < new Version(5, 6)) return;
       DateTime dt = DateTime.Now;
       MySqlCommand cmd = new MySqlCommand();
 
-      st.execSQL("DROP TABLE Test");
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME(6), d DATE, " +
+      executeSQL("DROP TABLE Test");
+      executeSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME(6), d DATE, " +
         "t TIME(6), ts TIMESTAMP(6), PRIMARY KEY(id))");
 
-      cmd.Connection = st.conn;
+      cmd.Connection = connection;
       cmd.CommandText = "INSERT INTO Test VALUES(1, NULL, NULL, ?t, NULL)";
 
       MySqlParameter timeinsert = new MySqlParameter();
@@ -541,7 +532,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       cmd.CommandText = "SELECT Time(t) FROM Test";
       cmd.Parameters.Clear();
-      cmd.Connection = st.conn;
+      cmd.Connection = connection;
 
       MySqlDataReader rdr = cmd.ExecuteReader();
 
@@ -556,16 +547,16 @@ namespace MySql.Data.MySqlClient.Tests
     // reference http://msdn.microsoft.com/en-us/library/system.timespan.frommilliseconds.aspx
     public void CanUpdateMillisecondsUsingTimeTypeOnPrepareStatements()
     {
-      if (st.Version < new Version(5, 6)) return;
+      if (ts.version < new Version(5, 6)) return;
       DateTime dt = DateTime.Now;
       MySqlCommand cmd = new MySqlCommand();
 
-      st.execSQL("DROP TABLE Test");
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME(6), d DATE, " +
+      executeSQL("DROP TABLE Test");
+      executeSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME(6), d DATE, " +
         "t TIME(6), ts TIMESTAMP(6), PRIMARY KEY(id))");
 
 
-      using (MySqlConnection c = new MySqlConnection(st.conn.ConnectionString + ";ignore prepare=False;"))
+      using (MySqlConnection c = new MySqlConnection(connection.ConnectionString + ";ignore prepare=False;"))
       {
         c.Open();
         cmd.Connection = c;
@@ -584,7 +575,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         cmd.CommandText = "SELECT Time(t) FROM Test";
         cmd.Parameters.Clear();
-        cmd.Connection = st.conn;
+        cmd.Connection = connection;
         cmd.Prepare();
 
         MySqlDataReader rdr = cmd.ExecuteReader();
@@ -603,16 +594,16 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void CanUpdateMillisecondsUsingTimeStampType()
     {
-      if (st.Version < new Version(5, 6)) return;
+      if (ts.version < new Version(5, 6)) return;
       DateTime dt = DateTime.Now;
       MySqlCommand cmd = new MySqlCommand();
 
-      using (MySqlConnection c = new MySqlConnection(st.conn.ConnectionString))
+      using (MySqlConnection c = new MySqlConnection(connection.ConnectionString))
       {
         c.Open();
 
-        st.execSQL("DROP TABLE Test");
-        st.execSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME(6), d DATE, " +
+        executeSQL("DROP TABLE Test");
+        executeSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME(6), d DATE, " +
           "t TIME(6), ts TIMESTAMP(6), PRIMARY KEY(id))");
 
         cmd.Connection = c;
@@ -628,7 +619,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         cmd.CommandText = "SELECT ts FROM Test";
         cmd.Parameters.Clear();
-        cmd.Connection = st.conn;
+        cmd.Connection = connection;
 
         MySqlDataReader rdr = cmd.ExecuteReader();
 
@@ -645,16 +636,16 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void CanUpdateMillisecondsUsingTimeStampTypeWithPrepare()
     {
-      if (st.Version < new Version(5, 6)) return;
+      if (ts.version < new Version(5, 6)) return;
       DateTime dt = DateTime.Now;
       MySqlCommand cmd = new MySqlCommand();
 
-      using (MySqlConnection c = new MySqlConnection(st.conn.ConnectionString + ";ignore prepare=False;"))
+      using (MySqlConnection c = new MySqlConnection(connection.ConnectionString + ";ignore prepare=False;"))
       {
         c.Open();
 
-        st.execSQL("DROP TABLE Test");
-        st.execSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME(6), d DATE, " +
+        executeSQL("DROP TABLE Test");
+        executeSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME(6), d DATE, " +
           "t TIME(6), ts TIMESTAMP(6), PRIMARY KEY(id))");
 
         cmd.Connection = c;
@@ -672,7 +663,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         cmd.CommandText = "SELECT ts FROM Test";
         cmd.Parameters.Clear();
-        cmd.Connection = st.conn;
+        cmd.Connection = connection;
 
         using (MySqlDataReader rdr = cmd.ExecuteReader())
         {
@@ -692,7 +683,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void TimestampValuesAreLocal()
     {
       DateTime dt = DateTime.Now;
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1, ?dt, NULL, NULL, NULL)", st.conn);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1, ?dt, NULL, NULL, NULL)", connection);
       cmd.Parameters.AddWithValue("@dt", dt);
       cmd.ExecuteNonQuery();
 
@@ -714,7 +705,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void TimestampCorrectTimezone()
     {
       DateTime dt = DateTime.Now;
-      MySqlCommand cmd = new MySqlCommand("select timediff( curtime(), utc_time() )", st.rootConn);
+      MySqlCommand cmd = new MySqlCommand("select timediff( curtime(), utc_time() )", connection);
       string s = cmd.ExecuteScalar().ToString();
       int curroffset = int.Parse(s.Substring(0, s.IndexOf(':')));
       string prevTimeZone = "";
@@ -726,14 +717,14 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.CommandText = "set @@global.time_zone = '+0:00'";
         cmd.ExecuteNonQuery();
         // Refresh time_zone value
-        st.rootConn.Close();
-        st.rootConn.Open();
+        connection.Close();
+        connection.Open();
       }
       try
       {
-        cmd.CommandText = string.Format("INSERT INTO `{0}`.Test VALUES(1, curdate(), NULL, NULL, current_timestamp())", st.conn.Database); ;
+        cmd.CommandText = string.Format("INSERT INTO `{0}`.Test VALUES(1, curdate(), NULL, NULL, current_timestamp())", connection.Database); ;
         cmd.ExecuteNonQuery();
-        cmd.CommandText = string.Format("SELECT dt,ts FROM `{0}`.Test", st.conn.Database);
+        cmd.CommandText = string.Format("SELECT dt,ts FROM `{0}`.Test", connection.Database);
         using (MySqlDataReader reader = cmd.ExecuteReader())
         {
           reader.Read();
@@ -744,9 +735,9 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.CommandText = "set @@global.time_zone = '+5:00'";
         cmd.ExecuteNonQuery();
         // Refresh time_zone value
-        st.rootConn.Close();
-        st.rootConn.Open();
-        cmd.CommandText = string.Format("SELECT dt,ts FROM `{0}`.Test", st.conn.Database);
+        connection.Close();
+        connection.Open();
+        cmd.CommandText = string.Format("SELECT dt,ts FROM `{0}`.Test", connection.Database);
         using (MySqlDataReader reader = cmd.ExecuteReader())
         {
           reader.Read();
@@ -761,8 +752,8 @@ namespace MySql.Data.MySqlClient.Tests
           // restore modified time zone if any
           cmd.CommandText = string.Format("set @@global.time_zone = '{0}'", prevTimeZone);
           cmd.ExecuteNonQuery();
-          st.rootConn.Close();
-          st.rootConn.Open();
+          connection.Close();
+          connection.Open();
         }
       }
     }
@@ -776,14 +767,14 @@ namespace MySql.Data.MySqlClient.Tests
     public void CanSaveMillisecondsPrecision3WithPrepare()
     {
 
-      if (st.Version < new Version(5, 6)) return;
+      if (ts.version < new Version(5, 6)) return;
       DateTime dt = new DateTime(2012, 3, 18, 23, 9, 7, 6);
       MySqlCommand cmd = new MySqlCommand();
 
-      st.execSQL("DROP TABLE Test");
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME(3), PRIMARY KEY(id))");
+      executeSQL("DROP TABLE Test");
+      executeSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME(3), PRIMARY KEY(id))");
 
-      using (MySqlConnection c = new MySqlConnection(st.conn.ConnectionString + ";ignore prepare=False;"))
+      using (MySqlConnection c = new MySqlConnection(connection.ConnectionString + ";ignore prepare=False;"))
       {
         c.Open();
         cmd.Connection = c;
@@ -794,7 +785,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         cmd.CommandText = "SELECT dt FROM Test";
         cmd.Parameters.Clear();
-        cmd.Connection = st.conn;
+        cmd.Connection = connection;
         MySqlDataReader rdr = cmd.ExecuteReader();
 
         while (rdr.Read())
@@ -809,20 +800,20 @@ namespace MySql.Data.MySqlClient.Tests
     public void CanSaveMillisecondsPrecision3()
     {
 
-      if (st.Version < new Version(5, 6)) return;
+      if (ts.version < new Version(5, 6)) return;
       DateTime dt = new DateTime(2012, 3, 18, 23, 9, 7, 6);
       MySqlCommand cmd = new MySqlCommand();
 
-      st.execSQL("DROP TABLE Test");
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME(3), PRIMARY KEY(id))");
-      cmd.Connection = st.conn;
+      executeSQL("DROP TABLE Test");
+      executeSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME(3), PRIMARY KEY(id))");
+      cmd.Connection = connection;
       cmd.CommandText = "INSERT INTO Test VALUES(1, ?dt)";
       cmd.Parameters.AddWithValue("?dt", dt);
       cmd.ExecuteNonQuery();
 
       cmd.CommandText = "SELECT dt FROM Test";
       cmd.Parameters.Clear();
-      cmd.Connection = st.conn;
+      cmd.Connection = connection;
       MySqlDataReader rdr = cmd.ExecuteReader();
 
       while (rdr.Read())
@@ -836,20 +827,20 @@ namespace MySql.Data.MySqlClient.Tests
     public void CanSaveMicrosecondsPrecision4()
     {
 
-      if (st.Version < new Version(5, 6)) return;
+      if (ts.version < new Version(5, 6)) return;
       DateTime dt = new DateTime(2012, 3, 18, 23, 9, 7, 6);
       MySqlCommand cmd = new MySqlCommand();
 
-      st.execSQL("DROP TABLE Test");
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME(4), PRIMARY KEY(id))");
-      cmd.Connection = st.conn;
+      executeSQL("DROP TABLE Test");
+      executeSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME(4), PRIMARY KEY(id))");
+      cmd.Connection = connection;
       cmd.CommandText = "INSERT INTO Test VALUES(1, ?dt)";
       cmd.Parameters.AddWithValue("?dt", dt);
       cmd.ExecuteNonQuery();
 
       cmd.CommandText = "SELECT dt FROM Test";
       cmd.Parameters.Clear();
-      cmd.Connection = st.conn;
+      cmd.Connection = connection;
       MySqlDataReader rdr = cmd.ExecuteReader();
 
       while (rdr.Read())
@@ -865,7 +856,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand cmd = new MySqlCommand();
       cmd.CommandText = "SELECT NOW() + INTERVAL 123456 MICROSECOND";
       cmd.Parameters.Clear();
-      cmd.Connection = st.conn;
+      cmd.Connection = connection;
       string date = cmd.ExecuteScalar().ToString();
       DateTime temp;
       Assert.True(DateTime.TryParse(date, out temp));
@@ -879,12 +870,12 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void CanDefineCurrentTimeStampAsDefaultOnDateTime()
     {
-      if (st.Version < new Version(5, 6, 5)) return;
+      if (ts.version < new Version(5, 6, 5)) return;
       MySqlCommand cmd = new MySqlCommand();
       cmd.CommandText = " CREATE TABLE t1 (id int, a DATETIME DEFAULT CURRENT_TIMESTAMP );";
       cmd.Parameters.Clear();
 
-      cmd.Connection = st.conn;
+      cmd.Connection = connection;
       var result = cmd.ExecuteNonQuery();
 
       cmd.CommandText = " INSERT INTO t1 (id) values(1);";
@@ -906,10 +897,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ReadAndWriteMicroseconds()
     {
-      if (st.Version < new Version(5, 6, 5)) return;
+      if (ts.version < new Version(5, 6, 5)) return;
       MySqlCommand cmd = new MySqlCommand();
       cmd.CommandText = "CREATE TABLE t1 (id int, t3 TIME(3), t6 TIME(6), d6 DATETIME(6));";
-      cmd.Connection = st.conn;
+      cmd.Connection = connection;
       var result = cmd.ExecuteNonQuery();
 
       DateTime milliseconds = new DateTime(1, 1, 1, 15, 45, 23, 123);
@@ -945,11 +936,11 @@ namespace MySql.Data.MySqlClient.Tests
         timeZoneHours = 13;
       }
 
-      st.ExecuteSQLAsRoot(string.Format("SET @@global.time_zone='{0}'", timeZone));
+      executeSQL(string.Format("SET @@global.time_zone='{0}'", timeZone));
 
       try
       {
-        using (MySqlConnection conn2 = (MySqlConnection)st.conn.Clone())
+        using (MySqlConnection conn2 = (MySqlConnection)connection.Clone())
         {
           conn2.Open();
           Assert.Equal(timeZoneHours, conn2.driver.timeZoneOffset);
@@ -957,7 +948,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
       finally
       {
-        st.ExecuteSQLAsRoot("SET @@global.time_zone=@@session.time_zone");
+        executeSQL("SET @@global.time_zone=@@session.time_zone");
       }
     }
   }
