@@ -38,9 +38,8 @@ namespace MySql.Data.MySqlClient.Tests
   {
     public BlobTestsSocketCompressed(TestSetup setup) : base(setup, "blobtestsocketcomp")
     {
-
     }
-    public override string OnGetConnectionStringInfo()
+    protected override string OnGetConnectionStringInfo()
     {
       return String.Format("port={0};compress=true", ts.port);
     }

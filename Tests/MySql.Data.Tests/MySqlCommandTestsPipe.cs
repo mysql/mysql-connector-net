@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2015 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -32,12 +32,19 @@ using System.Security.Authentication;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class OutputParametersBatchPrepared : OutputParametersBatch
-  {
+  #region Configs
+  public class MySqlCommandTestsPipe : MySqlCommandTests
+  {    
+
+    public MySqlCommandTestsPipe(TestSetup setup): base (setup, "mysqlcmdtestspipe")
+    {
+        
+    }
+
     protected override string OnGetConnectionStringInfo()
     {
-      prepare = true;
-      return ";allow batch=true; ignore prepare = false;";
+      return String.Format("protocol=namedpipe;pipe name={0};ssl mode=none;", ts.pipeName);
     }
   }
+  #endregion
 }

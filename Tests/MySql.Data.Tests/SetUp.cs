@@ -325,19 +325,20 @@ namespace MySql.Data.MySqlClient.Tests
     //}
 
 
-
-    //internal protected string GetPoolingConnectionString()
-    //{
-    //  string s = GetConnectionString(true);
-    //  s = s.Replace("pooling=false", "pooling=true");
-    //  return s;
-    //}
+    internal protected string GetPoolingConnectionString()
+    {
+      RootSettings.Database = baseDBName + "0";
+      string s = RootSettings.GetConnectionString(false);
+      s = s.Replace("pooling=false", "pooling=true");
+      return s;
+    }
 
 
     internal protected void KillConnection(MySqlConnection c)
     {
       int threadId = c.ServerThread;
       var root = GetConnection(true);
+      root.Open();
       MySqlCommand cmd = new MySqlCommand("KILL " + threadId, root);
       cmd.ExecuteNonQuery();
 
@@ -365,6 +366,7 @@ namespace MySql.Data.MySqlClient.Tests
         if (!processStillAlive) break;
         System.Threading.Thread.Sleep(500);
       }
+      root.Close();
     }
 
     internal protected void KillPooledConnection(string connStr)

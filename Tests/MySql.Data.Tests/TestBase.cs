@@ -31,7 +31,8 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class TestBase : IClassFixture<TestSetup>, IDisposable
   {
-    protected MySqlConnection connection;    
+    protected MySqlConnection connection;
+    protected MySqlConnection customConnection;
     protected TestSetup Setup;
     protected string TestNameSpace;
 
@@ -78,6 +79,12 @@ namespace MySql.Data.MySqlClient.Tests
     {
       return Setup.GetConnection(asRoot);
     }
+
+    protected virtual string OnGetConnectionStringInfo()
+    {
+      return Settings.GetConnectionString(true);
+    }
+
 
     protected MySqlDataReader ExecuteAsReader(string sql, MySqlConnection conn)
     {

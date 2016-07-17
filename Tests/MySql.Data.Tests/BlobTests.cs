@@ -31,8 +31,7 @@ namespace MySql.Data.MySqlClient.Tests
   public class BlobTests : TestBase, IDisposable
   {
     protected TestSetup ts;
-    protected MySqlConnection customConnection;
-
+    
     public BlobTests(TestSetup setup, String nameSpace) : base(setup, "blob")
     {
       ts = setup;
@@ -40,7 +39,7 @@ namespace MySql.Data.MySqlClient.Tests
       customConnection.Open();
     }
 
-    public virtual string OnGetConnectionStringInfo()
+    protected override string OnGetConnectionStringInfo()
     {
       return String.Format("protocol=pipe;pipe name={0};ssl mode=none;", ts.pipeName);
     }

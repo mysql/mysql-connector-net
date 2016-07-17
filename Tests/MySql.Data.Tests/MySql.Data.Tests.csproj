@@ -167,16 +167,35 @@
     <Compile Include="DateTimeTests.cs" />
     <Compile Include="EventTests.cs" />
     <Compile Include="ExceptionTests.cs" />
-    <Compile Include="Framework\Net451\TestDataTable.cs">
+    <Compile Include="MySqlDataReaderTests.cs" />
+    <Compile Include="PoolingTests.cs" />
+    <Compile Include="PreparedStatements.cs" />
+    <Compile Include="PreparedStatementsPipe.cs" />
+    <Compile Include="TestDataTable.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="GenericListener.cs" />
+    <Compile Include="GetSchemaTests.cs" />
+    <Compile Include="InstallerTests.cs" />
     <Compile Include="LanguageTests.cs" />
     <Compile Include="LoggingTests.cs" />
+    <Compile Include="Memcached.cs" />
     <Compile Include="MySqlBulkLoaderTests.cs" />
+    <Compile Include="MySqlCommandBuilderTests.cs" />
     <Compile Include="MySqlCommandTests.cs" />
+    <Compile Include="MySqlCommandTestsPipe.cs" />
+    <Compile Include="MySqlCommandTestsPipeCompressed.cs" />
+    <Compile Include="MySqlCommandTestsSharedMemory.cs" />
+    <Compile Include="MySqlCommandTestsSharedMemoryCompressed.cs" />
+    <Compile Include="MySqlCommandTestsSocketCompressed.cs" />
     <Compile Include="MySqlConnectionStringBuilderTests.cs" />
     <Compile Include="MySqlConnectionTests.cs" />
+    <Compile Include="MySqlDataAdapterTests.cs" />
+    <Compile Include="OutputParametersBatch.cs" />
+    <Compile Include="OutputParametersBatchPrepared.cs" />
+    <Compile Include="OutputParametersNoBatch.cs" />
+    <Compile Include="OutputParametersNoBatchPrepared.cs" />
+    <Compile Include="ParameterTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SetUp.cs" />
     <Compile Include="SqlServerMode.cs" />
@@ -200,6 +219,9 @@
   <ItemGroup>
     <None Include="MySql.Data.Tests.project.json" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Framework\Net451\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

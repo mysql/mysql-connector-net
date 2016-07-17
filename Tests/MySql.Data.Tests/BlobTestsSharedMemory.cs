@@ -42,7 +42,7 @@ namespace MySql.Data.MySqlClient.Tests
 
     }
 
-    public override string OnGetConnectionStringInfo()
+    protected override string OnGetConnectionStringInfo()
     {
       return String.Format("protocol=memory; shared memory name={0};ssl mode=none;", ts.sharedMemoryName);
     }
