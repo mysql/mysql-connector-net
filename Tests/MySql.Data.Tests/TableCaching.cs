@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -30,33 +30,28 @@ using System.Diagnostics;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class TableCaching : IUseFixture<SetUpClass>, IDisposable
+  public class TableCaching : TestBase
   {
-    private SetUpClass st;
 
-    public void SetFixture(SetUpClass data)
+    protected TestSetup ts;
+
+    public TableCaching(TestSetup setup) : base(setup, "tablectests")
     {
-      st = data;
-      TableCache.DumpCache();
+      ts = setup;
     }
-
-    public void Dispose()
-    {
-      st.execSQL("DROP TABLE IF EXISTS TEST");
-    }
-
+    
     [Fact]
     public void SimpleTableCaching()
     {
-      st.execSQL("CREATE TABLE test (id INT, name VARCHAR(20), name2 VARCHAR(20))");
-      st.execSQL("INSERT INTO test VALUES (1, 'boo', 'hoo'), (2, 'first', 'last'), (3, 'fred', 'flintstone')");
+      executeSQL("CREATE TABLE test (id INT, name VARCHAR(20), name2 VARCHAR(20))");
+      executeSQL("INSERT INTO test VALUES (1, 'boo', 'hoo'), (2, 'first', 'last'), (3, 'fred', 'flintstone')");
 
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
       GenericListener listener = new GenericListener();
       MySqlTrace.Listeners.Add(listener);
 
-      string connStr = st.GetConnectionString(true) + ";logging=true;table cache=true";
+      string connStr = connection.ConnectionString + ";logging=true;table cache=true";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -74,15 +69,15 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ConnectionStringExpiry()
     {
-      st.execSQL("CREATE TABLE test3 (id INT, name VARCHAR(20), name2 VARCHAR(20))");
-      st.execSQL("INSERT INTO test3 VALUES (1, 'boo', 'hoo'), (2, 'first', 'last'), (3, 'fred', 'flintstone')");
+      executeSQL("CREATE TABLE test3 (id INT, name VARCHAR(20), name2 VARCHAR(20))");
+      executeSQL("INSERT INTO test3 VALUES (1, 'boo', 'hoo'), (2, 'first', 'last'), (3, 'fred', 'flintstone')");
 
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
       GenericListener listener = new GenericListener();
       MySqlTrace.Listeners.Add(listener);
 
-      string connStr = st.GetConnectionString(true) + ";logging=true;table cache=true;default table cache age=1";
+      string connStr = connection.ConnectionString + ";logging=true;table cache=true;default table cache age=1";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -102,15 +97,15 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void SettingAgeOnCommand()
     {
-      st.execSQL("CREATE TABLE test2 (id INT, name VARCHAR(20), name2 VARCHAR(20))");
-      st.execSQL("INSERT INTO test2 VALUES (1, 'boo', 'hoo'), (2, 'first', 'last'), (3, 'fred', 'flintstone')");
+      executeSQL("CREATE TABLE test2 (id INT, name VARCHAR(20), name2 VARCHAR(20))");
+      executeSQL("INSERT INTO test2 VALUES (1, 'boo', 'hoo'), (2, 'first', 'last'), (3, 'fred', 'flintstone')");
 
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
       GenericListener listener = new GenericListener();
       MySqlTrace.Listeners.Add(listener);
 
-      string connStr = st.GetConnectionString(true) + ";logging=true;table cache=true;default table cache age=1";
+      string connStr = connection.ConnectionString + ";logging=true;table cache=true;default table cache age=1";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();

@@ -168,9 +168,20 @@
     <Compile Include="EventTests.cs" />
     <Compile Include="ExceptionTests.cs" />
     <Compile Include="MySqlDataReaderTests.cs" />
+    <Compile Include="MySQLHelperTests.cs" />
     <Compile Include="PoolingTests.cs" />
     <Compile Include="PreparedStatements.cs" />
     <Compile Include="PreparedStatementsPipe.cs" />
+    <Compile Include="PreparedStatementsPipeCompressed.cs" />
+    <Compile Include="PreparedStatementsSharedMemory.cs" />
+    <Compile Include="PreparedStatementsSharedMemoryCompressed.cs" />
+    <Compile Include="PreparedStatementsSocketCompressed.cs" />
+    <Compile Include="ProcedureParameterTests.cs" />
+    <Compile Include="ScriptExecution.cs" />
+    <Compile Include="SimpleTransactions.cs" />
+    <Compile Include="StoredProcedure.cs" />
+    <Compile Include="StoredProcedureWithAccess.cs" />
+    <Compile Include="TableCaching.cs" />
     <Compile Include="TestDataTable.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -203,6 +214,13 @@
     <Compile Include="Syntax.cs" />
     <Compile Include="Syntax2.cs" />
     <Compile Include="TestBase.cs" />
+    <Compile Include="ThreadingTests.cs" />
+    <Compile Include="TimeoutAndCancel.cs" />
+    <Compile Include="TimeoutAndCancelPipe.cs" />
+    <Compile Include="TimeoutAndCancelSharedMemory.cs" />
+    <Compile Include="TimeoutAndCancelSocketCompressed.cs" />
+    <Compile Include="Tokenizer.cs" />
+    <Compile Include="Transactions.cs" />
     <Compile Include="TypeTests.cs" />
     <Compile Include="UsageAdvisorTests.cs" />
     <Compile Include="Utils.cs" />

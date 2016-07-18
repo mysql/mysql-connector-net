@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -29,31 +29,27 @@ using System.Reflection;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class SimpleTransactions  : IUseFixture<SetUpClass>, IDisposable
+  public class SimpleTransactions  : TestBase
   {
-    private SetUpClass st;
 
-    public void SetFixture(SetUpClass data)
+    protected TestSetup ts;
+
+    public SimpleTransactions(TestSetup setup) : base(setup, "simpletrantests")
     {
-      st = data;
-      st.createTable("CREATE TABLE Test (key2 VARCHAR(1), name VARCHAR(100), name2 VARCHAR(100))", "INNODB");
+      ts = setup;
     }
 
-    public void Dispose()
-    {
-      st.execSQL("DROP TABLE IF EXISTS TEST");      
-    }
-
+    
     [Fact]
     public void TestReader()
     {
-      st.execSQL("INSERT INTO Test VALUES('P', 'Test1', 'Test2')");
+      executeSQL("INSERT INTO Test VALUES('P', 'Test1', 'Test2')");
 
-      MySqlTransaction txn = st.conn.BeginTransaction();
+      MySqlTransaction txn = connection.BeginTransaction();
       MySqlConnection c = txn.Connection;
-      Assert.Equal(st.conn, c);
+      Assert.Equal(connection, c);
       MySqlCommand cmd = new MySqlCommand("SELECT name, name2 FROM Test WHERE key2='P'",
-        st.conn, txn);
+        connection, txn);
       MySqlTransaction t2 = cmd.Transaction;
       Assert.Equal(txn, t2);
       MySqlDataReader reader = null;
@@ -80,10 +76,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void NestedTransactions()
     {
-      MySqlTransaction t1 = st.conn.BeginTransaction();
+      MySqlTransaction t1 = connection.BeginTransaction();
       //try
       //{
-        Exception ex = Assert.Throws<InvalidOperationException>(() => { st.conn.BeginTransaction(); });
+        Exception ex = Assert.Throws<InvalidOperationException>(() => { connection.BeginTransaction(); });
         Assert.Equal(ex.Message, "Nested transactions are not supported.");
         ////Assert.Fail("Exception should have been thrown");
         //t2.Rollback();
@@ -100,7 +96,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void BeginTransactionOnPreviouslyOpenConnection()
     {
-      string connStr = st.GetConnectionString(true);
+      string connStr = connection.ConnectionString;
       MySqlConnection c = new MySqlConnection(connStr);
       c.Open();
       c.Close();
@@ -122,10 +118,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact(Skip="Temporary Skip")]
     public void CommitAfterConnectionDead()
     {
-      st.execSQL("DROP TABLE IF EXISTS Test");
-      st.execSQL("CREATE TABLE Test(id INT, name VARCHAR(20))");
+      executeSQL("DROP TABLE IF EXISTS Test");
+      executeSQL("CREATE TABLE Test(id INT, name VARCHAR(20))");
 
-      string connStr = st.GetConnectionString(true) + ";pooling=false";
+      string connStr = connection.ConnectionString + ";pooling=false";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -135,7 +131,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           cmd.ExecuteNonQuery();
         }
-        st.KillConnection(c);
+        ts.KillConnection(c);
         //try
         //{
         Exception ex = Assert.Throws<InvalidOperationException>(() => trans.Commit());
@@ -155,8 +151,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void DisposingCallsRollback()
     {
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES ('a', 'b', 'c')", st.conn);
-      MySqlTransaction txn = st.conn.BeginTransaction();
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES ('a', 'b', 'c')", connection);
+      MySqlTransaction txn = connection.BeginTransaction();
       using (txn)
       {
         cmd.ExecuteNonQuery();
