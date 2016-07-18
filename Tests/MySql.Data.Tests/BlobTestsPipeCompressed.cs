@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2015 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using MySql.Data.MySqlClient;
-using MySql.Data.MySqlClient.Properties;
+
 using Xunit;
 using System.Data;
 using System.ComponentModel;
@@ -33,13 +33,20 @@ using System.Security.Authentication;
 namespace MySql.Data.MySqlClient.Tests
 {
   #region Configs
+
   [Category("Compressed")]
   public class BlobTestsPipeCompressed : BlobTests
   {
+    public BlobTestsPipeCompressed(TestSetup setup): base(setup, "blobtestpipecomp")
+    {
+
+    }
+
     protected override string OnGetConnectionStringInfo()
     {
-      return String.Format("protocol=pipe;pipe name={0};compress=true;ssl mode=none;", st.pipeName);
+      return String.Format("protocol=pipe;pipe name={0};compress=true;ssl mode=none;", ts.pipeName);
     }
   }
+
   #endregion
 }

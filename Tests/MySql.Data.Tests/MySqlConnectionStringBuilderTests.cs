@@ -27,18 +27,10 @@ using Xunit;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class MySqlConnectionStringBuilderTests : IUseFixture<SetUpClass>, IDisposable
+  public class MySqlConnectionStringBuilderTests : TestBase
   {
-    private SetUpClass st;
-
-    public void SetFixture(SetUpClass data)
+    public MySqlConnectionStringBuilderTests(TestSetup setup) : base(setup, "connection-string-builder")
     {
-      st = data;
-    }
-
-    public void Dispose()
-    {
-       //Nothing to clean
     }
 
     [Fact]

@@ -21,24 +21,20 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-#if !RT
 using System.Data;
-#endif
 
 namespace MySql.Data.MySqlClient
 {
   /// <include file='docs/MySqlTransaction.xml' path='docs/Class/*'/>
   public sealed partial class MySqlTransaction : IDisposable
   {
-    private IsolationLevel level;
-    private MySqlConnection conn;
     private bool open;
     private bool disposed = false;
 
     internal MySqlTransaction(MySqlConnection c, IsolationLevel il)
     {
-      conn = c;
-      level = il;
+      Connection = c;
+      IsolationLevel = il;
       open = true;
     }
 
@@ -61,10 +57,7 @@ namespace MySql.Data.MySqlClient
     /// determine the connection object associated with a particular 
     /// transaction created by <see cref="MySqlConnection.BeginTransaction()"/>.
     /// </remarks>
-    public new MySqlConnection Connection
-    {
-      get { return conn; }
-    }
+    public new MySqlConnection Connection { get; }
 
     /// <summary>
     /// Specifies the <see cref="IsolationLevel"/> for this transaction.
@@ -76,14 +69,11 @@ namespace MySql.Data.MySqlClient
     /// Parallel transactions are not supported. Therefore, the IsolationLevel 
     /// applies to the entire transaction.
     /// </remarks>
-    public override IsolationLevel IsolationLevel
-    {
-      get { return level; }
-    }
+    public override IsolationLevel IsolationLevel { get; }
 
     #endregion
 
-    public void Dispose()
+    public new void Dispose()
     {
       Dispose(true);
       GC.SuppressFinalize(this);
@@ -101,7 +91,7 @@ namespace MySql.Data.MySqlClient
 #endif
       if (disposing)
       {
-        if ((conn != null && conn.State == ConnectionState.Open || conn.SoftClosed) && open)
+        if ((Connection != null && Connection.State == ConnectionState.Open || Connection.SoftClosed) && open)
           Rollback();
       }
       disposed = true;
@@ -110,11 +100,11 @@ namespace MySql.Data.MySqlClient
     /// <include file='docs/MySqlTransaction.xml' path='docs/Commit/*'/>
     public override void Commit()
     {
-      if (conn == null || (conn.State != ConnectionState.Open && !conn.SoftClosed))
+      if (Connection == null || (Connection.State != ConnectionState.Open && !Connection.SoftClosed))
         throw new InvalidOperationException("Connection must be valid and open to commit transaction");
       if (!open)
         throw new InvalidOperationException("Transaction has already been committed or is not pending");
-      MySqlCommand cmd = new MySqlCommand("COMMIT", conn);
+      MySqlCommand cmd = new MySqlCommand("COMMIT", Connection);
       cmd.ExecuteNonQuery();
       open = false;
     }
@@ -122,11 +112,11 @@ namespace MySql.Data.MySqlClient
     /// <include file='docs/MySqlTransaction.xml' path='docs/Rollback/*'/>
     public override void Rollback()
     {
-      if (conn == null || (conn.State != ConnectionState.Open && !conn.SoftClosed))
+      if (Connection == null || (Connection.State != ConnectionState.Open && !Connection.SoftClosed))
         throw new InvalidOperationException("Connection must be valid and open to rollback transaction");
       if (!open)
         throw new InvalidOperationException("Transaction has already been rolled back or is not pending");
-      MySqlCommand cmd = new MySqlCommand("ROLLBACK", conn);
+      MySqlCommand cmd = new MySqlCommand("ROLLBACK", Connection);
       cmd.ExecuteNonQuery();
       open = false;
     }

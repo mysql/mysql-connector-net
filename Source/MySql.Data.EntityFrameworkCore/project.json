@@ -1,0 +1,25 @@
+{
+  "version": "1.0.0-*",
+
+  "description": "MySql.Data.EntityFrameworkCore for Entity Framework.",
+  "buildOptions": {
+    "warningsAsErrors": true,
+    "keyFile": "../../ConnectorNetPublicKey.snk",
+    "delaySign": true
+  },
+
+
+  "dependencies": {
+    "Microsoft.EntityFrameworkCore": "1.0.0",
+    "Microsoft.EntityFrameworkCore.Relational": "1.0.0",
+    "NETStandard.Library": "1.6.0",
+    "MySql.Data": "6.10.0-IR*"
+  },
+
+    "frameworks": {
+      "netstandard1.6": {
+        "imports": [ "dnxcore50", "portable-net451+win81+wp81" ]
+      }
+   }
+}
+

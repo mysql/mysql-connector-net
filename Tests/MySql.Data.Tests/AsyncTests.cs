@@ -24,7 +24,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using MySql.Data.MySqlClient;
-using MySql.Data.MySqlClient.Properties;
 using Xunit;
 using System.Data;
 #if NET_45_OR_GREATER
@@ -33,29 +32,30 @@ using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class AsyncTests : IUseFixture<SetUpClass>, IDisposable
+  public class AsyncTests : TestBase
   {
-    private SetUpClass st;
+    protected TestSetup ts;
 
-    public void SetFixture(SetUpClass data)
+    public AsyncTests(TestSetup setup) : base(setup, "async")
     {
-      st = data;    
+      ts = setup;
+      ts.CreateDatabase("1");
     }
-
+        
     [Fact]
     public void ExecuteNonQuery()
     {      
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
-      if (st.conn.State != ConnectionState.Open)
-        st.conn.Open();
+      if (connection.State != ConnectionState.Open)
+        connection.Open();
       
-      st.execSQL("CREATE TABLE test (id int)");
+      executeSQL("CREATE TABLE test (id int)");
 
-      st.execSQL("CREATE PROCEDURE spTest() BEGIN SET @x=0; REPEAT INSERT INTO test VALUES(@x); " +
+      executeSQL("CREATE PROCEDURE spTest() BEGIN SET @x=0; REPEAT INSERT INTO test VALUES(@x); " +
         "SET @x=@x+1; UNTIL @x = 300 END REPEAT; END");
 
-      MySqlCommand proc = new MySqlCommand("spTest", st.conn);
+      MySqlCommand proc = new MySqlCommand("spTest", connection);
       proc.CommandType = CommandType.StoredProcedure;
       IAsyncResult iar = proc.BeginExecuteNonQuery();
       int count = 0;
@@ -78,16 +78,16 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ExecuteReader()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
-      if (st.conn.State != ConnectionState.Open)
-        st.conn.Open();
+      if (connection.State != ConnectionState.Open)
+        connection.Open();
       
-      st.execSQL("CREATE TABLE test (id int)");
-      st.execSQL("CREATE PROCEDURE spTest() BEGIN INSERT INTO test VALUES(1); " +
+      executeSQL("CREATE TABLE test (id int)");
+      executeSQL("CREATE PROCEDURE spTest() BEGIN INSERT INTO test VALUES(1); " +
         "SELECT SLEEP(2); SELECT 'done'; END");
 
-      MySqlCommand proc = new MySqlCommand("spTest", st.conn);
+      MySqlCommand proc = new MySqlCommand("spTest", connection);
       proc.CommandType = CommandType.StoredProcedure;
       IAsyncResult iar = proc.BeginExecuteReader();
       int count = 0;
@@ -117,20 +117,15 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ThrowingExceptions()
     {
-      if (st.conn.State != ConnectionState.Open)
-        st.conn.Open();
+      if (connection.State != ConnectionState.Open)
+        connection.Open();
 
-      MySqlCommand cmd = new MySqlCommand("SELECT xxx", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT xxx", connection);
       IAsyncResult r = cmd.BeginExecuteReader();      
       Exception ex = Assert.Throws<MySqlException>(() => cmd.EndExecuteReader(r));
       Assert.Equal("Unknown column 'xxx' in 'field list'", ex.Message);
     }
 
-    public void Dispose()
-    {
-      st.execSQL("DROP TABLE IF EXISTS test");
-      st.execSQL("DROP PROCEDURE IF EXISTS spTest");
-    }
 
     #region Async
     #region PrivateMembers
@@ -143,7 +138,7 @@ namespace MySql.Data.MySqlClient.Tests
     private string statementTemplate2 = @"INSERT INTO Test (id, name) VALUES ({0}, 'a "" na;me'){1}";
     private void CreateDefaultTable()
     {
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL AUTO_INCREMENT, " +
+      executeSQL("CREATE TABLE Test (id INT NOT NULL AUTO_INCREMENT, " +
         "id2 INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME, " +
         "ts TIMESTAMP, OriginalId INT, PRIMARY KEY(id, id2))");
     }
@@ -163,7 +158,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task BulkLoadAsync()
     {
-      st.execSQL("CREATE TABLE BulkLoadTest (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      executeSQL("CREATE TABLE BulkLoadTest (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
 
       string path = System.IO.Path.GetTempFileName();
       System.IO.StreamWriter sw = new System.IO.StreamWriter(path);
@@ -172,14 +167,14 @@ namespace MySql.Data.MySqlClient.Tests
       sw.Flush();
       sw.Close();
 
-      MySqlBulkLoader loader = new MySqlBulkLoader(st.conn);
+      MySqlBulkLoader loader = new MySqlBulkLoader(connection);
       loader.TableName = "BulkLoadTest";
       loader.FileName = path;
       loader.Timeout = 0;
 
       var result = await loader.LoadAsync();
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM BulkLoadTest", st.conn);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM BulkLoadTest", connection);
       DataTable dt = new DataTable();
       da.Fill(dt);
       Assert.Equal(500, dt.Rows.Count);
@@ -191,18 +186,18 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task ExecuteNonQueryAsync()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
-      st.execSQL("CREATE TABLE NonQueryAsyncTest (id int)");
-      st.execSQL("CREATE PROCEDURE NonQueryAsyncSpTest() BEGIN SET @x=0; REPEAT INSERT INTO NonQueryAsyncTest VALUES(@x); SET @x=@x+1; UNTIL @x = 100 END REPEAT; END");
+      executeSQL("CREATE TABLE NonQueryAsyncTest (id int)");
+      executeSQL("CREATE PROCEDURE NonQueryAsyncSpTest() BEGIN SET @x=0; REPEAT INSERT INTO NonQueryAsyncTest VALUES(@x); SET @x=@x+1; UNTIL @x = 100 END REPEAT; END");
 
-      MySqlCommand proc = new MySqlCommand("NonQueryAsyncSpTest", st.conn);
+      MySqlCommand proc = new MySqlCommand("NonQueryAsyncSpTest", connection);
       proc.CommandType = CommandType.StoredProcedure;
       int result = await proc.ExecuteNonQueryAsync();
 
       Assert.NotEqual(-1, result);
 
-      MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM NonQueryAsyncTest;", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM NonQueryAsyncTest;", connection);
       cmd.CommandType = CommandType.Text;
       object cnt = cmd.ExecuteScalar();
       Assert.Equal(100, Convert.ToInt32(cnt));
@@ -211,15 +206,15 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task ExecuteReaderAsync()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
-      if (st.conn.State != ConnectionState.Open)
-        st.conn.Open();
+      if (connection.State != ConnectionState.Open)
+        connection.Open();
 
-      st.execSQL("CREATE TABLE ReaderAsyncTest (id int)");
-      st.execSQL("CREATE PROCEDURE ReaderAsyncSpTest() BEGIN INSERT INTO ReaderAsyncTest VALUES(1); SELECT SLEEP(2); SELECT 'done'; END");
+      executeSQL("CREATE TABLE ReaderAsyncTest (id int)");
+      executeSQL("CREATE PROCEDURE ReaderAsyncSpTest() BEGIN INSERT INTO ReaderAsyncTest VALUES(1); SELECT SLEEP(2); SELECT 'done'; END");
 
-      MySqlCommand proc = new MySqlCommand("ReaderAsyncSpTest", st.conn);
+      MySqlCommand proc = new MySqlCommand("ReaderAsyncSpTest", connection);
       proc.CommandType = CommandType.StoredProcedure;
 
       using (MySqlDataReader reader = await proc.ExecuteReaderAsync() as MySqlDataReader)
@@ -241,14 +236,14 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task ExecuteScalarAsync()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
-      if (st.conn.connectionState != ConnectionState.Open)
-        st.conn.Open();
+      if (connection.State != ConnectionState.Open)
+        connection.Open();
 
-      st.execSQL("CREATE PROCEDURE ScalarAsyncSpTest( IN valin VARCHAR(50), OUT valout VARCHAR(50) ) BEGIN  SET valout=valin;  SELECT 'Test'; END");
+      executeSQL("CREATE PROCEDURE ScalarAsyncSpTest( IN valin VARCHAR(50), OUT valout VARCHAR(50) ) BEGIN  SET valout=valin;  SELECT 'Test'; END");
 
-      MySqlCommand cmd = new MySqlCommand("ScalarAsyncSpTest", st.conn);
+      MySqlCommand cmd = new MySqlCommand("ScalarAsyncSpTest", connection);
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.Parameters.AddWithValue("?valin", "valuein");
       cmd.Parameters.Add(new MySqlParameter("?valout", MySqlDbType.VarChar));
@@ -264,13 +259,13 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task TransactionAsync()
     {
-      st.execSQL("Create Table TranAsyncTest(key2 varchar(50), name varchar(50), name2 varchar(50))");
-      st.execSQL("INSERT INTO TranAsyncTest VALUES('P', 'Test1', 'Test2')");
+      executeSQL("Create Table TranAsyncTest(key2 varchar(50), name varchar(50), name2 varchar(50))");
+      executeSQL("INSERT INTO TranAsyncTest VALUES('P', 'Test1', 'Test2')");
 
-      MySqlTransaction txn = await st.conn.BeginTransactionAsync();
+      MySqlTransaction txn = await connection.BeginTransactionAsync();
       MySqlConnection c = txn.Connection;
-      Assert.Equal(st.conn, c);
-      MySqlCommand cmd = new MySqlCommand("SELECT name, name2 FROM TranAsyncTest WHERE key2='P'", st.conn, txn);
+      Assert.Equal(connection, c);
+      MySqlCommand cmd = new MySqlCommand("SELECT name, name2 FROM TranAsyncTest WHERE key2='P'", connection, txn);
       MySqlTransaction t2 = cmd.Transaction;
       Assert.Equal(txn, t2);
       MySqlDataReader reader = null;
@@ -294,19 +289,21 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task ChangeDataBaseAsync()
     {
-      if (st.Version < new Version(4, 1)) return;
+      if (ts.version < new Version(4, 1)) return;
 
-      st.execSQL("CREATE TABLE ChangeDBAsyncTest (id INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME,  `multi word` int, PRIMARY KEY(id))");
-      st.execSQL("INSERT INTO ChangeDBAsyncTest (id, name) VALUES (1,'test1')");
-      st.execSQL("INSERT INTO ChangeDBAsyncTest (id, name) VALUES (2,'test2')");
-      st.execSQL("INSERT INTO ChangeDBAsyncTest (id, name) VALUES (3,'test3')");
+      executeSQL("CREATE TABLE ChangeDBAsyncTest (id INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME,  `multi word` int, PRIMARY KEY(id))");
+      executeSQL("INSERT INTO ChangeDBAsyncTest (id, name) VALUES (1,'test1')");
+      executeSQL("INSERT INTO ChangeDBAsyncTest (id, name) VALUES (2,'test2')");
+      executeSQL("INSERT INTO ChangeDBAsyncTest (id, name) VALUES (3,'test3')");
 
-      await st.conn.ChangeDataBaseAsync(st.database1);
+      await connection.ChangeDataBaseAsync(ts.baseDBName + "1");
 
-      MySqlDataAdapter da = new MySqlDataAdapter(String.Format("SELECT id, name FROM `{0}`.ChangeDBAsyncTest", st.database0), st.conn);
+      MySqlDataAdapter da = new MySqlDataAdapter(String.Format("SELECT id, name FROM `{0}`.ChangeDBAsyncTest", ts.baseDBName + "0"), connection);
       MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
       DataSet ds = new DataSet();
       da.Fill(ds);
+
+      Assert.Equal(3, ds.Tables[0].Rows.Count);
 
       ds.Tables[0].Rows[0]["id"] = 4;
       DataSet changes = ds.GetChanges();
@@ -314,13 +311,13 @@ namespace MySql.Data.MySqlClient.Tests
       ds.Merge(changes);
       ds.AcceptChanges();
       cb.Dispose();
-      await st.conn.ChangeDataBaseAsync(st.database0);
+      await connection.ChangeDataBaseAsync(ts.baseDBName + "0");
     }
 
     [Fact]
     public async Task OpenAndCloseConnectionAsync()
     {
-      string connStr2 = st.GetConnectionString(false);
+      string connStr2 = ts.GetConnection(false).ConnectionString;
       MySqlConnection c = new MySqlConnection(connStr2);
       await c.OpenAsync();
       await c.CloseAsync();
@@ -329,8 +326,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task ClearPoolAsync()
     {
-      MySqlConnection c1 = new MySqlConnection(st.GetConnectionString(true));
-      MySqlConnection c2 = new MySqlConnection(st.GetConnectionString(true));
+      MySqlConnection c1 = new MySqlConnection(ts.GetConnection(true).ConnectionString);
+      MySqlConnection c2 = new MySqlConnection(ts.GetConnection(true).ConnectionString);
       c1.Open();
       c2.Open();
       c1.Close();
@@ -342,8 +339,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task ClearAllPoolsAsync()
     {
-      MySqlConnection c1 = new MySqlConnection(st.GetConnectionString(true));
-      MySqlConnection c2 = new MySqlConnection(st.GetConnectionString(true));
+      MySqlConnection c1 = new MySqlConnection(ts.GetConnection(true).ConnectionString);
+      MySqlConnection c2 = new MySqlConnection(ts.GetConnection(true).ConnectionString);
       c1.Open();
       c2.Open();
       c1.Close();
@@ -355,7 +352,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task GetSchemaCollectionAsync()
     {
-      MySqlConnection c1 = new MySqlConnection(st.GetConnectionString(true));
+      MySqlConnection c1 = new MySqlConnection(ts.GetConnection(true).ConnectionString);
       c1.Open();
       MySqlSchemaCollection schemaColl = await c1.GetSchemaCollectionAsync(SchemaProvider.MetaCollection, null);
       c1.Close();
@@ -368,12 +365,12 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task FillAsync()
     {
-      st.execSQL("CREATE TABLE FillAsyncTest (id INT NOT NULL AUTO_INCREMENT, id2 INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME, ts TIMESTAMP, OriginalId INT, PRIMARY KEY(id, id2))");
-      st.execSQL("INSERT INTO FillAsyncTest (id, id2, name, dt) VALUES (NULL, 1, 'Name 1', Now())");
-      st.execSQL("INSERT INTO FillAsyncTest (id, id2, name, dt) VALUES (NULL, 2, NULL, Now())");
-      st.execSQL("INSERT INTO FillAsyncTest (id, id2, name, dt) VALUES (NULL, 3, '', Now())");
+      executeSQL("CREATE TABLE FillAsyncTest (id INT NOT NULL AUTO_INCREMENT, id2 INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME, ts TIMESTAMP, OriginalId INT, PRIMARY KEY(id, id2))");
+      executeSQL("INSERT INTO FillAsyncTest (id, id2, name, dt) VALUES (NULL, 1, 'Name 1', Now())");
+      executeSQL("INSERT INTO FillAsyncTest (id, id2, name, dt) VALUES (NULL, 2, NULL, Now())");
+      executeSQL("INSERT INTO FillAsyncTest (id, id2, name, dt) VALUES (NULL, 3, '', Now())");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("select * from FillAsyncTest", st.conn);
+      MySqlDataAdapter da = new MySqlDataAdapter("select * from FillAsyncTest", connection);
       DataSet ds = new DataSet();
       await da.FillAsync(ds, "FillAsyncTest");
 
@@ -392,12 +389,12 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task FillSchemaAsync()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
-      st.execSQL("CREATE PROCEDURE FillSchemaAsyncSpTest() BEGIN SELECT * FROM FillSchemaAsyncTest; END");
-      st.execSQL(@"CREATE TABLE FillSchemaAsyncTest(id INT AUTO_INCREMENT, name VARCHAR(20), PRIMARY KEY (id)) ");
+      executeSQL("CREATE PROCEDURE FillSchemaAsyncSpTest() BEGIN SELECT * FROM FillSchemaAsyncTest; END");
+      executeSQL(@"CREATE TABLE FillSchemaAsyncTest(id INT AUTO_INCREMENT, name VARCHAR(20), PRIMARY KEY (id)) ");
 
-      MySqlCommand cmd = new MySqlCommand("FillSchemaAsyncSpTest", st.conn);
+      MySqlCommand cmd = new MySqlCommand("FillSchemaAsyncSpTest", connection);
       cmd.CommandType = CommandType.StoredProcedure;
 
       MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.SchemaOnly);
@@ -413,8 +410,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task UpdateAsync()
     {
-      st.execSQL("CREATE TABLE UpdateAsyncTest (id INT NOT NULL AUTO_INCREMENT, id2 INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME, ts TIMESTAMP, OriginalId INT, PRIMARY KEY(id, id2))");
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM UpdateAsyncTest", st.conn);
+      executeSQL("CREATE TABLE UpdateAsyncTest (id INT NOT NULL AUTO_INCREMENT, id2 INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME, ts TIMESTAMP, OriginalId INT, PRIMARY KEY(id, id2))");
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM UpdateAsyncTest", connection);
       MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
       DataTable dt = new DataTable();
       da.Fill(dt);
@@ -466,7 +463,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task ExecuteScriptWithProceduresAsync()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
       string spTpl = @"CREATE PROCEDURE `ScriptWithProceduresAsyncSpTest{0}`() NOT DETERMINISTIC CONTAINS SQL SQL SECURITY DEFINER COMMENT ''  BEGIN SELECT 1,2,3; END{1}";
       statementCount = 0;
@@ -481,19 +478,19 @@ namespace MySql.Data.MySqlClient.Tests
         string stmt = String.Format(spTpl, statementCount++, null);
         Assert.Equal(stmt, e.StatementText);
       });
-      script.Connection = st.conn;
+      script.Connection = connection;
       script.Delimiter = "$$";
       int count = await script.ExecuteAsync();
       Assert.Equal(10, count);
 
-      MySqlCommand cmd = new MySqlCommand(String.Format(@"SELECT COUNT(*) FROM information_schema.routines WHERE routine_schema = '{0}' AND routine_name LIKE 'ScriptWithProceduresAsyncSpTest%'", st.database0), st.conn);
+      MySqlCommand cmd = new MySqlCommand(String.Format(@"SELECT COUNT(*) FROM information_schema.routines WHERE routine_schema = '{0}' AND routine_name LIKE 'ScriptWithProceduresAsyncSpTest%'", ts.baseDBName + "0"), connection);
       Assert.Equal(10, Convert.ToInt32(cmd.ExecuteScalar()));
     }
 
     [Fact]
     public async Task ExecuteScriptWithInsertsAsync()
     {
-      st.execSQL("CREATE TABLE ScriptWithInsertsAsyncTest (id int, name varchar(50))");
+      executeSQL("CREATE TABLE ScriptWithInsertsAsyncTest (id int, name varchar(50))");
       string queryTpl = @"INSERT INTO ScriptWithInsertsAsyncTest (id, name) VALUES ({0}, 'a "" na;me'){1}";
       statementCount = 0;
       string scriptText = String.Empty;
@@ -502,7 +499,7 @@ namespace MySql.Data.MySqlClient.Tests
         scriptText += String.Format(queryTpl, i, ";");
       }
       MySqlScript script = new MySqlScript(scriptText);
-      script.Connection = st.conn;
+      script.Connection = connection;
       script.StatementExecuted += new MySqlStatementExecutedEventHandler(delegate(object sender, MySqlScriptEventArgs e)
       {
         string stmt = String.Format(queryTpl, statementCount++, null);
@@ -512,7 +509,7 @@ namespace MySql.Data.MySqlClient.Tests
       int count = await script.ExecuteAsync();
       Assert.Equal(10, count);
 
-      MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM ScriptWithInsertsAsyncTest", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM ScriptWithInsertsAsyncTest", connection);
       Assert.Equal(10, Convert.ToInt32(cmd.ExecuteScalar()));
     }
 
@@ -522,14 +519,14 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task MSH_ExecuteNonQueryAsync()
     {
-      if (st.Version < new Version(5, 0)) return;
-      st.execSQL("CREATE TABLE HelperNonQueryAsyncTest (id int)");
-      st.execSQL("CREATE PROCEDURE HelperNonQueryAsyncSpTest() BEGIN SET @x=0; REPEAT INSERT INTO HelperNonQueryAsyncTest VALUES(@x); SET @x=@x+1; UNTIL @x = 100 END REPEAT; END");
+      if (ts.version < new Version(5, 0)) return;
+      executeSQL("CREATE TABLE HelperNonQueryAsyncTest (id int)");
+      executeSQL("CREATE PROCEDURE HelperNonQueryAsyncSpTest() BEGIN SET @x=0; REPEAT INSERT INTO HelperNonQueryAsyncTest VALUES(@x); SET @x=@x+1; UNTIL @x = 100 END REPEAT; END");
       
-      int result = await MySqlHelper.ExecuteNonQueryAsync(st.conn, "call HelperNonQueryAsyncSpTest", null);
+      int result = await MySqlHelper.ExecuteNonQueryAsync(connection, "call HelperNonQueryAsyncSpTest", null);
       Assert.NotEqual(-1, result);
 
-      MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM HelperNonQueryAsyncTest;", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM HelperNonQueryAsyncTest;", connection);
       cmd.CommandType = System.Data.CommandType.Text;
       object cnt = cmd.ExecuteScalar();
       Assert.Equal(100, Convert.ToInt32(cnt));
@@ -538,13 +535,13 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task MSH_ExecuteDataSetAsync()
     {
-      st.execSQL("CREATE TABLE HelperDataSetAsyncTable1 (`key` INT, PRIMARY KEY(`key`))");
-      st.execSQL("CREATE TABLE HelperDataSetAsyncTable2 (`key` INT, PRIMARY KEY(`key`))");
-      st.execSQL("INSERT INTO HelperDataSetAsyncTable1 VALUES (1)");
-      st.execSQL("INSERT INTO HelperDataSetAsyncTable2 VALUES (1)");
+      executeSQL("CREATE TABLE HelperDataSetAsyncTable1 (`key` INT, PRIMARY KEY(`key`))");
+      executeSQL("CREATE TABLE HelperDataSetAsyncTable2 (`key` INT, PRIMARY KEY(`key`))");
+      executeSQL("INSERT INTO HelperDataSetAsyncTable1 VALUES (1)");
+      executeSQL("INSERT INTO HelperDataSetAsyncTable2 VALUES (1)");
 
       string sql = "SELECT HelperDataSetAsyncTable1.key FROM HelperDataSetAsyncTable1 WHERE HelperDataSetAsyncTable1.key=1; SELECT HelperDataSetAsyncTable2.key FROM HelperDataSetAsyncTable2 WHERE HelperDataSetAsyncTable2.key=1";
-      DataSet ds = await MySqlHelper.ExecuteDatasetAsync(st.conn, sql, null);
+      DataSet ds = await MySqlHelper.ExecuteDatasetAsync(connection, sql, null);
 
       Assert.Equal(2, ds.Tables.Count);
       Assert.Equal(1, ds.Tables[0].Rows.Count);
@@ -556,15 +553,15 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task MSH_ExecuteReaderAsync()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
-      if (st.conn.State != ConnectionState.Open)
-        st.conn.Open();
+      if (connection.State != ConnectionState.Open)
+        connection.Open();
 
-      st.execSQL("CREATE TABLE HelperReaderAsyncTest (id int)");
-      st.execSQL("CREATE PROCEDURE HelperReaderAsyncSpTest() BEGIN INSERT INTO HelperReaderAsyncTest VALUES(1); SELECT SLEEP(2); SELECT 'done'; END");
+      executeSQL("CREATE TABLE HelperReaderAsyncTest (id int)");
+      executeSQL("CREATE PROCEDURE HelperReaderAsyncSpTest() BEGIN INSERT INTO HelperReaderAsyncTest VALUES(1); SELECT SLEEP(2); SELECT 'done'; END");
 
-      using (MySqlDataReader reader = await MySqlHelper.ExecuteReaderAsync(st.conn, "call HelperReaderAsyncSpTest"))
+      using (MySqlDataReader reader = await MySqlHelper.ExecuteReaderAsync(connection, "call HelperReaderAsyncSpTest"))
       {
         Assert.NotNull(reader);
         Assert.True(reader.Read(), "can read");
@@ -573,7 +570,7 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal("done", reader.GetString(0));
         reader.Close();
 
-        MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM HelperReaderAsyncTest", st.conn);
+        MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM HelperReaderAsyncTest", connection);
         cmd.CommandType = CommandType.Text;
         object cnt = cmd.ExecuteScalar();
         Assert.Equal(1, Convert.ToInt32(cnt));
@@ -583,15 +580,15 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task MSH_ExecuteScalarAsync()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
-      if (st.conn.connectionState != ConnectionState.Open)
-        st.conn.Open();
+      if (connection.State != ConnectionState.Open)
+        connection.Open();
 
-      st.execSQL("CREATE TABLE HelperScalarAsyncTest (`key` INT, PRIMARY KEY(`key`))");
-      st.execSQL("INSERT INTO HelperScalarAsyncTest VALUES (1)");
+      executeSQL("CREATE TABLE HelperScalarAsyncTest (`key` INT, PRIMARY KEY(`key`))");
+      executeSQL("INSERT INTO HelperScalarAsyncTest VALUES (1)");
 
-      object result = await MySqlHelper.ExecuteScalarAsync(st.conn, "SELECT HelperScalarAsyncTest.key FROM HelperScalarAsyncTest WHERE HelperScalarAsyncTest.key=1;");
+      object result = await MySqlHelper.ExecuteScalarAsync(connection, "SELECT HelperScalarAsyncTest.key FROM HelperScalarAsyncTest WHERE HelperScalarAsyncTest.key=1;");
       Assert.Equal(1, int.Parse(result.ToString()));
     }
     #endregion

@@ -1,0 +1,99 @@
+{
+  "version": "6.10.0-IR-*",
+  "description": "MySql.Data.MySqlClient .Net Core Class Library",
+  "authors": [ "Oracle" ],
+  "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
+
+  "packOptions": {
+    "projectUrl": "http://dev.mysql.com/downloads/",
+    "licenseUrl": "http://www.gnu.org/licenses/old-licenses/gpl-2.0.html",
+    "iconUrl": "http://www.mysql.com/common/logos/logo-mysql-170x115.png",
+    "tags": [ "MySql", ".NET Connector", "MySql Connector/NET", "netcore", ".Net Core", "MySql Conector/Net Core", "coreclr", "C/NET", "C/Net Core" ],
+    "content": "content/Readme.txt",
+    "releaseNotes": "Review Readme.txt for details.",
+    "requireLicenseAcceptance": true
+  },
+
+  "buildOptions": {
+    "warningsAsErrors": false,
+    "optimize": true,
+    "xmlDoc": false,
+    "keyFile": "../../ConnectorNetPublicKey.snk",
+    "preserveCompilationContext": true,
+    "delaySign": true,
+    "publicSign": false
+  },
+
+  "frameworks": {
+    "netstandard1.6": {
+      "imports": [
+        "DNXCORE50"
+      ],
+      "buildOptions": {
+        "define": [ "NETCORE10" ],
+        "warningsAsErrors": false,
+        "embed": [ "keywords.txt" ],
+        "resource": [ "**/*.resx" ],
+        "compile": {
+          "exclude": [
+            "Framework/Net451/**/*.*",
+            "Replication/**/*.*",
+            "zlib/**/*.*",
+            "TimeStream.cs"
+          ],
+          "excludeFiles": [
+            "Properties/VersionInfo.cs",
+            "CommandBuilder.cs",
+            "dataadapter.cs",
+            "Installer.cs",
+            "MySqlClientPermission.cs",
+            "MySqlClientPermissionAttribute.cs",
+            "MySqlConfiguration.cs",
+            "MySqlPromotableTransaction.cs",
+            "MySqlSecurityPermission.cs",
+            "SystemPerformanceMonitor.cs",
+            "common/MyNetworkStream.cs",
+            "common/NamedPipeStream.cs",
+            "common/NativeMethods.cs",
+            "common/SHA1.cs",
+            "common/SharedMemoryStream.cs",
+            "common/SocketStream.cs",
+            "CompressedStream.cs"
+          ]
+        },
+        "optimize": true,
+        "xmlDoc": false,
+        "keyFile": "../../ConnectorNetPublicKey.snk",
+        "preserveCompilationContext": true,
+        "delaySign": true,
+        "publicSign": false
+      },
+      "dependencies": {
+        "Microsoft.Extensions.Configuration.Json": "1.0.0",
+        "NETStandard.Library": "1.6.0",
+        "System.Collections.NonGeneric": "4.0.1",
+        "System.ComponentModel": "4.0.1",
+        "System.ComponentModel.Annotations": "4.1.0",
+        "System.ComponentModel.Primitives": "4.1.0",
+        "System.ComponentModel.TypeConverter": "4.1.0",
+        "System.Data.Common": "4.1.0",
+        "System.Data.SqlClient": "4.1.0",
+        "System.Diagnostics.Process": "4.1.0",
+        "System.Diagnostics.TextWriterTraceListener": "4.0.0",
+        "System.IO.Compression": "4.1.0",
+        "System.IO.FileSystem.Primitives": "4.0.1",
+        "System.IO.MemoryMappedFiles": "4.0.0",
+        "System.IO.Pipes": "4.0.0",
+        "System.Linq.Expressions": "4.1.0",
+        "System.Net.NameResolution": "4.0.0",
+        "System.Net.Security": "4.0.0",
+        "System.Net.Sockets": "4.1.0",
+        "System.Reflection": "4.1.0",
+        "System.Reflection.TypeExtensions": "4.1.0",
+        "System.Security.Principal.Windows": "4.0.0",
+        "System.Text.Encoding.CodePages": "4.0.1",
+        "System.Threading.Timer": "4.0.1"
+      }
+    }
+  }
+}

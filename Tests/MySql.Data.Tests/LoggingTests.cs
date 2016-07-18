@@ -28,46 +28,35 @@ using System.Diagnostics;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class LoggingTests : IUseFixture<SetUpClass>, IDisposable
+  public class LoggingTests : TestBase
   {
-    private SetUpClass st;
-    private string connString = string.Empty;
 
-    public string conn
-    {      
-       get { 
-        connString = st.conn.ConnectionString;
-        connString += st.csAdditions;
-        return connString;
-      }
-    }
-
-    public void SetFixture(SetUpClass data)
-    {      
-      st = data;
-      st.csAdditions = ";logging=True;";      
-      st.createTable("CREATE TABLE Test (id int, name VARCHAR(200))", "INNODB");      
-    }
-
-    public void Dispose()
+    public LoggingTests(TestSetup setup) : base(setup, "logging")
     {
-      st.execSQL("DROP TABLE IF EXISTS TEST");
+
+    }
+
+    protected override void Init()
+    {
+      base.Init();
+      Setup.Settings.Logging = true;
     }
 
     [Fact]
     public void SimpleLogging()
     {
-      st.execSQL("INSERT INTO Test VALUES (1, 'Test1')");
-      st.execSQL("INSERT INTO Test VALUES (2, 'Test2')");
-      st.execSQL("INSERT INTO Test VALUES (3, 'Test3')");
-      st.execSQL("INSERT INTO Test VALUES (4, 'Test4')");
+      executeSQL("CREATE TABLE Test(id INT, name VARCHAR(200))");
+      executeSQL("INSERT INTO Test VALUES (1, 'Test1')");
+      executeSQL("INSERT INTO Test VALUES (2, 'Test2')");
+      executeSQL("INSERT INTO Test VALUES (3, 'Test3')");
+      executeSQL("INSERT INTO Test VALUES (4, 'Test4')");
 
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
       GenericListener listener = new GenericListener();
       MySqlTrace.Listeners.Add(listener);
 
-      using (MySqlConnection logConn = new MySqlConnection(this.conn))
+      using (MySqlConnection logConn = new MySqlConnection(Settings.GetConnectionString(true)))
       {
         logConn.Open();
         MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", logConn);
@@ -86,15 +75,14 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Warnings()
     {
-      st.execSQL("DROP TABLE IF EXISTS Test");
-      st.execSQL("CREATE TABLE Test(id INT, name VARCHAR(5))");
+      executeSQL("CREATE TABLE Test(id INT, name VARCHAR(5))");
 
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
       GenericListener listener = new GenericListener();
       MySqlTrace.Listeners.Add(listener);
 
-      using (MySqlConnection logConnection = new MySqlConnection(this.conn))
+      using (MySqlConnection logConnection = new MySqlConnection(Settings.GetConnectionString(true)))
       {
         logConnection.Open();
         MySqlCommand cmd = new MySqlCommand("INSERT IGNORE INTO Test VALUES (1, 'abcdef')", logConnection);
@@ -125,8 +113,8 @@ namespace MySql.Data.MySqlClient.Tests
       for (int i = 0; i < 400; i++)
         sql.Append("a");
       sql.Append("'");
-      
-      using (MySqlConnection logConnection = new MySqlConnection(this.conn))
+
+      using (MySqlConnection logConnection = new MySqlConnection(Settings.GetConnectionString(true)))
       {
         logConnection.Open();
         MySqlCommand cmd = new MySqlCommand(sql.ToString(), logConnection);
@@ -152,7 +140,7 @@ namespace MySql.Data.MySqlClient.Tests
                 3 AS `AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA3`,  4 AS `AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4`,
                 5 AS `AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA5`,  6 AS `AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA6`;";
 
-      using (MySqlConnection logConnection = new MySqlConnection(this.conn))
+      using (MySqlConnection logConnection = new MySqlConnection(Settings.GetConnectionString(true)))
       {
         logConnection.Open();
         MySqlCommand cmd = new MySqlCommand(sql, logConnection);

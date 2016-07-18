@@ -21,25 +21,22 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 using System.Data;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Threading;
-#if NET_45_OR_GREATER
 using System.Threading.Tasks;
-#endif
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class MySqlCommandTests : SpecialFixtureWithCustomConnectionString
+  public class MySqlCommandTests : TestBase
   {
-    protected override void Dispose(bool disposing)
+    protected TestSetup ts;    
+
+    public MySqlCommandTests(TestSetup setup, string nameSpace) : base(setup, "command")
     {
-      st.execSQL("DROP TABLE IF EXISTS TEST");
-      base.Dispose(disposing);
+      ts = setup;
+      customConnection = new MySqlConnection(ts.GetConnection(false).ConnectionString + ";" + OnGetConnectionStringInfo());
+      customConnection.Open();
     }
 
     /// <summary>
@@ -48,67 +45,52 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void InvalidCast()
     {
-      MySqlConnection con = st.rootConn;
-      string sql = @"drop function if exists MyTwice; create function MyTwice( val int ) returns int begin return val * 2; end;";
-      MySqlCommand cmd = new MySqlCommand(sql, con);
-      cmd.ExecuteNonQuery();
-      cmd.CommandText = "drop procedure if exists spMyTwice; create procedure spMyTwice( out result int, val int ) begin set result = val * 2; end;";
-      cmd.ExecuteNonQuery();
-      try
-      {
-        cmd.CommandText = "drop user 'tester2'@'localhost'";
-        cmd.ExecuteNonQuery();
-      }
-      catch (Exception)
-      {
-      }
-      cmd.CommandText = "CREATE USER 'tester2'@'localhost' IDENTIFIED BY '123';";
-      cmd.ExecuteNonQuery();
-      cmd.CommandText = "grant execute on function `MyTwice` to 'tester2'@'localhost';";
-      cmd.ExecuteNonQuery();
-      cmd.CommandText = "grant execute on procedure `spMyTwice` to 'tester2'@'localhost'";
-      cmd.ExecuteNonQuery();
-      cmd.CommandText = "grant select on table mysql.proc to 'tester2'@'localhost'";
-      cmd.ExecuteNonQuery();
-      cmd.CommandText = "flush privileges";
-      cmd.ExecuteNonQuery();
-      MySqlConnection con2 = new MySqlConnection(st.rootConn.ConnectionString);
-      con2.Settings.UserID = "tester2";
-      con2.Settings.Password = "123";
+      executeAsRoot(String.Format("CREATE FUNCTION `{0}`.`MyTwice`( val int ) RETURNS INT BEGIN return val * 2; END;", Settings.Database));
+      executeAsRoot(String.Format("CREATE PROCEDURE `{0}`.`spMyTwice`( out result int, val int ) BEGIN set result = val * 2; END;", Settings.Database));
+      string user = CreateUser("1", "123");
+      executeAsRoot(String.Format("GRANT EXECUTE ON FUNCTION `{0}`.`MyTwice` TO '{1}'@'localhost';", Settings.Database, user));
+      executeAsRoot(String.Format("GRANT EXECUTE ON PROCEDURE `{0}`.`spMyTwice` TO '{1}'@'localhost'", Settings.Database, user));
+      executeAsRoot("GRANT SELECT ON TABLE mysql.proc TO 'user1'@'localhost'");
+      executeAsRoot("FLUSH PRIVILEGES");
+
+      MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(customConnection.ConnectionString);
+      connStr.UserID = user;
+      connStr.Password = "123";
+      MySqlConnection con = new MySqlConnection(connStr.GetConnectionString(true));
 
       // Invoke the function
-      cmd.Connection = con2;
-      con2.Open();
-      cmd.CommandText = "MyTwice";
-      cmd.CommandType = CommandType.StoredProcedure;
-      cmd.Parameters.Add(new MySqlParameter("val", System.DBNull.Value));
-      cmd.Parameters.Add("@p", MySqlDbType.Int32);
-      cmd.Parameters[1].Direction = ParameterDirection.ReturnValue;
-      cmd.Parameters[0].Value = 20;
-      cmd.ExecuteNonQuery();
-      con2.Close();
-      Assert.Equal(cmd.Parameters[1].Value, 40);
+      var cmd = con.CreateCommand();
+      using (con)
+      {
+        con.Open();
+        cmd.CommandText = "MyTwice";
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.Add(new MySqlParameter("val", System.DBNull.Value));
+        cmd.Parameters.Add("@p", MySqlDbType.Int32);
+        cmd.Parameters[1].Direction = ParameterDirection.ReturnValue;
+        cmd.Parameters[0].Value = 20;
+        cmd.ExecuteNonQuery();
+        Assert.Equal(cmd.Parameters[1].Value, 40);
 
-      con2.Open();
-      cmd.CommandText = "spMyTwice";
-      cmd.CommandType = CommandType.StoredProcedure;
-      cmd.Parameters.Clear();
-      cmd.Parameters.Add(new MySqlParameter("result", System.DBNull.Value));
-      cmd.Parameters.Add("val", MySqlDbType.Int32);
-      cmd.Parameters[0].Direction = ParameterDirection.Output;
-      cmd.Parameters[1].Value = 20;
-      cmd.ExecuteNonQuery();
-      con2.Close();
-      Assert.Equal(cmd.Parameters[0].Value, 40);
+        cmd.CommandText = "spMyTwice";
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.Clear();
+        cmd.Parameters.Add(new MySqlParameter("result", System.DBNull.Value));
+        cmd.Parameters.Add("val", MySqlDbType.Int32);
+        cmd.Parameters[0].Direction = ParameterDirection.Output;
+        cmd.Parameters[1].Value = 20;
+        cmd.ExecuteNonQuery();
+        Assert.Equal(cmd.Parameters[0].Value, 40);
+      }
     }
 
 
     [Fact]
     public void InsertTest()
     {
-      st.execSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
+      executeSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
       // do the insert
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id,name) VALUES(10,'Test')", st.conn);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id,name) VALUES(10,'Test')", customConnection);
       int cnt = cmd.ExecuteNonQuery();
       Assert.True(cnt == 1, "Insert Count");
 
@@ -134,14 +116,14 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void UpdateTest()
     {
-      st.execSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
-      st.execSQL("INSERT INTO Test (id,name) VALUES(10, 'Test')");
-      st.execSQL("INSERT INTO Test (id,name) VALUES(11, 'Test2')");
+      executeSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
+      executeSQL("INSERT INTO Test (id,name) VALUES(10, 'Test')");
+      executeSQL("INSERT INTO Test (id,name) VALUES(11, 'Test2')");
 
       // do the update
-      MySqlCommand cmd = new MySqlCommand("UPDATE Test SET name='Test3' WHERE id=10 OR id=11", st.conn);
+      MySqlCommand cmd = new MySqlCommand("UPDATE Test SET name='Test3' WHERE id=10 OR id=11", customConnection);
       MySqlConnection c = cmd.Connection;
-      Assert.Equal(st.conn, c);
+      Assert.Equal(connection, c);
       int cnt = cmd.ExecuteNonQuery();
       Assert.Equal(2, cnt);
 
@@ -171,12 +153,12 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void DeleteTest()
     {
-      st.execSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
-      st.execSQL("INSERT INTO Test (id, name) VALUES(1, 'Test')");
-      st.execSQL("INSERT INTO Test (id, name) VALUES(2, 'Test2')");
+      executeSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
+      executeSQL("INSERT INTO Test (id, name) VALUES(1, 'Test')");
+      executeSQL("INSERT INTO Test (id, name) VALUES(2, 'Test2')");
 
       // make sure we get the right value back out
-      MySqlCommand cmd = new MySqlCommand("DELETE FROM Test WHERE id=1 or id=2", st.conn);
+      MySqlCommand cmd = new MySqlCommand("DELETE FROM Test WHERE id=1 or id=2", customConnection);
       int delcnt = cmd.ExecuteNonQuery();
       Assert.Equal(2, delcnt);
 
@@ -189,24 +171,14 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void CtorTest()
     {
-      st.execSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
-      MySqlTransaction txn = st.conn.BeginTransaction();
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", st.conn);
+      executeSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
+      MySqlTransaction txn = connection.BeginTransaction();
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", customConnection);
 
       MySqlCommand clone = new MySqlCommand(cmd.CommandText, (MySqlConnection)cmd.Connection,
         (MySqlTransaction)cmd.Transaction);
       clone.Parameters.AddWithValue("?test", 1);
       txn.Rollback();
-    }
-
-    [Fact]
-    public void CloneCommand()
-    {
-      MySqlCommand cmd = new MySqlCommand();
-      MySqlCommand newCommand = cmd.Clone();
-#if !RT
-      IDbCommand newCommand2 = (IDbCommand)(cmd as ICloneable).Clone();
-#endif
     }
 
     [Fact]
@@ -252,7 +224,7 @@ namespace MySql.Data.MySqlClient.Tests
               "CASCADE) TYPE=INNODB DEFAULT CHARACTER SET cp1251 COLLATE cp1251_ukrainian_ci";
               */
 
-      MySqlCommand cmd = new MySqlCommand(sql, st.conn);
+      MySqlCommand cmd = new MySqlCommand(sql, customConnection);
       cmd.ExecuteNonQuery();
     }
 
@@ -260,12 +232,10 @@ namespace MySql.Data.MySqlClient.Tests
     /// Bug #12245  	using Prepare() on an insert command causes null parameters to convert to "0"
     /// </summary>
     [Fact]
-    public void InsertingPreparedNulls()
+    public virtual void InsertingPreparedNulls()
     {
-      if (st.Version < new Version(4, 1)) return;
-
-      st.execSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1, ?str)", st.conn);
+      executeSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1, ?str)", customConnection);
       cmd.Parameters.Add("?str", MySqlDbType.VarChar);
       cmd.Prepare();
 
@@ -286,10 +256,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void PreparedInsertUsingReader()
     {
-      if (st.Version < new Version(4, 1)) return;
-
-      st.execSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1, 'Test')", st.conn);
+      executeSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1, 'Test')", customConnection);
       cmd.Prepare();
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
@@ -304,24 +272,22 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !RT
     /// <summary>
     /// Bug #7248 There is already an open DataReader associated with this Connection which must 
     /// </summary>
-    [Fact]
-    public void GenWarnings()
-    {
-      st.execSQL("CREATE TABLE Test (id INT, dt DATETIME)");
-      st.execSQL("INSERT INTO Test VALUES (1, NOW())");
-      st.execSQL("INSERT INTO Test VALUES (2, NOW())");
-      st.execSQL("INSERT INTO Test VALUES (3, NOW())");
+    //[Fact]
+    //public void GenWarnings()
+    //{
+    //  executeSQL("CREATE TABLE Test (id INT, dt DATETIME)");
+    //  executeSQL("INSERT INTO Test VALUES (1, NOW())");
+    //  executeSQL("INSERT INTO Test VALUES (2, NOW())");
+    //  executeSQL("INSERT INTO Test VALUES (3, NOW())");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test WHERE dt = '" +
-        DateTime.Now + "'", st.conn);
-      DataSet ds = new DataSet();
-      da.Fill(ds);
-    }
-#endif
+    //  MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test WHERE dt = '" +
+    //    DateTime.Now + "'", connection);
+    //  DataSet ds = new DataSet();
+    //  da.Fill(ds);
+    //}
 
     /// <summary>
     /// Bug #11991 ExecuteScalar 
@@ -329,10 +295,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void CloseReaderAfterFailedConvert()
     {
-      st.execSQL("CREATE TABLE Test (dt DATETIME)");
-      st.execSQL("INSERT INTO Test VALUES ('00-00-0000 00:00:00')");
+      executeSQL("CREATE TABLE Test (dt DATETIME)");
+      executeSQL("INSERT INTO Test VALUES ('00-00-0000 00:00:00')");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", customConnection);
       try
       {
         cmd.ExecuteScalar();
@@ -341,7 +307,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
       }
 
-      st.conn.BeginTransaction();
+      connection.BeginTransaction();
     }
 
     /// <summary>
@@ -350,7 +316,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ExecuteWithOneBadQuery()
     {
-      MySqlCommand command = new MySqlCommand("SELECT 1; SELECT * FROM foo", st.conn);
+      MySqlCommand command = new MySqlCommand("SELECT 1; SELECT * FROM foo", customConnection);
       try
       {
         command.ExecuteScalar();
@@ -421,14 +387,14 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void SqlInjection1()
     {
-      st.execSQL("DROP TABLE IF EXISTS Test");
-      st.execSQL("CREATE TABLE Test(name VARCHAR(100)) ENGINE=MyISAM DEFAULT CHARSET=utf8");
-      st.execSQL("INSERT INTO Test VALUES ('name1'), ('name2'), ('name3')");
+      executeSQL("DROP TABLE IF EXISTS Test");
+      executeSQL("CREATE TABLE Test(name VARCHAR(100)) ENGINE=MyISAM DEFAULT CHARSET=utf8");
+      executeSQL("INSERT INTO Test VALUES ('name1'), ('name2'), ('name3')");
 
-      MySqlCommand cnt = new MySqlCommand("SELECT COUNT(*) FROM Test", st.conn);
+      MySqlCommand cnt = new MySqlCommand("SELECT COUNT(*) FROM Test", customConnection);
       Int64 count = (Int64)cnt.ExecuteScalar();
 
-      MySqlCommand cmd = new MySqlCommand("DELETE FROM Test WHERE name=?name", st.conn);
+      MySqlCommand cmd = new MySqlCommand("DELETE FROM Test WHERE name=?name", customConnection);
       cmd.Parameters.Add("?name", MySqlDbType.VarChar);
       cmd.Parameters[0].Value = "\u2032 OR 1=1;-- --";
       cmd.ExecuteNonQuery();
@@ -442,16 +408,17 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void UseAffectedRows()
     {
-      st.execSQL("CREATE TABLE Test (id INT, name VARCHAR(20))");
-      st.execSQL("INSERT INTO Test VALUES (1, 'A')");
-      st.execSQL("INSERT INTO Test VALUES (2, 'B')");
-      st.execSQL("INSERT INTO Test VALUES (3, 'C')");
+      executeSQL("CREATE TABLE Test (id INT, name VARCHAR(20))");
+      executeSQL("INSERT INTO Test VALUES (1, 'A')");
+      executeSQL("INSERT INTO Test VALUES (2, 'B')");
+      executeSQL("INSERT INTO Test VALUES (3, 'C')");
 
-      MySqlCommand cmd = new MySqlCommand("UPDATE Test SET name='C' WHERE id=3", st.conn);
+      MySqlCommand cmd = new MySqlCommand("UPDATE Test SET name='C' WHERE id=3", customConnection);
       Assert.Equal(1, cmd.ExecuteNonQuery());
 
-      string conn_str = st.GetConnectionString(true) + ";use affected rows=true";
-      using (MySqlConnection c = new MySqlConnection(conn_str))
+      MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Settings.GetConnectionString(true));
+      connStr.UseAffectedRows = true;
+      using (MySqlConnection c = new MySqlConnection(connStr.GetConnectionString(true)))
       {
         c.Open();
         cmd.Connection = c;
@@ -465,8 +432,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void DontAllowBatching()
     {
-      string connStr = st.GetConnectionString(true) + ";allow batch=false;character set=utf8";
-      using (MySqlConnection c = new MySqlConnection(connStr))
+      MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Settings.GetConnectionString(true));
+      connStr.AllowBatch = false;
+      connStr.CharacterSet = "utf8";
+      using (MySqlConnection c = new MySqlConnection(connStr.GetConnectionString(true)))
       {
         c.Open();
         MySqlCommand cmd = new MySqlCommand("SELECT 1", c);
@@ -477,12 +446,12 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void TableCommandType()
     {
-      st.execSQL("CREATE TABLE Test (id INT, name VARCHAR(20))");
-      st.execSQL("INSERT INTO Test VALUES (1, 'A')");
-      st.execSQL("CREATE TABLE Test1 (id INT, name VARCHAR(20))");
-      st.execSQL("INSERT INTO Test1 VALUES (2, 'B')");
+      executeSQL("CREATE TABLE Test (id INT, name VARCHAR(20))");
+      executeSQL("INSERT INTO Test VALUES (1, 'A')");
+      executeSQL("CREATE TABLE Test1 (id INT, name VARCHAR(20))");
+      executeSQL("INSERT INTO Test1 VALUES (2, 'B')");
 
-      MySqlCommand cmd = new MySqlCommand("Test,Test1", st.conn);
+      MySqlCommand cmd = new MySqlCommand("Test,Test1", customConnection);
       cmd.CommandType = CommandType.TableDirect;
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
@@ -500,7 +469,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void HelperTest()
     {
-      string connStr = st.GetConnectionString(true);
+      string connStr = connection.ConnectionString;
       using (MySqlDataReader reader = MySqlHelper.ExecuteReader(connStr, "SHOW TABLES"))
       {
         while (reader.Read())
@@ -515,16 +484,15 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void SyntaxErrorWithCloseConnection()
     {
-      string connStr = st.GetConnectionString(true);
-      using (MySqlConnection c = new MySqlConnection(connStr))
-      {
-        c.Open();
-        MySqlCommand cmd = new MySqlCommand("SELE 1", c);
-        Exception ex = Assert.Throws<MySqlException>(() => cmd.ExecuteReader(CommandBehavior.CloseConnection));
-
-        Assert.Equal("You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'SELE 1' at line 1", ex.Message);
-        Assert.True(c.State == ConnectionState.Closed);
-      }
+      MySqlConnection c = new MySqlConnection(customConnection.ConnectionString);
+      c.Open();
+      MySqlCommand cmd = new MySqlCommand("SELE 1", c);
+      var exception = Record.Exception(() => cmd.ExecuteReader(CommandBehavior.CloseConnection));
+      Assert.NotNull(exception);
+      Assert.IsType<MySqlException>(exception);
+      MySqlException ex = exception as MySqlException;
+      Assert.Equal("You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'SELE 1' at line 1", ex.Message);
+      Assert.True(c.State == ConnectionState.Closed);
     }
 
     /// <summary>
@@ -533,87 +501,11 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void EmptyOrJustSemiCommand()
     {
-      MySqlCommand cmd = new MySqlCommand("", st.conn);
+      MySqlCommand cmd = new MySqlCommand("", customConnection);
       cmd.CommandText = ";";
       MySqlException ex = Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());
       // Error: 1065  Message: Query was empty
       Assert.Equal(1065, ex.Number);
-    }
-
-#if !RT
-    /// <summary>
-    /// Bug #59616	Only INSERTs are batched
-    /// </summary>
-    [Fact]
-    public void BatchUpdatesAndDeletes()
-    {
-      st.execSQL("CREATE TABLE test (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(20))");
-      st.execSQL("INSERT INTO test VALUES (1, 'boo'), (2, 'boo'), (3, 'boo')");
-
-      MySqlTrace.Listeners.Clear();
-      MySqlTrace.Switch.Level = SourceLevels.All;
-      GenericListener listener = new GenericListener();
-      MySqlTrace.Listeners.Add(listener);
-
-      string connStr = st.GetConnectionString(true) + ";logging=true;allow batch=true";
-      using (MySqlConnection c = new MySqlConnection(connStr))
-      {
-        c.Open();
-        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM test", c);
-        MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
-        da.UpdateCommand = cb.GetUpdateCommand();
-        da.UpdateCommand.UpdatedRowSource = UpdateRowSource.None;
-        da.UpdateBatchSize = 100;
-
-        DataTable dt = new DataTable();
-        da.Fill(dt);
-
-        dt.Rows[0]["name"] = "boo2";
-        dt.Rows[1]["name"] = "boo2";
-        dt.Rows[2]["name"] = "boo2";
-        da.Update(dt);
-      }
-
-      Assert.Equal(1, listener.Find("Query Opened: UPDATE"));
-    }
-#endif
-
-    [Fact]
-    public void ExecuteReaderReturnsReaderAfterCancel()
-    {
-      st.execSQL("DROP TABLE IF EXISTS TableWithDateAsPrimaryKey");
-      st.execSQL("DROP TABLE IF EXISTS TableWithStringAsPrimaryKey");
-      st.createTable("CREATE TABLE TableWithDateAsPrimaryKey(PrimaryKey date NOT NULL, PRIMARY KEY  (PrimaryKey))", "InnoDB");
-      st.createTable("CREATE TABLE TableWithStringAsPrimaryKey(PrimaryKey nvarchar(50) NOT NULL, PRIMARY KEY  (PrimaryKey))", "InnoDB");
-
-      string connStr = st.GetConnectionString(true);
-      using (MySqlConnection connection = new MySqlConnection(connStr))
-      {
-        connection.Open();
-        MySqlCommand command = new MySqlCommand("SELECT PrimaryKey FROM TableWithDateAsPrimaryKey", connection);
-#if RT
-        MySqlDataReader reader = command.ExecuteReader(CommandBehavior.KeyInfo);
-        while (reader.Read()) ;
-#else
-        IDataReader reader = command.ExecuteReader(CommandBehavior.KeyInfo);
-        DataTable dataTableSchema = reader.GetSchemaTable();
-#endif
-        command.Cancel();
-        reader.Close();
-
-        command = new MySqlCommand("SELECT PrimaryKey FROM TableWithStringAsPrimaryKey", connection);
-        reader = command.ExecuteReader(CommandBehavior.KeyInfo);
-        Assert.NotNull(reader);
-
-#if RT
-        while (reader.Read()) ;
-        Assert.Equal("PrimaryKey", reader.GetName(0));
-#else
-        dataTableSchema = reader.GetSchemaTable();
-        Assert.True("PrimaryKey" == (string)dataTableSchema.Rows[0][dataTableSchema.Columns[0]]);
-#endif
-        reader.Close();
-      }
     }
 
     /// <summary>
@@ -624,13 +516,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void CommandTextIsNull()
     {
-      using (MySqlConnection conn = new MySqlConnection(st.GetConnectionString(true)))
-      {
-        conn.Open();
-        MySqlCommand cmd = new MySqlCommand(null, conn);
-        Exception ex = Assert.Throws<InvalidOperationException>(() => cmd.ExecuteReader());
-        Assert.True(ex.Message != String.Empty);
-      }
+      MySqlCommand cmd = new MySqlCommand(null, customConnection);
+      Exception ex = Assert.Throws<InvalidOperationException>(() => cmd.ExecuteReader());
+      Assert.True(ex.Message != String.Empty);
     }
 
     /// <summary>
@@ -640,102 +528,33 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void LongLastInsertId()
     {
-      using (MySqlConnection conn = new MySqlConnection(st.GetConnectionString(true)))
+      string sql = @"CREATE TABLE longids (id BIGINT NOT NULL AUTO_INCREMENT, PRIMARY KEY (id));
+                       alter table longids AUTO_INCREMENT = 2147483640;";
+      MySqlCommand cmd = new MySqlCommand(sql, customConnection);
+      cmd.ExecuteNonQuery();
+      long seed = 2147483640;
+      for (int i = 1; i < 10; ++i)
       {
-        conn.Open();
-        string sql = @"CREATE TABLE longids (id BIGINT NOT NULL AUTO_INCREMENT, PRIMARY KEY (id));
-alter table longids AUTO_INCREMENT = 2147483640;";
-        MySqlCommand cmd = new MySqlCommand(sql, conn);
+        cmd.CommandText = "INSERT INTO longids VALUES ();";
         cmd.ExecuteNonQuery();
-        long seed = 2147483640;
-        for (int i = 1; i < 10; ++i)
-        {
-          cmd.CommandText = "INSERT INTO longids VALUES ();";
-          cmd.ExecuteNonQuery();
-          Assert.Equal(seed++, cmd.LastInsertedId);
-        }
-        conn.Close();
+        Assert.Equal(seed++, cmd.LastInsertedId);
       }
     }
 
-    [Fact]
-    public void CommandWithoutSpacesTest()
-    {
-      string[] queries = new string[] { "select`user`from`mysql`.`user`;",
-                                       "select(left('test',1));",
-                                       "SET@test='test';",
-                                       "do(1);",
-                                       "commit",
-                                       "rollback",
-                                       //"use", //it fails because invalid syntax error
-                                       "begin",
-                                       //"end", //it fails because invalid syntax error
-                                       "use`" + st.database0 + "`;",
-                                       "select'test';",
-                                       "select'1'=1;" };
-
-      string logQuery = "SELECT argument FROM mysql.general_log WHERE argument = '{0}'";
-
-      st.ExecuteSQLAsRoot("SET GLOBAL log_output = 'TABLE'");
-      st.ExecuteSQLAsRoot("SET GLOBAL general_log = 'ON'");
-
-      MySqlConnection dbConn = new MySqlConnection(st.GetConnectionString(st.rootUser, st.rootPassword, true));
-      try
-      {
-        dbConn.Open();
-        using (MySqlCommand cmd = new MySqlCommand())
-        {
-          cmd.Connection = dbConn;
-          for (int ctr = 0; ctr < queries.Length; ctr++)
-          {
-            cmd.CommandText = queries[ctr];
-
-            cmd.CommandType = CommandType.Text;
-            //try
-            //{
-            cmd.ExecuteNonQuery();
-            //}
-            //catch(Exception) { }
-
-            //verify that the query executed has not the call statement
-            cmd.CommandText = string.Format(logQuery, queries[ctr].Replace("'", "''").Replace(";", ""));
-            using (MySqlDataReader reader = cmd.ExecuteReader())
-            {
-              while (reader.Read())
-              {
-                Assert.False(reader[0].ToString().Contains("call"));
-              }
-            }
-          }
-        }
-      }
-      catch (Exception ex)
-      {
-        throw ex;
-      }
-      finally
-      {
-        dbConn.Close();
-      }
-    }
-
-#if NET_45_OR_GREATER
     #region Async
     [Fact]
     public async Task ExecuteNonQueryAsync()
     {
-      if (st.Version < new Version(5, 0)) return;
+      executeSQL("CREATE TABLE CMDNonQueryAsyncTest (id int)");
+      executeSQL("CREATE PROCEDURE CMDNonQueryAsyncSpTest() BEGIN SET @x=0; REPEAT INSERT INTO CMDNonQueryAsyncTest VALUES(@x); SET @x=@x+1; UNTIL @x = 100 END REPEAT; END");
 
-      st.execSQL("CREATE TABLE CMDNonQueryAsyncTest (id int)");
-      st.execSQL("CREATE PROCEDURE CMDNonQueryAsyncSpTest() BEGIN SET @x=0; REPEAT INSERT INTO CMDNonQueryAsyncTest VALUES(@x); SET @x=@x+1; UNTIL @x = 100 END REPEAT; END");
-
-      MySqlCommand proc = new MySqlCommand("CMDNonQueryAsyncSpTest", st.conn);
+      MySqlCommand proc = new MySqlCommand("CMDNonQueryAsyncSpTest", customConnection);
       proc.CommandType = CommandType.StoredProcedure;
       int result = await proc.ExecuteNonQueryAsync();
 
       Assert.NotEqual(-1, result);
 
-      MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM CMDNonQueryAsyncTest;", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM CMDNonQueryAsyncTest;", customConnection);
       cmd.CommandType = CommandType.Text;
       object cnt = cmd.ExecuteScalar();
       Assert.Equal(100, Convert.ToInt32(cnt));
@@ -744,15 +563,10 @@ alter table longids AUTO_INCREMENT = 2147483640;";
     [Fact]
     public async Task ExecuteReaderAsync()
     {
-      if (st.Version < new Version(5, 0)) return;
+      executeSQL("CREATE TABLE CMDReaderAsyncTest (id int)");
+      executeSQL("CREATE PROCEDURE CMDReaderAsyncSpTest() BEGIN INSERT INTO CMDReaderAsyncTest VALUES(1); SELECT SLEEP(2); SELECT 'done'; END");
 
-      if (st.conn.State != ConnectionState.Open)
-        st.conn.Open();
-
-      st.execSQL("CREATE TABLE CMDReaderAsyncTest (id int)");
-      st.execSQL("CREATE PROCEDURE CMDReaderAsyncSpTest() BEGIN INSERT INTO CMDReaderAsyncTest VALUES(1); SELECT SLEEP(2); SELECT 'done'; END");
-
-      MySqlCommand proc = new MySqlCommand("CMDReaderAsyncSpTest", st.conn);
+      MySqlCommand proc = new MySqlCommand("CMDReaderAsyncSpTest", customConnection);
       proc.CommandType = CommandType.StoredProcedure;
 
       using (MySqlDataReader reader = await proc.ExecuteReaderAsync() as MySqlDataReader)
@@ -774,14 +588,9 @@ alter table longids AUTO_INCREMENT = 2147483640;";
     [Fact]
     public async Task ExecuteScalarAsync()
     {
-      if (st.Version < new Version(5, 0)) return;
+      executeSQL("CREATE PROCEDURE CMDScalarAsyncSpTest( IN valin VARCHAR(50), OUT valout VARCHAR(50) ) BEGIN  SET valout=valin;  SELECT 'Test'; END");
 
-      if (st.conn.connectionState != ConnectionState.Open)
-        st.conn.Open();
-
-      st.execSQL("CREATE PROCEDURE CMDScalarAsyncSpTest( IN valin VARCHAR(50), OUT valout VARCHAR(50) ) BEGIN  SET valout=valin;  SELECT 'Test'; END");
-
-      MySqlCommand cmd = new MySqlCommand("CMDScalarAsyncSpTest", st.conn);
+      MySqlCommand cmd = new MySqlCommand("CMDScalarAsyncSpTest", customConnection);
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.Parameters.AddWithValue("?valin", "valuein");
       cmd.Parameters.Add(new MySqlParameter("?valout", MySqlDbType.VarChar));
@@ -792,6 +601,84 @@ alter table longids AUTO_INCREMENT = 2147483640;";
       Assert.Equal("valuein", cmd.Parameters[1].Value);
     }
     #endregion
+
+    #region Not Core Compatible
+
+#if !NETCORE10
+
+    /// <summary>
+    /// Bug #59616	Only INSERTs are batched
+    /// </summary>
+    [Fact]
+    public void BatchUpdatesAndDeletes()
+    {
+      executeSQL("CREATE TABLE test (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(20))");
+      executeSQL("INSERT INTO test VALUES (1, 'boo'), (2, 'boo'), (3, 'boo')");
+
+      MySqlTrace.Listeners.Clear();
+      MySqlTrace.Switch.Level = SourceLevels.All;
+      GenericListener listener = new GenericListener();
+      MySqlTrace.Listeners.Add(listener);
+
+      var connectionStringCustom = customConnection.ConnectionString; 
+
+      MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(connectionStringCustom);
+      connStr.AllowBatch = true;
+      connStr.Logging = true;
+      using (MySqlConnection c = new MySqlConnection(connStr.GetConnectionString(true)))
+      {
+        c.Open();
+        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM test", c);
+        MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
+        da.UpdateCommand = cb.GetUpdateCommand();
+        da.UpdateCommand.UpdatedRowSource = UpdateRowSource.None;
+        da.UpdateBatchSize = 100;
+
+        DataTable dt = new DataTable();
+        da.Fill(dt);
+
+        dt.Rows[0]["name"] = "boo2";
+        dt.Rows[1]["name"] = "boo2";
+        dt.Rows[2]["name"] = "boo2";
+        da.Update(dt);
+      }
+
+      Assert.Equal(1, listener.Find("Query Opened: UPDATE"));
+    }
+
+    [Fact]
+    public void ExecuteReaderReturnsReaderAfterCancel()
+    {
+      executeSQL("CREATE TABLE TableWithDateAsPrimaryKey(PrimaryKey date NOT NULL, PRIMARY KEY  (PrimaryKey)) ENGINE=InnoDB");
+      executeSQL("CREATE TABLE TableWithStringAsPrimaryKey(PrimaryKey nvarchar(50) NOT NULL, PRIMARY KEY  (PrimaryKey)) ENGINE=InnoDB");
+
+      MySqlCommand command = new MySqlCommand("SELECT PrimaryKey FROM TableWithDateAsPrimaryKey", customConnection);
+      IDataReader reader = command.ExecuteReader(CommandBehavior.KeyInfo);
+      DataTable dataTableSchema = reader.GetSchemaTable();
+      command.Cancel();
+      reader.Close();
+
+      command = new MySqlCommand("SELECT PrimaryKey FROM TableWithStringAsPrimaryKey", customConnection);
+      reader = command.ExecuteReader(CommandBehavior.KeyInfo);
+      Assert.NotNull(reader);
+
+      dataTableSchema = reader.GetSchemaTable();
+      Assert.True("PrimaryKey" == (string)dataTableSchema.Rows[0][dataTableSchema.Columns[0]]);
+      reader.Close();
+    }
+
+    [Fact]
+    public void CloneCommand()
+    {
+      MySqlCommand cmd = new MySqlCommand();
+      MySqlCommand newCommand = cmd.Clone();
+      IDbCommand newCommand2 = (IDbCommand)(cmd as ICloneable).Clone();
+    }
+
+    
+    
 #endif
+    #endregion
+
   }
 }

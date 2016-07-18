@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2015 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using MySql.Data.MySqlClient;
-using MySql.Data.MySqlClient.Properties;
+
 using Xunit;
 using System.Data;
 using System.ComponentModel;
@@ -35,9 +35,12 @@ namespace MySql.Data.MySqlClient.Tests
   #region Configs
   public class MySqlCommandTestsSharedMemory : MySqlCommandTests
   {
+    public MySqlCommandTestsSharedMemory(TestSetup setup) : base(setup, "mysqlcmdtssharedmem")
+    {     
+    }
     protected override string OnGetConnectionStringInfo()
     {
-      return String.Format("protocol=sharedmemory; shared memory name={0};ssl mode=none;", st.memoryName);
+      return String.Format("protocol=sharedmemory; shared memory name={0};ssl mode=none;", ts.sharedMemoryName);
     }
   }
   #endregion

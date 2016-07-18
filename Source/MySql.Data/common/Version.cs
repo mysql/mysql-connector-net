@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+=======
+// Copyright © 2004, 2016 Oracle and/or its affiliates. All rights reserved.
+>>>>>>> remotes/origin/6.10
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -22,43 +26,38 @@
 
 using System;
 using MySql.Data.MySqlClient;
-using MySql.Data.MySqlClient.Properties;
 
-namespace MySql.Data.Common
+
+namespace MySql.Data.MySqlClient.Common
 {
   /// <summary>
   /// Summary description for Version.
   /// </summary>
   internal struct DBVersion
   {
-    private int major;
-    private int minor;
-    private int build;
-    private string srcString;
+    private readonly string _srcString;
 
     public DBVersion(string s, int major, int minor, int build)
     {
+<<<<<<< HEAD
       this.major = major;
       this.minor = minor;
       this.build = build;
       srcString = s;
       IsEnterprise = s.ToLowerInvariant().Contains("-enterprise-");
+=======
+      Major = major;
+      Minor = minor;
+      Build = build;
+      _srcString = s;
+>>>>>>> remotes/origin/6.10
     }
 
-    public int Major
-    {
-      get { return major; }
-    }
+    public int Major { get; }
 
-    public int Minor
-    {
-      get { return minor; }
-    }
+    public int Minor { get; }
 
-    public int Build
-    {
-      get { return build; }
-    }
+    public int Build { get; }
 
     public bool IsEnterprise
     {
@@ -93,15 +92,15 @@ namespace MySql.Data.Common
 
     public bool isAtLeast(int majorNum, int minorNum, int buildNum)
     {
-      if (major > majorNum) return true;
-      if (major == majorNum && minor > minorNum) return true;
-      if (major == majorNum && minor == minorNum && build >= buildNum) return true;
+      if (Major > majorNum) return true;
+      if (Major == majorNum && Minor > minorNum) return true;
+      if (Major == majorNum && Minor == minorNum && Build >= buildNum) return true;
       return false;
     }
 
     public override string ToString()
     {
-      return srcString;
+      return _srcString;
     }
 
   }

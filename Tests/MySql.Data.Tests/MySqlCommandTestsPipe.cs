@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using MySql.Data.MySqlClient;
-using MySql.Data.MySqlClient.Properties;
+
 using Xunit;
 using System.Data;
 using System.ComponentModel;
@@ -34,10 +34,16 @@ namespace MySql.Data.MySqlClient.Tests
 {
   #region Configs
   public class MySqlCommandTestsPipe : MySqlCommandTests
-  {
+  {    
+
+    public MySqlCommandTestsPipe(TestSetup setup): base (setup, "mysqlcmdtestspipe")
+    {
+        
+    }
+
     protected override string OnGetConnectionStringInfo()
     {
-      return String.Format("protocol=namedpipe;pipe name={0};ssl mode=none;", st.pipeName);
+      return String.Format("protocol=namedpipe;pipe name={0};ssl mode=none;", ts.pipeName);
     }
   }
   #endregion

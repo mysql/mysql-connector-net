@@ -25,13 +25,17 @@ using System.Collections.Generic;
 using System.Text;
 using Xunit;
 using MySql.Data.Types;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class TypeTests
+  public class TypeTests : TestBase
   {
+    public TypeTests(TestSetup setup) : base(setup, "typetests")
+    {
+   
+    }
+
     /// <summary>
     /// Test fix for http://bugs.mysql.com/bug.php?id=40555
     /// Make MySql.Data.Types.MySqlDateTime serializable.
@@ -46,7 +50,8 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(11, dt.Hour);
       Assert.Equal(38, dt.Minute);
       Assert.Equal(1, dt.Second);
-      BinaryFormatter bf = new BinaryFormatter();
+      System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf = 
+        new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
       MemoryStream ms = new MemoryStream(1024);
       bf.Serialize(ms, dt);
       ms.Position = 0;

@@ -1,4 +1,4 @@
-// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc.
+// Copyright © 2004, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -23,9 +23,10 @@
 using System;
 using System.Data;
 using System.Globalization;
+using System.Linq;
 using System.Text;
+using MySql.Data.MySqlClient.Common;
 using MySql.Data.Types;
-using MySql.Data.MySqlClient.Properties;
 
 namespace MySql.Data.MySqlClient
 {
@@ -34,12 +35,11 @@ namespace MySql.Data.MySqlClient
   /// </summary>
   internal class StoredProcedure : PreparableStatement
   {
-    private string outSelect;
-    private string resolvedCommandText;
-    private bool serverProvidingOutputParameters;
+    private string _outSelect;
 
     // Prefix used for to generate inout or output parameters names
     internal const string ParameterPrefix = "_cnet_param_";
+    private string resolvedCommandText;
 
     public StoredProcedure(MySqlCommand cmd, string text)
       : base(cmd, text)
@@ -48,17 +48,10 @@ namespace MySql.Data.MySqlClient
 
     private MySqlParameter GetReturnParameter()
     {
-      if (Parameters != null)
-        foreach (MySqlParameter p in Parameters)
-          if (p.Direction == ParameterDirection.ReturnValue)
-            return p;
-      return null;
+      return Parameters?.Cast<MySqlParameter>().FirstOrDefault(p => p.Direction == ParameterDirection.ReturnValue);
     }
 
-    public bool ServerProvidingOutputParameters
-    {
-      get { return serverProvidingOutputParameters; }
-    }
+    public bool ServerProvidingOutputParameters { get; private set; }
 
     public override string ResolvedCommandText
     {
@@ -154,9 +147,9 @@ namespace MySql.Data.MySqlClient
     public override void Resolve(bool preparing)
     {
       // check to see if we are already resolved
-      if (resolvedCommandText != null) return;
+      if (ResolvedCommandText != null) return;
 
-      serverProvidingOutputParameters = Driver.SupportsOutputParameters && preparing;
+      ServerProvidingOutputParameters = Driver.SupportsOutputParameters && preparing;
 
       // first retrieve the procedure definition from our
       // procedure cache
@@ -180,7 +173,7 @@ namespace MySql.Data.MySqlClient
     {
       StringBuilder setSql = new StringBuilder();
 
-      if (serverProvidingOutputParameters) return setSql.ToString();
+      if (ServerProvidingOutputParameters) return setSql.ToString();
 
       string delimiter = String.Empty;
       foreach (MySqlParameter p in parms)
@@ -220,7 +213,7 @@ namespace MySql.Data.MySqlClient
         string pName = "@" + p.BaseName;
         string uName = "@" + ParameterPrefix + p.BaseName;
 
-        bool useRealVar = p.Direction == ParameterDirection.Input || serverProvidingOutputParameters;
+        bool useRealVar = p.Direction == ParameterDirection.Input || ServerProvidingOutputParameters;
         callSql.AppendFormat(CultureInfo.InvariantCulture, "{0}{1}", delimiter, useRealVar ? pName : uName);
         delimiter = ", ";
       }
@@ -241,7 +234,7 @@ namespace MySql.Data.MySqlClient
         if (p.Direction == ParameterDirection.Input) continue;
         if ((p.Direction == ParameterDirection.InputOutput ||
             p.Direction == ParameterDirection.Output) &&
-            serverProvidingOutputParameters) continue;
+            ServerProvidingOutputParameters) continue;
         string pName = "@" + p.BaseName;
         string uName = "@" + ParameterPrefix + p.BaseName;
 
@@ -254,7 +247,7 @@ namespace MySql.Data.MySqlClient
       if (command.Connection.Settings.AllowBatch && !preparing)
         return String.Format(";SELECT {0}", outSql.ToString());
 
-      outSelect = String.Format("SELECT {0}", outSql.ToString());
+      _outSelect = String.Format("SELECT {0}", outSql.ToString());
       return String.Empty;
     }
 
@@ -310,10 +303,10 @@ namespace MySql.Data.MySqlClient
     public override void Close(MySqlDataReader reader)
     {
       base.Close(reader);
-      if (String.IsNullOrEmpty(outSelect)) return;
+      if (String.IsNullOrEmpty(_outSelect)) return;
       if ((reader.CommandBehavior & CommandBehavior.SchemaOnly) != 0) return;
 
-      MySqlCommand cmd = new MySqlCommand(outSelect, command.Connection);
+      MySqlCommand cmd = new MySqlCommand(_outSelect, command.Connection);
       using (MySqlDataReader rdr = cmd.ExecuteReader(reader.CommandBehavior))
       {
         ProcessOutputParameters(rdr);

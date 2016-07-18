@@ -64,7 +64,7 @@ namespace MySql.Data.MySqlClient
         singlePhaseEnlistment.Aborted();
         DriverTransactionManager.RemoveDriverInTransaction(baseTransaction);
 
-        driver.CurrentTransaction = null;
+        driver.currentTransaction = null;
 
         if (connection.State == ConnectionState.Closed)
           connection.CloseFully();
@@ -77,7 +77,7 @@ namespace MySql.Data.MySqlClient
       simpleTransaction.Commit();
       singlePhaseEnlistment.Committed();
       DriverTransactionManager.RemoveDriverInTransaction(baseTransaction);
-      connection.driver.CurrentTransaction = null;
+      connection.driver.currentTransaction = null;
 
       if (connection.State == ConnectionState.Closed)
         connection.CloseFully();
@@ -184,7 +184,7 @@ namespace MySql.Data.MySqlClient
     {
       lock (driversInUse.SyncRoot)
       {
-        driversInUse[driver.CurrentTransaction.BaseTransaction.GetHashCode()] = driver;
+        driversInUse[driver.currentTransaction.BaseTransaction.GetHashCode()] = driver;
       }
     }
 

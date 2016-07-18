@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2015 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using MySql.Data.MySqlClient;
-using MySql.Data.MySqlClient.Properties;
+
 using Xunit;
 using System.Data;
 using System.ComponentModel;
@@ -33,10 +33,16 @@ using System.Security.Authentication;
 namespace MySql.Data.MySqlClient.Tests
 {
   public class PreparedStatementsPipe : PreparedStatements
-  {
+  {    
+
+    public PreparedStatementsPipe(TestSetup setup) : base (setup, "preparedstatementspipe")
+    {
+      ts = setup;
+    }
+
     protected override string OnGetConnectionStringInfo()
     {
-      return string.Format(";ignore prepare=false;protocol=pipe;pipe name={0};ssl mode=none;", st.pipeName);
+      return string.Format(";ignore prepare=false;protocol=pipe;pipe name={0};ssl mode=none;", ts.pipeName);
     }
   }
 }

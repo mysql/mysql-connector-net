@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using MySql.Data.MySqlClient;
-using MySql.Data.MySqlClient.Properties;
+
 using Xunit;
 using System.Data;
 using System.ComponentModel;
@@ -33,12 +33,17 @@ using System.Security.Authentication;
 namespace MySql.Data.MySqlClient.Tests
 {
   #region Configs
+
   [Category("Compressed")]
   public class BlobTestsSharedMemoryCompressed : BlobTests
   {
+    public BlobTestsSharedMemoryCompressed(TestSetup setup) : base (setup, "blobtestssharedmc")
+    {
+
+    }      
     protected override string OnGetConnectionStringInfo()
     {
-      return String.Format("protocol=memory; shared memory name={0};compress=true;ssl mode=none;", st.memoryName);
+      return String.Format("protocol=memory; shared memory name={0};compress=true;ssl mode=none;", ts.sharedMemoryName);
     }
   }
   #endregion

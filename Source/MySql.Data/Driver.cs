@@ -1,4 +1,4 @@
-// Copyright © 2004, 2015, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,40 +21,26 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections;
-using System.Globalization;
-using System.Text;
-using MySql.Data.Common;
-using MySql.Data.Types;
-using MySql.Data.MySqlClient.Properties;
-using System.Diagnostics;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Security;
+using System.Text;
+using MySql.Data.MySqlClient.Common;
+using MySql.Data.Types;
 
 namespace MySql.Data.MySqlClient
 {
   /// <summary>
   /// Summary description for BaseDriver.
   /// </summary>
-  internal class Driver : IDisposable
+  internal partial class Driver : IDisposable
   {
     protected Encoding encoding;
-    protected MySqlConnectionStringBuilder connectionString;
-    protected bool isOpen;
+    protected MySqlConnectionStringBuilder ConnectionString;
     protected DateTime creationTime;
     protected string serverCharSet;
-    protected int serverCharSetIndex;
     protected Dictionary<string,string> serverProps;
-    protected Dictionary<int,string> charSets;
-    protected long maxPacketSize;
     internal int timeZoneOffset;
-    private DateTime idleSince;    
-
-#if !RT
-    protected MySqlPromotableTransaction currentTransaction;
-    protected bool inActiveUse;
-#endif
-    protected MySqlPool pool;
     private bool firstResult;
     protected IDriver handler;
     internal MySqlDataReader reader;
@@ -65,21 +51,17 @@ namespace MySql.Data.MySqlClient
     /// For pooled connections, time when the driver was
     /// put into idle queue
     /// </summary>
-    public DateTime IdleSince
-    {
-      get { return idleSince; }
-      set { idleSince = value; }
-    }
+    public DateTime IdleSince { get; set; }
 
     public Driver(MySqlConnectionStringBuilder settings)
     {
       encoding = Encoding.GetEncoding("UTF-8");
       if (encoding == null)
         throw new MySqlException(Resources.DefaultEncodingNotFound);
-      connectionString = settings;
+      ConnectionString = settings;
       serverCharSet = "utf8";
-      serverCharSetIndex = -1;
-      maxPacketSize = 1024;
+      ConnectionCharSetIndex = -1;
+      MaxPacketSize = 1024;
       handler = new NativeDriver(this);
     }
 
@@ -90,110 +72,64 @@ namespace MySql.Data.MySqlClient
 
     #region Properties
 
-    public int ThreadID
-    {
-      get { return handler.ThreadId; }
-    }
+    public int ThreadID => handler.ThreadId;
 
-    public DBVersion Version
-    {
-      get { return handler.Version; }
-    }
+    public DBVersion Version => handler.Version;
 
     public MySqlConnectionStringBuilder Settings
     {
-      get { return connectionString; }
-      set { connectionString = value; }
+      get { return ConnectionString; }
+      set { ConnectionString = value; }
     }
-
     public Encoding Encoding
     {
       get { return encoding; }
       set { encoding = value; }
     }
 
-#if !RT
-    public MySqlPromotableTransaction CurrentTransaction
-    {
-      get { return currentTransaction; }
-      set { currentTransaction = value; }
-    }
+#if !NETCORE10
+    public MySqlPromotableTransaction currentTransaction { get; set; }
 
-    public bool IsInActiveUse
-    {
-      get { return inActiveUse; }
-      set { inActiveUse = value; }
-    }
+    public bool IsInActiveUse { get; set; }
 #endif
-    public bool IsOpen
-    {
-      get { return isOpen; }
-    }
 
-    public MySqlPool Pool
-    {
-      get { return pool; }
-      set { pool = value; }
-    }
+    public bool IsOpen { get; protected set; }
 
-    public long MaxPacketSize
-    {
-      get { return maxPacketSize; }
-    }
+    public MySqlPool Pool { get; set; }
 
-    internal int ConnectionCharSetIndex
-    {
-      get { return serverCharSetIndex; }
-      set { serverCharSetIndex = value; }
-    }
+    public long MaxPacketSize { get; protected set; }
 
-    internal Dictionary<int,string> CharacterSets
-    {
-      get { return charSets; }
-    }
+    protected internal int ConnectionCharSetIndex { get; set; }
 
-    public bool SupportsOutputParameters
-    {
-      get { return Version.isAtLeast(5, 5, 0); }
-    }
+    protected internal Dictionary<int,string> CharacterSets { get; protected set; }
 
-    public bool SupportsBatch
-    {
-      get { return (handler.Flags & ClientFlags.MULTI_STATEMENTS) != 0; }
-    }
+    public bool SupportsOutputParameters => Version.isAtLeast(5, 5, 0);
 
-    public bool SupportsConnectAttrs
-    {
-      get { return (handler.Flags & ClientFlags.CONNECT_ATTRS) != 0; }
-    }
+    public bool SupportsBatch => (handler.Flags & ClientFlags.MULTI_STATEMENTS) != 0;
 
-    public bool SupportsPasswordExpiration
-    {
-      get { return (handler.Flags & ClientFlags.CAN_HANDLE_EXPIRED_PASSWORD) != 0; }
-    }
+    public bool SupportsConnectAttrs => (handler.Flags & ClientFlags.CONNECT_ATTRS) != 0;
+
+    public bool SupportsPasswordExpiration => (handler.Flags & ClientFlags.CAN_HANDLE_EXPIRED_PASSWORD) != 0;
 
     public bool IsPasswordExpired { get; internal set; }
-
     #endregion
 
     public string Property(string key)
     {
-      return (string)serverProps[key];
+      return serverProps[key];
     }
 
     public bool ConnectionLifetimeExpired()
     {
       TimeSpan ts = DateTime.Now.Subtract(creationTime);
-      if (Settings.ConnectionLifeTime != 0 &&
-        ts.TotalSeconds > Settings.ConnectionLifeTime)
-        return true;
-      return false;
+      return Settings.ConnectionLifeTime != 0 &&
+             ts.TotalSeconds > Settings.ConnectionLifeTime;
     }
 
     public static Driver Create(MySqlConnectionStringBuilder settings)
     {
       Driver d = null;
-#if !RT
+
       try
       {
         if (MySqlTrace.QueryAnalysisEnabled || settings.Logging || settings.UseUsageAdvisor)
@@ -206,12 +142,6 @@ namespace MySql.Data.MySqlClient
         //Only rethrow if InnerException is not a SecurityException. If it is a SecurityException then 
         //we couldn't initialize MySqlTrace because we don't have unmanaged code permissions. 
       }
-#else
-      if (settings.Logging || settings.UseUsageAdvisor)
-      {
-        throw new NotImplementedException( "Logging not supported in this WinRT release." );
-      }
-#endif
       if (d == null)
         d = new Driver(settings);
 
@@ -238,7 +168,7 @@ namespace MySql.Data.MySqlClient
     {
       creationTime = DateTime.Now;
       handler.Open();
-      isOpen = true;
+      IsOpen = true;
     }
 
     public virtual void Close()
@@ -295,23 +225,22 @@ namespace MySql.Data.MySqlClient
       // then we are done.
       if (!Settings.ConnectionReset && !firstConfigure) return;
 
-      string charSet = connectionString.CharacterSet;
-      if (charSet == null || charSet.Length == 0)
+      string charSet = ConnectionString.CharacterSet;
+      if (string.IsNullOrEmpty(charSet))
       {
-        if (serverCharSetIndex >= 0 && charSets.ContainsKey(serverCharSetIndex))
-          charSet = (string)charSets[serverCharSetIndex];
+        if (ConnectionCharSetIndex >= 0 && CharacterSets.ContainsKey(ConnectionCharSetIndex))
+          charSet = CharacterSets[ConnectionCharSetIndex];
         else
           charSet = serverCharSet;
       }
 
       if (serverProps.ContainsKey("max_allowed_packet"))
-        maxPacketSize = Convert.ToInt64(serverProps["max_allowed_packet"]);
+        MaxPacketSize = Convert.ToInt64(serverProps["max_allowed_packet"]);
 
       // now tell the server which character set we will send queries in and which charset we
       // want results in
       MySqlCommand charSetCmd = new MySqlCommand("SET character_set_results=NULL",
-                        connection);
-      charSetCmd.InternallyCreated = true;
+        connection) {InternallyCreated = true};
 
       string clientCharSet;
       serverProps.TryGetValue("character_set_client", out clientCharSet);
@@ -326,10 +255,7 @@ namespace MySql.Data.MySqlClient
       }
       charSetCmd.ExecuteNonQuery();
 
-      if (charSet != null)
-        Encoding = CharSetMap.GetEncoding(Version, charSet);
-      else
-        Encoding = CharSetMap.GetEncoding(Version, "utf-8");
+      Encoding = CharSetMap.GetEncoding(Version, charSet ?? "utf-8");
 
       handler.Configure();
     }
@@ -366,7 +292,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    private int GetTimeZoneOffset( MySqlConnection con )
+    private int GetTimeZoneOffset(MySqlConnection con )
     {
       MySqlCommand cmd = new MySqlCommand("SELECT TIMEDIFF(NOW(), UTC_TIMESTAMP())", con);
       TimeSpan? timeZoneDiff = cmd.ExecuteScalar() as TimeSpan?;
@@ -390,10 +316,10 @@ namespace MySql.Data.MySqlClient
       {
         using (MySqlDataReader reader = cmd.ExecuteReader())
         {
-          charSets = new Dictionary<int, string>();
+          CharacterSets = new Dictionary<int, string>();
           while (reader.Read())
           {
-            charSets[Convert.ToInt32(reader["id"], NumberFormatInfo.InvariantInfo)] =
+            CharacterSets[Convert.ToInt32(reader["id"], NumberFormatInfo.InvariantInfo)] =
               reader.GetString(reader.GetOrdinal("charset"));
           }
         }
@@ -409,8 +335,7 @@ namespace MySql.Data.MySqlClient
     {
       List<MySqlError> warnings = new List<MySqlError>();
 
-      MySqlCommand cmd = new MySqlCommand("SHOW WARNINGS", connection);
-      cmd.InternallyCreated = true;
+      MySqlCommand cmd = new MySqlCommand("SHOW WARNINGS", connection) {InternallyCreated = true};
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         while (reader.Read())
@@ -422,8 +347,7 @@ namespace MySql.Data.MySqlClient
 
       MySqlInfoMessageEventArgs args = new MySqlInfoMessageEventArgs();
       args.errors = warnings.ToArray();
-      if (connection != null)
-        connection.OnInfoMessage(args);
+      connection?.OnInfoMessage(args);
       return warnings;
     }
 
@@ -535,7 +459,7 @@ namespace MySql.Data.MySqlClient
         ReportWarnings(connection);
     }
 
-    #region IDisposable Members
+#region IDisposable Members
 
     protected virtual void Dispose(bool disposing)
     {
@@ -549,9 +473,9 @@ namespace MySql.Data.MySqlClient
       {
         ResetTimeout(1000);
         if (disposing)
-          handler.Close(isOpen);
+          handler.Close(IsOpen);
         // if we are pooling, then release ourselves
-        if (connectionString.Pooling)
+        if (ConnectionString.Pooling)
           MySqlPoolManager.RemoveConnection(this);
       }
       catch (Exception)
@@ -562,7 +486,7 @@ namespace MySql.Data.MySqlClient
       finally
       {
         reader = null;
-        isOpen = false;
+        IsOpen = false;
         disposeInProgress = false;
       }
     }
@@ -573,7 +497,7 @@ namespace MySql.Data.MySqlClient
       GC.SuppressFinalize(this);
     }
 
-    #endregion
+#endregion
   }
 
   internal interface IDriver

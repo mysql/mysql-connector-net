@@ -1,0 +1,28 @@
+﻿{
+  "runtimes": {
+    "win": {}
+  },
+  "frameworks": {
+    "net451": {}
+  },
+  "dependencies": {
+    "Microsoft.EntityFrameworkCore": "1.0.0",
+    "Microsoft.EntityFrameworkCore.Relational": "1.0.0",
+    "Microsoft.Extensions.Caching.Abstractions": "1.0.0",
+    "Microsoft.Extensions.Caching.Memory": "1.0.0",
+    "Microsoft.Extensions.DependencyInjection": "1.0.0",
+    "Microsoft.Extensions.DependencyInjection.Abstractions": "1.0.0",
+    "Microsoft.Extensions.Logging": "1.0.0",
+    "Microsoft.Extensions.Logging.Abstractions": "1.0.0",
+    "Microsoft.Extensions.Options": "1.0.0",
+    "Microsoft.Extensions.Options.ConfigurationExtensions": "1.0.0",
+    "Microsoft.Extensions.Primitives": "1.0.0",
+    "Remotion.Linq": "2.1.1",
+    "System.Diagnostics.DiagnosticSource": "4.0.0",
+    "System.Interactive.Async": "3.0.0",
+    "xunit.abstractions": "2.0.0",
+    "xunit.assert": "2.1.0",
+    "xunit.core": "2.1.0",
+    "xunit.extensibility.execution": "2.1.0"
+  }
+}

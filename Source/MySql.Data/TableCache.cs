@@ -1,4 +1,4 @@
-// Copyright © 2011, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,19 +21,14 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections;
-using System.Data;
 using System.Collections.Generic;
-using MySql.Data.MySqlClient.Properties;
-using System.Diagnostics;
-using System.Text;
-using System.Globalization;
+using System.Linq;
 
 namespace MySql.Data.MySqlClient
 {
   internal class TableCache
   {
-    private static BaseTableCache cache;
+    private static readonly BaseTableCache cache;
 
     static TableCache()
     {
@@ -118,12 +113,7 @@ namespace MySql.Data.MySqlClient
 
       lock (cache)
       {
-        foreach (string key in cache.Keys)
-        {
-          TimeSpan diff = now.Subtract(cache[key].CacheTime);
-          if (diff.TotalSeconds > MaxCacheAge)
-            keysToRemove.Add(key);
-        }
+        keysToRemove.AddRange(from key in cache.Keys let diff = now.Subtract(cache[key].CacheTime) where diff.TotalSeconds > MaxCacheAge select key);
 
         foreach (string key in keysToRemove)
           cache.Remove(key);

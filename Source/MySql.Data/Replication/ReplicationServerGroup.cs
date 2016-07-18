@@ -1,4 +1,4 @@
-﻿// Copyright © 2014, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2014, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,7 +21,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
-using MySql.Data.MySqlClient.Properties;
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -141,7 +141,7 @@ namespace MySql.Data.MySqlClient.Replication
           catch
           {
             MySqlTrace.LogWarning(0,
-              string.Format(Properties.Resources.Replication_ConnectionAttemptFailed, server1.Name));
+              string.Format(Resources.Replication_ConnectionAttemptFailed, server1.Name));
           }
           finally
           {

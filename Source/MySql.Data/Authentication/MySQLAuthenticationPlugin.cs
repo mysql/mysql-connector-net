@@ -1,4 +1,4 @@
-﻿// Copyright © 2012, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2012, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,26 +20,25 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System.IO;
 using System;
-using MySql.Data.MySqlClient.Properties;
-using MySql.Data.Common;
-using System.Text;
 using System.Diagnostics;
+using System.Text;
+using MySql.Data.MySqlClient;
+
 
 namespace MySql.Data.MySqlClient.Authentication
 {
   public abstract class MySqlAuthenticationPlugin
   {
-    private NativeDriver driver;
+    private NativeDriver _driver;
     protected byte[] AuthenticationData;
 
     /// <summary>
     /// This is a factory method that is used only internally.  It creates an auth plugin based on the method type
     /// </summary>
     /// <param name="method"></param>
-    /// <param name="flags"></param>
-    /// <param name="settings"></param>
+    /// <param name="driver"></param>
+    /// <param name="authData"></param>
     /// <returns></returns>
     internal static MySqlAuthenticationPlugin GetPlugin(string method, NativeDriver driver, byte[] authData)
     {
@@ -52,30 +51,18 @@ namespace MySql.Data.MySqlClient.Authentication
       if (plugin == null)
         throw new MySqlException(String.Format(Resources.UnknownAuthenticationMethod, method));
 
-      plugin.driver = driver;
+      plugin._driver = driver;
       plugin.SetAuthData(authData);
       return plugin;
     }
 
-    protected MySqlConnectionStringBuilder Settings
-    {
-      get { return driver.Settings; }
-    }
+    protected MySqlConnectionStringBuilder Settings => _driver.Settings;
 
-    protected Version ServerVersion
-    {
-      get { return new Version(driver.Version.Major, driver.Version.Minor, driver.Version.Build); }
-    }
+    protected Version ServerVersion => new Version(_driver.Version.Major, _driver.Version.Minor, _driver.Version.Build);
 
-    internal ClientFlags Flags
-    {
-      get { return driver.Flags; }
-    }
+    internal ClientFlags Flags => _driver.Flags;
 
-    protected Encoding Encoding 
-    { 
-      get { return driver.Encoding; } 
-    }
+    protected Encoding Encoding => _driver.Encoding;
 
     protected virtual void SetAuthData(byte[] data)
     {
@@ -105,7 +92,7 @@ namespace MySql.Data.MySqlClient.Authentication
     {
       CheckConstraints();
 
-      MySqlPacket packet = driver.Packet;
+      MySqlPacket packet = _driver.Packet;
 
       // send auth response
       packet.WriteString(GetUsername());
@@ -125,8 +112,8 @@ namespace MySql.Data.MySqlClient.Authentication
       if ((Flags & ClientFlags.PLUGIN_AUTH) != 0)
         packet.WriteString(PluginName);
 
-      driver.SetConnectAttrs();
-      driver.SendPacket(packet);
+      _driver.SetConnectAttrs();
+      _driver.SendPacket(packet);
       //read server response
       packet = ReadPacket();
       byte[] b = packet.Buffer;
@@ -134,7 +121,7 @@ namespace MySql.Data.MySqlClient.Authentication
       {
         if (packet.IsLastPacket)
         {
-          driver.Close(true);
+          _driver.Close(true);
           throw new MySqlException( Resources.OldPasswordsNotSupported );
         }
         else
@@ -142,7 +129,7 @@ namespace MySql.Data.MySqlClient.Authentication
           HandleAuthChange(packet);
         }
       }
-      driver.ReadOk(false);
+      _driver.ReadOk(false);
       AuthenticationSuccessful();
     }
 
@@ -168,7 +155,7 @@ namespace MySql.Data.MySqlClient.Authentication
     {
       try
       {
-        MySqlPacket p = driver.ReadPacket();
+        MySqlPacket p = _driver.ReadPacket();
         return p;
       }
       catch (MySqlException ex)
@@ -188,20 +175,20 @@ namespace MySql.Data.MySqlClient.Authentication
       byte[] authData = new byte[packet.Length - packet.Position];
       Array.Copy(packet.Buffer, packet.Position, authData, 0, authData.Length);
 
-      MySqlAuthenticationPlugin plugin = MySqlAuthenticationPlugin.GetPlugin(method, driver, authData);
+      MySqlAuthenticationPlugin plugin = GetPlugin(method, _driver, authData);
       plugin.AuthenticationChange();
     }
 
     private void AuthenticationChange()
     {
-      MySqlPacket packet = driver.Packet;
+      MySqlPacket packet = _driver.Packet;
       packet.Clear();
       byte[] moreData = MoreData(null);
       while (moreData != null && moreData.Length > 0)
       {
         packet.Clear();
         packet.Write(moreData);
-        driver.SendPacket(packet);
+        _driver.SendPacket(packet);
 
         packet = ReadPacket();
         byte prefixByte = packet.Buffer[0];

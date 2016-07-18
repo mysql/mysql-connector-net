@@ -30,23 +30,14 @@ using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class CultureTests : IUseFixture<SetUpClass>, IDisposable
+  public class CultureTests : TestBase
   {
-    private SetUpClass st;
+    protected TestSetup ts;
 
-    public void SetFixture(SetUpClass data)
+    public CultureTests(TestSetup setup): base(setup, "culturetests")
     {
-      st = data;
-    }
-
-    public void Dispose()
-    {
-      //st.execSQL("DROP TABLE IF EXISTS bug52187a");
-      //st.execSQL("DROP TABLE IF EXISTS bug52187b");
-      //st.execSQL("DROP TABLE IF EXISTS bug52187a");
-      //st.execSQL("DROP TABLE IF EXISTS bug52187b");
-      st.execSQL("DROP TABLE IF EXISTS TEST");
-    }
+      ts = setup;
+    }    
 
     [Fact]
     public void TestFloats()
@@ -57,7 +48,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void TestFloatsPrepared()
     {
-      if (st.Version < new Version(4, 1)) return;
+      if (ts.version < new Version(4, 1)) return;
 
       InternalTestFloats(true);
     }
@@ -70,9 +61,9 @@ namespace MySql.Data.MySqlClient.Tests
       Thread.CurrentThread.CurrentCulture = c;
       Thread.CurrentThread.CurrentUICulture = c;
 
-      st.execSQL("CREATE TABLE Test (fl FLOAT, db DOUBLE, dec1 DECIMAL(5,2))");
+      executeSQL("CREATE TABLE Test (fl FLOAT, db DOUBLE, dec1 DECIMAL(5,2))");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?fl, ?db, ?dec)", st.conn);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?fl, ?db, ?dec)", connection);
       cmd.Parameters.Add("?fl", MySqlDbType.Float);
       cmd.Parameters.Add("?db", MySqlDbType.Double);
       cmd.Parameters.Add("?dec", MySqlDbType.Decimal);
@@ -115,7 +106,7 @@ namespace MySql.Data.MySqlClient.Tests
       Thread.CurrentThread.CurrentCulture = c;
       Thread.CurrentThread.CurrentUICulture = c;
 
-      using (MySqlConnection newConn = new MySqlConnection(st.GetConnectionString(true)))
+      using (MySqlConnection newConn = new MySqlConnection(ts.GetConnection(true).ConnectionString))
       {
         newConn.Open();
       }
@@ -130,8 +121,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ArabicCalendars()
     {
-      st.execSQL("CREATE TABLE test(dt DATETIME)");
-      st.execSQL("INSERT INTO test VALUES ('2007-01-01 12:30:45')");
+      executeSQL("CREATE TABLE test(dt DATETIME)");
+      executeSQL("INSERT INTO test VALUES ('2007-01-01 12:30:45')");
 
       CultureInfo curCulture = Thread.CurrentThread.CurrentCulture;
       CultureInfo curUICulture = Thread.CurrentThread.CurrentUICulture;
@@ -139,7 +130,7 @@ namespace MySql.Data.MySqlClient.Tests
       Thread.CurrentThread.CurrentCulture = c;
       Thread.CurrentThread.CurrentUICulture = c;
 
-      MySqlCommand cmd = new MySqlCommand("SELECT dt FROM test", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT dt FROM test", connection);
       DateTime dt = (DateTime)cmd.ExecuteScalar();
       Assert.Equal(2007, dt.Year);
       Assert.Equal(1, dt.Month);
@@ -158,10 +149,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void FunctionsReturnStringAndDecimal()
     {
-      st.execSQL("CREATE TABLE bug52187a (a decimal(5,2) not null)");
-      st.execSQL("CREATE TABLE bug52187b (b decimal(5,2) not null)");
-      st.execSQL("insert into bug52187a values (1.25)");
-      st.execSQL("insert into bug52187b values (5.99)");
+      executeSQL("CREATE TABLE bug52187a (a decimal(5,2) not null)");
+      executeSQL("CREATE TABLE bug52187b (b decimal(5,2) not null)");
+      executeSQL("insert into bug52187a values (1.25)");
+      executeSQL("insert into bug52187b values (5.99)");
 
       CultureInfo curCulture = Thread.CurrentThread.CurrentCulture;
       CultureInfo curUICulture = Thread.CurrentThread.CurrentUICulture;
@@ -169,7 +160,7 @@ namespace MySql.Data.MySqlClient.Tests
       Thread.CurrentThread.CurrentCulture = c;
       Thread.CurrentThread.CurrentUICulture = c;
 
-      string connStr = st.GetConnectionString(true) + ";functions return string=true";
+      string connStr = ts.GetConnection(true).ConnectionString + ";functions return string=true";
       try
       {
         using (MySqlConnection con = new MySqlConnection(connStr))

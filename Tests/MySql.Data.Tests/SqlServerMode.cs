@@ -29,32 +29,25 @@ using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class SqlServerMode : IUseFixture<SetUpClass>, IDisposable
+  public class SqlServerMode : TestBase
   {
-    private SetUpClass st;
-
-    public void SetFixture(SetUpClass data)
+    public SqlServerMode(TestSetup setup) : base(setup, "boo")
     {
-      st = data;
-      st.csAdditions += ";sqlservermode=yes;";
-      if (st.conn.connectionState == ConnectionState.Open)
-        st.conn.Close();
-      st.conn.ConnectionString += st.csAdditions;
-      st.conn.Open();
     }
 
-    public void Dispose()
+    protected override void Init()
     {
-      st.execSQL("DROP TABLE IF EXISTS TEST");
-    }    
+      base.Init();
+      Setup.Settings.SqlServerMode = true;
+    }
 
     [Fact]
     public void Simple()
     {
-      st.execSQL("CREATE TABLE Test (id INT, name VARCHAR(20))");
-      st.execSQL("INSERT INTO Test VALUES (1, 'A')");
+      executeSQL("CREATE TABLE Test (id INT, name VARCHAR(20))");
+      executeSQL("INSERT INTO Test VALUES (1, 'A')");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT [id], [name] FROM [Test]", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT [id], [name] FROM [Test]", connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();

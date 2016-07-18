@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -27,33 +27,21 @@ using Xunit;
 using System.Data;
 using System.Globalization;
 using System.Threading;
-#if !RT
+#if !NETCORE10
 using System.Data.Common;
 #endif
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class StoredProcedure : IUseFixture<SetUpClass>, IDisposable
+  public class StoredProcedure : TestBase
   {
-    private SetUpClass st;
-
+    
     private static string fillError = null;
+    protected TestSetup ts;
 
-
-    public void SetFixture(SetUpClass data)
+    public StoredProcedure(TestSetup setup): base(setup, "storedproctests")
     {
-      st = data;
-      st.accessToMySqlDb = true;
-
-      if (st.conn.connectionState != ConnectionState.Open)
-        st.conn.Open();
-    }
-
-    public void Dispose()
-    {
-      st.execSQL("DROP TABLE IF EXISTS TEST");
-      st.execSQL("DROP PROCEDURE IF EXISTS spTest");
-      st.conn.Close();
+      ts = setup;
     }
 
     /// <summary>
@@ -62,12 +50,12 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ReturningResultset()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
       // create our procedure
-      st.execSQL("CREATE PROCEDURE spTest(val decimal(10,3)) begin select val; end");
+      executeSQL("CREATE PROCEDURE spTest(val decimal(10,3)) begin select val; end");
 
-      using (MySqlCommand cmd = new MySqlCommand("spTest", st.conn))
+      using (MySqlCommand cmd = new MySqlCommand("spTest", connection))
       {
         cmd.CommandType = CommandType.StoredProcedure;
 
@@ -84,14 +72,14 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void NonQuery()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
-      st.execSQL("CREATE TABLE Test(id INT, name VARCHAR(20))");
-      st.execSQL(@"CREATE PROCEDURE spTest(IN value INT) 
+      executeSQL("CREATE TABLE Test(id INT, name VARCHAR(20))");
+      executeSQL(@"CREATE PROCEDURE spTest(IN value INT) 
         BEGIN INSERT INTO Test VALUES(value, 'Test'); END");
 
       //setup testing data
-      MySqlCommand cmd = new MySqlCommand("spTest", st.conn);
+      MySqlCommand cmd = new MySqlCommand("spTest", connection);
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.Parameters.AddWithValue("?value", 2);
       int rowsAffected = cmd.ExecuteNonQuery();
@@ -112,11 +100,11 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void NoBatch()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
       //try
       //{
-        MySqlCommand cmd = new MySqlCommand("spTest;select * from Test", st.conn);
+        MySqlCommand cmd = new MySqlCommand("spTest;select * from Test", connection);
         cmd.CommandType = CommandType.StoredProcedure;
         Exception ex = Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());
       //  Assert.Fail("Should have thrown an exception");
@@ -129,12 +117,12 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void WrongParameters()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
-      st.execSQL("CREATE PROCEDURE spTest(p1 INT) BEGIN SELECT 1; END");
+      executeSQL("CREATE PROCEDURE spTest(p1 INT) BEGIN SELECT 1; END");
       try
       {
-        MySqlCommand cmd = new MySqlCommand("spTest", st.conn);
+        MySqlCommand cmd = new MySqlCommand("spTest", connection);
         cmd.CommandType = CommandType.StoredProcedure;
         cmd.Parameters.AddWithValue("?p2", 1);
         Exception ex = Assert.Throws<Exception>(() =>cmd.ExecuteNonQuery());
@@ -148,12 +136,12 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void NoInOutMarker()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
       // create our procedure
-      st.execSQL("CREATE PROCEDURE spTest( valin varchar(50) ) BEGIN  SELECT valin;  END");
+      executeSQL("CREATE PROCEDURE spTest( valin varchar(50) ) BEGIN  SELECT valin;  END");
 
-      MySqlCommand cmd = new MySqlCommand("spTest", st.conn);
+      MySqlCommand cmd = new MySqlCommand("spTest", connection);
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.Parameters.AddWithValue("?valin", "myvalue");
       object val = cmd.ExecuteScalar();
@@ -163,11 +151,11 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void NoSPOnPre50()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
       //try
       //{
-        MySqlCommand cmd = new MySqlCommand("spTest", st.conn);
+        MySqlCommand cmd = new MySqlCommand("spTest", connection);
         cmd.CommandType = CommandType.StoredProcedure;
         Exception ex = Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());
         //Assert.Fail("This should not have worked");
@@ -183,13 +171,13 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ExecuteScalar2()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
       // create our procedure
-      st.execSQL("CREATE PROCEDURE spTest() " +
+      executeSQL("CREATE PROCEDURE spTest() " +
          "BEGIN  DECLARE myVar1 INT; SET myVar1 := 1; SELECT myVar1; END");
 
-      MySqlCommand cmd = new MySqlCommand("spTest", st.conn);
+      MySqlCommand cmd = new MySqlCommand("spTest", connection);
       cmd.CommandType = CommandType.StoredProcedure;
       object result = cmd.ExecuteScalar();
       Assert.Equal(1, result);
@@ -199,7 +187,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void MultipleResultsets()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
       MultipleResultsetsImpl(false);
     }
@@ -207,20 +195,20 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void MultipleResultsetsPrepared()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
       MultipleResultsetsImpl(true);
     }
 
     private void MultipleResultsetsImpl(bool prepare)
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
       // create our procedure
-      st.execSQL("CREATE PROCEDURE spTest() " +
+      executeSQL("CREATE PROCEDURE spTest() " +
         "BEGIN  SELECT 1; SELECT 2; END");
 
-      MySqlCommand cmd = new MySqlCommand("spTest", st.conn);
+      MySqlCommand cmd = new MySqlCommand("spTest", connection);
       if (prepare) cmd.Prepare();
       cmd.CommandType = CommandType.StoredProcedure;
       MySqlDataReader reader = cmd.ExecuteReader();
@@ -233,7 +221,7 @@ namespace MySql.Data.MySqlClient.Tests
 
 #if !RT
       DataSet ds = new DataSet();
-      MySqlCommand cmd2 = new MySqlCommand("spTest", st.conn);
+      MySqlCommand cmd2 = new MySqlCommand("spTest", connection);
       cmd2.CommandType = CommandType.StoredProcedure;
       MySqlDataAdapter da = new MySqlDataAdapter(cmd2);
       da.FillError += new FillErrorEventHandler(da_FillError);
@@ -259,12 +247,12 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ExecuteWithCreate()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
       // create our procedure
       string sql = "CREATE PROCEDURE spTest(IN var INT) BEGIN  SELECT var; END; call spTest(?v)";
 
-      MySqlCommand cmd = new MySqlCommand(sql, st.conn);
+      MySqlCommand cmd = new MySqlCommand(sql, connection);
       cmd.Parameters.Add(new MySqlParameter("?v", 33));
       object val = cmd.ExecuteScalar();
       Assert.Equal(33, val);
@@ -276,13 +264,13 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void OtherProcSigs()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
       // create our procedure
-      st.execSQL("CREATE PROCEDURE spTest(IN \r\nvalin DECIMAL(10,2),\nIN val2 INT) " +
+      executeSQL("CREATE PROCEDURE spTest(IN \r\nvalin DECIMAL(10,2),\nIN val2 INT) " +
         "SQL SECURITY INVOKER BEGIN  SELECT valin; END");
 
-      MySqlCommand cmd = new MySqlCommand("spTest", st.conn);
+      MySqlCommand cmd = new MySqlCommand("spTest", connection);
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.Parameters.AddWithValue("?valin", 20.4);
       cmd.Parameters.AddWithValue("?val2", 4);
@@ -291,8 +279,8 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(d, val);
 
       // create our second procedure
-      st.execSQL("DROP PROCEDURE IF EXISTS spTest");
-      st.execSQL("CREATE PROCEDURE spTest( \r\n) BEGIN  SELECT 4; END");
+      executeSQL("DROP PROCEDURE IF EXISTS spTest");
+      executeSQL("CREATE PROCEDURE spTest( \r\n) BEGIN  SELECT 4; END");
       cmd.Parameters.Clear();
       object val1 = cmd.ExecuteScalar();
       Assert.Equal(4, Convert.ToInt32(val1));
@@ -304,16 +292,17 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void NoDefaultDatabase()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
       // create our procedure
-      st.execSQL("CREATE PROCEDURE spTest() BEGIN  SELECT 4; END");
+      executeSQL("CREATE PROCEDURE spTest() BEGIN  SELECT 4; END");
+      executeSQL("CREATE DATABASE `" + ts.baseDBName + "1`;");
 
-      string newConnStr = st.GetConnectionString(false);
+      string newConnStr = connection.ConnectionString;
       using (MySqlConnection c = new MySqlConnection(newConnStr))
       {
         c.Open();
-        MySqlCommand cmd2 = new MySqlCommand(String.Format("use `{0}`", st.database0), c);
+        MySqlCommand cmd2 = new MySqlCommand(String.Format("use `{0}`", ts.baseDBName + "0"), c);
         cmd2.ExecuteNonQuery();
 
         MySqlCommand cmd = new MySqlCommand("spTest", c);
@@ -321,10 +310,10 @@ namespace MySql.Data.MySqlClient.Tests
         object val = cmd.ExecuteScalar();
         Assert.Equal(4, Convert.ToInt32(val));
 
-        cmd2.CommandText = String.Format("use `{0}`", st.database1);
+        cmd2.CommandText = String.Format("use `{0}`", ts.baseDBName + "1");
         cmd2.ExecuteNonQuery();
 
-        cmd.CommandText = String.Format("`{0}`.spTest", st.database0);
+        cmd.CommandText = String.Format("`{0}`.spTest", ts.baseDBName + "0");
         val = cmd.ExecuteScalar();
         Assert.Equal(4, Convert.ToInt32(val));
       }
@@ -336,10 +325,10 @@ namespace MySql.Data.MySqlClient.Tests
     /*		[Fact]
         public void TestSelectingInts()
         {
-          st.execSQL("CREATE PROCEDURE spTest() BEGIN DECLARE myVar INT; " +
+          executeSQL("CREATE PROCEDURE spTest() BEGIN DECLARE myVar INT; " +
             "SET MyVar := 1; SELECT CAST(myVar as SIGNED); END");
 
-          MySqlCommand cmd = new MySqlCommand("spTest", st.conn);
+          MySqlCommand cmd = new MySqlCommand("spTest", connection);
           cmd.CommandType = CommandType.StoredProcedure;
           object val = cmd.ExecuteScalar();
           Assert.Equal(1, val, "Checking value");
@@ -353,11 +342,11 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void DecimalAsParameter()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
-      st.execSQL("CREATE PROCEDURE spTest(IN d DECIMAL(19,4)) BEGIN SELECT d; END");
+      executeSQL("CREATE PROCEDURE spTest(IN d DECIMAL(19,4)) BEGIN SELECT d; END");
 
-      MySqlCommand cmd = new MySqlCommand("spTest", st.conn);
+      MySqlCommand cmd = new MySqlCommand("spTest", connection);
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.Parameters.AddWithValue("?d", 21);
       decimal d = (decimal)cmd.ExecuteScalar();
@@ -370,12 +359,12 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ParmWithCharacterSet()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
-      st.execSQL("CREATE PROCEDURE spTest(P longtext character set utf8) " +
+      executeSQL("CREATE PROCEDURE spTest(P longtext character set utf8) " +
         "BEGIN SELECT P; END");
 
-      MySqlCommand cmd = new MySqlCommand("spTest", st.conn);
+      MySqlCommand cmd = new MySqlCommand("spTest", connection);
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.Parameters.AddWithValue("?P", "This is my value");
       string p = (string)cmd.ExecuteScalar();
@@ -388,14 +377,14 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void SpecialCharacters()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
-      st.execSQL("SET sql_mode=ANSI_QUOTES");
+      executeSQL("SET sql_mode=ANSI_QUOTES");
       try
       {
-        st.execSQL("CREATE PROCEDURE spTest(\"@Param1\" text) BEGIN SELECT \"@Param1\"; END");
+        executeSQL("CREATE PROCEDURE spTest(\"@Param1\" text) BEGIN SELECT \"@Param1\"; END");
 
-        MySqlCommand cmd = new MySqlCommand("spTest", st.conn);
+        MySqlCommand cmd = new MySqlCommand("spTest", connection);
         cmd.Parameters.AddWithValue("@Param1", "This is my value");
         cmd.CommandType = CommandType.StoredProcedure;
 
@@ -404,18 +393,18 @@ namespace MySql.Data.MySqlClient.Tests
       }
       finally
       {
-        st.execSQL("SET sql_mode=\"\"");
+        executeSQL("SET sql_mode=\"\"");
       }
     }
 
     [Fact]
     public void CallingSPWithPrepare()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
-      st.execSQL("CREATE PROCEDURE spTest(P int) BEGIN SELECT P; END");
+      executeSQL("CREATE PROCEDURE spTest(P int) BEGIN SELECT P; END");
 
-      MySqlCommand cmd = new MySqlCommand("spTest", st.conn);
+      MySqlCommand cmd = new MySqlCommand("spTest", connection);
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.Parameters.AddWithValue("?P", 33);
       cmd.Prepare();
@@ -430,13 +419,13 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void MultipleRecords()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
-      st.execSQL("CREATE TABLE Test (id INT, name VARCHAR(20))");
-      st.execSQL("CREATE PROCEDURE spTest(id int, str VARCHAR(45)) " +
+      executeSQL("CREATE TABLE Test (id INT, name VARCHAR(20))");
+      executeSQL("CREATE PROCEDURE spTest(id int, str VARCHAR(45)) " +
            "BEGIN INSERT INTO Test VALUES(id, str); END");
 
-      MySqlCommand cmd = new MySqlCommand("spTest", st.conn);
+      MySqlCommand cmd = new MySqlCommand("spTest", connection);
       cmd.CommandType = CommandType.StoredProcedure;
 
       cmd.Parameters.AddWithValue("?id", 1);
@@ -449,7 +438,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.ExecuteNonQuery();
 
 #if RT
-      MySqlCommand cmdSelect = new MySqlCommand("SELECT * FROM Test", st.conn);
+      MySqlCommand cmdSelect = new MySqlCommand("SELECT * FROM Test", connection);
       using (MySqlDataReader dr = cmdSelect.ExecuteReader())
       {
         Assert.True(dr.Read());
@@ -461,7 +450,7 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal("Second record", dr.GetString("name"));
       }
 #else
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", st.conn);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", connection);
       DataTable dt = new DataTable();
       da.Fill(dt);
 
@@ -478,15 +467,15 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Bug16788()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
-      st.execSQL("CREATE TABLE Test (id integer(9), state varchar(2))");
-      st.execSQL("CREATE PROCEDURE spTest(IN p1 integer(9), IN p2 varchar(2)) " +
+      executeSQL("CREATE TABLE Test (id integer(9), state varchar(2))");
+      executeSQL("CREATE PROCEDURE spTest(IN p1 integer(9), IN p2 varchar(2)) " +
         "BEGIN " +
         "INSERT INTO Test (id, state) VALUES (p1, p2); " +
         "END");
 
-      MySqlCommand cmd = st.conn.CreateCommand();
+      MySqlCommand cmd = connection.CreateCommand();
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.CommandText = "spTest";
       cmd.Parameters.Add("?p1", MySqlDbType.UInt16, 9);
@@ -501,10 +490,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ProcedureCache()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
       // open a new connection using a procedure cache
-      string connStr = st.GetConnectionString(true);
+      string connStr = connection.ConnectionString;
       connStr += ";procedure cache size=25;logging=true";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
@@ -516,7 +505,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         for (int x = 0; x < 10; x++)
         {
-          st.execSQL("CREATE PROCEDURE spTest" + x + "() BEGIN SELECT 1; END");
+          executeSQL("CREATE PROCEDURE spTest" + x + "() BEGIN SELECT 1; END");
           MySqlCommand cmd = new MySqlCommand("spTest" + x, c);
           cmd.CommandType = CommandType.StoredProcedure;
           for (int y = 0; y < 20; y++)
@@ -541,11 +530,11 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Bug20581()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
-      st.execSQL("CREATE PROCEDURE spTest(p int) BEGIN SELECT p; END");
+      executeSQL("CREATE PROCEDURE spTest(p int) BEGIN SELECT p; END");
       MySqlParameter param1;
-      MySqlCommand command = new MySqlCommand("spTest", st.conn);
+      MySqlCommand command = new MySqlCommand("spTest", connection);
       command.CommandType = CommandType.StoredProcedure;
 
       param1 = command.Parameters.Add("?p", MySqlDbType.Int32);
@@ -564,15 +553,15 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void PreparedReader()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
-      st.execSQL("CREATE TABLE  Test (id int(10) unsigned NOT NULL default '0', " +
+      executeSQL("CREATE TABLE  Test (id int(10) unsigned NOT NULL default '0', " +
          "val int(10) unsigned default NULL, PRIMARY KEY (id)) " +
          "ENGINE=InnoDB DEFAULT CHARSET=utf8");
-      st.execSQL("CREATE PROCEDURE spTest (IN pp INTEGER) " +
+      executeSQL("CREATE PROCEDURE spTest (IN pp INTEGER) " +
             "select * from Test where id > pp ");
 
-      MySqlCommand c = new MySqlCommand("spTest", st.conn);
+      MySqlCommand c = new MySqlCommand("spTest", connection);
       c.CommandType = CommandType.StoredProcedure;
 #if RT
       MySqlParameter p = c.CreateParameter();
@@ -600,9 +589,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void TurkishStoredProcs()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
-      st.execSQL("CREATE PROCEDURE spTest(IN p_paramname INT) BEGIN SELECT p_paramname; END");
+      executeSQL("CREATE PROCEDURE spTest(IN p_paramname INT) BEGIN SELECT p_paramname; END");
       CultureInfo uiCulture = Thread.CurrentThread.CurrentUICulture;
       CultureInfo culture = Thread.CurrentThread.CurrentCulture;
       Thread.CurrentThread.CurrentCulture = new CultureInfo("tr-TR");
@@ -610,7 +599,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       try
       {
-        MySqlCommand cmd = new MySqlCommand("spTest", st.conn);
+        MySqlCommand cmd = new MySqlCommand("spTest", connection);
         cmd.Parameters.AddWithValue("?p_paramname", 2);
         cmd.CommandType = CommandType.StoredProcedure;
         cmd.ExecuteScalar();
@@ -630,13 +619,13 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ProcEnumParamTest()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
-      st.execSQL("CREATE TABLE Test(str VARCHAR(50), e ENUM ('P','R','F','E'), i INT(6))");
-      st.execSQL("CREATE PROCEDURE spTest(IN p_enum ENUM('P','R','F','E')) BEGIN " +
+      executeSQL("CREATE TABLE Test(str VARCHAR(50), e ENUM ('P','R','F','E'), i INT(6))");
+      executeSQL("CREATE PROCEDURE spTest(IN p_enum ENUM('P','R','F','E')) BEGIN " +
         "INSERT INTO Test (str, e, i) VALUES (null, p_enum, 55);  END");
 
-      MySqlCommand cmd = new MySqlCommand("spTest", st.conn);
+      MySqlCommand cmd = new MySqlCommand("spTest", connection);
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.Parameters.AddWithValue("?p_enum", "P");
       cmd.Parameters["?p_enum"].Direction = ParameterDirection.Input;
@@ -659,12 +648,12 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void GetSchema()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
-      st.execSQL("CREATE PROCEDURE spTest() BEGIN SELECT * FROM Test; END");
-      st.execSQL(@"CREATE TABLE Test(id INT AUTO_INCREMENT, name VARCHAR(20), PRIMARY KEY (id)) ");
+      executeSQL("CREATE PROCEDURE spTest() BEGIN SELECT * FROM Test; END");
+      executeSQL(@"CREATE TABLE Test(id INT AUTO_INCREMENT, name VARCHAR(20), PRIMARY KEY (id)) ");
 
-      MySqlCommand cmd = new MySqlCommand("spTest", st.conn);
+      MySqlCommand cmd = new MySqlCommand("spTest", connection);
       cmd.CommandType = CommandType.StoredProcedure;
 
       MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.SchemaOnly);
@@ -686,12 +675,12 @@ namespace MySql.Data.MySqlClient.Tests
     /*        [Fact]
         public void LastInsertId()
         {
-          st.execSQL("CREATE TABLE Test (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(200))");
-          st.execSQL("INSERT INTO Test VALUES (NULL, 'Test1')");
-          st.execSQL("CREATE PROCEDURE spTest() BEGIN " +
+          executeSQL("CREATE TABLE Test (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(200))");
+          executeSQL("INSERT INTO Test VALUES (NULL, 'Test1')");
+          executeSQL("CREATE PROCEDURE spTest() BEGIN " +
             "INSERT INTO Test VALUES (NULL, 'test'); END");
 
-          MySqlCommand cmd = new MySqlCommand("spTest", st.conn);
+          MySqlCommand cmd = new MySqlCommand("spTest", connection);
           cmd.CommandType = CommandType.StoredProcedure;
           cmd.ExecuteNonQuery();
           Assert.Equal(2, cmd.LastInsertedId);
@@ -704,12 +693,12 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void UsingUInt64AsParam()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
-      st.execSQL(@"CREATE TABLE Test(f1 bigint(20) unsigned NOT NULL,
+      executeSQL(@"CREATE TABLE Test(f1 bigint(20) unsigned NOT NULL,
             PRIMARY KEY(f1)) ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
-      st.execSQL(@"CREATE PROCEDURE spTest(in _val bigint unsigned)
+      executeSQL(@"CREATE PROCEDURE spTest(in _val bigint unsigned)
             BEGIN insert into  Test set f1=_val; END");
 
 #if RT
@@ -721,7 +710,7 @@ namespace MySql.Data.MySqlClient.Tests
       DbParameter param = cmd.CreateParameter();
       param.DbType = DbType.UInt64;
 #endif
-      cmd.Connection = st.conn;
+      cmd.Connection = connection;
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.CommandText = "spTest";
       param.Direction = ParameterDirection.Input;
@@ -739,12 +728,12 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void CatalogWithHyphens()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
       // make sure this test is valid
-      Assert.True(st.database0.IndexOf('-') != -1);
+      Assert.True((ts.baseDBName + "0").IndexOf('-') != -1);
 
-      MySqlCommand cmd = new MySqlCommand("CREATE PROCEDURE spTest() BEGIN SELECT 1; END", st.conn);
+      MySqlCommand cmd = new MySqlCommand("CREATE PROCEDURE spTest() BEGIN SELECT 1; END", connection);
       cmd.ExecuteNonQuery();
 
       cmd.CommandText = "spTest";
@@ -755,14 +744,14 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ComplexDefinition()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
-      st.execSQL(@"CREATE PROCEDURE `spTest`() NOT DETERMINISTIC
+      executeSQL(@"CREATE PROCEDURE `spTest`() NOT DETERMINISTIC
           CONTAINS SQL SQL SECURITY DEFINER COMMENT '' 
           BEGIN
             SELECT 1,2,3;
           END");
-      MySqlCommand command = new MySqlCommand("spTest", st.conn);
+      MySqlCommand command = new MySqlCommand("spTest", connection);
       command.CommandType = CommandType.StoredProcedure;
       using (MySqlDataReader reader = command.ExecuteReader())
       {
@@ -773,15 +762,15 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void AmbiguousColumns()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
-      st.execSQL("CREATE TABLE t1 (id INT)");
-      st.execSQL("CREATE TABLE t2 (id1 INT, id INT)");
-      st.execSQL(@"CREATE PROCEDURE spTest() BEGIN SELECT * FROM t1; 
+      executeSQL("CREATE TABLE t1 (id INT)");
+      executeSQL("CREATE TABLE t2 (id1 INT, id INT)");
+      executeSQL(@"CREATE PROCEDURE spTest() BEGIN SELECT * FROM t1; 
             SELECT id FROM t1 JOIN t2 on t1.id=t2.id; 
             SELECT * FROM t2; END");
 
-      MySqlCommand cmd = new MySqlCommand("spTest", st.conn);
+      MySqlCommand cmd = new MySqlCommand("spTest", connection);
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.CommandTimeout = 0;
       MySqlDataAdapter da = new MySqlDataAdapter(cmd);
@@ -803,11 +792,11 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void SPWithSpaceInParameterType()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (ts.version < new Version(5, 0)) return;
 
-      st.execSQL("CREATE PROCEDURE spTest(myparam decimal  (8,2)) BEGIN SELECT 1; END");
+      executeSQL("CREATE PROCEDURE spTest(myparam decimal  (8,2)) BEGIN SELECT 1; END");
 
-      MySqlCommand cmd = new MySqlCommand("spTest", st.conn);
+      MySqlCommand cmd = new MySqlCommand("spTest", connection);
       cmd.Parameters.Add("@myparam", MySqlDbType.Decimal).Value = 20;
       cmd.CommandType = CommandType.StoredProcedure;
       object o = cmd.ExecuteScalar();
@@ -816,13 +805,13 @@ namespace MySql.Data.MySqlClient.Tests
 
     private void ParametersInReverseOrderInternal(bool isOwner)
     {
-      if (st.Version.Major < 5) return;
+      if (ts.version.Major < 5) return;
 
-      st.execSQL(@"CREATE PROCEDURE spTest(IN p_1 VARCHAR(5), IN p_2 VARCHAR(5))
+      executeSQL(@"CREATE PROCEDURE spTest(IN p_1 VARCHAR(5), IN p_2 VARCHAR(5))
             BEGIN SELECT p_1 AS P1, p_2 AS P2; END");
       string spName = "spTest";
 
-      string connStr = st.GetConnectionString(true);
+      string connStr = connection.ConnectionString;
       if (!isOwner)
         connStr += ";use procedure bodies=false";
       using (MySqlConnection c = new MySqlConnection(connStr))
@@ -834,7 +823,7 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.Parameters[0].Direction = ParameterDirection.Input;
         cmd.Parameters.AddWithValue("?p_1", ("Hello"));
         cmd.Parameters[1].Direction = ParameterDirection.Input;
-#if RT
+#if NETCORE10
         cmd.Parameters[0].MySqlDbType = MySqlDbType.String;
         cmd.Parameters[1].MySqlDbType = MySqlDbType.String;
 
@@ -884,17 +873,17 @@ namespace MySql.Data.MySqlClient.Tests
       ParametersInReverseOrderInternal(true);
     }
 
-#if !RT
+#if !NETCORE10
     [Fact]
     public void DeriveParameters()
     {
-      if (st.Version < new Version(5, 0)) return;
-      if (st.Version > new Version(6, 0, 6)) return;
+      if (ts.version < new Version(5, 0)) return;
+      if (ts.version > new Version(6, 0, 6)) return;
 
-      st.execSQL(@"CREATE  PROCEDURE spTest (id INT, name VARCHAR(20))
+      executeSQL(@"CREATE  PROCEDURE spTest (id INT, name VARCHAR(20))
           BEGIN SELECT name; END");
 
-      MySqlCommand cmd = new MySqlCommand("spTest", st.conn);
+      MySqlCommand cmd = new MySqlCommand("spTest", connection);
       cmd.CommandType = CommandType.StoredProcedure;
       MySqlCommandBuilder.DeriveParameters(cmd);
       Assert.Equal(2, cmd.Parameters.Count);
@@ -907,9 +896,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ProcedureCacheMiss()
     {
-      st.execSQL("CREATE PROCEDURE spTest(id INT) BEGIN SELECT 1; END");
+      executeSQL("CREATE PROCEDURE spTest(id INT) BEGIN SELECT 1; END");
 
-      string connStr = st.GetConnectionString(true) + ";procedure cache size=25";
+      string connStr = connection.ConnectionString + ";procedure cache size=25";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -918,8 +907,8 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.CommandType = CommandType.StoredProcedure;
         cmd.ExecuteScalar();
 
-        st.execSQL("DROP PROCEDURE spTest");
-        st.execSQL("CREATE PROCEDURE spTest(id INT, id2 INT, id3 INT) BEGIN SELECT 1; END");
+        executeSQL("DROP PROCEDURE spTest");
+        executeSQL("CREATE PROCEDURE spTest(id INT, id2 INT, id3 INT) BEGIN SELECT 1; END");
 
         cmd.Parameters.AddWithValue("@id2", 2);
         cmd.Parameters.AddWithValue("@id3", 3);
@@ -933,14 +922,14 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void GetProcedureParametersDoesNotRequireSelectFromMySqlProceduresTable()
     {
-      if (st.Version < new Version(5, 5, 3)) return;
+      if (ts.version < new Version(5, 5, 3)) return;
 
-      st.suExecSQL(String.Format("GRANT ALL ON `{0}`.* to 'simpleuser' identified by 'simpleuser'", st.database0));
-      st.execSQL("DROP PROCEDURE IF EXISTS spTest");
-      st.execSQL(@"CREATE  PROCEDURE spTest(id INT, name VARCHAR(20))
+      executeAsRoot(String.Format("GRANT ALL ON `{0}`.* to 'simpleuser' identified by 'simpleuser'", ts.baseDBName + "0"));
+      executeSQL("DROP PROCEDURE IF EXISTS spTest");
+      executeSQL(@"CREATE  PROCEDURE spTest(id INT, name VARCHAR(20))
           BEGIN SELECT name; END");
 
-      string connStr = st.GetConnectionString("simpleuser", "simpleuser", true) + ";use procedure bodies=false";
+      string connStr = "server=localhost; userid=simpleuser; pwd=simpleuser;database=" + ts.baseDBName + "0" + ";use procedure bodies=false; port= 3305;";
 
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
@@ -949,11 +938,9 @@ namespace MySql.Data.MySqlClient.Tests
         string[] restrictions = new string[4];
         restrictions[1] = c.Database;
         restrictions[2] = "spTest";
-#if RT
-        string procTable = "table";
-#else
+
         DataTable procTable = c.GetSchema("procedures", restrictions);
-#endif
+
         ISSchemaProvider isp = new ISSchemaProvider(c);
         string[] rest = isp.CleanRestrictions(restrictions);
 
@@ -970,9 +957,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void CallStoredProcedure()
     {
-      st.execSQL("CREATE PROCEDURE GetCount() BEGIN SELECT 5; END");
+      executeSQL("CREATE PROCEDURE GetCount() BEGIN SELECT 5; END");
 
-      MySqlCommand cmd = new MySqlCommand("GetCount", st.conn);
+      MySqlCommand cmd = new MySqlCommand("GetCount", connection);
       cmd.CommandType = CommandType.Text;
 
       Assert.Equal(5, Convert.ToInt32(cmd.ExecuteScalar()));

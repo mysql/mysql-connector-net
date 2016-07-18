@@ -1,4 +1,4 @@
-// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc.
+// Copyright © 2004, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,14 +21,15 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using MySql.Data.MySqlClient;
 
 namespace MySql.Data.Types
 {
   /// <summary>
   /// Summary description for MySqlConversionException.
   /// </summary>
+#if !NETCORE10
   [Serializable]
+#endif
   public class MySqlConversionException : Exception
   {
     /// <summary>Ctor</summary>

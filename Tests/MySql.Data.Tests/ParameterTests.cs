@@ -30,25 +30,18 @@ using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class ParameterTests : IUseFixture<SetUpClass>, IDisposable
+  public class ParameterTests : TestBase
   {
-    protected SetUpClass st;
 
-    public void SetFixture(SetUpClass data)
+    public ParameterTests(TestSetup setup) : base (setup, "parametertests")
     {
-      st = data;
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME, ts TIMESTAMP, PRIMARY KEY(id))");
-    }
-
-    public void Dispose()
-    {
-      st.execSQL("DROP TABLE IF EXISTS TEST");  
-    }
+      executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME, ts TIMESTAMP, PRIMARY KEY(id))");
+    }    
 
     [Fact]
     public void TestQuoting()
     {
-      MySqlCommand cmd = new MySqlCommand("", st.conn);
+      MySqlCommand cmd = new MySqlCommand("", connection);
       cmd.CommandText = "INSERT INTO Test VALUES (?id, ?name, NULL,NULL,NULL)";
       cmd.Parameters.Add(new MySqlParameter("?id", 1));
       cmd.Parameters.Add(new MySqlParameter("?name", "my ' value"));
@@ -99,7 +92,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void TestDateTimeParameter()
     {
-      MySqlCommand cmd = new MySqlCommand("", st.conn);
+      MySqlCommand cmd = new MySqlCommand("", connection);
 
       TimeSpan time = new TimeSpan(0, 1, 2, 3);
       DateTime dt = new DateTime(2003, 11, 11, 1, 2, 3);
@@ -109,7 +102,7 @@ namespace MySql.Data.MySqlClient.Tests
       int cnt = cmd.ExecuteNonQuery();
       Assert.True(cnt == 1, "Insert count");
 
-      cmd = new MySqlCommand("SELECT tm, dt, ts FROM Test WHERE id=1", st.conn);
+      cmd = new MySqlCommand("SELECT tm, dt, ts FROM Test WHERE id=1", connection);
       MySqlDataReader reader = cmd.ExecuteReader();
       reader.Read();
       TimeSpan time2 = (TimeSpan)reader.GetValue(0);
@@ -129,13 +122,13 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(now.Hour, ts2.Hour);
 
       // now we'll set some nulls and see how they are handled
-      cmd = new MySqlCommand("UPDATE Test SET tm=?ts, dt=?dt WHERE id=1", st.conn);
+      cmd = new MySqlCommand("UPDATE Test SET tm=?ts, dt=?dt WHERE id=1", connection);
       cmd.Parameters.Add(new MySqlParameter("?ts", DBNull.Value));
       cmd.Parameters.Add(new MySqlParameter("?dt", DBNull.Value));
       cnt = cmd.ExecuteNonQuery();
       Assert.True(cnt == 1, "Update null count");
 
-      cmd = new MySqlCommand("SELECT tm, dt FROM Test WHERE id=1", st.conn);
+      cmd = new MySqlCommand("SELECT tm, dt FROM Test WHERE id=1", connection);
       reader = cmd.ExecuteReader();
       reader.Read();
       object tso = reader.GetValue(0);
@@ -153,7 +146,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void NestedQuoting()
     {
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id, name) " +
-        "VALUES(1, 'this is ?\"my value\"')", st.conn);
+        "VALUES(1, 'this is ?\"my value\"')", connection);
       int count = cmd.ExecuteNonQuery();
       Assert.Equal(1, count);
     }
@@ -162,7 +155,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void SetDbType()
     {
 #if RT
-      MySqlCommand cmd = st.conn.CreateCommand();
+      MySqlCommand cmd = connection.CreateCommand();
       MySqlParameter prm = cmd.CreateParameter();
       prm.MySqlDbType = MySqlDbType.Int64;
       Assert.Equal(MySqlDbType.Int64, prm.MySqlDbType);
@@ -174,7 +167,7 @@ namespace MySql.Data.MySqlClient.Tests
       p.Value = 3;
       Assert.Equal(MySqlDbType.Int64, p.MySqlDbType);
 #else
-      IDbCommand cmd = st.conn.CreateCommand();
+      IDbCommand cmd = connection.CreateCommand();
       IDbDataParameter prm = cmd.CreateParameter();
       prm.DbType = DbType.Int64;
       Assert.Equal(DbType.Int64, prm.DbType);
@@ -198,7 +191,7 @@ namespace MySql.Data.MySqlClient.Tests
       GenericListener listener = new GenericListener();
       Trace.Listeners.Add(listener);
 
-      string connStr = st.conn.ConnectionString + ";old syntax=yes;pooling=false";
+      string connStr = connection.ConnectionString + ";old syntax=yes;pooling=false";
       MySqlConnection conn2 = new MySqlConnection(connStr);
       conn2.Open();
 
@@ -211,7 +204,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void NullParameterObject()
     {
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id, name) VALUES (1, ?name)", st.conn);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id, name) VALUES (1, ?name)", connection);
       try
       {
         cmd.Parameters.Add(null);
@@ -227,7 +220,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void AllowUnnamedParameters()
     {
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id,name) VALUES (?id, ?name)", st.conn);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id,name) VALUES (?id, ?name)", connection);
 
       MySqlParameter p = new MySqlParameter();
       p.Value = 1;
@@ -251,7 +244,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void NullParameterValue()
     {
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id, name) VALUES (1, ?name)", st.conn);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id, name) VALUES (1, ?name)", connection);
       cmd.Parameters.Add(new MySqlParameter("?name", null));
       cmd.ExecuteNonQuery();
 
@@ -267,10 +260,10 @@ namespace MySql.Data.MySqlClient.Tests
     public void DefaultType()
     {
 #if RT
-      MySqlCommand cmd = st.conn.CreateCommand();
+      MySqlCommand cmd = connection.CreateCommand();
       MySqlParameter p = cmd.CreateParameter();
 #else
-      IDbCommand cmd = st.conn.CreateCommand();
+      IDbCommand cmd = connection.CreateCommand();
       IDbDataParameter p = cmd.CreateParameter();
 #endif
       p.ParameterName = "?boo";
@@ -282,7 +275,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void OddCharsInParameterNames()
     {
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id, name) VALUES (1, ?nam$es)", st.conn);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id, name) VALUES (1, ?nam$es)", connection);
       cmd.Parameters.Add(new MySqlParameter("?nam$es", "Test"));
       cmd.ExecuteNonQuery();
 
@@ -315,11 +308,11 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void InsertValueAfterNull()
     {
-      st.execSQL("DROP TABLE Test");
-      st.execSQL("CREATE TABLE Test (id int auto_increment primary key, foo int)");
+      executeSQL("DROP TABLE Test");
+      executeSQL("CREATE TABLE Test (id int auto_increment primary key, foo int)");
 
 #if RT
-      MySqlCommand c = new MySqlCommand("INSERT INTO Test (foo) values (?foo)", st.conn);
+      MySqlCommand c = new MySqlCommand("INSERT INTO Test (foo) values (?foo)", connection);
       c.Parameters.Add("?foo", MySqlDbType.Int32);
       c.ExecuteNonQuery();
 
@@ -335,8 +328,8 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal(2, dr.GetValue(1));
       }
 #else
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", st.conn);
-      MySqlCommand c = new MySqlCommand("INSERT INTO Test (foo) values (?foo)", st.conn);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", connection);
+      MySqlCommand c = new MySqlCommand("INSERT INTO Test (foo) values (?foo)", connection);
       c.Parameters.Add("?foo", MySqlDbType.Int32, 0, "foo");
 
       da.InsertCommand = c;
@@ -362,7 +355,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void UnTypedParameterBeingReused()
     {
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id, dt) VALUES (?id, ?dt)", st.conn);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id, dt) VALUES (?id, ?dt)", connection);
       cmd.Parameters.AddWithValue("?id", 1);
       MySqlParameter p = cmd.CreateParameter();
       p.ParameterName = "?dt";
@@ -389,7 +382,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ParameterCacheNotClearing()
     {
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id, name) VALUES (?id, ?name)", st.conn);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id, name) VALUES (?id, ?name)", connection);
       cmd.Parameters.AddWithValue("?id", 1);
       cmd.Parameters.AddWithValue("?name", "test");
       cmd.ExecuteNonQuery();
@@ -405,7 +398,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void WithAndWithoutMarker()
     {
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id, name) VALUES (?id, ?name)", st.conn);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id, name) VALUES (?id, ?name)", connection);
       cmd.Parameters.AddWithValue("id", 1);
       Assert.Equal(-1, cmd.Parameters.IndexOf("?id"));
       cmd.Parameters.AddWithValue("name", "test");
@@ -426,7 +419,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void DoubleAddingParameters()
     {
       
-        MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id, name) VALUES (?id, ?name)", st.conn);
+        MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id, name) VALUES (?id, ?name)", connection);
         cmd.Parameters.AddWithValue("id", 1);
         Assert.Equal(-1, cmd.Parameters.IndexOf("?id"));
         Assert.Equal(-1, cmd.Parameters.IndexOf("@id"));
@@ -493,7 +486,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void MissingParameter()
     {
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test(id) VALUES (?id)", st.conn);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test(id) VALUES (?id)", connection);
       try
       {
         cmd.ExecuteNonQuery();
@@ -509,17 +502,17 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void StringParameterSizeSetAfterValue()
     {
-      st.execSQL("DROP TABLE Test");
-      st.execSQL("CREATE TABLE Test (v VARCHAR(10))");
+      executeSQL("DROP TABLE Test");
+      executeSQL("CREATE TABLE Test (v VARCHAR(10))");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?p1)", st.conn);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?p1)", connection);
       cmd.Parameters.Add("?p1", MySqlDbType.VarChar);
       cmd.Parameters[0].Value = "123";
       cmd.Parameters[0].Size = 10;
       cmd.ExecuteNonQuery();
 
 #if !RT
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", st.conn);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", connection);
       DataTable dt = new DataTable();
       da.Fill(dt);
       Assert.Equal("123", dt.Rows[0][0]);
@@ -532,7 +525,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.ExecuteNonQuery();
 
 #if RT
-      MySqlCommand newValueCommand = new MySqlCommand("SELECT * FROM Test", st.conn);
+      MySqlCommand newValueCommand = new MySqlCommand("SELECT * FROM Test", connection);
       using (MySqlDataReader dr = newValueCommand.ExecuteReader())
       {
         Assert.True(dr.Read());
@@ -569,11 +562,9 @@ namespace MySql.Data.MySqlClient.Tests
     /// </summary>
     [Fact]
     public void SetOldSyntaxAfterCommandCreation()
-    {
-      string connStr = st.GetConnectionString(true);
-      MySqlConnection c = new MySqlConnection(connStr);
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id) VALUES (@id)", c);
-      c.ConnectionString = connStr += ";old syntax=yes";
+    {      
+      MySqlConnection c = new MySqlConnection(connection.ConnectionString + ";old syntax=yes");
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id) VALUES (@id)", c);      
       cmd.Parameters.AddWithValue("@id", 2);
       c.Open();
       cmd.ExecuteNonQuery();
@@ -583,7 +574,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void UseAtSignForParameters()
     {
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id, name) VALUES (@id, @name)", st.conn);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id, name) VALUES (@id, @name)", connection);
       cmd.Parameters.AddWithValue("@id", 33);
       cmd.Parameters.AddWithValue("@name", "Test");
       cmd.ExecuteNonQuery();
@@ -647,7 +638,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void CanIdentifyParameterWithOutName()
     {
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id,name) VALUES (?, ?)", st.conn);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id,name) VALUES (?, ?)", connection);
 
       cmd.Parameters.AddWithValue("", 1);
       cmd.Parameters.AddWithValue("", "test");
@@ -667,7 +658,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]   
     public void CanThrowAnExceptionWhenMixingParameterNaming()
     {
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id,name) VALUES (?Id, ?name, ?)", st.conn);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id,name) VALUES (?Id, ?name, ?)", connection);
       cmd.Parameters.AddWithValue("?Id", 1);
       cmd.Parameters.AddWithValue("?name", "test");
       Exception ex = Assert.Throws<MySqlException>(() =>cmd.ExecuteNonQuery());

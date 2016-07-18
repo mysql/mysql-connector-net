@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -29,44 +29,43 @@ using System.Globalization;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class StoredProcedureWithAccess : IUseFixture<SetUpClass>, IDisposable
+  public class StoredProcedureWithAccess : TestBase
   {
-    private SetUpClass st;
+    protected TestSetup ts;
 
     private static string fillError = null;
 
-
-    public void SetFixture(SetUpClass data)
+    public StoredProcedureWithAccess(TestSetup setup): base(setup, "storedprocwithacc")
     {
-      st = data;
-      st.accessToMySqlDb = true;
+      ts = setup;
     }
 
-    public void Dispose()
-    {
-      st.execSQL("DROP TABLE IF EXISTS TEST");
-      st.execSQL("DROP PROCEDURE IF EXISTS spTest");
-      st.execSQL("DROP FUNCTION IF EXISTS fnTest");
-    }
 
+    //public void SetFixture(SetUpClass data)
+    //{
+    //  st = data;
+    //  st.accessToMySqlDb = true;
+    //}
+
+    
     /// <summary>
     /// Bug #40139	ExecuteNonQuery hangs
     /// </summary>
     [Fact]
     public void CallingStoredProcWithOnlyExecPrivs()
     {
-      if (st.Version  < new Version(5, 0)) return;
+      if (ts.version  < new Version(5, 0)) return;
 
-      st.execSQL("CREATE PROCEDURE spTest() BEGIN SELECT 1; END");
-      st.execSQL("CREATE PROCEDURE spTest2() BEGIN SELECT 1; END");
-      st.suExecSQL(String.Format("GRANT USAGE ON `{0}`.* TO 'abc'@'%' IDENTIFIED BY 'abc'", st.database0));
+      executeSQL("CREATE PROCEDURE spTest() BEGIN SELECT 1; END");
+      executeSQL("CREATE PROCEDURE spTest2() BEGIN SELECT 1; END");
+      executeAsRoot(String.Format("GRANT USAGE ON `{0}`.* TO 'abc'@'%' IDENTIFIED BY 'abc'", ts.baseDBName + "0"));
 
       try
       {
-        st.suExecSQL(String.Format("GRANT SELECT ON `{0}`.* TO 'abc'@'%'", st.database0));
-        st.suExecSQL(String.Format("GRANT EXECUTE ON PROCEDURE `{0}`.spTest TO abc", st.database0));
+        executeAsRoot(String.Format("GRANT SELECT ON `{0}`.* TO 'abc'@'%'", ts.baseDBName + "0"));
+        executeAsRoot(String.Format("GRANT EXECUTE ON PROCEDURE `{0}`.spTest TO abc", ts.baseDBName + "0"));
 
-        string connStr = st.GetConnectionString("abc", "abc", true) + "; check parameters=false";
+        string connStr = "server=localhost;userid=abc;pwd=abc;port=3305;database=" + ts.baseDBName + "0" + "; check parameters=false";
 
         using (MySqlConnection c = new MySqlConnection(connStr))
         {
@@ -74,7 +73,7 @@ namespace MySql.Data.MySqlClient.Tests
           MySqlCommand cmd = new MySqlCommand("spTest", c);
           cmd.CommandType = CommandType.StoredProcedure;
           object o = null;
-          Assert.DoesNotThrow(delegate { o = cmd.ExecuteScalar(); });
+          o = cmd.ExecuteScalar();
           Assert.Equal(1, Convert.ToInt32(o));
 
           cmd.CommandText = "spTest2";
@@ -83,42 +82,42 @@ namespace MySql.Data.MySqlClient.Tests
       }
       finally
       {
-        st.suExecSQL("DROP USER abc");
+        executeAsRoot("DROP USER abc");
       }
     }
 
     [Fact]
     public void ProcedureParameters()
     {
-      if (st.Version  < new Version(5, 0)) return;
+      if (ts.version  < new Version(5, 0)) return;
 
-      st.execSQL("DROP PROCEDURE IF EXISTS spTest");
-      st.execSQL("CREATE PROCEDURE spTest (id int, name varchar(50)) BEGIN SELECT 1; END");
+      executeSQL("DROP PROCEDURE IF EXISTS spTest");
+      executeSQL("CREATE PROCEDURE spTest (id int, name varchar(50)) BEGIN SELECT 1; END");
 
       string[] restrictions = new string[5];
-      restrictions[1] = st.database0;
+      restrictions[1] = ts.baseDBName + "0";
       restrictions[2] = "spTest";
-#if RT
-      MySqlSchemaCollection dt = st.conn.GetSchemaCollection("Procedure Parameters", restrictions);
+#if NETCORE10
+      MySqlSchemaCollection dt = connection.GetSchemaCollection("Procedure Parameters", restrictions);
       string tableName = dt.Name;
 #else
-      DataTable dt = st.conn.GetSchema("Procedure Parameters", restrictions);
+      DataTable dt = connection.GetSchema("Procedure Parameters", restrictions);
       string tableName = dt.TableName;
 #endif
       Assert.True(dt.Rows.Count == 2);
       Assert.Equal("Procedure Parameters", tableName);
-      Assert.Equal(st.database0.ToLower(), dt.Rows[0]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.Equal(ts.baseDBName.ToLower() + "0", dt.Rows[0]["SPECIFIC_SCHEMA"].ToString().ToLower());
       Assert.Equal("sptest", dt.Rows[0]["SPECIFIC_NAME"].ToString().ToLower());
       Assert.Equal("id", dt.Rows[0]["PARAMETER_NAME"].ToString().ToLower());
       Assert.Equal(1, dt.Rows[0]["ORDINAL_POSITION"]);
       Assert.Equal("IN", dt.Rows[0]["PARAMETER_MODE"]);
 
       restrictions[4] = "name";
-#if RT
-      dt = st.conn.GetSchemaCollection("Procedure Parameters", restrictions);
+#if NETCORE10
+      dt = connection.GetSchemaCollection("Procedure Parameters", restrictions);
 #else
       dt.Clear();
-      dt = st.conn.GetSchema("Procedure Parameters", restrictions);
+      dt = connection.GetSchema("Procedure Parameters", restrictions);
 #endif
       Assert.Equal(1, dt.Rows.Count);
       Assert.Equal("sptest", dt.Rows[0]["SPECIFIC_NAME"].ToString().ToLower());
@@ -126,24 +125,24 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(2, dt.Rows[0]["ORDINAL_POSITION"]);
       Assert.Equal("IN", dt.Rows[0]["PARAMETER_MODE"]);
 
-      st.execSQL("DROP FUNCTION IF EXISTS spFunc");
-      st.execSQL("CREATE FUNCTION spFunc (id int) RETURNS INT BEGIN RETURN 1; END");
+      executeSQL("DROP FUNCTION IF EXISTS spFunc");
+      executeSQL("CREATE FUNCTION spFunc (id int) RETURNS INT BEGIN RETURN 1; END");
 
       restrictions[4] = null;
-      restrictions[1] = st.database0;
+      restrictions[1] = ts.baseDBName + "0";
       restrictions[2] = "spFunc";
-#if RT
-      dt = st.conn.GetSchemaCollection("Procedure Parameters", restrictions);
+#if NETCORE10
+      dt = connection.GetSchemaCollection("Procedure Parameters", restrictions);
 #else
-      dt = st.conn.GetSchema("Procedure Parameters", restrictions);
+      dt = connection.GetSchema("Procedure Parameters", restrictions);
 #endif
       Assert.True(dt.Rows.Count == 2);
       Assert.Equal("Procedure Parameters", tableName);
-      Assert.Equal(st.database0.ToLower(), dt.Rows[0]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.Equal(ts.baseDBName.ToLower() + "0", dt.Rows[0]["SPECIFIC_SCHEMA"].ToString().ToLower());
       Assert.Equal("spfunc", dt.Rows[0]["SPECIFIC_NAME"].ToString().ToLower());
       Assert.Equal(0, dt.Rows[0]["ORDINAL_POSITION"]);
 
-      Assert.Equal(st.database0.ToLower(), dt.Rows[1]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.Equal(ts.baseDBName.ToLower() + "0", dt.Rows[1]["SPECIFIC_SCHEMA"].ToString().ToLower());
       Assert.Equal("spfunc", dt.Rows[1]["SPECIFIC_NAME"].ToString().ToLower());
       Assert.Equal("id", dt.Rows[1]["PARAMETER_NAME"].ToString().ToLower());
       Assert.Equal(1, dt.Rows[1]["ORDINAL_POSITION"]);
@@ -153,28 +152,28 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void SingleProcedureParameters()
     {
-      if (st.Version  < new Version(5, 0)) return;
+      if (ts.version  < new Version(5, 0)) return;
 
-      st.execSQL("DROP PROCEDURE IF EXISTS spTest");
-      st.execSQL("CREATE PROCEDURE spTest(id int, IN id2 INT(11), " +
+      executeSQL("DROP PROCEDURE IF EXISTS spTest");
+      executeSQL("CREATE PROCEDURE spTest(id int, IN id2 INT(11), " +
           "INOUT io1 VARCHAR(20), OUT out1 FLOAT) BEGIN END");
       string[] restrictions = new string[4];
-      restrictions[1] = st.database0;
+      restrictions[1] = ts.baseDBName + "0";
       restrictions[2] = "spTest";
-#if RT
-      MySqlSchemaCollection procs = st.conn.GetSchemaCollection("PROCEDURES", restrictions);
+#if NETCORE10
+      MySqlSchemaCollection procs = connection.GetSchemaCollection("PROCEDURES", restrictions);
 #else
-      DataTable procs = st.conn.GetSchema("PROCEDURES", restrictions);
+      DataTable procs = connection.GetSchema("PROCEDURES", restrictions);
 #endif
       Assert.Equal(1, procs.Rows.Count);
       Assert.Equal("spTest", procs.Rows[0][0]);
-      Assert.Equal(st.database0.ToLower(), procs.Rows[0][2].ToString().ToLower(CultureInfo.InvariantCulture));
+      Assert.Equal(ts.baseDBName.ToLower() + "0", procs.Rows[0][2].ToString().ToLower(CultureInfo.InvariantCulture));
       Assert.Equal("spTest", procs.Rows[0][3]);
 
-#if RT
-      MySqlSchemaCollection parameters = st.conn.GetSchemaCollection("PROCEDURE PARAMETERS", restrictions);
+#if NETCORE10
+      MySqlSchemaCollection parameters = connection.GetSchemaCollection("PROCEDURE PARAMETERS", restrictions);
 #else
-      DataTable parameters = st.conn.GetSchema("PROCEDURE PARAMETERS", restrictions);
+      DataTable parameters = connection.GetSchema("PROCEDURE PARAMETERS", restrictions);
 #endif
       Assert.Equal(4, parameters.Rows.Count);
 
@@ -183,7 +182,7 @@ namespace MySql.Data.MySqlClient.Tests
 #else
       DataRow row = parameters.Rows[0];
 #endif
-      Assert.Equal(st.database0.ToLower(CultureInfo.InvariantCulture),
+      Assert.Equal(ts.baseDBName.ToLower(CultureInfo.InvariantCulture) + "0",
           row["SPECIFIC_SCHEMA"].ToString().ToLower(CultureInfo.InvariantCulture));
       Assert.Equal("spTest", row["SPECIFIC_NAME"]);
       Assert.Equal(1, row["ORDINAL_POSITION"]);
@@ -192,7 +191,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("INT", row["DATA_TYPE"].ToString().ToUpper(CultureInfo.InvariantCulture));
 
       row = parameters.Rows[1];
-      Assert.Equal(st.database0.ToLower(CultureInfo.InvariantCulture), row["SPECIFIC_SCHEMA"].ToString().ToLower(CultureInfo.InvariantCulture));
+      Assert.Equal(ts.baseDBName.ToLower(CultureInfo.InvariantCulture) + "0", row["SPECIFIC_SCHEMA"].ToString().ToLower(CultureInfo.InvariantCulture));
       Assert.Equal("spTest", row["SPECIFIC_NAME"]);
       Assert.Equal(2, row["ORDINAL_POSITION"]);
       Assert.Equal("IN", row["PARAMETER_MODE"]);
@@ -200,7 +199,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("INT", row["DATA_TYPE"].ToString().ToUpper(CultureInfo.InvariantCulture));
 
       row = parameters.Rows[2];
-      Assert.Equal(st.database0.ToLower(CultureInfo.InvariantCulture), row["SPECIFIC_SCHEMA"].ToString().ToLower(CultureInfo.InvariantCulture));
+      Assert.Equal(ts.baseDBName.ToLower(CultureInfo.InvariantCulture) + "0", row["SPECIFIC_SCHEMA"].ToString().ToLower(CultureInfo.InvariantCulture));
       Assert.Equal("spTest", row["SPECIFIC_NAME"]);
       Assert.Equal(3, row["ORDINAL_POSITION"]);
       Assert.Equal("INOUT", row["PARAMETER_MODE"]);
@@ -208,7 +207,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("VARCHAR", row["DATA_TYPE"].ToString().ToUpper(CultureInfo.InvariantCulture));
 
       row = parameters.Rows[3];
-      Assert.Equal(st.database0.ToLower(CultureInfo.InvariantCulture), row["SPECIFIC_SCHEMA"].ToString().ToLower(CultureInfo.InvariantCulture));
+      Assert.Equal(ts.baseDBName.ToLower(CultureInfo.InvariantCulture) +  "0", row["SPECIFIC_SCHEMA"].ToString().ToLower(CultureInfo.InvariantCulture));
       Assert.Equal("spTest", row["SPECIFIC_NAME"]);
       Assert.Equal(4, row["ORDINAL_POSITION"]);
       Assert.Equal("OUT", row["PARAMETER_MODE"]);
@@ -223,11 +222,11 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void UnsignedParametersInSP()
     {
-      if (st.Version  < new Version(5, 0)) return;
+      if (ts.version  < new Version(5, 0)) return;
 
-      st.execSQL("CREATE PROCEDURE spTest(testid TINYINT UNSIGNED) BEGIN SELECT testid; END");
+      executeSQL("CREATE PROCEDURE spTest(testid TINYINT UNSIGNED) BEGIN SELECT testid; END");
 
-      MySqlCommand cmd = new MySqlCommand("spTest", st.conn);
+      MySqlCommand cmd = new MySqlCommand("spTest", connection);
       cmd.CommandType = CommandType.StoredProcedure;
       MySqlCommandBuilder.DeriveParameters(cmd);
       Assert.Equal(MySqlDbType.UByte, cmd.Parameters[0].MySqlDbType);
@@ -237,13 +236,13 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void CheckNameOfReturnParameter()
     {
-      if (st.Version  < new Version(5, 0)) return;
+      if (ts.version  < new Version(5, 0)) return;
 
-      st.execSQL("DROP FUNCTION IF EXISTS fnTest");
-      st.execSQL("CREATE FUNCTION fnTest() RETURNS CHAR(50)" +
+      executeSQL("DROP FUNCTION IF EXISTS fnTest");
+      executeSQL("CREATE FUNCTION fnTest() RETURNS CHAR(50)" +
           " LANGUAGE SQL DETERMINISTIC BEGIN  RETURN \"Test\"; END");
 
-      MySqlCommand cmd = new MySqlCommand("fnTest", st.conn);
+      MySqlCommand cmd = new MySqlCommand("fnTest", connection);
       cmd.CommandType = CommandType.StoredProcedure;
       MySqlCommandBuilder.DeriveParameters(cmd);
       Assert.Equal(1, cmd.Parameters.Count);
@@ -258,21 +257,21 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void DeriveParameters()
     {
-      if (st.Version  < new Version(5, 0)) return;
+      if (ts.version  < new Version(5, 0)) return;
 
-      st.execSQL("CREATE TABLE test2 (c CHAR(20))");
-      st.execSQL("INSERT INTO test2 values ( 'xxxx')");
-      MySqlCommand cmd2 = new MySqlCommand("SELECT * FROM test2", st.conn);
+      executeSQL("CREATE TABLE test2 (c CHAR(20))");
+      executeSQL("INSERT INTO test2 values ( 'xxxx')");
+      MySqlCommand cmd2 = new MySqlCommand("SELECT * FROM test2", connection);
       using (MySqlDataReader reader = cmd2.ExecuteReader())
       {
       }
 
-      st.execSQL("CREATE PROCEDURE spTest(IN \r\nvalin DECIMAL(10,2), " +
+      executeSQL("CREATE PROCEDURE spTest(IN \r\nvalin DECIMAL(10,2), " +
           "\nIN val2 INT, INOUT val3 FLOAT, OUT val4 DOUBLE, INOUT val5 BIT, " +
           "val6 VARCHAR(155), val7 SET('a','b'), val8 CHAR, val9 NUMERIC(10,2)) " +
                "BEGIN SELECT 1; END");
 
-      MySqlCommand cmd = new MySqlCommand("spTest", st.conn);
+      MySqlCommand cmd = new MySqlCommand("spTest", connection);
       cmd.CommandType = CommandType.StoredProcedure;
       MySqlCommandBuilder.DeriveParameters(cmd);
 
@@ -313,8 +312,8 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(ParameterDirection.Input, cmd.Parameters[8].Direction);
       Assert.Equal(MySqlDbType.NewDecimal, cmd.Parameters[8].MySqlDbType);
 
-      st.execSQL("DROP PROCEDURE spTest");
-      st.execSQL("CREATE PROCEDURE spTest() BEGIN END");
+      executeSQL("DROP PROCEDURE spTest");
+      executeSQL("CREATE PROCEDURE spTest() BEGIN END");
       cmd.CommandText = "spTest";
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.Parameters.Clear();
@@ -328,13 +327,13 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void DeriveParametersForFunction()
     {
-      if (st.Version  < new Version(5, 0)) return;
+      if (ts.version  < new Version(5, 0)) return;
       
-      st.execSQL("DROP FUNCTION IF EXISTS fnTest");
-      st.execSQL("CREATE FUNCTION fnTest(v1 DATETIME) RETURNS INT " +
+      executeSQL("DROP FUNCTION IF EXISTS fnTest");
+      executeSQL("CREATE FUNCTION fnTest(v1 DATETIME) RETURNS INT " +
           "  LANGUAGE SQL DETERMINISTIC BEGIN RETURN 1; END");
 
-      MySqlCommand cmd = new MySqlCommand("fnTest", st.conn);
+      MySqlCommand cmd = new MySqlCommand("fnTest", connection);
       cmd.CommandType = CommandType.StoredProcedure;
       MySqlCommandBuilder.DeriveParameters(cmd);
 
@@ -353,14 +352,14 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void NotSpecifyingDataTypeOfReturnValue()
     {
-      if (st.Version  < new Version(5, 0)) return;
+      if (ts.version  < new Version(5, 0)) return;
 
-      st.execSQL("DROP FUNCTION IF EXISTS TestFunction");
+      executeSQL("DROP FUNCTION IF EXISTS TestFunction");
 
-      st.execSQL(@"CREATE FUNCTION `TestFunction`() 
+      executeSQL(@"CREATE FUNCTION `TestFunction`() 
                 RETURNS varchar(20) 
                 RETURN ''");
-      MySqlCommand cmd = new MySqlCommand("TestFunction", st.conn);
+      MySqlCommand cmd = new MySqlCommand("TestFunction", connection);
       cmd.CommandType = CommandType.StoredProcedure;
       MySqlParameter returnParam = new MySqlParameter();
       returnParam.ParameterName = "?RetVal_";
@@ -376,15 +375,15 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void UpdateBatchSizeMoreThanOne()
     {      
-      st.execSQL(@"CREATE TABLE test(fldID INT NOT NULL, 
+      executeSQL(@"CREATE TABLE test(fldID INT NOT NULL, 
                 fldValue VARCHAR(50) NOT NULL, PRIMARY KEY(fldID))");
 
-      MySqlDataAdapter adapter = new MySqlDataAdapter("SELECT * FROM test", st.conn);
+      MySqlDataAdapter adapter = new MySqlDataAdapter("SELECT * FROM test", connection);
       DataTable data = new DataTable();
       adapter.Fill(data);
 
       MySqlCommand ins = new MySqlCommand(
-        "INSERT INTO test(fldID, fldValue) VALUES (?p1, ?p2)", st.conn);
+        "INSERT INTO test(fldID, fldValue) VALUES (?p1, ?p2)", connection);
       ins.Parameters.Add("p1", MySqlDbType.Int32).SourceColumn = "fldID";
       ins.Parameters.Add("p2", MySqlDbType.String).SourceColumn = "fldValue";
 
@@ -403,7 +402,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(numToInsert, adapter.Update(data));
 
       //UPDATE VIA SP
-      MySqlCommand comm = new MySqlCommand("DROP PROCEDURE IF EXISTS pbug50123", st.conn);
+      MySqlCommand comm = new MySqlCommand("DROP PROCEDURE IF EXISTS pbug50123", connection);
       comm.ExecuteNonQuery();
       comm.CommandText = "CREATE PROCEDURE pbug50123(" +
           "IN pfldID INT, IN pfldValue VARCHAR(50)) " +

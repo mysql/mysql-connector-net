@@ -1,4 +1,4 @@
-﻿// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -26,7 +26,7 @@ namespace MySql.Data.MySqlClient.Tests
   using System.Collections.Generic;
   using System.Text;
   using MySql.Data.MySqlClient.Memcached;
-  using NUnit.Framework;
+  using Xunit;
 
   /*
   /// <summary>
@@ -35,6 +35,9 @@ namespace MySql.Data.MySqlClient.Tests
   /// </summary>
   public class Memcached
   {
+
+  //TODO: These tests will only run in linux and OS X
+
     // A server that must be running Innodb memcached plugin in the standard 11211 port.
     public static readonly string SERVER = "192.168.56.99";
     public static readonly uint PORT = 11211;

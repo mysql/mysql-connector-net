@@ -1,4 +1,4 @@
-// Copyright © 2004, 2014, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,21 +20,19 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System.Data;
-using MySql.Data.MySqlClient;
-using System.Text;
-#if NET_40_OR_GREATER
-using System.Threading.Tasks;
-using System.Threading;
 using System;
-#endif
+using System.Data;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient
 {
   /// <summary>
   /// Helper class that makes it easier to work with the provider.
   /// </summary>
-  public sealed class MySqlHelper
+  public sealed partial class MySqlHelper
   {
     enum CharClass : byte
     {
@@ -47,7 +45,7 @@ namespace MySql.Data.MySqlClient
     private static string stringOfQuoteChars =
         "\u0022\u0027\u0060\u00b4\u02b9\u02ba\u02bb\u02bc\u02c8\u02ca\u02cb\u02d9\u0300\u0301\u2018\u2019\u201a\u2032\u2035\u275b\u275c\uff07";
 
-    private static CharClass[] charClassArray = makeCharClassArray();
+    private static CharClass[] charClassArray = MakeCharClassArray();
 
     // this class provides only static methods
     private MySqlHelper()
@@ -103,7 +101,7 @@ namespace MySql.Data.MySqlClient
     }
     #endregion
 
-#if !RT
+#if !NETCORE10
     #region ExecuteDataSet
 
     /// <summary>
@@ -222,7 +220,6 @@ namespace MySql.Data.MySqlClient
       da.Update(ds, tablename);
       cn.Close();
     }
-
     #endregion
 #endif
 
@@ -235,9 +232,9 @@ namespace MySql.Data.MySqlClient
     /// <param name="transaction"><see cref="MySqlTransaction"/> object to use for the command</param>
     /// <param name="commandText">Command text to use</param>
     /// <param name="commandParameters">Array of <see cref="MySqlParameter"/> objects to use with the command</param>
-    /// <param name="ExternalConn">True if the connection should be preserved, false if not</param>
+    /// <param name="externalConn">True if the connection should be preserved, false if not</param>
     /// <returns><see cref="MySqlDataReader"/> object ready to read the results of the command</returns>
-    private static MySqlDataReader ExecuteReader(MySqlConnection connection, MySqlTransaction transaction, string commandText, MySqlParameter[] commandParameters, bool ExternalConn)
+    private static MySqlDataReader ExecuteReader(MySqlConnection connection, MySqlTransaction transaction, string commandText, MySqlParameter[] commandParameters, bool externalConn)
     {
       //create a command and prepare it for execution
       MySqlCommand cmd = new MySqlCommand();
@@ -254,7 +251,7 @@ namespace MySql.Data.MySqlClient
       MySqlDataReader dr;
 
       // call ExecuteReader with the appropriate CommandBehavior
-      if (ExternalConn)
+      if (externalConn)
       {
         dr = cmd.ExecuteReader();
       }
@@ -278,7 +275,7 @@ namespace MySql.Data.MySqlClient
     public static MySqlDataReader ExecuteReader(string connectionString, string commandText)
     {
       //pass through the call providing null for the set of SqlParameters
-      return ExecuteReader(connectionString, commandText, (MySqlParameter[])null);
+      return ExecuteReader(connectionString, commandText, null);
     }
 
     /// <summary>
@@ -290,7 +287,7 @@ namespace MySql.Data.MySqlClient
     public static MySqlDataReader ExecuteReader(MySqlConnection connection, string commandText)
     {
       //pass through the call providing null for the set of SqlParameters
-      return ExecuteReader(connection, null, commandText, (MySqlParameter[])null, true);
+      return ExecuteReader(connection, null, commandText, null, true);
     }
 
     /// <summary>
@@ -337,7 +334,7 @@ namespace MySql.Data.MySqlClient
     public static object ExecuteScalar(string connectionString, string commandText)
     {
       //pass through the call providing null for the set of MySqlParameters
-      return ExecuteScalar(connectionString, commandText, (MySqlParameter[])null);
+      return ExecuteScalar(connectionString, commandText, null);
     }
 
     /// <summary>
@@ -368,7 +365,7 @@ namespace MySql.Data.MySqlClient
     public static object ExecuteScalar(MySqlConnection connection, string commandText)
     {
       //pass through the call providing null for the set of MySqlParameters
-      return ExecuteScalar(connection, commandText, (MySqlParameter[])null);
+      return ExecuteScalar(connection, commandText, null);
     }
 
     /// <summary>
@@ -402,7 +399,7 @@ namespace MySql.Data.MySqlClient
     #endregion
 
     #region Utility methods
-    private static CharClass[] makeCharClassArray()
+    private static CharClass[] MakeCharClassArray()
     {
 
       CharClass[] a = new CharClass[65536];
@@ -417,16 +414,9 @@ namespace MySql.Data.MySqlClient
       return a;
     }
 
-    private static bool needsQuoting(string s)
+    private static bool NeedsQuoting(string s)
     {
-      foreach (char c in s)
-      {
-        if (charClassArray[c] != CharClass.None)
-        {
-          return true;
-        }
-      }
-      return false;
+      return s.Any(c => charClassArray[c] != CharClass.None);
     }
 
     /// <summary>
@@ -436,7 +426,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>The string with all quotes escaped.</returns>
     public static string EscapeString(string value)
     {
-      if (!needsQuoting(value))
+      if (!NeedsQuoting(value))
         return value;
 
       StringBuilder sb = new StringBuilder();
@@ -455,7 +445,7 @@ namespace MySql.Data.MySqlClient
 
     public static string DoubleQuoteString(string value)
     {
-      if (!needsQuoting(value))
+      if (!NeedsQuoting(value))
         return value;
 
       StringBuilder sb = new StringBuilder();
@@ -473,9 +463,9 @@ namespace MySql.Data.MySqlClient
 
     #endregion
 
-#if NET_40_OR_GREATER
     #region Async
 
+#if !NETCORE10
     #region DataRow
     /// <summary>
     /// Async version of ExecuteDataRow
@@ -510,8 +500,8 @@ namespace MySql.Data.MySqlClient
       }
       return result.Task;
     }
-
     #endregion
+#endif
 
     #region NonQuery
     /// <summary>
@@ -584,6 +574,7 @@ namespace MySql.Data.MySqlClient
 
     #endregion
 
+#if !NETCORE10
     #region DataSet
     /// <summary>
     /// Async version of ExecuteDataset
@@ -718,8 +709,8 @@ namespace MySql.Data.MySqlClient
       }
       return result.Task;
     }
-
     #endregion
+#endif
 
     #region DataReader
     /// <summary>
@@ -945,6 +936,5 @@ namespace MySql.Data.MySqlClient
     }
     #endregion
     #endregion
-#endif
   }
 }

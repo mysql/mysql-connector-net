@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MySQL.Data.Entity</RootNamespace>
+    <AssemblyName>MySQL.Data.EF7</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Transactions" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CodeAttributes.cs" />
+    <Compile Include="Extensions\MySQLDbContextOptions.cs" />
+    <Compile Include="Extensions\MySQLDbContextOptionsExtensions.cs" />
+    <Compile Include="Extensions\MySQLPropertyBuilderExtensions.cs" />
+    <Compile Include="Metadata\MySQLAnnotationNames.cs" />
+    <Compile Include="Metadata\MySQLAnnotationProvider.cs" />
+    <Compile Include="Metadata\MySQLFullAnnotationNames.cs" />
+    <Compile Include="Metadata\MySQLPropertyAnnotations.cs" />
+    <Compile Include="Migrations\CreateDatabaseOperation.cs" />
+    <Compile Include="Migrations\DropDatabaseOperation.cs" />
+    <Compile Include="Migrations\MySQLHistoryRepository.cs" />
+    <Compile Include="Migrations\MySQLMigrationsAnnotationProvider.cs" />
+    <Compile Include="Migrations\MySQLMigrationsSqlGenerator.cs" />
+    <Compile Include="MySQLCompositeMemberTranslator.cs" />
+    <Compile Include="MySQLCompositeMethodCallTranslator.cs" />
+    <Compile Include="MySQLDatabaseCreator.cs" />
+    <Compile Include="MySQLDatabaseProviderServices.cs" />
+    <Compile Include="MySQLMetadataExtensions.cs" />
+    <Compile Include="MySQLOptionsExtension.cs" />
+    <Compile Include="MySQLModelSource.cs" />
+    <Compile Include="MySQLServerConnection.cs" />
+    <Compile Include="MySQLServiceCollectionExtensions.cs" />
+    <Compile Include="MySQLSqlGenerationHelper.cs" />
+    <Compile Include="MySQLTypeMapper.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Query\MySQLQueryGeneratorFactory.cs" />
+    <Compile Include="Query\MySQLQuerySqlGenerator.cs" />
+    <Compile Include="Update\MySQLModificationCommandBatch.cs" />
+    <Compile Include="Update\MySQLModificationCommandBatchFactory.cs" />
+    <Compile Include="Update\MySQLUpdateSqlGenerator.cs" />
+    <Compile Include="Utils\SharedTypeExtensions.cs" />
+    <Compile Include="Utils\ThrowIf.cs" />
+    <Compile Include="ValueGeneration\MySQLValueGeneratorCache.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="MySql.Data.EntityFrameworkCore.project.json" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MySql.Data\MySql.Data.csproj">
+      <Project>{e9df5ed1-4cbd-4226-b931-9a51610ac14d}</Project>
+      <Name>MySql.Data</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

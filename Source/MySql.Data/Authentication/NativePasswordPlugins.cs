@@ -1,4 +1,4 @@
-﻿// Copyright © 2012, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2012, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,13 +20,10 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System.IO;
 using System;
-using MySql.Data.MySqlClient.Properties;
-using MySql.Data.Common;
 using System.Security.Cryptography;
-#if RT
-using AliasText = MySql.Data.MySqlClient.RT;
+#if NETCORE10
+using AliasText = MySql.Data.MySqlClient.Framework.NetCore10;
 #else
 using AliasText = System.Text;
 #endif
@@ -35,10 +32,7 @@ namespace MySql.Data.MySqlClient.Authentication
 {
   public class MySqlNativePasswordPlugin : MySqlAuthenticationPlugin
   {
-    public override string PluginName
-    {
-      get { return "mysql_native_password"; }
-    }
+    public override string PluginName => "mysql_native_password";
 
     protected override void SetAuthData(byte[] data)
     {
@@ -73,14 +67,14 @@ namespace MySql.Data.MySqlClient.Authentication
     /// given password/seed according to the new 4.1.1 authentication scheme.
     /// </summary>
     /// <param name="password"></param>
-    /// <param name="seed"></param>
+    /// <param name="seedBytes"></param>
     /// <returns></returns>
     protected byte[] Get411Password(string password, byte[] seedBytes)
     {
       // if we have no password, then we just return 1 zero byte
       if (password.Length == 0) return new byte[1];
-
-      SHA1 sha = new SHA1CryptoServiceProvider();
+      //SHA1 sha = new SHA1CryptoServiceProvider();
+      SHA1 sha = SHA1.Create();
 
       byte[] firstHash = sha.ComputeHash(AliasText.Encoding.Default.GetBytes(password));
       byte[] secondHash = sha.ComputeHash(firstHash);

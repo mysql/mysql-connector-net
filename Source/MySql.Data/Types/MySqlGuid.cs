@@ -1,4 +1,4 @@
-// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc.
+// Copyright © 2004, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,70 +21,39 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Data;
 using MySql.Data.MySqlClient;
-using MySql.Data.MySqlClient.Properties;
+
 
 namespace MySql.Data.Types
 {
 
   internal struct MySqlGuid : IMySqlValue
   {
-    Guid mValue;
-    private bool isNull;
-    private byte[] bytes;
-    private bool oldGuids;
-
     public MySqlGuid(byte[] buff)
     {
-      oldGuids = false;
-      mValue = new Guid(buff);
-      isNull = false;
-      bytes = buff;
+      OldGuids = false;
+      Value = new Guid(buff);
+      IsNull = false;
+      Bytes = buff;
     }
 
-    public byte[] Bytes
-    {
-      get { return bytes; }
-    }
+    public byte[] Bytes { get; }
 
-    public bool OldGuids
-    {
-      get { return oldGuids; }
-      set { oldGuids = value; }
-    }
+    public bool OldGuids { get; set; }
 
     #region IMySqlValue Members
 
-    public bool IsNull
-    {
-      get { return isNull; }
-    }
+    public bool IsNull { get; private set; }
 
-    MySqlDbType IMySqlValue.MySqlDbType
-    {
-      get { return MySqlDbType.Guid; }
-    }
+    MySqlDbType IMySqlValue.MySqlDbType => MySqlDbType.Guid;
 
-    object IMySqlValue.Value
-    {
-      get { return mValue; }
-    }
+    object IMySqlValue.Value => Value;
 
-    public Guid Value
-    {
-      get { return mValue; }
-    }
+    public Guid Value { get; private set; }
 
-    Type IMySqlValue.SystemType
-    {
-      get { return typeof(Guid); }
-    }
+    Type IMySqlValue.SystemType => typeof(Guid);
 
-    string IMySqlValue.MySqlTypeName
-    {
-      get { return OldGuids ? "BINARY(16)" : "CHAR(36)"; }
-    }
+    string IMySqlValue.MySqlTypeName => OldGuids ? "BINARY(16)" : "CHAR(36)";
 
     void IMySqlValue.WriteValue(MySqlPacket packet, bool binary, object val, int length)
     {
@@ -176,7 +145,7 @@ namespace MySql.Data.Types
     IMySqlValue IMySqlValue.ReadValue(MySqlPacket packet, long length, bool nullVal)
     {
       MySqlGuid g = new MySqlGuid();
-      g.isNull = true;
+      g.IsNull = true;
       g.OldGuids = OldGuids;
       if (!nullVal)
       {
@@ -187,8 +156,8 @@ namespace MySql.Data.Types
           s = packet.ReadLenString();
         else
           s = packet.ReadString(length);
-        g.mValue = new Guid(s);
-        g.isNull = false;
+        g.Value = new Guid(s);
+        g.IsNull = false;
       }
       return g;
     }

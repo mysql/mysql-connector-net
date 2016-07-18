@@ -1,4 +1,4 @@
-// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc., 2009, 2014 Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,11 +21,9 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Data;
-using System.IO;
-using MySql.Data.MySqlClient;
 using System.Globalization;
-
+using MySql.Data.MySqlClient;
+using MySql.Data.MySqlClient.Common;
 
 namespace MySql.Data.Types
 {
@@ -35,10 +33,8 @@ namespace MySql.Data.Types
   /// </summary>
   public partial struct MySqlDateTime : IMySqlValue, IComparable
   {
-    private bool isNull;
-    private MySqlDbType type;
-    private int year, month, day, hour, minute, second;
-    private int millisecond, microsecond;
+    private readonly MySqlDbType _type;
+    private int _millisecond, _microsecond;
     public int TimezoneOffset;
 
     /// <summary>
@@ -72,16 +68,16 @@ namespace MySql.Data.Types
     /// <param name="mdt">The <b>MySqlDateTime</b> object to copy.</param>
     public MySqlDateTime(MySqlDateTime mdt)
     {
-      year = mdt.Year;
-      month = mdt.Month;
-      day = mdt.Day;
-      hour = mdt.Hour;
-      minute = mdt.Minute;
-      second = mdt.Second;
-      microsecond = 0;
-      millisecond = 0;
-      type = MySqlDbType.DateTime;
-      isNull = false;
+      Year = mdt.Year;
+      Month = mdt.Month;
+      Day = mdt.Day;
+      Hour = mdt.Hour;
+      Minute = mdt.Minute;
+      Second = mdt.Second;
+      _microsecond = 0;
+      _millisecond = 0;
+      _type = MySqlDbType.DateTime;
+      IsNull = false;
       TimezoneOffset = 0;
     }
 
@@ -89,42 +85,42 @@ namespace MySql.Data.Types
     /// Enables the contruction of a <b>MySqlDateTime</b> object by parsing a string.
     /// </summary>
     public MySqlDateTime(string dateTime)
-      : this(MySqlDateTime.Parse(dateTime))
+      : this(Parse(dateTime))
     {
     }
 
     internal MySqlDateTime(MySqlDbType type, int year, int month, int day, int hour, int minute,
       int second, int microsecond)
     {
-      this.isNull = false;
-      this.type = type;
-      this.year = year;
-      this.month = month;
-      this.day = day;
-      this.hour = hour;
-      this.minute = minute;
-      this.second = second;
-      this.microsecond = microsecond;
-      this.millisecond = this.microsecond / 1000;
+      this.IsNull = false;
+      this._type = type;
+      this.Year = year;
+      this.Month = month;
+      this.Day = day;
+      this.Hour = hour;
+      this.Minute = minute;
+      this.Second = second;
+      this._microsecond = microsecond;
+      this._millisecond = this._microsecond / 1000;
       this.TimezoneOffset = 0;
     }
 
     internal MySqlDateTime(MySqlDbType type, bool isNull)
       : this(type, 0, 0, 0, 0, 0, 0, 0)
     {
-      this.isNull = isNull;
+      this.IsNull = isNull;
     }
 
     internal MySqlDateTime(MySqlDbType type, DateTime val)
       : this(type, 0, 0, 0, 0, 0, 0, 0)
     {
-      this.isNull = false;
-      year = val.Year;
-      month = val.Month;
-      day = val.Day;
-      hour = val.Hour;
-      minute = val.Minute;
-      second = val.Second;
+      this.IsNull = false;
+      Year = val.Year;
+      Month = val.Month;
+      Day = val.Day;
+      Hour = val.Hour;
+      Minute = val.Minute;
+      Second = val.Second;
       Microsecond = (int)(val.Ticks % 10000000) / 10;
     }
 
@@ -133,68 +129,38 @@ namespace MySql.Data.Types
     /// <summary>
     /// Indicates if this object contains a value that can be represented as a DateTime
     /// </summary>
-    public bool IsValidDateTime
-    {
-      get
-      {
-        return year != 0 && month != 0 && day != 0;
-      }
-    }
+    public bool IsValidDateTime => Year != 0 && Month != 0 && Day != 0;
 
     /// <summary>Returns the year portion of this datetime</summary>
-    public int Year
-    {
-      get { return year; }
-      set { year = value; }
-    }
+    public int Year { get; set; }
 
     /// <summary>Returns the month portion of this datetime</summary>
-    public int Month
-    {
-      get { return month; }
-      set { month = value; }
-    }
+    public int Month { get; set; }
 
     /// <summary>Returns the day portion of this datetime</summary>
-    public int Day
-    {
-      get { return day; }
-      set { day = value; }
-    }
+    public int Day { get; set; }
 
     /// <summary>Returns the hour portion of this datetime</summary>
-    public int Hour
-    {
-      get { return hour; }
-      set { hour = value; }
-    }
+    public int Hour { get; set; }
 
     /// <summary>Returns the minute portion of this datetime</summary>
-    public int Minute
-    {
-      get { return minute; }
-      set { minute = value; }
-    }
+    public int Minute { get; set; }
 
     /// <summary>Returns the second portion of this datetime</summary>
-    public int Second
-    {
-      get { return second; }
-      set { second = value; }
-    }
+    public int Second { get; set; }
 
     /// <summary>
     /// Returns the milliseconds portion of this datetime 
     /// expressed as a value between 0 and 999
     /// </summary>
     public int Millisecond {
-      get { return millisecond; }
+      get { return _millisecond; }
       set
       {
         if (value < 0 || value > 999)
-          throw new ArgumentOutOfRangeException("Millisecond", MySqlClient.Properties.Resources.InvalidMillisecondValue);
-        millisecond = value;
-        microsecond = value * 1000;
+          throw new ArgumentOutOfRangeException("Millisecond", Resources.InvalidMillisecondValue);
+        _millisecond = value;
+        _microsecond = value * 1000;
       }
     }
 
@@ -203,13 +169,13 @@ namespace MySql.Data.Types
     /// </summary>
     public int Microsecond
     {
-      get { return microsecond; }
+      get { return _microsecond; }
       set
       {
         if (value < 0 || value > 999999)
-          throw new ArgumentOutOfRangeException("Microsecond", MySqlClient.Properties.Resources.InvalidMicrosecondValue);
-        microsecond = value;
-        millisecond = value / 1000;
+          throw new ArgumentOutOfRangeException("Microsecond", Resources.InvalidMicrosecondValue);
+        _microsecond = value;
+        _millisecond = value / 1000;
       }
     }
 
@@ -220,39 +186,24 @@ namespace MySql.Data.Types
     /// <summary>
     /// Returns true if this datetime object has a null value
     /// </summary>
-    public bool IsNull
-    {
-      get { return isNull; }
-    }
+    public bool IsNull { get; }
 
-    MySqlDbType IMySqlValue.MySqlDbType
-    {
-      get { return type; }
-    }
+    MySqlDbType IMySqlValue.MySqlDbType => _type;
 
-    object IMySqlValue.Value
-    {
-      get { return GetDateTime(); }
-    }
+    object IMySqlValue.Value => GetDateTime();
 
     /// <summary>
     /// Retrieves the value of this <see cref="MySqlDateTime"/> as a DateTime object.
     /// </summary>
-    public DateTime Value
-    {
-      get { return GetDateTime(); }
-    }
+    public DateTime Value => GetDateTime();
 
-    Type IMySqlValue.SystemType
-    {
-      get { return typeof(DateTime); }
-    }
+    Type IMySqlValue.SystemType => typeof(DateTime);
 
     string IMySqlValue.MySqlTypeName
     {
       get
       {
-        switch (type)
+        switch (_type)
         {
           case MySqlDbType.Date: return "DATE";
           case MySqlDbType.Newdate: return "NEWDATE";
@@ -265,15 +216,13 @@ namespace MySql.Data.Types
 
     private void SerializeText(MySqlPacket packet, MySqlDateTime value)
     {
-      string val = String.Empty;
-
-      val = String.Format("{0:0000}-{1:00}-{2:00}",
-                value.Year, value.Month, value.Day);
-      if (type != MySqlDbType.Date)
+      var val = String.Format("{0:0000}-{1:00}-{2:00}",
+        value.Year, value.Month, value.Day);
+      if (_type != MySqlDbType.Date)
       {
-        val = value.Microsecond > 0 ? String.Format("{0} {1:00}:{2:00}:{3:00}.{4:000000}", val,
-          value.Hour, value.Minute, value.Second, value.Microsecond) : String.Format("{0} {1:00}:{2:00}:{3:00} ", val,
-          value.Hour, value.Minute, value.Second);
+        val = value.Microsecond > 0 ?
+          $"{val} {value.Hour:00}:{value.Minute:00}:{value.Second:00}.{value.Microsecond:000000}"
+          : $"{val} {value.Hour:00}:{value.Minute:00}:{value.Second:00} ";
       }
 
       packet.WriteStringNoNull("'" + val + "'");
@@ -286,7 +235,7 @@ namespace MySql.Data.Types
       string valueAsString = value as string;
 
       if (value is DateTime)
-        dtValue = new MySqlDateTime(type, (DateTime)value);
+        dtValue = new MySqlDateTime(_type, (DateTime)value);
       else if (valueAsString != null)
         dtValue = MySqlDateTime.Parse(valueAsString);
       else if (value is MySqlDateTime)
@@ -308,7 +257,7 @@ namespace MySql.Data.Types
       packet.WriteInteger(dtValue.Year, 2);
       packet.WriteByte((byte)dtValue.Month);
       packet.WriteByte((byte)dtValue.Day);
-      if (type == MySqlDbType.Date)
+      if (_type == MySqlDbType.Date)
       {
         packet.WriteByte(0);
         packet.WriteByte(0);
@@ -332,13 +281,13 @@ namespace MySql.Data.Types
       }
     }
 
-    static internal MySqlDateTime Parse(string s)
+    internal static MySqlDateTime Parse(string s)
     {
       MySqlDateTime dt = new MySqlDateTime();
       return dt.ParseMySql(s);
     }
 
-    static internal MySqlDateTime Parse(string s, Common.DBVersion version)
+    internal static MySqlDateTime Parse(string s, DBVersion version)
     {
       MySqlDateTime dt = new MySqlDateTime();
       return dt.ParseMySql(s);
@@ -365,13 +314,13 @@ namespace MySql.Data.Types
         microsecond = int.Parse(parts[6].PadRight(6, '0'));
       }
 
-      return new MySqlDateTime(type, year, month, day, hour, minute, second, microsecond);
+      return new MySqlDateTime(_type, year, month, day, hour, minute, second, microsecond);
     }
 
     IMySqlValue IMySqlValue.ReadValue(MySqlPacket packet, long length, bool nullVal)
     {
 
-      if (nullVal) return new MySqlDateTime(type, true);
+      if (nullVal) return new MySqlDateTime(_type, true);
 
       if (length >= 0)
       {
@@ -402,7 +351,7 @@ namespace MySql.Data.Types
         packet.ReadByte();
       }
 
-      return new MySqlDateTime(type, year, month, day, hour, minute, second, microsecond);
+      return new MySqlDateTime(_type, year, month, day, hour, minute, second, microsecond);
     }
 
     void IMySqlValue.SkipValue(MySqlPacket packet)
@@ -420,7 +369,7 @@ namespace MySql.Data.Types
         throw new MySqlConversionException("Unable to convert MySQL date/time value to System.DateTime");
 
       DateTimeKind kind = DateTimeKind.Unspecified;
-      if (type == MySqlDbType.Timestamp)
+      if (_type == MySqlDbType.Timestamp)
       {
         if (TimezoneOffset == 0)
           kind = DateTimeKind.Utc;
@@ -428,7 +377,7 @@ namespace MySql.Data.Types
           kind = DateTimeKind.Local;
       }
 
-      return new DateTime(year, month, day, hour, minute, second, kind).AddTicks(microsecond * 10);
+      return new DateTime(Year, Month, Day, Hour, Minute, Second, kind).AddTicks(_microsecond * 10);
     }
 
     private static string FormatDateCustom(string format, int monthVal, int dayVal, int yearVal)
@@ -453,17 +402,22 @@ namespace MySql.Data.Types
     {
       if (this.IsValidDateTime)
       {
-        DateTime d = new DateTime(year, month, day, hour, minute, second).AddTicks(microsecond * 10);
-        return (type == MySqlDbType.Date) ? d.ToString("d") : d.ToString();
+        DateTime d = new DateTime(Year, Month, Day, Hour, Minute, Second).AddTicks(_microsecond * 10);
+        return (_type == MySqlDbType.Date) ? d.ToString("d") : d.ToString();
       }
 
       string dateString = FormatDateCustom(
-          CultureInfo.CurrentUICulture.DateTimeFormat.ShortDatePattern, month, day, year);
-      if (type == MySqlDbType.Date)
+          CultureInfo.CurrentUICulture.DateTimeFormat.ShortDatePattern, Month, Day, Year);
+      if (_type == MySqlDbType.Date)
         return dateString;
 
-      DateTime dt = new DateTime(1, 2, 3, hour, minute, second).AddTicks(microsecond * 10);
+      DateTime dt = new DateTime(1, 2, 3, Hour, Minute, Second).AddTicks(_microsecond * 10);
+#if !NETCORE10
       dateString = String.Format("{0} {1}", dateString, dt.ToLongTimeString());
+#else
+      dateString = String.Format("{0} {1}", dateString, dt.ToString(CultureInfo.CurrentCulture));
+#endif
+
       return dateString;
     }
 
@@ -514,7 +468,7 @@ namespace MySql.Data.Types
       }
     }
 
-    #region IComparable Members
+#region IComparable Members
 
     int IComparable.CompareTo(object obj)
     {
@@ -544,7 +498,7 @@ namespace MySql.Data.Types
       return 0;
     }
 
-    #endregion
+#endregion
 
   }
 }

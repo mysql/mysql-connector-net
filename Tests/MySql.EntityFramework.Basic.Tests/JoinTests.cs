@@ -32,7 +32,6 @@ using System.Linq;
 using MySql.Data.Entity.Tests.Properties;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Xunit;
 #if EF6
 using System.Data.Entity.Core.Objects;

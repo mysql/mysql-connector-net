@@ -28,28 +28,19 @@ using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class EventTests : IUseFixture<SetUpClass>, IDisposable
+  public class EventTests : TestBase
   {
-    private SetUpClass st;
-
-    public void SetFixture(SetUpClass data)
+    public EventTests(TestSetup setup) : base(setup, "event")
     {
-      st = data;  
-    }
 
-    public void Dispose()
-    {
-      st.execSQL("DROP TABLE IF EXISTS TEST");
     }
 
     [Fact]
     public void Warnings()
     {
-      if (st.Version < new Version(4, 1)) return;
+      executeSQL("CREATE TABLE Test (name VARCHAR(10))");
 
-      st.execSQL("CREATE TABLE Test (name VARCHAR(10))");
-
-      string connStr = st.GetConnectionString(true);
+      string connStr = Settings.GetConnectionString(true);
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -74,7 +65,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void StateChange()
     {
-      MySqlConnection c = new MySqlConnection(st.GetConnectionString(true));
+      MySqlConnection c = new MySqlConnection(Settings.GetConnectionString(true));
       c.StateChange += new StateChangeEventHandler(StateChangeHandler);
       c.Open();
       c.Close();

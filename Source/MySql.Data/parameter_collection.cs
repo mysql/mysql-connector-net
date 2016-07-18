@@ -1,4 +1,4 @@
-// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc.
+// Copyright © 2004, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,10 +21,8 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections;
-using System.ComponentModel;
 using System.Collections.Generic;
-using MySql.Data.MySqlClient.Properties;
+
 
 namespace MySql.Data.MySqlClient
 {
@@ -34,16 +32,16 @@ namespace MySql.Data.MySqlClient
   /// <include file='docs/MySqlParameterCollection.xml' path='MyDocs/MyMembers[@name="Class"]/*'/>
   public sealed partial class MySqlParameterCollection
   {
-    List<MySqlParameter> items = new List<MySqlParameter>();
-    private Dictionary<string,int> indexHashCS;
-    private Dictionary<string,int> indexHashCI;
+    readonly List<MySqlParameter> _items = new List<MySqlParameter>();
+    private readonly Dictionary<string,int> _indexHashCs;
+    private readonly Dictionary<string,int> _indexHashCi;
     //turns to true if any parameter is unnamed
     internal bool containsUnnamedParameters;
 
     internal MySqlParameterCollection(MySqlCommand cmd)
     {
-      indexHashCS = new Dictionary<string, int>();
-      indexHashCI = new Dictionary<string,int>(StringComparer.CurrentCultureIgnoreCase);
+      _indexHashCs = new Dictionary<string, int>();
+      _indexHashCi = new Dictionary<string,int>(StringComparer.CurrentCultureIgnoreCase);
       containsUnnamedParameters = false;
       Clear();
     }
@@ -51,10 +49,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets the number of MySqlParameter objects in the collection.
     /// </summary>
-    public override int Count
-    {
-      get { return items.Count; }
-    }
+    public override int Count => _items.Count;
 
     #region Public Methods
 
@@ -136,11 +131,11 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     public override void Clear()
     {
-      foreach (MySqlParameter p in items)
+      foreach (MySqlParameter p in _items)
         p.Collection = null;
-      items.Clear();
-      indexHashCS.Clear();
-      indexHashCI.Clear();
+      _items.Clear();
+      _indexHashCs.Clear();
+      _indexHashCi.Clear();
     }
 
     void CheckIndex(int index)
@@ -152,7 +147,7 @@ namespace MySql.Data.MySqlClient
     private MySqlParameter InternalGetParameter(int index)
     {
       CheckIndex(index);
-      return items[index];
+      return _items[index];
     }
 
     private MySqlParameter InternalGetParameter(string parameterName)
@@ -168,11 +163,11 @@ namespace MySql.Data.MySqlClient
           string newParameterName = parameterName.Substring(1);
           index = IndexOf(newParameterName);
           if (index != -1)
-            return items[index];
+            return _items[index];
         }
         throw new ArgumentException("Parameter '" + parameterName + "' not found in the collection.");
       }
-      return items[index];
+      return _items[index];
     }
 
     private void InternalSetParameter(string parameterName, MySqlParameter value)
@@ -185,21 +180,21 @@ namespace MySql.Data.MySqlClient
 
     private void InternalSetParameter(int index, MySqlParameter value)
     {
-      MySqlParameter newParameter = value as MySqlParameter;
+      MySqlParameter newParameter = value;
       if (newParameter == null)
         throw new ArgumentException(Resources.NewValueShouldBeMySqlParameter);
 
       CheckIndex(index);
-      MySqlParameter p = (MySqlParameter)items[index];
+      MySqlParameter p = _items[index];
 
       // first we remove the old parameter from our hashes
-      indexHashCS.Remove(p.ParameterName);
-      indexHashCI.Remove(p.ParameterName);
+      _indexHashCs.Remove(p.ParameterName);
+      _indexHashCi.Remove(p.ParameterName);
 
       // then we add in the new parameter
-      items[index] = newParameter;
-      indexHashCS.Add(value.ParameterName, index);
-      indexHashCI.Add(value.ParameterName, index);
+      _items[index] = newParameter;
+      _indexHashCs.Add(value.ParameterName, index);
+      _indexHashCi.Add(value.ParameterName, index);
     }
 
     /// <summary>
@@ -210,8 +205,8 @@ namespace MySql.Data.MySqlClient
     public override int IndexOf(string parameterName)
     {
       int i = -1;
-      if (!indexHashCS.TryGetValue(parameterName, out i) &&
-        !indexHashCI.TryGetValue(parameterName, out i))
+      if (!_indexHashCs.TryGetValue(parameterName, out i) &&
+        !_indexHashCi.TryGetValue(parameterName, out i))
         return -1;
       return i;
     }
@@ -227,17 +222,17 @@ namespace MySql.Data.MySqlClient
       MySqlParameter parameter = value as MySqlParameter;
       if (null == parameter)
         throw new ArgumentException("Argument must be of type DbParameter", "value");
-      return items.IndexOf(parameter);
+      return _items.IndexOf(parameter);
     }
 
     internal void ParameterNameChanged(MySqlParameter p, string oldName, string newName)
     {
       int index = IndexOf(oldName);
-      indexHashCS.Remove(oldName);
-      indexHashCI.Remove(oldName);
+      _indexHashCs.Remove(oldName);
+      _indexHashCi.Remove(oldName);
 
-      indexHashCS.Add(newName, index);
-      indexHashCI.Add(newName, index);
+      _indexHashCs.Add(newName, index);
+      _indexHashCi.Add(newName, index);
     }
 
     private MySqlParameter InternalAdd(MySqlParameter value, int index)
@@ -267,17 +262,17 @@ namespace MySql.Data.MySqlClient
 
       if (index == -1)
       {
-        items.Add(value);
-        index = items.Count - 1;
+        _items.Add(value);
+        index = _items.Count - 1;
       }
       else
       {
-        items.Insert(index, value);
+        _items.Insert(index, value);
         AdjustHashes(index, true);
       }
 
-      indexHashCS.Add(value.ParameterName, index);
-      indexHashCI.Add(value.ParameterName, index);
+      _indexHashCs.Add(value.ParameterName, index);
+      _indexHashCi.Add(value.ParameterName, index);
 
       value.Collection = this;
       return value;
@@ -290,7 +285,7 @@ namespace MySql.Data.MySqlClient
       while (true)
       {
         string name = "Parameter" + index.ToString();
-        if (!indexHashCI.ContainsKey(name)) break;
+        if (!_indexHashCi.ContainsKey(name)) break;
         index++;
       }
       return index;
@@ -299,7 +294,7 @@ namespace MySql.Data.MySqlClient
     private static void AdjustHash(Dictionary<string,int> hash, string parameterName, int keyIndex, bool addEntry)
     {
       if (!hash.ContainsKey(parameterName)) return;
-      int index = (int)hash[parameterName];
+      int index = hash[parameterName];
       if (index < keyIndex) return;
       hash[parameterName] = addEntry ? ++index : --index;
     }
@@ -314,9 +309,9 @@ namespace MySql.Data.MySqlClient
     {
       for (int i = 0; i < Count; i++)
       {
-        string name = (items[i] as MySqlParameter).ParameterName;
-        AdjustHash(indexHashCI, name, keyIndex, addEntry);
-        AdjustHash(indexHashCS, name, keyIndex, addEntry);
+        string name = _items[i].ParameterName;
+        AdjustHash(_indexHashCi, name, keyIndex, addEntry);
+        AdjustHash(_indexHashCs, name, keyIndex, addEntry);
       }
     }
 

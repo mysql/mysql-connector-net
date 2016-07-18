@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using MySql.Data.MySqlClient;
-using MySql.Data.MySqlClient.Properties;
+
 using Xunit;
 using System.Data;
 using System.ComponentModel;
@@ -33,13 +33,24 @@ using System.Security.Authentication;
 namespace MySql.Data.MySqlClient.Tests
 {
   #region Configs
-  [Category("Compressed")]
+    
   public class BlobTestsPipe : BlobTests
   {
+    public BlobTestsPipe(TestSetup setup): base(setup , "blobtestspipe")
+    {
+
+    }
+
     protected override string OnGetConnectionStringInfo()
     {
-      return String.Format("protocol=pipe;pipe name={0};ssl mode=none;", st.pipeName);
+      return String.Format("protocol=pipe;pipe name={0};ssl mode=none;", ts.pipeName);
     }
+
+    //[Fact]
+    //public override void InsertBinary()
+    //{
+    //  base.InsertBinary();
+    //}
   }
   #endregion
 }
