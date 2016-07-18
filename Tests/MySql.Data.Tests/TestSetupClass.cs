@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2015 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -26,7 +26,7 @@ using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class TestSetup : IDisposable
+  public class TestSetupClass : IDisposable
   {
     public MySqlConnectionStringBuilder Settings;
     public MySqlConnectionStringBuilder RootSettings;
@@ -47,11 +47,11 @@ namespace MySql.Data.MySqlClient.Tests
     private bool disposed = false;
 
 
-    public TestSetup()
+    public TestSetupClass()
     {
     }
 
-    public void Init(string ns)
+    public virtual void Init(string ns)
     {
       if (String.IsNullOrEmpty(ns))
         throw new Exception("No namespace given");
@@ -65,10 +65,10 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlConnection.ClearAllPools();
       InitializeDatabase();
       firstTime = false;
-    
+
     }
 
-    private void LoadBaseConfiguration()
+    protected virtual void LoadBaseConfiguration()
     {
       baseDBName = "db-" + testNameSpace + "-";
       baseUserName ="u-" + (testNameSpace.Length > 10 ? testNameSpace.Substring(0,10) : testNameSpace) + "-";
@@ -104,7 +104,7 @@ namespace MySql.Data.MySqlClient.Tests
       Settings.UserID = CreateUser("0", "pwd");
     }
 
-    private void CleanupDatabase()
+    protected void CleanupDatabase()
     {
       var data = Utils.FillTable("SHOW DATABASES", root);
       foreach (DataRow row in data.Rows)

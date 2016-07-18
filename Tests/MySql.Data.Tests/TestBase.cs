@@ -36,6 +36,7 @@ namespace MySql.Data.MySqlClient.Tests
     protected TestSetup Setup;
     protected string TestNameSpace;
 
+
     public TestBase(TestSetup setup, string ns)
     {
       Setup = setup;

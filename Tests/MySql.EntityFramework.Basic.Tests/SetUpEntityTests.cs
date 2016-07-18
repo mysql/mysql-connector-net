@@ -40,19 +40,18 @@ using System.Data.Objects;
 
 namespace MySql.Data.Entity.Tests
 {
-  public class SetUpEntityTests : SetUpClass, IDisposable
+  public class SetUpEntityTests : TestSetupClass
   {
     // A trace listener to use during testing.
     private AssertFailTraceListener asertFailListener = new AssertFailTraceListener();
 
-    internal protected override void Initialize()
-    {
-      database0 = database1 = "test";
-      MySqlConnection.ClearAllPools();    
-    }
+    //internal protected override void Initialize()
+    //{
+    //  database0 = database1 = "test";
+    //  MySqlConnection.ClearAllPools();    
+    //}
 
-    public SetUpEntityTests()
-      : base()
+    public SetUpEntityTests()      
     {
       // Replace existing listeners with listener for testing.
       Trace.Listeners.Clear();
@@ -60,7 +59,7 @@ namespace MySql.Data.Entity.Tests
 
       ResourceManager r = new ResourceManager("MySql.Data.Entity.Tests.Properties.Resources", typeof(SetUpEntityTests).Assembly);
       string schema = r.GetString("schema");
-      MySqlScript script = new MySqlScript(conn);
+      MySqlScript script = new MySqlScript(connection);
       script.Query = schema;
       script.Execute();
 
@@ -80,17 +79,7 @@ namespace MySql.Data.Entity.Tests
       MySqlCommand cmd = new MySqlCommand("DROP DATABASE IF EXISTS `modeldb`", rootConn);
       cmd.ExecuteNonQuery();
     }
-
-    public override void Dispose()
-    {      
-      if (rootConn.State != System.Data.ConnectionState.Open )
-        rootConn.Open();
-      
-      MySqlCommand cmd = new MySqlCommand("DROP DATABASE IF EXISTS `modeldb`", rootConn);
-      cmd.ExecuteNonQuery();
-      
-      base.Dispose();
-    }
+  
 
     private EntityConnection GetEntityConnection()
     {
