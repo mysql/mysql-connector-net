@@ -17,7 +17,7 @@
   "buildOptions": {
     "warningsAsErrors": false,
     "optimize": true,
-    "xmlDoc": false,
+    "xmlDoc": true,
     "keyFile": "../../ConnectorNetPublicKey.snk",
     "preserveCompilationContext": true,
     "delaySign": true,
@@ -39,7 +39,8 @@
             "Framework/Net451/**/*.*",
             "Replication/**/*.*",
             "zlib/**/*.*",
-            "TimeStream.cs"
+            "TimeStream.cs",
+            "**/._*"
           ],
           "excludeFiles": [
             "Properties/VersionInfo.cs",

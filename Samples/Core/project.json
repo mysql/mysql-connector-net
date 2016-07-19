@@ -24,7 +24,19 @@
       "imports": [
         "dnxcore50",
         "portable-net452+win81"
-      ]
+      ],
+      "buildOptions": {
+        "warningsAsErrors": false,
+        "resource": [ "**/*.resx" ],
+        "compile": {
+          "exclude": [
+            "**/._*"
+          ]
+        },
+        "optimize": true,
+        "xmlDoc": true,
+        "preserveCompilationContext": true
+      }      
     }
   }
 }

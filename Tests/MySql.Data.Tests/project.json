@@ -28,11 +28,7 @@
         "compile": {
           "include": [ "../*.cs" ],
           "exclude": [ 
-            "Framework/Net451/**/*.*",
-            "Certificates/**/*.*",
-            "TypeTests.cs",
-            "SqlTokenizer.cs",
-            "Tokenizer.cs"
+            "**/._*"
             ]
         }
       },
