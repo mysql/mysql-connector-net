@@ -22,7 +22,7 @@
 
 using System;
 
-namespace MySql.Data.MySqlClient.Common
+namespace MySql.Data.Common
 {
   /// <summary>
   /// This class is modeled after .NET Stopwatch. It provides better

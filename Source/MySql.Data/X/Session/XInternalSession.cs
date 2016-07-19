@@ -24,7 +24,7 @@ using System;
 using MySqlX.XDevAPI;
 using MySqlX.Communication;
 using System.Text;
-using MySqlX.Data;
+using MySql.Data.Common;
 using MySqlX.Protocol;
 using System.Collections.Generic;
 using System.Reflection;
@@ -37,9 +37,8 @@ using MySql.Data.MySqlClient;
 using MySql.Data.Common;
 using MySqlX.Security;
 using MySqlX.Properties;
-using MySql.Data.MySqlClient.common;
 using System.Linq;
-using MySql.Data.MySqlClient.Properties;
+using MySql.Data;
 
 namespace MySqlX.Session
 {

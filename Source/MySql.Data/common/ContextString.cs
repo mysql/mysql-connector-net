@@ -24,7 +24,7 @@ using System;
 using System.Collections;
 using System.Text;
 
-namespace MySql.Data.MySqlClient.Common
+namespace MySql.Data.Common
 {
   internal class ContextString
   {

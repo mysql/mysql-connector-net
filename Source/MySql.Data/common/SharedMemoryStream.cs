@@ -28,7 +28,7 @@ using MySql.Data.MySqlClient;
 using System.Diagnostics;
 
 
-namespace MySql.Data.MySqlClient.Common
+namespace MySql.Data.Common
 {
 #if !PocketPC
 

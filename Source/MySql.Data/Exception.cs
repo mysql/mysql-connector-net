@@ -68,6 +68,12 @@ namespace MySql.Data.MySqlClient
     {
     }
 
+    internal MySqlException(UInt32 code, string sqlState, string msg) : base(msg)
+    {
+      Code = code;
+      SqlState = sqlState;
+    }
+
 #if !NETCORE10
     private MySqlException(SerializationInfo info, StreamingContext context)
       : base(info, context)

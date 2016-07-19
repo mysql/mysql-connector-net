@@ -25,8 +25,8 @@ using MySqlX.Data;
 using System;
 using MySqlX.XDevAPI;
 using MySql.Data.MySqlClient;
-using MySql.Data.Common;
 using MySql.Data.MySqlClient.X.XDevAPI.Common;
+using MySql.Data.Common;
 
 namespace MySqlX.Protocol.X
 {

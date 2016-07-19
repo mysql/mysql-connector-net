@@ -21,7 +21,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
-namespace MySql.Data.MySqlClient.Common
+namespace MySql.Data.Common
 {
   public class StringUtility
   {

@@ -32,7 +32,7 @@ using System.ComponentModel;
 using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
 using System.Security.Authentication;
-using MySql.Data.MySqlClient.Common;
+using MySql.Data.Common;
 
 #if NETCORE10
 using System.ComponentModel.DataAnnotations;
@@ -359,7 +359,7 @@ namespace MySql.Data.MySqlClient
       X509CertificateCollection certs = GetClientCertificates();
       SslProtocols sslProtocols = SslProtocols.Tls;
        sslProtocols |= SslProtocols.Tls11;
-      if (Version.isAtLeast(5, 6, 0) && isEnterprise)
+      if (Version.isAtLeast(5, 6, 0) && version.IsEnterprise)
         sslProtocols |= SslProtocols.Tls12;
 #if NETCORE10
        ss.AuthenticateAsClientAsync(Settings.Server, certs, sslProtocols, false);

@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
-using MySql.Data.MySqlClient.Common;
+using MySql.Data.Common;
 using MySql.Data.Types;
 
 namespace MySql.Data.MySqlClient

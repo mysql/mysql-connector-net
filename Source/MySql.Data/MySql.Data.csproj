@@ -134,6 +134,7 @@
     <Compile Include="common\Cache.cs" />
     <Compile Include="common\ContextString.cs" />
     <Compile Include="common\LowResolutionStopwatch.cs" />
+    <Compile Include="common\MyNetworkStream.cs" />
     <Compile Include="common\MySqlTokenizer.cs" />
     <Compile Include="common\NativeMethods.cs" />
     <Compile Include="common\Platform.cs" />

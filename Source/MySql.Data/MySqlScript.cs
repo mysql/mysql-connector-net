@@ -29,7 +29,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
 using static System.String;
-using MySql.Data.MySqlClient.Common;
+using MySql.Data.Common;
 
 namespace MySql.Data.MySqlClient
 {

@@ -29,7 +29,7 @@ using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using MySql.Data.MySqlClient.Common;
+using MySql.Data.Common;
 using MySql.Data.Types;
 
 namespace MySql.Data.MySqlClient
@@ -838,15 +838,17 @@ namespace MySql.Data.MySqlClient
 
     private static MySqlSchemaCollection GetReservedWords()
     {
-      MySqlSchemaCollection dt = new MySqlSchemaCollection("ReservedWords");
-      string reservedwords = Utils.ReadResource("MySqlClient/keywords.txt");
+      MySqlSchemaCollection dt = new MySqlSchemaCollection("ReservedWords");      
 #if !NETCORE10
       dt.AddColumn(DbMetaDataColumnNames.ReservedWord, typeof(string));
+      Stream str = Assembly.GetExecutingAssembly().GetManifestResourceStream(
+        "MySql.Data.MySqlClient.Properties.ReservedWords.txt");
 #else
       dt.AddColumn("ReservedWord", typeof(string));
+      Stream str = typeof(SchemaProvider).GetTypeInfo().Assembly.GetManifestResourceStream("MySql.Data.MySqlClient.Properties.ReservedWords.txt");
 #endif
 
-      StringReader sr = new StringReader(reservedwords);
+      StreamReader sr = new StreamReader(str);
       string line = sr.ReadLine();
       while (line != null)
       {

@@ -18,7 +18,7 @@
         <ProductVersion>9.0.30729</ProductVersion>
         <SchemaVersion>2.0</SchemaVersion>
         <Framework>4.5</Framework>
-        <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+        <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
         <Net>45</Net>
         <DefineConstants>NET_40_OR_GREATER;NET_45_OR_GREATER;</DefineConstants>
       </PropertyGroup>
@@ -35,6 +35,7 @@
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -135,13 +136,13 @@
     <None Include="Resources\TableScripts.txt" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Properties\CreateUsers.sql" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\Source\MySql.Data\MySql.Data.csproj">
       <Project>{e9df5ed1-4cbd-4226-b931-9a51610ac14d}</Project>
       <Name>MySql.Data</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Properties\CreateUsers.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

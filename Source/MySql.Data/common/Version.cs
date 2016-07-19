@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
-=======
 // Copyright © 2004, 2016 Oracle and/or its affiliates. All rights reserved.
->>>>>>> remotes/origin/6.10
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -27,8 +23,7 @@
 using System;
 using MySql.Data.MySqlClient;
 
-
-namespace MySql.Data.MySqlClient.Common
+namespace MySql.Data.Common
 {
   /// <summary>
   /// Summary description for Version.
@@ -39,18 +34,11 @@ namespace MySql.Data.MySqlClient.Common
 
     public DBVersion(string s, int major, int minor, int build)
     {
-<<<<<<< HEAD
-      this.major = major;
-      this.minor = minor;
-      this.build = build;
-      srcString = s;
-      IsEnterprise = s.ToLowerInvariant().Contains("-enterprise-");
-=======
       Major = major;
       Minor = minor;
       Build = build;
       _srcString = s;
->>>>>>> remotes/origin/6.10
+      IsEnterprise = s.ToLowerInvariant().Contains("-enterprise-");
     }
 
     public int Major { get; }

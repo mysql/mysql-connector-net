@@ -22,7 +22,7 @@
 
 using System.Collections.Generic;
 
-namespace MySql.Data.MySqlClient.Common
+namespace MySql.Data.Common
 {
   internal class Cache<TKeyType, TValueType>
   {

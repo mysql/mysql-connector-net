@@ -27,7 +27,7 @@ using System.Text;
 using System.Collections;
 using System.Data;
 using MySql.Data.Types;
-using MySql.Data.MySqlClient.Common;
+using MySql.Data.Common;
 using System.Data.Common;
 
 namespace MySql.Data.MySqlClient

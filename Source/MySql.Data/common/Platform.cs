@@ -24,7 +24,7 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace MySql.Data.MySqlClient.Common
+namespace MySql.Data.Common
 {
   internal class Platform
   {

@@ -26,7 +26,7 @@ using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
-using MySql.Data.MySqlClient.Common;
+using MySql.Data.Common;
 
 using IsolationLevel = System.Data.IsolationLevel;
 

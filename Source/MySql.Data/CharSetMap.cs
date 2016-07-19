@@ -23,7 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MySql.Data.MySqlClient.Common;
+using MySql.Data.Common;
 
 namespace MySql.Data.MySqlClient
 {
@@ -47,7 +47,7 @@ namespace MySql.Data.MySqlClient
 
     public static CharacterSet GetCharacterSet(DBVersion version, string charSetName)
     {
-      if (CharSetName == null)
+      if (charSetName == null)
         throw new ArgumentNullException("CharSetName is null");
       CharacterSet cs = null;
       if(_mapping.ContainsKey(charSetName))

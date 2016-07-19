@@ -26,7 +26,6 @@ using System.Data;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
-using MySql.Data.MySqlClient.Common;
 using System.IO;
 
 namespace MySql.Data.MySqlClient

@@ -31,7 +31,7 @@ using MySql.Data.Entity.Properties;
 using System.Text;
 using System.Linq;
 using System.Globalization;
-using MySql.Data.MySqlClient.Common;
+using MySql.Data.Common;
 #if EF6
 using System.Data.Entity.Core.Common;
 using System.Data.Entity.Core.Common.CommandTrees;

@@ -20,18 +20,15 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.Data.Common;
-using System;
-using System.Collections.Generic;
+
+using MySql.Data.MySqlClient;
 using System.IO;
-using System.Linq;
 using System.Net.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace MySql.Data.MySqlClient.common
+namespace MySql.Data.Common
 {
   internal class Ssl
   {
@@ -56,7 +53,7 @@ namespace MySql.Data.MySqlClient.common
       if (settings.CertificateFile != null)
       {
         if (!version.isAtLeast(5, 1, 0))
-          throw new MySqlException(Properties.Resources.FileBasedCertificateNotSupported);
+          throw new MySqlException(Resources.FileBasedCertificateNotSupported);
 
         X509Certificate2 clientCert = new X509Certificate2(settings.CertificateFile,
             settings.CertificatePassword);

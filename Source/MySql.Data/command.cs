@@ -27,11 +27,11 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
-using MySql.Data.MySqlClient.Common;
 using MySql.Data.MySqlClient.Replication;
 using System.Threading;
 using System.Reflection;
 using System.Text;
+using MySql.Data.Common;
 
 namespace MySql.Data.MySqlClient
 {
@@ -796,7 +796,7 @@ namespace MySql.Data.MySqlClient
         keyword = keyword.Substring(0, indexChar);
 
       if (keywords == null)
-        keywords = new List<string>(Utils.ReadResource("keywords.txt").Replace("\r", "").Split('\n'));
+        keywords = new List<string>(Resources.keywords.Replace("\r", "").Split('\n'));
 
       return !keywords.Contains(keyword);
     }

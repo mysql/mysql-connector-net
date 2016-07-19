@@ -27,7 +27,7 @@ using System.Linq;
 using System.Text;
 
 
-namespace MySql.Data.MySqlClient.Common
+namespace MySql.Data.Common
 {
   internal class QueryNormalizer
   {

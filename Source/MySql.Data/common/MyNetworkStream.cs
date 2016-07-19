@@ -27,7 +27,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 
-namespace MySql.Data.MySqlClient.Common
+namespace MySql.Data.Common
 {
   internal class MyNetworkStream : NetworkStream
   {

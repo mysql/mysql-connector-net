@@ -86,7 +86,8 @@ namespace MySqlX.Data.Tests.Properties {
         ///  `employee_id` INT NOT NULL AUTO_INCREMENT,
         ///  `name` VARCHAR(450) NOT NULL,
         ///  `age` TINYINT UNSIGNED NULL,
-        ///  PRIMARY [rest of string was truncated]&quot;;.
+        ///  PRIMARY KEY (`employee_id`));
+        ///.
         /// </summary>
         internal static string TableScripts {
             get {
