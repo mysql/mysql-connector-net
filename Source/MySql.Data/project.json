@@ -1,5 +1,5 @@
 {
-  "version": "6.10.0-IR-*",
+  "version": "7.0.4-IR-*",
   "description": "MySql.Data.MySqlClient .Net Core Class Library",
   "authors": [ "Oracle" ],
   "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
