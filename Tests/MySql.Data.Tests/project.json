@@ -1,5 +1,5 @@
 {
-  "version": "6.10.0-IR-*",
+  "version": "7.0.4-IR-*",
   "description": "MySql.Data.Tests Class Library",
   "authors": [ "Oracle" ],
   "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
@@ -28,11 +28,7 @@
         "compile": {
           "include": [ "../*.cs" ],
           "exclude": [
-            "Framework/Net451/**/*.*",
-            "Certificates/**/*.*",
-            "TypeTests.cs",
-            "SqlTokenizer.cs",
-            "Tokenizer.cs"
+            "**/._*"
           ],
           "excludeFiles": [
             "DataTypeTests.cs",
@@ -76,6 +72,6 @@
   },
   "testRunner": "xunit",
   "dependencies": {
-    "MySql.Data": "6.10.0-IR*"
+    "MySql.Data": "7.0.4-IR-*"
   }
 }

@@ -1,5 +1,5 @@
 {
-  "version": "6.10.0-IR-*",
+  "version": "7.0.4-IR-*",
   "description": "MySql.Data.MySqlClient .Net Core Class Library",
   "authors": [ "Oracle" ],
   "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
@@ -17,7 +17,7 @@
   "buildOptions": {
     "warningsAsErrors": false,
     "optimize": true,
-    "xmlDoc": false,
+    "xmlDoc": true,
     "keyFile": "../../ConnectorNetPublicKey.snk",
     "preserveCompilationContext": true,
     "delaySign": true,
@@ -40,7 +40,8 @@
             "X/*.*",
             "Replication/**/*.*",
             "zlib/**/*.*",
-            "TimeStream.cs"
+            "TimeStream.cs",
+            "**/._*"
           ],
           "excludeFiles": [
             "Properties/VersionInfo.cs",

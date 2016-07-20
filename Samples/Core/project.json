@@ -16,7 +16,7 @@
       "type": "platform",
       "version": "1.0.0"
     },
-    "MySql.Data": "6.10.0-IR-*"
+    "MySql.Data": "7.0.4-IR-*"
   },
 
   "frameworks": {
@@ -24,7 +24,19 @@
       "imports": [
         "dnxcore50",
         "portable-net452+win81"
-      ]
+      ],
+      "buildOptions": {
+        "warningsAsErrors": false,
+        "resource": [ "**/*.resx" ],
+        "compile": {
+          "exclude": [
+            "**/._*"
+          ]
+        },
+        "optimize": true,
+        "xmlDoc": true,
+        "preserveCompilationContext": true
+      }      
     }
   }
 }
