@@ -31,8 +31,16 @@ namespace MySql.Data.MySqlClient.Tests
   public class BlobTests : TestBase, IDisposable
   {
     protected TestSetup ts;
-    
-    public BlobTests(TestSetup setup, String nameSpace) : base(setup, "blob")
+
+    public BlobTests(TestSetup setup) : base(setup, "blob")
+    {
+      ts = setup;
+      customConnection = new MySqlConnection(ts.GetConnection(false).ConnectionString + ";" + OnGetConnectionStringInfo());
+      customConnection.Open();
+    }
+
+
+    protected BlobTests(TestSetup setup, String nameSpace) : base(setup, nameSpace)
     {
       ts = setup;
       customConnection = new MySqlConnection(ts.GetConnection(false).ConnectionString + ";" + OnGetConnectionStringInfo());
@@ -55,7 +63,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?id, ?b1)", customConnection);
       cmd.Parameters.Add(new MySqlParameter("?id", 1));
-      cmd.Parameters.Add(new MySqlParameter("?b1", dataIn));
+      cmd.Parameters.Add(new MySqlParameter("?b1", null));
       int rows = cmd.ExecuteNonQuery();
 
       byte[] dataIn2 = Utils.CreateBlob(lenIn);

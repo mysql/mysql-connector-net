@@ -46,11 +46,11 @@ namespace MySql.Data.MySqlClient.Tests
       return String.Format("protocol=pipe;pipe name={0};ssl mode=none;", ts.pipeName);
     }
 
-    //[Fact]
-    //public override void InsertBinary()
-    //{
-    //  base.InsertBinary();
-    //}
+    [Fact]
+    public override void InsertBinary()
+    {
+      base.InsertBinary();
+    }
   }
   #endregion
 }
