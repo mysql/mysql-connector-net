@@ -169,7 +169,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !RT
+#if !NETCORE10
     // Test that thread does not come to pool after abort
     [Fact]
     public void TestAbort()
@@ -312,7 +312,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
 
 #if NETCORE10
-      MySqlCommand cmd = new MySqlCommand("SHOW PROCESSLIST", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SHOW PROCESSLIST", connection);
       using (MySqlDataReader dr = cmd.ExecuteReader())
       {
         while (dr.Read())

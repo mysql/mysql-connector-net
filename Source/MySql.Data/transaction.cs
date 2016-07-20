@@ -79,14 +79,14 @@ namespace MySql.Data.MySqlClient
       GC.SuppressFinalize(this);
     }
 
-#if RT
+#if NETCORE10
     protected void Dispose(bool disposing)
 #else
     protected override void Dispose(bool disposing)
 #endif
     {
       if (disposed) return;
-#if !RT
+#if !NETCORE10
       base.Dispose(disposing);
 #endif
       if (disposing)

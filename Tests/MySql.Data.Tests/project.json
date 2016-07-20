@@ -27,13 +27,41 @@
         "copyToOutput": [ "appsettings.json" ],
         "compile": {
           "include": [ "../*.cs" ],
-          "exclude": [ 
+          "exclude": [
             "Framework/Net451/**/*.*",
             "Certificates/**/*.*",
             "TypeTests.cs",
             "SqlTokenizer.cs",
             "Tokenizer.cs"
-            ]
+          ],
+          "excludeFiles": [
+            "DataTypeTests.cs",
+            "DateTimeTests.cs",
+            "GetSchemaTests.cs",
+            "InstallerTests.cs",
+            "MySqlCommandBuilderTests.cs",
+            "MySqlDataAdapterTests.cs",
+            "MySqlDataReaderTests.cs",
+            "MySQLHelperTests.cs",
+            "OutputParametersBatch.cs",
+            "ParameterTests.cs",
+            "PreparedStatements.cs",
+            "PreparedStatementsPipe.cs",
+            "PreparedStatementsPipeCompressed.cs",
+            "PreparedStatementsSharedMemory.cs",
+            "PreparedStatementsSharedMemoryCompressed.cs",
+            "PreparedStatementsSocketCompressed.cs",
+            "ProcedureParameterTests.cs",
+            "StoredProcedureWithAccess.cs",
+            "ThreadingTests.cs",
+            "TimeoutAndCancel.cs",
+            "OutputParametersBatchPrepared.cs",
+            "OutputParametersNoBatch.cs",
+            "OutputParametersNoBatchPrepared.cs",
+            "TimeoutAndCancelPipe.cs",
+            "TimeoutAndCancelSharedMemory.cs",
+            "TimeoutAndCancelSocketCompressed.cs"
+          ]
         }
       },
       "dependencies": {

@@ -195,7 +195,7 @@ namespace MySql.Data.MySqlClient
 
     private void ReportUsageAdvisorWarnings(int statementId, ResultSet rs)
     {
-#if !RT
+#if !NETCORE10
       if (!Settings.UseUsageAdvisor) return;
 
       if (HasStatus(ServerStatusFlags.NoIndex))

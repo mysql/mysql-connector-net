@@ -63,11 +63,12 @@ using System.Security;
 //   (*) Delay Signing is an advanced option - see the Microsoft .NET Framework
 //       documentation for more information on this.
 //
-#if !NETCORE10
+
 [assembly: AssemblyKeyName("ConnectorNet")]
 //[assembly: AssemblyDelaySign(true)]
 //[assembly: AssemblyKeyFileAttribute(@"..\..\ConnectorNetPublicKey.snk")]
 [assembly: AllowPartiallyTrustedCallers]
+#if !NETCORE10
 [assembly: SecurityRules(SecurityRuleSet.Level1)]
 #endif
 

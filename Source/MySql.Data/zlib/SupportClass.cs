@@ -165,7 +165,7 @@ namespace zlib
 			return System.Text.UTF8Encoding.UTF8.GetChars(byteArray);
 		}
 
-#if !RT
+#if !NETCORE10
 		/*******************************/
 		/// <summary>
 		/// Writes an object to the specified Stream

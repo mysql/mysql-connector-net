@@ -100,15 +100,16 @@ namespace MySql.Data.Common
       SslStream ss = new SslStream(baseStream, true, sslValidateCallback, null);
       X509CertificateCollection certs = GetClientCertificates();
       SslProtocols sslProtocols = SslProtocols.Tls;
-#if NET_45_OR_GREATER
+
       if (!isPluginX)
       {
         sslProtocols |= SslProtocols.Tls11;
         if (version.isAtLeast(5, 6, 0) && version.IsEnterprise)
           sslProtocols |= SslProtocols.Tls12;
       }
-#endif
+#if !NETCORE10
       ss.AuthenticateAsClient(settings.Server, certs, sslProtocols, false);
+#endif
       baseStream = ss;
       MySqlStream stream = new MySqlStream(ss, encoding, false);
       stream.SequenceByte = 2;

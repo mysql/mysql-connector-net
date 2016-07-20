@@ -291,14 +291,7 @@ namespace MySql.Data.MySqlClient
       // This lock  prevents promotable transaction rollback to run
       // in parallel
       lock (driver)
-      {
-        //#if !RT
-        //        if (Transaction.Current != null &&
-        //          Transaction.Current.TransactionInformation.Status == TransactionStatus.Aborted)
-        //        {
-        //          Throw(new TransactionAbortedException());
-        //        }
-        //#endif
+      {    
         // We use default command timeout for SetDatabase
         using (new CommandTimer(this, (int)Settings.DefaultCommandTimeout))
         {
@@ -685,7 +678,7 @@ namespace MySql.Data.MySqlClient
 
     internal void Throw(Exception ex)
     {
-#if !RT
+#if !NETCORE10
       if (_exceptionInterceptor == null)
         throw ex;
       _exceptionInterceptor.Throw(ex);

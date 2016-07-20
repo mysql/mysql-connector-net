@@ -37,12 +37,14 @@
         "compile": {
           "exclude": [
             "Framework/Net451/**/*.*",
+            "X/*.*",
             "Replication/**/*.*",
             "zlib/**/*.*",
             "TimeStream.cs"
           ],
           "excludeFiles": [
             "Properties/VersionInfo.cs",
+            "Properties/ResourcesX.Designer.cs",
             "CommandBuilder.cs",
             "dataadapter.cs",
             "Installer.cs",

@@ -183,7 +183,7 @@ namespace MySql.Data.MySqlClient.Tests
 #endif
     }
 
-#if !RT
+#if !NETCORE10
     [Fact]
     public void UseOldSyntaxGivesWarning()
     {
@@ -428,7 +428,7 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal(ex.Message, "Parameter '?id' has already been defined.");
     }
 
-#if !RT
+#if !NETCORE10
     /// <summary>
     /// Bug #26904 MySqlParameterCollection fails to add MySqlParameter that previously removed 
     /// </summary>
@@ -511,7 +511,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters[0].Size = 10;
       cmd.ExecuteNonQuery();
 
-#if !RT
+#if !NETCORE10
       MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", connection);
       DataTable dt = new DataTable();
       da.Fill(dt);
@@ -524,7 +524,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters[0].Size = 10;
       cmd.ExecuteNonQuery();
 
-#if RT
+#if NETCORE10
       MySqlCommand newValueCommand = new MySqlCommand("SELECT * FROM Test", connection);
       using (MySqlDataReader dr = newValueCommand.ExecuteReader())
       {
@@ -540,7 +540,7 @@ namespace MySql.Data.MySqlClient.Tests
 #endif
     }
 
-#if !RT
+#if !NETCORE10
     /// <summary>
     /// Bug #32093 MySqlParameter Constructor does not allow Direction of anything other than Input 
     /// </summary>
@@ -588,7 +588,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !RT
+#if !NETCORE10
     /// <summary>
     /// Bug #62194	MySQL Parameter constructor doesn't set
     /// all properties: IsNullable, Precision and Scale

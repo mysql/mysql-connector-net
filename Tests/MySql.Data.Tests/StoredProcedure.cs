@@ -219,7 +219,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(false, reader.Read());
       reader.Close();
 
-#if !RT
+#if !NETCORE10
       DataSet ds = new DataSet();
       MySqlCommand cmd2 = new MySqlCommand("spTest", connection);
       cmd2.CommandType = CommandType.StoredProcedure;
@@ -236,7 +236,7 @@ namespace MySql.Data.MySqlClient.Tests
 #endif
     }
 
-#if !RT
+#if !NETCORE10
     private static void da_FillError(object sender, FillErrorEventArgs e)
     {
       fillError = e.Errors.Message;
@@ -437,7 +437,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.AddWithValue("?str", "Second record");
       cmd.ExecuteNonQuery();
 
-#if RT
+#if NETCORE10
       MySqlCommand cmdSelect = new MySqlCommand("SELECT * FROM Test", connection);
       using (MySqlDataReader dr = cmdSelect.ExecuteReader())
       {
@@ -485,7 +485,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.ExecuteNonQuery();
     }
 
-#if !RT
+#if !NETCORE10
     //[Explicit]
     [Fact]
     public void ProcedureCache()
@@ -563,7 +563,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       MySqlCommand c = new MySqlCommand("spTest", connection);
       c.CommandType = CommandType.StoredProcedure;
-#if RT
+#if NETCORE10
       MySqlParameter p = c.CreateParameter();
 #else
       IDataParameter p = c.CreateParameter();
@@ -581,7 +581,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !RT
+#if !NETCORE10
 
     /// <summary>
     /// Bug #22452 MySql.Data.MySqlClient.MySqlException: 
@@ -641,7 +641,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !RT
+#if !NETCORE10
     /// <summary>
     /// Bug #25609 MySqlDataAdapter.FillSchema 
     /// </summary>
@@ -701,7 +701,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL(@"CREATE PROCEDURE spTest(in _val bigint unsigned)
             BEGIN insert into  Test set f1=_val; END");
 
-#if RT
+#if NETCORE10
       MySqlCommand cmd = new MySqlCommand();
       MySqlParameter param = cmd.CreateParameter();
       param.MySqlDbType = MySqlDbType.UInt64;
@@ -758,7 +758,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !RT
+#if !NETCORE10
     [Fact]
     public void AmbiguousColumns()
     {
@@ -916,6 +916,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+#if !NETCORE10
     /// <summary>
     /// Verifies that GetProcedureParameters does not require SELECT permission on mysql.proc table.
     /// </summary>
@@ -949,6 +950,7 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.NotNull(parametersTable);
       }
     }
+#endif
 
     /// <summary>
     /// Validates a stored procedure call without the "call" statement

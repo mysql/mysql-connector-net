@@ -43,7 +43,7 @@ namespace MySql.Data.MySqlClient.Replication
     {
       Groups = groups;
 
-#if !RT
+#if !NETCORE10
       // load up our selectors
       if (MySqlConfiguration.Settings == null) return;
 

@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2015 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -84,11 +84,11 @@ namespace MySql.Data.MySqlClient.Tests
       c.Close();
     }
 
- 
+#if !NETCORE10
     /// <summary>
     /// Bug #14592 Wrong column length returned for VARCHAR UTF8 columns 
     /// </summary>
-   [Fact]
+    [Fact]
     public void GetSchemaOnUTF8()
     {
 
@@ -104,6 +104,7 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal(20, dt.Rows[1]["ColumnSize"]);
       }
     }
+#endif
 
    [Fact]
     public void UTF8BlogsTruncating()
@@ -134,7 +135,9 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-   [Fact]
+#if !NETCORE10
+
+    [Fact]
     public void BlobAsUtf8()
     {
       executeSQL(@"CREATE TABLE Test(include_blob BLOB, include_tinyblob TINYBLOB, 
@@ -213,6 +216,8 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+
+
     /// <summary>
     /// Bug #31185  	columns names are incorrect when using the 'AS' clause and name with accents
     /// Bug #38721  	GetOrdinal doesn't accept column names accepted by MySQL 5.0
@@ -240,10 +245,12 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+#endif
+
     /// <summary>
     /// Bug #31117  	Connector/Net exceptions do not support server charset
     /// </summary>
-   [Fact]
+    [Fact]
     public void NonLatin1Exception()
     {
       string connStr = ts.GetConnection(true).ConnectionString + ";charset=utf8";
@@ -288,7 +295,9 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-   [Fact]
+
+#if !NETCORE10
+    [Fact]
     public void RespectBinaryFlags()
     {
       if (ts.version.Major >= 5 && ts.version.Minor >= 5) return;
@@ -317,6 +326,7 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal("Trädgårdsvägen1", dt.Rows[0][0]);
       }
     }
+#endif
 
    [Fact]
     public void RussianErrorMessagesShowCorrectly()
@@ -353,11 +363,13 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+
+#if !NETCORE10
     /// <summary>
     /// Tests for bug http://bugs.mysql.com/bug.php?id=62094
     /// (char field mapped to System.String of MaxLength=3*len(char) in .NET/Connector).
     /// </summary>
-   [Fact]
+    [Fact]
     public void GetCharLengthInUTF8()
     {
       executeSQL(
@@ -371,6 +383,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(1, ds.Tables[0].Columns["name"].MaxLength);
       Assert.Equal(20, ds.Tables[0].Columns["longname"].MaxLength);
     }
+#endif
 
    /// <summary>
    /// Test for fix of Connector/NET cannot read data from a MySql table using UTF-16/UTF-32

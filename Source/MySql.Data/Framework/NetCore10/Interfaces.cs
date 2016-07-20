@@ -22,7 +22,7 @@
 
 using System;
 
-namespace MySql.Data.MySqlClient.Common
+namespace MySql.Data.Common
 {
   interface ICloneable
   {

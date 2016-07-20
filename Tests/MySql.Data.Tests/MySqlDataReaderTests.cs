@@ -162,7 +162,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
 
-#if !RT
+#if !NETCORE10
     /// <summary>
     /// Bug #59989	MysqlDataReader.GetSchemaTable returns incorrect Values an types
     /// </summary>
@@ -314,7 +314,7 @@ namespace MySql.Data.MySqlClient.Tests
         reader.Read();
         Assert.Equal(2, reader.GetValue(0));
         Assert.Equal(DBNull.Value, reader.GetValue(1));
-#if !RT
+#if !NETCORE10
         Exception ex = Assert.Throws<SqlNullValueException>(() => reader.GetString(1));
         Assert.Equal(ex.Message, "Data is Null. This method or property cannot be called on Null values.");       
 #endif
@@ -324,7 +324,7 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal("Test2", reader.GetValue(1));
         Assert.Equal("Test2", reader.GetString(1));
         Assert.Equal(DBNull.Value, reader.GetValue(2));
-#if !RT
+#if !NETCORE10
         ex = Assert.Throws<SqlNullValueException>(() => reader.GetMySqlDateTime(2));
         Assert.Equal(ex.Message, "Data is Null. This method or property cannot be called on Null values.");                            
 #endif

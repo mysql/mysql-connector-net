@@ -33,7 +33,7 @@ using System.Collections.Generic;
 namespace MySql.Data.MySqlClient
 {
   /// <include file='docs/MySqlCommandBuilder.xml' path='docs/class/*'/>
-#if !RT
+#if !NETCORE10
   [ToolboxItem(false)]
   [System.ComponentModel.DesignerCategory("Code")]
 #endif

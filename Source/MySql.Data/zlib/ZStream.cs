@@ -184,7 +184,7 @@ namespace zlib
 
 			if (dstate.pending_buf.Length <= dstate.pending_out || next_out.Length <= next_out_index || dstate.pending_buf.Length < (dstate.pending_out + len) || next_out.Length < (next_out_index + len))
 			{
-#if !RT
+#if !NETCORE10
 				System.Console.Out.WriteLine(dstate.pending_buf.Length + ", " + dstate.pending_out + ", " + next_out.Length + ", " + next_out_index + ", " + len);
 				System.Console.Out.WriteLine("avail_out=" + avail_out);
 #else

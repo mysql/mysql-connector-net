@@ -215,7 +215,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("FLOAT", row["DATA_TYPE"].ToString().ToUpper(CultureInfo.InvariantCulture));
     }
 
-#if !RT
+#if !NETCORE10
     /// <summary>
     /// Bug #27679  	MySqlCommandBuilder.DeriveParameters ignores UNSIGNED flag
     /// </summary>
