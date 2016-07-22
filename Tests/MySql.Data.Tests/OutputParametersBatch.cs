@@ -33,7 +33,14 @@ namespace MySql.Data.MySqlClient.Tests
     protected TestSetup ts;
     protected bool prepare;
 
-    public OutputParametersBatch(TestSetup setup, string nameSpace): base(setup, "outputparambatch")
+    public OutputParametersBatch(TestSetup setup) : base(setup, "outputparambatch")
+    {
+      ts = setup;
+      customConnection = new MySqlConnection(ts.GetConnection(false).ConnectionString + ";" + OnGetConnectionStringInfo());
+      customConnection.Open();
+    }
+
+    protected OutputParametersBatch(TestSetup setup, string nameSpace): base(setup, nameSpace)
     {
       ts = setup;
       customConnection = new MySqlConnection(ts.GetConnection(false).ConnectionString + ";" + OnGetConnectionStringInfo());

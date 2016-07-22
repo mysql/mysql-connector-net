@@ -503,7 +503,7 @@ namespace MySql.Data.MySqlClient
         string os = string.Empty;
         try
         {
-          if (Platform.IsDotNetCore())
+          if (MySql.Data.Common.Platform.IsDotNetCore())
           {
             return ".Net Core";
           }

@@ -144,6 +144,7 @@
     <Compile Include="common\StreamCreator.cs" />
     <Compile Include="common\StringUtility.cs" />
     <Compile Include="common\Version.cs" />
+    <Compile Include="CompressedStream.cs" />
     <Compile Include="Connection.cs" />
     <Compile Include="Crypt.cs" />
     <Compile Include="dataadapter.cs" />
@@ -219,6 +220,7 @@
     <Compile Include="StoredProcedure.cs" />
     <Compile Include="SystemPerformanceMonitor.cs" />
     <Compile Include="TableCache.cs" />
+    <Compile Include="TimedStream.cs" />
     <Compile Include="TracingDriver.cs" />
     <Compile Include="transaction.cs" />
     <Compile Include="Types\MetaData.cs" />
@@ -367,6 +369,9 @@
     <Content Include="docs\MySqlParameter.xml" />
     <Content Include="docs\MySqlParameterCollection.xml" />
     <Content Include="docs\MySqlTransaction.xml" />
+    <EmbeddedResource Include="Properties\ReservedWords.txt">
+      <CustomToolNamespace>MySql.Data.MySqlClient.Properties</CustomToolNamespace>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="X\Protocol\MySQL\" />

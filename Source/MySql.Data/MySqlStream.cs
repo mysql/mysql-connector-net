@@ -1,4 +1,4 @@
-// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -22,9 +22,9 @@
 
 using System;
 using System.IO;
+using System.Diagnostics;
 using System.Text;
-using MySql.Data.MySqlClient;
-using System.IO.Compression;
+using MySql.Data.Common;
 
 namespace MySql.Data.MySqlClient
 {
@@ -33,66 +33,100 @@ namespace MySql.Data.MySqlClient
   /// </summary>
   internal class MySqlStream
   {
-    // header used for compressed and non-compressed packets
-    private readonly byte[] header = new byte[7];
-    private readonly MySqlPacket _packet;
-    private readonly Stream baseStream;
-    private MemoryStream compBuffer = new MemoryStream(1024);
-    private Stream stream;
-    private int bytesLeft = 0;
-    private bool compressed = false;
+    private byte sequenceByte;
+    private int maxBlockSize;
+    private ulong maxPacketSize;
+    private byte[] packetHeader = new byte[4];
+    MySqlPacket packet;
+    TimedStream timedStream;
+    Stream inStream;
+    Stream outStream;
 
+    internal Stream BaseStream
+    {
+      get
+      {
+        return timedStream;
+      }
+    }
     public MySqlStream(Encoding encoding)
     {
       // we have no idea what the real value is so we start off with the max value
       // The real value will be set in NativeDriver.Configure()
-      MaxPacketSize = ulong.MaxValue;
+      maxPacketSize = ulong.MaxValue;
 
       // we default maxBlockSize to MaxValue since we will get the 'real' value in 
       // the authentication handshake and we know that value will not exceed 
       // true maxBlockSize prior to that.
+      maxBlockSize = Int32.MaxValue;
 
-      MaxBlockSize = Int32.MaxValue;
-
-      _packet = new MySqlPacket(encoding);
+      packet = new MySqlPacket(encoding);
     }
 
     public MySqlStream(Stream baseStream, Encoding encoding, bool compress)
       : this(encoding)
     {
-      this.compressed = compress;
-      this.baseStream = baseStream;
-      stream = this.baseStream;
+      timedStream = new TimedStream(baseStream);
+      Stream stream;
+      if (compress)
+        stream = new CompressedStream(timedStream);
+      else
+        stream = timedStream;
+
+#if RT
+      inStream = baseStream;
+#else
+      inStream = new BufferedStream(stream);
+#endif
+      outStream = stream;
     }
 
     public void Close()
     {
-      stream.Dispose();
+#if RT
+      outStream.Dispose();
+      inStream.Dispose();
+#else
+      outStream.Close();
+      inStream.Close();
+#endif
+      timedStream.Close();
     }
 
-#region Properties
+    #region Properties
 
     public Encoding Encoding
     {
-      get { return _packet.Encoding; }
-      set { _packet.Encoding = value; }
+      get { return packet.Encoding; }
+      set { packet.Encoding = value; }
     }
 
     public void ResetTimeout(int timeout)
     {
-      //TODO: fix this
-     // _timedStream.ResetTimeout(timeout);
+      timedStream.ResetTimeout(timeout);
     }
 
-    public byte SequenceByte { get; set; }
+    public byte SequenceByte
+    {
+      get { return sequenceByte; }
+      set { sequenceByte = value; }
+    }
 
-    public int MaxBlockSize { get; set; }
+    public int MaxBlockSize
+    {
+      get { return maxBlockSize; }
+      set { maxBlockSize = value; }
+    }
 
-    public ulong MaxPacketSize { get; set; }
+    public ulong MaxPacketSize
+    {
+      get { return maxPacketSize; }
+      set { maxPacketSize = value; }
+    }
 
-#endregion
+    #endregion
 
-#region Packet methods
+    #region Packet methods
 
     /// <summary>
     /// ReadPacket is called by NativeDriver to start reading the next
@@ -106,7 +140,28 @@ namespace MySql.Data.MySqlClient
       //Debug.Assert(HasMoreData == false, "HasMoreData is true in OpenPacket");
 
       LoadPacket();
-      return _packet;
+
+      // now we check if this packet is a server error
+      if (packet.Buffer[0] == 0xff)
+      {
+        packet.ReadByte();  // read off the 0xff
+
+        int code = packet.ReadInteger(2);
+        string msg = String.Empty;
+
+        if (packet.Version.isAtLeast(5, 5, 0))
+          msg = packet.ReadString(Encoding.UTF8);
+        else
+          msg = packet.ReadString();
+
+        if (msg.StartsWith("#", StringComparison.Ordinal))
+        {
+          msg.Substring(1, 5);  /* state code */
+          msg = msg.Substring(6);
+        }
+        throw new MySqlException(msg, code);
+      }
+      return packet;
     }
 
     /// <summary>
@@ -141,30 +196,31 @@ namespace MySql.Data.MySqlClient
     {
       try
       {
-        ReadCompressedIfNecessary();
-
-        _packet.Clear();
-        _packet.Length = 0;
-
+        packet.Length = 0;
+        int offset = 0;
         while (true)
         {
-          ReadFully(stream, header, 0, 4);
-          SequenceByte = (byte)(header[3] + 1);
-          int length = (int)(header[0] + (header[1] << 8) + (header[2] << 16));
+          ReadFully(inStream, packetHeader, 0, 4);
+          sequenceByte = (byte)(packetHeader[3] + 1);
+          int length = (int)(packetHeader[0] + (packetHeader[1] << 8) +
+            (packetHeader[2] << 16));
 
           // make roo for the next block
-          _packet.Length += length;
-          byte[] buffer = _packet.Buffer;
-          ReadFully(stream, buffer, _packet.Position, length);
-          _packet.Position += length;
+          packet.Length += length;
+
+#if RT
+          byte[] tempBuffer = new byte[length];
+          ReadFully(inStream, tempBuffer, offset, length);
+          packet.Write(tempBuffer);
+#else
+          ReadFully(inStream, packet.Buffer, offset, length);
+#endif
+          offset += length;
 
           // if this block was < maxBlock then it's last one in a multipacket series
-          if (length < MaxBlockSize) break;
+          if (length < maxBlockSize) break;
         }
-#if DUMP_PACKETS
-        _packet.Dump(true);
-#endif
-        _packet.Position = 0;
+        packet.Position = 0;
       }
       catch (IOException ioex)
       {
@@ -172,62 +228,25 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    // Read in and decompress the packet if necessary
-    private void ReadCompressedIfNecessary()
-    {
-      if (!compressed || bytesLeft > 0) return;
-
-      if (stream is DeflateStream && stream != null)
-        stream.Dispose();
-
-      // see if we still have packets to read
-      //if (stream.Position < stream.Length) return;
-
-      // we don't so we load up more
-      ReadFully(baseStream, header, 0, 7);
-      int comp_len = header[0] + (header[1]<<8) + (header[2]<<16);
-      int uncomp_len = header[4] + (header[5] << 8) + (header[6] << 16);
-
-      if (uncomp_len == 0)
-      {
-        bytesLeft = comp_len;
-        stream = baseStream;
-//        uncomp_len = comp_len;
-  //      compStream.Capacity = uncomp_len;
-    //    ReadFully(stream, compStream.GetBuffer(), 0, uncomp_len);
-      }
-      else
-      {
-        bytesLeft = uncomp_len;
-        stream = new DeflateStream(baseStream, CompressionMode.Decompress, true);
-//        compStream.Capacity = uncomp_len;
-  //      ReadFully(ds, compStream.GetBuffer(), 0, uncomp_len);
-    //    ds.Dispose();
-      }
-    }
-
     public void SendPacket(MySqlPacket packet)
     {
-#if DUMP_PACKETS
-      packet.Dump();
-#endif
       byte[] buffer = packet.Buffer;
       int length = packet.Position - 4;
 
-      if ((ulong)length > MaxPacketSize)
+      if ((ulong)length > maxPacketSize)
         throw new MySqlException(Resources.QueryTooLarge, (int)MySqlErrorCode.PacketTooLarge);
 
       int offset = 0;
       while (length > 0)
       {
-        int lenToSend = length > MaxBlockSize ? MaxBlockSize : length;
+        int lenToSend = length > maxBlockSize ? maxBlockSize : length;
         buffer[offset] = (byte)(lenToSend & 0xff);
         buffer[offset + 1] = (byte)((lenToSend >> 8) & 0xff);
         buffer[offset + 2] = (byte)((lenToSend >> 16) & 0xff);
-        buffer[offset + 3] = SequenceByte++;
+        buffer[offset + 3] = sequenceByte++;
 
-        stream.Write(buffer, offset, lenToSend + 4);
-        stream.Flush();
+        outStream.Write(buffer, offset, lenToSend + 4);
+        outStream.Flush();
         length -= lenToSend;
         offset += lenToSend;
       }
@@ -238,11 +257,11 @@ namespace MySql.Data.MySqlClient
       buffer[0] = (byte)(count & 0xff);
       buffer[1] = (byte)((count >> 8) & 0xff);
       buffer[2] = (byte)((count >> 16) & 0xff);
-      buffer[3] = SequenceByte++;
-      stream.Write(buffer, 0, count + 4);
-      stream.Flush();
+      buffer[3] = sequenceByte++;
+      outStream.Write(buffer, 0, count + 4);
+      outStream.Flush();
     }
 
-#endregion
+    #endregion
   }
 }

@@ -54,7 +54,7 @@ namespace MySql.Data.MySqlClient
         cs = _mapping[charSetName];
 
       if (cs == null)
-        throw new MySqlException("Character set '" + charSetName + "' is not supported by .Net Framework.");
+        throw new NotSupportedException("Character set '" + charSetName + "' is not supported by .Net Framework.");
       return cs;
     }
 

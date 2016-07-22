@@ -347,7 +347,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("INSERT INTO Test VALUES (2, 3, 120, 240, 1000)");
       executeSQL("INSERT INTO Test VALUES (NULL, NULL, 100, NULL, NULL)");
 
-      string connStr = ts.GetConnection(true).ConnectionString + ";treat tiny as boolean=false";
+      string connStr = ts.GetConnection(false).ConnectionString + ";treat tiny as boolean=false";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -626,7 +626,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       executeSQL("CREATE TABLE Test (col1 VARBINARY(20), col2 BLOB)");
 
-      string connStr = ts.GetConnection(true).ConnectionString + ";respect binary flags=false";
+      string connStr = ts.GetConnection(false).ConnectionString + ";respect binary flags=false";
 
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
@@ -669,7 +669,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test (id INT, g BINARY(16), c VARBINARY(16), c1 BINARY(255))");
 
-      string connStr = ts.GetConnection(true).ConnectionString + ";old guids=true";
+      string connStr = ts.GetConnection(false).ConnectionString + ";old guids=true";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -1014,7 +1014,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       executeSQL("CREATE TABLE Test(id INT, g BINARY(16))");
 
-      string connStr = ts.GetConnection(true).ConnectionString + ";old guids=true";
+      string connStr = ts.GetConnection(false).ConnectionString + ";old guids=true";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -1042,7 +1042,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test (id INT, guid BINARY(16))");
 
-      string connStr = ts.GetConnection(true).ConnectionString + ";old guids=true";
+      string connStr = ts.GetConnection(false).ConnectionString + ";old guids=true";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -1113,7 +1113,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test (id INT, guid BINARY(16))");
 
-      string connStr = ts.GetConnection(true).ConnectionString + ";old guids=true";
+      string connStr = ts.GetConnection(false).ConnectionString + ";old guids=true";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -1150,7 +1150,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE Test (id INT, name CHAR(12) CHARSET utf8)");
       executeSQL("INSERT INTO Test VALUES (1, 'Name')");
 
-      string connStr = ts.GetConnection(true).ConnectionString + ";charset=utf8";
+      string connStr = ts.GetConnection(false).ConnectionString + ";charset=utf8";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();

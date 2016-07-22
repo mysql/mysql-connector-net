@@ -30,9 +30,17 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class MySqlCommandTests : TestBase
   {
-    protected TestSetup ts;    
+    protected TestSetup ts;
 
-    public MySqlCommandTests(TestSetup setup, string nameSpace) : base(setup, "command")
+    public MySqlCommandTests(TestSetup setup) : base(setup, "command")
+    {
+      ts = setup;
+      customConnection = new MySqlConnection(ts.GetConnection(false).ConnectionString + ";" + OnGetConnectionStringInfo());
+      customConnection.Open();
+    }
+
+
+    protected MySqlCommandTests(TestSetup setup, string nameSpace) : base(setup, nameSpace)
     {
       ts = setup;
       customConnection = new MySqlConnection(ts.GetConnection(false).ConnectionString + ";" + OnGetConnectionStringInfo());
@@ -121,9 +129,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("INSERT INTO Test (id,name) VALUES(11, 'Test2')");
 
       // do the update
-      MySqlCommand cmd = new MySqlCommand("UPDATE Test SET name='Test3' WHERE id=10 OR id=11", customConnection);
-      MySqlConnection c = cmd.Connection;
-      Assert.Equal(connection, c);
+      MySqlCommand cmd = new MySqlCommand("UPDATE Test SET name='Test3' WHERE id=10 OR id=11", customConnection);      
       int cnt = cmd.ExecuteNonQuery();
       Assert.Equal(2, cnt);
 

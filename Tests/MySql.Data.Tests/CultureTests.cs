@@ -162,7 +162,7 @@ namespace MySql.Data.MySqlClient.Tests
       Thread.CurrentThread.CurrentCulture = c;
       Thread.CurrentThread.CurrentUICulture = c;
 
-      string connStr = ts.GetConnection(true).ConnectionString + ";functions return string=true";
+      string connStr = ts.GetConnection(false).ConnectionString + ";functions return string=true";
       try
       {
         using (MySqlConnection con = new MySqlConnection(connStr))

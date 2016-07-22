@@ -38,7 +38,7 @@ namespace MySql.Data.MySqlClient.Tests
 
     public MySqlCommandTestsPipe(TestSetup setup): base (setup, "mysqlcmdtestspipe")
     {
-        
+      ts = setup;
     }
 
     protected override string OnGetConnectionStringInfo()

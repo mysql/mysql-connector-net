@@ -140,6 +140,8 @@ namespace MySql.Data.MySqlClient.Tests
     {
       if (connection != null)
         connection.Close();
+      if (customConnection != null)
+        customConnection.Close();
     }
   }
 }

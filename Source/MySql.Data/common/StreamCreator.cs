@@ -20,13 +20,14 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+
+using MySql.Data.MySqlClient;
 using System;
 using System.IO;
 using System.IO.MemoryMappedFiles;
 using System.IO.Pipes;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using MySql.Data.MySqlClient;
 
 namespace MySql.Data.Common
 {

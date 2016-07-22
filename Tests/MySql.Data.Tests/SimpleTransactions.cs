@@ -43,6 +43,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void TestReader()
     {
+      executeSQL("CREATE TABLE Test (key2 VARCHAR(1), name VARCHAR(100), name2 VARCHAR(100))");
       executeSQL("INSERT INTO Test VALUES('P', 'Test1', 'Test2')");
 
       MySqlTransaction txn = connection.BeginTransaction();
@@ -151,6 +152,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void DisposingCallsRollback()
     {
+      executeSQL("CREATE TABLE Test (key2 VARCHAR(1), name VARCHAR(100), name2 VARCHAR(100))");
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES ('a', 'b', 'c')", connection);
       MySqlTransaction txn = connection.BeginTransaction();
       using (txn)

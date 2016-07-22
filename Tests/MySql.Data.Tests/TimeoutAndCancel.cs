@@ -43,7 +43,7 @@ namespace MySql.Data.MySqlClient.Tests
       ts = setup;
     }
 
-    public TimeoutAndCancel(TestSetup setup, string nameSpace) : base(setup, nameSpace)
+    protected TimeoutAndCancel(TestSetup setup, string nameSpace) : base(setup, nameSpace)
     {
       ts = setup;
     }
