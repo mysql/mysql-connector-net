@@ -27,6 +27,9 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace MySQL.Data.EntityFrameworkCore.Query
 {
+  /// <summary>
+  /// Implementation for QuerySqlGeneratorFactoryBase
+  /// </summary>
   public class MySQLQueryGeneratorFactory : QuerySqlGeneratorFactoryBase
   {
     //private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;

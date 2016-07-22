@@ -1,25 +1,26 @@
 {
-  "version": "1.0.0-*",
+  "version": "7.0.4-IR-*",
 
   "description": "MySql.Data.EntityFrameworkCore for Entity Framework.",
   "buildOptions": {
     "warningsAsErrors": true,
     "keyFile": "../../ConnectorNetPublicKey.snk",
-    "delaySign": true
+    "delaySign": true,
+    "xmlDoc": false
   },
 
 
   "dependencies": {
-    "Microsoft.EntityFrameworkCore": "1.0.0",
-    "Microsoft.EntityFrameworkCore.Relational": "1.0.0",
+    //"Microsoft.EntityFrameworkCore": "1.0.0",
+    //"Microsoft.EntityFrameworkCore.Relational": "1.0.0",
     "NETStandard.Library": "1.6.0",
-    "MySql.Data": "6.10.0-IR*"
+    "MySql.Data": "7.0.4-IR*"
   },
 
-    "frameworks": {
-      "netstandard1.6": {
-        "imports": [ "dnxcore50", "portable-net451+win81+wp81" ]
-      }
-   }
+  "frameworks": {
+    "netstandard1.6": {
+      "imports": [ "dnxcore50", "portable-net451+win81+wp81" ]
+    }
+  }
 }
 

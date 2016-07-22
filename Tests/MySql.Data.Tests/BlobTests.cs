@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -52,8 +52,30 @@ namespace MySql.Data.MySqlClient.Tests
       return String.Format("protocol=pipe;pipe name={0};ssl mode=none;", ts.pipeName);
     }
 
+    [Fact]
+    public void InsertNullBinary()
+    {
+      executeSQL("DROP TABLE IF EXISTS Test");
+      executeSQL("CREATE TABLE Test (id INT NOT NULL, blob1 LONGBLOB, PRIMARY KEY(id))");
+
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?id, ?b1)", customConnection);
+      cmd.Parameters.Add(new MySqlParameter("?id", 1));
+      cmd.Parameters.Add(new MySqlParameter("?b1", null));      
+      int rows = cmd.ExecuteNonQuery();
+
+      cmd.CommandText = "SELECT * FROM Test";
+      using (MySqlDataReader reader = cmd.ExecuteReader())
+      {
+        Assert.True(reader.HasRows == true, "Checking HasRows");
+
+        reader.Read();
+        var value = reader.GetValue(1) as string;
+        Assert.True(value == null);
+      }
+    }
+
     [Fact]    
-    public virtual void InsertBinary()
+    public void InsertBinary()
     {
       int lenIn = 400000;
       byte[] dataIn = Utils.CreateBlob(lenIn);
@@ -62,8 +84,8 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE Test (id INT NOT NULL, blob1 LONGBLOB, PRIMARY KEY(id))");
 
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?id, ?b1)", customConnection);
-      cmd.Parameters.Add(new MySqlParameter("?id", 1));
-      cmd.Parameters.Add(new MySqlParameter("?b1", null));
+      cmd.Parameters.Add(new MySqlParameter("?id", 1));   
+      cmd.Parameters.Add(new MySqlParameter("?b1", dataIn));
       int rows = cmd.ExecuteNonQuery();
 
       byte[] dataIn2 = Utils.CreateBlob(lenIn);

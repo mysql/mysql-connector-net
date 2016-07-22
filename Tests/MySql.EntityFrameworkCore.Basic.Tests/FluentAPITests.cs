@@ -31,7 +31,7 @@ using Xunit;
 namespace MySql.Data.EntityFrameworkCore.Tests
 {
   public class FluentAPITests : IDisposable
-  {
+  {    
 
     [Fact]
     public void EnsureRelationalPatterns()

@@ -24,6 +24,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MySQL.Data.EntityFrameworkCore.Extensions
 {
+  /// <summary>
+  /// MySQLPropertyBuilderExtensions implementation
+  /// </summary>
   public static class MySQLPropertyBuilderExtensions
   {
     public static PropertyBuilder UseMySQLAutoIncrementColumn(

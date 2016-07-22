@@ -29,6 +29,9 @@ using System.Threading.Tasks;
 
 namespace MySQL.Data.EntityFrameworkCore.Metadata
 {
+  /// <summary>
+  /// Annotations for MySQL specifics
+  /// </summary>
   public static class MySQLAnnotationNames
   {
     public const string Prefix = "MySQL:";

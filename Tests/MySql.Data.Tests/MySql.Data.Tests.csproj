@@ -182,9 +182,6 @@
     <Compile Include="StoredProcedure.cs" />
     <Compile Include="StoredProcedureWithAccess.cs" />
     <Compile Include="TableCaching.cs" />
-    <Compile Include="TestDataTable.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="GenericListener.cs" />
     <Compile Include="GetSchemaTests.cs" />
     <Compile Include="InstallerTests.cs" />
@@ -213,6 +210,9 @@
     <Compile Include="Syntax.cs" />
     <Compile Include="Syntax2.cs" />
     <Compile Include="TestBase.cs" />
+    <Compile Include="TestDataTable.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="TestSetupClass.cs" />
     <Compile Include="TestSetUp.cs" />
     <Compile Include="ThreadingTests.cs" />

@@ -24,7 +24,9 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace MySQL.Data.EntityFrameworkCore.Metadata
 {
-
+  /// <summary>
+  /// Annotation Provider implementation
+  /// </summary>
   public class MySQLAnnotationProvider : IRelationalAnnotationProvider
     {
       public virtual IRelationalEntityTypeAnnotations For(IEntityType entityType) => entityType.MySQL();

@@ -7,8 +7,8 @@
     <ProjectGuid>{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MySQL.Data.Entity</RootNamespace>
-    <AssemblyName>MySQL.Data.EF7</AssemblyName>
+    <RootNamespace>MySQL.Data.EntityFrameworkCore</RootNamespace>
+    <AssemblyName>MySQL.Data.EntityFrameworkCore</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -32,6 +32,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.EntityFrameworkCore, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\EntityFramework\src\Microsoft.EntityFrameworkCore\bin\Debug\net451\Microsoft.EntityFrameworkCore.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.EntityFrameworkCore.Relational, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\EntityFramework\src\Microsoft.EntityFrameworkCore.Relational\bin\Debug\net451\Microsoft.EntityFrameworkCore.Relational.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
@@ -58,15 +66,16 @@
     <Compile Include="Migrations\MySQLMigrationsSqlGenerator.cs" />
     <Compile Include="MySQLCompositeMemberTranslator.cs" />
     <Compile Include="MySQLCompositeMethodCallTranslator.cs" />
-    <Compile Include="MySQLDatabaseCreator.cs" />
-    <Compile Include="MySQLDatabaseProviderServices.cs" />
+    <Compile Include="Storage\Internal\MySQLDatabaseCreator.cs" />
+    <Compile Include="Storage\Internal\MySQLDatabaseProviderServices.cs" />
     <Compile Include="MySQLMetadataExtensions.cs" />
     <Compile Include="MySQLOptionsExtension.cs" />
     <Compile Include="MySQLModelSource.cs" />
-    <Compile Include="MySQLServerConnection.cs" />
+    <Compile Include="Storage\Internal\MySQLServerConnection.cs" />
     <Compile Include="MySQLServiceCollectionExtensions.cs" />
-    <Compile Include="MySQLSqlGenerationHelper.cs" />
-    <Compile Include="MySQLTypeMapper.cs" />
+    <Compile Include="Storage\Internal\MySQLSizeableMapping.cs" />
+    <Compile Include="Storage\Internal\MySQLSqlGenerationHelper.cs" />
+    <Compile Include="Storage\Internal\MySQLTypeMapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Query\MySQLQueryGeneratorFactory.cs" />
     <Compile Include="Query\MySQLQuerySqlGenerator.cs" />

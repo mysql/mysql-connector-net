@@ -24,6 +24,9 @@ using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 
 namespace MySQL.Data.EntityFrameworkCore
 {
+  /// <summary>
+  /// RelationalCompositeMemberTranslator implementation for MySQL
+  /// </summary>
   public class MySQLCompositeMemberTranslator : RelationalCompositeMemberTranslator
     {
     }

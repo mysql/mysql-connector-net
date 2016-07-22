@@ -27,11 +27,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("MySql.Data.Entity.EF7.Tests")]
+[assembly: AssemblyTitle("MySql.Data.EntityFrameworkCore.Tests")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Oracle")]
-[assembly: AssemblyProduct("MySql.Data.Entity.EF7.Tests")]
+[assembly: AssemblyProduct("MySql.Data.EntityFrameworkCore.Tests")]
 [assembly: AssemblyCopyright("Copyright © 2015, Oracle and/or its affiliates. All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

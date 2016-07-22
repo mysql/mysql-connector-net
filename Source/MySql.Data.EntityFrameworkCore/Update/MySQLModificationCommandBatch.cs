@@ -25,6 +25,9 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace MySQL.Data.EntityFrameworkCore.Update
 {
+  /// <summary>
+  /// AffectedCountModificationCommandBatch implementation for MySQL
+  /// </summary>
   public class MySQLModificationCommandBatch : AffectedCountModificationCommandBatch
   {
     public MySQLModificationCommandBatch(

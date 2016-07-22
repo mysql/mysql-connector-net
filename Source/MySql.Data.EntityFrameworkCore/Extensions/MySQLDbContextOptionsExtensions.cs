@@ -26,7 +26,10 @@ using System.Data.Common;
 
 namespace MySQL.Data.EntityFrameworkCore.Extensions
 {
-    public static class MySQLDbContextOptionsExtensions
+  /// <summary>
+  /// ContextOptionsExtensions implementations for MySQL
+  /// </summary>
+  public static class MySQLDbContextOptionsExtensions
     {
         public static MySQLDbContextOptionsBuilder UseMySQL(this DbContextOptionsBuilder optionsBuilder, string connectionString)
         {

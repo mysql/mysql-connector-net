@@ -31,6 +31,9 @@ using System.Linq;
 
 namespace MySQL.Data.EntityFrameworkCore.Migrations
 {
+  /// <summary>
+  /// MigrationSqlGenerator implementation for MySQL
+  /// </summary>
   public class MySQLMigrationsSqlGenerator : MigrationsSqlGenerator
   {
     private readonly ISqlGenerationHelper _sqlGenerationHelper;
@@ -84,6 +87,8 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
       builder
           .Append("CREATE DATABASE ")
           .Append(_sqlGenerationHelper.DelimitIdentifier(operation.Name));
+
+      EndStatement(builder, suppressTransaction: true);
     }
 
     protected virtual void Generate(
@@ -97,6 +102,8 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
       builder
           .Append("DROP DATABASE IF EXISTS ")
           .Append(_sqlGenerationHelper.DelimitIdentifier(operation.Name));
+
+      EndStatement(builder, suppressTransaction: true);
     }
     
 
@@ -122,14 +129,14 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
       ThrowIf.Argument.IsNull(annotatable, "annotatable");
       ThrowIf.Argument.IsNull(builder, "builder");
 
-      var property = FindProperty(model, schema, table, name);
+      //var property = FindProperties(model, schema, table, name);
 
-      if (type == null)
-      {
-        type = property != null
-            ? TypeMapper.GetMapping(property).StoreType
-            : TypeMapper.GetMapping(clrType).StoreType;
-      }      
+      //if (type == null)
+      //{
+      //  type = property != null
+      //      ? TypeMapper.GetMapping(property).StoreType
+      //      : TypeMapper.GetMapping(clrType).StoreType;
+      //}      
 
       if (computedColumnSql != null)
       {
@@ -142,7 +149,7 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
               
       }
 
-      if (property != null && defaultValue != null && property.ClrType == typeof(string))
+      if (defaultValue != null && clrType == typeof(string))
       {
         defaultValue = "'" + defaultValue + "'";
       }
@@ -225,7 +232,9 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
        .Append("ALTER TABLE " + operation.Table)
        .Append(" MODIFY ");
 
-      ColumnDefinition(operationColumn, model, builder);      
+      ColumnDefinition(operationColumn, model, builder);
+
+      EndStatement(builder);
     }
 
     protected override void Generate(RenameTableOperation operation, IModel model, MigrationCommandListBuilder builder)
@@ -237,6 +246,8 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
       builder
       .Append("ALTER TABLE " + operation.Name)
       .Append(" RENAME " + operation.NewName);
+
+      EndStatement(builder);
     }
 
     protected override void Generate(CreateIndexOperation operation, IModel model, MigrationCommandListBuilder builder)
@@ -249,7 +260,9 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
       builder
       .Append("CREATE " + (operation.IsUnique ? "UNIQUE " : "") + "INDEX ");
       
-      builder.Append(_sqlGenerationHelper.DelimitIdentifier(operation.Name) + " ON " + operation.Table + " (" + string.Join(", ", operation.Columns.Select(_sqlGenerationHelper.DelimitIdentifier)) + ")");     
+      builder.Append(_sqlGenerationHelper.DelimitIdentifier(operation.Name) + " ON " + operation.Table + " (" + string.Join(", ", operation.Columns.Select(_sqlGenerationHelper.DelimitIdentifier)) + ")");
+
+      EndStatement(builder);
     }
 
     protected override void Generate(RenameIndexOperation operation, IModel model, MigrationCommandListBuilder builder)
@@ -278,7 +291,9 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
       builder
       .Append("DROP INDEX ")
       .Append(operation.Name)
-      .Append(" ON " + operation.Table);            
+      .Append(" ON " + operation.Table);
+
+      EndStatement(builder);
     }
   }
 }

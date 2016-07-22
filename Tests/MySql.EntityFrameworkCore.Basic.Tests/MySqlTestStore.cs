@@ -35,14 +35,15 @@ namespace MySql.Data.EntityFrameworkCore.Tests
   {
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-      optionsBuilder.UseMySQL(MySQLTestStore.baseConnectionString + ";database=test;");
+      optionsBuilder.UseMySQL(MySQLTestStore.rootConnectionString + ";database=test;");
     }
   }
 
   public class MySQLTestStore : IDisposable
   {
-    public const string baseConnectionString = "server=localhost;user id=test;password=test;port=3305;";
-    public const string rootConnectionString = "server=localhost;user id=root;password='';port=3305;";    
+    //public const string baseConnectionString = "server=localhost;user id=test;password=test;port=3305;sslmode=none;";
+    public const string baseConnectionString = "server=localhost;user id=root;password=;port=3305;sslmode=none;";
+    public const string rootConnectionString = "server=localhost;user id=root;password=;port=3305;sslmode=none;";    
 
     public static void CreateDatabase(string databaseName, string script = null)
     {      
@@ -73,6 +74,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       csb.UserID = "test";
       csb.Password = "test";
       csb.Server = "localhost";
+      csb.SslMode = MySqlSslMode.None;
 
       return csb.ConnectionString;
     }

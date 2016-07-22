@@ -25,6 +25,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace MySQL.Data.EntityFrameworkCore
 {
+  /// <summary>
+  /// RelationalOptionsExtension implementation for MySQL
+  /// </summary>
   public class MySQLOptionsExtension : RelationalOptionsExtension
     {
         public MySQLOptionsExtension()

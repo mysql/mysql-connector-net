@@ -25,6 +25,9 @@ using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 
 namespace MySQL.Data.EntityFrameworkCore
 {
+  /// <summary>
+  /// RelationalCompositeMethodCallTranslator implementation for MySQL
+  /// </summary>
   public class MySQLCompositeMethodCallTranslator : RelationalCompositeMethodCallTranslator
     {
         public MySQLCompositeMethodCallTranslator(ILogger<MySQLCompositeMethodCallTranslator> logger) : base(logger)

@@ -26,6 +26,9 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace MySQL.Data.EntityFrameworkCore.Extensions
 {
+  /// <summary>
+  /// RelationalDbContextOptionsBuilder implementation for MySQL
+  /// </summary>
   public class MySQLDbContextOptionsBuilder : RelationalDbContextOptionsBuilder<MySQLDbContextOptionsBuilder, MySQLOptionsExtension>
     {
         public MySQLDbContextOptionsBuilder(DbContextOptionsBuilder optionsBuilder)

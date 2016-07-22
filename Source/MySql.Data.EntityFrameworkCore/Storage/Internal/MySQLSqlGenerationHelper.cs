@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,21 +20,27 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Text;
+using Microsoft.EntityFrameworkCore.Storage;
 
-namespace MySQL.Data.EntityFrameworkCore.Metadata
+namespace MySQL.Data.EntityFrameworkCore
 {
-  /// <summary>
-  /// RelationalFullAnnotationNames for MySQL
-  /// </summary>
-  public class MySQLFullAnnotationNames : RelationalFullAnnotationNames
+  public class MySQLSqlGenerationHelper : RelationalSqlGenerationHelper
   {
-    public readonly string AutoIncrement;
-    protected MySQLFullAnnotationNames(string prefix) : base(prefix)
+
+    public override void DelimitIdentifier(StringBuilder builder, string identifier)
     {
-      AutoIncrement = "AutoIncrement";
+      ThrowIf.Argument.IsEmpty(identifier, "identifier");
+      builder.Append('`');
+      EscapeIdentifier(builder, identifier);
+      builder.Append('`');
     }
 
-    public new static MySQLFullAnnotationNames Instance { get; } = new MySQLFullAnnotationNames(MySQLAnnotationNames.Prefix);
+
+    public override string DelimitIdentifier([NotNull] string identifier)
+    {
+      ThrowIf.Argument.IsEmpty(identifier, "identifier");
+      return "`" + identifier + "`";
+    }
   }
 }

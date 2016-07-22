@@ -34,7 +34,6 @@ using MySqlX.XDevAPI.CRUD;
 using MySqlX.Protocol.X;
 using Mysqlx.Datatypes;
 using MySql.Data.MySqlClient;
-using MySql.Data.Common;
 using MySqlX.Security;
 using MySqlX.Properties;
 using System.Linq;

@@ -38,19 +38,13 @@ namespace MySql.Data.MySqlClient.Tests
   {
     public BlobTestsPipe(TestSetup setup): base(setup , "blobtestspipe")
     {
-
     }
 
     protected override string OnGetConnectionStringInfo()
     {
       return String.Format("protocol=pipe;pipe name={0};ssl mode=none;", ts.pipeName);
     }
-
-    [Fact]
-    public override void InsertBinary()
-    {
-      base.InsertBinary();
-    }
+    
   }
   #endregion
 }

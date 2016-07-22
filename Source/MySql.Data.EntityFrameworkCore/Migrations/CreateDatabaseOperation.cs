@@ -24,7 +24,9 @@ using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
 namespace MySQL.Data.EntityFrameworkCore.Migrations
 {
-
+  /// <summary>
+  /// Create database operation class for migrations
+  /// </summary>
     public class MySQLCreateDatabaseOperation : MigrationOperation
     {
         public string Name { get; set; }

@@ -7,8 +7,8 @@
     <ProjectGuid>{6C93E9D4-99D8-4E47-BF04-43B9DCDD676E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MySql.EF7.Migrations.Tests</RootNamespace>
-    <AssemblyName>MySql.EF7.Migrations.Tests</AssemblyName>
+    <RootNamespace>MySql.Data.EntityFrameworkCore.Migrations.Tests</RootNamespace>
+    <AssemblyName>MySql.Data.EntityFrameworkCore.Migrations.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -34,6 +34,12 @@
     <CopyNuGetImplementations>false</CopyNuGetImplementations>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.EntityFrameworkCore">
+      <HintPath>..\..\..\..\..\EntityFramework\src\Microsoft.EntityFrameworkCore\bin\Debug\net451\Microsoft.EntityFrameworkCore.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.EntityFrameworkCore.Relational">
+      <HintPath>..\..\..\..\..\EntityFramework\src\Microsoft.EntityFrameworkCore.Relational\bin\Debug\net451\Microsoft.EntityFrameworkCore.Relational.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Transactions" />

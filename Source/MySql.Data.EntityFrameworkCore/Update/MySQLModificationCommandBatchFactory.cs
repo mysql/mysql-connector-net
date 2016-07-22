@@ -27,6 +27,9 @@ using System.Linq;
 
 namespace MySQL.Data.EntityFrameworkCore.Update
 {
+  /// <summary>
+  /// IModificationCommandBatchFactory implemntation for MySQL
+  /// </summary>
   public class MySQLModificationCommandBatchFactory : IModificationCommandBatchFactory
   {
     private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
