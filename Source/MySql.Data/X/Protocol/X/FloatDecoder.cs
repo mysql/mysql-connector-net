@@ -26,7 +26,7 @@ using MySqlX.Data;
 using MySqlX.XDevAPI;
 using System;
 using MySql.Data.MySqlClient;
-using MySqlX.Properties;
+using MySqlX;
 using MySql.Data.MySqlClient.X.XDevAPI.Common;
 using Google.Protobuf;
 

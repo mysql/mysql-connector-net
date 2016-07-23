@@ -23,7 +23,7 @@
 using System;
 using MySqlX.XDevAPI.CRUD;
 using MySqlX.XDevAPI.Common;
-using MySqlX.Properties;
+using MySqlX;
 
 namespace MySqlX.XDevAPI
 {

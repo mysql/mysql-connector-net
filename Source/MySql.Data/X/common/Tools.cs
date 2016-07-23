@@ -34,7 +34,7 @@ namespace MySqlX.Common
       Dictionary<string, object> result = new Dictionary<string, object>();
 
       if (!anonymousObject.GetType().IsGenericType)
-        throw new FormatException(Properties.ResourcesX.InvalidConnectionData);
+        throw new FormatException(ResourcesX.InvalidConnectionData);
 
       foreach (PropertyInfo property in anonymousObject.GetType().GetProperties())
       {

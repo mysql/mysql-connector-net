@@ -40,7 +40,7 @@ using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.Relational;
 using MySqlX.XDevAPI.CRUD;
 using MySql.Data.MySqlClient;
-using MySqlX.Properties;
+using MySqlX;
 using System.IO;
 using Google.Protobuf;
 

@@ -27,7 +27,7 @@ using MySqlX.XDevAPI.Relational;
 using MySqlX.Session;
 using System.Collections.ObjectModel;
 using MySql.Data.MySqlClient;
-using MySqlX.Properties;
+using MySqlX;
 
 namespace MySqlX.XDevAPI.Common
 {

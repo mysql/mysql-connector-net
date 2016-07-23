@@ -37,7 +37,6 @@
         "compile": {
           "exclude": [
             "Framework/Net451/**/*.*",
-            "X/*.*",
             "Replication/**/*.*",
             "zlib/**/*.*",
             "TimeStream.cs",
@@ -95,7 +94,8 @@
         "System.Reflection.TypeExtensions": "4.1.0",
         "System.Security.Principal.Windows": "4.0.0",
         "System.Text.Encoding.CodePages": "4.0.1",
-        "System.Threading.Timer": "4.0.1"
+        "System.Threading.Timer": "4.0.1",
+        "Google.Protobuf": "3.0.0-beta4"
       }
     }
   }
