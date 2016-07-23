@@ -30,9 +30,8 @@ using System.Text;
 using MySql.Data.MySqlClient.Authentication;
 using System.Reflection;
 using System.ComponentModel;
-#if RT
+using System.Collections.Generic;
 using System.Linq;
-#endif
 
 namespace MySql.Data.MySqlClient
 {
@@ -188,7 +187,7 @@ namespace MySql.Data.MySqlClient
       try
       {
         baseStream = StreamCreator.GetStream(Settings);
-#if !RT
+#if !NETCORE10
          if (Settings.IncludeSecurityAsserts)
             MySqlSecurityPermission.CreatePermissionSet(false).Assert();
 #endif
@@ -266,7 +265,7 @@ namespace MySql.Data.MySqlClient
       packet.WriteByte(33); //character set utf-8
       packet.Write(new byte[23]);
 
-#if !RT
+#if !NETCORE10
       if ((serverCaps & ClientFlags.SSL) == 0)
       {
         if ((Settings.SslMode != MySqlSslMode.None)
@@ -290,7 +289,7 @@ namespace MySql.Data.MySqlClient
       }
 #endif
 
-#if RT
+#if NETCORE10
       if (Settings.SslMode != MySqlSslMode.None)
       {
         throw new NotImplementedException("SSL not supported in this WinRT release.");
@@ -815,7 +814,7 @@ namespace MySql.Data.MySqlClient
         foreach (PropertyInfo property in attrs.GetType().GetProperties())
         {
           string name = property.Name;
-#if RT
+#if NETCORE10
           object[] customAttrs = property.GetCustomAttributes(typeof(DisplayNameAttribute), false).ToArray<object>();
 #else
           object[] customAttrs = property.GetCustomAttributes(typeof(DisplayNameAttribute), false);

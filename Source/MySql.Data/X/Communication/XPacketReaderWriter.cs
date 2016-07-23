@@ -20,7 +20,8 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Google.ProtocolBuffers;
+using Google.Protobuf;
+
 using System;
 using System.IO;
 
@@ -35,9 +36,9 @@ namespace MySqlX.Communication
       _stream = stream;
     }
 
-    public void Write(ClientMessageId id, IMessageLite message)
+    public void Write(ClientMessageId id, IMessage message)
     {
-      int size = message.SerializedSize + 1;
+      int size = message.CalculateSize() + 1;
       _stream.Write(BitConverter.GetBytes(size), 0, 4);
       _stream.WriteByte((byte)id);
       message.WriteTo(_stream);

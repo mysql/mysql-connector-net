@@ -62,17 +62,17 @@ namespace MySqlX.Protocol.X
     {
       switch (e.Type)
       {
-        case Scalar.Types.Type.V_SINT:
+        case Scalar.Types.Type.VSint:
           return "" + e.VSignedInt;
-        case Scalar.Types.Type.V_OCTETS:
-          return "\"" + EscapeLiteral(e.VOpaque.ToStringUtf8()) + "\"";
-        case Scalar.Types.Type.V_STRING:
+        case Scalar.Types.Type.VOctets:
+          return "\"" + EscapeLiteral(e.VOctets.Value.ToStringUtf8()) + "\"";
+        case Scalar.Types.Type.VString:
           return "\"" + EscapeLiteral(e.VString.Value.ToStringUtf8()) + "\"";
-        case Scalar.Types.Type.V_DOUBLE:
+        case Scalar.Types.Type.VDouble:
           return e.VDouble.ToString();
-        case Scalar.Types.Type.V_BOOL:
+        case Scalar.Types.Type.VBool:
           return e.VBool ? "TRUE" : "FALSE";
-        case Scalar.Types.Type.V_NULL:
+        case Scalar.Types.Type.VNull:
           return "NULL";
         default:
           throw new ArgumentException("Unknown type tag: " + e.Type);
@@ -89,19 +89,19 @@ namespace MySqlX.Protocol.X
       {
         switch (item.Type)
         {
-          case DocumentPathItem.Types.Type.MEMBER:
+          case DocumentPathItem.Types.Type.Member:
             docPathString.Append(".").Append(QuoteDocumentPathMember(item.Value));
             break;
-          case DocumentPathItem.Types.Type.MEMBER_ASTERISK:
+          case DocumentPathItem.Types.Type.MemberAsterisk:
             docPathString.Append(".*");
             break;
-          case DocumentPathItem.Types.Type.ARRAY_INDEX:
+          case DocumentPathItem.Types.Type.ArrayIndex:
             docPathString.Append("[").Append("" + item.Index).Append("]");
             break;
-          case DocumentPathItem.Types.Type.ARRAY_INDEX_ASTERISK:
+          case DocumentPathItem.Types.Type.ArrayIndexAsterisk:
             docPathString.Append("[*]");
             break;
-          case DocumentPathItem.Types.Type.DOUBLE_ASTERISK:
+          case DocumentPathItem.Types.Type.DoubleAsterisk:
             docPathString.Append("**");
             break;
         }
@@ -115,17 +115,17 @@ namespace MySqlX.Protocol.X
     static string ColumnIdentifierToString(ColumnIdentifier e)
     {
       string s = QuoteIdentifier(e.Name);
-      if (e.HasTableName)
+      if (!string.IsNullOrEmpty(e.TableName))
       {
         s = QuoteIdentifier(e.TableName) + "." + s;
       }
-      if (e.HasSchemaName)
+      if (!string.IsNullOrEmpty(e.SchemaName))
       {
         s = QuoteIdentifier(e.SchemaName) + "." + s;
       }
-      if (e.DocumentPathCount > 0)
+      if (e.DocumentPath.Count > 0)
       {
-        s = s + "$" + DocumentPathToString(e.DocumentPathList);
+        s = s + "$" + DocumentPathToString(e.DocumentPath);
       }
       return s;
     }
@@ -137,12 +137,12 @@ namespace MySqlX.Protocol.X
     {
       Identifier i = e.Name;
       string s = QuoteIdentifier(i.Name);
-      if (i.HasSchemaName)
+      if (!string.IsNullOrEmpty(i.SchemaName))
       {
         s = QuoteIdentifier(i.SchemaName) + "." + s;
       }
       s = s + "(";
-      foreach (Expr p in e.ParamList)
+      foreach (Expr p in e.Param)
       {
         s += ExprToString(p) + ", ";
       }
@@ -177,7 +177,7 @@ namespace MySqlX.Protocol.X
     {
       string name = e.Name;
       List<string> parameters = new List<string>();
-      foreach (Expr p in e.ParamList)
+      foreach (Expr p in e.Param)
       {
         parameters.Add(ExprToString(p));
       }
@@ -230,7 +230,7 @@ namespace MySqlX.Protocol.X
 
     static string ObjectToString(Mysqlx.Expr.Object o)
     {
-      var fields = o.FldList;
+      var fields = o.Fld;
       var selectAsString = fields.Select(f => string.Format("'{0}':{1}", QuoteJsonKey(f.Key), ExprToString(f.Value)));
       return "{" + string.Join(", ", selectAsString) + "}";
     }
@@ -277,19 +277,19 @@ namespace MySqlX.Protocol.X
     {
       switch (e.Type)
       {
-        case Expr.Types.Type.LITERAL:
+        case Expr.Types.Type.Literal:
           return ScalarToString(e.Literal);
-        case Expr.Types.Type.IDENT:
+        case Expr.Types.Type.Ident:
           return ColumnIdentifierToString(e.Identifier);
-        case Expr.Types.Type.FUNC_CALL:
+        case Expr.Types.Type.FuncCall:
           return FunctionCallToString(e.FunctionCall);
-        case Expr.Types.Type.OPERATOR:
+        case Expr.Types.Type.Operator:
           return OperatorToString(e.Operator);
-        case Expr.Types.Type.VARIABLE:
+        case Expr.Types.Type.Variable:
           return "@" + QuoteIdentifier(e.Variable);
-        case Expr.Types.Type.PLACEHOLDER:
+        case Expr.Types.Type.Placeholder:
           return ":" + e.Position;
-        case Expr.Types.Type.OBJECT:
+        case Expr.Types.Type.Object:
           return ObjectToString(e.Object);
         default:
           throw new ArgumentException("Unknown type tag: " + e.Type);

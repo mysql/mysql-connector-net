@@ -24,7 +24,7 @@ using System;
 using Mysqlx.Expr;
 using Mysqlx.Datatypes;
 using Mysqlx.Crud;
-using Google.ProtocolBuffers;
+using Google.Protobuf;
 
 namespace MySqlX.Protocol.X
 {
@@ -83,38 +83,38 @@ namespace MySqlX.Protocol.X
      */
     public static Expr BuildLiteralExpr(Scalar scalar)
     {
-      return Expr.CreateBuilder().SetType(Expr.Types.Type.LITERAL).SetLiteral(scalar).Build();
+      return new Expr() { Type = Expr.Types.Type.Literal, Literal = scalar };
     }
 
     public static Scalar NullScalar()
     {
-      return Scalar.CreateBuilder().SetType(Scalar.Types.Type.V_NULL).Build();
+      return new Scalar() { Type = Scalar.Types.Type.VNull };
     }
 
     public static Scalar ScalarOf(double d)
     {
-      return Scalar.CreateBuilder().SetType(Scalar.Types.Type.V_DOUBLE).SetVDouble(d).Build();
+      return new Scalar() { Type = Scalar.Types.Type.VDouble, VDouble = d };
     }
 
     public static Scalar ScalarOf(long l)
     {
-      return Scalar.CreateBuilder().SetType(Scalar.Types.Type.V_SINT).SetVSignedInt(l).Build();
+      return new Scalar() { Type = Scalar.Types.Type.VSint, VSignedInt = l};
     }
 
     public static Scalar ScalarOf(String str)
     {
-      Scalar.Types.String strValue = Scalar.Types.String.CreateBuilder().SetValue(ByteString.CopyFromUtf8(str)).Build();
-      return Scalar.CreateBuilder().SetType(Scalar.Types.Type.V_STRING).SetVString(strValue).Build();
+      Scalar.Types.String strValue = new Scalar.Types.String() { Value = ByteString.CopyFromUtf8(str) };
+      return new Scalar() { Type = Scalar.Types.Type.VString, VString = strValue };
     }
 
     public static Scalar ScalarOf(byte[] bytes)
     {
-      return Scalar.CreateBuilder().SetType(Scalar.Types.Type.V_OCTETS).SetVOpaque(ByteString.CopyFrom(bytes)).Build();
+      return new Scalar() { Type = Scalar.Types.Type.VOctets, VOctets = new Scalar.Types.Octets() { Value = ByteString.CopyFrom(bytes) } };
     }
 
     public static Scalar ScalarOf(Boolean b)
     {
-      return Scalar.CreateBuilder().SetType(Scalar.Types.Type.V_BOOL).SetVBool(b).Build();
+      return new Scalar() { Type = Scalar.Types.Type.VBool, VBool = b };
     }
 
     /**
@@ -123,25 +123,30 @@ namespace MySqlX.Protocol.X
     public static Any BuildAny(String str)
     {
       // same as Expr
-      Scalar.Types.String sstr = Scalar.Types.String.CreateBuilder().SetValue(ByteString.CopyFromUtf8(str)).Build();
-      Scalar s = Scalar.CreateBuilder().SetType(Scalar.Types.Type.V_STRING).SetVString(sstr).Build();
-      Any a = Any.CreateBuilder().SetType(Any.Types.Type.SCALAR).SetScalar(s).Build();
+      Scalar.Types.String sstr = new Scalar.Types.String();
+      sstr.Value = ByteString.CopyFromUtf8(str);
+      Scalar s = new Scalar();
+      s.Type = Scalar.Types.Type.VString;
+      s.VString = sstr;
+      Any a = new Any();
+      a.Type = Any.Types.Type.Scalar;
+      a.Scalar = s;
       return a;
     }
 
     public static Any BuildAny(Boolean b)
     {
-      return Any.CreateBuilder().SetType(Any.Types.Type.SCALAR).SetScalar(ScalarOf(b)).Build();
+      return new Any() { Type = Any.Types.Type.Scalar, Scalar = ScalarOf(b) };
     }
 
     public static Any BuildAny(object value)
     {
-      return Any.CreateBuilder().SetType(Any.Types.Type.SCALAR).SetScalar(ExprUtil.ArgObjectToScalar(value)).Build();
+      return new Any() { Type = Any.Types.Type.Scalar, Scalar = ExprUtil.ArgObjectToScalar(value) };
     }
 
     public static Collection BuildCollection(String schemaName, String collectionName)
     {
-      return Collection.CreateBuilder().SetSchema(schemaName).SetName(collectionName).Build();
+      return new Collection() { Schema = schemaName, Name = collectionName };
     }
 
     public static Scalar ArgObjectToScalar(System.Object value)
@@ -166,7 +171,7 @@ namespace MySqlX.Protocol.X
         {
           // try to parse expressions
           Expr expr = new ExprParser((string)value).Parse();
-          if (expr.HasIdentifier)
+          if (expr.Identifier != null)
             return BuildLiteralScalar((string)value);
           return expr;
         }

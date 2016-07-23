@@ -20,7 +20,8 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Google.ProtocolBuffers;
+
+using Google.Protobuf;
 using MySql.Data.MySqlClient.X.XDevAPI.Common;
 using System;
 
@@ -37,9 +38,7 @@ namespace MySqlX.Protocol.X
 
     private UInt64 ReadUInt(byte[] bytes)
     {
-      UInt64 val = 0;
-      CodedInputStream.CreateInstance(bytes).ReadUInt64(ref val);
-      return val;
+      return new CodedInputStream(bytes).ReadUInt64();
     }
 
     private object BitValueDecoder(byte[] bytes)

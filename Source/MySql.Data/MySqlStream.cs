@@ -69,7 +69,11 @@ namespace MySql.Data.MySqlClient
       timedStream = new TimedStream(baseStream);
       Stream stream;
       if (compress)
-        stream = new CompressedStream(timedStream);
+#if NETCORE10
+        throw new NotSupportedException(Resources.CompressionNotSupported);
+#else
+      stream = new CompressedStream(timedStream);
+#endif
       else
         stream = timedStream;
 
@@ -83,7 +87,8 @@ namespace MySql.Data.MySqlClient
 
     public void Close()
     {
-#if RT
+#if NETCORE10
+
       outStream.Dispose();
       inStream.Dispose();
 #else
@@ -93,7 +98,7 @@ namespace MySql.Data.MySqlClient
       timedStream.Close();
     }
 
-    #region Properties
+#region Properties
 
     public Encoding Encoding
     {
@@ -124,9 +129,9 @@ namespace MySql.Data.MySqlClient
       set { maxPacketSize = value; }
     }
 
-    #endregion
+#endregion
 
-    #region Packet methods
+#region Packet methods
 
     /// <summary>
     /// ReadPacket is called by NativeDriver to start reading the next
@@ -262,6 +267,6 @@ namespace MySql.Data.MySqlClient
       outStream.Flush();
     }
 
-    #endregion
+#endregion
   }
 }

@@ -109,7 +109,7 @@ namespace MySqlX.Session
       // validates TLS use
       if (Settings.SslMode != MySqlSslMode.None)
       {
-        var capability = protocol.Capabilities.Capabilities_List.FirstOrDefault(i => i.Name.ToLowerInvariant() == "tls");
+        var capability = protocol.Capabilities.Capabilities_.FirstOrDefault(i => i.Name.ToLowerInvariant() == "tls");
         if (capability != null)
         {
           serverSupportsTls = true;

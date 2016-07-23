@@ -557,34 +557,35 @@ namespace MySqlX.Protocol.X
     Expr ParseFunctionCall()
     {
       Identifier id = ParseIdentifier();
-      FunctionCall.Builder b = FunctionCall.CreateBuilder();
-      b.SetName(id);
-      b.AddRangeParam(ParenExprList());
-      return Expr.CreateBuilder().SetType(Expr.Types.Type.FUNC_CALL).SetFunctionCall(b.Build()).Build();
+      FunctionCall b = new FunctionCall();
+      b.Name = id;
+      b.Param.Add(ParenExprList());
+      return new Expr() { Type = Expr.Types.Type.FuncCall, FunctionCall = b };
     }
 
     Expr StarOperator()
     {
-      Operator op = Operator.CreateBuilder().SetName("*").Build();
-      return Expr.CreateBuilder().SetType(Expr.Types.Type.OPERATOR).SetOperator(op).Build();
+      Operator op = new Operator();
+      op.Name = "*";
+      return new Expr() { Type = Expr.Types.Type.Operator, Operator = op };
     }
     /**
      * Parse an identifier for a function call: [schema.]name
      */
     Identifier ParseIdentifier()
     {
-      Identifier.Builder builder = Identifier.CreateBuilder();
+      Identifier builder = new Identifier();
       AssertTokenAt(this.tokenPos, TokenType.IDENT);
       if (NextTokenTypeEquals(TokenType.DOT))
       {
-        builder.SetSchemaName(this.tokens[this.tokenPos].value);
+        builder.SchemaName = this.tokens[this.tokenPos].value;
         ConsumeToken(TokenType.IDENT);
         ConsumeToken(TokenType.DOT);
         AssertTokenAt(this.tokenPos, TokenType.IDENT);
       }
-      builder.SetName(this.tokens[this.tokenPos].value);
+      builder.Name = this.tokens[this.tokenPos].value;
       ConsumeToken(TokenType.IDENT);
-      return builder.Build();
+      return builder;
     }
 
     /**
@@ -614,10 +615,10 @@ namespace MySqlX.Protocol.X
       {
         throw new ArgumentException("Expected token type IDENT or LSTRING in JSON path at token pos " + this.tokenPos);
       }
-      DocumentPathItem.Builder item = DocumentPathItem.CreateBuilder();
-      item.SetType(DocumentPathItem.Types.Type.MEMBER);
-      item.SetValue(memberName);
-      return item.Build();
+      DocumentPathItem item = new DocumentPathItem();
+      item.Type = DocumentPathItem.Types.Type.Member;
+      item.Value = memberName;
+      return item;
     }
 
     /**
@@ -625,13 +626,14 @@ namespace MySqlX.Protocol.X
      */
     DocumentPathItem DocPathArrayLoc()
     {
-      DocumentPathItem.Builder builder = DocumentPathItem.CreateBuilder();
+      DocumentPathItem builder = new DocumentPathItem();
       ConsumeToken(TokenType.LSQBRACKET);
       if (CurrentTokenTypeEquals(TokenType.STAR))
       {
         ConsumeToken(TokenType.STAR);
         ConsumeToken(TokenType.RSQBRACKET);
-        return builder.SetType(DocumentPathItem.Types.Type.ARRAY_INDEX_ASTERISK).Build();
+        builder.Type = DocumentPathItem.Types.Type.ArrayIndexAsterisk;
+        return builder;
       }
       else if (CurrentTokenTypeEquals(TokenType.LNUM_INT))
       {
@@ -642,7 +644,9 @@ namespace MySqlX.Protocol.X
         }
         ConsumeToken(TokenType.LNUM_INT);
         ConsumeToken(TokenType.RSQBRACKET);
-        return builder.SetType(DocumentPathItem.Types.Type.ARRAY_INDEX).SetIndex(v).Build();
+        builder.Type = DocumentPathItem.Types.Type.ArrayIndex;
+        builder.Index = v;
+        return builder;
       }
       else
       {
@@ -665,7 +669,7 @@ namespace MySqlX.Protocol.X
         else if (CurrentTokenTypeEquals(TokenType.DOTSTAR))
         {
           ConsumeToken(TokenType.DOTSTAR);
-          items.Add(DocumentPathItem.CreateBuilder().SetType(DocumentPathItem.Types.Type.MEMBER_ASTERISK).Build());
+          items.Add(new DocumentPathItem() { Type = DocumentPathItem.Types.Type.MemberAsterisk });
         }
         else if (CurrentTokenTypeEquals(TokenType.LSQBRACKET))
         {
@@ -674,14 +678,14 @@ namespace MySqlX.Protocol.X
         else if (CurrentTokenTypeEquals(TokenType.DOUBLESTAR))
         {
           ConsumeToken(TokenType.DOUBLESTAR);
-          items.Add(DocumentPathItem.CreateBuilder().SetType(DocumentPathItem.Types.Type.DOUBLE_ASTERISK).Build());
+          items.Add(new DocumentPathItem() { Type = DocumentPathItem.Types.Type.DoubleAsterisk });
         }
         else
         {
           break;
         }
       }
-      if (items.Count > 0 && items[items.Count - 1].Type == DocumentPathItem.Types.Type.DOUBLE_ASTERISK)
+      if (items.Count > 0 && items[items.Count - 1].Type == DocumentPathItem.Types.Type.DoubleAsterisk)
       {
         throw new ArgumentException("JSON path may not end in '**' at " + this.tokenPos);
       }
@@ -693,14 +697,17 @@ namespace MySqlX.Protocol.X
      */
     internal Expr DocumentField()
     {
-      ColumnIdentifier.Builder builder = ColumnIdentifier.CreateBuilder();
+      ColumnIdentifier builder = new ColumnIdentifier();
       if (CurrentTokenTypeEquals(TokenType.IDENT))
       {
-        builder.AddDocumentPath(DocumentPathItem.CreateBuilder().SetType(
-                        DocumentPathItem.Types.Type.MEMBER).SetValue(ConsumeToken(TokenType.IDENT)).Build());
+        builder.DocumentPath.Add(new DocumentPathItem()
+        {
+          Type = DocumentPathItem.Types.Type.Member,
+          Value = ConsumeToken(TokenType.IDENT)
+        });
       }
-      builder.AddRangeDocumentPath(DocumentPath());
-      return Expr.CreateBuilder().SetType(Expr.Types.Type.IDENT).SetIdentifier(builder.Build()).Build();
+      builder.DocumentPath.Add(DocumentPath());
+      return new Expr() { Type = Expr.Types.Type.Ident, Identifier = builder };
     }
 
     /**
@@ -721,32 +728,32 @@ namespace MySqlX.Protocol.X
         }
       }
       parts.Reverse();
-      ColumnIdentifier.Builder id = ColumnIdentifier.CreateBuilder();
+      ColumnIdentifier id = new ColumnIdentifier();
       for (int i = 0; i < parts.Count; ++i)
       {
         switch (i)
         {
           case 0:
-            id.SetName(parts[0]);
+            id.Name = parts[0];
             break;
           case 1:
-            id.SetTableName(parts[1]);
+            id.TableName = parts[1];
             break;
           case 2:
-            id.SetSchemaName(parts[2]);
+            id.SchemaName = parts[2];
             break;
         }
       }
       if (CurrentTokenTypeEquals(TokenType.AT))
       {
         ConsumeToken(TokenType.AT);
-        id.AddRangeDocumentPath(DocumentPath());
-        if (id.DocumentPathCount == 0)
+        id.DocumentPath.Add(DocumentPath());
+        if (id.DocumentPath.Count == 0)
         {
           throw new ArgumentException("Invalid document path at " + this.tokenPos);
         }
       }
-      return Expr.CreateBuilder().SetType(Expr.Types.Type.IDENT).SetIdentifier(id.Build()).Build();
+      return new Expr() { Type = Expr.Types.Type.Ident, Identifier = id };
     }
 
     /**
@@ -754,8 +761,10 @@ namespace MySqlX.Protocol.X
      */
     Expr BuildUnaryOp(string name, Expr param)
     {
-      Operator op = Operator.CreateBuilder().SetName(name).AddParam(param).Build();
-      return Expr.CreateBuilder().SetType(Expr.Types.Type.OPERATOR).SetOperator(op).Build();
+      Operator op = new Operator();
+      op.Name = name;
+      op.Param.Add(param);
+      return new Expr() { Type = Expr.Types.Type.Operator, Operator = op };
     }
 
     /**
@@ -794,18 +803,19 @@ namespace MySqlX.Protocol.X
               throw new ArgumentException("Invalid placeholder name at token pos " + this.tokenPos);
             }
             placeholderName = placeholderName.ToLowerInvariant();
-            Expr.Builder placeholder = Expr.CreateBuilder().SetType(Expr.Types.Type.PLACEHOLDER);
+            Expr placeholder = new Expr();
+            placeholder.Type = Expr.Types.Type.Placeholder;
             if (this.placeholderNameToPosition.ContainsKey(placeholderName))
             {
-              placeholder.SetPosition((uint)this.placeholderNameToPosition[placeholderName]);
+              placeholder.Position = (uint)this.placeholderNameToPosition[placeholderName];
             }
             else
             {
-              placeholder.SetPosition((uint)this.positionalPlaceholderCount);
+              placeholder.Position = (uint)this.positionalPlaceholderCount;
               this.placeholderNameToPosition.Add(placeholderName, this.positionalPlaceholderCount);
               this.positionalPlaceholderCount++;
             }
-            return placeholder.Build();
+            return placeholder;
           }
         case TokenType.LPAREN:
           Expr e = GetExpr();
@@ -813,7 +823,7 @@ namespace MySqlX.Protocol.X
           return e;
         case TokenType.LCURLY:  // JSON object
           {
-            Mysqlx.Expr.Object.Builder builder = Mysqlx.Expr.Object.CreateBuilder();
+            Mysqlx.Expr.Object builder = new Mysqlx.Expr.Object();
             if (CurrentTokenTypeEquals(TokenType.LSTRING))
             {
               ParseCommaSeparatedList(() =>
@@ -821,20 +831,21 @@ namespace MySqlX.Protocol.X
                 string key = ConsumeToken(TokenType.LSTRING);
                 ConsumeToken(TokenType.COLON);
                 Expr value = GetExpr();
-                Mysqlx.Expr.Object.Types.ObjectField.Builder objectField = Mysqlx.Expr.Object.Types.ObjectField.CreateBuilder();
-                objectField.SetKey(key);
-                objectField.SetValue(value);
-                return objectField.Build();
-              }).ForEach(f => builder.AddFld(f));
+                Mysqlx.Expr.Object.Types.ObjectField objectField = new Mysqlx.Expr.Object.Types.ObjectField();
+                objectField.Key = key;
+                objectField.Value = value;
+                return objectField;
+              }).ForEach(f => builder.Fld.Add(f));
             }
             ConsumeToken(TokenType.RCURLY);
-            return Expr.CreateBuilder().SetType(Expr.Types.Type.OBJECT).SetObject(builder.Build()).Build();
+            return new Expr() { Type = Expr.Types.Type.Object, Object = builder };
           }
         case TokenType.CAST:
           {
             ConsumeToken(TokenType.LPAREN);
-            Operator.Builder builder = Operator.CreateBuilder().SetName(TokenType.CAST.ToString().ToLowerInvariant());
-            builder.AddParam(GetExpr());
+            Operator builder = new Operator();
+            builder.Name = TokenType.CAST.ToString().ToLowerInvariant();
+            builder.Param.Add(GetExpr());
             ConsumeToken(TokenType.AS);
             StringBuilder typeStr = new StringBuilder(this.tokens[this.tokenPos].value.ToUpperInvariant());
             // ensure next token is a valid type argument to CAST
@@ -883,8 +894,8 @@ namespace MySqlX.Protocol.X
             }
             ConsumeToken(TokenType.RPAREN);
             // TODO charset?
-            builder.AddParam(ExprUtil.BuildLiteralScalar(Encoding.UTF8.GetBytes(typeStr.ToString())));
-            return Expr.CreateBuilder().SetType(Expr.Types.Type.OPERATOR).SetOperator(builder.Build()).Build();
+            builder.Param.Add(ExprUtil.BuildLiteralScalar(Encoding.UTF8.GetBytes(typeStr.ToString())));
+            return new Expr() { Type = Expr.Types.Type.Operator, Operator = builder };
           }
         case TokenType.PLUS:
         case TokenType.MINUS:
@@ -955,10 +966,12 @@ namespace MySqlX.Protocol.X
       Expr lhs = innerParser.Invoke();
       while (this.tokenPos < this.tokens.Count && types.ToList().Contains(this.tokens[this.tokenPos].type))
       {
-        Operator.Builder builder = Operator.CreateBuilder().SetName(this.tokens[this.tokenPos].value).AddParam(lhs);
+        Operator builder = new Operator();
+        builder.Name = this.tokens[this.tokenPos].value;
+        builder.Param.Add(lhs);
         this.tokenPos++;
-        builder.AddParam(innerParser.Invoke());
-        lhs = Expr.CreateBuilder().SetType(Expr.Types.Type.OPERATOR).SetOperator(builder.Build()).Build();
+        builder.Param.Add(innerParser.Invoke());
+        lhs = new Expr() { Type = Expr.Types.Type.Operator, Operator = builder };
       }
       return lhs;
     }
@@ -970,21 +983,22 @@ namespace MySqlX.Protocol.X
       {
         Token op = this.tokens[this.tokenPos];
         this.tokenPos++;
-        Operator.Builder builder = Operator.CreateBuilder().AddParam(lhs);
+        Operator builder = new Operator();
+        builder.Param.Add(lhs);
 
         // INTERVAL expression
         ConsumeToken(TokenType.INTERVAL);
 
         if (op.type == TokenType.PLUS)
         {
-          builder.SetName("date_add");
+          builder.Name = "date_add";
         }
         else
         {
-          builder.SetName("date_sub");
+          builder.Name = "date_sub";
         }
 
-        builder.AddParam(BitExpr()); // amount
+        builder.Param.Add(BitExpr()); // amount
 
         // ensure next token is an interval unit
         if (CurrentTokenTypeEquals(TokenType.MICROSECOND) || CurrentTokenTypeEquals(TokenType.SECOND) || CurrentTokenTypeEquals(TokenType.MINUTE)
@@ -1004,10 +1018,10 @@ namespace MySqlX.Protocol.X
         }
         // xplugin demands that intervals be sent uppercase
         // TODO: we need to propagate the appropriate encoding here? it's ascii but it might not *always* be a superset encoding??
-        builder.AddParam(ExprUtil.BuildLiteralScalar(Encoding.UTF8.GetBytes(this.tokens[this.tokenPos].value.ToUpperInvariant())));
+        builder.Param.Add(ExprUtil.BuildLiteralScalar(Encoding.UTF8.GetBytes(this.tokens[this.tokenPos].value.ToUpperInvariant())));
         this.tokenPos++;
 
-        lhs = Expr.CreateBuilder().SetType(Expr.Types.Type.OPERATOR).SetOperator(builder.Build()).Build();
+        lhs = new Expr() { Type = Expr.Types.Type.Operator, Operator = builder };
       }
       return lhs;
     }
@@ -1097,8 +1111,10 @@ namespace MySqlX.Protocol.X
           {
             opName = "not_" + opName;
           }
-          Operator.Builder builder = Operator.CreateBuilder().SetName(opName).AddRangeParam(parameters);
-          lhs = Expr.CreateBuilder().SetType(Expr.Types.Type.OPERATOR).SetOperator(builder.Build()).Build();
+          Operator builder = new Operator();
+          builder.Name = opName;
+          builder.Param.Add(parameters);
+          lhs = new Expr() { Type = Expr.Types.Type.Operator, Operator = builder };
         }
       }
       return lhs;
@@ -1175,19 +1191,19 @@ namespace MySqlX.Protocol.X
     {
       return ParseCommaSeparatedList(() =>
       {
-        Order.Builder builder = Order.CreateBuilder();
-        builder.SetExpr(GetExpr());
+        Order builder = new Order();
+        builder.Expr = GetExpr();
         if (CurrentTokenTypeEquals(TokenType.ORDERBY_ASC))
         {
           ConsumeToken(TokenType.ORDERBY_ASC);
-          builder.SetDirection(Order.Types.Direction.ASC);
+          builder.Direction = Order.Types.Direction.Asc;
         }
         else if (CurrentTokenTypeEquals(TokenType.ORDERBY_DESC))
         {
           ConsumeToken(TokenType.ORDERBY_DESC);
-          builder.SetDirection(Order.Types.Direction.DESC);
+          builder.Direction = Order.Types.Direction.Desc;
         }
-        return builder.Build();
+        return builder;
       });
     }
 
@@ -1198,14 +1214,14 @@ namespace MySqlX.Protocol.X
     {
       return ParseCommaSeparatedList(() =>
       {
-        Projection.Builder builder = Projection.CreateBuilder();
-        builder.SetSource(GetExpr());
+        Projection builder = new Projection();
+        builder.Source = GetExpr();
         if (CurrentTokenTypeEquals(TokenType.AS))
         {
           ConsumeToken(TokenType.AS);
-          builder.SetAlias(ConsumeToken(TokenType.IDENT));
+          builder.Alias = ConsumeToken(TokenType.IDENT);
         }
-        return builder.Build();
+        return builder;
       });
     }
 
@@ -1215,7 +1231,7 @@ namespace MySqlX.Protocol.X
      */
     internal Column ParseTableInsertField()
     {
-      return Column.CreateBuilder().SetName(ConsumeToken(TokenType.IDENT)).Build();
+      return new Column() { Name = ConsumeToken(TokenType.IDENT) };
     }
 
     /**
@@ -1234,12 +1250,12 @@ namespace MySqlX.Protocol.X
       this.allowRelationalColumns = false;
       return ParseCommaSeparatedList(() =>
       {
-        Projection.Builder builder = Projection.CreateBuilder();
-        builder.SetSource(GetExpr());
+        Projection builder = new Projection();
+        builder.Source = GetExpr();
         // alias is not optional for document projection
         ConsumeToken(TokenType.AS);
-        builder.SetAlias(ConsumeToken(TokenType.IDENT));
-        return builder.Build();
+        builder.Alias = ConsumeToken(TokenType.IDENT);
+        return builder;
       });
     }
 

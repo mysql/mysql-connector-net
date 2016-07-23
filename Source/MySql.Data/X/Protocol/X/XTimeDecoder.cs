@@ -20,7 +20,8 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Google.ProtocolBuffers;
+
+using Google.Protobuf;
 using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.X.XDevAPI.Common;
 using MySqlX.Data;
@@ -40,18 +41,18 @@ namespace MySqlX.Protocol.X
 
     public object ValueDecoder(byte[] bytes)
     {
-      CodedInputStream input = CodedInputStream.CreateInstance(bytes);
+      CodedInputStream input = new CodedInputStream(bytes);
       Int64 hour = 0, min = 0, sec = 0, usec = 0;
 
-      bool negative = input.ReadRawByte() > 0;
+      bool negative = input.ReadInt32() > 0;
       if (!input.IsAtEnd)
-        input.ReadInt64(ref hour);
+        hour = input.ReadInt64();
       if (!input.IsAtEnd)
-        input.ReadInt64(ref min);
+        min = input.ReadInt64();
       if (!input.IsAtEnd)
-        input.ReadInt64(ref sec);
+        sec = input.ReadInt64();
       if (!input.IsAtEnd)
-        input.ReadInt64(ref usec);
+        usec = input.ReadInt64();
       if (negative) hour *= -1;
       return new TimeSpan(0, (int)hour, (int)min, (int)sec, (int)usec * 1000);
     }

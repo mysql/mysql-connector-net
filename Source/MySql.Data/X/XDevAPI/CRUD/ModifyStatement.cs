@@ -46,7 +46,7 @@ namespace MySqlX.XDevAPI.CRUD
     /// <returns>This ModifyStatement object</returns>
     public ModifyStatement Set(string docPath, object value)
     {
-      Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ITEM_SET, docPath).SetValue(value));
+      Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ItemSet, docPath).SetValue(value));
       return this;
     }
 
@@ -58,7 +58,7 @@ namespace MySqlX.XDevAPI.CRUD
     /// <returns>This ModifyStatement object</returns>
     public ModifyStatement Change(string docPath, object value)
     {
-      Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ITEM_REPLACE, docPath).SetValue(value));
+      Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ItemReplace, docPath).SetValue(value));
       return this;
     }
 
@@ -69,7 +69,7 @@ namespace MySqlX.XDevAPI.CRUD
     /// <returns>This ModifyStatement object</returns>
     public ModifyStatement Unset(string docPath)
     {
-      Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ITEM_REMOVE, docPath));
+      Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ItemRemove, docPath));
       return this;
     }
 

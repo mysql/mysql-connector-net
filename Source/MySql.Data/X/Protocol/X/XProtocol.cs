@@ -23,7 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Google.ProtocolBuffers;
+
 using MySqlX.Communication;
 using MySqlX.Data;
 using Mysqlx.Resultset;
@@ -42,6 +42,7 @@ using MySqlX.XDevAPI.CRUD;
 using MySql.Data.MySqlClient;
 using MySqlX.Properties;
 using System.IO;
+using Google.Protobuf;
 
 namespace MySqlX.Protocol
 {
@@ -63,10 +64,9 @@ namespace MySqlX.Protocol
 
     public void SendAuthStart(string method)
     {
-      AuthenticateStart.Builder authStart = AuthenticateStart.CreateBuilder();
-      authStart.SetMechName(method);
-      AuthenticateStart message = authStart.Build();
-      _writer.Write(ClientMessageId.SESS_AUTHENTICATE_START, message);
+      AuthenticateStart authStart = new AuthenticateStart();
+      authStart.MechName = method;
+      _writer.Write(ClientMessageId.SESS_AUTHENTICATE_START, authStart);
     }
 
     public byte[] ReadAuthContinue()
@@ -74,8 +74,8 @@ namespace MySqlX.Protocol
       CommunicationPacket p = ReadPacket();
       if (p.MessageType != (int)ServerMessageId.SESS_AUTHENTICATE_CONTINUE)
         throw new MySqlException("Unexpected message encountered during authentication handshake");
-      AuthenticateContinue response = AuthenticateContinue.ParseFrom(p.Buffer);
-      if (response.HasAuthData)
+      AuthenticateContinue response = AuthenticateContinue.Parser.ParseFrom(p.Buffer);
+      if (!response.AuthData.IsEmpty)
         return response.AuthData.ToByteArray();
       return null;
     }
@@ -83,9 +83,8 @@ namespace MySqlX.Protocol
     public void SendAuthContinue(byte[] data)
     {
       Debug.Assert(data != null);
-      AuthenticateContinue.Builder builder = AuthenticateContinue.CreateBuilder();
-      builder.SetAuthData(ByteString.CopyFrom(data));
-      AuthenticateContinue authCont = builder.Build();
+      AuthenticateContinue authCont = new AuthenticateContinue();
+      authCont.AuthData = (ByteString.CopyFrom(data));
       _writer.Write(ClientMessageId.SESS_AUTHENTICATE_CONTINUE, authCont);
     }
 
@@ -98,7 +97,7 @@ namespace MySqlX.Protocol
           break;
 
         case ServerMessageId.ERROR:
-          var error = Error.ParseFrom(p.Buffer);
+          var error = Error.Parser.ParseFrom(p.Buffer);
           throw new MySqlException("Unable to connect: " + error.Msg);
 
         case ServerMessageId.NOTICE:
@@ -116,11 +115,11 @@ namespace MySqlX.Protocol
 
     public void GetServerCapabilities()
     {
-      _writer.Write(ClientMessageId.CON_CAPABILITIES_GET, CapabilitiesGet.CreateBuilder().Build());
+      _writer.Write(ClientMessageId.CON_CAPABILITIES_GET, new CapabilitiesGet());
       CommunicationPacket packet = ReadPacket();
       if (packet.MessageType != (int)ServerMessageId.CONN_CAPABILITIES)
         ThrowUnexpectedMessage(packet.MessageType, (int)ServerMessageId.CONN_CAPABILITIES);
-      Capabilities = Capabilities.ParseFrom(packet.Buffer);
+      Capabilities = Capabilities.Parser.ParseFrom(packet.Buffer);
     }
 
     public void SetCapabilities(Dictionary<string,object> clientCapabilities)
@@ -128,15 +127,15 @@ namespace MySqlX.Protocol
       if (clientCapabilities == null || clientCapabilities.Count == 0)
         return;
 
-      var builder = CapabilitiesSet.CreateBuilder();
-      var capabilities = Capabilities.CreateBuilder();
+      var builder = new CapabilitiesSet();
+      var capabilities = new Capabilities();
       foreach(var cap in clientCapabilities)
       {
-        var capabilityMsg = Capability.CreateBuilder().SetName(cap.Key).SetValue(ExprUtil.BuildAny(cap.Value)).Build();
-        capabilities.AddCapabilities_(capabilityMsg);
+        var capabilityMsg = new Capability() { Name = (cap.Key), Value = ExprUtil.BuildAny(cap.Value) };
+        capabilities.Capabilities_.Add(capabilityMsg);
       }
-      builder.SetCapabilities(capabilities);
-      _writer.Write(ClientMessageId.CON_CAPABILITIES_SET, builder.Build());
+      builder.Capabilities = capabilities;
+      _writer.Write(ClientMessageId.CON_CAPABILITIES_SET, builder);
       ReadOk();
     }
 
@@ -179,8 +178,8 @@ namespace MySqlX.Protocol
 
     private void ProcessNotice(CommunicationPacket packet, BaseResult rs)
     {
-      Frame frame = Frame.ParseFrom(packet.Buffer);
-      if (frame.Scope == Frame.Types.Scope.GLOBAL)
+      Frame frame = Frame.Parser.ParseFrom(packet.Buffer);
+      if (frame.Scope == Frame.Types.Scope.Global)
       {
         ProcessGlobalNotice(frame);
         return;
@@ -202,13 +201,13 @@ namespace MySqlX.Protocol
 
     private void ProcessSessionStateChanged(BaseResult rs, byte[] payload)
     {
-      SessionStateChanged state = SessionStateChanged.ParseFrom(payload);
+      SessionStateChanged state = SessionStateChanged.Parser.ParseFrom(payload);
       switch (state.Param)
       {
-        case SessionStateChanged.Types.Parameter.ROWS_AFFECTED:
+        case SessionStateChanged.Types.Parameter.RowsAffected:
             rs._recordsAffected = state.Value.VUnsignedInt;
           break;
-        case SessionStateChanged.Types.Parameter.GENERATED_INSERT_ID:
+        case SessionStateChanged.Types.Parameter.GeneratedInsertId:
             rs._autoIncrementValue = state.Value.VUnsignedInt;
           break;
           // handle the other ones
@@ -218,9 +217,9 @@ namespace MySqlX.Protocol
 
     private void ProcessWarning(BaseResult rs, byte[] payload)
     {
-      Warning w = Warning.ParseFrom(payload);
+      Warning w = Warning.Parser.ParseFrom(payload);
       WarningInfo warning = new WarningInfo(w.Code, w.Msg);
-      if (w.HasLevel)
+      if (w.Level != Warning.Types.Level.None)
         warning.Level = (uint)w.Level;
       rs.AddWarning(warning);
     }
@@ -234,36 +233,34 @@ namespace MySqlX.Protocol
 
     public void SendSessionClose()
     {
-      _writer.Write(ClientMessageId.SESS_CLOSE, Mysqlx.Session.Close.CreateBuilder().Build());
+      _writer.Write(ClientMessageId.SESS_CLOSE, new Mysqlx.Session.Close());
     }
 
     public void SendConnectionClose()
     {
-      Mysqlx.Connection.Close.Builder builder = Mysqlx.Connection.Close.CreateBuilder();
-      Mysqlx.Connection.Close connClose = builder.Build();
+      Mysqlx.Connection.Close connClose = new Mysqlx.Connection.Close();
       _writer.Write(ClientMessageId.CON_CLOSE, connClose);
     }
 
     public void SendExecuteStatement(string ns, string stmt, params object[] args)
     {
-      StmtExecute.Builder stmtExecute = StmtExecute.CreateBuilder();
-      stmtExecute.SetNamespace(ns);
-      stmtExecute.SetStmt(ByteString.CopyFromUtf8(stmt));
-      stmtExecute.SetCompactMetadata(false);
+      StmtExecute stmtExecute = new StmtExecute();
+      stmtExecute.Namespace = ns;
+      stmtExecute.Stmt = ByteString.CopyFromUtf8(stmt);
+      stmtExecute.CompactMetadata = false;
       if (args != null)
       {
         foreach (object arg in args)
-          stmtExecute.AddArgs(CreateAny(arg));
+          stmtExecute.Args.Add(CreateAny(arg));
       }
-      StmtExecute msg = stmtExecute.Build();
 
-      _writer.Write(ClientMessageId.SQL_STMT_EXECUTE, msg);
+      _writer.Write(ClientMessageId.SQL_STMT_EXECUTE, stmtExecute);
     }
 
 
     private void DecodeAndThrowError(CommunicationPacket p)
     {
-      Error e = Error.ParseFrom(p.Buffer);
+      Error e = Error.Parser.ParseFrom(p.Buffer);
       throw new MySqlException(e.Code, e.SqlState, e.Msg);
     }
 
@@ -277,10 +274,10 @@ namespace MySqlX.Protocol
         return null;
       }
 
-      Mysqlx.Resultset.Row protoRow = Mysqlx.Resultset.Row.ParseFrom(ReadPacket().Buffer);
-      List<byte[]> values = new List<byte[]>(protoRow.FieldCount);
-      for (int i = 0; i < protoRow.FieldCount; i++)
-        values.Add(protoRow.GetField(i).ToByteArray());
+      Mysqlx.Resultset.Row protoRow = Mysqlx.Resultset.Row.Parser.ParseFrom(ReadPacket().Buffer);
+      List<byte[]> values = new List<byte[]>(protoRow.Field.Count);
+      for (int i = 0; i < protoRow.Field.Count; i++)
+        values.Add(protoRow.Field[i].ToByteArray());
       return values;
     }
 
@@ -320,7 +317,7 @@ namespace MySqlX.Protocol
       {
         if (PeekPacket().MessageType != (int)ServerMessageId.RESULTSET_COLUMN_META_DATA) return columns;
         CommunicationPacket p = ReadPacket();
-        ColumnMetaData response = ColumnMetaData.ParseFrom(p.Buffer);
+        ColumnMetaData response = ColumnMetaData.Parser.ParseFrom(p.Buffer);
         columns.Add(DecodeColumn(response));
       }
     }
@@ -363,37 +360,38 @@ namespace MySqlX.Protocol
 
     public void SendInsert(string schema, bool isRelational, string collection, object[] rows, string[] columns)
     {
-      Insert.Builder builder = Mysqlx.Crud.Insert.CreateBuilder().SetCollection(ExprUtil.BuildCollection(schema, collection));
-      builder.SetDataModel(isRelational ? DataModel.TABLE : DataModel.DOCUMENT);
+      Insert msg = new Mysqlx.Crud.Insert();
+      msg.Collection = ExprUtil.BuildCollection(schema, collection);
+      msg.DataModel = (isRelational ? DataModel.Table : DataModel.Document);
       if(columns != null && columns.Length > 0)
       {
         foreach(string column in columns)
         {
-          builder.AddProjection(new ExprParser(column).ParseTableInsertField());
+          msg.Projection.Add(new ExprParser(column).ParseTableInsertField());
         }
       }
       foreach (object row in rows)
       {
-        Mysqlx.Crud.Insert.Types.TypedRow.Builder typedRow = Mysqlx.Crud.Insert.Types.TypedRow.CreateBuilder();
+        Mysqlx.Crud.Insert.Types.TypedRow typedRow = new Mysqlx.Crud.Insert.Types.TypedRow();
         object[] fields = row.GetType().IsArray ? (object[])row : new object[] { row };
         foreach (object field in fields)
         {
-          typedRow.AddField(ExprUtil.ArgObjectToExpr(field, isRelational)).Build();
+          typedRow.Field.Add(ExprUtil.ArgObjectToExpr(field, isRelational));
         }
 
-        builder.AddRow(typedRow);
+        msg.Row.Add(typedRow);
       }
-      Mysqlx.Crud.Insert msg = builder.Build();
       _writer.Write(ClientMessageId.CRUD_INSERT, msg);
     }
 
-    private void ApplyFilter<T>(Func<Limit, T> setLimit, Func<Expr, T> setCriteria, Func<IEnumerable<Order>,T> setOrder, FilterParams filter, Func<IEnumerable<Scalar>,T> addParams)
+    private void ApplyFilter(Action<Limit> setLimit, Action<Expr> setCriteria, Action<IEnumerable<Order>> setOrder, FilterParams filter, Action<IEnumerable<Scalar>> addParams)
     {
       if (filter.HasLimit)
       {
-        var limit = Limit.CreateBuilder().SetRowCount((ulong)filter.Limit);
-        if (filter.Offset != -1) limit.SetOffset((ulong)filter.Offset);
-        setLimit(limit.Build());
+        var limit = new Limit();
+        limit.RowCount = (ulong)filter.Limit;
+        if (filter.Offset != -1) limit.Offset = (ulong)filter.Offset;
+        setLimit(limit);
       }
       if (!string.IsNullOrEmpty(filter.Condition))
       {
@@ -411,11 +409,10 @@ namespace MySqlX.Protocol
     /// </summary>
     public void SendDelete(string schema, string collection, bool isRelational, FilterParams filter)
     {
-      var builder = Delete.CreateBuilder();
-      builder.SetDataModel(isRelational ? DataModel.TABLE : DataModel.DOCUMENT);
-      builder.SetCollection(ExprUtil.BuildCollection(schema, collection));
-      ApplyFilter(builder.SetLimit, builder.SetCriteria, builder.AddRangeOrder, filter, builder.AddRangeArgs);
-      var msg = builder.Build();
+      var msg = new Delete();
+      msg.DataModel = (isRelational ? DataModel.Table : DataModel.Document);
+      msg.Collection = ExprUtil.BuildCollection(schema, collection);
+      ApplyFilter(v => msg.Limit = v, v => msg.Criteria = v, msg.Order.Add, filter, msg.Args.Add);
       _writer.Write(ClientMessageId.CRUD_DELETE, msg);
     }
 
@@ -424,32 +421,32 @@ namespace MySqlX.Protocol
     /// </summary>
     public void SendUpdate(string schema, string collection, bool isRelational, FilterParams filter, List<UpdateSpec> updates)
     {
-      var builder = Update.CreateBuilder();
-      builder.SetDataModel(isRelational ? DataModel.TABLE : DataModel.DOCUMENT);
-      builder.SetCollection(ExprUtil.BuildCollection(schema, collection));
-      ApplyFilter(builder.SetLimit, builder.SetCriteria, builder.AddRangeOrder, filter, builder.AddRangeArgs);
+      var msg = new Update();
+      msg.DataModel = (isRelational ? DataModel.Table : DataModel.Document);
+      msg.Collection = ExprUtil.BuildCollection(schema, collection);
+      ApplyFilter(v => msg.Limit = v, v => msg.Criteria = v, msg.Order.Add, filter, msg.Args.Add);
 
       foreach (var update in updates)
       {
-        var updateBuilder = UpdateOperation.CreateBuilder();
-        updateBuilder.SetOperation(update.Type);
-        updateBuilder.SetSource(update.GetSource(isRelational));
+        var updateBuilder = new UpdateOperation();
+        updateBuilder.Operation = update.Type;
+        updateBuilder.Source = update.GetSource(isRelational);
         if (update.HasValue)
-          updateBuilder.SetValue(update.GetValue());
-        builder.AddOperation(updateBuilder.Build());
+          updateBuilder.Value = update.GetValue();
+        msg.Operation.Add(updateBuilder);
       }
-      var msg = builder.Build();
       _writer.Write(ClientMessageId.CRUD_UPDATE, msg);
     }
 
     public void SendFind(string schema, string collection, bool isRelational, FilterParams filter, FindParams findParams)
     {
-      var builder = Find.CreateBuilder().SetCollection(ExprUtil.BuildCollection(schema, collection));
-      builder.SetDataModel(isRelational ? DataModel.TABLE : DataModel.DOCUMENT);
+      var builder = new Find();
+      builder.Collection = ExprUtil.BuildCollection(schema, collection);
+      builder.DataModel = (isRelational ? DataModel.Table : DataModel.Document);
       if (findParams != null && findParams.Projection != null && findParams.Projection.Length > 0)
-        builder.AddRangeProjection(new ExprParser(ExprUtil.JoinString(findParams.Projection)).ParseTableSelectProjection());
-      ApplyFilter(builder.SetLimit, builder.SetCriteria, builder.AddRangeOrder, filter, builder.AddRangeArgs);
-      _writer.Write(ClientMessageId.CRUD_FIND, builder.Build());
+        builder.Projection.Add(new ExprParser(ExprUtil.JoinString(findParams.Projection)).ParseTableSelectProjection());
+      ApplyFilter(v => builder.Limit = v, v => builder.Criteria = v, builder.Order.Add, filter, builder.Args.Add);
+      _writer.Write(ClientMessageId.CRUD_FIND, builder);
     }
 
     internal void ReadOkClose()
@@ -475,12 +472,12 @@ namespace MySqlX.Protocol
       CommunicationPacket p = ReadPacket();
       if (p.MessageType == (int)ServerMessageId.ERROR)
       {
-        var error = Error.ParseFrom(p.Buffer);
+        var error = Error.Parser.ParseFrom(p.Buffer);
         throw new MySqlException(error.Msg);
       }
       if (p.MessageType == (int)ServerMessageId.OK)
       {
-        var response = Ok.ParseFrom(p.Buffer);
+        var response = Ok.Parser.ParseFrom(p.Buffer);
         return response.Msg;
       }
       else

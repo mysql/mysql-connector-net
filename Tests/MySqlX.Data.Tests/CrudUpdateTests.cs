@@ -76,8 +76,8 @@ namespace MySqlX.Data.Tests
       Assert.Equal<ulong>(1, result.RecordsAffected);
 
       var docs = coll.Find().Execute().FetchAll();
-      Assert.Equal("{\"_id\":1, \"name\":\"Book 1\", \"pages\":10}", docs[0].ToString());
-      Assert.Equal("{\"_id\":2, \"name\":\"Book 2\", \"pages\":20}", docs[1].ToString());
+      Assert.Equal("{ \"_id\": 1, \"name\": \"Book 1\", \"pages\": 10 }", docs[0].ToString());
+      Assert.Equal("{ \"_id\": 2, \"name\": \"Book 2\", \"pages\": 20 }", docs[1].ToString());
     }
   }
 }

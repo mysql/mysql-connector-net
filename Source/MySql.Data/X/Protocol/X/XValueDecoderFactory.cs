@@ -32,17 +32,17 @@ namespace MySqlX.Protocol.X
     {
       switch (type)
       {
-        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.BIT: return new BitDecoder();
-        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.BYTES: return new ByteDecoder(false);
-        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.ENUM: return new ByteDecoder(true);
-        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.SET: return new SetDecoder();
-        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.TIME: return new XTimeDecoder();
-        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.DATETIME: return new XDateTimeDecoder();
-        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.SINT: return new IntegerDecoder(true);
-        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.UINT: return new IntegerDecoder(false);
-        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.FLOAT: return new FloatDecoder(true);
-        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.DOUBLE: return new FloatDecoder(false);
-        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.DECIMAL: return new DecimalDecoder();
+        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.Bit: return new BitDecoder();
+        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.Bytes: return new ByteDecoder(false);
+        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.Enum: return new ByteDecoder(true);
+        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.Set: return new SetDecoder();
+        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.Time: return new XTimeDecoder();
+        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.Datetime: return new XDateTimeDecoder();
+        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.Sint: return new IntegerDecoder(true);
+        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.Uint: return new IntegerDecoder(false);
+        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.Float: return new FloatDecoder(true);
+        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.Double: return new FloatDecoder(false);
+        case Mysqlx.Resultset.ColumnMetaData.Types.FieldType.Decimal: return new DecimalDecoder();
       }
       throw new MySqlException("Unknown field type " + type.ToString());
     }

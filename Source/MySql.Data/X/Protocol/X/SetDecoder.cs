@@ -24,7 +24,7 @@ using System.Text;
 using MySqlX.Data;
 using System;
 using MySqlX.XDevAPI;
-using Google.ProtocolBuffers;
+
 using MySql.Data.MySqlClient;
 using MySql.Data.Common;
 using MySqlX.Properties;

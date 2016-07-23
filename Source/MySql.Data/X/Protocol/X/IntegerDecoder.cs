@@ -21,7 +21,8 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
-using Google.ProtocolBuffers;
+
+using Google.Protobuf;
 using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.X.XDevAPI.Common;
 using MySqlX.Data;
@@ -100,16 +101,12 @@ namespace MySqlX.Protocol.X
 
     private Int64 ReadInt(byte[] bytes)
     {
-      Int64 val = 0;
-      CodedInputStream.CreateInstance(bytes).ReadSInt64(ref val);
-      return val;
+      return new CodedInputStream(bytes).ReadSInt64();
     }
 
     private UInt64 ReadUInt(byte[] bytes)
     {
-      UInt64 val = 0;
-      CodedInputStream.CreateInstance(bytes).ReadUInt64(ref val);
-      return val;
+      return new CodedInputStream(bytes).ReadUInt64();
     }
 
     public object SByteValueDecoder(byte[] bytes)

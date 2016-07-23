@@ -20,7 +20,8 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Google.ProtocolBuffers;
+
+using Google.Protobuf;
 using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.X.XDevAPI.Common;
 using MySqlX.Data;
@@ -49,21 +50,21 @@ namespace MySqlX.Protocol.X
 
     public object ValueDecoder(byte[] bytes)
     {
-      CodedInputStream input = CodedInputStream.CreateInstance(bytes);
+      CodedInputStream input = new CodedInputStream(bytes);
       UInt64 year = 0, month = 0, day = 0;
       Int64 hour = 0, min = 0, sec = 0, usec = 0;
 
-      input.ReadUInt64(ref year);
-      input.ReadUInt64(ref month);
-      input.ReadUInt64(ref day);
+      year = input.ReadUInt64();
+      month = input.ReadUInt64();
+      day = input.ReadUInt64();
       if (!input.IsAtEnd)
-        input.ReadInt64(ref hour);
+        hour = input.ReadInt64();
       if (!input.IsAtEnd)
-        input.ReadInt64(ref min);
+        min = input.ReadInt64();
       if (!input.IsAtEnd)
-        input.ReadInt64(ref sec);
+        sec = input.ReadInt64();
       if (!input.IsAtEnd)
-        input.ReadInt64(ref usec);
+        usec = input.ReadInt64();
       return new DateTime((int)year, (int)month, (int)day, (int)hour, (int)min, (int)sec).AddTicks(usec * 10);
     }
   }

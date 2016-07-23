@@ -60,7 +60,7 @@ namespace MySqlX.XDevAPI.Relational
     /// <returns>This same TableUpdateStatement object</returns>
     public TableUpdateStatement Set(string tableField, object value)
     {
-      updates.Add(new UpdateSpec(Mysqlx.Crud.UpdateOperation.Types.UpdateType.SET, tableField).SetValue(value));
+      updates.Add(new UpdateSpec(Mysqlx.Crud.UpdateOperation.Types.UpdateType.Set, tableField).SetValue(value));
       return this;
     }
   }

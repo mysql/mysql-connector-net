@@ -210,48 +210,48 @@ namespace MySqlX.Data.Tests
     public void TestExprTree()
     {
       Expr expr = new ExprParser("a like 'xyz' and $.count > 10 + 1").Parse();
-      Assert.Equal(Expr.Types.Type.OPERATOR, expr.Type);
+      Assert.Equal(Expr.Types.Type.Operator, expr.Type);
       Assert.Equal("&&", expr.Operator.Name);
-      Assert.Equal(2, expr.Operator.ParamCount);
+      Assert.Equal(2, expr.Operator.Param.Count);
 
       // check left side of AND: (a like 'xyz')
-      Expr andLeft = expr.Operator.ParamList[0];
-      Assert.Equal(Expr.Types.Type.OPERATOR, andLeft.Type);
+      Expr andLeft = expr.Operator.Param[0];
+      Assert.Equal(Expr.Types.Type.Operator, andLeft.Type);
       Assert.Equal("like", andLeft.Operator.Name);
-      Assert.Equal(2, andLeft.Operator.ParamCount);
-      Expr identA = andLeft.Operator.ParamList[0];
-      Assert.Equal(Expr.Types.Type.IDENT, identA.Type);
+      Assert.Equal(2, andLeft.Operator.Param.Count);
+      Expr identA = andLeft.Operator.Param[0];
+      Assert.Equal(Expr.Types.Type.Ident, identA.Type);
       Assert.Equal("a", identA.Identifier.Name);
-      Expr literalXyz = andLeft.Operator.ParamList[1];
-      Assert.Equal(Expr.Types.Type.LITERAL, literalXyz.Type);
+      Expr literalXyz = andLeft.Operator.Param[1];
+      Assert.Equal(Expr.Types.Type.Literal, literalXyz.Type);
       Scalar scalarXyz = literalXyz.Literal;
-      Assert.Equal(Scalar.Types.Type.V_STRING, scalarXyz.Type);
+      Assert.Equal(Scalar.Types.Type.VString, scalarXyz.Type);
       Assert.Equal("xyz", scalarXyz.VString.Value.ToStringUtf8());
 
       // check right side of AND: ($.count > 10 + 1)
-      Expr andRight = expr.Operator.ParamList[1];
-      Assert.Equal(Expr.Types.Type.OPERATOR, andRight.Type);
+      Expr andRight = expr.Operator.Param[1];
+      Assert.Equal(Expr.Types.Type.Operator, andRight.Type);
       Assert.Equal(">", andRight.Operator.Name);
-      Assert.Equal(2, andRight.Operator.ParamCount);
-      Expr countDocPath = andRight.Operator.ParamList[0];
-      Assert.Equal(Expr.Types.Type.IDENT, countDocPath.Type);
+      Assert.Equal(2, andRight.Operator.Param.Count);
+      Expr countDocPath = andRight.Operator.Param[0];
+      Assert.Equal(Expr.Types.Type.Ident, countDocPath.Type);
       ColumnIdentifier countId = countDocPath.Identifier;
-      Assert.False(countId.HasName);
-      Assert.False(countId.HasTableName);
-      Assert.False(countId.HasSchemaName);
-      Assert.Equal(1, countId.DocumentPathCount);
-      Assert.Equal(DocumentPathItem.Types.Type.MEMBER, countId.DocumentPathList[0].Type);
-      Assert.Equal("count", countId.DocumentPathList[0].Value);
-      Expr addition = andRight.Operator.ParamList[1];
-      Scalar addLeftScalar = addition.Operator.ParamList[0].Literal;
-      Scalar addRightScalar = addition.Operator.ParamList[1].Literal;
-      Assert.Equal(Expr.Types.Type.OPERATOR, addition.Type);
+      Assert.Equal(string.Empty, countId.Name);
+      Assert.Equal(string.Empty, countId.TableName);
+      Assert.Equal(string.Empty, countId.SchemaName);
+      Assert.Equal(1, countId.DocumentPath.Count);
+      Assert.Equal(DocumentPathItem.Types.Type.Member, countId.DocumentPath[0].Type);
+      Assert.Equal("count", countId.DocumentPath[0].Value);
+      Expr addition = andRight.Operator.Param[1];
+      Scalar addLeftScalar = addition.Operator.Param[0].Literal;
+      Scalar addRightScalar = addition.Operator.Param[1].Literal;
+      Assert.Equal(Expr.Types.Type.Operator, addition.Type);
       Assert.Equal("+", addition.Operator.Name);
-      Assert.Equal(2, addition.Operator.ParamCount);
-      Assert.Equal(Expr.Types.Type.LITERAL, addition.Operator.ParamList[0].Type);
-      Assert.Equal(Expr.Types.Type.LITERAL, addition.Operator.ParamList[1].Type);
-      Assert.Equal(Scalar.Types.Type.V_SINT, addLeftScalar.Type);
-      Assert.Equal(Scalar.Types.Type.V_SINT, addRightScalar.Type);
+      Assert.Equal(2, addition.Operator.Param.Count);
+      Assert.Equal(Expr.Types.Type.Literal, addition.Operator.Param[0].Type);
+      Assert.Equal(Expr.Types.Type.Literal, addition.Operator.Param[1].Type);
+      Assert.Equal(Scalar.Types.Type.VSint, addLeftScalar.Type);
+      Assert.Equal(Scalar.Types.Type.VSint, addRightScalar.Type);
       Assert.Equal(10, addLeftScalar.VSignedInt);
       Assert.Equal(1, addRightScalar.VSignedInt);
     }
@@ -262,11 +262,11 @@ namespace MySqlX.Data.Tests
       List<Order> orderSpec = new ExprParser("a, b desc").ParseOrderSpec();
       Assert.Equal(2, orderSpec.Count);
       Order o1 = orderSpec[0];
-      Assert.False(o1.HasDirection);
+      Assert.Equal(Order.Types.Direction.None, o1.Direction);
       Assert.Equal("a", ExprUnparser.ExprToString(o1.Expr));
       Order o2 = orderSpec[1];
-      Assert.True(o2.HasDirection);
-      Assert.Equal(Order.Types.Direction.DESC, o2.Direction);
+      Assert.NotEqual(Order.Types.Direction.None, o2.Direction);
+      Assert.Equal(Order.Types.Direction.Desc, o2.Direction);
       Assert.Equal("b", ExprUnparser.ExprToString(o2.Expr));
     }
 
@@ -276,15 +276,15 @@ namespace MySqlX.Data.Tests
       List<Order> orderSpec = new ExprParser("field not in ('a',func('b', 2.0),'c') desc, 1-a$**[0].*, now () + $.b + c > 2 asc").ParseOrderSpec();
       Assert.Equal(3, orderSpec.Count);
       Order o1 = orderSpec[0];
-      Assert.True(o1.HasDirection);
-      Assert.Equal(Order.Types.Direction.DESC, o1.Direction);
+      Assert.NotEqual(Order.Types.Direction.None, o1.Direction);
+      Assert.Equal(Order.Types.Direction.Desc, o1.Direction);
       Assert.Equal("field not in(\"a\", func(\"b\", 2), \"c\")", ExprUnparser.ExprToString(o1.Expr));
       Order o2 = orderSpec[1];
-      Assert.False(o2.HasDirection);
+      Assert.Equal(Order.Types.Direction.None, o2.Direction);
       Assert.Equal("(1 - a$**[0].*)", ExprUnparser.ExprToString(o2.Expr));
       Order o3 = orderSpec[2];
-      Assert.True(o3.HasDirection);
-      Assert.Equal(Order.Types.Direction.ASC, o3.Direction);
+      Assert.NotEqual(Order.Types.Direction.None, o3.Direction);
+      Assert.Equal(Order.Types.Direction.Asc, o3.Direction);
       Assert.Equal("(((now() + $.b) + c) > 2)", ExprUnparser.ExprToString(o3.Expr));
     }
 
@@ -299,14 +299,14 @@ namespace MySqlX.Data.Tests
       Assert.Equal(1, parser.placeholderNameToPosition["b"]);
       Assert.Equal(2, parser.positionalPlaceholderCount);
 
-      Expr aEqualsPlaceholder = e.Operator.ParamList[0].Operator.ParamList[0].Operator.ParamList[1];
-      Assert.Equal(Expr.Types.Type.PLACEHOLDER, aEqualsPlaceholder.Type);
+      Expr aEqualsPlaceholder = e.Operator.Param[0].Operator.Param[0].Operator.Param[1];
+      Assert.Equal(Expr.Types.Type.Placeholder, aEqualsPlaceholder.Type);
       Assert.Equal((uint)0, aEqualsPlaceholder.Position);
-      Expr bEqualsPlaceholder = e.Operator.ParamList[0].Operator.ParamList[1].Operator.ParamList[1];
-      Assert.Equal(Expr.Types.Type.PLACEHOLDER, bEqualsPlaceholder.Type);
+      Expr bEqualsPlaceholder = e.Operator.Param[0].Operator.Param[1].Operator.Param[1];
+      Assert.Equal(Expr.Types.Type.Placeholder, bEqualsPlaceholder.Type);
       Assert.Equal((uint)1, bEqualsPlaceholder.Position);
-      Expr dEqualsPlaceholder = e.Operator.ParamList[1].Operator.ParamList[1].Operator.ParamList[1];
-      Assert.Equal(Expr.Types.Type.PLACEHOLDER, dEqualsPlaceholder.Type);
+      Expr dEqualsPlaceholder = e.Operator.Param[1].Operator.Param[1].Operator.Param[1];
+      Assert.Equal(Expr.Types.Type.Placeholder, dEqualsPlaceholder.Type);
       Assert.Equal((uint)1, dEqualsPlaceholder.Position);
     }
 
@@ -320,17 +320,17 @@ namespace MySqlX.Data.Tests
       Assert.Equal(2, parser.placeholderNameToPosition["2"]);
       Assert.Equal(3, parser.positionalPlaceholderCount);
 
-      Expr aEqualsPlaceholder = e.Operator.ParamList[0].Operator.ParamList[0].Operator.ParamList[1];
-      Assert.Equal(Expr.Types.Type.PLACEHOLDER, aEqualsPlaceholder.Type);
+      Expr aEqualsPlaceholder = e.Operator.Param[0].Operator.Param[0].Operator.Param[1];
+      Assert.Equal(Expr.Types.Type.Placeholder, aEqualsPlaceholder.Type);
       Assert.Equal((uint)0, aEqualsPlaceholder.Position);
-      Expr bEqualsPlaceholder = e.Operator.ParamList[0].Operator.ParamList[1].Operator.ParamList[1];
-      Assert.Equal(Expr.Types.Type.PLACEHOLDER, bEqualsPlaceholder.Type);
+      Expr bEqualsPlaceholder = e.Operator.Param[0].Operator.Param[1].Operator.Param[1];
+      Assert.Equal(Expr.Types.Type.Placeholder, bEqualsPlaceholder.Type);
       Assert.Equal((uint)1, bEqualsPlaceholder.Position);
-      Expr cEqualsPlaceholder = e.Operator.ParamList[1].Operator.ParamList[0].Operator.ParamList[1];
-      Assert.Equal(Expr.Types.Type.PLACEHOLDER, cEqualsPlaceholder.Type);
+      Expr cEqualsPlaceholder = e.Operator.Param[1].Operator.Param[0].Operator.Param[1];
+      Assert.Equal(Expr.Types.Type.Placeholder, cEqualsPlaceholder.Type);
       Assert.Equal((uint)2, cEqualsPlaceholder.Position);
-      Expr dEqualsPlaceholder = e.Operator.ParamList[1].Operator.ParamList[1].Operator.ParamList[1];
-      Assert.Equal(Expr.Types.Type.PLACEHOLDER, dEqualsPlaceholder.Type);
+      Expr dEqualsPlaceholder = e.Operator.Param[1].Operator.Param[1].Operator.Param[1];
+      Assert.Equal(Expr.Types.Type.Placeholder, dEqualsPlaceholder.Type);
       Assert.Equal((uint)2, dEqualsPlaceholder.Position);
     }
 
@@ -344,14 +344,14 @@ namespace MySqlX.Data.Tests
       Assert.Equal(2, parser.placeholderNameToPosition["2"]);
       Assert.Equal(3, parser.positionalPlaceholderCount);
 
-      Expr aEqualsPlaceholder = e.Operator.ParamList[0].Operator.ParamList[0].Operator.ParamList[1];
-      Assert.Equal(Expr.Types.Type.PLACEHOLDER, aEqualsPlaceholder.Type);
+      Expr aEqualsPlaceholder = e.Operator.Param[0].Operator.Param[0].Operator.Param[1];
+      Assert.Equal(Expr.Types.Type.Placeholder, aEqualsPlaceholder.Type);
       Assert.Equal((uint)0, aEqualsPlaceholder.Position);
-      Expr bEqualsPlaceholder = e.Operator.ParamList[0].Operator.ParamList[1].Operator.ParamList[1];
-      Assert.Equal(Expr.Types.Type.PLACEHOLDER, bEqualsPlaceholder.Type);
+      Expr bEqualsPlaceholder = e.Operator.Param[0].Operator.Param[1].Operator.Param[1];
+      Assert.Equal(Expr.Types.Type.Placeholder, bEqualsPlaceholder.Type);
       Assert.Equal((uint)1, bEqualsPlaceholder.Position);
-      Expr dEqualsPlaceholder = e.Operator.ParamList[1].Operator.ParamList[1].Operator.ParamList[1];
-      Assert.Equal(Expr.Types.Type.PLACEHOLDER, dEqualsPlaceholder.Type);
+      Expr dEqualsPlaceholder = e.Operator.Param[1].Operator.Param[1].Operator.Param[1];
+      Assert.Equal(Expr.Types.Type.Placeholder, dEqualsPlaceholder.Type);
       Assert.Equal((uint)2, dEqualsPlaceholder.Position);
     }
 
@@ -362,21 +362,21 @@ namespace MySqlX.Data.Tests
 
       Assert.Equal("{'a':1, 'b':\"a string\"}", ExprUnparser.ExprToString(e));
 
-      Assert.Equal(Expr.Types.Type.OBJECT, e.Type);
+      Assert.Equal(Expr.Types.Type.Object, e.Type);
       Mysqlx.Expr.Object o = e.Object;
-      Assert.Equal(2, o.FldCount);
+      Assert.Equal(2, o.Fld.Count);
       Mysqlx.Expr.Object.Types.ObjectField of;
 
-      of = o.FldList[0];
+      of = o.Fld[0];
       Assert.Equal("a", of.Key);
       e = of.Value;
-      Assert.Equal(Expr.Types.Type.LITERAL, e.Type);
+      Assert.Equal(Expr.Types.Type.Literal, e.Type);
       Assert.Equal(1, e.Literal.VSignedInt);
 
-      of = o.FldList[1];
+      of = o.Fld[1];
       Assert.Equal("b", of.Key);
       e = of.Value;
-      Assert.Equal(Expr.Types.Type.LITERAL, e.Type);
+      Assert.Equal(Expr.Types.Type.Literal, e.Type);
       Assert.Equal("a string", e.Literal.VString.Value.ToStringUtf8());
     }
 
@@ -387,7 +387,7 @@ namespace MySqlX.Data.Tests
 
       proj = new ExprParser("$.a as a").ParseDocumentProjection();
       Assert.Equal(1, proj.Count);
-      Assert.True(proj[0].HasAlias);
+      Assert.NotEqual(string.Empty, proj[0].Alias);
       Assert.Equal("a", proj[0].Alias);
 
       proj = new ExprParser("$.a as a, $.b as b, $.c as c").ParseDocumentProjection();
@@ -402,9 +402,9 @@ namespace MySqlX.Data.Tests
 
       // check $.a as b
       Projection proj = projList[0];
-      IList<DocumentPathItem> paths = proj.Source.Identifier.DocumentPathList;
+      IList<DocumentPathItem> paths = proj.Source.Identifier.DocumentPath;
       Assert.Equal(1, paths.Count);
-      Assert.Equal(DocumentPathItem.Types.Type.MEMBER, paths[0].Type);
+      Assert.Equal(DocumentPathItem.Types.Type.Member, paths[0].Type);
       Assert.Equal("a", paths[0].Value);
 
       Assert.Equal("b", proj.Alias);
@@ -425,10 +425,11 @@ namespace MySqlX.Data.Tests
     {
       // same as we use in find().field("{...}")
       string projString = "{'a':'value for a', 'b':1+1, 'c'::bindvar, 'd':$.member[22], 'e':{'nested':'doc'}}";
-      Projection proj = Projection.CreateBuilder().SetSource(new ExprParser(projString, false).Parse()).Build();
-      Assert.Equal(Expr.Types.Type.OBJECT, proj.Source.Type);
+      Projection proj = new Projection();
+      proj.Source = new ExprParser(projString, false).Parse();
+      Assert.Equal(Expr.Types.Type.Object, proj.Source.Type);
 
-      IEnumerator<Mysqlx.Expr.Object.Types.ObjectField> fields = proj.Source.Object.FldList.GetEnumerator();
+      IEnumerator<Mysqlx.Expr.Object.Types.ObjectField> fields = proj.Source.Object.Fld.GetEnumerator();
       string[][] array = new string[][] {
                     new string[] {"a", "\"value for a\""},
                     new string[] {"b", "(1 + 1)"},
@@ -479,9 +480,9 @@ namespace MySqlX.Data.Tests
       col = new ExprParser("d.e$.the_path[2]").ParseTableUpdateField();
       Assert.Equal("d", col.TableName);
       Assert.Equal("e", col.Name);
-      Assert.Equal(2, col.DocumentPathCount);
-      Assert.Equal("the_path", col.DocumentPathList[0].Value);
-      Assert.Equal((uint)2, col.DocumentPathList[1].Index);
+      Assert.Equal(2, col.DocumentPath.Count);
+      Assert.Equal("the_path", col.DocumentPath[0].Value);
+      Assert.Equal((uint)2, col.DocumentPath[1].Index);
 
       col = new ExprParser("`zzz\\``").ParseTableUpdateField();
       Assert.Equal("zzz`", col.Name);
@@ -493,9 +494,9 @@ namespace MySqlX.Data.Tests
       List<Projection> proj = new ExprParser("a, b as c").ParseTableSelectProjection();
       Assert.Equal(2, proj.Count);
       Assert.Equal("a", ExprUnparser.ExprToString(proj[0].Source));
-      Assert.False(proj[0].HasAlias);
+      Assert.Equal(string.Empty, proj[0].Alias);
       Assert.Equal("b", ExprUnparser.ExprToString(proj[1].Source));
-      Assert.True(proj[1].HasAlias);
+      Assert.NotEqual(string.Empty, proj[1].Alias);
       Assert.Equal("c", proj[1].Alias);
     }
 
@@ -505,9 +506,9 @@ namespace MySqlX.Data.Tests
       List<Projection> proj = new ExprParser("*, b as c").ParseTableSelectProjection();
       Assert.Equal(2, proj.Count);
       Assert.Equal("*", ExprUnparser.ExprToString(proj[0].Source));
-      Assert.False(proj[0].HasAlias);
+      Assert.Equal(string.Empty, proj[0].Alias);
       Assert.Equal("b", ExprUnparser.ExprToString(proj[1].Source));
-      Assert.True(proj[1].HasAlias);
+      Assert.NotEqual(string.Empty, proj[1].Alias);
       Assert.Equal("c", proj[1].Alias);
     }
 

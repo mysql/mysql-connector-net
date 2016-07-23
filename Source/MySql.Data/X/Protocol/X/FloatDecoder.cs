@@ -21,13 +21,14 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
-using Google.ProtocolBuffers;
+
 using MySqlX.Data;
 using MySqlX.XDevAPI;
 using System;
 using MySql.Data.MySqlClient;
 using MySqlX.Properties;
 using MySql.Data.MySqlClient.X.XDevAPI.Common;
+using Google.Protobuf;
 
 namespace MySqlX.Protocol.X
 {
@@ -51,18 +52,12 @@ namespace MySqlX.Protocol.X
 
     private object FloatValueDecoder(byte[] bytes)
     {
-      float value = 0;
-      if (!CodedInputStream.CreateInstance(bytes).ReadFloat(ref value))
-        throw new MySqlException(ResourcesX.UnableToDecodeDataValue);
-      return value;
+      return new CodedInputStream(bytes).ReadFloat();
     }
 
     private object DoubleValueDecoder(byte[] bytes)
     {
-      double value = 0;
-      if (!CodedInputStream.CreateInstance(bytes).ReadDouble(ref value))
-        throw new MySqlException(ResourcesX.UnableToDecodeDataValue);
-      return value;
+      return new CodedInputStream(bytes).ReadDouble();
     }
   }
 }
