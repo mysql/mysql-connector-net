@@ -96,7 +96,7 @@ namespace MySql.Web.Profile
       }
       catch (Exception ex)
       {
-        throw new ProviderException(Resources.ErrorInitProfileProvider, ex);
+        throw new ProviderException(Properties.Resources.ErrorInitProfileProvider, ex);
       }
     }
 
@@ -436,7 +436,7 @@ namespace MySql.Web.Profile
       }
       catch (Exception ex)
       {
-        throw new ProviderException(Resources.UnableToRetrieveProfileData, ex);
+        throw new ProviderException(Properties.Resources.UnableToRetrieveProfileData, ex);
       }
     }
 
@@ -485,14 +485,14 @@ namespace MySql.Web.Profile
           cmd.Parameters.AddWithValue("@binaryData", binaryData);
           count = cmd.ExecuteNonQuery();
           if (count == 0)
-            throw new Exception(Resources.ProfileUpdateFailed);
+            throw new Exception(Properties.Resources.ProfileUpdateFailed);
           txn.Commit();
         }
         catch (Exception ex)
         {
           if (txn != null)
             txn.Rollback();
-          throw new ProviderException(Resources.ProfileUpdateFailed, ex);
+          throw new ProviderException(Properties.Resources.ProfileUpdateFailed, ex);
         }
       }
     }

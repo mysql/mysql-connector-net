@@ -48,7 +48,12 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       {
         using (var master = connection.CreateSystemConnection())
         {
-          Assert.Equal(MySQLTestStore.baseConnectionString + "database=mysql", master.ConnectionString);          
+          var csb = new MySqlConnectionStringBuilder(master.ConnectionString);
+          var csb1 = new MySqlConnectionStringBuilder(MySQLTestStore.baseConnectionString + "database=mysql");
+          Assert.True(csb.Database == csb1.Database);
+          Assert.True(csb.Port == csb1.Port);
+          Assert.True(csb.Server == csb1.Server);
+          Assert.True(csb.UserID == csb1.UserID);
         }
       }
     }

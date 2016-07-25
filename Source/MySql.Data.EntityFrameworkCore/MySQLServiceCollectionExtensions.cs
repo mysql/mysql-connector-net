@@ -28,7 +28,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using MySQL.Data.EntityFrameworkCore.Query;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-
+using MySql.Data.EntityFrameworkCore.Storage.Internal;
 
 namespace MySQL.Data.EntityFrameworkCore
 {

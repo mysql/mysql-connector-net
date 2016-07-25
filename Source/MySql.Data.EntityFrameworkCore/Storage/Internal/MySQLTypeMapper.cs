@@ -25,12 +25,15 @@ using System.Collections.Generic;
 using System.Data;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
+using MySQL.Data.EntityFrameworkCore;
 
-
-namespace MySQL.Data.EntityFrameworkCore
+namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
   public class MySQLTypeMapper : RelationalTypeMapper
   {
+    private static int _medTextMaxLength = 255; //65535 / 4;  // ((int)Math.Pow(2, 24) - 1) / 3;
+    private static int _longTextMaxLength = 255; //65535 / 3; //((int)Math.Pow(2, 32) - 1) / 3;
+    private static int _textMaxLength = 255; //65535;  // ((int)Math.Pow(2, 16) - 1) / 3;
 
     private readonly RelationalTypeMapping _int = new RelationalTypeMapping("int", typeof(Int32));
     private readonly RelationalTypeMapping _bigint = new RelationalTypeMapping("bigint", typeof(Int64)); 
@@ -38,18 +41,34 @@ namespace MySQL.Data.EntityFrameworkCore
     private readonly RelationalTypeMapping _smallint = new RelationalTypeMapping("smallint", typeof(Int16)); 
     private readonly RelationalTypeMapping _tinyint = new RelationalTypeMapping("tinyint", typeof(Byte));
     private readonly RelationalTypeMapping _char = new RelationalTypeMapping("char", typeof(Byte));
-    private readonly RelationalTypeMapping _string = new RelationalTypeMapping("varchar", typeof(String), dbType: DbType.AnsiString, unicode: false, size: null, hasNonDefaultUnicode: true);
 
+    private readonly MySQLSizeableMapping _varcharmax
+           = new MySQLSizeableMapping("varchar("+ _longTextMaxLength.ToString() +")", typeof(string), dbType: null, unicode: false, size: _longTextMaxLength);
 
-    //private readonly RelationalTypeMapping _mediumint = new RelationalTypeMapping("mediumint", );
+    private readonly MySQLSizeableMapping _varcharmed
+           = new MySQLSizeableMapping("varchar(" + _medTextMaxLength.ToString() + ")", typeof(string), dbType: null, unicode: false, size: _medTextMaxLength);  
+
+    private readonly RelationalTypeMapping _varchar = new MySQLSizeableMapping("varchar(" + _textMaxLength + ")", typeof(string), dbType: null, unicode: false, size: _textMaxLength, hasNonDefaultUnicode: true);
+
+    private readonly MySQLSizeableMapping _nvarcharmax
+               = new MySQLSizeableMapping("varchar(" + _longTextMaxLength.ToString() + ")", typeof(string), dbType: null, unicode: true, size: _longTextMaxLength);
+
+    private readonly MySQLSizeableMapping _nvarcharmed
+           = new MySQLSizeableMapping("varchar(" + _medTextMaxLength.ToString() + ")", typeof(string), dbType: null, unicode: true, size: _medTextMaxLength);
+
+    private readonly MySQLSizeableMapping _varbinarymax
+           = new MySQLSizeableMapping("varbinary(" + _longTextMaxLength.ToString() + ")", typeof(byte[]), dbType: DbType.Binary, unicode: false, size: _longTextMaxLength);
+
+    private readonly MySQLSizeableMapping _varbinarymed
+           = new MySQLSizeableMapping("varbinary(" + _medTextMaxLength.ToString() + ")", typeof(byte[]), dbType: DbType.Binary, unicode: false, size: _medTextMaxLength);
+
+    private readonly RelationalTypeMapping _rowversion = new RelationalTypeMapping("Timestamp", typeof(DateTime), dbType: DbType.DateTime);
 
     private readonly RelationalTypeMapping _longText = new RelationalTypeMapping("longtext", typeof(string)); 
     private readonly RelationalTypeMapping _mediumText = new RelationalTypeMapping("mediumtext", typeof(string));
     private readonly RelationalTypeMapping _Text = new RelationalTypeMapping("text", typeof(string));
     private readonly RelationalTypeMapping _tinyText = new RelationalTypeMapping("tinytext", typeof(string));
-
-    private readonly RelationalTypeMapping _varchar = new RelationalTypeMapping("varchar(1000)", typeof(string), dbType: DbType.AnsiString, unicode: false, size: 1000, hasNonDefaultUnicode: true);
-    private readonly RelationalTypeMapping _varbinary = new RelationalTypeMapping("blob", typeof(byte[]));
+        
     private readonly RelationalTypeMapping _datetime = new RelationalTypeMapping("datetime", typeof(DateTime)); 
     private readonly RelationalTypeMapping _date = new RelationalTypeMapping("date", typeof(DateTime)); 
     private readonly RelationalTypeMapping _time = new RelationalTypeMapping("time", typeof(DateTime));
@@ -58,13 +77,16 @@ namespace MySQL.Data.EntityFrameworkCore
     private readonly RelationalTypeMapping _decimal = new RelationalTypeMapping("decimal(18, 2)", typeof(Decimal));
 
 
+    private readonly RelationalTypeMapping _varbinary = new RelationalTypeMapping("blob", typeof(byte[]));
+
+
     private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
     private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;
     public override IStringRelationalTypeMapper StringMapper { get; }
+    public override IByteArrayRelationalTypeMapper ByteArrayMapper { get; }
 
     public MySQLTypeMapper()
     {
-
       _storeTypeMappings = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
       {
         {"bigint", _bigint},
@@ -85,7 +107,7 @@ namespace MySQL.Data.EntityFrameworkCore
         { "datetime", _datetime },
         { "timestamp", _datetime },
         { "bit", _bit },
-        { "string", _string },
+        { "string", _varchar },
         { "blob", _varbinary }
       };
 
@@ -106,38 +128,54 @@ namespace MySQL.Data.EntityFrameworkCore
                     { typeof(short), _smallint },
                     { typeof(float), _real },
                     { typeof(decimal), _decimal },
-                    { typeof(string), _string },
+                    { typeof(string), _varchar },
                     { typeof(byte[]), _varbinary }
           };
 
 
-      //StringMapper
-      //      = new StringRelationalTypeMapper(
-      //          _longTextMaxLength,
-      //          _varcharmax,
-      //          _varcharmax,
-      //          _varchar900,
-      //          size => new SqlServerMaxLengthMapping(
-      //              "varchar(" + size + ")",
-      //              typeof(string),
-      //              dbType: DbType.AnsiString,
-      //              unicode: false,
-      //              size: size,
-      //              hasNonDefaultUnicode: true,
-      //              hasNonDefaultSize: true),
-      //          4000,
-      //          _nvarcharmax,
-      //          _nvarcharmax,
-      //          _nvarchar450,
-      //          size => new SqlServerMaxLengthMapping(
-      //              "nvarchar(" + size + ")",
-      //              typeof(string),
-      //              dbType: null,
-      //              unicode: true,
-      //              size: size,
-      //              hasNonDefaultUnicode: false,
-      //              hasNonDefaultSize: true));
+      StringMapper
+            = new StringRelationalTypeMapper(
+                _longTextMaxLength,
+                _varcharmax,
+                _varcharmax,
+                _varcharmed,
+                size => new MySQLSizeableMapping(
+                    "varchar(" + size + ")",
+                    typeof(string),
+                    dbType: DbType.AnsiString,
+                    unicode: false,
+                    size: size,
+                    hasNonDefaultUnicode: true,
+                    hasNonDefaultSize: true),
+                _medTextMaxLength,
+                _nvarcharmax,
+                _nvarcharmax,
+                _nvarcharmed,
+                size => new MySQLSizeableMapping(
+                    "nvarchar(" + size + ")",
+                    typeof(string),
+                    dbType: null,
+                    unicode: true,
+                    size: size,
+                    hasNonDefaultUnicode: false,
+                    hasNonDefaultSize: true));
 
+
+
+      ByteArrayMapper
+          = new ByteArrayRelationalTypeMapper(
+              _longTextMaxLength,
+              _varbinarymax,
+              _varbinarymax,
+              _varbinarymed,
+              _rowversion, size => new MySQLSizeableMapping(
+                  "Timestamp",
+                  typeof(DateTime),
+                  DbType.DateTime,
+                  unicode: false,
+                  size: size,
+                  hasNonDefaultUnicode: false,
+                  hasNonDefaultSize: true));
 
     }
 
@@ -153,22 +191,35 @@ namespace MySQL.Data.EntityFrameworkCore
       return property.MySQL().ColumnType;
     }
 
-    //protected override RelationalTypeMapping FindCustomMapping(IProperty property, bool unicode = true)
-    //{
-    //  if (property.ClrType == typeof(String))
-    //  {
-    //    int maxLength = property.GetMaxLength() ?? 255;
-    //    if (maxLength <= _medTextMaxLength) return new RelationalSizedTypeMapping("varchar(" + maxLength + ")", typeof(String), unicode, maxLength); ;
-    //    if (maxLength <= _longTextMaxLength) return _mediumText;
-    //    return _longText;
-    //  }
 
-    //  if (property.ClrType == typeof(byte[]))
-    //  {
-    //    return _varbinary;
-    //  }
+    public override RelationalTypeMapping FindMapping(Type clrType)
+    {
+      ThrowIf.Argument.IsNull(clrType, "clrType");
+      var sType = Nullable.GetUnderlyingType(clrType) ?? clrType;      
 
-    //  return base.FindCustomMapping(property);
-    //}
-  }
+      return sType == typeof(string)
+          ? _nvarcharmax
+          : (sType == typeof(byte[])
+              ? _varbinarymax
+              : base.FindMapping(clrType));
+    }
+
+      //protected override RelationalTypeMapping FindCustomMapping(IProperty property, bool unicode = true)
+      //{
+      //  if (property.ClrType == typeof(String))
+      //  {
+      //    int maxLength = property.GetMaxLength() ?? 255;
+      //    if (maxLength <= _medTextMaxLength) return new RelationalSizedTypeMapping("varchar(" + maxLength + ")", typeof(String), unicode, maxLength); ;
+      //    if (maxLength <= _longTextMaxLength) return _mediumText;
+      //    return _longText;
+      //  }
+
+      //  if (property.ClrType == typeof(byte[]))
+      //  {
+      //    return _varbinary;
+      //  }
+
+      //  return base.FindCustomMapping(property);
+      //}
+    }
 }

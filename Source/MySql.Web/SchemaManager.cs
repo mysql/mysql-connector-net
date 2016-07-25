@@ -62,12 +62,12 @@ namespace MySql.Web.Common
         if (String.Compare(config["autogenerateschema"], "true", true) == 0)
           UpgradeToCurrent(connectionString, ver);
         else
-          throw new ProviderException(Resources.MissingOrWrongSchema);
+          throw new ProviderException(Properties.Resources.MissingOrWrongSchema);
 
       }
       catch (Exception ex)
       {
-        throw new ProviderException(Resources.MissingOrWrongSchema, ex);
+        throw new ProviderException(Properties.Resources.MissingOrWrongSchema, ex);
       }
     }
 
@@ -162,7 +162,7 @@ namespace MySql.Web.Common
       cmd.Parameters.AddWithValue("@isAnon", !authenticated);
       int recordsAffected = cmd.ExecuteNonQuery();
       if (recordsAffected != 1)
-        throw new ProviderException(Resources.UnableToCreateUser);
+        throw new ProviderException(Properties.Resources.UnableToCreateUser);
 
       cmd.CommandText = "SELECT LAST_INSERT_ID()";
       return Convert.ToInt64(cmd.ExecuteScalar());

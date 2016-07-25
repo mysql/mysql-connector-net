@@ -38,7 +38,7 @@ namespace MySqlX.Data
     public static string GetCollationName(int collation)
     {
       if (!collations.ContainsKey(collation))
-        throw new KeyNotFoundException(String.Format(Properties.ResourcesX.InvalidCollationId, collation));
+        throw new KeyNotFoundException(String.Format(ResourcesX.InvalidCollationId, collation));
       return collations[collation];
     }
 

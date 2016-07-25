@@ -97,7 +97,7 @@ namespace MySqlX.XDevAPI
       foreach (var value in values)
       {
         if (!Settings.ContainsKey(value.Key))
-          throw new KeyNotFoundException(string.Format(Properties.ResourcesX.InvalidConnectionStringAttribute, value.Key));
+          throw new KeyNotFoundException(string.Format(ResourcesX.InvalidConnectionStringAttribute, value.Key));
         Settings.SetValue(value.Key, value.Value);
       }
       this.connectionString = Settings.ToString();
@@ -203,7 +203,7 @@ namespace MySqlX.XDevAPI
         List<string> connectionParts = new List<string>();
 
         if (string.IsNullOrWhiteSpace(uri.Host))
-          throw new UriFormatException(Properties.ResourcesX.InvalidUriData + "host");
+          throw new UriFormatException(ResourcesX.InvalidUriData + "host");
         connectionParts.Add("server=" + uri.Host);
         connectionParts.Add("port=" + (uri.Port == -1 ? 33060 : uri.Port));
 
@@ -211,13 +211,13 @@ namespace MySqlX.XDevAPI
         {
           string[] userData = uri.UserInfo.Split(':');
           if (userData.Length > 2)
-            throw new UriFormatException(Properties.ResourcesX.InvalidUriData + "user info");
+            throw new UriFormatException(ResourcesX.InvalidUriData + "user info");
           connectionParts.Add("uid=" + Uri.UnescapeDataString(userData[0]));
           if (userData.Length > 1)
             connectionParts.Add("password=" + Uri.UnescapeDataString(userData[1]));
         }
         if (uri.Segments.Length > 2)
-          throw new UriFormatException(Properties.ResourcesX.InvalidUriData + "segments");
+          throw new UriFormatException(ResourcesX.InvalidUriData + "segments");
         if (uri.Segments.Length > 1)
         {
           connectionParts.Add("database=" + Uri.UnescapeDataString(uri.Segments[1]));

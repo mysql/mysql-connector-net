@@ -254,7 +254,7 @@ namespace MySqlX.Session
       RowResult result = GetRowResult("list_objects", s.Name, name);
       var row = result.FetchOne();
       if (row == null)
-        throw new MySqlException(string.Format(Properties.ResourcesX.NoObjectFound, name));
+        throw new MySqlException(string.Format(ResourcesX.NoObjectFound, name));
       System.Diagnostics.Debug.Assert(result.FetchOne() == null);
       return row.GetString("type");
     }

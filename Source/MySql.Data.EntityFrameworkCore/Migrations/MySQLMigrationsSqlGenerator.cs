@@ -129,15 +129,16 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
       ThrowIf.Argument.IsNull(annotatable, "annotatable");
       ThrowIf.Argument.IsNull(builder, "builder");
 
-      //var property = FindProperties(model, schema, table, name);
 
-      //if (type == null)
-      //{
-      //  type = property != null
-      //      ? TypeMapper.GetMapping(property).StoreType
-      //      : TypeMapper.GetMapping(clrType).StoreType;
-      //}      
-
+      if (type == null)
+      {
+        // Any property that maps to the column will work 
+        var property = FindProperties(model, schema, table, name)?.FirstOrDefault();
+         type = property != null
+            ? TypeMapper.GetMapping(property).StoreType
+            : TypeMapper.GetMapping(clrType).StoreType;
+      }
+    
       if (computedColumnSql != null)
       {
          builder
@@ -231,9 +232,9 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
       builder
        .Append("ALTER TABLE " + operation.Table)
        .Append(" MODIFY ");
-
       ColumnDefinition(operationColumn, model, builder);
-
+      builder
+        .AppendLine(SqlGenerationHelper.StatementTerminator);
       EndStatement(builder);
     }
 
@@ -245,7 +246,8 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
 
       builder
       .Append("ALTER TABLE " + operation.Name)
-      .Append(" RENAME " + operation.NewName);
+      .Append(" RENAME " + operation.NewName)      
+      .AppendLine(SqlGenerationHelper.StatementTerminator);
 
       EndStatement(builder);
     }
@@ -260,7 +262,8 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
       builder
       .Append("CREATE " + (operation.IsUnique ? "UNIQUE " : "") + "INDEX ");
       
-      builder.Append(_sqlGenerationHelper.DelimitIdentifier(operation.Name) + " ON " + operation.Table + " (" + string.Join(", ", operation.Columns.Select(_sqlGenerationHelper.DelimitIdentifier)) + ")");
+      builder.Append(_sqlGenerationHelper.DelimitIdentifier(operation.Name) + " ON " + operation.Table + " (" + string.Join(", ", operation.Columns.Select(_sqlGenerationHelper.DelimitIdentifier)) + ")")      
+             .AppendLine(SqlGenerationHelper.StatementTerminator);
 
       EndStatement(builder);
     }
@@ -291,8 +294,8 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
       builder
       .Append("DROP INDEX ")
       .Append(operation.Name)
-      .Append(" ON " + operation.Table);
-
+      .Append(" ON " + operation.Table)
+      .AppendLine(SqlGenerationHelper.StatementTerminator);
       EndStatement(builder);
     }
   }

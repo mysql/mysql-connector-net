@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-*",
+  "version": "7.0.4-IR-*",
   "description": "MySql.EntityFrameworkCore.Migrations.Tests Class Library",
   "authors": [ "Oracle" ],
   "copyright": "Copyright � 2016, Oracle and/or its affiliates. All rights reserved.",
@@ -48,7 +48,7 @@
 
   "dependencies": {
     "MySql.Data": "7.0.4-IR*",
-    "MySql.Data.EntityFrameworkCore": "1.0.0-*",
-    "MySql.EntityFrameworkCore.Basic.Tests": "1.0.0-*"
+    "MySql.Data.EntityFrameworkCore": "7.0.4-*",
+    "MySql.EntityFrameworkCore.Basic.Tests": "7.0.4-IR-*"
   }
 }

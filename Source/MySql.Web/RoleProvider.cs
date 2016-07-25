@@ -150,22 +150,22 @@ namespace MySql.Web.Security
       foreach (string rolename in rolenames)
       {
         if (String.IsNullOrEmpty(rolename))
-          throw new ArgumentException(Resources.IllegalRoleName, "rolenames");
+          throw new ArgumentException(Properties.Resources.IllegalRoleName, "rolenames");
         if (!RoleExists(rolename))
-          throw new ProviderException(Resources.RoleNameNotFound);
+          throw new ProviderException(Properties.Resources.RoleNameNotFound);
       }
 
       foreach (string username in usernames)
       {
         if (String.IsNullOrEmpty(username))
-          throw new ArgumentException(Resources.IllegalUserName, "usernames");
+          throw new ArgumentException(Properties.Resources.IllegalUserName, "usernames");
         if (username.IndexOf(',') != -1)
-          throw new ArgumentException(Resources.InvalidCharactersInUserName);
+          throw new ArgumentException(Properties.Resources.InvalidCharactersInUserName);
 
         foreach (string rolename in rolenames)
         {
           if (IsUserInRole(username, rolename))
-            throw new ProviderException(Resources.UserIsAlreadyInRole);
+            throw new ProviderException(Properties.Resources.UserIsAlreadyInRole);
         }
       }
 
@@ -213,9 +213,9 @@ namespace MySql.Web.Security
     public override void CreateRole(string rolename)
     {
       if (rolename.IndexOf(',') != -1)
-        throw new ArgumentException(Resources.InvalidCharactersInUserName);
+        throw new ArgumentException(Properties.Resources.InvalidCharactersInUserName);
       if (RoleExists(rolename))
-        throw new ProviderException(Resources.RoleNameAlreadyExists);
+        throw new ProviderException(Properties.Resources.RoleNameAlreadyExists);
 
       using (MySqlConnection connection = new MySqlConnection(connectionString))
       {
@@ -252,9 +252,9 @@ namespace MySql.Web.Security
         try
         {
           if (!(RoleExists(rolename)))
-            throw new ProviderException(Resources.RoleNameNotFound);
+            throw new ProviderException(Properties.Resources.RoleNameNotFound);
           if (throwOnPopulatedRole && GetUsersInRole(rolename).Length > 0)
-            throw new ProviderException(Resources.CannotDeleteAPopulatedRole);
+            throw new ProviderException(Properties.Resources.CannotDeleteAPopulatedRole);
 
           connection.Open();
           txn = connection.BeginTransaction();
@@ -409,7 +409,7 @@ namespace MySql.Web.Security
       foreach (string rolename in rolenames)
       {
         if (!(RoleExists(rolename)))
-          throw new ProviderException(Resources.RoleNameNotFound);
+          throw new ProviderException(Properties.Resources.RoleNameNotFound);
       }
 
       foreach (string username in usernames)
@@ -417,7 +417,7 @@ namespace MySql.Web.Security
         foreach (string rolename in rolenames)
         {
           if (!(IsUserInRole(username, rolename)))
-            throw new ProviderException(Resources.UserNotInRole);
+            throw new ProviderException(Properties.Resources.UserNotInRole);
         }
       }
 
@@ -501,7 +501,7 @@ namespace MySql.Web.Security
     public override string[] FindUsersInRole(string rolename, string usernameToMatch)
     {
       if (!RoleExists(rolename))
-        throw new ProviderException(Resources.RoleNameNotFound);
+        throw new ProviderException(Properties.Resources.RoleNameNotFound);
 
       List<string> users = new List<string>();
 

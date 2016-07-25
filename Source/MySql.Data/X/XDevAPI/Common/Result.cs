@@ -65,7 +65,7 @@ namespace MySqlX.XDevAPI.Common
         if (DocumentIds == null || DocumentIds.Count == 0)
           return null;
         if (DocumentIds.Count > 1)
-          throw new ArgumentOutOfRangeException(Properties.ResourcesX.MoreThanOneDocumentId);
+          throw new ArgumentOutOfRangeException(ResourcesX.MoreThanOneDocumentId);
         return DocumentIds[0];
       }
     }

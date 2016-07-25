@@ -140,7 +140,7 @@ namespace MySql.Web.Security
       if (PasswordFormat == MembershipPasswordFormat.Hashed)
       {
         if (EnablePasswordRetrieval)
-          throw new ProviderException(Resources.CannotRetrieveHashedPasswords);
+          throw new ProviderException(Properties.Resources.CannotRetrieveHashedPasswords);
       }
 
       ConnectionStringSettings ConnectionStringSettings = ConfigurationManager.ConnectionStrings[
@@ -393,7 +393,7 @@ namespace MySql.Web.Security
         if (!(args.FailureInformation == null))
           throw args.FailureInformation;
         else
-          throw new ProviderException(Resources.ChangePasswordCanceled);
+          throw new ProviderException(Properties.Resources.ChangePasswordCanceled);
       }
 
       // validate the password according to current guidelines
@@ -704,7 +704,7 @@ namespace MySql.Web.Security
     public override string GetPassword(string username, string answer)
     {
       if (!EnablePasswordRetrieval)
-        throw new ProviderException(Resources.PasswordRetrievalNotEnabled);
+        throw new ProviderException(Properties.Resources.PasswordRetrievalNotEnabled);
 
       try
       {
@@ -725,7 +725,7 @@ namespace MySql.Web.Security
           {
             reader.Read();
             if (reader.GetBoolean("IsLockedOut"))
-              throw new MembershipPasswordException(Resources.UserIsLockedOut);
+              throw new MembershipPasswordException(Properties.Resources.UserIsLockedOut);
 
             string password = reader.GetString("Password");
             string passwordAnswer = reader.GetValue(reader.GetOrdinal("PasswordAnswer")).ToString();
@@ -737,7 +737,7 @@ namespace MySql.Web.Security
                 !(CheckPassword(answer, passwordAnswer, passwordKey, format)))
             {
               UpdateFailureCount(userId, "PasswordAnswer", connection);
-              throw new MembershipPasswordException(Resources.IncorrectPasswordAnswer);
+              throw new MembershipPasswordException(Properties.Resources.IncorrectPasswordAnswer);
             }
             if (PasswordFormat == MembershipPasswordFormat.Encrypted)
             {
@@ -920,7 +920,7 @@ namespace MySql.Web.Security
     public override string ResetPassword(string username, string answer)
     {
       if (!(EnablePasswordReset))
-        throw new NotSupportedException(Resources.PasswordResetNotEnabled);
+        throw new NotSupportedException(Properties.Resources.PasswordResetNotEnabled);
 
       try
       {
@@ -931,12 +931,12 @@ namespace MySql.Web.Security
           // fetch the userid first
           int userId = GetUserId(connection, username);
           if (-1 == userId)
-            throw new ProviderException(Resources.UsernameNotFound);
+            throw new ProviderException(Properties.Resources.UsernameNotFound);
 
           if (answer == null && RequiresQuestionAndAnswer)
           {
             UpdateFailureCount(userId, "PasswordAnswer", connection);
-            throw new ProviderException(Resources.PasswordRequiredForReset);
+            throw new ProviderException(Properties.Resources.PasswordRequiredForReset);
           }
 
           string newPassword = Membership.GeneratePassword(newPasswordLength, MinRequiredNonAlphanumericCharacters);
@@ -947,7 +947,7 @@ namespace MySql.Web.Security
             if (!(Args.FailureInformation == null))
               throw Args.FailureInformation;
             else
-              throw new MembershipPasswordException(Resources.PasswordResetCanceledNotValid);
+              throw new MembershipPasswordException(Properties.Resources.PasswordResetCanceledNotValid);
           }
 
           MySqlCommand cmd = new MySqlCommand(@"SELECT PasswordAnswer, 
@@ -961,7 +961,7 @@ namespace MySql.Web.Security
           {
             reader.Read();
             if (reader.GetBoolean("IsLockedOut"))
-              throw new MembershipPasswordException(Resources.UserIsLockedOut);
+              throw new MembershipPasswordException(Properties.Resources.UserIsLockedOut);
 
             object passwordAnswer = reader.GetValue(reader.GetOrdinal("PasswordAnswer"));
             passwordKey = reader.GetString("PasswordKey");
@@ -973,7 +973,7 @@ namespace MySql.Web.Security
               if (!CheckPassword(answer, (string)passwordAnswer, passwordKey, format))
               {
                 UpdateFailureCount(userId, "PasswordAnswer", connection);
-                throw new MembershipPasswordException(Resources.IncorrectPasswordAnswer);
+                throw new MembershipPasswordException(Properties.Resources.IncorrectPasswordAnswer);
               }
             }
           }
@@ -987,7 +987,7 @@ namespace MySql.Web.Security
           cmd.Parameters.AddWithValue("@lastPassChange", DateTime.Now);
           int rowsAffected = cmd.ExecuteNonQuery();
           if (rowsAffected != 1)
-            throw new MembershipPasswordException(Resources.ErrorResettingPassword);
+            throw new MembershipPasswordException(Properties.Resources.ErrorResettingPassword);
           return newPassword;
         }
       }
@@ -1014,7 +1014,7 @@ namespace MySql.Web.Security
 
           int userId = GetUserId(conn, user.UserName);
           if (-1 == userId)
-            throw new ProviderException(Resources.UsernameNotFound);
+            throw new ProviderException(Properties.Resources.UsernameNotFound);
 
           string sql = @"UPDATE my_aspnet_membership m, my_aspnet_users u 
                         SET m.Email=@email, m.Comment=@comment, m.IsApproved=@isApproved,
@@ -1215,9 +1215,9 @@ namespace MySql.Web.Security
         return Encoding.Unicode.GetString(DecryptPassword(
             Convert.FromBase64String(password)));
       else if (format == MembershipPasswordFormat.Hashed)
-        throw new ProviderException(Resources.CannotUnencodeHashedPwd);
+        throw new ProviderException(Properties.Resources.CannotUnencodeHashedPwd);
       else
-        throw new ProviderException(Resources.UnsupportedPasswordFormat);
+        throw new ProviderException(Properties.Resources.UnsupportedPasswordFormat);
     }
 
     private string GetPasswordKey()
@@ -1269,7 +1269,7 @@ namespace MySql.Web.Security
       else if (format == MembershipPasswordFormat.Hashed)
         return HashPasswordBytes(keyBytes, keyedBytes);
       else
-        throw new ProviderException(Resources.UnsupportedPasswordFormat);
+        throw new ProviderException(Properties.Resources.UnsupportedPasswordFormat);
     }
 
     private void UpdateFailureCount(int userId, string failureType, MySqlConnection connection)
@@ -1288,7 +1288,7 @@ namespace MySql.Web.Security
         using (MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.SingleRow))
         {
           if (!reader.HasRows)
-            throw new ProviderException(Resources.UnableToUpdateFailureCount);
+            throw new ProviderException(Properties.Resources.UnableToUpdateFailureCount);
 
           reader.Read();
           if (failureType == "Password")
@@ -1327,7 +1327,7 @@ namespace MySql.Web.Security
           cmd.Parameters.AddWithValue("@windowStart", DateTime.Now);
           cmd.Parameters.AddWithValue("@userId", userId);
           if (cmd.ExecuteNonQuery() < 0)
-            throw new ProviderException(Resources.UnableToUpdateFailureCount);
+            throw new ProviderException(Properties.Resources.UnableToUpdateFailureCount);
         }
         else
         {
@@ -1342,7 +1342,7 @@ namespace MySql.Web.Security
             cmd.Parameters.AddWithValue("@lastLockedOutDate", DateTime.Now);
             cmd.Parameters.AddWithValue("@userId", userId);
             if (cmd.ExecuteNonQuery() < 0)
-              throw new ProviderException(Resources.UnableToLockOutUser);
+              throw new ProviderException(Properties.Resources.UnableToLockOutUser);
           }
           else
           {
@@ -1449,9 +1449,9 @@ namespace MySql.Web.Security
     private void ValidateQA(string question, string answer)
     {
       if (RequiresQuestionAndAnswer && String.IsNullOrEmpty(question))
-        throw new ArgumentException(Resources.PasswordQuestionInvalid);
+        throw new ArgumentException(Properties.Resources.PasswordQuestionInvalid);
       if (RequiresQuestionAndAnswer && String.IsNullOrEmpty(answer))
-        throw new ArgumentException(Resources.PasswordAnswerInvalid);
+        throw new ArgumentException(Properties.Resources.PasswordAnswerInvalid);
     }
 
     private bool ValidatePassword(string password, string argumentName, bool throwExceptions)
@@ -1460,7 +1460,7 @@ namespace MySql.Web.Security
       object correctValue = MinRequiredPasswordLength;
 
       if (password.Length < MinRequiredPasswordLength)
-        exceptionString = Resources.PasswordNotLongEnough;
+        exceptionString = Properties.Resources.PasswordNotLongEnough;
       else
       {
         int count = 0;
@@ -1468,7 +1468,7 @@ namespace MySql.Web.Security
           if (!char.IsLetterOrDigit(c))
             count++;
         if (count < MinRequiredNonAlphanumericCharacters)
-          exceptionString = Resources.NotEnoughNonAlphaNumericInPwd;
+          exceptionString = Properties.Resources.NotEnoughNonAlphaNumericInPwd;
         correctValue = MinRequiredNonAlphanumericCharacters;
       }
 

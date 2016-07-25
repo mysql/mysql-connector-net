@@ -22,6 +22,7 @@
 
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using MySql.Data.EntityFrameworkCore.Storage.Internal;
 using MySql.EntityFrameworkCore.Migrations.Tests.Utilities;
 using MySQL.Data.EntityFrameworkCore;
 using MySQL.Data.EntityFrameworkCore.Metadata;

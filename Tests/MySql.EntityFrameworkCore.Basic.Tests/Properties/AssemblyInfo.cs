@@ -32,7 +32,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Oracle")]
 [assembly: AssemblyProduct("MySql.Data.EntityFrameworkCore.Tests")]
-[assembly: AssemblyCopyright("Copyright © 2015, Oracle and/or its affiliates. All rights reserved.")]
+[assembly: AssemblyCopyright("Copyright © 2016, Oracle and/or its affiliates. All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

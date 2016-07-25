@@ -305,7 +305,7 @@ namespace MySqlX.Protocol
           break;
         }
         else
-          throw new MySqlException(Properties.ResourcesX.ThrowingAwayResults);
+          throw new MySqlException(ResourcesX.ThrowingAwayResults);
       }
     }
 

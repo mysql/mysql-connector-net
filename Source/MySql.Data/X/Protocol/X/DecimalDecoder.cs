@@ -22,6 +22,7 @@
 
 
 using MySql.Data.MySqlClient.X.XDevAPI.Common;
+using MySqlX.Data;
 using System;
 
 namespace MySqlX.Protocol.X
@@ -58,7 +59,7 @@ namespace MySqlX.Protocol.X
         lastDigit = (sign >> 4).ToString();
       }
       else
-        throw new FormatException(Properties.ResourcesX.InvalidDecimalFormat);
+        throw new FormatException(ResourcesX.InvalidDecimalFormat);
 
       for(int i = 1; i < bytes.Length - 1; i++)
       {

@@ -84,7 +84,7 @@ namespace MySql.Web.General
         cmd.Parameters.AddWithValue("@appDesc", Description);
         int recordsAffected = cmd.ExecuteNonQuery();
         if (recordsAffected != 1)
-          throw new ProviderException(Resources.UnableToCreateApplication);
+          throw new ProviderException(Properties.Resources.UnableToCreateApplication);
 
         Id = cmd.LastInsertedId;
       }
