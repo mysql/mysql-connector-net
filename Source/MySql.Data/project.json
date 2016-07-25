@@ -14,16 +14,6 @@
     "requireLicenseAcceptance": true
   },
 
-  "buildOptions": {
-    "warningsAsErrors": false,
-    "optimize": true,
-    "xmlDoc": true,
-    "keyFile": "../../ConnectorNetPublicKey.snk",
-    "preserveCompilationContext": true,
-    "delaySign": true,
-    "publicSign": false
-  },
-
   "frameworks": {
     "netstandard1.6": {
       "imports": [
@@ -40,7 +30,8 @@
             "Replication/**/*.*",
             "zlib/**/*.*",
             "TimeStream.cs",
-            "**/._*"
+            "**/._*",
+            "X/**/*.*"
           ],
           "excludeFiles": [
             "Properties/VersionInfo.cs",

@@ -3,7 +3,7 @@
   "description": "MySql.Data.Tests Class Library",
   "authors": [ "Oracle" ],
   "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
-  "preserveCompilationContext": true,
+  
   "packOptions": {
     "projectUrl": "http://dev.mysql.com/downloads/",
     "licenseUrl": "http://www.gnu.org/licenses/old-licenses/gpl-2.0.html",
@@ -15,7 +15,11 @@
     "warningsAsErrors": false,
     "optimize": true,
     "xmlDoc": true,
-    "nowarn": [ "CS1591" ]
+    "nowarn": [ "CS1591" ],
+    "keyFile": "../../ConnectorNetPublicKey.snk",
+    "preserveCompilationContext": true,
+    "delaySign": true,
+    "publicSign": false
   },
   "frameworks": {
     "netcoreapp1.0": {
@@ -60,7 +64,8 @@
             "TimeoutAndCancelSharedMemory.cs",
             "TimeoutAndCancelSocketCompressed.cs",
             "Tokenizer.cs",
-            "TypeTests.cs"
+            "TypeTests.cs",
+            "TestDataTable.cs"
           ]
         }
       },
