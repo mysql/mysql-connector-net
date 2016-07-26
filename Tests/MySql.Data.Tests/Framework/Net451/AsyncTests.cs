@@ -152,7 +152,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(stmt, e.StatementText);
     }
     #endregion
-#if NET_45_OR_GREATER
+
     #region BulkLoad
     [Fact]
     public async Task BulkLoadAsync()
@@ -591,7 +591,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(1, int.Parse(result.ToString()));
     }
     #endregion
-#endif
+
     #endregion
   }
 }
