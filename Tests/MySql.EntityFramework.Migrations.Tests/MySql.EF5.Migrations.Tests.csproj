@@ -65,14 +65,7 @@
     <DefineConstants>TRACE;$(DefineConstants)</DefineConstants>
   </PropertyGroup>
   <Choose>
-    <When Condition="$(VisualStudioVersion) &gt;= 11.0">
-      <ItemGroup>
-        <Reference Include="EntityFramework, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-          <HintPath>..\..\packages\EntityFramework.5.0.0\lib\net45\EntityFramework.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
-      </ItemGroup>
-    </When>
+    <When Condition="$(VisualStudioVersion) &gt;= 11.0" />
     <Otherwise>
       <ItemGroup>
         <Reference Include="EntityFramework, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
@@ -84,6 +77,10 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Reference Include="EntityFramework, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\EntityFramework.5.0.0\lib\net45\EntityFramework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.configuration" />

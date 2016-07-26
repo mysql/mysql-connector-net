@@ -87,7 +87,7 @@
     <DocumentationFile>bin\v4.5\Release\MySql.Web.xml</DocumentationFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'ReleaseNET40_Only|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'ReleaseNET40_Only|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <BaseOutputPath>NET40_Only\</BaseOutputPath>
