@@ -6,6 +6,8 @@
     "net451": {}
   },
   "dependencies": {
+    "Microsoft.EntityFrameworkCore": "1.0.0",
+    "Microsoft.EntityFrameworkCore.Relational": "1.0.0",
     "Microsoft.Extensions.Caching.Abstractions": "1.1.0-alpha1-21665",
     "Microsoft.Extensions.Caching.Memory": "1.1.0-alpha1-21665",
     "Microsoft.Extensions.DependencyInjection": "1.1.0-alpha1-21665",

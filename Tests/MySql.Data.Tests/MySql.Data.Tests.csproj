@@ -153,29 +153,38 @@
     <Compile Include="..\..\Source\MySql.Data\Properties\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="AsyncTests.cs" />
     <Compile Include="AuthTests.cs" />
     <Compile Include="BlobTests.cs" />
-    <Compile Include="BlobTestsPipe.cs" />
-    <Compile Include="BlobTestsPipeCompressed.cs" />
-    <Compile Include="BlobTestsSharedMemory.cs" />
-    <Compile Include="BlobTestsSharedMemoryCompressed.cs" />
-    <Compile Include="BlobTestsSocketCompressed.cs" />
     <Compile Include="CharacterSetTests.cs" />
     <Compile Include="CultureTests.cs" />
     <Compile Include="DataTypeTests.cs" />
     <Compile Include="DateTimeTests.cs" />
     <Compile Include="EventTests.cs" />
     <Compile Include="ExceptionTests.cs" />
+    <Compile Include="Framework\Net451\AsyncTests.cs" />
+    <Compile Include="Framework\Net451\BlobTestsPipe.cs" />
+    <Compile Include="Framework\Net451\BlobTestsPipeCompressed.cs" />
+    <Compile Include="Framework\Net451\BlobTestsSharedMemory.cs" />
+    <Compile Include="Framework\Net451\BlobTestsSharedMemoryCompressed.cs" />
+    <Compile Include="Framework\Net451\BlobTestsSocketCompressed.cs" />
+    <Compile Include="Framework\Net451\MySqlCommandTestsPipe.cs" />
+    <Compile Include="Framework\Net451\MySqlCommandTestsPipeCompressed.cs" />
+    <Compile Include="Framework\Net451\MySqlCommandTestsSharedMemory.cs" />
+    <Compile Include="Framework\Net451\MySqlCommandTestsSharedMemoryCompressed.cs" />
+    <Compile Include="Framework\Net451\MySqlCommandTestsSocketCompressed.cs" />
+    <Compile Include="Framework\Net451\PreparedStatementsPipe.cs" />
+    <Compile Include="Framework\Net451\PreparedStatementsPipeCompressed.cs" />
+    <Compile Include="Framework\Net451\PreparedStatementsSharedMemory.cs" />
+    <Compile Include="Framework\Net451\PreparedStatementsSharedMemoryCompressed.cs" />
+    <Compile Include="Framework\Net451\PreparedStatementsSocketCompressed.cs" />
+    <Compile Include="Framework\Net451\TimeoutAndCancelPipe.cs" />
+    <Compile Include="Framework\Net451\TimeoutAndCancelSharedMemory.cs" />
+    <Compile Include="Framework\Net451\TimeoutAndCancelSocketCompressed.cs" />
+    <Compile Include="Framework\Net451\UsageAdvisorTests.cs" />
     <Compile Include="MySqlDataReaderTests.cs" />
     <Compile Include="MySQLHelperTests.cs" />
     <Compile Include="PoolingTests.cs" />
     <Compile Include="PreparedStatements.cs" />
-    <Compile Include="PreparedStatementsPipe.cs" />
-    <Compile Include="PreparedStatementsPipeCompressed.cs" />
-    <Compile Include="PreparedStatementsSharedMemory.cs" />
-    <Compile Include="PreparedStatementsSharedMemoryCompressed.cs" />
-    <Compile Include="PreparedStatementsSocketCompressed.cs" />
     <Compile Include="ProcedureParameterTests.cs" />
     <Compile Include="ScriptExecution.cs" />
     <Compile Include="SimpleTransactions.cs" />
@@ -191,11 +200,6 @@
     <Compile Include="MySqlBulkLoaderTests.cs" />
     <Compile Include="MySqlCommandBuilderTests.cs" />
     <Compile Include="MySqlCommandTests.cs" />
-    <Compile Include="MySqlCommandTestsPipe.cs" />
-    <Compile Include="MySqlCommandTestsPipeCompressed.cs" />
-    <Compile Include="MySqlCommandTestsSharedMemory.cs" />
-    <Compile Include="MySqlCommandTestsSharedMemoryCompressed.cs" />
-    <Compile Include="MySqlCommandTestsSocketCompressed.cs" />
     <Compile Include="MySqlConnectionStringBuilderTests.cs" />
     <Compile Include="MySqlConnectionTests.cs" />
     <Compile Include="MySqlDataAdapterTests.cs" />
@@ -217,13 +221,9 @@
     <Compile Include="TestSetUp.cs" />
     <Compile Include="ThreadingTests.cs" />
     <Compile Include="TimeoutAndCancel.cs" />
-    <Compile Include="TimeoutAndCancelPipe.cs" />
-    <Compile Include="TimeoutAndCancelSharedMemory.cs" />
-    <Compile Include="TimeoutAndCancelSocketCompressed.cs" />
     <Compile Include="Tokenizer.cs" />
     <Compile Include="Transactions.cs" />
     <Compile Include="TypeTests.cs" />
-    <Compile Include="UsageAdvisorTests.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -236,12 +236,15 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="MySql.Data.Tests.project.json" />
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Framework\Net451\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

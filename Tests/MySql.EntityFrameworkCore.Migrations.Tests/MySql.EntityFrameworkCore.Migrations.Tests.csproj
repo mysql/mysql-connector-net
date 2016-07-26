@@ -40,12 +40,6 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.EntityFrameworkCore">
-      <HintPath>..\..\..\..\..\EntityFramework\src\Microsoft.EntityFrameworkCore\bin\Debug\net451\Microsoft.EntityFrameworkCore.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.EntityFrameworkCore.Relational">
-      <HintPath>..\..\..\..\..\EntityFramework\src\Microsoft.EntityFrameworkCore.Relational\bin\Debug\net451\Microsoft.EntityFrameworkCore.Relational.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Transactions" />

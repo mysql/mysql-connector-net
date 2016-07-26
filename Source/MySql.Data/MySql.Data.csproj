@@ -137,6 +137,7 @@
     <Compile Include="common\StringUtility.cs" />
     <Compile Include="common\Version.cs" />
     <Compile Include="CompressedStream.cs" />
+    <Compile Include="ConfigUtils.cs" />
     <Compile Include="Connection.cs" />
     <Compile Include="Crypt.cs" />
     <Compile Include="dataadapter.cs" />

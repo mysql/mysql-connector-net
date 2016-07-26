@@ -6,6 +6,7 @@
     "net451": {}
   },
   "dependencies": {
+    "Microsoft.Extensions.Configuration.Json": "1.0.0",
     "xunit.abstractions": "2.0.0"
   }
 }
