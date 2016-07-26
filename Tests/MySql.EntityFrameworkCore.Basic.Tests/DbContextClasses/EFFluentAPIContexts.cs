@@ -27,7 +27,7 @@ using System;
 
 namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
 {
-  public class ComputedColumnContext : DbContext
+  public class ComputedColumnContext : MyTestContext
   {
     public DbSet<Employee> Employees { get; set; }
 
@@ -47,24 +47,21 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
              .ForMySQLHasDefaultValueSql("CURRENT_TIMESTAMP")
              .ValueGeneratedOnAddOrUpdate();
 
-    }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-      optionsBuilder.UseMySQL(MySQLTestStore.baseConnectionString + ";database=test;");
-    }
+    }    
   }
 
 
 
-  public class TableConventionsContext : DbContext
+  public class TableConventionsContext : MyTestContext
   {
     public DbSet<Car> Cars { get; set; }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
       modelBuilder.Entity<Car>()
           .ToTable("somecars");
+
+      modelBuilder.Entity<Car>()
+               .HasKey(c => new { c.State, c.LicensePlate });
 
 
       modelBuilder.Entity<RecordOfSale>()
@@ -73,15 +70,9 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
               .HasForeignKey(s => new { s.CarState, s.CarLicensePlate })
               .HasPrincipalKey(c => new { c.State, c.LicensePlate });
     }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-      optionsBuilder.UseMySQL(MySQLTestStore.baseConnectionString + ";database=test;");
-    }
-
   }
 
-  public class KeyConventionsContext : DbContext
+  public class KeyConventionsContext : MyTestContext
   {
     public DbSet<Car> Cars { get; set; }
     public DbSet<Blog> Blogs { get; set; }
@@ -116,12 +107,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
                .ForMySQLHasDefaultValue("1999");
 
 
-    }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-      optionsBuilder.UseMySQL(MySQLTestStore.baseConnectionString + ";database=test;");
-    }
+    }   
   }
 
 

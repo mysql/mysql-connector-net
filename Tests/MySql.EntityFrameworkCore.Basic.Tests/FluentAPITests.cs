@@ -98,7 +98,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         using (var cnn = new MySqlConnection(MySQLTestStore.baseConnectionString))
         {
           cnn.Open();
-          var cmd = new MySqlCommand("SELECT table_name FROM INFORMATION_SCHEMA.STATISTICS where table_schema like 'somecars' ", cnn);
+          var cmd = new MySqlCommand("SELECT table_name FROM INFORMATION_SCHEMA.STATISTICS where table_name like 'somecars' ", cnn);
           var reader = cmd.ExecuteReader();
           while (reader.Read())
           {

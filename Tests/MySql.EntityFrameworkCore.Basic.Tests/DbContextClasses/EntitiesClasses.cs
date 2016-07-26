@@ -126,7 +126,9 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
     public int RecordOfSaleId { get; set; }
     public DateTime DateSold { get; set; }
     public decimal Price { get; set; }
+    [MaxLength(30)]
     public string CarState { get; set; }
+    [MaxLength(30)]
     public string CarLicensePlate { get; set; }
     public Car Car { get; set; }
   }

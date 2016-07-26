@@ -31,7 +31,7 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
   public class MySQLTypeMapper : RelationalTypeMapper
   {
-    private static int _medTextMaxLength = 255; //65535 / 4;  // ((int)Math.Pow(2, 24) - 1) / 3;
+    private static int _medTextMaxLength = 255; /// 4;  // ((int)Math.Pow(2, 24) - 1) / 3;
     private static int _longTextMaxLength = 255; //65535 / 3; //((int)Math.Pow(2, 32) - 1) / 3;
     private static int _textMaxLength = 255; //65535;  // ((int)Math.Pow(2, 16) - 1) / 3;
 
@@ -203,23 +203,6 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
               ? _varbinarymax
               : base.FindMapping(clrType));
     }
-
-      //protected override RelationalTypeMapping FindCustomMapping(IProperty property, bool unicode = true)
-      //{
-      //  if (property.ClrType == typeof(String))
-      //  {
-      //    int maxLength = property.GetMaxLength() ?? 255;
-      //    if (maxLength <= _medTextMaxLength) return new RelationalSizedTypeMapping("varchar(" + maxLength + ")", typeof(String), unicode, maxLength); ;
-      //    if (maxLength <= _longTextMaxLength) return _mediumText;
-      //    return _longText;
-      //  }
-
-      //  if (property.ClrType == typeof(byte[]))
-      //  {
-      //    return _varbinary;
-      //  }
-
-      //  return base.FindCustomMapping(property);
-      //}
+    
     }
 }

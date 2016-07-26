@@ -82,7 +82,8 @@ namespace MySql.Data.EntityFrameworkCore.Tests
 
       using (var context = serviceProvider.GetRequiredService<TestsContext>())
       {
-        context.Database.EnsureCreated();        
+        context.Database.EnsureCreated();
+        var dbname = context.Database.GetDbConnection().Database;
         using (var cnn = new MySqlConnection(MySQLTestStore.baseConnectionString + string.Format(";database={0}", context.Database.GetDbConnection().Database)))
         {
           cnn.Open();
@@ -90,7 +91,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
           var reader = cmd.ExecuteReader();
           while (reader.Read())
           {
-            Assert.True(string.Equals("test", reader.GetString(0), StringComparison.CurrentCultureIgnoreCase), "Database was not created");
+            Assert.True(string.Equals(dbname, reader.GetString(0), StringComparison.CurrentCultureIgnoreCase), "Database was not created");
           }
         }
         context.Database.EnsureDeleted();
@@ -112,12 +113,13 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         context.Database.EnsureCreated();
         using (var cnn = new MySqlConnection(MySQLTestStore.baseConnectionString + string.Format(";database={0}", context.Database.GetDbConnection().Database)))
         {
+          var dbname = context.Database.GetDbConnection().Database;
           cnn.Open();
           var cmd = new MySqlCommand(string.Format("SHOW DATABASES LIKE '{0}'", context.Database.GetDbConnection().Database), cnn);
           var reader = cmd.ExecuteReader();
           while (reader.Read())
           {
-            Assert.True(string.Equals("test", reader.GetString(0), StringComparison.CurrentCultureIgnoreCase), "Database was not created");
+            Assert.True(string.Equals(dbname, reader.GetString(0), StringComparison.CurrentCultureIgnoreCase), "Database was not created");
           }
         }
         context.Database.EnsureDeleted();
@@ -206,12 +208,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       public ConnectionStringInOnConfiguringTestContext(DbContextOptions options) 
         : base(options)
       {
-
-      }
-      protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-      {
-        optionsBuilder.UseMySQL(MySQLTestStore.CreateConnectionString("test"));
-      }
+      }      
     }
 
 

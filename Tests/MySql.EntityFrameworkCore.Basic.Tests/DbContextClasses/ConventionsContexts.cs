@@ -26,7 +26,7 @@ using MySQL.Data.EntityFrameworkCore.Extensions;
 
 namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
 {
-  public class SimpleContextWithIgnore : DbContext
+  public class SimpleContextWithIgnore : MyTestContext
   {
 
     public DbSet<Blog> Blogs { get; set; }
@@ -45,12 +45,5 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
                .Ignore(b => b.Url);
 
     }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-      optionsBuilder.UseMySQL(MySQLTestStore.baseConnectionString + ";database=test;");
-    }
-
-
   }
 }

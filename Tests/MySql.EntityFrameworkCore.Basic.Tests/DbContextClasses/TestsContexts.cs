@@ -62,7 +62,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
   }
 
 
-  public class TestsContext : DbContext
+  public class TestsContext : MyTestContext
   {
     public DbSet<Blog> Blogs { get; set; }
     public DbSet<Post> Posts { get; set; }
@@ -77,13 +77,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
     public TestsContext(DbContextOptions options): base(options)
     {
     }   
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-       optionsBuilder.UseMySQL(MySQLTestStore.baseConnectionString + ";database=test;");
-    }
-
-
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
       modelBuilder.Entity<Blog>()
