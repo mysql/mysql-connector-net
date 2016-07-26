@@ -89,7 +89,15 @@ namespace MySql.Data.MySqlClient.Tests
 
       RootSettings = new MySqlConnectionStringBuilder(s.GetConnectionString(true));
       Settings = new MySqlConnectionStringBuilder(s.GetConnectionString(true));
+      
+      if (!MySql.Data.Common.Platform.IsWindows())
+      {
+          Settings.ConnectionString += ";socket=/tmp/mysql_sandbox5713.sock";
+          RootSettings.ConnectionString += ";socket=/tmp/mysql_sandbox5713.sock";
+      }
+
       Settings.Password = "pwd";
+      
       root = GetConnection(true);
       root.Open();
       SetVersion(root.ServerVersion);
