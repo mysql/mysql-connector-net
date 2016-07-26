@@ -193,11 +193,6 @@
     <Compile Include="PreparableStatement.cs" />
     <Compile Include="ProcedureCache.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ResourcesX.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>ResourcesX.resx</DependentUpon>
-    </Compile>
     <Compile Include="Properties\VersionInfo.cs" />
     <Compile Include="Replication\ReplicationConfiguration.cs" />
     <Compile Include="Replication\ReplicationManager.cs" />
@@ -208,6 +203,11 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="ResourcesX.Designer.cs">
+      <DependentUpon>ResourcesX.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="ResultSet.cs" />
     <Compile Include="Schema.cs" />
@@ -336,7 +336,6 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources.resx">
-      <CustomToolNamespace>MySql.Data</CustomToolNamespace>
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>

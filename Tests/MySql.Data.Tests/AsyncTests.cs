@@ -26,9 +26,8 @@ using System.Text;
 using MySql.Data.MySqlClient;
 using Xunit;
 using System.Data;
-#if NET_45_OR_GREATER
 using System.Threading.Tasks;
-#endif
+
 
 namespace MySql.Data.MySqlClient.Tests
 {
