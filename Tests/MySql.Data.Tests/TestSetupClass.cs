@@ -73,6 +73,8 @@ namespace MySql.Data.MySqlClient.Tests
       baseDBName = "db-" + testNameSpace + "-";
       baseUserName ="u-" + (testNameSpace.Length > 10 ? testNameSpace.Substring(0,10) : testNameSpace) + "-";
 
+      var config = new MySql.Data.MySqlClient.ConfigUtils("appsettings.json");
+
       var s = new MySqlConnectionStringBuilder();
       s.UserID = "root";
       s.Password = null;
@@ -85,6 +87,13 @@ namespace MySql.Data.MySqlClient.Tests
       s.AllowUserVariables = true;
       s.Pooling = false;
       s.Port = 3305;
+
+      var port = config.GetValue("MySql:Data:Port");
+      if (!string.IsNullOrEmpty(port))
+      {
+          s.Port = Convert.ToUInt32(port);
+      }
+
       s.SslMode = MySqlSslMode.None;
 
       RootSettings = new MySqlConnectionStringBuilder(s.GetConnectionString(true));
