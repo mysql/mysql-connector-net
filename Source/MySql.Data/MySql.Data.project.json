@@ -4,9 +4,5 @@
   },
   "frameworks": {
     "net451": {}
-  },
-  "dependencies": {
-    "Google.Protobuf": "3.0.0-beta4",
-    "Microsoft.Extensions.Configuration.Json": "1.0.0"
   }
 }
