@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{F50317E3-9DBA-4F6D-8EA2-BEBBB3FB17FE}"
 EndProject
@@ -26,7 +26,7 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MySql.EntityFrameworkCore.B
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MySql.EntityFrameworkCore.Migrations.Tests", "Tests\MySql.EntityFrameworkCore.Migrations.Tests\MySql.EntityFrameworkCore.Migrations.Tests.xproj", "{ACCD7F4B-A8E5-4642-BFD3-CDD2E3F52495}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySqlX.Data.Tests", "Tests\MySqlX.Data.Tests\MySqlX.Data.Tests.csproj", "{CAA32940-8FAD-4B2C-B0DE-937592F2B7D4}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MySqlX.Data.Tests", "Tests\MySqlX.Data.Tests\MySqlX.Data.Tests.xproj", "{863B140B-0956-4871-B9F5-AA2681AF59DA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,10 +57,10 @@ Global
 		{ACCD7F4B-A8E5-4642-BFD3-CDD2E3F52495}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ACCD7F4B-A8E5-4642-BFD3-CDD2E3F52495}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ACCD7F4B-A8E5-4642-BFD3-CDD2E3F52495}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CAA32940-8FAD-4B2C-B0DE-937592F2B7D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CAA32940-8FAD-4B2C-B0DE-937592F2B7D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CAA32940-8FAD-4B2C-B0DE-937592F2B7D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CAA32940-8FAD-4B2C-B0DE-937592F2B7D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{863B140B-0956-4871-B9F5-AA2681AF59DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{863B140B-0956-4871-B9F5-AA2681AF59DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{863B140B-0956-4871-B9F5-AA2681AF59DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{863B140B-0956-4871-B9F5-AA2681AF59DA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -72,6 +72,6 @@ Global
 		{E0EA25B2-FF20-4B52-9325-57BBEDD777EF} = {F50317E3-9DBA-4F6D-8EA2-BEBBB3FB17FE}
 		{1CAAB7D0-8D06-46B8-B3C9-8639828A6AE8} = {81A599B5-6ED5-45F7-84BE-1E5F772EA38D}
 		{ACCD7F4B-A8E5-4642-BFD3-CDD2E3F52495} = {81A599B5-6ED5-45F7-84BE-1E5F772EA38D}
-		{CAA32940-8FAD-4B2C-B0DE-937592F2B7D4} = {81A599B5-6ED5-45F7-84BE-1E5F772EA38D}
+		{863B140B-0956-4871-B9F5-AA2681AF59DA} = {81A599B5-6ED5-45F7-84BE-1E5F772EA38D}
 	EndGlobalSection
 EndGlobal

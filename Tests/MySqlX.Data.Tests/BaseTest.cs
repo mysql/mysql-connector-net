@@ -54,11 +54,11 @@ namespace MySqlX.Data.Tests
 
     public BaseTest()
     {
-      Assembly executingAssembly = Assembly.GetExecutingAssembly();
+      Assembly executingAssembly = typeof(BaseTest).GetTypeInfo().Assembly;
       Stream stream = executingAssembly.GetManifestResourceStream("MySqlX.Data.Tests.Properties.CreateUsers.sql");
       StreamReader sr = new StreamReader(stream);
       string sql = sr.ReadToEnd();
-      sr.Close();
+      sr.Dispose();
       ExecuteSqlAsRoot(sql);
       session = GetSession();
       testSchema = session.GetSchema(schemaName);
@@ -105,7 +105,7 @@ namespace MySqlX.Data.Tests
 
     protected void ExecuteSqlAsRoot(string sql)
     {
-      var rootConn = new MySqlConnection(ConnectionStringRoot);
+      var rootConn = new MySqlConnection(ConnectionStringRoot + ";ssl mode=none");
       rootConn.Open();
       MySqlScript s = new MySqlScript(rootConn, sql);
       s.Execute();

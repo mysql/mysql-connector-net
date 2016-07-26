@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using Mysqlx.Datatypes;
 using System;
 using MySqlX;
+using MySql.Data;
 
 namespace MySqlX.XDevAPI.Common
 {

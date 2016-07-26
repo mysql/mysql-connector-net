@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using MySqlX.XDevAPI.Relational;
 using MySqlX.Session;
 using System.Collections.ObjectModel;
-using MySql.Data.MySqlClient;
+using MySql.Data;
 using MySqlX;
 
 namespace MySqlX.XDevAPI.Common

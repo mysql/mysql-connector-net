@@ -25,6 +25,7 @@ using MySqlX.Data;
 using System;
 using MySqlX.XDevAPI;
 
+using MySql.Data;
 using MySql.Data.MySqlClient;
 using MySql.Data.Common;
 using MySqlX;

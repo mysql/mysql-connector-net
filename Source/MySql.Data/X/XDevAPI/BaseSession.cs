@@ -27,6 +27,7 @@ using MySqlX.Common;
 using MySqlX.Data;
 using MySqlX.Session;
 using MySqlX.XDevAPI.Relational;
+using MySql.Data;
 using MySql.Data.MySqlClient;
 using System.Text.RegularExpressions;
 using MySqlX.XDevAPI.Common;
@@ -74,8 +75,8 @@ namespace MySqlX.XDevAPI
       if (string.IsNullOrWhiteSpace(connectionString))
         throw new ArgumentNullException("connectionString");
       this.connectionString = ParseConnectionStringFromUri(connectionString);
-      if (this.connectionString.IndexOf("port", StringComparison.OrdinalIgnoreCase) == -1)
-        this.connectionString += ";port=" + newDefaultPort;
+      if (!Regex.IsMatch(this.connectionString, @"ssl\s?mode\s*=", RegexOptions.IgnoreCase))
+        this.connectionString += ";sslmode=None";
       Settings = new MySqlConnectionStringBuilder(this.connectionString);
       _internalSession = InternalSession.GetSession(Settings);
       if (!string.IsNullOrWhiteSpace(Settings.Database))
@@ -93,6 +94,8 @@ namespace MySqlX.XDevAPI
       var values = Tools.GetDictionaryFromAnonymous(connectionData);
       if (!values.Keys.Any(s => s.ToLowerInvariant() == "port"))
         values.Add("port", newDefaultPort);
+      if (!values.Keys.Any(s => Regex.IsMatch(s, @"ssl\s?mode\s*=", RegexOptions.IgnoreCase)))
+        values.Add("sslmode", "None");
       Settings = new MySqlConnectionStringBuilder();
       foreach (var value in values)
       {

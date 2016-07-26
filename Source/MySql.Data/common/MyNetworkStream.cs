@@ -219,9 +219,9 @@ namespace MySql.Data.Common
           stream = CreateSocketStream(settings, address, unix);
           if (stream != null) break;
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
-          SocketException socketException = ex as SocketException;
+          SocketException socketException = ex.GetBaseException() as SocketException;
           // if the exception is a ConnectionRefused then we eat it as we may have other address
           // to attempt
           if (socketException == null) throw;

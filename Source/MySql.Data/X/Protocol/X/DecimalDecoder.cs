@@ -21,6 +21,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
+using MySql.Data;
 using MySql.Data.MySqlClient.X.XDevAPI.Common;
 using MySqlX.Data;
 using System;

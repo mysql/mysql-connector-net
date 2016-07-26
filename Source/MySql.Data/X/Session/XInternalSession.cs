@@ -59,7 +59,7 @@ namespace MySqlX.Session
 
     protected override void Open()
     {
-      _stream = MyNetworkStream.CreateStream(Settings, false);
+      _stream = MyNetworkStream.CreateStreamAsync(Settings, false).Result;
       if (_stream == null)
         throw new MySqlException(ResourcesX.UnableToConnect);
       _reader = new XPacketReaderWriter(_stream);
@@ -218,7 +218,7 @@ namespace MySqlX.Session
       return new Result(this);
     }
 
-    public List<T> GetObjectList<T>(Schema s, params string[] types)
+    public List<T> GetObjectList<T>(Schema s, params string[] types) where T : DatabaseObject
     {
       for (int i = 0; i < types.Length; i++)
         types[i] = types[i].ToUpperInvariant();
@@ -241,9 +241,17 @@ namespace MySqlX.Session
             parameters.Add(true);
             break;
         }
+#if NETCORE10
+        T t = (T)Activator.CreateInstance(typeof(T), true);
+        ((DatabaseObject)t).Schema = s;
+        ((DatabaseObject)t).Name = parameters[1].ToString();
+        if (parameters.Count == 3)
+          t.GetType().GetProperty("IsView").SetValue(t, parameters[2]);
+#else
         T t = (T)Activator.CreateInstance(typeof(T),
           BindingFlags.NonPublic | BindingFlags.Instance,
           null, parameters.ToArray(), null);
+#endif
         docs.Add(t);
       }
       return docs;

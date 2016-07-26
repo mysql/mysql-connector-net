@@ -24,6 +24,7 @@ using System;
 using MySqlX.Session;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using MySql.Data;
 
 namespace MySqlX.XDevAPI.Common
 {

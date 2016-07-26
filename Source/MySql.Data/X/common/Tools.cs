@@ -23,7 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using MySql.Data.MySqlClient;
+using MySql.Data;
 
 namespace MySqlX.Common
 {
@@ -33,7 +33,7 @@ namespace MySqlX.Common
     {
       Dictionary<string, object> result = new Dictionary<string, object>();
 
-      if (!anonymousObject.GetType().IsGenericType)
+      if (!anonymousObject.GetType().IsConstructedGenericType)
         throw new FormatException(ResourcesX.InvalidConnectionData);
 
       foreach (PropertyInfo property in anonymousObject.GetType().GetProperties())

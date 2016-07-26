@@ -3,7 +3,6 @@
   "description": "MySql.Data.MySqlClient .Net Core Class Library",
   "authors": [ "Oracle" ],
   "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
-
   "packOptions": {
     "projectUrl": "http://dev.mysql.com/downloads/",
     "licenseUrl": "http://www.gnu.org/licenses/old-licenses/gpl-2.0.html",
@@ -13,7 +12,15 @@
     "releaseNotes": "Review Readme.txt for details.",
     "requireLicenseAcceptance": true
   },
-
+  "buildOptions": {
+    "warningsAsErrors": false,
+    "optimize": true,
+    "xmlDoc": true,
+    "keyFile": "../../ConnectorNetPublicKey.snk",
+    "preserveCompilationContext": true,
+    "delaySign": true,
+    "publicSign": false
+  },
   "frameworks": {
     "netstandard1.6": {
       "imports": [
@@ -30,8 +37,7 @@
             "Replication/**/*.*",
             "zlib/**/*.*",
             "TimeStream.cs",
-            "**/._*",
-            "X/**/*.*"
+            "**/._*"
           ],
           "excludeFiles": [
             "Properties/VersionInfo.cs",
@@ -45,7 +51,6 @@
             "MySqlPromotableTransaction.cs",
             "MySqlSecurityPermission.cs",
             "SystemPerformanceMonitor.cs",
-            "common/MyNetworkStream.cs",
             "common/NamedPipeStream.cs",
             "common/NativeMethods.cs",
             "common/SHA1.cs",
@@ -54,7 +59,7 @@
             "CompressedStream.cs"
           ]
         },
-        "optimize": true,
+        "optimize": false,
         "xmlDoc": false,
         "keyFile": "../../ConnectorNetPublicKey.snk",
         "preserveCompilationContext": true,
@@ -86,6 +91,7 @@
         "System.Security.Principal.Windows": "4.0.0",
         "System.Text.Encoding.CodePages": "4.0.1",
         "System.Threading.Timer": "4.0.1",
+        "System.Threading.ThreadPool": "4.0.10",
         "Google.Protobuf": "3.0.0-beta4"
       }
     }

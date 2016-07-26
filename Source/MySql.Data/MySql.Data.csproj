@@ -102,10 +102,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Google.Protobuf, Version=3.0.0.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Google.Protobuf.3.0.0-beta4\lib\net45\Google.Protobuf.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Configuration.Install" />
@@ -240,6 +236,7 @@
     <Compile Include="Types\MySqlUInt32.cs" />
     <Compile Include="Types\MySqlUInt64.cs" />
     <Compile Include="Types\MySqlValue.cs" />
+    <Compile Include="Utils.cs" />
     <Compile Include="X\Authentication\MySQL41AuthenticationPlugin.cs" />
     <Compile Include="X\common\Tools.cs" />
     <Compile Include="X\Communication\CommunicationPacket.cs" />
@@ -342,9 +339,10 @@
     <EmbeddedResource Include="ResourcesX.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>ResourcesX.Designer.cs</LastGenOutput>
-      <CustomToolNamespace>MySqlX.Properties</CustomToolNamespace>
     </EmbeddedResource>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Properties\keywords.txt" />
   </ItemGroup>
   <ItemGroup>

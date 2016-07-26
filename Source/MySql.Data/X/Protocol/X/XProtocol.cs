@@ -40,6 +40,7 @@ using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.Relational;
 using MySqlX.XDevAPI.CRUD;
 using MySql.Data.MySqlClient;
+using MySql.Data;
 using MySqlX;
 using System.IO;
 using Google.Protobuf;
@@ -454,7 +455,7 @@ namespace MySqlX.Protocol
       try
       {
         string response = ReadOk();
-        if (response.IndexOf("bye", 0, StringComparison.InvariantCultureIgnoreCase) < 0)
+        if (response.IndexOf("bye", 0, StringComparison.OrdinalIgnoreCase) < 0)
           throw new ArgumentException();
       }
       catch (IOException)

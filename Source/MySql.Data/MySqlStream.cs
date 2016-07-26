@@ -77,11 +77,7 @@ namespace MySql.Data.MySqlClient
       else
         stream = timedStream;
 
-#if RT
-      inStream = baseStream;
-#else
       inStream = new BufferedStream(stream);
-#endif
       outStream = stream;
     }
 

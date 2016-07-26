@@ -1,10 +1,11 @@
-{
+﻿{
   "runtimes": {
-    "win": { }
+    "win": {}
   },
-
   "frameworks": {
-    "net451": { }
+    "net451": {}
+  },
+  "dependencies": {
+    "Google.Protobuf": "3.0.0-beta4"
   }
- 
-  }
+}

@@ -24,6 +24,7 @@ using System;
 using MySqlX.XDevAPI.CRUD;
 using MySqlX.XDevAPI.Common;
 using MySqlX;
+using MySql.Data;
 
 namespace MySqlX.XDevAPI
 {
@@ -32,6 +33,10 @@ namespace MySqlX.XDevAPI
   /// </summary>
   public class Collection : DatabaseObject
   {
+    internal Collection() :base(null, null)
+    {
+    }
+
     internal Collection(Schema schema, string name)
       : base(schema, name)
     {

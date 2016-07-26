@@ -41,6 +41,10 @@ namespace MySqlX.XDevAPI.Relational
       {
         return CheckIsView();
       }
+      internal set
+      {
+        isView = value;
+      }
     }
 
     private bool CheckIsView()
@@ -60,6 +64,8 @@ namespace MySqlX.XDevAPI.Relational
       : base(schema, name)
     {
     }
+
+    internal Table() : base(null, null) { }
 
     /// <summary>
     /// Selects a set of table rows

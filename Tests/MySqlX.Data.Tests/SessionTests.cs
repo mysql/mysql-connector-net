@@ -188,6 +188,7 @@ namespace MySqlX.Data.Tests
       Assert.Throws<ArgumentNullException>(() => MySQLX.GetNodeSession(null));
     }
 
+#if !NETCORE10
     [Fact]
     public void SslSession()
     {
@@ -199,5 +200,6 @@ namespace MySqlX.Data.Tests
         Assert.StartsWith("TLSv1", result[0][1].ToString());
       }
     }
+#endif
   }
 }

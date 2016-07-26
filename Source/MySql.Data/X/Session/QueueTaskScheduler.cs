@@ -47,7 +47,9 @@ namespace MySqlX.Session
       {
         lock (lockObject)
         {
+#if !NETCORE10
           System.Threading.Thread.CurrentThread.Name = "mysqlx";
+#endif
           base.TryExecuteTask(task);
         }
       });

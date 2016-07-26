@@ -45,12 +45,12 @@ namespace MySqlX.XDevAPI
     /// <summary>
     /// Schema that owns the database object
     /// </summary>
-    public Schema Schema { get; protected set; }
+    public Schema Schema { get; internal set; }
 
     /// <summary>
     /// Database object name
     /// </summary>
-    public string Name { get; protected set; }
+    public string Name { get; internal set; }
 
     /// <summary>
     /// Verifies if database object exists in database
