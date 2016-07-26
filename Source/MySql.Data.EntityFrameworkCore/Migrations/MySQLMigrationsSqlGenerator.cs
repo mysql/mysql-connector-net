@@ -133,10 +133,10 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
       if (type == null)
       {
         // Any property that maps to the column will work 
-        var property = FindProperties(model, schema, table, name)?.FirstOrDefault();
-         type = property != null
-            ? TypeMapper.GetMapping(property).StoreType
-            : TypeMapper.GetMapping(clrType).StoreType;
+        //var property = FindProperties(model, schema, table, name)?.FirstOrDefault();
+        // type = property != null
+        //    ? TypeMapper.GetMapping(property).StoreType
+        //    : TypeMapper.GetMapping(clrType).StoreType;
       }
     
       if (computedColumnSql != null)

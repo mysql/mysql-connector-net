@@ -14,7 +14,9 @@
     //"Microsoft.EntityFrameworkCore": "1.0.0",
     //"Microsoft.EntityFrameworkCore.Relational": "1.0.0",
     "NETStandard.Library": "1.6.0",
-    "MySql.Data": "7.0.4-IR*"
+    "MySql.Data": "7.0.4-IR*",
+    "Microsoft.EntityFrameworkCore.Relational": "1.0.0",
+    "Microsoft.EntityFrameworkCore": "1.0.0"
   },
 
   "frameworks": {
