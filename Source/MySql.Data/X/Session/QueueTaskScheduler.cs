@@ -43,7 +43,7 @@ namespace MySqlX.Session
 
     protected override void QueueTask(Task task)
     {
-      ThreadPool.QueueUserWorkItem(_ =>
+      System.Threading.ThreadPool.QueueUserWorkItem(_ =>
       {
         lock (lockObject)
         {

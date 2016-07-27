@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -33,7 +33,7 @@ using Xunit;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("MySQL Connector/NET")]
-[assembly: AssemblyCopyright("Copyright ©  2015")]
+[assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -41,8 +41,8 @@ using Xunit;
 // to COM components.  If you need to access a type in this assembly from
 // COM, set the ComVisible attribute to true on that type.
 [assembly: ComVisible(false)]
-[assembly: AssemblyKeyName("ConnectorNet")]
-
+[assembly: AssemblyDelaySign(true)]
+[assembly: AssemblyKeyFileAttribute(@"..\..\ConnectorNetPublicKey.snk")]
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("2f36ea96-5616-4b9e-9e53-eb380b8c4292")]
 

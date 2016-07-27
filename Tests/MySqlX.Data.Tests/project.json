@@ -17,7 +17,10 @@
     "optimize": true,
     "xmlDoc": true,
     "embed": [ "Properties/CreateUsers.sql" ],
-    "nowarn": [ "CS1591" ]
+    "nowarn": [ "CS1591" ],
+    "keyFile": "../../ConnectorNetPublicKey.snk",
+    "delaySign": true,
+    "publicSign": false
   },
 
   "frameworks": {
