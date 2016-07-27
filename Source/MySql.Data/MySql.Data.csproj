@@ -342,7 +342,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>ResourcesX.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="MySql.Data.project.json" />
+    <EmbeddedResource Include="MySql.Data.project.json" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
@@ -364,6 +364,9 @@
     <Content Include="docs\MySqlParameter.xml" />
     <Content Include="docs\MySqlParameterCollection.xml" />
     <Content Include="docs\MySqlTransaction.xml" />
+    <EmbeddedResource Include="keywords.txt">
+      <CustomToolNamespace>MySql.Data</CustomToolNamespace>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\ReservedWords.txt">
       <CustomToolNamespace>MySql.Data.MySqlClient.Properties</CustomToolNamespace>
     </EmbeddedResource>

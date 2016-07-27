@@ -106,15 +106,15 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     }
   }
 
-  public static class ExtensionMethods
-  {
-    public static string ToTraceString<T>(this IQueryable<T> t)
-    {
-      // try to cast to ObjectQuery<T>
-      //ObjectQuery<T> oqt = t as ObjectQuery<T>;
-      //if (oqt != null)
-      //  return oqt.ToTraceString();
-      return "";
-    }
-  }
+  //public static class ExtensionMethods
+  //{
+  //  public static string ToTraceString<T>(this IQueryable<T> t)
+  //  {
+  //    // try to cast to ObjectQuery<T>
+  //    //ObjectQuery<T> oqt = t as ObjectQuery<T>;
+  //    //if (oqt != null)
+  //    //  return oqt.ToTraceString();
+  //    return "";
+  //  }
+  //}
 }

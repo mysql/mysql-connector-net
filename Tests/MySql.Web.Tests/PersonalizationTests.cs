@@ -36,7 +36,6 @@ using MySql.Web.Personalization;
 using System.Web.UI.WebControls.WebParts;
 using MySql.Data.MySqlClient.Tests;
 
-
 namespace MySql.Web.Tests
 {
   public class PersonalizationTests : IUseFixture<SetUpWeb>, IDisposable

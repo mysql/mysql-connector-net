@@ -90,20 +90,8 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\xunit.abstractions.2.0.0\lib\net35\xunit.abstractions.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="xunit.assert, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\xunit.assert.2.1.0\lib\dotnet\xunit.assert.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="xunit.core, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\xunit.extensibility.core.2.1.0\lib\dotnet\xunit.core.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="xunit.execution.desktop, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\xunit.extensibility.execution.2.1.0\lib\net45\xunit.execution.desktop.dll</HintPath>
+    <Reference Include="xunit, Version=1.9.2.1705, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
@@ -111,12 +99,6 @@
     <Compile Include="..\..\Source\MySql.Data\Properties\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\CodeFirstTests.cs" />
-    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\Dinosauria.cs" />
-    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\ExpressionTests.cs" />
-    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\Movie.cs" />
-    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\PromotionsDB.cs" />
-    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\MovieContextCodeBasedConfiguration.cs" />
     <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\SakilaModel\actor.cs">
       <Link>SakilaModel\actor.cs</Link>
     </Compile>
@@ -189,8 +171,12 @@
     <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\SakilaModel\store.cs">
       <Link>SakilaModel\store.cs</Link>
     </Compile>
-    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\Ship.cs" />
-    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\SiteDB.cs" />
+    <Compile Include="CodeFirstTests.cs" />
+    <Compile Include="Dinosauria.cs" />
+    <Compile Include="ExpressionTests.cs" />
+    <Compile Include="Movie.cs" />
+    <Compile Include="MovieContextCodeBasedConfiguration.cs" />
+    <Compile Include="PromotionsDB.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\Properties\SQLSyntax.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -198,9 +184,11 @@
       <DependentUpon>SQLSyntax.resx</DependentUpon>
       <Link>Properties\SQLSyntax.Designer.cs</Link>
     </Compile>
-    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\SetUpCodeFirstTests.cs" />
-    <Compile Include="..\MySql.EntityFramework.CodeFirst.Tests\Vehicle.cs" />
+    <Compile Include="SetUpCodeFirstTests.cs" />
+    <Compile Include="Ship.cs" />
+    <Compile Include="SiteDB.cs" />
     <Compile Include="TransactionTests.cs" />
+    <Compile Include="Vehicle.cs" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
@@ -217,6 +205,10 @@
     <ProjectReference Include="..\MySql.Data.Tests\MySql.Data.Tests.csproj">
       <Project>{f29e5b3d-7f76-4cf9-bf5e-8e3a1377b1e4}</Project>
       <Name>MySql.Data.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MySql.EntityFramework6.Basic.Tests\MySql.EF6.Basic.Tests.csproj">
+      <Project>{43e3af8c-6dbf-4b91-9d51-a61172fc0037}</Project>
+      <Name>MySql.EF6.Basic.Tests</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

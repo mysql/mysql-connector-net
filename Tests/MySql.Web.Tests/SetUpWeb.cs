@@ -23,9 +23,7 @@
 
 using System;
 using System.Collections.Generic;
-
 using System.Text;
-using MySql.Data.MySqlClient.Tests;
 using System.Web.Configuration;
 using System.Configuration;
 using MySql.Web.Common;
@@ -33,7 +31,7 @@ using MySql.Web.Security;
 using System.Resources;
 using MySql.Data.MySqlClient;
 using System.Web.Security;
-
+using MySql.Data.Entity.Tests;
 
 namespace MySql.Web.Tests
 {
@@ -45,7 +43,7 @@ namespace MySql.Web.Tests
           LoadSchema(ver);
       }
 
-      internal protected override void Initialize()
+      public override void Initialize()
       {
         base.Initialize();
         MySqlConnection.ClearAllPools();

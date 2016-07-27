@@ -86,107 +86,43 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="EFMySqlCommand.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="EFMySqlDataReader.cs" />
+    <Compile Include="Fragments\InputFragment.cs" />
+    <Compile Include="Fragments\JoinFragment.cs" />
+    <Compile Include="Fragments\SqlFragment.cs" />
+    <Compile Include="Fragments\TableFragment.cs" />
+    <Compile Include="Generators\DeleteGenerator.cs" />
+    <Compile Include="Generators\FunctionGenerator.cs" />
+    <Compile Include="Generators\FunctionProcessor.cs" />
+    <Compile Include="Generators\InsertGenerator.cs" />
+    <Compile Include="Generators\Scope.cs" />
+    <Compile Include="Generators\SelectGenerator.cs" />
+    <Compile Include="Generators\SqlGenerator.cs" />
+    <Compile Include="Generators\UpdateGenerator.cs" />
+    <Compile Include="Metadata.cs" />
+    <Compile Include="MySqlConnectionFactory.cs" />
     <Compile Include="MySqlDependencyResolver.cs" />
     <Compile Include="MySqlEFConfiguration.cs" />
     <Compile Include="MySqlExecutionStrategy.cs" />
     <Compile Include="MySqlHistoryContext.cs" />
     <Compile Include="MySqlLogger.cs" />
+    <Compile Include="MySqlMigrationSqlGenerator.cs" />
+    <Compile Include="MySqlSpatialDataReader.cs" />
+    <Compile Include="MySqlSpatialServices.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="..\MySql.Data.EntityFramework5\Properties\SchemaMapping.msl">
-      <Link>Properties\SchemaMapping.msl</Link>
-    </EmbeddedResource>
     <Compile Include="..\MySql.Data\Properties\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="..\MySql.Data.EntityFramework5\EFMySqlCommand.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="..\MySql.Data.EntityFramework5\EFMySqlDataReader.cs" />
-    <Compile Include="..\MySql.Data.EntityFramework5\Fragments\TableFragment.cs">
-      <Link>Fragments\TableFragment.cs</Link>
-    </Compile>
-    <Compile Include="..\MySql.Data.EntityFramework5\Fragments\InputFragment.cs">
-      <Link>Fragments\InputFragment.cs</Link>
-    </Compile>
-    <Compile Include="..\MySql.Data.EntityFramework5\Fragments\JoinFragment.cs">
-      <Link>Fragments\JoinFragment.cs</Link>
-    </Compile>
-    <Compile Include="..\MySql.Data.EntityFramework5\Fragments\SqlFragment.cs">
-      <Link>Fragments\SqlFragment.cs</Link>
-    </Compile>
-    <Compile Include="..\MySql.Data.EntityFramework5\Generators\DeleteGenerator.cs">
-      <Link>Generators\DeleteGenerator.cs</Link>
-    </Compile>
-    <Compile Include="..\MySql.Data.EntityFramework5\Generators\FunctionGenerator.cs">
-      <Link>Generators\FunctionGenerator.cs</Link>
-    </Compile>
-    <Compile Include="..\MySql.Data.EntityFramework5\Generators\FunctionProcessor.cs">
-      <Link>Generators\FunctionProcessor.cs</Link>
-    </Compile>
-    <Compile Include="..\MySql.Data.EntityFramework5\Generators\InsertGenerator.cs">
-      <Link>Generators\InsertGenerator.cs</Link>
-    </Compile>
-    <Compile Include="..\MySql.Data.EntityFramework5\Generators\Scope.cs">
-      <Link>Generators\Scope.cs</Link>
-    </Compile>
-    <Compile Include="..\MySql.Data.EntityFramework5\Generators\SelectGenerator.cs">
-      <Link>Generators\SelectGenerator.cs</Link>
-    </Compile>
-    <Compile Include="..\MySql.Data.EntityFramework5\Generators\SqlGenerator.cs">
-      <Link>Generators\SqlGenerator.cs</Link>
-    </Compile>
-    <Compile Include="..\MySql.Data.EntityFramework5\Generators\UpdateGenerator.cs">
-      <Link>Generators\UpdateGenerator.cs</Link>
-    </Compile>
-    <Compile Include="..\MySql.Data.EntityFramework5\MySqlConnectionFactory.cs" Condition="$(Framework) &gt;= 4.0" />
-    <Compile Include="..\MySql.Data.EntityFramework5\MySqlMigrationSqlGenerator.cs" Condition="$(Framework) &gt;= 4.0" />
-    <Compile Include="..\MySql.Data.EntityFramework5\MySqlSpatialServices.cs" Condition="$(Framework) &gt;= 4.5" />
-    <Compile Include="..\MySql.Data.EntityFramework5\MySqlSpatialDataReader.cs" Condition="$(Framework) &gt;= 4.5" />
-    <Compile Include="..\MySql.Data.EntityFramework5\Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <Link>Properties\Resources.Designer.cs</Link>
-    </Compile>
-    <Compile Include="..\MySql.Data.EntityFramework5\Statements\DeleteStatement.cs">
-      <Link>Statements\DeleteStatement.cs</Link>
-    </Compile>
-    <Compile Include="..\MySql.Data.EntityFramework5\Statements\InsertStatement.cs">
-      <Link>Statements\InsertStatement.cs</Link>
-    </Compile>
-    <Compile Include="..\MySql.Data.EntityFramework5\Metadata.cs" />
-    <Compile Include="..\MySql.Data.EntityFramework5\ProviderManifest.cs" />
-    <Compile Include="..\MySql.Data.EntityFramework5\ProviderServices.cs" />
-    <Compile Include="..\MySql.Data.EntityFramework5\Statements\SelectStatement.cs">
-      <Link>Statements\SelectStatement.cs</Link>
-    </Compile>
-    <Compile Include="..\MySql.Data.EntityFramework5\Statements\UpdateStatement.cs">
-      <Link>Statements\UpdateStatement.cs</Link>
-    </Compile>
-    <EmbeddedResource Include="..\MySql.Data.EntityFramework5\Properties\SchemaDefinition-5.0.ssdl">
-      <Link>Properties\SchemaDefinition-5.0.ssdl</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\MySql.Data.EntityFramework5\Properties\SchemaDefinition-5.5.ssdl">
-      <Link>Properties\SchemaDefinition-5.5.ssdl</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\MySql.Data.EntityFramework5\Properties\SchemaDefinition-5.1.ssdl">
-      <Link>Properties\SchemaDefinition-5.1.ssdl</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\MySql.Data.EntityFramework5\Properties\SchemaDefinition-5.7.ssdl">
-      <Link>Properties\SchemaDefinition-5.7.ssdl</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\MySql.Data.EntityFramework5\Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-      <Link>Properties\Resources.resx</Link>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="..\MySql.Data.EntityFramework5\Properties\SchemaDefinition-5.6.ssdl">
-      <SubType>Designer</SubType>
-      <Link>Properties\SchemaDefinition-5.6.ssdl</Link>
-    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs" />
+    <Compile Include="ProviderManifest.cs" />
+    <Compile Include="ProviderServices.cs" />
+    <Compile Include="Statements\DeleteStatement.cs" />
+    <Compile Include="Statements\InsertStatement.cs" />
+    <Compile Include="Statements\SelectStatement.cs" />
+    <Compile Include="Statements\UpdateStatement.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
@@ -213,16 +149,21 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Properties\SchemaDefinition-5.0.ssdl" />
+    <None Include="Properties\SchemaDefinition-5.1.ssdl" />
+    <None Include="Properties\SchemaDefinition-5.5.ssdl" />
+    <None Include="Properties\SchemaDefinition-5.6.ssdl" />
+    <None Include="Properties\SchemaDefinition-5.7.ssdl" />
+    <None Include="Properties\SchemaMapping.msl" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\ProviderManifest.xml" />
   </ItemGroup>
   <Choose>
-    <When Condition="$(Framework) &gt;= 4.5">
-      <ItemGroup>
-        <EmbeddedResource Include="..\MySql.Data.EntityFramework5\Properties\4.5\ProviderManifest.xml">
-          <LogicalName>MySql.Data.Entity.Properties.ProviderManifest.xml</LogicalName>
-          <Link>4.5\ProviderManifest.xml</Link>
-        </EmbeddedResource>
-      </ItemGroup>
-    </When>
+    <When Condition="$(Framework) &gt;= 4.5" />
     <Otherwise>
       <ItemGroup>
         <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
