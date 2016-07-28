@@ -29,9 +29,8 @@
     "warningsAsErrors": false,
     "optimize": true,
     "xmlDoc": true,
-    "nowarn": [
-      "CS1591"
-    ]
+    "nowarn": [ "CS1591" ],
+    "keyFile": "../../ConnectorNetPublicKey.snk",
   },
   "frameworks": {
     "netcoreapp1.0": {
@@ -39,16 +38,10 @@
         "dnxcore50"
       ],
       "buildOptions": {
-        "define": [
-          "NETCORE10"
-        ],
-        "copyToOutput": [
-          "appsettings.json"
-        ],
+        "define": [ "NETCORE10" ],
+        "copyToOutput": [ "appsettings.json" ],
         "compile": {
-          "include": [
-            "../*.cs"
-          ]
+          "include": [ "../*.cs" ]
         }
       },
       "dependencies": {

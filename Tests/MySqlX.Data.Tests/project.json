@@ -2,7 +2,7 @@
   "version": "1.0.0-*",
   "description": "MySqlX.Data.Tests Class Library",
   "authors": [ "Oracle" ],
-  "copyright": "Copyright � 2016, Oracle and/or its affiliates. All rights reserved.",
+  "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
   "preserveCompilationContext": true,
   "packOptions": {
     "projectUrl": "http://dev.mysql.com/downloads/",
