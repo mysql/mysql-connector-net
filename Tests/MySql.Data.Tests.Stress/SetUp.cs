@@ -29,6 +29,7 @@ using MySql.Data.MySqlClient;
 using System.Configuration;
 using Xunit;
 using MySql.Data.MySqlClient.Tests;
+using MySql.Data.Entity.Tests;
 
 namespace MySql.Data.Tests.Stress
 {
