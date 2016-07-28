@@ -107,7 +107,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     {
       MySqlConnectionStringBuilder csb = new MySqlConnectionStringBuilder();
       csb.Database = databasename;
-      csb.Port = 3305;
+      csb.Port = Convert.ToUInt32(Port());
       csb.UserID = "test";
       csb.Password = "test";
       csb.Server = "localhost";
