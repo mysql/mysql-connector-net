@@ -49,8 +49,8 @@
     <PresentationStyle>VS2013</PresentationStyle>
     <NamingMethod>MemberName</NamingMethod>
     <DocumentationSources>
-      <DocumentationSource sourceFile="..\Source\MySql.Data\bin\v4.0\Release\MySql.Data.dll" />
-      <DocumentationSource sourceFile="..\Source\MySql.Data\bin\v4.0\Release\MySql.Data.xml" />
+      <DocumentationSource sourceFile="..\Source\MySql.Data\bin\v4.5.1\Release\MySql.Data.dll" />
+      <DocumentationSource sourceFile="..\Source\MySql.Data\bin\v4.5.1\Release\MySql.Data.xml" />
     </DocumentationSources>
     <NamespaceSummaries>
       <NamespaceSummaryItem name="(global)" isDocumented="False" xmlns="" />
