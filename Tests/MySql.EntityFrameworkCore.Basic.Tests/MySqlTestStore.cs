@@ -52,8 +52,35 @@ namespace MySql.Data.EntityFrameworkCore.Tests
   public class MySQLTestStore : IDisposable
   {
     //public const string baseConnectionString = "server=localhost;user id=test;password=test;port=3305;sslmode=none;";
-    public const string baseConnectionString = "server=localhost;user id=root;password=;port=3305;sslmode=none;";
-    public const string rootConnectionString = "server=localhost;user id=root;password=;port=3305;sslmode=none;";    
+    private static ConfigUtils config = new ConfigUtils("appsettings.json");
+
+    public static string baseConnectionString
+    {
+        get
+        {
+            return $"server=localhost;user id=root;password=;port={Port()};sslmode=none;";
+        }
+    }
+
+    public static string rootConnectionString
+    {
+        get
+        {
+            return $"server=localhost;user id=root;password=;port={Port()};sslmode=none;";
+        }
+    }
+
+    private static string Port()
+    {
+      var port = config.GetValue("MySql:Data:Port");
+
+      if (!string.IsNullOrEmpty(port))
+      {
+          return port;
+      }
+
+      return "3305";
+    }
 
     public static void CreateDatabase(string databaseName, string script = null)
     {      
