@@ -31,6 +31,8 @@
     "xmlDoc": true,
     "nowarn": [ "CS1591" ],
     "keyFile": "../../ConnectorNetPublicKey.snk",
+    "delaySign": true,
+    "publicSign": false
   },
   "frameworks": {
     "netcoreapp1.0": {
