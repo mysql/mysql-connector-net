@@ -6,7 +6,8 @@
     "warningsAsErrors": true,
     "keyFile": "../../ConnectorNetPublicKey.snk",
     "delaySign": true,
-    "xmlDoc": false
+    "xmlDoc": false,
+    "publicSign": false
   },
 
 
