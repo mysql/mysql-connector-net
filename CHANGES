@@ -2,6 +2,9 @@
 - MySqlX: Added Table.IsView property to support Views.
 - MySqlX: Fixed Collection.Add() when DbDoc contains an array (Oracle Bug #23542031).
 - MySqlX: Fixed adding empty array in Collection (Oracle Bug #23542066).
+- MySqlX: Flexible Parameter Lists.
+- NETCore: Added .Net Core 1.0 support in MySql.Data.
+- Entity Framework Core: Added support for Entity Framework Core in MySQL.Data.EntityFrameworkCore (includes support for .Net 4.5.1).
 
 
 7.0.3
