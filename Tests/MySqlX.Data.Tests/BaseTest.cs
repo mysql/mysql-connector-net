@@ -42,14 +42,27 @@ namespace MySqlX.Data.Tests
     public static string ConnectionStringNoPassword { get; private set; }
     public static string ConnectionStringRoot { get; private set; }
 
+    private static ConfigUtils config = new ConfigUtils("appsettings.json");
 
     static BaseTest()
     {
       schemaName = "test";
-      ConnectionStringRoot = "server=localhost;port=3305;uid=root;password=";
+      ConnectionStringRoot = $"server=localhost;port={Port()};uid=root;password=";
       ConnectionString = "server=localhost;port=33060;uid=test;password=test";
       ConnectionStringNoPassword = "server=localhost;port=33060;uid=testNoPass;";
       ConnectionStringUri = "mysqlx://test:test@localhost:33060";
+    }
+
+    private static string Port()
+    {
+      var port = config.GetPort();
+      
+      if (!string.IsNullOrEmpty(port))
+      {
+          return port;
+      }
+
+      return "3306";
     }
 
     public BaseTest()

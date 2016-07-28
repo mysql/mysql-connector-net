@@ -38,5 +38,10 @@ namespace MySql.Data.MySqlClient
           var value = _configuration?.GetSection(section).Value;
           return value;
       }
+
+      public string GetPort()
+      {
+          return GetValue("MySql:Data:Port");
+      }
   }
 }

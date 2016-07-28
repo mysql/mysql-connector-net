@@ -86,9 +86,10 @@ namespace MySql.Data.MySqlClient.Tests
       s.PersistSecurityInfo = true;
       s.AllowUserVariables = true;
       s.Pooling = false;
-      s.Port = 3305;
+      s.Port = 3306;
 
-      var port = config.GetValue("MySql:Data:Port");
+      var port = config.GetPort();
+
       if (!string.IsNullOrEmpty(port))
       {
           s.Port = Convert.ToUInt32(port);

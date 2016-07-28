@@ -72,14 +72,14 @@ namespace MySql.Data.EntityFrameworkCore.Tests
 
     private static string Port()
     {
-      var port = config.GetValue("MySql:Data:Port");
-
+      var port = config.GetPort();
+      
       if (!string.IsNullOrEmpty(port))
       {
           return port;
       }
 
-      return "3305";
+      return "3306";
     }
 
     public static void CreateDatabase(string databaseName, string script = null)
