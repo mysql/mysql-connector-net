@@ -12,6 +12,10 @@ not assume previous experience writing traditional SQL.
 To learn more about how to write applications using X DevAPI see 
 http://dev.mysql.com/doc/x-devapi-userguide/en/index.html. 
 
+This version also includes the support for .NET Core Framework, which enables
+MySQL Connector/Net > = 7.0.4 to be run in all the platforms supported for this
+framework. Entity Framework Core support is also included.
+
 For General documentation about how to get started using MySQL as a document 
 database, see http://dev.mysql.com/doc/refman/5.7/en/document-database.html.
 

@@ -58,6 +58,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <Content Include="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="MySql.EntityFrameworkCore.Migrations.Tests.project.json" />
     <None Include="packages.config" />
   </ItemGroup>
