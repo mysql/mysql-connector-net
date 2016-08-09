@@ -107,9 +107,9 @@ namespace MySql.Data.Common
         if (version.isAtLeast(5, 6, 0) && version.IsEnterprise)
           sslProtocols |= SslProtocols.Tls12;
       }
-#if !NETCORE10
-      ss.AuthenticateAsClient(settings.Server, certs, sslProtocols, false);
-#endif
+
+      ss.AuthenticateAsClientAsync(settings.Server, certs, sslProtocols, false).Wait();
+
       baseStream = ss;
       MySqlStream stream = new MySqlStream(ss, encoding, false);
       stream.SequenceByte = 2;

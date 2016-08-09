@@ -265,7 +265,6 @@ namespace MySql.Data.MySqlClient
       packet.WriteByte(33); //character set utf-8
       packet.Write(new byte[23]);
 
-#if !NETCORE10
       if ((serverCaps & ClientFlags.SSL) == 0)
       {
         if ((Settings.SslMode != MySqlSslMode.None)
@@ -287,14 +286,6 @@ namespace MySql.Data.MySqlClient
         packet.WriteByte(33); //character set utf-8
         packet.Write(new byte[23]);
       }
-#endif
-
-#if NETCORE10
-      if (Settings.SslMode != MySqlSslMode.None)
-      {
-        throw new NotImplementedException("SSL not supported in this WinRT release.");
-      }
-#endif
 
       Authenticate(authenticationMethod, false);
 

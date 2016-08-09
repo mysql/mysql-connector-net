@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2015 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -30,8 +30,11 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class MySqlConnectionTests : TestBase
   {
+
+    protected TestSetup ts;
     public MySqlConnectionTests(TestSetup setup) : base(setup, "connection")
     {
+       ts = setup;
     }
 
     [Fact]
@@ -460,369 +463,372 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    //    [Fact]
-    //    public void CanOpenConnectionInMediumTrust()
-    //    {
-    //      AppDomain appDomain = PartialTrustSandbox.CreatePartialTrustDomain();
+        //    [Fact]
+        //    public void CanOpenConnectionInMediumTrust()
+        //    {
+        //      AppDomain appDomain = PartialTrustSandbox.CreatePartialTrustDomain();
 
-    //      PartialTrustSandbox sandbox = (PartialTrustSandbox)appDomain.CreateInstanceAndUnwrap(
-    //          typeof(PartialTrustSandbox).Assembly.FullName,
-    //          typeof(PartialTrustSandbox).FullName);
+        //      PartialTrustSandbox sandbox = (PartialTrustSandbox)appDomain.CreateInstanceAndUnwrap(
+        //          typeof(PartialTrustSandbox).Assembly.FullName,
+        //          typeof(PartialTrustSandbox).FullName);
 
-    //      try
-    //      {
-    //        MySqlConnection connection = sandbox.TryOpenConnection(st.GetConnectionString(true));
-    //        Assert.True(null != connection);
+        //      try
+        //      {
+        //        MySqlConnection connection = sandbox.TryOpenConnection(st.GetConnectionString(true));
+        //        Assert.True(null != connection);
 
-    //        Assert.True(connection.State == ConnectionState.Open);
-    //        connection.Close();
+        //        Assert.True(connection.State == ConnectionState.Open);
+        //        connection.Close();
 
-    //        //Now try with logging enabled
-    //        connection = sandbox.TryOpenConnection(st.GetConnectionString(true) + ";logging=true");
-    //        Assert.True(null != connection);
-    //        Assert.True(connection.State == ConnectionState.Open);
-    //        connection.Close();
+        //        //Now try with logging enabled
+        //        connection = sandbox.TryOpenConnection(st.GetConnectionString(true) + ";logging=true");
+        //        Assert.True(null != connection);
+        //        Assert.True(connection.State == ConnectionState.Open);
+        //        connection.Close();
 
-    //        //Now try with Usage Advisor enabled
-    //        connection = sandbox.TryOpenConnection(st.GetConnectionString(true) + ";Use Usage Advisor=true");
-    //        Assert.True(null != connection);
-    //        Assert.True(connection.State == ConnectionState.Open);
-    //        connection.Close();
-    //      }
-    //      finally
-    //      {
-    //        AppDomain.Unload(appDomain);
-    //      }
-    //    }
+        //        //Now try with Usage Advisor enabled
+        //        connection = sandbox.TryOpenConnection(st.GetConnectionString(true) + ";Use Usage Advisor=true");
+        //        Assert.True(null != connection);
+        //        Assert.True(connection.State == ConnectionState.Open);
+        //        connection.Close();
+        //      }
+        //      finally
+        //      {
+        //        AppDomain.Unload(appDomain);
+        //      }
+        //    }
 
-    //    /// <summary>
-    //    /// A client can connect to MySQL server using SSL and a pfx file.
-    //    /// <remarks>
-    //    /// This test requires starting the server with SSL support. 
-    //    /// For instance, the following command line enables SSL in the server:
-    //    /// mysqld --no-defaults --standalone --console --ssl-ca='MySQLServerDir'\mysql-test\std_data\cacert.pem --ssl-cert='MySQLServerDir'\mysql-test\std_data\server-cert.pem --ssl-key='MySQLServerDir'\mysql-test\std_data\server-key.pem
-    //    /// </remarks>
-    //    /// </summary>
-    //    [Fact]
-    //    public void CanConnectUsingFileBasedCertificate()
-    //    {
-    //      string connstr = st.GetConnectionString(true);
-    //      connstr += @";CertificateFile=Framework\Net451\client.pfx;CertificatePassword=pass;SSL Mode=Required;";
-    //      using (MySqlConnection c = new MySqlConnection(connstr))
-    //      {
-    //        c.Open();
-    //        Assert.Equal(ConnectionState.Open, c.State);
-    //      }
-    //    }
+        /// <summary>
+        /// A client can connect to MySQL server using SSL and a pfx file.
+        /// <remarks>
+        /// This test requires starting the server with SSL support. 
+        /// For instance, the following command line enables SSL in the server:
+        /// mysqld --no-defaults --standalone --console --ssl-ca='MySQLServerDir'\mysql-test\std_data\cacert.pem --ssl-cert='MySQLServerDir'\mysql-test\std_data\server-cert.pem --ssl-key='MySQLServerDir'\mysql-test\std_data\server-key.pem
+        /// </remarks>
+        /// </summary>
+        [Fact]
+        public void CanConnectUsingFileBasedCertificate()
+        {
+            string connstr = ts.GetConnection(true).ConnectionString;
+            connstr += @";CertificateFile=Framework\Net451\client.pfx;CertificatePassword=pass;SSL Mode=Required;";
+            using (MySqlConnection c = new MySqlConnection(connstr))
+            {
+                c.Open();
+                Assert.Equal(ConnectionState.Open, c.State);
+            }
+        }
 
-    //[Fact]
-    //public void CanOpenConnectionAfterAborting()
-    //{
-    //  MySqlConnection connection = new MySqlConnection(connection.ConnectionString);
-    //  connection.Open();
-    //  Assert.Equal(ConnectionState.Open, connection.State);
+        [Fact]
+        public void CanOpenConnectionAfterAborting()
+        {
+            MySqlConnection connection = new MySqlConnection(ts.GetConnection(false).ConnectionString);
+            connection.Open();
+            Assert.Equal(ConnectionState.Open, connection.State);
 
-    //  connection.Abort();
-    //  Assert.Equal(ConnectionState.Closed, connection.State);
+            connection.Abort();
+            Assert.Equal(ConnectionState.Closed, connection.State);
 
-    //  connection.Open();
-    //  Assert.Equal(ConnectionState.Open, connection.State);
+            connection.Open();
+            Assert.Equal(ConnectionState.Open, connection.State);
 
-    //  connection.Close();
-    //}
-
-
-    //    /// <summary>
-    //    /// Fix for bug http://bugs.mysql.com/bug.php?id=63942 (Connections not closed properly when using pooling)
-    //    /// </summary>
-    //    [Fact]
-    //    public void ReleasePooledConnectionsProperly()
-    //    {
-    //      MySqlConnection con = new MySqlConnection(st.GetConnectionString(true));
-    //      MySqlCommand cmd = new MySqlCommand("show global status like 'aborted_clients'", con);
-    //      con.Open();
-    //      MySqlDataReader r = cmd.ExecuteReader();
-    //      r.Read();
-    //      int numClientsAborted = r.GetInt32(1);
-    //      r.Close();
-
-    //      AppDomain appDomain = FullTrustSandbox.CreateFullTrustDomain();
+            connection.Close();
+        }
 
 
-    //      FullTrustSandbox sandbox = (FullTrustSandbox)appDomain.CreateInstanceAndUnwrap(
-    //          typeof(FullTrustSandbox).Assembly.FullName,
-    //          typeof(FullTrustSandbox).FullName);
+        ///// <summary>
+        ///// Fix for bug http://bugs.mysql.com/bug.php?id=63942 (Connections not closed properly when using pooling)
+        ///// </summary>
+        //[Fact]
+        //public void ReleasePooledConnectionsProperly()
+        //{
+        //    MySqlConnection con = new MySqlConnection(st.GetConnectionString(true));
+        //    MySqlCommand cmd = new MySqlCommand("show global status like 'aborted_clients'", con);
+        //    con.Open();
+        //    MySqlDataReader r = cmd.ExecuteReader();
+        //    r.Read();
+        //    int numClientsAborted = r.GetInt32(1);
+        //    r.Close();
 
-    //      try
-    //      {
-    //        for (int i = 0; i < 200; i++)
-    //        {
-    //          MySqlConnection connection = sandbox.TryOpenConnection(st.GetPoolingConnectionString());
-    //          Assert.NotNull(connection);
-    //          Assert.True(connection.State == ConnectionState.Open);
-    //          connection.Close();
-    //        }
-    //      }
-    //      finally
-    //      {
-    //        AppDomain.Unload(appDomain);
-    //      }
-    //      r = cmd.ExecuteReader();
-    //      r.Read();
-    //      int numClientsAborted2 = r.GetInt32(1);
-    //      r.Close();
-    //      Assert.Equal(numClientsAborted, numClientsAborted2);
-    //      con.Close();
-    //    }
-
-    //    /// <summary>
-    //    /// Test for Connect attributes feature used in MySql Server > 5.6.6
-    //    /// (Stores client connection data on server)
-    //    /// </summary>
-    //    [Fact]
-    //    public void ConnectAttributes()
-    //    {
-    //      if (st.Version < new Version(5, 6, 6)) return;
-    //      using (MySqlConnection connection = new MySqlConnection(st.GetConnectionString(st.rootUser, st.rootPassword, false)))
-    //      {
-    //        connection.Open();
-    //        if (connection.driver.SupportsConnectAttrs)
-    //        {
-    //          MySqlCommand cmd = new MySqlCommand("SELECT * FROM performance_schema.session_connect_attrs WHERE PROCESSLIST_ID = connection_id()", connection);
-    //          MySqlDataReader dr = cmd.ExecuteReader();
-    //          Assert.True(dr.HasRows, "No session_connect_attrs found");
-    //          MySqlConnectAttrs connectAttrs = new MySqlConnectAttrs();
-    //          bool isValidated = false;
-    //          while (dr.Read())
-    //          {
-    //            if (dr.GetString(1) == "_client_name")
-    //            {
-    //              Assert.Equal(connectAttrs.ClientName, dr.GetString(2));
-    //              isValidated = true;
-    //              break;
-    //            }
-    //          }
-    //          Assert.True(isValidated, "Missing _client_version attribute");
-    //        }
-    //      }
-    //    }
-
-    //    /// <summary>
-    //    /// Test for password expiration feature in MySql Server 5.6 or higher
-    //    /// </summary>
-    //    [Fact]
-    //    public void PasswordExpiration()
-    //    {
-    //      const string expireduser = "expireduser";
-    //      const string expiredhost = "localhost";
-    //      string expiredfull = string.Format("'{0}'@'{1}'", expireduser, expiredhost);
-
-    //      using (MySqlConnection conn = new MySqlConnection(st.GetConnectionString(st.rootUser, st.rootPassword, true)))
-    //      {
-    //        conn.Open();
-    //        if (st.Version >= new Version(5, 6, 6))
-    //        {
-    //          MySqlCommand cmd = new MySqlCommand("", conn);
-
-    //          // creates expired user
-    //          cmd.CommandText = string.Format("SELECT COUNT(*) FROM mysql.user WHERE user='{0}' AND host='{1}'", expireduser, expiredhost);
-    //          long count = (long)cmd.ExecuteScalar();
-    //          if (count > 0)
-    //            st.suExecSQL(string.Format("DROP USER " + expiredfull));
-
-    //          st.suExecSQL(string.Format("CREATE USER {0} IDENTIFIED BY '{1}1'", expiredfull, expireduser));
-    //          st.suExecSQL(string.Format("GRANT SELECT ON `{0}`.* TO {1}", conn.Database, expiredfull));
-
-    //          st.suExecSQL(string.Format("ALTER USER {0} PASSWORD EXPIRE", expiredfull));
-    //          conn.Close();
-
-    //          // validates expired user
-    //          conn.ConnectionString = st.GetConnectionString(expireduser, expireduser + "1", true);
-    //          conn.Open();
-
-    //          cmd.CommandText = "SELECT 1";
-    //          MySqlException ex = Assert.Throws<MySqlException>(() => cmd.ExecuteScalar());
-    //          Assert.Equal(1820, ex.Number);
-
-    //          if (st.Version >= new Version(5, 7, 6))
-    //            cmd.CommandText = string.Format("SET PASSWORD = '{0}1'", expireduser);
-    //          else
-    //            cmd.CommandText = string.Format("SET PASSWORD = PASSWORD('{0}1')", expireduser);
-
-    //          cmd.ExecuteNonQuery();
-    //          conn.Close();
-
-    //          conn.Open();
-    //          cmd.CommandText = "SELECT 1";
-    //          cmd.ExecuteScalar();
-
-    //          st.suExecSQL(string.Format("DROP USER " + expiredfull));
-    //        }
-    //        else
-    //        {
-    //          System.Diagnostics.Debug.WriteLine("Password expire not supported in this server version.");
-    //        }
-    //      }
-    //    }
-
-    //    /// <summary>
-    //    /// As part of feedback from bug http://bugs.mysql.com/bug.php?id=66647 (Arithmetic operation resulted in an overflow).
-    //    /// </summary>
-    //    [Fact]
-    //    public void OldPasswordNotSupported()
-    //    {
-
-    //      if (st.Version > new Version(5, 6)) return;
-    //      //get value of flag 'old_passwords'
-    //      MySqlConnectionStringBuilder csb = new MySqlConnectionStringBuilder(st.GetConnectionString(true));
-    //      MySqlConnection con = new MySqlConnection(csb.ToString());
-    //      MySqlCommand cmd = new MySqlCommand("show variables like 'old_passwords'", con);
-    //      string db = con.Settings.Database;
-    //      con.Open();
-    //      MySqlDataReader r = cmd.ExecuteReader();
-    //      r.Read();
-    //      object o = r.GetValue(1);
-    //      if (o.ToString() == "OFF")
-    //        o = "0";
-    //      int old_passwords = Convert.ToInt32(o);
-    //      r.Close();
-    //      con.Close();
-    //      if (old_passwords == 0)
-    //      {
-    //        //System.Diagnostics.Debug.Write("This test must be ran with old_passwords=0");
-    //        st.ExecuteSQLAsRoot("set old_passwords=1;");
-    //        //return;
-    //      }
-    //      // create user
-    //      cmd.CommandText = "select count( * ) from mysql.user where user = 'myoldpassuser' and host = 'localhost'";
-    //      cmd.Connection = st.rootConn;
-    //      int n = Convert.ToInt32(cmd.ExecuteScalar());
-    //      if (n != 0)
-    //      {
-    //        st.ExecuteSQLAsRoot("drop user 'myoldpassuser'@'localhost'");
-    //      }
-    //      // user with old password is different depending upon the version.
-    //      if (st.Version.Minor >= 6)
-    //      {
-    //        st.ExecuteSQLAsRoot("create user 'myoldpassuser'@'localhost' IDENTIFIED with 'mysql_old_password'");
-    //      }
-    //      else
-    //      {
-    //        st.ExecuteSQLAsRoot("create user 'myoldpassuser'@'localhost' ");
-    //      }
-    //      // setup user with old password, attempt to open connection with it, must fail
-    //      st.ExecuteSQLAsRoot(string.Format("grant all on `{0}`.* to 'myoldpassuser'@'localhost'", db));
-    //      st.ExecuteSQLAsRoot("set password for 'myoldpassuser'@'localhost' = old_password( '123' )");
-    //      //con.Settings.UserID = "myoldpassuser";
-    //      //con.Settings.Password = "123";
-    //      csb.UserID = "myoldpassuser";
-    //      csb.Password = "123";
-    //      con.ConnectionString = csb.ToString();
-    //      Exception ex = Assert.Throws<MySqlException>(() => con.Open());
-    //      Assert.Equal(Resources.OldPasswordsNotSupported, ex.Message);
-    //      con.Close();
+        //    AppDomain appDomain = FullTrustSandbox.CreateFullTrustDomain();
 
 
-    //      if (old_passwords == 0)
-    //      {
-    //        st.ExecuteSQLAsRoot("set old_passwords=0;");
-    //      }
-    //      st.ExecuteSQLAsRoot("drop user 'myoldpassuser'@'localhost'");
+        //    FullTrustSandbox sandbox = (FullTrustSandbox)appDomain.CreateInstanceAndUnwrap(
+        //        typeof(FullTrustSandbox).Assembly.FullName,
+        //        typeof(FullTrustSandbox).FullName);
 
-    //    }
+        //    try
+        //    {
+        //        for (int i = 0; i < 200; i++)
+        //        {
+        //            MySqlConnection connection = sandbox.TryOpenConnection(st.GetPoolingConnectionString());
+        //            Assert.NotNull(connection);
+        //            Assert.True(connection.State == ConnectionState.Open);
+        //            connection.Close();
+        //        }
+        //    }
+        //    finally
+        //    {
+        //        AppDomain.Unload(appDomain);
+        //    }
+        //    r = cmd.ExecuteReader();
+        //    r.Read();
+        //    int numClientsAborted2 = r.GetInt32(1);
+        //    r.Close();
+        //    Assert.Equal(numClientsAborted, numClientsAborted2);
+        //    con.Close();
+        //}
 
-    //    [Fact]
-    //    public void TestNonSupportedOptions()
-    //    {
-    //      string connstr = st.GetConnectionString(true);
-    //      connstr += @";CertificateFile=Framework\Net451\client.pfx;CertificatePassword=pass;SSL Mode=Required;";
-    //      using (MySqlConnection c = new MySqlConnection(connstr))
-    //      {
-    //        c.Open();
-    //        Assert.Equal(ConnectionState.Open, c.State);
-    //      }
-    //    }
+        /// <summary>
+        /// Test for Connect attributes feature used in MySql Server > 5.6.6
+        /// (Stores client connection data on server)
+        /// </summary>
+        [Fact]
+        public void ConnectAttributes()
+        {
+            if (ts.version < new Version(5, 6, 6)) return;
+            using (MySqlConnection connection = new MySqlConnection(ts.GetConnection(true).ConnectionString))
+            {
+                connection.Open();
+                if (connection.driver.SupportsConnectAttrs)
+                {
+                    MySqlCommand cmd = new MySqlCommand("SELECT * FROM performance_schema.session_connect_attrs WHERE PROCESSLIST_ID = connection_id()", connection);
+                    MySqlDataReader dr = cmd.ExecuteReader();
+                    Assert.True(dr.HasRows, "No session_connect_attrs found");
+                    MySqlConnectAttrs connectAttrs = new MySqlConnectAttrs();
+                    bool isValidated = false;
+                    while (dr.Read())
+                    {
+                        if (dr.GetString(1).ToLowerInvariant().Contains("clientname"))
+                        {
+                            Assert.Equal(connectAttrs.ClientName, dr.GetString(2));
+                            isValidated = true;
+                            break;
+                        }
+                    }
+                    Assert.True(isValidated, "Missing _client_version attribute");
+                }
+            }
+        }
 
-    #region Async
-    [Fact]
-    public async Task TransactionAsync()
-    {
-      executeSQL("CREATE TABLE test(key2 varchar(50), name varchar(50), name2 varchar(50))");
+        /// <summary>
+        /// Test for password expiration feature in MySql Server 5.6 or higher
+        /// </summary>
+        [Fact]
+        public void PasswordExpiration()
+        {
+            const string expireduser = "expireduser";
+            const string expiredhost = "localhost";
+            string expiredfull = string.Format("'{0}'@'{1}'", expireduser, expiredhost);
 
-      var conn = GetConnection();
-      using (conn)
-      {
-        conn.Open();
-        var txn = conn.BeginTransaction();
-        Assert.Equal(conn, txn.Connection);
+            using (MySqlConnection conn = ts.GetConnection(true))
+            {
+                conn.Open();
+                if (ts.version >= new Version(5, 6, 6))
+                {
+                    MySqlCommand cmd = new MySqlCommand("", conn);
 
-        var cmd = conn.CreateCommand();
-        cmd.CommandText = "SET AUTOCOMMIT=0";
-        cmd.ExecuteNonQuery();
+                    // creates expired user
+                    cmd.CommandText = string.Format("SELECT COUNT(*) FROM mysql.user WHERE user='{0}' AND host='{1}'", expireduser, expiredhost);
+                    long count = (long)cmd.ExecuteScalar();
+                    if (count > 0)
+                        ts.executeInternal(string.Format("DROP USER " + expiredfull),conn);
 
-        cmd.CommandText = "INSERT INTO test VALUES ('P', 'Test1', 'Test2')";
-        cmd.ExecuteNonQuery();
-        txn.Rollback();
-        cmd.CommandText = "SELECT COUNT(*) FROM test";
-        long cnt = (long)cmd.ExecuteScalar();
-        Assert.True(cnt == 0);
-      }
-    }
+                    ts.executeInternal(string.Format("CREATE USER {0} IDENTIFIED BY '{1}1'", expiredfull, expireduser), conn);
+                    ts.executeInternal(string.Format("GRANT SELECT ON `{0}`.* TO {1}", conn.Database, expiredfull), conn);
 
-    [Fact]
-    public async Task ChangeDataBaseAsync()
-    {
-      string dbName = CreateDatabase("db1");
-      executeAsRoot(String.Format(
-        "CREATE TABLE `{0}`.`footest` (id INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME,  `multi word` int, PRIMARY KEY(id))", dbName));
+                    ts.executeInternal(string.Format("ALTER USER {0} PASSWORD EXPIRE", expiredfull), conn);
+                    conn.Close();
 
-      var conn = GetConnection();
-      using (conn)
-      {
-        conn.Open();
-        await conn.ChangeDataBaseAsync(dbName);
+                    // validates expired user
+                    var cnstrBuilder = new MySqlConnectionStringBuilder(ts.GetConnection(true).ConnectionString);
+                    cnstrBuilder.UserID = expireduser;
+                    cnstrBuilder.Password = expireduser + "1";
+                    conn.ConnectionString = cnstrBuilder.ConnectionString;
+                    conn.Open();
 
-        var cmd = conn.CreateCommand();
-        cmd.CommandText = "SELECT COUNT(*) FROM footest";
-        var count = cmd.ExecuteScalar();
-      }
-    }
+                    cmd.CommandText = "SELECT 1";
+                    MySqlException ex = Assert.Throws<MySqlException>(() => cmd.ExecuteScalar());
+                    Assert.Equal(1820, ex.Number);
 
-    [Fact]
-    public async Task OpenAndCloseConnectionAsync()
-    {
-      var conn = GetConnection();
-      await conn.OpenAsync();
-      Assert.True(conn.State == ConnectionState.Open);
-      await conn.CloseAsync();
-      Assert.True(conn.State == ConnectionState.Closed);
-    }
+                    if (ts.version >= new Version(5, 7, 6))
+                        cmd.CommandText = string.Format("SET PASSWORD = '{0}1'", expireduser);
+                    else
+                        cmd.CommandText = string.Format("SET PASSWORD = PASSWORD('{0}1')", expireduser);
 
-    [Fact]
-    public async Task ClearPoolAsync()
-    {
-      MySqlConnection c1 = GetConnection();
-      MySqlConnection c2 = GetConnection();
-      c1.Open();
-      c2.Open();
-      c1.Close();
-      c2.Close();
-      await c1.ClearPoolAsync(c1);
-      await c2.ClearPoolAsync(c1);
-    }
+                    cmd.ExecuteNonQuery();
+                    cmd.CommandText = "SELECT 1";
+                    cmd.ExecuteScalar();
+                    conn.Close();
+                    conn.ConnectionString = ts.GetConnection(true).ConnectionString;
+                    conn.Open();
+                    ts.executeInternal(string.Format("DROP USER " + expiredfull), conn);
+                    conn.Close();              
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("Password expire not supported in this server version.");
+                }
+            }
+        }
 
-    [Fact]
-    public async Task ClearAllPoolsAsync()
-    {
-      MySqlConnection c1 = GetConnection();
-      MySqlConnection c2 = GetConnection();
-      c1.Open();
-      c2.Open();
-      c1.Close();
-      c2.Close();
-      await c1.ClearAllPoolsAsync();
-      await c2.ClearAllPoolsAsync();
-    }
+        /// <summary>
+        /// As part of feedback from bug http://bugs.mysql.com/bug.php?id=66647 (Arithmetic operation resulted in an overflow).
+        /// </summary>
+        [Fact]
+        public void OldPasswordNotSupported()
+        {
+
+            if (ts.version > new Version(5, 6)) return;
+            //get value of flag 'old_passwords'
+            MySqlConnectionStringBuilder csb = new MySqlConnectionStringBuilder(ts.GetConnection(false).ConnectionString);
+            MySqlConnection con = new MySqlConnection(csb.ToString());
+            MySqlCommand cmd = new MySqlCommand("show variables like 'old_passwords'", con);
+            string db = con.Settings.Database;
+            con.Open();
+            MySqlDataReader r = cmd.ExecuteReader();
+            r.Read();
+            object o = r.GetValue(1);
+            if (o.ToString() == "OFF")
+                o = "0";
+            int old_passwords = Convert.ToInt32(o);
+            r.Close();          
+            if (old_passwords == 0)
+            {
+                //System.Diagnostics.Debug.Write("This test must be ran with old_passwords=0");
+                ts.executeInternal("set old_passwords=1;", con);
+                //return;
+            }            
+            // create user
+            cmd.CommandText = "select count( * ) from mysql.user where user = 'myoldpassuser' and host = 'localhost'";
+            cmd.Connection = ts.GetConnection(true);
+            int n = Convert.ToInt32(cmd.ExecuteScalar());
+            if (n != 0)
+            {
+                ts.executeInternal("drop user 'myoldpassuser'@'localhost'", con);
+            }
+            // user with old password is different depending upon the version.
+            if (ts.version.Minor >= 6)
+            {
+                ts.executeInternal("create user 'myoldpassuser'@'localhost' IDENTIFIED with 'mysql_old_password'", con);
+            }
+            else
+            {
+                ts.executeInternal("create user 'myoldpassuser'@'localhost' ", con);
+            }
+            // setup user with old password, attempt to open connection with it, must fail
+            ts.executeInternal(string.Format("grant all on `{0}`.* to 'myoldpassuser'@'localhost'", db), con);
+            ts.executeInternal("set password for 'myoldpassuser'@'localhost' = old_password( '123' )", con);
+            con.Close();
+            //con.Settings.UserID = "myoldpassuser";
+            //con.Settings.Password = "123";
+            csb.UserID = "myoldpassuser";
+            csb.Password = "123";
+            con.ConnectionString = csb.ToString();
+            Exception ex = Assert.Throws<MySqlException>(() => con.Open());
+            Assert.Equal(Resources.OldPasswordsNotSupported, ex.Message);
+
+            if (old_passwords == 0)
+            {
+                ts.executeInternal("set old_passwords=0;", con);
+            }
+            ts.executeInternal("drop user 'myoldpassuser'@'localhost'", con);
+
+            con.Close();
+
+        }
+
+        [Fact]
+        public void TestNonSupportedOptions()
+        {
+            string connstr = ts.GetConnection(true).ConnectionString;
+            connstr += @";CertificateFile=Framework\Net451\client.pfx;CertificatePassword=pass;SSL Mode=Required;";
+            using (MySqlConnection c = new MySqlConnection(connstr))
+            {
+                c.Open();
+                Assert.Equal(ConnectionState.Open, c.State);
+            }
+        }
+
+        #region Async
+        [Fact]
+        public async Task TransactionAsync()
+        {
+          executeSQL("CREATE TABLE test(key2 varchar(50), name varchar(50), name2 varchar(50))");
+
+          var conn = GetConnection();
+          using (conn)
+          {
+            conn.Open();
+            var txn = conn.BeginTransaction();
+            Assert.Equal(conn, txn.Connection);
+
+            var cmd = conn.CreateCommand();
+            cmd.CommandText = "SET AUTOCOMMIT=0";
+            cmd.ExecuteNonQuery();
+
+            cmd.CommandText = "INSERT INTO test VALUES ('P', 'Test1', 'Test2')";
+            cmd.ExecuteNonQuery();
+            txn.Rollback();
+            cmd.CommandText = "SELECT COUNT(*) FROM test";
+            long cnt = (long)cmd.ExecuteScalar();
+            Assert.True(cnt == 0);
+          }
+        }
+
+        [Fact]
+        public async Task ChangeDataBaseAsync()
+        {
+          string dbName = CreateDatabase("db1");
+          executeAsRoot(String.Format(
+            "CREATE TABLE `{0}`.`footest` (id INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME,  `multi word` int, PRIMARY KEY(id))", dbName));
+
+          var conn = GetConnection();
+          using (conn)
+          {
+            conn.Open();
+            await conn.ChangeDataBaseAsync(dbName);
+
+            var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT COUNT(*) FROM footest";
+            var count = cmd.ExecuteScalar();
+          }
+        }
+
+        [Fact]
+        public async Task OpenAndCloseConnectionAsync()
+        {
+          var conn = GetConnection();
+          await conn.OpenAsync();
+          Assert.True(conn.State == ConnectionState.Open);
+          await conn.CloseAsync();
+          Assert.True(conn.State == ConnectionState.Closed);
+        }
+
+        [Fact]
+        public async Task ClearPoolAsync()
+        {
+          MySqlConnection c1 = GetConnection();
+          MySqlConnection c2 = GetConnection();
+          c1.Open();
+          c2.Open();
+          c1.Close();
+          c2.Close();
+          await c1.ClearPoolAsync(c1);
+          await c2.ClearPoolAsync(c1);
+        }
+
+        [Fact]
+        public async Task ClearAllPoolsAsync()
+        {
+          MySqlConnection c1 = GetConnection();
+          MySqlConnection c2 = GetConnection();
+          c1.Open();
+          c2.Open();
+          c1.Close();
+          c2.Close();
+          await c1.ClearAllPoolsAsync();
+          await c2.ClearAllPoolsAsync();
+        }
 
     [Fact]
     public async Task GetSchemaCollectionAsync()
@@ -831,39 +837,40 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.NotNull(schemaColl);
     }
 
-    #endregion
+        #endregion
 
-    //    [Fact]
-    //    public void SslPreferredByDefault()
-    //    {
-    //      string connectionString = st.GetConnectionString(true);
-    //      Assert.DoesNotContain("ssl", connectionString, StringComparison.OrdinalIgnoreCase);
-    //      using (MySqlConnection connection = new MySqlConnection(connectionString))
-    //      {
-    //        connection.Open();
-    //        MySqlCommand command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Ssl_version';", connection);
-    //        using (MySqlDataReader reader = command.ExecuteReader())
-    //        {
-    //          Assert.True(reader.Read());
-    //          Assert.Equal("TLSv1", reader.GetString(1));
-    //        }
-    //      }
-    //    }
+        [Fact]
+        public void SslPreferredByDefault()
+        {
+            string connectionString = ts.GetConnection(true).ConnectionString;
+            Assert.DoesNotContain("sslmode=none", connectionString, StringComparison.OrdinalIgnoreCase);
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                connection.Open();
+                MySqlCommand command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Ssl_version';", connection);
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    Assert.True(reader.Read());
+                    Assert.Equal("TLSv1.1", reader.GetString(1));
+                }
+            }
+        }
 
-    //    [Fact]
-    //    public void SslOverrided()
-    //    {
-    //      string connectionString = st.GetConnectionString(true) + ";Ssl mode=None";
-    //      using (MySqlConnection connection = new MySqlConnection(connectionString))
-    //      {
-    //        connection.Open();
-    //        MySqlCommand command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Ssl_version';", connection);
-    //        using (MySqlDataReader reader = command.ExecuteReader())
-    //        {
-    //          Assert.True(reader.Read());
-    //          Assert.Equal(string.Empty, reader.GetString(1));
-    //        }
-    //      }
-    //    }
-  }
+        [Fact]
+        public void SslOverrided()
+        {
+            var cstrBuilder = new MySqlConnectionStringBuilder(ts.GetConnection(true).ConnectionString);
+            cstrBuilder.SslMode = MySqlSslMode.None;
+            using (MySqlConnection connection = new MySqlConnection(cstrBuilder.ConnectionString))
+            {
+                connection.Open();
+                MySqlCommand command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Ssl_version';", connection);
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    Assert.True(reader.Read());
+                    Assert.Equal(string.Empty, reader.GetString(1));
+                }
+            }
+        }
+    }
 }

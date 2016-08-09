@@ -95,7 +95,7 @@ namespace MySql.Data.MySqlClient.Tests
           s.Port = Convert.ToUInt32(port);
       }
 
-      s.SslMode = MySqlSslMode.None;
+      s.SslMode = MySqlSslMode.Preferred;
 
       RootSettings = new MySqlConnectionStringBuilder(s.GetConnectionString(true));
       Settings = new MySqlConnectionStringBuilder(s.GetConnectionString(true));
