@@ -222,6 +222,9 @@
     <Content Include="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="client.pfx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="MySql.Data.Tests.project.json" />
     <None Include="packages.config">
       <SubType>Designer</SubType>

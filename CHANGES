@@ -1,3 +1,7 @@
+7.0.5
+- Added fallback to SSL connections.
+
+
 7.0.4
 - MySqlX: Added Table.IsView property to support Views.
 - MySqlX: Fixed Collection.Add() when DbDoc contains an array (Oracle Bug #23542031).

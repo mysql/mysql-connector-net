@@ -79,10 +79,7 @@ namespace MySqlX.Session
       {
         if (serverSupportsTls)
         {
-          string versionString = "5.7.0";
-          DBVersion version = DBVersion.Parse(versionString);
-
-          new Ssl(Settings, version).StartSSL(ref _stream, encoding, true);
+          new Ssl(Settings).StartSSL(ref _stream, encoding, Settings.ToString());
           _reader = new XPacketReaderWriter(_stream);
           _writer = new XPacketReaderWriter(_stream);
           protocol.SetXPackets(_reader, _writer);

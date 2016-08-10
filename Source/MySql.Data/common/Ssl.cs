@@ -22,6 +22,9 @@
 
 
 using MySql.Data.MySqlClient;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net.Security;
 using System.Security.Authentication;
@@ -33,12 +36,14 @@ namespace MySql.Data.Common
   internal class Ssl
   {
     private MySqlConnectionStringBuilder settings;
-    private DBVersion version;
+    private static Dictionary<string, SslProtocols> tlsConnectionRef = new Dictionary<string, SslProtocols>();
+    private static Dictionary<string, int> tlsRetry = new Dictionary<string, int>();
+    private static SslProtocols[] tlsProtocols = new SslProtocols[] { SslProtocols.Tls12, SslProtocols.Tls11 };
+    private static Object thisLock = new Object();
 
-    public Ssl(MySqlConnectionStringBuilder settings, DBVersion version)
+    public Ssl(MySqlConnectionStringBuilder settings)
     {
       this.settings = settings;
-      this.version = version;
     }
 
     /// <summary>
@@ -52,9 +57,6 @@ namespace MySql.Data.Common
       // Check for file-based certificate
       if (settings.CertificateFile != null)
       {
-        if (!version.isAtLeast(5, 1, 0))
-          throw new MySqlException(Resources.FileBasedCertificateNotSupported);
-
         X509Certificate2 clientCert = new X509Certificate2(settings.CertificateFile,
             settings.CertificatePassword);
         certs.Add(clientCert);
@@ -93,22 +95,54 @@ namespace MySql.Data.Common
     }
 
 
-    public MySqlStream StartSSL(ref Stream baseStream, Encoding encoding, bool isPluginX = false)
+    public MySqlStream StartSSL(ref Stream baseStream, Encoding encoding, string connectionString)
     {
       RemoteCertificateValidationCallback sslValidateCallback =
           new RemoteCertificateValidationCallback(ServerCheckValidation);
       SslStream ss = new SslStream(baseStream, true, sslValidateCallback, null);
       X509CertificateCollection certs = GetClientCertificates();
-      SslProtocols sslProtocols = SslProtocols.Tls;
 
-      if (!isPluginX)
+      string connectionId = connectionString.GetHashCode().ToString();
+      SslProtocols tlsProtocol = SslProtocols.Tls;
+
+      lock (thisLock)
       {
-        sslProtocols |= SslProtocols.Tls11;
-        if (version.isAtLeast(5, 6, 0) && version.IsEnterprise)
-          sslProtocols |= SslProtocols.Tls12;
+        if (tlsConnectionRef.ContainsKey(connectionId))
+        {
+          tlsProtocol = tlsConnectionRef[connectionId];
+        }
+        else
+        {
+          if (!tlsRetry.ContainsKey(connectionId))
+          {
+            tlsRetry[connectionId] = 0;
+          }
+          for (int i = tlsRetry[connectionId]; i < tlsProtocols.Length; i++)
+          {
+            tlsProtocol |= tlsProtocols[i];
+          }
+        }
+        try
+        {
+          ss.AuthenticateAsClientAsync(settings.Server, certs, tlsProtocol, false).Wait();
+          tlsConnectionRef[connectionId] = tlsProtocol;
+          tlsRetry.Remove(connectionId);
+        }
+        catch(AggregateException ex)
+        {
+          if (ex.GetBaseException() is IOException)
+          {
+            tlsConnectionRef.Remove(connectionId);
+            if (tlsRetry.ContainsKey(connectionId))
+            {
+              if (tlsRetry[connectionId] > tlsProtocols.Length)
+                throw new MySqlException(Resources.SslConnectionError, ex);
+              tlsRetry[connectionId] += 1;
+            }
+          }
+          throw ex.GetBaseException();
+        }
       }
-
-      ss.AuthenticateAsClientAsync(settings.Server, certs, sslProtocols, false).Wait();
 
       baseStream = ss;
       MySqlStream stream = new MySqlStream(ss, encoding, false);

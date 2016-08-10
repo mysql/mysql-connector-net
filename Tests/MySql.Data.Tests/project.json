@@ -28,7 +28,7 @@
       ],
       "buildOptions": {
         "define": [ "NETCORE10" ],
-        "copyToOutput": [ "appsettings.json" ],
+        "copyToOutput": [ "appsettings.json", "client.pfx" ],
         "compile": {
           "include": [ "../*.cs" ],
           "exclude": [

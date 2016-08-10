@@ -27,6 +27,7 @@ using System.Security;
 using System.Text;
 using MySql.Data.Common;
 using MySql.Data.Types;
+using System.IO;
 
 namespace MySql.Data.MySqlClient
 {
@@ -166,9 +167,21 @@ namespace MySql.Data.MySqlClient
 
     public virtual void Open()
     {
-      creationTime = DateTime.Now;
-      handler.Open();
-      IsOpen = true;
+      int count = 0;
+      do
+      {
+        try
+        {
+          creationTime = DateTime.Now;
+          handler.Open();
+          IsOpen = true;
+          break;
+        }
+        catch (IOException)
+        {
+          if (count++ >= 5) throw;
+        }
+      } while (true);
     }
 
     public virtual void Close()
