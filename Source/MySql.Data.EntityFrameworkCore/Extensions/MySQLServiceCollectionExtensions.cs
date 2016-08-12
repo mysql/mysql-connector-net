@@ -30,6 +30,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MySql.Data.EntityFrameworkCore.Storage.Internal;
 using MySQL.Data.EntityFrameworkCore.Migrations.Internal;
+using MySQL.Data.EntityFrameworkCore.Infraestructure.Internal;
 
 namespace MySQL.Data.EntityFrameworkCore
 {

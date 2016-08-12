@@ -107,9 +107,12 @@
     <Compile Include="EntityTestsFixtureClass.cs" />
     <Compile Include="FluentAPITests.cs" />
     <Compile Include="FunctionalTests.cs" />
+    <Compile Include="LoadingRelatedDataTests.cs" />
+    <Compile Include="Logging\MySqlLoggerFactory.cs" />
     <Compile Include="MySQLConnectionTests.cs" />
     <Compile Include="MySQLTestStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ShadowPropertiesTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\MySql.Data.EntityFrameworkCore\MySql.Data.EntityFrameworkCore.csproj">

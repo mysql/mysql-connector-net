@@ -23,7 +23,7 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace MySQL.Data.EntityFrameworkCore
+namespace MySQL.Data.EntityFrameworkCore.Infraestructure.Internal
 {
   /// <summary>
   /// RelationalOptionsExtension implementation for MySQL

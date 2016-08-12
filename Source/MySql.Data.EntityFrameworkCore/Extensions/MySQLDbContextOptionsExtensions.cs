@@ -23,6 +23,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using MySQL.Data.EntityFrameworkCore.Infraestructure;
+using MySQL.Data.EntityFrameworkCore.Infraestructure.Internal;
 using System;
 using System.Data.Common;
 

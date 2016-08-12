@@ -23,6 +23,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using MySQL.Data.EntityFrameworkCore.Infraestructure.Internal;
 
 namespace MySQL.Data.EntityFrameworkCore.Infraestructure
 {

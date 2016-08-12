@@ -25,6 +25,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -62,8 +63,7 @@ namespace EntityFrameworkCore.Basic.Tests.Logging
         private class MySqlLogger : ILogger
         {
 
-#if NETCORE10
-            // AsyncLocal type so the data is preserved across diferent threads.
+#if NETCORE10            
             private readonly static AsyncLocal<MySqlLoggerData> loggerData = new AsyncLocal<MySqlLoggerData>();
 #else
             private const string contextName = "_LogMySQL";
@@ -73,13 +73,19 @@ namespace EntityFrameworkCore.Basic.Tests.Logging
             {
                 get
                 {
+                    var lgData = new MySqlLoggerData();
 #if !NETCORE10
-                    var loggerData = (SqlLoggerData)CallContext.LogicalGetData(ContextName);
+                    var lgd = (MySqlLoggerData)CallContext.LogicalGetData(contextName);
 #else
                     var lgd = loggerData.Value;
-
 #endif
-                    return lgd ?? (loggerData.Value = new MySqlLoggerData());
+                    
+#if !NETCORE10
+                    CallContext.LogicalSetData(contextName, lgData);
+#else
+                    loggerData.Value = lgData;
+#endif
+                    return lgd ?? lgData;
                 }
             }
 
@@ -126,7 +132,11 @@ namespace EntityFrameworkCore.Basic.Tests.Logging
 
             internal void ResetLoggerData()
             {
+#if NETCORE10
                 loggerData.Value = null;
+#else
+                CallContext.LogicalSetData(contextName, null);
+#endif
             }
         }
 
