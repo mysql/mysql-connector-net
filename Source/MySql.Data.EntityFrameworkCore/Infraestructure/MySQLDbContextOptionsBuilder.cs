@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,15 +20,27 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
-namespace MySQL.Data.EntityFrameworkCore.Migrations
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+
+namespace MySQL.Data.EntityFrameworkCore.Infraestructure
 {
   /// <summary>
-  /// Drop database operation for migrations.
+  /// RelationalDbContextOptionsBuilder implementation for MySQL
   /// </summary>
-    public class MySQLDropDatabaseOperation : MigrationOperation
+  public class MySQLDbContextOptionsBuilder : RelationalDbContextOptionsBuilder<MySQLDbContextOptionsBuilder, MySQLOptionsExtension>
     {
-        public string Name { get; set; }
+        public MySQLDbContextOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
+            : base(optionsBuilder)
+        {
+        }
+
+    protected override MySQLOptionsExtension CloneExtension()
+    {
+      return new MySQLOptionsExtension(OptionsBuilder.Options.GetExtension<MySQLOptionsExtension>());
     }
+
+
+  }
 }

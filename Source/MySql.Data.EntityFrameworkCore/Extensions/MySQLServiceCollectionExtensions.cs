@@ -29,12 +29,16 @@ using MySQL.Data.EntityFrameworkCore.Query;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MySql.Data.EntityFrameworkCore.Storage.Internal;
+using MySQL.Data.EntityFrameworkCore.Migrations.Internal;
 
 namespace MySQL.Data.EntityFrameworkCore
 {
     public static class MySQLServiceCollectionExtensions
   {
 
+        /// <summary>
+        ///     MySQL specific extension methods for IServiceCollection.
+        /// </summary>
         public static IServiceCollection AddEntityFrameworkMySQL(this IServiceCollection services)
         {
             ThrowIf.Argument.IsNull(services, "services");

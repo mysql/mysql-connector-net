@@ -21,10 +21,23 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
+using EntityFrameworkCore.Basic.Tests.Logging;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+
+using Microsoft.EntityFrameworkCore.Internal;
+
+
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+
+
 using MySQL.Data.EntityFrameworkCore.Extensions;
 using System;
+using MySQL.Data.EntityFrameworkCore;
 
 namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
 {
@@ -108,4 +121,76 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
 
     }
   }
+
+    public class ContextWithShadowProperty : MyTestContext
+    {
+        public DbSet<Guest> Guests { get; set; }        
+
+        public ContextWithShadowProperty(DbContextOptions options) : base(options)
+        {
+            ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
+        }
+
+        public override int SaveChanges()
+        {
+            var now = DateTime.Now;
+            foreach (EntityEntry<Guest> entry in ChangeTracker.Entries<Guest>())
+            {              
+                if (entry.State == EntityState.Added)
+                {                   
+                    entry.Property("CreatedAt").CurrentValue = now;
+                }
+                else if (entry.State == EntityState.Modified) 
+                {                    
+                    entry.Property("UpdatedAt").CurrentValue = now;
+                }
+            }
+            return base.SaveChanges();
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder
+             .Entity<Guest>(e => e.HasOne(a => a.Address).WithOne(p => p.Guest)
+             .HasForeignKey<Address>(a => a.IdAddress)
+             );
+
+            modelBuilder.Entity<Person>().Property<int>("CreatedAt");
+            modelBuilder.Entity<Guest>().Property<DateTime>("UpdatedAt");
+        }
+    }
+
+
+        public class EagerLoadingContext : MyTestContext
+    {
+        public DbSet<Guest> Guests { get; set; }
+        public DbSet<Relative> Persons2 { get; set; }        
+
+        public EagerLoadingContext()
+        {                    
+        }
+
+        public EagerLoadingContext(DbContextOptions options) : base(options)
+        {
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Guest>()
+               .HasOne(p => p.Address)
+               .WithOne(i => i.Guest)
+               .HasForeignKey<Address>(i => i.IdAddress)               
+               .HasConstraintName("FKGuestAddress");
+
+            modelBuilder.Entity<Relative>()
+             .HasOne(p => p.Address)
+             .WithOne(i => i.Relative)
+             .HasForeignKey<AddressRelative>(i => i.IdAddressRelative)             
+             .HasConstraintName("FKRelativeAddress");
+
+            // add shadow property
+            modelBuilder.Entity<Guest>().Property<int>("RelativeId");
+        }
+        
+    }
 }

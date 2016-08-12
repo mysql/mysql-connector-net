@@ -20,19 +20,15 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.EntityFrameworkCore.Metadata;
-using MySQL.Data.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
-namespace MySQL.Data.EntityFrameworkCore.Metadata
+namespace MySQL.Data.EntityFrameworkCore.Migrations.Operations
 {
-    public class MySQLPropertyAnnotations : RelationalPropertyAnnotations
+  /// <summary>
+  /// Drop database operation for migrations.
+  /// </summary>
+    public class MySQLDropDatabaseOperation : MigrationOperation
     {
-        private const string AUTOINC_ANNOTATION = "MySQL:AutoIncrement";
-
-        public MySQLPropertyAnnotations(IProperty property)
-            : base(property, MySQLFullAnnotationNames.Instance)
-        {
-        }
-
+        public string Name { get; set; }
     }
 }

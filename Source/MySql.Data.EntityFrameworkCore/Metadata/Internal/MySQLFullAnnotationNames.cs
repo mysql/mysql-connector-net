@@ -22,7 +22,7 @@
 
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace MySQL.Data.EntityFrameworkCore.Metadata
+namespace MySQL.Data.EntityFrameworkCore.Metadata.Internal
 {
   /// <summary>
   /// RelationalFullAnnotationNames for MySQL

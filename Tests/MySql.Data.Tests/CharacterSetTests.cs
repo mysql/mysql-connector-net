@@ -610,7 +610,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
 #if !NETCORE10
-        [Fact]
+   [Fact]
    public void GEOSTD8Test()
    {
      MySqlConnection dbconn = new MySqlConnection(ts.GetConnection(false).ConnectionString);

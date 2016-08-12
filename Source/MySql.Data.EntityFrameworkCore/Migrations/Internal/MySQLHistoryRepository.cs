@@ -26,7 +26,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace MySQL.Data.EntityFrameworkCore.Migrations
+namespace MySQL.Data.EntityFrameworkCore.Migrations.Internal
 {
   class MySQLHistoryRepository : HistoryRepository
   {

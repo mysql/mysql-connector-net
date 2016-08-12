@@ -25,6 +25,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using MySql.EntityFrameworkCore.Migrations.Tests.Utilities;
 using MySQL.Data.EntityFrameworkCore.Metadata;
+using MySQL.Data.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Linq;
 using Xunit;

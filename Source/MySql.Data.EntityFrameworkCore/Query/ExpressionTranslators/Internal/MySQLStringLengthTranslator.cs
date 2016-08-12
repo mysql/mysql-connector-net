@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,24 +20,24 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
-using MySQL.Data.EntityFrameworkCore.Metadata;
-using MySQL.Data.EntityFrameworkCore.Utils;
 
-namespace MySQL.Data.EntityFrameworkCore.Migrations
+using Microsoft.EntityFrameworkCore.Query.Expressions;
+using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
+
+namespace MySql.Data.EntityFrameworkCore.Query.ExpressionTranslators.Internal
 {
-    public class MySQLMigrationsAnnotationProvider : MigrationsAnnotationProvider
+    public class MySQLStringLengthTranslator : IMemberTranslator
     {
-      public override IEnumerable<IAnnotation> For(IProperty property)
-    {
-      if (property.ValueGenerated == ValueGenerated.OnAdd &&
-          property.ClrType.CanBeAutoIncrement())
-      {
-        yield return new Annotation(MySQLAnnotationNames.Prefix + MySQLAnnotationNames.AutoIncrement, true);
-      }
+        public virtual Expression Translate(MemberExpression memberExpression)
+                => (memberExpression.Expression != null)
+                   && (memberExpression.Expression.Type == typeof(string))
+                   && (memberExpression.Member.Name == nameof(string.Length))
+                    ? new SqlFunctionExpression("LENGTH", memberExpression.Type, new[] { memberExpression.Expression })
+                    : null;
     }
-  }
 }
