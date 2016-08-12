@@ -98,7 +98,7 @@ namespace MySql.Data.MySqlClient
         (msb, sender) => msb.SslMode != MySqlSslMode.None
         ));
       Options.Add(new MySqlConnectionStringOption("certificatefile", "certificate file", typeof(string), null, false));
-      Options.Add(new MySqlConnectionStringOption("certificatepassword", "certificate password", typeof(string), null, false));
+      Options.Add(new MySqlConnectionStringOption("certificatepassword", "certificate password,ssl-ca-pwd", typeof(string), null, false));
       Options.Add(new MySqlConnectionStringOption("certificatestorelocation", "certificate store location", typeof(MySqlCertificateStoreLocation), MySqlCertificateStoreLocation.None, false));
       Options.Add(new MySqlConnectionStringOption("certificatethumbprint", "certificate thumb print", typeof(string), null, false));
       Options.Add(new MySqlConnectionStringOption("integratedsecurity", "integrated security", typeof(bool), false, false,
@@ -166,6 +166,15 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("blobasutf8includepattern", null, typeof(string), "", false));
       Options.Add(new MySqlConnectionStringOption("blobasutf8excludepattern", null, typeof(string), "", false));
       Options.Add(new MySqlConnectionStringOption("sslmode", "ssl mode", typeof(MySqlSslMode), MySqlSslMode.Preferred, false));
+      Options.Add(new MySqlConnectionStringOption("sslenable", "ssl-enable", typeof(bool), false, false, 
+        (msb, sender, value) => { msb.SslEnable = bool.Parse(value as string); },
+        (msb, sender) => { return msb.SslEnable; }));
+      Options.Add(new MySqlConnectionStringOption("sslca", "ssl-ca", typeof(string), null, false,
+        (msb, sender, value) => { msb.SslCa = value as string; },
+        (msb, sender) => { return msb.SslCa; }));
+      Options.Add(new MySqlConnectionStringOption("sslcrl", "ssl-crl", typeof(string), null, false,
+        (msb, sender, value) => { msb.SslCrl = value as string; },
+        (msb, sender) => { return msb.SslCrl; }));
     }
 
     public MySqlConnectionStringBuilder()
@@ -1057,6 +1066,41 @@ namespace MySql.Data.MySqlClient
     public int? FabricServerMode { get; internal set; }
 
     public int? FabricScope { get; internal set; }
+
+#endregion
+
+#region XProperties
+
+    [Description("X DevApi: enables the use of SSL as required")]
+    public bool SslEnable
+    {
+      get { return ((MySqlSslMode)this["sslmode"] != MySqlSslMode.None); }
+      set
+      {
+        if (value)
+          SslMode = MySqlSslMode.Required;
+        else
+          SslMode = MySqlSslMode.None;
+      }
+    }
+
+    [Description("X DevApi: path to a local file that contains a list of trusted TLS/SSL CAs")]
+    public string SslCa
+    {
+      get { return CertificateFile; }
+      set
+      {
+        SslEnable = true;
+        CertificateFile = value;
+      }
+    }
+
+    [Description("X DevApi: path to a local file containing certificate revocation lists")]
+    public string SslCrl
+    {
+      get { throw new NotSupportedException(); }
+      set { throw new NotSupportedException(); }
+    }
 
 #endregion
 

@@ -183,4 +183,7 @@
   <data name="InvalidUriData" xml:space="preserve">
     <value>Invalid Uri </value>
   </data>
+  <data name="InvalidUriQuery" xml:space="preserve">
+    <value>Invalid uri query value</value>
+  </data>
 </root>

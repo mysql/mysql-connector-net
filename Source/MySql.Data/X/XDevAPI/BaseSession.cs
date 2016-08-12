@@ -75,8 +75,6 @@ namespace MySqlX.XDevAPI
       if (string.IsNullOrWhiteSpace(connectionString))
         throw new ArgumentNullException("connectionString");
       this.connectionString = ParseConnectionStringFromUri(connectionString);
-      if (!Regex.IsMatch(this.connectionString, @"ssl\s?mode\s*=", RegexOptions.IgnoreCase))
-        this.connectionString += ";sslmode=None";
       Settings = new MySqlConnectionStringBuilder(this.connectionString);
       _internalSession = InternalSession.GetSession(Settings);
       if (!string.IsNullOrWhiteSpace(Settings.Database))
@@ -94,8 +92,6 @@ namespace MySqlX.XDevAPI
       var values = Tools.GetDictionaryFromAnonymous(connectionData);
       if (!values.Keys.Any(s => s.ToLowerInvariant() == "port"))
         values.Add("port", newDefaultPort);
-      if (!values.Keys.Any(s => Regex.IsMatch(s, @"ssl\s?mode\s*=", RegexOptions.IgnoreCase)))
-        values.Add("sslmode", "None");
       Settings = new MySqlConnectionStringBuilder();
       foreach (var value in values)
       {
@@ -231,9 +227,10 @@ namespace MySqlX.XDevAPI
           foreach (string query in queries)
           {
             string[] keyValue = query.Split('=');
-            if (keyValue.Length != 2)
-              throw new ArgumentException();
-            connectionParts.Add(Uri.UnescapeDataString(keyValue[0]) + "=" + Uri.UnescapeDataString(keyValue[1]));
+            if (keyValue.Length > 2)
+              throw new ArgumentException(ResourcesX.InvalidUriQuery + ":" + keyValue[0]);
+            string part = Uri.UnescapeDataString(keyValue[0]) + "=" + (keyValue.Length == 2 ? keyValue[1] : "true");
+            connectionParts.Add(part);
           }
         }
 

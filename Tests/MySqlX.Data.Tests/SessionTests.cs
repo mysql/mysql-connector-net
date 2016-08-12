@@ -29,7 +29,7 @@ using Xunit;
 namespace MySqlX.Data.Tests 
 {
   public class SessionTests : BaseTest
-  { 
+  {
     [Fact]
     public void CanCloseSession()
     {
@@ -70,7 +70,7 @@ namespace MySqlX.Data.Tests
         session.Close();
         Assert.Equal(session.InternalSession.SessionState, SessionState.Closed);
       }
-      
+
       int newSessions = nodeSession.SQL("show processlist").Execute().FetchAll().Count;
       nodeSession.Close();
       Assert.Equal(sessions, newSessions);
@@ -95,7 +95,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void NodeSession_Get_Set_CurrentSchema()
     {
-      using(NodeSession testSession = MySQLX.GetNodeSession(ConnectionString))
+      using (NodeSession testSession = MySQLX.GetNodeSession(ConnectionString))
       {
         Assert.Equal(SessionState.Open, testSession.InternalSession.SessionState);
         Assert.Null(testSession.GetCurrentSchema());
@@ -137,7 +137,7 @@ namespace MySqlX.Data.Tests
       Assert.True(password == csbuilder.Password, string.Format("Expected:{0} Current:{1} in {2}", password, csbuilder.Password, connectionstring));
       Assert.True(server == csbuilder.Server, string.Format("Expected:{0} Current:{1} in {2}", server, csbuilder.Server, connectionstring));
       Assert.True(port == csbuilder.Port, string.Format("Expected:{0} Current:{1} in {2}", port, csbuilder.Port, connectionstring));
-      if(parameters != null)
+      if (parameters != null)
       {
         if (parameters.Length % 2 != 0)
           throw new ArgumentOutOfRangeException();
@@ -170,6 +170,9 @@ namespace MySqlX.Data.Tests
       Assert.Throws<ArgumentException>(() => CheckConnectionStringAsUri("mysql://myuser@localhost", "myuser", "", "localhost", 33060));
       Assert.Throws<ArgumentException>(() => CheckConnectionStringAsUri("myuser@localhost", "myuser", "", "localhost", 33060));
       Assert.Throws<UriFormatException>(() => CheckConnectionStringAsUri("mysqlx://uid=myuser;server=localhost", "myuser", "", "localhost", 33060));
+      CheckConnectionStringAsUri("mysqlx://user:password@server.example.com/?ssl-enable", "user", "password", "server.example.com", 33060, "sslenable", "True", "ssl mode", "Required");
+      CheckConnectionStringAsUri("mysqlx://user:password@server.example.com/?ssl-ca=(c:\\client.pfx)", "user", "password", "server.example.com", 33060, "sslenable", "True", "ssl mode", "Required", "ssl-ca", "(c:%5Cclient.pfx)");
+      Assert.Throws<NotSupportedException>(() => CheckConnectionStringAsUri("mysqlx://user:password@server.example.com/?ssl-crl=(c:\\crl.pfx)", "user", "password", "server.example.com", 33060, "sslenable", "True", "ssl mode", "Required", "ssl-crl", "(c:%5Ccrl.pfx)"));
     }
 
     [Fact]
@@ -191,13 +194,49 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void SslSession()
     {
-      string connstring = ConnectionString + ";ssl mode=required;";
-      using(var s3 = MySQLX.GetNodeSession(connstring))
+      string connstring = ConnectionStringUri + "/?ssl-enable";
+      using (var s3 = MySQLX.GetNodeSession(connstring))
       {
         Assert.Equal(SessionState.Open, s3.InternalSession.SessionState);
         var result = s3.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';").Execute().FetchAll();
         Assert.StartsWith("TLSv1", result[0][1].ToString());
       }
+    }
+
+    [Fact]
+    public void SslCertificate()
+    {
+      string path = string.Empty;
+#if NETCORE10
+      path += "../MySql.Data.Tests/";
+#endif
+      string connstring = ConnectionStringUri + $"/?ssl-ca={path}client.pfx&ssl-ca-pwd=pass";
+      using (var s3 = MySQLX.GetNodeSession(connstring))
+      {
+        Assert.Equal(SessionState.Open, s3.InternalSession.SessionState);
+        var result = s3.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';").Execute().FetchAll();
+        Assert.StartsWith("TLSv1", result[0][1].ToString());
+      }
+    }
+
+    [Fact]
+    public void SslEmptyCertificate()
+    {
+      string connstring = ConnectionStringUri + $"/?ssl-ca=";
+      // if certificate is empty, it connects without a certificate
+      using (var s1 = MySQLX.GetNodeSession(connstring))
+      {
+        Assert.Equal(SessionState.Open, s1.InternalSession.SessionState);
+        var result = s1.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';").Execute().FetchAll();
+        Assert.StartsWith("TLSv1", result[0][1].ToString());
+      }
+    }
+
+    [Fact]
+    public void SslCrl()
+    {
+      string connstring = ConnectionStringUri + "/?ssl-crl=crlcert.pfx";
+      Assert.Throws<NotSupportedException>(() => MySQLX.GetNodeSession(connstring));
     }
   }
 }

@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-*",
+  "version": "7.0.4-IR-*",
   "description": "MySqlX.Data.Tests Class Library",
   "authors": [ "Oracle" ],
   "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
@@ -32,7 +32,7 @@
         "define": [ "NETCORE10" ],
         "copyToOutput": [ "appsettings.json" ],
         "compile": {
-          "include": [ "../*.cs" ]
+          "include": [ "../*.cs", "../../Source/MySql.Data/Properties/VersionInfo.cs" ]
         }
       },
       "dependencies": {
