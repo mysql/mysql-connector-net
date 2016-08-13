@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-IR-*",
+  "version": "7.0.5-IR2-*",
   "description": "MySql.Data.MySqlClient.Test Console",
   "authors": [ "Oracle" ],
   "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
@@ -16,7 +16,7 @@
       "type": "platform",
       "version": "1.0.0"
     },
-    "MySql.Data": "7.0.5-IR-*"
+    "MySql.Data": "7.0.5-IR2-*"
   },
 
   "frameworks": {

@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-*",
+  "version": "7.0.5-IR2-*",
   "description": "MySql.EntityFrameworkCore.Basic.Tests Class Library",
   "authors": [
     "Oracle"
@@ -60,7 +60,7 @@
   },
   "testRunner": "xunit",
   "dependencies": {
-    "MySql.Data": "7.0.5-IR*",
+    "MySql.Data": "7.0.5-IR2*",
     "MySql.Data.EntityFrameworkCore": "7.0.5-IR*"
   }
 }
