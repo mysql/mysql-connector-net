@@ -60,7 +60,7 @@
   },
   "testRunner": "xunit",
   "dependencies": {
-    "MySql.Data": "7.0.4-IR*",
-    "MySql.Data.EntityFrameworkCore": "7.0.4-IR*"
+    "MySql.Data": "7.0.5-IR*",
+    "MySql.Data.EntityFrameworkCore": "7.0.5-IR*"
   }
 }

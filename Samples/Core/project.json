@@ -16,7 +16,7 @@
       "type": "platform",
       "version": "1.0.0"
     },
-    "MySql.Data": "7.0.4-IR-*"
+    "MySql.Data": "7.0.5-IR-*"
   },
 
   "frameworks": {

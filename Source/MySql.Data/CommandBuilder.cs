@@ -29,6 +29,7 @@ using MySql.Data.Types;
 using System.Globalization;
 
 using System.Collections.Generic;
+using MySql.Data.Common;
 
 namespace MySql.Data.MySqlClient
 {

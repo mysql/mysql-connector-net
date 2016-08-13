@@ -25,7 +25,9 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+#if !NETCORE10
 using System.Runtime.Remoting.Messaging;
+#endif
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;

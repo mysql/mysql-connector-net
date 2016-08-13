@@ -1,5 +1,5 @@
 {
-  "version": "7.0.4-IR-*",
+  "version": "7.0.5-IR-*",
   "description": "MySqlX.Data.Tests Class Library",
   "authors": [ "Oracle" ],
   "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
@@ -51,6 +51,6 @@
   "testRunner": "xunit",
 
   "dependencies": {
-    "MySql.Data": "7.0.4-IR*"
+    "MySql.Data": "7.0.5-IR*"
   }
 }
