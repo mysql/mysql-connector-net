@@ -36,52 +36,82 @@ namespace EntityFrameworkCore.Basic.Tests
 {
     public class LoadingRelatedDataTests : IDisposable
     {
-        private static string Sql => MySqlLoggerFactory.SqlStatements?.Count() > 0 ?
-                                     MySqlLoggerFactory.SqlStatements.Last() :
-                                     string.Empty;
 
         DbContext context;
+        DbContextOptions options;
+        IServiceCollection collection = new ServiceCollection()
+                                        .AddEntityFrameworkMySQL()
+                                        .AddSingleton<ILoggerFactory>(new MySqlLoggerFactory());
+
+        string Sql => MySqlLoggerFactory.SqlStatements.LastOrDefault();
 
         public LoadingRelatedDataTests()
-        {
-            //var serviceProvider = new ServiceCollection()
-            //             .AddEntityFrameworkMySQL()
-            //             .AddSingleton<ILoggerFactory>(new MySqlLoggerFactory())
-            //             .AddDbContext<EagerLoadingContext>()
-            //             .BuildServiceProvider();
+        {         
 
-            //context = serviceProvider.GetRequiredService<EagerLoadingContext>();
+            options = new DbContextOptionsBuilder()
+                         .UseInternalServiceProvider(collection.BuildServiceProvider())
+                         .UseMySQL(MySQLTestStore.baseConnectionString + "bd-eagerloading")
+                         .Options;
 
-            var options = new DbContextOptionsBuilder()
-            .UseMySQL(MySQLTestStore.baseConnectionString + "bd-eagerloading")
-            .UseInternalServiceProvider(new ServiceCollection()
-                .AddEntityFrameworkMySQL()                
-                .AddSingleton<ILoggerFactory>(new MySqlLoggerFactory())
-                .BuildServiceProvider())
-            .Options;
-
-            context = new EagerLoadingContext(options);           
+            context = new EagerLoadingContext(options);
             context.Database.EnsureCreated();
-                            
+            AddData(context);
+
         }
 
 
         [Fact]
         public void CanIncludeAddressData()
         {
-            Assert.False(context.Database.EnsureCreated());
-
-            AddData(context);
-
-                var people
+            Assert.False(context.Database.EnsureCreated());                        
+            var people
                     = context.Set<Guest>()
                         .Include(p => p.Address)
                         .ToList();
 
                 Assert.Equal(4, people.Count);
                 Assert.Equal(3, people.Count(p => p.Address != null));
-                Assert.Equal("", Sql);
+                Assert.Equal(@"SELECT `p`.`IdGuest`, `p`.`Name`, `p`.`RelativeId`, `a`.`IdAddress`, `a`.`City`, `a`.`Street`
+FROM `Guests` AS `p`
+LEFT JOIN `Address` AS `a` ON `a`.`IdAddress` = `p`.`IdGuest`", Sql);
         }
+
+        [Fact]
+        public void CanIncludeGuestData()
+        {
+            Assert.False(context.Database.EnsureCreated());
+            var ad
+                    = context.Set<Address>()
+                        .Include(p => p.Guest)
+                        .ToList();
+
+            Assert.Equal(3, ad.Count);
+            Assert.True(ad.All(p => p.Guest != null));
+            Assert.Equal(13, context.ChangeTracker.Entries().Count());
+            Assert.Equal(@"SELECT `p`.`IdAddress`, `p`.`City`, `p`.`Street`, `g`.`IdGuest`, `g`.`Name`, `g`.`RelativeId`
+FROM `Address` AS `p`
+INNER JOIN `Guests` AS `g` ON `p`.`IdAddress` = `g`.`IdGuest`", Sql);
+        }
+
+
+        [Fact]
+        public void CanIncludeGuestShadowProperty()
+        {
+            Assert.False(context.Database.EnsureCreated());
+            var addressRelative
+                  = context.Set<AddressRelative>()
+                      .Include(a => a.Relative) 
+                      .ToList();
+
+            Assert.Equal(3, addressRelative.Count);
+            Assert.True(addressRelative.All(p => p.Relative!= null));
+            // TODO: review what should be the result here (acc. EF tests should be 6)
+            Assert.Equal(13, context.ChangeTracker.Entries().Count());
+            Assert.Equal(@"SELECT `a`.`IdAddressRelative`, `a`.`City`, `a`.`Street`, `p`.`IdRelative`, `p`.`Name`
+FROM `AddressRelative` AS `a`
+INNER JOIN `Persons2` AS `p` ON `a`.`IdAddressRelative` = `p`.`IdRelative`", Sql);
+        }
+
 
 
         private void AddData(DbContext context)
@@ -101,9 +131,7 @@ namespace EntityFrameworkCore.Basic.Tests
 
             var ad = new AddressRelative { Street = "Street one", City = "Michigan" };
             var ad1 = new AddressRelative { Street = "Street two", City = "San Francisco" };
-            var ad2 = new AddressRelative { Street = "Street three", City = "Denver" };
-
-            context.Set<AddressRelative>().AddRange(ad, ad1, ad2);
+            var ad2 = new AddressRelative { Street = "Street three", City = "Denver" };            
 
             context.Set<Relative>().AddRange(
                    new Relative { Name = "L. J.", Address = ad },
@@ -111,12 +139,14 @@ namespace EntityFrameworkCore.Basic.Tests
                    new Relative { Name = "Z. Z.", Address = ad2 }
                 );
 
+            context.Set<AddressRelative>().AddRange(ad, ad1, ad2);
+
             context.SaveChanges();
         }
 
         public void Dispose()
         {
-           context.Database.EnsureDeleted();          
+           context.Database.EnsureDeleted();
         }
     }
 }

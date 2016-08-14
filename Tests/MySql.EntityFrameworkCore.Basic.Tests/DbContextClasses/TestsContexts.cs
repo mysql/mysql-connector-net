@@ -155,7 +155,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
              .HasForeignKey<Address>(a => a.IdAddress)
              );
 
-            modelBuilder.Entity<Person>().Property<int>("CreatedAt");
+            modelBuilder.Entity<Guest>().Property<DateTime>("CreatedAt");
             modelBuilder.Entity<Guest>().Property<DateTime>("UpdatedAt");
         }
     }

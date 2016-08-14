@@ -40,7 +40,13 @@ namespace EntityFrameworkCore.Basic.Tests.Logging
         private static MySqlLogger _logger;
         private static MySqlLogger Logger => LazyInitializer.EnsureInitialized(ref _logger);
 
-        public static IReadOnlyList<string> SqlStatements => Logger.MySqlLoggerData.mySqlStatements;
+        public static IReadOnlyList<string> SqlStatements
+        {
+            get
+            {
+                return Logger.MySqlLoggerData.mySqlStatements;
+            }
+        } 
 
         public static IReadOnlyList<DbCommandLogData> CommandLogData => Logger.MySqlLoggerData.logData;
 
@@ -58,7 +64,11 @@ namespace EntityFrameworkCore.Basic.Tests.Logging
         {            
         }
 
-        public static string Sql => string.Join( Environment.NewLine, Logger.MySqlLoggerData.mySqlStatements);
+        public static string Log => Logger.MySqlLoggerData.output;
+        public static string Sql => string.Join(Environment.NewLine, Logger.MySqlLoggerData.mySqlStatements);
+
+        
+
         public static void Reset() => Logger.ResetLoggerData();
 
 
@@ -75,27 +85,31 @@ namespace EntityFrameworkCore.Basic.Tests.Logging
             {
                 get
                 {
-                    var lgData = new MySqlLoggerData();
-#if !NETCORE10
-                    var lgd = (MySqlLoggerData)CallContext.LogicalGetData(contextName);
+#if NETCORE10
+                    var lgData = loggerData.Value;
 #else
-                    var lgd = loggerData.Value;
+                    var lgData = (MySqlLoggerData)CallContext.LogicalGetData(contextName);
 #endif
-                    
-#if !NETCORE10
-                    CallContext.LogicalSetData(contextName, lgData);
-#else
-                    loggerData.Value = lgData;
-#endif
-                    return lgd ?? lgData;
+                    return lgData ?? CreateLoggerData();
                 }
+            }
+
+            private static MySqlLoggerData CreateLoggerData()
+            {
+                var lgData = new MySqlLoggerData();
+#if NETCORE10
+                loggerData.Value = lgData;
+#else
+                CallContext.LogicalSetData(contextName, lgData);
+#endif
+                return lgData;
+
             }
 
 
             public IDisposable BeginScope<TState>(TState state)
-            {
-                MySqlLoggerData.stmt = new StringBuilder();
-                return new HelperDisposable();
+            {                
+                return MySqlLoggerData.stmt;
             }
 
             public bool IsEnabled(LogLevel logLevel) => true;
@@ -106,7 +120,7 @@ namespace EntityFrameworkCore.Basic.Tests.Logging
                 var format = formatter(state, exception)?.Trim();
                 if (format != null)
                 {
-                    var mysqlLoggerData = new MySqlLoggerData();
+                    var mysqlLoggerData = MySqlLoggerData;
                     var cmdLog = state as DbCommandLogData;
 
                     if (cmdLog != null)
@@ -150,7 +164,7 @@ namespace EntityFrameworkCore.Basic.Tests.Logging
 #if !NETCORE10
             [NonSerialized]
 #endif
-            public StringBuilder stmt = new StringBuilder();
+            public readonly HelperDisposable stmt = new HelperDisposable(new StringBuilder(""));
             public readonly List<string> mySqlStatements = new List<string>();
 #if !NETCORE10
             [NonSerialized]
@@ -165,8 +179,24 @@ namespace EntityFrameworkCore.Basic.Tests.Logging
 
         private class HelperDisposable : IDisposable
         {
+            private readonly StringBuilder _stringBuilder;
+
+            public HelperDisposable(StringBuilder stringBuilder)
+            {
+                _stringBuilder = stringBuilder;                
+            }            
+
             public void Dispose()
             {
+                _stringBuilder.Append("");
+            }
+
+            public override string ToString() => _stringBuilder.ToString();
+
+            public HelperDisposable AppendLine(string stringBuilder)
+            {
+                _stringBuilder.AppendLine(stringBuilder);
+                return this;
             }
         }
     }
