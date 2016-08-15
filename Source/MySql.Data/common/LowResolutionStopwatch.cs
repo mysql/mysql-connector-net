@@ -34,7 +34,7 @@ namespace MySql.Data.Common
   class LowResolutionStopwatch
   {
     long millis;
-    long startTime;
+    int startTime;
     public static readonly long Frequency = 1000; // measure in milliseconds
     public static readonly bool isHighResolution = false;
 
@@ -53,9 +53,26 @@ namespace MySql.Data.Common
 
     public void Stop()
     {
-      long now = Environment.TickCount;
-      // Calculate time different, handle possible overflow
-      long elapsed = (now < startTime) ? Int32.MaxValue - startTime + now : now - startTime;
+      // https://msdn.microsoft.com/en-us/library/system.environment.tickcount(v=vs.80).aspx - Environment.TickCount overflows from int.MaxValue to int.MinValue from .NET 2.0 and onwards.
+      int now = Environment.TickCount;
+      long elapsed;
+
+      if (now < startTime)
+      {
+        if (now < 0)
+        {
+          elapsed = 1 + ((long)int.MaxValue - startTime) + (now - (long)int.MinValue);
+        }
+        else
+        {
+          elapsed = int.MaxValue - startTime + now;
+        }
+      }
+      else
+      {
+        elapsed = now - startTime;
+      }
+
       millis += elapsed;
     }
 
@@ -69,7 +86,7 @@ namespace MySql.Data.Common
     {
       get
       {
-        return new TimeSpan(0, 0, 0, 0, (int)millis);
+        return TimeSpan.FromMilliseconds(millis);
       }
     }
 
