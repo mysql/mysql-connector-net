@@ -10,7 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		global.json = global.json
 	EndProjectSection
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MySql.Data", "Source\MySql.Data\MySql.Data.xproj", "{8F0F6915-49B2-42F8-A592-BEF9A09F3811}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MySql.Data.Core", "Source\MySql.Data\MySql.Data.Core.xproj", "{8F0F6915-49B2-42F8-A592-BEF9A09F3811}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MySql.Core.Test.Console", "Samples\Core\MySql.Core.Test.Console.xproj", "{742DC4B9-D6D3-4063-821F-BB2FD980CE10}"
 EndProject
