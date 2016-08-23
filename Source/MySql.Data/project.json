@@ -4,6 +4,7 @@
   "description": "MySql.Data.MySqlClient .Net Core Class Library",
   "authors": [ "Oracle" ],
   "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
+  "language": "en-US",
   "packOptions": {
     "projectUrl": "http://dev.mysql.com/downloads/",
     "licenseUrl": "http://www.gnu.org/licenses/old-licenses/gpl-2.0.html",
@@ -30,7 +31,11 @@
       "buildOptions": {
         "define": [ "NETCORE10" ],
         "warningsAsErrors": false,
-        "embed": [ "keywords.txt" ],
+        "embed": [
+          "keywords.txt",
+          "Resources.resx",
+          "ResourcesX.resx"
+        ],
         "resource": [ "**/*.resx" ],
         "compile": {
           "exclude": [
@@ -39,6 +44,10 @@
             "zlib/**/*.*",
             "TimeStream.cs",
             "**/._*"
+          ],
+          "includeFiles": [
+            "Resources.Designer.cs",
+            "ResourcesX.Designer.cs"
           ],
           "excludeFiles": [
             "Properties/VersionInfo.cs",
