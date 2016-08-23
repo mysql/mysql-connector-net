@@ -10,8 +10,15 @@
     "licenseUrl": "http://www.gnu.org/licenses/old-licenses/gpl-2.0.html",
     "iconUrl": "http://www.mysql.com/common/logos/logo-mysql-170x115.png",
     "tags": [ "MySql", ".NET Connector", "MySql Connector/NET", "netcore", ".Net Core", "MySql Conector/Net Core", "coreclr", "C/NET", "C/Net Core" ],
-    "content": "content/Readme.txt",
-    "releaseNotes": "Review Readme.txt for details.",
+    "files": {
+      "includeFiles": [
+        "Content/ReleaseNotes.txt"
+      ],
+      "include": [
+        "../../README"
+      ]
+    },
+    "releaseNotes": "Review ReleaseNotes.txt for details.",
     "requireLicenseAcceptance": true
   },
   "buildOptions": {

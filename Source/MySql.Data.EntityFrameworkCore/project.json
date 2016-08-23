@@ -3,13 +3,21 @@
   "description": "MySql.Data.EntityFrameworkCore for Entity Framework.",
   "authors": [ "Oracle" ],
   "copyright": "Copyright � 2016, Oracle and/or its affiliates. All rights reserved.",
+  "language": "en-US",
   "packOptions": {
     "projectUrl": "http://dev.mysql.com/downloads/",
     "licenseUrl": "http://www.gnu.org/licenses/old-licenses/gpl-2.0.html",
     "iconUrl": "http://www.mysql.com/common/logos/logo-mysql-170x115.png",
     "tags": [ "MySql", ".NET Connector", "MySql Entity Framework Core", "netcore", ".Net Core", "MySql Conector/Net Entity Framework Core", "coreclr", "C/NET", "C/Net Core" ],
-    "content": "content/Readme.txt",
-    "releaseNotes": "Review Readme.txt for details.",
+    "files": {
+      "includeFiles": [
+        "Content/ReleaseNotes.txt"
+      ],
+      "include": [
+        "../../README"
+      ]
+    },
+    "releaseNotes": "Review ReleaseNotes.txt for details.",
     "requireLicenseAcceptance": true
   },
   "buildOptions": {
