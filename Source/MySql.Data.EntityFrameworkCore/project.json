@@ -31,7 +31,7 @@
 
   "dependencies": {
     "NETStandard.Library": "1.6.0",
-    "MySql.Data.Core": "7.0.4-IR-19",
+    "MySql.Data.Core": "7.0.4-IR-191",
     "Microsoft.EntityFrameworkCore.Relational": "1.0.0",
     "Microsoft.EntityFrameworkCore": "1.0.0"
   },
