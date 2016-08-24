@@ -41,7 +41,7 @@ namespace MySql.Data {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
 #if NETCORE10          
-          global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MySql.Data.Core.Resources", typeof(ResourcesX).GetTypeInfo().Assembly);
+          global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MySql.Data.Core.ResourcesX", typeof(ResourcesX).GetTypeInfo().Assembly);
 #else
           global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MySql.Data.MySqlClient.ResourcesX", typeof(ResourcesX).Assembly);
 #endif

@@ -50,8 +50,8 @@
   "testRunner": "xunit",
 
   "dependencies": {
-    "MySql.Data.Core": "7.0.4-IR*",
-    "MySql.Data.EntityFrameworkCore": "7.0.4-*",
+    "MySql.Data.Core": "7.0.4-IR-191",
+    "MySql.Data.EntityFrameworkCore": "7.0.4-IR-191",
     "MySql.EntityFrameworkCore.Basic.Tests": "7.0.4-IR-*"
   }
 }
