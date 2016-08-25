@@ -95,5 +95,8 @@
         "Google.Protobuf": "3.0.0-beta4"
       }
     }
+  },
+  "dependencies": {
+    "System.Runtime.Serialization.Json": "4.0.2"
   }
 }

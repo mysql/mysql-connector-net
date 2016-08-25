@@ -275,7 +275,11 @@
     <Compile Include="X\RoutingServices\RoutingServiceBase.cs" />
     <Compile Include="X\Serialization\JsonParser.cs" />
     <Compile Include="X\Session\InternalSession.cs" />
+    <Compile Include="X\XDevAPI\Config\DefaultPersistenceHandler.cs" />
+    <Compile Include="X\XDevAPI\Config\IPasswordHandler.cs" />
+    <Compile Include="X\XDevAPI\Config\IPersistenceHandler.cs" />
     <Compile Include="X\Session\QueueTaskScheduler.cs" />
+    <Compile Include="X\XDevAPI\Config\SessionConfig.cs" />
     <Compile Include="X\Session\XInternalSession.cs" />
     <Compile Include="X\XDevAPI\BaseSession.cs" />
     <Compile Include="X\XDevAPI\Collection.cs" />
@@ -318,6 +322,7 @@
     <Compile Include="X\XDevAPI\Relational\TableUpdateStatement.cs" />
     <Compile Include="X\XDevAPI\Schema.cs" />
     <Compile Include="X\XDevAPI\Session.cs" />
+    <Compile Include="X\XDevAPI\Config\SessionConfigManager.cs" />
     <Compile Include="zlib\Adler32.cs" />
     <Compile Include="zlib\Deflate.cs" />
     <Compile Include="zlib\InfBlocks.cs" />
