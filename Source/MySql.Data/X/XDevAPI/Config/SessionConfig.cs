@@ -61,5 +61,18 @@ namespace MySqlX.XDevAPI.Config
     {
 
     }
+
+    public string ToJsonString()
+    {
+      List<string> options = new List<string>();
+      options.Add($"\"uri\": \"{Uri}\"");
+      if(appData.Count > 0)
+      {
+        string appdataOptions = string.Join(", ", appData.Select(i => $"\"{i.Key}\": \"{i.Value}\""));
+        options.Add($"\"appdata\": {{ {appdataOptions} }}");
+      }
+      return $"\"{Name}\": {{ {string.Join(", ", options)} }}";
+      
+    }
   }
 }

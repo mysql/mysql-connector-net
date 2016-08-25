@@ -36,17 +36,21 @@ namespace MySqlX.XDevAPI.Config
 
     public static SessionConfig Save(string name, string uri, string jsonAppData = null)
     {
+      SessionConfig cfg = new SessionConfig(name, uri);
+      // TODO add appdata from json string
       return persistenceHandler.Save(name, new DbDoc());
     }
 
     public static SessionConfig Save(string name, string uri, Dictionary<string, string> appData = null)
     {
-      return persistenceHandler.Save(name, new DbDoc());
+      SessionConfig sessionConfig = new SessionConfig(name, uri);
+      appData?.ToList().ForEach(i => sessionConfig.SetAppData(i.Key, i.Value));
+      return Save(sessionConfig);
     }
 
     public static SessionConfig Save(string name, DbDoc json)
     {
-      return persistenceHandler.Save(name, new DbDoc());
+      return persistenceHandler.Save(name, json);
     }
 
     public static SessionConfig Save(string name, Dictionary<string, string> appData)
@@ -56,7 +60,7 @@ namespace MySqlX.XDevAPI.Config
 
     public static SessionConfig Save(SessionConfig cfg)
     {
-      return Save(cfg.Name, cfg.Uri, cfg.appData);
+      return Save(cfg.Name, new DbDoc(cfg.ToJsonString()));
     }
 
     public static SessionConfig Update(SessionConfig cfg)
@@ -66,12 +70,23 @@ namespace MySqlX.XDevAPI.Config
 
     public static SessionConfig Get(string name)
     {
-      throw new NotImplementedException();
+      DbDoc config = persistenceHandler.Load(name);
+      SessionConfig cfg = new SessionConfig(config["name"], config["uri"]);
+      //TODO add appdata from json string
+      return cfg;
     }
 
     public static bool Delete(string name)
     {
-      throw new NotImplementedException();
+      try
+      {
+        persistenceHandler.Delete(name);
+        return true;
+      }
+      catch
+      {
+        return false;
+      }
     }
 
     public static List<string> List()
