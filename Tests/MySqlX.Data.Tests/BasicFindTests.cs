@@ -132,6 +132,8 @@ namespace MySqlX.Data.Tests
       Result r = coll.Add(docs).Execute();
       Assert.Equal<ulong>(4, r.RecordsAffected);
 
+      //var s = MySql.Data.ResourcesX.TestingResources;
+
       DbDoc docParams = new DbDoc(new { pages1 = 30, pages2 = 40 });
       DocResult foundDocs = coll.Find("pages = :Pages1 || pages = :Pages2").Bind(docParams).Execute();
       Assert.True(foundDocs.Next());

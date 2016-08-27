@@ -42,9 +42,11 @@ namespace MySqlX.Data.Tests
     public static string ConnectionStringNoPassword { get; private set; }
     public static string ConnectionStringRoot { get; private set; }
 
-    private static ConfigUtils config = new ConfigUtils("appsettings.json");
+#if NETCORE10
+        private static ConfigUtils config = new ConfigUtils("appsettings.json");
+#endif
 
-    static BaseTest()
+        static BaseTest()
     {
       schemaName = "test";
       ConnectionStringRoot = $"server=localhost;port={Port()};uid=root;password=";
@@ -55,8 +57,13 @@ namespace MySqlX.Data.Tests
 
     private static string Port()
     {
-      var port = config.GetPort();
-      
+
+      string port = string.Empty;
+
+#if NETCORE10                
+       config.GetPort();
+#endif
+
       if (!string.IsNullOrEmpty(port))
       {
           return port;

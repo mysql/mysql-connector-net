@@ -28,6 +28,7 @@ using MySqlX.Session;
 using System.Collections.ObjectModel;
 using MySql.Data;
 using MySqlX;
+using MySql.Data.MySqlClient;
 
 namespace MySqlX.XDevAPI.Common
 {

@@ -31,8 +31,7 @@ using System.Runtime.InteropServices;
 using System.ComponentModel;
 using System.Security.Permissions;
 using System.Security;
-
-
+using MySql.Data.Common;
 
 namespace MySql.Data.MySqlClient.Common
 {
@@ -82,7 +81,7 @@ namespace MySql.Data.MySqlClient.Common
           throw new Win32Exception(Marshal.GetLastWin32Error(),
               "Error opening pipe");
         }
-        LowResolutionStopwatch sw = LowResolutionStopwatch.StartNew();
+        MySql.Data.Common.LowResolutionStopwatch sw = MySql.Data.Common.LowResolutionStopwatch.StartNew();
         bool success = NativeMethods.WaitNamedPipe(path, timeout);
         sw.Stop();
         if (!success)

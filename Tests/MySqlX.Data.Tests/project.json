@@ -10,17 +10,16 @@
     "iconUrl": "http://www.mysql.com/common/logos/logo-mysql-170x115.png",
     "tags": [ "MySql", ".NET Connector", "MySql Connector/NET", "netcore", ".Net Core", "MySql Conector/Net Core", "coreclr", "C/NET", "C/Net Core" ],
     "requireLicenseAcceptance": true
-  },
-
-  "buildOptions": {
-    "warningsAsErrors": false,
-    "optimize": true,
-    "xmlDoc": true,
-    "embed": [ "Properties/CreateUsers.sql" ],
-    "nowarn": [ "CS1591" ],
-    "keyFile": "../../ConnectorNetPublicKey.snk",
-    "delaySign": true,
-    "publicSign": false
+  }, 
+  "dependencies": {
+    "dotnet-test-xunit": "2.2.0-*",
+    "xunit": "2.2.0-*",
+    "Microsoft.EntityFrameworkCore": "1.1.0-*",
+    "Microsoft.EntityFrameworkCore.Relational": "1.0.0-*",
+    "Google.Protobuf": "3.0.0-beta4",
+    "MySql.Data": {
+      "target": "project"
+    }
   },
 
   "frameworks": {
@@ -31,6 +30,15 @@
       "buildOptions": {
         "define": [ "NETCORE10" ],
         "copyToOutput": [ "appsettings.json" ],
+        "warningsAsErrors": false,
+        "optimize": true,
+        "xmlDoc": true,
+        "embed": [ "Properties/CreateUsers.sql" ],
+        "nowarn": [ "CS1591" ],
+        "keyFile": "../../ConnectorNetPublicKey.snk",
+        "delaySign": true,
+        "publicSign": false,
+
         "compile": {
           "include": [ "../*.cs" ]
         }
@@ -39,18 +47,11 @@
         "Microsoft.NETCore.App": {
           "type": "platform",
           "version": "1.0.0"
-        },
-        "xunit": "2.2.0-beta2-build3300",
-        "dotnet-test-xunit": "2.2.0-preview2-build1029",
-        "Google.Protobuf": "3.0.0-beta4",
-        "System.Reflection": "4.1.0"
+        }
       }
+    },
+    "net451": {
     }
   },
-
-  "testRunner": "xunit",
-
-  "dependencies": {
-    "MySql.Data.Core": "7.0.4-IR-191"
-  }
+  "testRunner": "xunit"
 }

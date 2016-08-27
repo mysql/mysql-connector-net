@@ -19,26 +19,40 @@
     },
     "releaseNotes": "Review ReleaseNotes.txt for details.",
     "requireLicenseAcceptance": true
-  },
-  "buildOptions": {
-    "warningsAsErrors": true,
-    "keyFile": "../../ConnectorNetPublicKey.snk",
-    "delaySign": true,
-    "xmlDoc": false,
-    "publicSign": false
-  },
-
-
+  }, 
   "dependencies": {
-    "NETStandard.Library": "1.6.0",
-    "MySql.Data.Core": "7.0.4-IR-191",
-    "Microsoft.EntityFrameworkCore.Relational": "1.0.0",
-    "Microsoft.EntityFrameworkCore": "1.0.0"
+    "Microsoft.Extensions.Caching.Memory": "1.1.0-*",
+    "Microsoft.Extensions.DependencyInjection": "1.1.0-*",
+    "Microsoft.Extensions.Logging": "1.1.0-*",
+    "Remotion.Linq": "2.1.1",
+    "System.Collections.Immutable": "1.2.0-*",
+    "System.Interactive.Async": "3.0.0-*",
+    "Microsoft.EntityFrameworkCore": "1.1.0-*",
+    "Microsoft.EntityFrameworkCore.Relational": "1.0.0-*",
+    "MySql.Data": {
+      "target": "project"
+    }
   },
-
   "frameworks": {
+    "net451": {
+      "frameworkAssemblies": {
+        "System.ComponentModel.DataAnnotations": "",
+        "System.Runtime": {
+          "type": "build"
+        }
+      }     
+    },
     "netstandard1.6": {
-      "imports": [ "dnxcore50", "portable-net451+win81+wp81" ]
+      "dependencies": {
+        "NETStandard.Library": "1.6.0"
+      },
+      "buildOptions": {
+        "warningsAsErrors": true,
+        "keyFile": "../../ConnectorNetPublicKey.snk",
+        "delaySign": true,
+        "xmlDoc": false,
+        "publicSign": false
+      }
     }
   }
 }

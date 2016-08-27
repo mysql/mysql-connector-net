@@ -3,7 +3,7 @@
   "description": "MySql.Data.Tests Class Library",
   "authors": [ "Oracle" ],
   "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
-  
+
   "packOptions": {
     "projectUrl": "http://dev.mysql.com/downloads/",
     "licenseUrl": "http://www.gnu.org/licenses/old-licenses/gpl-2.0.html",
@@ -11,21 +11,27 @@
     "tags": [ "MySql", ".NET Connector", "MySql Connector/NET", "netcore", ".Net Core", "MySql Conector/Net Core", "coreclr", "C/NET", "C/Net Core" ],
     "requireLicenseAcceptance": true
   },
-  "buildOptions": {
-    "warningsAsErrors": false,
-    "optimize": true,
-    "xmlDoc": true,
-    "nowarn": [ "CS1591" ],
-    "keyFile": "../../ConnectorNetPublicKey.snk",
-    "preserveCompilationContext": true,
-    "delaySign": true,
-    "publicSign": false
+  "buildOptions": {   
+  },
+  "testRunner": "xunit",
+  "dependencies": {
+    "dotnet-test-xunit": "2.2.0-*",
+    "xunit": "2.2.0-*",
+    "MySql.Data": {
+      "target": "project"
+    }
   },
   "frameworks": {
     "netcoreapp1.0": {
       "imports": [
         "dnxcore50"
       ],
+      "dependencies": {
+        "Microsoft.NETCore.App": {
+          "version": "1.0.0-*",
+          "type": "platform"
+        }
+      },
       "buildOptions": {
         "define": [ "NETCORE10" ],
         "copyToOutput": [ "appsettings.json" ],
@@ -67,20 +73,56 @@
             "TypeTests.cs",
             "TestDataTable.cs"
           ]
+        },
+        "warningsAsErrors": false,
+        "optimize": true,
+        "xmlDoc": true,
+        "nowarn": [ "CS1591" ],
+        "keyFile": "../../ConnectorNetPublicKey.snk",
+        "preserveCompilationContext": true,
+        "delaySign": true,
+        "publicSign": false
+      }
+    },
+    "net451": {
+      "frameworkAssemblies": {
+        "System.Collections": {
+          "type": "build"
+        },
+        "System.Diagnostics.Debug": {
+          "type": "build"
+        },
+        "System.Linq": {
+          "type": "build"
+        },
+        "System.Reflection": {
+          "type": "build"
+        },
+        "System.Reflection.Extensions": {
+          "type": "build"
+        },
+        "System.Runtime": {
+          "type": "build"
+        },
+        "System.Runtime.Extensions": {
+          "type": "build"
+        },
+        "System.Threading.Tasks": {
+          "type": "build"
         }
       },
-      "dependencies": {
-        "Microsoft.NETCore.App": {
-          "type": "platform",
-          "version": "1.0.0"
-        },
-        "xunit": "2.2.0-beta2-build3300",
-        "dotnet-test-xunit": "2.2.0-preview2-build1029"
+      "buildOptions": {
+        "compile": {
+          "exclude": [
+            "Framework/Net451/MediumTrust/*.*",
+            "Framework/NetCore10/*.*"
+          ],
+          "excludeFiles": [
+            "Framework/Net451/PerfMonTests.cs",
+            "Framework/Net451/ReplicationTests.cs"
+          ]
+        }
       }
     }
-  },
-  "testRunner": "xunit",
-  "dependencies": {
-    "MySql.Data.Core": "7.0.4-IR-191"
   }
 }

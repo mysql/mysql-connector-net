@@ -1,6 +1,5 @@
 {
-  "version": "7.0.4-IR-*",
-  "name": "MySql.Data.Core",
+  "version": "7.0.4-IR-*",  
   "description": "MySql.Data.MySqlClient .Net Core Class Library",
   "authors": [ "Oracle" ],
   "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
@@ -22,22 +21,41 @@
     "requireLicenseAcceptance": true
   },
   "buildOptions": {
-    "warningsAsErrors": false,
-    "optimize": true,
-    "xmlDoc": true,
-    "keyFile": "../../ConnectorNetPublicKey.snk",
-    "preserveCompilationContext": true,
-    "delaySign": true,
-    "publicSign": false
+  
   },
   "frameworks": {
+    "net451": {
+      "frameworkAssemblies": {
+        "System.ComponentModel.DataAnnotations": "",
+        "System.Data": "",
+        "System.Drawing": "",
+        "System.Drawing.Design": "",
+        "System.Transactions": "",
+        "System.Configuration": "",
+        "System.Configuration.Install": "",
+        "System.Management": "",
+        "System.Xml": "",
+        "System.Runtime": {
+          "type": "build"
+        }
+      },
+      "dependencies": {
+        "Google.Protobuf": "3.0.0-beta4"
+      }
+    },
     "netstandard1.6": {
       "imports": [
         "DNXCORE50"
       ],
       "buildOptions": {
         "define": [ "NETCORE10" ],
-        "warningsAsErrors": false,
+        "warningsAsErrors": false,        
+        "optimize": true,
+        "xmlDoc": true,
+        "keyFile": "../../ConnectorNetPublicKey.snk",
+        "preserveCompilationContext": true,
+        "delaySign": true,
+        "publicSign": false,
         "embed": [
           "keywords.txt",
           "Resources.resx",

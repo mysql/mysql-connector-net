@@ -183,4 +183,7 @@
   <data name="InvalidUriData" xml:space="preserve">
     <value>Invalid Uri </value>
   </data>
+  <data name="TestingResources" xml:space="preserve">
+    <value>Some string value</value>
+  </data>
 </root>

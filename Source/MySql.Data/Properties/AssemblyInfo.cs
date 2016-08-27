@@ -78,7 +78,7 @@ using System.Security;
 //       documentation for more information on this.
 //
 
-#if DEBUG
+#if !NETCORE10
 [assembly: AssemblyDelaySign(true)]
 [assembly: AssemblyKeyFileAttribute(@"..\..\ConnectorNetPublicKey.snk")]
 #endif

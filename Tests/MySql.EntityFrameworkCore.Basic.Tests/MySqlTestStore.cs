@@ -51,8 +51,9 @@ namespace MySql.Data.EntityFrameworkCore.Tests
 
   public class MySQLTestStore : IDisposable
   {
-    //public const string baseConnectionString = "server=localhost;user id=test;password=test;port=3305;sslmode=none;";
-    private static ConfigUtils config = new ConfigUtils("appsettings.json");
+#if NETCORE10    
+        private static ConfigUtils config = new ConfigUtils("appsettings.json");
+#endif
 
     public static string baseConnectionString
     {
@@ -72,9 +73,14 @@ namespace MySql.Data.EntityFrameworkCore.Tests
 
     private static string Port()
     {
-      var port = config.GetPort();
-      
-      if (!string.IsNullOrEmpty(port))
+
+        string port = string.Empty;
+
+#if NETCORE10
+       port = config.GetPort();
+#endif
+
+       if (!string.IsNullOrEmpty(port))
       {
           return port;
       }
