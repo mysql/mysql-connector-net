@@ -3,7 +3,7 @@
   "description": "MySqlX.Data.Tests Class Library",
   "authors": [ "Oracle" ],
   "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
-  "preserveCompilationContext": true,
+
   "packOptions": {
     "projectUrl": "http://dev.mysql.com/downloads/",
     "licenseUrl": "http://www.gnu.org/licenses/old-licenses/gpl-2.0.html",
@@ -13,9 +13,7 @@
   }, 
   "dependencies": {
     "dotnet-test-xunit": "2.2.0-*",
-    "xunit": "2.2.0-*",
-    "Microsoft.EntityFrameworkCore": "1.1.0-*",
-    "Microsoft.EntityFrameworkCore.Relational": "1.0.0-*",
+    "xunit": "2.2.0-*",   
     "Google.Protobuf": "3.0.0-beta4",
     "MySql.Data": {
       "target": "project"
@@ -27,30 +25,44 @@
       "imports": [
         "dnxcore50"
       ],
+      "dependencies": {
+        "Microsoft.NETCore.App": {
+          "version": "1.0.0-*",
+          "type": "platform"
+        }
+      },
       "buildOptions": {
         "define": [ "NETCORE10" ],
         "copyToOutput": [ "appsettings.json" ],
-        "warningsAsErrors": false,
-        "optimize": true,
-        "xmlDoc": true,
+        "warningsAsErrors": false,        
         "embed": [ "Properties/CreateUsers.sql" ],
         "nowarn": [ "CS1591" ],
         "keyFile": "../../ConnectorNetPublicKey.snk",
         "delaySign": true,
         "publicSign": false,
-
         "compile": {
           "include": [ "../*.cs" ]
-        }
-      },
-      "dependencies": {
-        "Microsoft.NETCore.App": {
-          "type": "platform",
-          "version": "1.0.0"
         }
       }
     },
     "net451": {
+    }
+  },
+  "configurations": {
+    "Debug": {
+      "buildOptions": {
+        "define": [ "DEBUG" ],
+        "optimize": false,
+        "preserveCompilationContext": true
+      }
+    },
+    "Release": {
+      "buildOptions": {
+        "define": [ "RELEASE" ],
+        "optimize": true,
+        "preserveCompilationContext": true,
+        "xmlDoc": true
+      }
     }
   },
   "testRunner": "xunit"

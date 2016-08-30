@@ -12,7 +12,7 @@
     "requireLicenseAcceptance": true
   },
 
-  "buildOptions": {   
+  "buildOptions": {
   },
   "dependencies": {
     "dotnet-test-xunit": "2.2.0-*",
@@ -29,36 +29,53 @@
       "target": "project"
     }
   },
-    "frameworks": {
-      "netcoreapp1.0": {
-        "imports": [
-          "dnxcore50"
-        ],
-        "buildOptions": {
-          "define": [ "NETCORE10" ],
-          "copyToOutput": [ "appsettings.json" ],
-          "compile": {
-            "include": [ "../*.cs" ]
-          },
-          "warningsAsErrors": false,
-          "optimize": true,
-          "xmlDoc": true,
-          "nowarn": [ "CS1591" ],
-          "keyFile": "../../ConnectorNetPublicKey.snk",
-          "delaySign": true,
-          "publicSign": false
+  "frameworks": {
+    "netcoreapp1.0": {
+      "imports": [
+        "dnxcore50"
+      ],
+      "buildOptions": {
+        "define": [ "NETCORE10" ],
+        "copyToOutput": [ "appsettings.json" ],
+        "compile": {
+          "include": [ "../*.cs" ]
         },
-        "dependencies": {
-          "Microsoft.NETCore.App": {
-            "type": "platform",
-            "version": "1.0.0"
-          }
-        }
+        "warningsAsErrors": false,
+        "optimize": true,
+        "xmlDoc": true,
+        "nowarn": [ "CS1591" ],
+        "keyFile": "../../ConnectorNetPublicKey.snk",
+        "delaySign": true,
+        "publicSign": false
       },
-      "net451": {
-
+      "dependencies": {
+        "Microsoft.NETCore.App": {
+          "type": "platform",
+          "version": "1.0.0"
+        }
       }
     },
+    "net451": {
 
-    "testRunner": "xunit"
-  }
+    }
+  },
+  "configurations": {
+    "Debug": {
+      "buildOptions": {
+        "define": [ "DEBUG" ],
+        "optimize": false,
+        "preserveCompilationContext": true
+      }
+    },
+    "Release": {
+      "buildOptions": {
+        "define": [ "RELEASE" ],
+        "optimize": true,
+        "preserveCompilationContext": true,
+        "xmlDoc": true
+      }
+    }
+  },
+
+  "testRunner": "xunit"
+}

@@ -25,7 +25,7 @@
     ],
     "requireLicenseAcceptance": true
   },
-  "buildOptions": {   
+  "buildOptions": {
   },
   "dependencies": {
     "dotnet-test-xunit": "2.2.0-*",
@@ -51,8 +51,6 @@
           "include": [ "../*.cs" ]
         },
         "warningsAsErrors": false,
-        "optimize": true,
-        "xmlDoc": true,
         "nowarn": [ "CS1591" ],
         "keyFile": "../../ConnectorNetPublicKey.snk",
         "delaySign": true,
@@ -69,5 +67,23 @@
 
     }
   },
+  "configurations": {
+    "Debug": {
+      "buildOptions": {
+        "define": [ "DEBUG" ],
+        "optimize": false,
+        "preserveCompilationContext": true
+      }
+    },
+    "Release": {
+      "buildOptions": {
+        "define": [ "RELEASE" ],
+        "optimize": true,
+        "preserveCompilationContext": true,
+        "xmlDoc": true
+      }
+    }
+  },
+
   "testRunner": "xunit"
 }

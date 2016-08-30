@@ -19,7 +19,7 @@
     },
     "releaseNotes": "Review ReleaseNotes.txt for details.",
     "requireLicenseAcceptance": true
-  }, 
+  },
   "dependencies": {
     "Microsoft.Extensions.Caching.Memory": "1.1.0-*",
     "Microsoft.Extensions.DependencyInjection": "1.1.0-*",
@@ -40,7 +40,7 @@
         "System.Runtime": {
           "type": "build"
         }
-      }     
+      }
     },
     "netstandard1.6": {
       "dependencies": {
@@ -50,8 +50,24 @@
         "warningsAsErrors": true,
         "keyFile": "../../ConnectorNetPublicKey.snk",
         "delaySign": true,
-        "xmlDoc": false,
         "publicSign": false
+      }
+    }
+  },
+  "configurations": {
+    "Debug": {
+      "buildOptions": {
+        "define": [ "DEBUG" ],
+        "optimize": false,
+        "preserveCompilationContext": true
+      }
+    },
+    "Release": {
+      "buildOptions": {
+        "define": [ "RELEASE" ],
+        "optimize": true,
+        "preserveCompilationContext": true,
+        "xmlDoc": true
       }
     }
   }

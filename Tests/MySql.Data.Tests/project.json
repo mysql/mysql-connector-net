@@ -11,9 +11,6 @@
     "tags": [ "MySql", ".NET Connector", "MySql Connector/NET", "netcore", ".Net Core", "MySql Conector/Net Core", "coreclr", "C/NET", "C/Net Core" ],
     "requireLicenseAcceptance": true
   },
-  "buildOptions": {   
-  },
-  "testRunner": "xunit",
   "dependencies": {
     "dotnet-test-xunit": "2.2.0-*",
     "xunit": "2.2.0-*",
@@ -21,6 +18,9 @@
       "target": "project"
     }
   },
+  "buildOptions": {
+  },
+  "testRunner": "xunit",
   "frameworks": {
     "netcoreapp1.0": {
       "imports": [
@@ -74,14 +74,7 @@
             "TestDataTable.cs"
           ]
         },
-        "warningsAsErrors": false,
-        "optimize": true,
-        "xmlDoc": true,
-        "nowarn": [ "CS1591" ],
-        "keyFile": "../../ConnectorNetPublicKey.snk",
-        "preserveCompilationContext": true,
-        "delaySign": true,
-        "publicSign": false
+        "warningsAsErrors": false
       }
     },
     "net451": {
@@ -122,6 +115,23 @@
             "Framework/Net451/ReplicationTests.cs"
           ]
         }
+      }
+    }
+  },
+  "configurations": {
+    "Debug": {
+      "buildOptions": {
+        "define": [ "DEBUG" ],
+        "optimize": false,
+        "preserveCompilationContext": true
+      }
+    },
+    "Release": {
+      "buildOptions": {
+        "define": [ "RELEASE" ],
+        "optimize": true,
+        "preserveCompilationContext": true,
+        "xmlDoc": true
       }
     }
   }

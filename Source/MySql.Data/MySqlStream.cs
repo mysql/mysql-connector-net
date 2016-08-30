@@ -201,25 +201,18 @@ namespace MySql.Data.MySqlClient
         int offset = 0;
         while (true)
         {
-          ReadFully(inStream, packetHeader, 0, 4);
-          sequenceByte = (byte)(packetHeader[3] + 1);
-          int length = (int)(packetHeader[0] + (packetHeader[1] << 8) +
-            (packetHeader[2] << 16));
+            ReadFully(inStream, packetHeader, 0, 4);
+            sequenceByte = (byte)(packetHeader[3] + 1);
+            int length = (int)(packetHeader[0] + (packetHeader[1] << 8) +
+                (packetHeader[2] << 16));
 
-          // make roo for the next block
-          packet.Length += length;
+            // make roo for the next block
+            packet.Length += length;
+            ReadFully(inStream, packet.Buffer, offset, length);
+            offset += length;
 
-#if RT
-          byte[] tempBuffer = new byte[length];
-          ReadFully(inStream, tempBuffer, offset, length);
-          packet.Write(tempBuffer);
-#else
-          ReadFully(inStream, packet.Buffer, offset, length);
-#endif
-          offset += length;
-
-          // if this block was < maxBlock then it's last one in a multipacket series
-          if (length < maxBlockSize) break;
+            // if this block was < maxBlock then it's last one in a multipacket series
+            if (length < maxBlockSize) break;
         }
         packet.Position = 0;
       }

@@ -83,8 +83,15 @@ namespace MySql.Data.MySqlClient.Tests
         {
             s.Port = Convert.ToUInt32(port);
         }
+        else
+        {
+            s.Port = 3306;
+        }
+
+#else
+      s.Port = 3305;
 #endif
-            
+
       s.UserID = "root";
       s.Password = null;
       s.Server = "localhost";
@@ -94,8 +101,7 @@ namespace MySql.Data.MySqlClient.Tests
 #endif
       s.PersistSecurityInfo = true;
       s.AllowUserVariables = true;
-      s.Pooling = false;
-      s.Port = 3306;
+      s.Pooling = false;     
       s.SslMode = MySqlSslMode.None;
 
       RootSettings = new MySqlConnectionStringBuilder(s.GetConnectionString(true));

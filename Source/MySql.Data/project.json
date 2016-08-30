@@ -1,5 +1,5 @@
 {
-  "version": "7.0.4-IR-*",  
+  "version": "7.0.4-IR-*",
   "description": "MySql.Data.MySqlClient .Net Core Class Library",
   "authors": [ "Oracle" ],
   "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
@@ -21,7 +21,6 @@
     "requireLicenseAcceptance": true
   },
   "buildOptions": {
-  
   },
   "frameworks": {
     "net451": {
@@ -31,6 +30,7 @@
         "System.Drawing": "",
         "System.Drawing.Design": "",
         "System.Transactions": "",
+        "System.Resources.ResourceManager": "",
         "System.Configuration": "",
         "System.Configuration.Install": "",
         "System.Management": "",
@@ -44,16 +44,11 @@
       }
     },
     "netstandard1.6": {
-      "imports": [
-        "DNXCORE50"
-      ],
+      "imports": "dnxcore50",
       "buildOptions": {
         "define": [ "NETCORE10" ],
-        "warningsAsErrors": false,        
-        "optimize": true,
-        "xmlDoc": true,
+        "warningsAsErrors": false,
         "keyFile": "../../ConnectorNetPublicKey.snk",
-        "preserveCompilationContext": true,
         "delaySign": true,
         "publicSign": false,
         "embed": [
@@ -93,17 +88,10 @@
             "common/SocketStream.cs",
             "CompressedStream.cs"
           ]
-        },
-        "optimize": false,
-        "xmlDoc": false,
-        "keyFile": "../../ConnectorNetPublicKey.snk",
-        "preserveCompilationContext": true,
-        "delaySign": true,
-        "publicSign": false
+        }
       },
       "dependencies": {
         "Microsoft.Extensions.Configuration.Json": "1.0.0",
-        "NETStandard.Library": "1.6.0",
         "System.Collections.NonGeneric": "4.0.1",
         "System.ComponentModel": "4.0.1",
         "System.ComponentModel.Annotations": "4.1.0",
@@ -123,6 +111,7 @@
         "System.Net.Sockets": "4.1.0",
         "System.Reflection": "4.1.0",
         "System.Reflection.TypeExtensions": "4.1.0",
+        "System.Resources.ResourceManager": "4.0.1",
         "System.Security.Principal.Windows": "4.0.0",
         "System.Text.Encoding.CodePages": "4.0.1",
         "System.Threading.Timer": "4.0.1",
@@ -130,5 +119,27 @@
         "Google.Protobuf": "3.0.0-beta4"
       }
     }
+  },
+  "dependencies": {
+    "System.Runtime.InteropServices.RuntimeInformation": "4.0.0"
+  },
+
+  "configurations": {
+    "Debug": {
+      "buildOptions": {
+        "define": [ "DEBUG" ],
+        "optimize": false,
+        "preserveCompilationContext": true
+      }
+    },
+    "Release": {
+      "buildOptions": {
+        "define": [ "RELEASE" ],
+        "optimize": true,
+        "preserveCompilationContext": true,
+        "xmlDoc": true
+      }
+    }
   }
+
 }

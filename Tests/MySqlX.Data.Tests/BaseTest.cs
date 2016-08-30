@@ -57,20 +57,19 @@ namespace MySqlX.Data.Tests
 
     private static string Port()
     {
-
-      string port = string.Empty;
-
-#if NETCORE10                
-       config.GetPort();
+#if NETCORE10           
+        string port = string.Empty;
+        config.GetPort();
+        if (!string.IsNullOrEmpty(port))
+        {
+            return port;
+        }
+        return "3306";
+#else
+        
+        return "3305";
 #endif
-
-      if (!string.IsNullOrEmpty(port))
-      {
-          return port;
-      }
-
-      return "3306";
-    }
+        }
 
     public BaseTest()
     {
