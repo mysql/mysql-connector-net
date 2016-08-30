@@ -16,7 +16,10 @@
       "type": "platform",
       "version": "1.0.0"
     },
-    "MySql.Data.Core": "7.0.4-IR-19"  },
+    "MySql.Data": {
+      "target": "project"
+    }
+  },
 
   "frameworks": {
     "netcoreapp1.0": {
