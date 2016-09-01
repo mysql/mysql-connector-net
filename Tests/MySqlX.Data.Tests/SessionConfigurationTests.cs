@@ -21,6 +21,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
+using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Config;
 using System;
 using System.Collections.Generic;
@@ -37,6 +38,52 @@ namespace MySqlX.Data.Tests
     {
       var list = SessionConfigManager.List();
       Assert.Equal(1, list.Count);
+    }
+
+    [Fact]
+    public void Save()
+    {
+      foreach (string name in SessionConfigManager.List())
+      {
+        SessionConfigManager.Delete(name);
+      }
+
+      SessionConfigManager.Save(new SessionConfig("SessionConfig", "myuser@localhost/SessionConfig"));
+      Assert.Equal("SessionConfig", SessionConfigManager.Get("SessionConfig").Name);
+
+      SessionConfigManager.Save("JsonString", "{ \"uri\": \"myuser@localhost/JsonString\" }");
+      Assert.Equal("JsonString", SessionConfigManager.Get("JsonString").Name);
+
+      SessionConfigManager.Save("DbDoc", new DbDoc("{ \"uri\": \"myuser@localhost/DbDoc\" }"));
+      Assert.Equal("JsonString", SessionConfigManager.Get("JsonString").Name);
+
+      Dictionary<string, string> dic = new Dictionary<string, string>();
+      dic.Add("uri", "myuser@localhost/Dictionary");
+      SessionConfigManager.Save("Dictionary", dic);
+      Assert.Equal("Dictionary", SessionConfigManager.Get("Dictionary").Name);
+
+      Dictionary<string, string> dic2 = new Dictionary<string, string>();
+      dic2.Add("user", "myuser");
+      dic2.Add("host", "localhost");
+      dic2.Add("port", "33060");
+      dic2.Add("schema", "Dictionary2");
+      SessionConfigManager.Save("Dictionary2", dic2);
+      Assert.Equal("Dictionary2", SessionConfigManager.Get("Dictionary2").Name);
+      Assert.Equal("myuser@localhost:33060/Dictionary2", SessionConfigManager.Get("Dictionary2").Uri);
+
+      SessionConfigManager.Save("UriJson", "myuser@localhost/urijson", "{ \"ssl-ca\": \"client.pfx\" }");
+      Assert.Equal("UriJson", SessionConfigManager.Get("UriJson").Name);
+
+      Dictionary<string, string> dicAppData = new Dictionary<string, string>();
+      dicAppData.Add("ssl-ca", "client.pfx");
+      SessionConfigManager.Save("UriDic", "myuser@localhost/uridic", dicAppData);
+      Assert.Equal("UriDic", SessionConfigManager.Get("UriDic").Name);
+    }
+
+    [Fact]
+    public void SaveDictionaryData()
+    {
+
     }
   }
 }

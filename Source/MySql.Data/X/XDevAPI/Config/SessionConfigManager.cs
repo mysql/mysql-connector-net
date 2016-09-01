@@ -36,9 +36,11 @@ namespace MySqlX.XDevAPI.Config
 
     public static SessionConfig Save(string name, string uri, string jsonAppData = null)
     {
-      SessionConfig cfg = new SessionConfig(name, uri);
-      // TODO add appdata from json string
-      return persistenceHandler.Save(name, new DbDoc());
+      DbDoc json = new DbDoc();
+      json.SetValue("uri", uri);
+      if (jsonAppData != null)
+        json.SetValue("appdata", new DbDoc(jsonAppData));
+      return Save(name, json);
     }
 
     public static SessionConfig Save(string name, string uri, Dictionary<string, string> appData = null)
@@ -53,14 +55,28 @@ namespace MySqlX.XDevAPI.Config
       return persistenceHandler.Save(name, json);
     }
 
-    public static SessionConfig Save(string name, Dictionary<string, string> appData)
+    public static SessionConfig Save(string name, string json)
     {
-      return persistenceHandler.Save(name, new DbDoc());
+      return Save(name, new DbDoc(json));
+    }
+
+    public static SessionConfig Save(string name, Dictionary<string, string> data)
+    {
+      Dictionary<string, object> values = new Dictionary<string, object>();
+      foreach (var item in data)
+        values.Add(item.Key, item.Value);
+      return Save(name, new DbDoc(values));
     }
 
     public static SessionConfig Save(SessionConfig cfg)
     {
-      return Save(cfg.Name, new DbDoc(cfg.ToJsonString()));
+      Dictionary<string, object> options = new Dictionary<string, object>();
+      options.Add("uri", cfg.Uri);
+      if(cfg.appData.Count > 0)
+      {
+        options.Add("appdata", cfg.appData);
+      }
+      return Save(cfg.Name, new DbDoc(options));
     }
 
     public static SessionConfig Update(SessionConfig cfg)
@@ -71,8 +87,16 @@ namespace MySqlX.XDevAPI.Config
     public static SessionConfig Get(string name)
     {
       DbDoc config = persistenceHandler.Load(name);
-      SessionConfig cfg = new SessionConfig(config["name"], config["uri"]);
-      //TODO add appdata from json string
+      SessionConfig cfg = new SessionConfig(name, config["uri"]);
+      if (config.values.ContainsKey("appdata"))
+      {
+        Dictionary<string, object> appdata = config.values["appdata"] as Dictionary<string, object>;
+        if (appdata != null)
+        {
+          foreach (var option in appdata)
+            cfg.SetAppData(option.Key, option.Value.ToString());
+        }
+      }
       return cfg;
     }
 

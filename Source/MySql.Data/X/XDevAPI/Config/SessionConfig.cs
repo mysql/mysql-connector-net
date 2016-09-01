@@ -31,30 +31,35 @@ namespace MySqlX.XDevAPI.Config
 {
   public class SessionConfig
   {
-    internal Dictionary<string, string> appData = new Dictionary<string, string>();
+    internal Dictionary<string, object> appData = new Dictionary<string, object>();
 
     internal SessionConfig(string name, string uri)
     {
-      
+      if (string.IsNullOrEmpty(name))
+        throw new ArgumentNullException("name");
+      if (string.IsNullOrEmpty(uri))
+        throw new ArgumentNullException("uri");
+      Name = name;
+      Uri = uri;
     }
 
     public string Name { get; protected set; }
 
-    public string Uri { get; set; }
+    public string Uri { get; protected set; }
 
     public void SetAppData(string key, string value)
     {
-
+      appData.Add(key, value);
     }
 
     public void DeleteAppData(string key)
     {
-
+      appData.Remove(key);
     }
 
     public string GetAppData(string key)
     {
-      throw new NotImplementedException();
+      return appData[key].ToString();
     }
 
     public void Save()
@@ -71,8 +76,7 @@ namespace MySqlX.XDevAPI.Config
         string appdataOptions = string.Join(", ", appData.Select(i => $"\"{i.Key}\": \"{i.Value}\""));
         options.Add($"\"appdata\": {{ {appdataOptions} }}");
       }
-      return $"\"{Name}\": {{ {string.Join(", ", options)} }}";
-      
+      return $"{{ \"{Name}\": {{ {string.Join(", ", options)} }} }}";
     }
   }
 }

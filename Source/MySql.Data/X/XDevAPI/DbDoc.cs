@@ -36,7 +36,7 @@ namespace MySqlX.XDevAPI
   /// </summary>
   public class DbDoc
   {
-    private Dictionary<string, object> values = new Dictionary<string, object>();
+    internal Dictionary<string, object> values = new Dictionary<string, object>();
 
     /// <summary>
     /// Constructs a DbDoc with the given value.  The value can be a domain object, anonymous object, or JSON string.
@@ -48,6 +48,8 @@ namespace MySqlX.XDevAPI
       {
         if (val is string)
           values = JsonParser.Parse(val as string);
+        else if (val is Dictionary<string, object>)
+          values = JsonParser.Parse(DictToString(val as Dictionary<string, object>));
         else
           values = ParseObject(val);
       }
@@ -88,11 +90,21 @@ namespace MySqlX.XDevAPI
 
     private string GetValue(string path)
     {
-      if (!values.ContainsKey(path))
-        throw new InvalidOperationException(
-          String.Format(ResourcesX.PathNotFound, path));
-      ///TODO:  implement full path here.  This is currently only one level deep
-      return values[path].ToString();
+      string[] levels = path.Split('.');
+      Dictionary<string,object> dic = values;
+      string returnValue = null;
+      foreach(string level in levels)
+      {
+        if (!dic.ContainsKey(level))
+          throw new InvalidOperationException(
+            String.Format(ResourcesX.PathNotFound, path));
+        if (dic[level] is Dictionary<string, object>)
+          dic = dic[level] as Dictionary<string, object>;
+        else
+          returnValue = dic[level].ToString();
+      }
+
+      return returnValue;
     }
 
     /// <summary>

@@ -22,6 +22,7 @@
 
 
 using MySql.Data;
+using MySqlX.Serialization;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -33,7 +34,7 @@ namespace MySqlX.XDevAPI.Config
 {
   internal class DefaultPersistenceHandler : IPersistenceHandler
   {
-    private Dictionary<string, string> list;
+    private Dictionary<string, object> list;
     private readonly string fileName = "MySQLsessions.json";
     private readonly string programdataFile;
     private readonly string appdataFile;
@@ -77,15 +78,49 @@ namespace MySqlX.XDevAPI.Config
     public DbDoc Load(string name)
     {
       LoadConfigData();
-      string value = list[name];
-      return new DbDoc($"{{ \"{name}\": {value} }}");
+      return new DbDoc(list[name]);
     }
 
     public SessionConfig Save(string name, DbDoc config)
     {
+      // validates json
+      bool hasUri = false, hasHost = false;
+      foreach(string key in config.values.Keys)
+      {
+        switch (key)
+        {
+          case "uri":
+            if (hasHost)
+              throw new ArgumentException("Json configuration must contain 'uri' or 'host' but not both.");
+            if (string.IsNullOrEmpty(config["uri"]))
+              throw new ArgumentNullException("uri");
+            hasUri = true;
+            break;
+          case "host":
+          case "user":
+          case "password":
+          case "port":
+          case "schema":
+            if (hasUri)
+              throw new ArgumentException("Json configuration must contain 'uri' or 'connection attributes' but not both.");
+            hasHost = true;
+            break;
+          case "appdata":
+            break;
+          default:
+            throw new FormatException("Json configuration has a bad format.");
+        }
+      }
+      if (hasHost)
+      {
+        if (string.IsNullOrEmpty(config["host"]))
+          throw new ArgumentNullException("host");
+        config.SetValue("uri", $"{(config.values.ContainsKey("user") ? config["user"] + "@" : "")}{config["host"]}{(config.values.ContainsKey("port") ? ":" + config["port"] : "")}{(config.values.ContainsKey("schema") ? "/" + config["schema"] : "")}");
+      }
+
       var data = ReadConfigData(appdataFile);
       SessionConfig sessionConfig = new SessionConfig(name, config["uri"]);
-      data.Add(name, config.ToString());
+      data.Add(name, config);
       DbDoc json = new DbDoc(data);
       File.WriteAllText(appdataFile, json.ToString());
       return sessionConfig;
@@ -94,7 +129,7 @@ namespace MySqlX.XDevAPI.Config
 
     private void LoadConfigData()
     {
-      list = new Dictionary<string, string>();
+      list = new Dictionary<string, object>();
 
       //Load system configuration data (read only)
       if (!string.IsNullOrEmpty(programdataFile))
@@ -112,20 +147,13 @@ namespace MySqlX.XDevAPI.Config
     }
 
 
-    private Dictionary<string, string> ReadConfigData(string path)
+    private Dictionary<string, object> ReadConfigData(string path)
     {
-      Dictionary<string, string> configList = new Dictionary<string, string>();
-
       try
       {
-        if (!File.Exists(path)) return configList;
+        if (!File.Exists(path)) return new Dictionary<string, object>();
         string fileData = File.ReadAllText(path);
-        var data = Serialization.JsonParser.Parse(fileData);
-        foreach (var item in data)
-        {
-          configList[item.Key] = item.Value.ToString();
-        }
-        return configList;
+        return JsonParser.Parse(fileData);
       }
       catch(Exception ex)
       {
