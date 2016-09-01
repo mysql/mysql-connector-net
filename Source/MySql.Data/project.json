@@ -1,14 +1,26 @@
-{
+﻿{
   "version": "7.0.4-IR-*",
   "description": "MySql.Data.MySqlClient .Net Core Class Library",
-  "authors": [ "Oracle" ],
+  "authors": [
+    "Oracle"
+  ],
   "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
   "language": "en-US",
   "packOptions": {
     "projectUrl": "http://dev.mysql.com/downloads/",
     "licenseUrl": "http://www.gnu.org/licenses/old-licenses/gpl-2.0.html",
     "iconUrl": "http://www.mysql.com/common/logos/logo-mysql-170x115.png",
-    "tags": [ "MySql", ".NET Connector", "MySql Connector/NET", "netcore", ".Net Core", "MySql Conector/Net Core", "coreclr", "C/NET", "C/Net Core" ],
+    "tags": [
+      "MySql",
+      ".NET Connector",
+      "MySql Connector/NET",
+      "netcore",
+      ".Net Core",
+      "MySql Conector/Net Core",
+      "coreclr",
+      "C/NET",
+      "C/Net Core"
+    ],
     "files": {
       "includeFiles": [
         "Content/ReleaseNotes.txt"
@@ -20,7 +32,13 @@
     "releaseNotes": "Review ReleaseNotes.txt for details.",
     "requireLicenseAcceptance": true
   },
-  "buildOptions": {
+  "buildOptions": {},
+  "runtimes": {
+    "win": {}
+  },
+  "dependencies": {
+    "Google.Protobuf": "3.0.0",
+    "System.Runtime.InteropServices.RuntimeInformation": "4.0.0"
   },
   "frameworks": {
     "net451": {
@@ -39,14 +57,14 @@
           "type": "build"
         }
       },
-      "dependencies": {
-        "Google.Protobuf": "3.0.0-beta4"
-      }
+      "dependencies": {}
     },
     "netstandard1.6": {
       "imports": "dnxcore50",
       "buildOptions": {
-        "define": [ "NETCORE10" ],
+        "define": [
+          "NETCORE10"
+        ],
         "warningsAsErrors": false,
         "keyFile": "../../ConnectorNetPublicKey.snk",
         "delaySign": true,
@@ -56,7 +74,9 @@
           "Resources.resx",
           "ResourcesX.resx"
         ],
-        "resource": [ "**/*.resx" ],
+        "resource": [
+          "**/*.resx"
+        ],
         "compile": {
           "exclude": [
             "Framework/Net451/**/*.*",
@@ -115,31 +135,29 @@
         "System.Security.Principal.Windows": "4.0.0",
         "System.Text.Encoding.CodePages": "4.0.1",
         "System.Threading.Timer": "4.0.1",
-        "System.Threading.ThreadPool": "4.0.10",
-        "Google.Protobuf": "3.0.0-beta4"
+        "System.Threading.ThreadPool": "4.0.10"
       }
     }
   },
-  "dependencies": {
-    "System.Runtime.InteropServices.RuntimeInformation": "4.0.0"
-  },
-
   "configurations": {
     "Debug": {
       "buildOptions": {
-        "define": [ "DEBUG" ],
+        "define": [
+          "DEBUG"
+        ],
         "optimize": false,
         "preserveCompilationContext": true
       }
     },
     "Release": {
       "buildOptions": {
-        "define": [ "RELEASE" ],
+        "define": [
+          "RELEASE"
+        ],
         "optimize": true,
         "preserveCompilationContext": true,
         "xmlDoc": true
       }
     }
   }
-
 }

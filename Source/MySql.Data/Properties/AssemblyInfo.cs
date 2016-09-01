@@ -40,7 +40,6 @@ using System.Security;
 #if !NETCORE10
 [assembly: SecurityRules(SecurityRuleSet.Level1)]
 [assembly: CLSCompliant(false)]
-[assembly: AllowPartiallyTrustedCallers()]
 #endif
 
 // Setting ComVisible to false makes the types in this assembly not visible
@@ -78,11 +77,8 @@ using System.Security;
 //       documentation for more information on this.
 //
 
-#if !NETCORE10
-[assembly: AssemblyDelaySign(true)]
-[assembly: AssemblyKeyFileAttribute(@"..\..\ConnectorNetPublicKey.snk")]
-#endif
 [assembly: AssemblyKeyName("ConnectorNet")]
+[assembly: AllowPartiallyTrustedCallers()]
 
 [assembly: InternalsVisibleTo("MySql.Data.Tests, PublicKey = 0024000004800000940000000602000000240000525341310004000001000100d973bda91f71752c78294126974a41a08643168271f65fc0fb3cd45f658da01fbca75ac74067d18e7afbf1467d7a519ce0248b13719717281bb4ddd4ecd71a580dfe0912dfc3690b1d24c7e1975bf7eed90e4ab14e10501eedf763bff8ac204f955c9c15c2cf4ebf6563d8320b6ea8d1ea3807623141f4b81ae30a6c886b3ee1")]
 [assembly: InternalsVisibleTo("MySql.Data.Entity, PublicKey = 0024000004800000940000000602000000240000525341310004000001000100d973bda91f71752c78294126974a41a08643168271f65fc0fb3cd45f658da01fbca75ac74067d18e7afbf1467d7a519ce0248b13719717281bb4ddd4ecd71a580dfe0912dfc3690b1d24c7e1975bf7eed90e4ab14e10501eedf763bff8ac204f955c9c15c2cf4ebf6563d8320b6ea8d1ea3807623141f4b81ae30a6c886b3ee1")]
