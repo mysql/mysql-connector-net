@@ -26,11 +26,11 @@
     "frameworks": {
       "net451": {
         "buildOptions": {
-          "define": [ "EF6" ]
+          "define": [ "EF6" ],
+          "keyFile": "../../ConnectorNetPublicKey.snk",
+          "delaySign": true,
+          "publicSign": false
         },
-        "keyFile": "../../ConnectorNetPublicKey.snk",
-        "delaySign": true,
-        "publicSign": false,
         "frameworkAssemblies": {
           "System.Data": "",
           "System.ComponentModel.DataAnnotations": "",

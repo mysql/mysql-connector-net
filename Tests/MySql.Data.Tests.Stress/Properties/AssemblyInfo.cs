@@ -23,6 +23,7 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Security;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
@@ -41,8 +42,9 @@ using System.Runtime.InteropServices;
 // COM, set the ComVisible attribute to true on that type.
 [assembly: ComVisible(false)]
 
+[assembly: AssemblyKeyName("ConnectorNet")]
+[assembly: AllowPartiallyTrustedCallers]
+
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("02681727-f306-4923-8c16-717d6f1716ce")]
 
-[assembly: AssemblyDelaySign(true)]
-[assembly: AssemblyKeyFileAttribute(@"..\..\ConnectorNetPublicKey.snk")]
