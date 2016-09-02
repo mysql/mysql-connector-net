@@ -32,7 +32,11 @@
     "releaseNotes": "Review ReleaseNotes.txt for details.",
     "requireLicenseAcceptance": true
   },
-  "buildOptions": {},
+  "buildOptions": {
+    "keyFile": "../../ConnectorNetPublicKey.snk",
+    "delaySign": true,
+    "publicSign": false
+  },
   "runtimes": {
     "win": {}
   },
@@ -66,9 +70,6 @@
           "NETCORE10"
         ],
         "warningsAsErrors": false,
-        "keyFile": "../../ConnectorNetPublicKey.snk",
-        "delaySign": true,
-        "publicSign": false,
         "embed": [
           "keywords.txt",
           "Resources.resx",
