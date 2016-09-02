@@ -54,11 +54,13 @@ namespace MySql.Data.Tests.Stress
 
   }
 
-  /// <summary>
-  /// This is a companion of the previous class to allow customization before inialization code.
-  /// </summary>
-  public class SpecialFixtureWithCustomConnectionString : IUseFixture<SetUpClassPerTestInit>, IDisposable
-  {
+    /// <summary>
+    /// This is a companion of the previous class to allow customization before inialization code.
+    /// </summary>
+
+    //public class SpecialFixtureWithCustomConnectionString : IUseFixture<SetUpClassPerTestInit>, IDisposable
+    public class SpecialFixtureWithCustomConnectionString : IDisposable
+    {
     protected SetUpClassPerTestInit st;
 
     public virtual void SetFixture(SetUpClassPerTestInit data)

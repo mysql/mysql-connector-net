@@ -59,8 +59,8 @@ namespace MySql.Data.Tests.Stress
       using (MySqlConnection c = new MySqlConnection(st.GetConnectionString(true)))
       {
         c.Open();
-        byte[] dataIn = Utils.CreateBlob(len);
-        byte[] dataIn2 = Utils.CreateBlob(len);
+        byte[] dataIn = MySql.Data.MySqlClient.Tests.Utils.CreateBlob(len);
+        byte[] dataIn2 = MySql.Data.MySqlClient.Tests.Utils.CreateBlob(len);
 
         MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?id, NULL, ?blob, NULL )", c);
         cmd.CommandTimeout = 0;
