@@ -42,6 +42,7 @@
           "System.Data.DataSetExtensions": "",
           "System.Security": "",
           "System.Xml": "",
+          "System.Runtime.Serialization": "",
           "System.Runtime": {
             "type": "build"
           }

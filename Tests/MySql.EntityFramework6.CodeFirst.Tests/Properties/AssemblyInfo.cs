@@ -27,11 +27,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("MySql.Data.Entity.CodeFirst.Tests")]
+[assembly: AssemblyTitle("MySql.EF6.CodeFirst.Tests")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Oracle")]
-[assembly: AssemblyProduct("MySql.Data.Entity.CodeFirst.Tests")]
+[assembly: AssemblyProduct("MySql.EF6.CodeFirst.Tests")]
 [assembly: AssemblyCopyright("Copyright © 2011, 2015, Oracle and/or its affiliates. All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -56,3 +56,4 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyDelaySign(true)]
 [assembly: AssemblyKeyFileAttribute(@"..\..\ConnectorNetPublicKey.snk")]
+
