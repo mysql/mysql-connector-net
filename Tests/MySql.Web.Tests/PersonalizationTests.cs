@@ -1,4 +1,4 @@
-﻿// Copyright © 2014 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2014, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -34,7 +34,6 @@ using System.Web.Security;
 using System.Configuration;
 using MySql.Web.Personalization;
 using System.Web.UI.WebControls.WebParts;
-using MySql.Data.MySqlClient.Tests;
 
 namespace MySql.Web.Tests
 {
@@ -68,7 +67,7 @@ namespace MySql.Web.Tests
 
       
       // personalization all users      
-      byte[] settings = Utils.CreateBlob(1000);
+      byte[] settings = CreateBlob(1000);
 
       cmd.CommandText = @"insert into my_aspnet_personalizationallusers(pathid, pagesettings, lastUpdatedDate) values(" +
                         "'" + pathId.ToString() + "',   @pageSettings, @LastUpdatedDate)";
@@ -80,7 +79,17 @@ namespace MySql.Web.Tests
     }
 
 
-    private void CreateDataForUserScope()
+    public static byte[] CreateBlob(int size)
+    {
+        byte[] buf = new byte[size];
+
+        Random r = new Random();
+        r.NextBytes(buf);
+        return buf;
+    }
+
+
+        private void CreateDataForUserScope()
     {
       var cmd = new MySqlCommand();
       cmd.CommandText = @"insert into my_aspnet_applications(name,description) values('\\', '\\')";
@@ -104,7 +113,7 @@ namespace MySql.Web.Tests
       var userId = cmd.LastInsertedId;
       
       // personalization per user      
-      byte[] settings = Utils.CreateBlob(1000);
+      byte[] settings = CreateBlob(1000);
       
       cmd.CommandText = @"insert into my_aspnet_personalizationperuser(applicationId, pathid, userId, pagesettings, lastUpdatedDate) values(" + 
                         applicationId + ", '" + pathId.ToString() + "', " + userId + ", @pageSettings, @LastUpdatedDate)";
