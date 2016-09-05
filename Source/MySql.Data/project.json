@@ -36,10 +36,7 @@
     "keyFile": "../../ConnectorNetPublicKey.snk",
     "delaySign": true,
     "publicSign": false
-  },
-  "runtimes": {
-    "win": {}
-  },
+  }, 
   "dependencies": {
     "Google.Protobuf": "3.0.0",
     "System.Runtime.InteropServices.RuntimeInformation": "4.0.0"

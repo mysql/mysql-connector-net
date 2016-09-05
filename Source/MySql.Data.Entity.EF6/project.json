@@ -16,35 +16,49 @@
       "MySql Connector/NET"
     ],
     "requireLicenseAcceptance": true
-   },
-    "dependencies": {
-      "EntityFramework": "6.1.3",
-      "MySql.Data": {
-        "target": "project"
-      }
-    },
-    "frameworks": {
-      "net451": {
-        "buildOptions": {
-          "define": [ "EF6" ],
-          "keyFile": "../../ConnectorNetPublicKey.snk",
-          "delaySign": true,
-          "publicSign": false
-        },
-        "frameworkAssemblies": {
-          "System.Data": "",
-          "System.ComponentModel.DataAnnotations": "",
-          "System.Core": "",
-          "System.Data.DataSetExtensions": "",
-          "System.Security": "",
-          "System.Xml": "",
-          "System.Runtime": {
-            "type": "build"
-          }
+  },
+  "dependencies": {
+    "EntityFramework": "6.1.3",
+    "MySql.Data": {
+      "target": "project"
+    }
+  },
+  "frameworks": {
+    "net451": {
+      "buildOptions": {
+        "define": [ "EF6" ],
+        "keyFile": "../../ConnectorNetPublicKey.snk",
+        "delaySign": true,
+        "publicSign": false
+      },
+      "frameworkAssemblies": {
+        "System.Data": "",
+        "System.ComponentModel.DataAnnotations": "",
+        "System.Core": "",
+        "System.Data.DataSetExtensions": "",
+        "System.Security": "",
+        "System.Xml": "",
+        "System.Runtime": {
+          "type": "build"
         }
       }
+    }
+  },
+  "configurations": {
+    "Debug": {
+      "buildOptions": {
+        "define": [ "DEBUG" ],
+        "optimize": false,
+        "preserveCompilationContext": true
+      }
     },
-    "runtimes": {
-      "win": {}
+    "Release": {
+      "buildOptions": {
+        "define": [ "RELEASE" ],
+        "optimize": true,
+        "preserveCompilationContext": true,
+        "xmlDoc": true        
+      }
     }
   }
+}
