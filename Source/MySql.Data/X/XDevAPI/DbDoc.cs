@@ -50,6 +50,8 @@ namespace MySqlX.XDevAPI
           values = JsonParser.Parse(val as string);
         else if (val is Dictionary<string, object>)
           values = JsonParser.Parse(DictToString(val as Dictionary<string, object>));
+        else if (val is DbDoc)
+          values = JsonParser.Parse(DictToString((val as DbDoc).values));
         else
           values = ParseObject(val);
       }
@@ -119,10 +121,14 @@ namespace MySqlX.XDevAPI
 
       if (e != null)
         values[key] = GetArrayValues(e);
+      else if (val is DbDoc)
+        values[key] = (val as DbDoc).values;
+      else if (val is Dictionary<string, object>)
+        values[key] = val;
       else if (t.Namespace != "System")
-          values[key] = ParseObject(val);
+        values[key] = ParseObject(val);
       else
-          values[key] = val;
+        values[key] = val;
     }
 
     private Dictionary<string,object>[] GetArrayValues(IEnumerable value)

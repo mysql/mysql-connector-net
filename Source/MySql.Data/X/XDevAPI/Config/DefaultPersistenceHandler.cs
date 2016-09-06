@@ -83,43 +83,15 @@ namespace MySqlX.XDevAPI.Config
 
     public SessionConfig Save(string name, DbDoc config)
     {
-      // validates json
-      bool hasUri = false, hasHost = false;
-      foreach(string key in config.values.Keys)
-      {
-        switch (key)
-        {
-          case "uri":
-            if (hasHost)
-              throw new ArgumentException("Json configuration must contain 'uri' or 'host' but not both.");
-            if (string.IsNullOrEmpty(config["uri"]))
-              throw new ArgumentNullException("uri");
-            hasUri = true;
-            break;
-          case "host":
-          case "user":
-          case "password":
-          case "port":
-          case "schema":
-            if (hasUri)
-              throw new ArgumentException("Json configuration must contain 'uri' or 'connection attributes' but not both.");
-            hasHost = true;
-            break;
-          case "appdata":
-            break;
-          default:
-            throw new FormatException("Json configuration has a bad format.");
-        }
-      }
-      if (hasHost)
-      {
-        if (string.IsNullOrEmpty(config["host"]))
-          throw new ArgumentNullException("host");
-        config.SetValue("uri", $"{(config.values.ContainsKey("user") ? config["user"] + "@" : "")}{config["host"]}{(config.values.ContainsKey("port") ? ":" + config["port"] : "")}{(config.values.ContainsKey("schema") ? "/" + config["schema"] : "")}");
-      }
-
       var data = ReadConfigData(appdataFile);
       SessionConfig sessionConfig = new SessionConfig(name, config["uri"]);
+      if (config.values.ContainsKey("appdata"))
+      {
+        var appdata = config.values["appdata"] as Dictionary<string, object>;
+        if (appdata == null)
+          throw new FormatException("appdata");
+        appdata.ToList().ForEach(i => sessionConfig.SetAppData(i.Key, i.Value.ToString()));
+      }
       data.Add(name, config);
       DbDoc json = new DbDoc(data);
       File.WriteAllText(appdataFile, json.ToString());

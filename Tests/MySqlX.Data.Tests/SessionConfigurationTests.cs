@@ -26,6 +26,7 @@ using MySqlX.XDevAPI.Config;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -33,57 +34,137 @@ namespace MySqlX.Data.Tests
 {
   public class SessionConfigurationTests
   {
-    [Fact]
-    public void ListConfigurations()
-    {
-      var list = SessionConfigManager.List();
-      Assert.Equal(1, list.Count);
-    }
-
-    [Fact]
-    public void Save()
+    public SessionConfigurationTests()
     {
       foreach (string name in SessionConfigManager.List())
       {
         SessionConfigManager.Delete(name);
       }
+    }
 
-      SessionConfigManager.Save(new SessionConfig("SessionConfig", "myuser@localhost/SessionConfig"));
-      Assert.Equal("SessionConfig", SessionConfigManager.Get("SessionConfig").Name);
+    [Fact]
+    public void Save()
+    {
+      SessionConfig scSave = new SessionConfig("SessionConfig", "mysqlx://myuser@localhost/SessionConfig");
+      scSave.SetAppData("alias", "SessionConfigAlias");
+      SessionConfigManager.Save(scSave);
+      SessionConfig sc = SessionConfigManager.Get("SessionConfig");
+      Assert.Equal("SessionConfig", sc.Name);
+      Assert.Equal("mysqlx://myuser@localhost/SessionConfig", sc.Uri);
+      Assert.Equal("SessionConfigAlias", sc.GetAppData("alias"));
 
-      SessionConfigManager.Save("JsonString", "{ \"uri\": \"myuser@localhost/JsonString\" }");
-      Assert.Equal("JsonString", SessionConfigManager.Get("JsonString").Name);
+      SessionConfigManager.Save("JsonString", "{ \"uri\": \"mysqlx://myuser@localhost/JsonString\", \"appdata\": { \"alias\": \"JsonStringAlias\" } }");
+      sc = SessionConfigManager.Get("JsonString");
+      Assert.Equal("JsonString", sc.Name);
+      Assert.Equal("mysqlx://myuser@localhost/JsonString", sc.Uri);
+      Assert.Equal("JsonStringAlias", sc.GetAppData("alias"));
 
-      SessionConfigManager.Save("DbDoc", new DbDoc("{ \"uri\": \"myuser@localhost/DbDoc\" }"));
-      Assert.Equal("JsonString", SessionConfigManager.Get("JsonString").Name);
+      SessionConfigManager.Save("DbDoc", new DbDoc("{ \"uri\": \"mysqlx://myuser@localhost/DbDoc\", \"appdata\": { \"alias\": \"DbDocAlias\" } }"));
+      sc = SessionConfigManager.Get("DbDoc");
+      Assert.Equal("DbDoc", sc.Name);
+      Assert.Equal("mysqlx://myuser@localhost/DbDoc", sc.Uri);
+      Assert.Equal("DbDocAlias", sc.GetAppData("alias"));
 
       Dictionary<string, string> dic = new Dictionary<string, string>();
-      dic.Add("uri", "myuser@localhost/Dictionary");
+      dic.Add("uri", "mysqlx://myuser@localhost/Dictionary");
+      dic.Add("alias", "DictionaryAlias");
       SessionConfigManager.Save("Dictionary", dic);
-      Assert.Equal("Dictionary", SessionConfigManager.Get("Dictionary").Name);
+      sc = SessionConfigManager.Get("Dictionary");
+      Assert.Equal("Dictionary", sc.Name);
+      Assert.Equal("mysqlx://myuser@localhost/Dictionary", sc.Uri);
+      Assert.Equal("DictionaryAlias", sc.GetAppData("alias"));
 
       Dictionary<string, string> dic2 = new Dictionary<string, string>();
       dic2.Add("user", "myuser");
       dic2.Add("host", "localhost");
       dic2.Add("port", "33060");
       dic2.Add("schema", "Dictionary2");
+      dic2.Add("alias", "Dictionary2Alias");
       SessionConfigManager.Save("Dictionary2", dic2);
-      Assert.Equal("Dictionary2", SessionConfigManager.Get("Dictionary2").Name);
-      Assert.Equal("myuser@localhost:33060/Dictionary2", SessionConfigManager.Get("Dictionary2").Uri);
+      sc = SessionConfigManager.Get("Dictionary2");
+      Assert.Equal("Dictionary2", sc.Name);
+      Assert.Equal("mysqlx://myuser@localhost:33060/Dictionary2", sc.Uri);
+      Assert.Equal("Dictionary2Alias", sc.GetAppData("alias"));
 
-      SessionConfigManager.Save("UriJson", "myuser@localhost/urijson", "{ \"ssl-ca\": \"client.pfx\" }");
-      Assert.Equal("UriJson", SessionConfigManager.Get("UriJson").Name);
+      SessionConfigManager.Save("UriJson", "mysqlx://myuser@localhost/UriJson", "{ \"alias\": \"UriJsonAlias\" }");
+      sc = SessionConfigManager.Get("UriJson");
+      Assert.Equal("UriJson", sc.Name);
+      Assert.Equal("mysqlx://myuser@localhost/UriJson", sc.Uri);
+      Assert.Equal("UriJsonAlias", sc.GetAppData("alias"));
 
       Dictionary<string, string> dicAppData = new Dictionary<string, string>();
-      dicAppData.Add("ssl-ca", "client.pfx");
-      SessionConfigManager.Save("UriDic", "myuser@localhost/uridic", dicAppData);
-      Assert.Equal("UriDic", SessionConfigManager.Get("UriDic").Name);
+      dicAppData.Add("alias", "UriDicAlias");
+      SessionConfigManager.Save("UriDic", "mysqlx://myuser@localhost/UriDic", dicAppData);
+      sc = SessionConfigManager.Get("UriDic");
+      Assert.Equal("UriDic", sc.Name);
+      Assert.Equal("mysqlx://myuser@localhost/UriDic", sc.Uri);
+      Assert.Equal("UriDicAlias", sc.GetAppData("alias"));
     }
 
     [Fact]
     public void SaveDictionaryData()
     {
+      Dictionary<string, string> dic = new Dictionary<string, string>();
+      List<string[]> combination = new List<string[]>();
+      dic.Add("user", "myuser");
+      dic.Add("port", "33060");
+      dic.Add("schema", "Dictionary");
+      dic.Add("alias", "DictionaryAlias");
 
+      for(int i = 0; i < dic.Count; i++)
+      {
+        Combinations(dic.Select(c => c.Key).ToList(), i + 1).ForEach(k => combination.Add(k));
+      }
+
+      int counter = 1;
+      foreach (string[] values in combination)
+      {
+        Dictionary<string, string> dicTest = new Dictionary<string, string>();
+        dicTest.Add("host", "localhost");
+        values.ToList().ForEach(o => dicTest.Add(o, dic[o]));
+
+        string name = "Dictionary" + string.Join("", values);
+        SessionConfigManager.Save(name, dicTest);
+        SessionConfig sc = SessionConfigManager.Get(name);
+        Assert.Equal(name, sc.Name);
+
+        StringBuilder uri = new StringBuilder("mysqlx://");
+        if (dicTest.ContainsKey("user"))
+          uri.Append(dicTest["user"]).Append("@");
+        uri.Append(dicTest["host"]);
+        if (dicTest.ContainsKey("port"))
+          uri.Append(":").Append(dicTest["port"]);
+        if (dicTest.ContainsKey("schema"))
+          uri.Append("/").Append(dicTest["schema"]);
+
+        Assert.Equal(uri.ToString(), sc.Uri);
+        if (dicTest.ContainsKey("alias"))
+          Assert.Equal("DictionaryAlias", sc.GetAppData("alias"));
+        counter++;
+      }
+    }
+
+    private List<T[]> Combinations<T>(List<T> elements, int members)
+    {
+      List<T[]> list = new List<T[]>();
+      for(int i = 0; i <= (elements.Count - members); i++)
+      {
+        if (members > 1)
+        {
+          Combinations(elements.Skip(i + 1).ToList(), members - 1).ForEach(m =>
+          {
+            List<T> tupla = new List<T>();
+            tupla.Add(elements.ElementAt(i));
+            tupla.AddRange(m);
+            list.Add(tupla.ToArray());
+          });
+        }
+        else
+        {
+          list.Add(new T[] { elements.ElementAt(i) });
+        }
+      }
+      return list;
     }
   }
 }

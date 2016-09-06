@@ -62,10 +62,47 @@ namespace MySqlX.XDevAPI.Config
 
     public static SessionConfig Save(string name, Dictionary<string, string> data)
     {
-      Dictionary<string, object> values = new Dictionary<string, object>();
-      foreach (var item in data)
-        values.Add(item.Key, item.Value);
-      return Save(name, new DbDoc(values));
+      DbDoc json = new DbDoc();
+      Dictionary<string, object> appdata = new Dictionary<string, object>();
+      bool hasUri = false, hasHost = false;
+      foreach (string key in data.Keys)
+      {
+        switch (key)
+        {
+          case "uri":
+            if (hasHost)
+              throw new ArgumentException("Json configuration must contain 'uri' or 'host' but not both.");
+            if (string.IsNullOrEmpty(data["uri"]))
+              throw new ArgumentNullException("uri");
+            json.SetValue("uri", data["uri"]);
+            hasUri = true;
+            break;
+          case "host":
+          case "user":
+          case "password":
+          case "port":
+          case "schema":
+            if (hasUri)
+              throw new ArgumentException("Json configuration must contain 'uri' or 'connection attributes' but not both.");
+            hasHost = true;
+            break;
+          default:
+            appdata.Add(key, data[key]);
+            break;
+        }
+      }
+      if (hasHost)
+      {
+        if (string.IsNullOrEmpty(data["host"]))
+          throw new ArgumentNullException("host");
+        json.SetValue("uri", $"mysqlx://{(data.ContainsKey("user") ? data["user"] + "@" : "")}{data["host"]}{(data.ContainsKey("port") ? ":" + data["port"] : "")}{(data.ContainsKey("schema") ? "/" + data["schema"] : "")}");
+      }
+      if(appdata.Count > 0)
+      {
+        json.SetValue("appdata", appdata);
+      }
+
+      return Save(name, json);
     }
 
     public static SessionConfig Save(SessionConfig cfg)

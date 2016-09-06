@@ -45,7 +45,7 @@ namespace MySqlX.XDevAPI.Config
 
     public string Name { get; protected set; }
 
-    public string Uri { get; protected set; }
+    public string Uri { get; set; }
 
     public void SetAppData(string key, string value)
     {
