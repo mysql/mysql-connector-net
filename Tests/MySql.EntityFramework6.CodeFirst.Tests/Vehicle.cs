@@ -27,19 +27,12 @@ using System.Text;
 using System.Data.Entity;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-#if !EF6
-#if NET_45_OR_GREATER
-using System.Data.Spatial;
-#endif
-#endif
-
 
 
 namespace MySql.Data.Entity.CodeFirst.Tests
 {
-#if EF6
+
   [DbConfigurationType(typeof(MySqlEFConfiguration))]
-#endif
   public class VehicleDbContext : DbContext
   {
     public DbSet<Vehicle> Vehicles { get; set; }

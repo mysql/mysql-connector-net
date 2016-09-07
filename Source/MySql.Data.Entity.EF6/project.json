@@ -1,0 +1,64 @@
+﻿{
+  "version": "7.0.4-IR-*",
+  "description": "MySql.Data.Entity.EF6",
+  "authors": [
+    "Oracle"
+  ],
+  "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
+  "language": "en-US",
+  "packOptions": {
+    "projectUrl": "http://dev.mysql.com/downloads/",
+    "licenseUrl": "http://www.gnu.org/licenses/old-licenses/gpl-2.0.html",
+    "iconUrl": "http://www.mysql.com/common/logos/logo-mysql-170x115.png",
+    "tags": [
+      "MySql",
+      ".NET Connector",
+      "MySql Connector/NET"
+    ],
+    "requireLicenseAcceptance": true
+  },
+  "dependencies": {
+    "EntityFramework": "6.1.3",
+    "MySql.Data": {
+      "target": "project"
+    }
+  },
+  "frameworks": {
+    "net451": {
+      "buildOptions": {
+        "define": [ "EF6" ],
+        "keyFile": "../../ConnectorNetPublicKey.snk",
+        "delaySign": true,
+        "publicSign": false
+      },
+      "frameworkAssemblies": {
+        "System.Data": "",
+        "System.ComponentModel.DataAnnotations": "",
+        "System.Core": "",
+        "System.Data.DataSetExtensions": "",
+        "System.Security": "",
+        "System.Xml": "",
+        "System.Runtime": {
+          "type": "build"
+        }
+      }
+    }
+  },
+  "configurations": {
+    "Debug": {
+      "buildOptions": {
+        "define": [ "DEBUG" ],
+        "optimize": false,
+        "preserveCompilationContext": true
+      }
+    },
+    "Release": {
+      "buildOptions": {
+        "define": [ "RELEASE" ],
+        "optimize": true,
+        "preserveCompilationContext": true,
+        "xmlDoc": true        
+      }
+    }
+  }
+}

@@ -32,12 +32,16 @@ using System.Data.Common;
 
 namespace MySql.Data.MySqlClient
 {
-  /// <summary>
-  /// Represents a parameter to a <see cref="MySqlCommand"/>, This class cannot be inherited.
-  /// </summary>
-  public sealed partial class MySqlParameter : ICloneable
-  {
-    private const int UNSIGNED_MASK = 0x8000;
+    /// <summary>
+    /// Represents a parameter to a <see cref="MySqlCommand"/>, This class cannot be inherited.
+    /// </summary>
+#if !NETCORE10
+    public sealed partial class MySqlParameter : System.ICloneable
+#else
+    public sealed partial class MySqlParameter : MySql.Data.Common.ICloneable
+#endif
+    {
+        private const int UNSIGNED_MASK = 0x8000;
     private object _paramValue;
     private string _paramName;
     private MySqlDbType _mySqlDbType;
@@ -85,9 +89,9 @@ namespace MySql.Data.MySqlClient
 
     partial void Init();
 
-    #endregion
+#endregion
 
-    #region Properties
+#region Properties
 
     [Category("Misc")]
     public override String ParameterName
@@ -129,7 +133,7 @@ namespace MySql.Data.MySqlClient
     /// Gets or sets the MySqlDbType of the parameter.
     /// </summary>
     [Category("Data")]
-    [DbProviderSpecificTypeProperty(true)]
+    [MySql.Data.Common.DbProviderSpecificTypeProperty(true)]
     public MySqlDbType MySqlDbType
     {
       get { return _mySqlDbType; }
@@ -313,7 +317,7 @@ namespace MySql.Data.MySqlClient
     }
 
 #if !NETCORE10
-    object ICloneable.Clone()
+    object System.ICloneable.Clone()
     {
       return this.Clone();
     }

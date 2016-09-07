@@ -35,9 +35,13 @@ using MySql.Data.Common;
 
 namespace MySql.Data.MySqlClient
 {
-  /// <include file='docs/mysqlcommand.xml' path='docs/ClassSummary/*'/> 
-  public sealed partial class MySqlCommand : ICloneable, IDisposable
-  {
+    /// <include file='docs/mysqlcommand.xml' path='docs/ClassSummary/*'/> 
+#if !NETCORE10
+    public sealed partial class MySqlCommand : System.ICloneable, IDisposable
+#else
+    public sealed partial class MySqlCommand : MySql.Data.Common.ICloneable, IDisposable
+#endif
+    {
     MySqlConnection connection;
     string cmdText;
     long updatedRowCount;
@@ -834,7 +838,7 @@ namespace MySql.Data.MySqlClient
     partial void PartialClone(MySqlCommand clone);
 
 #if !NETCORE10
-    object ICloneable.Clone()
+    object System.ICloneable.Clone()
     {
       return Clone();
     }

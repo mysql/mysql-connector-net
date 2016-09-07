@@ -1,0 +1,62 @@
+﻿{
+  "version": "7.0.4-IR-*",
+  "description": "MySql.Web.Tests",
+  "authors": [
+    "Oracle"
+  ],
+  "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
+  "language": "en-US",
+  "packOptions": {
+    "projectUrl": "http://dev.mysql.com/downloads/",
+    "licenseUrl": "http://www.gnu.org/licenses/old-licenses/gpl-2.0.html",
+    "iconUrl": "http://www.mysql.com/common/logos/logo-mysql-170x115.png",
+    "tags": [
+      "MySql",
+      ".NET Connector",
+      "MySql Connector/NET"
+    ],
+    "requireLicenseAcceptance": true
+   },
+  "dependencies": {
+    "xunit": "1.9.2",
+    "MySql.Data": {
+      "target": "project"
+    },   
+    "MySql.Web": {
+      "target": "project"
+    },
+    "MySql.EntityFramework6.Basic.Tests": {
+      "target": "project"
+    }
+  },
+    "frameworks": {
+      "net451": {
+        "keyFile": "../../ConnectorNetPublicKey.snk",
+        "delaySign": true,
+        "publicSign": false,
+        "dependencies": {    
+          "Microsoft.AspNet.Razor": "3.2.3",
+          "Microsoft.AspNet.WebPages": "3.2.3",
+          "Microsoft.AspNet.WebPages.Data": "3.2.3",
+          "Microsoft.AspNet.WebPages.WebData": "3.2.3",
+          "Microsoft.Web.Infrastructure": "1.0.0",
+          "WebMatrix.WebData": "2.0.30506"
+        },
+        "frameworkAssemblies": {
+          "System.ComponentModel.DataAnnotations": "",
+          "System.Configuration.Install": "4.0.0.0",
+          "System.Core": "",
+          "System.Data": "",
+          "System.Data.DataSetExtensions": "",
+          "System.Management": "4.0.0.0",
+          "System.Runtime": {
+            "type": "build"
+          },
+          "System.Security": "",
+          "System.Web": "4.0.0.0",
+          "System.Web.ApplicationServices": "4.0.0.0",
+          "System.Xml": ""
+        }
+      }
+    }
+}

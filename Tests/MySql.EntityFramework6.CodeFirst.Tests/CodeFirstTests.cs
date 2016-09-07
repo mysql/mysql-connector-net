@@ -30,14 +30,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
-using MySql.Data.Entity.CodeFirst.Tests.Properties;
 using MySql.Data.MySqlClient;
-using MySql.Data.MySqlClient.Tests;
-using System.Xml.Linq;
 using System.Collections.Generic;
 using Xunit;
 using System.Data.Entity.Spatial;
-
+using MySql.Data.Entity.Tests;
+using MySql.EntityFramework6.CodeFirst.Tests.Properties;
 
 namespace MySql.Data.Entity.CodeFirst.Tests
 {

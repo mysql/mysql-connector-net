@@ -3,24 +3,21 @@
   "description": "MySqlX.Data.Tests Class Library",
   "authors": [ "Oracle" ],
   "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
-  "preserveCompilationContext": true,
+
   "packOptions": {
     "projectUrl": "http://dev.mysql.com/downloads/",
     "licenseUrl": "http://www.gnu.org/licenses/old-licenses/gpl-2.0.html",
     "iconUrl": "http://www.mysql.com/common/logos/logo-mysql-170x115.png",
     "tags": [ "MySql", ".NET Connector", "MySql Connector/NET", "netcore", ".Net Core", "MySql Conector/Net Core", "coreclr", "C/NET", "C/Net Core" ],
     "requireLicenseAcceptance": true
-  },
-
-  "buildOptions": {
-    "warningsAsErrors": false,
-    "optimize": true,
-    "xmlDoc": true,
-    "embed": [ "Properties/CreateUsers.sql" ],
-    "nowarn": [ "CS1591" ],
-    "keyFile": "../../ConnectorNetPublicKey.snk",
-    "delaySign": true,
-    "publicSign": false
+  }, 
+  "dependencies": {
+    "dotnet-test-xunit": "2.2.0-*",
+    "xunit": "2.2.0-*",   
+    "Google.Protobuf": "3.0.0-beta4",
+    "MySql.Data": {
+      "target": "project"
+    }
   },
 
   "frameworks": {
@@ -28,29 +25,45 @@
       "imports": [
         "dnxcore50"
       ],
+      "dependencies": {
+        "Microsoft.NETCore.App": {
+          "version": "1.0.0-*",
+          "type": "platform"
+        }
+      },
       "buildOptions": {
         "define": [ "NETCORE10" ],
         "copyToOutput": [ "appsettings.json" ],
+        "warningsAsErrors": false,        
+        "embed": [ "Properties/CreateUsers.sql" ],
+        "nowarn": [ "CS1591" ],
+        "keyFile": "../../ConnectorNetPublicKey.snk",
+        "delaySign": true,
+        "publicSign": false,
         "compile": {
           "include": [ "../*.cs", "../../Source/MySql.Data/Properties/VersionInfo.cs" ]
         }
-      },
-      "dependencies": {
-        "Microsoft.NETCore.App": {
-          "type": "platform",
-          "version": "1.0.0"
-        },
-        "xunit": "2.2.0-beta2-build3300",
-        "dotnet-test-xunit": "2.2.0-preview2-build1029",
-        "Google.Protobuf": "3.0.0-beta4",
-        "System.Reflection": "4.1.0"
+      }
+    },
+    "net451": {
+    }
+  },
+  "configurations": {
+    "Debug": {
+      "buildOptions": {
+        "define": [ "DEBUG" ],
+        "optimize": false,
+        "preserveCompilationContext": true
+      }
+    },
+    "Release": {
+      "buildOptions": {
+        "define": [ "RELEASE" ],
+        "optimize": true,
+        "preserveCompilationContext": true,
+        "xmlDoc": true
       }
     }
   },
-
-  "testRunner": "xunit",
-
-  "dependencies": {
-    "MySql.Data": "7.0.5-IR2*"
-  }
+  "testRunner": "xunit"
 }

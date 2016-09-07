@@ -1,28 +1,74 @@
 {
   "version": "7.0.5-IR2-*",
-
   "description": "MySql.Data.EntityFrameworkCore for Entity Framework.",
-  "buildOptions": {
-    "warningsAsErrors": true,
-    "keyFile": "../../ConnectorNetPublicKey.snk",
-    "delaySign": true,
-    "xmlDoc": false,
-    "publicSign": false
+  "authors": [ "Oracle" ],
+  "copyright": "Copyright � 2016, Oracle and/or its affiliates. All rights reserved.",
+  "language": "en-US",
+  "packOptions": {
+    "projectUrl": "http://dev.mysql.com/downloads/",
+    "licenseUrl": "http://www.gnu.org/licenses/old-licenses/gpl-2.0.html",
+    "iconUrl": "http://www.mysql.com/common/logos/logo-mysql-170x115.png",
+    "tags": [ "MySql", ".NET Connector", "MySql Entity Framework Core", "netcore", ".Net Core", "MySql Conector/Net Entity Framework Core", "coreclr", "C/NET", "C/Net Core" ],
+    "files": {
+      "includeFiles": [
+        "Content/ReleaseNotes.txt"
+      ],
+      "include": [
+        "../../README"
+      ]
+    },
+    "releaseNotes": "Review ReleaseNotes.txt for details.",
+    "requireLicenseAcceptance": true
   },
-
-
   "dependencies": {
-    //"Microsoft.EntityFrameworkCore": "1.0.0",
-    //"Microsoft.EntityFrameworkCore.Relational": "1.0.0",
-    "NETStandard.Library": "1.6.0",
-    "MySql.Data": "7.0.5-IR2*",
+    "Microsoft.Extensions.Caching.Memory": "1.0.0",
+    "Microsoft.Extensions.DependencyInjection": "1.0.0",
+    "Microsoft.Extensions.Logging": "1.0.0",
+    "Remotion.Linq": "2.1.1",
+    "System.Collections.Immutable": "1.2.0",
+    "System.Interactive.Async": "3.0.0",
+    "Microsoft.EntityFrameworkCore": "1.0.0",
     "Microsoft.EntityFrameworkCore.Relational": "1.0.0",
-    "Microsoft.EntityFrameworkCore": "1.0.0"
+    "MySql.Data": {
+      "target": "project"
+    }
   },
-
   "frameworks": {
+    "net451": {
+      "frameworkAssemblies": {
+        "System.ComponentModel.DataAnnotations": "",
+        "System.Runtime": {
+          "type": "build"
+        }
+      }
+    },
     "netstandard1.6": {
-      "imports": [ "dnxcore50", "portable-net451+win81+wp81" ]
+      "dependencies": {
+        "NETStandard.Library": "1.6.0"
+      },
+      "buildOptions": {
+        "warningsAsErrors": false,
+        "keyFile": "../../ConnectorNetPublicKey.snk",
+        "delaySign": true,
+        "publicSign": false
+      }
+    }
+  },
+  "configurations": {
+    "Debug": {
+      "buildOptions": {
+        "define": [ "DEBUG" ],
+        "optimize": false,
+        "preserveCompilationContext": true
+      }
+    },
+    "Release": {
+      "buildOptions": {
+        "define": [ "RELEASE" ],
+        "optimize": true,
+        "preserveCompilationContext": true,
+        "xmlDoc": true
+      }
     }
   }
 }

@@ -13,15 +13,22 @@
   },
 
   "buildOptions": {
-    "warningsAsErrors": false,
-    "optimize": true,
-    "xmlDoc": true,
-    "nowarn": [ "CS1591" ],
-    "keyFile": "../../ConnectorNetPublicKey.snk",
-    "delaySign": true,
-    "publicSign": false
   },
-
+  "dependencies": {
+    "dotnet-test-xunit": "2.2.0-*",
+    "xunit": "2.2.0-*",
+    "Microsoft.EntityFrameworkCore": "1.0.0",
+    "Microsoft.EntityFrameworkCore.Relational": "1.0.0",
+    "MySql.Data": {
+      "target": "project"
+    },
+    "MySql.Data.EntityFrameworkCore": {
+      "target": "project"
+    },
+    "MySql.EntityFrameworkCore.Basic.Tests": {
+      "target": "project"
+    }
+  },
   "frameworks": {
     "netcoreapp1.0": {
       "imports": [
@@ -32,17 +39,40 @@
         "copyToOutput": [ "appsettings.json" ],
         "compile": {
           "include": [ "../*.cs" ]
-        }
+        },
+        "warningsAsErrors": false,
+        "optimize": true,
+        "xmlDoc": true,
+        "nowarn": [ "CS1591" ],
+        "keyFile": "../../ConnectorNetPublicKey.snk",
+        "delaySign": true,
+        "publicSign": false
       },
       "dependencies": {
         "Microsoft.NETCore.App": {
           "type": "platform",
           "version": "1.0.0"
-        },
-        "xunit": "2.2.0-beta2-build3300",
-        "dotnet-test-xunit": "2.2.0-preview2-build1029",
-        "Microsoft.EntityFrameworkCore": "1.0.0",
-        "Microsoft.EntityFrameworkCore.Relational": "1.0.0"
+        }
+      }
+    },
+    "net451": {
+
+    }
+  },
+  "configurations": {
+    "Debug": {
+      "buildOptions": {
+        "define": [ "DEBUG" ],
+        "optimize": false,
+        "preserveCompilationContext": true
+      }
+    },
+    "Release": {
+      "buildOptions": {
+        "define": [ "RELEASE" ],
+        "optimize": true,
+        "preserveCompilationContext": true,
+        "xmlDoc": true
       }
     }
   },

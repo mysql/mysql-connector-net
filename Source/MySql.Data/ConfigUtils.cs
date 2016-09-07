@@ -20,11 +20,13 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.Extensions.Configuration;
 
 namespace MySql.Data.MySqlClient
 {
-  public class ConfigUtils
+#if NETCORE10
+    using Microsoft.Extensions.Configuration;
+
+    public class ConfigUtils
   {
       private IConfiguration _configuration; 
       public ConfigUtils(string settingsFile)
@@ -44,4 +46,5 @@ namespace MySql.Data.MySqlClient
           return GetValue("MySql:Data:Port");
       }
   }
+#endif
 }

@@ -25,6 +25,8 @@ using System.Data;
 using System.Data.Common;
 using System.ComponentModel;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Threading;
 #if NET_45_OR_GREATER
 using System.Threading.Tasks;
 using System.Threading;
@@ -305,7 +307,7 @@ namespace MySql.Data.MySqlClient
         RowUpdated(this, (value as MySqlRowUpdatedEventArgs));
     }
 
-#if NET_45_OR_GREATER
+
     #region Async
     #region Fill
     /// <summary>
@@ -1060,7 +1062,7 @@ namespace MySql.Data.MySqlClient
 
     #endregion
     #endregion
-#endif
+
   }
 
   /// <summary>
