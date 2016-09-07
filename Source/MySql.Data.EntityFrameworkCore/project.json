@@ -20,6 +20,12 @@
     "releaseNotes": "Review ReleaseNotes.txt for details.",
     "requireLicenseAcceptance": true
   },
+  "buildOptions": {    
+      "warningsAsErrors": false,
+      "keyFile": "../../ConnectorNetPublicKey.snk",
+      "delaySign": true,
+      "publicSign": false
+  },
   "dependencies": {
     "Microsoft.Extensions.Caching.Memory": "1.0.0",
     "Microsoft.Extensions.DependencyInjection": "1.0.0",
@@ -45,13 +51,7 @@
     "netstandard1.6": {
       "dependencies": {
         "NETStandard.Library": "1.6.0"
-      },
-      "buildOptions": {
-        "warningsAsErrors": false,
-        "keyFile": "../../ConnectorNetPublicKey.snk",
-        "delaySign": true,
-        "publicSign": false
-      }
+      }  
     }
   },
   "configurations": {
