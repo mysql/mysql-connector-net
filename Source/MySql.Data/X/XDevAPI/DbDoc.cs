@@ -49,9 +49,9 @@ namespace MySqlX.XDevAPI
         if (val is string)
           values = JsonParser.Parse(val as string);
         else if (val is Dictionary<string, object>)
-          values = JsonParser.Parse(DictToString(val as Dictionary<string, object>));
+          values = JsonParser.Parse(DictToString(val as Dictionary<string, object>, 2));
         else if (val is DbDoc)
-          values = JsonParser.Parse(DictToString((val as DbDoc).values));
+          values = JsonParser.Parse(DictToString((val as DbDoc).values, 2));
         else
           values = ParseObject(val);
       }
@@ -145,37 +145,49 @@ namespace MySqlX.XDevAPI
     /// <returns>Json formatted string</returns>
     public override string ToString()
     {
-      return DictToString(values);
+      return DictToString(values, 2);
     }
 
-    private string DictToString(Dictionary<string, object> vals)
+    private string DictToString(Dictionary<string, object> vals, int ident)
     {
-      StringBuilder json = new StringBuilder("{ ");
+      StringBuilder json = new StringBuilder("{");
       string delimiter = "";
       foreach (string key in vals.Keys)
       {
-        json.AppendFormat("{2}\"{0}\": {1}", key, GetValue(vals[key]), delimiter);
+        json.Append(delimiter);
+        json.AppendLine();
+        json.Append(' ', ident);
+        json.AppendFormat("\"{0}\": {1}", key, GetValue(vals[key], ident));
         delimiter = ", ";
       }
-      json.Append(" }");
+      json.AppendLine();
+      json.Append(' ', ident - 2);
+      json.Append("}");
       return json.ToString();
     }
 
-    private string GetValue(object val)
+    private string GetValue(object val, int ident)
     {
       if(val.GetType().IsArray)
       {
-        string values = "[ ";
+
+        StringBuilder values = new StringBuilder("[");
         string separator = string.Empty;
         foreach (var item in (Array)val)
         {
-          values += separator + GetValue(item);
+          values.Append(separator);
+          values.AppendLine();
+          values.Append(' ', ident + 2);
+          values.Append(GetValue(item, ident + 2));
           separator = ", ";
         }
-        return values + " ]";
+        values.AppendLine();
+        values.Append(' ', ident);
+        values.Append("]");
+        return values.ToString();
       }
       if (val is Dictionary<string, object>)
-        return DictToString(val as Dictionary<string, object>);
+        return DictToString(val as Dictionary<string, object>, ident + 2);
       string quoteChar = "";
       Type type = val.GetType();
       if (val is string || val is DateTime)
