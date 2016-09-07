@@ -118,7 +118,8 @@ namespace MySqlX.XDevAPI.Config
 
     public static SessionConfig Update(SessionConfig cfg)
     {
-      throw new NotImplementedException();
+      Delete(cfg.Name);
+      return Save(cfg);
     }
 
     public static SessionConfig Get(string name)

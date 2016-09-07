@@ -64,7 +64,7 @@ namespace MySqlX.XDevAPI.Config
 
     public void Save()
     {
-
+      SessionConfigManager.Save(this);
     }
 
     public string ToJsonString()

@@ -166,5 +166,20 @@ namespace MySqlX.Data.Tests
       }
       return list;
     }
+
+    [Fact]
+    public void Update()
+    {
+      SessionConfigManager.Save("Update", "mysqlx://localhost/database1", (string)null);
+      SessionConfig sc = SessionConfigManager.Get("Update");
+      Assert.Equal("Update", sc.Name);
+      Assert.Equal("mysqlx://localhost/database1", sc.Uri);
+
+      sc.Uri = "mysqlx://localhost/database20";
+      SessionConfigManager.Update(sc);
+      sc = SessionConfigManager.Get("Update");
+      Assert.Equal("Update", sc.Name);
+      Assert.Equal("mysqlx://localhost/database20", sc.Uri);
+    }
   }
 }
