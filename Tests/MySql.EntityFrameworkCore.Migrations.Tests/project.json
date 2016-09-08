@@ -1,5 +1,5 @@
 {
-  "version": "7.0.5-IR2-*",
+  "version": "7.0.5-IR21-*",
   "description": "MySql.EntityFrameworkCore.Migrations.Tests Class Library",
   "authors": [ "Oracle" ],
   "copyright": "Copyright � 2016, Oracle and/or its affiliates. All rights reserved.",
@@ -80,8 +80,8 @@
   "testRunner": "xunit",
 
   "dependencies": {
-    "MySql.Data": "7.0.5-IR2*",
-    "MySql.Data.EntityFrameworkCore": "7.0.4-*",
-    "MySql.EntityFrameworkCore.Basic.Tests": "7.0.4-IR-*"
+    "MySql.Data": "7.0.5-IR21*",
+    "MySql.Data.EntityFrameworkCore": "7.0.5-IR21*",
+    "MySql.EntityFrameworkCore.Basic.Tests": "7.0.5-IR21-*"
   }
 }
