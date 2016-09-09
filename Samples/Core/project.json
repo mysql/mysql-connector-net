@@ -16,7 +16,8 @@
       "type": "platform",
       "version": "1.0.0"
     },
-    "MySql.Data": "7.0.5-IR2-*"
+
+    "MySql.Data": {
       "target": "project"
     }
   },
