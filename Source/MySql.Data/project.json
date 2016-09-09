@@ -1,5 +1,5 @@
-{
-  "version": "7.0.5-IR2-*",
+﻿{
+  "version": "7.0.5-IR21-*",
   "description": "MySql.Data.MySqlClient .Net Core Class Library",
   "authors": [
     "Oracle"
@@ -48,8 +48,7 @@
         "System.Data": "",
         "System.Drawing": "",
         "System.Drawing.Design": "",
-        "System.Transactions": "",
-        "System.Resources.ResourceManager": "",
+        "System.Transactions": "",        
         "System.Configuration": "",
         "System.Configuration.Install": "",
         "System.Management": "",

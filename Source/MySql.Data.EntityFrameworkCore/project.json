@@ -1,5 +1,5 @@
 {
-  "version": "7.0.5-IR2-*",
+  "version": "7.0.5-IR21-*",
   "description": "MySql.Data.EntityFrameworkCore for Entity Framework.",
   "authors": [ "Oracle" ],
   "copyright": "Copyright ? 2016, Oracle and/or its affiliates. All rights reserved.",
@@ -20,11 +20,20 @@
     "releaseNotes": "Review ReleaseNotes.txt for details.",
     "requireLicenseAcceptance": true
   },
+  "buildOptions": {    
+      "warningsAsErrors": false,
+      "keyFile": "../../ConnectorNetPublicKey.snk",
+      "delaySign": true,
+      "publicSign": false
+  },
   "dependencies": {
-    //"Microsoft.EntityFrameworkCore": "1.0.0",
-    //"Microsoft.EntityFrameworkCore.Relational": "1.0.0",
-    "NETStandard.Library": "1.6.0",
-    "MySql.Data": "7.0.5-IR2*",
+    "Microsoft.Extensions.Caching.Memory": "1.0.0",
+    "Microsoft.Extensions.DependencyInjection": "1.0.0",
+    "Microsoft.Extensions.Logging": "1.0.0",
+    "Remotion.Linq": "2.1.1",
+    "System.Collections.Immutable": "1.2.0",
+    "System.Interactive.Async": "3.0.0",
+    "Microsoft.EntityFrameworkCore": "1.0.0",
     "Microsoft.EntityFrameworkCore.Relational": "1.0.0",
     "MySql.Data": {
       "target": "project"
@@ -42,13 +51,7 @@
     "netstandard1.6": {
       "dependencies": {
         "NETStandard.Library": "1.6.0"
-      },
-      "buildOptions": {
-        "warningsAsErrors": false,
-        "keyFile": "../../ConnectorNetPublicKey.snk",
-        "delaySign": true,
-        "publicSign": false
-      }
+      }  
     }
   },
   "configurations": {
