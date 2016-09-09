@@ -71,7 +71,20 @@ namespace MySqlX.Session
     public static InternalSession GetSession(MySqlConnectionStringBuilder settings)
     {
       InternalSession session = new XInternalSession(settings);
-      session.Open();
+      int count = 0;
+      do
+      {
+        try
+        {
+          session.Open();
+          break;
+        }
+        catch (IOException)
+        {
+          // retry ssl connection (manual fallback)
+          if (count++ >= 5) throw;
+        }
+      } while (true);
       return session;
     }
 

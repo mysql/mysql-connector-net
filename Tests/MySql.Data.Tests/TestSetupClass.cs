@@ -102,7 +102,7 @@ namespace MySql.Data.MySqlClient.Tests
       s.PersistSecurityInfo = true;
       s.AllowUserVariables = true;
       s.Pooling = false;     
-      s.SslMode = MySqlSslMode.None;
+      s.SslMode = MySqlSslMode.Preferred;
 
       RootSettings = new MySqlConnectionStringBuilder(s.GetConnectionString(true));
       Settings = new MySqlConnectionStringBuilder(s.GetConnectionString(true));

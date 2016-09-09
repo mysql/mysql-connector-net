@@ -37,6 +37,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.Sql;
 using MySql.Data.EntityFrameworkCore.Storage.Internal;
+using MySQL.Data.EntityFrameworkCore.Migrations.Internal;
 
 namespace MySQL.Data.EntityFrameworkCore
 {

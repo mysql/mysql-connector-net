@@ -22,6 +22,9 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using MySQL.Data.EntityFrameworkCore.Infraestructure;
+using MySQL.Data.EntityFrameworkCore.Infraestructure.Internal;
+using System;
 using System.Data.Common;
 
 namespace MySQL.Data.EntityFrameworkCore.Extensions
@@ -31,7 +34,9 @@ namespace MySQL.Data.EntityFrameworkCore.Extensions
   /// </summary>
   public static class MySQLDbContextOptionsExtensions
     {
-        public static MySQLDbContextOptionsBuilder UseMySQL(this DbContextOptionsBuilder optionsBuilder, string connectionString)
+        public static DbContextOptionsBuilder UseMySQL(this DbContextOptionsBuilder optionsBuilder,
+            string connectionString,
+            Action<MySQLDbContextOptionsBuilder> MySQLOptionsAction = null)
         {
             var extension = optionsBuilder.Options.FindExtension<MySQLOptionsExtension>();
             if (extension == null)
@@ -41,22 +46,40 @@ namespace MySQL.Data.EntityFrameworkCore.Extensions
             IDbContextOptionsBuilderInfrastructure o = optionsBuilder as IDbContextOptionsBuilderInfrastructure;
             o.AddOrUpdateExtension(extension);
 
-            return new MySQLDbContextOptionsBuilder(optionsBuilder);
+            MySQLOptionsAction?.Invoke(new MySQLDbContextOptionsBuilder(optionsBuilder));
+
+            return optionsBuilder;
         }
 
-        public static MySQLDbContextOptionsBuilder UseMySQL(this DbContextOptionsBuilder optionsBuilder, DbConnection connection)
+        public static DbContextOptionsBuilder UseMySQL(this DbContextOptionsBuilder optionsBuilder,
+                                                            DbConnection connection,
+                                                            Action<MySQLDbContextOptionsBuilder> MySQLOptionsAction = null)            
         {
-            var extension = optionsBuilder.Options.FindExtension<MySQLOptionsExtension>();
-            if (extension == null)
-                extension = new MySQLOptionsExtension();
+            var extension = GetOrCreateExtension(optionsBuilder);            
             extension.Connection = connection;
-
             IDbContextOptionsBuilderInfrastructure o = optionsBuilder as IDbContextOptionsBuilderInfrastructure;
             o.AddOrUpdateExtension(extension);
-
-            return new MySQLDbContextOptionsBuilder(optionsBuilder);
+            MySQLOptionsAction?.Invoke(new MySQLDbContextOptionsBuilder(optionsBuilder));
+            return optionsBuilder;
         }
 
+
+        public static DbContextOptionsBuilder<TContext> UseMySQL<TContext>(
+           this DbContextOptionsBuilder<TContext> optionsBuilder,
+           string connectionString,
+           Action<MySQLDbContextOptionsBuilder> MySQLOptionsAction = null)
+           where TContext : DbContext
+           => (DbContextOptionsBuilder<TContext>)UseMySQL(
+               (DbContextOptionsBuilder)optionsBuilder, connectionString, MySQLOptionsAction);
+
+
+        public static DbContextOptionsBuilder<TContext> UseMySQL<TContext>(
+         [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
+         [NotNull] DbConnection connection,
+         [CanBeNull] Action<MySQLDbContextOptionsBuilder> MySQLOptionsAction = null)
+         where TContext : DbContext
+         => (DbContextOptionsBuilder<TContext>)UseMySQL(
+             (DbContextOptionsBuilder)optionsBuilder, connection, MySQLOptionsAction);
 
 
         private static MySQLOptionsExtension GetOrCreateExtension(DbContextOptionsBuilder optionsBuilder)

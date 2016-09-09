@@ -23,6 +23,7 @@
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using MySQL.Data.EntityFrameworkCore.Metadata;
+using MySQL.Data.EntityFrameworkCore.Metadata.Internal;
 
 namespace MySQL.Data.EntityFrameworkCore
 {
@@ -35,50 +36,50 @@ namespace MySQL.Data.EntityFrameworkCore
       return new RelationalEntityTypeAnnotations(entityType, MySQLFullAnnotationNames.Instance);
     }
 
-    public static RelationalEntityTypeAnnotations MySQL([NotNull] this EntityType entityType)
+    public static RelationalEntityTypeAnnotations MySQL(this EntityType entityType)
     {
       return (RelationalEntityTypeAnnotations)MySQL((IEntityType)entityType);
     }
 
-    public static RelationalModelAnnotations MySQL([NotNull] this Model model)
+    public static RelationalModelAnnotations MySQL(this Model model)
     {
       return MySQL((IModel)model);
     }
 
-    public static RelationalModelAnnotations MySQL([NotNull] this IModel model)
+    public static RelationalModelAnnotations MySQL(this IModel model)
     {
       ThrowIf.Argument.IsNull(model, "model");
       return new RelationalModelAnnotations(model, MySQLFullAnnotationNames.Instance);
     }
 
-    public static RelationalKeyAnnotations MySQL([NotNull] this Key key)
+    public static RelationalKeyAnnotations MySQL(this Key key)
     {
       return (RelationalKeyAnnotations)MySQL((IKey)key);
     }
 
-    public static RelationalKeyAnnotations MySQL([NotNull] this IKey key)
+    public static RelationalKeyAnnotations MySQL(this IKey key)
     {
       ThrowIf.Argument.IsNull(key, "key");
       return new RelationalKeyAnnotations(key, MySQLFullAnnotationNames.Instance);
     }
 
-    public static IRelationalForeignKeyAnnotations MySQL([NotNull] this IForeignKey foreignKey)
+    public static IRelationalForeignKeyAnnotations MySQL(this IForeignKey foreignKey)
     {
       ThrowIf.Argument.IsNull(foreignKey, "foreignKey");
       return new RelationalForeignKeyAnnotations(foreignKey, MySQLFullAnnotationNames.Instance);
     }
 
-    public static RelationalForeignKeyAnnotations MySQL([NotNull] this ForeignKey foreignKey)
+    public static RelationalForeignKeyAnnotations MySQL(this ForeignKey foreignKey)
     {
       return (RelationalForeignKeyAnnotations)MySQL((IForeignKey)foreignKey);
     }
 
-    public static RelationalIndexAnnotations MySQL([NotNull] this Index index)
+    public static RelationalIndexAnnotations MySQL(this Index index)
     {
       return (RelationalIndexAnnotations)MySQL((IIndex)index);
     }
 
-    public static IRelationalIndexAnnotations MySQL([NotNull] this IIndex index)
+    public static IRelationalIndexAnnotations MySQL(this IIndex index)
     {
       ThrowIf.Argument.IsNull(index, "index");
       return new RelationalIndexAnnotations(index, MySQLFullAnnotationNames.Instance);
@@ -91,7 +92,7 @@ namespace MySQL.Data.EntityFrameworkCore
       return new MySQLPropertyAnnotations(property);
     }
 
-    public static MySQLPropertyAnnotations MySQL([NotNull] this Property property)
+    public static MySQLPropertyAnnotations MySQL(this Property property)
     {
       return (MySQLPropertyAnnotations)MySQL((IProperty)property);
     }

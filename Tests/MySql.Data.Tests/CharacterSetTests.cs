@@ -32,12 +32,12 @@ namespace MySql.Data.MySqlClient.Tests
   {
     protected TestSetup ts;
 
-    public CharacterSetTests(TestSetup setup): base(setup, "characterset")
+    public CharacterSetTests(TestSetup setup) : base(setup, "characterset")
     {
       ts = setup;
-    }    
+    }
 
-   [Fact]
+    [Fact]
     public void UseFunctions()
     {
       executeSQL("CREATE TABLE Test (valid char, UserCode varchar(100), password varchar(100)) CHARSET latin1");
@@ -50,7 +50,7 @@ namespace MySql.Data.MySqlClient.Tests
       c.Close();
     }
 
-   [Fact]
+    [Fact]
     public void VarBinary()
     {
       if (ts.version < new Version(4, 1)) return;
@@ -67,8 +67,8 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-   [Fact]
-   public void Latin1Connection()
+    [Fact]
+    public void Latin1Connection()
     {
       if (ts.version < new Version(4, 1)) return;
 
@@ -106,7 +106,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 #endif
 
-   [Fact]
+    [Fact]
     public void UTF8BlogsTruncating()
     {
 
@@ -276,7 +276,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #40076	"Functions Return String" option does not set the proper encoding for the string
     /// </summary>
-   [Fact]
+    [Fact]
     public void FunctionReturnsStringWithCharSet()
     {
       string connStr = ts.GetConnection(true).ConnectionString + ";functions return string=true";
@@ -328,7 +328,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 #endif
 
-   [Fact]
+    [Fact]
     public void RussianErrorMessagesShowCorrectly()
     {
       if (ts.version < new Version(5, 5))
@@ -385,306 +385,309 @@ namespace MySql.Data.MySqlClient.Tests
     }
 #endif
 
-   /// <summary>
-   /// Test for fix of Connector/NET cannot read data from a MySql table using UTF-16/UTF-32
-   /// (MySql bug #69169, Oracle bug #16776818).
-   /// </summary>
-   [Fact]
-   public void UsingUtf16()
-   {
-     MySqlConnection con = new MySqlConnection(ts.GetConnection(false).ConnectionString);
-     con.Open();
-     try
-     {
-       MySqlCommand cmd = new MySqlCommand("", con);
-       cmd.CommandText = "drop table if exists `actor`";
-       cmd.ExecuteNonQuery();
-       cmd.CommandText = @"CREATE TABLE `actor` (
+    /// <summary>
+    /// Test for fix of Connector/NET cannot read data from a MySql table using UTF-16/UTF-32
+    /// (MySql bug #69169, Oracle bug #16776818).
+    /// </summary>
+    [Fact]
+    public void UsingUtf16()
+    {
+      MySqlConnection con = new MySqlConnection(ts.GetConnection(false).ConnectionString);
+      con.Open();
+      try
+      {
+        MySqlCommand cmd = new MySqlCommand("", con);
+        cmd.CommandText = "drop table if exists `actor`";
+        cmd.ExecuteNonQuery();
+        cmd.CommandText = @"CREATE TABLE `actor` (
     `actor_id` smallint(5) unsigned NOT NULL DEFAULT '0',
     `first_name` varchar(45) NOT NULL,
     `last_name` varchar(45) NOT NULL,
     `last_update` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00'
   ) ENGINE=InnoDB DEFAULT CHARSET=utf16";
-       cmd.ExecuteNonQuery();
+        cmd.ExecuteNonQuery();
 
-       string[] firstNames = new string[] { "PENELOPE", "NICK", "ED" };
-       string[] lastNames = new string[] { "GUINESS", "WAHLBERG", "CHASE" };
-       DateTime[] lastUpdates = new DateTime[] { 
+        string[] firstNames = new string[] { "PENELOPE", "NICK", "ED" };
+        string[] lastNames = new string[] { "GUINESS", "WAHLBERG", "CHASE" };
+        DateTime[] lastUpdates = new DateTime[] {
           new DateTime(2006, 2, 15, 4, 34, 33), new DateTime(2007, 2, 15, 4, 34, 33), new DateTime(2008, 4, 15, 4, 34, 33) };
-       for (int i = 0; i < firstNames.Length; i++)
-       {
-         cmd.CommandText = string.Format(
-           "insert into `actor`( actor_id, first_name, last_name, last_update ) values ( {0}, '{1}', '{2}', '{3}' )",
-           i, firstNames[i], lastNames[i], lastUpdates[i].ToString("yyyy/MM/dd hh:mm:ss"));
-         cmd.ExecuteNonQuery();
-       }
+        for (int i = 0; i < firstNames.Length; i++)
+        {
+          cmd.CommandText = string.Format(
+            "insert into `actor`( actor_id, first_name, last_name, last_update ) values ( {0}, '{1}', '{2}', '{3}' )",
+            i, firstNames[i], lastNames[i], lastUpdates[i].ToString("yyyy/MM/dd hh:mm:ss"));
+          cmd.ExecuteNonQuery();
+        }
 
-       cmd.CommandText = "select actor_id, first_name, last_name, last_update from `actor`";
+        cmd.CommandText = "select actor_id, first_name, last_name, last_update from `actor`";
 
-       using (MySqlDataReader r = cmd.ExecuteReader())
-       {
-         int j = 0;
-         while (r.Read())
-         {
-           for (int i = 0; i < r.FieldCount; i++)
-           {
-             Assert.True(j == r.GetInt32(0));
-             Assert.True(firstNames[j] == r.GetString(1));
-             Assert.True(lastNames[j] == r.GetString(2));
-             Assert.True(lastUpdates[j] == r.GetDateTime(3));
-           }
-           j++;
-         }
-       }
-     }
-     finally {
-       MySqlCommand cmd = new MySqlCommand("drop table if exists `actor`", con);
-       cmd.ExecuteNonQuery();
-       con.Close(); 
-     }
-   }
+        using (MySqlDataReader r = cmd.ExecuteReader())
+        {
+          int j = 0;
+          while (r.Read())
+          {
+            for (int i = 0; i < r.FieldCount; i++)
+            {
+              Assert.True(j == r.GetInt32(0));
+              Assert.True(firstNames[j] == r.GetString(1));
+              Assert.True(lastNames[j] == r.GetString(2));
+              Assert.True(lastUpdates[j] == r.GetDateTime(3));
+            }
+            j++;
+          }
+        }
+      }
+      finally
+      {
+        MySqlCommand cmd = new MySqlCommand("drop table if exists `actor`", con);
+        cmd.ExecuteNonQuery();
+        con.Close();
+      }
+    }
 
-   /// <summary>
-   /// 2nd part of tests for fix of Connector/NET cannot read data from a MySql table using UTF-16/UTF-32
-   /// (MySql bug #69169, Oracle bug #16776818).
-   /// </summary>
-   [Fact]
-   public void UsingUtf32()
-   {
-     MySqlConnection con = new MySqlConnection(ts.GetConnection(false).ConnectionString);
-     con.Open();
-     try
-     {
-       MySqlCommand cmd = new MySqlCommand("", con);
-       cmd.CommandText = "drop table if exists `actor`";
-       cmd.ExecuteNonQuery();
-       cmd.CommandText = @"CREATE TABLE `actor` (
+    /// <summary>
+    /// 2nd part of tests for fix of Connector/NET cannot read data from a MySql table using UTF-16/UTF-32
+    /// (MySql bug #69169, Oracle bug #16776818).
+    /// </summary>
+    [Fact]
+    public void UsingUtf32()
+    {
+      MySqlConnection con = new MySqlConnection(ts.GetConnection(false).ConnectionString);
+      con.Open();
+      try
+      {
+        MySqlCommand cmd = new MySqlCommand("", con);
+        cmd.CommandText = "drop table if exists `actor`";
+        cmd.ExecuteNonQuery();
+        cmd.CommandText = @"CREATE TABLE `actor` (
     `actor_id` smallint(5) unsigned NOT NULL DEFAULT '0',
     `first_name` varchar(45) NOT NULL,
     `last_name` varchar(45) NOT NULL,
     `last_update` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00'
   ) ENGINE=InnoDB DEFAULT CHARSET=utf32";
-       cmd.ExecuteNonQuery();
+        cmd.ExecuteNonQuery();
 
-       string[] firstNames = new string[] { "PENELOPE", "NICK", "ED" };
-       string[] lastNames = new string[] { "GUINESS", "WAHLBERG", "CHASE" };
-       DateTime[] lastUpdates = new DateTime[] { 
+        string[] firstNames = new string[] { "PENELOPE", "NICK", "ED" };
+        string[] lastNames = new string[] { "GUINESS", "WAHLBERG", "CHASE" };
+        DateTime[] lastUpdates = new DateTime[] {
           new DateTime(2006, 2, 15, 4, 34, 33), new DateTime(2007, 2, 15, 4, 34, 33), new DateTime(2008, 4, 15, 4, 34, 33) };
-       for (int i = 0; i < firstNames.Length; i++)
-       {
-         cmd.CommandText = string.Format(
-           "insert into `actor`( actor_id, first_name, last_name, last_update ) values ( {0}, '{1}', '{2}', '{3}' )",
-           i, firstNames[i], lastNames[i], lastUpdates[i].ToString("yyyy/MM/dd hh:mm:ss"));
-         cmd.ExecuteNonQuery();
-       }
+        for (int i = 0; i < firstNames.Length; i++)
+        {
+          cmd.CommandText = string.Format(
+            "insert into `actor`( actor_id, first_name, last_name, last_update ) values ( {0}, '{1}', '{2}', '{3}' )",
+            i, firstNames[i], lastNames[i], lastUpdates[i].ToString("yyyy/MM/dd hh:mm:ss"));
+          cmd.ExecuteNonQuery();
+        }
 
-       cmd.CommandText = "select actor_id, first_name, last_name, last_update from `actor`";
+        cmd.CommandText = "select actor_id, first_name, last_name, last_update from `actor`";
 
-       using (MySqlDataReader r = cmd.ExecuteReader())
-       {
-         int j = 0;
-         while (r.Read())
-         {
-           for (int i = 0; i < r.FieldCount; i++)
-           {
-             Assert.True(j == r.GetInt32(0));
-             Assert.True(firstNames[j] == r.GetString(1));
-             Assert.True(lastNames[j] == r.GetString(2));
-             Assert.True(lastUpdates[j] == r.GetDateTime(3));
-           }
-           j++;
-         }
-       }
-     }
-     finally {
-       MySqlCommand cmd = new MySqlCommand("drop table if exists `actor`", con);
-       cmd.ExecuteNonQuery();
-       con.Close(); 
-     }
-   }
+        using (MySqlDataReader r = cmd.ExecuteReader())
+        {
+          int j = 0;
+          while (r.Read())
+          {
+            for (int i = 0; i < r.FieldCount; i++)
+            {
+              Assert.True(j == r.GetInt32(0));
+              Assert.True(firstNames[j] == r.GetString(1));
+              Assert.True(lastNames[j] == r.GetString(2));
+              Assert.True(lastUpdates[j] == r.GetDateTime(3));
+            }
+            j++;
+          }
+        }
+      }
+      finally
+      {
+        MySqlCommand cmd = new MySqlCommand("drop table if exists `actor`", con);
+        cmd.ExecuteNonQuery();
+        con.Close();
+      }
+    }
 
 
 
-   /// <summary>
-   /// Test for new functionality on 5.7.9 supporting chinese character sets gb18030
-   /// WL #4024
-   /// (Oracle bug #21098546).
-   /// </summary>
-   [Fact]   
-   public void CanInsertChineseCharacterSetGB18030()
-   {         
+    /// <summary>
+    /// Test for new functionality on 5.7.9 supporting chinese character sets gb18030
+    /// WL #4024
+    /// (Oracle bug #21098546).
+    /// </summary>
+    [Fact]
+    public void CanInsertChineseCharacterSetGB18030()
+    {
       if (ts.version < new Version(5, 7, 4)) return;
 
       try
       {
-          executeSQL("CREATE TABLE Test (id int, name VARCHAR(100) CHAR SET gb18030, KEY(name(20)))");
-          using (MySqlConnection c = new MySqlConnection(ts.GetConnection(false).ConnectionString + ";charset=gb18030"))
+        executeSQL("CREATE TABLE Test (id int, name VARCHAR(100) CHAR SET gb18030, KEY(name(20)))");
+        using (MySqlConnection c = new MySqlConnection(ts.GetConnection(false).ConnectionString + ";charset=gb18030"))
+        {
+          c.Open();
+          MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1, '㭋玤䂜蚌')", c);
+          cmd.ExecuteNonQuery();
+          cmd = new MySqlCommand("INSERT INTO test VALUES(2, 0xC4EEC5ABBDBFA1A4B3E0B1DABBB3B9C520A1A4CBD5B6ABC6C2)", c);
+          cmd.ExecuteNonQuery();
+          cmd = new MySqlCommand("SELECT id, name from test", c);
+          var reader = cmd.ExecuteReader();
+          while (reader.Read())
           {
-              c.Open();
-              MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1, '㭋玤䂜蚌')", c);
-              cmd.ExecuteNonQuery();
-              cmd = new MySqlCommand("INSERT INTO test VALUES(2, 0xC4EEC5ABBDBFA1A4B3E0B1DABBB3B9C520A1A4CBD5B6ABC6C2)", c);
-              cmd.ExecuteNonQuery();              
-              cmd = new MySqlCommand("SELECT id, name from test", c);              
-              var reader = cmd.ExecuteReader();
-              while (reader.Read())
-              {
-                if (reader.GetUInt32(0) == 1)
-                  Assert.Equal("㭋玤䂜蚌", reader.GetString(1));
-                if (reader.GetUInt32(0) == 2)                  
-                  Assert.Equal("念奴娇·赤壁怀古 ·苏东坡", reader.GetString(1));
-              }
+            if (reader.GetUInt32(0) == 1)
+              Assert.Equal("㭋玤䂜蚌", reader.GetString(1));
+            if (reader.GetUInt32(0) == 2)
+              Assert.Equal("念奴娇·赤壁怀古 ·苏东坡", reader.GetString(1));
           }
+        }
       }
       finally
       {
-          executeSQL("drop table if exists `Test`");          
+        executeSQL("drop table if exists `Test`");
       }
-   }
+    }
 
 
 
-   /// <summary>
-   /// Test for new functionality on 5.7.9 supporting chinese character sets on gb18030
-   /// WL #4024
-   /// (Oracle bug #21098546).
-   /// </summary>
-   [Fact]
-   public void CanCreateDbUsingChineseCharacterSetGB18030()
-   {
-     if (ts.version < new Version(5, 7, 4)) return;
+    /// <summary>
+    /// Test for new functionality on 5.7.9 supporting chinese character sets on gb18030
+    /// WL #4024
+    /// (Oracle bug #21098546).
+    /// </summary>
+    [Fact]
+    public void CanCreateDbUsingChineseCharacterSetGB18030()
+    {
+      if (ts.version < new Version(5, 7, 4)) return;
 
-     MySqlConnectionStringBuilder rootSb = new MySqlConnectionStringBuilder(ts.GetConnection(true).ConnectionString);
-     rootSb.CharacterSet = "gb18030";
-     using (MySqlConnection rootConnection = new MySqlConnection(rootSb.ToString()))
-     {
-       string database = "㭋玤䂜蚌";    
+      MySqlConnectionStringBuilder rootSb = new MySqlConnectionStringBuilder(ts.GetConnection(true).ConnectionString);
+      rootSb.CharacterSet = "gb18030";
+      using (MySqlConnection rootConnection = new MySqlConnection(rootSb.ToString()))
+      {
+        string database = "㭋玤䂜蚌";
 
-       rootConnection.Open();
-       MySqlCommand rootCommand = new MySqlCommand();
-       rootCommand.Connection = rootConnection;
-       rootCommand.CommandText = string.Format("CREATE DATABASE `{0}` CHARSET=gb18030;", database);       
-       rootCommand.ExecuteNonQuery();       
-      
-       try
-       {
-         rootSb.Database = database;
-         using (MySqlConnection conn = new MySqlConnection(rootSb.ConnectionString))
-         {           
-           conn.Open();
-           Assert.Equal(database, conn.Database);
-         }
-       }
-       finally
-       {
-         if (rootConnection.State == ConnectionState.Open)
-         {
-           rootCommand.CommandText = string.Format("DROP DATABASE `{0}`;", database);
-           rootCommand.ExecuteNonQuery();
-         }
-       }
-     }
-   }
+        rootConnection.Open();
+        MySqlCommand rootCommand = new MySqlCommand();
+        rootCommand.Connection = rootConnection;
+        rootCommand.CommandText = string.Format("CREATE DATABASE `{0}` CHARSET=gb18030;", database);
+        rootCommand.ExecuteNonQuery();
 
-   public override void Dispose()
-   {
-     executeSQL("DROP TABLE IF EXISTS TEST");
-     executeSQL("DROP TABLE IF EXISTS t62094");
-     base.Dispose();
-   }
+        try
+        {
+          rootSb.Database = database;
+          using (MySqlConnection conn = new MySqlConnection(rootSb.ConnectionString))
+          {
+            conn.Open();
+            Assert.Equal(database, conn.Database);
+          }
+        }
+        finally
+        {
+          if (rootConnection.State == ConnectionState.Open)
+          {
+            rootCommand.CommandText = string.Format("DROP DATABASE `{0}`;", database);
+            rootCommand.ExecuteNonQuery();
+          }
+        }
+      }
+    }
 
-   [Fact]
-   public void UTF16LETest()
-   {
-     if (ts.version < new Version(5, 6)) return;
+    public override void Dispose()
+    {
+      executeSQL("DROP TABLE IF EXISTS TEST");
+      executeSQL("DROP TABLE IF EXISTS t62094");
+      base.Dispose();
+    }
 
-     using (MySqlDataReader reader = ExecuteAsReader("select _utf16le 'utf16le test';", connection))
-     {
-       while (reader.Read())
-       {
-         Assert.Equal("瑵ㅦ氶⁥整瑳", reader[0].ToString());
-       }
-     }
-   }
+    [Fact]
+    public void UTF16LETest()
+    {
+      if (ts.version < new Version(5, 6)) return;
 
+      using (MySqlDataReader reader = ExecuteAsReader("select _utf16le 'utf16le test';", connection))
+      {
+        while (reader.Read())
+        {
+          Assert.Equal("瑵ㅦ氶⁥整瑳", reader[0].ToString());
+        }
+      }
+    }
+
+#if !NETCORE10
    [Fact]
    public void GEOSTD8Test()
    {
      MySqlConnection dbconn = new MySqlConnection(ts.GetConnection(false).ConnectionString);
-     try
-     {
-       using (MySqlCommand cmd = new MySqlCommand("select _geostd8 'geostd8 test';", dbconn))
-       {
-         dbconn.Open();
-         using (MySqlDataReader reader = cmd.ExecuteReader())
-         {
-           while (reader.Read())
-           {
-             Assert.Equal("geostd8 test", reader[0].ToString());
-           }
-         }
-       }
-       throw new Exception("The test should have failed with a MySqlException but it does not.");
-     }
-     catch (MySqlException ex)
-     {
-       while (ex.InnerException != null)
-         ex = (MySqlException)ex.InnerException;
+        try
+        {
+            using (MySqlCommand cmd = new MySqlCommand("select _geostd8 'geostd8 test';", dbconn))
+            {
+                dbconn.Open();
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        Assert.Equal("geostd8 test", reader[0].ToString());
+                    }
+                }
+            }
+            throw new Exception("The test should have failed with a MySqlException but it does not.");
+        }     
+        catch (MySqlException ex)
+        {
+            while (ex.InnerException != null)
+                ex = (MySqlException)ex.InnerException;
 
-       Assert.Equal(typeof(MySqlException), ex.GetType());
-       Assert.Equal("Character set 'geostd8' is not supported by .Net Framework.", ex.Message);
-     }
-     catch (Exception ex)
-     {
-       Assert.Equal(typeof(MySqlException), ex.GetType());
-     }
-     finally
-     {
-       dbconn.Close();
-     }
+            Assert.Equal(typeof(MySqlException), ex.GetType());          
+        }
+        catch (Exception ex)
+        {
+            Assert.Equal(typeof(MySqlException), ex.GetType());
+        }
+        finally
+        {
+            dbconn.Close();
+        }
    }
+#endif
 
-   [Fact]
-   public void ExtendedCharsetOnConnection()
-   {
-     MySqlConnectionStringBuilder rootSb = new MySqlConnectionStringBuilder(ts.GetConnection(true).ConnectionString);
-     rootSb.CharacterSet = "utf8";
-     using (MySqlConnection rootConnection = new MySqlConnection(rootSb.ToString()))
-     {
-       string database = "数据库";
-       string user = "用户";
-       string password = "test";
-       
-       rootConnection.Open();
-       MySqlCommand rootCommand = new MySqlCommand();
-       rootCommand.Connection = rootConnection;
-       rootCommand.CommandText = string.Format("CREATE DATABASE `{0}`;", database);
-       rootCommand.CommandText += string.Format("GRANT ALL ON `{0}`.* to '{1}'@'localhost' identified by '{2}';", database, user, password);
-       rootCommand.ExecuteNonQuery();
+    [Fact]
+    public void ExtendedCharsetOnConnection()
+    {
+      MySqlConnectionStringBuilder rootSb = new MySqlConnectionStringBuilder(ts.GetConnection(true).ConnectionString);
+      rootSb.CharacterSet = "utf8";
+      using (MySqlConnection rootConnection = new MySqlConnection(rootSb.ToString()))
+      {
+        string database = "数据库";
+        string user = "用户";
+        string password = "test";
 
-       string connString = ts.GetConnection(false).ConnectionString;
-       MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder(connString);
-       sb.Database = database;
-       sb.UserID = user;
-       sb.Password = password;
-       sb.CharacterSet = "utf8";
-       try
-       {
-         using (MySqlConnection conn = new MySqlConnection(sb.ToString()))
-         {
-           conn.Open();
-           Assert.Equal(database, conn.Database);
-         }
-       }
-       finally
-       {
-         if (rootConnection.State == ConnectionState.Open)
-         {
-           rootCommand.CommandText = string.Format("DROP DATABASE `{0}`;DROP USER '{1}'@'localhost'", database, user);
-           rootCommand.ExecuteNonQuery();
-         }
-       }
-     }
-   }
+        rootConnection.Open();
+        MySqlCommand rootCommand = new MySqlCommand();
+        rootCommand.Connection = rootConnection;
+        rootCommand.CommandText = string.Format("CREATE DATABASE `{0}`;", database);
+        rootCommand.CommandText += string.Format("GRANT ALL ON `{0}`.* to '{1}'@'localhost' identified by '{2}';", database, user, password);
+        rootCommand.ExecuteNonQuery();
+
+        string connString = ts.GetConnection(false).ConnectionString;
+        MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder(connString);
+        sb.Database = database;
+        sb.UserID = user;
+        sb.Password = password;
+        sb.CharacterSet = "utf8";
+        try
+        {
+          using (MySqlConnection conn = new MySqlConnection(sb.ToString()))
+          {
+            conn.Open();
+            Assert.Equal(database, conn.Database);
+          }
+        }
+        finally
+        {
+          if (rootConnection.State == ConnectionState.Open)
+          {
+            rootCommand.CommandText = string.Format("DROP DATABASE `{0}`;DROP USER '{1}'@'localhost'", database, user);
+            rootCommand.ExecuteNonQuery();
+          }
+        }
+      }
+    }
   }
 }

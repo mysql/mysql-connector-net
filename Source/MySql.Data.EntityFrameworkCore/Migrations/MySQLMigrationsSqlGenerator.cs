@@ -26,8 +26,9 @@ using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using MySQL.Data.EntityFrameworkCore.Metadata;
 using System.Linq;
+using MySQL.Data.EntityFrameworkCore.Migrations.Operations;
+using MySQL.Data.EntityFrameworkCore.Metadata.Internal;
 
 namespace MySQL.Data.EntityFrameworkCore.Migrations
 {

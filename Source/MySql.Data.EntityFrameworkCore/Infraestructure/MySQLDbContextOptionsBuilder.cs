@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,24 +20,28 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
-using MySQL.Data.EntityFrameworkCore.Metadata;
-using MySQL.Data.EntityFrameworkCore.Utils;
 
-namespace MySQL.Data.EntityFrameworkCore.Migrations
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using MySQL.Data.EntityFrameworkCore.Infraestructure.Internal;
+
+namespace MySQL.Data.EntityFrameworkCore.Infraestructure
 {
-    public class MySQLMigrationsAnnotationProvider : MigrationsAnnotationProvider
+  /// <summary>
+  /// RelationalDbContextOptionsBuilder implementation for MySQL
+  /// </summary>
+  public class MySQLDbContextOptionsBuilder : RelationalDbContextOptionsBuilder<MySQLDbContextOptionsBuilder, MySQLOptionsExtension>
     {
-      public override IEnumerable<IAnnotation> For(IProperty property)
+        public MySQLDbContextOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
+            : base(optionsBuilder)
+        {
+        }
+
+    protected override MySQLOptionsExtension CloneExtension()
     {
-      if (property.ValueGenerated == ValueGenerated.OnAdd &&
-          property.ClrType.CanBeAutoIncrement())
-      {
-        yield return new Annotation(MySQLAnnotationNames.Prefix + MySQLAnnotationNames.AutoIncrement, true);
-      }
+      return new MySQLOptionsExtension(OptionsBuilder.Options.GetExtension<MySQLOptionsExtension>());
     }
+
+
   }
 }

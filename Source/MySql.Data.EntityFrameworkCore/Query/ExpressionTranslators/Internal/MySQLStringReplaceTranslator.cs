@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,22 +20,30 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
+using Microsoft.EntityFrameworkCore.Query.Expressions;
+using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading.Tasks;
 
-namespace MySQL.Data.EntityFrameworkCore.Metadata
+namespace MySql.Data.EntityFrameworkCore.Query.ExpressionTranslators.Internal
 {
-  /// <summary>
-  /// Annotations for MySQL specifics
-  /// </summary>
-  public static class MySQLAnnotationNames
-  {
-    public const string Prefix = "MySQL:";
-    public const string AutoIncrement = "AutoIncrement";
-    
-  }
+    public class MySQLStringReplaceTranslator : IMethodCallTranslator
+    {
+
+        private static readonly MethodInfo _methodInfo = typeof(string).GetTypeInfo()
+          .GetDeclaredMethods(nameof(string.Replace))
+          .Single(m => m.GetParameters()[0].ParameterType == typeof(string));
+
+        public virtual Expression Translate(MethodCallExpression methodCallExpression)
+          => methodCallExpression.Method == _methodInfo
+              ? new SqlFunctionExpression("REPLACE", methodCallExpression.Type,
+                new[] { methodCallExpression.Object }.Concat(methodCallExpression.Arguments))
+              : null;
+
+    }
 }

@@ -20,19 +20,29 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.EntityFrameworkCore.Metadata;
-using MySQL.Data.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace MySQL.Data.EntityFrameworkCore.Metadata
+namespace MySQL.Data.EntityFrameworkCore.Infraestructure.Internal
 {
-    public class MySQLPropertyAnnotations : RelationalPropertyAnnotations
+  /// <summary>
+  /// RelationalOptionsExtension implementation for MySQL
+  /// </summary>
+  public class MySQLOptionsExtension : RelationalOptionsExtension
     {
-        private const string AUTOINC_ANNOTATION = "MySQL:AutoIncrement";
-
-        public MySQLPropertyAnnotations(IProperty property)
-            : base(property, MySQLFullAnnotationNames.Instance)
+        public MySQLOptionsExtension()
         {
         }
 
+        public MySQLOptionsExtension(MySQLOptionsExtension copyFrom)
+            : base(copyFrom)
+        {
+        }
+
+
+        public override void ApplyServices(IServiceCollection services)
+        {
+            services.AddEntityFrameworkMySQL();
+        }
     }
 }

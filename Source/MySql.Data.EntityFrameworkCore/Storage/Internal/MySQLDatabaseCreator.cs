@@ -31,6 +31,7 @@ using MySql.Data.MySqlClient;
 using Microsoft.EntityFrameworkCore.Migrations;
 using MySQL.Data.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using MySQL.Data.EntityFrameworkCore.Migrations.Operations;
 
 namespace MySQL.Data.EntityFrameworkCore
 {

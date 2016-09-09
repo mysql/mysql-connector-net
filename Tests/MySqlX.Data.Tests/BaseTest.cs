@@ -135,8 +135,9 @@ namespace MySqlX.Data.Tests
     {
       using (XSession s = GetSession())
       {
-        s.DropSchema(schemaName);
         Schema schema = s.GetSchema(schemaName);
+        if(schema.ExistsInDatabase())
+            s.DropSchema(schemaName);        
         Assert.False(schema.ExistsInDatabase());
       }
     }

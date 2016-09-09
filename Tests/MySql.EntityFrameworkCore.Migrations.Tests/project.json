@@ -1,5 +1,5 @@
 {
-  "version": "7.0.4-IR-*",
+  "version": "7.0.5-IR2-*",
   "description": "MySql.EntityFrameworkCore.Migrations.Tests Class Library",
   "authors": [ "Oracle" ],
   "copyright": "Copyright � 2016, Oracle and/or its affiliates. All rights reserved.",

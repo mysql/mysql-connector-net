@@ -30,7 +30,7 @@ using Xunit;
 
 namespace MySql.Data.EntityFrameworkCore.Tests
 {
-  public class MySQLConnectionTests
+  public class ConnectionTests
   {
     [Fact]
     public void CanCreateConnectionString()

@@ -25,7 +25,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
-namespace MySql.Data
+namespace MySql.Data.Common
 {
   internal class MySqlTokenizer
   {

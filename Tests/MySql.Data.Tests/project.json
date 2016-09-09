@@ -1,5 +1,5 @@
 {
-  "version": "7.0.4-IR-*",
+  "version": "7.0.5-IR2-*",
   "description": "MySql.Data.Tests Class Library",
   "authors": [ "Oracle" ],
   "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
@@ -38,7 +38,7 @@
       },
       "buildOptions": {
         "define": [ "NETCORE10" ],
-        "copyToOutput": [ "appsettings.json" ],
+        "copyToOutput": [ "appsettings.json", "client.pfx" ],
         "compile": {
           "include": [ "../*.cs" ],
           "exclude": [
@@ -122,7 +122,8 @@
       }
     }
   },
-  "configurations": {
+ "testRunner": "xunit",
+ "configurations": {
     "Debug": {
       "buildOptions": {
         "define": [ "DEBUG" ],

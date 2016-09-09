@@ -20,15 +20,25 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
+using MySQL.Data.EntityFrameworkCore.Metadata;
+using MySQL.Data.EntityFrameworkCore.Utils;
+using MySQL.Data.EntityFrameworkCore.Metadata.Internal;
 
-namespace MySQL.Data.EntityFrameworkCore.Migrations
+namespace MySQL.Data.EntityFrameworkCore.Migrations.Internal
 {
-  /// <summary>
-  /// Create database operation class for migrations
-  /// </summary>
-    public class MySQLCreateDatabaseOperation : MigrationOperation
+    public class MySQLMigrationsAnnotationProvider : MigrationsAnnotationProvider
     {
-        public string Name { get; set; }
+      public override IEnumerable<IAnnotation> For(IProperty property)
+    {
+      if (property.ValueGenerated == ValueGenerated.OnAdd &&
+          property.ClrType.CanBeAutoIncrement())
+      {
+        yield return new Annotation(MySQLAnnotationNames.Prefix + MySQLAnnotationNames.AutoIncrement, true);
+      }
     }
+  }
 }

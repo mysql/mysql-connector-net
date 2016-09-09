@@ -538,4 +538,7 @@
   <data name="CompressionNotSupported" xml:space="preserve">
     <value>Compression is not supported.</value>
   </data>
+  <data name="SslConnectionError" xml:space="preserve">
+    <value>SSL Connection error.</value>
+  </data>
 </root>

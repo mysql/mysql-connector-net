@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,15 +20,24 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
-namespace MySQL.Data.EntityFrameworkCore.Migrations
+using Microsoft.EntityFrameworkCore.Query.Expressions;
+using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
+
+namespace MySql.Data.EntityFrameworkCore.Query.ExpressionTranslators.Internal
 {
-  /// <summary>
-  /// Drop database operation for migrations.
-  /// </summary>
-    public class MySQLDropDatabaseOperation : MigrationOperation
+    public class MySQLStringLengthTranslator : IMemberTranslator
     {
-        public string Name { get; set; }
+        public virtual Expression Translate(MemberExpression memberExpression)
+                => (memberExpression.Expression != null)
+                   && (memberExpression.Expression.Type == typeof(string))
+                   && (memberExpression.Member.Name == nameof(string.Length))
+                    ? new SqlFunctionExpression("LENGTH", memberExpression.Type, new[] { memberExpression.Expression })
+                    : null;
     }
 }

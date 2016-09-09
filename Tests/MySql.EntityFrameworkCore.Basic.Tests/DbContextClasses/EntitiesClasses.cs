@@ -142,4 +142,37 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
     public string Name { get; set; }
   }
 
+    public class Guest
+    {
+        [Key]
+        public int IdGuest { get; set; }
+        public string Name { get; set; }
+        public Address Address { get; set; }
+    }
+
+    public class Address
+    {
+        [Key]
+        public int IdAddress { get; set; }
+        public string Street { get; set; }
+        public string City { get; set; }
+        public Guest Guest { get; set; }
+    }
+
+    public class Relative
+    {
+        [Key]
+        public int IdRelative { get; set; }
+        public string Name { get; set; }
+        public AddressRelative Address { get; set; }
+    }
+
+    public class AddressRelative
+    {
+        [Key]
+        public int IdAddressRelative { get; set; }
+        public string Street { get; set; }
+        public string City { get; set; }
+        public Relative Relative { get; set; }
+    }
 }

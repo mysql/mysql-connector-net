@@ -20,29 +20,15 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
-namespace MySQL.Data.EntityFrameworkCore
+namespace MySQL.Data.EntityFrameworkCore.Migrations.Operations
 {
   /// <summary>
-  /// RelationalOptionsExtension implementation for MySQL
+  /// Drop database operation for migrations.
   /// </summary>
-  public class MySQLOptionsExtension : RelationalOptionsExtension
+    public class MySQLDropDatabaseOperation : MigrationOperation
     {
-        public MySQLOptionsExtension()
-        {
-        }
-
-        public MySQLOptionsExtension(MySQLOptionsExtension copyFrom)
-            : base(copyFrom)
-        {
-        }
-
-
-        public override void ApplyServices(IServiceCollection services)
-        {
-            services.AddEntityFrameworkMySQL();
-        }
+        public string Name { get; set; }
     }
 }

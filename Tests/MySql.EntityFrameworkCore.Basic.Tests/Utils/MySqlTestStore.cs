@@ -40,11 +40,11 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     public MyTestContext(DbContextOptions options): base(options)
     {
     }
-
+        
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
       // get the class name of the caller to get a unique name for the database      
-      string name = this.GetType().Name;
+      string name = $"db-{this.GetType().Name}";
       optionsBuilder.UseMySQL(MySQLTestStore.rootConnectionString + ";database=" + name  + ";");
     }
   }
