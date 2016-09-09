@@ -2,7 +2,7 @@
   "version": "7.0.5-IR21-*",
   "description": "MySql.Data.EntityFrameworkCore for Entity Framework.",
   "authors": [ "Oracle" ],
-  "copyright": "Copyright � 2016, Oracle and/or its affiliates. All rights reserved.",
+  "copyright": "Copyright ? 2016, Oracle and/or its affiliates. All rights reserved.",
   "language": "en-US",
   "packOptions": {
     "projectUrl": "http://dev.mysql.com/downloads/",
