@@ -45,6 +45,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void Save()
     {
+      // save using SessionConfig instance
       SessionConfig scSave = new SessionConfig("SessionConfig", "mysqlx://myuser@localhost/SessionConfig");
       scSave.SetAppData("alias", "SessionConfigAlias");
       SessionConfigManager.Save(scSave);
@@ -53,18 +54,21 @@ namespace MySqlX.Data.Tests
       Assert.Equal("mysqlx://myuser@localhost/SessionConfig", sc.Uri);
       Assert.Equal("SessionConfigAlias", sc.GetAppData("alias"));
 
+      // save using Json string and Uri
       SessionConfigManager.Save("JsonString", "{ \"uri\": \"mysqlx://myuser@localhost/JsonString\", \"appdata\": { \"alias\": \"JsonStringAlias\" } }");
       sc = SessionConfigManager.Get("JsonString");
       Assert.Equal("JsonString", sc.Name);
       Assert.Equal("mysqlx://myuser@localhost/JsonString", sc.Uri);
       Assert.Equal("JsonStringAlias", sc.GetAppData("alias"));
 
+      // save using DbDoc
       SessionConfigManager.Save("DbDoc", new DbDoc("{ \"uri\": \"mysqlx://myuser@localhost/DbDoc\", \"appdata\": { \"alias\": \"DbDocAlias\" } }"));
       sc = SessionConfigManager.Get("DbDoc");
       Assert.Equal("DbDoc", sc.Name);
       Assert.Equal("mysqlx://myuser@localhost/DbDoc", sc.Uri);
       Assert.Equal("DbDocAlias", sc.GetAppData("alias"));
 
+      // save using Dictionary and Uri
       Dictionary<string, string> dic = new Dictionary<string, string>();
       dic.Add("uri", "mysqlx://myuser@localhost/Dictionary");
       dic.Add("alias", "DictionaryAlias");
@@ -74,6 +78,7 @@ namespace MySqlX.Data.Tests
       Assert.Equal("mysqlx://myuser@localhost/Dictionary", sc.Uri);
       Assert.Equal("DictionaryAlias", sc.GetAppData("alias"));
 
+      // save using Dictionary and connection attributes
       Dictionary<string, string> dic2 = new Dictionary<string, string>();
       dic2.Add("user", "myuser");
       dic2.Add("host", "localhost");
@@ -86,12 +91,14 @@ namespace MySqlX.Data.Tests
       Assert.Equal("mysqlx://myuser@localhost:33060/Dictionary2", sc.Uri);
       Assert.Equal("Dictionary2Alias", sc.GetAppData("alias"));
 
+      // save using Uri and appdata as json
       SessionConfigManager.Save("UriJson", "mysqlx://myuser@localhost/UriJson", "{ \"alias\": \"UriJsonAlias\" }");
       sc = SessionConfigManager.Get("UriJson");
       Assert.Equal("UriJson", sc.Name);
       Assert.Equal("mysqlx://myuser@localhost/UriJson", sc.Uri);
       Assert.Equal("UriJsonAlias", sc.GetAppData("alias"));
 
+      // save using Uri and appdata as dictionary
       Dictionary<string, string> dicAppData = new Dictionary<string, string>();
       dicAppData.Add("alias", "UriDicAlias");
       SessionConfigManager.Save("UriDic", "mysqlx://myuser@localhost/UriDic", dicAppData);
@@ -99,6 +106,33 @@ namespace MySqlX.Data.Tests
       Assert.Equal("UriDic", sc.Name);
       Assert.Equal("mysqlx://myuser@localhost/UriDic", sc.Uri);
       Assert.Equal("UriDicAlias", sc.GetAppData("alias"));
+
+      // save using Json string and connection attributes
+      SessionConfigManager.Save("JsonStringAttributes", "{ \"host\": \"localhost\", \"user\": \"\", \"port\": 33060, \"schema\": \"JsonStringAttributes\", \"appdata\": { \"alias\": \"JsonStringAttributesAlias\", \"other\": 5 }, \"a\":1 }");
+      sc = SessionConfigManager.Get("JsonStringAttributes");
+      Assert.Equal("JsonStringAttributes", sc.Name);
+      Assert.Equal("mysqlx://localhost:33060/JsonStringAttributes", sc.Uri);
+      Assert.Equal("JsonStringAttributesAlias", sc.GetAppData("alias"));
+      Assert.Equal("5", sc.GetAppData("other"));
+
+      // save using json anonymous
+      SessionConfigManager.Save("JsonAnonymous", new
+      {
+        host = "localhost",
+        user = "",
+        port = 33060,
+        schema = "JsonAnonymous",
+        appdata = new
+        {
+          alias = "JsonAnonymousAlias",
+          other = 5
+        }
+      });
+      sc = SessionConfigManager.Get("JsonAnonymous");
+      Assert.Equal("JsonAnonymous", sc.Name);
+      Assert.Equal("mysqlx://localhost:33060/JsonAnonymous", sc.Uri);
+      Assert.Equal("JsonAnonymousAlias", sc.GetAppData("alias"));
+      Assert.Equal("5", sc.GetAppData("other"));
     }
 
     [Fact]

@@ -21,9 +21,12 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
+using MySql.Data;
+using MySqlX.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -52,10 +55,31 @@ namespace MySqlX.XDevAPI.Config
 
     public static SessionConfig Save(string name, DbDoc json)
     {
+      if (!json.values.ContainsKey("uri"))
+      {
+        Dictionary<string, string> dic = new Dictionary<string, string>();
+        foreach(var item in json.values)
+        {
+          Dictionary<string, object> appdata = item.Value as Dictionary<string, object>;
+          if (appdata == null && item.Value.GetType().GetTypeInfo().IsGenericType)
+            appdata = Tools.GetDictionaryFromAnonymous(item.Value);
+
+          if (appdata == null)
+            dic.Add(item.Key, json[item.Key]);
+          else
+            appdata.ToList().ForEach(i => dic.Add(i.Key, json["appdata." + i.Key]));
+        }
+        return Save(name, dic);
+      }
       return persistenceHandler.Save(name, json);
     }
 
     public static SessionConfig Save(string name, string json)
+    {
+      return Save(name, new DbDoc(json));
+    }
+
+    public static SessionConfig Save(string name, object json)
     {
       return Save(name, new DbDoc(json));
     }
@@ -71,7 +95,7 @@ namespace MySqlX.XDevAPI.Config
         {
           case "uri":
             if (hasHost)
-              throw new ArgumentException("Json configuration must contain 'uri' or 'host' but not both.");
+              throw new ArgumentException(ResourcesX.JsonUriOrHost);
             if (string.IsNullOrEmpty(data["uri"]))
               throw new ArgumentNullException("uri");
             json.SetValue("uri", data["uri"]);
@@ -83,7 +107,7 @@ namespace MySqlX.XDevAPI.Config
           case "port":
           case "schema":
             if (hasUri)
-              throw new ArgumentException("Json configuration must contain 'uri' or 'connection attributes' but not both.");
+              throw new ArgumentException(ResourcesX.JsonUriOrHost);
             hasHost = true;
             break;
           default:
@@ -93,9 +117,18 @@ namespace MySqlX.XDevAPI.Config
       }
       if (hasHost)
       {
-        if (string.IsNullOrEmpty(data["host"]))
-          throw new ArgumentNullException("host");
-        json.SetValue("uri", $"mysqlx://{(data.ContainsKey("user") ? data["user"] + "@" : "")}{data["host"]}{(data.ContainsKey("port") ? ":" + data["port"] : "")}{(data.ContainsKey("schema") ? "/" + data["schema"] : "")}");
+        if (!data.ContainsKey("host") || string.IsNullOrEmpty(data["host"]))
+          throw new ArgumentNullException(ResourcesX.NoHost);
+        StringBuilder sb = new StringBuilder("mysqlx://");
+        if (data.ContainsKey("user") && !string.IsNullOrWhiteSpace(data["user"]))
+          sb.Append(data["user"]).Append("@");
+        sb.Append(data["host"]);
+        if (data.ContainsKey("port") && !string.IsNullOrWhiteSpace(data["port"]))
+          sb.Append(":").Append(data["port"]);
+        if (data.ContainsKey("schema") && !string.IsNullOrWhiteSpace(data["schema"]))
+          sb.Append("/").Append(data["schema"]);
+
+        json.SetValue("uri", sb.ToString());
       }
       if(appdata.Count > 0)
       {

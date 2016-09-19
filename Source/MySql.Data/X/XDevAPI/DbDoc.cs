@@ -101,7 +101,15 @@ namespace MySqlX.XDevAPI
           throw new InvalidOperationException(
             String.Format(ResourcesX.PathNotFound, path));
         if (dic[level] is Dictionary<string, object>)
+        {
           dic = dic[level] as Dictionary<string, object>;
+          returnValue = DictToString(dic, 2);
+        }
+        else if (dic[level].GetType().GetTypeInfo().IsGenericType)
+        {
+          dic = ParseObject(dic[level]);
+          returnValue = DictToString(dic, 2);
+        }
         else
           returnValue = dic[level].ToString();
       }
