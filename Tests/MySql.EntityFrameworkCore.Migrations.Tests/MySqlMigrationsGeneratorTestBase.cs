@@ -32,7 +32,7 @@ using Xunit;
 
 namespace MySql.EntityFrameworkCore.Migrations.Tests
 {
-    public abstract class MySqlMigrationsGeneratorTestBase
+    public abstract class MySQLMigrationsGeneratorTestBase
     {
       protected abstract IMigrationsSqlGenerator SqlGenerator { get; }
       protected virtual string Sql { get; set; }

@@ -55,6 +55,29 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       }
     }
 
+
+
+    [Fact]
+    public void CanUseModelWithDateTimeOffset()
+    {
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddEntityFrameworkMySQL()
+            .AddDbContext<QuickContext>();
+
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+
+        using (var context = serviceProvider.GetRequiredService<QuickContext>())
+        {
+            context.Database.EnsureCreated();
+            var e = new QuickEntity { Name = "Jos",  City = DateTimeOffset.Now };
+            context.QuickEntity.Add(e);
+            context.SaveChanges();
+            Assert.Equal(context.QuickEntity.Count(), 1);            
+            context.Database.EnsureDeleted();
+        }
+    }
+
+
     [Fact]
     public void CanNameAlternateKey()
     {

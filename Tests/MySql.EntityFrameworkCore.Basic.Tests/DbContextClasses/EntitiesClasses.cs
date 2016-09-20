@@ -175,4 +175,14 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
         public string City { get; set; }
         public Relative Relative { get; set; }
     }
+
+
+    public class QuickEntity
+    {
+        [Key]
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public DateTimeOffset City { get; set; }
+
+    }
 }

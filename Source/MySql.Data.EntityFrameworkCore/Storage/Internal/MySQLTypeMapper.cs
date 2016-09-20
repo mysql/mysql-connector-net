@@ -69,7 +69,8 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
     private readonly RelationalTypeMapping _Text = new RelationalTypeMapping("text", typeof(string));
     private readonly RelationalTypeMapping _tinyText = new RelationalTypeMapping("tinytext", typeof(string));
         
-    private readonly RelationalTypeMapping _datetime = new RelationalTypeMapping("datetime", typeof(DateTime)); 
+    private readonly RelationalTypeMapping _datetime = new RelationalTypeMapping("datetime", typeof(DateTime));
+    private readonly RelationalTypeMapping _datetimeoffset = new RelationalTypeMapping("timestamp", typeof(DateTimeOffset));
     private readonly RelationalTypeMapping _date = new RelationalTypeMapping("date", typeof(DateTime)); 
     private readonly RelationalTypeMapping _time = new RelationalTypeMapping("time", typeof(DateTime));
     private readonly RelationalTypeMapping _double = new RelationalTypeMapping("float", typeof(Single)); 
@@ -105,6 +106,7 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
         { "text", _Text},
         { "tinytext", _tinyText},
         { "datetime", _datetime },
+        { "datetimeoffset", _datetimeoffset },
         { "timestamp", _datetime },
         { "bit", _bit },
         { "string", _varchar },
@@ -117,6 +119,7 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
                     { typeof(int), _int },
                     { typeof(long), _bigint },
                     { typeof(DateTime), _datetime },
+                    { typeof(DateTimeOffset), _datetimeoffset },
                     { typeof(bool), _bit },
                     { typeof(byte), _tinyint },
                     { typeof(double), _double },
@@ -129,7 +132,7 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
                     { typeof(float), _real },
                     { typeof(decimal), _decimal },
                     { typeof(string), _varchar },
-                    { typeof(byte[]), _varbinary }
+                    { typeof(byte[]), _varbinary }                    
           };
 
 

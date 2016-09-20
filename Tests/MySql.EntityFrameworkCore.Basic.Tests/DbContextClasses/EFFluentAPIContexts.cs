@@ -50,6 +50,18 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
     }    
   }
 
+    public class QuickContext : MyTestContext
+    {
+        public DbSet<QuickEntity> QuickEntity { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+          modelBuilder.Entity<QuickEntity>()
+          .HasKey(b => b.Id)
+          .HasName("PrimaryKey_Id");
+        }
+    }
+
 
 
   public class TableConventionsContext : MyTestContext
