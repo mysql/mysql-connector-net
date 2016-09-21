@@ -61,7 +61,7 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations.Internal
             builder.AppendLine("SELECT 1 FROM information_schema.tables ")
                    .AppendLine("WHERE table_name = '")                                      
                    .Append(SqlGenerationHelper.EscapeLiteral(TableName))
-                   .Append("' AND table_schema = DATABASE())");
+                   .Append("' AND table_schema = DATABASE()");
 
                 return builder.ToString();
          }

@@ -52,20 +52,35 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
         public void GetBeginIfNotExistsScript_works()
         {
             var repository = CreateHistoryRepository();
-            var ex = Assert.Throws<NotSupportedException>(() => repository.GetBeginIfNotExistsScript("Migration1"));
-
-            Assert.Equal("", ex.Message);
+            var script = repository.GetBeginIfNotExistsScript("Migration1");            
         }
 
         [Fact]
         public void GetBeginIfExistsScript_works()
         {
             var repository = CreateHistoryRepository();
-            var ex = Assert.Throws<NotSupportedException>(() => repository.GetBeginIfExistsScript("Migration1"));
-
-            Assert.Equal("", ex.Message);
+            var script = repository.GetBeginIfExistsScript("Migration1");            
         }
 
+        [Fact]
+        public void CanCreateDatabase()
+        {
+            var repository = CreateHistoryRepository();
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddEntityFrameworkMySQL()
+                            .AddDbContext<MyTestContext>();
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            var context = serviceProvider.GetRequiredService<MyTestContext>();
+
+
+            var creator = context.GetService<MySQLDatabaseCreator>();
+            var cmdBuilder = context.GetService<IRawSqlCommandBuilder>();
+            Assert.False(creator.Exists());
+            Assert.Equal("IF EXISTS(SELECT * FROM `__EFMigrationsHistory` WHERE `MigrationId` = 'MigrationId')\r\nBEGIN", 
+                cmdBuilder.Build(repository.GetBeginIfExistsScript("MigrationId")).CommandText);
+        }
 
         private static IHistoryRepository CreateHistoryRepository()
         {
