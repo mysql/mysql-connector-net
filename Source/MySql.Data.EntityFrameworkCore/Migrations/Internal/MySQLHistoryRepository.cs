@@ -68,7 +68,7 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations.Internal
      }
 
 
-    protected override bool InterpretExistsResult(object value) => (long)value != 0;
+    protected override bool InterpretExistsResult(object value) => value != DBNull.Value;
 
     public override string GetBeginIfExistsScript(string migrationId)
     {
