@@ -56,9 +56,13 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-          modelBuilder.Entity<QuickEntity>()
-          .HasKey(b => b.Id)
-          .HasName("PrimaryKey_Id");
+            modelBuilder.Entity<QuickEntity>()
+            .HasKey(b => b.Id)
+            .HasName("PrimaryKey_Id");
+
+            modelBuilder.Entity<QuickEntity>()
+            .Property(b => b.City)
+            .HasColumnType("DateTime");
         }
     }
 

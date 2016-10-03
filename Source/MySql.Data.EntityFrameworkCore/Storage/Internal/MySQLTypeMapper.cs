@@ -70,7 +70,7 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
     private readonly RelationalTypeMapping _tinyText = new RelationalTypeMapping("tinytext", typeof(string));
         
     private readonly RelationalTypeMapping _datetime = new RelationalTypeMapping("datetime", typeof(DateTime));
-    private readonly RelationalTypeMapping _datetimeoffset = new RelationalTypeMapping("timestamp", typeof(DateTimeOffset));
+    private readonly RelationalTypeMapping _datetimeoffset = new RelationalTypeMapping("datetime", typeof(DateTimeOffset), DbType.DateTime);
     private readonly RelationalTypeMapping _date = new RelationalTypeMapping("date", typeof(DateTime)); 
     private readonly RelationalTypeMapping _time = new RelationalTypeMapping("time", typeof(DateTime));
     private readonly RelationalTypeMapping _double = new RelationalTypeMapping("float", typeof(Single)); 
@@ -198,8 +198,7 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
     public override RelationalTypeMapping FindMapping(Type clrType)
     {
       ThrowIf.Argument.IsNull(clrType, "clrType");
-      var sType = Nullable.GetUnderlyingType(clrType) ?? clrType;      
-
+      var sType = Nullable.GetUnderlyingType(clrType) ?? clrType;   
       return sType == typeof(string)
           ? _nvarcharmax
           : (sType == typeof(byte[])

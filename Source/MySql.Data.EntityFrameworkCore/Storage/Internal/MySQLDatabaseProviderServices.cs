@@ -38,6 +38,7 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.Sql;
 using MySql.Data.EntityFrameworkCore.Storage.Internal;
 using MySQL.Data.EntityFrameworkCore.Migrations.Internal;
+using MySql.Data.EntityFrameworkCore.Query.Internal;
 
 namespace MySQL.Data.EntityFrameworkCore
 {
@@ -50,101 +51,32 @@ namespace MySQL.Data.EntityFrameworkCore
     {
     }
 
-    public override string InvariantName
-    {
-      get { return GetType().GetTypeInfo().Assembly.GetName().Name; }
-    }
+    public override string InvariantName => GetType().GetTypeInfo().Assembly.GetName().Name;    
+    public override IDatabaseCreator Creator => GetService<MySQLDatabaseCreator>(); 
+    
+    public override IRelationalConnection RelationalConnection => GetService<MySQLServerConnection>(); 
+    
+    public override ISqlGenerationHelper SqlGenerationHelper => GetService<MySQLSqlGenerationHelper>();
+       
+    public override IRelationalDatabaseCreator RelationalDatabaseCreator => GetService<MySQLDatabaseCreator>(); 
+    
+    public override IMigrationsAnnotationProvider MigrationsAnnotationProvider => GetService<MySQLMigrationsAnnotationProvider>();     
+    public override IHistoryRepository HistoryRepository => GetService<MySQLHistoryRepository>();     
 
-    public override IDatabaseCreator Creator
-    {
-      get {
-        return GetService<MySQLDatabaseCreator>(); }
-    }
-
-    public override IRelationalConnection RelationalConnection
-    {
-      get { return GetService<MySQLServerConnection>(); }
-    }
-
-    public override ISqlGenerationHelper SqlGenerationHelper
-    {
-      get { return GetService<MySQLSqlGenerationHelper>(); }
-    }
-
-    //public override IValueGeneratorSelector ValueGeneratorSelector
-    //{
-    //    get { return GetService<MySQLValueGeneratorSelector>();  }
-    //}
-
-    public override IRelationalDatabaseCreator RelationalDatabaseCreator
-    {
-      get { return GetService<RelationalDatabaseCreator>(); }
-    }
-
-    public override IRelationalAnnotationProvider AnnotationProvider
-    {
-      get { return GetService<MySQLAnnotationProvider>();  }
-    }
-
-    public override IMigrationsAnnotationProvider MigrationsAnnotationProvider
-    {
-      get { return GetService<MySQLMigrationsAnnotationProvider>();  }
-    }
-
-    public override IHistoryRepository HistoryRepository
-    {
-      get { return GetService<MySQLHistoryRepository>(); }
-    }
-
-    public override IMigrationsSqlGenerator MigrationsSqlGenerator
-    {
-      get { return GetService<MySQLMigrationsSqlGenerator>(); }
-    }
-
-    public override IUpdateSqlGenerator UpdateSqlGenerator
-    {
-      get { return GetService<MySQLUpdateSqlGenerator>(); }
-    }
-
-
-    public override IValueGeneratorCache ValueGeneratorCache
-    {
-      get { return GetService<MySQLValueGeneratorCache>(); }
-    }
+    public override IMigrationsSqlGenerator MigrationsSqlGenerator => GetService<MySQLMigrationsSqlGenerator>();
 
     public override IModelSource ModelSource => GetService<MySQLModelSource>();
+    public override IUpdateSqlGenerator UpdateSqlGenerator => GetService<MySQLUpdateSqlGenerator>();
+    
+    public override IValueGeneratorCache ValueGeneratorCache => GetService<MySQLValueGeneratorCache>();
 
-    public override IQueryContextFactory QueryContextFactory => GetService<RelationalQueryContextFactory>();
+    public override IRelationalTypeMapper TypeMapper => GetService<MySQLTypeMapper>();
+    public override IModificationCommandBatchFactory ModificationCommandBatchFactory => GetService<MySQLModificationCommandBatchFactory>();
+    public override IRelationalAnnotationProvider AnnotationProvider => GetService<MySQLAnnotationProvider>();
+    public override IMethodCallTranslator CompositeMethodCallTranslator => GetService<MySQLCompositeMethodCallTranslator>();    
+    public override IMemberTranslator CompositeMemberTranslator => GetService<MySQLCompositeMemberTranslator>();        
+    public override IQueryCompilationContextFactory QueryCompilationContextFactory  => GetService<MySQLQueryCompilationContextFactory>();
+    public override IQuerySqlGeneratorFactory QuerySqlGeneratorFactory => GetService<MySQLQueryGeneratorFactory>();
 
-    public override IRelationalTypeMapper TypeMapper
-    {
-      get { return GetService<MySQLTypeMapper>(); }
     }
-
-    public override IModificationCommandBatchFactory ModificationCommandBatchFactory
-    {
-      get { return GetService<MySQLModificationCommandBatchFactory>(); }
-    }
-
-
-    public override IMethodCallTranslator CompositeMethodCallTranslator
-    {
-      get { return GetService<MySQLCompositeMethodCallTranslator>(); }
-    }
-
-    public override IMemberTranslator CompositeMemberTranslator
-    {
-      get { return GetService<MySQLCompositeMemberTranslator>(); }
-    }
-
-    //public override IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory
-    //{
-    //  get { return GetService<UntypedRelationalValueBufferFactoryFactory>(); }
-    //}
-
-    public override IQuerySqlGeneratorFactory QuerySqlGeneratorFactory
-    {
-      get { return GetService<MySQLQueryGeneratorFactory>(); }
-    }
-  }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,13 +20,26 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using System;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Storage;
+using System.Globalization;
 
 namespace MySQL.Data.EntityFrameworkCore
 {
   public class MySQLSqlGenerationHelper : RelationalSqlGenerationHelper
   {
+
+    private const string DateTimeFormatConst = "yyyy-MM-ddTHH:mm:ss.fffK";
+    private const string DateTimeFormatStringConst = "'{0:" + DateTimeFormatConst + "}'";
+    private const string DateTimeOffsetFormatConst = "yyyy-MM-ddTHH:mm:ss";
+    private const string DateTimeOffsetFormatStringConst = "'{0:" + DateTimeOffsetFormatConst + "}'";
+
+    protected override string DateTimeFormat => DateTimeFormatConst;
+    protected override string DateTimeFormatString => DateTimeFormatStringConst;
+    protected override string DateTimeOffsetFormat => DateTimeOffsetFormatConst;
+    protected override string DateTimeOffsetFormatString => DateTimeOffsetFormatStringConst;
+
 
     public override void DelimitIdentifier(StringBuilder builder, string identifier)
     {
@@ -42,5 +55,22 @@ namespace MySQL.Data.EntityFrameworkCore
       ThrowIf.Argument.IsEmpty(identifier, "identifier");
       return "`" + identifier + "`";
     }
-  }
+
+
+    protected override string GenerateLiteralValue(DateTime value)            
+    { 
+      return $"'{value.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}'";
+    }
+
+
+    protected override string GenerateLiteralValue(DateTimeOffset value)
+    {
+        return $"'{value.ToString(DateTimeOffsetFormat, CultureInfo.InvariantCulture)}'";
+    }
+
+        //public override string GenerateLiteralValue(DateTime value)
+        //    => $"'{value.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}'"; // Interpolation okay; strings
+     
+      
+    }
 }

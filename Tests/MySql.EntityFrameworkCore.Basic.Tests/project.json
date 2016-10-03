@@ -37,7 +37,7 @@
     },
     "MySql.Data.EntityFrameworkCore": {
       "target": "project"
-    }
+    }   
   },
   "frameworks": {
     "netcoreapp1.0": {

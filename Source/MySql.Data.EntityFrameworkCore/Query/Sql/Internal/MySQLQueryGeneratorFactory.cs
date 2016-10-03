@@ -32,10 +32,6 @@ namespace MySQL.Data.EntityFrameworkCore.Query
   /// </summary>
   public class MySQLQueryGeneratorFactory : QuerySqlGeneratorFactoryBase
   {
-    //private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
-    //private readonly ISqlGenerationHelper _sqlGenerationHelper;
-    //private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
-    //private readonly IRelationalTypeMapper _relationalTypeMapper;
 
     public MySQLQueryGeneratorFactory(IRelationalCommandBuilderFactory commandBuilderFactory,
             ISqlGenerationHelper sqlGenerationHelper,
@@ -58,16 +54,5 @@ namespace MySQL.Data.EntityFrameworkCore.Query
             RelationalTypeMapper,
             selectExpression);
   
-
-  //public ISqlQueryGenerator CreateGenerator(SelectExpression selectExpression)
-  //{
-  //  ThrowIf.Argument.IsNull(selectExpression, nameof(selectExpression));
-  //  return new MySQLQuerySqlGenerator(_relationalCommandBuilderFactory, _sqlGenerator, _parameterNameGeneratorFactory, selectExpression);
-  //}
-
-  //public ISqlQueryGenerator CreateRawCommandGenerator(SelectExpression selectExpression, string sql, object[] parameters)
-  //{
-  //  throw new NotImplementedException();
-  //}
   }
 }

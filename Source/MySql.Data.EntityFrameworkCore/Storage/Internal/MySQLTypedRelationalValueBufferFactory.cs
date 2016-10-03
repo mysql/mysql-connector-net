@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,18 +20,29 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using JetBrains.Annotations;
+using System.Data.Common;
+using MySQL.Data.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
-namespace MySQL.Data.EntityFrameworkCore
+namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
-  [AttributeUsage(AttributeTargets.All)]
-  internal sealed class NotNullAttribute : Attribute
-  {
-  }
+    public class MySQLTypedRelationalValueBufferFactory : TypedRelationalValueBufferFactory
+    {
+        public MySQLTypedRelationalValueBufferFactory([NotNull] Func<DbDataReader, object[]> valueFactory) : base(valueFactory)
+        {
+        }
 
-  [AttributeUsage(AttributeTargets.All)]
-  internal sealed class CanBeNullAttribute : Attribute
-  {
-
-  }
+        public override ValueBuffer Create(DbDataReader dataReader)
+        {
+            //create our datareader            
+            MySQLDataReader mydatareader = (MySQLDataReader)dataReader;
+            return base.Create(mydatareader);        
+        }
+    }
 }

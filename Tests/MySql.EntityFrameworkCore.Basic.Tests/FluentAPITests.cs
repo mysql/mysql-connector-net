@@ -25,6 +25,7 @@ using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using MySql.Data.MySqlClient;
 using MySQL.Data.EntityFrameworkCore;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using Xunit;
 
@@ -61,19 +62,31 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     public void CanUseModelWithDateTimeOffset()
     {
         var serviceCollection = new ServiceCollection();
-        serviceCollection.AddEntityFrameworkMySQL()
-            .AddDbContext<QuickContext>();
+        serviceCollection.AddEntityFrameworkMySQL()        
+        .AddDbContext<QuickContext>();
 
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
         using (var context = serviceProvider.GetRequiredService<QuickContext>())
         {
-            context.Database.EnsureCreated();
-            var e = new QuickEntity { Name = "Jos",  City = DateTimeOffset.Now };
-            context.QuickEntity.Add(e);
-            context.SaveChanges();
-            Assert.Equal(context.QuickEntity.Count(), 1);            
-            context.Database.EnsureDeleted();
+            try
+            {
+                context.Database.EnsureCreated();
+                var dt = DateTime.Now;
+                var e = new QuickEntity { Name = "Jos", City = dt };
+                context.QuickEntity.Add(e);
+                context.SaveChanges();
+                var row = context.QuickEntity.FirstOrDefault();
+                Assert.Equal(dt, row.City);                    
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                context.Database.EnsureDeleted();
+            }                
         }
     }
 

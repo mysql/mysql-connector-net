@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -31,6 +31,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using MySql.Data.EntityFrameworkCore.Storage.Internal;
 using MySQL.Data.EntityFrameworkCore.Migrations.Internal;
 using MySQL.Data.EntityFrameworkCore.Infraestructure.Internal;
+using MySql.Data.EntityFrameworkCore.Query.Internal;
 
 namespace MySQL.Data.EntityFrameworkCore
 {
@@ -44,33 +45,37 @@ namespace MySQL.Data.EntityFrameworkCore
         {
             ThrowIf.Argument.IsNull(services, "services");
 
-            var service = services.AddRelational();
+            var service = services.AddRelational()
+            .AddScoped<IRelationalCommandBuilderFactory, MySQLCommandBuilderFactory>();
 
             service.TryAddEnumerable(ServiceDescriptor.Singleton<IDatabaseProvider, DatabaseProvider<MySQLDatabaseProviderServices, MySQLOptionsExtension>>());
-      
-             service.TryAdd(new ServiceCollection()
-            .AddSingleton<MySQLValueGeneratorCache>()
-            .AddSingleton<MySQLTypeMapper>()
-            .AddSingleton<MySQLSqlGenerationHelper>()
-            .AddSingleton<MySQLModelSource>()
-            .AddSingleton<MySQLAnnotationProvider>()
-            .AddSingleton<MySQLMigrationsAnnotationProvider>()
 
-            //.AddSingleton<MySQLConventionSetBuilder>()
-            .AddScoped<MySQLUpdateSqlGenerator>()
-            //.AddScoped<MySQLSequenceValueGeneratorFactory, SqlServerSequenceValueGeneratorFactory>()
-            .AddScoped<MySQLModificationCommandBatchFactory>()
-            //.AddScoped<MySQLValueGeneratorSelector>()
-            .AddScoped<MySQLDatabaseProviderServices>()
-            .AddScoped<MySQLServerConnection>()
-            .AddScoped<MySQLMigrationsSqlGenerator>()
-            .AddScoped<MySQLDatabaseCreator>()
-            .AddScoped<MySQLHistoryRepository>()
-            .AddScoped<MySQLCompositeMethodCallTranslator>()
-            .AddScoped<MySQLQueryGeneratorFactory>()
-            .AddScoped<MySQLCompositeMemberTranslator>());
+            service.TryAdd(new ServiceCollection()
+           .AddSingleton<MySQLValueGeneratorCache>()
+           .AddSingleton<MySQLTypeMapper>()
+           .AddSingleton<MySQLSqlGenerationHelper>()
+           .AddSingleton<MySQLModelSource>()
+           .AddSingleton<MySQLAnnotationProvider>()
+           .AddSingleton<MySQLMigrationsAnnotationProvider>()
+           .AddScoped<MySQLUpdateSqlGenerator>()
+           .AddScoped<MySQLModificationCommandBatchFactory>()
+           .AddScoped<MySQLDatabaseProviderServices>()
+           .AddScoped<MySQLServerConnection>()
+           .AddScoped<MySQLMigrationsSqlGenerator>()
+           .AddScoped<MySQLDatabaseCreator>()
+           .AddScoped<MySQLHistoryRepository>()
+           .AddQuery());
 
-      return services;
+         return services;
+        }
+
+        private static IServiceCollection AddQuery(this IServiceCollection serviceCollection)
+        {
+            return serviceCollection
+                    .AddScoped<MySQLQueryCompilationContextFactory>()
+                    .AddScoped<MySQLCompositeMemberTranslator>()
+                    .AddScoped<MySQLCompositeMethodCallTranslator>()
+                    .AddScoped<MySQLQueryGeneratorFactory>();
         }
     }
 }

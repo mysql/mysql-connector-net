@@ -21,18 +21,64 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.DependencyInjection;
+using MySql.Data.EntityFrameworkCore.Storage.Internal;
+using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
+using MySql.Data.MySqlClient;
 using System;
+using System.Diagnostics;
 using Xunit;
 
 namespace EntityFrameworkCore.Basic.Tests
 {
     public class MySQLTypeMapperTests : RelationalTypeMapperTestBase
     {
+        [Fact]
+        public void ReadTimeOffset()
+        {
+            //var cnn = new MySqlConnection("server = localhost; userid = root; database=db-quickcontext; port=3305; ");
+            //cnn.Open();
+            //var cmd = new MySqlCommand(@"Insert into quickentity (city, name) values ('01/01/01', 'namecolumn')", cnn);
+            //cmd.ExecuteNonQuery();
+            //cmd.CommandText = "Select city, name from quickentity";            
+            //var reader = cmd.ExecuteReader();
+
+            //while (reader.Read())
+            //{
+            //    Debug.Write("" + reader.GetFieldValue<DateTime>(0).ToString());
+            //}
+            //cnn.Close();
+
+
+
+
+
+
+
+        }
+
+
 
         [Fact]
         public void SimpleMappingsToDDLTypes()
         {
-            Assert.Equal("datetimeoffset", GetTypeMapping(typeof(DateTimeOffset)).StoreType);
+
+            //ContextUtils.Instance.CreateModelBuilder();
+
+
+            //var serviceCollection = new ServiceCollection();
+            //serviceCollection.AddEntityFrameworkMySQL()
+            //.AddDbContext<QuickContext>();
+
+            //var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            //using (var context = serviceProvider.GetRequiredService<QuickContext>())
+            //{
+            //    var e = context.FindEntityType
+            //       protected static EntityType CreateEntityType()
+            //=> (EntityType)CreateModel().FindEntityType(typeof(MyType));
+
+            //    Assert.Equal("datetime", GetTypeMapping(typeof(DateTimeOffset)).StoreType);
         }
 
         private static RelationalTypeMapping GetTypeMapping(
