@@ -32,6 +32,7 @@ using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MySql.Data.EntityFrameworkCore.Storage.Internal
@@ -67,11 +68,6 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
                 connection.Open();
             }
 
-
-            var mySqlConnection = connection as MySQLServerConnection;
-
-            var startTimestamp = Stopwatch.GetTimestamp();            
-
             if (executeMethod.Equals(nameof(ExecuteReader)))
             {
                 try
@@ -92,6 +88,50 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
             
             return base.Execute(connection, executeMethod, parameterValues, openConnection, closeConnection);
         }
+
+
+        protected override async Task<object> ExecuteAsync(
+           [NotNull] IRelationalConnection connection,
+           [NotNull] string executeMethod,
+           [CanBeNull] IReadOnlyDictionary<string, object> parameterValues,
+           bool openConnection,
+           bool closeConnection,
+           CancellationToken cancellationToken = default(CancellationToken))
+        {
+
+            ThrowIf.Argument.IsNull(connection, nameof(connection));
+            ThrowIf.Argument.IsNull(executeMethod, nameof(executeMethod));
+
+            var dbCommand = CreateCommand(connection, parameterValues);
+            object result = null;
+
+            if (openConnection)
+            {
+                connection.Open();
+            }
+
+            if (executeMethod.Equals(nameof(ExecuteReader)))
+            {
+                try
+                {
+                    result = new RelationalDataReader(
+                                   openConnection ? connection : null,
+                                   dbCommand,
+                                   new MySQLDataReader(
+                                      await ((MySqlCommand)dbCommand).ExecuteReaderAsync() as MySqlDataReader));
+                    return result;
+                }
+                catch
+                {
+                    dbCommand.Dispose();
+                    throw;
+                }
+            }
+
+            return base.ExecuteAsync(connection, executeMethod, parameterValues, openConnection, closeConnection);
+
+        }
+
 
 
         private DbCommand CreateCommand(

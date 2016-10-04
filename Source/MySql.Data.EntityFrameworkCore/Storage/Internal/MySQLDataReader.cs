@@ -97,13 +97,7 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
         }
 
         public override bool NextResult()
-        {
-            //var result = _reader.NextResult();
-            //if (!result)
-            //{
-            //    CloseReader();
-            //}
-            //_nextResult = null;
+        {          
             return GetReader().NextResult();
         }
 
