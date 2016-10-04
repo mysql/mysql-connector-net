@@ -182,7 +182,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
         [Key]
         public int Id { get; set; }
         public string Name { get; set; }
-        public DateTimeOffset City { get; set; }
+        public DateTimeOffset Created { get; set; }
 
     }
 }

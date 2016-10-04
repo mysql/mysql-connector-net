@@ -75,11 +75,11 @@ namespace MySql.Data.EntityFrameworkCore.Tests
             {
                 context.Database.EnsureCreated();
                 var dt = DateTime.Now;
-                var e = new QuickEntity { Name = "Jos", City = dt };
+                var e = new QuickEntity { Name = "Jos", Created = dt };
                 context.QuickEntity.Add(e);
                 context.SaveChanges();
                 var row = context.QuickEntity.FirstOrDefault();
-                Assert.Equal(dt, row.City);                    
+                Assert.Equal(dt, row.Created);                    
             }
             catch (Exception)
             {
@@ -108,10 +108,11 @@ namespace MySql.Data.EntityFrameworkCore.Tests
                 {
                     context.Database.EnsureCreated();
                     var dt = DateTime.Now;
-                    var e = new QuickEntity { Name = "Jos", City = dt };
+                    var e = new QuickEntity { Name = "Jos", Created = dt };
                     context.QuickEntity.Add(e);
                     context.SaveChanges();
-                    var result = await context.QuickEntity.FirstOrDefaultAsync();                                        
+                    var result = await context.QuickEntity.FirstOrDefaultAsync();
+                    Assert.Equal(dt, result.Created);
                 }
                 catch (Exception)
                 {

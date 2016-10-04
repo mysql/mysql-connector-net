@@ -61,8 +61,8 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
             .HasName("PrimaryKey_Id");
 
             modelBuilder.Entity<QuickEntity>()
-            .Property(b => b.City)
-            .HasColumnType("DateTime");
+            .Property(b => b.Created)
+            .HasColumnType("Timestamp");
         }
     }
 

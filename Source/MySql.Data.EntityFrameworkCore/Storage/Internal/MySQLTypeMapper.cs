@@ -62,7 +62,7 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
     private readonly MySQLSizeableMapping _varbinarymed
            = new MySQLSizeableMapping("varbinary(" + _medTextMaxLength.ToString() + ")", typeof(byte[]), dbType: DbType.Binary, unicode: false, size: _medTextMaxLength);
 
-    private readonly RelationalTypeMapping _rowversion = new RelationalTypeMapping("Timestamp", typeof(DateTime), dbType: DbType.DateTime);
+    private readonly RelationalTypeMapping _rowversion = new RelationalTypeMapping("timestamp", typeof(DateTime), dbType: DbType.DateTime);
 
     private readonly RelationalTypeMapping _longText = new RelationalTypeMapping("longtext", typeof(string)); 
     private readonly RelationalTypeMapping _mediumText = new RelationalTypeMapping("mediumtext", typeof(string));
@@ -70,7 +70,7 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
     private readonly RelationalTypeMapping _tinyText = new RelationalTypeMapping("tinytext", typeof(string));
         
     private readonly RelationalTypeMapping _datetime = new RelationalTypeMapping("datetime", typeof(DateTime));
-    private readonly RelationalTypeMapping _datetimeoffset = new RelationalTypeMapping("datetime", typeof(DateTimeOffset), DbType.DateTime);
+    private readonly RelationalTypeMapping _datetimeoffset = new RelationalTypeMapping("timestamp", typeof(DateTimeOffset), DbType.DateTime);
     private readonly RelationalTypeMapping _date = new RelationalTypeMapping("date", typeof(DateTime)); 
     private readonly RelationalTypeMapping _time = new RelationalTypeMapping("time", typeof(DateTime));
     private readonly RelationalTypeMapping _double = new RelationalTypeMapping("float", typeof(Single)); 
