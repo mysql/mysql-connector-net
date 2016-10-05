@@ -151,8 +151,29 @@ namespace MySqlX.Protocol
       SendExecuteStatement("sql", sql, args);
     }
 
-    public override bool HasData()
+    public override bool HasData(BaseResult rs)
     {
+      while (true)
+      {
+        CommunicationPacket packet = PeekPacket();
+        switch (packet.MessageType)
+        {
+          case (int)ServerMessageId.RESULTSET_COLUMN_META_DATA:
+            return true;
+          case (int)ServerMessageId.NOTICE:
+            ProcessNotice(packet, rs);
+            packet = ReadPacket();
+            break;
+          case (int)ServerMessageId.ERROR:
+            packet = ReadPacket();
+            DecodeAndThrowError(packet);
+            break;
+          default:
+            return false;
+        }
+      }
+
+
       return PeekPacket().MessageType == (int)ServerMessageId.RESULTSET_COLUMN_META_DATA;
     }
 
@@ -210,6 +231,9 @@ namespace MySqlX.Protocol
           break;
         case SessionStateChanged.Types.Parameter.GeneratedInsertId:
             rs._autoIncrementValue = state.Value.VUnsignedInt;
+          break;
+        case SessionStateChanged.Types.Parameter.ProducedMessage:
+          rs.AddWarning(new WarningInfo(0, state.Value.VString.Value.ToStringUtf8()));
           break;
           // handle the other ones
 //      default: SessionStateChanged(state);

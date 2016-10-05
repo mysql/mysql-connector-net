@@ -43,6 +43,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.Equal(2, tables.Count);
 
       Table view = tables.First(i => i.IsView);
+      Assert.Equal("view1", view.Name);
       MySqlException ex = Assert.Throws<MySqlException>(() => view.Insert().Values(1).Execute());
       Assert.Equal("Column '1' is not updatable", ex.Message);
     }

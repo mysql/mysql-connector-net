@@ -117,5 +117,14 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.Equal(1, sqlResult[0][0]);
       Assert.Null(sqlResult[0][1]);
     }
+
+    [Fact]
+    public void Alias()
+    {
+      var nodeSession = GetNodeSession();
+      var stmt = nodeSession.SQL("SELECT 1 AS UNO").Execute();
+      var result = stmt.FetchAll();
+      Assert.Equal("UNO", stmt.Columns[0].ColumnLabel);
+    }
   }
 }

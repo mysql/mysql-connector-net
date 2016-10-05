@@ -1,3 +1,7 @@
+7.0.6
+- MySqlX: Fixed schema.GetTables() and schema.GetCollections() (Oracle Bug #24385662).
+
+
 7.0.5
 - Added fallback to SSL connections.
 - MySqlX: Added ssl-enable and ssl-ca uri options for SSL connections.

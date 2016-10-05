@@ -38,7 +38,7 @@ namespace MySqlX.Protocol
     public abstract List<byte[]> ReadRow(BaseResult rs);
     public abstract void SendSQL(string sql, params object[] args);
 
-    public abstract bool HasData();
+    public abstract bool HasData(BaseResult rs);
 
     public abstract List<Column> LoadColumnMetadata();
 
