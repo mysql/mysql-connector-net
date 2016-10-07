@@ -1,5 +1,5 @@
 {
-  "version": "7.0.5-IR21-*",
+  "version": "7.0.6-IR3",
   "description": "MySql.Data.EntityFrameworkCore for Entity Framework.",
   "authors": [ "Oracle" ],
   "copyright": "Copyright ? 2016, Oracle and/or its affiliates. All rights reserved.",
@@ -20,11 +20,11 @@
     "releaseNotes": "Review ReleaseNotes.txt for details.",
     "requireLicenseAcceptance": true
   },
-  "buildOptions": {    
-      "warningsAsErrors": false,
-      "keyFile": "../../ConnectorNetPublicKey.snk",
-      "delaySign": true,
-      "publicSign": false
+  "buildOptions": {
+    "warningsAsErrors": false,
+    "keyFile": "../../ConnectorNetPublicKey.snk",
+    "delaySign": true,
+    "publicSign": false
   },
   "dependencies": {
     "Microsoft.Extensions.Caching.Memory": "1.0.0",
@@ -51,7 +51,7 @@
     "netstandard1.6": {
       "dependencies": {
         "NETStandard.Library": "1.6.0"
-      }  
+      }
     }
   },
   "configurations": {
