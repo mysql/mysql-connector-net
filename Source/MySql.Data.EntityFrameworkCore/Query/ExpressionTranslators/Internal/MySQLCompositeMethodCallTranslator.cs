@@ -22,6 +22,7 @@
 
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
+using MySql.Data.EntityFrameworkCore.Query.ExpressionTranslators.Internal;
 
 namespace MySQL.Data.EntityFrameworkCore
 {
@@ -30,9 +31,15 @@ namespace MySQL.Data.EntityFrameworkCore
   /// </summary>
   public class MySQLCompositeMethodCallTranslator : RelationalCompositeMethodCallTranslator
     {
+
+        public static readonly IMethodCallTranslator[] _mysqlTranslators =
+        {
+            new MySQLContainsOptimizedTranslator()       
+        };
+
         public MySQLCompositeMethodCallTranslator(ILogger<MySQLCompositeMethodCallTranslator> logger) : base(logger)
         {
-
+            AddTranslators(_mysqlTranslators);
         }
     }
 }

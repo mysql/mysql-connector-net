@@ -44,6 +44,13 @@ namespace MySQL.Data.EntityFrameworkCore.Query
       }
     }
 
+    protected override string ConcatOperator
+    {
+        get
+        {
+            return String.Empty;
+        }
+    }
 
     protected override string TypedTrueLiteral
     {
@@ -72,12 +79,7 @@ namespace MySQL.Data.EntityFrameworkCore.Query
     protected override void GenerateTop([NotNull]SelectExpression selectExpression)
     {
       //Nothing to do
-    }
-
-    protected override void GenerateFromSql([NotNull] string sql, [NotNull] Expression arguments, [NotNull] IReadOnlyDictionary<string, object> parameters)
-    {
-        base.GenerateFromSql(sql, arguments, parameters);
-    }
+    }       
 
     protected override void GenerateLimitOffset([NotNull] SelectExpression selectExpression)
     {

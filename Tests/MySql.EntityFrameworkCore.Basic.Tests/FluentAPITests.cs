@@ -230,6 +230,27 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       }
     }
 
+        [Fact]
+        public void CanUseContainsInQuery()
+        {
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddEntityFrameworkMySQL()
+              .AddDbContext<ComputedColumnContext>();
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            using (var context = serviceProvider.GetRequiredService<ComputedColumnContext>())
+            {
+                context.Database.EnsureCreated();
+                var e = new Employee { FirstName = "Jos", LastName = "Stuart" };
+                context.Employees.Add(e);
+                context.SaveChanges();
+                var result = context.Employees.Where(t => t.FirstName.Contains("jo")).ToList();
+                Assert.Equal(1, result.Count);
+                context.Database.EnsureDeleted();
+            }
+        }
+
 
     public void Dispose()
     {
