@@ -20,50 +20,63 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.Data.MySqlClient;
-using MySqlX.XDevAPI.Relational;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Xunit;
 
-namespace MySqlX.Data.Tests.RelationalTests
+namespace MySqlX.XDevAPI.Config
 {
-  public class ViewTests : BaseTest
+  public class SessionConfig
   {
-    [Fact]
-    public void TryUpdatingView()
+    internal Dictionary<string, object> appData = new Dictionary<string, object>();
+
+    internal SessionConfig(string name, string uri)
     {
-      ExecuteSQL("CREATE TABLE test(id int)");
-      ExecuteSQL("CREATE VIEW view1 AS select *, 1 from test");
-
-      List<Table> tables = testSchema.GetTables();
-      Assert.Equal(2, tables.Count);
-
-      Table view = tables.First(i => i.IsView);
-      Assert.Equal("view1", view.Name);
-      MySqlException ex = Assert.Throws<MySqlException>(() => view.Insert().Values(1).Execute());
-      Assert.Equal("Column '1' is not updatable", ex.Message);
+      if (string.IsNullOrEmpty(name))
+        throw new ArgumentNullException("name");
+      if (string.IsNullOrEmpty(uri))
+        throw new ArgumentNullException("uri");
+      Name = name;
+      Uri = uri;
     }
 
-    [Fact]
-    public void GetView()
-    {
-      ExecuteSQL("CREATE TABLE test(id int)");
-      ExecuteSQL("CREATE VIEW view1 AS select *, 1 from test");
+    public string Name { get; protected set; }
 
-      Table table = testSchema.GetTable("test");
-      Table view = testSchema.GetTable("view1");
-      Assert.True(view.IsView);
-      Assert.False(table.IsView);
+    public string Uri { get; set; }
+
+    public void SetAppData(string key, string value)
+    {
+      appData.Add(key, value);
     }
 
-    [Fact]
-    public void NonExistingView()
+    public void DeleteAppData(string key)
     {
-      Assert.Throws<MySqlException>(() => testSchema.GetTable("no_exists").IsView);
+      appData.Remove(key);
+    }
+
+    public string GetAppData(string key)
+    {
+      return appData[key].ToString();
+    }
+
+    public void Save()
+    {
+      SessionConfigManager.Save(this);
+    }
+
+    public string ToJsonString()
+    {
+      List<string> options = new List<string>();
+      options.Add($"\"uri\": \"{Uri}\"");
+      if(appData.Count > 0)
+      {
+        string appdataOptions = string.Join(", ", appData.Select(i => $"\"{i.Key}\": \"{i.Value}\""));
+        options.Add($"\"appdata\": {{ {appdataOptions} }}");
+      }
+      return $"{{ \"{Name}\": {{ {string.Join(", ", options)} }} }}";
     }
   }
 }

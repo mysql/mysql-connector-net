@@ -68,7 +68,7 @@ namespace MySqlX.XDevAPI.Common
         if (_columns.Count == 0)
           _hasData = false;
         for (int i = 0; i < _columns.Count; i++)
-          _nameMap.Add(_columns[i].ColumnName ?? _columns[i].ColumnLabel, i);
+          _nameMap.Add(_columns[i].ColumnLabel ?? _columns[i].ColumnName, i);
       }
       else
         Protocol.CloseResult(this);

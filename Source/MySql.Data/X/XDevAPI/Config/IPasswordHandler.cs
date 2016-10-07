@@ -1,4 +1,4 @@
-﻿// Copyright © 2014, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,27 +20,19 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
-
-namespace MySql.Fabric
+namespace MySqlX.XDevAPI
 {
-  internal class FabricShardTable
+  public interface IPasswordHandler
   {
-    internal List<FabricShardIndex> Indexes { get; set; }
-    internal string SchemaName { get; set; }
-    internal string TableName { get; set; }
-    internal string ColumnName { get; set; }
-    internal int MappingId { get; set; }
-    internal string GlobalGroupId { get; set; }
-    internal FabricShardIndexType TypeShard { get; set; }
+    void Save(string key, string service, string password);
 
-    internal FabricShardTable()
-    {
-      Indexes = new List<FabricShardIndex>();
-    }
+    string Load(string key, string service);
   }
 }

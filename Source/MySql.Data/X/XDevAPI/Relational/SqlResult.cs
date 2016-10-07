@@ -67,7 +67,7 @@ namespace MySqlX.XDevAPI.Relational
     {
       if (!_hasMoreResults)
         return false;
-      _hasData = Protocol.HasData();
+      _hasData = Protocol.HasData(this);
       LoadCoumnData();
       _isComplete = !_hasData;
       _position = -1;

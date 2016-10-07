@@ -62,14 +62,15 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
     private readonly MySQLSizeableMapping _varbinarymed
            = new MySQLSizeableMapping("varbinary(" + _medTextMaxLength.ToString() + ")", typeof(byte[]), dbType: DbType.Binary, unicode: false, size: _medTextMaxLength);
 
-    private readonly RelationalTypeMapping _rowversion = new RelationalTypeMapping("Timestamp", typeof(DateTime), dbType: DbType.DateTime);
+    private readonly RelationalTypeMapping _rowversion = new RelationalTypeMapping("timestamp", typeof(DateTime), dbType: DbType.DateTime);
 
     private readonly RelationalTypeMapping _longText = new RelationalTypeMapping("longtext", typeof(string)); 
     private readonly RelationalTypeMapping _mediumText = new RelationalTypeMapping("mediumtext", typeof(string));
     private readonly RelationalTypeMapping _Text = new RelationalTypeMapping("text", typeof(string));
     private readonly RelationalTypeMapping _tinyText = new RelationalTypeMapping("tinytext", typeof(string));
         
-    private readonly RelationalTypeMapping _datetime = new RelationalTypeMapping("datetime", typeof(DateTime)); 
+    private readonly RelationalTypeMapping _datetime = new RelationalTypeMapping("datetime", typeof(DateTime));
+    private readonly RelationalTypeMapping _datetimeoffset = new RelationalTypeMapping("timestamp", typeof(DateTimeOffset), DbType.DateTime);
     private readonly RelationalTypeMapping _date = new RelationalTypeMapping("date", typeof(DateTime)); 
     private readonly RelationalTypeMapping _time = new RelationalTypeMapping("time", typeof(DateTime));
     private readonly RelationalTypeMapping _double = new RelationalTypeMapping("float", typeof(Single)); 
@@ -105,6 +106,7 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
         { "text", _Text},
         { "tinytext", _tinyText},
         { "datetime", _datetime },
+        { "datetimeoffset", _datetimeoffset },
         { "timestamp", _datetime },
         { "bit", _bit },
         { "string", _varchar },
@@ -117,6 +119,7 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
                     { typeof(int), _int },
                     { typeof(long), _bigint },
                     { typeof(DateTime), _datetime },
+                    { typeof(DateTimeOffset), _datetimeoffset },
                     { typeof(bool), _bit },
                     { typeof(byte), _tinyint },
                     { typeof(double), _double },
@@ -129,7 +132,7 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
                     { typeof(float), _real },
                     { typeof(decimal), _decimal },
                     { typeof(string), _varchar },
-                    { typeof(byte[]), _varbinary }
+                    { typeof(byte[]), _varbinary }                    
           };
 
 
@@ -195,8 +198,7 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
     public override RelationalTypeMapping FindMapping(Type clrType)
     {
       ThrowIf.Argument.IsNull(clrType, "clrType");
-      var sType = Nullable.GetUnderlyingType(clrType) ?? clrType;      
-
+      var sType = Nullable.GetUnderlyingType(clrType) ?? clrType;   
       return sType == typeof(string)
           ? _nvarcharmax
           : (sType == typeof(byte[])

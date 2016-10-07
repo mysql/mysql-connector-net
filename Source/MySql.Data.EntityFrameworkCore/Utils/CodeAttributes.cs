@@ -22,7 +22,6 @@
 
 using System;
 
-
 namespace MySQL.Data.EntityFrameworkCore
 {
   [AttributeUsage(AttributeTargets.All)]

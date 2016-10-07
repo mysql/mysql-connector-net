@@ -47,7 +47,7 @@ namespace MySqlX.XDevAPI.CRUD
       if (values == null) return null;
 
       Debug.Assert(values.Count == 1);
-      return new DbDoc(_encoding.GetString(values[0]));
+      return new DbDoc(_encoding.GetString(values[0]).TrimEnd('\0'));
     }
   }
 }

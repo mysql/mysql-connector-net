@@ -60,6 +60,15 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///    Looks up a localized string similar to Error parsing configuration file &apos;{0}&apos;..
+        /// </summary>
+        public static string ErrorParsingConfigFile {
+            get {
+                return ResourceManager.GetString("ErrorParsingConfigFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///    Looks up a localized string similar to Collation with id &apos;{0}&apos; not found..
         /// </summary>
         public static string InvalidCollationId {
@@ -132,16 +141,25 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Invalid uri query value.
+        ///    Looks up a localized string similar to Invalid uri query value.
         /// </summary>
-        internal static string InvalidUriQuery {
+        public static string InvalidUriQuery {
             get {
                 return ResourceManager.GetString("InvalidUriQuery", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Keyword not supported..
+        ///    Looks up a localized string similar to Json configuration must contain &apos;uri&apos; or &apos;host&apos; but not both..
+        /// </summary>
+        public static string JsonUriOrHost {
+            get {
+                return ResourceManager.GetString("JsonUriOrHost", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Keyword not supported..
         /// </summary>
         public static string KeywordNotSupported {
             get {
@@ -164,6 +182,15 @@ namespace MySql.Data {
         public static string NoDataAtIndex {
             get {
                 return ResourceManager.GetString("NoDataAtIndex", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to No &apos;host&apos; has been specified..
+        /// </summary>
+        public static string NoHost {
+            get {
+                return ResourceManager.GetString("NoHost", resourceCulture);
             }
         }
         

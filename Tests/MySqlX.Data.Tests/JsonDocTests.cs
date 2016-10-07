@@ -35,7 +35,10 @@ namespace MySqlX.Data.Tests
       d.SetValue("_id", 1);
       d.SetValue("pages", 20);
       string s = d.ToString();
-      Assert.Equal(@"{ ""_id"": 1, ""pages"": 20 }", d.ToString());
+      Assert.Equal(@"{
+  ""_id"": 1, 
+  ""pages"": 20
+}", d.ToString());
     }
 
     [Fact]
@@ -64,12 +67,20 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void ParseWithArray()
     {
-      string json = @"{ ""id"": 1, ""pages"": 20, 
-          ""books"": [ 
-            { ""_id"": 1, ""title"": ""Book 1"" }, 
-            { ""_id"": 2, ""title"": ""Book 2"" } 
-          ] 
-      }";
+      string json = @"{
+  ""id"": 1, 
+  ""pages"": 20, 
+  ""books"": [
+    {
+      ""_id"": 1, 
+      ""title"": ""Book 1""
+    }, 
+    {
+      ""_id"": 2, 
+      ""title"": ""Book 2""
+    }
+  ]
+}";
 
       string[] lines = json.Split(new string[] { "\r\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
       for (int i = 0; i < lines.Length; i++)
@@ -89,7 +100,7 @@ namespace MySqlX.Data.Tests
       d2.SetValue("pages", 20);
       d2.SetValue("books", docs);
       Assert.True(d.Equals(d2));
-      Assert.Equal(noFormat, d2.ToString());
+      Assert.Equal(json, d2.ToString());
     }
 
     [Fact]

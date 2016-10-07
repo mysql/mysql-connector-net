@@ -51,6 +51,7 @@ namespace MySqlX.Session
     private XPacketReaderWriter _reader;
     private XPacketReaderWriter _writer;
     private bool serverSupportsTls = false;
+    private const string mysqlxNamespace = "xplugin"; // TODO change to mysqlx
 
 
     public XInternalSession(MySqlConnectionStringBuilder settings) : base(settings)
@@ -211,7 +212,7 @@ namespace MySqlX.Session
 
     private Result ExecuteCmdNonQuery(string cmd, bool throwOnFail, params object[] args)
     {
-      protocol.SendExecuteStatement("xplugin", cmd, args);
+      protocol.SendExecuteStatement(mysqlxNamespace, cmd, args);
       return new Result(this);
     }
 
@@ -266,7 +267,7 @@ namespace MySqlX.Session
 
     public RowResult GetRowResult(string cmd, params object[] args)
     {
-      protocol.SendExecuteStatement("xplugin", cmd, args);
+      protocol.SendExecuteStatement(mysqlxNamespace, cmd, args);
       return new RowResult(this);
     }
 

@@ -36,7 +36,7 @@ namespace MySqlX.XDevAPI
   /// </summary>
   public class DbDoc
   {
-    private Dictionary<string, object> values = new Dictionary<string, object>();
+    internal Dictionary<string, object> values = new Dictionary<string, object>();
 
     /// <summary>
     /// Constructs a DbDoc with the given value.  The value can be a domain object, anonymous object, or JSON string.
@@ -48,6 +48,10 @@ namespace MySqlX.XDevAPI
       {
         if (val is string)
           values = JsonParser.Parse(val as string);
+        else if (val is Dictionary<string, object>)
+          values = JsonParser.Parse(DictToString(val as Dictionary<string, object>, 2));
+        else if (val is DbDoc)
+          values = JsonParser.Parse(DictToString((val as DbDoc).values, 2));
         else
           values = ParseObject(val);
       }
@@ -88,11 +92,29 @@ namespace MySqlX.XDevAPI
 
     private string GetValue(string path)
     {
-      if (!values.ContainsKey(path))
-        throw new InvalidOperationException(
-          String.Format(ResourcesX.PathNotFound, path));
-      ///TODO:  implement full path here.  This is currently only one level deep
-      return values[path].ToString();
+      string[] levels = path.Split('.');
+      Dictionary<string,object> dic = values;
+      string returnValue = null;
+      foreach(string level in levels)
+      {
+        if (!dic.ContainsKey(level))
+          throw new InvalidOperationException(
+            String.Format(ResourcesX.PathNotFound, path));
+        if (dic[level] is Dictionary<string, object>)
+        {
+          dic = dic[level] as Dictionary<string, object>;
+          returnValue = DictToString(dic, 2);
+        }
+        else if (dic[level].GetType().GetTypeInfo().IsGenericType)
+        {
+          dic = ParseObject(dic[level]);
+          returnValue = DictToString(dic, 2);
+        }
+        else
+          returnValue = dic[level].ToString();
+      }
+
+      return returnValue;
     }
 
     /// <summary>
@@ -107,10 +129,14 @@ namespace MySqlX.XDevAPI
 
       if (e != null)
         values[key] = GetArrayValues(e);
+      else if (val is DbDoc)
+        values[key] = (val as DbDoc).values;
+      else if (val is Dictionary<string, object>)
+        values[key] = val;
       else if (t.Namespace != "System")
-          values[key] = ParseObject(val);
+        values[key] = ParseObject(val);
       else
-          values[key] = val;
+        values[key] = val;
     }
 
     private Dictionary<string,object>[] GetArrayValues(IEnumerable value)
@@ -127,37 +153,49 @@ namespace MySqlX.XDevAPI
     /// <returns>Json formatted string</returns>
     public override string ToString()
     {
-      return DictToString(values);
+      return DictToString(values, 2);
     }
 
-    private string DictToString(Dictionary<string, object> vals)
+    private string DictToString(Dictionary<string, object> vals, int ident)
     {
-      StringBuilder json = new StringBuilder("{ ");
+      StringBuilder json = new StringBuilder("{");
       string delimiter = "";
       foreach (string key in vals.Keys)
       {
-        json.AppendFormat("{2}\"{0}\": {1}", key, GetValue(vals[key]), delimiter);
+        json.Append(delimiter);
+        json.AppendLine();
+        json.Append(' ', ident);
+        json.AppendFormat("\"{0}\": {1}", key, GetValue(vals[key], ident));
         delimiter = ", ";
       }
-      json.Append(" }");
+      json.AppendLine();
+      json.Append(' ', ident - 2);
+      json.Append("}");
       return json.ToString();
     }
 
-    private string GetValue(object val)
+    private string GetValue(object val, int ident)
     {
       if(val.GetType().IsArray)
       {
-        string values = "[ ";
+
+        StringBuilder values = new StringBuilder("[");
         string separator = string.Empty;
         foreach (var item in (Array)val)
         {
-          values += separator + GetValue(item);
+          values.Append(separator);
+          values.AppendLine();
+          values.Append(' ', ident + 2);
+          values.Append(GetValue(item, ident + 2));
           separator = ", ";
         }
-        return values + " ]";
+        values.AppendLine();
+        values.Append(' ', ident);
+        values.Append("]");
+        return values.ToString();
       }
       if (val is Dictionary<string, object>)
-        return DictToString(val as Dictionary<string, object>);
+        return DictToString(val as Dictionary<string, object>, ident + 2);
       string quoteChar = "";
       Type type = val.GetType();
       if (val is string || val is DateTime)

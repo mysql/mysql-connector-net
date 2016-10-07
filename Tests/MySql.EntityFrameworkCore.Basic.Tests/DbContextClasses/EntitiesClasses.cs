@@ -139,6 +139,8 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
 
     [ConcurrencyCheck]
     public string SocialSecurityNumber { get; set; }
+    public string PhoneNumber { get; set; }
+    [ConcurrencyCheck]
     public string Name { get; set; }
   }
 
@@ -174,5 +176,15 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
         public string Street { get; set; }
         public string City { get; set; }
         public Relative Relative { get; set; }
+    }
+
+
+    public class QuickEntity
+    {
+        [Key]
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public DateTimeOffset Created { get; set; }
+
     }
 }

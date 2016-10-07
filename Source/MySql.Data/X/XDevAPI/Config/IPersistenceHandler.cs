@@ -1,4 +1,4 @@
-﻿// Copyright © 2014, 2015 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,37 +20,26 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+
+using MySqlX.XDevAPI;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace MySql.Fabric
+namespace MySqlX.XDevAPI.Config
 {
-  [Flags]
-  public enum FabricServerModeEnum
+  public interface IPersistenceHandler
   {
-    Offline = 0,
-    Read_only = 1,
-    Write_only = 2,
-    Read_Write = 4
-  }
+    SessionConfig Save(string name, DbDoc config);
 
-  internal enum FabricServerStatusEnum
-  {
-    Faulty = 0,
-    Spare = 1,
-    Secondary = 2,
-    Primary = 3
-  }
+    DbDoc Load(string name);
 
-  public enum FabricScopeEnum
-  {
-    Global = 1,
-    Local = 2
-  }
+    void Delete(string name);
 
-  internal enum FabricShardIndexType : int
-  {
-    Hash = 1,
-    Range = 2,
-    List = 3
+    List<string> List();
+
+    bool Exists(string name);
   }
 }

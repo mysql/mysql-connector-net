@@ -42,7 +42,10 @@ namespace MySqlX.Serialization
     private Dictionary<string, object> ParseInternal(string s)
     {
       _input = s;
-      return ReadGroup();
+      Dictionary<string, object> dic = ReadGroup();
+      if (_pos != _input.Length)
+        throw new IndexOutOfRangeException("It's not the end of stream.");
+      return dic;
     }
 
     private Dictionary<string, object> ReadGroup()
@@ -50,16 +53,17 @@ namespace MySqlX.Serialization
       Dictionary<string, object> values = new Dictionary<string, object>();
 
       RequireToken('{');
-      while (true)
-      {
-        string key = ReadQuotedToken();
-        if (key == null) break;
-        RequireToken(':');
-        var obj = ReadValue();
-        values[key] = obj;
-        if (PeekToken() == '}') break;
-        RequireToken(',');
-      }
+      if (PeekToken() != '}')
+        while (true)
+        {
+          string key = ReadQuotedToken();
+          if (key == null) break;
+          RequireToken(':');
+          var obj = ReadValue();
+          values[key] = obj;
+          if (PeekToken() == '}') break;
+          RequireToken(',');
+        }
       RequireToken('}');
       return values;
     }

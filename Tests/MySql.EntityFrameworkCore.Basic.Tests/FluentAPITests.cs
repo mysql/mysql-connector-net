@@ -20,12 +20,15 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using MySql.Data.MySqlClient;
 using MySQL.Data.EntityFrameworkCore;
 using System;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace MySql.Data.EntityFrameworkCore.Tests
@@ -55,7 +58,75 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       }
     }
 
+
+
     [Fact]
+    public void CanUseModelWithDateTimeOffset()
+    {
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddEntityFrameworkMySQL()        
+        .AddDbContext<QuickContext>();
+
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+
+        using (var context = serviceProvider.GetRequiredService<QuickContext>())
+        {
+            try
+            {
+                context.Database.EnsureCreated();
+                var dt = DateTime.Now;
+                var e = new QuickEntity { Name = "Jos", Created = dt };
+                context.QuickEntity.Add(e);
+                context.SaveChanges();
+                var row = context.QuickEntity.FirstOrDefault();
+                Assert.Equal(dt, row.Created);                    
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                context.Database.EnsureDeleted();
+            }                
+        }
+    }
+
+
+        [Fact]
+        public async Task CanUseModelWithDateTimeOffsetAsync()
+        {
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddEntityFrameworkMySQL()
+            .AddDbContext<QuickContext>();
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            using (var context = serviceProvider.GetRequiredService<QuickContext>())
+            {
+                try
+                {
+                    context.Database.EnsureCreated();
+                    var dt = DateTime.Now;
+                    var e = new QuickEntity { Name = "Jos", Created = dt };
+                    context.QuickEntity.Add(e);
+                    context.SaveChanges();
+                    var result = await context.QuickEntity.FirstOrDefaultAsync();
+                    Assert.Equal(dt, result.Created);
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+                finally
+                {
+                    context.Database.EnsureDeleted();
+                }
+            }
+        }
+
+
+        [Fact]
     public void CanNameAlternateKey()
     {
       var serviceCollection = new ServiceCollection();
@@ -158,6 +229,27 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         context.Database.EnsureDeleted();
       }
     }
+
+        [Fact]
+        public void CanUseContainsInQuery()
+        {
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddEntityFrameworkMySQL()
+              .AddDbContext<ComputedColumnContext>();
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            using (var context = serviceProvider.GetRequiredService<ComputedColumnContext>())
+            {
+                context.Database.EnsureCreated();
+                var e = new Employee { FirstName = "Jos", LastName = "Stuart" };
+                context.Employees.Add(e);
+                context.SaveChanges();
+                var result = context.Employees.Where(t => t.FirstName.Contains("jo")).ToList();
+                Assert.Equal(1, result.Count);
+                context.Database.EnsureDeleted();
+            }
+        }
 
 
     public void Dispose()

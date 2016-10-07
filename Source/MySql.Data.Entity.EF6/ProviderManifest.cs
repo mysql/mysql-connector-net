@@ -1,4 +1,4 @@
-﻿// Copyright © 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2008, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -251,10 +251,8 @@ namespace MySql.Data.MySqlClient
           return TypeUsage.CreateDefaultTypeUsage(StoreTypeNameToStorePrimitiveType["datetime"]);
         case PrimitiveTypeKind.Time:
           return TypeUsage.CreateDefaultTypeUsage(StoreTypeNameToStorePrimitiveType["time"]);
-#if NET_45_OR_GREATER
         case PrimitiveTypeKind.Geometry:
           return TypeUsage.CreateDefaultTypeUsage(StoreTypeNameToStorePrimitiveType["geometry"]);
-#endif
         default:
           throw new NotSupportedException(String.Format(Entity.Properties.Resources.NoStoreTypeForEdmType, edmType, primitiveType.PrimitiveTypeKind));
       }

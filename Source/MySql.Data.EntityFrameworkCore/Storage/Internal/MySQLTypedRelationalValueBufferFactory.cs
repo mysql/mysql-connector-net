@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,28 +20,29 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+using System;
 using System.Collections.Generic;
-using MySqlX.XDevAPI;
-using MySqlX.XDevAPI.Common;
-using MySqlX.XDevAPI.Relational;
+using System.Linq;
+using System.Threading.Tasks;
+using JetBrains.Annotations;
+using System.Data.Common;
+using MySQL.Data.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
-namespace MySqlX.Protocol
+namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
+    public class MySQLTypedRelationalValueBufferFactory : TypedRelationalValueBufferFactory
+    {
+        public MySQLTypedRelationalValueBufferFactory([NotNull] Func<DbDataReader, object[]> valueFactory) : base(valueFactory)
+        {
+        }
 
-  /// <summary>
-  /// Abstract class for the protocol base operations in client/server communication.
-  /// </summary>  
-  /// 
-  public abstract class ProtocolBase
-  {
-    public abstract List<byte[]> ReadRow(BaseResult rs);
-    public abstract void SendSQL(string sql, params object[] args);
-
-    public abstract bool HasData(BaseResult rs);
-
-    public abstract List<Column> LoadColumnMetadata();
-
-    public abstract void CloseResult(BaseResult rs); 
-  }
+        public override ValueBuffer Create(DbDataReader dataReader)
+        {
+            //create our datareader            
+            MySQLDataReader mydatareader = (MySQLDataReader)dataReader;
+            return base.Create(mydatareader);        
+        }
+    }
 }

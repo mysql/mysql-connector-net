@@ -11,9 +11,6 @@
     "tags": [ "MySql", ".NET Connector", "MySql Connector/NET", "netcore", ".Net Core", "MySql Conector/Net Core", "coreclr", "C/NET", "C/Net Core", "EF", "Entity Framework" ],
     "requireLicenseAcceptance": true
   },
-
-  "buildOptions": {
-  },
   "dependencies": {
     "dotnet-test-xunit": "2.2.0-*",
     "xunit": "2.2.0-*",
@@ -41,7 +38,7 @@
           "include": [ "../*.cs" ]
         },
         "warningsAsErrors": false,
-        "optimize": true,
+        "optimize": false,
         "xmlDoc": true,
         "nowarn": [ "CS1591" ],
         "keyFile": "../../ConnectorNetPublicKey.snk",
@@ -76,6 +73,5 @@
       }
     }
   },
-
-  "testRunner": "xunit"
+  "testRunner": "xunit" 
 }

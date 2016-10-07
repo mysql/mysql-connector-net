@@ -48,7 +48,7 @@ namespace MySqlX.XDevAPI.Common
         session.ActiveResult = null;
       }
 
-      _hasData = Protocol.HasData();
+      _hasData = Protocol.HasData(this);
       if (_hasData)
         session.ActiveResult = this;
     }

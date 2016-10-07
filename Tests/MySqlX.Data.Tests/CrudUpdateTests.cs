@@ -20,8 +20,10 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySqlX.Serialization;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
+using System;
 using Xunit;
 
 namespace MySqlX.Data.Tests
@@ -76,8 +78,8 @@ namespace MySqlX.Data.Tests
       Assert.Equal<ulong>(1, result.RecordsAffected);
 
       var docs = coll.Find().Execute().FetchAll();
-      Assert.Equal("{ \"_id\": 1, \"name\": \"Book 1\", \"pages\": 10 }", docs[0].ToString());
-      Assert.Equal("{ \"_id\": 2, \"name\": \"Book 2\", \"pages\": 20 }", docs[1].ToString());
+      Assert.Equal(new DbDoc("{ \"_id\": 1, \"name\": \"Book 1\", \"pages\": 10 }").ToString(), docs[0].ToString());
+      Assert.Equal(new DbDoc("{ \"_id\": 2, \"name\": \"Book 2\", \"pages\": 20 }").ToString(), docs[1].ToString());
     }
   }
 }

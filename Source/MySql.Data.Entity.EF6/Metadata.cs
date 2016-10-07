@@ -1,4 +1,4 @@
-﻿// Copyright © 2008, 2013,  Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2008, 2016,  Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -87,9 +87,7 @@ namespace MySql.Data.Entity
 
       switch (pt.PrimitiveTypeKind)
       {
-#if NET_45_OR_GREATER          
         case PrimitiveTypeKind.Geometry: return DbType.Object;
-#endif
         case PrimitiveTypeKind.Binary: return DbType.Binary;
         case PrimitiveTypeKind.Boolean: return DbType.Boolean;
         case PrimitiveTypeKind.Byte: return DbType.Byte;
@@ -118,7 +116,6 @@ namespace MySql.Data.Entity
     public static object NormalizeValue(TypeUsage type, object value)
     {
       PrimitiveType pt = (PrimitiveType)type.EdmType;
-#if NET_45_OR_GREATER
       if (value != null &&
                value != DBNull.Value &&
                Type.GetTypeCode(value.GetType()) == TypeCode.Object)
@@ -141,7 +138,6 @@ namespace MySql.Data.Entity
           return geometryValBinary;
         }
       }
-#endif
       if (pt.PrimitiveTypeKind != PrimitiveTypeKind.DateTimeOffset) return value;
       DateTimeOffset dto = (DateTimeOffset)value;
       DateTime dt = dto.DateTime;

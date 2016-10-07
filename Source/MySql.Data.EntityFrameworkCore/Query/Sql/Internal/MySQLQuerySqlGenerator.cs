@@ -31,6 +31,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace MySQL.Data.EntityFrameworkCore.Query
 {
   public class MySQLQuerySqlGenerator : DefaultQuerySqlGenerator
@@ -43,6 +44,13 @@ namespace MySQL.Data.EntityFrameworkCore.Query
       }
     }
 
+    protected override string ConcatOperator
+    {
+        get
+        {
+            return String.Empty;
+        }
+    }
 
     protected override string TypedTrueLiteral
     {
@@ -71,7 +79,7 @@ namespace MySQL.Data.EntityFrameworkCore.Query
     protected override void GenerateTop([NotNull]SelectExpression selectExpression)
     {
       //Nothing to do
-    }
+    }       
 
     protected override void GenerateLimitOffset([NotNull] SelectExpression selectExpression)
     {
