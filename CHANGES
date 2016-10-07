@@ -3,6 +3,7 @@
 - EFCore: MySQLHistoryRepository has not implemented get_ExistsSql() (Oracle Bug #24804771).
 - EFCore: Cannot use datetimeoffset in EF DBContext (Oracle Bug #24732001).
 - EFCore: SQL syntax error when using Contains in where predicate for a linq query (Oracle Bug #24797524).
+- EFCore: Ensure ConcurrencyToken attribute is supported with MySQL provider.
 
 
 7.0.5
