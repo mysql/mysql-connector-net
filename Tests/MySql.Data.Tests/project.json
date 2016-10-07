@@ -1,5 +1,5 @@
 {
-  "version": "7.0.5-IR2-*",
+  "version": "7.0.6-IR3",
   "description": "MySql.Data.Tests Class Library",
   "authors": [ "Oracle" ],
   "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",

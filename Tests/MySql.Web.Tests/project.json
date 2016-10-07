@@ -1,5 +1,5 @@
 ﻿{
-  "version": "7.0.5-IR21-*",
+  "version": "7.0.6-IR3",
   "description": "MySql.Web.Tests",
   "authors": [
     "Oracle"
@@ -16,12 +16,12 @@
       "MySql Connector/NET"
     ],
     "requireLicenseAcceptance": true
-   },
+  },
   "dependencies": {
     "xunit": "1.9.2",
     "MySql.Data": {
       "target": "project"
-    },   
+    },
     "MySql.Web": {
       "target": "project"
     },
@@ -29,34 +29,34 @@
       "target": "project"
     }
   },
-    "frameworks": {
-      "net451": {
-        "keyFile": "../../ConnectorNetPublicKey.snk",
-        "delaySign": true,
-        "publicSign": false,
-        "dependencies": {    
-          "Microsoft.AspNet.Razor": "3.2.3",
-          "Microsoft.AspNet.WebPages": "3.2.3",
-          "Microsoft.AspNet.WebPages.Data": "3.2.3",
-          "Microsoft.AspNet.WebPages.WebData": "3.2.3",
-          "Microsoft.Web.Infrastructure": "1.0.0",
-          "WebMatrix.WebData": "2.0.30506"
+  "frameworks": {
+    "net451": {
+      "keyFile": "../../ConnectorNetPublicKey.snk",
+      "delaySign": true,
+      "publicSign": false,
+      "dependencies": {
+        "Microsoft.AspNet.Razor": "3.2.3",
+        "Microsoft.AspNet.WebPages": "3.2.3",
+        "Microsoft.AspNet.WebPages.Data": "3.2.3",
+        "Microsoft.AspNet.WebPages.WebData": "3.2.3",
+        "Microsoft.Web.Infrastructure": "1.0.0",
+        "WebMatrix.WebData": "2.0.30506"
+      },
+      "frameworkAssemblies": {
+        "System.ComponentModel.DataAnnotations": "",
+        "System.Configuration.Install": "4.0.0.0",
+        "System.Core": "",
+        "System.Data": "",
+        "System.Data.DataSetExtensions": "",
+        "System.Management": "4.0.0.0",
+        "System.Runtime": {
+          "type": "build"
         },
-        "frameworkAssemblies": {
-          "System.ComponentModel.DataAnnotations": "",
-          "System.Configuration.Install": "4.0.0.0",
-          "System.Core": "",
-          "System.Data": "",
-          "System.Data.DataSetExtensions": "",
-          "System.Management": "4.0.0.0",
-          "System.Runtime": {
-            "type": "build"
-          },
-          "System.Security": "",
-          "System.Web": "4.0.0.0",
-          "System.Web.ApplicationServices": "4.0.0.0",
-          "System.Xml": ""
-        }
+        "System.Security": "",
+        "System.Web": "4.0.0.0",
+        "System.Web.ApplicationServices": "4.0.0.0",
+        "System.Xml": ""
       }
     }
+  }
 }

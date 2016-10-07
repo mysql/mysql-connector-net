@@ -1,5 +1,5 @@
 {
-  "version": "7.0.5-IR21-*",
+  "version": "7.0.6-IR3",
   "description": "MySqlX.Data.Tests Class Library",
   "authors": [ "Oracle" ],
   "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
@@ -10,10 +10,10 @@
     "iconUrl": "http://www.mysql.com/common/logos/logo-mysql-170x115.png",
     "tags": [ "MySql", ".NET Connector", "MySql Connector/NET", "netcore", ".Net Core", "MySql Conector/Net Core", "coreclr", "C/NET", "C/Net Core" ],
     "requireLicenseAcceptance": true
-  }, 
+  },
   "dependencies": {
     "dotnet-test-xunit": "2.2.0-*",
-    "xunit": "2.2.0-*",   
+    "xunit": "2.2.0-*",
     "Google.Protobuf": "3.0.0-beta4",
     "MySql.Data": {
       "target": "project"
@@ -34,7 +34,7 @@
       "buildOptions": {
         "define": [ "NETCORE10" ],
         "copyToOutput": [ "appsettings.json" ],
-        "warningsAsErrors": false,        
+        "warningsAsErrors": false,
         "embed": [ "Properties/CreateUsers.sql" ],
         "nowarn": [ "CS1591" ],
         "keyFile": "../../ConnectorNetPublicKey.snk",
