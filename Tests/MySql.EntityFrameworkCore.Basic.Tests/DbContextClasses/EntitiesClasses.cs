@@ -139,6 +139,8 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
 
     [ConcurrencyCheck]
     public string SocialSecurityNumber { get; set; }
+    public string PhoneNumber { get; set; }
+    [ConcurrencyCheck]
     public string Name { get; set; }
   }
 
