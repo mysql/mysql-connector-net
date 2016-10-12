@@ -45,8 +45,7 @@
         "dnxcore50"
       ],
       "buildOptions": {
-        "define": [ "NETCORE10" ],
-        "copyToOutput": [ "appsettings.json" ],
+        "define": [ "NETCORE10" ],        
         "compile": {
           "include": [ "../*.cs" ]
         },
