@@ -33,7 +33,7 @@ namespace MySql.Data.MySqlClient
       public ConfigUtils(string settingsFile)
       {
           var builder = new ConfigurationBuilder()
-                        .SetBasePath(Path.GetFullPath(@"..\.."))
+                        .SetBasePath(Path.GetFullPath(@"../.."))
                         .AddJsonFile(settingsFile, false);
           _configuration = builder.Build();
       }
