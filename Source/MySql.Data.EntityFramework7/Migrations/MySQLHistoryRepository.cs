@@ -53,10 +53,18 @@ namespace MySQL.Data.Entity.Migrations
 
     protected override string ExistsSql
     {
-      get
-      {
-        throw new NotImplementedException();
-      }
+        get
+        {
+            var builder = new StringBuilder();
+            builder.Append("SELECT COUNT(*) FROM information_schema.tables WHERE ");
+            if (TableSchema != null)
+            {
+                builder.Append($"table_schema = '{SqlGenerationHelper.EscapeLiteral(TableSchema)}' AND");
+            }
+
+            builder.Append($"table_name='{SqlGenerationHelper.EscapeLiteral(TableName)}'");
+            return builder.ToString();
+        }
     }
 
     public override string GetBeginIfExistsScript(string migrationId)
@@ -79,9 +87,6 @@ namespace MySQL.Data.Entity.Migrations
       throw new NotImplementedException();
     }
 
-    protected override bool InterpretExistsResult([NotNull] object value)
-    {
-      throw new NotImplementedException();
-    }
+    protected override bool InterpretExistsResult([NotNull] object value) => (long)value != 0L;
   }
 }
