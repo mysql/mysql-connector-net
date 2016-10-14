@@ -51,6 +51,7 @@
     "Debug": {
       "buildOptions": {
         "define": [ "DEBUG" ],
+        "embed": [ "Properties/CreateUsers.sql" ],
         "optimize": false,
         "preserveCompilationContext": true
       }
@@ -58,6 +59,7 @@
     "Release": {
       "buildOptions": {
         "define": [ "RELEASE" ],
+        "embed": [ "Properties/CreateUsers.sql" ],
         "optimize": true,
         "preserveCompilationContext": true,
         "xmlDoc": true

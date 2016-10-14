@@ -58,8 +58,7 @@ namespace MySqlX.Data.Tests
     private static string Port()
     {
 #if NETCORE10           
-        string port = string.Empty;
-        config.GetPort();
+        string port = config.GetPort();
         if (!string.IsNullOrEmpty(port))
         {
             return port;
