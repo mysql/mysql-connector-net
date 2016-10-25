@@ -25,13 +25,16 @@ namespace MySql.Data.MySqlClient
 {
 #if NETCORE10
     using Microsoft.Extensions.Configuration;
+    using System.IO;
 
     public class ConfigUtils
   {
       private IConfiguration _configuration; 
       public ConfigUtils(string settingsFile)
       {
-          var builder = new ConfigurationBuilder().AddJsonFile(settingsFile, true);
+          var builder = new ConfigurationBuilder()
+                        .SetBasePath(Path.GetFullPath(@"../.."))
+                        .AddJsonFile(settingsFile, false);
           _configuration = builder.Build();
       }
 

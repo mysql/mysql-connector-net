@@ -32,8 +32,7 @@
         }
       },
       "buildOptions": {
-        "define": [ "NETCORE10" ],
-        "copyToOutput": [ "appsettings.json" ],
+        "define": [ "NETCORE10" ],        
         "warningsAsErrors": false,
         "embed": [ "Properties/CreateUsers.sql" ],
         "nowarn": [ "CS1591" ],
@@ -52,6 +51,7 @@
     "Debug": {
       "buildOptions": {
         "define": [ "DEBUG" ],
+        "embed": [ "Properties/CreateUsers.sql" ],
         "optimize": false,
         "preserveCompilationContext": true
       }
@@ -59,6 +59,7 @@
     "Release": {
       "buildOptions": {
         "define": [ "RELEASE" ],
+        "embed": [ "Properties/CreateUsers.sql" ],
         "optimize": true,
         "preserveCompilationContext": true,
         "xmlDoc": true

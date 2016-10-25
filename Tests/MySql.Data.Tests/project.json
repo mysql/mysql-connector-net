@@ -16,7 +16,10 @@
     "xunit": "2.2.0-*",
     "MySql.Data": {
       "target": "project"
-    }
+    },
+    "OpenCover": "4.6.519",
+    "ReportGenerator": "2.4.5",
+    "xunit.runner.console": "2.2.0-beta3-build3402"
   },
   "buildOptions": {
     "warningsAsErrors": false,
@@ -38,7 +41,7 @@
       },
       "buildOptions": {
         "define": [ "NETCORE10" ],
-        "copyToOutput": [ "appsettings.json", "client.pfx" ],
+        "copyToOutput": [ "client.pfx" ],
         "compile": {
           "include": [ "../*.cs" ],
           "exclude": [
