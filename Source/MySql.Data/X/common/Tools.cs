@@ -24,6 +24,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using MySql.Data;
+using MySqlX.DataAccess;
+using System.IO;
 
 namespace MySqlX.Common
 {
@@ -43,6 +45,16 @@ namespace MySqlX.Common
       }
 
       return result;
+    }
+
+    internal static OS GetOS()
+    {
+      if (Path.DirectorySeparatorChar == '/')
+        return OS.Linux;
+      if (Path.DirectorySeparatorChar == '\\')
+        return OS.Windows;
+      else
+        return OS.MacOS;
     }
   }
 }

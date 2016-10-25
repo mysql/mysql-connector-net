@@ -45,6 +45,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void Save()
     {
+      
       // save using SessionConfig instance
       SessionConfig scSave = new SessionConfig("SessionConfig", "mysqlx://myuser@localhost/SessionConfig");
       scSave.SetAppData("alias", "SessionConfigAlias");

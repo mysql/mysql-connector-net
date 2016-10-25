@@ -35,4 +35,12 @@ namespace MySqlX.DataAccess
     PlainAccess = 0,
     MySQL41 = 1  
   }
+
+  internal enum OS
+  {
+    Unknown = 0,
+    Windows,
+    Linux,
+    MacOS
+  }
 }

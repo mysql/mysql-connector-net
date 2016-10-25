@@ -22,6 +22,7 @@
 
 
 using MySql.Data;
+using MySqlX.Common;
 using MySqlX.Serialization;
 using System;
 using System.Collections.Generic;
@@ -38,20 +39,34 @@ namespace MySqlX.XDevAPI.Config
     private readonly string fileName = "MySQLsessions.json";
     private readonly string programdataFile;
     private readonly string appdataFile;
+    private const string linux_system_path = "/etc/mysql/sessions.json";
+    private const string linux_user_path = "/.mysql/sessions.json";
 
 
     public DefaultPersistenceHandler()
     {
-      string programdataPath = Environment.GetEnvironmentVariable("programdata");
-      if (!string.IsNullOrEmpty(programdataPath))
+      switch (Tools.GetOS())
       {
-        programdataFile = Path.Combine(programdataPath, fileName);
-      }
+        case DataAccess.OS.Windows:
+          string programdataPath = Environment.GetEnvironmentVariable("programdata");
+          if (string.IsNullOrEmpty(programdataPath))
+            throw new ArgumentNullException(ResourcesX.ProgramDataNotDefined);
+          else
+            programdataFile = Path.Combine(programdataPath, fileName);
 
-      string appdataPath = Environment.GetEnvironmentVariable("appdata");
-      if (!string.IsNullOrEmpty(appdataPath))
-      {
-        appdataFile = Path.Combine(appdataPath, fileName);
+          string appdataPath = Environment.GetEnvironmentVariable("appdata");
+          if (string.IsNullOrEmpty(appdataPath))
+            throw new ArgumentNullException(ResourcesX.AppdataNotDefined);
+          else
+            appdataFile = Path.Combine(appdataPath, fileName);
+
+          break;
+
+        case DataAccess.OS.Linux:
+        case DataAccess.OS.MacOS:
+          programdataFile = linux_system_path;
+          appdataFile = Environment.GetEnvironmentVariable("HOME") + linux_user_path;
+          break;
       }
     }
 
@@ -94,6 +109,9 @@ namespace MySqlX.XDevAPI.Config
       }
       data.Add(name, config);
       DbDoc json = new DbDoc(data);
+      string dir = Directory.GetParent(appdataFile).FullName;
+      if(!Directory.Exists(dir))
+        Directory.CreateDirectory(dir);
       File.WriteAllText(appdataFile, json.ToString());
       return sessionConfig;
     }

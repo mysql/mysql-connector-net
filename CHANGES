@@ -1,3 +1,7 @@
+7.0.7
+- MySqlX: Fixed configuration handling paths in Linux and MacOS.
+
+
 7.0.6
 - MySqlX: Fixed schema.GetTables() and schema.GetCollections() (Oracle Bug #24385662).
 - EFCore: MySQLHistoryRepository has not implemented get_ExistsSql() (Oracle Bug #24804771).
