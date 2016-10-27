@@ -41,7 +41,8 @@ namespace MySqlX.Communication
       int size = message.CalculateSize() + 1;
       _stream.Write(BitConverter.GetBytes(size), 0, 4);
       _stream.WriteByte((byte)id);
-      message.WriteTo(_stream);
+      if(message.CalculateSize() > 0)
+        message.WriteTo(_stream);
       _stream.Flush();
     }
 
