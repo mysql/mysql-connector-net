@@ -51,7 +51,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(66, Convert.ToInt32(sb.MaximumPoolSize));
       Assert.Equal(1, Convert.ToInt32(sb.Keepalive));
       Exception  ex = Assert.Throws<ArgumentException>(()=> (sb.ConnectionString = "server=localhost;badkey=badvalue"));
-      Assert.Equal("Keyword not supported.\r\nParameter name: badkey", ex.Message);        
+      Assert.Equal($"Keyword not supported.{Environment.NewLine}Parameter name: badkey", ex.Message);
       sb.Clear();
       Assert.Equal(15, Convert.ToInt32(sb.ConnectionTimeout));
       Assert.Equal(true, sb.Pooling);
@@ -147,7 +147,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlConnectionStringBuilder s = new MySqlConnectionStringBuilder();
       //[ExpectedException(typeof(ArgumentException))]
       Exception ex = Assert.Throws<ArgumentException>(() => (s["foo keyword"] = "foo"));
-      Assert.Equal("Keyword not supported.\r\nParameter name: foo keyword", ex.Message);      
+      Assert.Equal($"Keyword not supported.{Environment.NewLine}Parameter name: foo keyword", ex.Message);
     }
 
     /// <summary>

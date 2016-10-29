@@ -38,7 +38,7 @@ namespace MySqlX.Data.Tests
       Assert.Equal(@"{
   ""_id"": 1, 
   ""pages"": 20
-}", d.ToString());
+}".Replace("\r\n", Environment.NewLine), d.ToString());
     }
 
     [Fact]
@@ -100,7 +100,7 @@ namespace MySqlX.Data.Tests
       d2.SetValue("pages", 20);
       d2.SetValue("books", docs);
       Assert.True(d.Equals(d2));
-      Assert.Equal(json, d2.ToString());
+      Assert.Equal(json.Replace("\r\n", Environment.NewLine), d2.ToString());
     }
 
     [Fact]
