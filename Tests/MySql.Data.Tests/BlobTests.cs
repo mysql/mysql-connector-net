@@ -34,7 +34,7 @@ namespace MySql.Data.MySqlClient.Tests
 
     public BlobTests(TestSetup setup) : base(setup, "blob")
     {
-      ts = setup;
+      ts = setup;      
       customConnection = new MySqlConnection(ts.GetConnection(false).ConnectionString + ";" + OnGetConnectionStringInfo());
       customConnection.Open();
     }
@@ -42,19 +42,26 @@ namespace MySql.Data.MySqlClient.Tests
 
     protected BlobTests(TestSetup setup, String nameSpace) : base(setup, nameSpace)
     {
-      ts = setup;
+      ts = setup;      
       customConnection = new MySqlConnection(ts.GetConnection(false).ConnectionString + ";" + OnGetConnectionStringInfo());
       customConnection.Open();
     }
 
     protected override string OnGetConnectionStringInfo()
     {
-      return String.Format("protocol=pipe;pipe name={0};ssl mode=none;", ts.pipeName);
+#if NETCORE10
+      if (PlatformUtils.OsPlatform == PlatformRunning.Windows)
+        return String.Format("protocol=pipe;pipe name={0};ssl mode=none;", ts.pipeName);
+      else
+        return "SSL Mode=Required;";
+#else
+     return String.Format("protocol=pipe;pipe name={0};ssl mode=none;", ts.pipeName);
+#endif
     }
 
     [Fact]
     public void InsertNullBinary()
-    {
+    {  
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test (id INT NOT NULL, blob1 LONGBLOB, PRIMARY KEY(id))");
 

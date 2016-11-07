@@ -411,12 +411,12 @@ namespace MySql.Data.MySqlClient
       _schemaProvider = new ISSchemaProvider(this);
       PerfMonitor = new PerformanceMonitor(this);
 
-      //      // if we are opening up inside a current transaction, then autoenlist
-      //      // TODO: control this with a connection string option
-      //#if !MONO && !RT
-      //      if (Transaction.Current != null && Settings.AutoEnlist)
-      //        EnlistTransaction(Transaction.Current);
-      //#endif
+            // if we are opening up inside a current transaction, then autoenlist
+            // TODO: control this with a connection string option
+#if !NETCORE10
+        if (Transaction.Current != null && Settings.AutoEnlist)
+            EnlistTransaction(Transaction.Current);
+#endif
 
       hasBeenOpen = true;
       SetState(ConnectionState.Open, true);
@@ -521,8 +521,66 @@ namespace MySql.Data.MySqlClient
     }
 
 
+#if !NETCORE10
+        /// <summary>
+        /// Enlists in the specified transaction. 
+        /// </summary>
+        /// <param name="transaction">
+        /// A reference to an existing <see cref="System.Transactions.Transaction"/> in which to enlist.
+        /// </param>
+        public override void EnlistTransaction(Transaction transaction)
+        {
+            // enlisting in the null transaction is a noop
+            if (transaction == null)
+                return;
 
-    internal void HandleTimeoutOrThreadAbort(Exception ex)
+            // guard against trying to enlist in more than one transaction
+            if (driver.currentTransaction != null)
+            {
+                if (driver.currentTransaction.BaseTransaction == transaction)
+                    return;
+
+                Throw(new MySqlException("Already enlisted"));
+            }
+
+            // now see if we need to swap out drivers.  We would need to do this since
+            // we have to make sure all ops for a given transaction are done on the
+            // same physical connection.
+            Driver existingDriver = DriverTransactionManager.GetDriverInTransaction(transaction);
+            if (existingDriver != null)
+            {
+                // we can't allow more than one driver to contribute to the same connection
+                if (existingDriver.IsInActiveUse)
+                    Throw(new NotSupportedException(Resources.MultipleConnectionsInTransactionNotSupported));
+
+                // there is an existing driver and it's not being currently used.
+                // now we need to see if it is using the same connection string
+                string text1 = existingDriver.Settings.ConnectionString;
+                string text2 = Settings.ConnectionString;
+                if (String.Compare(text1, text2, true) != 0)
+                    Throw(new NotSupportedException(Resources.MultipleConnectionsInTransactionNotSupported));
+
+                // close existing driver
+                // set this new driver as our existing driver
+                CloseFully();
+                driver = existingDriver;
+            }
+
+            if (driver.currentTransaction == null)
+            {
+                MySqlPromotableTransaction t = new MySqlPromotableTransaction(this, transaction);
+                if (!transaction.EnlistPromotableSinglePhase(t))
+                    Throw(new NotSupportedException(Resources.DistributedTxnNotSupported));
+
+                driver.currentTransaction = t;
+                DriverTransactionManager.SetDriverInTransaction(driver);
+                driver.IsInActiveUse = true;
+            }
+        }
+#endif
+
+
+        internal void HandleTimeoutOrThreadAbort(Exception ex)
     {
       bool isFatal = false;
 

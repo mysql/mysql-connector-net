@@ -48,7 +48,7 @@
         "System.Data": "",
         "System.Drawing": "",
         "System.Drawing.Design": "",
-        "System.Transactions": "",        
+        "System.Transactions": "",
         "System.Configuration": "",
         "System.Configuration.Install": "",
         "System.Management": "",
@@ -56,6 +56,14 @@
         "System.Runtime": {
           "type": "build"
         }
+      },
+      "buildOptions": {
+        "embed": [
+          "keywords.txt",
+          "Resources.resx",
+          "ResourcesX.resx",
+          "Properties/ReservedWords.txt"
+        ]
       },
       "dependencies": {}
     },
@@ -69,7 +77,8 @@
         "embed": [
           "keywords.txt",
           "Resources.resx",
-          "ResourcesX.resx"
+          "ResourcesX.resx",
+          "Properties/ReservedWords.txt"
         ],
         "resource": [
           "**/*.resx"

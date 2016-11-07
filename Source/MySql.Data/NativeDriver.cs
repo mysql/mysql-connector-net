@@ -629,8 +629,8 @@ namespace MySql.Data.MySqlClient
     private void ExecutePacket(MySqlPacket packetToExecute)
     {
       try
-      {
-        warnings = 0;
+      {      
+        warnings = 0;        
         stream.SequenceByte = 0;
         stream.SendPacket(packetToExecute);
       }

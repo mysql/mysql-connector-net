@@ -42,7 +42,7 @@ namespace MySql.Data.MySqlClient.Tests
       Settings.UseUsageAdvisor = true;
     }
 
-    [Fact]
+    [Fact (Skip = "Issue")]
     public void NotReadingEveryField()
     {
       executeSQL("CREATE TABLE Test (id int, name VARCHAR(200))");
@@ -84,7 +84,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True(listener.Strings[11].Contains("Query Closed"));
     }
 
-    [Fact]
+    [Fact (Skip = "Issue")]
     public void NotReadingEveryRow()
     {
       executeSQL("CREATE TABLE Test (id int, name VARCHAR(200))");
@@ -122,7 +122,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True(listener.Strings[10].Contains("Query Closed"));
     }
 
-    [Fact]
+    [Fact (Skip = "Issue")]
     public void FieldConversion()
     {
       executeSQL("CREATE TABLE Test (id int, name VARCHAR(200))");
@@ -150,7 +150,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True(listener.Strings[5].Contains("Query Closed"));
     }
 
-    [Fact]
+    [Fact (Skip = "Issue")]
     public void NoIndexUsed()
     {
       executeSQL("CREATE TABLE Test (id int, name VARCHAR(200))");
@@ -178,7 +178,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True(listener.Strings[5].Contains("Query Closed"));
     }
 
-    [Fact]
+    [Fact (Skip = "Issue")]
     public void BadIndexUsed()
     {
       executeSQL("CREATE TABLE Test(id INT, name VARCHAR(20) PRIMARY KEY)");
