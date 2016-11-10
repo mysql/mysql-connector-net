@@ -92,7 +92,6 @@
           "exclude": [
             "Framework/Net451/**/*.*",
             "Replication/**/*.*",
-            "zlib/**/*.*",
             "TimeStream.cs",
             "**/._*"
           ],
@@ -116,8 +115,7 @@
             "common/NativeMethods.cs",
             "common/SHA1.cs",
             "common/SharedMemoryStream.cs",
-            "common/SocketStream.cs",
-            "CompressedStream.cs"
+            "common/SocketStream.cs"
           ]
         }
       },

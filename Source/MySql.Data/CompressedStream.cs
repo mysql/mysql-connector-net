@@ -1,4 +1,4 @@
-// Copyright © 2004, 2010, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -22,6 +22,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using zlib;
 using MySql.Data.Common;
 
@@ -57,25 +58,13 @@ namespace MySql.Data.MySqlClient
     #region Properties
 
 
-    public override bool CanRead
-    {
-      get { return baseStream.CanRead; }
-    }
+    public override bool CanRead => baseStream.CanRead;
 
-    public override bool CanWrite
-    {
-      get { return baseStream.CanWrite; }
-    }
+    public override bool CanWrite => baseStream.CanWrite;
 
-    public override bool CanSeek
-    {
-      get { return baseStream.CanSeek; }
-    }
+    public override bool CanSeek => baseStream.CanSeek;
 
-    public override long Length
-    {
-      get { return baseStream.Length; }
-    }
+    public override long Length => baseStream.Length;
 
     public override long Position
     {
@@ -85,7 +74,7 @@ namespace MySql.Data.MySqlClient
 
     #endregion
 
-#if RT
+#if NETCORE10
     public void Close()
     {
       base.Dispose();
@@ -94,7 +83,11 @@ namespace MySql.Data.MySqlClient
     {
       base.Close();
 #endif
+#if NETCORE10
+      baseStream.Dispose();
+#else
       baseStream.Close();
+#endif
       cache.Dispose();
     }
 
@@ -116,13 +109,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    public override bool CanTimeout
-    {
-      get
-      {
-        return baseStream.CanTimeout;
-      }
-    }
+    public override bool CanTimeout => baseStream.CanTimeout;
 
     public override int ReadTimeout
     {
@@ -151,11 +138,11 @@ namespace MySql.Data.MySqlClient
     public override int Read(byte[] buffer, int offset, int count)
     {
       if (buffer == null)
-        throw new ArgumentNullException("buffer", Resources.BufferCannotBeNull);
+        throw new ArgumentNullException(nameof(buffer), Resources.BufferCannotBeNull);
       if (offset < 0 || offset >= buffer.Length)
-        throw new ArgumentOutOfRangeException("offset", Resources.OffsetMustBeValid);
+        throw new ArgumentOutOfRangeException(nameof(offset), Resources.OffsetMustBeValid);
       if ((offset + count) > buffer.Length)
-        throw new ArgumentException(Resources.BufferNotLargeEnough, "buffer");
+        throw new ArgumentException(Resources.BufferNotLargeEnough, nameof(buffer));
 
       if (inPos == maxInPos)
         PrepareNextPacket();
@@ -199,8 +186,7 @@ namespace MySql.Data.MySqlClient
       {
         ReadNextPacket(compressedLength);
         MemoryStream ms = new MemoryStream(inBuffer);
-        zInStream = new ZInputStream(ms);
-        zInStream.maxInput = compressedLength;
+        zInStream = new ZInputStream(ms) { maxInput = compressedLength };
       }
 
       inPos = 0;
@@ -223,7 +209,19 @@ namespace MySql.Data.MySqlClient
       if (cache.Length < 50)
         return null;
 
+#if NETCORE10
+      byte[] cacheBytes;
+      ArraySegment<byte> cacheBuffer;
+      var cacheResult = cache.TryGetBuffer(out cacheBuffer);
+
+      if (cacheResult)
+        cacheBytes = cacheBuffer.ToArray();
+      else       // if the conversion fail, then just return null
+        return null;
+#else
       byte[] cacheBytes = cache.GetBuffer();
+#endif
+
       MemoryStream compressedBuffer = new MemoryStream();
       ZOutputStream zos = new ZOutputStream(compressedBuffer, zlibConst.Z_DEFAULT_COMPRESSION);
       zos.Write(cacheBytes, 0, (int)cache.Length);
@@ -240,7 +238,19 @@ namespace MySql.Data.MySqlClient
       long compressedLength, uncompressedLength;
 
       // we need to save the sequence byte that is written
+#if NETCORE10
+      byte[] cacheBuffer;
+      ArraySegment<byte> cacheContentArraySegment;
+      var cacheResult = cache.TryGetBuffer(out cacheContentArraySegment);
+
+      if (cacheResult)
+        cacheBuffer = cacheContentArraySegment.ToArray();
+      else
+        throw new InvalidDataException();
+#else
       byte[] cacheBuffer = cache.GetBuffer();
+#endif
+
       byte seq = cacheBuffer[3];
       cacheBuffer[3] = 0;
 
@@ -269,7 +279,19 @@ namespace MySql.Data.MySqlClient
       int bytesToWrite = (int)dataLength + 7;
       memStream.SetLength(bytesToWrite);
 
+#if NETCORE10
+      byte[] buffer;
+      ArraySegment<byte> contentArraySegment;
+      var result = memStream.TryGetBuffer(out contentArraySegment);
+
+      if (result)
+        buffer = contentArraySegment.ToArray();
+      else
+        throw new InvalidDataException();
+
+#else
       byte[] buffer = memStream.GetBuffer();
+#endif
       Array.Copy(buffer, 0, buffer, 7, (int)dataLength);
 
       // Write length prefix
@@ -284,10 +306,8 @@ namespace MySql.Data.MySqlClient
       baseStream.Write(buffer, 0, bytesToWrite);
       baseStream.Flush();
       cache.SetLength(0);
-      if (compressedBuffer != null)
-      {
-        compressedBuffer.Dispose();
-      }
+
+      compressedBuffer?.Dispose();
     }
 
     public override void Flush()
@@ -300,9 +320,20 @@ namespace MySql.Data.MySqlClient
     private bool InputDone()
     {
       // if we have not done so yet, see if we can calculate how many bytes we are expecting
-      if ( baseStream is TimedStream && (( TimedStream )baseStream ).IsClosed ) return false;
+      if (baseStream is TimedStream && ((TimedStream)baseStream).IsClosed) return false;
       if (cache.Length < 4) return false;
+#if NETCORE10
+      byte[] buf;
+      ArraySegment<byte> contentArraySegment;
+      var result = cache.TryGetBuffer(out contentArraySegment);
+
+      if (result)
+        buf = contentArraySegment.ToArray();
+      else
+        throw new InvalidDataException();
+#else
       byte[] buf = cache.GetBuffer();
+#endif
       int expectedLen = buf[0] + (buf[1] << 8) + (buf[2] << 16);
       if (cache.Length < (expectedLen + 4)) return false;
       return true;
