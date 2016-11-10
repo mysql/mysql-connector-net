@@ -133,8 +133,10 @@ namespace MySql.Data.MySqlClient
 
       try
       {
+#if !NETCORE10
         if (MySqlTrace.QueryAnalysisEnabled || settings.Logging || settings.UseUsageAdvisor)
           d = new TracingDriver(settings);
+#endif
       }
       catch (TypeInitializationException ex)
       {

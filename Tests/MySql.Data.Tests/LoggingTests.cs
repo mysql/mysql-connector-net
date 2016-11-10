@@ -42,6 +42,8 @@ namespace MySql.Data.MySqlClient.Tests
       Setup.Settings.Logging = true;
     }
 
+#if !NETCORE10
+
     [Fact]
     public void SimpleLogging()
     {
@@ -53,8 +55,10 @@ namespace MySql.Data.MySqlClient.Tests
 
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
+
+
       GenericListener listener = new GenericListener();
-#if !NETCORE10
+
       MySqlTrace.Listeners.Add(listener);
 
       using (MySqlConnection logConn = new MySqlConnection(Settings.GetConnectionString(true)))
@@ -71,20 +75,17 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True(listener.Strings[listener.Strings.Count - 4].Contains("Resultset Opened: field(s) = 2, affected rows = -1, inserted id = -1"));
       Assert.True(listener.Strings[listener.Strings.Count - 3].Contains("Resultset Closed. Total rows=4, skipped rows=4, size (bytes)=32"));
       Assert.True(listener.Strings[listener.Strings.Count - 2].Contains("Query Closed"));
-#endif
-        }
+    }
 
-        [Fact]
+    [Fact]
     public void Warnings()
     {
       executeSQL("CREATE TABLE Test(id INT, name VARCHAR(5))");
-
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
       GenericListener listener = new GenericListener();
-#if !NETCORE10
+
       MySqlTrace.Listeners.Add(listener);
-#endif
 
       using (MySqlConnection logConnection = new MySqlConnection(Settings.GetConnectionString(true)))
       {
@@ -111,10 +112,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
       GenericListener listener = new GenericListener();
-
-#if !NETCORE10
       MySqlTrace.Listeners.Add(listener);
-#endif
 
       StringBuilder sql = new StringBuilder("SELECT '");
       for (int i = 0; i < 400; i++)
@@ -141,9 +139,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
       GenericListener listener = new GenericListener();
-#if !NETCORE10
       MySqlTrace.Listeners.Add(listener);
-#endif      
 
       string sql = @"SELECT 1 AS `AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA1`,  2 AS `AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA2`,
                 3 AS `AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA3`,  4 AS `AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4`,
@@ -158,6 +154,6 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
     }
-
+#endif
   }
 }
