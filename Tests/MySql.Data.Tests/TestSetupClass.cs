@@ -78,7 +78,7 @@ namespace MySql.Data.MySqlClient.Tests
 #if NETCORE10
         string port;        
 
-        var pathandfile = Path.GetFullPath(@"..\..") + @"\appsettings.json";
+        var pathandfile = Path.GetFullPath(@"../..") + @"/appsettings.json";
         var config = new ConfigUtils(pathandfile);
         port  = config.GetPort();
 

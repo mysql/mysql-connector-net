@@ -123,20 +123,20 @@
           ]
         }
       }
-    }
+    }   
   },
   "configurations": {
     "Debug": {
       "buildOptions": {
-        "define": [ "DEBUG" ],
+        "define": [ "DEBUG", "TRACE" ],
         "optimize": false,
-        "preserveCompilationContext": true
+        "preserveCompilationContext": true          
       }
     },
     "Release": {
       "buildOptions": {
         "define": [ "RELEASE" ],
-        "optimize": true,
+        "optimize": false,
         "preserveCompilationContext": true,
         "xmlDoc": true
       }

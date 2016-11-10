@@ -49,7 +49,9 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
       GenericListener listener = new GenericListener();
+#if !NETCORE10
       MySqlTrace.Listeners.Add(listener);
+#endif
 
       string connStr = connection.ConnectionString + ";logging=true;table cache=true";
       using (MySqlConnection c = new MySqlConnection(connStr))
@@ -75,7 +77,9 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
       GenericListener listener = new GenericListener();
+#if !NETCORE10
       MySqlTrace.Listeners.Add(listener);
+#endif     
 
       string connStr = connection.ConnectionString + ";logging=true;table cache=true;default table cache age=1";
       using (MySqlConnection c = new MySqlConnection(connStr))
@@ -103,7 +107,10 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
       GenericListener listener = new GenericListener();
+
+#if !NETCORE10
       MySqlTrace.Listeners.Add(listener);
+#endif      
 
       string connStr = connection.ConnectionString + ";logging=true;table cache=true;default table cache age=1";
       using (MySqlConnection c = new MySqlConnection(connStr))

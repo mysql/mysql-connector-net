@@ -63,8 +63,13 @@
           "Resources.resx",
           "ResourcesX.resx",
           "Properties/ReservedWords.txt"
-        ]
-      },
+        ],
+        "compile": {
+          "exclude": [
+            "Framework/NetCore10/*.*"
+          ] 
+         }
+        },
       "dependencies": {}
     },
     "netstandard1.6": {
@@ -149,7 +154,7 @@
     "Debug": {
       "buildOptions": {
         "define": [
-          "DEBUG"
+          "DEBUG", "TRACE"
         ],
         "optimize": false,
         "preserveCompilationContext": true

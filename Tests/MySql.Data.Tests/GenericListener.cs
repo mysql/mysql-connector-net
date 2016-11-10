@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -28,8 +28,12 @@ using System.Collections.Specialized;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class GenericListener : TraceListener
-  {
+#if !NETCORE10
+    public class GenericListener : TraceListener
+#else
+    public class GenericListener
+#endif
+    {
     List<string> strings;
     StringBuilder partial;
 
@@ -59,12 +63,20 @@ namespace MySql.Data.MySqlClient.Tests
       strings.Clear();
     }
 
-    public override void Write(string message)
+#if !NETCORE10
+     public override void Write(string message)
+#else
+     public void Write(string message)
+#endif
     {
-      partial.Append(message);
+            partial.Append(message);
     }
 
+#if !NETCORE10
     public override void WriteLine(string message)
+#else
+    public void WriteLine(string message)
+#endif
     {
       Write(message);
       strings.Add(partial.ToString());
