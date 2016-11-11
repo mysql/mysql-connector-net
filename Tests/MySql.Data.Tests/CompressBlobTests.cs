@@ -32,11 +32,7 @@ namespace MySql.Data.MySqlClient.Tests
   {
     protected TestSetup Ts;
 
-#if NETCORE10
-    public CompressBlobTests(TestSetup setup) : base(setup, "compressBlobCore")
-#else
-    public CompressBlobTests(TestSetup setup) : base(setup, "compressBlob")
-#endif
+    public CompressBlobTests(TestSetup setup) : base(setup, "compress_blob")
     {
       Ts = setup;
       customConnection = new MySqlConnection(Ts.GetConnection().ConnectionString + ";" + OnGetConnectionStringInfo());
@@ -324,7 +320,7 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.Parameters.AddWithValue("?image", image);
 
         Exception ex = Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());
-        Assert.Equal(ex.Message, "Packets larger than max_allowed_packet are not allowed.");
+        Assert.Equal("Packets larger than max_allowed_packet are not allowed.", ex.Message);
       }
     }
 

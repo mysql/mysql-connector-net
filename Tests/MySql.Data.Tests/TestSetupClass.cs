@@ -133,7 +133,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
 
         string name = row[0].ToString();
-        if (!name.StartsWith(baseDBName, StringComparison.OrdinalIgnoreCase)) continue;
+        if (!name.StartsWith(baseDBName)) continue;
         executeInternal(String.Format("DROP DATABASE IF EXISTS `{0}`", name), root);
       }
 

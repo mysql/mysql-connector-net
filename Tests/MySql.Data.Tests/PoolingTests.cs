@@ -272,13 +272,13 @@ namespace MySql.Data.MySqlClient.Tests
     {
       if (ts.version < new Version(5, 0)) return;
 
-      executeSQL("DROP TABLE IF EXISTS test");
+      executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test (id INT, name VARCHAR(50))");
-      executeSQL("CREATE PROCEDURE spTest(theid INT) BEGIN SELECT * FROM test WHERE id=theid; END");
-      executeSQL("INSERT INTO test VALUES (1, 'First')");
-      executeSQL("INSERT INTO test VALUES (2, 'Second')");
-      executeSQL("INSERT INTO test VALUES (3, 'Third')");
-      executeSQL("INSERT INTO test VALUES (4, 'Fourth')");
+      executeSQL("CREATE PROCEDURE spTest(theid INT) BEGIN SELECT * FROM Test WHERE id=theid; END");
+      executeSQL("INSERT INTO Test VALUES (1, 'First')");
+      executeSQL("INSERT INTO Test VALUES (2, 'Second')");
+      executeSQL("INSERT INTO Test VALUES (3, 'Third')");
+      executeSQL("INSERT INTO Test VALUES (4, 'Fourth')");
 
       string connStr = ts.GetPoolingConnectionString();
 

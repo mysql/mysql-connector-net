@@ -525,9 +525,9 @@ namespace MySql.Data.MySqlClient.Tests
           c.Open();
           MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1, '㭋玤䂜蚌')", c);
           cmd.ExecuteNonQuery();
-          cmd = new MySqlCommand("INSERT INTO test VALUES(2, 0xC4EEC5ABBDBFA1A4B3E0B1DABBB3B9C520A1A4CBD5B6ABC6C2)", c);
+          cmd = new MySqlCommand("INSERT INTO Test VALUES(2, 0xC4EEC5ABBDBFA1A4B3E0B1DABBB3B9C520A1A4CBD5B6ABC6C2)", c);
           cmd.ExecuteNonQuery();
-          cmd = new MySqlCommand("SELECT id, name from test", c);
+          cmd = new MySqlCommand("SELECT id, name from Test", c);
           var reader = cmd.ExecuteReader();
           while (reader.Read())
           {
