@@ -46,14 +46,19 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE test (id INT, name VARCHAR(20), name2 VARCHAR(20))");
       executeSQL("INSERT INTO test VALUES (1, 'boo', 'hoo'), (2, 'first', 'last'), (3, 'fred', 'flintstone')");
 
+#if !NETCORE10
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
       GenericListener listener = new GenericListener();
-#if !NETCORE10
+
       MySqlTrace.Listeners.Add(listener);
-#endif
+
 
       string connStr = connection.ConnectionString + ";logging=true;table cache=true";
+#else
+      string connStr = connection.ConnectionString + ";table cache=true";
+#endif
+
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -64,8 +69,9 @@ namespace MySql.Data.MySqlClient.Tests
         // now run the query again but this time it shouldn't generate a call to the database
         ConsumeReader(cmd);
       }
-
+#if !NETCORE10
       Assert.Equal(1, listener.Find("Resultset Opened: field(s) = 3"));
+#endif
     } 
 
     [Fact]
@@ -74,18 +80,18 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE test3 (id INT, name VARCHAR(20), name2 VARCHAR(20))");
       executeSQL("INSERT INTO test3 VALUES (1, 'boo', 'hoo'), (2, 'first', 'last'), (3, 'fred', 'flintstone')");
 
+#if !NETCORE10
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
       GenericListener listener = new GenericListener();
-#if !NETCORE10
       MySqlTrace.Listeners.Add(listener);
-#endif     
-
       string connStr = connection.ConnectionString + ";logging=true;table cache=true;default table cache age=1";
+#else
+      string connStr = connection.ConnectionString + ";table cache=true;default table cache age=1";
+#endif
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
-
         MySqlCommand cmd = new MySqlCommand("test3", c);
         cmd.CommandType = CommandType.TableDirect;
         ConsumeReader(cmd);
@@ -94,8 +100,9 @@ namespace MySql.Data.MySqlClient.Tests
         // since our next query is past the cache age of 1 second
         ConsumeReader(cmd);
       }
-
+#if !NETCORE10
       Assert.Equal(2, listener.Find("Resultset Opened: field(s) = 3"));
+#endif
     }
 
     [Fact]
@@ -104,15 +111,16 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE test2 (id INT, name VARCHAR(20), name2 VARCHAR(20))");
       executeSQL("INSERT INTO test2 VALUES (1, 'boo', 'hoo'), (2, 'first', 'last'), (3, 'fred', 'flintstone')");
 
+#if !NETCORE10
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
       GenericListener listener = new GenericListener();
-
-#if !NETCORE10
       MySqlTrace.Listeners.Add(listener);
-#endif      
-
       string connStr = connection.ConnectionString + ";logging=true;table cache=true;default table cache age=1";
+#else
+       string connStr = connection.ConnectionString + ";logging=true;table cache=true;default table cache age=1";
+#endif
+
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -127,8 +135,9 @@ namespace MySql.Data.MySqlClient.Tests
         // to 20 seconds on our command
         ConsumeReader(cmd);
       }
-
+#if !NETCORE10
       Assert.Equal(1, listener.Find("Resultset Opened: field(s) = 3"));
+#endif
     }
 
     private void ConsumeReader(MySqlCommand cmd)
