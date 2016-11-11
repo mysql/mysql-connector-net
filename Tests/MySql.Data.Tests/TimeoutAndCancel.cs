@@ -56,7 +56,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Null(o);
     }
 
-    [Fact(Skip ="Issue")]
+    [Fact]
     public void CancelSingleQuery()
     {
       if (ts.version < new Version(5, 0)) return;
@@ -85,7 +85,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     int stateChangeCount;
-    [Fact(Skip ="Issue")]
+    [Fact]
     public void WaitTimeoutExpiring()
     {
       string connStr = connection.ConnectionString;
@@ -140,7 +140,7 @@ namespace MySql.Data.MySqlClient.Tests
       stateChangeCount++;
     }
 
-    [Fact(Skip ="Issue")]
+    [Fact (Skip ="Issue")]
     public void TimeoutExpiring()
     {
       if (ts.version < new Version(5, 0)) return;
@@ -165,7 +165,7 @@ namespace MySql.Data.MySqlClient.Tests
 
     }
 
-    [Fact(Skip ="Issue")]
+    [Fact]
     public void TimeoutNotExpiring()
     {
       if (ts.version < new Version(5, 0)) return;
@@ -175,7 +175,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.ExecuteNonQuery();
     }
 
-    [Fact(Skip ="Issue")]
+    [Fact]
     public void TimeoutNotExpiring2()
     {
       if (ts.version < new Version(5, 0)) return;
@@ -185,7 +185,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.ExecuteNonQuery();
     }
 
-    [Fact(Skip ="Issue")]
+    [Fact]
     public void TimeoutDuringBatch()
     {
       if (ts.version < new Version(5, 0)) return;
@@ -216,7 +216,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(10, res);
     }
 
-    [Fact(Skip ="Issue")]
+    [Fact]
     public void CancelSelect()
     {
       if (ts.version < new Version(5, 0)) return;
@@ -261,7 +261,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #40091	mysql driver 5.2.3.0 connection pooling issue
     /// </summary>
-    [Fact(Skip ="Issue")]
+    [Fact (Skip = "Issue")]
     public void ConnectionStringModifiedAfterCancel()
     {
       if (ts.version.Major < 5) return;
@@ -304,7 +304,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #45978	Silent problem when net_write_timeout is exceeded
     /// </summary>
-    [Fact(Skip ="Issue")]
+    [Fact]
     public void NetWriteTimeoutExpiring()
     {
       // net_write_timeout did not apply to named pipes connections before MySQL 5.1.41.
