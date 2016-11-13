@@ -35,6 +35,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+
 namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
     public class MySQLRelationalCommand : RelationalCommand
@@ -47,23 +48,15 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
             : base(logger, diagnosticSource, commandText, parameters)
         {
         }
-    
 
-        protected override object Execute(
-            [NotNull] IRelationalConnection connection,
-            [NotNull] string executeMethod,
-            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues,
-            bool openConnection,
-            bool closeConnection)
+        protected override object Execute(IRelationalConnection connection, string executeMethod, IReadOnlyDictionary<string, object> parameterValues, bool closeConnection = true)
         {
-            
             ThrowIf.Argument.IsNull(connection, nameof(connection));
             ThrowIf.Argument.IsNull(executeMethod, nameof(executeMethod));
-
             var dbCommand = CreateCommand(connection, parameterValues);
             object result = null;
 
-            if (openConnection)
+            if (connection.DbConnection.State != ConnectionState.Open)
             {
                 connection.Open();
             }
@@ -72,53 +65,7 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
             {
                 try
                 {
-                    result = new RelationalDataReader(
-                                   openConnection ? connection : null,
-                                   dbCommand,
-                                   new MySQLDataReader(
-                                      ((MySqlCommand)dbCommand).ExecuteReader() as MySqlDataReader));                   
-                    return result;
-                }
-                catch
-                {
-                    dbCommand.Dispose();
-                    throw;
-                }
-            }
-            
-            return base.Execute(connection, executeMethod, parameterValues, openConnection, closeConnection);
-        }
-
-
-        protected override async Task<object> ExecuteAsync(
-           [NotNull] IRelationalConnection connection,
-           [NotNull] string executeMethod,
-           [CanBeNull] IReadOnlyDictionary<string, object> parameterValues,
-           bool openConnection,
-           bool closeConnection,
-           CancellationToken cancellationToken = default(CancellationToken))
-        {
-
-            ThrowIf.Argument.IsNull(connection, nameof(connection));
-            ThrowIf.Argument.IsNull(executeMethod, nameof(executeMethod));
-
-            var dbCommand = CreateCommand(connection, parameterValues);
-            object result = null;
-
-            if (openConnection)
-            {
-                connection.Open();
-            }
-
-            if (executeMethod.Equals(nameof(ExecuteReader)))
-            {
-                try
-                {
-                    result = new RelationalDataReader(
-                                   openConnection ? connection : null,
-                                   dbCommand,
-                                   new MySQLDataReader(
-                                      await ((MySqlCommand)dbCommand).ExecuteReaderAsync() as MySqlDataReader));
+                    result = new RelationalDataReader(connection, dbCommand, new MySQLDataReader(((MySqlCommand)dbCommand).ExecuteReader() as MySqlDataReader));
                     return result;
                 }
                 catch
@@ -128,10 +75,42 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
                 }
             }
 
-            return base.ExecuteAsync(connection, executeMethod, parameterValues, openConnection, closeConnection);
-
+            return base.Execute(connection, executeMethod, parameterValues, closeConnection);
         }
 
+        protected override async Task<object> ExecuteAsync(IRelationalConnection connection, string executeMethod, IReadOnlyDictionary<string, object> parameterValues, bool closeConnection = true, CancellationToken cancellationToken = default(CancellationToken))
+        {
+
+            ThrowIf.Argument.IsNull(connection, nameof(connection));
+            ThrowIf.Argument.IsNull(executeMethod, nameof(executeMethod));
+
+            var dbCommand = CreateCommand(connection, parameterValues);
+            object result = null;
+
+            if (connection.DbConnection.State != ConnectionState.Open)
+            {
+                connection.Open();
+            }
+
+            if (executeMethod.Equals(nameof(ExecuteReader)))
+            {
+                try
+                {
+
+                    result = new RelationalDataReader( connection,
+                                                       dbCommand,
+                                                       new MySQLDataReader(await ((MySqlCommand)dbCommand).ExecuteReaderAsync() as MySqlDataReader));
+                    return result;
+                }
+                catch
+                {
+                    dbCommand.Dispose();
+                    throw;
+                }
+            }
+
+            return base.ExecuteAsync(connection, executeMethod, parameterValues, closeConnection, cancellationToken);
+        }
 
 
         private DbCommand CreateCommand(

@@ -51,8 +51,9 @@ namespace MySql.Data.EntityFrameworkCore.Tests
 
   public class MySQLTestStore : IDisposable
   {
-#if NETCORE10    
-        private static ConfigUtils config = new ConfigUtils("appsettings.json");
+#if NETCORE10            
+        static string pathandfile = Path.GetFullPath(@"../..") + @"/appsettings.json";
+        private static ConfigUtils config = new ConfigUtils(pathandfile);        
 #endif
 
     public static string baseConnectionString
