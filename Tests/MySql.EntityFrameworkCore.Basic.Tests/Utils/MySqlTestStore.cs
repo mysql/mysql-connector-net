@@ -60,7 +60,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     {
         get
         {
-            return $"server=localhost;user id=root;password=;port={Port()};sslmode=none;";
+            return $"server=localhost;user id=root;password=;port={Port()};sslmode=Required;";
         }
     }
 
@@ -68,7 +68,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     {
         get
         {
-            return $"server=localhost;user id=root;password=;port={Port()};sslmode=none;";
+            return $"server=localhost;user id=root;password=;port={Port()};sslmode=Required;";
         }
     }
 
@@ -79,6 +79,8 @@ namespace MySql.Data.EntityFrameworkCore.Tests
 
 #if NETCORE10
        port = config.GetPort();
+#else
+       port= "3305";
 #endif
 
        if (!string.IsNullOrEmpty(port))
