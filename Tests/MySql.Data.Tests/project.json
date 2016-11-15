@@ -1,5 +1,5 @@
 {
-  "version": "7.0.6-IR3",
+  "version": "6.10.0-alpha",
   "description": "MySql.Data.Tests Class Library",
   "authors": [ "Oracle" ],
   "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
@@ -123,14 +123,14 @@
           ]
         }
       }
-    }   
+    }
   },
   "configurations": {
     "Debug": {
       "buildOptions": {
         "define": [ "DEBUG", "TRACE" ],
         "optimize": false,
-        "preserveCompilationContext": true          
+        "preserveCompilationContext": true
       }
     },
     "Release": {

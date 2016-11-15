@@ -1,5 +1,5 @@
 {
-  "version": "7.0.6-IR3",
+  "version": "6.10.0-alpha",
   "description": "MySql.Data.EntityFrameworkCore for Entity Framework.",
   "authors": [ "Oracle" ],
   "copyright": "Copyright ? 2016, Oracle and/or its affiliates. All rights reserved.",
@@ -50,7 +50,7 @@
       }
     },
     "netstandard1.6": {
-      "dependencies": {      }
+      "dependencies": {}
     }
   },
   "configurations": {
