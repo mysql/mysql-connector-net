@@ -49,7 +49,7 @@ namespace MySql.Data.MySqlClient.Authentication
 
     protected override byte[] MoreData(byte[] data)
     {
-      byte[] passBytes = GetPassword() as byte[];
+      byte[] passBytes = (GetPassword() ?? new byte[1]) as byte[];
       byte[] buffer = new byte[passBytes.Length - 1];
       Array.Copy(passBytes, 1, buffer, 0, passBytes.Length - 1);
       return buffer;

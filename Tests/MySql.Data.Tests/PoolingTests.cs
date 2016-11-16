@@ -51,7 +51,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void Connection()
     {
 
-      MySqlConnection c = new MySqlConnection(connection.ConnectionString);
+      MySqlConnection c = new MySqlConnection(ts.GetPoolingConnectionString());
       c.Open();
       int serverThread = c.ServerThread;
       c.Close();
@@ -59,7 +59,7 @@ namespace MySql.Data.MySqlClient.Tests
       // first test that only a single connection get's used
       for (int i = 0; i < 10; i++)
       {
-        c = new MySqlConnection(connection.ConnectionString);
+        c = new MySqlConnection(ts.GetPoolingConnectionString());
         c.Open();
         Assert.Equal(serverThread, c.ServerThread);
         c.Close();
@@ -69,11 +69,11 @@ namespace MySql.Data.MySqlClient.Tests
       ts.KillConnection(c);
       c.Close();
 
-      connection.ConnectionString += ";Min Pool Size=10";
+      string poolingCS = ts.GetPoolingConnectionString() + ";Min Pool Size=10";
       MySqlConnection[] connArray = new MySqlConnection[10];
       for (int i = 0; i < connArray.Length; i++)
       {
-        connArray[i] = new MySqlConnection(connection.ConnectionString);
+        connArray[i] = new MySqlConnection(poolingCS);
         connArray[i].Open();
       }
 
@@ -150,7 +150,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void TestUserReset()
     {
-      string connStr = ts.GetPoolingConnectionString();
+      string connStr = ts.GetPoolingConnectionString() + ";connection reset=true;";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();

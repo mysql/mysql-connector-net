@@ -96,15 +96,15 @@ namespace MySql.Data.MySqlClient
       {
         if (ShouldResetStreamTimeout(_lastReadTimeout, streamTimeout))
         {
-          //_baseStream.ReadTimeout = streamTimeout;
-          //_lastReadTimeout = streamTimeout;
+          _baseStream.ReadTimeout = streamTimeout;
+          _lastReadTimeout = streamTimeout;
         }
       }
       else
       {
         if (ShouldResetStreamTimeout(_lastWriteTimeout, streamTimeout))
         {
-          //_baseStream.WriteTimeout = streamTimeout;
+          _baseStream.WriteTimeout = streamTimeout;
           _lastWriteTimeout = streamTimeout;
         }
       }
