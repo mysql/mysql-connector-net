@@ -34,14 +34,16 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class TimeoutAndCancelSharedMemory : TimeoutAndCancel
   {
+    private string sharedMemory = "";
+
     public TimeoutAndCancelSharedMemory(TestSetup setup) : base (setup, "timeoutandsmem")
     {
-      ts = setup;
+      sharedMemory = setup.sharedMemoryName;
     }
 
     protected override string OnGetConnectionStringInfo()
     {
-      return string.Format("protocol=sharedmemory; shared memory name={0};ssl mode=none;", ts.sharedMemoryName);
+      return string.Format("protocol=sharedmemory; shared memory name={0};ssl mode=none;", sharedMemory);
     }
   }
 }

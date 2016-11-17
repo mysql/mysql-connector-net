@@ -33,17 +33,17 @@ using System.Security.Authentication;
 namespace MySql.Data.MySqlClient.Tests
 {
   public class TimeoutAndCancelPipe : TimeoutAndCancel
-  {    
-
+  {
+    private string pipeName = "";
     public TimeoutAndCancelPipe(TestSetup setup) : base (setup, "timeoutandcpipe")
     {
-      ts = setup;
+      pipeName = setup.pipeName;
     }
 
 
     protected override string OnGetConnectionStringInfo()
     {
-      return string.Format("protocol=namedpipe;pipe name={0};ssl mode=none;", ts.pipeName);
+      return string.Format("protocol=namedpipe;pipe name={0};ssl mode=none;", pipeName);
     }
   }
 }

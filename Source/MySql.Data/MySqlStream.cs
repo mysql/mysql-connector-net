@@ -227,7 +227,7 @@ namespace MySql.Data.MySqlClient
         throw new MySqlException(Resources.QueryTooLarge, (int)MySqlErrorCode.PacketTooLarge);
 
       int offset = 0;
-      while (length > 0)
+      do
       {
         int lenToSend = length > maxBlockSize ? maxBlockSize : length;
         buffer[offset] = (byte)(lenToSend & 0xff);
@@ -239,7 +239,7 @@ namespace MySql.Data.MySqlClient
         outStream.Flush();
         length -= lenToSend;
         offset += lenToSend;
-      }
+      } while (length > 0);
     }
 
     public void SendEntirePacketDirectly(byte[] buffer, int count)

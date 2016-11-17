@@ -113,7 +113,7 @@ namespace MySql.Data.Common
     private static Stream GetNamedPipeStream(MySqlConnectionStringBuilder settings)
     {
       NamedPipeClientStream pipeStream = new NamedPipeClientStream(settings.Server, settings.PipeName, PipeDirection.InOut);
-      pipeStream.Connect((int)settings.ConnectionTimeout);
+      pipeStream.Connect((int)settings.ConnectionTimeout * 1000);
       return pipeStream;
     }
   }

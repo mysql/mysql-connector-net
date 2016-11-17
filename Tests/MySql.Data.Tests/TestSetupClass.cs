@@ -350,9 +350,9 @@ namespace MySql.Data.MySqlClient.Tests
     internal protected string GetPoolingConnectionString()
     {
       RootSettings.Database = baseDBName + "0";
-      string s = RootSettings.GetConnectionString(false);
-      s = s.Replace("pooling=false", "pooling=true");
-      return s;
+      MySqlConnectionStringBuilder csBuilder = new MySqlConnectionStringBuilder(RootSettings.GetConnectionString(false));
+      csBuilder.Pooling = true;
+      return csBuilder.ToString();
     }
 
 

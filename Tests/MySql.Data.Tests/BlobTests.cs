@@ -49,14 +49,7 @@ namespace MySql.Data.MySqlClient.Tests
 
     protected override string OnGetConnectionStringInfo()
     {
-#if NETCORE10
-      if (PlatformUtils.OsPlatform == PlatformRunning.Windows)
-        return String.Format("protocol=pipe;pipe name={0};ssl mode=none;", ts.pipeName);
-      else
-        return "SSL Mode=Required;";
-#else
-     return String.Format("protocol=pipe;pipe name={0};ssl mode=none;", ts.pipeName);
-#endif
+      return "SSL Mode=Required;";
     }
 
     [Fact]
