@@ -32,7 +32,7 @@ using System;
 using System.Linq;
 using Xunit;
 
-namespace EntityFrameworkCore.Basic.Tests
+namespace MySql.Data.EntityFrameworkCore.Tests
 {
     public class LoadingRelatedDataTests : IDisposable
     {
