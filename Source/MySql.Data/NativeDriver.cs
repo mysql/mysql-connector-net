@@ -380,7 +380,7 @@ namespace MySql.Data.MySqlClient
     {
       RemoteCertificateValidationCallback sslValidateCallback =
           new RemoteCertificateValidationCallback(ServerCheckValidation);
-      SslStream ss = new SslStream(baseStream, true, sslValidateCallback, null);
+      SslStream ss = new SslStream(baseStream, false, sslValidateCallback, null);
       X509CertificateCollection certs = GetClientCertificates();
       SslProtocols sslProtocols = SslProtocols.Tls;
 #if NET_45_OR_GREATER
