@@ -112,9 +112,14 @@ namespace MySql.Data.Common
 
     private static Stream GetNamedPipeStream(MySqlConnectionStringBuilder settings)
     {
+#if NETCORE10
       NamedPipeClientStream pipeStream = new NamedPipeClientStream(settings.Server, settings.PipeName, PipeDirection.InOut);
       pipeStream.Connect((int)settings.ConnectionTimeout * 1000);
       return pipeStream;
+#else
+      Stream stream = MySql.Data.MySqlClient.Common.NamedPipeStream.Create(settings.PipeName, settings.Server, settings.ConnectionTimeout);
+      return stream;
+#endif
     }
   }
 }

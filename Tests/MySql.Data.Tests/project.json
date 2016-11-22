@@ -121,7 +121,8 @@
             "Framework/Net451/PerfMonTests.cs",
             "Framework/Net451/ReplicationTests.cs"
           ]
-        }
+        },
+        "copyToOutput": [ "client.pfx" ]
       }
     }
   },

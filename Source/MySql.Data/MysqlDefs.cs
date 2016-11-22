@@ -423,14 +423,10 @@ namespace MySql.Data.MySqlClient
 
   internal class MySqlConnectAttrs
   {
-#if !NETCORE10
     [DisplayName("_client_name")]
-#endif
     public string ClientName => "MySql Connector/NET";
 
-#if !NETCORE10
     [DisplayName("_pid")]
-#endif
     public string PID
     {
       get
@@ -440,13 +436,15 @@ namespace MySql.Data.MySqlClient
         {
           pid = System.Diagnostics.Process.GetCurrentProcess().Id.ToString();
         }
-        catch (Exception ex) { System.Diagnostics.Debug.WriteLine(ex.ToString()); }
+        catch (Exception ex)
+        {
+          System.Diagnostics.Debug.WriteLine(ex.ToString());
+        }
 
         return pid;
       }
     }
 
-#if !NETCORE10
     [DisplayName("_client_version")]
     public string ClientVersion
     {
@@ -455,46 +453,44 @@ namespace MySql.Data.MySqlClient
         string version = string.Empty;
         try
         {
-          version = Assembly .GetAssembly(typeof(MySqlConnectAttrs)).GetName().Version.ToString();
+          version = typeof(MySqlConnectAttrs).GetTypeInfo().Assembly.GetName().Version.ToString();
         }
-        catch (Exception ex) { System.Diagnostics.Debug.WriteLine(ex.ToString()); }
+        catch (Exception ex)
+        {
+          System.Diagnostics.Debug.WriteLine(ex.ToString());
+        }
         return version;
       }
     }
-#endif
 
 #if !NETCORE10
     [DisplayName("_platform")]
     public string Platform => Is64BitOS() ? "x86_64" : "x86_32";
 #endif
 
-#if !NETCORE10
     [DisplayName("program_name")]
     public string ProgramName
     {
       get
       {
-        string name = Environment.CommandLine;
+        string name = Environment.GetCommandLineArgs()[0];
         try
         {
-          string path = Environment.CommandLine.Substring(0, Environment.CommandLine.IndexOf("\" ")).Trim('"');
+          string path = name.Trim('"');
           name = System.IO.Path.GetFileName(path);
           if (Assembly.GetEntryAssembly() != null)
             name = Assembly.GetEntryAssembly().ManifestModule.Name;
         }
         catch (Exception ex)
         {
-          name = string.Empty;
+          name = ClientName;
           System.Diagnostics.Debug.WriteLine(ex.ToString());
         }
         return name;
       }
     }
-#endif
 
-#if !NETCORE10
     [DisplayName("_os")]
-#endif
     public string OS
     {
       get
@@ -545,9 +541,7 @@ namespace MySql.Data.MySqlClient
     }
 #endif
 
-#if !NETCORE10
     [DisplayName("_thread")]
-#endif
     public string Thread
     {
       get
