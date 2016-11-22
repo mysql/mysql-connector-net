@@ -23,8 +23,8 @@
     "MySql.EntityFrameworkCore.Basic.Tests": {
       "target": "project"
     },
-    "Microsoft.EntityFrameworkCore": "1.1.0-preview1-final",
-    "Microsoft.EntityFrameworkCore.Relational": "1.1.0-preview1-final"
+    "Microsoft.EntityFrameworkCore": "1.1.0",
+    "Microsoft.EntityFrameworkCore.Relational": "1.1.0"
   },
   "frameworks": {
     "netcoreapp1.0": {
