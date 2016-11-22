@@ -604,14 +604,14 @@ namespace MySql.Data.MySqlClient.Tests
           bool isValidated = false;
           while (dr.Read())
           {
-            if (dr.GetString(1).ToLowerInvariant().Contains("clientname"))
+            if (dr.GetString(1).ToLowerInvariant().Contains("_client_name"))
             {
               Assert.Equal(connectAttrs.ClientName, dr.GetString(2));
               isValidated = true;
               break;
             }
           }
-          Assert.True(isValidated, "Missing _client_version attribute");
+          Assert.True(isValidated, "Missing _client_name attribute");
         }
       }
     }
