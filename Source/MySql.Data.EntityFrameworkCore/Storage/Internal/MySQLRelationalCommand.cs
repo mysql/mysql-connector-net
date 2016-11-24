@@ -49,65 +49,64 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
         {
         }
 
-        protected override object Execute(IRelationalConnection connection, string executeMethod, IReadOnlyDictionary<string, object> parameterValues, bool closeConnection = true)
+        protected override object Execute(IRelationalConnection connection, string executeMethod, IReadOnlyDictionary<string, object> parameterValues, bool closeConnection)
         {
-            //ThrowIf.Argument.IsNull(connection, nameof(connection));
-            //ThrowIf.Argument.IsNull(executeMethod, nameof(executeMethod));
-            //var dbCommand = CreateCommand(connection, parameterValues);
-            //object result = null;
+            ThrowIf.Argument.IsNull(connection, nameof(connection));
+            ThrowIf.Argument.IsNull(executeMethod, nameof(executeMethod));
+            var dbCommand = CreateCommand(connection, parameterValues);
+            object result = null;
 
-            //if (connection.DbConnection.State != ConnectionState.Open)
-            //{
-            //    connection.Open();
-            //}
+            if (connection.DbConnection.State != ConnectionState.Open)
+            {
+                connection.Open();
+            }
 
-            //if (executeMethod.Equals(nameof(ExecuteReader)))
-            //{
-            //    try
-            //    {
-            //        result = new RelationalDataReader(connection, dbCommand, new MySQLDataReader(((MySqlCommand)dbCommand).ExecuteReader() as MySqlDataReader));
-            //        return result;
-            //    }
-            //    catch
-            //    {
-            //        dbCommand.Dispose();
-            //        throw;
-            //    }
-            //}
+            if (executeMethod.Equals(nameof(ExecuteReader)))
+            {
+                try
+                {
+                    result = new MySQLRelationalDataReader(connection, dbCommand, new MySQLDataReader(((MySqlCommand)dbCommand).ExecuteReader() as MySqlDataReader));
+                    return result;
+                }
+                catch
+                {
+                    dbCommand.Dispose();
+                    throw;
+                }
+            }
 
             return base.Execute(connection, executeMethod, parameterValues, closeConnection);
         }
 
-        protected override async Task<object> ExecuteAsync(IRelationalConnection connection, string executeMethod, IReadOnlyDictionary<string, object> parameterValues, bool closeConnection = true, CancellationToken cancellationToken = default(CancellationToken))
+        protected override async Task<object> ExecuteAsync(IRelationalConnection connection, string executeMethod, IReadOnlyDictionary<string, object> parameterValues, bool closeConnection, CancellationToken cancellationToken = default(CancellationToken))
         {
 
-            //ThrowIf.Argument.IsNull(connection, nameof(connection));
-            //ThrowIf.Argument.IsNull(executeMethod, nameof(executeMethod));
+            ThrowIf.Argument.IsNull(connection, nameof(connection));
+            ThrowIf.Argument.IsNull(executeMethod, nameof(executeMethod));
 
-            //var dbCommand = CreateCommand(connection, parameterValues);
-            //object result = null;
+            var dbCommand = CreateCommand(connection, parameterValues);
+            object result = null;
 
-            //if (connection.DbConnection.State != ConnectionState.Open)
-            //{
-            //    connection.Open();
-            //}
+            if (connection.DbConnection.State != ConnectionState.Open)
+            {
+                connection.Open();
+            }
 
-            //if (executeMethod.Equals(nameof(ExecuteReader)))
-            //{
-            //    try
-            //    {
-
-            //        result = new RelationalDataReader( connection,
-            //                                           dbCommand,
-            //                                           new MySQLDataReader(await ((MySqlCommand)dbCommand).ExecuteReaderAsync() as MySqlDataReader));
-            //        return result;
-            //    }
-            //    catch
-            //    {
-            //        dbCommand.Dispose();
-            //        throw;
-            //    }
-            //}
+            if (executeMethod.Equals(nameof(ExecuteReader)))
+            {
+                try
+                {
+                    result = new RelationalDataReader(connection,
+                                                       dbCommand,
+                                                       new MySQLDataReader(await ((MySqlCommand)dbCommand).ExecuteReaderAsync() as MySqlDataReader));
+                    return result;
+                }
+                catch
+                {
+                    dbCommand.Dispose();
+                    throw;
+                }
+            }
 
             return await base.ExecuteAsync(connection, executeMethod, parameterValues, closeConnection, cancellationToken);
         }
@@ -118,7 +117,7 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
            IReadOnlyDictionary<string, object> parameterValues)
         {
             var command = connection.DbConnection.CreateCommand();
-
+            ((MySqlCommand)command).InternallyCreated = true;
             command.CommandText = CommandText;
 
             if (connection.CurrentTransaction != null)
