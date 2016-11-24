@@ -20,22 +20,40 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
+using System;
+using System.Collections.Generic;
+using System.Data.Common;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace MySQL.Data.EntityFrameworkCore
+namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
-    public class MySQLModelSource : RelationalModelSource
-  {
-        public MySQLModelSource(
-            [NotNull] IDbSetFinder setFinder,
-            [NotNull] ICoreConventionSetBuilder coreConventionSetBuilder,
-            [NotNull] IModelCustomizer modelCustomizer,
-            [NotNull] IModelCacheKeyFactory modelCacheKeyFactory)
-            : base(setFinder, coreConventionSetBuilder, modelCustomizer, modelCacheKeyFactory)
+    public class MySQLRelationalDataReader : RelationalDataReader
+    {             
+        private DbDataReader _reader;
+        private DbCommand _command;
+        private bool _disposed;
+
+
+        public MySQLRelationalDataReader(
+            IRelationalConnection connection,
+            DbCommand command,
+            DbDataReader reader) : base(connection, command, reader)
         {
+            _reader= reader;
+            _command = command;
+        }
+
+        public override void Dispose()
+        {
+            if (!_disposed)
+            {
+                _reader.Dispose();
+                _command.Dispose();
+                _disposed = true;
+            }
+
         }
     }
 }
