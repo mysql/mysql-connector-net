@@ -1,35 +1,3 @@
-7.0.6
-- MySqlX: Fixed schema.GetTables() and schema.GetCollections() (Oracle Bug #24385662).
-- EFCore: MySQLHistoryRepository has not implemented get_ExistsSql() (Oracle Bug #24804771).
-- EFCore: Cannot use datetimeoffset in EF DBContext (Oracle Bug #24732001).
-- EFCore: SQL syntax error when using Contains in where predicate for a linq query (Oracle Bug #24797524).
-- EFCore: Ensure ConcurrencyToken attribute is supported with MySQL provider.
-
-
-7.0.5
-- Added fallback to SSL connections.
-- MySqlX: Added ssl-enable and ssl-ca uri options for SSL connections.
-
-
-7.0.4
-- MySqlX: Added Table.IsView property to support Views.
-- MySqlX: Fixed Collection.Add() when DbDoc contains an array (Oracle Bug #23542031).
-- MySqlX: Fixed adding empty array in Collection (Oracle Bug #23542066).
-- MySqlX: Flexible Parameter Lists.
-- NETCore: Added .Net Core 1.0 support in MySql.Data.
-- Entity Framework Core: Added support for Entity Framework Core in MySQL.Data.EntityFrameworkCore (includes support for .Net 4.5.1).
-
-
-7.0.3
-- Added support for TLSv1.1 and TLSv1.2
-- MySqlX: Added Result to Commit() and Rollback() Session methods in order to be able to read Warnings.
-- MySqlX: Fixed binary collations as strings instead of bytes.
-- MySqlX: Replace the use of "@" for "$" in JSON path expressions.
-- MySqlX: Added support for TLSv1.0
-
-
-7.0.2
-- Support for MySqlX.Session and NodeSession objects in new Dev API.
-- Support for Collection and Documents objects new Dev API.
-- Support for Relational tables in new Dev API.
-- Support for Transactions in new Dev API.
+6.10.0
+- Compression support in .net core driver.
+- Support for Entity Framework Core 1.1.
