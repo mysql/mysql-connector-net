@@ -152,7 +152,7 @@ namespace MySQL.Data.EntityFrameworkCore
 
     protected override async Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
     {
-      string sql = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = `" + _connection.DbConnection.Database + "`";
+      string sql = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '" + _connection.DbConnection.Database + "'";
       long count = (long)await _rawSqlCommandBuilder.Build(sql).ExecuteScalarAsync(_connection, cancellationToken: cancellationToken);
       return count != 0;
     }
