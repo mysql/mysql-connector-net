@@ -26,7 +26,8 @@
     "keyFile": "../../ConnectorNetPublicKey.snk",
     "delaySign": true,
     "publicSign": false,
-    "xmlDoc": false
+    "xmlDoc": false,
+    "nowarn": ["CS1591"]
   },
   "testRunner": "xunit",
   "frameworks": {
