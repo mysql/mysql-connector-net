@@ -17,6 +17,7 @@
     ],
     "requireLicenseAcceptance": true
   },
+  "buildOptions": {"nowarn": ["CS1591"]},
   "frameworks": {
     "net451": {
       "keyFile": "../../ConnectorNetPublicKey.snk",

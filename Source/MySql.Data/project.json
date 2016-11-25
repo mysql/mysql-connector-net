@@ -35,7 +35,8 @@
   "buildOptions": {
     "keyFile": "../../ConnectorNetPublicKey.snk",
     "delaySign": true,
-    "publicSign": false
+    "publicSign": false,
+    "nowarn": [ "CS1591" ]
   }, 
   "dependencies": {   
     "System.Runtime.InteropServices.RuntimeInformation": "4.0.0"
@@ -66,8 +67,8 @@
         "compile": {
           "exclude": [
             "Framework/NetCore10/*.*"
-          ] 
-         }
+          ]
+        }        
         },
       "dependencies": {}
     },

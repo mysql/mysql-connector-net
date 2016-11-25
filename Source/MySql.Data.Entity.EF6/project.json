@@ -17,6 +17,9 @@
     ],
     "requireLicenseAcceptance": true
   },
+  "buildOptions": {
+    "nowarn": [ "CS1591" ]
+  },
   "dependencies": {
     "EntityFramework": "6.1.3",
     "MySql.Data": {
