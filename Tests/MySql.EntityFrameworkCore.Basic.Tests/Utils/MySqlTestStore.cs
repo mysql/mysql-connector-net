@@ -52,7 +52,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
   public class MySQLTestStore : IDisposable
   {
 #if NETCORE10            
-        static string pathandfile = Path.GetFullPath(@"D:\Repository\Git\6.10\dev") + @"/appsettings.json";
+        static string pathandfile = Path.GetFullPath(@"../..") + @"/appsettings.json";
         private static ConfigUtils config = new ConfigUtils(pathandfile);        
 #endif
 
