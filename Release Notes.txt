@@ -1,21 +1,15 @@
-Connector/Net 7.0  Release Notes
+Connector/Net 6.10  Release Notes
 ------------------------------------
-Welcome to the release notes for Connector/Net 7.0
+Welcome to the release notes for Connector/Net 6.10
 
-What's new in 7.0
+What's new in 6.10
 --------------------
-Connector/Net has implemented the new X DevAPI that enables communication 
-using the X Protocol with a MySQL Server running the X Plugin, released 
-with MySQL 5.7.x. With the X DevAPI you can write code that treats 
-MySQL Server as a document database, using a NoSQL-like syntax that does 
-not assume previous experience writing traditional SQL.
-To learn more about how to write applications using X DevAPI see 
-http://dev.mysql.com/doc/x-devapi-userguide/en/index.html. 
+Connector/Net has added the support for .NET Core Framework, which enables
+MySQL Connector/Net 6.10.x to be run in all the platforms supported for this
+framework (Windows, Linux and OSx).
+Compression support is also included in the new core driver version.
 
-This version also includes the support for .NET Core Framework, which enables
-MySQL Connector/Net > = 7.0.4 to be run in all the platforms supported for this
-framework. Entity Framework Core support is also included.
+In this version users can start using Entity Framework Core 1.1 in their .net core 
+applications with a MySQL database.
 
-For General documentation about how to get started using MySQL as a document 
-database, see http://dev.mysql.com/doc/refman/5.7/en/document-database.html.
 
