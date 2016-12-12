@@ -1227,7 +1227,13 @@ namespace MySql.Data.MySqlClient
 
       return true;
     }
-  }
+
+      public override int GetHashCode()
+      {
+          return base.GetHashCode();
+      }
+
+    }
 
   class MySqlConnectionStringOption
   {

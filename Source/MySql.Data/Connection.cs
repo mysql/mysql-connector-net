@@ -387,17 +387,12 @@ namespace MySql.Data.MySqlClient
           ProcedureCache = new ProcedureCache((int)Settings.ProcedureCacheSize);
         }
       }
-      catch (Exception ex)
+      catch (Exception)
       {
         SetState(ConnectionState.Closed, true);
         throw;
       }
-
-      // if the user is using old syntax, let them know
-      if (driver.Settings.UseOldSyntax)
-        MySqlTrace.LogWarning(ServerThread,
-          "You are using old syntax that will be removed in future versions");
-
+   
       SetState(ConnectionState.Open, false);
       driver.Configure(this);
 
@@ -808,6 +803,7 @@ namespace MySql.Data.MySqlClient
     /// Async version of ChangeDataBase
     /// </summary>
     /// <param name="databaseName">The name of the database to use.</param>
+    /// <param name="cancellationToken">Cancellation Token.</param>
     /// <returns></returns>
     public Task ChangeDataBaseAsync(string databaseName, CancellationToken cancellationToken)
     {

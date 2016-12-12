@@ -26,9 +26,7 @@ namespace MySql.Data.MySqlClient
 {
     public class MySqlTrace
     {
-        private static string qaHost;
-        private static bool qaEnabled = false;
-
+        
         public static TraceListenerCollection Listeners
         {
             get { throw new NotImplementedException(); }

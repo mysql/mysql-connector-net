@@ -23,7 +23,7 @@
     ],
     "files": {
       "includeFiles": [
-        "Content/ReleaseNotes.txt"
+        "../../Release Notes.txt"
       ],
       "include": [
         "../../README"
@@ -79,6 +79,7 @@
           "NETCORE10"
         ],
         "warningsAsErrors": false,
+        "nowarn": [ "CS1591" ],
         "embed": [
           "keywords.txt",
           "Resources.resx",
@@ -165,7 +166,8 @@
         ],
         "optimize": true,
         "preserveCompilationContext": true,
-        "xmlDoc": true
+        "xmlDoc": true,
+        "nowarn": [ "CS1591" ]
       }
     }
   }

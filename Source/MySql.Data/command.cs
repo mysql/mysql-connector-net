@@ -43,8 +43,7 @@ namespace MySql.Data.MySqlClient
 #endif
     {
     MySqlConnection connection;
-    string cmdText;
-    long updatedRowCount;
+    string cmdText;    
     private IAsyncResult asyncResult;
     private PreparableStatement statement;
     private int commandTimeout;
@@ -431,8 +430,7 @@ namespace MySql.Data.MySqlClient
         // Now that we have completed our resolve step, we can handle our
         // command behaviors
         HandleCommandBehaviors(behavior);
-
-        updatedRowCount = -1;
+        
         try
         {
           MySqlDataReader reader = new MySqlDataReader(this, statement, behavior);

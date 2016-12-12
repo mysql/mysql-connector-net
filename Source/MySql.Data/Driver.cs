@@ -378,7 +378,7 @@ namespace MySql.Data.MySqlClient
         return null;
       firstResult = false;
 
-      int affectedRows = -1, warnings = 0;
+      int affectedRows = -1;
       long insertedId = -1;
       int fieldCount = GetResult(statementId, ref affectedRows, ref insertedId);
       if (fieldCount == -1)

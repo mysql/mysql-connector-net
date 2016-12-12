@@ -146,7 +146,7 @@ namespace MySql.Data.MySqlClient.Memcached
       SendCommand( ( byte )MagicByte.Request, ( byte )OpCodes.Set, key, data, expiration, true );
     }
 
-    #endregion
+        #endregion
 
     /// <summary>
     /// Sends an store command (add, replace, set).
@@ -156,6 +156,7 @@ namespace MySql.Data.MySqlClient.Memcached
     /// <param name="key"></param>
     /// <param name="data"></param>
     /// <param name="expiration"></param>
+    /// <param name="hasExtra"></param> 
     private void SendCommand( 
       byte magic, byte opcode, string key, object data, TimeSpan expiration, bool hasExtra )
     {
@@ -188,8 +189,7 @@ namespace MySql.Data.MySqlClient.Memcached
     /// </summary>
     /// <param name="magic"></param>
     /// <param name="opcode"></param>
-    /// <param name="key"></param>
-    /// <param name="value"></param>
+    /// <param name="key"></param>    
     private void SendCommand(byte magic, byte opcode, string key )
     {
       // Send data
@@ -202,9 +202,8 @@ namespace MySql.Data.MySqlClient.Memcached
     /// Sends a command without args (like flush).
     /// </summary>
     /// <param name="magic"></param>
-    /// <param name="opcode"></param>
-    /// <param name="key"></param>
-    /// <param name="value"></param>
+    /// <param name="opcode"></param>    
+    /// <param name="expiration"></param>
     private void SendCommand(byte magic, byte opcode, TimeSpan expiration )
     {
       // Send data
@@ -219,7 +218,7 @@ namespace MySql.Data.MySqlClient.Memcached
     /// <param name="magic"></param>
     /// <param name="opcode"></param>
     /// <param name="key"></param>
-    /// <param name="value"></param>
+    /// <param name="amount"></param>
     private void SendCommand(byte magic, byte opcode, string key, int amount )
     {
       // Send data
@@ -254,8 +253,7 @@ namespace MySql.Data.MySqlClient.Memcached
     /// <param name="key"></param>
     /// <param name="data"></param>
     /// <param name="expiration"></param>
-    /// <param name="hasExtra">If true applies to set, add or replace commands; if false applies
-    /// to append & prepend commands.</param>
+    /// <param name="hasExtra">If true applies to set, add or replace commands; if false applies to append and prepend commands.</param>
     /// <returns></returns>
     private byte[] EncodeStoreCommand(
       byte magic, byte opcode, string key, object data, TimeSpan expiration, 
