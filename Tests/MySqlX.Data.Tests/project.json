@@ -14,7 +14,7 @@
   "dependencies": {
     "dotnet-test-xunit": "2.2.0-*",
     "xunit": "2.2.0-*",
-    "Google.Protobuf": "3.0.0-beta4",
+    "Google.Protobuf": "3.1.0",
     "MySql.Data": {
       "target": "project"
     }
