@@ -301,7 +301,7 @@ namespace MySql.Data.MySqlClient
       stream.MaxBlockSize = maxSinglePacket;
     }
 
-      #region Authentication
+#region Authentication
 
       /// <summary>
       /// Return the appropriate set of connection flags for our
@@ -384,7 +384,7 @@ namespace MySql.Data.MySqlClient
       authPlugin.Authenticate(reset);
     }
 
-    #endregion
+#endregion
 
     public void Reset()
     {
@@ -629,8 +629,8 @@ namespace MySql.Data.MySqlClient
     private void ExecutePacket(MySqlPacket packetToExecute)
     {
       try
-      {
-        warnings = 0;
+      {      
+        warnings = 0;        
         stream.SequenceByte = 0;
         stream.SendPacket(packetToExecute);
       }

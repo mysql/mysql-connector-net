@@ -270,6 +270,7 @@ namespace MySql.Data.Types
     /// SRID=0;POINT (x y) or POINT (x y)
     /// </summary>
     /// <param name="value">WKT string format</param>    
+    /// <param name="mySqlGeometryValue">Out mysqlGeometryValue</param>
     public static bool TryParse(string value, out MySqlGeometry mySqlGeometryValue)
     {
       string[] arrayResult = new string[0];

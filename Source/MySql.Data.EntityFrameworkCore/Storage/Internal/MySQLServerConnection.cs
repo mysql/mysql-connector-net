@@ -33,7 +33,6 @@ namespace MySQL.Data.EntityFrameworkCore
 {
   public class MySQLServerConnection : RelationalConnection
     {
-      public int flag;
 
       private string _cnnStr
       { 

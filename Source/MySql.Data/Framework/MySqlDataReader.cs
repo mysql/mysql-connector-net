@@ -136,8 +136,7 @@ namespace MySql.Data.MySqlClient
 
     /// <summary>
     /// Returns an <see cref="IEnumerator"/> that iterates through the <see cref="MySqlDataReader"/>. 
-    /// </summary>
-    /// <returns></returns
+    /// </summary>    
     public override IEnumerator GetEnumerator()
     {
       //TODO: REMOVE WHEN DBENUMERATOR IS INCLUDED IN SYSTEM.DATA.COMMON

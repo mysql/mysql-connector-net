@@ -188,14 +188,14 @@ namespace zlib
 			return ((long)SupportClass.ReadInput(BaseStream, tmp, 0, tmp.Length));
 		}
 
-#if RT
+#if NETCORE10
     public void Close()
 #else
 		public override void Close()
 #endif
 		{
-#if RT
-            in_Renamed.Dispose();
+#if NETCORE10
+      in_Renamed.Dispose();
 #else
 			in_Renamed.Close();
 #endif

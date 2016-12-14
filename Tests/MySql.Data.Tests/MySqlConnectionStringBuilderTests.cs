@@ -29,7 +29,7 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class MySqlConnectionStringBuilderTests : TestBase
   {
-    public MySqlConnectionStringBuilderTests(TestSetup setup) : base(setup, "connection-string-builder")
+    public MySqlConnectionStringBuilderTests(TestSetup setup) : base(setup, "string-builder")
     {
     }
 

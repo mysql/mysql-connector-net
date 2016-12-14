@@ -30,14 +30,14 @@
   "dependencies": {
     "dotnet-test-xunit": "2.2.0-*",
     "xunit": "2.2.0-*",
-    "Microsoft.EntityFrameworkCore": "1.0.0",
-    "Microsoft.EntityFrameworkCore.Relational": "1.0.0",
     "MySql.Data": {
       "target": "project"
     },
     "MySql.Data.EntityFrameworkCore": {
       "target": "project"
-    }
+    },
+    "Microsoft.EntityFrameworkCore": "1.1.0",
+    "Microsoft.EntityFrameworkCore.Relational": "1.1.0"
   },
   "frameworks": {
     "netcoreapp1.0": {
@@ -45,7 +45,7 @@
         "dnxcore50"
       ],
       "buildOptions": {
-        "define": [ "NETCORE10" ],        
+        "define": [ "NETCORE10" ],
         "compile": {
           "include": [ "../*.cs" ]
         },

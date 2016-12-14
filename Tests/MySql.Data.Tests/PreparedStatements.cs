@@ -133,7 +133,7 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.Parameters.AddWithValue("?id", 1);
         cmd.Parameters.AddWithValue("?d", dt);
         cmd.Parameters.AddWithValue("?dt", dt);
-        cmd.Parameters.AddWithValue("?tm", ts);
+        cmd.Parameters.AddWithValue("?tm", timeSp);
         cmd.Prepare();
         int count = cmd.ExecuteNonQuery();
         Assert.True(count == 1, "Records affected by insert");
@@ -610,7 +610,7 @@ namespace MySql.Data.MySqlClient.Tests
         "id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT," +
         "test1 INT UNSIGNED, test2 INT UNSIGNED)");
 
-      MySqlCommand cmd = connection.CreateCommand();
+      MySqlCommand cmd = customConnection.CreateCommand();
       cmd.CommandText = "INSERT INTO Test VALUES (NULL, ?t1, ?t2);" +
         "SELECT last_insert_id()";
       cmd.Parameters.Add("?t1", MySqlDbType.Int32);

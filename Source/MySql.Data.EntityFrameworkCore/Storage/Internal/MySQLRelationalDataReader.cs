@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,30 +20,40 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using MySql.Data.MySqlClient;
+using System.Data.Common;
+using System.Linq;
+using System.Threading.Tasks;
 
-using Xunit;
-using System.Data;
-using System.ComponentModel;
-using System.Security.Authentication;
-
-namespace MySql.Data.MySqlClient.Tests
+namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
-  public class TimeoutAndCancelSharedMemory : TimeoutAndCancel
-  {
-    private string sharedMemory = "";
+    public class MySQLRelationalDataReader : RelationalDataReader
+    {             
+        private DbDataReader _reader;
+        private DbCommand _command;
+        private bool _disposed;
 
-    public TimeoutAndCancelSharedMemory(TestSetup setup) : base (setup, "timeoutandsmem")
-    {
-      sharedMemory = setup.sharedMemoryName;
-    }
 
-    protected override string OnGetConnectionStringInfo()
-    {
-      return string.Format("protocol=sharedmemory; shared memory name={0};ssl mode=none;", sharedMemory);
+        public MySQLRelationalDataReader(
+            IRelationalConnection connection,
+            DbCommand command,
+            DbDataReader reader) : base(connection, command, reader)
+        {
+            _reader= reader;
+            _command = command;
+        }
+
+        public override void Dispose()
+        {
+            if (!_disposed)
+            {
+                _reader.Dispose();
+                _command.Dispose();
+                _disposed = true;
+            }
+
+        }
     }
-  }
 }

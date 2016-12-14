@@ -23,6 +23,8 @@
 using System;
 using Xunit;
 using System.Data;
+using System.IO;
+using System.Diagnostics;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -45,7 +47,6 @@ namespace MySql.Data.MySqlClient.Tests
     internal protected string csAdditions = String.Empty;
     internal protected bool accessToMySqlDb;
     private bool disposed = false;
-
 
     public TestSetupClass()
     {
@@ -71,12 +72,14 @@ namespace MySql.Data.MySqlClient.Tests
     protected virtual void LoadBaseConfiguration()
     {
       baseDBName = "db-" + testNameSpace + "-";
-      baseUserName ="u-" + (testNameSpace.Length > 10 ? testNameSpace.Substring(0,10) : testNameSpace) + "-";
-      string port;
+      baseUserName ="u-" + (testNameSpace.Length > 10 ? testNameSpace.Substring(0,10) : testNameSpace) + "-";     
       var s = new MySqlConnectionStringBuilder();
 
 #if NETCORE10
-        var config = new MySql.Data.MySqlClient.ConfigUtils("appsettings.json");
+        string port;        
+
+        var pathandfile = Path.GetFullPath(@"../..") + @"/appsettings.json";
+        var config = new ConfigUtils(pathandfile);
         port  = config.GetPort();
 
         if (!string.IsNullOrEmpty(port))
@@ -347,9 +350,9 @@ namespace MySql.Data.MySqlClient.Tests
     internal protected string GetPoolingConnectionString()
     {
       RootSettings.Database = baseDBName + "0";
-      string s = RootSettings.GetConnectionString(false);
-      s = s.Replace("pooling=false", "pooling=true");
-      return s;
+      MySqlConnectionStringBuilder csBuilder = new MySqlConnectionStringBuilder(RootSettings.GetConnectionString(false));
+      csBuilder.Pooling = true;
+      return csBuilder.ToString();
     }
 
 

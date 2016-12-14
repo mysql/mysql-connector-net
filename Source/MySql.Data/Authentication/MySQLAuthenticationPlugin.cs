@@ -184,7 +184,7 @@ namespace MySql.Data.MySqlClient.Authentication
       MySqlPacket packet = _driver.Packet;
       packet.Clear();
       byte[] moreData = MoreData(null);
-      while (moreData != null && moreData.Length > 0)
+      while (moreData != null)
       {
         packet.Clear();
         packet.Write(moreData);

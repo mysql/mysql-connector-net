@@ -52,15 +52,15 @@ namespace MySQL.Data.EntityFrameworkCore
         IMigrationsSqlGenerator generator,
         IMigrationCommandExecutor migrationCommandExecutor,
         IModel model,
-        IRawSqlCommandBuilder rawSqlCommandBuilder)
-        : base(model, cxn, differ, generator, migrationCommandExecutor)
+        IRawSqlCommandBuilder rawSqlCommandBuilder,
+        IExecutionStrategyFactory executionStrategyFactory)
+        : base(model, cxn, differ, generator, migrationCommandExecutor, executionStrategyFactory)
     {
       ThrowIf.Argument.IsNull(cxn, "connection");      
       ThrowIf.Argument.IsNull(differ, "modelDiffer");
       ThrowIf.Argument.IsNull(generator, "generator");
       ThrowIf.Argument.IsNull(rawSqlCommandBuilder, "commandBuilder");
-
-      cxn.flag = 1;
+      
       _connection = cxn;
       _sqlGenerator = generator;
       _rawSqlCommandBuilder = rawSqlCommandBuilder;

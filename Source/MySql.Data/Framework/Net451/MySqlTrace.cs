@@ -28,9 +28,9 @@ using System.Reflection;
 
 namespace MySql.Data.MySqlClient
 {
-  public sealed partial class MySqlTrace
+  public class MySqlTrace
   {
-    private static readonly TraceSource source = new TraceSource("mysql");
+    private static TraceSource source = new TraceSource("mysql");
 
     static MySqlTrace()
     {
@@ -76,7 +76,10 @@ namespace MySql.Data.MySqlClient
 
     internal static TraceSource Source
     {
-      get { return source; }
+      get 
+        { 
+            return source; 
+        }
     }
 
     internal static void LogInformation(int id, string msg)

@@ -43,7 +43,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 using System;
 
-#if RT
+#if NETCORE10
 using System.Diagnostics;
 #endif
 
@@ -188,8 +188,8 @@ namespace zlib
 				System.Console.Out.WriteLine(dstate.pending_buf.Length + ", " + dstate.pending_out + ", " + next_out.Length + ", " + next_out_index + ", " + len);
 				System.Console.Out.WriteLine("avail_out=" + avail_out);
 #else
-                Debug.WriteLine(dstate.pending_buf.Length + ", " + dstate.pending_out + ", " + next_out.Length + ", " + next_out_index + ", " + len);
-                Debug.WriteLine("avail_out=" + avail_out);
+				Debug.WriteLine(dstate.pending_buf.Length + ", " + dstate.pending_out + ", " + next_out.Length + ", " + next_out_index + ", " + len);
+				Debug.WriteLine("avail_out=" + avail_out);
 #endif
 			}
 
