@@ -1,6 +1,7 @@
 7.0.7
 - MySqlX: Fixed configuration handling paths in Linux and MacOS.
 - MySqlX: Fixed Dispose error in Linux and MacOS.
+- MySqlX: Added support for IPv6.
 
 
 7.0.6
