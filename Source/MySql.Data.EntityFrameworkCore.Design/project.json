@@ -1,0 +1,50 @@
+{
+  "version": "6.10.0-*",
+  "description": "Design-time Entity Framework Core Functionality for MySQL Server.",
+  "packOptions": {
+    "tags": [
+      "Entity Framework Core",
+      "entity-framework-core",
+      "EF",
+      "MySQL"
+    ]
+  },
+  "buildOptions": {
+    "warningsAsErrors": true,
+    "keyFile": "../../ConnectorNetPublicKey.snk",
+    "delaySign": true,
+    "publicSign": false,
+    "nowarn": [ "CS1591" ],
+    "xmlDoc": true
+  },
+  "dependencies": {
+    "Microsoft.EntityFrameworkCore.Relational.Design": "1.1.0",
+    "MySql.Data.EntityFrameworkCore": {
+      "target": "project"
+    },
+    "NETStandard.Library": "1.6.1"
+  },
+  "frameworks": {
+    "net451": {},
+    "netstandard1.6": {
+      "dependencies": {}
+    }
+  },
+  "configurations": {
+    "Debug": {
+      "buildOptions": {
+        "define": [ "DEBUG" ],
+        "optimize": false,
+        "preserveCompilationContext": true
+      }
+    },
+    "Release": {
+      "buildOptions": {
+        "define": [ "RELEASE" ],
+        "optimize": true,
+        "preserveCompilationContext": true,
+        "xmlDoc": true
+      }
+    }
+  }
+}

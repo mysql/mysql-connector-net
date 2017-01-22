@@ -66,9 +66,7 @@ namespace EntityFrameworkCore.Basic.Tests.Logging
 
         public static string Log => Logger.MySqlLoggerData.output;
         public static string Sql => string.Join(Environment.NewLine, Logger.MySqlLoggerData.mySqlStatements);
-
         
-
         public static void Reset() => Logger.ResetLoggerData();
 
 

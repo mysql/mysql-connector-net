@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -52,7 +52,8 @@ namespace MySql.Data.EntityFrameworkCore.Tests
   public class MySQLTestStore : IDisposable
   {
 #if NETCORE10            
-        static string pathandfile = Path.GetFullPath(@"../..") + @"/appsettings.json";
+        //static string pathandfile = Path.GetFullPath(@"../..") + @"/appsettings.json";
+        static string pathandfile = @"D:\Repository\Git\6.10\dev\appsettings.json";
         private static ConfigUtils config = new ConfigUtils(pathandfile);        
 #endif
 
@@ -91,25 +92,41 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       return "3306";
     }
 
-    public static void CreateDatabase(string databaseName, string script = null)
-    {      
-      if (script != null)
-      {
-        Assembly executingAssembly = Assembly.GetEntryAssembly();
-        Stream stream = executingAssembly.GetManifestResourceStream("MySql.Data.Entity.Tests.Properties.DatabaseSetup.sql");
-        StreamReader sr = new StreamReader(stream);
-        string sql = sr.ReadToEnd();
-        sr.Dispose();
-        sql = sql.Replace("[database0]", databaseName);
+    public static void CreateDatabase(string databaseName, bool deleteifExists = false, string script = null)
+    {
+            if (script != null)
+            {
+                if (deleteifExists)
+                   script = "Drop database if exists [database0];"  + script;
 
-        //execute
+                script = script.Replace("[database0]", databaseName);
+                //execute
+                using (var cnn = new MySqlConnection(rootConnectionString))
+                {
+                    cnn.Open();
+                    MySqlScript s = new MySqlScript(cnn, script);
+                    s.Execute();
+                }
+            }
+            else
+            {
+                using (var cnn = new MySqlConnection(rootConnectionString))
+                {
+                    cnn.Open();                    
+                    var cmd = new MySqlCommand(string.Format("Drop database {0}; Create Database {0};", databaseName), cnn);
+                    cmd.ExecuteNonQuery();                    
+                }
+            }
+    }
+
+    public static void Execute(string sql)
+    {
         using (var cnn = new MySqlConnection(rootConnectionString))
         {
-          cnn.Open();
-          MySqlScript s = new MySqlScript(cnn, sql);
-          s.Execute();
+            cnn.Open();
+            var cmd = new MySqlCommand(sql, cnn);
+            cmd.ExecuteNonQuery();
         }
-      }
     }
 
     public static string CreateConnectionString(string databasename)
@@ -133,7 +150,6 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         var cmd =  new MySqlCommand(string.Format("DROP database {0}", name), cnn);
         cmd.ExecuteNonQuery();
       }
-
     }
 
     public void Dispose()

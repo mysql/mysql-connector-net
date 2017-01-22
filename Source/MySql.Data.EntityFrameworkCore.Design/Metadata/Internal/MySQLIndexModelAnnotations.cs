@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,33 +20,24 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace MySQL.Data.EntityFrameworkCore
+using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
+
+namespace MySql.Data.EntityFrameworkCore.Design.Metadata.Internal
 {
-    public static class ThrowIf
+    public class MySQLIndexModelAnnotations
     {
-        public static class Argument
-        {
-            public static void IsNull(object argument, string argumentName)
-             {
-                if (argument == null)
-                {
-                    throw new ArgumentNullException(argumentName);
-                }
-            }
+        readonly IndexModel _index;
 
-            public static void IsEmpty(string argument, string argumentName)
-            {
-                if (argument == null)
-                    throw new ArgumentNullException(argumentName);
-                if (argument.Trim().Length == 0)
-                    throw new ArgumentException(String.Format("{0} cannot be empty", argumentName));
-            }
+        public MySQLIndexModelAnnotations(IndexModel index)
+        {
+            _index = index;
+        }
+
+        public string Expression
+        {
+            get { return _index[MySQLDatabaseModelAnnotationNames.Expression] as string; }
+            set { _index[MySQLDatabaseModelAnnotationNames.Expression] = value; }
         }
     }
 }
