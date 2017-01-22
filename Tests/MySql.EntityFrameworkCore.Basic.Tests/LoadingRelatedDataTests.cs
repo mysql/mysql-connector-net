@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -59,6 +59,18 @@ namespace MySql.Data.EntityFrameworkCore.Tests
 
         }
 
+        [Fact]
+        public void CanUseSkipAndTake()
+        {
+            Assert.False(context.Database.EnsureCreated());
+            var people
+                    = context.Set<Guest>()
+                        .Skip(2)
+                        .Take(1)
+                        .ToList();
+
+            Assert.Equal(1, people.Count);
+        }
 
         [Fact]
         public void CanIncludeAddressData()

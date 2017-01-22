@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -48,13 +48,14 @@ namespace MySql.Data.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             ThrowIf.Argument.IsNull(methodCallExpression, nameof(methodCallExpression));
 
             if (ReferenceEquals(methodCallExpression.Method, _methodInfo))
-            {
-                var patternExpression = methodCallExpression.Arguments[0];
-                var patternConstantExpression = patternExpression as ConstantExpression;
+            {                
+                var argument = methodCallExpression.Arguments.Count == 1
+                                   ? (methodCallExpression.Arguments[0] as ConstantExpression)?.Value as char[]
+                                   : null;
 
                 var sqlArguments = new List<Expression>();
                 sqlArguments.Add(ConstantExpression.Constant("%"));
-                sqlArguments.Add(patternConstantExpression);
+                sqlArguments.Add(Expression.Constant(new string(argument), typeof(string)));
                 sqlArguments.Add(ConstantExpression.Constant("%"));
 
                 var concatFunctionExpression = new SqlFunctionExpression("concat", methodCallExpression.Type, sqlArguments);

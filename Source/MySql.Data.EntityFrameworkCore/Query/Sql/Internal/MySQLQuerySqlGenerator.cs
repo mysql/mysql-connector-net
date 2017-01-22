@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -86,11 +86,21 @@ namespace MySQL.Data.EntityFrameworkCore.Query
 
       ThrowIf.Argument.IsNull(selectExpression, "selectExpression");
 
-      if (selectExpression.Limit != null)
-      {
-        Sql.AppendLine().Append("LIMIT ").Append(selectExpression.Limit);        
-      }
+            if ((selectExpression.Limit != null)
+                     || (selectExpression.Offset != null))
+            {
+                Sql.AppendLine()
+                    .Append("LIMIT ");
 
-    }
+                Visit(selectExpression.Limit ?? Expression.Constant(-1));
+                
+                if (selectExpression.Offset != null)
+                {
+                    Sql.Append(" OFFSET ");
+
+                    Visit(selectExpression.Offset);
+                }
+            }
+        }
   }
 }
