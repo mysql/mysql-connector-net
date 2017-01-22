@@ -1,5 +1,5 @@
 ﻿{
-  "version": "6.10.0-alpha",
+  "version": "6.10.1-beta",
   "description": "MySql.Data.EF6.Migrations.Tests",
   "authors": [
     "Oracle"

@@ -1,5 +1,5 @@
 {
-  "version": "6.10.0-alpha",
+  "version": "6.10.1-beta",
   "description": "MySql.Data.MySqlClient.Test Console",
   "authors": [ "Oracle" ],
   "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
