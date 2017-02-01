@@ -43,7 +43,7 @@ namespace MySqlX.Data.Tests
     public static string ConnectionStringRoot { get; private set; }
 
 #if NETCORE10
-        private static ConfigUtils config = new ConfigUtils("appsettings.json");
+        private static ConfigUtils config = new ConfigUtils(Path.GetFullPath(@"../..") + @"/appsettings.json");
 #endif
 
         static BaseTest()
