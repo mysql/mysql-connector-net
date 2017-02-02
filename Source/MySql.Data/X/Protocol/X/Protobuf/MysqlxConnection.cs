@@ -10,8 +10,7 @@ using scg = global::System.Collections.Generic;
 namespace Mysqlx.Connection {
 
   /// <summary>Holder for reflection information generated from mysqlx_connection.proto</summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-  public static partial class MysqlxConnectionReflection {
+  internal static partial class MysqlxConnectionReflection {
 
     #region Descriptor
     /// <summary>File descriptor for mysqlx_connection.proto</summary>
@@ -50,30 +49,35 @@ namespace Mysqlx.Connection {
   ///
   ///  a tuple of a ``name`` and a :protobuf:msg:`Mysqlx.Datatypes::Any`
   /// </summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-  public sealed partial class Capability : pb::IMessage<Capability> {
+  internal sealed partial class Capability : pb::IMessage<Capability> {
     private static readonly pb::MessageParser<Capability> _parser = new pb::MessageParser<Capability>(() => new Capability());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<Capability> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
       get { return global::Mysqlx.Connection.MysqlxConnectionReflection.Descriptor.MessageTypes[0]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Capability() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Capability(Capability other) : this() {
       name_ = other.name_;
       Value = other.value_ != null ? other.Value.Clone() : null;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Capability Clone() {
       return new Capability(this);
     }
@@ -84,6 +88,7 @@ namespace Mysqlx.Connection {
     /// <summary>
     /// required
     /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Name {
       get { return name_; }
       set {
@@ -97,6 +102,7 @@ namespace Mysqlx.Connection {
     /// <summary>
     /// required
     /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Datatypes.Any Value {
       get { return value_; }
       set {
@@ -104,10 +110,12 @@ namespace Mysqlx.Connection {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as Capability);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(Capability other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -120,6 +128,7 @@ namespace Mysqlx.Connection {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       if (Name.Length != 0) hash ^= Name.GetHashCode();
@@ -127,10 +136,12 @@ namespace Mysqlx.Connection {
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
       if (Name.Length != 0) {
         output.WriteRawTag(10);
@@ -142,6 +153,7 @@ namespace Mysqlx.Connection {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       if (Name.Length != 0) {
@@ -153,6 +165,7 @@ namespace Mysqlx.Connection {
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(Capability other) {
       if (other == null) {
         return;
@@ -168,6 +181,7 @@ namespace Mysqlx.Connection {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -195,29 +209,34 @@ namespace Mysqlx.Connection {
   /// <summary>
   ///  Capabilities
   /// </summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-  public sealed partial class Capabilities : pb::IMessage<Capabilities> {
+  internal sealed partial class Capabilities : pb::IMessage<Capabilities> {
     private static readonly pb::MessageParser<Capabilities> _parser = new pb::MessageParser<Capabilities>(() => new Capabilities());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<Capabilities> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
       get { return global::Mysqlx.Connection.MysqlxConnectionReflection.Descriptor.MessageTypes[1]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Capabilities() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Capabilities(Capabilities other) : this() {
       capabilities_ = other.capabilities_.Clone();
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Capabilities Clone() {
       return new Capabilities(this);
     }
@@ -227,14 +246,17 @@ namespace Mysqlx.Connection {
     private static readonly pb::FieldCodec<global::Mysqlx.Connection.Capability> _repeated_capabilities_codec
         = pb::FieldCodec.ForMessage(10, global::Mysqlx.Connection.Capability.Parser);
     private readonly pbc::RepeatedField<global::Mysqlx.Connection.Capability> capabilities_ = new pbc::RepeatedField<global::Mysqlx.Connection.Capability>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public pbc::RepeatedField<global::Mysqlx.Connection.Capability> Capabilities_ {
       get { return capabilities_; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as Capabilities);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(Capabilities other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -246,26 +268,31 @@ namespace Mysqlx.Connection {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       hash ^= capabilities_.GetHashCode();
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
       capabilities_.WriteTo(output, _repeated_capabilities_codec);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       size += capabilities_.CalculateSize(_repeated_capabilities_codec);
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(Capabilities other) {
       if (other == null) {
         return;
@@ -273,6 +300,7 @@ namespace Mysqlx.Connection {
       capabilities_.Add(other.capabilities_);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -295,36 +323,43 @@ namespace Mysqlx.Connection {
   ///
   ///    :returns: :protobuf:msg:`Mysqlx.Connection::Capabilities` or :protobuf:msg:`Mysqlx::Error`
   /// </summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-  public sealed partial class CapabilitiesGet : pb::IMessage<CapabilitiesGet> {
+  internal sealed partial class CapabilitiesGet : pb::IMessage<CapabilitiesGet> {
     private static readonly pb::MessageParser<CapabilitiesGet> _parser = new pb::MessageParser<CapabilitiesGet>(() => new CapabilitiesGet());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<CapabilitiesGet> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
       get { return global::Mysqlx.Connection.MysqlxConnectionReflection.Descriptor.MessageTypes[2]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public CapabilitiesGet() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public CapabilitiesGet(CapabilitiesGet other) : this() {
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public CapabilitiesGet Clone() {
       return new CapabilitiesGet(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as CapabilitiesGet);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(CapabilitiesGet other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -335,29 +370,35 @@ namespace Mysqlx.Connection {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(CapabilitiesGet other) {
       if (other == null) {
         return;
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -380,29 +421,34 @@ namespace Mysqlx.Connection {
   ///  :precond: active sessions == 0
   ///  :returns: :protobuf:msg:`Mysqlx::Ok` or :protobuf:msg:`Mysqlx::Error`
   /// </summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-  public sealed partial class CapabilitiesSet : pb::IMessage<CapabilitiesSet> {
+  internal sealed partial class CapabilitiesSet : pb::IMessage<CapabilitiesSet> {
     private static readonly pb::MessageParser<CapabilitiesSet> _parser = new pb::MessageParser<CapabilitiesSet>(() => new CapabilitiesSet());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<CapabilitiesSet> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
       get { return global::Mysqlx.Connection.MysqlxConnectionReflection.Descriptor.MessageTypes[3]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public CapabilitiesSet() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public CapabilitiesSet(CapabilitiesSet other) : this() {
       Capabilities = other.capabilities_ != null ? other.Capabilities.Clone() : null;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public CapabilitiesSet Clone() {
       return new CapabilitiesSet(this);
     }
@@ -413,6 +459,7 @@ namespace Mysqlx.Connection {
     /// <summary>
     /// required
     /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Connection.Capabilities Capabilities {
       get { return capabilities_; }
       set {
@@ -420,10 +467,12 @@ namespace Mysqlx.Connection {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as CapabilitiesSet);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(CapabilitiesSet other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -435,16 +484,19 @@ namespace Mysqlx.Connection {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       if (capabilities_ != null) hash ^= Capabilities.GetHashCode();
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
       if (capabilities_ != null) {
         output.WriteRawTag(10);
@@ -452,6 +504,7 @@ namespace Mysqlx.Connection {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       if (capabilities_ != null) {
@@ -460,6 +513,7 @@ namespace Mysqlx.Connection {
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(CapabilitiesSet other) {
       if (other == null) {
         return;
@@ -472,6 +526,7 @@ namespace Mysqlx.Connection {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -499,36 +554,43 @@ namespace Mysqlx.Connection {
   ///
   ///  :Returns: :protobuf:msg:`Mysqlx::Ok`
   /// </summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-  public sealed partial class Close : pb::IMessage<Close> {
+  internal sealed partial class Close : pb::IMessage<Close> {
     private static readonly pb::MessageParser<Close> _parser = new pb::MessageParser<Close>(() => new Close());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<Close> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
       get { return global::Mysqlx.Connection.MysqlxConnectionReflection.Descriptor.MessageTypes[4]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Close() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Close(Close other) : this() {
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Close Clone() {
       return new Close(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as Close);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(Close other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -539,29 +601,35 @@ namespace Mysqlx.Connection {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(Close other) {
       if (other == null) {
         return;
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {

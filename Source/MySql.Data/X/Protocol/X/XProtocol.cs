@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -318,6 +318,11 @@ namespace MySqlX.Protocol
           ReadPacket();
           break;
         }
+        if (p.MessageType == (int)ServerMessageId.OK)
+        {
+          ReadOk();
+          break;
+        }
         if (p.MessageType == (int)ServerMessageId.RESULTSET_FETCH_DONE)
           ReadPacket();
         else if (p.MessageType == (int)ServerMessageId.NOTICE)
@@ -463,7 +468,7 @@ namespace MySqlX.Protocol
       _writer.Write(ClientMessageId.CRUD_UPDATE, msg);
     }
 
-    public void SendFind(string schema, string collection, bool isRelational, FilterParams filter, FindParams findParams)
+    internal Find CreateFindMessage(string schema, string collection, bool isRelational, FilterParams filter, FindParams findParams)
     {
       var builder = new Find();
       builder.Collection = ExprUtil.BuildCollection(schema, collection);
@@ -471,6 +476,12 @@ namespace MySqlX.Protocol
       if (findParams != null && findParams.Projection != null && findParams.Projection.Length > 0)
         builder.Projection.Add(new ExprParser(ExprUtil.JoinString(findParams.Projection)).ParseTableSelectProjection());
       ApplyFilter(v => builder.Limit = v, v => builder.Criteria = v, builder.Order.Add, filter, builder.Args.Add);
+      return builder;
+    }
+
+    public void SendFind(string schema, string collection, bool isRelational, FilterParams filter, FindParams findParams)
+    {
+      var builder = CreateFindMessage(schema, collection, isRelational, filter, findParams);
       _writer.Write(ClientMessageId.CRUD_FIND, builder);
     }
 
@@ -513,6 +524,31 @@ namespace MySqlX.Protocol
     {
       _reader = reader;
       _writer = writer;
+    }
+
+    internal void SendCreateView(string schema, string name, string definer, ViewAlgorithm algorithm, ViewSqlSecurity security, ViewCheckOption check, string[] columns, bool replace, QueryStatement queryStatement)
+    {
+      var builder = new CreateView();
+      builder.Collection = ExprUtil.BuildCollection(schema, name);
+      builder.Definer = definer;
+      builder.Algorithm = algorithm;
+      builder.Security = security;
+      builder.Check = check;
+      if (columns != null && columns.Length > 0)
+      {
+        foreach (string column in columns)
+        {
+          builder.Column.Add(column);
+        }
+      }
+      if(queryStatement != null)
+      {
+        builder.Stmt = CreateFindMessage(queryStatement.schema,
+          queryStatement.collection, queryStatement.isRelational,
+          queryStatement.filter, queryStatement.findParams);
+      }
+      builder.ReplaceExisting = replace;
+      _writer.Write((int)ClientMessages.Types.Type.CrudCreateView, builder);
     }
   }
 }

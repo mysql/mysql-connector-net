@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,6 +21,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.Data.MySqlClient;
+using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.Relational;
 using System;
 using System.Collections.Generic;
@@ -157,6 +158,41 @@ namespace MySqlX.XDevAPI
       string sql = String.Format("SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name like '{0}'", Name);
       long count = (long)Session.InternalSession.ExecuteQueryAsScalar(sql);
       return count > 0;
+    }
+
+    #endregion
+
+    #region Views Functions
+
+    /// <summary>
+    /// Creates a View from a Find or TableSelect statement.
+    /// </summary>
+    /// <param name="name">View name</param>
+    /// <param name="replace">Specifies if an existing view is replaced</param>
+    /// <returns>ViewCreate chaining object</returns>
+    public ViewCreateStatement CreateView(string name, bool replace = false)
+    {
+      return new ViewCreateStatement(this, name, replace);
+    }
+
+    /// <summary>
+    /// Alters an existing view
+    /// </summary>
+    /// <param name="name">View name</param>
+    /// <returns>ViewAlter chaining object</returns>
+    public ViewAlterStatement AlterView(string name)
+    {
+      return new ViewAlterStatement(this, name);
+    }
+
+    /// <summary>
+    /// Drops a View
+    /// </summary>
+    /// <param name="name">View name</param>
+    /// <returns>ViewDrop chaining object</returns>
+    public ViewDropStatement DropView(string name)
+    {
+      return new ViewDropStatement(Session, name);
     }
 
     #endregion

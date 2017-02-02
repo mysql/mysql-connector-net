@@ -10,8 +10,7 @@ using scg = global::System.Collections.Generic;
 namespace Mysqlx.Datatypes {
 
   /// <summary>Holder for reflection information generated from mysqlx_datatypes.proto</summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-  public static partial class MysqlxDatatypesReflection {
+  internal static partial class MysqlxDatatypesReflection {
 
     #region Descriptor
     /// <summary>File descriptor for mysqlx_datatypes.proto</summary>
@@ -62,25 +61,29 @@ namespace Mysqlx.Datatypes {
   /// <summary>
   ///  a scalar
   /// </summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-  public sealed partial class Scalar : pb::IMessage<Scalar> {
+  internal sealed partial class Scalar : pb::IMessage<Scalar> {
     private static readonly pb::MessageParser<Scalar> _parser = new pb::MessageParser<Scalar>(() => new Scalar());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<Scalar> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
       get { return global::Mysqlx.Datatypes.MysqlxDatatypesReflection.Descriptor.MessageTypes[0]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Scalar() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Scalar(Scalar other) : this() {
       type_ = other.type_;
       vSignedInt_ = other.vSignedInt_;
@@ -92,6 +95,7 @@ namespace Mysqlx.Datatypes {
       VString = other.vString_ != null ? other.VString.Clone() : null;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Scalar Clone() {
       return new Scalar(this);
     }
@@ -99,6 +103,7 @@ namespace Mysqlx.Datatypes {
     /// <summary>Field number for the "type" field.</summary>
     public const int TypeFieldNumber = 1;
     private global::Mysqlx.Datatypes.Scalar.Types.Type type_ = 0;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Datatypes.Scalar.Types.Type Type {
       get { return type_; }
       set {
@@ -109,6 +114,7 @@ namespace Mysqlx.Datatypes {
     /// <summary>Field number for the "v_signed_int" field.</summary>
     public const int VSignedIntFieldNumber = 2;
     private long vSignedInt_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public long VSignedInt {
       get { return vSignedInt_; }
       set {
@@ -119,6 +125,7 @@ namespace Mysqlx.Datatypes {
     /// <summary>Field number for the "v_unsigned_int" field.</summary>
     public const int VUnsignedIntFieldNumber = 3;
     private ulong vUnsignedInt_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public ulong VUnsignedInt {
       get { return vUnsignedInt_; }
       set {
@@ -132,6 +139,7 @@ namespace Mysqlx.Datatypes {
     /// <summary>
     ///  4 is unused, was Null which doesn't have a storage anymore
     /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Datatypes.Scalar.Types.Octets VOctets {
       get { return vOctets_; }
       set {
@@ -142,6 +150,7 @@ namespace Mysqlx.Datatypes {
     /// <summary>Field number for the "v_double" field.</summary>
     public const int VDoubleFieldNumber = 6;
     private double vDouble_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public double VDouble {
       get { return vDouble_; }
       set {
@@ -152,6 +161,7 @@ namespace Mysqlx.Datatypes {
     /// <summary>Field number for the "v_float" field.</summary>
     public const int VFloatFieldNumber = 7;
     private float vFloat_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public float VFloat {
       get { return vFloat_; }
       set {
@@ -162,6 +172,7 @@ namespace Mysqlx.Datatypes {
     /// <summary>Field number for the "v_bool" field.</summary>
     public const int VBoolFieldNumber = 8;
     private bool vBool_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool VBool {
       get { return vBool_; }
       set {
@@ -172,6 +183,7 @@ namespace Mysqlx.Datatypes {
     /// <summary>Field number for the "v_string" field.</summary>
     public const int VStringFieldNumber = 9;
     private global::Mysqlx.Datatypes.Scalar.Types.String vString_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Datatypes.Scalar.Types.String VString {
       get { return vString_; }
       set {
@@ -179,10 +191,12 @@ namespace Mysqlx.Datatypes {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as Scalar);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(Scalar other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -201,6 +215,7 @@ namespace Mysqlx.Datatypes {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       if (Type != 0) hash ^= Type.GetHashCode();
@@ -214,10 +229,12 @@ namespace Mysqlx.Datatypes {
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
       if (Type != 0) {
         output.WriteRawTag(8);
@@ -253,6 +270,7 @@ namespace Mysqlx.Datatypes {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       if (Type != 0) {
@@ -282,6 +300,7 @@ namespace Mysqlx.Datatypes {
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(Scalar other) {
       if (other == null) {
         return;
@@ -318,6 +337,7 @@ namespace Mysqlx.Datatypes {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -369,9 +389,9 @@ namespace Mysqlx.Datatypes {
 
     #region Nested types
     /// <summary>Container for nested types declared in the Scalar message type.</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-    public static partial class Types {
-      public enum Type {
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    internal static partial class Types {
+      internal enum Type {
         [pbr::OriginalName("NONE")] None = 0,
         [pbr::OriginalName("V_SINT")] VSint = 1,
         [pbr::OriginalName("V_UINT")] VUint = 2,
@@ -386,30 +406,35 @@ namespace Mysqlx.Datatypes {
       /// <summary>
       ///  a string with a charset/collation
       /// </summary>
-      [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-      public sealed partial class String : pb::IMessage<String> {
+      internal sealed partial class String : pb::IMessage<String> {
         private static readonly pb::MessageParser<String> _parser = new pb::MessageParser<String>(() => new String());
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public static pb::MessageParser<String> Parser { get { return _parser; } }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public static pbr::MessageDescriptor Descriptor {
           get { return global::Mysqlx.Datatypes.Scalar.Descriptor.NestedTypes[0]; }
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         pbr::MessageDescriptor pb::IMessage.Descriptor {
           get { return Descriptor; }
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public String() {
           OnConstruction();
         }
 
         partial void OnConstruction();
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public String(String other) : this() {
           value_ = other.value_;
           collation_ = other.collation_;
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public String Clone() {
           return new String(this);
         }
@@ -420,6 +445,7 @@ namespace Mysqlx.Datatypes {
         /// <summary>
         /// required
         /// </summary>
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public pb::ByteString Value {
           get { return value_; }
           set {
@@ -430,6 +456,7 @@ namespace Mysqlx.Datatypes {
         /// <summary>Field number for the "collation" field.</summary>
         public const int CollationFieldNumber = 2;
         private ulong collation_;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public ulong Collation {
           get { return collation_; }
           set {
@@ -437,10 +464,12 @@ namespace Mysqlx.Datatypes {
           }
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public override bool Equals(object other) {
           return Equals(other as String);
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public bool Equals(String other) {
           if (ReferenceEquals(other, null)) {
             return false;
@@ -453,6 +482,7 @@ namespace Mysqlx.Datatypes {
           return true;
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public override int GetHashCode() {
           int hash = 1;
           if (Value.Length != 0) hash ^= Value.GetHashCode();
@@ -460,10 +490,12 @@ namespace Mysqlx.Datatypes {
           return hash;
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public override string ToString() {
           return pb::JsonFormatter.ToDiagnosticString(this);
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public void WriteTo(pb::CodedOutputStream output) {
           if (Value.Length != 0) {
             output.WriteRawTag(10);
@@ -475,6 +507,7 @@ namespace Mysqlx.Datatypes {
           }
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public int CalculateSize() {
           int size = 0;
           if (Value.Length != 0) {
@@ -486,6 +519,7 @@ namespace Mysqlx.Datatypes {
           return size;
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public void MergeFrom(String other) {
           if (other == null) {
             return;
@@ -498,6 +532,7 @@ namespace Mysqlx.Datatypes {
           }
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public void MergeFrom(pb::CodedInputStream input) {
           uint tag;
           while ((tag = input.ReadTag()) != 0) {
@@ -523,30 +558,35 @@ namespace Mysqlx.Datatypes {
       ///  an opaque octet sequence, with an optional content_type
       ///  See ``Mysqlx.Resultset.ColumnMetadata`` for list of known values.
       /// </summary>
-      [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-      public sealed partial class Octets : pb::IMessage<Octets> {
+      internal sealed partial class Octets : pb::IMessage<Octets> {
         private static readonly pb::MessageParser<Octets> _parser = new pb::MessageParser<Octets>(() => new Octets());
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public static pb::MessageParser<Octets> Parser { get { return _parser; } }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public static pbr::MessageDescriptor Descriptor {
           get { return global::Mysqlx.Datatypes.Scalar.Descriptor.NestedTypes[1]; }
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         pbr::MessageDescriptor pb::IMessage.Descriptor {
           get { return Descriptor; }
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public Octets() {
           OnConstruction();
         }
 
         partial void OnConstruction();
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public Octets(Octets other) : this() {
           value_ = other.value_;
           contentType_ = other.contentType_;
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public Octets Clone() {
           return new Octets(this);
         }
@@ -557,6 +597,7 @@ namespace Mysqlx.Datatypes {
         /// <summary>
         /// required
         /// </summary>
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public pb::ByteString Value {
           get { return value_; }
           set {
@@ -567,6 +608,7 @@ namespace Mysqlx.Datatypes {
         /// <summary>Field number for the "content_type" field.</summary>
         public const int ContentTypeFieldNumber = 2;
         private uint contentType_;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public uint ContentType {
           get { return contentType_; }
           set {
@@ -574,10 +616,12 @@ namespace Mysqlx.Datatypes {
           }
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public override bool Equals(object other) {
           return Equals(other as Octets);
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public bool Equals(Octets other) {
           if (ReferenceEquals(other, null)) {
             return false;
@@ -590,6 +634,7 @@ namespace Mysqlx.Datatypes {
           return true;
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public override int GetHashCode() {
           int hash = 1;
           if (Value.Length != 0) hash ^= Value.GetHashCode();
@@ -597,10 +642,12 @@ namespace Mysqlx.Datatypes {
           return hash;
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public override string ToString() {
           return pb::JsonFormatter.ToDiagnosticString(this);
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public void WriteTo(pb::CodedOutputStream output) {
           if (Value.Length != 0) {
             output.WriteRawTag(10);
@@ -612,6 +659,7 @@ namespace Mysqlx.Datatypes {
           }
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public int CalculateSize() {
           int size = 0;
           if (Value.Length != 0) {
@@ -623,6 +671,7 @@ namespace Mysqlx.Datatypes {
           return size;
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public void MergeFrom(Octets other) {
           if (other == null) {
             return;
@@ -635,6 +684,7 @@ namespace Mysqlx.Datatypes {
           }
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public void MergeFrom(pb::CodedInputStream input) {
           uint tag;
           while ((tag = input.ReadTag()) != 0) {
@@ -664,29 +714,34 @@ namespace Mysqlx.Datatypes {
   /// <summary>
   ///  a object
   /// </summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-  public sealed partial class Object : pb::IMessage<Object> {
+  internal sealed partial class Object : pb::IMessage<Object> {
     private static readonly pb::MessageParser<Object> _parser = new pb::MessageParser<Object>(() => new Object());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<Object> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
       get { return global::Mysqlx.Datatypes.MysqlxDatatypesReflection.Descriptor.MessageTypes[1]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Object() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Object(Object other) : this() {
       fld_ = other.fld_.Clone();
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Object Clone() {
       return new Object(this);
     }
@@ -696,14 +751,17 @@ namespace Mysqlx.Datatypes {
     private static readonly pb::FieldCodec<global::Mysqlx.Datatypes.Object.Types.ObjectField> _repeated_fld_codec
         = pb::FieldCodec.ForMessage(10, global::Mysqlx.Datatypes.Object.Types.ObjectField.Parser);
     private readonly pbc::RepeatedField<global::Mysqlx.Datatypes.Object.Types.ObjectField> fld_ = new pbc::RepeatedField<global::Mysqlx.Datatypes.Object.Types.ObjectField>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public pbc::RepeatedField<global::Mysqlx.Datatypes.Object.Types.ObjectField> Fld {
       get { return fld_; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as Object);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(Object other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -715,26 +773,31 @@ namespace Mysqlx.Datatypes {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       hash ^= fld_.GetHashCode();
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
       fld_.WriteTo(output, _repeated_fld_codec);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       size += fld_.CalculateSize(_repeated_fld_codec);
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(Object other) {
       if (other == null) {
         return;
@@ -742,6 +805,7 @@ namespace Mysqlx.Datatypes {
       fld_.Add(other.fld_);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -759,32 +823,37 @@ namespace Mysqlx.Datatypes {
 
     #region Nested types
     /// <summary>Container for nested types declared in the Object message type.</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-    public static partial class Types {
-      [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-      public sealed partial class ObjectField : pb::IMessage<ObjectField> {
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    internal static partial class Types {
+      internal sealed partial class ObjectField : pb::IMessage<ObjectField> {
         private static readonly pb::MessageParser<ObjectField> _parser = new pb::MessageParser<ObjectField>(() => new ObjectField());
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public static pb::MessageParser<ObjectField> Parser { get { return _parser; } }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public static pbr::MessageDescriptor Descriptor {
           get { return global::Mysqlx.Datatypes.Object.Descriptor.NestedTypes[0]; }
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         pbr::MessageDescriptor pb::IMessage.Descriptor {
           get { return Descriptor; }
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public ObjectField() {
           OnConstruction();
         }
 
         partial void OnConstruction();
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public ObjectField(ObjectField other) : this() {
           key_ = other.key_;
           Value = other.value_ != null ? other.Value.Clone() : null;
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public ObjectField Clone() {
           return new ObjectField(this);
         }
@@ -795,6 +864,7 @@ namespace Mysqlx.Datatypes {
         /// <summary>
         /// required
         /// </summary>
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public string Key {
           get { return key_; }
           set {
@@ -808,6 +878,7 @@ namespace Mysqlx.Datatypes {
         /// <summary>
         /// required
         /// </summary>
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public global::Mysqlx.Datatypes.Any Value {
           get { return value_; }
           set {
@@ -815,10 +886,12 @@ namespace Mysqlx.Datatypes {
           }
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public override bool Equals(object other) {
           return Equals(other as ObjectField);
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public bool Equals(ObjectField other) {
           if (ReferenceEquals(other, null)) {
             return false;
@@ -831,6 +904,7 @@ namespace Mysqlx.Datatypes {
           return true;
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public override int GetHashCode() {
           int hash = 1;
           if (Key.Length != 0) hash ^= Key.GetHashCode();
@@ -838,10 +912,12 @@ namespace Mysqlx.Datatypes {
           return hash;
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public override string ToString() {
           return pb::JsonFormatter.ToDiagnosticString(this);
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public void WriteTo(pb::CodedOutputStream output) {
           if (Key.Length != 0) {
             output.WriteRawTag(10);
@@ -853,6 +929,7 @@ namespace Mysqlx.Datatypes {
           }
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public int CalculateSize() {
           int size = 0;
           if (Key.Length != 0) {
@@ -864,6 +941,7 @@ namespace Mysqlx.Datatypes {
           return size;
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public void MergeFrom(ObjectField other) {
           if (other == null) {
             return;
@@ -879,6 +957,7 @@ namespace Mysqlx.Datatypes {
           }
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public void MergeFrom(pb::CodedInputStream input) {
           uint tag;
           while ((tag = input.ReadTag()) != 0) {
@@ -911,29 +990,34 @@ namespace Mysqlx.Datatypes {
   /// <summary>
   ///  a Array
   /// </summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-  public sealed partial class Array : pb::IMessage<Array> {
+  internal sealed partial class Array : pb::IMessage<Array> {
     private static readonly pb::MessageParser<Array> _parser = new pb::MessageParser<Array>(() => new Array());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<Array> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
       get { return global::Mysqlx.Datatypes.MysqlxDatatypesReflection.Descriptor.MessageTypes[2]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Array() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Array(Array other) : this() {
       value_ = other.value_.Clone();
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Array Clone() {
       return new Array(this);
     }
@@ -943,14 +1027,17 @@ namespace Mysqlx.Datatypes {
     private static readonly pb::FieldCodec<global::Mysqlx.Datatypes.Any> _repeated_value_codec
         = pb::FieldCodec.ForMessage(10, global::Mysqlx.Datatypes.Any.Parser);
     private readonly pbc::RepeatedField<global::Mysqlx.Datatypes.Any> value_ = new pbc::RepeatedField<global::Mysqlx.Datatypes.Any>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public pbc::RepeatedField<global::Mysqlx.Datatypes.Any> Value {
       get { return value_; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as Array);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(Array other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -962,26 +1049,31 @@ namespace Mysqlx.Datatypes {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       hash ^= value_.GetHashCode();
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
       value_.WriteTo(output, _repeated_value_codec);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       size += value_.CalculateSize(_repeated_value_codec);
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(Array other) {
       if (other == null) {
         return;
@@ -989,6 +1081,7 @@ namespace Mysqlx.Datatypes {
       value_.Add(other.value_);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -1009,25 +1102,29 @@ namespace Mysqlx.Datatypes {
   /// <summary>
   ///  a helper to allow all field types
   /// </summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-  public sealed partial class Any : pb::IMessage<Any> {
+  internal sealed partial class Any : pb::IMessage<Any> {
     private static readonly pb::MessageParser<Any> _parser = new pb::MessageParser<Any>(() => new Any());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<Any> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
       get { return global::Mysqlx.Datatypes.MysqlxDatatypesReflection.Descriptor.MessageTypes[3]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Any() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Any(Any other) : this() {
       type_ = other.type_;
       Scalar = other.scalar_ != null ? other.Scalar.Clone() : null;
@@ -1035,6 +1132,7 @@ namespace Mysqlx.Datatypes {
       Array = other.array_ != null ? other.Array.Clone() : null;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Any Clone() {
       return new Any(this);
     }
@@ -1045,6 +1143,7 @@ namespace Mysqlx.Datatypes {
     /// <summary>
     /// required
     /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Datatypes.Any.Types.Type Type {
       get { return type_; }
       set {
@@ -1055,6 +1154,7 @@ namespace Mysqlx.Datatypes {
     /// <summary>Field number for the "scalar" field.</summary>
     public const int ScalarFieldNumber = 2;
     private global::Mysqlx.Datatypes.Scalar scalar_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Datatypes.Scalar Scalar {
       get { return scalar_; }
       set {
@@ -1065,6 +1165,7 @@ namespace Mysqlx.Datatypes {
     /// <summary>Field number for the "obj" field.</summary>
     public const int ObjFieldNumber = 3;
     private global::Mysqlx.Datatypes.Object obj_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Datatypes.Object Obj {
       get { return obj_; }
       set {
@@ -1075,6 +1176,7 @@ namespace Mysqlx.Datatypes {
     /// <summary>Field number for the "array" field.</summary>
     public const int ArrayFieldNumber = 4;
     private global::Mysqlx.Datatypes.Array array_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Datatypes.Array Array {
       get { return array_; }
       set {
@@ -1082,10 +1184,12 @@ namespace Mysqlx.Datatypes {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as Any);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(Any other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -1100,6 +1204,7 @@ namespace Mysqlx.Datatypes {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       if (Type != 0) hash ^= Type.GetHashCode();
@@ -1109,10 +1214,12 @@ namespace Mysqlx.Datatypes {
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
       if (Type != 0) {
         output.WriteRawTag(8);
@@ -1132,6 +1239,7 @@ namespace Mysqlx.Datatypes {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       if (Type != 0) {
@@ -1149,6 +1257,7 @@ namespace Mysqlx.Datatypes {
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(Any other) {
       if (other == null) {
         return;
@@ -1176,6 +1285,7 @@ namespace Mysqlx.Datatypes {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -1214,9 +1324,9 @@ namespace Mysqlx.Datatypes {
 
     #region Nested types
     /// <summary>Container for nested types declared in the Any message type.</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-    public static partial class Types {
-      public enum Type {
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    internal static partial class Types {
+      internal enum Type {
         [pbr::OriginalName("NONE")] None = 0,
         [pbr::OriginalName("SCALAR")] Scalar = 1,
         [pbr::OriginalName("OBJECT")] Object = 2,

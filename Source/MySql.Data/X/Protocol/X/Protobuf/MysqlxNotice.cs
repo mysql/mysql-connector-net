@@ -10,8 +10,7 @@ using scg = global::System.Collections.Generic;
 namespace Mysqlx.Notice {
 
   /// <summary>Holder for reflection information generated from mysqlx_notice.proto</summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-  public static partial class MysqlxNoticeReflection {
+  internal static partial class MysqlxNoticeReflection {
 
     #region Descriptor
     /// <summary>File descriptor for mysqlx_notice.proto</summary>
@@ -69,31 +68,36 @@ namespace Mysqlx.Notice {
   ///  :param payload: the payload of the notification
   ///  :param scope: global or local notification
   /// </summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-  public sealed partial class Frame : pb::IMessage<Frame> {
+  internal sealed partial class Frame : pb::IMessage<Frame> {
     private static readonly pb::MessageParser<Frame> _parser = new pb::MessageParser<Frame>(() => new Frame());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<Frame> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
       get { return global::Mysqlx.Notice.MysqlxNoticeReflection.Descriptor.MessageTypes[0]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Frame() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Frame(Frame other) : this() {
       type_ = other.type_;
       scope_ = other.scope_;
       payload_ = other.payload_;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Frame Clone() {
       return new Frame(this);
     }
@@ -104,6 +108,7 @@ namespace Mysqlx.Notice {
     /// <summary>
     /// required
     /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public uint Type {
       get { return type_; }
       set {
@@ -114,6 +119,7 @@ namespace Mysqlx.Notice {
     /// <summary>Field number for the "scope" field.</summary>
     public const int ScopeFieldNumber = 2;
     private global::Mysqlx.Notice.Frame.Types.Scope scope_ = 0;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Notice.Frame.Types.Scope Scope {
       get { return scope_; }
       set {
@@ -124,6 +130,7 @@ namespace Mysqlx.Notice {
     /// <summary>Field number for the "payload" field.</summary>
     public const int PayloadFieldNumber = 3;
     private pb::ByteString payload_ = pb::ByteString.Empty;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public pb::ByteString Payload {
       get { return payload_; }
       set {
@@ -131,10 +138,12 @@ namespace Mysqlx.Notice {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as Frame);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(Frame other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -148,6 +157,7 @@ namespace Mysqlx.Notice {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       if (Type != 0) hash ^= Type.GetHashCode();
@@ -156,10 +166,12 @@ namespace Mysqlx.Notice {
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
       if (Type != 0) {
         output.WriteRawTag(8);
@@ -175,6 +187,7 @@ namespace Mysqlx.Notice {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       if (Type != 0) {
@@ -189,6 +202,7 @@ namespace Mysqlx.Notice {
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(Frame other) {
       if (other == null) {
         return;
@@ -204,6 +218,7 @@ namespace Mysqlx.Notice {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -229,9 +244,9 @@ namespace Mysqlx.Notice {
 
     #region Nested types
     /// <summary>Container for nested types declared in the Frame message type.</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-    public static partial class Types {
-      public enum Scope {
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    internal static partial class Types {
+      internal enum Scope {
         [pbr::OriginalName("NONE")] None = 0,
         [pbr::OriginalName("GLOBAL")] Global = 1,
         [pbr::OriginalName("LOCAL")] Local = 2,
@@ -270,31 +285,36 @@ namespace Mysqlx.Notice {
   ///  :param code: warning code
   ///  :param msg: warning message
   /// </summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-  public sealed partial class Warning : pb::IMessage<Warning> {
+  internal sealed partial class Warning : pb::IMessage<Warning> {
     private static readonly pb::MessageParser<Warning> _parser = new pb::MessageParser<Warning>(() => new Warning());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<Warning> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
       get { return global::Mysqlx.Notice.MysqlxNoticeReflection.Descriptor.MessageTypes[1]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Warning() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Warning(Warning other) : this() {
       level_ = other.level_;
       code_ = other.code_;
       msg_ = other.msg_;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Warning Clone() {
       return new Warning(this);
     }
@@ -302,6 +322,7 @@ namespace Mysqlx.Notice {
     /// <summary>Field number for the "level" field.</summary>
     public const int LevelFieldNumber = 1;
     private global::Mysqlx.Notice.Warning.Types.Level level_ = 0;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Notice.Warning.Types.Level Level {
       get { return level_; }
       set {
@@ -315,6 +336,7 @@ namespace Mysqlx.Notice {
     /// <summary>
     /// required
     /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public uint Code {
       get { return code_; }
       set {
@@ -328,6 +350,7 @@ namespace Mysqlx.Notice {
     /// <summary>
     /// required
     /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Msg {
       get { return msg_; }
       set {
@@ -335,10 +358,12 @@ namespace Mysqlx.Notice {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as Warning);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(Warning other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -352,6 +377,7 @@ namespace Mysqlx.Notice {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       if (Level != 0) hash ^= Level.GetHashCode();
@@ -360,10 +386,12 @@ namespace Mysqlx.Notice {
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
       if (Level != 0) {
         output.WriteRawTag(8);
@@ -379,6 +407,7 @@ namespace Mysqlx.Notice {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       if (Level != 0) {
@@ -393,6 +422,7 @@ namespace Mysqlx.Notice {
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(Warning other) {
       if (other == null) {
         return;
@@ -408,6 +438,7 @@ namespace Mysqlx.Notice {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -433,9 +464,9 @@ namespace Mysqlx.Notice {
 
     #region Nested types
     /// <summary>Container for nested types declared in the Warning message type.</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-    public static partial class Types {
-      public enum Level {
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    internal static partial class Types {
+      internal enum Level {
         [pbr::OriginalName("NONE")] None = 0,
         [pbr::OriginalName("NOTE")] Note = 1,
         [pbr::OriginalName("WARNING")] Warning = 2,
@@ -467,30 +498,35 @@ namespace Mysqlx.Notice {
   ///  :param param: name of the variable
   ///  :param value: the changed value of param
   /// </summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-  public sealed partial class SessionVariableChanged : pb::IMessage<SessionVariableChanged> {
+  internal sealed partial class SessionVariableChanged : pb::IMessage<SessionVariableChanged> {
     private static readonly pb::MessageParser<SessionVariableChanged> _parser = new pb::MessageParser<SessionVariableChanged>(() => new SessionVariableChanged());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<SessionVariableChanged> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
       get { return global::Mysqlx.Notice.MysqlxNoticeReflection.Descriptor.MessageTypes[2]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public SessionVariableChanged() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public SessionVariableChanged(SessionVariableChanged other) : this() {
       param_ = other.param_;
       Value = other.value_ != null ? other.Value.Clone() : null;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public SessionVariableChanged Clone() {
       return new SessionVariableChanged(this);
     }
@@ -501,6 +537,7 @@ namespace Mysqlx.Notice {
     /// <summary>
     /// required
     /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Param {
       get { return param_; }
       set {
@@ -511,6 +548,7 @@ namespace Mysqlx.Notice {
     /// <summary>Field number for the "value" field.</summary>
     public const int ValueFieldNumber = 2;
     private global::Mysqlx.Datatypes.Scalar value_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Datatypes.Scalar Value {
       get { return value_; }
       set {
@@ -518,10 +556,12 @@ namespace Mysqlx.Notice {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as SessionVariableChanged);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(SessionVariableChanged other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -534,6 +574,7 @@ namespace Mysqlx.Notice {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       if (Param.Length != 0) hash ^= Param.GetHashCode();
@@ -541,10 +582,12 @@ namespace Mysqlx.Notice {
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
       if (Param.Length != 0) {
         output.WriteRawTag(10);
@@ -556,6 +599,7 @@ namespace Mysqlx.Notice {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       if (Param.Length != 0) {
@@ -567,6 +611,7 @@ namespace Mysqlx.Notice {
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(SessionVariableChanged other) {
       if (other == null) {
         return;
@@ -582,6 +627,7 @@ namespace Mysqlx.Notice {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -619,30 +665,35 @@ namespace Mysqlx.Notice {
   ///  :param param: parameter key
   ///  :param value: updated value
   /// </summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-  public sealed partial class SessionStateChanged : pb::IMessage<SessionStateChanged> {
+  internal sealed partial class SessionStateChanged : pb::IMessage<SessionStateChanged> {
     private static readonly pb::MessageParser<SessionStateChanged> _parser = new pb::MessageParser<SessionStateChanged>(() => new SessionStateChanged());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<SessionStateChanged> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
       get { return global::Mysqlx.Notice.MysqlxNoticeReflection.Descriptor.MessageTypes[3]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public SessionStateChanged() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public SessionStateChanged(SessionStateChanged other) : this() {
       param_ = other.param_;
       Value = other.value_ != null ? other.Value.Clone() : null;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public SessionStateChanged Clone() {
       return new SessionStateChanged(this);
     }
@@ -653,6 +704,7 @@ namespace Mysqlx.Notice {
     /// <summary>
     /// required
     /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Notice.SessionStateChanged.Types.Parameter Param {
       get { return param_; }
       set {
@@ -663,6 +715,7 @@ namespace Mysqlx.Notice {
     /// <summary>Field number for the "value" field.</summary>
     public const int ValueFieldNumber = 2;
     private global::Mysqlx.Datatypes.Scalar value_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Datatypes.Scalar Value {
       get { return value_; }
       set {
@@ -670,10 +723,12 @@ namespace Mysqlx.Notice {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as SessionStateChanged);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(SessionStateChanged other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -686,6 +741,7 @@ namespace Mysqlx.Notice {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       if (Param != 0) hash ^= Param.GetHashCode();
@@ -693,10 +749,12 @@ namespace Mysqlx.Notice {
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
       if (Param != 0) {
         output.WriteRawTag(8);
@@ -708,6 +766,7 @@ namespace Mysqlx.Notice {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       if (Param != 0) {
@@ -719,6 +778,7 @@ namespace Mysqlx.Notice {
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(SessionStateChanged other) {
       if (other == null) {
         return;
@@ -734,6 +794,7 @@ namespace Mysqlx.Notice {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -758,9 +819,9 @@ namespace Mysqlx.Notice {
 
     #region Nested types
     /// <summary>Container for nested types declared in the SessionStateChanged message type.</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-    public static partial class Types {
-      public enum Parameter {
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    internal static partial class Types {
+      internal enum Parameter {
         [pbr::OriginalName("NONE")] None = 0,
         [pbr::OriginalName("CURRENT_SCHEMA")] CurrentSchema = 1,
         [pbr::OriginalName("ACCOUNT_EXPIRED")] AccountExpired = 2,
