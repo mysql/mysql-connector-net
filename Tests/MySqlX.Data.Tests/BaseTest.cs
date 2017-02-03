@@ -117,7 +117,10 @@ namespace MySqlX.Data.Tests
     public NodeSession GetNodeSession()
     {
       if (nodeSession == null)
+      {
         nodeSession = MySQLX.GetNodeSession(ConnectionString);
+        nodeSession.SetCurrentSchema(schemaName);
+      }
       return nodeSession;
     }
 

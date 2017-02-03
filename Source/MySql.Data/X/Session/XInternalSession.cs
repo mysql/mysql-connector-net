@@ -336,5 +336,16 @@ namespace MySqlX.Session
         statement.queryStatement);
       return new Result(this);
     }
+
+    public Result ViewAlter(ViewAlterStatement statement)
+    {
+      protocol.SendModifyView(statement.Target.Schema.Name,
+        statement.name, statement.definer,
+        (Mysqlx.Crud.ViewAlgorithm)statement.algorithm,
+        (Mysqlx.Crud.ViewSqlSecurity)statement.sqlSecurity,
+        (Mysqlx.Crud.ViewCheckOption)statement.checkOption,
+        statement.columns, statement.queryStatement);
+      return new Result(this);
+    }
   }
 }

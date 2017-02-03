@@ -131,7 +131,7 @@ namespace MySqlX.XDevAPI.Common
     /// <returns>Result of execution</returns>
     public override Result Execute()
     {
-      if(string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException("View name");
+      if(string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException("Name");
       if (queryStatement == null) throw new ArgumentNullException("Query");
       if (definer == null) throw new ArgumentNullException("Definer");
 

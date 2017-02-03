@@ -34,9 +34,17 @@ namespace MySqlX.XDevAPI.Common
 
     }
 
+    /// <summary>
+    /// Executes the view alter statement
+    /// </summary>
+    /// <returns>Result of execution</returns>
     public override Result Execute()
     {
-      throw new NotImplementedException();
+      if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException("View name");
+      if (queryStatement == null) throw new ArgumentNullException("Query");
+      if (definer == null) throw new ArgumentNullException("Definer");
+
+      return Session.XSession.ViewAlter(this);
     }
   }
 }

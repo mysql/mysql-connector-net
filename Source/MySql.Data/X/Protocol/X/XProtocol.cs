@@ -550,5 +550,29 @@ namespace MySqlX.Protocol
       builder.ReplaceExisting = replace;
       _writer.Write((int)ClientMessages.Types.Type.CrudCreateView, builder);
     }
+
+    internal void SendModifyView(string schema, string name, string definer, ViewAlgorithm algorithm, ViewSqlSecurity security, ViewCheckOption check, string[] columns, QueryStatement queryStatement)
+    {
+      var builder = new ModifyView();
+      builder.Collection = ExprUtil.BuildCollection(schema, name);
+      builder.Definer = definer;
+      builder.Algorithm = algorithm;
+      builder.Security = security;
+      builder.Check = check;
+      if (columns != null && columns.Length > 0)
+      {
+        foreach (string column in columns)
+        {
+          builder.Column.Add(column);
+        }
+      }
+      if (queryStatement != null)
+      {
+        builder.Stmt = CreateFindMessage(queryStatement.schema,
+          queryStatement.collection, queryStatement.isRelational,
+          queryStatement.filter, queryStatement.findParams);
+      }
+      _writer.Write((int)ClientMessages.Types.Type.CrudModifyView, builder);
+    }
   }
 }
