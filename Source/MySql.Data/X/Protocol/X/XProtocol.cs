@@ -574,5 +574,13 @@ namespace MySqlX.Protocol
       }
       _writer.Write((int)ClientMessages.Types.Type.CrudModifyView, builder);
     }
+
+    internal void SendDropView(string schema, string name, bool ifExists)
+    {
+      var builder = new DropView();
+      builder.Collection = ExprUtil.BuildCollection(schema, name);
+      builder.IfExists = ifExists;
+      _writer.Write((int)ClientMessages.Types.Type.CrudDropView, builder);
+    }
   }
 }

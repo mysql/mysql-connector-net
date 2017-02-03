@@ -347,5 +347,12 @@ namespace MySqlX.Session
         statement.columns, statement.queryStatement);
       return new Result(this);
     }
+
+    public Result ViewDrop(ViewDropStatement statement)
+    {
+      protocol.SendDropView(statement.Target.Schema.Name, 
+        statement.name, statement.ifExists);
+      return new Result(this);
+    }
   }
 }

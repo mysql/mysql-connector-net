@@ -192,7 +192,7 @@ namespace MySqlX.XDevAPI
     /// <returns>ViewDrop chaining object</returns>
     public ViewDropStatement DropView(string name)
     {
-      return new ViewDropStatement(Session, name);
+      return new ViewDropStatement(this, name);
     }
 
     #endregion

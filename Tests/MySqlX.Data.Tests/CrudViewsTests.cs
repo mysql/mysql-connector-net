@@ -173,6 +173,21 @@ namespace MySqlX.Data.Tests
       Assert.Equal("Definer", Assert.ThrowsAny<ArgumentNullException>(() => db.CreateView("myview").DefinedAs(table.Select()).Definer(null).Execute()).ParamName);
     }
 
+    [Fact]
+    public void CreateViewReplace()
+    {
+      CreateBasicViewFromTable();
+      Schema db = GetSession().Schema;
+      Table table = db.GetTable(tableName);
+      db.CreateView("myview", true)
+        .DefinedAs(table.Select("id"))
+        .Execute();
+
+      var result = GetNodeSession().SQL("DESC myview").Execute().FetchAll();
+      Assert.Equal(1, result.Count);
+      Assert.Equal("id", result[0]["field"]);
+    }
+
     #endregion
 
     #region Alter View
@@ -222,6 +237,36 @@ namespace MySqlX.Data.Tests
       string desc = result[0][1].ToString();
       Assert.Equal($"CREATE ALGORITHM=MERGE DEFINER=`{GetSession().Settings.UserID}`@`localhost` SQL SECURITY INVOKER VIEW `myview` AS select `{collectionName}`.`doc` AS `doc` from `{collectionName}` WITH CASCADED CHECK OPTION",
         desc);
+    }
+
+    #endregion
+
+    #region Drop View
+
+    [Fact]
+    public void DropTableView()
+    {
+      CreateBasicViewFromTable();
+      Assert.True(GetSession().Schema.GetTable("myview").ExistsInDatabase());
+      GetSession().Schema.DropView("myview").Execute();
+      Assert.False(GetSession().Schema.GetTable("myview").ExistsInDatabase());
+    }
+
+    [Fact]
+    public void DropCollectionView()
+    {
+      CreateBasicViewFromCollection();
+      Assert.True(GetSession().Schema.GetTable("myview").ExistsInDatabase());
+      GetSession().Schema.DropView("myview").Execute();
+      Assert.False(GetSession().Schema.GetTable("myview").ExistsInDatabase());
+    }
+
+    [Fact]
+    public void DropViewIfExists()
+    {
+      Assert.False(GetSession().Schema.GetTable("viewNotExists").ExistsInDatabase());
+      Assert.ThrowsAny<MySqlException>(() => GetSession().Schema.DropView("viewNotExists").Execute());
+      GetSession().Schema.DropView("viewNotExists").IfExists().Execute();
     }
 
     #endregion

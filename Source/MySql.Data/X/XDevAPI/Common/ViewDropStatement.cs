@@ -27,16 +27,34 @@ using System.Threading.Tasks;
 
 namespace MySqlX.XDevAPI.Common
 {
-  public class ViewDropStatement : BaseStatement<Result>
+  public class ViewDropStatement : TargetedBaseStatement<Schema, Result>
   {
-    internal ViewDropStatement(BaseSession session, string name) : base(session)
-    {
+    internal string name;
+    internal bool ifExists = false;
 
+    internal ViewDropStatement(Schema schema, string name) : base(schema)
+    {
+      this.name = name;
     }
 
+    /// <summary>
+    /// Supress error if the view to drop doesn't exist.
+    /// </summary>
+    /// <returns></returns>
+    public ViewDropStatement IfExists()
+    {
+      ifExists = true;
+      return this;
+    }
+
+    /// <summary>
+    /// Executes the view drop statement
+    /// </summary>
+    /// <returns>Result of execution</returns>
     public override Result Execute()
     {
-      throw new NotImplementedException();
+      if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException("Name");
+      return Session.XSession.ViewDrop(this);
     }
   }
 }
