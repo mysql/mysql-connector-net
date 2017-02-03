@@ -50,12 +50,12 @@ namespace MySql.Data.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             if (ReferenceEquals(methodCallExpression.Method, _methodInfo))
             {                
                 var argument = methodCallExpression.Arguments.Count == 1
-                                   ? (methodCallExpression.Arguments[0] as ConstantExpression)?.Value as char[]
+                                   ? (methodCallExpression.Arguments[0] as ConstantExpression)?.Value as string
                                    : null;
 
                 var sqlArguments = new List<Expression>();
                 sqlArguments.Add(ConstantExpression.Constant("%"));
-                sqlArguments.Add(Expression.Constant(new string(argument), typeof(string)));
+                sqlArguments.Add(Expression.Constant(argument));
                 sqlArguments.Add(ConstantExpression.Constant("%"));
 
                 var concatFunctionExpression = new SqlFunctionExpression("concat", methodCallExpression.Type, sqlArguments);
