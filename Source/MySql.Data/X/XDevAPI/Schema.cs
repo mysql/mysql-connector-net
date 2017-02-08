@@ -42,7 +42,7 @@ namespace MySqlX.XDevAPI
     /// <summary>
     /// Session related to current schema
     /// </summary>
-    public BaseSession Session { get; private set; }
+    public new BaseSession Session { get; private set; }
 
 
     #region Browse Functions

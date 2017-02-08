@@ -172,9 +172,6 @@ namespace MySqlX.Protocol
             return false;
         }
       }
-
-
-      return PeekPacket().MessageType == (int)ServerMessageId.RESULTSET_COLUMN_META_DATA;
     }
 
     private CommunicationPacket PeekPacket()
