@@ -41,7 +41,7 @@ namespace MySql.Data {
 #if NETCORE10
           global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager(typeof(ResourcesX));
 #else
-          global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MySql.Data.MySqlClient.ResourcesX", typeof(ResourcesX).Assembly);
+          global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MySql.Data.ResourcesX", typeof(ResourcesX).Assembly);
 #endif
           resourceMan = temp;
                 }
