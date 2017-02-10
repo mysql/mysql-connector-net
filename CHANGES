@@ -1,6 +1,6 @@
 7.0.7
-- MySqlX: Fixed configuration handling paths in Linux and MacOS.
-- MySqlX: Fixed Dispose error in Linux and MacOS.
+- MySqlX: Fixed configuration handling paths in Linux and MacOS (Oracle Bug #25423724).
+- MySqlX: Fixed Dispose error in Linux and MacOS (Oracle Bug #25423700).
 - MySqlX: Added support for IPv6.
 
 
