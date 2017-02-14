@@ -251,6 +251,28 @@ namespace MySql.Data.EntityFrameworkCore.Tests
             }
         }
 
+        [Fact]
+        public void CanUseContainsVarInQuery()
+        {
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddEntityFrameworkMySQL()
+              .AddDbContext<ComputedColumnContext>();
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            using (var context = serviceProvider.GetRequiredService<ComputedColumnContext>())
+            {
+                context.Database.EnsureCreated();
+                var e = new Employee { FirstName = "Jos", LastName = "Stuart" };
+                context.Employees.Add(e);
+                context.SaveChanges();
+                var test = "jo";
+                var result = context.Employees.Where(t => t.FirstName.Contains(test)).ToList();
+                Assert.Equal(1, result.Count);
+                context.Database.EnsureDeleted();
+            }
+        }
+
 
         [Fact]
         public void CanUseContainsWithInvalidValue()
@@ -274,8 +296,6 @@ namespace MySql.Data.EntityFrameworkCore.Tests
                 context.Database.EnsureDeleted();
             }
         }
-
-
 
         [Fact]
         public void CanUseContainsWithVariableInQuery()

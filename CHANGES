@@ -2,6 +2,7 @@
 - Support for Database first in Entity Framework Core 1.1
 - Fixed: Exception caused by skip & take in mysql ef core Orabug #	25382036  MySQL bug #84453
 - Fixed: Using contains method in expression with a variable throws exception in ef core Orabug #25394204 MySQL bug #84505
+- Fixed: Using contains doesn't work when string is initialized separately & passed as param. Orabug #25541779
 
 
 6.10.0

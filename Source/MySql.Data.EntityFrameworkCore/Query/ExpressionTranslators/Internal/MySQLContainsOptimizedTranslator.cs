@@ -48,18 +48,22 @@ namespace MySql.Data.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             ThrowIf.Argument.IsNull(methodCallExpression, nameof(methodCallExpression));
 
             if (ReferenceEquals(methodCallExpression.Method, _methodInfo))
-            {                
+            {
                 var argument = methodCallExpression.Arguments.Count == 1
                                    ? (methodCallExpression.Arguments[0] as ConstantExpression)?.Value as string
                                    : null;
 
+
                 var sqlArguments = new List<Expression>();
                 sqlArguments.Add(ConstantExpression.Constant("%"));
-                sqlArguments.Add(Expression.Constant(argument));
+                if (argument != null) 
+                    sqlArguments.Add(Expression.Constant(argument));
+                else
+                    sqlArguments.Add(methodCallExpression.Arguments[0]);
+
                 sqlArguments.Add(ConstantExpression.Constant("%"));
 
                 var concatFunctionExpression = new SqlFunctionExpression("concat", methodCallExpression.Type, sqlArguments);
-
                 return new LikeExpression(                    
                     methodCallExpression.Object,
                     concatFunctionExpression);
