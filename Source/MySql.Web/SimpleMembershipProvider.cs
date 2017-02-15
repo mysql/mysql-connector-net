@@ -1,4 +1,4 @@
-﻿// Copyright © 2014, 2015 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2014, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -1074,20 +1074,23 @@ namespace MySql.Web.Security
       StringBuilder args = new StringBuilder();
       args.Append("?");
       var argsValues = new List<object>();
+      argsValues.Add(userName);
+
       if (values != null)
       {
         foreach (var value in values)
         {
           if (string.Equals(UserNameColumn, value.Key, StringComparison.OrdinalIgnoreCase))
             continue;
-          columns.Append(string.Format(",{0}", value.Value));
+          columns.Append(string.Format(",{0}", value.Key));
           args.Append(",?");
           argsValues.Add(value.Value != null ? value.Value : DBNull.Value);
         }
       }
       using (MySqlDatabaseWrapper dbConn = new MySqlDatabaseWrapper(GetConnectionString()))
       {
-        if (dbConn.ExecuteNonQuery(string.Format("insert into {0} ({1}) values({2})", UserTableName, columns.ToString(), args.ToString()), userName, argsValues.ToArray()) < 1)
+        string query = string.Format("insert into {0} ({1}) values({2})", UserTableName, columns.ToString(), args.ToString());
+        if (dbConn.ExecuteNonQuery(query, argsValues.ToArray()) < 1)
         {
           throw new MembershipCreateUserException(MembershipCreateStatus.ProviderError);
         }
