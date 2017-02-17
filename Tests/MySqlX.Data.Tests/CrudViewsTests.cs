@@ -78,6 +78,21 @@ namespace MySqlX.Data.Tests
     #region Create View
 
     [Fact]
+    public void CreateSimpleView()
+    {
+      CreateTableData();
+      Schema db = GetSession().Schema;
+      Table table = db.GetTable(tableName);
+      db.CreateView("myview")
+        .DefinedAs(table.Select().Limit(1))
+        .Execute();
+
+      Table view = db.GetTable("myview");
+      Assert.True(view.IsView);
+      Assert.Equal(1, view.Count());
+    }
+
+    [Fact]
     public void CreateBasicViewFromTable()
     {
       CreateTableData();
@@ -188,9 +203,46 @@ namespace MySqlX.Data.Tests
       Assert.Equal("id", result[0]["field"]);
     }
 
+    [Fact]
+    public void CreateTempTableView()
+    {
+      CreateTableData();
+      Schema db = GetSession().Schema;
+      Table table = db.GetTable(tableName);
+      db.CreateView("myview")
+        .DefinedAs(table.Select())
+        .Algorithm(DataAccess.ViewAlgorithmEnum.TempTable)
+        .Columns("id1", "name1", "age1")
+        .Execute();
+
+      Table view = db.GetTable("myview");
+      Assert.True(view.IsView);
+      Assert.Equal(allRows.Length, view.Count());
+    }
+
     #endregion
 
     #region Alter View
+
+    [Fact]
+    public void AlterSimpleViewFromTable()
+    {
+      CreateViewFromTable();
+      var table = GetSession().Schema.GetTable(tableName);
+
+      GetSession().Schema.AlterView("myview")
+        .DefinedAs(table.Select("id", "age"))
+        .Columns("id2", "age2")
+        .Execute();
+      var view = GetSession().Schema.GetTable("myview");
+      Assert.True(view.IsView);
+      Assert.Equal(allRows.Length, view.Count());
+      var sql = GetNodeSession().SQL("SHOW CREATE VIEW myview").Execute();
+      var result = sql.FetchAll();
+      string desc = result[0][1].ToString();
+      Assert.Equal($"CREATE ALGORITHM=MERGE DEFINER=`{GetSession().Settings.UserID}`@`localhost` SQL SECURITY DEFINER VIEW `myview` AS select `{tableName}`.`id` AS `id2`,`{tableName}`.`age` AS `age2` from `{tableName}`",
+        desc);
+    }
 
     [Fact]
     public void AlterViewFromTable()

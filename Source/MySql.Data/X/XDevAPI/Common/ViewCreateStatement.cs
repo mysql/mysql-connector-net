@@ -35,10 +35,10 @@ namespace MySqlX.XDevAPI.Common
     internal string name;
     internal bool replace;
     internal string[] columns;
-    internal ViewAlgorithmEnum algorithm = ViewAlgorithmEnum.Undefined;
-    internal ViewSqlSecurityEnum sqlSecurity = ViewSqlSecurityEnum.Definer;
+    internal ViewAlgorithmEnum algorithm;
+    internal ViewSqlSecurityEnum sqlSecurity;
     internal string definer = string.Empty;
-    internal ViewCheckOptionEnum checkOption = ViewCheckOptionEnum.Local;
+    internal ViewCheckOptionEnum checkOption;
     internal QueryStatement queryStatement = null;
 
 
