@@ -52,7 +52,7 @@ namespace MySqlX.XDevAPI.Relational
       if (!isView.HasValue)
       {
         string type = Session.XSession.GetObjectType(Schema, Name).ToUpperInvariant();
-        isView = (type == "VIEW" || type == "COLLECTION_VIEW");
+        isView = (type == "VIEW");
       }
       return isView.Value;
     }

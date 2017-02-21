@@ -93,17 +93,6 @@ namespace MySqlX.XDevAPI.Common
     }
 
     /// <summary>
-    /// Defines the collection find statement to generate the View.
-    /// </summary>
-    /// <param name="findFunction">Find statement</param>
-    /// <returns>ViewCreate chaining object</returns>
-    public ViewCreateStatement DefinedAs(FindStatement findFunction)
-    {
-      this.queryStatement = new QueryStatement(findFunction.Clone());
-      return this;
-    }
-
-    /// <summary>
     /// Defines the table select statement to generate the View.
     /// </summary>
     /// <param name="selectFunction">Table select statement</param>

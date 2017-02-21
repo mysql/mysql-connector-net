@@ -128,38 +128,6 @@ namespace MySqlX.Data.Tests
     }
 
     [Fact]
-    public void CreateBasicViewFromCollection()
-    {
-      CreateCollectionData();
-      Schema db = GetSession().Schema;
-      Collection coll = db.GetCollection(collectionName);
-      db.CreateView("myview").DefinedAs(coll.Find()).Execute();
-
-      Table view = db.GetTable("myview");
-      Assert.True(view.IsView);
-      Assert.Equal(allRows.Length, view.Count());
-    }
-
-    [Fact]
-    public void CreateViewFromCollection()
-    {
-      CreateCollectionData();
-      Schema db = GetSession().Schema;
-      Collection coll = db.GetCollection(collectionName);
-      db.CreateView("myview")
-        .DefinedAs(coll.Find())
-        .Algorithm(DataAccess.ViewAlgorithmEnum.Merge)
-        .Definer($"{GetSession().Settings.UserID}@localhost")
-        .Security(DataAccess.ViewSqlSecurityEnum.Definer)
-        .WithCheckOption(DataAccess.ViewCheckOptionEnum.Local)
-        .Execute();
-
-      Table view = db.GetTable("myview");
-      Assert.True(view.IsView);
-      Assert.Equal(allRows.Length, view.Count());
-    }
-
-    [Fact]
     public void CreateViewDeferedExecute()
     {
       CreateTableData();
@@ -268,29 +236,6 @@ namespace MySqlX.Data.Tests
         desc);
     }
 
-    [Fact]
-    public void AlterViewFromCollection()
-    {
-      CreateViewFromCollection();
-      var coll = GetSession().Schema.GetCollection(collectionName);
-
-      GetSession().Schema.AlterView("myview")
-        .DefinedAs(coll.Find().Fields("id", "age"))
-        .Algorithm(DataAccess.ViewAlgorithmEnum.Merge)
-        .Definer($"{GetSession().Settings.UserID}@localhost")
-        .Security(DataAccess.ViewSqlSecurityEnum.Invoker)
-        .WithCheckOption(DataAccess.ViewCheckOptionEnum.Cascaded)
-        .Execute();
-      var view = GetSession().Schema.GetTable("myview");
-      Assert.True(view.IsView);
-      Assert.Equal(allRows.Length, view.Count());
-      var sql = GetNodeSession().SQL("SHOW CREATE VIEW myview").Execute();
-      var result = sql.FetchAll();
-      string desc = result[0][1].ToString();
-      Assert.Equal($"CREATE ALGORITHM=MERGE DEFINER=`{GetSession().Settings.UserID}`@`localhost` SQL SECURITY INVOKER VIEW `myview` AS select `{collectionName}`.`doc` AS `doc` from `{collectionName}` WITH CASCADED CHECK OPTION",
-        desc);
-    }
-
     #endregion
 
     #region Drop View
@@ -299,15 +244,6 @@ namespace MySqlX.Data.Tests
     public void DropTableView()
     {
       CreateBasicViewFromTable();
-      Assert.True(GetSession().Schema.GetTable("myview").ExistsInDatabase());
-      GetSession().Schema.DropView("myview").Execute();
-      Assert.False(GetSession().Schema.GetTable("myview").ExistsInDatabase());
-    }
-
-    [Fact]
-    public void DropCollectionView()
-    {
-      CreateBasicViewFromCollection();
       Assert.True(GetSession().Schema.GetTable("myview").ExistsInDatabase());
       GetSession().Schema.DropView("myview").Execute();
       Assert.False(GetSession().Schema.GetTable("myview").ExistsInDatabase());
