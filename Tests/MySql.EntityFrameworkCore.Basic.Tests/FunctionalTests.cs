@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -18,8 +18,7 @@
 //
 // You should have received a copy of the GNU General Public License along 
 // with this program; if not, write to the Free Software Foundation, Inc., 
-// 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  US
-
+// 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using System;

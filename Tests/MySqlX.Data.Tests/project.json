@@ -2,7 +2,7 @@
   "version": "7.0.6-IR3",
   "description": "MySqlX.Data.Tests Class Library",
   "authors": [ "Oracle" ],
-  "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
+  "copyright": "Copyright © 2017, Oracle and/or its affiliates. All rights reserved.",
 
   "packOptions": {
     "projectUrl": "http://dev.mysql.com/downloads/",
@@ -45,6 +45,9 @@
       }
     },
     "net451": {
+      "dependencies": {
+        "xunit.runner.visualstudio": "2.2.0"
+      }
     }
   },
   "configurations": {
