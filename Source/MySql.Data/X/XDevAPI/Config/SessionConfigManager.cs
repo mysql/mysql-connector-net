@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace MySqlX.XDevAPI.Config
@@ -37,8 +38,11 @@ namespace MySqlX.XDevAPI.Config
     private static IPersistenceHandler persistenceHandler = new DefaultPersistenceHandler();
     private static IPasswordHandler passwordHandler;
 
-    public static SessionConfig Save(string name, string uri, string jsonAppData = null)
+    public static SessionConfig Save(string name, string uri, string jsonAppData)
     {
+      ValidateName(name);
+      ValidateUri(uri);
+
       DbDoc json = new DbDoc();
       json.SetValue("uri", uri);
       if (jsonAppData != null)
@@ -46,8 +50,11 @@ namespace MySqlX.XDevAPI.Config
       return Save(name, json);
     }
 
-    public static SessionConfig Save(string name, string uri, Dictionary<string, string> appData = null)
+    public static SessionConfig Save(string name, string uri, Dictionary<string, string> appData)
     {
+      ValidateName(name);
+      ValidateUri(uri);
+
       SessionConfig sessionConfig = new SessionConfig(name, uri);
       appData?.ToList().ForEach(i => sessionConfig.SetAppData(i.Key, i.Value));
       return Save(sessionConfig);
@@ -55,6 +62,10 @@ namespace MySqlX.XDevAPI.Config
 
     public static SessionConfig Save(string name, DbDoc json)
     {
+      ValidateName(name);
+      if (json == null)
+        throw new ArgumentNullException("Json");
+
       if (!json.values.ContainsKey("uri"))
       {
         Dictionary<string, string> dic = new Dictionary<string, string>();
@@ -76,16 +87,28 @@ namespace MySqlX.XDevAPI.Config
 
     public static SessionConfig Save(string name, string json)
     {
+      ValidateName(name);
+      if (string.IsNullOrWhiteSpace(json))
+        throw new ArgumentNullException("Json");
+
       return Save(name, new DbDoc(json));
     }
 
     public static SessionConfig Save(string name, object json)
     {
+      ValidateName(name);
+      if (json == null)
+        throw new ArgumentNullException("Json");
+
       return Save(name, new DbDoc(json));
     }
 
     public static SessionConfig Save(string name, Dictionary<string, string> data)
     {
+      ValidateName(name);
+      if (data == null)
+        throw new ArgumentNullException("Data");
+
       DbDoc json = new DbDoc();
       Dictionary<string, object> appdata = new Dictionary<string, object>();
       bool hasUri = false, hasHost = false;
@@ -140,6 +163,9 @@ namespace MySqlX.XDevAPI.Config
 
     public static SessionConfig Save(SessionConfig cfg)
     {
+      if (cfg == null)
+        throw new ArgumentNullException("SessionConfig");
+
       Dictionary<string, object> options = new Dictionary<string, object>();
       options.Add("uri", cfg.Uri);
       if(cfg.appData.Count > 0)
@@ -151,12 +177,17 @@ namespace MySqlX.XDevAPI.Config
 
     public static SessionConfig Update(SessionConfig cfg)
     {
+      if (cfg == null)
+        throw new ArgumentNullException("SessionConfig");
+
       Delete(cfg.Name);
       return Save(cfg);
     }
 
     public static SessionConfig Get(string name)
     {
+      ValidateName(name);
+
       DbDoc config = persistenceHandler.Load(name);
       SessionConfig cfg = new SessionConfig(name, config["uri"]);
       if (config.values.ContainsKey("appdata"))
@@ -173,6 +204,7 @@ namespace MySqlX.XDevAPI.Config
 
     public static bool Delete(string name)
     {
+      ValidateName(name);
       try
       {
         persistenceHandler.Delete(name);
@@ -197,6 +229,22 @@ namespace MySqlX.XDevAPI.Config
     public static void SetPasswordHandler(IPasswordHandler handler)
     {
       passwordHandler = handler;
+    }
+
+    private static void ValidateName(string name)
+    {
+      if (string.IsNullOrWhiteSpace(name))
+        throw new ArgumentNullException("Name");
+      if (!Regex.IsMatch(name, @"^\w[\w-.]*$"))
+        throw new ArgumentException($"Name is invalid.", "Name");
+    }
+
+    private static void ValidateUri(string uri)
+    {
+      if (string.IsNullOrWhiteSpace(uri))
+        throw new ArgumentNullException("Uri");
+      if (!Uri.IsWellFormedUriString(uri, UriKind.RelativeOrAbsolute))
+        throw new ArgumentException("Uri is invalid.", "Uri");
     }
   }
 }

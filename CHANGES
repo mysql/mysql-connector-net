@@ -2,6 +2,7 @@
 - MySqlX: Fixed configuration handling paths in Linux and MacOS (Oracle Bug #25423724).
 - MySqlX: Fixed Dispose error in Linux and MacOS (Oracle Bug #25423700).
 - MySqlX: Added support for IPv6.
+- MySqlX: Added validations to SessionConfigManager methods (Oracle Bug #25598617).
 
 
 7.0.6
