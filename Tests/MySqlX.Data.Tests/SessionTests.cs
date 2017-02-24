@@ -235,5 +235,39 @@ namespace MySqlX.Data.Tests
       string connstring = ConnectionStringUri + "/?ssl-crl=crlcert.pfx";
       Assert.Throws<NotSupportedException>(() => MySQLX.GetNodeSession(connstring));
     }
+
+    [Fact]
+    public void IPv6()
+    {
+      MySqlConnectionStringBuilder csBuilder = new MySqlConnectionStringBuilder(ConnectionString);
+      csBuilder.Server = "::1";
+
+      using (var session = MySQLX.GetSession(csBuilder.ToString()))
+      {
+        Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
+      }
+    }
+
+    [Fact]
+    public void IPv6AsUrl()
+    {
+      MySqlConnectionStringBuilder csBuilder = new MySqlConnectionStringBuilder(ConnectionString);
+      string connString = $"mysqlx://{csBuilder.UserID}:{csBuilder.Password}@[::1]:33060";
+      using (XSession session = MySQLX.GetSession(connString))
+      {
+        Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
+      }
+    }
+
+    [Fact]
+    public void IPv6AsAnonymous()
+    {
+      MySqlConnectionStringBuilder csBuilder = new MySqlConnectionStringBuilder(ConnectionString);
+      string connString = $"mysqlx://{csBuilder.UserID}:{csBuilder.Password}@[::1]:33060";
+      using (XSession session = MySQLX.GetSession(new { server = "::1", user = csBuilder.UserID, password = csBuilder.Password }))
+      {
+        Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
+      }
+    }
   }
 }
