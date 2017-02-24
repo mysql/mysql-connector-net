@@ -241,6 +241,7 @@ namespace MySqlX.Data.Tests
     {
       MySqlConnectionStringBuilder csBuilder = new MySqlConnectionStringBuilder(ConnectionString);
       csBuilder.Server = "::1";
+      csBuilder.Port = uint.Parse(XPort);
 
       using (var session = MySQLX.GetSession(csBuilder.ToString()))
       {
@@ -252,7 +253,7 @@ namespace MySqlX.Data.Tests
     public void IPv6AsUrl()
     {
       MySqlConnectionStringBuilder csBuilder = new MySqlConnectionStringBuilder(ConnectionString);
-      string connString = $"mysqlx://{csBuilder.UserID}:{csBuilder.Password}@[::1]:33060";
+      string connString = $"mysqlx://{csBuilder.UserID}:{csBuilder.Password}@[::1]:{XPort}";
       using (XSession session = MySQLX.GetSession(connString))
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
@@ -263,8 +264,7 @@ namespace MySqlX.Data.Tests
     public void IPv6AsAnonymous()
     {
       MySqlConnectionStringBuilder csBuilder = new MySqlConnectionStringBuilder(ConnectionString);
-      string connString = $"mysqlx://{csBuilder.UserID}:{csBuilder.Password}@[::1]:33060";
-      using (XSession session = MySQLX.GetSession(new { server = "::1", user = csBuilder.UserID, password = csBuilder.Password }))
+      using (XSession session = MySQLX.GetSession(new { server = "::1", user = csBuilder.UserID, password = csBuilder.Password, port = XPort }))
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
       }
