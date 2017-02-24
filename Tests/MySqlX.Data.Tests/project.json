@@ -65,7 +65,8 @@
         "embed": [ "Properties/CreateUsers.sql" ],
         "optimize": true,
         "preserveCompilationContext": true,
-        "xmlDoc": true
+        "xmlDoc": true,
+        "nowarn": [ "CS1591" ]
       }
     }
   },
