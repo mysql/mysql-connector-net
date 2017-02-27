@@ -22,9 +22,12 @@
 
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -45,7 +48,9 @@ namespace MySql.EntityFrameworkCore.Design.Tests
         {
             _fixture.dbName = "blogman";
 
-            var sql = @" CREATE DATABASE blogman; 
+            var sql = @"
+DROP DATABASE IF EXISTS blogman;
+CREATE DATABASE blogman; 
 USE blogman;
 CREATE TABLE blogs (id int);
 CREATE TABLE posts (id int);";
@@ -67,7 +72,9 @@ CREATE TABLE posts (id int);";
         {
             _fixture.dbName = "blogman";
 
-            var sql = @" CREATE DATABASE blogman; 
+            var sql = @"
+DROP DATABASE IF EXISTS blogman;
+CREATE DATABASE blogman; 
 USE blogman;
 CREATE TABLE blogs (
     id int,
@@ -130,10 +137,12 @@ CREATE TABLE blogs (
         [Fact]
         public void CanReadFKs()
         {
-            _fixture.dbName = "sakila";
+            _fixture.dbName = "sakiladb";
 
-            var sql = @" CREATE DATABASE sakila; 
-USE sakila;
+            var sql = @" 
+DROP DATABASE IF EXISTS sakiladb;
+CREATE DATABASE sakiladb; 
+USE sakiladb;
 CREATE TABLE country (
   country_id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
   country VARCHAR(50) NOT NULL,
@@ -153,9 +162,9 @@ CREATE TABLE city (
 
             var fk = Assert.Single(dbModel.Tables.Single(t => t.ForeignKeys.Count > 0).ForeignKeys);
 
-            Assert.Equal("sakila", fk.Table.SchemaName);
+            Assert.Equal("sakiladb", fk.Table.SchemaName);
             Assert.Equal("city", fk.Table.Name);
-            Assert.Equal("sakila", fk.PrincipalTable.SchemaName);
+            Assert.Equal("sakiladb", fk.PrincipalTable.SchemaName);
             Assert.Equal("city", fk.PrincipalTable.Name);
             Assert.Equal("country_id", fk.Columns.Single().Column.Name);
             Assert.Equal("country_id", fk.Columns.Single().PrincipalColumn.Name);
@@ -165,10 +174,11 @@ CREATE TABLE city (
         [Fact]
         public void CanReadIndexes()
         {
-
             _fixture.dbName = "sakilaIndex";
 
-            var sql = @" CREATE DATABASE sakilaIndex; 
+            var sql = @" 
+DROP DATABASE IF EXISTS sakilaIndex;
+CREATE DATABASE sakilaIndex; 
             use sakilaIndex;
             CREATE TABLE actor(
               actor_id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -205,6 +215,178 @@ CREATE TABLE city (
                     Assert.False(composite.IsUnique);
                     Assert.Equal(new List<string> { "first_name", "last_name" }, composite.IndexColumns.Select(c => c.Column.Name).ToList());
                 });
+        }
+
+
+        [Fact]
+        public void CanCreateModelForWorldDB()
+        {
+            Assembly executingAssembly = typeof(MySQLDatabaseModelFixture).GetTypeInfo().Assembly;
+            Stream stream = executingAssembly.GetManifestResourceStream("MySql.EntityFrameworkCore.Design.Tests.Properties.world.sql");
+            StreamReader sr = new StreamReader(stream);
+            string sql = sr.ReadToEnd();
+            sr.Dispose();
+            _fixture.dbName = "world";
+
+
+            var dbModel = _fixture.CreateModel(sql, new TableSelectionSet(new List<string> {"city", "country", "countrylanguage"}), null, true);
+            Assert.Collection(dbModel.Tables.OrderBy(t => t.Name),
+                          d =>
+                          {
+                              Assert.Equal("city", d.Name);
+                          },
+                          e =>
+                          {
+                              Assert.Equal("country", e.Name);
+                          },
+                          e =>
+                          {
+                            Assert.Equal("countrylanguage", e.Name);
+                          }
+            );
+        }
+
+
+        [Fact]
+        public void CanCreateModelForSakila()
+        {
+            Assembly executingAssembly = typeof(MySQLDatabaseModelFixture).GetTypeInfo().Assembly;
+            Stream stream = executingAssembly.GetManifestResourceStream("MySql.EntityFrameworkCore.Design.Tests.Properties.sakiladb-schema.sql");
+            StreamReader sr = new StreamReader(stream);
+            string sql = sr.ReadToEnd();
+            sr.Dispose();
+
+            _fixture.dbName = "sakiladb";
+
+            var dbModel = _fixture.CreateModel(sql, new TableSelectionSet(new List<string> { "actor", "address", "category",
+            "city", "country", "customer", 
+            "film", "film_actor", "film_category", "film_text",
+            "inventory", "language", "payment", "rental", "staff", "store"}), null, true);
+            Assert.Collection(dbModel.Tables.OrderBy(t => t.Name),
+                          d =>
+                          {
+                              Assert.Equal("actor", d.Name);
+                          },
+                          e =>
+                          {
+                              Assert.Equal("address", e.Name);
+                          },
+                          f =>
+                          {
+                              Assert.Equal("category", f.Name);
+                          },
+                         g =>
+                         {
+                             Assert.Equal("city", g.Name);
+                         },
+                         f =>
+                         {
+                             Assert.Equal("country", f.Name);
+                         },
+                         f =>
+                         {
+                             Assert.Equal("customer", f.Name);
+                         },
+                         f =>
+                         {
+                             Assert.Equal("film", f.Name);
+                         },
+                         f =>
+                         {
+                             Assert.Equal("film_actor", f.Name);
+                         },
+                         f =>
+                         {
+                             Assert.Equal("film_category", f.Name);
+                         },
+                        f =>
+                        {
+                            Assert.Equal("film_text", f.Name);
+                        },
+                        f =>
+                        {
+                            Assert.Equal("inventory", f.Name);
+                        },
+                        f =>
+                        {
+                            Assert.Equal("language", f.Name);
+                        },
+                        f =>
+                        {
+                            Assert.Equal("payment", f.Name);
+                        },
+                        f =>
+                        {
+                            Assert.Equal("rental", f.Name);
+                        },
+                        f =>
+                        {
+                            Assert.Equal("staff", f.Name);
+                        },
+                        f =>
+                        {
+                            Assert.Equal("store", f.Name);
+                        });
+        }
+
+
+
+        /// <summary>
+        /// No support for views added in EF Core 
+        /// issue for follow up https://github.com/aspnet/EntityFramework/issues/827
+        /// views should be ignored
+        /// </summary>
+
+        [Fact]
+        public void CanCreateModelOfDBWithViews()
+        {
+            _fixture.dbName = "testview";
+            var sql = @"DROP DATABASE IF EXISTS testview;
+            create database testview character set utf8mb4;
+            use testview;
+            create table t1(a serial, b int);
+            create table t2 like t1;
+            create view x1 as select t1.a as a, t1.b as b1, t2.b as b2 from t1
+            join t2 using (a) ;
+            create view y1 as select t1.a as a, t1.b as b1, t2.b as b2 from t1
+            join t2 using (a) ;
+            create view z1 as select t1.a as a, t1.b as b1, t2.b as b2 from t1
+            join t2 using (a) ;
+            create view b1 as select x1.a as a, x1.b1 as b1, y1.b1 as b2 from x1
+            join y1 using (a) ;";
+            _fixture.dbName = "testview";
+
+            var dbModel = _fixture.CreateModel(sql, new TableSelectionSet(new List<string> { "t1", "t2" }));
+            Assert.Collection(dbModel.Tables.OrderBy(t => t.Name),
+                                  d =>
+                                  {
+                                      Assert.Equal("t1", d.Name);
+                                  },
+                                  e =>
+                                  {
+                                      Assert.Equal("t2", e.Name);
+                                  });
+                                  
+        }
+       
+        [Fact]
+        public void CanFiltersViews()
+        {
+            _fixture.dbName = "testview";
+            var sql = @"DROP DATABASE IF EXISTS testview;
+            create database testview character set utf8mb4;
+            use testview;
+            create table t1(a serial, b int);            
+            create view x1 as select t1.a as a, t1.b as b1 from t1;
+            ";
+            _fixture.dbName = "testview";
+
+            var selectionSet = new TableSelectionSet(new List<string> { "t1" , "x1"});
+            var logger = new MySQLDatabaseModelFixture.MyTestLogger();
+
+            var dbModel = _fixture.CreateModel(sql, selectionSet, logger);
+            Assert.Single(dbModel.Tables);
+            Assert.DoesNotContain(logger.Items, i => i.logLevel == LogLevel.Warning);
         }
     }
 }

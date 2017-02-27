@@ -53,10 +53,11 @@ namespace MySql.Data.EntityFrameworkCore.Tests
   {
 #if NETCORE10            
         static string pathandfile = Path.GetFullPath(@"../..") + @"/appsettings.json";
-        private static ConfigUtils config = new ConfigUtils(pathandfile);        
+        private static ConfigUtils config = new ConfigUtils(pathandfile);
+       
 #endif
 
-    public static string baseConnectionString
+        public static string baseConnectionString
     {
         get
         {
@@ -127,6 +128,16 @@ namespace MySql.Data.EntityFrameworkCore.Tests
             cmd.ExecuteNonQuery();
         }
     }
+
+    public static void ExecuteScript(string sql)
+    {
+        using (var cnn = new MySqlConnection(rootConnectionString))
+        {
+            cnn.Open();
+            var scr = new MySqlScript(cnn, sql);
+            scr.Execute();
+        }
+     }
 
     public static string CreateConnectionString(string databasename)
     {

@@ -41,7 +41,7 @@
           "include": [ "../*.cs" ]
         },
         "warningsAsErrors": false,
-        "optimize": false,
+        "optimize": false,        
         "xmlDoc": true,
         "nowarn": [ "CS1591" ],
         "keyFile": "../../ConnectorNetPublicKey.snk",
@@ -64,13 +64,15 @@
       "buildOptions": {
         "define": [ "DEBUG" ],
         "optimize": false,
-        "preserveCompilationContext": true
+        "preserveCompilationContext": true,
+        "embed": [ "Properties/sakiladb-schema.sql", "Properties/world.sql" ]
       }
     },
     "Release": {
       "buildOptions": {
         "define": [ "RELEASE" ],
         "optimize": true,
+        "embed": [ "Properties/sakiladb-schema.sql", "Properties/world.sql" ],
         "preserveCompilationContext": true,
         "xmlDoc": true
       }

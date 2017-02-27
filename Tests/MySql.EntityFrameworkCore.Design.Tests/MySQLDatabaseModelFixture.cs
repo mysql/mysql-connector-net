@@ -44,9 +44,13 @@ namespace MySql.EntityFrameworkCore.Design.Tests
         {            
         }
 
-        public DatabaseModel CreateModel(string sql, TableSelectionSet selection, ILogger logger = null)
+        public DatabaseModel CreateModel(string sql, TableSelectionSet selection, ILogger logger = null, bool executeScript=false)
         {
-            MySQLTestStore.Execute(sql);
+            if (executeScript)
+                MySQLTestStore.ExecuteScript(sql);
+            else
+                MySQLTestStore.Execute(sql);
+
             return new MySQLDatabaseModelFactory(new MyTestLoggerFactory(logger).CreateLogger<MySQLDatabaseModelFactory>()).
                    Create(MySQLTestStore.rootConnectionString + ";database=" + dbName + ";", selection ?? TableSelectionSet.All);
         }
@@ -55,37 +59,36 @@ namespace MySql.EntityFrameworkCore.Design.Tests
         {
             MySQLTestStore.Execute("drop database " + dbName + ";");
         }
-    }
 
-
-    class MyTestLoggerFactory : ILoggerFactory
-    {
-        readonly ILogger _logger;
-
-        public MyTestLoggerFactory(ILogger logger)
+        class MyTestLoggerFactory : ILoggerFactory
         {
-            _logger = logger ?? new MyTestLogger();
-        }
+            readonly ILogger _logger;
 
-        public void AddProvider(ILoggerProvider provider)
+            public MyTestLoggerFactory(ILogger logger)
+            {
+                _logger = logger ?? new MyTestLogger();
+            }
+
+            public void AddProvider(ILoggerProvider provider)
+            {
+            }
+
+            public ILogger CreateLogger(string categoryName) => _logger;
+
+            public void Dispose()
+            {
+            }
+        }
+        public class MyTestLogger : ILogger
         {
+            public IDisposable BeginScope<TState>(TState state) => NullScope.Instance;
+
+            public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+                => Items.Add(new { logLevel, eventId, state, exception });
+
+            public bool IsEnabled(LogLevel logLevel) => true;
+
+            public ICollection<dynamic> Items = new List<dynamic>();
         }
-
-        public ILogger CreateLogger(string categoryName) => _logger;
-
-        public void Dispose()
-        {
-        }
-    }
-    public class MyTestLogger : ILogger
-     {
-        public IDisposable BeginScope<TState>(TState state) => NullScope.Instance;
-
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
-            => Items.Add(new { logLevel, eventId, state, exception });
-
-        public bool IsEnabled(LogLevel logLevel) => true;
-
-        public ICollection<dynamic> Items = new List<dynamic>();
     }
 }
