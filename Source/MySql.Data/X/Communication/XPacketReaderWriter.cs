@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -36,7 +36,7 @@ namespace MySqlX.Communication
       _stream = stream;
     }
 
-    public void Write(ClientMessageId id, IMessage message)
+    public void Write(int id, IMessage message)
     {
       int size = message.CalculateSize() + 1;
       _stream.Write(BitConverter.GetBytes(size), 0, 4);
@@ -44,6 +44,11 @@ namespace MySqlX.Communication
       if(message.CalculateSize() > 0)
         message.WriteTo(_stream);
       _stream.Flush();
+    }
+
+    public void Write(ClientMessageId id, IMessage message)
+    {
+      Write((int)id, message);
     }
 
     public CommunicationPacket Read()

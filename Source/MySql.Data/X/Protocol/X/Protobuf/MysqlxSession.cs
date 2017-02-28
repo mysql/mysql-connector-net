@@ -10,8 +10,7 @@ using scg = global::System.Collections.Generic;
 namespace Mysqlx.Session {
 
   /// <summary>Holder for reflection information generated from mysqlx_session.proto</summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-  public static partial class MysqlxSessionReflection {
+  internal static partial class MysqlxSessionReflection {
 
     #region Descriptor
     /// <summary>File descriptor for mysqlx_session.proto</summary>
@@ -52,31 +51,36 @@ namespace Mysqlx.Session {
   ///  :param initial_response: initial response
   ///  :Returns: :protobuf:msg:`Mysqlx.Session::AuthenticateContinue`
   /// </summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-  public sealed partial class AuthenticateStart : pb::IMessage<AuthenticateStart> {
+  internal sealed partial class AuthenticateStart : pb::IMessage<AuthenticateStart> {
     private static readonly pb::MessageParser<AuthenticateStart> _parser = new pb::MessageParser<AuthenticateStart>(() => new AuthenticateStart());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<AuthenticateStart> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
       get { return global::Mysqlx.Session.MysqlxSessionReflection.Descriptor.MessageTypes[0]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public AuthenticateStart() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public AuthenticateStart(AuthenticateStart other) : this() {
       mechName_ = other.mechName_;
       authData_ = other.authData_;
       initialResponse_ = other.initialResponse_;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public AuthenticateStart Clone() {
       return new AuthenticateStart(this);
     }
@@ -87,6 +91,7 @@ namespace Mysqlx.Session {
     /// <summary>
     /// required
     /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string MechName {
       get { return mechName_; }
       set {
@@ -97,6 +102,7 @@ namespace Mysqlx.Session {
     /// <summary>Field number for the "auth_data" field.</summary>
     public const int AuthDataFieldNumber = 2;
     private pb::ByteString authData_ = pb::ByteString.Empty;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public pb::ByteString AuthData {
       get { return authData_; }
       set {
@@ -107,6 +113,7 @@ namespace Mysqlx.Session {
     /// <summary>Field number for the "initial_response" field.</summary>
     public const int InitialResponseFieldNumber = 3;
     private pb::ByteString initialResponse_ = pb::ByteString.Empty;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public pb::ByteString InitialResponse {
       get { return initialResponse_; }
       set {
@@ -114,10 +121,12 @@ namespace Mysqlx.Session {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as AuthenticateStart);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(AuthenticateStart other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -131,6 +140,7 @@ namespace Mysqlx.Session {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       if (MechName.Length != 0) hash ^= MechName.GetHashCode();
@@ -139,10 +149,12 @@ namespace Mysqlx.Session {
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
       if (MechName.Length != 0) {
         output.WriteRawTag(10);
@@ -158,6 +170,7 @@ namespace Mysqlx.Session {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       if (MechName.Length != 0) {
@@ -172,6 +185,7 @@ namespace Mysqlx.Session {
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(AuthenticateStart other) {
       if (other == null) {
         return;
@@ -187,6 +201,7 @@ namespace Mysqlx.Session {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -219,29 +234,34 @@ namespace Mysqlx.Session {
   ///  :param auth_data: authentication data
   ///  :Returns: :protobuf:msg:`Mysqlx.Session::AuthenticateContinue`
   /// </summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-  public sealed partial class AuthenticateContinue : pb::IMessage<AuthenticateContinue> {
+  internal sealed partial class AuthenticateContinue : pb::IMessage<AuthenticateContinue> {
     private static readonly pb::MessageParser<AuthenticateContinue> _parser = new pb::MessageParser<AuthenticateContinue>(() => new AuthenticateContinue());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<AuthenticateContinue> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
       get { return global::Mysqlx.Session.MysqlxSessionReflection.Descriptor.MessageTypes[1]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public AuthenticateContinue() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public AuthenticateContinue(AuthenticateContinue other) : this() {
       authData_ = other.authData_;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public AuthenticateContinue Clone() {
       return new AuthenticateContinue(this);
     }
@@ -252,6 +272,7 @@ namespace Mysqlx.Session {
     /// <summary>
     /// required
     /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public pb::ByteString AuthData {
       get { return authData_; }
       set {
@@ -259,10 +280,12 @@ namespace Mysqlx.Session {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as AuthenticateContinue);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(AuthenticateContinue other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -274,16 +297,19 @@ namespace Mysqlx.Session {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       if (AuthData.Length != 0) hash ^= AuthData.GetHashCode();
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
       if (AuthData.Length != 0) {
         output.WriteRawTag(10);
@@ -291,6 +317,7 @@ namespace Mysqlx.Session {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       if (AuthData.Length != 0) {
@@ -299,6 +326,7 @@ namespace Mysqlx.Session {
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(AuthenticateContinue other) {
       if (other == null) {
         return;
@@ -308,6 +336,7 @@ namespace Mysqlx.Session {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -330,29 +359,34 @@ namespace Mysqlx.Session {
   ///
   ///  :param auth_data: authentication data
   /// </summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-  public sealed partial class AuthenticateOk : pb::IMessage<AuthenticateOk> {
+  internal sealed partial class AuthenticateOk : pb::IMessage<AuthenticateOk> {
     private static readonly pb::MessageParser<AuthenticateOk> _parser = new pb::MessageParser<AuthenticateOk>(() => new AuthenticateOk());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<AuthenticateOk> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
       get { return global::Mysqlx.Session.MysqlxSessionReflection.Descriptor.MessageTypes[2]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public AuthenticateOk() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public AuthenticateOk(AuthenticateOk other) : this() {
       authData_ = other.authData_;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public AuthenticateOk Clone() {
       return new AuthenticateOk(this);
     }
@@ -360,6 +394,7 @@ namespace Mysqlx.Session {
     /// <summary>Field number for the "auth_data" field.</summary>
     public const int AuthDataFieldNumber = 1;
     private pb::ByteString authData_ = pb::ByteString.Empty;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public pb::ByteString AuthData {
       get { return authData_; }
       set {
@@ -367,10 +402,12 @@ namespace Mysqlx.Session {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as AuthenticateOk);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(AuthenticateOk other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -382,16 +419,19 @@ namespace Mysqlx.Session {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       if (AuthData.Length != 0) hash ^= AuthData.GetHashCode();
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
       if (AuthData.Length != 0) {
         output.WriteRawTag(10);
@@ -399,6 +439,7 @@ namespace Mysqlx.Session {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       if (AuthData.Length != 0) {
@@ -407,6 +448,7 @@ namespace Mysqlx.Session {
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(AuthenticateOk other) {
       if (other == null) {
         return;
@@ -416,6 +458,7 @@ namespace Mysqlx.Session {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -438,36 +481,43 @@ namespace Mysqlx.Session {
   ///
   ///  :Returns: :protobuf:msg:`Mysqlx::Ok`
   /// </summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-  public sealed partial class Reset : pb::IMessage<Reset> {
+  internal sealed partial class Reset : pb::IMessage<Reset> {
     private static readonly pb::MessageParser<Reset> _parser = new pb::MessageParser<Reset>(() => new Reset());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<Reset> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
       get { return global::Mysqlx.Session.MysqlxSessionReflection.Descriptor.MessageTypes[3]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Reset() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Reset(Reset other) : this() {
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Reset Clone() {
       return new Reset(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as Reset);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(Reset other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -478,29 +528,35 @@ namespace Mysqlx.Session {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(Reset other) {
       if (other == null) {
         return;
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -519,36 +575,43 @@ namespace Mysqlx.Session {
   ///
   ///  :Returns: :protobuf:msg:`Mysqlx::Ok`
   /// </summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-  public sealed partial class Close : pb::IMessage<Close> {
+  internal sealed partial class Close : pb::IMessage<Close> {
     private static readonly pb::MessageParser<Close> _parser = new pb::MessageParser<Close>(() => new Close());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<Close> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
       get { return global::Mysqlx.Session.MysqlxSessionReflection.Descriptor.MessageTypes[4]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Close() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Close(Close other) : this() {
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Close Clone() {
       return new Close(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as Close);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(Close other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -559,29 +622,35 @@ namespace Mysqlx.Session {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(Close other) {
       if (other == null) {
         return;
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {

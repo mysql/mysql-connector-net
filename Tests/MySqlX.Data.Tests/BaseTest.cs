@@ -119,7 +119,10 @@ namespace MySqlX.Data.Tests
     public NodeSession GetNodeSession()
     {
       if (nodeSession == null)
+      {
         nodeSession = MySQLX.GetNodeSession(ConnectionString);
+        nodeSession.SetCurrentSchema(schemaName);
+      }
       return nodeSession;
     }
 
@@ -132,7 +135,7 @@ namespace MySqlX.Data.Tests
       rootConn.Close();
     }
 
-    public void Dispose()
+    public virtual void Dispose()
     {
       using (XSession s = GetSession())
       {

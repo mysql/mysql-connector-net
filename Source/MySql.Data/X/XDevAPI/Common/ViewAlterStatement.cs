@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,46 +20,31 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-namespace MySqlX.DataAccess
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace MySqlX.XDevAPI.Common
 {
-  internal enum ConnectionMode
+  public class ViewAlterStatement : ViewCreateStatement
   {
-    Offline = 0,
-    ReadOnly = 1,
-    WriteOnly = 2,
-    ReadWrite = 3
-  }
+    internal ViewAlterStatement(Schema schema, string name) :base(schema, name, true)
+    {
 
-  internal enum AuthenticationMode
-  { 
-    PlainAccess = 0,
-    MySQL41 = 1  
-  }
+    }
 
-  internal enum OS
-  {
-    Unknown = 0,
-    Windows,
-    Linux,
-    MacOS
-  }
+    /// <summary>
+    /// Executes the view alter statement
+    /// </summary>
+    /// <returns>Result of execution</returns>
+    public override Result Execute()
+    {
+      if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException("View name");
+      if (queryStatement == null) throw new ArgumentNullException("Query");
+      if (definer == null) throw new ArgumentNullException("Definer");
 
-  public enum ViewAlgorithmEnum
-  {
-    Undefined = Mysqlx.Crud.ViewAlgorithm.Undefined,
-    Merge = Mysqlx.Crud.ViewAlgorithm.Merge,
-    TempTable = Mysqlx.Crud.ViewAlgorithm.Temptable
-  }
-
-  public enum ViewSqlSecurityEnum
-  {
-    Invoker = Mysqlx.Crud.ViewSqlSecurity.Invoker,
-    Definer = Mysqlx.Crud.ViewSqlSecurity.Definer
-  }
-
-  public enum ViewCheckOptionEnum
-  {
-    Local = Mysqlx.Crud.ViewCheckOption.Local,
-    Cascaded = Mysqlx.Crud.ViewCheckOption.Cascaded
+      return Session.XSession.ViewAlter(this);
+    }
   }
 }
