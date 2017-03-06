@@ -1,3 +1,7 @@
+6.10.2
+- Fixed: EF core database first support fails for a database with views. Orabug #25493086
+- Fixed: EF Core database first doesn't support mysql sample world/sakila database. Orabug #25493336
+
 6.10.1
 - Support for Database first in Entity Framework Core 1.1
 - Fixed: Exception caused by skip & take in mysql ef core Orabug #	25382036  MySQL bug #84453

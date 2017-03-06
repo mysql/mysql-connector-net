@@ -118,7 +118,7 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
             var dbName = _connection.Database;
             command.CommandText = "select kc.constraint_name, kc.table_schema, kc.table_name, kc.column_name, kc.referenced_table_schema, kc.referenced_table_name, " +
                                     " kc.referenced_column_name, kc.ordinal_position, rc.update_rule, rc.delete_rule from information_schema.key_column_usage as kc inner join " +
-                                    " information_schema.referential_constraints as rc on kc.constraint_name = rc.constraint_name where kc.referenced_table_name is not null and  kc.table_schema like '%" + dbName + "%' " +
+                                    " information_schema.referential_constraints as rc on kc.constraint_name = rc.constraint_name where kc.referenced_table_name is not null and  kc.table_schema like '" + dbName + "' " +
                                     " and kc.table_name not like '__ef%'";
             using (var reader = command.ExecuteReader())
             {
@@ -247,7 +247,7 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
             var command = _connection.CreateCommand();
             var dbName = _connection.Database;
             command.CommandText = "Select distinct s.table_schema, s.table_name, non_unique, index_name, column_name, seq_in_index, t.constraint_type from information_schema.statistics s left outer join information_schema.table_constraints t " +
-                                  "on t.table_schema=s.table_schema and t.table_name=s.table_name and s.index_name=t.constraint_name where s.table_schema like '%" + dbName + "%' " +
+                                  "on t.table_schema=s.table_schema and t.table_name=s.table_name and s.index_name=t.constraint_name where s.table_schema like '" + dbName + "' " +
                                   "and s.table_name not like '__ef%'";
             
             using (var reader = command.ExecuteReader())
@@ -320,7 +320,7 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
         {
             var command = _connection.CreateCommand();
             var dbName = _connection.Database;
-            command.CommandText = "SELECT * FROM INFORMATION_SCHEMA.TABLES where table_schema like '%" + dbName + "%' and table_type like '%base%' and table_name not like '__ef%';";            
+            command.CommandText = "SELECT * FROM INFORMATION_SCHEMA.TABLES where table_schema like '" + dbName + "' and table_type like '%base%' and table_name not like '__ef%';";            
             using (var reader = command.ExecuteReader())
             {
                 while (reader.Read())
@@ -349,12 +349,12 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
         {
             var command = _connection.CreateCommand();
             var dbName = _connection.Database;
-            command.CommandText = "SELECT c.table_schema, c.table_name, c.column_name, is_nullable, column_type, column_key, c.ordinal_position, column_default, generation_expression, " + 
-                                  " datetime_precision, numeric_precision, numeric_scale, character_maximum_length, constraint_name, k.ordinal_position as primarykeyordinal " +
-                                  " FROM INFORMATION_SCHEMA.Columns c " +
-                                   " LEFT JOIN information_schema.KEY_COLUMN_USAGE k " +
-                                   " ON(k.TABLE_SCHEMA = c.TABLE_SCHEMA AND k.TABLE_NAME = c.TABLE_NAME AND k.COLUMN_NAME = c.COLUMN_NAME) " +
-                                   " where c.table_schema like '%" + dbName + "%';";
+            command.CommandText = " SELECT c.table_schema, c.table_name, c.column_name, is_nullable, column_type, column_key, " +
+                                  " c.ordinal_position, column_default, generation_expression, datetime_precision, numeric_precision, " +
+                                  " numeric_scale, character_maximum_length, constraint_name, k.ordinal_position as primarykeyordinal " +
+                                  " FROM(INFORMATION_SCHEMA.tables t INNER JOIN information_schema.columns c ON t.table_schema = c.table_schema AND t.table_name = c.table_name) " +
+                                  " LEFT JOIN information_schema.KEY_COLUMN_USAGE k ON(k.TABLE_SCHEMA = c.TABLE_SCHEMA AND k.TABLE_NAME = c.TABLE_NAME AND k.COLUMN_NAME = c.COLUMN_NAME) " +
+                                  " WHERE t.table_type LIKE 'BASE TABLE' AND t.table_schema like '" + dbName + "';";
             using (var reader = command.ExecuteReader())
             {
                 while (reader.Read())
@@ -397,7 +397,8 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
                     };
 
                     table.Columns.Add(column);
-                    _tableColumns.Add(ColumnKey(table, column.Name), column);
+                    if (!_tableColumns.ContainsKey(ColumnKey(table, column.Name)))
+                        _tableColumns.Add(ColumnKey(table, column.Name), column);
                 }
             }        
         }

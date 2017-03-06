@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, Oracle and/or its affiliates.  All rights reserved.
+﻿// Copyright © 2016, 2017, Oracle and/or its affiliates.  All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -39,7 +39,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
                assemblyName: "MySql.Data.EntityFrameworkCore.Design, Version=6.10.1.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d",
                packageName: "MySql.Data.EntityFrameworkCore.Design")]
 [assembly: AssemblyProduct("MySql.Data.EntityFrameworkCore")]
-[assembly: AssemblyCopyright("Copyright © 2017, Oracle and/or its affiliates. All rights reserved.")]
+[assembly: AssemblyCopyright("Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
