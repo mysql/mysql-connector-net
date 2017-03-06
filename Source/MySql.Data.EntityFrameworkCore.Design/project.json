@@ -1,6 +1,9 @@
 {
-  "version": "6.10.1-*",
+  "version": "6.10.2-IR2",
   "description": "Design-time Entity Framework Core Functionality for MySQL Server.",
+  "authors": [ "Oracle" ],
+  "copyright": "Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.",
+  "language": "en-US",
   "packOptions": {
     "tags": [
       "Entity Framework Core",
