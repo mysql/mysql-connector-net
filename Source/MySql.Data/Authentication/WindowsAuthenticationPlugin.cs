@@ -170,33 +170,6 @@ namespace MySql.Data.MySqlClient.Authentication
       continueProcessing = (ss != SEC_E_OK && ss != SEC_I_COMPLETE_NEEDED);
     }
 
-    /// <summary>
-    /// Currently this method is unused
-    /// </summary>
-    /// <returns></returns>
-    private string GetTargetName()
-    {
-      return null;
-      if (AuthenticationData == null) return String.Empty;
-
-      int index = -1;
-      for (int i = 0; i < AuthenticationData.Length; i++)
-      {
-        if (AuthenticationData[i] != 0) continue;
-        index = i;
-        break;
-      }
-      if (index == -1)
-#if RT
-        targetName = System.Text.Encoding.UTF8.GetString(AuthenticationData, 0, AuthenticationData.Length);
-#else
-        targetName = System.Text.Encoding.UTF8.GetString(AuthenticationData);
-#endif
-      else
-          targetName = System.Text.Encoding.UTF8.GetString(AuthenticationData, 0, index);
-      return targetName;
-    }
-
     private void AcquireCredentials()
     {
 

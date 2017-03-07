@@ -195,4 +195,10 @@
   <data name="NoHost" xml:space="preserve">
     <value>No 'host' has been specified.</value>
   </data>
+  <data name="AppdataNotDefined" xml:space="preserve">
+    <value>Appdata path is not defined.</value>
+  </data>
+  <data name="ProgramDataNotDefined" xml:space="preserve">
+    <value>ProgramData path is not defined.</value>
+  </data>
 </root>

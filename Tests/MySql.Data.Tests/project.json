@@ -1,8 +1,8 @@
 {
-  "version": "7.0.6-IR3",
+  "version": "7.0.7-IR4",
   "description": "MySql.Data.Tests Class Library",
   "authors": [ "Oracle" ],
-  "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
+  "copyright": "Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.",
 
   "packOptions": {
     "projectUrl": "http://dev.mysql.com/downloads/",
@@ -25,7 +25,9 @@
     "warningsAsErrors": false,
     "keyFile": "../../ConnectorNetPublicKey.snk",
     "delaySign": true,
-    "publicSign": false
+    "publicSign": false,
+    "xmlDoc": false,
+    "nowarn": ["CS1591"]
   },
   "testRunner": "xunit",
   "frameworks": {
@@ -121,14 +123,15 @@
             "Framework/Net451/PerfMonTests.cs",
             "Framework/Net451/ReplicationTests.cs"
           ]
-        }
+        },
+        "copyToOutput": [ "client.pfx" ]
       }
     }
   },
- "configurations": {
+  "configurations": {
     "Debug": {
       "buildOptions": {
-        "define": [ "DEBUG" ],
+        "define": [ "DEBUG", "TRACE" ],
         "optimize": false,
         "preserveCompilationContext": true
       }
@@ -136,7 +139,7 @@
     "Release": {
       "buildOptions": {
         "define": [ "RELEASE" ],
-        "optimize": true,
+        "optimize": false,
         "preserveCompilationContext": true,
         "xmlDoc": true
       }

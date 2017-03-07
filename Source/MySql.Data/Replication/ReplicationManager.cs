@@ -31,7 +31,7 @@ using MySql.Data.MySqlClient;
 namespace MySql.Data.MySqlClient.Replication
 {
   /// <summary>
-  /// Manager for Replication & Load Balancing features
+  /// Manager for Replication and Load Balancing features
   /// </summary>
   internal static class ReplicationManager
   {

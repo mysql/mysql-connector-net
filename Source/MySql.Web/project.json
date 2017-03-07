@@ -1,10 +1,10 @@
 ﻿{
-  "version": "7.0.6-IR3",
+  "version": "7.0.7-IR4",
   "description": "MySql.Web",
   "authors": [
     "Oracle"
   ],
-  "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
+  "copyright": "Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.",
   "language": "en-US",
   "packOptions": {
     "projectUrl": "http://dev.mysql.com/downloads/",
@@ -17,6 +17,7 @@
     ],
     "requireLicenseAcceptance": true
   },
+  "buildOptions": {"nowarn": ["CS1591"]},
   "frameworks": {
     "net451": {
       "keyFile": "../../ConnectorNetPublicKey.snk",

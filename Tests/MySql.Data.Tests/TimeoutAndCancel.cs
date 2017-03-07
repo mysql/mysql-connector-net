@@ -36,16 +36,16 @@ namespace MySql.Data.MySqlClient.Tests
   {
     private delegate void CommandInvokerDelegate(MySqlCommand cmdToRun);
     private ManualResetEvent resetEvent = new ManualResetEvent(false);
-    protected TestSetup ts;
+    private Version version;
 
     public TimeoutAndCancel(TestSetup setup): base(setup, "timeoutandcancel")
     {
-      ts = setup;
+      version = setup.version;
     }
 
     protected TimeoutAndCancel(TestSetup setup, string nameSpace) : base(setup, nameSpace)
     {
-      ts = setup;
+      version = setup.version;
     }
 
 
@@ -59,7 +59,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void CancelSingleQuery()
     {
-      if (ts.version < new Version(5, 0)) return;
+      if (version < new Version(5, 0)) return;
 
       // first we need a routine that will run for a bit
       executeSQL(@"CREATE PROCEDURE spTest(duration INT) 
@@ -143,32 +143,19 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void TimeoutExpiring()
     {
-      if (ts.version < new Version(5, 0)) return;
+      if (version < new Version(5, 0)) return;
 
       DateTime start = DateTime.Now;
-      //try
-      //{
-        MySqlCommand cmd = new MySqlCommand("SELECT SLEEP(200)", connection);
-        cmd.CommandTimeout = 1;
-        Exception ex = Assert.Throws<MySqlException>(() => cmd.ExecuteReader(CommandBehavior.SingleRow));
-        //Assert.Fail("Should not get to this point");
-      //}
-      //catch (MySqlException ex)
-      //{
-        TimeSpan timesp = DateTime.Now.Subtract(start);
-        Assert.True(timesp.TotalSeconds <= 3);
-        Assert.True(ex.Message.StartsWith("Timeout expired", StringComparison.OrdinalIgnoreCase), "Message is wrong " + ex.Message);
-      //}
-
-      long x = (long)(new MySqlCommand("select 10", connection).ExecuteScalar());
-      Assert.Equal(10, x);
-
+      MySqlCommand cmd = new MySqlCommand("SELECT SLEEP(5)", connection);
+      cmd.CommandTimeout = 1;
+      Exception ex = Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());
+      Assert.True(ex.Message.StartsWith("Fatal error encountered during", StringComparison.OrdinalIgnoreCase), "Message is wrong " + ex.Message);
     }
 
     [Fact]
     public void TimeoutNotExpiring()
     {
-      if (ts.version < new Version(5, 0)) return;
+      if (version < new Version(5, 0)) return;
 
       MySqlCommand cmd = new MySqlCommand("SELECT SLEEP(1)", connection);
       cmd.CommandTimeout = 2;
@@ -178,7 +165,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void TimeoutNotExpiring2()
     {
-      if (ts.version < new Version(5, 0)) return;
+      if (version < new Version(5, 0)) return;
 
       MySqlCommand cmd = new MySqlCommand("SELECT SLEEP(1)", connection);
       cmd.CommandTimeout = 0; // infinite timeout
@@ -188,7 +175,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void TimeoutDuringBatch()
     {
-      if (ts.version < new Version(5, 0)) return;
+      if (version < new Version(5, 0)) return;
 
       executeSQL(@"CREATE PROCEDURE spTest(duration INT) 
         BEGIN 
@@ -219,7 +206,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void CancelSelect()
     {
-      if (ts.version < new Version(5, 0)) return;
+      if (version < new Version(5, 0)) return;
 
       executeSQL("CREATE TABLE Test (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(20))");
       for (int i = 0; i < 1000; i++)
@@ -261,12 +248,12 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #40091	mysql driver 5.2.3.0 connection pooling issue
     /// </summary>
-    [Fact]
+    [Fact (Skip = "Issue")]
     public void ConnectionStringModifiedAfterCancel()
     {
-      if (ts.version.Major < 5) return;
+      if (version.Major < 5) return;
 
-      string connStr = ts.GetPoolingConnectionString();
+      string connStr = "server=localhost;userid=root;pwd=;database=test;port=3305;persist security info=true";
       MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder(connStr);
 
       if (sb.ConnectionProtocol == MySqlConnectionProtocol.NamedPipe)
@@ -308,7 +295,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void NetWriteTimeoutExpiring()
     {
       // net_write_timeout did not apply to named pipes connections before MySQL 5.1.41.
-      if (ts.version < new Version(5, 1, 41) && (connection.ConnectionString.IndexOf("protocol=namedpipe") >= 0 || connection.ConnectionString.IndexOf("protocol=sharedmemory") >= 0)) return;
+      if (version < new Version(5, 1, 41) && (connection.ConnectionString.IndexOf("protocol=namedpipe") >= 0 || connection.ConnectionString.IndexOf("protocol=sharedmemory") >= 0)) return;
 
       executeSQL("CREATE TABLE Test(id int, blob1 longblob)");
       int rows = 1000;

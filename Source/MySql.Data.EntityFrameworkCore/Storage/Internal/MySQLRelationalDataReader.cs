@@ -1,4 +1,4 @@
-﻿// Copyright © 2014, 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,41 +20,40 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
-using MySql.Data;
-using MySqlX.DataAccess;
-using System.IO;
+using System.Data.Common;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace MySqlX.Common
+namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
-  internal static class Tools
-  {
-    public static Dictionary<string, object> GetDictionaryFromAnonymous(object anonymousObject)
-    {
-      Dictionary<string, object> result = new Dictionary<string, object>();
+    public class MySQLRelationalDataReader : RelationalDataReader
+    {             
+        private DbDataReader _reader;
+        private DbCommand _command;
+        private bool _disposed;
 
-      if (!anonymousObject.GetType().IsConstructedGenericType)
-        throw new FormatException(ResourcesX.InvalidConnectionData);
 
-      foreach (PropertyInfo property in anonymousObject.GetType().GetProperties())
-      {
-        object value = property.GetValue(anonymousObject, null);
-        result.Add(property.Name, value);
-      }
+        public MySQLRelationalDataReader(
+            IRelationalConnection connection,
+            DbCommand command,
+            DbDataReader reader) : base(connection, command, reader)
+        {
+            _reader= reader;
+            _command = command;
+        }
 
-      return result;
+        public override void Dispose()
+        {
+            if (!_disposed)
+            {
+                _reader.Dispose();
+                _command.Dispose();
+                _disposed = true;
+            }
+
+        }
     }
-
-    internal static OS GetOS()
-    {
-      if (Path.DirectorySeparatorChar == '/')
-        return OS.Linux;
-      if (Path.DirectorySeparatorChar == '\\')
-        return OS.Windows;
-      else
-        return OS.MacOS;
-    }
-  }
 }

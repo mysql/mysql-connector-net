@@ -39,8 +39,7 @@ namespace MySql.Data.MySqlClient.Memcached
     private static readonly string PROTOCOL_CAS = "cas";
     private static readonly string PROTOCOL_DECREMENT = "decr";
     private static readonly string PROTOCOL_DELETE = "delete";
-    private static readonly string PROTOCOL_FLUSHALL = "flush_all";
-    private static readonly string PROTOCOL_GET = "get";
+    private static readonly string PROTOCOL_FLUSHALL = "flush_all";    
     private static readonly string PROTOCOL_GETS = "gets";
     private static readonly string PROTOCOL_INCREMENT = "incr";
     private static readonly string PROTOCOL_PREPEND = "prepend";
@@ -146,7 +145,8 @@ namespace MySql.Data.MySqlClient.Memcached
     /// <param name="key"></param>
     /// <param name="data"></param>
     /// <param name="expiration"></param>
-    /// <remarks>This version is for commands that take a key, data, expiration & casUnique.</remarks>
+    /// <param name="casUnique"></param>
+    /// <remarks>This version is for commands that take a key, data, expiration and casUnique.</remarks>
     private void SendCommand(string cmd, string key, object data, TimeSpan expiration, ulong casUnique)
     {
       StringBuilder sb = new StringBuilder();
@@ -170,7 +170,7 @@ namespace MySql.Data.MySqlClient.Memcached
     /// <param name="key"></param>
     /// <param name="data"></param>
     /// <param name="expiration"></param>
-    /// <remarks>This version is for commands that take a key, data & expiration</remarks>
+    /// <remarks>This version is for commands that take a key, data and expiration</remarks>
     private void SendCommand(string cmd, string key, object data, TimeSpan expiration)
     {
       StringBuilder sb = new StringBuilder();
@@ -191,8 +191,7 @@ namespace MySql.Data.MySqlClient.Memcached
     /// </summary>
     /// <param name="cmd"></param>
     /// <param name="key"></param>
-    /// <param name="data"></param>
-    /// <param name="?"></param>
+    /// <param name="data"></param>    
     /// <remarks>This version is for commands that don't need flags neither expiration fields.</remarks>
     private void SendCommand(string cmd, string key, object data )
     {
@@ -234,7 +233,7 @@ namespace MySql.Data.MySqlClient.Memcached
     /// </summary>
     /// <param name="cmd"></param>
     /// <param name="key"></param>
-    /// <remarks>This version is for commands that only require a key & an integer value.</remarks>
+    /// <remarks>This version is for commands that only require a key and an integer value.</remarks>
     private void SendCommand(string cmd, string key, int amount )
     {
       StringBuilder sb = new StringBuilder();
@@ -251,7 +250,7 @@ namespace MySql.Data.MySqlClient.Memcached
     /// <param name="cmd"></param>
     /// <param name="key"></param>
     /// <param name="expiration"></param>
-    /// <remarks>This version is for commands that only require a key & expiration.</remarks>
+    /// <remarks>This version is for commands that only require a key and expiration.</remarks>
     private void SendCommand(string cmd, TimeSpan expiration)
     {
       StringBuilder sb = new StringBuilder();

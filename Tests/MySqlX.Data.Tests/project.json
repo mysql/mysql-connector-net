@@ -1,8 +1,8 @@
 {
-  "version": "7.0.6-IR3",
+  "version": "7.0.7-IR4",
   "description": "MySqlX.Data.Tests Class Library",
   "authors": [ "Oracle" ],
-  "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
+  "copyright": "Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.",
 
   "packOptions": {
     "projectUrl": "http://dev.mysql.com/downloads/",
@@ -14,7 +14,7 @@
   "dependencies": {
     "dotnet-test-xunit": "2.2.0-*",
     "xunit": "2.2.0-*",
-    "Google.Protobuf": "3.0.0-beta4",
+    "Google.Protobuf": "3.0.0",
     "MySql.Data": {
       "target": "project"
     }
@@ -45,6 +45,9 @@
       }
     },
     "net451": {
+      "dependencies": {
+        "xunit.runner.visualstudio": "2.2.0"
+      }
     }
   },
   "configurations": {
@@ -62,7 +65,8 @@
         "embed": [ "Properties/CreateUsers.sql" ],
         "optimize": true,
         "preserveCompilationContext": true,
-        "xmlDoc": true
+        "xmlDoc": true,
+        "nowarn": [ "CS1591" ]
       }
     }
   },

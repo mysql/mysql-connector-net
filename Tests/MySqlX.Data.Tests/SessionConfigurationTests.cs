@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -214,6 +214,17 @@ namespace MySqlX.Data.Tests
       sc = SessionConfigManager.Get("Update");
       Assert.Equal("Update", sc.Name);
       Assert.Equal("mysqlx://localhost/database20", sc.Uri);
+    }
+
+    [Fact]
+    public void Validations()
+    {
+      Assert.Throws<ArgumentNullException>(() => SessionConfigManager.Save(null, (string)null));
+      Assert.Equal("Name", Assert.Throws<ArgumentException>(() => SessionConfigManager.Save("@#!^^^", "")).ParamName);
+      Assert.Equal("Name", Assert.Throws<ArgumentException>(() => SessionConfigManager.Save("1 name", "mysqlx://localhost", (string)null)).ParamName);
+      Assert.Equal("Name", Assert.Throws<ArgumentException>(() => SessionConfigManager.Save("1!name", "mysqlx://localhost", (string)null)).ParamName);
+      Assert.Equal("Name", Assert.Throws<ArgumentException>(() => SessionConfigManager.Save("1@name", "mysqlx://localhost", (string)null)).ParamName);
+      Assert.Equal("Name", Assert.Throws<ArgumentException>(() => SessionConfigManager.Save("1name%", "mysqlx://localhost", (string)null)).ParamName);
     }
   }
 }

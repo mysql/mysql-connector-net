@@ -72,23 +72,12 @@ namespace MySql.Data.MySqlClient
     public override IsolationLevel IsolationLevel { get; }
 
     #endregion
+    
 
-    public new void Dispose()
-    {
-      Dispose(true);
-      GC.SuppressFinalize(this);
-    }
-
-#if NETCORE10
-    protected void Dispose(bool disposing)
-#else
     protected override void Dispose(bool disposing)
-#endif
     {
       if (disposed) return;
-#if !NETCORE10
       base.Dispose(disposing);
-#endif
       if (disposing)
       {
         if ((Connection != null && Connection.State == ConnectionState.Open || Connection.SoftClosed) && open)

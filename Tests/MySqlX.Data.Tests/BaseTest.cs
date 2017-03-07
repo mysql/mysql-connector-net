@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -43,32 +43,34 @@ namespace MySqlX.Data.Tests
     public static string ConnectionStringRoot { get; private set; }
 
 #if NETCORE10
-        private static ConfigUtils config = new ConfigUtils("appsettings.json");
+    private static ConfigUtils config = new ConfigUtils(Path.GetFullPath(@"../..") + @"/appsettings.json");
 #endif
 
-        static BaseTest()
+    static BaseTest()
     {
+#if NETCORE10
+      Port = config.GetValue("MySql:Data:Port") ?? "3306";
+      XPort = config.GetValue("MySqlX:Data:Port") ?? "33060";
+#else
+      Port = "3305";
+      XPort = "33050";
+#endif
       schemaName = "test";
-      ConnectionStringRoot = $"server=localhost;port={Port()};uid=root;password=";
-      ConnectionString = "server=localhost;port=33060;uid=test;password=test";
-      ConnectionStringNoPassword = "server=localhost;port=33060;uid=testNoPass;";
-      ConnectionStringUri = "mysqlx://test:test@localhost:33060";
+      ConnectionStringRoot = $"server=localhost;port={Port};uid=root;password=";
+      ConnectionString = $"server=localhost;port={XPort};uid=test;password=test";
+      ConnectionStringNoPassword = $"server=localhost;port={XPort};uid=testNoPass;";
+      ConnectionStringUri = $"mysqlx://test:test@localhost:{XPort}";
     }
 
-    private static string Port()
+    protected static string Port
     {
-#if NETCORE10           
-        string port = config.GetPort();
-        if (!string.IsNullOrEmpty(port))
-        {
-            return port;
-        }
-        return "3306";
-#else
-        
-        return "3305";
-#endif
-        }
+      get; private set;
+    }
+
+    protected static string XPort
+    {
+      get; private set;
+    }
 
     public BaseTest()
     {
@@ -117,7 +119,10 @@ namespace MySqlX.Data.Tests
     public NodeSession GetNodeSession()
     {
       if (nodeSession == null)
+      {
         nodeSession = MySQLX.GetNodeSession(ConnectionString);
+        nodeSession.SetCurrentSchema(schemaName);
+      }
       return nodeSession;
     }
 
@@ -130,7 +135,7 @@ namespace MySqlX.Data.Tests
       rootConn.Close();
     }
 
-    public void Dispose()
+    public virtual void Dispose()
     {
       using (XSession s = GetSession())
       {

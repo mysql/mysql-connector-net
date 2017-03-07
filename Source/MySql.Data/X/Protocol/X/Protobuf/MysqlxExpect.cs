@@ -10,8 +10,7 @@ using scg = global::System.Collections.Generic;
 namespace Mysqlx.Expect {
 
   /// <summary>Holder for reflection information generated from mysqlx_expect.proto</summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-  public static partial class MysqlxExpectReflection {
+  internal static partial class MysqlxExpectReflection {
 
     #region Descriptor
     /// <summary>File descriptor for mysqlx_expect.proto</summary>
@@ -52,30 +51,35 @@ namespace Mysqlx.Expect {
   ///
   ///  :returns: :protobuf:msg:`Mysqlx::Ok` on success, :protobuf:msg:`Mysqlx::Error` on error
   /// </summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-  public sealed partial class Open : pb::IMessage<Open> {
+  internal sealed partial class Open : pb::IMessage<Open> {
     private static readonly pb::MessageParser<Open> _parser = new pb::MessageParser<Open>(() => new Open());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<Open> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
       get { return global::Mysqlx.Expect.MysqlxExpectReflection.Descriptor.MessageTypes[0]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Open() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Open(Open other) : this() {
       op_ = other.op_;
       cond_ = other.cond_.Clone();
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Open Clone() {
       return new Open(this);
     }
@@ -83,6 +87,7 @@ namespace Mysqlx.Expect {
     /// <summary>Field number for the "op" field.</summary>
     public const int OpFieldNumber = 1;
     private global::Mysqlx.Expect.Open.Types.CtxOperation op_ = 0;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Expect.Open.Types.CtxOperation Op {
       get { return op_; }
       set {
@@ -95,14 +100,17 @@ namespace Mysqlx.Expect {
     private static readonly pb::FieldCodec<global::Mysqlx.Expect.Open.Types.Condition> _repeated_cond_codec
         = pb::FieldCodec.ForMessage(18, global::Mysqlx.Expect.Open.Types.Condition.Parser);
     private readonly pbc::RepeatedField<global::Mysqlx.Expect.Open.Types.Condition> cond_ = new pbc::RepeatedField<global::Mysqlx.Expect.Open.Types.Condition>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public pbc::RepeatedField<global::Mysqlx.Expect.Open.Types.Condition> Cond {
       get { return cond_; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as Open);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(Open other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -115,6 +123,7 @@ namespace Mysqlx.Expect {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       if (Op != 0) hash ^= Op.GetHashCode();
@@ -122,10 +131,12 @@ namespace Mysqlx.Expect {
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
       if (Op != 0) {
         output.WriteRawTag(8);
@@ -134,6 +145,7 @@ namespace Mysqlx.Expect {
       cond_.WriteTo(output, _repeated_cond_codec);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       if (Op != 0) {
@@ -143,6 +155,7 @@ namespace Mysqlx.Expect {
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(Open other) {
       if (other == null) {
         return;
@@ -153,6 +166,7 @@ namespace Mysqlx.Expect {
       cond_.Add(other.cond_);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -174,9 +188,9 @@ namespace Mysqlx.Expect {
 
     #region Nested types
     /// <summary>Container for nested types declared in the Open message type.</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-    public static partial class Types {
-      public enum CtxOperation {
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    internal static partial class Types {
+      internal enum CtxOperation {
         /// <summary>
         ///  copy the operations from the parent Expect-block
         /// </summary>
@@ -187,31 +201,36 @@ namespace Mysqlx.Expect {
         [pbr::OriginalName("EXPECT_CTX_EMPTY")] ExpectCtxEmpty = 1,
       }
 
-      [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-      public sealed partial class Condition : pb::IMessage<Condition> {
+      internal sealed partial class Condition : pb::IMessage<Condition> {
         private static readonly pb::MessageParser<Condition> _parser = new pb::MessageParser<Condition>(() => new Condition());
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public static pb::MessageParser<Condition> Parser { get { return _parser; } }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public static pbr::MessageDescriptor Descriptor {
           get { return global::Mysqlx.Expect.Open.Descriptor.NestedTypes[0]; }
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         pbr::MessageDescriptor pb::IMessage.Descriptor {
           get { return Descriptor; }
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public Condition() {
           OnConstruction();
         }
 
         partial void OnConstruction();
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public Condition(Condition other) : this() {
           conditionKey_ = other.conditionKey_;
           conditionValue_ = other.conditionValue_;
           op_ = other.op_;
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public Condition Clone() {
           return new Condition(this);
         }
@@ -222,6 +241,7 @@ namespace Mysqlx.Expect {
         /// <summary>
         /// required
         /// </summary>
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public uint ConditionKey {
           get { return conditionKey_; }
           set {
@@ -232,6 +252,7 @@ namespace Mysqlx.Expect {
         /// <summary>Field number for the "condition_value" field.</summary>
         public const int ConditionValueFieldNumber = 2;
         private pb::ByteString conditionValue_ = pb::ByteString.Empty;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public pb::ByteString ConditionValue {
           get { return conditionValue_; }
           set {
@@ -242,6 +263,7 @@ namespace Mysqlx.Expect {
         /// <summary>Field number for the "op" field.</summary>
         public const int OpFieldNumber = 3;
         private global::Mysqlx.Expect.Open.Types.Condition.Types.ConditionOperation op_ = 0;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public global::Mysqlx.Expect.Open.Types.Condition.Types.ConditionOperation Op {
           get { return op_; }
           set {
@@ -249,10 +271,12 @@ namespace Mysqlx.Expect {
           }
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public override bool Equals(object other) {
           return Equals(other as Condition);
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public bool Equals(Condition other) {
           if (ReferenceEquals(other, null)) {
             return false;
@@ -266,6 +290,7 @@ namespace Mysqlx.Expect {
           return true;
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public override int GetHashCode() {
           int hash = 1;
           if (ConditionKey != 0) hash ^= ConditionKey.GetHashCode();
@@ -274,10 +299,12 @@ namespace Mysqlx.Expect {
           return hash;
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public override string ToString() {
           return pb::JsonFormatter.ToDiagnosticString(this);
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public void WriteTo(pb::CodedOutputStream output) {
           if (ConditionKey != 0) {
             output.WriteRawTag(8);
@@ -293,6 +320,7 @@ namespace Mysqlx.Expect {
           }
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public int CalculateSize() {
           int size = 0;
           if (ConditionKey != 0) {
@@ -307,6 +335,7 @@ namespace Mysqlx.Expect {
           return size;
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public void MergeFrom(Condition other) {
           if (other == null) {
             return;
@@ -322,6 +351,7 @@ namespace Mysqlx.Expect {
           }
         }
 
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public void MergeFrom(pb::CodedInputStream input) {
           uint tag;
           while ((tag = input.ReadTag()) != 0) {
@@ -347,9 +377,9 @@ namespace Mysqlx.Expect {
 
         #region Nested types
         /// <summary>Container for nested types declared in the Condition message type.</summary>
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        public static partial class Types {
-          public enum ConditionOperation {
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        internal static partial class Types {
+          internal enum ConditionOperation {
             /// <summary>
             ///  set the condition
             ///
@@ -381,36 +411,43 @@ namespace Mysqlx.Expect {
   ///
   ///  :returns: :protobuf:msg:`Mysqlx::Ok` on success, :protobuf:msg:`Mysqlx::Error` on error
   /// </summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-  public sealed partial class Close : pb::IMessage<Close> {
+  internal sealed partial class Close : pb::IMessage<Close> {
     private static readonly pb::MessageParser<Close> _parser = new pb::MessageParser<Close>(() => new Close());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<Close> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
       get { return global::Mysqlx.Expect.MysqlxExpectReflection.Descriptor.MessageTypes[1]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Close() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Close(Close other) : this() {
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Close Clone() {
       return new Close(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as Close);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(Close other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -421,29 +458,35 @@ namespace Mysqlx.Expect {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(Close other) {
       if (other == null) {
         return;
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {

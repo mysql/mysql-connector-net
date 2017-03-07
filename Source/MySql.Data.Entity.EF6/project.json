@@ -1,10 +1,10 @@
 ﻿{
-  "version": "7.0.6-IR3",
+  "version": "7.0.7-IR4",
   "description": "MySql.Data.Entity.EF6",
   "authors": [
     "Oracle"
   ],
-  "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
+  "copyright": "Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.",
   "language": "en-US",
   "packOptions": {
     "projectUrl": "http://dev.mysql.com/downloads/",
@@ -16,6 +16,9 @@
       "MySql Connector/NET"
     ],
     "requireLicenseAcceptance": true
+  },
+  "buildOptions": {
+    "nowarn": [ "CS1591" ]
   },
   "dependencies": {
     "EntityFramework": "6.1.3",

@@ -28,39 +28,39 @@ using Xunit;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class BlobTests : TestBase, IDisposable
+  public class CompressBlobTests : TestBase, IDisposable
   {
-    protected TestSetup ts;
+    protected TestSetup Ts;
 
-    public BlobTests(TestSetup setup) : base(setup, "blob")
+    public CompressBlobTests(TestSetup setup) : base(setup, "compress_blob")
     {
-      ts = setup;      
-      customConnection = new MySqlConnection(ts.GetConnection(false).ConnectionString + ";" + OnGetConnectionStringInfo());
+      Ts = setup;
+      customConnection = new MySqlConnection(Ts.GetConnection().ConnectionString + ";" + OnGetConnectionStringInfo());
       customConnection.Open();
     }
 
 
-    protected BlobTests(TestSetup setup, String nameSpace) : base(setup, nameSpace)
+    protected CompressBlobTests(TestSetup setup, String nameSpace) : base(setup, nameSpace)
     {
-      ts = setup;      
-      customConnection = new MySqlConnection(ts.GetConnection(false).ConnectionString + ";" + OnGetConnectionStringInfo());
+      Ts = setup;
+      customConnection = new MySqlConnection(Ts.GetConnection().ConnectionString + ";" + OnGetConnectionStringInfo());
       customConnection.Open();
     }
 
-    protected override string OnGetConnectionStringInfo()
+    protected sealed override string OnGetConnectionStringInfo()
     {
-      return "SSL Mode=Required;";
+      return "ssl mode=Preferred;Use Compression=True";
     }
 
     [Fact]
     public void InsertNullBinary()
-    {  
+    {
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test (id INT NOT NULL, blob1 LONGBLOB, PRIMARY KEY(id))");
 
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?id, ?b1)", customConnection);
       cmd.Parameters.Add(new MySqlParameter("?id", 1));
-      cmd.Parameters.Add(new MySqlParameter("?b1", null));      
+      cmd.Parameters.Add(new MySqlParameter("?b1", null));
       int rows = cmd.ExecuteNonQuery();
 
       cmd.CommandText = "SELECT * FROM Test";
@@ -74,17 +74,17 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact]    
+    [Fact]
     public void InsertBinary()
     {
-      int lenIn = 400000;
+      int lenIn = 40000;
       byte[] dataIn = Utils.CreateBlob(lenIn);
 
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test (id INT NOT NULL, blob1 LONGBLOB, PRIMARY KEY(id))");
 
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?id, ?b1)", customConnection);
-      cmd.Parameters.Add(new MySqlParameter("?id", 1));   
+      cmd.Parameters.Add(new MySqlParameter("?id", 1));
       cmd.Parameters.Add(new MySqlParameter("?b1", dataIn));
       int rows = cmd.ExecuteNonQuery();
 
@@ -148,7 +148,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     private void InternalGetChars(bool prepare)
-    {    
+    {
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test (id INT NOT NULL, text1 LONGTEXT, PRIMARY KEY(id))");
 
@@ -251,7 +251,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       //if (connection.connectionState != ConnectionState.Open)
       //  connection.Open();
-      
+
       executeSQL("CREATE TABLE Test1 (id INT NOT NULL, blob1 LONGBLOB, text1 LONGTEXT, PRIMARY KEY(id))");
       executeSQL("INSERT INTO Test1 (id, text1) VALUES(1, 'Test')");
 
@@ -270,8 +270,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void MediumIntBlobSize()
     {
-      executeSQL("DROP TABLE IF EXISTS Test");      
-      
+      executeSQL("DROP TABLE IF EXISTS Test");
+
       executeSQL("CREATE TABLE test (id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, " +
          "image MEDIUMBLOB NOT NULL, imageSize MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT 0, " +
          "PRIMARY KEY (id))");
@@ -305,22 +305,22 @@ namespace MySql.Data.MySqlClient.Tests
 
     [Fact]
     public void BlobBiggerThanMaxPacket()
-    {      
+    {
       executeAsRoot("SET GLOBAL max_allowed_packet=" + 500 * 1024);
 
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE test (id INT(10), image BLOB)");
 
-      using (var c = GetConnection())
+      using (MySqlConnection c = new MySqlConnection(customConnection.ConnectionString))
       {
         c.Open();
         byte[] image = Utils.CreateBlob(1000000);
 
         MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES(NULL, ?image)", c);
         cmd.Parameters.AddWithValue("?image", image);
-          
+
         Exception ex = Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());
-        Assert.Equal(ex.Message, "Packets larger than max_allowed_packet are not allowed.");
+        Assert.Equal("Packets larger than max_allowed_packet are not allowed.", ex.Message);
       }
     }
 
@@ -363,7 +363,7 @@ namespace MySql.Data.MySqlClient.Tests
 #endif
 
     public override void Dispose()
-    {      
+    {
       customConnection.Close();
       base.Dispose();
     }

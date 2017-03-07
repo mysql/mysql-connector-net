@@ -51,7 +51,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void Connection()
     {
 
-      MySqlConnection c = new MySqlConnection(connection.ConnectionString);
+      MySqlConnection c = new MySqlConnection(ts.GetPoolingConnectionString());
       c.Open();
       int serverThread = c.ServerThread;
       c.Close();
@@ -59,7 +59,7 @@ namespace MySql.Data.MySqlClient.Tests
       // first test that only a single connection get's used
       for (int i = 0; i < 10; i++)
       {
-        c = new MySqlConnection(connection.ConnectionString);
+        c = new MySqlConnection(ts.GetPoolingConnectionString());
         c.Open();
         Assert.Equal(serverThread, c.ServerThread);
         c.Close();
@@ -69,11 +69,11 @@ namespace MySql.Data.MySqlClient.Tests
       ts.KillConnection(c);
       c.Close();
 
-      connection.ConnectionString += ";Min Pool Size=10";
+      string poolingCS = ts.GetPoolingConnectionString() + ";Min Pool Size=10";
       MySqlConnection[] connArray = new MySqlConnection[10];
       for (int i = 0; i < connArray.Length; i++)
       {
-        connArray[i] = new MySqlConnection(connection.ConnectionString);
+        connArray[i] = new MySqlConnection(poolingCS);
         connArray[i].Open();
       }
 
@@ -150,7 +150,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void TestUserReset()
     {
-      string connStr = ts.GetPoolingConnectionString();
+      string connStr = ts.GetPoolingConnectionString() + ";connection reset=true;";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -272,13 +272,13 @@ namespace MySql.Data.MySqlClient.Tests
     {
       if (ts.version < new Version(5, 0)) return;
 
-      executeSQL("DROP TABLE IF EXISTS test");
+      executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test (id INT, name VARCHAR(50))");
-      executeSQL("CREATE PROCEDURE spTest(theid INT) BEGIN SELECT * FROM test WHERE id=theid; END");
-      executeSQL("INSERT INTO test VALUES (1, 'First')");
-      executeSQL("INSERT INTO test VALUES (2, 'Second')");
-      executeSQL("INSERT INTO test VALUES (3, 'Third')");
-      executeSQL("INSERT INTO test VALUES (4, 'Fourth')");
+      executeSQL("CREATE PROCEDURE spTest(theid INT) BEGIN SELECT * FROM Test WHERE id=theid; END");
+      executeSQL("INSERT INTO Test VALUES (1, 'First')");
+      executeSQL("INSERT INTO Test VALUES (2, 'Second')");
+      executeSQL("INSERT INTO Test VALUES (3, 'Third')");
+      executeSQL("INSERT INTO Test VALUES (4, 'Fourth')");
 
       string connStr = ts.GetPoolingConnectionString();
 

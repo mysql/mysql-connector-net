@@ -1,10 +1,10 @@
 {
-  "version": "7.0.6-IR3",
+  "version": "7.0.7-IR4",
   "description": "MySql.Data.MySqlClient .Net Core Class Library",
   "authors": [
     "Oracle"
   ],
-  "copyright": "Copyright © 2016, Oracle and/or its affiliates. All rights reserved.",
+  "copyright": "Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.",
   "language": "en-US",
   "packOptions": {
     "projectUrl": "http://dev.mysql.com/downloads/",
@@ -23,7 +23,7 @@
     ],
     "files": {
       "includeFiles": [
-        "Content/ReleaseNotes.txt"
+        "../../Release Notes.txt"
       ],
       "include": [
         "../../README"
@@ -35,7 +35,8 @@
   "buildOptions": {
     "keyFile": "../../ConnectorNetPublicKey.snk",
     "delaySign": true,
-    "publicSign": false
+    "publicSign": false,
+    "nowarn": [ "CS1591" ]
   }, 
   "dependencies": {
     "Google.Protobuf": "3.0.0",
@@ -48,7 +49,7 @@
         "System.Data": "",
         "System.Drawing": "",
         "System.Drawing.Design": "",
-        "System.Transactions": "",        
+        "System.Transactions": "",
         "System.Configuration": "",
         "System.Configuration.Install": "",
         "System.Management": "",
@@ -57,6 +58,19 @@
           "type": "build"
         }
       },
+      "buildOptions": {
+        "embed": [
+          "keywords.txt",
+          "Resources.resx",
+          "ResourcesX.resx",
+          "Properties/ReservedWords.txt"
+        ],
+        "compile": {
+          "exclude": [
+            "Framework/NetCore10/*.*"
+          ]
+        }        
+        },
       "dependencies": {}
     },
     "netstandard1.6": {
@@ -66,10 +80,12 @@
           "NETCORE10"
         ],
         "warningsAsErrors": false,
+        "nowarn": [ "CS1591" ],
         "embed": [
           "keywords.txt",
           "Resources.resx",
-          "ResourcesX.resx"
+          "ResourcesX.resx",
+          "Properties/ReservedWords.txt"
         ],
         "resource": [
           "**/*.resx"
@@ -78,7 +94,6 @@
           "exclude": [
             "Framework/Net451/**/*.*",
             "Replication/**/*.*",
-            "zlib/**/*.*",
             "TimeStream.cs",
             "**/._*"
           ],
@@ -102,8 +117,7 @@
             "common/NativeMethods.cs",
             "common/SHA1.cs",
             "common/SharedMemoryStream.cs",
-            "common/SocketStream.cs",
-            "CompressedStream.cs"
+            "common/SocketStream.cs"
           ]
         }
       },
@@ -140,7 +154,7 @@
     "Debug": {
       "buildOptions": {
         "define": [
-          "DEBUG"
+          "DEBUG", "TRACE"
         ],
         "optimize": false,
         "preserveCompilationContext": true
@@ -153,7 +167,8 @@
         ],
         "optimize": true,
         "preserveCompilationContext": true,
-        "xmlDoc": true
+        "xmlDoc": true,
+        "nowarn": [ "CS1591" ]
       }
     }
   }

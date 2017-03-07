@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -206,10 +206,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void SslCertificate()
     {
-      string path = string.Empty;
-#if NETCORE10
-      path += "../MySql.Data.Tests/";
-#endif
+      string path = "../MySql.Data.Tests/";
       string connstring = ConnectionStringUri + $"/?ssl-ca={path}client.pfx&ssl-ca-pwd=pass";
       using (var s3 = MySQLX.GetNodeSession(connstring))
       {
@@ -237,6 +234,40 @@ namespace MySqlX.Data.Tests
     {
       string connstring = ConnectionStringUri + "/?ssl-crl=crlcert.pfx";
       Assert.Throws<NotSupportedException>(() => MySQLX.GetNodeSession(connstring));
+    }
+
+    [Fact]
+    public void IPv6()
+    {
+      MySqlConnectionStringBuilder csBuilder = new MySqlConnectionStringBuilder(ConnectionString);
+      csBuilder.Server = "::1";
+      csBuilder.Port = uint.Parse(XPort);
+
+      using (var session = MySQLX.GetSession(csBuilder.ToString()))
+      {
+        Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
+      }
+    }
+
+    [Fact]
+    public void IPv6AsUrl()
+    {
+      MySqlConnectionStringBuilder csBuilder = new MySqlConnectionStringBuilder(ConnectionString);
+      string connString = $"mysqlx://{csBuilder.UserID}:{csBuilder.Password}@[::1]:{XPort}";
+      using (XSession session = MySQLX.GetSession(connString))
+      {
+        Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
+      }
+    }
+
+    [Fact]
+    public void IPv6AsAnonymous()
+    {
+      MySqlConnectionStringBuilder csBuilder = new MySqlConnectionStringBuilder(ConnectionString);
+      using (XSession session = MySQLX.GetSession(new { server = "::1", user = csBuilder.UserID, password = csBuilder.Password, port = XPort }))
+      {
+        Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
+      }
     }
   }
 }

@@ -695,13 +695,13 @@ namespace MySql.Data.MySqlClient.Tests
 
     [Fact]
     public void SnapshotIsolationLevelThrowsNotSupportedException()
-    {
-      using (MySqlConnection connection = new MySqlConnection(connection.ConnectionString))
-      {
-        connection.Open();        
-        Exception ex = Assert.Throws<NotSupportedException>(() => connection.BeginTransaction(System.Data.IsolationLevel.Snapshot));
-        Assert.Equal(ex.Message, "Snapshot isolation level is not supported.");
-      }
+    {        
+        using (MySqlConnection newcon = new MySqlConnection(connection.ConnectionString))
+        {
+          newcon.Open();            
+          var ex = Assert.Throws<NotSupportedException>(() => newcon.BeginTransaction(System.Data.IsolationLevel.Snapshot));
+          Assert.Equal(ex.Message, "Snapshot isolation level is not supported.");            
+        }
     }
 
     private void DoThreadWork()

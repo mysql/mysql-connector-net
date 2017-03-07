@@ -25,16 +25,18 @@ namespace MySql.Data.MySqlClient
 {
 #if NETCORE10
     using Microsoft.Extensions.Configuration;
+    using System;
+    using System.Diagnostics;
     using System.IO;
+    using System.Runtime.InteropServices;
 
     public class ConfigUtils
-  {
+    {
       private IConfiguration _configuration; 
       public ConfigUtils(string settingsFile)
       {
-          var builder = new ConfigurationBuilder()
-                        .SetBasePath(Path.GetFullPath(@"../.."))
-                        .AddJsonFile(settingsFile, false);
+          var builder = new ConfigurationBuilder()                        
+                        .AddJsonFile(settingsFile, false);        
           _configuration = builder.Build();
       }
 
@@ -48,6 +50,39 @@ namespace MySql.Data.MySqlClient
       {
           return GetValue("MySql:Data:Port");
       }
-  }
+    }
+
+    public enum PlatformRunning
+    {
+        Windows,
+        Linux,
+        OsX,
+        Unsupported
+    }
+
+    public static class PlatformUtils
+    {
+      public static PlatformRunning OsPlatform
+        { 
+           get {
+                if (File.Exists(@"/proc/sys/kernel/ostype"))
+                {
+                    string osType = File.ReadAllText(@"/proc/sys/kernel/ostype");
+                    if (osType.StartsWith("Linux", StringComparison.OrdinalIgnoreCase))
+                        return PlatformRunning.Linux;
+                }
+                else if (File.Exists(@"/System/Library/CoreServices/SystemVersion.plist"))
+                    return PlatformRunning.OsX;
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    return PlatformRunning.Windows;
+                return PlatformRunning.Unsupported;
+            }
+        }
+
+        public static string OSDescription()
+        {
+            return RuntimeInformation.OSDescription;
+        }
+    }
 #endif
 }

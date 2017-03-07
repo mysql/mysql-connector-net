@@ -57,7 +57,7 @@ namespace MySql.Data.MySqlClient
     public TimedStream(Stream baseStream)
     {
       this._baseStream = baseStream;
-      _timeout = 30000; // baseStream.ReadTimeout;
+      _timeout = baseStream.CanTimeout ? baseStream.ReadTimeout : System.Threading.Timeout.Infinite;
       IsClosed = false;
       _stopwatch = new LowResolutionStopwatch();
     }
@@ -75,6 +75,7 @@ namespace MySql.Data.MySqlClient
 
     private bool ShouldResetStreamTimeout(int currentValue, int newValue)
     {
+      if (!_baseStream.CanTimeout) return false;
       if (newValue == System.Threading.Timeout.Infinite
           && currentValue != newValue)
         return true;
@@ -96,15 +97,15 @@ namespace MySql.Data.MySqlClient
       {
         if (ShouldResetStreamTimeout(_lastReadTimeout, streamTimeout))
         {
-          //_baseStream.ReadTimeout = streamTimeout;
-          //_lastReadTimeout = streamTimeout;
+          _baseStream.ReadTimeout = streamTimeout;
+          _lastReadTimeout = streamTimeout;
         }
       }
       else
       {
         if (ShouldResetStreamTimeout(_lastWriteTimeout, streamTimeout))
         {
-          //_baseStream.WriteTimeout = streamTimeout;
+          _baseStream.WriteTimeout = streamTimeout;
           _lastWriteTimeout = streamTimeout;
         }
       }
@@ -228,15 +229,13 @@ namespace MySql.Data.MySqlClient
 
     public override int ReadTimeout
     {
-      get { return 30000; } /// _baseStream.ReadTimeout; }
-      set { }
-      //_baseStream.ReadTimeout = value; }
+      get { return _baseStream.ReadTimeout; }
+      set { _baseStream.ReadTimeout = value; }
     }
     public override int WriteTimeout
     {
-      get { return 30000; } // _baseStream.WriteTimeout; }
-      set { }
-      //_baseStream.WriteTimeout = value; }
+      get { return _baseStream.WriteTimeout; }
+      set { _baseStream.WriteTimeout = value; }
     }
 
 #if NETCORE10

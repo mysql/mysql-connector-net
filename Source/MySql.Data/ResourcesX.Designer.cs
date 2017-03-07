@@ -38,8 +38,12 @@ namespace MySql.Data {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MySql.Data.ResourcesX", typeof(ResourcesX).GetTypeInfo().Assembly);
-                    resourceMan = temp;
+#if NETCORE10
+          global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager(typeof(ResourcesX));
+#else
+          global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MySql.Data.ResourcesX", typeof(ResourcesX).Assembly);
+#endif
+          resourceMan = temp;
                 }
                 return resourceMan;
             }
@@ -56,6 +60,15 @@ namespace MySql.Data {
             }
             set {
                 resourceCulture = value;
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Appdata path is not defined..
+        /// </summary>
+        public static string AppdataNotDefined {
+            get {
+                return ResourceManager.GetString("AppdataNotDefined", resourceCulture);
             }
         }
         
@@ -231,20 +244,20 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///    Looks up a localized string similar to ProgramData path is not defined..
+        /// </summary>
+        public static string ProgramDataNotDefined {
+            get {
+                return ResourceManager.GetString("ProgramDataNotDefined", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///    Looks up a localized string similar to Removing a document from a collection requires an _id property..
         /// </summary>
         public static string RemovingRequiresId {
             get {
                 return ResourceManager.GetString("RemovingRequiresId", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///    Looks up a localized string similar to Some string value.
-        /// </summary>
-        public static string TestingResources {
-            get {
-                return ResourceManager.GetString("TestingResources", resourceCulture);
             }
         }
         

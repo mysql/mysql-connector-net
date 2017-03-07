@@ -842,10 +842,10 @@ namespace MySql.Data.MySqlClient
 #if !NETCORE10
       dt.AddColumn(DbMetaDataColumnNames.ReservedWord, typeof(string));
       Stream str = Assembly.GetExecutingAssembly().GetManifestResourceStream(
-        "MySql.Data.MySqlClient.Properties.ReservedWords.txt");
+        "MySql.Data.Properties.ReservedWords.txt");
 #else
       dt.AddColumn("ReservedWord", typeof(string));
-      Stream str = typeof(SchemaProvider).GetTypeInfo().Assembly.GetManifestResourceStream("MySql.Data.MySqlClient.Properties.ReservedWords.txt");
+      Stream str = typeof(SchemaProvider).GetTypeInfo().Assembly.GetManifestResourceStream("MySql.Data.Properties.ReservedWords.txt");
 #endif
 
       StreamReader sr = new StreamReader(str);

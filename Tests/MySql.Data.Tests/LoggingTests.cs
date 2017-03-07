@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2015 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -42,6 +42,8 @@ namespace MySql.Data.MySqlClient.Tests
       Setup.Settings.Logging = true;
     }
 
+#if !NETCORE10
+
     [Fact]
     public void SimpleLogging()
     {
@@ -53,7 +55,10 @@ namespace MySql.Data.MySqlClient.Tests
 
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
+
+
       GenericListener listener = new GenericListener();
+
       MySqlTrace.Listeners.Add(listener);
 
       using (MySqlConnection logConn = new MySqlConnection(Settings.GetConnectionString(true)))
@@ -76,10 +81,10 @@ namespace MySql.Data.MySqlClient.Tests
     public void Warnings()
     {
       executeSQL("CREATE TABLE Test(id INT, name VARCHAR(5))");
-
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
       GenericListener listener = new GenericListener();
+
       MySqlTrace.Listeners.Add(listener);
 
       using (MySqlConnection logConnection = new MySqlConnection(Settings.GetConnectionString(true)))
@@ -149,6 +154,6 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
     }
-
+#endif
   }
 }

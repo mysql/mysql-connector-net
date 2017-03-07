@@ -133,8 +133,10 @@ namespace MySql.Data.MySqlClient
 
       try
       {
+#if !NETCORE10
         if (MySqlTrace.QueryAnalysisEnabled || settings.Logging || settings.UseUsageAdvisor)
           d = new TracingDriver(settings);
+#endif
       }
       catch (TypeInitializationException ex)
       {
@@ -376,7 +378,7 @@ namespace MySql.Data.MySqlClient
         return null;
       firstResult = false;
 
-      int affectedRows = -1, warnings = 0;
+      int affectedRows = -1;
       long insertedId = -1;
       int fieldCount = GetResult(statementId, ref affectedRows, ref insertedId);
       if (fieldCount == -1)

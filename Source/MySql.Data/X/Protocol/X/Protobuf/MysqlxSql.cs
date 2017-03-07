@@ -10,8 +10,7 @@ using scg = global::System.Collections.Generic;
 namespace Mysqlx.Sql {
 
   /// <summary>Holder for reflection information generated from mysqlx_sql.proto</summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-  public static partial class MysqlxSqlReflection {
+  internal static partial class MysqlxSqlReflection {
 
     #region Descriptor
     /// <summary>File descriptor for mysqlx_sql.proto</summary>
@@ -59,25 +58,29 @@ namespace Mysqlx.Sql {
   ///  :returns:
   ///     * zero or one :protobuf:msg:`Mysqlx.Resultset::` followed by :protobuf:msg:`Mysqlx.Sql::StmtExecuteOk`
   /// </summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-  public sealed partial class StmtExecute : pb::IMessage<StmtExecute> {
+  internal sealed partial class StmtExecute : pb::IMessage<StmtExecute> {
     private static readonly pb::MessageParser<StmtExecute> _parser = new pb::MessageParser<StmtExecute>(() => new StmtExecute());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<StmtExecute> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
       get { return global::Mysqlx.Sql.MysqlxSqlReflection.Descriptor.MessageTypes[0]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public StmtExecute() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public StmtExecute(StmtExecute other) : this() {
       namespace_ = other.namespace_;
       stmt_ = other.stmt_;
@@ -85,6 +88,7 @@ namespace Mysqlx.Sql {
       compactMetadata_ = other.compactMetadata_;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public StmtExecute Clone() {
       return new StmtExecute(this);
     }
@@ -92,6 +96,7 @@ namespace Mysqlx.Sql {
     /// <summary>Field number for the "namespace" field.</summary>
     public const int NamespaceFieldNumber = 3;
     private string namespace_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Namespace {
       get { return namespace_; }
       set {
@@ -105,6 +110,7 @@ namespace Mysqlx.Sql {
     /// <summary>
     /// required
     /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public pb::ByteString Stmt {
       get { return stmt_; }
       set {
@@ -117,6 +123,7 @@ namespace Mysqlx.Sql {
     private static readonly pb::FieldCodec<global::Mysqlx.Datatypes.Any> _repeated_args_codec
         = pb::FieldCodec.ForMessage(18, global::Mysqlx.Datatypes.Any.Parser);
     private readonly pbc::RepeatedField<global::Mysqlx.Datatypes.Any> args_ = new pbc::RepeatedField<global::Mysqlx.Datatypes.Any>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public pbc::RepeatedField<global::Mysqlx.Datatypes.Any> Args {
       get { return args_; }
     }
@@ -124,6 +131,7 @@ namespace Mysqlx.Sql {
     /// <summary>Field number for the "compact_metadata" field.</summary>
     public const int CompactMetadataFieldNumber = 4;
     private bool compactMetadata_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool CompactMetadata {
       get { return compactMetadata_; }
       set {
@@ -131,10 +139,12 @@ namespace Mysqlx.Sql {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as StmtExecute);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(StmtExecute other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -149,6 +159,7 @@ namespace Mysqlx.Sql {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       if (Namespace.Length != 0) hash ^= Namespace.GetHashCode();
@@ -158,10 +169,12 @@ namespace Mysqlx.Sql {
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
       if (Stmt.Length != 0) {
         output.WriteRawTag(10);
@@ -178,6 +191,7 @@ namespace Mysqlx.Sql {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       if (Namespace.Length != 0) {
@@ -193,6 +207,7 @@ namespace Mysqlx.Sql {
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(StmtExecute other) {
       if (other == null) {
         return;
@@ -209,6 +224,7 @@ namespace Mysqlx.Sql {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -241,36 +257,43 @@ namespace Mysqlx.Sql {
   /// <summary>
   ///  statement executed successful
   /// </summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-  public sealed partial class StmtExecuteOk : pb::IMessage<StmtExecuteOk> {
+  internal sealed partial class StmtExecuteOk : pb::IMessage<StmtExecuteOk> {
     private static readonly pb::MessageParser<StmtExecuteOk> _parser = new pb::MessageParser<StmtExecuteOk>(() => new StmtExecuteOk());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<StmtExecuteOk> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
       get { return global::Mysqlx.Sql.MysqlxSqlReflection.Descriptor.MessageTypes[1]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public StmtExecuteOk() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public StmtExecuteOk(StmtExecuteOk other) : this() {
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public StmtExecuteOk Clone() {
       return new StmtExecuteOk(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as StmtExecuteOk);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(StmtExecuteOk other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -281,29 +304,35 @@ namespace Mysqlx.Sql {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(StmtExecuteOk other) {
       if (other == null) {
         return;
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
