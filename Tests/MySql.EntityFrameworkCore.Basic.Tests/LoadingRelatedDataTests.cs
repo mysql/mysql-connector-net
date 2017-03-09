@@ -34,133 +34,184 @@ using Xunit;
 
 namespace MySql.Data.EntityFrameworkCore.Tests
 {
-    public class LoadingRelatedDataTests : IDisposable
+  public class LoadingRelatedDataTests : IDisposable
+  {
+
+    DbContext context;
+    DbContextOptions options;
+    IServiceCollection collection = new ServiceCollection()
+                                    .AddEntityFrameworkMySQL()
+                                    .AddSingleton<ILoggerFactory>(new MySqlLoggerFactory());
+
+    string Sql => MySqlLoggerFactory.SqlStatements.LastOrDefault();
+
+    public LoadingRelatedDataTests()
     {
 
-        DbContext context;
-        DbContextOptions options;
-        IServiceCollection collection = new ServiceCollection()
-                                        .AddEntityFrameworkMySQL()
-                                        .AddSingleton<ILoggerFactory>(new MySqlLoggerFactory());
+      options = new DbContextOptionsBuilder()
+                   .UseInternalServiceProvider(collection.BuildServiceProvider())
+                   .UseMySQL(MySQLTestStore.baseConnectionString + "bd-eagerloading")
+                   .Options;
 
-        string Sql => MySqlLoggerFactory.SqlStatements.LastOrDefault();
+      context = new EagerLoadingContext(options);
+      context.Database.EnsureCreated();
+      AddData(context);
 
-        public LoadingRelatedDataTests()
-        {         
-
-            options = new DbContextOptionsBuilder()
-                         .UseInternalServiceProvider(collection.BuildServiceProvider())
-                         .UseMySQL(MySQLTestStore.baseConnectionString + "bd-eagerloading")
-                         .Options;
-
-            context = new EagerLoadingContext(options);
-            context.Database.EnsureCreated();
-            AddData(context);
-
-        }
-
-        [Fact]
-        public void CanUseSkipAndTake()
-        {
-            Assert.False(context.Database.EnsureCreated());
-            var people
-                    = context.Set<Guest>()
-                        .Skip(2)
-                        .Take(1)
-                        .ToList();
-
-            Assert.Equal(1, people.Count);
-        }
-
-        [Fact]
-        public void CanIncludeAddressData()
-        {
-            Assert.False(context.Database.EnsureCreated());                        
-            var people
-                    = context.Set<Guest>()
-                        .Include(p => p.Address)
-                        .ToList();
-
-                Assert.Equal(4, people.Count);
-                Assert.Equal(3, people.Count(p => p.Address != null));
-//                Assert.Equal(@"SELECT `p`.`IdGuest`, `p`.`Name`, `p`.`RelativeId`, `a`.`IdAddress`, `a`.`City`, `a`.`Street`
-//FROM `Guests` AS `p`
-//LEFT JOIN `Address` AS `a` ON `a`.`IdAddress` = `p`.`IdGuest`", Sql);
-        }
-
-        [Fact]
-        public void CanIncludeGuestData()
-        {
-            Assert.False(context.Database.EnsureCreated());
-            var ad
-                    = context.Set<Address>()
-                        .Include(p => p.Guest)
-                        .ToList();
-                                   
-            Assert.Equal(3, ad.Count);
-            var rows = ad.Select(g => g.Guest).Where(a => a != null).ToList();
-            Assert.Equal(3, rows.Count());
-            
-            // TODO check the logger implementation
-//            Assert.Equal(@"SELECT `p`.`IdAddress`, `p`.`City`, `p`.`Street`, `g`.`IdGuest`, `g`.`Name`, `g`.`RelativeId`
-//FROM `Address` AS `p`
-//INNER JOIN `Guests` AS `g` ON `p`.`IdAddress` = `g`.`IdGuest`", Sql);
-        }
-
-
-        [Fact]
-        public void CanIncludeGuestShadowProperty()
-        {
-            Assert.False(context.Database.EnsureCreated());
-            var addressRelative
-                  = context.Set<AddressRelative>()
-                      .Include(a => a.Relative) 
-                      .ToList();
-
-            Assert.Equal(3, addressRelative.Count);
-            Assert.True(addressRelative.All(p => p.Relative!= null));
-            // TODO: review what should be the result here (acc. EF tests should be 6)
-//            Assert.Equal(13, context.ChangeTracker.Entries().Count());
-//            Assert.Equal(@"SELECT `a`.`IdAddressRelative`, `a`.`City`, `a`.`Street`, `p`.`IdRelative`, `p`.`Name`
-//FROM `AddressRelative` AS `a`
-//INNER JOIN `Persons2` AS `p` ON `a`.`IdAddressRelative` = `p`.`IdRelative`", Sql);
-        }
-
-
-
-        private void AddData(DbContext context)
-        {
-            var d = new Address { Street = "Street one", City = "Michigan" };
-            var d1 = new Address { Street = "Street two", City = "San Francisco" };
-            var d2 = new Address { Street = "Street three", City = "Denver" };
-
-            context.Set<Guest>().AddRange(
-                     new Guest { Name = "Guest one", Address = d },
-                     new Guest { Name = "Guest two", Address = d1 },
-                     new Guest { Name = "Guest three", Address = d2},
-                     new Guest { Name = "Guest four"}
-                     );
-
-            context.Set<Address>().AddRange(d, d1, d2);
-
-            var ad = new AddressRelative { Street = "Street one", City = "Michigan" };
-            var ad1 = new AddressRelative { Street = "Street two", City = "San Francisco" };
-            var ad2 = new AddressRelative { Street = "Street three", City = "Denver" };            
-
-            context.Set<Relative>().AddRange(
-                   new Relative { Name = "L. J.", Address = ad },
-                   new Relative { Name = "M. M.", Address = ad1 },
-                   new Relative { Name = "Z. Z.", Address = ad2 }
-                );
-
-            context.Set<AddressRelative>().AddRange(ad, ad1, ad2);
-
-            context.SaveChanges();
-        }
-
-        public void Dispose()
-        {
-           context.Database.EnsureDeleted();
-        }
     }
+
+    [Fact]
+    public void CanUseSkipAndTake()
+    {
+      Assert.False(context.Database.EnsureCreated());
+      var people
+              = context.Set<Guest>()
+                  .Skip(2)
+                  .Take(1)
+                  .ToList();
+
+      Assert.Equal(1, people.Count);
+    }
+
+    [Fact]
+    public void CanIncludeAddressData()
+    {
+      Assert.False(context.Database.EnsureCreated());
+      var people
+              = context.Set<Guest>()
+                  .Include(p => p.Address)
+                  .ToList();
+
+      Assert.Equal(4, people.Count);
+      Assert.Equal(3, people.Count(p => p.Address != null));
+      //                Assert.Equal(@"SELECT `p`.`IdGuest`, `p`.`Name`, `p`.`RelativeId`, `a`.`IdAddress`, `a`.`City`, `a`.`Street`
+      //FROM `Guests` AS `p`
+      //LEFT JOIN `Address` AS `a` ON `a`.`IdAddress` = `p`.`IdGuest`", Sql);
+    }
+
+    [Fact]
+    public void CanIncludeGuestData()
+    {
+      Assert.False(context.Database.EnsureCreated());
+      var ad
+              = context.Set<Address>()
+                  .Include(p => p.Guest)
+                  .ToList();
+
+      Assert.Equal(3, ad.Count);
+      var rows = ad.Select(g => g.Guest).Where(a => a != null).ToList();
+      Assert.Equal(3, rows.Count());
+
+      // TODO check the logger implementation
+      //            Assert.Equal(@"SELECT `p`.`IdAddress`, `p`.`City`, `p`.`Street`, `g`.`IdGuest`, `g`.`Name`, `g`.`RelativeId`
+      //FROM `Address` AS `p`
+      //INNER JOIN `Guests` AS `g` ON `p`.`IdAddress` = `g`.`IdGuest`", Sql);
+    }
+
+
+    [Fact]
+    public void CanIncludeGuestShadowProperty()
+    {
+      Assert.False(context.Database.EnsureCreated());
+      var addressRelative
+            = context.Set<AddressRelative>()
+                .Include(a => a.Relative)
+                .ToList();
+
+      Assert.Equal(3, addressRelative.Count);
+      Assert.True(addressRelative.All(p => p.Relative != null));
+      // TODO: review what should be the result here (acc. EF tests should be 6)
+      //            Assert.Equal(13, context.ChangeTracker.Entries().Count());
+      //            Assert.Equal(@"SELECT `a`.`IdAddressRelative`, `a`.`City`, `a`.`Street`, `p`.`IdRelative`, `p`.`Name`
+      //FROM `AddressRelative` AS `a`
+      //INNER JOIN `Persons2` AS `p` ON `a`.`IdAddressRelative` = `p`.`IdRelative`", Sql);
+    }
+
+    [Fact]
+    public void MixClientServerEvaluation()
+    {
+      Assert.False(context.Database.EnsureCreated());
+      var list
+            = context.Set<Address>()
+            .OrderByDescending(a => a.City)
+            .Select(a => new { Id = a.IdAddress, City = SetCity(a.City) })
+            .ToList();
+
+      Assert.Equal(3, list.Count);
+      Assert.True(list.First().City.EndsWith(" city"));
+    }
+
+    private string SetCity(string name)
+    {
+      return name + " city";
+    }
+
+    [Fact]
+    public void RawSqlQueries()
+    {
+      Assert.False(context.Database.EnsureCreated());
+      var guests = context.Set<Guest>().FromSql("SELECT * FROM guests")
+        .ToList();
+      Assert.Equal(4, guests.Count);
+    }
+
+    [Fact]
+    public void UsingTransactions()
+    {
+      Assert.False(context.Database.EnsureCreated());
+      using (var transaction = context.Database.BeginTransaction())
+      {
+        context.Set<Guest>().Add(new Guest()
+        {
+          Name = "Guest five"
+        });
+        context.SaveChanges();
+      }
+      Assert.Equal(4, context.Set<Guest>().Count());
+    }
+
+    [Fact]
+    public void DbSetFind()
+    {
+      var address = context.Set<Address>().Find(1);
+      Assert.NotNull(address);
+      Assert.Equal("Michigan", address.City);
+    }
+
+
+
+    private void AddData(DbContext context)
+    {
+      var d = new Address { Street = "Street one", City = "Michigan" };
+      var d1 = new Address { Street = "Street two", City = "San Francisco" };
+      var d2 = new Address { Street = "Street three", City = "Denver" };
+
+      context.Set<Guest>().AddRange(
+               new Guest { Name = "Guest one", Address = d },
+               new Guest { Name = "Guest two", Address = d1 },
+               new Guest { Name = "Guest three", Address = d2 },
+               new Guest { Name = "Guest four" }
+               );
+
+      context.Set<Address>().AddRange(d, d1, d2);
+
+      var ad = new AddressRelative { Street = "Street one", City = "Michigan" };
+      var ad1 = new AddressRelative { Street = "Street two", City = "San Francisco" };
+      var ad2 = new AddressRelative { Street = "Street three", City = "Denver" };
+
+      context.Set<Relative>().AddRange(
+             new Relative { Name = "L. J.", Address = ad },
+             new Relative { Name = "M. M.", Address = ad1 },
+             new Relative { Name = "Z. Z.", Address = ad2 }
+          );
+
+      context.Set<AddressRelative>().AddRange(ad, ad1, ad2);
+
+      context.SaveChanges();
+    }
+
+    public void Dispose()
+    {
+      context.Database.EnsureDeleted();
+    }
+  }
 }
