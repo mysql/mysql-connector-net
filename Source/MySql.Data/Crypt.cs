@@ -23,7 +23,7 @@
 using System;
 using System.Security.Cryptography;
 
-#if NETCORE10
+#if NET_CORE
 using MySql.Data.MySqlClient.Framework.NetCore10;
 #else
 using System.Text;

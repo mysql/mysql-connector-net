@@ -26,11 +26,7 @@ using System.Linq;
 using MySql.Data.MySqlClient;
 
 
-#if NETCORE10
 namespace MySql.Data.MySqlClient.Interceptors
-#else
-namespace MySql.Data.MySqlClient
-#endif
 {
   /// <summary>
   /// BaseExceptionInterceptor is the base class that should be used for all userland 
@@ -98,7 +94,7 @@ namespace MySql.Data.MySqlClient
       throw e;
     }
 
-#if !NETCORE10
+#if !NET_CORE
     protected override string ResolveType(string nameOrType)
     {
       if (MySqlConfiguration.Settings == null || MySqlConfiguration.Settings.ExceptionInterceptors == null)

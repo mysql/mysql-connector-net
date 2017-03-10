@@ -249,7 +249,7 @@ namespace MySql.Data.MySqlClient
       {
         if (!tokenizer.Quoted)
         {
-#if !NETCORE10
+#if !NET_CORE
           if (token.ToLower(CultureInfo.InvariantCulture) == "delimiter")
 #else
           if (token.ToLowerInvariant() == "delimiter")

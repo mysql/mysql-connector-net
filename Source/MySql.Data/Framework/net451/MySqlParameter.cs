@@ -20,19 +20,18 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
 using System.Data.Common;
-using System.Text;
 
 namespace MySql.Data.MySqlClient
 {
-  public sealed partial class MySqlTransaction : DbTransaction
+  public sealed partial class MySqlParameter : DbParameter, IDbDataParameter
   {
-    protected override DbConnection DbConnection
-    {
-      get { return Connection; }
-    }
+    /// <summary>
+    /// Gets or sets the <see cref="DataRowVersion"/> to use when loading <see cref="Value"/>.
+    /// </summary>
+    [Category("Data")]
+    public override DataRowVersion SourceVersion { get; set; }
   }
-
 }

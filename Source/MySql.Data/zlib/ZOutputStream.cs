@@ -192,7 +192,7 @@ namespace zlib
       z = null;
     }
 
-#if NETCORE10
+#if NET_CORE
     public void Close()
 #else
 		public override void  Close()
@@ -211,7 +211,7 @@ namespace zlib
       finally
       {
         end();
-#if NETCORE10
+#if NET_CORE
         out_Renamed.Dispose();
 #else
 				out_Renamed.Close();

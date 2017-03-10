@@ -36,7 +36,7 @@ namespace MySql.Data.MySqlClient
     }
     public static string ReadResourceInternal(string name)
     {
-#if NETCORE10
+#if NET_CORE
       var assembly = typeof(Utils).GetTypeInfo().Assembly;
 #else
       var assembly = Assembly.GetExecutingAssembly();

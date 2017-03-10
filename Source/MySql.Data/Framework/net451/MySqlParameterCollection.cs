@@ -1,4 +1,4 @@
-// Copyright � 2004, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,62 +21,43 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.IO;
-using System.Runtime.InteropServices;
+using System.Collections;
+using System.ComponentModel;
+using System.Data.Common;
+using MySql.Data.MySqlClient;
 
-namespace MySql.Data.Common
+namespace MySql.Data.MySqlClient
 {
-  internal class Platform
+  [Editor("MySql.Data.MySqlClient.Design.DBParametersEditor,MySql.Design", typeof(System.Drawing.Design.UITypeEditor))]
+  [ListBindable(true)]
+  public sealed partial class MySqlParameterCollection : DbParameterCollection
   {
-    private static bool _inited;
-    private static bool _isMono;
+    /// <summary>
+    /// Gets a value that indicates whether the <see cref="MySqlParameterCollection"/>
+    /// has a fixed size. 
+    /// </summary>
+    public override bool IsFixedSize
+    {
+      get { return (_items as IList).IsFixedSize; }
+    }
 
     /// <summary>
-    /// By creating a private ctor, we keep the compiler from creating a default ctor
+    /// Gets a value that indicates whether the <see cref="MySqlParameterCollection"/>
+    /// is read-only. 
     /// </summary>
-    private Platform()
+    public override bool IsReadOnly
     {
+      get { return (_items as IList).IsReadOnly; }
     }
 
-    public static bool IsWindows()
+    /// <summary>
+    /// Gets a value that indicates whether the <see cref="MySqlParameterCollection"/>
+    /// is synchronized. 
+    /// </summary>
+    public override bool IsSynchronized
     {
-#if NET_CORE
-      return RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-#else
-      OperatingSystem os = Environment.OSVersion;
-      switch (os.Platform)
-      {
-        case PlatformID.Win32NT:
-        case PlatformID.Win32S:
-        case PlatformID.Win32Windows:
-          return true;
-      }
-      return false;
-#endif
+      get { return (_items as IList).IsSynchronized; }
     }
 
-
-    public static bool IsMono()
-    {
-      if (!_inited)
-        Init();
-      return _isMono;
-    }
-
-    private static void Init()
-    {
-      _inited = true;
-      Type t = Type.GetType("Mono.Runtime");
-      _isMono = t != null;
-    }
-
-    public static bool IsDotNetCore()
-    {
-#if NETCORE10
-      return true;
-#else
-      return false;
-#endif
-    }
   }
 }

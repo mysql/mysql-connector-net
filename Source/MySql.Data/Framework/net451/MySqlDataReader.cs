@@ -28,39 +28,8 @@ using System.Data;
 
 namespace MySql.Data.MySqlClient
 {
-#if NETCORE10
-  public sealed partial class MySqlDataReader : DbDataReader
-#else
   public sealed partial class MySqlDataReader : DbDataReader, IDataReader, IDataRecord
-#endif
   {
-    /// <summary>
-    /// Gets a value indicating the depth of nesting for the current row.  This method is not 
-    /// supported currently and always returns 0.
-    /// </summary>
-    public override int Depth => 0;
-
-    public MySqlGeometry GetMySqlGeometry(int i)
-    {
-      try
-      {
-        IMySqlValue v = GetFieldValue(i, false);
-        if (v is MySqlGeometry || v is MySqlBinary)
-          return new MySqlGeometry(MySqlDbType.Geometry, (Byte[])v.Value);
-      }
-      catch
-      {
-        Throw(new Exception("Can't get MySqlGeometry from value"));
-      }
-      return new MySqlGeometry(true);
-    }
-
-    public MySqlGeometry GetMySqlGeometry(string column)
-    {
-      return GetMySqlGeometry(GetOrdinal(column));
-    }
-
-#if !NETCORE10
     /// <summary>
     /// Returns a DataTable that describes the column metadata of the MySqlDataReader.
     /// </summary>
@@ -132,19 +101,6 @@ namespace MySql.Data.MySqlClient
 
       return dataTableSchema;
     }
-#endif
 
-    /// <summary>
-    /// Returns an <see cref="IEnumerator"/> that iterates through the <see cref="MySqlDataReader"/>. 
-    /// </summary>    
-    public override IEnumerator GetEnumerator()
-    {
-      //TODO: REMOVE WHEN DBENUMERATOR IS INCLUDED IN SYSTEM.DATA.COMMON
-#if NETCORE10
-      throw new NotImplementedException();
-#else
-      return new DbEnumerator(this, (CommandBehavior & CommandBehavior.CloseConnection) != 0);
-#endif
-    }
   }
 }

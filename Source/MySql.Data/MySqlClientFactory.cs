@@ -20,13 +20,10 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-#if !PocketPC
-
 using System;
 using System.Data.Common;
 using System.Reflection;
-
-#if !NETCORE10
+#if !NET_CORE
 using System.Security.Permissions;
 #endif
 
@@ -35,7 +32,7 @@ namespace MySql.Data.MySqlClient
 	/// <summary>
 	/// DBProviderFactory implementation for MysqlClient.
 	/// </summary>
-#if !NETCORE10
+#if !NET_CORE
 			[ReflectionPermission(SecurityAction.Assert, MemberAccess = true)]  
 #endif
 	public sealed partial class MySqlClientFactory : DbProviderFactory, IServiceProvider
@@ -100,7 +97,7 @@ namespace MySql.Data.MySqlClient
 			{
 				if (_mySqlDbProviderServicesInstance == null)
 				{
-#if NETCORE10
+#if NET_CORE
 					string fullName = typeof(MySqlClientFactory).GetTypeInfo().Assembly.FullName;
 #else
 					string fullName = Assembly.GetExecutingAssembly().FullName;
@@ -133,4 +130,3 @@ namespace MySql.Data.MySqlClient
 	}
 }
 
-#endif

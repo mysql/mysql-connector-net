@@ -21,13 +21,17 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
-using MySql.Data.MySqlClient;
 using System;
 using System.IO;
-using System.IO.MemoryMappedFiles;
-using System.IO.Pipes;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using MySql.Data.Common;
+using MySql.Data.MySqlClient;
+using System.IO.Pipes;
+#if !NET_CORE
+using MySql.Data.MySqlClient.Common;
+using System.IO.MemoryMappedFiles;
+#endif
 
 namespace MySql.Data.Common
 {
@@ -101,7 +105,7 @@ namespace MySql.Data.Common
 
     private static Stream GetSharedMemoryStream(MySqlConnectionStringBuilder settings)
     {
-#if NETCORE10
+#if NET_CORE
       throw new NotSupportedException("Shared memory streams not currently supported.");
 #else
       SharedMemoryStream str = new SharedMemoryStream(settings.SharedMemoryName);
@@ -112,12 +116,12 @@ namespace MySql.Data.Common
 
     private static Stream GetNamedPipeStream(MySqlConnectionStringBuilder settings)
     {
-#if NETCORE10
+#if NET_CORE
       NamedPipeClientStream pipeStream = new NamedPipeClientStream(settings.Server, settings.PipeName, PipeDirection.InOut);
       pipeStream.Connect((int)settings.ConnectionTimeout * 1000);
       return pipeStream;
 #else
-      Stream stream = MySql.Data.MySqlClient.Common.NamedPipeStream.Create(settings.PipeName, settings.Server, settings.ConnectionTimeout);
+      Stream stream = NamedPipeStream.Create(settings.PipeName, settings.Server, settings.ConnectionTimeout);
       return stream;
 #endif
     }

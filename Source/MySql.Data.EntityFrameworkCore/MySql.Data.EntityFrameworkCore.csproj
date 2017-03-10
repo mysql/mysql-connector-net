@@ -1,106 +1,70 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{11E455EE-8BA8-466C-B8D6-5E5EDB0767FC}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MySQL.Data.EntityFrameworkCore</RootNamespace>
-    <AssemblyName>MySQL.Data.EntityFrameworkCore</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <Description>MySql.Data.EntityFrameworkCore for Entity Framework.</Description>
+    <Copyright>Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.</Copyright>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <VersionPrefix>6.10.2-IR2</VersionPrefix>
+    <Authors>Oracle</Authors>
+    <TargetFrameworks>net451;netstandard1.6</TargetFrameworks>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <DelaySign>true</DelaySign>
+    <AssemblyName>MySql.Data.EntityFrameworkCore</AssemblyName>
+    <AssemblyOriginatorKeyFile>../../ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+    <PackageId>MySql.Data.EntityFrameworkCore</PackageId>
+    <PackageTags>MySql;.NET Connector;MySql Entity Framework Core;netcore;.Net Core;MySql Conector/Net Entity Framework Core;coreclr;C/NET;C/Net Core</PackageTags>
+    <PackageReleaseNotes>Review ReleaseNotes.txt for details.</PackageReleaseNotes>
+    <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
+    <PackageProjectUrl>http://dev.mysql.com/downloads/</PackageProjectUrl>
+    <PackageLicenseUrl>http://www.gnu.org/licenses/old-licenses/gpl-2.0.html</PackageLicenseUrl>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\MySQL.Data.EntityFrameworkCore.XML</DocumentationFile>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Transactions" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Utils\CodeAttributes.cs" />
-    <Compile Include="Extensions\MySQLDbContextOptionsExtensions.cs" />
-    <Compile Include="Extensions\MySQLPropertyBuilderExtensions.cs" />
-    <Compile Include="Extensions\MySQLServiceCollectionExtensions.cs" />
-    <Compile Include="Infraestructure\Internal\MySQLModelSource.cs" />
-    <Compile Include="Infraestructure\Internal\MySQLOptionsExtension.cs" />
-    <Compile Include="Infraestructure\MySQLDbContextOptionsBuilder.cs" />
-    <Compile Include="Metadata\Internal\MySQLAnnotationNames.cs" />
-    <Compile Include="Metadata\Internal\MySQLAnnotationProvider.cs" />
-    <Compile Include="Metadata\Internal\MySQLFullAnnotationNames.cs" />
-    <Compile Include="Metadata\MySQLMetadataExtensions.cs" />
-    <Compile Include="Metadata\MySQLPropertyAnnotations.cs" />
-    <Compile Include="Migrations\Internal\MySQLHistoryRepository.cs" />
-    <Compile Include="Migrations\Internal\MySQLMigrationsAnnotationProvider.cs" />
-    <Compile Include="Migrations\MySQLMigrationsSqlGenerator.cs" />
-    <Compile Include="Migrations\Operations\CreateDatabaseOperation.cs" />
-    <Compile Include="Migrations\Operations\DropDatabaseOperation.cs" />
-    <Compile Include="Query\ExpressionTranslators\Internal\MySQLCompositeMemberTranslator.cs" />
-    <Compile Include="Query\ExpressionTranslators\Internal\MySQLCompositeMethodCallTranslator.cs" />
-    <Compile Include="Query\ExpressionTranslators\Internal\MySQLStringLengthTranslator.cs" />
-    <Compile Include="Query\ExpressionTranslators\Internal\MySQLStringReplaceTranslator.cs" />
-    <Compile Include="Query\Sql\Internal\MySQLQueryGeneratorFactory.cs" />
-    <Compile Include="Query\Sql\Internal\MySQLQuerySqlGenerator.cs" />
-    <Compile Include="Storage\Internal\MySQLDatabaseCreator.cs" />
-    <Compile Include="Storage\Internal\MySQLDatabaseProviderServices.cs" />
-    <Compile Include="Storage\Internal\MySQLServerConnection.cs" />
-    <Compile Include="Storage\Internal\MySQLSizeableMapping.cs" />
-    <Compile Include="Storage\Internal\MySQLSqlGenerationHelper.cs" />
-    <Compile Include="Storage\Internal\MySQLTypeMapper.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Update\MySQLModificationCommandBatch.cs" />
-    <Compile Include="Update\MySQLModificationCommandBatchFactory.cs" />
-    <Compile Include="Update\MySQLUpdateSqlGenerator.cs" />
-    <Compile Include="Utils\SharedTypeExtensions.cs" />
-    <Compile Include="Utils\ThrowIf.cs" />
-    <Compile Include="ValueGeneration\MySQLValueGeneratorCache.cs" />
-  </ItemGroup>
-  <ItemGroup />
-  <ItemGroup>
-    <None Include="app.config" />
-    <None Include="MySql.Data.EntityFrameworkCore.project.json" />
-    <None Include="packages.config">
-      <SubType>Designer</SubType>
+    <None Update="Content\ReleaseNotes.txt">
+      <Pack>true</Pack>
+    </None>
+    <None Update="..\..\README">
+      <Pack>true</Pack>
     </None>
   </ItemGroup>
+
   <ItemGroup>
-    <ProjectReference Include="..\MySql.Data\MySql.Data.csproj">
-      <Project>{e9df5ed1-4cbd-4226-b931-9a51610ac14d}</Project>
-      <Name>MySql.Data</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\MySql.Data\MySql.Data.csproj" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
+  <ItemGroup>
+    <PackageReference Include="Remotion.Linq" Version="2.2.0-alpha-001" />
+    <PackageReference Include="System.Collections.Immutable" Version="1.3.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="1.1.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="1.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="1.1.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="1.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="1.1.1" />
+    <PackageReference Include="System.Interactive.Async" Version="3.1.1" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net451' ">
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Runtime" />
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <PreserveCompilationContext>true</PreserveCompilationContext>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
 </Project>

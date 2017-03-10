@@ -25,14 +25,14 @@ using System.Data;
 using System.Globalization;
 using System.Threading;
 using MySql.Data.MySqlClient;
-
+using System.Collections;
 using System.Data.Common;
 using MySql.Data.Types;
 
 namespace MySql.Data.MySqlClient
 {
   /// <include file='docs/MySqlDataReader.xml' path='docs/ClassSummary/*'/>
-  public sealed partial class MySqlDataReader : IDisposable
+  public sealed partial class MySqlDataReader : DbDataReader, IDataReader, IDataRecord, IDisposable
   {
     // The DataReader should always be open when returned to the user.
     private bool _isOpen = true;
@@ -131,12 +131,18 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     public override object this[String name] => this[GetOrdinal(name)];
 
+    /// <summary>
+    /// Gets a value indicating the depth of nesting for the current row.  This method is not 
+    /// supported currently and always returns 0.
+    /// </summary>
+    public override int Depth => 0;
+
     #endregion
 
     /// <summary>
     /// Closes the MySqlDataReader object.
     /// </summary>
-#if NETCORE10
+#if NET_CORE
     public void Close()
 #else
     public override void Close()
@@ -888,7 +894,7 @@ namespace MySql.Data.MySqlClient
         _connection.HandleTimeoutOrThreadAbort(tex);
         throw; // unreached
       }
-#if !NETCORE10
+#if !NET_CORE
       catch (ThreadAbortException taex)
       {
         _connection.HandleTimeoutOrThreadAbort(taex);
@@ -910,6 +916,33 @@ namespace MySql.Data.MySqlClient
       }
     }
 
+    public MySqlGeometry GetMySqlGeometry(int i)
+    {
+      try
+      {
+        IMySqlValue v = GetFieldValue(i, false);
+        if (v is MySqlGeometry || v is MySqlBinary)
+          return new MySqlGeometry(MySqlDbType.Geometry, (Byte[])v.Value);
+      }
+      catch
+      {
+        Throw(new Exception("Can't get MySqlGeometry from value"));
+      }
+      return new MySqlGeometry(true);
+    }
+
+    public MySqlGeometry GetMySqlGeometry(string column)
+    {
+      return GetMySqlGeometry(GetOrdinal(column));
+    }
+
+    /// <summary>
+    /// Returns an <see cref="IEnumerator"/> that iterates through the <see cref="MySqlDataReader"/>. 
+    /// </summary>    
+    public override IEnumerator GetEnumerator()
+    {
+      return new DbEnumerator(this, (CommandBehavior & CommandBehavior.CloseConnection) != 0);
+    }
 
     private IMySqlValue GetFieldValue(int index, bool checkNull)
     {

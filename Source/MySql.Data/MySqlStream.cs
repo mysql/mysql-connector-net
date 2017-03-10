@@ -79,14 +79,8 @@ namespace MySql.Data.MySqlClient
 
     public void Close()
     {
-#if NETCORE10
-
       outStream.Dispose();
       inStream.Dispose();
-#else
-      outStream.Close();
-      inStream.Close();
-#endif
       timedStream.Close();
     }
 

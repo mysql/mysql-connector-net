@@ -502,7 +502,7 @@ namespace MySql.Data.MySqlClient
           {
             return ".Net Core";
           }
-#if !NETCORE10
+#if !NET_CORE
           os = Environment.OSVersion.Platform.ToString();
           if (os == "Win32NT")
           {
@@ -517,7 +517,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-#if !NETCORE10
+#if !NET_CORE
     [DisplayName("_os_details")]
     public string OSDetails
     {

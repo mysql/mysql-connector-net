@@ -1,4 +1,4 @@
-﻿// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,11 +21,41 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
+using System.Collections;
+using System.ComponentModel;
 using System.Data.Common;
+using MySql.Data.MySqlClient;
 
 namespace MySql.Data.MySqlClient
 {
-  public sealed partial class MySqlConnectionStringBuilder : DbConnectionStringBuilder
+  public sealed partial class MySqlParameterCollection : DbParameterCollection
   {
+    /// <summary>
+    /// Gets a value that indicates whether the <see cref="MySqlParameterCollection"/>
+    /// has a fixed size. 
+    /// </summary>
+    public bool IsFixedSize
+    {
+      get { return (_items as IList).IsFixedSize; }
+    }
+
+    /// <summary>
+    /// Gets a value that indicates whether the <see cref="MySqlParameterCollection"/>
+    /// is read-only. 
+    /// </summary>
+    public bool IsReadOnly
+    {
+      get { return (_items as IList).IsReadOnly; }
+    }
+
+    /// <summary>
+    /// Gets a value that indicates whether the <see cref="MySqlParameterCollection"/>
+    /// is synchronized. 
+    /// </summary>
+    public bool IsSynchronized
+    {
+      get { return (_items as IList).IsSynchronized; }
+    }
+
   }
 }

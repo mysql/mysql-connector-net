@@ -74,7 +74,7 @@ namespace MySql.Data.MySqlClient
       SqlState = sqlState;
     }
 
-#if !NETCORE10
+#if !NET_CORE
     private MySqlException(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {

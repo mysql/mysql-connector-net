@@ -88,7 +88,7 @@ namespace MySql.Data.MySqlClient
       set { encoding = value; }
     }
 
-#if !NETCORE10
+#if !NET_CORE
     public MySqlPromotableTransaction currentTransaction { get; set; }
 
     public bool IsInActiveUse { get; set; }

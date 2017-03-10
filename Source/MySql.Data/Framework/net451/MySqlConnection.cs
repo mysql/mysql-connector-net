@@ -26,23 +26,17 @@ using System.ComponentModel;
 using System.Data;
 using System.Data.Common;
 using System.Security;
-#if !NETCORE10
 using System.Drawing;
 using System.Security.Permissions;
-#endif
+using System.Transactions;
 
 namespace MySql.Data.MySqlClient
 {
-#if !NETCORE10
   [ToolboxBitmap(typeof(MySqlConnection), "MySqlClient.resources.connection.bmp")]
   [DesignerCategory("Code")]
   [ToolboxItem(true)]
-  public sealed partial class MySqlConnection : DbConnection, ICloneable
-#else
   public sealed partial class MySqlConnection : DbConnection
-#endif
-    {
-#if !NETCORE10
+  {
     /// <summary>
     /// Returns schema information for the data source of this <see cref="DbConnection"/>. 
     /// </summary>
@@ -83,22 +77,64 @@ namespace MySql.Data.MySqlClient
       MySqlSchemaCollection c = _schemaProvider.GetSchema(collectionName, restrictions);
       return c.AsDataTable();
     }
-#endif
 
-    protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
+    /// <summary>
+    /// Enlists in the specified transaction. 
+    /// </summary>
+    /// <param name="transaction">
+    /// A reference to an existing <see cref="System.Transactions.Transaction"/> in which to enlist.
+    /// </param>
+    public override void EnlistTransaction(Transaction transaction)
     {
-      if (isolationLevel == IsolationLevel.Unspecified)
-        return BeginTransaction();
-      return BeginTransaction(isolationLevel);
+      // enlisting in the null transaction is a noop
+      if (transaction == null)
+        return;
+
+      // guard against trying to enlist in more than one transaction
+      if (driver.currentTransaction != null)
+      {
+        if (driver.currentTransaction.BaseTransaction == transaction)
+          return;
+
+        Throw(new MySqlException("Already enlisted"));
+      }
+
+      // now see if we need to swap out drivers.  We would need to do this since
+      // we have to make sure all ops for a given transaction are done on the
+      // same physical connection.
+      Driver existingDriver = DriverTransactionManager.GetDriverInTransaction(transaction);
+      if (existingDriver != null)
+      {
+        // we can't allow more than one driver to contribute to the same connection
+        if (existingDriver.IsInActiveUse)
+          Throw(new NotSupportedException(Resources.MultipleConnectionsInTransactionNotSupported));
+
+        // there is an existing driver and it's not being currently used.
+        // now we need to see if it is using the same connection string
+        string text1 = existingDriver.Settings.ConnectionString;
+        string text2 = Settings.ConnectionString;
+        if (String.Compare(text1, text2, true) != 0)
+          Throw(new NotSupportedException(Resources.MultipleConnectionsInTransactionNotSupported));
+
+        // close existing driver
+        // set this new driver as our existing driver
+        CloseFully();
+        driver = existingDriver;
+      }
+
+      if (driver.currentTransaction == null)
+      {
+        MySqlPromotableTransaction t = new MySqlPromotableTransaction(this, transaction);
+        if (!transaction.EnlistPromotableSinglePhase(t))
+          Throw(new NotSupportedException(Resources.DistributedTxnNotSupported));
+
+        driver.currentTransaction = t;
+        DriverTransactionManager.SetDriverInTransaction(driver);
+        driver.IsInActiveUse = true;
+      }
     }
 
-    protected override DbCommand CreateDbCommand()
-    {
-      return CreateCommand();
-    }
-
-#if !NETCORE10
-    partial void AssertPermissions()
+    void AssertPermissions()
     {
       // Security Asserts can only be done when the assemblies 
       // are put in the GAC as documented in 
@@ -108,20 +144,9 @@ namespace MySql.Data.MySqlClient
         PermissionSet set = new PermissionSet(PermissionState.None);
         set.AddPermission(new MySqlClientPermission(ConnectionString));
         set.Demand();
-        MySqlSecurityPermission.CreatePermissionSet(true).Assert(); 
+        MySqlSecurityPermission.CreatePermissionSet(true).Assert();
       }
     }
-#endif
 
-#region IDisposeable
-
-    protected override void Dispose(bool disposing)
-    {
-      if (State == ConnectionState.Open)
-        Close();
-      base.Dispose(disposing);
-    }
-
-#endregion
   }
 }

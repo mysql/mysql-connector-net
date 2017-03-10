@@ -22,11 +22,12 @@
 
 using System;
 using System.Data;
+using System.Data.Common;
 
 namespace MySql.Data.MySqlClient
 {
   /// <include file='docs/MySqlTransaction.xml' path='docs/Class/*'/>
-  public sealed partial class MySqlTransaction : IDisposable
+  public sealed class MySqlTransaction : DbTransaction
   {
     private bool open;
     private bool disposed = false;
@@ -71,8 +72,13 @@ namespace MySql.Data.MySqlClient
     /// </remarks>
     public override IsolationLevel IsolationLevel { get; }
 
+    protected override DbConnection DbConnection
+    {
+      get { return Connection; }
+    }
+
     #endregion
-    
+
 
     protected override void Dispose(bool disposing)
     {

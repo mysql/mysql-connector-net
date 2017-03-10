@@ -240,7 +240,7 @@ namespace MySql.Data.MySqlClient
         if (driver != null) return driver;
 
         // We have no tickets right now, lets wait for one.
-#if NETCORE10
+#if NET_CORE
         if (!_autoEvent.WaitOne(timeOut)) break;
 #else
         if (!_autoEvent.WaitOne(timeOut, false)) break;

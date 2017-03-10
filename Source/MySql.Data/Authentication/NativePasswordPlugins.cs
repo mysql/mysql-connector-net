@@ -22,7 +22,7 @@
 
 using System;
 using System.Security.Cryptography;
-#if NETCORE10
+#if NET_CORE
 using AliasText = MySql.Data.MySqlClient.Framework.NetCore10;
 #else
 using AliasText = System.Text;

@@ -195,7 +195,6 @@ namespace MySql.Data.MySqlClient
 
     private void ReportUsageAdvisorWarnings(int statementId, ResultSet rs)
     {
-#if !NETCORE10
       if (!Settings.UseUsageAdvisor) return;
 
       if (HasStatus(ServerStatusFlags.NoIndex))
@@ -244,7 +243,6 @@ namespace MySql.Data.MySqlClient
                 f.ColumnName, s.ToString());
         }
       }
-#endif
     }
   }
 }

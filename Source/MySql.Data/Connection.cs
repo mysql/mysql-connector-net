@@ -27,22 +27,19 @@ using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using MySql.Data.Common;
-
+using System.Security;
 using IsolationLevel = System.Data.IsolationLevel;
-
-#if NETCORE10
-using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient.Interceptors;
-#else
-using MySql.Data.MySqlClient.Replication;
-using System.Drawing.Design;
+#if !NET_CORE
 using System.Transactions;
+using System.Drawing.Design;
+using MySql.Data.MySqlClient.Replication;
 #endif
 
 namespace MySql.Data.MySqlClient
 {
   /// <include file='docs/MySqlConnection.xml' path='docs/ClassSummary/*'/>
-  public sealed partial class MySqlConnection : IDisposable
+  public sealed partial class MySqlConnection : DbConnection
   {
     internal ConnectionState connectionState;
     internal Driver driver;
@@ -67,7 +64,7 @@ namespace MySql.Data.MySqlClient
       Settings = new MySqlConnectionStringBuilder();
       _database = String.Empty;
 
-#if NETCORE10
+#if NET_CORE
       //TODO:  what is thi sabout
       //ConnectionString = Startup.ConnectionString;
 #endif
@@ -117,7 +114,7 @@ namespace MySql.Data.MySqlClient
     {
       get
       {
-#if !NETCORE10
+#if !NET_CORE
         return (State == ConnectionState.Closed) &&
                driver != null && driver.currentTransaction != null;
 #else
@@ -168,12 +165,12 @@ namespace MySql.Data.MySqlClient
     public override string ServerVersion => driver.Version.ToString();
 
     /// <include file='docs/MySqlConnection.xml' path='docs/ConnectionString/*'/>
-#if !NETCORE10
+#if !NET_CORE
     [Editor("MySql.Data.MySqlClient.Design.ConnectionStringTypeEditor,MySqlClient.Design", typeof(UITypeEditor))]
+#endif
     [Browsable(true)]
     [Category("Data")]
     [Description("Information used to connect to a DataSource, such as 'Server=xxx;UserId=yyy;Password=zzz;Database=dbdb'.")]
-#endif
     public override string ConnectionString
     {
       get
@@ -214,14 +211,37 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-#if !NETCORE10
+#if !NET_CORE
     protected override DbProviderFactory DbProviderFactory => MySqlClientFactory.Instance;
 #endif
     public bool IsPasswordExpired => driver.IsPasswordExpired;
 
     #endregion
 
-    partial void AssertPermissions();
+    protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
+    {
+      if (isolationLevel == IsolationLevel.Unspecified)
+        return BeginTransaction();
+      return BeginTransaction(isolationLevel);
+    }
+
+    protected override DbCommand CreateDbCommand()
+    {
+      return CreateCommand();
+    }
+
+
+    #region IDisposeable
+
+    protected override void Dispose(bool disposing)
+    {
+      if (State == ConnectionState.Open)
+        Close();
+      base.Dispose(disposing);
+    }
+
+    #endregion
+
 
     #region Transactions
     /// <include file='docs/MySqlConnection.xml' path='docs/BeginTransaction/*'/>
@@ -291,7 +311,7 @@ namespace MySql.Data.MySqlClient
       // This lock  prevents promotable transaction rollback to run
       // in parallel
       lock (driver)
-      {    
+      {
         // We use default command timeout for SetDatabase
         using (new CommandTimer(this, (int)Settings.DefaultCommandTimeout))
         {
@@ -338,8 +358,8 @@ namespace MySql.Data.MySqlClient
 
       SetState(ConnectionState.Connecting, true);
 
+#if !NET_CORE
       AssertPermissions();
-#if !NETCORE10
 
       //TODO: SUPPORT FOR 452 AND 46X
       // if we are auto enlisting in a current transaction, then we will be
@@ -360,7 +380,7 @@ namespace MySql.Data.MySqlClient
 
         //TODO: SUPPORT FOR 452 AND 46X
         // Load balancing 
-#if !NETCORE10
+#if !NET_CORE
         if (ReplicationManager.IsReplicationGroup(Settings.Server))
         {
           if (driver == null)
@@ -392,7 +412,7 @@ namespace MySql.Data.MySqlClient
         SetState(ConnectionState.Closed, true);
         throw;
       }
-   
+
       SetState(ConnectionState.Open, false);
       driver.Configure(this);
 
@@ -406,11 +426,11 @@ namespace MySql.Data.MySqlClient
       _schemaProvider = new ISSchemaProvider(this);
       PerfMonitor = new PerformanceMonitor(this);
 
-            // if we are opening up inside a current transaction, then autoenlist
-            // TODO: control this with a connection string option
-#if !NETCORE10
-        if (Transaction.Current != null && Settings.AutoEnlist)
-            EnlistTransaction(Transaction.Current);
+      // if we are opening up inside a current transaction, then autoenlist
+      // TODO: control this with a connection string option
+#if !NET_CORE
+      if (Transaction.Current != null && Settings.AutoEnlist)
+        EnlistTransaction(Transaction.Current);
 #endif
 
       hasBeenOpen = true;
@@ -424,19 +444,6 @@ namespace MySql.Data.MySqlClient
       MySqlCommand c = new MySqlCommand();
       c.Connection = this;
       return c;
-    }
-
-    /// <summary>
-    /// Creates a new MySqlConnection object with the exact same ConnectionString value
-    /// </summary>
-    /// <returns>A cloned MySqlConnection object</returns>
-    public object Clone()
-    {
-      MySqlConnection clone = new MySqlConnection();
-      string connectionString = Settings.ConnectionString;
-      if (connectionString != null)
-        clone.ConnectionString = connectionString;
-      return clone;
     }
 
     internal void Abort()
@@ -460,7 +467,7 @@ namespace MySql.Data.MySqlClient
     {
       if (Settings.Pooling && driver.IsOpen)
       {
-#if !NETCORE10
+#if !NET_CORE
         //TODO: SUPPORT FOR 452 AND 46X
         //// if we are in a transaction, roll it back
         if (driver.HasStatus(ServerStatusFlags.InTransaction))
@@ -492,12 +499,12 @@ namespace MySql.Data.MySqlClient
       // will be null on the second time through
       if (driver != null)
       {
-#if !NETCORE10
+#if !NET_CORE
         //TODO: Add support for 452 and 46X
         if (driver.currentTransaction == null)
 #endif
-          CloseFully();
-#if !NETCORE10
+        CloseFully();
+#if !NET_CORE
         //TODO: Add support for 452 and 46X
         else
           driver.IsInActiveUse = false;
@@ -515,67 +522,7 @@ namespace MySql.Data.MySqlClient
       return cmd.ExecuteScalar().ToString();
     }
 
-
-#if !NETCORE10
-        /// <summary>
-        /// Enlists in the specified transaction. 
-        /// </summary>
-        /// <param name="transaction">
-        /// A reference to an existing <see cref="System.Transactions.Transaction"/> in which to enlist.
-        /// </param>
-        public override void EnlistTransaction(Transaction transaction)
-        {
-            // enlisting in the null transaction is a noop
-            if (transaction == null)
-                return;
-
-            // guard against trying to enlist in more than one transaction
-            if (driver.currentTransaction != null)
-            {
-                if (driver.currentTransaction.BaseTransaction == transaction)
-                    return;
-
-                Throw(new MySqlException("Already enlisted"));
-            }
-
-            // now see if we need to swap out drivers.  We would need to do this since
-            // we have to make sure all ops for a given transaction are done on the
-            // same physical connection.
-            Driver existingDriver = DriverTransactionManager.GetDriverInTransaction(transaction);
-            if (existingDriver != null)
-            {
-                // we can't allow more than one driver to contribute to the same connection
-                if (existingDriver.IsInActiveUse)
-                    Throw(new NotSupportedException(Resources.MultipleConnectionsInTransactionNotSupported));
-
-                // there is an existing driver and it's not being currently used.
-                // now we need to see if it is using the same connection string
-                string text1 = existingDriver.Settings.ConnectionString;
-                string text2 = Settings.ConnectionString;
-                if (String.Compare(text1, text2, true) != 0)
-                    Throw(new NotSupportedException(Resources.MultipleConnectionsInTransactionNotSupported));
-
-                // close existing driver
-                // set this new driver as our existing driver
-                CloseFully();
-                driver = existingDriver;
-            }
-
-            if (driver.currentTransaction == null)
-            {
-                MySqlPromotableTransaction t = new MySqlPromotableTransaction(this, transaction);
-                if (!transaction.EnlistPromotableSinglePhase(t))
-                    Throw(new NotSupportedException(Resources.DistributedTxnNotSupported));
-
-                driver.currentTransaction = t;
-                DriverTransactionManager.SetDriverInTransaction(driver);
-                driver.IsInActiveUse = true;
-            }
-        }
-#endif
-
-
-        internal void HandleTimeoutOrThreadAbort(Exception ex)
+    internal void HandleTimeoutOrThreadAbort(Exception ex)
     {
       bool isFatal = false;
 
@@ -637,12 +584,12 @@ namespace MySql.Data.MySqlClient
         c._isKillQueryConnection = true;
         c.Open();
         string commandText = "KILL QUERY " + ServerThread;
-        MySqlCommand cmd = new MySqlCommand(commandText, c) {CommandTimeout = timeout};
+        MySqlCommand cmd = new MySqlCommand(commandText, c) { CommandTimeout = timeout };
         cmd.ExecuteNonQuery();
       }
     }
 
-#region Routines for timeout support.
+    #region Routines for timeout support.
 
     // Problem description:
     // Sometimes, ExecuteReader is called recursively. This is the case if
@@ -701,7 +648,7 @@ namespace MySql.Data.MySqlClient
       _commandTimeout = 0;
       driver?.ResetTimeout(0);
     }
-#endregion
+    #endregion
 
     public MySqlSchemaCollection GetSchemaCollection(string collectionName, string[] restrictionValues)
     {
@@ -713,7 +660,7 @@ namespace MySql.Data.MySqlClient
       return c;
     }
 
-#region Pool Routines
+    #region Pool Routines
 
     /// <include file='docs/MySqlConnection.xml' path='docs/ClearPool/*'/>
     public static void ClearPool(MySqlConnection connection)
@@ -727,11 +674,11 @@ namespace MySql.Data.MySqlClient
       MySqlPoolManager.ClearAllPools();
     }
 
-#endregion
+    #endregion
 
     internal void Throw(Exception ex)
     {
-#if !NETCORE10
+#if !NET_CORE
       if (_exceptionInterceptor == null)
         throw ex;
       _exceptionInterceptor.Throw(ex);
@@ -746,7 +693,7 @@ namespace MySql.Data.MySqlClient
       GC.SuppressFinalize(this);
     }
 
-#region Async
+    #region Async
     /// <summary>
     /// Async version of BeginTransaction
     /// </summary>
@@ -859,7 +806,7 @@ namespace MySql.Data.MySqlClient
           result.SetException(ex);
         }
       }
-      else 
+      else
       {
         result.SetCanceled();
       }
@@ -960,7 +907,7 @@ namespace MySql.Data.MySqlClient
       }
       return result.Task;
     }
-#endregion
+    #endregion
   }
 
   /// <summary>
@@ -998,7 +945,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-#region IDisposable Members
+    #region IDisposable Members
     public void Dispose()
     {
       if (!_timeoutSet) return;
@@ -1007,6 +954,6 @@ namespace MySql.Data.MySqlClient
       _connection.ClearCommandTimeout();
       _connection = null;
     }
-#endregion
+    #endregion
   }
 }

@@ -52,7 +52,7 @@ namespace MySql.Data.Common
     {
       public SecurityAttributes()
       {
-        Length = Marshal.SizeOf(typeof(SecurityAttributes));
+        Length = Marshal.SizeOf<SecurityAttributes>();
       }
       public int Length;
       public IntPtr securityDescriptor = IntPtr.Zero;

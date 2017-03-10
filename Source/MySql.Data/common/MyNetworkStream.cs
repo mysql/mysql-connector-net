@@ -183,10 +183,10 @@ namespace MySql.Data.Common
 
     #region Create Code
 
-#if !NETCORE10
     public static MyNetworkStream CreateStream(MySqlConnectionStringBuilder settings, bool unix)
     {
       MyNetworkStream stream = null;
+
       IPHostEntry ipHE = GetHostEntry(settings.Server);
       foreach (IPAddress address in ipHE.AddressList)
       {
@@ -206,30 +206,7 @@ namespace MySql.Data.Common
       }
       return stream;
     }
-#endif
 
-    public static async Task<MyNetworkStream> CreateStreamAsync(MySqlConnectionStringBuilder settings, bool unix)
-    {
-      MyNetworkStream stream = null;
-      IPHostEntry ipHE = await GetHostEntryAsync(settings.Server);
-      foreach (IPAddress address in ipHE.AddressList)
-      {
-        try
-        {
-          stream = CreateSocketStream(settings, address, unix);
-          if (stream != null) break;
-        }
-        catch(Exception ex)
-        {
-          SocketException socketException = ex.GetBaseException() as SocketException;
-          // if the exception is a ConnectionRefused then we eat it as we may have other address
-          // to attempt
-          if (socketException == null) throw;
-          if (socketException.SocketErrorCode != SocketError.ConnectionRefused) throw;
-        }
-      }
-      return stream;
-    }
 
     private static IPHostEntry ParseIPAddress(string hostname)
     {
@@ -244,55 +221,45 @@ namespace MySql.Data.Common
       return ipHE;
     }
 
-#if !NETCORE10
     private static IPHostEntry GetHostEntry(string hostname)
     {
       IPHostEntry ipHE = ParseIPAddress(hostname);
       if (ipHE != null) return ipHE;
-      return Dns.GetHostEntry(hostname);
-    }
-#endif
 
-    private static async Task<IPHostEntry> GetHostEntryAsync(string hostname)
-    {
-      IPHostEntry ipHE = ParseIPAddress(hostname);
-      if (ipHE != null) return ipHE;
-
-      return await Dns.GetHostEntryAsync(hostname);
+      Task<IPHostEntry> t = Dns.GetHostEntryAsync(hostname);
+      t.Wait();
+      return t.Result;
     }
 
-    #if !NETCORE10
-    private static EndPoint CreateUnixEndPoint(string host)
-    {
-      // first we need to load the Mono.posix assembly			
-      Assembly a = Assembly.Load(@"Mono.Posix, Version=2.0.0.0, 				
-                Culture=neutral, PublicKeyToken=0738eb9f132ed756");
+//#if NET_CORE
+//    private static EndPoint CreateUnixEndPoint(string host)
+//    {
+//      // first we need to load the Mono.posix assembly			
+//      Assembly a = Assembly.Load(@"Mono.Posix, Version=2.0.0.0, 				
+//                Culture=neutral, PublicKeyToken=0738eb9f132ed756");
 
 
-      // then we need to construct a UnixEndPoint object
-      EndPoint ep = (EndPoint)a.CreateInstance("Mono.Posix.UnixEndPoint",
-          false, BindingFlags.CreateInstance, null,
-          new object[1] { host }, null, null);
-      return ep;
-    }
-#endif
+//      // then we need to construct a UnixEndPoint object
+//      EndPoint ep = (EndPoint)a.CreateInstance("Mono.Posix.UnixEndPoint",
+//          false, BindingFlags.CreateInstance, null,
+//          new object[1] { host }, null, null);
+//      return ep;
+//    }
+//#endif
 
     private static MyNetworkStream CreateSocketStream(MySqlConnectionStringBuilder settings, IPAddress ip, bool unix)
     {
       EndPoint endPoint;
-#if !NETCORE10
-      if (!Platform.IsWindows() && unix)
-      {
-        endPoint = CreateUnixEndPoint(settings.Server);
-        //endPoint = new DnsEndPoint(settings.Server, (int)settings.Port);
-      }
-      else
-      {
-#endif
-      endPoint = new IPEndPoint(ip, (int)settings.Port);
-#if !NETCORE10
-      }
-#endif
+//#if NET_CORE
+//      if (!Platform.IsWindows() && unix)
+//      {
+//        endPoint = CreateUnixEndPoint(settings.Server);
+//        //endPoint = new DnsEndPoint(settings.Server, (int)settings.Port);
+//      }
+//      else
+//      {
+        endPoint = new IPEndPoint(ip, (int)settings.Port);
+//      }
 
       Socket socket = unix ?
           new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.IP) :
@@ -302,7 +269,7 @@ namespace MySql.Data.Common
         SetKeepAlive(socket, settings.Keepalive);
       }
 
-#if NETCORE10
+#if NET_CORE
       try
       {
         Task ias = socket.ConnectAsync(endPoint);

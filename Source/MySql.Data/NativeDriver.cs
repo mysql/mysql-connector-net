@@ -187,7 +187,7 @@ namespace MySql.Data.MySqlClient
       try
       {
         baseStream = StreamCreator.GetStream(Settings);
-#if !NETCORE10
+#if !NET_CORE
          if (Settings.IncludeSecurityAsserts)
             MySqlSecurityPermission.CreatePermissionSet(false).Assert();
 #endif
@@ -805,7 +805,7 @@ namespace MySql.Data.MySqlClient
         foreach (PropertyInfo property in attrs.GetType().GetProperties())
         {
           string name = property.Name;
-#if NETCORE10
+#if NET_CORE
           object[] customAttrs = property.GetCustomAttributes(typeof(DisplayNameAttribute), false).ToArray<object>();
 #else
           object[] customAttrs = property.GetCustomAttributes(typeof(DisplayNameAttribute), false);

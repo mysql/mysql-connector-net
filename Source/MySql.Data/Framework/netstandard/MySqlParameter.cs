@@ -1,4 +1,4 @@
-// Copyright � 2004, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,22 +20,18 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
+using System.ComponentModel;
+using System.Data;
+using System.Data.Common;
 
-namespace MySql.Data.Types
+namespace MySql.Data.MySqlClient
 {
-  /// <summary>
-  /// Summary description for MySqlConversionException.
-  /// </summary>
-#if !NET_CORE
-  [Serializable]
-#endif
-  public class MySqlConversionException : Exception
+  public sealed partial class MySqlParameter : DbParameter, IDbDataParameter
   {
-    /// <summary>Ctor</summary>
-    public MySqlConversionException(string msg)
-      : base(msg)
-    {
-    }
+    /// <summary>
+    /// Gets or sets the <see cref="DataRowVersion"/> to use when loading <see cref="Value"/>.
+    /// </summary>
+    [Category("Data")]
+    public DataRowVersion SourceVersion { get; set; }
   }
 }

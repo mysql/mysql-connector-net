@@ -1,50 +1,47 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{F50317E3-9DBA-4F6D-8EA2-BEBBB3FB17FE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{27400DB7-CF82-4DC4-98DF-5978644E4E53}"
-	ProjectSection(SolutionItems) = preProject
-		global.json = global.json
-	EndProjectSection
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MySql.Data", "Source\MySql.Data\MySql.Data.xproj", "{8F0F6915-49B2-42F8-A592-BEF9A09F3811}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{019C5460-E964-4688-9A91-57ED26D09F4B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{81A599B5-6ED5-45F7-84BE-1E5F772EA38D}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MySql.Data.Tests", "Tests\MySql.Data.Tests\MySql.Data.Tests.xproj", "{42229016-61AC-4ABF-88EB-354055D2AC40}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.Data", "Source\MySql.Data\MySql.Data.xproj", "{8F0F6915-49B2-42F8-A592-BEF9A09F3811}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MySql.Data.EntityFrameworkCore", "Source\MySql.Data.EntityFrameworkCore\MySql.Data.EntityFrameworkCore.xproj", "{E0EA25B2-FF20-4B52-9325-57BBEDD777EF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.Data.Tests", "Tests\MySql.Data.Tests\MySql.Data.Tests.xproj", "{42229016-61AC-4ABF-88EB-354055D2AC40}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MySql.EntityFrameworkCore.Basic.Tests", "Tests\MySql.EntityFrameworkCore.Basic.Tests\MySql.EntityFrameworkCore.Basic.Tests.xproj", "{1CAAB7D0-8D06-46B8-B3C9-8639828A6AE8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.Data.EntityFrameworkCore", "Source\MySql.Data.EntityFrameworkCore\MySql.Data.EntityFrameworkCore.csproj", "{E0EA25B2-FF20-4B52-9325-57BBEDD777EF}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MySql.EntityFrameworkCore.Migrations.Tests", "Tests\MySql.EntityFrameworkCore.Migrations.Tests\MySql.EntityFrameworkCore.Migrations.Tests.xproj", "{ACCD7F4B-A8E5-4642-BFD3-CDD2E3F52495}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.EntityFrameworkCore.Basic.Tests", "Tests\MySql.EntityFrameworkCore.Basic.Tests\MySql.EntityFrameworkCore.Basic.Tests.csproj", "{1CAAB7D0-8D06-46B8-B3C9-8639828A6AE8}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MySql.EntityFramework6.CodeFirst.Tests", "Tests\MySql.EntityFramework6.CodeFirst.Tests\MySql.EntityFramework6.CodeFirst.Tests.xproj", "{1CDC2D65-C754-4E0C-8F72-0A0C0FA2F17A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.EntityFrameworkCore.Migrations.Tests", "Tests\MySql.EntityFrameworkCore.Migrations.Tests\MySql.EntityFrameworkCore.Migrations.Tests.csproj", "{ACCD7F4B-A8E5-4642-BFD3-CDD2E3F52495}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MySql.EntityFramework6.Basic.Tests", "Tests\MySql.EntityFramework6.Basic.Tests\MySql.EntityFramework6.Basic.Tests.xproj", "{F8C09FA3-67C7-4AD6-9FE2-17A3F82C1F2B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.EntityFramework6.CodeFirst.Tests", "Tests\MySql.EntityFramework6.CodeFirst.Tests\MySql.EntityFramework6.CodeFirst.Tests.csproj", "{1CDC2D65-C754-4E0C-8F72-0A0C0FA2F17A}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MySql.EntityFramework6.Migrations.Tests", "Tests\MySql.EntityFramework6.Migrations.Tests\MySql.EntityFramework6.Migrations.Tests.xproj", "{F3AE9F45-D8CC-47BB-BF30-F11EB24EAD16}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.EntityFramework6.Basic.Tests", "Tests\MySql.EntityFramework6.Basic.Tests\MySql.EntityFramework6.Basic.Tests.csproj", "{F8C09FA3-67C7-4AD6-9FE2-17A3F82C1F2B}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MySql.Data.Entity.EF6", "Source\MySql.Data.Entity.EF6\MySql.Data.Entity.EF6.xproj", "{256547DD-4C49-48E7-BEB1-78FC17EAA464}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.EntityFramework6.Migrations.Tests", "Tests\MySql.EntityFramework6.Migrations.Tests\MySql.EntityFramework6.Migrations.Tests.csproj", "{F3AE9F45-D8CC-47BB-BF30-F11EB24EAD16}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MySql.Web", "Source\MySql.Web\MySql.Web.xproj", "{644C0442-74D1-4CEA-8B5B-B70099D4CCB2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.Data.Entity.EF6", "Source\MySql.Data.Entity.EF6\MySql.Data.Entity.EF6.csproj", "{256547DD-4C49-48E7-BEB1-78FC17EAA464}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MySql.Data.Tests.Stress", "Tests\MySql.Data.Tests.Stress\MySql.Data.Tests.Stress.xproj", "{BF425D4D-96A8-4EC7-9DD6-D8C83459E52D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.Web", "Source\MySql.Web\MySql.Web.csproj", "{644C0442-74D1-4CEA-8B5B-B70099D4CCB2}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MySql.Web.Tests", "Tests\MySql.Web.Tests\MySql.Web.Tests.xproj", "{2D54AE12-2CB6-455D-BA87-87D0DF71F603}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.Data.Tests.Stress", "Tests\MySql.Data.Tests.Stress\MySql.Data.Tests.Stress.csproj", "{BF425D4D-96A8-4EC7-9DD6-D8C83459E52D}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "TestApp", "Samples\TestApp\TestApp.xproj", "{CDB1D608-401E-48E8-A38E-80DBEEFBA598}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.Web.Tests", "Tests\MySql.Web.Tests\MySql.Web.Tests.csproj", "{2D54AE12-2CB6-455D-BA87-87D0DF71F603}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MySql.Core.Test.Console", "Samples\Core\MySql.Core.Test.Console.xproj", "{742DC4B9-D6D3-4063-821F-BB2FD980CE10}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestApp", "Samples\TestApp\TestApp.xproj", "{CDB1D608-401E-48E8-A38E-80DBEEFBA598}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MySql.Data.EntityFrameworkCore.Design", "Source\MySql.Data.EntityFrameworkCore.Design\MySql.Data.EntityFrameworkCore.Design.xproj", "{6F87E752-C524-4BD3-AA39-6C7DEBDA13A7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Samples\Core\Core.csproj", "{742DC4B9-D6D3-4063-821F-BB2FD980CE10}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MySql.EntityFrameworkCore.Design.Tests", "Tests\MySql.EntityFrameworkCore.Design.Tests\MySql.EntityFrameworkCore.Design.Tests.xproj", "{5726CD48-8CDC-451E-BD48-DCA28C3647C7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.Data.EntityFrameworkCore.Design", "Source\MySql.Data.EntityFrameworkCore.Design\MySql.Data.EntityFrameworkCore.Design.csproj", "{6F87E752-C524-4BD3-AA39-6C7DEBDA13A7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.EntityFrameworkCore.Design.Tests", "Tests\MySql.EntityFrameworkCore.Design.Tests\MySql.EntityFrameworkCore.Design.Tests.csproj", "{5726CD48-8CDC-451E-BD48-DCA28C3647C7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

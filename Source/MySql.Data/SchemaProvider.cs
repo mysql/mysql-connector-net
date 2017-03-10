@@ -675,37 +675,27 @@ namespace MySql.Data.MySqlClient
       return dt;
     }
 
+#if !NET_CORE
     private MySqlSchemaCollection GetDataSourceInformation()
     {
-#if RT
-      throw new NotSupportedException();
-#else
       MySqlSchemaCollection dt = new MySqlSchemaCollection("DataSourceInformation");
       dt.AddColumn("CompositeIdentifierSeparatorPattern", typeof(string));
       dt.AddColumn("DataSourceProductName", typeof(string));
       dt.AddColumn("DataSourceProductVersion", typeof(string));
       dt.AddColumn("DataSourceProductVersionNormalized", typeof(string));
-#if !NETCORE10
       dt.AddColumn("GroupByBehavior", typeof(GroupByBehavior));
-#endif
       dt.AddColumn("IdentifierPattern", typeof(string));
-#if !NETCORE10
       dt.AddColumn("IdentifierCase", typeof(IdentifierCase));
-#endif
       dt.AddColumn("OrderByColumnsInSelect", typeof(bool));
       dt.AddColumn("ParameterMarkerFormat", typeof(string));
       dt.AddColumn("ParameterMarkerPattern", typeof(string));
       dt.AddColumn("ParameterNameMaxLength", typeof(int));
       dt.AddColumn("ParameterNamePattern", typeof(string));
       dt.AddColumn("QuotedIdentifierPattern", typeof(string));
-#if !NETCORE10
       dt.AddColumn("QuotedIdentifierCase", typeof(IdentifierCase));
-#endif
       dt.AddColumn("StatementSeparatorPattern", typeof(string));
       dt.AddColumn("StringLiteralPattern", typeof(string));
-#if !NETCORE10
       dt.AddColumn("SupportedJoinOperators", typeof(SupportedJoinOperators));
-#endif
 
       DBVersion v = connection.driver.Version;
       string ver = $"{v.Major:0}.{v.Minor:0}.{v.Build:0}";
@@ -715,14 +705,10 @@ namespace MySql.Data.MySqlClient
       row["DataSourceProductName"] = "MySQL";
       row["DataSourceProductVersion"] = connection.ServerVersion;
       row["DataSourceProductVersionNormalized"] = ver;
-#if !NETCORE10
       row["GroupByBehavior"] = GroupByBehavior.Unrelated;
-#endif
       row["IdentifierPattern"] =
         @"(^\`\p{Lo}\p{Lu}\p{Ll}_@#][\p{Lo}\p{Lu}\p{Ll}\p{Nd}@$#_]*$)|(^\`[^\`\0]|\`\`+\`$)|(^\"" + [^\""\0]|\""\""+\""$)";
-#if !NETCORE10
       row["IdentifierCase"] = IdentifierCase.Insensitive;
-#endif
       row["OrderByColumnsInSelect"] = false;
       row["ParameterMarkerFormat"] = "{0}";
       row["ParameterMarkerPattern"] = "(@[A-Za-z0-9_$#]*)";
@@ -730,19 +716,15 @@ namespace MySql.Data.MySqlClient
       row["ParameterNamePattern"] =
         @"^[\p{Lo}\p{Lu}\p{Ll}\p{Lm}_@#][\p{Lo}\p{Lu}\p{Ll}\p{Lm}\p{Nd}\uff3f_@#\$]*(?=\s+|$)";
       row["QuotedIdentifierPattern"] = @"(([^\`]|\`\`)*)";
-#if !NETCORE10
       row["QuotedIdentifierCase"] = IdentifierCase.Sensitive;
-#endif
       row["StatementSeparatorPattern"] = ";";
       row["StringLiteralPattern"] = "'(([^']|'')*)'";
-#if !NETCORE10
       row["SupportedJoinOperators"] = 15;
-#endif
       dt.Rows.Add(row);
 
       return dt;
-#endif
     }
+#endif
 
     private static MySqlSchemaCollection GetDataTypes()
     {
@@ -839,7 +821,7 @@ namespace MySql.Data.MySqlClient
     private static MySqlSchemaCollection GetReservedWords()
     {
       MySqlSchemaCollection dt = new MySqlSchemaCollection("ReservedWords");      
-#if !NETCORE10
+#if !NET_CORE
       dt.AddColumn(DbMetaDataColumnNames.ReservedWord, typeof(string));
       Stream str = Assembly.GetExecutingAssembly().GetManifestResourceStream(
         "MySql.Data.Properties.ReservedWords.txt");
@@ -968,8 +950,10 @@ namespace MySql.Data.MySqlClient
         // common collections
         case "METADATACOLLECTIONS":
           return GetCollections();
+#if !NET_CORE
         case "DATASOURCEINFORMATION":
           return GetDataSourceInformation();
+#endif
         case "DATATYPES":
           return GetDataTypes();
         case "RESTRICTIONS":

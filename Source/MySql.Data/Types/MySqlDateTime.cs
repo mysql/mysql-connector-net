@@ -31,7 +31,8 @@ namespace MySql.Data.Types
   /// <summary>
   /// 
   /// </summary>
-  public partial struct MySqlDateTime : IMySqlValue, IComparable
+  [Serializable]
+  public struct MySqlDateTime : IMySqlValue, IComparable, IConvertible
   {
     private readonly MySqlDbType _type;
     private int _millisecond, _microsecond;
@@ -153,7 +154,8 @@ namespace MySql.Data.Types
     /// Returns the milliseconds portion of this datetime 
     /// expressed as a value between 0 and 999
     /// </summary>
-    public int Millisecond {
+    public int Millisecond
+    {
       get { return _millisecond; }
       set
       {
@@ -373,7 +375,7 @@ namespace MySql.Data.Types
       {
         if (TimezoneOffset == 0)
           kind = DateTimeKind.Utc;
-        else 
+        else
           kind = DateTimeKind.Local;
       }
 
@@ -412,7 +414,7 @@ namespace MySql.Data.Types
         return dateString;
 
       DateTime dt = new DateTime(1, 2, 3, Hour, Minute, Second).AddTicks(_microsecond * 10);
-#if !NETCORE10
+#if !NET_CORE
       dateString = String.Format("{0} {1}", dateString, dt.ToLongTimeString());
 #else
       dateString = String.Format("{0} {1}", dateString, dt.ToString(CultureInfo.CurrentCulture));
@@ -433,7 +435,7 @@ namespace MySql.Data.Types
     internal static void SetDSInfo(MySqlSchemaCollection sc)
     {
       string[] types = new string[] { "DATE", "DATETIME", "TIMESTAMP" };
-      MySqlDbType[] dbtype = new MySqlDbType[] { MySqlDbType.Date, 
+      MySqlDbType[] dbtype = new MySqlDbType[] { MySqlDbType.Date,
         MySqlDbType.DateTime, MySqlDbType.Timestamp };
 
       // we use name indexing because this method will only be called
@@ -468,7 +470,7 @@ namespace MySql.Data.Types
       }
     }
 
-#region IComparable Members
+    #region IComparable Members
 
     int IComparable.CompareTo(object obj)
     {
@@ -498,7 +500,97 @@ namespace MySql.Data.Types
       return 0;
     }
 
-#endregion
+    #endregion
+
+    #region IConvertible Members
+
+    ulong IConvertible.ToUInt64(IFormatProvider provider)
+    {
+      return 0;
+    }
+
+    sbyte IConvertible.ToSByte(IFormatProvider provider)
+    {
+      // TODO:  Add MySqlDateTime.ToSByte implementation
+      return 0;
+    }
+
+    double IConvertible.ToDouble(IFormatProvider provider)
+    {
+      return 0;
+    }
+
+    DateTime IConvertible.ToDateTime(IFormatProvider provider)
+    {
+      return GetDateTime();
+    }
+
+    float IConvertible.ToSingle(IFormatProvider provider)
+    {
+      return 0;
+    }
+
+    bool IConvertible.ToBoolean(IFormatProvider provider)
+    {
+      return false;
+    }
+
+    int IConvertible.ToInt32(IFormatProvider provider)
+    {
+      return 0;
+    }
+
+    ushort IConvertible.ToUInt16(IFormatProvider provider)
+    {
+      return 0;
+    }
+
+    short IConvertible.ToInt16(IFormatProvider provider)
+    {
+      return 0;
+    }
+
+    string System.IConvertible.ToString(IFormatProvider provider)
+    {
+      return null;
+    }
+
+    byte IConvertible.ToByte(IFormatProvider provider)
+    {
+      return 0;
+    }
+
+    char IConvertible.ToChar(IFormatProvider provider)
+    {
+      return '\0';
+    }
+
+    long IConvertible.ToInt64(IFormatProvider provider)
+    {
+      return 0;
+    }
+
+    System.TypeCode IConvertible.GetTypeCode()
+    {
+      return new System.TypeCode();
+    }
+
+    decimal IConvertible.ToDecimal(IFormatProvider provider)
+    {
+      return 0;
+    }
+
+    object IConvertible.ToType(Type conversionType, IFormatProvider provider)
+    {
+      return null;
+    }
+
+    uint IConvertible.ToUInt32(IFormatProvider provider)
+    {
+      return 0;
+    }
+
+    #endregion
 
   }
 }

@@ -32,7 +32,7 @@ namespace MySql.Data.MySqlClient.Authentication
   /// <summary>
   /// 
   /// </summary>
-#if !NETCORE10
+#if !NET_CORE
   [SuppressUnmanagedCodeSecurity()]
 #endif
   internal class MySqlWindowsAuthenticationPlugin : MySqlAuthenticationPlugin
@@ -47,7 +47,7 @@ namespace MySql.Data.MySqlClient.Authentication
     {
       string platform = String.Empty;
       
-#if !NETCORE10
+#if !NET_CORE
       int p = (int)Environment.OSVersion.Platform;
       if ((p == 4) || (p == 128))
         platform = "Unix";

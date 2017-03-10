@@ -135,7 +135,7 @@ namespace MySql.Data.MySqlClient
 
     protected override string ResolveType(string nameOrType)
     {
-#if NETCORE10
+#if NET_CORE
       return base.ResolveType(nameOrType);
 #else
       if (MySqlConfiguration.Settings == null || MySqlConfiguration.Settings.CommandInterceptors == null)
