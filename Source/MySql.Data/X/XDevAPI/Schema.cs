@@ -123,8 +123,8 @@ namespace MySqlX.XDevAPI
     /// Creates a collection
     /// </summary>
     /// <param name="collectionName">Name of the collection to create</param>
-    /// <param name="ReuseExistingObject"></param>
-    /// <returns></returns>
+    /// <param name="ReuseExistingObject">If false, it will throw an exception if collection exists</param>
+    /// <returns>Collection referente</returns>
     public Collection CreateCollection(string collectionName, bool ReuseExistingObject = false)
     {
       Collection coll = new Collection(this, collectionName);
@@ -165,10 +165,10 @@ namespace MySqlX.XDevAPI
     #region Views Functions
 
     /// <summary>
-    /// Creates a View from a Find or TableSelect statement.
+    /// Creates a view
     /// </summary>
     /// <param name="name">View name</param>
-    /// <param name="replace">Specifies if an existing view is replaced</param>
+    /// <param name="replace">Specifies if an existing view is replaced or not</param>
     /// <returns>ViewCreate chaining object</returns>
     public ViewCreateStatement CreateView(string name, bool replace = false)
     {

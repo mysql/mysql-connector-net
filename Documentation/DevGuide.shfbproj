@@ -18,12 +18,15 @@
     <OutputPath>.\Output\</OutputPath>
     <HtmlHelpName>ConnectorNET</HtmlHelpName>
     <ApiFilter>
-      <Filter entryType="Namespace" fullName="MySql.Data.MySqlClient" isExposed="True">
-        <Filter entryType="Class" fullName="MySql.Data.MySqlClient.CustomInstaller" filterName="CustomInstaller" isExposed="False" />
-      </Filter>
-      <Filter entryType="Namespace" fullName="MySql.Web.Security" isExposed="True">
-        <Filter entryType="Class" fullName="MySql.Web.Security.CustomInstaller" filterName="CustomInstaller" isExposed="False" />
-      </Filter>
+      <Filter entryType="Namespace" fullName="MySql.Data.Common" isExposed="False" />
+      <Filter entryType="Namespace" fullName="MySql.Data.MySqlClient" isExposed="False" />
+      <Filter entryType="Namespace" fullName="MySql.Data.MySqlClient.Authentication" isExposed="False" />
+      <Filter entryType="Namespace" fullName="MySql.Data.MySqlClient.Memcached" isExposed="False" />
+      <Filter entryType="Namespace" fullName="MySql.Data.MySqlClient.Replication" isExposed="False" />
+      <Filter entryType="Namespace" fullName="MySql.Data.MySqlClient.X.XDevAPI.Common" isExposed="False" />
+      <Filter entryType="Namespace" fullName="MySql.Data.Types" isExposed="False" />
+      <Filter entryType="Namespace" fullName="MySqlX.Protocol" isExposed="False" />
+      <Filter entryType="Namespace" fullName="MySqlX.Session" isExposed="False" />
     </ApiFilter>
     <ProjectSummary>
     </ProjectSummary>
@@ -44,13 +47,13 @@
     <RootNamespaceTitle>Reference</RootNamespaceTitle>
     <HelpTitle>MySQL Connector/Net</HelpTitle>
     <CopyrightHref>http://www.mysql.com</CopyrightHref>
-    <CopyrightText>Copyright &amp;#169%3b 2004,2016 Oracle and/or its affiliates.  All rights reserved.</CopyrightText>
+    <CopyrightText>Copyright &amp;#169%3b 2004, 2017, Oracle and/or its affiliates.  All rights reserved.</CopyrightText>
     <FeedbackEMailAddress>support%40oracle.com</FeedbackEMailAddress>
     <PresentationStyle>VS2013</PresentationStyle>
     <NamingMethod>MemberName</NamingMethod>
     <DocumentationSources>
-      <DocumentationSource sourceFile="..\Source\MySql.Data\bin\v4.5.1\Release\MySql.Data.dll" />
-      <DocumentationSource sourceFile="..\Source\MySql.Data\bin\v4.5.1\Release\MySql.Data.xml" />
+      <DocumentationSource sourceFile="..\Source\MySql.Data\bin\Release\net451\MySql.Data.dll" />
+      <DocumentationSource sourceFile="..\Source\MySql.Data\bin\Release\net451\MySql.Data.xml" />
     </DocumentationSources>
     <NamespaceSummaries>
       <NamespaceSummaryItem name="(global)" isDocumented="False" xmlns="" />
@@ -70,7 +73,7 @@
     </PlugInConfigurations>
     <VendorName>Oracle</VendorName>
     <HelpFileVersion>1.0.0.0</HelpFileVersion>
-    <MaximumGroupParts>2</MaximumGroupParts>
+    <MaximumGroupParts>10</MaximumGroupParts>
     <NamespaceGrouping>True</NamespaceGrouping>
     <SyntaxFilters>Standard</SyntaxFilters>
     <SdkLinkTarget>Blank</SdkLinkTarget>

@@ -30,6 +30,9 @@ using System.Threading.Tasks;
 
 namespace MySqlX.XDevAPI.Common
 {
+  /// <summary>
+  /// Represents a chaining view create statement
+  /// </summary>
   public class ViewCreateStatement : TargetedBaseStatement<Schema, Result>
   {
     internal string name;
@@ -49,7 +52,7 @@ namespace MySqlX.XDevAPI.Common
     }
 
     /// <summary>
-    /// Defines the column names of the created View
+    /// Defines the column names (alias) for the view
     /// </summary>
     /// <param name="columns">Alias list for the view columns</param>
     /// <returns>ViewCreate chaining object</returns>
@@ -60,9 +63,9 @@ namespace MySqlX.XDevAPI.Common
     }
 
     /// <summary>
-    /// Defines the View’s algorithm
+    /// Defines the algorithm of the view
     /// </summary>
-    /// <param name="algorithm">View Algorithm</param>
+    /// <param name="algorithm">View algorithm</param>
     /// <returns>ViewCreate chaining object</returns>
     public ViewCreateStatement Algorithm(ViewAlgorithmEnum algorithm)
     {
@@ -71,7 +74,7 @@ namespace MySqlX.XDevAPI.Common
     }
 
     /// <summary>
-    /// Defines the View’s security scheme.
+    /// Defines the security scheme of the view
     /// </summary>
     /// <param name="sqlSecurity">View security scheme</param>
     /// <returns>ViewCreate chaining object</returns>
@@ -82,7 +85,7 @@ namespace MySqlX.XDevAPI.Common
     }
 
     /// <summary>
-    /// Defines the View’s definer.
+    /// Represents the definer for a view
     /// </summary>
     /// <param name="user">Definer user</param>
     /// <returns>ViewCreate chaining object</returns>
@@ -93,7 +96,7 @@ namespace MySqlX.XDevAPI.Common
     }
 
     /// <summary>
-    /// Defines the table select statement to generate the View.
+    /// Defines the table Select statement used to generate the view
     /// </summary>
     /// <param name="selectFunction">Table select statement</param>
     /// <returns>ViewCreate chaining object</returns>
@@ -104,7 +107,7 @@ namespace MySqlX.XDevAPI.Common
     }
 
     /// <summary>
-    /// Sets insert/update constraints on the View.
+    /// Sets insert and update constraints on the view
     /// </summary>
     /// <param name="checkOption">Check option</param>
     /// <returns>ViewCreate chaining object</returns>
