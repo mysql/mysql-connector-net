@@ -27,6 +27,9 @@ using System.Threading.Tasks;
 
 namespace MySqlX.XDevAPI.Common
 {
+  /// <summary>
+  /// Represents a chaining view drop statement
+  /// </summary>
   public class ViewDropStatement : TargetedBaseStatement<Schema, Result>
   {
     internal string name;
@@ -38,9 +41,9 @@ namespace MySqlX.XDevAPI.Common
     }
 
     /// <summary>
-    /// Supress error if the view to drop doesn't exist.
+    /// Suppresses errors if the view to drop does not exist
     /// </summary>
-    /// <returns></returns>
+    /// <returns>ViewDrop chaining object</returns>
     public ViewDropStatement IfExists()
     {
       ifExists = true;

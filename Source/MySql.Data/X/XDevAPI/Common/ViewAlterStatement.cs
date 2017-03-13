@@ -27,6 +27,9 @@ using System.Threading.Tasks;
 
 namespace MySqlX.XDevAPI.Common
 {
+  /// <summary>
+  /// Represents a chaining view alter statement
+  /// </summary>
   public class ViewAlterStatement : ViewCreateStatement
   {
     internal ViewAlterStatement(Schema schema, string name) :base(schema, name, true)
