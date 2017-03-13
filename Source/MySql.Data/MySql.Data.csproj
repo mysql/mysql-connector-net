@@ -1,300 +1,108 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <Choose>
-    <When Condition="$(SolutionName) == 'MySQL-EMTrace'">
-      <PropertyGroup>
-        <ProductVersion>9.0.30729</ProductVersion>
-        <SchemaVersion>2.0</SchemaVersion>
-        <Framework>4.5</Framework>
-        <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
-        <DefineConstants>NET_45_OR_GREATER</DefineConstants>
-        <CopyNuGetImplementations>false</CopyNuGetImplementations>
-      </PropertyGroup>
-    </When>
-    <When Condition="$(SolutionName) == 'MySQL-EMTrace'">
-      <PropertyGroup>
-        <ProductVersion>9.0.30729</ProductVersion>
-        <SchemaVersion>2.0</SchemaVersion>
-        <Framework>4.0</Framework>
-        <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-        <DefineConstants>NET_40_OR_GREATER</DefineConstants>
-      </PropertyGroup>
-    </When>
-    <Otherwise>
-      <PropertyGroup>
-        <ProductVersion>9.0.30729</ProductVersion>
-        <SchemaVersion>2.0</SchemaVersion>
-        <Framework>4.5</Framework>
-        <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
-        <DefineConstants>NET_45_OR_GREATER;</DefineConstants>
-        <CopyNuGetImplementations>true</CopyNuGetImplementations>
-      </PropertyGroup>
-    </Otherwise>
-  </Choose>
-  <PropertyGroup>
-    <ProjectGuid>{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MySql.Data.MySqlClient</RootNamespace>
+    <Description>MySql.Data.MySqlClient .Net Core Class Library</Description>
+    <Copyright>Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.</Copyright>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <VersionPrefix>6.10.2</VersionPrefix>
+    <Authors>Oracle</Authors>
     <AssemblyName>MySql.Data</AssemblyName>
-    <FileAlignment>512</FileAlignment>
-    <PublishUrl>publish\</PublishUrl>
-    <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
-    <UpdateInterval>7</UpdateInterval>
-    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
-    <UpdatePeriodically>false</UpdatePeriodically>
-    <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
-    <UseApplicationTrust>false</UseApplicationTrust>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <PackageId>MySql.Data</PackageId>
+    <PackageTags>MySql;.NET Connector;MySql Connector/NET;netcore;.Net Core;MySql Conector/Net Core;coreclr;C/NET;C/Net Core</PackageTags>
+    <PackageReleaseNotes>Review ReleaseNotes.txt for details.</PackageReleaseNotes>
+    <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
+    <PackageProjectUrl>http://dev.mysql.com/downloads/</PackageProjectUrl>
+    <PackageLicenseUrl>http://www.gnu.org/licenses/old-licenses/gpl-2.0.html</PackageLicenseUrl>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <TargetFrameworks>netstandard1.6;net451</TargetFrameworks>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
+    <GenerateNeutralResourcesLanguageAttribute>false</GenerateNeutralResourcesLanguageAttribute>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <BaseOutputPath>$(TargetFrameworkVersion)\</BaseOutputPath>
-    <BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\</BaseIntermediateOutputPath>
-    <IntermediateOutputPath>obj\$(TargetFrameworkVersion)\</IntermediateOutputPath>
-    <OutputPath>bin\$(TargetFrameworkVersion)\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NET_45_OR_GREATER</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <UseVSHostingProcess>true</UseVSHostingProcess>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <BaseOutputPath>$(TargetFrameworkVersion)\</BaseOutputPath>
-    <BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\</BaseIntermediateOutputPath>
-    <IntermediateOutputPath>obj\$(TargetFrameworkVersion)\</IntermediateOutputPath>
-    <OutputPath>bin\$(TargetFrameworkVersion)\Release\</OutputPath>
-    <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <DocumentationFile>bin\Release\MySql.Data.XML</DocumentationFile>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'ReleaseNET40_Only|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <BaseOutputPath>NET40_Only\</BaseOutputPath>
-    <BaseIntermediateOutputPath>obj\NET40_Only\</BaseIntermediateOutputPath>
-    <IntermediateOutputPath>obj\NET40_Only\</IntermediateOutputPath>
-    <OutputPath>bin\NET40_Only\Release\</OutputPath>
-    <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Configuration.Install" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Design" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Management" />
-    <Reference Include="System.Security" />
-    <Reference Include="System.Transactions" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Authentication\AuthenticationManager.cs" />
-    <Compile Include="Authentication\MySQLAuthenticationPlugin.cs" />
-    <Compile Include="Authentication\NativePasswordPlugins.cs" />
-    <Compile Include="Authentication\Sha256AuthenticationPlugin.cs" />
-    <Compile Include="Authentication\WindowsAuthenticationPlugin.cs" />
-    <Compile Include="BulkLoader.cs" />
-    <Compile Include="CharSetMap.cs" />
-    <Compile Include="command.cs" />
-    <Compile Include="CommandBuilder.cs" />
-    <Compile Include="common\Cache.cs" />
-    <Compile Include="common\ContextString.cs" />
-    <Compile Include="common\LowResolutionStopwatch.cs" />
-    <Compile Include="common\MyNetworkStream.cs" />
-    <Compile Include="common\MySqlTokenizer.cs" />
-    <Compile Include="common\NamedPipeStream.cs" />
-    <Compile Include="common\NativeMethods.cs" />
-    <Compile Include="common\Platform.cs" />
-    <Compile Include="common\QueryNormalizer.cs" />
-    <Compile Include="common\SharedMemoryStream.cs" />
-    <Compile Include="common\Ssl.cs" />
-    <Compile Include="common\StreamCreator.cs" />
-    <Compile Include="common\StringUtility.cs" />
-    <Compile Include="common\Version.cs" />
-    <Compile Include="CompressedStream.cs" />
-    <Compile Include="ConfigUtils.cs" />
-    <Compile Include="Connection.cs" />
-    <Compile Include="Crypt.cs" />
-    <Compile Include="dataadapter.cs" />
-    <Compile Include="datareader.cs" />
-    <Compile Include="Driver.cs" />
-    <Compile Include="Exception.cs" />
-    <Compile Include="Framework\MySqlCommand.cs" />
-    <Compile Include="Framework\MySqlConnection.cs" />
-    <Compile Include="Framework\MySqlConnectionStringBuilder.cs" />
-    <Compile Include="Framework\MySqlDataReader.cs" />
-    <Compile Include="Framework\MySqlDateTime.cs" />
-    <Compile Include="Framework\MySqlParameter.cs" />
-    <Compile Include="Framework\MySqlParameterCollection.cs" />
-    <Compile Include="Framework\MySqlTransaction.cs" />
-    <Compile Include="Framework\Net451\AuthenticationManager.cs" />
-    <Compile Include="Field.cs" />
-    <Compile Include="Framework\Net451\MySqlTrace.cs" />
-    <Compile Include="Installer.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Interceptors\CommandInterceptor.cs" />
-    <Compile Include="Interceptors\Interceptor.cs" />
-    <Compile Include="Interceptors\ExceptionInterceptor.cs" />
-    <Compile Include="ISSchemaProvider.cs" />
-    <Compile Include="Memcached\BinaryClient.cs" />
-    <Compile Include="Memcached\MemcachedException.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Memcached\TextClient.cs" />
-    <Compile Include="Memcached\Client.cs" />
-    <Compile Include="MySqlClientFactory.cs" />
-    <Compile Include="MySqlClientPermission.cs" />
-    <Compile Include="MySqlConfiguration.cs" />
-    <Compile Include="MySqlConnectionStringBuilder.cs" />
-    <Compile Include="MysqlDefs.cs" />
-    <Compile Include="MySqlError.cs" />
-    <Compile Include="MySqlHelper.cs" />
-    <Compile Include="MySqlPacket.cs" />
-    <Compile Include="MySqlClientPermissionAttribute.cs" />
-    <Compile Include="MySqlPool.cs" />
-    <Compile Include="MySqlPoolManager.cs" />
-    <Compile Include="MySqlPromotableTransaction.cs" />
-    <Compile Include="MySqlScript.cs" />
-    <Compile Include="MySqlSecurityPermission.cs" />
-    <Compile Include="MySqlStream.cs" />
-    <Compile Include="NativeDriver.cs" />
-    <Compile Include="parameter.cs" />
-    <Compile Include="parameter_collection.cs" />
-    <Compile Include="PerformanceMonitor.cs" />
-    <Compile Include="PreparableStatement.cs" />
-    <Compile Include="ProcedureCache.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\VersionInfo.cs" />
-    <Compile Include="Replication\ReplicationConfiguration.cs" />
-    <Compile Include="Replication\ReplicationManager.cs" />
-    <Compile Include="Replication\ReplicationRoundRobinServerGroup.cs" />
-    <Compile Include="Replication\ReplicationServer.cs" />
-    <Compile Include="Replication\ReplicationServerGroup.cs" />
-    <Compile Include="Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="ResourcesX.Designer.cs">
-      <DependentUpon>ResourcesX.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-    </Compile>
-    <Compile Include="ResultSet.cs" />
-    <Compile Include="Schema.cs" />
-    <Compile Include="SchemaProvider.cs" />
-    <Compile Include="Statement.cs" />
-    <Compile Include="StoredProcedure.cs" />
-    <Compile Include="SystemPerformanceMonitor.cs" />
-    <Compile Include="TableCache.cs" />
-    <Compile Include="TimedStream.cs" />
-    <Compile Include="TracingDriver.cs" />
-    <Compile Include="transaction.cs" />
-    <Compile Include="Types\MetaData.cs" />
-    <Compile Include="Types\MySqlBinary.cs" />
-    <Compile Include="Types\MySqlBit.cs" />
-    <Compile Include="Types\MySqlByte.cs" />
-    <Compile Include="Types\MySqlConversionException.cs" />
-    <Compile Include="Types\MySqlDateTime.cs" />
-    <Compile Include="Types\MySqlDecimal.cs" />
-    <Compile Include="Types\MySqlDouble.cs" />
-    <Compile Include="Types\MySqlGeometry.cs" />
-    <Compile Include="Types\MySqlGuid.cs" />
-    <Compile Include="Types\MySqlInt16.cs" />
-    <Compile Include="Types\MySqlInt32.cs" />
-    <Compile Include="Types\MySqlInt64.cs" />
-    <Compile Include="Types\MySqlSingle.cs" />
-    <Compile Include="Types\MySqlString.cs" />
-    <Compile Include="Types\MySqlTime.cs" />
-    <Compile Include="Types\MySqlUByte.cs" />
-    <Compile Include="Types\MySqlUInt16.cs" />
-    <Compile Include="Types\MySqlUInt32.cs" />
-    <Compile Include="Types\MySqlUInt64.cs" />
-    <Compile Include="Types\MySqlValue.cs" />
-    <Compile Include="Utils.cs" />
-    <Compile Include="zlib\Adler32.cs" />
-    <Compile Include="zlib\Deflate.cs" />
-    <Compile Include="zlib\InfBlocks.cs" />
-    <Compile Include="zlib\InfCodes.cs" />
-    <Compile Include="zlib\Inflate.cs" />
-    <Compile Include="zlib\InfTree.cs" />
-    <Compile Include="zlib\StaticTree.cs" />
-    <Compile Include="zlib\SupportClass.cs" />
-    <Compile Include="zlib\Tree.cs" />
-    <Compile Include="zlib\ZInputStream.cs" />
-    <Compile Include="zlib\Zlib.cs" />
-    <Compile Include="zlib\ZOutputStream.cs" />
-    <Compile Include="zlib\ZStream.cs" />
-    <Compile Include="zlib\ZStreamException.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources.resx">
-      <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ResourcesX.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>ResourcesX.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\CHANGES">
-      <Link>CHANGES</Link>
+    <None Update="..\..\Release Notes.txt">
+      <Pack>true</Pack>
+    </None>
+    <None Update="..\..\README">
+      <Pack>true</Pack>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="docs\MySqlCommand.xml" />
-    <Content Include="docs\MySqlCommandBuilder.xml" />
-    <Content Include="docs\MySqlConnection.xml" />
-    <Content Include="docs\MySqlConnectionStringBuilder.xml" />
-    <Content Include="docs\MySqlDataAdapter.xml" />
-    <Content Include="docs\MySqlDataReader.xml" />
-    <Content Include="docs\MySqlException.xml" />
-    <Content Include="docs\MySqlHelper.xml" />
-    <Content Include="docs\MySqlParameter.xml" />
-    <Content Include="docs\MySqlParameterCollection.xml" />
-    <Content Include="docs\MySqlTransaction.xml" />
-    <EmbeddedResource Include="keywords.txt">
-      <CustomToolNamespace>MySql.Data</CustomToolNamespace>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Properties\ReservedWords.txt">
-      <CustomToolNamespace>MySql.Data.MySqlClient.Properties</CustomToolNamespace>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PreBuildEvent>
-    </PreBuildEvent>
-    <PostBuildEvent>
-    </PostBuildEvent>
+
+  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.6'">
+    <DefineConstants>NET_CORE;NETCORE10;NETSTANDARD1_6</DefineConstants>
   </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)'=='net451'">
+    <Compile Remove="**/netstandard/*.cs" />
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Drawing.Design" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Configuration.Install" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Runtime" />
+    <Reference Include="Microsoft.CSharp" />
+
+    <EmbeddedResource Include="keywords.txt;Resources.resx;ResourcesX.resx;Properties\ReservedWords.txt" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.6'">
+    <Compile Remove="**/net451/*.cs;Replication/*.cs" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="1.1.1" />
+    <PackageReference Include="System.Collections.NonGeneric" Version="4.3.0" />
+    <PackageReference Include="System.ComponentModel" Version="4.3.0" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="4.3.0" />
+    <PackageReference Include="System.ComponentModel.Primitives" Version="4.3.0" />
+    <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
+    <PackageReference Include="System.Net.Security" Version="4.3.0" />
+    <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
+    <PackageReference Include="System.Threading.Timer" Version="4.3.0" />
+    <PackageReference Include="System.Data.Common" Version="4.3.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.3.0" />
+    <PackageReference Include="System.Diagnostics.Process" Version="4.3.0" />
+    <PackageReference Include="System.IO.FileSystem.Primitives" Version="4.3.0" />
+    <PackageReference Include="System.IO.MemoryMappedFiles" Version="4.3.0" />
+    <PackageReference Include="System.Linq.Expressions" Version="4.3.0" />
+    <PackageReference Include="System.Net.Sockets" Version="4.3.0" />
+    <PackageReference Include="System.Reflection" Version="4.3.0" />
+    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />
+    <PackageReference Include="System.Resources.ResourceManager" Version="4.3.0" />
+    <PackageReference Include="System.Security.Principal.Windows" Version="4.3.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.3.0" />
+    <PackageReference Include="System.Diagnostics.TextWriterTraceListener" Version="4.3.0" />
+    <PackageReference Include="System.IO.Compression" Version="4.3.0" />
+    <PackageReference Include="System.Threading.ThreadPool" Version="4.3.0" />
+    <PackageReference Include="System.IO.Pipes" Version="4.3.0" />
+    <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
+    <PackageReference Include="System.Runtime.Serialization.Formatters" Version="4.3.0" />
+    <PackageReference Include="System.Threading.Tasks" Version="4.3.0" />
+  </ItemGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <PreserveCompilationContext>true</PreserveCompilationContext>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <Compile Update="Framework\net451\Installer.cs">
+      <SubType>Component</SubType>
+    </Compile>
+  </ItemGroup>
+
 </Project>

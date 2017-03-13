@@ -29,7 +29,7 @@ using System.Security;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 //
-[assembly: AssemblyTitle("MySql.Data.Tests")]
+[assembly: AssemblyTitle("MySql.Data.Tests Class Library")]
 [assembly: AssemblyDescription("Test fixtures for MySQL Connector/Net")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Oracle")]
@@ -64,9 +64,9 @@ using System.Security;
 //       documentation for more information on this.
 //
 
-[assembly: AssemblyKeyName("ConnectorNet")]
+//[assembly: AssemblyKeyName("ConnectorNet")]
 [assembly: AllowPartiallyTrustedCallers]
-#if !NETCORE10
+#if !NET_CORE
 [assembly: SecurityRules(SecurityRuleSet.Level1)]
 #endif
 
