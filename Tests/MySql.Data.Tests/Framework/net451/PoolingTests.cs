@@ -466,7 +466,7 @@ namespace MySql.Data.MySqlClient.Tests
     private static List<MySqlPool> GetClearingPools()
     {
       Type poolManagerType = typeof(MySqlPoolManager);
-#if NETCORE10
+#if NET_CORE
       FieldInfo clearingPoolsFI = poolManagerType.GetRuntimeField("clearingPools");
 #else
       FieldInfo clearingPoolsFI = poolManagerType.GetField("clearingPools",

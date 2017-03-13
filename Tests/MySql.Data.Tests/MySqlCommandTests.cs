@@ -677,7 +677,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void CloneCommand()
     {
       MySqlCommand cmd = new MySqlCommand();
-      MySqlCommand newCommand = cmd.Clone();
+      MySqlCommand newCommand = cmd.Clone() as MySqlCommand;
       IDbCommand newCommand2 = (IDbCommand)(cmd as ICloneable).Clone();
     }
 

@@ -220,6 +220,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+#if !NET_CORE
     /// <summary>
     /// Bug #10281 Clone issue with MySqlConnection 
     /// Bug #27269 MySqlConnection.Clone does not mimic SqlConnection.Clone behaviour 
@@ -237,6 +238,7 @@ namespace MySql.Data.MySqlClient.Tests
       clone.Open();
       clone.Close();
     }
+#endif
 
     /// <summary>
     /// Bug #13321  	Persist security info does not woek
@@ -755,9 +757,9 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    #region Async
+#region Async
     [Fact]
-    public async Task TransactionAsync()
+    public void TransactionAsync()
     {
       executeSQL("CREATE TABLE test(key2 varchar(50), name varchar(50), name2 varchar(50))");
 
@@ -843,7 +845,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.NotNull(schemaColl);
     }
 
-    #endregion
+#endregion
 
     [Fact]
     public void SslPreferredByDefault()

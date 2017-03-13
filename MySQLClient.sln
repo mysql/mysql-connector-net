@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.26228.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.Data", "Source\MySql.Data\MySql.Data.csproj", "{6F9F1446-22F6-41AE-8128-B014E12C8553}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.Data.Tests.Core", "Tests\MySql.Data.Tests\MySql.Data.Tests.Core.csproj", "{948BAAC1-736F-49E1-9159-BBD802DAD61E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.Data.Tests", "Tests\MySql.Data.Tests\MySql.Data.Tests.csproj", "{A57DAE76-2664-4DCF-A9BE-8D18B22D8437}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{6F9F1446-22F6-41AE-8128-B014E12C8553}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F9F1446-22F6-41AE-8128-B014E12C8553}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F9F1446-22F6-41AE-8128-B014E12C8553}.Release|Any CPU.Build.0 = Release|Any CPU
-		{948BAAC1-736F-49E1-9159-BBD802DAD61E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{948BAAC1-736F-49E1-9159-BBD802DAD61E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{948BAAC1-736F-49E1-9159-BBD802DAD61E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{948BAAC1-736F-49E1-9159-BBD802DAD61E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A57DAE76-2664-4DCF-A9BE-8D18B22D8437}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A57DAE76-2664-4DCF-A9BE-8D18B22D8437}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A57DAE76-2664-4DCF-A9BE-8D18B22D8437}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A57DAE76-2664-4DCF-A9BE-8D18B22D8437}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

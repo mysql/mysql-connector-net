@@ -1,4 +1,4 @@
-﻿// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright � 2004, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -22,33 +22,37 @@
 
 using System;
 using System.ComponentModel;
-using System.Data;
-using System.Data.Common;
+using System.Drawing;
 
 namespace MySql.Data.MySqlClient
 {
-  public sealed partial class MySqlParameter : DbParameter, IDbDataParameter, ICloneable
+  [ToolboxBitmap(typeof(MySqlCommand), "MySqlClient.resources.command.bmp")]
+  [DesignerCategory("Code")]
+  public sealed partial class MySqlCommand : ICloneable
   {
-    /// <summary>
-    /// Gets or sets the <see cref="DataRowVersion"/> to use when loading <see cref="Value"/>.
-    /// </summary>
-    [Category("Data")]
-    public override DataRowVersion SourceVersion { get; set; }
 
-    public MySqlParameter Clone()
+    ///// <summary>
+    ///// Creates a clone of this MySqlCommand object.  CommandText, Connection, and Transaction properties
+    ///// are included as well as the entire parameter list.
+    ///// </summary>
+    ///// <returns>The cloned MySqlCommand object</returns>
+    public object Clone()
     {
-      MySqlParameter clone = new MySqlParameter(_paramName, _mySqlDbType, Direction, SourceColumn, SourceVersion, _paramValue)
+      MySqlCommand clone = new MySqlCommand(cmdText, connection, Transaction)
       {
-        _inferType = _inferType
+        CommandType = CommandType,
+        commandTimeout = commandTimeout,
+        useDefaultTimeout = useDefaultTimeout,
+        BatchableCommandText = BatchableCommandText,
+        EnableCaching = EnableCaching,
+        CacheAge = CacheAge
       };
 
-      // if we have not had our type set yet then our clone should not either
+      foreach (MySqlParameter p in Parameters)
+      {
+        clone.Parameters.Add(p.Clone());
+      }
       return clone;
-    }
-
-    object System.ICloneable.Clone()
-    {
-      return this.Clone();
     }
   }
 }

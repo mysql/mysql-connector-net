@@ -22,55 +22,32 @@
 
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 using System.Diagnostics;
 using System.Data;
 
-#if !MONO
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class PerfMonTests : IUseFixture<SetUpClass>, IDisposable
+  public class PerfMonTests : TestBase
   {
 
-    protected SetUpClass st;
-    private string _connString = string.Empty;
+    protected TestSetup ts;
 
-    public string conn
+    public PerfMonTests(TestSetup setup) : base(setup, "perfmontests")
     {
-      get
-      {
-        _connString = st.conn.ConnectionString;
-        _connString += st.csAdditions;
-        return _connString;
-      }
+      ts = setup;
     }
 
-    public void SetFixture(SetUpClass data)
+    protected override string OnGetConnectionStringInfo()
     {
-      st = data;
-      st.csAdditions = ";use performance monitor=true;";
-      st.execSQL("CREATE TABLE Test (id INT, name VARCHAR(100))");
+      return "use performance monitor=true;";
     }
 
-    public void Dispose()
-    {
-      st.execSQL("DROP TABLE IF EXISTS TEST");
-    }
-    /// <summary>
-    /// This test doesn't work from the CI setup currently
-    /// </summary>
     [Fact]
     public void ProcedureFromCache()
     {
-      //TODO: Check this test
-      return;
-      
-      if (st.Version < new Version(5, 0)) return;      
-
-      st.execSQL("DROP PROCEDURE IF EXISTS spTest");
-      st.execSQL("CREATE PROCEDURE spTest(id int) BEGIN END");
+      executeSQL("DROP PROCEDURE IF EXISTS spTest");
+      executeSQL("CREATE PROCEDURE spTest(id int) BEGIN END");
 
       PerformanceCounter hardQuery = new PerformanceCounter(
          ".NET Data Provider for MySQL", "HardProcedureQueries", true);
@@ -79,7 +56,7 @@ namespace MySql.Data.MySqlClient.Tests
       long hardCount = hardQuery.RawValue;
       long softCount = softQuery.RawValue;
 
-      MySqlCommand cmd = new MySqlCommand("spTest", st.conn);
+      MySqlCommand cmd = new MySqlCommand("spTest", connection);
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.Parameters.AddWithValue("?id", 1);
       cmd.ExecuteScalar();
@@ -88,7 +65,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(softCount, softQuery.RawValue);
       hardCount = hardQuery.RawValue;
 
-      MySqlCommand cmd2 = new MySqlCommand("spTest", st.conn);
+      MySqlCommand cmd2 = new MySqlCommand("spTest", connection);
       cmd2.CommandType = CommandType.StoredProcedure;
       cmd2.Parameters.AddWithValue("?id", 1);
       cmd2.ExecuteScalar();
@@ -98,4 +75,3 @@ namespace MySql.Data.MySqlClient.Tests
     }
   }
 }
-#endif

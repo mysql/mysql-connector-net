@@ -27,25 +27,19 @@ using Xunit;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class ReplicationTests: IUseFixture<SetUpClass>, IDisposable
+  public class ReplicationTests: TestBase
   {
-    private SetUpClass st;
+    protected TestSetup ts;
 
-    public void SetFixture(SetUpClass data)
+    public ReplicationTests(TestSetup setup) : base(setup, "replication_tests")
     {
-      st = data;      
-    }
-
-    public void Dispose()
-    {
-      //Nothing to clean
-    }
-   
+      ts = setup;
+    }   
     
     [Fact]
     public void Simple()
     {
-      using (MySqlConnection connection = new MySqlConnection(st.GetConnectionString(true) + ";replication=yes"))
+      using (MySqlConnection connection = new MySqlConnection(GetConnectionSettings().GetConnectionString(true) + ";replication=yes"))
       {
         MySqlCommand cmd = new MySqlCommand("SET @v=1", connection);
         try

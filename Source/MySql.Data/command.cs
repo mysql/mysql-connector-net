@@ -37,11 +37,7 @@ using MySql.Data.MySqlClient.Replication;
 namespace MySql.Data.MySqlClient
 {
     /// <include file='docs/mysqlcommand.xml' path='docs/ClassSummary/*'/> 
-#if !NET_CORE
-    [System.Drawing.ToolboxBitmap(typeof(MySqlCommand), "MySqlClient.resources.command.bmp")]
-    [DesignerCategory("Code")]
-#endif
-    public sealed class MySqlCommand : DbCommand, IDisposable
+    public sealed partial class MySqlCommand : DbCommand, IDisposable
     {
         MySqlConnection connection;
         string cmdText;
@@ -841,11 +837,12 @@ namespace MySql.Data.MySqlClient
             return !keywords.Contains(keyword);
         }
 
-#endregion
+    #endregion
 
-#region Batching support
 
-        internal void AddToBatch(MySqlCommand command)
+    #region Batching support
+
+    internal void AddToBatch(MySqlCommand command)
         {
             if (Batch == null)
                 Batch = new List<MySqlCommand>();

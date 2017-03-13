@@ -27,7 +27,7 @@ using System.Collections.Generic;
 namespace MySql.Data.MySqlClient.Tests
 {
   public class SqlTokenizer
-  {
+  { 
     object tokenizer;
 
     public SqlTokenizer(string sql)

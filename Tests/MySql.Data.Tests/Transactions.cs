@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Xunit;
-#if !NETCORE10
+#if !NET_CORE
 using System.Transactions;
 using System.Data.Common;
 #endif
@@ -42,7 +42,7 @@ namespace MySql.Data.MySqlClient.Tests
       ts = setup;
     }        
 
-#if !NETCORE10
+#if !NET_CORE
     void TransactionScopeInternal(bool commit)
     {
       executeSQL("DROP TABLE IF EXISTS Test");

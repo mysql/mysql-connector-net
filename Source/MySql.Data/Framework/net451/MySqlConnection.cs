@@ -35,7 +35,7 @@ namespace MySql.Data.MySqlClient
   [ToolboxBitmap(typeof(MySqlConnection), "MySqlClient.resources.connection.bmp")]
   [DesignerCategory("Code")]
   [ToolboxItem(true)]
-  public sealed partial class MySqlConnection : DbConnection
+  public sealed partial class MySqlConnection : DbConnection, ICloneable
   {
     /// <summary>
     /// Returns schema information for the data source of this <see cref="DbConnection"/>. 
@@ -148,5 +148,17 @@ namespace MySql.Data.MySqlClient
       }
     }
 
+    /// <summary>
+    /// Creates a new MySqlConnection object with the exact same ConnectionString value
+    /// </summary>
+    /// <returns>A cloned MySqlConnection object</returns>
+    public object Clone()
+    {
+      MySqlConnection clone = new MySqlConnection();
+      string connectionString = Settings.ConnectionString;
+      if (connectionString != null)
+        clone.ConnectionString = connectionString;
+      return clone;
+    }
   }
 }
