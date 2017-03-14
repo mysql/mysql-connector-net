@@ -55,14 +55,6 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("allowbatch", "allow batch", typeof(bool), true, false));
       Options.Add(new MySqlConnectionStringOption("logging", null, typeof(bool), false, false));
       Options.Add(new MySqlConnectionStringOption("sharedmemoryname", "shared memory name", typeof(string), "MYSQL", false));
-      Options.Add(new MySqlConnectionStringOption("useoldsyntax", "old syntax,oldsyntax,use old syntax", typeof(bool), false, true,
-        delegate (MySqlConnectionStringBuilder msb, MySqlConnectionStringOption sender, object value)
-        {
-          MySqlTrace.LogWarning(-1, "Use Old Syntax is now obsolete.  Please see documentation");
-          msb.SetValue("useoldsyntax", value);
-        },
-        (msb, sender) => (bool)msb.values["useoldsyntax"]
-        ));
       Options.Add(new MySqlConnectionStringOption("connectiontimeout", "connection timeout,connect timeout", typeof(uint), (uint)15, false,
         delegate (MySqlConnectionStringBuilder msb, MySqlConnectionStringOption sender, object Value)
         {
@@ -308,21 +300,6 @@ namespace MySql.Data.MySqlClient
     {
       get { return (string)values["sharedmemoryname"]; }
       set { SetValue("sharedmemoryname", value); }
-    }
-
-    /// <summary>
-    /// Gets or sets a boolean value that indicates whether this connection uses
-    /// the old style (@) parameter markers or the new (?) style.
-    /// </summary>
-    [Category("Connection")]
-    [DisplayName("Use Old Syntax")]
-    [Description("Allows the use of old style @ syntax for parameters")]
-    [RefreshProperties(RefreshProperties.All)]
-    [Obsolete("Use Old Syntax is no longer needed.  See documentation")]
-    public bool UseOldSyntax
-    {
-      get { return (bool)values["useoldsyntax"]; }
-      set { SetValue("useoldsyntax", value); }
     }
 
     /// <summary>

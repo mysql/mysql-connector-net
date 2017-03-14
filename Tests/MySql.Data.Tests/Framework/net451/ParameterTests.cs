@@ -183,23 +183,6 @@ namespace MySql.Data.MySqlClient.Tests
 #endif
     }
 
-#if !NETCORE10
-    [Fact]
-    public void UseOldSyntaxGivesWarning()
-    {
-      Trace.Listeners.Clear();
-      GenericListener listener = new GenericListener();
-      Trace.Listeners.Add(listener);
-
-      string connStr = connection.ConnectionString + ";old syntax=yes;pooling=false";
-      MySqlConnection conn2 = new MySqlConnection(connStr);
-      conn2.Open();
-
-      Assert.True(listener.Find("Use Old Syntax is now obsolete") != 0);
-      conn2.Close();
-      Trace.Listeners.Clear();
-    }
-#endif
 
     [Fact]
     public void NullParameterObject()
