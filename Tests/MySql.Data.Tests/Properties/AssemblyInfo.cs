@@ -64,7 +64,6 @@ using System.Security;
 //       documentation for more information on this.
 //
 
-//[assembly: AssemblyKeyName("ConnectorNet")]
 [assembly: AllowPartiallyTrustedCallers]
 #if !NET_CORE
 [assembly: SecurityRules(SecurityRuleSet.Level1)]

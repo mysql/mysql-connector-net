@@ -3,9 +3,9 @@
   <PropertyGroup>
     <Description>MySql.EntityFrameworkCore.Migrations.Tests Class Library</Description>
     <Copyright>Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.</Copyright>
-    <VersionPrefix>6.10.2-IR2</VersionPrefix>
+    <VersionPrefix>6.10.2</VersionPrefix>
     <Authors>Oracle</Authors>
-    <TargetFrameworks>netcoreapp1.0;net451</TargetFrameworks>
+    <TargetFrameworks>netstandard1.6;net451</TargetFrameworks>
     <AssemblyName>MySql.EntityFrameworkCore.Migrations.Tests</AssemblyName>
     <PackageId>MySql.EntityFrameworkCore.Migrations.Tests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
@@ -14,14 +14,17 @@
     <PackageProjectUrl>http://dev.mysql.com/downloads/</PackageProjectUrl>
     <PackageLicenseUrl>http://www.gnu.org/licenses/old-licenses/gpl-2.0.html</PackageLicenseUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
-    <RuntimeFrameworkVersion Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">1.0.4</RuntimeFrameworkVersion>
+    <!--<PackageTargetFallback Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
+    <RuntimeFrameworkVersion Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">1.0.4</RuntimeFrameworkVersion>-->
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <AssemblyOriginatorKeyFile>../../ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>True</SignAssembly>
+    <DelaySign>true</DelaySign>
   </PropertyGroup>
 
   <ItemGroup>
@@ -35,23 +38,20 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0-preview-20170106-08" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0-beta5-build1225" />
-    <PackageReference Include="xunit" Version="2.2.0-beta5-build3474" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
+    <PackageReference Include="xunit" Version="2.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="1.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="1.1.1" />
   </ItemGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
-    <DefineConstants>$(DefineConstants);NETCORE10</DefineConstants>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
+    <DefineConstants>$(DefineConstants);NETCORE10;NET_CORE</DefineConstants>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
-    <DelaySign>true</DelaySign>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <AssemblyOriginatorKeyFile>../../ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
-    <SignAssembly>true</SignAssembly>
   </PropertyGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
     <Compile Include="..\*.cs" Exclude="bin\**;obj\**;**\*.xproj;packages\**" />
   </ItemGroup>
 
