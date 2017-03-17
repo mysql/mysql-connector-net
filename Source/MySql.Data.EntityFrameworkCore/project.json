@@ -1,5 +1,5 @@
 {
-  "version": "7.0.7-m6",
+  "version": "7.0.7-m61",
   "description": "MySql.Data.EntityFrameworkCore for Entity Framework.",
   "authors": [ "Oracle" ],
   "copyright": "Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.",
