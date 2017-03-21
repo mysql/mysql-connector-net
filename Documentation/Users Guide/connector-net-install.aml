@@ -89,8 +89,8 @@
             <para>
             If you have chosen a custom installation, you can select the
             individual components to install, including the core
-            interface component, supporting documentation (a CHM file)
-            samples and examples, and the source code. Select the items,
+            interface component, supporting documentation (a CHM file),
+            and the source code. Select the items,
             and their installation level, and then click
             <math>Next</math> to continue the installation.
           </para>          
@@ -132,12 +132,6 @@
             <para>
               <literal>docs</literal>: Connector/Net documentation in CHM
             format.
-          </para>
-          </listItem>
-          <listItem>
-            <para>
-              <literal>samples</literal>: Sample code and applications
-            that use the Connector/Net component.
           </para>
           </listItem>
           <listItem>
