@@ -1,4 +1,4 @@
-// Copyright © 2014 Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2014, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,10 +21,8 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
-using System;
 using System.Data;
 using System.Diagnostics;
-using System.Threading;
 using MySql.Data.MySqlClient;
 using System.Data.Common;
 using System.Linq;
@@ -32,12 +30,7 @@ using MySql.Data.Entity.Tests.Properties;
 using System.Collections;
 using System.Collections.Generic;
 using Xunit;
-#if EF6
 using System.Data.Entity.Core.Objects;
-#else
-using System.Data.EntityClient;
-using System.Data.Objects;
-#endif
 
 namespace MySql.Data.Entity.Tests
 {

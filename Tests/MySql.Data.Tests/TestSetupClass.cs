@@ -25,6 +25,7 @@ using Xunit;
 using System.Data;
 using System.IO;
 using System.Diagnostics;
+using Microsoft.Extensions.Configuration;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -75,30 +76,17 @@ namespace MySql.Data.MySqlClient.Tests
       baseUserName ="u-" + (testNameSpace.Length > 10 ? testNameSpace.Substring(0,10) : testNameSpace) + "-";     
       var s = new MySqlConnectionStringBuilder();
 
-#if NETCORE10
-        string port;        
+      var config = new ConfigurationBuilder()
+          .AddJsonFile("appsettings.json")
+          .Build();
 
-        var pathandfile = Path.GetFullPath(@"../..") + @"/appsettings.json";
-        var config = new ConfigUtils(pathandfile);
-        port  = config.GetPort();
-
-        if (!string.IsNullOrEmpty(port))
-        {
-            s.Port = Convert.ToUInt32(port);
-        }
-        else
-        {
-            s.Port = 3306;
-        }
-
-#else
-      s.Port = 3305;
-#endif
-
+      s.Server = config["host"];
+      s.Port = UInt32.Parse(config["port"]);
       s.UserID = "root";
-      s.Password = null;
-      s.Server = "localhost";
-#if !NETCORE10
+      s.Password = config["root_password"];
+      if (String.IsNullOrEmpty(s.Password))
+        s.Password = null;
+#if !NET_CORE
       s.SharedMemoryName = "MySQLSocket";
       s.PipeName = "MySQLSocket";
 #endif

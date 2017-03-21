@@ -1,4 +1,4 @@
-﻿// Copyright © 2008, 2015 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2008, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -24,20 +24,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Data.Common;
 using System.Data.Entity.Migrations.Sql;
 using System.Data.Entity.Migrations.Model;
 using MySql.Data.MySqlClient;
 using System.Data.Entity.Migrations.Design;
 using System.Data.Entity.Migrations.Utilities;
-using System.Collections;
-#if EF6
 using System.Data.Entity.Core.Common;
 using System.Data.Entity.Core.Metadata.Edm;
 using System.Data.Entity.Core.Common.CommandTrees;
-#else
-using System.Data.Metadata.Edm;
-#endif
 
 
 namespace MySql.Data.Entity
@@ -275,15 +269,9 @@ namespace MySql.Data.Entity
       _dispatcher.Add("SqlOperation", (OpDispatcher)((op) => { return Generate(op as SqlOperation); }));
     autoIncrementCols = new List<string>();
       primaryKeyCols = new List<string>();
-#if EF6
       _dispatcher.Add("HistoryOperation", (OpDispatcher)((op) => { return Generate(op as HistoryOperation); }));
       _dispatcher.Add("CreateProcedureOperation", (OpDispatcher)((op) => { return Generate(op as CreateProcedureOperation); }));
       _dispatcher.Add("UpdateDatabaseOperation", (OpDispatcher)((op) => { return Generate(op as UpdateDatabaseOperation); }));
-#endif
-#if !EF6
-      _dispatcher.Add("DeleteHistoryOperation", (OpDispatcher)((op) => { return Generate(op as DeleteHistoryOperation); }));
-      _dispatcher.Add("InsertHistoryOperation", (OpDispatcher)((op) => { return Generate(op as InsertHistoryOperation); }));      
-#endif
     }
 
     public override IEnumerable<MigrationStatement> Generate(IEnumerable<MigrationOperation> migrationOperations, string providerManifestToken)
@@ -311,8 +299,6 @@ namespace MySql.Data.Entity
       }
       return stmts;
     }
-
-#if EF6
 
     private MigrationStatement Generate(UpdateDatabaseOperation updateDatabaseOperation)
     {
@@ -532,7 +518,6 @@ namespace MySql.Data.Entity
 
       return sb.ToString();
     }
-#endif
 
     protected virtual MigrationStatement Generate(AddColumnOperation op)
     {
@@ -636,15 +621,11 @@ namespace MySql.Data.Entity
     {
       TypeUsage typeUsage = _providerManifest.GetStoreType(op.TypeUsage);
       StringBuilder sb = new StringBuilder();
-#if EF6
       string type = op.StoreType;
       if (type == null)
       {
         type = MySqlProviderServices.Instance.GetColumnType(typeUsage);
       }
-#else
-      string type = MySqlProviderServices.Instance.GetColumnType(typeUsage);
-#endif
 
       sb.Append(type);      
 
@@ -827,33 +808,6 @@ namespace MySql.Data.Entity
     {
       return new MigrationStatement() { Sql = "drop table " + "`" + TrimSchemaPrefix(op.Name) + "`" };
     }
-
-#if !EF6
-    protected virtual MigrationStatement Generate(DeleteHistoryOperation op)
-    {
-      return new MigrationStatement { Sql = string.Format("delete from `{0}` where MigrationId = '{1}'", TrimSchemaPrefix(op.Table), op.MigrationId) };
-    }
-
-    protected virtual MigrationStatement Generate(InsertHistoryOperation op)
-    {
-
-      if (op == null) return null;
-
-      StringBuilder sb = new StringBuilder();
-      StringBuilder model = new StringBuilder();
-
-      model.Append(BitConverter.ToString(op.Model).Replace("-", ""));
-
-      sb.Append("insert into `" + TrimSchemaPrefix(op.Table) + "` (`migrationId`, `model`, `productVersion`) ");
-      sb.AppendFormat(" values ( '{0}', {1}, '{2}') ",
-                      op.MigrationId,
-                      "0x" + model.ToString(),
-                      op.ProductVersion);
-
-      return new MigrationStatement { Sql = sb.ToString() };
-    
-    }
-#endif
 
     protected virtual MigrationStatement Generate(AddPrimaryKeyOperation op)
     {

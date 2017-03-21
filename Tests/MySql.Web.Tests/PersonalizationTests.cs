@@ -37,7 +37,7 @@ using System.Web.UI.WebControls.WebParts;
 
 namespace MySql.Web.Tests
 {
-  public class PersonalizationTests : IUseFixture<SetUpWeb>, IDisposable
+  public class PersonalizationTests : IClassFixture<SetUpWeb>, IDisposable
   {
     private SetUpWeb st;
     private long applicationId;

@@ -1,4 +1,4 @@
-﻿// Copyright © 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2008, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -22,18 +22,10 @@
 
 using System;
 using System.Diagnostics;
-using System.Text;
-using System.Data;
 using System.Collections.Generic;
 using MySql.Data.MySqlClient;
-using System.Globalization;
-#if EF6
 using System.Data.Entity.Core.Common.CommandTrees;
 using System.Data.Entity.Core.Metadata.Edm;
-#else
-using System.Data.Common.CommandTrees;
-using System.Data.Metadata.Edm;
-#endif
 
 
 namespace MySql.Data.Entity
@@ -251,7 +243,6 @@ namespace MySql.Data.Entity
       return expression.Argument.Accept(this);
     }
 
-#if EF6
     public override SqlFragment Visit(DbInExpression expression)
     {
       SqlFragment sf = expression.Item.Accept(this);
@@ -269,7 +260,6 @@ namespace MySql.Data.Entity
     {
       throw new NotImplementedException();
     }
-#endif
 
     public override SqlFragment Visit(DbLikeExpression expression)
     {
@@ -763,11 +753,7 @@ namespace MySql.Data.Entity
       f.WrapRight = ShouldWrapExpression(right);
       // Optimization, try to promote to In expression
       // NOTE: In EF6, this optimization is already done, we just implement Visit(DbInExpression).
-#if !EF6   
-      return TryToPromoteToIn(f);
-#else
       return f;
-#endif
     }
 
     protected virtual SqlFragment TryToPromoteToIn(BinaryFragment bf)

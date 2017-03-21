@@ -26,9 +26,6 @@
 
 using System;
 using System.Collections.Generic;
-#if CLR4
-
-#endif
 using System.Web;
 using System.Web.Security;
 using System.Web.SessionState;

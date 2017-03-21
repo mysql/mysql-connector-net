@@ -21,23 +21,13 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
-using System;
 using System.Data;
-using System.Threading;
 using MySql.Data.MySqlClient;
-
-#if !EF6
-using System.Data.EntityClient;
-using System.Data.Objects; 
-#else
-using System.Data.Entity.Core.EntityClient;
 using System.Data.Entity.Core.Objects;
-#endif
 using System.Data.Common;
 using MySql.Data.Entity.Tests.Properties;
 using System.Linq;
 using Xunit;
-using MySql.Data.Entity.Tests;
 
 namespace MySql.Data.Entity.Tests
 {

@@ -32,25 +32,15 @@ namespace MySql.Data.MySqlClient.Tests
   {
     protected TestSetup ts;
 
+    protected BlobTests(TestSetup setup, string ns) : base(setup, ns)
+    {
+      ts = setup;
+    }
+
     public BlobTests(TestSetup setup) : base(setup, "blob")
     {
-      ts = setup;      
-      customConnection = new MySqlConnection(ts.GetConnection(false).ConnectionString + ";" + OnGetConnectionStringInfo());
-      customConnection.Open();
     }
 
-
-    protected BlobTests(TestSetup setup, String nameSpace) : base(setup, nameSpace)
-    {
-      ts = setup;      
-      customConnection = new MySqlConnection(ts.GetConnection(false).ConnectionString + ";" + OnGetConnectionStringInfo());
-      customConnection.Open();
-    }
-
-    protected override string OnGetConnectionStringInfo()
-    {
-      return "SSL Mode=Required;";
-    }
 
     [Fact]
     public void InsertNullBinary()
@@ -58,7 +48,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test (id INT NOT NULL, blob1 LONGBLOB, PRIMARY KEY(id))");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?id, ?b1)", customConnection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?id, ?b1)", connection);
       cmd.Parameters.Add(new MySqlParameter("?id", 1));
       cmd.Parameters.Add(new MySqlParameter("?b1", null));      
       int rows = cmd.ExecuteNonQuery();
@@ -83,7 +73,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test (id INT NOT NULL, blob1 LONGBLOB, PRIMARY KEY(id))");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?id, ?b1)", customConnection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?id, ?b1)", connection);
       cmd.Parameters.Add(new MySqlParameter("?id", 1));   
       cmd.Parameters.Add(new MySqlParameter("?b1", dataIn));
       int rows = cmd.ExecuteNonQuery();
@@ -156,7 +146,7 @@ namespace MySql.Data.MySqlClient.Tests
       for (int x = 0; x < data.Length; x++)
         data[x] = (char)(65 + (x % 20));
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (1, ?text1)", customConnection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (1, ?text1)", connection);
       cmd.Parameters.AddWithValue("?text1", data);
       if (prepare)
         cmd.Prepare();
@@ -210,7 +200,7 @@ namespace MySql.Data.MySqlClient.Tests
         data[x] = (byte)(65 + (x % 20));
 
       // Create sample table
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (1, ?b1, ?t1)", customConnection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (1, ?b1, ?t1)", connection);
       cmd.Parameters.Add(new MySqlParameter("?t1", data));
       cmd.Parameters.Add(new MySqlParameter("?b1", "This is my blob data"));
       if (prepare) cmd.Prepare();
@@ -249,13 +239,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void GetCharsOnLongTextColumn()
     {
-      //if (connection.connectionState != ConnectionState.Open)
-      //  connection.Open();
-      
       executeSQL("CREATE TABLE Test1 (id INT NOT NULL, blob1 LONGBLOB, text1 LONGTEXT, PRIMARY KEY(id))");
       executeSQL("INSERT INTO Test1 (id, text1) VALUES(1, 'Test')");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT id, text1 FROM Test1", customConnection);
+      MySqlCommand cmd = new MySqlCommand("SELECT id, text1 FROM Test1", connection);
       char[] buf = new char[2];
 
       using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -280,7 +267,7 @@ namespace MySql.Data.MySqlClient.Tests
       for (int x = 0; x < image.Length; x++)
         image[x] = (byte)(x % 47);
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES(NULL, ?image, ?size)", customConnection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES(NULL, ?image, ?size)", connection);
       cmd.Parameters.AddWithValue("?image", image);
       cmd.Parameters.AddWithValue("?size", image.Length);
       cmd.ExecuteNonQuery();
@@ -333,7 +320,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE Test (id INT NOT NULL, blob1 LONGBLOB, text1 LONGTEXT, PRIMARY KEY(id))");
       executeSQL("INSERT INTO Test VALUES( 1, NULL, 'Text field' )");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", customConnection);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", connection);
       DataTable dt = new DataTable();
       da.Fill(dt);
 
@@ -362,10 +349,5 @@ namespace MySql.Data.MySqlClient.Tests
     }
 #endif
 
-    public override void Dispose()
-    {      
-      customConnection.Close();
-      base.Dispose();
-    }
   }
 }

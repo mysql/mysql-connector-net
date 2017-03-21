@@ -113,7 +113,11 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test (id INT) ENGINE=InnoDB");
 
-      string connStr = ts.GetPoolingConnectionString();
+      MySqlConnectionStringBuilder connStrBuilder = GetConnectionSettings();
+      connStrBuilder.Pooling = true;
+      connStrBuilder.ConnectionReset = true;
+      string connStr = connStrBuilder.GetConnectionString(true);
+
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();

@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -23,18 +23,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Xunit;
 using System.Data.Common;
 using MySql.Data.Entity.Tests.Properties;
-using System.Diagnostics;
-#if EF6
 using System.Data.Entity.Core.EntityClient;
 using System.Data.Entity.Core.Objects;
-#else
-using System.Data.EntityClient;
-using System.Data.Objects;
-#endif
 
 
 namespace MySql.Data.Entity.Tests
@@ -340,11 +333,7 @@ namespace MySql.Data.Entity.Tests
             orderby e.LastName, e.FirstName
             select e;
         query = q.ToTraceString();
-#if !EF6
-        st.CheckSql(query, SQLSyntax.InExpressionSimple);
-#else
         st.CheckSql(query, SQLSyntax.InExpressionSimpleEF6);
-#endif
         Assert.Equal(3, q.Count());
         i = 0;
         foreach (var e in q)

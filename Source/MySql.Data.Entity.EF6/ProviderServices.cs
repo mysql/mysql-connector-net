@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2014, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2014, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -25,30 +25,18 @@ using System.Data.Common;
 using System.Collections.Generic;
 using System.Data;
 using MySql.Data.Entity;
-using System.Reflection;
 using System.Diagnostics;
-using MySql.Data.Entity.Properties;
 using System.Text;
-using System.Linq;
 using System.Globalization;
 using MySql.Data.Common;
-#if EF6
 using System.Data.Entity.Core.Common;
 using System.Data.Entity.Core.Common.CommandTrees;
 using System.Data.Entity.Core.Metadata.Edm;
 using System.Data.Entity.Spatial;
-using System.Data.Entity.Infrastructure;
-#else
-using System.Data.Common.CommandTrees;
-using System.Data.Metadata.Edm;
-#if NET_45_OR_GREATER
-using System.Data.Spatial;
-#endif
-#endif
 
 namespace MySql.Data.MySqlClient
 {
-	public class MySqlScriptServices
+  public class MySqlScriptServices
 	{
 		public string GetTableCreateScript(EntitySet entitySet, string connectionString, string version)
 		{
@@ -70,11 +58,7 @@ namespace MySql.Data.MySqlClient
 		}
 	}
 
-#if EF6
 	public sealed class MySqlProviderServices : DbProviderServices
-#else
-		internal partial class MySqlProviderServices : System.Data.Common.DbProviderServices
-#endif
 	{
 		internal static readonly MySqlProviderServices Instance;
 		internal Version serverVersion { get; set; }
@@ -84,7 +68,6 @@ namespace MySql.Data.MySqlClient
 			Instance = new MySqlProviderServices();
 		}
 
-#if NET_45_OR_GREATER
 		protected override DbSpatialDataReader GetDbSpatialDataReader(DbDataReader fromReader, string manifestToken)
 		{
 			if (fromReader == null)
@@ -101,7 +84,6 @@ namespace MySql.Data.MySqlClient
 
 			return new MySqlSpatialDataReader(efReader);
 		}
-#endif
 		
 		protected override DbCommandDefinition CreateDbCommandDefinition(
 				DbProviderManifest providerManifest, DbCommandTree commandTree)

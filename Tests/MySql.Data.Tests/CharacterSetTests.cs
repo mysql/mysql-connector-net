@@ -53,8 +53,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void VarBinary()
     {
-      if (ts.version < new Version(4, 1)) return;
-
       executeSQL("CREATE TABLE test (id int, name varchar(200) collate utf8_bin) charset utf8");
       executeSQL("INSERT INTO test VALUES (1, 'Test1')");
 
@@ -70,8 +68,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Latin1Connection()
     {
-      if (ts.version < new Version(4, 1)) return;
-
       executeSQL("CREATE TABLE Test (id INT, name VARCHAR(200)) CHARSET latin1");
       executeSQL("INSERT INTO Test VALUES( 1, _latin1 'Test')");
 
@@ -222,7 +218,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// Bug #31185  	columns names are incorrect when using the 'AS' clause and name with accents
     /// Bug #38721  	GetOrdinal doesn't accept column names accepted by MySQL 5.0
     /// </summary>
-   [Fact]
+    [Fact]
     public void UTF8AsColumnNames()
     {
       string connStr = ts.GetConnection(true).ConnectionString + ";charset=utf8;pooling=false";
@@ -610,41 +606,41 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
 #if !NETCORE10
-   [Fact]
-   public void GEOSTD8Test()
-   {
-     MySqlConnection dbconn = new MySqlConnection(ts.GetConnection(false).ConnectionString);
-        try
+    [Fact]
+    public void GEOSTD8Test()
+    {
+      MySqlConnection dbconn = new MySqlConnection(ts.GetConnection(false).ConnectionString);
+      try
+      {
+        using (MySqlCommand cmd = new MySqlCommand("select _geostd8 'geostd8 test';", dbconn))
         {
-            using (MySqlCommand cmd = new MySqlCommand("select _geostd8 'geostd8 test';", dbconn))
+          dbconn.Open();
+          using (MySqlDataReader reader = cmd.ExecuteReader())
+          {
+            while (reader.Read())
             {
-                dbconn.Open();
-                using (MySqlDataReader reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        Assert.Equal("geostd8 test", reader[0].ToString());
-                    }
-                }
+              Assert.Equal("geostd8 test", reader[0].ToString());
             }
-            throw new Exception("The test should have failed with a MySqlException but it does not.");
-        }     
-        catch (MySqlException ex)
-        {
-            while (ex.InnerException != null)
-                ex = (MySqlException)ex.InnerException;
+          }
+        }
+        throw new Exception("The test should have failed with a MySqlException but it does not.");
+      }
+      catch (MySqlException ex)
+      {
+        while (ex.InnerException != null)
+          ex = (MySqlException)ex.InnerException;
 
-            Assert.Equal(typeof(MySqlException), ex.GetType());          
-        }
-        catch (Exception ex)
-        {
-            Assert.Equal(typeof(MySqlException), ex.GetType());
-        }
-        finally
-        {
-            dbconn.Close();
-        }
-   }
+        Assert.Equal(typeof(MySqlException), ex.GetType());
+      }
+      catch (Exception ex)
+      {
+        Assert.Equal(typeof(MySqlException), ex.GetType());
+      }
+      finally
+      {
+        dbconn.Close();
+      }
+    }
 #endif
 
     [Fact]

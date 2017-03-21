@@ -5,7 +5,7 @@
     <Copyright>Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.</Copyright>
     <VersionPrefix>6.10.2</VersionPrefix>
     <Authors>Oracle</Authors>
-    <TargetFrameworks>netstandard1.6;net451</TargetFrameworks>
+    <TargetFrameworks>netstandard1.6;net452</TargetFrameworks>
     <AssemblyName>MySql.EntityFrameworkCore.Basic.Tests</AssemblyName>
     <PackageId>MySql.EntityFrameworkCore.Basic.Tests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
@@ -29,11 +29,6 @@
 
   <ItemGroup>
     <None Include="App.config" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\Source\MySql.Data\MySql.Data.csproj" />
-    <ProjectReference Include="..\..\Source\MySql.Data.EntityFrameworkCore\MySql.Data.EntityFrameworkCore.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -61,9 +56,13 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net451' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\MySql.Data.EntityFrameworkCore\MySql.Data.EntityFrameworkCore.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013,2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,19 +21,13 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Xunit;
 using MySql.Data.MySqlClient;
 using System.Data.Common;
 using System.Data;
 using MySql.Data.Entity.Tests.Properties;
-#if EF6
 using System.Data.Entity.Core.Objects;
-#else
-using System.Data.Objects;
-#endif
 
 
 namespace MySql.Data.Entity.Tests
@@ -75,11 +69,7 @@ namespace MySql.Data.Entity.Tests
       using (testEntities context = new testEntities())
       {
         string eSql = "SELECT VALUE BigCount(t.Id) FROM Toys AS t";
-#if EF6
         ObjectQuery<long> q = context.CreateQuery<long>(eSql);
-#else
-        ObjectQuery<Int32> q = context.CreateQuery<Int32>(eSql);
-#endif
 
         string sql = q.ToTraceString();
         st.CheckSql(sql, SQLSyntax.BigCountSimple);

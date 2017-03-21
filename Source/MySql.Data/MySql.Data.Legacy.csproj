@@ -7,7 +7,7 @@
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <Framework>4.5</Framework>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <DefineConstants>NET_45_OR_GREATER</DefineConstants>
     <ProjectGuid>{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -50,8 +50,8 @@
     <BaseOutputPath>$(TargetFrameworkVersion)\</BaseOutputPath>
     <BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>obj\$(TargetFrameworkVersion)\</IntermediateOutputPath>
-    <OutputPath>bin\debug\$(TargetFrameworkVersion)\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NET_45_OR_GREATER</DefineConstants>
+    <OutputPath>bin\debug\legacy\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
@@ -64,13 +64,22 @@
     <BaseOutputPath>$(TargetFrameworkVersion)\</BaseOutputPath>
     <BaseIntermediateOutputPath>obj\$(TargetFrameworkVersion)\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>obj\$(TargetFrameworkVersion)\</IntermediateOutputPath>
-    <OutputPath>bin\release\$(TargetFrameworkVersion)\</OutputPath>
-    <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
+    <OutputPath>bin\release\legacy\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile>bin\Release\MySql.Data.XML</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DelaySign>true</DelaySign>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -100,8 +109,8 @@
     <Compile Include="common\MyNetworkStream.cs" />
     <Compile Include="common\MySqlTokenizer.cs" />
     <Compile Include="common\NativeMethods.cs" />
-    <Compile Include="common\net451\NamedPipeStream.cs" />
-    <Compile Include="common\net451\SharedMemoryStream.cs" />
+    <Compile Include="common\net452\NamedPipeStream.cs" />
+    <Compile Include="common\net452\SharedMemoryStream.cs" />
     <Compile Include="common\Platform.cs" />
     <Compile Include="common\QueryNormalizer.cs" />
     <Compile Include="common\Ssl.cs" />
@@ -115,25 +124,25 @@
     <Compile Include="datareader.cs" />
     <Compile Include="Driver.cs" />
     <Compile Include="Exception.cs" />
-    <Compile Include="Framework\Net451\AuthenticationManager.cs" />
     <Compile Include="Field.cs" />
-    <Compile Include="Framework\Net451\CommandBuilder.cs" />
-    <Compile Include="Framework\Net451\dataadapter.cs" />
-    <Compile Include="Framework\Net451\Installer.cs">
+    <Compile Include="Framework\net452\AuthenticationManager.cs" />
+    <Compile Include="Framework\net452\CommandBuilder.cs" />
+    <Compile Include="Framework\net452\dataadapter.cs" />
+    <Compile Include="Framework\net452\Installer.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Framework\Net451\MySqlClientPermission.cs" />
-    <Compile Include="Framework\Net451\MySqlClientPermissionAttribute.cs" />
-    <Compile Include="Framework\Net451\MySqlCommand.cs" />
-    <Compile Include="Framework\Net451\MySqlConfiguration.cs" />
-    <Compile Include="Framework\Net451\MySqlConnection.cs" />
-    <Compile Include="Framework\Net451\MySqlDataReader.cs" />
-    <Compile Include="Framework\Net451\MySqlHelper.cs" />
-    <Compile Include="Framework\Net451\MySqlParameter.cs" />
-    <Compile Include="Framework\Net451\MySqlParameterCollection.cs" />
-    <Compile Include="Framework\Net451\MySqlPromotableTransaction.cs" />
-    <Compile Include="Framework\Net451\MySqlSecurityPermission.cs" />
-    <Compile Include="Framework\Net451\SystemPerformanceMonitor.cs" />
+    <Compile Include="Framework\net452\MySqlClientPermission.cs" />
+    <Compile Include="Framework\net452\MySqlClientPermissionAttribute.cs" />
+    <Compile Include="Framework\net452\MySqlCommand.cs" />
+    <Compile Include="Framework\net452\MySqlConfiguration.cs" />
+    <Compile Include="Framework\net452\MySqlConnection.cs" />
+    <Compile Include="Framework\net452\MySqlDataReader.cs" />
+    <Compile Include="Framework\net452\MySqlHelper.cs" />
+    <Compile Include="Framework\net452\MySqlParameter.cs" />
+    <Compile Include="Framework\net452\MySqlParameterCollection.cs" />
+    <Compile Include="Framework\net452\MySqlPromotableTransaction.cs" />
+    <Compile Include="Framework\net452\MySqlSecurityPermission.cs" />
+    <Compile Include="Framework\net452\SystemPerformanceMonitor.cs" />
     <Compile Include="Interceptors\CommandInterceptor.cs" />
     <Compile Include="Interceptors\Interceptor.cs" />
     <Compile Include="Interceptors\ExceptionInterceptor.cs" />
@@ -238,6 +247,7 @@
     <None Include="..\..\CHANGES">
       <Link>CHANGES</Link>
     </None>
+    <None Include="ConnectorNetPublicKey.snk" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="docs\MySqlCommand.xml" />

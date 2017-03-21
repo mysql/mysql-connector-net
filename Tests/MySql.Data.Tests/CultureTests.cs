@@ -34,7 +34,7 @@ namespace MySql.Data.MySqlClient.Tests
   {
     protected TestSetup ts;
 
-    public CultureTests(TestSetup setup): base(setup, "culturetests")
+    public CultureTests(TestSetup setup) : base(setup, "culturetests")
     {
       ts = setup;
     }
@@ -49,8 +49,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void TestFloatsPrepared()
     {
-      if (ts.version < new Version(4, 1)) return;
-
       InternalTestFloats(true);
     }
 

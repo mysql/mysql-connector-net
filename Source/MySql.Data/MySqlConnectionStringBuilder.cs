@@ -494,9 +494,9 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-#endregion
+    #endregion
 
-#region Other Properties
+    #region Other Properties
 
     /// <summary>
     /// Gets or sets a boolean value that indicates if zero date time values are supported.
@@ -589,7 +589,7 @@ namespace MySql.Data.MySqlClient
     [Description("Instructs the provider to ignore any attempts to prepare a command.")]
     [RefreshProperties(RefreshProperties.All)]
 #endif
-    [DefaultValue(true)]
+    [DefaultValue(false)]
     public bool IgnorePrepare
     {
       get { return (bool)values["ignoreprepare"]; }
@@ -819,9 +819,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("includesecurityasserts", value); }
     }
 
-#endregion
+    #endregion
 
-#region Pooling Properties
+    #region Pooling Properties
 
     /// <summary>
     /// Gets or sets the lifetime of a pooled connection.
@@ -918,9 +918,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("cacheserverproperties", value); }
     }
 
-#endregion
+    #endregion
 
-#region Language and Character Set Properties
+    #region Language and Character Set Properties
 
     /// <summary>
     /// Gets or sets the character set that should be used for sending queries to the server.
@@ -997,9 +997,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("sslmode", value); }
     }
 
-#endregion
+    #endregion
 
-#region Backwards compatibility properties
+    #region Backwards compatibility properties
 #if !NETCORE10
     [DisplayName("Use Default Command Timeout For EF")]
     [Category("Backwards Compatibility")]
@@ -1011,9 +1011,9 @@ namespace MySql.Data.MySqlClient
       get { return (bool)values["usedefaultcommandtimeoutforef"]; }
       set { SetValue("usedefaultcommandtimeoutforef", value); }
     }
-#endregion
+    #endregion
 
-#region Fabric Properties
+    #region Fabric Properties
 
     public string FabricGroup { get; internal set; }
 
@@ -1025,9 +1025,9 @@ namespace MySql.Data.MySqlClient
 
     public int? FabricScope { get; internal set; }
 
-#endregion
+    #endregion
 
-#region XProperties
+    #region XProperties
 
     [Description("X DevApi: enables the use of SSL as required")]
     public bool SslEnable
@@ -1060,7 +1060,7 @@ namespace MySql.Data.MySqlClient
       set { throw new NotSupportedException(); }
     }
 
-#endregion
+    #endregion
 
     internal bool HasProcAccess { get; set; }
 

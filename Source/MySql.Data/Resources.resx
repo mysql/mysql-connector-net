@@ -211,7 +211,7 @@
     <value>Parameter cannot be null</value>
   </data>
   <data name="ChaosNotSupported" xml:space="preserve">
-    <value>Chaos isolation level is not supported</value>
+    <value>Chaos isolation level is not supported </value>
   </data>
   <data name="ParameterIsInvalid" xml:space="preserve">
     <value>Parameter is invalid.</value>
