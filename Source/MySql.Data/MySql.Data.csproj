@@ -30,7 +30,32 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="docs\MySqlCommand.xml" />
+    <None Remove="docs\MySqlCommandBuilder.xml" />
+    <None Remove="docs\MySqlConnection.xml" />
+    <None Remove="docs\MySqlConnectionStringBuilder.xml" />
+    <None Remove="docs\MySqlDataAdapter.xml" />
+    <None Remove="docs\MySqlDataReader.xml" />
+    <None Remove="docs\MySqlException.xml" />
+    <None Remove="docs\MySqlHelper.xml" />
+    <None Remove="docs\MySqlParameter.xml" />
+    <None Remove="docs\MySqlParameterCollection.xml" />
+    <None Remove="docs\MySqlTransaction.xml" />
     <None Remove="keywords.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="docs\MySqlCommand.xml" />
+    <Content Include="docs\MySqlCommandBuilder.xml" />
+    <Content Include="docs\MySqlConnection.xml" />
+    <Content Include="docs\MySqlConnectionStringBuilder.xml" />
+    <Content Include="docs\MySqlDataAdapter.xml" />
+    <Content Include="docs\MySqlDataReader.xml" />
+    <Content Include="docs\MySqlException.xml" />
+    <Content Include="docs\MySqlHelper.xml" />
+    <Content Include="docs\MySqlParameter.xml" />
+    <Content Include="docs\MySqlParameterCollection.xml" />
+    <Content Include="docs\MySqlTransaction.xml" />
   </ItemGroup>
 
   <ItemGroup>
