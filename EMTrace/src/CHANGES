@@ -1,0 +1,14 @@
+6.9.9
+- Fixed Installer issue (Oracle Bug #24402872).
+
+
+6.9.5
+- Included MEM plugin in Connector/NET installation.
+- Added support for EXPLAIN for INSERT/REPLACE/UPDATE/DELETE statements.
+
+
+1.0.6
+- Fix for MEM plugin for .NET not working with MEM 3.0.
+
+1.0.5
+- Fix for "Connector/NET plugin for MEM does not work with Connector/NET versions 6.5.5 and 6.6.5 (Oracle bug #16370490).
