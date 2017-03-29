@@ -27,11 +27,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Source\MySql.Data\MySql.Data.csproj" />
-    <ProjectReference Include="..\..\Source\MySql.Web\MySql.Web.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="System.Net.Http" Version="4.3.1" />
     <PackageReference Include="xunit" Version="2.2.0" />
   </ItemGroup>
@@ -43,6 +38,8 @@
     <PackageReference Include="Microsoft.AspNet.WebPages.WebData" Version="3.2.3" />
     <PackageReference Include="Microsoft.Web.Infrastructure" Version="1.0.0" />
     <PackageReference Include="WebMatrix.WebData" Version="2.0.30506" />
+    <ProjectReference Include="..\..\MySQL.Data\src\MySql.Data.csproj" />
+    <ProjectReference Include="..\src\MySql.Web.csproj" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Core" />

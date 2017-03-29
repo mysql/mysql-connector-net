@@ -31,7 +31,7 @@ using System.Threading;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class DateTimeTests : TestBase
+  public partial class DateTimeTests : TestBase
   {
     public DateTimeTests(TestFixture fixture) : base(fixture)
     {
@@ -109,130 +109,9 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    /// <summary>
-    /// Bug #9619 Cannot update row using DbDataAdapter when row contains an invalid date 
-    /// Bug #15112 MySqlDateTime Constructor 
-    /// </summary>
-    [Fact]
-    public void TestAllowZeroDateTime()
-    {
-      executeSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME, d DATE, " +
-        "t TIME, ts TIMESTAMP, PRIMARY KEY(id))");
-      executeSQL("INSERT INTO Test (id, d, dt) VALUES (1, '0000-00-00', '0000-00-00 00:00:00')");
 
-      using (MySqlConnection c = new MySqlConnection(
-        Connection.ConnectionString + ";pooling=false;AllowZeroDatetime=true"))
-      {
-        c.Open();
-        MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", c);
-        using (MySqlDataReader reader = cmd.ExecuteReader())
-        {
-          reader.Read();
 
-          Assert.True(reader.GetValue(1) is MySqlDateTime);
-          Assert.True(reader.GetValue(2) is MySqlDateTime);
 
-          Assert.False(reader.GetMySqlDateTime(1).IsValidDateTime);
-          Assert.False(reader.GetMySqlDateTime(2).IsValidDateTime);
-
-          Exception ex = Assert.Throws<MySqlConversionException>(() =>reader.GetDateTime(1));
-          Assert.Equal(ex.Message, "Unable to convert MySQL date/time value to System.DateTime");
-        }
-
-        DataTable dt = new DataTable();
-        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", c);
-        MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
-        da.Fill(dt);
-        dt.Rows[0]["id"] = 2;
-        DataRow row = dt.NewRow();
-        row["id"] = 3;
-        row["d"] = new MySqlDateTime("2003-9-24");
-        row["dt"] = new MySqlDateTime("0000/0/00 00:00:00");
-        dt.Rows.Add(row);
-
-        da.Update(dt);
-
-        dt.Clear();
-        da.Fill(dt);
-        Assert.Equal(2, dt.Rows.Count);
-        MySqlDateTime date = (MySqlDateTime)dt.Rows[1]["d"];
-        Assert.Equal(2003, date.Year);
-        Assert.Equal(9, date.Month);
-        Assert.Equal(24, date.Day);
-        cb.Dispose();
-      }
-    }
-
-    [Fact]
-    public void InsertDateTimeValue()
-    {
-      executeSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME, d DATE, " +
-        "t TIME, ts TIMESTAMP, PRIMARY KEY(id))");
-
-      using (MySqlConnection c = new MySqlConnection(Connection.ConnectionString +
-        ";allow zero datetime=yes"))
-      {
-        c.Open();
-        MySqlDataAdapter da = new MySqlDataAdapter("SELECT id, dt FROM Test", c);
-        MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
-
-        DataTable dt = new DataTable();
-        dt.Columns.Add(new DataColumn("id", typeof(int)));
-        dt.Columns.Add(new DataColumn("dt", typeof(DateTime)));
-
-        da.Fill(dt);
-
-        DateTime now = DateTime.Now;
-        DataRow row = dt.NewRow();
-        row["id"] = 1;
-        row["dt"] = now;
-        dt.Rows.Add(row);
-        da.Update(dt);
-
-        dt.Clear();
-        da.Fill(dt);
-        cb.Dispose();
-
-        Assert.Equal(1, dt.Rows.Count);
-        Assert.Equal(now.Date, ((DateTime)dt.Rows[0]["dt"]).Date);
-      }
-    }
-
-    [Fact]
-    public void SortingMySqlDateTimes()
-    {
-      executeSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME, d DATE, " +
-        "t TIME, ts TIMESTAMP, PRIMARY KEY(id))");
-
-      executeSQL("INSERT INTO Test (id, dt) VALUES (1, '2004-10-01')");
-      executeSQL("INSERT INTO Test (id, dt) VALUES (2, '2004-10-02')");
-      executeSQL("INSERT INTO Test (id, dt) VALUES (3, '2004-11-01')");
-      executeSQL("INSERT INTO Test (id, dt) VALUES (4, '2004-11-02')");
-
-      CultureInfo curCulture = Thread.CurrentThread.CurrentCulture;
-      CultureInfo curUICulture = Thread.CurrentThread.CurrentUICulture;
-      CultureInfo cul = new CultureInfo("en-GB");
-      Thread.CurrentThread.CurrentCulture = cul;
-      Thread.CurrentThread.CurrentUICulture = cul;
-
-      using (MySqlConnection c = new MySqlConnection(Connection.ConnectionString + ";allow zero datetime=yes"))
-      {
-        MySqlDataAdapter da = new MySqlDataAdapter("SELECT dt FROM Test", c);
-        DataTable dt = new DataTable();
-        da.Fill(dt);
-
-        DataView dv = dt.DefaultView;
-        dv.Sort = "dt ASC";
-
-        Assert.Equal(new DateTime(2004, 10, 1).Date, Convert.ToDateTime(dv[0]["dt"]).Date);
-        Assert.Equal(new DateTime(2004, 10, 2).Date, Convert.ToDateTime(dv[1]["dt"]).Date);
-        Assert.Equal(new DateTime(2004, 11, 1).Date, Convert.ToDateTime(dv[2]["dt"]).Date);
-        Assert.Equal(new DateTime(2004, 11, 2).Date, Convert.ToDateTime(dv[3]["dt"]).Date);
-
-        Thread.CurrentThread.CurrentCulture = curCulture;
-        Thread.CurrentThread.CurrentUICulture = curUICulture;
-      }
-    }
 
     [Fact]
     public void TestZeroDateTimeException()
@@ -286,22 +165,21 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void UsingDatesAsStrings()
     {
-      executeSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME, d DATE, " +
-        "t TIME, ts TIMESTAMP, PRIMARY KEY(id))");
-
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id, dt) VALUES (1, ?dt)", Connection);
       cmd.Parameters.Add("?dt", MySqlDbType.Date);
       cmd.Parameters[0].Value = "2005-03-04";
       cmd.ExecuteNonQuery();
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
-      Assert.Equal(1, dt.Rows.Count);
-      DateTime date = (DateTime)dt.Rows[0]["dt"];
-      Assert.Equal(2005, date.Year);
-      Assert.Equal(3, date.Month);
-      Assert.Equal(4, date.Day);
+      MySqlCommand cmd2 = new MySqlCommand("SELECT * FROM test", Connection);
+      using (var reader = cmd2.ExecuteReader())
+      {
+        Assert.True(reader.Read());
+        DateTime dt = reader.GetDateTime("dt");
+        Assert.Equal(2005, dt.Year);
+        Assert.Equal(3, dt.Month);
+        Assert.Equal(4, dt.Day);
+        Assert.False(reader.Read());
+      }
     }
 
     /// <summary>
@@ -310,6 +188,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Bug19481()
     {
+      executeSQL("DROP TABLE Test");
       executeSQL("CREATE TABLE Test(ID INT NOT NULL AUTO_INCREMENT, " +
         "SATELLITEID VARCHAR(3) NOT NULL, ANTENNAID INT, AOS_TIMESTAMP DATETIME NOT NULL, " +
         "TEL_TIMESTAMP DATETIME, LOS_TIMESTAMP DATETIME, PRIMARY KEY (ID))");
@@ -332,14 +211,17 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("INSERT INTO Test VALUES (NULL,'094','55','2005-07-24 23:00:00'," +
         "'2005-07-24 23:00:45','2005-07-24 23:22:23')");
 
-      DateTime date = DateTime.Parse("7/24/2005", CultureInfo.GetCultureInfo("en-us"));
+      CultureInfo cultureInfo = new CultureInfo("en-us");
+      DateTime date = DateTime.Parse("7/24/2005", cultureInfo);
       StringBuilder sql = new StringBuilder();
       sql.AppendFormat(CultureInfo.InvariantCulture,
         @"SELECT ID, ANTENNAID, TEL_TIMESTAMP, LOS_TIMESTAMP FROM Test 
         WHERE TEL_TIMESTAMP >= '{0}'", date.ToString("u"));
-      MySqlDataAdapter da = new MySqlDataAdapter(sql.ToString(), Connection);
-      DataSet dataSet = new DataSet();
-      da.Fill(dataSet);
+      MySqlCommand cmd = new MySqlCommand(sql.ToString(), Connection);
+      using (var reader = cmd.ExecuteReader())
+      {
+        while (reader.Read()) { }
+      }
     }
 
     /// <summary>
@@ -358,40 +240,6 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
-      }
-    }
-
-    [Fact]
-    public void DateTimeInDataTable()
-    {
-      executeSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME, d DATE, " +
-        "t TIME, ts TIMESTAMP, PRIMARY KEY(id))");
-
-      executeSQL("INSERT INTO Test VALUES(1, Now(), '0000-00-00', NULL, NULL)");
-
-      using (MySqlConnection c = new MySqlConnection(
-        Connection.ConnectionString + ";pooling=false;AllowZeroDatetime=true"))
-      {
-        c.Open();
-
-        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", c);
-        MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
-        DataTable dt = new DataTable();
-
-        da.Fill(dt);
-        DataRow row = dt.NewRow();
-        row["id"] = 2;
-        row["dt"] = new MySqlDateTime(DateTime.Now);
-        row["d"] = new MySqlDateTime(DateTime.Now);
-        row["t"] = new TimeSpan(1, 1, 1);
-        row["ts"] = DBNull.Value;
-        dt.Rows.Add(row);
-        da.Update(dt);
-
-        dt.Rows.Clear();
-        da.Fill(dt);
-        Assert.Equal(2, dt.Rows.Count);
-        cb.Dispose();
       }
     }
 
@@ -958,7 +806,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       try
       {
-        using (MySqlConnection conn2 = (MySqlConnection)Connection.Clone())
+        using (MySqlConnection conn2 = Fixture.GetConnection())
         {
           conn2.Open();
           Assert.Equal(timeZoneHours, conn2.driver.timeZoneOffset);
