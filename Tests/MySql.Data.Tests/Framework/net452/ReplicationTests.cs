@@ -29,17 +29,14 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class ReplicationTests: TestBase
   {
-    protected TestSetup ts;
-
-    public ReplicationTests(TestSetup setup) : base(setup, "replication_tests")
+    public ReplicationTests(TestFixture fixture) : base(fixture)
     {
-      ts = setup;
     }   
     
     [Fact]
     public void Simple()
     {
-      using (MySqlConnection connection = new MySqlConnection(GetConnectionSettings().GetConnectionString(true) + ";replication=yes"))
+      using (MySqlConnection connection = new MySqlConnection(Connection.ConnectionString + ";replication=yes"))
       {
         MySqlCommand cmd = new MySqlCommand("SET @v=1", connection);
         try

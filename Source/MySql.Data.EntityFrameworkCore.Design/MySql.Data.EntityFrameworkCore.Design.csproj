@@ -36,7 +36,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MySql.Data.EntityFrameworkCore\MySql.Data.EntityFrameworkCore.csproj" />
-    <ProjectReference Include="..\MySql.Data\MySql.Data.csproj" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

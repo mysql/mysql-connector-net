@@ -20,28 +20,19 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using MySql.Data.MySqlClient;
 
-using Xunit;
-using System.Data;
-using System.ComponentModel;
-using System.Security.Authentication;
 
 namespace MySql.Data.MySqlClient.Tests
 {
   public class OutputParametersNoBatch : OutputParametersBatch
   {
-    public OutputParametersNoBatch(TestSetup setup) : base (setup, "outparnobatch")
+    public OutputParametersNoBatch(TestFixture fixture) : base(fixture)
     {
-
     }
 
-    protected override string OnGetConnectionStringInfo()
+    public override void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
     {
-      return ";allow batch=false;";
+      settings.AllowBatch = false;
     }
   }
 }

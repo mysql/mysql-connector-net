@@ -24,13 +24,15 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class StressTestsPipeCompressed : StressTests
   {
-    public StressTestsPipeCompressed(TestSetup ts) : base(ts, "stress_pipe_compressed")
+    public StressTestsPipeCompressed(TestFixture fixture) : base(fixture)
     {
-
     }
-    protected override string OnGetConnectionStringInfo()
+
+    public override void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
     {
-      return string.Format("protocol=pipe;pipe name={0};compress=true;", setup.pipeName);
+      settings.ConnectionProtocol = MySqlConnectionProtocol.NamedPipe;
+      settings.UseCompression = true;
+      settings.SslMode = MySqlSslMode.None;
     }
   }
 }

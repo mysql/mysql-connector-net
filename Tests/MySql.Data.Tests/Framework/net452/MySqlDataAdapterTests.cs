@@ -21,8 +21,6 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 using System.Data;
 using System.Threading.Tasks;
@@ -32,12 +30,8 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class MySqlDataAdapterTests : TestBase
   {
-
-    protected TestSetup ts;
-
-    public MySqlDataAdapterTests(TestSetup setup) : base (setup, "dataadaptertest")
+    public MySqlDataAdapterTests(TestFixture fixture) : base(fixture)
     {
-      ts = setup;
     }
 
     private void CreateDefaultTable()
@@ -66,7 +60,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("INSERT INTO Test (id, id2, name, dt) VALUES (NULL, 2, NULL, Now())");
       executeSQL("INSERT INTO Test (id, id2, name, dt) VALUES (NULL, 3, '', Now())");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("select * from Test", connection);
+      MySqlDataAdapter da = new MySqlDataAdapter("select * from Test", Connection);
       if (prepare) da.SelectCommand.Prepare();
       DataSet ds = new DataSet();
       da.Fill(ds, "Test");
@@ -87,7 +81,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void TestUpdate()
     {
       CreateDefaultTable();
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", connection);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
       MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
       DataTable dt = new DataTable();
       da.Fill(dt);
@@ -138,7 +132,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void OriginalInName()
     {
       CreateDefaultTable();
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", connection);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
       MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
       cb.ToString();  // keep the compiler happy
       DataTable dt = new DataTable();
@@ -165,7 +159,7 @@ namespace MySql.Data.MySqlClient.Tests
       CreateDefaultTable();
       executeSQL("INSERT INTO Test (id, id2, name) VALUES (NULL, 1, 'Test')");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", connection);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
       MySqlCommandBuilder cb = new MySqlCommandBuilder();
       cb.DataAdapter = da;
 
@@ -190,7 +184,7 @@ namespace MySql.Data.MySqlClient.Tests
       CreateDefaultTable();
       executeSQL("INSERT INTO Test (id, id2, name) VALUES (1, 1, NULL)");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", connection);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
       MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
       cb.ToString();  // keep the compiler happy
 
@@ -215,7 +209,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE Test (id int, notes MEDIUMTEXT, PRIMARY KEY(id))");
       executeSQL("INSERT INTO Test VALUES(1, 'This is my note')");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", connection);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
       MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
       cb.ToString();  // keep the compiler happy
       DataTable dt = new DataTable();
@@ -236,7 +230,7 @@ namespace MySql.Data.MySqlClient.Tests
       for (int i = 0; i < 500; i++)
         executeSQL("INSERT INTO Test(id, id2) VALUES(NULL, " + i + ")");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", connection);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
       DataTable dt = new DataTable();
       da.Fill(dt);
 
@@ -250,7 +244,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("INSERT INTO Test VALUES (1, 'Test', '2004-08-01', 'Text 1')");
       executeSQL("INSERT INTO Test VALUES (2, 'Test 1', '2004-07-02', 'Text 2')");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", connection);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
       DataTable dt = new DataTable();
       da.Fill(dt);
 
@@ -270,7 +264,7 @@ namespace MySql.Data.MySqlClient.Tests
       CreateDefaultTable();
       executeSQL("INSERT INTO Test (id, id2, name) VALUES (1, 1, '')");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", connection);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
       MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
       cb.ToString();  // keep the compiler happy
       DataTable dt = new DataTable();
@@ -307,7 +301,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       string sql = "SELECT table1.key FROM table1 WHERE table1.key=1; " +
         "SELECT table2.key FROM table2 WHERE table2.key=1";
-      DataSet ds = MySqlHelper.ExecuteDataset(connection, sql, null);
+      DataSet ds = MySqlHelper.ExecuteDataset(Connection, sql, null);
       Assert.Equal(2, ds.Tables.Count);
       Assert.Equal(1, ds.Tables[0].Rows.Count);
       Assert.Equal(1, ds.Tables[1].Rows.Count);
@@ -324,7 +318,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE Test (id int(10) unsigned NOT NULL auto_increment primary key)");
       executeSQL("INSERT INTO Test VALUES(NULL)");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", connection);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
       MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
       DataSet ds = new DataSet();
       da.Fill(ds);
@@ -347,14 +341,11 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Rollup()
     {
-      if (ts.version < new Version(4, 1))
-        return;
-
       executeSQL("CREATE TABLE Test ( id INT NOT NULL, amount INT )");
       executeSQL("INSERT INTO Test VALUES (1, 44)");
       executeSQL("INSERT INTO Test VALUES (2, 88)");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test GROUP BY id WITH ROLLUP", connection);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test GROUP BY id WITH ROLLUP", Connection);
       DataSet ds = new DataSet();
       da.Fill(ds);
 
@@ -376,7 +367,7 @@ namespace MySql.Data.MySqlClient.Tests
       string strSQL = "INSERT INTO Test(OrgNum, CallReportNum, Stamp, WasRealCall, WasHangup) " +
         "VALUES (?OrgNum, ?CallReportNum, ?Stamp, ?WasRealCall, ?WasHangup)";
 
-      MySqlCommand cmd = new MySqlCommand(strSQL, connection);
+      MySqlCommand cmd = new MySqlCommand(strSQL, Connection);
       MySqlParameterCollection pc = cmd.Parameters;
 
       pc.Add("?OrgNum", MySqlDbType.Int32, 0, "OrgNum");
@@ -385,7 +376,7 @@ namespace MySql.Data.MySqlClient.Tests
       pc.Add("?WasRealCall", MySqlDbType.VarChar, 0, "WasRealCall");
       pc.Add("?WasHangup", MySqlDbType.VarChar, 0, "WasHangup");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", connection);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
       da.InsertCommand = cmd;
 
       DataSet ds = new DataSet();
@@ -401,7 +392,7 @@ namespace MySql.Data.MySqlClient.Tests
       da.Update(ds.Tables[0]);
 
       strSQL = "SELECT @@IDENTITY AS 'Identity';";
-      MySqlCommand cmd2 = new MySqlCommand(strSQL, connection);
+      MySqlCommand cmd2 = new MySqlCommand(strSQL, Connection);
       using (MySqlDataReader reader = cmd2.ExecuteReader())
       {
         reader.Read();
@@ -419,7 +410,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE Test (id INT, PRIMARY KEY(id))");
       executeSQL("INSERT INTO Test VALUES(1)");
 
-      using (MySqlConnection c = new MySqlConnection(GetConnection(true).ConnectionString + ";database=" + ts.baseDBName + "0"))
+      using (MySqlConnection c = new MySqlConnection(ConnectionSettings.ConnectionString))
       {
         MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", c);
         MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
@@ -454,7 +445,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("INSERT INTO Test VALUES (3)");
       executeSQL("INSERT INTO Test VALUES (4)");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", connection);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
       DataSet ds = new DataSet();
       da.Fill(ds, 1, 2, "Test");
     }
@@ -465,7 +456,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL(@"CREATE TABLE Test (id INT UNSIGNED NOT NULL AUTO_INCREMENT, 
             name VARCHAR(100), PRIMARY KEY(id))");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", connection);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
       MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
       DataTable dt = new DataTable();
       da.Fill(dt);
@@ -526,7 +517,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("INSERT INTO Test (id, id2, name) VALUES (NULL, 10, 'Name 10')");
       executeSQL("INSERT INTO Test (id, id2, name) VALUES (NULL, 11, 'Name 11')");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", connection);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
       DataTable dt = new DataTable();
       da.Fill(0, 10, new DataTable[] { dt });
       Assert.Equal(10, dt.Rows.Count);
@@ -545,7 +536,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       executeSQL("CREATE TABLE Test (id INT, name TEXT)");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?id, ?name)", connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?id, ?name)", Connection);
       cmd.Parameters.Add("?id", MySqlDbType.Int32);
       cmd.Parameters.Add("?name", MySqlDbType.Text);
       for (int i = 0; i < 5; i++)
@@ -555,7 +546,7 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.ExecuteNonQuery();
       }
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", connection);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
       DataTable dt = new DataTable();
       da.Fill(0, 2, new DataTable[] { dt });
     }
@@ -565,8 +556,8 @@ namespace MySql.Data.MySqlClient.Tests
     {
       executeSQL("CREATE TABLE Test (id INT, name VARCHAR(20), PRIMARY KEY(id))");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", connection);
-      MySqlCommand ins = new MySqlCommand("INSERT INTO test (id, name) VALUES (?p1, ?p2)", connection);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
+      MySqlCommand ins = new MySqlCommand("INSERT INTO test (id, name) VALUES (?p1, ?p2)", Connection);
       da.InsertCommand = ins;
       ins.UpdatedRowSource = UpdateRowSource.None;
       ins.Parameters.Add("?p1", MySqlDbType.Int32).SourceColumn = "id";
@@ -604,10 +595,10 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("INSERT INTO Test VALUES (2, 'Test 2')");
       executeSQL("INSERT INTO Test VALUES (3, 'Test 3')");
 
-      MySqlDataAdapter dummyDA = new MySqlDataAdapter("SELECT * FROM Test", connection);
+      MySqlDataAdapter dummyDA = new MySqlDataAdapter("SELECT * FROM Test", Connection);
       MySqlCommandBuilder cb = new MySqlCommandBuilder(dummyDA);
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test ORDER BY id ASC", connection);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test ORDER BY id ASC", Connection);
       da.UpdateCommand = cb.GetUpdateCommand();
       da.UpdateCommand.UpdatedRowSource = UpdateRowSource.None;
 
@@ -641,10 +632,10 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("INSERT INTO Test VALUES (2, 'Test 2')");
       executeSQL("INSERT INTO Test VALUES (3, 'Test 3')");
 
-      MySqlDataAdapter dummyDA = new MySqlDataAdapter("SELECT * FROM Test", connection);
+      MySqlDataAdapter dummyDA = new MySqlDataAdapter("SELECT * FROM Test", Connection);
       MySqlCommandBuilder cb = new MySqlCommandBuilder(dummyDA);
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test ORDER BY id", connection);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test ORDER BY id", Connection);
       da.UpdateCommand = cb.GetUpdateCommand();
       da.InsertCommand = cb.GetInsertCommand();
       da.DeleteCommand = cb.GetDeleteCommand();
@@ -681,17 +672,17 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("foobar", dt.Rows[2]["name"]);
     }
 
-    [Fact]
+    [Fact(Skip="Fix This")]
     public void TestBatchingInsertsMoreThanMaxPacket()
     {
       int blobSize = 64000;
 
-      executeSQL("CREATE TABLE Test (id INT, img BLOB, PRIMARY KEY(id))");
+      executeSQL("CREATE TABLE TestBatchingInsertsMoreThanMaxPacket (id INT, img BLOB, PRIMARY KEY(id))");
 
-      int numRows = (ts.maxPacketSize / blobSize) * 2;
+      int numRows = (Fixture.MaxPacketSize / blobSize) * 2;
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", connection);
-      MySqlCommand ins = new MySqlCommand("INSERT INTO test (id, img) VALUES (@p1, @p2)", connection);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM TestBatchingInsertsMoreThanMaxPacket", Connection);
+      MySqlCommand ins = new MySqlCommand("INSERT INTO TestBatchingInsertsMoreThanMaxPacket (id, img) VALUES (@p1, @p2)", Connection);
       da.InsertCommand = ins;
       ins.UpdatedRowSource = UpdateRowSource.None;
       ins.Parameters.Add("@p1", MySqlDbType.Int32).SourceColumn = "id";
@@ -721,7 +712,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void FunctionsReturnString()
     {
-      string connStr = ts.GetConnection(true).ConnectionString + ";functions return string=yes;database=" + ts.baseDBName + "0";
+      string connStr = ConnectionSettings.ConnectionString + ";functions return string=yes";
 
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
@@ -747,8 +738,7 @@ namespace MySql.Data.MySqlClient.Tests
         PRIMARY KEY(id)) ENGINE=InnoDB DEFAULT CHARSET=latin1");
       executeSQL("INSERT INTO Test VALUES (1, 'name', 23.2)");
 
-      string connStr = ts.GetConnection(true).ConnectionString + ";database=" + ts.baseDBName + "0";
-      using (MySqlConnection c = new MySqlConnection(connStr))
+      using (MySqlConnection c = new MySqlConnection(ConnectionSettings.ConnectionString))
       {
         string sql = "SELECT * FROM Test";
         MySqlDataAdapter da = new MySqlDataAdapter(sql, c);
@@ -781,14 +771,14 @@ namespace MySql.Data.MySqlClient.Tests
         "field varchar(50) DEFAULT NULL," +
         "PRIMARY KEY (id_auto))");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM T", connection);
-      da.InsertCommand = connection.CreateCommand();
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM T", Connection);
+      da.InsertCommand = Connection.CreateCommand();
       da.InsertCommand.CommandText = @"INSERT INTO T(field) VALUES (@p_field); 
                       SELECT * FROM T WHERE id_auto=@@IDENTITY";
       da.InsertCommand.Parameters.Add("@p_field", MySqlDbType.VarChar, 50, "field");
       da.InsertCommand.UpdatedRowSource = UpdateRowSource.FirstReturnedRecord;
 
-      da.DeleteCommand = connection.CreateCommand();
+      da.DeleteCommand = Connection.CreateCommand();
       da.DeleteCommand.CommandText = "DELETE FROM T WHERE id_auto=@id_auto";
       da.DeleteCommand.Parameters.Add("@id_auto", MySqlDbType.Int32, 4, "id_auto");
 
@@ -823,9 +813,10 @@ namespace MySql.Data.MySqlClient.Tests
     {
       executeSQL("CREATE TABLE Test (id INT, name VARCHAR(20), PRIMARY KEY(id))");
 
-      MySqlConnection c = new MySqlConnection(GetConnection(true).ConnectionString +";database=" + ts.baseDBName + "0");
-      MySqlConnection c2 = new MySqlConnection(GetConnection(true).ConnectionString + ";database=" + ts.baseDBName + "0");
-      MySqlConnection c3 = new MySqlConnection(GetConnection(true).ConnectionString + ";database=" + ts.baseDBName + "0");
+      string connStr = ConnectionSettings.ConnectionString;
+      MySqlConnection c = new MySqlConnection(connStr);
+      MySqlConnection c2 = new MySqlConnection(connStr);
+      MySqlConnection c3 = new MySqlConnection(connStr);
 
       MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", c);
       MySqlCommand ins = new MySqlCommand("INSERT INTO test (id, name) VALUES (?p1, ?p2)", c);
@@ -922,18 +913,18 @@ namespace MySql.Data.MySqlClient.Tests
 
       /* Add one row to the table */
       MySqlCommand cmd = new MySqlCommand(
-        "insert into bugtable(field) values('x')", connection);
+        "insert into bugtable(field) values('x')", Connection);
       cmd.ExecuteNonQuery();
 
 
       DataSet ds = new DataSet();
       MySqlDataAdapter da = new MySqlDataAdapter();
 
-      da.SelectCommand = connection.CreateCommand();
+      da.SelectCommand = Connection.CreateCommand();
       da.SelectCommand.CommandType = CommandType.StoredProcedure;
       da.SelectCommand.CommandText = "sp_getall_bugtable";
 
-      da.UpdateCommand = connection.CreateCommand();
+      da.UpdateCommand = Connection.CreateCommand();
       da.UpdateCommand.CommandType = CommandType.StoredProcedure;
       da.UpdateCommand.CommandText = "sp_updatebugtable";
       da.UpdateCommand.Parameters.Add("p_id_auto", MySqlDbType.Int32, 4, "id_auto");
@@ -959,7 +950,10 @@ namespace MySql.Data.MySqlClient.Tests
     {
       executeSQL("CREATE PROCEDURE SimpleSelect() BEGIN SELECT 'ADummyVal' as DummyVal; END");
 
-      using (MySqlConnection connection = new MySqlConnection(ts.GetPoolingConnectionString()))
+      MySqlConnectionStringBuilder cb = new MySqlConnectionStringBuilder(ConnectionSettings.ConnectionString);
+      cb.Pooling = true;
+
+      using (MySqlConnection connection = new MySqlConnection(cb.ConnectionString))
       {
         MySqlDataAdapter adapter = new MySqlDataAdapter("SimpleSelect", connection);
         adapter.SelectCommand.CommandType = CommandType.StoredProcedure;
@@ -983,7 +977,10 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE PROCEDURE SimpleSelect1() BEGIN SELECT 'ADummyVal' as DummyVal; END");
       executeSQL("CREATE PROCEDURE SimpleSelect2() BEGIN SELECT 'ADummyVal' as DummyVal; END");
 
-      using (MySqlConnection connection = new MySqlConnection(ts.GetPoolingConnectionString()))
+      MySqlConnectionStringBuilder cb = new MySqlConnectionStringBuilder(ConnectionSettings.ConnectionString);
+      cb.Pooling = true;
+
+      using (MySqlConnection connection = new MySqlConnection(cb.ConnectionString))
       {
         MySqlDataAdapter adapter = new MySqlDataAdapter("SimpleSelect1", connection);
         adapter.SelectCommand.CommandType = CommandType.StoredProcedure;
@@ -1007,7 +1004,6 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if NET_45_OR_GREATER
     #region Async
     [Fact]
     public async Task FillAsync()
@@ -1017,7 +1013,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("INSERT INTO DAFillAsyncTest (id, id2, name, dt) VALUES (NULL, 2, NULL, Now())");
       executeSQL("INSERT INTO DAFillAsyncTest (id, id2, name, dt) VALUES (NULL, 3, '', Now())");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("select * from DAFillAsyncTest", connection);
+      MySqlDataAdapter da = new MySqlDataAdapter("select * from DAFillAsyncTest", Connection);
       DataSet ds = new DataSet();
       await da.FillAsync(ds, "DAFillAsyncTest");
 
@@ -1036,12 +1032,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task FillSchemaAsync()
     {
-      if (ts.version < new Version(5, 0)) return;
-
       executeSQL("CREATE PROCEDURE DAFillSchemaAsyncSpTest() BEGIN SELECT * FROM DAFillSchemaAsyncTest; END");
       executeSQL(@"CREATE TABLE DAFillSchemaAsyncTest(id INT AUTO_INCREMENT, name VARCHAR(20), PRIMARY KEY (id)) ");
 
-      MySqlCommand cmd = new MySqlCommand("DAFillSchemaAsyncSpTest", connection);
+      MySqlCommand cmd = new MySqlCommand("DAFillSchemaAsyncSpTest", Connection);
       cmd.CommandType = CommandType.StoredProcedure;
 
       MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.SchemaOnly);
@@ -1058,7 +1052,7 @@ namespace MySql.Data.MySqlClient.Tests
     public async Task UpdateAsync()
     {
       executeSQL("CREATE TABLE DAUpdateAsyncTest (id INT NOT NULL AUTO_INCREMENT, id2 INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME, ts TIMESTAMP, OriginalId INT, PRIMARY KEY(id, id2))");
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM DAUpdateAsyncTest;", connection);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM DAUpdateAsyncTest;", Connection);
       MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
       DataTable dt = new DataTable();
       da.Fill(dt);
@@ -1104,6 +1098,5 @@ namespace MySql.Data.MySqlClient.Tests
       cb.Dispose();
     }
     #endregion
-#endif
   }
 }

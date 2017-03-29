@@ -27,9 +27,9 @@ using Xunit;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class MySqlConnectionStringBuilderTests : TestBase
+  public class ConnectionStringBuilderTests : TestBase
   {
-    public MySqlConnectionStringBuilderTests(TestSetup setup) : base(setup, "string-builder")
+    public ConnectionStringBuilderTests(TestFixture fixture) : base(fixture)
     {
     }
 

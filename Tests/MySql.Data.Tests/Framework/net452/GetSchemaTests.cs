@@ -30,18 +30,15 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class GetSchemaTests : TestBase
   {
-    protected TestSetup ts;
-
-    public GetSchemaTests(TestSetup setup) : base(setup, "getschematests")
+    public GetSchemaTests(TestFixture fixture) : base(fixture)
     {
-      ts = setup;
-      ts.CreateDatabase("1");
+      //ts.CreateDatabase("1");
     }
 
     [Fact]
     public void Collections()
     {
-      DataTable dt = connection.GetSchema();
+      DataTable dt = Connection.GetSchema();
 
       int row = 0;
       Assert.Equal("MetaDataCollections", dt.Rows[row++][0]);
@@ -72,7 +69,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void DataTypes()
     {
-      DataTable dt = connection.GetSchema("DataTypes", new string[] { });
+      DataTable dt = Connection.GetSchema("DataTypes", new string[] { });
 
       foreach (DataRow row in dt.Rows)
       {
@@ -140,51 +137,24 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     [Fact]
-    public void Databases()
-    {
-      DataTable dt = connection.GetSchema("Databases");
-      Assert.Equal("Databases", dt.TableName);
-
-      bool foundZero = false;
-      bool foundOne = false;
-      foreach (DataRow row in dt.Rows)
-      {
-        string dbName = row[1].ToString().ToLower();
-        if (dbName == (ts.baseDBName + "0").ToLower())
-          foundZero = true;
-        else if (dbName == (ts.baseDBName + "1").ToLower())
-          foundOne = true;
-      }
-      Assert.True(foundZero);
-      Assert.True(foundOne);
-
-      dt = connection.GetSchema("Databases", new string[1] { (ts.baseDBName + "0").ToLower() });
-      Assert.Equal(1, dt.Rows.Count);
-      Assert.Equal((ts.baseDBName + "0").ToLower(), dt.Rows[0][1].ToString().ToLower());
-    }
-
-    [Fact]
     public void Tables()
     {
       executeSQL("DROP TABLE IF EXISTS test1");
       executeSQL("CREATE TABLE test1 (id int)");
 
       string[] restrictions = new string[4];
-      restrictions[1] = ts.baseDBName + "0";
+      restrictions[1] = Connection.Database;
       restrictions[2] = "test1";
-      DataTable dt = connection.GetSchema("Tables", restrictions);
-      if (ts.version.Major >= 5 && ts.version.Minor >= 1)
-      {
-        Assert.True(dt.Columns["VERSION"].DataType == typeof(UInt64));
-        Assert.True(dt.Columns["TABLE_ROWS"].DataType == typeof(UInt64));
-        Assert.True(dt.Columns["AVG_ROW_LENGTH"].DataType == typeof(UInt64));
-        Assert.True(dt.Columns["DATA_LENGTH"].DataType == typeof(UInt64));
-        Assert.True(dt.Columns["MAX_DATA_LENGTH"].DataType == typeof(UInt64));
-        Assert.True(dt.Columns["INDEX_LENGTH"].DataType == typeof(UInt64));
-        Assert.True(dt.Columns["DATA_FREE"].DataType == typeof(UInt64));
-        Assert.True(dt.Columns["AUTO_INCREMENT"].DataType == typeof(UInt64));
-        Assert.True(dt.Columns["CHECKSUM"].DataType == typeof(UInt64));
-      }
+      DataTable dt = Connection.GetSchema("Tables", restrictions);
+      Assert.True(dt.Columns["VERSION"].DataType == typeof(UInt64));
+      Assert.True(dt.Columns["TABLE_ROWS"].DataType == typeof(UInt64));
+      Assert.True(dt.Columns["AVG_ROW_LENGTH"].DataType == typeof(UInt64));
+      Assert.True(dt.Columns["DATA_LENGTH"].DataType == typeof(UInt64));
+      Assert.True(dt.Columns["MAX_DATA_LENGTH"].DataType == typeof(UInt64));
+      Assert.True(dt.Columns["INDEX_LENGTH"].DataType == typeof(UInt64));
+      Assert.True(dt.Columns["DATA_FREE"].DataType == typeof(UInt64));
+      Assert.True(dt.Columns["AUTO_INCREMENT"].DataType == typeof(UInt64));
+      Assert.True(dt.Columns["CHECKSUM"].DataType == typeof(UInt64));
       Assert.True(dt.Rows.Count == 1);
       Assert.Equal("Tables", dt.TableName);
       Assert.Equal("test1", dt.Rows[0][2]);
@@ -198,28 +168,25 @@ namespace MySql.Data.MySqlClient.Tests
         col5 varchar(20) default 'boo')");
 
       string[] restrictions = new string[4];
-      restrictions[1] = ts.baseDBName + "0";
+      restrictions[1] = Connection.Database;
       restrictions[2] = "test";
-      DataTable dt = connection.GetSchema("Columns", restrictions);
+      DataTable dt = Connection.GetSchema("Columns", restrictions);
       Assert.Equal(5, dt.Rows.Count);
       Assert.Equal("Columns", dt.TableName);
-      if (ts.version.Major >= 5 && ts.version.Minor >= 1)
-      {
-        Assert.True(dt.Columns["ORDINAL_POSITION"].DataType == typeof(UInt64));
-        Assert.True(dt.Columns["CHARACTER_MAXIMUM_LENGTH"].DataType == typeof(UInt64));
-        Assert.True(dt.Columns["NUMERIC_PRECISION"].DataType == typeof(UInt64));
-        Assert.True(dt.Columns["NUMERIC_SCALE"].DataType == typeof(UInt64));
-      }
+      Assert.True(dt.Columns["ORDINAL_POSITION"].DataType == typeof(UInt64));
+      Assert.True(dt.Columns["CHARACTER_MAXIMUM_LENGTH"].DataType == typeof(UInt64));
+      Assert.True(dt.Columns["NUMERIC_PRECISION"].DataType == typeof(UInt64));
+      Assert.True(dt.Columns["NUMERIC_SCALE"].DataType == typeof(UInt64));
 
       // first column
-      Assert.Equal((ts.baseDBName + "0").ToUpper(), dt.Rows[0]["TABLE_SCHEMA"].ToString().ToUpper());
+      Assert.Equal((Connection.Database).ToUpper(), dt.Rows[0]["TABLE_SCHEMA"].ToString().ToUpper());
       Assert.Equal("COL1", dt.Rows[0]["COLUMN_NAME"].ToString().ToUpper());
       Assert.Equal(1, Convert.ToInt32(dt.Rows[0]["ORDINAL_POSITION"]));
       Assert.Equal("YES", dt.Rows[0]["IS_NULLABLE"]);
       Assert.Equal("INT", dt.Rows[0]["DATA_TYPE"].ToString().ToUpper());
 
       // second column
-      Assert.Equal((ts.baseDBName + "0").ToUpper(), dt.Rows[1]["TABLE_SCHEMA"].ToString().ToUpper());
+      Assert.Equal((Connection.Database).ToUpper(), dt.Rows[1]["TABLE_SCHEMA"].ToString().ToUpper());
       Assert.Equal("COL2", dt.Rows[1]["COLUMN_NAME"].ToString().ToUpper());
       Assert.Equal(2, Convert.ToInt32(dt.Rows[1]["ORDINAL_POSITION"]));
       Assert.Equal("YES", dt.Rows[1]["IS_NULLABLE"]);
@@ -229,7 +196,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(5, Convert.ToInt32(dt.Rows[1]["NUMERIC_SCALE"]));
 
       // third column
-      Assert.Equal((ts.baseDBName + "0").ToUpper(), dt.Rows[2]["TABLE_SCHEMA"].ToString().ToUpper());
+      Assert.Equal((Connection.Database).ToUpper(), dt.Rows[2]["TABLE_SCHEMA"].ToString().ToUpper());
       Assert.Equal("COL3", dt.Rows[2]["COLUMN_NAME"].ToString().ToUpper());
       Assert.Equal(3, Convert.ToInt32(dt.Rows[2]["ORDINAL_POSITION"]));
       Assert.Equal("YES", dt.Rows[2]["IS_NULLABLE"]);
@@ -237,14 +204,14 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("VARCHAR(50)", dt.Rows[2]["COLUMN_TYPE"].ToString().ToUpper());
 
       // fourth column
-      Assert.Equal((ts.baseDBName + "0").ToUpper(), dt.Rows[3]["TABLE_SCHEMA"].ToString().ToUpper());
+      Assert.Equal((Connection.Database).ToUpper(), dt.Rows[3]["TABLE_SCHEMA"].ToString().ToUpper());
       Assert.Equal("COL4", dt.Rows[3]["COLUMN_NAME"].ToString().ToUpper());
       Assert.Equal(4, Convert.ToInt32(dt.Rows[3]["ORDINAL_POSITION"]));
       Assert.Equal("YES", dt.Rows[3]["IS_NULLABLE"]);
       Assert.Equal("TINYINT", dt.Rows[3]["DATA_TYPE"].ToString().ToUpper());
 
       // fifth column
-      Assert.Equal((ts.baseDBName + "0").ToUpper(), dt.Rows[4]["TABLE_SCHEMA"].ToString().ToUpper());
+      Assert.Equal((Connection.Database).ToUpper(), dt.Rows[4]["TABLE_SCHEMA"].ToString().ToUpper());
       Assert.Equal("COL5", dt.Rows[4]["COLUMN_NAME"].ToString().ToUpper());
       Assert.Equal(5, Convert.ToInt32(dt.Rows[4]["ORDINAL_POSITION"]));
       Assert.Equal("YES", dt.Rows[4]["IS_NULLABLE"]);
@@ -261,18 +228,18 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void CanGetSchemaInformationGeneratedColumns()
     {     
-      if (ts.version < new Version(5, 7, 6)) return;
+      if (Fixture.Version < new Version(5, 7, 6)) return;
 
       executeSQL("DROP TABLE IF EXISTS test");
       executeSQL("CREATE TABLE `Test` (`ID` int NOT NULL AUTO_INCREMENT PRIMARY KEY, `Name` char(35) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL)");
 
-      var cmd = new MySqlCommand("ALTER TABLE test ADD COLUMN Name_ci char(35) CHARACTER SET utf8 AS (Name) STORED;", connection);
+      var cmd = new MySqlCommand("ALTER TABLE test ADD COLUMN Name_ci char(35) CHARACTER SET utf8 AS (Name) STORED;", Connection);
       cmd.ExecuteNonQuery();
 
-      DataTable dt = connection.GetSchema("Columns", new string[] { null, null, "test", null });
+      DataTable dt = Connection.GetSchema("Columns", new string[] { null, null, "test", null });
       Assert.Equal(3, dt.Rows.Count);
       Assert.Equal("Columns", dt.TableName);
-      if (ts.version.Major >= 5 && ts.version.Minor >= 7 && ts.version.Build >= 6)
+      if (Fixture.Version.Major >= 5 && Fixture.Version.Minor >= 7 && Fixture.Version.Build >= 6)
       {
         Assert.Equal("char", dt.Rows[2]["DATA_TYPE"]);
         Assert.Equal("Name", dt.Rows[2]["GENERATION_EXPRESSION"].ToString().Trim('`'));
@@ -290,7 +257,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("DROP TABLE IF EXISTS test");
       executeSQL("CREATE TABLE test (col1 set('A','B','C'), col2 enum('A','B','C'))");
 
-      DataTable dt = connection.GetSchema("Columns", new string[] { null, null, "test", null });
+      DataTable dt = Connection.GetSchema("Columns", new string[] { null, null, "test", null });
       Assert.Equal(2, dt.Rows.Count);
       Assert.Equal("set", dt.Rows[0]["DATA_TYPE"]);
       Assert.Equal("enum", dt.Rows[1]["DATA_TYPE"]);
@@ -301,15 +268,13 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Procedures()
     {
-      if (ts.version < new Version(5, 0)) return;
-
       executeSQL("DROP PROCEDURE IF EXISTS spTest");
       executeSQL("CREATE PROCEDURE spTest (id int) BEGIN SELECT 1; END");
 
       string[] restrictions = new string[4];
-      restrictions[1] = ts.baseDBName + "0";
+      restrictions[1] = Connection.Database;
       restrictions[2] = "spTest";
-      DataTable dt = connection.GetSchema("Procedures", restrictions);
+      DataTable dt = Connection.GetSchema("Procedures", restrictions);
       Assert.True(dt.Rows.Count == 1);
       Assert.Equal("Procedures", dt.TableName);
       Assert.Equal("spTest", dt.Rows[0][3]);
@@ -318,15 +283,13 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ProceduresWithParameters()
     {
-      if (ts.version < new Version(5, 0)) return;
-
       executeSQL("DROP PROCEDURE IF EXISTS spTest");
       executeSQL("CREATE PROCEDURE spTest (id int) BEGIN SELECT 1; END");
 
       string[] restrictions = new string[4];
-      restrictions[1] = ts.baseDBName + "0";
+      restrictions[1] = Connection.Database;
       restrictions[2] = "spTest";
-      DataTable dt = connection.GetSchema("PROCEDURES WITH PARAMETERS", restrictions);
+      DataTable dt = Connection.GetSchema("PROCEDURES WITH PARAMETERS", restrictions);
       Assert.True(dt.Rows.Count == 1);
       Assert.Equal("Procedures", dt.TableName);
       Assert.Equal("spTest", dt.Rows[0][3]);
@@ -336,15 +299,13 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Functions()
     {
-      if (ts.version < new Version(5, 0)) return;
-
       executeSQL("DROP FUNCTION IF EXISTS spFunc");
       executeSQL("CREATE FUNCTION spFunc (id int) RETURNS INT BEGIN RETURN 1; END");
 
       string[] restrictions = new string[4];
-      restrictions[1] = ts.baseDBName + "0";
+      restrictions[1] = Connection.Database;
       restrictions[2] = "spFunc";
-      DataTable dt = connection.GetSchema("Procedures", restrictions);
+      DataTable dt = Connection.GetSchema("Procedures", restrictions);
       Assert.True(dt.Rows.Count == 1);
       Assert.Equal("Procedures", dt.TableName);
       Assert.Equal("spFunc", dt.Rows[0][3]);
@@ -353,13 +314,11 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Indexes()
     {
-      if (ts.version < new Version(5, 0)) return;
-
       executeSQL("CREATE TABLE test (id int, PRIMARY KEY(id))");
       string[] restrictions = new string[4];
       restrictions[2] = "test";
-      restrictions[1] = ts.baseDBName + "0";
-      DataTable dt = connection.GetSchema("Indexes", restrictions);
+      restrictions[1] = Connection.Database;
+      DataTable dt = Connection.GetSchema("Indexes", restrictions);
       Assert.Equal(1, dt.Rows.Count);
       Assert.Equal("test", dt.Rows[0]["TABLE_NAME"]);
       Assert.Equal(true, dt.Rows[0]["PRIMARY"]);
@@ -369,7 +328,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE test (id int, name varchar(50), " +
         "UNIQUE KEY key2 (name))");
 
-      dt = connection.GetSchema("Indexes", restrictions);
+      dt = Connection.GetSchema("Indexes", restrictions);
       Assert.Equal(1, dt.Rows.Count);
       Assert.Equal("test", dt.Rows[0]["TABLE_NAME"]);
       Assert.Equal("key2", dt.Rows[0]["INDEX_NAME"]);
@@ -377,7 +336,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(true, dt.Rows[0]["UNIQUE"]);
 
       restrictions[3] = "key2";
-      dt = connection.GetSchema("Indexes", restrictions);
+      dt = Connection.GetSchema("Indexes", restrictions);
       Assert.Equal(1, dt.Rows.Count);
       Assert.Equal("test", dt.Rows[0]["TABLE_NAME"]);
       Assert.Equal("key2", dt.Rows[0]["INDEX_NAME"]);
@@ -392,7 +351,7 @@ namespace MySql.Data.MySqlClient.Tests
         "KEY key2 (name))");
 
       restrictions[2] = "te`s`t";
-      dt = connection.GetSchema("Indexes", restrictions);
+      dt = Connection.GetSchema("Indexes", restrictions);
       Assert.Equal(1, dt.Rows.Count);
       Assert.Equal("te`s`t", dt.Rows[0]["TABLE_NAME"]);
       Assert.Equal("key2", dt.Rows[0]["INDEX_NAME"]);
@@ -406,8 +365,8 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE test (id int, PRIMARY KEY(id))");
       string[] restrictions = new string[5];
       restrictions[2] = "test";
-      restrictions[1] = ts.baseDBName + "0";
-      DataTable dt = connection.GetSchema("IndexColumns", restrictions);
+      restrictions[1] = Connection.Database;
+      DataTable dt = Connection.GetSchema("IndexColumns", restrictions);
       Assert.Equal(1, dt.Rows.Count);
       Assert.Equal("test", dt.Rows[0]["TABLE_NAME"]);
       Assert.Equal("id", dt.Rows[0]["COLUMN_NAME"]);
@@ -416,25 +375,25 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE test (id int, id1 int, id2 int, " +
         "INDEX key1 (id1, id2))");
       restrictions[2] = "test";
-      restrictions[1] = ts.baseDBName + "0";
+      restrictions[1] = Connection.Database;
       restrictions[4] = "id2";
-      dt = connection.GetSchema("IndexColumns", restrictions);
+      dt = Connection.GetSchema("IndexColumns", restrictions);
       Assert.Equal(1, dt.Rows.Count);
       Assert.Equal("test", dt.Rows[0]["TABLE_NAME"]);
       Assert.Equal("id2", dt.Rows[0]["COLUMN_NAME"]);
       Assert.Equal(2, dt.Rows[0]["ORDINAL_POSITION"]);
 
       restrictions[3] = "key1";
-      dt = connection.GetSchema("IndexColumns", restrictions);
+      dt = Connection.GetSchema("IndexColumns", restrictions);
       Assert.Equal(1, dt.Rows.Count);
       Assert.Equal("test", dt.Rows[0]["TABLE_NAME"]);
       Assert.Equal("id2", dt.Rows[0]["COLUMN_NAME"]);
       Assert.Equal(2, dt.Rows[0]["ORDINAL_POSITION"]);
 
       restrictions = new string[3];
-      restrictions[1] = ts.baseDBName + "0";
+      restrictions[1] = Connection.Database;
       restrictions[2] = "test";
-      dt = connection.GetSchema("IndexColumns", restrictions);
+      dt = Connection.GetSchema("IndexColumns", restrictions);
       Assert.Equal(2, dt.Rows.Count);
       Assert.Equal("test", dt.Rows[0]["TABLE_NAME"]);
       Assert.Equal("id1", dt.Rows[0]["COLUMN_NAME"]);
@@ -447,23 +406,21 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("DROP TABLE IF EXISTS test");
       executeSQL("CREATE TABLE test (id int primary key, id1 int, KEY key1 (id1))");
       restrictions[2] = "test";
-      restrictions[1] = ts.baseDBName + "0";
+      restrictions[1] = Connection.Database;
       restrictions[3] = "PRIMARY";
-      dt = connection.GetSchema("IndexColumns", restrictions);
+      dt = Connection.GetSchema("IndexColumns", restrictions);
     }
 
     [Fact]
     public void Views()
     {
-      if (ts.version < new Version(5, 0)) return;
-
       executeSQL("DROP VIEW IF EXISTS vw");
       executeSQL("CREATE VIEW vw AS SELECT Now() as theTime");
 
       string[] restrictions = new string[4];
-      restrictions[1] = ts.baseDBName + "0";
+      restrictions[1] = Connection.Database;
       restrictions[2] = "vw";
-      DataTable dt = connection.GetSchema("Views", restrictions);
+      DataTable dt = Connection.GetSchema("Views", restrictions);
       Assert.True(dt.Rows.Count == 1);
       Assert.Equal("Views", dt.TableName);
       Assert.Equal("vw", dt.Rows[0]["TABLE_NAME"]);
@@ -472,18 +429,16 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ViewColumns()
     {
-      if (ts.version < new Version(5, 0)) return;
-
       executeSQL("DROP VIEW IF EXISTS vw");
       executeSQL("CREATE VIEW vw AS SELECT Now() as theTime");
 
       string[] restrictions = new string[4];
-      restrictions[1] = ts.baseDBName + "0";
+      restrictions[1] = Connection.Database;
       restrictions[2] = "vw";
-      DataTable dt = connection.GetSchema("ViewColumns", restrictions);
+      DataTable dt = Connection.GetSchema("ViewColumns", restrictions);
       Assert.True(dt.Rows.Count == 1);
       Assert.Equal("ViewColumns", dt.TableName);
-      Assert.Equal(ts.baseDBName + "0".ToLower(), dt.Rows[0]["VIEW_SCHEMA"].ToString().ToLower());
+      Assert.Equal(Connection.Database.ToLower(), dt.Rows[0]["VIEW_SCHEMA"].ToString().ToLower());
       Assert.Equal("vw", dt.Rows[0]["VIEW_NAME"]);
       Assert.Equal("theTime", dt.Rows[0]["COLUMN_NAME"]);
     }
@@ -496,16 +451,16 @@ namespace MySql.Data.MySqlClient.Tests
         "CONSTRAINT c1 FOREIGN KEY (parent_id) REFERENCES parent(id) ON DELETE CASCADE) ENGINE=INNODB");
       string[] restrictions = new string[4];
       restrictions[0] = null;
-      restrictions[1] = ts.baseDBName + "0";
+      restrictions[1] = Connection.Database;
       restrictions[2] = "child";
-      DataTable dt = connection.GetSchema("Foreign Keys", restrictions);
+      DataTable dt = Connection.GetSchema("Foreign Keys", restrictions);
       Assert.Equal(1, dt.Rows.Count);
       DataRow row = dt.Rows[0];
-      Assert.Equal(ts.baseDBName + "0".ToLower(), row["CONSTRAINT_SCHEMA"].ToString().ToLower());
+      Assert.Equal(Connection.Database.ToLower(), row["CONSTRAINT_SCHEMA"].ToString().ToLower());
       Assert.Equal("c1", row["CONSTRAINT_NAME"]);
-      Assert.Equal(ts.baseDBName + "0".ToLower(), row["TABLE_SCHEMA"].ToString().ToLower());
+      Assert.Equal(Connection.Database.ToLower(), row["TABLE_SCHEMA"].ToString().ToLower());
       Assert.Equal("child", row["TABLE_NAME"]);
-      Assert.Equal(ts.baseDBName + "0".ToLower(), row["REFERENCED_TABLE_SCHEMA"].ToString().ToLower());
+      Assert.Equal(Connection.Database.ToLower(), row["REFERENCED_TABLE_SCHEMA"].ToString().ToLower());
       Assert.Equal("parent", row["REFERENCED_TABLE_NAME"]);
     }
 
@@ -529,7 +484,7 @@ namespace MySql.Data.MySqlClient.Tests
         "ON UPDATE CASCADE ON DELETE RESTRICT, INDEX (customer_id), " +
         "FOREIGN KEY (customer_id) REFERENCES customer(id)) ENGINE=INNODB");
 
-      DataTable dt = connection.GetSchema("Foreign Keys");
+      DataTable dt = Connection.GetSchema("Foreign Keys");
       Assert.True(dt.Columns.Contains("REFERENCED_TABLE_CATALOG"));
     }
 
@@ -552,44 +507,42 @@ namespace MySql.Data.MySqlClient.Tests
 
       string[] restrictions = new string[4];
       restrictions[0] = null;
-      restrictions[1] = ts.baseDBName + "0";
+      restrictions[1] = Connection.Database;
       restrictions[2] = "product_order";
-      DataTable dt = connection.GetSchema("Foreign Keys", restrictions);
+      DataTable dt = Connection.GetSchema("Foreign Keys", restrictions);
       Assert.Equal(2, dt.Rows.Count);
       DataRow row = dt.Rows[0];
-      Assert.Equal(ts.baseDBName + "0".ToLower(), row["CONSTRAINT_SCHEMA"].ToString().ToLower());
+      Assert.Equal(Connection.Database.ToLower(), row["CONSTRAINT_SCHEMA"].ToString().ToLower());
       Assert.Equal("product_order_ibfk_1", row["CONSTRAINT_NAME"]);
-      Assert.Equal(ts.baseDBName + "0".ToLower(), row["TABLE_SCHEMA"].ToString().ToLower());
+      Assert.Equal(Connection.Database.ToLower(), row["TABLE_SCHEMA"].ToString().ToLower());
       Assert.Equal("product_order", row["TABLE_NAME"]);
-      Assert.Equal(ts.baseDBName + "0".ToLower(), row["REFERENCED_TABLE_SCHEMA"].ToString().ToLower());
+      Assert.Equal(Connection.Database.ToLower(), row["REFERENCED_TABLE_SCHEMA"].ToString().ToLower());
       Assert.Equal("product", row["REFERENCED_TABLE_NAME"]);
 
       row = dt.Rows[1];
-      Assert.Equal(ts.baseDBName + "0".ToLower(), row["CONSTRAINT_SCHEMA"].ToString().ToLower());
+      Assert.Equal(Connection.Database.ToLower(), row["CONSTRAINT_SCHEMA"].ToString().ToLower());
       Assert.Equal("product_order_ibfk_2", row["CONSTRAINT_NAME"]);
-      Assert.Equal(ts.baseDBName + "0".ToLower(), row["TABLE_SCHEMA"].ToString().ToLower());
+      Assert.Equal(Connection.Database.ToLower(), row["TABLE_SCHEMA"].ToString().ToLower());
       Assert.Equal("product_order", row["TABLE_NAME"]);
-      Assert.Equal(ts.baseDBName + "0".ToLower(), row["REFERENCED_TABLE_SCHEMA"].ToString().ToLower());
+      Assert.Equal(Connection.Database.ToLower(), row["REFERENCED_TABLE_SCHEMA"].ToString().ToLower());
       Assert.Equal("customer", row["REFERENCED_TABLE_NAME"]);
     }
 
     [Fact]
     public void Triggers()
     {
-      if (ts.version < new Version(5, 1, 6)) return;
-
       executeSQL("DROP TABLE IF EXISTS test1");
       executeSQL("CREATE TABLE test1 (id int)");
       executeSQL("CREATE TABLE test2 (count int)");
       executeSQL("INSERT INTO test2 VALUES (0)");
       string sql = String.Format("CREATE TRIGGER `{0}`.trigger1 AFTER INSERT ON test1 FOR EACH ROW BEGIN " +
-        "UPDATE test2 SET count = count+1; END", ts.baseDBName + "0");
+        "UPDATE test2 SET count = count+1; END", Connection.Database);
       executeSQL(sql);
 
       string[] restrictions = new string[4];
-      restrictions[1] = ts.baseDBName + "0";
+      restrictions[1] = Connection.Database;
       restrictions[2] = "test1";
-      DataTable dt = connection.GetSchema("Triggers", restrictions);
+      DataTable dt = Connection.GetSchema("Triggers", restrictions);
       Assert.True(dt.Rows.Count == 1);
       Assert.Equal("Triggers", dt.TableName);
       Assert.Equal("trigger1", dt.Rows[0]["TRIGGER_NAME"]);
@@ -606,9 +559,9 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE test1 (id int)");
 
       string[] restrictions = new string[4];
-      restrictions[1] = ts.baseDBName + "0";
+      restrictions[1] = Connection.Database;
       restrictions[2] = "`test1`";
-      DataTable dt = connection.GetSchema("Tables", restrictions);
+      DataTable dt = Connection.GetSchema("Tables", restrictions);
       Assert.True(dt.Rows.Count == 1);
       Assert.Equal("Tables", dt.TableName);
       Assert.Equal("test1", dt.Rows[0][2]);
@@ -618,7 +571,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ReservedWords()
     {
-      DataTable dt = connection.GetSchema("ReservedWords");
+      DataTable dt = Connection.GetSchema("ReservedWords");
       foreach (DataRow row in dt.Rows)
         Assert.False(String.IsNullOrEmpty(row[0] as string));
     }

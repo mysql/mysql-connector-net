@@ -20,9 +20,6 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 using System.Data;
 
@@ -30,9 +27,8 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class EventTests : TestBase
   {
-    public EventTests(TestSetup setup) : base(setup, "event")
+    public EventTests(TestFixture fixture) : base(fixture)
     {
-
     }
 
     [Fact]
@@ -40,15 +36,12 @@ namespace MySql.Data.MySqlClient.Tests
     {
       executeSQL("CREATE TABLE Test (name VARCHAR(10))");
 
-      string connStr = Settings.GetConnectionString(true);
-      using (MySqlConnection c = new MySqlConnection(connStr))
+      using (var connection = Fixture.GetConnection(false))
       {
-        c.Open();
-
-        MySqlCommand cmd = new MySqlCommand("SET SQL_MODE=''", c);
+        MySqlCommand cmd = new MySqlCommand("SET SQL_MODE=''", connection);
         cmd.ExecuteNonQuery();
 
-        c.InfoMessage += new MySqlInfoMessageEventHandler(WarningsInfoMessage);
+        connection.InfoMessage += new MySqlInfoMessageEventHandler(WarningsInfoMessage);
 
         cmd.CommandText = "INSERT INTO Test VALUES ('12345678901')";
         using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -65,10 +58,11 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void StateChange()
     {
-      MySqlConnection c = new MySqlConnection(Settings.GetConnectionString(true));
-      c.StateChange += new StateChangeEventHandler(StateChangeHandler);
-      c.Open();
-      c.Close();
+      using (var connection = Fixture.GetConnection(false))
+      {
+        connection.StateChange += new StateChangeEventHandler(StateChangeHandler);
+        connection.Close();
+      }
     }
 
     private void StateChangeHandler(object sender, StateChangeEventArgs e)

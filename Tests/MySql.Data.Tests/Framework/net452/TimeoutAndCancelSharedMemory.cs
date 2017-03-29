@@ -20,30 +20,20 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using MySql.Data.MySqlClient;
 
-using Xunit;
-using System.Data;
-using System.ComponentModel;
-using System.Security.Authentication;
 
 namespace MySql.Data.MySqlClient.Tests
 {
   public class TimeoutAndCancelSharedMemory : TimeoutAndCancel
   {
-    private string sharedMemory = "";
-
-    public TimeoutAndCancelSharedMemory(TestSetup setup) : base (setup, "timeoutandsmem")
+    public TimeoutAndCancelSharedMemory(TestFixture fixture) : base(fixture)
     {
-      sharedMemory = setup.sharedMemoryName;
     }
 
-    protected override string OnGetConnectionStringInfo()
+    public override void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
     {
-      return string.Format("protocol=sharedmemory; shared memory name={0};ssl mode=none;", sharedMemory);
+      settings.ConnectionProtocol = MySqlConnectionProtocol.SharedMemory;
+      settings.SslMode = MySqlSslMode.None;
     }
   }
 }

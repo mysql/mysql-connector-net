@@ -29,7 +29,7 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class Tokenizer : TestBase
   {
-    public Tokenizer(TestSetup setup) : base(setup, "tokenizer")
+    public Tokenizer(TestFixture fixture) : base(fixture)
     {
 
     }
@@ -247,7 +247,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test(name VARCHAR(40))");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test SET name='test -- test';", connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test SET name='test -- test';", Connection);
       cmd.ExecuteNonQuery();
       cmd.CommandText = "SELECT name FROM Test";
       object o = cmd.ExecuteScalar();

@@ -32,11 +32,8 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class AuthTests : TestBase
   {
-    protected TestSetup ts;
-
-    public AuthTests(TestSetup setup) : base (setup, "authtests")
+    public AuthTests(TestFixture fixture) : base(fixture)
     {
-      ts = setup;
     }
 
 
@@ -60,7 +57,7 @@ namespace MySql.Data.MySqlClient.Tests
         UserName = user;
 
       // Check if server has windows authentication plugin is installed		
-      MySqlDataReader reader = ExecuteAsReader("show plugins", ts.GetConnection(true));
+      MySqlDataReader reader = ExecuteReader("show plugins", true);
 
       bool haveWindowsAuthentication = false;
       using (reader)
@@ -87,7 +84,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       // Check if predefined proxy user exists
       string sql = string.Format("select plugin, authentication_string from mysql.user where user='{0}'", UserName);
-      using (MySqlDataReader reader2 = ExecuteAsReader(sql, ts.GetConnection(true)))
+      using (MySqlDataReader reader2 = ExecuteReader(sql, true))
       {
         if (reader2.Read())
         {
@@ -106,24 +103,24 @@ namespace MySql.Data.MySqlClient.Tests
 
       if (!haveAuthWindowsUser)
       {
-        executeAsRoot(
+        executeSQL(
           "CREATE USER " + UserName + " IDENTIFIED WITH " + PluginName + " as '" +
-           userMapping + "'");
+           userMapping + "'", true);
       }
       else
       {
         // extend mapping string for current user
-        executeAsRoot(
+        executeSQL(
           "UPDATE mysql.user SET authentication_string='" + userMapping +
-          "," + authenticationString + "' where user='" + UserName + "'");
+          "," + authenticationString + "' where user='" + UserName + "'", true);
       }
-      executeAsRoot("create user foo_user identified by 'pass'");
-      executeAsRoot("grant all privileges on *.* to 'foo_user'@'%'");
-      executeAsRoot("grant proxy on foo_user to " + UserName);
+      executeSQL("create user foo_user identified by 'pass'", true);
+      executeSQL("grant all privileges on *.* to 'foo_user'@'%'", true);
+      executeSQL("grant proxy on foo_user to " + UserName, true);
 
 
       // Finally, use IntegratedSecurity=true for the newly created user
-      string connStr = ts.GetConnection(true).ConnectionString + ";Integrated Security=SSPI";
+      string connStr = Root.ConnectionString + ";Integrated Security=SSPI";
 
       MySqlConnectionStringBuilder sb =
           new MySqlConnectionStringBuilder(connStr);
@@ -163,7 +160,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       if (pooling)
       {
-        executeAsRoot("KILL " + threadId);
+        executeSQL("KILL " + threadId, true);
       }
     }
 
@@ -186,52 +183,45 @@ namespace MySql.Data.MySqlClient.Tests
       if (user != null)
         UserName = user;
 
-      var conn = ts.GetConnection(true); 
-      
-      if (conn.State != ConnectionState.Open)
-          conn.Open();
+      // Check if server has windows authentication plugin is installed			
+      MySqlCommand cmd = new MySqlCommand("show plugins", Root);
 
-        // Check if server has windows authentication plugin is installed			
-        MySqlCommand cmd = new MySqlCommand("show plugins", conn);
-
-        bool haveWindowsAuthentication = false;
-        using (MySqlDataReader r = cmd.ExecuteReader())
+      bool haveWindowsAuthentication = false;
+      using (MySqlDataReader r = cmd.ExecuteReader())
+      {
+        while (r.Read())
         {
-          while (r.Read())
+          string name = (string)r["Name"];
+          if (name == PluginName)
           {
-            string name = (string)r["Name"];
-            if (name == PluginName)
-            {
-              haveWindowsAuthentication = true;
-              break;
-            }
+            haveWindowsAuthentication = true;
+            break;
           }
         }
+      }
 
-      conn.Close();
+      if (!haveWindowsAuthentication)
+        return;
 
-        if (!haveWindowsAuthentication)
-          return;      
+      bool haveAuthWindowsUser = false;
+      string pluginName = null;
+      string authenticationString = "";
 
-        bool haveAuthWindowsUser = false;
-        string pluginName = null;
-        string authenticationString = "";
-
-        // Check if predefined proxy user exists
-        cmd.CommandText = string.Format(
-          "select plugin, authentication_string from mysql.user where user='{0}'",
-          UserName);
-        using (MySqlDataReader r = cmd.ExecuteReader())
+      // Check if predefined proxy user exists
+      cmd.CommandText = string.Format(
+        "select plugin, authentication_string from mysql.user where user='{0}'",
+        UserName);
+      using (MySqlDataReader r = cmd.ExecuteReader())
+      {
+        if (r.Read())
         {
-          if (r.Read())
-          {
-            haveAuthWindowsUser = true;
-            pluginName = (string)r["plugin"];
-            authenticationString =
-              (string)((r["authentication_string"] == DBNull.Value) ?
-              "" : r["authentication_string"]);
-          }
-        }      
+          haveAuthWindowsUser = true;
+          pluginName = (string)r["plugin"];
+          authenticationString =
+            (string)((r["authentication_string"] == DBNull.Value) ?
+            "" : r["authentication_string"]);
+        }
+      }
 
       // Create mapping for current Windows user=>foo_user
       String windowsUser = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
@@ -242,22 +232,22 @@ namespace MySql.Data.MySqlClient.Tests
       {
         if (!haveAuthWindowsUser)
         {
-          executeAsRoot(
+          executeSQL(
             "CREATE USER " + UserName + " IDENTIFIED WITH " + PluginName + " as '" +
-             userMapping + "'");
+             userMapping + "'", true);
         }
         else
         {
           // extend mapping string for current user
-          executeAsRoot(
+          executeSQL(
             "UPDATE mysql.user SET authentication_string='" + userMapping +
-            "," + authenticationString + "' where user='" + UserName + "'");
+            "," + authenticationString + "' where user='" + UserName + "'", true);
         }
-        executeAsRoot(string.Format("grant all privileges on *.* to '{0}'@'%'", UserName));
+        executeSQL(string.Format("grant all privileges on *.* to '{0}'@'%'", UserName), true);
 
-        
+
         // Finally, use IntegratedSecurity=true for the newly created user
-        string connStr = ts.GetConnection(true).ConnectionString + ";Integrated Security=SSPI";
+        string connStr = Root.ConnectionString + ";Integrated Security=SSPI";
 
         MySqlConnectionStringBuilder sb =
             new MySqlConnectionStringBuilder(connStr);
@@ -297,7 +287,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         if (pooling)
         {
-          executeAsRoot("KILL " + threadId);
+          executeSQL("KILL " + threadId, true);
         }
       }
       finally
@@ -305,7 +295,7 @@ namespace MySql.Data.MySqlClient.Tests
         // Cleanup
 
         // Drop test user
-        executeAsRoot(string.Format("drop user {0}", UserName));
+        executeSQL(string.Format("drop user {0}", UserName), true);
       }
     }
 

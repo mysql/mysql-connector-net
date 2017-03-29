@@ -21,24 +21,19 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
-using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
 {
   public class SqlServerMode : TestBase
   {
-    public SqlServerMode(TestSetup setup) : base(setup, "boo")
+    public SqlServerMode(TestFixture fixture) : base(fixture)
     {
     }
 
-    protected override void Init()
+    public override void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
     {
-      base.Init();
-      Setup.Settings.SqlServerMode = true;
+      settings.SqlServerMode = true;
     }
 
     [Fact]
@@ -47,7 +42,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE Test (id INT, name VARCHAR(20))");
       executeSQL("INSERT INTO Test VALUES (1, 'A')");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT [id], [name] FROM [Test]", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT [id], [name] FROM [Test]", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();

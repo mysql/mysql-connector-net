@@ -7,6 +7,7 @@
     <VersionPrefix>6.10.2</VersionPrefix>
     <Authors>Oracle</Authors>
     <AssemblyName>MySql.Data</AssemblyName>
+    <TargetFramework>net452</TargetFramework>
     <PackageId>MySql.Data</PackageId>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET;netcore;.Net Core;MySql Conector/Net Core;coreclr;C/NET;C/Net Core</PackageTags>
     <PackageReleaseNotes>Review ReleaseNotes.txt for details.</PackageReleaseNotes>
@@ -14,7 +15,6 @@
     <PackageProjectUrl>http://dev.mysql.com/downloads/</PackageProjectUrl>
     <PackageLicenseUrl>http://www.gnu.org/licenses/old-licenses/gpl-2.0.html</PackageLicenseUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <TargetFrameworks>netstandard1.6;net452</TargetFrameworks>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
@@ -24,25 +24,10 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
     <GenerateNeutralResourcesLanguageAttribute>false</GenerateNeutralResourcesLanguageAttribute>
-    <SignAssembly>True</SignAssembly>
+    <!--<SignAssembly>True</SignAssembly>
     <DelaySign>True</DelaySign>
-    <AssemblyOriginatorKeyFile>ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>-->
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="docs\MySqlCommand.xml" />
-    <None Remove="docs\MySqlCommandBuilder.xml" />
-    <None Remove="docs\MySqlConnection.xml" />
-    <None Remove="docs\MySqlConnectionStringBuilder.xml" />
-    <None Remove="docs\MySqlDataAdapter.xml" />
-    <None Remove="docs\MySqlDataReader.xml" />
-    <None Remove="docs\MySqlException.xml" />
-    <None Remove="docs\MySqlHelper.xml" />
-    <None Remove="docs\MySqlParameter.xml" />
-    <None Remove="docs\MySqlParameterCollection.xml" />
-    <None Remove="docs\MySqlTransaction.xml" />
-    <None Remove="keywords.txt" />
-  </ItemGroup>
 
   <ItemGroup>
     <Content Include="docs\MySqlCommand.xml" />
@@ -60,6 +45,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="keywords.txt" />
+    <EmbeddedResource Include="Properties\ReservedWords.txt" />
   </ItemGroup>
 
   <ItemGroup>
@@ -72,12 +58,7 @@
   </ItemGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.6'">
-    <DefineConstants>NET_CORE;NETCORE10;NETSTANDARD1_6</DefineConstants>
-    <DocumentationFile>bin\Debug\netstandard1.6\docs.xml</DocumentationFile>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)'=='net452'">
-    <DocumentationFile>bin\Debug\net452\docs.xml</DocumentationFile>
+    <DefineConstants>$(DefineConstants);NET_CORE;NETCORE10;NETSTANDARD1_6</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='net452'">
@@ -132,10 +113,12 @@
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DefineConstants>$(DefineConstants);TRACE;DEBUG</DefineConstants>
     <PreserveCompilationContext>true</PreserveCompilationContext>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DefineConstants>$(DefineConstants);TRACE;RELEASE</DefineConstants>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
@@ -143,6 +126,18 @@
     <Compile Update="Framework\net452\Installer.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Update="Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

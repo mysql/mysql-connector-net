@@ -20,18 +20,14 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 using System.Data;
-using System.ComponentModel;
 
 namespace MySql.Data.MySqlClient.Tests
 {
   public class Syntax2 : TestBase
   {
-    public Syntax2(TestSetup setup) : base(setup, "syntax2")
+    public Syntax2(TestFixture fixture) : base(fixture)
     {
     }
 
@@ -47,10 +43,10 @@ namespace MySql.Data.MySqlClient.Tests
         "Test VALUES (2, 'Test2')";
 
       
-      MySqlCommand cmd = new MySqlCommand(sql, connection);
+      MySqlCommand cmd = new MySqlCommand(sql, Connection);
       cmd.ExecuteNonQuery();
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", connection);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
       TestDataTable table = new TestDataTable();
       da.Fill(table);
       Assert.Equal(1, table.Rows[0]["id"]);
@@ -64,7 +60,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void LastInsertid()
     {
       executeSQL("CREATE TABLE Test(id int auto_increment, name varchar(20), primary key(id))");
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(NULL, 'test')", connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(NULL, 'test')", Connection);
       cmd.ExecuteNonQuery();
       Assert.Equal(1, cmd.LastInsertedId);
 
@@ -86,7 +82,7 @@ namespace MySql.Data.MySqlClient.Tests
           RETURNS int(11)
           RETURN 1");
 
-      MySqlCommand command = new MySqlCommand("TestFunction", connection);
+      MySqlCommand command = new MySqlCommand("TestFunction", Connection);
       command.CommandType = CommandType.StoredProcedure;
       command.CommandText = "TestFunction";
       command.Parameters.AddWithValue("@A", 1);
@@ -104,7 +100,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       executeSQL("CREATE TABLE Test(id INT, name VARCHAR(20))");
 
-      MySqlCommand cmd = new MySqlCommand(@"INSERT INTO Test VALUES (1, '\\=\\')", connection);
+      MySqlCommand cmd = new MySqlCommand(@"INSERT INTO Test VALUES (1, '\\=\\')", Connection);
       cmd.ExecuteNonQuery();
     }
   }

@@ -20,31 +20,18 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using MySql.Data.MySqlClient;
-
-using Xunit;
-using System.Data;
-using System.ComponentModel;
-using System.Security.Authentication;
-
 namespace MySql.Data.MySqlClient.Tests
 {
-  #region Configs
-    
   public class BlobTestsPipe : BlobTests
   {
-    public BlobTestsPipe(TestSetup setup): base(setup , "blobtestspipe")
+    public BlobTestsPipe(TestFixture fixture) : base(fixture)
     {
     }
 
-    protected override string OnGetConnectionStringInfo()
+    public override void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
     {
-      return String.Format("protocol=pipe;pipe name={0};ssl mode=none;", ts.pipeName);
+      settings.ConnectionProtocol = MySqlConnectionProtocol.NamedPipe;
+      settings.SslMode = MySqlSslMode.None;
     }
-    
   }
-  #endregion
 }

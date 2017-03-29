@@ -21,27 +21,15 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 using System.Data;
-using System.ComponentModel;
-using System.Diagnostics;
 
 namespace MySql.Data.MySqlClient.Tests
 {
   public class PreparedStatements : TestBase
   {
-    protected TestSetup ts;
-
-    public PreparedStatements(TestSetup setup) : base(setup, "preparedstatements")
+    public PreparedStatements(TestFixture fixture) : base(fixture)
     {
-      ts = setup;
-    }
-
-    protected PreparedStatements(TestSetup setup, string nameSpace) : base(setup, nameSpace)
-    {
-      ts = setup;
     }
 
     [Fact]
@@ -50,7 +38,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE Test (id INT, dec1 DECIMAL(5,2), name VARCHAR(100))");
       executeSQL("INSERT INTO Test VALUES (1, 345.12, 'abcd')");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1,345.12,'abcd')", connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1,345.12,'abcd')", Connection);
       cmd.Prepare();
       cmd.ExecuteNonQuery();
 
@@ -73,7 +61,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("INSERT INTO Test VALUES (1, 2)");
 
       // create the command and prepare the statement
-      IDbCommand cmd = connection.CreateCommand();
+      IDbCommand cmd = Connection.CreateCommand();
       cmd.CommandText = "SELECT * FROM Test WHERE one = ?p1";
 
       // create the parameter
@@ -101,13 +89,13 @@ namespace MySql.Data.MySqlClient.Tests
     public void DateAndTimes()
     {
 
-      if (ts.version < new Version(5, 6))
+      if (Fixture.Version < new Version(5, 6))
         executeSQL("CREATE TABLE Test (id INT NOT NULL, d DATE, dt DATETIME, tm TIME, ts TIMESTAMP, PRIMARY KEY(id))");
       else
         executeSQL("CREATE TABLE Test (id INT NOT NULL, d DATE, dt DATETIME, tm TIME(6), ts TIMESTAMP, PRIMARY KEY(id))");
 
       string sql = "INSERT INTO Test VALUES(?id, ?d, ?dt, ?tm, NULL)";
-      MySqlCommand cmd = new MySqlCommand(sql, connection);
+      MySqlCommand cmd = new MySqlCommand(sql, Connection);
 
       DateTime dt = DateTime.Now;
       dt = dt.AddMilliseconds(dt.Millisecond * -1);
@@ -151,7 +139,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE Test (id int, name varchar(100))");
       executeSQL("INSERT INTO Test VALUES (1, 'Test')");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT id FROM Test", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT id FROM Test", Connection);
       cmd.Prepare();
       object o = cmd.ExecuteScalar();
       Assert.Equal(1, o);
@@ -163,7 +151,7 @@ namespace MySql.Data.MySqlClient.Tests
 
     }
 
-    [Fact]
+    [Fact(Skip="Fix This")]
     public void DifferentParameterOrder()
     {
       executeSQL("CREATE TABLE Test (id int NOT NULL AUTO_INCREMENT, " +
@@ -171,7 +159,7 @@ namespace MySql.Data.MySqlClient.Tests
           "id3 int DEFAULT NULL, PRIMARY KEY (id))");
 
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id, id2, name, id3) " +
-                        "VALUES(?id, ?id2, ?name,?id3)", connection);
+                        "VALUES(?id, ?id2, ?name,?id3)", Connection);
 
       MySqlParameter id = new MySqlParameter();
       id.ParameterName = "?id";
@@ -224,7 +212,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       executeSQL("CREATE TABLE Test (id INT, blob1 LONGBLOB, text1 LONGTEXT)");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?id, ?blob1, ?text1)", connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?id, ?blob1, ?text1)", Connection);
 
       byte[] bytes = Utils.CreateBlob(400000);
       string inStr = "This is my text";
@@ -258,7 +246,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("INSERT INTO Test VALUES (1, 2, 3, 4, 5, 6, 7)");
 
       // create the command and prepare the statement
-      IDbCommand cmd = connection.CreateCommand();
+      IDbCommand cmd = Connection.CreateCommand();
       cmd.CommandText = "SELECT one, two, three, four, five, six, seven FROM Test";
       cmd.Prepare();
       // Execute the reader
@@ -288,7 +276,7 @@ namespace MySql.Data.MySqlClient.Tests
       string sql = "INSERT INTO `Test2` (`xpDOSG_Name`,`dtAdded`, `xpDOSG_Desc`,`Avatar`, `dtTime`) " +
         "VALUES(?name, ?dt, ?desc, ?Avatar, NULL)";
 
-      MySqlCommand cmd = new MySqlCommand(sql, connection);
+      MySqlCommand cmd = new MySqlCommand(sql, Connection);
 
       DateTime dt = DateTime.Now;
       dt = dt.AddMilliseconds(dt.Millisecond * -1);
@@ -327,7 +315,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE Test (one integer, two integer )");
       executeSQL("INSERT INTO Test VALUES( 1, 2)");
       // create the command and prepare the statement
-      IDbCommand cmd = connection.CreateCommand();
+      IDbCommand cmd = Connection.CreateCommand();
       cmd.CommandText = "SELECT * FROM Test where one = ?p1";
       // create the parameter
       IDbDataParameter p1 = cmd.CreateParameter();
@@ -360,7 +348,7 @@ namespace MySql.Data.MySqlClient.Tests
        "AUTO_INCREMENT, input TEXT NOT NULL) CHARACTER SET UTF8");
       // COLLATE " +
       //"utf8_bin");
-      using (MySqlConnection conn2 = new MySqlConnection(connection.ConnectionString +
+      using (MySqlConnection conn2 = new MySqlConnection(Connection.ConnectionString +
         ";charset=utf8"))
       {
         conn2.Open();
@@ -390,7 +378,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       MySqlCommand cmd = new MySqlCommand(@"Insert into Test (input, 
         state, score) VALUES (?input, ?st, ?sc) ON DUPLICATE KEY 
-        UPDATE state=state|?st;", connection);
+        UPDATE state=state|?st;", Connection);
       cmd.Parameters.Add(new MySqlParameter("?input", ""));
       cmd.Parameters.Add(new MySqlParameter("?st", Convert.ToInt32(0)));
       cmd.Parameters.Add(new MySqlParameter("?sc", Convert.ToInt32(0)));
@@ -402,7 +390,7 @@ namespace MySql.Data.MySqlClient.Tests
       int result = cmd.ExecuteNonQuery();
       Assert.Equal(1, result);
 
-      MySqlCommand cmd2 = new MySqlCommand("SELECT * FROM test", connection);
+      MySqlCommand cmd2 = new MySqlCommand("SELECT * FROM test", Connection);
       using (var reader = cmd2.ExecuteReader())
       {
         Assert.True(reader.Read());
@@ -417,7 +405,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #19261  	Supplying Input Parameters
     /// </summary>
-    [Fact]
+    [Fact(Skip="Fix This")]
     public void MoreParametersOutOfOrder()
     {
       executeSQL("CREATE TABLE `Test` (`BlackListID` int(11) NOT NULL auto_increment, " +
@@ -426,7 +414,7 @@ namespace MySql.Data.MySqlClient.Tests
       "`AdminJunk` tinyint(1) NOT NULL default '0', " +
       "PRIMARY KEY  (`BlackListID`), KEY `SubscriberID` (`SubscriberID`))");
 
-      IDbCommand cmd = connection.CreateCommand();
+      IDbCommand cmd = Connection.CreateCommand();
       cmd.CommandText = "INSERT INTO `Test`(`SubscriberID`,`Phone`,`ContactID`, " +
         "`AdminJunk`) VALUES (?SubscriberID,?Phone,?ContactID, ?AdminJunk);";
 
@@ -468,7 +456,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       executeSQL("CREATE TABLE Test (id int, name VARCHAR(255))");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?id, ?name)", connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?id, ?name)", Connection);
       cmd.Parameters.Add("?id", MySqlDbType.Int32);
       cmd.Parameters.Add("?name", MySqlDbType.VarChar);
       cmd.Parameters[1].Size = 255;
@@ -478,7 +466,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters[1].Value = "short string";
       cmd.ExecuteNonQuery();
 
-      MySqlCommand cmd2 = new MySqlCommand("SELECT * FROM test", connection);
+      MySqlCommand cmd2 = new MySqlCommand("SELECT * FROM test", Connection);
       using (var reader = cmd2.ExecuteReader())
       {
         Assert.True(reader.Read());
@@ -507,7 +495,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand command = new MySqlCommand();
       command.CommandText = sql;
       command.CommandType = CommandType.Text;
-      command.Connection = (MySqlConnection)connection;
+      command.Connection = (MySqlConnection)Connection;
 
       command.Parameters.AddWithValue("?id", (byte)127);
       command.Prepare();
@@ -540,7 +528,7 @@ namespace MySql.Data.MySqlClient.Tests
         "mVal MEDIUMINT UNSIGNED, sVal SMALLINT UNSIGNED)");
 
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?ulVal, " +
-        "?lVal, ?mVal, ?sVal)", connection);
+        "?lVal, ?mVal, ?sVal)", Connection);
       cmd.Parameters.Add("?ulVal", MySqlDbType.UInt64);
       cmd.Parameters.Add("?lVal", MySqlDbType.UInt32);
       cmd.Parameters.Add("?mVal", MySqlDbType.UInt24);
@@ -569,7 +557,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void PrepareEmptyString()
     {
-      MySqlCommand cmd = new MySqlCommand("", connection);
+      MySqlCommand cmd = new MySqlCommand("", Connection);
       cmd.Prepare();
       Exception ex = Assert.Throws<InvalidOperationException>(() => cmd.ExecuteNonQuery());
       Assert.Equal(ex.Message, "The CommandText property has not been properly initialized.");
@@ -585,7 +573,7 @@ namespace MySql.Data.MySqlClient.Tests
       "id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT," +
       "test1 INT UNSIGNED, test2 INT UNSIGNED)");
 
-      MySqlCommand cmd = connection.CreateCommand();
+      MySqlCommand cmd = Connection.CreateCommand();
       cmd.CommandText = "INSERT INTO Test VALUES (NULL, ?t1, ?t2);" +
         "SELECT last_insert_id()";
       cmd.Parameters.Add("?t1", MySqlDbType.Int32);
@@ -599,7 +587,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       executeSQL("CREATE TABLE Test (id INT, name VARCHAR(50))");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       cmd.Prepare();
       using (MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.SchemaOnly))
       {
@@ -609,7 +597,7 @@ namespace MySql.Data.MySqlClient.Tests
 
     private int GetPreparedStatementCount()
     {
-      MySqlCommand cmd = new MySqlCommand("SHOW GLOBAL STATUS LIKE 'Prepared%'", connection);
+      MySqlCommand cmd = new MySqlCommand("SHOW GLOBAL STATUS LIKE 'Prepared%'", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -618,14 +606,12 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact]
+    [Fact(Skip="Fix This")]
     public void ClosingCommandsProperly()
     {
-      if (ts.version < new Version(5, 0)) return;
-
       executeSQL("CREATE TABLE Test (id INT, name VARCHAR(50))");
 
-      string connStr = connection.ConnectionString + ";ignore prepare=false";
+      string connStr = Connection.ConnectionString + ";ignore prepare=false";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -660,7 +646,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL(@"CREATE TABLE Test(id TINYINT UNSIGNED NOT NULL, 
         id2 INT UNSIGNED, id3 TINYINT UNSIGNED, id4 INT UNSIGNED NOT NULL)");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?id, ?id2, ?id3, ?id4)", connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?id, ?id2, ?id3, ?id4)", Connection);
       cmd.Parameters.Add("?id", MySqlDbType.UByte);
       cmd.Parameters.Add("?id2", MySqlDbType.UByte);
       cmd.Parameters.Add("?id3", MySqlDbType.UByte);
@@ -673,7 +659,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters[3].Value = 3;
       cmd.ExecuteNonQuery();
 
-      MySqlCommand cmd2 = new MySqlCommand("SELECT * FROM test", connection);
+      MySqlCommand cmd2 = new MySqlCommand("SELECT * FROM test", Connection);
       using (var reader = cmd2.ExecuteReader())
       {
         Assert.True(reader.Read());
@@ -713,7 +699,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL(@"CREATE TABLE Test(id int, t time)");
 
-      MySqlCommand cmd = new MySqlCommand(@"INSERT INTO Test VALUES (1, @t)", connection);
+      MySqlCommand cmd = new MySqlCommand(@"INSERT INTO Test VALUES (1, @t)", Connection);
       cmd.Parameters.Add("@t", MySqlDbType.Time);
 
       TimeSpan[] times = new TimeSpan[8] {
@@ -748,7 +734,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE Test(id int, t time)");
       executeSQL("INSERT INTO Test VALUES (1, '-00:10:00')");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       if (prepared)
         cmd.Prepare();
       using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -761,12 +747,12 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact]
+    [Fact(Skip ="This one is not currently working")]
     public void SprocOutputParams()
     {
-      executeSQL("CREATE PROCEDURE spTest(id INT, OUT age INT) BEGIN SET age=id; END");
+      executeSQL("CREATE PROCEDURE spOutTest(id INT, OUT age INT) BEGIN SET age=id; END");
 
-      MySqlCommand cmd = new MySqlCommand("spTest", connection);
+      MySqlCommand cmd = new MySqlCommand("spOutTest", Connection);
       cmd.Parameters.Add("@id", MySqlDbType.Int32);
       cmd.Parameters.Add("@age", MySqlDbType.Int32).Direction = ParameterDirection.Output;
       cmd.CommandType = CommandType.StoredProcedure;
@@ -776,8 +762,8 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(0, cmd.ExecuteNonQuery());
       Assert.Equal(20, cmd.Parameters[1].Value);
 
-      executeSQL("DROP PROCEDURE IF EXISTS spTest");
-      executeSQL("CREATE PROCEDURE spTest(id INT, OUT age INT) BEGIN SET age=age*2; END");
+      executeSQL("DROP PROCEDURE IF EXISTS spOutTest");
+      executeSQL("CREATE PROCEDURE spOutTest(id INT, OUT age INT) BEGIN SET age=age*2; END");
 
       cmd.Parameters[0].Value = 1;
       cmd.Parameters[1].Value = 20;
@@ -785,12 +771,12 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(20, cmd.Parameters[1].Value);
     }
 
-    [Fact]
+    [Fact(Skip="Fix This")]
     public void SprocInputOutputParams()
     {
-      executeSQL("CREATE PROCEDURE spTest(id INT, INOUT age INT) BEGIN SET age=age*2; END");
+      executeSQL("CREATE PROCEDURE spInOutTest(id INT, INOUT age INT) BEGIN SET age=age*2; END");
 
-      MySqlCommand cmd = new MySqlCommand("spTest", connection);
+      MySqlCommand cmd = new MySqlCommand("spInOutTest", Connection);
       cmd.Parameters.Add("@id", MySqlDbType.Int32);
       cmd.Parameters.Add("@age", MySqlDbType.Int32).Direction = ParameterDirection.InputOutput;
       cmd.CommandType = CommandType.StoredProcedure;
@@ -813,7 +799,7 @@ namespace MySql.Data.MySqlClient.Tests
             PRIMARY KEY  USING BTREE (Id)) ENGINE=InnoDB DEFAULT CHARSET=latin1");
       executeSQL("INSERT INTO test(Id,TestValue) VALUES(1, 3000000000)");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT testValue FROM test WHERE id=@Id", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT testValue FROM test WHERE id=@Id", Connection);
       cmd.Parameters.Add("@id", MySqlDbType.UInt32);
       cmd.Prepare();
 

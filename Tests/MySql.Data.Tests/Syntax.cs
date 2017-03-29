@@ -21,18 +21,15 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 using System.Data;
 using System.IO;
-using System.ComponentModel;
 
 namespace MySql.Data.MySqlClient.Tests
 {
   public class Syntax : TestBase
   {
-    public Syntax(TestSetup setup) : base(setup, "syntax")
+    public Syntax(TestFixture fixture) : base(fixture)
     {
     }
 
@@ -40,7 +37,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void ShowCreateTable()
     {
       executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
-      TestDataTable dt = Utils.FillTable("SHOW CREATE TABLE Test", connection);
+      TestDataTable dt = Utils.FillTable("SHOW CREATE TABLE Test", Connection);
 
       Assert.Equal(1, dt.Rows.Count);
       Assert.Equal(2, dt.Columns.Count);
@@ -52,9 +49,9 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), mt MEDIUMTEXT, " +
             "PRIMARY KEY(id)) CHAR SET utf8");
 
-      var settings = new MySqlConnectionStringBuilder(Settings.GetConnectionString(true));
-      settings.CharacterSet = "utf8";
-      using (MySqlConnection c = new MySqlConnection(settings.GetConnectionString(true)))
+      MySqlConnectionStringBuilder cb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
+      cb.CharacterSet = "utf8";
+      using (MySqlConnection c = new MySqlConnection(cb.ConnectionString))
       {
         c.Open();
 
@@ -82,7 +79,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), mt MEDIUMTEXT, " +
             "PRIMARY KEY(id))");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?id, ?text, ?mt)", connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?id, ?text, ?mt)", Connection);
       cmd.Parameters.AddWithValue("?id", 1);
       cmd.Parameters.AddWithValue("?text", "This is my;test ? string-'''\"\".");
       cmd.Parameters.AddWithValue("?mt", "My MT string: ?");
@@ -102,7 +99,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void LoadDataLocalInfile()
     {
       executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
-      string connString = connection.ConnectionString + ";pooling=false";
+      string connString = Connection.ConnectionString + ";pooling=false";
       MySqlConnection c = new MySqlConnection(connString);
       c.Open();
 
@@ -115,7 +112,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       path = path.Replace(@"\", @"\\");
       MySqlCommand cmd = new MySqlCommand(
-        "LOAD DATA LOCAL INFILE '" + path + "' INTO TABLE Test FIELDS TERMINATED BY ','", connection);
+        "LOAD DATA LOCAL INFILE '" + path + "' INTO TABLE Test FIELDS TERMINATED BY ','", Connection);
       cmd.CommandTimeout = 0;
 
       object cnt = 0;
@@ -132,7 +129,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ShowTablesInNonExistentDb()
     {
-      MySqlCommand cmd = new MySqlCommand("SHOW TABLES FROM dummy", connection);
+      MySqlCommand cmd = new MySqlCommand("SHOW TABLES FROM dummy", Connection);
       Assert.Throws<MySqlException>(() => cmd.ExecuteReader());
       //try
       //{
@@ -162,7 +159,7 @@ namespace MySql.Data.MySqlClient.Tests
         UNIQUE KEY `UniqueDefaultMail` (`DefaultMail`)	)";
       executeSQL(sql);
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM KLANT", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM KLANT", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         while (reader.Read()) { }
@@ -176,7 +173,7 @@ namespace MySql.Data.MySqlClient.Tests
         "default '0.000', field3 double(15,3) default '0.000') engine=innodb ");
       executeSQL("INSERT INTO Test values (1,1,1)");
 
-      MySqlCommand cmd2 = new MySqlCommand("SELECT sum(field2) FROM Test", connection);
+      MySqlCommand cmd2 = new MySqlCommand("SELECT sum(field2) FROM Test", Connection);
       using (MySqlDataReader reader = cmd2.ExecuteReader())
       {
         reader.Read();
@@ -194,7 +191,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("INSERT INTO Test VALUES (1, 16)");
       executeSQL("INSERT INTO Test VALUES (1, 40)");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT id, SUM(count) FROM Test GROUP BY id", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT id, SUM(count) FROM Test GROUP BY id", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -208,7 +205,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
       MySqlCommand cmd = new MySqlCommand(
-        "SELECT * FROM Test; DROP TABLE IF EXISTS test2; SELECT * FROM Test", connection);
+        "SELECT * FROM Test; DROP TABLE IF EXISTS test2; SELECT * FROM Test", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         while (reader.NextResult()) { }
@@ -222,7 +219,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("INSERT INTO Test VALUES (1, 'One')");
       executeSQL("INSERT INTO Test VALUES (3, 'Two')");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT name FROM Test WHERE id=1", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT name FROM Test WHERE id=1", Connection);
       object name = cmd.ExecuteScalar();
       Assert.Equal("One", name);
 
@@ -248,7 +245,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       executeSQL("CREATE TABLE Test (testID int(11) NOT NULL auto_increment, testName varchar(100) default '', " +
           "PRIMARY KEY  (testID)) ENGINE=InnoDB DEFAULT CHARSET=latin1");
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (NULL, 'test')", connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (NULL, 'test')", Connection);
       for (int i = 0; i < 1000; i++)
         cmd.ExecuteNonQuery();
       cmd.CommandText = "SELECT SQL_CALC_FOUND_ROWS * FROM Test LIMIT 0, 10";
@@ -263,7 +260,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       executeSQL("CREATE TABLE Test (testID int(11) NOT NULL auto_increment, testName varchar(100) default '', " +
           "PRIMARY KEY  (testID)) ENGINE=InnoDB DEFAULT CHARSET=latin1");
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (NULL, 'test')", connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (NULL, 'test')", Connection);
       cmd.ExecuteNonQuery();
       cmd.CommandText = "SELECT @@IDENTITY as 'Identity'";
       using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -287,7 +284,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       string sql = "SELECT `PO#` AS PurchaseOrderNumber, " +
         "`PODate` AS OrderDate FROM  Test";
-      TestDataTable dt = Utils.FillTable(sql, connection);
+      TestDataTable dt = Utils.FillTable(sql, Connection);
       Assert.Equal(1, dt.Rows.Count);
     }
 
@@ -297,7 +294,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ErrorMessage()
     {
-      MySqlCommand cmd = new MySqlCommand("SELEKT NOW() as theTime", connection);
+      MySqlCommand cmd = new MySqlCommand("SELEKT NOW() as theTime", Connection);
       try
       {
         cmd.ExecuteScalar();
@@ -316,7 +313,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void Describe()
     {
       executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
-      var reader = ExecuteAsReader("DESCRIBE Test", connection);
+      var reader = ExecuteReader("DESCRIBE Test");
       using (reader)
       {
         Assert.True(reader.GetFieldType(0) == typeof(string));
@@ -332,7 +329,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void ShowTableStatus()
     {
       executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
-      var reader = ExecuteAsReader("DESCRIBE Test", connection);
+      var reader = ExecuteReader("DESCRIBE Test");
       using (reader)
       {
         reader.Read();
@@ -347,7 +344,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void NullAsAType()
     {
       TestDataTable dt = Utils.FillTable(@"SELECT 'localhost' as SERVER_NAME, 
-        null as CATALOG_NAME, database() as SCHEMA_NAME", connection);
+        null as CATALOG_NAME, database() as SCHEMA_NAME", Connection);
       Assert.True(dt.Rows[0][0].GetType() == typeof(string));
       Assert.Equal(DBNull.Value, dt.Rows[0][1]);
       Assert.True(dt.Rows[0][2].GetType() == typeof(string));
@@ -356,15 +353,14 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void SpaceInDatabaseName()
     {
-      string dbName = System.IO.Path.GetFileNameWithoutExtension(
-        System.IO.Path.GetTempFileName()) + " x";
-      string fullDbName = CreateDatabase(dbName);
+      string fullDbName = Fixture.CreateDatabase("x y");
 
-      var settings = GetConnectionSettings();
-      settings.Database = fullDbName;
-      MySqlConnection c = new MySqlConnection(settings.GetConnectionString(true));
-      c.Open();
-      c.Close();
+      MySqlConnectionStringBuilder cb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
+      cb.Database = fullDbName;
+      using (var c = new MySqlConnection(cb.ConnectionString))
+      {
+        c.Open();
+      }
     }
 
     /// <summary>
@@ -373,9 +369,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ShowProcessList()
     {
-      var settings = GetConnectionSettings();
-      settings.RespectBinaryFlags = false;
-      MySqlConnection c = new MySqlConnection(settings.GetConnectionString(true));
+      MySqlConnectionStringBuilder cb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
+      cb.RespectBinaryFlags = false;
+      MySqlConnection c = new MySqlConnection(cb.ConnectionString);
       using (c)
       {
         c.Open();
@@ -399,7 +395,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void SemisAtStartAndEnd()
     {
-      using (MySqlCommand cmd = new MySqlCommand(";;SELECT 1;;;", connection))
+      using (MySqlCommand cmd = new MySqlCommand(";;SELECT 1;;;", Connection))
       {
         Assert.Equal(1, Convert.ToInt32(cmd.ExecuteScalar()));
       }
@@ -411,7 +407,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Bug51610()
     {
-      MySqlCommand cmd = new MySqlCommand("SELECT 'ABC', (0/`QOH`) from (SELECT 1 as `QOH`) `d1`", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT 'ABC', (0/`QOH`) from (SELECT 1 as `QOH`) `d1`", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -448,7 +444,7 @@ namespace MySql.Data.MySqlClient.Tests
       try
       {
         MySqlCommand cmd = new MySqlCommand(
-          "INSERT INTO test VALUES (1, 'test 2010-03-04 @ 10:14, name2=' joe')", connection);
+          "INSERT INTO test VALUES (1, 'test 2010-03-04 @ 10:14, name2=' joe')", Connection);
         cmd.ExecuteNonQuery();
       }
       catch (MySqlException)
@@ -469,9 +465,9 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE  extable_2 (daset_id int, sect_id int, " +
         "xyz_id  int, edge_id int, life_id int, another_id int, yetanother_id int)");
 
-      var settings = GetConnectionSettings();
-      settings.Logging = true;
-      using (MySqlConnection c = new MySqlConnection(settings.GetConnectionString(true)))
+      MySqlConnectionStringBuilder cb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
+      cb.Logging = true;
+      using (MySqlConnection c = new MySqlConnection(cb.ConnectionString))
       {
         c.Open();
         MySqlCommand cmd = new MySqlCommand(
@@ -497,9 +493,10 @@ namespace MySql.Data.MySqlClient.Tests
         "fld7 VARCHAR(10), fld8 VARCHAR(10), fld9 VARCHAR(10)," +
         "fld10 VARCHAR(10), PRIMARY KEY(id))");
 
-      var settings = GetConnectionSettings();
-      settings.Logging = true;
-      using (MySqlConnection c = new MySqlConnection(settings.GetConnectionString(true)))
+
+      MySqlConnectionStringBuilder cb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
+      cb.Logging = true;
+      using (MySqlConnection c = new MySqlConnection(cb.ConnectionString))
       {
         c.Open();
         string query =
@@ -531,10 +528,10 @@ namespace MySql.Data.MySqlClient.Tests
 
 
       MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test",
-        connection);
+        Connection);
       MySqlCommand ins = new MySqlCommand(
         "INSERT INTO test (id, expr, name) VALUES(?p1, (?p2 * 2) + 3, ?p3)",
-        connection);
+        Connection);
       da.InsertCommand = ins;
       ins.UpdatedRowSource = UpdateRowSource.None;
       ins.Parameters.Add("?p1", MySqlDbType.Int32).SourceColumn = "id";

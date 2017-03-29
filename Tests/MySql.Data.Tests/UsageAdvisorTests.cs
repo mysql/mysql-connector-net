@@ -31,15 +31,13 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class UsageAdvisorTests : TestBase
   {
-    public UsageAdvisorTests(TestSetup setup) : base(setup, "usage-advisor")
+    public UsageAdvisorTests(TestFixture fixture) : base(fixture)
     {
-
     }
 
-    protected override void Init()
+    public override void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
     {
-      base.Init();
-      Settings.UseUsageAdvisor = true;
+      settings.UseUsageAdvisor = true;
     }
 
     [Fact]
@@ -58,7 +56,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlTrace.Listeners.Add(listener);
 #endif
       string sql = "SELECT * FROM Test; SELECT * FROM Test WHERE id > 2";
-      MySqlCommand cmd = new MySqlCommand(sql, connection);
+      MySqlCommand cmd = new MySqlCommand(sql, Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -103,7 +101,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlTrace.Listeners.Add(listener);
 #endif
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test; SELECT * FROM Test WHERE id > 2", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test; SELECT * FROM Test WHERE id > 2", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -141,7 +139,7 @@ namespace MySql.Data.MySqlClient.Tests
       GenericListener listener = new GenericListener();
       MySqlTrace.Listeners.Add(listener);
 #endif
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -175,7 +173,7 @@ namespace MySql.Data.MySqlClient.Tests
       GenericListener listener = new GenericListener();
       MySqlTrace.Listeners.Add(listener);
 #endif
-      MySqlCommand cmd = new MySqlCommand("SELECT name FROM Test WHERE id=3", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT name FROM Test WHERE id=3", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -205,7 +203,7 @@ namespace MySql.Data.MySqlClient.Tests
       GenericListener listener = new GenericListener();
       MySqlTrace.Listeners.Add(listener);
 #endif
-      MySqlCommand cmd = new MySqlCommand("SELECT name FROM Test WHERE id=3", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT name FROM Test WHERE id=3", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();

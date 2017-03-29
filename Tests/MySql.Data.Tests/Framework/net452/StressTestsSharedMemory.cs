@@ -24,13 +24,14 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class StressTestsSharedMemory : StressTests
   {
-    public StressTestsSharedMemory(TestSetup ts) : base(ts, "stress_shared_memory")
+    public StressTestsSharedMemory(TestFixture fixture) : base(fixture)
     {
-
     }
-    protected override string OnGetConnectionStringInfo()
+
+    public override void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
     {
-      return string.Format("protocol=memory; shared memory name={0};", setup.sharedMemoryName);
+      settings.ConnectionProtocol = MySqlConnectionProtocol.SharedMemory;
+      settings.SslMode = MySqlSslMode.None;
     }
   }
 }
