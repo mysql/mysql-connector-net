@@ -27,6 +27,7 @@
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
     <DelaySign>True</DelaySign>
+    <DocumentationFile>MySql.Data.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
