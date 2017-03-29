@@ -20,7 +20,14 @@
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>True</DelaySign>  
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\MySQL.Data\tests\TestFixture.cs" Link="TestFixture.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Include="App.config" />

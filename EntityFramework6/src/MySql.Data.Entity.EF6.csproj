@@ -47,6 +47,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\MySQL.Data\src\MySql.Data.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="System.Data" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />

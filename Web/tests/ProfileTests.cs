@@ -35,7 +35,7 @@ using MySql.Data.MySqlClient;
 
 namespace MySql.Web.Tests
 {
-  public class ProfileTests : IUseFixture<SetUpWeb>, IDisposable
+  public class ProfileTests : IClassFixture<SetUpWeb>, IDisposable
   {
     private SetUpWeb st;
 

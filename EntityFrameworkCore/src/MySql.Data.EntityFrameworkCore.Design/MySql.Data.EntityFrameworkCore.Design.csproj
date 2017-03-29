@@ -6,23 +6,23 @@
     <NeutralLanguage>en-US</NeutralLanguage>
     <VersionPrefix>6.10.2</VersionPrefix>
     <Authors>Oracle</Authors>
-    <TargetFrameworks>net452;netstandard1.6</TargetFrameworks>
+    <TargetFrameworks>net452;netcoreapp1.1</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DelaySign>true</DelaySign>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>MySql.Data.EntityFrameworkCore.Design</AssemblyName>
-    <AssemblyOriginatorKeyFile>../../ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
-    <SignAssembly>True</SignAssembly>
     <PackageId>MySql.Data.EntityFrameworkCore.Design</PackageId>
     <PackageTags>Entity Framework Core;entity-framework-core;EF;MySQL</PackageTags>
-    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <AssemblyOriginatorKeyFile>../../../ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>True</SignAssembly>
+    <DelaySign>True</DelaySign>
   </PropertyGroup>
 
   <ItemGroup>
@@ -32,6 +32,11 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\MySQL.Data\src\MySql.Data.csproj" />
+    <ProjectReference Include="..\MySql.Data.EntityFrameworkCore\MySql.Data.EntityFrameworkCore.csproj" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
