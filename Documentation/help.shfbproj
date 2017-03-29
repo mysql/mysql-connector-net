@@ -49,10 +49,10 @@
     <PresentationStyle>VS2013</PresentationStyle>
     <NamingMethod>MemberName</NamingMethod>
     <DocumentationSources>
-      <DocumentationSource sourceFile="..\Source\MySql.Data\bin\release\net451\MySql.Data.dll" />
-<DocumentationSource sourceFile="..\Source\MySql.Data\bin\v4.5.1\Release\MySql.Data.xml" />
-<DocumentationSource sourceFile="..\Source\MySql.Web\bin\v4.5.1\release\MySql.Web.dll" />
-<DocumentationSource sourceFile="..\Source\MySql.Web\bin\v4.5.1\release\webdocs.xml" /></DocumentationSources>
+      <DocumentationSource sourceFile="..\MySql.Data\src\bin\release\net452\MySql.Data.dll" />
+<DocumentationSource sourceFile="..\MySql.Data\src\bin\release\net452\MySql.Data.xml" />
+<DocumentationSource sourceFile="..\MySql.Web\src\bin\release\net452\MySql.Web.dll" />
+<DocumentationSource sourceFile="..\MySql.Web\src\bin\release\net452\MySql.Web.xml" /></DocumentationSources>
     <NamespaceSummaries>
       <NamespaceSummaryItem name="(global)" isDocumented="False" xmlns="" />
       <NamespaceSummaryItem name="MySql.Data.Common" isDocumented="False" xmlns="" />
