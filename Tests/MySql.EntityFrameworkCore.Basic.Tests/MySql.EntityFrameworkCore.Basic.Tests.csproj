@@ -61,8 +61,4 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\Source\MySql.Data.EntityFrameworkCore\MySql.Data.EntityFrameworkCore.csproj" />
-  </ItemGroup>
-
 </Project>

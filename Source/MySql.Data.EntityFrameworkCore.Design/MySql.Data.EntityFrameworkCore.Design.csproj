@@ -34,10 +34,6 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\MySql.Data.EntityFrameworkCore\MySql.Data.EntityFrameworkCore.csproj" />
-  </ItemGroup>
-
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <PreserveCompilationContext>true</PreserveCompilationContext>
   </PropertyGroup>
