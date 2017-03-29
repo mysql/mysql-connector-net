@@ -21,8 +21,6 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 using System.Data;
 using System.Reflection;
@@ -31,12 +29,8 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class SimpleTransactions  : TestBase
   {
-
-    protected TestSetup ts;
-
-    public SimpleTransactions(TestSetup setup) : base(setup, "simpletrantests")
+    public SimpleTransactions(TestFixture fixture) : base(fixture)
     {
-      ts = setup;
     }
 
     
@@ -46,11 +40,11 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE Test (key2 VARCHAR(1), name VARCHAR(100), name2 VARCHAR(100))");
       executeSQL("INSERT INTO Test VALUES('P', 'Test1', 'Test2')");
 
-      MySqlTransaction txn = connection.BeginTransaction();
+      MySqlTransaction txn = Connection.BeginTransaction();
       MySqlConnection c = txn.Connection;
-      Assert.Equal(connection, c);
+      Assert.Equal(Connection, c);
       MySqlCommand cmd = new MySqlCommand("SELECT name, name2 FROM Test WHERE key2='P'",
-        connection, txn);
+        Connection, txn);
       MySqlTransaction t2 = cmd.Transaction;
       Assert.Equal(txn, t2);
       MySqlDataReader reader = null;
@@ -77,10 +71,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void NestedTransactions()
     {
-      MySqlTransaction t1 = connection.BeginTransaction();
+      MySqlTransaction t1 = Connection.BeginTransaction();
       //try
       //{
-        Exception ex = Assert.Throws<InvalidOperationException>(() => { connection.BeginTransaction(); });
+        Exception ex = Assert.Throws<InvalidOperationException>(() => { Connection.BeginTransaction(); });
         Assert.Equal(ex.Message, "Nested transactions are not supported.");
         ////Assert.Fail("Exception should have been thrown");
         //t2.Rollback();
@@ -97,7 +91,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void BeginTransactionOnPreviouslyOpenConnection()
     {
-      string connStr = connection.ConnectionString;
+      string connStr = Connection.ConnectionString;
       MySqlConnection c = new MySqlConnection(connStr);
       c.Open();
       c.Close();
@@ -122,7 +116,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test(id INT, name VARCHAR(20))");
 
-      string connStr = connection.ConnectionString + ";pooling=false";
+      string connStr = Connection.ConnectionString + ";pooling=false";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -132,7 +126,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           cmd.ExecuteNonQuery();
         }
-        ts.KillConnection(c);
+        KillConnection(c);
         //try
         //{
         Exception ex = Assert.Throws<InvalidOperationException>(() => trans.Commit());
@@ -153,8 +147,8 @@ namespace MySql.Data.MySqlClient.Tests
     public void DisposingCallsRollback()
     {
       executeSQL("CREATE TABLE Test (key2 VARCHAR(1), name VARCHAR(100), name2 VARCHAR(100))");
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES ('a', 'b', 'c')", connection);
-      MySqlTransaction txn = connection.BeginTransaction();
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES ('a', 'b', 'c')", Connection);
+      MySqlTransaction txn = Connection.BeginTransaction();
       using (txn)
       {
         cmd.ExecuteNonQuery();

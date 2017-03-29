@@ -41,7 +41,6 @@ namespace MySql.Data.MySqlClient
     {
         MySqlConnection connection;
         string cmdText;
-        private IAsyncResult asyncResult;
         private PreparableStatement statement;
         private int commandTimeout;
         private bool resetSqlSelect;
@@ -624,12 +623,14 @@ namespace MySql.Data.MySqlClient
 
             Prepare(0);
         }
-#endregion
+    #endregion
 
-#region Async Methods
-        //TODO: must review, perhaps can be updated to use async and awaits instead of the old fashion way
+    #region Async Methods
+#if !NET_CORE
 
-        internal delegate object AsyncDelegate(int type, CommandBehavior behavior);
+    private IAsyncResult asyncResult;
+
+    internal delegate object AsyncDelegate(int type, CommandBehavior behavior);
         internal AsyncDelegate Caller;
         internal Exception thrownException;
 
@@ -759,60 +760,61 @@ namespace MySql.Data.MySqlClient
             return (int)c.EndInvoke(asyncResult);
         }
 
-#endregion
+#endif
+    #endregion
 
-#region Private Methods
+    #region Private Methods
 
-        /*		private ArrayList PrepareSqlBuffers(string sql)
+    /*		private ArrayList PrepareSqlBuffers(string sql)
+                {
+                    ArrayList buffers = new ArrayList();
+                    MySqlStreamWriter writer = new MySqlStreamWriter(new MemoryStream(), connection.Encoding);
+                    writer.Version = connection.driver.Version;
+
+                    // if we are executing as a stored procedure, then we need to add the call
+                    // keyword.
+                    if (CommandType == CommandType.StoredProcedure)
                     {
-                        ArrayList buffers = new ArrayList();
-                        MySqlStreamWriter writer = new MySqlStreamWriter(new MemoryStream(), connection.Encoding);
-                        writer.Version = connection.driver.Version;
+                        if (storedProcedure == null)
+                            storedProcedure = new StoredProcedure(this);
+                        sql = storedProcedure.Prepare( CommandText );
+                    }
 
-                        // if we are executing as a stored procedure, then we need to add the call
-                        // keyword.
-                        if (CommandType == CommandType.StoredProcedure)
+                    // tokenize the SQL
+                    sql = sql.TrimStart(';').TrimEnd(';');
+                    ArrayList tokens = TokenizeSql( sql );
+
+                    foreach (string token in tokens)
+                    {
+                        if (token.Trim().Length == 0) continue;
+                        if (token == ";" && ! connection.driver.SupportsBatch)
                         {
-                            if (storedProcedure == null)
-                                storedProcedure = new StoredProcedure(this);
-                            sql = storedProcedure.Prepare( CommandText );
+                            MemoryStream ms = (MemoryStream)writer.Stream;
+                            if (ms.Length > 0)
+                                buffers.Add( ms );
+
+                            writer = new MySqlStreamWriter(new MemoryStream(), connection.Encoding);
+                            writer.Version = connection.driver.Version;
+                            continue;
+                        }
+                        else if (token[0] == parameters.ParameterMarker) 
+                        {
+                            if (SerializeParameter(writer, token)) continue;
                         }
 
-                        // tokenize the SQL
-                        sql = sql.TrimStart(';').TrimEnd(';');
-                        ArrayList tokens = TokenizeSql( sql );
+                        // our fall through case is to write the token to the byte stream
+                        writer.WriteStringNoNull(token);
+                    }
 
-                        foreach (string token in tokens)
-                        {
-                            if (token.Trim().Length == 0) continue;
-                            if (token == ";" && ! connection.driver.SupportsBatch)
-                            {
-                                MemoryStream ms = (MemoryStream)writer.Stream;
-                                if (ms.Length > 0)
-                                    buffers.Add( ms );
+                    // capture any buffer that is left over
+                    MemoryStream mStream = (MemoryStream)writer.Stream;
+                    if (mStream.Length > 0)
+                        buffers.Add( mStream );
 
-                                writer = new MySqlStreamWriter(new MemoryStream(), connection.Encoding);
-                                writer.Version = connection.driver.Version;
-                                continue;
-                            }
-                            else if (token[0] == parameters.ParameterMarker) 
-                            {
-                                if (SerializeParameter(writer, token)) continue;
-                            }
+                    return buffers;
+                }*/
 
-                            // our fall through case is to write the token to the byte stream
-                            writer.WriteStringNoNull(token);
-                        }
-
-                        // capture any buffer that is left over
-                        MemoryStream mStream = (MemoryStream)writer.Stream;
-                        if (mStream.Length > 0)
-                            buffers.Add( mStream );
-
-                        return buffers;
-                    }*/
-
-        internal long EstimatedSize()
+    internal long EstimatedSize()
         {
             return CommandText.Length + Parameters.Cast<MySqlParameter>().Sum(parameter => parameter.EstimatedSize());
         }

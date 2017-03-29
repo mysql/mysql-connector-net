@@ -28,7 +28,7 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class MySqlBulkLoaderTests : TestBase
   {
-    public MySqlBulkLoaderTests(TestSetup setup) : base(setup, "bulkload")
+    public MySqlBulkLoaderTests(TestFixture fixture) : base(fixture)
     {
     }
 
@@ -45,14 +45,14 @@ namespace MySql.Data.MySqlClient.Tests
       sw.Flush();
       sw.Dispose();
 
-      MySqlBulkLoader loader = new MySqlBulkLoader(connection);
+      MySqlBulkLoader loader = new MySqlBulkLoader(Connection);
       loader.TableName = "Test";
       loader.FileName = path;
       loader.Timeout = 0;
       int count = loader.Load();
       Assert.Equal(200, count);
 
-      TestDataTable dt = Utils.FillTable("SELECT * FROM Test", connection);
+      TestDataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
       Assert.Equal(200, dt.Rows.Count);
       Assert.Equal("'Test'", dt.Rows[0][1].ToString().Trim());
     }
@@ -75,14 +75,14 @@ namespace MySql.Data.MySqlClient.Tests
       fi.Attributes = fi.Attributes | FileAttributes.ReadOnly;
       try
       {
-        MySqlBulkLoader loader = new MySqlBulkLoader(connection);
+        MySqlBulkLoader loader = new MySqlBulkLoader(Connection);
         loader.TableName = "Test";
         loader.FileName = path;
         loader.Timeout = 0;
         int count = loader.Load();
         Assert.Equal(200, count);
 
-        TestDataTable dt = Utils.FillTable("SELECT * FROM Test", connection);
+        TestDataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
         Assert.Equal(200, dt.Rows.Count);
         Assert.Equal("'Test'", dt.Rows[0][1].ToString().Trim());
       }
@@ -106,7 +106,7 @@ namespace MySql.Data.MySqlClient.Tests
       sw.Flush();
       sw.Dispose();
 
-      MySqlBulkLoader loader = new MySqlBulkLoader(connection);
+      MySqlBulkLoader loader = new MySqlBulkLoader(Connection);
       loader.TableName = "Test";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -115,7 +115,7 @@ namespace MySql.Data.MySqlClient.Tests
       int count = loader.Load();
       Assert.Equal(200, count);
 
-      MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM Test", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM Test", Connection);
       Assert.Equal(200, Convert.ToInt32(cmd.ExecuteScalar()));
     }
 
@@ -132,7 +132,7 @@ namespace MySql.Data.MySqlClient.Tests
       sw.Flush();
       sw.Dispose();
 
-      MySqlBulkLoader loader = new MySqlBulkLoader(connection);
+      MySqlBulkLoader loader = new MySqlBulkLoader(Connection);
       loader.TableName = "Test";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -142,7 +142,7 @@ namespace MySql.Data.MySqlClient.Tests
       int count = loader.Load();
       Assert.Equal(150, count);
 
-      MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM Test", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM Test", Connection);
       Assert.Equal(150, Convert.ToInt32(cmd.ExecuteScalar()));
     }
 
@@ -165,7 +165,7 @@ namespace MySql.Data.MySqlClient.Tests
       sw.Flush();
       sw.Dispose();
 
-      MySqlBulkLoader loader = new MySqlBulkLoader(connection);
+      MySqlBulkLoader loader = new MySqlBulkLoader(Connection);
       loader.TableName = "Test";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -175,7 +175,7 @@ namespace MySql.Data.MySqlClient.Tests
       int count = loader.Load();
       Assert.Equal(200, count);
 
-      MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM Test", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM Test", Connection);
       Assert.Equal(200, Convert.ToInt32(cmd.ExecuteScalar()));
     }
 
@@ -192,7 +192,7 @@ namespace MySql.Data.MySqlClient.Tests
       sw.Flush();
       sw.Dispose();
 
-      MySqlBulkLoader loader = new MySqlBulkLoader(connection);
+      MySqlBulkLoader loader = new MySqlBulkLoader(Connection);
       loader.TableName = "Test";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -201,7 +201,7 @@ namespace MySql.Data.MySqlClient.Tests
       int count = loader.Load();
       Assert.Equal(200, count);
 
-      TestDataTable dt = Utils.FillTable("SELECT * FROM Test", connection);
+      TestDataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
       Assert.Equal(200, dt.Rows.Count);
       Assert.Equal("col1", dt.Rows[0][1]);
       Assert.Equal("col2", dt.Rows[0][2].ToString().Trim());
@@ -220,7 +220,7 @@ namespace MySql.Data.MySqlClient.Tests
       sw.Flush();
       sw.Dispose();
 
-      MySqlBulkLoader loader = new MySqlBulkLoader(connection);
+      MySqlBulkLoader loader = new MySqlBulkLoader(Connection);
       loader.TableName = "Test";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -229,7 +229,7 @@ namespace MySql.Data.MySqlClient.Tests
       int count = loader.Load();
       Assert.Equal(200, count);
 
-      TestDataTable dt = Utils.FillTable("SELECT * FROM Test", connection);
+      TestDataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
       Assert.Equal(200, dt.Rows.Count);
       Assert.Equal("col1still col1", dt.Rows[0][1]);
       Assert.Equal("col2", dt.Rows[0][2].ToString().Trim());
@@ -248,7 +248,7 @@ namespace MySql.Data.MySqlClient.Tests
       sw.Flush();
       sw.Dispose();
 
-      MySqlBulkLoader loader = new MySqlBulkLoader(connection);
+      MySqlBulkLoader loader = new MySqlBulkLoader(Connection);
       loader.TableName = "Test";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -263,7 +263,7 @@ namespace MySql.Data.MySqlClient.Tests
       sw.Flush();
       sw.Dispose();
 
-      loader = new MySqlBulkLoader(connection);
+      loader = new MySqlBulkLoader(Connection);
       loader.TableName = "Test";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -271,7 +271,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.ConflictOption = MySqlBulkLoaderConflictOption.Replace;
       loader.Load();
 
-      TestDataTable dt = Utils.FillTable("SELECT * FROM Test", connection);
+      TestDataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
       Assert.Equal(20, dt.Rows.Count);
       Assert.Equal("col2", dt.Rows[0][1].ToString().Trim());
     }
@@ -289,7 +289,7 @@ namespace MySql.Data.MySqlClient.Tests
       sw.Flush();
       sw.Dispose();
 
-      MySqlBulkLoader loader = new MySqlBulkLoader(connection);
+      MySqlBulkLoader loader = new MySqlBulkLoader(Connection);
       loader.TableName = "Test";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -304,7 +304,7 @@ namespace MySql.Data.MySqlClient.Tests
       sw.Flush();
       sw.Dispose();
 
-      loader = new MySqlBulkLoader(connection);
+      loader = new MySqlBulkLoader(Connection);
       loader.TableName = "Test";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -312,12 +312,13 @@ namespace MySql.Data.MySqlClient.Tests
       loader.ConflictOption = MySqlBulkLoaderConflictOption.Ignore;
       loader.Load();
 
-      TestDataTable dt = Utils.FillTable("SELECT * FROM Test", connection);
+      TestDataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
       Assert.Equal(20, dt.Rows.Count);
       Assert.Equal("col1", dt.Rows[0][1].ToString().Trim());
     }
 
     #region AsyncTests
+
     [Fact]
     public void BulkLoadSimpleAsync()
     {
@@ -329,7 +330,7 @@ namespace MySql.Data.MySqlClient.Tests
       sw.Flush();
       sw.Dispose();
 
-      MySqlBulkLoader loader = new MySqlBulkLoader(connection);
+      MySqlBulkLoader loader = new MySqlBulkLoader(Connection);
       loader.TableName = "BulkLoadSimpleAsyncTest";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -337,7 +338,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.LoadAsync().ContinueWith(loadResult => 
       {
         int dataLoaded = loadResult.Result;
-        TestDataTable dt = Utils.FillTable("SELECT * FROM BulkLoadSimpleAsyncTest", connection);
+        TestDataTable dt = Utils.FillTable("SELECT * FROM BulkLoadSimpleAsyncTest", Connection);
 
         Assert.Equal(dataLoaded, dt.Rows.Count);
         Assert.Equal("'Test'", dt.Rows[0][1].ToString().Trim());
@@ -361,7 +362,7 @@ namespace MySql.Data.MySqlClient.Tests
       fi.Attributes = fi.Attributes | FileAttributes.ReadOnly;
       try
       {
-        MySqlBulkLoader loader = new MySqlBulkLoader(connection);
+        MySqlBulkLoader loader = new MySqlBulkLoader(Connection);
         loader.TableName = "BulkLoadReadOnlyFileAsyncTest";
         loader.FileName = path;
         loader.Timeout = 0;
@@ -370,7 +371,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           int dataLoaded = loadResult.Result;
 
-          TestDataTable dt = Utils.FillTable("SELECT * FROM BulkLoadReadOnlyFileAsyncTest", connection);
+          TestDataTable dt = Utils.FillTable("SELECT * FROM BulkLoadReadOnlyFileAsyncTest", Connection);
           Assert.Equal(dataLoaded, dt.Rows.Count);
           Assert.Equal("'Test'", dt.Rows[0][1].ToString().Trim());
         }).Wait();
@@ -394,7 +395,7 @@ namespace MySql.Data.MySqlClient.Tests
       sw.Flush();
       sw.Dispose();
 
-      MySqlBulkLoader loader = new MySqlBulkLoader(connection);
+      MySqlBulkLoader loader = new MySqlBulkLoader(Connection);
       loader.TableName = "BulkLoadFieldQuotingAsyncTest";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -403,7 +404,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       loader.LoadAsync().ContinueWith(loadResult => {
         int dataLoaded = loadResult.Result;
-        TestDataTable dt = Utils.FillTable("SELECT * FROM BulkLoadFieldQuotingAsyncTest", connection);
+        TestDataTable dt = Utils.FillTable("SELECT * FROM BulkLoadFieldQuotingAsyncTest", Connection);
 
         Assert.Equal(dataLoaded, dt.Rows.Count);
         Assert.Equal("col1", dt.Rows[0][1]);
@@ -423,7 +424,7 @@ namespace MySql.Data.MySqlClient.Tests
       sw.Flush();
       sw.Dispose();
 
-      MySqlBulkLoader loader = new MySqlBulkLoader(connection);
+      MySqlBulkLoader loader = new MySqlBulkLoader(Connection);
       loader.TableName = "BulkLoadEscapingAsyncTest";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -432,7 +433,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       loader.LoadAsync().ContinueWith(loadResult => {
         int dataLoaded = loadResult.Result;
-        TestDataTable dt = Utils.FillTable("SELECT * FROM BulkLoadEscapingAsyncTest", connection);
+        TestDataTable dt = Utils.FillTable("SELECT * FROM BulkLoadEscapingAsyncTest", Connection);
 
         Assert.Equal(dataLoaded, dt.Rows.Count);
         Assert.Equal("col1still col1", dt.Rows[0][1]);
@@ -452,7 +453,7 @@ namespace MySql.Data.MySqlClient.Tests
       sw.Flush();
       sw.Dispose();
 
-      MySqlBulkLoader loader = new MySqlBulkLoader(connection);
+      MySqlBulkLoader loader = new MySqlBulkLoader(Connection);
       loader.TableName = "BulkLoadConflictOptionReplaceAsyncTest";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -467,7 +468,7 @@ namespace MySql.Data.MySqlClient.Tests
       sw.Flush();
       sw.Dispose();
 
-      loader = new MySqlBulkLoader(connection);
+      loader = new MySqlBulkLoader(Connection);
       loader.TableName = "BulkLoadConflictOptionReplaceAsyncTest";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -475,7 +476,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.ConflictOption = MySqlBulkLoaderConflictOption.Replace;
 
       loader.LoadAsync().Wait();
-      TestDataTable dt = Utils.FillTable("SELECT * FROM BulkLoadConflictOptionReplaceAsyncTest", connection);
+      TestDataTable dt = Utils.FillTable("SELECT * FROM BulkLoadConflictOptionReplaceAsyncTest", Connection);
       Assert.Equal(20, dt.Rows.Count);
       Assert.Equal("col2", dt.Rows[0][1].ToString().Trim());
     }
@@ -492,7 +493,7 @@ namespace MySql.Data.MySqlClient.Tests
       sw.Flush();
       sw.Dispose();
 
-      MySqlBulkLoader loader = new MySqlBulkLoader(connection);
+      MySqlBulkLoader loader = new MySqlBulkLoader(Connection);
       loader.TableName = "BulkLoadConflictOptionIgnoreAsyncTest";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -508,7 +509,7 @@ namespace MySql.Data.MySqlClient.Tests
         sw.Dispose();
       }).Wait();
 
-      loader = new MySqlBulkLoader(connection);
+      loader = new MySqlBulkLoader(Connection);
       loader.TableName = "BulkLoadConflictOptionIgnoreAsyncTest";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -517,7 +518,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       loader.LoadAsync().ContinueWith(loadResult => {
         int dataLoaded = loadResult.Result;
-        TestDataTable dt = Utils.FillTable("SELECT * FROM BulkLoadConflictOptionIgnoreAsyncTest", connection);
+        TestDataTable dt = Utils.FillTable("SELECT * FROM BulkLoadConflictOptionIgnoreAsyncTest", Connection);
         Assert.Equal(20, dt.Rows.Count);
         Assert.Equal("col1", dt.Rows[0][1].ToString().Trim());
       }).Wait();
@@ -535,7 +536,7 @@ namespace MySql.Data.MySqlClient.Tests
       sw.Flush();
       sw.Dispose();
 
-      MySqlBulkLoader loader = new MySqlBulkLoader(connection);
+      MySqlBulkLoader loader = new MySqlBulkLoader(Connection);
       loader.TableName = "BulkLoadColumnOrderAsyncTest";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -548,7 +549,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       loader.LoadAsync().ContinueWith(loadResult => {
         int dataLoaded = loadResult.Result;
-        TestDataTable dt = Utils.FillTable("SELECT * FROM BulkLoadColumnOrderAsyncTest", connection);
+        TestDataTable dt = Utils.FillTable("SELECT * FROM BulkLoadColumnOrderAsyncTest", Connection);
         Assert.Equal(20, dt.Rows.Count);
         Assert.Equal("col1", dt.Rows[0][1]);
         Assert.Equal("col2", dt.Rows[0][2]);
@@ -577,7 +578,7 @@ namespace MySql.Data.MySqlClient.Tests
       sw.Flush();
       sw.Dispose();
 
-      MySqlBulkLoader loader = new MySqlBulkLoader(connection);
+      MySqlBulkLoader loader = new MySqlBulkLoader(Connection);
       loader.TableName = "Test";
       loader.FileName = path;
       loader.Timeout = 0;
@@ -590,7 +591,7 @@ namespace MySql.Data.MySqlClient.Tests
       int count = loader.Load();
       Assert.Equal(20, count);
 
-      TestDataTable dt = Utils.FillTable("SELECT * FROM Test", connection);
+      TestDataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
       Assert.Equal(20, dt.Rows.Count);
       Assert.Equal("col1", dt.Rows[0][1]);
       Assert.Equal("col2", dt.Rows[0][2]);

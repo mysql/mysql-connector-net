@@ -22,7 +22,6 @@
 
 
 using System.Reflection;
-using System.Collections.Generic;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -32,10 +31,18 @@ namespace MySql.Data.MySqlClient.Tests
 
     public SqlTokenizer(string sql)
     {
-      Assembly a = Assembly.Load("MySql.Data");
-      tokenizer = a.CreateInstance("MySql.Data.Common.MySqlTokenizer",
-          false, System.Reflection.BindingFlags.CreateInstance, null,
-              new object[] { sql }, null, null);
+      Assembly a = Assembly.Load(new AssemblyName("MySql.Data"));
+      tokenizer = a.CreateInstance("MySql.Data.Common.MySqlTokenizer");
+      Text = sql;
+    }
+
+    public string Text
+    {
+      set
+      {
+        PropertyInfo pi = tokenizer.GetType().GetProperty("Text");
+        pi.SetValue(tokenizer, value, null);
+      }
     }
 
     public bool ReturnComments
@@ -76,16 +83,14 @@ namespace MySql.Data.MySqlClient.Tests
 
     public string NextToken()
     {
-      return (string)tokenizer.GetType().InvokeMember("NextToken",
-          System.Reflection.BindingFlags.InvokeMethod,
-          null, tokenizer, null);
+      MethodInfo method = tokenizer.GetType().GetTypeInfo().GetDeclaredMethod("NextToken");
+      return (string)method.Invoke(tokenizer, null);
     }
 
     public string NextParameter()
     {
-      return (string)tokenizer.GetType().InvokeMember("NextParameter",
-          System.Reflection.BindingFlags.InvokeMethod,
-          null, tokenizer, null);
+      MethodInfo method = tokenizer.GetType().GetTypeInfo().GetDeclaredMethod("NextParameter");
+      return (string)method.Invoke(tokenizer, null);
     }
   }
 }

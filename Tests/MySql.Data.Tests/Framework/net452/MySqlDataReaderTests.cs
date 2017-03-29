@@ -20,10 +20,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 using System.Data;
 #if !NETCORE10
@@ -34,14 +31,10 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class MySqlDataReaderTests : TestBase
   {
-
-    TestSetup ts;
-
-    public MySqlDataReaderTests(TestSetup setup):base (setup, "datareadertests")
+    public MySqlDataReaderTests(TestFixture fixture) : base(fixture)
     {
-      ts = setup;
     }
-        
+
 
     private void CreateDefaultTable()
     {
@@ -53,7 +46,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       CreateDefaultTable();
 
-      MySqlCommand cmd = new MySqlCommand("", connection);
+      MySqlCommand cmd = new MySqlCommand("", Connection);
       // insert 100 records
       cmd.CommandText = "INSERT INTO Test (id,name) VALUES (?id, 'test')";
       cmd.Parameters.Add(new MySqlParameter("?id", 1));
@@ -64,7 +57,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
 
       // execute it one time
-      cmd = new MySqlCommand("SELECT id FROM Test WHERE id<50; SELECT * FROM Test WHERE id >= 50;", connection);
+      cmd = new MySqlCommand("SELECT id FROM Test WHERE id<50; SELECT * FROM Test WHERE id >= 50;", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         Assert.NotNull(reader);
@@ -96,7 +89,7 @@ namespace MySql.Data.MySqlClient.Tests
       int len = 50000;
       byte[] bytes = Utils.CreateBlob(len);
       MySqlCommand cmd = new MySqlCommand(
-        "INSERT INTO Test (id, name, b1) VALUES(1, 'Test', ?b1)", connection);
+        "INSERT INTO Test (id, name, b1) VALUES(1, 'Test', ?b1)", Connection);
       cmd.Parameters.AddWithValue("?b1", bytes);
       cmd.ExecuteNonQuery();
 
@@ -150,7 +143,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("INSERT INTO Test (id, name, b1) VALUES (2, 'Test1', NULL)");
 
       MySqlCommand cmd = new MySqlCommand(
-        "SELECT * FROM Test WHERE id=1; SELECT * FROM Test WHERE id=2", connection);
+        "SELECT * FROM Test WHERE id=1; SELECT * FROM Test WHERE id=2", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.SingleResult))
       {
         bool result = reader.Read();
@@ -177,7 +170,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL(sql);
       executeSQL("INSERT INTO test2 VALUES(1,'Test', 'Test', 1.0, now(), 20.0, 12.324, True)");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM test2", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM test2", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         DataTable dt = reader.GetSchemaTable();
@@ -208,7 +201,7 @@ namespace MySql.Data.MySqlClient.Tests
       CreateDefaultTable();
       executeSQL("INSERT INTO Test(id,name) VALUES(1,'test')");
 
-      using (MySqlConnection c2 = new MySqlConnection(connection.ConnectionString))
+      using (MySqlConnection c2 = new MySqlConnection(Connection.ConnectionString))
       {
         c2.Open();
         MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", c2);
@@ -229,7 +222,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("INSERT INTO Test(id,name) VALUES(2,'test2')");
       executeSQL("INSERT INTO Test(id,name) VALUES(3,'test3')");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.SingleRow))
       {
         Assert.True(reader.Read(), "First read");
@@ -255,7 +248,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("INSERT INTO Test(id,name) VALUES(2,'test2')");
       executeSQL("INSERT INTO Test(id,name) VALUES(3,'test3')");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test LIMIT 2", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test LIMIT 2", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.SingleRow))
       {
         Assert.True(reader.Read(), "First read");
@@ -284,7 +277,7 @@ namespace MySql.Data.MySqlClient.Tests
       CreateDefaultTable();
       executeSQL("INSERT INTO Test(id,name) VALUES(1,'test1')");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         Assert.True(reader.Read(), "First read");
@@ -303,7 +296,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("INSERT INTO Test (id, name, dt) VALUES (2, NULL, now())");
       executeSQL("INSERT INTO Test (id, name, dt) VALUES (3, 'Test2', NULL)");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT id, name, dt FROM Test", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT id, name, dt FROM Test", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -316,7 +309,7 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal(DBNull.Value, reader.GetValue(1));
 #if !NETCORE10
         Exception ex = Assert.Throws<SqlNullValueException>(() => reader.GetString(1));
-        Assert.Equal(ex.Message, "Data is Null. This method or property cannot be called on Null values.");       
+        Assert.Equal(ex.Message, "Data is Null. This method or property cannot be called on Null values.");
 #endif
         Assert.False(reader.IsDBNull(2));
         reader.Read();
@@ -326,17 +319,17 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal(DBNull.Value, reader.GetValue(2));
 #if !NETCORE10
         ex = Assert.Throws<SqlNullValueException>(() => reader.GetMySqlDateTime(2));
-        Assert.Equal(ex.Message, "Data is Null. This method or property cannot be called on Null values.");                            
+        Assert.Equal(ex.Message, "Data is Null. This method or property cannot be called on Null values.");
 #endif
         Assert.False(reader.Read());
         Assert.False(reader.NextResult());
       }
-    }    
+    }
 
     [Fact]
     public void HungDataReader()
     {
-      MySqlCommand cmd = new MySqlCommand("USE `" + ts.baseDBName + "0" + "`; SHOW TABLES", connection);
+      MySqlCommand cmd = new MySqlCommand("USE `" + Connection.Database + "`; SHOW TABLES", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         while (reader.Read())
@@ -355,7 +348,7 @@ namespace MySql.Data.MySqlClient.Tests
       CreateDefaultTable();
       executeSQL("INSERT INTO Test(id,name) VALUES(1,'test1')");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.SequentialAccess))
       {
         Assert.True(reader.Read());
@@ -367,7 +360,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         // this next line should throw an exception
         Exception ex = Assert.Throws<MySqlException>(() => i = reader.GetInt32(0));
-        Assert.Equal(ex.Message, "Invalid attempt to read a prior column using SequentialAccess");       
+        Assert.Equal(ex.Message, "Invalid attempt to read a prior column using SequentialAccess");
       }
     }
 
@@ -378,7 +371,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE Test (id int, t1 TEXT)");
       executeSQL("INSERT INTO Test VALUES (1, 'Text value')");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -391,7 +384,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void ReadingFieldsBeforeRead()
     {
       CreateDefaultTable();
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         try
@@ -409,7 +402,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       CreateDefaultTable();
       executeSQL("INSERT INTO Test (id, name) VALUES (1, 'a')");
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -422,7 +415,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void ReaderOnNonQuery()
     {
       CreateDefaultTable();
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id,name) VALUES (1,'Test')", connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id,name) VALUES (1,'Test')", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         Assert.False(reader.Read());
@@ -438,7 +431,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void TestManyDifferentResultsets()
     {
       CreateDefaultTable();
-      MySqlCommand cmd = new MySqlCommand("", connection);
+      MySqlCommand cmd = new MySqlCommand("", Connection);
       // insert 100 records
       cmd.CommandText = "INSERT INTO Test (id,name,dt,b1) VALUES (?id, 'test','2004-12-05 12:57:00','long blob data')";
       cmd.Parameters.Add(new MySqlParameter("?id", 1));
@@ -454,7 +447,7 @@ namespace MySql.Data.MySqlClient.Tests
         "SELECT id, dt, b1 FROM Test WHERE id = -50; " +
         "SELECT b1 FROM Test WHERE id = -50; " +
         "SELECT id, dt, b1 FROM Test WHERE id < ?param1; " +
-        "SELECT b1 FROM Test WHERE id >= ?param1;", connection);
+        "SELECT b1 FROM Test WHERE id >= ?param1;", Connection);
 
       cmd.Parameters.AddWithValue("?param1", 50);
 
@@ -529,7 +522,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
 
-    [Fact]
+    [Fact(Skip="Fix This")]
     public void TestMultipleResultsWithQueryCacheOn()
     {
       CreateDefaultTable();
@@ -538,7 +531,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("INSERT INTO Test (id,name) VALUES (51, 'Test')");
 
       // execute it one time
-      MySqlCommand cmd = new MySqlCommand("SELECT id FROM Test WHERE id<50; SELECT * FROM Test	WHERE id >= 50;", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT id FROM Test WHERE id<50; SELECT * FROM Test	WHERE id >= 50;", Connection);
 
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
@@ -570,14 +563,14 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void SchemaOnly()
     {
-        CreateDefaultTable();
-        executeSQL("INSERT INTO Test (id,name) VALUES(1,'test1')");
-        executeSQL("INSERT INTO Test (id,name) VALUES(2,'test2')");
-        executeSQL("INSERT INTO Test (id,name) VALUES(3,'test3')");
+      CreateDefaultTable();
+      executeSQL("INSERT INTO Test (id,name) VALUES(1,'test1')");
+      executeSQL("INSERT INTO Test (id,name) VALUES(2,'test2')");
+      executeSQL("INSERT INTO Test (id,name) VALUES(3,'test3')");
 
-        MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", connection);
-        using (MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.SchemaOnly))
-        {
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
+      using (MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.SchemaOnly))
+      {
 #if RT
             Assert.Equal(5, reader.FieldCount);
 #else
@@ -586,8 +579,8 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal(22, table.Columns.Count);
 #endif
 
-            Assert.False(reader.Read());
-        }
+        Assert.False(reader.Read());
+      }
     }
 
     /// <summary>
@@ -596,7 +589,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void AffectedRows()
     {
-      MySqlCommand cmd = new MySqlCommand("SHOW TABLES", connection);
+      MySqlCommand cmd = new MySqlCommand("SHOW TABLES", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -614,7 +607,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE Test (tm TIMESTAMP)");
       executeSQL("INSERT INTO Test VALUES (NULL)");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test WHERE tm = '7/1/2005 12:00:00 AM'", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test WHERE tm = '7/1/2005 12:00:00 AM'", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
       }
@@ -626,18 +619,18 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void GetStringOnNull()
     {
-        executeSQL("CREATE TABLE Test (id int, PRIMARY KEY(id))");
-        MySqlCommand cmd = new MySqlCommand(
-        String.Format("SHOW INDEX FROM Test FROM `{0}`", ts.baseDBName + "0"), connection);
-        using (MySqlDataReader reader = cmd.ExecuteReader())
-        {
-            reader.Read();
+      executeSQL("CREATE TABLE Test (id int, PRIMARY KEY(id))");
+      MySqlCommand cmd = new MySqlCommand(
+      String.Format("SHOW INDEX FROM Test FROM `{0}`", Connection.Database), Connection);
+      using (MySqlDataReader reader = cmd.ExecuteReader())
+      {
+        reader.Read();
 #if NETCORE10
             Assert.Throws<MySqlNullValueException>(() => reader.GetString(reader.GetOrdinal("Sub_part")));
 #else
-        Assert.Throws<System.Data.SqlTypes.SqlNullValueException>(()=> reader.GetString(reader.GetOrdinal("Sub_part")));                              
+        Assert.Throws<System.Data.SqlTypes.SqlNullValueException>(() => reader.GetString(reader.GetOrdinal("Sub_part")));
 #endif
-        }
+      }
     }
 
 
@@ -648,11 +641,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void GetSchemaTableOnEmptyResultset()
     {
-      if (ts.version < new Version(5, 0)) return;
-
       executeSQL("CREATE PROCEDURE spTest() BEGIN END");
 
-      MySqlCommand cmd = new MySqlCommand("spTest", connection);
+      MySqlCommand cmd = new MySqlCommand("spTest", Connection);
       cmd.CommandType = CommandType.StoredProcedure;
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
@@ -671,7 +662,7 @@ namespace MySql.Data.MySqlClient.Tests
       CreateDefaultTable();
       executeSQL("INSERT INTO Test (id, name) VALUES (1, '')");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         Assert.True(reader.Read());
@@ -691,7 +682,7 @@ namespace MySql.Data.MySqlClient.Tests
         ID_B int(11) NOT NULL, PRIMARY KEY (ID_A,ID_B)
         ) ENGINE=MyISAM DEFAULT CHARSET=latin1;");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       DataTable dt = new DataTable();
 
       using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -717,7 +708,7 @@ namespace MySql.Data.MySqlClient.Tests
       CreateDefaultTable();
       executeSQL("INSERT INTO Test(id,name) VALUES(1,'test')");
 
-      using (MySqlConnection c2 = new MySqlConnection(connection.ConnectionString))
+      using (MySqlConnection c2 = new MySqlConnection(Connection.ConnectionString))
       {
         c2.Open();
         MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", c2);
@@ -739,7 +730,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void CommandBehaviorSchemaOnly()
     {
 
-      MySqlCommand cmd = new MySqlCommand("select * from doesnotexist", connection);
+      MySqlCommand cmd = new MySqlCommand("select * from doesnotexist", Connection);
       MySqlDataReader reader;
       Exception ex = Assert.Throws<MySqlException>(() => reader = cmd.ExecuteReader(CommandBehavior.SchemaOnly));
       Assert.True(ex.Message.Contains(".doesnotexist' doesn't exist"));
@@ -774,7 +765,7 @@ namespace MySql.Data.MySqlClient.Tests
       CreateDefaultTable();
       executeSQL("INSERT INTO Test (id, name) VALUES (1, 'test')");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT a.name, a.name FROM Test a", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT a.name, a.name FROM Test a", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -799,29 +790,24 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Bug47467()
     {
-      MySqlCommand cmd = new MySqlCommand("SELECT 1 as c1", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT 1 as c1", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
         Type t = reader.GetFieldType("c1");
         Exception ex = Assert.Throws<IndexOutOfRangeException>(() => reader.GetOrdinal("nocol"));
-        Assert.True(ex.Message.IndexOf("nocol") != -1);        
+        Assert.True(ex.Message.IndexOf("nocol") != -1);
       }
     }
 
-#if !RT
     /// <summary>
     /// Tests fix for bug "ConstraintException when filling a datatable" (MySql bug #65065).
     /// </summary>
     [Fact]
     public void ConstraintExceptionOnLoad()
     {
-      MySqlConnection con = new MySqlConnection();
-      try
+      using (var con = Fixture.GetConnection())
       {
-        con.ConnectionString = ts.GetConnection(false).ConnectionString;
-        con.Open();
-
         MySqlCommand cmd = new MySqlCommand();
 
         cmd.Connection = con;
@@ -876,14 +862,9 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlDataReader dr = cmd.ExecuteReader();
         DataTable dataTable = new DataTable();
         DataSet ds = new DataSet();
-        dataTable.Load( dr );
+        dataTable.Load(dr);
         dr.Close();
       }
-      finally
-      {
-        con.Close();
-      }
     }
-#endif
   }
 }

@@ -20,29 +20,19 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using MySql.Data.MySqlClient;
-
-using Xunit;
-using System.Data;
-using System.ComponentModel;
-using System.Security.Authentication;
-
 namespace MySql.Data.MySqlClient.Tests
 {
-  #region Configs
-  public class MySqlCommandTestsPipeCompressed : MySqlCommandTests
-  {
-    public MySqlCommandTestsPipeCompressed(TestSetup setup) : base(setup, "mysqlcmdtspipec")
-    {
+  public class PSPipe : PreparedStatements
+  {    
 
-    }
-    protected override string OnGetConnectionStringInfo()
+    public PSPipe(TestFixture fixture) : base(fixture)
     {
-      return String.Format("protocol=namedpipe;pipe name={0};compress=true;ssl mode=none;", ts.pipeName);
+    }
+
+    public override void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
+    {
+      settings.ConnectionProtocol = MySqlConnectionProtocol.NamedPipe;
+      settings.SslMode = MySqlSslMode.None;
     }
   }
-  #endregion
 }

@@ -20,29 +20,17 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using MySql.Data.MySqlClient;
-
-using Xunit;
-using System.Data;
-using System.ComponentModel;
-using System.Security.Authentication;
-
 namespace MySql.Data.MySqlClient.Tests
 {
-  #region Configs
-  public class MySqlCommandTestsSharedMemory : MySqlCommandTests
+  public class TimeoutAndCancelCompressed : TimeoutAndCancel
   {
-    public MySqlCommandTestsSharedMemory(TestSetup setup) : base(setup, "mysqlcmdtssharedmem")
-    {     
-    }
-    protected override string OnGetConnectionStringInfo()
+    public TimeoutAndCancelCompressed(TestFixture fixture) : base(fixture)
     {
-      return String.Format("protocol=memory; shared memory name={0};ssl mode=none;", ts.sharedMemoryName);
-    }    
+    }
 
+    public override void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
+    {
+      settings.UseCompression = true;
+    }
   }
-  #endregion
 }

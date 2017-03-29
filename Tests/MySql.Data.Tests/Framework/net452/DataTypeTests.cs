@@ -33,11 +33,8 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class DataTypeTests : TestBase
   {
-    protected TestSetup ts;
-
-    public DataTypeTests(TestSetup setup) : base(setup, "datatypetests")
+    public DataTypeTests(TestFixture fixture) : base(fixture)
     {
-      ts = setup;
     }    
   
     [Fact]
@@ -49,8 +46,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void BytesAndBooleansPrepared()
     {
-      if (ts.version < new Version(4, 1)) return;
-
       InternalBytesAndBooleans(true);
     }
 
@@ -60,7 +55,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("INSERT INTO Test VALUES (-98, 140, 20)");
       executeSQL("INSERT INTO Test VALUES (0, 0, 0)");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       if (prepare) cmd.Prepare();
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
@@ -92,15 +87,14 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void TreatTinyAsBool()
     {
-      if (ts.version < new Version(4, 1)) return;
       executeSQL("CREATE TABLE Test2(i TINYINT(1))");
       executeSQL("INSERT INTO Test2 VALUES(1)");
       executeSQL("INSERT INTO Test2 VALUES(0)");
       executeSQL("INSERT INTO Test2 VALUES(2)");
-      MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(connection.ConnectionString);
+      MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       Assert.True(builder.TreatTinyAsBoolean);
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * from Test2", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT * from Test2", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         bool b;
@@ -125,8 +119,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void TestFloatPrepared()
     {
-      if (ts.version < new Version(4, 1)) return;
-
       InternalTestFloats(true);
     }
 
@@ -134,7 +126,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       executeSQL("CREATE TABLE Test (fl FLOAT, db DOUBLE, dec1 DECIMAL(5,2))");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?fl, ?db, ?dec)", connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?fl, ?db, ?dec)", Connection);
       cmd.Parameters.Add("?fl", MySqlDbType.Float);
       cmd.Parameters.Add("?db", MySqlDbType.Double);
       cmd.Parameters.Add("?dec", MySqlDbType.Decimal);
@@ -174,7 +166,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100), d DATE, dt DATETIME, tm TIME,  PRIMARY KEY(id))");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id, tm) VALUES (1, '00:00')", connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id, tm) VALUES (1, '00:00')", Connection);
       cmd.ExecuteNonQuery();
       cmd.CommandText = "INSERT INTO Test (id, tm) VALUES (2, '512:45:17')";
       cmd.ExecuteNonQuery();
@@ -212,7 +204,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("SET SQL_MODE=''");
       executeSQL("INSERT INTO Test VALUES (111111111111111111111)");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -242,71 +234,6 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(MySqlDbType.Int16, p.MySqlDbType);
     }
 
-    /// <summary>
-    /// Bug #7951 - Error reading timestamp column
-    /// </summary>
-    [Fact]
-    public void Timestamp()
-    {
-      // don't run this test on 6 and higher
-      if (ts.version.Major >= 5 && ts.version.Minor >= 5) return;
-
-      executeSQL("DROP TABLE IF EXISTS Test");
-      executeSQL("CREATE TABLE Test (id int, dt DATETIME, ts2 TIMESTAMP(2), ts4 TIMESTAMP(4), " +
-        "ts6 TIMESTAMP(6), ts8 TIMESTAMP(8), ts10 TIMESTAMP(10), ts12 TIMESTAMP(12), " +
-        "ts14 TIMESTAMP(14))");
-      executeSQL("INSERT INTO Test (id, dt, ts2, ts4, ts6, ts8, ts10, ts12, ts14) " +
-        "VALUES (1, Now(), Now(), Now(), Now(), Now(), Now(), Now(), Now())");
-
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", connection);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
-
-      DateTime now = (DateTime)dt.Rows[0]["dt"];
-      Assert.Equal(1, dt.Rows[0]["id"]);
-
-      DateTime ts2 = (DateTime)dt.Rows[0]["ts2"];
-      Assert.Equal(now.Year, ts2.Year);
-
-      DateTime ts4 = (DateTime)dt.Rows[0]["ts4"];
-      Assert.Equal(now.Year, ts4.Year);
-      Assert.Equal(now.Month, ts4.Month);
-
-      DateTime ts6 = (DateTime)dt.Rows[0]["ts6"];
-      Assert.Equal(now.Year, ts6.Year);
-      Assert.Equal(now.Month, ts6.Month);
-      Assert.Equal(now.Day, ts6.Day);
-
-      DateTime ts8 = (DateTime)dt.Rows[0]["ts8"];
-      Assert.Equal(now.Year, ts8.Year);
-      Assert.Equal(now.Month, ts8.Month);
-      Assert.Equal(now.Day, ts8.Day);
-
-      DateTime ts10 = (DateTime)dt.Rows[0]["ts10"];
-      Assert.Equal(now.Year, ts10.Year);
-      Assert.Equal(now.Month, ts10.Month);
-      Assert.Equal(now.Day, ts10.Day);
-      Assert.Equal(now.Hour, ts10.Hour);
-      Assert.Equal(now.Minute, ts10.Minute);
-
-      DateTime ts12 = (DateTime)dt.Rows[0]["ts12"];
-      Assert.Equal(now.Year, ts12.Year);
-      Assert.Equal(now.Month, ts12.Month);
-      Assert.Equal(now.Day, ts12.Day);
-      Assert.Equal(now.Hour, ts12.Hour);
-      Assert.Equal(now.Minute, ts12.Minute);
-      Assert.Equal(now.Second, ts12.Second);
-
-      DateTime ts14 = (DateTime)dt.Rows[0]["ts14"];
-      Assert.Equal(now.Year, ts14.Year);
-      Assert.Equal(now.Month, ts14.Month);
-      Assert.Equal(now.Day, ts14.Day);
-      Assert.Equal(now.Hour, ts14.Hour);
-      Assert.Equal(now.Minute, ts14.Minute);
-      Assert.Equal(now.Second, ts14.Second);
-    }
-
-
     [Fact]
     public void AggregateTypesTest()
     {
@@ -319,7 +246,7 @@ namespace MySql.Data.MySqlClient.Tests
       // Try a normal query
       string NORMAL_QRY = "SELECT abigint, aint FROM foo WHERE abigint = {0}";
       string qry = String.Format(NORMAL_QRY, 3);
-      MySqlCommand cmd = new MySqlCommand(qry, connection);
+      MySqlCommand cmd = new MySqlCommand(qry, Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         while (reader.Read())
@@ -347,7 +274,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("INSERT INTO Test VALUES (2, 3, 120, 240, 1000)");
       executeSQL("INSERT INTO Test VALUES (NULL, NULL, 100, NULL, NULL)");
 
-      string connStr = ts.GetConnection(false).ConnectionString + ";treat tiny as boolean=false";
+      string connStr = Connection.ConnectionString + ";treat tiny as boolean=false";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -359,17 +286,8 @@ namespace MySql.Data.MySqlClient.Tests
           Assert.Equal(2, reader.GetInt32(0));
           Assert.Equal(3, reader.GetInt32(1));
           Assert.Equal(120, reader.GetInt32(2));
-          if (ts.version >= new Version(5, 0))
-          {
-            Assert.Equal(240, reader.GetInt32(3));
-            Assert.Equal(1000, reader.GetInt32(4));
-          }
-          else
-          {
-            Assert.Equal(127, reader.GetInt32(3));
-            Assert.Equal(127, reader.GetInt32(4));
-          }
-
+          Assert.Equal(240, reader.GetInt32(3));
+          Assert.Equal(1000, reader.GetInt32(4));
           Assert.True(reader.Read());
           Assert.True(reader.IsDBNull(0));
           Assert.True(reader.IsDBNull(1));
@@ -389,7 +307,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE Test (id int not null auto_increment primary key, " +
         "dec1 decimal(10,1))");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", connection);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
       MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
       DataTable dt = new DataTable();
       da.Fill(dt);
@@ -412,7 +330,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       executeSQL("CREATE TABLE Test (val decimal(10,1))");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(?dec)", connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(?dec)", Connection);
       cmd.Parameters.AddWithValue("?dec", (decimal)2.4);
       Assert.Equal(1, cmd.ExecuteNonQuery());
 
@@ -440,7 +358,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       executeSQL("CREATE TABLE Test (val decimal(10,1))");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(?dec)", connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(?dec)", Connection);
       cmd.Parameters.AddWithValue("?dec", (decimal)2.4);
       Assert.Equal(1, cmd.ExecuteNonQuery());
 
@@ -466,11 +384,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Bit()
     {
-      if (ts.version < new Version(5, 0)) return;
-
       executeSQL("CREATE TABLE Test (bit1 BIT, bit2 BIT(5), bit3 BIT(10))");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?b1, ?b2, ?b3)", connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?b1, ?b2, ?b3)", Connection);
       cmd.Parameters.Add(new MySqlParameter("?b1", MySqlDbType.Bit));
       cmd.Parameters.Add(new MySqlParameter("?b2", MySqlDbType.Bit));
       cmd.Parameters.Add(new MySqlParameter("?b3", MySqlDbType.Bit));
@@ -500,7 +416,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       executeSQL("CREATE TABLE Test (b TINYINT UNSIGNED PRIMARY KEY)");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", connection);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
       MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
 
       DataTable dt = new DataTable();
@@ -523,7 +439,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test (b MEDIUMINT UNSIGNED PRIMARY KEY)");
       executeSQL("INSERT INTO Test VALUES(20)");
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test WHERE (b > ?id)", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test WHERE (b > ?id)", Connection);
       cmd.Parameters.Add("?id", MySqlDbType.UInt16).Value = 10;
       using (MySqlDataReader dr = cmd.ExecuteReader())
       {
@@ -541,7 +457,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE Test (t time)");
       executeSQL("INSERT INTO Test SET T='-07:24:00'");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", connection);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
       DataTable dt = new DataTable();
       da.Fill(dt);
 
@@ -557,7 +473,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void BinaryAndVarBinary()
     {
-      MySqlCommand cmd = new MySqlCommand("SELECT BINARY 'something' AS BinaryData", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT BINARY 'something' AS BinaryData", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -575,7 +491,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void NumericAsBinary()
     {
-      MySqlCommand cmd = new MySqlCommand("SELECT IFNULL(NULL,0) AS MyServerID", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT IFNULL(NULL,0) AS MyServerID", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -592,7 +508,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL(@"CREATE TABLE Test (c1 VARCHAR(20), c2 VARBINARY(20),
         c3 TEXT, c4 BLOB, c6 VARCHAR(20) CHARACTER SET BINARY)");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", connection);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
       DataTable dt = new DataTable();
       da.Fill(dt);
       Assert.Equal(typeof(String), dt.Columns[0].DataType);
@@ -605,15 +521,13 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ShowColumns()
     {
-      if (ts.version < new Version(5, 0)) return;
-
       MySqlDataAdapter da = new MySqlDataAdapter(
         @"SELECT TRIM(TRAILING ' unsigned' FROM 
           TRIM(TRAILING ' zerofill' FROM COLUMN_TYPE)) AS MYSQL_TYPE, 
           IF(COLUMN_DEFAULT IS NULL, NULL, 
           IF(ASCII(COLUMN_DEFAULT) = 1 OR COLUMN_DEFAULT = '1', 1, 0))
           AS TRUE_DEFAULT FROM INFORMATION_SCHEMA.COLUMNS
-          WHERE TABLE_SCHEMA='test' AND TABLE_NAME='test'", connection);
+          WHERE TABLE_SCHEMA='test' AND TABLE_NAME='test'", Connection);
       DataTable dt = new DataTable();
       da.Fill(dt);
 
@@ -626,7 +540,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       executeSQL("CREATE TABLE Test (col1 VARBINARY(20), col2 BLOB)");
 
-      string connStr = ts.GetConnection(false).ConnectionString + ";respect binary flags=false";
+      string connStr = Connection.ConnectionString + ";respect binary flags=false";
 
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
@@ -645,12 +559,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Boolean()
     {
-      if (ts.version < new Version(5, 0)) return;
-
       executeSQL("CREATE TABLE Test (id INT, `on` BOOLEAN, v TINYINT(2))");
       executeSQL("INSERT INTO Test VALUES (1,1,1), (2,0,0)");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", connection);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
       DataTable dt = new DataTable();
       da.Fill(dt);
       Assert.Equal(typeof(Boolean), dt.Columns[1].DataType);
@@ -664,12 +576,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Binary16AsGuid()
     {
-      if (ts.version < new Version(5, 0)) return;
-
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test (id INT, g BINARY(16), c VARBINARY(16), c1 BINARY(255))");
 
-      string connStr = ts.GetConnection(false).ConnectionString + ";old guids=true";
+      string connStr = Connection.ConnectionString + ";old guids=true";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -718,13 +628,13 @@ namespace MySql.Data.MySqlClient.Tests
             AGUID binary(16), PRIMARY KEY (id))");
       Guid g = new Guid();
       byte[] guid = g.ToByteArray();
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (NULL, @g)", connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (NULL, @g)", Connection);
       cmd.Parameters.AddWithValue("@g", guid);
       cmd.ExecuteNonQuery();
       executeSQL("insert into Test (AGUID) values (NULL)");
       cmd.ExecuteNonQuery();
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", connection);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
       DataTable dt = new DataTable();
       da.Fill(dt);
     }
@@ -735,8 +645,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void BitInLeftOuterJoin()
     {
-      if (ts.version < new Version(5, 0)) return;
-
       executeSQL(@"CREATE TABLE Main (Id int(10) unsigned NOT NULL AUTO_INCREMENT,
         Descr varchar(45) NOT NULL, PRIMARY KEY (`Id`)) 
         ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1");
@@ -750,7 +658,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       MySqlDataAdapter da = new MySqlDataAdapter(
         @"SELECT m.Descr, c.Value, c.Enabled FROM Main m 
-        LEFT OUTER JOIN Child c ON m.Id=c.MainId ORDER BY m.Descr", connection);
+        LEFT OUTER JOIN Child c ON m.Id=c.MainId ORDER BY m.Descr", Connection);
       DataTable dt = new DataTable();
       da.Fill(dt);
       Assert.Equal(3, dt.Rows.Count);
@@ -773,14 +681,12 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void GeometryType()
     {
-      if (ts.version < new Version(5, 0)) return;
-
       executeSQL(@"CREATE TABLE Test (ID int(11) NOT NULL, ogc_geom geometry NOT NULL,
         PRIMARY KEY  (`ID`))");
       executeSQL(@"INSERT INTO Test VALUES (1, 
         GeomFromText('GeometryCollection(Point(1 1), LineString(2 2, 3 3))'))");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -816,12 +722,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void StoringAndRetrievingGeometry()
     {
-      if (ts.version.Major < 5) return;
-
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test (v Geometry NOT NULL)");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (GeomFromText(?v))", connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (GeomFromText(?v))", Connection);
       cmd.Parameters.Add("?v", MySqlDbType.String);
       cmd.Parameters[0].Value = "POINT(47.37 -122.21)";
       cmd.ExecuteNonQuery();
@@ -837,8 +741,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void CanFetchGeometryAsBinary()
     {
-      if (ts.version.Major < 5) return;
-
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test (v Geometry NOT NULL)");
 
@@ -847,7 +749,7 @@ namespace MySql.Data.MySqlClient.Tests
       var par = new MySqlParameter("?v", MySqlDbType.Geometry);
       par.Value = v;
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?v)", connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?v)", Connection);
       cmd.Parameters.Add(par);
       cmd.ExecuteNonQuery();
 
@@ -865,8 +767,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void CanSaveSridValueOnGeometry()
     {
-      if (ts.version.Major < 5) return;
-
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test (v Geometry NOT NULL)");
 
@@ -874,7 +774,7 @@ namespace MySql.Data.MySqlClient.Tests
       var par = new MySqlParameter("?v", MySqlDbType.Geometry);
       par.Value = v;
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?v)", connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?v)", Connection);
       cmd.Parameters.Add(par);
       cmd.ExecuteNonQuery();
 
@@ -892,8 +792,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void CanFetchGeometryAsText()
     {
-      if (ts.version.Major < 5) return;
-
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test (v Geometry NOT NULL)");
 
@@ -901,7 +799,7 @@ namespace MySql.Data.MySqlClient.Tests
       var par = new MySqlParameter("?v", MySqlDbType.Geometry);
       par.Value = v;
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?v)", connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?v)", Connection);
       cmd.Parameters.Add(par);
       cmd.ExecuteNonQuery();
 
@@ -918,8 +816,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void CanUseReaderGetMySqlGeometry()
     {
-      if (ts.version.Major < 5) return;
-
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test (v Geometry NOT NULL)");
 
@@ -927,7 +823,7 @@ namespace MySql.Data.MySqlClient.Tests
       var par = new MySqlParameter("?v", MySqlDbType.Geometry);
       par.Value = v;
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?v)", connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?v)", Connection);
       cmd.Parameters.Add(par);
       cmd.ExecuteNonQuery();
 
@@ -970,12 +866,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void StoringAndRetrievingDouble()
     {
-      if (ts.version.Major < 5) return;
-
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test (v DOUBLE(25,20) NOT NULL)");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?v)", connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?v)", Connection);
       cmd.Parameters.Add("?v", MySqlDbType.Double);
       cmd.Parameters[0].Value = Math.PI;
       cmd.ExecuteNonQuery();
@@ -999,7 +893,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE Test (c1 TINYINT, c2 TINYINT UNSIGNED)");
       executeSQL("INSERT INTO Test VALUES (99, 217)");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -1014,7 +908,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       executeSQL("CREATE TABLE Test(id INT, g BINARY(16))");
 
-      string connStr = ts.GetConnection(false).ConnectionString + ";old guids=true";
+      string connStr = Connection.ConnectionString + ";old guids=true";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -1042,7 +936,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test (id INT, guid BINARY(16))");
 
-      string connStr = ts.GetConnection(false).ConnectionString + ";old guids=true";
+      string connStr = Connection.ConnectionString + ";old guids=true";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -1078,7 +972,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE Test (id INT, guid CHAR(36))");
       executeSQL("INSERT INTO Test VALUES (1, UUID())");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT CONCAT('A', guid) FROM Test", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT CONCAT('A', guid) FROM Test", Connection);
       string serverGuidStr = cmd.ExecuteScalar().ToString().Substring(1);
       Guid serverGuid = new Guid(serverGuidStr);
 
@@ -1094,7 +988,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE Test (id INT, guid CHAR(36))");
 
       Guid g = Guid.NewGuid();
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1, @g)", connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1, @g)", Connection);
       cmd.Parameters.AddWithValue("@g", g);
       cmd.ExecuteNonQuery();
 
@@ -1113,7 +1007,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test (id INT, guid BINARY(16))");
 
-      string connStr = ts.GetConnection(false).ConnectionString + ";old guids=true";
+      string connStr = Connection.ConnectionString + ";old guids=true";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -1150,7 +1044,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE Test (id INT, name CHAR(12) CHARSET utf8)");
       executeSQL("INSERT INTO Test VALUES (1, 'Name')");
 
-      string connStr = ts.GetConnection(false).ConnectionString + ";charset=utf8";
+      string connStr = Connection.ConnectionString + ";charset=utf8";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -1171,13 +1065,11 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void MySqlDecimal()
     {
-      if (ts.version < new Version(5, 0)) return;
-
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test (id INT, dec1 DECIMAL(36,2))");
       executeSQL("INSERT INTO Test VALUES (1, 9999999999999999999999999999999999.99)");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -1199,7 +1091,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("DROP TABLE IF EXISTS test");
       executeSQL("CREATE TABLE test(a decimal(35,2), b decimal(36,2), c decimal(36,2) unsigned)");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM test", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM test", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         DataTable dt = reader.GetSchemaTable();
@@ -1221,14 +1113,14 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("DROP TABLE IF EXISTS test");
       executeSQL("CREATE TABLE test(dbl double)");
       MySqlCommand cmd = new MySqlCommand("insert into test values(?param1)");
-      cmd.Connection = connection;
+      cmd.Connection = Connection;
       cmd.Parameters.Add(new MySqlParameter("?param1", MySqlDbType.Double));
       cmd.Parameters["?param1"].Value = Double.MinValue;
       cmd.ExecuteNonQuery();
       cmd.Parameters["?param1"].Value = Double.MaxValue;
       cmd.ExecuteNonQuery();
 
-      cmd = new MySqlCommand("SELECT * FROM test", connection);
+      cmd = new MySqlCommand("SELECT * FROM test", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -1249,7 +1141,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("DROP TABLE IF EXISTS test");
       executeSQL("CREATE TABLE test(ID bigint unsigned AUTO_INCREMENT NOT NULL PRIMARY KEY, name VARCHAR(20))");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES (@id, 'boo')", connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES (@id, 'boo')", Connection);
       ulong val = UInt64.MaxValue;
       val -= 100;
       cmd.Parameters.AddWithValue("@id", val);
@@ -1267,7 +1159,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Timediff()
     {
-      MySqlCommand cmd = new MySqlCommand("select timediff('2 0:1:1.0', '4 1:2:3.123456')", connection);
+      MySqlCommand cmd = new MySqlCommand("select timediff('2 0:1:1.0', '4 1:2:3.123456')", Connection);
       var result = cmd.ExecuteScalar();
       Assert.Equal(new TimeSpan(new TimeSpan(-2, -1, -1, -2).Ticks - 1234560), result);
     }
@@ -1276,21 +1168,21 @@ namespace MySql.Data.MySqlClient.Tests
     public void CanReadJsonValue()
     {
 
-      if (ts.version < new Version(5, 7)) return;
+      if (Fixture.Version < new Version(5, 7)) return;
 
       executeSQL("DROP TABLE IF EXISTS test");
       executeSQL("CREATE TABLE test(Id int NOT NULL PRIMARY KEY, jsoncolumn JSON)");
     
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES (@id, '[1]')", connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES (@id, '[1]')", Connection);
       cmd.Parameters.AddWithValue("@id", 1);
       cmd.ExecuteNonQuery();
 
       string command = @"INSERT INTO test VALUES (@id, '[""a"", {""b"": [true, false]}, [10, 20]]')";
-      cmd = new MySqlCommand(command, connection);
+      cmd = new MySqlCommand(command, Connection);
       cmd.Parameters.AddWithValue("@id", 2);
       cmd.ExecuteNonQuery();
 
-      cmd = new MySqlCommand("SELECT jsoncolumn from test where id = 2 ", connection);
+      cmd = new MySqlCommand("SELECT jsoncolumn from test where id = 2 ", Connection);
 
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
@@ -1302,20 +1194,20 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void CanUpdateJsonValue()
     {
-      if (ts.version < new Version(5, 7)) return;
+      if (Fixture.Version < new Version(5, 7)) return;
 
       executeSQL("DROP TABLE IF EXISTS test");
       executeSQL("CREATE TABLE test(Id int NOT NULL PRIMARY KEY, jsoncolumn JSON)");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES (@id, '[1]')", connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES (@id, '[1]')", Connection);
       cmd.Parameters.AddWithValue("@id", 1);
       cmd.ExecuteNonQuery();
 
       string command = @"UPDATE test set jsoncolumn = '[""a"", {""b"": [true, false]}, [10, 20]]' where id = 1";
-      cmd = new MySqlCommand(command, connection);      
+      cmd = new MySqlCommand(command, Connection);      
       cmd.ExecuteNonQuery();
 
-      cmd = new MySqlCommand("SELECT jsoncolumn from test where id = 1 ", connection);
+      cmd = new MySqlCommand("SELECT jsoncolumn from test where id = 1 ", Connection);
 
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
@@ -1332,29 +1224,29 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void CanUseGeneratedColumns()
     {
-      if (ts.version < new Version(5, 7)) return;
+      if (Fixture.Version < new Version(5, 7)) return;
 
       executeSQL("DROP TABLE IF EXISTS test");
       executeSQL("CREATE TABLE `Test` (`ID` int NOT NULL AUTO_INCREMENT PRIMARY KEY, `Name` char(35) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL)");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO test (Name) VALUES ('Berlin')", connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO test (Name) VALUES ('Berlin')", Connection);
       cmd.ExecuteNonQuery();
-      cmd = new MySqlCommand("INSERT INTO test (Name) VALUES ('London')", connection);
+      cmd = new MySqlCommand("INSERT INTO test (Name) VALUES ('London')", Connection);
       cmd.ExecuteNonQuery();
-      cmd = new MySqlCommand("INSERT INTO test (Name) VALUES ('France')", connection);
+      cmd = new MySqlCommand("INSERT INTO test (Name) VALUES ('France')", Connection);
       cmd.ExecuteNonQuery();
-      cmd = new MySqlCommand("INSERT INTO test (Name) VALUES ('United Kingdom')", connection);
+      cmd = new MySqlCommand("INSERT INTO test (Name) VALUES ('United Kingdom')", Connection);
       cmd.ExecuteNonQuery();
-      cmd = new MySqlCommand("INSERT INTO test (Name) VALUES ('Italy')", connection);
-      cmd.ExecuteNonQuery();
-
-      cmd = new MySqlCommand("ALTER TABLE test ADD COLUMN Name_ci char(35) CHARACTER SET utf8 AS (Name) STORED;", connection);
+      cmd = new MySqlCommand("INSERT INTO test (Name) VALUES ('Italy')", Connection);
       cmd.ExecuteNonQuery();
 
-      cmd = new MySqlCommand("ALTER TABLE test ADD INDEX (Name_ci);", connection);
+      cmd = new MySqlCommand("ALTER TABLE test ADD COLUMN Name_ci char(35) CHARACTER SET utf8 AS (Name) STORED;", Connection);
       cmd.ExecuteNonQuery();
 
-      cmd = new MySqlCommand("SELECT Name FROM test WHERE Name_ci='berlin'", connection);
+      cmd = new MySqlCommand("ALTER TABLE test ADD INDEX (Name_ci);", Connection);
+      cmd.ExecuteNonQuery();
+
+      cmd = new MySqlCommand("SELECT Name FROM test WHERE Name_ci='berlin'", Connection);
 
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {

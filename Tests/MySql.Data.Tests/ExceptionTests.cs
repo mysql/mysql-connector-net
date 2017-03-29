@@ -21,8 +21,6 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 using System.Data;
 
@@ -30,9 +28,8 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class ExceptionTests : TestBase
   {
-    public ExceptionTests(TestSetup setup) : base(setup, "exception")
+    public ExceptionTests(TestFixture fixture) : base(fixture)
     {
-
     }
 
     [Fact (Skip =  "Having an issue")]
@@ -43,16 +40,14 @@ namespace MySql.Data.MySqlClient.Tests
         executeSQL("INSERT INTO Test VALUES (" + i + ", 'This is a long text string that I am inserting')");
 
       // we create a new connection so our base one is not closed
-      MySqlConnection c2 = new MySqlConnection(connection.ConnectionString);
-      c2.Open();
-
-      KillConnection(c2);
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", c2);    
+      var connection = Fixture.GetConnection(false);
+      KillConnection(connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", connection);    
        
       Exception ex = Assert.Throws<MySqlException>(() =>  cmd.ExecuteReader());
       Assert.Equal(ex.Message, "Connection must be valid and open.");     
-      Assert.Equal(ConnectionState.Closed, c2.State);
-      c2.Close();
+      Assert.Equal(ConnectionState.Closed, connection.State);
+      connection.Close();
       
     }
     /// <summary>
@@ -61,7 +56,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ErrorData()
     {
-      MySqlCommand cmd = new MySqlCommand("SELEDT 1", connection);
+      MySqlCommand cmd = new MySqlCommand("SELEDT 1", Connection);
       try
       {
         cmd.ExecuteNonQuery();

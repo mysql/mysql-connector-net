@@ -20,20 +20,14 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
-using System.Collections.Specialized;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-#if !NETCORE10
-    public class GenericListener : TraceListener
-#else
-    public class GenericListener
-#endif
-    {
+  public class GenericListener : TraceListener
+  {
     List<string> strings;
     StringBuilder partial;
 
@@ -63,20 +57,12 @@ namespace MySql.Data.MySqlClient.Tests
       strings.Clear();
     }
 
-#if !NETCORE10
-     public override void Write(string message)
-#else
-     public void Write(string message)
-#endif
+    public override void Write(string message)
     {
-            partial.Append(message);
+      partial.Append(message);
     }
 
-#if !NETCORE10
     public override void WriteLine(string message)
-#else
-    public void WriteLine(string message)
-#endif
     {
       Write(message);
       strings.Add(partial.ToString());

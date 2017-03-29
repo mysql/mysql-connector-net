@@ -31,16 +31,13 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class StoredProcedureWithAccess : TestBase
   {
-    protected TestSetup ts;
-
     private static string fillError = null;
 
-    public StoredProcedureWithAccess(TestSetup setup): base(setup, "storedprocwithacc")
+    public StoredProcedureWithAccess(TestFixture fixture): base(fixture)
     {
-      ts = setup;
     }
 
-
+/*
     //public void SetFixture(SetUpClass data)
     //{
     //  st = data;
@@ -54,11 +51,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void CallingStoredProcWithOnlyExecPrivs()
     {
-      if (ts.version  < new Version(5, 0)) return;
-
       executeSQL("CREATE PROCEDURE spTest() BEGIN SELECT 1; END");
       executeSQL("CREATE PROCEDURE spTest2() BEGIN SELECT 1; END");
-      executeAsRoot(String.Format("GRANT USAGE ON `{0}`.* TO 'abc'@'%' IDENTIFIED BY 'abc'", ts.baseDBName + "0"));
+      executeSQL(String.Format("GRANT USAGE ON `{0}`.* TO 'abc'@'%' IDENTIFIED BY 'abc'", ts.baseDBName + "0"));
 
       try
       {
@@ -152,8 +147,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void SingleProcedureParameters()
     {
-      if (ts.version  < new Version(5, 0)) return;
-
       executeSQL("DROP PROCEDURE IF EXISTS spTest");
       executeSQL("CREATE PROCEDURE spTest(id int, IN id2 INT(11), " +
           "INOUT io1 VARCHAR(20), OUT out1 FLOAT) BEGIN END");
@@ -429,5 +422,6 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(numToInsert, adapter.Update(data));
     }
 #endif
+*/
   }
 }

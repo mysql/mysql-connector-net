@@ -21,88 +21,65 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
+using System.Data;
 using Xunit;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class TestBase : IClassFixture<TestSetup>, IDisposable
+  public class TestBase : IClassFixture<TestFixture>, IDisposable
   {
-    protected MySqlConnection connection;
-    protected MySqlConnection customConnection;
-    protected TestSetup Setup;
-    protected string TestNameSpace;
+    protected TestFixture Fixture { get; set; }
+    protected MySqlConnection Connection { get; set; }
+    protected MySqlConnection Root { get; set; }
 
-
-    public TestBase(TestSetup setup, string ns)
+    public TestBase(TestFixture fixture)
     {
-      Setup = setup;
-      TestNameSpace = ns;
-      Init();
-      connection = Setup.GetConnection();
-      connection.Open();
+      Fixture = fixture;
+      Fixture.Setup(this);
+
+      if (String.IsNullOrEmpty(Fixture.Settings.Database))
+        Console.WriteLine("database is empty in ctor");
+      Connection = Fixture.GetConnection(false);
+      Root = Fixture.GetConnection(true);
+      AdjustConnections();
     }
 
-    protected virtual string Namespace
+    public MySqlConnectionStringBuilder ConnectionSettings
     {
-      get { return null; }
+      get { return Fixture.Settings; }
     }
 
-    protected virtual void Init()
+    public virtual void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
     {
-      Setup.Init(Namespace ?? TestNameSpace);
     }
 
-    protected MySqlConnectionStringBuilder Settings
+    public virtual void AdjustConnections()
     {
-      get { return Setup.Settings; }
     }
 
-    protected string CreateUser(string postfix, string pwd)
+    public virtual void Cleanup()
     {
-      return Setup.CreateUser(postfix, pwd);
     }
 
-    protected string CreateDatabase(string postfix)
+    protected void executeSQL(string sql, bool asRoot = false)
     {
-      return Setup.CreateDatabase(postfix);
+      var connection = asRoot ? Root : Connection;
+      var cmd = connection.CreateCommand();
+      cmd.CommandText = sql;
+      cmd.ExecuteNonQuery();
     }
 
-    protected MySqlConnectionStringBuilder GetConnectionSettings()
+    public MySqlDataReader ExecuteReader(string sql, bool asRoot = false)
     {
-      return new MySqlConnectionStringBuilder(Settings.GetConnectionString(true));
+      var conn = asRoot ? Root : Connection;
+      MySqlCommand cmd = new MySqlCommand(sql, conn);
+      return cmd.ExecuteReader();
     }
 
-    protected MySqlConnection GetConnection(bool asRoot=false)
-    {
-      return Setup.GetConnection(asRoot);
-    }
-
-    protected virtual string OnGetConnectionStringInfo()
-    {
-      return Settings.GetConnectionString(true);
-    }
-
-
-    protected MySqlDataReader ExecuteAsReader(string sql, MySqlConnection conn)
-    {
-      return Setup.ExecuteReader(sql, conn);
-    }
-
-    protected void executeSQL(string sql)
-    {
-      Setup.executeInternal(sql, connection);
-    }
-
-    protected void executeAsRoot(string sql)
-    {
-      Setup.executeInternal(sql, Setup.root);
-    }
-
-    protected void KillConnection(MySqlConnection c)
+    internal protected void KillConnection(MySqlConnection c)
     {
       int threadId = c.ServerThread;
-      var root = Setup.GetConnection(true);
-      root.Open();
+      var root = Fixture.GetConnection(true);
       MySqlCommand cmd = new MySqlCommand("KILL " + threadId, root);
       cmd.ExecuteNonQuery();
 
@@ -130,14 +107,27 @@ namespace MySql.Data.MySqlClient.Tests
         if (!processStillAlive) break;
         System.Threading.Thread.Sleep(500);
       }
+      root.Close();
     }
 
-    public virtual void Dispose()
+    internal protected void KillPooledConnection(string connStr)
     {
-      if (connection != null)
-        connection.Close();
-      if (customConnection != null)
-        customConnection.Close();
+      MySqlConnection c = new MySqlConnection(connStr);
+      c.Open();
+      KillConnection(c);
+    }
+
+    public void Dispose()
+    {
+      if (String.IsNullOrEmpty(Fixture.Settings.Database))
+        Console.WriteLine("database is empty in dispose");
+
+      executeSQL(String.Format("DROP TABLE IF EXISTS `{0}`.Test", Connection.Database));
+      Cleanup();
+      if (Connection != null && Connection.State == ConnectionState.Open)
+        Connection.Close();
+      if (Root != null && Root.State == ConnectionState.Open)
+        Root.Close();
     }
   }
 }

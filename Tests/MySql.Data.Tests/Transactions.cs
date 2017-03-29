@@ -36,10 +36,8 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class Transactions : TestBase
   {
-    protected TestSetup ts;
-    public Transactions(TestSetup setup): base (setup, "transactions")
+    public Transactions(TestFixture fixture) : base(fixture)
     {
-      ts = setup;
     }        
 
 #if !NET_CORE
@@ -47,7 +45,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test (key2 VARCHAR(1), name VARCHAR(100), name2 VARCHAR(100))");
-      using (MySqlConnection c = new MySqlConnection(connection.ConnectionString))
+      using (MySqlConnection c = new MySqlConnection(Connection.ConnectionString))
       {
         MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES ('a', 'name', 'name2')", c);
 
@@ -88,7 +86,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, opts))
       {
-        string connStr = connection.ConnectionString;
+        string connStr = Connection.ConnectionString;
         using (MySqlConnection myconn = new MySqlConnection(connStr))
         {
           myconn.Open();
@@ -113,7 +111,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test (id INT) ENGINE=InnoDB");
 
-      MySqlConnectionStringBuilder connStrBuilder = GetConnectionSettings();
+      MySqlConnectionStringBuilder connStrBuilder = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       connStrBuilder.Pooling = true;
       connStrBuilder.ConnectionReset = true;
       string connStr = connStrBuilder.GetConnectionString(true);
@@ -137,7 +135,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       MySqlConnection connection = new MySqlConnection(connStr);
       connection.Open();
-      ts.KillConnection(connection);
+      KillConnection(connection);
     }
 
     /// <summary>
@@ -216,7 +214,7 @@ namespace MySql.Data.MySqlClient.Tests
           new MySql.Data.MySqlClient.MySqlClientFactory();
       using (DbConnection conexion = factory.CreateConnection())
       {
-        conexion.ConnectionString = connection.ConnectionString;
+        conexion.ConnectionString = Connection.ConnectionString;
         conexion.Open();
         DbTransaction trans = conexion.BeginTransaction();
         trans.Rollback();
@@ -232,7 +230,7 @@ namespace MySql.Data.MySqlClient.Tests
       try
       {
         MySqlCommand cmd = new MySqlCommand();
-        cmd.Connection = connection;
+        cmd.Connection = Connection;
         cmd.Connection.EnlistTransaction(null);
       }
       catch { }
@@ -240,7 +238,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (TransactionScope ts = new TransactionScope())
       {
         MySqlCommand cmd = new MySqlCommand();
-        cmd.Connection = connection;
+        cmd.Connection = Connection;
         cmd.Connection.EnlistTransaction(Transaction.Current);
       }
     }
@@ -251,12 +249,12 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void EnlistTransactionWNestedTrxTest()
     {
-      MySqlTransaction t = connection.BeginTransaction();
+      MySqlTransaction t = Connection.BeginTransaction();
 
       using (TransactionScope ts = new TransactionScope())
       {
         MySqlCommand cmd = new MySqlCommand();
-        cmd.Connection = connection;
+        cmd.Connection = Connection;
         try
         {
           cmd.Connection.EnlistTransaction(Transaction.Current);
@@ -272,7 +270,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (TransactionScope ts = new TransactionScope())
       {
         MySqlCommand cmd = new MySqlCommand();
-        cmd.Connection = connection;
+        cmd.Connection = Connection;
         cmd.Connection.EnlistTransaction(Transaction.Current);
       }
     }
@@ -282,7 +280,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test (key2 VARCHAR(1), name VARCHAR(100), name2 VARCHAR(100))");
-      string connStr = connection.ConnectionString + ";auto enlist=false";
+      string connStr = Connection.ConnectionString + ";auto enlist=false";
       MySqlConnection c = null;
       using (TransactionScope ts = new TransactionScope())
       {
@@ -298,14 +296,14 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(1, Convert.ToInt32(cmd2.ExecuteScalar()));
       executeSQL("UNLOCK TABLES");
       c.Dispose();
-      ts.KillPooledConnection(connStr);
+      KillPooledConnection(connStr);
     }
 
     private void ManuallyEnlistingInitialConnection(bool complete)
     {
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test (key2 VARCHAR(1), name VARCHAR(100), name2 VARCHAR(100))");
-      string connStr = connection.ConnectionString + ";auto enlist=false";
+      string connStr = Connection.ConnectionString + ";auto enlist=false";
 
       using (TransactionScope ts = new TransactionScope())
       {
@@ -328,7 +326,7 @@ namespace MySql.Data.MySqlClient.Tests
           ts.Complete();
       }
 
-      ts.KillPooledConnection(connStr);
+      KillPooledConnection(connStr);
     }
 
     [Fact]
@@ -348,7 +346,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       using (TransactionScope ts = new TransactionScope())
       {
-        string connStr = connection.ConnectionString;
+        string connStr = Connection.ConnectionString;
 
         using (MySqlConnection c1 = new MySqlConnection(connStr))
         {
@@ -375,7 +373,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       using (TransactionScope ts = new TransactionScope())
       {
-        string connStr = connection.ConnectionString;
+        string connStr = Connection.ConnectionString;
 
         using (MySqlConnection c1 = new MySqlConnection(connStr))
         {
@@ -408,7 +406,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         using (TransactionScope outer = new TransactionScope())
         {
-          string connStr = connection.ConnectionString;
+          string connStr = Connection.ConnectionString;
           using (MySqlConnection c1 = new MySqlConnection(connStr))
           {
             c1.Open();
@@ -459,15 +457,15 @@ namespace MySql.Data.MySqlClient.Tests
 
         }
         bool innerChangesVisible =
-           ((long)MySqlHelper.ExecuteScalar(connection, "select count(*) from T where str = 'inner'") == 1);
+           ((long)MySqlHelper.ExecuteScalar(Connection, "select count(*) from T where str = 'inner'") == 1);
         bool outerChangesVisible =
-            ((long)MySqlHelper.ExecuteScalar(connection, "select count(*) from T where str = 'outer'") == 1);
+            ((long)MySqlHelper.ExecuteScalar(Connection, "select count(*) from T where str = 'outer'") == 1);
         Assert.Equal(innerChangesVisible, expectInnerChangesVisible);
         Assert.Equal(outerChangesVisible, expectOuterChangesVisible);
       }
       finally
       {
-        MySqlHelper.ExecuteNonQuery(connection, "DROP TABLE T");
+        MySqlHelper.ExecuteNonQuery(Connection, "DROP TABLE T");
       }
     }
 
@@ -541,7 +539,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       using (TransactionScope ts = new TransactionScope(TransactionScopeOption.RequiresNew, TimeSpan.MaxValue))
       {
-        string connStr = connection.ConnectionString;
+        string connStr = Connection.ConnectionString;
         if (!pooling)
           connStr += ";pooling=false";
 
@@ -565,7 +563,7 @@ namespace MySql.Data.MySqlClient.Tests
           ts.Complete();
       }
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", connection);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
       DataTable dt = new DataTable();
       da.Fill(dt);
       if (complete)
@@ -607,7 +605,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test (id int)");
-      string connStr = connection.ConnectionString;
+      string connStr = Connection.ConnectionString;
       using (new TransactionScope(TransactionScopeOption.RequiresNew, TimeSpan.FromSeconds(1)))
       {
         try
@@ -636,7 +634,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test (id int)");
-      string connStr = connection.ConnectionString;
+      string connStr = Connection.ConnectionString;
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -700,7 +698,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void SnapshotIsolationLevelThrowsNotSupportedException()
     {        
-        using (MySqlConnection newcon = new MySqlConnection(connection.ConnectionString))
+        using (MySqlConnection newcon = new MySqlConnection(Connection.ConnectionString))
         {
           newcon.Open();            
           var ex = Assert.Throws<NotSupportedException>(() => newcon.BeginTransaction(System.Data.IsolationLevel.Snapshot));
@@ -712,7 +710,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       using (TransactionScope ts = new TransactionScope())
       {
-        string connStr = connection.ConnectionString;
+        string connStr = Connection.ConnectionString;
         using (MySqlConnection c1 = new MySqlConnection(connStr))
         {
           c1.Open();
@@ -726,7 +724,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void NestedTransactionException()
     {
-      MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder(connection.ConnectionString);
+      MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       sb.Pooling = true;
       sb.ConnectionReset = false;
       string connectionString = sb.ToString();

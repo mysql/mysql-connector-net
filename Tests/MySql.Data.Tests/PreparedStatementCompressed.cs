@@ -22,17 +22,15 @@
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class PreparedStatementsSocketCompressed : PreparedStatements
+  public class PreparedStatementsCompressed : PreparedStatements
   {
-
-    public PreparedStatementsSocketCompressed(TestSetup setup) : base (setup, "prepstmssckcom")
+    public PreparedStatementsCompressed(TestFixture fixture) : base (fixture)
     {
-      ts = setup;
     }
 
-    protected override string OnGetConnectionStringInfo()
+    public override void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
     {
-      return ";compress=true;";
+      settings.UseCompression = true;
     }
   }
 }

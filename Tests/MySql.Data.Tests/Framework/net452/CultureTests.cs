@@ -21,8 +21,6 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 using System.Threading;
 using System.Globalization;
@@ -32,14 +30,10 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class CultureTests : TestBase
   {
-    protected TestSetup ts;
-
-    public CultureTests(TestSetup setup) : base(setup, "culturetests")
+    public CultureTests(TestFixture fixture) : base(fixture)
     {
-      ts = setup;
     }
 
-#if !NETCORE10
     [Fact]
     public void TestFloats()
     {
@@ -63,7 +57,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       executeSQL("CREATE TABLE Test (fl FLOAT, db DOUBLE, dec1 DECIMAL(5,2))");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?fl, ?db, ?dec)", connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?fl, ?db, ?dec)", Connection);
       cmd.Parameters.Add("?fl", MySqlDbType.Float);
       cmd.Parameters.Add("?db", MySqlDbType.Double);
       cmd.Parameters.Add("?dec", MySqlDbType.Decimal);
@@ -106,7 +100,7 @@ namespace MySql.Data.MySqlClient.Tests
       Thread.CurrentThread.CurrentCulture = c;
       Thread.CurrentThread.CurrentUICulture = c;
 
-      using (MySqlConnection newConn = new MySqlConnection(ts.GetConnection(true).ConnectionString))
+      using (MySqlConnection newConn = new MySqlConnection(Root.ConnectionString))
       {
         newConn.Open();
       }
@@ -130,7 +124,7 @@ namespace MySql.Data.MySqlClient.Tests
       Thread.CurrentThread.CurrentCulture = c;
       Thread.CurrentThread.CurrentUICulture = c;
 
-      MySqlCommand cmd = new MySqlCommand("SELECT dt FROM test", connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT dt FROM test", Connection);
       DateTime dt = (DateTime)cmd.ExecuteScalar();
       Assert.Equal(2007, dt.Year);
       Assert.Equal(1, dt.Month);
@@ -160,7 +154,7 @@ namespace MySql.Data.MySqlClient.Tests
       Thread.CurrentThread.CurrentCulture = c;
       Thread.CurrentThread.CurrentUICulture = c;
 
-      string connStr = ts.GetConnection(false).ConnectionString + ";functions return string=true";
+      string connStr = Connection.ConnectionString + ";functions return string=true";
       try
       {
         using (MySqlConnection con = new MySqlConnection(connStr))
@@ -182,6 +176,5 @@ namespace MySql.Data.MySqlClient.Tests
       }
 
     }
-#endif
   }
 }

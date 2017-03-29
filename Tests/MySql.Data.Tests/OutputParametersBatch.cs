@@ -21,8 +21,6 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 using System.Data;
 
@@ -30,26 +28,21 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class OutputParametersBatch : TestBase
   {
-    protected TestSetup ts;
     protected bool prepare;
 
-    public OutputParametersBatch(TestSetup setup) : base(setup, "outputparambatch")
+    public OutputParametersBatch(TestFixture fixture) : base(fixture)
     {
-      ts = setup;
-      customConnection = new MySqlConnection(ts.GetConnection(false).ConnectionString + ";" + OnGetConnectionStringInfo());
-      customConnection.Open();
     }
 
-    protected OutputParametersBatch(TestSetup setup, string nameSpace): base(setup, nameSpace)
+    public override void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
     {
-      ts = setup;
-      customConnection = new MySqlConnection(ts.GetConnection(false).ConnectionString + ";" + OnGetConnectionStringInfo());
-      customConnection.Open();
-    }    
+      settings.AllowBatch = true;
+    }
 
-    protected override string OnGetConnectionStringInfo()
+    public override void Cleanup()
     {
-      return ";allow batch=true; ignore prepare = false;";
+      executeSQL("DROP PROCEDURE IF EXISTS spTest");
+      executeSQL("DROP FUNCTION IF EXISTS fnTest");
     }
 
     /// <summary>
@@ -59,14 +52,8 @@ namespace MySql.Data.MySqlClient.Tests
    [Fact]
     public void OutputParameters()
     {
-      if (ts.version < new Version(5, 0)) return;
-
       // we don't want to run this test under no access
-      string connInfo = customConnection.ConnectionString;
-      if (connInfo.IndexOf("use procedure bodies=false") != -1) return;
-
-      if (customConnection.connectionState != ConnectionState.Open)
-        customConnection.Open();
+      Assert.True(ConnectionSettings.UseProcedureBodies);
 
       // create our procedure
       executeSQL("CREATE PROCEDURE spTest(out value VARCHAR(350), OUT intVal INT, " +
@@ -76,7 +63,7 @@ namespace MySql.Data.MySqlClient.Tests
           "SET floatVal = 1.2; SET noTypeVarChar='test'; SET noTypeInt=66; END");
 
       // we use rootConn here since we are using parameters
-      MySqlCommand cmd = new MySqlCommand("spTest", customConnection);
+      MySqlCommand cmd = new MySqlCommand("spTest", Connection);
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.Parameters.Add(new MySqlParameter("?value", MySqlDbType.VarChar));
       cmd.Parameters.Add(new MySqlParameter("?intVal", MySqlDbType.Int32));
@@ -111,16 +98,11 @@ namespace MySql.Data.MySqlClient.Tests
    [Fact]
     public void InputOutputParameters()
     {
-      if (ts.version < new Version(5, 0)) return;
-
-      if (customConnection.connectionState != ConnectionState.Open)
-        customConnection.Open();
-
       // create our procedure
       executeSQL("CREATE PROCEDURE spTest( INOUT strVal VARCHAR(50), INOUT numVal INT, OUT outVal INT UNSIGNED ) " +
           "BEGIN  SET strVal = CONCAT(strVal,'ending'); SET numVal=numVal * 2;  SET outVal=99; END");
 
-      MySqlCommand cmd = new MySqlCommand("spTest", customConnection);
+      MySqlCommand cmd = new MySqlCommand("spTest", Connection);
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.Parameters.AddWithValue("?strVal", "beginning");
       cmd.Parameters.AddWithValue("?numVal", 33);
@@ -139,16 +121,11 @@ namespace MySql.Data.MySqlClient.Tests
    [Fact]
     public void ExecuteScalar()
     {
-      if (ts.version < new Version(5, 0)) return;
-
-      if (customConnection.connectionState != ConnectionState.Open)
-        customConnection.Open();
-
       // create our procedure
       executeSQL("CREATE PROCEDURE spTest( IN valin VARCHAR(50), OUT valout VARCHAR(50) ) " +
           "BEGIN  SET valout=valin;  SELECT 'Test'; END");
 
-      MySqlCommand cmd = new MySqlCommand("spTest", customConnection);
+      MySqlCommand cmd = new MySqlCommand("spTest", Connection);
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.Parameters.AddWithValue("?valin", "valuein");
       cmd.Parameters.Add(new MySqlParameter("?valout", MySqlDbType.VarChar));
@@ -162,16 +139,11 @@ namespace MySql.Data.MySqlClient.Tests
    [Fact]
     public void ExecuteReader()
     {
-      if (ts.version < new Version(5, 0)) return;
-
-      if (customConnection.connectionState != ConnectionState.Open)
-        customConnection.Open();
-
       // create our procedure
       executeSQL("CREATE PROCEDURE spTest(OUT p INT) " +
           "BEGIN SELECT 1; SET p=2; END");
 
-      MySqlCommand cmd = new MySqlCommand("spTest", customConnection);
+      MySqlCommand cmd = new MySqlCommand("spTest", Connection);
       cmd.Parameters.Add("?p", MySqlDbType.Int32);
       cmd.Parameters[0].Direction = ParameterDirection.Output;
       cmd.CommandType = CommandType.StoredProcedure;
@@ -188,15 +160,10 @@ namespace MySql.Data.MySqlClient.Tests
    [Fact]
     public void FunctionNoParams()
     {
-      if (ts.version < new Version(5, 0)) return;
-
-      if (customConnection.connectionState != ConnectionState.Open)
-        customConnection.Open();
-
       executeSQL("CREATE FUNCTION fnTest() RETURNS CHAR(50)" +
           " LANGUAGE SQL DETERMINISTIC BEGIN  RETURN \"Test\"; END");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT fnTest()", customConnection);
+      MySqlCommand cmd = new MySqlCommand("SELECT fnTest()", Connection);
       cmd.CommandType = CommandType.Text;
       if (prepare) cmd.Prepare();
       object result = cmd.ExecuteScalar();
@@ -206,15 +173,10 @@ namespace MySql.Data.MySqlClient.Tests
    [Fact]
     public void FunctionParams()
     {
-      if (ts.version < new Version(5, 0)) return;
-
-      if (customConnection.connectionState != ConnectionState.Open)
-        customConnection.Open();
-
       executeSQL("CREATE FUNCTION fnTest( val1 INT, val2 CHAR(40) ) RETURNS INT " +
           " LANGUAGE SQL DETERMINISTIC BEGIN  RETURN val1 + LENGTH(val2);  END");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT fnTest(22, 'Test')", customConnection);
+      MySqlCommand cmd = new MySqlCommand("SELECT fnTest(22, 'Test')", Connection);
       cmd.CommandType = CommandType.Text;
       if (prepare) cmd.Prepare();
       object result = cmd.ExecuteScalar();
@@ -228,14 +190,9 @@ namespace MySql.Data.MySqlClient.Tests
    [Fact]
     public void CallingStoredFunctionasProcedure()
     {
-      if (ts.version < new Version(5, 0)) return;
-      
-      if (customConnection.connectionState != ConnectionState.Open)
-        customConnection.Open();
-
       executeSQL("CREATE FUNCTION fnTest(valin int) RETURNS INT " +
           " LANGUAGE SQL DETERMINISTIC BEGIN return valin * 2; END");
-      MySqlCommand cmd = new MySqlCommand("fnTest", customConnection);
+      MySqlCommand cmd = new MySqlCommand("fnTest", Connection);
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.Parameters.AddWithValue("?valin", 22);
       MySqlParameter retVal = cmd.CreateParameter();
@@ -251,11 +208,6 @@ namespace MySql.Data.MySqlClient.Tests
    [Fact]
     public void ReturningEmptyResultSet()
     {
-      if (ts.version < new Version(5, 0)) return;
-
-      if (customConnection.connectionState != ConnectionState.Open)
-        customConnection.Open();
-
       executeSQL("CREATE TABLE test1 (id int AUTO_INCREMENT NOT NULL, " +
            "Name VARCHAR(100) NOT NULL, PRIMARY KEY(id))");
       executeSQL("CREATE TABLE test2 (id int AUTO_INCREMENT NOT NULL, " +
@@ -270,7 +222,7 @@ namespace MySql.Data.MySqlClient.Tests
            "BEGIN SELECT t1.Id INTO Table1Id FROM test1 t1 WHERE t1.Name LIKE Name; " +
            "SELECT t3.Id2 FROM test2 t3 WHERE t3.Id1 = Table1Id; END");
 
-      MySqlCommand cmd = customConnection.CreateCommand();
+      MySqlCommand cmd = Connection.CreateCommand();
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.CommandText = "spTest";
       cmd.Parameters.AddWithValue("?Name", "Item3");
@@ -301,16 +253,11 @@ namespace MySql.Data.MySqlClient.Tests
    [Fact]
     public void UnsignedOutputParameters()
     {
-      if (ts.version < new Version(5, 0)) return;
-
-      if (customConnection.connectionState != ConnectionState.Open)
-        customConnection.Open();
-
       executeSQL("CREATE TABLE  Test (id INT(10) UNSIGNED AUTO_INCREMENT, PRIMARY KEY (id)) ");
       executeSQL("CREATE PROCEDURE spTest (OUT id BIGINT UNSIGNED) " +
                 "BEGIN INSERT INTO Test VALUES (NULL); SET id=LAST_INSERT_ID(); END");
 
-      MySqlCommand cmd = new MySqlCommand("spTest", customConnection);
+      MySqlCommand cmd = new MySqlCommand("spTest", Connection);
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.Parameters.Add("?id", MySqlDbType.UInt64);
       cmd.Parameters[0].Direction = ParameterDirection.Output;
@@ -328,28 +275,23 @@ namespace MySql.Data.MySqlClient.Tests
    [Fact]
     public void RunWithoutSelectPrivsThrowException()
     {
-      if (ts.version < new Version(5, 0)) return;
-      
-      if (customConnection.connectionState != ConnectionState.Open)
-        customConnection.Open();
-
       // we don't want this test to run in our all access fixture
-      string connInfo = customConnection.ConnectionString;
+      string connInfo = Connection.ConnectionString;
       if (connInfo.IndexOf("use procedure bodies=false") == -1)
         return;
 
       executeSQL(String.Format(
           "GRANT ALL ON `{0}`.* to 'testuser'@'%' identified by 'testuser'",
-          (ts.baseDBName + "0")));
+          (Connection.Database)));
       executeSQL(String.Format(
           "GRANT ALL ON `{0}`.* to 'testuser'@'localhost' identified by 'testuser'",
-          (ts.baseDBName + "0")));
+          (Connection.Database)));
 
       executeSQL("DROP PROCEDURE IF EXISTS spTest");
       executeSQL("CREATE PROCEDURE spTest(id int, OUT outid int, INOUT inoutid int) " +
           "BEGIN SET outid=id+inoutid; SET inoutid=inoutid+id; END");
 
-      var csb = new MySqlConnectionStringBuilder(customConnection.ConnectionString);
+      var csb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       csb.UserID = "testuser";
       csb.Password = "testuser";
       MySqlConnection c = new MySqlConnection(csb.ConnectionString);
@@ -386,71 +328,51 @@ namespace MySql.Data.MySqlClient.Tests
    [Fact]
     public void CallingFunctionWithoutReturnParameter()
     {
-      if (ts.version < new Version(5, 0)) return;
-
-      if (customConnection.connectionState != ConnectionState.Open)
-        customConnection.Open();
-
       executeSQL("CREATE FUNCTION fnTest (p_kiosk bigint(20), " +
           "p_user bigint(20)) returns double begin declare v_return double; " +
           "set v_return = 3.6; return v_return; end");
 
-      MySqlCommand cmd = new MySqlCommand("fnTest", customConnection);
+      MySqlCommand cmd = new MySqlCommand("fnTest", Connection);
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.Parameters.AddWithValue("?p_kiosk", 2);
       cmd.Parameters.AddWithValue("?p_user", 4);
       Exception ex = Assert.Throws<InvalidOperationException>(() => { if (prepare) cmd.Prepare(); cmd.ExecuteNonQuery(); });
-      Assert.Equal(ex.Message, "Attempt to call stored function '`" + (ts.baseDBName + "0") + "`.`fnTest`' without specifying a return parameter");
+      Assert.Equal(ex.Message, "Attempt to call stored function '`" + (Connection.Database) + "`.`fnTest`' without specifying a return parameter");
     }
 
+#if !NETCORE10
     /// <summary>
     /// Bug #27668 FillSchema and Stored Proc with an out parameter
     /// </summary>
    [Fact]
     public void GetSchema2()
     {
-      if (ts.version.Major < 5) return;
-
-      if (customConnection.connectionState != ConnectionState.Open)
-        customConnection.Open();
-
       executeSQL(@"CREATE TABLE Test(id INT AUTO_INCREMENT, PRIMARY KEY (id)) ");
       executeSQL(@"CREATE PROCEDURE spTest (OUT id INT)
         BEGIN INSERT INTO Test VALUES (NULL); SET id=520; END");
 
-      MySqlCommand cmd = new MySqlCommand("spTest", customConnection);
+      MySqlCommand cmd = new MySqlCommand("spTest", Connection);
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.Parameters.Add("?id", MySqlDbType.Int32);
       cmd.Parameters[0].Direction = ParameterDirection.Output;
 
-#if RT
-      using (MySqlDataReader dr = cmd.ExecuteReader())
-      {
-        dr.Read();
-      }
-#else
      MySqlDataAdapter da = new MySqlDataAdapter(cmd);
       DataTable dt = new DataTable();
       if (prepare) cmd.Prepare();
       cmd.ExecuteNonQuery();
       da.Fill(dt);
       da.FillSchema(dt, SchemaType.Mapped);
-#endif
     }
+#endif 
 
    [Fact]
     public void NoAccessToProcedureBodies()
     {
-      if (ts.version < new Version(5, 0)) return;
-      
-     if (customConnection.connectionState != ConnectionState.Open)
-        customConnection.Open();
-
       string sql = String.Format("CREATE PROCEDURE `{0}`.`spTest`(in1 INT, INOUT inout1 INT, OUT out1 INT ) " +
-          "BEGIN SET inout1 = inout1+2; SET out1=inout1-3; SELECT in1; END", (ts.baseDBName + "0"));
+          "BEGIN SET inout1 = inout1+2; SET out1=inout1-3; SELECT in1; END", (Connection.Database));
       executeSQL(sql);
       
-      using (MySqlConnection c = new MySqlConnection(customConnection.ConnectionString + "; use procedure bodies=false"))
+      using (MySqlConnection c = new MySqlConnection(Connection.ConnectionString + "; use procedure bodies=false"))
       {
         c.Open();
 
@@ -472,15 +394,10 @@ namespace MySql.Data.MySqlClient.Tests
    [Fact]
     public void BinaryAndVarBinaryParameters()
     {
-      if (ts.version < new Version(5, 0)) return;
-      
-      if (customConnection.connectionState != ConnectionState.Open)
-        customConnection.Open();
-
       executeSQL("CREATE PROCEDURE spTest(OUT out1 BINARY(20), OUT out2 VARBINARY(20)) " +
           "BEGIN SET out1 = 'out1'; SET out2='out2'; END");
 
-      MySqlCommand cmd = new MySqlCommand("spTest", customConnection);
+      MySqlCommand cmd = new MySqlCommand("spTest", Connection);
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.Parameters.Add("out1", MySqlDbType.Binary);
       cmd.Parameters[0].Direction = ParameterDirection.Output;
@@ -508,9 +425,6 @@ namespace MySql.Data.MySqlClient.Tests
    [Fact]
     public void CallingFunction()
     {
-      if (ts.version < new Version(5, 0)) return;
-      if (customConnection.connectionState != ConnectionState.Open)
-        customConnection.Open();
       executeSQL(@"CREATE FUNCTION `GetSupplierBalance`(SupplierID_ INTEGER(11))
         RETURNS double NOT DETERMINISTIC CONTAINS SQL SQL SECURITY DEFINER
         COMMENT '' 
@@ -518,7 +432,7 @@ namespace MySql.Data.MySqlClient.Tests
           RETURN 1.0;
         END");
 
-      MySqlCommand command = new MySqlCommand("GetSupplierBalance", customConnection);
+      MySqlCommand command = new MySqlCommand("GetSupplierBalance", Connection);
       command.CommandType = CommandType.StoredProcedure;
       command.Parameters.Add("?SupplierID_", MySqlDbType.Int32).Value = 1;
       command.Parameters.Add("?Balance", MySqlDbType.Double).Direction = ParameterDirection.ReturnValue;
@@ -533,16 +447,11 @@ namespace MySql.Data.MySqlClient.Tests
    [Fact]
     public void OutputParametersWithNewParamHandling()
     {
-      if (ts.version < new Version(5, 0)) return;
-      
-      if (customConnection.connectionState != ConnectionState.Open)
-        customConnection.Open();
-
       // create our procedure
       executeSQL("CREATE PROCEDURE spTest(out val1 VARCHAR(350)) " +
           "BEGIN  SET val1 = '42';  END");
       
-      var connStr = customConnection.ConnectionString.Replace("allow user variables=true", "allow user variables=false");
+      var connStr = Connection.ConnectionString.Replace("allow user variables=true", "allow user variables=false");
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -563,15 +472,11 @@ namespace MySql.Data.MySqlClient.Tests
    [Fact]
     public void FunctionWithNewParamHandling()
     {
-      if (ts.version < new Version(5, 0)) return;
-      
-      if (customConnection.connectionState != ConnectionState.Open)
-        customConnection.Open();
       // create our procedure
       executeSQL("CREATE FUNCTION fnTest(`value` INT) RETURNS INT " +
           "BEGIN RETURN value; END");
       
-      var connStr = customConnection.ConnectionString.Replace("allow user variables=true", "allow user variables=false");
+      var connStr = Connection.ConnectionString.Replace("allow user variables=true", "allow user variables=false");
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -594,16 +499,12 @@ namespace MySql.Data.MySqlClient.Tests
    [Fact]
     public void BitTypeAsOutParameter()
     {
-
-      if (customConnection.connectionState != ConnectionState.Open)
-        customConnection.Open();
-      
       executeSQL(@"CREATE PROCEDURE `spTest`(out x bit(1))
         BEGIN
         Set x = 1; -- Outparameter value is 49
         Set x = 0; -- Outparameter value is 48
         END");
-      MySqlCommand cmd = new MySqlCommand("spTest", customConnection);
+      MySqlCommand cmd = new MySqlCommand("spTest", Connection);
       cmd.Parameters.Clear();
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.Parameters.Add("x", MySqlDbType.Bit).Direction = ParameterDirection.Output;

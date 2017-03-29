@@ -31,9 +31,8 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class TypeTests : TestBase
   {
-    public TypeTests(TestSetup setup) : base(setup, "typetests")
+    public TypeTests(TestFixture fixture) : base(fixture)
     {
-   
     }
 
     /// <summary>

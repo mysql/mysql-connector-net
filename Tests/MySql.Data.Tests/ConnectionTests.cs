@@ -28,13 +28,10 @@ using Xunit;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class MySqlConnectionTests : TestBase
+  public class ConnectionTests : TestBase
   {
-
-    protected TestSetup ts;
-    public MySqlConnectionTests(TestSetup setup) : base(setup, "connection")
+    public ConnectionTests(TestFixture fixture) : base(fixture)
     {
-      ts = setup;
     }
 
     [Fact]
@@ -47,7 +44,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True(String.Empty == c.Database, "Database");
       Assert.True(String.Empty == c.DataSource, "DataSource");
       Assert.True(false == c.UseCompression, "Use Compression");
-      Assert.True(System.Data.ConnectionState.Closed == c.State, "State");
+      Assert.True(ConnectionState.Closed == c.State, "State");
 
       c = new MySqlConnection("connection timeout=25; user id=myuser; " +
           "password=mypass; database=Test;server=myserver; use compression=true; " +
@@ -58,7 +55,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True("Test" == c.Database, "Database");
       Assert.True("myserver" == c.DataSource, "DataSource");
       Assert.True(true == c.UseCompression, "Use Compression");
-      Assert.True(System.Data.ConnectionState.Closed == c.State, "State");
+      Assert.True(ConnectionState.Closed == c.State, "State");
 
       c.ConnectionString = "connection timeout=15; user id=newuser; " +
           "password=newpass; port=3308; database=mydb; data source=myserver2; " +
@@ -69,14 +66,14 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True("mydb" == c.Database, "Database");
       Assert.True("myserver2" == c.DataSource, "DataSource");
       Assert.True(true == c.UseCompression, "Use Compression");
-      Assert.True(System.Data.ConnectionState.Closed == c.State, "State");
+      Assert.True(ConnectionState.Closed == c.State, "State");
     }
 
 
     [Fact]
     public void TestConnectingSocketBadUserName()
     {
-      MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(connection.ConnectionString);
+      MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       connStr.UserID = "bad_one";
       MySqlConnection c = new MySqlConnection(connStr.GetConnectionString(true));
       var exception = Record.Exception(() => c.Open());
@@ -87,7 +84,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void TestConnectingSocketBadDbName()
     {
-      MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(connection.ConnectionString);
+      MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       connStr.Password = "bad_pwd";
       MySqlConnection c = new MySqlConnection(connStr.GetConnectionString(true));
       var exception = Record.Exception(() => c.Open());
@@ -98,7 +95,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void TestPersistSecurityInfoCachingPasswords()
     {
-      MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(connection.ConnectionString);
+      MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Connection.ConnectionString);
 
       // Persist Security Info = true means that it should be returned
       connStr.PersistSecurityInfo = true;
@@ -120,7 +117,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ChangeDatabase()
     {
-      MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(connection.ConnectionString);
+      MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       MySqlConnection c = new MySqlConnection(connStr.GetConnectionString(true));
       using (c)
       {
@@ -128,7 +125,7 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.True(c.State == ConnectionState.Open);
         Assert.Equal(connStr.Database, c.Database);
 
-        string dbName = CreateDatabase("db1");
+        string dbName = Fixture.CreateDatabase("db1");
         c.ChangeDatabase(dbName);
         Assert.Equal(dbName, c.Database);
       }
@@ -137,7 +134,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ConnectionTimeout()
     {
-      MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(connection.ConnectionString);
+      MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       connStr.Server = "bad_host";
       connStr.ConnectionTimeout = 5;
       MySqlConnection c = new MySqlConnection(connStr.GetConnectionString(true));
@@ -164,15 +161,15 @@ namespace MySql.Data.MySqlClient.Tests
     public void ConnectInVariousWays()
     {
       // connect with no db
-      MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(connection.ConnectionString);
+      MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       connStr.Database = null;
       MySqlConnection c = new MySqlConnection(connStr.GetConnectionString(true));
       c.Open();
       c.Close();
 
-      executeAsRoot("GRANT ALL ON *.* to 'nopass'@'%'");
-      executeAsRoot("GRANT ALL ON *.* to 'nopass'@'localhost'");
-      executeAsRoot("FLUSH PRIVILEGES");
+      executeSQL("GRANT ALL ON *.* to 'nopass'@'%'", true);
+      executeSQL("GRANT ALL ON *.* to 'nopass'@'localhost'", true);
+      executeSQL("FLUSH PRIVILEGES", true);
 
       // connect with no password
       connStr.UserID = "nopass";
@@ -190,7 +187,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ConnectingAsUTF8()
     {
-      MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(connection.ConnectionString);
+      MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       connStr.CharacterSet = "utf8";
       using (MySqlConnection c = new MySqlConnection(connStr.GetConnectionString(true)))
       {
@@ -228,7 +225,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void TestConnectionCloneRetainsPassword()
     {
-      MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(connection.ConnectionString);
+      MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       connStr.PersistSecurityInfo = false;
 
       MySqlConnection c = new MySqlConnection(connStr.GetConnectionString(true));
@@ -246,7 +243,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void PersistSecurityInfo()
     {
-      MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(connection.ConnectionString);
+      MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       connStr.PersistSecurityInfo = false;
 
       Assert.False(String.IsNullOrEmpty(connStr.Password));
@@ -263,8 +260,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void PingUpdatesState()
     {
-      var conn2 = GetConnection();
-      conn2.Open();
+      var conn2 = Fixture.GetConnection();
       KillConnection(conn2);
       Assert.False(conn2.Ping());
       Assert.True(conn2.State == ConnectionState.Closed);
@@ -278,12 +274,12 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ConnectWithQuotePassword()
     {
-      executeAsRoot("GRANT ALL ON *.* to 'quotedUser'@'%' IDENTIFIED BY '\"'");
-      executeAsRoot("GRANT ALL ON *.* to 'quotedUser'@'localhost' IDENTIFIED BY '\"'");
-      MySqlConnectionStringBuilder settings = new MySqlConnectionStringBuilder(connection.ConnectionString);
+      executeSQL("GRANT ALL ON *.* to 'quotedUser'@'%' IDENTIFIED BY '\"'", true);
+      executeSQL("GRANT ALL ON *.* to 'quotedUser'@'localhost' IDENTIFIED BY '\"'", true);
+      MySqlConnectionStringBuilder settings = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       settings.UserID = "quotedUser";
       settings.Password = "\"";
-      using (MySqlConnection c = new MySqlConnection(connection.ConnectionString))
+      using (MySqlConnection c = new MySqlConnection(Connection.ConnectionString))
       {
         c.Open();
       }
@@ -295,7 +291,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void TestConnectingSocketBadHostName()
     {
-      MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(connection.ConnectionString);
+      MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       connStr.Server = "foobar";
       MySqlConnection c = new MySqlConnection(connStr.GetConnectionString(true));
       var exception = Record.Exception(() => c.Open());
@@ -313,7 +309,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       for (int i = 0; i < 10; i++)
       {
-        string connStr = connection.ConnectionString + ";pooling=false";
+        string connStr = Connection.ConnectionString + ";pooling=false";
         connStr = connStr.Replace("database", "Initial Catalog");
         connStr = connStr.Replace("persist security info=true",
             "persist security info=false");
@@ -342,7 +338,7 @@ namespace MySql.Data.MySqlClient.Tests
       int threadId;
       ConnectionClosedCheck check = new ConnectionClosedCheck();
 
-      MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(connection.ConnectionString);
+      MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       connStr.Pooling = false;
       MySqlConnection c = new MySqlConnection(connStr.GetConnectionString(true));
       c.StateChange += new StateChangeEventHandler(check.stateChangeHandler);
@@ -387,8 +383,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ConnectionNotOpenThrowningBadException()
     {
-      var c2 = GetConnection();
-      //conn.Open();                      << REM
+      var c2 = new MySqlConnection(Connection.ConnectionString);
       MySqlCommand command = new MySqlCommand();
       command.Connection = c2;
 
@@ -406,7 +401,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void CaseSensitiveUserId()
     {
-      MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(connection.ConnectionString);
+      MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       string original_uid = connStr.UserID;
       connStr.UserID = connStr.UserID.ToUpper();
       MySqlConnection c = new MySqlConnection(connStr.GetConnectionString(true));
@@ -436,7 +431,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void PingWhileReading()
     {
-      using (MySqlConnection conn = new MySqlConnection(connection.ConnectionString))
+      using (MySqlConnection conn = new MySqlConnection(Connection.ConnectionString))
       {
         conn.Open();
         MySqlCommand command = new MySqlCommand("SELECT 1", conn);
@@ -457,7 +452,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Keepalive()
     {
-      MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(connection.ConnectionString);
+      MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       connStr.Keepalive = 1;
       using (MySqlConnection c = new MySqlConnection(connStr.GetConnectionString(true)))
       {
@@ -511,7 +506,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void CanConnectUsingFileBasedCertificate()
     {
-      string connstr = connection.ConnectionString;
+      string connstr = Connection.ConnectionString;
       connstr += ";CertificateFile=client.pfx;CertificatePassword=pass;SSL Mode=Required;";
       using (MySqlConnection c = new MySqlConnection(connstr))
       {
@@ -529,7 +524,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void CanOpenConnectionAfterAborting()
     {
-      MySqlConnection connection = new MySqlConnection(ts.GetConnection(false).ConnectionString);
+      MySqlConnection connection = new MySqlConnection(Connection.ConnectionString);
       connection.Open();
       Assert.Equal(ConnectionState.Open, connection.State);
 
@@ -593,29 +588,27 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ConnectAttributes()
     {
-      if (ts.version < new Version(5, 6, 6)) return;
-      using (MySqlConnection connection = new MySqlConnection(ts.GetConnection(true).ConnectionString))
+      if (Fixture.Version < new Version(5, 6, 6)) return;
+      if (!Connection.driver.SupportsConnectAttrs) return;
+
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM performance_schema.session_connect_attrs WHERE PROCESSLIST_ID = connection_id()", Connection);
+      MySqlDataReader dr = cmd.ExecuteReader();
+      Assert.True(dr.HasRows, "No session_connect_attrs found");
+      MySqlConnectAttrs connectAttrs = new MySqlConnectAttrs();
+      bool isValidated = false;
+      using (dr) 
       {
-        connection.Open();
-        if (connection.driver.SupportsConnectAttrs)
+        while (dr.Read())
         {
-          MySqlCommand cmd = new MySqlCommand("SELECT * FROM performance_schema.session_connect_attrs WHERE PROCESSLIST_ID = connection_id()", connection);
-          MySqlDataReader dr = cmd.ExecuteReader();
-          Assert.True(dr.HasRows, "No session_connect_attrs found");
-          MySqlConnectAttrs connectAttrs = new MySqlConnectAttrs();
-          bool isValidated = false;
-          while (dr.Read())
+          if (dr.GetString(1).ToLowerInvariant().Contains("_client_name"))
           {
-            if (dr.GetString(1).ToLowerInvariant().Contains("_client_name"))
-            {
-              Assert.Equal(connectAttrs.ClientName, dr.GetString(2));
-              isValidated = true;
-              break;
-            }
+            Assert.Equal(connectAttrs.ClientName, dr.GetString(2));
+            isValidated = true;
+            break;
           }
-          Assert.True(isValidated, "Missing _client_name attribute");
         }
       }
+      Assert.True(isValidated, "Missing _client_name attribute");
     }
 
     /// <summary>
@@ -624,131 +617,59 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void PasswordExpiration()
     {
+      if (Fixture.Version < new Version(5, 6, 6)) return;
+
       const string expireduser = "expireduser";
       const string expiredhost = "localhost";
       string expiredfull = string.Format("'{0}'@'{1}'", expireduser, expiredhost);
 
-      using (MySqlConnection conn = ts.GetConnection(true))
+      using (MySqlConnection conn = Fixture.GetConnection(true))
       {
+        MySqlCommand cmd = new MySqlCommand("", conn);
+
+        // creates expired user
+        cmd.CommandText = string.Format("SELECT COUNT(*) FROM mysql.user WHERE user='{0}' AND host='{1}'", expireduser, expiredhost);
+        long count = (long)cmd.ExecuteScalar();
+        if (count > 0)
+          MySqlHelper.ExecuteNonQuery(conn, String.Format("DROP USER " + expiredfull));
+
+        MySqlHelper.ExecuteNonQuery(conn, String.Format("CREATE USER {0} IDENTIFIED BY '{1}1'", expiredfull, expireduser));
+        MySqlHelper.ExecuteNonQuery(conn, String.Format("GRANT SELECT ON `{0}`.* TO {1}", conn.Database, expiredfull));
+
+        MySqlHelper.ExecuteNonQuery(conn, String.Format("ALTER USER {0} PASSWORD EXPIRE", expiredfull));
+        conn.Close();
+
+        // validates expired user
+        var cnstrBuilder = new MySqlConnectionStringBuilder(Root.ConnectionString);
+        cnstrBuilder.UserID = expireduser;
+        cnstrBuilder.Password = expireduser + "1";
+        conn.ConnectionString = cnstrBuilder.ConnectionString;
         conn.Open();
-        if (ts.version >= new Version(5, 6, 6))
-        {
-          MySqlCommand cmd = new MySqlCommand("", conn);
 
-          // creates expired user
-          cmd.CommandText = string.Format("SELECT COUNT(*) FROM mysql.user WHERE user='{0}' AND host='{1}'", expireduser, expiredhost);
-          long count = (long)cmd.ExecuteScalar();
-          if (count > 0)
-            ts.executeInternal(string.Format("DROP USER " + expiredfull), conn);
+        cmd.CommandText = "SELECT 1";
+        MySqlException ex = Assert.Throws<MySqlException>(() => cmd.ExecuteScalar());
+        Assert.Equal(1820, ex.Number);
 
-          ts.executeInternal(string.Format("CREATE USER {0} IDENTIFIED BY '{1}1'", expiredfull, expireduser), conn);
-          ts.executeInternal(string.Format("GRANT SELECT ON `{0}`.* TO {1}", conn.Database, expiredfull), conn);
-
-          ts.executeInternal(string.Format("ALTER USER {0} PASSWORD EXPIRE", expiredfull), conn);
-          conn.Close();
-
-          // validates expired user
-          var cnstrBuilder = new MySqlConnectionStringBuilder(ts.GetConnection(true).ConnectionString);
-          cnstrBuilder.UserID = expireduser;
-          cnstrBuilder.Password = expireduser + "1";
-          conn.ConnectionString = cnstrBuilder.ConnectionString;
-          conn.Open();
-
-          cmd.CommandText = "SELECT 1";
-          MySqlException ex = Assert.Throws<MySqlException>(() => cmd.ExecuteScalar());
-          Assert.Equal(1820, ex.Number);
-
-          if (ts.version >= new Version(5, 7, 6))
-            cmd.CommandText = string.Format("SET PASSWORD = '{0}1'", expireduser);
-          else
-            cmd.CommandText = string.Format("SET PASSWORD = PASSWORD('{0}1')", expireduser);
-
-          cmd.ExecuteNonQuery();
-          cmd.CommandText = "SELECT 1";
-          cmd.ExecuteScalar();
-          conn.Close();
-          conn.ConnectionString = ts.GetConnection(true).ConnectionString;
-          conn.Open();
-          ts.executeInternal(string.Format("DROP USER " + expiredfull), conn);
-          conn.Close();
-        }
+        if (Fixture.Version >= new Version(5, 7, 6))
+          cmd.CommandText = string.Format("SET PASSWORD = '{0}1'", expireduser);
         else
-        {
-          System.Diagnostics.Debug.WriteLine("Password expire not supported in this server version.");
-        }
-      }
-    }
+          cmd.CommandText = string.Format("SET PASSWORD = PASSWORD('{0}1')", expireduser);
 
-    /// <summary>
-    /// As part of feedback from bug http://bugs.mysql.com/bug.php?id=66647 (Arithmetic operation resulted in an overflow).
-    /// </summary>
-    [Fact]
-    public void OldPasswordNotSupported()
-    {
-
-      if (ts.version > new Version(5, 6)) return;
-      //get value of flag 'old_passwords'
-      MySqlConnectionStringBuilder csb = new MySqlConnectionStringBuilder(ts.GetConnection(false).ConnectionString);
-      MySqlConnection con = new MySqlConnection(csb.ToString());
-      MySqlCommand cmd = new MySqlCommand("show variables like 'old_passwords'", con);
-      string db = con.Settings.Database;
-      con.Open();
-      MySqlDataReader r = cmd.ExecuteReader();
-      r.Read();
-      object o = r.GetValue(1);
-      if (o.ToString() == "OFF")
-        o = "0";
-      int old_passwords = Convert.ToInt32(o);
-      r.Close();
-      if (old_passwords == 0)
-      {
-        //System.Diagnostics.Debug.Write("This test must be ran with old_passwords=0");
-        ts.executeInternal("set old_passwords=1;", con);
-        //return;
+        cmd.ExecuteNonQuery();
+        cmd.CommandText = "SELECT 1";
+        cmd.ExecuteScalar();
+        conn.Close();
+        conn.ConnectionString = Root.ConnectionString;
+        conn.Open();
+        MySqlHelper.ExecuteNonQuery(conn, String.Format("DROP USER " + expiredfull));
+        conn.Close();
       }
-      // create user
-      cmd.CommandText = "select count( * ) from mysql.user where user = 'myoldpassuser' and host = 'localhost'";
-      cmd.Connection = ts.GetConnection(true);
-      int n = Convert.ToInt32(cmd.ExecuteScalar());
-      if (n != 0)
-      {
-        ts.executeInternal("drop user 'myoldpassuser'@'localhost'", con);
-      }
-      // user with old password is different depending upon the version.
-      if (ts.version.Minor >= 6)
-      {
-        ts.executeInternal("create user 'myoldpassuser'@'localhost' IDENTIFIED with 'mysql_old_password'", con);
-      }
-      else
-      {
-        ts.executeInternal("create user 'myoldpassuser'@'localhost' ", con);
-      }
-      // setup user with old password, attempt to open connection with it, must fail
-      ts.executeInternal(string.Format("grant all on `{0}`.* to 'myoldpassuser'@'localhost'", db), con);
-      ts.executeInternal("set password for 'myoldpassuser'@'localhost' = old_password( '123' )", con);
-      con.Close();
-      //con.Settings.UserID = "myoldpassuser";
-      //con.Settings.Password = "123";
-      csb.UserID = "myoldpassuser";
-      csb.Password = "123";
-      con.ConnectionString = csb.ToString();
-      Exception ex = Assert.Throws<MySqlException>(() => con.Open());
-      Assert.Equal(Resources.OldPasswordsNotSupported, ex.Message);
-
-      if (old_passwords == 0)
-      {
-        ts.executeInternal("set old_passwords=0;", con);
-      }
-      ts.executeInternal("drop user 'myoldpassuser'@'localhost'", con);
-
-      con.Close();
-
     }
 
     [Fact]
     public void TestNonSupportedOptions()
     {
-      string connstr = ts.GetConnection(true).ConnectionString;
+      string connstr = Root.ConnectionString;
       connstr += ";CertificateFile=client.pfx;CertificatePassword=pass;SSL Mode=Required;";
       using (MySqlConnection c = new MySqlConnection(connstr))
       {
@@ -757,55 +678,57 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#region Async
+    #region Async
+
     [Fact]
-    public void TransactionAsync()
+    public async Task TransactionAsync()
     {
-      executeSQL("CREATE TABLE test(key2 varchar(50), name varchar(50), name2 varchar(50))");
+      executeSQL("Create Table TranAsyncTest(key2 varchar(50), name varchar(50), name2 varchar(50))");
+      executeSQL("INSERT INTO TranAsyncTest VALUES('P', 'Test1', 'Test2')");
 
-      var conn = GetConnection();
-      using (conn)
+      MySqlTransaction txn = await Connection.BeginTransactionAsync();
+      MySqlConnection c = txn.Connection;
+      Assert.Equal(Connection, c);
+      MySqlCommand cmd = new MySqlCommand("SELECT name, name2 FROM TranAsyncTest WHERE key2='P'", Connection, txn);
+      MySqlTransaction t2 = cmd.Transaction;
+      Assert.Equal(txn, t2);
+      MySqlDataReader reader = null;
+      try
       {
-        conn.Open();
-        var txn = conn.BeginTransaction();
-        Assert.Equal(conn, txn.Connection);
-
-        var cmd = conn.CreateCommand();
-        cmd.CommandText = "SET AUTOCOMMIT=0";
-        cmd.ExecuteNonQuery();
-
-        cmd.CommandText = "INSERT INTO test VALUES ('P', 'Test1', 'Test2')";
-        cmd.ExecuteNonQuery();
+        reader = cmd.ExecuteReader();
+        reader.Close();
+        txn.Commit();
+      }
+      catch (Exception ex)
+      {
+        Assert.False(ex.Message != string.Empty, ex.Message);
         txn.Rollback();
-        cmd.CommandText = "SELECT COUNT(*) FROM test";
-        long cnt = (long)cmd.ExecuteScalar();
-        Assert.True(cnt == 0);
+      }
+      finally
+      {
+        if (reader != null) reader.Close();
       }
     }
+
 
     [Fact]
     public async Task ChangeDataBaseAsync()
     {
-      string dbName = CreateDatabase("db1");
-      executeAsRoot(String.Format(
-        "CREATE TABLE `{0}`.`footest` (id INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME,  `multi word` int, PRIMARY KEY(id))", dbName));
+      string dbName = Fixture.CreateDatabase("db2");
+      executeSQL(String.Format(
+        "CREATE TABLE `{0}`.`footest` (id INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME,  `multi word` int, PRIMARY KEY(id))", dbName), true);
 
-      var conn = GetConnection();
-      using (conn)
-      {
-        conn.Open();
-        await conn.ChangeDataBaseAsync(dbName);
+      await Connection.ChangeDataBaseAsync(dbName);
 
-        var cmd = conn.CreateCommand();
-        cmd.CommandText = "SELECT COUNT(*) FROM footest";
-        var count = cmd.ExecuteScalar();
-      }
+      var cmd = Connection.CreateCommand();
+      cmd.CommandText = "SELECT COUNT(*) FROM footest";
+      var count = cmd.ExecuteScalar();
     }
 
     [Fact]
     public async Task OpenAndCloseConnectionAsync()
     {
-      var conn = GetConnection();
+      var conn = new MySqlConnection(Connection.ConnectionString);
       await conn.OpenAsync();
       Assert.True(conn.State == ConnectionState.Open);
       await conn.CloseAsync();
@@ -815,8 +738,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task ClearPoolAsync()
     {
-      MySqlConnection c1 = GetConnection();
-      MySqlConnection c2 = GetConnection();
+      MySqlConnection c1 = new MySqlConnection(Connection.ConnectionString);
+      MySqlConnection c2 = new MySqlConnection(Connection.ConnectionString);
       c1.Open();
       c2.Open();
       c1.Close();
@@ -828,8 +751,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task ClearAllPoolsAsync()
     {
-      MySqlConnection c1 = GetConnection();
-      MySqlConnection c2 = GetConnection();
+      MySqlConnection c1 = new MySqlConnection(Connection.ConnectionString);
+      MySqlConnection c2 = new MySqlConnection(Connection.ConnectionString);
       c1.Open();
       c2.Open();
       c1.Close();
@@ -841,7 +764,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task GetSchemaCollectionAsync()
     {
-      var schemaColl = await connection.GetSchemaCollectionAsync("MetaDataCollections", null);
+      var schemaColl = await Connection.GetSchemaCollectionAsync("MetaDataCollections", null);
       Assert.NotNull(schemaColl);
     }
 
@@ -850,27 +773,18 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void SslPreferredByDefault()
     {
-      MySqlConnectionStringBuilder csb = new MySqlConnectionStringBuilder();
-      csb.Server = Settings.Server;
-      csb.Port = Settings.Port;
-      csb.UserID = Settings.UserID;
-      csb.Password = Settings.Password;
-      using (MySqlConnection connection = new MySqlConnection(csb.ToString()))
+      MySqlCommand command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Ssl_version';", Connection);
+      using (MySqlDataReader reader = command.ExecuteReader())
       {
-        connection.Open();
-        MySqlCommand command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Ssl_version';", connection);
-        using (MySqlDataReader reader = command.ExecuteReader())
-        {
-          Assert.True(reader.Read());
-          Assert.StartsWith("TLSv1", reader.GetString(1));
-        }
+        Assert.True(reader.Read());
+        Assert.StartsWith("TLSv1", reader.GetString(1));
       }
     }
 
     [Fact]
     public void SslOverrided()
     {
-      var cstrBuilder = new MySqlConnectionStringBuilder(ts.GetConnection(true).ConnectionString);
+      var cstrBuilder = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       cstrBuilder.SslMode = MySqlSslMode.None;
       using (MySqlConnection connection = new MySqlConnection(cstrBuilder.ConnectionString))
       {

@@ -8,9 +8,8 @@
     <Authors>Oracle</Authors>
     <Company>Oracle</Company>
     <Product>MySql.Data.Tests</Product>
-    <TargetFrameworks>netcoreapp1.1;net452</TargetFrameworks>
+    <TargetFramework>net452</TargetFramework>
     <PackageId>MySql.Data.Tests</PackageId>
-    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET;netcore;.Net Core;MySql Conector/Net Core;coreclr;C/NET;C/Net Core</PackageTags>
     <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
     <PackageProjectUrl>http://dev.mysql.com/downloads/</PackageProjectUrl>
@@ -22,38 +21,28 @@
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
-    <SignAssembly>True</SignAssembly>
+    <!--<SignAssembly>True</SignAssembly>
     <DelaySign>True</DelaySign>
-    <AssemblyOriginatorKeyFile>ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>-->
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='netcoreapp1.1'">
-    <DefineConstants>NET_CORE;NETCORE10</DefineConstants>
+    <DefineConstants>$(DefineConstants);NET_CORE;NETCORE10</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp1.1'">
-    <Compile Remove="**/net452/**/*.cs" />
-    <Compile Remove="Framework/net452/MediumTrust/*.cs" />
-    <None Update="client.pfx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <Compile Remove="Framework\net452\**" />
+    <EmbeddedResource Remove="Framework\net452\**" />
+    <None Remove="Framework\net452\**" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='net452'">
-    <Compile Remove="**/netstandard/**/*.cs" />
-    <Compile Remove="Framework/net452/MediumTrust/*.cs" />
-    <None Update="client.pfx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <Reference Include="System.Transactions" />
+    <Compile Remove="Framework\netstandard\**" />
+    <EmbeddedResource Remove="Framework\netstandard\**" />
+    <None Remove="Framework\netstandard\**" />
+    <Compile Remove="Framework\net452\MediumTrust\*.cs" />
     <Reference Include="System.Configuration.Install" />
-
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="temp\**" />
-    <EmbeddedResource Remove="temp\**" />
-    <None Remove="temp\**" />
+    <Reference Include="System.Transactions" />
   </ItemGroup>
 
   <ItemGroup>
@@ -63,10 +52,12 @@
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DefineConstants>$(DefineConstants);TRACE;DEBUG</DefineConstants>
     <PreserveCompilationContext>true</PreserveCompilationContext>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DefineConstants>$(DefineConstants);TRACE;RELEASE</DefineConstants>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
@@ -78,10 +69,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Source\MySql.Data\MySql.Data.csproj" />
+    <DotNetCliToolReference Include="Microsoft.DotNet.Watcher.Tools" Version="1.0.0" />
   </ItemGroup>
 
-
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\MySql.Data\MySql.Data.csproj" />
+  </ItemGroup>
+  
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
@@ -91,6 +85,13 @@
     <Compile Update="Framework\net452\TestDataTable.cs">
       <SubType>Component</SubType>
     </Compile>
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <None Update="client.pfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   

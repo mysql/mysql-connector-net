@@ -26,13 +26,13 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class StressTestsCompressed : StressTests
   {
-    public StressTestsCompressed(TestSetup ts) : base(ts, "stress_compressed")
+    public StressTestsCompressed(TestFixture fixture) : base(fixture)
     {
-
     }
-    protected override string OnGetConnectionStringInfo()
+
+    public override void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
     {
-      return "compress=true";
+      settings.UseCompression = true;
     }
   }
 }

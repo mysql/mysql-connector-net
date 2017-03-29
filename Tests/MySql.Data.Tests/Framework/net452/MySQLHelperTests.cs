@@ -22,8 +22,6 @@
 
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 using System.Data;
 using System.Threading.Tasks;
@@ -32,11 +30,8 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class MySQLHelperTests : TestBase
   {
-    protected TestSetup ts;
-
-    public MySQLHelperTests(TestSetup setup) : base (setup, "mysqlhelpertests")
+    public MySQLHelperTests(TestFixture fixture) : base(fixture)
     {
-      ts = setup;
     }
 
     /// <summary>
@@ -47,10 +42,10 @@ namespace MySql.Data.MySqlClient.Tests
     {
       executeSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES (1,\"firstname\")", connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES (1,\"firstname\")", Connection);
       cmd.ExecuteNonQuery();
 
-      cmd = new MySqlCommand("UPDATE test SET name = \"" + MySqlHelper.EscapeString("test\"name\"") + "\";", connection);
+      cmd = new MySqlCommand("UPDATE test SET name = \"" + MySqlHelper.EscapeString("test\"name\"") + "\";", Connection);
       cmd.ExecuteNonQuery();
 
       cmd.CommandText = "SELECT name FROM Test WHERE id=1";
@@ -63,17 +58,15 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task ExecuteNonQueryAsync()
     {
-      if (ts.version < new Version(5, 0)) return;
-
       executeSQL("CREATE TABLE MSHNonQueryAsyncTest (id int)");
       executeSQL("CREATE PROCEDURE MSHNonQueryAsyncSpTest() BEGIN SET @x=0; REPEAT INSERT INTO MSHNonQueryAsyncTest VALUES(@x); SET @x=@x+1; UNTIL @x = 100 END REPEAT; END");
 
       try
       {
-        int result = await MySqlHelper.ExecuteNonQueryAsync(connection, "call MSHNonQueryAsyncSpTest", null);
+        int result = await MySqlHelper.ExecuteNonQueryAsync(Connection, "call MSHNonQueryAsyncSpTest", null);
         Assert.NotEqual(-1, result);
 
-        MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM MSHNonQueryAsyncTest;", connection);
+        MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM MSHNonQueryAsyncTest;", Connection);
         cmd.CommandType = System.Data.CommandType.Text;
         object cnt = cmd.ExecuteScalar();
         Assert.Equal(100, Convert.ToInt32(cnt));
@@ -97,7 +90,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         string sql = "SELECT MSHDataSetAsyncTable1.key FROM MSHDataSetAsyncTable1 WHERE MSHDataSetAsyncTable1.key=1; " +
                      "SELECT MSHDataSetAsyncTable2.key FROM MSHDataSetAsyncTable2 WHERE MSHDataSetAsyncTable2.key=1";
-        DataSet ds = await MySqlHelper.ExecuteDatasetAsync(connection, sql, null);
+        DataSet ds = await MySqlHelper.ExecuteDatasetAsync(Connection, sql, null);
         Assert.Equal(2, ds.Tables.Count);
         Assert.Equal(1, ds.Tables[0].Rows.Count);
         Assert.Equal(1, ds.Tables[1].Rows.Count);
@@ -114,17 +107,12 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task ExecuteReaderAsync()
     {
-      if (ts.version < new Version(5, 0)) return;
-
-      if (connection.State != ConnectionState.Open)
-        connection.Open();
-
       executeSQL("CREATE TABLE MSHReaderAsyncTest (id int)");
       executeSQL("CREATE PROCEDURE MSHReaderAsyncSpTest() BEGIN INSERT INTO MSHReaderAsyncTest VALUES(1); SELECT SLEEP(2); SELECT 'done'; END");
 
       try
       {
-        using (MySqlDataReader reader = await MySqlHelper.ExecuteReaderAsync(connection, "call MSHReaderAsyncSpTest"))
+        using (MySqlDataReader reader = await MySqlHelper.ExecuteReaderAsync(Connection, "call MSHReaderAsyncSpTest"))
         {
           Assert.NotNull(reader);
           Assert.True(reader.Read(), "can read");
@@ -133,7 +121,7 @@ namespace MySql.Data.MySqlClient.Tests
           Assert.Equal("done", reader.GetString(0));
           reader.Close();
 
-          MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM MSHReaderAsyncTest", connection);
+          MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM MSHReaderAsyncTest", Connection);
           cmd.CommandType = CommandType.Text;
           object cnt = cmd.ExecuteScalar();
           Assert.Equal(1, Convert.ToInt32(cnt));
@@ -149,17 +137,12 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public async Task ExecuteScalarAsync()
     {
-      if (ts.version < new Version(5, 0)) return;
-
-      if (connection.connectionState != ConnectionState.Open)
-        connection.Open();
-
       executeSQL("CREATE TABLE MSHScalarAsyncTable1 (`key` INT, PRIMARY KEY(`key`))");
       executeSQL("INSERT INTO MSHScalarAsyncTable1 VALUES (1)");
 
       try
       {
-        object result = await MySqlHelper.ExecuteScalarAsync(connection, "SELECT MSHScalarAsyncTable1.key FROM MSHScalarAsyncTable1 WHERE MSHScalarAsyncTable1.key=1;");
+        object result = await MySqlHelper.ExecuteScalarAsync(Connection, "SELECT MSHScalarAsyncTable1.key FROM MSHScalarAsyncTable1 WHERE MSHScalarAsyncTable1.key=1;");
         Assert.Equal(1, int.Parse(result.ToString()));
       }
       finally

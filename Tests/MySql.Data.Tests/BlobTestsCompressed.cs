@@ -21,27 +21,21 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using MySql.Data.MySqlClient;
 
 using Xunit;
-using System.Data;
-using System.ComponentModel;
-using System.Security.Authentication;
 
 namespace MySql.Data.MySqlClient.Tests
 {
   [Trait("Category", "Compressed")]
   public class BlobTestsSocketCompressed : BlobTests
   {
-    public BlobTestsSocketCompressed(TestSetup setup) : base(setup, "blobtestsocketcomp")
+    public BlobTestsSocketCompressed(TestFixture fixture) : base(fixture)
     {
     }
 
-    protected override string OnGetConnectionStringInfo()
+    public override void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
     {
-      return String.Format("port={0};compress=true", ts.port);
+      settings.UseCompression = true;
     }
   }
 }

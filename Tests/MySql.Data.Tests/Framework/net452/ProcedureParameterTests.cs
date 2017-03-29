@@ -21,8 +21,6 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 using System.Data;
 
@@ -30,39 +28,33 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class ProcedureParameterTests : TestBase
   {
-
-    protected TestSetup ts;
-
-    public ProcedureParameterTests(TestSetup setup) : base (setup, "procedurepartests")
+    public ProcedureParameterTests(TestFixture fixture) : base(fixture)
     {
-      ts = setup;
     }
 
     [Fact]
     public void ProcedureParameters()
     {
-      if (ts.version < new Version(5, 0)) return;
-
-      executeSQL("CREATE PROCEDURE spTest (id int, name varchar(50)) BEGIN SELECT 1; END");
+      executeSQL("CREATE PROCEDURE ProcedureParameters (id int, name varchar(50)) BEGIN SELECT 1; END");
 
       string[] restrictions = new string[5];
-      restrictions[1] = ts.baseDBName + "0";
-      restrictions[2] = "spTest";
-      DataTable dt = connection.GetSchema("Procedure Parameters", restrictions);
+      restrictions[1] = Connection.Database;
+      restrictions[2] = "ProcedureParameters";
+      DataTable dt = Connection.GetSchema("Procedure Parameters", restrictions);
       Assert.True(dt.Rows.Count == 2, "Actual result " + dt.Rows.Count);
       Assert.Equal("Procedure Parameters", dt.TableName);
-      Assert.Equal(ts.baseDBName + "0".ToLower(), dt.Rows[0]["SPECIFIC_SCHEMA"].ToString().ToLower());
-      Assert.Equal("sptest", dt.Rows[0]["SPECIFIC_NAME"].ToString().ToLower());
+      Assert.Equal(Connection.Database, dt.Rows[0]["SPECIFIC_SCHEMA"].ToString());
+      Assert.Equal("ProcedureParameters", dt.Rows[0]["SPECIFIC_NAME"].ToString());
       Assert.Equal("id", dt.Rows[0]["PARAMETER_NAME"].ToString().ToLower());
       Assert.Equal(1, dt.Rows[0]["ORDINAL_POSITION"]);
       Assert.Equal("IN", dt.Rows[0]["PARAMETER_MODE"]);
 
       restrictions[4] = "name";
       dt.Clear();
-      dt = connection.GetSchema("Procedure Parameters", restrictions);
+      dt = Connection.GetSchema("Procedure Parameters", restrictions);
       Assert.Equal(1, dt.Rows.Count);
-      Assert.Equal(ts.baseDBName + "0".ToLower(), dt.Rows[0]["SPECIFIC_SCHEMA"].ToString().ToLower());
-      Assert.Equal("sptest", dt.Rows[0]["SPECIFIC_NAME"].ToString().ToLower());
+      Assert.Equal(Connection.Database, dt.Rows[0]["SPECIFIC_SCHEMA"].ToString());
+      Assert.Equal("ProcedureParameters", dt.Rows[0]["SPECIFIC_NAME"].ToString());
       Assert.Equal("name", dt.Rows[0]["PARAMETER_NAME"].ToString().ToLower());
       Assert.Equal(2, dt.Rows[0]["ORDINAL_POSITION"]);
       Assert.Equal("IN", dt.Rows[0]["PARAMETER_MODE"]);
@@ -71,16 +63,16 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE FUNCTION spFunc (id int) RETURNS INT BEGIN RETURN 1; END");
 
       restrictions[4] = null;
-      restrictions[1] = ts.baseDBName + "0";
+      restrictions[1] = Connection.Database;
       restrictions[2] = "spFunc";
-      dt = connection.GetSchema("Procedure Parameters", restrictions);
+      dt = Connection.GetSchema("Procedure Parameters", restrictions);
       Assert.True(dt.Rows.Count == 2);
       Assert.Equal("Procedure Parameters", dt.TableName);
-      Assert.Equal(ts.baseDBName + "0".ToLower(), dt.Rows[0]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.Equal(Connection.Database.ToLower(), dt.Rows[0]["SPECIFIC_SCHEMA"].ToString().ToLower());
       Assert.Equal("spfunc", dt.Rows[0]["SPECIFIC_NAME"].ToString().ToLower());
       Assert.Equal(0, dt.Rows[0]["ORDINAL_POSITION"]);
 
-      Assert.Equal(ts.baseDBName + "0".ToLower(), dt.Rows[1]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.Equal(Connection.Database.ToLower(), dt.Rows[1]["SPECIFIC_SCHEMA"].ToString().ToLower());
       Assert.Equal("spfunc", dt.Rows[1]["SPECIFIC_NAME"].ToString().ToLower());
       Assert.Equal("id", dt.Rows[1]["PARAMETER_NAME"].ToString().ToLower());
       Assert.Equal(1, dt.Rows[1]["ORDINAL_POSITION"]);
@@ -93,19 +85,18 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ProcedureParameters2()
     {
-      if (ts.version < new Version(5, 0)) return;
-
+      executeSQL("DROP PROCEDURE IF EXISTS spTest");
       executeSQL(@"CREATE PROCEDURE spTest(`/*id*/` /* before type 1 */ varchar(20), 
            /* after type 1 */ OUT result2 DECIMAL(/*size1*/10,/*size2*/2) /* p2 */) 
            BEGIN SELECT action, result; END");
 
       string[] restrictions = new string[5];
-      restrictions[1] = ts.baseDBName + "0";
+      restrictions[1] = Connection.Database;
       restrictions[2] = "spTest";
-      DataTable dt = connection.GetSchema("Procedure Parameters", restrictions);
+      DataTable dt = Connection.GetSchema("Procedure Parameters", restrictions);
 
       Assert.True(dt.Rows.Count == 2, "Actual result " + dt.Rows.Count);
-      Assert.Equal(ts.baseDBName + "0".ToLower(), dt.Rows[0]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.Equal(Connection.Database.ToLower(), dt.Rows[0]["SPECIFIC_SCHEMA"].ToString().ToLower());
       Assert.Equal("sptest", dt.Rows[0]["SPECIFIC_NAME"].ToString().ToLower());
       Assert.Equal("/*id*/", dt.Rows[0]["PARAMETER_NAME"].ToString().ToLower());
       Assert.Equal(1, dt.Rows[0]["ORDINAL_POSITION"]);
@@ -114,7 +105,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(20, dt.Rows[0]["CHARACTER_MAXIMUM_LENGTH"]);
       Assert.Equal(20, dt.Rows[0]["CHARACTER_OCTET_LENGTH"]);
 
-      Assert.Equal(ts.baseDBName + "0".ToLower(), dt.Rows[1]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.Equal(Connection.Database.ToLower(), dt.Rows[1]["SPECIFIC_SCHEMA"].ToString().ToLower());
       Assert.Equal("sptest", dt.Rows[1]["SPECIFIC_NAME"].ToString().ToLower());
       Assert.Equal("result2", dt.Rows[1]["PARAMETER_NAME"].ToString().ToLower());
       Assert.Equal(2, dt.Rows[1]["ORDINAL_POSITION"]);
@@ -127,8 +118,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ProcedureParameters3()
     {
-      if (ts.version < new Version(5, 0)) return;
-
+      executeSQL("DROP PROCEDURE IF EXISTS spTest");
       executeSQL(@"CREATE  PROCEDURE spTest (_ACTION varchar(20),
           `/*dumb-identifier-1*/` int, `#dumb-identifier-2` int,
           `--dumb-identifier-3` int, 
@@ -150,12 +140,12 @@ namespace MySql.Data.MySqlClient.Tests
           */) BEGIN SELECT 1; END");
 
       string[] restrictions = new string[5];
-      restrictions[1] = ts.baseDBName + "0";
+      restrictions[1] = Connection.Database;
       restrictions[2] = "spTest";
-      DataTable dt = connection.GetSchema("Procedure Parameters", restrictions);
+      DataTable dt = Connection.GetSchema("Procedure Parameters", restrictions);
 
       Assert.True(dt.Rows.Count == 12, "Rows count failed");
-      Assert.Equal(ts.baseDBName + "0".ToLower(), dt.Rows[0]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.Equal(Connection.Database.ToLower(), dt.Rows[0]["SPECIFIC_SCHEMA"].ToString().ToLower());
       Assert.Equal("sptest", dt.Rows[0]["SPECIFIC_NAME"].ToString().ToLower());
       Assert.Equal("_action", dt.Rows[0]["PARAMETER_NAME"].ToString().ToLower());
       Assert.Equal(1, dt.Rows[0]["ORDINAL_POSITION"]);
@@ -163,42 +153,42 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("VARCHAR", dt.Rows[0]["DATA_TYPE"].ToString().ToUpper());
       Assert.Equal(20, dt.Rows[0]["CHARACTER_OCTET_LENGTH"]);
 
-      Assert.Equal(ts.baseDBName + "0".ToLower(), dt.Rows[1]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.Equal(Connection.Database.ToLower(), dt.Rows[1]["SPECIFIC_SCHEMA"].ToString().ToLower());
       Assert.Equal("sptest", dt.Rows[1]["SPECIFIC_NAME"].ToString().ToLower());
       Assert.Equal("/*dumb-identifier-1*/", dt.Rows[1]["PARAMETER_NAME"].ToString().ToLower());
       Assert.Equal(2, dt.Rows[1]["ORDINAL_POSITION"]);
       Assert.Equal("IN", dt.Rows[1]["PARAMETER_MODE"]);
       Assert.Equal("INT", dt.Rows[1]["DATA_TYPE"].ToString().ToUpper());
 
-      Assert.Equal(ts.baseDBName + "0".ToLower(), dt.Rows[2]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.Equal(Connection.Database.ToLower(), dt.Rows[2]["SPECIFIC_SCHEMA"].ToString().ToLower());
       Assert.Equal("sptest", dt.Rows[2]["SPECIFIC_NAME"].ToString().ToLower());
       Assert.Equal("#dumb-identifier-2", dt.Rows[2]["PARAMETER_NAME"].ToString().ToLower());
       Assert.Equal(3, dt.Rows[2]["ORDINAL_POSITION"]);
       Assert.Equal("IN", dt.Rows[2]["PARAMETER_MODE"]);
       Assert.Equal("INT", dt.Rows[2]["DATA_TYPE"].ToString().ToUpper());
 
-      Assert.Equal(ts.baseDBName + "0".ToLower(), dt.Rows[3]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.Equal(Connection.Database.ToLower(), dt.Rows[3]["SPECIFIC_SCHEMA"].ToString().ToLower());
       Assert.Equal("sptest", dt.Rows[3]["SPECIFIC_NAME"].ToString().ToLower());
       Assert.Equal("--dumb-identifier-3", dt.Rows[3]["PARAMETER_NAME"].ToString().ToLower());
       Assert.Equal(4, dt.Rows[3]["ORDINAL_POSITION"]);
       Assert.Equal("IN", dt.Rows[3]["PARAMETER_MODE"]);
       Assert.Equal("INT", dt.Rows[3]["DATA_TYPE"].ToString().ToUpper());
 
-      Assert.Equal(ts.baseDBName + "0".ToLower(), dt.Rows[4]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.Equal(Connection.Database.ToLower(), dt.Rows[4]["SPECIFIC_SCHEMA"].ToString().ToLower());
       Assert.Equal("sptest", dt.Rows[4]["SPECIFIC_NAME"].ToString().ToLower());
       Assert.Equal("_client_id", dt.Rows[4]["PARAMETER_NAME"].ToString().ToLower());
       Assert.Equal(5, dt.Rows[4]["ORDINAL_POSITION"]);
       Assert.Equal("IN", dt.Rows[4]["PARAMETER_MODE"]);
       Assert.Equal("INT", dt.Rows[4]["DATA_TYPE"].ToString().ToUpper());
 
-      Assert.Equal(ts.baseDBName + "0".ToLower(), dt.Rows[5]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.Equal(Connection.Database.ToLower(), dt.Rows[5]["SPECIFIC_SCHEMA"].ToString().ToLower());
       Assert.Equal("sptest", dt.Rows[5]["SPECIFIC_NAME"].ToString().ToLower());
       Assert.Equal("_login_id", dt.Rows[5]["PARAMETER_NAME"].ToString().ToLower());
       Assert.Equal(6, dt.Rows[5]["ORDINAL_POSITION"]);
       Assert.Equal("IN", dt.Rows[5]["PARAMETER_MODE"]);
       Assert.Equal("INT", dt.Rows[5]["DATA_TYPE"].ToString().ToUpper());
 
-      Assert.Equal(ts.baseDBName + "0".ToLower(), dt.Rows[6]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.Equal(Connection.Database.ToLower(), dt.Rows[6]["SPECIFIC_SCHEMA"].ToString().ToLower());
       Assert.Equal("sptest", dt.Rows[6]["SPECIFIC_NAME"].ToString().ToLower());
       Assert.Equal("_where", dt.Rows[6]["PARAMETER_NAME"].ToString().ToLower());
       Assert.Equal(7, dt.Rows[6]["ORDINAL_POSITION"]);
@@ -206,7 +196,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("VARCHAR", dt.Rows[6]["DATA_TYPE"].ToString().ToUpper());
       Assert.Equal(2000, dt.Rows[6]["CHARACTER_OCTET_LENGTH"]);
 
-      Assert.Equal(ts.baseDBName + "0".ToLower(), dt.Rows[7]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.Equal(Connection.Database.ToLower(), dt.Rows[7]["SPECIFIC_SCHEMA"].ToString().ToLower());
       Assert.Equal("sptest", dt.Rows[7]["SPECIFIC_NAME"].ToString().ToLower());
       Assert.Equal("_sort", dt.Rows[7]["PARAMETER_NAME"].ToString().ToLower());
       Assert.Equal(8, dt.Rows[7]["ORDINAL_POSITION"]);
@@ -214,7 +204,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("VARCHAR", dt.Rows[7]["DATA_TYPE"].ToString().ToUpper());
       Assert.Equal(2000, dt.Rows[7]["CHARACTER_OCTET_LENGTH"]);
 
-      Assert.Equal(ts.baseDBName + "0".ToLower(), dt.Rows[8]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.Equal(Connection.Database.ToLower(), dt.Rows[8]["SPECIFIC_SCHEMA"].ToString().ToLower());
       Assert.Equal("sptest", dt.Rows[8]["SPECIFIC_NAME"].ToString().ToLower());
       Assert.Equal("_sql", dt.Rows[8]["PARAMETER_NAME"].ToString().ToLower());
       Assert.Equal(9, dt.Rows[8]["ORDINAL_POSITION"]);
@@ -222,14 +212,14 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("VARCHAR", dt.Rows[8]["DATA_TYPE"].ToString().ToUpper());
       Assert.Equal(8000, dt.Rows[8]["CHARACTER_OCTET_LENGTH"]);
 
-      Assert.Equal(ts.baseDBName + "0".ToLower(), dt.Rows[9]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.Equal(Connection.Database.ToLower(), dt.Rows[9]["SPECIFIC_SCHEMA"].ToString().ToLower());
       Assert.Equal("sptest", dt.Rows[9]["SPECIFIC_NAME"].ToString().ToLower());
       Assert.Equal("_song_id", dt.Rows[9]["PARAMETER_NAME"].ToString().ToLower());
       Assert.Equal(10, dt.Rows[9]["ORDINAL_POSITION"]);
       Assert.Equal("IN", dt.Rows[9]["PARAMETER_MODE"]);
       Assert.Equal("INT", dt.Rows[9]["DATA_TYPE"].ToString().ToUpper());
 
-      Assert.Equal(ts.baseDBName + "0".ToLower(), dt.Rows[10]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.Equal(Connection.Database.ToLower(), dt.Rows[10]["SPECIFIC_SCHEMA"].ToString().ToLower());
       Assert.Equal("sptest", dt.Rows[10]["SPECIFIC_NAME"].ToString().ToLower());
       Assert.Equal("_notes", dt.Rows[10]["PARAMETER_NAME"].ToString().ToLower());
       Assert.Equal(11, dt.Rows[10]["ORDINAL_POSITION"]);
@@ -237,7 +227,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("VARCHAR", dt.Rows[10]["DATA_TYPE"].ToString().ToUpper());
       Assert.Equal(2000, dt.Rows[10]["CHARACTER_OCTET_LENGTH"]);
 
-      Assert.Equal(ts.baseDBName + "0".ToLower(), dt.Rows[11]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.Equal(Connection.Database.ToLower(), dt.Rows[11]["SPECIFIC_SCHEMA"].ToString().ToLower());
       Assert.Equal("sptest", dt.Rows[11]["SPECIFIC_NAME"].ToString().ToLower());
       Assert.Equal("_result", dt.Rows[11]["PARAMETER_NAME"].ToString().ToLower());
       Assert.Equal(12, dt.Rows[11]["ORDINAL_POSITION"]);
@@ -249,28 +239,25 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ProcedureParameters4()
     {
-      if (ts.version < new Version(5, 0)) return;
-
-      executeSQL(@"CREATE  PROCEDURE spTest (name VARCHAR(1200) 
+      executeSQL(@"CREATE  PROCEDURE ProcedureParameters4 (name VARCHAR(1200) 
           CHARACTER /* hello*/ SET utf8) BEGIN SELECT name; END");
 
       string[] restrictions = new string[5];
-      restrictions[1] = ts.baseDBName + "0";
-      restrictions[2] = "spTest";
-      DataTable dt = connection.GetSchema("Procedure Parameters", restrictions);
+      restrictions[1] = Connection.Database;
+      restrictions[2] = "ProcedureParameters4";
+      DataTable dt = Connection.GetSchema("Procedure Parameters", restrictions);
 
       Assert.True(dt.Rows.Count == 1, "Actual Result " + dt.Rows.Count);
-      Assert.Equal(ts.baseDBName + "0".ToLower(), dt.Rows[0]["SPECIFIC_SCHEMA"].ToString().ToLower());
-      Assert.Equal("sptest", dt.Rows[0]["SPECIFIC_NAME"].ToString().ToLower());
+      Assert.Equal(Connection.Database, dt.Rows[0]["SPECIFIC_SCHEMA"].ToString());
+      Assert.Equal("ProcedureParameters4", dt.Rows[0]["SPECIFIC_NAME"].ToString());
       Assert.Equal("name", dt.Rows[0]["PARAMETER_NAME"].ToString().ToLower());
       Assert.Equal(1, dt.Rows[0]["ORDINAL_POSITION"]);
       Assert.Equal("IN", dt.Rows[0]["PARAMETER_MODE"]);
       Assert.Equal("VARCHAR", dt.Rows[0]["DATA_TYPE"].ToString().ToUpper());
       Assert.Equal(1200, dt.Rows[0]["CHARACTER_MAXIMUM_LENGTH"]);
-      if (ts.version.Major >= 6)
-        Assert.Equal(4800, dt.Rows[0]["CHARACTER_OCTET_LENGTH"]);
-      else
-        Assert.Equal(3600, dt.Rows[0]["CHARACTER_OCTET_LENGTH"]);
+      Assert.Equal(3600, dt.Rows[0]["CHARACTER_OCTET_LENGTH"]);
+      //else
+      //  Assert.Equal(4800, dt.Rows[0]["CHARACTER_OCTET_LENGTH"]);
       Assert.Equal("utf8", dt.Rows[0]["CHARACTER_SET_NAME"]);
       Assert.Equal("utf8_general_ci", dt.Rows[0]["COLLATION_NAME"]);
     }
@@ -278,19 +265,17 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ProcedureParameters5()
     {
-      if (ts.version < new Version(5, 0)) return;
-
-      executeSQL(@"CREATE  PROCEDURE spTest (name VARCHAR(1200) ASCII BINARY, 
+      executeSQL(@"CREATE  PROCEDURE ProcedureParameters5 (name VARCHAR(1200) ASCII BINARY, 
           name2 TEXT UNICODE) BEGIN SELECT name; END");
 
       string[] restrictions = new string[5];
-      restrictions[1] = ts.baseDBName + "0";
-      restrictions[2] = "spTest";
-      DataTable dt = connection.GetSchema("Procedure Parameters", restrictions);
+      restrictions[1] = Connection.Database;
+      restrictions[2] = "ProcedureParameters5";
+      DataTable dt = Connection.GetSchema("Procedure Parameters", restrictions);
 
       Assert.True(dt.Rows.Count == 2);
-      Assert.Equal(ts.baseDBName + "0".ToLower(), dt.Rows[0]["SPECIFIC_SCHEMA"].ToString().ToLower());
-      Assert.Equal("sptest", dt.Rows[0]["SPECIFIC_NAME"].ToString().ToLower());
+      Assert.Equal(Connection.Database, dt.Rows[0]["SPECIFIC_SCHEMA"].ToString());
+      Assert.Equal("ProcedureParameters5", dt.Rows[0]["SPECIFIC_NAME"].ToString());
       Assert.Equal("name", dt.Rows[0]["PARAMETER_NAME"].ToString().ToLower());
       Assert.Equal(1, dt.Rows[0]["ORDINAL_POSITION"]);
       Assert.Equal("IN", dt.Rows[0]["PARAMETER_MODE"]);
@@ -298,8 +283,8 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("latin1", dt.Rows[0]["CHARACTER_SET_NAME"]);
       Assert.Equal(1200, dt.Rows[0]["CHARACTER_OCTET_LENGTH"]);
 
-      Assert.Equal(ts.baseDBName + "0".ToLower(), dt.Rows[1]["SPECIFIC_SCHEMA"].ToString().ToLower());
-      Assert.Equal("sptest", dt.Rows[1]["SPECIFIC_NAME"].ToString().ToLower());
+      Assert.Equal(Connection.Database, dt.Rows[1]["SPECIFIC_SCHEMA"].ToString());
+      Assert.Equal("ProcedureParameters5", dt.Rows[1]["SPECIFIC_NAME"].ToString());
       Assert.Equal("name2", dt.Rows[1]["PARAMETER_NAME"].ToString().ToLower());
       Assert.Equal(2, dt.Rows[1]["ORDINAL_POSITION"]);
       Assert.Equal("IN", dt.Rows[1]["PARAMETER_MODE"]);
@@ -310,39 +295,37 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void DTD_Identifier()
     {
-      if (ts.version < new Version(5, 0)) return;
-
-      using (var conn = new MySqlConnection(connection.ConnectionString))
+      using (var conn = new MySqlConnection(Connection.ConnectionString))
       {
         conn.Open();
-        var cmd = new MySqlCommand(@"CREATE PROCEDURE spTest (id INT UNSIGNED ZEROFILL,
+        var cmd = new MySqlCommand(@"CREATE PROCEDURE DTD_Identifier (id INT UNSIGNED ZEROFILL,
           dec1 DECIMAL(10,2), 
           name VARCHAR(20) /* this is a comment */ CHARACTER SET ascii,
           t1 TINYTEXT BINARY, t2 ENUM('a','b','c'),
           t3 /* comment */ SET(/* comment */'1','2','3'))
           BEGIN SELECT name; END", conn);
-          cmd.ExecuteNonQuery();
+        cmd.ExecuteNonQuery();
 
-          string[] restrictions = new string[5];
-          restrictions[1] = ts.baseDBName + "0";
-          restrictions[2] = "spTest";
-          DataTable dt = connection.GetSchema("Procedure Parameters", restrictions);
+        string[] restrictions = new string[5];
+        restrictions[1] = Connection.Database;
+        restrictions[2] = "DTD_Identifier";
+        DataTable dt = Connection.GetSchema("Procedure Parameters", restrictions);
 
-          Assert.True(dt.Rows.Count == 6, "Actual Result " + dt.Rows.Count);
-          Assert.Equal("INT(10) UNSIGNED ZEROFILL",
-            dt.Rows[0]["DTD_IDENTIFIER"].ToString().ToUpper());
-          Assert.Equal("DECIMAL(10,2)",
-            dt.Rows[1]["DTD_IDENTIFIER"].ToString().ToUpper());
-          Assert.Equal("VARCHAR(20)",
-            dt.Rows[2]["DTD_IDENTIFIER"].ToString().ToUpper());
-          Assert.Equal("TINYTEXT",
-            dt.Rows[3]["DTD_IDENTIFIER"].ToString().ToUpper());
-          Assert.Equal("ENUM('A','B','C')",
-            dt.Rows[4]["DTD_IDENTIFIER"].ToString().ToUpper());
-          Assert.Equal("SET('1','2','3')",
-            dt.Rows[5]["DTD_IDENTIFIER"].ToString().ToUpper());
-          conn.Close();        
-      }     
+        Assert.True(dt.Rows.Count == 6, "Actual Result " + dt.Rows.Count);
+        Assert.Equal("INT(10) UNSIGNED ZEROFILL",
+          dt.Rows[0]["DTD_IDENTIFIER"].ToString().ToUpper());
+        Assert.Equal("DECIMAL(10,2)",
+          dt.Rows[1]["DTD_IDENTIFIER"].ToString().ToUpper());
+        Assert.Equal("VARCHAR(20)",
+          dt.Rows[2]["DTD_IDENTIFIER"].ToString().ToUpper());
+        Assert.Equal("TINYTEXT",
+          dt.Rows[3]["DTD_IDENTIFIER"].ToString().ToUpper());
+        Assert.Equal("ENUM('A','B','C')",
+          dt.Rows[4]["DTD_IDENTIFIER"].ToString().ToUpper());
+        Assert.Equal("SET('1','2','3')",
+          dt.Rows[5]["DTD_IDENTIFIER"].ToString().ToUpper());
+        conn.Close();
+      }
     }
 
     /// <summary>
@@ -351,9 +334,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void PossibleValues()
     {
-      if (ts.version < new Version(5, 0)) return;
-
-      using (var conn = new MySqlConnection(connection.ConnectionString))
+      using (var conn = new MySqlConnection(Connection.ConnectionString))
       {
         conn.Open();
         var cmd = new MySqlCommand(@"CREATE  PROCEDURE spTest (id INT UNSIGNED ZEROFILL,
@@ -362,24 +343,24 @@ namespace MySql.Data.MySqlClient.Tests
           t1 TINYTEXT BINARY, t2 ENUM('a','b','c'),
           t3 /* comment */ SET(/* comment */'1','2','3'))
           BEGIN SELECT name; END", conn);
-          cmd.ExecuteNonQuery();
-          cmd = new MySqlCommand("spTest", connection);
-          cmd.CommandType = CommandType.StoredProcedure;
-          MySqlCommandBuilder.DeriveParameters(cmd);
-          Assert.Null(cmd.Parameters["@id"].PossibleValues);
-          Assert.Null(cmd.Parameters["@dec1"].PossibleValues);
-          Assert.Null(cmd.Parameters["@name"].PossibleValues);
-          Assert.Null(cmd.Parameters["@t1"].PossibleValues);
-          MySqlParameter t2 = cmd.Parameters["@t2"];
-          Assert.NotNull(t2.PossibleValues);
-          Assert.Equal("a", t2.PossibleValues[0]);
-          Assert.Equal("b", t2.PossibleValues[1]);
-          Assert.Equal("c", t2.PossibleValues[2]);
-          MySqlParameter t3 = cmd.Parameters["@t3"];
-          Assert.NotNull(t3.PossibleValues);
-          Assert.Equal("1", t3.PossibleValues[0]);
-          Assert.Equal("2", t3.PossibleValues[1]);
-          Assert.Equal("3", t3.PossibleValues[2]);
+        cmd.ExecuteNonQuery();
+        cmd = new MySqlCommand("spTest", Connection);
+        cmd.CommandType = CommandType.StoredProcedure;
+        MySqlCommandBuilder.DeriveParameters(cmd);
+        Assert.Null(cmd.Parameters["@id"].PossibleValues);
+        Assert.Null(cmd.Parameters["@dec1"].PossibleValues);
+        Assert.Null(cmd.Parameters["@name"].PossibleValues);
+        Assert.Null(cmd.Parameters["@t1"].PossibleValues);
+        MySqlParameter t2 = cmd.Parameters["@t2"];
+        Assert.NotNull(t2.PossibleValues);
+        Assert.Equal("a", t2.PossibleValues[0]);
+        Assert.Equal("b", t2.PossibleValues[1]);
+        Assert.Equal("c", t2.PossibleValues[2]);
+        MySqlParameter t3 = cmd.Parameters["@t3"];
+        Assert.NotNull(t3.PossibleValues);
+        Assert.Equal("1", t3.PossibleValues[0]);
+        Assert.Equal("2", t3.PossibleValues[1]);
+        Assert.Equal("3", t3.PossibleValues[2]);
         conn.Close();
       }
     }
@@ -390,16 +371,14 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void UnnamedReturnValue()
     {
-      if (ts.version < new Version(5, 0)) return;
-
       executeSQL("DROP FUNCTION IF EXISTS spFunc");
       executeSQL("CREATE FUNCTION spFunc() RETURNS DATETIME BEGIN RETURN NOW(); END");
-      MySqlCommand cmd = new MySqlCommand("spFunc", connection);
+      MySqlCommand cmd = new MySqlCommand("spFunc", Connection);
       cmd.CommandType = CommandType.StoredProcedure;
       MySqlParameter p1 = new MySqlParameter("", MySqlDbType.DateTime);
       p1.Direction = ParameterDirection.ReturnValue;
       cmd.Parameters.Add(p1);
-      cmd.ExecuteNonQuery();      
+      cmd.ExecuteNonQuery();
     }
   }
 }

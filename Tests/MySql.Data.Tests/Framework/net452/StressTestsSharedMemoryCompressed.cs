@@ -24,13 +24,15 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class StressTestsSharedMemoryCompressed : StressTests
   {
-    public StressTestsSharedMemoryCompressed(TestSetup ts) : base(ts, "stress_shared_memory_compressed")
+    public StressTestsSharedMemoryCompressed(TestFixture fixture) : base(fixture)
     {
-
     }
-    protected override string OnGetConnectionStringInfo()
+
+    public override void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
     {
-      return string.Format("protocol=memory; shared memory name={0};compress=true;", setup.sharedMemoryName);
+      settings.ConnectionProtocol = MySqlConnectionProtocol.SharedMemory;
+      settings.UseCompression = true;
+      settings.SslMode = MySqlSslMode.None;
     }
   }
 }
