@@ -31,7 +31,7 @@ using System.Data.Common;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class DataTypeTests : TestBase
+  public partial class DataTypeTests : TestBase
   {
     public DataTypeTests(TestFixture fixture) : base(fixture)
     {
@@ -298,33 +298,6 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    /// <summary>
-    /// Bug #10486 MySqlDataAdapter.Update error for decimal column 
-    /// </summary>
-    [Fact]
-    public void UpdateDecimalColumns()
-    {
-      executeSQL("CREATE TABLE Test (id int not null auto_increment primary key, " +
-        "dec1 decimal(10,1))");
-
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
-      MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
-      DataRow row = dt.NewRow();
-      row["id"] = DBNull.Value;
-      row["dec1"] = 23.4;
-      dt.Rows.Add(row);
-      da.Update(dt);
-
-      dt.Clear();
-      da.Fill(dt);
-      Assert.Equal(1, dt.Rows.Count);
-      Assert.Equal(1, dt.Rows[0]["id"]);
-      Assert.Equal((decimal)23.4, Convert.ToDecimal(dt.Rows[0]["dec1"]));
-      cb.Dispose();
-    }
-
     [Fact]
     public void DecimalTests()
     {
@@ -408,47 +381,6 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     /// <summary>
-    /// Bug #17375 CommandBuilder ignores Unsigned flag at Parameter creation 
-    /// Bug #15274 Use MySqlDbType.UInt32, throwed exception 'Only byte arrays can be serialize' 
-    /// </summary>
-    [Fact]
-    public void UnsignedTypes()
-    {
-      executeSQL("CREATE TABLE Test (b TINYINT UNSIGNED PRIMARY KEY)");
-
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
-      MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
-
-      DataTable dt = new DataTable();
-      da.Fill(dt);
-
-      DataView dv = new DataView(dt);
-      DataRowView row;
-
-      row = dv.AddNew();
-      row["b"] = 120;
-      row.EndEdit();
-      da.Update(dv.Table);
-
-      row = dv.AddNew();
-      row["b"] = 135;
-      row.EndEdit();
-      da.Update(dv.Table);
-      cb.Dispose();
-
-      executeSQL("DROP TABLE IF EXISTS Test");
-      executeSQL("CREATE TABLE Test (b MEDIUMINT UNSIGNED PRIMARY KEY)");
-      executeSQL("INSERT INTO Test VALUES(20)");
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test WHERE (b > ?id)", Connection);
-      cmd.Parameters.Add("?id", MySqlDbType.UInt16).Value = 10;
-      using (MySqlDataReader dr = cmd.ExecuteReader())
-      {
-        dr.Read();
-        Assert.Equal(20, dr.GetUInt16(0));
-      }
-    }
-
-    /// <summary>
     /// Bug #25912 selecting negative time values gets wrong results 
     /// </summary>
     [Fact]
@@ -457,14 +389,15 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE Test (t time)");
       executeSQL("INSERT INTO Test SET T='-07:24:00'");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
-
-      TimeSpan ts = (TimeSpan)dt.Rows[0]["t"];
-      Assert.Equal(-7, ts.Hours);
-      Assert.Equal(-24, ts.Minutes);
-      Assert.Equal(0, ts.Seconds);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM test", Connection);
+      using (var reader = cmd.ExecuteReader())
+      {
+        reader.Read();
+        TimeSpan ts = reader.GetTimeSpan("t");
+        Assert.Equal(-7, ts.Hours);
+        Assert.Equal(-24, ts.Minutes);
+        Assert.Equal(0, ts.Seconds);
+      }
     }
 
     /// <summary>
@@ -506,33 +439,36 @@ namespace MySql.Data.MySqlClient.Tests
     public void BinaryTypes()
     {
       executeSQL(@"CREATE TABLE Test (c1 VARCHAR(20), c2 VARBINARY(20),
-        c3 TEXT, c4 BLOB, c6 VARCHAR(20) CHARACTER SET BINARY)");
+        c3 TEXT, c4 BLOB, c5 VARCHAR(20) CHARACTER SET BINARY)");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
-      Assert.Equal(typeof(String), dt.Columns[0].DataType);
-      Assert.Equal(typeof(byte[]), dt.Columns[1].DataType);
-      Assert.Equal(typeof(String), dt.Columns[2].DataType);
-      Assert.Equal(typeof(byte[]), dt.Columns[3].DataType);
-      Assert.Equal(typeof(byte[]), dt.Columns[4].DataType);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM test", Connection);
+      using (var reader = cmd.ExecuteReader())
+      {
+        reader.Read();
+        Assert.Equal(typeof(String), reader.GetFieldType("c1"));
+        Assert.Equal(typeof(byte[]), reader.GetFieldType("c2"));
+        Assert.Equal(typeof(String), reader.GetFieldType("c3"));
+        Assert.Equal(typeof(byte[]), reader.GetFieldType("c4"));
+        Assert.Equal(typeof(byte[]), reader.GetFieldType("c5"));
+      }
     }
 
     [Fact]
     public void ShowColumns()
     {
-      MySqlDataAdapter da = new MySqlDataAdapter(
+      MySqlCommand cmd = new MySqlCommand(
         @"SELECT TRIM(TRAILING ' unsigned' FROM 
           TRIM(TRAILING ' zerofill' FROM COLUMN_TYPE)) AS MYSQL_TYPE, 
           IF(COLUMN_DEFAULT IS NULL, NULL, 
           IF(ASCII(COLUMN_DEFAULT) = 1 OR COLUMN_DEFAULT = '1', 1, 0))
           AS TRUE_DEFAULT FROM INFORMATION_SCHEMA.COLUMNS
           WHERE TABLE_SCHEMA='test' AND TABLE_NAME='test'", Connection);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
-
-      Assert.Equal(typeof(string), dt.Columns[0].DataType);
-      Assert.Equal(typeof(Int64), dt.Columns[1].DataType);
+      using (var reader = cmd.ExecuteReader())
+      {
+        reader.Read();
+        Assert.Equal(typeof(string), reader.GetFieldType(0));
+        Assert.Equal(typeof(Int64), reader.GetFieldType(1));
+      }
     }
 
     [Fact]
@@ -545,11 +481,13 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
-        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", c);
-        DataTable dt = new DataTable();
-        da.Fill(dt);
-        Assert.True(dt.Columns[0].DataType == typeof(System.String));
-        Assert.True(dt.Columns[1].DataType == typeof(System.Byte[]));
+        MySqlCommand cmd = new MySqlCommand("SELECT * FROM test", c);
+        using (var reader = cmd.ExecuteReader())
+        {
+          reader.Read();
+          Assert.Equal(typeof(string), reader.GetFieldType(0));
+          Assert.Equal(typeof(System.Byte[]), reader.GetFieldType(1));
+        }
       }
     }
 
@@ -562,15 +500,19 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE Test (id INT, `on` BOOLEAN, v TINYINT(2))");
       executeSQL("INSERT INTO Test VALUES (1,1,1), (2,0,0)");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
-      Assert.Equal(typeof(Boolean), dt.Columns[1].DataType);
-      Assert.Equal(typeof(SByte), dt.Columns[2].DataType);
-      Assert.Equal(true, dt.Rows[0][1]);
-      Assert.Equal(false, dt.Rows[1][1]);
-      Assert.Equal(1, Convert.ToInt32(dt.Rows[0][2]));
-      Assert.Equal(0, Convert.ToInt32(dt.Rows[1][2]));
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM test", Connection);
+      using (var reader = cmd.ExecuteReader())
+      {
+        reader.Read();
+        Assert.Equal(typeof(Boolean), reader.GetFieldType(1));
+        Assert.Equal(typeof(SByte), reader.GetFieldType(2));
+        Assert.Equal(true, reader.GetBoolean(1));
+        Assert.Equal(1, Convert.ToInt32(reader.GetValue(2)));
+
+        reader.Read();
+        Assert.Equal(false, reader.GetBoolean(1));
+        Assert.Equal(0, Convert.ToInt32(reader.GetValue(2)));
+      }
     }
 
     [Fact]
@@ -592,14 +534,15 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.Parameters.AddWithValue("@c1", g.ToString());
         cmd.ExecuteNonQuery();
 
-        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", c);
-        DataTable dt = new DataTable();
-        da.Fill(dt);
-        Assert.True(dt.Rows[0][1] is Guid);
-        Assert.True(dt.Rows[0][2] is byte[]);
-        Assert.True(dt.Rows[0][3] is byte[]);
-
-        Assert.Equal(g, dt.Rows[0][1]);
+        MySqlCommand cmd2 = new MySqlCommand("SELECT * FROM Test", c);
+        using (var reader = cmd2.ExecuteReader())
+        {
+          reader.Read();
+          Assert.Equal(typeof(Guid), reader.GetFieldType(1));
+          Assert.Equal(typeof(byte[]), reader.GetFieldType(2));
+          Assert.Equal(typeof(byte[]), reader.GetFieldType(3));
+          Assert.Equal(g, reader.GetGuid(1));
+        }
 
         string s = BitConverter.ToString(bytes);
 
@@ -633,10 +576,6 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.ExecuteNonQuery();
       executeSQL("insert into Test (AGUID) values (NULL)");
       cmd.ExecuteNonQuery();
-
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
     }
 
     /// <summary>
@@ -656,23 +595,28 @@ namespace MySql.Data.MySqlClient.Tests
         ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1");
       executeSQL(@"INSERT INTO Child (Id, MainId, Value, Enabled) VALUES (1,2,12345,0x01)");
 
-      MySqlDataAdapter da = new MySqlDataAdapter(
+      MySqlCommand cmd = new MySqlCommand(
         @"SELECT m.Descr, c.Value, c.Enabled FROM Main m 
         LEFT OUTER JOIN Child c ON m.Id=c.MainId ORDER BY m.Descr", Connection);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
-      Assert.Equal(3, dt.Rows.Count);
-      Assert.Equal("AAA", dt.Rows[0][0]);
-      Assert.Equal("BBB", dt.Rows[1][0]);
-      Assert.Equal("CCC", dt.Rows[2][0]);
+      using (var reader = cmd.ExecuteReader())
+      {
+        Assert.True(reader.Read());
+        Assert.Equal("AAA", reader.GetString(0));
+        Assert.True(reader.IsDBNull(1));
+        Assert.True(reader.IsDBNull(2));
 
-      Assert.Equal(DBNull.Value, dt.Rows[0][1]);
-      Assert.Equal(12345, Convert.ToInt32(dt.Rows[1][1]));
-      Assert.Equal(DBNull.Value, dt.Rows[2][1]);
+        Assert.True(reader.Read());
+        Assert.Equal("BBB", reader.GetString(0));
+        Assert.Equal(12345, Convert.ToInt32(reader.GetValue(1)));
+        Assert.True(reader.IsDBNull(2));
 
-      Assert.Equal(DBNull.Value, dt.Rows[0][2]);
-      Assert.Equal(1, Convert.ToInt32(dt.Rows[1][2]));
-      Assert.Equal(DBNull.Value, dt.Rows[2][2]);
+        Assert.True(reader.Read());
+        Assert.Equal("CCC", reader.GetString(0));
+        Assert.Equal(1, Convert.ToInt32(reader.GetValue(1)));
+        Assert.True(reader.IsDBNull(2));
+
+        Assert.False(reader.Read());
+      }
     }
 
     /// <summary>
@@ -918,12 +862,13 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.Parameters[0].Value = guid;
         cmd.ExecuteNonQuery();
 
-        DataTable dt = new DataTable();
-        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", c);
-        da.Fill(dt);
-        Assert.Equal(1, dt.Rows.Count);
-        Assert.Equal(1, dt.Rows[0]["id"]);
-        Assert.Equal(guid, dt.Rows[0]["g"]);
+        cmd.CommandText = "SELCT * FROM Test";
+        using (var reader = cmd.ExecuteReader())
+        {
+          reader.Read();
+          Assert.Equal(1, reader.GetValue(0));
+          Assert.Equal(guid, reader.GetGuid(1));
+        }
       }
     }
 
@@ -1079,28 +1024,6 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal("9999999999999999999999999999999999.99", dec.ToString());
         Exception ex = Assert.Throws<OverflowException>(() => dec.Value);
         Assert.Equal(ex.Message, "Value was either too large or too small for a Decimal.");
-      }
-    }
-
-    /// <summary>
-    /// Bug #48171	MySqlDataReader.GetSchemaTable() returns 0 in "NumericPrecision" for newdecimal
-    /// </summary>
-    [Fact]
-    public void DecimalPrecision()
-    {
-      executeSQL("DROP TABLE IF EXISTS test");
-      executeSQL("CREATE TABLE test(a decimal(35,2), b decimal(36,2), c decimal(36,2) unsigned)");
-
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM test", Connection);
-      using (MySqlDataReader reader = cmd.ExecuteReader())
-      {
-        DataTable dt = reader.GetSchemaTable();
-        DataRow columnDefinition = dt.Rows[0];
-        Assert.Equal(35, columnDefinition[SchemaTableColumn.NumericPrecision]);
-        columnDefinition = dt.Rows[1];
-        Assert.Equal(36, columnDefinition[SchemaTableColumn.NumericPrecision]);
-        columnDefinition = dt.Rows[2];
-        Assert.Equal(36, columnDefinition[SchemaTableColumn.NumericPrecision]);
       }
     }
 
