@@ -24,9 +24,9 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
     <GenerateNeutralResourcesLanguageAttribute>false</GenerateNeutralResourcesLanguageAttribute>
-    <!--<SignAssembly>True</SignAssembly>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
     <DelaySign>True</DelaySign>
-    <AssemblyOriginatorKeyFile>ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>-->
   </PropertyGroup>
 
   <ItemGroup>
