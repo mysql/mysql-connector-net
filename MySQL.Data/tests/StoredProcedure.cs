@@ -581,10 +581,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void GetSchema()
     {
-      executeSQL("CREATE PROCEDURE spTest() BEGIN SELECT * FROM Test; END");
+      executeSQL("CREATE PROCEDURE GetSchema() BEGIN SELECT * FROM Test; END");
       executeSQL(@"CREATE TABLE Test(id INT AUTO_INCREMENT, name VARCHAR(20), PRIMARY KEY (id)) ");
 
-      MySqlCommand cmd = new MySqlCommand("spTest", Connection);
+      MySqlCommand cmd = new MySqlCommand("GetSchema", Connection);
       cmd.CommandType = CommandType.StoredProcedure;
 
       MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.SchemaOnly);

@@ -165,6 +165,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void UsingDatesAsStrings()
     {
+      executeSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME, d DATE, " +
+        "t TIME, ts TIMESTAMP, PRIMARY KEY(id))");
+              
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id, dt) VALUES (1, ?dt)", Connection);
       cmd.Parameters.Add("?dt", MySqlDbType.Date);
       cmd.Parameters[0].Value = "2005-03-04";
@@ -188,7 +191,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Bug19481()
     {
-      executeSQL("DROP TABLE Test");
+      executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test(ID INT NOT NULL AUTO_INCREMENT, " +
         "SATELLITEID VARCHAR(3) NOT NULL, ANTENNAID INT, AOS_TIMESTAMP DATETIME NOT NULL, " +
         "TEL_TIMESTAMP DATETIME, LOS_TIMESTAMP DATETIME, PRIMARY KEY (ID))");
@@ -808,7 +811,6 @@ namespace MySql.Data.MySqlClient.Tests
       {
         using (MySqlConnection conn2 = Fixture.GetConnection())
         {
-          conn2.Open();
           Assert.Equal(timeZoneHours, conn2.driver.timeZoneOffset);
         }
       }

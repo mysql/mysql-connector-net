@@ -337,14 +337,14 @@ namespace MySql.Data.MySqlClient.Tests
       using (var conn = new MySqlConnection(Connection.ConnectionString))
       {
         conn.Open();
-        var cmd = new MySqlCommand(@"CREATE  PROCEDURE spTest (id INT UNSIGNED ZEROFILL,
+        var cmd = new MySqlCommand(@"CREATE  PROCEDURE PossibleValues (id INT UNSIGNED ZEROFILL,
           dec1 DECIMAL(10,2), 
           name VARCHAR(20) /* this is a comment */ CHARACTER SET ascii,
           t1 TINYTEXT BINARY, t2 ENUM('a','b','c'),
           t3 /* comment */ SET(/* comment */'1','2','3'))
           BEGIN SELECT name; END", conn);
         cmd.ExecuteNonQuery();
-        cmd = new MySqlCommand("spTest", Connection);
+        cmd = new MySqlCommand("PossibleValues", Connection);
         cmd.CommandType = CommandType.StoredProcedure;
         MySqlCommandBuilder.DeriveParameters(cmd);
         Assert.Null(cmd.Parameters["@id"].PossibleValues);
