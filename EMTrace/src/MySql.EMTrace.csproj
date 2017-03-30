@@ -23,7 +23,7 @@
     <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
     <SignAssembly>True</SignAssembly>
     <DelaySign>True</DelaySign>
-    <AssemblyOriginatorKeyFile>ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,7 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\Source\MySql.Data\Properties\VersionInfo.cs" Link="Properties\VersionInfo.cs" />
+    <Compile Include="..\..\MySQL.Data\src\Properties\VersionInfo.cs" Link="Properties\VersionInfo.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -39,7 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Source\MySql.Data\MySql.Data.csproj" />
+    <ProjectReference Include="..\..\MySQL.Data\src\MySql.Data.csproj" />
   </ItemGroup>
 
   <ItemGroup>
