@@ -41,7 +41,7 @@
     <Compile Remove="Framework\netstandard\**" />
     <EmbeddedResource Remove="Framework\netstandard\**" />
     <None Remove="Framework\netstandard\**" />
-    <Compile Remove="Framework\net452\MediumTrust"/>
+    <Compile Remove="Framework\net452\MediumTrust\*.*"/>
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Transactions" />
   </ItemGroup>

@@ -67,8 +67,8 @@
     </ItemGroup>
 
     <!-- if we are not doing GPL, then we need to replace license text -->
-    <ReplaceText HeaderFile="Installer\MSI\GPL-Banner.txt"
-       NewHeaderFile="Installer\MSI\Commercial-Banner.txt"
+    <ReplaceText HeaderFile="GPL-Banner.txt"
+       NewHeaderFile="Commercial-Banner.txt"
        Files="@(TmpFiles)" Condition=" '$(Configuration)' == 'Commercial' "/>
 
     <ItemGroup>

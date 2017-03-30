@@ -608,11 +608,11 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.True(reader.Read());
         Assert.Equal("BBB", reader.GetString(0));
         Assert.Equal(12345, Convert.ToInt32(reader.GetValue(1)));
-        Assert.True(reader.IsDBNull(2));
+        Assert.Equal(1, Convert.ToInt32(reader.GetValue(2)));
 
         Assert.True(reader.Read());
         Assert.Equal("CCC", reader.GetString(0));
-        Assert.Equal(1, Convert.ToInt32(reader.GetValue(1)));
+        Assert.True(reader.IsDBNull(1));
         Assert.True(reader.IsDBNull(2));
 
         Assert.False(reader.Read());
@@ -862,7 +862,7 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.Parameters[0].Value = guid;
         cmd.ExecuteNonQuery();
 
-        cmd.CommandText = "SELCT * FROM Test";
+        cmd.CommandText = "SELECT * FROM Test";
         using (var reader = cmd.ExecuteReader())
         {
           reader.Read();
