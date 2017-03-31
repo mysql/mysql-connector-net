@@ -32,10 +32,7 @@ sn.exe -Rca  EntityFrameworkCore\src\MySql.Data.EntityFrameworkCore\bin\release\
 sn.exe -Rca  MySql.Web\src\bin\release\net452\MySql.Web.dll ConnectorNet
 sn.exe -Rca  EMTrace\src\bin\Release\net452\MySql.MonitorPlugin.dll ConnectorNet
 
-rem ------------------------------
-rem Sign netstandard assemblies
-rem ------------------------------
-
+REM ================== Sign netstandard assemblies ============================
 sn.exe -Rca  MySql.Data\src\bin\release\netcoreapp1.1\MySql.Data.dll ConnectorNet
 sn.exe -Rca  EntityFrameworkCore\src\MySql.Data.EntityFrameworkCore\bin\release\netcoreapp1.1\MySql.Data.EntityFrameworkCore.dll ConnectorNet
 
