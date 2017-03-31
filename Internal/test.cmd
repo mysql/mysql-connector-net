@@ -1,3 +1,5 @@
+IF NOT "%1" == ""  SET MYSQL_PORT=%1
+
 cd MySql.Data\tests
 dotnet restore MySql.Data.Tests.csproj
 copy certificates\*.* %MYSQL_DATADIR%\
