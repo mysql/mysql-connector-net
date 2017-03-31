@@ -27,9 +27,9 @@ using Xunit;
 namespace MySql.Data.MySqlClient.Tests
 {
   [Trait("Category", "Compressed")]
-  public class BlobTestsSocketCompressed : BlobTests
+  public class BlobTestsCompressed : BlobTests
   {
-    public BlobTestsSocketCompressed(TestFixture fixture) : base(fixture)
+    public BlobTestsCompressed(TestFixture fixture) : base(fixture)
     {
     }
 

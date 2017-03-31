@@ -1,4 +1,4 @@
-// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright ï¿½ 2004, 2016, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -22,9 +22,10 @@
 
 using System;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
-using zlib;
 using MySql.Data.Common;
+using System.Net;
 
 namespace MySql.Data.MySqlClient
 {
@@ -44,7 +45,7 @@ namespace MySql.Data.MySqlClient
     private WeakReference inBufferRef;
     private int inPos;
     private int maxInPos;
-    private ZInputStream zInStream;
+    private DeflateStream compInStream;
 
     public CompressedStream(Stream baseStream)
     {
@@ -149,16 +150,19 @@ namespace MySql.Data.MySqlClient
 
       int countToRead = Math.Min(count, maxInPos - inPos);
       int countRead;
-      if (zInStream != null)
-        countRead = zInStream.read(buffer, offset, countToRead);
+
+      if (compInStream != null)
+        countRead  = compInStream.Read(buffer, offset, countToRead);
       else
         countRead = baseStream.Read(buffer, offset, countToRead);
+
       inPos += countRead;
 
       // release the weak reference
       if (inPos == maxInPos)
       {
-        zInStream = null;
+        compInStream = null;
+
         if (!Platform.IsMono())
         {
           inBufferRef = new WeakReference(inBuffer, false);
@@ -180,13 +184,13 @@ namespace MySql.Data.MySqlClient
       if (unCompressedLength == 0)
       {
         unCompressedLength = compressedLength;
-        zInStream = null;
+        compInStream = null;
       }
       else
       {
         ReadNextPacket(compressedLength);
-        MemoryStream ms = new MemoryStream(inBuffer);
-        zInStream = new ZInputStream(ms) { maxInput = compressedLength };
+        MemoryStream ms = new MemoryStream(inBuffer, 2, compressedLength-2);
+        compInStream = new DeflateStream(ms, CompressionMode.Decompress);
       }
 
       inPos = 0;
@@ -195,8 +199,7 @@ namespace MySql.Data.MySqlClient
 
     private void ReadNextPacket(int len)
     {
-      if (!Platform.IsMono())
-        inBuffer = inBufferRef.Target as byte[];
+      inBuffer = inBufferRef.Target as byte[];
 
       if (inBuffer == null || inBuffer.Length < len)
         inBuffer = new byte[len];
@@ -223,14 +226,32 @@ namespace MySql.Data.MySqlClient
 #endif
 
       MemoryStream compressedBuffer = new MemoryStream();
-      ZOutputStream zos = new ZOutputStream(compressedBuffer, zlibConst.Z_DEFAULT_COMPRESSION);
-      zos.Write(cacheBytes, 0, (int)cache.Length);
-      zos.finish();
+
+      compressedBuffer.WriteByte(0x78);
+      compressedBuffer.WriteByte(0x9c);
+      var outCompStream = new DeflateStream(compressedBuffer, CompressionMode.Compress, true);
+      outCompStream.Write(cacheBytes, 0, (int)cache.Length);
+      outCompStream.Dispose();
+      int adler = IPAddress.HostToNetworkOrder(Adler32(cacheBytes, 0, (int)cache.Length));
+      compressedBuffer.Write(BitConverter.GetBytes(adler), 0, sizeof(uint));
 
       // if the compression hasn't helped, then just return null
       if (compressedBuffer.Length >= cache.Length)
         return null;
       return compressedBuffer;
+    }
+
+    int Adler32(byte[] bytes, int index, int length)
+    {
+      const uint a32mod = 65521;
+      uint s1 = 1, s2 = 0;
+      for (int i = index; i < length; i++)
+      {
+        byte b = bytes[i];
+        s1 = (s1 + b) % a32mod;
+        s2 = (s2 + s1) % a32mod;
+      }
+      return unchecked((int)((s2 << 16) + s1));
     }
 
     private void CompressAndSendCache()
