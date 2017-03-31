@@ -23,7 +23,6 @@
 using System;
 using System.Data;
 using System.Diagnostics;
-using Microsoft.Extensions.Configuration;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -55,17 +54,11 @@ namespace MySql.Data.MySqlClient.Tests
       BaseDBName = "db-" + ns + "-";
       BaseUserName = "u-" + ns + "-"; 
 
-      var config = new ConfigurationBuilder()
-          .AddJsonFile("appsettings.json")
-          .Build();
-
       var settings = new MySqlConnectionStringBuilder();
-      settings.Server = config["host"];
-      settings.Port = UInt32.Parse(config["port"]);
+      settings.Server = "localhost";
+      settings.Port = UInt32.Parse(Environment.GetEnvironmentVariable("MYSQL_PORT"));
       settings.UserID = "root";
-      settings.Password = config["root_password"];
-      if (String.IsNullOrEmpty(settings.Password))
-        settings.Password = null;
+      settings.Password = null;
       settings.SharedMemoryName = "MySQLSocket";
       settings.PipeName = "MySQLSocket";
       settings.PersistSecurityInfo = true;
