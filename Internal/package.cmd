@@ -8,8 +8,5 @@ copy Internal\package.proj .
 
 msbuild package.proj /p:Configuration=%1
 
-IF "%1" == "commercial" EXIT 0
+IF %ERRORLEVEL% NEQ 0 EXIT /B 1
 
-REM ================== Make Nuget packages ======================================
-dotnet pack MySql.Data/src/MySql.Data.csproj -c Release
-dotnet pack MySql.Web/src/MySql.Web.csproj -c Release

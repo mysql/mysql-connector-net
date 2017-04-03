@@ -6,8 +6,8 @@ copy certificates\*.* %MYSQL_DATADIR%\
 dotnet build MySql.Data.Tests.csproj -c Debug
 
 REM ================== Register a verification exception ================================
-sn.exe -Vr MySql.Data/src/bin/debug/net452/MySql.Data.dll
-sn.exe -Vr MySql.Data/tests/bin/debug/net452/MySql.Data.Tests.dll
+sn.exe -Vr ../src/bin/debug/net452/MySql.Data.dll
+sn.exe -Vr ../tests/bin/debug/net452/MySql.Data.Tests.dll
 
 REM =================== Now test! =======================================================
 dotnet test MySql.Data.Tests.csproj -f net452 -c Debug
