@@ -1,6 +1,6 @@
 <Project DefaultTargets="Package" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <UsingTask AssemblyFile="Installer\MSI\Binary\MyTasks.dll" TaskName="GetVersion"/>
-  <UsingTask AssemblyFile="Installer\MSI\inary\MyTasks.dll" TaskName="ReplaceText"/>
+  <UsingTask AssemblyFile="Installer\MSI\Binary\MyTasks.dll" TaskName="ReplaceText"/>
 
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">GPL</Configuration>
@@ -44,11 +44,10 @@
           **/*.proj;**/COPYING;**/*.bak;**/*.user;**/*.SourceAnalysis;
           **/MySql.Data.xml;**/*.InstallLog;**/*.bat;**/*.reg;**/thumbs.db;**/.bzr/**;
           **/.bzr-mysql/**;**/UpgradeLog*.*;**/*.bzrignore;**/*.~??;
-		  **/.git/**;**/*.gitignore;**/Source/Plugins/MySql.EMTrace/**;
-		  **/Tests/Plugins/MySql.EMTrace*/**;**/Nuget*/**;
-		  **/Source/MySql.ConnectorInstaller/**"/>
+		  **/.git/**;**/*.gitignore;**/EMTrace/**;**/Nuget*/**;
+		  **/Installer/CustomAction/**"/>
     <SourceFiles Include="COPYING" Condition=" '$(Configuration)' == 'GPL' "/>
-    <SourceFiles Include="**/MySql.EMTrace/**;" 
+    <SourceFiles Include="**/EMTrace/**;" 
 	      Exclude="**/tmp/**;**/bin/**;**/obj/**;"
 	      Condition=" '$(Configuration)' == 'Commercial' "/>
   </ItemGroup>
@@ -67,8 +66,8 @@
     </ItemGroup>
 
     <!-- if we are not doing GPL, then we need to replace license text -->
-    <ReplaceText HeaderFile="GPL-Banner.txt"
-       NewHeaderFile="Commercial-Banner.txt"
+    <ReplaceText HeaderFile="Internal\GPL-Banner.txt"
+       NewHeaderFile="Internal\Commercial-Banner.txt"
        Files="@(TmpFiles)" Condition=" '$(Configuration)' == 'Commercial' "/>
 
     <ItemGroup>
@@ -111,16 +110,15 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Plugins Include="MySql.EMTrace\src\bin\Release\net452\MySql.MonitorPlugin.dll" Condition=" '$(Configuration)' == 'Commercial' "/>
-      <Plugins Include="MySql.EMTrace\src\bin\Release\net452\MySql.MonitorPlugin.xml" Condition=" '$(Configuration)' == 'Commercial' "/>
-      <Plugins Include="MySql.EMTrace\CHANGES" Condition=" '$(Configuration)' == 'Commercial' "/>
-      <Plugins Include="MySql.EMTrace\Readme.txt" Condition=" '$(Configuration)' == 'Commercial' "/>
+      <Plugins Include="EMTrace\src\bin\Release\net452\MySql.MonitorPlugin.dll" Condition=" '$(Configuration)' == 'Commercial' "/>
+      <Plugins Include="EMTrace\src\CHANGES" Condition=" '$(Configuration)' == 'Commercial' "/>
+      <Plugins Include="EMTrace\src\Readme.txt" Condition=" '$(Configuration)' == 'Commercial' "/>
     </ItemGroup>
 
     <RemoveDir Directories="tmp" ContinueOnError="true"/>
     <MakeDir Directories ="tmp"/>
     <Copy SourceFiles ="@(BinaryFiles)" DestinationFolder="tmp"/>
-    <Copy SourceFiles ="@(V45Assemblies)" DestinationFolder="tmp\v4.5.1"/>
+    <Copy SourceFiles ="@(V45Assemblies)" DestinationFolder="tmp\v4.5.2"/>
     <Copy SourceFiles="@(DocFiles)" DestinationFolder="tmp/Documentation"/>
     <Copy SourceFiles="@(LicenseFiles)" DestinationFolder="tmp/Documentation/Licenses for Third-Party Components"/>
     <Copy SourceFiles ="@(Plugins)" DestinationFolder="tmp\Plugins"/>
