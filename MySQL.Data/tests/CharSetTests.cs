@@ -49,10 +49,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void VarBinary()
     {
-      executeSQL("CREATE TABLE test (id int, name varchar(200) collate utf8_bin) charset utf8");
-      executeSQL("INSERT INTO test VALUES (1, 'Test1')");
+      executeSQL("CREATE TABLE Test (id int, name varchar(200) collate utf8_bin) charset utf8");
+      executeSQL("INSERT INTO Test VALUES (1, 'Test1')");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM test", Connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         Assert.True(reader.Read());
@@ -181,12 +181,12 @@ namespace MySql.Data.MySqlClient.Tests
       for (int i = 0; i < firstNames.Length; i++)
       {
         string sql2 = String.Format(
-          "INSERT INTO test( actor_id, first_name, last_name, last_update ) values ( {0}, '{1}', '{2}', '{3}' )",
+          "INSERT INTO Test( actor_id, first_name, last_name, last_update ) values ( {0}, '{1}', '{2}', '{3}' )",
           i, firstNames[i], lastNames[i], lastUpdates[i].ToString("yyyy/MM/dd hh:mm:ss"));
         executeSQL(sql2);
       }
 
-      string sql = "select actor_id, first_name, last_name, last_update from test";
+      string sql = "select actor_id, first_name, last_name, last_update from Test";
 
       using (var reader = ExecuteReader(sql))
       {
@@ -212,7 +212,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void UsingUtf32()
     {
-      executeSQL(@"CREATE TABLE `test` (
+      executeSQL(@"CREATE TABLE `Test` (
           `actor_id` smallint(5) unsigned NOT NULL DEFAULT '0',
           `first_name` varchar(45) NOT NULL,
           `last_name` varchar(45) NOT NULL,
@@ -226,12 +226,12 @@ namespace MySql.Data.MySqlClient.Tests
       for (int i = 0; i < firstNames.Length; i++)
       {
         string sql2 = string.Format(
-          "insert into `test`( actor_id, first_name, last_name, last_update ) values ( {0}, '{1}', '{2}', '{3}' )",
+          "insert into `Test`( actor_id, first_name, last_name, last_update ) values ( {0}, '{1}', '{2}', '{3}' )",
           i, firstNames[i], lastNames[i], lastUpdates[i].ToString("yyyy/MM/dd hh:mm:ss"));
         executeSQL(sql2);
       }
 
-      string sql = "select actor_id, first_name, last_name, last_update from `test`";
+      string sql = "select actor_id, first_name, last_name, last_update from `Test`";
 
       using (var reader = ExecuteReader(sql))
       {
@@ -360,10 +360,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void VariousCollations()
     {
-      executeSQL(@"CREATE TABLE test(`test` VARCHAR(255) NOT NULL) 
+      executeSQL(@"CREATE TABLE Test(`test` VARCHAR(255) NOT NULL) 
                             CHARACTER SET utf8 COLLATE utf8_swedish_ci");
-      executeSQL("INSERT INTO test VALUES ('myval')");
-      MySqlCommand cmd = new MySqlCommand("SELECT test FROM test", Connection);
+      executeSQL("INSERT INTO Test VALUES ('myval')");
+      MySqlCommand cmd = new MySqlCommand("SELECT test FROM Test", Connection);
       cmd.ExecuteScalar();
     }
 

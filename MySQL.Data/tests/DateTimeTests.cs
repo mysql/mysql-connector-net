@@ -173,7 +173,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters[0].Value = "2005-03-04";
       cmd.ExecuteNonQuery();
 
-      MySqlCommand cmd2 = new MySqlCommand("SELECT * FROM test", Connection);
+      MySqlCommand cmd2 = new MySqlCommand("SELECT * FROM Test", Connection);
       using (var reader = cmd2.ExecuteReader())
       {
         Assert.True(reader.Read());

@@ -390,7 +390,7 @@ namespace MySql.Data.MySqlClient.Tests
       int result = cmd.ExecuteNonQuery();
       Assert.Equal(1, result);
 
-      MySqlCommand cmd2 = new MySqlCommand("SELECT * FROM test", Connection);
+      MySqlCommand cmd2 = new MySqlCommand("SELECT * FROM Test", Connection);
       using (var reader = cmd2.ExecuteReader())
       {
         Assert.True(reader.Read());
@@ -466,7 +466,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters[1].Value = "short string";
       cmd.ExecuteNonQuery();
 
-      MySqlCommand cmd2 = new MySqlCommand("SELECT * FROM test", Connection);
+      MySqlCommand cmd2 = new MySqlCommand("SELECT * FROM Test", Connection);
       using (var reader = cmd2.ExecuteReader())
       {
         Assert.True(reader.Read());
@@ -659,7 +659,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters[3].Value = 3;
       cmd.ExecuteNonQuery();
 
-      MySqlCommand cmd2 = new MySqlCommand("SELECT * FROM test", Connection);
+      MySqlCommand cmd2 = new MySqlCommand("SELECT * FROM Test", Connection);
       using (var reader = cmd2.ExecuteReader())
       {
         Assert.True(reader.Read());
