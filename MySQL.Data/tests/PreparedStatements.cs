@@ -274,7 +274,7 @@ namespace MySql.Data.MySqlClient.Tests
         "PRIMARY KEY(id)) ENGINE=InnoDB DEFAULT CHARSET=latin1");
 
       string sql = "INSERT INTO `Test2` (`xpDOSG_Name`,`dtAdded`, `xpDOSG_Desc`,`Avatar`, `dtTime`) " +
-        "VALUES(?name, ?dt, ?desc, ?Avatar, NULL)";
+        "VALUES(?name, ?dt, ?desc, ?avatar, NULL)";
 
       MySqlCommand cmd = new MySqlCommand(sql, Connection);
 
@@ -799,7 +799,7 @@ namespace MySql.Data.MySqlClient.Tests
             PRIMARY KEY  USING BTREE (Id)) ENGINE=InnoDB DEFAULT CHARSET=latin1");
       executeSQL("INSERT INTO test(Id,TestValue) VALUES(1, 3000000000)");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT testValue FROM test WHERE id=@Id", Connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT testValue FROM test WHERE id=@id", Connection);
       cmd.Parameters.Add("@id", MySqlDbType.UInt32);
       cmd.Prepare();
 
