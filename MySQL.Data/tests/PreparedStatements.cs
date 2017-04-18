@@ -92,7 +92,8 @@ namespace MySql.Data.MySqlClient.Tests
       if (Fixture.Version < new Version(5, 6))
         executeSQL("CREATE TABLE Test (id INT NOT NULL, d DATE, dt DATETIME, tm TIME, ts TIMESTAMP, PRIMARY KEY(id))");
       else
-        executeSQL("CREATE TABLE Test (id INT NOT NULL, d DATE, dt DATETIME, tm TIME(6), ts TIMESTAMP, PRIMARY KEY(id))");
+        executeSQL(@"CREATE TABLE Test (id INT NOT NULL, d DATE, dt DATETIME, tm TIME(6), 
+                     ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY(id))");
 
       string sql = "INSERT INTO Test VALUES(?id, ?d, ?dt, ?tm, NULL)";
       MySqlCommand cmd = new MySqlCommand(sql, Connection);
