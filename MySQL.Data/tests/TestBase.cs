@@ -123,6 +123,7 @@ namespace MySql.Data.MySqlClient.Tests
         Console.WriteLine("database is empty in dispose");
 
       executeSQL(String.Format("DROP TABLE IF EXISTS `{0}`.Test", Connection.Database));
+      executeSQL(String.Format("DROP TABLE IF EXISTS `{0}`.test", Connection.Database));
       Cleanup();
       if (Connection != null && Connection.State == ConnectionState.Open)
         Connection.Close();

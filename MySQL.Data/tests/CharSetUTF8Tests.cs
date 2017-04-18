@@ -27,7 +27,7 @@ using Xunit;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class CharSetUTF8Tests : CharSetTests
+  public class CharSetUTF8Tests : TestBase
   {
     public CharSetUTF8Tests(TestFixture fixture) : base(fixture)
     {
@@ -388,14 +388,14 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void UTF8Parameters()
     {
-      executeSQL("CREATE TABLE test (id int(11) NOT NULL, " +
+      executeSQL("CREATE TABLE Test (id int(11) NOT NULL, " +
           "value varchar(100) NOT NULL, PRIMARY KEY (id)) " +
           "ENGINE=MyISAM DEFAULT CHARSET=utf8");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES (1, 'šđčćžŠĐČĆŽ')", Connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (1, 'šđčćžŠĐČĆŽ')", Connection);
       cmd.ExecuteNonQuery();
 
-      cmd.CommandText = "SELECT id FROM test WHERE value =  ?parameter";
+      cmd.CommandText = "SELECT id FROM Test WHERE value =  ?parameter";
       cmd.Parameters.Add("?parameter", MySqlDbType.VarString);
       cmd.Parameters[0].Value = "šđčćžŠĐČĆŽ";
       object o = cmd.ExecuteScalar();

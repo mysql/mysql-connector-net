@@ -389,7 +389,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE Test (t time)");
       executeSQL("INSERT INTO Test SET T='-07:24:00'");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM test", Connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       using (var reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -438,7 +438,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void BinaryTypes()
     {
-      executeSQL(@"CREATE TABLE Test (c1 VARCHAR(20), c2 VARBINARY(20),
+      executeSQL(@"CREATE TABLE test (c1 VARCHAR(20), c2 VARBINARY(20),
         c3 TEXT, c4 BLOB, c5 VARCHAR(20) CHARACTER SET BINARY)");
 
       MySqlCommand cmd = new MySqlCommand("SELECT * FROM test", Connection);
@@ -481,7 +481,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
-        MySqlCommand cmd = new MySqlCommand("SELECT * FROM test", c);
+        MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", c);
         using (var reader = cmd.ExecuteReader())
         {
           reader.Read();
@@ -500,7 +500,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE Test (id INT, `on` BOOLEAN, v TINYINT(2))");
       executeSQL("INSERT INTO Test VALUES (1,1,1), (2,0,0)");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM test", Connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       using (var reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -1150,7 +1150,7 @@ namespace MySql.Data.MySqlClient.Tests
       if (Fixture.Version < new Version(5, 7)) return;
 
       executeSQL("DROP TABLE IF EXISTS test");
-      executeSQL("CREATE TABLE `Test` (`ID` int NOT NULL AUTO_INCREMENT PRIMARY KEY, `Name` char(35) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL)");
+      executeSQL("CREATE TABLE `test` (`ID` int NOT NULL AUTO_INCREMENT PRIMARY KEY, `Name` char(35) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL)");
 
       MySqlCommand cmd = new MySqlCommand("INSERT INTO test (Name) VALUES ('Berlin')", Connection);
       cmd.ExecuteNonQuery();
