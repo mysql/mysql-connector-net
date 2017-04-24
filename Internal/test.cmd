@@ -11,7 +11,7 @@ sn.exe -Vr ../tests/bin/debug/net452/MySql.Data.Tests.dll
 
 REM =================== Now test! =======================================================
 dotnet test MySql.Data.Tests.csproj -f net452 -c Debug
-dotnet test MySql.Data.Tests.csproj -f netcoreapp1.1 -c Debug
+dotnet test MySql.Data.Tests.csproj -f netcoreapp1.0 -c Debug
 
 cd ..\..
 
