@@ -8,7 +8,7 @@
     <Authors>Oracle</Authors>
     <Company>Oracle</Company>
     <Product>MySql.Data.Tests</Product>
-    <TargetFrameworks>netcoreapp1.1;net452</TargetFrameworks>
+    <TargetFrameworks>netcoreapp1.0;net452</TargetFrameworks>
     <PackageId>MySql.Data.Tests</PackageId>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET;netcore;.Net Core;MySql Conector/Net Core;coreclr;C/NET;C/Net Core</PackageTags>
     <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
@@ -26,11 +26,11 @@
     <DelaySign>True</DelaySign>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='netcoreapp1.1'">
+  <PropertyGroup Condition="'$(TargetFramework)'=='netcoreapp1.0'">
     <DefineConstants>$(DefineConstants);NET_CORE;NETCORE10</DefineConstants>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp1.1'">
+  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp1.0'">
     <Compile Remove="Framework\net452\**" />
     <Compile Remove="Framework\net452\MediumTrust\*.cs"/>
     <EmbeddedResource Remove="Framework\net452\**" />
