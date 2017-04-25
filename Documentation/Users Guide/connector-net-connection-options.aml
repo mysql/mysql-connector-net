@@ -488,21 +488,6 @@
           <row>
             <entry>
               <para>
-                <literal>Old Syntax</literal>, <literal>OldSyntax</literal>,
-            <literal>Use Old Syntax</literal>,
-            <literal>UseOldSyntax</literal></para>
-            </entry>
-            <entry>
-              <para>false</para>
-            </entry>
-            <entry>
-              <para>This option was deprecated in Connector/Net 5.2.2. All code should now
-            be written using the '@' symbol as the parameter marker.</para>
-            </entry>
-          </row>
-          <row>
-            <entry>
-              <para>
                 <literal>Password</literal>, <literal>pwd</literal></para>
             </entry>
             <entry>

@@ -69,7 +69,6 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(false, sb.UseCompression);
       Assert.Equal("MYSQL", sb.PipeName);
       Assert.False(sb.Logging);
-      Assert.False(sb.UseOldSyntax);
       Assert.True(sb.AllowBatch);
       Assert.False(sb.ConvertZeroDateTime);
       Assert.Equal("MYSQL", sb.SharedMemoryName);

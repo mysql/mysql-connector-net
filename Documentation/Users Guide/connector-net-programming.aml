@@ -130,9 +130,7 @@
         user variables are also used. To help with this situation please
         see the documentation on the <literal>Allow User
         Variables</literal> connection string option, which can be found
-        here: <link xlink:href="c26b6c1a-1652-4d9d-ac74-96cee9531a3b"></link>. The
-        <literal>Old Syntax</literal> connection string option has now
-        been deprecated.
+        here: <link xlink:href="c26b6c1a-1652-4d9d-ac74-96cee9531a3b"></link>. 
       </para>
         </alert>
       </content>
