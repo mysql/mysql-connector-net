@@ -1,0 +1,144 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>MySql.Data.MySqlClient .Net Core Class Library</Description>
+    <Copyright>Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.</Copyright>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <VersionPrefix>6.10.2</VersionPrefix>
+    <Authors>Oracle</Authors>
+    <AssemblyName>MySql.Data</AssemblyName>
+    <TargetFrameworks>netcoreapp1.0;net452</TargetFrameworks>
+    <PackageId>MySql.Data</PackageId>
+    <PackageTags>MySql;.NET Connector;MySql Connector/NET;netcore;.Net Core;MySql Conector/Net Core;coreclr;C/NET;C/Net Core</PackageTags>
+    <PackageReleaseNotes>Review ReleaseNotes.txt for details.</PackageReleaseNotes>
+    <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
+    <PackageProjectUrl>http://dev.mysql.com/downloads/</PackageProjectUrl>
+    <PackageLicenseUrl>http://www.gnu.org/licenses/old-licenses/gpl-2.0.html</PackageLicenseUrl>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
+    <GenerateNeutralResourcesLanguageAttribute>false</GenerateNeutralResourcesLanguageAttribute>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>True</DelaySign>
+    <DocumentationFile>MySql.Data.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="docs\MySqlCommand.xml" />
+    <Content Include="docs\MySqlCommandBuilder.xml" />
+    <Content Include="docs\MySqlConnection.xml" />
+    <Content Include="docs\MySqlConnectionStringBuilder.xml" />
+    <Content Include="docs\MySqlDataAdapter.xml" />
+    <Content Include="docs\MySqlDataReader.xml" />
+    <Content Include="docs\MySqlException.xml" />
+    <Content Include="docs\MySqlHelper.xml" />
+    <Content Include="docs\MySqlParameter.xml" />
+    <Content Include="docs\MySqlParameterCollection.xml" />
+    <Content Include="docs\MySqlTransaction.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="keywords.txt" />
+    <EmbeddedResource Include="Properties\ReservedWords.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="..\..\Release Notes.txt">
+      <Pack>true</Pack>
+    </None>
+    <None Update="..\..\README">
+      <Pack>true</Pack>
+    </None>
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)'=='netcoreapp1.0'">
+    <DefineConstants>$(DefineConstants);NET_CORE;NETCORE10</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)'=='net452'">
+    <Compile Remove="**/netstandard/*.cs" />
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Drawing.Design" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Configuration.Install" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Runtime" />
+    <Reference Include="Microsoft.CSharp" />
+
+    <EmbeddedResource Include="keywords.txt;Resources.resx;ResourcesX.resx;Properties\ReservedWords.txt" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp1.0'">
+    <Compile Remove="**/net452/*.cs;Replication/*.cs" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="1.1.1" />
+    <PackageReference Include="System.Collections.NonGeneric" Version="4.3.0" />
+    <PackageReference Include="System.ComponentModel" Version="4.3.0" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="4.3.0" />
+    <PackageReference Include="System.ComponentModel.Primitives" Version="4.3.0" />
+    <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
+    <PackageReference Include="System.Net.Security" Version="4.3.0" />
+    <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
+    <PackageReference Include="System.Threading.Timer" Version="4.3.0" />
+    <PackageReference Include="System.Data.Common" Version="4.3.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.3.0" />
+    <PackageReference Include="System.Diagnostics.Process" Version="4.3.0" />
+    <PackageReference Include="System.IO.FileSystem.Primitives" Version="4.3.0" />
+    <PackageReference Include="System.IO.MemoryMappedFiles" Version="4.3.0" />
+    <PackageReference Include="System.Linq.Expressions" Version="4.3.0" />
+    <PackageReference Include="System.Net.Sockets" Version="4.3.0" />
+    <PackageReference Include="System.Reflection" Version="4.3.0" />
+    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />
+    <PackageReference Include="System.Resources.ResourceManager" Version="4.3.0" />
+    <PackageReference Include="System.Security.Principal.Windows" Version="4.3.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.3.0" />
+    <PackageReference Include="System.Diagnostics.TextWriterTraceListener" Version="4.3.0" />
+    <PackageReference Include="System.IO.Compression" Version="4.3.0" />
+    <PackageReference Include="System.Threading.ThreadPool" Version="4.3.0" />
+    <PackageReference Include="System.IO.Pipes" Version="4.3.0" />
+    <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
+    <PackageReference Include="System.Runtime.Serialization.Formatters" Version="4.3.0" />
+    <PackageReference Include="System.Threading.Tasks" Version="4.3.0" />
+  </ItemGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DefineConstants>$(DefineConstants);TRACE;DEBUG</DefineConstants>
+    <PreserveCompilationContext>true</PreserveCompilationContext>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DefineConstants>$(DefineConstants);TRACE;RELEASE</DefineConstants>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Update="Framework\net452\Installer.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>

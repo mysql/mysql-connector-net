@@ -1,0 +1,60 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>MySql.EntityFrameworkCore.Design.Tests Class Library</Description>
+    <Copyright>Copyright © 2017, Oracle and/or its affiliates. All rights reserved.</Copyright>
+    <VersionPrefix>6.10.2</VersionPrefix>
+    <Authors>Oracle</Authors>
+    <TargetFrameworks>netstandard1.6;net452</TargetFrameworks>
+    <AssemblyName>MySql.EntityFrameworkCore.Design.Tests</AssemblyName>
+    <PackageId>MySql.EntityFrameworkCore.Design.Tests</PackageId>
+    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+    <PackageTags>MySql;.NET Connector;MySql Connector/NET;netcore;.Net Core;MySql Conector/Net Core;coreclr;C/NET;C/Net Core;EF;Entity Framework</PackageTags>
+    <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
+    <PackageProjectUrl>http://dev.mysql.com/downloads/</PackageProjectUrl>
+    <PackageLicenseUrl>http://www.gnu.org/licenses/old-licenses/gpl-2.0.html</PackageLicenseUrl>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <!--<PackageTargetFallback Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
+    <RuntimeFrameworkVersion Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">1.0.4</RuntimeFrameworkVersion>-->
+    <AssemblyOriginatorKeyFile>../../ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>True</SignAssembly>
+    <DelaySign>true</DelaySign>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
+    <PackageReference Include="xunit" Version="2.2.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="1.1.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="1.1.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational.Design" Version="1.1.1" />
+  </ItemGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
+    <DefineConstants>$(DefineConstants);NETCORE10;NET_CORE</DefineConstants>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
+    <Compile Include="..\*.cs" Exclude="bin\**;obj\**;**\*.xproj;packages\**" />
+  </ItemGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <PreserveCompilationContext>true</PreserveCompilationContext>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <EmbeddedResource Include="Properties\sakiladb-schema.sql;Properties\world.sql" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
+    <EmbeddedResource Include="Properties\sakiladb-schema.sql;Properties\world.sql" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+</Project>
