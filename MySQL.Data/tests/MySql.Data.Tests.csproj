@@ -32,7 +32,7 @@
 
   <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp1.0'">
     <Compile Remove="Framework\net452\**" />
-    <Compile Remove="Framework\net452\MediumTrust\*.cs"/>
+    <Compile Remove="Framework\net452\MediumTrust\*.cs" />
     <EmbeddedResource Remove="Framework\net452\**" />
     <None Remove="Framework\net452\**" />
   </ItemGroup>
@@ -41,7 +41,7 @@
     <Compile Remove="Framework\netstandard\**" />
     <EmbeddedResource Remove="Framework\netstandard\**" />
     <None Remove="Framework\netstandard\**" />
-    <Compile Remove="Framework\net452\MediumTrust\*.*"/>
+    <Compile Remove="Framework\net452\MediumTrust\*.*" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Transactions" />
   </ItemGroup>
@@ -64,8 +64,9 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
-    <PackageReference Include="xunit" Version="2.2.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
+    <PackageReference Include="xunit" Version="2.3.0-beta1-build3642" />
+    <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.0-beta1-build3642" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.0-beta1-build1306" />
   </ItemGroup>
 
   <ItemGroup>
