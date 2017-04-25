@@ -10,8 +10,8 @@ sn.exe -Vr ../src/bin/debug/net452/MySql.Data.dll
 sn.exe -Vr ../tests/bin/debug/net452/MySql.Data.Tests.dll
 
 REM =================== Now test! =======================================================
-dotnet test MySql.Data.Tests.csproj -f net452 -c Debug
-dotnet test MySql.Data.Tests.csproj -f netcoreapp1.0 -c Debug
+dotnet xunit -framework net452 
+dotnet xunit -framework netcoreapp1.0 
 
 cd ..\..
 
