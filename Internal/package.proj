@@ -1,0 +1,132 @@
+<Project DefaultTargets="Package" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <UsingTask AssemblyFile="Installer\MSI\Binary\MyTasks.dll" TaskName="GetVersion"/>
+  <UsingTask AssemblyFile="Installer\MSI\Binary\MyTasks.dll" TaskName="ReplaceText"/>
+
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">GPL</Configuration>
+    <ProductVersion>3.0</ProductVersion>
+    <ProjectGuid>{910C89AD-F695-42c1-B9E5-EF01F80A14BC}</ProjectGuid>
+    <SchemaVersion>2.0</SchemaVersion>
+    <Postfix></Postfix>
+    <ProductConfig>Release</ProductConfig>
+    <OutputName>MySql.Data</OutputName>
+    <OutputType>Package</OutputType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Commercial' ">
+    <Postfix>-commercial</Postfix>
+  </PropertyGroup>
+
+  <Import Project="packages\MSBuildTasks.1.5.0.235\tools\MSBuild.Community.Tasks.Targets"/>
+
+  <Target Name="Package" DependsOnTargets="PackageClean;PackageInstall;PackageZip;PackageSource">
+  </Target>
+
+  <Target Name="PackageClean">
+    <RemoveDir Directories ="bin/$(Configuration)" ContinueOnError ="true"/>
+    <MakeDir Directories ="bin/$(Configuration)" ContinueOnError ="true"/>
+  </Target>
+
+  <Target Name="PackageInstall">
+    <GetVersion Assembly="MySql.Data/src/bin/Release/net452/mysql.data.dll" Format="{0}.{1}.{2}">
+      <Output TaskParameter = "AsString" PropertyName="Version"/>
+    </GetVersion>
+    <Copy SourceFiles="Installer/MSI/bin/$(Configuration)/mysql.data.msi"
+          DestinationFiles="bin/$(Configuration)/mysql-connector-net$(Postfix)-$(Version).msi"/>
+  </Target>
+
+  <ItemGroup>
+    <SourceFiles Include="**/**"
+          Exclude="**/tmp/**;**/bin/**;**/obj/**;**/packages/**;**/.svn/**;**/output/**;
+          **/user;**/debug/**;**/release/**;**/*.suo;**/cnet.snk;**/*.wixobj;
+          **/*.msi;**/*.msm;*.Design.*;*-banner.txt;Design/**;**/doc.xml;
+          **/installer/**;**/PackageLoadKey.txt;**/*.cache;
+          **/*.proj;**/COPYING;**/*.bak;**/*.user;**/*.SourceAnalysis;
+          **/MySql.Data.xml;**/*.InstallLog;**/*.bat;**/*.reg;**/thumbs.db;**/.bzr/**;
+          **/.bzr-mysql/**;**/UpgradeLog*.*;**/*.bzrignore;**/*.~??;
+		  **/.git/**;**/*.gitignore;**/EMTrace/**;**/Nuget*/**;
+		  **/Installer/CustomAction/**"/>
+    <SourceFiles Include="COPYING" Condition=" '$(Configuration)' == 'GPL' "/>
+    <SourceFiles Include="**/EMTrace/**;" 
+	      Exclude="**/tmp/**;**/bin/**;**/obj/**;"
+	      Condition=" '$(Configuration)' == 'Commercial' "/>
+  </ItemGroup>
+
+  <Target Name="PackageSource">
+    <RemoveDir Directories="tmp" ContinueOnError="true"/>
+    <MakeDir Directories ="tmp"/>
+    <Copy SourceFiles ="@(SourceFiles)" DestinationFolder="tmp/%(RecursiveDir)"/>
+    <Delete Files="tmp/Readme-commercial" Condition=" '$(Configuration)' == 'GPL' "/>
+    <Delete Files="tmp/License.MYSQL" Condition=" '$(Configuration)' == 'GPL' "/>
+    <Delete Files="tmp/Readme" Condition=" '$(Configuration)' == 'Commercial' "/>
+    <MV SourceFiles="tmp/README-Commercial" DestinationFiles="tmp/README" Condition=" '$(Configuration)' == 'Commercial' "/>
+
+    <ItemGroup>
+      <TmpFiles Include="tmp/**/*.cs"/>
+    </ItemGroup>
+
+    <!-- if we are not doing GPL, then we need to replace license text -->
+    <ReplaceText HeaderFile="Internal\GPL-Banner.txt"
+       NewHeaderFile="Internal\Commercial-Banner.txt"
+       Files="@(TmpFiles)" Condition=" '$(Configuration)' == 'Commercial' "/>
+
+    <ItemGroup>
+      <FilesToZip Include="$(MSBuildProjectDirectory)\tmp\**"/>
+    </ItemGroup>
+    <Zip ZipFileName="bin/$(Configuration)/mysql-connector-net$(Postfix)-$(Version)-src.zip"
+         Files="@(FilesToZip)" WorkingDirectory="$(MSBuildProjectDirectory)\tmp"/>
+
+    <!--    <RemoveDir Directories="tmp"/>-->
+  </Target>
+
+  <Target Name="PackageZip">
+    <ItemGroup>
+      <V45Assemblies Include="MySql.Data\src\bin\Release\net452\MySql.Data.dll"/>
+      <V45Assemblies Include="MySql.Web\src\bin\Release\net452\MySql.Web.dll"/>
+      <V45Assemblies Include="EntityFramework6\src\bin\Release\net452\MySql.Data.Entity.EF6.dll"/>
+      <V45Assemblies Include="EntityFrameworkCore\src\MySql.Data.EntityFrameworkCore\bin\Release\net452\MySQL.Data.EntityFrameworkCore.dll"/>      
+	    <V45Assemblies Include="EntityFrameworkCore\src\MySql.Data.EntityFrameworkCore.Design\bin\Release\net452\MySQL.Data.EntityFrameworkCore.Design.dll"/>      
+      <V45Assemblies Include="MySql.Data\src\bin\Release\net452\MySql.Data.xml"/>
+      <V45Assemblies Include="MySql.Web\src\bin\Release\net452\MySql.Web.xml"/>
+      <V45Assemblies Include="EntityFramework6\src\bin\Release\net452\MySql.Data.Entity.EF6.xml"/>
+      <V45Assemblies Include="EntityFrameworkCore\src\MySql.Data.EntityFrameworkCore\bin\Release\net452\MySQL.Data.EntityFrameworkCore.xml"/>           
+    </ItemGroup>
+
+    <ItemGroup>
+      <BinaryFiles Include="COPYING" Condition=" '$(Configuration)' == 'GPL' "/>
+      <BinaryFiles Include="README" Condition=" '$(Configuration)' == 'GPL' "/>
+      <BinaryFiles Include="README-Commercial" Condition=" '$(Configuration)' == 'Commercial' "/>
+      <BinaryFiles Include="License.MYSQL" Condition=" '$(Configuration)' == 'Commercial' "/>
+      <BinaryFiles Include="Release Notes.txt"/>
+      <BinaryFiles Include="CHANGES"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <DocFiles Include="Documentation\Output\ConnectorNET.chm"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <LicenseFiles Include="Documentation\Licenses for Third-Party Components\**"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Plugins Include="EMTrace\src\bin\Release\net452\MySql.MonitorPlugin.dll" Condition=" '$(Configuration)' == 'Commercial' "/>
+      <Plugins Include="EMTrace\src\CHANGES" Condition=" '$(Configuration)' == 'Commercial' "/>
+      <Plugins Include="EMTrace\src\Readme.txt" Condition=" '$(Configuration)' == 'Commercial' "/>
+    </ItemGroup>
+
+    <RemoveDir Directories="tmp" ContinueOnError="true"/>
+    <MakeDir Directories ="tmp"/>
+    <Copy SourceFiles ="@(BinaryFiles)" DestinationFolder="tmp"/>
+    <Copy SourceFiles ="@(V45Assemblies)" DestinationFolder="tmp\v4.5.2"/>
+    <Copy SourceFiles="@(DocFiles)" DestinationFolder="tmp/Documentation"/>
+    <Copy SourceFiles="@(LicenseFiles)" DestinationFolder="tmp/Documentation/Licenses for Third-Party Components"/>
+    <Copy SourceFiles ="@(Plugins)" DestinationFolder="tmp\Plugins"/>
+    <MV SourceFiles="tmp/README-Commercial" DestinationFiles="tmp/README" Condition=" '$(Configuration)' == 'Commercial' "/>
+    <ItemGroup>
+      <ZipFiles Include="$(MSBuildProjectDirectory)\tmp\**" />
+    </ItemGroup>
+    <Zip ZipFileName="bin/$(Configuration)/mysql-connector-net$(Postfix)-$(Version)-noinstall.zip"
+         Files="@(ZipFiles)" workingDirectory="$(MSBuildProjectDirectory)\tmp\"/>
+  </Target>
+</Project>

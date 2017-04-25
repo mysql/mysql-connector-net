@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>MySql.EMTrace Testing Library</Description>
+    <Copyright>Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.</Copyright>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <VersionPrefix>6.10.2</VersionPrefix>
+    <Authors>Oracle</Authors>
+    <TargetFramework>net452</TargetFramework>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <AssemblyName>MySql.EMTrace.Tests</AssemblyName>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
+    <GenerateNeutralResourcesLanguageAttribute>false</GenerateNeutralResourcesLanguageAttribute>
+    <FileVersion>6.10.2.0</FileVersion>
+    <SignAssembly>True</SignAssembly>
+    <DelaySign>True</DelaySign>
+    <AssemblyOriginatorKeyFile>..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\MySQL.Data\src\Properties\VersionInfo.cs" Link="Properties\VersionInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="xunit" Version="2.2.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\MySQL.Data\src\MySql.Data.csproj" />
+    <ProjectReference Include="..\src\MySql.EMTrace.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Configuration" />
+  </ItemGroup>
+
+
+</Project>
