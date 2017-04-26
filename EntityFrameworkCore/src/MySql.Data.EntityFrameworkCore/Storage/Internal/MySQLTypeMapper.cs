@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -94,23 +94,24 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
         { "decimal", _decimal },
         { "double", _double },
         { "float", _double },
-        {"int", _int},        
-        { "mediumint", _int },        
+        { "int", _int },
+        { "mediumint", _int },
         { "real", _real },
         { "smallint", _smallint },
         { "tinyint", _tinyint },
-        { "char", _char },        
-        { "varchar", _varchar},
-        { "longtext", _longText},
-        { "mediumtext", _mediumText},
-        { "text", _Text},
-        { "tinytext", _tinyText},
+        { "char", _char },
+        { "varchar", _varchar },
+        { "longtext", _longText },
+        { "mediumtext", _mediumText },
+        { "text", _Text },
+        { "tinytext", _tinyText },
         { "datetime", _datetime },
         { "datetimeoffset", _datetimeoffset },
         { "timestamp", _datetime },
         { "bit", _bit },
         { "string", _varchar },
-        { "blob", _varbinary }
+        { "blob", _varbinary },
+        { "json", _varcharmax }
       };
 
       _clrTypeMappings
