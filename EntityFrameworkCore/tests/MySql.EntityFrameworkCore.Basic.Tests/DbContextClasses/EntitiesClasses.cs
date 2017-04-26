@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
 {
@@ -187,4 +188,14 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
         public DateTimeOffset Created { get; set; }
 
     }
+
+  public class JsonData
+  {
+    [Key]
+    [Column(TypeName = "smallint")]
+    public int Id { get; set; }
+
+    [Column(TypeName = "json")]
+    public string jsoncol { get; set; }
+  }
 }
