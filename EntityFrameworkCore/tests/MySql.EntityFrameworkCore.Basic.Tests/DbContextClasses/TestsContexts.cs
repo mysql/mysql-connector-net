@@ -53,7 +53,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
     public DbSet<Blog> Blogs { get; set; }
     public DbSet<Post> Posts { get; set; }
 
-    public SimpleContext(DbContextOptions options) : base(options)
+    public SimpleContext(DbContextOptions options): base(options)
     {      
     }
 
@@ -87,7 +87,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
     public TestsContext()
     { }
 
-    public TestsContext(DbContextOptions options) : base(options)
+    public TestsContext(DbContextOptions options): base(options)
     {
     }   
     
@@ -343,6 +343,20 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
             .HasColumnType("mediumblob")
             .HasMaxLength(16777215);
       });
+    }
+  }
+
+  public class WorldContext : MyTestContext
+  {
+    DbSet<Countries> Countries { get; set; }
+    DbSet<Continents> Continents { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+      base.OnModelCreating(modelBuilder);
+      modelBuilder.Entity<Continents>()
+        .ToTable("ContinentList")
+        .HasKey(p => p.Code);
     }
   }
 }

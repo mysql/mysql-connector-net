@@ -229,4 +229,22 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
     public DateTime BuildingName16 { get; set; }
     public short BuildingName17 { get; set; }
   }
+
+  [Table("CountryList")]
+  public class Countries
+  {
+    [Key]
+    public string Code { get; set; }
+    public string Name { get; set; }
+    public string Continent { get; set; }
+    public string Region { get; set; }
+    public int IndepYear { get; set; }
+  }
+
+  public class Continents
+  {
+    public string Code { get; set; }
+
+    public string Name { get; set; }
+  }
 }
