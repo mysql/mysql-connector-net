@@ -990,20 +990,6 @@ namespace MySql.Data.MySqlClient
     }
     #endregion
 
-    #region Fabric Properties
-
-    public string FabricGroup { get; internal set; }
-
-    public string ShardingTable { get; internal set; }
-
-    public object ShardingKey { get; internal set; }
-
-    public int? FabricServerMode { get; internal set; }
-
-    public int? FabricScope { get; internal set; }
-
-    #endregion
-
     #region XProperties
 
     [Description("X DevApi: enables the use of SSL as required")]
