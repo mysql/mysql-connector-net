@@ -11,7 +11,7 @@ sn.exe -Vr ../tests/bin/debug/net452/MySql.Data.Tests.dll
 
 REM =================== Now test! =======================================================
 dotnet xunit -framework net452 
-dotnet xunit -framework netcoreapp1.0 
+dotnet xunit -framework netcoreapp1.1
 
 cd ..\..
 

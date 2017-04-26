@@ -36,8 +36,6 @@ REM ================== Sign netstandard assemblies ============================
 sn.exe -Rca  MySql.Data\src\bin\release\netcoreapp1.0\MySql.Data.dll ConnectorNet
 sn.exe -Rca  EntityFrameworkCore\src\MySql.Data.EntityFrameworkCore\bin\release\netcoreapp1.0\MySql.Data.EntityFrameworkCore.dll ConnectorNet
 
-dotnet pack MySql.Data/src/MySql.Data.csproj -c Release -o ..\..\NugetPkgs\Package
-dotnet pack MySql.Web/src/MySql.Web.csproj -c Release -o ..\..\NugetPkgs\Package
 
 
 

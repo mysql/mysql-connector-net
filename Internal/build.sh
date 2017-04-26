@@ -1,11 +1,11 @@
 #!/bin/bash
 
-cd MySQL.Data
+cd MySQL.Data/src
 dotnet restore
-dotnet build -c Release -f netcoreapp1.0
+dotnet build -c Release -f netstandard1.3
 
-cd ../EntityFrameworkCore
+cd ../EntityFrameworkCore/src
 dotnet restore
-dotnet build -c Release -f netcoreapp1.0
+dotnet build -c Release -f netstandard1.3
 
 

@@ -1,4 +1,4 @@
-// Copyright © 2004, 2016 Oracle and/or its affiliates. All rights reserved.
+// Copyright ï¿½ 2004, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -468,27 +468,6 @@ namespace MySql.Data.MySqlClient
     public string Platform => Is64BitOS() ? "x86_64" : "x86_32";
 #endif
 
-    [DisplayName("program_name")]
-    public string ProgramName
-    {
-      get
-      {
-        string name = Environment.GetCommandLineArgs()[0];
-        try
-        {
-          string path = name.Trim('"');
-          name = System.IO.Path.GetFileName(path);
-          if (Assembly.GetEntryAssembly() != null)
-            name = Assembly.GetEntryAssembly().ManifestModule.Name;
-        }
-        catch (Exception ex)
-        {
-          name = ClientName;
-          System.Diagnostics.Debug.WriteLine(ex.ToString());
-        }
-        return name;
-      }
-    }
 
     [DisplayName("_os")]
     public string OS

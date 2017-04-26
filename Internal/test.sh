@@ -6,5 +6,5 @@ fi
 
 cd MySQL.Data/tests
 dotnet restore MySql.Data.Tests.csproj
-dotnet xunit -framework netcoreapp1.0 
+dotnet xunit -framework netcoreapp1.1
 cd ../..
