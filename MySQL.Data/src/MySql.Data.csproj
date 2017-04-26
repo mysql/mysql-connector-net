@@ -7,7 +7,7 @@
     <VersionPrefix>6.10.2</VersionPrefix>
     <Authors>Oracle</Authors>
     <AssemblyName>MySql.Data</AssemblyName>
-    <TargetFrameworks>netcoreapp1.0;net452</TargetFrameworks>
+    <TargetFrameworks>netstandard1.3;net452</TargetFrameworks>
     <PackageId>MySql.Data</PackageId>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET;netcore;.Net Core;MySql Conector/Net Core;coreclr;C/NET;C/Net Core</PackageTags>
     <PackageReleaseNotes>Review ReleaseNotes.txt for details.</PackageReleaseNotes>
@@ -58,7 +58,7 @@
     </None>
   </ItemGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='netcoreapp1.0'">
+  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.3'">
     <DefineConstants>$(DefineConstants);NET_CORE;NETCORE10</DefineConstants>
   </PropertyGroup>
 
@@ -81,7 +81,7 @@
     <EmbeddedResource Include="keywords.txt;Resources.resx;ResourcesX.resx;Properties\ReservedWords.txt" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp1.0'">
+  <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.3'">
     <Compile Remove="**/net452/*.cs;Replication/*.cs" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="1.1.1" />
     <PackageReference Include="System.Collections.NonGeneric" Version="4.3.0" />

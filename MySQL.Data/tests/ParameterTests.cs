@@ -491,22 +491,6 @@ namespace MySql.Data.MySqlClient.Tests
     }
 #endif
 
-    /// <summary>
-    /// Bug #13991 oldsyntax configuration and ParameterMarker value bug 
-    /// </summary>
-    [Fact]
-    public void SetOldSyntaxAfterCommandCreation()
-    {
-      executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME, ts TIMESTAMP, PRIMARY KEY(id))");
-
-      MySqlConnection c = new MySqlConnection(Connection.ConnectionString + ";old syntax=yes");
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id) VALUES (@id)", c);      
-      cmd.Parameters.AddWithValue("@id", 2);
-      c.Open();
-      cmd.ExecuteNonQuery();
-      c.Close();
-    }
-
     [Fact]
     public void UseAtSignForParameters()
     {
