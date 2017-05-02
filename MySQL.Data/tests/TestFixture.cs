@@ -56,13 +56,13 @@ namespace MySql.Data.MySqlClient.Tests
 
       var settings = new MySqlConnectionStringBuilder();
       settings.Server = "localhost";
-      var port = Environment.GetEnvironmentVariable("MYSQL_PORT")
+      var port = Environment.GetEnvironmentVariable("MYSQL_PORT");
       settings.Port = port == null ? 3306 : UInt32.Parse(port);
       settings.UserID = "root";
       settings.Password = null;
-      var memName = Environment.GetEnvironmentVariable("MYSQL_MEM")
+      var memName = Environment.GetEnvironmentVariable("MYSQL_MEM");
       settings.SharedMemoryName = memName == null ? "MySQLSocket" : memName;
-      var pipeName = Environment.GetEnvironmentVariable("MYSQL_PIPE")
+      var pipeName = Environment.GetEnvironmentVariable("MYSQL_PIPE");
       settings.PipeName = pipeName == null ? "MySQLSocket" : pipeName;
       settings.PersistSecurityInfo = true;
       settings.AllowUserVariables = true;
