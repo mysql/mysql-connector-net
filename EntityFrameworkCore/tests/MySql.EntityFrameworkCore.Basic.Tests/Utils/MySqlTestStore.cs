@@ -51,72 +51,47 @@ namespace MySql.Data.EntityFrameworkCore.Tests
 
   public class MySQLTestStore : IDisposable
   {
-#if NETCORE10            
-        static string pathandfile = Path.GetFullPath(@"../..") + @"/appsettings.json";
-        private static ConfigUtils config = new ConfigUtils(pathandfile);
-       
-#endif
-
-        public static string baseConnectionString
+    public static string baseConnectionString
     {
-        get
-        {
-            return $"server=localhost;user id=root;password=;port={Port()};sslmode=Required;";
-        }
+        get { return $"server=localhost;user id=root;password=;port={Port()};sslmode=Required;pooling=false;"; }
     }
 
     public static string rootConnectionString
     {
-        get
-        {
-            return $"server=localhost;user id=root;password=;port={Port()};sslmode=Required;";
-        }
+        get { return $"server=localhost;user id=root;password=;port={Port()};sslmode=Required;pooling=false;"; }
     }
 
     private static string Port()
     {
-
-        string port = string.Empty;
-
-#if NETCORE10
-       port = config.GetPort();
-#else
-       port= "3305";
-#endif
-
-       if (!string.IsNullOrEmpty(port))
-      {
-          return port;
-      }
-
-      return "3306";
+      var port = Environment.GetEnvironmentVariable("MYSQL_PORT");
+      return port == null ? "3306" : port;        
     }
 
     public static void CreateDatabase(string databaseName, bool deleteifExists = false, string script = null)
     {
-            if (script != null)
-            {
-                if (deleteifExists)
-                   script = "Drop database if exists [database0];"  + script;
+        if (script != null)
+        {
+            if (deleteifExists)
+                script = "Drop database if exists [database0];"  + script;
 
-                script = script.Replace("[database0]", databaseName);
-                //execute
-                using (var cnn = new MySqlConnection(rootConnectionString))
-                {
-                    cnn.Open();
-                    MySqlScript s = new MySqlScript(cnn, script);
-                    s.Execute();
-                }
-            }
-            else
+            script = script.Replace("[database0]", databaseName);
+            //execute
+            using (var cnn = new MySqlConnection(rootConnectionString))
             {
-                using (var cnn = new MySqlConnection(rootConnectionString))
-                {
-                    cnn.Open();                    
-                    var cmd = new MySqlCommand(string.Format("Drop database {0}; Create Database {0};", databaseName), cnn);
-                    cmd.ExecuteNonQuery();                    
-                }
+                cnn.Open();
+                MySqlScript s = new MySqlScript(cnn, script);
+                s.Execute();
             }
+        }
+        else
+        {
+            using (var cnn = new MySqlConnection(rootConnectionString))
+            {
+                cnn.Open();                    
+                var cmd = new MySqlCommand(string.Format("Drop database {0}; Create Database {0};", databaseName), cnn);
+                cmd.ExecuteNonQuery();                    
+            }
+        }
     }
 
     public static void Execute(string sql)
@@ -144,9 +119,10 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       MySqlConnectionStringBuilder csb = new MySqlConnectionStringBuilder();
       csb.Database = databasename;
       csb.Port = Convert.ToUInt32(Port());
-      csb.UserID = "test";
-      csb.Password = "test";
+      csb.UserID = "root";
+      csb.Password = "";
       csb.Server = "localhost";
+      csb.Pooling = false;
       csb.SslMode = MySqlSslMode.None;
 
       return csb.ConnectionString;
