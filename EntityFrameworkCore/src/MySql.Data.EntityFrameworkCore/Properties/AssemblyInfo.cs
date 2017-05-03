@@ -50,4 +50,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("540e7b3c-bd0b-4980-96d1-5d140d303f7e")]
-//[assembly: AssemblyKeyName("ConnectorNet")]
+
+#if !DEBUG
+[assembly: AssemblyKeyName("ConnectorNet")]
+#endif

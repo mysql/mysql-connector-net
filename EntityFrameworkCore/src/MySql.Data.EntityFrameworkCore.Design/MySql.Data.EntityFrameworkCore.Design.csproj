@@ -20,9 +20,6 @@
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
-    <AssemblyOriginatorKeyFile>../../../ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
-    <SignAssembly>True</SignAssembly>
-    <DelaySign>True</DelaySign>
   </PropertyGroup>
 
   <ItemGroup>
