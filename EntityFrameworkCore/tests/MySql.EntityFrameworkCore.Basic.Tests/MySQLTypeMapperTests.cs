@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,6 +20,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.EntityFrameworkCore.Storage.Internal;
@@ -27,107 +28,87 @@ using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using MySql.Data.MySqlClient;
 using System;
 using System.Diagnostics;
+using System.Linq;
+using System.Text;
 using Xunit;
 
 namespace EntityFrameworkCore.Basic.Tests
 {
-    public class MySQLTypeMapperTests : RelationalTypeMapperTestBase
+  public class MySQLTypeMapperTests
+  {
+    [Fact]
+    static void InsertAllDataTypes()
     {
-        [Fact]
-        public void ReadTimeOffset()
+      DateTime now = new DateTime(DateTime.Now.Ticks / 10 * 10);
+      using (var context = new AllDataTypesContext())
+      {
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
+
+        context.AllDataTypes.Add(new AllDataTypes()
         {
-            //var cnn = new MySqlConnection("server = localhost; userid = root; database=db-quickcontext; port=3305; ");
-            //cnn.Open();
-            //var cmd = new MySqlCommand(@"Insert into quickentity (city, name) values ('01/01/01', 'namecolumn')", cnn);
-            //cmd.ExecuteNonQuery();
-            //cmd.CommandText = "Select city, name from quickentity";            
-            //var reader = cmd.ExecuteReader();
+          AddressNumber1 = 1,
+          AddressNumber2 = 2,
+          AddressNumber3 = 3,
+          AddressNumber4 = 4,
+          AddressNumber5 = 5l,
+          AddressNumber6 = 6.36f,
+          AddressNumber7 = 7.49f,
+          AddressNumber8 = 8.64d,
+          AddressNumber9 = 9.81m,
+          AddressNumber10 = 10,
+          BuildingName1 = "BuildingName1",
+          BuildingName2 = "BuildingName2",
+          BuildingName3 = "BuildingName3",
+          BuildingName4 = "BuildingName4",
+          BuildingName5 = "BuildingName5",
+          BuildingName6 = UTF8Encoding.UTF8.GetBytes("BuildingName6"),
+          BuildingName7 = UTF8Encoding.UTF8.GetBytes("BuildingName7"),
+          BuildingName8 = UTF8Encoding.UTF8.GetBytes("BuildingName8"),
+          BuildingName9 = UTF8Encoding.UTF8.GetBytes("BuildingName9"),
+          BuildingName10 = UTF8Encoding.UTF8.GetBytes("BuildingName10"),
+          BuildingName11 = "small",
+          BuildingName12 = "small,medium,large,medium",
+          BuildingName13 = now,
+          BuildingName14 = now,
+          BuildingName15 = now.TimeOfDay,
+          BuildingName16 = now,
+          BuildingName17 = (short)now.Year
+        });
+        context.SaveChanges();
+      }
 
-            //while (reader.Read())
-            //{
-            //    Debug.Write("" + reader.GetFieldValue<DateTime>(0).ToString());
-            //}
-            //cnn.Close();
-
-
-
-
-
-
-
-        }
-
-
-
-        [Fact]
-        public void SimpleMappingsToDDLTypes()
-        {
-
-            //ContextUtils.Instance.CreateModelBuilder();
-
-
-            //var serviceCollection = new ServiceCollection();
-            //serviceCollection.AddEntityFrameworkMySQL()
-            //.AddDbContext<QuickContext>();
-
-            //var serviceProvider = serviceCollection.BuildServiceProvider();
-
-            //using (var context = serviceProvider.GetRequiredService<QuickContext>())
-            //{
-            //    var e = context.FindEntityType
-            //       protected static EntityType CreateEntityType()
-            //=> (EntityType)CreateModel().FindEntityType(typeof(MyType));
-
-            //    Assert.Equal("datetime", GetTypeMapping(typeof(DateTimeOffset)).StoreType);
-        }
-
-        private static RelationalTypeMapping GetTypeMapping(
-          Type propertyType,
-          bool? nullable = null,
-          int? maxLength = null,
-          bool? unicode = null)
-        {
-            //var property = CreateEntityType().AddProperty("MyProp", propertyType);
-
-            //if (nullable.HasValue)
-            //{
-            //    property.IsNullable = nullable.Value;
-            //}
-
-            //if (maxLength.HasValue)
-            //{
-            //    property.SetMaxLength(maxLength);
-            //}
-
-            //if (unicode.HasValue)
-            //{
-            //    property.IsUnicode(unicode);
-            //}
-
-            //return new MySQLTypeMapper().GetMapping();
-
-            return null;
-        }
-
-    }   
- }
-
-public class RelationalTypeMapperTestBase
-{
-    //protected static EntityType CreateEntityType()
-    //    => (EntityType)CreateModel().FindEntityType(typeof(MyType));
-
-
-    //protected static IModel CreateModel()
-    //{
-    //    var modelBuilder = MySql.Data.EntityFrameworkCore.TestsContextUtils.Instance.CreateModelBuilder();
-    //    buildAction(modelBuilder);
-
-
-    //    var builder = TestHelpers.Instance.CreateConventionBuilder();
-
-    //}
+      using (var context = new AllDataTypesContext())
+      {
+        var data = context.AllDataTypes.First();
+        Assert.Equal(1, data.AddressNumber1);
+        Assert.Equal(2, data.AddressNumber2);
+        Assert.Equal(3, data.AddressNumber3);
+        Assert.Equal(4, data.AddressNumber4);
+        Assert.Equal(5l, data.AddressNumber5);
+        Assert.Equal(6.36f, data.AddressNumber6);
+        Assert.Equal(7.49f, data.AddressNumber7);
+        Assert.Equal(8.64d, data.AddressNumber8);
+        Assert.Equal(9.81m, data.AddressNumber9);
+        Assert.Equal(10, data.AddressNumber10);
+        Assert.Equal("BuildingName1", data.BuildingName1);
+        Assert.Equal("BuildingName2", data.BuildingName2);
+        Assert.Equal("BuildingName3", data.BuildingName3);
+        Assert.Equal("BuildingName4", data.BuildingName4);
+        Assert.Equal("BuildingName5", data.BuildingName5);
+        Assert.Equal("BuildingName6".PadRight(120,'\0'), UTF8Encoding.UTF8.GetString(data.BuildingName6));
+        Assert.Equal("BuildingName7", UTF8Encoding.UTF8.GetString(data.BuildingName7));
+        Assert.Equal("BuildingName8", UTF8Encoding.UTF8.GetString(data.BuildingName8));
+        Assert.Equal("BuildingName9", UTF8Encoding.UTF8.GetString(data.BuildingName9));
+        Assert.Equal("BuildingName10", UTF8Encoding.UTF8.GetString(data.BuildingName10));
+        Assert.Equal("small", data.BuildingName11);
+        Assert.Equal("small,medium,large", data.BuildingName12);
+        Assert.Equal(now.Date, data.BuildingName13);
+        Assert.Equal(now, data.BuildingName14);
+        Assert.Equal(now.TimeOfDay, data.BuildingName15);
+        Assert.Equal(now, data.BuildingName16);
+        Assert.Equal(now.Year, data.BuildingName17);
+      }
+    }
+  }
 }
-
-
-

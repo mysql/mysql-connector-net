@@ -2,6 +2,8 @@
 - Fixed: EF core database first support fails for a database with views. Orabug #25493086
 - Fixed: EF Core database first doesn't support mysql sample world/sakila database. Orabug #25493336
 - Fixed: EF Core supports Json types. Oracle Bug #25493143
+- Fixed: EF Core database first doesn't supprt multiple datatypes (bin, mediumblob, date, etc). Oracle Bug #25493209
+
 
 6.10.1
 - Support for Database first in Entity Framework Core 1.1
