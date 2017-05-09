@@ -33,13 +33,8 @@ using System.Text;
 using Xunit;
 using MySql.Data.Entity;
 using MySql.Data.MySqlClient;
-#if EF6
 using System.Data.Entity.Core.EntityClient;
 using System.Data.Entity.Core.Metadata.Edm;
-#else
-using System.Data.EntityClient;
-using System.Data.Metadata.Edm;
-#endif
 
 namespace MySql.Data.Entity.Migrations.Tests
 {
@@ -52,9 +47,7 @@ namespace MySql.Data.Entity.Migrations.Tests
     public void SetFixture(SetUpMigrationsTests data)
     {
       st = data;
-#if EF6
       Database.SetInitializer(new MigrateDatabaseToLatestVersion<BlogContext, EF6Configuration>()); 
-#endif
     }    
 
     private MySqlConnection GetConnectionFromContext(DbContext ctx)

@@ -42,9 +42,9 @@ namespace MySql.Data.MySqlClient.Tests
     public Version Version { get; set; }
     public int MaxPacketSize { get; set; }
 
-    public void Setup(TestBase testClass)
+    public void Setup(TestBase testClass, bool reinitDatabase = false)
     {
-      if (!String.IsNullOrEmpty(Namespace)) return;
+      if (!String.IsNullOrEmpty(Namespace) && !reinitDatabase) return;
 
       Debug.Assert(testClass != null);
 

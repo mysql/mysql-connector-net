@@ -1,4 +1,4 @@
-// Copyright © 2013, 2017 Oracle and/or its affiliates. All rights reserved.
+// Copyright ï¿½ 2013, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -23,88 +23,76 @@
 using System.Data;
 using MySql.Data.MySqlClient;
 using System.Linq;
-using MySql.Data.Entity.Tests.Properties;
 using Xunit;
 
 namespace MySql.Data.Entity.Tests
 {
-  public class SetOperators : IUseFixture<SetUpEntityTests>
+  public class SetOperators : IClassFixture<DefaultFixture>
   {
-    private SetUpEntityTests st;
+    private DefaultFixture st;
 
-    public void SetFixture(SetUpEntityTests data)
+    public SetOperators(DefaultFixture fixture)
     {
-      st = data;
+      st = fixture;
+      if (st.Setup(this.GetType()))
+        LoadData();
     }
+
+    void LoadData()
+    {
+      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      {
+        ctx.Products.Add(new Product() { Name = "Garbage Truck", MinAge = 8 });
+        ctx.Products.Add(new Product() { Name = "Fire Truck", MinAge = 12 });
+        ctx.Products.Add(new Product() { Name = "Hula Hoop", MinAge = 18 });
+        ctx.SaveChanges();
+      }
+    }
+
     [Fact]
     public void Any()
     {
-      MySqlDataAdapter da = new MySqlDataAdapter(
-          @"SELECT a.id FROM authors a WHERE NOT EXISTS(SELECT * FROM books b WHERE b.author_id=a.id)", st.conn);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
-
-      int i = 0;
       // find all authors that are in our db with no books
-      using (testEntities context = new testEntities())
+      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
       {
-        var authors = from a in context.Authors where !a.Books.Any() select a;
-
-        string sql = authors.ToTraceString();
-        st.CheckSql(sql, SQLSyntax.Any);
-
-        foreach (Author a in authors)
-          Assert.Equal(dt.Rows[i++]["id"], a.Id);
+        var q = from a in ctx.Authors where !a.Books.Any() select a;
+        string sql = q.ToString();
+        st.CheckSql(sql,
+          @"SELECT `Extent1`.`Id`, `Extent1`.`Name`, `Extent1`.`Age`, `Extent1`.`Address_City`, `Extent1`.`Address_Street`, 
+          `Extent1`.`Address_State`, `Extent1`.`Address_ZipCode` FROM `Authors` AS `Extent1` WHERE NOT EXISTS(SELECT
+          1 AS `C1` FROM `Books` AS `Extent2` WHERE `Extent1`.`Id` = `Extent2`.`Author_Id`)");
       }
     }
 
     [Fact]
     public void FirstSimple()
     {
-      MySqlCommand cmd = new MySqlCommand("SELECT id FROM orders", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT id FROM products", st.Connection);
       int id = (int)cmd.ExecuteScalar();
 
-      using (testEntities context = new testEntities())
+      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
       {
-        var q = from o in context.Orders
-                select o;
-        Order order = q.First() as Order;
+        var q = from p in ctx.Products
+                select p;
+        Product product = q.First() as Product;
 
-        Assert.Equal(id, order.Id);
+        Assert.Equal(id, product.Id);
       }
     }
 
     [Fact]
     public void FirstPredicate()
     {
-      MySqlCommand cmd = new MySqlCommand("SELECT id FROM orders WHERE freight > 100", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT id FROM products WHERE minage > 8", st.Connection);
       int id = (int)cmd.ExecuteScalar();
 
-      using (testEntities context = new testEntities())
+      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
       {
-        var q = from o in context.Orders
-                where o.Freight > 100
-                select o;
-        Order order = q.First() as Order;
-        Assert.Equal(id, order.Id);
-      }
-    }
-
-    [Fact]
-    public void Distinct()
-    {
-      using (testEntities context = new testEntities())
-      {
-        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Companies LIMIT 2", st.conn);
-        DataTable dt = new DataTable();
-        da.Fill(dt);
-
-        int i = 0;
-        var query = context.Companies.Top("2");
-        foreach (Company c in query)
-        {
-          Assert.Equal(dt.Rows[i++]["id"], c.Id);
-        }
+        var q = from p in ctx.Products
+                where p.MinAge > 8
+                select p;
+        Product product = q.First() as Product;
+        Assert.Equal(id, product.Id);
       }
     }
   }

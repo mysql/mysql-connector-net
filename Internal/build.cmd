@@ -25,16 +25,16 @@ msbuild Installer\CustomAction\MySql.ConnectorInstaller.csproj /p:Configuration=
 msbuild Documentation\help.shfbproj /p:Configuration=Release
 
 REM ================== sign assemblies ========================================
-sn.exe -Rca  Installer\CustomAction\bin\Release\MySql.ConnectorInstaller.CA.dll ConnectorNet
-sn.exe -Rca  MySql.Data\src\bin\release\net452\MySql.Data.dll ConnectorNet
-sn.exe -Rca  EntityFramework6\src\bin\release\net452\MySql.Data.Entity.EF6.dll ConnectorNet
-sn.exe -Rca  EntityFrameworkCore\src\MySql.Data.EntityFrameworkCore\bin\release\net452\MySql.Data.EntityFrameworkCore.dll ConnectorNet
-sn.exe -Rca  MySql.Web\src\bin\release\net452\MySql.Web.dll ConnectorNet
-sn.exe -Rca  EMTrace\src\bin\Release\net452\MySql.MonitorPlugin.dll ConnectorNet
+REM sn.exe -Rca  Installer\CustomAction\bin\Release\MySql.ConnectorInstaller.CA.dll ConnectorNet
+REM sn.exe -Rca  MySql.Data\src\bin\release\net452\MySql.Data.dll ConnectorNet
+REM sn.exe -Rca  EntityFramework6\src\bin\release\net452\MySql.Data.Entity.EF6.dll ConnectorNet
+REM sn.exe -Rca  EntityFrameworkCore\src\MySql.Data.EntityFrameworkCore\bin\release\net452\MySql.Data.EntityFrameworkCore.dll ConnectorNet
+REM sn.exe -Rca  MySql.Web\src\bin\release\net452\MySql.Web.dll ConnectorNet
+REM sn.exe -Rca  EMTrace\src\bin\Release\net452\MySql.MonitorPlugin.dll ConnectorNet
 
 REM ================== Sign netstandard assemblies ============================
-sn.exe -Rca  MySql.Data\src\bin\release\netstandard1.3\MySql.Data.dll ConnectorNet
-sn.exe -Rca  EntityFrameworkCore\src\MySql.Data.EntityFrameworkCore\bin\release\netstandard1.3\MySql.Data.EntityFrameworkCore.dll ConnectorNet
+REM sn.exe -Rca  MySql.Data\src\bin\release\netstandard1.3\MySql.Data.dll ConnectorNet
+REM sn.exe -Rca  EntityFrameworkCore\src\MySql.Data.EntityFrameworkCore\bin\release\netstandard1.3\MySql.Data.EntityFrameworkCore.dll ConnectorNet
 
 
 

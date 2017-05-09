@@ -22,386 +22,178 @@
 
 using System;
 using System.Linq;
-using Xunit;
-using MySql.Data.MySqlClient;
 using System.Data.Common;
 using System.Data;
-using MySql.Data.Entity.Tests.Properties;
-using System.Data.Entity.Core.Objects;
-
+using Xunit;
 
 namespace MySql.Data.Entity.Tests
 {
-  public class AggregateOperators : IUseFixture<SetUpEntityTests>
+  public class AggregateOperators : IClassFixture<DefaultFixture>
   {
-    private SetUpEntityTests st;
+    private DefaultFixture st;
 
-    public void SetFixture(SetUpEntityTests data)
+    public AggregateOperators(DefaultFixture fixture)
     {
-      st = data;
-    } 
+      st = fixture;
+      st.Setup(this.GetType());
+    }
 
     [Fact]
     public void CountSimple()
     {
-      MySqlCommand trueCmd = new MySqlCommand("SELECT COUNT(*) FROM Toys", st.conn);
-      object trueCount = trueCmd.ExecuteScalar();
-
-      using (testEntities context = new testEntities())
-      {
-        string eSql = "SELECT VALUE Count(t.Id) FROM Toys AS t";
-        ObjectQuery<Int32> q = context.CreateQuery<Int32>(eSql);
-
-        string sql = q.ToTraceString();
-        st.CheckSql(sql, SQLSyntax.CountSimple);
-
-        foreach (int count in q)
-          Assert.Equal(Convert.ToInt32(trueCount), count);
-      }
+      st.TestESql<Int32>(
+        "SELECT VALUE Count(b.Id) FROM Books as b",
+        @"SELECT `GroupBy1`.`A1` AS `C1` FROM(SELECT COUNT(`Extent1`.`Id`) AS `A1`
+                         FROM `Books` AS `Extent1`) AS `GroupBy1`");
     }
 
     [Fact]
     public void BigCountSimple()
     {
-      MySqlCommand trueCmd = new MySqlCommand("SELECT COUNT(*) FROM Toys", st.conn);
-      object trueCount = trueCmd.ExecuteScalar();
-
-      using (testEntities context = new testEntities())
-      {
-        string eSql = "SELECT VALUE BigCount(t.Id) FROM Toys AS t";
-        ObjectQuery<long> q = context.CreateQuery<long>(eSql);
-
-        string sql = q.ToTraceString();
-        st.CheckSql(sql, SQLSyntax.BigCountSimple);
-
-        foreach (int count in q)
-          Assert.Equal(Convert.ToInt32(trueCount), count);
-      }
+      st.TestESql<long>(
+        "SELECT VALUE BigCount(b.Id) FROM Books as b",
+        @"SELECT `GroupBy1`.`A1` AS `C1` FROM (SELECT COUNT(`Extent1`.`Id`) AS `A1`
+                            FROM `Books` AS `Extent1`) AS `GroupBy1`");
     }
 
     [Fact]
     public void CountWithPredicate()
     {
-      MySqlCommand trueCmd = new MySqlCommand("SELECT COUNT(*) FROM Toys AS t WHERE t.MinAge > 3", st.conn);
-      object trueCount = trueCmd.ExecuteScalar();
-
-      using (testEntities context = new testEntities())
-      {
-        string eSql = "SELECT VALUE Count(t.Id) FROM Toys AS t WHERE t.MinAge > 3";
-        ObjectQuery<Int32> q = context.CreateQuery<Int32>(eSql);
-
-        string sql = q.ToTraceString();
-        st.CheckSql(sql, SQLSyntax.CountWithPredicate);
-
-        foreach (int count in q)
-          Assert.Equal(Convert.ToInt32(trueCount), count);
-      }
+      st.TestESql<Int32>("SELECT VALUE Count(b.Id) FROM Books AS b WHERE b.Pages > 3",
+                  @"SELECT `GroupBy1`.`A1` AS `C1` FROM (SELECT COUNT(`Extent1`.`Id`) AS `A1` 
+                            FROM `Books` AS `Extent1` WHERE `Extent1`.`Pages` > 3) AS `GroupBy1`");
     }
 
     [Fact]
     public void MinSimple()
     {
-      MySqlCommand trueCmd = new MySqlCommand("SELECT MIN(minage) FROM Toys", st.conn);
-      int trueMin = (int)trueCmd.ExecuteScalar();
-
-      using (testEntities context = new testEntities())
-      {
-        string eSql = "SELECT VALUE MIN(t.MinAge) FROM Toys AS t";
-        ObjectQuery<Int32> q = context.CreateQuery<Int32>(eSql);
-
-        string sql = q.ToTraceString();
-        st.CheckSql(sql, SQLSyntax.MinSimple);
-
-        foreach (int age in q)
-          Assert.Equal(trueMin, age);
-      }
+      st.TestESql<Int32>(
+        "SELECT VALUE MIN(b.Pages) FROM Books AS b",
+        @"SELECT `GroupBy1`.`A1` AS `C1` FROM (SELECT MIN(`Extent1`.`Pages`) AS `A1`
+          FROM `Books` AS `Extent1`) AS `GroupBy1`");
     }
 
     [Fact]
     public void MinWithPredicate()
     {
-      MySqlCommand trueCmd = new MySqlCommand("SELECT MIN(Freight) FROM Orders WHERE shopId=2", st.conn);
-      object freight = trueCmd.ExecuteScalar();
-
-      using (testEntities context = new testEntities())
-      {
-        string eSql = "SELECT Min(o.Freight) FROM Orders AS o WHERE o.Shop.Id = 2";
-        ObjectQuery<DbDataRecord> q = context.CreateQuery<DbDataRecord>(eSql);
-
-        string sql = q.ToTraceString();
-        st.CheckSql(sql, SQLSyntax.MinWithPredicate);
-
-        foreach (DbDataRecord r in q)
-        {
-          Assert.Equal(Convert.ToDouble(freight), r.GetDouble(0));
-        }
-      }
+      st.TestESql<DbDataRecord>(
+        "SELECT Min(b.Pages) FROM Books AS b WHERE b.Author.Age > 50",
+        @"SELECT 1 AS `C1`, `GroupBy1`.`A1` AS `C2` FROM(SELECT MIN(`Extent1`.`Pages`) AS `A1`
+          FROM `Books` AS `Extent1` INNER JOIN `Authors` AS `Extent2` ON `Extent1`.`Author_Id` = `Extent2`.`Id`
+          WHERE `Extent2`.`Age` > 50) AS `GroupBy1`");
     }
 
     [Fact]
     public void MinWithGrouping()
     {
-      MySqlDataAdapter da = new MySqlDataAdapter(
-          "SELECT MIN(Freight) FROM Orders GROUP BY shopId", st.conn);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
-
-      using (testEntities context = new testEntities())
-      {
-        string eSql = "SELECT VALUE Min(o.Freight) FROM Orders AS o GROUP BY o.Shop.Id";
-        ObjectQuery<Double> q = context.CreateQuery<Double>(eSql);
-
-        string sql = q.ToTraceString();
-        st.CheckSql(sql, SQLSyntax.MinWithGrouping);
-
-        int i = 0;
-        foreach (double freight in q)
-          Assert.Equal(Convert.ToInt32(dt.Rows[i++][0]), Convert.ToInt32(freight));
-      }
+      st.TestESql<Int32>(
+        "SELECT VALUE Min(b.Pages) FROM Books AS b GROUP BY b.Author.Id",
+        @"SELECT `GroupBy1`.`A1` AS `C1` FROM (SELECT `Extent1`.`Author_Id` AS `K1`, 
+          MIN(`Extent1`.`Pages`) AS `A1` FROM `Books` AS `Extent1`  GROUP BY 
+          `Extent1`.`Author_Id`) AS `GroupBy1`"
+        );
     }
 
     [Fact]
     public void MaxSimple()
     {
-      MySqlCommand trueCmd = new MySqlCommand("SELECT MAX(minage) FROM Toys", st.conn);
-      int trueMax = (int)trueCmd.ExecuteScalar();
-
-      using (testEntities context = new testEntities())
-      {
-        string eSql = "SELECT VALUE MAX(t.MinAge) FROM Toys AS t";
-        ObjectQuery<Int32> q = context.CreateQuery<Int32>(eSql);
-
-        string sql = q.ToTraceString();
-        st.CheckSql(sql, SQLSyntax.MaxSimple);
-
-        foreach (int max in q)
-          Assert.Equal(trueMax, max);
-      }
+      st.TestESql<Int32>(
+        "SELECT VALUE MAX(b.Pages) FROM Books AS b",
+        @"SELECT `GroupBy1`.`A1` AS `C1` FROM (SELECT MAX(`Extent1`.`Pages`) AS `A1`
+          FROM `Books` AS `Extent1`) AS `GroupBy1`");
     }
 
     [Fact]
     public void MaxWithPredicate()
     {
-      MySqlCommand trueCmd = new MySqlCommand("SELECT MAX(Freight) FROM Orders WHERE shopId=1", st.conn);
-      object freight = trueCmd.ExecuteScalar();
-
-      using (testEntities context = new testEntities())
-      {
-        string eSql = "SELECT MAX(o.Freight) FROM Orders AS o WHERE o.Shop.Id = 1";
-        ObjectQuery<DbDataRecord> q = context.CreateQuery<DbDataRecord>(eSql);
-
-        string sql = q.ToTraceString();
-        st.CheckSql(sql, SQLSyntax.MaxWithPredicate);
-
-        foreach (DbDataRecord r in q)
-          Assert.Equal(Convert.ToDouble(freight), r.GetDouble(0));
-      }
+      st.TestESql<DbDataRecord>(
+        "SELECT MAX(b.Pages) FROM Books AS b WHERE b.Author.Id=2",
+        @"SELECT 1 AS `C1`, `GroupBy1`.`A1` AS `C2` FROM (SELECT MAX(`Extent1`.`Pages`) AS `A1`
+          FROM `Books` AS `Extent1` WHERE `Extent1`.`Author_Id` = 2) AS `GroupBy1`");
     }
 
     [Fact]
     public void MaxWithGrouping()
     {
-      MySqlDataAdapter da = new MySqlDataAdapter(
-          "SELECT MAX(Freight) FROM Orders GROUP BY ShopId", st.conn);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
-
-      using (testEntities context = new testEntities())
-      {
-        string eSql = "SELECT VALUE MAX(o.Freight) FROM Orders AS o GROUP BY o.Shop.Id";
-        ObjectQuery<Double> q = context.CreateQuery<Double>(eSql);
-
-        string sql = q.ToTraceString();
-        st.CheckSql(sql, SQLSyntax.MaxWithGrouping);
-
-        int i = 0;
-        foreach (double freight in q)
-          Assert.Equal(Convert.ToInt32(dt.Rows[i++][0]), Convert.ToInt32(freight));
-      }
+      st.TestESql<Int32>(
+        "SELECT VALUE MAX(b.Pages) FROM Books AS b GROUP BY b.Author.Id",
+        @"SELECT `GroupBy1`.`A1` AS `C1` FROM (SELECT `Extent1`.`Author_Id` AS `K1`,  MAX(`Extent1`.`Pages`) AS `A1`
+          FROM `Books` AS `Extent1` GROUP BY `Extent1`.`Author_Id`) AS `GroupBy1`");
     }
 
     [Fact]
     public void AverageSimple()
     {
-      MySqlCommand trueCmd = new MySqlCommand("SELECT AVG(minAge) FROM Toys", st.conn);
-//#if EF6
-//      int avgAge = (int)trueCmd.ExecuteScalar();
-//#else
-      Decimal avgAge = (Decimal)trueCmd.ExecuteScalar();
-//#endif
-
-      using (testEntities context = new testEntities())
-      {
-        string eSql = "SELECT VALUE Avg(t.MinAge) FROM Toys AS t";
-//#if EF6
-//        ObjectQuery<int> q = context.CreateQuery<int>(eSql);
-//#else
-        ObjectQuery<Decimal> q = context.CreateQuery<Decimal>(eSql);
-//#endif
-
-        string sql = q.ToTraceString();
-        st.CheckSql(sql, SQLSyntax.AverageSimple);
-
-//#if EF6
-//        foreach (int r in q)
-//#else
-        foreach (Decimal r in q)
-//#endif
-        Assert.Equal(avgAge, r);
-      }
+      st.TestESql<Decimal>(
+        "SELECT VALUE Avg(b.Pages) FROM Books AS b",
+        @"SELECT `GroupBy1`.`A1` AS `C1` FROM (SELECT AVG(`Extent1`.`Pages`) AS `A1`
+          FROM `Books` AS `Extent1`) AS `GroupBy1`");
     }
 
     [Fact]
     public void AverageWithPredicate()
     {
-      MySqlCommand trueCmd = new MySqlCommand("SELECT AVG(Freight) FROM Orders WHERE shopId=3", st.conn);
-      Double freight = (Double)trueCmd.ExecuteScalar();
-
-      using (testEntities context = new testEntities())
-      {
-        string eSql = "SELECT VALUE AVG(o.Freight) FROM Orders AS o WHERE o.Shop.Id = 3";
-        ObjectQuery<Double> q = context.CreateQuery<Double>(eSql);
-
-        string sql = q.ToTraceString();
-        st.CheckSql(sql, SQLSyntax.AverageWithPredicate);
-
-        foreach (Double r in q)
-          Assert.Equal(Convert.ToInt32(freight), Convert.ToInt32(r));
-      }
+      st.TestESql<Decimal>(
+        "SELECT VALUE AVG(b.Pages) FROM Books AS b WHERE b.Author.Id = 3",
+        @"SELECT `GroupBy1`.`A1` AS `C1` FROM (SELECT AVG(`Extent1`.`Pages`) AS `A1`
+          FROM `Books` AS `Extent1` WHERE `Extent1`.`Author_Id` = 3) AS `GroupBy1`");
     }
 
     [Fact]
     public void AverageWithGrouping()
     {
-      MySqlDataAdapter da = new MySqlDataAdapter(
-          "SELECT AVG(Freight) FROM Orders GROUP BY ShopId", st.conn);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
-
-      using (testEntities context = new testEntities())
-      {
-        string eSql = "SELECT AVG(o.Freight) FROM Orders AS o GROUP BY o.Shop.Id";
-        ObjectQuery<DbDataRecord> q = context.CreateQuery<DbDataRecord>(eSql);
-
-        string sql = q.ToTraceString();
-        st.CheckSql(sql, SQLSyntax.AverageWithGrouping);
-
-        foreach (object x in q)
-        {
-          string s = x.GetType().ToString();
-        }
-        int i = 0;
-        foreach (var freight in q)
-        {
-          //   Assert.Equal(Convert.ToInt32(dt.Rows[i++][0]), Convert.ToInt32(freight));
-        }
-      }
+      st.TestESql<DbDataRecord>(
+        "SELECT AVG(b.Pages) FROM Books AS b GROUP BY b.Author.Id",
+        @"SELECT 1 AS `C1`, `GroupBy1`.`A1` AS `C2` FROM (SELECT `Extent1`.`Author_Id` AS `K1`, 
+          AVG(`Extent1`.`Pages`) AS `A1` FROM `Books` AS `Extent1` GROUP BY `Extent1`.`Author_Id`) AS `GroupBy1`");
     }
 
     [Fact]
     public void SumSimple()
     {
-      MySqlCommand trueCmd = new MySqlCommand("SELECT SUM(minage) FROM Toys", st.conn);
-      int sumAge = Convert.ToInt32(trueCmd.ExecuteScalar());
-
-      using (testEntities context = new testEntities())
-      {
-        string eSql = "SELECT VALUE Sum(t.MinAge) FROM Toys AS t";
-        ObjectQuery<Int32> q = context.CreateQuery<Int32>(eSql);
-
-        string sql = q.ToTraceString();
-        st.CheckSql(sql, SQLSyntax.SumSimple);
-
-        foreach (int r in q)
-          Assert.Equal(sumAge, r);
-      }
+      st.TestESql<Int32>(
+        "SELECT VALUE SUM(b.Pages) FROM Books AS b",
+        @"SELECT `GroupBy1`.`A1` AS `C1` FROM (SELECT SUM(`Extent1`.`Pages`) AS `A1`
+          FROM `Books` AS `Extent1`) AS `GroupBy1`");
     }
 
     [Fact]
     public void SumWithPredicate()
     {
-      MySqlCommand trueCmd = new MySqlCommand("SELECT SUM(Freight) FROM Orders WHERE shopId=2", st.conn);
-      object freight = trueCmd.ExecuteScalar();
-
-      using (testEntities context = new testEntities())
-      {
-        string eSql = "SELECT VALUE SUM(o.Freight) FROM Orders AS o WHERE o.Shop.Id = 2";
-        ObjectQuery<Double> q = context.CreateQuery<Double>(eSql);
-
-        string sql = q.ToTraceString();
-        st.CheckSql(sql, SQLSyntax.SumWithPredicate);
-
-        foreach (Double r in q)
-          Assert.Equal(freight, r);
-      }
+      st.TestESql<Double>(
+        "SELECT VALUE SUM(b.Pages) FROM Books AS b WHERE b.Author.Id = 3",
+        @"SELECT `GroupBy1`.`A1` AS `C1` FROM (SELECT SUM(`Extent1`.`Pages`) AS `A1`
+          FROM `Books` AS `Extent1` WHERE `Extent1`.`Author_Id` = 3) AS `GroupBy1`");
     }
 
     [Fact]
     public void SumWithGrouping()
     {
-      MySqlDataAdapter da = new MySqlDataAdapter(
-          "SELECT SUM(Freight) FROM Orders GROUP BY ShopId", st.conn);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
-
-      using (testEntities context = new testEntities())
-      {
-        string eSql = "SELECT VALUE SUM(o.Freight) FROM Orders AS o GROUP BY o.Shop.Id";
-        ObjectQuery<Double> q = context.CreateQuery<Double>(eSql);
-
-        string sql = q.ToTraceString();
-        st.CheckSql(sql, SQLSyntax.SumWithGrouping);
-
-        int i = 0;
-        foreach (double freight in q)
-          Assert.Equal(Convert.ToInt32(dt.Rows[i++][0]), Convert.ToInt32(freight));
-      }
+      st.TestESql<Double>(
+        "SELECT VALUE SUM(b.Pages) FROM Books AS b GROUP BY b.Author.Id",
+        @"SELECT `GroupBy1`.`A1` AS `C1` FROM (SELECT `Extent1`.`Author_Id` AS `K1`, 
+          SUM(`Extent1`.`Pages`) AS `A1` FROM `Books` AS `Extent1`  GROUP BY 
+          `Extent1`.`Author_Id`) AS `GroupBy1`");
     }
 
     [Fact]
     public void MaxInSubQuery1()
     {
-      MySqlDataAdapter da = new MySqlDataAdapter(
-          "SELECT s.* FROM Shops AS s WHERE s.id=(SELECT MAX(o.shopId) FROM Orders AS o)", st.conn);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
-
-      using (testEntities context = new testEntities())
-      {
-        string eSql = @"SELECT VALUE s FROM Shops AS s WHERE s.Id = 
-                                MAX(SELECT VALUE o.Shop.Id FROM Orders As o)";
-        ObjectQuery<Shop> q = context.CreateQuery<Shop>(eSql);
-
-        string sql = q.ToTraceString();
-        st.CheckSql(sql, SQLSyntax.MaxInSubQuery1);
-
-        int i = 0;
-        foreach (Shop s in q)
-          Assert.Equal(dt.Rows[i++]["id"], s.Id);
-      }
+      st.TestESql<Book>(
+        "SELECT VALUE a FROM Authors AS a WHERE a.Id = MAX(SELECT VALUE b.Author.Id FROM Books AS b)",
+        @"SELECT `Extent1`.`Id`, `Extent1`.`Name`, `Extent1`.`Age`, `Extent1`.`Address_City`, `Extent1`.`Address_Street`, 
+          `Extent1`.`Address_State`, `Extent1`.`Address_ZipCode` FROM `Authors` AS `Extent1` INNER JOIN (SELECT
+          MAX(`Extent2`.`Author_Id`) AS `A1` FROM `Books` AS `Extent2`) AS `GroupBy1` ON `Extent1`.`Id` = `GroupBy1`.`A1`");
     }
 
     [Fact]
     public void MaxInSubQuery2()
     {
-      MySqlDataAdapter da = new MySqlDataAdapter(
-          "SELECT s.* FROM Shops AS s WHERE s.id=(SELECT MAX(o.shopId) FROM Orders AS o)", st.conn);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
-
-      using (testEntities context = new testEntities())
-      {
-        string eSql = @"SELECT VALUE s FROM Shops AS s WHERE s.Id = 
-                                ANYELEMENT(SELECT VALUE MAX(o.Shop.Id) FROM Orders As o)";
-        ObjectQuery<Shop> q = context.CreateQuery<Shop>(eSql);
-
-        string sql = q.ToTraceString();
-        st.CheckSql(sql, SQLSyntax.MaxInSubQuery2);
-
-        int i = 0;
-        foreach (Shop s in q)
-          Assert.Equal(dt.Rows[i++]["id"], s.Id);
-      }
+      st.TestESql<Book>(
+        "SELECT VALUE a FROM Authors AS a WHERE a.Id = ANYELEMENT(SELECT VALUE MAX(b.Author.Id) FROM Books AS b)",
+        @"SELECT `Extent1`.`Id`, `Extent1`.`Name`, `Extent1`.`Age`, `Extent1`.`Address_City`, `Extent1`.`Address_Street`, 
+          `Extent1`.`Address_State`, `Extent1`.`Address_ZipCode` FROM `Authors` AS `Extent1` INNER JOIN (SELECT
+          MAX(`Extent2`.`Author_Id`) AS `A1` FROM `Books` AS `Extent2`) AS `GroupBy1` ON `Extent1`.`Id` = `GroupBy1`.`A1`");
     }
 
     /// <summary>
@@ -410,19 +202,13 @@ namespace MySql.Data.Entity.Tests
     [Fact]
     public void FirstOrDefaultNested()
     {
-      using (testEntities ctx = new testEntities())
+      using (DefaultContext ctx = st.GetDefaultContext())
       {
-        var q = ctx.Authors.Where(p => p.Id == p.Id).Select(p => new { AuthorId = p.Id, FirstBook = (int?)p.Books.FirstOrDefault().Id });
-
-        string sql = q.ToTraceString();
-        int?[,] input = { { 1, 1 }, { 2, 2 }, { 3, 3 }, { 4, null }, { 5, null } };
-        int i = 0;
-        foreach (var r in q)
-        {
-          Assert.Equal(input[i, 0], r.AuthorId);
-          Assert.Equal(input[i, 1], r.FirstBook);
-          i++;
-        }
+        var q = ctx.Authors.Where(p => p.Id == 1).Select(p => new { AuthorId = p.Id, FirstBook = (int?)p.Books.FirstOrDefault().Id });
+        var s = q.ToString();
+        st.CheckSql(q.ToString(),
+          @"SELECT `Extent1`.`Id`, (SELECT `Extent2`.`Id` FROM `Books` AS `Extent2` WHERE `Extent1`.`Id` = `Extent2`.`Author_Id` LIMIT 1) AS `C1`
+            FROM `Authors` AS `Extent1` WHERE 1 = `Extent1`.`Id`");
       }
     }
   }

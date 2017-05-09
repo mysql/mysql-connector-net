@@ -23,9 +23,7 @@
 using System;
 using System.IO;
 using System.Reflection;
-using System.Data;
 using System.Xml;
-using System.Data.Common;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text;
@@ -286,7 +284,6 @@ namespace MySql.Data.MySqlClient
       return resourceAsString;
     }
 	
-	#if NET_40_OR_GREATER		
     public override bool SupportsEscapingLikeArgument(out char escapeCharacter)
     {
       escapeCharacter = LikeEscapeChar;
@@ -299,7 +296,6 @@ namespace MySql.Data.MySqlClient
       bool usedEscapeCharacter;      
       return EscapeLikeArgument(argument, out usedEscapeCharacter);
     }
-#endif
     
     internal static string EscapeLikeArgument(string argument, out bool usedEscapeChar)
     {     

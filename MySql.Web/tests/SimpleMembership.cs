@@ -21,17 +21,16 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 using MySql.Web.Security;
 using System.Collections.Specialized;
 using System.Web.Security;
 using MySql.Data.MySqlClient;
+using MySql.Data.MySqlClient.Tests;
 
 namespace MySql.Web.Tests
 {
-  public class SimpleMembership : IUseFixture<SetUpWeb>, IDisposable
+  public class SimpleMembership : WebTestBase
   {
     private string _connString;
     private readonly string _userTable = "UserProfile";
@@ -39,12 +38,12 @@ namespace MySql.Web.Tests
     private readonly string _userNameColumn = "UserName";
     private readonly string _userName = "New User";
     private readonly string _pass = "password";
-    private  MySqlSimpleMembershipProvider _simpleProvider;
+    private MySqlSimpleMembershipProvider _simpleProvider;
     private MySqlSimpleRoleProvider _simpleRoleProvider;
 
-    public void SetFixture(SetUpWeb data)
+    public SimpleMembership(TestFixture fixture) : base(fixture)
     {
-      _connString = data.GetConnectionString(true);
+      _connString = ConnectionSettings.GetConnectionString(true);
 
       _simpleProvider = new MySqlSimpleMembershipProvider();
       _simpleRoleProvider = new MySqlSimpleRoleProvider();
@@ -61,28 +60,24 @@ namespace MySql.Web.Tests
       MySqlWebSecurity.InitializeDatabaseConnection(_connString, "MySqlSimpleMembership", _userTable, _userIdColumn, _userNameColumn, true, true);
     }
 
-    public void Dispose()
-    {
-    }
-
     [Fact]
     public void CheckIfRoleNotExists()
-    {      
+    {
       var roleExists = _simpleRoleProvider.RoleExists("roleName");
       Assert.False(roleExists);
     }
 
     [Fact]
     public void CheckIfRoleExists()
-    {      
+    {
       if (!Roles.RoleExists("Administrator"))
       {
-        _simpleRoleProvider.CreateRole("Administrator");          
+        _simpleRoleProvider.CreateRole("Administrator");
         var roleExists = _simpleRoleProvider.RoleExists("Administrator");
         Assert.True(roleExists);
-      }              
+      }
     }
-    
+
     [Fact]
     public void CreateUserAndAccountTest()
     {

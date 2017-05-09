@@ -21,33 +21,23 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
-
-using System.Text;
-using Xunit;
 using System.Web.Security;
 using System.Collections.Specialized;
-using MySql.Web.Security;
 using System.Data;
 using System.Configuration.Provider;
+using Xunit;
+using MySql.Web.Security;
 using MySql.Data.MySqlClient;
+using MySql.Data.MySqlClient.Tests;
 
 namespace MySql.Web.Tests
 {
-  public class UserManagement : IUseFixture<SetUpWeb>, IDisposable
+  public class UserManagement : WebTestBase
   {
-    private SetUpWeb st;
     private MySQLMembershipProvider provider { get; set; }
 
-    public void SetFixture(SetUpWeb data)
+    public UserManagement(TestFixture fixture) : base(fixture)
     {
-      st = data;
-      st.execSQL("DROP TABLE IF EXISTS mysql_membership");
-    }
-
-    public void Dispose()
-    {
-      //Nothing to clean
     }
 
     private void CreateUserWithFormat(MembershipPasswordFormat format)
@@ -66,7 +56,7 @@ namespace MySql.Web.Tests
       Assert.Equal(MembershipCreateStatus.Success, status);
 
       // verify that the password format is hashed.
-      DataTable table = st.FillTable("SELECT * FROM my_aspnet_membership");
+      DataTable table = FillTable("SELECT * FROM my_aspnet_membership");
       MembershipPasswordFormat rowFormat =
         (MembershipPasswordFormat)Convert.ToInt32(table.Rows[0]["PasswordFormat"]);
       Assert.Equal(format, rowFormat);
@@ -185,9 +175,9 @@ namespace MySql.Web.Tests
     {
       CreateUserWithFormat(MembershipPasswordFormat.Hashed);      
       Assert.True(provider.DeleteUser("foo", true));
-      DataTable table = st.FillTable("SELECT * FROM my_aspnet_membership");
+      DataTable table = FillTable("SELECT * FROM my_aspnet_membership");
       Assert.Equal(0, table.Rows.Count);
-      table = st.FillTable("SELECT * FROM my_aspnet_users");
+      table = FillTable("SELECT * FROM my_aspnet_users");
       Assert.Equal(0, table.Rows.Count);
 
       CreateUserWithFormat(MembershipPasswordFormat.Hashed);     
@@ -197,9 +187,9 @@ namespace MySql.Web.Tests
       config.Add("applicationName", "/");
       provider.Initialize(null, config);
       Assert.True(Membership.DeleteUser("foo", false));
-      table = st.FillTable("SELECT * FROM my_aspnet_membership");
+      table = FillTable("SELECT * FROM my_aspnet_membership");
       Assert.Equal(0, table.Rows.Count);
-      table = st.FillTable("SELECT * FROM my_aspnet_users");
+      table = FillTable("SELECT * FROM my_aspnet_users");
       Assert.Equal(1, table.Rows.Count);
     }
 
@@ -412,8 +402,8 @@ namespace MySql.Web.Tests
         Assert.Equal(String.Format("foo2{0}", index++), user.UserName);
 
       //Cleanup
-      MySqlHelper.ExecuteScalar(st.conn, "DELETE FROM my_aspnet_users");
-      MySqlHelper.ExecuteScalar(st.conn, "DELETE FROM my_aspnet_membership");      
+      MySqlHelper.ExecuteScalar(Connection, "DELETE FROM my_aspnet_users");
+      MySqlHelper.ExecuteScalar(Connection, "DELETE FROM my_aspnet_membership");      
     }
 
     private void GetPasswordHelper(bool requireQA, bool enablePasswordRetrieval, string answer)
@@ -510,7 +500,7 @@ namespace MySql.Web.Tests
     public void GetUser()
     {
       //Resetting PK
-      MySqlHelper.ExecuteScalar(st.conn, "ALTER TABLE my_aspnet_users AUTO_INCREMENT = 1;");
+      MySqlHelper.ExecuteScalar(Connection, "ALTER TABLE my_aspnet_users AUTO_INCREMENT = 1;");
 
       MembershipCreateStatus status;
       Membership.CreateUser("foo", "barbar!", null, "question", "answer", true, out status);
@@ -570,8 +560,8 @@ namespace MySql.Web.Tests
         Assert.Equal(String.Format("foo2{0}", index++), user.UserName);
       
       //Cleanup
-      MySqlHelper.ExecuteScalar(st.conn, "DELETE FROM my_aspnet_users");
-      MySqlHelper.ExecuteScalar(st.conn, "DELETE FROM my_aspnet_membership");      
+      MySqlHelper.ExecuteScalar(Connection, "DELETE FROM my_aspnet_users");
+      MySqlHelper.ExecuteScalar(Connection, "DELETE FROM my_aspnet_membership");      
 
     }
 
@@ -761,8 +751,8 @@ namespace MySql.Web.Tests
       //provider.DeleteUser("foo", true);
       
       //Cleanup
-      MySqlHelper.ExecuteScalar(st.conn, "DELETE FROM my_aspnet_users");
-      MySqlHelper.ExecuteScalar(st.conn, "DELETE FROM my_aspnet_membership");      
+      MySqlHelper.ExecuteScalar(Connection, "DELETE FROM my_aspnet_users");
+      MySqlHelper.ExecuteScalar(Connection, "DELETE FROM my_aspnet_membership");      
 
     }
 

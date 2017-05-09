@@ -20,84 +20,100 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Xunit;
-using MySql.Data.MySqlClient;
 using System.Data;
-using System.Data.Entity.Core.EntityClient;
-using System.Data.Entity.Core.Objects;
-
-
+using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 
 namespace MySql.Data.Entity.Tests
 {
-  public class DeleteTests : IUseFixture<SetUpEntityTests>
-  {
-    private SetUpEntityTests st;
 
-    public void SetFixture(SetUpEntityTests data)
+  public class DeleteTests : IClassFixture<DefaultFixture>
+  {
+    private DefaultFixture st;
+
+    public DeleteTests(DefaultFixture fixture)
     {
-      st = data;
-    }    
+      st = fixture;
+      if (st.Setup(this.GetType()))
+        LoadData();
+    }
+
+    void LoadData()
+    {
+      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      {
+        ctx.Products.Add(new Product() { Name = "Garbage Truck", MinAge = 8 });
+        ctx.Products.Add(new Product() { Name = "Fire Truck", MinAge = 12 });
+        ctx.Products.Add(new Product() { Name = "Hula Hoop", MinAge = 18 });
+        ctx.SaveChanges();
+      }
+    }
 
     [Fact]
     public void SimpleDeleteAllRows()
     {
-      //Make sure the table exists
-      var createTableSql = "CREATE TABLE IF NOT EXISTS Toys ( `Id` INT NOT NULL AUTO_INCREMENT, `SupplierId` INT NOT NULL, `Name` varchar(100) NOT NULL,`MinAge` int NOT NULL, CONSTRAINT PK_Toys PRIMARY KEY (Id) ) ENGINE=InnoDB;";
-      if (st.conn.State != ConnectionState.Open)
-        st.conn.Open();
-
-      MySqlHelper.ExecuteNonQuery(st.conn, createTableSql);
-      MySqlHelper.ExecuteNonQuery(st.conn, "DELETE FROM Toys");
-      MySqlHelper.ExecuteNonQuery(st.conn, "INSERT INTO Toys VALUES (1, 3, 'Slinky', 2), (2, 2, 'Rubiks Cube', 5), (3, 1, 'Lincoln Logs', 3), (4, 4, 'Legos', 4)");
-      
-      using (testEntities context = new testEntities())
+      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
       {
-        foreach (Toy t in context.Toys)
-          context.DeleteObject(t);
-        context.SaveChanges();
+        Assert.True(ctx.Products.Count() > 0);
 
-        EntityConnection ec = context.Connection as EntityConnection;
-        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM toys",
-            (MySqlConnection)ec.StoreConnection);
-        DataTable dt = new DataTable();
-        da.Fill(dt);
-        Assert.Equal(0, dt.Rows.Count);
+        foreach (Product p in ctx.Products)
+          ctx.Products.Remove(p);
+        ctx.SaveChanges();
+
+        Assert.Equal(0, ctx.Products.Count());
       }
+      // set the flag that will cause the setup to happen again
+      // since we just blew away a table
+      st.NeedSetup = true;
     }
 
     [Fact]
     public void SimpleDeleteRowByParameter()
     {
-      //Make sure the table exists
-      var createTableSql = "CREATE TABLE IF NOT EXISTS Toys ( `Id` INT NOT NULL AUTO_INCREMENT, `SupplierId` INT NOT NULL, `Name` varchar(100) NOT NULL,`MinAge` int NOT NULL, CONSTRAINT PK_Toys PRIMARY KEY (Id)) ENGINE=InnoDB;";
-      if (st.conn.State != ConnectionState.Open)
-        st.conn.Open();
+      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      {
+        int total = ctx.Products.Count();
+        int cntLeft = ctx.Products.Where(b => b.MinAge >= 18).Count();
+        // make sure the test is valid
+        Assert.True(total > cntLeft);
 
-      MySqlHelper.ExecuteNonQuery(st.conn, createTableSql);
-      MySqlHelper.ExecuteNonQuery(st.conn, "DELETE FROM Toys");
-      MySqlHelper.ExecuteNonQuery(st.conn, "INSERT INTO Toys VALUES (1, 3, 'Slinky', 2), (2, 2, 'Rubiks Cube', 5), (3, 1, 'Lincoln Logs', 3), (4, 4, 'Legos', 4)");
-      
-      
-      using (testEntities context = new testEntities())
-      {                
-        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM toys WHERE minage=3", st.conn);
-        DataTable dt = new DataTable();
-        da.Fill(dt);
-        Assert.True(dt.Rows.Count > 0);
+        foreach (Product p in ctx.Products.Where(b => b.MinAge < 18).ToList())
+          ctx.Products.Remove(p);
+        ctx.SaveChanges();
+        Assert.Equal(cntLeft, ctx.Products.Count());
+        st.NeedSetup = true;
+      }
+    }
 
-        ObjectQuery<Toy> toys = context.Toys.Where("it.MinAge = @age", new ObjectParameter("age", 3));
-        foreach (Toy t in toys)
-          context.DeleteObject(t);
-        context.SaveChanges();
 
-        dt.Clear();
-        da.Fill(dt);
-        Assert.Equal(0, dt.Rows.Count);
+    public class Widget
+    {
+      public int Id { get; set;  }
+      public WidgetDetail Detail { get; set; }
+    }
+
+    public class WidgetDetail
+    {
+      public int Id { get; set; }
+      public Widget Widget { get; set; }
+    }
+
+    public class WidgetContext : DbContext
+    {
+      public WidgetContext(string connStr) : base(connStr)
+      {
+        Database.SetInitializer<WidgetContext>(null);
+      }
+
+      protected override void OnModelCreating(DbModelBuilder modelBuilder)
+      {
+        base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<WidgetDetail>()
+          .HasRequired(b => b.Widget)
+          .WithOptional(a => a.Detail)
+          .WillCascadeOnDelete(true);
       }
     }
 
@@ -108,42 +124,13 @@ namespace MySql.Data.Entity.Tests
     [Fact]
     public void XOnDeleteCascade()
     {
-#if CLR4
-      using (ModelFirstModel1Container ctx = new ModelFirstModel1Container())
+      using (WidgetContext ctx = new WidgetContext(st.ConnectionString))
       {
-        if (ctx.DatabaseExists())
-          ctx.DeleteDatabase();
-        ctx.CreateDatabase();
-        ctx.SaveChanges();
-      }
-#endif
-      using (ModelFirstModel1Container ctx = new ModelFirstModel1Container())
-      {
-        Student s = new Student();
-        s.Name = "Einstein, Albert";
-        s.Kardexes.Add(new Kardex() { Score = 9.0 });
-        ctx.AddToStudents(s);
-        ctx.SaveChanges();
-      }
-
-      using (ModelFirstModel1Container ctx = new ModelFirstModel1Container())
-      {
-        var a = from st in ctx.Students select st;
-        Student s = a.First();
-        s.Kardexes.Load();
-        Assert.Equal("Einstein, Albert", s.Name);
-        Kardex k = s.Kardexes.First();
-        Assert.Equal(9.0, k.Score);
-        ctx.DeleteObject(s);
-        ctx.SaveChanges();
-      }
-
-      using (ModelFirstModel1Container ctx = new ModelFirstModel1Container())
-      {
-        var q = from st in ctx.Students select st;
-        Assert.Equal(0, q.Count());
-        var q2 = from k in ctx.Kardexes select k;
-        Assert.Equal(0, q2.Count());
+        var context = ((IObjectContextAdapter)ctx).ObjectContext;
+        var sql = context.CreateDatabaseScript();
+        st.CheckSqlContains(sql,
+          @"ALTER TABLE `WidgetDetails` ADD CONSTRAINT WidgetDetail_Widget
+	          FOREIGN KEY (Id)	REFERENCES `Widgets` (Id) ON DELETE Cascade ON UPDATE NO ACTION;");
       }
     }
   }

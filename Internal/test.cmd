@@ -27,5 +27,11 @@ dotnet xunit -framework netcoreapp1.1 -xml netcore-test-results.xml
 
 cd ../../..
 
+REM =================== Test EF 6 =====================================================
+cd EntityFramework6/tests/MySql.EntityFramework6.Basic.Tests
+dotnet restore
+dotnet xunit -xml net452-test-results.xml
+
+
 
 

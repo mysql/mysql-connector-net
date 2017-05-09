@@ -22,137 +22,88 @@
 
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using MySql.Data.MySqlClient;
 using System.Threading;
 using System.Globalization;
 using Xunit;
 using System.Data;
-using System.Data.Entity;
-using System.Data.Entity.Infrastructure;
-using System.Data.Entity.Migrations;
-using System.Data.Entity.Migrations.Infrastructure;
-using MySql.Data.Entity.Tests.v4.x;
 
 namespace MySql.Data.Entity.Tests
 {
-    public class ProviderServicesTests : IUseFixture<SetUpEntityTests>, IDisposable
+  public class ProviderServicesTests : IClassFixture<DefaultFixture>, IDisposable
+  {
+    private DefaultFixture st;
+    private CultureInfo originalCulture;
+
+    public ProviderServicesTests(DefaultFixture fixture)
     {
-        private SetUpEntityTests st;
-
-        public void SetFixture(SetUpEntityTests data)
-        {
-            st = data;
-        }
-        private CultureInfo originalCulture;
-
-        public ProviderServicesTests()
-            : base()
-        {
-            originalCulture = Thread.CurrentThread.CurrentCulture;
-        }
-
-#if CLR4
-    [Fact]
-    public void CreateDatabase()
-    {
-      st.suExecSQL("GRANT ALL ON `modeldb`.* to 'test'@'localhost'");
-      st.suExecSQL("FLUSH PRIVILEGES");
-
-      using (Model1Container ctx = new Model1Container())
-      {
-        Assert.False(ctx.DatabaseExists());
-        ctx.CreateDatabase();
-        Assert.True(ctx.DatabaseExists());
-      }
+      st = fixture;
+      originalCulture = Thread.CurrentThread.CurrentCulture;
+      st.Setup(this.GetType());
     }
 
     [Fact]
-    public void CreateDatabaseScript()
+    public void CreateAndDeleteDatabase()
     {
-      using (testEntities ctx = new testEntities())
-      {        
-        string s = ctx.CreateDatabaseScript();
-      }
-    }
-
-    [Fact]
-    public void DeleteDatabase()
-    {
-      st.suExecSQL("GRANT ALL ON `modeldb`.* to 'test'@'localhost'");
-      st.suExecSQL("FLUSH PRIVILEGES");
-
-      using (Model1Container ctx = new Model1Container())
+      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
       {
-        Assert.False(ctx.DatabaseExists());
-        ctx.CreateDatabase();
-        Assert.True(ctx.DatabaseExists());
-        ctx.DeleteDatabase();
-        Assert.False(ctx.DatabaseExists());
+        Assert.False(ctx.Database.Exists());
+        ctx.Database.Create();
+        Assert.True(ctx.Database.Exists());
+        ctx.Database.Delete();
+        Assert.False(ctx.Database.Exists());
       }
     }
 
     [Fact]
     public void DatabaseExists()
     {
-      st.suExecSQL("GRANT ALL ON `modeldb`.* to 'test'@'localhost'");
-      st.suExecSQL("FLUSH PRIVILEGES");
-
-      using (Model1Container ctx = new Model1Container())
+      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
       {
-        Assert.False(ctx.DatabaseExists());
-        ctx.CreateDatabase();
-        Assert.True(ctx.DatabaseExists());
-        ctx.DeleteDatabase();
-        Assert.False(ctx.DatabaseExists());
+        ctx.Database.Create();
+        DataTable dt = st.Connection.GetSchema("DATABASES", new string[] { st.Connection.Database });
+        Assert.Equal(1, dt.Rows.Count);
       }
     }
-#endif
 
     [Fact(Skip = "EF 5 have an known issue that is happening when the CreateDatabaseScript is called in this test and is suppose to be fixed in EF 6 but need a lot of changes incopatibles with the current architecture")]
-        public void CheckReservedWordColumnName()
-        {
-            using (ReservedWordColumnNameContainer ctx = new ReservedWordColumnNameContainer())
-            {
-                var ddl = ((IObjectContextAdapter)ctx).ObjectContext.CreateDatabaseScript();
-                Assert.Contains("ALTER TABLE `table_name` ADD PRIMARY KEY (`key`);", ddl);
-            }
-        }
-
-        [Fact]
-        public void GetDbProviderManifestTokenDoesNotThrowWhenLocalized()
-        {
-            Thread.CurrentThread.CurrentCulture = new CultureInfo("fr-CA");
-
-            using (MySqlConnection connection = new MySqlConnection(st.GetConnectionString(true)))
-            {
-                MySqlProviderServices providerServices = new MySqlProviderServices();
-                string token = null;
-
-        Assert.DoesNotThrow(delegate () { token = providerServices.GetProviderManifestToken(connection); });
-                Assert.NotNull(token);
-            }
-        }
-
-        [Fact]
-        public void GetDbProviderManifestTokenDoesNotThrowWhenMissingPersistSecurityInfo()
-        {
-            var conn = new MySqlConnection(st.rootConn.ConnectionString);
-            conn.Open();
-            MySqlProviderServices providerServices = new MySqlProviderServices();
-            string token = null;
-
-      Assert.DoesNotThrow(delegate () { token = providerServices.GetProviderManifestToken(conn); });
-            Assert.NotNull(token);
-            conn.Close();
-        }
-
-        public void Dispose()
-        {
-            Thread.CurrentThread.CurrentCulture = originalCulture;
-            st.Dispose();
-        }
+    public void CheckReservedWordColumnName()
+    {
+      //using (ReservedWordColumnNameContainer ctx = new ReservedWordColumnNameContainer())
+      //{
+      //  var ddl = ((IObjectContextAdapter)ctx).ObjectContext.CreateDatabaseScript();
+      //  Assert.Contains("ALTER TABLE `table_name` ADD PRIMARY KEY (`key`);", ddl);
+      //}
     }
+
+    [Fact]
+    public void GetDbProviderManifestTokenDoesNotThrowWhenLocalized()
+    {
+      Thread.CurrentThread.CurrentCulture = new CultureInfo("fr-CA");
+
+      using (MySqlConnection connection = new MySqlConnection(st.ConnectionString))
+      {
+        MySqlProviderServices providerServices = new MySqlProviderServices();
+        var token = providerServices.GetProviderManifestToken(connection);
+        Assert.NotNull(token);
+      }
+    }
+
+    [Fact]
+    public void GetDbProviderManifestTokenDoesNotThrowWhenMissingPersistSecurityInfo()
+    {
+      var conn = new MySqlConnection(st.ConnectionString);
+      conn.Open();
+      MySqlProviderServices providerServices = new MySqlProviderServices();
+      var token = providerServices.GetProviderManifestToken(conn);
+      Assert.NotNull(token);
+      conn.Close();
+    }
+
+    public void Dispose()
+    {
+      Thread.CurrentThread.CurrentCulture = originalCulture;
+      st.execSQL($"DROP DATABASE IF EXISTS `{st.Connection.Database}`");
+    }
+  }
 }

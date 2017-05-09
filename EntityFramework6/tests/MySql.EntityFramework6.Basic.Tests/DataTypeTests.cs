@@ -21,9 +21,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Xunit;
 using MySql.Data.MySqlClient;
 using System.Data;
@@ -32,13 +30,14 @@ using System.Threading;
 
 namespace MySql.Data.Entity.Tests
 {
-  public class DataTypeTests : IUseFixture<SetUpEntityTests>
+  public class DataTypeTests : IClassFixture<DefaultFixture>
   {
-    private SetUpEntityTests st;
+    private DefaultFixture st;
 
-    public void SetFixture(SetUpEntityTests data)
+    public DataTypeTests(DefaultFixture data)
     {
       st = data;
+      st.Setup(this.GetType());
     }
 
     /// <summary>
@@ -47,39 +46,21 @@ namespace MySql.Data.Entity.Tests
     [Fact]
     public void TimeType()
     {
-      using (testEntities context = new testEntities())
+      using (DefaultContext ctx = st.GetDefaultContext())
       {
         TimeSpan birth = new TimeSpan(11, 3, 2);
 
         Child c = new Child();
-        c.Id = 20;
-        c.EmployeeID = 1;
-        c.FirstName = "first";
-        c.LastName = "last";
+        c.ChildId = "ABC";
+        c.Name = "first";
         c.BirthTime = birth;
-        c.Modified = DateTime.Now;
-        context.AddToChildren(c);
-        context.SaveChanges();
+        c.Label = Guid.NewGuid();
+        ctx.Children.Add(c);
+        ctx.SaveChanges();
 
-        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM EmployeeChildren WHERE id=20", st.conn);
-        DataTable dt = new DataTable();
-        da.Fill(dt);
-        Assert.Equal(birth, dt.Rows[0]["birthtime"]);
-      }
-    }
+        Child d = ctx.Children.Where(x => x.ChildId == "ABC").Single();
+        Assert.Equal(birth, d.BirthTime);
 
-    /// <summary>
-    /// Bug #45077	Insert problem with Connector/NET 6.0.3 and entity framework
-    /// Bug #45175	Wrong SqlType for unsigned smallint when generating Entity Framework Model
-    /// </summary>
-    [Fact]
-    public void UnsignedValues()
-    {
-      using (testEntities context = new testEntities())
-      {
-        var row = context.Children.First();
-        context.Detach(row);
-        context.Attach(row);
       }
     }
 
@@ -97,16 +78,14 @@ namespace MySql.Data.Entity.Tests
 
       try
       {
-        using (testEntities context = new testEntities())
+        using (DefaultContext ctx = st.GetDefaultContext())
         {
-          Child c = new Child();          
-          c.EmployeeID = 1;
-          c.FirstName = "Bam bam";
-          c.LastName = "Rubble";
-          c.BirthWeight = 8.65;
-          c.Modified = DateTime.Now;
-          context.AddToChildren(c);
-          context.SaveChanges();
+          Product p = new Product();
+          p.Name = "New Product";
+          p.Weight = 8.65f;
+          p.CreatedDate = DateTime.Now;
+          ctx.Products.Add(p);
+          ctx.SaveChanges();
         }
       }
       finally
@@ -119,21 +98,23 @@ namespace MySql.Data.Entity.Tests
     /// <summary>
     /// Bug #46311	TimeStamp table column Entity Framework issue.
     /// </summary>
-    [Fact]
+    [Fact(Skip ="Fix Me")]
     public void TimestampColumn()
     {
       DateTime now = DateTime.Now;
 
-      using (testEntities context = new testEntities())
+      using (DefaultContext ctx = st.GetDefaultContext())
       {
-        Child c = context.Children.First();
-        DateTime dt = c.Modified;
-        c.Modified = now;
-        context.SaveChanges();
+        Product p = new Product() { Name = "My Product", MinAge = 7, Weight = 8.0f };
+        ctx.Products.Add(p);
+        ctx.SaveChanges();
 
-        c = context.Children.First();
-        dt = c.Modified;
-        Assert.Equal(now, dt);
+        p = ctx.Products.First();
+        p.CreatedDate = now;
+        ctx.SaveChanges();
+
+        p = ctx.Products.First();
+        Assert.Equal(now, p.CreatedDate);
       }
     }
 
@@ -143,12 +124,22 @@ namespace MySql.Data.Entity.Tests
     [Fact]
     public void GuidType()
     {
-      using (testEntities context = new testEntities())
+      using (DefaultContext ctx = st.GetDefaultContext())
       {
-        DataTypeTest dtt = context.DataTypeTests.First();
-        string guidAsChar = dtt.idAsChar;
-        Assert.Equal(0, String.Compare(guidAsChar, dtt.id.ToString(), true));
-        Assert.Equal(0, String.Compare(guidAsChar, dtt.id2.ToString(), true));
+        TimeSpan birth = new TimeSpan(11, 3, 2);
+        Guid g = Guid.NewGuid();
+        
+        Child c = new Child();
+        c.ChildId = "GUID";
+        c.Name = "first";
+        c.BirthTime = birth;
+        c.Label = g;
+        ctx.Children.Add(c);
+        ctx.SaveChanges();
+
+        Child d = ctx.Children.Where(x => x.ChildId == "GUID").Single();
+        Assert.Equal(g, d.Label);
+
       }
     }
 

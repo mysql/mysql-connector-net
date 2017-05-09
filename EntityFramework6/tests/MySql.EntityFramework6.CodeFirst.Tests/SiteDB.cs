@@ -76,9 +76,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
         public site site { get; set; }
     }
 
-#if EF6
   [DbConfigurationType(typeof(MySqlEFConfiguration))]
-#endif
     public class SiteDbContext : DbContext
     {
         public DbSet<visitante> Visitante { get; set; }
@@ -89,9 +87,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
         public SiteDbContext()
         {
             Database.SetInitializer<SiteDbContext>(new SiteDbInitializer());
-#if EF6
             Database.SetInitializer<SiteDbContext>(new MigrateDatabaseToLatestVersion<SiteDbContext, Configuration<SiteDbContext>>());
-#endif
         }
     }
 

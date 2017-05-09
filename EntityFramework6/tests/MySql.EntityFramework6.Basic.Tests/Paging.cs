@@ -1,4 +1,4 @@
-// Copyright © 2014 Oracle and/or its affiliates. All rights reserved.
+// Copyright ï¿½ 2014 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,159 +20,83 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
 using System.Data;
-using System.Threading;
-using MySql.Data.MySqlClient;
 using System.Linq;
-using MySql.Data.Entity.Tests.Properties;
 using Xunit;
 
 namespace MySql.Data.Entity.Tests
-{  
-  public class Paging : IUseFixture<SetUpEntityTests>
+{
+  public class Paging : IClassFixture<DefaultFixture>
   {
-    private SetUpEntityTests st;
+    private DefaultFixture st;
 
-    public void SetFixture(SetUpEntityTests data)
+    public Paging(DefaultFixture fixture)
     {
-      st = data;
+      st = fixture;
+      if (st.Setup(this.GetType()))
+        LoadData();
     }
-  
-    [Fact]
-    public void Top()
+
+    void LoadData()
     {
-      using (testEntities context = new testEntities())
+      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
       {
-        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Companies LIMIT 2", st.conn);
-        DataTable dt = new DataTable();
-        da.Fill(dt);
+        ctx.Products.Add(new Product() { Name = "Garbage Truck", MinAge = 8 });
+        ctx.Products.Add(new Product() { Name = "Fire Truck", MinAge = 12 });
+        ctx.Products.Add(new Product() { Name = "Hula Hoop", MinAge = 18 });
+        ctx.SaveChanges();
+      }
+    }
 
-        int i = 0;
-        var query = context.Companies.Top("2");
-        string sql = query.ToTraceString();
-        st.CheckSql(sql, SQLSyntax.Top);
-
-        foreach (Company c in query)
-        {
-          Assert.Equal(dt.Rows[i++]["id"], c.Id);
-        }
+    [Fact]
+    public void Take()
+    {
+      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      {
+        var q = ctx.Books.Take(2);
+        var sql = q.ToString();
+        st.CheckSql(sql,
+          @"SELECT `Id`, `Name`, `PubDate`, `Pages`, `Author_Id` FROM `Books` LIMIT 2");
       }
     }
 
     [Fact]
     public void Skip()
     {
-      using (testEntities context = new testEntities())
+      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
       {
-        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Companies LIMIT 3,20", st.conn);
-        DataTable dt = new DataTable();
-        da.Fill(dt);
-
-        int i = 0;
-        var query = context.Companies.Skip("it.Id", "3");
-        string sql = query.ToTraceString();
-        st.CheckSql(sql, SQLSyntax.Skip);
-
-        foreach (Company c in query)
-        {
-          Assert.Equal(dt.Rows[i++]["id"], c.Id);
-        }
+        var q = ctx.Books.OrderBy(b=>b.Pages).Skip(3);
+        var sql = q.ToString();
+        st.CheckSql(sql,
+          @"SELECT `Extent1`.`Id`, `Extent1`.`Name`, `Extent1`.`PubDate`, `Extent1`.`Pages`, `Extent1`.`Author_Id`
+            FROM `Books` AS `Extent1` ORDER BY `Extent1`.`Pages` ASC LIMIT 3,18446744073709551615");
       }
     }
 
     [Fact]
     public void SkipAndTakeSimple()
     {
-      using (testEntities context = new testEntities())
+      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
       {
-        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Companies LIMIT 2,2", st.conn);
-        DataTable dt = new DataTable();
-        da.Fill(dt);
-
-        int i = 0;
-        var query = context.Companies.Skip("it.Id", "2").Top("2");
-        string sql = query.ToTraceString();
-        st.CheckSql(sql, SQLSyntax.SkipAndTakeSimple);
-
-        foreach (Company c in query)
-        {
-          Assert.Equal(dt.Rows[i++]["id"], c.Id);
-        }
-        Assert.Equal(2, i);
+        var q = ctx.Books.OrderBy(b => b.Pages).Skip(3).Take(4);
+        var sql = q.ToString();
+        st.CheckSql(sql,
+          @"SELECT `Extent1`.`Id`, `Extent1`.`Name`, `Extent1`.`PubDate`, `Extent1`.`Pages`, `Extent1`.`Author_Id`
+            FROM `Books` AS `Extent1` ORDER BY `Extent1`.`Pages` ASC LIMIT 3,4");
       }
     }
 
-    /// <summary>
-    /// Bug #45723 Entity Framework DbSortExpression not processed when using Skip & Take  
-    /// </summary>
-    [Fact]
-    public void SkipAndTakeWithOrdering()
-    {
-      using (testEntities context = new testEntities())
-      {
-        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Companies ORDER BY Name DESC LIMIT 2,2", st.conn);
-        DataTable dt = new DataTable();
-        da.Fill(dt);
-
-        int i = 0;
-        var query = context.Companies.OrderByDescending(q => q.Name).Skip(2).Take(2);
-        string sql = query.ToTraceString();
-        st.CheckSql(sql, SQLSyntax.SkipAndTakeWithOrdering);
-        foreach (Company c in query)
-          Assert.Equal(dt.Rows[i++]["Name"], c.Name);
-      }
-    }
-
-    /// <summary>
-    /// Tests fix for bug #64749 - Entity Framework - Take().Count() fails with EntityCommandCompilationException.
-    /// </summary>
+    // <summary>
+    // Tests fix for bug #64749 - Entity Framework - Take().Count() fails with EntityCommandCompilationException.
+    // </summary>
     [Fact]
     public void TakeWithCount()
     {
-      using (testEntities context = new testEntities())
+      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
       {
-        int cnt = context.Companies.Take(2).Count();
+        int cnt = ctx.Products.Take(2).Count();
         Assert.Equal(2, cnt);
       }
-    }
-
-    /// <summary>
-    /// Fix for EF SQL Generator, Union Syntax (Concat operator) is missing required parentheses 
-    /// (may cause semantic changes when combined with Limit clause (Take operator)). 
-    /// (MySql bug #70828, Oracle bug #18049691).
-    /// </summary>
-    [Fact]
-    public void TakeWithUnion()
-    {
-      int[] ids = new int[] { 1, 2, 3, 4 };
-      string[] names = new string[] { "Slinky", "Rubiks Cube", "Lincoln Logs", "Legos" };
-#if EF5
-      using (testEntities ctx = new testEntities())
-      {
-        var q = ctx.Toys;
-        var q2 = ctx.Toys.Take(0).Concat(q);
-        var q3 = q.Concat(q.Take(0));
-        int i = 0;
-        string sql = q2.ToTraceString();
-        st.CheckSql(sql, SQLSyntax.UnionWithLimit2);
-        foreach (var row in q2)
-        {
-          Assert.Equal<int>(ids[i], row.Id);
-          Assert.Equal<string>(names[i], row.Name);
-          i++; 
-        }
-        i = 0;
-        sql = q3.ToTraceString();
-        st.CheckSql(sql, SQLSyntax.UnionWithLimit);
-        foreach (var row in q)
-        {
-          Assert.Equal<int>(ids[i], row.Id);
-          Assert.Equal<string>( names[ i ], row.Name );
-          i++; 
-        }
-      }
-#endif
     }
   }
 }

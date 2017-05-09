@@ -141,40 +141,36 @@ namespace MySql.Data.Entity
 
     #endregion
 
-#if NET_40_OR_GREATER
-#region Async
     /// <summary>
     /// Async version of Prepare
     /// </summary>
     /// <returns>Information about the task executed.</returns>
-    public Task PrepareAsync()
-    {
-      return PrepareAsync(CancellationToken.None);
-    }
+    //public Task PrepareAsync()
+    //{
+    //  return PrepareAsync(CancellationToken.None);
+    //}
 
-    public Task PrepareAsync(CancellationToken cancellationToken)
-    {
-      var result = new TaskCompletionSource<bool>();
-      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
-      {
-        try
-        {
-          Prepare();
-          result.SetResult(true);
-        }
-        catch (Exception ex)
-        {
-          result.SetException(ex);
-        }
-      }
-      else
-      {
-        result.SetCanceled();
-      }
-      return result.Task;
-    }
-    #endregion
-#endif
+    //public Task PrepareAsync(CancellationToken cancellationToken)
+    //{
+    //  var result = new TaskCompletionSource<bool>();
+    //  if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
+    //  {
+    //    try
+    //    {
+    //      Prepare();
+    //      result.SetResult(true);
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //      result.SetException(ex);
+    //    }
+    //  }
+    //  else
+    //  {
+    //    result.SetCanceled();
+    //  }
+    //  return result.Task;
+    //}
     
   }
 }

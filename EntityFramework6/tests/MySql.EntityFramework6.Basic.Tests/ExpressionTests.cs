@@ -21,45 +21,43 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
-using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
-namespace MySql.Data.Entity.CodeFirst.Tests
+namespace MySql.Data.Entity.Tests
 {
-  public class ExpressionTests : IUseFixture<SetUpCodeFirstTests>, IDisposable
+  public class ExpressionTests : IClassFixture<DefaultFixture>
   {
+    private DefaultFixture st;
 
-    private SetUpCodeFirstTests st;
-
-    public void SetFixture(SetUpCodeFirstTests data)
+    public ExpressionTests(DefaultFixture fixture)
     {
-      st = data;
+      st = fixture;
+      if (st.Setup(this.GetType()))
+        LoadData();
     }
 
-    public void Dispose()
+    void LoadData()
     {
+      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      {
+        ctx.Products.Add(new Product() { Name = "Garbage Truck", MinAge = 8 });
+        ctx.Products.Add(new Product() { Name = "Fire Truck", MinAge= 12 });
+        ctx.Products.Add(new Product() { Name = "Hula Hoop", MinAge=18 });
+        ctx.SaveChanges();
+      }
     }
-    
+
     /// <summary>
     /// Using StartsWith on a list when using variable as parameter
     /// </summary>
     [Fact]
     public void CheckStartsWithWhenUsingVariable()
     {
-#if DEBUG
-      Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
-#endif
-
-      using (SakilaDb db = new SakilaDb())
+      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
       {
-        string str = "Astaire";          
-        var records = db.actors.Where(e => e.last_name.StartsWith(str)).ToArray();
+        string str = "Garbage";
+        var records = ctx.Products.Where(p => p.Name.StartsWith(str)).ToArray();
         Assert.Equal(1, records.Count());        
        }
      }    
@@ -70,13 +68,10 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     [Fact]
     public void CheckStartsWithWhenUsingValue()
     {
-#if DEBUG
-      Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
-#endif
-      using (SakilaDb db = new SakilaDb())
+      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
       {
-        var result = db.actors.Where(e => e.last_name.StartsWith("Astaire")).ToArray();
-        Assert.Equal(1, result.Count());
+        var records = ctx.Products.Where(p => p.Name.StartsWith("Garbage")).ToArray();
+        Assert.Equal(1, records.Count());
       }
     }
 
@@ -86,15 +81,11 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     [Fact]
     public void CheckEndsWithWhenUsingVariable()
     {
-#if DEBUG
-      Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
-#endif
-
-      using (SakilaDb db = new SakilaDb())
-      {   
-        string str = "Astaire";
-        var result = db.actors.Where(e => e.last_name.EndsWith(str)).ToArray();
-        Assert.Equal(1, result.Count());        
+      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      {
+        string str = "Hoop";
+        var records = ctx.Products.Where(p => p.Name.EndsWith(str)).ToArray();
+        Assert.Equal(1, records.Count());
       }
     }
 
@@ -104,14 +95,10 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     [Fact]
     public void CheckEndsWithWhenUsingValue()
     {
-#if DEBUG
-      Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
-#endif
-      
-      using (SakilaDb db = new SakilaDb())
-      {           
-        var result = db.actors.Where(e => e.last_name.EndsWith("Astaire")).ToArray(); 
-        Assert.Equal(1, result.Count());        
+      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      {
+        var records = ctx.Products.Where(p => p.Name.EndsWith("Hoop")).ToArray();
+        Assert.Equal(1, records.Count());
       }
     }
 
@@ -122,16 +109,11 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     [Fact]
     public void CheckContainsWhenUsingVariable()
     {
-
-#if DEBUG
-      Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
-#endif
-      string str = "stai";
-
-      using (SakilaDb db = new SakilaDb())
-      {        
-        var result = db.actors.Where(e => e.last_name.Contains(str)).ToArray();
-        Assert.Equal(1, result.Count());        
+      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      {
+        string str = "bage";
+        var records = ctx.Products.Where(p => p.Name.Contains(str)).ToArray();
+        Assert.Equal(1, records.Count());
       }
     }
 
@@ -142,10 +124,10 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     [Fact]
     public void CheckContainsWhenUsingHardCodedValue()
     {
-      using (SakilaDb db = new SakilaDb())
+      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
       {
-          var result = db.actors.Where(e => e.last_name.Contains("stai")).ToArray();
-          Assert.Equal(1, result.Count());
+        var records = ctx.Products.Where(p => p.Name.Contains("bage")).ToArray();
+        Assert.Equal(1, records.Count());
       }
     }
 
@@ -153,12 +135,12 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     /// Using Contains on a list when using a hardcoded value
     /// </summary>
     [Fact]
-    public void CheckContainsWhenUsingHardCodedValueWithPorcentageSymbol()
+    public void CheckContainsWhenUsingHardCodedValueWithPercentageSymbol()
     {
-      using (SakilaDb db = new SakilaDb())
+      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
       {
-        var result = db.actors.Where(e => e.last_name.Contains("%")).ToArray();
-        Assert.Equal(0, result.Count());
+        var records = ctx.Products.Where(p => p.Name.Contains("%")).ToArray();
+        Assert.Equal(0, records.Count());
       }
     }
 

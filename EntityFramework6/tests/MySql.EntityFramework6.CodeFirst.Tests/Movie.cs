@@ -67,9 +67,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     public float Format { get; set; }
   }
 
-#if EF6
   [DbConfigurationType(typeof(MySqlEFConfiguration))]
-#endif
   public class MovieDBContext : DbContext
   {
     public DbSet<Movie> Movies { get; set; }
@@ -80,19 +78,13 @@ namespace MySql.Data.Entity.CodeFirst.Tests
 
     public MovieDBContext()
     {
-#if !EF6
-      Database.SetInitializer<MovieDBContext>(new MovieDBInitialize());
-#else
-      Database.SetInitializer<MovieDBContext>(new MigrateDatabaseToLatestVersion<MovieDBContext, Configuration<MovieDBContext>>());
-#endif
+      Database.SetInitializer<MovieDBContext>(new MigrateDatabaseToLatestVersion<MovieDBContext, System.Configuration<MovieDBContext>>());
     }
 
     protected override void OnModelCreating(DbModelBuilder modelBuilder)
     {
       base.OnModelCreating(modelBuilder);
-#if EF6
       modelBuilder.Configurations.AddFromAssembly(System.Reflection.Assembly.GetExecutingAssembly());
-#endif
       modelBuilder.Entity<Movie>().Property(x => x.Price).HasPrecision(16, 2);
       modelBuilder.Entity<Movie>().HasMany(p => p.Formats);
       modelBuilder.Entity<Movie>().HasMany( p => p.Medias );
@@ -124,14 +116,6 @@ namespace MySql.Data.Entity.CodeFirst.Tests
           new Movie() { ID = 2, Title = "The Matrix", ReleaseDate = new DateTime( 1999, 3, 31 ) },
           new Movie() { ID = 1, Title = "Terminator 1", ReleaseDate = new DateTime(1984, 10, 26) }
         };
-
-#if !EF6
-    protected override void Seed(MovieDBContext ctx)
-    {
-      base.Seed(ctx);
-      DoDataPopulation( ctx );
-    }
-#endif
 
     internal static void DoDataPopulation( MovieDBContext ctx )
     {

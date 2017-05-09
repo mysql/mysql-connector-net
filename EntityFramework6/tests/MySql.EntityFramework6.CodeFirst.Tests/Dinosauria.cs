@@ -60,9 +60,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     public int EggsPerYear { get; set; }
   }
 
-#if EF6
   [DbConfigurationType(typeof(MySqlEFConfiguration))]
-#endif
   public class DinosauriaDBContext : DbContext
   {
     public DbSet<Animalia_Chordata_Dinosauria_Eusaurischia_Theropoda> dinos { get; set; }

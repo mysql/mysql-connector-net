@@ -21,35 +21,23 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Configuration;
 using System.Configuration.Provider;
 using System.Data;
-using System.Text;
 using System.Web.Security;
+using Xunit;
 using MySql.Data.MySqlClient;
 using MySql.Web.Common;
 using MySql.Web.Security;
-using Xunit;
+using MySql.Data.MySqlClient.Tests;
 
 namespace MySql.Web.Tests
 {
-  public class SchemaManagerTests : IUseFixture<SetUpWeb>, IDisposable
+  public class SchemaManagerTests : WebTestBase
   {
-    private SetUpWeb st;
-
-    public void SetFixture(SetUpWeb data)
+    public SchemaManagerTests(TestFixture fixture) : base(fixture)
     {
-      st = data;
-      DropAllTables();
-    }
-
-    private void DropAllTables()
-    {
-      DataTable dt = st.conn.GetSchema("Tables");
-      foreach (DataRow row in dt.Rows)
-        st.execSQL(String.Format("DROP TABLE IF EXISTS {0}", row["TABLE_NAME"]));
     }
 
     /// <summary>
@@ -60,7 +48,6 @@ namespace MySql.Web.Tests
     {
       for (int i = 0; i <= SchemaManager.Version; i++)
       {
-        DropAllTables();
         MySQLMembershipProvider provider = new MySQLMembershipProvider();
         NameValueCollection config = new NameValueCollection();
         config.Add("connectionStringName", "LocalMySqlServer");
@@ -69,7 +56,7 @@ namespace MySql.Web.Tests
 
         if (i > 0)
           for (int x = 1; x <= i; x++)
-            st.LoadSchema(x);
+            LoadSchema(x);
 
         try
         {
@@ -91,14 +78,14 @@ namespace MySql.Web.Tests
     [Fact]
     public void CurrentSchema()
     {
-      st.execSQL("set character_set_database=utf8");
+      executeSQL("set character_set_database=utf8");
 
-      st.LoadSchema(1);
-      st.LoadSchema(2);
-      st.LoadSchema(3);
-      st.LoadSchema(4);
+      LoadSchema(1);
+      LoadSchema(2);
+      LoadSchema(3);
+      LoadSchema(4);
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM my_aspnet_schemaversion", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM my_aspnet_schemaversion", Connection);
       object ver = cmd.ExecuteScalar();
       Assert.Equal(4, ver);
 
@@ -114,9 +101,9 @@ namespace MySql.Web.Tests
     [Fact]
     public void UpgradeV1ToV2()
     {
-      st.LoadSchema(1);
+      LoadSchema(1);
 
-      MySqlCommand cmd = new MySqlCommand("SHOW CREATE TABLE mysql_membership", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SHOW CREATE TABLE mysql_membership", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -125,8 +112,8 @@ namespace MySql.Web.Tests
         Assert.NotEqual(-1, index);
       }
 
-      st.LoadSchema(2);
-      cmd = new MySqlCommand("SHOW CREATE TABLE mysql_membership", st.conn);
+      LoadSchema(2);
+      cmd = new MySqlCommand("SHOW CREATE TABLE mysql_membership", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -138,28 +125,28 @@ namespace MySql.Web.Tests
 
     private void LoadData()
     {
-      st.LoadSchema(1);
-      st.LoadSchema(2);
-      st.execSQL(@"INSERT INTO mysql_membership (pkid, username, password, applicationname, lastactivitydate) 
+      LoadSchema(1);
+      LoadSchema(2);
+      executeSQL(@"INSERT INTO mysql_membership (pkid, username, password, applicationname, lastactivitydate) 
                 VALUES('1', 'user1', '', 'app1', '2007-01-01')");
-      st.execSQL(@"INSERT INTO mysql_membership (pkid, username, password, applicationname, lastactivitydate) 
+      executeSQL(@"INSERT INTO mysql_membership (pkid, username, password, applicationname, lastactivitydate) 
                 VALUES('2', 'user2', '', 'app1', '2007-01-01')");
-      st.execSQL(@"INSERT INTO mysql_membership (pkid, username, password, applicationname, lastactivitydate) 
+      executeSQL(@"INSERT INTO mysql_membership (pkid, username, password, applicationname, lastactivitydate) 
                 VALUES('3', 'user1', '', 'app2', '2007-01-01')");
-      st.execSQL(@"INSERT INTO mysql_membership (pkid, username, password, applicationname, lastactivitydate) 
+      executeSQL(@"INSERT INTO mysql_membership (pkid, username, password, applicationname, lastactivitydate) 
                 VALUES('4', 'user2', '', 'app2', '2007-01-01')");
-      st.execSQL(@"INSERT INTO mysql_roles VALUES ('role1', 'app1')");
-      st.execSQL(@"INSERT INTO mysql_roles VALUES ('role2', 'app1')");
-      st.execSQL(@"INSERT INTO mysql_roles VALUES ('role1', 'app2')");
-      st.execSQL(@"INSERT INTO mysql_roles VALUES ('role2', 'app2')");
-      st.execSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user1', 'role1', 'app1')");
-      st.execSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user2', 'role2', 'app1')");
-      st.execSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user1', 'role1', 'app2')");
-      st.execSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user2', 'role2', 'app2')");
-      st.LoadSchema(3);
-      Assert.False(st.TableExists("mysql_membership"));
-      Assert.False(st.TableExists("mysql_roles"));
-      Assert.False(st.TableExists("mysql_usersinroles"));
+      executeSQL(@"INSERT INTO mysql_roles VALUES ('role1', 'app1')");
+      executeSQL(@"INSERT INTO mysql_roles VALUES ('role2', 'app1')");
+      executeSQL(@"INSERT INTO mysql_roles VALUES ('role1', 'app2')");
+      executeSQL(@"INSERT INTO mysql_roles VALUES ('role2', 'app2')");
+      executeSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user1', 'role1', 'app1')");
+      executeSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user2', 'role2', 'app1')");
+      executeSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user1', 'role1', 'app2')");
+      executeSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user2', 'role2', 'app2')");
+      LoadSchema(3);
+      Assert.False(TableExists("mysql_membership"));
+      Assert.False(TableExists("mysql_roles"));
+      Assert.False(TableExists("mysql_usersinroles"));
     }
 
     [Fact]
@@ -167,7 +154,7 @@ namespace MySql.Web.Tests
     {
       LoadData();
 
-      DataTable apps = st.FillTable("SELECT * FROM my_aspnet_applications");
+      DataTable apps = FillTable("SELECT * FROM my_aspnet_applications");
       Assert.Equal(2, apps.Rows.Count);
       Assert.Equal(1, apps.Rows[0]["id"]);
       Assert.Equal("app1", apps.Rows[0]["name"]);
@@ -180,7 +167,7 @@ namespace MySql.Web.Tests
     {
       LoadData();
 
-      DataTable dt = st.FillTable("SELECT * FROM my_aspnet_users");
+      DataTable dt = FillTable("SELECT * FROM my_aspnet_users");
       Assert.Equal(4, dt.Rows.Count);
       Assert.Equal(1, dt.Rows[0]["id"]);
       Assert.Equal(1, dt.Rows[0]["applicationId"]);
@@ -201,7 +188,7 @@ namespace MySql.Web.Tests
     {
       LoadData();
 
-      DataTable dt = st.FillTable("SELECT * FROM my_aspnet_roles");
+      DataTable dt = FillTable("SELECT * FROM my_aspnet_roles");
       Assert.Equal(4, dt.Rows.Count);
       Assert.Equal(1, dt.Rows[0]["id"]);
       Assert.Equal(1, dt.Rows[0]["applicationId"]);
@@ -222,7 +209,7 @@ namespace MySql.Web.Tests
     {
       LoadData();
 
-      DataTable dt = st.FillTable("SELECT * FROM my_aspnet_membership");
+      DataTable dt = FillTable("SELECT * FROM my_aspnet_membership");
       Assert.Equal(4, dt.Rows.Count);
       Assert.Equal(1, dt.Rows[0]["userid"]);
       Assert.Equal(2, dt.Rows[1]["userid"]);
@@ -235,7 +222,7 @@ namespace MySql.Web.Tests
     {
       LoadData();
 
-      DataTable dt = st.FillTable("SELECT * FROM my_aspnet_usersinroles");
+      DataTable dt = FillTable("SELECT * FROM my_aspnet_usersinroles");
       Assert.Equal(4, dt.Rows.Count);
       Assert.Equal(1, dt.Rows[0]["userid"]);
       Assert.Equal(1, dt.Rows[0]["roleid"]);
@@ -270,13 +257,11 @@ namespace MySql.Web.Tests
     [Fact]
     public void SchemaTablesUseSameEngine()
     {
-      DropAllTables();
-
       for (int x = 1; x <= SchemaManager.Version; x++)
-        st.LoadSchema(x);
+        LoadSchema(x);
 
-      string query = string.Format("SELECT TABLE_NAME, ENGINE FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '{0}'", st.conn.Database);
-      MySqlCommand cmd = new MySqlCommand(query, st.conn);
+      string query = string.Format("SELECT TABLE_NAME, ENGINE FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '{0}'", Connection.Database);
+      MySqlCommand cmd = new MySqlCommand(query, Connection);
       string lastEngine = null;
       string currentEngine;
 
