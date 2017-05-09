@@ -30,9 +30,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MySql.Data.Entity.CodeFirst.Tests
 {
-#if EF6
   [DbConfigurationType(typeof(MySqlEFConfiguration))]
-#endif
   public class PromotionsDB: DbContext
   {
     public virtual DbSet<HomePromo> HomePromoes { get; set; }

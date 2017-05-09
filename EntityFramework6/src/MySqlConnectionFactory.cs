@@ -20,13 +20,8 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.Entity.Infrastructure;
-using System.Data.Entity.Migrations;
-using System.Linq;
-using System.Text;
 using MySql.Data.MySqlClient;
 
 namespace MySql.Data.Entity
@@ -36,6 +31,17 @@ namespace MySql.Data.Entity
   /// </summary>
   public class MySqlConnectionFactory : IDbConnectionFactory
   {
+    string baseConnString;
+
+    public MySqlConnectionFactory()
+    {
+    }
+
+    public MySqlConnectionFactory(string connStr)
+    {
+      baseConnString = connStr;
+    }
+
     public DbConnection CreateConnection(string connectionString)
     {
       return new MySqlConnection(connectionString);

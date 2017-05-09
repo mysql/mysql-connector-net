@@ -1,4 +1,4 @@
-// Copyright © 2013, 2017 Oracle and/or its affiliates. All rights reserved.
+// Copyright ï¿½ 2013, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -25,34 +25,16 @@ using System.Text.RegularExpressions;
 using MySql.Data.MySqlClient;
 using Xunit;
 
-
 namespace MySql.Data.Entity.Tests
 {
-  public class UpdateTests : IUseFixture<SetUpEntityTests>
+  public class UpdateTests : IClassFixture<DefaultFixture>
   {
-    private SetUpEntityTests st;
+    private DefaultFixture st;
 
-    public void SetFixture(SetUpEntityTests data)
+    public UpdateTests(DefaultFixture data)
     {
       st = data;
-    }
-
-    [Fact]
-    public void UpdateAllRows()
-    {
-      MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM toys", st.conn);
-      object count = cmd.ExecuteScalar();
-
-      using (testEntities context = new testEntities())
-      {
-        foreach (Toy t in context.Toys)
-          t.Name = "Top";
-        context.SaveChanges();
-      }
-
-      cmd.CommandText = "SELECT COUNT(*) FROM Toys WHERE name='Top'";
-      object newCount = cmd.ExecuteScalar();
-      Assert.Equal(count, newCount);
+      st.Setup(this.GetType());
     }
 
     /// <summary>
@@ -60,42 +42,34 @@ namespace MySql.Data.Entity.Tests
     /// </summary>
     [Fact]
     public void UpdateSimple()
-    {      
-      using (testEntities context = new testEntities())
-      {        
+    {
+      var sb = new MySqlConnectionStringBuilder(st.ConnectionString);
+      sb.Logging = true;
+      using (DefaultContext ctx = new DefaultContext(sb.ToString()))
+      {
         MySqlTrace.Listeners.Clear();
         MySqlTrace.Switch.Level = SourceLevels.All;
         GenericListener listener = new GenericListener();
         MySqlTrace.Listeners.Add(listener);
-        Product pc = null;
-        try
-        {
-          pc = new Product();
-          pc.Name= "Acme";
-          context.AddToProducts(pc);
-          context.SaveChanges();
-          pc.Name = "Acme 2";
-          context.SaveChanges();
-        }
-        finally
-        {
-#if CLR4
-          context.Products.DeleteObject(pc);
-#endif
-        }
-        // Check sql        
+
+        Product p = new Product() { Name = "Acme" };
+        ctx.Products.Add(p);
+        ctx.SaveChanges();
+
+        p.Name = "Acme 2";
+        ctx.SaveChanges();
+
         Regex rx = new Regex(@"Query Opened: (?<item>UPDATE .*)", RegexOptions.Compiled | RegexOptions.Singleline);
-        foreach( string s in listener.Strings )
+        foreach (string s in listener.Strings)
         {
           Match m = rx.Match(s);
           if (m.Success)
           {
-            st.CheckSql(m.Groups["item"].Value, MySql.Data.Entity.Tests.Properties.SQLSyntax.UpdateWithSelect);
-            //TODO:check assert.fail commented.
-            //Assert.Pass(); 
+            st.CheckSqlContains(m.Groups["item"].Value,
+              @"UPDATE `Products` SET `Name`='Acme 2' WHERE `Id` = 1;
+                SELECT `CreatedDate` FROM `Products` WHERE  row_count() > 0 and `Id` = 1");
           }
         }
-        //Assert.Fail();
       }
     }
   }

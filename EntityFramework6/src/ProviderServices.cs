@@ -33,6 +33,7 @@ using System.Data.Entity.Core.Common;
 using System.Data.Entity.Core.Common.CommandTrees;
 using System.Data.Entity.Core.Metadata.Edm;
 using System.Data.Entity.Spatial;
+using System.Linq;
 
 namespace MySql.Data.MySqlClient
 {
@@ -253,7 +254,6 @@ namespace MySql.Data.MySqlClient
 			return new MySqlProviderManifest(manifestToken);
 		}
 
-#if NET_40_OR_GREATER
 		protected override void DbCreateDatabase(DbConnection connection, int? commandTimeout, StoreItemCollection storeItemCollection)
 		{
 			if (connection == null)
@@ -403,8 +403,6 @@ namespace MySql.Data.MySqlClient
 			return keySql.ToString();
 		}
 
-#endif
-
 		private Dictionary<string, string> _pluralizedNames = new Dictionary<string, string>();
 		private List<string> _guidIdentityColumns;
 
@@ -546,7 +544,12 @@ namespace MySql.Data.MySqlClient
 					else
 						throw new MySqlException("Invalid identity column type.");
 				}      
-			}
+        else if (facet.Value.Equals(StoreGeneratedPattern.Computed))
+        {
+					if (serverVersion >= new Version(5, 6) && column.TypeUsage.EdmType.BaseType.Name == "DateTime")
+            sql.AppendFormat(" DEFAULT CURRENT_TIMESTAMP{0}", fcDateTimePrecision != null && Convert.ToByte(fcDateTimePrecision.Value) >= 1 ? "( " + fcDateTimePrecision.Value.ToString() + " )" : "");
+        }
+      }
 			return sql.ToString();
 		}
 

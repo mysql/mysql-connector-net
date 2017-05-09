@@ -1,4 +1,4 @@
-// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+// Copyright ï¿½ 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,91 +20,21 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
 using System.Data;
 using MySql.Data.MySqlClient;
-using System.Data.Entity.Core.EntityClient;
 using System.Linq;
 using Xunit;
 
 namespace MySql.Data.Entity.Tests
 {
-  public class ProceduresAndFunctions : IUseFixture<SetUpEntityTests>
+  public class ProceduresAndFunctions : IClassFixture<DefaultFixture>
   {
-    private SetUpEntityTests st;
+    private DefaultFixture st;
 
-    public void SetFixture(SetUpEntityTests data)
+    public ProceduresAndFunctions(DefaultFixture data)
     {
       st = data;
-    }
-
-    public ProceduresAndFunctions()
-      : base()
-    {
-    }
-
-    [Fact]
-    public void Insert()
-    {
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Authors", st.conn);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
-      int count = dt.Rows.Count;
-
-      using (testEntities context = new testEntities())
-      {
-        Author a = new Author();
-        a.Id = 23;
-        a.Name = "Test name";
-        a.Age = 44;
-        context.AddToAuthors(a);
-        context.SaveChanges();
-      }
-
-      dt.Clear();
-      da.Fill(dt);
-      Assert.Equal(count + 1, dt.Rows.Count);
-      Assert.Equal(23, dt.Rows[count]["id"]);
-    }
-
-    [Fact]
-    public void Update()
-    {
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Authors", st.conn);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
-      int count = dt.Rows.Count;
-
-      using (testEntities context = new testEntities())
-      {
-        var q = from a in context.Authors
-                where a.Name == "Don Box"
-                select a;
-        foreach (Author a in q)
-          a.Name = "Dummy";
-        context.SaveChanges();
-      }
-
-      da.SelectCommand.CommandText = "SELECT * FROM Authors WHERE name='Dummy'";
-      dt.Clear();
-      da.Fill(dt);
-      Assert.Equal(1, dt.Rows.Count);
-    }
-
-    [Fact]
-    public void Delete()
-    {
-      using (testEntities context = new testEntities())
-      {
-        foreach (Book b in context.Books)
-          context.DeleteObject(b);
-        context.SaveChanges();
-      }
-
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Books", st.conn);
-      DataTable dt = new DataTable();
-      da.Fill(dt);
-      Assert.Equal(0, dt.Rows.Count);
+      st.Setup(this.GetType());
     }
 
     /// <summary>
@@ -113,19 +43,15 @@ namespace MySql.Data.Entity.Tests
     [Fact]
     public void UserDefinedFunction()
     {
-      using (EntityConnection conn = new EntityConnection("name=testEntities"))
-      {
-        conn.Open();
+      MySqlCommand cmd = new MySqlCommand("CREATE FUNCTION spFunc() RETURNS INT BEGIN RETURN 3; END", st.Connection);
+      cmd.ExecuteNonQuery();
 
-        string query = @"SELECT e.FirstName AS Name FROM testEntities.Employees AS e 
-                    WHERE testModel.Store.spFunc(e.Id, '') = 6";
-        using (EntityCommand cmd = new EntityCommand(query, conn))
-        {
-          EntityDataReader reader = cmd.ExecuteReader(CommandBehavior.SequentialAccess);
-          Assert.True(reader.Read());
-          Assert.Equal("Scooby", reader[0]);
-        }
+      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      {
+        int val = ctx.Database.SqlQuery<int>(@"SELECT spFunc()").Single();
+        Assert.Equal(3, val);
       }
+      st.NeedSetup = true;
     }
 
     /// <summary>
@@ -134,28 +60,22 @@ namespace MySql.Data.Entity.Tests
     [Fact]
     public void CommandTimeout()
     {
-      string connectionString = String.Format(
-          "metadata=res://*/TestModel.csdl|res://*/TestModel.ssdl|res://*/TestModel.msl;provider=MySql.Data.MySqlClient; provider connection string=\"{0};default command timeout=5\"", st.GetConnectionString(true));
-      EntityConnection connection = new EntityConnection(connectionString);
+      MySqlCommand cmd = new MySqlCommand("CREATE FUNCTION spFunc() RETURNS INT BEGIN DO SLEEP(5); RETURN 4; END", st.Connection);
+      cmd.ExecuteNonQuery();
 
-      using (testEntities context = new testEntities(connection))
+      var sb = new MySqlConnectionStringBuilder(st.ConnectionString);
+      sb.DefaultCommandTimeout = 3;
+      sb.UseDefaultCommandTimeoutForEF = true;
+      using (DefaultContext ctx = new DefaultContext(sb.ToString()))
       {
-        Author a = new Author();
-        a.Id = 66;  // special value to indicate the routine should take 30 seconds
-        a.Name = "Test name";
-        a.Age = 44;
-        context.AddToAuthors(a);
-        try
+        var exception = Record.Exception(() =>
         {
-          context.SaveChanges();
-          //Assert.Fail("This should have timed out");
-        }
-        catch (Exception ex)
-        {
-          string s = ex.Message;
-        }
-      }
-    }
+          int val = ctx.Database.SqlQuery<int>(@"SELECT spFunc()").Single();
+        });
 
+        Assert.NotNull(exception);
+      }
+      st.NeedSetup = true;
+    }
   }
 }

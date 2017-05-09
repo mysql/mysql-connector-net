@@ -21,37 +21,23 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Configuration;
 using System.IO;
-using System.Text;
 using System.Web;
 using System.Web.Hosting;
 using Xunit;
 using MySql.Data.MySqlClient;
 using MySql.Web.SiteMap;
-
+using MySql.Data.MySqlClient.Tests;
 
 namespace MySql.Web.Tests
 {
-  public class SiteMapTests : IUseFixture<SetUpWeb>, IDisposable
+  public class SiteMapTests : WebTestBase
   {
-    private SetUpWeb st;
-
-    public void SetFixture(SetUpWeb data)
+    public SiteMapTests(TestFixture fixture) : base(fixture)
     {
-      st = data;
-      st.rootConn.Close();
-      st.rootConn = new MySqlConnection("server=localhost;userid=root;pwd=;database=" + st.conn.Database + ";port=" + st.port);
-      st.rootConn.Open();
     }
 
-    public void Dispose()
-    {
-      st.ExecuteSQLAsRoot("Delete from my_aspnet_sitemap");
-    }
-    
     private void PopulateSiteMapTable()
     {
       string sql = @"
@@ -71,17 +57,8 @@ insert into my_aspnet_sitemap( Id, Title, Description, Url, Roles, ParentID ) va
 insert into my_aspnet_sitemap( Id, Title, Description, Url, Roles, ParentID ) values (14, 'Queen vs Rook', 'Queen vs Rook, pawnless endings', '~/QueenVsRook.aspx ', null, 12 );
 insert into my_aspnet_sitemap( Id, Title, Description, Url, Roles, ParentID ) values (15, 'Isolated Queen Pawn Ending', 'Endings with queen pawn isolated', '~/IQPending.aspx', null, 12 );
 ";
-      MySqlConnection con = new MySqlConnection( st.GetConnectionString() );
-      MySqlScript script = new MySqlScript(con, sql);
-      con.Open();
-      try
-      {
-        script.Execute();
-      }
-      finally
-      {
-        con.Close();
-      }
+      MySqlScript script = new MySqlScript(Connection, sql);
+      script.Execute();
     }
 
     [Fact]
@@ -94,7 +71,7 @@ insert into my_aspnet_sitemap( Id, Title, Description, Url, Roles, ParentID ) va
       config.Add("connectionStringName", "LocalMySqlServer");
       config.Add("applicationName", "/");
       config.Add("enableExpireCallback", "false");
-      
+
       prov.Initialize("SiteMapTests", config);
       prov.BuildSiteMap();
       SiteMapNode node = prov.FindSiteMapNodeFromKey("5");
@@ -130,10 +107,10 @@ insert into my_aspnet_sitemap( Id, Title, Description, Url, Roles, ParentID ) va
       Assert.Equal(node.Title, "Index");
       string[] childData = new string[] { "Chess Openings", "Middle Game", "Endings" };
 
-      for( int i = 0; i < node.ChildNodes.Count; i++ )
+      for (int i = 0; i < node.ChildNodes.Count; i++)
       {
-        SiteMapNode child = node.ChildNodes[ i ];
-        Assert.Equal(child.Title, childData[ i ]);
+        SiteMapNode child = node.ChildNodes[i];
+        Assert.Equal(child.Title, childData[i]);
       }
     }
   }

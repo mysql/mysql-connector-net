@@ -21,30 +21,26 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using MySql.Data.MySqlClient;
-using System.Threading;
-using System.Globalization;
-using System.Data.Entity.Core.Metadata.Edm; 
+using System.Data.Entity.Core.Metadata.Edm;
 using Xunit;
 
 namespace MySql.Data.Entity.Tests
 {
-  public class ProviderManifestTests : IUseFixture<SetUpEntityTests>
+  public class ProviderManifestTests : IClassFixture<DefaultFixture>
   {
-    private SetUpEntityTests st;
+    private DefaultFixture st;
 
-    public void SetFixture(SetUpEntityTests data)
+    public ProviderManifestTests(DefaultFixture data)
     {
       st = data;
+      st.Setup(this.GetType());
     }
 
     [Fact]
     public void TestingMaxLengthFacet()
     {
-      using (MySqlConnection connection = new MySqlConnection(st.GetConnectionString(true)))
+      using (MySqlConnection connection = new MySqlConnection(st.ConnectionString))
       {
         MySqlProviderManifest pm = new MySqlProviderManifest(st.Version.ToString());
         TypeUsage tu = TypeUsage.CreateStringTypeUsage(
@@ -72,7 +68,7 @@ namespace MySql.Data.Entity.Tests
     [Fact]
     public void CanMapByteTypeToUTinyInt()
     {
-      using (MySqlConnection connection = new MySqlConnection(st.GetConnectionString(true)))
+      using (MySqlConnection connection = new MySqlConnection(st.ConnectionString))
       {
         MySqlProviderManifest pm = new MySqlProviderManifest(st.Version.ToString());
         TypeUsage tu = TypeUsage.CreateDefaultTypeUsage(
@@ -86,7 +82,7 @@ namespace MySql.Data.Entity.Tests
     [Fact]
     public void TestingMaxLengthWithFixedLenghtTrueFacets()
     {
-      using (MySqlConnection connection = new MySqlConnection(st.GetConnectionString(true)))
+      using (MySqlConnection connection = new MySqlConnection(st.ConnectionString))
       {
         MySqlProviderManifest pm = new MySqlProviderManifest(st.Version.ToString());
         TypeUsage tu = TypeUsage.CreateStringTypeUsage(

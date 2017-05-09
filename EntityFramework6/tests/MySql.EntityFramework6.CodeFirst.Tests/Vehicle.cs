@@ -58,9 +58,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
   { 
   }
 
-#if EF6
   [DbConfigurationType(typeof(MySqlEFConfiguration))]
-#endif
   public class VehicleDbContext2 : DbContext
   {
     public DbSet<Vehicle2> Vehicles { get; set; }
@@ -103,9 +101,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     public string Name { get; set; }
   }
 
-#if EF6
   [DbConfigurationType(typeof(MySqlEFConfiguration))]
-#endif
   public class VehicleDbContext3 : DbContext
   {
     public DbSet<Accessory> Accessories { get; set; }
@@ -190,9 +186,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
 
   }
 
-#if EF6
   [DbConfigurationType(typeof(MySqlEFConfiguration))]
-#endif
   public class ProductsDbContext : DbContext
   {
     public DbSet<Product> Products { get; set; }
@@ -213,9 +207,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     .HasColumnType("Timestamp")
     .HasPrecision(3);
 
-#if EF6
       Database.SetInitializer<ProductsDbContext>(new MigrateDatabaseToLatestVersion<ProductsDbContext, Configuration<ProductsDbContext>>());
-#endif
     }
   }
 
@@ -231,9 +223,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     public DateTime DateCreated { get; set; }
   }
 
-#if EF6
   [DbConfigurationType(typeof(MySqlEFConfiguration))]
-#endif
   public class ShortDbContext : DbContext
   {
     public DbSet<Names> Names { get; set; }
@@ -247,9 +237,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     }
   }
 
-#if EF6
   [DbConfigurationType(typeof(MySqlEFConfiguration))]
-#endif
   public class AutoIncrementBugContext : DbContext
   {
     public DbSet<AutoIncrementBug> AutoIncrementBug { get; set; }
@@ -333,9 +321,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
   }
 
 
-#if EF6
   [DbConfigurationType(typeof(MySqlEFConfiguration))]
-#endif
   public class UsingUnionContext : DbContext
   {
     public DbSet<Client> Clients { get; set; }

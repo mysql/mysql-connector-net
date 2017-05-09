@@ -21,40 +21,28 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using Xunit;
-using System.Data;
-using MySql.Web.Common;
-using MySql.Web.Security;
 using System.Collections.Specialized;
-using System.Configuration.Provider;
-using MySql.Data.MySqlClient;
-using System.Web.Security;
-using System.Configuration;
-using MySql.Web.Personalization;
 using System.Web.UI.WebControls.WebParts;
+using Xunit;
+using MySql.Data.MySqlClient;
+using MySql.Web.Personalization;
+using MySql.Data.MySqlClient.Tests;
 
 namespace MySql.Web.Tests
 {
-  public class PersonalizationTests : IClassFixture<SetUpWeb>, IDisposable
+  public class PersonalizationTests : WebTestBase
   {
-    private SetUpWeb st;
     private long applicationId;
 
-    public void SetFixture(SetUpWeb data)
+    public PersonalizationTests(TestFixture fixture) : base(fixture)
     {
-      st = data;
-      st.rootConn.Close();
-      st.rootConn = new MySqlConnection("server=localhost;userid=root;pwd=;database=" + st.conn.Database + ";port=" + st.port);
-      st.rootConn.Open();     
     }
 
     private void CreateDataForSharedScope()
     {
       var cmd = new MySqlCommand();
       cmd.CommandText = @"insert into my_aspnet_applications(name,description) values('\\', '\\')";
-      cmd.Connection = st.conn;
+      cmd.Connection = Connection;
       cmd.ExecuteNonQuery();
       applicationId = cmd.LastInsertedId;
 
@@ -62,7 +50,7 @@ namespace MySql.Web.Tests
       var pathId = new Guid();
       cmd.CommandText = @"insert into my_aspnet_paths(applicationId, pathid, path, loweredpath) values(" + applicationId +
                           ",'" + pathId.ToString() + @"', '~/default.aspx', '~/default.aspx')";
-      cmd.Connection = st.conn;
+      cmd.Connection = Connection;
       cmd.ExecuteNonQuery();
 
       
@@ -74,7 +62,7 @@ namespace MySql.Web.Tests
       cmd.Parameters.AddWithValue("@pathId", pathId);
       cmd.Parameters.AddWithValue("@pageSettings", settings);
       cmd.Parameters.AddWithValue("@LastUpdatedDate", DateTime.UtcNow);
-      cmd.Connection = st.conn;
+      cmd.Connection = Connection;
       cmd.ExecuteNonQuery();
     }
 
@@ -93,7 +81,7 @@ namespace MySql.Web.Tests
     {
       var cmd = new MySqlCommand();
       cmd.CommandText = @"insert into my_aspnet_applications(name,description) values('\\', '\\')";
-      cmd.Connection = st.conn;
+      cmd.Connection = Connection;
       cmd.ExecuteNonQuery();
       applicationId = cmd.LastInsertedId;
 
@@ -101,13 +89,13 @@ namespace MySql.Web.Tests
       var pathId = new Guid();
       cmd.CommandText = @"insert into my_aspnet_paths(applicationId, pathid, path, loweredpath) values(" + applicationId +
                           ",'" + pathId.ToString() + @"', '~/default.aspx', '~/default.aspx')";
-      cmd.Connection = st.conn;
+      cmd.Connection = Connection;
       cmd.ExecuteNonQuery();
       
       // add user
       cmd.CommandText = @"insert into my_aspnet_users(applicationId, name, isAnonymous, lastActivityDate) values(" + applicationId +
                         @",'GabPC\\Gab', 0, @LastActivityDate)";
-      cmd.Connection = st.conn;
+      cmd.Connection = Connection;
       cmd.Parameters.AddWithValue("@LastActivityDate", DateTime.UtcNow);
       cmd.ExecuteNonQuery();
       var userId = cmd.LastInsertedId;
@@ -119,18 +107,8 @@ namespace MySql.Web.Tests
                         applicationId + ", '" + pathId.ToString() + "', " + userId + ", @pageSettings, @LastUpdatedDate)";
       cmd.Parameters.AddWithValue("@pageSettings", settings);
       cmd.Parameters.AddWithValue("@LastUpdatedDate", DateTime.UtcNow);
-      cmd.Connection = st.conn;
+      cmd.Connection = Connection;
       cmd.ExecuteNonQuery();
-    }
-
-    public void Dispose()
-    {
-      st.ExecuteSQLAsRoot("Delete from my_aspnet_profiles");
-      st.ExecuteSQLAsRoot("Delete from my_aspnet_users");
-      st.ExecuteSQLAsRoot("Delete from my_aspnet_applications");
-      st.ExecuteSQLAsRoot("Delete from my_aspnet_personalizationperuser");
-      st.ExecuteSQLAsRoot("Delete from my_aspnet_paths");
-      st.ExecuteSQLAsRoot("Delete from my_aspnet_personalizationallusers");
     }
 
     private MySqlPersonalizationProvider InitPersonalizationProvider()

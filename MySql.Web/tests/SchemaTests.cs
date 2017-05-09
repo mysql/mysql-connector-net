@@ -21,41 +21,22 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
-
-using System.Text;
-using Xunit;
 using System.Data;
-using MySql.Web.Common;
-using MySql.Web.Security;
 using System.Collections.Specialized;
 using System.Configuration.Provider;
-using MySql.Data.MySqlClient;
 using System.Web.Security;
-using System.Configuration;
+using Xunit;
+using MySql.Web.Common;
+using MySql.Web.Security;
+using MySql.Data.MySqlClient;
+using MySql.Data.MySqlClient.Tests;
 
 namespace MySql.Web.Tests
 {
-  public class SchemaTests : IUseFixture<SetUpWeb>, IDisposable
+  public class SchemaTests : WebTestBase
   {
-    private SetUpWeb st;
-
-    public void SetFixture(SetUpWeb data)
+    public SchemaTests(TestFixture fixture) : base(fixture)
     {
-      st = data;
-      DropAllTables();
-    }
-
-    private void DropAllTables()
-    {
-      DataTable dt = st.conn.GetSchema("Tables");
-      foreach (DataRow row in dt.Rows)
-        st.execSQL(String.Format("DROP TABLE IF EXISTS {0}", row["TABLE_NAME"]));
-    }
-
-    public void Dispose()
-    {
-      //Nothing to clean
     }
 
     /// <summary>
@@ -66,7 +47,6 @@ namespace MySql.Web.Tests
     {
       for (int i = 0; i <= SchemaManager.Version; i++)
       {
-        DropAllTables();
         MySQLMembershipProvider provider = new MySQLMembershipProvider();
         NameValueCollection config = new NameValueCollection();
         config.Add("connectionStringName", "LocalMySqlServer");
@@ -75,16 +55,16 @@ namespace MySql.Web.Tests
 
         if (i > 0)
           for (int x = 1; x <= i; x++)
-            st.LoadSchema(x);
+            LoadSchema(x);
 
-       try
+        try
         {
           provider.Initialize(null, config);
           Assert.False(i < SchemaManager.Version, "This should have failed");
         }
         catch (ProviderException)
         {
-          Assert.False(i == SchemaManager.Version,"This should not have failed");
+          Assert.False(i == SchemaManager.Version, "This should not have failed");
         }
       }
     }
@@ -95,14 +75,14 @@ namespace MySql.Web.Tests
     [Fact]
     public void CurrentSchema()
     {
-      st.execSQL("set character_set_database=utf8");
+      executeSQL("set character_set_database=utf8");
 
-      st.LoadSchema(1);
-      st.LoadSchema(2);
-      st.LoadSchema(3);
-      st.LoadSchema(4);
+      LoadSchema(1);
+      LoadSchema(2);
+      LoadSchema(3);
+      LoadSchema(4);
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM my_aspnet_schemaversion", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM my_aspnet_schemaversion", Connection);
       object ver = cmd.ExecuteScalar();
       Assert.Equal(4, ver);
 
@@ -118,9 +98,9 @@ namespace MySql.Web.Tests
     [Fact]
     public void UpgradeV1ToV2()
     {
-      st.LoadSchema(1);
+      LoadSchema(1);
 
-      MySqlCommand cmd = new MySqlCommand("SHOW CREATE TABLE mysql_membership", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SHOW CREATE TABLE mysql_membership", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -129,8 +109,8 @@ namespace MySql.Web.Tests
         Assert.NotEqual(-1, index);
       }
 
-      st.LoadSchema(2);
-      cmd = new MySqlCommand("SHOW CREATE TABLE mysql_membership", st.conn);
+      LoadSchema(2);
+      cmd = new MySqlCommand("SHOW CREATE TABLE mysql_membership", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -139,32 +119,32 @@ namespace MySql.Web.Tests
         Assert.NotEqual(-1, index);
       }
     }
-    
+
     [Fact]
     private void LoadData()
     {
-      st.LoadSchema(1);
-      st.LoadSchema(2);
-      st.execSQL(@"INSERT INTO mysql_membership (pkid, username, password, applicationname, lastactivitydate) 
+      LoadSchema(1);
+      LoadSchema(2);
+      executeSQL(@"INSERT INTO mysql_membership (pkid, username, password, applicationname, lastactivitydate) 
                 VALUES('1', 'user1', '', 'app1', '2007-01-01')");
-      st.execSQL(@"INSERT INTO mysql_membership (pkid, username, password, applicationname, lastactivitydate) 
+      executeSQL(@"INSERT INTO mysql_membership (pkid, username, password, applicationname, lastactivitydate) 
                 VALUES('2', 'user2', '', 'app1', '2007-01-01')");
-      st.execSQL(@"INSERT INTO mysql_membership (pkid, username, password, applicationname, lastactivitydate) 
+      executeSQL(@"INSERT INTO mysql_membership (pkid, username, password, applicationname, lastactivitydate) 
                 VALUES('3', 'user1', '', 'app2', '2007-01-01')");
-      st.execSQL(@"INSERT INTO mysql_membership (pkid, username, password, applicationname, lastactivitydate) 
+      executeSQL(@"INSERT INTO mysql_membership (pkid, username, password, applicationname, lastactivitydate) 
                 VALUES('4', 'user2', '', 'app2', '2007-01-01')");
-      st.execSQL(@"INSERT INTO mysql_roles VALUES ('role1', 'app1')");
-      st.execSQL(@"INSERT INTO mysql_roles VALUES ('role2', 'app1')");
-      st.execSQL(@"INSERT INTO mysql_roles VALUES ('role1', 'app2')");
-      st.execSQL(@"INSERT INTO mysql_roles VALUES ('role2', 'app2')");
-      st.execSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user1', 'role1', 'app1')");
-      st.execSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user2', 'role2', 'app1')");
-      st.execSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user1', 'role1', 'app2')");
-      st.execSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user2', 'role2', 'app2')");
-      st.LoadSchema(3);
-      Assert.False(st.TableExists("mysql_membership"));
-      Assert.False(st.TableExists("mysql_roles"));
-      Assert.False(st.TableExists("mysql_usersinroles"));
+      executeSQL(@"INSERT INTO mysql_roles VALUES ('role1', 'app1')");
+      executeSQL(@"INSERT INTO mysql_roles VALUES ('role2', 'app1')");
+      executeSQL(@"INSERT INTO mysql_roles VALUES ('role1', 'app2')");
+      executeSQL(@"INSERT INTO mysql_roles VALUES ('role2', 'app2')");
+      executeSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user1', 'role1', 'app1')");
+      executeSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user2', 'role2', 'app1')");
+      executeSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user1', 'role1', 'app2')");
+      executeSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user2', 'role2', 'app2')");
+      LoadSchema(3);
+      Assert.False(TableExists("mysql_membership"));
+      Assert.False(TableExists("mysql_roles"));
+      Assert.False(TableExists("mysql_usersinroles"));
     }
 
     [Fact]
@@ -172,7 +152,7 @@ namespace MySql.Web.Tests
     {
       LoadData();
 
-      DataTable apps = st.FillTable("SELECT * FROM my_aspnet_applications");
+      DataTable apps = FillTable("SELECT * FROM my_aspnet_applications");
       Assert.Equal(2, apps.Rows.Count);
       Assert.Equal(1, apps.Rows[0]["id"]);
       Assert.Equal("app1", apps.Rows[0]["name"]);
@@ -180,77 +160,77 @@ namespace MySql.Web.Tests
       Assert.Equal("app2", apps.Rows[1]["name"]);
     }
 
-//    [Fact]
-//    public void CheckUsersUpgrade()
-//    {
-//      LoadData();
+    //    [Fact]
+    //    public void CheckUsersUpgrade()
+    //    {
+    //      LoadData();
 
-//      DataTable dt = st.FillTable("SELECT * FROM my_aspnet_users");
-//      Assert.Equal(4, dt.Rows.Count);
-//      Assert.Equal(1, dt.Rows[0]["id"]);
-//      Assert.Equal(1, dt.Rows[0]["applicationId"]);
-//      Assert.Equal("user1", dt.Rows[0]["name"]);
-//      Assert.Equal(2, dt.Rows[1]["id"]);
-//      Assert.Equal(1, dt.Rows[1]["applicationId"]);
-//      Assert.Equal("user2", dt.Rows[1]["name"]);
-//      Assert.Equal(3, dt.Rows[2]["id"]);
-//      Assert.Equal(2, dt.Rows[2]["applicationId"]);
-//      Assert.Equal("user1", dt.Rows[2]["name"]);
-//      Assert.Equal(4, dt.Rows[3]["id"]);
-//      Assert.Equal(2, dt.Rows[3]["applicationId"]);
-//      Assert.Equal("user2", dt.Rows[3]["name"]);
-//    }
+    //      DataTable dt = st.FillTable("SELECT * FROM my_aspnet_users");
+    //      Assert.Equal(4, dt.Rows.Count);
+    //      Assert.Equal(1, dt.Rows[0]["id"]);
+    //      Assert.Equal(1, dt.Rows[0]["applicationId"]);
+    //      Assert.Equal("user1", dt.Rows[0]["name"]);
+    //      Assert.Equal(2, dt.Rows[1]["id"]);
+    //      Assert.Equal(1, dt.Rows[1]["applicationId"]);
+    //      Assert.Equal("user2", dt.Rows[1]["name"]);
+    //      Assert.Equal(3, dt.Rows[2]["id"]);
+    //      Assert.Equal(2, dt.Rows[2]["applicationId"]);
+    //      Assert.Equal("user1", dt.Rows[2]["name"]);
+    //      Assert.Equal(4, dt.Rows[3]["id"]);
+    //      Assert.Equal(2, dt.Rows[3]["applicationId"]);
+    //      Assert.Equal("user2", dt.Rows[3]["name"]);
+    //    }
 
-//    [Fact]
-//    public void CheckRolesUpgrade()
-//    {
-//      LoadData();
+    //    [Fact]
+    //    public void CheckRolesUpgrade()
+    //    {
+    //      LoadData();
 
-//      DataTable dt = st.FillTable("SELECT * FROM my_aspnet_roles");
-//      Assert.Equal(4, dt.Rows.Count);
-//      Assert.Equal(1, dt.Rows[0]["id"]);
-//      Assert.Equal(1, dt.Rows[0]["applicationId"]);
-//      Assert.Equal("role1", dt.Rows[0]["name"]);
-//      Assert.Equal(2, dt.Rows[1]["id"]);
-//      Assert.Equal(1, dt.Rows[1]["applicationId"]);
-//      Assert.Equal("role2", dt.Rows[1]["name"]);
-//      Assert.Equal(3, dt.Rows[2]["id"]);
-//      Assert.Equal(2, dt.Rows[2]["applicationId"]);
-//      Assert.Equal("role1", dt.Rows[2]["name"]);
-//      Assert.Equal(4, dt.Rows[3]["id"]);
-//      Assert.Equal(2, dt.Rows[3]["applicationId"]);
-//      Assert.Equal("role2", dt.Rows[3]["name"]);
-//    }
+    //      DataTable dt = st.FillTable("SELECT * FROM my_aspnet_roles");
+    //      Assert.Equal(4, dt.Rows.Count);
+    //      Assert.Equal(1, dt.Rows[0]["id"]);
+    //      Assert.Equal(1, dt.Rows[0]["applicationId"]);
+    //      Assert.Equal("role1", dt.Rows[0]["name"]);
+    //      Assert.Equal(2, dt.Rows[1]["id"]);
+    //      Assert.Equal(1, dt.Rows[1]["applicationId"]);
+    //      Assert.Equal("role2", dt.Rows[1]["name"]);
+    //      Assert.Equal(3, dt.Rows[2]["id"]);
+    //      Assert.Equal(2, dt.Rows[2]["applicationId"]);
+    //      Assert.Equal("role1", dt.Rows[2]["name"]);
+    //      Assert.Equal(4, dt.Rows[3]["id"]);
+    //      Assert.Equal(2, dt.Rows[3]["applicationId"]);
+    //      Assert.Equal("role2", dt.Rows[3]["name"]);
+    //    }
 
-//    [Fact]
-//    public void CheckMembershipUpgrade()
-//    {
-//      LoadData();
+    //    [Fact]
+    //    public void CheckMembershipUpgrade()
+    //    {
+    //      LoadData();
 
-//      DataTable dt = st.FillTable("SELECT * FROM my_aspnet_membership");
-//      Assert.Equal(4, dt.Rows.Count);
-//      Assert.Equal(1, dt.Rows[0]["userid"]);
-//      Assert.Equal(2, dt.Rows[1]["userid"]);
-//      Assert.Equal(3, dt.Rows[2]["userid"]);
-//      Assert.Equal(4, dt.Rows[3]["userid"]);
-//    }
+    //      DataTable dt = st.FillTable("SELECT * FROM my_aspnet_membership");
+    //      Assert.Equal(4, dt.Rows.Count);
+    //      Assert.Equal(1, dt.Rows[0]["userid"]);
+    //      Assert.Equal(2, dt.Rows[1]["userid"]);
+    //      Assert.Equal(3, dt.Rows[2]["userid"]);
+    //      Assert.Equal(4, dt.Rows[3]["userid"]);
+    //    }
 
-//    [Fact]
-//    public void CheckUsersInRolesUpgrade()
-//    {
-//      LoadData();
+    //    [Fact]
+    //    public void CheckUsersInRolesUpgrade()
+    //    {
+    //      LoadData();
 
-//      DataTable dt = st.FillTable("SELECT * FROM my_aspnet_usersinroles");
-//      Assert.Equal(4, dt.Rows.Count);
-//      Assert.Equal(1, dt.Rows[0]["userid"]);
-//      Assert.Equal(1, dt.Rows[0]["roleid"]);
-//      Assert.Equal(2, dt.Rows[1]["userid"]);
-//      Assert.Equal(2, dt.Rows[1]["roleid"]);
-//      Assert.Equal(3, dt.Rows[2]["userid"]);
-//      Assert.Equal(3, dt.Rows[2]["roleid"]);
-//      Assert.Equal(4, dt.Rows[3]["userid"]);
-//      Assert.Equal(4, dt.Rows[3]["roleid"]);
-//    }
+    //      DataTable dt = st.FillTable("SELECT * FROM my_aspnet_usersinroles");
+    //      Assert.Equal(4, dt.Rows.Count);
+    //      Assert.Equal(1, dt.Rows[0]["userid"]);
+    //      Assert.Equal(1, dt.Rows[0]["roleid"]);
+    //      Assert.Equal(2, dt.Rows[1]["userid"]);
+    //      Assert.Equal(2, dt.Rows[1]["roleid"]);
+    //      Assert.Equal(3, dt.Rows[2]["userid"]);
+    //      Assert.Equal(3, dt.Rows[2]["roleid"]);
+    //      Assert.Equal(4, dt.Rows[3]["userid"]);
+    //      Assert.Equal(4, dt.Rows[3]["roleid"]);
+    //    }
 
     /// <summary>
     /// Bug #39072 Web provider does not work
@@ -272,57 +252,57 @@ namespace MySql.Web.Tests
           "question", "answer", true, null, out status);
     }
 
-//    [Fact]
-//    public void SchemaTablesUseSameEngine()
-//    {
-//      DropAllTables();
+    //    [Fact]
+    //    public void SchemaTablesUseSameEngine()
+    //    {
+    //      DropAllTables();
 
-//      for (int x = 1; x <= SchemaManager.Version; x++)
-//        st.LoadSchema(x);
+    //      for (int x = 1; x <= SchemaManager.Version; x++)
+    //        LoadSchema(x);
 
-//      string query = string.Format("SELECT TABLE_NAME, ENGINE FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '{0}'", st.conn.Database);
-//      MySqlCommand cmd = new MySqlCommand(query, st.conn);
-//      string lastEngine = null;
-//      string currentEngine;
+    //      string query = string.Format("SELECT TABLE_NAME, ENGINE FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '{0}'", st.conn.Database);
+    //      MySqlCommand cmd = new MySqlCommand(query, st.conn);
+    //      string lastEngine = null;
+    //      string currentEngine;
 
-//      using (MySqlDataReader reader = cmd.ExecuteReader())
-//      {
-//        while (reader.Read())
-//        {
-//          currentEngine = reader.GetString("ENGINE");
+    //      using (MySqlDataReader reader = cmd.ExecuteReader())
+    //      {
+    //        while (reader.Read())
+    //        {
+    //          currentEngine = reader.GetString("ENGINE");
 
-//          if (string.IsNullOrEmpty(lastEngine))
-//          {
-//            lastEngine = currentEngine;
-//          }
+    //          if (string.IsNullOrEmpty(lastEngine))
+    //          {
+    //            lastEngine = currentEngine;
+    //          }
 
-//          Assert.Equal(lastEngine, currentEngine);
-//        }
-//      }
-//    }
+    //          Assert.Equal(lastEngine, currentEngine);
+    //        }
+    //      }
+    //    }
 
-//    [Fact]    
-//    public void InitializeInvalidConnStringThrowsArgumentException()
-//    {
-//      Configuration configFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-//      string connStr = configFile.ConnectionStrings.ConnectionStrings["LocalMySqlServer"].ConnectionString;
-//      string fakeConnectionString = connStr.Replace("database", "fooKey");     
-//      configFile.ConnectionStrings.ConnectionStrings["LocalMySqlServer"].ConnectionString = fakeConnectionString;
-//      configFile.Save();
-//      ConfigurationManager.RefreshSection("connectionStrings");
+    //    [Fact]    
+    //    public void InitializeInvalidConnStringThrowsArgumentException()
+    //    {
+    //      Configuration configFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+    //      string connStr = configFile.ConnectionStrings.ConnectionStrings["LocalMySqlServer"].ConnectionString;
+    //      string fakeConnectionString = connStr.Replace("database", "fooKey");     
+    //      configFile.ConnectionStrings.ConnectionStrings["LocalMySqlServer"].ConnectionString = fakeConnectionString;
+    //      configFile.Save();
+    //      ConfigurationManager.RefreshSection("connectionStrings");
 
-//      MySQLMembershipProvider provider = new MySQLMembershipProvider();
-//      NameValueCollection config = new NameValueCollection();
-//      config.Add("connectionStringName", "LocalMySqlServer");
+    //      MySQLMembershipProvider provider = new MySQLMembershipProvider();
+    //      NameValueCollection config = new NameValueCollection();
+    //      config.Add("connectionStringName", "LocalMySqlServer");
 
-//      Exception ex = Assert.Throws<ArgumentException>(() => provider.Initialize(null, config));
-//      Assert.Equal(ex.Message, "Keyword not supported.\r\nParameter name: fookey");
+    //      Exception ex = Assert.Throws<ArgumentException>(() => provider.Initialize(null, config));
+    //      Assert.Equal(ex.Message, "Keyword not supported.\r\nParameter name: fookey");
 
-//      configFile.ConnectionStrings.ConnectionStrings["LocalMySqlServer"].ConnectionString = connStr;
-//      configFile.Save();
-//      ConfigurationManager.RefreshSection("connectionStrings");
-      
-//    }
+    //      configFile.ConnectionStrings.ConnectionStrings["LocalMySqlServer"].ConnectionString = connStr;
+    //      configFile.Save();
+    //      ConfigurationManager.RefreshSection("connectionStrings");
+
+    //    }
 
     /// <summary>
     /// Checking fix for http://bugs.mysql.com/bug.php?id=65144 / http://clustra.no.oracle.com/orabugs/14495292
@@ -331,21 +311,17 @@ namespace MySql.Web.Tests
     [Fact]
     public void AttemptLatestSchemaVersion()
     {
-      // UTF32 is only supported 
-      if (st.Version.Minor >= 5)
+      executeSQL(string.Format("alter database `{0}` character set = 'utf32' collate = 'utf32_general_ci'", Connection.Database));
+      for (int i = 1; i <= 4; i++)
       {
-        st.execSQL(string.Format("alter database `{0}` character set = 'utf32' collate = 'utf32_general_ci'", st.database0));
-        for (int i = 1; i <= 4; i++)
-        {
-          st.LoadSchema(i);
-        }
-        MySQLRoleProvider roleProvider = new MySQLRoleProvider();
-        NameValueCollection config = new NameValueCollection();
-        config.Add("connectionStringName", "LocalMySqlServer");
-        config.Add("applicationName", "/");
-        config.Add("autogenerateschema", "true");
-        roleProvider.Initialize(null, config);
+        LoadSchema(i);
       }
+      MySQLRoleProvider roleProvider = new MySQLRoleProvider();
+      NameValueCollection config = new NameValueCollection();
+      config.Add("connectionStringName", "LocalMySqlServer");
+      config.Add("applicationName", "/");
+      config.Add("autogenerateschema", "true");
+      roleProvider.Initialize(null, config);
     }
   }
 }

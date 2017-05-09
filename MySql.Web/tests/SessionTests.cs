@@ -21,36 +21,28 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using Xunit;
 using System.Threading;
 using System.Web.SessionState;
 using System.IO;
-using MySql.Data.MySqlClient;
-using MySql.Web.SessionState;
 using System.Collections.Specialized;
 using System.Net;
 using System.Diagnostics;
 using System.Configuration;
+using Xunit;
+using MySql.Data.MySqlClient;
+using MySql.Web.SessionState;
+using MySql.Data.MySqlClient.Tests;
 
 namespace MySql.Web.Tests
 {
-  public class SessionTests : IUseFixture<SetUpWeb>, IDisposable
+  public class SessionTests : WebTestBase
   {
-    private SetUpWeb st;
     private string strSessionID { get; set; }
     private string calledId { get; set; }
     private AutoResetEvent _evt { get; set; }
 
-    public void SetFixture(SetUpWeb data)
+    public SessionTests(TestFixture fixture) : base(fixture)
     {
-      st = data;
-    }
-
-    public void Dispose()
-    {
-     MySqlHelper.ExecuteScalar(st.conn, "DELETE FROM my_aspnet_sessions");
     }
 
     private byte[] Serialize(SessionStateItemCollection items)
@@ -83,7 +75,7 @@ namespace MySql.Web.Tests
             @sessionId, @appId, @created, @expires, @lockdate, @lockid, @timeout,
             @locked, @items, @flags)";
 
-      cmd = new MySqlCommand(sql, st.conn);
+      cmd = new MySqlCommand(sql, Connection);
       cmd.Parameters.AddWithValue("@sessionId", strSessionID);
       cmd.Parameters.AddWithValue("@appId", AppId);
       cmd.Parameters.AddWithValue("@created", timeCreated);
@@ -135,7 +127,7 @@ namespace MySql.Web.Tests
 
     private long CountSessions()
     {
-      return (long)MySqlHelper.ExecuteScalar(st.conn, "SELECT COUNT(*) FROM my_aspnet_sessions");
+      return (long)MySqlHelper.ExecuteScalar(Connection, "SELECT COUNT(*) FROM my_aspnet_sessions");
     }
 
     public void expireCallback(string id, SessionStateStoreData item)
@@ -154,7 +146,7 @@ namespace MySql.Web.Tests
       Assert.Equal(strSessionID, calledId);
 
       int i = 0;
-      while (((long)MySqlHelper.ExecuteScalar(st.conn, "SELECT Count(*) FROM my_aspnet_sessions;") != 0) && (i < 10))
+      while (((long)MySqlHelper.ExecuteScalar(Connection, "SELECT Count(*) FROM my_aspnet_sessions;") != 0) && (i < 10))
       {
         Thread.Sleep(500);
         i++;
@@ -171,7 +163,7 @@ namespace MySql.Web.Tests
       Assert.NotEqual(strSessionID, calledId);
 
       int i = 0;
-      while (((long)MySqlHelper.ExecuteScalar(st.conn, "SELECT Count(*) FROM my_aspnet_sessions;") != 0) && (i < 10))
+      while (((long)MySqlHelper.ExecuteScalar(Connection, "SELECT Count(*) FROM my_aspnet_sessions;") != 0) && (i < 10))
       {
         Thread.Sleep(500);
         i++;
@@ -218,7 +210,7 @@ namespace MySql.Web.Tests
     delegate WebResponse GetResponse();
     delegate void ThreadRequest(ThreadRequestData data);
 
-    [Fact(Timeout=1000000)]
+    [Fact]
     public void SessionLocking()
     {
       // Copy updated configuration file for web server process 

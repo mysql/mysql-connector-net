@@ -1,4 +1,4 @@
-// Copyright © 2014, 2017 Oracle and/or its affiliates. All rights reserved.
+// Copyright ï¿½ 2014, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -22,7 +22,6 @@
 
 using System;
 using MySql.Data.MySqlClient;
-
 using System.Data.Entity.Core.Common;
 using System.Xml;
 using Xunit;
@@ -32,22 +31,21 @@ namespace MySql.Data.Entity.Tests
 {
   // This test unit covers the tests that the wizard runs when generating a model
   // from an existing database
-  public class WizardTests : IUseFixture<SetUpEntityTests>
+  public class WizardTests : IClassFixture<DefaultFixture>
   {
-    private SetUpEntityTests st;
+    private DefaultFixture st;
 
-    public void SetFixture(SetUpEntityTests data)
+    public WizardTests(DefaultFixture data)
     {
       st = data;
+      st.Setup(this.GetType());
     }
 
     [Fact]
     public void GetDbProviderManifestTokenReturnsCorrectSchemaVersion()
     {
-      if (st.Version < new Version(5, 0)) return;
-
       MySqlProviderServices services = new MySqlProviderServices();
-      string token = services.GetProviderManifestToken(st.conn);
+      string token = services.GetProviderManifestToken(st.Connection);
 
       if (st.Version < new Version(5, 1))
         Assert.Equal("5.0", token);
@@ -64,8 +62,6 @@ namespace MySql.Data.Entity.Tests
     [Fact]
     public void GetStoreSchemaDescriptionDoesNotThrowForServer50OrGreater()
     {
-      if (st.Version < new Version(5, 0)) return;
-
       MySqlProviderManifest manifest = new MySqlProviderManifest(st.Version.Major + "." + st.Version.Minor);
       using (XmlReader reader = manifest.GetInformation(DbXmlEnabledProviderManifest.StoreSchemaDefinition))
       {

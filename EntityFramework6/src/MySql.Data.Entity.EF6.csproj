@@ -24,27 +24,62 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="App.config" />
+    <None Remove="Properties\ProviderManifest.xml" />
+    <None Remove="Properties\SchemaDefinition-5.0.ssdl" />
+    <None Remove="Properties\SchemaDefinition-5.1.ssdl" />
+    <None Remove="Properties\SchemaDefinition-5.5.ssdl" />
+    <None Remove="Properties\SchemaDefinition-5.6.ssdl" />
+    <None Remove="Properties\SchemaDefinition-5.7.ssdl" />
+    <None Remove="Properties\SchemaMapping.msl" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="EntityFramework" Version="6.1.3" />
+    <EmbeddedResource Include="Properties\ProviderManifest.xml">
+      <CustomToolNamespace></CustomToolNamespace>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\SchemaDefinition-5.0.ssdl">
+      <CustomToolNamespace></CustomToolNamespace>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\SchemaDefinition-5.1.ssdl">
+      <CustomToolNamespace></CustomToolNamespace>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\SchemaDefinition-5.5.ssdl">
+      <CustomToolNamespace></CustomToolNamespace>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\SchemaDefinition-5.6.ssdl">
+      <CustomToolNamespace></CustomToolNamespace>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\SchemaDefinition-5.7.ssdl">
+      <CustomToolNamespace></CustomToolNamespace>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\SchemaMapping.msl" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="App.config" />
   </ItemGroup>
 
   <PropertyGroup>
-    <DefineConstants>TRACE;DEBUG;RELEASE</DefineConstants>
+    <DefineConstants>EF6;NET_40_OR_GREATER;NET_45_OR_GREATER</DefineConstants>
     <DelaySign>true</DelaySign>
     <AssemblyOriginatorKeyFile>../../ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>False</SignAssembly>
+    <RootNamespace>MySql.Data.Entity</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DefineConstants>$(DefineConstants);TRACE;DEBUG</DefineConstants>
     <PreserveCompilationContext>true</PreserveCompilationContext>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EntityFramework" Version="6.1.3" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\MySQL.Data\src\MySql.Data.csproj" />
@@ -66,6 +101,19 @@
     <Compile Update="EFMySqlCommand.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <CustomToolNamespace></CustomToolNamespace>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

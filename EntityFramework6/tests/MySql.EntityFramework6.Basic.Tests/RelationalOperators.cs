@@ -1,4 +1,4 @@
-// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+// Copyright ï¿½ 2013 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -25,19 +25,20 @@ using System.Data;
 using MySql.Data.MySqlClient;
 using System.Data.Entity.Core.Objects;
 using System.Data.Common;
-using MySql.Data.Entity.Tests.Properties;
 using System.Linq;
 using Xunit;
+using System.Data.Entity.Infrastructure;
 
 namespace MySql.Data.Entity.Tests
 {
-  public class RelationalOperators : IUseFixture<SetUpEntityTests>
+  public class RelationalOperators : IClassFixture<DefaultFixture>
   {
-    private SetUpEntityTests st;
+    private DefaultFixture st;
 
-    public void SetFixture(SetUpEntityTests data)
+    public RelationalOperators(DefaultFixture fixture)
     {
-      st = data;
+      st = fixture;
+      st.Setup(this.GetType());
     }
 
     [Fact]
@@ -72,50 +73,17 @@ namespace MySql.Data.Entity.Tests
     [Fact]
     public void UnionAll()
     {
-      using (testEntities context = new testEntities())
+      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
       {
-        MySqlDataAdapter da = new MySqlDataAdapter(
-            "SELECT t.Id FROM Toys t UNION ALL SELECT c.Id FROM Companies c", st.conn);
-        DataTable dt = new DataTable();
-        da.Fill(dt);
-
-        string entitySQL = @"(SELECT t.Id, t.Name FROM Toys AS t) 
-                UNION ALL (SELECT c.Id, c.Name FROM Companies AS c)";
-        ObjectQuery<DbDataRecord> query = context.CreateQuery<DbDataRecord>(entitySQL);
-
-        string sql = query.ToTraceString();
-        st.CheckSql(sql, SQLSyntax.UnionAll);
-
-        int i = 0;
-        foreach (DbDataRecord r in query)
-        {
-          i++;
-        }
-        Assert.Equal(dt.Rows.Count, i);
+        st.TestESql<DbDataRecord>(
+          @"(SELECT b.Id, b.Name FROM Books AS b) 
+                UNION ALL (SELECT c.Id, c.Name FROM Companies AS c)",
+          @"SELECT `UnionAll1`.`Id` AS `C1`, `UnionAll1`.`Id1` AS `C2`, `UnionAll1`.`Name` AS `C3`
+            FROM ((SELECT `Extent1`.`Id`, `Extent1`.`Id` AS `Id1`, `Extent1`.`Name` FROM `Books` AS `Extent1`) 
+            UNION ALL (SELECT `Extent2`.`Id`, `Extent2`.`Id` AS `Id1`, `Extent2`.`Name` 
+            FROM `Companies` AS `Extent2`)) AS `UnionAll1`");
       }
     }
 
-    /// <summary>
-    /// Bug #60652	Query returns BLOB type but no BLOBs are in the database.        
-    /// </summary>
-    [Fact]
-    public void UnionAllWithBitColumnsDoesNotThrow()
-    {
-      using (testEntities entities = new testEntities())
-      {
-        // Here, Computer is the base type of DesktopComputer, LaptopComputer and TabletComputer. 
-        // LaptopComputer and TabletComputer include the bit fields that would provoke
-        // an InvalidCastException (byte[] to bool) when participating in a UNION 
-        // created internally by the Connector/Net entity framework provider.
-        var computers = from c in entities.Computers
-                        select c;
-
-        foreach (Computer computer in computers)
-        {
-          Assert.NotNull(computer);
-          Assert.True(computer.Id > 0);
-        }
-      }
-    }
   }
 }

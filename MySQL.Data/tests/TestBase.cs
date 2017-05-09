@@ -32,10 +32,10 @@ namespace MySql.Data.MySqlClient.Tests
     protected MySqlConnection Connection { get; set; }
     protected MySqlConnection Root { get; set; }
 
-    public TestBase(TestFixture fixture)
+    public TestBase(TestFixture fixture, bool reinitDatabase = false)
     {
       Fixture = fixture;
-      Fixture.Setup(this);
+      Fixture.Setup(this, reinitDatabase);
 
       if (String.IsNullOrEmpty(Fixture.Settings.Database))
         Console.WriteLine("database is empty in ctor");
@@ -74,6 +74,30 @@ namespace MySql.Data.MySqlClient.Tests
       var conn = asRoot ? Root : Connection;
       MySqlCommand cmd = new MySqlCommand(sql, conn);
       return cmd.ExecuteReader();
+    }
+
+#if !NET_CORE
+    public DataTable FillTable(string sql)
+    {
+      DataTable dt = new DataTable();
+      MySqlDataAdapter da = new MySqlDataAdapter(sql, Connection);
+      da.Fill(dt);
+      return dt;
+    }
+#endif
+
+    public bool TableExists(string tableName)
+    {
+      MySqlCommand cmd = new MySqlCommand($"SELECT * FROM {tableName} LIMIT 0", Connection);
+      try
+      {
+        cmd.ExecuteScalar();
+        return true;
+      }
+      catch (Exception)
+      {
+        return false;
+      }
     }
 
     internal protected void KillConnection(MySqlConnection c)

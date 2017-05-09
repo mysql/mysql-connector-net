@@ -31,16 +31,10 @@ using System.Data.Entity;
 using MySql.Data.MySqlClient;
 using MySql.Data.Entity;
 using System.Data.Common;
-#if EF6
 using System.Data.Entity.Migrations;
 using System.Data.Entity.Migrations.Infrastructure;
 using System.Data.Entity.Migrations.History;
 using System.Data.Entity.Spatial;
-#else
-#if NET_45_OR_GREATER
-using System.Data.Spatial;
-#endif
-#endif
 
 namespace MySql.Data.Entity.CodeFirst.Tests
 {
@@ -53,9 +47,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     public decimal Price { get; set; }
   }
 
-#if EF6
   [DbConfigurationType(typeof(MySqlEFConfiguration))] 
-#endif
   public class MovieCodedBasedConfigDBContext : DbContext
   {
     public DbSet<MovieCBC> Movies { get; set; }
@@ -64,22 +56,17 @@ namespace MySql.Data.Entity.CodeFirst.Tests
       : base(existingConnection, contextOwnsConnection)
     {
       Database.SetInitializer<MovieCodedBasedConfigDBContext>(new MovieCBCDBInitialize<MovieCodedBasedConfigDBContext>());
-#if EF6
       Database.SetInitializer<MovieCodedBasedConfigDBContext>(new MigrateDatabaseToLatestVersion<MovieCodedBasedConfigDBContext, Configuration<MovieCodedBasedConfigDBContext>>());
-#endif
     }
     public MovieCodedBasedConfigDBContext()
     {
       Database.SetInitializer<MovieCodedBasedConfigDBContext>(new MovieCBCDBInitialize<MovieCodedBasedConfigDBContext>());
-#if EF6
       Database.SetInitializer<MovieCodedBasedConfigDBContext>(new MigrateDatabaseToLatestVersion<MovieCodedBasedConfigDBContext, Configuration<MovieCodedBasedConfigDBContext>>());
-#endif
     }
 
     protected override void OnModelCreating(DbModelBuilder modelBuilder)
     {
       base.OnModelCreating(modelBuilder);
-#if EF6
       //modelBuilder.Entity<MovieCBC>().Property(x => x.Price).HasPrecision(16, 2);
       modelBuilder.Conventions.Add<MyCustomConventions>();
       modelBuilder.Entity<MovieCBC>().MapToStoredProcedures(
@@ -87,7 +74,6 @@ namespace MySql.Data.Entity.CodeFirst.Tests
               .Update(u => u.HasName("update_movie").Parameter(p => p.Title, "movie_name"))
               .Delete(d => d.HasName("delete_movie"))
         );
-#endif
     }
   }
 
@@ -106,7 +92,6 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     }
   }
 
-#if EF6
   public class MyHistoryContext : MySqlHistoryContext
   {
     public MyHistoryContext(DbConnection existingConnection, string defaultSchema)
@@ -292,5 +277,4 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     }
   }
   #endregion
-#endif
 }

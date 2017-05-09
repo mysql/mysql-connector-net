@@ -21,58 +21,77 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Xunit;
 using MySql.Data.MySqlClient;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
+using System.Data;
 
 namespace MySql.Data.Entity.Tests
 {
-  public class DatesTypesTests : IUseFixture<SetUpEntityTests>
+  public class Widget
   {
-    private SetUpEntityTests st;
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int Id { get; set; }
 
-    public void SetFixture(SetUpEntityTests data)
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public DateTime DateCreated { get; set; }
+
+    public DateTime Timestamp { get; set; }
+
+    public DateTime DateTimeWithPrecision { get; set; }
+  }
+
+  public class TestContext : DbContext
+  {
+    public TestContext(string connStr) : base(connStr)
     {
-      st = data;
+      Database.SetInitializer<TestContext>(null);
     }
 
-#if CLR4    
+    protected override void OnModelCreating(DbModelBuilder modelBuilder)
+    {
+      base.OnModelCreating(modelBuilder);
+      modelBuilder.Entity<Widget>()
+                      .Property(e => e.DateTimeWithPrecision)
+                      .HasPrecision(6);
+    }
+
+    public DbSet<Widget> Widgets { get; set; }
+  }
+
+  public class DatesTypesTests : IClassFixture<DefaultFixture>
+  {
+    private DefaultFixture st;
+
+    public DatesTypesTests(DefaultFixture fixture)
+    {
+      st = fixture;
+      st.Setup(this.GetType());
+    }
+
     [Fact]
     public void CanCreateDBScriptWithDateTimePrecision()
     {
       if (st.Version < new Version(5, 6, 5)) return;
 
-      MySqlConnection c = new MySqlConnection(st.conn.ConnectionString);
-      c.Open();
-
-      var script = new MySqlScript(c);
-      using (var ctx = new datesTypesEntities())
+      using (var ctx = new TestContext(st.ConnectionString))
       {
-        MySqlCommand query = new MySqlCommand("Create database test_types", c);
-        query.Connection = c;
-        query.ExecuteNonQuery();
-        c.ChangeDatabase("test_types");
-
-        script.Query = ctx.CreateDatabaseScript();
+        var script = new MySqlScript(st.Connection);
+        var context = ((IObjectContextAdapter)ctx).ObjectContext;
+        script.Query = context.CreateDatabaseScript();
         script.Execute();
 
-        query = new MySqlCommand("Select Column_name, Is_Nullable, Data_Type, DateTime_Precision from information_schema.Columns where table_schema ='" + c.Database + "' and table_name = 'Products' and column_name ='DateTimeWithPrecision'", c);
-        query.Connection = c;
-        MySqlDataReader reader = query.ExecuteReader();
-        while (reader.Read())
-        {
-          Assert.Equal("DateTimeWithPrecision", reader[0].ToString());
-          Assert.Equal("NO", reader[1].ToString());
-          Assert.Equal("datetime", reader[2].ToString());
-          Assert.Equal("3", reader[3].ToString());
-        }
-        reader.Close();
-        ctx.DeleteDatabase();
-        c.Close();
+        DataTable schema = st.Connection.GetSchema("COLUMNS", new string[] { null, st.Connection.Database, "widgets" });
+
+        DataRow row = schema.Rows[3];
+        Assert.Equal("datetime", row.Field<string>("DATA_TYPE"));
+        Assert.Equal((ulong)6, row.Field<UInt64>("DATETIME_PRECISION"));
+        Assert.Equal("NO", row.Field<string>("IS_NULLABLE"));
       }
     }
-#endif
   }
 }

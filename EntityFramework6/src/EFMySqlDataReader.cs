@@ -27,7 +27,8 @@ using System.Collections;
 using System.Data;
 using System.Globalization;
 using System.Data.Entity.Core.Metadata.Edm;
-
+using System.Data.Entity.Spatial;
+using MySql.Data.Types;
 
 namespace MySql.Data.Entity
 {

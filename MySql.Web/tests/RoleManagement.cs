@@ -21,39 +21,26 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
-
-using System.Text;
-using Xunit;
-using MySql.Web.Security;
 using System.Collections.Specialized;
 using System.Web.Security;
+using Xunit;
+using MySql.Web.Security;
+using MySql.Data.MySqlClient.Tests;
 
 namespace MySql.Web.Tests
 {
-  public class RoleManagement : IUseFixture<SetUpWeb>, IDisposable
+  public class RoleManagement : WebTestBase
   {
-    private SetUpWeb st;
     private MySQLMembershipProvider membershipProvider;
     private MySQLRoleProvider roleProvider;
 
-    public void SetFixture(SetUpWeb data)
+    public RoleManagement(TestFixture fixture) : base(fixture)
     {
-      st = data;
-
-      st.execSQL("DROP TABLE IF EXISTS mysql_membership");
-      st.execSQL("DROP TABLE IF EXISTS mysql_roles");
-
       membershipProvider = new MySQLMembershipProvider();
       NameValueCollection config = new NameValueCollection();
       config.Add("connectionStringName", "LocalMySqlServer");
       config.Add("applicationName", "/");
       membershipProvider.Initialize(null, config);
-    }
-
-    public void Dispose()
-    {
-     //Nothing to clean
     }
 
     private void AddUser(string username, string password)
