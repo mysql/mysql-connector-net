@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, 2017 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -53,7 +53,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
     public DbSet<Blog> Blogs { get; set; }
     public DbSet<Post> Posts { get; set; }
 
-    public SimpleContext(DbContextOptions options): base(options)
+    public SimpleContext(DbContextOptions options) : base(options)
     {      
     }
 
@@ -87,7 +87,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
     public TestsContext()
     { }
 
-    public TestsContext(DbContextOptions options): base(options)
+    public TestsContext(DbContextOptions options) : base(options)
     {
     }   
     
@@ -196,5 +196,153 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
   public class JsonContext : MyTestContext
   {
     public DbSet<JsonData> JsonEntity { get; set; }
+  }
+
+  public partial class AllDataTypesContext : MyTestContext
+  {
+    public virtual DbSet<AllDataTypes> AllDataTypes { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+      modelBuilder.Entity<AllDataTypes>(entity =>
+      {
+        entity.HasKey(e => e.AddressNumber1)
+            .HasName("PRIMARY");
+
+        entity.ToTable("all_data_types");
+
+        entity.Property(e => e.AddressNumber1)
+            .HasColumnName("address_number1")
+            .HasColumnType("tinyint(4)");
+
+        entity.Property(e => e.AddressNumber10)
+            .HasColumnName("address_number10")
+            .HasColumnType("bit(8)");
+
+        entity.Property(e => e.AddressNumber2)
+            .HasColumnName("address_number2")
+            .HasColumnType("smallint(6)");
+
+        entity.Property(e => e.AddressNumber3)
+            .HasColumnName("address_number3")
+            .HasColumnType("mediumint(9)");
+
+        entity.Property(e => e.AddressNumber4)
+            .HasColumnName("address_number4")
+            .HasColumnType("int(11)");
+
+        entity.Property(e => e.AddressNumber5)
+            .HasColumnName("address_number5")
+            .HasColumnType("bigint(20)");
+
+        entity.Property(e => e.AddressNumber6)
+            .HasColumnName("address_number6");
+
+        entity.Property(e => e.AddressNumber7)
+            .HasColumnName("address_number7")
+            .HasColumnType("float(10,2)");
+
+        entity.Property(e => e.AddressNumber8)
+            .HasColumnName("address_number8")
+            .HasColumnType("double(10,2)");
+
+        entity.Property(e => e.AddressNumber9)
+            .HasColumnName("address_number9")
+            .HasColumnType("decimal(6,4)");
+
+        entity.Property(e => e.BuildingName1)
+            .IsRequired()
+            .HasColumnName("building_name1")
+            .HasColumnType("char(100)")
+            .HasMaxLength(100);
+
+        entity.Property(e => e.BuildingName10)
+            .IsRequired()
+            .HasColumnName("building_name10")
+            .HasColumnType("longblob")
+            .HasMaxLength(-1);
+
+        entity.Property(e => e.BuildingName11)
+            .IsRequired()
+            .HasColumnName("building_name11")
+            .HasColumnType("enum('x-small','small','medium','large','x-large')")
+            .HasMaxLength(7);
+
+        entity.Property(e => e.BuildingName12)
+            .IsRequired()
+            .HasColumnName("building_name12")
+            .HasColumnType("set('x-small','small','medium','large','x-large')")
+            .HasMaxLength(34);
+
+        entity.Property(e => e.BuildingName13)
+            .HasColumnName("building_name13")
+            .HasColumnType("date");
+
+        entity.Property(e => e.BuildingName14)
+            .HasColumnName("building_name14")
+            .HasColumnType("datetime(6)");
+
+        entity.Property(e => e.BuildingName15)
+            .HasColumnName("building_name15")
+            .HasColumnType("time(6)");
+
+        entity.Property(e => e.BuildingName16)
+            .HasColumnName("building_name16")
+            .HasColumnType("timestamp(6)")
+            .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+
+        entity.Property(e => e.BuildingName17)
+            .HasColumnName("building_name17")
+            .HasColumnType("year(4)");
+
+        entity.Property(e => e.BuildingName2)
+            .IsRequired()
+            .HasColumnName("building_name2")
+            .HasColumnType("varchar(100)")
+            .HasMaxLength(100);
+
+        entity.Property(e => e.BuildingName3)
+            .IsRequired()
+            .HasColumnName("building_name3")
+            .HasColumnType("tinytext")
+            .HasMaxLength(255);
+
+        entity.Property(e => e.BuildingName4)
+            .IsRequired()
+            .HasColumnName("building_name4")
+            .HasColumnType("mediumtext")
+            .HasMaxLength(16777215);
+
+        entity.Property(e => e.BuildingName5)
+            .IsRequired()
+            .HasColumnName("building_name5")
+            .HasColumnType("longtext")
+            .HasMaxLength(-1);
+
+        entity.Property(e => e.BuildingName6)
+            .IsRequired()
+            .HasColumnName("building_name6")
+            .HasColumnType("binary(120)")
+            .HasMaxLength(120);
+
+        entity.Property(e => e.BuildingName7)
+            .IsRequired()
+            .HasColumnName("building_name7")
+            .HasColumnType("varbinary(120)")
+            .HasMaxLength(120);
+
+        entity.Property(e => e.BuildingName8)
+            .IsRequired()
+            .HasColumnName("building_name8")
+            .HasColumnType("blob")
+            .HasMaxLength(65535);
+
+        entity.Property(e => e.BuildingName9)
+            .IsRequired()
+            .HasColumnName("building_name9")
+            .HasColumnType("mediumblob")
+            .HasMaxLength(16777215);
+      });
+    }
   }
 }
