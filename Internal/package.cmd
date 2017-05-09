@@ -6,6 +6,8 @@ IF "%1" == "gpl" (
   REM =============  Creating Nuget packages ===================================
   dotnet pack MySql.Data/src/MySql.Data.csproj -c Release -o ..\..\NugetPkgs\Package
   dotnet pack MySql.Web/src/MySql.Web.csproj -c Release -o ..\..\NugetPkgs\Package
+  dotnet pack EntityFrameworkCore/src/MySql.Data.EntityFrameworkCore/MySql.Data.EntityFrameworkCore.csproj -c Release -o ..\..\NugetPkgs\Package
+  dotnet pack EntityFrameworkCore/src/MySql.Data.EntityFrameworkCore.Design/MySql.Data.EntityFrameworkCore.Design.csproj -c Release -o ..\..\NugetPkgs\Package
 )
 
 Nuget.exe install msbuildtasks -o packages
