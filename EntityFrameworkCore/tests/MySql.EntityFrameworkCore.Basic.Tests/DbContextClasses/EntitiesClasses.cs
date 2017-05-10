@@ -247,4 +247,15 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
 
     public string Name { get; set; }
   }
+
+  public class Triangle
+  {
+    public int Id { get; set; }
+
+    public int Base { get; set; }
+
+    public int Height { get; set; }
+
+    public int Area { get; set; }
+  }
 }

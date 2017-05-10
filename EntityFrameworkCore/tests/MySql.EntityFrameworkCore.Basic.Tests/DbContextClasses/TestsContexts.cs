@@ -49,12 +49,12 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
   }
 
   public class SimpleContext : DbContext
-  {    
+  {
     public DbSet<Blog> Blogs { get; set; }
     public DbSet<Post> Posts { get; set; }
 
-    public SimpleContext(DbContextOptions options): base(options)
-    {      
+    public SimpleContext(DbContextOptions options) : base(options)
+    {
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -87,10 +87,10 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
     public TestsContext()
     { }
 
-    public TestsContext(DbContextOptions options): base(options)
+    public TestsContext(DbContextOptions options) : base(options)
     {
-    }   
-    
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
       modelBuilder.Entity<Blog>()
@@ -113,7 +113,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
           .WithMany(p => p.ReadTags)
           .HasForeignKey(pt => pt.ReadId)
           .OnDelete(DeleteBehavior.Cascade);
-          
+
       modelBuilder.Entity<ReadTag>()
           .HasOne(pt => pt.Tag)
           .WithMany(t => t.ReadTags)
@@ -122,76 +122,76 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
     }
   }
 
-    public class ContextWithShadowProperty : MyTestContext
+  public class ContextWithShadowProperty : MyTestContext
+  {
+    public DbSet<Guest> Guests { get; set; }
+
+    public ContextWithShadowProperty(DbContextOptions options) : base(options)
     {
-        public DbSet<Guest> Guests { get; set; }        
-
-        public ContextWithShadowProperty(DbContextOptions options) : base(options)
-        {
-            ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
-        }
-
-        public override int SaveChanges()
-        {
-            var now = DateTime.Now;
-            foreach (EntityEntry<Guest> entry in ChangeTracker.Entries<Guest>())
-            {              
-                if (entry.State == EntityState.Added)
-                {                   
-                    entry.Property("CreatedAt").CurrentValue = now;
-                }
-                else if (entry.State == EntityState.Modified) 
-                {                    
-                    entry.Property("UpdatedAt").CurrentValue = now;
-                }
-            }
-            return base.SaveChanges();
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder
-             .Entity<Guest>(e => e.HasOne(a => a.Address).WithOne(p => p.Guest)
-             .HasForeignKey<Address>(a => a.IdAddress)
-             );
-
-            modelBuilder.Entity<Guest>().Property<DateTime>("CreatedAt");
-            modelBuilder.Entity<Guest>().Property<DateTime>("UpdatedAt");
-        }
+      ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
     }
 
-
-        public class EagerLoadingContext : MyTestContext
+    public override int SaveChanges()
     {
-        public DbSet<Guest> Guests { get; set; }
-        public DbSet<Relative> Persons2 { get; set; }        
-
-        public EagerLoadingContext()
-        {                    
-        }
-
-        public EagerLoadingContext(DbContextOptions options) : base(options)
+      var now = DateTime.Now;
+      foreach (EntityEntry<Guest> entry in ChangeTracker.Entries<Guest>())
+      {
+        if (entry.State == EntityState.Added)
         {
+          entry.Property("CreatedAt").CurrentValue = now;
         }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        else if (entry.State == EntityState.Modified)
         {
-            modelBuilder.Entity<Guest>()
-               .HasOne(p => p.Address)
-               .WithOne(i => i.Guest)
-               .HasForeignKey<Address>(i => i.IdAddress)               
-               .HasConstraintName("FKGuestAddress");
-
-            modelBuilder.Entity<Relative>()
-             .HasOne(p => p.Address)
-             .WithOne(i => i.Relative)
-             .HasForeignKey<AddressRelative>(i => i.IdAddressRelative)             
-             .HasConstraintName("FKRelativeAddress");
-
-            // add shadow property
-            modelBuilder.Entity<Guest>().Property<int>("RelativeId");
+          entry.Property("UpdatedAt").CurrentValue = now;
         }
+      }
+      return base.SaveChanges();
     }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+      modelBuilder
+       .Entity<Guest>(e => e.HasOne(a => a.Address).WithOne(p => p.Guest)
+       .HasForeignKey<Address>(a => a.IdAddress)
+       );
+
+      modelBuilder.Entity<Guest>().Property<DateTime>("CreatedAt");
+      modelBuilder.Entity<Guest>().Property<DateTime>("UpdatedAt");
+    }
+  }
+
+
+  public class EagerLoadingContext : MyTestContext
+  {
+    public DbSet<Guest> Guests { get; set; }
+    public DbSet<Relative> Persons2 { get; set; }
+
+    public EagerLoadingContext()
+    {
+    }
+
+    public EagerLoadingContext(DbContextOptions options) : base(options)
+    {
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+      modelBuilder.Entity<Guest>()
+         .HasOne(p => p.Address)
+         .WithOne(i => i.Guest)
+         .HasForeignKey<Address>(i => i.IdAddress)
+         .HasConstraintName("FKGuestAddress");
+
+      modelBuilder.Entity<Relative>()
+       .HasOne(p => p.Address)
+       .WithOne(i => i.Relative)
+       .HasForeignKey<AddressRelative>(i => i.IdAddressRelative)
+       .HasConstraintName("FKRelativeAddress");
+
+      // add shadow property
+      modelBuilder.Entity<Guest>().Property<int>("RelativeId");
+    }
+  }
 
   public class JsonContext : MyTestContext
   {
@@ -357,6 +357,23 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
       modelBuilder.Entity<Continents>()
         .ToTable("ContinentList")
         .HasKey(p => p.Code);
+    }
+  }
+
+  public class FiguresContext : MyTestContext
+  {
+    public DbSet<Triangle> Triangle { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+      base.OnModelCreating(modelBuilder);
+      modelBuilder.Entity<Triangle>(entity =>
+      {
+        entity.HasKey(p => p.Id);
+
+        entity.Property(p => p.Area)
+          .HasComputedColumnSql("base * height / 2");
+      });
     }
   }
 }

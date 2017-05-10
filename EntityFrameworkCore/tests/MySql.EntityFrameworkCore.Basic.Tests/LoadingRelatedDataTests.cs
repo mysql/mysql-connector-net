@@ -228,6 +228,33 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       }
     }
 
+    [Fact]
+    public void ComputedColumns()
+    {
+      using(FiguresContext context = new FiguresContext())
+      {
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
+        Triangle[] data = new Triangle[2];
+        data[0] = new Triangle()
+        {
+          Id = 33,
+          Base = 15,
+          Height = 10
+        };
+        data[1] = new Triangle()
+        {
+          Base = 20,
+          Height = 5
+        };
+        context.Triangle.AddRange(data);
+        context.Triangle.Add(data[1]);
+        context.SaveChanges();
+        Assert.Equal(75, data[0].Area);
+        Assert.Equal(50, data[1].Area);
+      }
+    }
+
 
 
     private void AddData(DbContext context)
