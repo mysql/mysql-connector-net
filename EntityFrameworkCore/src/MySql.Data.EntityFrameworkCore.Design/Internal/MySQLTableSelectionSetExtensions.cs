@@ -28,39 +28,48 @@ using System.Threading.Tasks;
 
 namespace MySql.Data.EntityFrameworkCore.Design.Internal
 {
-    public static class MySQLTableSelectionSetExtensions
+  public static class MySQLTableSelectionSetExtensions
+  {
+    public static bool Allows(this TableSelectionSet _tableSelectionSet, string schemaName, string tableName)
     {
-        public static bool Allows(this TableSelectionSet _tableSelectionSet, string schemaName, string tableName)
+      if (_tableSelectionSet == null
+          || (_tableSelectionSet.Schemas.Count == 0
+          && _tableSelectionSet.Tables.Count == 0))
+      {
+        return true;
+      }
+
+      var result = false;
+
+      if (_tableSelectionSet.Schemas.Count == 0)
+        result = true;
+
+      foreach (var schemaSelection in _tableSelectionSet.Schemas)
+      {
+        if (schemaSelection.Text.Equals(schemaName))
         {
-            if (_tableSelectionSet == null
-                || (_tableSelectionSet.Schemas.Count == 0
-                && _tableSelectionSet.Tables.Count == 0))
-            {
-                return true;
-            }
-
-            var result = false;
-
-            foreach (var schemaSelection in _tableSelectionSet.Schemas)
-                if (schemaSelection.Text.Equals(schemaName))
-                {
-                    schemaSelection.IsMatched = true;
-                    result = true;
-                }
-
-            foreach (var tableSelection in _tableSelectionSet.Tables)
-            {
-                var components = tableSelection.Text.Split('.');
-                if (components.Length == 1
-                    ? components[0].Equals(tableName)
-                    : components[0].Equals(schemaName) && components[1].Equals(tableName))
-                {
-                    tableSelection.IsMatched = true;
-                    result = true;
-                }
-            }
-
-            return result;
+          schemaSelection.IsMatched = true;
+          result = true;
         }
+      }
+
+      if (_tableSelectionSet.Tables.Count > 0 && result)
+      {
+        result = false;
+        foreach (var tableSelection in _tableSelectionSet.Tables)
+        {
+          var components = tableSelection.Text.Split('.');
+          if (components.Length == 1
+              ? components[0].Equals(tableName)
+              : components[0].Equals(schemaName) && components[1].Equals(tableName))
+          {
+            tableSelection.IsMatched = true;
+            result = true;
+          }
+        }
+      }
+
+      return result;
     }
+  }
 }
