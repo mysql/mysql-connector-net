@@ -4,6 +4,7 @@
 - Fixed: EF Core supports Json types. Oracle Bug #25493143
 - Fixed: EF Core database first doesn't supprt multiple datatypes (bin, mediumblob, date, etc). Oracle Bug #25493209
 - Fixed: EF Core TableAttribute is ignored when creating the database. Oracle Bug #25394223
+- Fixed: EF Core fails saving entity changes with computed columns. Oracle Bug #25816601
 
 
 6.10.1
