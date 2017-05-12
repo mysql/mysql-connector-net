@@ -1233,6 +1233,7 @@ namespace MySql.Web.Security
     /// this method is only necessary because early versions of Mono did not support
     /// the HashAlgorithmType property
     /// </summary>
+    /// <param name="key"></param>
     /// <param name="bytes"></param>
     /// <returns></returns>
     private string HashPasswordBytes(byte[] key, byte[] bytes)

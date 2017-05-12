@@ -33,9 +33,6 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class StoredProcedure : TestBase
   {
-    
-    private static string fillError = null;
-
     public StoredProcedure(TestFixture fixture) : base(fixture)
     {
     }
@@ -204,6 +201,9 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
 #if !NETCORE10
+
+    private static string fillError = null;
+
     private static void da_FillError(object sender, FillErrorEventArgs e)
     {
       fillError = e.Errors.Message;

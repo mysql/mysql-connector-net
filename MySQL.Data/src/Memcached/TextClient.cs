@@ -233,6 +233,7 @@ namespace MySql.Data.MySqlClient.Memcached
     /// </summary>
     /// <param name="cmd"></param>
     /// <param name="key"></param>
+    /// <param name="amount"></param>
     /// <remarks>This version is for commands that only require a key and an integer value.</remarks>
     private void SendCommand(string cmd, string key, int amount )
     {
@@ -248,7 +249,6 @@ namespace MySql.Data.MySqlClient.Memcached
     /// Sends a command to the server.
     /// </summary>
     /// <param name="cmd"></param>
-    /// <param name="key"></param>
     /// <param name="expiration"></param>
     /// <remarks>This version is for commands that only require a key and expiration.</remarks>
     private void SendCommand(string cmd, TimeSpan expiration)
