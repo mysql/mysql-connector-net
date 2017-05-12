@@ -320,6 +320,29 @@ namespace MySql.Data.EntityFrameworkCore.Tests
             }
         }
 
+    [Fact]
+    public void TableAttributeTest()
+    {
+      using(WorldContext context = new WorldContext())
+      {
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
+        using(MySqlConnection conn = new MySqlConnection(context.Database.GetDbConnection().ConnectionString))
+        {
+          conn.Open();
+          MySqlCommand cmd = new MySqlCommand("SHOW TABLES", conn);
+          using (MySqlDataReader reader = cmd.ExecuteReader())
+          {
+            Assert.True(reader.Read());
+            Assert.Equal("continentlist", reader.GetString(0));
+            Assert.True(reader.Read());
+            Assert.Equal("countrylist", reader.GetString(0));
+          }
+
+        }
+      }
+    }
+
         public void Dispose()
     {
       // ensure database deletion
