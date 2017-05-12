@@ -31,7 +31,7 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class StoredProcedureWithAccess : TestBase
   {
-    private static string fillError = null;
+    //private static string fillError = null;
 
     public StoredProcedureWithAccess(TestFixture fixture): base(fixture)
     {
