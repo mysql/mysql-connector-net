@@ -5,6 +5,7 @@
 - Fixed: EF Core database first doesn't supprt multiple datatypes (bin, mediumblob, date, etc). Oracle Bug #25493209
 - Fixed: EF Core TableAttribute is ignored when creating the database. Oracle Bug #25394223
 - Fixed: EF Core fails saving entity changes with computed columns. Oracle Bug #25816601
+- EF Core: Implemented EnsureSchemaOperation used if the OnModelCreating event has an Entity<>.Table(<name>, <schema>) definition. WL-10695
 
 
 6.10.1

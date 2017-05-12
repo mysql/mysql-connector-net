@@ -159,6 +159,22 @@ namespace MySql.Data.EntityFrameworkCore.Tests
 
     }
 
+    [Fact]
+    public void TestEnsureSchemaOperation()
+    {
+      using(var context = new WorldContext())
+      {
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
+        context.Countries.Add(new Countries()
+        {
+          Code = "1",
+          Name = "London"
+        });
+        context.SaveChanges();
+      }
+    }
+
 
     public void Dispose()
     {
