@@ -110,5 +110,39 @@ namespace EntityFrameworkCore.Basic.Tests
         Assert.Equal(now.Year, data.BuildingName17);
       }
     }
+
+    [Fact]
+    public void ValidateStringLength()
+    {
+      using(var context = new StringTypesContext())
+      {
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
+
+        context.Database.OpenConnection();
+        MySqlConnection conn = (MySqlConnection)context.Database.GetDbConnection();
+        MySqlCommand cmd = new MySqlCommand(
+          $"DESC stringtype",
+          conn);
+        using(MySqlDataReader reader = cmd.ExecuteReader())
+        {
+          Assert.True(reader.Read());
+          Assert.Equal("TinyString", reader.GetString("field"));
+          Assert.Equal("varchar(1000)", reader.GetString("type"));
+
+          Assert.True(reader.Read());
+          Assert.Equal("LongString", reader.GetString("field"));
+          Assert.Equal("text", reader.GetString("type"));
+
+          Assert.True(reader.Read());
+          Assert.Equal("MediumString", reader.GetString("field"));
+          Assert.Equal("mediumtext", reader.GetString("type"));
+
+          Assert.True(reader.Read());
+          Assert.Equal("NormalString", reader.GetString("field"));
+          Assert.Equal("varchar(3000)", reader.GetString("type"));
+        }
+      }
+    }
   }
 }
