@@ -20,7 +20,14 @@
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <SignAssembly>True</SignAssembly>
+    <DelaySign>True</DelaySign>
+    <AssemblyOriginatorKeyFile>..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="WebTestBase.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Include="App.config" />
@@ -42,7 +49,6 @@
     <PackageReference Include="Microsoft.Web.Infrastructure" Version="1.0.0" />
     <PackageReference Include="WebMatrix.WebData" Version="2.0.30506" />
     <ProjectReference Include="..\..\MySQL.Data\src\MySql.Data.csproj" />
-    <ProjectReference Include="..\..\MySQL.Data\tests\MySql.Data.Tests.csproj" />
     <ProjectReference Include="..\src\MySql.Web.csproj" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration.Install" />
