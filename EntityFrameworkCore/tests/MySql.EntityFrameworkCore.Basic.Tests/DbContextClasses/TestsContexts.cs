@@ -376,4 +376,24 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
       });
     }
   }
+
+  public class StringTypesContext : MyTestContext
+  {
+    public DbSet<StringTypes> StringType { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+      base.OnModelCreating(modelBuilder);
+      modelBuilder.Entity<StringTypes>(entity =>
+      {
+        entity.HasKey(p => p.TinyString);
+
+        entity.Property(p => p.NormalString)
+          .HasColumnType("varchar(3000)");
+
+        entity.Property(p => p.MediumString)
+          .HasColumnType("mediumtext");
+      });
+    }
+  }
 }
