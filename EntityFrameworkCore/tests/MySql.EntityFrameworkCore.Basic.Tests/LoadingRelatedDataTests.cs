@@ -26,9 +26,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MySql.Data.EntityFrameworkCore.Tests;
 using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
+using MySql.Data.MySqlClient;
 using MySQL.Data.EntityFrameworkCore;
 using MySQL.Data.EntityFrameworkCore.Extensions;
 using System;
+using System.Data.Common;
 using System.Linq;
 using Xunit;
 
@@ -175,6 +177,82 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       var address = context.Set<Address>().Find(1);
       Assert.NotNull(address);
       Assert.Equal("Michigan", address.City);
+    }
+
+    [Fact]
+    public void JsonDataTest()
+    {
+      using(JsonContext context = new JsonContext())
+      {
+        var model = context.Model;
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
+
+        using (MySqlConnection conn = (MySqlConnection)context.Database.GetDbConnection())
+        {
+          conn.Open();
+          MySqlCommand cmd = new MySqlCommand("SHOW CREATE TABLE JsonEntity", conn);
+          string jsonTableDesc;
+          using (MySqlDataReader reader = cmd.ExecuteReader())
+          {
+            reader.Read();
+            jsonTableDesc = reader.GetString(1);
+          }
+          Assert.Equal("CREATE TABLE `jsonentity` (\n  `Id` smallint(6) NOT NULL AUTO_INCREMENT,\n  `jsoncol` json DEFAULT NULL,\n  PRIMARY KEY (`Id`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin1", jsonTableDesc);
+        }
+
+        context.JsonEntity.Add(new JsonData()
+        {
+          jsoncol = "{ \"name\": \"Ronald\", \"city\": \"Austin\" }"
+        });
+        context.SaveChanges();
+        JsonData json = context.JsonEntity.First();
+        Assert.Equal("{ \"name\": \"Ronald\", \"city\": \"Austin\" }", json.jsoncol);
+      }
+    }
+
+    [Fact]
+    public void JsonInvalidData()
+    {
+      using (JsonContext context = new JsonContext())
+      {
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
+        context.JsonEntity.Add(new JsonData()
+        {
+          jsoncol = "{ name: Ronald, city: Austin }"
+        });
+        MySqlException ex = (MySqlException)Assert.ThrowsAny<DbUpdateException>(() => context.SaveChanges()).GetBaseException();
+        // Error Code: 3140. Invalid JSON text
+        Assert.Equal(3140, ex.Number);
+      }
+    }
+
+    [Fact]
+    public void ComputedColumns()
+    {
+      using(FiguresContext context = new FiguresContext())
+      {
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
+        Triangle[] data = new Triangle[2];
+        data[0] = new Triangle()
+        {
+          Id = 33,
+          Base = 15,
+          Height = 10
+        };
+        data[1] = new Triangle()
+        {
+          Base = 20,
+          Height = 5
+        };
+        context.Triangle.AddRange(data);
+        context.Triangle.Add(data[1]);
+        context.SaveChanges();
+        Assert.Equal(75, data[0].Area);
+        Assert.Equal(50, data[1].Area);
+      }
     }
 
 

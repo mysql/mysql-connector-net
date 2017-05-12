@@ -1,4 +1,4 @@
-// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2015, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -34,11 +34,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 using MySQL.Data.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.Sql;
 using MySql.Data.EntityFrameworkCore.Storage.Internal;
 using MySQL.Data.EntityFrameworkCore.Migrations.Internal;
 using MySql.Data.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using MySql.Data.EntityFrameworkCore.Metadata.Conventions;
 
 namespace MySQL.Data.EntityFrameworkCore
 {
@@ -73,10 +74,11 @@ namespace MySQL.Data.EntityFrameworkCore
     public override IRelationalTypeMapper TypeMapper => GetService<MySQLTypeMapper>();
     public override IModificationCommandBatchFactory ModificationCommandBatchFactory => GetService<MySQLModificationCommandBatchFactory>();
     public override IRelationalAnnotationProvider AnnotationProvider => GetService<MySQLAnnotationProvider>();
-    public override IMethodCallTranslator CompositeMethodCallTranslator => GetService<MySQLCompositeMethodCallTranslator>();    
-    public override IMemberTranslator CompositeMemberTranslator => GetService<MySQLCompositeMemberTranslator>();        
+    public override IMethodCallTranslator CompositeMethodCallTranslator => GetService<MySQLCompositeMethodCallTranslator>();
+    public override IMemberTranslator CompositeMemberTranslator => GetService<MySQLCompositeMemberTranslator>();
     public override IQueryCompilationContextFactory QueryCompilationContextFactory  => GetService<MySQLQueryCompilationContextFactory>();
     public override IQuerySqlGeneratorFactory QuerySqlGeneratorFactory => GetService<MySQLQueryGeneratorFactory>();
 
-    }
+    public override IConventionSetBuilder ConventionSetBuilder => GetService<MySQLConventionSetBuilder>();
+  }
 }
