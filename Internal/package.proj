@@ -45,7 +45,7 @@
           **/MySql.Data.xml;**/*.InstallLog;**/*.bat;**/*.reg;**/thumbs.db;**/.bzr/**;
           **/.bzr-mysql/**;**/UpgradeLog*.*;**/*.bzrignore;**/*.~??;
 		  **/.git/**;**/*.gitignore;**/EMTrace/**;**/Nuget*/**;
-		  **/Installer/CustomAction/**"/>
+		  **/Installer/CustomAction/**;*Internal/*;*.githooks/*"/>
     <SourceFiles Include="COPYING" Condition=" '$(Configuration)' == 'GPL' "/>
     <SourceFiles Include="**/EMTrace/**;" 
 	      Exclude="**/tmp/**;**/bin/**;**/obj/**;"
