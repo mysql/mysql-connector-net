@@ -1,12 +1,18 @@
 IF NOT "%1" == ""  SET MYSQL_PORT=%1
 
+
+REM =================== Test MySql.Data ==================================================
 cd MySql.Data\tests
 dotnet restore 
 copy certificates\*.* %MYSQL_DATADIR%\
-
-REM =================== Test MySql.Data ==================================================
 dotnet xunit -framework net452 -parallel none -xml n452-test-results.xml
 dotnet xunit -framework netcoreapp1.1 -parallel none -xml netcore-test-results.xml
+cd ../..
+
+REM =================== Test MySql.Web ==================================================
+cd MySql.Web\tests
+dotnet restore 
+dotnet xunit -framework net452 -parallel none -xml n452-test-results.xml
 cd ../..
 
 REM =================== Test EF Core =====================================================

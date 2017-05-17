@@ -28,6 +28,34 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Properties\schema1.sql" />
+    <None Remove="Properties\schema10.sql" />
+    <None Remove="Properties\schema11.sql" />
+    <None Remove="Properties\schema2.sql" />
+    <None Remove="Properties\schema3.sql" />
+    <None Remove="Properties\schema4.sql" />
+    <None Remove="Properties\schema5.sql" />
+    <None Remove="Properties\schema6.sql" />
+    <None Remove="Properties\schema7.sql" />
+    <None Remove="Properties\schema8.sql" />
+    <None Remove="Properties\schema9.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\schema1.sql" />
+    <EmbeddedResource Include="Properties\schema10.sql" />
+    <EmbeddedResource Include="Properties\schema11.sql" />
+    <EmbeddedResource Include="Properties\schema2.sql" />
+    <EmbeddedResource Include="Properties\schema3.sql" />
+    <EmbeddedResource Include="Properties\schema4.sql" />
+    <EmbeddedResource Include="Properties\schema5.sql" />
+    <EmbeddedResource Include="Properties\schema6.sql" />
+    <EmbeddedResource Include="Properties\schema7.sql" />
+    <EmbeddedResource Include="Properties\schema8.sql" />
+    <EmbeddedResource Include="Properties\schema9.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNet.Razor" Version="3.2.3" />
     <PackageReference Include="Microsoft.AspNet.WebPages" Version="3.2.3" />
     <PackageReference Include="Microsoft.AspNet.WebPages.Data" Version="3.2.3" />

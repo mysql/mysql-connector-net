@@ -81,12 +81,13 @@ namespace MySql.Web.Tests
       if (HttpContext.Current.Request.Path == "/read.aspx")
       {
         // Signaler        
-        SessionTests.mtxReader = new ManualResetEvent(false);
-        SessionTests.WaitSyncCreation(true);
+        //TODO: fix this
+//        SessionTests.mtxReader = new ManualResetEvent(false);
+  //      SessionTests.WaitSyncCreation(true);
       }
       else if (HttpContext.Current.Request.Path == "/write.aspx")
       {        
-        SessionTests.mtxWriter = new ManualResetEvent(false);
+    //    SessionTests.mtxWriter = new ManualResetEvent(false);
       }
     }
   }

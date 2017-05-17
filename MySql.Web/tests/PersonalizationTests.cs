@@ -26,17 +26,12 @@ using System.Web.UI.WebControls.WebParts;
 using Xunit;
 using MySql.Data.MySqlClient;
 using MySql.Web.Personalization;
-using MySql.Data.MySqlClient.Tests;
 
 namespace MySql.Web.Tests
 {
   public class PersonalizationTests : WebTestBase
   {
     private long applicationId;
-
-    public PersonalizationTests(TestFixture fixture) : base(fixture)
-    {
-    }
 
     private void CreateDataForSharedScope()
     {

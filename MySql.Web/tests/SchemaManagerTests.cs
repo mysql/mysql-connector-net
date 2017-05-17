@@ -22,7 +22,6 @@
 
 using System;
 using System.Collections.Specialized;
-using System.Configuration;
 using System.Configuration.Provider;
 using System.Data;
 using System.Web.Security;
@@ -30,14 +29,15 @@ using Xunit;
 using MySql.Data.MySqlClient;
 using MySql.Web.Common;
 using MySql.Web.Security;
-using MySql.Data.MySqlClient.Tests;
 
 namespace MySql.Web.Tests
 {
-  public class SchemaManagerTests : WebTestBase
+  public class SchemaManagerTests : WebTestBase 
   {
-    public SchemaManagerTests(TestFixture fixture) : base(fixture)
+    protected override void InitSchema()
     {
+      // we override this and leave it empty because we don't want
+      // to init the schema for this test.
     }
 
     /// <summary>
@@ -62,23 +62,23 @@ namespace MySql.Web.Tests
         {
           provider.Initialize(null, config);
           if (i < SchemaManager.Version)
-            Assert.False(true,"Should have failed");
+            Assert.False(true, "Should have failed");
         }
         catch (ProviderException)
         {
           if (i == SchemaManager.Version)
-            Assert.False(true,"This should not have failed");
+            Assert.False(true, "This should not have failed");
         }
       }
     }
 
-  /// <summary>
+    /// <summary>
     /// Bug #36444 'autogenerateschema' produces tables with 'random' collations 
     /// </summary>
     [Fact]
     public void CurrentSchema()
     {
-      executeSQL("set character_set_database=utf8");
+      execSQL("set character_set_database=utf8");
 
       LoadSchema(1);
       LoadSchema(2);
@@ -127,22 +127,22 @@ namespace MySql.Web.Tests
     {
       LoadSchema(1);
       LoadSchema(2);
-      executeSQL(@"INSERT INTO mysql_membership (pkid, username, password, applicationname, lastactivitydate) 
+      execSQL(@"INSERT INTO mysql_membership (pkid, username, password, applicationname, lastactivitydate) 
                 VALUES('1', 'user1', '', 'app1', '2007-01-01')");
-      executeSQL(@"INSERT INTO mysql_membership (pkid, username, password, applicationname, lastactivitydate) 
+      execSQL(@"INSERT INTO mysql_membership (pkid, username, password, applicationname, lastactivitydate) 
                 VALUES('2', 'user2', '', 'app1', '2007-01-01')");
-      executeSQL(@"INSERT INTO mysql_membership (pkid, username, password, applicationname, lastactivitydate) 
+      execSQL(@"INSERT INTO mysql_membership (pkid, username, password, applicationname, lastactivitydate) 
                 VALUES('3', 'user1', '', 'app2', '2007-01-01')");
-      executeSQL(@"INSERT INTO mysql_membership (pkid, username, password, applicationname, lastactivitydate) 
+      execSQL(@"INSERT INTO mysql_membership (pkid, username, password, applicationname, lastactivitydate) 
                 VALUES('4', 'user2', '', 'app2', '2007-01-01')");
-      executeSQL(@"INSERT INTO mysql_roles VALUES ('role1', 'app1')");
-      executeSQL(@"INSERT INTO mysql_roles VALUES ('role2', 'app1')");
-      executeSQL(@"INSERT INTO mysql_roles VALUES ('role1', 'app2')");
-      executeSQL(@"INSERT INTO mysql_roles VALUES ('role2', 'app2')");
-      executeSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user1', 'role1', 'app1')");
-      executeSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user2', 'role2', 'app1')");
-      executeSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user1', 'role1', 'app2')");
-      executeSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user2', 'role2', 'app2')");
+      execSQL(@"INSERT INTO mysql_roles VALUES ('role1', 'app1')");
+      execSQL(@"INSERT INTO mysql_roles VALUES ('role2', 'app1')");
+      execSQL(@"INSERT INTO mysql_roles VALUES ('role1', 'app2')");
+      execSQL(@"INSERT INTO mysql_roles VALUES ('role2', 'app2')");
+      execSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user1', 'role1', 'app1')");
+      execSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user2', 'role2', 'app1')");
+      execSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user1', 'role1', 'app2')");
+      execSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user2', 'role2', 'app2')");
       LoadSchema(3);
       Assert.False(TableExists("mysql_membership"));
       Assert.False(TableExists("mysql_roles"));
@@ -281,37 +281,16 @@ namespace MySql.Web.Tests
       }
     }
 
-    [Fact]    
+    [Fact]
     public void InitializeInvalidConnStringThrowsArgumentException()
     {
-      Configuration configFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-      string connStr = configFile.ConnectionStrings.ConnectionStrings["LocalMySqlServer"].ConnectionString;
-      string fakeConnectionString = connStr.Replace("database", "fooKey");
-      try
-      {
-        configFile.ConnectionStrings.ConnectionStrings["LocalMySqlServer"].ConnectionString = fakeConnectionString;
-        configFile.Save();
-        ConfigurationManager.RefreshSection("connectionStrings");
+      MySQLMembershipProvider provider = new MySQLMembershipProvider();
+      NameValueCollection config = new NameValueCollection();
+      var badConnectionString = ConnectionString + ";fookey=boo";
+      config.Add("connectionString", badConnectionString);
 
-        MySQLMembershipProvider provider = new MySQLMembershipProvider();
-        NameValueCollection config = new NameValueCollection();
-        config.Add("connectionStringName", "LocalMySqlServer");
-
-        Exception ex = Assert.Throws<ArgumentException>(() =>  provider.Initialize(null, config));
-        Assert.Equal("Keyword not supported.\r\nParameter name: fookey", ex.Message);
-      }
-      finally
-      {
-        configFile.ConnectionStrings.ConnectionStrings["LocalMySqlServer"].ConnectionString = connStr;
-        configFile.Save();
-        ConfigurationManager.RefreshSection("connectionStrings");
-      }
+      Exception ex = Assert.Throws<ArgumentException>(() => provider.Initialize(null, config));
+      Assert.Equal("Keyword not supported.\r\nParameter name: fookey", ex.Message);
     }
- 
-    public void Dispose()
-    {
-      //TODO
-    }
-
   }
 }

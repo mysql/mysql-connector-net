@@ -22,14 +22,8 @@
 
 
 using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.Configuration.Provider;
 using System.Diagnostics;
-using System.Security.Cryptography;
-using System.Text;
-using System.Web;
-using System.Web.Configuration;
 using System.Web.Hosting;
 using System.Web.UI.WebControls.WebParts;
 using MySql.Data.MySqlClient;
@@ -46,7 +40,6 @@ namespace MySql.Web.Personalization
   {
 
     string connectionString;
-    ConnectionStringSettings connectionStringSettings;
 
 
     string eventSource = "MySQLPersonalizationProvider";
@@ -112,13 +105,7 @@ namespace MySql.Web.Personalization
           writeExceptionsToEventLog = true;
         }
       }
-
-      connectionStringSettings = ConfigurationManager.ConnectionStrings[config["connectionStringName"]];
-      if (connectionStringSettings != null)
-        connectionString = connectionStringSettings.ConnectionString.Trim();
-      else
-        connectionString = "";
-
+      connectionString = ConfigUtility.GetConnectionString(config);
       if (String.IsNullOrEmpty(connectionString)) return;
 
       // Make sure we have the correct schema.

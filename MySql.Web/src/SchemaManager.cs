@@ -30,9 +30,7 @@ using MySql.Data.MySqlClient;
 using System.Collections.Specialized;
 using System.Configuration.Provider;
 using System.Resources;
-using System.IO;
 using System.Diagnostics;
-using MySql.Web.Properties;
 
 namespace MySql.Web.Common
 {

@@ -79,6 +79,15 @@ namespace MySql.Web.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You cannot specify both a connection string name and a connection string..
+        /// </summary>
+        public static string CannotSpecifyNameAndConnectionString {
+            get {
+                return ResourceManager.GetString("CannotSpecifyNameAndConnectionString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot unencode a hashed password..
         /// </summary>
         public static string CannotUnencodeHashedPwd {
