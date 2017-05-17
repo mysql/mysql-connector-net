@@ -34,18 +34,11 @@ using MySql.Web.SessionState;
 
 namespace MySql.Web.Tests
 {
-  public class SessionTests : WebTestBase //IClassFixture<TestFixture>
+  public class SessionTests : WebTestBase 
   {
-    //private TestFixture st;
     private string strSessionID { get; set; }
     private string calledId { get; set; }
     private AutoResetEvent _evt { get; set; }
-
-    //public SessionTests() //TestFixture fixture)
-    //{
-    //  st = fixture;
-    //  st.Setup("Session");
-    //}
 
     private byte[] Serialize(SessionStateItemCollection items)
     {

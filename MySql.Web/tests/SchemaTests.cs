@@ -35,6 +35,8 @@ namespace MySql.Web.Tests
   {
     protected override void InitSchema()
     {
+      // we override this and leave it empty because we don't want
+      // to init the schema for this test.
     }
 
     /// <summary>

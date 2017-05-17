@@ -31,16 +31,9 @@ using MySql.Data.MySqlClient;
 
 namespace MySql.Web.Tests
 {
-  public class UserManagement : WebTestBase //IClassFixture<TestFixture>
+  public class UserManagement : WebTestBase 
   {
-//    private TestFixture st;
     private MySQLMembershipProvider provider { get; set; }
-
-    //public UserManagement(TestFixture fixture) 
-    //{
-    //  st = fixture;
-    //  st.Setup("UserManagement");
-    //}
 
     private void CreateUserWithFormat(MembershipPasswordFormat format)
     {
