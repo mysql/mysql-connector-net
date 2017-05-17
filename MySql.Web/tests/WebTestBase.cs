@@ -65,11 +65,6 @@ namespace MySql.Web.Tests
         LoadSchema(ver);
     }
 
-    // public override void Cleanup()
-    //{
-    //    executeSQL($"DROP DATABASE `{Connection.Database}`", true);
-    //}
-
     private void AddConnectionStringToConfigFile()
     {
       Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
