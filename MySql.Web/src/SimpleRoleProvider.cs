@@ -25,12 +25,9 @@ using MySql.Web.General;
 using MySql.Web.Properties;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Configuration.Provider;
 using System.Linq;
 using System.Resources;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Hosting;
 using System.Web.Security;
 using WebMatrix.WebData;
@@ -53,7 +50,6 @@ namespace MySql.Web.Security
     string _pwdStrenghtRegex;
     bool _reqQuestionAnswer;
     bool _reqUniqueEmail;
-    string _connString;
     string _userTableName;
     string _userIdColumn;
     string _userNameColumn;
@@ -133,9 +129,8 @@ namespace MySql.Web.Security
       }
 
       _app = new Application(appName, base.Description);
-      ConnectionStringSettings connStrSettings = ConfigurationManager.ConnectionStrings[config["connectionStringName"]];
-      _connString = connStrSettings != null ? connStrSettings.ConnectionString.Trim() : "";
-      if (string.IsNullOrEmpty(_connString)) return;
+      ConnectionString = ConfigUtility.GetConnectionString(config);
+      if (string.IsNullOrEmpty(ConnectionString)) return;
 
       UserTableName = GetConfigValue(config["userTableName"], "");
       UserIdColumn = GetConfigValue(config["userIdColumn"], "");
@@ -158,7 +153,7 @@ namespace MySql.Web.Security
         if (usernames.Where(username => string.IsNullOrEmpty(username)).Count() > 0 || usernames.Where(username => string.IsNullOrEmpty(username)).Count() > 0)
           throw new ArgumentException(Resources.InvalidArrayValue);
 
-        using (MySqlDatabaseWrapper dbConn = new MySqlDatabaseWrapper(GetConnectionString()))
+        using (MySqlDatabaseWrapper dbConn = new MySqlDatabaseWrapper(ConnectionString))
         {
           foreach (var userid in GetUsersId(usernames))
           {
@@ -185,7 +180,7 @@ namespace MySql.Web.Security
         if (string.IsNullOrEmpty(roleName))
           MySqlSimpleMembershipProvider.NullArgumentException("roleName");
 
-        using (MySqlDatabaseWrapper dbConn = new MySqlDatabaseWrapper(GetConnectionString()))
+        using (MySqlDatabaseWrapper dbConn = new MySqlDatabaseWrapper(ConnectionString))
         {
           int roleid = GetRoleId(roleName);
           if (roleid != 0)
@@ -214,7 +209,7 @@ namespace MySql.Web.Security
       {
         return false;
       }
-      using (MySqlDatabaseWrapper dbConn = new MySqlDatabaseWrapper(GetConnectionString()))
+      using (MySqlDatabaseWrapper dbConn = new MySqlDatabaseWrapper(ConnectionString))
       {
         if (throwOnPopulatedRole)
         {
@@ -240,7 +235,7 @@ namespace MySql.Web.Security
       if (string.IsNullOrEmpty(usernameToMatch))
         return GetUsersInRole(roleName);
 
-      using (MySqlDatabaseWrapper dbConn = new MySqlDatabaseWrapper(GetConnectionString()))
+      using (MySqlDatabaseWrapper dbConn = new MySqlDatabaseWrapper(ConnectionString))
       {
         var usersName = dbConn.ExecuteQuery(string.Format("select ut.{0} from {1} as rt join {2} as urt on rt.roleid=urt.roleid join {3} as ut on rt.userid=ut.{4} where rt.rolename=? and ut.name like '%?%'", UserNameColumn, _rolesTable, _userInRolesTable, UserTableName, UserIdColumn), roleName, usernameToMatch);
         if (usersName.Count() > 0)
@@ -254,7 +249,7 @@ namespace MySql.Web.Security
       if (!Initialized)
         return _prevProvider.GetAllRoles();
 
-      using (MySqlDatabaseWrapper dbConn = new MySqlDatabaseWrapper(GetConnectionString()))
+      using (MySqlDatabaseWrapper dbConn = new MySqlDatabaseWrapper(ConnectionString))
       {
         var roles = dbConn.ExecuteQuery(string.Format("select rolename from {0};", _rolesTable));
         if (roles.Count() > 0)
@@ -270,7 +265,7 @@ namespace MySql.Web.Security
       if (string.IsNullOrEmpty(username))
         MySqlSimpleMembershipProvider.NullArgumentException("username");
 
-      string connString = GetConnectionString();
+      string connString = ConnectionString;
       int userid = MySqlSimpleMembershipProvider.GetUserId(username, connString, UserTableName, UserIdColumn, UserNameColumn);
       if (userid > 0)
       {
@@ -294,7 +289,7 @@ namespace MySql.Web.Security
       int roleid = GetRoleId(roleName);
       if (roleid > 0)
       {
-        using (MySqlDatabaseWrapper dbConn = new MySqlDatabaseWrapper(GetConnectionString()))
+        using (MySqlDatabaseWrapper dbConn = new MySqlDatabaseWrapper(ConnectionString))
         {
           var users = dbConn.ExecuteQuery(string.Format("select ut.{0} from {1} as urt join {2} as ut on urt.userid = ut.{3} where urt.roleid=?;", UserNameColumn, _userInRolesTable, UserTableName, UserIdColumn), roleid);
           if (users.Count() > 0)
@@ -308,7 +303,7 @@ namespace MySql.Web.Security
     {
       if (!Initialized)
         return _prevProvider.IsUserInRole(username, roleName);
-      string connString = GetConnectionString();
+      string connString = ConnectionString;
       if (string.IsNullOrEmpty(username))
         MySqlSimpleMembershipProvider.NullArgumentException("username");
       if (string.IsNullOrEmpty(roleName))
@@ -331,7 +326,7 @@ namespace MySql.Web.Security
       {
         if (usernames.Where(username => string.IsNullOrEmpty(username)).Count() > 0 || usernames.Where(username => string.IsNullOrEmpty(username)).Count() > 0)
           throw new ArgumentException(Resources.InvalidArrayValue);
-        using (MySqlDatabaseWrapper dbConn = new MySqlDatabaseWrapper(GetConnectionString()))
+        using (MySqlDatabaseWrapper dbConn = new MySqlDatabaseWrapper(ConnectionString))
         {
           foreach (var userid in GetUsersId(usernames))
           {
@@ -382,11 +377,9 @@ namespace MySql.Web.Security
       }
     }
 
-    public string ConnectionString
-    { get; set; }
+    public string ConnectionString { get; set;  }
 
-    public string ConnectionStringName
-    { get; set; }
+    public string ConnectionStringName { get; set; }
 
     public string UserTableName
     {
@@ -444,7 +437,7 @@ namespace MySql.Web.Security
 
     internal void CreateTables()
     {
-      var connString = GetConnectionString();
+      var connString = ConnectionString;
       using (MySqlDatabaseWrapper dbConn = new MySqlDatabaseWrapper(connString))
       {
         //create schema
@@ -454,27 +447,27 @@ namespace MySql.Web.Security
       }
     }
 
-    private string GetConnectionString()
-    {
-      if (!string.IsNullOrEmpty(ConnectionString))
-        return ConnectionString;
-      else
-      {
-        ConnectionStringSettings connString = ConfigurationManager.ConnectionStrings[ConnectionStringName];
-        if (connString != null)
-          return connString.ConnectionString;
-      }
+    //private string GetConnectionString()
+    //{
+    //  if (!string.IsNullOrEmpty(ConnectionString))
+    //    return ConnectionString;
+    //  else
+    //  {
+    //    ConnectionStringSettings connString = ConfigurationManager.ConnectionStrings[ConnectionStringName];
+    //    if (connString != null)
+    //      return connString.ConnectionString;
+    //  }
 
-      if (!string.IsNullOrEmpty(_connString))
-        return _connString;
-      throw new InvalidOperationException(Resources.NoConnString);
-    }
+    //  if (!string.IsNullOrEmpty(_connString))
+    //    return _connString;
+    //  throw new InvalidOperationException(Resources.NoConnString);
+    //}
 
     private IEnumerable<int> GetUsersId(string[] usersName)
     {
       foreach (string userName in usersName)
       {
-        yield return MySqlSimpleMembershipProvider.GetUserId(userName, GetConnectionString(), UserTableName, UserIdColumn, UserNameColumn);
+        yield return MySqlSimpleMembershipProvider.GetUserId(userName, ConnectionString, UserTableName, UserIdColumn, UserNameColumn);
       }
     }
 
@@ -488,7 +481,7 @@ namespace MySql.Web.Security
 
     internal int GetRoleId(string role)
     {
-      using (MySqlDatabaseWrapper dbConn = new MySqlDatabaseWrapper(GetConnectionString()))
+      using (MySqlDatabaseWrapper dbConn = new MySqlDatabaseWrapper(ConnectionString))
       {
         var roleid = dbConn.ExecuteQuerySingleRecord(string.Format("select roleid from {0} where rolename=?;", _rolesTable), role);
         if (roleid != null)
@@ -500,7 +493,7 @@ namespace MySql.Web.Security
 
     private bool UserHasRole(int userid, int roleid)
     {
-      using (MySqlDatabaseWrapper dbConn = new MySqlDatabaseWrapper(GetConnectionString()))
+      using (MySqlDatabaseWrapper dbConn = new MySqlDatabaseWrapper(ConnectionString))
       {
         return (dbConn.ExecuteQuery(string.Format("select count(*) from {0} where userid=? and roleid=?;", _userInRolesTable), userid, roleid).Count() > 0);
       }
@@ -508,7 +501,7 @@ namespace MySql.Web.Security
 
     private bool IsRoleInUse(int roleid)
     {
-      using (MySqlDatabaseWrapper dbConn = new MySqlDatabaseWrapper(GetConnectionString()))
+      using (MySqlDatabaseWrapper dbConn = new MySqlDatabaseWrapper(ConnectionString))
       {
         return (dbConn.ExecuteQuery(string.Format("select count(*) from {0} where roleid=?;", _userInRolesTable), roleid).Count() > 0);
       }

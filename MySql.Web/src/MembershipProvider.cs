@@ -26,17 +26,14 @@
 
 using System;
 using System.Collections.Specialized;
-using System.Configuration;
 using System.Configuration.Provider;
 using System.Data;
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
-using System.Web.Configuration;
 using System.Web.Hosting;
 using System.Web.Security;
 using MySql.Data.MySqlClient;
-using MySql.Web.Properties;
 using MySql.Web.Profile;
 using MySql.Web.Common;
 using System.Text.RegularExpressions;
@@ -143,13 +140,7 @@ namespace MySql.Web.Security
           throw new ProviderException(Properties.Resources.CannotRetrieveHashedPasswords);
       }
 
-      ConnectionStringSettings ConnectionStringSettings = ConfigurationManager.ConnectionStrings[
-          config["connectionStringName"]];
-      if (ConnectionStringSettings != null)
-        connectionString = ConnectionStringSettings.ConnectionString.Trim();
-      else
-        connectionString = "";
-
+      connectionString = ConfigUtility.GetConnectionString(config);
       if (String.IsNullOrEmpty(connectionString)) return;
 
       // make sure we have the correct schema

@@ -26,7 +26,6 @@
 
 using System;
 using System.Collections.Specialized;
-using System.Configuration;
 using System.Configuration.Provider;
 using System.Diagnostics;
 using System.Web.Hosting;
@@ -34,8 +33,6 @@ using System.Web.Security;
 using MySql.Data.MySqlClient;
 using System.Collections.Generic;
 using MySql.Web.Common;
-using MySql.Web.Properties;
-using System.Web;
 using MySql.Web.General;
 
 namespace MySql.Web.Security
@@ -48,7 +45,6 @@ namespace MySql.Web.Security
     private string eventSource = "MySQLRoleProvider";
     private string eventLog = "Application";
     private string exceptionMessage = "An exception occurred. Please check the Event Log.";
-    private ConnectionStringSettings pConnectionStringSettings;
     private string connectionString;
     private bool pWriteExceptionsToEventLog = false;
     private Application app;
@@ -89,12 +85,8 @@ namespace MySql.Web.Security
           pWriteExceptionsToEventLog = true;
         }
       }
-      pConnectionStringSettings = ConfigurationManager.ConnectionStrings[config["connectionStringName"]];
-      if (pConnectionStringSettings != null)
-        connectionString = pConnectionStringSettings.ConnectionString.Trim();
-      else
-        connectionString = "";
 
+      connectionString = ConfigUtility.GetConnectionString(config);
       if (String.IsNullOrEmpty(connectionString)) return;
 
       // make sure our schema is up to date

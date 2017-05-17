@@ -28,16 +28,11 @@ using System.Web.Hosting;
 using Xunit;
 using MySql.Data.MySqlClient;
 using MySql.Web.SiteMap;
-using MySql.Data.MySqlClient.Tests;
 
 namespace MySql.Web.Tests
 {
   public class SiteMapTests : WebTestBase
   {
-    public SiteMapTests(TestFixture fixture) : base(fixture)
-    {
-    }
-
     private void PopulateSiteMapTable()
     {
       string sql = @"

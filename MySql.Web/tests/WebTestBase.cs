@@ -23,23 +23,91 @@
 using System;
 using System.Resources;
 using MySql.Data.MySqlClient;
-using MySql.Data.MySqlClient.Tests;
-using MySql.Web.Common;
 using MySql.Web.Security;
+using System.Configuration;
+using MySql.Web.Common;
+using System.Data;
 
 namespace MySql.Web.Tests
 {
-  public class WebTestBase : TestBase
+  public class WebTestBase
   {
-    public WebTestBase(TestFixture fixture) : base(fixture, true)
+    protected MySqlConnection Connection;
+    protected string ConnectionString;
+    protected uint Port;
+
+    public WebTestBase()
+    {
+      var strPort = Environment.GetEnvironmentVariable("MYSQL_PORT");
+      Port = strPort == null ? 3306 : UInt32.Parse(strPort);
+      Init();
+      ConnectionString = $"server=localhost;uid=root;database=mysqlweb;pooling=false;port={Port}";
+      Connection = new MySqlConnection(ConnectionString);
+      Connection.Open();
+      InitSchema();
+      AddConnectionStringToConfigFile();
+    }
+
+
+    protected virtual void Init()
+    {
+      ConnectionString = $"server=localhost;uid=root;database=mysql;pooling=false;port={Port}";
+      Connection = new MySqlConnection(ConnectionString);
+      Connection.Open();
+      execSQL($"DROP DATABASE IF EXISTS `mysqlweb`");
+      execSQL($"CREATE DATABASE `mysqlweb`");
+      Connection.Close();
+    }
+
+    protected virtual void InitSchema()
     {
       for (int ver = 1; ver <= SchemaManager.Version; ver++)
         LoadSchema(ver);
     }
 
-    public override void Cleanup()
+    // public override void Cleanup()
+    //{
+    //    executeSQL($"DROP DATABASE `{Connection.Database}`", true);
+    //}
+
+    private void AddConnectionStringToConfigFile()
     {
-      executeSQL($"DROP DATABASE `{Connection.Database}`", true);
+      Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+      config.ConnectionStrings.ConnectionStrings.Remove("LocalMySqlServer");
+      ConnectionStringSettings css = new ConnectionStringSettings();
+      css.ConnectionString = ConnectionString;
+      css.Name = "LocalMySqlServer";
+      config.ConnectionStrings.ConnectionStrings.Add(css);
+      config.Save();
+      ConfigurationManager.RefreshSection("connectionStrings");
+    }
+
+    public bool TableExists(string tableName)
+    {
+      MySqlCommand cmd = new MySqlCommand($"SELECT * FROM {tableName} LIMIT 0", Connection);
+      try
+      {
+        cmd.ExecuteScalar();
+        return true;
+      }
+      catch (Exception)
+      {
+        return false;
+      }
+    }
+
+    public DataTable FillTable(string sql)
+    {
+      DataTable dt = new DataTable();
+      MySqlDataAdapter da = new MySqlDataAdapter(sql, Connection);
+      da.Fill(dt);
+      return dt;
+    }
+
+    public void execSQL(string sql)
+    {
+      MySqlCommand cmd = new MySqlCommand(sql, Connection);
+      cmd.ExecuteNonQuery();
     }
 
     internal protected void LoadSchema(int version)
@@ -49,9 +117,9 @@ namespace MySql.Web.Tests
       MySQLMembershipProvider provider = new MySQLMembershipProvider();
 
       ResourceManager r = new ResourceManager("MySql.Web.Properties.Resources", typeof(MySQLMembershipProvider).Assembly);
-      string schema = r.GetString(String.Format("schema{0}", version));
+      string schema = r.GetString($"schema{version}");
       MySqlScript script = new MySqlScript(Connection);
-      script.Query = schema;
+      script.Query = schema.ToString();
 
       try
       {

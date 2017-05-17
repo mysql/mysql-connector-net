@@ -20,7 +20,6 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
 using System.Data;
 using System.Collections.Specialized;
 using System.Configuration.Provider;
@@ -29,13 +28,12 @@ using Xunit;
 using MySql.Web.Common;
 using MySql.Web.Security;
 using MySql.Data.MySqlClient;
-using MySql.Data.MySqlClient.Tests;
 
 namespace MySql.Web.Tests
 {
   public class SchemaTests : WebTestBase
   {
-    public SchemaTests(TestFixture fixture) : base(fixture)
+    protected override void InitSchema()
     {
     }
 
@@ -75,7 +73,7 @@ namespace MySql.Web.Tests
     [Fact]
     public void CurrentSchema()
     {
-      executeSQL("set character_set_database=utf8");
+      execSQL("set character_set_database=utf8");
 
       LoadSchema(1);
       LoadSchema(2);
@@ -125,22 +123,22 @@ namespace MySql.Web.Tests
     {
       LoadSchema(1);
       LoadSchema(2);
-      executeSQL(@"INSERT INTO mysql_membership (pkid, username, password, applicationname, lastactivitydate) 
+      execSQL(@"INSERT INTO mysql_membership (pkid, username, password, applicationname, lastactivitydate) 
                 VALUES('1', 'user1', '', 'app1', '2007-01-01')");
-      executeSQL(@"INSERT INTO mysql_membership (pkid, username, password, applicationname, lastactivitydate) 
+      execSQL(@"INSERT INTO mysql_membership (pkid, username, password, applicationname, lastactivitydate) 
                 VALUES('2', 'user2', '', 'app1', '2007-01-01')");
-      executeSQL(@"INSERT INTO mysql_membership (pkid, username, password, applicationname, lastactivitydate) 
+      execSQL(@"INSERT INTO mysql_membership (pkid, username, password, applicationname, lastactivitydate) 
                 VALUES('3', 'user1', '', 'app2', '2007-01-01')");
-      executeSQL(@"INSERT INTO mysql_membership (pkid, username, password, applicationname, lastactivitydate) 
+      execSQL(@"INSERT INTO mysql_membership (pkid, username, password, applicationname, lastactivitydate) 
                 VALUES('4', 'user2', '', 'app2', '2007-01-01')");
-      executeSQL(@"INSERT INTO mysql_roles VALUES ('role1', 'app1')");
-      executeSQL(@"INSERT INTO mysql_roles VALUES ('role2', 'app1')");
-      executeSQL(@"INSERT INTO mysql_roles VALUES ('role1', 'app2')");
-      executeSQL(@"INSERT INTO mysql_roles VALUES ('role2', 'app2')");
-      executeSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user1', 'role1', 'app1')");
-      executeSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user2', 'role2', 'app1')");
-      executeSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user1', 'role1', 'app2')");
-      executeSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user2', 'role2', 'app2')");
+      execSQL(@"INSERT INTO mysql_roles VALUES ('role1', 'app1')");
+      execSQL(@"INSERT INTO mysql_roles VALUES ('role2', 'app1')");
+      execSQL(@"INSERT INTO mysql_roles VALUES ('role1', 'app2')");
+      execSQL(@"INSERT INTO mysql_roles VALUES ('role2', 'app2')");
+      execSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user1', 'role1', 'app1')");
+      execSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user2', 'role2', 'app1')");
+      execSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user1', 'role1', 'app2')");
+      execSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user2', 'role2', 'app2')");
       LoadSchema(3);
       Assert.False(TableExists("mysql_membership"));
       Assert.False(TableExists("mysql_roles"));
@@ -165,7 +163,7 @@ namespace MySql.Web.Tests
     //    {
     //      LoadData();
 
-    //      DataTable dt = st.FillTable("SELECT * FROM my_aspnet_users");
+    //      DataTable dt = FillTable("SELECT * FROM my_aspnet_users");
     //      Assert.Equal(4, dt.Rows.Count);
     //      Assert.Equal(1, dt.Rows[0]["id"]);
     //      Assert.Equal(1, dt.Rows[0]["applicationId"]);
@@ -186,7 +184,7 @@ namespace MySql.Web.Tests
     //    {
     //      LoadData();
 
-    //      DataTable dt = st.FillTable("SELECT * FROM my_aspnet_roles");
+    //      DataTable dt = FillTable("SELECT * FROM my_aspnet_roles");
     //      Assert.Equal(4, dt.Rows.Count);
     //      Assert.Equal(1, dt.Rows[0]["id"]);
     //      Assert.Equal(1, dt.Rows[0]["applicationId"]);
@@ -207,7 +205,7 @@ namespace MySql.Web.Tests
     //    {
     //      LoadData();
 
-    //      DataTable dt = st.FillTable("SELECT * FROM my_aspnet_membership");
+    //      DataTable dt = FillTable("SELECT * FROM my_aspnet_membership");
     //      Assert.Equal(4, dt.Rows.Count);
     //      Assert.Equal(1, dt.Rows[0]["userid"]);
     //      Assert.Equal(2, dt.Rows[1]["userid"]);
@@ -220,7 +218,7 @@ namespace MySql.Web.Tests
     //    {
     //      LoadData();
 
-    //      DataTable dt = st.FillTable("SELECT * FROM my_aspnet_usersinroles");
+    //      DataTable dt = FillTable("SELECT * FROM my_aspnet_usersinroles");
     //      Assert.Equal(4, dt.Rows.Count);
     //      Assert.Equal(1, dt.Rows[0]["userid"]);
     //      Assert.Equal(1, dt.Rows[0]["roleid"]);
@@ -240,7 +238,7 @@ namespace MySql.Web.Tests
     {
       MySQLMembershipProvider provider = new MySQLMembershipProvider();
       NameValueCollection config = new NameValueCollection();
-      config.Add("connectionStringName", "LocalMySqlServer");
+      config.Add("ConnectionStringName", "LocalMySqlServer");
       config.Add("autogenerateschema", "true");
       config.Add("applicationName", "/");
       config.Add("passwordFormat", "Clear");
@@ -311,7 +309,7 @@ namespace MySql.Web.Tests
     [Fact]
     public void AttemptLatestSchemaVersion()
     {
-      executeSQL(string.Format("alter database `{0}` character set = 'utf32' collate = 'utf32_general_ci'", Connection.Database));
+      execSQL(string.Format("alter database `{0}` character set = 'utf32' collate = 'utf32_general_ci'", Connection.Database));
       for (int i = 1; i <= 4; i++)
       {
         LoadSchema(i);

@@ -40,7 +40,7 @@ namespace MySql.Web.Tests
     {
       object o = Session["x"];
       // Signaler      
-      SessionTests.mtxReader.Set();
+//      SessionTests.mtxReader.Set();
     }
   }
 }

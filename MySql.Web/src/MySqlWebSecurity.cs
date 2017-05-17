@@ -23,12 +23,10 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Text;
 using System.Web;
 using System.Web.Security;
 using System.Web.Routing;
 using System.Web.WebPages;
-using MySql.Web.Security;
 using System.Collections.Specialized;
 using System.Net;
 using MySql.Web.Properties;
@@ -201,6 +199,7 @@ namespace MySql.Web.Security
     /// <param name="userIdColumn">Column name defined that will store the user id</param>
     /// <param name="userNameColumn">Column name defined that will store the user name</param>
     /// <param name="createTables">Create tables?</param>
+    /// <param name="checkIfInitialized"></param>
     public static void InitializeDatabaseConnection(string connectionStringName, string userTableName, string userIdColumn, string userNameColumn, bool createTables, bool checkIfInitialized = false)
     {
       InitializeMembershipProvider(connectionStringName, null, null, userTableName, userIdColumn, userNameColumn, createTables, checkIfInitialized);

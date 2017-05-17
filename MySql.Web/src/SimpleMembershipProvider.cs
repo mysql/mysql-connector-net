@@ -136,8 +136,7 @@ namespace MySql.Web.Security
       }
 
       _app = new Application(appName, base.Description);
-      ConnectionStringSettings connStrSettings = ConfigurationManager.ConnectionStrings[config["connectionStringName"]];
-      _connString = connStrSettings != null ? connStrSettings.ConnectionString.Trim() : "";
+      _connString = ConfigUtility.GetConnectionString(config);
       if (string.IsNullOrEmpty(_connString)) return;
 
       UserTableName = GetConfigValue(config["userTableName"], "");

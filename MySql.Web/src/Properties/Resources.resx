@@ -262,7 +262,7 @@
   <data name="SiteMapConnectionStringMissing" xml:space="preserve">
     <value>The connection string name is missing for the MySqlSiteMapProvider</value>
   </data>
-   <data name="schema10" type="System.Resources.ResXFileRef, System.Windows.Forms">
+  <data name="schema10" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>schema10.sql;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
   <data name="ClearPassTokenFailed" xml:space="preserve">
@@ -336,5 +336,8 @@
   </data>
   <data name="UserTableNotFound" xml:space="preserve">
     <value>Unable to find the table users {0}. Please create it or initialize the MySqlSimpleMembershipProvider with 'createTables=true'.</value>
+  </data>
+  <data name="CannotSpecifyNameAndConnectionString" xml:space="preserve">
+    <value>You cannot specify both a connection string name and a connection string.</value>
   </data>
 </root>
