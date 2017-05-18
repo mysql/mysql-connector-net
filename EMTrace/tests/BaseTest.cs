@@ -17,7 +17,7 @@ using System.Configuration;
 
 namespace MySql.EMTrace.Tests
 {
-    public class BaseTest : IDisposable , IClassFixture<DefaultFixture>
+    public class BaseTest : IDisposable 
     {
         protected TraceSource source;
         protected EMTraceListener tl;
