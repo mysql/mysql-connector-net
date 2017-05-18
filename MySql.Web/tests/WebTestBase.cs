@@ -27,6 +27,7 @@ using MySql.Web.Security;
 using System.Configuration;
 using MySql.Web.Common;
 using System.Data;
+using System.IO;
 
 namespace MySql.Web.Tests
 {
@@ -105,14 +106,20 @@ namespace MySql.Web.Tests
       cmd.ExecuteNonQuery();
     }
 
+    private string LoadResource(string name)
+    {
+      var assembly = typeof(MySQLMembershipProvider).Assembly;
+      using (Stream stream = assembly.GetManifestResourceStream(name))
+      using (StreamReader reader = new StreamReader(stream))
+        return reader.ReadToEnd();
+    }
+
     internal protected void LoadSchema(int version)
     {
       if (version < 1) return;
 
       MySQLMembershipProvider provider = new MySQLMembershipProvider();
-
-      ResourceManager r = new ResourceManager("MySql.Web.Properties.Resources", typeof(MySQLMembershipProvider).Assembly);
-      string schema = r.GetString($"schema{version}");
+      string schema = LoadResource($"MySql.Web.Properties.schema{version}.sql");
       MySqlScript script = new MySqlScript(Connection);
       script.Query = schema.ToString();
 

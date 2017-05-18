@@ -168,16 +168,6 @@
   <data name="RoleNameNotFound" xml:space="preserve">
     <value>Role name not found.</value>
   </data>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="schema1" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>schema1.sql;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
-  </data>
-  <data name="schema2" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>schema2.sql;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
-  </data>
-  <data name="schema3" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>schema3.sql;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
-  </data>
   <data name="UnableToLockOutUser" xml:space="preserve">
     <value>Unable to lock out user.</value>
   </data>
@@ -229,9 +219,6 @@
   <data name="PasswordQuestionInvalid" xml:space="preserve">
     <value>Password question supplied is invalid.</value>
   </data>
-  <data name="schema4" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>schema4.sql;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
-  </data>
   <data name="IllegalRoleName" xml:space="preserve">
     <value>Role names must not be null or empty.</value>
   </data>
@@ -241,29 +228,8 @@
   <data name="MonoDoesNotSupportHash" xml:space="preserve">
     <value>The mono runtime did not support hashed passwords.  Please use clear or encrypted passwords.</value>
   </data>
-  <data name="schema5" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>schema5.sql;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
-  </data>
-  <data name="schema6" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>schema6.sql;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
-  </data>
-  <data name="schema7" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>schema7.sql;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
-  </data>
-  <data name="schema8" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>schema8.sql;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
-  </data>
-  <data name="schema9" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>schema9.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
-  </data>
-  <data name="schema11" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>schema11.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
-  </data>
   <data name="SiteMapConnectionStringMissing" xml:space="preserve">
     <value>The connection string name is missing for the MySqlSiteMapProvider</value>
-  </data>
-  <data name="schema10" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>schema10.sql;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
   <data name="ClearPassTokenFailed" xml:space="preserve">
     <value>Failed to clear the token for the userid {0} in the table {1} after password update.</value>

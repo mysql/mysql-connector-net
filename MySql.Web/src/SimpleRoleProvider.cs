@@ -441,8 +441,7 @@ namespace MySql.Web.Security
       using (MySqlDatabaseWrapper dbConn = new MySqlDatabaseWrapper(connString))
       {
         //create schema
-        ResourceManager r = new ResourceManager("MySql.Web.Properties.Resources", typeof(SchemaManager).Assembly);
-        string schema = r.GetString("schema11");
+        string schema = SchemaManager.GetSchema(11);
         dbConn.ExecuteNonQuery(schema);
       }
     }
