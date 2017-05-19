@@ -1,27 +1,35 @@
 cd MySql.Data
+dotnet clean
 dotnet restore
 dotnet build -c Release
 
 cd ..\MySql.Web
+dotnet clean
 dotnet restore
 dotnet build -c Release
 
 cd ..\EntityFramework6
+dotnet clean
 dotnet restore
 dotnet build -c Release
 
 cd ..\EntityFrameworkCore
+dotnet clean
 dotnet restore
 dotnet build -c Release
 
 REM ================= build EMTrace plugin ===================================
 cd ..\EMTrace
+dotnet clean
 dotnet restore
 dotnet build -c Release
 
 REM ==================  build installer custom action and docs ==============================
 cd ..
+msbuild Installer\CustomAction\MySql.ConnectorInstaller.csproj /t:Clean
 msbuild Installer\CustomAction\MySql.ConnectorInstaller.csproj /p:Configuration=Release
+
+msbuild Documentation\help.shfbproj /t:Clean
 msbuild Documentation\help.shfbproj /p:Configuration=Release
 
 REM ================== sign assemblies ========================================
