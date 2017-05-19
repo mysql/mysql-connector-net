@@ -10,19 +10,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.Data", "..\MySQL.Data\src\MySql.Data.csproj", "{211964C5-1F3B-4D2B-8E25-BC40141D697E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.EntityFrameworkCore.Basic.Tests", "tests\MySql.EntityFrameworkCore.Basic.Tests\MySql.EntityFrameworkCore.Basic.Tests.csproj", "{DBEAF9A0-D13D-4CBE-BC43-CCEAC085C3AB}"
-	ProjectSection(ProjectDependencies) = postProject
-		{211964C5-1F3B-4D2B-8E25-BC40141D697E} = {211964C5-1F3B-4D2B-8E25-BC40141D697E}
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.EntityFrameworkCore.Design.Tests", "tests\MySql.EntityFrameworkCore.Design.Tests\MySql.EntityFrameworkCore.Design.Tests.csproj", "{5E6821FE-243C-41FB-A9E3-120687ABE238}"
-	ProjectSection(ProjectDependencies) = postProject
-		{65A8A175-B8C8-4B81-BD96-60921534615E} = {65A8A175-B8C8-4B81-BD96-60921534615E}
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.EntityFrameworkCore.Migrations.Tests", "tests\MySql.EntityFrameworkCore.Migrations.Tests\MySql.EntityFrameworkCore.Migrations.Tests.csproj", "{AF10E1F7-EEEB-41B7-B8F8-AA6E45DF6493}"
-	ProjectSection(ProjectDependencies) = postProject
-		{65A8A175-B8C8-4B81-BD96-60921534615E} = {65A8A175-B8C8-4B81-BD96-60921534615E}
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
