@@ -20,14 +20,21 @@
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <SignAssembly>True</SignAssembly>
+    <DelaySign>True</DelaySign>
+    <AssemblyOriginatorKeyFile>..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="TestFixture.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Net.Http" Version="4.3.1" />
+    <PackageReference Include="System.Net.Http" Version="4.3.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
     <PackageReference Include="xunit" Version="2.3.0-beta1-build3642" />
     <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.0-beta1-build3642" />
@@ -42,7 +49,6 @@
     <PackageReference Include="Microsoft.Web.Infrastructure" Version="1.0.0" />
     <PackageReference Include="WebMatrix.WebData" Version="2.0.30506" />
     <ProjectReference Include="..\..\MySQL.Data\src\MySql.Data.csproj" />
-    <ProjectReference Include="..\..\MySQL.Data\tests\MySql.Data.Tests\MySql.Data.Tests.csproj" />
     <ProjectReference Include="..\src\MySql.Web.csproj" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration.Install" />

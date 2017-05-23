@@ -9,7 +9,6 @@
     <TargetFrameworks>net452;netstandard1.3</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <DelaySign>true</DelaySign>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>MySql.Data.EntityFrameworkCore.Design</AssemblyName>
     <PackageId>MySql.Data.EntityFrameworkCore.Design</PackageId>
@@ -20,6 +19,9 @@
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <SignAssembly>True</SignAssembly>
+    <DelaySign>True</DelaySign>
+    <AssemblyOriginatorKeyFile>..\..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>  
   </PropertyGroup>
 
   <ItemGroup>

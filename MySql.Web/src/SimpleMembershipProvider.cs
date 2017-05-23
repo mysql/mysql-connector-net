@@ -136,8 +136,7 @@ namespace MySql.Web.Security
       }
 
       _app = new Application(appName, base.Description);
-      ConnectionStringSettings connStrSettings = ConfigurationManager.ConnectionStrings[config["connectionStringName"]];
-      _connString = connStrSettings != null ? connStrSettings.ConnectionString.Trim() : "";
+      _connString = ConfigUtility.GetConnectionString(config);
       if (string.IsNullOrEmpty(_connString)) return;
 
       UserTableName = GetConfigValue(config["userTableName"], "");
@@ -885,8 +884,7 @@ namespace MySql.Web.Security
         }
 
         //create schema
-        ResourceManager r = new ResourceManager("MySql.Web.Properties.Resources", typeof(SchemaManager).Assembly);
-        string schema = r.GetString("schema11");
+        string schema = SchemaManager.GetSchema(11);
         dbConn.ExecuteNonQuery(schema);
       }
     }

@@ -673,7 +673,7 @@
       <para>
         If the <B>MySqlConnection</B> goes out of scope, it is not closed. Therefore,
         you must explicitly close the connection by calling <see cref="MySqlConnection.Close"/>
-        or <see cref="MySqlConnection.Dispose"/>.
+        or <see cref="MySqlConnection.Dispose()"/>.
       </para>
     </remarks>
 

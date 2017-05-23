@@ -31,15 +31,12 @@ using System.Collections.Specialized;
 using System.Web.Hosting;
 using MySql.Data.MySqlClient;
 using System.Configuration.Provider;
-using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.Data;
 using System.IO;
 using System.Globalization;
-using System.Web.Security;
 using MySql.Web.Common;
-using MySql.Web.Properties;
 using MySql.Web.General;
 
 namespace MySql.Web.Profile
@@ -81,12 +78,7 @@ namespace MySql.Web.Profile
       {
         string applicationName = GetConfigValue(config["applicationName"], HostingEnvironment.ApplicationVirtualPath);
 
-        connectionString = "";
-        ConnectionStringSettings ConnectionStringSettings = ConfigurationManager.ConnectionStrings[
-            config["connectionStringName"]];
-        if (ConnectionStringSettings != null)
-          connectionString = ConnectionStringSettings.ConnectionString.Trim();
-
+        connectionString = ConfigUtility.GetConnectionString(config);
         if (String.IsNullOrEmpty(connectionString)) return;
 
         // make sure our schema is up to date

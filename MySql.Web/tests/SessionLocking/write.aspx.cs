@@ -39,10 +39,10 @@ namespace MySql.Web.Tests
     protected void Page_Load(object sender, EventArgs e)
     {
       // Make session dirty
-      Session["x"] = "x";
+//      Session["x"] = "x";
       
-      SessionTests.mtxWriter.Set();
-      SessionTests.WaitSyncCreation( false );
+   //   SessionTests.mtxWriter.Set();
+  //    SessionTests.WaitSyncCreation( false );
     }
   }
 }

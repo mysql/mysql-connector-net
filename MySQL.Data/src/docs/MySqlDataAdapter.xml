@@ -285,7 +285,7 @@
         if it is not already open. This can be useful in a an application that must call the
         <see cref="DbDataAdapter.Fill(DataSet)"/> method for two or more <B>MySqlDataAdapter</B> objects.
         If the <B>MySqlConnection</B> is already open, you must explicitly call
-        <see cref="MySqlConnection.Close"/> or <see cref="MySqlConnection.Dispose"/> to close it.
+        <see cref="MySqlConnection.Close"/> or <see cref="MySqlConnection.Dispose()"/> to close it.
       </para>
       <para>
         When an instance of <see cref="MySqlDataAdapter"/> is created,

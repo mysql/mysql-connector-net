@@ -36,7 +36,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 [assembly: AssemblyCompany("Oracle")]
 [assembly: DesignTimeProviderServices(
                typeName: "MySql.Data.EntityFrameworkCore.Design.Internal.MySQLDesignTimeServices",
-               assemblyName: "MySql.Data.EntityFrameworkCore.Design, Version=6.10.1.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d",
+               assemblyName: "MySql.Data.EntityFrameworkCore.Design, Version=7.0.7.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d",
                packageName: "MySql.Data.EntityFrameworkCore.Design")]
 [assembly: AssemblyProduct("MySql.Data.EntityFrameworkCore")]
 [assembly: AssemblyCopyright("Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.")]
@@ -50,7 +50,3 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("540e7b3c-bd0b-4980-96d1-5d140d303f7e")]
-
-#if !DEBUG
-[assembly: AssemblyKeyName("ConnectorNet")]
-#endif

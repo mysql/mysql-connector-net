@@ -22,7 +22,24 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <SignAssembly>True</SignAssembly>
+    <DelaySign>True</DelaySign>
+    <AssemblyOriginatorKeyFile>..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\schema1.sql" />
+    <EmbeddedResource Include="Properties\schema10.sql" />
+    <EmbeddedResource Include="Properties\schema11.sql" />
+    <EmbeddedResource Include="Properties\schema2.sql" />
+    <EmbeddedResource Include="Properties\schema3.sql" />
+    <EmbeddedResource Include="Properties\schema4.sql" />
+    <EmbeddedResource Include="Properties\schema5.sql" />
+    <EmbeddedResource Include="Properties\schema6.sql" />
+    <EmbeddedResource Include="Properties\schema7.sql" />
+    <EmbeddedResource Include="Properties\schema8.sql" />
+    <EmbeddedResource Include="Properties\schema9.sql" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNet.Razor" Version="3.2.3" />
@@ -56,10 +73,6 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>MySql.Web.xml</DocumentationFile>
-  </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DocumentationFile>MySql.Web.xml</DocumentationFile>
   </PropertyGroup>
@@ -68,6 +81,18 @@
     <Compile Update="Install.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

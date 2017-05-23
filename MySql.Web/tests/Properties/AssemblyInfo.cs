@@ -21,8 +21,8 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Xunit;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
@@ -35,15 +35,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCopyright("Copyright © 2004, 2017, Oracle and/or its affiliates. All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 
 // COM, set the ComVisible attribute to true on that type.
 [assembly: ComVisible(false)]
-
-// The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("5ea74c78-c679-464f-99ba-ae1b0b54550b")]
-
-#if !DEBUG
-[assembly: AssemblyKeyName("ConnectorNet")]
-#endif

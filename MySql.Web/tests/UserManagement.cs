@@ -28,17 +28,12 @@ using System.Configuration.Provider;
 using Xunit;
 using MySql.Web.Security;
 using MySql.Data.MySqlClient;
-using MySql.Data.MySqlClient.Tests;
 
 namespace MySql.Web.Tests
 {
-  public class UserManagement : WebTestBase
+  public class UserManagement : WebTestBase 
   {
     private MySQLMembershipProvider provider { get; set; }
-
-    public UserManagement(TestFixture fixture) : base(fixture)
-    {
-    }
 
     private void CreateUserWithFormat(MembershipPasswordFormat format)
     {

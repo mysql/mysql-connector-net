@@ -56,13 +56,11 @@ namespace MySql.Web.SiteMap
       base.Initialize(name, config);
 
       if (config == null)
-        throw new ArgumentException(MySql.Web.Properties.Resources.SiteMapConnectionStringMissing);
+        throw new ArgumentException(Resources.SiteMapConnectionStringMissing);
 
-      string connStrName;
-      if (string.IsNullOrEmpty(connStrName = config["connectionStringName"]))
-        throw new ArgumentException(MySql.Web.Properties.Resources.SiteMapConnectionStringMissing);
-
-      _connStr = ConfigurationManager.ConnectionStrings[connStrName].ConnectionString;
+      _connStr = ConfigUtility.GetConnectionString(config);
+      if (string.IsNullOrEmpty(_connStr)) 
+        throw new ArgumentException(Resources.SiteMapConnectionStringMissing);
 
       writeExceptionsToEventLog = false;
       if (config["writeExceptionsToEventLog"] != null)

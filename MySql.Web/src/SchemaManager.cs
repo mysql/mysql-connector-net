@@ -29,10 +29,9 @@ using System.Data;
 using MySql.Data.MySqlClient;
 using System.Collections.Specialized;
 using System.Configuration.Provider;
-using System.Resources;
-using System.IO;
 using System.Diagnostics;
-using MySql.Web.Properties;
+using System.Reflection;
+using System.IO;
 
 namespace MySql.Web.Common
 {
@@ -71,11 +70,16 @@ namespace MySql.Web.Common
       }
     }
 
+    internal static string GetSchema(int version)
+    {
+      var assembly = Assembly.GetExecutingAssembly();
+      using (Stream stream = assembly.GetManifestResourceStream($"MySql.Web.Properties.schema{version}.sql"))
+      using (StreamReader reader = new StreamReader(stream))
+        return reader.ReadToEnd();
+    }
+
     private static void UpgradeToCurrent(string connectionString, int version)
     {
-      ResourceManager r = new ResourceManager("MySql.Web.Properties.Resources",
-          typeof(SchemaManager).Assembly);
-
       if (version == Version) return;
 
       using (MySqlConnection connection = new MySqlConnection(connectionString))
@@ -84,7 +88,7 @@ namespace MySql.Web.Common
 
         for (int ver = version + 1; ver <= Version; ver++)
         {
-          string schema = r.GetString(String.Format("schema{0}", ver));
+          string schema = GetSchema(ver);
           MySqlScript script = new MySqlScript(connection);
           script.Query = schema;
 

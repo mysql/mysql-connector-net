@@ -21,11 +21,6 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace MySql.Data.MySqlClient.Tests
@@ -97,7 +92,9 @@ namespace MySql.Data.MySqlClient.Tests
       }
 
       // Create mapping for current Windows user=>foo_user
+#pragma warning disable CS1702 // Assuming assembly reference matches identity
       String windowsUser = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
+#pragma warning restore CS1702 // Assuming assembly reference matches identity
       windowsUser = windowsUser.Replace("\\", "\\\\");
       string userMapping = windowsUser + "=foo_user";
 

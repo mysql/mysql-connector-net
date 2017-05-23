@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
 {
@@ -187,4 +188,74 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
         public DateTimeOffset Created { get; set; }
 
     }
+
+  public class JsonData
+  {
+    [Key]
+    [Column(TypeName = "smallint")]
+    public int Id { get; set; }
+
+    [Column(TypeName = "json")]
+    public string jsoncol { get; set; }
+  }
+
+  public partial class AllDataTypes
+  {
+    public byte AddressNumber1 { get; set; }
+    public short AddressNumber2 { get; set; }
+    public int AddressNumber3 { get; set; }
+    public int AddressNumber4 { get; set; }
+    public long AddressNumber5 { get; set; }
+    public float AddressNumber6 { get; set; }
+    public float AddressNumber7 { get; set; }
+    public double AddressNumber8 { get; set; }
+    public decimal AddressNumber9 { get; set; }
+    public short AddressNumber10 { get; set; }
+    public string BuildingName1 { get; set; }
+    public string BuildingName2 { get; set; }
+    public string BuildingName3 { get; set; }
+    public string BuildingName4 { get; set; }
+    public string BuildingName5 { get; set; }
+    public byte[] BuildingName6 { get; set; }
+    public byte[] BuildingName7 { get; set; }
+    public byte[] BuildingName8 { get; set; }
+    public byte[] BuildingName9 { get; set; }
+    public byte[] BuildingName10 { get; set; }
+    public string BuildingName11 { get; set; }
+    public string BuildingName12 { get; set; }
+    public DateTime BuildingName13 { get; set; }
+    public DateTime BuildingName14 { get; set; }
+    public TimeSpan BuildingName15 { get; set; }
+    public DateTime BuildingName16 { get; set; }
+    public short BuildingName17 { get; set; }
+  }
+
+  [Table("CountryList")]
+  public class Countries
+  {
+    [Key]
+    public string Code { get; set; }
+    public string Name { get; set; }
+    public string Continent { get; set; }
+    public string Region { get; set; }
+    public int IndepYear { get; set; }
+  }
+
+  public class Continents
+  {
+    public string Code { get; set; }
+
+    public string Name { get; set; }
+  }
+
+  public class Triangle
+  {
+    public int Id { get; set; }
+
+    public int Base { get; set; }
+
+    public int Height { get; set; }
+
+    public int Area { get; set; }
+  }
 }

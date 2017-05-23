@@ -48,7 +48,7 @@ namespace MySql.Web.SessionState
   public class MySqlSessionStateStore : SessionStateStoreProviderBase
   {
     string connectionString;
-    ConnectionStringSettings connectionStringSettings;
+//    ConnectionStringSettings connectionStringSettings;
     string eventSource = "MySQLSessionStateStore";
     string eventLog = "Application";
     string exceptionMessage = "An exception occurred. Please check the event log.";
@@ -154,10 +154,8 @@ namespace MySql.Web.SessionState
       sessionStateConfig = (SessionStateSection)webConfig.SectionGroups["system.web"].Sections["sessionState"];
 
       // Initialize connection.
-      connectionStringSettings = ConfigurationManager.ConnectionStrings[config["connectionStringName"]];
-      if (connectionStringSettings == null || connectionStringSettings.ConnectionString.Trim() == "")
-        throw new HttpException("Connection string can not be blank");
-      connectionString = connectionStringSettings.ConnectionString;
+      connectionString = ConfigUtility.GetConnectionString(config);
+      if (string.IsNullOrEmpty(connectionString)) return;
 
       writeExceptionsToEventLog = false;
       if (config["writeExceptionsToEventLog"] != null)

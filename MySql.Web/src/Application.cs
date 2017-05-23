@@ -69,9 +69,6 @@ namespace MySql.Web.General
     /// <summary>
     /// Creates the or fetch application id.
     /// </summary>
-    /// <param name="applicationName">Name of the application.</param>
-    /// <param name="applicationId">The application id.</param>
-    /// <param name="applicationDesc">The application desc.</param>
     /// <param name="connection">The connection.</param>
     public long EnsureId(MySqlConnection connection)
     {

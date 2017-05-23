@@ -28,34 +28,11 @@ using System.Reflection;
 using System.Configuration;
 using System.Data;
 using System.Web.Profile;
-using MySql.Data.MySqlClient.Tests;
 
 namespace MySql.Web.Tests
 {
   public class ProfileTests : WebTestBase 
   {
-    public ProfileTests(TestFixture fixture) : base(fixture)
-    {
-
-    }
-
-    //private SetUpWeb st;
-
-    //public void SetFixture(SetUpWeb data)
-    //{
-    //  st = data;
-    //  st.rootConn.Close();
-    //  st.rootConn = new MySqlConnection("server=localhost;userid=root;pwd=;database=" + st.conn.Database + ";port=" + st.port);
-    //  st.rootConn.Open();
-    //}
-
-    //public void Dispose()
-    //{
-    //  st.ExecuteSQLAsRoot("Delete from my_aspnet_profiles");
-    //  st.ExecuteSQLAsRoot("Delete from my_aspnet_users");      
-    //  st.ExecuteSQLAsRoot("Delete from my_aspnet_applications");
-    //}
-
     private MySQLProfileProvider InitProfileProvider()
     {
       MySQLProfileProvider p = new MySQLProfileProvider();

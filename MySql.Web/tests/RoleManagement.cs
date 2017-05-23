@@ -25,7 +25,6 @@ using System.Collections.Specialized;
 using System.Web.Security;
 using Xunit;
 using MySql.Web.Security;
-using MySql.Data.MySqlClient.Tests;
 
 namespace MySql.Web.Tests
 {
@@ -34,13 +33,16 @@ namespace MySql.Web.Tests
     private MySQLMembershipProvider membershipProvider;
     private MySQLRoleProvider roleProvider;
 
-    public RoleManagement(TestFixture fixture) : base(fixture)
+    public RoleManagement()
     {
       membershipProvider = new MySQLMembershipProvider();
       NameValueCollection config = new NameValueCollection();
       config.Add("connectionStringName", "LocalMySqlServer");
       config.Add("applicationName", "/");
       membershipProvider.Initialize(null, config);
+
+      roleProvider = new MySQLRoleProvider();
+      roleProvider.Initialize(null, config);
     }
 
     private void AddUser(string username, string password)
@@ -67,12 +69,6 @@ namespace MySql.Web.Tests
     [Fact]
     public void CreateAndDeleteRoles()
     {
-      roleProvider = new MySQLRoleProvider();
-      NameValueCollection config = new NameValueCollection();
-      config.Add("connectionStringName", "LocalMySqlServer");
-      config.Add("applicationName", "/");
-      roleProvider.Initialize(null, config);
-
       // Add the role
       roleProvider.CreateRole("Administrator");
       string[] roles = roleProvider.GetAllRoles();
@@ -84,12 +80,6 @@ namespace MySql.Web.Tests
     [Fact]
     public void AddUserToRole()
     {
-      roleProvider = new MySQLRoleProvider();
-      NameValueCollection config = new NameValueCollection();
-      config.Add("connectionStringName", "LocalMySqlServer");
-      config.Add("applicationName", "/");
-      roleProvider.Initialize(null, config);
-
       AddUser("eve", "eveeve!");
       roleProvider.CreateRole("Administrator");
 
@@ -114,12 +104,6 @@ namespace MySql.Web.Tests
     [Fact]
     public void AddNonExistingUserToRole()
     {
-      roleProvider = new MySQLRoleProvider();
-      NameValueCollection config = new NameValueCollection();
-      config.Add("connectionStringName", "LocalMySqlServer");
-      config.Add("applicationName", "/");
-      roleProvider.Initialize(null, config);
-
       roleProvider.CreateRole("Administrator");
       roleProvider.AddUsersToRoles(new string[] { "eve" },
         new string[] { "Administrator" });
@@ -135,12 +119,6 @@ namespace MySql.Web.Tests
     [Fact]
     public void IllegalRoleAndUserNames()
     {
-      roleProvider = new MySQLRoleProvider();
-      NameValueCollection config = new NameValueCollection();
-      config.Add("connectionStringName", "LocalMySqlServer");
-      config.Add("applicationName", "/");
-      roleProvider.Initialize(null, config);
-
       AttemptToAddUserToRole("test", null);
       AttemptToAddUserToRole("test", "");
       roleProvider.CreateRole("Administrator");
@@ -154,19 +132,19 @@ namespace MySql.Web.Tests
     [Fact]
     public void AddUserToRoleWithRoleClass()
     {
+      roleProvider.CreateRole("Administrator");
 
-      Roles.CreateRole("Administrator");
       MembershipCreateStatus status;
-      Membership.CreateUser("eve", "eve1@eve", "eve@boo.com",
+      membershipProvider.CreateUser("eve", "eve1@eve", "eve@boo.com",
         "question", "answer", true, null, out status);
       Assert.Equal(MembershipCreateStatus.Success, status);
 
-      Roles.AddUserToRole("eve", "Administrator");
-      Assert.True(Roles.IsUserInRole("eve", "Administrator"));
+      roleProvider.AddUsersToRoles(new string[] { "eve"}, new string[] { "Administrator"});
+      Assert.True(roleProvider.IsUserInRole("eve", "Administrator"));
       
       //Cleanup     
-      Membership.DeleteUser("eve");
-      Roles.DeleteRole("Administrator");
+      membershipProvider.DeleteUser("eve", true);
+      roleProvider.DeleteRole("Administrator", true);
 
     }
 
