@@ -206,7 +206,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void SslCertificate()
     {
-      string path = "../MySql.Data.Tests/";
+      string path = "../../../../MySql.Data.Tests/";
       string connstring = ConnectionStringUri + $"/?ssl-ca={path}client.pfx&ssl-ca-pwd=pass";
       using (var s3 = MySQLX.GetNodeSession(connstring))
       {
