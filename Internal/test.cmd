@@ -7,6 +7,7 @@ dotnet restore
 copy certificates\*.* %MYSQL_DATADIR%\
 dotnet build MySql.Data.Tests.csproj -c Debug
 sn.exe -Rca  bin\debug\net452\MySql.Data.dll ConnectorNet
+sn.exe -Rca  bin\debug\net452\MySql.Data.Tests.dll ConnectorNet
 dotnet xunit -framework net452 -parallel none -xml mysql-data-test-results.xml
 dotnet xunit -framework netcoreapp1.1 -parallel none -xml mysql-data-core-test-results.xml
 cd ../..
@@ -16,6 +17,7 @@ cd MySql.Web\tests
 dotnet restore 
 dotnet build MySql.Web.Tests.csproj -c Debug
 sn.exe -Rca  bin\debug\net452\MySql.Web.dll ConnectorNet
+sn.exe -Rca  bin\debug\net452\MySql.Web.Tests.dll ConnectorNet
 dotnet xunit -framework net452 -parallel none -xml mysql-web-test-results.xml
 cd ../..
 
