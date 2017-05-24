@@ -42,15 +42,11 @@ namespace MySqlX.Data.Tests
     public static string ConnectionStringNoPassword { get; private set; }
     public static string ConnectionStringRoot { get; private set; }
 
-#if NETCORE10
-    private static ConfigUtils config = new ConfigUtils(Path.GetFullPath(@"../..") + @"/appsettings.json");
-#endif
-
     static BaseTest()
     {
 #if NETCORE10
-      Port = config.GetValue("MySql:Data:Port") ?? "3306";
-      XPort = config.GetValue("MySqlX:Data:Port") ?? "33060";
+      Port = Environment.GetEnvironmentVariable("MYSQL_PORT") ?? "3306";
+      XPort = Environment.GetEnvironmentVariable("MYSQLX_PORT") ?? "33060";
 #else
       Port = "3305";
       XPort = "33050";
