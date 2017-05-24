@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -90,7 +90,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("CREATE TABLE test(b VARCHAR(255))");
       ExecuteSQL("INSERT INTO test VALUES('CAR')");
 
-      var defaultValues = GetNodeSession().SQL("SELECT DEFAULT_CHARACTER_SET_NAME, DEFAULT_COLLATION_NAME " +
+      var defaultValues = GetSession(true).SQL("SELECT DEFAULT_CHARACTER_SET_NAME, DEFAULT_COLLATION_NAME " +
         $"FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '{schemaName}'; ").Execute().FetchAll();
 
       RowResult r = GetSession().GetSchema(schemaName).GetTable("test").Select("b").Execute();

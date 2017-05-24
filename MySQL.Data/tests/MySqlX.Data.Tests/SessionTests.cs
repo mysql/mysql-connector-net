@@ -33,7 +33,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void CanCloseSession()
     {
-      XSession s = MySqlX.XDevAPI.MySQLX.GetSession(ConnectionString);
+      Session s = MySqlX.XDevAPI.MySQLX.GetSession(ConnectionString);
       Assert.True(s.InternalSession.SessionState == SessionState.Open);
       s.Close();
       Assert.Equal(s.InternalSession.SessionState, SessionState.Closed);
@@ -42,7 +42,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void NoPassword()
     {
-      XSession session = MySqlX.XDevAPI.MySQLX.GetSession(ConnectionStringNoPassword);
+      Session session = MySqlX.XDevAPI.MySQLX.GetSession(ConnectionStringNoPassword);
       Assert.True(session.InternalSession.SessionState == SessionState.Open);
       session.Close();
       Assert.Equal(session.InternalSession.SessionState, SessionState.Closed);
@@ -51,7 +51,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void NodeSessionClose()
     {
-      NodeSession session = MySQLX.GetNodeSession(ConnectionString);
+      Session session = MySQLX.GetSession(ConnectionString);
       Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
       session.Close();
       Assert.Equal(SessionState.Closed, session.InternalSession.SessionState);
@@ -60,12 +60,12 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void CountClosedSession()
     {
-      NodeSession nodeSession = MySQLX.GetNodeSession(ConnectionString);
+      Session nodeSession = MySQLX.GetSession(ConnectionString);
       int sessions = nodeSession.SQL("show processlist").Execute().FetchAll().Count;
 
       for (int i = 0; i < 20; i++)
       {
-        XSession session = MySQLX.GetSession(ConnectionString);
+        Session session = MySQLX.GetSession(ConnectionString);
         Assert.True(session.InternalSession.SessionState == SessionState.Open);
         session.Close();
         Assert.Equal(session.InternalSession.SessionState, SessionState.Closed);
@@ -86,7 +86,7 @@ namespace MySqlX.Data.Tests
         user = session.Settings.UserID,
         password = session.Settings.Password
       };
-      using (var testSession = MySQLX.GetNodeSession(connstring))
+      using (var testSession = MySQLX.GetSession(connstring))
       {
         Assert.Equal(SessionState.Open, testSession.InternalSession.SessionState);
       }
@@ -95,7 +95,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void NodeSession_Get_Set_CurrentSchema()
     {
-      using (NodeSession testSession = MySQLX.GetNodeSession(ConnectionString))
+      using (Session testSession = MySQLX.GetSession(ConnectionString))
       {
         Assert.Equal(SessionState.Open, testSession.InternalSession.SessionState);
         Assert.Null(testSession.GetCurrentSchema());
@@ -109,7 +109,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void NodeSessionUsingSchema()
     {
-      using (NodeSession mySession = MySQLX.GetNodeSession(ConnectionString + $";database={schemaName};"))
+      using (Session mySession = MySQLX.GetSession(ConnectionString + $";database={schemaName};"))
       {
         Assert.Equal(SessionState.Open, mySession.InternalSession.SessionState);
         Assert.Equal(schemaName, mySession.Schema.Name);
@@ -121,7 +121,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void XSessionUsingSchema()
     {
-      using (XSession mySession = MySQLX.GetSession(ConnectionString + $";database={schemaName};"))
+      using (Session mySession = MySQLX.GetSession(ConnectionString + $";database={schemaName};"))
       {
         Assert.Equal(SessionState.Open, mySession.InternalSession.SessionState);
         Assert.Equal(schemaName, mySession.Schema.Name);
@@ -178,7 +178,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void ConnectionUsingUri()
     {
-      using (var session = MySQLX.GetNodeSession(ConnectionStringUri))
+      using (var session = MySQLX.GetSession(ConnectionStringUri))
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
       }
@@ -188,14 +188,13 @@ namespace MySqlX.Data.Tests
     public void ConnectionStringNull()
     {
       Assert.Throws<ArgumentNullException>(() => MySQLX.GetSession(null));
-      Assert.Throws<ArgumentNullException>(() => MySQLX.GetNodeSession(null));
     }
 
     [Fact]
     public void SslSession()
     {
       string connstring = ConnectionStringUri + "/?ssl-enable";
-      using (var s3 = MySQLX.GetNodeSession(connstring))
+      using (var s3 = MySQLX.GetSession(connstring))
       {
         Assert.Equal(SessionState.Open, s3.InternalSession.SessionState);
         var result = s3.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';").Execute().FetchAll();
@@ -206,9 +205,9 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void SslCertificate()
     {
-      string path = "../MySql.Data.Tests/";
+      string path = "../../../../MySql.Data.Tests/";
       string connstring = ConnectionStringUri + $"/?ssl-ca={path}client.pfx&ssl-ca-pwd=pass";
-      using (var s3 = MySQLX.GetNodeSession(connstring))
+      using (var s3 = MySQLX.GetSession(connstring))
       {
         Assert.Equal(SessionState.Open, s3.InternalSession.SessionState);
         var result = s3.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';").Execute().FetchAll();
@@ -221,7 +220,7 @@ namespace MySqlX.Data.Tests
     {
       string connstring = ConnectionStringUri + $"/?ssl-ca=";
       // if certificate is empty, it connects without a certificate
-      using (var s1 = MySQLX.GetNodeSession(connstring))
+      using (var s1 = MySQLX.GetSession(connstring))
       {
         Assert.Equal(SessionState.Open, s1.InternalSession.SessionState);
         var result = s1.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';").Execute().FetchAll();
@@ -233,7 +232,7 @@ namespace MySqlX.Data.Tests
     public void SslCrl()
     {
       string connstring = ConnectionStringUri + "/?ssl-crl=crlcert.pfx";
-      Assert.Throws<NotSupportedException>(() => MySQLX.GetNodeSession(connstring));
+      Assert.Throws<NotSupportedException>(() => MySQLX.GetSession(connstring));
     }
 
     [Fact]
@@ -254,7 +253,7 @@ namespace MySqlX.Data.Tests
     {
       MySqlConnectionStringBuilder csBuilder = new MySqlConnectionStringBuilder(ConnectionString);
       string connString = $"mysqlx://{csBuilder.UserID}:{csBuilder.Password}@[::1]:{XPort}";
-      using (XSession session = MySQLX.GetSession(connString))
+      using (Session session = MySQLX.GetSession(connString))
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
       }
@@ -264,7 +263,7 @@ namespace MySqlX.Data.Tests
     public void IPv6AsAnonymous()
     {
       MySqlConnectionStringBuilder csBuilder = new MySqlConnectionStringBuilder(ConnectionString);
-      using (XSession session = MySQLX.GetSession(new { server = "::1", user = csBuilder.UserID, password = csBuilder.Password, port = XPort }))
+      using (Session session = MySQLX.GetSession(new { server = "::1", user = csBuilder.UserID, password = csBuilder.Password, port = XPort }))
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
       }

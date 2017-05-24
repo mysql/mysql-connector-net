@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -25,7 +25,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MySqlX.Common;
 using MySqlX.Data;
-using MySqlX.Session;
+using MySqlX.Sessions;
 using MySqlX.XDevAPI.Relational;
 using MySql.Data;
 using MySql.Data.MySqlClient;
@@ -35,7 +35,7 @@ using MySqlX.XDevAPI.Common;
 namespace MySqlX.XDevAPI
 {
   /// <summary>
-  /// Represents a base class for XSession and NodeSession
+  /// Represents a base class for a Session
   /// </summary>
   public abstract class BaseSession : IDisposable
   {

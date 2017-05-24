@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -33,7 +33,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     {
       ExecuteSQL("CREATE TABLE test(id INT)");
       ExecuteSQL("INSERT INTO test VALUES (1)");
-      SqlResult r = GetNodeSession().SQL("SELECT * FROM test").Execute();
+      SqlResult r = GetSession(true).SQL("SELECT * FROM test").Execute();
       Assert.True(r.Next());
       Assert.Equal(1, r[0]);
       Assert.False(r.NextResult());
@@ -44,7 +44,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     {
       ExecuteSQL("CREATE PROCEDURE `my_proc` () BEGIN SELECT 5; END");
 
-      NodeSession session = GetNodeSession();
+      Session session = GetSession(true);
       var result = session.SQL("CALL my_proc()").Execute();
       Assert.True(result.HasData);
       var row = result.FetchOne();
@@ -60,7 +60,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     {
       ExecuteSQL("CREATE PROCEDURE `my_proc` () BEGIN SELECT 5; SELECT 'A'; SELECT 5 * 2; END");
 
-      NodeSession session = GetNodeSession();
+      Session session = GetSession(true);
       var result = session.SQL("CALL my_proc()").Execute();
       Assert.True(result.HasData);
       var row = result.FetchOne();
@@ -91,12 +91,12 @@ namespace MySqlX.Data.Tests.RelationalTests
     {
       ExecuteSQL("CREATE TABLE test(id INT, letter varchar(1))");
       for (int i = 1; i <= 10; i++)
-        GetNodeSession().SQL("INSERT INTO test VALUES (?, ?), (?, ?)")
+        GetSession(true).SQL("INSERT INTO test VALUES (?, ?), (?, ?)")
           .Bind(i, ((char)('@' + i)).ToString())
           .Bind(++i, ((char)('@' + i)).ToString())
           .Execute();
 
-      SqlResult result = GetNodeSession().SQL("select * from test where id=?").Bind(5).Execute();
+      SqlResult result = GetSession(true).SQL("select * from test where id=?").Bind(5).Execute();
       Assert.True(result.Next());
       Assert.Equal(1, result.Rows.Count);
       Assert.Equal(5, result[0]);
@@ -108,11 +108,11 @@ namespace MySqlX.Data.Tests.RelationalTests
     {
       ExecuteSQL("CREATE TABLE test(id INT, letter varchar(1))");
 
-      var nodeSession = GetNodeSession();
-      var result = nodeSession.SQL("INSERT INTO test VALUES(1, ?), (2, 'B');").Bind(null).Execute();
+      var session = GetSession(true);
+      var result = session.SQL("INSERT INTO test VALUES(1, ?), (2, 'B');").Bind(null).Execute();
       Assert.Equal(2ul, result.RecordsAffected);
 
-      var sqlResult = nodeSession.SQL("SELECT * FROM test WHERE letter is ?").Bind(null).Execute().FetchAll();
+      var sqlResult = session.SQL("SELECT * FROM test WHERE letter is ?").Bind(null).Execute().FetchAll();
       Assert.Equal(1, sqlResult.Count);
       Assert.Equal(1, sqlResult[0][0]);
       Assert.Null(sqlResult[0][1]);
@@ -121,8 +121,8 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Fact]
     public void Alias()
     {
-      var nodeSession = GetNodeSession();
-      var stmt = nodeSession.SQL("SELECT 1 AS UNO").Execute();
+      var session = GetSession(true);
+      var stmt = session.SQL("SELECT 1 AS UNO").Execute();
       var result = stmt.FetchAll();
       Assert.Equal("UNO", stmt.Columns[0].ColumnLabel);
     }

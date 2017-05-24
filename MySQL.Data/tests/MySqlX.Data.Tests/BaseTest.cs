@@ -32,9 +32,8 @@ namespace MySqlX.Data.Tests
 {
   public class BaseTest : IDisposable
   {
-    protected XSession session;
+    protected Session session;
     protected Schema testSchema;
-    private static NodeSession nodeSession;
     protected static readonly string schemaName;
 
     public static string ConnectionString { get; private set; }
@@ -42,11 +41,15 @@ namespace MySqlX.Data.Tests
     public static string ConnectionStringNoPassword { get; private set; }
     public static string ConnectionStringRoot { get; private set; }
 
-    static BaseTest()
+#if NETCORE10
+    private static ConfigUtils config = new ConfigUtils(Path.GetFullPath(@"../../../../../..") + @"/appsettings.json");
+#endif
+
+        static BaseTest()
     {
 #if NETCORE10
-      Port = Environment.GetEnvironmentVariable("MYSQL_PORT") ?? "3306";
-      XPort = Environment.GetEnvironmentVariable("MYSQLX_PORT") ?? "33060";
+      Port = config.GetValue("MySql:Data:Port") ?? "3306";
+      XPort = config.GetValue("MySqlX:Data:Port") ?? "33060";
 #else
       Port = "3305";
       XPort = "33050";
@@ -90,36 +93,30 @@ namespace MySqlX.Data.Tests
 
     protected SqlResult ExecuteSQL(string sql)
     {
-      NodeSession nodeSession = GetNodeSession();
-      nodeSession.SetCurrentSchema(schemaName);
-      SqlResult r = nodeSession.SQL(sql).Execute();
+      Session session = GetSession();
+      session.SetCurrentSchema(schemaName);
+      SqlResult r = session.SQL(sql).Execute();
       var rows = r.HasData ? r.FetchAll() : null;
       return r;
     }
 
     protected Collection CreateCollection(string name)
     {
-      XSession s = GetSession();
-      Schema test = s.GetSchema(schemaName);
+      Session session = GetSession();
+      Schema test = session.GetSchema(schemaName);
       test.DropCollection(name);
       return test.CreateCollection(name);
     }
 
-    public XSession GetSession()
+    public Session GetSession(bool setCurrentSchema = false)
     {
       if (session == null)
-        session = MySQLX.GetSession(ConnectionString);
-      return session;
-    }
-
-    public NodeSession GetNodeSession()
-    {
-      if (nodeSession == null)
       {
-        nodeSession = MySQLX.GetNodeSession(ConnectionString);
-        nodeSession.SetCurrentSchema(schemaName);
+        session = MySQLX.GetSession(ConnectionString);
+        if (setCurrentSchema)
+          session.SetCurrentSchema(schemaName);
       }
-      return nodeSession;
+      return session;
     }
 
     protected void ExecuteSqlAsRoot(string sql)
@@ -133,11 +130,11 @@ namespace MySqlX.Data.Tests
 
     public virtual void Dispose()
     {
-      using (XSession s = GetSession())
+      using (Session s = GetSession())
       {
         Schema schema = s.GetSchema(schemaName);
         if(schema.ExistsInDatabase())
-            s.DropSchema(schemaName);        
+            s.DropSchema(schemaName);
         Assert.False(schema.ExistsInDatabase());
       }
     }

@@ -166,7 +166,7 @@ namespace MySqlX.Data.Tests
         .DefinedAs(table.Select("id"))
         .Execute();
 
-      var result = GetNodeSession().SQL("DESC myview").Execute().FetchAll();
+      var result = GetSession(true).SQL("DESC myview").Execute().FetchAll();
       Assert.Equal(1, result.Count);
       Assert.Equal("id", result[0]["field"]);
     }
@@ -205,7 +205,7 @@ namespace MySqlX.Data.Tests
       var view = GetSession().Schema.GetTable("myview");
       Assert.True(view.IsView);
       Assert.Equal(allRows.Length, view.Count());
-      var sql = GetNodeSession().SQL("SHOW CREATE VIEW myview").Execute();
+      var sql = GetSession(true).SQL("SHOW CREATE VIEW myview").Execute();
       var result = sql.FetchAll();
       string desc = result[0][1].ToString();
       Assert.Equal($"CREATE ALGORITHM=MERGE DEFINER=`{GetSession().Settings.UserID}`@`localhost` SQL SECURITY DEFINER VIEW `myview` AS select `{tableName}`.`id` AS `id2`,`{tableName}`.`age` AS `age2` from `{tableName}`",
@@ -229,7 +229,7 @@ namespace MySqlX.Data.Tests
       var view = GetSession().Schema.GetTable("myview");
       Assert.True(view.IsView);
       Assert.Equal(allRows.Length, view.Count());
-      var sql = GetNodeSession().SQL("SHOW CREATE VIEW myview").Execute();
+      var sql = GetSession(true).SQL("SHOW CREATE VIEW myview").Execute();
       var result = sql.FetchAll();
       string desc = result[0][1].ToString();
       Assert.Equal($"CREATE ALGORITHM=MERGE DEFINER=`{GetSession().Settings.UserID}`@`localhost` SQL SECURITY INVOKER VIEW `myview` AS select `{tableName}`.`id` AS `id2`,`{tableName}`.`age` AS `age2` from `{tableName}` WITH CASCADED CHECK OPTION",
