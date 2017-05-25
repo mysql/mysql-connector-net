@@ -170,9 +170,9 @@ namespace MySqlX.Data.Tests
       Assert.Throws<ArgumentException>(() => CheckConnectionStringAsUri("mysql://myuser@localhost", "myuser", "", "localhost", 33060));
       Assert.Throws<ArgumentException>(() => CheckConnectionStringAsUri("myuser@localhost", "myuser", "", "localhost", 33060));
       Assert.Throws<UriFormatException>(() => CheckConnectionStringAsUri("mysqlx://uid=myuser;server=localhost", "myuser", "", "localhost", 33060));
-      CheckConnectionStringAsUri("mysqlx://user:password@server.example.com/?ssl-enable", "user", "password", "server.example.com", 33060, "sslenable", "True", "ssl mode", "Required");
-      CheckConnectionStringAsUri("mysqlx://user:password@server.example.com/?ssl-ca=(c:\\client.pfx)", "user", "password", "server.example.com", 33060, "sslenable", "True", "ssl mode", "Required", "ssl-ca", "(c:%5Cclient.pfx)");
-      Assert.Throws<NotSupportedException>(() => CheckConnectionStringAsUri("mysqlx://user:password@server.example.com/?ssl-crl=(c:\\crl.pfx)", "user", "password", "server.example.com", 33060, "sslenable", "True", "ssl mode", "Required", "ssl-crl", "(c:%5Ccrl.pfx)"));
+      CheckConnectionStringAsUri("mysqlx://user:password@server.example.com/", "user", "password", "server.example.com", 33060, "ssl mode", "Required");
+      CheckConnectionStringAsUri("mysqlx://user:password@server.example.com/?ssl-ca=(c:\\client.pfx)", "user", "password", "server.example.com", 33060, "ssl mode", "Required", "ssl-ca", "(c:%5Cclient.pfx)");
+      Assert.Throws<NotSupportedException>(() => CheckConnectionStringAsUri("mysqlx://user:password@server.example.com/?ssl-crl=(c:\\crl.pfx)", "user", "password", "server.example.com", 33060, "ssl mode", "Required", "ssl-crl", "(c:%5Ccrl.pfx)"));
     }
 
     [Fact]
@@ -194,8 +194,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void SslSession()
     {
-      string connstring = ConnectionStringUri + "/?ssl-enable";
-      using (var s3 = MySQLX.GetNodeSession(connstring))
+      using (var s3 = MySQLX.GetNodeSession(ConnectionStringUri))
       {
         Assert.Equal(SessionState.Open, s3.InternalSession.SessionState);
         var result = s3.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';").Execute().FetchAll();
@@ -237,6 +236,63 @@ namespace MySqlX.Data.Tests
     }
 
     [Fact]
+    public void SSlOptions()
+    {
+      string connectionString = ConnectionStringUri;
+      // sslmode is valid.
+      using(var connection = MySQLX.GetNodeSession(connectionString + "?sslmode=none"))
+      {
+        Assert.Equal(SessionState.Open, connection.InternalSession.SessionState);
+      }
+      using(var connection = MySQLX.GetNodeSession(connectionString + "?ssl-mode=none"))
+      {
+        Assert.Equal(SessionState.Open, connection.InternalSession.SessionState);
+      }
+
+      // sslenable is invalid.
+      Assert.Throws<ArgumentException>(() => MySQLX.GetNodeSession(connectionString + "?sslenable"));
+      Assert.Throws<ArgumentException>(() => MySQLX.GetNodeSession(connectionString + "?ssl-enable"));
+
+      // sslmode=Required is default value.
+      using(var connection = MySQLX.GetNodeSession(connectionString))
+      {
+        Assert.Equal(connection.Settings.SslMode, MySqlSslMode.Required);
+      }
+
+      // sslmode=Preferred is invalid.
+      Assert.Throws<ArgumentException>(() => MySQLX.GetNodeSession(connectionString + "?ssl-mode=Preferred"));
+
+      // sslmode=Disabled is defaulted to None.
+      using(var connection = MySQLX.GetNodeSession(connectionString + "?ssl-mode=Disabled"))
+      {
+        Assert.Equal(MySqlSslMode.None, connection.Settings.SslMode);
+      }
+
+      // sslmode=Required is default value.
+      using(var connection = MySQLX.GetNodeSession(connectionString))
+      {
+        Assert.Equal(MySqlSslMode.Required, connection.Settings.SslMode);
+      }
+
+      // sslmode case insensitive.
+      using(var connection = MySQLX.GetNodeSession(connectionString + "?SsL-mOdE=none"))
+      {
+        Assert.Equal(SessionState.Open, connection.InternalSession.SessionState);
+      }
+      using(var connection = MySQLX.GetNodeSession(connectionString + "?SsL-mOdE=VeRiFyca&ssl-ca=../../../../MySql.Data.Tests/client.pfx&ssl-ca-pwd=pass"))
+      {
+        Assert.Equal(SessionState.Open, connection.InternalSession.SessionState);
+      }
+
+      // Duplicate SSL connection options send error message.
+      ArgumentException ex = Assert.Throws<ArgumentException>(() => MySQLX.GetNodeSession(connectionString + "?sslmode=Required&ssl mode=None"));
+      Assert.EndsWith("is duplicated.", ex.Message);
+
+      // send error if sslmode=None and another ssl parameter exists.
+      Assert.Throws<ArgumentException>(() => MySQLX.GetNodeSession(connectionString + "?sslmode=None&ssl-ca=../../../../MySql.Data.Tests/certificates/client.pfx").InternalSession.SessionState);
+    }
+
+        [Fact]
     public void IPv6()
     {
       MySqlConnectionStringBuilder csBuilder = new MySqlConnectionStringBuilder(ConnectionString);

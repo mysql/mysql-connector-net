@@ -1,4 +1,4 @@
-﻿// Copyright © 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -67,7 +67,6 @@ namespace MySql.Data.MySqlClient.Tests
       settings.PersistSecurityInfo = true;
       settings.AllowUserVariables = true;
       settings.Pooling = false;
-      settings.SslMode = MySqlSslMode.Preferred;
       settings.IgnorePrepare = false;
       TestClass.AdjustConnectionSettings(settings);
       MaxPacketSize = 1000 * 1024;

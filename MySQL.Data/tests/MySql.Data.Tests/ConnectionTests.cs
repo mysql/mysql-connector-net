@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -771,7 +771,7 @@ namespace MySql.Data.MySqlClient.Tests
 #endregion
 
     [Fact]
-    public void SslPreferredByDefault()
+    public void SslRequiredByDefault()
     {
       MySqlCommand command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Ssl_version';", Connection);
       using (MySqlDataReader reader = command.ExecuteReader())
@@ -796,6 +796,48 @@ namespace MySql.Data.MySqlClient.Tests
           Assert.Equal(string.Empty, reader.GetString(1));
         }
       }
+    }
+
+    [Fact]
+    public void SslOptions()
+    {
+      var connectionString = Fixture.GetConnection(true).ConnectionString;
+      var cstrBuilder = new MySqlConnectionStringBuilder(connectionString);
+      using (var connection = new MySqlConnection(cstrBuilder.ConnectionString))
+      {
+        // sslmode is valid.
+        Assert.True(connection.Settings.ContainsKey("sslmode"));
+        Assert.True(connection.Settings.ContainsKey("ssl-mode"));
+
+        // sslenable is invalid.
+        Assert.True(!connection.Settings.ContainsKey("sslenable"));
+        Assert.True(!connection.Settings.ContainsKey("ssl-enable"));
+
+        // sslmode=Required is default value.
+        Assert.True(connection.Settings.SslMode == MySqlSslMode.Required);
+      }
+      // sslmode=Preferred is invalid.
+      Assert.Throws<ArgumentException>(() => new MySqlConnection(cstrBuilder.ConnectionString + ";sslmode=Preferred"));
+
+      // sslmode=Disabled is defaulted to None.
+      using (var connection = new MySqlConnection(cstrBuilder.ConnectionString + ";sslmode=Disabled"))
+      {
+        Assert.True(connection.Settings.SslMode == MySqlSslMode.None);
+      }
+
+      // sslmode case insensitive.
+      using (var connection = new MySqlConnection(cstrBuilder.ConnectionString + ";SsL-mOdE=NONe"))
+      {
+        Assert.True(connection.Settings.SslMode == MySqlSslMode.None);
+      }
+
+      // Duplicate SSL connection options send error message.
+      ArgumentException ex = Assert.Throws<ArgumentException>(() => new MySqlConnection(cstrBuilder.ConnectionString + ";sslmode=Required;sslmode=None"));
+      Assert.EndsWith("is duplicated.", ex.Message);
+
+      // send error if sslmode=None and another ssl parameter exists.
+      ex = Assert.Throws<ArgumentException>(() => new MySqlConnection(cstrBuilder.ConnectionString + ";sslmode=None;ssl-ca=../MySql.Data.Tests/client.pfx"));
+      Assert.Equal(Resources.InvalidOptionWhenSslDisabled, ex.Message);
     }
   }
 }

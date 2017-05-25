@@ -85,7 +85,7 @@ namespace MySqlX.Session
           _writer = new XPacketReaderWriter(_stream);
           protocol.SetXPackets(_reader, _writer);
         }
-        else if(Settings.SslMode != MySqlSslMode.Prefered)
+        else
         {
           // Client requires SSL connections.
           string message = String.Format(Resources.NoServerSSLSupport,

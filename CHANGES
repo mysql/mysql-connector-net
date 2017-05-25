@@ -1,3 +1,6 @@
+8.0.8
+- Removed ssl-enable connection option. Set "Required" as the default value for ssl-mode. (WL10559).
+
 
 7.0.7
 - MySqlX: Fixed configuration handling paths in Linux and MacOS (Oracle Bug #25423724).
