@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -74,6 +74,9 @@ namespace MySqlX.XDevAPI
     /// <returns>RemoveStatement</returns>
     public RemoveStatement Remove(string condition)
     {
+      if (string.IsNullOrEmpty(condition))
+        throw new ArgumentNullException(nameof(condition), Resources.ParameterNullOrEmpty);
+
       RemoveStatement stmt = new RemoveStatement(this, condition);
       return stmt;
     }
@@ -115,6 +118,9 @@ namespace MySqlX.XDevAPI
     /// <returns>ModifyStatement object</returns>
     public ModifyStatement Modify(string condition)
     {
+      if (string.IsNullOrEmpty(condition))
+        throw new ArgumentNullException(nameof(condition), Resources.ParameterNullOrEmpty);
+
       ModifyStatement stmt = new ModifyStatement(this, condition);
       return stmt;
     }

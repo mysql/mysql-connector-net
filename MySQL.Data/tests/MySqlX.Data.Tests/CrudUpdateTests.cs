@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -80,6 +80,32 @@ namespace MySqlX.Data.Tests
       var docs = coll.Find().Execute().FetchAll();
       Assert.Equal(new DbDoc("{ \"_id\": 1, \"name\": \"Book 1\", \"pages\": 10 }").ToString(), docs[0].ToString());
       Assert.Equal(new DbDoc("{ \"_id\": 2, \"name\": \"Book 2\", \"pages\": 20 }").ToString(), docs[1].ToString());
+    }
+
+    [Fact]
+    public void UpdateAll()
+    {
+      Collection collection = CreateCollection("test");
+      var docs = new[]
+      {
+        new {  _id = 1, title = "Book 1", pages = 20 },
+        new {  _id = 2, title = "Book 2", pages = 30 },
+      };
+      Result result = collection.Add(docs).Execute();
+      Assert.Equal<ulong>(2, result.RecordsAffected);
+
+      // Condition can't be null or empty.
+      string errorMessage = "Parameter can't be null or empty.\r\nParameter name: condition";
+      Exception ex = Assert.Throws<ArgumentNullException>(() => collection.Modify(string.Empty).Execute());
+      Assert.Equal(ex.Message,errorMessage);
+      ex = Assert.Throws<ArgumentNullException>(() => collection.Modify("").Execute());
+      Assert.Equal(ex.Message,errorMessage);
+      ex = Assert.Throws<ArgumentNullException>(() => collection.Modify(null).Execute());
+      Assert.Equal(ex.Message,errorMessage);
+
+      // Sending an expression that evaluates to true applies changes on all documents.
+      result = collection.Modify("true").Set("pages","10").Execute();
+      Assert.Equal<ulong>(2, result.RecordsAffected);
     }
   }
 }

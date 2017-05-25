@@ -775,6 +775,15 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Parameter can&apos;t be null or empty..
+        /// </summary>
+        public static string ParameterNullOrEmpty {
+            get {
+                return ResourceManager.GetString("ParameterNullOrEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Password must be valid and contain length characters.
         /// </summary>
         public static string PasswordMustHaveLegalChars {
