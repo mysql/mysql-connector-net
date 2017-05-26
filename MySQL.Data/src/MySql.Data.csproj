@@ -43,6 +43,8 @@
     <Content Include="docs\MySqlParameter.xml" />
     <Content Include="docs\MySqlParameterCollection.xml" />
     <Content Include="docs\MySqlTransaction.xml" />
+    <Content Include="..\..\NugetPkgs\transform\Data\app.config.transform" />
+    <Content Include="..\..\NugetPkgs\transform\Data\web.config.transform" />
   </ItemGroup>
 
   <ItemGroup>
