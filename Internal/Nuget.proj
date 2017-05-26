@@ -1,0 +1,75 @@
+<Project DefaultTargets="NugetPackage" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <OutputPath>..\NugetPkgs\transform</OutputPath>
+	<SourceFiles>..\Nuget</SourceFiles>
+	<Data>Data</Data>
+	<Entity>Entity</Entity>
+	<Web>Web</Web>
+  </PropertyGroup>
+
+  <Import Project="..\packages\MSBuildTasks.*\tools\MSBuild.Community.Tasks.Targets"/>
+
+  <Import Project="..\packages\MSBuild.Extension.Pack.*\build\net40\MSBuild.Extension.Pack.targets"/>
+
+  <Target Name="NugetPackage" DependsOnTargets="PackageClean;NugetTransformData;NugetTransformEntity;NugetTransformWeb;">
+  </Target>
+
+  <Target Name="PackageClean">
+    <RemoveDir Directories ="$(OutputPath)" ContinueOnError ="true"/>
+    <MSBuild.ExtensionPack.Framework.Assembly TaskAction="GetInfo" NetAssembly="..\MySql.Data\src\bin\$(Configuration)\net452\MySql.Data.dll">
+      <Output TaskParameter="OutputItems" ItemName="Info"/>
+    </MSBuild.ExtensionPack.Framework.Assembly>
+    <PropertyGroup>
+      <Version>$([System.Version]::Parse(%(Info.AssemblyVersion)).ToString(3))</Version>
+      <FullVersion>%(Info.AssemblyVersion)</FullVersion>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="NugetTransformData">
+    <PropertyGroup>
+	  <targetData>$(OutputPath)\$(Data)</targetData>
+    </PropertyGroup>
+    <ItemGroup>
+      <sourceData Include="$(SourceFiles)\$(Data)\*"/>
+    </ItemGroup>
+    <Copy SourceFiles="@(sourceData)" DestinationFolder="$(targetData)"/>
+    <ItemGroup>
+	  <transFilesData Include="$(targetData)\*" />
+    </ItemGroup>
+    <XmlUpdate XmlFileName="%(transFilesData.Identity)" XPath="//configuration/system.data/DbProviderFactories/add/@type" Value="MySql.Data.MySqlClient.MySqlClientFactory, MySql.Data, Version=$(FullVersion), Culture=neutral, PublicKeyToken=c5687fc88969c44d" />
+  </Target>
+
+  <Target Name="NugetTransformEntity">
+    <PropertyGroup>
+	  <targetEntity>$(OutputPath)\$(Entity)</targetEntity>
+    </PropertyGroup>
+    <ItemGroup>
+      <sourceEntity Include="$(SourceFiles)\$(Entity)\*"/>
+    </ItemGroup>
+    <Copy SourceFiles="@(sourceEntity)" DestinationFolder="$(targetEntity)"/>
+    <ItemGroup>
+	  <transFilesEntity Include="$(targetEntity)\*" />
+    </ItemGroup>
+    <XmlUpdate XmlFileName="%(transFilesEntity.Identity)" XPath="//configuration/entityFramework/providers/provider/@type" Value="MySql.Data.MySqlClient.MySqlProviderServices, MySql.Data.Entity.EF6, Version=$(FullVersion), Culture=neutral, PublicKeyToken=c5687fc88969c44d" />
+  </Target>
+
+  <Target Name="NugetTransformWeb">
+    <PropertyGroup>
+	  <targetWeb>$(OutputPath)\$(Web)</targetWeb>
+    </PropertyGroup>
+    <ItemGroup>
+      <sourceWeb Include="$(SourceFiles)\$(Web)\*"/>
+    </ItemGroup>
+    <Copy SourceFiles="@(sourceWeb)" DestinationFolder="$(targetWeb)"/>
+    <ItemGroup>
+	  <transFilesWeb Include="$(targetWeb)\*" />
+    </ItemGroup>
+    <XmlUpdate XmlFileName="%(transFilesWeb.Identity)" XPath="//configuration/system.web/membership/providers/add/@type" Value="MySql.Web.Security.MySQLMembershipProvider, MySql.Web, Version=$(FullVersion), Culture=neutral, PublicKeyToken=c5687fc88969c44d" />
+    <XmlUpdate XmlFileName="%(transFilesWeb.Identity)" XPath="//configuration/system.web/profile/providers/add/@type" Value="MySql.Web.Profile.MySQLProfileProvider, MySql.Web, Version=$(FullVersion), Culture=neutral, PublicKeyToken=c5687fc88969c44d" />
+    <XmlUpdate XmlFileName="%(transFilesWeb.Identity)" XPath="//configuration/system.web/roleManager/providers/add/@type" Value="MySql.Web.Security.MySQLRoleProvider, MySql.Web, Version=$(FullVersion), Culture=neutral, PublicKeyToken=c5687fc88969c44d" />
+    <XmlUpdate XmlFileName="%(transFilesWeb.Identity)" XPath="//configuration/system.web/siteMap/providers/add/@type" Value="MySql.Web.SiteMap.MySqlSiteMapProvider, MySql.Web, Version=$(FullVersion), Culture=neutral, PublicKeyToken=c5687fc88969c44d" />
+    <XmlUpdate XmlFileName="%(transFilesWeb.Identity)" XPath="//configuration/system.web/webParts/personalization/providers/add/@type" Value="MySql.Web.Personalization.MySqlPersonalizationProvider, MySql.Web, Version=$(FullVersion), Culture=neutral, PublicKeyToken=c5687fc88969c44d" />
+  </Target>
+
+</Project>

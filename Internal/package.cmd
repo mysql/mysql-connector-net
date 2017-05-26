@@ -2,8 +2,13 @@ rem @echo off
 rem SET PROJECT_DIR=%cd%
 
 rem @echo on
+Nuget.exe install msbuildtasks -o packages
+Nuget.exe install MSBuild.Extension.Pack -o packages
+
 IF "%1" == "gpl" (
   REM =============  Creating Nuget packages ===================================
+  msbuild Internal\Nuget.proj /p:Configuration=Release
+
   dotnet restore MySql.Data/src/MySql.Data.csproj
   dotnet pack MySql.Data/src/MySql.Data.csproj -c Release -o ..\..\NugetPkgs\Package
 
@@ -20,10 +25,7 @@ IF "%1" == "gpl" (
   dotnet pack EntityFramework6/src/MySql.Data.Entity.EF6.csproj -c Release -o ..\..\NugetPkgs\Package
 )
 
-Nuget.exe install msbuildtasks -o packages
-Nuget.exe install MSBuild.Extension.Pack -o packages
 copy Internal\package.proj .
-
 msbuild package.proj /p:Configuration=%1
 
 IF %ERRORLEVEL% NEQ 0 EXIT /B 1
