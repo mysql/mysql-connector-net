@@ -73,8 +73,11 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
       ThrowIf.Argument.IsNull(operation, "operation");
       ThrowIf.Argument.IsNull(builder, "builder");
 
-      throw new NotImplementedException();
-      //base.Generate(operation, model, builder);
+      builder
+        .Append("CREATE DATABASE IF NOT EXISTS ")
+        .Append(_sqlGenerationHelper.DelimitIdentifier(operation.Name));
+
+      EndStatement(builder, suppressTransaction: true);
     }
 
     protected virtual void Generate(
