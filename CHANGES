@@ -7,6 +7,7 @@
 - Fixed: EF Core fails saving entity changes with computed columns. Oracle Bug #25816601
 - Added in EF Core database support to filter by table when scaffolding. WL-10669
 - EF Core: Implemented EnsureSchemaOperation used if the OnModelCreating event has an Entity<>.Table(<name>, <schema>) definition. WL-10695
+- Updated strings max lenght. WL-10705
 
 
 6.10.1
