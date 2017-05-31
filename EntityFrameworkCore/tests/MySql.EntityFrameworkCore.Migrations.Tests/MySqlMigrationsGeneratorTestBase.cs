@@ -153,7 +153,9 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
                  Table = "Person",
                  Name = "Name",
                  ClrType = typeof(string),
-                 IsNullable = true
+                 ColumnType = "varchar(30)",
+                 IsNullable = true,
+                 MaxLength = 30
                });
 
     }

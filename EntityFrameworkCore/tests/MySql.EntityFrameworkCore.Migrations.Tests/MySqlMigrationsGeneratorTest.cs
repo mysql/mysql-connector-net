@@ -71,7 +71,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
     public override void AddColumnOperation_with_maxLength()
     {
       base.AddColumnOperation_with_maxLength();
-      Assert.Equal("ALTER TABLE `Person` ADD `Name` nvarchar(30);" + EOL, Sql);
+      Assert.Equal("ALTER TABLE `Person` ADD `Name` varchar(30);" + EOL, Sql);
     }
 
     [Fact]
