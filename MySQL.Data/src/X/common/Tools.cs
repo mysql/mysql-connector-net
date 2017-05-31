@@ -1,4 +1,4 @@
-﻿// Copyright © 2014, 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2014, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -55,6 +55,28 @@ namespace MySqlX.Common
         return OS.Windows;
       else
         return OS.MacOS;
+    }
+
+    /// <summary>
+    /// Compares two Guids in string format.
+    /// </summary>
+    /// <param name="guid1">The first string to compare.</param>
+    /// <param name="guid2">The first string to compare.</param>
+    /// <returns>An integer that indicates the lexical relationship between the two comparands, similar to <see cref="string.Compare(string, string)"/></returns>
+    internal static int CompareGuids(string guid1, string guid2)
+    {
+      return string.Compare(guid1.Replace("-",""),guid2.Replace("-",""));
+    }
+
+    /// <summary>
+    /// Compares two <see cref="Guid"/> objects.
+    /// </summary>
+    /// <param name="guid1">The first <see cref="Guid"/> to compare.</param>
+    /// <param name="guid2">The second <see cref="Guid"/> to compare.</param>
+    /// <returns>An integer that indicates the lexical relationship between the two comparands, similar to <see cref="string.Compare(string, string)"/></returns>
+    internal static int CompareGuids(Guid guid1, Guid guid2)
+    {
+      return CompareGuids(guid1.ToString(), guid2.ToString());
     }
   }
 }

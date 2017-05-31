@@ -20,6 +20,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySqlX.Common;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
 using System;
@@ -183,6 +184,20 @@ namespace MySqlX.Data.Tests
       var result = coll.Find().Execute().FetchAll();
       Assert.Equal(1, result.Count);
       Assert.Equal(d2.ToString(), result[0].ToString());
+    }
+
+    [Fact]
+    public void CompareGuids()
+    {
+      Guid guid1 = new Guid();
+      Guid guid2 = new Guid();
+      Assert.Equal(0, Tools.CompareGuids(guid1, guid2));
+      Assert.Equal(0, Tools.CompareGuids(guid1.ToString(), guid2.ToString()));
+
+      guid1 = Guid.NewGuid();
+      guid2 = Guid.NewGuid();
+      Assert.True(Tools.CompareGuids(guid1, guid2) != 0);
+      Assert.True(Tools.CompareGuids(guid1.ToString(), guid2.ToString()) != 0);
     }
   }
 }
