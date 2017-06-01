@@ -153,6 +153,10 @@ namespace MySqlX.Data.Tests
       Assert.Equal(errorMessage, ex.Message);
       ex = Assert.Throws<ArgumentNullException>(() => collection.Remove("").Execute());
       Assert.Equal(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentNullException>(() => collection.Remove(" ").Execute());
+      Assert.Equal(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentNullException>(() => collection.Remove("  ").Execute());
+      Assert.Equal(errorMessage, ex.Message);
 
       // Sending an expression that evaluates to true applies changes on all documents.
       result = collection.Remove("true").Execute();

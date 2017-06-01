@@ -100,6 +100,10 @@ namespace MySqlX.Data.Tests
       Assert.Equal(ex.Message,errorMessage);
       ex = Assert.Throws<ArgumentNullException>(() => collection.Modify("").Execute());
       Assert.Equal(ex.Message,errorMessage);
+      ex = Assert.Throws<ArgumentNullException>(() => collection.Modify(" ").Execute());
+      Assert.Equal(ex.Message,errorMessage);
+      ex = Assert.Throws<ArgumentNullException>(() => collection.Modify("   ").Execute());
+      Assert.Equal(ex.Message,errorMessage);
       ex = Assert.Throws<ArgumentNullException>(() => collection.Modify(null).Execute());
       Assert.Equal(ex.Message,errorMessage);
 

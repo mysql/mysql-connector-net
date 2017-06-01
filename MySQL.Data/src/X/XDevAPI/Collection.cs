@@ -74,7 +74,7 @@ namespace MySqlX.XDevAPI
     /// <returns>RemoveStatement</returns>
     public RemoveStatement Remove(string condition)
     {
-      if (string.IsNullOrEmpty(condition))
+      if (string.IsNullOrWhiteSpace(condition))
         throw new ArgumentNullException(nameof(condition), Resources.ParameterNullOrEmpty);
 
       RemoveStatement stmt = new RemoveStatement(this, condition);
@@ -118,7 +118,7 @@ namespace MySqlX.XDevAPI
     /// <returns>ModifyStatement object</returns>
     public ModifyStatement Modify(string condition)
     {
-      if (string.IsNullOrEmpty(condition))
+      if (string.IsNullOrWhiteSpace(condition))
         throw new ArgumentNullException(nameof(condition), Resources.ParameterNullOrEmpty);
 
       ModifyStatement stmt = new ModifyStatement(this, condition);
