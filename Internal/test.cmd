@@ -26,6 +26,8 @@ cd ../..
 REM =================== Test EF Core =====================================================
 cd EntityFrameworkCore/tests/MySql.EntityFrameworkCore.Basic.Tests
 dotnet clean
+del /S bin /Q
+del /S obj /Q
 dotnet restore
 dotnet build MySql.EntityFrameworkCore.Basic.Tests.csproj -c Debug
 sn.exe -Rca  bin\debug\net452\MySql.EntityFrameworkCore.Basic.Tests.dll ConnectorNet
