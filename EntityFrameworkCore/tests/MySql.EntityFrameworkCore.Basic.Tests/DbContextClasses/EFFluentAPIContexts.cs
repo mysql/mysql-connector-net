@@ -120,6 +120,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
 
       modelBuilder.Entity<Car>()
                .Property(b => b.Model)
+               .HasColumnType("varchar(4)")
                .ForMySQLHasDefaultValue("1999");
 
 

@@ -334,9 +334,11 @@ namespace MySql.Data.EntityFrameworkCore.Tests
           using (MySqlDataReader reader = cmd.ExecuteReader())
           {
             Assert.True(reader.Read());
-            Assert.Equal("continentlist", reader.GetString(0));
+            Assert.Equal("continentlist", reader.GetString(0)
+              , ignoreCase: true, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
             Assert.True(reader.Read());
-            Assert.Equal("countrylist", reader.GetString(0));
+            Assert.Equal("countrylist", reader.GetString(0)
+              , ignoreCase: true, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
           }
 
         }
