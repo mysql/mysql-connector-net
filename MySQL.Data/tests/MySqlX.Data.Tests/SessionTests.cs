@@ -262,12 +262,6 @@ namespace MySqlX.Data.Tests
       // sslmode=Preferred is invalid.
       Assert.Throws<ArgumentException>(() => MySQLX.GetNodeSession(connectionString + "?ssl-mode=Preferred"));
 
-      // sslmode=Disabled is defaulted to None.
-      using(var connection = MySQLX.GetNodeSession(connectionString + "?ssl-mode=Disabled"))
-      {
-        Assert.Equal(MySqlSslMode.None, connection.Settings.SslMode);
-      }
-
       // sslmode=Required is default value.
       using(var connection = MySQLX.GetNodeSession(connectionString))
       {
@@ -286,6 +280,12 @@ namespace MySqlX.Data.Tests
 
       // Duplicate SSL connection options send error message.
       ArgumentException ex = Assert.Throws<ArgumentException>(() => MySQLX.GetNodeSession(connectionString + "?sslmode=Required&ssl mode=None"));
+      Assert.EndsWith("is duplicated.", ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetNodeSession(connectionString + "?ssl-ca-pwd=pass&ssl-ca-pwd=pass"));
+      Assert.EndsWith("is duplicated.", ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetNodeSession(connectionString + "?certificatepassword=pass&certificatepassword=pass"));
+      Assert.EndsWith("is duplicated.", ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetNodeSession(connectionString + "?certificatepassword=pass&ssl-ca-pwd=pass"));
       Assert.EndsWith("is duplicated.", ex.Message);
 
       // send error if sslmode=None and another ssl parameter exists.

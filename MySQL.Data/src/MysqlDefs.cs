@@ -366,7 +366,6 @@ namespace MySql.Data.MySqlClient
     /// Do not use SSL.
     /// </summary>
     None,
-    Disabled = None,
     /// <summary>
     /// Always use SSL. Deny connection if server does not support SSL.
     /// Do not perform server certificate validation. 

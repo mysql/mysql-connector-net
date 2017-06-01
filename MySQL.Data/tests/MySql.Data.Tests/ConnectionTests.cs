@@ -819,12 +819,6 @@ namespace MySql.Data.MySqlClient.Tests
       // sslmode=Preferred is invalid.
       Assert.Throws<ArgumentException>(() => new MySqlConnection(cstrBuilder.ConnectionString + ";sslmode=Preferred"));
 
-      // sslmode=Disabled is defaulted to None.
-      using (var connection = new MySqlConnection(cstrBuilder.ConnectionString + ";sslmode=Disabled"))
-      {
-        Assert.True(connection.Settings.SslMode == MySqlSslMode.None);
-      }
-
       // sslmode case insensitive.
       using (var connection = new MySqlConnection(cstrBuilder.ConnectionString + ";SsL-mOdE=NONe"))
       {
@@ -833,6 +827,12 @@ namespace MySql.Data.MySqlClient.Tests
 
       // Duplicate SSL connection options send error message.
       ArgumentException ex = Assert.Throws<ArgumentException>(() => new MySqlConnection(cstrBuilder.ConnectionString + ";sslmode=Required;sslmode=None"));
+      Assert.EndsWith("is duplicated.", ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => new MySqlConnection(cstrBuilder.ConnectionString + ";ssl-ca-pwd=pass;ssl-ca-pwd=pass"));
+      Assert.EndsWith("is duplicated.", ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => new MySqlConnection(cstrBuilder.ConnectionString + ";certificatepassword=pass;certificatepassword=pass"));
+      Assert.EndsWith("is duplicated.", ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => new MySqlConnection(cstrBuilder.ConnectionString + ";certificatepassword=pass;ssl-ca-pwd=pass"));
       Assert.EndsWith("is duplicated.", ex.Message);
 
       // send error if sslmode=None and another ssl parameter exists.

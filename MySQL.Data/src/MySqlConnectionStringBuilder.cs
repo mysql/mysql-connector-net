@@ -1157,7 +1157,7 @@ namespace MySql.Data.MySqlClient
         var keyword = keyValue[0].ToLowerInvariant().Trim();
         var value = keyValue[1].ToLowerInvariant();
         MySqlConnectionStringOption option = Options.Options.Where(o => o.Keyword == keyword || (o.Synonyms!=null && o.Synonyms.Contains(keyword))).FirstOrDefault();
-        if (option == null || (option.Keyword != "sslmode" && option.Keyword != "ssl-ca-pwd" && option.Keyword != "sslcrl" && option.Keyword != "sslca"))
+        if (option == null || (option.Keyword != "sslmode" && option.Keyword != "certificatepassword" && option.Keyword != "sslcrl" && option.Keyword != "sslca"))
           continue;
 
         // SSL connection options can't be duplicated.
@@ -1168,7 +1168,7 @@ namespace MySql.Data.MySqlClient
         if (option.Keyword=="sslmode" && (value=="none" || value == "disabled"))
           sslModeIsNone = true;
 
-        if (sslModeIsNone && (option.Keyword == "ssl-ca-pwd" || option.Keyword == "sslcrl" || option.Keyword == "sslca"))
+        if (sslModeIsNone && (option.Keyword == "certificatepassword" || option.Keyword == "sslcrl" || option.Keyword == "sslca"))
           throw new ArgumentException(Resources.InvalidOptionWhenSslDisabled);
 
         usedSslOptions.Add(option.Keyword);
