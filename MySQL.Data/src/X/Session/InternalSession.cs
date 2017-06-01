@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -29,6 +29,7 @@ using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.Relational;
 using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.Authentication;
+using MySql.Data.Common;
 
 namespace MySqlX.Session
 {
@@ -77,6 +78,7 @@ namespace MySqlX.Session
         try
         {
           session.Open();
+          SetDefaultCollation(session, settings.CharacterSet);
           break;
         }
         catch (IOException)
@@ -139,6 +141,29 @@ namespace MySqlX.Session
       disposed = true;
     }
 
+    /// <summary>
+    /// Sets the connection's charset default collation.
+    /// </summary>
+    /// <param name="session">Opened session.</param>
+    /// <param name="charset">Character set.</param>
+    private static void SetDefaultCollation(InternalSession session, string charset)
+    {
+      RowResult result = session.GetSqlRowResult("SHOW VARIABLES LIKE 'version'");
+      DBVersion version = DBVersion.Parse(result.FetchOne().GetString("Value"));
+
+      if (!version.isAtLeast(8,0,1)) return;
+
+      session.GetSqlRowResult("SHOW CHARSET WHERE Charset='" + charset + "'");
+      result = session.GetSqlRowResult("SHOW CHARSET WHERE Charset='" + charset + "'");
+      var row = result.FetchOne();
+      if (row != null)
+      {
+        var defaultCollation = row.GetString("Default collation");
+        session.ExecuteSqlNonQuery("SET collation_connection = '" + defaultCollation + "'");
+      }
+      else
+        session.ExecuteSqlNonQuery("SET collation_connection = 'utf8mb4_0900_ai_ci'");
+    }
     //~BaseSession()
     //{
     //  Dispose(false);
