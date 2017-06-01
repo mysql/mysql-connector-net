@@ -229,6 +229,11 @@ namespace MySqlX.Session
         if (!types.Contains(row.GetString("type").ToUpperInvariant())) continue;
 
         List<object> parameters = new List<object>(new object[] { s, row.GetString("name") });
+		if (row["name"] is Byte[])
+        {
+          Byte[] byteArray = row["name"] as Byte[];
+          parameters[1] = Encoding.UTF8.GetString(byteArray, 0, byteArray.Length);
+        }
 
         switch (row.GetString("type").ToUpperInvariant())
         {
