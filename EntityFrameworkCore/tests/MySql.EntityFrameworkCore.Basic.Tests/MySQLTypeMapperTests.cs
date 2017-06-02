@@ -24,6 +24,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.EntityFrameworkCore.Storage.Internal;
+using MySql.Data.EntityFrameworkCore.Tests;
 using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using MySql.Data.MySqlClient;
 using System;
@@ -36,7 +37,7 @@ namespace EntityFrameworkCore.Basic.Tests
 {
   public class MySQLTypeMapperTests
   {
-    [Fact]
+    [FactOnVersions("5.6.0", null)]
     static void InsertAllDataTypes()
     {
       DateTime now = new DateTime(DateTime.Today.AddSeconds(1).AddMilliseconds(1).AddTicks(10).Ticks);
