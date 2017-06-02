@@ -1,4 +1,4 @@
-// Copyright © 2004, 2016 Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -82,7 +82,7 @@ namespace MySql.Data.Types
       }
       else
       {
-        String s = $"'{(negative ? "-" : "")}{ts.Days} {ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}.{ts.Ticks%10000000:000000}'";
+        String s = $"'{(negative ? "-" : "")}{ts.Days} {ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}.{ts.Ticks%10000000/10:000000}'";
       
         packet.WriteStringNoNull(s);
       }

@@ -349,8 +349,13 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
         {
             var command = _connection.CreateCommand();
             var dbName = _connection.Database;
+            string generation_expression = string.Empty;
+            if (_connection.driver.Version.isAtLeast(5,7,0))
+              generation_expression = "generation_expression";
+            else
+              generation_expression = "NULL";
             command.CommandText = " SELECT c.table_schema, c.table_name, c.column_name, is_nullable, column_type, column_key, " +
-                                  " c.ordinal_position, column_default, generation_expression, datetime_precision, numeric_precision, " +
+                                  $" c.ordinal_position, column_default, {generation_expression} as generation_expression, datetime_precision, numeric_precision, " +
                                   " numeric_scale, character_maximum_length, constraint_name, k.ordinal_position as primarykeyordinal " +
                                   " FROM(INFORMATION_SCHEMA.tables t INNER JOIN information_schema.columns c ON t.table_schema = c.table_schema AND t.table_name = c.table_name) " +
                                   " LEFT JOIN information_schema.KEY_COLUMN_USAGE k ON(k.TABLE_SCHEMA = c.TABLE_SCHEMA AND k.TABLE_NAME = c.TABLE_NAME AND k.COLUMN_NAME = c.COLUMN_NAME) " +
@@ -393,7 +398,8 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
                         Precision = (int?)precision,
                         Scale = (int?)numeric_Scale,
                         DefaultValue = defaultValue,
-                        PrimaryKeyOrdinal=(int?)primaryKeyOrdinal
+                        PrimaryKeyOrdinal=(int?)primaryKeyOrdinal,
+                        ComputedValue = computedValue
                     };
 
                     table.Columns.Add(column);
