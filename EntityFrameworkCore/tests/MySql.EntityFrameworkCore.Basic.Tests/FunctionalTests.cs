@@ -41,11 +41,11 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     {
       var serviceCollection = new ServiceCollection();
       serviceCollection.AddEntityFrameworkMySQL()
-        .AddDbContext<ConnectionStringInOnConfiguringTestContext>();
+        .AddDbContext<ConnStringOnConfiguringContext>();
 
      var serviceProvider = serviceCollection.BuildServiceProvider();  
 
-      using (var context = serviceProvider.GetRequiredService<ConnectionStringInOnConfiguringTestContext>())
+      using (var context = serviceProvider.GetRequiredService<ConnStringOnConfiguringContext>())
       {        
         context.Database.EnsureCreated();
         Assert.False(context.Posts.Any());
@@ -218,9 +218,9 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       }
     }
 
-    private class ConnectionStringInOnConfiguringTestContext : TestsContext
+    private class ConnStringOnConfiguringContext : TestsContext
     {
-      public ConnectionStringInOnConfiguringTestContext(DbContextOptions options) 
+      public ConnStringOnConfiguringContext(DbContextOptions options) 
         : base(options)
       {
       }      
