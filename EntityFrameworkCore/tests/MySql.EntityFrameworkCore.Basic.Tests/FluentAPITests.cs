@@ -34,9 +34,9 @@ using Xunit;
 namespace MySql.Data.EntityFrameworkCore.Tests
 {
   public class FluentAPITests : IDisposable
-  {    
+  {
 
-    [Fact]
+    [FactOnVersions("5.7.0", null)]
     public void EnsureRelationalPatterns()
     {
       var serviceCollection = new ServiceCollection();
@@ -63,70 +63,70 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     [Fact]
     public void CanUseModelWithDateTimeOffset()
     {
-        var serviceCollection = new ServiceCollection();
-        serviceCollection.AddEntityFrameworkMySQL()        
-        .AddDbContext<QuickContext>();
+      var serviceCollection = new ServiceCollection();
+      serviceCollection.AddEntityFrameworkMySQL()
+      .AddDbContext<QuickContext>();
 
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+      var serviceProvider = serviceCollection.BuildServiceProvider();
 
-        using (var context = serviceProvider.GetRequiredService<QuickContext>())
+      using (var context = serviceProvider.GetRequiredService<QuickContext>())
+      {
+        try
         {
-            try
-            {
-                context.Database.EnsureCreated();
-                var dt = DateTime.Now;
-                var e = new QuickEntity { Name = "Jos", Created = dt };
-                context.QuickEntity.Add(e);
-                context.SaveChanges();
-                var row = context.QuickEntity.FirstOrDefault();
-                Assert.Equal(dt, row.Created);                    
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-            finally
-            {
-                context.Database.EnsureDeleted();
-            }                
+          context.Database.EnsureCreated();
+          var dt = DateTime.Now;
+          var e = new QuickEntity { Name = "Jos", Created = dt };
+          context.QuickEntity.Add(e);
+          context.SaveChanges();
+          var row = context.QuickEntity.FirstOrDefault();
+          Assert.Equal(dt, row.Created);
         }
+        catch (Exception)
+        {
+          throw;
+        }
+        finally
+        {
+          context.Database.EnsureDeleted();
+        }
+      }
     }
 
 
-        [Fact]
-        public async Task CanUseModelWithDateTimeOffsetAsync()
+    [Fact]
+    public async Task CanUseModelWithDateTimeOffsetAsync()
+    {
+      var serviceCollection = new ServiceCollection();
+      serviceCollection.AddEntityFrameworkMySQL()
+      .AddDbContext<QuickContext>();
+
+      var serviceProvider = serviceCollection.BuildServiceProvider();
+
+      using (var context = serviceProvider.GetRequiredService<QuickContext>())
+      {
+        try
         {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddEntityFrameworkMySQL()
-            .AddDbContext<QuickContext>();
-
-            var serviceProvider = serviceCollection.BuildServiceProvider();
-
-            using (var context = serviceProvider.GetRequiredService<QuickContext>())
-            {
-                try
-                {
-                    context.Database.EnsureCreated();
-                    var dt = DateTime.Now;
-                    var e = new QuickEntity { Name = "Jos", Created = dt };
-                    context.QuickEntity.Add(e);
-                    context.SaveChanges();
-                    var result = await context.QuickEntity.FirstOrDefaultAsync();
-                    Assert.Equal(dt, result.Created);
-                }
-                catch (Exception)
-                {
-                    throw;
-                }
-                finally
-                {
-                    context.Database.EnsureDeleted();
-                }
-            }
+          context.Database.EnsureCreated();
+          var dt = DateTime.Now;
+          var e = new QuickEntity { Name = "Jos", Created = dt };
+          context.QuickEntity.Add(e);
+          context.SaveChanges();
+          var result = await context.QuickEntity.FirstOrDefaultAsync();
+          Assert.Equal(dt, result.Created);
         }
+        catch (Exception)
+        {
+          throw;
+        }
+        finally
+        {
+          context.Database.EnsureDeleted();
+        }
+      }
+    }
 
 
-        [Fact]
+    [Fact]
     public void CanNameAlternateKey()
     {
       var serviceCollection = new ServiceCollection();
@@ -146,7 +146,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
           var reader = cmd.ExecuteReader();
           while (reader.Read())
           {
-            Assert.True(reader.GetString(1).ToString().Equals("AlternateKey_LicensePlate"), "Wrong index creation");            
+            Assert.True(reader.GetString(1).ToString().Equals("AlternateKey_LicensePlate"), "Wrong index creation");
           }
         }
       }
@@ -208,7 +208,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     }
 
 
-    [Fact]
+    [FactOnVersions("5.7.0", null)]
     public void CanUseConcurrencyToken()
     {
       var serviceCollection = new ServiceCollection();
@@ -230,104 +230,104 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       }
     }
 
-        [Fact]
-        public void CanUseContainsInQuery()
-        {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddEntityFrameworkMySQL()
-              .AddDbContext<ComputedColumnContext>();
+    [FactOnVersions("5.7.0", null)]
+    public void CanUseContainsInQuery()
+    {
+      var serviceCollection = new ServiceCollection();
+      serviceCollection.AddEntityFrameworkMySQL()
+        .AddDbContext<ComputedColumnContext>();
 
-            var serviceProvider = serviceCollection.BuildServiceProvider();
+      var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            using (var context = serviceProvider.GetRequiredService<ComputedColumnContext>())
-            {
-                context.Database.EnsureCreated();
-                var e = new Employee { FirstName = "Jos", LastName = "Stuart" };
-                context.Employees.Add(e);
-                context.SaveChanges();
-                var result = context.Employees.Where(t => t.FirstName.Contains("jo")).ToList();
-                Assert.Equal(1, result.Count);
-                context.Database.EnsureDeleted();
-            }
-        }
+      using (var context = serviceProvider.GetRequiredService<ComputedColumnContext>())
+      {
+        context.Database.EnsureCreated();
+        var e = new Employee { FirstName = "Jos", LastName = "Stuart" };
+        context.Employees.Add(e);
+        context.SaveChanges();
+        var result = context.Employees.Where(t => t.FirstName.Contains("jo")).ToList();
+        Assert.Equal(1, result.Count);
+        context.Database.EnsureDeleted();
+      }
+    }
 
-        [Fact]
-        public void CanUseContainsVarInQuery()
-        {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddEntityFrameworkMySQL()
-              .AddDbContext<ComputedColumnContext>();
+    [FactOnVersions("5.7.0", null)]
+    public void CanUseContainsVarInQuery()
+    {
+      var serviceCollection = new ServiceCollection();
+      serviceCollection.AddEntityFrameworkMySQL()
+        .AddDbContext<ComputedColumnContext>();
 
-            var serviceProvider = serviceCollection.BuildServiceProvider();
+      var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            using (var context = serviceProvider.GetRequiredService<ComputedColumnContext>())
-            {
-                context.Database.EnsureCreated();
-                var e = new Employee { FirstName = "Jos", LastName = "Stuart" };
-                context.Employees.Add(e);
-                context.SaveChanges();
-                var test = "jo";
-                var result = context.Employees.Where(t => t.FirstName.Contains(test)).ToList();
-                Assert.Equal(1, result.Count);
-                context.Database.EnsureDeleted();
-            }
-        }
+      using (var context = serviceProvider.GetRequiredService<ComputedColumnContext>())
+      {
+        context.Database.EnsureCreated();
+        var e = new Employee { FirstName = "Jos", LastName = "Stuart" };
+        context.Employees.Add(e);
+        context.SaveChanges();
+        var test = "jo";
+        var result = context.Employees.Where(t => t.FirstName.Contains(test)).ToList();
+        Assert.Equal(1, result.Count);
+        context.Database.EnsureDeleted();
+      }
+    }
 
 
-        [Fact]
-        public void CanUseContainsWithInvalidValue()
-        {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddEntityFrameworkMySQL()
-              .AddDbContext<ComputedColumnContext>();
+    [FactOnVersions("5.7.0", null)]
+    public void CanUseContainsWithInvalidValue()
+    {
+      var serviceCollection = new ServiceCollection();
+      serviceCollection.AddEntityFrameworkMySQL()
+        .AddDbContext<ComputedColumnContext>();
 
-            var serviceProvider = serviceCollection.BuildServiceProvider();
+      var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            using (var context = serviceProvider.GetRequiredService<ComputedColumnContext>())
-            {
-                context.Database.EnsureCreated();
-                var e = new Employee { FirstName = "Jos", LastName = "Stuart" };
-                context.Employees.Add(e);
-                context.SaveChanges();
-                var result = context.Employees.Where(t => t.FirstName.Contains("XXXXXXXX$%^&*()!")).ToList();
-                Assert.Equal(0, result.Count);
-                result = context.Employees.Where(t => t.FirstName.Contains(null)).ToList();
-                Assert.Equal(0, result.Count);
-                context.Database.EnsureDeleted();
-            }
-        }
+      using (var context = serviceProvider.GetRequiredService<ComputedColumnContext>())
+      {
+        context.Database.EnsureCreated();
+        var e = new Employee { FirstName = "Jos", LastName = "Stuart" };
+        context.Employees.Add(e);
+        context.SaveChanges();
+        var result = context.Employees.Where(t => t.FirstName.Contains("XXXXXXXX$%^&*()!")).ToList();
+        Assert.Equal(0, result.Count);
+        result = context.Employees.Where(t => t.FirstName.Contains(null)).ToList();
+        Assert.Equal(0, result.Count);
+        context.Database.EnsureDeleted();
+      }
+    }
 
-        [Fact]
-        public void CanUseContainsWithVariableInQuery()
-        {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddEntityFrameworkMySQL()
-              .AddDbContext<ComputedColumnContext>();
+    [FactOnVersions("5.7.0", null)]
+    public void CanUseContainsWithVariableInQuery()
+    {
+      var serviceCollection = new ServiceCollection();
+      serviceCollection.AddEntityFrameworkMySQL()
+        .AddDbContext<ComputedColumnContext>();
 
-            var serviceProvider = serviceCollection.BuildServiceProvider();
+      var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            using (var context = serviceProvider.GetRequiredService<ComputedColumnContext>())
-            {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
-                var e = new Employee { FirstName = "Jos", LastName = "Stuart" };
-                context.Employees.Add(e);
-                context.SaveChanges();
-                var avalue = "jo";
-                var result = context.Employees.Where(t => t.FirstName.Contains(avalue)).ToList();
-                Assert.Equal(1, result.Count);
-                context.Database.EnsureDeleted();
-            }
-        }
+      using (var context = serviceProvider.GetRequiredService<ComputedColumnContext>())
+      {
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
+        var e = new Employee { FirstName = "Jos", LastName = "Stuart" };
+        context.Employees.Add(e);
+        context.SaveChanges();
+        var avalue = "jo";
+        var result = context.Employees.Where(t => t.FirstName.Contains(avalue)).ToList();
+        Assert.Equal(1, result.Count);
+        context.Database.EnsureDeleted();
+      }
+    }
 
     [Fact]
     public void TableAttributeTest()
     {
-      using(WorldContext context = new WorldContext())
+      using (WorldContext context = new WorldContext())
       {
         context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
-        using(MySqlConnection conn = new MySqlConnection(context.Database.GetDbConnection().ConnectionString))
+        using (MySqlConnection conn = new MySqlConnection(context.Database.GetDbConnection().ConnectionString))
         {
           conn.Open();
           MySqlCommand cmd = new MySqlCommand("SHOW TABLES", conn);
@@ -345,14 +345,14 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       }
     }
 
-        public void Dispose()
+    public void Dispose()
     {
       // ensure database deletion
       using (var cnn = new MySqlConnection(MySQLTestStore.baseConnectionString))
       {
         cnn.Open();
         var cmd = new MySqlCommand("DROP DATABASE IF EXISTS test", cnn);
-        cmd.ExecuteNonQuery();        
+        cmd.ExecuteNonQuery();
       }
     }
   }

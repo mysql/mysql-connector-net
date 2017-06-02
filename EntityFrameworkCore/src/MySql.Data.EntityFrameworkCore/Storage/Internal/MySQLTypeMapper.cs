@@ -34,7 +34,7 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
     private static int _longTextMaxLength = int.MaxValue;
     private static int _medTextMaxLength = 16777215;
     private static int _textMaxLength = 65535;
-    private static int _keyMaxLength = 1000;
+    private static int _keyMaxLength = 767;
     private static int _tinyMaxLength = 255;
 
     private readonly RelationalTypeMapping _int = new RelationalTypeMapping("int", typeof(Int32));

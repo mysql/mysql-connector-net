@@ -128,7 +128,7 @@ namespace EntityFrameworkCore.Basic.Tests
         {
           Assert.True(reader.Read());
           Assert.Equal("TinyString", reader.GetString("field"));
-          Assert.Equal("varchar(1000)", reader.GetString("type"));
+          Assert.Equal("varchar(767)", reader.GetString("type"));
 
           Assert.True(reader.Read());
           Assert.Equal("LongString", reader.GetString("field"));
