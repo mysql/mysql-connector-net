@@ -251,7 +251,7 @@ CREATE DATABASE sakilaIndex;
         }
 
 
-        [Fact]
+        [FactOnVersions("5.6.0", null)]
         public void CanCreateModelForSakila()
         {
             Assembly executingAssembly = typeof(MySQLDatabaseModelFixture).GetTypeInfo().Assembly;
