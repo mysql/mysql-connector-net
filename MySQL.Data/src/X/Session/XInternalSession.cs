@@ -67,9 +67,9 @@ namespace MySqlX.Session
       _writer = new XPacketReaderWriter(_stream);
       protocol = new XProtocol(_reader, _writer);
 
-      Settings.CharacterSet = String.IsNullOrWhiteSpace(Settings.CharacterSet) ? "UTF-8" : Settings.CharacterSet;
+      Settings.CharacterSet = String.IsNullOrWhiteSpace(Settings.CharacterSet) ? "utf8mb4" : Settings.CharacterSet;
 
-      var encoding = Encoding.GetEncoding(Settings.CharacterSet);
+      var encoding = Encoding.GetEncoding(String.Compare(Settings.CharacterSet,"utf8mb4",true)==0 ? "UTF-8" : Settings.CharacterSet);
 
       SetState(SessionState.Connecting, false);
 
@@ -229,6 +229,11 @@ namespace MySqlX.Session
         if (!types.Contains(row.GetString("type").ToUpperInvariant())) continue;
 
         List<object> parameters = new List<object>(new object[] { s, row.GetString("name") });
+		if (row["name"] is Byte[])
+        {
+          Byte[] byteArray = row["name"] as Byte[];
+          parameters[1] = Encoding.UTF8.GetString(byteArray, 0, byteArray.Length);
+        }
 
         switch (row.GetString("type").ToUpperInvariant())
         {

@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -100,6 +100,7 @@ namespace MySqlX.Data
       collations.Add(32, "armscii8_general_ci");
       collations.Add(64, "armscii8_bin");
       collations.Add(33, "utf8_general_ci");
+      collations.Add(76, "utf8_tolower_ci");
       collations.Add(83, "utf8_bin");
       collations.Add(192, "utf8_unicode_ci");
       collations.Add(193, "utf8_icelandic_ci");
@@ -193,6 +194,49 @@ namespace MySqlX.Data
       collations.Add(245, "utf8mb4_croatian_ci");
       collations.Add(246, "utf8mb4_unicode_520_ci");
       collations.Add(247, "utf8mb4_vietnamese_ci");
+      collations.Add(255, "utf8mb4_0900_ai_ci");
+      collations.Add(256, "utf8mb4_de_pb_0900_ai_ci");
+      collations.Add(257, "utf8mb4_is_0900_ai_ci");
+      collations.Add(258, "utf8mb4_lv_0900_ai_ci");
+      collations.Add(259, "utf8mb4_ro_0900_ai_ci");
+      collations.Add(260, "utf8mb4_sl_0900_ai_ci");
+      collations.Add(261, "utf8mb4_pl_0900_ai_ci");
+      collations.Add(262, "utf8mb4_et_0900_ai_ci");
+      collations.Add(263, "utf8mb4_es_0900_ai_ci");
+      collations.Add(264, "utf8mb4_sv_0900_ai_ci");
+      collations.Add(265, "utf8mb4_tr_0900_ai_ci");
+      collations.Add(266, "utf8mb4_cs_0900_ai_ci");
+      collations.Add(267, "utf8mb4_da_0900_ai_ci");
+      collations.Add(268, "utf8mb4_lt_0900_ai_ci");
+      collations.Add(269, "utf8mb4_sk_0900_ai_ci");
+      collations.Add(270, "utf8mb4_es_trad_0900_ai_ci");
+      collations.Add(271, "utf8mb4_la_0900_ai_ci");
+      collations.Add(273, "utf8mb4_eo_0900_ai_ci");
+      collations.Add(274, "utf8mb4_hu_0900_ai_ci");
+      collations.Add(275, "utf8mb4_hr_0900_ai_ci");
+      collations.Add(277, "utf8mb4_vi_0900_ai_ci");
+      collations.Add(278, "utf8mb4_0900_as_cs");
+      collations.Add(279, "utf8mb4_de_pb_0900_as_cs");
+      collations.Add(280, "utf8mb4_is_0900_as_cs");
+      collations.Add(281, "utf8mb4_lv_0900_as_cs");
+      collations.Add(282, "utf8mb4_ro_0900_as_cs");
+      collations.Add(283, "utf8mb4_sl_0900_as_cs");
+      collations.Add(284, "utf8mb4_pl_0900_as_cs");
+      collations.Add(285, "utf8mb4_et_0900_as_cs");
+      collations.Add(286, "utf8mb4_es_0900_as_cs");
+      collations.Add(287, "utf8mb4_sv_0900_as_cs");
+      collations.Add(288, "utf8mb4_tr_0900_as_cs");
+      collations.Add(289, "utf8mb4_cs_0900_as_cs");
+      collations.Add(290, "utf8mb4_da_0900_as_cs");
+      collations.Add(291, "utf8mb4_lt_0900_as_cs");
+      collations.Add(292, "utf8mb4_sk_0900_as_cs");
+      collations.Add(293, "utf8mb4_es_trad_0900_as_cs");
+      collations.Add(294, "utf8mb4_la_0900_as_cs");
+      collations.Add(296, "utf8mb4_eo_0900_as_cs");
+      collations.Add(297, "utf8mb4_hu_0900_as_cs");
+      collations.Add(298, "utf8mb4_hr_0900_as_cs");
+      collations.Add(300, "utf8mb4_vi_0900_as_cs");
+      collations.Add(303, "utf8mb4_ja_0900_as_cs");
       collations.Add(14, "cp1251_bulgarian_ci");
       collations.Add(23, "cp1251_ukrainian_ci");
       collations.Add(50, "cp1251_bin");
