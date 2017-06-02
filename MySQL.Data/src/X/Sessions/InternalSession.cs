@@ -29,6 +29,7 @@ using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.Relational;
 using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.Authentication;
+using MySql.Data.Common;
 
 namespace MySqlX.Sessions
 {
@@ -77,6 +78,7 @@ namespace MySqlX.Sessions
         try
         {
           session.Open();
+          SetDefaultCollation(session, settings.CharacterSet);
           break;
         }
         catch (IOException)
@@ -139,6 +141,29 @@ namespace MySqlX.Sessions
       disposed = true;
     }
 
+    /// <summary>
+    /// Sets the connection's charset default collation.
+    /// </summary>
+    /// <param name="session">Opened session.</param>
+    /// <param name="charset">Character set.</param>
+    private static void SetDefaultCollation(InternalSession session, string charset)
+    {
+      RowResult result = session.GetSqlRowResult("SHOW VARIABLES LIKE 'version'");
+      DBVersion version = DBVersion.Parse(result.FetchOne().GetString("Value"));
+
+      if (!version.isAtLeast(8,0,1)) return;
+
+      session.GetSqlRowResult("SHOW CHARSET WHERE Charset='" + charset + "'");
+      result = session.GetSqlRowResult("SHOW CHARSET WHERE Charset='" + charset + "'");
+      var row = result.FetchOne();
+      if (row != null)
+      {
+        var defaultCollation = row.GetString("Default collation");
+        session.ExecuteSqlNonQuery("SET collation_connection = '" + defaultCollation + "'");
+      }
+      else
+        session.ExecuteSqlNonQuery("SET collation_connection = 'utf8mb4_0900_ai_ci'");
+    }
     //~BaseSession()
     //{
     //  Dispose(false);
