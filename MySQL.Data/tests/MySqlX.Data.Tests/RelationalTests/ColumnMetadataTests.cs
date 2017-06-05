@@ -20,6 +20,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.X.XDevAPI.Common;
 using MySqlX.XDevAPI.Relational;
 using System;
@@ -102,13 +103,21 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.Equal("b", r.Columns[0].ColumnName);
       Assert.Equal("b", r.Columns[0].ColumnLabel);
       Assert.Equal(ColumnType.String, r.Columns[0].Type);
-      Assert.Equal(255u, r.Columns[0].Length);
       Assert.Equal(0u, r.Columns[0].FractionalDigits);
       Assert.Equal(false, r.Columns[0].IsNumberSigned);
       Assert.Equal(defaultValues[0][0], r.Columns[0].CharacterSetName);
       Assert.Equal(defaultValues[0][1], r.Columns[0].CollationName);
       Assert.Equal(false, r.Columns[0].IsPadded);
       Assert.Equal("CAR", rows[0][0]);
+      
+      using (var connection = new MySqlConnection(ConnectionStringRoot))
+      {
+        connection.Open();
+        if (connection.driver.Version.isAtLeast(8,0,1))
+          Assert.Equal(1020u, r.Columns[0].Length);
+        else
+          Assert.Equal(255u, r.Columns[0].Length);
+      }
     }
 
     [Fact]

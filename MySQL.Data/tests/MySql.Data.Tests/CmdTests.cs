@@ -45,7 +45,12 @@ namespace MySql.Data.MySqlClient.Tests
       string user = Fixture.CreateUser("1", "123");
       executeSQL(String.Format("GRANT EXECUTE ON FUNCTION `{0}`.`MyTwice` TO '{1}'@'localhost';", Connection.Database, user), true);
       executeSQL(String.Format("GRANT EXECUTE ON PROCEDURE `{0}`.`spMyTwice` TO '{1}'@'localhost'", Connection.Database, user), true);
-      executeSQL("GRANT SELECT ON TABLE mysql.proc TO 'user1'@'localhost'", true);
+
+      if (Connection.driver.Version.isAtLeast(8,0,1))
+        executeSQL("GRANT SELECT ON TABLE mysql.db TO 'user1'@'localhost'", true);
+      else
+        executeSQL("GRANT SELECT ON TABLE mysql.proc TO 'user1'@'localhost'", true);
+
       executeSQL("FLUSH PRIVILEGES", true);
 
       MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Connection.ConnectionString);

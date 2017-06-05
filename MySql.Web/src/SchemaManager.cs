@@ -32,6 +32,7 @@ using System.Configuration.Provider;
 using System.Diagnostics;
 using System.Reflection;
 using System.IO;
+using System.Text;
 
 namespace MySql.Web.Common
 {
@@ -134,7 +135,16 @@ namespace MySql.Web.Common
           restrictions[2] = "mysql_membership";
           DataTable dt = conn.GetSchema("Tables", restrictions);
           if (dt.Rows.Count == 1)
-            return Convert.ToInt32(dt.Rows[0]["TABLE_COMMENT"]);
+          {
+            var value = dt.Rows[0]["TABLE_COMMENT"];
+            if (value is Byte[])
+            {
+              Byte[] byteArray = value as Byte[];
+              return Convert.ToInt32(Encoding.UTF8.GetString(byteArray, 0, byteArray.Length));
+            }
+            else
+              return Convert.ToInt32(value);
+          }
         }
         return 0;
       }

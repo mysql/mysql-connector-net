@@ -20,6 +20,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Common;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Relational;
@@ -208,8 +209,17 @@ namespace MySqlX.Data.Tests
       var sql = GetNodeSession().SQL("SHOW CREATE VIEW myview").Execute();
       var result = sql.FetchAll();
       string desc = result[0][1].ToString();
-      Assert.Equal($"CREATE ALGORITHM=MERGE DEFINER=`{GetSession().Settings.UserID}`@`localhost` SQL SECURITY DEFINER VIEW `myview` AS select `{tableName}`.`id` AS `id2`,`{tableName}`.`age` AS `age2` from `{tableName}`",
+
+       using (var connection = new MySqlConnection(ConnectionStringRoot))
+      {
+        connection.Open();
+        if (connection.driver.Version.isAtLeast(8,0,1))
+          Assert.Equal($"CREATE ALGORITHM=MERGE DEFINER=`{GetSession().Settings.UserID}`@`localhost` SQL SECURITY DEFINER VIEW `myview` (`id2`,`age2`) AS select `{tableName}`.`id` AS `id`,`{tableName}`.`age` AS `age` from `{tableName}`",
         desc);
+          else
+          Assert.Equal($"CREATE ALGORITHM=MERGE DEFINER=`{GetSession().Settings.UserID}`@`localhost` SQL SECURITY DEFINER VIEW `myview` AS select `{tableName}`.`id` AS `id2`,`{tableName}`.`age` AS `age2` from `{tableName}`",
+        desc);
+      }
     }
 
     [Fact]
@@ -232,8 +242,17 @@ namespace MySqlX.Data.Tests
       var sql = GetNodeSession().SQL("SHOW CREATE VIEW myview").Execute();
       var result = sql.FetchAll();
       string desc = result[0][1].ToString();
-      Assert.Equal($"CREATE ALGORITHM=MERGE DEFINER=`{GetSession().Settings.UserID}`@`localhost` SQL SECURITY INVOKER VIEW `myview` AS select `{tableName}`.`id` AS `id2`,`{tableName}`.`age` AS `age2` from `{tableName}` WITH CASCADED CHECK OPTION",
-        desc);
+
+      using (var connection = new MySqlConnection(ConnectionStringRoot))
+      {
+        connection.Open();
+        if (connection.driver.Version.isAtLeast(8,0,1))
+          Assert.Equal($"CREATE ALGORITHM=MERGE DEFINER=`{GetSession().Settings.UserID}`@`localhost` SQL SECURITY INVOKER VIEW `myview` (`id2`,`age2`) AS select `{tableName}`.`id` AS `id`,`{tableName}`.`age` AS `age` from `{tableName}` WITH CASCADED CHECK OPTION",
+          desc);
+        else
+          Assert.Equal($"CREATE ALGORITHM=MERGE DEFINER=`{GetSession().Settings.UserID}`@`localhost` SQL SECURITY INVOKER VIEW `myview` AS select `{tableName}`.`id` AS `id2`,`{tableName}`.`age` AS `age2` from `{tableName}` WITH CASCADED CHECK OPTION",
+          desc);
+      }	  
     }
 
     #endregion

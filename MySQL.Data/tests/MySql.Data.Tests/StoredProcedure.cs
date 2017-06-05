@@ -671,6 +671,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ComplexDefinition()
     {
+      Cleanup();
       executeSQL(@"CREATE PROCEDURE `spTest`() NOT DETERMINISTIC
           CONTAINS SQL SQL SECURITY DEFINER COMMENT '' 
           BEGIN
