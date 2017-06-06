@@ -198,8 +198,13 @@ namespace MySql.Data.EntityFrameworkCore.Tests
             reader.Read();
             jsonTableDesc = reader.GetString(1);
           }
-          Assert.Equal("CREATE TABLE `jsonentity` (\n  `Id` smallint(6) NOT NULL AUTO_INCREMENT,\n  `jsoncol` json DEFAULT NULL,\n  PRIMARY KEY (`Id`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin1", jsonTableDesc
-            , ignoreCase: true, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
+
+          if (conn.driver.Version.isAtLeast(8,0,1))
+            Assert.Equal("CREATE TABLE `jsonentity` (\n  `Id` smallint(6) NOT NULL AUTO_INCREMENT,\n  `jsoncol` json DEFAULT NULL,\n  PRIMARY KEY (`Id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", jsonTableDesc
+              , ignoreCase: true, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
+          else
+            Assert.Equal("CREATE TABLE `jsonentity` (\n  `Id` smallint(6) NOT NULL AUTO_INCREMENT,\n  `jsoncol` json DEFAULT NULL,\n  PRIMARY KEY (`Id`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin1", jsonTableDesc
+              , ignoreCase: true, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
         }
 
         context.JsonEntity.Add(new JsonData()

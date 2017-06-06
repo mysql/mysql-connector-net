@@ -134,7 +134,7 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
                     var referencedColumnName = reader.GetValueOrDefault<string>("referenced_column_name");
                     var updateRule = reader.GetValueOrDefault<string>("update_rule");
                     var deleteRule = reader.GetValueOrDefault<string>("delete_rule");
-                    var ordinal = reader.GetValueOrDefault<Int64>("ordinal_position");
+                    var ordinal = _connection.driver.Version.isAtLeast(8, 0, 1) ? reader.GetValueOrDefault<UInt32>("ordinal_position") : reader.GetValueOrDefault<Int64>("ordinal_position");
                     
                     if (string.IsNullOrEmpty(constraintName))
                     {
@@ -258,9 +258,15 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
                     var tableSchema = reader.GetValueOrDefault<string>("table_schema");
                     var tableName = reader.GetValueOrDefault<string>("table_name");
                     var indexName = reader.GetValueOrDefault<string>("index_name");
-                    var isUnique = reader.GetValueOrDefault<Int64>("non_unique") == 0 ? true : false;                    
+                    var isUnique = false;
+
+                    if (_connection.driver.Version.isAtLeast(8,0,1))
+                      isUnique = Convert.ToInt64(reader.GetValueOrDefault<string>("non_unique")) == 0 ? true : false;
+                    else
+                      isUnique = reader.GetValueOrDefault<Int64>("non_unique") == 0 ? true : false;
+
                     var columnName = reader.GetValueOrDefault<string>("column_name");
-                    var indexOrdinal = reader.GetValueOrDefault<Int64>("seq_in_index");                    
+                    var indexOrdinal = _connection.driver.Version.isAtLeast(8, 0, 1) ? reader.GetValueOrDefault<UInt32>("seq_in_index") : reader.GetValueOrDefault<Int64>("seq_in_index");                    
 
                     if (!_tableSelectionSet.Allows(tableSchema, tableName))
                     {
@@ -320,7 +326,7 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
         {
             var command = _connection.CreateCommand();
             var dbName = _connection.Database;
-            command.CommandText = "SELECT * FROM INFORMATION_SCHEMA.TABLES where table_schema like '" + dbName + "' and table_type like '%base%' and table_name not like '__ef%';";            
+            command.CommandText = "SELECT * FROM INFORMATION_SCHEMA.TABLES where table_schema like '" + dbName + "' and table_type like '%BASE%' and table_name not like '__ef%';";            
             using (var reader = command.ExecuteReader())
             {
                 while (reader.Read())
@@ -374,20 +380,23 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
                     
                     var columnName = reader.GetValueOrDefault<string>("column_name");                    
                     var dataTypeName = reader.GetValueOrDefault<string>("column_type");
-                    var ordinalPosition = reader.GetValueOrDefault<UInt64>("ordinal_position");
                     var isNullable = reader.GetValueOrDefault<string>("is_nullable").Contains("YES") ? true : false;
                     var columnKey = reader.GetValueOrDefault<string>("column_key").Contains("YES") ? true : false; ;
                     var defaultValue = reader.GetValueOrDefault<string>("column_default");
                     var computedValue = reader.GetValueOrDefault<string>("generation_expression");
-                    var numeric_Scale = reader.GetValueOrDefault<UInt64?>("numeric_scale");
-                    var maxLength = reader.GetValueOrDefault<UInt64?>("character_maximum_length");
-                    var precision = reader.GetValueOrDefault<UInt64?>("numeric_precision");
-                    var primaryKeyOrdinal = reader.GetValueOrDefault<Int64?>("primarykeyordinal");
-
+                    ColumnModel column = null;
                     var table = _tables[TableKey(tableName, tableSchema)];
 
-                    var column = new ColumnModel
+                    if (_connection.driver.Version.isAtLeast(8, 0, 1))
                     {
+                      var ordinalPosition = reader.GetValueOrDefault<UInt32>("ordinal_position");
+                      var numeric_Scale = reader.GetValueOrDefault<UInt32?>("numeric_scale");
+                      var precision = reader.GetValueOrDefault<UInt32?>("numeric_precision");
+                      var primaryKeyOrdinal = reader.GetValueOrDefault<UInt32?>("primarykeyordinal");
+                      var maxLength = reader.GetValueOrDefault<Int64?>("character_maximum_length");
+
+                      column = new ColumnModel
+                      {
                         Table = table,
                         Name = columnName,
                         DataType = dataTypeName,
@@ -399,7 +408,31 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
                         DefaultValue = defaultValue,
                         PrimaryKeyOrdinal=(int?)primaryKeyOrdinal,
                         ComputedValue = computedValue
-                    };
+                      };
+                    }
+                    else
+                    {
+                      var ordinalPosition = reader.GetValueOrDefault<UInt64>("ordinal_position");
+                      var numeric_Scale = reader.GetValueOrDefault<UInt64?>("numeric_scale");
+                      var precision = reader.GetValueOrDefault<UInt64?>("numeric_precision");
+                      var primaryKeyOrdinal = reader.GetValueOrDefault<Int64?>("primarykeyordinal");
+                      var maxLength = reader.GetValueOrDefault<UInt64?>("character_maximum_length");
+                      
+                      column = new ColumnModel
+                      {
+                        Table = table,
+                        Name = columnName,
+                        DataType = dataTypeName,
+                        Ordinal = (int)ordinalPosition - 1,
+                        IsNullable = isNullable,
+                        MaxLength = (int?)maxLength,
+                        Precision = (int?)precision,
+                        Scale = (int?)numeric_Scale,
+                        DefaultValue = defaultValue,
+                        PrimaryKeyOrdinal=(int?)primaryKeyOrdinal,
+                        ComputedValue = computedValue
+                      };
+                    }
 
                     table.Columns.Add(column);
                     if (!_tableColumns.ContainsKey(ColumnKey(table, column.Name)))

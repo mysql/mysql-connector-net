@@ -1,4 +1,4 @@
-// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -286,7 +286,7 @@ namespace MySql.Data.MySqlClient
 
         foreach (MySqlSchemaRow index in indexes.Rows)
         {
-          long seq_index = (long)index["SEQ_IN_INDEX"];
+          var seq_index = connection.driver.Version.isAtLeast(8, 0, 1) ? (uint)index["SEQ_IN_INDEX"] : (long)index["SEQ_IN_INDEX"];
           if (seq_index != 1) continue;
           if (restrictions != null && restrictions.Length == 4 &&
             restrictions[3] != null &&
@@ -296,7 +296,7 @@ namespace MySql.Data.MySqlClient
           row["INDEX_SCHEMA"] = table["TABLE_SCHEMA"];
           row["INDEX_NAME"] = index["KEY_NAME"];
           row["TABLE_NAME"] = index["TABLE"];
-          row["UNIQUE"] = (long)index["NON_UNIQUE"] == 0;
+          row["UNIQUE"] = connection.driver.Version.isAtLeast(8, 0, 1) ? Convert.ToInt64(index["NON_UNIQUE"]) == 0 : (long)index["NON_UNIQUE"] == 0;
           row["PRIMARY"] = index["KEY_NAME"].Equals("PRIMARY");
           row["TYPE"] = index["INDEX_TYPE"];
           row["COMMENT"] = index["COMMENT"];
