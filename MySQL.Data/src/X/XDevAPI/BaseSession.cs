@@ -324,13 +324,11 @@ namespace MySqlX.XDevAPI
     /// <param name="hostsSubstring">Unparsed host list.</param>
     private void ParseHostList(string hostsSubstring)
     {
-      if (string.IsNullOrEmpty(hostsSubstring) || !hostsSubstring.StartsWith("[") || !hostsSubstring.EndsWith("]"))
+      if (string.IsNullOrWhiteSpace(hostsSubstring) || !hostsSubstring.StartsWith("[") || !hostsSubstring.EndsWith("]"))
         return;
 
-      hostsSubstring = hostsSubstring.Substring(1, hostsSubstring.Length-2).Replace(" ",string.Empty);
+      hostsSubstring = hostsSubstring.Substring(1, hostsSubstring.Length-2);
       string[] hostArray = hostsSubstring.Split(',');
-      if (hostArray.Length==1)
-        return;
 
       List<XServer> hostList = new List<XServer>();
       foreach (var host in hostArray)

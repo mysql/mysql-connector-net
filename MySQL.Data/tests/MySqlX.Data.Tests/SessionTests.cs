@@ -303,20 +303,36 @@ namespace MySqlX.Data.Tests
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
       }
 
+      // URI with single host as array. Successful connection.
+      using (var session = MySQLX.GetNodeSession("mysqlx://test:test@[127.0.0.1]?connectiontimeout=" + connectionTimeout))
+      {
+        Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
+      }
+
+      // URI with single host and port as array. Successful connection.
+      using (var session = MySQLX.GetNodeSession("mysqlx://test:test@[127.0.0.1:" + XPort + "]?connectiontimeout=" + connectionTimeout))
+      {
+        Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
+      }
+
+      // URI with single host as array. Failed connection.
+      ex = Assert.Throws<MySqlException>(() => MySQLX.GetNodeSession("mysqlx://test:test@[192.1.10.10:" + XPort + "]?connectiontimeout=" + connectionTimeout));
+      Assert.Equal("Unable to connect to any of the specified MySQL hosts.", ex.Message);
+
       // URI with multiple hosts. First attempt fails, second is succesful.
-      using (var session = MySQLX.GetNodeSession("mysqlx://test:test@[ 192.1.10.10, 127.0.0.1:" + XPort + " ]?connectiontimeout=" + connectionTimeout))
+      using (var session = MySQLX.GetNodeSession("mysqlx://test:test@[192.1.10.10,127.0.0.1:" + XPort + "]?connectiontimeout=" + connectionTimeout))
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
       }
 
       // URI with multiple hosts and a schema. First attempt fails, second is succesful.
-      using (var session = MySQLX.GetNodeSession("mysqlx://test:test@[ 192.1.10.10, 127.0.0.1:" + XPort + " ]/test?connectiontimeout=" + connectionTimeout))
+      using (var session = MySQLX.GetNodeSession("mysqlx://test:test@[192.1.10.10,127.0.0.1:" + XPort + "]/test?connectiontimeout=" + connectionTimeout))
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
       }
 
       // URI with multiple hosts which may or may not contain a port number. First and second attempts fail, third attempt is succesful.
-      using (var session = MySQLX.GetNodeSession("mysqlx://test:test@[ 192.1.10.10, 120.0.0.2:22000, [::1]:" + XPort + " ]/test?connectiontimeout=" + connectionTimeout))
+      using (var session = MySQLX.GetNodeSession("mysqlx://test:test@[192.1.10.10,120.0.0.2:22000,[::1]:" + XPort + "]/test?connectiontimeout=" + connectionTimeout))
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
       }
