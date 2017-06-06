@@ -124,7 +124,7 @@ namespace EntityFrameworkCore.Basic.Tests
         context.Database.OpenConnection();
         MySqlConnection conn = (MySqlConnection)context.Database.GetDbConnection();
         MySqlCommand cmd = new MySqlCommand(
-          $"DESC stringtype",
+          $"DESC StringType",
           conn);
         using(MySqlDataReader reader = cmd.ExecuteReader())
         {
