@@ -151,7 +151,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     public void RawSqlQueries()
     {
       Assert.False(context.Database.EnsureCreated());
-      var guests = context.Set<Guest>().FromSql("SELECT * FROM guests")
+      var guests = context.Set<Guest>().FromSql("SELECT * FROM Guests")
         .ToList();
       Assert.Equal(4, guests.Count);
     }

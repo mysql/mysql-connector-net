@@ -33,24 +33,24 @@ del /S ..\..\src\MySql.Data.EntityFrameworkCore\obj /Q
 dotnet restore
 dotnet build MySql.EntityFrameworkCore.Basic.Tests.csproj -c Debug
 sn.exe -Rca  bin\debug\net452\MySql.EntityFrameworkCore.Basic.Tests.dll ConnectorNet
-dotnet xunit -framework net452 -xml mysql-efcore-test-results.xml
-dotnet xunit -framework netcoreapp1.1 -xml mysql-efcore-core-test-results.xml
+dotnet xunit -framework net452 -parallel none -xml mysql-efcore-test-results.xml
+dotnet xunit -framework netcoreapp1.1 -parallel none -xml mysql-efcore-core-test-results.xml
 
 cd ../MySql.EntityFrameworkCore.Design.Tests/
 dotnet clean
 dotnet restore
 dotnet build MySql.EntityFrameworkCore.Design.Tests.csproj -c Debug
 sn.exe -Rca  bin\debug\net452\MySql.EntityFrameworkCore.Design.Tests.dll ConnectorNet
-dotnet xunit -framework net452 -xml mysql-efcoredesign-test-results.xml
-dotnet xunit -framework netcoreapp1.1 -xml mysq-efcoredesign-core-test-results.xml
+dotnet xunit -framework net452 -parallel none -xml mysql-efcoredesign-test-results.xml
+dotnet xunit -framework netcoreapp1.1 -parallel none -xml mysq-efcoredesign-core-test-results.xml
 
 cd ../MySql.EntityFrameworkCore.Migrations.Tests
 dotnet clean
 dotnet restore
 dotnet build MySql.EntityFrameworkCore.Migrations.Tests.csproj -c Debug
 sn.exe -Rca  bin\debug\net452\MySql.EntityFrameworkCore.Migrations.Tests.dll ConnectorNet
-dotnet xunit -framework net452 -xml mysql-efcoremigrations-test-results.xml
-dotnet xunit -framework netcoreapp1.1 -xml mysql-efcoremigrations-core-test-results.xml
+dotnet xunit -framework net452 -parallel none -xml mysql-efcoremigrations-test-results.xml
+dotnet xunit -framework netcoreapp1.1 -parallel none -xml mysql-efcoremigrations-core-test-results.xml
 
 cd ../../..
 
@@ -60,7 +60,7 @@ dotnet clean
 dotnet restore
 dotnet build MySql.EntityFramework6.Basic.Tests.csproj -c Debug
 sn.exe -Rca  bin\debug\net452\MySql.EntityFramework6.Basic.Tests.dll ConnectorNet
-dotnet xunit -xml mysql-ef6-test-results.xml
+dotnet xunit -parallel none -xml mysql-ef6-test-results.xml
 
 
 
