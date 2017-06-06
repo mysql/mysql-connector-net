@@ -44,7 +44,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
       // get the class name of the caller to get a unique name for the database      
-      string name = $"db-{this.GetType().Name}";
+      string name = $"db-{this.GetType().Name.ToLowerInvariant()}";
       optionsBuilder.UseMySQL(MySQLTestStore.rootConnectionString + ";database=" + name  + ";");
     }
   }
@@ -133,7 +133,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       using (var cnn = new MySqlConnection(rootConnectionString))
       {
         cnn.Open();
-        var cmd =  new MySqlCommand(string.Format("DROP database {0}", name), cnn);
+        var cmd =  new MySqlCommand(string.Format("DROP DATABASE IF EXISTS {0}", name), cnn);
         cmd.ExecuteNonQuery();
       }
     }

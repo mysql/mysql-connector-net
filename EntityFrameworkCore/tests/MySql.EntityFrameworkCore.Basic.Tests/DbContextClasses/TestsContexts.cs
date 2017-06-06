@@ -348,14 +348,14 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
 
   public class WorldContext : MyTestContext
   {
-    DbSet<Countries> Countries { get; set; }
-    DbSet<Continents> Continents { get; set; }
+    public virtual DbSet<Countries> Countries { get; set; }
+    public virtual DbSet<Continents> Continents { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
       base.OnModelCreating(modelBuilder);
       modelBuilder.Entity<Continents>()
-        .ToTable("ContinentList")
+        .ToTable("ContinentList", "db-worldcontext")
         .HasKey(p => p.Code);
     }
   }
@@ -373,6 +373,26 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
 
         entity.Property(p => p.Area)
           .HasComputedColumnSql("base * height / 2");
+      });
+    }
+  }
+
+  public class StringTypesContext : MyTestContext
+  {
+    public DbSet<StringTypes> StringType { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+      base.OnModelCreating(modelBuilder);
+      modelBuilder.Entity<StringTypes>(entity =>
+      {
+        entity.HasKey(p => p.TinyString);
+
+        entity.Property(p => p.NormalString)
+          .HasColumnType("varchar(3000)");
+
+        entity.Property(p => p.MediumString)
+          .HasColumnType("mediumtext");
       });
     }
   }

@@ -31,9 +31,11 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
   public class MySQLTypeMapper : RelationalTypeMapper
   {
-    private static int _medTextMaxLength = 255; /// 4;  // ((int)Math.Pow(2, 24) - 1) / 3;
-    private static int _longTextMaxLength = 255; //65535 / 3; //((int)Math.Pow(2, 32) - 1) / 3;
-    private static int _textMaxLength = 255; //65535;  // ((int)Math.Pow(2, 16) - 1) / 3;
+    private static int _longTextMaxLength = int.MaxValue;
+    private static int _medTextMaxLength = 16777215;
+    private static int _textMaxLength = 65535;
+    private static int _keyMaxLength = 767;
+    private static int _tinyMaxLength = 255;
 
     private readonly RelationalTypeMapping _int = new RelationalTypeMapping("int", typeof(Int32));
     private readonly RelationalTypeMapping _bigint = new RelationalTypeMapping("bigint", typeof(Int64));
@@ -42,31 +44,18 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
     private readonly RelationalTypeMapping _tinyint = new RelationalTypeMapping("tinyint", typeof(Byte));
     private readonly RelationalTypeMapping _char = new RelationalTypeMapping("char", typeof(string));
 
-    private readonly MySQLSizeableMapping _varcharmax
-           = new MySQLSizeableMapping("varchar(" + _longTextMaxLength.ToString() + ")", typeof(string), dbType: null, unicode: false, size: _longTextMaxLength);
+    private readonly RelationalTypeMapping _varchar = new MySQLSizeableMapping($"varchar({_textMaxLength})", typeof(string), dbType: null, unicode: false, size: _textMaxLength, hasNonDefaultUnicode: true);
 
-    private readonly MySQLSizeableMapping _varcharmed
-           = new MySQLSizeableMapping("varchar(" + _medTextMaxLength.ToString() + ")", typeof(string), dbType: null, unicode: false, size: _medTextMaxLength);
+    private readonly RelationalTypeMapping _varcharkey = new MySQLSizeableMapping($"varchar({_keyMaxLength})", typeof(string), dbType: null, unicode: false, size: _keyMaxLength, hasNonDefaultUnicode: true);
 
-    private readonly RelationalTypeMapping _varchar = new MySQLSizeableMapping("varchar(" + _textMaxLength + ")", typeof(string), dbType: null, unicode: false, size: _textMaxLength, hasNonDefaultUnicode: true);
-
-    private readonly MySQLSizeableMapping _nvarcharmax
-               = new MySQLSizeableMapping("varchar(" + _longTextMaxLength.ToString() + ")", typeof(string), dbType: null, unicode: true, size: _longTextMaxLength);
-
-    private readonly MySQLSizeableMapping _nvarcharmed
-           = new MySQLSizeableMapping("varchar(" + _medTextMaxLength.ToString() + ")", typeof(string), dbType: null, unicode: true, size: _medTextMaxLength);
-
-    private readonly MySQLSizeableMapping _varbinarymax
-           = new MySQLSizeableMapping("varbinary(" + _longTextMaxLength.ToString() + ")", typeof(byte[]), dbType: DbType.Binary, unicode: false, size: _longTextMaxLength);
-
-    private readonly MySQLSizeableMapping _varbinarymed
-           = new MySQLSizeableMapping("varbinary(" + _medTextMaxLength.ToString() + ")", typeof(byte[]), dbType: DbType.Binary, unicode: false, size: _medTextMaxLength);
+    private readonly MySQLSizeableMapping _nvarchar
+               = new MySQLSizeableMapping($"nvarchar({_textMaxLength})", typeof(string), dbType: null, unicode: true, size: _textMaxLength);
 
     private readonly RelationalTypeMapping _rowversion = new RelationalTypeMapping("timestamp", typeof(DateTime), dbType: DbType.DateTime);
 
     private readonly RelationalTypeMapping _longText = new RelationalTypeMapping("longtext", typeof(string));
     private readonly RelationalTypeMapping _mediumText = new RelationalTypeMapping("mediumtext", typeof(string));
-    private readonly RelationalTypeMapping _Text = new RelationalTypeMapping("text", typeof(string));
+    private readonly RelationalTypeMapping _text = new RelationalTypeMapping("text", typeof(string));
     private readonly RelationalTypeMapping _tinyText = new RelationalTypeMapping("tinytext", typeof(string));
 
     private readonly RelationalTypeMapping _datetime = new RelationalTypeMapping("datetime", typeof(DateTime));
@@ -111,7 +100,7 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
         { "char", _char },
         { "varchar", _varchar},
         { "tinytext", _tinyText},
-        { "text", _Text},
+        { "text", _text},
         { "mediumtext", _mediumText},
         { "longtext", _longText},
         { "datetime", _datetime },
@@ -157,10 +146,10 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 
       StringMapper
             = new StringRelationalTypeMapper(
-                _longTextMaxLength,
-                _varcharmax,
-                _varcharmax,
-                _varcharmed,
+                _textMaxLength,
+                _varchar,
+                _varchar,
+                _varchar,
                 size => new MySQLSizeableMapping(
                     "varchar(" + size + ")",
                     typeof(string),
@@ -169,10 +158,10 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
                     size: size,
                     hasNonDefaultUnicode: true,
                     hasNonDefaultSize: true),
-                _medTextMaxLength,
-                _nvarcharmax,
-                _nvarcharmax,
-                _nvarcharmed,
+                _textMaxLength,
+                _nvarchar,
+                _nvarchar,
+                _nvarchar,
                 size => new MySQLSizeableMapping(
                     "nvarchar(" + size + ")",
                     typeof(string),
@@ -211,11 +200,17 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
       ThrowIf.Argument.IsNull(clrType, "clrType");
       var sType = Nullable.GetUnderlyingType(clrType) ?? clrType;
       return sType == typeof(string)
-          ? _nvarcharmax
+          ? _nvarchar
           : (sType == typeof(byte[])
-              ? _varbinarymax
+              ? _varbinary
               : base.FindMapping(clrType));
     }
 
+    protected override RelationalTypeMapping GetStringMapping([NotNullAttribute] IProperty property)
+    {
+      if (RequiresKeyMapping(property))
+        return _varcharkey;
+      return _text;
+    }
   }
 }

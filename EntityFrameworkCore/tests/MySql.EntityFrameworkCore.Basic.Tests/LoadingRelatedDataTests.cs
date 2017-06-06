@@ -179,7 +179,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       Assert.Equal("Michigan", address.City);
     }
 
-    [Fact]
+    [FactOnVersions("5.7.0", null)]
     public void JsonDataTest()
     {
       using(JsonContext context = new JsonContext())
@@ -198,7 +198,8 @@ namespace MySql.Data.EntityFrameworkCore.Tests
             reader.Read();
             jsonTableDesc = reader.GetString(1);
           }
-          Assert.Equal("CREATE TABLE `jsonentity` (\n  `Id` smallint(6) NOT NULL AUTO_INCREMENT,\n  `jsoncol` json DEFAULT NULL,\n  PRIMARY KEY (`Id`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin1", jsonTableDesc);
+          Assert.Equal("CREATE TABLE `jsonentity` (\n  `Id` smallint(6) NOT NULL AUTO_INCREMENT,\n  `jsoncol` json DEFAULT NULL,\n  PRIMARY KEY (`Id`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin1", jsonTableDesc
+            , ignoreCase: true, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
         }
 
         context.JsonEntity.Add(new JsonData()
@@ -211,7 +212,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       }
     }
 
-    [Fact]
+    [FactOnVersions("5.7.0", null)]
     public void JsonInvalidData()
     {
       using (JsonContext context = new JsonContext())
@@ -228,7 +229,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       }
     }
 
-    [Fact]
+    [FactOnVersions("5.7.0", null)]
     public void ComputedColumns()
     {
       using(FiguresContext context = new FiguresContext())

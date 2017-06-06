@@ -105,6 +105,10 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
               .HasName("Index_Url");
 
       modelBuilder.Entity<Blog>()
+        .Property(b => b.Url)
+        .HasColumnType("varchar(400)");
+
+      modelBuilder.Entity<Blog>()
            .HasOne(p => p.Metadata)
            .WithOne(i => i.Blog)
            .HasForeignKey<BlogMetadata>(b => b.BlogId);
@@ -120,6 +124,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
 
       modelBuilder.Entity<Car>()
                .Property(b => b.Model)
+               .HasColumnType("varchar(4)")
                .ForMySQLHasDefaultValue("1999");
 
 

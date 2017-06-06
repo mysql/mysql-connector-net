@@ -258,4 +258,12 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
 
     public int Area { get; set; }
   }
+
+  public class StringTypes
+  {
+    public string TinyString { get; set; }
+    public string NormalString { get; set; }
+    public string MediumString { get; set; }
+    public string LongString { get; set; }
+  }
 }

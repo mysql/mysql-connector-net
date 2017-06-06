@@ -41,11 +41,11 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     {
       var serviceCollection = new ServiceCollection();
       serviceCollection.AddEntityFrameworkMySQL()
-        .AddDbContext<ConnectionStringInOnConfiguringTestContext>();
+        .AddDbContext<ConnStringOnConfiguringContext>();
 
      var serviceProvider = serviceCollection.BuildServiceProvider();  
 
-      using (var context = serviceProvider.GetRequiredService<ConnectionStringInOnConfiguringTestContext>())
+      using (var context = serviceProvider.GetRequiredService<ConnStringOnConfiguringContext>())
       {        
         context.Database.EnsureCreated();
         Assert.False(context.Posts.Any());
@@ -159,6 +159,22 @@ namespace MySql.Data.EntityFrameworkCore.Tests
 
     }
 
+    [Fact]
+    public void TestEnsureSchemaOperation()
+    {
+      using(var context = new WorldContext())
+      {
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
+        context.Countries.Add(new Countries()
+        {
+          Code = "1",
+          Name = "London"
+        });
+        context.SaveChanges();
+      }
+    }
+
 
     public void Dispose()
     {
@@ -202,9 +218,9 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       }
     }
 
-    private class ConnectionStringInOnConfiguringTestContext : TestsContext
+    private class ConnStringOnConfiguringContext : TestsContext
     {
-      public ConnectionStringInOnConfiguringTestContext(DbContextOptions options) 
+      public ConnStringOnConfiguringContext(DbContextOptions options) 
         : base(options)
       {
       }      

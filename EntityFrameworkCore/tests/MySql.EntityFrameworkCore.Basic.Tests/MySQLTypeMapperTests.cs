@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -24,6 +24,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.EntityFrameworkCore.Storage.Internal;
+using MySql.Data.EntityFrameworkCore.Tests;
 using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using MySql.Data.MySqlClient;
 using System;
@@ -36,10 +37,11 @@ namespace EntityFrameworkCore.Basic.Tests
 {
   public class MySQLTypeMapperTests
   {
-    [Fact]
+    [FactOnVersions("5.6.0", null)]
     static void InsertAllDataTypes()
     {
-      DateTime now = new DateTime(DateTime.Now.Ticks / 10 * 10);
+      DateTime now = new DateTime(DateTime.Today.AddSeconds(1).AddMilliseconds(1).AddTicks(10).Ticks);
+
       using (var context = new AllDataTypesContext())
       {
         context.Database.EnsureDeleted();
@@ -108,6 +110,40 @@ namespace EntityFrameworkCore.Basic.Tests
         Assert.Equal(now.TimeOfDay, data.BuildingName15);
         Assert.Equal(now, data.BuildingName16);
         Assert.Equal(now.Year, data.BuildingName17);
+      }
+    }
+
+    [Fact]
+    public void ValidateStringLength()
+    {
+      using(var context = new StringTypesContext())
+      {
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
+
+        context.Database.OpenConnection();
+        MySqlConnection conn = (MySqlConnection)context.Database.GetDbConnection();
+        MySqlCommand cmd = new MySqlCommand(
+          $"DESC stringtype",
+          conn);
+        using(MySqlDataReader reader = cmd.ExecuteReader())
+        {
+          Assert.True(reader.Read());
+          Assert.Equal("TinyString", reader.GetString("field"));
+          Assert.Equal("varchar(767)", reader.GetString("type"));
+
+          Assert.True(reader.Read());
+          Assert.Equal("LongString", reader.GetString("field"));
+          Assert.Equal("text", reader.GetString("type"));
+
+          Assert.True(reader.Read());
+          Assert.Equal("MediumString", reader.GetString("field"));
+          Assert.Equal("mediumtext", reader.GetString("type"));
+
+          Assert.True(reader.Read());
+          Assert.Equal("NormalString", reader.GetString("field"));
+          Assert.Equal("varchar(3000)", reader.GetString("type"));
+        }
       }
     }
   }

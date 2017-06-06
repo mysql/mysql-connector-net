@@ -23,6 +23,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.Extensions.Logging;
+using MySql.Data.EntityFrameworkCore.Tests;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -102,7 +103,10 @@ CREATE TABLE blogs (
                                Assert.Equal(2, id.PrimaryKeyOrdinal);
                                Assert.False(id.IsNullable);
                                Assert.Equal(0, id.Ordinal);
+                             if (FactOnVersionsAttribute.Version >= new Version("5.7.0"))
                                Assert.Null(id.DefaultValue);
+                             else
+                               Assert.Equal("0", id.DefaultValue);
                            },
                         description =>
                         {
@@ -247,7 +251,7 @@ CREATE DATABASE sakilaIndex;
         }
 
 
-        [Fact]
+        [FactOnVersions("5.6.0", null)]
         public void CanCreateModelForSakila()
         {
             Assembly executingAssembly = typeof(MySQLDatabaseModelFixture).GetTypeInfo().Assembly;
