@@ -79,7 +79,8 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
             var cmdBuilder = context.GetService<IRawSqlCommandBuilder>();
             Assert.False(creator.Exists());
             Assert.Equal("IF EXISTS(SELECT * FROM `__EFMigrationsHistory` WHERE `MigrationId` = 'MigrationId')\r\nBEGIN", 
-                cmdBuilder.Build(repository.GetBeginIfExistsScript("MigrationId")).CommandText);
+                cmdBuilder.Build(repository.GetBeginIfExistsScript("MigrationId")).CommandText
+                , ignoreLineEndingDifferences: true);
         }
 
         private static IHistoryRepository CreateHistoryRepository()
