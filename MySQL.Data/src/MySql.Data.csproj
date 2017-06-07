@@ -9,6 +9,8 @@
     <AssemblyName>MySql.Data</AssemblyName>
     <TargetFrameworks>netstandard1.6;net452</TargetFrameworks>
     <PackageId>MySql.Data</PackageId>
+    <PackageSuffix>-m7</PackageSuffix>
+    <PackageVersion>$(VersionPrefix)$(PackageSuffix)</PackageVersion>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET;netcore;.Net Core;MySql Conector/Net Core;coreclr;C/NET;C/Net Core</PackageTags>
     <PackageReleaseNotes>Review ReleaseNotes.txt for details.</PackageReleaseNotes>
     <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>

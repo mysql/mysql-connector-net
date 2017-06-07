@@ -4,13 +4,15 @@
     <Description>MySql.Data.EntityFrameworkCore for Entity Framework.</Description>
     <Copyright>Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <VersionPrefix>6.10.2</VersionPrefix>
+    <VersionPrefix>8.0.8</VersionPrefix>
     <Authors>Oracle</Authors>
     <TargetFrameworks>net452;netstandard1.6</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <DelaySign>true</DelaySign>
     <AssemblyName>MySql.Data.EntityFrameworkCore</AssemblyName>
     <PackageId>MySql.Data.EntityFrameworkCore</PackageId>
+    <PackageSuffix>-m7</PackageSuffix>
+    <PackageVersion>$(VersionPrefix)$(PackageSuffix)</PackageVersion>
     <PackageTags>MySql;.NET Connector;MySql Entity Framework Core;netcore;.Net Core;MySql Conector/Net Entity Framework Core;coreclr;C/NET;C/Net Core</PackageTags>
     <PackageReleaseNotes>Review ReleaseNotes.txt for details.</PackageReleaseNotes>
     <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
