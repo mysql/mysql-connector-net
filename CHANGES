@@ -2,6 +2,7 @@
 - MySqlX: Updated Collection's Modify() and Remove() methods to always require a search condition (WL10739).
 - MySqlX: Updated the generated UUID for inserted documents to have its components in reversed order. (WL10202).
 - Removed ssl-enable connection option. Set "Required" as the default value for ssl-mode. (WL10559).
+- MySqlX: Added client side failover when establishing a connection. (WL9980).
 
 
 7.0.7

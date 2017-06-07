@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -24,12 +24,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MySqlX.Common;
-using MySqlX.Data;
 using MySqlX.Session;
 using MySqlX.XDevAPI.Relational;
 using MySql.Data;
 using MySql.Data.MySqlClient;
 using System.Text.RegularExpressions;
+using MySqlX.Failover;
 using MySqlX.XDevAPI.Common;
 
 namespace MySqlX.XDevAPI
@@ -43,7 +43,6 @@ namespace MySqlX.XDevAPI
     private string connectionString;
     private bool disposed = false;
     private const uint newDefaultPort = 33060;
-
     internal QueueTaskScheduler scheduler = new QueueTaskScheduler();
 
     /// <summary>
@@ -74,9 +73,22 @@ namespace MySqlX.XDevAPI
     {
       if (string.IsNullOrWhiteSpace(connectionString))
         throw new ArgumentNullException("connectionString");
-      this.connectionString = ParseConnectionStringFromUri(connectionString);
-      Settings = new MySqlConnectionStringBuilder(this.connectionString);
-      _internalSession = InternalSession.GetSession(Settings);
+
+      this.connectionString = ParseConnectionString(connectionString);
+
+      if (FailoverManager.FailoverGroup != null)
+      {
+        // Multiple hosts were specified.
+        _internalSession = FailoverManager.AttemptConnection(this.connectionString, out this.connectionString);
+        Settings = new MySqlConnectionStringBuilder(this.connectionString);
+      }
+      else
+      {
+        // A single host was specified.
+        Settings = new MySqlConnectionStringBuilder(this.connectionString);
+        _internalSession = InternalSession.GetSession(Settings);
+      }
+
       if (!string.IsNullOrWhiteSpace(Settings.Database))
         GetSchema(Settings.Database);
     }
@@ -194,11 +206,47 @@ namespace MySqlX.XDevAPI
       }
     }
 
-    internal protected string ParseConnectionStringFromUri(string uriString)
+    /// <summary>
+    /// Parses the connection string depending on its format.
+    /// </summary>
+    /// <param name="connectiontring">Connection string in basic or URI format.</param>
+    /// <returns>Parsed Connection String.</returns>
+    internal protected string ParseConnectionString(string connectionString)
     {
-      if (Regex.IsMatch(uriString, @"^mysqlx(\+\w+)?://.*", RegexOptions.IgnoreCase))
+      FailoverManager.Reset();
+
+      // Connection string has a URI format.
+      if (Regex.IsMatch(connectionString, @"^mysqlx(\+\w+)?://.*", RegexOptions.IgnoreCase))
       {
-        Uri uri = new Uri(uriString);
+        Uri uri = null;
+        string updatedUriString = null;
+        try
+        {
+          uri = new Uri(connectionString);
+        }
+        catch (UriFormatException ex)
+        {
+          if (ex.Message != "Invalid URI: The hostname could not be parsed.")
+            throw ex;
+
+          // Identify if multiple hosts were specified.
+          string[] splitUriString = connectionString.Split('@','?');
+          string[] hostsAndDb = splitUriString[1].Split('/');
+          ParseHostList(hostsAndDb[0]);
+          if (FailoverManager.FailoverGroup == null)
+            throw ex;
+
+          updatedUriString = splitUriString[0] + "@" + FailoverManager.FailoverGroup.ActiveHost.Host +
+            (FailoverManager.FailoverGroup.ActiveHost.Port != -1 ? ":" + FailoverManager.FailoverGroup.ActiveHost.Port : string.Empty) +
+            (hostsAndDb.Length == 2 ? "/" + hostsAndDb[1] : string.Empty) +
+            (splitUriString.Length == 3 ? "?" + splitUriString[2] : string.Empty);
+        }
+        finally
+        {
+          if (uri==null)
+            uri = updatedUriString==null ? new Uri(connectionString) : new Uri(updatedUriString);
+        }
+
         List<string> connectionParts = new List<string>();
 
         if (string.IsNullOrWhiteSpace(uri.Host))
@@ -236,7 +284,68 @@ namespace MySqlX.XDevAPI
 
         return string.Join("; ", connectionParts);
       }
-      return uriString;
+
+      // Connection string doesn't have a URI format.
+      string updatedConnectionString = string.Empty;
+      string[] keyValuePairs = connectionString.Substring(0).Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+      foreach (string keyValuePair in keyValuePairs)
+      {
+        string[] keyValue = keyValuePair.Split('=');
+        if (keyValue.Length % 2 != 0)
+          continue;
+
+        var keyword = keyValue[0].ToLowerInvariant();
+        var value = keyValue[1];
+        if (keyword != "server" && keyword != "host" && keyword != "data source" && keyword != "datasource" && keyword != "address" && keyword != "addr" && keyword != "network address")
+        {
+          updatedConnectionString += keyValuePair + ";";
+          continue;
+        }
+
+        // Identify if multiple hosts were specified.
+        string[] hosts = value.Split(',');
+        if (hosts.Length==1) break;
+        List<XServer> hostList = new List<XServer>();
+        foreach (var host in hosts)
+          hostList.Add(new XServer(host.Trim()));
+
+        FailoverManager.SetHostList(hostList, FailoverMethod.Sequential);
+      }
+
+      if (FailoverManager.FailoverGroup == null)
+        return connectionString;
+
+      return "server=" + FailoverManager.FailoverGroup.ActiveHost.Host + ";" + updatedConnectionString;
+    }
+
+    /// <summary>
+    /// Initializes the <see cref="FailoverManager"/> if more than one host is found.
+    /// </summary>
+    /// <param name="hostsSubstring">Unparsed host list.</param>
+    private void ParseHostList(string hostsSubstring)
+    {
+      if (string.IsNullOrWhiteSpace(hostsSubstring) || !hostsSubstring.StartsWith("[") || !hostsSubstring.EndsWith("]"))
+        return;
+
+      hostsSubstring = hostsSubstring.Substring(1, hostsSubstring.Length-2);
+      string[] hostArray = hostsSubstring.Split(',');
+
+      List<XServer> hostList = new List<XServer>();
+      foreach (var host in hostArray)
+      {
+        int port = -1;
+        string hostName = host;
+        int colonIndex = host.LastIndexOf(":");
+        if (colonIndex!=-1)
+        {
+          int.TryParse(host.Substring(colonIndex+1),out port);
+          hostName = host.Substring(0,colonIndex);
+        }
+
+        hostList.Add(new XServer(hostName,port));
+      }
+
+      FailoverManager.SetHostList(hostList, FailoverMethod.Sequential);
     }
 
     #region IDisposable Support
