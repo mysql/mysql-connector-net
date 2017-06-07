@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -34,11 +34,11 @@ namespace MySqlX.XDevAPI
     /// <summary>
     /// Opens a session to the server given
     /// </summary>
-    /// <param name="connectionSting">Connection data for the server</param>
+    /// <param name="connectionSting">Connection string for the server</param>
     /// <returns>Session</returns>
-    public static XSession GetSession(string connectionSting)
+    public static Session GetSession(string connectionSting)
     {
-      return new XSession(connectionSting);
+      return new Session(connectionSting);
     }
 
     /// <summary>
@@ -46,29 +46,9 @@ namespace MySqlX.XDevAPI
     /// </summary>
     /// <param name="connectionData">Connection data for the server</param>
     /// <returns>Session</returns>
-    public static XSession GetSession(object connectionData)
+    public static Session GetSession(object connectionData)
     {
-      return new XSession(connectionData);
-    }
-
-    /// <summary>
-    /// Opens a node session to the server given
-    /// </summary>
-    /// <param name="connectionSting">Connection string for the server</param>
-    /// <returns>Session</returns>
-    public static NodeSession GetNodeSession(string connectionSting)
-    {
-      return new NodeSession(connectionSting);
-    }
-
-    /// <summary>
-    /// Opens a node session to the server given
-    /// </summary>
-    /// <param name="connectionData">Connection data for the server</param>
-    /// <returns>Session</returns>
-    public static NodeSession GetNodeSession(object connectionData)
-    {
-      return new NodeSession(connectionData);
+      return new Session(connectionData);
     }
 
     //public static Iterator CsvFileRowIterator()

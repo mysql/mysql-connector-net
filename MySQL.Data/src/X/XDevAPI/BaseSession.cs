@@ -24,7 +24,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MySqlX.Common;
-using MySqlX.Session;
+using MySqlX.Data;
+using MySqlX.Sessions;
 using MySqlX.XDevAPI.Relational;
 using MySql.Data;
 using MySql.Data.MySqlClient;
@@ -35,7 +36,7 @@ using MySqlX.XDevAPI.Common;
 namespace MySqlX.XDevAPI
 {
   /// <summary>
-  /// Represents a base class for XSession and NodeSession
+  /// Represents a base class for a Session
   /// </summary>
   public abstract class BaseSession : IDisposable
   {

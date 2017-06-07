@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,32 +21,56 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
+using MySqlX.XDevAPI.Common;
+using MySqlX.XDevAPI.Relational;
+
 namespace MySqlX.XDevAPI
 {
   /// <summary>
-  /// Session that handles communication to MySql server
+  /// Represents a single MySql server session
   /// </summary>
-  public class XSession : BaseSession
+  public class Session : BaseSession
   {
-    /// <summary>
-    /// Creates XSession using a connection string
-    /// </summary>
-    /// <param name="connectionString"></param>
-    public XSession(string connectionString)
+    internal Session(string connectionString)
       : base(connectionString)
     {
 
     }
 
-    /// <summary>
-    /// Creates XSession using an anonymous type as connection data
-    /// Example: new { server = "localhost", uid = "user", password = "somepass" }
-    /// </summary>
-    /// <param name="connectionData"></param>
-    public XSession(object connectionData)
+    internal Session(object connectionData)
       : base(connectionData)
     {
 
+    }
+
+    /// <summary>
+    /// Returns a SqlStatement object that can be used to execute the given SQL
+    /// </summary>
+    /// <param name="sql">The SQL to execute</param>
+    /// <returns>SqlStatement object</returns>
+    public SqlStatement SQL(string sql)
+    {
+      return new SqlStatement(this, sql);
+    }
+
+    /// <summary>
+    /// Sets the schema in the database
+    /// </summary>
+    /// <param name="schema">Schema name to be set</param>
+    public void SetCurrentSchema(string schema)
+    {
+      InternalSession.ExecuteSqlNonQuery($"USE `{schema}`");
+      GetSchema(schema);
+    }
+
+    /// <summary>
+    /// Executes a query in the database to get the current schema
+    /// </summary>
+    /// <returns>Current Database Schema object or null if any schema is selected</returns>
+    public Schema GetCurrentSchema()
+    {
+      string schemaName = (string)InternalSession.ExecuteQueryAsScalar("SELECT DATABASE()");
+      return schemaName == null ? null : GetSchema(schemaName);
     }
   }
 }

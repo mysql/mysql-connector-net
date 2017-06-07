@@ -39,7 +39,7 @@ using MySqlX;
 using System.Linq;
 using MySql.Data;
 
-namespace MySqlX.Session
+namespace MySqlX.Sessions
 {
 
   /// <summary>

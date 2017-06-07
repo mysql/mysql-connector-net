@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -22,7 +22,7 @@
 
 using System.Collections.Generic;
 using MySqlX.Protocol;
-using MySqlX.Session;
+using MySqlX.Sessions;
 using System.Collections.ObjectModel;
 
 namespace MySqlX.XDevAPI.Common
@@ -32,7 +32,7 @@ namespace MySqlX.XDevAPI.Common
     private List<WarningInfo> _warnings = new List<WarningInfo>();
     internal ulong _recordsAffected;
     internal ulong _autoIncrementValue;
-    protected InternalSession _session;
+    internal InternalSession _session;
     internal bool _hasData;
     internal bool _hasMoreResults = false;
 

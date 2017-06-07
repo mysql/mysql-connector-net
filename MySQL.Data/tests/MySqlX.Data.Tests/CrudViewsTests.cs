@@ -167,7 +167,7 @@ namespace MySqlX.Data.Tests
         .DefinedAs(table.Select("id"))
         .Execute();
 
-      var result = GetNodeSession().SQL("DESC myview").Execute().FetchAll();
+      var result = GetSession(true).SQL("DESC myview").Execute().FetchAll();
       Assert.Equal(1, result.Count);
       Assert.Equal("id", result[0]["field"]);
     }
@@ -206,7 +206,7 @@ namespace MySqlX.Data.Tests
       var view = GetSession().Schema.GetTable("myview");
       Assert.True(view.IsView);
       Assert.Equal(allRows.Length, view.Count());
-      var sql = GetNodeSession().SQL("SHOW CREATE VIEW myview").Execute();
+      var sql = GetSession(true).SQL("SHOW CREATE VIEW myview").Execute();
       var result = sql.FetchAll();
       string desc = result[0][1].ToString();
 
@@ -239,7 +239,7 @@ namespace MySqlX.Data.Tests
       var view = GetSession().Schema.GetTable("myview");
       Assert.True(view.IsView);
       Assert.Equal(allRows.Length, view.Count());
-      var sql = GetNodeSession().SQL("SHOW CREATE VIEW myview").Execute();
+      var sql = GetSession(true).SQL("SHOW CREATE VIEW myview").Execute();
       var result = sql.FetchAll();
       string desc = result[0][1].ToString();
 

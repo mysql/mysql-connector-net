@@ -37,25 +37,25 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void IllegalMixCollations()
     {
-      using (NodeSession session = MySQLX.GetNodeSession(ConnectionString))
+      using (Session session = MySQLX.GetSession(ConnectionString))
       {
         var result = session.SQL("SHOW COLLATION WHERE `Default` ='Yes';").Execute();
         Assert.True(result.HasData);
       }
 
-      using (NodeSession session = MySQLX.GetNodeSession(ConnectionString + ";charset=latin1"))
+      using (Session session = MySQLX.GetSession(ConnectionString + ";charset=latin1"))
       {
         var result = session.SQL("SHOW COLLATION WHERE `Default` ='Yes';").Execute();
         Assert.True(result.HasData);
       }
 
-      using (NodeSession session = MySQLX.GetNodeSession(ConnectionString + ";charset=utf8mb4"))
+      using (Session session = MySQLX.GetSession(ConnectionString + ";charset=utf8mb4"))
       {
         var result = session.SQL("SHOW COLLATION WHERE `Default` ='Yes';").Execute();
         Assert.True(result.HasData);
       }
 
-      using (NodeSession session = MySQLX.GetNodeSession(ConnectionString + ";charset=utf-8"))
+      using (Session session = MySQLX.GetSession(ConnectionString + ";charset=utf-8"))
       {
         var result = session.SQL("SHOW COLLATION WHERE `Default` ='Yes';").Execute();
         Assert.True(result.HasData);
@@ -69,7 +69,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void NamesAreReturnedAsStrings()
     {
-      using (NodeSession mySession = new NodeSession(ConnectionString))
+      using (Session mySession = new Session(ConnectionString))
       {
         Schema test = mySession.GetSchema("test");
 

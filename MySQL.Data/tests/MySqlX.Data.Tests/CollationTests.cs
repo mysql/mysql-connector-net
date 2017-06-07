@@ -51,10 +51,10 @@ namespace MySqlX.Data.Tests
     {
       if (!_serverVersion.isAtLeast(8,0,1)) return;
 
-      using (NodeSession nodeSession = GetNodeSession())
+      using (Session session = MySQLX.GetSession(ConnectionString))
       {
         // Search database.
-        var result = nodeSession.SQL("SHOW COLLATION WHERE id = 255").Execute();
+        var result = session.SQL("SHOW COLLATION WHERE id = 255").Execute();
         Assert.True(result.HasData);
         var data = result.FetchOne();
         Assert.Equal("utf8mb4_0900_ai_ci",data.GetString("Collation"));

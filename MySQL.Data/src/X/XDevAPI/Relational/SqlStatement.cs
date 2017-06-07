@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -33,9 +33,9 @@ namespace MySqlX.XDevAPI.Relational
     /// <summary>
     /// SqlStament constructor
     /// </summary>
-    /// <param name="session">Node session the sql statement belongs to</param>
+    /// <param name="session">Session the sql statement belongs to</param>
     /// <param name="sql">Sql statement</param>
-    public SqlStatement(NodeSession session, string sql) : base(session)
+    public SqlStatement(Session session, string sql) : base(session)
     {
       SQL = sql;
     }

@@ -22,7 +22,7 @@
 
 using MySql.Data;
 using MySql.Data.MySqlClient;
-using MySqlX.Session;
+using MySqlX.Sessions;
 using System;
 using System.Collections.Generic;
 
