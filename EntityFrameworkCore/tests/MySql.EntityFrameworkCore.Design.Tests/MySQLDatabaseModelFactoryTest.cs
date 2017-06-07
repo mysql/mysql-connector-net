@@ -198,7 +198,7 @@ CREATE DATABASE sakilaIndex;
 
             Assert.All(indexes, c =>
             {
-                Assert.Equal("sakilaIndex", c.Table.SchemaName);
+                Assert.Equal("sakilaIndex", c.Table.SchemaName, ignoreCase: true);
                 Assert.Equal("actor", c.Table.Name);
             });
 
