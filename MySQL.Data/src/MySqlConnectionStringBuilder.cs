@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -86,7 +86,7 @@ namespace MySql.Data.MySqlClient
           // just for this case, reuse the logic to translate string to bool
           sender.ValidateValue(ref value);
           MySqlTrace.LogWarning(-1, "Encrypt is now obsolete. Use Ssl Mode instead");
-          msb.SetValue("Ssl Mode", (bool)value ? MySqlSslMode.Prefered : MySqlSslMode.None);
+          msb.SetValue("Ssl Mode", (bool)value ? MySqlSslMode.Required : MySqlSslMode.None);
         },
         (msb, sender) => msb.SslMode != MySqlSslMode.None
         ));
@@ -158,10 +158,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("treatblobsasutf8", "treat blobs as utf8", typeof(bool), false, false));
       Options.Add(new MySqlConnectionStringOption("blobasutf8includepattern", null, typeof(string), "", false));
       Options.Add(new MySqlConnectionStringOption("blobasutf8excludepattern", null, typeof(string), "", false));
-      Options.Add(new MySqlConnectionStringOption("sslmode", "ssl mode", typeof(MySqlSslMode), MySqlSslMode.Preferred, false));
-      Options.Add(new MySqlConnectionStringOption("sslenable", "ssl-enable", typeof(bool), false, false,
-        (msb, sender, value) => { msb.SslEnable = bool.Parse(value as string); },
-        (msb, sender) => { return msb.SslEnable; }));
+      Options.Add(new MySqlConnectionStringOption("sslmode", "ssl mode,ssl-mode", typeof(MySqlSslMode), MySqlSslMode.Required, false));
       Options.Add(new MySqlConnectionStringOption("sslca", "ssl-ca", typeof(string), null, false,
         (msb, sender, value) => { msb.SslCa = value as string; },
         (msb, sender) => { return msb.SslCa; }));
@@ -186,6 +183,7 @@ namespace MySql.Data.MySqlClient
     public MySqlConnectionStringBuilder(string connStr)
       : this()
     {
+      AnalyzeConnectionString(connStr);
       lock (this)
       {
         ConnectionString = connStr;
@@ -413,7 +411,7 @@ namespace MySql.Data.MySqlClient
       get { return SslMode != MySqlSslMode.None; }
       set
       {
-        SetValue("Ssl Mode", value ? MySqlSslMode.Prefered : MySqlSslMode.None);
+        SetValue("Ssl Mode", value ? MySqlSslMode.Required : MySqlSslMode.None);
       }
     }
 
@@ -992,26 +990,13 @@ namespace MySql.Data.MySqlClient
 
     #region XProperties
 
-    [Description("X DevApi: enables the use of SSL as required")]
-    public bool SslEnable
-    {
-      get { return ((MySqlSslMode)this["sslmode"] != MySqlSslMode.None); }
-      set
-      {
-        if (value)
-          SslMode = MySqlSslMode.Required;
-        else
-          SslMode = MySqlSslMode.None;
-      }
-    }
-
     [Description("X DevApi: path to a local file that contains a list of trusted TLS/SSL CAs")]
     public string SslCa
     {
       get { return CertificateFile; }
       set
       {
-        SslEnable = true;
+        SslMode = MySqlSslMode.Required;
         CertificateFile = value;
       }
     }
@@ -1154,6 +1139,41 @@ namespace MySql.Data.MySqlClient
       return base.GetHashCode();
     }
 
+    /// <summary>
+    /// Analyzes the connection string for potential duplicated/invalid connection options.
+    /// </summary>
+    /// <param name="connectionString">Connection string.</param>
+    private void AnalyzeConnectionString(string connectionString)
+    {
+      string[] queries = connectionString.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+      List<string> usedSslOptions = new List<string>();
+      bool sslModeIsNone = false;
+      foreach (string query in queries)
+      {
+        string[] keyValue = query.Split('=');
+        if (keyValue.Length % 2 != 0)
+          continue;
+
+        var keyword = keyValue[0].ToLowerInvariant().Trim();
+        var value = keyValue[1].ToLowerInvariant();
+        MySqlConnectionStringOption option = Options.Options.Where(o => o.Keyword == keyword || (o.Synonyms!=null && o.Synonyms.Contains(keyword))).FirstOrDefault();
+        if (option == null || (option.Keyword != "sslmode" && option.Keyword != "certificatepassword" && option.Keyword != "sslcrl" && option.Keyword != "sslca"))
+          continue;
+
+        // SSL connection options can't be duplicated.
+        if (usedSslOptions.Contains(option.Keyword))
+          throw new ArgumentException(string.Format(Resources.DuplicatedSslConnectionOption,keyword));
+
+        // SSL connection options can't be used if sslmode=None.
+        if (option.Keyword=="sslmode" && (value=="none" || value == "disabled"))
+          sslModeIsNone = true;
+
+        if (sslModeIsNone && (option.Keyword == "certificatepassword" || option.Keyword == "sslcrl" || option.Keyword == "sslca"))
+          throw new ArgumentException(Resources.InvalidOptionWhenSslDisabled);
+
+        usedSslOptions.Add(option.Keyword);
+      }
+    }
   }
 
   class MySqlConnectionStringOption

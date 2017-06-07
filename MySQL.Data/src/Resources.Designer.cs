@@ -314,6 +314,15 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to SSL connection option &apos;{0}&apos; is duplicated..
+        /// </summary>
+        public static string DuplicatedSslConnectionOption {
+            get {
+                return ResourceManager.GetString("DuplicatedSslConnectionOption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Error creating socket connection.
         /// </summary>
         public static string ErrorCreatingSocket {
@@ -463,6 +472,15 @@ namespace MySql.Data {
         public static string InvalidMillisecondValue {
             get {
                 return ResourceManager.GetString("InvalidMillisecondValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No other SSL options are accepted when SSL Mode is set to None..
+        /// </summary>
+        public static string InvalidOptionWhenSslDisabled {
+            get {
+                return ResourceManager.GetString("InvalidOptionWhenSslDisabled", resourceCulture);
             }
         }
         

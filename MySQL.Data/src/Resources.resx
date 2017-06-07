@@ -541,6 +541,12 @@
   <data name="SslConnectionError" xml:space="preserve">
     <value>SSL Connection error.</value>
   </data>
+  <data name="DuplicatedSslConnectionOption" xml:space="preserve">
+    <value>SSL connection option '{0}' is duplicated.</value>
+  </data>
+  <data name="InvalidOptionWhenSslDisabled" xml:space="preserve">
+    <value>No other SSL options are accepted when SSL Mode is set to None.</value>
+  </data>
   <data name="ParameterNullOrEmpty" xml:space="preserve">
     <value>Parameter can't be null or empty.</value>
   </data>
