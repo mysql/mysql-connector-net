@@ -87,7 +87,18 @@ namespace MySqlX.XDevAPI
     internal void EnsureId()
     {
       if (!HasId)
-        SetValue("_id", Guid.NewGuid().ToString("N"));
+      {
+        char separatorChar = '-';
+        string[] token = Guid.NewGuid().ToString().Split(separatorChar);
+        string guid = string.Empty;
+        for (int i = token.Length-1; i >= 0; i--)
+        {
+          guid += token[i];
+          if (i != 0) guid += separatorChar;
+        }
+
+        SetValue("_id", guid.Replace(separatorChar.ToString(), string.Empty));
+      }
     }
 
     private string GetValue(string path)
