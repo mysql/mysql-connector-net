@@ -541,4 +541,7 @@
   <data name="SslConnectionError" xml:space="preserve">
     <value>SSL Connection error.</value>
   </data>
+  <data name="ParameterNullOrEmpty" xml:space="preserve">
+    <value>Parameter can't be null or empty.</value>
+  </data>
 </root>
