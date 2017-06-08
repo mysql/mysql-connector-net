@@ -44,7 +44,7 @@ dotnet restore
 dotnet build MySql.EntityFrameworkCore.Design.Tests.csproj -c Debug
 sn.exe -Rca  bin\debug\net452\MySql.EntityFrameworkCore.Design.Tests.dll ConnectorNet
 dotnet xunit -framework net452 -parallel none -xml mysql-efcoredesign-test-results.xml || SET FAILED = 1
-dotnet xunit -framework netcoreapp1.1 -parallel none -xml mysq-efcoredesign-core-test-results.xml || SET FAILED = 1
+dotnet xunit -framework netcoreapp1.1 -parallel none -xml mysql-efcoredesign-core-test-results.xml || SET FAILED = 1
 
 cd ../MySql.EntityFrameworkCore.Migrations.Tests
 dotnet clean

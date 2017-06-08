@@ -1,9 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Description>MySql.EntityFrameworkCore.Design.Tests Class Library</Description>
-    <Copyright>Copyright © 2017, Oracle and/or its affiliates. All rights reserved.</Copyright>
-    <VersionPrefix>6.10.2</VersionPrefix>
+    <Copyright>Copyright &#169; 2017, Oracle and/or its affiliates. All rights reserved.</Copyright>
+    <Version>6.10.2-beta</Version>
     <Authors>Oracle</Authors>
     <TargetFrameworks>netcoreapp1.1;net452</TargetFrameworks>
     <AssemblyName>MySql.EntityFrameworkCore.Design.Tests</AssemblyName>
@@ -40,11 +40,11 @@
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <EmbeddedResource Include="Properties\sakiladb-schema.sql;Properties\world.sql" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
+    <EmbeddedResource Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" Include="Properties\sakiladb-schema.sql;Properties\world.sql" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
-    <EmbeddedResource Include="Properties\sakiladb-schema.sql;Properties\world.sql" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
+    <EmbeddedResource Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" Include="Properties\sakiladb-schema.sql;Properties\world.sql" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">

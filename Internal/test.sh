@@ -26,4 +26,4 @@ dotnet xunit -framework netcoreapp1.1 -parallel none -xml mysql-efcoremigrations
 
 cd ../../..
 
-exit(FAILED)
+exit FAILED

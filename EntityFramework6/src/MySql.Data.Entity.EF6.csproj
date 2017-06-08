@@ -1,10 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Description>MySql.Data.Entity.EF6</Description>
-    <Copyright>Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.</Copyright>
+    <Copyright>Copyright &#169; 2016, 2017, Oracle and/or its affiliates. All rights reserved.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <VersionPrefix>6.10.2</VersionPrefix>
+    <Version>6.10.2-beta</Version>
     <Authors>Oracle</Authors>
     <TargetFramework>net452</TargetFramework>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
@@ -37,22 +37,22 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Properties\ProviderManifest.xml">
-      <CustomToolNamespace></CustomToolNamespace>
+      <CustomToolNamespace />
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\SchemaDefinition-5.0.ssdl">
-      <CustomToolNamespace></CustomToolNamespace>
+      <CustomToolNamespace />
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\SchemaDefinition-5.1.ssdl">
-      <CustomToolNamespace></CustomToolNamespace>
+      <CustomToolNamespace />
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\SchemaDefinition-5.5.ssdl">
-      <CustomToolNamespace></CustomToolNamespace>
+      <CustomToolNamespace />
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\SchemaDefinition-5.6.ssdl">
-      <CustomToolNamespace></CustomToolNamespace>
+      <CustomToolNamespace />
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\SchemaDefinition-5.7.ssdl">
-      <CustomToolNamespace></CustomToolNamespace>
+      <CustomToolNamespace />
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\SchemaMapping.msl" />
   </ItemGroup>
@@ -114,7 +114,7 @@
     <EmbeddedResource Update="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <CustomToolNamespace></CustomToolNamespace>
+      <CustomToolNamespace />
     </EmbeddedResource>
   </ItemGroup>
 

@@ -1,10 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Description>MySql.Data.MySqlClient .Net Core Class Library</Description>
-    <Copyright>Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.</Copyright>
+    <Copyright>Copyright &#169; 2016, 2017, Oracle and/or its affiliates. All rights reserved.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <VersionPrefix>6.10.2</VersionPrefix>
+    <Version>6.10.2-beta</Version>
     <Authors>Oracle</Authors>
     <AssemblyName>MySql.Data</AssemblyName>
     <TargetFrameworks>netstandard1.3;net452</TargetFrameworks>
@@ -81,7 +81,7 @@
     <Reference Include="System.Runtime" />
     <Reference Include="Microsoft.CSharp" />
 
-    <EmbeddedResource Include="keywords.txt;Resources.resx;ResourcesX.resx;Properties\ReservedWords.txt" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
+    <EmbeddedResource Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" Include="keywords.txt;Resources.resx;ResourcesX.resx;Properties\ReservedWords.txt" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.3'">

@@ -71,6 +71,15 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
   public class TableConventionsContext : MyTestContext
   {
     public DbSet<Car> Cars { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+      //base.OnConfiguring(optionsBuilder);
+      string name = $"db-{this.GetType().Name.ToLowerInvariant()}";
+      optionsBuilder.UseMySQL(MySQLTestStore.rootConnectionString + ";database=" + name + ";charset=latin1");
+
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
       modelBuilder.Entity<Car>()
