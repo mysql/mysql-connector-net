@@ -22,6 +22,7 @@
 
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
+using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.Extensions.Logging;
 using MySql.Data.EntityFrameworkCore.Tests;
 using System;
@@ -194,7 +195,7 @@ CREATE DATABASE sakilaIndex;
 
             var dbModel = _fixture.CreateModel(sql, new TableSelectionSet(new List<string> { "actor" }));
 
-            var indexes = dbModel.Tables.Single().Indexes;
+            var indexes = dbModel.Tables.Single().Indexes.OrderByDescending(o => o.Name).ToList<IndexModel>();
 
             Assert.All(indexes, c =>
             {
