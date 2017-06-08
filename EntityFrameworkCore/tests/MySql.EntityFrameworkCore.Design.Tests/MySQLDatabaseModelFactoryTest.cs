@@ -195,7 +195,7 @@ CREATE DATABASE sakilaIndex;
 
             var dbModel = _fixture.CreateModel(sql, new TableSelectionSet(new List<string> { "actor" }));
 
-            var indexes = dbModel.Tables.Single().Indexes.OrderByDescending(o => o.Name).ToList<IndexModel>();
+            var indexes = dbModel.Tables.Single().Indexes;
 
             Assert.All(indexes, c =>
             {
@@ -203,23 +203,21 @@ CREATE DATABASE sakilaIndex;
                 Assert.Equal("actor", c.Table.Name);
             });
 
-            Assert.Collection(indexes,
-                unique =>
-                {
-                    Assert.True(unique.IsUnique);
-                    Assert.Equal("actor_id", unique.IndexColumns.Single().Column.Name);
-                },
-                onecolumn =>
-                {
-                    Assert.True(onecolumn.IsUnique);
-                    Assert.Equal("last_name", onecolumn.IndexColumns.Single().Column.Name);
-                },
-                composite =>
-                {
-                    Assert.Equal("idx_actor_first_last_name", composite.Name);
-                    Assert.False(composite.IsUnique);
-                    Assert.Equal(new List<string> { "first_name", "last_name" }, composite.IndexColumns.Select(c => c.Column.Name).ToList());
-                });
+            var index = indexes.Where(c => c.Name == "PRIMARY").Single();
+            Assert.True(index.IsUnique);
+            Assert.Equal("actor_id", index.IndexColumns.Single().Column.Name);
+
+            index = indexes.Where(c => c.Name == "last_name").Single();
+            Assert.True(index.IsUnique);
+            Assert.Equal("last_name", index.IndexColumns.Single().Column.Name);
+
+            index = indexes.Where(c => c.Name == "idx_actor_first_last_name").First();
+            Assert.Equal("idx_actor_first_last_name", index.Name);
+            Assert.False(index.IsUnique);
+
+            var indexColumnModel = index.IndexColumns.Select(c => c.Column.Name).ToList();
+            Assert.True(indexColumnModel.Contains("first_name"));
+            Assert.True(indexColumnModel.Contains("last_name"));
         }
 
 
