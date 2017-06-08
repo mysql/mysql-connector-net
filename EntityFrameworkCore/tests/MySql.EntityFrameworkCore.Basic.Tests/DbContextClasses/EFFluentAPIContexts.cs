@@ -75,6 +75,12 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
     {
       modelBuilder.Entity<Car>()
           .ToTable("somecars");
+      
+      modelBuilder.Entity<Car>().
+                Property(e => e.LicensePlate).HasColumnType("VARCHAR(384)");
+      
+      modelBuilder.Entity<Car>().
+                Property(e => e.State).HasColumnType("VARCHAR(384)");
 
       modelBuilder.Entity<Car>()
                .HasKey(c => new { c.State, c.LicensePlate });

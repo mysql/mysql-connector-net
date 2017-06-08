@@ -104,7 +104,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void RespectBinaryFlags()
     {
-      if (Fixture.Version.Major >= 5 && Fixture.Version.Minor >= 5) return;
+      if (Connection.driver.Version.isAtLeast(5,5,0)) return;
 
       string connStr = Connection.ConnectionString + ";respect binary flags=true";
       using (MySqlConnection c = new MySqlConnection(connStr))
