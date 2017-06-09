@@ -6,7 +6,7 @@
 string schemaName = "world_x"; 
 // Define the connection string
 string connectionString = "server=localhost;port=33060;uid=test;password=test";     
-XSession session = MySqlX.GetSession(connectionString); 
+Session session = MySQLX.GetSession(connectionString); 
 // Get the schema object
 Schema schema = session.GetSchema(schemaName);
     </sampleCode>   
@@ -77,7 +77,7 @@ namespace MySQLX_Tutorial
  
       string schemaName = "world_x";
       string connectionString = "server=localhost;port=33060;uid=test;password=test";    
-      XSession session = MySqlX.GetSession(connectionString);
+      Session session = MySQLX.GetSession(connectionString);
       Schema schema = session.GetSchema(schemaName);
  
       // Use the collection 'contryinfo'
