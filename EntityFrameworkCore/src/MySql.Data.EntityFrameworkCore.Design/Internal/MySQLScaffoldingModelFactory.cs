@@ -34,6 +34,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using MySQL.Data.EntityFrameworkCore.Extensions;
 using MySql.Data.EntityFrameworkCore.Design.Metadata.Internal;
+using Microsoft.EntityFrameworkCore;
 
 namespace MySql.Data.EntityFrameworkCore.Design.Internal
 {
