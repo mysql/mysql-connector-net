@@ -153,9 +153,9 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
 
             TableModel principalTable = null;
             if (!string.IsNullOrEmpty(tableSchema)
-                && !string.IsNullOrEmpty(tableName))
+                && !string.IsNullOrEmpty(referencedTableName))
             {
-              _tables.TryGetValue(TableKey(tableName, tableSchema), out principalTable);
+              _tables.TryGetValue(TableKey(referencedTableName, tableSchema), out principalTable);
             }
 
             if (principalTable == null)
@@ -177,16 +177,16 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
               Ordinal = (int)ordinal
             };
 
-            ColumnModel fromColumn;
-            if ((fromColumn = FindColumnForForeignKey(columnName, fkModel.Table, constraintName)) != null)
+            ColumnModel fromColumn = FindColumnForForeignKey(columnName, fkModel.Table, constraintName);
+            if (fromColumn != null)
             {
               fkColumn.Column = fromColumn;
             }
 
             if (fkModel.PrincipalTable != null)
             {
-              ColumnModel toColumn;
-              if ((toColumn = FindColumnForForeignKey(referencedColumnName, fkModel.PrincipalTable, constraintName)) != null)
+              ColumnModel toColumn = FindColumnForForeignKey(referencedColumnName, fkModel.PrincipalTable, constraintName);
+              if (toColumn != null)
               {
                 fkColumn.PrincipalColumn = toColumn;
               }
@@ -358,8 +358,9 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
                             $" c.ordinal_position, column_default, {generation_expression} as generation_expression, numeric_precision, " +
                             " numeric_scale, character_maximum_length, constraint_name, k.ordinal_position as primarykeyordinal " +
                             " FROM(INFORMATION_SCHEMA.tables t INNER JOIN information_schema.columns c ON t.table_schema = c.table_schema AND t.table_name = c.table_name) " +
-                            " LEFT JOIN information_schema.KEY_COLUMN_USAGE k ON(k.TABLE_SCHEMA = c.TABLE_SCHEMA AND k.TABLE_NAME = c.TABLE_NAME AND k.COLUMN_NAME = c.COLUMN_NAME) " +
-                            " WHERE t.table_type LIKE 'BASE TABLE' AND t.table_schema like '" + dbName + "';";
+                            " LEFT JOIN information_schema.KEY_COLUMN_USAGE k ON(k.TABLE_SCHEMA = c.TABLE_SCHEMA AND k.TABLE_NAME = c.TABLE_NAME AND k.COLUMN_NAME = c.COLUMN_NAME AND k.CONSTRAINT_NAME = 'PRIMARY') " +
+                            " WHERE t.table_type LIKE 'BASE TABLE' AND t.table_schema like '" + dbName + "'" +
+                            " ORDER BY c.table_name, c.ordinal_position;";
       using (var reader = command.ExecuteReader())
       {
         while (reader.Read())

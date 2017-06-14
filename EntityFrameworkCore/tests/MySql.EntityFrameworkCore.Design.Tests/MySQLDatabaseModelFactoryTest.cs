@@ -169,7 +169,7 @@ CREATE TABLE city (
             Assert.Equal("sakiladb", fk.Table.SchemaName);
             Assert.Equal("city", fk.Table.Name);
             Assert.Equal("sakiladb", fk.PrincipalTable.SchemaName);
-            Assert.Equal("city", fk.PrincipalTable.Name);
+            Assert.Equal("country", fk.PrincipalTable.Name);
             Assert.Equal("country_id", fk.Columns.Single().Column.Name);
             Assert.Equal("country_id", fk.Columns.Single().PrincipalColumn.Name);
             Assert.Equal(ReferentialAction.Restrict, fk.OnDelete);
