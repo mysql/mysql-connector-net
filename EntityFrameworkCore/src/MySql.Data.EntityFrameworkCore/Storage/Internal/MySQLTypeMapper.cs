@@ -118,7 +118,8 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
         { "binary", _binary },
         { "varbinary", _varbinary },
         { "enum", _enum },
-        { "set", _set }
+        { "set", _set },
+        { "json", _varchar }
       };
 
       _clrTypeMappings = new Dictionary<Type, RelationalTypeMapping>
