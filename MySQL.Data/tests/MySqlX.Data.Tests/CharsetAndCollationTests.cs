@@ -20,17 +20,116 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Common;
+using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Relational;
-using System;
 using System.Collections.Generic;
-using System.Text;
 using Xunit;
 
 namespace MySqlX.Data.Tests
 {
-  public class CharsetTests : BaseTest
+  /// <summary>
+  /// Charset and collation related tests.
+  /// </summary>
+  public class CharsetAndCollationTests : BaseTest
   {
+    private static DBVersion _serverVersion;
+
+    static CharsetAndCollationTests()
+    {
+      using (var connection = new MySqlConnection(ConnectionStringRoot))
+      {
+        connection.Open();
+        _serverVersion = connection.driver.Version;
+      }
+    }
+
+    [Fact]
+    public void DefaultCharSet()
+    {
+      if (!_serverVersion.isAtLeast(8,0,1)) return;
+
+      using (var session = MySQLX.GetSession(ConnectionString))
+      {
+        Assert.Equal("utf8mb4", session.Settings.CharacterSet);
+      }
+
+      using (var connection = new MySqlConnection(ConnectionStringRoot))
+      {
+        connection.Open();
+        MySqlCommand cmd = new MySqlCommand("SHOW VARIABLES LIKE 'character_set_connection'", connection);
+        MySqlDataReader reader = cmd.ExecuteReader();
+        reader.Read();
+        Assert.Equal("utf8mb4", reader.GetString("Value"));
+        reader.Close();
+
+        cmd.CommandText = "SHOW VARIABLES LIKE 'character_set_database'";
+        reader = cmd.ExecuteReader();
+        reader.Read();
+        Assert.Equal("utf8mb4", reader.GetString("Value"));
+        reader.Close();
+
+        cmd.CommandText = "SHOW VARIABLES LIKE 'character_set_server'";
+        reader = cmd.ExecuteReader();
+        reader.Read();
+        Assert.Equal("utf8mb4", reader.GetString("Value"));
+        reader.Close();
+
+        cmd.CommandText = "SHOW VARIABLES LIKE 'collation_%'";
+        reader = cmd.ExecuteReader();
+        while (reader.Read())
+        {
+          Assert.Equal("utf8mb4_0900_ai_ci", reader.GetString("Value"));
+        }
+        reader.Close();
+      }
+    }
+
+    [Fact]
+    public void ValidateCollationMapList()
+    {
+      if (!_serverVersion.isAtLeast(8,0,1)) return;
+
+      using (var connection = new MySqlConnection(ConnectionStringRoot))
+      {
+        connection.Open();
+        var command = new MySqlCommand("SELECT id, collation_name FROM INFORMATION_SCHEMA.COLLATIONS",connection);
+        var reader = command.ExecuteReader();
+        Assert.True(reader.HasRows);
+
+        while(reader.Read())
+        {
+          var id = reader.GetInt32("id");
+          var collationName = reader.GetString("collation_name");
+          Assert.Equal(CollationMap.GetCollationName(id), collationName);
+        }
+
+        connection.Close();
+      }
+    }
+
+    /// <summary>
+    /// Bug #26163694 SELECT WITH/WO PARAMS(DIFF COMB) N PROC CALL FAIL WITH KEY NOT FOUND EX-WL#10561
+    /// </summary>
+    [Fact]
+    public void Utf8mb4CharsetExists()
+    {
+      if (!_serverVersion.isAtLeast(8,0,1)) return;
+
+      using (Session session = MySQLX.GetSession(ConnectionString))
+      {
+        // Search utf8mb4 database.
+        var result = session.SQL("SHOW COLLATION WHERE id = 255").Execute();
+        Assert.True(result.HasData);
+        var data = result.FetchOne();
+        Assert.Equal("utf8mb4_0900_ai_ci",data.GetString("Collation"));
+
+        // Check in CollationMap.
+        Assert.Equal("utf8mb4_0900_ai_ci", CollationMap.GetCollationName(255));
+      }
+    }
+
     /// <summary>
     /// Bug #26163703 SHOW COLLATION FAILS WITH MYSQL SERVER 8.0-WL#10561
     /// </summary>

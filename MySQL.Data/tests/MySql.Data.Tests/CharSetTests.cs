@@ -355,8 +355,6 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-
-
     [Fact]
     public void VariousCollations()
     {
@@ -366,7 +364,6 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand cmd = new MySqlCommand("SELECT test FROM Test", Connection);
       cmd.ExecuteScalar();
     }
-
 
     [Fact]
     public void ExtendedCharsetOnConnection()
@@ -408,6 +405,23 @@ namespace MySql.Data.MySqlClient.Tests
             rootCommand.ExecuteNonQuery();
           }
         }
+      }
+    }
+
+    [Fact]
+    public void DefaultCharSet()
+    {
+      using (var connection = new MySqlConnection(Connection.ConnectionString))
+      {
+        connection.Open();
+        MySqlCommand cmd = new MySqlCommand("SHOW VARIABLES LIKE 'character_set_connection'", connection);
+        MySqlDataReader reader = cmd.ExecuteReader();
+        reader.Read();
+
+        if (Connection.driver.Version.isAtLeast(8,0,1))
+          Assert.Equal("utf8mb4", reader.GetString("Value"));
+        else
+          Assert.Equal("latin1", reader.GetString("Value"));
       }
     }
   }
