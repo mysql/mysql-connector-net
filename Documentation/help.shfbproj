@@ -89,7 +89,7 @@
     <Folder Include="Users Guide\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Users Guide\GettingStartedGuide.aml" />
+    <None Include="Users Guide\GettingStarted.aml" />
     <None Include="Users Guide\connector-net-connection-options.aml" />
     <None Include="Users Guide\connector-net-tutorials.aml" />
     <None Include="Users Guide\connector-net-versions.aml" />
