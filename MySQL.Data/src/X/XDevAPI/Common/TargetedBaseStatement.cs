@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -23,25 +23,25 @@
 namespace MySqlX.XDevAPI.Common
 {
   /// <summary>
-  /// Abstract class to select a database object target
+  /// Abstract class to select a database object target.
   /// </summary>
-  /// <typeparam name="TTarget">Database object</typeparam>
-  /// <typeparam name="TResult">Execution result</typeparam>
+  /// <typeparam name="TTarget">The database object.</typeparam>
+  /// <typeparam name="TResult">The execution result.</typeparam>
   public abstract class TargetedBaseStatement<TTarget, TResult> : BaseStatement<TResult>
     where TTarget : DatabaseObject
     where TResult : BaseResult
   {
     /// <summary>
-    /// Constructor
+    /// Initializes a new instance of the TargetedBaseStatement class based on the provided target.
     /// </summary>
-    /// <param name="target">Database object</param>
+    /// <param name="target">The database object.</param>
     public TargetedBaseStatement(TTarget target) : base(target.Schema.Session)
     {
       Target = target;
     }
 
     /// <summary>
-    /// Database target
+    /// Gets the database target.
     /// </summary>
     public TTarget Target { get; private set; }
   }

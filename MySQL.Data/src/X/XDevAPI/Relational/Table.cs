@@ -26,15 +26,15 @@ using MySqlX.XDevAPI.Relational;
 namespace MySqlX.XDevAPI.Relational
 {
   /// <summary>
-  /// Represents a server Table or View
+  /// Represents a server Table or View.
   /// </summary>
   public class Table : DatabaseObject
   {
     private bool? isView;
 
     /// <summary>
-    /// Property to identify whether the object is a View (True)
-    /// or a Table (False).
+    /// Gets a value indicating whether the object is 
+    /// a View (True) or a Table (False).
     /// </summary>
     public bool IsView {
       get
@@ -71,38 +71,44 @@ namespace MySqlX.XDevAPI.Relational
     internal Table() : base(null, null) { }
 
     /// <summary>
-    /// Selects a set of table rows
+    /// Creates a <see cref="TableSelectStatement"/> set with the columns to select. The table select
+    /// statement can be further modified before execution. This method is intended to select a set
+    /// of table rows.
     /// </summary>
-    /// <param name="columns">Optional column names to select</param>
-    /// <returns>TableSelectStatement object for select chain</returns>
+    /// <param name="columns">The optional column names to select.</param>
+    /// <returns>A <see cref="TableSelectStatement"/> object for select chain operations.</returns>
     public TableSelectStatement Select(params string[] columns)
     {
       return new TableSelectStatement(this, columns);
     }
 
     /// <summary>
-    /// Inserts one or multiple rows into a table
+    /// Creates a <see cref="TableInsertStatement"/> set with the fileds to insert to. The table
+    /// insert statement can be further modified before exeuction. This method is intended to
+    /// insert one or multiple rows into a table.
     /// </summary>
-    /// <param name="fields">Optional list of fields for insert</param>
-    /// <returns>TableInsertStatement object for insert chain</returns>
+    /// <param name="fields">The list of fields to insert.</param>
+    /// <returns>A <see cref="TableInsertStatement"/> object for insert chain operations.</returns>
     public TableInsertStatement Insert(params string[] fields)
     {
       return new TableInsertStatement(this, fields);
     }
 
     /// <summary>
-    /// Updates table rows values
+    /// Creates a <see cref="TableUpdateStatement"/>. This method is intended to update table rows 
+    /// values.
     /// </summary>
-    /// <returns>TableUpdateStatement object for update chain</returns>
+    /// <returns>A <see cref="TableUpdateStatement"/> object for update chain operations.</returns>
     public TableUpdateStatement Update()
     {
       return new TableUpdateStatement(this);
     }
 
     /// <summary>
-    /// Deletes rows from a Table
+    /// Creates a <see cref="TableDeleteStatement"/>. This method is intended to delete rows from a 
+    /// table.
     /// </summary>
-    /// <returns>DeleteStatement object</returns>
+    /// <returns>A <see cref="TableDeleteStatement"/> object for delete chain operations.</returns>
     public TableDeleteStatement Delete()
     {
       return new TableDeleteStatement(this, null);
@@ -111,16 +117,16 @@ namespace MySqlX.XDevAPI.Relational
     /// <summary>
     /// Returns the number of rows in the table on the server.
     /// </summary>
-    /// <returns>Number of rows</returns>
+    /// <returns>The number of rows.</returns>
     public long Count()
     {
       return Session.XSession.TableCount(Schema, Name);
     }
 
     /// <summary>
-    /// Verifies if the table exists in database
+    /// Verifies if the table exists in database.
     /// </summary>
-    /// <returns>True if table exists</returns>
+    /// <returns>True if table exists, false otherwise.</returns>
     public override bool ExistsInDatabase()
     {
       return Session.XSession.TableExists(Schema, Name);

@@ -1,12 +1,12 @@
 <topic id="connector-net-x-devapi-getting-started" revisionNumber="1">
   <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <section address="connector-net">
+    <section address="connector-net-introduction">
+	  <title>Introduction</title>
       <content>
         <autoOutline />
-        <title>Introduction</title>
         <para>The MySQL Connector/Net 8.0.8 (or higher) getting started tutorial, provides an introduction to the X DevAPI functionality introduced with MySQL 5.7.12. X functionality includes the new X DevAPI (DevAPI), which offers a modern, integrative way to work with relational and document data  without requiring SQL knowledge when developing .NET Framework applications.</para>
 
-        <para>Requirements</para>
+        <title>Requirements</title>
         <list class="bullet">
           <listItem>
             <para>Connector/Net 8.0.8 or later</para>
@@ -18,8 +18,11 @@
             <para>MySQL 5.7.12 or later</para>
           </listItem>
         </list>
-        <para>Download Sample Database</para>
-
+	  </content>
+    </section>
+	<section address="connector-net-sample-database">
+      <title>Download Sample Database</title>
+      <content>
         <para>A MySQL script is provided with data and a JSON collection.</para>
 
         <para>To install the world_x database sample, follow these steps:</para>
@@ -57,7 +60,11 @@
             <para>CountryInfo: Information about countries in the world.</para>
           </listItem>
         </list>
-        <para>Getting started with MySQL Connector/Net 8.0.8 (or later)</para>
+	  </content>
+    </section>
+	<section address="connector-net-getting-started">
+      <title>Getting started with MySQL Connector/Net 8.0.8 (or later)</title>
+	  <content>
         <para>Creating a Session</para>
         <para>
           A session in the X Dev API is a high-level database session concept that is different from working with traditional low-level MySQL connections. It is important to understand that this Session is not the same as a traditional MySQL Session. Sessions encapsulate one or more actual MySQL connections.
@@ -73,13 +80,15 @@
         <codeReference>ClassDefinition1#Define</codeReference>
         <para>- Insert a new document in a collection</para>
         <codeReference>ClassDefinition2#Define</codeReference>
-        <para>- How to delete a specific document</para>
+        <para>- Update an existing document</para>
         <codeReference>ClassDefinition3#Define</codeReference>
-        <para>- Closing the session</para>
+        <para>- Delete a specific document</para>
         <codeReference>ClassDefinition4#Define</codeReference>
+        <para>- Closing the session</para>
+        <codeReference>ClassDefinition5#Define</codeReference>
         <para>These are some very basic operations that can be done with a collection which overview about what can be achieved with this new DEV API.</para>
         <para>Here is the complete code example:</para>
-        <codeReference>ClassDefinition5#Define</codeReference>
+        <codeReference>ClassDefinition6#Define</codeReference>
       </content>
     </section>
   </developerConceptualDocument>

@@ -36,7 +36,7 @@ namespace MySqlX.XDevAPI.Relational
     }
 
     /// <summary>
-    /// Property that indicates if there result has data.
+    /// Gets a boolean value indicating if this result has data.
     /// </summary>
     public bool HasData
     {
@@ -44,7 +44,7 @@ namespace MySqlX.XDevAPI.Relational
     }
 
     /// <summary>
-    /// The number of records affected by the statement that generated this result.
+    /// Gets the number of records affected by the statement that generated this result.
     /// </summary>
     public UInt64 RecordsAffected
     {
@@ -52,7 +52,7 @@ namespace MySqlX.XDevAPI.Relational
     }
 
     /// <summary>
-    /// The last inserted id (if there is one) by the statement that generated this result.
+    /// Gets the last inserted identifier (if there is one) by the statement that generated this result.
     /// </summary>
     public UInt64 AutoIncrementValue
     {
@@ -60,9 +60,9 @@ namespace MySqlX.XDevAPI.Relational
     }
 
     /// <summary>
-    /// Moves to next resultset
+    /// Moves to next resultset.
     /// </summary>
-    /// <returns>True if there is a new resultset</returns>
+    /// <returns>True if there is a new resultset, false otherwise.</returns>
     public bool NextResult()
     {
       if (!_hasMoreResults)

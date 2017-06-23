@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2017 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -26,26 +26,36 @@ namespace MySqlX.XDevAPI
 {
 
   /// <summary>
-  /// Main class for session operations for MySQL Hybrid.
+  /// Main class for session operations related to Connector/NET implementation of the X DevAPI.
   /// </summary>
 
   public class MySQLX
   {
     /// <summary>
-    /// Opens a session to the server given
+    /// Initializes a new instance of the MySQLX class.
     /// </summary>
-    /// <param name="connectionSting">Connection string for the server</param>
-    /// <returns>Session</returns>
-    public static Session GetSession(string connectionSting)
+    public MySQLX()
     {
-      return new Session(connectionSting);
     }
 
     /// <summary>
-    /// Opens a session to the server given
+    /// Opens a session to the server given or to the first available server if multiple servers were specified.
     /// </summary>
-    /// <param name="connectionData">Connection data for the server</param>
-    /// <returns>Session</returns>
+    /// <param name="connectionString">The connection string in basic or URI format.</param>
+    /// <returns>A <see cref="Session"/> object representing the established session.</returns>
+    /// <remarks>Multiple hosts can be specified as part of the <paramref name="connectionString"/> which
+    /// will enable client side failover when trying to establish a connection. For additional details and syntax 
+    /// examples refer to the <see cref="BaseSession.BaseSession(string)"/> remarks section.</remarks>
+    public static Session GetSession(string connectionString)
+    {
+      return new Session(connectionString);
+    }
+
+    /// <summary>
+    /// Opens a session to the server given.
+    /// </summary>
+    /// <param name="connectionData">The connection data for the server.</param>
+    /// <returns>A <see cref="Session"/> object representing the established session.</returns>
     public static Session GetSession(object connectionData)
     {
       return new Session(connectionData);

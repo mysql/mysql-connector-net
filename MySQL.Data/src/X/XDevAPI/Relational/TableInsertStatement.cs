@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -27,7 +27,7 @@ using MySqlX.XDevAPI.Common;
 namespace MySqlX.XDevAPI.Relational
 {
   /// <summary>
-  /// Represents a chaining table insert statement
+  /// Represents a chaining table insert statement.
   /// </summary>
   public class TableInsertStatement : TargetedBaseStatement<Table, Result>
   {
@@ -41,9 +41,9 @@ namespace MySqlX.XDevAPI.Relational
     }
 
     /// <summary>
-    /// Executes the insert statement
+    /// Executes the insert statement.
     /// </summary>
-    /// <returns>Result of insert statement</returns>
+    /// <returns>A <see cref="Result"/> object containing the results of the insert statement.</returns>
     public override Result Execute()
     {
       try
@@ -60,8 +60,8 @@ namespace MySqlX.XDevAPI.Relational
     /// Values to be inserted.
     /// Multiple rows supported.
     /// </summary>
-    /// <param name="values"></param>
-    /// <returns>This same TableInsertStatement object</returns>
+    /// <param name="values">The values to be inserted.</param>
+    /// <returns>This same <see cref="TableInsertStatement"/> object.</returns>
     public TableInsertStatement Values(params object[] values)
     {
       this.values.Add(values);

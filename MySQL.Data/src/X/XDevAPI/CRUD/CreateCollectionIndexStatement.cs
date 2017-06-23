@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -41,12 +41,23 @@ namespace MySqlX.XDevAPI.CRUD
       createIndexParams = new CreateIndexParams(indexName, isUnique);
     }
 
+    /// <summary>
+    /// Adds a new field to this statement.
+    /// </summary>
+    /// <param name="docPath">The document path.</param>
+    /// <param name="type">The type associated to the field.</param>
+    /// <param name="notNull">Indicates if the field can store null values.</param>
+    /// <returns>This statement object set with the new field.</returns>
     public CreateCollectionIndexStatement Field(string docPath, string type, bool notNull)
     {
       createIndexParams.AddField(docPath, type, notNull);
       return this;
     }
 
+    /// <summary>
+    /// Executes this statement.
+    /// </summary>
+    /// <returns>A <see cref="Result"/> object containing the results of the execution.</returns>
     public override Result Execute()
     {
       return Session.XSession.CreateCollectionIndex(this);

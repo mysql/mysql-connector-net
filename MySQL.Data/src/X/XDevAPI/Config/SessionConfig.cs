@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -29,6 +29,9 @@ using System.Threading.Tasks;
 
 namespace MySqlX.XDevAPI.Config
 {
+  /// <summary>
+  /// Represents information associated to a session.
+  /// </summary>
   public class SessionConfig
   {
     internal Dictionary<string, object> appData = new Dictionary<string, object>();
@@ -42,31 +45,51 @@ namespace MySqlX.XDevAPI.Config
       Name = name;
       Uri = uri;
     }
-
+    /// <summary>
+    /// Gets or sets the name associated to this session configuration.
+    /// </summary>
     public string Name { get; protected set; }
-
+    /// <summary>
+    /// Gets or sets the Uri associated to this session configuration.
+    /// </summary>
     public string Uri { get; set; }
-
+    /// <summary>
+    /// Adds a new entry to the session configuration data dictionary.
+    /// </summary>
+    /// <param name="key">The key name.</param>
+    /// <param name="value">The value associated to the provided key.</param>
     public void SetAppData(string key, string value)
     {
       appData.Add(key, value);
     }
-
+    /// <summary>
+    /// Deletes the session configuration data entry matching the <paramref name="key"/> parameter.
+    /// </summary>
+    /// <param name="key">The key to delete.</param>
     public void DeleteAppData(string key)
     {
       appData.Remove(key);
     }
-
+    /// <summary>
+    /// Gets the session configuration data that matches de provided key.
+    /// </summary>
+    /// <param name="key">The key name.</param>
+    /// <returns>The string value that matches the provided key.</returns>
     public string GetAppData(string key)
     {
       return appData[key].ToString();
     }
-
+    /// <summary>
+    /// Saves this object.
+    /// </summary>
     public void Save()
     {
       SessionConfigManager.Save(this);
     }
-
+    /// <summary>
+    /// Retrieves the session configuration data associated to this object.
+    /// </summary>
+    /// <returns>A Json representation of the session configuration data for this object.</returns>
     public string ToJsonString()
     {
       List<string> options = new List<string>();

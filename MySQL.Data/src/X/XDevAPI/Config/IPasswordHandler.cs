@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -29,10 +29,25 @@ using System.Threading.Tasks;
 
 namespace MySqlX.XDevAPI
 {
+  /// <summary>
+  /// Provides support for password persistence.
+  /// </summary>
   public interface IPasswordHandler
   {
+    /// <summary>
+    /// Saves the password for a given key and service.
+    /// </summary>
+    /// <param name="key">The key name.</param>
+    /// <param name="service">The service name.</param>
+    /// <param name="password">The password to store.</param>
     void Save(string key, string service, string password);
 
+    /// <summary>
+    /// Retrieves the password associated to the given key and service.
+    /// </summary>
+    /// <param name="key">The key name.</param>
+    /// <param name="service">The service name.</param>
+    /// <returns>The password that matches the given key and service.</returns>
     string Load(string key, string service);
   }
 }

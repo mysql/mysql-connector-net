@@ -36,7 +36,7 @@ using MySqlX.XDevAPI.Common;
 namespace MySqlX.XDevAPI
 {
   /// <summary>
-  /// Represents a base class for a Session
+  /// Represents a base class for a Session.
   /// </summary>
   public abstract class BaseSession : IDisposable
   {
@@ -47,12 +47,12 @@ namespace MySqlX.XDevAPI
     internal QueueTaskScheduler scheduler = new QueueTaskScheduler();
 
     /// <summary>
-    /// Connection settings for this session
+    /// Gets the connection settings for this session.
     /// </summary>
     public MySqlConnectionStringBuilder Settings { get; private set; }
 
     /// <summary>
-    /// Currently active schema
+    /// Gets or sets the currently active schema.
     /// </summary>
     public Schema Schema { get; protected set; }
 
@@ -67,9 +67,32 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Constructor
+    /// Initializes a new instance of the BaseSession class based on the specified connection string.
     /// </summary>
-    /// <param name="connectionString">Session connection string</param>
+    /// <param name="connectionString">The connection string of the session.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="connectionString"/> is null.</exception>
+    /// <exception cref="UriFormatException">Unable to parse the <paramref name="connectionString"/> when 
+    /// in URI format.</exception>
+    /// <remarks>
+    /// <para>Multiple hosts can be specified as part of the <paramref name="connectionString"/> 
+    /// which will enable client side failover when trying to establish a connection.</para>
+    /// <para>&#160;</para>
+    /// <para>Connection string examples (in URI format):
+    /// <para />- mysqlx://test:test@[192.1.10.10,localhost]
+    /// <para />- mysqlx://test:test@[192.1.10.10,127.0.0.1]
+    /// <para />- mysqlx://test:test@[192.1.10.10:33060,127.0.0.1:33060]
+    /// <para />- mysqlx://test:test@[192.1.10.10,120.0.0.2:22000,[::1]:33060]/test?connectiontimeout=10
+    /// </para>
+    /// <para>&#160;</para>
+    /// <para>Connection string examples (in basic format):
+    /// <para />- server=10.10.10.10,localhost;port=33060;uid=test;password=test;
+    /// <para />- host=10.10.10.10,192.101.10.2,localhost;port=5202;uid=test;password=test;
+    /// </para>
+    /// <para>&#160;</para>
+    /// <para>Connection attempts will be performed in a sequential order, that is, one after another until 
+    /// a connection is successful or all the elements from the list have been tried.
+    /// </para>
+    /// </remarks>
     public BaseSession(string connectionString)
     {
       if (string.IsNullOrWhiteSpace(connectionString))
@@ -95,9 +118,10 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Constructor
+    /// Initializes a new instance of the BaseSession class based on the specified anonymous type object.
     /// </summary>
-    /// <param name="connectionData">Session data as anonymous type</param>
+    /// <param name="connectionData">The connection data as an anonymous type of the session.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="connectionData"/> is null.</exception>
     public BaseSession(object connectionData)
     {
       if (connectionData == null)
@@ -119,19 +143,19 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Drop the database/schema with the given name
+    /// Drops the database/schema with the given name.
     /// </summary>
-    /// <param name="schema">Name of the schema</param>
+    /// <param name="schema">The name of the schema.</param>
     public void DropSchema(string schema)
     {
       InternalSession.ExecuteSqlNonQuery("DROP DATABASE `" + schema + "`");
     }
 
     /// <summary>
-    /// Create a schema/database with the given name
+    /// Creates a schema/database with the given name.
     /// </summary>
-    /// <param name="schema">Name of the schema/database</param>
-    /// <returns>Schema object</returns>
+    /// <param name="schema">The name of the schema/database.</param>
+    /// <returns>A <see cref="Schema"/> object that matches the recently created schema/database.</returns>
     public Schema CreateSchema(string schema)
     {
       InternalSession.ExecuteSqlNonQuery("CREATE DATABASE `" + schema + "`");
@@ -139,10 +163,10 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Gets the schema with the given name
+    /// Gets the schema with the given name.
     /// </summary>
-    /// <param name="schema">Name of the schema</param>
-    /// <returns>Schema object</returns>
+    /// <param name="schema">The name of the schema.</param>
+    /// <returns>A <see cref="Schema"/> object set with the provided schema name.</returns>
     public Schema GetSchema(string schema)
     {
       this.Schema = new Schema(this, schema);
@@ -160,9 +184,9 @@ namespace MySqlX.XDevAPI
     //}
 
     /// <summary>
-    /// Get a list of schemas/databases in this session
+    /// Gets a list of schemas/databases in this session.
     /// </summary>
-    /// <returns>List<Schema></returns>
+    /// <returns>A <see cref="Schema"/> list containing all existing schemas/databases.</returns>
     public List<Schema> GetSchemas()
     {
       RowResult result = XSession.GetSqlRowResult("select * from information_schema.schemata");
@@ -173,7 +197,7 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Start a new transaction
+    /// Starts a new transaction.
     /// </summary>
     public void StartTransaction()
     {
@@ -181,15 +205,16 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Commit the current transaction
+    /// Commits the current transaction.
     /// </summary>
+    /// <returns>A <see cref="Result"/> object containing the results of the commit operation.</returns>
     public Result Commit()
     {
       return InternalSession.ExecuteSqlNonQuery("COMMIT");
     }
 
     /// <summary>
-    /// Rollback the current transaction
+    /// Rolls back the current transaction.
     /// </summary>
     public Result Rollback()
     {
@@ -197,7 +222,7 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Close this session
+    /// Closes this session.
     /// </summary>
     public void Close()
     {
@@ -208,11 +233,12 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Parses the connection string depending on its format.
+    /// Parses the connection string. The format (basic/URI) of the connection string is determined as well as the 
+    /// prescence of multiple hosts.
     /// </summary>
-    /// <param name="connectiontring">Connection string in basic or URI format.</param>
-    /// <returns>Parsed Connection String.</returns>
-    internal protected string ParseConnectionString(string connectionString)
+    /// <param name="connectionString">The connection string in basic or URI format.</param>
+    /// <returns>An updated connection string in basic format.</returns>
+    protected internal string ParseConnectionString(string connectionString)
     {
       FailoverManager.Reset();
 
@@ -320,7 +346,7 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Initializes the <see cref="FailoverManager"/> if more than one host is found.
+    /// Initializes the <see cref="FailoverManager"/> whenever a list of hosts have been provided.
     /// </summary>
     /// <param name="hostsSubstring">Unparsed host list.</param>
     private void ParseHostList(string hostsSubstring)
@@ -352,6 +378,10 @@ namespace MySqlX.XDevAPI
     #region IDisposable Support
     private bool disposedValue = false; // To detect redundant calls
 
+    /// <summary>
+    /// Disposes the current object. Disposes of the managed state if the flag is set to true.
+    /// </summary>
+    /// <param name="disposing">Flag to indicate if the managed state is to be disposed.</param>
     protected virtual void Dispose(bool disposing)
     {
       if (!disposedValue)
@@ -376,7 +406,7 @@ namespace MySqlX.XDevAPI
     // }
 
     /// <summary>
-    /// This code added to correctly implement the disposable pattern.
+    /// Disposes the current object. Code added to correctly implement the disposable pattern.
     /// </summary>
     public void Dispose()
     {
@@ -389,24 +419,25 @@ namespace MySqlX.XDevAPI
   }
 
   /// <summary>
-  /// Session state
+  /// Describes the state of the session.
   /// </summary>
   public enum SessionState
   {
-    // Summary:
-    //     The session is closed.
+    /// <summary>
+    /// The session is closed.
+    /// </summary>
     Closed = 0,
-    //
-    // Summary:
-    //     The session is open.
+    /// <summary>
+    /// The session is open.
+    /// </summary>
     Open = 1,
-    //
-    // Summary:
-    //     The session object is connecting to the data source.
+    /// <summary>
+    /// The session object is connecting to the data source.
+    /// </summary>
     Connecting = 2,
-    //
-    // Summary:
-    //     The session object is executing a command. 
+    /// <summary>
+    /// The session object is executing a command.
+    /// </summary>
     Executing = 4,
   }
 }

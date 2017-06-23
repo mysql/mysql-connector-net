@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -25,12 +25,27 @@ using System;
 namespace MySqlX.XDevAPI.Common
 {
   /// <summary>
-  /// Class to represent an error in this result
+  /// Class to represent an error in this result.
   /// </summary>
   public class ErrorInfo
   {
+    /// <summary>
+    /// Numeric code.
+    /// </summary>
     public UInt32 Code;
+    /// <summary>
+    /// Return code indicating the outcome of the executed SQL statement.
+    /// </summary>
     public string SqlState;
+    /// <summary>
+    /// Error message.
+    /// </summary>
     public string Message;
+
+    /// <summary>
+    /// Initializes a new instance of the ErrorInfo class.
+    /// </summary>
+    public ErrorInfo()
+    {}
   }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -27,7 +27,7 @@ using MySqlX.XDevAPI.CRUD;
 namespace MySqlX.XDevAPI.Relational
 {
   /// <summary>
-  /// Represents a chaining table select statement
+  /// Represents a chaining table select statement.
   /// </summary>
   public class TableSelectStatement : FilterableStatement<TableSelectStatement, Table, RowResult>
   {
@@ -40,10 +40,10 @@ namespace MySqlX.XDevAPI.Relational
     }
 
     /// <summary>
-    /// Set table aggregation
+    /// Sets table aggregation.
     /// </summary>
-    /// <param name="groupBy">Column list for aggregation</param>
-    /// <returns>This same TableSelectStatement object</returns>
+    /// <param name="groupBy">The column list for aggregation.</param>
+    /// <returns>This same <see cref="TableSelectStatement"/> object.</returns>
     public TableSelectStatement GroupBy(params string[] groupBy)
     {
       findParams.GroupBy = groupBy;
@@ -51,10 +51,10 @@ namespace MySqlX.XDevAPI.Relational
     }
 
     /// <summary>
-    /// Filter criteria for aggregated groups
+    /// Filters criteria for aggregated groups.
     /// </summary>
-    /// <param name="having">Filter criteria for aggregated groups</param>
-    /// <returns>This same TableSelectStatement object</returns>
+    /// <param name="having">The filter criteria for aggregated groups.</param>
+    /// <returns>This same <see cref="TableSelectStatement"/> object.</returns>
     public TableSelectStatement Having(string having)
     {
       findParams.GroupByCritieria = having;
@@ -62,20 +62,20 @@ namespace MySqlX.XDevAPI.Relational
     }
 
     /// <summary>
-    /// Executes the select statement
+    /// Executes the select statement.
     /// </summary>
-    /// <returns>Result of execution and data</returns>
+    /// <returns>A <see cref="Result"/> object containing the results of the execution and data.</returns>
     public override RowResult Execute()
     {
       return Execute(Target.Session.XSession.FindRows, this);
     }
 
     /// <summary>
-    /// Allows the user to set the limit and offset for the operation
+    /// Allows the user to set the limit and offset for the operation.
     /// </summary>
-    /// <param name="rows">How many items should be returned</param>
-    /// <param name="offset">How many items should be skipped</param>
-    /// <returns>This same TableSelectStatement object</returns>
+    /// <param name="rows">The number of items to be returned.</param>
+    /// <param name="offset">The number of items to be skipped.</param>
+    /// <returns>This same <see cref="TableSelectStatement"/> object.</returns>
     public TableSelectStatement Limit(long rows, long offset)
     {
       FilterData.Limit = rows;

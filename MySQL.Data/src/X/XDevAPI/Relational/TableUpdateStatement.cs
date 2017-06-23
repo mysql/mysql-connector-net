@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -31,7 +31,7 @@ using System.Threading.Tasks;
 namespace MySqlX.XDevAPI.Relational
 {
   /// <summary>
-  /// Represents a chaining table update statement
+  /// Represents a chaining table update statement.
   /// </summary>
   public class TableUpdateStatement : FilterableStatement<TableUpdateStatement, Table, Result>
   {
@@ -44,20 +44,20 @@ namespace MySqlX.XDevAPI.Relational
     }
 
     /// <summary>
-    /// Executes the update statement
+    /// Executes the update statement.
     /// </summary>
-    /// <returns>Result of the update statement</returns>
+    /// <returns>A <see cref="Result"/> object ocntaining the results of the update statement execution.</returns>
     public override Result Execute()
     {
       return Execute(Target.Session.XSession.UpdateRows, this);
     }
 
     /// <summary>
-    /// Column and value to be updated
+    /// Column and value to be updated.
     /// </summary>
-    /// <param name="tableField">Column name</param>
-    /// <param name="value">Value to be updated</param>
-    /// <returns>This same TableUpdateStatement object</returns>
+    /// <param name="tableField">Column name.</param>
+    /// <param name="value">Value to be updated.</param>
+    /// <returns>This same <see cref="TableUpdateStatement"/> object.</returns>
     public TableUpdateStatement Set(string tableField, object value)
     {
       updates.Add(new UpdateSpec(Mysqlx.Crud.UpdateOperation.Types.UpdateType.Set, tableField).SetValue(value));

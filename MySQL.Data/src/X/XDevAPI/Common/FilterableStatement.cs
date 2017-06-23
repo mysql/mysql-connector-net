@@ -28,11 +28,11 @@ using System;
 namespace MySqlX.XDevAPI.Common
 {
   /// <summary>
-  /// Abstract class for filterable statements
+  /// Abstract class for filterable statements.
   /// </summary>
-  /// <typeparam name="T">Filterable statement</typeparam>
-  /// <typeparam name="TTarget">Database object</typeparam>
-  /// <typeparam name="TResult">Type of Result</typeparam>
+  /// <typeparam name="T">The filterable statement.</typeparam>
+  /// <typeparam name="TTarget">The database object.</typeparam>
+  /// <typeparam name="TResult">The type of result.</typeparam>
   public abstract class FilterableStatement<T, TTarget, TResult> : TargetedBaseStatement<TTarget, TResult>
     where T : FilterableStatement<T, TTarget, TResult>
     where TTarget : DatabaseObject
@@ -41,10 +41,10 @@ namespace MySqlX.XDevAPI.Common
     private FilterParams filter = new FilterParams();
 
     /// <summary>
-    /// Constructor
+    /// Initializes a new instance of the FiltarableStatement class based on the target and condition.
     /// </summary>
-    /// <param name="target">Database object</param>
-    /// <param name="condition">Optional filter condition</param>
+    /// <param name="target">The database object</param>
+    /// <param name="condition">The optional filter condition.</param>
     public FilterableStatement(TTarget target, string condition = null) : base(target)
     {
       if (condition != null)
@@ -59,8 +59,8 @@ namespace MySqlX.XDevAPI.Common
     /// <summary>
     /// Allows the user to set the where condition for this operation.
     /// </summary>
-    /// <param name="condition">Where condition</param>
-    /// <returns>The implementing statement type</returns>
+    /// <param name="condition">The Where condition.</param>
+    /// <returns>The implementing statement type.</returns>
     public T Where(string condition)
     {
       filter.Condition = condition;
@@ -68,10 +68,10 @@ namespace MySqlX.XDevAPI.Common
     }
 
     /// <summary>
-    /// Allows the user to set the limit and offset for the operation
+    /// Allows the user to set the limit and offset for the operation.
     /// </summary>
-    /// <param name="rows">How many items should be returned</param>
-    /// <returns>The implementing statement type</returns>
+    /// <param name="rows">The number of items to be returned.</param>
+    /// <returns>The implementing statement type.</returns>
     public T Limit(long rows)
     {
       filter.Limit = rows;
@@ -80,11 +80,11 @@ namespace MySqlX.XDevAPI.Common
     }
 
     /// <summary>
-    /// Allows the user to set the sorting criteria for the operation.  The strings use normal SQL syntax like
-    /// "order ASC"  or "pages DESC, age ASC"
+    /// Allows the user to set the sorting criteria for the operation. The strings use normal SQL syntax like
+    /// "order ASC"  or "pages DESC, age ASC".
     /// </summary>
-    /// <param name="order">The order criteria</param>
-    /// <returns>The implementing statement type</returns>
+    /// <param name="order">The order criteria.</param>
+    /// <returns>A generic object representing the implementing statement type.</returns>
     public T OrderBy(params string[] order)
     {
       filter.OrderBy = order;
@@ -92,11 +92,11 @@ namespace MySqlX.XDevAPI.Common
     }
 
     /// <summary>
-    /// Binds the parameter values in filter expression
+    /// Binds the parameter values in filter expression.
     /// </summary>
-    /// <param name="parameterName">Parameter name</param>
-    /// <param name="value">Value of parameter</param>
-    /// <returns>The implementing statement type</returns>
+    /// <param name="parameterName">The parameter name.</param>
+    /// <param name="value">The value of the parameter.</param>
+    /// <returns>A generic object representing the implementing statement type.</returns>
     public T Bind(string parameterName, object value)
     {
       FilterData.Parameters.Add(parameterName, value);
@@ -104,20 +104,20 @@ namespace MySqlX.XDevAPI.Common
     }
 
     /// <summary>
-    /// Binds the parameter values in filter expression
+    /// Binds the parameter values in filter expression.
     /// </summary>
-    /// <param name="dbDocParams">Parameters as DbDoc object</param>
-    /// <returns>The implementing statement type</returns>
+    /// <param name="dbDocParams">The parameters as DbDoc object.</param>
+    /// <returns>A generic object representing the implementing statement type.</returns>
     public T Bind(DbDoc dbDocParams)
     {
       return Bind(dbDocParams.ToString());
     }
 
     /// <summary>
-    /// Binds the parameter values in filter expression
+    /// Binds the parameter values in filter expression.
     /// </summary>
-    /// <param name="jsonParams">Parameters as JSON string</param>
-    /// <returns>The implementing statement type</returns>
+    /// <param name="jsonParams">The parameters as JSON string.</param>
+    /// <returns>The implementing statement type.</returns>
     public T Bind(string jsonParams)
     {
       foreach(var item in JsonParser.Parse(jsonParams))
@@ -128,15 +128,21 @@ namespace MySqlX.XDevAPI.Common
     }
 
     /// <summary>
-    /// Binds the parameter values in filter expression
+    /// Binds the parameter values in filter expression.
     /// </summary>
-    /// <param name="jsonParams">Parameters as anonymous: new { param1 = value1, param2 = value2, ... }</param>
-    /// <returns>The implementing statement type</returns>
+    /// <param name="jsonParams">The parameters as anonymous: new { param1 = value1, param2 = value2, ... }.</param>
+    /// <returns>The implementing statement type.</returns>
     public T Bind(object jsonParams)
     {
       return Bind(new DbDoc(jsonParams));
     }
 
+    /// <summary>
+    /// Executes the statement.
+    /// </summary>
+    /// <param name="executeFunc">The function to execute.</param>
+    /// <param name="t">The generic object to use.</param>
+    /// <returns>A generic result object containing the results of the execution.</returns>
     protected virtual TResult Execute(Func<T, TResult> executeFunc, T t)
     {
       try
@@ -151,9 +157,9 @@ namespace MySqlX.XDevAPI.Common
 
     /// <summary>
     /// Clones the filterable data but Session and Target remain the
-    /// same
+    /// same.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A clone of this filterable statement.</returns>
     public virtual T Clone()
     {
       var t = (T)this.MemberwiseClone();

@@ -28,7 +28,7 @@ using System.Threading.Tasks;
 namespace MySqlX.XDevAPI.Common
 {
   /// <summary>
-  /// Represents a chaining view alter statement
+  /// Represents a chaining view alter statement.
   /// </summary>
   public class ViewAlterStatement : ViewCreateStatement
   {
@@ -38,7 +38,7 @@ namespace MySqlX.XDevAPI.Common
     }
 
     /// <summary>
-    /// Executes the view alter statement
+    /// Executes the view alter statement.
     /// </summary>
     /// <returns>Result of execution</returns>
     public override Result Execute()

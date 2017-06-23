@@ -2,6 +2,6 @@
 <Topics>
   <Topic id="connector-net-x-devapi-reference" visible="True" isDefault="true" isExpanded="true" isSelected="true" title="MySQL Connector/Net X DevAPI Reference">
     <Topic id="connector-net-x-devapi-installation" visible="True" title="Installation" />
-    <Topic id="connector-net-x-devapi-getting-started" visible="True" apiParentMode="InsertAfter" title="Getting started guide" />
+    <Topic id="connector-net-x-devapi-getting-started" visible="True" apiParentMode="InsertAfter" title="Getting Started" />
   </Topic>
 </Topics>

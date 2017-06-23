@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -27,31 +27,35 @@ using System.Threading.Tasks;
 namespace MySqlX.XDevAPI.Common
 {
   /// <summary>
-  /// Base abstract class for API statement
+  /// Base abstract class for API statement.
   /// </summary>
   /// <typeparam name="TResult"></typeparam>
   public abstract class BaseStatement<TResult> where TResult : BaseResult
   {
     /// <summary>
-    /// Constuctor
+    /// Initializes a new instance of the BaseStatement class based on the specified session.
     /// </summary>
-    /// <param name="session">Session where statement will be executed</param>
+    /// <param name="session">The session where the statement will be executed.</param>
     public BaseStatement(BaseSession session)
     {
       Session = session;
     }
 
     /// <summary>
-    /// Session that owns the statement
+    /// Gets the <see cref="Session"/> that owns the statement.
     /// </summary>
     public BaseSession Session { get; private set;  }
 
+    /// <summary>
+    /// Executes the base statements. This method is intended to be defined by child classes.
+    /// </summary>
+    /// <returns>A result object containing the details of the execution.</returns>
     public abstract TResult Execute();
 
     /// <summary>
-    /// Executes a statement asynchronously 
+    /// Executes a statement asynchronously.
     /// </summary>
-    /// <returns>Result object</returns>
+    /// <returns>A result object containing the details of the execution.</returns>
     public async Task<TResult> ExecuteAsync()
     {
       return await Task.Factory.StartNew<TResult>(() =>

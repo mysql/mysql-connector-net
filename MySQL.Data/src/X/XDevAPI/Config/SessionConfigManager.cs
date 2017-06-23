@@ -33,11 +33,20 @@ using System.Threading.Tasks;
 
 namespace MySqlX.XDevAPI.Config
 {
+  /// <summary>
+  /// Represents the user interface used to store/retrieve session configuration data.
+  /// </summary>
   public static class SessionConfigManager
   {
     private static IPersistenceHandler persistenceHandler = new DefaultPersistenceHandler();
     private static IPasswordHandler passwordHandler;
-
+    /// <summary>
+    /// Saves the session configuration.
+    /// </summary>
+    /// <param name="name">The session configuration name.</param>
+    /// <param name="uri">The session configuration uri.</param>
+    /// <param name="jsonAppData">The session configuation data in json format.</param>
+    /// <returns>A <see cref="SessionConfig"/> object set with the saved configuration data.</returns>
     public static SessionConfig Save(string name, string uri, string jsonAppData)
     {
       ValidateName(name);
@@ -49,7 +58,13 @@ namespace MySqlX.XDevAPI.Config
         json.SetValue("appdata", new DbDoc(jsonAppData));
       return Save(name, json);
     }
-
+    /// <summary>
+    /// Saves the session configuration.
+    /// </summary>
+    /// <param name="name">The session configuration name.</param>
+    /// <param name="uri">The session configuration uri.</param>
+    /// <param name="appData">The session configuration data as a dictionary.</param>
+    /// <returns>A <see cref="SessionConfig"/> object set with the saved configuration data.</returns>
     public static SessionConfig Save(string name, string uri, Dictionary<string, string> appData)
     {
       ValidateName(name);
@@ -59,7 +74,13 @@ namespace MySqlX.XDevAPI.Config
       appData?.ToList().ForEach(i => sessionConfig.SetAppData(i.Key, i.Value));
       return Save(sessionConfig);
     }
-
+    /// <summary>
+    /// Saves the session configuration.
+    /// </summary>
+    /// <param name="name">The session configuration name.</param>
+    /// <param name="json">The session configuration data as a <see cref="DbDoc"/> object.</param>
+    /// <returns>A <see cref="SessionConfig"/> object set with the saved configuration data.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
     public static SessionConfig Save(string name, DbDoc json)
     {
       ValidateName(name);
@@ -84,7 +105,13 @@ namespace MySqlX.XDevAPI.Config
       }
       return persistenceHandler.Save(name, json);
     }
-
+    /// <summary>
+    /// Saves the session configuration.
+    /// </summary>
+    /// <param name="name">The session configuration name.</param>
+    /// <param name="json">The session configuration data as a json string.</param>
+    /// <returns>A <see cref="SessionConfig"/> object set with the saved configuration data.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="json"/> is null or whitespace.</exception>
     public static SessionConfig Save(string name, string json)
     {
       ValidateName(name);
@@ -93,7 +120,13 @@ namespace MySqlX.XDevAPI.Config
 
       return Save(name, new DbDoc(json));
     }
-
+    /// <summary>
+    /// Saves the session configuration.
+    /// </summary>
+    /// <param name="name">The session configuration name.</param>
+    /// <param name="json">The session configuration data as a json object.</param>
+    /// <returns>A <see cref="SessionConfig"/> object set with the saved configuration data.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
     public static SessionConfig Save(string name, object json)
     {
       ValidateName(name);
@@ -102,7 +135,15 @@ namespace MySqlX.XDevAPI.Config
 
       return Save(name, new DbDoc(json));
     }
-
+    /// <summary>
+    /// Saves the session configuration.
+    /// </summary>
+    /// <param name="name">The session configuration name.</param>
+    /// <param name="data">The session configuration data as a dictionary.</param>
+    /// <returns>A <see cref="SessionConfig"/> object set with the saved configuration data.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="data"/> is null.</exception>
+    /// <exception cref="ArgumentException">Both 'uri' and 'host' were found in <paramref name="data"/> dictionary.</exception>
+    /// <exception cref="ArgumentNullException">'host' wasn't found in the <paramref name="data"/> dictionary.</exception>
     public static SessionConfig Save(string name, Dictionary<string, string> data)
     {
       ValidateName(name);
@@ -160,7 +201,12 @@ namespace MySqlX.XDevAPI.Config
 
       return Save(name, json);
     }
-
+    /// <summary>
+    /// Saves the session configuration.
+    /// </summary>
+    /// <param name="cfg">The <see cref="SessionConfig"/> object to save.</param>
+    /// <returns>A <see cref="SessionConfig"/> set with the saved session configuration data.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="cfg"/> is null.</exception>
     public static SessionConfig Save(SessionConfig cfg)
     {
       if (cfg == null)
@@ -174,7 +220,12 @@ namespace MySqlX.XDevAPI.Config
       }
       return Save(cfg.Name, new DbDoc(options));
     }
-
+    /// <summary>
+    /// Updates a specific session configuration.
+    /// </summary>
+    /// <param name="cfg">The <see cref="SessionConfig"/> object with the updated session configuration data.</param>
+    /// <returns>A <see cref="SessionConfig"/> object set with the updated session configuration data.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="cfg"/> is null.</exception>
     public static SessionConfig Update(SessionConfig cfg)
     {
       if (cfg == null)
@@ -183,7 +234,11 @@ namespace MySqlX.XDevAPI.Config
       Delete(cfg.Name);
       return Save(cfg);
     }
-
+    /// <summary>
+    /// Gets a specific session configuration.
+    /// </summary>
+    /// <param name="name">The session configuration name.</param>
+    /// <returns>The <see cref="SessionConfig"/> that matches the provided session configuration name.</returns>
     public static SessionConfig Get(string name)
     {
       ValidateName(name);
@@ -201,7 +256,11 @@ namespace MySqlX.XDevAPI.Config
       }
       return cfg;
     }
-
+    /// <summary>
+    /// Deletes a specific session configuration.
+    /// </summary>
+    /// <param name="name">The session configuration name.</param>
+    /// <returns>True if the session configuration was deleted, false otherwise.</returns>
     public static bool Delete(string name)
     {
       ValidateName(name);
@@ -215,17 +274,26 @@ namespace MySqlX.XDevAPI.Config
         return false;
       }
     }
-
+    /// <summary>
+    /// Retrives the name list of stored session configurations.
+    /// </summary>
+    /// <returns>A string list with the names of stored session configurations.</returns>
     public static List<string> List()
     {
       return persistenceHandler.List();
     }
-
+    /// <summary>
+    /// Sets the persistence handler.
+    /// </summary>
+    /// <param name="handler">The persistence handler.</param>
     public static void SetPersistenceHandler(IPersistenceHandler handler)
     {
       persistenceHandler = handler;
     }
-
+    /// <summary>
+    /// Sets the password handler.
+    /// </summary>
+    /// <param name="handler">The password handler.</param>
     public static void SetPasswordHandler(IPasswordHandler handler)
     {
       passwordHandler = handler;

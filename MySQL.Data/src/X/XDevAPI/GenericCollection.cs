@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -31,10 +31,22 @@ namespace MySqlX.XDevAPI
   /// </summary>
   public class Collection<T> : Collection
   {
+    /// <summary>
+    /// Initializes a new instance of the generic Collection class based on the specified schema 
+    /// and name.
+    /// </summary>
+    /// <param name="s">The <see cref="Schema"/> object associated to this collection.</param>
+    /// <param name="name">The name of the collection.</param>
     public Collection(Schema s, string name) : base(s, name)
     {
     }
 
+    /// <summary>
+    /// Creates an <see cref="AddStatement"/> containing the provided generic object. The add 
+    /// statement can be further modified before execution.
+    /// </summary>
+    /// <param name="value">The generic object to add.</param>
+    /// <returns>An <see cref="AddStatement"/> object containing the object to add.</returns>
     public AddStatement Add(T value)
     {
       return Add(new DbDoc(value));

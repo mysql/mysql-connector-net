@@ -29,7 +29,7 @@ using MySqlX.Sessions;
 namespace MySqlX.XDevAPI.CRUD
 {
   /// <summary>
-  /// Represents the result of an operation the includes a collection of documents
+  /// Represents the result of an operation that includes a collection of documents.
   /// </summary>
   public sealed class DocResult : BufferingResult<DbDoc>
   {

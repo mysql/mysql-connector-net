@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -23,14 +23,30 @@
 namespace MySqlX.XDevAPI.Common
 {
   /// <summary>
-  /// Class to represent a warning in this result
+  /// Represents a warning in this result.
   /// </summary>
   public class WarningInfo
   {
+    /// <summary>
+    /// Numeric value associated to the warning message.
+    /// </summary>
     public uint Code;
+
+    /// <summary>
+    /// Error message.
+    /// </summary>
     public string Message;
+
+    /// <summary>
+    /// Strict level for the warning.
+    /// </summary>
     public uint Level;
 
+    /// <summary>
+    /// Initializes a new instance of the WarningInfo class based on the code and msg.
+    /// </summary>
+    /// <param name="code">The code for the warning.</param>
+    /// <param name="msg">The error message for the warning.</param>
     public WarningInfo(uint code, string msg)
     {
       Code = code;

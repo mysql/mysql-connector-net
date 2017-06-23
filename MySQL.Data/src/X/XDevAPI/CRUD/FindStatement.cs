@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -26,7 +26,7 @@ using MySqlX.XDevAPI.Common;
 namespace MySqlX.XDevAPI.CRUD
 {
   /// <summary>
-  /// Represents a chaining collection find statement
+  /// Represents a chaining collection find statement.
   /// </summary>
   public class FindStatement : FilterableStatement<FindStatement, Collection, DocResult>
   {
@@ -39,10 +39,10 @@ namespace MySqlX.XDevAPI.CRUD
     }
 
     /// <summary>
-    /// List of column projections that shall be returned
+    /// List of column projections that shall be returned.
     /// </summary>
-    /// <param name="columns">List of columns</param>
-    /// <returns>This FindStatement object</returns>
+    /// <param name="columns">List of columns.</param>
+    /// <returns>This <see cref="FindStatement"/> object.</returns>
     public FindStatement Fields(params string[] columns)
     {
       projection = new List<string>(columns);
@@ -50,20 +50,20 @@ namespace MySqlX.XDevAPI.CRUD
     }
 
     /// <summary>
-    /// Executes the Find statement
+    /// Executes the Find statement.
     /// </summary>
-    /// <returns>Result of execution and data</returns>
+    /// <returns>A <see cref="DocResult"/> object containing the results of execution and data.</returns>
     public override DocResult Execute()
     {
       return Execute(Target.Session.XSession.FindDocs, this);
     }
 
     /// <summary>
-    /// Allows the user to set the limit and offset for the operation
+    /// Allows the user to set the limit and offset for the operation.
     /// </summary>
-    /// <param name="rows">How many items should be returned</param>
-    /// <param name="offset">How many items should be skipped</param>
-    /// <returns>The implementing statement type</returns>
+    /// <param name="rows">Number of items to be returned.</param>
+    /// <param name="offset">Number of items to be skipped.</param>
+    /// <returns>The implementing statement type.</returns>
     public FindStatement Limit(long rows, long offset)
     {
       FilterData.Limit = rows;

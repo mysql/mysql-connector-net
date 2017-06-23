@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -28,7 +28,7 @@ using System;
 namespace MySqlX.XDevAPI.CRUD
 {
   /// <summary>
-  /// Represent a chaining collection insert statement
+  /// Represents a chaining collection insert statement.
   /// </summary>
   public class AddStatement : CrudStatement<Result>
   {
@@ -39,10 +39,11 @@ namespace MySqlX.XDevAPI.CRUD
     }
 
     /// <summary>
-    /// Adds documents to the collection
+    /// Adds documents to the collection.
     /// </summary>
-    /// <param name="items">Documents to add</param>
-    /// <returns>This AddStatement object</returns>
+    /// <param name="items">The documents to add.</param>
+    /// <returns>This <see cref="AddStatement"/> object.</returns>
+    /// <exception cref="ArgumentNullException">The <paramref name="items"/> array is null.</exception>
     public AddStatement Add(params object[] items)
     {
       if (items == null)
@@ -53,9 +54,9 @@ namespace MySqlX.XDevAPI.CRUD
     }
 
     /// <summary>
-    /// Executes the Add statement
+    /// Executes the Add statement.
     /// </summary>
-    /// <returns>Result of execution</returns>
+    /// <returns>A <see cref="Result"/> object containing the results of the execution.</returns>
     public override Result Execute()
     {
       try

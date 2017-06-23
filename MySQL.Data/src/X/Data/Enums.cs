@@ -44,22 +44,55 @@ namespace MySqlX.DataAccess
     MacOS
   }
 
+  /// <summary>
+  /// Defines how the server processes the view.
+  /// </summary>
   public enum ViewAlgorithmEnum
   {
+    /// <summary>
+    /// The server chooses which algorithm to use.
+    /// </summary>
     Undefined = Mysqlx.Crud.ViewAlgorithm.Undefined,
+    /// <summary>
+    /// The text of a statement that refers to the view and the view definition are merged.
+    /// </summary>
     Merge = Mysqlx.Crud.ViewAlgorithm.Merge,
+    /// <summary>
+    /// The view is retrieved into a temporary table.
+    /// </summary>
     TempTable = Mysqlx.Crud.ViewAlgorithm.Temptable
   }
 
+  /// <summary>
+  /// Defines the security context in which the view is going to be
+  /// executed, this means that VIEW can be executed with current user permissions or
+  /// with permissions of the users who defined the VIEW.
+  /// </summary>
   public enum ViewSqlSecurityEnum
   {
+    /// <summary>
+    /// The view is executed under the invoker context.
+    /// </summary>
     Invoker = Mysqlx.Crud.ViewSqlSecurity.Invoker,
+    /// <summary>
+    /// The view is executed under the definer context.
+    /// </summary>
     Definer = Mysqlx.Crud.ViewSqlSecurity.Definer
   }
 
+  /// <summary>
+  /// Limits the write operations done on a `VIEW`
+  /// (`INSERT`, `UPDATE`, `DELETE`) to rows in which the `WHERE` clause is `TRUE`.
+  /// </summary>
   public enum ViewCheckOptionEnum
   {
+    /// <summary>
+    /// The view WHERE clause is checked, but no underlying views are checked.
+    /// </summary>
     Local = Mysqlx.Crud.ViewCheckOption.Local,
+    /// <summary>
+    /// The view WHERE clause is checked, then checking recurses to underlying views.
+    /// </summary>
     Cascaded = Mysqlx.Crud.ViewCheckOption.Cascaded
   }
 }

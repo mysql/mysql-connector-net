@@ -27,7 +27,10 @@ using System.Collections.ObjectModel;
 
 namespace MySqlX.XDevAPI.Common
 {
-  public abstract class BaseResult 
+  /// <summary>
+  /// Base abstract class that defines elements inherited by all result types.
+  /// </summary>
+  public abstract class BaseResult
   {
     private List<WarningInfo> _warnings = new List<WarningInfo>();
     internal ulong _recordsAffected;
@@ -53,6 +56,9 @@ namespace MySqlX.XDevAPI.Common
         session.ActiveResult = this;
     }
 
+    /// <summary>
+    /// Gets the <see cref="ProtocolBase"/> object of the session.
+    /// </summary>
     protected ProtocolBase Protocol
     {
       get { return _session?.GetProtocol(); }
@@ -64,7 +70,7 @@ namespace MySqlX.XDevAPI.Common
     }
 
     /// <summary>
-    /// Warnings derived from statement execution
+    /// Gets a read-only collection of <see cref="WarningInfo"/> objects derived from statement execution.
     /// </summary>
 #if NET_45_OR_GREATER
     public IReadOnlyList<WarningInfo> Warnings
@@ -75,6 +81,9 @@ namespace MySqlX.XDevAPI.Common
       get { return _warnings.AsReadOnly(); }
     }
 
+    /// <summary>
+    /// No action is performed by this method. It is intended to be overriden by child classes if required.
+    /// </summary>
     protected virtual void Buffer() { }
   }
 }
