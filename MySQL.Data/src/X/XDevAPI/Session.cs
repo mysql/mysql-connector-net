@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2017 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -27,7 +27,7 @@ using MySqlX.XDevAPI.Relational;
 namespace MySqlX.XDevAPI
 {
   /// <summary>
-  /// Represents a single MySql server session
+  /// Represents a single server session.
   /// </summary>
   public class Session : BaseSession
   {
@@ -44,19 +44,19 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Returns a SqlStatement object that can be used to execute the given SQL
+    /// Returns a <see cref="SqlStatement"/> object that can be used to execute the given SQL.
     /// </summary>
-    /// <param name="sql">The SQL to execute</param>
-    /// <returns>SqlStatement object</returns>
+    /// <param name="sql">The SQL to execute.</param>
+    /// <returns>A <see cref="SqlStatement"/> object set with the provided SQL.</returns>
     public SqlStatement SQL(string sql)
     {
       return new SqlStatement(this, sql);
     }
 
     /// <summary>
-    /// Sets the schema in the database
+    /// Sets the schema in the database.
     /// </summary>
-    /// <param name="schema">Schema name to be set</param>
+    /// <param name="schema">The schema name to be set.</param>
     public void SetCurrentSchema(string schema)
     {
       InternalSession.ExecuteSqlNonQuery($"USE `{schema}`");
@@ -64,9 +64,9 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Executes a query in the database to get the current schema
+    /// Executes a query in the database to get the current schema.
     /// </summary>
-    /// <returns>Current Database Schema object or null if any schema is selected</returns>
+    /// <returns>Current database <see cref="Schema"/> object or null if no schema is selected.</returns>
     public Schema GetCurrentSchema()
     {
       string schemaName = (string)InternalSession.ExecuteQueryAsScalar("SELECT DATABASE()");

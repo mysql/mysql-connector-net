@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -27,7 +27,7 @@ using MySqlX.XDevAPI.Common;
 namespace MySqlX.XDevAPI.CRUD
 {
   /// <summary>
-  /// Represents a chaining collection modify statement
+  /// Represents a chaining collection modify statement.
   /// </summary>
   public class ModifyStatement : FilterableStatement<ModifyStatement, Collection, Result>
   {
@@ -39,11 +39,11 @@ namespace MySqlX.XDevAPI.CRUD
     internal List<UpdateSpec> Updates;
 
     /// <summary>
-    /// Sets key and value
+    /// Sets key and value.
     /// </summary>
-    /// <param name="docPath">Document path key</param>
-    /// <param name="value">New value</param>
-    /// <returns>This ModifyStatement object</returns>
+    /// <param name="docPath">Document path key.</param>
+    /// <param name="value">New value.</param>
+    /// <returns>This <see cref="ModifyStatement"/> object.</returns>
     public ModifyStatement Set(string docPath, object value)
     {
       Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ItemSet, docPath).SetValue(value));
@@ -51,11 +51,11 @@ namespace MySqlX.XDevAPI.CRUD
     }
 
     /// <summary>
-    /// Changes value for a key
+    /// Changes value for a key.
     /// </summary>
-    /// <param name="docPath">Document path key</param>
-    /// <param name="value">New value</param>
-    /// <returns>This ModifyStatement object</returns>
+    /// <param name="docPath">Document path key.</param>
+    /// <param name="value">New value.</param>
+    /// <returns>This <see cref="ModifyStatement"/> object.</returns>
     public ModifyStatement Change(string docPath, object value)
     {
       Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ItemReplace, docPath).SetValue(value));
@@ -63,10 +63,10 @@ namespace MySqlX.XDevAPI.CRUD
     }
 
     /// <summary>
-    /// Removes a key/value from a document
+    /// Removes a key/value from a document.
     /// </summary>
-    /// <param name="docPath"></param>
-    /// <returns>This ModifyStatement object</returns>
+    /// <param name="docPath">Document path key.</param>
+    /// <returns>This <see cref="ModifyStatement"/> object.</returns>
     public ModifyStatement Unset(string docPath)
     {
       Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ItemRemove, docPath));
@@ -74,9 +74,9 @@ namespace MySqlX.XDevAPI.CRUD
     }
 
     /// <summary>
-    /// Executes the modify statement
+    /// Executes the modify statement.
     /// </summary>
-    /// <returns>Result of execution</returns>
+    /// <returns>A <see cref="Result"/> object containg the results of the execution.</returns>
     public override Result Execute()
     {
       return Execute(Target.Session.XSession.ModifyDocs, this);

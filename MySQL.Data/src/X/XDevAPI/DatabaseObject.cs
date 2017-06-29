@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -24,7 +24,7 @@
 namespace MySqlX.XDevAPI
 {
   /// <summary>
-  /// Represents a database object
+  /// Represents a database object.
   /// </summary>
   public abstract class DatabaseObject
   {
@@ -35,7 +35,7 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Session that owns the database object
+    /// Gets the session that owns the database object.
     /// </summary>
     public BaseSession Session
     {
@@ -43,19 +43,19 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Schema that owns the database object
+    /// Gets the schema that owns the database object.
     /// </summary>
     public Schema Schema { get; internal set; }
 
     /// <summary>
-    /// Database object name
+    /// Gets the database object name.
     /// </summary>
     public string Name { get; internal set; }
 
     /// <summary>
-    /// Verifies if database object exists in database
+    /// Verifies that the database object exists in the database.
     /// </summary>
-    /// <returns>True if the object exists in database</returns>
+    /// <returns>True if the object exists in database, false otherwise.</returns>
     public abstract bool ExistsInDatabase();
   }
 }

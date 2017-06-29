@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -24,8 +24,23 @@ using System;
 
 namespace MySqlX.XDevAPI
 {
+  /// <summary>
+  /// Defines elements that allow to iterate through the contents of various items.
+  /// </summary>
   public class Iterator
   {
+    /// <summary>
+    /// Initializes a new instance of the Iterator class.
+    /// </summary>
+    public Iterator()
+    {}
+
+    /// <summary>
+    /// This method is not yet implemented.
+    /// </summary>
+    /// <param name="p"></param>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException">Exception is always thrown since the body of the method is not yet implemented.</exception>
     public Iterator Open(string p)
     {
       throw new NotImplementedException();

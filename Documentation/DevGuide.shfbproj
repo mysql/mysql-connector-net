@@ -21,6 +21,7 @@
       <Filter entryType="Namespace" fullName="MySql.Data.Common" isExposed="False" />
       <Filter entryType="Namespace" fullName="MySql.Data.MySqlClient" isExposed="False" />
       <Filter entryType="Namespace" fullName="MySql.Data.MySqlClient.Authentication" isExposed="False" />
+      <Filter entryType="Namespace" fullName="MySql.Data.MySqlClient.Interceptors" isExposed="False" />
       <Filter entryType="Namespace" fullName="MySql.Data.MySqlClient.Memcached" isExposed="False" />
       <Filter entryType="Namespace" fullName="MySql.Data.MySqlClient.Replication" isExposed="False" />
       <Filter entryType="Namespace" fullName="MySql.Data.MySqlClient.X.XDevAPI.Common" isExposed="False" />
@@ -47,7 +48,7 @@
     <RootNamespaceTitle>Reference</RootNamespaceTitle>
     <HelpTitle>MySQL Connector/Net</HelpTitle>
     <CopyrightHref>http://www.mysql.com</CopyrightHref>
-    <CopyrightText>Copyright &amp;#169%3b 2004, 2017, Oracle and/or its affiliates.  All rights reserved.</CopyrightText>
+    <CopyrightText>Copyright &amp;#169%3b 2016, 2017, Oracle and/or its affiliates.  All rights reserved.</CopyrightText>
     <FeedbackEMailAddress>support%40oracle.com</FeedbackEMailAddress>
     <PresentationStyle>VS2013</PresentationStyle>
     <NamingMethod>MemberName</NamingMethod>
@@ -93,7 +94,7 @@
     <Folder Include="Users Guide\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Users Guide\GettingStartedGuide.aml" />
+    <None Include="Users Guide\GettingStarted.aml" />
     <None Include="Users Guide\connector-net-install.aml" />
     <None Include="Users Guide\connector-net-core.aml" />
   </ItemGroup>

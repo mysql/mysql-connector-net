@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -29,7 +29,7 @@ using MySql.Data.MySqlClient.X.XDevAPI.Common;
 namespace MySqlX.XDevAPI.Relational
 {
   /// <summary>
-  /// Represents a table column
+  /// Represents a table column.
   /// </summary>
   public class Column
   {
@@ -37,61 +37,67 @@ namespace MySqlX.XDevAPI.Relational
     internal UInt64 _collationNumber;
 
     /// <summary>
-    /// Original column name
+    /// Gets the original column name.
     /// </summary>
     public string ColumnName { get; internal set; }
     /// <summary>
-    /// Column name alias
+    /// Gets the alias of the column name.
     /// </summary>
     public string ColumnLabel { get; internal set; }
     /// <summary>
-    /// Table name the column orginates from
+    /// Gets the table name the column orginates from.
     /// </summary>
     public string TableName { get; internal set; }
     /// <summary>
-    /// Table name alias
+    /// Gets the alias of the table name .
     /// </summary>
     public string TableLabel { get; internal set; }
     /// <summary>
-    /// Schema name the column originates from
+    /// Gets the schema name the column originates from.
     /// </summary>
     public string SchemaName { get; internal set; }
     /// <summary>
-    /// Catalog the schema originates from.
-    /// In MySQL protocol this is `def` by default
+    /// Gets the catalog the schema originates from.
+    /// In MySQL protocol this is `def` by default.
     /// </summary>
     public string DatabaseName { get; internal set;  }
     /// <summary>
-    /// Collation used in column
+    /// Gets the collation used for this column.
     /// </summary>
     public string CollationName { get; internal set; }
     /// <summary>
-    /// Character set used in column
+    /// Gets the character set used for this column.
     /// </summary>
     public string CharacterSetName { get; internal set; }
     /// <summary>
-    /// Column lenght
+    /// Gets the column length.
     /// </summary>
     public UInt32 Length { get; internal set; }
     /// <summary>
-    /// Fractional decimal digits for floating point and fixed point numbers
+    /// Gets the fractional decimal digits for floating point and fixed point numbers.
     /// </summary>
     public UInt32 FractionalDigits { get; internal set; }
     /// <summary>
-    /// Mysql data type
+    /// Gets the Mysql data type.
     /// </summary>
     public ColumnType Type { get; internal set; }
     /// <summary>
-    /// .NET Clr data type
+    /// Gets the .NET Clr data type.
     /// </summary>
     public Type ClrType { get; internal set; }
     /// <summary>
-    /// True if it's a signed number
+    /// True if it's a signed number.
     /// </summary>
     public bool IsNumberSigned { get; internal set; }
     /// <summary>
-    /// True if column is UINT zerofill or BYTES rightpad
+    /// True if column is UINT zerofill or BYTES rightpad.
     /// </summary>
     public bool IsPadded { get; internal set; }
+
+    /// <summary>
+    /// Initializes a new instance of the Column class.
+    /// </summary>
+    public Column()
+    {}
   }
 }

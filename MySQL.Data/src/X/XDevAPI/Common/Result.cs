@@ -29,7 +29,7 @@ using MySql.Data;
 namespace MySqlX.XDevAPI.Common
 {
   /// <summary>
-  /// Represents a general statement result
+  /// Represents a general statement result.
   /// </summary>
   public class Result : BaseResult
   {
@@ -40,7 +40,7 @@ namespace MySqlX.XDevAPI.Common
     }
 
     /// <summary>
-    /// The number of records affected by the statement that generated this result.
+    /// Gets the number of records affected by the statement that generated this result.
     /// </summary>
     public UInt64 RecordsAffected
     {
@@ -48,7 +48,7 @@ namespace MySqlX.XDevAPI.Common
     }
 
     /// <summary>
-    /// The last inserted id (if there is one) by the statement that generated this result.
+    /// Gets the last inserted identifier (if there is one) by the statement that generated this result.
     /// </summary>
     public UInt64 AutoIncrementValue
     {
@@ -56,9 +56,10 @@ namespace MySqlX.XDevAPI.Common
     }
 
     /// <summary>
-    /// Returns the document generated Id.
-    /// For multiple document Ids use DocumentIds.
+    /// Gets the generated identifier of the document.
+    /// For multiple document identifiers use DocumentIds.
     /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">More than 1 document identifier was generated.</exception>
     public string DocumentId
     {
       get
@@ -72,7 +73,7 @@ namespace MySqlX.XDevAPI.Common
     }
 
     /// <summary>
-    /// Returns a list of generated Ids in the order of the Add() calls
+    /// Gets the list of generated identifiers in the order of the Add() calls.
     /// </summary>
 #if NET_45_OR_GREATER
     public IReadOnlyList<string> DocumentIds

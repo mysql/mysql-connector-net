@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -26,13 +26,24 @@ using System.Collections.Generic;
 namespace MySqlX.Serialization
 {
   /// <summary>
-  /// Main class for parsing json strings
+  /// Main class for parsing json strings.
   /// </summary>
   public  class JsonParser
   {
     private int _pos = 0;
     private String _input;
 
+    /// <summary>
+    /// Initializes a new instance of the JsonParser class.
+    /// </summary>
+    public JsonParser()
+    {}
+
+    /// <summary>
+    /// Parses the received string into a dictionary.
+    /// </summary>
+    /// <param name="s">The string to parse.</param>
+    /// <returns>A <see cref="Dictionary{TKey, TValue}"/> object that represents the parsed string.</returns>
     public static Dictionary<string, object> Parse(string s)
     {
       JsonParser p = new JsonParser();

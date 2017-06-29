@@ -4,13 +4,11 @@
     <Description>MySql.Data.MySqlClient .Net Core Class Library</Description>
     <Copyright>Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <VersionPrefix>8.0.8</VersionPrefix>
+    <Version>8.0.8-dmr</Version>
     <Authors>Oracle</Authors>
     <AssemblyName>MySql.Data</AssemblyName>
     <TargetFrameworks>netstandard1.6;net452</TargetFrameworks>
     <PackageId>MySql.Data</PackageId>
-    <PackageSuffix>-m7</PackageSuffix>
-    <PackageVersion>$(VersionPrefix)$(PackageSuffix)</PackageVersion>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET;netcore;.Net Core;MySql Conector/Net Core;coreclr;C/NET;C/Net Core</PackageTags>
     <PackageReleaseNotes>Review ReleaseNotes.txt for details.</PackageReleaseNotes>
     <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>

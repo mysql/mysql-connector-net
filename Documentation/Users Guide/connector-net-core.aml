@@ -52,9 +52,8 @@
           </listItem>
         </list>
         <para>
-    This document is intended as a user's guide to Connector/Net and
-    includes a full syntax reference. 
-	  </para>        
+    This document is intended as a reference guide to the Connector/Net implementation of the X DevAPI.
+	  </para>
       </content>
     </section>
   </developerConceptualDocument>

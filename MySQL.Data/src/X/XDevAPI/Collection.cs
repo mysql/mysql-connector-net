@@ -29,7 +29,7 @@ using MySql.Data;
 namespace MySqlX.XDevAPI
 {
   /// <summary>
-  /// Represents a collection of documents
+  /// Represents a collection of documents.
   /// </summary>
   public class Collection : DatabaseObject
   {
@@ -46,11 +46,14 @@ namespace MySqlX.XDevAPI
     #region Add Operations
 
     /// <summary>
-    /// Add one ore more objects to the collection.  This method can take anonymous objects, 
-    /// domain objects, or just plain JSON strings.
+    /// Creates an <see cref="AddStatement"/> containing the provided objects. The add statement
+    /// can be further modified before execution. This method is intended to add one or more
+    /// items to a collection and can take anonymous objects, domain objects, or just plain
+    /// JSON strings.
     /// </summary>
-    /// <param name="items">The objects to insert</param>
-    /// <returns>AddStatement</returns>
+    /// <param name="items">The objects to add.</param>
+    /// <returns>An <see cref="AddStatement"/> object containing the objects to add.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="items"/> is null.</exception>
     public AddStatement Add(params object[] items)
     {
       if (items == null)
@@ -66,12 +69,13 @@ namespace MySqlX.XDevAPI
     #region Remove Operations
 
     /// <summary>
-    /// Creates a remove statement with the given condition.  The RemoveStatement
-    /// can then be further modified before execution.  This method is intended to remove
+    /// Creates a <see cref="RemoveStatement"/> with the given condition. The remove statement
+    /// can then be further modified before execution. This method is intended to remove
     /// one or more documents from a collection.
     /// </summary>
-    /// <param name="condition">The condition to match documents</param>
-    /// <returns>RemoveStatement</returns>
+    /// <param name="condition">The condition to match documents.</param>
+    /// <returns>A <see cref="RemoveStatement"/> object set with the given condition.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="condition"/> is null or whitespace.</exception>
     public RemoveStatement Remove(string condition)
     {
       if (string.IsNullOrWhiteSpace(condition))
@@ -82,10 +86,12 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Remove a single document from this collectoin.  The id can really be of any type.
+    /// Creates a <see cref="RemoveStatement"/> with the given identifier. The remove statement
+    /// can then be further modified before execution. This method is intended to remove
+    /// a single document from a collection. The identifier can really be of any type.
     /// </summary>
-    /// <param name="id">The id to match the document</param>
-    /// <returns>RemoveStatement</returns>
+    /// <param name="id">The identifier to match the document.</param>
+    /// <returns>A <see cref="RemoveStatement"/> object set with the given identifier.</returns>
     public RemoveStatement Remove(object id)
     {
       string key = id is string ?
@@ -96,10 +102,13 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Remove a single document from this collection.
+    /// Creates a <see cref="RemoveStatement"/> containing the identifier of the provided document. 
+    /// The remove statement can then be further modified before execution. This method is intended 
+    /// to remove a single document from a collection.
     /// </summary>
-    /// <param name="doc">The DbDoc representing the document to remove</param>
-    /// <returns>RemoveStatement</returns>
+    /// <param name="doc">The <see cref="DbDoc"/> representing the document to remove.</param>
+    /// <returns>A <see cref="RemoveStatement"/> object set with the given document's identifier.</returns>
+    /// <exception cref="InvalidOperationException">No identifier for the document was provided.</exception>
     public RemoveStatement Remove(DbDoc doc)
     {
       if (!doc.HasId)
@@ -112,10 +121,13 @@ namespace MySqlX.XDevAPI
     #region Modify Operations
 
     /// <summary>
-    /// Modify a single document from this collection.
+    /// Creates a <see cref="ModifyStatement"/> with the given condition. The modify statement
+    /// can be further modified before execution. This method is intended to modify one or more 
+    /// documents from a collection.
     /// </summary>
-    /// <param name="condition">The condition to match documents</param>
-    /// <returns>ModifyStatement object</returns>
+    /// <param name="condition">The condition to match documents.</param>
+    /// <returns>A <see cref="ModifyStatement"/> object set with the given condition.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="condition"/> is null or whitespace.</exception>
     public ModifyStatement Modify(string condition)
     {
       if (string.IsNullOrWhiteSpace(condition))
@@ -130,17 +142,18 @@ namespace MySqlX.XDevAPI
     /// <summary>
     /// Returns the number of documents in this collection on the server.
     /// </summary>
-    /// <returns>Number of documents</returns>
+    /// <returns>The number of documents.</returns>
     public long Count()
     {
       return Session.XSession.TableCount(Schema, Name);
     }
 
     /// <summary>
-    /// Finds documents in current collection
+    /// Creates a <see cref="FindStatement"/> with the given condition. The find statement can be
+    /// further modified before execution. This method is intened to find documents in a collection.
     /// </summary>
-    /// <param name="condition">Optional condition to match documents</param>
-    /// <returns>FindStatement object</returns>
+    /// <param name="condition">Optional condition to match documents.</param>
+    /// <returns>A <see cref="FindStatement"/> object set with the given condition.</returns>
     public FindStatement Find(string condition = null)
     {
       FindStatement stmt = new FindStatement(this, condition);
@@ -148,30 +161,30 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Creates a collection index
+    /// Creates a collection index.
     /// </summary>
-    /// <param name="indexName">Index name</param>
-    /// <param name="isUnique">True if the index is unique</param>
-    /// <returns>CreateCollectionIndexStatement object</returns>
+    /// <param name="indexName">The index name.</param>
+    /// <param name="isUnique">True if the index is unique, false otherwise.</param>
+    /// <returns>A <see cref="CreateCollectionIndexStatement"/> object set with the given index name and the isUnique flag.</returns>
     public CreateCollectionIndexStatement CreateIndex(string indexName, bool isUnique)
     {
       return new CreateCollectionIndexStatement(this, indexName, isUnique);
     }
 
     /// <summary>
-    /// Drops a collection index
+    /// Drops a collection index.
     /// </summary>
-    /// <param name="indexName">Index name</param>
-    /// <returns>Result of drop statement</returns>
+    /// <param name="indexName">The index name.</param>
+    /// <returns>A <see cref="Result"/> object containing the result of the index drop.</returns>
     public Result DropIndex(string indexName)
     {
       return Session.XSession.DropCollectionIndex(this.Schema.Name, this.Name, indexName);
     }
 
     /// <summary>
-    /// Verifies if current collection exists in server schema
+    /// Verifies if the current collection exists in the server schema.
     /// </summary>
-    /// <returns>True if exists</returns>
+    /// <returns>True if the collection exists, false otherwise.</returns>
     public override bool ExistsInDatabase()
     {
       return Session.XSession.TableExists(Schema, Name);

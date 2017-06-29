@@ -26,7 +26,7 @@ namespace MySqlX.XDevAPI.Relational
 {
 
   /// <summary>
-  /// Inherits from InternalRowResult. Creates a resultset that contains rows of data.  
+  /// Inherits from <see cref="InternalRowResult"/>. Creates a resultset that contains rows of data.
   /// </summary>
   public sealed class RowResult : InternalRowResult
     {

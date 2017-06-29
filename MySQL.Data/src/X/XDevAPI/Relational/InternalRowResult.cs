@@ -31,7 +31,7 @@ using System.Collections.ObjectModel;
 namespace MySqlX.XDevAPI.Relational
 {
   /// <summary>
-  /// Represents a resultset that contains rows of data.  
+  /// Represents a resultset that contains rows of data.
   /// </summary>
   public class InternalRowResult : BufferingResult<Row>
   {
@@ -40,7 +40,7 @@ namespace MySqlX.XDevAPI.Relational
     }
 
     /// <summary>
-    /// The columns of this resulset
+    /// Gets the columns of this resulset.
     /// </summary>
 #if NET_45_OR_GREATER
     public IReadOnlyList<Column> Columns
@@ -52,7 +52,7 @@ namespace MySqlX.XDevAPI.Relational
     }
 
     /// <summary>
-    /// The rows of this resultset.  This collection will be incomplete unless all the rows have been read
+    /// Gets the rows of this resultset. This collection will be incomplete unless all the rows have been read
     /// either by using the Next method or the Buffer method.
     /// </summary>
 #if NET_45_OR_GREATER
@@ -65,10 +65,10 @@ namespace MySqlX.XDevAPI.Relational
     }
 
     /// <summary>
-    /// Allows getting the value of the column value at the current index.
+    /// Gets the value of the column value at the current index.
     /// </summary>
-    /// <param name="index">Column index</param>
-    /// <returns>CLR  value at the column index</returns>
+    /// <param name="index">The column index.</param>
+    /// <returns>The CLR value at the column index.</returns>
     public object this[int index]
     {
       get { return GetValue(index); }
@@ -77,8 +77,8 @@ namespace MySqlX.XDevAPI.Relational
     /// <summary>
     /// Allows getting the value of the column value at the current index.
     /// </summary>
-    /// <param name="index">Column index</param>
-    /// <returns>CLR  value at the column index</returns>
+    /// <param name="index">The column index.</param>
+    /// <returns>The CLR value at the column index.</returns>
     private object GetValue(int index)
     {
       if (_position == _items.Count)
@@ -87,10 +87,10 @@ namespace MySqlX.XDevAPI.Relational
     }
 
     /// <summary>
-    /// Returns the index of the given column name
+    /// Returns the index of the given column name.
     /// </summary>
-    /// <param name="name">Name of the column to find</param>
-    /// <returns>Numeric index of column</returns>
+    /// <param name="name">The name of the column to find.</param>
+    /// <returns>The numeric index of column.</returns>
     public int IndexOf(string name)
     {
       if (!NameMap.ContainsKey(name))

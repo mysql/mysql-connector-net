@@ -25,16 +25,17 @@ while (foundDocs.Next())
 	Console.WriteLine(foundDocs.Current["Name"]);
 	Console.WriteLine(foundDocs.Current["_id"]);
 }
-    </sampleCode>   
+    </sampleCode>
   </item>
-    <item id="ClassDefinition2#Define">
-    <sampleCode language="CSharp">  
+  <item id="ClassDefinition2#Define">
+    <sampleCode language="CSharp">
   //Insert a new document with an id
 var obj = new { _id = "UKN", Name = "Unknown" };
 Result r = myCollection.Add(obj).Execute();
- 
-- How to update an existing document
-     
+    </sampleCode>
+  </item>
+  <item id="ClassDefinition3#Define">
+    <sampleCode language="CSharp">
 // using the same docParams object previously created
 docParams = new DbDoc(new { name1 = "Unknown", _id1 = "UKN" });
 r = myCollection.Modify("_id = :Id").Bind("id", "UKN").Set("GNP", "3308").Execute();
@@ -47,27 +48,27 @@ if (r.RecordsAffected == 1)
      Console.WriteLine(foundDocs.Current["_id"]);
      Console.WriteLine(foundDocs.Current["GNP"]);
   }
-}  
- </sampleCode>   
+}
+    </sampleCode>
   </item>
-   <item id="ClassDefinition3#Define">
-    <sampleCode language="CSharp">    
+  <item id="ClassDefinition4#Define">
+    <sampleCode language="CSharp">
 r = myCollection.Remove("_id = :id").Bind("id", "UKN").Execute();
-   </sampleCode>   
+     </sampleCode>
   </item>
- <item id="ClassDefinition4#Define">
-<sampleCode language="CSharp">      
-  session.Close(); 
-</sampleCode>   
-</item>
-<item id="ClassDefinition5#Define">
-<sampleCode language="CSharp">
+  <item id="ClassDefinition5#Define">
+    <sampleCode language="CSharp">
+  session.Close();
+    </sampleCode>
+  </item>
+  <item id="ClassDefinition6#Define">
+    <sampleCode language="CSharp">
 using MySql.XDevAPI;
 using MySql.XDevAPI.Common;
 using MySql.XDevAPI.CRUD;
 using System;
- 
- 
+
+
 namespace MySQLX_Tutorial
 {
   class Program
@@ -113,16 +114,16 @@ namespace MySQLX_Tutorial
  
       // delete a row in a document
       r = myCollection.Remove("_id = :id").Bind("id", "UKN").Execute();     
- 
+
       //close the session
       session.Close();
- 
+
       Console.ReadKey();
- 
+
     }
   }
 }
-</sampleCode>   
-</item>
+    </sampleCode>
+  </item>
 
 </examples>

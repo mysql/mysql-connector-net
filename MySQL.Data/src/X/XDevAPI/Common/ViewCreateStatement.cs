@@ -31,7 +31,7 @@ using System.Threading.Tasks;
 namespace MySqlX.XDevAPI.Common
 {
   /// <summary>
-  /// Represents a chaining view create statement
+  /// Represents a chaining view create statement.
   /// </summary>
   public class ViewCreateStatement : TargetedBaseStatement<Schema, Result>
   {
@@ -52,10 +52,10 @@ namespace MySqlX.XDevAPI.Common
     }
 
     /// <summary>
-    /// Defines the column names (alias) for the view
+    /// Defines the column names (alias) for the view.
     /// </summary>
-    /// <param name="columns">Alias list for the view columns</param>
-    /// <returns>ViewCreate chaining object</returns>
+    /// <param name="columns">Alias list for the view columns.</param>
+    /// <returns>ViewCreate chaining object.</returns>
     public ViewCreateStatement Columns(params string[] columns)
     {
       this.columns = columns;
@@ -63,10 +63,10 @@ namespace MySqlX.XDevAPI.Common
     }
 
     /// <summary>
-    /// Defines the algorithm of the view
+    /// Defines the algorithm of the view.
     /// </summary>
-    /// <param name="algorithm">View algorithm</param>
-    /// <returns>ViewCreate chaining object</returns>
+    /// <param name="algorithm">View algorithm.</param>
+    /// <returns>ViewCreate chaining object.</returns>
     public ViewCreateStatement Algorithm(ViewAlgorithmEnum algorithm)
     {
       this.algorithm = algorithm;
@@ -74,10 +74,10 @@ namespace MySqlX.XDevAPI.Common
     }
 
     /// <summary>
-    /// Defines the security scheme of the view
+    /// Defines the security scheme of the view.
     /// </summary>
-    /// <param name="sqlSecurity">View security scheme</param>
-    /// <returns>ViewCreate chaining object</returns>
+    /// <param name="sqlSecurity">View security scheme.</param>
+    /// <returns>ViewCreate chaining object.</returns>
     public ViewCreateStatement Security(ViewSqlSecurityEnum sqlSecurity)
     {
       this.sqlSecurity = sqlSecurity;
@@ -85,10 +85,10 @@ namespace MySqlX.XDevAPI.Common
     }
 
     /// <summary>
-    /// Represents the definer for a view
+    /// Represents the definer for a view.
     /// </summary>
-    /// <param name="user">Definer user</param>
-    /// <returns>ViewCreate chaining object</returns>
+    /// <param name="user">Definer user.</param>
+    /// <returns>ViewCreate chaining object.</returns>
     public ViewCreateStatement Definer(string user)
     {
       this.definer = user;
@@ -96,10 +96,10 @@ namespace MySqlX.XDevAPI.Common
     }
 
     /// <summary>
-    /// Defines the table Select statement used to generate the view
+    /// Defines the table Select statement used to generate the view.
     /// </summary>
-    /// <param name="selectFunction">Table select statement</param>
-    /// <returns>ViewCreate chaining object</returns>
+    /// <param name="selectFunction">Table select statement.</param>
+    /// <returns>ViewCreate chaining object.</returns>
     public ViewCreateStatement DefinedAs(TableSelectStatement selectFunction)
     {
       this.queryStatement = new QueryStatement(selectFunction.Clone());
@@ -107,10 +107,10 @@ namespace MySqlX.XDevAPI.Common
     }
 
     /// <summary>
-    /// Sets insert and update constraints on the view
+    /// Sets insert and update constraints on the view.
     /// </summary>
-    /// <param name="checkOption">Check option</param>
-    /// <returns>ViewCreate chaining object</returns>
+    /// <param name="checkOption">Check option.</param>
+    /// <returns>ViewCreate chaining object.</returns>
     public ViewCreateStatement WithCheckOption(ViewCheckOptionEnum checkOption)
     {
       this.checkOption = checkOption;
@@ -118,9 +118,9 @@ namespace MySqlX.XDevAPI.Common
     }
 
     /// <summary>
-    /// Executes the view create statement
+    /// Executes the view create statement.
     /// </summary>
-    /// <returns>Result of execution</returns>
+    /// <returns>Result of execution.</returns>
     public override Result Execute()
     {
       if(string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException("Name");

@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -28,7 +28,7 @@ using System.Collections.Generic;
 namespace MySqlX.XDevAPI.Relational
 {
   /// <summary>
-  /// Represents a single row of data in a table
+  /// Represents a single row of data in a table.
   /// </summary>
   public class Row
   {
@@ -42,30 +42,30 @@ namespace MySqlX.XDevAPI.Relational
     }
 
     /// <summary>
-    /// Allows getting the value of the row at the given index.
+    /// Gets the value of the row at the given index.
     /// </summary>
-    /// <param name="index">The column index to retrieve the value</param>
-    /// <returns>The value at the index</returns>
+    /// <param name="index">The column index to retrieve the value.</param>
+    /// <returns>The value at the index.</returns>
     public object this[int index]
     {
       get { return GetValue(index); }
     }
 
     /// <summary>
-    /// Retrieves the column value as a string.
+    /// Gets the value of the column as a string.
     /// </summary>
-    /// <param name="name">Name of the column</param>
-    /// <returns>The value of the column as a string</returns>
+    /// <param name="name">The name of the column.</param>
+    /// <returns>The value of the column as a string.</returns>
     public string GetString(string name)
     {
       return GetValue(name).ToString();
     }
 
     /// <summary>
-    /// String based indexer into the row.  Returns the value as a CLR type
+    /// Gets a string based indexer into the row. Returns the value as a CLR type.
     /// </summary>
-    /// <param name="name">The column index to get</param>
-    /// <returns>CLR value for the column</returns>
+    /// <param name="name">The column index to get.</param>
+    /// <returns>The CLR value for the column.</returns>
     public object this[string name]
     {
       get

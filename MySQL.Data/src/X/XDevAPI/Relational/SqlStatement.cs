@@ -26,40 +26,43 @@ using System.Collections.Generic;
 namespace MySqlX.XDevAPI.Relational
 {
   /// <summary>
-  /// Represents a sql statement
+  /// Represents a sql statement.
   /// </summary>
   public class SqlStatement : BaseStatement<SqlResult>
   {
     /// <summary>
-    /// SqlStament constructor
+    /// Initializes a new instance of the SqlStament class bassed on the session and sql statement.
     /// </summary>
-    /// <param name="session">Session the sql statement belongs to</param>
-    /// <param name="sql">Sql statement</param>
+    /// <param name="session">The session the Sql statement belongs to.</param>
+    /// <param name="sql">The Sql statement.</param>
     public SqlStatement(Session session, string sql) : base(session)
     {
       SQL = sql;
     }
 
     /// <summary>
-    /// Current Sql statement
+    /// Gets the current Sql statement.
     /// </summary>
     public string SQL { get; private set; }
+    /// <summary>
+    /// Gets the list of parameters associated to this Sql statement.
+    /// </summary>
     protected List<object> parameters = new List<object>();
 
     /// <summary>
-    /// Execute the current sql statement
+    /// Executes the current Sql statement.
     /// </summary>
-    /// <returns>RowResult object with the resultset and execution status</returns>
+    /// <returns>A <see cref="SqlResult"/> object with the resultset and execution status.</returns>
     public override SqlResult Execute()
     {
       return Session.XSession.GetSQLResult(SQL, parameters.ToArray());
     }
 
     /// <summary>
-    /// Binds the parameters values by position
+    /// Binds the parameters values by position.
     /// </summary>
-    /// <param name="values">Parameters values</param>
-    /// <returns>The implementing statement type</returns>
+    /// <param name="values">The parameter values.</param>
+    /// <returns>This <see cref="SqlStatement"/> set with the binded parameters.</returns>
     public SqlStatement Bind(params object[] values)
     {
       if (values == null)

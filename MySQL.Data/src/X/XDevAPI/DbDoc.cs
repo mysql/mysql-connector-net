@@ -32,16 +32,16 @@ using System.Text;
 namespace MySqlX.XDevAPI
 {
   /// <summary>
-  /// Represents a generic documnet in JSON format
+  /// Represents a generic document in JSON format.
   /// </summary>
   public class DbDoc
   {
     internal Dictionary<string, object> values = new Dictionary<string, object>();
 
     /// <summary>
-    /// Constructs a DbDoc with the given value.  The value can be a domain object, anonymous object, or JSON string.
+    /// Initializes a new instance of the DbDoc class based on the object provided. The value can be a domain object, anonymous object, or JSON string.
     /// </summary>
-    /// <param name="val">Value for this DbDoc</param>
+    /// <param name="val">The value for this DbDoc.</param>
     public DbDoc(object val = null)
     {
       if (val != null)
@@ -58,10 +58,10 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Allows a user to get the value of a document property.
-    /// NOTE:  currently this is only supported one level deep
+    /// Gets the value of a document property.
+    /// NOTE: currently this is only supported one level deep.
     /// </summary>
-    /// <param name="path"></param>
+    /// <param name="path">The key path for the property.</param>
     /// <returns></returns>
     public string this[string path]
     {
@@ -69,7 +69,7 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Retrieves the Id of the document.
+    /// Gets the identifier of the document.
     /// </summary>
     public object Id
     {
@@ -77,7 +77,7 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Indicates if this document has an id (property named _id with a value)
+    /// Gets a value indicating if this document has an identifier (property named _id with a value).
     /// </summary>
     public bool HasId
     {
@@ -129,10 +129,10 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Allows a user to set a property on this document.
+    /// Sets a property on this document.
     /// </summary>
-    /// <param name="key">Key of the property</param>
-    /// <param name="val">New property value</param>
+    /// <param name="key">The key of the property.</param>
+    /// <param name="val">The new property value.</param>
     public void SetValue(string key, object val)
     {
       Type t = val.GetType();
@@ -159,9 +159,9 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Returns this document in Json format
+    /// Returns this document in Json format.
     /// </summary>
-    /// <returns>Json formatted string</returns>
+    /// <returns>A Json formatted string.</returns>
     public override string ToString()
     {
       return DictToString(values, 2);
@@ -243,10 +243,10 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Compares this DbDoc with another one
+    /// Compares this DbDoc with another one.
     /// </summary>
-    /// <param name="obj">The DbDoc to compare to</param>
-    /// <returns>True if they are equal, false otherwise</returns>
+    /// <param name="obj">The DbDoc to compare to.</param>
+    /// <returns>True if they are equal, false otherwise.</returns>
     public override bool Equals(object obj)
     {
       if (!(obj is DbDoc))
@@ -256,7 +256,7 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Serves as a hash function for a particular type.
+    /// Gets a value that serves as a hash function for a particular type.
     /// </summary>
     /// <returns>A hash code for the current object.</returns>
     public override int GetHashCode()

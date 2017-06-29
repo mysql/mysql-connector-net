@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -26,7 +26,7 @@ using MySqlX.XDevAPI.Common;
 namespace MySqlX.XDevAPI.CRUD
 {
   /// <summary>
-  /// Represents a chaining collection remove statement
+  /// Represents a chaining collection remove statement.
   /// </summary>
   public class RemoveStatement : FilterableStatement<RemoveStatement, Collection, Result>
   {
@@ -35,9 +35,9 @@ namespace MySqlX.XDevAPI.CRUD
     }
 
     /// <summary>
-    /// Executes the remove statement
+    /// Executes the remove statement.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A <see cref="Result"/>object containing the results of the execution.</returns>
     public override Result Execute()
     {
       return Execute(Target.Session.XSession.DeleteDocs, this);

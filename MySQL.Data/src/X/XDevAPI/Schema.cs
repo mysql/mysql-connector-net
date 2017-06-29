@@ -29,7 +29,7 @@ using System.Collections.Generic;
 namespace MySqlX.XDevAPI
 {
   /// <summary>
-  /// Represents a MySql schema or database
+  /// Represents a schema or database.
   /// </summary>
   public class Schema : DatabaseObject
   {
@@ -40,7 +40,7 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Session related to current schema
+    /// Session related to current schema.
     /// </summary>
     public new BaseSession Session { get; private set; }
 
@@ -48,18 +48,18 @@ namespace MySqlX.XDevAPI
     #region Browse Functions
 
     /// <summary>
-    /// Returns a list of all collections in this schema
+    /// Returns a list of all collections in this schema.
     /// </summary>
-    /// <returns>List<Collection></returns>
+    /// <returns>A <see cref="Collection"/> list representing all found collections.</returns>
     public List<Collection> GetCollections()
     {
       return Session.XSession.GetObjectList<Collection>(this, "COLLECTION");
     }
 
     /// <summary>
-    /// Returns list of all tables in this schema
+    /// Returns a list of all tables in this schema.
     /// </summary>
-    /// <returns>List<Table></returns>
+    /// <returns>A <see cref="Table"/> list representing all found tables.</returns>
     public List<Table> GetTables()
     {
       return Session.XSession.GetObjectList<Table>(this, "TABLE", "VIEW");
@@ -70,11 +70,11 @@ namespace MySqlX.XDevAPI
     #region Instance Functions
 
     /// <summary>
-    /// Get a collection by name
+    /// Gets a collection by name.
     /// </summary>
-    /// <param name="name">The name of the collection to get</param>
-    /// <param name="ValidateExistence">Ensure the collection exists in the schema</param>
-    /// <returns>Collection object</returns>
+    /// <param name="name">The name of the collection to get.</param>
+    /// <param name="ValidateExistence">Ensures the collection exists in the schema.</param>
+    /// <returns>A <see cref="Collection"/> object matching the given name.</returns>
     public Collection GetCollection(string name, bool ValidateExistence = false)
     {
       Collection c = new Collection<DbDoc>(this, name);
@@ -85,31 +85,31 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Returns a typed collection object.  This is useful for using domain objects.
+    /// Gets a typed collection object. This is useful for using domain objects.
     /// </summary>
-    /// <typeparam name="T">The type of collection returned</typeparam>
-    /// <param name="name">The name of collection to get</param>
-    /// <returns>Collection object</returns>
+    /// <typeparam name="T">The type of collection returned.</typeparam>
+    /// <param name="name">The name of collection to get.</param>
+    /// <returns>A generic <see cref="Collection"/> object set with the given name.</returns>
     public Collection<T> GetCollection<T>(string name)
     {
       return new Collection<T>(this, name);
     }
 
     /// <summary>
-    /// Returns the given collection as a table
+    /// Gets the given collection as a table.
     /// </summary>
-    /// <param name="name">Name of the collection</param>
-    /// <returns>Table object</returns>
+    /// <param name="name">The name of the collection.</param>
+    /// <returns>A <see cref="Table"/> object set with the given name.</returns>
     public Table GetCollectionAsTable(string name)
     {
       return GetTable(name);
     }
 
     /// <summary>
-    /// Gets a table object.  Upon return the object may or may not be valid.
+    /// Gets a table object. Upon return the object may or may not be valid.
     /// </summary>
-    /// <param name="name">Name of the table object</param>
-    /// <returns>Table object</returns>
+    /// <param name="name">The name of the table object.</param>
+    /// <returns>A <see cref="Table"/> object set with the given name.</returns>
     public Table GetTable(string name)
     {
       return new Table(this, name);
@@ -120,11 +120,11 @@ namespace MySqlX.XDevAPI
     #region Create Functions
 
     /// <summary>
-    /// Creates a collection
+    /// Creates a collection.
     /// </summary>
-    /// <param name="collectionName">Name of the collection to create</param>
-    /// <param name="ReuseExistingObject">If false, it will throw an exception if collection exists</param>
-    /// <returns>Collection referente</returns>
+    /// <param name="collectionName">The name of the collection to create.</param>
+    /// <param name="ReuseExistingObject">If false, it will throw an exception if collection exists.</param>
+    /// <returns>Collection referente.</returns>
     public Collection CreateCollection(string collectionName, bool ReuseExistingObject = false)
     {
       Collection coll = new Collection(this, collectionName);
@@ -137,9 +137,9 @@ namespace MySqlX.XDevAPI
     #endregion
 
     /// <summary>
-    /// Drops the given collection
+    /// Drops the given collection.
     /// </summary>
-    /// <param name="name">Name of the collection to drop</param>
+    /// <param name="name">The name of the collection to drop.</param>
     public void DropCollection(string name)
     {
       Collection c = GetCollection(name);
@@ -150,9 +150,9 @@ namespace MySqlX.XDevAPI
     #region Base Class
 
     /// <summary>
-    /// Determines if this schema actually exists
+    /// Determines if this schema actually exists.
     /// </summary>
-    /// <returns>True if exists, false otherwise</returns>
+    /// <returns>True if exists, false otherwise.</returns>
     public override bool ExistsInDatabase()
     {
       string sql = String.Format("SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name like '{0}'", Name);
@@ -165,31 +165,31 @@ namespace MySqlX.XDevAPI
     #region Views Functions
 
     /// <summary>
-    /// Creates a view
+    /// Creates a view.
     /// </summary>
-    /// <param name="name">View name</param>
-    /// <param name="replace">Specifies if an existing view is replaced or not</param>
-    /// <returns>ViewCreate chaining object</returns>
+    /// <param name="name">The view name.</param>
+    /// <param name="replace">Specifies if an existing view is replaced or not.</param>
+    /// <returns>A <see cref="ViewCreateStatement"/> chaining object set with the given name.</returns>
     public ViewCreateStatement CreateView(string name, bool replace = false)
     {
       return new ViewCreateStatement(this, name, replace);
     }
 
     /// <summary>
-    /// Alters an existing view
+    /// Alters an existing view.
     /// </summary>
-    /// <param name="name">View name</param>
-    /// <returns>ViewAlter chaining object</returns>
+    /// <param name="name">The view name.</param>
+    /// <returns>A <see cref="ViewAlterStatement"/> chaining object set with the given name.</returns>
     public ViewAlterStatement AlterView(string name)
     {
       return new ViewAlterStatement(this, name);
     }
 
     /// <summary>
-    /// Drops a View
+    /// Drops a view.
     /// </summary>
-    /// <param name="name">View name</param>
-    /// <returns>ViewDrop chaining object</returns>
+    /// <param name="name">The view name.</param>
+    /// <returns>A <see cref="ViewDropStatement"/> chaining object set with the given name.</returns>
     public ViewDropStatement DropView(string name)
     {
       return new ViewDropStatement(this, name);
