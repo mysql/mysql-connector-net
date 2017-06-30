@@ -263,19 +263,25 @@ namespace MySqlX.Data.Tests
     public void DropTableView()
     {
       CreateBasicViewFromTable();
-      Assert.True(GetSession().Schema.GetTable("myview").ExistsInDatabase());
-      GetSession().Schema.DropView("myview").Execute();
-      Assert.False(GetSession().Schema.GetTable("myview").ExistsInDatabase());
-    }
+      Schema schema = GetSession().Schema;
+      string viewName = "myview";
+      Table view = schema.GetTable(viewName);
+      Assert.True(view.ExistsInDatabase());
 
-    [Fact]
-    public void DropViewIfExists()
-    {
-      Assert.False(GetSession().Schema.GetTable("viewNotExists").ExistsInDatabase());
-      Assert.ThrowsAny<MySqlException>(() => GetSession().Schema.DropView("viewNotExists").Execute());
-      GetSession().Schema.DropView("viewNotExists").IfExists().Execute();
-    }
+      // Drop existing view.
+      schema.DropView(viewName);
+      Assert.False(view.ExistsInDatabase());
 
+      // Drop non-existing view.
+      schema.DropView(viewName);
+      Assert.False(view.ExistsInDatabase());
+
+      // Empty, whitespace and null schema name.
+      Assert.Throws<ArgumentNullException>(() => schema.DropView(string.Empty));
+      Assert.Throws<ArgumentNullException>(() => schema.DropView(" "));
+      Assert.Throws<ArgumentNullException>(() => schema.DropView("  "));
+      Assert.Throws<ArgumentNullException>(() => schema.DropView(null));
+    }
     #endregion
   }
 }

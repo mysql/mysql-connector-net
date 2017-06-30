@@ -140,8 +140,10 @@ namespace MySqlX.XDevAPI
     /// Drops the given collection.
     /// </summary>
     /// <param name="name">The name of the collection to drop.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="name"/> is null.</exception>
     public void DropCollection(string name)
     {
+      if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
       Collection c = GetCollection(name);
       if (!c.ExistsInDatabase()) return;
       Session.XSession.DropCollection(Name, name);
@@ -165,7 +167,8 @@ namespace MySqlX.XDevAPI
     #region Views Functions
 
     /// <summary>
-    /// Creates a view.
+    /// Creates a <see cref="ViewCreateStatement"/> with the given parameters which can be used to create
+    /// a view. The statement can then be further modified before execution.
     /// </summary>
     /// <param name="name">The view name.</param>
     /// <param name="replace">Specifies if an existing view is replaced or not.</param>
@@ -176,7 +179,8 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Alters an existing view.
+    /// Creates a <see cref="ViewAlterStatement"/> with the given name which can be used to alter
+    /// an existing view. The statement can then be further modified before execution.
     /// </summary>
     /// <param name="name">The view name.</param>
     /// <returns>A <see cref="ViewAlterStatement"/> chaining object set with the given name.</returns>
@@ -189,10 +193,13 @@ namespace MySqlX.XDevAPI
     /// Drops a view.
     /// </summary>
     /// <param name="name">The view name.</param>
-    /// <returns>A <see cref="ViewDropStatement"/> chaining object set with the given name.</returns>
-    public ViewDropStatement DropView(string name)
+    /// <exception cref="ArgumentNullException"><paramref name="name"/> is null.</exception>
+    public void DropView(string name)
     {
-      return new ViewDropStatement(this, name);
+      if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
+      Table view = GetTable(name);
+      if (!view.ExistsInDatabase()) return;
+      Session.XSession.ViewDrop(this, name);
     }
 
     #endregion

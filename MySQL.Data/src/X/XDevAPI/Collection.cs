@@ -25,6 +25,7 @@ using MySqlX.XDevAPI.CRUD;
 using MySqlX.XDevAPI.Common;
 using MySqlX;
 using MySql.Data;
+using MySql.Data.MySqlClient;
 
 namespace MySqlX.XDevAPI
 {
@@ -46,10 +47,9 @@ namespace MySqlX.XDevAPI
     #region Add Operations
 
     /// <summary>
-    /// Creates an <see cref="AddStatement"/> containing the provided objects. The add statement
-    /// can be further modified before execution. This method is intended to add one or more
-    /// items to a collection and can take anonymous objects, domain objects, or just plain
-    /// JSON strings.
+    /// Creates an <see cref="AddStatement"/> containing the provided objects which can be used to add
+    /// one or more items to a collection and can take anonymous objects, domain objects, or just plain
+    /// JSON strings. The statement can be further modified before execution.
     /// </summary>
     /// <param name="items">The objects to add.</param>
     /// <returns>An <see cref="AddStatement"/> object containing the objects to add.</returns>
@@ -69,9 +69,8 @@ namespace MySqlX.XDevAPI
     #region Remove Operations
 
     /// <summary>
-    /// Creates a <see cref="RemoveStatement"/> with the given condition. The remove statement
-    /// can then be further modified before execution. This method is intended to remove
-    /// one or more documents from a collection.
+    /// Creates a <see cref="RemoveStatement"/> with the given condition which can be used to remove
+    /// one or more documents from a collection. The statement can then be further modified before execution.
     /// </summary>
     /// <param name="condition">The condition to match documents.</param>
     /// <returns>A <see cref="RemoveStatement"/> object set with the given condition.</returns>
@@ -86,9 +85,8 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Creates a <see cref="RemoveStatement"/> with the given identifier. The remove statement
-    /// can then be further modified before execution. This method is intended to remove
-    /// a single document from a collection. The identifier can really be of any type.
+    /// Creates a <see cref="RemoveStatement"/> with the given identifier which can be used to remove a single
+    /// document from a collection. The statement can then be further modified before execution.
     /// </summary>
     /// <param name="id">The identifier to match the document.</param>
     /// <returns>A <see cref="RemoveStatement"/> object set with the given identifier.</returns>
@@ -102,9 +100,9 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Creates a <see cref="RemoveStatement"/> containing the identifier of the provided document. 
-    /// The remove statement can then be further modified before execution. This method is intended 
-    /// to remove a single document from a collection.
+    /// Creates a <see cref="RemoveStatement"/> containing the identifier of the provided document which can
+    /// be used to remove a single document from a collection. The remove statement can then be further modified
+    /// before execution.
     /// </summary>
     /// <param name="doc">The <see cref="DbDoc"/> representing the document to remove.</param>
     /// <returns>A <see cref="RemoveStatement"/> object set with the given document's identifier.</returns>
@@ -121,9 +119,8 @@ namespace MySqlX.XDevAPI
     #region Modify Operations
 
     /// <summary>
-    /// Creates a <see cref="ModifyStatement"/> with the given condition. The modify statement
-    /// can be further modified before execution. This method is intended to modify one or more 
-    /// documents from a collection.
+    /// Creates a <see cref="ModifyStatement"/> with the given condition which can be used to modify one or more 
+    /// documents from a collection. The statement can then be further modified before execution.
     /// </summary>
     /// <param name="condition">The condition to match documents.</param>
     /// <returns>A <see cref="ModifyStatement"/> object set with the given condition.</returns>
@@ -149,8 +146,8 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Creates a <see cref="FindStatement"/> with the given condition. The find statement can be
-    /// further modified before execution. This method is intened to find documents in a collection.
+    /// Creates a <see cref="FindStatement"/> with the given condition which can be used to find documents in a
+    /// collection. The statement can then be further modified before execution.
     /// </summary>
     /// <param name="condition">Optional condition to match documents.</param>
     /// <returns>A <see cref="FindStatement"/> object set with the given condition.</returns>
@@ -161,7 +158,8 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Creates a collection index.
+    /// Creates a <see cref="CreateCollectionIndexStatement"/> with the given parameters which can be used to create
+    /// an index. The statement can then be further modified before execution.
     /// </summary>
     /// <param name="indexName">The index name.</param>
     /// <param name="isUnique">True if the index is unique, false otherwise.</param>
@@ -175,10 +173,15 @@ namespace MySqlX.XDevAPI
     /// Drops a collection index.
     /// </summary>
     /// <param name="indexName">The index name.</param>
-    /// <returns>A <see cref="Result"/> object containing the result of the index drop.</returns>
-    public Result DropIndex(string indexName)
+    /// <exception cref="ArgumentNullException"><paramref name="indexName"/> is null.</exception>
+    public void DropIndex(string indexName)
     {
-      return Session.XSession.DropCollectionIndex(this.Schema.Name, this.Name, indexName);
+      if (string.IsNullOrWhiteSpace(indexName)) throw new ArgumentNullException(nameof(indexName));
+      bool indexExists = Convert.ToInt32(Session.XSession.ExecuteQueryAsScalar(
+        string.Format("SELECT COUNT(*)>0 FROM information_schema.statistics WHERE table_schema = '{0}' AND table_name = '{1}' AND index_name = '{2}'",
+        this.Schema.Name, this.Name, indexName))) == 1;
+      if (!indexExists) return;
+      Session.XSession.DropCollectionIndex(this.Schema.Name, this.Name, indexName);
     }
 
     /// <summary>

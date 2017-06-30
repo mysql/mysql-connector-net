@@ -1,3 +1,8 @@
+8.0.9
+- MySqlX: Updated all DropX() methods to return void, execute without the need to call Execute() and to succeed even if the object to be
+  droppped does not already exist (WL10563).
+
+
 8.0.8
 - MySqlX: Updated Collection's Modify() and Remove() methods to always require a search condition (WL10739).
 - MySqlX: Updated the generated UUID for inserted documents to have its components in reversed order. (WL10202).

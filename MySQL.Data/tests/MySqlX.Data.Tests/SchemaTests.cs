@@ -26,6 +26,7 @@ using MySqlX.XDevAPI.Relational;
 using System.Collections.Generic;
 using Xunit;
 using System.Linq;
+using System;
 
 namespace MySqlX.Data.Tests
 {
@@ -90,6 +91,30 @@ namespace MySqlX.Data.Tests
       RowResult result = test.Select("_id").Execute();
       Assert.True(result.Next());
       Assert.Equal("1", result[0]);
+    }
+
+    [Fact]
+    public void DropSchema()
+    {
+      string schemaName = "testDrop";
+      Session session = GetSession();
+      session.CreateSchema(schemaName);
+      Schema schema = session.GetSchema(schemaName);
+      Assert.True(schema.ExistsInDatabase());
+
+      // Drop existing schema.
+      session.DropSchema(schemaName);
+      Assert.False(schema.ExistsInDatabase());
+
+      // Drop non-existing schema.
+      session.DropSchema(schemaName);
+      Assert.False(schema.ExistsInDatabase());
+
+      // Empty, whitespace and null schema name.
+      Assert.Throws<ArgumentNullException>(() => session.DropSchema(string.Empty));
+      Assert.Throws<ArgumentNullException>(() => session.DropSchema(" "));
+      Assert.Throws<ArgumentNullException>(() => session.DropSchema("  "));
+      Assert.Throws<ArgumentNullException>(() => session.DropSchema(null));
     }
   }
 }
