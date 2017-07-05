@@ -40,14 +40,31 @@ namespace MySql.Data.Entity
       Scoped = true;
     }
 
-    public override void WriteSql(StringBuilder sql)
-    {
-      if (DefiningQuery != null)
-        sql.AppendFormat("({0})", DefiningQuery);
-      else
-        sql.AppendFormat("{0}", QuoteIdentifier(Table));
-      base.WriteSql(sql);
-    }
+	public override void WriteSql(StringBuilder sql)
+	{
+		if (DefiningQuery != null)
+		{
+			sql.AppendFormat("({0})", DefiningQuery);
+		}
+		else
+		{
+			string schemaName = Schema;
+			string tableName = QuoteIdentifier(Table);
+
+			if (schemaName.ToLowerInvariant().Equals("dbo"))
+			{
+				schemaName = "";
+			}
+
+			if (!string.IsNullOrEmpty(schemaName) && !string.IsNullOrWhiteSpace(schemaName))
+			{
+				tableName = string.Format("{0}.{1}", QuoteIdentifier(Schema), tableName);
+			}
+			sql.AppendFormat("{0}", QuoteIdentifier(tableName));
+		}
+
+		base.WriteSql(sql);
+	}
 
     internal override void Accept(SqlFragmentVisitor visitor)
     {
