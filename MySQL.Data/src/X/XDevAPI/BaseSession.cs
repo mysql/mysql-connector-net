@@ -82,15 +82,24 @@ namespace MySqlX.XDevAPI
     /// <para />- mysqlx://test:test@[192.1.10.10,127.0.0.1]
     /// <para />- mysqlx://test:test@[192.1.10.10:33060,127.0.0.1:33060]
     /// <para />- mysqlx://test:test@[192.1.10.10,120.0.0.2:22000,[::1]:33060]/test?connectiontimeout=10
+    /// <para />- mysqlx://test:test@[(address=server.example,priority=20),(address=127.0.0.1,priority=100)]
+    /// <para />- mysqlx://test:test@[(address=server.example,priority=100),(address=127.0.0.1,priority=75),(address=192.0.10.56,priority=25)]
     /// </para>
     /// <para>&#160;</para>
     /// <para>Connection string examples (in basic format):
     /// <para />- server=10.10.10.10,localhost;port=33060;uid=test;password=test;
     /// <para />- host=10.10.10.10,192.101.10.2,localhost;port=5202;uid=test;password=test;
+    /// <para />- server=(address=server.example,priority=20),(address=127.0.0.1,priority=100);port=33060;uid=test;password=test;
+    /// <para />- server=(address=server.example,priority=100),(address=127.0.0.1,priority=75),(address=192.0.10.56,priority=25);port=33060;uid=test;password=test;
     /// </para>
     /// <para>&#160;</para>
-    /// <para>Connection attempts will be performed in a sequential order, that is, one after another until 
+    /// <para>Failover methods</para>
+    /// <para>- Sequential: Connection attempts will be performed in a sequential order, that is, one after another until
     /// a connection is successful or all the elements from the list have been tried.
+    /// </para>
+    /// <para>- Priority based: If a priority is provided, the connection attemps will be performed in descending order, starting
+    /// with the host with the highest priority. Priority must be a value between 0 and 100. Additionally, it is required to either 
+    /// give a priority for every host or no priority to any host.
     /// </para>
     /// </remarks>
     public BaseSession(string connectionString)
@@ -242,7 +251,7 @@ namespace MySqlX.XDevAPI
     {
       FailoverManager.Reset();
 
-      // Connection string has a URI format.
+      // Connection string is in URI format.
       if (Regex.IsMatch(connectionString, @"^mysqlx(\+\w+)?://.*", RegexOptions.IgnoreCase))
       {
         Uri uri = null;
@@ -258,21 +267,27 @@ namespace MySqlX.XDevAPI
 
           // Identify if multiple hosts were specified.
           string[] splitUriString = connectionString.Split('@','?');
-          string[] hostsAndDb = splitUriString[1].Split('/');
-          ParseHostList(hostsAndDb[0]);
-          if (FailoverManager.FailoverGroup == null)
-            throw ex;
+          if (splitUriString.Length==1) throw ex;
 
-          updatedUriString = splitUriString[0] + "@" + FailoverManager.FailoverGroup.ActiveHost.Host +
-            (FailoverManager.FailoverGroup.ActiveHost.Port != -1 ? ":" + FailoverManager.FailoverGroup.ActiveHost.Port : string.Empty) +
-            (hostsAndDb.Length == 2 ? "/" + hostsAndDb[1] : string.Empty) +
-            (splitUriString.Length == 3 ? "?" + splitUriString[2] : string.Empty);
+          string[] hostsAndDb = splitUriString[1].Split('/');
+          if (hostsAndDb[0].StartsWith("[") && hostsAndDb[0].EndsWith("]"))
+          {
+            hostsAndDb[0] = hostsAndDb[0].Substring(1, hostsAndDb[0].Length-2);
+            int hostCount = ParseHostList(hostsAndDb[0], true);
+            if (FailoverManager.FailoverGroup != null)
+              updatedUriString = splitUriString[0] + "@" + FailoverManager.FailoverGroup.ActiveHost.Host +
+                (FailoverManager.FailoverGroup.ActiveHost.Port != -1 ? ":" + FailoverManager.FailoverGroup.ActiveHost.Port : string.Empty) +
+                (hostsAndDb.Length == 2 ? "/" + hostsAndDb[1] : string.Empty) +
+                (splitUriString.Length == 3 ? "?" + splitUriString[2] : string.Empty);
+            else if (hostCount==1)
+              updatedUriString = splitUriString[0] + "@" + hostsAndDb[0]  + (hostsAndDb.Length==2 ? hostsAndDb[1] : string.Empty) + (splitUriString.Length==3 ? "?" + splitUriString[2] : string.Empty); 
+            else
+              throw ex;
+          }
         }
-        finally
-        {
-          if (uri==null)
-            uri = updatedUriString==null ? new Uri(connectionString) : new Uri(updatedUriString);
-        }
+
+        if (uri==null)
+          uri = updatedUriString==null ? new Uri(connectionString) : new Uri(updatedUriString);
 
         List<string> connectionParts = new List<string>();
 
@@ -312,31 +327,23 @@ namespace MySqlX.XDevAPI
         return string.Join("; ", connectionParts);
       }
 
-      // Connection string doesn't have a URI format.
+      // Connection string is in basic format.
       string updatedConnectionString = string.Empty;
       string[] keyValuePairs = connectionString.Substring(0).Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
       foreach (string keyValuePair in keyValuePairs)
       {
-        string[] keyValue = keyValuePair.Split('=');
-        if (keyValue.Length % 2 != 0)
-          continue;
+        int separatorCharIndex = keyValuePair.IndexOf('=');
+        if (separatorCharIndex==-1) continue;
 
-        var keyword = keyValue[0].ToLowerInvariant();
-        var value = keyValue[1];
+        var keyword = keyValuePair.Substring(0,separatorCharIndex);
+        var value = keyValuePair.Substring(separatorCharIndex+1);
         if (keyword != "server" && keyword != "host" && keyword != "data source" && keyword != "datasource" && keyword != "address" && keyword != "addr" && keyword != "network address")
         {
           updatedConnectionString += keyValuePair + ";";
           continue;
         }
 
-        // Identify if multiple hosts were specified.
-        string[] hosts = value.Split(',');
-        if (hosts.Length==1) break;
-        List<XServer> hostList = new List<XServer>();
-        foreach (var host in hosts)
-          hostList.Add(new XServer(host.Trim()));
-
-        FailoverManager.SetHostList(hostList, FailoverMethod.Sequential);
+        ParseHostList(value, false);
       }
 
       if (FailoverManager.FailoverGroup == null)
@@ -346,33 +353,109 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Initializes the <see cref="FailoverManager"/> whenever a list of hosts have been provided.
+    /// Initializes the <see cref="FailoverManager"/> if more than one host is found.
     /// </summary>
-    /// <param name="hostsSubstring">Unparsed host list.</param>
-    private void ParseHostList(string hostsSubstring)
+    /// <param name="hostsSubstring">A string containing an unparsed host list.</param>
+    /// <param name="connectionStringIsInUriFormat">True if the connection string is in URI format, false otherwise.</param>
+    /// <returns>The number of hosts found, -1 if an error was raised during parsing.</returns>
+    private int ParseHostList(string hostsSubstring, bool connectionStringIsInUriFormat)
     {
-      if (string.IsNullOrWhiteSpace(hostsSubstring) || !hostsSubstring.StartsWith("[") || !hostsSubstring.EndsWith("]"))
-        return;
+      if (string.IsNullOrWhiteSpace(hostsSubstring)) return -1;
 
-      hostsSubstring = hostsSubstring.Substring(1, hostsSubstring.Length-2);
-      string[] hostArray = hostsSubstring.Split(',');
-
+      int hostCount = -1;
+      FailoverMethod failoverMethod = FailoverMethod.Sequential;
+      string[] hostArray = null;
       List<XServer> hostList = new List<XServer>();
-      foreach (var host in hostArray)
+      hostsSubstring = hostsSubstring.Replace(" ","");
+
+      // Sequential host list.
+      if (!hostsSubstring.StartsWith("(") && !hostsSubstring.EndsWith(")"))
       {
-        int port = -1;
-        string hostName = host;
-        int colonIndex = host.LastIndexOf(":");
-        if (colonIndex!=-1)
+        hostArray = hostsSubstring.Split(',');
+        if (hostArray.Length==1) return 1;
+
+        foreach (var host in hostArray)
+          hostList.Add(this.ConvertToXServer(host, connectionStringIsInUriFormat));
+
+        hostCount = hostArray.Length;
+      }
+      // Priority host list.
+      else
+      {
+        string[] groups = hostsSubstring.Split(new[] { '(', ')' }, StringSplitOptions.RemoveEmptyEntries);
+        bool? allHavePriority = null;
+        int defaultPriority = 100;
+        foreach (var group in groups)
         {
-          int.TryParse(host.Substring(colonIndex+1),out port);
-          hostName = host.Substring(0,colonIndex);
+          if (group==",") continue;
+
+          string[] items = group.Split(',');
+          string[] keyValuePairs = items[0].Split('=');
+          if (keyValuePairs[0].ToLowerInvariant()!="address")
+            throw new KeyNotFoundException(string.Format(ResourcesX.KeywordNotFound,"address"));
+
+          string host = keyValuePairs[1];
+          if (string.IsNullOrWhiteSpace(host))
+            throw new ArgumentNullException("server");
+
+          if (items.Length==2)
+          {
+            if (allHavePriority!=null && allHavePriority==false)
+              throw new ArgumentException(ResourcesX.PriorityForAllOrNoHosts);
+            allHavePriority = allHavePriority ?? true;
+            keyValuePairs = items[1].Split('=');
+            if (keyValuePairs[0].ToLowerInvariant()!="priority")
+              throw new KeyNotFoundException(string.Format(ResourcesX.KeywordNotFound,"priority"));
+
+            if (string.IsNullOrWhiteSpace(keyValuePairs[1]))
+              throw new ArgumentNullException("priority");
+
+            int priority = -1;
+            Int32.TryParse(keyValuePairs[1], out priority);
+            if (priority<0 || priority>100)
+              throw new ArgumentException(ResourcesX.PriorityOutOfLimits);
+
+            hostList.Add(ConvertToXServer(host, connectionStringIsInUriFormat, priority));
+          }
+          else
+          {
+            if (allHavePriority!=null && allHavePriority==true)
+              throw new ArgumentException(ResourcesX.PriorityForAllOrNoHosts);
+            allHavePriority = allHavePriority ?? false;
+
+            hostList.Add(ConvertToXServer(host, connectionStringIsInUriFormat, defaultPriority>0 ? defaultPriority-- : 0));
+          }
         }
 
-        hostList.Add(new XServer(hostName,port));
+        hostCount = groups.Length;
+        failoverMethod = FailoverMethod.Priority;
       }
 
-      FailoverManager.SetHostList(hostList, FailoverMethod.Sequential);
+      FailoverManager.SetHostList(hostList, failoverMethod);
+      return hostCount;
+    }
+
+    /// <summary>
+    /// Creates a <see cref="XServer"/> object based on the provided parameters.
+    /// </summary>
+    /// <param name="host">The host string which can be a simple host name or a host name and port.</param>
+    /// <param name="connectionStringIsInUriFormat">True if the connection string is in URI format, false otherwise.</param>
+    /// <param name="priority">The priority of the host.</param>
+    /// <param name="port">The port number of the host.</param>
+    /// <returns></returns>
+    private XServer ConvertToXServer(string host, bool connectionStringIsInUriFormat, int priority=-1, int port=-1)
+    {
+      host = host.Trim();
+      int colonIndex = host.LastIndexOf(":");
+      if (colonIndex!=-1)
+      {
+        if (!connectionStringIsInUriFormat)
+          throw new ArgumentException(ResourcesX.PortNotSupported);
+        int.TryParse(host.Substring(colonIndex+1),out port);
+        host = host.Substring(0,colonIndex);
+      }
+
+      return new XServer(host, port, priority);
     }
 
     #region IDisposable Support

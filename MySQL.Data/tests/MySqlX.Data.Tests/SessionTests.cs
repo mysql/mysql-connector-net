@@ -23,10 +23,9 @@
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using System;
-using System.Collections.Generic;
 using Xunit;
 
-namespace MySqlX.Data.Tests 
+namespace MySqlX.Data.Tests
 {
   public class SessionTests : BaseTest
   {
@@ -321,74 +320,6 @@ namespace MySqlX.Data.Tests
     {
       MySqlConnectionStringBuilder csBuilder = new MySqlConnectionStringBuilder(ConnectionString);
       using (Session session = MySQLX.GetSession(new { server = "::1", user = csBuilder.UserID, password = csBuilder.Password, port = XPort }))
-      {
-        Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
-      }
-    }
-
-    [Fact]
-    public void ClientSideFailover()
-    {
-      int connectionTimeout = 2;
-
-      // Connection string with single host.
-      using (var session = MySQLX.GetSession(ConnectionString))
-      {
-        Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
-      }
-
-      // Connection string with multiple hosts. First attempt fails, second is succesful.
-      using (var session = MySQLX.GetSession("server=10.10.10.10, localhost;port=" + XPort + ";uid=test;password=test;connectiontimeout=" + connectionTimeout))
-      {
-        Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
-      }
-
-      // Connection string with multiple hosts using synonyms for "server" connection option. First attempt fails, second is succesful.
-      using (var session = MySQLX.GetSession("address=10.10.10.10, localhost;port=" + XPort + ";uid=test;password=test;connectiontimeout=" + connectionTimeout))
-      {
-        Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
-      }
-
-      // Connection string with multiple hosts. All attempts fail.
-      Exception ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession("server= 10.10.10.10, 20.20.20.20 ;port=" + XPort + ";uid=test;password=test;connectiontimeout=" + connectionTimeout));
-      Assert.Equal("Unable to connect to any of the specified MySQL hosts.", ex.Message);
-
-      // URI with single host.
-      using (var session = MySQLX.GetSession("mysqlx://test:test@localhost:" + XPort + "?connectiontimeout=" + connectionTimeout))
-      {
-        Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
-      }
-
-      // URI with single host as array. Successful connection.
-      using (var session = MySQLX.GetSession("mysqlx://test:test@[127.0.0.1]?connectiontimeout=" + connectionTimeout))
-      {
-        Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
-      }
-
-      // URI with single host and port as array. Successful connection.
-      using (var session = MySQLX.GetSession("mysqlx://test:test@[127.0.0.1:" + XPort + "]?connectiontimeout=" + connectionTimeout))
-      {
-        Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
-      }
-
-      // URI with single host as array. Failed connection.
-      ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession("mysqlx://test:test@[192.1.10.10:" + XPort + "]?connectiontimeout=" + connectionTimeout));
-      Assert.Equal("Unable to connect to any of the specified MySQL hosts.", ex.Message);
-
-      // URI with multiple hosts. First attempt fails, second is succesful.
-      using (var session = MySQLX.GetSession("mysqlx://test:test@[192.1.10.10,127.0.0.1:" + XPort + "]?connectiontimeout=" + connectionTimeout))
-      {
-        Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
-      }
-
-      // URI with multiple hosts and a schema. First attempt fails, second is succesful.
-      using (var session = MySQLX.GetSession("mysqlx://test:test@[192.1.10.10,127.0.0.1:" + XPort + "]/test?connectiontimeout=" + connectionTimeout))
-      {
-        Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
-      }
-
-      // URI with multiple hosts which may or may not contain a port number. First and second attempts fail, third attempt is succesful.
-      using (var session = MySQLX.GetSession("mysqlx://test:test@[192.1.10.10,120.0.0.2:22000,[::1]:" + XPort + "]/test?connectiontimeout=" + connectionTimeout))
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
       }

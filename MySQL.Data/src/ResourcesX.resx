@@ -201,4 +201,16 @@
   <data name="ProgramDataNotDefined" xml:space="preserve">
     <value>ProgramData path is not defined.</value>
   </data>
+  <data name="KeywordNotFound" xml:space="preserve">
+    <value>Keyword '{0}' not found.</value>
+  </data>
+  <data name="PriorityForAllOrNoHosts" xml:space="preserve">
+    <value>You must either assign no priority to any of the hosts or give a priority for every host.</value>
+  </data>
+  <data name="PriorityOutOfLimits" xml:space="preserve">
+    <value>The priority must be between 0 and 100.</value>
+  </data>
+  <data name="PortNotSupported" xml:space="preserve">
+    <value>Providing a port number as part of the host address isn't supported when using connection strings in basic format. Use URI format instead.</value>
+  </data>
 </root>
