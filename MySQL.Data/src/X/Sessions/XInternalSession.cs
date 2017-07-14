@@ -43,8 +43,8 @@ namespace MySqlX.Sessions
 {
 
   /// <summary>
-  /// Implementation class of InternalSession to manage coonections using the Xprotocol type object.
-  /// </summary>  
+  /// Implementation class of InternalSession to manage connections using the Xprotocol type object.
+  /// </summary>
   internal class XInternalSession : InternalSession
   {
     private XProtocol protocol;
