@@ -86,6 +86,7 @@ namespace MySqlX.Serialization
       if (t == '{') return ReadGroup();
       if (t == '[') return ReadArray();
       string stringValue = ReadUntilToken(',', '}');
+      if (stringValue.Trim() == "null") return null;
       int intValue;
       long longValue;
       double doubleValue;

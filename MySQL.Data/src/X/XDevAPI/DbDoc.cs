@@ -116,6 +116,7 @@ namespace MySqlX.XDevAPI
           dic = dic[level] as Dictionary<string, object>;
           returnValue = DictToString(dic, 2);
         }
+        else if (dic[level] == null) return null;
         else if (dic[level].GetType().GetTypeInfo().IsGenericType)
         {
           dic = ParseObject(dic[level]);
@@ -135,7 +136,6 @@ namespace MySqlX.XDevAPI
     /// <param name="val">The new property value.</param>
     public void SetValue(string key, object val)
     {
-      Type t = val.GetType();
       IList e = val as IList;
 
       if (e != null)
@@ -144,7 +144,7 @@ namespace MySqlX.XDevAPI
         values[key] = (val as DbDoc).values;
       else if (val is Dictionary<string, object>)
         values[key] = val;
-      else if (t.Namespace != "System")
+      else if (val!=null && val.GetType().Namespace != "System")
         values[key] = ParseObject(val);
       else
         values[key] = val;
@@ -176,7 +176,7 @@ namespace MySqlX.XDevAPI
         json.Append(delimiter);
         json.AppendLine();
         json.Append(' ', ident);
-        json.AppendFormat("\"{0}\": {1}", key, GetValue(vals[key], ident));
+        json.AppendFormat("\"{0}\": {1}", key, GetValue(vals[key], ident) ?? "null");
         delimiter = ", ";
       }
       json.AppendLine();
@@ -187,6 +187,8 @@ namespace MySqlX.XDevAPI
 
     private string GetValue(object val, int ident)
     {
+      if (val==null) return null;
+
       if(val.GetType().IsArray)
       {
 

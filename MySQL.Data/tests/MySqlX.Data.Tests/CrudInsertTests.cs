@@ -199,5 +199,51 @@ namespace MySqlX.Data.Tests
       Assert.True(Tools.CompareGuids(guid1, guid2) != 0);
       Assert.True(Tools.CompareGuids(guid1.ToString(), guid2.ToString()) != 0);
     }
+
+    [Fact]
+    public void InsertNullValuesAsDbDoc()
+    {
+      Collection collection = CreateCollection("test");
+
+      var nullValues = new String[] { null, "null", "NULL" };
+      var docs = new DbDoc[3];
+      for (int i = 0; i < docs.Length; i++)
+      {
+        docs[i] = new DbDoc();
+        docs[i].SetValue("a", nullValues[i]);
+        docs[i].SetValue("_id", (i+1));
+      }
+
+      collection.Add(docs).Execute();
+      var result = collection.Find().Execute().FetchAll();
+      Assert.Equal(docs.Length, result.Count);
+
+      for (int i = 0; i < docs.Length; i++)
+        Assert.Equal(docs[i].ToString(), result[i].ToString());
+    }
+
+    [Fact]
+    public void InsertNullValuesAsJson()
+    {
+      var docs = new[]
+      {
+        @"{ ""_id"": 1, ""foo"": null}",
+        @"{ ""_id"": 2, ""foo"": null }",
+        @"{ ""_id"": 3, ""foo"": ""null"" }",
+        @"{ ""_id"": 4, ""foo"": ""NULL"" }",
+      };
+
+      Collection collection = CreateCollection("test");
+      collection.Add(docs).Execute();
+      var result = collection.Find().Execute().FetchAll();
+      Assert.Equal(docs.Length, result.Count);
+      for (int i=0; i < docs.Length; i++)
+      {
+        var currentDoc = new DbDoc(docs[i]);
+        var resultingDoc = new DbDoc(result[i]);
+        Assert.Equal(currentDoc.Id, resultingDoc.Id);
+        Assert.Equal(currentDoc["foo"], resultingDoc["foo"]);
+      }
+    }
   }
 }
