@@ -201,4 +201,7 @@
   <data name="ProgramDataNotDefined" xml:space="preserve">
     <value>ProgramData path is not defined.</value>
   </data>
+  <data name="NumberNotGreaterThanZero" xml:space="preserve">
+    <value>{0} must be a value greater than 0.</value>
+  </data>
 </root>

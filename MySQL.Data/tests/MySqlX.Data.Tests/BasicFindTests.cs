@@ -96,6 +96,10 @@ namespace MySqlX.Data.Tests
       Assert.True(foundDocs.Next());
       Assert.True(foundDocs.Current["title"] == "Book 2");
       Assert.False(foundDocs.Next());
+
+      // Limit out of range.
+      Assert.Throws<ArgumentOutOfRangeException>(() => coll.Find().Limit(0).Execute());
+      Assert.Throws<ArgumentOutOfRangeException>(() => coll.Find().Limit(-1).Execute());
     }
 
     [Fact]

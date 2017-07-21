@@ -75,6 +75,12 @@ namespace MySqlX.Data.Tests
 
       r = coll.Remove("pages > 20").Limit(1).Execute();
       Assert.Equal<ulong>(1, r.RecordsAffected);
+
+      // Limit out of range.
+      Assert.Throws<ArgumentOutOfRangeException>(() => coll.Remove("True").Limit(0).Execute());
+      Assert.Throws<ArgumentOutOfRangeException>(() => coll.Remove("True").Limit(-2).Execute());
+      Assert.Throws<ArgumentOutOfRangeException>(() => coll.Remove("pages > 10").Limit(0).Execute());
+      Assert.Throws<ArgumentOutOfRangeException>(() => coll.Remove("pages > 20").Limit(-3).Execute());
     }
 
     [Fact]

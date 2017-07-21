@@ -233,6 +233,15 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} must be a value greater than 0..
+        /// </summary>
+        public static string NumberNotGreaterThanZero {
+            get {
+                return ResourceManager.GetString("NumberNotGreaterThanZero", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Path not found &apos;{0}&apos;..
         /// </summary>
         public static string PathNotFound {

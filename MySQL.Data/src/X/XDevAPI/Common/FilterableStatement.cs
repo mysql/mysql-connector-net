@@ -24,6 +24,7 @@ using MySqlX.Serialization;
 using MySqlX.Common;
 using System.Collections.Generic;
 using System;
+using MySql.Data;
 
 namespace MySqlX.XDevAPI.Common
 {
@@ -43,7 +44,7 @@ namespace MySqlX.XDevAPI.Common
     /// <summary>
     /// Initializes a new instance of the FiltarableStatement class based on the target and condition.
     /// </summary>
-    /// <param name="target">The database object</param>
+    /// <param name="target">The database object.</param>
     /// <param name="condition">The optional filter condition.</param>
     public FilterableStatement(TTarget target, string condition = null) : base(target)
     {
@@ -68,12 +69,14 @@ namespace MySqlX.XDevAPI.Common
     }
 
     /// <summary>
-    /// Allows the user to set the limit and offset for the operation.
+    /// Sets the limit and offset for the operation.
     /// </summary>
     /// <param name="rows">The number of items to be returned.</param>
     /// <returns>The implementing statement type.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="rows"/> is equal or lower than 0.</exception>
     public T Limit(long rows)
     {
+      if (rows <= 0) throw new ArgumentOutOfRangeException(nameof(rows), string.Format(ResourcesX.NumberNotGreaterThanZero, nameof(rows)));
       filter.Limit = rows;
       filter.Offset = -1;
       return (T)this;

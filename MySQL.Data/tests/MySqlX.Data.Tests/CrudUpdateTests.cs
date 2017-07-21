@@ -83,7 +83,7 @@ namespace MySqlX.Data.Tests
     }
 
     [Fact]
-    public void UpdateAll()
+    public void ModifyAll()
     {
       Collection collection = CreateCollection("test");
       var docs = new[]
@@ -110,6 +110,26 @@ namespace MySqlX.Data.Tests
       // Sending an expression that evaluates to true applies changes on all documents.
       result = collection.Modify("true").Set("pages","10").Execute();
       Assert.Equal<ulong>(2, result.RecordsAffected);
+    }
+
+    [Fact]
+    public void ModifyWithLimit()
+    {
+      Collection collection = CreateCollection("test");
+      var docs = new[]
+      {
+        new {  _id = 1, title = "Book 1", pages = 20 },
+        new {  _id = 2, title = "Book 2", pages = 30 },
+      };
+      Result result = collection.Add(docs).Execute();
+      Assert.Equal<ulong>(2, result.RecordsAffected);
+
+      collection.Modify("true").Set("title", "Book X").Limit(1).Execute();
+      Assert.Equal(1, collection.Find("title = \"Book X\"").Execute().FetchAll().Count);
+
+      // Limit out of range.
+      Assert.Throws<ArgumentOutOfRangeException>(() => collection.Modify("true").Set("pages", 10).Limit(0).Execute());
+      Assert.Throws<ArgumentOutOfRangeException>(() => collection.Modify("true").Set("pages", 10).Limit(-10).Execute());
     }
   }
 }
