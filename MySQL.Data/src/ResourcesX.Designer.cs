@@ -251,7 +251,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Providing a port number as part of the host address isn&apos;t supported when using connection strings in basic format. Use URI format instead..
+        ///   Looks up a localized string similar to Providing a port number as part of the host address isn&apos;t supported when using connection strings in basic format or anonymous objects. Use URI format instead..
         /// </summary>
         public static string PortNotSupported {
             get {

@@ -211,6 +211,6 @@
     <value>The priority must be between 0 and 100.</value>
   </data>
   <data name="PortNotSupported" xml:space="preserve">
-    <value>Providing a port number as part of the host address isn't supported when using connection strings in basic format. Use URI format instead.</value>
+    <value>Providing a port number as part of the host address isn't supported when using connection strings in basic format or anonymous objects. Use URI format instead.</value>
   </data>
 </root>

@@ -131,6 +131,14 @@ namespace MySqlX.XDevAPI
     /// </summary>
     /// <param name="connectionData">The connection data as an anonymous type of the session.</param>
     /// <exception cref="ArgumentNullException"><paramref name="connectionData"/> is null.</exception>
+    /// <remarks>
+    /// <para>Multiple hosts can be specified as part of the <paramref name="connectionData"/> which will enable client side failover when trying to
+    /// establish a connection.</para>
+    /// <para>&#160;</para>
+    /// <para>To assign multiple hosts create a property similar to the connection string examples (in basic format) shown in
+    /// <see cref="BaseSession(string)"/>. Note that the property's value must be a string.
+    /// </para>
+    /// </remarks>
     public BaseSession(object connectionData)
     {
       if (connectionData == null)
@@ -139,14 +147,29 @@ namespace MySqlX.XDevAPI
       if (!values.Keys.Any(s => s.ToLowerInvariant() == "port"))
         values.Add("port", newDefaultPort);
       Settings = new MySqlConnectionStringBuilder();
+      bool hostsParsed = false;
       foreach (var value in values)
       {
         if (!Settings.ContainsKey(value.Key))
           throw new KeyNotFoundException(string.Format(ResourcesX.InvalidConnectionStringAttribute, value.Key));
         Settings.SetValue(value.Key, value.Value);
+        if (!hostsParsed && !string.IsNullOrEmpty(Settings["server"].ToString()))
+        {
+          ParseHostList(value.Value.ToString(), false);
+          if (FailoverManager.FailoverGroup != null) Settings["server"] = FailoverManager.FailoverGroup.ActiveHost.Host;
+          hostsParsed = true;
+        }
       }
       this.connectionString = Settings.ToString();
-      _internalSession = InternalSession.GetSession(Settings);
+
+      if (FailoverManager.FailoverGroup != null)
+      {
+        // Multiple hosts were specified.
+        _internalSession = FailoverManager.AttemptConnection(this.connectionString, out this.connectionString);
+        Settings = new MySqlConnectionStringBuilder(this.connectionString);
+      }
+      else _internalSession = InternalSession.GetSession(Settings);
+
       if (!string.IsNullOrWhiteSpace(Settings.Database))
         GetSchema(Settings.Database);
     }
