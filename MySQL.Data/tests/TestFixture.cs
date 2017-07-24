@@ -41,7 +41,7 @@ namespace MySql.Data.MySqlClient.Tests
     protected string BaseUserName { get; set;  }
     public Version Version { get; set; }
     public int MaxPacketSize { get; set; }
-    public string UnixSocket { get; private set; } = Environment.GetEnvironmentVariable("MYSQL_UNIX") ?? "/tmp/mysql.sock";
+    public string UnixSocket { get; private set; } = Environment.GetEnvironmentVariable("MYSQL_SOCKET") ?? "/tmp/mysql.sock";
 
     public void Setup(TestBase testClass, bool reinitDatabase = false)
     {
