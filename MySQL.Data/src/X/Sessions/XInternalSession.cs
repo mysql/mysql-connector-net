@@ -186,13 +186,13 @@ namespace MySqlX.Sessions
       return ExecuteCmdNonQuery(XpluginStatementCommand.XPLUGIN_STMT_CREATE_COLLECTION_INDEX, false, args.ToArray());
     }
 
-    public Result DropCollectionIndex(string schemaName, string collectionName, string indexName)
+    public void DropCollectionIndex(string schemaName, string collectionName, string indexName)
     {
       List<object> args = new List<object>();
       args.Add(schemaName);
       args.Add(collectionName);
       args.Add(indexName);
-      return ExecuteCmdNonQuery(XpluginStatementCommand.XPLUGIN_STMT_DROP_COLLECTION_INDEX, false, args.ToArray());
+      ExecuteCmdNonQuery(XpluginStatementCommand.XPLUGIN_STMT_DROP_COLLECTION_INDEX, false, args.ToArray());
     }
 
     public long TableCount(Schema schema, string name)
@@ -353,11 +353,10 @@ namespace MySqlX.Sessions
       return new Result(this);
     }
 
-    public Result ViewDrop(ViewDropStatement statement)
+    public void ViewDrop(Schema schema, string name)
     {
-      protocol.SendDropView(statement.Target.Schema.Name, 
-        statement.name, statement.ifExists);
-      return new Result(this);
+      protocol.SendDropView(schema.Name, name, true);
+      new Result(this);
     }
   }
 }

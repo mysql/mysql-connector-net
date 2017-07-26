@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using MySqlX.XDevAPI;
 using Xunit;
 using MySql.Data.MySqlClient;
+using System;
 
 namespace MySqlX.Data.Tests
 {
@@ -39,14 +40,26 @@ namespace MySqlX.Data.Tests
     }
 
     [Fact]
-    public void CreateAndDeleteCollection()
+    public void CreateAndDropCollection()
     {
       Session s = GetSession();
       Schema test = s.GetSchema("test");
       Collection testColl = test.CreateCollection("test");
       Assert.True(testColl.ExistsInDatabase());
+
+      // Drop existing collection.
       test.DropCollection("test");
       Assert.False(testColl.ExistsInDatabase());
+
+      // Drop non-existing collection.
+      test.DropCollection("test");
+      Assert.False(testColl.ExistsInDatabase());
+
+      // Empty, whitespace and null schema name.
+      Assert.Throws<ArgumentNullException>(() => test.DropCollection(string.Empty));
+      Assert.Throws<ArgumentNullException>(() => test.DropCollection(" "));
+      Assert.Throws<ArgumentNullException>(() => test.DropCollection("  "));
+      Assert.Throws<ArgumentNullException>(() => test.DropCollection(null));
     }
 
     [Fact]
@@ -59,9 +72,29 @@ namespace MySqlX.Data.Tests
       var result = testColl.CreateIndex("testIndex", true).Field("$.myId", "INT", true).Execute();
       result = testColl.Add(new { myId = 1 }).Add(new { myId = 2 }).Execute();
       Assert.Throws<MySqlException>(() => testColl.Add(new { myId = 1 }).Execute());
-      result = testColl.DropIndex("testIndex");
+      testColl.DropIndex("testIndex");
       result = testColl.Add(new { myId = 1 }).Execute();
     }
 
+    [Fact]
+    public void DropCollectionIndex()
+    {
+      Session session = GetSession();
+      Schema test = session.GetSchema("test");
+      Collection testColl = test.CreateCollection("test");
+      testColl.CreateIndex("testIndex", true).Field("$.myId", "INT", true).Execute();
+
+      // Drop existing index.
+      testColl.DropIndex("testIndex");
+
+      // Drop non-existing index.
+      testColl.DropIndex("testIndex");
+
+      // Empty, whitespace and null schema name.
+      Assert.Throws<ArgumentNullException>(() => testColl.DropIndex(string.Empty));
+      Assert.Throws<ArgumentNullException>(() => testColl.DropIndex(" "));
+      Assert.Throws<ArgumentNullException>(() => testColl.DropIndex("  "));
+      Assert.Throws<ArgumentNullException>(() => testColl.DropIndex(null));
+    }
   }
 }

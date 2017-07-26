@@ -146,8 +146,12 @@ namespace MySqlX.XDevAPI
     /// Drops the database/schema with the given name.
     /// </summary>
     /// <param name="schema">The name of the schema.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="schema"/> is null.</exception>
     public void DropSchema(string schema)
     {
+      if (string.IsNullOrWhiteSpace(schema)) throw new ArgumentNullException(nameof(schema));
+      Schema s = this.GetSchema(schema);
+      if (!s.ExistsInDatabase()) return;
       InternalSession.ExecuteSqlNonQuery("DROP DATABASE `" + schema + "`");
     }
 
