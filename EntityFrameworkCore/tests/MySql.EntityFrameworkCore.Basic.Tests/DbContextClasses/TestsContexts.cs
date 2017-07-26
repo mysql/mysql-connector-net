@@ -53,6 +53,10 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
     public DbSet<Blog> Blogs { get; set; }
     public DbSet<Post> Posts { get; set; }
 
+    public SimpleContext() : base()
+    {
+    }
+
     public SimpleContext(DbContextOptions options) : base(options)
     {
     }
