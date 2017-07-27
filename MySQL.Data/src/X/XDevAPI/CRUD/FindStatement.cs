@@ -22,6 +22,9 @@
 
 using System.Collections.Generic;
 using MySqlX.XDevAPI.Common;
+using System;
+using MySql.Data.MySqlClient;
+using MySql.Data;
 
 namespace MySqlX.XDevAPI.CRUD
 {
@@ -32,6 +35,7 @@ namespace MySqlX.XDevAPI.CRUD
   {
     internal List<string> projection;
     internal string[] orderBy;
+    internal FindParams findParams = new FindParams();
 
 
     internal FindStatement(Collection c, string condition) : base (c, condition)
@@ -42,7 +46,7 @@ namespace MySqlX.XDevAPI.CRUD
     /// List of column projections that shall be returned.
     /// </summary>
     /// <param name="columns">List of columns.</param>
-    /// <returns>This <see cref="FindStatement"/> object.</returns>
+    /// <returns>This <see cref="FindStatement"/> object set with the specified columns/fields.</returns>
     public FindStatement Fields(params string[] columns)
     {
       projection = new List<string>(columns);
@@ -63,11 +67,39 @@ namespace MySqlX.XDevAPI.CRUD
     /// </summary>
     /// <param name="rows">Number of items to be returned.</param>
     /// <param name="offset">Number of items to be skipped.</param>
-    /// <returns>The implementing statement type.</returns>
+    /// <returns>This same <see cref="FindStatement"/> object set with the specified limit.</returns>
     public FindStatement Limit(long rows, long offset)
     {
       FilterData.Limit = rows;
       FilterData.Offset = offset;
+      return this;
+    }
+
+    /// <summary>
+    /// Locks matching rows against updates.
+    /// </summary>
+    /// <returns>This same <see cref="FindStatement"/> object set with the lock shared option.</returns>
+    /// <exception cref="MySqlException">The server version is lower than 8.0.3.</exception>
+    public FindStatement LockShared()
+    {
+      if (!this.Session.InternalSession.GetServerVersion().isAtLeast(8,0,3))
+        throw new MySqlException(string.Format(ResourcesX.FunctionalityNotSupported, "8.0.3"));
+
+      findParams.Locking = Protocol.X.RowLock.SharedLock;
+      return this;
+    }
+
+    /// <summary>
+    /// Locks matching rows so no other transaction can read or write to it.
+    /// </summary>
+    /// <returns>This same <see cref="FindStatement"/> object set with the lock exclusive option.</returns>
+    /// <exception cref="MySqlException">The server version is lower than 8.0.3.</exception>
+    public FindStatement LockExclusive()
+    {
+      if (!this.Session.InternalSession.GetServerVersion().isAtLeast(8,0,3))
+        throw new MySqlException(string.Format(ResourcesX.FunctionalityNotSupported, "8.0.3"));
+
+      findParams.Locking = Protocol.X.RowLock.ExclusiveLock;
       return this;
     }
   }

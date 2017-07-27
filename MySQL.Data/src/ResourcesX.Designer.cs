@@ -80,6 +80,15 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to This functionality is only supported from server version {0} onwards..
+        /// </summary>
+        public static string FunctionalityNotSupported {
+            get {
+                return ResourceManager.GetString("FunctionalityNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Collation with id &apos;{0}&apos; not found..
         /// </summary>
         public static string InvalidCollationId {

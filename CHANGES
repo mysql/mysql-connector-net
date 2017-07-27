@@ -1,3 +1,8 @@
+8.0.9
+- MySqlX: Added the LockShared() and LockExclusive() methods to Table.Select()/Collection.Find() command chains allowing safe,
+  transactional document/row updates. (WL10948).
+
+
 8.0.8
 - MySqlX: Updated Collection's Modify() and Remove() methods to always require a search condition (WL10739).
 - MySqlX: Updated the generated UUID for inserted documents to have its components in reversed order. (WL10202).

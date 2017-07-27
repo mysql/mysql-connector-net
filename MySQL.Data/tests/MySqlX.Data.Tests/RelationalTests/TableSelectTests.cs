@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -26,6 +26,7 @@ using System.Linq;
 using MySqlX.XDevAPI.Relational;
 using MySqlX.XDevAPI.Common;
 using System;
+using MySql.Data.MySqlClient;
 
 namespace MySqlX.Data.Tests.RelationalTests
 {
@@ -33,7 +34,8 @@ namespace MySqlX.Data.Tests.RelationalTests
   {
     object[][] allRows = {
         new object[] { 1, "jonh doe", 38 },
-        new object[] { 2, "milton green", 45 }
+        new object[] { 2, "milton green", 45 },
+        new object[] { 3, "larry smith", 24}
       };
 
     public TableSelectTests()
@@ -42,6 +44,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       TableInsertStatement stmt = testSchema.GetTable("test").Insert();
       stmt.Values(allRows[0]);
       stmt.Values(allRows[1]);
+      stmt.Values(allRows[2]);
       Result result = stmt.Execute();
     }
 
@@ -160,6 +163,254 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.Equal(2, rows.Count);
       Assert.Equal(new DateTime(1985, 10, 21, 16, 34, 22).AddTicks(1230000), (DateTime)rows[0]["birthday"]);
       Assert.Equal(new DateTime(1985, 10, 21, 10, 0, 45).AddTicks(980000), (DateTime)rows[1]["birthday"]);
+    }
+
+    [Fact]
+    public void RowLockingNotSupportedInOlderVersions()
+    {
+      if (session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+
+      Table table = session.Schema.GetTable("test");
+
+      Exception ex = Assert.Throws<MySqlException>(() => table.Select().LockShared().Execute());
+      Assert.Equal("This functionality is only supported from server version 8.0.3 onwards.", ex.Message);
+
+      ex = Assert.Throws<MySqlException>(() => table.Select().LockExclusive().Execute());
+      Assert.Equal("This functionality is only supported from server version 8.0.3 onwards.", ex.Message);
+    }
+
+    [Fact]
+    public void SimpleSharedLock()
+    {
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+
+      session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
+      using (var session2 = MySQLX.GetSession(ConnectionString))
+      {
+        session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
+        Table table = session.Schema.GetTable("test");
+        Table table2 = session2.GetSchema("test").GetTable("test");
+
+        session.SQL("START TRANSACTION").Execute();
+        RowResult rowResult = table.Select().Where("id = 1").LockShared().Execute();
+        Assert.Equal(1, rowResult.FetchAll().Count);
+
+        session2.SQL("START TRANSACTION").Execute();
+        // Should return immediately since row isn't locked.
+        rowResult = table2.Select().Where("id = 2").LockShared().Execute();
+        Assert.Equal(1, rowResult.FetchAll().Count);
+        // Should return immediately due to LockShared() allows reading by other sessions.
+        rowResult = table2.Select().Where("id = 1").LockShared().Execute();
+        Assert.Equal(1, rowResult.FetchAll().Count);
+
+        session.SQL("ROLLBACK").Execute();
+        session2.SQL("ROLLBACK").Execute();
+      }
+    }
+
+    [Fact]
+    public void SimpleExclusiveLock()
+    {
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+
+      session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
+      using (var session2 = MySQLX.GetSession(ConnectionString))
+      {
+        session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
+        Table table = session.Schema.GetTable("test");
+        session.SQL("CREATE UNIQUE INDEX myIndex ON test.test (id)").Execute();
+        Table table2 = session2.GetSchema("test").GetTable("test");
+
+        session.SQL("START TRANSACTION").Execute();
+        RowResult rowResult = table.Select().Where("id = 1").LockExclusive().Execute();
+        Assert.Equal(1, rowResult.FetchAll().Count);
+
+        session2.SQL("START TRANSACTION").Execute();
+        // Should return immediately since row isn't locked.
+        rowResult = table2.Select().Where("id = 2").LockExclusive().Execute();
+        Assert.Equal(1, rowResult.FetchAll().Count);
+        // Session2 blocks due to to LockExclusive() not allowing to read locked rows.
+        session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
+        Exception ex = Assert.Throws<MySqlException>(() => table2.Select().Where("id = 1").LockExclusive().Execute());
+        Assert.Equal("Lock wait timeout exceeded; try restarting transaction", ex.Message);
+
+        session.SQL("ROLLBACK").Execute();
+        session2.SQL("ROLLBACK").Execute();
+      }
+    }
+
+    [Fact]
+    public void SharedLockForbidsToModifyDocuments()
+    {
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+
+      session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
+      using (var session2 = MySQLX.GetSession(ConnectionString))
+      {
+        session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
+        Table table = session.Schema.GetTable("test");
+        Table table2 = session2.GetSchema("test").GetTable("test");
+
+        session.SQL("START TRANSACTION").Execute();
+        RowResult rowResult = table.Select().Where("id = 1").LockShared().Execute();
+        Assert.Equal(1, rowResult.FetchAll().Count);
+
+        session2.SQL("START TRANSACTION").Execute();
+        // Reading the same row is allowed with LockShared().
+        rowResult = table2.Select().Where("id = 1").Execute();
+        Assert.Equal(1, rowResult.FetchAll().Count);
+
+        // Modify() is allowed for non-locked rows.
+        Result result = table2.Update().Where("id = 2").Set("age", 2).Execute();
+        Assert.Equal<ulong>(1, result.RecordsAffected);
+        // Session1 blocks, Modify() is not allowed for locked rows.
+        session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
+        Exception ex = Assert.Throws<MySqlException>(() => table2.Update().Where("id = 1").Set("age", 2).Execute());
+        Assert.Equal("Lock wait timeout exceeded; try restarting transaction", ex.Message);
+
+        session.SQL("ROLLBACK").Execute();
+        // Modify() is allowed since row isn't locked anymore.
+        table2.Update().Where("id = 1").Set("age", 2).Execute();
+        session2.SQL("COMMIT").Execute();
+      }
+    }
+
+    [Fact]
+    public void ExclusiveLockForbidsToModifyDocuments()
+    {
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+
+      session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
+      using (var session2 = MySQLX.GetSession(ConnectionString))
+      {
+        session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
+        Table table = session.Schema.GetTable("test");
+        Table table2 = session2.GetSchema("test").GetTable("test");
+
+        session.SQL("START TRANSACTION").Execute();
+        RowResult rowResult = table.Select().Where("id = 1").LockExclusive().Execute();
+        Assert.Equal(1, rowResult.FetchAll().Count);
+
+        session2.SQL("START TRANSACTION").Execute();
+
+        // Modify() is allowed for non-locked rows.
+        Result result = table2.Update().Where("id = 2").Set("age", 2).Execute();
+        Assert.Equal<ulong>(1, result.RecordsAffected);
+        // Session1 blocks, Modify() is not allowed for locked rows.
+        session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
+        Exception ex = Assert.Throws<MySqlException>(() => table2.Update().Where("id = 1").Set("age", 2).Execute());
+        Assert.Equal("Lock wait timeout exceeded; try restarting transaction", ex.Message);
+
+        session.SQL("ROLLBACK").Execute();
+        // Modify() is allowed since row isn't locked anymore.
+        table2.Update().Where("id = 1").Set("age", 2).Execute();
+        session2.SQL("COMMIT").Execute();
+      }
+    }
+
+    [Fact]
+    public void SharedLockAfterExclusiveLock()
+    {
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+
+      session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
+      using (var session2 = MySQLX.GetSession(ConnectionString))
+      {
+        session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
+        Table table = session.Schema.GetTable("test");
+        session.SQL("CREATE UNIQUE INDEX myIndex ON test.test (id)").Execute();
+        Table table2 = session2.GetSchema("test").GetTable("test");
+
+        session.SQL("START TRANSACTION").Execute();
+        RowResult rowResult = table.Select().Where("id = 1").LockExclusive().Execute();
+        Assert.Equal(1, rowResult.FetchAll().Count);
+
+        session2.SQL("START TRANSACTION").Execute();
+        // Should return immediately since row isn't locked.
+        rowResult = table2.Select().Where("id = 2").LockShared().Execute();
+        Assert.Equal(1, rowResult.FetchAll().Count);
+        // Session2 blocks due to LockExclusive() not allowing to read locked rows.
+        session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
+        Exception ex = Assert.Throws<MySqlException>(() => table2.Select().Where("id = 1").LockShared().Execute());
+        Assert.Equal("Lock wait timeout exceeded; try restarting transaction", ex.Message);
+
+        // Session unlocks rows.
+        session.SQL("ROLLBACK").Execute();
+        // Row can now be recovered.
+        rowResult = table2.Select().Where("id = 1").LockShared().Execute();
+        Assert.Equal(1, rowResult.FetchAll().Count);
+        session2.SQL("ROLLBACK").Execute();
+      }
+    }
+
+    [Fact]
+    public void ExclusiveLockAfterSharedLock()
+    {
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+
+      session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
+      using (var session2 = MySQLX.GetSession(ConnectionString))
+      {
+        session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
+        Table table = session.Schema.GetTable("test");
+        session.SQL("CREATE UNIQUE INDEX myIndex ON test.test (id)").Execute();
+        Table table2 = session2.GetSchema("test").GetTable("test");
+
+        session.SQL("START TRANSACTION").Execute();
+        RowResult rowResult = table.Select().Where("id in (1, 3)").LockShared().Execute();
+        Assert.Equal(2, rowResult.FetchAll().Count);
+
+        session2.SQL("START TRANSACTION").Execute();
+        // Should return immediately since row isn't locked.
+        rowResult = table2.Select().Where("id = 2").LockExclusive().Execute();
+        // Should return immediately due to LockShared() allows reading by other sessions.
+        rowResult = table2.Select().Where("id = 2").LockShared().Execute();
+        Assert.Equal(1, rowResult.FetchAll().Count);
+        // Session2 blocks due to to LockExclusive() not allowing to read locked rows.
+        session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
+        Exception ex = Assert.Throws<MySqlException>(() => table2.Select().Where("id = 1").LockExclusive().Execute());
+        Assert.Equal("Lock wait timeout exceeded; try restarting transaction", ex.Message);
+
+        // Session unlocks rows.
+        session.SQL("ROLLBACK").Execute();
+        rowResult = table2.Select().Where("id = 1").LockExclusive().Execute();
+        Assert.Equal(1, rowResult.FetchAll().Count);
+        session2.SQL("ROLLBACK").Execute();
+      }
+    }
+
+    [Fact]
+    public void ExclusiveLockAfterExclusiveLock()
+    {
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+
+      session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
+      using (var session2 = MySQLX.GetSession(ConnectionString))
+      {
+        session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
+        Table table = session.Schema.GetTable("test");
+        session.SQL("CREATE UNIQUE INDEX myIndex ON test.test (id)").Execute();
+        Table table2 = session2.GetSchema("test").GetTable("test");
+
+        session.SQL("START TRANSACTION").Execute();
+        RowResult rowResult = table.Select().Where("id = 1").LockExclusive().Execute();
+        Assert.Equal(1, rowResult.FetchAll().Count);
+
+        session2.SQL("START TRANSACTION").Execute();
+        // Should return immediately since row isn't locked.
+        rowResult = table2.Select().Where("id = 2").LockExclusive().Execute();
+        Assert.Equal(1, rowResult.FetchAll().Count);
+        // Session2 blocks due to to LockExclusive() not allowing to read locked rows.
+        session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
+        Exception ex = Assert.Throws<MySqlException>(() => table2.Select().Where("id = 1").LockExclusive().Execute());
+        Assert.Equal("Lock wait timeout exceeded; try restarting transaction", ex.Message);
+
+        // Session unlocks rows.
+        session.SQL("ROLLBACK").Execute();
+        rowResult = table2.Select().Where("id = 1").LockExclusive().Execute();
+        Assert.Equal(1, rowResult.FetchAll().Count);
+        session2.SQL("ROLLBACK").Execute();
+      }
     }
   }
 

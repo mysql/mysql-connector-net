@@ -313,7 +313,7 @@ namespace MySqlX.Sessions
 
     public DocResult FindDocs(FindStatement fs)
     {
-      protocol.SendFind(fs.Target.Schema.Name, fs.Target.Name, false, fs.FilterData, null);
+      protocol.SendFind(fs.Target.Schema.Name, fs.Target.Name, false, fs.FilterData, fs.findParams);
       DocResult result = new DocResult(this);
       return result;
     }

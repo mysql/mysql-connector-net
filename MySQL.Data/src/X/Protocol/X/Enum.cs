@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -33,6 +33,12 @@ namespace MySqlX.Protocol.X
     Warning = 1,
     SessionVariableChanged = 2,
     SessionStateChanged = 3,
+  }
+
+  internal enum RowLock : int
+  {
+    SharedLock = 1,
+    ExclusiveLock = 2
   }
 
   internal static class XpluginStatementCommand

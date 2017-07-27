@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2017 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -470,7 +470,8 @@ namespace MySqlX.Protocol
       var builder = new Find();
       builder.Collection = ExprUtil.BuildCollection(schema, collection);
       builder.DataModel = (isRelational ? DataModel.Table : DataModel.Document);
-      if (findParams != null && findParams.Projection != null && findParams.Projection.Length > 0)
+      if (findParams.Locking != 0) builder.Locking = (Find.Types.RowLock) findParams.Locking;
+      if (findParams.Projection != null && findParams.Projection.Length > 0)
         builder.Projection.Add(new ExprParser(ExprUtil.JoinString(findParams.Projection)).ParseTableSelectProjection());
       ApplyFilter(v => builder.Limit = v, v => builder.Criteria = v, builder.Order.Add, filter, builder.Args.Add);
       return builder;
