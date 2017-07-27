@@ -1,3 +1,7 @@
+6.10.3
+- EF Core: Added async support. WL-10615
+
+
 6.10.2
 - Fixed: EF core database first support fails for a database with views. Orabug #25493086
 - Fixed: EF Core database first doesn't support mysql sample world/sakila database. Orabug #25493336
