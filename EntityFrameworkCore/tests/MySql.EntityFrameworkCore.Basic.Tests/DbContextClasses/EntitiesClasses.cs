@@ -107,6 +107,19 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
 
   }
 
+  public class BodyShop
+  {
+    public int BodyShopId { get; set; }
+
+    public string Name { get; set; }
+
+    public string City { get; set; }
+
+    public string State { get; set; }
+
+    public string Brand { get; set; }
+  }
+
 
   public class Car
   {
