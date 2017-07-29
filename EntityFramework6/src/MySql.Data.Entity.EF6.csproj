@@ -9,7 +9,7 @@
     <TargetFramework>net452</TargetFramework>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <AssemblyName>MySql.Data.Entity.EF6</AssemblyName>
-    <PackageId>MySql.Data.Entity.EF6</PackageId>
+    <PackageId>MySql.Data.Entity</PackageId>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET</PackageTags>
     <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
     <PackageProjectUrl>http://dev.mysql.com/downloads/</PackageProjectUrl>
