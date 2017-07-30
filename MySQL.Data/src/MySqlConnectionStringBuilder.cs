@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -97,11 +97,9 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("integratedsecurity", "integrated security", typeof(bool), false, false,
         delegate (MySqlConnectionStringBuilder msb, MySqlConnectionStringOption sender, object value)
         {
-#if !NETCORE10
           if (!Platform.IsWindows())
             throw new MySqlException("IntegratedSecurity is supported on Windows only");
-#endif
-          msb.SetValue("Integrated Security", value);
+          msb.SetValue("Integrated Security", value.ToString().Equals("SSPI", StringComparison.OrdinalIgnoreCase) ? true : value);
         },
         delegate (MySqlConnectionStringBuilder msb, MySqlConnectionStringOption sender)
         {
@@ -111,6 +109,10 @@ namespace MySql.Data.MySqlClient
         ));
 
       // Other properties
+#if !NETCORE10
+      Options.Add(new MySqlConnectionStringOption("autoenlist", "auto enlist", typeof(bool), true, false));
+      Options.Add(new MySqlConnectionStringOption("includesecurityasserts", "include security asserts", typeof(bool), false, false));
+#endif
       Options.Add(new MySqlConnectionStringOption("allowzerodatetime", "allow zero datetime", typeof(bool), false, false));
       Options.Add(new MySqlConnectionStringOption("convertzerodatetime", "convert zero datetime", typeof(bool), false, false));
       Options.Add(new MySqlConnectionStringOption("useusageadvisor", "use usage advisor,usage advisor", typeof(bool), false, false));
@@ -127,7 +129,6 @@ namespace MySql.Data.MySqlClient
         },
         (msb, sender) => (bool)msb.values["useprocedurebodies"]
         ));
-      Options.Add(new MySqlConnectionStringOption("autoenlist", "auto enlist", typeof(bool), true, false));
       Options.Add(new MySqlConnectionStringOption("respectbinaryflags", "respect binary flags", typeof(bool), true, false));
       Options.Add(new MySqlConnectionStringOption("treattinyasboolean", "treat tiny as boolean", typeof(bool), true, false));
       Options.Add(new MySqlConnectionStringOption("allowuservariables", "allow user variables", typeof(bool), false, false));
@@ -143,7 +144,6 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("replication", null, typeof(bool), false, false));
       Options.Add(new MySqlConnectionStringOption("exceptioninterceptors", "exception interceptors", typeof(string), null, false));
       Options.Add(new MySqlConnectionStringOption("commandinterceptors", "command interceptors", typeof(string), null, false));
-      Options.Add(new MySqlConnectionStringOption("includesecurityasserts", "include security asserts", typeof(bool), false, false));
 
       // pooling options
       Options.Add(new MySqlConnectionStringOption("connectionlifetime", "connection lifetime", typeof(uint), (uint)0, false));
@@ -473,17 +473,15 @@ namespace MySql.Data.MySqlClient
 
     #endregion
 
-    #region Other Properties
+#region Other Properties
 
     /// <summary>
     /// Gets or sets a boolean value that indicates if zero date time values are supported.
     /// </summary>
-#if !NETCORE10
     [Category("Advanced")]
     [DisplayName("Allow Zero Datetime")]
     [Description("Should zero datetimes be supported")]
     [RefreshProperties(RefreshProperties.All)]
-#endif
     [DefaultValue(false)]
     public bool AllowZeroDateTime
     {
@@ -495,12 +493,10 @@ namespace MySql.Data.MySqlClient
     /// Gets or sets a boolean value indicating if zero datetime values should be 
     /// converted to DateTime.MinValue.
     /// </summary>
-#if !NETCORE10
     [Category("Advanced")]
     [DisplayName("Convert Zero Datetime")]
     [Description("Should illegal datetime values be converted to DateTime.MinValue")]
     [RefreshProperties(RefreshProperties.All)]
-#endif
     [DefaultValue(false)]
     public bool ConvertZeroDateTime
     {
@@ -511,12 +507,10 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets or sets a boolean value indicating if the Usage Advisor should be enabled.
     /// </summary>
-#if !NETCORE10
     [Category("Advanced")]
     [DisplayName("Use Usage Advisor")]
     [Description("Logs inefficient database operations")]
     [RefreshProperties(RefreshProperties.All)]
-#endif
     [DefaultValue(false)]
     public bool UseUsageAdvisor
     {
@@ -527,13 +521,11 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets or sets the size of the stored procedure cache.
     /// </summary>
-#if !NETCORE10
     [Category("Advanced")]
     [DisplayName("Procedure Cache Size")]
     [Description("Indicates how many stored procedures can be cached at one time. " +
                  "A value of 0 effectively disables the procedure cache.")]
     [RefreshProperties(RefreshProperties.All)]
-#endif
     [DefaultValue(25)]
     public uint ProcedureCacheSize
     {
@@ -544,12 +536,10 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets or sets a boolean value indicating if the permon hooks should be enabled.
     /// </summary>
-#if !NETCORE10
     [Category("Advanced")]
     [DisplayName("Use Performance Monitor")]
     [Description("Indicates that performance counters should be updated during execution.")]
     [RefreshProperties(RefreshProperties.All)]
-#endif
     [DefaultValue(false)]
     public bool UsePerformanceMonitor
     {
@@ -560,12 +550,10 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets or sets a boolean value indicating if calls to Prepare() should be ignored.
     /// </summary>
-#if !NETCORE10
     [Category("Advanced")]
     [DisplayName("Ignore Prepare")]
     [Description("Instructs the provider to ignore any attempts to prepare a command.")]
     [RefreshProperties(RefreshProperties.All)]
-#endif
     [DefaultValue(false)]
     public bool IgnorePrepare
     {
@@ -573,11 +561,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("ignoreprepare", value); }
     }
 
-#if !NETCORE10
     [Category("Advanced")]
     [DisplayName("Use Procedure Bodies")]
     [Description("Indicates if stored procedure bodies will be available for parameter detection.")]
-#endif
     [DefaultValue(true)]
     [Obsolete("Use CheckParameters instead")]
     public bool UseProcedureBodies
@@ -591,7 +577,6 @@ namespace MySql.Data.MySqlClient
     [DisplayName("Auto Enlist")]
     [Description("Should the connetion automatically enlist in the active connection, if there are any.")]
     [RefreshProperties(RefreshProperties.All)]
-#endif
     [DefaultValue(true)]
     public bool AutoEnlist
     {
@@ -599,12 +584,21 @@ namespace MySql.Data.MySqlClient
       set { SetValue("autoenlist", value); }
     }
 
-#if !NETCORE10
+    [Category("Advanced")]
+    [DisplayName("Include Security Asserts")]
+    [Description("Include security asserts to support Medium Trust")]
+    [DefaultValue(false)]
+    public bool IncludeSecurityAsserts
+    {
+      get { return (bool)values["includesecurityasserts"]; }
+      set { SetValue("includesecurityasserts", value); }
+    }
+#endif
+
     [Category("Advanced")]
     [DisplayName("Respect Binary Flags")]
     [Description("Should binary flags on column metadata be respected.")]
     [RefreshProperties(RefreshProperties.All)]
-#endif
     [DefaultValue(true)]
     public bool RespectBinaryFlags
     {
@@ -612,12 +606,10 @@ namespace MySql.Data.MySqlClient
       set { SetValue("respectbinaryflags", value); }
     }
 
-#if !NETCORE10
     [Category("Advanced")]
     [DisplayName("Treat Tiny As Boolean")]
     [Description("Should the provider treat TINYINT(1) columns as boolean.")]
     [RefreshProperties(RefreshProperties.All)]
-#endif
     [DefaultValue(true)]
     public bool TreatTinyAsBoolean
     {
@@ -625,12 +617,10 @@ namespace MySql.Data.MySqlClient
       set { SetValue("treattinyasboolean", value); }
     }
 
-#if !NETCORE10
     [Category("Advanced")]
     [DisplayName("Allow User Variables")]
     [Description("Should the provider expect user variables to appear in the SQL.")]
     [RefreshProperties(RefreshProperties.All)]
-#endif
     [DefaultValue(false)]
     public bool AllowUserVariables
     {
@@ -638,12 +628,10 @@ namespace MySql.Data.MySqlClient
       set { SetValue("allowuservariables", value); }
     }
 
-#if !NETCORE10
     [Category("Advanced")]
     [DisplayName("Interactive Session")]
     [Description("Should this session be considered interactive?")]
     [RefreshProperties(RefreshProperties.All)]
-#endif
     [DefaultValue(false)]
     public bool InteractiveSession
     {
@@ -651,11 +639,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("interactivesession", value); }
     }
 
-#if !NETCORE10
     [Category("Advanced")]
     [DisplayName("Functions Return String")]
     [Description("Should all server functions be treated as returning string?")]
-#endif
     [DefaultValue(false)]
     public bool FunctionsReturnString
     {
@@ -663,11 +649,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("functionsreturnstring", value); }
     }
 
-#if !NETCORE10
     [Category("Advanced")]
     [DisplayName("Use Affected Rows")]
     [Description("Should the returned affected row count reflect affected rows instead of found rows?")]
-#endif
     [DefaultValue(false)]
     public bool UseAffectedRows
     {
@@ -675,11 +659,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("useaffectedrows", value); }
     }
 
-#if !NETCORE10
     [Category("Advanced")]
     [DisplayName("Old Guids")]
     [Description("Treat binary(16) columns as guids")]
-#endif
     [DefaultValue(false)]
     public bool OldGuids
     {
@@ -687,11 +669,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("oldguids", value); }
     }
 
-#if !NETCORE10
     [DisplayName("Keep Alive")]
     [Description("For TCP connections, idle connection time measured in seconds, before the first keepalive packet is sent." +
         "A value of 0 indicates that keepalive is not used.")]
-#endif
     [DefaultValue(0)]
     public uint Keepalive
     {
@@ -699,13 +679,11 @@ namespace MySql.Data.MySqlClient
       set { SetValue("keepalive", value); }
     }
 
-#if !NETCORE10
     [Category("Advanced")]
     [DisplayName("Sql Server Mode")]
     [Description("Allow Sql Server syntax.  " +
         "A value of yes allows symbols to be enclosed with [] instead of ``.  This does incur " +
         "a performance hit so only use when necessary.")]
-#endif
     [DefaultValue(false)]
     public bool SqlServerMode
     {
@@ -713,12 +691,10 @@ namespace MySql.Data.MySqlClient
       set { SetValue("sqlservermode", value); }
     }
 
-#if !NETCORE10
     [Category("Advanced")]
     [DisplayName("Table Cache")]
     [Description(@"Enables or disables caching of TableDirect command.  
             A value of yes enables the cache while no disables it.")]
-#endif
     [DefaultValue(false)]
     public bool TableCaching
     {
@@ -726,11 +702,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("tablecachig", value); }
     }
 
-#if !NETCORE10
     [Category("Advanced")]
     [DisplayName("Default Table Cache Age")]
     [Description(@"Specifies how long a TableDirect result should be cached in seconds.")]
-#endif
     [DefaultValue(60)]
     public int DefaultTableCacheAge
     {
@@ -738,11 +712,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("defaulttablecacheage", value); }
     }
 
-#if !NETCORE10
     [Category("Advanced")]
     [DisplayName("Check Parameters")]
     [Description("Indicates if stored routine parameters should be checked against the server.")]
-#endif
     [DefaultValue(true)]
     public bool CheckParameters
     {
@@ -750,11 +722,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("checkparameters", value); }
     }
 
-#if !NETCORE10
     [Category("Advanced")]
     [DisplayName("Replication")]
     [Description("Indicates if this connection is to use replicated servers.")]
-#endif
     [DefaultValue(false)]
     public bool Replication
     {
@@ -762,54 +732,36 @@ namespace MySql.Data.MySqlClient
       set { SetValue("replication", value); }
     }
 
-#if !NETCORE10
     [Category("Advanced")]
     [DisplayName("Exception Interceptors")]
     [Description("The list of interceptors that can triage thrown MySqlExceptions.")]
-#endif
     public string ExceptionInterceptors
     {
       get { return (string)values["exceptioninterceptors"]; }
       set { SetValue("exceptioninterceptors", value); }
     }
 
-#if !NETCORE10
     [Category("Advanced")]
     [DisplayName("Command Interceptors")]
     [Description("The list of interceptors that can intercept command operations.")]
-#endif
     public string CommandInterceptors
     {
       get { return (string)values["commandinterceptors"]; }
       set { SetValue("commandinterceptors", value); }
     }
 
-#if !NETCORE10
-    [Category("Advanced")]
-    [DisplayName("Include Security Asserts")]
-    [Description("Include security asserts to support Medium Trust")]
-#endif
-    [DefaultValue(false)]
-    public bool IncludeSecurityAsserts
-    {
-      get { return (bool)values["includesecurityasserts"]; }
-      set { SetValue("includesecurityasserts", value); }
-    }
+#endregion
 
-    #endregion
-
-    #region Pooling Properties
+#region Pooling Properties
 
     /// <summary>
     /// Gets or sets the lifetime of a pooled connection.
     /// </summary>
-#if !NETCORE10
     [Category("Pooling")]
     [DisplayName("Connection Lifetime")]
     [Description("The minimum amount of time (in seconds) for this connection to " +
                  "live in the pool before being destroyed.")]
     [RefreshProperties(RefreshProperties.All)]
-#endif
     [DefaultValue(0)]
     public uint ConnectionLifeTime
     {
@@ -820,12 +772,10 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets or sets a boolean value indicating if connection pooling is enabled.
     /// </summary>
-#if !NETCORE10
     [Category("Pooling")]
     [Description("When true, the connection object is drawn from the appropriate " +
                  "pool, or if necessary, is created and added to the appropriate pool.")]
     [RefreshProperties(RefreshProperties.All)]
-#endif
     [DefaultValue(true)]
     public bool Pooling
     {
@@ -836,12 +786,10 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets the minimum connection pool size.
     /// </summary>
-#if !NETCORE10
     [Category("Pooling")]
     [DisplayName("Minimum Pool Size")]
     [Description("The minimum number of connections allowed in the pool.")]
     [RefreshProperties(RefreshProperties.All)]
-#endif
     [DefaultValue(0)]
     public uint MinimumPoolSize
     {
@@ -852,12 +800,10 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets or sets the maximum connection pool setting.
     /// </summary>
-#if !NETCORE10
     [Category("Pooling")]
     [DisplayName("Maximum Pool Size")]
     [Description("The maximum number of connections allowed in the pool.")]
     [RefreshProperties(RefreshProperties.All)]
-#endif
     [DefaultValue(100)]
     public uint MaximumPoolSize
     {
@@ -869,12 +815,10 @@ namespace MySql.Data.MySqlClient
     /// Gets or sets a boolean value indicating if the connection should be reset when retrieved
     /// from the pool.
     /// </summary>
-#if !NETCORE10
     [Category("Pooling")]
     [DisplayName("Connection Reset")]
     [Description("When true, indicates the connection state is reset when removed from the pool.")]
     [RefreshProperties(RefreshProperties.All)]
-#endif
     [DefaultValue(false)]
     public bool ConnectionReset
     {
@@ -882,12 +826,10 @@ namespace MySql.Data.MySqlClient
       set { SetValue("connectionreset", value); }
     }
 
-#if !NETCORE10
     [Category("Pooling")]
     [DisplayName("Cache Server Properties")]
     [Description("When true, server properties will be cached after the first server in the pool is created")]
     [RefreshProperties(RefreshProperties.All)]
-#endif
     [DefaultValue(false)]
     public bool CacheServerProperties
     {
@@ -895,19 +837,17 @@ namespace MySql.Data.MySqlClient
       set { SetValue("cacheserverproperties", value); }
     }
 
-    #endregion
+#endregion
 
-    #region Language and Character Set Properties
+#region Language and Character Set Properties
 
     /// <summary>
     /// Gets or sets the character set that should be used for sending queries to the server.
     /// </summary>
-#if !NETCORE10
     [DisplayName("Character Set")]
     [Category("Advanced")]
     [Description("Character set this connection should use")]
     [RefreshProperties(RefreshProperties.All)]
-#endif
     [DefaultValue("")]
     public string CharacterSet
     {
@@ -918,12 +858,10 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Indicates whether the driver should treat binary blobs as UTF8
     /// </summary>
-#if !NETCORE10
     [DisplayName("Treat Blobs As UTF8")]
     [Category("Advanced")]
     [Description("Should binary blobs be treated as UTF8")]
     [RefreshProperties(RefreshProperties.All)]
-#endif
     [DefaultValue(false)]
     public bool TreatBlobsAsUTF8
     {
@@ -934,11 +872,9 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets or sets the pattern that matches the columns that should be treated as UTF8
     /// </summary>
-#if !NETCORE10
     [Category("Advanced")]
     [Description("Pattern that matches columns that should be treated as UTF8")]
     [RefreshProperties(RefreshProperties.All)]
-#endif
     public string BlobAsUTF8IncludePattern
     {
       get { return (string)values["blobasutf8includepattern"]; }
@@ -948,11 +884,9 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets or sets the pattern that matches the columns that should not be treated as UTF8
     /// </summary>
-#if !NETCORE10
     [Category("Advanced")]
     [Description("Pattern that matches columns that should not be treated as UTF8")]
     [RefreshProperties(RefreshProperties.All)]
-#endif
     public string BlobAsUTF8ExcludePattern
     {
       get { return (string)values["blobasutf8excludepattern"]; }
@@ -962,11 +896,9 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Indicates whether to use SSL connections and how to handle server certificate errors.
     /// </summary>
-#if !NETCORE10
     [DisplayName("Ssl Mode")]
     [Category("Security")]
     [Description("SSL properties for connection")]
-#endif
     [DefaultValue(MySqlSslMode.None)]
     public MySqlSslMode SslMode
     {
@@ -974,23 +906,21 @@ namespace MySql.Data.MySqlClient
       set { SetValue("sslmode", value); }
     }
 
-    #endregion
+#endregion
 
-    #region Backwards compatibility properties
-#if !NETCORE10
+#region Backwards compatibility properties
     [DisplayName("Use Default Command Timeout For EF")]
     [Category("Backwards Compatibility")]
     [Description("Enforces the command timeout of EFMySqlCommand to the value provided in 'DefaultCommandTimeout' property")]
-#endif
     [DefaultValue(false)]
     public bool UseDefaultCommandTimeoutForEF
     {
       get { return (bool)values["usedefaultcommandtimeoutforef"]; }
       set { SetValue("usedefaultcommandtimeoutforef", value); }
     }
-    #endregion
+#endregion
 
-    #region XProperties
+#region XProperties
 
     [Description("X DevApi: enables the use of SSL as required")]
     public bool SslEnable
@@ -1023,7 +953,7 @@ namespace MySql.Data.MySqlClient
       set { throw new NotSupportedException(); }
     }
 
-    #endregion
+#endregion
 
     internal bool HasProcAccess { get; set; }
 
@@ -1246,11 +1176,7 @@ namespace MySql.Data.MySqlClient
       if (typeName.StartsWith("Int32") && Int32.TryParse(value.ToString(), out intVal32)) { value = intVal32; return; }
 
       object objValue;
-      //#if NETCORE10
-      //    Type baseType = BaseType.GetTypeInfo().BaseType;
-      //#else
       Type baseType = BaseType.GetTypeInfo().BaseType;
-      //#endif
       if (baseType != null && baseType.Name == "Enum" && ParseEnum(value.ToString(), out objValue))
       {
         value = objValue; return;
