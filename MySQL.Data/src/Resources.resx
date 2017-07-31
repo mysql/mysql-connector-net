@@ -541,4 +541,7 @@
   <data name="SslConnectionError" xml:space="preserve">
     <value>SSL Connection error.</value>
   </data>
+  <data name="OptionNotSupported" xml:space="preserve">
+    <value>The option '{0}' is not currently supported but will be added in a future version.</value>
+  </data>
 </root>

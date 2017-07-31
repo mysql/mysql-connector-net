@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -245,7 +245,11 @@ namespace MySql.Data.MySqlClient
     public string PipeName
     {
       get { return (string)values["pipe"]; }
+#if NETCORE10
+      set { throw new PlatformNotSupportedException(string.Format(Resources.OptionNotSupported, nameof(PipeName))); }
+#else
       set { SetValue("pipe", value); }
+#endif
     }
 
     /// <summary>
@@ -285,7 +289,11 @@ namespace MySql.Data.MySqlClient
     public bool Logging
     {
       get { return (bool)values["logging"]; }
+#if NETCORE10
+      set { throw new PlatformNotSupportedException(string.Format(Resources.OptionNotSupported, nameof(Logging))); }
+#else
       set { SetValue("logging", value); }
+#endif
     }
 
     /// <summary>
@@ -299,7 +307,11 @@ namespace MySql.Data.MySqlClient
     public string SharedMemoryName
     {
       get { return (string)values["sharedmemoryname"]; }
+#if NETCORE10
+      set { throw new PlatformNotSupportedException(string.Format(Resources.OptionNotSupported, nameof(SharedMemoryName))); }
+#else
       set { SetValue("sharedmemoryname", value); }
+#endif
     }
 
     /// <summary>
@@ -357,9 +369,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("defaultcommandtimeout", value); }
     }
 
-    #endregion
+#endregion
 
-    #region Authentication Properties
+#region Authentication Properties
 
     /// <summary>
     /// Gets or sets the user id that should be used to connect with.
@@ -471,9 +483,9 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    #endregion
+#endregion
 
-    #region Other Properties
+#region Other Properties
 
     /// <summary>
     /// Gets or sets a boolean value that indicates if zero date time values are supported.
@@ -521,7 +533,11 @@ namespace MySql.Data.MySqlClient
     public bool UseUsageAdvisor
     {
       get { return (bool)values["useusageadvisor"]; }
+#if NETCORE10
+      set { throw new PlatformNotSupportedException(string.Format(Resources.OptionNotSupported, nameof(UseUsageAdvisor))); }
+#else
       set { SetValue("useusageadvisor", value); }
+#endif
     }
 
     /// <summary>
@@ -554,7 +570,11 @@ namespace MySql.Data.MySqlClient
     public bool UsePerformanceMonitor
     {
       get { return (bool)values["useperformancemonitor"]; }
+#if NETCORE10
+      set { throw new PlatformNotSupportedException(string.Format(Resources.OptionNotSupported, nameof(UsePerformanceMonitor))); }
+#else
       set { SetValue("useperformancemonitor", value); }
+#endif
     }
 
     /// <summary>
@@ -648,7 +668,11 @@ namespace MySql.Data.MySqlClient
     public bool InteractiveSession
     {
       get { return (bool)values["interactivesession"]; }
+#if NETCORE10
+      set { throw new PlatformNotSupportedException(string.Format(Resources.OptionNotSupported, nameof(InteractiveSession))); }
+#else
       set { SetValue("interactivesession", value); }
+#endif
     }
 
 #if !NETCORE10
@@ -759,7 +783,11 @@ namespace MySql.Data.MySqlClient
     public bool Replication
     {
       get { return (bool)values["replication"]; }
+#if NETCORE10
+      set { throw new PlatformNotSupportedException(string.Format(Resources.OptionNotSupported, nameof(Replication))); }
+#else
       set { SetValue("replication", value); }
+#endif
     }
 
 #if !NETCORE10
@@ -796,9 +824,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("includesecurityasserts", value); }
     }
 
-    #endregion
+#endregion
 
-    #region Pooling Properties
+#region Pooling Properties
 
     /// <summary>
     /// Gets or sets the lifetime of a pooled connection.
@@ -895,9 +923,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("cacheserverproperties", value); }
     }
 
-    #endregion
+#endregion
 
-    #region Language and Character Set Properties
+#region Language and Character Set Properties
 
     /// <summary>
     /// Gets or sets the character set that should be used for sending queries to the server.
@@ -974,9 +1002,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("sslmode", value); }
     }
 
-    #endregion
+#endregion
 
-    #region Backwards compatibility properties
+#region Backwards compatibility properties
 #if !NETCORE10
     [DisplayName("Use Default Command Timeout For EF")]
     [Category("Backwards Compatibility")]
@@ -988,9 +1016,9 @@ namespace MySql.Data.MySqlClient
       get { return (bool)values["usedefaultcommandtimeoutforef"]; }
       set { SetValue("usedefaultcommandtimeoutforef", value); }
     }
-    #endregion
+#endregion
 
-    #region XProperties
+#region XProperties
 
     [Description("X DevApi: enables the use of SSL as required")]
     public bool SslEnable
@@ -1023,7 +1051,7 @@ namespace MySql.Data.MySqlClient
       set { throw new NotSupportedException(); }
     }
 
-    #endregion
+#endregion
 
     internal bool HasProcAccess { get; set; }
 

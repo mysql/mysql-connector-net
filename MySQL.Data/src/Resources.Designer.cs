@@ -712,6 +712,15 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The option &apos;{0}&apos; is not currently supported but will be added in a future version..
+        /// </summary>
+        public static string OptionNotSupported {
+            get {
+                return ResourceManager.GetString("OptionNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Parameter &apos;{0}&apos; has already been defined..
         /// </summary>
         public static string ParameterAlreadyDefined {
