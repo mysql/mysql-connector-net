@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -117,16 +117,6 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("procedurecachesize", "procedure cache size,procedure cache,procedurecache", typeof(uint), (uint)25, false));
       Options.Add(new MySqlConnectionStringOption("useperformancemonitor", "use performance monitor,useperfmon,perfmon", typeof(bool), false, false));
       Options.Add(new MySqlConnectionStringOption("ignoreprepare", "ignore prepare", typeof(bool), true, false));
-      Options.Add(new MySqlConnectionStringOption("useprocedurebodies", "use procedure bodies,procedure bodies", typeof(bool), true, true,
-        delegate (MySqlConnectionStringBuilder msb, MySqlConnectionStringOption sender, object value)
-        {
-          sender.ValidateValue(ref value);
-          MySqlTrace.LogWarning(-1, "Use Procedure Bodies is now obsolete.  Use Check Parameters instead");
-          msb.SetValue("checkparameters", value);
-          msb.SetValue("useprocedurebodies", value);
-        },
-        (msb, sender) => (bool)msb.values["useprocedurebodies"]
-        ));
       Options.Add(new MySqlConnectionStringOption("autoenlist", "auto enlist", typeof(bool), true, false));
       Options.Add(new MySqlConnectionStringOption("respectbinaryflags", "respect binary flags", typeof(bool), true, false));
       Options.Add(new MySqlConnectionStringOption("treattinyasboolean", "treat tiny as boolean", typeof(bool), true, false));
@@ -571,19 +561,6 @@ namespace MySql.Data.MySqlClient
     {
       get { return (bool)values["ignoreprepare"]; }
       set { SetValue("ignoreprepare", value); }
-    }
-
-#if !NETCORE10
-    [Category("Advanced")]
-    [DisplayName("Use Procedure Bodies")]
-    [Description("Indicates if stored procedure bodies will be available for parameter detection.")]
-#endif
-    [DefaultValue(true)]
-    [Obsolete("Use CheckParameters instead")]
-    public bool UseProcedureBodies
-    {
-      get { return (bool)values["useprocedurebodies"]; }
-      set { SetValue("useprocedurebodies", value); }
     }
 
 #if !NETCORE10

@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -732,7 +732,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       string connStr = Connection.ConnectionString;
       if (!isOwner)
-        connStr += ";use procedure bodies=false";
+        connStr += ";check parameters=false";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -843,7 +843,7 @@ namespace MySql.Data.MySqlClient.Tests
           BEGIN SELECT name; END");
 
       MySqlConnectionStringBuilder cb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
-      cb.UseProcedureBodies = false;
+      cb.CheckParameters = false;
 
       using (MySqlConnection c = new MySqlConnection(cb.ConnectionString))
       {
