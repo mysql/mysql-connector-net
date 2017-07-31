@@ -131,7 +131,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         connStr += ";Connection Reset=true;Pooling=true";
       }
-      int testIterations = pooling ? 2 : 2;
+      int testIterations = pooling ? 2 : 1;
 
       int threadId = -1;
       for (int i = 0; i < testIterations; i++)
