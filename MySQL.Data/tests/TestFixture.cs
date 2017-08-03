@@ -61,10 +61,12 @@ namespace MySql.Data.MySqlClient.Tests
       settings.Port = port == null ? 3306 : UInt32.Parse(port);
       settings.UserID = "root";
       settings.Password = null;
+#if !NETCORE10
       var memName = Environment.GetEnvironmentVariable("MYSQL_MEM");
       settings.SharedMemoryName = memName == null ? "MySQLSocket" : memName;
       var pipeName = Environment.GetEnvironmentVariable("MYSQL_PIPE");
       settings.PipeName = pipeName == null ? "MySQLSocket" : pipeName;
+#endif
       settings.PersistSecurityInfo = true;
       settings.AllowUserVariables = true;
       settings.Pooling = false;

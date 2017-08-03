@@ -4,6 +4,7 @@
 - Removed connection string options 'autoenlist' and 'includesecurityasserts' for Dotnet core. WL-10564
 - EF Core: Added support for Explicit loading. WL-9768
 - EF Core: Added support for multiple schemas. WL-10668
+- The following connection string options will raise a PlatformNotSupportedException when used in Dotnet Core: sharedmemoryname, integratedsecurity, pipe, logging, useusageadvisor, useperformancemonitor, interactivesession, replication. They will be implemented in future versions.
 
 
 6.10.2

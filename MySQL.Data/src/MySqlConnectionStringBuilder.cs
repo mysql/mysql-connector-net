@@ -30,6 +30,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using MySql.Data.Common;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace MySql.Data.MySqlClient
 {
@@ -48,13 +49,50 @@ namespace MySql.Data.MySqlClient
       // Server options
       Options.Add(new MySqlConnectionStringOption("server", "host,data source,datasource,address,addr,network address", typeof(string), "" /*"localhost"*/, false));
       Options.Add(new MySqlConnectionStringOption("database", "initial catalog", typeof(string), string.Empty, false));
-      Options.Add(new MySqlConnectionStringOption("protocol", "connection protocol, connectionprotocol", typeof(MySqlConnectionProtocol), MySqlConnectionProtocol.Sockets, false));
+      Options.Add(new MySqlConnectionStringOption("protocol", "connection protocol, connectionprotocol", typeof(MySqlConnectionProtocol), MySqlConnectionProtocol.Sockets, false,
+        (msb, sender, value) =>
+        {
+#if NETCORE10
+          if (((MySqlConnectionProtocol)value) != MySqlConnectionProtocol.Socket)
+            throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, $"Protocol={value}"));
+#else
+          msb.SetValue("protocol", value);
+#endif
+        },
+        (msb, sender) => msb.ConnectionProtocol));
       Options.Add(new MySqlConnectionStringOption("port", null, typeof(uint), (uint)3306, false));
-      Options.Add(new MySqlConnectionStringOption("pipe", "pipe name,pipename", typeof(string), "MYSQL", false));
+      Options.Add(new MySqlConnectionStringOption("pipe", "pipe name,pipename", typeof(string), "MYSQL", false,
+        (msb, sender, value) =>
+        {
+#if NETCORE10
+          throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(PipeName)));
+#else
+          msb.SetValue("pipe", value);
+#endif
+        },
+        (msb, sender) => msb.PipeName));
       Options.Add(new MySqlConnectionStringOption("compress", "use compression,usecompression", typeof(bool), false, false));
       Options.Add(new MySqlConnectionStringOption("allowbatch", "allow batch", typeof(bool), true, false));
-      Options.Add(new MySqlConnectionStringOption("logging", null, typeof(bool), false, false));
-      Options.Add(new MySqlConnectionStringOption("sharedmemoryname", "shared memory name", typeof(string), "MYSQL", false));
+      Options.Add(new MySqlConnectionStringOption("logging", null, typeof(bool), false, false,
+        (msb, sender, value) =>
+        {
+#if NETCORE10
+          throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(Logging)));
+#else
+          msb.SetValue("logging", value);
+#endif
+        },
+        (msb, sender) => msb.Logging));
+      Options.Add(new MySqlConnectionStringOption("sharedmemoryname", "shared memory name", typeof(string), "MYSQL", false,
+        (msb, sender, value) => 
+        {
+#if NETCORE10
+          throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(SharedMemoryName)));
+#else
+          msb.SetValue("sharedmemoryname", value);
+#endif
+        },
+        (msb, sender) => msb.SharedMemoryName));
       Options.Add(new MySqlConnectionStringOption("connectiontimeout", "connection timeout,connect timeout", typeof(uint), (uint)15, false,
         delegate (MySqlConnectionStringBuilder msb, MySqlConnectionStringOption sender, object Value)
         {
@@ -99,7 +137,11 @@ namespace MySql.Data.MySqlClient
         {
           if (!Platform.IsWindows())
             throw new MySqlException("IntegratedSecurity is supported on Windows only");
+#if NETCORE10
+          throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(IntegratedSecurity)));
+#else
           msb.SetValue("Integrated Security", value.ToString().Equals("SSPI", StringComparison.OrdinalIgnoreCase) ? true : value);
+#endif
         },
         delegate (MySqlConnectionStringBuilder msb, MySqlConnectionStringOption sender)
         {
@@ -115,9 +157,27 @@ namespace MySql.Data.MySqlClient
 #endif
       Options.Add(new MySqlConnectionStringOption("allowzerodatetime", "allow zero datetime", typeof(bool), false, false));
       Options.Add(new MySqlConnectionStringOption("convertzerodatetime", "convert zero datetime", typeof(bool), false, false));
-      Options.Add(new MySqlConnectionStringOption("useusageadvisor", "use usage advisor,usage advisor", typeof(bool), false, false));
+      Options.Add(new MySqlConnectionStringOption("useusageadvisor", "use usage advisor,usage advisor", typeof(bool), false, false,
+        (msb, sender, value) =>
+        {
+#if NETCORE10
+          throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(UseUsageAdvisor)));
+#else
+          msb.SetValue("useusageadvisor", value);
+#endif
+        },
+        (msb, sender) => msb.UseUsageAdvisor));
       Options.Add(new MySqlConnectionStringOption("procedurecachesize", "procedure cache size,procedure cache,procedurecache", typeof(uint), (uint)25, false));
-      Options.Add(new MySqlConnectionStringOption("useperformancemonitor", "use performance monitor,useperfmon,perfmon", typeof(bool), false, false));
+      Options.Add(new MySqlConnectionStringOption("useperformancemonitor", "use performance monitor,useperfmon,perfmon", typeof(bool), false, false,
+        (msb, sender, value) =>
+        {
+#if NETCORE10
+          throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(UsePerformanceMonitor)));
+#else
+          msb.SetValue("useperformancemonitor", value);
+#endif
+        },
+        (msb, sender) => msb.UsePerformanceMonitor));
       Options.Add(new MySqlConnectionStringOption("ignoreprepare", "ignore prepare", typeof(bool), true, false));
       Options.Add(new MySqlConnectionStringOption("useprocedurebodies", "use procedure bodies,procedure bodies", typeof(bool), true, true,
         delegate (MySqlConnectionStringBuilder msb, MySqlConnectionStringOption sender, object value)
@@ -132,7 +192,16 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("respectbinaryflags", "respect binary flags", typeof(bool), true, false));
       Options.Add(new MySqlConnectionStringOption("treattinyasboolean", "treat tiny as boolean", typeof(bool), true, false));
       Options.Add(new MySqlConnectionStringOption("allowuservariables", "allow user variables", typeof(bool), false, false));
-      Options.Add(new MySqlConnectionStringOption("interactivesession", "interactive session,interactive", typeof(bool), false, false));
+      Options.Add(new MySqlConnectionStringOption("interactivesession", "interactive session,interactive", typeof(bool), false, false,
+        (msb, sender, value) =>
+        {
+#if NETCORE10
+          throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(InteractiveSession)));
+#else
+          msb.SetValue("interactivesession", value);
+#endif
+        },
+        (msb, sender) => msb.InteractiveSession));
       Options.Add(new MySqlConnectionStringOption("functionsreturnstring", "functions return string", typeof(bool), false, false));
       Options.Add(new MySqlConnectionStringOption("useaffectedrows", "use affected rows", typeof(bool), false, false));
       Options.Add(new MySqlConnectionStringOption("oldguids", "old guids", typeof(bool), false, false));
@@ -141,7 +210,16 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("tablecaching", "table cache,tablecache", typeof(bool), false, false));
       Options.Add(new MySqlConnectionStringOption("defaulttablecacheage", "default table cache age", typeof(int), (int)60, false));
       Options.Add(new MySqlConnectionStringOption("checkparameters", "check parameters", typeof(bool), true, false));
-      Options.Add(new MySqlConnectionStringOption("replication", null, typeof(bool), false, false));
+      Options.Add(new MySqlConnectionStringOption("replication", null, typeof(bool), false, false,
+        (msb, sender, value) =>
+        {
+#if NETCORE10
+          throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(Replication)));
+#else
+          msb.SetValue("replication", value);
+#endif
+        },
+        (msb, sender) => msb.Replication));
       Options.Add(new MySqlConnectionStringOption("exceptioninterceptors", "exception interceptors", typeof(string), null, false));
       Options.Add(new MySqlConnectionStringOption("commandinterceptors", "command interceptors", typeof(string), null, false));
 
@@ -192,7 +270,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    #region Server Properties
+#region Server Properties
 
     /// <summary>
     /// Gets or sets the name of the server.
@@ -204,7 +282,7 @@ namespace MySql.Data.MySqlClient
     public string Server
     {
       get { return this["server"] as string; }
-      set { this["server"] = value; }
+      set { SetValue("server", value); }
     }
 
     /// <summary>
@@ -357,9 +435,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("defaultcommandtimeout", value); }
     }
 
-    #endregion
+#endregion
 
-    #region Authentication Properties
+#region Authentication Properties
 
     /// <summary>
     /// Gets or sets the user id that should be used to connect with.
@@ -463,15 +541,10 @@ namespace MySql.Data.MySqlClient
     public bool IntegratedSecurity
     {
       get { return (bool)values["integratedsecurity"]; }
-      set
-      {
-        if (!Platform.IsWindows())
-          throw new MySqlException("IntegratedSecurity is supported on Windows only");
-        SetValue("integratedsecurity", value);
-      }
+      set { SetValue("integratedsecurity", value); }
     }
 
-    #endregion
+#endregion
 
 #region Other Properties
 
@@ -988,7 +1061,16 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    internal void SetValue(string keyword, object value)
+    private void SetValue(string keyword, object value, [CallerMemberName] string callerName = "")
+    {
+      MySqlConnectionStringOption option = GetOption(keyword);
+      if (callerName != ".cctor" && option.IsCustomized)
+        this[keyword] = value;
+      else
+        SetInternalValue(keyword, value);
+    }
+
+    internal void SetInternalValue(string keyword, object value)
     {
       MySqlConnectionStringOption option = GetOption(keyword);
       option.ValidateValue(ref value);
@@ -1088,6 +1170,8 @@ namespace MySql.Data.MySqlClient
 
   class MySqlConnectionStringOption
   {
+    public bool IsCustomized { get; }
+
     public MySqlConnectionStringOption(string keyword, string synonyms, Type baseType, object defaultValue, bool obsolete,
       SetterDelegate setter, GetterDelegate getter)
     {
@@ -1099,6 +1183,7 @@ namespace MySql.Data.MySqlClient
       DefaultValue = defaultValue;
       Setter = setter;
       Getter = getter;
+      IsCustomized = true;
     }
 
     public MySqlConnectionStringOption(string keyword, string synonyms, Type baseType, object defaultValue, bool obsolete) :
@@ -1109,11 +1194,12 @@ namespace MySql.Data.MySqlClient
          //if ( sender.BaseType.IsEnum )
          //  msb.SetValue( sender.Keyword, Enum.Parse( sender.BaseType, ( string )value, true ));
          //else
-         msb.SetValue(sender.Keyword, Convert.ChangeType(value, sender.BaseType));
+         msb.SetInternalValue(sender.Keyword, Convert.ChangeType(value, sender.BaseType));
        },
         (msb, sender) => msb.values[sender.Keyword]
       )
     {
+      IsCustomized = false;
     }
 
     public string[] Synonyms { get; private set; }

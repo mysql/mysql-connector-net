@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -455,7 +455,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #53865 : crash in QueryNormalizer, "IN" clause incomplete
     /// </summary>
-    [Fact]
+    [FactNet452]
     public void QueryNormalizerCrash1()
     {
 
@@ -485,7 +485,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #54152 : Crash in QueryNormalizer, VALUES incomplete
     /// </summary>
-    [Fact]
+    [FactNet452]
     public void QueryNormalizerCrash2()
     {
       executeSQL("CREATE TABLE bug54152 (id INT, expr INT,name VARCHAR(20)," +

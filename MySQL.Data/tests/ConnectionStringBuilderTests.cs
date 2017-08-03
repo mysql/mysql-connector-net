@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -51,7 +51,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(66, Convert.ToInt32(sb.MaximumPoolSize));
       Assert.Equal(1, Convert.ToInt32(sb.Keepalive));
       Exception  ex = Assert.Throws<ArgumentException>(()=> (sb.ConnectionString = "server=localhost;badkey=badvalue"));
-      Assert.Equal($"Keyword not supported.{Environment.NewLine}Parameter name: badkey", ex.Message);        
+      Assert.Equal($"Option not supported.{Environment.NewLine}Parameter name: badkey", ex.Message);        
       sb.Clear();
       Assert.Equal(15, Convert.ToInt32(sb.ConnectionTimeout));
       Assert.Equal(true, sb.Pooling);
@@ -146,7 +146,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlConnectionStringBuilder s = new MySqlConnectionStringBuilder();
       //[ExpectedException(typeof(ArgumentException))]
       Exception ex = Assert.Throws<ArgumentException>(() => (s["foo keyword"] = "foo"));
-      Assert.Equal($"Keyword not supported.{Environment.NewLine}Parameter name: foo keyword", ex.Message);      
+      Assert.Equal($"Option not supported.{Environment.NewLine}Parameter name: foo keyword", ex.Message);      
     }
 
     /// <summary>
@@ -161,5 +161,43 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(null, obj);
     }
 
+#if NETCORE10
+    [Fact]
+    public void DotnetCoreNotCurrentlySupported()
+    {
+      string[] options = new string[]
+      {
+        "sharedmemoryname",
+        "integratedsecurity",
+        "pipe",
+        "logging",
+        "useusageadvisor",
+        "useperformancemonitor",
+        "interactivesession",
+        "replication"
+      };
+
+      foreach(string option in options)
+      {
+        PlatformNotSupportedException ex = Assert.ThrowsAny<PlatformNotSupportedException>(() => 
+        {
+          MySqlConnectionStringBuilder connString = new MySqlConnectionStringBuilder($"server=localhost;user=root;password=;{option}=dummy");
+        });
+      }
+
+      MySqlConnectionStringBuilder csb = new MySqlConnectionStringBuilder();
+      Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.SharedMemoryName = "dummy");
+      Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.IntegratedSecurity = true);
+      Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.PipeName = "dummy");
+      Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.Logging = true);
+      Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.UseUsageAdvisor = true);
+      Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.UsePerformanceMonitor = true);
+      Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.Replication = true);
+      csb.ConnectionProtocol = MySqlConnectionProtocol.Tcp;
+      Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.ConnectionProtocol = MySqlConnectionProtocol.SharedMemory);
+      Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.ConnectionProtocol = MySqlConnectionProtocol.NamedPipe);
+      Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.ConnectionProtocol = MySqlConnectionProtocol.UnixSocket);
+    }
+#endif
   }
 }
