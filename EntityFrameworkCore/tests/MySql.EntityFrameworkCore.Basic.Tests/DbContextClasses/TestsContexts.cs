@@ -352,15 +352,21 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
 
   public class WorldContext : MyTestContext
   {
-    public virtual DbSet<Countries> Countries { get; set; }
-    public virtual DbSet<Continents> Continents { get; set; }
+    public virtual DbSet<Country> Countries { get; set; }
+    public virtual DbSet<Continent> Continents { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
       base.OnModelCreating(modelBuilder);
-      modelBuilder.Entity<Continents>()
-        .ToTable("ContinentList", "db-worldcontext")
-        .HasKey(p => p.Code);
+      modelBuilder.Entity<Continent>(entity =>
+      {
+        entity.ToTable("ContinentList", "db-worldcontext");
+
+        entity.HasKey(p => p.Code);
+
+        entity.HasMany(c => c.Countries)
+          .WithOne(c => c.Continent);
+      });
     }
   }
 

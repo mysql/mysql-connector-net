@@ -2,6 +2,7 @@
 - Added support for Unix sockets in dotnet core. WL-10613
 - EF Core: Added async support. WL-10615
 - Removed connection string options 'autoenlist' and 'includesecurityasserts' for Dotnet core. WL-10564
+- EF Core: Added support for Explicit loading. WL-9768
 
 
 6.10.2
