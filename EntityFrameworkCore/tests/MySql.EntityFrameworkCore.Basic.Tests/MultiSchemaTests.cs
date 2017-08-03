@@ -62,6 +62,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     [Fact]
     public void LoadingData()
     {
+      PopulateData();
       using(BodyShopContext context = new BodyShopContext())
       {
         Assert.Equal(2, context.Car.Count());

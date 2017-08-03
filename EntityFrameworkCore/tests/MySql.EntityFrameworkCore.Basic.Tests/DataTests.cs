@@ -37,44 +37,32 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     [Fact]
     public async Task AsyncData()
     {
-      using (var context = new FiguresContext())
+      using (var context = new WorldContext())
       {
         await context.Database.EnsureDeletedAsync();
         await context.Database.EnsureCreatedAsync();
 
-        Triangle t1 = new Triangle
-        {
-          Base = 5,
-          Height = 5
-        };
-        Triangle t2 = new Triangle
-        {
-          Base = 8,
-          Height = 14
-        };
-        Triangle t3 = new Triangle
-        {
-          Base = 12,
-          Height = 3
-        };
+        var america = new Continent { Code = "AM", Name = "America" };
+        var europe = new Continent { Code = "EU", Name = "Europe" };
+        var asia = new Continent { Code = "AS", Name = "Asia" };
+        var africa = new Continent { Code = "AF", Name = "Africa" };
 
-        await context.Triangle.AddAsync(t1);
-        await context.Triangle.AddRangeAsync(new Triangle[] { t2, t3 });
+        await context.AddAsync(america);
+        await context.AddRangeAsync(europe, asia, africa);
 
         var result = context.SaveChangesAsync();
-        result.Wait(10_000);
+        result.Wait(30_000);
         Assert.Null(result.Exception);
-        Assert.Equal(3, result.Result);
+        Assert.Equal(4, result.Result);
       }
 
-      using (var context = new FiguresContext())
+      using (var context = new WorldContext())
       {
-        var triangle = await context.FindAsync<Triangle>(1);
-        Assert.Equal(5, triangle.Height);
+        var continent = await context.FindAsync<Continent>("AS");
+        Assert.Equal("Asia", continent.Name);
 
-        var triangles = await context.Triangle.ToListAsync();
-        Assert.Equal(3, triangles.Count);
-        Assert.Equal(8, triangles.First(c => c.Id == 2).Base);
+        var continents = await context .Continents.ToListAsync();
+        Assert.Equal(4, continents.Count);
       }
     }
   }

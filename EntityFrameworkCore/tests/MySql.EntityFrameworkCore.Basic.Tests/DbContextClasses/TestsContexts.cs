@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -367,6 +367,50 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
         entity.HasMany(c => c.Countries)
           .WithOne(c => c.Continent);
       });
+    }
+
+    public void PopulateData()
+    {
+      using (WorldContext context = new WorldContext())
+      {
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
+
+        var america = new Continent { Code = "AM", Name = "America" };
+        var europe = new Continent { Code = "EU", Name = "Europe" };
+        var asia = new Continent { Code = "AS", Name = "Asia" };
+        var africa = new Continent { Code = "AF", Name = "Africa" };
+
+        context.AddRange(america, europe, asia, africa);
+
+        var unitedStates = new Country { Code = "US", Name = "United States", Continent = america };
+        var canada = new Country { Code = "CA", Name = "Canada", Continent = america };
+        var mexico = new Country { Code = "MX", Name = "Mexico", Continent = america };
+        var brazil = new Country { Code = "BR", Name = "Brazil", Continent = america };
+        var argentina = new Country { Code = "AR", Name = "Argentina", Continent = america };
+        context.AddRange(unitedStates, canada, mexico, brazil, argentina);
+
+        var unitedKingdom = new Country { Code = "UK", Name = "United Kingdom", Continent = europe };
+        var germany = new Country { Code = "DE", Name = "Germany", Continent = europe };
+        var italy = new Country { Code = "IT", Name = "Italy", Continent = europe };
+        var spain = new Country { Code = "ES", Name = "Spain", Continent = europe };
+        var france = new Country { Code = "FR", Name = "France", Continent = europe };
+        context.AddRange(unitedKingdom, germany, italy, spain, france);
+
+        var china = new Country { Code = "CN", Name = "China", Continent = asia };
+        var india = new Country { Code = "IN", Name = "India", Continent = asia };
+        var japan = new Country { Code = "JP", Name = "Japan", Continent = asia };
+        var southKorea = new Country { Code = "KR", Name = "South Korea", Continent = asia };
+        context.AddRange(china, india, japan, southKorea);
+
+        var nigeria = new Country { Code = "NG", Name = "Nigeria", Continent = africa };
+        var egypt = new Country { Code = "EG", Name = "Egypt", Continent = africa };
+        var southAfrica = new Country { Code = "ZA", Name = "South Africa", Continent = africa };
+        var algeria = new Country { Code = "DZ", Name = "Algeria", Continent = africa };
+        context.AddRange(nigeria, egypt, southAfrica, algeria);
+
+        context.SaveChanges();
+      }
     }
   }
 
