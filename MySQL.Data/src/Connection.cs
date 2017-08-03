@@ -1,4 +1,4 @@
-// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -576,7 +576,9 @@ namespace MySql.Data.MySqlClient
       MySqlConnectionStringBuilder cb = new MySqlConnectionStringBuilder(
         Settings.ConnectionString);
       cb.Pooling = false;
+#if !NETCORE10
       cb.AutoEnlist = false;
+#endif
       cb.ConnectionTimeout = (uint)timeout;
 
       using (MySqlConnection c = new MySqlConnection(cb.ConnectionString))
@@ -589,7 +591,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    #region Routines for timeout support.
+#region Routines for timeout support.
 
     // Problem description:
     // Sometimes, ExecuteReader is called recursively. This is the case if
@@ -648,7 +650,7 @@ namespace MySql.Data.MySqlClient
       _commandTimeout = 0;
       driver?.ResetTimeout(0);
     }
-    #endregion
+#endregion
 
     public MySqlSchemaCollection GetSchemaCollection(string collectionName, string[] restrictionValues)
     {
@@ -660,7 +662,7 @@ namespace MySql.Data.MySqlClient
       return c;
     }
 
-    #region Pool Routines
+#region Pool Routines
 
     /// <include file='docs/MySqlConnection.xml' path='docs/ClearPool/*'/>
     public static void ClearPool(MySqlConnection connection)
@@ -674,7 +676,7 @@ namespace MySql.Data.MySqlClient
       MySqlPoolManager.ClearAllPools();
     }
 
-    #endregion
+#endregion
 
     internal void Throw(Exception ex)
     {
@@ -693,7 +695,7 @@ namespace MySql.Data.MySqlClient
       GC.SuppressFinalize(this);
     }
 
-    #region Async
+#region Async
     /// <summary>
     /// Async version of BeginTransaction
     /// </summary>
@@ -907,7 +909,7 @@ namespace MySql.Data.MySqlClient
       }
       return result.Task;
     }
-    #endregion
+#endregion
   }
 
   /// <summary>
@@ -945,7 +947,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    #region IDisposable Members
+#region IDisposable Members
     public void Dispose()
     {
       if (!_timeoutSet) return;
@@ -954,6 +956,6 @@ namespace MySql.Data.MySqlClient
       _connection.ClearCommandTimeout();
       _connection = null;
     }
-    #endregion
+#endregion
   }
 }
