@@ -146,10 +146,10 @@ namespace MySql.Data.Common
     }
 
     /// <summary>
-    /// Set keepalive + timeout on socket.
+    /// Set the keepalive timeout on socket.
     /// </summary>
-    /// <param name="s">socket</param>
-    /// <param name="time">keepalive timeout, in seconds</param>
+    /// <param name="s">The socket object.</param>
+    /// <param name="time">The keepalive timeout, in seconds.</param>
     private static void SetKeepAlive(Socket s, uint time)
     {
       uint on = 1;
