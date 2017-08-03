@@ -246,7 +246,7 @@ namespace MySql.Data.MySqlClient
     {
       get { return (string)values["pipe"]; }
 #if NETCORE10
-      set { throw new PlatformNotSupportedException(string.Format(Resources.OptionNotSupported, nameof(PipeName))); }
+      set { throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(PipeName))); }
 #else
       set { SetValue("pipe", value); }
 #endif
@@ -290,7 +290,7 @@ namespace MySql.Data.MySqlClient
     {
       get { return (bool)values["logging"]; }
 #if NETCORE10
-      set { throw new PlatformNotSupportedException(string.Format(Resources.OptionNotSupported, nameof(Logging))); }
+      set { throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(Logging))); }
 #else
       set { SetValue("logging", value); }
 #endif
@@ -308,7 +308,7 @@ namespace MySql.Data.MySqlClient
     {
       get { return (string)values["sharedmemoryname"]; }
 #if NETCORE10
-      set { throw new PlatformNotSupportedException(string.Format(Resources.OptionNotSupported, nameof(SharedMemoryName))); }
+      set { throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(SharedMemoryName))); }
 #else
       set { SetValue("sharedmemoryname", value); }
 #endif
@@ -534,7 +534,7 @@ namespace MySql.Data.MySqlClient
     {
       get { return (bool)values["useusageadvisor"]; }
 #if NETCORE10
-      set { throw new PlatformNotSupportedException(string.Format(Resources.OptionNotSupported, nameof(UseUsageAdvisor))); }
+      set { throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(UseUsageAdvisor))); }
 #else
       set { SetValue("useusageadvisor", value); }
 #endif
@@ -571,7 +571,7 @@ namespace MySql.Data.MySqlClient
     {
       get { return (bool)values["useperformancemonitor"]; }
 #if NETCORE10
-      set { throw new PlatformNotSupportedException(string.Format(Resources.OptionNotSupported, nameof(UsePerformanceMonitor))); }
+      set { throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(UsePerformanceMonitor))); }
 #else
       set { SetValue("useperformancemonitor", value); }
 #endif
@@ -669,7 +669,7 @@ namespace MySql.Data.MySqlClient
     {
       get { return (bool)values["interactivesession"]; }
 #if NETCORE10
-      set { throw new PlatformNotSupportedException(string.Format(Resources.OptionNotSupported, nameof(InteractiveSession))); }
+      set { throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(InteractiveSession))); }
 #else
       set { SetValue("interactivesession", value); }
 #endif
@@ -784,7 +784,7 @@ namespace MySql.Data.MySqlClient
     {
       get { return (bool)values["replication"]; }
 #if NETCORE10
-      set { throw new PlatformNotSupportedException(string.Format(Resources.OptionNotSupported, nameof(Replication))); }
+      set { throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(Replication))); }
 #else
       set { SetValue("replication", value); }
 #endif

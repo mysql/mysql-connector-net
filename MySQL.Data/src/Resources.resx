@@ -220,7 +220,7 @@
     <value>The connection is already open.</value>
   </data>
   <data name="KeywordNotSupported" xml:space="preserve">
-    <value>Keyword not supported.</value>
+    <value>Option not supported.</value>
   </data>
   <data name="WriteToStreamFailed" xml:space="preserve">
     <value>Writing to the stream failed.</value>
@@ -541,7 +541,7 @@
   <data name="SslConnectionError" xml:space="preserve">
     <value>SSL Connection error.</value>
   </data>
-  <data name="OptionNotSupported" xml:space="preserve">
-    <value>The option '{0}' is not currently supported but will be added in a future version.</value>
+  <data name="OptionNotCurrentlySupported" xml:space="preserve">
+    <value>The option '{0}' is not currently supported.</value>
   </data>
 </root>

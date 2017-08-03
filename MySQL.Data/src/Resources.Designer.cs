@@ -494,7 +494,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Keyword not supported..
+        ///   Looks up a localized string similar to Option not supported..
         /// </summary>
         public static string KeywordNotSupported {
             get {
@@ -712,11 +712,11 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The option &apos;{0}&apos; is not currently supported but will be added in a future version..
+        ///   Looks up a localized string similar to The option &apos;{0}&apos; is not currently supported..
         /// </summary>
-        public static string OptionNotSupported {
+        public static string OptionNotCurrentlySupported {
             get {
-                return ResourceManager.GetString("OptionNotSupported", resourceCulture);
+                return ResourceManager.GetString("OptionNotCurrentlySupported", resourceCulture);
             }
         }
         
