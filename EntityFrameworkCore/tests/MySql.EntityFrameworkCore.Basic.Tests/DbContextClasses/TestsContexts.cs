@@ -406,4 +406,36 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
       });
     }
   }
+
+  public class BodyShopContext : MyTestContext
+  {
+    public DbSet<Car> Car { get; set; }
+
+    public DbSet<BodyShop> BodyShop { get; set; }
+
+    public DbSet<Employee> Employee { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+      base.OnModelCreating(modelBuilder);
+
+      modelBuilder.Entity<Car>(car =>
+      {
+        car.ToTable("Cars", "01cars");
+        car.HasKey(p => p.CarId);
+      });
+
+      modelBuilder.Entity<BodyShop>(bs =>
+      {
+        bs.ToTable("BodyShops", "02bodyshops");
+        bs.HasKey(p => p.BodyShopId);
+      });
+
+      modelBuilder.Entity<Employee>(e =>
+      {
+        e.ToTable("Employees", "03employees");
+        e.HasKey(p => p.EmployeeId);
+      });
+    }
+  }
 }

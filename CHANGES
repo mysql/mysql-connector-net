@@ -3,6 +3,7 @@
 - EF Core: Added async support. WL-10615
 - Removed connection string options 'autoenlist' and 'includesecurityasserts' for Dotnet core. WL-10564
 - EF Core: Added support for Explicit loading. WL-9768
+- EF Core: Added support for multiple schemas. WL-10668
 
 
 6.10.2
