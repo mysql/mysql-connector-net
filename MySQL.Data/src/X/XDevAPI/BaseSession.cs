@@ -32,6 +32,7 @@ using MySql.Data.MySqlClient;
 using System.Text.RegularExpressions;
 using MySqlX.Failover;
 using MySqlX.XDevAPI.Common;
+using System.Net;
 
 namespace MySqlX.XDevAPI
 {
@@ -397,11 +398,10 @@ namespace MySqlX.XDevAPI
       if (!hostsSubstring.StartsWith("(") && !hostsSubstring.EndsWith(")"))
       {
         hostArray = hostsSubstring.Split(',');
-        if (hostArray.Length==1) return 1;
-
         foreach (var host in hostArray)
           hostList.Add(this.ConvertToXServer(host, connectionStringIsInUriFormat));
 
+        if (hostArray.Length==1) return 1;
         hostCount = hostArray.Length;
       }
       // Priority host list.
@@ -471,7 +471,23 @@ namespace MySqlX.XDevAPI
     private XServer ConvertToXServer(string host, bool connectionStringIsInUriFormat, int priority=-1, int port=-1)
     {
       host = host.Trim();
-      int colonIndex = host.LastIndexOf(":");
+      IPAddress address;
+      int colonIndex = -1;
+      if (IPAddress.TryParse(host, out address))
+      {
+        switch (address.AddressFamily)
+        {
+          case System.Net.Sockets.AddressFamily.InterNetworkV6:
+            if (host.StartsWith("[") && host.Contains("]") && !host.EndsWith("]"))
+              colonIndex = host.LastIndexOf(":");
+            break;
+          default:
+            colonIndex = host.IndexOf(":");
+            break;
+        }
+      }
+      else colonIndex = host.IndexOf(":");
+
       if (colonIndex!=-1)
       {
         if (!connectionStringIsInUriFormat)
