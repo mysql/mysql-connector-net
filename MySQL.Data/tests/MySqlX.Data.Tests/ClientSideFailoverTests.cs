@@ -60,6 +60,13 @@ namespace MySqlX.Data.Tests
       // Providing port number as part of the host name.
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession("server= 10.10.10.10:33060, 20.20.20.20:33060 ;port=" + XPort + ";uid=test;password=test;connectiontimeout=" + connectionTimeout));
       Assert.Equal("Providing a port number as part of the host address isn't supported when using connection strings in basic format or anonymous objects. Use URI format instead.", ex.Message);
+
+      // Use default port.
+      using (var session = MySQLX.GetSession("server=localhost;uid=test;password=test;connectiontimeout=" + connectionTimeout + ";"))
+      {
+        Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
+        Assert.Equal("localhost", session.Settings.Server);
+      }
     }
 
     [Fact]
@@ -121,6 +128,12 @@ namespace MySqlX.Data.Tests
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
       }
 
+      // Use default port.
+      using (var session = MySQLX.GetSession(new { server = "localhost", uid = uid, password = password, connectiontimeout = connectionTimeout }))
+      {
+        Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
+      }
+
       // Multiple hosts. First attempt fails, second is succesful.
       using (var session = MySQLX.GetSession(new { server = "10.10.10.10, localhost", port = XPort, uid = uid, password = password, connectiontimeout = connectionTimeout }))
       {
@@ -166,6 +179,13 @@ namespace MySqlX.Data.Tests
         Assert.Equal("server.example", Failover.FailoverManager.FailoverGroup.Hosts[0].Host);
         Assert.Equal("192.0.10.56", Failover.FailoverManager.FailoverGroup.Hosts[1].Host);
         Assert.Equal("127.0.0.1", Failover.FailoverManager.FailoverGroup.Hosts[2].Host);
+      }
+
+      // Use default port.
+      using (var session = MySQLX.GetSession("server=(address=localhost,priority=100);uid=test;password=test;connectiontimeout=" + connectionTimeout))
+      {
+        Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
+        Assert.Equal("localhost", session.Settings.Server);
       }
 
       // Priority outside the 0-100 allowed range.
@@ -277,6 +297,13 @@ namespace MySqlX.Data.Tests
         Assert.Equal("127.0.0.1", session.Settings.Server);
       }
 
+      // Use default port.
+      using (var session = MySQLX.GetSession(new { server = "(address=127.0.0.1,priority=100)", uid = uid, password = password, connectiontimeout = connectionTimeout }))
+      {
+        Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
+        Assert.Equal("127.0.0.1", session.Settings.Server);
+      }
+
       using (var session = MySQLX.GetSession(new { server = "(address=server.example,priority=50),(address=127.0.0.1,priority=100)", port = XPort, uid = uid, password = password, connectiontimeout = connectionTimeout }))
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
@@ -331,6 +358,5 @@ namespace MySqlX.Data.Tests
         }
       }
     }
-
   }
 }

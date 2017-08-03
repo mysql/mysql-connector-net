@@ -353,6 +353,7 @@ namespace MySqlX.XDevAPI
       // Connection string is in basic format.
       string updatedConnectionString = string.Empty;
       string[] keyValuePairs = connectionString.Substring(0).Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+      bool portProvided = false;
       foreach (string keyValuePair in keyValuePairs)
       {
         int separatorCharIndex = keyValuePair.IndexOf('=');
@@ -362,6 +363,7 @@ namespace MySqlX.XDevAPI
         var value = keyValuePair.Substring(separatorCharIndex+1);
         if (keyword != "server" && keyword != "host" && keyword != "data source" && keyword != "datasource" && keyword != "address" && keyword != "addr" && keyword != "network address")
         {
+          if (keyword == "port") portProvided = true;
           updatedConnectionString += keyValuePair + ";";
           continue;
         }
@@ -370,9 +372,9 @@ namespace MySqlX.XDevAPI
       }
 
       if (FailoverManager.FailoverGroup == null)
-        return connectionString;
+        return portProvided ? connectionString : connectionString + ";port=" + newDefaultPort;
 
-      return "server=" + FailoverManager.FailoverGroup.ActiveHost.Host + ";" + updatedConnectionString;
+      return "server=" + FailoverManager.FailoverGroup.ActiveHost.Host + ";" + (!portProvided ? "port=" + newDefaultPort + ";" : string.Empty) + updatedConnectionString;
     }
 
     /// <summary>
