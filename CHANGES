@@ -1,4 +1,6 @@
-6.10.3 Added support for Unix sockets in dotnet core. WL-10613
+6.10.3
+- Added support for Unix sockets in dotnet core. WL-10613
+- EF Core: Added async support. WL-10615
 
 
 6.10.2

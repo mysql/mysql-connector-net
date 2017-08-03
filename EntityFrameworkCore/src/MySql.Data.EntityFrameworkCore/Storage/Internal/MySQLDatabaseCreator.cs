@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -119,28 +119,31 @@ namespace MySQL.Data.EntityFrameworkCore
 
     public override bool Exists()
     {
-      try
-      {
-        _connection.Open();
-        _connection.Close();
-        return true;
-      }
-      catch (Exception ex)
-      {
-        MySqlException mex = ex as MySqlException;
-        if (mex == null) throw;
-        if (mex.Number == 1049) return false;
-        if (mex.InnerException == null) throw;
-        mex = mex.InnerException as MySqlException;
-        if (mex == null) throw;
-        if (mex.Number == 1049) return false;
-        throw;
-      }
+      Task<bool> task = ExistsAsync();
+      task.Wait((int)((MySqlConnection)_connection.DbConnection).Settings.DefaultCommandTimeout * 1000);
+      if (task.IsFaulted)
+        throw task.Exception.GetBaseException();
+      return task.Result;
     }
 
-    public override Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken))
+    public override async Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken))
     {
-      throw new NotImplementedException();
+      MySqlConnectionStringBuilder settings = new MySqlConnectionStringBuilder(_connection.ConnectionString);
+      string database = settings.Database;
+      if (string.IsNullOrWhiteSpace(database))
+        throw new ArgumentNullException("Database");
+      settings.Database = string.Empty;
+      using(MySqlConnection conn = new MySqlConnection(settings.ToString()))
+      {
+        await conn.OpenAsync(cancellationToken);
+        MySqlCommand cmd = conn.CreateCommand();
+        cmd.CommandText = $"SHOW DATABASES LIKE '{database}'";
+        var result = await cmd.ExecuteScalarAsync(cancellationToken);
+        if (result == null)
+          return false;
+        else
+          return ((string)result).Equals(database, StringComparison.OrdinalIgnoreCase);
+      }
     }
 
     protected override bool HasTables()
