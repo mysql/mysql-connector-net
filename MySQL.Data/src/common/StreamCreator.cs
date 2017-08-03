@@ -146,7 +146,7 @@ namespace MySql.Data.Common
     }
 
     /// <summary>
-    /// Set the keepalive timeout on socket.
+    /// Set the keepalive timeout on the socket.
     /// </summary>
     /// <param name="s">The socket object.</param>
     /// <param name="time">The keepalive timeout, in seconds.</param>
