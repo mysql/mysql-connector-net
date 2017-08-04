@@ -189,7 +189,8 @@ namespace MySql.Data.MySqlClient.Tests
 
       MySqlConnectionStringBuilder csb = new MySqlConnectionStringBuilder();
       Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.SharedMemoryName = "dummy");
-      Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.IntegratedSecurity = true);
+      if (Platform.IsWindows())
+        Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.IntegratedSecurity = true);
       Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.PipeName = "dummy");
       Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.Logging = true);
       Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.UseUsageAdvisor = true);
