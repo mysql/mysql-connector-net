@@ -20,6 +20,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Common;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -165,17 +166,18 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void DotnetCoreNotCurrentlySupported()
     {
-      string[] options = new string[]
+      List<string> options = new List<string>(new string[]
       {
         "sharedmemoryname",
-        "integratedsecurity",
         "pipe",
         "logging",
         "useusageadvisor",
         "useperformancemonitor",
         "interactivesession",
         "replication"
-      };
+      });
+      if (Platform.IsWindows())
+        options.Add("integratedsecurity");
 
       foreach(string option in options)
       {
@@ -196,7 +198,6 @@ namespace MySql.Data.MySqlClient.Tests
       csb.ConnectionProtocol = MySqlConnectionProtocol.Tcp;
       Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.ConnectionProtocol = MySqlConnectionProtocol.SharedMemory);
       Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.ConnectionProtocol = MySqlConnectionProtocol.NamedPipe);
-      Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.ConnectionProtocol = MySqlConnectionProtocol.UnixSocket);
     }
 #endif
   }

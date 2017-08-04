@@ -44,7 +44,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       if (Platform.IsWindows())
       {
-        Console.Error.WriteLine("Test ignored because it's a Windows system.");
+        Console.Error.WriteLine($"{nameof(ConnectionTest)} ignored because it's a Windows system.");
         return;
       }
 

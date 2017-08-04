@@ -53,11 +53,14 @@ namespace MySql.Data.MySqlClient
         (msb, sender, value) =>
         {
 #if NETCORE10
-          if (((MySqlConnectionProtocol)value) != MySqlConnectionProtocol.Socket)
-            throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, $"Protocol={value}"));
-#else
-          msb.SetValue("protocol", value);
+          MySqlConnectionProtocol enumValue;
+          if (Enum.TryParse<MySqlConnectionProtocol>(value.ToString(), true, out enumValue))
+          {
+            if (enumValue == MySqlConnectionProtocol.Memory || enumValue == MySqlConnectionProtocol.Pipe)
+              throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, $"Protocol={value}"));
+          }
 #endif
+          msb.SetValue("protocol", value);
         },
         (msb, sender) => msb.ConnectionProtocol));
       Options.Add(new MySqlConnectionStringOption("port", null, typeof(uint), (uint)3306, false));
