@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -26,6 +26,7 @@ using System.Linq;
 using MySqlX.XDevAPI.Relational;
 using MySqlX.XDevAPI.Common;
 using System;
+using MySql.Data.MySqlClient;
 
 namespace MySqlX.Data.Tests.RelationalTests
 {
@@ -160,6 +161,19 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.Equal(2, rows.Count);
       Assert.Equal(new DateTime(1985, 10, 21, 16, 34, 22).AddTicks(1230000), (DateTime)rows[0]["birthday"]);
       Assert.Equal(new DateTime(1985, 10, 21, 10, 0, 45).AddTicks(980000), (DateTime)rows[1]["birthday"]);
+    }
+
+    [Fact]
+    public void SelectWithInOperator()
+    {
+      Table table = testSchema.GetTable("test");
+      Assert.Equal(2, table.Select().Execute().FetchAll().Count);
+
+      Assert.Equal(2, table.Select().Where("name IN (\"jonh doe\", \"milton green\")").Execute().FetchAll().Count);
+      Assert.Equal(0, table.Select().Where("name NOT IN [\"jonh doe\", \"milton green\"]").Execute().FetchAll().Count);
+      
+      Assert.Throws<MySqlException>(() => table.Select().Where("a IN [3]").Execute().FetchAll().Count);
+      Assert.Throws<MySqlException>(() => table.Select().Where("3 IN a").Execute().FetchAll().Count);
     }
   }
 

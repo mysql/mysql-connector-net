@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -182,6 +182,7 @@ namespace MySqlX.Protocol.X
         }
       }
       else if (value is XDevAPI.DbDoc)
+      // TODO: value.ToString() returns boolean properties as "True"/"False". X Protocol requires them in lower case.
         return (BuildLiteralScalar(value.ToString()));
       throw new NotSupportedException("Value of type " + value.GetType() + " is not currently supported.");
     }

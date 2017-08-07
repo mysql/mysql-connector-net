@@ -23,10 +23,12 @@ namespace Mysqlx.Notice {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "ChNteXNxbHhfbm90aWNlLnByb3RvEg1NeXNxbHguTm90aWNlGhZteXNxbHhf",
-            "ZGF0YXR5cGVzLnByb3RvInsKBUZyYW1lEgwKBHR5cGUYASABKA0SKQoFc2Nv",
-            "cGUYAiABKA4yGi5NeXNxbHguTm90aWNlLkZyYW1lLlNjb3BlEg8KB3BheWxv",
-            "YWQYAyABKAwiKAoFU2NvcGUSCAoETk9ORRAAEgoKBkdMT0JBTBABEgkKBUxP",
-            "Q0FMEAIihgEKB1dhcm5pbmcSKwoFbGV2ZWwYASABKA4yHC5NeXNxbHguTm90",
+            "ZGF0YXR5cGVzLnByb3RvItQBCgVGcmFtZRIMCgR0eXBlGAEgASgNEikKBXNj",
+            "b3BlGAIgASgOMhouTXlzcWx4Lk5vdGljZS5GcmFtZS5TY29wZRIPCgdwYXls",
+            "b2FkGAMgASgMIigKBVNjb3BlEggKBE5PTkUQABIKCgZHTE9CQUwQARIJCgVM",
+            "T0NBTBACIlcKBFR5cGUSCQoFVE5PTkUQABILCgdXQVJOSU5HEAESHAoYU0VT",
+            "U0lPTl9WQVJJQUJMRV9DSEFOR0VEEAISGQoVU0VTU0lPTl9TVEFURV9DSEFO",
+            "R0VEEAMihgEKB1dhcm5pbmcSKwoFbGV2ZWwYASABKA4yHC5NeXNxbHguTm90",
             "aWNlLldhcm5pbmcuTGV2ZWwSDAoEY29kZRgCIAEoDRILCgNtc2cYAyABKAki",
             "MwoFTGV2ZWwSCAoETk9ORRAAEggKBE5PVEUQARILCgdXQVJOSU5HEAISCQoF",
             "RVJST1IQAyJQChZTZXNzaW9uVmFyaWFibGVDaGFuZ2VkEg0KBXBhcmFtGAEg",
@@ -43,7 +45,7 @@ namespace Mysqlx.Notice {
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Mysqlx.Datatypes.MysqlxDatatypesReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Notice.Frame), global::Mysqlx.Notice.Frame.Parser, new[]{ "Type", "Scope", "Payload" }, null, new[]{ typeof(global::Mysqlx.Notice.Frame.Types.Scope) }, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Notice.Frame), global::Mysqlx.Notice.Frame.Parser, new[]{ "Type", "Scope", "Payload" }, null, new[]{ typeof(global::Mysqlx.Notice.Frame.Types.Scope), typeof(global::Mysqlx.Notice.Frame.Types.Type) }, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Notice.Warning), global::Mysqlx.Notice.Warning.Parser, new[]{ "Level", "Code", "Msg" }, null, new[]{ typeof(global::Mysqlx.Notice.Warning.Types.Level) }, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Notice.SessionVariableChanged), global::Mysqlx.Notice.SessionVariableChanged.Parser, new[]{ "Param", "Value" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Notice.SessionStateChanged), global::Mysqlx.Notice.SessionStateChanged.Parser, new[]{ "Param", "Value" }, null, new[]{ typeof(global::Mysqlx.Notice.SessionStateChanged.Types.Parameter) }, null)
@@ -250,6 +252,13 @@ namespace Mysqlx.Notice {
         [pbr::OriginalName("NONE")] None = 0,
         [pbr::OriginalName("GLOBAL")] Global = 1,
         [pbr::OriginalName("LOCAL")] Local = 2,
+      }
+
+      public enum Type {
+        [pbr::OriginalName("TNONE")] Tnone = 0,
+        [pbr::OriginalName("WARNING")] Warning = 1,
+        [pbr::OriginalName("SESSION_VARIABLE_CHANGED")] SessionVariableChanged = 2,
+        [pbr::OriginalName("SESSION_STATE_CHANGED")] SessionStateChanged = 3,
       }
 
     }

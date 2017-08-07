@@ -131,5 +131,28 @@ namespace MySqlX.Data.Tests
       Assert.Throws<ArgumentOutOfRangeException>(() => collection.Modify("true").Set("pages", 10).Limit(0).Execute());
       Assert.Throws<ArgumentOutOfRangeException>(() => collection.Modify("true").Set("pages", 10).Limit(-10).Execute());
     }
+
+    [Fact]
+    public void ModifyWithInOperator()
+    {
+      Collection collection = CreateCollection("test");
+      var docs = new[]
+      {
+        new DbDoc("{ \"a\": 1, \"b\": \"foo\", \"c\": { \"d\": true, \"e\": [1,2,3] }, \"f\": [ {\"x\":5}, {\"x\":7 } ] }"),
+        new DbDoc("{ \"a\": 2, \"b\": \"foo2\", \"c\": { \"d\": true, \"e\": [4,5,6] }, \"f\": [ {\"x\":5}, {\"x\":8 } ] }"),
+        new DbDoc("{ \"a\": 1, \"b\": \"foo3\", \"c\": { \"d\": true, \"e\": [1,4,3] }, \"f\": [ {\"x\":6}, {\"x\":9 } ] }"),
+      };
+      Result result = collection.Add(docs).Execute();
+      Assert.Equal<ulong>(3, result.RecordsAffected);
+
+      Assert.Equal<ulong>(3, collection.Modify("a IN (1,2)").Set("a", 3).Execute().RecordsAffected);
+      Assert.Equal(3, collection.Find().Where("a = 3").Execute().FetchAll().Count);
+
+      Assert.Equal<ulong>(3, collection.Modify("a IN [3]").Set("a", 1).Execute().RecordsAffected);
+      Assert.Equal(3, collection.Find().Where("a = 1").Execute().FetchAll().Count);
+
+      Assert.Equal<ulong>(2, collection.Modify("1 IN c.e").Set("c.e", "newValue").Execute().RecordsAffected);
+      Assert.Equal(2, collection.Find().Where("c.e = \"newValue\"").Execute().FetchAll().Count);
+    }
   }
 }
