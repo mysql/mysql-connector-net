@@ -133,11 +133,11 @@ namespace MySqlX.XDevAPI
     /// <param name="connectionData">The connection data as an anonymous type of the session.</param>
     /// <exception cref="ArgumentNullException"><paramref name="connectionData"/> is null.</exception>
     /// <remarks>
-    /// <para>Multiple hosts can be specified as part of the <paramref name="connectionData"/> which will enable client side failover when trying to
+    /// <para>Multiple hosts can be specified as part of the <paramref name="connectionData"/>, which will enable client-side failover when trying to
     /// establish a connection.</para>
     /// <para>&#160;</para>
     /// <para>To assign multiple hosts create a property similar to the connection string examples (in basic format) shown in
-    /// <see cref="BaseSession(string)"/>. Note that the property's value must be a string.
+    /// <see cref="BaseSession(string)"/>. Note that the value of the property must be a string.
     /// </para>
     /// </remarks>
     public BaseSession(object connectionData)
