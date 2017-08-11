@@ -1263,6 +1263,8 @@ namespace Mysqlx.Expr {
   ///      * ``like``
   ///      * ``not_like``
   ///      * ``cast``
+  ///      * ``cont_in``
+  ///      * ``not_cont_in``
   ///
   ///    Using special representation, with more than 2 params
   ///      * ``in`` (param[0] IN (param[1], param[2], ...))

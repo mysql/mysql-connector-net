@@ -117,6 +117,35 @@ namespace MySqlX.Sessions
       return rows[0][0];
     }
 
+    /// <summary>
+    /// Sets the connection's charset default collation.
+    /// </summary>
+    /// <param name="session">The opened session.</param>
+    /// <param name="charset">The character set.</param>
+    private static void SetDefaultCollation(InternalSession session, string charset)
+    {
+      if (!session.GetServerVersion().isAtLeast(8,0,1)) return;
+
+      session.GetSqlRowResult("SHOW CHARSET WHERE Charset='" + charset + "'");
+      RowResult result = session.GetSqlRowResult("SHOW CHARSET WHERE Charset='" + charset + "'");
+      var row = result.FetchOne();
+      if (row != null)
+      {
+        var defaultCollation = row.GetString("Default collation");
+        session.ExecuteSqlNonQuery("SET collation_connection = '" + defaultCollation + "'");
+      }
+      else
+        session.ExecuteSqlNonQuery("SET collation_connection = 'utf8mb4_0900_ai_ci'");
+    }
+
+    /// <summary>
+    /// Gets the version of the server.
+    /// </summary>
+    /// <returns>An instance of <see cref="DBVersion"/> containing the server version.</returns>
+    internal DBVersion GetServerVersion()
+    {
+      return DBVersion.Parse(GetSqlRowResult("SHOW VARIABLES LIKE 'version'").FetchOne().GetString("Value"));
+    }
 
     #region IDisposable
 
@@ -141,29 +170,6 @@ namespace MySqlX.Sessions
       disposed = true;
     }
 
-    /// <summary>
-    /// Sets the connection's charset default collation.
-    /// </summary>
-    /// <param name="session">Opened session.</param>
-    /// <param name="charset">Character set.</param>
-    private static void SetDefaultCollation(InternalSession session, string charset)
-    {
-      RowResult result = session.GetSqlRowResult("SHOW VARIABLES LIKE 'version'");
-      DBVersion version = DBVersion.Parse(result.FetchOne().GetString("Value"));
-
-      if (!version.isAtLeast(8,0,1)) return;
-
-      session.GetSqlRowResult("SHOW CHARSET WHERE Charset='" + charset + "'");
-      result = session.GetSqlRowResult("SHOW CHARSET WHERE Charset='" + charset + "'");
-      var row = result.FetchOne();
-      if (row != null)
-      {
-        var defaultCollation = row.GetString("Default collation");
-        session.ExecuteSqlNonQuery("SET collation_connection = '" + defaultCollation + "'");
-      }
-      else
-        session.ExecuteSqlNonQuery("SET collation_connection = 'utf8mb4_0900_ai_ci'");
-    }
     //~BaseSession()
     //{
     //  Dispose(false);

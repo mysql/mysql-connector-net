@@ -23,6 +23,9 @@
 using System.Collections.Generic;
 using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.CRUD;
+using System;
+using MySql.Data.MySqlClient;
+using MySql.Data;
 
 namespace MySqlX.XDevAPI.Relational
 {
@@ -54,7 +57,7 @@ namespace MySqlX.XDevAPI.Relational
     /// Filters criteria for aggregated groups.
     /// </summary>
     /// <param name="having">The filter criteria for aggregated groups.</param>
-    /// <returns>This same <see cref="TableSelectStatement"/> object.</returns>
+    /// <returns>This same <see cref="TableSelectStatement"/> object set with the specified group by criteria.</returns>
     public TableSelectStatement Having(string having)
     {
       findParams.GroupByCritieria = having;
@@ -75,11 +78,39 @@ namespace MySqlX.XDevAPI.Relational
     /// </summary>
     /// <param name="rows">The number of items to be returned.</param>
     /// <param name="offset">The number of items to be skipped.</param>
-    /// <returns>This same <see cref="TableSelectStatement"/> object.</returns>
+    /// <returns>This same <see cref="TableSelectStatement"/> object set with the specified limit.</returns>
     public TableSelectStatement Limit(long rows, long offset)
     {
       FilterData.Limit = rows;
       FilterData.Offset = offset;
+      return this;
+    }
+
+    /// <summary>
+    /// Locks matching rows against updates.
+    /// </summary>
+    /// <returns>This same <see cref="TableSelectStatement"/> object set with lock shared option.</returns>
+    /// <exception cref="MySqlException">The server version is lower than 8.0.3.</exception>
+    public TableSelectStatement LockShared()
+    {
+      if (!this.Session.InternalSession.GetServerVersion().isAtLeast(8,0,3))
+        throw new MySqlException(string.Format(ResourcesX.FunctionalityNotSupported, "8.0.3"));
+
+      findParams.Locking = Protocol.X.RowLock.SharedLock;
+      return this;
+    }
+
+    /// <summary>
+    /// Locks matching rows so no other transaction can read or write to it.
+    /// </summary>
+    /// <returns>This same <see cref="TableSelectStatement"/> object set with the lock exclusive option.</returns>
+    /// <exception cref="MySqlException">The server version is lower than 8.0.3.</exception>
+    public TableSelectStatement LockExclusive()
+    {
+      if (!this.Session.InternalSession.GetServerVersion().isAtLeast(8,0,3))
+        throw new MySqlException(string.Format(ResourcesX.FunctionalityNotSupported, "8.0.3"));
+
+      findParams.Locking = Protocol.X.RowLock.ExclusiveLock;
       return this;
     }
   }

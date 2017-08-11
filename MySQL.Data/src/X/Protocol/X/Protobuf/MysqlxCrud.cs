@@ -38,7 +38,7 @@ namespace Mysqlx.Crud {
             "dmFsdWUYAyABKAsyES5NeXNxbHguRXhwci5FeHByIoQBCgpVcGRhdGVUeXBl",
             "EggKBE5PTkUQABIHCgNTRVQQARIPCgtJVEVNX1JFTU9WRRACEgwKCElURU1f",
             "U0VUEAMSEAoMSVRFTV9SRVBMQUNFEAQSDgoKSVRFTV9NRVJHRRAFEhAKDEFS",
-            "UkFZX0lOU0VSVBAGEhAKDEFSUkFZX0FQUEVORBAHIvICCgRGaW5kEisKCmNv",
+            "UkFZX0lOU0VSVBAGEhAKDEFSUkFZX0FQUEVORBAHItgDCgRGaW5kEisKCmNv",
             "bGxlY3Rpb24YAiABKAsyFy5NeXNxbHguQ3J1ZC5Db2xsZWN0aW9uEioKCmRh",
             "dGFfbW9kZWwYAyABKA4yFi5NeXNxbHguQ3J1ZC5EYXRhTW9kZWwSKwoKcHJv",
             "amVjdGlvbhgEIAMoCzIXLk15c3FseC5DcnVkLlByb2plY3Rpb24SIwoIY3Jp",
@@ -46,46 +46,48 @@ namespace Mysqlx.Crud {
             "GC5NeXNxbHguRGF0YXR5cGVzLlNjYWxhchIhCgVsaW1pdBgGIAEoCzISLk15",
             "c3FseC5DcnVkLkxpbWl0EiEKBW9yZGVyGAcgAygLMhIuTXlzcWx4LkNydWQu",
             "T3JkZXISIwoIZ3JvdXBpbmcYCCADKAsyES5NeXNxbHguRXhwci5FeHByEiwK",
-            "EWdyb3VwaW5nX2NyaXRlcmlhGAkgASgLMhEuTXlzcWx4LkV4cHIuRXhwciKL",
-            "AgoGSW5zZXJ0EisKCmNvbGxlY3Rpb24YASABKAsyFy5NeXNxbHguQ3J1ZC5D",
-            "b2xsZWN0aW9uEioKCmRhdGFfbW9kZWwYAiABKA4yFi5NeXNxbHguQ3J1ZC5E",
-            "YXRhTW9kZWwSJwoKcHJvamVjdGlvbhgDIAMoCzITLk15c3FseC5DcnVkLkNv",
-            "bHVtbhIpCgNyb3cYBCADKAsyHC5NeXNxbHguQ3J1ZC5JbnNlcnQuVHlwZWRS",
-            "b3cSJgoEYXJncxgFIAMoCzIYLk15c3FseC5EYXRhdHlwZXMuU2NhbGFyGiwK",
-            "CFR5cGVkUm93EiAKBWZpZWxkGAEgAygLMhEuTXlzcWx4LkV4cHIuRXhwciKl",
-            "AgoGVXBkYXRlEisKCmNvbGxlY3Rpb24YAiABKAsyFy5NeXNxbHguQ3J1ZC5D",
-            "b2xsZWN0aW9uEioKCmRhdGFfbW9kZWwYAyABKA4yFi5NeXNxbHguQ3J1ZC5E",
-            "YXRhTW9kZWwSIwoIY3JpdGVyaWEYBCABKAsyES5NeXNxbHguRXhwci5FeHBy",
-            "EiYKBGFyZ3MYCCADKAsyGC5NeXNxbHguRGF0YXR5cGVzLlNjYWxhchIhCgVs",
-            "aW1pdBgFIAEoCzISLk15c3FseC5DcnVkLkxpbWl0EiEKBW9yZGVyGAYgAygL",
-            "MhIuTXlzcWx4LkNydWQuT3JkZXISLwoJb3BlcmF0aW9uGAcgAygLMhwuTXlz",
-            "cWx4LkNydWQuVXBkYXRlT3BlcmF0aW9uIvQBCgZEZWxldGUSKwoKY29sbGVj",
-            "dGlvbhgBIAEoCzIXLk15c3FseC5DcnVkLkNvbGxlY3Rpb24SKgoKZGF0YV9t",
-            "b2RlbBgCIAEoDjIWLk15c3FseC5DcnVkLkRhdGFNb2RlbBIjCghjcml0ZXJp",
-            "YRgDIAEoCzIRLk15c3FseC5FeHByLkV4cHISJgoEYXJncxgGIAMoCzIYLk15",
-            "c3FseC5EYXRhdHlwZXMuU2NhbGFyEiEKBWxpbWl0GAQgASgLMhIuTXlzcWx4",
-            "LkNydWQuTGltaXQSIQoFb3JkZXIYBSADKAsyEi5NeXNxbHguQ3J1ZC5PcmRl",
-            "ciKhAgoKQ3JlYXRlVmlldxIrCgpjb2xsZWN0aW9uGAEgASgLMhcuTXlzcWx4",
-            "LkNydWQuQ29sbGVjdGlvbhIPCgdkZWZpbmVyGAIgASgJEi0KCWFsZ29yaXRo",
-            "bRgDIAEoDjIaLk15c3FseC5DcnVkLlZpZXdBbGdvcml0aG0SLgoIc2VjdXJp",
-            "dHkYBCABKA4yHC5NeXNxbHguQ3J1ZC5WaWV3U3FsU2VjdXJpdHkSKwoFY2hl",
-            "Y2sYBSABKA4yHC5NeXNxbHguQ3J1ZC5WaWV3Q2hlY2tPcHRpb24SDgoGY29s",
-            "dW1uGAYgAygJEh8KBHN0bXQYByABKAsyES5NeXNxbHguQ3J1ZC5GaW5kEhgK",
-            "EHJlcGxhY2VfZXhpc3RpbmcYCCABKAgihwIKCk1vZGlmeVZpZXcSKwoKY29s",
-            "bGVjdGlvbhgBIAEoCzIXLk15c3FseC5DcnVkLkNvbGxlY3Rpb24SDwoHZGVm",
-            "aW5lchgCIAEoCRItCglhbGdvcml0aG0YAyABKA4yGi5NeXNxbHguQ3J1ZC5W",
-            "aWV3QWxnb3JpdGhtEi4KCHNlY3VyaXR5GAQgASgOMhwuTXlzcWx4LkNydWQu",
-            "Vmlld1NxbFNlY3VyaXR5EisKBWNoZWNrGAUgASgOMhwuTXlzcWx4LkNydWQu",
-            "Vmlld0NoZWNrT3B0aW9uEg4KBmNvbHVtbhgGIAMoCRIfCgRzdG10GAcgASgL",
-            "MhEuTXlzcWx4LkNydWQuRmluZCJKCghEcm9wVmlldxIrCgpjb2xsZWN0aW9u",
-            "GAEgASgLMhcuTXlzcWx4LkNydWQuQ29sbGVjdGlvbhIRCglpZl9leGlzdHMY",
-            "AiABKAgqLgoJRGF0YU1vZGVsEggKBE5PTkUQABIMCghET0NVTUVOVBABEgkK",
-            "BVRBQkxFEAIqRAoNVmlld0FsZ29yaXRobRIKCgZWQU5PTkUQABINCglVTkRF",
-            "RklORUQQARIJCgVNRVJHRRACEg0KCVRFTVBUQUJMRRADKjcKD1ZpZXdTcWxT",
-            "ZWN1cml0eRIKCgZWU05PTkUQABILCgdJTlZPS0VSEAESCwoHREVGSU5FUhAC",
-            "KjYKD1ZpZXdDaGVja09wdGlvbhIKCgZWT05PTkUQABIJCgVMT0NBTBABEgwK",
-            "CENBU0NBREVEEAJCHgocY29tLm15c3FsLmNqLm15c3FseC5wcm90b2J1ZmIG",
-            "cHJvdG8z"));
+            "EWdyb3VwaW5nX2NyaXRlcmlhGAkgASgLMhEuTXlzcWx4LkV4cHIuRXhwchIq",
+            "Cgdsb2NraW5nGAwgASgOMhkuTXlzcWx4LkNydWQuRmluZC5Sb3dMb2NrIjgK",
+            "B1Jvd0xvY2sSCAoETk9ORRAAEg8KC1NIQVJFRF9MT0NLEAESEgoORVhDTFVT",
+            "SVZFX0xPQ0sQAiKbAgoGSW5zZXJ0EisKCmNvbGxlY3Rpb24YASABKAsyFy5N",
+            "eXNxbHguQ3J1ZC5Db2xsZWN0aW9uEioKCmRhdGFfbW9kZWwYAiABKA4yFi5N",
+            "eXNxbHguQ3J1ZC5EYXRhTW9kZWwSJwoKcHJvamVjdGlvbhgDIAMoCzITLk15",
+            "c3FseC5DcnVkLkNvbHVtbhIpCgNyb3cYBCADKAsyHC5NeXNxbHguQ3J1ZC5J",
+            "bnNlcnQuVHlwZWRSb3cSJgoEYXJncxgFIAMoCzIYLk15c3FseC5EYXRhdHlw",
+            "ZXMuU2NhbGFyEg4KBnVwc2VydBgGIAEoCBosCghUeXBlZFJvdxIgCgVmaWVs",
+            "ZBgBIAMoCzIRLk15c3FseC5FeHByLkV4cHIipQIKBlVwZGF0ZRIrCgpjb2xs",
+            "ZWN0aW9uGAIgASgLMhcuTXlzcWx4LkNydWQuQ29sbGVjdGlvbhIqCgpkYXRh",
+            "X21vZGVsGAMgASgOMhYuTXlzcWx4LkNydWQuRGF0YU1vZGVsEiMKCGNyaXRl",
+            "cmlhGAQgASgLMhEuTXlzcWx4LkV4cHIuRXhwchImCgRhcmdzGAggAygLMhgu",
+            "TXlzcWx4LkRhdGF0eXBlcy5TY2FsYXISIQoFbGltaXQYBSABKAsyEi5NeXNx",
+            "bHguQ3J1ZC5MaW1pdBIhCgVvcmRlchgGIAMoCzISLk15c3FseC5DcnVkLk9y",
+            "ZGVyEi8KCW9wZXJhdGlvbhgHIAMoCzIcLk15c3FseC5DcnVkLlVwZGF0ZU9w",
+            "ZXJhdGlvbiL0AQoGRGVsZXRlEisKCmNvbGxlY3Rpb24YASABKAsyFy5NeXNx",
+            "bHguQ3J1ZC5Db2xsZWN0aW9uEioKCmRhdGFfbW9kZWwYAiABKA4yFi5NeXNx",
+            "bHguQ3J1ZC5EYXRhTW9kZWwSIwoIY3JpdGVyaWEYAyABKAsyES5NeXNxbHgu",
+            "RXhwci5FeHByEiYKBGFyZ3MYBiADKAsyGC5NeXNxbHguRGF0YXR5cGVzLlNj",
+            "YWxhchIhCgVsaW1pdBgEIAEoCzISLk15c3FseC5DcnVkLkxpbWl0EiEKBW9y",
+            "ZGVyGAUgAygLMhIuTXlzcWx4LkNydWQuT3JkZXIioQIKCkNyZWF0ZVZpZXcS",
+            "KwoKY29sbGVjdGlvbhgBIAEoCzIXLk15c3FseC5DcnVkLkNvbGxlY3Rpb24S",
+            "DwoHZGVmaW5lchgCIAEoCRItCglhbGdvcml0aG0YAyABKA4yGi5NeXNxbHgu",
+            "Q3J1ZC5WaWV3QWxnb3JpdGhtEi4KCHNlY3VyaXR5GAQgASgOMhwuTXlzcWx4",
+            "LkNydWQuVmlld1NxbFNlY3VyaXR5EisKBWNoZWNrGAUgASgOMhwuTXlzcWx4",
+            "LkNydWQuVmlld0NoZWNrT3B0aW9uEg4KBmNvbHVtbhgGIAMoCRIfCgRzdG10",
+            "GAcgASgLMhEuTXlzcWx4LkNydWQuRmluZBIYChByZXBsYWNlX2V4aXN0aW5n",
+            "GAggASgIIocCCgpNb2RpZnlWaWV3EisKCmNvbGxlY3Rpb24YASABKAsyFy5N",
+            "eXNxbHguQ3J1ZC5Db2xsZWN0aW9uEg8KB2RlZmluZXIYAiABKAkSLQoJYWxn",
+            "b3JpdGhtGAMgASgOMhouTXlzcWx4LkNydWQuVmlld0FsZ29yaXRobRIuCghz",
+            "ZWN1cml0eRgEIAEoDjIcLk15c3FseC5DcnVkLlZpZXdTcWxTZWN1cml0eRIr",
+            "CgVjaGVjaxgFIAEoDjIcLk15c3FseC5DcnVkLlZpZXdDaGVja09wdGlvbhIO",
+            "CgZjb2x1bW4YBiADKAkSHwoEc3RtdBgHIAEoCzIRLk15c3FseC5DcnVkLkZp",
+            "bmQiSgoIRHJvcFZpZXcSKwoKY29sbGVjdGlvbhgBIAEoCzIXLk15c3FseC5D",
+            "cnVkLkNvbGxlY3Rpb24SEQoJaWZfZXhpc3RzGAIgASgIKi4KCURhdGFNb2Rl",
+            "bBIICgROT05FEAASDAoIRE9DVU1FTlQQARIJCgVUQUJMRRACKkQKDVZpZXdB",
+            "bGdvcml0aG0SCgoGVkFOT05FEAASDQoJVU5ERUZJTkVEEAESCQoFTUVSR0UQ",
+            "AhINCglURU1QVEFCTEUQAyo3Cg9WaWV3U3FsU2VjdXJpdHkSCgoGVlNOT05F",
+            "EAASCwoHSU5WT0tFUhABEgsKB0RFRklORVIQAio2Cg9WaWV3Q2hlY2tPcHRp",
+            "b24SCgoGVk9OT05FEAASCQoFTE9DQUwQARIMCghDQVNDQURFRBACQh4KHGNv",
+            "bS5teXNxbC5jai5teXNxbHgucHJvdG9idWZiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Mysqlx.Expr.MysqlxExprReflection.Descriptor, global::Mysqlx.Datatypes.MysqlxDatatypesReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Mysqlx.Crud.DataModel), typeof(global::Mysqlx.Crud.ViewAlgorithm), typeof(global::Mysqlx.Crud.ViewSqlSecurity), typeof(global::Mysqlx.Crud.ViewCheckOption), }, new pbr::GeneratedClrTypeInfo[] {
@@ -95,8 +97,8 @@ namespace Mysqlx.Crud {
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Crud.Limit), global::Mysqlx.Crud.Limit.Parser, new[]{ "RowCount", "Offset" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Crud.Order), global::Mysqlx.Crud.Order.Parser, new[]{ "Expr", "Direction" }, null, new[]{ typeof(global::Mysqlx.Crud.Order.Types.Direction) }, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Crud.UpdateOperation), global::Mysqlx.Crud.UpdateOperation.Parser, new[]{ "Source", "Operation", "Value" }, null, new[]{ typeof(global::Mysqlx.Crud.UpdateOperation.Types.UpdateType) }, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Crud.Find), global::Mysqlx.Crud.Find.Parser, new[]{ "Collection", "DataModel", "Projection", "Criteria", "Args", "Limit", "Order", "Grouping", "GroupingCriteria" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Crud.Insert), global::Mysqlx.Crud.Insert.Parser, new[]{ "Collection", "DataModel", "Projection", "Row", "Args" }, null, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Crud.Insert.Types.TypedRow), global::Mysqlx.Crud.Insert.Types.TypedRow.Parser, new[]{ "Field" }, null, null, null)}),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Crud.Find), global::Mysqlx.Crud.Find.Parser, new[]{ "Collection", "DataModel", "Projection", "Criteria", "Args", "Limit", "Order", "Grouping", "GroupingCriteria", "Locking" }, null, new[]{ typeof(global::Mysqlx.Crud.Find.Types.RowLock) }, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Crud.Insert), global::Mysqlx.Crud.Insert.Parser, new[]{ "Collection", "DataModel", "Projection", "Row", "Args", "Upsert" }, null, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Crud.Insert.Types.TypedRow), global::Mysqlx.Crud.Insert.Types.TypedRow.Parser, new[]{ "Field" }, null, null, null)}),
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Crud.Update), global::Mysqlx.Crud.Update.Parser, new[]{ "Collection", "DataModel", "Criteria", "Args", "Limit", "Order", "Operation" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Crud.Delete), global::Mysqlx.Crud.Delete.Parser, new[]{ "Collection", "DataModel", "Criteria", "Args", "Limit", "Order" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Crud.CreateView), global::Mysqlx.Crud.CreateView.Parser, new[]{ "Collection", "Definer", "Algorithm", "Security", "Check", "Column", "Stmt", "ReplaceExisting" }, null, null, null),
@@ -1032,9 +1034,6 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "operation" field.</summary>
     public const int OperationFieldNumber = 2;
     private global::Mysqlx.Crud.UpdateOperation.Types.UpdateType operation_ = 0;
-    /// <summary>
-    /// required
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.UpdateOperation.Types.UpdateType Operation {
       get { return operation_; }
@@ -1228,6 +1227,7 @@ namespace Mysqlx.Crud {
   ///  :param order: sort-order in which the rows/document shall be returned in
   ///  :param grouping: column expression list for aggregation (GROUP BY)
   ///  :param grouping_criteria: filter criteria for aggregated groups
+  ///  :param locking: perform row locking on matches
   ///  :Returns: :protobuf:msg:`Mysqlx.Resultset::`
   /// </summary>
   internal sealed partial class Find : pb::IMessage<Find> {
@@ -1263,6 +1263,7 @@ namespace Mysqlx.Crud {
       order_ = other.order_.Clone();
       grouping_ = other.grouping_.Clone();
       GroupingCriteria = other.groupingCriteria_ != null ? other.GroupingCriteria.Clone() : null;
+      locking_ = other.locking_;
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1368,6 +1369,17 @@ namespace Mysqlx.Crud {
       }
     }
 
+    /// <summary>Field number for the "locking" field.</summary>
+    public const int LockingFieldNumber = 12;
+    private global::Mysqlx.Crud.Find.Types.RowLock locking_ = 0;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Mysqlx.Crud.Find.Types.RowLock Locking {
+      get { return locking_; }
+      set {
+        locking_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as Find);
@@ -1390,6 +1402,7 @@ namespace Mysqlx.Crud {
       if(!order_.Equals(other.order_)) return false;
       if(!grouping_.Equals(other.grouping_)) return false;
       if (!object.Equals(GroupingCriteria, other.GroupingCriteria)) return false;
+      if (Locking != other.Locking) return false;
       return true;
     }
 
@@ -1405,6 +1418,7 @@ namespace Mysqlx.Crud {
       hash ^= order_.GetHashCode();
       hash ^= grouping_.GetHashCode();
       if (groupingCriteria_ != null) hash ^= GroupingCriteria.GetHashCode();
+      if (Locking != 0) hash ^= Locking.GetHashCode();
       return hash;
     }
 
@@ -1439,6 +1453,10 @@ namespace Mysqlx.Crud {
         output.WriteMessage(GroupingCriteria);
       }
       args_.WriteTo(output, _repeated_args_codec);
+      if (Locking != 0) {
+        output.WriteRawTag(96);
+        output.WriteEnum((int) Locking);
+      }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1462,6 +1480,9 @@ namespace Mysqlx.Crud {
       size += grouping_.CalculateSize(_repeated_grouping_codec);
       if (groupingCriteria_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(GroupingCriteria);
+      }
+      if (Locking != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Locking);
       }
       return size;
     }
@@ -1501,6 +1522,9 @@ namespace Mysqlx.Crud {
           groupingCriteria_ = new global::Mysqlx.Expr.Expr();
         }
         GroupingCriteria.MergeFrom(other.GroupingCriteria);
+      }
+      if (other.Locking != 0) {
+        Locking = other.Locking;
       }
     }
 
@@ -1560,9 +1584,32 @@ namespace Mysqlx.Crud {
             args_.AddEntriesFrom(input, _repeated_args_codec);
             break;
           }
+          case 96: {
+            locking_ = (global::Mysqlx.Crud.Find.Types.RowLock) input.ReadEnum();
+            break;
+          }
         }
       }
     }
+
+    #region Nested types
+    /// <summary>Container for nested types declared in the Find message type.</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static partial class Types {
+      public enum RowLock {
+        [pbr::OriginalName("NONE")] None = 0,
+        /// <summary>
+        ///  Lock matching rows against updates
+        /// </summary>
+        [pbr::OriginalName("SHARED_LOCK")] SharedLock = 1,
+        /// <summary>
+        ///  Lock matching rows so no other transaction can read or write to it
+        /// </summary>
+        [pbr::OriginalName("EXCLUSIVE_LOCK")] ExclusiveLock = 2,
+      }
+
+    }
+    #endregion
 
   }
 
@@ -1574,6 +1621,7 @@ namespace Mysqlx.Crud {
   ///  :param projection: name of the columns to insert data into (empty if data_model is DOCUMENT)
   ///  :param row: set of rows to insert into the collection/table (a single expression with a JSON document literal or an OBJECT expression)
   ///  :param args: values for parameters used in row expressions
+  ///  :param upsert: true if this should be treated as an Upsert (that is, update on duplicate key)
   ///  :Returns: :protobuf:msg:`Mysqlx.Resultset::`
   /// </summary>
   internal sealed partial class Insert : pb::IMessage<Insert> {
@@ -1605,6 +1653,7 @@ namespace Mysqlx.Crud {
       projection_ = other.projection_.Clone();
       row_ = other.row_.Clone();
       args_ = other.args_.Clone();
+      upsert_ = other.upsert_;
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1667,6 +1716,17 @@ namespace Mysqlx.Crud {
       get { return args_; }
     }
 
+    /// <summary>Field number for the "upsert" field.</summary>
+    public const int UpsertFieldNumber = 6;
+    private bool upsert_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Upsert {
+      get { return upsert_; }
+      set {
+        upsert_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as Insert);
@@ -1685,6 +1745,7 @@ namespace Mysqlx.Crud {
       if(!projection_.Equals(other.projection_)) return false;
       if(!row_.Equals(other.row_)) return false;
       if(!args_.Equals(other.args_)) return false;
+      if (Upsert != other.Upsert) return false;
       return true;
     }
 
@@ -1696,6 +1757,7 @@ namespace Mysqlx.Crud {
       hash ^= projection_.GetHashCode();
       hash ^= row_.GetHashCode();
       hash ^= args_.GetHashCode();
+      if (Upsert != false) hash ^= Upsert.GetHashCode();
       return hash;
     }
 
@@ -1717,6 +1779,10 @@ namespace Mysqlx.Crud {
       projection_.WriteTo(output, _repeated_projection_codec);
       row_.WriteTo(output, _repeated_row_codec);
       args_.WriteTo(output, _repeated_args_codec);
+      if (Upsert != false) {
+        output.WriteRawTag(48);
+        output.WriteBool(Upsert);
+      }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1731,6 +1797,9 @@ namespace Mysqlx.Crud {
       size += projection_.CalculateSize(_repeated_projection_codec);
       size += row_.CalculateSize(_repeated_row_codec);
       size += args_.CalculateSize(_repeated_args_codec);
+      if (Upsert != false) {
+        size += 1 + 1;
+      }
       return size;
     }
 
@@ -1751,6 +1820,9 @@ namespace Mysqlx.Crud {
       projection_.Add(other.projection_);
       row_.Add(other.row_);
       args_.Add(other.args_);
+      if (other.Upsert != false) {
+        Upsert = other.Upsert;
+      }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1782,6 +1854,10 @@ namespace Mysqlx.Crud {
           }
           case 42: {
             args_.AddEntriesFrom(input, _repeated_args_codec);
+            break;
+          }
+          case 48: {
+            Upsert = input.ReadBool();
             break;
           }
         }

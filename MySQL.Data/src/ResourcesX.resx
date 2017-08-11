@@ -204,4 +204,7 @@
   <data name="NumberNotGreaterThanZero" xml:space="preserve">
     <value>{0} must be a value greater than 0.</value>
   </data>
+  <data name="FunctionalityNotSupported" xml:space="preserve">
+    <value>This functionality is only supported from server version {0} onwards.</value>
+  </data>
 </root>
