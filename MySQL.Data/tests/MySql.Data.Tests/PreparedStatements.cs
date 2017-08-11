@@ -95,7 +95,10 @@ namespace MySql.Data.MySqlClient.Tests
         executeSQL(@"CREATE TABLE Test (id INT NOT NULL, d DATE, dt DATETIME, tm TIME(6), 
                      ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY(id))");
 
-      string sql = "INSERT INTO Test VALUES(?id, ?d, ?dt, ?tm, NULL)";
+      string timeStampValue = "NULL";
+      if (Fixture.Version >= new Version(8, 0, 2)) timeStampValue = "NOW()";
+
+      string sql = "INSERT INTO Test VALUES(?id, ?d, ?dt, ?tm, " + timeStampValue + ")";
       MySqlCommand cmd = new MySqlCommand(sql, Connection);
 
       DateTime dt = DateTime.Now;

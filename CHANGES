@@ -1,4 +1,5 @@
 8.0.9
+- MySqlX: Set utf8mb4 as the default charset (WL10562).
 - MySqlX: Updated all DropX() methods to return void, execute without the need to call Execute() and to succeed even if the object to be
   droppped does not already exist (WL10563).
 - MySqlX: Added the LockShared() and LockExclusive() methods to Table.Select() and Collection.Find() command chains, allowing safe

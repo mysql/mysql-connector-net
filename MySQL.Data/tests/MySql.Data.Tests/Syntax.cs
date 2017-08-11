@@ -98,6 +98,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void LoadDataLocalInfile()
     {
+      if (Fixture.Version >= new Version(8,0,2)) executeSQL("SET GLOBAL local_infile = 1");
+
       executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
       string connString = Connection.ConnectionString + ";pooling=false";
       MySqlConnection c = new MySqlConnection(connString);

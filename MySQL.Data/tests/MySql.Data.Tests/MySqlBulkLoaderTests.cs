@@ -30,6 +30,7 @@ namespace MySql.Data.MySqlClient.Tests
   {
     public MySqlBulkLoaderTests(TestFixture fixture) : base(fixture)
     {
+      if (fixture.Version >= new Version(8,0,2)) executeSQL("SET GLOBAL local_infile = 1");
     }
 
     [Fact]

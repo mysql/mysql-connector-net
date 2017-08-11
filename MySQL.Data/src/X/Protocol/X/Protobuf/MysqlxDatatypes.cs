@@ -77,7 +77,7 @@ namespace Mysqlx.Datatypes {
   ///    like image manipulation, seeking into complex types in BLOBs, ... more
   ///    types will be added.
   /// </summary>
-  public enum ContentType {
+  internal enum ContentType {
     [pbr::OriginalName("NONE")] None = 0,
     [pbr::OriginalName("GEOMETRY")] Geometry = 1,
     [pbr::OriginalName("JSON")] Json = 2,
