@@ -102,7 +102,7 @@ namespace MySql.Data.MySqlClient
 #else
 					string fullName = Assembly.GetExecutingAssembly().FullName;
 #endif
-					string assemblyName = fullName.Replace("MySql.Data", "MySql.Data.Entity");
+					string assemblyName = fullName.Replace("MySql.Data", "MySql.Data.EntityFramework");
 					string assemblyEf5Name = fullName.Replace("MySql.Data", "MySql.Data.Entity.EF5");
 					fullName = $"MySql.Data.MySqlClient.MySqlProviderServices, {assemblyEf5Name}";
 
