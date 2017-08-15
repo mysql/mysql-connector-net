@@ -103,6 +103,8 @@ namespace MySqlX.XDevAPI.Config
         }
         return Save(name, dic);
       }
+
+      Delete(name);
       return persistenceHandler.Save(name, json);
     }
     /// <summary>
@@ -219,20 +221,6 @@ namespace MySqlX.XDevAPI.Config
         options.Add("appdata", cfg.appData);
       }
       return Save(cfg.Name, new DbDoc(options));
-    }
-    /// <summary>
-    /// Updates a specific session configuration.
-    /// </summary>
-    /// <param name="cfg">The <see cref="SessionConfig"/> object with the updated session configuration data.</param>
-    /// <returns>A <see cref="SessionConfig"/> object set with the updated session configuration data.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="cfg"/> is null.</exception>
-    public static SessionConfig Update(SessionConfig cfg)
-    {
-      if (cfg == null)
-        throw new ArgumentNullException("SessionConfig");
-
-      Delete(cfg.Name);
-      return Save(cfg);
     }
     /// <summary>
     /// Gets a specific session configuration.

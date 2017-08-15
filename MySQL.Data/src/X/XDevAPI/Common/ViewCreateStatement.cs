@@ -54,8 +54,8 @@ namespace MySqlX.XDevAPI.Common
     /// <summary>
     /// Defines the column names (alias) for the view.
     /// </summary>
-    /// <param name="columns">Alias list for the view columns.</param>
-    /// <returns>ViewCreate chaining object.</returns>
+    /// <param name="columns">The alias list for the view columns.</param>
+    /// <returns>A <see cref="ViewCreateStatement"/> chaining object set with the given columns.</returns>
     public ViewCreateStatement Columns(params string[] columns)
     {
       this.columns = columns;
@@ -65,8 +65,8 @@ namespace MySqlX.XDevAPI.Common
     /// <summary>
     /// Defines the algorithm of the view.
     /// </summary>
-    /// <param name="algorithm">View algorithm.</param>
-    /// <returns>ViewCreate chaining object.</returns>
+    /// <param name="algorithm">The algorithm of the view.</param>
+    /// <returns>A <see cref="ViewCreateStatement"/> chaining object set with the given algorithm.</returns>
     public ViewCreateStatement Algorithm(ViewAlgorithmEnum algorithm)
     {
       this.algorithm = algorithm;
@@ -76,8 +76,8 @@ namespace MySqlX.XDevAPI.Common
     /// <summary>
     /// Defines the security scheme of the view.
     /// </summary>
-    /// <param name="sqlSecurity">View security scheme.</param>
-    /// <returns>ViewCreate chaining object.</returns>
+    /// <param name="sqlSecurity">The security scheme of the view.</param>
+    /// <returns>A <see cref="ViewCreateStatement"/> chaining object set with the given security option.</returns>
     public ViewCreateStatement Security(ViewSqlSecurityEnum sqlSecurity)
     {
       this.sqlSecurity = sqlSecurity;
@@ -87,8 +87,16 @@ namespace MySqlX.XDevAPI.Common
     /// <summary>
     /// Represents the definer for a view.
     /// </summary>
-    /// <param name="user">Definer user.</param>
-    /// <returns>ViewCreate chaining object.</returns>
+    /// <param name="user">The definer user.</param>
+    /// <returns>A <see cref="ViewCreateStatement"/> chaining object set with the given definer user.</returns>
+    /// <remarks>
+    /// <para>Users should take note on the following behavior:</para>
+    /// <para>- schema.CreateView("v").Definer("CURRENT_USER").Execute() ...</para>
+    /// <para>is equivalent to executing the statement:</para>
+    /// <para>- CREATE definer="CURRENT_USER" VIEW v ...</para>
+    /// <para>which, due to the way user names work in the server, is itself equivalent to:</para>
+    /// <para>- CREATE definer='CURRENT_USER'@'%' VIEW v ...</para>
+    /// </remarks>
     public ViewCreateStatement Definer(string user)
     {
       this.definer = user;
@@ -98,8 +106,8 @@ namespace MySqlX.XDevAPI.Common
     /// <summary>
     /// Defines the table Select statement used to generate the view.
     /// </summary>
-    /// <param name="selectFunction">Table select statement.</param>
-    /// <returns>ViewCreate chaining object.</returns>
+    /// <param name="selectFunction">The table select statement.</param>
+    /// <returns>A <see cref="ViewCreateStatement"/> chaining object set with the given select statement.</returns>
     public ViewCreateStatement DefinedAs(TableSelectStatement selectFunction)
     {
       this.queryStatement = new QueryStatement(selectFunction.Clone());
@@ -109,8 +117,8 @@ namespace MySqlX.XDevAPI.Common
     /// <summary>
     /// Sets insert and update constraints on the view.
     /// </summary>
-    /// <param name="checkOption">Check option.</param>
-    /// <returns>ViewCreate chaining object.</returns>
+    /// <param name="checkOption">The check option.</param>
+    /// <returns>A <see cref="ViewCreateStatement"/> chaining object set with the given check option.</returns>
     public ViewCreateStatement WithCheckOption(ViewCheckOptionEnum checkOption)
     {
       this.checkOption = checkOption;
@@ -120,7 +128,7 @@ namespace MySqlX.XDevAPI.Common
     /// <summary>
     /// Executes the view create statement.
     /// </summary>
-    /// <returns>Result of execution.</returns>
+    /// <returns>A <see cref="Result"/> object set with the results of the execution.</returns>
     public override Result Execute()
     {
       if(string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException("Name");

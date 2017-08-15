@@ -292,7 +292,32 @@ namespace MySqlX.Data.Tests
       Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionString + "?sslmode=None&ssl-ca=../../../../MySql.Data.Tests/certificates/client.pfx").InternalSession.SessionState);
     }
 
-        [Fact]
+    [Fact]
+    public void SSlCertificatePathKeepsCase()
+    {
+      var certificatePath = "../../../../MySql.Data.Tests/client.pfx";
+      // Connection string in basic format.
+      string connString = ConnectionString + ";ssl-ca=" + certificatePath + ";ssl-ca-pwd=pass;";
+      MySqlConnectionStringBuilder stringBuilder = new MySqlConnectionStringBuilder(connString);
+      Assert.Equal(certificatePath, stringBuilder.CertificateFile);
+      Assert.Equal(certificatePath, stringBuilder.SslCa);
+      Assert.True(stringBuilder.ConnectionString.Contains(certificatePath));
+      connString = stringBuilder.ToString();
+      Assert.True(connString.Contains(certificatePath));
+
+      // Connection string in uri format.
+      string connStringUri = ConnectionStringUri + "/?ssl-ca=" + certificatePath  + "& ssl-ca-pwd=pass;";
+      using (var session = MySQLX.GetSession(connStringUri))
+      {
+        Assert.Equal(certificatePath, session.Settings.CertificateFile);
+        Assert.Equal(certificatePath, session.Settings.SslCa);
+        Assert.True(session.Settings.ConnectionString.Contains(certificatePath));
+        connString = session.Settings.ToString();
+        Assert.True(connString.Contains(certificatePath));
+      }
+    }
+
+    [Fact]
     public void IPv6()
     {
       MySqlConnectionStringBuilder csBuilder = new MySqlConnectionStringBuilder(ConnectionString);

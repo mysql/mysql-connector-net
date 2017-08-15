@@ -68,6 +68,15 @@ namespace MySqlX.Data.Tests
       Assert.Equal("mysqlx://myuser@localhost/DbDoc", sc.Uri);
       Assert.Equal("DbDocAlias", sc.GetAppData("alias"));
 
+      // save overwrites key if key already exists
+      SessionConfigManager.Save("DbDoc", new DbDoc("{ \"uri\": \"mysqlx://myuser@localhost/DbDocUpdated\", \"appdata\": { \"alias\": \"DbDocAliasUpdated\", \"other\": 5 } }"));
+      sc = SessionConfigManager.Get("DbDoc");
+      Assert.Equal("DbDoc", sc.Name);
+      Assert.Equal("mysqlx://myuser@localhost/DbDocUpdated", sc.Uri);
+      Assert.Equal("DbDocAliasUpdated", sc.GetAppData("alias"));
+      Assert.Equal("DbDocAliasUpdated", sc.GetAppData("alias"));
+      Assert.Equal("5", sc.GetAppData("other"));
+
       // save using Dictionary and Uri
       Dictionary<string, string> dic = new Dictionary<string, string>();
       dic.Add("uri", "mysqlx://myuser@localhost/Dictionary");
@@ -199,21 +208,6 @@ namespace MySqlX.Data.Tests
         }
       }
       return list;
-    }
-
-    [Fact]
-    public void Update()
-    {
-      SessionConfigManager.Save("Update", "mysqlx://localhost/database1", (string)null);
-      SessionConfig sc = SessionConfigManager.Get("Update");
-      Assert.Equal("Update", sc.Name);
-      Assert.Equal("mysqlx://localhost/database1", sc.Uri);
-
-      sc.Uri = "mysqlx://localhost/database20";
-      SessionConfigManager.Update(sc);
-      sc = SessionConfigManager.Get("Update");
-      Assert.Equal("Update", sc.Name);
-      Assert.Equal("mysqlx://localhost/database20", sc.Uri);
     }
 
     [Fact]
