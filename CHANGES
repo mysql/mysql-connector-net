@@ -4,6 +4,8 @@
   droppped does not already exist (WL10563).
 - MySqlX: Added the LockShared() and LockExclusive() methods to Table.Select() and Collection.Find() command chains, allowing safe
   transactional document and row updates (WL10948).
+- MySqlX: Added ReplaceOne(), AddOrReplaceOne(), GetOne() and RemoveOne() direct-execute methods to collections (WL10949).
+
 
 8.0.8
 - MySqlX: Updated Collection's Modify() and Remove() methods to always require a search condition (WL10739).
