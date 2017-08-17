@@ -30,13 +30,17 @@ namespace MySqlX.Failover
     #region Properties
 
     /// <summary>
-    /// Gets and sets the host's name/address.
+    /// Gets and sets the name or address of the host.
     /// </summary>
     internal string Host { get; private set; }
     /// <summary>
-    /// Get's and sets port number.
+    /// Gets and sets the port number.
     /// </summary>
     internal int Port { get; private set; }
+    /// <summary>
+    /// Gets a value between 0 and 100 which represents the priority of the host.
+    /// </summary>
+    internal int Priority { get; private set; }
     /// <summary>
     /// Flag to indicate if this host is currently being used.
     /// </summary>
@@ -44,10 +48,11 @@ namespace MySqlX.Failover
 
     #endregion
 
-    internal XServer(string host, int port = -1)
+    internal XServer(string host, int port, int priority)
     {
       this.Host = host;
       this.Port = port;
+      this.Priority = priority;
     }
   }
 }

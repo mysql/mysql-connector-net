@@ -32,8 +32,14 @@ namespace MySqlX.Failover
   /// </summary>
   internal class SequentialFailoverGroup : FailoverGroup
   {
+    /// <summary>
+    /// The index of the current host.
+    /// </summary>
+    private int _hostIndex;
+
     public SequentialFailoverGroup(List<XServer> hosts) : base(hosts)
     {
+      _hostIndex = 0;
     }
 
     /// <summary>
@@ -51,27 +57,18 @@ namespace MySqlX.Failover
     /// <summary>
     /// Determines the next host.
     /// </summary>
-    /// <returns><see cref="XServer"/> object that represents the next available host.</returns>
+    /// <returns>A <see cref="XServer"/> object that represents the next available host.</returns>
     protected internal override XServer GetNextHost()
     {
       if (Hosts == null)
         throw new MySqlException(Resources.Replication_NoAvailableServer);
 
-      int index = 0;
-      while(true)
-      {
-        if (Hosts[index].IsActive)
-        {
-          Hosts[index].IsActive = false;
-          _activeHost = index==Hosts.Count-1 ? Hosts[0] : Hosts[index+1];
-          _activeHost.IsActive = true;
-          return _activeHost;
-        }
+      Hosts[_hostIndex].IsActive = false;
+      _activeHost = _hostIndex==Hosts.Count-1 ? Hosts[0] : Hosts[_hostIndex+1];
+      _activeHost.IsActive = true;
+      _hostIndex++;
 
-        index++;
-        if (index==Hosts.Count) index=0;
-        continue;
-      }
+      return _activeHost;
     }
   }
 }

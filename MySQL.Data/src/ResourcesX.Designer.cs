@@ -179,6 +179,15 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Keyword &apos;{0}&apos; not found..
+        /// </summary>
+        public static string KeywordNotFound {
+            get {
+                return ResourceManager.GetString("KeywordNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Keyword not supported..
         /// </summary>
         public static string KeywordNotSupported {
@@ -256,6 +265,33 @@ namespace MySql.Data {
         public static string PathNotFound {
             get {
                 return ResourceManager.GetString("PathNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Providing a port number as part of the host address isn&apos;t supported when using connection strings in basic format or anonymous objects. Use URI format instead..
+        /// </summary>
+        public static string PortNotSupported {
+            get {
+                return ResourceManager.GetString("PortNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You must either assign no priority to any of the hosts or give a priority for every host..
+        /// </summary>
+        public static string PriorityForAllOrNoHosts {
+            get {
+                return ResourceManager.GetString("PriorityForAllOrNoHosts", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The priority must be between 0 and 100..
+        /// </summary>
+        public static string PriorityOutOfLimits {
+            get {
+                return ResourceManager.GetString("PriorityOutOfLimits", resourceCulture);
             }
         }
         

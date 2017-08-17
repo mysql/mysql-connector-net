@@ -4,13 +4,14 @@
   droppped does not already exist (WL10563).
 - MySqlX: Added the LockShared() and LockExclusive() methods to Table.Select() and Collection.Find() command chains, allowing safe
   transactional document and row updates (WL10948).
+- MySqlX: Added support for setting the priority of hosts during client-side failover (WL10998).
 
 
 8.0.8
 - MySqlX: Updated Collection's Modify() and Remove() methods to always require a search condition (WL10739).
-- MySqlX: Updated the generated UUID for inserted documents to have its components in reversed order. (WL10202).
-- Removed ssl-enable connection option. Set "Required" as the default value for ssl-mode. (WL10559).
-- MySqlX: Added client side failover when establishing a connection. (WL9980).
+- MySqlX: Updated the generated UUID for inserted documents to have its components in reversed order (WL10202).
+- Removed ssl-enable connection option. Set "Required" as the default value for ssl-mode (WL10559).
+- MySqlX: Added client-side failover when establishing a connection (WL9980).
 - MySqlX: Removed XSession and renamed NodeSession to Session (WL10561).
 
 

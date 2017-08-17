@@ -25,6 +25,7 @@ using MySql.Data.MySqlClient;
 using MySqlX.Sessions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MySqlX.Failover
 {
@@ -50,8 +51,8 @@ namespace MySqlX.Failover
     /// <summary>
     /// Sets the host list to be used during failover operations.
     /// </summary>
-    /// <param name="hostList">Host list.</param>
-    /// <param name="failoverMethod">Failover method.</param>
+    /// <param name="hostList">The host list.</param>
+    /// <param name="failoverMethod">The failover method.</param>
     internal static void SetHostList(List<XServer> hostList, FailoverMethod failoverMethod)
     {
       switch (failoverMethod)
@@ -59,14 +60,17 @@ namespace MySqlX.Failover
          case FailoverMethod.Sequential:
            FailoverGroup = new SequentialFailoverGroup(hostList);
            break;
+         case FailoverMethod.Priority:
+           FailoverGroup = new SequentialFailoverGroup(hostList.OrderByDescending(o => o.Priority).ToList());
+           break;
       }
     }
 
     /// <summary>
     /// Attempts to establish a connection to a host specified from the list.
     /// </summary>
-    /// <param name="originalConnectionString">Original connection string set by the user.</param>
-    /// <param name="connectionString">Out parameter that stores the updated connection string.</param>
+    /// <param name="originalConnectionString">The original connection string set by the user.</param>
+    /// <param name="connectionString">An out parameter that stores the updated connection string.</param>
     /// <returns>An <see cref="InternalSession"/> instance if the connection was succesfully established, a <see cref="MySqlException"/> exception is thrown otherwise.</returns>
     internal static InternalSession AttemptConnection(string originalConnectionString, out string connectionString)
     {
@@ -83,7 +87,7 @@ namespace MySqlX.Failover
 
       do
       {
-        // Attempt to connect to each host until the initial host is reached again.
+        // Attempt to connect to each host by retrieving the next host based on the failover method being used.
         connectionString = "server=" + currentHost.Host +";" + originalConnectionString.Substring(originalConnectionString.IndexOf(';')+1);
         Settings = new MySqlConnectionStringBuilder(connectionString);
         if (currentHost != null && currentHost.Port!=-1)
@@ -112,7 +116,13 @@ namespace MySqlX.Failover
 
   internal enum FailoverMethod
   {
-    // Attempts the next host in the list. Moves to the first element if the end of the list is reached.
-    Sequential
+    /// <summary>
+    /// Attempts the next host in the list. Moves to the first element if the end of the list is reached.
+    /// </summary>
+    Sequential,
+    /// <summary>
+    /// Determines the next host on which to attempt a connection by checking the value of the Priority property in descending order.
+    /// </summary>
+    Priority
   }
 }
