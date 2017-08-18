@@ -97,8 +97,9 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       Assert.Throws<MySqlException>(() => table.Delete().Where("a IN [3]").Execute().RecordsAffected);
       Assert.Throws<MySqlException>(() => table.Delete().Where("3 IN a").Execute().RecordsAffected);
+      Assert.Throws<MySqlException>(() => table.Delete().Where("age IN [3]").Execute().RecordsAffected);
 
-      Assert.Equal<ulong>(1, table.Delete().Where("age IN [3]").Execute().RecordsAffected);
+      Assert.Equal<ulong>(1, table.Delete().Where("age IN (3)").Execute().RecordsAffected);
       Assert.Equal(7, CountRows());
     }
   }

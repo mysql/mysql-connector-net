@@ -550,28 +550,6 @@ namespace MySqlX.Protocol.X
     }
 
     /**
-     * Parse a bracket-enclosed expression list. This is used for IN params.
-     *
-     * @return a List of expressions
-     */
-    List<Expr> SqBrackExprList()
-    {
-      List<Expr> exprs = new List<Expr>();
-      ConsumeToken(TokenType.LSQBRACKET);
-      if (!CurrentTokenTypeEquals(TokenType.RSQBRACKET))
-      {
-        exprs.Add(GetExpr());
-        while (CurrentTokenTypeEquals(TokenType.COMMA))
-        {
-          ConsumeToken(TokenType.COMMA);
-          exprs.Add(GetExpr());
-        }
-      }
-      ConsumeToken(TokenType.RSQBRACKET);
-      return exprs;
-    }
-
-    /**
      * Parse a function call of the form: IDENTIFIER PAREN_EXPR_LIST.
      *
      * @return an Expr representing the function call.
@@ -1113,8 +1091,7 @@ namespace MySqlX.Protocol.X
               break;
             case TokenType.IN:
               ConsumeToken(TokenType.IN);
-              if (CurrentTokenTypeEquals(TokenType.LSQBRACKET)) parameters.AddRange(SqBrackExprList());
-              else if (CurrentTokenTypeEquals(TokenType.LPAREN)) parameters.AddRange(ParenExprList());
+              if (CurrentTokenTypeEquals(TokenType.LPAREN)) parameters.AddRange(ParenExprList());
               else
               {
                 opName = "cont_in";

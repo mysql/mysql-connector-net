@@ -145,7 +145,6 @@ namespace MySqlX.Data.Tests
       CheckParseRoundTrip("a * b + c * d", "((a * b) + (c * d))");
       CheckParseRoundTrip("(a + b) * c + d", "(((a + b) * c) + d)");
       CheckParseRoundTrip("(field not in ('a',func('b', 2.0),'c'))", "field not in(\"a\", func(\"b\", 2), \"c\")");
-      CheckParseRoundTrip("(field not in ['a',func('b', 2.0),'c'])", "field not in(\"a\", func(\"b\", 2), \"c\")");
       CheckParseRoundTrip("jess.age beTwEEn 30 and death", "(jess.age between 30 AND death)");
       CheckParseRoundTrip("jess.age not BeTweeN 30 and death", "(jess.age not between 30 AND death)");
       CheckParseRoundTrip("a + b * c + d", "((a + (b * c)) + d)");
@@ -170,14 +169,10 @@ namespace MySqlX.Data.Tests
       CheckParseRoundTrip("a not between 1 and 2", "(a not between 1 AND 2)");
       CheckParseRoundTrip("a in (1,2,a.b(3),4,5,x)", "a in(1, 2, a.b(3), 4, 5, x)");
       CheckParseRoundTrip("a not in (1,2,3,4,5,$.x)", "a not in(1, 2, 3, 4, 5, $.x)");
-      CheckParseRoundTrip("a in [1,2,a.b(3),4,5,x]", "a in(1, 2, a.b(3), 4, 5, x)");
-      CheckParseRoundTrip("a not in [1,2,3,4,5,$.x]", "a not in(1, 2, 3, 4, 5, $.x)");
       CheckParseRoundTrip("a like b escape c", "a like b ESCAPE c");
       CheckParseRoundTrip("a not like b escape c", "a not like b ESCAPE c");
       CheckParseRoundTrip("(1 + 3) in (3, 4, 5)", "(1 + 3) in(3, 4, 5)");
-      CheckParseRoundTrip("(1 + 3) in [3, 4, 5]", "(1 + 3) in(3, 4, 5)");
       CheckParseRoundTrip("`a crazy \"function\"``'name'`(1 + 3) in (3, 4, 5)", "`a crazy \"function\"``'name'`((1 + 3)) in(3, 4, 5)");
-      CheckParseRoundTrip("`a crazy \"function\"``'name'`(1 + 3) in [3, 4, 5]", "`a crazy \"function\"``'name'`((1 + 3)) in(3, 4, 5)");
       CheckParseRoundTrip("a$.b", "a$.b");
       CheckParseRoundTrip("a$.\"bcd\"", "a$.bcd");
       CheckParseRoundTrip("a$.*", "a$.*");
@@ -288,20 +283,6 @@ namespace MySqlX.Data.Tests
       Assert.Equal(Order.Types.Direction.None, o2.Direction);
       Assert.Equal("(1 - a$**[0].*)", ExprUnparser.ExprToString(o2.Expr));
       Order o3 = orderSpec[2];
-      Assert.NotEqual(Order.Types.Direction.None, o3.Direction);
-      Assert.Equal(Order.Types.Direction.Asc, o3.Direction);
-      Assert.Equal("(((now() + $.b) + c) > 2)", ExprUnparser.ExprToString(o3.Expr));
-
-      orderSpec = new ExprParser("field not in ['a',func('b', 2.0),'c'] desc, 1-a$**[0].*, now () + $.b + c > 2 asc").ParseOrderSpec();
-      Assert.Equal(3, orderSpec.Count);
-      o1 = orderSpec[0];
-      Assert.NotEqual(Order.Types.Direction.None, o1.Direction);
-      Assert.Equal(Order.Types.Direction.Desc, o1.Direction);
-      Assert.Equal("field not in(\"a\", func(\"b\", 2), \"c\")", ExprUnparser.ExprToString(o1.Expr));
-      o2 = orderSpec[1];
-      Assert.Equal(Order.Types.Direction.None, o2.Direction);
-      Assert.Equal("(1 - a$**[0].*)", ExprUnparser.ExprToString(o2.Expr));
-      o3 = orderSpec[2];
       Assert.NotEqual(Order.Types.Direction.None, o3.Direction);
       Assert.Equal(Order.Types.Direction.Asc, o3.Direction);
       Assert.Equal("(((now() + $.b) + c) > 2)", ExprUnparser.ExprToString(o3.Expr));

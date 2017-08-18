@@ -225,15 +225,15 @@ namespace MySqlX.Data.Tests
       Assert.Equal(1, movies.Find("(1>5) in (true, false)").Execute().FetchAll().Count);
       Assert.Equal(0, movies.Find("(1+5) in (1, 2, 3, 4, 5)").Execute().FetchAll().Count);
       Assert.Equal(1, movies.Find("('a'>'b') in (true, false)").Execute().FetchAll().Count);
-      Assert.Equal(1, movies.Find("(1>5) in [true, false]").Execute().FetchAll().Count);
-      Assert.Equal(0, movies.Find("(1+5) in [1, 2, 3, 4, 5]").Execute().FetchAll().Count);
-      Assert.Equal(1, movies.Find("('a'>'b') in [true, false]").Execute().FetchAll().Count);
+      Assert.Throws<MySqlException>(() => movies.Find("(1>5) in [true, false]").Execute().FetchAll().Count);
+      Assert.Throws<MySqlException>(() => movies.Find("(1+5) in [1, 2, 3, 4, 5]").Execute().FetchAll().Count);
+      Assert.Throws<MySqlException>(() => movies.Find("('a'>'b') in [true, false]").Execute().FetchAll().Count);
       Assert.Equal(1, movies.Find("true IN [(1>5), !(false), (true || false), (false && true)]").Execute().FetchAll().Count);
       Assert.Equal(1, movies.Find("true IN ((1>5), !(false), (true || false), (false && true))").Execute().FetchAll().Count);
       Assert.Equal(0, movies.Find("{\"field\":true} IN (\"mystring\", 124, myvar, othervar.jsonobj)").Execute().FetchAll().Count);
       Assert.Equal(0, movies.Find("actor.name IN ['a name', null, (1<5-4), myvar.jsonobj.name]").Execute().FetchAll().Count);
       Assert.Equal(1, movies.Find("!false && true IN [true]").Execute().FetchAll().Count);
-      Assert.Equal(1, movies.Find("1-5/2*2 > 3-2/1*2 IN [true, false]").Execute().FetchAll().Count);
+      Assert.Throws<MySqlException>(() => movies.Find("1-5/2*2 > 3-2/1*2 IN [true, false]").Execute().FetchAll().Count);
       Assert.Equal(0, movies.Find("true IN [1-5/2*2 > 3-2/1*2]").Execute().FetchAll().Count);
       Assert.Equal(1, movies.Find(" 'African Egg' IN ('African Egg', 1, true, NULL, [0,1,2], { 'title' : 'Atomic Firefighter' }) ").Execute().FetchAll().Count);
       Assert.Equal(1, movies.Find(" 1 IN ('African Egg', 1, true, NULL, [0,1,2], { 'title' : 'Atomic Firefighter' }) ").Execute().FetchAll().Count);
@@ -282,6 +282,20 @@ namespace MySqlX.Data.Tests
       Assert.Equal(1, movies.Find("'Sharice Legaspi' IN additionalinfo.director").Execute().FetchAll().Count);
       Assert.Equal(1, movies.Find("'Mexico' IN actors[*].country").Execute().FetchAll().Count);
       Assert.Equal(1, movies.Find("'Angelic Orduno' IN additionalinfo.writers").Execute().FetchAll().Count);
+    }
+
+    [Fact]
+    public void InOperatorWithJsonArrays()
+    {
+      Collection coll = CreateCollection("test");
+      var docString = "{ \"_id\": \"1001\", \"ARR\":[1,2,3], \"ARR1\":[\"name\", \"name2\", \"name3\"]}";
+      coll.Add(new DbDoc(docString)).Execute();
+
+      Assert.Equal(1, coll.Find("\"1001\" in $._id").Execute().FetchAll().Count);
+      Assert.Equal(0, coll.Find("\"1002\" in $._id").Execute().FetchAll().Count);
+      Assert.Equal(1, coll.Find("(1+2) in (1, 2, 3)").Execute().FetchAll().Count);
+      Assert.Throws<MySqlException>(() => coll.Find("(1+2) in [1, 2, 3]").Execute().FetchAll().Count);
+      Assert.Throws<MySqlException>(() => coll.Find("(1+2) in $.ARR").Execute().FetchAll().Count);
     }
   }
 }
