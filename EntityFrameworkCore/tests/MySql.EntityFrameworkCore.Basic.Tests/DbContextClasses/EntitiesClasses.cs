@@ -107,6 +107,19 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
 
   }
 
+  public class BodyShop
+  {
+    public int BodyShopId { get; set; }
+
+    public string Name { get; set; }
+
+    public string City { get; set; }
+
+    public string State { get; set; }
+
+    public string Brand { get; set; }
+  }
+
 
   public class Car
   {
@@ -231,21 +244,23 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
   }
 
   [Table("CountryList")]
-  public class Countries
+  public class Country
   {
     [Key]
     public string Code { get; set; }
     public string Name { get; set; }
-    public string Continent { get; set; }
+    public virtual Continent Continent { get; set; }
     public string Region { get; set; }
     public int IndepYear { get; set; }
   }
 
-  public class Continents
+  public class Continent
   {
     public string Code { get; set; }
 
     public string Name { get; set; }
+
+    public virtual ICollection<Country> Countries { get; set; }
   }
 
   public class Triangle

@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -100,6 +100,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       if (!haveAuthWindowsUser)
       {
+        executeSQL($"DROP USER IF EXISTS {UserName}");
         executeSQL(
           "CREATE USER " + UserName + " IDENTIFIED WITH " + PluginName + " as '" +
            userMapping + "'", true);
@@ -111,6 +112,7 @@ namespace MySql.Data.MySqlClient.Tests
           "UPDATE mysql.user SET authentication_string='" + userMapping +
           "," + authenticationString + "' where user='" + UserName + "'", true);
       }
+      executeSQL($"DROP USER IF EXISTS foo_user");
       executeSQL("create user foo_user identified by 'pass'", true);
       executeSQL("grant all privileges on *.* to 'foo_user'@'%'", true);
       executeSQL("grant proxy on foo_user to " + UserName, true);

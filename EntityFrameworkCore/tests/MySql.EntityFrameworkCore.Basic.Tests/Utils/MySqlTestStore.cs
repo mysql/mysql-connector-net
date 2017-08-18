@@ -128,7 +128,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       return csb.ConnectionString;
     }
 
-    private void DeleteDatabase(string name)
+    public static void DeleteDatabase(string name)
     {
       using (var cnn = new MySqlConnection(rootConnectionString))
       {

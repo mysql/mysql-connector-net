@@ -261,6 +261,42 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       }
     }
 
+    [Fact]
+    public void ExplicitLoading()
+    {
+      using (var context = new WorldContext())
+      {
+        context.PopulateData();
+        var america = context.Continents.Single(c => c.Code == "AM");
+        Assert.Null(america.Countries);
+        context.Entry(america)
+          .Collection(c => c.Countries)
+          .Load();
+        Assert.Equal(5, america.Countries.Count);
+        Assert.Equal("United States", america.Countries.Single(c => c.Code == "US").Name);
+      }
+    }
+
+    [Fact]
+    public void ExplicitLoadingQueryingRelatedEntitites()
+    {
+      using (var context = new WorldContext())
+      {
+        context.PopulateData();
+        var asia = context.Continents.Single(c => c.Code == "AS");
+        Assert.Null(asia.Countries);
+        var list = context.Entry(asia)
+          .Collection(c => c.Countries)
+          .Query()
+          .Where(c => c.Name.Contains("i"))
+          .ToList();
+        Assert.Equal(2, asia.Countries.Count);
+        Assert.Equal(2, list.Count);
+        Assert.Equal("China", list.Single(c => c.Code == "CN").Name);
+        Assert.Equal("India", list.Single(c => c.Code == "IN").Name);
+      }
+    }
+
 
 
     private void AddData(DbContext context)

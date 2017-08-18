@@ -220,7 +220,7 @@
     <value>The connection is already open.</value>
   </data>
   <data name="KeywordNotSupported" xml:space="preserve">
-    <value>Keyword not supported.</value>
+    <value>Option not supported.</value>
   </data>
   <data name="WriteToStreamFailed" xml:space="preserve">
     <value>Writing to the stream failed.</value>
@@ -540,6 +540,9 @@
   </data>
   <data name="SslConnectionError" xml:space="preserve">
     <value>SSL Connection error.</value>
+  </data>
+  <data name="OptionNotCurrentlySupported" xml:space="preserve">
+    <value>The option '{0}' is not currently supported.</value>
   </data>
   <data name="DuplicatedSslConnectionOption" xml:space="preserve">
     <value>SSL connection option '{0}' is duplicated.</value>

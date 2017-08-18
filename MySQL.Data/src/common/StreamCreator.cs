@@ -1,4 +1,4 @@
-// Copyright © 2004, 2016 Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -28,6 +28,7 @@ using System.Threading.Tasks;
 using MySql.Data.Common;
 using MySql.Data.MySqlClient;
 using System.IO.Pipes;
+using System.Net;
 #if !NET_CORE
 using MySql.Data.MySqlClient.Common;
 using System.IO.MemoryMappedFiles;
@@ -90,17 +91,35 @@ namespace MySql.Data.Common
 
       if (!task.Wait(((int)settings.ConnectionTimeout * 1000)))
         throw new MySqlException(Resources.Timeout);
+      if (settings.Keepalive > 0)
+      {
+        SetKeepAlive(client.Client, settings.Keepalive);
+      }
       return client.GetStream();
-      //TODO:  reimplement or remove keepalive
     }
 
     private static Stream GetUnixSocketStream(MySqlConnectionStringBuilder settings)
     {
       if (Platform.IsWindows())
         throw new InvalidOperationException(Resources.NoUnixSocketsOnWindows);
-      return null;
-//      MyNetworkStream s = await MyNetworkStream.CreateStreamAsync(settings, true);
-  //    return s;
+
+      EndPoint endPoint = new UnixEndPoint(settings.Server);
+      Socket socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.IP);
+      if (settings.Keepalive > 0)
+      {
+        SetKeepAlive(socket, settings.Keepalive);
+      }
+      try
+      {
+        socket.ReceiveTimeout = (int)settings.ConnectionTimeout * 1000;
+        socket.Connect(endPoint);
+        return new NetworkStream(socket, true);
+      }
+      catch (Exception)
+      {
+        socket.Dispose();
+        throw;
+      }
     }
 
     private static Stream GetSharedMemoryStream(MySqlConnectionStringBuilder settings)
@@ -124,6 +143,53 @@ namespace MySql.Data.Common
       Stream stream = NamedPipeStream.Create(settings.PipeName, settings.Server, settings.ConnectionTimeout);
       return stream;
 #endif
+    }
+
+    /// <summary>
+    /// Set the keepalive timeout on the socket.
+    /// </summary>
+    /// <param name="s">The socket object.</param>
+    /// <param name="time">The keepalive timeout, in seconds.</param>
+    private static void SetKeepAlive(Socket s, uint time)
+    {
+      uint on = 1;
+      uint interval = 1000; // default interval = 1 sec
+
+      uint timeMilliseconds;
+      if (time > UInt32.MaxValue / 1000)
+        timeMilliseconds = UInt32.MaxValue;
+      else
+        timeMilliseconds = time * 1000;
+
+      // Use Socket.IOControl to implement equivalent of
+      // WSAIoctl with  SOL_KEEPALIVE_VALS 
+
+      // the native structure passed to WSAIoctl is
+      //struct tcp_keepalive {
+      //    ULONG onoff;
+      //    ULONG keepalivetime;
+      //    ULONG keepaliveinterval;
+      //};
+      // marshal the equivalent of the native structure into a byte array
+
+      byte[] inOptionValues = new byte[12];
+      BitConverter.GetBytes(on).CopyTo(inOptionValues, 0);
+      BitConverter.GetBytes(timeMilliseconds).CopyTo(inOptionValues, 4);
+      BitConverter.GetBytes(interval).CopyTo(inOptionValues, 8);
+      try
+      {
+        // call WSAIoctl via IOControl
+        s.IOControl(IOControlCode.KeepAliveValues, inOptionValues, null);
+        return;
+      }
+      catch (NotImplementedException)
+      {
+        // Mono throws not implemented currently
+      }
+      // Fallback if Socket.IOControl is not available ( Compact Framework )
+      // or not implemented ( Mono ). Keepalive option will still be set, but
+      // with timeout is kept default.
+      s.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
     }
   }
 }
