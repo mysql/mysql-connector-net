@@ -203,7 +203,7 @@ namespace MySqlX.Data.Tests
       // Validates the IN operator allows expressions of the type
       // ( compExpr ["NOT"] "IN" "(" argsList ")" ) | ( compExpr ["NOT"] "IN" "[" argsList "]" )
       Collection coll = CreateCollection("test");
-      coll.Add(new DbDoc("{ \"a\": 1, \"b\": [ 1, \"value\" ] }")).Execute();
+      coll.Add(new DbDoc("{ \"a\": 1, \"b\": [ 1, \"value\" ], \"d\":\"\" }")).Execute();
 
       Assert.Equal(1, coll.Find("a IN (1,2,3)").Execute().FetchAll().Count);
       Assert.Equal(1, coll.Find("a not in (0,2,3)").Execute().FetchAll().Count);
@@ -217,6 +217,9 @@ namespace MySqlX.Data.Tests
       Assert.Equal(1, coll.Find("b not IN [1,2,3]").Execute().FetchAll().Count);
       Assert.Equal(0, coll.Find("b[0] not IN [1,2,3]").Execute().FetchAll().Count);
       Assert.Equal(0, coll.Find("c NOT IN [1,2,3]").Execute().FetchAll().Count);
+      Assert.Equal(0, coll.Find("a IN ('', ' ')").Execute().FetchAll().Count);
+      Assert.Equal(0, coll.Find("'' IN (1,2,3)").Execute().FetchAll().Count);
+      Assert.Equal(1, coll.Find("d IN ('')").Execute().FetchAll().Count);
 
       Collection movies = CreateCollection("movies");
       var docString = "{ \"_id\" : \"a6f4b93e1a264a108393524f29546a8c\", \"title\" : \"AFRICAN EGG\", \"description\" : \"A Fast-Paced Documentary of a Pastry Chef And a Dentist who must Pursue a Forensic Psychologist in The Gulf of Mexico\", \"releaseyear\" : 2006, \"language\" : \"English\", \"duration\" : 130, \"rating\" : \"G\", \"genre\" : \"Science fiction\", \"actors\" : [{ \"name\" : \"MILLA PECK\", \"country\" : \"Mexico\", \"birthdate\": \"12 Jan 1984\"}, { \"name\" : \"VAL BOLGER\", \"country\" : \"Botswana\", \"birthdate\": \"26 Jul 1975\" }, { \"name\" : \"SCARLETT BENING\", \"country\" : \"Syria\", \"birthdate\": \"16 Mar 1978\" }], \"additionalinfo\" : { \"director\" : \"Sharice Legaspi\", \"writers\" : [\"Rusty Couturier\", \"Angelic Orduno\", \"Carin Postell\"], \"productioncompanies\" : [\"Qvodrill\", \"Indigoholdings\"] } }";
