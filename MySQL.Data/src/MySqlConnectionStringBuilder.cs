@@ -127,7 +127,7 @@ namespace MySql.Data.MySqlClient
           // just for this case, reuse the logic to translate string to bool
           sender.ValidateValue(ref value);
           MySqlTrace.LogWarning(-1, "Encrypt is now obsolete. Use Ssl Mode instead");
-          msb.SetValue("Ssl Mode", (bool)value ? MySqlSslMode.Prefered : MySqlSslMode.None);
+          msb.SetValue("Ssl Mode", (bool)value ? MySqlSslMode.Required : MySqlSslMode.None);
         },
         (msb, sender) => msb.SslMode != MySqlSslMode.None
         ));
@@ -240,9 +240,6 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("blobasutf8includepattern", null, typeof(string), "", false));
       Options.Add(new MySqlConnectionStringOption("blobasutf8excludepattern", null, typeof(string), "", false));
       Options.Add(new MySqlConnectionStringOption("sslmode", "ssl mode", typeof(MySqlSslMode), MySqlSslMode.Required, false));
-      Options.Add(new MySqlConnectionStringOption("sslenable", "ssl-enable", typeof(bool), false, false,
-        (msb, sender, value) => { msb.SslEnable = bool.Parse(value as string); },
-        (msb, sender) => { return msb.SslEnable; }));
       Options.Add(new MySqlConnectionStringOption("sslca", "ssl-ca", typeof(string), null, false,
         (msb, sender, value) => { msb.SslCa = value as string; },
         (msb, sender) => { return msb.SslCa; }));
@@ -1052,7 +1049,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    private void SetValue(string keyword, object value, [CallerMemberName] string callerName = "")
+    internal void SetValue(string keyword, object value, [CallerMemberName] string callerName = "")
     {
       MySqlConnectionStringOption option = GetOption(keyword);
       if (callerName != ".cctor" && option.IsCustomized)
