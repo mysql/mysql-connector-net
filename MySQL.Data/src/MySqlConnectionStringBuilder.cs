@@ -239,7 +239,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("treatblobsasutf8", "treat blobs as utf8", typeof(bool), false, false));
       Options.Add(new MySqlConnectionStringOption("blobasutf8includepattern", null, typeof(string), "", false));
       Options.Add(new MySqlConnectionStringOption("blobasutf8excludepattern", null, typeof(string), "", false));
-      Options.Add(new MySqlConnectionStringOption("sslmode", "ssl mode", typeof(MySqlSslMode), MySqlSslMode.Required, false));
+      Options.Add(new MySqlConnectionStringOption("sslmode", "ssl mode,ssl-mode", typeof(MySqlSslMode), MySqlSslMode.Required, false));
       Options.Add(new MySqlConnectionStringOption("sslca", "ssl-ca", typeof(string), null, false,
         (msb, sender, value) => { msb.SslCa = value as string; },
         (msb, sender) => { return msb.SslCa; }));
