@@ -85,7 +85,10 @@ namespace MySqlX.Serialization
       if (t == '"') return ReadQuotedToken();
       if (t == '{') return ReadGroup();
       if (t == '[') return ReadArray();
-      string stringValue = ReadUntilToken(',', '}');
+      string stringValue = ReadUntilToken(',', '}', ']');
+      // TODO: Uncomment following lines to allow boolean values to be read correctly.
+      //bool flag;
+      //if (bool.TryParse(stringValue, out flag)) return flag;
       if (stringValue.Trim() == "null") return null;
       int intValue;
       long longValue;
@@ -96,14 +99,14 @@ namespace MySqlX.Serialization
       return stringValue;
     }
 
-    private Dictionary<string,object>[] ReadArray()
+    private object[] ReadArray()
     {
-      List<Dictionary<string, object>> values = new List<Dictionary<string, object>>();
+      List<object> values = new List<object>();
 
       RequireToken('[');
       while (true)
       {
-        values.Add(ReadGroup());
+        values.Add(ReadValue());
         if (PeekToken() == ']') break;
         RequireToken(',');
       }

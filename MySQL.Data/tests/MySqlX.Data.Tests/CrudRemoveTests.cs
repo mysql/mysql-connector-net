@@ -168,5 +168,28 @@ namespace MySqlX.Data.Tests
       result = collection.Remove("true").Execute();
       Assert.Equal<ulong>(4, result.RecordsAffected);
     }
+
+    [Fact]
+    public void RemoveWithInOperator()
+    {
+      Collection collection = CreateCollection("test");
+      var docs = new[]
+      {
+        new DbDoc("{ \"a\": 1, \"b\": \"foo\", \"c\": { \"d\": true, \"e\": [1,2,3] }, \"f\": [ {\"x\":5}, {\"x\":7 } ] }"),
+        new DbDoc("{ \"a\": 2, \"b\": \"foo2\", \"c\": { \"d\": true, \"e\": [4,5,6] }, \"f\": [ {\"x\":5}, {\"x\":8 } ] }"),
+        new DbDoc("{ \"a\": 1, \"b\": \"foo3\", \"c\": { \"d\": true, \"e\": [1,4,3] }, \"f\": [ {\"x\":6}, {\"x\":9 } ] }"),
+      };
+      Result result = collection.Add(docs).Execute();
+      Assert.Equal<ulong>(3, result.RecordsAffected);
+
+      Assert.Equal<ulong>(1, collection.Remove("a IN (2,3)").Execute().RecordsAffected);
+      Assert.Equal(2, collection.Find().Execute().FetchAll().Count);
+
+      Assert.Equal<ulong>(0, collection.Remove("a IN [3]").Execute().RecordsAffected);
+      Assert.Equal(2, collection.Find().Execute().FetchAll().Count);
+
+      Assert.Equal<ulong>(2, collection.Remove("1 IN c.e").Execute().RecordsAffected);
+      Assert.Equal(0, collection.Find().Execute().FetchAll().Count);
+    }
   }
 }

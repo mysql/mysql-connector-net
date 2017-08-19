@@ -5,12 +5,16 @@
 - MySqlX: Added the LockShared() and LockExclusive() methods to Table.Select() and Collection.Find() command chains, allowing safe
   transactional document and row updates (WL10948).
 - MySqlX: Added support for setting the priority of hosts during client-side failover (WL10998).
-- Added support for Unix sockets in dotnet core. WL-10613
-- EF Core: Added async support. WL-10615
-- Removed connection string options 'autoenlist' and 'includesecurityasserts' for Dotnet core. WL-10564
-- EF Core: Added support for Explicit loading. WL-9768
-- EF Core: Added support for multiple schemas. WL-10668
-- The following connection string options will raise a PlatformNotSupportedException when used in Dotnet Core: sharedmemoryname, integratedsecurity, pipe, logging, useusageadvisor, useperformancemonitor, interactivesession, replication. They will be implemented in future versions.
+- MySqlX: Extended the IN operator to support operations of the type: (compExpr ["NOT"] "IN" compExpr | compExpr ["NOT"] "IN" "(" argsList ")")
+  (WL10947).
+- Added support for Unix sockets in dotnet core (WL10613)
+- EF Core: Added async support (WL10615).
+- Removed connection string options 'autoenlist' and 'includesecurityasserts' for Dotnet core (WL10564).
+- EF Core: Added support for Explicit loading (WL9768).
+- EF Core: Added support for multiple schemas (WL10668).
+- The following connection string options will raise a PlatformNotSupportedException when used in Dotnet Core: sharedmemoryname, 
+  integratedsecurity, pipe, logging, useusageadvisor, useperformancemonitor, interactivesession, replication. They will be implemented in 
+  future versions.
 
 
 8.0.8

@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -88,7 +88,7 @@ namespace MySqlX.Data.Tests
 
       string noFormat = string.Join(" ", lines);
 
-      DbDoc d = new DbDoc(json);
+      DbDoc d = new DbDoc(noFormat);
 
       var docs = new[]
       {
@@ -99,7 +99,7 @@ namespace MySqlX.Data.Tests
       d2.SetValue("id", 1);
       d2.SetValue("pages", 20);
       d2.SetValue("books", docs);
-      Assert.True(d.Equals(d2));
+      Assert.Equal(d.ToString(), d2.ToString());
       Assert.Equal(json.Replace("\r\n", Environment.NewLine), d2.ToString());
     }
 

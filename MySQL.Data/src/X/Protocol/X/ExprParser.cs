@@ -431,7 +431,8 @@ namespace MySqlX.Protocol.X
               {
                 throw new ArgumentException("Unterminated string starting at " + start);
               }
-              this.tokens.Add(new Token(quoteChar == '`' ? TokenType.IDENT : TokenType.LSTRING, val.ToString()));
+              var value = val.ToString();
+              this.tokens.Add(new Token(quoteChar == '`' ? TokenType.IDENT : TokenType.LSTRING, value == string.Empty ? " " : value));
               break;
             default:
               throw new ArgumentException("Can't parse at pos: " + i);
@@ -821,6 +822,16 @@ namespace MySqlX.Protocol.X
           Expr e = GetExpr();
           ConsumeToken(TokenType.RPAREN);
           return e;
+        case TokenType.LSQBRACKET:
+        {
+          Mysqlx.Expr.Array builder = new Mysqlx.Expr.Array();
+          ParseCommaSeparatedList(() =>
+          {
+            return GetExpr();
+          }).ForEach(f => builder.Value.Add(f));
+          ConsumeToken(TokenType.RSQBRACKET);
+          return new Expr() { Type = Expr.Types.Type.Array, Array = builder };
+        }
         case TokenType.LCURLY:  // JSON object
           {
             Mysqlx.Expr.Object builder = new Mysqlx.Expr.Object();
@@ -1081,7 +1092,12 @@ namespace MySqlX.Protocol.X
               break;
             case TokenType.IN:
               ConsumeToken(TokenType.IN);
-              parameters.AddRange(ParenExprList());
+              if (CurrentTokenTypeEquals(TokenType.LPAREN)) parameters.AddRange(ParenExprList());
+              else
+              {
+                opName = "cont_in";
+                parameters.Add(CompExpr());
+              }
               break;
             case TokenType.LIKE:
               ConsumeToken(TokenType.LIKE);

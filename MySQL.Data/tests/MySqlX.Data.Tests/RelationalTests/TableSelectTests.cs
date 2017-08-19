@@ -412,6 +412,24 @@ namespace MySqlX.Data.Tests.RelationalTests
         session2.SQL("ROLLBACK").Execute();
       }
     }
-  }
 
+    [Fact]
+    public void SelectWithInOperator()
+    {
+      Table table = testSchema.GetTable("test");
+      Assert.Equal(3, table.Select().Execute().FetchAll().Count);
+
+      Assert.Equal(2, table.Select().Where("name IN (\"jonh doe\", \"milton green\")").Execute().FetchAll().Count);
+      Assert.Equal(1, table.Select().Where("name NOT IN (\"jonh doe\", \"milton green\")").Execute().FetchAll().Count);
+      Assert.Equal(0, table.Select().Where("name IN (\"\", \"\")").Execute().FetchAll().Count);
+      Assert.Equal(0, table.Select().Where("\"\" IN (1,2,3)").Execute().FetchAll().Count);
+      Assert.Equal(0, table.Select().Where("name IN ('', '')").Execute().FetchAll().Count);
+      Assert.Equal(0, table.Select().Where("'' IN (1,2,3)").Execute().FetchAll().Count);
+      Assert.Equal(3, table.Select().Where("'' IN ('')").Execute().FetchAll().Count);
+
+      Assert.Throws<MySqlException>(() => table.Select().Where("name NOT IN [\"jonh doe\", \"milton green\"]").Execute().FetchAll().Count);
+      Assert.Throws<MySqlException>(() => table.Select().Where("a IN [3]").Execute().FetchAll().Count);
+      Assert.Throws<MySqlException>(() => table.Select().Where("3 IN a").Execute().FetchAll().Count);
+    }
+  }
 }

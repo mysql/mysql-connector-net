@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,6 +20,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.Relational;
 using Xunit;
@@ -83,6 +84,23 @@ namespace MySqlX.Data.Tests.RelationalTests
       var deleteStmt = testSchema.GetTable("test").Delete().Where("age = :aGe");
       ExecuteDelete(deleteStmt.Bind("Age", 4), 9);
       ExecuteDelete(deleteStmt.Bind("age", 6), 8);
+    }
+
+    [Fact]
+    public void DeleteWithInOperator()
+    {
+      Table table = testSchema.GetTable("test");
+      Assert.Equal(10, CountRows());
+
+      Assert.Equal<ulong>(2, table.Delete().Where("id IN (1,2)").Execute().RecordsAffected);
+      Assert.Equal(8, CountRows());
+
+      Assert.Throws<MySqlException>(() => table.Delete().Where("a IN [3]").Execute().RecordsAffected);
+      Assert.Throws<MySqlException>(() => table.Delete().Where("3 IN a").Execute().RecordsAffected);
+      Assert.Throws<MySqlException>(() => table.Delete().Where("age IN [3]").Execute().RecordsAffected);
+
+      Assert.Equal<ulong>(1, table.Delete().Where("age IN (3)").Execute().RecordsAffected);
+      Assert.Equal(7, CountRows());
     }
   }
 }
