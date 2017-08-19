@@ -155,7 +155,7 @@ WHERE kc.referenced_table_name IS NOT NULL
           var referencedColumnName = reader.GetValueOrDefault<string>("referenced_column_name");
           var updateRule = reader.GetValueOrDefault<string>("update_rule");
           var deleteRule = reader.GetValueOrDefault<string>("delete_rule");
-          var ordinal = reader.GetValueOrDefault<Int64>("ordinal_position");
+          var ordinal = reader.GetInt32("ordinal_position");
 
           if (string.IsNullOrEmpty(constraintName))
           {
@@ -281,7 +281,8 @@ ON t.table_schema=s.table_schema
   AND t.table_name=s.table_name 
   AND s.index_name=t.constraint_name 
 WHERE s.table_schema IN ({_schemaList}) 
-  AND s.table_name <> '{HistoryRepository.DefaultTableName}'";
+  AND s.table_name <> '{HistoryRepository.DefaultTableName}'
+ORDER BY s.index_name, s.seq_in_index";
 
       using (var reader = command.ExecuteReader())
       {
@@ -291,9 +292,9 @@ WHERE s.table_schema IN ({_schemaList})
           var tableSchema = reader.GetValueOrDefault<string>("table_schema");
           var tableName = reader.GetValueOrDefault<string>("table_name");
           var indexName = reader.GetValueOrDefault<string>("index_name");
-          var isUnique = reader.GetValueOrDefault<Int64>("non_unique") == 0 ? true : false;
+          var isUnique = reader.GetInt32("non_unique") == 0 ? true : false;
           var columnName = reader.GetValueOrDefault<string>("column_name");
-          var indexOrdinal = reader.GetValueOrDefault<Int64>("seq_in_index");
+          var indexOrdinal = reader.GetInt32("seq_in_index");
 
           if (!_tableSelectionSet.Allows(tableSchema, tableName))
           {
@@ -356,7 +357,7 @@ WHERE s.table_schema IN ({_schemaList})
       command.CommandText = $@"SELECT * 
 FROM information_schema.tables 
 WHERE table_schema IN ({_schemaList}) 
-  AND table_type LIKE '%base%' 
+  AND table_type LIKE '%BASE%' 
   AND table_name <> '{HistoryRepository.DefaultTableName}'
 ORDER BY table_schema, table_name";
 
@@ -438,15 +439,15 @@ ORDER BY c.table_name,
           }
 
           var dataTypeName = reader.GetValueOrDefault<string>("column_type");
-          var ordinalPosition = reader.GetValueOrDefault<UInt64>("ordinal_position");
+          var ordinalPosition = reader.GetInt32("ordinal_position");
           var isNullable = reader.GetValueOrDefault<string>("is_nullable").Contains("YES") ? true : false;
           var columnKey = reader.GetValueOrDefault<string>("column_key").Contains("YES") ? true : false; ;
           var defaultValue = reader.GetValueOrDefault<string>("column_default");
           var computedValue = reader.GetValueOrDefault<string>("generation_expression");
           var numeric_Scale = reader.GetValueOrDefault<UInt64?>("numeric_scale");
-          var maxLength = reader.GetValueOrDefault<UInt64?>("character_maximum_length");
-          var precision = reader.GetValueOrDefault<UInt64?>("numeric_precision");
-          var primaryKeyOrdinal = reader.GetValueOrDefault<Int64?>("primarykeyordinal");
+          var maxLength = reader.IsDBNull(reader.GetOrdinal("character_maximum_length")) ? null : (UInt64?)reader.GetUInt64("character_maximum_length");
+          var precision = reader.IsDBNull(reader.GetOrdinal("numeric_precision")) ? null : (UInt64?)reader.GetUInt64("numeric_precision");
+          var primaryKeyOrdinal = reader.IsDBNull(reader.GetOrdinal("primarykeyordinal")) ? null : (Int32?)reader.GetInt32("primarykeyordinal");
 
           var table = _tables[TableKey(tableName, tableSchema)];
 
