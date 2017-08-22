@@ -21,20 +21,20 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using MySQL.Data.EntityFrameworkCore.Metadata;
-using MySQL.Data.EntityFrameworkCore.Migrations;
-using MySQL.Data.EntityFrameworkCore.Update;
+using MySql.Data.EntityFrameworkCore.Metadata;
+using MySql.Data.EntityFrameworkCore.Migrations;
+using MySql.Data.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Storage;
-using MySQL.Data.EntityFrameworkCore.Query;
+using MySql.Data.EntityFrameworkCore.Query;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MySql.Data.EntityFrameworkCore.Storage.Internal;
-using MySQL.Data.EntityFrameworkCore.Migrations.Internal;
-using MySQL.Data.EntityFrameworkCore.Infraestructure.Internal;
+using MySql.Data.EntityFrameworkCore.Migrations.Internal;
+using MySql.Data.EntityFrameworkCore.Infraestructure.Internal;
 using MySql.Data.EntityFrameworkCore.Query.Internal;
 using MySql.Data.EntityFrameworkCore.Metadata.Conventions;
 
-namespace MySQL.Data.EntityFrameworkCore
+namespace MySql.Data.EntityFrameworkCore
 {
     public static class MySQLServiceCollectionExtensions
   {

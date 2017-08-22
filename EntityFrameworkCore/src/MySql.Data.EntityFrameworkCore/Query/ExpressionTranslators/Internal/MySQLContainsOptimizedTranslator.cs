@@ -23,8 +23,6 @@
 
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
-using Microsoft.Extensions.Logging;
-using MySQL.Data.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;

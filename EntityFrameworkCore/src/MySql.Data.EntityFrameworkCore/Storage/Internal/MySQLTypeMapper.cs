@@ -25,7 +25,7 @@ using System.Collections.Generic;
 using System.Data;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
-using MySQL.Data.EntityFrameworkCore;
+using MySql.Data.EntityFrameworkCore;
 
 namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {

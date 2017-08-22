@@ -24,8 +24,6 @@ using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using System;
 using System.Linq;
 using Xunit;
-using MySQL.Data.EntityFrameworkCore;
-using MySQL.Data.EntityFrameworkCore.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.MySqlClient;
 using Microsoft.EntityFrameworkCore.Internal;

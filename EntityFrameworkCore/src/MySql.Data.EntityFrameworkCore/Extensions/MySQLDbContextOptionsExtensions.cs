@@ -21,9 +21,9 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using MySQL.Data.EntityFrameworkCore;
-using MySQL.Data.EntityFrameworkCore.Infraestructure;
-using MySQL.Data.EntityFrameworkCore.Infraestructure.Internal;
+using MySql.Data.EntityFrameworkCore;
+using MySql.Data.EntityFrameworkCore.Infraestructure;
+using MySql.Data.EntityFrameworkCore.Infraestructure.Internal;
 using System;
 using System.Data.Common;
 

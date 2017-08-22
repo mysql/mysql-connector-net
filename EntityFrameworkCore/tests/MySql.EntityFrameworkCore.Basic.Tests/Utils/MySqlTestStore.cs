@@ -23,7 +23,6 @@
 
 using Microsoft.EntityFrameworkCore;
 using MySql.Data.MySqlClient;
-using MySQL.Data.EntityFrameworkCore.Extensions;
 using System;
 using System.IO;
 using System.Reflection;

@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -22,7 +22,7 @@
 
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
-namespace MySQL.Data.EntityFrameworkCore.Migrations.Operations
+namespace MySql.Data.EntityFrameworkCore.Migrations.Operations
 {
   /// <summary>
   /// Drop database operation for migrations.

@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -23,9 +23,9 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using MySQL.Data.EntityFrameworkCore.Infraestructure.Internal;
+using MySql.Data.EntityFrameworkCore.Infraestructure.Internal;
 
-namespace MySQL.Data.EntityFrameworkCore.Infraestructure
+namespace MySql.Data.EntityFrameworkCore.Infraestructure
 {
   /// <summary>
   /// RelationalDbContextOptionsBuilder implementation for MySQL

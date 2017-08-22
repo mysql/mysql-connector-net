@@ -32,7 +32,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
-using MySQL.Data.EntityFrameworkCore.Extensions;
+using MySql.Data.EntityFrameworkCore.Extensions;
 using MySql.Data.EntityFrameworkCore.Design.Metadata.Internal;
 using Microsoft.EntityFrameworkCore;
 
