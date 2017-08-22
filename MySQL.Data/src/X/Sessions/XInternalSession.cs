@@ -60,7 +60,9 @@ namespace MySqlX.Sessions
 
     protected override void Open()
     {
-      _stream = MyNetworkStream.CreateStream(Settings, false);
+      bool isUnix = Settings.ConnectionProtocol == MySqlConnectionProtocol.Unix ||
+        Settings.ConnectionProtocol == MySqlConnectionProtocol.UnixSocket;
+      _stream = MyNetworkStream.CreateStream(Settings, isUnix);
       if (_stream == null)
         throw new MySqlException(ResourcesX.UnableToConnect);
       _reader = new XPacketReaderWriter(_stream);

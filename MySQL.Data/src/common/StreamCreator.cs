@@ -98,7 +98,19 @@ namespace MySql.Data.Common
       return client.GetStream();
     }
 
-    private static Stream GetUnixSocketStream(MySqlConnectionStringBuilder settings)
+    internal static Stream GetUnixSocketStream(MySqlConnectionStringBuilder settings)
+    {
+      try
+      {
+        return new NetworkStream(GetUnixSocket(settings), true);
+      }
+      catch (Exception)
+      {
+        throw;
+      }
+    }
+
+    internal static Socket GetUnixSocket(MySqlConnectionStringBuilder settings)
     {
       if (Platform.IsWindows())
         throw new InvalidOperationException(Resources.NoUnixSocketsOnWindows);
@@ -113,7 +125,7 @@ namespace MySql.Data.Common
       {
         socket.ReceiveTimeout = (int)settings.ConnectionTimeout * 1000;
         socket.Connect(endPoint);
-        return new NetworkStream(socket, true);
+        return socket;
       }
       catch (Exception)
       {
@@ -150,7 +162,7 @@ namespace MySql.Data.Common
     /// </summary>
     /// <param name="s">The socket object.</param>
     /// <param name="time">The keepalive timeout, in seconds.</param>
-    private static void SetKeepAlive(Socket s, uint time)
+    internal static void SetKeepAlive(Socket s, uint time)
     {
       uint on = 1;
       uint interval = 1000; // default interval = 1 sec
