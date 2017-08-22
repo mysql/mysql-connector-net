@@ -59,7 +59,7 @@ namespace MySql.Data.MySqlClient
             if (enumValue == MySqlConnectionProtocol.Memory || enumValue == MySqlConnectionProtocol.Pipe)
               throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, $"Protocol={value}"));
 #endif
-            if (enumValue == MySqlConnectionProtocol.Unix || enumValue == MySqlConnectionProtocol.UnixSocket)
+            if (enumValue == MySqlConnectionProtocol.Unix)
               msb.SetValue("Ssl Mode", MySqlSslMode.None);
           }
 
@@ -313,12 +313,7 @@ namespace MySql.Data.MySqlClient
     public MySqlConnectionProtocol ConnectionProtocol
     {
       get { return (MySqlConnectionProtocol)values["protocol"]; }
-      set
-      {
-        SetValue("protocol", value);
-        if (value == MySqlConnectionProtocol.Unix || value == MySqlConnectionProtocol.UnixSocket)
-          SetValue("Ssl Mode", MySqlSslMode.None);
-      }
+      set { SetValue("protocol", value); }
     }
 
     /// <summary>
