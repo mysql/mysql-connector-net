@@ -43,6 +43,7 @@ namespace MySql.Data.MySqlClient
     private bool beingCleared;
     private int available;
     private AutoResetEvent autoEvent;
+    private int maxUsedConnections;
 
     private void EnqueueIdle(Driver driver)
     {
@@ -63,6 +64,7 @@ namespace MySql.Data.MySqlClient
       inUsePool = new List<Driver>((int)maxSize);
       idlePool = new Queue<Driver>((int)maxSize);
 
+      maxUsedConnections = (int)minSize;
       // prepopulate the idle pool to minSize
       for (int i = 0; i < minSize; i++)
         EnqueueIdle(CreateNewPooledConnection());
@@ -158,6 +160,9 @@ namespace MySql.Data.MySqlClient
       lock ((inUsePool as ICollection).SyncRoot)
       {
         inUsePool.Add(driver);
+        int currentlyInUse = inUsePool.Count;
+        if (currentlyInUse > maxUsedConnections)
+            maxUsedConnections = currentlyInUse;
       }
       return driver;
     }
@@ -227,6 +232,7 @@ namespace MySql.Data.MySqlClient
     private Driver TryToGetDriver()
     {
       int count = Interlocked.Decrement(ref available);
+      
       if (count < 0)
       {
         Interlocked.Increment(ref available);
@@ -310,21 +316,14 @@ namespace MySql.Data.MySqlClient
         // The drivers appear to be ordered by their age, i.e it is
         // sufficient to remove them until the first element is not
         // too old.
-        while (idlePool.Count > minSize)
+        int targetSize = minSize > maxUsedConnections ? (int)minSize : maxUsedConnections;
+        while (idlePool.Count > targetSize)
         {
           Driver d = idlePool.Peek();
-          DateTime expirationTime = d.IdleSince.Add(
-            new TimeSpan(0, 0, MySqlPoolManager.maxConnectionIdleTime));
-          if (expirationTime.CompareTo(now) < 0)
-          {
-            oldDrivers.Add(d);
-            idlePool.Dequeue();
-          }
-          else
-          {
-            break;
-          }
+          oldDrivers.Add(d);
+          idlePool.Dequeue();
         }
+        maxUsedConnections = (int)minSize;
       }
       return oldDrivers;
     }
