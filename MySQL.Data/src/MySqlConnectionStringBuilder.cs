@@ -152,6 +152,7 @@ namespace MySql.Data.MySqlClient
           return (bool)val;
         }
         ));
+      Options.Add(new MySqlConnectionStringOption("auth", null, typeof(MySqlAuthenticationMode), MySqlAuthenticationMode.Default, false));
 
       // Other properties
 #if !NETCORE10
@@ -543,6 +544,16 @@ namespace MySql.Data.MySqlClient
     {
       get { return (bool)values["integratedsecurity"]; }
       set { SetValue("integratedsecurity", value); }
+    }
+
+    [Category("Authentication")]
+    [DisplayName("Auth")]
+    [Description("Authentication mechanism")]
+    [DefaultValue(MySqlAuthenticationMode.Default)]
+    public MySqlAuthenticationMode Auth
+    {
+      get { return (MySqlAuthenticationMode) values["auth"]; }
+      set { SetValue("auth", value); }
     }
 
 #endregion

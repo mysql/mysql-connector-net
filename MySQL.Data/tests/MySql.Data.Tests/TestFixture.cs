@@ -157,13 +157,29 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-
     public string CreateUser(string postfix, string password)
     {
       using (var connection = GetConnection(true))
       {
         string userName = String.Format("{0}{1}", BaseUserName, postfix);
         executeSQL(String.Format("CREATE USER '{0}'@'localhost' IDENTIFIED BY '{1}'", userName, password), connection);
+        executeSQL(String.Format("GRANT ALL ON *.* TO '{0}'@'localhost'", userName), connection);
+        executeSQL("FLUSH PRIVILEGES", connection);
+        return userName;
+      }
+    }
+
+    public string CreateUser(string userName, string password, string plugin)
+    {
+      using (var connection = GetConnection(true))
+      {
+        executeSQL(String.Format("DROP USER IF EXISTS '{0}'@'localhost';", userName), connection);
+        executeSQL(
+          String.Format(
+            "CREATE USER '{0}'@'localhost' IDENTIFIED {1} BY '{2}'",
+            userName,
+            (plugin == null ? string.Empty : String.Format("WITH '{0}' ", plugin)), password),
+          connection);
         executeSQL(String.Format("GRANT ALL ON *.* TO '{0}'@'localhost'", userName), connection);
         executeSQL("FLUSH PRIVILEGES", connection);
         return userName;
