@@ -25,6 +25,7 @@ using Mysqlx.Expr;
 using Mysqlx.Datatypes;
 using Mysqlx.Crud;
 using Google.Protobuf;
+using System.Collections.Generic;
 
 namespace MySqlX.Protocol.X
 {
@@ -158,6 +159,9 @@ namespace MySqlX.Protocol.X
     {
       if (value == null)
         return BuildLiteralNullScalar();
+
+      if (value is Dictionary<string, object>)
+        value = new XDevAPI.DbDoc(value).ToString();
 
       if (value is bool)
         return BuildLiteralScalar(Convert.ToBoolean(value));

@@ -24,6 +24,7 @@ using MySqlX.Serialization;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
 using System;
+using System.Collections.Generic;
 using Xunit;
 
 namespace MySqlX.Data.Tests
@@ -169,6 +170,30 @@ namespace MySqlX.Data.Tests
       // Replace a non-existing document.
       Assert.Equal<ulong>(0, collection.ReplaceOne(5, docs[1]).RecordsAffected);
       Assert.True(collection.GetOne(5) == null);
+    }
+
+    [Fact]
+    public void ReplaceNestedDocument()
+    {
+      var collection = CreateCollection("test");
+      var docs = new DbDoc[]
+      {
+        new DbDoc(@"{ ""_id"":1, ""pages"":20, ""title"":""Book 1"", ""person"": { ""name"": ""Fred"", ""age"":45 } }" ),
+        new DbDoc(@"{ ""_id"": 2, ""pages"": 30,""title"" : ""Book 2"", ""person"": { ""name"": ""Peter"", ""age"": 38 } }"),
+        new DbDoc(@"{ ""_id"": 3, ""pages"": 40,""title"" : ""Book 3"", ""person"": { ""name"": ""Andy"", ""age"": 25 } }"),
+        new DbDoc(@"{ ""_id"": 4, ""pages"": 50,""title"" : ""Book 4"", ""person"": { ""name"": ""John"", ""age"": 34 } }")
+      };
+      Assert.Equal<ulong>(4, collection.Add(docs).Execute().RecordsAffected);
+
+      DbDoc d_new = new DbDoc(@"{ ""_id"": 1, ""pages"": 20,""title"" : ""Book 1"", ""person"": { ""name"": ""Fred"", ""age"": 45 ,""State"" : ""Ohio""} }");
+      Assert.Equal<ulong>(1, collection.ReplaceOne(1, d_new).RecordsAffected);
+      DbDoc document = collection.GetOne(1);
+      Assert.Equal("Ohio", (document.values["person"] as Dictionary<string,object>)["State"]);
+
+      d_new = new DbDoc(@"{ ""_id"": 1, ""pages"": 20,""title"" : ""Book 1"", ""person"": { ""name"": ""Fred"", ""age"": 45 ,""State"" : ""Ohio"", ""newProp"": { ""a"":33 } } }");
+      Assert.Equal<ulong>(1, collection.ReplaceOne(1, d_new).RecordsAffected);
+      document = collection.GetOne(1);
+      Assert.Equal(33, ((document.values["person"] as Dictionary<string,object>)["newProp"] as Dictionary<string,object>)["a"] );
     }
   }
 }
