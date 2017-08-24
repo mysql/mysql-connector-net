@@ -173,13 +173,27 @@ namespace MySql.Data.MySqlClient.Tests
     {
       using (var connection = GetConnection(true))
       {
-        executeSQL(String.Format("DROP USER IF EXISTS '{0}'@'localhost';", userName), connection);
-        executeSQL(
+        if (Version >= new Version("5.7"))
+        {
+          executeSQL(String.Format("DROP USER IF EXISTS '{0}'@'localhost';", userName), connection);
+          executeSQL(
           String.Format(
             "CREATE USER '{0}'@'localhost' IDENTIFIED {1} BY '{2}'",
             userName,
             (plugin == null ? string.Empty : String.Format("WITH '{0}' ", plugin)), password),
           connection);
+        }
+        else
+        {
+          var cmd = connection.CreateCommand();
+          cmd.CommandText = String.Format("SELECT count(*) FROM mysql.user WHERE user LIKE '{0}%'", userName);
+          if ((long)cmd.ExecuteScalar() > 0)
+            executeSQL(String.Format("DROP USER '{0}'@'localhost';", userName), connection);
+          executeSQL(String.Format("CREATE USER '{0}'@'localhost' IDENTIFIED WITH '{1}'", userName, plugin), connection);
+          if (plugin=="sha256_password") executeSQL("SET old_passwords = 2", connection);
+          executeSQL(String.Format("SET PASSWORD FOR '{0}'@'localhost' = PASSWORD('{1}')", userName, password), connection);
+        }
+
         executeSQL(String.Format("GRANT ALL ON *.* TO '{0}'@'localhost'", userName), connection);
         executeSQL("FLUSH PRIVILEGES", connection);
         return userName;
