@@ -843,6 +843,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ConnectUsingSha256PasswordPlugin()
     {
+      if (Fixture.Version <= new Version("5.6")) return;
+
       string userName = "testSha256";
       string password = "mysql";
       string pluginName = "sha256_password";
