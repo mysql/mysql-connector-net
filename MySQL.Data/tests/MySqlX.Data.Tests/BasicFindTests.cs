@@ -597,6 +597,41 @@ namespace MySqlX.Data.Tests
       Assert.Throws<MySqlException>(() => coll.Find("(1+2) in [1, 2, 3]").Execute().FetchAll().Count);
       Assert.Throws<MySqlException>(() => coll.Find("(1+2) in $.ARR").Execute().FetchAll().Count);
     }
+    [Fact]
+    public void GetOne()
+    {
+      Collection coll = CreateCollection("test");
+      var docs = new[]
+      {
+        new {  _id = 1, title = "Book 1", pages = 20 },
+        new {  _id = 2, title = "Book 2", pages = 30 },
+        new {  _id = 3, title = "Book 3", pages = 40 },
+        new {  _id = 4, title = "Book 4", pages = 50 },
+      };
+      Result r = coll.Add(docs).Execute();
+      Assert.Equal<ulong>(4, r.RecordsAffected);
+
+      // Expected exceptions.
+      Assert.Throws<ArgumentNullException>(() => coll.GetOne(null));
+      Assert.Throws<ArgumentNullException>(() => coll.GetOne(""));
+      Assert.Throws<ArgumentNullException>(() => coll.GetOne(string.Empty));
+
+      // Get document using numeric parameter.
+      DbDoc document = coll.GetOne(1);
+      Assert.Equal(1, document.Id);
+      Assert.Equal("Book 1", document["title"]);
+      Assert.Equal(20, Convert.ToInt32(document["pages"]));
+
+      // Get document using string parameter.
+      document = coll.GetOne("3");
+      Assert.Equal(3, document.Id);
+      Assert.Equal("Book 3", document["title"]);
+      Assert.Equal(40, Convert.ToInt32(document["pages"]));
+
+      // Get a non-existing document.
+      document = coll.GetOne(5);
+      Assert.Equal(null, document);
+    }
   }
 }
 

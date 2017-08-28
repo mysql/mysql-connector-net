@@ -74,6 +74,7 @@ namespace MySqlX.XDevAPI
     public object Id
     {
       get { return values["_id"];  }
+      internal set { SetValue("_id", value); }
     }
 
     /// <summary>

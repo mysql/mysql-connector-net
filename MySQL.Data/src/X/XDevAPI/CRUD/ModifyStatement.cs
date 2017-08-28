@@ -41,8 +41,8 @@ namespace MySqlX.XDevAPI.CRUD
     /// <summary>
     /// Sets key and value.
     /// </summary>
-    /// <param name="docPath">Document path key.</param>
-    /// <param name="value">New value.</param>
+    /// <param name="docPath">The document path key.</param>
+    /// <param name="value">The new value.</param>
     /// <returns>This <see cref="ModifyStatement"/> object.</returns>
     public ModifyStatement Set(string docPath, object value)
     {
@@ -53,8 +53,8 @@ namespace MySqlX.XDevAPI.CRUD
     /// <summary>
     /// Changes value for a key.
     /// </summary>
-    /// <param name="docPath">Document path key.</param>
-    /// <param name="value">New value.</param>
+    /// <param name="docPath">The document path key.</param>
+    /// <param name="value">The new value.</param>
     /// <returns>This <see cref="ModifyStatement"/> object.</returns>
     public ModifyStatement Change(string docPath, object value)
     {
@@ -63,9 +63,9 @@ namespace MySqlX.XDevAPI.CRUD
     }
 
     /// <summary>
-    /// Removes a key/value from a document.
+    /// Removes a key or value from a document.
     /// </summary>
-    /// <param name="docPath">Document path key.</param>
+    /// <param name="docPath">The document path key.</param>
     /// <returns>This <see cref="ModifyStatement"/> object.</returns>
     public ModifyStatement Unset(string docPath)
     {

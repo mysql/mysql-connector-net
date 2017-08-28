@@ -385,11 +385,12 @@ namespace MySqlX.Protocol
       return c;
     }
 
-    public void SendInsert(string schema, bool isRelational, string collection, object[] rows, string[] columns)
+    public void SendInsert(string schema, bool isRelational, string collection, object[] rows, string[] columns, bool upsert)
     {
       Insert msg = new Mysqlx.Crud.Insert();
       msg.Collection = ExprUtil.BuildCollection(schema, collection);
       msg.DataModel = (isRelational ? DataModel.Table : DataModel.Document);
+      msg.Upsert = upsert;
       if(columns != null && columns.Length > 0)
       {
         foreach(string column in columns)

@@ -33,6 +33,7 @@ namespace MySqlX.XDevAPI.CRUD
   public class AddStatement : CrudStatement<Result>
   {
     private List<DbDoc> _DbDocs = new List<DbDoc>();
+    internal bool upsert;
 
     internal AddStatement(Collection collection) : base(collection)
     {
@@ -65,7 +66,7 @@ namespace MySqlX.XDevAPI.CRUD
           return new Result(null);
 
         List<string> newIds = AssignIds();
-        return Target.Session.XSession.Insert(Target, _DbDocs.ToArray(), newIds);
+        return Target.Session.XSession.Insert(Target, _DbDocs.ToArray(), newIds, upsert);
       }
       finally
       {

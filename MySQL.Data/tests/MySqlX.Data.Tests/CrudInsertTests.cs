@@ -20,6 +20,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.MySqlClient;
 using MySqlX.Common;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
@@ -244,6 +245,55 @@ namespace MySqlX.Data.Tests
         Assert.Equal(currentDoc.Id, resultingDoc.Id);
         Assert.Equal(currentDoc["foo"], resultingDoc["foo"]);
       }
+    }
+
+    [Fact]
+    public void AddOrReplaceOne()
+    {
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
+
+      Collection collection = CreateCollection("test");
+      var docs = new[]
+      {
+        new {  _id = 1, title = "Book 1", pages = 20 },
+        new {  _id = 2, title = "Book 2", pages = 30 },
+        new {  _id = 3, title = "Book 3", pages = 40 },
+        new {  _id = 4, title = "Book 4", pages = 50 },
+      };
+      Result result = collection.Add(docs).Execute();
+      Assert.Equal<ulong>(4, result.RecordsAffected);
+
+      // Expected exceptions.
+      Assert.Throws<ArgumentNullException>(() => collection.AddOrReplaceOne(null, docs[1]));
+      Assert.Throws<ArgumentNullException>(() => collection.AddOrReplaceOne("", docs[1]));
+      Assert.Throws<ArgumentNullException>(() => collection.AddOrReplaceOne(string.Empty, docs[1]));
+      Assert.Throws<ArgumentNullException>(() => collection.AddOrReplaceOne("1", null));
+
+      // Add a document.
+      Assert.Equal<ulong>(1, collection.AddOrReplaceOne(5, new { _id = 5, title = "Book 5", pages = 60 }).RecordsAffected);
+      Assert.True(collection.GetOne(5) != null);
+
+      Assert.Equal<ulong>(1, collection.AddOrReplaceOne("6", new { title = "Book 6", pages = 70 }).RecordsAffected);
+      Assert.True(collection.GetOne(6) == null);
+      Assert.True(collection.GetOne("6") != null);
+
+      // Replace a document.
+      Assert.Equal<ulong>(2, collection.AddOrReplaceOne(1, new { _id = 1, title = "Book X", pages = 10 }).RecordsAffected);
+      DbDoc document = collection.GetOne(1);
+      Assert.Equal(1, Convert.ToInt32(document.Id));
+      Assert.Equal("Book X", document["title"]);
+      Assert.Equal(10, Convert.ToInt32(document["pages"]));
+
+      Assert.Equal<ulong>(2, collection.AddOrReplaceOne(1, new { title = "Book Y", pages = 9, other = "value" }).RecordsAffected);
+      document = collection.GetOne(1);
+      Assert.Equal(1, Convert.ToInt32(document.Id));
+      Assert.Equal("Book Y", document["title"]);
+      Assert.Equal(9, Convert.ToInt32(document["pages"]));
+      Assert.Equal("value", document["other"]);
+
+      // Add unique index.
+      collection.CreateIndex("myPages", true).Field("$.pages", "INT", true).Execute();
+      Assert.Throws<MySqlException>(() => collection.AddOrReplaceOne(1, new { title = "Book X", pages = 50, other = "value" }).RecordsAffected);
     }
   }
 }

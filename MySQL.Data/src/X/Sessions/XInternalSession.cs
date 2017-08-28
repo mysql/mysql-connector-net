@@ -276,9 +276,9 @@ namespace MySqlX.Sessions
       return new RowResult(this);
     }
 
-    public Result Insert(Collection collection, DbDoc[] json, List<string> newIds)
+    public Result Insert(Collection collection, DbDoc[] json, List<string> newIds, bool upsert)
     {
-      protocol.SendInsert(collection.Schema.Name, false, collection.Name, json, null);
+      protocol.SendInsert(collection.Schema.Name, false, collection.Name, json, null, upsert);
       return new Result(this) { DocumentIds = newIds.AsReadOnly() } ;
     }
 
@@ -326,7 +326,7 @@ namespace MySqlX.Sessions
 
     public Result InsertRows(TableInsertStatement statement)
     {
-      protocol.SendInsert(statement.Target.Schema.Name, true, statement.Target.Name, statement.values.ToArray(), statement.fields);
+      protocol.SendInsert(statement.Target.Schema.Name, true, statement.Target.Name, statement.values.ToArray(), statement.fields, false);
       return new Result(this);
     }
 

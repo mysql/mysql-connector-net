@@ -191,5 +191,45 @@ namespace MySqlX.Data.Tests
       Assert.Equal<ulong>(2, collection.Remove("1 IN c.e").Execute().RecordsAffected);
       Assert.Equal(0, collection.Find().Execute().FetchAll().Count);
     }
+
+    [Fact]
+    public void RemoveOne()
+    {
+      Collection collection = CreateCollection("test");
+      var docs = new[]
+      {
+        new {  _id = 1, title = "Book 1", pages = 20 },
+        new {  _id = 2, title = "Book 2", pages = 30 },
+        new {  _id = 3, title = "Book 3", pages = 40 },
+        new {  _id = 4, title = "Book 4", pages = 50 },
+      };
+      Result result = collection.Add(docs).Execute();
+      Assert.Equal<ulong>(4, result.RecordsAffected);
+
+      collection.Add(new { title = "Book 5", pages = 60 }).Execute();
+      Assert.Equal(5, collection.Find().Execute().FetchAll().Count);
+
+      // Expected exceptions.
+      Assert.Throws<ArgumentNullException>(() => collection.RemoveOne(null));
+      Assert.Throws<ArgumentNullException>(() => collection.RemoveOne(""));
+      Assert.Throws<ArgumentNullException>(() => collection.RemoveOne(string.Empty));
+
+      // Remove sending numeric parameter.
+      Assert.Equal<ulong>(1, collection.RemoveOne(1).RecordsAffected);
+      Assert.Equal(4, collection.Find().Execute().FetchAll().Count);
+
+      // Remove sending string parameter.
+      Assert.Equal<ulong>(1, collection.RemoveOne("3").RecordsAffected);
+      Assert.Equal(3, collection.Find().Execute().FetchAll().Count);
+
+      // Remove an auto-generated id.
+      DbDoc document = collection.Find("pages = 60").Execute().FetchOne();
+      Assert.Equal<ulong>(1, collection.RemoveOne(document.Id).RecordsAffected);
+      Assert.Equal(2, collection.Find().Execute().FetchAll().Count);
+
+      // Remove a non-existing document.
+      Assert.Equal<ulong>(0, collection.RemoveOne(5).RecordsAffected);
+      Assert.Equal(2, collection.Find().Execute().FetchAll().Count);
+    }
   }
 }
