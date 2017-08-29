@@ -606,7 +606,7 @@ namespace MySqlX.XDevAPI
     /// <returns>A normalized Unix socket.</returns>
     private string NormalizeUnixSocket(string unixSocket)
     {
-      unixSocket = unixSocket.Replace("%2", "/");
+      unixSocket = unixSocket.Replace("%2F", "/");
       if (unixSocket.StartsWith("(") && unixSocket.EndsWith(")"))
         unixSocket = unixSocket.Substring(1, unixSocket.Length - 2);
 

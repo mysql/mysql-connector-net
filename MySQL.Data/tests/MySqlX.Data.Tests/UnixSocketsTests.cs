@@ -48,7 +48,7 @@ namespace MySqlX.Data.Tests
         Assert.Equal(defaultUnixSocket, session.Settings.Server);
       }
 
-      using (var session = MySQLX.GetSession("mysqlx://root:@" + defaultUnixSocket.Replace("/", "%2") + "?protocol=unix"))
+      using (var session = MySQLX.GetSession("mysqlx://root:@" + defaultUnixSocket.Replace("/", "%2F") + "?protocol=unix"))
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
         Assert.Equal(defaultUnixSocket, session.Settings.Server);
@@ -144,7 +144,7 @@ namespace MySqlX.Data.Tests
     {
       if (Platform.IsWindows()) return;
 
-      using (var session = MySQLX.GetSession("server=/tmp/mysql.sock1, (/tmp/mysql.sock2) ,(%2tmp%2mysql.sock3) , " + defaultUnixSocket + ";uid=root;protocol=unix;"))
+      using (var session = MySQLX.GetSession("server=/tmp/mysql.sock1, (/tmp/mysql.sock2) ,(%2Ftmp%2Fmysql.sock3) , " + defaultUnixSocket + ";uid=root;protocol=unix;"))
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
         Assert.Equal(defaultUnixSocket, session.Settings.Server);
@@ -168,7 +168,7 @@ namespace MySqlX.Data.Tests
         Assert.Equal(defaultUnixSocket, session.Settings.Server);
       }
 
-      using (var session = MySQLX.GetSession("mysqlx://root:@[./tmp/mysql.sock, (../tmp/mysql.sock) ,(%2tmpsocket%2mysql.sock) , " + defaultUnixSocket + "]?protocol=unix"))
+      using (var session = MySQLX.GetSession("mysqlx://root:@[./tmp/mysql.sock, (../tmp/mysql.sock) ,(%2Ftmpsocket%2Fmysql.sock) , " + defaultUnixSocket + "]?protocol=unix"))
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
         Assert.Equal(defaultUnixSocket, session.Settings.Server);
@@ -193,7 +193,7 @@ namespace MySqlX.Data.Tests
       }
 
       using (var session = MySQLX.GetSession(new {
-        server ="/tmp/mysql.sock1, (/tmp/mysql.sock2) ,(%2tmp%2mysql.sock3) , " + defaultUnixSocket,
+        server ="/tmp/mysql.sock1, (/tmp/mysql.sock2) ,(%2Ftmp%2Fmysql.sock3) , " + defaultUnixSocket,
         uid = "root",
         protocol ="unix",
       }))
@@ -204,7 +204,7 @@ namespace MySqlX.Data.Tests
 
       using (var session = MySQLX.GetSession(new
       {
-        server = "(address=/tmp/mysql.sock1, priority=100),(address=(/tmp/mysql.sock2),priority=99),(address=(%2tmp%2mysql.sock3),priority=98),(address=" + defaultUnixSocket + ",priority=97)",
+        server = "(address=/tmp/mysql.sock1, priority=100),(address=(/tmp/mysql.sock2),priority=99),(address=(%2Ftmp%2Fmysql.sock3),priority=98),(address=" + defaultUnixSocket + ",priority=97)",
         uid = "root",
         protocol = "unix",
       }))
