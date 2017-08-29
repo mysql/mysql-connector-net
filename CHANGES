@@ -1,4 +1,4 @@
-6.10.3
+6.10.4
 - Removed UseProcedureBodies connection string option. WL-10639
 
 
