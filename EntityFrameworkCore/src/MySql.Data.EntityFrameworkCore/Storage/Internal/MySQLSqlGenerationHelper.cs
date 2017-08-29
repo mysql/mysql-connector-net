@@ -27,7 +27,7 @@ using System.Globalization;
 
 namespace MySql.Data.EntityFrameworkCore
 {
-  public class MySQLSqlGenerationHelper : RelationalSqlGenerationHelper
+  internal class MySQLSqlGenerationHelper : RelationalSqlGenerationHelper
   {
 
     private const string DateTimeFormatConst = "yyyy-MM-ddTHH:mm:ss.fffK";

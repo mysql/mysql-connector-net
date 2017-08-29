@@ -38,7 +38,7 @@ namespace MySql.Data.EntityFrameworkCore
   /// <summary>
   /// Relational Database creator implementation in MySQL
   /// </summary>
-  public class MySQLDatabaseCreator : RelationalDatabaseCreator
+  internal class MySQLDatabaseCreator : RelationalDatabaseCreator
   {
     private readonly MySQLServerConnection _connection;
     private readonly IMigrationsSqlGenerator _sqlGenerator;

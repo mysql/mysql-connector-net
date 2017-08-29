@@ -34,7 +34,7 @@ using System.Threading.Tasks;
 
 namespace MySql.Data.EntityFrameworkCore.Design.Internal
 {
-    public class MySQLDesignTimeServices : IDesignTimeServices
+    internal class MySQLDesignTimeServices : IDesignTimeServices
     {
         public virtual void ConfigureDesignTimeServices(IServiceCollection serviceCollection)
                    => serviceCollection

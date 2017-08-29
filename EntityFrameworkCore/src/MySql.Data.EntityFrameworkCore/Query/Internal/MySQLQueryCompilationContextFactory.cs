@@ -36,7 +36,7 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace MySql.Data.EntityFrameworkCore.Query.Internal
 {
-    public class MySQLQueryCompilationContextFactory : RelationalQueryCompilationContextFactory
+    internal class MySQLQueryCompilationContextFactory : RelationalQueryCompilationContextFactory
     {
         public MySQLQueryCompilationContextFactory(
             [NotNull] IModel model,

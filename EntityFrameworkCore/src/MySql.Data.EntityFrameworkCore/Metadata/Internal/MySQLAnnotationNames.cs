@@ -31,7 +31,7 @@ namespace MySql.Data.EntityFrameworkCore.Metadata.Internal
   /// <summary>
   /// Annotations for MySQL specifics
   /// </summary>
-  public static class MySQLAnnotationNames
+  internal static class MySQLAnnotationNames
   {
     public const string Prefix = "MySQL:";
     public const string AutoIncrement = "AutoIncrement";

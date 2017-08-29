@@ -29,7 +29,7 @@ namespace MySql.Data.EntityFrameworkCore
   /// <summary>
   /// RelationalCompositeMethodCallTranslator implementation for MySQL
   /// </summary>
-  public class MySQLCompositeMethodCallTranslator : RelationalCompositeMethodCallTranslator
+  internal class MySQLCompositeMethodCallTranslator : RelationalCompositeMethodCallTranslator
     {
 
         public static readonly IMethodCallTranslator[] _mysqlTranslators =

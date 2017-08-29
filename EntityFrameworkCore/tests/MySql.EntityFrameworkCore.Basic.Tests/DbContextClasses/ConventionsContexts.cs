@@ -21,7 +21,6 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.EntityFrameworkCore;
-using MySql.Data.EntityFrameworkCore.Extensions;
 
 
 namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses

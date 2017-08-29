@@ -46,7 +46,7 @@ namespace MySql.Data.EntityFrameworkCore
   /// <summary>
   /// RelationalDatabaseProviderServices implementation for MySQL 
   /// </summary>
-  public class MySQLDatabaseProviderServices : RelationalDatabaseProviderServices
+  internal class MySQLDatabaseProviderServices : RelationalDatabaseProviderServices
   {
     public MySQLDatabaseProviderServices(IServiceProvider serviceProvider) : base(serviceProvider)
     {

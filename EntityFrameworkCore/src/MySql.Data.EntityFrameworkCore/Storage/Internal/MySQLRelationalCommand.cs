@@ -38,7 +38,7 @@ using System.Threading.Tasks;
 
 namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
-    public class MySQLRelationalCommand : RelationalCommand
+    internal class MySQLRelationalCommand : RelationalCommand
     {
 
         public MySQLRelationalCommand([NotNull] ISensitiveDataLogger logger,

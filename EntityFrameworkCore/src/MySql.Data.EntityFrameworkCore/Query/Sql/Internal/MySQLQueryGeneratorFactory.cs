@@ -30,7 +30,7 @@ namespace MySql.Data.EntityFrameworkCore.Query
   /// <summary>
   /// Implementation for QuerySqlGeneratorFactoryBase
   /// </summary>
-  public class MySQLQueryGeneratorFactory : QuerySqlGeneratorFactoryBase
+  internal class MySQLQueryGeneratorFactory : QuerySqlGeneratorFactoryBase
   {
 
     public MySQLQueryGeneratorFactory(IRelationalCommandBuilderFactory commandBuilderFactory,

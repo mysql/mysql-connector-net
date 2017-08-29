@@ -31,7 +31,7 @@ using System.Reflection;
 
 namespace MySql.Data.EntityFrameworkCore
 {
-  public class MySQLServerConnection : RelationalConnection
+  internal class MySQLServerConnection : RelationalConnection
     {
 
       private string _cnnStr

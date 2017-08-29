@@ -22,6 +22,7 @@
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
+using MySql.Data.EntityFrameworkCore.Extensions;
 
 namespace MySql.Data.EntityFrameworkCore.Infraestructure.Internal
 {
@@ -29,20 +30,20 @@ namespace MySql.Data.EntityFrameworkCore.Infraestructure.Internal
   /// RelationalOptionsExtension implementation for MySQL
   /// </summary>
   public class MySQLOptionsExtension : RelationalOptionsExtension
+  {
+    public MySQLOptionsExtension()
     {
-        public MySQLOptionsExtension()
-        {
-        }
-
-        public MySQLOptionsExtension(MySQLOptionsExtension copyFrom)
-            : base(copyFrom)
-        {
-        }
-
-
-        public override void ApplyServices(IServiceCollection services)
-        {
-            services.AddEntityFrameworkMySQL();
-        }
     }
+
+    public MySQLOptionsExtension(MySQLOptionsExtension copyFrom)
+        : base(copyFrom)
+    {
+    }
+
+
+    public override void ApplyServices(IServiceCollection services)
+    {
+      services.AddEntityFrameworkMySQL();
+    }
+  }
 }

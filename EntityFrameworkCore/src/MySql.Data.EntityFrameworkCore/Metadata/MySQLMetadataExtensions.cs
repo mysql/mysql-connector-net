@@ -27,7 +27,7 @@ using MySql.Data.EntityFrameworkCore.Metadata.Internal;
 
 namespace MySql.Data.EntityFrameworkCore
 {
-  public static class MySQLMetadataExtensions
+  internal static class MySQLMetadataExtensions
   {
     public static RelationalEntityTypeAnnotations MySQL(this IEntityType entityType)
     {

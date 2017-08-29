@@ -26,7 +26,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace MySql.Data.EntityFrameworkCore
 {
-  public class MySQLUpdateSqlGenerator : UpdateSqlGenerator
+  internal class MySQLUpdateSqlGenerator : UpdateSqlGenerator
   {
 
     public MySQLUpdateSqlGenerator([NotNull] ISqlGenerationHelper sqlGenerationHelper)

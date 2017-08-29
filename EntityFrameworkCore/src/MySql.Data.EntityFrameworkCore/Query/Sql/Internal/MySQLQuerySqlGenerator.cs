@@ -34,7 +34,7 @@ using System.Threading.Tasks;
 
 namespace MySql.Data.EntityFrameworkCore.Query
 {
-  public class MySQLQuerySqlGenerator : DefaultQuerySqlGenerator
+  internal class MySQLQuerySqlGenerator : DefaultQuerySqlGenerator
   {
     protected override string TypedFalseLiteral
     {

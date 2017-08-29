@@ -29,7 +29,7 @@ using System.Text;
 
 namespace MySql.Data.EntityFrameworkCore.Migrations.Internal
 {
-  public class MySQLHistoryRepository : HistoryRepository
+  internal class MySQLHistoryRepository : HistoryRepository
   {
     public MySQLHistoryRepository(
         IDatabaseCreator databaseCreator,

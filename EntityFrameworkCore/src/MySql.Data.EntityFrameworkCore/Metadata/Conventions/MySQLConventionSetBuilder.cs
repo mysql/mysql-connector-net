@@ -30,7 +30,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace MySql.Data.EntityFrameworkCore.Metadata.Conventions
 {
-  public class MySQLConventionSetBuilder : RelationalConventionSetBuilder
+  internal class MySQLConventionSetBuilder : RelationalConventionSetBuilder
   {
     public MySQLConventionSetBuilder([NotNullAttribute] IRelationalTypeMapper typeMapper, [CanBeNullAttribute] ICurrentDbContext currentContext, [CanBeNullAttribute] IDbSetFinder setFinder) : base(typeMapper, currentContext, setFinder)
     {

@@ -33,7 +33,7 @@ using System.Threading.Tasks;
 
 namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
-    public class MySQLCommandBuilderFactory : RelationalCommandBuilderFactory
+    internal class MySQLCommandBuilderFactory : RelationalCommandBuilderFactory
     {
         private readonly ISensitiveDataLogger<RelationalCommandBuilderFactory> _logger;
         private readonly DiagnosticSource _diagnosticSource;

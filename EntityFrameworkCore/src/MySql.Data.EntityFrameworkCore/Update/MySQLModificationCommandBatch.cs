@@ -28,7 +28,7 @@ namespace MySql.Data.EntityFrameworkCore.Update
   /// <summary>
   /// AffectedCountModificationCommandBatch implementation for MySQL
   /// </summary>
-  public class MySQLModificationCommandBatch : AffectedCountModificationCommandBatch
+  internal class MySQLModificationCommandBatch : AffectedCountModificationCommandBatch
   {
     public MySQLModificationCommandBatch(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,

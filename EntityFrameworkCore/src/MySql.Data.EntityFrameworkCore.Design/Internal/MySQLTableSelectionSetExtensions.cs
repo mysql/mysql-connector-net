@@ -28,7 +28,7 @@ using System.Threading.Tasks;
 
 namespace MySql.Data.EntityFrameworkCore.Design.Internal
 {
-  public static class MySQLTableSelectionSetExtensions
+  internal static class MySQLTableSelectionSetExtensions
   {
     public static bool Allows(this TableSelectionSet _tableSelectionSet, string schemaName, string tableName)
     {

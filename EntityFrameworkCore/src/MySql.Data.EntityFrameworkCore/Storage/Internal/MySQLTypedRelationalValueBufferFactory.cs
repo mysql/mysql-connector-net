@@ -32,7 +32,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
-    public class MySQLTypedRelationalValueBufferFactory : TypedRelationalValueBufferFactory
+    internal class MySQLTypedRelationalValueBufferFactory : TypedRelationalValueBufferFactory
     {
         public MySQLTypedRelationalValueBufferFactory([NotNull] Func<DbDataReader, object[]> valueFactory) : base(valueFactory)
         {

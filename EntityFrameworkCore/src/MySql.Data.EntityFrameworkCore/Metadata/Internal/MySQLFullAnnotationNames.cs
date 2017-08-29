@@ -27,7 +27,7 @@ namespace MySql.Data.EntityFrameworkCore.Metadata.Internal
   /// <summary>
   /// RelationalFullAnnotationNames for MySQL
   /// </summary>
-  public class MySQLFullAnnotationNames : RelationalFullAnnotationNames
+  internal class MySQLFullAnnotationNames : RelationalFullAnnotationNames
   {
     public readonly string AutoIncrement;
     protected MySQLFullAnnotationNames(string prefix) : base(prefix)

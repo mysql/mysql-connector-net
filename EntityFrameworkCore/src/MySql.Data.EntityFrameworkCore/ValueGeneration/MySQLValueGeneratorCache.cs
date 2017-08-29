@@ -24,7 +24,7 @@ using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace MySql.Data.EntityFrameworkCore
 {
-    public class MySQLValueGeneratorCache : ValueGeneratorCache
+    internal class MySQLValueGeneratorCache : ValueGeneratorCache
     {
     }
 }

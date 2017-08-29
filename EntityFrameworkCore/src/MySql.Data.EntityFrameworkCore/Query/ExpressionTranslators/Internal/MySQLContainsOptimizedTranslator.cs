@@ -32,7 +32,7 @@ using System.Threading.Tasks;
 
 namespace MySql.Data.EntityFrameworkCore.Query.ExpressionTranslators.Internal
 {
-    public class MySQLContainsOptimizedTranslator : IMethodCallTranslator
+    internal class MySQLContainsOptimizedTranslator : IMethodCallTranslator
     {
         
         private static readonly MethodInfo _methodInfo

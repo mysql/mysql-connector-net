@@ -31,7 +31,7 @@ using System.Collections;
 
 namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
-  public class MySQLDataReader : DbDataReader
+  internal class MySQLDataReader : DbDataReader
   {
     private MySqlDataReader _reader;
     private bool _disposed;

@@ -42,6 +42,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
+using MySql.Data.EntityFrameworkCore.Extensions;
 
 namespace MySql.EntityFrameworkCore.Migrations.Tests
 {

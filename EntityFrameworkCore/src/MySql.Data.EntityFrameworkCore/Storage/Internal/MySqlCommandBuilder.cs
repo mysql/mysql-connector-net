@@ -33,7 +33,7 @@ using System.Threading.Tasks;
 
 namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
-    public class MySQLCommandBuilder : RelationalCommandBuilder, IInfrastructure<IndentedStringBuilder>
+    internal class MySQLCommandBuilder : RelationalCommandBuilder, IInfrastructure<IndentedStringBuilder>
     {
 
         private readonly ISensitiveDataLogger _logger;

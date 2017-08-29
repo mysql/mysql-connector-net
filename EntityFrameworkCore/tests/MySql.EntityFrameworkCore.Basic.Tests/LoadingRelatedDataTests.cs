@@ -24,6 +24,7 @@ using EntityFrameworkCore.Basic.Tests.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using MySql.Data.EntityFrameworkCore.Extensions;
 using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using MySql.Data.MySqlClient;
 using System;

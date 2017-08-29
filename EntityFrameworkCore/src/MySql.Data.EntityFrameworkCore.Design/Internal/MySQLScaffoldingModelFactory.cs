@@ -38,7 +38,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MySql.Data.EntityFrameworkCore.Design.Internal
 {
-    public class MySQLScaffoldingModelFactory : RelationalScaffoldingModelFactory
+    internal class MySQLScaffoldingModelFactory : RelationalScaffoldingModelFactory
     {
         public MySQLScaffoldingModelFactory(ILoggerFactory loggerFactory, IRelationalTypeMapper typeMapper, IDatabaseModelFactory databaseModelFactory, CandidateNamingService candidateNamingService) 
                 : base(loggerFactory, typeMapper, databaseModelFactory, candidateNamingService)

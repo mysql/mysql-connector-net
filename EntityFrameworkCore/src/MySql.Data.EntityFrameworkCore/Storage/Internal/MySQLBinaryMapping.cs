@@ -30,7 +30,7 @@ using MySql.Data.EntityFrameworkCore;
 
 namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
-  public class MySQLBinaryMapping : RelationalTypeMapping
+  internal class MySQLBinaryMapping : RelationalTypeMapping
   {
     public MySQLBinaryMapping(string storeType, Type clrType) : base(storeType, clrType, System.Data.DbType.Binary, true, null)
     {

@@ -27,7 +27,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 
 namespace MySql.Data.EntityFrameworkCore
 {
-    public class MySQLModelSource : RelationalModelSource
+    internal class MySQLModelSource : RelationalModelSource
   {
         public MySQLModelSource(
             [NotNull] IDbSetFinder setFinder,

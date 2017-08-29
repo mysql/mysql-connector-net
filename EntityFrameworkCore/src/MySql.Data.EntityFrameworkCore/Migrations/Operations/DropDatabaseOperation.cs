@@ -27,7 +27,7 @@ namespace MySql.Data.EntityFrameworkCore.Migrations.Operations
   /// <summary>
   /// Drop database operation for migrations.
   /// </summary>
-    public class MySQLDropDatabaseOperation : MigrationOperation
+    internal class MySQLDropDatabaseOperation : MigrationOperation
     {
         public string Name { get; set; }
     }

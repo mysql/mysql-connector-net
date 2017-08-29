@@ -35,7 +35,7 @@ namespace MySql.Data.EntityFrameworkCore.Migrations
   /// <summary>
   /// MigrationSqlGenerator implementation for MySQL
   /// </summary>
-  public class MySQLMigrationsSqlGenerator : MigrationsSqlGenerator
+  internal class MySQLMigrationsSqlGenerator : MigrationsSqlGenerator
   {
     private readonly ISqlGenerationHelper _sqlGenerationHelper;
 

@@ -27,7 +27,7 @@ namespace MySql.Data.EntityFrameworkCore.Migrations.Operations
   /// <summary>
   /// Create database operation class for migrations
   /// </summary>
-    public class MySQLCreateDatabaseOperation : MigrationOperation
+    internal class MySQLCreateDatabaseOperation : MigrationOperation
     {
         public string Name { get; set; }
     }

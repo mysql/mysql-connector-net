@@ -28,9 +28,9 @@ using System.Threading.Tasks;
 
 namespace MySql.Data.EntityFrameworkCore
 {
-    public static class ThrowIf
+    internal static class ThrowIf
     {
-        public static class Argument
+        internal static class Argument
         {
             public static void IsNull(object argument, string argumentName)
              {

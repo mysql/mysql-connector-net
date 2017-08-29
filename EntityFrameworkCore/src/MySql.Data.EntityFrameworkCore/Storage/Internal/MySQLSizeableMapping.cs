@@ -27,7 +27,7 @@ using System.Data;
 
 namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
-  public class MySQLSizeableMapping : RelationalTypeMapping
+  internal class MySQLSizeableMapping : RelationalTypeMapping
   {
 
     public MySQLSizeableMapping([NotNull] string storeType,

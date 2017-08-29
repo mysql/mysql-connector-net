@@ -29,7 +29,7 @@ using MySql.Data.EntityFrameworkCore;
 
 namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
-  public class MySQLTypeMapper : RelationalTypeMapper
+  internal class MySQLTypeMapper : RelationalTypeMapper
   {
     private static int _longTextMaxLength = int.MaxValue;
     private static int _medTextMaxLength = 16777215;

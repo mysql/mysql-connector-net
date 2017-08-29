@@ -30,7 +30,7 @@ using MySql.Data.EntityFrameworkCore.Metadata.Internal;
 
 namespace MySql.Data.EntityFrameworkCore.Migrations.Internal
 {
-    public class MySQLMigrationsAnnotationProvider : MigrationsAnnotationProvider
+    internal class MySQLMigrationsAnnotationProvider : MigrationsAnnotationProvider
     {
       public override IEnumerable<IAnnotation> For(IProperty property)
     {

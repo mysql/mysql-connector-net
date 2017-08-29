@@ -31,7 +31,7 @@ namespace MySql.Data.EntityFrameworkCore.Update
   /// <summary>
   /// IModificationCommandBatchFactory implemntation for MySQL
   /// </summary>
-  public class MySQLModificationCommandBatchFactory : IModificationCommandBatchFactory
+  internal class MySQLModificationCommandBatchFactory : IModificationCommandBatchFactory
   {
     private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
     private readonly ISqlGenerationHelper _sqlGenerator;

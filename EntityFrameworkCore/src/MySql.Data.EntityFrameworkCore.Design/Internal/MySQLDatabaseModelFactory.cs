@@ -39,7 +39,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace MySql.Data.EntityFrameworkCore.Design.Internal
 {
-  public class MySQLDatabaseModelFactory : IInternalDatabaseModelFactory
+  internal class MySQLDatabaseModelFactory : IInternalDatabaseModelFactory
   {
     public virtual ILogger Logger { get; }
 

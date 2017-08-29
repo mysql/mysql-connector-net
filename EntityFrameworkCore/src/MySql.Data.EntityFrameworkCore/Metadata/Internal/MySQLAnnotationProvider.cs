@@ -27,7 +27,7 @@ namespace MySql.Data.EntityFrameworkCore.Metadata
   /// <summary>
   /// Annotation Provider implementation
   /// </summary>
-  public class MySQLAnnotationProvider : IRelationalAnnotationProvider
+  internal class MySQLAnnotationProvider : IRelationalAnnotationProvider
     {
       public virtual IRelationalEntityTypeAnnotations For(IEntityType entityType) => entityType.MySQL();
       public virtual IRelationalForeignKeyAnnotations For(IForeignKey foreignKey) => foreignKey.MySQL();

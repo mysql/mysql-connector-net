@@ -29,6 +29,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.EntityFrameworkCore.Tests;
 using MySql.Data.EntityFrameworkCore;
 using System;
+using MySql.Data.EntityFrameworkCore.Extensions;
 
 namespace MySql.EntityFrameworkCore.Migrations.Tests.Utilities
 {

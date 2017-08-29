@@ -25,7 +25,7 @@ using MySql.Data.EntityFrameworkCore.Metadata.Internal;
 
 namespace MySql.Data.EntityFrameworkCore.Metadata
 {
-    public class MySQLPropertyAnnotations : RelationalPropertyAnnotations
+    internal class MySQLPropertyAnnotations : RelationalPropertyAnnotations
     {
         private const string AUTOINC_ANNOTATION = "MySQL:AutoIncrement";
 

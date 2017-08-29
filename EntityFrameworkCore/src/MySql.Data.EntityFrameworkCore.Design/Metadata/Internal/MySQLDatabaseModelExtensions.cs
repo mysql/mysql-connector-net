@@ -28,7 +28,7 @@ using System.Threading.Tasks;
 
 namespace MySql.Data.EntityFrameworkCore.Design.Metadata.Internal
 {
-    public static class MySQLDatabaseModelExtensions
+    internal static class MySQLDatabaseModelExtensions
     {
         public static MySQLColumnModelAnnotations MySQL(this ColumnModel column)
                  => new MySQLColumnModelAnnotations(column);

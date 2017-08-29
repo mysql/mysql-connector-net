@@ -29,6 +29,12 @@ namespace MySql.Data.EntityFrameworkCore.Extensions
   /// </summary>
   public static class MySQLPropertyBuilderExtensions
   {
+    /// <summary>
+    /// Defines a MySQL auto-increment column.
+    /// </summary>
+    /// <param name="propertyBuilder">Entity property to be set</param>
+    /// <param name="typeName">MySQL column type as string</param>
+    /// <returns></returns>
     public static PropertyBuilder UseMySQLAutoIncrementColumn(
         [NotNull] this PropertyBuilder propertyBuilder,
         [CanBeNull] string typeName)
@@ -39,6 +45,12 @@ namespace MySql.Data.EntityFrameworkCore.Extensions
       return propertyBuilder;
     }
 
+    /// <summary>
+    /// Defines a column data type.
+    /// </summary>
+    /// <param name="propertyBuilder">Entity property to be set</param>
+    /// <param name="typeName">MySQL column type as string</param>
+    /// <returns></returns>
     public static PropertyBuilder ForMySQLHasColumnType(
       [NotNull] this PropertyBuilder propertyBuilder,
       [CanBeNull] string typeName)      
@@ -51,7 +63,12 @@ namespace MySql.Data.EntityFrameworkCore.Extensions
       return propertyBuilder;
     }
 
-
+    /// <summary>
+    /// Defines a column default value
+    /// </summary>
+    /// <param name="propertyBuilder">Entity property to be set</param>
+    /// <param name="sql">Default value expression</param>
+    /// <returns></returns>
     public static PropertyBuilder ForMySQLHasDefaultValue(
             [NotNull] this PropertyBuilder propertyBuilder,
             [CanBeNull] string sql)
@@ -68,22 +85,5 @@ namespace MySql.Data.EntityFrameworkCore.Extensions
       return propertyBuilder;
 
     }
-
-    public static PropertyBuilder ForMySQLHasDefaultValueSql(
-            [NotNull] this PropertyBuilder propertyBuilder,
-            [CanBeNull] string sql)
-    {
-      ThrowIf.Argument.IsNull(propertyBuilder, "propertyBuilder");
-
-      if (sql != null && sql.Length == 0)
-        ThrowIf.Argument.IsEmpty(sql, "sql");
-
-      propertyBuilder.ValueGeneratedOnAdd();
-      //propertyBuilder.Metadata.MySQL().GeneratedValueSql = sql;
-
-      propertyBuilder.Metadata.MySQL().DefaultValueSql = sql;
-      return propertyBuilder;
-    }
   }
-
 }
