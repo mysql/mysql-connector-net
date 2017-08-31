@@ -76,8 +76,9 @@ namespace MySqlX.XDevAPI
     /// in URI format.</exception>
     /// <remarks>
     /// <para>When using Unix sockets the <c>protocol=unix</c> or <c>protocol=unixsocket</c> connection option is required.
-    /// This will enable elements passed in the <c>server</c> connection option to be treated as Unix sockets and will
-    /// automatically set the <c>sslmode</c> to <c>none</c>. Note that <c>protocol=unix</c> and <c>protocol=unixsocket</c> are synonyms.</para>
+    /// This will enable elements passed in the <c>server</c> connection option to be treated as Unix sockets. The user is also required
+    /// to explicitly set <c>sslmode</c> to <c>none</c> since X Plugin does not support SSL when using Unix sockets. Note that
+    /// <c>protocol=unix</c> and <c>protocol=unixsocket</c> are synonyms.</para>
     /// <para>&#160;</para>
     /// <para>Multiple hosts can be specified as part of the <paramref name="connectionString"/>,
     /// which will enable client side failover when trying to establish a connection.</para>
@@ -85,7 +86,7 @@ namespace MySqlX.XDevAPI
     /// <para>Connection string examples (in URI format):
     /// <para />- mysqlx://test:test@[192.1.10.10,localhost]
     /// <para />- mysqlx://test:test@[192.1.10.10,127.0.0.1]
-    /// <para />- mysqlx://root:@[../tmp/mysqlx.sock,/tmp/mysqld.sock]?protocol=unix
+    /// <para />- mysqlx://root:@[../tmp/mysqlx.sock,/tmp/mysqld.sock]?protocol=unix&sslmode=none
     /// <para />- mysqlx://test:test@[192.1.10.10:33060,127.0.0.1:33060]
     /// <para />- mysqlx://test:test@[192.1.10.10,120.0.0.2:22000,[::1]:33060]/test?connectiontimeout=10
     /// <para />- mysqlx://test:test@[(address=server.example,priority=20),(address=127.0.0.1,priority=100)]
@@ -95,7 +96,7 @@ namespace MySqlX.XDevAPI
     /// <para>Connection string examples (in basic format):
     /// <para />- server=10.10.10.10,localhost;port=33060;uid=test;password=test;
     /// <para />- host=10.10.10.10,192.101.10.2,localhost;port=5202;uid=test;password=test;
-    /// <para />- host=./tmp/mysqld.sock,/var/run/mysqldx.sock;port=5202;uid=root;protocol=unix;
+    /// <para />- host=./tmp/mysqld.sock,/var/run/mysqldx.sock;port=5202;uid=root;protocol=unix;sslmode=none;
     /// <para />- server=(address=server.example,priority=20),(address=127.0.0.1,priority=100);port=33060;uid=test;password=test;
     /// <para />- server=(address=server.example,priority=100),(address=127.0.0.1,priority=75),(address=192.0.10.56,priority=25);port=33060;uid=test;password=test;
     /// </para>

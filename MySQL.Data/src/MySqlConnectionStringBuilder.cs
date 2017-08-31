@@ -52,17 +52,14 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("protocol", "connection protocol, connectionprotocol", typeof(MySqlConnectionProtocol), MySqlConnectionProtocol.Sockets, false,
         (msb, sender, value) =>
         {
+#if NETCORE10
           MySqlConnectionProtocol enumValue;
           if (Enum.TryParse<MySqlConnectionProtocol>(value.ToString(), true, out enumValue))
           {
-#if NETCORE10
             if (enumValue == MySqlConnectionProtocol.Memory || enumValue == MySqlConnectionProtocol.Pipe)
               throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, $"Protocol={value}"));
-#endif
-            if (enumValue == MySqlConnectionProtocol.Unix)
-              msb.SetValue("Ssl Mode", MySqlSslMode.None);
           }
-
+#endif
           msb.SetValue("protocol", value);
         },
         (msb, sender) => msb.ConnectionProtocol));
