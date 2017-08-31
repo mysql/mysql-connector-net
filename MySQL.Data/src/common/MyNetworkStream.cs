@@ -1,4 +1,4 @@
-// Copyright © 2009, 2016 Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2009, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -185,6 +185,8 @@ namespace MySql.Data.Common
 
     public static MyNetworkStream CreateStream(MySqlConnectionStringBuilder settings, bool unix)
     {
+      if (unix) return new MyNetworkStream(StreamCreator.GetUnixSocket(settings), true);
+
       MyNetworkStream stream = null;
 
       IPHostEntry ipHE = GetHostEntry(settings.Server);
@@ -206,7 +208,6 @@ namespace MySql.Data.Common
       }
       return stream;
     }
-
 
     private static IPHostEntry ParseIPAddress(string hostname)
     {

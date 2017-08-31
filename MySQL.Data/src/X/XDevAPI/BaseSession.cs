@@ -70,17 +70,23 @@ namespace MySqlX.XDevAPI
     /// <summary>
     /// Initializes a new instance of the BaseSession class based on the specified connection string.
     /// </summary>
-    /// <param name="connectionString">The connection string of the session.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connectionString"/> is null.</exception>
+    /// <param name="connectionString">The connection used to create the session.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="connectionString"/> is <c>null</c>.</exception>
     /// <exception cref="UriFormatException">Unable to parse the <paramref name="connectionString"/> when 
     /// in URI format.</exception>
     /// <remarks>
-    /// <para>Multiple hosts can be specified as part of the <paramref name="connectionString"/> 
+    /// <para>When using Unix sockets the <c>protocol=unix</c> or <c>protocol=unixsocket</c> connection option is required.
+    /// This will enable elements passed in the <c>server</c> connection option to be treated as Unix sockets. The user is also required
+    /// to explicitly set <c>sslmode</c> to <c>none</c> since X Plugin does not support SSL when using Unix sockets. Note that
+    /// <c>protocol=unix</c> and <c>protocol=unixsocket</c> are synonyms.</para>
+    /// <para>&#160;</para>
+    /// <para>Multiple hosts can be specified as part of the <paramref name="connectionString"/>,
     /// which will enable client side failover when trying to establish a connection.</para>
     /// <para>&#160;</para>
     /// <para>Connection string examples (in URI format):
     /// <para />- mysqlx://test:test@[192.1.10.10,localhost]
     /// <para />- mysqlx://test:test@[192.1.10.10,127.0.0.1]
+    /// <para />- mysqlx://root:@[../tmp/mysqlx.sock,/tmp/mysqld.sock]?protocol=unix&sslmode=none
     /// <para />- mysqlx://test:test@[192.1.10.10:33060,127.0.0.1:33060]
     /// <para />- mysqlx://test:test@[192.1.10.10,120.0.0.2:22000,[::1]:33060]/test?connectiontimeout=10
     /// <para />- mysqlx://test:test@[(address=server.example,priority=20),(address=127.0.0.1,priority=100)]
@@ -90,6 +96,7 @@ namespace MySqlX.XDevAPI
     /// <para>Connection string examples (in basic format):
     /// <para />- server=10.10.10.10,localhost;port=33060;uid=test;password=test;
     /// <para />- host=10.10.10.10,192.101.10.2,localhost;port=5202;uid=test;password=test;
+    /// <para />- host=./tmp/mysqld.sock,/var/run/mysqldx.sock;port=5202;uid=root;protocol=unix;sslmode=none;
     /// <para />- server=(address=server.example,priority=20),(address=127.0.0.1,priority=100);port=33060;uid=test;password=test;
     /// <para />- server=(address=server.example,priority=100),(address=127.0.0.1,priority=75),(address=192.0.10.56,priority=25);port=33060;uid=test;password=test;
     /// </para>
@@ -130,7 +137,7 @@ namespace MySqlX.XDevAPI
     /// <summary>
     /// Initializes a new instance of the BaseSession class based on the specified anonymous type object.
     /// </summary>
-    /// <param name="connectionData">The connection data as an anonymous type of the session.</param>
+    /// <param name="connectionData">The connection data as an anonymous type used to create the session.</param>
     /// <exception cref="ArgumentNullException"><paramref name="connectionData"/> is null.</exception>
     /// <remarks>
     /// <para>Multiple hosts can be specified as part of the <paramref name="connectionData"/>, which will enable client-side failover when trying to
@@ -156,7 +163,10 @@ namespace MySqlX.XDevAPI
         Settings.SetValue(value.Key, value.Value);
         if (!hostsParsed && !string.IsNullOrEmpty(Settings["server"].ToString()))
         {
-          ParseHostList(value.Value.ToString(), false);
+          var server = value.Value.ToString();
+          if (IsUnixSocket(server))
+            Settings.SetValue(value.Key, server=NormalizeUnixSocket(server));
+          ParseHostList(server, false);
           if (FailoverManager.FailoverGroup != null) Settings["server"] = FailoverManager.FailoverGroup.ActiveHost.Host;
           hostsParsed = true;
         }
@@ -270,91 +280,170 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Parses the connection string. The format (basic/URI) of the connection string is determined as well as the 
-    /// prescence of multiple hosts.
+    /// Parses the connection string.
     /// </summary>
     /// <param name="connectionString">The connection string in basic or URI format.</param>
     /// <returns>An updated connection string in basic format.</returns>
+    /// <remarks>The format (basic or URI) of the connection string is determined as well as the
+    /// prescence of multiple hosts.</remarks>
     protected internal string ParseConnectionString(string connectionString)
     {
       FailoverManager.Reset();
 
       // Connection string is in URI format.
       if (Regex.IsMatch(connectionString, @"^mysqlx(\+\w+)?://.*", RegexOptions.IgnoreCase))
+        return ParseUriConnectionString(connectionString);
+      else
+        return ParseBasicConnectionString(connectionString);
+    }
+
+    /// <summary>
+    /// Parses a connection string in URI format.
+    /// </summary>
+    /// <param name="connectionString">The connection string to parse.</param>
+    /// <returns>A connection string in basic format.</returns>
+    private string ParseUriConnectionString(string connectionString)
+    {
+      Uri uri = null;
+      string updatedUriString = null;
+      bool parseServerAsUnixSocket = false;
+      string hierPart = null;
+      try
       {
-        Uri uri = null;
-        string updatedUriString = null;
-        try
+        uri = new Uri(connectionString);
+      }
+      catch (UriFormatException ex)
+      {
+        if (ex.Message != "Invalid URI: The hostname could not be parsed.")
+          throw ex;
+
+        // Identify if multiple hosts were specified.
+        string[] splitUriString = connectionString.Split('@','?');
+        if (splitUriString.Length==1) throw ex;
+
+        hierPart = splitUriString[1];
+        var schema = string.Empty;
+        parseServerAsUnixSocket = IsUnixSocket(hierPart);
+        bool isArray = hierPart.StartsWith("[") && hierPart.Contains("]");
+
+        // Remove schema.
+        if ((!parseServerAsUnixSocket && hierPart.Contains("/")) && !isArray ||
+          (parseServerAsUnixSocket && hierPart.Contains(")/")) ||
+          (hierPart.StartsWith("[") && hierPart.Contains("]/") && isArray))
         {
-          uri = new Uri(connectionString);
+          schema = hierPart.Substring(hierPart.LastIndexOf('/') + 1);
+          hierPart = hierPart.Substring(0, hierPart.Length - schema.Length - 1);
         }
-        catch (UriFormatException ex)
+
+        if (parseServerAsUnixSocket)
         {
-          if (ex.Message != "Invalid URI: The hostname could not be parsed.")
+          updatedUriString = splitUriString[0] + "@localhost" +
+            (schema != string.Empty ? "/" + schema : string.Empty) +
+            (splitUriString.Length>2 ? "?" + splitUriString[2] : string.Empty);
+        }
+        else if (isArray)
+        {
+          hierPart = hierPart.Substring(1, hierPart.Length-2);
+          int hostCount = ParseHostList(hierPart, true);
+          if (FailoverManager.FailoverGroup != null)
+          {
+            hierPart = FailoverManager.FailoverGroup.ActiveHost.Host;
+            parseServerAsUnixSocket = IsUnixSocket(FailoverManager.FailoverGroup.ActiveHost.Host);
+            updatedUriString = splitUriString[0] + "@" +
+              (parseServerAsUnixSocket ? "localhost" : hierPart) +
+              (FailoverManager.FailoverGroup.ActiveHost.Port != -1 ? ":" + FailoverManager.FailoverGroup.ActiveHost.Port : string.Empty) +
+              (schema != string.Empty ? "/" + schema : string.Empty) +
+              (splitUriString.Length == 3 ? "?" + splitUriString[2] : string.Empty);
+          }
+          else if (hostCount==1)
+            updatedUriString = splitUriString[0] + "@" + hierPart +
+              (schema != string.Empty ? "/" + schema : string.Empty) +
+              (splitUriString.Length==3 ? "?" + splitUriString[2] : string.Empty);
+          else
             throw ex;
-
-          // Identify if multiple hosts were specified.
-          string[] splitUriString = connectionString.Split('@','?');
-          if (splitUriString.Length==1) throw ex;
-
-          string[] hostsAndDb = splitUriString[1].Split('/');
-          if (hostsAndDb[0].StartsWith("[") && hostsAndDb[0].EndsWith("]"))
-          {
-            hostsAndDb[0] = hostsAndDb[0].Substring(1, hostsAndDb[0].Length-2);
-            int hostCount = ParseHostList(hostsAndDb[0], true);
-            if (FailoverManager.FailoverGroup != null)
-              updatedUriString = splitUriString[0] + "@" + FailoverManager.FailoverGroup.ActiveHost.Host +
-                (FailoverManager.FailoverGroup.ActiveHost.Port != -1 ? ":" + FailoverManager.FailoverGroup.ActiveHost.Port : string.Empty) +
-                (hostsAndDb.Length == 2 ? "/" + hostsAndDb[1] : string.Empty) +
-                (splitUriString.Length == 3 ? "?" + splitUriString[2] : string.Empty);
-            else if (hostCount==1)
-              updatedUriString = splitUriString[0] + "@" + hostsAndDb[0]  + (hostsAndDb.Length==2 ? hostsAndDb[1] : string.Empty) + (splitUriString.Length==3 ? "?" + splitUriString[2] : string.Empty); 
-            else
-              throw ex;
-          }
         }
-
-        if (uri==null)
-          uri = updatedUriString==null ? new Uri(connectionString) : new Uri(updatedUriString);
-
-        List<string> connectionParts = new List<string>();
-
-        if (string.IsNullOrWhiteSpace(uri.Host))
-          throw new UriFormatException(ResourcesX.InvalidUriData + "host");
-        connectionParts.Add("server=" + uri.Host);
-        connectionParts.Add("port=" + (uri.Port == -1 ? 33060 : uri.Port));
-
-        if (!string.IsNullOrWhiteSpace(uri.UserInfo))
-        {
-          string[] userData = uri.UserInfo.Split(':');
-          if (userData.Length > 2)
-            throw new UriFormatException(ResourcesX.InvalidUriData + "user info");
-          connectionParts.Add("uid=" + Uri.UnescapeDataString(userData[0]));
-          if (userData.Length > 1)
-            connectionParts.Add("password=" + Uri.UnescapeDataString(userData[1]));
-        }
-        if (uri.Segments.Length > 2)
-          throw new UriFormatException(ResourcesX.InvalidUriData + "segments");
-        if (uri.Segments.Length > 1)
-        {
-          connectionParts.Add("database=" + Uri.UnescapeDataString(uri.Segments[1]));
-        }
-        if (!string.IsNullOrWhiteSpace(uri.Query))
-        {
-          string[] queries = uri.Query.Substring(1).Split(new char[] { '&' }, StringSplitOptions.RemoveEmptyEntries);
-          foreach (string query in queries)
-          {
-            string[] keyValue = query.Split('=');
-            if (keyValue.Length > 2)
-              throw new ArgumentException(ResourcesX.InvalidUriQuery + ":" + keyValue[0]);
-            string part = Uri.UnescapeDataString(keyValue[0]) + "=" + (keyValue.Length == 2 ? keyValue[1] : "true");
-            connectionParts.Add(part);
-          }
-        }
-
-        return string.Join("; ", connectionParts);
       }
 
+      if (uri==null)
+        uri = updatedUriString==null ? new Uri(connectionString) : new Uri(updatedUriString);
+
+      return ConvertToBasicConnectionString(uri, hierPart, parseServerAsUnixSocket);
+    }
+
+    /// <summary>
+    /// Validates if the string provided is a Unix socket.
+    /// </summary>
+    /// <param name="unixSocket">The Unix socket to evaluate.</param>
+    /// <returns><c>true</c> if <paramref name="unixSocket"/> is a valid Unix socket; otherwise, <c>false</c>.</returns>
+    private bool IsUnixSocket(string unixSocket)
+    {
+      if (unixSocket.StartsWith(".") ||
+        unixSocket.StartsWith("/") ||
+        unixSocket.StartsWith("(.") ||
+        unixSocket.StartsWith("(/") ||
+        unixSocket.StartsWith("%2") ||
+        unixSocket.StartsWith("(%2"))
+        return true;
+
+      return false;
+    }
+
+    /// <summary>
+    /// Converts the URI object into a connection string in basic format.
+    /// </summary>
+    /// <param name="uri">An <see cref="Uri"/> instance with the values for the provided connection options.</param>
+    /// <param name="unixSocketPath">The path of the Unix socket.</param>
+    /// <param name="parseServerAsUnixSocket">if <c>true</c> the <paramref name="unixSocketPath"/> will replace the value for the server connection option; otherwise, <c>false</c></param>
+    /// <returns>A connection string in basic format.</returns>
+    private string ConvertToBasicConnectionString(Uri uri, string unixSocketPath, bool parseServerAsUnixSocket)
+    {
+      List<string> connectionParts = new List<string>();
+
+      if (string.IsNullOrWhiteSpace(uri.Host))
+        throw new UriFormatException(ResourcesX.InvalidUriData + "host");
+      connectionParts.Add("server=" + (parseServerAsUnixSocket ?
+        NormalizeUnixSocket(unixSocketPath) :
+        uri.Host));
+      connectionParts.Add("port=" + (uri.Port == -1 ? 33060 : uri.Port));
+
+      if (!string.IsNullOrWhiteSpace(uri.UserInfo))
+      {
+        string[] userData = uri.UserInfo.Split(':');
+        if (userData.Length > 2)
+          throw new UriFormatException(ResourcesX.InvalidUriData + "user info");
+        connectionParts.Add("uid=" + Uri.UnescapeDataString(userData[0]));
+        if (userData.Length > 1)
+          connectionParts.Add("password=" + Uri.UnescapeDataString(userData[1]));
+      }
+      if (uri.Segments.Length > 2)
+        throw new UriFormatException(ResourcesX.InvalidUriData + "segments");
+      if (uri.Segments.Length > 1)
+      {
+        connectionParts.Add("database=" + Uri.UnescapeDataString(uri.Segments[1]));
+      }
+      if (!string.IsNullOrWhiteSpace(uri.Query))
+      {
+        string[] queries = uri.Query.Substring(1).Split(new char[] { '&' }, StringSplitOptions.RemoveEmptyEntries);
+        foreach (string query in queries)
+        {
+          string[] keyValue = query.Split('=');
+          if (keyValue.Length > 2)
+            throw new ArgumentException(ResourcesX.InvalidUriQuery + ":" + keyValue[0]);
+          string part = Uri.UnescapeDataString(keyValue[0]) + "=" + (keyValue.Length == 2 ? keyValue[1] : "true");
+          connectionParts.Add(part);
+        }
+      }
+
+      return string.Join("; ", connectionParts);
+    }
+
+    /// <summary>
+    /// Parses a connection string in basic format.
+    /// </summary>
+    /// <param name="connectionString">The connection string to parse.</param>
+    /// <returns>The parsed connection string.</returns>
+    private string ParseBasicConnectionString(string connectionString)
+    {
       // Connection string is in basic format.
       string updatedConnectionString = string.Empty;
       string[] keyValuePairs = connectionString.Substring(0).Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
@@ -373,52 +462,60 @@ namespace MySqlX.XDevAPI
           continue;
         }
 
-        ParseHostList(value, false);
+        if (IsUnixSocket(value)) value = NormalizeUnixSocket(value);
+        if (ParseHostList(value, false) == 1  && FailoverManager.FailoverGroup == null)
+          updatedConnectionString = "server=" + value + ";" + updatedConnectionString;
       }
 
       if (FailoverManager.FailoverGroup == null)
-        return portProvided ? connectionString : connectionString + ";port=" + newDefaultPort;
+        return portProvided ? updatedConnectionString : updatedConnectionString + ";port=" + newDefaultPort;
 
-      return "server=" + FailoverManager.FailoverGroup.ActiveHost.Host + ";" + (!portProvided ? "port=" + newDefaultPort + ";" : string.Empty) + updatedConnectionString;
+      return "server=" +
+        FailoverManager.FailoverGroup.ActiveHost.Host + ";" +
+        (!portProvided ? "port=" + newDefaultPort + ";" : string.Empty) +
+        updatedConnectionString;
     }
 
     /// <summary>
     /// Initializes the <see cref="FailoverManager"/> if more than one host is found.
     /// </summary>
-    /// <param name="hostsSubstring">A string containing an unparsed host list.</param>
+    /// <param name="hierPart">A string containing an unparsed host list.</param>
     /// <param name="connectionStringIsInUriFormat">True if the connection string is in URI format, false otherwise.</param>
     /// <returns>The number of hosts found, -1 if an error was raised during parsing.</returns>
-    private int ParseHostList(string hostsSubstring, bool connectionStringIsInUriFormat)
+    private int ParseHostList(string hierPart, bool connectionStringIsInUriFormat)
     {
-      if (string.IsNullOrWhiteSpace(hostsSubstring)) return -1;
+      if (string.IsNullOrWhiteSpace(hierPart)) return -1;
 
       int hostCount = -1;
       FailoverMethod failoverMethod = FailoverMethod.Sequential;
       string[] hostArray = null;
       List<XServer> hostList = new List<XServer>();
-      hostsSubstring = hostsSubstring.Replace(" ","");
+      hierPart = hierPart.Replace(" ","");
 
-      // Sequential host list.
-      if (!hostsSubstring.StartsWith("(") && !hostsSubstring.EndsWith(")"))
+      if (!hierPart.StartsWith("(") && !hierPart.EndsWith(")"))
       {
-        hostArray = hostsSubstring.Split(',');
+        hostArray = hierPart.Split(',');
         foreach (var host in hostArray)
-          hostList.Add(this.ConvertToXServer(host, connectionStringIsInUriFormat));
+        {
+          if (IsUnixSocket(host)) hostList.Add(new XServer(NormalizeUnixSocket(host), -1, -1));
+          else hostList.Add(this.ConvertToXServer(host, connectionStringIsInUriFormat));
+        }
 
         if (hostArray.Length==1) return 1;
         hostCount = hostArray.Length;
       }
-      // Priority host list.
       else
       {
-        string[] groups = hostsSubstring.Split(new[] { '(', ')' }, StringSplitOptions.RemoveEmptyEntries);
+        string[] groups = hierPart.Split(new string[] { "),(" }, StringSplitOptions.RemoveEmptyEntries);
         bool? allHavePriority = null;
         int defaultPriority = 100;
         foreach (var group in groups)
         {
-          if (group==",") continue;
-
-          string[] items = group.Split(',');
+          // Remove leading parenthesis.
+          var normalizedGroup = group;
+          if (normalizedGroup.StartsWith("(")) normalizedGroup = group.Substring(1);
+          if (normalizedGroup.EndsWith(")")) normalizedGroup = normalizedGroup.Substring(0, group.Length-1);
+          string[] items = normalizedGroup.Split(',');
           string[] keyValuePairs = items[0].Split('=');
           if (keyValuePairs[0].ToLowerInvariant()!="address")
             throw new KeyNotFoundException(string.Format(ResourcesX.KeywordNotFound,"address"));
@@ -444,7 +541,7 @@ namespace MySqlX.XDevAPI
             if (priority<0 || priority>100)
               throw new ArgumentException(ResourcesX.PriorityOutOfLimits);
 
-            hostList.Add(ConvertToXServer(host, connectionStringIsInUriFormat, priority));
+            hostList.Add(ConvertToXServer(IsUnixSocket(host) ? NormalizeUnixSocket(host) : host, connectionStringIsInUriFormat, priority));
           }
           else
           {
@@ -501,6 +598,20 @@ namespace MySqlX.XDevAPI
       }
 
       return new XServer(host, port, priority);
+    }
+
+    /// <summary>
+    /// Normalizes the Unix socket by removing leading and ending parenthesis as well as removing special characters.
+    /// </summary>
+    /// <param name="unixSocket">The Unix socket to normalize.</param>
+    /// <returns>A normalized Unix socket.</returns>
+    private string NormalizeUnixSocket(string unixSocket)
+    {
+      unixSocket = unixSocket.Replace("%2F", "/");
+      if (unixSocket.StartsWith("(") && unixSocket.EndsWith(")"))
+        unixSocket = unixSocket.Substring(1, unixSocket.Length - 2);
+
+      return unixSocket;
     }
 
     #region IDisposable Support
