@@ -69,7 +69,7 @@
     <VendorName>Oracle</VendorName>
     <HelpFileVersion>1.0.0.0</HelpFileVersion>
     <MaximumGroupParts>10</MaximumGroupParts>
-    <NamespaceGrouping>True</NamespaceGrouping>
+    <NamespaceGrouping>False</NamespaceGrouping>
     <SyntaxFilters>Standard</SyntaxFilters>
     <SdkLinkTarget>Blank</SdkLinkTarget>
     <Preliminary>False</Preliminary>

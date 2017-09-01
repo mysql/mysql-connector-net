@@ -86,7 +86,7 @@ namespace MySqlX.XDevAPI
     /// <para>Connection string examples (in URI format):
     /// <para />- mysqlx://test:test@[192.1.10.10,localhost]
     /// <para />- mysqlx://test:test@[192.1.10.10,127.0.0.1]
-    /// <para />- mysqlx://root:@[../tmp/mysqlx.sock,/tmp/mysqld.sock]?protocol=unix&sslmode=none
+    /// <para />- mysqlx://root:@[../tmp/mysqlx.sock,/tmp/mysqld.sock]?protocol=unix&#38;sslmode=none
     /// <para />- mysqlx://test:test@[192.1.10.10:33060,127.0.0.1:33060]
     /// <para />- mysqlx://test:test@[192.1.10.10,120.0.0.2:22000,[::1]:33060]/test?connectiontimeout=10
     /// <para />- mysqlx://test:test@[(address=server.example,priority=20),(address=127.0.0.1,priority=100)]
