@@ -10,6 +10,10 @@
 - MySqlX: Added ReplaceOne(), AddOrReplaceOne(), GetOne() and RemoveOne() direct-execute methods to collections
   (WL10949).
 - MySqlX: Added support for Unix sockets (WL10201).
+- MySQLX: Added support to connect to the server using an account that authenticates with the sha256_password
+  plugin. Added the auth connection option for specifying the authentication mechanism to be used. Set PLAIN as
+  the default authentication mechanism whenever TLS is enabled or Unix sockets are being used (WL10595).
+- Added support to connect to the server using an account that authenticates with the sha256_password plugin. (WL10595).
 - Added support for Unix sockets in dotnet core (WL10613)
 - EF Core: Added async support (WL10615).
 - Removed connection string options 'autoenlist' and 'includesecurityasserts' for Dotnet core (WL10564).

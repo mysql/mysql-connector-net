@@ -1,4 +1,4 @@
-// Copyright � 2004, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -415,6 +415,29 @@ namespace MySql.Data.MySqlClient
     /// User certificate store for the machine
     /// </summary>
     LocalMachine
+  }
+
+  /// <summary>
+  /// Specifies the authentication mechanism that should be used.
+  /// </summary>
+  public enum MySqlAuthenticationMode
+  {
+    /// <summary>
+    /// If SSL is enabled or Unix sockets are being used, sets PLAIN as the authentication mechanism; otherwise, uses MYSQL41.
+    /// </summary>
+    Default = 0,
+    /// <summary>
+    /// Authenticate using PLAIN.
+    /// </summary>
+    PLAIN = 1,
+    /// <summary>
+    /// Authenticate using MYSQL41.
+    /// </summary>
+    MYSQL41 = 2,
+    /// <summary>
+    /// Authenticate using EXTERNAL.
+    /// </summary>
+    EXTERNAL = 3
   }
 
   internal class MySqlConnectAttrs

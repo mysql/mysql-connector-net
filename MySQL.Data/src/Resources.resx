@@ -553,4 +553,7 @@
   <data name="ParameterNullOrEmpty" xml:space="preserve">
     <value>Parameter can't be null or empty.</value>
   </data>
+  <data name="UnableToReadRSAKey" xml:space="preserve">
+    <value>Error encountered reading the RSA public key.</value>
+  </data>
 </root>

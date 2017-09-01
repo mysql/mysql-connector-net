@@ -201,5 +201,35 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.ConnectionProtocol = MySqlConnectionProtocol.NamedPipe);
     }
 #endif
+
+    [Fact]
+    public void IncorrectAuthOptionThrowsArgumentException()
+    {
+      string[] values = { "OTHER", "Other", "MYSQL42", "PlaINs" };
+      foreach (var value in values)
+      {
+        Exception ex = Assert.Throws<ArgumentException>(() => new MySqlConnectionStringBuilder(String.Format("server=localhost;aUth={0}", value)));
+        Assert.Equal(String.Format("Value '{0}' is not of the correct type.", value), ex.Message);
+      }
+    }
+
+    [Fact]
+    public void CaseInsensitiveAuthOption()
+    {
+      string[,] values = new string[,] {
+        { "PLAIN", "plain", "PLAin", "PlaIn" },
+        { "MYSQL41", "MySQL41", "mysql41", "mYSqL41" },
+        { "EXTERNAL", "external", "exterNAL", "eXtERNal" }
+      };
+
+      for (int i = 0; i < values.GetLength(0); i++)
+      {
+        for (int j = 0; j < values.GetLength(1); j++)
+        {
+          MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(String.Format("server=localhost;auth={0}", values[i, j]));
+          Assert.Equal((MySqlAuthenticationMode)(i + 1), builder.Auth);
+        }
+      }
+    }
   }
 }

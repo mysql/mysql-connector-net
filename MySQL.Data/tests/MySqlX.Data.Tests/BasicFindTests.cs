@@ -497,6 +497,8 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void InOperatorWithListOfValues()
     {
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+
       // Validates the IN operator allows expressions of the type
       // ( compExpr ["NOT"] "IN" "(" argsList ")" ) | ( compExpr ["NOT"] "IN" "[" argsList "]" )
       Collection coll = CreateCollection("test");
@@ -551,6 +553,8 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void InOperatorWithCompExpr()
     {
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+
       // Validates the IN operator allows expressions of the type: compExpr ["NOT"] "IN" compExpr
       Collection coll = CreateCollection("test");
       var docString = "{ \"a\": 1, \"b\": \"foo\", \"c\": { \"d\": true, \"e\": [1,2,3] }, \"f\": [ {\"x\":5}, {\"x\":7 } ] }";
@@ -587,6 +591,8 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void InOperatorWithJsonArrays()
     {
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+
       Collection coll = CreateCollection("test");
       var docString = "{ \"_id\": \"1001\", \"ARR\":[1,2,3], \"ARR1\":[\"name\", \"name2\", \"name3\"]}";
       coll.Add(new DbDoc(docString)).Execute();

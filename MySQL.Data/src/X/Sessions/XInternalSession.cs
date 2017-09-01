@@ -38,6 +38,7 @@ using MySqlX.Security;
 using MySqlX;
 using System.Linq;
 using MySql.Data;
+using MySql.Data.MySqlClient.Authentication;
 
 namespace MySqlX.Sessions
 {
@@ -96,7 +97,37 @@ namespace MySqlX.Sessions
         }
       }
 
-      Authenticate();
+      // Default authentication
+      if (Settings.Auth == MySqlAuthenticationMode.Default)
+      {
+        if ((Settings.SslMode != MySqlSslMode.None && serverSupportsTls) || Settings.ConnectionProtocol == MySqlConnectionProtocol.Unix)
+        {
+          Settings.Auth = MySqlAuthenticationMode.PLAIN;
+          AuthenticatePlain();
+        }
+        else
+        {
+          Settings.Auth = MySqlAuthenticationMode.MYSQL41;
+          AuthenticateMySQL41();
+        }
+      }
+      // User defined authentication
+      else
+      {
+        switch (Settings.Auth)
+        {
+          case MySqlAuthenticationMode.PLAIN:
+            AuthenticatePlain();
+            break;
+          case MySqlAuthenticationMode.MYSQL41:
+            AuthenticateMySQL41();
+            break;
+          case MySqlAuthenticationMode.EXTERNAL:
+            AuthenticateExternal();
+            break;
+        }
+      }
+
       SetState(SessionState.Open, false);
     }
 
@@ -119,13 +150,25 @@ namespace MySqlX.Sessions
       protocol.SetCapabilities(clientCapabilities);
     }
 
-    private void Authenticate()
+    private void AuthenticateMySQL41()
     {
-      // do the authentication
       MySQL41AuthenticationPlugin plugin = new MySQL41AuthenticationPlugin(Settings);
-      protocol.SendAuthStart(plugin.AuthName);
+      protocol.SendAuthStart(plugin.AuthName, null, null);
       byte[] extraData = protocol.ReadAuthContinue();
       protocol.SendAuthContinue(plugin.Continue(extraData));
+      protocol.ReadAuthOk();
+    }
+
+    private void AuthenticatePlain()
+    {
+      PlainAuthenticationPlugin plugin = new PlainAuthenticationPlugin(Settings);
+      protocol.SendAuthStart(plugin.AuthName, plugin.GetAuthData(), null);
+      protocol.ReadAuthOk();
+    }
+
+    private void AuthenticateExternal()
+    {
+      protocol.SendAuthStart("EXTERNAL", Encoding.UTF8.GetBytes(""), null);
       protocol.ReadAuthOk();
     }
 

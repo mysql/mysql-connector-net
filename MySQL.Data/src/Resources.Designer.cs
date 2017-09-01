@@ -1333,6 +1333,15 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error encountered reading the RSA public key..
+        /// </summary>
+        public static string UnableToReadRSAKey {
+            get {
+                return ResourceManager.GetString("UnableToReadRSAKey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to retrieve stored procedure metadata for routine &apos;{0}&apos;.  Either grant  SELECT privilege to mysql.proc for this user or use &quot;check parameters=false&quot; with  your connection string..
         /// </summary>
         public static string UnableToRetrieveParameters {

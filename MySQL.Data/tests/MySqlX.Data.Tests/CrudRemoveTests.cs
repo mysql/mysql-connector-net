@@ -172,6 +172,8 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void RemoveWithInOperator()
     {
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+
       Collection collection = CreateCollection("test");
       var docs = new[]
       {

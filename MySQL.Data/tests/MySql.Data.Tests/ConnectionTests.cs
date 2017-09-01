@@ -839,5 +839,97 @@ namespace MySql.Data.MySqlClient.Tests
       ex = Assert.Throws<ArgumentException>(() => new MySqlConnection(cstrBuilder.ConnectionString + ";sslmode=None;ssl-ca=../MySql.Data.Tests/client.pfx"));
       Assert.Equal(Resources.InvalidOptionWhenSslDisabled, ex.Message);
     }
+
+    [Fact]
+    public void ConnectUsingSha256PasswordPlugin()
+    {
+      if (Fixture.Version <= new Version("5.6")) return;
+
+      string userName = "testSha256";
+      string password = "mysql";
+      string pluginName = "sha256_password";
+      MySqlConnectionStringBuilder Settings = new MySqlConnectionStringBuilder(Fixture.Settings.ConnectionString); 
+      Settings.UserID = userName;
+      Settings.Password = password;
+      Fixture.CreateUser(userName, password, pluginName);
+
+      // User with password over TLS connection.
+      using (MySqlConnection connection = new MySqlConnection(Settings.ConnectionString))
+      {
+        connection.Open();
+        MySqlCommand command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Ssl_version';", connection);
+        using (MySqlDataReader reader = command.ExecuteReader())
+        {
+          Assert.True(reader.Read());
+          Assert.StartsWith("TLSv1", reader.GetString(1));
+        }
+
+        command.CommandText = String.Format("SELECT `User`, `plugin` FROM `mysql`.`user` WHERE `User` = '{0}';", userName);
+        using (MySqlDataReader reader = command.ExecuteReader())
+        {
+          Assert.True(reader.Read());
+          Assert.Equal(userName, reader.GetString(0));
+          Assert.Equal(pluginName, reader.GetString(1));
+        }
+
+        connection.Close();
+      }
+
+      // Connect over non-TLS connection. Only available in servers compiled with OpenSSL (E.g. Commercial)
+      bool serverCompiledUsingOpenSsl = false;
+      using (MySqlConnection connection = new MySqlConnection(Settings.ConnectionString))
+      {
+        MySqlCommand command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Rsa_public_key';", Connection);
+      
+        using (MySqlDataReader reader = command.ExecuteReader())
+        {
+          serverCompiledUsingOpenSsl = reader.HasRows;
+        }
+      }
+
+      Settings.SslMode = MySqlSslMode.None;
+      using (MySqlConnection connection = new MySqlConnection(Settings.ConnectionString))
+      {
+        if (serverCompiledUsingOpenSsl)
+        {
+          connection.Open();
+          connection.Close();
+        }
+        else Assert.Throws<MySqlException>(() => connection.Open());
+      }
+
+      // User without password over TLS connection.
+      password = "";
+      Settings.Password = password;
+      Fixture.CreateUser(userName, password, pluginName);
+      Settings.SslMode = MySqlSslMode.Required;
+      using (MySqlConnection connection = new MySqlConnection(Settings.ConnectionString))
+      {
+        connection.Open();
+        MySqlCommand command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Ssl_version';", connection);
+        using (MySqlDataReader reader = command.ExecuteReader())
+        {
+          Assert.True(reader.Read());
+          Assert.StartsWith("TLSv1", reader.GetString(1));
+        }
+
+        command.CommandText = String.Format("SELECT `User`, `plugin` FROM `mysql`.`user` WHERE `User` = '{0}';", userName);
+        using (MySqlDataReader reader = command.ExecuteReader())
+        {
+          Assert.True(reader.Read());
+          Assert.Equal(userName, reader.GetString(0));
+          Assert.Equal(pluginName, reader.GetString(1));
+        }
+
+        connection.Close();
+      }
+    }
+
+    [Fact]
+    public void UsingAuthOptionFailsForClassicProtocol()
+    {
+      Exception ex = Assert.Throws<NotSupportedException>(() => new MySqlConnection(Fixture.Settings.ConnectionString + ";auth=PLAIN"));
+      Assert.Equal("The option 'Auth' is not currently supported.", ex.Message);
+    }
   }
 }

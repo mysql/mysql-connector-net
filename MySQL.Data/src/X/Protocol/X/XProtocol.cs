@@ -63,10 +63,12 @@ namespace MySqlX.Protocol
 
     #region Authentication
 
-    public void SendAuthStart(string method)
+    public void SendAuthStart(string method, byte[] authData, byte[] initialResponse)
     {
       AuthenticateStart authStart = new AuthenticateStart();
       authStart.MechName = method;
+      if (authData != null) authStart.AuthData = (ByteString.CopyFrom(authData));
+      if (initialResponse != null) authStart.InitialResponse = (ByteString.CopyFrom(initialResponse));
       _writer.Write(ClientMessageId.SESS_AUTHENTICATE_START, authStart);
     }
 
