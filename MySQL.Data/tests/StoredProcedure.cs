@@ -35,6 +35,7 @@ namespace MySql.Data.MySqlClient.Tests
   {
     public StoredProcedure(TestFixture fixture) : base(fixture)
     {
+      Cleanup();
     }
 
     public override void Cleanup()

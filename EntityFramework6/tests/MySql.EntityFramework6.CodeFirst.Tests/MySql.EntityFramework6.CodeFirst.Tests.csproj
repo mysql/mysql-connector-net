@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <Description>MySql.Data.EF6.CodeFirst.Tests</Description>
-    <Copyright>Copyright &#169; 2016, 2017, Oracle and/or its affiliates. All rights reserved.</Copyright>
+    <Copyright>Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>6.10.2-beta</Version>
+    <Version>6.10.3-rc</Version>
     <Authors>Oracle</Authors>
     <TargetFramework>net452</TargetFramework>
     <AssemblyName>MySql.EntityFramework6.CodeFirst.Tests</AssemblyName>

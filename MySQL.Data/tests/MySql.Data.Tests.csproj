@@ -3,8 +3,8 @@
   <PropertyGroup>
     <Title>MySql.Data.Tests</Title>
     <Description>MySql.Data.Tests Class Library</Description>
-    <Copyright>Copyright &#169; 2016, 2017, Oracle and/or its affiliates. All rights reserved.</Copyright>
-    <Version>6.10.2-beta</Version>
+    <Copyright>Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.</Copyright>
+    <Version>6.10.3-rc</Version>
     <Authors>Oracle</Authors>
     <Company>Oracle</Company>
     <Product>MySql.Data.Tests</Product>

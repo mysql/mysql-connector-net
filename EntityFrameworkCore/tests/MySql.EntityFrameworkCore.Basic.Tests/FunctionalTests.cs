@@ -166,7 +166,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       {
         context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
-        context.Countries.Add(new Countries()
+        context.Countries.Add(new Country()
         {
           Code = "1",
           Name = "London"

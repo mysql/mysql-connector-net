@@ -203,26 +203,26 @@ CREATE DATABASE sakilaIndex;
             });
 
             Assert.Collection(indexes,
-                unique =>
+                composite =>
                 {
-                    Assert.True(unique.IsUnique);
-                    Assert.Equal("actor_id", unique.IndexColumns.Single().Column.Name);
+                  Assert.Equal("idx_actor_first_last_name", composite.Name);
+                  Assert.False(composite.IsUnique);
+                  Assert.Equal(new List<string> { "first_name", "last_name" }, composite.IndexColumns.Select(c => c.Column.Name).ToList());
                 },
                 onecolumn =>
                 {
-                    Assert.True(onecolumn.IsUnique);
-                    Assert.Equal("last_name", onecolumn.IndexColumns.Single().Column.Name);
+                  Assert.Equal("last_name", onecolumn.IndexColumns.Single().Column.Name);
+                  Assert.True(onecolumn.IsUnique);
                 },
-                composite =>
+                unique =>
                 {
-                    Assert.Equal("idx_actor_first_last_name", composite.Name);
-                    Assert.False(composite.IsUnique);
-                    Assert.Equal(new List<string> { "first_name", "last_name" }, composite.IndexColumns.Select(c => c.Column.Name).ToList());
+                  Assert.Equal("actor_id", unique.IndexColumns.Single().Column.Name);
+                  Assert.True(unique.IsUnique);
                 });
-        }
+    }
 
 
-        [Fact]
+    [Fact]
         public void CanCreateModelForWorldDB()
         {
             Assembly executingAssembly = typeof(MySQLDatabaseModelFixture).GetTypeInfo().Assembly;

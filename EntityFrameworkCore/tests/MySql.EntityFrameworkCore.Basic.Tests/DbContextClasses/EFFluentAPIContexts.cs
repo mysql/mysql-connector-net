@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -82,11 +82,16 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-      modelBuilder.Entity<Car>()
-          .ToTable("somecars");
+      modelBuilder.Entity<Car>(e =>
+      {
+        e.ToTable("somecars");
 
-      modelBuilder.Entity<Car>()
-               .HasKey(c => new { c.State, c.LicensePlate });
+        e.Property(p => p.LicensePlate).HasColumnType("VARCHAR(384)");
+
+        e.Property(p => p.State).HasColumnType("VARCHAR(384)");
+
+        e.HasKey(c => new { c.State, c.LicensePlate });
+      });
 
 
       modelBuilder.Entity<RecordOfSale>()

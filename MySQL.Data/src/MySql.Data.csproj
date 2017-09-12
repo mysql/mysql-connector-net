@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <Description>MySql.Data.MySqlClient .Net Core Class Library</Description>
-    <Copyright>Copyright &#169; 2016, 2017, Oracle and/or its affiliates. All rights reserved.</Copyright>
+    <Copyright>Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>6.10.2-beta</Version>
+    <Version>6.10.3-rc</Version>
     <Authors>Oracle</Authors>
     <AssemblyName>MySql.Data</AssemblyName>
     <TargetFrameworks>netstandard1.3;net452</TargetFrameworks>
@@ -24,7 +24,6 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
     <GenerateNeutralResourcesLanguageAttribute>false</GenerateNeutralResourcesLanguageAttribute>
-    <DocumentationFile>MySql.Data.xml</DocumentationFile>
     <SignAssembly>True</SignAssembly>
     <DelaySign>True</DelaySign>
     <AssemblyOriginatorKeyFile>..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>

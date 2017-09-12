@@ -1,4 +1,4 @@
-﻿// Copyright © 2012, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2012, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -38,6 +38,7 @@ namespace MySql.Data.MySqlClient.Authentication
     {
       Plugins["mysql_native_password"] = new PluginInfo("MySql.Data.MySqlClient.Authentication.MySqlNativePasswordPlugin");
       Plugins["sha256_password"] = new PluginInfo("MySql.Data.MySqlClient.Authentication.Sha256AuthenticationPlugin");
+      Plugins["authentication_windows_client"] = new PluginInfo("MySql.Data.MySqlClient.Authentication.MySqlWindowsAuthenticationPlugin");
 
       AuthenticationManagerCtorConfiguration();
     }

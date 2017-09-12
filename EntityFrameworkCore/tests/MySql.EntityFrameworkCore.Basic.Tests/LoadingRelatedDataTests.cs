@@ -198,7 +198,10 @@ namespace MySql.Data.EntityFrameworkCore.Tests
             reader.Read();
             jsonTableDesc = reader.GetString(1);
           }
-          Assert.Equal("CREATE TABLE `jsonentity` (\n  `Id` smallint(6) NOT NULL AUTO_INCREMENT,\n  `jsoncol` json DEFAULT NULL,\n  PRIMARY KEY (`Id`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin1", jsonTableDesc
+          string charset = "latin1";
+          if (conn.driver.Version.isAtLeast(8, 0, 1))
+            charset = "utf8mb4";
+          Assert.Equal($"CREATE TABLE `jsonentity` (\n  `Id` smallint(6) NOT NULL AUTO_INCREMENT,\n  `jsoncol` json DEFAULT NULL,\n  PRIMARY KEY (`Id`)\n) ENGINE=InnoDB DEFAULT CHARSET={charset}", jsonTableDesc
             , ignoreCase: true, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
         }
 
@@ -253,6 +256,42 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         context.SaveChanges();
         Assert.Equal(75, data[0].Area);
         Assert.Equal(50, data[1].Area);
+      }
+    }
+
+    [Fact]
+    public void ExplicitLoading()
+    {
+      using (var context = new WorldContext())
+      {
+        context.PopulateData();
+        var america = context.Continents.Single(c => c.Code == "AM");
+        Assert.Null(america.Countries);
+        context.Entry(america)
+          .Collection(c => c.Countries)
+          .Load();
+        Assert.Equal(5, america.Countries.Count);
+        Assert.Equal("United States", america.Countries.Single(c => c.Code == "US").Name);
+      }
+    }
+
+    [Fact]
+    public void ExplicitLoadingQueryingRelatedEntitites()
+    {
+      using (var context = new WorldContext())
+      {
+        context.PopulateData();
+        var asia = context.Continents.Single(c => c.Code == "AS");
+        Assert.Null(asia.Countries);
+        var list = context.Entry(asia)
+          .Collection(c => c.Countries)
+          .Query()
+          .Where(c => c.Name.Contains("i"))
+          .ToList();
+        Assert.Equal(2, asia.Countries.Count);
+        Assert.Equal(2, list.Count);
+        Assert.Equal("China", list.Single(c => c.Code == "CN").Name);
+        Assert.Equal("India", list.Single(c => c.Code == "IN").Name);
       }
     }
 

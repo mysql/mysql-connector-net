@@ -22,6 +22,7 @@
 
 
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,6 +35,7 @@ using MySql.Data.MySqlClient;
 using System.Data;
 using Microsoft.EntityFrameworkCore.Migrations;
 using MySQL.Data.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace MySql.Data.EntityFrameworkCore.Design.Internal
 {
@@ -49,6 +51,7 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
     static string TableKey(TableModel table) => TableKey(table.Name, table.SchemaName);
     static string TableKey(string name, string schema) => $"\"{schema}\".\"{name}\"";
     static string ColumnKey(TableModel table, string columnName) => TableKey(table) + ".[" + columnName + "]";
+    string _schemaList = "''";
 
     public MySQLDatabaseModelFactory(ILogger<MySQLDatabaseModelFactory> logger)
     {
@@ -96,6 +99,10 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
       try
       {
         _tableSelectionSet = tableSelectionSet;
+        if (tableSelectionSet.Schemas.Count == 0)
+          _schemaList = $"'{_connection.Database}'";
+        else
+          _schemaList = tableSelectionSet.Schemas.Select(c => $"'{c.Text}'").Join(", ");
         _databaseModel.DatabaseName = _connection.Database;
         GetTables();
         GetColumns();
@@ -116,10 +123,24 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
     {
       var command = _connection.CreateCommand();
       var dbName = _connection.Database;
-      command.CommandText = "select kc.constraint_name, kc.table_schema, kc.table_name, kc.column_name, kc.referenced_table_schema, kc.referenced_table_name, " +
-                              " kc.referenced_column_name, kc.ordinal_position, rc.update_rule, rc.delete_rule from information_schema.key_column_usage as kc inner join " +
-                              " information_schema.referential_constraints as rc on kc.constraint_name = rc.constraint_name where kc.referenced_table_name is not null and  kc.table_schema like '" + dbName + "' " +
-                              " and kc.table_name not like '__ef%'";
+      command.CommandText = $@"SELECT 
+  kc.constraint_name, 
+  kc.table_schema, 
+  kc.table_name, 
+  kc.column_name, 
+  kc.referenced_table_schema, 
+  kc.referenced_table_name, 
+  kc.referenced_column_name, 
+  kc.ordinal_position, 
+  rc.update_rule, 
+  rc.delete_rule 
+FROM information_schema.key_column_usage as kc 
+INNER JOIN information_schema.referential_constraints as rc 
+ON kc.constraint_name = rc.constraint_name 
+WHERE kc.referenced_table_name IS NOT NULL 
+  AND kc.table_schema IN ({_schemaList})
+  AND kc.table_name <> '{HistoryRepository.DefaultTableName}'";
+
       using (var reader = command.ExecuteReader())
       {
         ForeignKeyModel fkModel = null;
@@ -134,7 +155,7 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
           var referencedColumnName = reader.GetValueOrDefault<string>("referenced_column_name");
           var updateRule = reader.GetValueOrDefault<string>("update_rule");
           var deleteRule = reader.GetValueOrDefault<string>("delete_rule");
-          var ordinal = reader.GetValueOrDefault<Int64>("ordinal_position");
+          var ordinal = reader.GetInt32("ordinal_position");
 
           if (string.IsNullOrEmpty(constraintName))
           {
@@ -246,9 +267,22 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
     {
       var command = _connection.CreateCommand();
       var dbName = _connection.Database;
-      command.CommandText = "Select distinct s.table_schema, s.table_name, non_unique, index_name, column_name, seq_in_index, t.constraint_type from information_schema.statistics s left outer join information_schema.table_constraints t " +
-                            "on t.table_schema=s.table_schema and t.table_name=s.table_name and s.index_name=t.constraint_name where s.table_schema like '" + dbName + "' " +
-                            "and s.table_name not like '__ef%'";
+      command.CommandText = $@"SELECT DISTINCT 
+  s.table_schema, 
+  s.table_name, 
+  s.non_unique, 
+  s.index_name, 
+  s.column_name, 
+  s.seq_in_index, 
+  t.constraint_type 
+FROM information_schema.statistics s 
+LEFT OUTER JOIN information_schema.table_constraints t 
+ON t.table_schema=s.table_schema 
+  AND t.table_name=s.table_name 
+  AND s.index_name=t.constraint_name 
+WHERE s.table_schema IN ({_schemaList}) 
+  AND s.table_name <> '{HistoryRepository.DefaultTableName}'
+ORDER BY s.index_name, s.seq_in_index";
 
       using (var reader = command.ExecuteReader())
       {
@@ -258,9 +292,9 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
           var tableSchema = reader.GetValueOrDefault<string>("table_schema");
           var tableName = reader.GetValueOrDefault<string>("table_name");
           var indexName = reader.GetValueOrDefault<string>("index_name");
-          var isUnique = reader.GetValueOrDefault<Int64>("non_unique") == 0 ? true : false;
+          var isUnique = reader.GetInt32("non_unique") == 0 ? true : false;
           var columnName = reader.GetValueOrDefault<string>("column_name");
-          var indexOrdinal = reader.GetValueOrDefault<Int64>("seq_in_index");
+          var indexOrdinal = reader.GetInt32("seq_in_index");
 
           if (!_tableSelectionSet.Allows(tableSchema, tableName))
           {
@@ -270,7 +304,7 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
 
           if (string.IsNullOrEmpty(indexName))
           {
-            Logger.LogWarning("Index unnamed warning", new string[] { tableSchema, tableName });
+            Logger.LogWarning("Index unnamed", new string[] { tableSchema, tableName });
             continue;
           }
 
@@ -279,7 +313,7 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
             TableModel table = null;
             if (!_tables.TryGetValue(TableKey(tableName, tableSchema), out table))
             {
-              Logger.LogWarning("Index table missing warning", new string[] { indexName, tableSchema, tableName });
+              Logger.LogWarning("Index table missing", new string[] { indexName, tableSchema, tableName });
               continue;
             }
 
@@ -296,11 +330,11 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
           ColumnModel column;
           if (string.IsNullOrEmpty(columnName))
           {
-            Logger.LogWarning("Index column must be named warning", new string[] { tableSchema, tableName, indexName });
+            Logger.LogWarning("Index column must be named", new string[] { tableSchema, tableName, indexName });
           }
           else if (!_tableColumns.TryGetValue(ColumnKey(index.Table, columnName), out column))
           {
-            Logger.LogWarning("Index columns not mapped warning", new string[] { indexName, columnName, tableSchema, tableName });
+            Logger.LogWarning("Index columns not mapped", new string[] { indexName, columnName, tableSchema, tableName });
           }
           else
           {
@@ -320,7 +354,13 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
     {
       var command = _connection.CreateCommand();
       var dbName = _connection.Database;
-      command.CommandText = "SELECT * FROM INFORMATION_SCHEMA.TABLES where table_schema like '" + dbName + "' and table_type like '%base%' and table_name not like '__ef%';";
+      command.CommandText = $@"SELECT * 
+FROM information_schema.tables 
+WHERE table_schema IN ({_schemaList}) 
+  AND table_type LIKE '%BASE%' 
+  AND table_name <> '{HistoryRepository.DefaultTableName}'
+ORDER BY table_schema, table_name";
+
       using (var reader = command.ExecuteReader())
       {
         while (reader.Read())
@@ -335,10 +375,11 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
           {
             _databaseModel.Tables.Add(table);
             _tables[TableKey(table)] = table;
+            Logger.LogDebug(RelationalDesignEventId.FoundTable, () => $"Found table: {table.SchemaName}.{table.Name}");
           }
           else
           {
-            Logger.LogDebug("Table skipped", new string[] { table.SchemaName, table.Name });
+            Logger.LogDebug(RelationalDesignEventId.TableSkipped, () => $"Skipped table: {table.SchemaName}.{table.Name}");
           }
 
         }
@@ -354,36 +395,59 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
         generation_expression = "generation_expression";
       else
         generation_expression = "NULL";
-      command.CommandText = " SELECT c.table_schema, c.table_name, c.column_name, is_nullable, column_type, column_key, " +
-                            $" c.ordinal_position, column_default, {generation_expression} as generation_expression, numeric_precision, " +
-                            " numeric_scale, character_maximum_length, constraint_name, k.ordinal_position as primarykeyordinal " +
-                            " FROM(INFORMATION_SCHEMA.tables t INNER JOIN information_schema.columns c ON t.table_schema = c.table_schema AND t.table_name = c.table_name) " +
-                            " LEFT JOIN information_schema.KEY_COLUMN_USAGE k ON(k.TABLE_SCHEMA = c.TABLE_SCHEMA AND k.TABLE_NAME = c.TABLE_NAME AND k.COLUMN_NAME = c.COLUMN_NAME AND k.CONSTRAINT_NAME = 'PRIMARY') " +
-                            " WHERE t.table_type LIKE 'BASE TABLE' AND t.table_schema like '" + dbName + "'" +
-                            " ORDER BY c.table_name, c.ordinal_position;";
+      command.CommandText = $@"SELECT 
+  c.table_schema, 
+  c.table_name, 
+  c.column_name, 
+  is_nullable, 
+  column_type, 
+  column_key, 
+  c.ordinal_position, 
+  column_default, 
+  {generation_expression} as generation_expression, 
+  numeric_precision, 
+  numeric_scale, 
+  character_maximum_length, 
+  constraint_name, 
+  k.ordinal_position as primarykeyordinal 
+FROM (information_schema.tables t 
+  INNER JOIN information_schema.columns c 
+  ON t.table_schema = c.table_schema 
+    AND t.table_name = c.table_name) 
+LEFT JOIN information_schema.key_column_usage k 
+ON (k.TABLE_SCHEMA = c.TABLE_SCHEMA 
+  AND k.TABLE_NAME = c.TABLE_NAME 
+  AND k.COLUMN_NAME = c.COLUMN_NAME 
+  AND k.CONSTRAINT_NAME = 'PRIMARY') 
+WHERE t.table_type = 'BASE TABLE' 
+  AND t.table_schema IN ({_schemaList}) 
+ORDER BY c.table_name, 
+  c.ordinal_position;";
+
       using (var reader = command.ExecuteReader())
       {
         while (reader.Read())
         {
           var tableSchema = reader.GetValueOrDefault<string>("table_schema");
           var tableName = reader.GetValueOrDefault<string>("table_name");
+          var columnName = reader.GetValueOrDefault<string>("column_name");
 
           if (!_tableSelectionSet.Allows(tableSchema, tableName))
           {
+            Logger.LogDebug(RelationalDesignEventId.ColumnSkipped, () => $"Skipped column: {tableSchema}.{tableName}.{columnName}");
             continue;
           }
 
-          var columnName = reader.GetValueOrDefault<string>("column_name");
           var dataTypeName = reader.GetValueOrDefault<string>("column_type");
-          var ordinalPosition = reader.GetValueOrDefault<UInt64>("ordinal_position");
+          var ordinalPosition = reader.GetInt32("ordinal_position");
           var isNullable = reader.GetValueOrDefault<string>("is_nullable").Contains("YES") ? true : false;
           var columnKey = reader.GetValueOrDefault<string>("column_key").Contains("YES") ? true : false; ;
           var defaultValue = reader.GetValueOrDefault<string>("column_default");
           var computedValue = reader.GetValueOrDefault<string>("generation_expression");
           var numeric_Scale = reader.GetValueOrDefault<UInt64?>("numeric_scale");
-          var maxLength = reader.GetValueOrDefault<UInt64?>("character_maximum_length");
-          var precision = reader.GetValueOrDefault<UInt64?>("numeric_precision");
-          var primaryKeyOrdinal = reader.GetValueOrDefault<Int64?>("primarykeyordinal");
+          var maxLength = reader.IsDBNull(reader.GetOrdinal("character_maximum_length")) ? null : (UInt64?)reader.GetUInt64("character_maximum_length");
+          var precision = reader.IsDBNull(reader.GetOrdinal("numeric_precision")) ? null : (UInt64?)reader.GetUInt64("numeric_precision");
+          var primaryKeyOrdinal = reader.IsDBNull(reader.GetOrdinal("primarykeyordinal")) ? null : (Int32?)reader.GetInt32("primarykeyordinal");
 
           var table = _tables[TableKey(tableName, tableSchema)];
 
@@ -403,6 +467,7 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
           };
 
           table.Columns.Add(column);
+          Logger.LogDebug(RelationalDesignEventId.FoundColumn, () => $"Found column: {tableSchema}.{tableName}.{columnName}");
           if (!_tableColumns.ContainsKey(ColumnKey(table, column.Name)))
             _tableColumns.Add(ColumnKey(table, column.Name), column);
         }
