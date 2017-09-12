@@ -647,7 +647,6 @@ namespace MySql.Data.MySqlClient
       get { return (bool)values["includesecurityasserts"]; }
       set { SetValue("includesecurityasserts", value); }
     }
-#endif
 
     [Category("Advanced")]
     [DisplayName("Respect Binary Flags")]
