@@ -37,15 +37,15 @@ using MySql.Data.EntityFrameworkCore.Metadata.Conventions;
 namespace MySql.Data.EntityFrameworkCore.Extensions
 {
   /// <summary>
-  /// MySQL extension class for <see cref="IServiceCollection">IServiceCollection</see>.
+  /// MySQL extension class for <see cref="IServiceCollection" />.
   /// </summary>
   public static class MySQLServiceCollectionExtensions
   {
     /// <summary>
     /// Extension method used to configure all MySQL services.
     /// </summary>
-    /// <param name="services">Collection of service descriptors</param>
-    /// <returns>Collection of MySQL services descriptors</returns>
+    /// <param name="services">Collection of service descriptors.</param>
+    /// <returns>Collection of MySQL services descriptors.</returns>
     public static IServiceCollection AddEntityFrameworkMySQL(this IServiceCollection services)
     {
       ThrowIf.Argument.IsNull(services, "services");

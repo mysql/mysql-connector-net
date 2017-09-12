@@ -25,16 +25,16 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace MySql.Data.EntityFrameworkCore.Extensions
 {
   /// <summary>
-  /// MySQLPropertyBuilderExtensions implementation
+  /// Represents the implementation of MySQL property-builder extensions used in Fluent API.
   /// </summary>
   public static class MySQLPropertyBuilderExtensions
   {
     /// <summary>
     /// Defines a MySQL auto-increment column.
     /// </summary>
-    /// <param name="propertyBuilder">Entity property to be set</param>
-    /// <param name="typeName">MySQL column type as string</param>
-    /// <returns></returns>
+    /// <param name="propertyBuilder">Entity property to be set.</param>
+    /// <param name="typeName">MySQL column type as string.</param>
+    /// <returns>Property builder of the auto-increment column.</returns>
     public static PropertyBuilder UseMySQLAutoIncrementColumn(
         [NotNull] this PropertyBuilder propertyBuilder,
         [CanBeNull] string typeName)
@@ -48,9 +48,9 @@ namespace MySql.Data.EntityFrameworkCore.Extensions
     /// <summary>
     /// Defines a column data type.
     /// </summary>
-    /// <param name="propertyBuilder">Entity property to be set</param>
-    /// <param name="typeName">MySQL column type as string</param>
-    /// <returns></returns>
+    /// <param name="propertyBuilder">Entity property to be set.</param>
+    /// <param name="typeName">MySQL column type as string.</param>
+    /// <returns>Property builder of a MySQL column data type.</returns>
     public static PropertyBuilder ForMySQLHasColumnType(
       [NotNull] this PropertyBuilder propertyBuilder,
       [CanBeNull] string typeName)      
@@ -64,11 +64,11 @@ namespace MySql.Data.EntityFrameworkCore.Extensions
     }
 
     /// <summary>
-    /// Defines a column default value
+    /// Defines a column default value.
     /// </summary>
-    /// <param name="propertyBuilder">Entity property to be set</param>
-    /// <param name="sql">Default value expression</param>
-    /// <returns></returns>
+    /// <param name="propertyBuilder">Entity property to be set.</param>
+    /// <param name="sql">Default value expression.</param>
+    /// <returns>Property builder of a MySQL column with a default value.</returns>
     public static PropertyBuilder ForMySQLHasDefaultValue(
             [NotNull] this PropertyBuilder propertyBuilder,
             [CanBeNull] string sql)

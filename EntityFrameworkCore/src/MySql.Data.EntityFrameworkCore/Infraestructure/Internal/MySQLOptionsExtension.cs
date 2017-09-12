@@ -27,7 +27,7 @@ using MySql.Data.EntityFrameworkCore.Extensions;
 namespace MySql.Data.EntityFrameworkCore.Infraestructure.Internal
 {
   /// <summary>
-  /// RelationalOptionsExtension implementation for MySQL
+  /// Represents the <see cref="RelationalOptionsExtension"/> implemented for MySQL.
   /// </summary>
   public class MySQLOptionsExtension : RelationalOptionsExtension
   {
