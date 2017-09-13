@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -32,10 +32,11 @@ namespace MySQL.Data.EntityFrameworkCore.Metadata.Internal
   /// <summary>
   /// Annotations for MySQL specifics
   /// </summary>
-  public static class MySQLAnnotationNames
+  internal static class MySQLAnnotationNames
   {
     public const string Prefix = "MySQL:";
     public const string AutoIncrement = "AutoIncrement";
-    
+    public const string Charset = "Charset";
+    public const string Collation = "Collation";
   }
 }

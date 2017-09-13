@@ -53,7 +53,7 @@ namespace EntityFrameworkCore.Basic.Tests
           AddressNumber2 = 2,
           AddressNumber3 = 3,
           AddressNumber4 = 4,
-          AddressNumber5 = 5l,
+          AddressNumber5 = (long)5,
           AddressNumber6 = 6.36f,
           AddressNumber7 = 7.49f,
           AddressNumber8 = 8.64d,
@@ -87,7 +87,7 @@ namespace EntityFrameworkCore.Basic.Tests
         Assert.Equal(2, data.AddressNumber2);
         Assert.Equal(3, data.AddressNumber3);
         Assert.Equal(4, data.AddressNumber4);
-        Assert.Equal(5l, data.AddressNumber5);
+        Assert.Equal((long)5, data.AddressNumber5);
         Assert.Equal(6.36f, data.AddressNumber6);
         Assert.Equal(7.49f, data.AddressNumber7);
         Assert.Equal(8.64d, data.AddressNumber8);

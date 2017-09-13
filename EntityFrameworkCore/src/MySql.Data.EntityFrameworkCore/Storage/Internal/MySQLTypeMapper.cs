@@ -29,13 +29,11 @@ using MySQL.Data.EntityFrameworkCore;
 
 namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
-  public class MySQLTypeMapper : RelationalTypeMapper
+  internal class MySQLTypeMapper : RelationalTypeMapper
   {
     private static int _longTextMaxLength = int.MaxValue;
-    private static int _medTextMaxLength = 16777215;
     private static int _textMaxLength = 65535;
     private static int _keyMaxLength = 767;
-    private static int _tinyMaxLength = 255;
 
     private readonly RelationalTypeMapping _int = new RelationalTypeMapping("int", typeof(Int32));
     private readonly RelationalTypeMapping _bigint = new RelationalTypeMapping("bigint", typeof(Int64));
@@ -47,9 +45,6 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
     private readonly RelationalTypeMapping _varchar = new MySQLSizeableMapping($"varchar({_textMaxLength})", typeof(string), dbType: null, unicode: false, size: _textMaxLength, hasNonDefaultUnicode: true);
 
     private readonly RelationalTypeMapping _varcharkey = new MySQLSizeableMapping($"varchar({_keyMaxLength})", typeof(string), dbType: null, unicode: false, size: _keyMaxLength, hasNonDefaultUnicode: true);
-
-    private readonly MySQLSizeableMapping _nvarchar
-               = new MySQLSizeableMapping($"nvarchar({_textMaxLength})", typeof(string), dbType: null, unicode: true, size: _textMaxLength);
 
     private readonly RelationalTypeMapping _rowversion = new RelationalTypeMapping("timestamp", typeof(DateTime), dbType: DbType.DateTime);
 
@@ -139,7 +134,6 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
         { typeof(ulong), new RelationalTypeMapping("numeric(20, 0)" ,_decimal.GetType()) },
         { typeof(short), _smallint },
         { typeof(decimal), _decimal },
-        { typeof(string), _varchar },
         { typeof(byte[]), _varbinary },
         { typeof(TimeSpan), _time }
       };
@@ -148,9 +142,9 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
       StringMapper
             = new StringRelationalTypeMapper(
                 _textMaxLength,
-                _varchar,
-                _varchar,
-                _varchar,
+                _text,
+                _longText,
+                _varcharkey,
                 size => new MySQLSizeableMapping(
                     "varchar(" + size + ")",
                     typeof(string),
@@ -160,11 +154,11 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
                     hasNonDefaultUnicode: true,
                     hasNonDefaultSize: true),
                 _textMaxLength,
-                _nvarchar,
-                _nvarchar,
-                _nvarchar,
+                _text,
+                _longText,
+                _varcharkey,
                 size => new MySQLSizeableMapping(
-                    "nvarchar(" + size + ")",
+                    "varchar(" + size + ")",
                     typeof(string),
                     dbType: null,
                     unicode: true,
@@ -201,17 +195,10 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
       ThrowIf.Argument.IsNull(clrType, "clrType");
       var sType = Nullable.GetUnderlyingType(clrType) ?? clrType;
       return sType == typeof(string)
-          ? _nvarchar
+          ? _varchar
           : (sType == typeof(byte[])
               ? _varbinary
               : base.FindMapping(clrType));
-    }
-
-    protected override RelationalTypeMapping GetStringMapping([NotNullAttribute] IProperty property)
-    {
-      if (RequiresKeyMapping(property))
-        return _varcharkey;
-      return _text;
     }
   }
 }

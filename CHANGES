@@ -1,3 +1,8 @@
+6.10.4
+- EF Core: Added MySqlCharset and MySqlCollation attributes to set charset/collation in entities or entity properties (WL-10894).
+- EF Core: Added ForMySQLHasCharset and ForMySQLHasCollation methods to set charset/collation in entities or entity properties (WL-10894).
+
+
 6.10.3
 - Added support for Unix sockets in dotnet core. WL-10613
 - EF Core: Added async support. WL-10615

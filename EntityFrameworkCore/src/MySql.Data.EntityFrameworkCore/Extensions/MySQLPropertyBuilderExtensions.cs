@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,6 +21,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using MySQL.Data.EntityFrameworkCore.Metadata.Internal;
 
 namespace MySQL.Data.EntityFrameworkCore.Extensions
 {
@@ -84,6 +85,61 @@ namespace MySQL.Data.EntityFrameworkCore.Extensions
       propertyBuilder.Metadata.MySQL().DefaultValueSql = sql;
       return propertyBuilder;
     }
-  }
 
+    /// <summary>
+    /// Adds the character set to an entity property.
+    /// </summary>
+    /// <param name="propertyBuilder">Property builder.</param>
+    /// <param name="charset">MySQL character set to use.</param>
+    /// <returns>Property builder with a character set.</returns>
+    public static PropertyBuilder ForMySQLHasCharset(
+      [NotNull] this PropertyBuilder propertyBuilder,
+      [NotNull] string charset)
+    {
+      propertyBuilder.Metadata.AddAnnotation(MySQLAnnotationNames.Charset, charset);
+      return propertyBuilder;
+    }
+
+    /// <summary>
+    /// Adds the character set to an entity.
+    /// </summary>
+    /// <param name="entityTypeBuilder">Entity type builder.</param>
+    /// <param name="charset">MySQL character set to use.</param>
+    /// <returns>Entity type builder with a character set.</returns>
+    public static EntityTypeBuilder ForMySQLHasCharset(
+      [NotNull] this EntityTypeBuilder entityTypeBuilder,
+      [NotNull] string charset)
+    {
+      entityTypeBuilder.Metadata.AddAnnotation(MySQLAnnotationNames.Charset, charset);
+      return entityTypeBuilder;
+    }
+
+    /// <summary>
+    /// Adds the collation to an entity property.
+    /// </summary>
+    /// <param name="propertyBuilder">Property builder.</param>
+    /// <param name="collation">MySQL collation to use.</param>
+    /// <returns>Property builder with a collation.</returns>
+    public static PropertyBuilder ForMySQLHasCollation(
+      [NotNull] this PropertyBuilder propertyBuilder,
+      [NotNull] string collation)
+    {
+      propertyBuilder.Metadata.AddAnnotation(MySQLAnnotationNames.Collation, collation);
+      return propertyBuilder;
+    }
+
+    /// <summary>
+    /// Adds the collation to an entity.
+    /// </summary>
+    /// <param name="entityTypeBuilder">Entity type builder.</param>
+    /// <param name="collation">MySQL collation to use.</param>
+    /// <returns>Entity type builder with a collation.</returns>
+    public static EntityTypeBuilder ForMySQLHasCollation(
+      [NotNull] this EntityTypeBuilder entityTypeBuilder,
+      [NotNull] string collation)
+    {
+      entityTypeBuilder.Metadata.AddAnnotation(MySQLAnnotationNames.Collation, collation);
+      return entityTypeBuilder;
+    }
+  }
 }

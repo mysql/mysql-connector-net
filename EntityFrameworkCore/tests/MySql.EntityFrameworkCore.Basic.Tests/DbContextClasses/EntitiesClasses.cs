@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,6 +20,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.EntityFrameworkCore.DataAnnotations;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -280,5 +281,23 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
     public string NormalString { get; set; }
     public string MediumString { get; set; }
     public string LongString { get; set; }
+  }
+
+  public class ComplexKey
+  {
+    public string Key1 { get; set; }
+
+    [MySqlCharset("latin1")]
+    public string Key2 { get; set; }
+
+    [MySqlCollation("latin1_spanish_ci")]
+    public string CollationColumn { get; set; }
+
+    public string CollationColumnFA { get; set; }
+
+    [MaxLength(1255)]
+    public string StringColumn { get; set; }
+
+    public string TextColumn { get; set; }
   }
 }

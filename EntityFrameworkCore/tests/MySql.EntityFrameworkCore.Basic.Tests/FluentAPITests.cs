@@ -345,6 +345,38 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       }
     }
 
+    [Fact]
+    public void CharsetTest()
+    {
+      using(MultiTestContext context = new MultiTestContext())
+      {
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
+
+        using(MySqlConnection conn = (MySqlConnection)context.Database.GetDbConnection())
+        {
+          conn.Open();
+          MySqlCommand cmd = conn.CreateCommand();
+          cmd.CommandText = "SHOW CREATE TABLE complexkeys";
+          using (MySqlDataReader reader = cmd.ExecuteReader())
+          {
+            reader.Read();
+            string createTable = reader.GetString(1);
+            Assert.Equal(@"CREATE TABLE `complexkeys` (
+  `Key1` varchar(767) CHARACTER SET latin1 NOT NULL,
+  `Key2` varchar(767) CHARACTER SET latin1 NOT NULL,
+  `CollationColumn` text CHARACTER SET latin1 COLLATE latin1_spanish_ci,
+  `CollationColumnFA` text CHARACTER SET utf8 COLLATE utf8_bin,
+  `StringColumn` varchar(1255) COLLATE ascii_bin DEFAULT NULL,
+  `TextColumn` text COLLATE ascii_bin,
+  PRIMARY KEY (`Key1`,`Key2`)
+) ENGINE=InnoDB DEFAULT CHARSET=ascii COLLATE=ascii_bin",
+              createTable, true, true, true);
+          }
+        }
+      }
+    }
+
     public void Dispose()
     {
       // ensure database deletion

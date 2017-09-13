@@ -482,4 +482,20 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
       });
     }
   }
+
+  public class MultiTestContext : MyTestContext
+  {
+    public DbSet<ComplexKey> ComplexKeys { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+      modelBuilder.Entity<ComplexKey>(e =>
+      {
+        e.HasKey(p => new { p.Key1, p.Key2 });
+        e.ForMySQLHasCollation("ascii_bin");
+        e.Property(p => p.Key1).ForMySQLHasCharset("latin1");
+        e.Property(p => p.CollationColumnFA).ForMySQLHasCollation("utf8_bin");
+      });
+    }
+  }
 }

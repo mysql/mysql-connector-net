@@ -20,30 +20,32 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using MySQL.Data.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
-using MySQL.Data.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
-namespace MySql.Data.EntityFrameworkCore.Metadata.Conventions
+namespace MySql.Data.EntityFrameworkCore.DataAnnotations
 {
-  public class MySQLConventionSetBuilder : RelationalConventionSetBuilder
+  /// <summary>
+  /// Establishes the character set of an entity property.
+  /// </summary>
+  public class MySqlCharsetAttribute : Attribute
   {
-    public MySQLConventionSetBuilder([NotNullAttribute] IRelationalTypeMapper typeMapper, [CanBeNullAttribute] ICurrentDbContext currentContext, [CanBeNullAttribute] IDbSetFinder setFinder) : base(typeMapper, currentContext, setFinder)
-    {
-    }
+    /// <summary>
+    /// Character set to use for the attribute.
+    /// </summary>
+    public string Charset { get; }
 
-    public override ConventionSet AddConventions(ConventionSet conventionSet)
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MySqlCharsetAttribute"/> class.
+    /// </summary>
+    /// <param name="charset">Character set to use.</param>
+    public MySqlCharsetAttribute([NotNull] string charset) : base()
     {
-      conventionSet.PropertyAddedConventions.Add(new MySqlCharsetAttributeConvention());
-      conventionSet.PropertyAddedConventions.Add(new MySqlCollationAttributeConvention());
-      return base.AddConventions(conventionSet);
+      this.Charset = charset;
     }
   }
 }
