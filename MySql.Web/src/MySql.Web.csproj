@@ -39,7 +39,7 @@
     <EmbeddedResource Include="Properties\schema7.sql" />
     <EmbeddedResource Include="Properties\schema8.sql" />
     <EmbeddedResource Include="Properties\schema9.sql" />
-    <Content Include="..\..\NugetPkgs\transform\Web\web.config.transform" />
+    <Content Include="..\..\Nuget\Web\web.config.transform" />
   </ItemGroup>
 
   <ItemGroup>
