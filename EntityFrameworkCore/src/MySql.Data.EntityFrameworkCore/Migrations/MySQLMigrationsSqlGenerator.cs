@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -27,15 +27,15 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using System.Linq;
-using MySQL.Data.EntityFrameworkCore.Migrations.Operations;
-using MySQL.Data.EntityFrameworkCore.Metadata.Internal;
+using MySql.Data.EntityFrameworkCore.Migrations.Operations;
+using MySql.Data.EntityFrameworkCore.Metadata.Internal;
 
-namespace MySQL.Data.EntityFrameworkCore.Migrations
+namespace MySql.Data.EntityFrameworkCore.Migrations
 {
   /// <summary>
   /// MigrationSqlGenerator implementation for MySQL
   /// </summary>
-  public class MySQLMigrationsSqlGenerator : MigrationsSqlGenerator
+  internal class MySQLMigrationsSqlGenerator : MigrationsSqlGenerator
   {
     private readonly ISqlGenerationHelper _sqlGenerationHelper;
 

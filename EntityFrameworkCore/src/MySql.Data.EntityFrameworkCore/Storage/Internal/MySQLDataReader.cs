@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,7 +21,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.Data.MySqlClient;
-using MySQL.Data.EntityFrameworkCore;
+using MySql.Data.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -31,7 +31,7 @@ using System.Collections;
 
 namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
-  public class MySQLDataReader : DbDataReader
+  internal class MySQLDataReader : DbDataReader
   {
     private MySqlDataReader _reader;
     private bool _disposed;

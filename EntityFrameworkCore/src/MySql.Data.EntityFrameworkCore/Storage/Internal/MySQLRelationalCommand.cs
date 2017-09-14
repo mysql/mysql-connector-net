@@ -25,7 +25,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using MySql.Data.MySqlClient;
-using MySQL.Data.EntityFrameworkCore;
+using MySql.Data.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -38,7 +38,7 @@ using System.Threading.Tasks;
 
 namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
-    public class MySQLRelationalCommand : RelationalCommand
+    internal class MySQLRelationalCommand : RelationalCommand
     {
 
         public MySQLRelationalCommand([NotNull] ISensitiveDataLogger logger,

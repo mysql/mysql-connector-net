@@ -24,13 +24,10 @@ using EntityFrameworkCore.Basic.Tests.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MySql.Data.EntityFrameworkCore.Tests;
+using MySql.Data.EntityFrameworkCore.Extensions;
 using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using MySql.Data.MySqlClient;
-using MySQL.Data.EntityFrameworkCore;
-using MySQL.Data.EntityFrameworkCore.Extensions;
 using System;
-using System.Data.Common;
 using System.Linq;
 using Xunit;
 

@@ -26,27 +26,27 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
-using MySQL.Data.EntityFrameworkCore.Migrations;
-using MySQL.Data.EntityFrameworkCore.Update;
-using MySQL.Data.EntityFrameworkCore.Metadata;
+using MySql.Data.EntityFrameworkCore.Migrations;
+using MySql.Data.EntityFrameworkCore.Update;
+using MySql.Data.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
-using MySQL.Data.EntityFrameworkCore.Query;
+using MySql.Data.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Sql;
 using MySql.Data.EntityFrameworkCore.Storage.Internal;
-using MySQL.Data.EntityFrameworkCore.Migrations.Internal;
+using MySql.Data.EntityFrameworkCore.Migrations.Internal;
 using MySql.Data.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using MySql.Data.EntityFrameworkCore.Metadata.Conventions;
 
-namespace MySQL.Data.EntityFrameworkCore
+namespace MySql.Data.EntityFrameworkCore
 {
   /// <summary>
   /// RelationalDatabaseProviderServices implementation for MySQL 
   /// </summary>
-  public class MySQLDatabaseProviderServices : RelationalDatabaseProviderServices
+  internal class MySQLDatabaseProviderServices : RelationalDatabaseProviderServices
   {
     public MySQLDatabaseProviderServices(IServiceProvider serviceProvider) : base(serviceProvider)
     {

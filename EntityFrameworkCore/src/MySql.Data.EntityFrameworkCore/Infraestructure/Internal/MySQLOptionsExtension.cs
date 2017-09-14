@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -22,27 +22,28 @@
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
+using MySql.Data.EntityFrameworkCore.Extensions;
 
-namespace MySQL.Data.EntityFrameworkCore.Infraestructure.Internal
+namespace MySql.Data.EntityFrameworkCore.Infraestructure.Internal
 {
   /// <summary>
-  /// RelationalOptionsExtension implementation for MySQL
+  /// Represents the <see cref="RelationalOptionsExtension"/> implemented for MySQL.
   /// </summary>
   public class MySQLOptionsExtension : RelationalOptionsExtension
+  {
+    public MySQLOptionsExtension()
     {
-        public MySQLOptionsExtension()
-        {
-        }
-
-        public MySQLOptionsExtension(MySQLOptionsExtension copyFrom)
-            : base(copyFrom)
-        {
-        }
-
-
-        public override void ApplyServices(IServiceCollection services)
-        {
-            services.AddEntityFrameworkMySQL();
-        }
     }
+
+    public MySQLOptionsExtension(MySQLOptionsExtension copyFrom)
+        : base(copyFrom)
+    {
+    }
+
+
+    public override void ApplyServices(IServiceCollection services)
+    {
+      services.AddEntityFrameworkMySQL();
+    }
+  }
 }

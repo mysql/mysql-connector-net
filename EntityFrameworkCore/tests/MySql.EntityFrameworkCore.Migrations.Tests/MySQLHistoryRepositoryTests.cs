@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -31,18 +31,18 @@ using Microsoft.Extensions.Logging;
 using MySql.Data.EntityFrameworkCore.Storage.Internal;
 using MySql.Data.EntityFrameworkCore.Tests;
 using MySql.EntityFrameworkCore.Migrations.Tests.Utilities;
-using MySQL.Data.EntityFrameworkCore;
-using MySQL.Data.EntityFrameworkCore.Extensions;
-using MySQL.Data.EntityFrameworkCore.Infraestructure.Internal;
-using MySQL.Data.EntityFrameworkCore.Metadata;
-using MySQL.Data.EntityFrameworkCore.Migrations;
-using MySQL.Data.EntityFrameworkCore.Migrations.Internal;
+using MySql.Data.EntityFrameworkCore;
+using MySql.Data.EntityFrameworkCore.Infraestructure.Internal;
+using MySql.Data.EntityFrameworkCore.Metadata;
+using MySql.Data.EntityFrameworkCore.Migrations;
+using MySql.Data.EntityFrameworkCore.Migrations.Internal;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
+using MySql.Data.EntityFrameworkCore.Extensions;
 
 namespace MySql.EntityFrameworkCore.Migrations.Tests
 {

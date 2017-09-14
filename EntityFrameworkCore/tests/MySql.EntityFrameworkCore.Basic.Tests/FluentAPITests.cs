@@ -22,11 +22,10 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using MySql.Data.EntityFrameworkCore.Extensions;
 using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using MySql.Data.MySqlClient;
-using MySQL.Data.EntityFrameworkCore;
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;

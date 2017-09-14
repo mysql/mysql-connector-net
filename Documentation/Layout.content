@@ -1,7 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Topics>
-  <Topic id="connector-net-x-devapi-reference" visible="True" isDefault="true" isExpanded="true" title="MySQL Connector/Net X DevAPI Reference">
-    <Topic id="connector-net-x-devapi-installation" visible="True" title="Installation" />
-    <Topic id="connector-net-x-devapi-getting-started" visible="True" title="Getting started guide" />
-  </Topic>
-</Topics>

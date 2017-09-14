@@ -21,63 +21,67 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using MySQL.Data.EntityFrameworkCore.Metadata;
-using MySQL.Data.EntityFrameworkCore.Migrations;
-using MySQL.Data.EntityFrameworkCore.Update;
+using MySql.Data.EntityFrameworkCore.Metadata;
+using MySql.Data.EntityFrameworkCore.Migrations;
+using MySql.Data.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Storage;
-using MySQL.Data.EntityFrameworkCore.Query;
+using MySql.Data.EntityFrameworkCore.Query;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MySql.Data.EntityFrameworkCore.Storage.Internal;
-using MySQL.Data.EntityFrameworkCore.Migrations.Internal;
-using MySQL.Data.EntityFrameworkCore.Infraestructure.Internal;
+using MySql.Data.EntityFrameworkCore.Migrations.Internal;
+using MySql.Data.EntityFrameworkCore.Infraestructure.Internal;
 using MySql.Data.EntityFrameworkCore.Query.Internal;
 using MySql.Data.EntityFrameworkCore.Metadata.Conventions;
 
-namespace MySQL.Data.EntityFrameworkCore
+namespace MySql.Data.EntityFrameworkCore.Extensions
 {
-    public static class MySQLServiceCollectionExtensions
+  /// <summary>
+  /// MySQL extension class for <see cref="IServiceCollection" />.
+  /// </summary>
+  public static class MySQLServiceCollectionExtensions
   {
+    /// <summary>
+    /// Extension method used to configure all MySQL services.
+    /// </summary>
+    /// <param name="services">Collection of service descriptors.</param>
+    /// <returns>Collection of MySQL services descriptors.</returns>
+    public static IServiceCollection AddEntityFrameworkMySQL(this IServiceCollection services)
+    {
+      ThrowIf.Argument.IsNull(services, "services");
 
-        /// <summary>
-        ///     MySQL specific extension methods for IServiceCollection.
-        /// </summary>
-        public static IServiceCollection AddEntityFrameworkMySQL(this IServiceCollection services)
-        {
-            ThrowIf.Argument.IsNull(services, "services");
+      var service = services.AddRelational()
+      .AddScoped<IRelationalCommandBuilderFactory, MySQLCommandBuilderFactory>();
 
-            var service = services.AddRelational()
-            .AddScoped<IRelationalCommandBuilderFactory, MySQLCommandBuilderFactory>();
+      service.TryAddEnumerable(ServiceDescriptor.Singleton<IDatabaseProvider, DatabaseProvider<MySQLDatabaseProviderServices, MySQLOptionsExtension>>());
 
-            service.TryAddEnumerable(ServiceDescriptor.Singleton<IDatabaseProvider, DatabaseProvider<MySQLDatabaseProviderServices, MySQLOptionsExtension>>());
+      service.TryAdd(new ServiceCollection()
+     .AddSingleton<MySQLValueGeneratorCache>()
+     .AddSingleton<MySQLTypeMapper>()
+     .AddSingleton<MySQLSqlGenerationHelper>()
+     .AddSingleton<MySQLModelSource>()
+     .AddSingleton<MySQLAnnotationProvider>()
+     .AddSingleton<MySQLMigrationsAnnotationProvider>()
+     .AddScoped<MySQLConventionSetBuilder>()
+     .AddScoped<MySQLUpdateSqlGenerator>()
+     .AddScoped<MySQLModificationCommandBatchFactory>()
+     .AddScoped<MySQLDatabaseProviderServices>()
+     .AddScoped<MySQLServerConnection>()
+     .AddScoped<MySQLMigrationsSqlGenerator>()
+     .AddScoped<MySQLDatabaseCreator>()
+     .AddScoped<MySQLHistoryRepository>()
+     .AddQuery());
 
-            service.TryAdd(new ServiceCollection()
-           .AddSingleton<MySQLValueGeneratorCache>()
-           .AddSingleton<MySQLTypeMapper>()
-           .AddSingleton<MySQLSqlGenerationHelper>()
-           .AddSingleton<MySQLModelSource>()
-           .AddSingleton<MySQLAnnotationProvider>()
-           .AddSingleton<MySQLMigrationsAnnotationProvider>()
-           .AddScoped<MySQLConventionSetBuilder>()
-           .AddScoped<MySQLUpdateSqlGenerator>()
-           .AddScoped<MySQLModificationCommandBatchFactory>()
-           .AddScoped<MySQLDatabaseProviderServices>()
-           .AddScoped<MySQLServerConnection>()
-           .AddScoped<MySQLMigrationsSqlGenerator>()
-           .AddScoped<MySQLDatabaseCreator>()
-           .AddScoped<MySQLHistoryRepository>()
-           .AddQuery());
-
-         return services;
-        }
-
-        private static IServiceCollection AddQuery(this IServiceCollection serviceCollection)
-        {
-            return serviceCollection
-                    .AddScoped<MySQLQueryCompilationContextFactory>()
-                    .AddScoped<MySQLCompositeMemberTranslator>()
-                    .AddScoped<MySQLCompositeMethodCallTranslator>()
-                    .AddScoped<MySQLQueryGeneratorFactory>();
-        }
+      return services;
     }
+
+    private static IServiceCollection AddQuery(this IServiceCollection serviceCollection)
+    {
+      return serviceCollection
+              .AddScoped<MySQLQueryCompilationContextFactory>()
+              .AddScoped<MySQLCompositeMemberTranslator>()
+              .AddScoped<MySQLCompositeMethodCallTranslator>()
+              .AddScoped<MySQLQueryGeneratorFactory>();
+    }
+  }
 }

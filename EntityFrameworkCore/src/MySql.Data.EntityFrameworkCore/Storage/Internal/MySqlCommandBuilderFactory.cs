@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -24,7 +24,7 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
-using MySQL.Data.EntityFrameworkCore;
+using MySql.Data.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -33,7 +33,7 @@ using System.Threading.Tasks;
 
 namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
-    public class MySQLCommandBuilderFactory : RelationalCommandBuilderFactory
+    internal class MySQLCommandBuilderFactory : RelationalCommandBuilderFactory
     {
         private readonly ISensitiveDataLogger<RelationalCommandBuilderFactory> _logger;
         private readonly DiagnosticSource _diagnosticSource;

@@ -21,23 +21,10 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
-using EntityFrameworkCore.Basic.Tests.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-
-using Microsoft.EntityFrameworkCore.Internal;
-
-
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
-
-
-using MySQL.Data.EntityFrameworkCore.Extensions;
 using System;
-using MySQL.Data.EntityFrameworkCore;
 
 namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
 {
