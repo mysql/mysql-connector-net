@@ -348,7 +348,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     [Fact]
     public void CharsetTest()
     {
-      using(MultiTestContext context = new MultiTestContext())
+      using(CharsetTestContext context = new CharsetTestContext())
       {
         context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
@@ -357,20 +357,51 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         {
           conn.Open();
           MySqlCommand cmd = conn.CreateCommand();
-          cmd.CommandText = "SHOW CREATE TABLE complexkeys";
+          cmd.CommandText = "SHOW CREATE TABLE testcharsetda";
           using (MySqlDataReader reader = cmd.ExecuteReader())
           {
             reader.Read();
             string createTable = reader.GetString(1);
-            Assert.Equal(@"CREATE TABLE `complexkeys` (
-  `Key1` varchar(767) CHARACTER SET latin1 NOT NULL,
-  `Key2` varchar(767) CHARACTER SET latin1 NOT NULL,
-  `CollationColumn` text CHARACTER SET latin1 COLLATE latin1_spanish_ci,
-  `CollationColumnFA` text CHARACTER SET utf8 COLLATE utf8_bin,
-  `StringColumn` varchar(1255) COLLATE ascii_bin DEFAULT NULL,
-  `TextColumn` text COLLATE ascii_bin,
-  PRIMARY KEY (`Key1`,`Key2`)
-) ENGINE=InnoDB DEFAULT CHARSET=ascii COLLATE=ascii_bin",
+            Assert.Equal(@"CREATE TABLE `testcharsetda` (
+  `TestCharsetDAId` varbinary(767) NOT NULL,
+  PRIMARY KEY (`TestCharsetDAId`)
+) ENGINE=InnoDB DEFAULT CHARSET=ascii",
+              createTable, true, true, true);
+          }
+
+          cmd.CommandText = "SHOW CREATE TABLE testcharsetfa";
+          using (MySqlDataReader reader = cmd.ExecuteReader())
+          {
+            reader.Read();
+            string createTable = reader.GetString(1);
+            Assert.Equal(@"CREATE TABLE `testcharsetfa` (
+  `TestCharsetFAId` varchar(767) CHARACTER SET latin7 NOT NULL,
+  PRIMARY KEY (`TestCharsetFAId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf16",
+              createTable, true, true, true);
+          }
+
+          cmd.CommandText = "SHOW CREATE TABLE testcollationda";
+          using (MySqlDataReader reader = cmd.ExecuteReader())
+          {
+            reader.Read();
+            string createTable = reader.GetString(1);
+            Assert.Equal(@"CREATE TABLE `testcollationda` (
+  `TestCollationDAId` varchar(767) CHARACTER SET greek COLLATE greek_bin NOT NULL,
+  PRIMARY KEY (`TestCollationDAId`)
+) ENGINE=InnoDB DEFAULT CHARSET=cp932 COLLATE=cp932_bin",
+              createTable, true, true, true);
+          }
+
+          cmd.CommandText = "SHOW CREATE TABLE testcollationfa";
+          using (MySqlDataReader reader = cmd.ExecuteReader())
+          {
+            reader.Read();
+            string createTable = reader.GetString(1);
+            Assert.Equal(@"CREATE TABLE `testcollationfa` (
+  `TestCollationFAId` varchar(767) CHARACTER SET ucs2 COLLATE ucs2_bin NOT NULL,
+  PRIMARY KEY (`TestCollationFAId`)
+) ENGINE=InnoDB DEFAULT CHARSET=koi8u COLLATE=koi8u_bin",
               createTable, true, true, true);
           }
         }

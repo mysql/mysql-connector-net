@@ -21,31 +21,25 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using MySql.Data.EntityFrameworkCore.DataAnnotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using MySQL.Data.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using MySQL.Data.EntityFrameworkCore.Metadata.Internal;
 
 namespace MySql.Data.EntityFrameworkCore.Metadata.Conventions
 {
-  public class MySQLConventionSetBuilder : RelationalConventionSetBuilder
+  internal class MySqlEntityCharsetAttributeConvention : EntityTypeAttributeConvention<MySqlCharsetAttribute>
   {
-    public MySQLConventionSetBuilder([NotNullAttribute] IRelationalTypeMapper typeMapper, [CanBeNullAttribute] ICurrentDbContext currentContext, [CanBeNullAttribute] IDbSetFinder setFinder) : base(typeMapper, currentContext, setFinder)
+    public override InternalEntityTypeBuilder Apply([NotNull] InternalEntityTypeBuilder entityTypeBuilder, [NotNull] MySqlCharsetAttribute attribute)
     {
-    }
-
-    public override ConventionSet AddConventions(ConventionSet conventionSet)
-    {
-      conventionSet.PropertyAddedConventions.Add(new MySqlCharsetAttributeConvention());
-      conventionSet.PropertyAddedConventions.Add(new MySqlCollationAttributeConvention());
-      conventionSet.EntityTypeAddedConventions.Add(new MySqlEntityCharsetAttributeConvention());
-      conventionSet.EntityTypeAddedConventions.Add(new MySqlEntityCollationAttributeConvention());
-      return base.AddConventions(conventionSet);
+      entityTypeBuilder.Metadata.SetAnnotation(MySQLFullAnnotationNames.Instance.Charset, attribute.Charset, ConfigurationSource.DataAnnotation);
+      return entityTypeBuilder;
     }
   }
 }

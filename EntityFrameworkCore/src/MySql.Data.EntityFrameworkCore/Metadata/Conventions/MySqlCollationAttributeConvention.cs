@@ -39,7 +39,7 @@ namespace MySql.Data.EntityFrameworkCore.Metadata.Conventions
   {
     public override InternalPropertyBuilder Apply([NotNullAttribute] InternalPropertyBuilder propertyBuilder, [NotNullAttribute] MySqlCollationAttribute attribute, [NotNullAttribute] MemberInfo clrMember)
     {
-      propertyBuilder.Metadata.SetAnnotation(MySQLAnnotationNames.Collation, attribute.Collation, ConfigurationSource.DataAnnotation);
+      propertyBuilder.Metadata.SetAnnotation(MySQLFullAnnotationNames.Instance.Collation, attribute.Collation, ConfigurationSource.DataAnnotation);
       return propertyBuilder;
     }
   }

@@ -39,7 +39,7 @@ namespace MySql.Data.EntityFrameworkCore.Metadata.Conventions
   {
     public override InternalPropertyBuilder Apply([NotNullAttribute] InternalPropertyBuilder propertyBuilder, [NotNullAttribute] MySqlCharsetAttribute attribute, [NotNullAttribute] MemberInfo clrMember)
     {
-      propertyBuilder.Metadata.SetAnnotation(MySQLAnnotationNames.Charset, attribute.Charset, ConfigurationSource.DataAnnotation);
+      propertyBuilder.Metadata.SetAnnotation(MySQLFullAnnotationNames.Instance.Charset, attribute.Charset, ConfigurationSource.DataAnnotation);
       return propertyBuilder;
     }
   }

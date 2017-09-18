@@ -483,18 +483,25 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
     }
   }
 
-  public class MultiTestContext : MyTestContext
+  public class CharsetTestContext : MyTestContext
   {
-    public DbSet<ComplexKey> ComplexKeys { get; set; }
+    public DbSet<TestCharsetDA> TestCharsetDA { get; set; }
+    public DbSet<TestCharsetFA> TestCharsetFA { get; set; }
+    public DbSet<TestCollationDA> TestCollationDA { get; set; }
+    public DbSet<TestCollationFA> TestCollationFA { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-      modelBuilder.Entity<ComplexKey>(e =>
+      modelBuilder.Entity<TestCharsetFA>(e =>
       {
-        e.HasKey(p => new { p.Key1, p.Key2 });
-        e.ForMySQLHasCollation("ascii_bin");
-        e.Property(p => p.Key1).ForMySQLHasCharset("latin1");
-        e.Property(p => p.CollationColumnFA).ForMySQLHasCollation("utf8_bin");
+        e.ForMySQLHasCharset("utf16");
+        e.Property(p => p.TestCharsetFAId).ForMySQLHasCharset("latin7");
+      });
+
+      modelBuilder.Entity<TestCollationFA>(e =>
+      {
+        e.ForMySQLHasCollation("koi8u_bin");
+        e.Property(p => p.TestCollationFAId).ForMySQLHasCollation("ucs2_bin");
       });
     }
   }

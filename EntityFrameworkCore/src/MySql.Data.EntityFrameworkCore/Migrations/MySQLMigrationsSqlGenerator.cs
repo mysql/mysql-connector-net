@@ -144,13 +144,13 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
            : TypeMapper.GetMapping(clrType).StoreType;
       }
 
-      var charset = property?.FindAnnotation(MySQLAnnotationNames.Charset);
+      var charset = property?.FindAnnotation(MySQLFullAnnotationNames.Instance.Charset);
       if(charset != null)
       {
         type += $" CHARACTER SET {charset.Value}";
       }
 
-      var collation = property?.FindAnnotation(MySQLAnnotationNames.Collation);
+      var collation = property?.FindAnnotation(MySQLFullAnnotationNames.Instance.Collation);
       if(collation != null)
       {
         type += $" COLLATE {collation.Value}";
@@ -325,13 +325,13 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
 
       var entity = FindEntityTypes(model, operation.Schema, operation.Name).FirstOrDefault();
 
-      var charset = entity?.FindAnnotation(MySQLAnnotationNames.Charset);
+      var charset = entity?.FindAnnotation(MySQLFullAnnotationNames.Instance.Charset);
       if(charset != null)
       {
         builder.Append($" CHARACTER SET {charset.Value}");
       }
 
-      var collation = entity?.FindAnnotation(MySQLAnnotationNames.Collation);
+      var collation = entity?.FindAnnotation(MySQLFullAnnotationNames.Instance.Collation);
       if (collation != null)
       {
         builder.Append($" COLLATE {collation.Value}");

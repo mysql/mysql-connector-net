@@ -96,7 +96,7 @@ namespace MySQL.Data.EntityFrameworkCore.Extensions
       [NotNull] this PropertyBuilder propertyBuilder,
       [NotNull] string charset)
     {
-      propertyBuilder.Metadata.AddAnnotation(MySQLAnnotationNames.Charset, charset);
+      propertyBuilder.Metadata.AddAnnotation(MySQLFullAnnotationNames.Instance.Charset, charset);
       return propertyBuilder;
     }
 
@@ -110,7 +110,7 @@ namespace MySQL.Data.EntityFrameworkCore.Extensions
       [NotNull] this EntityTypeBuilder entityTypeBuilder,
       [NotNull] string charset)
     {
-      entityTypeBuilder.Metadata.AddAnnotation(MySQLAnnotationNames.Charset, charset);
+      entityTypeBuilder.Metadata.AddAnnotation(MySQLFullAnnotationNames.Instance.Charset, charset);
       return entityTypeBuilder;
     }
 
@@ -124,7 +124,7 @@ namespace MySQL.Data.EntityFrameworkCore.Extensions
       [NotNull] this PropertyBuilder propertyBuilder,
       [NotNull] string collation)
     {
-      propertyBuilder.Metadata.AddAnnotation(MySQLAnnotationNames.Collation, collation);
+      propertyBuilder.Metadata.AddAnnotation(MySQLFullAnnotationNames.Instance.Collation, collation);
       return propertyBuilder;
     }
 
@@ -138,7 +138,7 @@ namespace MySQL.Data.EntityFrameworkCore.Extensions
       [NotNull] this EntityTypeBuilder entityTypeBuilder,
       [NotNull] string collation)
     {
-      entityTypeBuilder.Metadata.AddAnnotation(MySQLAnnotationNames.Collation, collation);
+      entityTypeBuilder.Metadata.AddAnnotation(MySQLFullAnnotationNames.Instance.Collation, collation);
       return entityTypeBuilder;
     }
   }

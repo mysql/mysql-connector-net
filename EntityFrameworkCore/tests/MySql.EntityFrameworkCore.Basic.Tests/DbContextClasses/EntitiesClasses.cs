@@ -283,21 +283,27 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
     public string LongString { get; set; }
   }
 
-  public class ComplexKey
+  [MySqlCharset("ascii")]
+  public class TestCharsetDA
   {
-    public string Key1 { get; set; }
+    [MySqlCharset("binary")]
+    public string TestCharsetDAId { get; set; }
+  }
 
-    [MySqlCharset("latin1")]
-    public string Key2 { get; set; }
+  public class TestCharsetFA
+  {
+    public string TestCharsetFAId { get; set; }
+  }
 
-    [MySqlCollation("latin1_spanish_ci")]
-    public string CollationColumn { get; set; }
+  [MySqlCollation("cp932_bin")]
+  public class TestCollationDA
+  {
+    [MySqlCollation("greek_bin")]
+    public string TestCollationDAId { get; set; }
+  }
 
-    public string CollationColumnFA { get; set; }
-
-    [MaxLength(1255)]
-    public string StringColumn { get; set; }
-
-    public string TextColumn { get; set; }
+  public class TestCollationFA
+  {
+    public string TestCollationFAId { get; set; }
   }
 }
