@@ -287,6 +287,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
   public class TestCharsetDA
   {
     [MySqlCharset("binary")]
+    [MaxLength(255)]
     public string TestCharsetDAId { get; set; }
   }
 
@@ -299,6 +300,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
   public class TestCollationDA
   {
     [MySqlCollation("greek_bin")]
+    [MaxLength(255)]
     public string TestCollationDAId { get; set; }
   }
 

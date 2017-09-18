@@ -495,13 +495,17 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
       modelBuilder.Entity<TestCharsetFA>(e =>
       {
         e.ForMySQLHasCharset("utf16");
-        e.Property(p => p.TestCharsetFAId).ForMySQLHasCharset("latin7");
+        e.Property(p => p.TestCharsetFAId)
+          .ForMySQLHasCharset("latin7")
+          .HasMaxLength(255);
       });
 
       modelBuilder.Entity<TestCollationFA>(e =>
       {
         e.ForMySQLHasCollation("koi8u_bin");
-        e.Property(p => p.TestCollationFAId).ForMySQLHasCollation("ucs2_bin");
+        e.Property(p => p.TestCollationFAId)
+          .ForMySQLHasCollation("ucs2_bin")
+          .HasMaxLength(255);
       });
     }
   }
