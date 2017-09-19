@@ -357,7 +357,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         {
           conn.Open();
           MySqlCommand cmd = conn.CreateCommand();
-          cmd.CommandText = "SHOW CREATE TABLE `testcharsetda`";
+          cmd.CommandText = "SHOW CREATE TABLE `TestCharsetDA`";
           using (MySqlDataReader reader = cmd.ExecuteReader())
           {
             reader.Read();
@@ -369,7 +369,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
               createTable, true, true, true);
           }
 
-          cmd.CommandText = "SHOW CREATE TABLE `testcharsetfa`";
+          cmd.CommandText = "SHOW CREATE TABLE `TestCharsetFA`";
           using (MySqlDataReader reader = cmd.ExecuteReader())
           {
             reader.Read();
@@ -381,7 +381,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
               createTable, true, true, true);
           }
 
-          cmd.CommandText = "SHOW CREATE TABLE `testcollationda`";
+          cmd.CommandText = "SHOW CREATE TABLE `TestCollationDA`";
           using (MySqlDataReader reader = cmd.ExecuteReader())
           {
             reader.Read();
@@ -393,7 +393,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
               createTable, true, true, true);
           }
 
-          cmd.CommandText = "SHOW CREATE TABLE `testcollationfa`";
+          cmd.CommandText = "SHOW CREATE TABLE `TestCollationFA`";
           using (MySqlDataReader reader = cmd.ExecuteReader())
           {
             reader.Read();
