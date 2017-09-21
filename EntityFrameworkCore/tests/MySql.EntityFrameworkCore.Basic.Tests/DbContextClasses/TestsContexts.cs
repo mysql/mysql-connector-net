@@ -469,4 +469,9 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
       });
     }
   }
+
+  public class MyContext : MyTestContext
+  {
+    public DbSet<MyTest> MyTest { get; set; }
+  }
 }

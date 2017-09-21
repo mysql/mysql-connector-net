@@ -60,7 +60,7 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
     public override char GetChar(int ordinal) => GetReader().GetChar(ordinal);
     public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length) => GetReader().GetChars(ordinal, dataOffset, buffer, bufferOffset, length);
     public override string GetDataTypeName(int ordinal) => GetReader().GetDataTypeName(ordinal);
-    public override DateTime GetDateTime(int ordinal) => GetReader().GetMySqlDateTime(ordinal).GetDateTime();
+    public override DateTime GetDateTime(int ordinal) => GetReader().GetDateTime(ordinal);
     public override decimal GetDecimal(int ordinal) => GetReader().GetDecimal(ordinal);
     public override double GetDouble(int ordinal) => GetReader().GetDouble(ordinal);
     public override Type GetFieldType(int ordinal) => GetReader().GetFieldType(ordinal);
