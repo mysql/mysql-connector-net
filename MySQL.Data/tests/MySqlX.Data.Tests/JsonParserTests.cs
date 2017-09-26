@@ -34,19 +34,19 @@ namespace MySqlX.Data.Tests
     {
       Collection collection = CreateCollection("test");
 
-      DbDoc document = new DbDoc(@"{ ""isDocument"": true }");
+      DbDoc document = new DbDoc(@"{ ""_id"": 1, ""isDocument"": true }");
       Result result = collection.Add(document).Execute();
       Assert.Equal<ulong>(1, result.RecordsAffected);
 
-      document = collection.Find().Execute().FetchOne();
+      document = collection.GetOne(1);
       Assert.True(document.values.ContainsKey("isDocument"));
       Assert.True((bool) document.values["isDocument"]);
 
-      document = new DbDoc(new { isDocument=false });
+      document = new DbDoc(new { _id=2, isDocument=false });
       result = collection.Add(document).Execute();
       Assert.Equal<ulong>(1, result.RecordsAffected);
 
-      document = collection.Find().Execute().FetchOne();
+      document = collection.GetOne(2);
       Assert.True(document.values.ContainsKey("isDocument"));
       Assert.False((bool) document.values["isDocument"]);
 
