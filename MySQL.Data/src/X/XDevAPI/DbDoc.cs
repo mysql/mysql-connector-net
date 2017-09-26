@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -216,7 +216,8 @@ namespace MySqlX.XDevAPI
       {
         quoteChar = "\"";
       }
-      return quoteChar + val.ToString() + quoteChar;
+
+      return quoteChar + (val is bool ? val.ToString().ToLowerInvariant() : val.ToString()) + quoteChar;
     }
 
     private bool CompareDictionaries<TKey, TValue>(Dictionary<TKey, TValue> dict1, Dictionary<TKey, TValue> dict2)

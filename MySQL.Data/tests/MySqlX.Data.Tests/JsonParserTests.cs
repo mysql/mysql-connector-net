@@ -1,4 +1,4 @@
-﻿// Copyright © 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -22,24 +22,19 @@
 
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Xunit;
 
 namespace MySqlX.Data.Tests
 {
   public class JsonParserTests : BaseTest
   {
-    [Fact(Skip="Fix This")]
+    [Fact]
     public void ParseBooleanValue()
     {
-      // TODO: Boolean values are currently stored as strings.
-      // Fix is required in JsonParser.ReadValue().
       Collection collection = CreateCollection("test");
 
-      DbDoc document = new DbDoc(@"{ ""isDocument"": true }");     
+      DbDoc document = new DbDoc(@"{ ""isDocument"": true }");
       Result result = collection.Add(document).Execute();
       Assert.Equal<ulong>(1, result.RecordsAffected);
 
@@ -47,13 +42,15 @@ namespace MySqlX.Data.Tests
       Assert.True(document.values.ContainsKey("isDocument"));
       Assert.True((bool) document.values["isDocument"]);
 
-      document = new DbDoc(new { isDocument=true });
+      document = new DbDoc(new { isDocument=false });
       result = collection.Add(document).Execute();
       Assert.Equal<ulong>(1, result.RecordsAffected);
 
       document = collection.Find().Execute().FetchOne();
       Assert.True(document.values.ContainsKey("isDocument"));
-      Assert.True((bool) document.values["isDocument"]);
+      Assert.False((bool) document.values["isDocument"]);
+
+      Assert.True(collection.Find("isDocument = false").Execute().FetchAll().Count > 0);
     }
 
     [Fact]
