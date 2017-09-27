@@ -203,12 +203,6 @@ CREATE DATABASE sakilaIndex;
             });
 
             Assert.Collection(indexes,
-                composite =>
-                {
-                  Assert.Equal("idx_actor_first_last_name", composite.Name);
-                  Assert.False(composite.IsUnique);
-                  Assert.Equal(new List<string> { "first_name", "last_name" }, composite.IndexColumns.Select(c => c.Column.Name).ToList());
-                },
                 onecolumn =>
                 {
                   Assert.Equal("last_name", onecolumn.IndexColumns.Single().Column.Name);
@@ -218,6 +212,12 @@ CREATE DATABASE sakilaIndex;
                 {
                   Assert.Equal("actor_id", unique.IndexColumns.Single().Column.Name);
                   Assert.True(unique.IsUnique);
+                },
+                composite =>
+                {
+                  Assert.Equal("idx_actor_first_last_name", composite.Name);
+                  Assert.False(composite.IsUnique);
+                  Assert.Equal(new List<string> { "first_name", "last_name" }, composite.IndexColumns.Select(c => c.Column.Name).ToList());
                 });
     }
 

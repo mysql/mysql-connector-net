@@ -79,7 +79,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
 
-        Assert.Equal(1, context.Database.ExecuteSqlCommand("INSERT INTO MyTest (Date) VALUES('0000-00-00')"));
+        Assert.Equal(1, context.Database.ExecuteSqlCommand("INSERT IGNORE INTO MyTest (`Date`) VALUES('0000-00-00')"));
 
         var item = context.MyTest.First();
         Assert.Equal(DateTime.MinValue, item.Date);

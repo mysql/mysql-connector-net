@@ -1,6 +1,7 @@
 6.10.4
 - Removed documentation files. The Api Reference is now online (WL-10863).
 - EF Core: Fixed bug when using zero datetime values (MySQL Bug #87120, Oracle Bug #26552753).
+- EF Core: Fixed bug missing foreign keys when scaffolding a database (Oracle Bug #26339430).
 
 
 6.10.3
