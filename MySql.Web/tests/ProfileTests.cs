@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -22,6 +22,7 @@
 
 using System;
 using Xunit;
+using MySql.Data.Common;
 using MySql.Web.Profile;
 using System.Collections.Specialized;
 using System.Reflection;
@@ -229,6 +230,9 @@ namespace MySql.Web.Tests
     [Fact]
     public void GetAllProfiles()
     {
+      if (DBVersion.Parse(Connection.ServerVersion).isAtLeast(8,0,2))
+        execSQL("SET GLOBAL explicit_defaults_for_timestamp=OFF");
+
       ProfileBase profile = ProfileBase.Create("foo", true);
       ResetAppId(profile.Providers["MySqlProfileProvider"] as MySQLProfileProvider);
       profile["Name"] = "Fred Flintstone";
