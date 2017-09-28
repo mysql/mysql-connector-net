@@ -1,4 +1,4 @@
-// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2013, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -28,6 +28,7 @@ using System.Configuration;
 using MySql.Web.Common;
 using System.Data;
 using System.IO;
+using MySql.Data.Common;
 
 namespace MySql.Web.Tests
 {
@@ -62,6 +63,12 @@ namespace MySql.Web.Tests
 
     protected virtual void InitSchema()
     {
+      if (DBVersion.Parse(Connection.ServerVersion).isAtLeast(8, 0, 2))
+      {
+        execSQL("SET explicit_defaults_for_timestamp=OFF");
+        execSQL("SET GLOBAL explicit_defaults_for_timestamp=OFF");
+      }
+
       for (int ver = 1; ver <= SchemaManager.Version; ver++)
         LoadSchema(ver);
     }
@@ -117,7 +124,7 @@ namespace MySql.Web.Tests
     internal protected void LoadSchema(int version)
     {
       if (version < 1) return;
-
+      
       MySQLMembershipProvider provider = new MySQLMembershipProvider();
       string schema = LoadResource($"MySql.Web.Properties.schema{version}.sql");
       MySqlScript script = new MySqlScript(Connection);
