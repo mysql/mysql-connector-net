@@ -1,5 +1,7 @@
 6.9.10
 - Added user contribution in bug MySql.Web.Security.CreateUserInUserTable does not work (MySQL Bug #83656, Oracle Bug # 25046364).
+- Fixed incorrect encoding in connection passwords (MySQL Bug #80611, Oracle Bug #23257011).
+
 
 6.9.9
 - Fix for Nested transactions are not supported in Entity Framework (MySQL Bug #71502, Oracle Bug #22366266).
