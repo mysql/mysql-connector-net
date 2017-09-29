@@ -128,9 +128,9 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     [Fact]
-    public void UseProcedureBodiesSettingCheckParameters()
+    public void SettingCheckParameters()
     {
-      MySqlConnectionStringBuilder s = new MySqlConnectionStringBuilder("server=localhost;use procedure bodies=false");
+      MySqlConnectionStringBuilder s = new MySqlConnectionStringBuilder("server=localhost;check parameters=false");
       Assert.False(s.CheckParameters);
     }
 

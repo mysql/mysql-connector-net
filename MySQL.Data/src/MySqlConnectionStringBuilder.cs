@@ -182,16 +182,6 @@ namespace MySql.Data.MySqlClient
         },
         (msb, sender) => msb.UsePerformanceMonitor));
       Options.Add(new MySqlConnectionStringOption("ignoreprepare", "ignore prepare", typeof(bool), true, false));
-      Options.Add(new MySqlConnectionStringOption("useprocedurebodies", "use procedure bodies,procedure bodies", typeof(bool), true, true,
-        delegate (MySqlConnectionStringBuilder msb, MySqlConnectionStringOption sender, object value)
-        {
-          sender.ValidateValue(ref value);
-          MySqlTrace.LogWarning(-1, "Use Procedure Bodies is now obsolete.  Use Check Parameters instead");
-          msb.SetValue("checkparameters", value);
-          msb.SetValue("useprocedurebodies", value);
-        },
-        (msb, sender) => (bool)msb.values["useprocedurebodies"]
-        ));
       Options.Add(new MySqlConnectionStringOption("respectbinaryflags", "respect binary flags", typeof(bool), true, false));
       Options.Add(new MySqlConnectionStringOption("treattinyasboolean", "treat tiny as boolean", typeof(bool), true, false));
       Options.Add(new MySqlConnectionStringOption("allowuservariables", "allow user variables", typeof(bool), false, false));
@@ -638,18 +628,6 @@ namespace MySql.Data.MySqlClient
     }
 
     [Category("Advanced")]
-    [DisplayName("Use Procedure Bodies")]
-    [Description("Indicates if stored procedure bodies will be available for parameter detection.")]
-    [DefaultValue(true)]
-    [Obsolete("Use CheckParameters instead")]
-    public bool UseProcedureBodies
-    {
-      get { return (bool)values["useprocedurebodies"]; }
-      set { SetValue("useprocedurebodies", value); }
-    }
-
-#if !NETCORE10
-    [Category("Advanced")]
     [DisplayName("Auto Enlist")]
     [Description("Should the connetion automatically enlist in the active connection, if there are any.")]
     [RefreshProperties(RefreshProperties.All)]
@@ -669,7 +647,6 @@ namespace MySql.Data.MySqlClient
       get { return (bool)values["includesecurityasserts"]; }
       set { SetValue("includesecurityasserts", value); }
     }
-#endif
 
     [Category("Advanced")]
     [DisplayName("Respect Binary Flags")]
