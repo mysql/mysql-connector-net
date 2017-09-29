@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, 2017 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,26 +20,32 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using MySql.Data.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace MySql.Data.EntityFrameworkCore.Metadata.Internal
+namespace MySql.Data.EntityFrameworkCore.DataAnnotations
 {
   /// <summary>
-  /// RelationalFullAnnotationNames for MySQL
+  /// Establishes the character set of an entity property.
   /// </summary>
-  internal class MySQLFullAnnotationNames : RelationalFullAnnotationNames
+  public class MySqlCharsetAttribute : Attribute
   {
-    public readonly string AutoIncrement;
-    public readonly string Charset;
-    public readonly string Collation;
+    /// <summary>
+    /// Character set to use for the attribute.
+    /// </summary>
+    public string Charset { get; }
 
-    protected MySQLFullAnnotationNames(string prefix) : base(prefix)
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MySqlCharsetAttribute"/> class.
+    /// </summary>
+    /// <param name="charset">Character set to use.</param>
+    public MySqlCharsetAttribute([NotNull] string charset) : base()
     {
-      AutoIncrement = prefix + MySQLAnnotationNames.AutoIncrement;
-      Charset = prefix + MySQLAnnotationNames.Charset;
-      Collation = prefix + MySQLAnnotationNames.Collation;
+      this.Charset = charset;
     }
-
-    public new static MySQLFullAnnotationNames Instance { get; } = new MySQLFullAnnotationNames(MySQLAnnotationNames.Prefix);
   }
 }

@@ -24,6 +24,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
+using MySql.Data.EntityFrameworkCore.Extensions;
 using System;
 
 namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
@@ -473,5 +474,32 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
   public class MyContext : MyTestContext
   {
     public DbSet<MyTest> MyTest { get; set; }
+  }
+
+  public class CharsetTestContext : MyTestContext
+  {
+    public DbSet<TestCharsetDA> TestCharsetDA { get; set; }
+    public DbSet<TestCharsetFA> TestCharsetFA { get; set; }
+    public DbSet<TestCollationDA> TestCollationDA { get; set; }
+    public DbSet<TestCollationFA> TestCollationFA { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+      modelBuilder.Entity<TestCharsetFA>(e =>
+      {
+        e.ForMySQLHasCharset("utf16");
+        e.Property(p => p.TestCharsetFAId)
+          .ForMySQLHasCharset("latin7")
+          .HasMaxLength(255);
+      });
+
+      modelBuilder.Entity<TestCollationFA>(e =>
+      {
+        e.ForMySQLHasCollation("koi8u_bin");
+        e.Property(p => p.TestCollationFAId)
+          .ForMySQLHasCollation("ucs2_bin")
+          .HasMaxLength(255);
+      });
+    }
   }
 }

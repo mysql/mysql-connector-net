@@ -3,6 +3,8 @@
 - EF Core: Fixed bug when using zero datetime values (MySQL Bug #87120, Oracle Bug #26552753).
 - EF Core: Fixed bug missing foreign keys when scaffolding a database (Oracle Bug #26339430).
 - Removed UseProcedureBodies connection string option (WL-10639).
+- EF Core: Added MySqlCharset and MySqlCollation attributes to set charset/collation in entities or entity properties (WL-10894).
+- EF Core: Added ForMySQLHasCharset and ForMySQLHasCollation methods to set charset/collation in entities or entity properties (WL-10894).
 
 
 6.10.3

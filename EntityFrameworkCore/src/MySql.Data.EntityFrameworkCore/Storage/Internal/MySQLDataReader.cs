@@ -34,7 +34,6 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
   internal class MySQLDataReader : DbDataReader
   {
     private MySqlDataReader _reader;
-    private bool _disposed;
 
     public MySQLDataReader(MySqlDataReader reader)
     {

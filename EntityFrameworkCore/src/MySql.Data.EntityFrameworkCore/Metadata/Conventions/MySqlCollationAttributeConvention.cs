@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, 2017 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,26 +20,27 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using MySql.Data.EntityFrameworkCore.DataAnnotations;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Reflection;
+using MySql.Data.EntityFrameworkCore;
+using MySql.Data.EntityFrameworkCore.Metadata.Internal;
 
-namespace MySql.Data.EntityFrameworkCore.Metadata.Internal
+namespace MySql.Data.EntityFrameworkCore.Metadata.Conventions
 {
-  /// <summary>
-  /// RelationalFullAnnotationNames for MySQL
-  /// </summary>
-  internal class MySQLFullAnnotationNames : RelationalFullAnnotationNames
+  internal class MySqlCollationAttributeConvention : PropertyAttributeConvention<MySqlCollationAttribute>
   {
-    public readonly string AutoIncrement;
-    public readonly string Charset;
-    public readonly string Collation;
-
-    protected MySQLFullAnnotationNames(string prefix) : base(prefix)
+    public override InternalPropertyBuilder Apply([NotNullAttribute] InternalPropertyBuilder propertyBuilder, [NotNullAttribute] MySqlCollationAttribute attribute, [NotNullAttribute] MemberInfo clrMember)
     {
-      AutoIncrement = prefix + MySQLAnnotationNames.AutoIncrement;
-      Charset = prefix + MySQLAnnotationNames.Charset;
-      Collation = prefix + MySQLAnnotationNames.Collation;
+      propertyBuilder.Metadata.SetAnnotation(MySQLFullAnnotationNames.Instance.Collation, attribute.Collation, ConfigurationSource.DataAnnotation);
+      return propertyBuilder;
     }
-
-    public new static MySQLFullAnnotationNames Instance { get; } = new MySQLFullAnnotationNames(MySQLAnnotationNames.Prefix);
   }
 }

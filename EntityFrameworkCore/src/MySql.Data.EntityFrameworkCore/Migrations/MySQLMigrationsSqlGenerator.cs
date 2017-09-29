@@ -134,16 +134,28 @@ namespace MySql.Data.EntityFrameworkCore.Migrations
       ThrowIf.Argument.IsNull(builder, "builder");
 
 
+      var property = FindProperty(model, schema, table, name);
+
       if (type == null)
       {
         //Any property that maps to the column will work
-        //var property = FindProperties(model, schema, table, name)?.FirstOrDefault();
-        var property = FindProperty(model, schema, table, name);
         type = property != null
            ? TypeMapper.GetMapping(property).StoreType
            : TypeMapper.GetMapping(clrType).StoreType;
       }
-    
+
+      var charset = property?.FindAnnotation(MySQLFullAnnotationNames.Instance.Charset);
+      if(charset != null)
+      {
+        type += $" CHARACTER SET {charset.Value}";
+      }
+
+      var collation = property?.FindAnnotation(MySQLFullAnnotationNames.Instance.Collation);
+      if(collation != null)
+      {
+        type += $" COLLATE {collation.Value}";
+      }
+
       if (computedColumnSql != null)
       {
          builder
@@ -152,7 +164,6 @@ namespace MySql.Data.EntityFrameworkCore.Migrations
               .Append(" (" + computedColumnSql + ")");
 
           return;
-              
       }
 
       if (defaultValue != null && clrType == typeof(string))
@@ -302,6 +313,35 @@ namespace MySql.Data.EntityFrameworkCore.Migrations
       .Append(" ON " + operation.Table)
       .AppendLine(SqlGenerationHelper.StatementTerminator);
       EndStatement(builder);
+    }
+
+    protected override void Generate(
+      [NotNull] CreateTableOperation operation,
+      [CanBeNull] IModel model,
+      [NotNull] MigrationCommandListBuilder builder,
+      bool terminate)
+    {
+      base.Generate(operation, model, builder, false);
+
+      var entity = FindEntityTypes(model, operation.Schema, operation.Name).FirstOrDefault();
+
+      var charset = entity?.FindAnnotation(MySQLFullAnnotationNames.Instance.Charset);
+      if(charset != null)
+      {
+        builder.Append($" CHARACTER SET {charset.Value}");
+      }
+
+      var collation = entity?.FindAnnotation(MySQLFullAnnotationNames.Instance.Collation);
+      if (collation != null)
+      {
+        builder.Append($" COLLATE {collation.Value}");
+      }
+
+      if (terminate)
+      {
+        builder.AppendLine(SqlGenerationHelper.StatementTerminator);
+        EndStatement(builder);
+      }
     }
   }
 }

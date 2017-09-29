@@ -45,10 +45,10 @@ namespace MySql.Data.EntityFrameworkCore.Tests
      var serviceProvider = serviceCollection.BuildServiceProvider();  
 
       using (var context = serviceProvider.GetRequiredService<ConnStringOnConfiguringContext>())
-      {        
+      {
+        context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
         Assert.False(context.Posts.Any());
-        context.Database.EnsureDeleted();
       }
     }
 

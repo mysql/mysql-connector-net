@@ -35,6 +35,7 @@ namespace MySql.Data.EntityFrameworkCore.Metadata.Internal
   {
     public const string Prefix = "MySQL:";
     public const string AutoIncrement = "AutoIncrement";
-    
+    public const string Charset = "Charset";
+    public const string Collation = "Collation";
   }
 }

@@ -29,7 +29,6 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
   internal class MySQLSizeableMapping : RelationalTypeMapping
   {
-
     public MySQLSizeableMapping([NotNull] string storeType,
             [NotNull] Type clrType,
             DbType? dbType,
@@ -37,46 +36,8 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
             int? size,
             bool hasNonDefaultUnicode = false,
             bool hasNonDefaultSize = false)
-            : base(storeType, clrType, dbType, unicode, GetSizeForString(unicode, size), hasNonDefaultUnicode, hasNonDefaultSize)
-
+            : base(storeType, clrType, dbType, unicode, size, hasNonDefaultUnicode, hasNonDefaultSize)
     {
-    }
-
-    private static int GetSizeForString(bool unicode, int? size)
-    {
-      int _textMaxLength;
-      int _medTextMaxLength;
-      int _longTextMaxLength;
-
-      //max lenght for text types considering 3-bytes character sets.      
-      //_textMaxLength = ((int)Math.Pow(2, 16) - 1) / 3;
-      //_medTextMaxLength = ((int)Math.Pow(2, 24) - 1) / 3;
-      //_longTextMaxLength = ((int)Math.Pow(2, 32) - 1) / 3;
-
-      _medTextMaxLength = 255; // 65535 / 4;  // ((int)Math.Pow(2, 24) - 1) / 3;
-      _longTextMaxLength = 255; //65535 / 3; //((int)Math.Pow(2, 32) - 1) / 3;
-     _textMaxLength = 255; //65535;  // ((int)Math.Pow(2, 16) - 1) / 3;
-
-      if (unicode)
-      {
-        //_textMaxLength = ((int)Math.Pow(2, 16) - 1) / 4;
-        //_medTextMaxLength = ((int)Math.Pow(2, 24) - 1) / 4;
-        //_longTextMaxLength = ((int)Math.Pow(2, 32) - 1) / 4;
-
-        _medTextMaxLength = 255; //65535 / 4;  // ((int)Math.Pow(2, 24) - 1) / 3;
-        _longTextMaxLength = 255; // 65535 / 3; //((int)Math.Pow(2, 32) - 1) / 3;
-        _textMaxLength = 255; //65535;  // ((int)Math.Pow(2, 16) - 1) / 3;
-      }            
-
-      if (size.HasValue)
-      {
-        if (size > _medTextMaxLength)
-          return _longTextMaxLength;
-        else
-          return size.Value < _textMaxLength ? size.Value : _medTextMaxLength;
-      }
-
-      return _textMaxLength;
     }
   }
 }
