@@ -478,27 +478,34 @@ namespace MySql.Data.MySqlClient
 
     protected virtual void Dispose(bool disposing)
     {
-      // Avoid cyclic calls to Dispose.
       if (disposed)
         return;
+
+      // Avoid cyclic calls to Dispose.
+      disposed = true;
       try
       {
         ResetTimeout(1000);
-          handler.Close(IsOpen);
+        handler.Close(IsOpen);
         // if we are pooling, then release ourselves
         if (ConnectionString.Pooling)
           MySqlPoolManager.RemoveConnection(this);
       }
-      catch (Exception)
+      catch (Exception ex)
       {
         if (disposing)
-          throw;
+        {
+          MySqlException mysqlEx = ex as MySqlException;
+          if (mysqlEx == null)
+            MySqlTrace.LogError(0, ex.GetBaseException().Message);
+          else
+            MySqlTrace.LogError(mysqlEx.Number, ex.GetBaseException().Message);
+        }
       }
       finally
       {
         reader = null;
         IsOpen = false;
-        disposed = true;
       }
     }
 
