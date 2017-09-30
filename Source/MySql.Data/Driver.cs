@@ -561,7 +561,7 @@ namespace MySql.Data.MySqlClient
           if (mysqlEx == null)
             MySqlTrace.LogError(0, ex.GetBaseException().Message);
           else
-            MySqlTrace.LogError(mysqlEx.ErrorCode, ex.GetBaseException().Message);
+            MySqlTrace.LogError(mysqlEx.Number, ex.GetBaseException().Message);
         }
       }
       finally
