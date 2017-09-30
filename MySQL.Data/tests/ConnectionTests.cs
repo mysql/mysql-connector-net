@@ -797,5 +797,44 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
     }
+
+#if !NETCORE10
+    /// <summary>
+    ///  Fix for aborted connections MySQL bug 80997 OraBug 23346197
+    /// </summary>
+    [Fact]
+    public void MarkConnectionAsClosedProperlyWhenDisposing()
+    {
+      MySqlConnection con = new MySqlConnection(Connection.ConnectionString);
+      con.Open();
+      var cmd = new MySqlCommand("show global status like 'aborted_clients'", con);
+      MySqlDataReader r = cmd.ExecuteReader();
+      r.Read();
+      int numClientsAborted = r.GetInt32(1);
+      r.Close();
+
+      AppDomain appDomain = FullTrustSandbox.CreateFullTrustDomain();
+      FullTrustSandbox sandbox = (FullTrustSandbox)appDomain.CreateInstanceAndUnwrap(
+          typeof(FullTrustSandbox).Assembly.FullName,
+          typeof(FullTrustSandbox).FullName);
+      try
+      {
+      MySqlConnection connection = sandbox.TryOpenConnection("server=localhost;userid=root;pwd=;port=3305");
+        Assert.NotNull(connection);
+        Assert.True(connection.State == ConnectionState.Open);
+      }
+      finally
+      {
+        AppDomain.Unload(appDomain);
+      }
+
+      r = cmd.ExecuteReader();
+      r.Read();
+      int numClientsAborted2 = r.GetInt32(1);
+      r.Close();
+      Assert.Equal(numClientsAborted, numClientsAborted);
+      con.Close();
+    }
+#endif
   }
 }

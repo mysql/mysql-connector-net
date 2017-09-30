@@ -1,4 +1,4 @@
-// Copyright ï¿½ 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -45,7 +45,7 @@ namespace MySql.Data.MySqlClient
     private bool firstResult;
     protected IDriver handler;
     internal MySqlDataReader reader;
-    private bool disposeInProgress;
+    private bool disposed;
 
     /// <summary>
     /// For pooled connections, time when the driver was
@@ -267,6 +267,7 @@ namespace MySql.Data.MySqlClient
         setNamesCmd.InternallyCreated = true;
         setNamesCmd.ExecuteNonQuery();
       }
+      // sets character_set_results to null to return values in their original character set
       charSetCmd.ExecuteNonQuery();
 
       Encoding = CharSetMap.GetEncoding(Version, charSet ?? "utf-8");
@@ -478,15 +479,11 @@ namespace MySql.Data.MySqlClient
     protected virtual void Dispose(bool disposing)
     {
       // Avoid cyclic calls to Dispose.
-      if (disposeInProgress)
+      if (disposed)
         return;
-
-      disposeInProgress = true;
-
       try
       {
         ResetTimeout(1000);
-        if (disposing)
           handler.Close(IsOpen);
         // if we are pooling, then release ourselves
         if (ConnectionString.Pooling)
@@ -501,7 +498,7 @@ namespace MySql.Data.MySqlClient
       {
         reader = null;
         IsOpen = false;
-        disposeInProgress = false;
+        disposed = true;
       }
     }
 

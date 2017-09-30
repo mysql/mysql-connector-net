@@ -5,6 +5,9 @@
 - Removed UseProcedureBodies connection string option (WL-10639).
 - EF Core: Added MySqlCharset and MySqlCollation attributes to set charset/collation in entities or entity properties (WL-10894).
 - EF Core: Added ForMySQLHasCharset and ForMySQLHasCollation methods to set charset/collation in entities or entity properties (WL-10894).
+- Fixed Fix for "Aborted connection" (MySQL Bug #80997, Oracle Bug # 23346197).
+- Added user contribution in bug MySql.Web.Security.CreateUserInUserTable does not work (MySQL Bug #83656, Oracle Bug # 25046364).
+- Fixed incorrect encoding in connection passwords (MySQL Bug #80611, Oracle Bug #23257011).
 
 
 6.10.3
