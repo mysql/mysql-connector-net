@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Description>MySql.EntityFrameworkCore.Migrations.Tests Class Library</Description>
     <Copyright>Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.</Copyright>
-    <Version>6.10.3-rc</Version>
+    <Version>6.10.4</Version>
     <Authors>Oracle</Authors>
     <TargetFrameworks>netcoreapp1.1;net452</TargetFrameworks>
     <AssemblyName>MySql.EntityFrameworkCore.Migrations.Tests</AssemblyName>
