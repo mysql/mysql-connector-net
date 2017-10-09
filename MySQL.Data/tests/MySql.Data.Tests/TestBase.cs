@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -117,9 +117,9 @@ namespace MySql.Data.MySqlClient.Tests
       catch (Exception) { }
 
       // now wait till the process dies
-      bool processStillAlive = false;
       while (true)
       {
+        bool processStillAlive = false;
         MySqlCommand cmdProcess = new MySqlCommand("SHOW PROCESSLIST", root);
         MySqlDataReader dr = cmdProcess.ExecuteReader();
         while (dr.Read())
