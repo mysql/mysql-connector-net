@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.9
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.Data.EntityFramework", "src\MySql.Data.EntityFramework.csproj", "{014A33CB-29B4-44F5-B1E6-F4638737C083}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.Data", "..\MySQL.Data\src\MySql.Data.csproj", "{5B2B1F22-0C4C-4260-B806-2817AB1AF904}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.EntityFramework.Basic.Tests", "tests\MySql.EntityFramework.Basic.Tests\MySql.EntityFramework.Basic.Tests.csproj", "{8B915A81-E17A-489D-9B4D-3AA5C2E72D9A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{014A33CB-29B4-44F5-B1E6-F4638737C083}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{014A33CB-29B4-44F5-B1E6-F4638737C083}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{014A33CB-29B4-44F5-B1E6-F4638737C083}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{014A33CB-29B4-44F5-B1E6-F4638737C083}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B2B1F22-0C4C-4260-B806-2817AB1AF904}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B2B1F22-0C4C-4260-B806-2817AB1AF904}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B2B1F22-0C4C-4260-B806-2817AB1AF904}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B2B1F22-0C4C-4260-B806-2817AB1AF904}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B915A81-E17A-489D-9B4D-3AA5C2E72D9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B915A81-E17A-489D-9B4D-3AA5C2E72D9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B915A81-E17A-489D-9B4D-3AA5C2E72D9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B915A81-E17A-489D-9B4D-3AA5C2E72D9A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

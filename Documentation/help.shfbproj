@@ -49,24 +49,17 @@
     <PresentationStyle>VS2013</PresentationStyle>
     <NamingMethod>MemberName</NamingMethod>
     <DocumentationSources>
-      <DocumentationSource sourceFile="..\Source\MySql.Data\bin\v4.0\Release\MySql.Data.dll" />
-      <DocumentationSource sourceFile="..\Source\MySql.Data\bin\v4.0\Release\MySql.Data.xml" />
-      <DocumentationSource sourceFile="..\Source\MySql.Web\bin\v4.0\release\MySql.Web.dll" />
-      <DocumentationSource sourceFile="..\Source\MySql.Web\bin\v4.0\release\webdocs.xml" />
-    </DocumentationSources>
+      <DocumentationSource sourceFile="..\MySql.Data\src\bin\release\net452\MySql.Data.dll" />
+<DocumentationSource sourceFile="..\MySql.Data\src\bin\release\net452\MySql.Data.xml" />
+<DocumentationSource sourceFile="..\MySql.Web\src\bin\release\net452\MySql.Web.dll" />
+<DocumentationSource sourceFile="..\MySql.Web\src\bin\release\net452\MySql.Web.xml" /></DocumentationSources>
     <NamespaceSummaries>
       <NamespaceSummaryItem name="(global)" isDocumented="False" xmlns="" />
       <NamespaceSummaryItem name="MySql.Data.Common" isDocumented="False" xmlns="" />
       <NamespaceSummaryItem name="MySql.Data.MySqlClient" isDocumented="True" xmlns="" />
       <NamespaceSummaryItem name="MySql.Data.Types" isDocumented="True" xmlns="" />
-	  <NamespaceSummaryItem name="MySql.Serialization" isDocumented="True">Set of classes used for parsing JSON strings.</NamespaceSummaryItem>
-	  <NamespaceSummaryItem name="MySql.Session" isDocumented="True">Set of classes to manage connections using X protocol.</NamespaceSummaryItem>
-	  <NamespaceSummaryItem name="MySql.XDevAPI" isDocumented="True">Main set of classes for the X communication protocol.</NamespaceSummaryItem>
-	  <NamespaceSummaryItem name="MySql.XDevAPI.Common" isDocumented="False" />
-	  <NamespaceSummaryItem name="MySql.XDevAPI.CRUD" isDocumented="True">Set of classes for the Dev API with Hybrid MySQL technology.</NamespaceSummaryItem>
-	  <NamespaceSummaryItem name="MySql.XDevAPI.Relational" isDocumented="True">Set of classes used for managing relational table operations.</NamespaceSummaryItem>
-	  <NamespaceSummaryItem name="MySql.Security" isDocumented="True">Set of classes used for secure access user accounts in connections.</NamespaceSummaryItem>	  
-      <NamespaceSummaryItem name="zlib" isDocumented="False" xmlns="" />
+      <NamespaceSummaryItem name="MySql.Serialization" isDocumented="True">Set of classes used for parsing JSON strings.</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="MySql.Security" isDocumented="True">Set of classes used for secure access user accounts in connections.</NamespaceSummaryItem>
     </NamespaceSummaries>
     <PlugInConfigurations>
     </PlugInConfigurations>
@@ -96,6 +89,7 @@
     <Folder Include="Users Guide\" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Users Guide\GettingStarted.aml" />
     <None Include="Users Guide\connector-net-connection-options.aml" />
     <None Include="Users Guide\connector-net-tutorials.aml" />
     <None Include="Users Guide\connector-net-versions.aml" />
@@ -107,6 +101,9 @@
   </ItemGroup>
   <ItemGroup>
     <ContentLayout Include="Layout.content" />
+  </ItemGroup>
+  <ItemGroup>
+    <CodeSnippets Include="Users Guide\CodeExamples.snippets" />
   </ItemGroup>
   <Import Project="Images.proj" />
   <!-- Import the SHFB build targets -->

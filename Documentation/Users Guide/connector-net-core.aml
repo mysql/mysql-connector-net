@@ -1,4 +1,4 @@
-<topic id="052f4a92-cf0f-4dcb-a79d-6770047e150f" revisionNumber="1">
+<topic id="connector-net-x-devapi-reference" revisionNumber="1">
   <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
     <section address="connector-net">
       <title>MySQL Connector/Net</title>
@@ -19,7 +19,7 @@
           <listItem>
             <para>
         Features provided by MySQL Server up to and including MySQL
-        Server version 5.5.
+        Server version 8.0.1
       </para>
           </listItem>
           <listItem>
@@ -44,12 +44,7 @@
             <para>
         Connections using TCP/IP sockets or Unix sockets on Unix.
       </para>
-          </listItem>
-          <listItem>
-            <para>
-        The Open Source Mono framework developed by Novell.
-      </para>
-          </listItem>
+          </listItem>       
           <listItem>
             <para>
         Fully managed, does not utilize the MySQL client library.
@@ -57,44 +52,8 @@
           </listItem>
         </list>
         <para>
-    This document is intended as a user's guide to Connector/Net and
-    includes a full syntax reference. Syntax information is also
-    included within the <legacyBold>Documentation.chm</legacyBold> file
-    included with the Connector/Net distribution.
-  </para>
-        <para>
-    If you are using MySQL 5.0 or later, and Visual Studio as your
-    development environment, you can also use the MySQL Visual Studio
-    Plugin. The plugin acts as a DDEX (Data Designer Extensibility)
-    provider: you can use the data design tools within Visual Studio to
-    manipulate the schema and objects within a MySQL database. For more
-    information, see <link xlink:href="9f3f194e-ad35-4379-b04d-5dce4b34ce6a"></link>.
-  </para>
-        <alert class="note">
-          <para>
-      Connector/Net 5.1.2 and later include the Visual Studio Plugin by
-      default.
-    </para>
-        </alert>
-        <para>
-     supports full versions of Visual Studio 2005, 2008, and 2010,
-    although certain features are only available in Visual Studio 2010
-    when using  version 6.3.2 and later. Note that  does not
-    currently support Express versions of Microsoft products, including
-    Microsoft Visual Web Developer.
-  </para>
-        <para>
-          <legacyBold>Key topics:</legacyBold>
-        </para>
-        <list class="bullet">
-          <listItem>
-            <para>
-        For connection string properties when using the
-         class, see
-        <link xlink:href="c26b6c1a-1652-4d9d-ac74-96cee9531a3b"></link>.
-      </para>
-          </listItem>
-        </list>
+    This document is intended as a reference guide to the Connector/Net implementation of the X DevAPI.
+	  </para>
       </content>
     </section>
   </developerConceptualDocument>

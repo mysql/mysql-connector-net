@@ -1,2 +1,77 @@
-7.0.2	
-- Support for new MySQL X plugin and new DevAPI.
+8.0.9
+- MySqlX: Set utf8mb4 as the default charset (WL10562).
+- MySqlX: Updated all DropX() methods to return void, execute without the need to call Execute() and to succeed
+  even if the object to be droppped does not already exist (WL10563).
+- MySqlX: Added the LockShared() and LockExclusive() methods to Table.Select() and Collection.Find() command
+  chains, allowing safe transactional document and row updates (WL10948).
+- MySqlX: Added support for setting the priority of hosts during client-side failover (WL10998).
+- MySqlX: Extended the IN operator to support operations of the type:
+  (compExpr ["NOT"] "IN" compExpr | compExpr ["NOT"] "IN" "(" argsList ")") (WL10947).
+- MySqlX: Added ReplaceOne(), AddOrReplaceOne(), GetOne() and RemoveOne() direct-execute methods to collections
+  (WL10949).
+- MySqlX: Added support for Unix sockets (WL10201).
+- MySQLX: Added support to connect to the server using an account that authenticates with the sha256_password
+  plugin. Added the auth connection option for specifying the authentication mechanism to be used. Set PLAIN as
+  the default authentication mechanism whenever TLS is enabled or Unix sockets are being used (WL10595).
+- Added support to connect to the server using an account that authenticates with the sha256_password plugin. (WL10595).
+- Added support for Unix sockets in dotnet core (WL10613)
+- EF Core: Added async support (WL10615).
+- Removed connection string options 'autoenlist' and 'includesecurityasserts' for Dotnet core (WL10564).
+- EF Core: Added support for Explicit loading (WL9768).
+- EF Core: Added support for multiple schemas (WL10668).
+- The following connection string options will raise a PlatformNotSupportedException when used in Dotnet Core:
+  sharedmemoryname, integratedsecurity, pipe, logging, useusageadvisor, useperformancemonitor, interactivesession,
+  replication. They will be implemented in future versions.
+
+
+8.0.8
+- MySqlX: Updated Collection's Modify() and Remove() methods to always require a search condition (WL10739).
+- MySqlX: Updated the generated UUID for inserted documents to have its components in reversed order (WL10202).
+- Removed ssl-enable connection option. Set "Required" as the default value for ssl-mode (WL10559).
+- MySqlX: Added client-side failover when establishing a connection (WL9980).
+- MySqlX: Removed XSession and renamed NodeSession to Session (WL10561).
+
+
+7.0.7
+- MySqlX: Fixed configuration handling paths in Linux and MacOS (Oracle Bug #25423724).
+- MySqlX: Fixed Dispose error in Linux and MacOS (Oracle Bug #25423700).
+- MySqlX: Added support for creating, modifying, and dropping Views (WL10034).
+- MySqlX: Added support for IPv6 (WL10080).
+- MySqlX: Added validations to SessionConfigManager methods (Oracle Bug #25598617).
+
+
+7.0.6
+- MySqlX: Fixed schema.GetTables() and schema.GetCollections() (Oracle Bug #24385662).
+- EFCore: MySQLHistoryRepository has not implemented get_ExistsSql() (Oracle Bug #24804771).
+- EFCore: Cannot use datetimeoffset in EF DBContext (Oracle Bug #24732001).
+- EFCore: SQL syntax error when using Contains in where predicate for a linq query (Oracle Bug #24797524).
+- EFCore: Ensure ConcurrencyToken attribute is supported with MySQL provider.
+
+
+7.0.5
+- Added fallback to SSL connections.
+- MySqlX: Added ssl-enable and ssl-ca uri options for SSL connections.
+
+
+7.0.4
+- MySqlX: Added Table.IsView property to support Views.
+- MySqlX: Fixed Collection.Add() when DbDoc contains an array (Oracle Bug #23542031).
+- MySqlX: Fixed adding empty array in Collection (Oracle Bug #23542066).
+- MySqlX: Flexible Parameter Lists.
+- NETCore: Added .Net Core 1.0 support in MySql.Data.
+- Entity Framework Core: Added support for Entity Framework Core in MySQL.Data.EntityFrameworkCore (includes support for .Net 4.5.1).
+
+
+7.0.3
+- Added support for TLSv1.1 and TLSv1.2
+- MySqlX: Added Result to Commit() and Rollback() Session methods in order to be able to read Warnings.
+- MySqlX: Fixed binary collations as strings instead of bytes.
+- MySqlX: Replace the use of "@" for "$" in JSON path expressions.
+- MySqlX: Added support for TLSv1.0
+
+
+7.0.2
+- Support for MySqlX.Session and NodeSession objects in new Dev API.
+- Support for Collection and Documents objects new Dev API.
+- Support for Relational tables in new Dev API.
+- Support for Transactions in new Dev API.
