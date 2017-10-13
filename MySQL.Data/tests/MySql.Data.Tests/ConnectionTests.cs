@@ -347,6 +347,8 @@ namespace MySql.Data.MySqlClient.Tests
       c = null;
       GC.Collect();
       GC.WaitForPendingFinalizers();
+      GC.Collect();
+      GC.WaitForPendingFinalizers();
       Assert.True(check.closed);
     }
 
