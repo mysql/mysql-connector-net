@@ -210,8 +210,13 @@ namespace MySqlX.XDevAPI
       }
       if (val is Dictionary<string, object>)
         return DictToString(val as Dictionary<string, object>, ident + 2);
+      else if (val is MySqlExpression)
+      {
+        var expression = (MySqlExpression) val;
+        return expression.value;
+      }
+
       string quoteChar = "";
-      Type type = val.GetType();
       if (val is string || val is DateTime)
       {
         quoteChar = "\"";

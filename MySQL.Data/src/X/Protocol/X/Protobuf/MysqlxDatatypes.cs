@@ -42,12 +42,11 @@ namespace Mysqlx.Datatypes {
             "cGVzLlNjYWxhchIlCgNvYmoYAyABKAsyGC5NeXNxbHguRGF0YXR5cGVzLk9i",
             "amVjdBImCgVhcnJheRgEIAEoCzIXLk15c3FseC5EYXRhdHlwZXMuQXJyYXki",
             "MwoEVHlwZRIICgROT05FEAASCgoGU0NBTEFSEAESCgoGT0JKRUNUEAISCQoF",
-            "QVJSQVkQAyo4CgtDb250ZW50VHlwZRIICgROT05FEAASDAoIR0VPTUVUUlkQ",
-            "ARIICgRKU09OEAISBwoDWE1MEANCHgocY29tLm15c3FsLmNqLm15c3FseC5w",
-            "cm90b2J1ZmIGcHJvdG8z"));
+            "QVJSQVkQA0IeChxjb20ubXlzcWwuY2oubXlzcWx4LnByb3RvYnVmYgZwcm90",
+            "bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
-          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Mysqlx.Datatypes.ContentType), }, new pbr::GeneratedClrTypeInfo[] {
+          new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Datatypes.Scalar), global::Mysqlx.Datatypes.Scalar.Parser, new[]{ "Type", "VSignedInt", "VUnsignedInt", "VOctets", "VDouble", "VFloat", "VBool", "VString" }, null, new[]{ typeof(global::Mysqlx.Datatypes.Scalar.Types.Type) }, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Datatypes.Scalar.Types.String), global::Mysqlx.Datatypes.Scalar.Types.String.Parser, new[]{ "Value", "Collation" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Datatypes.Scalar.Types.Octets), global::Mysqlx.Datatypes.Scalar.Types.Octets.Parser, new[]{ "Value", "ContentType" }, null, null, null)}),
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Datatypes.Object), global::Mysqlx.Datatypes.Object.Parser, new[]{ "Fld" }, null, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Datatypes.Object.Types.ObjectField), global::Mysqlx.Datatypes.Object.Types.ObjectField.Parser, new[]{ "Key", "Value" }, null, null, null)}),
@@ -58,34 +57,6 @@ namespace Mysqlx.Datatypes {
     #endregion
 
   }
-  #region Enums
-  /// <summary>
-  ///  a hint about the higher-level encoding of a BYTES field
-  ///
-  ///  ====== ====== ===========
-  ///  type   value  description
-  ///  ====== ====== ===========
-  ///  BYTES  0x0001 GEOMETRY (WKB encoding)
-  ///  BYTES  0x0002 JSON (text encoding)
-  ///  BYTES  0x0003 XML (text encoding)
-  ///  ====== ====== ===========
-  ///
-  ///  .. note::
-  ///    this list isn't comprehensive. As guideline: the field's value is expected
-  ///    to pass a validator check on client and server if this field is set.
-  ///    If the server adds more internal datatypes that rely on BLOB storage
-  ///    like image manipulation, seeking into complex types in BLOBs, ... more
-  ///    types will be added.
-  /// </summary>
-  internal enum ContentType {
-    [pbr::OriginalName("NONE")] None = 0,
-    [pbr::OriginalName("GEOMETRY")] Geometry = 1,
-    [pbr::OriginalName("JSON")] Json = 2,
-    [pbr::OriginalName("XML")] Xml = 3,
-  }
-
-  #endregion
-
   #region Messages
   /// <summary>
   ///  a scalar
@@ -588,7 +559,7 @@ namespace Mysqlx.Datatypes {
 
       /// <summary>
       ///  an opaque octet sequence, with an optional content_type
-      ///  See ``Mysqlx.Resultset.ColumnMetadata`` for list of known values.
+      ///  See ``Mysqlx.Resultset.ContentType_BYTES`` for list of known values.
       /// </summary>
       internal sealed partial class Octets : pb::IMessage<Octets> {
         private static readonly pb::MessageParser<Octets> _parser = new pb::MessageParser<Octets>(() => new Octets());

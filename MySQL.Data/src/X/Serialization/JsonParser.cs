@@ -20,6 +20,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySqlX.XDevAPI;
 using System;
 using System.Collections.Generic;
 
@@ -95,7 +96,23 @@ namespace MySqlX.Serialization
       if (int.TryParse(stringValue, out intValue)) return intValue;
       if (long.TryParse(stringValue, out longValue)) return longValue;
       if (double.TryParse(stringValue, out doubleValue)) return doubleValue;
-      return stringValue;
+
+      // May be a function.
+      int openingParen = 0;
+      for (int i=0; i<stringValue.Length; i++)
+      {
+        if (stringValue[i] == '(') openingParen++;
+        else if (stringValue[i] == ')') openingParen--;
+      }
+
+      while (openingParen>0)
+      {
+        stringValue += ReadUntilToken(')') + ")";
+        RequireToken(')');
+        openingParen--;
+      }
+
+      return new MySqlExpression(stringValue);
     }
 
     private object[] ReadArray()

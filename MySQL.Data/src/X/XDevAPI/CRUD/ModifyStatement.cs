@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -23,6 +23,9 @@
 using System.Collections.Generic;
 using Mysqlx.Crud;
 using MySqlX.XDevAPI.Common;
+using System;
+using MySql.Data;
+using MySql.Data.MySqlClient;
 
 namespace MySqlX.XDevAPI.CRUD
 {
@@ -70,6 +73,32 @@ namespace MySqlX.XDevAPI.CRUD
     public ModifyStatement Unset(string docPath)
     {
       Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ItemRemove, docPath));
+      return this;
+    }
+
+    /// <summary>
+    /// Creates a <see cref="ModifyStatement"/> object set with the changes to be applied to all matching documents.
+    /// </summary>
+    /// <param name="document">The JSON-formatted object describing the set of changes.</param>
+    /// <returns>A <see cref="ModifyStatement"/> object set with the changes described in <paramref name="document"/>.</returns>
+    /// <remarks><paramref name="document"/> can be a <see cref="DbDoc"/> object, an anonymous object, or a JSON string.</remarks>
+    /// <exception cref="MySqlException">The server version is 8.0.2 or lower.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="document"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="document"/> is <c>null</c> or white space.</exception>
+    public ModifyStatement Patch(object document)
+    {
+      if (!this.Session.InternalSession.GetServerVersion().isAtLeast(8,0,3))
+        throw new MySqlException(string.Format(ResourcesX.FunctionalityNotSupported, "8.0.3"));
+
+      if (document == null)
+        throw new ArgumentNullException(nameof(document));
+
+      if (document is string && string.IsNullOrWhiteSpace((string) document))
+        throw new ArgumentNullException(nameof(document), Resources.ParameterNullOrEmpty);
+
+      DbDoc dbDocument = document is DbDoc ? document as DbDoc : new DbDoc(document);
+      Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.MergePatch, string.Empty).SetValue(dbDocument.values));
+
       return this;
     }
 

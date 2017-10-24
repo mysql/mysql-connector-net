@@ -22,20 +22,22 @@ namespace Mysqlx.Expect {
     static MysqlxExpectReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "ChNteXNxbHhfZXhwZWN0LnByb3RvEg1NeXNxbHguRXhwZWN0ItsCCgRPcGVu",
+            "ChNteXNxbHhfZXhwZWN0LnByb3RvEg1NeXNxbHguRXhwZWN0IpkDCgRPcGVu",
             "EiwKAm9wGAEgASgOMiAuTXlzcWx4LkV4cGVjdC5PcGVuLkN0eE9wZXJhdGlv",
             "bhIrCgRjb25kGAIgAygLMh0uTXlzcWx4LkV4cGVjdC5PcGVuLkNvbmRpdGlv",
-            "bhq3AQoJQ29uZGl0aW9uEhUKDWNvbmRpdGlvbl9rZXkYASABKA0SFwoPY29u",
+            "bhr1AQoJQ29uZGl0aW9uEhUKDWNvbmRpdGlvbl9rZXkYASABKA0SFwoPY29u",
             "ZGl0aW9uX3ZhbHVlGAIgASgMEjwKAm9wGAMgASgOMjAuTXlzcWx4LkV4cGVj",
-            "dC5PcGVuLkNvbmRpdGlvbi5Db25kaXRpb25PcGVyYXRpb24iPAoSQ29uZGl0",
-            "aW9uT3BlcmF0aW9uEhEKDUVYUEVDVF9PUF9TRVQQABITCg9FWFBFQ1RfT1Bf",
-            "VU5TRVQQASI+CgxDdHhPcGVyYXRpb24SGAoURVhQRUNUX0NUWF9DT1BZX1BS",
-            "RVYQABIUChBFWFBFQ1RfQ1RYX0VNUFRZEAEiBwoFQ2xvc2VCHgocY29tLm15",
-            "c3FsLmNqLm15c3FseC5wcm90b2J1ZmIGcHJvdG8z"));
+            "dC5PcGVuLkNvbmRpdGlvbi5Db25kaXRpb25PcGVyYXRpb24iPAoDS2V5EggK",
+            "BE5PTkUQABITCg9FWFBFQ1RfTk9fRVJST1IQARIWChJFWFBFQ1RfRklFTERf",
+            "RVhJU1QQAiI8ChJDb25kaXRpb25PcGVyYXRpb24SEQoNRVhQRUNUX09QX1NF",
+            "VBAAEhMKD0VYUEVDVF9PUF9VTlNFVBABIj4KDEN0eE9wZXJhdGlvbhIYChRF",
+            "WFBFQ1RfQ1RYX0NPUFlfUFJFVhAAEhQKEEVYUEVDVF9DVFhfRU1QVFkQASIH",
+            "CgVDbG9zZUIeChxjb20ubXlzcWwuY2oubXlzcWx4LnByb3RvYnVmYgZwcm90",
+            "bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Expect.Open), global::Mysqlx.Expect.Open.Parser, new[]{ "Op", "Cond" }, null, new[]{ typeof(global::Mysqlx.Expect.Open.Types.CtxOperation) }, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Expect.Open.Types.Condition), global::Mysqlx.Expect.Open.Types.Condition.Parser, new[]{ "ConditionKey", "ConditionValue", "Op" }, null, new[]{ typeof(global::Mysqlx.Expect.Open.Types.Condition.Types.ConditionOperation) }, null)}),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Expect.Open), global::Mysqlx.Expect.Open.Parser, new[]{ "Op", "Cond" }, null, new[]{ typeof(global::Mysqlx.Expect.Open.Types.CtxOperation) }, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Expect.Open.Types.Condition), global::Mysqlx.Expect.Open.Types.Condition.Parser, new[]{ "ConditionKey", "ConditionValue", "Op" }, null, new[]{ typeof(global::Mysqlx.Expect.Open.Types.Condition.Types.Key), typeof(global::Mysqlx.Expect.Open.Types.Condition.Types.ConditionOperation) }, null)}),
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Expect.Close), global::Mysqlx.Expect.Close.Parser, null, null, null, null)
           }));
     }
@@ -379,6 +381,18 @@ namespace Mysqlx.Expect {
         /// <summary>Container for nested types declared in the Condition message type.</summary>
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         internal static partial class Types {
+          internal enum Key {
+            [pbr::OriginalName("NONE")] None = 0,
+            /// <summary>
+            ///  Change error propagation behaviour
+            /// </summary>
+            [pbr::OriginalName("EXPECT_NO_ERROR")] ExpectNoError = 1,
+            /// <summary>
+            ///  Check if X Protocol field exists
+            /// </summary>
+            [pbr::OriginalName("EXPECT_FIELD_EXIST")] ExpectFieldExist = 2,
+          }
+
           internal enum ConditionOperation {
             /// <summary>
             ///  set the condition
