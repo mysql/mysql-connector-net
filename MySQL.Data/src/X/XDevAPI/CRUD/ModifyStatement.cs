@@ -82,14 +82,10 @@ namespace MySqlX.XDevAPI.CRUD
     /// <param name="document">The JSON-formatted object describing the set of changes.</param>
     /// <returns>A <see cref="ModifyStatement"/> object set with the changes described in <paramref name="document"/>.</returns>
     /// <remarks><paramref name="document"/> can be a <see cref="DbDoc"/> object, an anonymous object, or a JSON string.</remarks>
-    /// <exception cref="MySqlException">The server version is 8.0.2 or lower.</exception>
     /// <exception cref="ArgumentNullException"><paramref name="document"/> is <c>null</c>.</exception>
     /// <exception cref="ArgumentNullException"><paramref name="document"/> is <c>null</c> or white space.</exception>
     public ModifyStatement Patch(object document)
     {
-      if (!this.Session.InternalSession.GetServerVersion().isAtLeast(8,0,3))
-        throw new MySqlException(string.Format(ResourcesX.FunctionalityNotSupported, "8.0.3"));
-
       if (document == null)
         throw new ArgumentNullException(nameof(document));
 
