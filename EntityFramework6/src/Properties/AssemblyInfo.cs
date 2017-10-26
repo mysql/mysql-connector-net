@@ -28,8 +28,14 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
+#if EF6
 [assembly: AssemblyTitle("MySql.Data.Entity for EF6")]
 [assembly: AssemblyDescription("Entity Framework 6.0 supported")]
+#else
+[assembly: AssemblyTitle("MySql.Data.Entity")]
+[assembly: AssemblyDescription("")]
+[assembly: AllowPartiallyTrustedCallers]
+#endif
 
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Oracle")]
@@ -42,7 +48,6 @@ using System.Runtime.InteropServices;
 // to COM components.  If you need to access a type in this assembly from 
 // COM, set the ComVisible attribute to true on that type.
 [assembly: ComVisible(false)]
-[assembly: AllowPartiallyTrustedCallers]
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 // [assembly: Guid("540e7b3c-bd0b-4980-96d1-5d140d303f7e")]
 
