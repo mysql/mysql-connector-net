@@ -288,7 +288,7 @@ namespace MySqlX.XDevAPI
     public string SetSavepoint()
     {
       // Autogenerate the name of the savepoint.
-      return SetSavepoint(string.Format("savepoint_{0}", Guid.NewGuid().ToString()));
+      return SetSavepoint($"savepoint_{Guid.NewGuid().ToString()}");
     }
 
     /// <summary>
