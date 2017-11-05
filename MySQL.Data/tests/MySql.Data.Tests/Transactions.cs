@@ -119,7 +119,8 @@ namespace MySql.Data.MySqlClient.Tests
         using (MySqlDataReader reader = cmd.ExecuteReader())
         {
           reader.Read();
-          Assert.Equal("OFF", reader.GetString(1));
+          if (Connection.driver.Version.isAtLeast(5, 7, 0))
+            Assert.Equal("OFF", reader.GetString(1));
         }
       }
     }
