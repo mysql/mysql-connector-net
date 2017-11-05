@@ -78,7 +78,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #34448 Connector .Net 5.2.0 with Transactionscope doesn´t use specified IsolationLevel 
     /// </summary>
-    [Fact(Skip="Fix This")]
+    [Fact]
     public void TransactionScopeWithIsolationLevel()
     {
       TransactionOptions opts = new TransactionOptions();
@@ -90,7 +90,10 @@ namespace MySql.Data.MySqlClient.Tests
         using (MySqlConnection myconn = new MySqlConnection(connStr))
         {
           myconn.Open();
-          MySqlCommand cmd = new MySqlCommand("SHOW VARIABLES LIKE 'tx_isolation'", myconn);
+          MySqlCommand cmd = new MySqlCommand(Connection.driver.Version.isAtLeast(8, 0, 1) ?
+            "SHOW VARIABLES LIKE 'transaction_isolation'":
+            "SHOW VARIABLES LIKE 'tx_isolation'"
+          , myconn);
           using (MySqlDataReader reader = cmd.ExecuteReader())
           {
             reader.Read();
@@ -101,6 +104,25 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 #endif
+
+    [Fact]
+    public void TransactionReadOnlyIsAvailable()
+    {
+      string connStr = Connection.ConnectionString;
+      using (MySqlConnection myconn = new MySqlConnection(connStr))
+      {
+        myconn.Open();
+        MySqlCommand cmd = new MySqlCommand(Connection.driver.Version.isAtLeast(8, 0, 1) ?
+          "SHOW VARIABLES LIKE 'transaction_read_only'":
+          "SHOW VARIABLES LIKE 'tx_read_only'"
+        , myconn);
+        using (MySqlDataReader reader = cmd.ExecuteReader())
+        {
+          reader.Read();
+          Assert.Equal("OFF", reader.GetString(1));
+        }
+      }
+    }
 
     /// <summary>
     /// Bug #27289 Transaction is not rolledback when connection close 
