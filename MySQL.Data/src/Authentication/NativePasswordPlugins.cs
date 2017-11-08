@@ -22,11 +22,6 @@
 
 using System;
 using System.Security.Cryptography;
-#if NET_CORE
-using AliasText = MySql.Data.MySqlClient.Framework.NetCore10;
-#else
-using AliasText = System.Text;
-#endif
 
 namespace MySql.Data.MySqlClient.Authentication
 {

@@ -32,7 +32,9 @@ using System.Transactions;
 
 namespace MySql.Data.MySqlClient
 {
+#if NET452
   [ToolboxBitmap(typeof(MySqlConnection), "MySqlClient.resources.connection.bmp")]
+#endif
   [DesignerCategory("Code")]
   [ToolboxItem(true)]
   public sealed partial class MySqlConnection : DbConnection, ICloneable

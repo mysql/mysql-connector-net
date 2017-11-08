@@ -26,7 +26,7 @@ using Xunit;
 using System.Reflection;
 using System.Threading;
 using System.Data;
-#if !NETCORE10
+#if !NETCOREAPP1_1
 using System.Timers;
 #endif
 
@@ -441,7 +441,7 @@ namespace MySql.Data.MySqlClient.Tests
     private static List<MySqlPool> GetClearingPools()
     {
       Type poolManagerType = typeof(MySqlPoolManager);
-#if NET_CORE
+#if NETCOREAPP1_1
       FieldInfo clearingPoolsFI = poolManagerType.GetRuntimeField("clearingPools");
 #else
       FieldInfo clearingPoolsFI = poolManagerType.GetField("clearingPools",
@@ -541,7 +541,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
     private void CacheServerPropertiesInternal(bool cache)
     {
       string connStr = ConnectionSettings.ConnectionString +

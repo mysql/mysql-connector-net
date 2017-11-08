@@ -30,7 +30,7 @@ namespace MySql.Data.Types
   {
     public static bool IsNumericType(string typename)
     {
-#if NET_CORE
+#if NETSTANDARD1_6
       string lowerType = typename.ToLowerInvariant();
 #else
       string lowerType = typename.ToLower(CultureInfo.InvariantCulture);
@@ -57,7 +57,7 @@ namespace MySql.Data.Types
 
     public static bool IsTextType(string typename)
     {
-#if NET_CORE
+#if NETSTANDARD1_6
       string lowerType = typename.ToLowerInvariant();
 #else
       string lowerType = typename.ToLower(CultureInfo.InvariantCulture);

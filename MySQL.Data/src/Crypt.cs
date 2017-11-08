@@ -23,8 +23,8 @@
 using System;
 using System.Security.Cryptography;
 
-#if NET_CORE
-using MySql.Data.MySqlClient.Framework.NetCore10;
+#if NETSTANDARD1_6
+using MySql.Data.MySqlClient.Framework.NetStandard1_6;
 #else
 using System.Text;
 #endif

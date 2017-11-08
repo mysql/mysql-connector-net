@@ -37,7 +37,7 @@ using System.Security;
 [assembly: AssemblyCopyright("Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-#if !NET_CORE
+#if !NETSTANDARD1_6
 [assembly: SecurityRules(SecurityRuleSet.Level1)]
 [assembly: CLSCompliant(false)]
 #endif

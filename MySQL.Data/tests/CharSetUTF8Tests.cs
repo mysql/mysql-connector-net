@@ -62,7 +62,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
     /// <summary>
     /// Bug #14592 Wrong column length returned for VARCHAR UTF8 columns 
     /// </summary>
@@ -98,7 +98,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("Unknown column 'Numéro' in 'field list'", exception.Message);
     }
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
     /// <summary>
     /// Tests for bug http://bugs.mysql.com/bug.php?id=62094
     /// (char field mapped to System.String of MaxLength=3*len(char) in .NET/Connector).
@@ -119,7 +119,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 #endif
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
 
     [Fact]
     public void BlobAsUtf8()

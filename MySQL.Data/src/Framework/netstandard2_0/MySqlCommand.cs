@@ -26,7 +26,9 @@ using System.Drawing;
 
 namespace MySql.Data.MySqlClient
 {
+#if NET452
   [ToolboxBitmap(typeof(MySqlCommand), "MySqlClient.resources.command.bmp")]
+#endif
   [DesignerCategory("Code")]
   public sealed partial class MySqlCommand : ICloneable
   {

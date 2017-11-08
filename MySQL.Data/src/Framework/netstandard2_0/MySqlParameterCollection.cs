@@ -28,7 +28,9 @@ using MySql.Data.MySqlClient;
 
 namespace MySql.Data.MySqlClient
 {
+#if NET452
   [Editor("MySql.Data.MySqlClient.Design.DBParametersEditor,MySql.Design", typeof(System.Drawing.Design.UITypeEditor))]
+#endif
   [ListBindable(true)]
   public sealed partial class MySqlParameterCollection : DbParameterCollection
   {

@@ -102,7 +102,7 @@ namespace MySql.Data.MySqlClient
       Size = size;
     }
 
-#if NETCORE10
+#if NETSTANDARD1_6
     /// <summary>
     /// Initializes a new instance of the <see cref="MySqlParameter"/> class with the parameter name, the type of the parameter, the size of the parameter, a <see cref="ParameterDirection"/>, the precision of the parameter, the scale of the parameter, the source column, a <see cref="DataRowVersion"/> to use, and the value of the parameter.
     /// </summary>
@@ -145,13 +145,13 @@ namespace MySql.Data.MySqlClient
       Precision = precision;
       Scale = scale;
       Value = value;
-#if !NETCORE10
+#if !NETSTANDARD1_6
       SourceVersion = sourceVersion;
 #endif
 
     }
 
-#if NETCORE10
+#if NETSTANDARD1_6
     internal MySqlParameter(string name, MySqlDbType type, ParameterDirection dir, string col, object val)
       : this(name, type)
 
@@ -163,14 +163,14 @@ namespace MySql.Data.MySqlClient
       Direction = dir;
       SourceColumn = col;
       Value = val;
-#if !NETCORE10
+#if !NETSTANDARD1_6
       SourceVersion = sourceVersion;
 #endif
     }
 
-#endregion
+    #endregion
 
-#region Properties
+    #region Properties
 
     [Category("Misc")]
     public override String ParameterName
@@ -212,7 +212,7 @@ namespace MySql.Data.MySqlClient
     /// Gets or sets the MySqlDbType of the parameter.
     /// </summary>
     [Category("Data")]
-#if !NET_CORE
+#if !NETSTANDARD1_6
     [DbProviderSpecificTypeProperty(true)]
 #endif
     public MySqlDbType MySqlDbType
@@ -603,7 +603,7 @@ namespace MySql.Data.MySqlClient
 
     public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
     {
-#if !NET_CORE
+#if !NETSTANDARD1_6
       if (destinationType == typeof(System.ComponentModel.Design.Serialization.InstanceDescriptor))
       {
         return true;
@@ -617,7 +617,7 @@ namespace MySql.Data.MySqlClient
     public override object ConvertTo(ITypeDescriptorContext context,
                                      CultureInfo culture, object value, Type destinationType)
     {
-#if !NET_CORE
+#if !NETSTANDARD1_6
       if (destinationType == typeof(System.ComponentModel.Design.Serialization.InstanceDescriptor))
       {
         ConstructorInfo ci = typeof(MySqlParameter).GetConstructor(

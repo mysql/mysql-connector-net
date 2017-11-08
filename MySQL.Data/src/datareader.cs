@@ -142,7 +142,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Closes the MySqlDataReader object.
     /// </summary>
-#if NET_CORE
+#if NETSTANDARD1_6
     public void Close()
 #else
     public override void Close()
@@ -772,7 +772,7 @@ namespace MySql.Data.MySqlClient
 
     #endregion
 
-#if !NETCORE10
+#if !NETSTANDARD1_6
     IDataReader IDataRecord.GetData(int i)
     {
       return base.GetData(i);
@@ -894,7 +894,7 @@ namespace MySql.Data.MySqlClient
         _connection.HandleTimeoutOrThreadAbort(tex);
         throw; // unreached
       }
-#if !NET_CORE
+#if !NETSTANDARD1_6
       catch (ThreadAbortException taex)
       {
         _connection.HandleTimeoutOrThreadAbort(taex);

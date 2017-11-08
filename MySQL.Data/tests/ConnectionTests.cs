@@ -217,7 +217,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !NET_CORE
+#if !NETCOREAPP1_1
     /// <summary>
     /// Bug #10281 Clone issue with MySqlConnection 
     /// Bug #27269 MySqlConnection.Clone does not mimic SqlConnection.Clone behaviour 
@@ -800,7 +800,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !NETCORE10
+#if NET452
     /// <summary>
     ///  Fix for aborted connections MySQL bug 80997 OraBug 23346197
     /// </summary>

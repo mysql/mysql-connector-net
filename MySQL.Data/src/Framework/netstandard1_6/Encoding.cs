@@ -20,7 +20,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-namespace MySql.Data.MySqlClient.Framework.NetCore10
+namespace MySql.Data.MySqlClient.Framework.NetStandard1_6
 {
   public class Encoding
   {

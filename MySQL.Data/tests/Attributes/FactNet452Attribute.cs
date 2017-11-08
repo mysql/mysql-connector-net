@@ -31,7 +31,7 @@ namespace MySql.Data.MySqlClient.Tests
   {
     public FactNet452Attribute()
     {
-#if NETCORE10 || NET_CORE
+#if NETCOREAPP1_1
       Skip = $"Skipped. Not implemented for Dotnet Core.";
 #endif
     }

@@ -40,7 +40,7 @@ namespace MySql.Data.Common
 
     public static bool IsWindows()
     {
-#if NET_CORE
+#if NETSTANDARD1_6
       return RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 #else
       OperatingSystem os = Environment.OSVersion;
@@ -72,7 +72,7 @@ namespace MySql.Data.Common
 
     public static bool IsDotNetCore()
     {
-#if NETCORE10
+#if NETSTANDARD1_6
       return true;
 #else
       return false;

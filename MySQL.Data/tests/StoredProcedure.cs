@@ -25,7 +25,7 @@ using Xunit;
 using System.Data;
 using System.Globalization;
 using System.Threading;
-#if !NETCORE10
+#if !NETSTANDARD
 using System.Data.Common;
 #endif
 
@@ -184,7 +184,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(false, reader.Read());
       reader.Close();
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
       DataSet ds = new DataSet();
       MySqlCommand cmd2 = new MySqlCommand("multiResults", Connection);
       cmd2.CommandType = CommandType.StoredProcedure;
@@ -201,7 +201,7 @@ namespace MySql.Data.MySqlClient.Tests
 #endif
     }
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
 
     private static string fillError = null;
 
@@ -383,7 +383,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.AddWithValue("?str", "Second record");
       cmd.ExecuteNonQuery();
 
-#if NETCORE10
+#if NETCOREAPP1_1
       MySqlCommand cmdSelect = new MySqlCommand("SELECT * FROM Test", Connection);
       using (MySqlDataReader dr = cmdSelect.ExecuteReader())
       {
@@ -429,7 +429,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.ExecuteNonQuery();
     }
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
     //[Explicit]
     [Fact]
     public void ProcedureCache()
@@ -501,7 +501,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       MySqlCommand c = new MySqlCommand("spTest", Connection);
       c.CommandType = CommandType.StoredProcedure;
-#if NETCORE10
+#if NETCOREAPP1_1
       MySqlParameter p = c.CreateParameter();
 #else
       IDataParameter p = c.CreateParameter();
@@ -519,7 +519,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
 
     /// <summary>
     /// Bug #22452 MySql.Data.MySqlClient.MySqlException: 
@@ -575,7 +575,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
     /// <summary>
     /// Bug #25609 MySqlDataAdapter.FillSchema 
     /// </summary>
@@ -631,7 +631,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL(@"CREATE PROCEDURE spTest(in _val bigint unsigned)
             BEGIN insert into  Test set f1=_val; END");
 
-#if NETCORE10
+#if NETCOREAPP1_1
       MySqlCommand cmd = new MySqlCommand();
       MySqlParameter param = cmd.CreateParameter();
       param.MySqlDbType = MySqlDbType.UInt64;
@@ -684,7 +684,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
     [Fact]
     public void AmbiguousColumns()
     {
@@ -743,7 +743,7 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.Parameters[0].Direction = ParameterDirection.Input;
         cmd.Parameters.AddWithValue("?p_1", ("Hello"));
         cmd.Parameters[1].Direction = ParameterDirection.Input;
-#if NETCORE10
+#if NETCOREAPP1_1
         cmd.Parameters[0].MySqlDbType = MySqlDbType.String;
         cmd.Parameters[1].MySqlDbType = MySqlDbType.String;
 
@@ -793,7 +793,7 @@ namespace MySql.Data.MySqlClient.Tests
       ParametersInReverseOrderInternal(true);
     }
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
     [Fact]
     public void DeriveParameters()
     {
@@ -833,7 +833,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
     /// <summary>
     /// Verifies that GetProcedureParameters does not require SELECT permission on mysql.proc table.
     /// </summary>

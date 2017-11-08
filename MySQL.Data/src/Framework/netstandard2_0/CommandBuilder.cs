@@ -34,7 +34,7 @@ using MySql.Data.Common;
 namespace MySql.Data.MySqlClient
 {
   /// <include file='docs/MySqlCommandBuilder.xml' path='docs/class/*'/>
-#if !NET_CORE
+#if !NETSTANDARD1_6
   [ToolboxItem(false)]
   [System.ComponentModel.DesignerCategory("Code")]
 #endif

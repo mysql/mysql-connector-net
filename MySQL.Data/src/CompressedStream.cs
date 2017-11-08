@@ -75,7 +75,7 @@ namespace MySql.Data.MySqlClient
 
     #endregion
 
-#if NET_CORE
+#if NETSTANDARD1_6
     public void Close()
     {
       base.Dispose();
@@ -84,7 +84,7 @@ namespace MySql.Data.MySqlClient
     {
       base.Close();
 #endif
-#if NET_CORE
+#if NETSTANDARD1_6
       baseStream.Dispose();
 #else
       baseStream.Close();
@@ -212,7 +212,7 @@ namespace MySql.Data.MySqlClient
       if (cache.Length < 50)
         return null;
 
-#if NET_CORE
+#if NETSTANDARD1_6
       byte[] cacheBytes;
       ArraySegment<byte> cacheBuffer;
       var cacheResult = cache.TryGetBuffer(out cacheBuffer);
@@ -259,7 +259,7 @@ namespace MySql.Data.MySqlClient
       long compressedLength, uncompressedLength;
 
       // we need to save the sequence byte that is written
-#if NET_CORE
+#if NETSTANDARD1_6
       byte[] cacheBuffer;
       ArraySegment<byte> cacheContentArraySegment;
       var cacheResult = cache.TryGetBuffer(out cacheContentArraySegment);
@@ -300,7 +300,7 @@ namespace MySql.Data.MySqlClient
       int bytesToWrite = (int)dataLength + 7;
       memStream.SetLength(bytesToWrite);
 
-#if NET_CORE
+#if NETSTANDARD1_6
       byte[] buffer;
       ArraySegment<byte> contentArraySegment;
       var result = memStream.TryGetBuffer(out contentArraySegment);
@@ -343,7 +343,7 @@ namespace MySql.Data.MySqlClient
       // if we have not done so yet, see if we can calculate how many bytes we are expecting
       if (baseStream is TimedStream && ((TimedStream)baseStream).IsClosed) return false;
       if (cache.Length < 4) return false;
-#if NET_CORE
+#if NETSTANDARD1_6
       byte[] buf;
       ArraySegment<byte> contentArraySegment;
       var result = cache.TryGetBuffer(out contentArraySegment);

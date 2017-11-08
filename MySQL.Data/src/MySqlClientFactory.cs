@@ -23,19 +23,19 @@
 using System;
 using System.Data.Common;
 using System.Reflection;
-#if !NET_CORE
+#if !NETSTANDARD1_6
 using System.Security.Permissions;
 #endif
 
 namespace MySql.Data.MySqlClient
 {
-	/// <summary>
-	/// DBProviderFactory implementation for MysqlClient.
-	/// </summary>
-#if !NET_CORE
+  /// <summary>
+  /// DBProviderFactory implementation for MysqlClient.
+  /// </summary>
+#if !NETSTANDARD1_6
 			[ReflectionPermission(SecurityAction.Assert, MemberAccess = true)]  
 #endif
-	public sealed partial class MySqlClientFactory : DbProviderFactory, IServiceProvider
+  public sealed partial class MySqlClientFactory : DbProviderFactory, IServiceProvider
 	{
 		/// <summary>
 		/// Gets an instance of the <see cref="MySqlClientFactory"/>. 
@@ -97,8 +97,8 @@ namespace MySql.Data.MySqlClient
 			{
 				if (_mySqlDbProviderServicesInstance == null)
 				{
-#if NET_CORE
-					string fullName = typeof(MySqlClientFactory).GetTypeInfo().Assembly.FullName;
+#if NETSTANDARD1_6
+          string fullName = typeof(MySqlClientFactory).GetTypeInfo().Assembly.FullName;
 #else
 					string fullName = Assembly.GetExecutingAssembly().FullName;
 #endif

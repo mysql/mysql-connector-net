@@ -70,7 +70,7 @@ namespace MySql.Data.MySqlClient
       {
         CharacterSet cs = GetCharacterSet(version, charSetName);
 
-#if NETCORE10
+#if NETSTANDARD1_6
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 #endif
 

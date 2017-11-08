@@ -8,7 +8,7 @@
     <Authors>Oracle</Authors>
     <Company>Oracle</Company>
     <Product>MySql.Data.Tests</Product>
-    <TargetFrameworks>net452;netcoreapp1.1</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.0;netcoreapp1.1;net452;</TargetFrameworks>
     <PackageId>MySql.Data.Tests</PackageId>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET;netcore;.Net Core;MySql Conector/Net Core;coreclr;C/NET;C/Net Core</PackageTags>
     <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
@@ -27,26 +27,32 @@
     <NoWarn>CS1591,CS1587,CS1701,CS1702</NoWarn>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='netcoreapp1.1'">
-    <DefineConstants>$(DefineConstants);NET_CORE;NETCORE10</DefineConstants>
-  </PropertyGroup>
+  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp2.0' Or '$(TargetFramework)'=='netstandard2.0'">
+    <Compile Remove="Framework\netstandard2_0\MediumTrust\*.cs" />
+    <Compile Remove="Framework\netstandard1_6\*.cs" />
+    <Compile Remove="Framework\netstandard2_0\PartialTrustSandbox.cs" />
+  </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp1.1'">
-    <Compile Remove="Framework\net452\**" />
-    <Compile Remove="Framework\net452\MediumTrust\*.cs" />
-    <EmbeddedResource Remove="Framework\net452\**" />
-    <None Remove="Framework\net452\**" />
+  <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.6' Or '$(TargetFramework)'=='netcoreapp1.1'">
+    <Compile Remove="Framework\netstandard2_0\**" />
+    <Compile Remove="Framework\netstandard2_0\MediumTrust\*.cs" />
+    <EmbeddedResource Remove="Framework\netstandard2_0\**" />
+    <None Remove="Framework\netstandard2_0\**" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='net452'">
-    <Compile Remove="Framework\netstandard\**" />
-    <EmbeddedResource Remove="Framework\netstandard\**" />
-    <None Remove="Framework\netstandard\**" />
-    <Compile Remove="Framework\net452\MediumTrust\*.*" />
+    <Compile Remove="Framework\netstandard1_6\**" />
+    <EmbeddedResource Remove="Framework\netstandard1_6\**" />
+    <None Remove="Framework\netstandard1_6\**" />
+    <Compile Remove="Framework\netstandard2_0\MediumTrust\*.*" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Transactions" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="Framework\netstandard2_0\InstallerTests.cs" />
+  </ItemGroup>
+  
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DefineConstants>$(DefineConstants);TRACE;DEBUG</DefineConstants>
     <PreserveCompilationContext>true</PreserveCompilationContext>
@@ -58,7 +64,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0-preview-20171031-01" />
     <PackageReference Include="xunit" Version="2.3.0-beta1-build3642" />
     <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.0-beta1-build3642" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.0-beta1-build1309" />
@@ -71,11 +77,10 @@
   <ItemGroup>
     <ProjectReference Include="..\src\MySql.Data.csproj" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
-
 
   <ItemGroup>
     <None Update="client.pfx">
@@ -83,5 +88,4 @@
     </None>
   </ItemGroup>
 
-  
 </Project>

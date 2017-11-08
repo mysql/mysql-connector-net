@@ -23,9 +23,7 @@
 using System;
 using Xunit;
 using System.Data;
-#if !NETCORE10
 using System.Data.SqlTypes;
-#endif
 
 namespace MySql.Data.MySqlClient.Tests
 {

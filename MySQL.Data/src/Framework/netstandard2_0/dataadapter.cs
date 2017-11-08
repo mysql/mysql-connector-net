@@ -32,7 +32,9 @@ using System.Drawing;
 namespace MySql.Data.MySqlClient
 {
   /// <include file='docs/MySqlDataAdapter.xml' path='docs/class/*'/>
+#if NET452
   [ToolboxBitmap(typeof(MySqlDataAdapter), "MySqlClient.resources.dataadapter.bmp")]
+#endif
   [DesignerCategory("Code")]
   [Designer("MySql.Data.MySqlClient.Design.MySqlDataAdapterDesigner,MySqlClient.Design")]
   public sealed class MySqlDataAdapter : DbDataAdapter, IDbDataAdapter, IDataAdapter
