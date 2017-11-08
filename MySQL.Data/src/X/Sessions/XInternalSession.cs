@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -373,35 +373,6 @@ namespace MySqlX.Sessions
     {
       protocol.SendInsert(statement.Target.Schema.Name, true, statement.Target.Name, statement.values.ToArray(), statement.fields, false);
       return new Result(this);
-    }
-
-    public Result ViewCreate(ViewCreateStatement statement)
-    {
-      protocol.SendCreateView(statement.Target.Schema.Name, 
-        statement.name, statement.definer,
-        (Mysqlx.Crud.ViewAlgorithm)statement.algorithm,
-        (Mysqlx.Crud.ViewSqlSecurity)statement.sqlSecurity,
-        (Mysqlx.Crud.ViewCheckOption)statement.checkOption,
-        statement.columns, statement.replace, 
-        statement.queryStatement);
-      return new Result(this);
-    }
-
-    public Result ViewAlter(ViewAlterStatement statement)
-    {
-      protocol.SendModifyView(statement.Target.Schema.Name,
-        statement.name, statement.definer,
-        (Mysqlx.Crud.ViewAlgorithm)statement.algorithm,
-        (Mysqlx.Crud.ViewSqlSecurity)statement.sqlSecurity,
-        (Mysqlx.Crud.ViewCheckOption)statement.checkOption,
-        statement.columns, statement.queryStatement);
-      return new Result(this);
-    }
-
-    public void ViewDrop(Schema schema, string name)
-    {
-      protocol.SendDropView(schema.Name, name, true);
-      new Result(this);
     }
   }
 }
