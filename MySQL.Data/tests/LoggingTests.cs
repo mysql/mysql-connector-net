@@ -62,7 +62,7 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
       //Assert.Equal(4, listener.Strings.Count);
-      //Assert.Equal(27, listener.Strings.Count);
+      Assert.Equal(27, listener.Strings.Count);
       Assert.True(listener.Strings[listener.Strings.Count - 5].Contains("Query Opened: SELECT * FROM Test"));
       Assert.True(listener.Strings[listener.Strings.Count - 4].Contains("Resultset Opened: field(s) = 2, affected rows = -1, inserted id = -1"));
       Assert.True(listener.Strings[listener.Strings.Count - 3].Contains("Resultset Closed. Total rows=4, skipped rows=4, size (bytes)=32"));
