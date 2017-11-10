@@ -331,7 +331,7 @@ namespace MySql.Data.MySqlClient
     #region Async
 #if NETSTANDARD1_6
     /// <summary>
-    /// Async version of Execute
+    /// Initiates the asynchronous execution of SQL statements.
     /// </summary>
     /// <returns>The number of statements executed as part of the script inside.</returns>
     public async Task<int> ExecuteAsync()
@@ -362,7 +362,7 @@ namespace MySql.Data.MySqlClient
     }
 #else
     /// <summary>
-    /// Async version of Execute
+    /// Initiates the asynchronous execution of SQL statements.
     /// </summary>
     /// <returns>The number of statements executed as part of the script inside.</returns>
     public Task<int> ExecuteAsync()

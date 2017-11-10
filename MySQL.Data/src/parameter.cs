@@ -209,7 +209,7 @@ namespace MySql.Data.MySqlClient
     public override Boolean IsNullable { get; set; }
 
     /// <summary>
-    /// Gets or sets the MySqlDbType of the parameter.
+    /// Gets or sets the <see cref="MySqlParameter.MySqlDbType"/> of the parameter.
     /// </summary>
     [Category("Data")]
 #if !NETSTANDARD1_6

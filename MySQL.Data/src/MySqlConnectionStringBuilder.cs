@@ -446,7 +446,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Gets or sets the password that should be used to connect with.
+    /// Gets or sets the password that should be used to make a connection.
     /// </summary>
     [Category("Security")]
     [Description("Indicates the password to be used when connecting to the data source.")]

@@ -25,12 +25,13 @@ using System;
 namespace MySql.Data.Types
 {
   /// <summary>
-  /// Summary description for MySqlConversionException.
+  /// An exception thrown by MySQL when a type conversion does not succeed.
   /// </summary>
   [Serializable]
   public class MySqlConversionException : Exception
   {
-    /// <summary>Ctor</summary>
+    /// <summary>Initializes a new instance of the <see cref="MySqlConversionException"/> class with a specified error message. </summary>
+    /// <param name="msg">Message describing the error.</param>
     public MySqlConversionException(string msg)
       : base(msg)
     {

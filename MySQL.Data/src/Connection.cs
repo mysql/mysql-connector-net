@@ -699,7 +699,7 @@ namespace MySql.Data.MySqlClient
 
     #region Async
     /// <summary>
-    /// Async version of BeginTransaction
+    /// Initiates the asynchronous execution of a transaction.
     /// </summary>
     /// <returns>An object representing the new transaction.</returns>
     public Task<MySqlTransaction> BeginTransactionAsync()

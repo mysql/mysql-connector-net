@@ -30,10 +30,10 @@ using System.Security.Permissions;
 namespace MySql.Data.MySqlClient
 {
   /// <summary>
-  /// DBProviderFactory implementation for MysqlClient.
+  /// Represents a set of methods for creating instances of the MySQL client implementation of the data source classes.
   /// </summary>
 #if !NETSTANDARD1_6
-			[ReflectionPermission(SecurityAction.Assert, MemberAccess = true)]  
+  [ReflectionPermission(SecurityAction.Assert, MemberAccess = true)]  
 #endif
   public sealed partial class MySqlClientFactory : DbProviderFactory, IServiceProvider
 	{
