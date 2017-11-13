@@ -85,7 +85,7 @@ namespace MySql.Data.MySqlClient
     {
       get
       {
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
         byte[] bits = _buffer.GetBuffer();
 
         return bits[0] == 0xfe && Length <= 5;
@@ -102,7 +102,7 @@ namespace MySql.Data.MySqlClient
     {
       get
       {
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
         byte[] bits = _buffer.GetBuffer();
 
         return bits;
@@ -193,7 +193,7 @@ namespace MySql.Data.MySqlClient
 
       int pos = (int)_buffer.Position;
 
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
       byte[] bits = _buffer.GetBuffer();
 #else
       ArraySegment<byte> bytes;
@@ -217,7 +217,7 @@ namespace MySql.Data.MySqlClient
     {
       Debug.Assert((_buffer.Position + numbytes) <= _buffer.Length);
 
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
       byte[] bits = _buffer.GetBuffer();
 #else
       ArraySegment<byte> bytes;
@@ -241,7 +241,7 @@ namespace MySql.Data.MySqlClient
     {
       Debug.Assert((_buffer.Position + numbytes) <= _buffer.Length);
 
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
       byte[] bits = _buffer.GetBuffer();
 #else
       ArraySegment<byte> bytes;
@@ -266,7 +266,7 @@ namespace MySql.Data.MySqlClient
       int value = 0;
 
       int pos = (int)_buffer.Position;
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
       byte[] bits = _buffer.GetBuffer();
 #else
       ArraySegment<byte> bytes;
@@ -410,7 +410,7 @@ namespace MySql.Data.MySqlClient
     public byte[] ReadStringAsBytes()
     {
       byte[] readBytes;
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
       byte[] bits = _buffer.GetBuffer();
 #else
       ArraySegment<byte> bytes;

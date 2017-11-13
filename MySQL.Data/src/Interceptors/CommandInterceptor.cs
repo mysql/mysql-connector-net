@@ -26,7 +26,7 @@ using System.Data;
 using MySql.Data.MySqlClient;
 
 
-#if NETSTANDARD1_6
+#if NETSTANDARD1_3
 namespace MySql.Data.MySqlClient.Interceptors
 #else
 namespace MySql.Data.MySqlClient
@@ -135,7 +135,7 @@ namespace MySql.Data.MySqlClient
 
     protected override string ResolveType(string nameOrType)
     {
-#if NETSTANDARD1_6
+#if NETSTANDARD1_3
       return base.ResolveType(nameOrType);
 #else
       if (MySqlConfiguration.Settings == null || MySqlConfiguration.Settings.CommandInterceptors == null)

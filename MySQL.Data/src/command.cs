@@ -30,7 +30,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using MySql.Data.Common;
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
 using MySql.Data.MySqlClient.Replication;
 #endif
 
@@ -384,7 +384,7 @@ namespace MySql.Data.MySqlClient
 
             string sql = cmdText.Trim(';');
 
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
             // Load balancing getting a new connection
             if (connection.hasBeenOpen && !driver.HasStatus(ServerStatusFlags.InTransaction))
             {
@@ -401,7 +401,7 @@ namespace MySql.Data.MySqlClient
                     Throw(new MySqlException(Resources.DataReaderOpen));
                 }
 
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
                 System.Transactions.Transaction curTrans = System.Transactions.Transaction.Current;
 
                 if (curTrans != null)
@@ -481,7 +481,7 @@ namespace MySql.Data.MySqlClient
                     connection.HandleTimeoutOrThreadAbort(tex);
                     throw; //unreached
                 }
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
                 catch (ThreadAbortException taex)
                 {
                     connection.HandleTimeoutOrThreadAbort(taex);
@@ -626,7 +626,7 @@ namespace MySql.Data.MySqlClient
     #endregion
 
     #region Async Methods
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
 
     private IAsyncResult asyncResult;
 

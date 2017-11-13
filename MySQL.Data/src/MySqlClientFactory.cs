@@ -23,7 +23,7 @@
 using System;
 using System.Data.Common;
 using System.Reflection;
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
 using System.Security.Permissions;
 #endif
 
@@ -32,7 +32,7 @@ namespace MySql.Data.MySqlClient
   /// <summary>
   /// Represents a set of methods for creating instances of the MySQL client implementation of the data source classes.
   /// </summary>
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
   [ReflectionPermission(SecurityAction.Assert, MemberAccess = true)]  
 #endif
   public sealed partial class MySqlClientFactory : DbProviderFactory, IServiceProvider
@@ -97,7 +97,7 @@ namespace MySql.Data.MySqlClient
 			{
 				if (_mySqlDbProviderServicesInstance == null)
 				{
-#if NETSTANDARD1_6
+#if NETSTANDARD1_3
           string fullName = typeof(MySqlClientFactory).GetTypeInfo().Assembly.FullName;
 #else
 					string fullName = Assembly.GetExecutingAssembly().FullName;

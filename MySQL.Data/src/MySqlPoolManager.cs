@@ -42,7 +42,7 @@ namespace MySql.Data.MySqlClient
     internal static int maxConnectionIdleTime = 180;
 
 
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
     static MySqlPoolManager()
     {
       AppDomain.CurrentDomain.ProcessExit += EnsureClearingPools;

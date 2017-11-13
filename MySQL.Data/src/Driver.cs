@@ -87,7 +87,7 @@ namespace MySql.Data.MySqlClient
       set { encoding = value; }
     }
 
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
     public MySqlPromotableTransaction currentTransaction { get; set; }
 
     public bool IsInActiveUse { get; set; }
@@ -132,7 +132,7 @@ namespace MySql.Data.MySqlClient
 
       try
       {
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
         if (MySqlTrace.QueryAnalysisEnabled || settings.Logging || settings.UseUsageAdvisor)
           d = new TracingDriver(settings);
 #endif

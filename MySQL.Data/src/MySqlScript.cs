@@ -249,7 +249,7 @@ namespace MySql.Data.MySqlClient
       {
         if (!tokenizer.Quoted)
         {
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
           if (token.ToLower(CultureInfo.InvariantCulture) == "delimiter")
 #else
           if (token.ToLowerInvariant() == "delimiter")
@@ -329,7 +329,7 @@ namespace MySql.Data.MySqlClient
     }
 
     #region Async
-#if NETSTANDARD1_6
+#if NETSTANDARD1_3
     /// <summary>
     /// Initiates the asynchronous execution of SQL statements.
     /// </summary>

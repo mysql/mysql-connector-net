@@ -30,7 +30,7 @@ using MySql.Data.Common;
 using System.Security;
 using IsolationLevel = System.Data.IsolationLevel;
 using MySql.Data.MySqlClient.Interceptors;
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
 using System.Transactions;
 using MySql.Data.MySqlClient.Replication;
 #endif
@@ -116,7 +116,7 @@ namespace MySql.Data.MySqlClient
     {
       get
       {
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
         return (State == ConnectionState.Closed) &&
                driver != null && driver.currentTransaction != null;
 #else
@@ -213,7 +213,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
     protected override DbProviderFactory DbProviderFactory => MySqlClientFactory.Instance;
 #endif
     public bool IsPasswordExpired => driver.IsPasswordExpired;
@@ -360,7 +360,7 @@ namespace MySql.Data.MySqlClient
 
       SetState(ConnectionState.Connecting, true);
 
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
       AssertPermissions();
 
       //TODO: SUPPORT FOR 452 AND 46X
@@ -382,7 +382,7 @@ namespace MySql.Data.MySqlClient
 
         //TODO: SUPPORT FOR 452 AND 46X
         // Load balancing 
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
         if (ReplicationManager.IsReplicationGroup(Settings.Server))
         {
           if (driver == null)
@@ -430,7 +430,7 @@ namespace MySql.Data.MySqlClient
 
       // if we are opening up inside a current transaction, then autoenlist
       // TODO: control this with a connection string option
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
       if (Transaction.Current != null && Settings.AutoEnlist)
         EnlistTransaction(Transaction.Current);
 #endif
@@ -469,7 +469,7 @@ namespace MySql.Data.MySqlClient
     {
       if (Settings.Pooling && driver.IsOpen)
       {
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
         //TODO: SUPPORT FOR 452 AND 46X
         //// if we are in a transaction, roll it back
         if (driver.HasStatus(ServerStatusFlags.InTransaction))
@@ -501,12 +501,12 @@ namespace MySql.Data.MySqlClient
       // will be null on the second time through
       if (driver != null)
       {
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
         //TODO: Add support for 452 and 46X
         if (driver.currentTransaction == null)
 #endif
         CloseFully();
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
         //TODO: Add support for 452 and 46X
         else
           driver.IsInActiveUse = false;
@@ -578,7 +578,7 @@ namespace MySql.Data.MySqlClient
       MySqlConnectionStringBuilder cb = new MySqlConnectionStringBuilder(
         Settings.ConnectionString);
       cb.Pooling = false;
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
       cb.AutoEnlist = false;
 #endif
       cb.ConnectionTimeout = (uint)timeout;
@@ -682,7 +682,7 @@ namespace MySql.Data.MySqlClient
 
     internal void Throw(Exception ex)
     {
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
       if (_exceptionInterceptor == null)
         throw ex;
       _exceptionInterceptor.Throw(ex);
