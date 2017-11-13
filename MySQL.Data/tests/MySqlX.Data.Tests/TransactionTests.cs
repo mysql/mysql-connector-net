@@ -241,22 +241,24 @@ namespace MySqlX.Data.Tests
     {
       using(var session = MySQLX.GetSession(ConnectionString))
       {
+        string errorMessage = "You have an error in your SQL syntax";
         session.StartTransaction();
 
-        var sp = session.SetSavepoint("");
-        session.RollbackTo(sp);
-        sp = session.SetSavepoint(" ");
-        session.RollbackTo(sp);
-        sp = session.SetSavepoint(null);
-        session.RollbackTo(sp);
-        sp = session.SetSavepoint("_");
-        session.RollbackTo(sp);
-        sp = session.SetSavepoint("-");
-        session.RollbackTo(sp);
-        sp = session.SetSavepoint("mysp+");
-        session.RollbackTo(sp);
-        sp = session.SetSavepoint("3306");
-        session.RollbackTo(sp);
+        Exception ex = Assert.Throws<MySqlException>(() => session.SetSavepoint(""));
+        Assert.StartsWith(errorMessage, ex.Message);
+        ex = Assert.Throws<MySqlException>(() => session.SetSavepoint(" "));
+        Assert.StartsWith(errorMessage, ex.Message);
+        ex = Assert.Throws<MySqlException>(() => session.SetSavepoint(null));
+        Assert.StartsWith(errorMessage, ex.Message);
+        ex = Assert.Throws<MySqlException>(() => session.SetSavepoint("-"));
+        Assert.StartsWith(errorMessage, ex.Message);
+        ex = Assert.Throws<MySqlException>(() => session.SetSavepoint("mysp+"));
+        Assert.StartsWith(errorMessage, ex.Message);
+        ex = Assert.Throws<MySqlException>(() => session.SetSavepoint("3306"));
+        Assert.StartsWith(errorMessage, ex.Message);
+
+        var sp = session.SetSavepoint("_");
+        session.RollbackTo(sp);        
         sp = session.SetSavepoint("mysql3306");
         session.RollbackTo(sp);
 

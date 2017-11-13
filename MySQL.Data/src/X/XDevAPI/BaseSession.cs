@@ -288,7 +288,7 @@ namespace MySqlX.XDevAPI
     public string SetSavepoint()
     {
       // Autogenerate the name of the savepoint.
-      return SetSavepoint($"savepoint_{Guid.NewGuid().ToString()}");
+      return SetSavepoint($"savepoint_{Guid.NewGuid().ToString().Replace("-","_")}");
     }
 
     /// <summary>
@@ -298,7 +298,7 @@ namespace MySqlX.XDevAPI
     /// <returns>The name of the transaction savepoint.</returns>
     public string SetSavepoint(string name)
     {
-      InternalSession.ExecuteSqlNonQuery($"SAVEPOINT `{name}`");
+      InternalSession.ExecuteSqlNonQuery($"SAVEPOINT {name}");
       return name;
     }
 
@@ -308,7 +308,7 @@ namespace MySqlX.XDevAPI
     /// <param name="name">The name of the transaction savepoint.</param>
     public void ReleaseSavepoint(string name)
     {
-      InternalSession.ExecuteSqlNonQuery($"RELEASE SAVEPOINT `{name}`");
+      InternalSession.ExecuteSqlNonQuery($"RELEASE SAVEPOINT {name}");
     }
 
     /// <summary>
@@ -317,7 +317,7 @@ namespace MySqlX.XDevAPI
     /// <param name="name">The name of the transaction savepoint.</param>
     public void RollbackTo(string name)
     {
-      InternalSession.ExecuteSqlNonQuery($"ROLLBACK TO `{name}`");
+      InternalSession.ExecuteSqlNonQuery($"ROLLBACK TO {name}");
     }
 
     #endregion
