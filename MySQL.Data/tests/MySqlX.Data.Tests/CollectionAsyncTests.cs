@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -71,7 +71,7 @@ namespace MySqlX.Data.Tests
       foreach (Task<DocResult> task in tasksList)
       {
         var doc = task.Result.FetchOne();
-        string value = task.Result.Current["age"];
+        string value = task.Result.Current["age"].ToString();
         Assert.False(validator.Contains(value), value + " value exists");
         validator.Add(value);
       }

@@ -1,3 +1,8 @@
+8.0.10
+- MySqlX: Added the Patch() method, which provides extended functionality for updating documents and elements
+  within documents (WL11133).
+
+
 8.0.9
 - MySqlX: Set utf8mb4 as the default charset (WL10562).
 - MySqlX: Updated all DropX() methods to return void, execute without the need to call Execute() and to succeed

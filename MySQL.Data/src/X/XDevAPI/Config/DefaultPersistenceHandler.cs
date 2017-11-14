@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -99,7 +99,7 @@ namespace MySqlX.XDevAPI.Config
     public SessionConfig Save(string name, DbDoc config)
     {
       var data = ReadConfigData(appdataFile);
-      SessionConfig sessionConfig = new SessionConfig(name, config["uri"]);
+      SessionConfig sessionConfig = new SessionConfig(name, config["uri"].ToString());
       if (config.values.ContainsKey("appdata"))
       {
         var appdata = config.values["appdata"] as Dictionary<string, object>;

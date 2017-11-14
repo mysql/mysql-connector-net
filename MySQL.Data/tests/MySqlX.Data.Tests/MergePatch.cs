@@ -56,6 +56,8 @@ namespace MySqlX.Data.Tests
             "\"director\": { " +
               "\"name\": \"Sharice Legaspi\", " +
               "\"age\":57, " +
+              "\"birthplace\": " +
+                "{ \"country\": \"Italy\", \"city\": \"Rome\" }, " +
               "\"awards\": [ " +
                 "{ \"award\": \"Best Movie\", \"movie\": \"THE EGG\", \"year\": 2002}, " +
                 "{ \"award\": \"Best Special Effects\", \"movie\": \"AFRICAN EGG\", \"year\": 2006 }" +
@@ -568,6 +570,40 @@ namespace MySqlX.Data.Tests
       var nestedObject = (Dictionary<string, object>)((Dictionary<string, object>)((Dictionary<string, object>)document.values["additionalinfo"])["nullfield"])["nested"];
       Assert.Equal(0, nestedObject.Count);
     }
+
     #endregion
+
+    [Fact]
+    public void GetDocumentProperties()
+    {
+      Collection collection = CreateCollection("test");
+      Result r = collection.Add(documentsAsDbDocs).Execute();
+      Assert.Equal<ulong>(1, r.RecordsAffected);
+
+      // Get root string properties.
+      DbDoc document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
+      Assert.Equal("a6f4b93e1a264a108393524f29546a8c", document.Id);
+      Assert.Equal("AFRICAN EGG", document["title"]);
+      Assert.Equal("G", document["rating"]);
+
+      // Get root numeric properties.
+      Assert.Equal(2006, document["releaseyear"]);
+      Assert.Equal(130, document["duration"]);
+
+      // Get root array.
+      object[] actors = document["actors"] as object[];
+      Assert.True(actors.Length == 3);
+      Dictionary<string, object> actor1 = actors[1] as Dictionary<string, object>;
+      Assert.Equal("VAL BOLGER", actor1["name"]);
+
+      // Get nested string properies.
+      Assert.Equal("Sharice Legaspi", document["additionalinfo.director.name"]);
+      Assert.Equal(57, document["additionalinfo.director.age"]);
+      Assert.Equal("Italy", document["additionalinfo.director.birthplace.country"]);
+
+      // Get nested array.
+      object[] awards = document["additionalinfo.director.awards"] as object[];
+      Assert.True(awards.Length == 2);
+    }
   }
 }

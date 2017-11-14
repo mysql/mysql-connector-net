@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -50,11 +50,11 @@ namespace MySqlX.Data.Tests
 
       DocResult foundDocs = coll.Find("pages > 20").Execute();
       Assert.True(foundDocs.Next());
-      Assert.True(foundDocs.Current["title"] == "Book 2");
+      Assert.True(foundDocs.Current["title"].ToString() == "Book 2");
       Assert.True(foundDocs.Next());
-      Assert.True(foundDocs.Current["title"] == "Book 3");
+      Assert.True(foundDocs.Current["title"].ToString() == "Book 3");
       Assert.True(foundDocs.Next());
-      Assert.True(foundDocs.Current["title"] == "Book 4");
+      Assert.True(foundDocs.Current["title"].ToString() == "Book 4");
       Assert.False(foundDocs.Next());
     }
 
@@ -74,11 +74,11 @@ namespace MySqlX.Data.Tests
 
       DocResult foundDocs = coll.Find("pages > 20").OrderBy("pages DESC").Execute();
       Assert.True(foundDocs.Next());
-      Assert.True(foundDocs.Current["title"] == "Book 4");
+      Assert.True(foundDocs.Current["title"].ToString() == "Book 4");
       Assert.True(foundDocs.Next());
-      Assert.True(foundDocs.Current["title"] == "Book 3");
+      Assert.True(foundDocs.Current["title"].ToString() == "Book 3");
       Assert.True(foundDocs.Next());
-      Assert.True(foundDocs.Current["title"] == "Book 2");
+      Assert.True(foundDocs.Current["title"].ToString() == "Book 2");
       Assert.False(foundDocs.Next());
     }
 
@@ -98,7 +98,7 @@ namespace MySqlX.Data.Tests
 
       DocResult foundDocs = coll.Find("pages > 20").Limit(1).Execute();
       Assert.True(foundDocs.Next());
-      Assert.True(foundDocs.Current["title"] == "Book 2");
+      Assert.True(foundDocs.Current["title"].ToString() == "Book 2");
       Assert.False(foundDocs.Next());
 
       // Limit out of range.
@@ -122,7 +122,7 @@ namespace MySqlX.Data.Tests
 
       DocResult foundDocs = coll.Find("pages = :Pages").Bind("pAges", 40).Execute();
       Assert.True(foundDocs.Next());
-      Assert.True(foundDocs.Current["title"] == "Book 3");
+      Assert.True(foundDocs.Current["title"].ToString() == "Book 3");
       Assert.False(foundDocs.Next());
     }
 
