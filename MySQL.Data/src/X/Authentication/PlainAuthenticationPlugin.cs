@@ -56,7 +56,11 @@ namespace MySqlX.Security
 
     public byte[] GetAuthData()
     {
-      return Encoding.UTF8.GetBytes(string.Format("\0{0}\0{1}", _settings.UserID, _settings.Password));
+      return Encoding.UTF8.GetBytes(string.Format("{0}\0{1}\0{2}",
+        _settings.Database,
+        _settings.UserID,
+        _settings.Password
+      ));
     }
   }
 }

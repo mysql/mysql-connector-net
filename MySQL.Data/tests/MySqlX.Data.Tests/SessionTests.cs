@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -114,17 +114,6 @@ namespace MySqlX.Data.Tests
         Assert.Equal(SessionState.Open, mySession.InternalSession.SessionState);
         Assert.Equal(schemaName, mySession.Schema.Name);
         Assert.Equal(schemaName, mySession.GetCurrentSchema().Name);
-        Assert.True(mySession.Schema.ExistsInDatabase());
-      }
-    }
-
-    [Fact]
-    public void XSessionUsingSchema()
-    {
-      using (Session mySession = MySQLX.GetSession(ConnectionString + $";database={schemaName};"))
-      {
-        Assert.Equal(SessionState.Open, mySession.InternalSession.SessionState);
-        Assert.Equal(schemaName, mySession.Schema.Name);
         Assert.True(mySession.Schema.ExistsInDatabase());
       }
     }

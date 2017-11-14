@@ -1,3 +1,8 @@
+8.0.10
+- MySqlX: Fixed bug that prevented Plain authentication from setting the default database provided as part
+  of the connection string (Bug #88427, Oracle Bug #27098974).
+
+
 8.0.9
 - MySqlX: Set utf8mb4 as the default charset (WL10562).
 - MySqlX: Updated all DropX() methods to return void, execute without the need to call Execute() and to succeed
