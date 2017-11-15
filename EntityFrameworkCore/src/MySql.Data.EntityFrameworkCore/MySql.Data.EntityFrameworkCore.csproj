@@ -58,10 +58,6 @@
     <ProjectReference Include="..\..\..\MySQL.Data\src\MySql.Data.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Frameworks\efcore20\Scaffolding\" />
-  </ItemGroup>
-
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <PreserveCompilationContext>true</PreserveCompilationContext>
   </PropertyGroup>
