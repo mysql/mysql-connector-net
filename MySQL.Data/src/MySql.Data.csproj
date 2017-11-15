@@ -61,7 +61,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='net452'">
-    <Compile Remove="Framework/netstandard1_6/*" />
+    <Compile Remove="Framework/netstandard1_3/*" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -112,7 +112,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp2.0' Or '$(TargetFramework)'=='netstandard2.0'">
-    <Compile Remove="Framework/netstandard1_6/*;Framework/net452/*" />
+    <Compile Remove="Framework/netstandard1_3/*;Framework/net452/*" />
     <PackageReference Include="System.Configuration.ConfigurationManager">
       <Version>4.4.0</Version>
     </PackageReference>

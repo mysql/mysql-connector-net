@@ -598,7 +598,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("valuein", cmd.Parameters[1].Value);
     }
 
-#if !NETCOREAPP1_1
+#if NET452
     [Fact]
     public void ThrowingExceptions()
     {

@@ -29,11 +29,11 @@
 
   <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp2.0' Or '$(TargetFramework)'=='netstandard2.0'">
     <Compile Remove="Framework\netstandard2_0\MediumTrust\*.cs" />
-    <Compile Remove="Framework\netstandard1_6\*.cs" />
+    <Compile Remove="Framework\netstandard1_3\*.cs" />
     <Compile Remove="Framework\netstandard2_0\PartialTrustSandbox.cs" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.6' Or '$(TargetFramework)'=='netcoreapp1.1'">
+  <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.3' Or '$(TargetFramework)'=='netcoreapp1.1'">
     <Compile Remove="Framework\netstandard2_0\**" />
     <Compile Remove="Framework\netstandard2_0\MediumTrust\*.cs" />
     <EmbeddedResource Remove="Framework\netstandard2_0\**" />
@@ -41,9 +41,9 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='net452'">
-    <Compile Remove="Framework\netstandard1_6\**" />
-    <EmbeddedResource Remove="Framework\netstandard1_6\**" />
-    <None Remove="Framework\netstandard1_6\**" />
+    <Compile Remove="Framework\netstandard1_3\**" />
+    <EmbeddedResource Remove="Framework\netstandard1_3\**" />
+    <None Remove="Framework\netstandard1_3\**" />
     <Compile Remove="Framework\netstandard2_0\MediumTrust\*.*" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Transactions" />

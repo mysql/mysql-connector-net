@@ -237,7 +237,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE Test (u2 varchar(255) CHARACTER SET ucs2)");
 
       executeSQL("INSERT INTO Test VALUES ( CONVERT('困巫忘否役' using ucs2))");
-  
+
       using (MySqlDataReader reader = ExecuteReader("SELECT * FROM Test"))
       {
         reader.Read();
@@ -352,12 +352,14 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+#if !NETCOREAPP2_0
     [Fact]
     public void Chinese()
     {
       executeSQL("CREATE TABLE Test (id int, name VARCHAR(200) CHAR SET big5, name2 VARCHAR(200) CHAR SET gb2312)");
 
       executeSQL("INSERT INTO Test VALUES(1, '困巫忘否役', '涝搞谷侪魍' )");
+
       using (MySqlDataReader reader = ExecuteReader("SELECT * FROM Test"))
       {
         reader.Read();
@@ -381,6 +383,7 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal("щьеи", reader.GetString(1));
       }
     }
+#endif
 
     /// <summary>
     /// Bug #25651 SELECT does not work properly when WHERE contains UTF-8 characters 
@@ -402,6 +405,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(1, o);
     }
 
+#if !NETCOREAPP2_0
     [Fact]
     public void Turkish()
     {
@@ -417,6 +421,6 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal("ĞËÇÄŞ", reader.GetString(1));
       }
     }
-
+#endif
   }
 }

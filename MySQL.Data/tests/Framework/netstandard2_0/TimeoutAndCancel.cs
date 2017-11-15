@@ -45,6 +45,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Null(o);
     }
 
+#if !NETCOREAPP2_0
     [Fact]
     public void CancelSingleQuery()
     {
@@ -70,6 +71,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       Assert.True(resetEvent.WaitOne(30 * 1000), "timeout");
     }
+#endif
 
     int stateChangeCount;
     [Fact]
