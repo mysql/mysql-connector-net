@@ -32,24 +32,8 @@ using Xunit;
 
 namespace MySql.EntityFrameworkCore.Migrations.Tests
 {
-  public class MySQLMigrationsGeneratorTest : MySQLMigrationsGeneratorTestBase
+  public partial class MySQLMigrationsGeneratorTest : MySQLMigrationsGeneratorTestBase
   {
-
-    protected override IMigrationsSqlGenerator SqlGenerator
-    {
-      get
-      {
-        var typeMapper = new MySQLTypeMapper();
-
-        return new MySQLMigrationsSqlGenerator(
-            new RelationalCommandBuilderFactory(
-                new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
-                new DiagnosticListener("FakeListener"),
-                typeMapper), new MySQLSqlGenerationHelper(), typeMapper,
-            new MySQLAnnotationProvider());
-      }
-    }
-
     [Fact]
     public override void CreateTableOperation()
     {

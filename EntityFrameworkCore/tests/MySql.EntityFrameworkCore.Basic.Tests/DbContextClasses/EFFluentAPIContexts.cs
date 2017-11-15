@@ -134,7 +134,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
 
       modelBuilder.Entity<Car>()
                .Property(b => b.Make)
-               .ForMySQLHasColumnType("varchar(100)");
+               .HasColumnType("varchar(100)");
 
       modelBuilder.Entity<Car>()
                .Property(b => b.Model)

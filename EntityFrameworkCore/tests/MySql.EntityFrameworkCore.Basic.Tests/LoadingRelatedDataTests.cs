@@ -20,7 +20,6 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using EntityFrameworkCore.Basic.Tests.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -39,10 +38,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     DbContext context;
     DbContextOptions options;
     IServiceCollection collection = new ServiceCollection()
-                                    .AddEntityFrameworkMySQL()
-                                    .AddSingleton<ILoggerFactory>(new MySqlLoggerFactory());
-
-    string Sql => MySqlLoggerFactory.SqlStatements.LastOrDefault();
+                                    .AddEntityFrameworkMySQL();
 
     public LoadingRelatedDataTests()
     {
