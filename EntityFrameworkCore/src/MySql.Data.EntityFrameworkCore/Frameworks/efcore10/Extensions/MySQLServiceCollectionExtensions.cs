@@ -30,7 +30,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MySql.Data.EntityFrameworkCore.Storage.Internal;
 using MySql.Data.EntityFrameworkCore.Migrations.Internal;
-using MySql.Data.EntityFrameworkCore.Infraestructure.Internal;
+using MySql.Data.EntityFrameworkCore.Infraestructure;
 using MySql.Data.EntityFrameworkCore.Query.Internal;
 using MySql.Data.EntityFrameworkCore.Metadata.Conventions;
 

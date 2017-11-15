@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, 2017 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,23 +20,25 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.EntityFrameworkCore.Storage;
-using MySql.Data.EntityFrameworkCore;
 using System;
-using System.Data;
+using System.Data.Common;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
+using MySql.Data.EntityFrameworkCore.Extensions;
 
-namespace MySql.Data.EntityFrameworkCore.Storage.Internal
+namespace MySql.Data.EntityFrameworkCore.Infraestructure
 {
-  internal class MySQLSizeableMapping : RelationalTypeMapping
+  /// <summary>
+  /// Represents the <see cref="RelationalOptionsExtension"/> implemented for MySQL.
+  /// </summary>
+  public partial class MySQLOptionsExtension : RelationalOptionsExtension
   {
-    public MySQLSizeableMapping([NotNull] string storeType,
-            [NotNull] Type clrType,
-            DbType? dbType,
-            bool unicode,
-            int? size,
-            bool hasNonDefaultUnicode = false,
-            bool hasNonDefaultSize = false)
-            : base(storeType, clrType, dbType, unicode, size, hasNonDefaultUnicode, hasNonDefaultSize)
+    public MySQLOptionsExtension()
+    {
+    }
+
+    public MySQLOptionsExtension(MySQLOptionsExtension copyFrom)
+      : base(copyFrom)
     {
     }
   }

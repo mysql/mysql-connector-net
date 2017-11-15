@@ -26,14 +26,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace MySql.Data.EntityFrameworkCore
 {
-  internal class MySQLUpdateSqlGenerator : UpdateSqlGenerator
+  internal partial class MySQLUpdateSqlGenerator : UpdateSqlGenerator
   {
-
-    public MySQLUpdateSqlGenerator([NotNull] ISqlGenerationHelper sqlGenerationHelper)
-            : base(sqlGenerationHelper)
-    {
-    }
-
     protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, ColumnModification columnModification)
     {
       ThrowIf.Argument.IsNull(columnModification, "columnModification");

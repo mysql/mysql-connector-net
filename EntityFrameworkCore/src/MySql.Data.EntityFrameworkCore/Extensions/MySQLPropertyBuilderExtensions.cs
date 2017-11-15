@@ -20,6 +20,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MySql.Data.EntityFrameworkCore.Metadata.Internal;
 
@@ -37,30 +38,12 @@ namespace MySql.Data.EntityFrameworkCore.Extensions
     /// <param name="typeName">MySQL column type as string.</param>
     /// <returns>Property builder of the auto-increment column.</returns>
     public static PropertyBuilder UseMySQLAutoIncrementColumn(
-        [NotNull] this PropertyBuilder propertyBuilder,
-        [CanBeNull] string typeName)
+      [NotNull] this PropertyBuilder propertyBuilder,
+      [CanBeNull] string typeName)
     {
       ThrowIf.Argument.IsNull(propertyBuilder, "propertyBuilder");
 
       propertyBuilder.ValueGeneratedOnAdd();
-      return propertyBuilder;
-    }
-
-    /// <summary>
-    /// Defines a column data type.
-    /// </summary>
-    /// <param name="propertyBuilder">Entity property to be set.</param>
-    /// <param name="typeName">MySQL column type as string.</param>
-    /// <returns>Property builder of a MySQL column data type.</returns>
-    public static PropertyBuilder ForMySQLHasColumnType(
-      [NotNull] this PropertyBuilder propertyBuilder,
-      [CanBeNull] string typeName)      
-    {
-
-      ThrowIf.Argument.IsNull(propertyBuilder, "propertyBuilder");
-
-      propertyBuilder.Metadata.MySQL().ColumnType = typeName;
-
       return propertyBuilder;
     }
 
@@ -71,8 +54,8 @@ namespace MySql.Data.EntityFrameworkCore.Extensions
     /// <param name="sql">Default value expression.</param>
     /// <returns>Property builder of a MySQL column with a default value.</returns>
     public static PropertyBuilder ForMySQLHasDefaultValue(
-            [NotNull] this PropertyBuilder propertyBuilder,
-            [CanBeNull] string sql)
+      [NotNull] this PropertyBuilder propertyBuilder,
+      [CanBeNull] string sql)
     {
       ThrowIf.Argument.IsNull(propertyBuilder, "propertyBuilder");
 
@@ -80,11 +63,9 @@ namespace MySql.Data.EntityFrameworkCore.Extensions
         ThrowIf.Argument.IsEmpty(sql, "sql");
 
       propertyBuilder.ValueGeneratedOnAdd();
-      //propertyBuilder.Metadata.MySQL().GeneratedValueSql = sql;
+      propertyBuilder.Metadata.AddAnnotation(MySQLAnnotationNames.DefaultValueSql, sql);
 
-      propertyBuilder.Metadata.MySQL().DefaultValueSql = sql;
       return propertyBuilder;
-
     }
 
     /// <summary>
@@ -97,7 +78,7 @@ namespace MySql.Data.EntityFrameworkCore.Extensions
       [NotNull] this PropertyBuilder propertyBuilder,
       [NotNull] string charset)
     {
-      propertyBuilder.Metadata.AddAnnotation(MySQLFullAnnotationNames.Instance.Charset, charset);
+      propertyBuilder.Metadata.AddAnnotation(MySQLAnnotationNames.Charset, charset);
       return propertyBuilder;
     }
 
@@ -111,7 +92,7 @@ namespace MySql.Data.EntityFrameworkCore.Extensions
       [NotNull] this EntityTypeBuilder entityTypeBuilder,
       [NotNull] string charset)
     {
-      entityTypeBuilder.Metadata.AddAnnotation(MySQLFullAnnotationNames.Instance.Charset, charset);
+      entityTypeBuilder.Metadata.AddAnnotation(MySQLAnnotationNames.Charset, charset);
       return entityTypeBuilder;
     }
 
@@ -125,7 +106,7 @@ namespace MySql.Data.EntityFrameworkCore.Extensions
       [NotNull] this PropertyBuilder propertyBuilder,
       [NotNull] string collation)
     {
-      propertyBuilder.Metadata.AddAnnotation(MySQLFullAnnotationNames.Instance.Collation, collation);
+      propertyBuilder.Metadata.AddAnnotation(MySQLAnnotationNames.Collation, collation);
       return propertyBuilder;
     }
 
@@ -139,7 +120,7 @@ namespace MySql.Data.EntityFrameworkCore.Extensions
       [NotNull] this EntityTypeBuilder entityTypeBuilder,
       [NotNull] string collation)
     {
-      entityTypeBuilder.Metadata.AddAnnotation(MySQLFullAnnotationNames.Instance.Collation, collation);
+      entityTypeBuilder.Metadata.AddAnnotation(MySQLAnnotationNames.Collation, collation);
       return entityTypeBuilder;
     }
   }

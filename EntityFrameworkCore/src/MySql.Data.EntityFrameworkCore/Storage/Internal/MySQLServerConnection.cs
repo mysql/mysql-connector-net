@@ -31,54 +31,39 @@ using System.Reflection;
 
 namespace MySql.Data.EntityFrameworkCore
 {
-  internal class MySQLServerConnection : RelationalConnection
+  internal partial class MySQLServerConnection : RelationalConnection
+  {
+    private string _cnnStr
     {
-
-      private string _cnnStr
-      { 
-        get
-          {
-          if (this.DbConnection != null)
-            {
-              var cstr = ((MySqlConnectionStringBuilder)((MySqlConnection)this.DbConnection).GetType().GetProperty("Settings", System.Reflection.BindingFlags.Instance
-                          | System.Reflection.BindingFlags.NonPublic).GetValue(((MySqlConnection)this.DbConnection), null));
-              return cstr.ConnectionString;
-            }
-            return null;
-          }
-      }
-
-  
-      public MySQLServerConnection(
-            [NotNull]IDbContextOptions options, 
-            [NotNull]ILogger<MySQLServerConnection> logger) 
-            : base(options, logger)
-          {
-          }
-
-      public MySQLServerConnection(
-        [NotNull]IDbContextOptions options,
-        [NotNull]ILogger logger)
-        : base(options, logger)
+      get
       {
+        if (this.DbConnection != null)
+        {
+          var cstr = ((MySqlConnectionStringBuilder)((MySqlConnection)this.DbConnection).GetType().GetProperty("Settings", System.Reflection.BindingFlags.Instance
+                      | System.Reflection.BindingFlags.NonPublic).GetValue(((MySqlConnection)this.DbConnection), null));
+          return cstr.ConnectionString;
+        }
+        return null;
       }
-
-      protected override DbConnection CreateDbConnection()
-        {
-          return new MySqlConnection(ConnectionString);
-        }
-
-
-        public MySQLServerConnection CreateSystemConnection()
-        {
-            MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(_cnnStr ?? ConnectionString);
-            builder.Database = "mysql";
-
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseMySQL(builder.ConnectionString);
-
-            MySQLServerConnection c = new MySQLServerConnection(optionsBuilder.Options, Logger);
-            return c;
-        }
     }
+
+
+    protected override DbConnection CreateDbConnection()
+    {
+      return new MySqlConnection(ConnectionString);
+    }
+
+
+    public MySQLServerConnection CreateSystemConnection()
+    {
+      MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(_cnnStr ?? ConnectionString);
+      builder.Database = "mysql";
+
+      var optionsBuilder = new DbContextOptionsBuilder();
+      optionsBuilder.UseMySQL(builder.ConnectionString);
+
+      MySQLServerConnection c = new MySQLServerConnection(optionsBuilder.Options, Logger);
+      return c;
+    }
+  }
 }

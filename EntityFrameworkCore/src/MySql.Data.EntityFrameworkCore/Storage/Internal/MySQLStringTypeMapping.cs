@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2017 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,30 +20,36 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
-using MySql.Data.EntityFrameworkCore.Extensions;
+using Microsoft.EntityFrameworkCore.Storage;
+using MySql.Data.EntityFrameworkCore;
+using System;
+using System.Data;
 
-namespace MySql.Data.EntityFrameworkCore.Infraestructure.Internal
+namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
-  /// <summary>
-  /// Represents the <see cref="RelationalOptionsExtension"/> implemented for MySQL.
-  /// </summary>
-  public class MySQLOptionsExtension : RelationalOptionsExtension
+  internal class MySQLStringTypeMapping : MySQLTypeMapping
   {
-    public MySQLOptionsExtension()
+    public MySQLStringTypeMapping(
+        [NotNull] string storeType,
+        [CanBeNull] DbType? dbType = null,
+        bool unicode = false,
+        int? size = null,
+        bool hasNonDefaultUnicode = false)
+      : base(storeType, typeof(string), dbType, unicode, size, hasNonDefaultUnicode)
     {
     }
 
-    public MySQLOptionsExtension(MySQLOptionsExtension copyFrom)
-        : base(copyFrom)
-    {
-    }
+    public override RelationalTypeMapping Clone([NotNull] string storeType, int? size)
+      => new MySQLStringTypeMapping(
+        storeType,
+        DbType,
+        IsUnicode,
+        size);
 
+    protected virtual string EscapeSqlLiteral([NotNull] string literal)
+      => literal.Replace("'", "''");
 
-    public override void ApplyServices(IServiceCollection services)
-    {
-      services.AddEntityFrameworkMySQL();
-    }
+    protected override string GenerateNonNullSqlLiteral([NotNull] object value)
+      => $"'{EscapeSqlLiteral((string)value)}'";
   }
 }

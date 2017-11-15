@@ -23,7 +23,7 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
-using MySql.Data.EntityFrameworkCore.Infraestructure.Internal;
+using MySql.Data.EntityFrameworkCore.Infraestructure;
 using System.Linq;
 
 namespace MySql.Data.EntityFrameworkCore.Update

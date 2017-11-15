@@ -20,7 +20,6 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -31,10 +30,9 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-
 namespace MySql.Data.EntityFrameworkCore.Query
 {
-  internal class MySQLQuerySqlGenerator : DefaultQuerySqlGenerator
+  internal partial class MySQLQuerySqlGenerator : DefaultQuerySqlGenerator
   {
     protected override string TypedFalseLiteral
     {
@@ -44,35 +42,12 @@ namespace MySql.Data.EntityFrameworkCore.Query
       }
     }
 
-    protected override string ConcatOperator
-    {
-        get
-        {
-            return String.Empty;
-        }
-    }
-
     protected override string TypedTrueLiteral
     {
       get
       {
         return "('1')";
       }
-    }
-
-    public MySQLQuerySqlGenerator(
-            [NotNull] IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
-            [NotNull] ISqlGenerationHelper sqlGenerationHelper,
-            [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
-            [NotNull] IRelationalTypeMapper relationalTypeMapper,
-            [NotNull] SelectExpression selectExpression)
-            : base(
-                relationalCommandBuilderFactory,
-                sqlGenerationHelper,
-                parameterNameGeneratorFactory,
-                relationalTypeMapper,
-                selectExpression)
-    {
     }
 
 

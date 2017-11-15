@@ -30,9 +30,9 @@ using MySql.Data.EntityFrameworkCore.Metadata.Internal;
 
 namespace MySql.Data.EntityFrameworkCore.Migrations.Internal
 {
-    internal class MySQLMigrationsAnnotationProvider : MigrationsAnnotationProvider
-    {
-      public override IEnumerable<IAnnotation> For(IProperty property)
+  internal partial class MySQLMigrationsAnnotationProvider : MigrationsAnnotationProvider
+  {
+    public override IEnumerable<IAnnotation> For(IProperty property)
     {
       if (property.ValueGenerated == ValueGenerated.OnAdd &&
           property.ClrType.CanBeAutoIncrement())

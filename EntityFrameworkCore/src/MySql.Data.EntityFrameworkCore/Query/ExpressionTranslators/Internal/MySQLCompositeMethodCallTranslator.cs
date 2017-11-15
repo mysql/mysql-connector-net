@@ -29,17 +29,11 @@ namespace MySql.Data.EntityFrameworkCore
   /// <summary>
   /// RelationalCompositeMethodCallTranslator implementation for MySQL
   /// </summary>
-  internal class MySQLCompositeMethodCallTranslator : RelationalCompositeMethodCallTranslator
+  internal partial class MySQLCompositeMethodCallTranslator : RelationalCompositeMethodCallTranslator
+  {
+    private static readonly IMethodCallTranslator[] _mysqlTranslators =
     {
-
-        public static readonly IMethodCallTranslator[] _mysqlTranslators =
-        {
-            new MySQLContainsOptimizedTranslator()       
-        };
-
-        public MySQLCompositeMethodCallTranslator(ILogger<MySQLCompositeMethodCallTranslator> logger) : base(logger)
-        {
-            AddTranslators(_mysqlTranslators);
-        }
-    }
+      new MySQLContainsOptimizedTranslator()
+    };
+  }
 }

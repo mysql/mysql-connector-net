@@ -23,22 +23,22 @@
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using JetBrains.Annotations;
-using MySql.Data.EntityFrameworkCore;
+using System.Text;
+using System.Data;
 
 namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
-  internal class MySQLBinaryMapping : RelationalTypeMapping
+  internal abstract partial class MySQLTypeMapping : RelationalTypeMapping
   {
-    public MySQLBinaryMapping(string storeType, Type clrType) : base(storeType, clrType, System.Data.DbType.Binary, true, null)
+    protected MySQLTypeMapping(
+        [NotNull] string storeType,
+        [NotNull] Type clrType,
+        [CanBeNull] DbType? dbType = null,
+        bool unicode = false,
+        int? size = null,
+        bool hasNonDefaultUnicode = false)
+      : base(storeType, clrType, dbType, unicode, size)
     {
-    }
-
-    public override RelationalTypeMapping CreateCopy([NotNullAttribute] string storeType, int? size)
-    {
-      return base.CreateCopy(storeType, null);
     }
   }
 }
