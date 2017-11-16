@@ -30,7 +30,7 @@ namespace MySql.Data.EntityFrameworkCore.Metadata.Conventions
 {
   internal partial class MySQLConventionSetBuilder : RelationalConventionSetBuilder
   {
-    public MySQLConventionSetBuilder([NotNullAttribute] RelationalConventionSetBuilderDependencies dependencies) 
+    public MySQLConventionSetBuilder([NotNull] RelationalConventionSetBuilderDependencies dependencies) 
       : base(dependencies)
     {
     }

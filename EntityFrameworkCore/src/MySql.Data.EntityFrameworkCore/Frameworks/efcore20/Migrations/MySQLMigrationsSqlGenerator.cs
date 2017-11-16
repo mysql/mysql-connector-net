@@ -23,6 +23,7 @@
 using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace MySql.Data.EntityFrameworkCore.Migrations
 {

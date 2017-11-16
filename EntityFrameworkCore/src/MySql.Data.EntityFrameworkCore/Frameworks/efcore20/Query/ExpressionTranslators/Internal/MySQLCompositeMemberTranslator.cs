@@ -30,7 +30,7 @@ namespace MySql.Data.EntityFrameworkCore
   internal partial class MySQLCompositeMemberTranslator : RelationalCompositeMemberTranslator
   {
     //TODO: check MySQL functions for string length, get datetime, etc
-    protected MySQLCompositeMemberTranslator([NotNull] RelationalCompositeMemberTranslatorDependencies dependencies) 
+    public MySQLCompositeMemberTranslator([NotNull] RelationalCompositeMemberTranslatorDependencies dependencies) 
       : base(dependencies)
     {
     }

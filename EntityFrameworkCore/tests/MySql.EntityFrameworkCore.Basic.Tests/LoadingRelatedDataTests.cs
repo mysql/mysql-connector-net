@@ -49,6 +49,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
                    .Options;
 
       context = new EagerLoadingContext(options);
+      context.Database.EnsureDeleted();
       context.Database.EnsureCreated();
       AddData(context);
 

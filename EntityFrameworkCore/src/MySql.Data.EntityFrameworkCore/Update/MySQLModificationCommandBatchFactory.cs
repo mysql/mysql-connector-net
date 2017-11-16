@@ -42,7 +42,7 @@ namespace MySql.Data.EntityFrameworkCore.Update
     public MySQLModificationCommandBatchFactory(
         [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
         [NotNull] ISqlGenerationHelper sqlGenerator,
-        [NotNull] MySQLUpdateSqlGenerator updateSqlGenerator,
+        [NotNull] IUpdateSqlGenerator updateSqlGenerator,
         [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
         [NotNull] IDbContextOptions options)
     {
@@ -53,7 +53,7 @@ namespace MySql.Data.EntityFrameworkCore.Update
 
       _commandBuilderFactory = commandBuilderFactory;
       _sqlGenerator = sqlGenerator;
-      _updateSqlGenerator = updateSqlGenerator;
+      _updateSqlGenerator = (MySQLUpdateSqlGenerator)updateSqlGenerator;
       _valueBufferFactoryFactory = valueBufferFactoryFactory;
       _options = options;
     }

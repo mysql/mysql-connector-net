@@ -37,7 +37,7 @@ namespace MySql.Data.EntityFrameworkCore.Migrations.Internal
       if (property.ValueGenerated == ValueGenerated.OnAdd &&
           property.ClrType.CanBeAutoIncrement())
       {
-        yield return new Annotation(MySQLAnnotationNames.Prefix + MySQLAnnotationNames.AutoIncrement, true);
+        yield return new Annotation(MySQLAnnotationNames.AutoIncrement, true);
       }
     }
   }

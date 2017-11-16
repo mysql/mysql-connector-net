@@ -30,7 +30,7 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
   internal abstract partial class MySQLTypeMapping : RelationalTypeMapping
   {
-    protected MySQLTypeMapping(
+    public MySQLTypeMapping(
         [NotNull] string storeType,
         [NotNull] Type clrType,
         [CanBeNull] DbType? dbType = null,

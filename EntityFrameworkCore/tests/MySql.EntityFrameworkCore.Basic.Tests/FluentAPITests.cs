@@ -80,10 +80,6 @@ namespace MySql.Data.EntityFrameworkCore.Tests
           var row = context.QuickEntity.FirstOrDefault();
           Assert.Equal(dt, row.Created);
         }
-        catch (Exception)
-        {
-          throw;
-        }
         finally
         {
           context.Database.EnsureDeleted();

@@ -29,12 +29,12 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
   internal abstract class TypeMapperWrapper : RelationalTypeMapper
   {
-    protected TypeMapperWrapper([NotNull] RelationalTypeMapperDependencies dependencies)
+    public TypeMapperWrapper([NotNull] RelationalTypeMapperDependencies dependencies)
       : base(dependencies)
     {
     }
 
-    protected TypeMapperWrapper() : this(new RelationalTypeMapperDependencies())
+    public TypeMapperWrapper() : this(new RelationalTypeMapperDependencies())
     {
     }
   }

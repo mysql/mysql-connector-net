@@ -34,13 +34,12 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
   {
     public MySQLBinaryTypeMapping(
       [NotNull] string storeType,
-      [CanBeNull] DbType? dbType = System.Data.DbType.Binary,
-      int? size = null)
-      : base(storeType, typeof(byte[]), dbType, size: size)
+      [CanBeNull] DbType? dbType = System.Data.DbType.Binary)
+      : base(storeType, typeof(byte[]), dbType)
     {
     }
 
     public override RelationalTypeMapping Clone([NotNull] string storeType, int? size)
-      => new MySQLBinaryTypeMapping(storeType, DbType, size);
+      => new MySQLBinaryTypeMapping(storeType, DbType);
   }
 }

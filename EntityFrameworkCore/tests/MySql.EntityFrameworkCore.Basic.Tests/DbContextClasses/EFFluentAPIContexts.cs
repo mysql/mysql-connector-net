@@ -44,7 +44,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
       modelBuilder.Entity<Employee>()
              .Property(p => p.Timestamp)
              .HasDefaultValue(DateTime.Now)
-             .ForMySQLHasDefaultValue("CURRENT_TIMESTAMP")
+             //.ForMySQLHasDefaultValueSql("CURRENT_TIMESTAMP")
              .ValueGeneratedOnAddOrUpdate();
 
     }    

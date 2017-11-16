@@ -42,14 +42,31 @@ namespace MySql.Data.EntityFrameworkCore.Infraestructure
       services.AddEntityFrameworkMySQL();
     }
 
-    internal void WithConnectionString(string connectionString)
+    internal MySQLOptionsExtension WithConnectionString([NotNull] string connectionString)
     {
-      this.ConnectionString = connectionString;
+      ThrowIf.Argument.IsEmpty(connectionString, nameof(connectionString));
+
+      var clone = Clone();
+
+      clone.ConnectionString = connectionString;
+
+      return clone;
     }
 
-    internal void WithConnection(DbConnection connection)
+    internal MySQLOptionsExtension WithConnection([NotNull] DbConnection connection)
     {
-      this.Connection = connection;
+      ThrowIf.Argument.IsNull(connection, nameof(connection));
+
+      var clone = Clone();
+
+      clone.Connection = connection;
+
+      return clone;
+    }
+
+    protected virtual MySQLOptionsExtension Clone()
+    {
+      return new MySQLOptionsExtension(this);
     }
   }
 }

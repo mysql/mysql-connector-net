@@ -49,6 +49,11 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
     protected virtual string GenerateNonNullSqlLiteral([NotNull] object value)
       => string.Format(CultureInfo.InvariantCulture, SqlLiteralFormatString, value);
 
+    public virtual string GenerateSqlLiteral([CanBeNull] object value)
+      => value == null
+        ? "NULL"
+        : GenerateNonNullSqlLiteral(value);
+
     public override RelationalTypeMapping CreateCopy([NotNull] string storeType, int? size)
     {
       return Clone(storeType, size);

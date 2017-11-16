@@ -20,9 +20,11 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MySql.Data.EntityFrameworkCore.Metadata.Internal;
+using System;
 
 namespace MySql.Data.EntityFrameworkCore.Extensions
 {
@@ -48,22 +50,40 @@ namespace MySql.Data.EntityFrameworkCore.Extensions
     }
 
     /// <summary>
-    /// Defines a column default value.
+    /// Defines a column default value expression.
     /// </summary>
     /// <param name="propertyBuilder">Entity property to be set.</param>
     /// <param name="sql">Default value expression.</param>
     /// <returns>Property builder of a MySQL column with a default value.</returns>
-    public static PropertyBuilder ForMySQLHasDefaultValue(
+    public static PropertyBuilder ForMySQLHasDefaultValueSql(
       [NotNull] this PropertyBuilder propertyBuilder,
       [CanBeNull] string sql)
     {
       ThrowIf.Argument.IsNull(propertyBuilder, "propertyBuilder");
 
       if (sql != null && sql.Length == 0)
-        ThrowIf.Argument.IsEmpty(sql, "sql");
+        ThrowIf.Argument.IsEmpty(sql, nameof(sql));
 
       propertyBuilder.ValueGeneratedOnAdd();
-      propertyBuilder.Metadata.AddAnnotation(MySQLAnnotationNames.DefaultValueSql, sql);
+      propertyBuilder.Metadata.Relational().DefaultValueSql = sql;
+
+      return propertyBuilder;
+    }
+
+    /// <summary>
+    /// Defines a column default value.
+    /// </summary>
+    /// <param name="propertyBuilder">Entity property to be set.</param>
+    /// <param name="sql">Default value.</param>
+    /// <returns>Property builder of a MySQL column with a default value.</returns>
+    public static PropertyBuilder ForMySQLHasDefaultValue(
+      [NotNull] this PropertyBuilder propertyBuilder,
+      [CanBeNull] object value = null)
+    {
+      ThrowIf.Argument.IsNull(propertyBuilder, "propertyBuilder");
+
+      propertyBuilder.ValueGeneratedOnAdd();
+      propertyBuilder.Metadata.Relational().DefaultValue = value;// ?? DBNull.Value;
 
       return propertyBuilder;
     }

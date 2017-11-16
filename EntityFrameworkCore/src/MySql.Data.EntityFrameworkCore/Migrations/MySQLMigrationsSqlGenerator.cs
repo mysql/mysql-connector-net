@@ -29,6 +29,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using System.Linq;
 using MySql.Data.EntityFrameworkCore.Migrations.Operations;
 using MySql.Data.EntityFrameworkCore.Metadata.Internal;
+using MySql.Data.EntityFrameworkCore.Storage.Internal;
 
 namespace MySql.Data.EntityFrameworkCore.Migrations
 {
@@ -162,7 +163,7 @@ namespace MySql.Data.EntityFrameworkCore.Migrations
         defaultValue = "'" + defaultValue + "'";
       }
 
-      var autoInc = annotatable[MySQLAnnotationNames.Prefix + MySQLAnnotationNames.AutoIncrement];
+      var autoInc = annotatable[MySQLAnnotationNames.AutoIncrement];
 
       base.ColumnDefinition(
                 schema, table, name, clrType, type, unicode, maxLength, rowVersion, nullable,
@@ -190,9 +191,10 @@ namespace MySql.Data.EntityFrameworkCore.Migrations
       }
       else if (defaultValue != null)
       {
+        var typeMapping = (MySQLTypeMapping)_typeMapper.GetMappingForValue(defaultValue);
         builder
             .Append(" DEFAULT ")
-            .Append(defaultValue);
+            .Append(typeMapping.GenerateSqlLiteral(defaultValue));
       }
     }
 

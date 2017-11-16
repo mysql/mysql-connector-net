@@ -23,22 +23,37 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Storage;
+using MySql.Data.MySqlClient;
 
 namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
   internal class MySQLDatetimeTypeMapping : MySQLTypeMapping
   {
+    private const string _dateTimeFormatConst = "{0:yyyy-MM-dd HH:mm:ss.fff}";
+
     public MySQLDatetimeTypeMapping(
-        [NotNull] string storeType, 
-        [NotNull] Type clrType, 
-        [CanBeNull] DbType? dbType = null) 
+        [NotNull] string storeType,
+        [NotNull] Type clrType,
+        [CanBeNull] DbType? dbType = System.Data.DbType.DateTime)
       : base(storeType, clrType, dbType)
     {
     }
 
     public override RelationalTypeMapping Clone([NotNull] string storeType, int? size)
       => new MySQLDatetimeTypeMapping(storeType, ClrType, DbType);
+
+    protected override string SqlLiteralFormatString
+      => $"'{_dateTimeFormatConst}'";
+
+    protected override void ConfigureParameter([NotNull] DbParameter parameter)
+    {
+      if(parameter.Value.GetType() == typeof(DateTimeOffset))
+      {
+        parameter.Value = ((DateTimeOffset)parameter.Value).DateTime;
+      }
+    }
   }
 }

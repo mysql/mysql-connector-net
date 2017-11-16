@@ -54,9 +54,9 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
     private readonly RelationalTypeMapping _tinyText = new MySQLStringTypeMapping("tinytext");
 
     private readonly RelationalTypeMapping _datetime = new MySQLDatetimeTypeMapping("datetime", typeof(DateTime));
-    private readonly RelationalTypeMapping _datetimeoffset = new MySQLDatetimeTypeMapping("timestamp", typeof(DateTimeOffset), DbType.DateTime);
+    private readonly RelationalTypeMapping _datetimeoffset = new MySQLDatetimeTypeMapping("timestamp", typeof(DateTimeOffset));
     private readonly RelationalTypeMapping _date = new MySQLDatetimeTypeMapping("date", typeof(DateTime));
-    private readonly RelationalTypeMapping _time = new MySQLDatetimeTypeMapping("time", typeof(TimeSpan));
+    private readonly RelationalTypeMapping _time = new MySQLDatetimeTypeMapping("time", typeof(TimeSpan), null);
 
     private readonly RelationalTypeMapping _float = new MySQLNumberTypeMapping("float", typeof(float));
     private readonly RelationalTypeMapping _double = new MySQLNumberTypeMapping("double", typeof(double));

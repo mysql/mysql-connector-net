@@ -38,12 +38,12 @@ namespace MySql.Data.EntityFrameworkCore
   {
     private object Logger = new object();
 
-    internal MySQLServerConnection([NotNull] RelationalConnectionDependencies dependencies)
+    public MySQLServerConnection([NotNull] RelationalConnectionDependencies dependencies)
       : base(dependencies)
     {
     }
 
-    internal MySQLServerConnection(
+    public MySQLServerConnection(
         [NotNull] IDbContextOptions options,
         [CanBeNull] object logger)
       : base(

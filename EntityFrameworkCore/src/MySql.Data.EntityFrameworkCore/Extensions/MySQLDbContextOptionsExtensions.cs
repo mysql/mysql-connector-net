@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore
       var extension = optionsBuilder.Options.FindExtension<MySQLOptionsExtension>();
       if (extension == null)
         extension = new MySQLOptionsExtension();
-      extension.WithConnectionString(connectionString);
+      extension = (MySQLOptionsExtension)extension.WithConnectionString(connectionString);
 
       IDbContextOptionsBuilderInfrastructure o = optionsBuilder as IDbContextOptionsBuilderInfrastructure;
       o.AddOrUpdateExtension(extension);
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore
                                                         Action<MySQLDbContextOptionsBuilder> MySQLOptionsAction = null)
     {
       var extension = GetOrCreateExtension(optionsBuilder);
-      extension.WithConnection(connection);
+      extension = (MySQLOptionsExtension)extension.WithConnection(connection);
       IDbContextOptionsBuilderInfrastructure o = optionsBuilder as IDbContextOptionsBuilderInfrastructure;
       o.AddOrUpdateExtension(extension);
       MySQLOptionsAction?.Invoke(new MySQLDbContextOptionsBuilder(optionsBuilder));

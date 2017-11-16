@@ -23,6 +23,9 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
+using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
@@ -68,31 +71,26 @@ namespace MySql.Data.EntityFrameworkCore.Extensions
       var builder = new EntityFrameworkRelationalServicesBuilder(services)
         .TryAdd<IRelationalCommandBuilderFactory, MySQLCommandBuilderFactory>()
         .TryAdd<IDatabaseProvider, DatabaseProvider<MySQLOptionsExtension>>()
-        .TryAdd<IValueGeneratorCache>(p => p.GetService<MySQLValueGeneratorCache>())
+        .TryAdd<IValueGeneratorCache, MySQLValueGeneratorCache>()
         .TryAdd<IRelationalTypeMapper, MySQLTypeMapper>()
         .TryAdd<ISqlGenerationHelper, MySQLSqlGenerationHelper>()
         .TryAdd<IModelSource, MySQLModelSource>()
         .TryAdd<IMigrationsAnnotationProvider, MySQLMigrationsAnnotationProvider>()
+        .TryAdd<IUpdateSqlGenerator, MySQLUpdateSqlGenerator>()
         .TryAdd<IConventionSetBuilder, MySQLConventionSetBuilder>()
-        .TryAdd<IUpdateSqlGenerator>(p => p.GetService<MySQLUpdateSqlGenerator>())
         .TryAdd<IModificationCommandBatchFactory, MySQLModificationCommandBatchFactory>()
-        .TryAdd<IRelationalConnection>(p => p.GetService<MySQLServerConnection>())
+        .TryAdd<IRelationalConnection, MySQLServerConnection>()
         .TryAdd<IMigrationsSqlGenerator, MySQLMigrationsSqlGenerator>()
         .TryAdd<IRelationalDatabaseCreator, MySQLDatabaseCreator>()
-        .TryAdd<IHistoryRepository, MySQLHistoryRepository>();
+        .TryAdd<IHistoryRepository, MySQLHistoryRepository>()
+        .TryAdd<IQueryCompilationContextFactory, MySQLQueryCompilationContextFactory>()
+        .TryAdd<IMemberTranslator, MySQLCompositeMemberTranslator>()
+        .TryAdd<ICompositeMethodCallTranslator, MySQLCompositeMethodCallTranslator>()
+        .TryAdd<IQuerySqlGeneratorFactory, MySQLQueryGeneratorFactory>();
 
       builder.TryAddCoreServices();
 
       return services;
-    }
-
-    private static IServiceCollection AddQuery(this IServiceCollection serviceCollection)
-    {
-      return serviceCollection
-              .AddScoped<MySQLQueryCompilationContextFactory>()
-              .AddScoped<MySQLCompositeMemberTranslator>()
-              .AddScoped<MySQLCompositeMethodCallTranslator>()
-              .AddScoped<MySQLQueryGeneratorFactory>();
     }
   }
 }
