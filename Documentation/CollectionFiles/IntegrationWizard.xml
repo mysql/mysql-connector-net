@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE IntegrationWizard[]>
+<IntegrationWizard>
+    <ProjectType>MergeModule</ProjectType>
+    <Target>VS_2005_VSIPCC</Target>
+    <Namespace>mysql.connectornet.en</Namespace>
+    <Description>MySQL Connector Net Documentation</Description>
+    <ParentNamespaces>
+        <ParentNamespace>
+            <Name>MS_VSIPCC_v80</Name>
+            <HxT>FL_vsipcc_hxt_86880________.3643236F_FC70_11D3_A536_0090278A1BB8</HxT>
+            <HxQ>
+            </HxQ>
+        </ParentNamespace>
+    </ParentNamespaces>
+    <SourceFiles>
+        <SourceFile>
+            <Name>MySql.Data.HxS</Name>
+            <ComponentID>{D0F879BD-DEBE-E064-F7AF-78660B022018}</ComponentID>
+        </SourceFile>
+        <SourceFile>
+            <Name>COL_Master.HxC</Name>
+            <ComponentID>{5F039555-17AF-C506-B05A-011D32179B24}</ComponentID>
+        </SourceFile>
+        <SourceFile>
+            <Name>COL_Master.HxT</Name>
+            <ComponentID>{D34AA189-F112-BDB2-9CD1-A7EAD8B81875}</ComponentID>
+        </SourceFile>
+        <SourceFile>
+            <Name>COL_Master_K.HxK</Name>
+            <ComponentID>{F8F08CBD-895C-9D66-086A-A4B1855AD01C}</ComponentID>
+        </SourceFile>
+        <SourceFile>
+            <Name>COL_Master_A.HxK</Name>
+            <ComponentID>{57C68500-B4CD-9C0E-2E6A-24F17047BBD1}</ComponentID>
+        </SourceFile>
+        <SourceFile>
+            <Name>COL_Master_F.HxK</Name>
+            <ComponentID>{E7203EE3-E572-8000-BDE3-6512A71B4540}</ComponentID>
+        </SourceFile>
+        <SourceFile>
+            <Name>COL_Master_N.HxK</Name>
+            <ComponentID>{DBBFFC13-9F08-1091-AB6E-7FDB93490DE5}</ComponentID>
+        </SourceFile>
+    </SourceFiles>
+    <Filters>
+    </Filters>
+</IntegrationWizard>
