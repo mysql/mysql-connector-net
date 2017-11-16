@@ -967,6 +967,54 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("POINT(47.37 -122.21)", valToString);
     }
 
+    /// <summary>
+    /// Bug #86974 Cannot create instance of MySqlGeometry for empty geometry collection 
+    /// </summary>
+    [Fact]
+    public void CanCreateMySqlGeometryFromEmptyGeometryCollection()
+    {
+      var bytes = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x01, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+      MySqlGeometry v = new MySqlGeometry(MySqlDbType.Geometry, bytes);
+      Assert.Equal("POINT(3.45845952088873E-323 0)", v.ToString());
+    }
+
+    /// <summary>
+    /// Bug #86974 Cannot create instance of MySqlGeometry for empty geometry collection 
+    /// </summary>
+    [Fact]
+    public void CanGetMySqlGeometryFromEmptyGeometryCollection()
+    {
+      if (st.version.Major < 5) return;
+
+      st.execSQL("DROP TABLE IF EXISTS Test");
+      st.execSQL("CREATE TABLE Test (v Geometry NOT NULL)");
+
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (ST_GeometryCollectionFromText(\"GEOMETRYCOLLECTION()\"))", st.conn);
+      cmd.ExecuteNonQuery();
+
+      // reading as binary
+      cmd.CommandText = "SELECT AsBinary(v) as v FROM Test";
+      using (MySqlDataReader reader = cmd.ExecuteReader())
+      {
+          reader.Read();
+          var val = reader.GetMySqlGeometry(0);
+          var valWithName = reader.GetMySqlGeometry("v");
+          Assert.Equal("POINT(0 0)", val.ToString());
+          Assert.Equal("POINT(0 0)", valWithName.ToString());
+      }
+
+      // reading as geometry
+      cmd.CommandText = "SELECT v as v FROM Test";
+      using (MySqlDataReader reader = cmd.ExecuteReader())
+      {
+          reader.Read();
+          var val = reader.GetMySqlGeometry(0);
+          var valWithName = reader.GetMySqlGeometry("v");
+          Assert.Equal("POINT(3.45845952088873E-323 0)", val.ToString());
+          Assert.Equal("POINT(3.45845952088873E-323 0)", valWithName.ToString());
+      }
+    }
+
     #endregion
 
     /// <summary>
