@@ -158,11 +158,6 @@ namespace MySql.Data.EntityFrameworkCore.Migrations
         return;
       }
 
-      if (defaultValue != null && clrType == typeof(string))
-      {
-        defaultValue = "'" + defaultValue + "'";
-      }
-
       var autoInc = annotatable[MySQLAnnotationNames.AutoIncrement];
 
       base.ColumnDefinition(

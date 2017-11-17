@@ -439,7 +439,7 @@ ORDER BY c.table_name,
           {
             Table = table,
             Name = columnName,
-            StoreType = GetStoreType(dataTypeName, precision, numeric_Scale, maxLength),
+            StoreType = dataTypeName,
             IsNullable = isNullable,
             DefaultValueSql = string.IsNullOrWhiteSpace(defaultValue) ? null : defaultValue,
             ComputedColumnSql = string.IsNullOrWhiteSpace(computedValue) ? null : computedValue
@@ -451,27 +451,6 @@ ORDER BY c.table_name,
             _tableColumns.Add(ColumnKey(table, column.Name), column);
         }
       }
-    }
-
-    private string GetStoreType(string dataTypeName, ulong? precision, ulong? scale, ulong? maxLength)
-    {
-      dataTypeName = dataTypeName.ToLowerInvariant();
-
-      if(maxLength.HasValue)
-      {
-        return $"{dataTypeName}({maxLength.Value})";
-      }
-      if(precision.HasValue
-        && scale.HasValue)
-      {
-        return $"{dataTypeName}({precision.Value}, {scale.Value}";
-      }
-      if (precision.HasValue)
-      {
-        return $"{dataTypeName}({precision.Value})";
-      }
-
-      return dataTypeName;
     }
 
     public DatabaseModel Create(string connectionString, IEnumerable<string> tables, IEnumerable<string> schemas)

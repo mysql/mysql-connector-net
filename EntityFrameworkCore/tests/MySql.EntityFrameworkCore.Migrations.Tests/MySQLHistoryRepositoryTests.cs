@@ -75,7 +75,8 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
       var context = serviceProvider.GetRequiredService<MyTestContext>();
 
 
-      var creator = context.GetService<MySQLDatabaseCreator>();
+      var creator = context.GetService<IRelationalDatabaseCreator>();
+
       var cmdBuilder = context.GetService<IRawSqlCommandBuilder>();
       Assert.False(creator.Exists());
       Assert.Equal("IF EXISTS(SELECT * FROM `__EFMigrationsHistory` WHERE `MigrationId` = 'MigrationId')\r\nBEGIN",
