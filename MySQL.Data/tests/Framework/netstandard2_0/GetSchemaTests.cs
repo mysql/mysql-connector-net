@@ -225,7 +225,7 @@ namespace MySql.Data.MySqlClient.Tests
     ///Testing out schema information about generated columns
     /// only in version 5.7.6 or later    
     ///</summary>
-    [Fact]
+    [Fact(Skip="Not compatible with netcoreapp2.0")]
     public void CanGetSchemaInformationGeneratedColumns()
     {     
       if (Fixture.Version < new Version(5, 7, 6)) return;
