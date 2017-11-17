@@ -39,6 +39,7 @@ namespace MySql.Data.MySqlClient.Authentication
       Plugins["mysql_native_password"] = new PluginInfo("MySql.Data.MySqlClient.Authentication.MySqlNativePasswordPlugin");
       Plugins["sha256_password"] = new PluginInfo("MySql.Data.MySqlClient.Authentication.Sha256AuthenticationPlugin");
       Plugins["authentication_windows_client"] = new PluginInfo("MySql.Data.MySqlClient.Authentication.MySqlWindowsAuthenticationPlugin");
+      Plugins["caching_sha2_password"] = new PluginInfo("MySql.Data.MySqlClient.Authentication.CachingSha2AuthenticationPlugin");
 
       AuthenticationManagerCtorConfiguration();
     }

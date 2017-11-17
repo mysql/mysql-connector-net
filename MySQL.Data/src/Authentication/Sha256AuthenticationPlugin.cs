@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -38,7 +38,7 @@ namespace MySql.Data.MySqlClient.Authentication
   /// </summary>
   public class Sha256AuthenticationPlugin : MySqlAuthenticationPlugin
   {
-    private byte[] rawPubkey;
+    protected byte[] rawPubkey;
 
     public override string PluginName => "sha256_password";
 
@@ -90,7 +90,7 @@ namespace MySql.Data.MySqlClient.Authentication
 #endif
         }
 
-    private byte[] GetXor( byte[] src, byte[] pattern )
+    protected byte[] GetXor( byte[] src, byte[] pattern )
     {
       byte[] src2 = new byte[src.Length + 1];
       Array.Copy(src, 0, src2, 0, src.Length);

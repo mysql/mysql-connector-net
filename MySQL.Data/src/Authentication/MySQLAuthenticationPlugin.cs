@@ -1,4 +1,4 @@
-﻿// Copyright © 2012, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2012, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -114,9 +114,12 @@ namespace MySql.Data.MySqlClient.Authentication
 
       _driver.SetConnectAttrs();
       _driver.SendPacket(packet);
+
       //read server response
       packet = ReadPacket();
       byte[] b = packet.Buffer;
+
+      // Auth switch request Protocol::AuthSwitchRequest
       if (b[0] == 0xfe)
       {
         if (packet.IsLastPacket)
@@ -160,7 +163,7 @@ namespace MySql.Data.MySqlClient.Authentication
       }
       catch (MySqlException ex)
       {
-        // make sure this is an auth failed ex
+        // Make sure this is an auth failed ex
         AuthenticationFailed(ex);
         return null;
       }
@@ -183,7 +186,9 @@ namespace MySql.Data.MySqlClient.Authentication
     {
       MySqlPacket packet = _driver.Packet;
       packet.Clear();
+
       byte[] moreData = MoreData(null);
+
       while (moreData != null)
       {
         packet.Clear();
@@ -194,12 +199,12 @@ namespace MySql.Data.MySqlClient.Authentication
         byte prefixByte = packet.Buffer[0];
         if (prefixByte != 1) return;
 
-        // a prefix of 0x01 means need more auth data
+        // A prefix of 0x01 means need more auth data
         byte[] responseData = new byte[packet.Length - 1];
         Array.Copy(packet.Buffer, 1, responseData, 0, responseData.Length);
         moreData = MoreData(responseData);
       }
-      // we get here if MoreData returned null but the last packet read was a more data packet
+      // We get here if MoreData returned null but the last packet read was a more data packet
       ReadPacket();
     }
 
