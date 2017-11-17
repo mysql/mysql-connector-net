@@ -71,15 +71,6 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Error parsing configuration file &apos;{0}&apos;..
-        /// </summary>
-        public static string ErrorParsingConfigFile {
-            get {
-                return ResourceManager.GetString("ErrorParsingConfigFile", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to This functionality is only supported from server version {0} onwards..
         /// </summary>
         public static string FunctionalityNotSupported {

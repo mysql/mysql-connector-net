@@ -186,9 +186,6 @@
   <data name="InvalidUriQuery" xml:space="preserve">
     <value>Invalid uri query value</value>
   </data>
-  <data name="ErrorParsingConfigFile" xml:space="preserve">
-    <value>Error parsing configuration file '{0}'.</value>
-  </data>
   <data name="JsonUriOrHost" xml:space="preserve">
     <value>Json configuration must contain 'uri' or 'host' but not both.</value>
   </data>
@@ -212,9 +209,11 @@
   </data>
   <data name="PortNotSupported" xml:space="preserve">
     <value>Providing a port number as part of the host address isn't supported when using connection strings in basic format or anonymous objects. Use URI format instead.</value>
-  </data>  <data name="NumberNotGreaterThanZero" xml:space="preserve">
+  </data>
+  <data name="NumberNotGreaterThanZero" xml:space="preserve">
     <value>{0} must be a value greater than 0.</value>
   </data>
   <data name="FunctionalityNotSupported" xml:space="preserve">
     <value>This functionality is only supported from server version {0} onwards.</value>
-  </data></root>
+  </data>
+</root>
