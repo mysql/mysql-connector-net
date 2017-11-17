@@ -33,7 +33,7 @@
     <Compile Remove="Framework\netstandard2_0\PartialTrustSandbox.cs" />
     <Compile Remove="Framework\netstandard2_0\CmdTestsPipe.cs;Framework\netstandard2_0\CmdTestsPipeCompressed.cs;Framework\netstandard2_0\CmdTestsSharedmemCompressed.cs;Framework\netstandard2_0\CmdTestsSharedMem.cs;" />
     <Compile Remove="Framework\netstandard2_0\PSPipeCompressed.cs;Framework\netstandard2_0\PSPipe.cs;Framework\netstandard2_0\PSSharedMemory.cs;Framework\netstandard2_0\PSSharedMemoryCompressed.cs;" />
-    <Compile Remove="Framework\netstandard2_0\TimeoutAndCancelSharedMemory;Framework\netstandard2_0\TimeoutAndCancelPipe.cs;" />
+    <Compile Remove="Framework\netstandard2_0\TimeoutAndCancelSharedMemory.cs;Framework\netstandard2_0\TimeoutAndCancelPipe.cs;" />
     <Compile Remove="Framework\netstandard2_0\BlobTestsPipeCompressed.cs;Framework\netstandard2_0\BlobTestsSharedMemCompressed.cs;Framework\netstandard2_0\BlobTestsSharedMem.cs;Framework\netstandard2_0\BlobTestsPipe.cs;" />
     <Compile Remove="Framework\netstandard2_0\StressTestsPipe.cs;Framework\netstandard2_0\StressTestsPipeCompressed.cs;Framework\netstandard2_0\StressTestsSharedMemoryCompressed.cs;Framework\netstandard2_0\StressTestsSharedMemory.cs" />
   </ItemGroup>
