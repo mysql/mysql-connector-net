@@ -517,11 +517,11 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
 #if !NETCOREAPP1_1
-        /// <summary>
+    /// <summary>
     /// Bug #54386 : expression with parentheses in INSERT leads to invalid
     /// query when using batching
     /// </summary>
-    [Fact]
+    [Fact(Skip = "Not compatible with netcoreapp2.0")]
     public void TokenizerBatching()
     {
       executeSQL("CREATE TABLE Test (id INT, expr INT,name VARCHAR(20), PRIMARY KEY(id))");

@@ -66,7 +66,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// Bug #25907 DataType Column of DataTypes collection does'nt contain the correct CLR Datatype 
     /// Bug #25947 CreateFormat/CreateParameters Column of DataTypes collection incorrect for CHAR 
     /// </summary>
-    [Fact]
+    [Fact(Skip = "Not compatible with netcoreapp2.0")]
     public void DataTypes()
     {
       DataTable dt = Connection.GetSchema("DataTypes", new string[] { });
@@ -443,7 +443,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("theTime", dt.Rows[0]["COLUMN_NAME"]);
     }
 
-    [Fact]
+    [Fact(Skip = "Not compatible with netcoreapp2.0")]
     public void SingleForeignKey()
     {
       executeSQL("CREATE TABLE parent (id INT NOT NULL, PRIMARY KEY (id)) ENGINE=INNODB");
@@ -467,7 +467,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #26660 MySqlConnection.GetSchema fails with NullReferenceException for Foreign Keys 
     /// </summary>
-    [Fact]
+    [Fact(Skip = "Not compatible with netcoreapp2.0")]
     public void ForeignKeys()
     {
       executeSQL("DROP TABLE IF EXISTS product_order");
@@ -488,7 +488,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True(dt.Columns.Contains("REFERENCED_TABLE_CATALOG"));
     }
 
-    [Fact]
+    [Fact(Skip = "Not compatible with netcoreapp2.0")]
     public void MultiSingleForeignKey()
     {
       executeSQL("DROP TABLE IF EXISTS product_order");
