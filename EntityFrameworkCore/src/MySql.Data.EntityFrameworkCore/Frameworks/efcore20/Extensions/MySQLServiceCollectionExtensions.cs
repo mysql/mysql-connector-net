@@ -65,7 +65,7 @@ namespace MySql.Data.EntityFrameworkCore.Extensions
     ///       </code>
     /// </example>
     /// <param name="services">The <see cref="IServiceCollection"/> to add services to.</param>
-    /// <returns>The same service collection so multiple calls can be chained.</returns>
+    /// <returns>The same service collection to enable a chain of multiple calls.</returns>
     public static IServiceCollection AddEntityFrameworkMySQL([NotNull] this IServiceCollection services)
     {
       var builder = new EntityFrameworkRelationalServicesBuilder(services)

@@ -29,12 +29,12 @@ using MySql.Data.EntityFrameworkCore.Extensions;
 namespace MySql.Data.EntityFrameworkCore.Infraestructure
 {
   /// <summary>
-  /// Represents the <see cref="RelationalOptionsExtension"/> implemented for MySQL.
+  /// Represents the <see cref="RelationalOptionsExtension"/> implementation for MySQL.
   /// </summary>
   public partial class MySQLOptionsExtension : RelationalOptionsExtension
   {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     This method supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public override bool ApplyServices(IServiceCollection services)

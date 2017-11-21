@@ -27,7 +27,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 namespace MySql.Data.EntityFrameworkCore.Infraestructure
 {
   /// <summary>
-  /// Represents the <see cref="RelationalDbContextOptionsBuilder{MySQLDbContextOptionsBuilder,MySQLOptionsExtension}" /> implemented for MySQL.
+  /// Represents the <see cref="RelationalDbContextOptionsBuilder{MySQLDbContextOptionsBuilder,MySQLOptionsExtension}" /> implementation for MySQL.
   /// </summary>
   public partial class MySQLDbContextOptionsBuilder : RelationalDbContextOptionsBuilder<MySQLDbContextOptionsBuilder, MySQLOptionsExtension>
   {
