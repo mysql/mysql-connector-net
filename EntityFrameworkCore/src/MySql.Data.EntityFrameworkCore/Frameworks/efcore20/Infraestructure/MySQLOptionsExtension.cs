@@ -35,7 +35,7 @@ namespace MySql.Data.EntityFrameworkCore.Infraestructure
   {
     /// <summary>
     ///     This method supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     directly from your code. This method may change or be removed in future releases.
     /// </summary>
     public override bool ApplyServices(IServiceCollection services)
     {
