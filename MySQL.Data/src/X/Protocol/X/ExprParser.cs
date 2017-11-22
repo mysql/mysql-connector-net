@@ -465,7 +465,10 @@ namespace MySqlX.Protocol.X
             else
             {
               // we case-normalize reserved words
-              this.tokens.Add(new Token(reservedWords[valLower], valLower));
+              if (IsReservedWordFunctionCall(valLower, i))
+                this.tokens.Add(new Token(TokenType.IDENT, val));
+              else
+                this.tokens.Add(new Token(reservedWords[valLower], valLower));
             }
           }
           else
@@ -474,6 +477,18 @@ namespace MySqlX.Protocol.X
           }
         }
       }
+    }
+
+    bool IsReservedWordFunctionCall(string reservedWord, int position)
+    {
+      Token token = new Token(reservedWords[reservedWord], reservedWord);
+      if (token.type == TokenType.YEAR || token.type == TokenType.MONTH || token.type == TokenType.WEEK ||
+        token.type == TokenType.DAY || token.type == TokenType.HOUR || token.type == TokenType.MINUTE ||
+        token.type == TokenType.SECOND || token.type == TokenType.MICROSECOND || token.type == TokenType.QUARTER ||
+        token.type == TokenType.TIME || token.type == TokenType.DATE)
+        return this.stringValue.Length >= position + 2 && stringValue[position + 1] == '(';
+      else
+        return false;
     }
 
     /**

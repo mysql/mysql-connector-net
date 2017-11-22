@@ -605,5 +605,58 @@ namespace MySqlX.Data.Tests
       object[] awards = document["additionalinfo.director.awards"] as object[];
       Assert.True(awards.Length == 2);
     }
+
+    [Fact]
+    public void PatchUsingDateAndTimeFunctions()
+    {
+      string t1 = "{\"_id\": \"1\", \"name\": \"Alice\" }";
+      Collection collection = CreateCollection("test");
+      Result r = collection.Add(t1).Execute();
+      Assert.Equal<ulong>(1, r.RecordsAffected);
+
+      collection.Modify("_id = :id").Patch("{ \"dateAndTimeValue\": YEAR('2000-01-01') }").Bind("id", "\"1\"").Execute();
+      DbDoc document = collection.GetOne("1");
+      Assert.Equal(2000, document["dateAndTimeValue"]);
+
+      collection.Modify("_id = :id").Patch("{ \"dateAndTimeValue\": MONTH('2008-02-03') }").Bind("id", "\"1\"").Execute();
+      document = collection.GetOne("1");
+      Assert.Equal(2, document["dateAndTimeValue"]);
+
+      collection.Modify("_id = :id").Patch("{ \"dateAndTimeValue\": WEEK('2008-02-20') }").Bind("id", "\"1\"").Execute();
+      document = collection.GetOne("1");
+      Assert.Equal(7, document["dateAndTimeValue"]);
+
+      collection.Modify("_id = :id").Patch("{ \"dateAndTimeValue\": DAY('2008-02-20') }").Bind("id", "\"1\"").Execute();
+      document = collection.GetOne("1");
+      Assert.Equal(20, document["dateAndTimeValue"]);
+
+      collection.Modify("_id = :id").Patch("{ \"dateAndTimeValue\": HOUR('10:05:03') }").Bind("id", "\"1\"").Execute();
+      document = collection.GetOne("1");
+      Assert.Equal(10, document["dateAndTimeValue"]);
+
+      collection.Modify("_id = :id").Patch("{ \"dateAndTimeValue\": MINUTE('2008-02-03 10:05:03') }").Bind("id", "\"1\"").Execute();
+      document = collection.GetOne("1");
+      Assert.Equal(5, document["dateAndTimeValue"]);
+
+      collection.Modify("_id = :id").Patch("{ \"dateAndTimeValue\": SECOND('10:05:03') }").Bind("id", "\"1\"").Execute();
+      document = collection.GetOne("1");
+      Assert.Equal(3, document["dateAndTimeValue"]);
+
+      collection.Modify("_id = :id").Patch("{ \"dateAndTimeValue\": MICROSECOND('12:00:00.123456') }").Bind("id", "\"1\"").Execute();
+      document = collection.GetOne("1");
+      Assert.Equal(123456, document["dateAndTimeValue"]);
+
+      collection.Modify("_id = :id").Patch("{ \"dateAndTimeValue\": QUARTER('2008-04-01') }").Bind("id", "\"1\"").Execute();
+      document = collection.GetOne("1");
+      Assert.Equal(2, document["dateAndTimeValue"]);
+
+      collection.Modify("_id = :id").Patch("{ \"dateAndTimeValue\": TIME('2003-12-31 01:02:03') }").Bind("id", "\"1\"").Execute();
+      document = collection.GetOne("1");
+      Assert.Equal("01:02:03.000000", document["dateAndTimeValue"]);
+
+      collection.Modify("_id = :id").Patch("{ \"dateAndTimeValue\": DATE('2003-12-31 01:02:03') }").Bind("id", "\"1\"").Execute();
+      document = collection.GetOne("1");
+      Assert.Equal("2003-12-31", document["dateAndTimeValue"]);
+    }
   }
 }
