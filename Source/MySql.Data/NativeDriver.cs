@@ -1,4 +1,4 @@
-// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -380,7 +380,7 @@ namespace MySql.Data.MySqlClient
     {
       RemoteCertificateValidationCallback sslValidateCallback =
           new RemoteCertificateValidationCallback(ServerCheckValidation);
-      SslStream ss = new SslStream(baseStream, true, sslValidateCallback, null);
+      SslStream ss = new SslStream(baseStream, false, sslValidateCallback, null);
       X509CertificateCollection certs = GetClientCertificates();
       SslProtocols sslProtocols = SslProtocols.Tls;
 #if NET_45_OR_GREATER
