@@ -9,7 +9,7 @@ MySQL Connector/Net 6.10.x to be run in all the platforms supported for this
 framework (Windows, Linux and OSx).
 Compression support is also included in the new core driver version.
 
-In this version users can start using Entity Framework Core 1.1 in their .net core 
-applications with a MySQL database.
+In this version users can start using Entity Framework Core 1.1 and/or 2.0 in 
+their .net core applications with a MySQL database.
 
 
