@@ -122,7 +122,7 @@ namespace MySql.Data.MySqlClient.Replication
       {
         bool isRunning = false;
         ReplicationServer server1 = e.Argument as ReplicationServer;
-#if !NETCORE10
+#if !NETSTANDARD1_3
         System.Timers.Timer timer = new System.Timers.Timer(RetryTime * 1000.0);
 
         System.Timers.ElapsedEventHandler elapsedEvent = delegate(object sender1, System.Timers.ElapsedEventArgs e1)

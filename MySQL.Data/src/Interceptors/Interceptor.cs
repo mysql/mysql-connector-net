@@ -22,7 +22,7 @@
 
 using System;
 
-#if NETCORE10
+#if NETSTANDARD1_3
 namespace MySql.Data.MySqlClient.Interceptors
 #else
 namespace MySql.Data.MySqlClient

@@ -463,7 +463,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-#if !NETCORE10
+#if !NETSTANDARD1_3
     [DisplayName("_platform")]
     public string Platform => Is64BitOS() ? "x86_64" : "x86_32";
 #endif
@@ -481,7 +481,7 @@ namespace MySql.Data.MySqlClient
           {
             return ".Net Core";
           }
-#if !NET_CORE
+#if !NETSTANDARD1_3
           os = Environment.OSVersion.Platform.ToString();
           if (os == "Win32NT")
           {
@@ -496,7 +496,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-#if !NET_CORE
+#if NET452
     [DisplayName("_os_details")]
     public string OSDetails
     {
@@ -536,7 +536,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-#if !NETCORE10
+#if !NETSTANDARD1_3
     private bool Is64BitOS()
     {
 #if CLR4

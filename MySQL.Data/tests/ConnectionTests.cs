@@ -217,7 +217,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !NET_CORE
+#if !NETCOREAPP1_1
     /// <summary>
     /// Bug #10281 Clone issue with MySqlConnection 
     /// Bug #27269 MySqlConnection.Clone does not mimic SqlConnection.Clone behaviour 
@@ -332,6 +332,8 @@ namespace MySql.Data.MySqlClient.Tests
           closed = true;
       }
     }
+
+#if !(NETCOREAPP2_0 && DEBUG)
     [Fact]
     public void ConnectionCloseByGC()
     {
@@ -351,6 +353,7 @@ namespace MySql.Data.MySqlClient.Tests
       GC.WaitForPendingFinalizers();
       Assert.True(check.closed);
     }
+#endif
 
     //    /// <summary>
     //    /// Bug #30964 StateChange imperfection 
@@ -598,7 +601,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True(dr.HasRows, "No session_connect_attrs found");
       MySqlConnectAttrs connectAttrs = new MySqlConnectAttrs();
       bool isValidated = false;
-      using (dr) 
+      using (dr)
       {
         while (dr.Read())
         {
@@ -770,7 +773,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.NotNull(schemaColl);
     }
 
-#endregion
+    #endregion
 
     [Fact]
     public void SslPreferredByDefault()
@@ -800,7 +803,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !NETCORE10
+#if NET452
     /// <summary>
     ///  Fix for aborted connections MySQL bug 80997 OraBug 23346197
     /// </summary>

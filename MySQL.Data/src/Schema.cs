@@ -32,7 +32,7 @@ namespace MySql.Data.MySqlClient
   {
     private readonly List<SchemaColumn> _columns = new List<SchemaColumn>();
     private readonly List<MySqlSchemaRow> _rows = new List<MySqlSchemaRow>();
-#if !NET_CORE
+#if !NETSTANDARD1_3
     private readonly DataTable _table = null;
 #endif
 
@@ -47,7 +47,7 @@ namespace MySql.Data.MySqlClient
       Name = name;
     }
 
-#if !NET_CORE
+#if !NETSTANDARD1_3
     public MySqlSchemaCollection(DataTable dt) : this()
     {
       // cache the original datatable to avoid the overhead of creating again whenever possible.
@@ -133,7 +133,7 @@ namespace MySql.Data.MySqlClient
       return r;
     }
 
-#if !NET_CORE
+#if !NETSTANDARD1_3
     internal DataTable AsDataTable()
     {
       if (_table != null) return _table;

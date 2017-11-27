@@ -66,7 +66,7 @@ using Xunit;
 //
 
 [assembly: AllowPartiallyTrustedCallers]
-#if !NET_CORE
+#if !NETCOREAPP1_1
 [assembly: SecurityRules(SecurityRuleSet.Level1)]
 #endif
 

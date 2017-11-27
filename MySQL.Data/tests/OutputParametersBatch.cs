@@ -229,7 +229,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.Add("?Table1Id", MySqlDbType.Int32);
       cmd.Parameters["?Table1Id"].Direction = ParameterDirection.Output;
 
-#if NETCORE10
+#if NETCOREAPP1_1
       using (MySqlDataReader dr = cmd.ExecuteReader())
       {
         dr.Read();
@@ -340,7 +340,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(ex.Message, "Attempt to call stored function '`" + (Connection.Database) + "`.`fnTest`' without specifying a return parameter");
     }
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
     /// <summary>
     /// Bug #27668 FillSchema and Stored Proc with an out parameter
     /// </summary>

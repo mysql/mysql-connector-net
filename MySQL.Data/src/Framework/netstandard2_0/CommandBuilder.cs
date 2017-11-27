@@ -34,10 +34,8 @@ using MySql.Data.Common;
 namespace MySql.Data.MySqlClient
 {
   /// <include file='docs/MySqlCommandBuilder.xml' path='docs/class/*'/>
-#if !NET_CORE
   [ToolboxItem(false)]
   [System.ComponentModel.DesignerCategory("Code")]
-#endif
   public sealed class MySqlCommandBuilder : DbCommandBuilder
   {
     /// <include file='docs/MySqlCommandBuilder.xml' path='docs/Ctor/*'/>

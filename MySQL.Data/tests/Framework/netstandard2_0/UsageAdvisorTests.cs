@@ -49,12 +49,10 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("INSERT INTO Test VALUES (3, 'Test3')");
       executeSQL("INSERT INTO Test VALUES (4, 'Test4')");
 
-#if !NETCORE10
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
       GenericListener listener = new GenericListener();
       MySqlTrace.Listeners.Add(listener);
-#endif
       string sql = "SELECT * FROM Test; SELECT * FROM Test WHERE id > 2";
       MySqlCommand cmd = new MySqlCommand(sql, Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -68,7 +66,6 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.False(reader.NextResult());
       }
 
-#if !NETCORE10
       Assert.Equal(12, listener.Strings.Count);
       Assert.True(listener.Strings[0].Contains("Query Opened: SELECT * FROM Test; SELECT * FROM Test WHERE id > 2"));
       Assert.True(listener.Strings[1].Contains("Resultset Opened: field(s) = 2, affected rows = -1, inserted id = -1"));
@@ -82,7 +79,6 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True(listener.Strings[9].Contains("Usage Advisor Warning: The following columns were not accessed: id"));
       Assert.True(listener.Strings[10].Contains("Resultset Closed. Total rows=2, skipped rows=1, size (bytes)=16"));
       Assert.True(listener.Strings[11].Contains("Query Closed"));
-#endif
     }
 
     [Fact]
@@ -94,12 +90,10 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("INSERT INTO Test VALUES (3, 'Test3')");
       executeSQL("INSERT INTO Test VALUES (4, 'Test4')");
 
-#if !NETCORE10
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
       GenericListener listener = new GenericListener();
       MySqlTrace.Listeners.Add(listener);
-#endif
 
       MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test; SELECT * FROM Test WHERE id > 2", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -112,7 +106,6 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.False(reader.NextResult());
       }
 
-#if !NETCORE10
       Assert.Equal(11, listener.Strings.Count);
       Assert.True(listener.Strings[0].Contains("Query Opened: SELECT * FROM Test; SELECT * FROM Test WHERE id > 2"));
       Assert.True(listener.Strings[1].Contains("Resultset Opened: field(s) = 2, affected rows = -1, inserted id = -1"));
@@ -125,7 +118,6 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True(listener.Strings[8].Contains("Usage Advisor Warning: The following columns were not accessed: id,name"));
       Assert.True(listener.Strings[9].Contains("Resultset Closed. Total rows=2, skipped rows=0, size (bytes)=16"));
       Assert.True(listener.Strings[10].Contains("Query Closed"));
-#endif
     }
 
     [Fact]
@@ -133,13 +125,13 @@ namespace MySql.Data.MySqlClient.Tests
     {
       executeSQL("CREATE TABLE Test (id int, name VARCHAR(200))");
       executeSQL("INSERT INTO Test VALUES (1, 'Test1')");
-#if !NETCORE10
+
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
       GenericListener listener = new GenericListener();
       MySqlTrace.Listeners.Add(listener);
-#endif
       MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
+
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -147,7 +139,7 @@ namespace MySql.Data.MySqlClient.Tests
         long l = reader.GetInt64(0);
         string str = reader.GetString(1);
       }
-#if !NETCORE10
+
       Assert.Equal(6, listener.Strings.Count);
       Assert.True(listener.Strings[0].Contains("Query Opened: SELECT * FROM Test"));
       Assert.True(listener.Strings[1].Contains("Resultset Opened: field(s) = 2, affected rows = -1, inserted id = -1"));
@@ -155,7 +147,6 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True(listener.Strings[3].Contains("Usage Advisor Warning: The field 'id' was converted to the following types: Int16,Int64"));
       Assert.True(listener.Strings[4].Contains("Resultset Closed. Total rows=1, skipped rows=0, size (bytes)=8"));
       Assert.True(listener.Strings[5].Contains("Query Closed"));
-#endif
     }
 
     [Fact]
@@ -167,18 +158,17 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("INSERT INTO Test VALUES (3, 'Test1')");
       executeSQL("INSERT INTO Test VALUES (4, 'Test1')");
 
-#if !NETCORE10
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
       GenericListener listener = new GenericListener();
       MySqlTrace.Listeners.Add(listener);
-#endif
       MySqlCommand cmd = new MySqlCommand("SELECT name FROM Test WHERE id=3", Connection);
+
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
       }
-#if !NETCORE10
+
       Assert.Equal(6, listener.Strings.Count);
       Assert.True(listener.Strings[0].Contains("Query Opened: SELECT name FROM Test WHERE id=3"));
       Assert.True(listener.Strings[1].Contains("Resultset Opened: field(s) = 1, affected rows = -1, inserted id = -1"));
@@ -186,7 +176,6 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True(listener.Strings[3].Contains("Usage Advisor Warning: The following columns were not accessed: name"));
       Assert.True(listener.Strings[4].Contains("Resultset Closed. Total rows=1, skipped rows=0, size (bytes)=6"));
       Assert.True(listener.Strings[5].Contains("Query Closed"));
-#endif
     }
 
     [Fact]
@@ -197,19 +186,18 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("INSERT INTO Test VALUES (2, 'Test2')");
       executeSQL("INSERT INTO Test VALUES (3, 'Test3')");
       executeSQL("INSERT INTO Test VALUES (4, 'Test4')");
-#if !NETCORE10
+
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
       GenericListener listener = new GenericListener();
       MySqlTrace.Listeners.Add(listener);
-#endif
       MySqlCommand cmd = new MySqlCommand("SELECT name FROM Test WHERE id=3", Connection);
+
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
       }
 
-#if !NETCORE10
       Assert.Equal(6, listener.Strings.Count);
       Assert.True(listener.Strings[0].Contains("Query Opened: SELECT name FROM Test WHERE id=3"));
       Assert.True(listener.Strings[1].Contains("Resultset Opened: field(s) = 1, affected rows = -1, inserted id = -1"));
@@ -217,7 +205,6 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True(listener.Strings[3].Contains("Usage Advisor Warning: The following columns were not accessed: name"));
       Assert.True(listener.Strings[4].Contains("Resultset Closed. Total rows=1, skipped rows=0, size (bytes)=6"));
       Assert.True(listener.Strings[5].Contains("Query Closed"));
-#endif
     }
   }
 }

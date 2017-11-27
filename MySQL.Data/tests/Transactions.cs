@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Xunit;
-#if !NET_CORE
+#if !NETCOREAPP1_1
 using System.Transactions;
 using System.Data.Common;
 #endif
@@ -40,7 +40,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
     }        
 
-#if !NET_CORE
+#if !NETCOREAPP1_1
     void TransactionScopeInternal(bool commit)
     {
       executeSQL("DROP TABLE IF EXISTS Test");
@@ -141,69 +141,69 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// NullReferenceException thrown on TransactionScope dispose
     /// </summary>
-//    [Fact]
-//    public void LockedTable()
-//    {
+    //    [Fact]
+    //    public void LockedTable()
+    //    {
 
-//      Debug.Print("Enter LockedTable");
+    //      Debug.Print("Enter LockedTable");
 
-//      string connStr = st.GetConnectionString(true);
-      
-//      executeSQL("DROP TABLE IF EXISTS t1");
-//      executeSQL("DROP TABLE IF EXISTS t2");
+    //      string connStr = st.GetConnectionString(true);
 
-//      connStr = String.Format(@"Use Affected Rows=true;allow user variables=yes;Server=localhost;Port={0};
-//            Database={1};Uid=root;Connect Timeout=35;default command timeout=90;charset=utf8", st.port, st.database0);
+    //      executeSQL("DROP TABLE IF EXISTS t1");
+    //      executeSQL("DROP TABLE IF EXISTS t2");
 
-
-//      executeSQL(@"CREATE TABLE `t1` (
-//                `Key` int(10) unsigned NOT NULL auto_increment,
-//                `Val` varchar(100) NOT NULL,
-//                `Val2` varchar(100) NOT NULL default '',
-//                PRIMARY KEY  (`Key`)
-//                ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1");
-//      executeSQL(@"CREATE TABLE `t2` (
-//                `Key` int(10) unsigned NOT NULL auto_increment,
-//                `Val` varchar(100) NOT NULL,
-//                PRIMARY KEY  (`Key`)
-//                ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1");
-
-//      executeSQL("lock tables t2 read");      
-
-//      using (TransactionScope scope = new TransactionScope())
-//      {
-//        using (MySqlConnection conn = new MySqlConnection(connStr))
-//        using (MySqlCommand cmd = conn.CreateCommand())
-//        {
-//          conn.Open();                
-//          cmd.CommandText = @"insert into t1 (Val,Val2) values (?value1, ?value2)"; ;
-//          cmd.CommandTimeout = 5;
-//          cmd.Parameters.AddWithValue("?value1", new Random().Next());
-//          cmd.Parameters.AddWithValue("?value2", new Random().Next());
-//          cmd.ExecuteNonQuery();
-//        }
-
-//        using (MySqlConnection conn = new MySqlConnection(connStr))
-//        using (MySqlCommand cmd = conn.CreateCommand())
-//        {
-//          conn.Open();          
-//          cmd.CommandText = @"insert into t2 (Val) values (?value)";
-//          cmd.CommandTimeout = 5;
-//          cmd.Parameters.AddWithValue("?value", new Random().Next());
-//          Exception ex = Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());
-//          Assert.Equal(ex.Message, "Timeout expired.  The timeout period elapsed prior to completion of the operation or the server is not responding.");         
-//        }               
-
-//        scope.Complete();
-//      }     
-
-//      MySqlPoolManager.ClearAllPools();
-      
-//      Debug.Print("Out LockedTable");
-//    }
+    //      connStr = String.Format(@"Use Affected Rows=true;allow user variables=yes;Server=localhost;Port={0};
+    //            Database={1};Uid=root;Connect Timeout=35;default command timeout=90;charset=utf8", st.port, st.database0);
 
 
-#if !NETCORE10
+    //      executeSQL(@"CREATE TABLE `t1` (
+    //                `Key` int(10) unsigned NOT NULL auto_increment,
+    //                `Val` varchar(100) NOT NULL,
+    //                `Val2` varchar(100) NOT NULL default '',
+    //                PRIMARY KEY  (`Key`)
+    //                ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1");
+    //      executeSQL(@"CREATE TABLE `t2` (
+    //                `Key` int(10) unsigned NOT NULL auto_increment,
+    //                `Val` varchar(100) NOT NULL,
+    //                PRIMARY KEY  (`Key`)
+    //                ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1");
+
+    //      executeSQL("lock tables t2 read");      
+
+    //      using (TransactionScope scope = new TransactionScope())
+    //      {
+    //        using (MySqlConnection conn = new MySqlConnection(connStr))
+    //        using (MySqlCommand cmd = conn.CreateCommand())
+    //        {
+    //          conn.Open();                
+    //          cmd.CommandText = @"insert into t1 (Val,Val2) values (?value1, ?value2)"; ;
+    //          cmd.CommandTimeout = 5;
+    //          cmd.Parameters.AddWithValue("?value1", new Random().Next());
+    //          cmd.Parameters.AddWithValue("?value2", new Random().Next());
+    //          cmd.ExecuteNonQuery();
+    //        }
+
+    //        using (MySqlConnection conn = new MySqlConnection(connStr))
+    //        using (MySqlCommand cmd = conn.CreateCommand())
+    //        {
+    //          conn.Open();          
+    //          cmd.CommandText = @"insert into t2 (Val) values (?value)";
+    //          cmd.CommandTimeout = 5;
+    //          cmd.Parameters.AddWithValue("?value", new Random().Next());
+    //          Exception ex = Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());
+    //          Assert.Equal(ex.Message, "Timeout expired.  The timeout period elapsed prior to completion of the operation or the server is not responding.");         
+    //        }               
+
+    //        scope.Complete();
+    //      }     
+
+    //      MySqlPoolManager.ClearAllPools();
+
+    //      Debug.Print("Out LockedTable");
+    //    }
+
+
+#if !NETCOREAPP1_1
     /// <summary>
     /// Bug #22042 mysql-connector-net-5.0.0-alpha BeginTransaction 
     /// </summary>
@@ -275,7 +275,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact]
+    [Fact(Skip = "Not compatible with netcoreapp2.0")]
     public void ManualEnlistment()
     {
       executeSQL("DROP TABLE IF EXISTS Test");
@@ -600,7 +600,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// bug#35330 - even if transaction scope has expired, rows can be inserted into
     /// the table, due to race condition with the thread doing rollback
     /// </summary>
-    [Fact]
+    [Fact(Skip = "Not compatible with netcoreapp2.0")]
     public void ScopeTimeoutWithMySqlHelper()
     {
       executeSQL("DROP TABLE IF EXISTS Test");

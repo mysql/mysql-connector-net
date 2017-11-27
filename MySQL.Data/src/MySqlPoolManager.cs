@@ -42,7 +42,7 @@ namespace MySql.Data.MySqlClient
     internal static int maxConnectionIdleTime = 180;
 
 
-#if !NET_CORE
+#if !NETSTANDARD1_3
     static MySqlPoolManager()
     {
       AppDomain.CurrentDomain.ProcessExit += EnsureClearingPools;
@@ -56,8 +56,8 @@ namespace MySql.Data.MySqlClient
 #endif
 
 
-      // we add a small amount to the due time to let the cleanup detect
-      //expired connections in the first cleanup.
+    // we add a small amount to the due time to let the cleanup detect
+    //expired connections in the first cleanup.
     private static Timer timer = new Timer(CleanIdleConnections,
       null, (maxConnectionIdleTime * 1000) + 8000, maxConnectionIdleTime * 1000);
  

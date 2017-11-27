@@ -29,7 +29,7 @@ using MySql.Data.Common;
 using MySql.Data.MySqlClient;
 using System.IO.Pipes;
 using System.Net;
-#if !NET_CORE
+#if !NETSTANDARD1_3
 using MySql.Data.MySqlClient.Common;
 using System.IO.MemoryMappedFiles;
 #endif
@@ -124,7 +124,7 @@ namespace MySql.Data.Common
 
     private static Stream GetSharedMemoryStream(MySqlConnectionStringBuilder settings)
     {
-#if NET_CORE
+#if NETSTANDARD1_3
       throw new NotSupportedException("Shared memory streams not currently supported.");
 #else
       SharedMemoryStream str = new SharedMemoryStream(settings.SharedMemoryName);
@@ -135,7 +135,7 @@ namespace MySql.Data.Common
 
     private static Stream GetNamedPipeStream(MySqlConnectionStringBuilder settings)
     {
-#if NET_CORE
+#if NETSTANDARD1_3
       NamedPipeClientStream pipeStream = new NamedPipeClientStream(settings.Server, settings.PipeName, PipeDirection.InOut);
       pipeStream.Connect((int)settings.ConnectionTimeout * 1000);
       return pipeStream;

@@ -26,16 +26,18 @@ using System.Drawing;
 
 namespace MySql.Data.MySqlClient
 {
+#if NET452
   [ToolboxBitmap(typeof(MySqlCommand), "MySqlClient.resources.command.bmp")]
+#endif
   [DesignerCategory("Code")]
   public sealed partial class MySqlCommand : ICloneable
   {
 
-    ///// <summary>
-    ///// Creates a clone of this MySqlCommand object.  CommandText, Connection, and Transaction properties
-    ///// are included as well as the entire parameter list.
-    ///// </summary>
-    ///// <returns>The cloned MySqlCommand object</returns>
+    /// <summary>
+    /// Creates a clone of this MySqlCommand object.  CommandText, Connection, and Transaction properties
+    /// are included as well as the entire parameter list.
+    /// </summary>
+    /// <returns>The cloned MySqlCommand object</returns>
     public object Clone()
     {
       MySqlCommand clone = new MySqlCommand(cmdText, connection, Transaction)

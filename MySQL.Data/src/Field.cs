@@ -337,7 +337,7 @@ namespace MySql.Data.MySqlClient
       CharacterSet cs = CharSetMap.GetCharacterSet(version, (string)charSets[CharacterSetIndex]);
       // starting with 6.0.4 utf8 has a maxlen of 4 instead of 3.  The old
       // 3 byte utf8 is utf8mb3
-#if !NET_CORE
+#if !NETSTANDARD1_3
       if (cs.name.ToLower(System.Globalization.CultureInfo.InvariantCulture) == "utf-8" &&
 #else
       if (cs.name.ToLowerInvariant() == "utf-8" &&

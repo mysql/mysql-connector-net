@@ -414,7 +414,7 @@ namespace MySql.Data.Types
         return dateString;
 
       DateTime dt = new DateTime(1, 2, 3, Hour, Minute, Second).AddTicks(_microsecond * 10);
-#if !NET_CORE
+#if !NETSTANDARD1_3
       dateString = String.Format("{0} {1}", dateString, dt.ToLongTimeString());
 #else
       dateString = String.Format("{0} {1}", dateString, dt.ToString(CultureInfo.CurrentCulture));

@@ -34,7 +34,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
     }
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
 
     [Fact]
     public void SimpleLogging()

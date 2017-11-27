@@ -52,7 +52,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("protocol", "connection protocol, connectionprotocol", typeof(MySqlConnectionProtocol), MySqlConnectionProtocol.Sockets, false,
         (msb, sender, value) =>
         {
-#if NETCORE10
+#if NETSTANDARD1_3
           MySqlConnectionProtocol enumValue;
           if (Enum.TryParse<MySqlConnectionProtocol>(value.ToString(), true, out enumValue))
           {
@@ -67,7 +67,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("pipe", "pipe name,pipename", typeof(string), "MYSQL", false,
         (msb, sender, value) =>
         {
-#if NETCORE10
+#if NETSTANDARD1_3
           throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(PipeName)));
 #else
           msb.SetValue("pipe", value);
@@ -79,7 +79,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("logging", null, typeof(bool), false, false,
         (msb, sender, value) =>
         {
-#if NETCORE10
+#if NETSTANDARD1_3
           throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(Logging)));
 #else
           msb.SetValue("logging", value);
@@ -89,7 +89,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("sharedmemoryname", "shared memory name", typeof(string), "MYSQL", false,
         (msb, sender, value) => 
         {
-#if NETCORE10
+#if NETSTANDARD1_3
           throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(SharedMemoryName)));
 #else
           msb.SetValue("sharedmemoryname", value);
@@ -140,7 +140,7 @@ namespace MySql.Data.MySqlClient
         {
           if (!Platform.IsWindows())
             throw new MySqlException("IntegratedSecurity is supported on Windows only");
-#if NETCORE10
+#if NETSTANDARD1_3
           throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(IntegratedSecurity)));
 #else
           msb.SetValue("Integrated Security", value.ToString().Equals("SSPI", StringComparison.OrdinalIgnoreCase) ? true : value);
@@ -154,7 +154,7 @@ namespace MySql.Data.MySqlClient
         ));
 
       // Other properties
-#if !NETCORE10
+#if !NETSTANDARD1_3
       Options.Add(new MySqlConnectionStringOption("autoenlist", "auto enlist", typeof(bool), true, false));
       Options.Add(new MySqlConnectionStringOption("includesecurityasserts", "include security asserts", typeof(bool), false, false));
 #endif
@@ -163,7 +163,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("useusageadvisor", "use usage advisor,usage advisor", typeof(bool), false, false,
         (msb, sender, value) =>
         {
-#if NETCORE10
+#if NETSTANDARD1_3
           throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(UseUsageAdvisor)));
 #else
           msb.SetValue("useusageadvisor", value);
@@ -174,7 +174,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("useperformancemonitor", "use performance monitor,useperfmon,perfmon", typeof(bool), false, false,
         (msb, sender, value) =>
         {
-#if NETCORE10
+#if NETSTANDARD1_3
           throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(UsePerformanceMonitor)));
 #else
           msb.SetValue("useperformancemonitor", value);
@@ -188,7 +188,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("interactivesession", "interactive session,interactive", typeof(bool), false, false,
         (msb, sender, value) =>
         {
-#if NETCORE10
+#if NETSTANDARD1_3
           throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(InteractiveSession)));
 #else
           msb.SetValue("interactivesession", value);
@@ -206,7 +206,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("replication", null, typeof(bool), false, false,
         (msb, sender, value) =>
         {
-#if NETCORE10
+#if NETSTANDARD1_3
           throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(Replication)));
 #else
           msb.SetValue("replication", value);
@@ -446,12 +446,12 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Gets or sets the password that should be used to connect with.
+    /// Gets or sets the password that should be used to make a connection.
     /// </summary>
     [Category("Security")]
     [Description("Indicates the password to be used when connecting to the data source.")]
     [RefreshProperties(RefreshProperties.All)]
-#if !NET_CORE
+#if !NETSTANDARD1_3
     [PasswordPropertyText(true)]
 #endif
     public string Password

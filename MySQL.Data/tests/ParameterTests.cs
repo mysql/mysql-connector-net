@@ -445,7 +445,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters[0].Size = 10;
       cmd.ExecuteNonQuery();
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
       MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
       DataTable dt = new DataTable();
       da.Fill(dt);
@@ -458,7 +458,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters[0].Size = 10;
       cmd.ExecuteNonQuery();
 
-#if NETCORE10
+#if NETCOREAPP1_1
       MySqlCommand newValueCommand = new MySqlCommand("SELECT * FROM Test", Connection);
       using (MySqlDataReader dr = newValueCommand.ExecuteReader())
       {
@@ -474,7 +474,7 @@ namespace MySql.Data.MySqlClient.Tests
 #endif
     }
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
     /// <summary>
     /// Bug #32093 MySqlParameter Constructor does not allow Direction of anything other than Input 
     /// </summary>
@@ -510,7 +510,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
     /// <summary>
     /// Bug #62194	MySQL Parameter constructor doesn't set
     /// all properties: IsNullable, Precision and Scale

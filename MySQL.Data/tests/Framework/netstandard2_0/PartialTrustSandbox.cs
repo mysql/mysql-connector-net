@@ -34,9 +34,13 @@ namespace MySql.Data.MySqlClient.Tests
   {
     public static AppDomain CreatePartialTrustDomain()
     {
-      AppDomainSetup setup = new AppDomainSetup() { ApplicationBase = AppDomain.CurrentDomain.BaseDirectory, PrivateBinPath = AppDomain.CurrentDomain.RelativeSearchPath };
+#if NET452
       PermissionSet permissions = new PermissionSet(PermissionState.Unrestricted);
+      AppDomainSetup setup = new AppDomainSetup() { ApplicationBase = AppDomain.CurrentDomain.BaseDirectory, PrivateBinPath = AppDomain.CurrentDomain.RelativeSearchPath };
       return AppDomain.CreateDomain("Partial Trust Sandbox", AppDomain.CurrentDomain.Evidence, setup, permissions);
+#else
+      return AppDomain.CreateDomain("Partial Trust Sandbox");
+#endif
     }
 
 
@@ -52,8 +56,12 @@ namespace MySql.Data.MySqlClient.Tests
   {
     public static AppDomain CreateFullTrustDomain()
     {
+#if NET452
       AppDomainSetup setup = new AppDomainSetup() { ApplicationBase = AppDomain.CurrentDomain.BaseDirectory, PrivateBinPath = AppDomain.CurrentDomain.RelativeSearchPath };
       return AppDomain.CreateDomain("Partial Trust Sandbox", AppDomain.CurrentDomain.Evidence, setup);
+#else
+      return AppDomain.CreateDomain("Partial Trust Sandbox");
+#endif
     }
 
     public MySqlConnection TryOpenConnection(string connectionString)
