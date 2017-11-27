@@ -25,24 +25,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using System.Data.Common;
 using MySql.Data.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
-    internal class MySQLTypedRelationalValueBufferFactory : TypedRelationalValueBufferFactory
+  internal partial class MySQLTypedRelationalValueBufferFactory : TypedRelationalValueBufferFactory
+  {
+    public override ValueBuffer Create(DbDataReader dataReader)
     {
-        public MySQLTypedRelationalValueBufferFactory([NotNull] Func<DbDataReader, object[]> valueFactory) : base(valueFactory)
-        {
-        }
-
-        public override ValueBuffer Create(DbDataReader dataReader)
-        {
-            //create our datareader            
-            MySQLDataReader mydatareader = (MySQLDataReader)dataReader;
-            return base.Create(mydatareader);        
-        }
+      //create our datareader            
+      MySQLDataReader mydatareader = (MySQLDataReader)dataReader;
+      return base.Create(mydatareader);
     }
+  }
 }

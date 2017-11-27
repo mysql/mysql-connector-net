@@ -52,7 +52,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
                               Name = "Id",
                               ClrType = typeof(int),
                               IsNullable = false,
-                              [MySQLAnnotationNames.Prefix + MySQLAnnotationNames.AutoIncrement] = true
+                              [MySQLAnnotationNames.AutoIncrement] = true
                           },
                           new AddColumnOperation
                           {

@@ -27,7 +27,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Reflection;
 using MySql.Data.EntityFrameworkCore;
@@ -37,9 +36,16 @@ namespace MySql.Data.EntityFrameworkCore.Metadata.Conventions
 {
   internal class MySqlCollationAttributeConvention : PropertyAttributeConvention<MySqlCollationAttribute>
   {
-    public override InternalPropertyBuilder Apply([NotNullAttribute] InternalPropertyBuilder propertyBuilder, [NotNullAttribute] MySqlCollationAttribute attribute, [NotNullAttribute] MemberInfo clrMember)
+    public override InternalPropertyBuilder Apply(
+      [NotNull] InternalPropertyBuilder propertyBuilder,
+      [NotNull] MySqlCollationAttribute attribute,
+      [NotNull] MemberInfo clrMember)
     {
-      propertyBuilder.Metadata.SetAnnotation(MySQLFullAnnotationNames.Instance.Collation, attribute.Collation, ConfigurationSource.DataAnnotation);
+      propertyBuilder.Metadata.SetAnnotation(
+        MySQLAnnotationNames.Collation,
+        attribute.Collation,
+        ConfigurationSource.DataAnnotation);
+
       return propertyBuilder;
     }
   }

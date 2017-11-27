@@ -23,25 +23,17 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using MySql.Data.EntityFrameworkCore.Infraestructure.Internal;
 
 namespace MySql.Data.EntityFrameworkCore.Infraestructure
 {
   /// <summary>
-  /// Represents the <see cref="RelationalDbContextOptionsBuilder{MySQLDbContextOptionsBuilder,MySQLOptionsExtension}" /> implemented for MySQL.
+  /// Represents the <see cref="RelationalDbContextOptionsBuilder{MySQLDbContextOptionsBuilder,MySQLOptionsExtension}" /> implementation for MySQL.
   /// </summary>
-  public class MySQLDbContextOptionsBuilder : RelationalDbContextOptionsBuilder<MySQLDbContextOptionsBuilder, MySQLOptionsExtension>
+  public partial class MySQLDbContextOptionsBuilder : RelationalDbContextOptionsBuilder<MySQLDbContextOptionsBuilder, MySQLOptionsExtension>
+  {
+    public MySQLDbContextOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
+        : base(optionsBuilder)
     {
-        public MySQLDbContextOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
-            : base(optionsBuilder)
-        {
-        }
-
-    protected override MySQLOptionsExtension CloneExtension()
-    {
-      return new MySQLOptionsExtension(OptionsBuilder.Options.GetExtension<MySQLOptionsExtension>());
     }
-
-
   }
 }

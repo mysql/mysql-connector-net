@@ -76,8 +76,8 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests.Utilities
     {
       var contextServices = CreateContextServices();
 
-      var conventionSetBuilder = contextServices.GetRequiredService<IDatabaseProviderServices>().ConventionSetBuilder;
-      var conventionSet = contextServices.GetRequiredService<ICoreConventionSetBuilder>().CreateConventionSet();
+      var conventionSetBuilder = contextServices.GetRequiredService<IConventionSetBuilder>();
+       var conventionSet = contextServices.GetRequiredService<ICoreConventionSetBuilder>().CreateConventionSet();
       conventionSet = conventionSetBuilder == null
           ? conventionSet
           : conventionSetBuilder.AddConventions(conventionSet);

@@ -27,20 +27,8 @@ using System.Globalization;
 
 namespace MySql.Data.EntityFrameworkCore
 {
-  internal class MySQLSqlGenerationHelper : RelationalSqlGenerationHelper
+  internal partial class MySQLSqlGenerationHelper : RelationalSqlGenerationHelper
   {
-
-    private const string DateTimeFormatConst = "yyyy-MM-ddTHH:mm:ss.fffK";
-    private const string DateTimeFormatStringConst = "'{0:" + DateTimeFormatConst + "}'";
-    private const string DateTimeOffsetFormatConst = "yyyy-MM-ddTHH:mm:ss";
-    private const string DateTimeOffsetFormatStringConst = "'{0:" + DateTimeOffsetFormatConst + "}'";
-
-    protected override string DateTimeFormat => DateTimeFormatConst;
-    protected override string DateTimeFormatString => DateTimeFormatStringConst;
-    protected override string DateTimeOffsetFormat => DateTimeOffsetFormatConst;
-    protected override string DateTimeOffsetFormatString => DateTimeOffsetFormatStringConst;
-
-
     public override void DelimitIdentifier(StringBuilder builder, string identifier)
     {
       ThrowIf.Argument.IsEmpty(identifier, "identifier");
@@ -49,28 +37,10 @@ namespace MySql.Data.EntityFrameworkCore
       builder.Append('`');
     }
 
-
     public override string DelimitIdentifier([NotNull] string identifier)
     {
       ThrowIf.Argument.IsEmpty(identifier, "identifier");
       return "`" + identifier + "`";
     }
-
-
-    protected override string GenerateLiteralValue(DateTime value)            
-    { 
-      return $"'{value.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}'";
-    }
-
-
-    protected override string GenerateLiteralValue(DateTimeOffset value)
-    {
-        return $"'{value.ToString(DateTimeOffsetFormat, CultureInfo.InvariantCulture)}'";
-    }
-
-        //public override string GenerateLiteralValue(DateTime value)
-        //    => $"'{value.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}'"; // Interpolation okay; strings
-     
-      
-    }
+  }
 }

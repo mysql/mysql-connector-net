@@ -29,13 +29,14 @@ using System.Threading.Tasks;
 namespace MySql.Data.EntityFrameworkCore.Metadata.Internal
 {
   /// <summary>
-  /// Annotations for MySQL specifics
+  /// Names for MySQL annotations.
   /// </summary>
   internal static class MySQLAnnotationNames
   {
     public const string Prefix = "MySQL:";
-    public const string AutoIncrement = "AutoIncrement";
-    public const string Charset = "Charset";
-    public const string Collation = "Collation";
+    public const string AutoIncrement = Prefix + "AutoIncrement";
+    public const string DefaultValueSql = Prefix + "DefaultValueSql";
+    public const string Charset = Prefix + "Charset";
+    public const string Collation = Prefix + "Collation";
   }
 }

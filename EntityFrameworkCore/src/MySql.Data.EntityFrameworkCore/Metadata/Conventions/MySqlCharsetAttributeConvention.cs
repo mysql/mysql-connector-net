@@ -27,7 +27,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Reflection;
 using MySql.Data.EntityFrameworkCore;
@@ -37,9 +36,16 @@ namespace MySql.Data.EntityFrameworkCore.Metadata.Conventions
 {
   internal class MySqlCharsetAttributeConvention : PropertyAttributeConvention<MySqlCharsetAttribute>
   {
-    public override InternalPropertyBuilder Apply([NotNullAttribute] InternalPropertyBuilder propertyBuilder, [NotNullAttribute] MySqlCharsetAttribute attribute, [NotNullAttribute] MemberInfo clrMember)
+    public override InternalPropertyBuilder Apply(
+      [NotNull] InternalPropertyBuilder propertyBuilder,
+      [NotNull] MySqlCharsetAttribute attribute,
+      [NotNull] MemberInfo clrMember)
     {
-      propertyBuilder.Metadata.SetAnnotation(MySQLFullAnnotationNames.Instance.Charset, attribute.Charset, ConfigurationSource.DataAnnotation);
+      propertyBuilder.Metadata.SetAnnotation(
+        MySQLAnnotationNames.Charset,
+        attribute.Charset,
+        ConfigurationSource.DataAnnotation);
+
       return propertyBuilder;
     }
   }

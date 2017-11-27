@@ -20,23 +20,17 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 
 namespace MySql.Data.EntityFrameworkCore.Metadata.Conventions
 {
-  internal class MySQLConventionSetBuilder : RelationalConventionSetBuilder
+  internal partial class MySQLConventionSetBuilder : RelationalConventionSetBuilder
   {
-    public MySQLConventionSetBuilder([NotNullAttribute] IRelationalTypeMapper typeMapper, [CanBeNullAttribute] ICurrentDbContext currentContext, [CanBeNullAttribute] IDbSetFinder setFinder) : base(typeMapper, currentContext, setFinder)
-    {
-    }
-
     public override ConventionSet AddConventions(ConventionSet conventionSet)
     {
       conventionSet.PropertyAddedConventions.Add(new MySqlCharsetAttributeConvention());

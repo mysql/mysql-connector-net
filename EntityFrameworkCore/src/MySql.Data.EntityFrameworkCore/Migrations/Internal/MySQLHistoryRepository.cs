@@ -29,93 +29,72 @@ using System.Text;
 
 namespace MySql.Data.EntityFrameworkCore.Migrations.Internal
 {
-  internal class MySQLHistoryRepository : HistoryRepository
+  internal partial class MySQLHistoryRepository : HistoryRepository
   {
-    public MySQLHistoryRepository(
-        IDatabaseCreator databaseCreator,
-        IRawSqlCommandBuilder sqlCommandBuilder,
-        MySQLServerConnection connection,
-        IDbContextOptions options,
-        IMigrationsModelDiffer modelDiffer,
-        MySQLMigrationsSqlGenerator sqlGenerator,
-        IRelationalAnnotationProvider annotations,
-        ISqlGenerationHelper sql)
-            : base(
-                  databaseCreator,
-                  sqlCommandBuilder,
-                  connection,
-                  options,
-                  modelDiffer,
-                  sqlGenerator,
-                  annotations,
-                  sql)
-    {
-    }
-
     protected override string ExistsSql
     {
-        get
-        {
-            var builder = new StringBuilder();
+      get
+      {
+        var builder = new StringBuilder();
 
-            builder.AppendLine("SELECT 1 FROM information_schema.tables ")
-                   .AppendLine("WHERE table_name = '")                                      
-                   .Append(SqlGenerationHelper.EscapeLiteral(TableName))
-                   .Append("' AND table_schema = DATABASE()");
+        builder.AppendLine("SELECT 1 FROM information_schema.tables ")
+               .AppendLine("WHERE table_name = '")
+               .Append(SqlGenerationHelper.EscapeLiteral(TableName))
+               .Append("' AND table_schema = DATABASE()");
 
-                return builder.ToString();
-         }
-     }
+        return builder.ToString();
+      }
+    }
 
 
     protected override bool InterpretExistsResult(object value) => value != DBNull.Value;
 
     public override string GetBeginIfExistsScript(string migrationId)
     {
-        ThrowIf.Argument.IsNull(migrationId, "migrationId");
+      ThrowIf.Argument.IsNull(migrationId, "migrationId");
 
-        return new StringBuilder()
-            .Append("IF EXISTS(SELECT * FROM ")
-            .Append(SqlGenerationHelper.DelimitIdentifier(TableName, TableSchema))
-            .Append(" WHERE ")
-            .Append(SqlGenerationHelper.DelimitIdentifier(MigrationIdColumnName))
-            .Append(" = '")
-            .Append(SqlGenerationHelper.EscapeLiteral(migrationId))
-            .AppendLine("')")
-            .Append("BEGIN")
-            .ToString();
-     }
+      return new StringBuilder()
+          .Append("IF EXISTS(SELECT * FROM ")
+          .Append(SqlGenerationHelper.DelimitIdentifier(TableName, TableSchema))
+          .Append(" WHERE ")
+          .Append(SqlGenerationHelper.DelimitIdentifier(MigrationIdColumnName))
+          .Append(" = '")
+          .Append(SqlGenerationHelper.EscapeLiteral(migrationId))
+          .AppendLine("')")
+          .Append("BEGIN")
+          .ToString();
+    }
 
     public override string GetBeginIfNotExistsScript(string migrationId)
     {
-        ThrowIf.Argument.IsNull(migrationId, "migrationId");
+      ThrowIf.Argument.IsNull(migrationId, "migrationId");
 
-        return new StringBuilder()
-            .Append("IF NOT EXISTS(SELECT * FROM ")
-            .Append(SqlGenerationHelper.DelimitIdentifier(TableName, TableSchema))
-            .Append(" WHERE ")
-            .Append(SqlGenerationHelper.DelimitIdentifier(MigrationIdColumnName))
-            .Append(" = '")
-            .Append(SqlGenerationHelper.EscapeLiteral(migrationId))
-            .AppendLine("')")
-            .Append("BEGIN")
-            .ToString();
+      return new StringBuilder()
+          .Append("IF NOT EXISTS(SELECT * FROM ")
+          .Append(SqlGenerationHelper.DelimitIdentifier(TableName, TableSchema))
+          .Append(" WHERE ")
+          .Append(SqlGenerationHelper.DelimitIdentifier(MigrationIdColumnName))
+          .Append(" = '")
+          .Append(SqlGenerationHelper.EscapeLiteral(migrationId))
+          .AppendLine("')")
+          .Append("BEGIN")
+          .ToString();
     }
 
     public override string GetCreateIfNotExistsScript()
     {
-        var builder = new StringBuilder();
-            builder.AppendLine("  IF EXISTS(SELECT 1 FROM information_schema.tables ");
-            builder.AppendLine("  WHERE table_name = '")
-                   .Append(SqlGenerationHelper.EscapeLiteral(TableName))
-                   .AppendLine("' AND table_schema = DATABASE()) ")
-                   .AppendLine("BEGIN")
-                   .AppendLine(GetCreateScript())
-                   .AppendLine("END;");
-        return builder.ToString();
-     }
-
-     public override string GetEndIfScript() => "END;" + Environment.NewLine;
-
+      var builder = new StringBuilder();
+      builder.AppendLine("  IF EXISTS(SELECT 1 FROM information_schema.tables ");
+      builder.AppendLine("  WHERE table_name = '")
+             .Append(SqlGenerationHelper.EscapeLiteral(TableName))
+             .AppendLine("' AND table_schema = DATABASE()) ")
+             .AppendLine("BEGIN")
+             .AppendLine(GetCreateScript())
+             .AppendLine("END;");
+      return builder.ToString();
     }
+
+    public override string GetEndIfScript() => "END;" + Environment.NewLine;
+
+  }
 }

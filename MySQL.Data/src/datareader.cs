@@ -1,4 +1,4 @@
-// Copyright © 2004, 2016 Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -1020,6 +1020,19 @@ namespace MySql.Data.MySqlClient
         else
           ResultSet.SetValueObject(i, v);
       }
+    }
+
+    public override T GetFieldValue<T>(int ordinal)
+    {
+      if (typeof(T).Equals(typeof(DateTimeOffset)))
+      {
+        var dtValue = new DateTime();
+        var result = DateTime.TryParse(this.GetValue(ordinal).ToString(), out dtValue);
+        DateTime datetime = result ? dtValue : DateTime.MinValue;
+        return (T)Convert.ChangeType(new DateTimeOffset(datetime), typeof(T));
+      }
+      else
+        return base.GetFieldValue<T>(ordinal);
     }
 
     private void Throw(Exception ex)

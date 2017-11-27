@@ -20,25 +20,19 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
-using MySql.Data.EntityFrameworkCore;
 
-namespace MySql.Data.EntityFrameworkCore.Storage.Internal
+namespace MySql.Data.EntityFrameworkCore.Metadata.Conventions
 {
-  internal class MySQLBinaryMapping : RelationalTypeMapping
+  internal partial class MySQLConventionSetBuilder : RelationalConventionSetBuilder
   {
-    public MySQLBinaryMapping(string storeType, Type clrType) : base(storeType, clrType, System.Data.DbType.Binary, true, null)
+    public MySQLConventionSetBuilder([NotNull] RelationalConventionSetBuilderDependencies dependencies) 
+      : base(dependencies)
     {
-    }
-
-    public override RelationalTypeMapping CreateCopy([NotNullAttribute] string storeType, int? size)
-    {
-      return base.CreateCopy(storeType, null);
     }
   }
 }

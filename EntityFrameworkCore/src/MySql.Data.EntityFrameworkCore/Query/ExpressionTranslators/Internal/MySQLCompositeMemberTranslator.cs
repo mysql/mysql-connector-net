@@ -27,7 +27,7 @@ namespace MySql.Data.EntityFrameworkCore
   /// <summary>
   /// RelationalCompositeMemberTranslator implementation for MySQL
   /// </summary>
-  internal class MySQLCompositeMemberTranslator : RelationalCompositeMemberTranslator
-    {
-    }
+  internal partial class MySQLCompositeMemberTranslator : RelationalCompositeMemberTranslator
+  {
+  }
 }
