@@ -658,5 +658,26 @@ namespace MySqlX.Data.Tests
       document = collection.GetOne("1");
       Assert.Equal("2003-12-31", document["dateAndTimeValue"]);
     }
+
+    [Fact]
+    public void PatchUsingOtherKnownFunctions()
+    {
+      string t1 = "{\"_id\": \"1\", \"name\": \"Alice\" }";
+      Collection collection = CreateCollection("test");
+      Result r = collection.Add(t1).Execute();
+      Assert.Equal<ulong>(1, r.RecordsAffected);
+
+      collection.Modify("_id = :id").Patch("{ \"otherValue\": CHAR(77, 121, 83, 81, '76') }").Bind("id", "\"1\"").Execute();
+      DbDoc document = collection.GetOne("1");
+      Assert.Equal("base64:type15:TXlTUUw=", document["otherValue"]);
+
+      collection.Modify("_id = :id").Patch("{ \"otherValue\": HEX('abc') }").Bind("id", "\"1\"").Execute();
+      document = collection.GetOne("1");
+      Assert.Equal("616263", document["otherValue"]);
+
+      collection.Modify("_id = :id").Patch("{ \"otherValue\": BIN(12) }").Bind("id", "\"1\"").Execute();
+      document = collection.GetOne("1");
+      Assert.Equal("1100", document["otherValue"]);
+    }
   }
 }

@@ -485,7 +485,8 @@ namespace MySqlX.Protocol.X
       if (token.type == TokenType.YEAR || token.type == TokenType.MONTH || token.type == TokenType.WEEK ||
         token.type == TokenType.DAY || token.type == TokenType.HOUR || token.type == TokenType.MINUTE ||
         token.type == TokenType.SECOND || token.type == TokenType.MICROSECOND || token.type == TokenType.QUARTER ||
-        token.type == TokenType.TIME || token.type == TokenType.DATE)
+        token.type == TokenType.TIME || token.type == TokenType.DATE || token.type == TokenType.CHAR ||
+        token.type == TokenType.HEX || token.type == TokenType.BIN)
         return this.stringValue.Length >= position + 2 && stringValue[position + 1] == '(';
       else
         return false;
