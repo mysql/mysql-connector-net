@@ -1,4 +1,5 @@
 8.0.10
+- MySqlX: Removed support for the Configuartion API (WL11362).
 - MySqlX: Removed support for creating, modifying and dropping Views (WL11306).
 - MySqlX: Fixed bug that prevented Plain authentication from setting the default database provided as part
   of the connection string (Bug #88427, Oracle Bug #27098974).
