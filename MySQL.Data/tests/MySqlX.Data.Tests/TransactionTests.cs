@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -25,6 +25,7 @@ using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.CRUD;
 using MySqlX.XDevAPI.Relational;
+using System;
 using Xunit;
 
 namespace MySqlX.Data.Tests
@@ -103,5 +104,255 @@ namespace MySqlX.Data.Tests
         Assert.Equal(1196u, result.Warnings[0].Code);
       }
     }
+
+    #region Savepoints
+
+    [Fact]
+    public void CreateUnnamedSavepoint()
+    {
+      using(var session = MySQLX.GetSession(ConnectionString))
+      {
+        session.StartTransaction();
+
+        string spName = session.SetSavepoint();
+        Assert.False(string.IsNullOrWhiteSpace(spName));
+
+        session.Rollback();
+      }
+    }
+
+    [Fact]
+    public void RollbackToSavepoint()
+    {
+      using(var session = MySQLX.GetSession(ConnectionString))
+      {
+        var schema = session.GetSchema("test");
+        var coll = schema.CreateCollection("collSP");
+
+        session.StartTransaction();
+
+        coll.Add("{ \"test\": \"test\" }").Execute();
+        var sp = session.SetSavepoint();
+        coll.Add("{ \"test\": \"test\" }").Execute();
+        Assert.Equal(2, coll.Find().Execute().FetchAll().Count);
+        session.RollbackTo(sp);
+        Assert.Equal(1, coll.Find().Execute().FetchAll().Count);
+
+        session.Rollback();
+      }
+    }
+
+    [Fact]
+    public void ReleaseSavepoint()
+    {
+      using(var session = MySQLX.GetSession(ConnectionString))
+      {
+        var schema = session.GetSchema("test");
+        var coll = schema.CreateCollection("collSP");
+
+        session.StartTransaction();
+
+        coll.Add("{ \"test\": \"test\" }").Execute();
+        var sp = session.SetSavepoint();
+        coll.Add("{ \"test2\": \"test2\" }").Execute();
+        Assert.Equal(2, coll.Find().Execute().FetchAll().Count);
+        session.ReleaseSavepoint(sp);
+        Assert.Equal(2, coll.Find().Execute().FetchAll().Count);
+
+        session.Rollback();
+      }
+    }
+
+    [Fact]
+    public void CreateNamedSavepoint()
+    {
+      using(var session = MySQLX.GetSession(ConnectionString))
+      {
+        session.StartTransaction();
+
+        string spName = session.SetSavepoint("mySavedPoint");
+        Assert.False(string.IsNullOrWhiteSpace(spName));
+
+        session.Rollback();
+      }
+    }
+
+    [Fact]
+    public void RollbackToNamedSavepoint()
+    {
+      using(var session = MySQLX.GetSession(ConnectionString))
+      {
+        var schema = session.GetSchema("test");
+        var coll = schema.CreateCollection("collSP");
+
+        session.StartTransaction();
+
+        coll.Add("{ \"test\": \"test\" }").Execute();
+        var sp = session.SetSavepoint("mySavedPoint");
+        coll.Add("{ \"test2\": \"test2\" }").Execute();
+        Assert.Equal(2, coll.Find().Execute().FetchAll().Count);
+        session.RollbackTo(sp);
+        Assert.Equal(1, coll.Find().Execute().FetchAll().Count);
+
+        session.Rollback();
+      }
+    }
+
+    [Fact]
+    public void ReleaseNamedSavepoint()
+    {
+      using(var session = MySQLX.GetSession(ConnectionString))
+      {
+        var schema = session.GetSchema("test");
+        var coll = schema.CreateCollection("collSP");
+
+        session.StartTransaction();
+
+        coll.Add("{ \"test\": \"test\" }").Execute();
+        var sp = session.SetSavepoint("mySavedPoint");
+        coll.Add("{ \"test2\": \"test2\" }").Execute();
+        Assert.Equal(2, coll.Find().Execute().FetchAll().Count);
+        session.ReleaseSavepoint(sp);
+        Assert.Equal(2, coll.Find().Execute().FetchAll().Count);
+
+        session.Rollback();
+      }
+    }
+
+    [Fact]
+    public void NonExistentSavepoint()
+    {
+      using(var session = MySQLX.GetSession(ConnectionString))
+      {
+        session.StartTransaction();
+
+        Exception exception = Assert.Throws<MySqlException>(() => session.RollbackTo("nonExistentSavePoint"));
+        Assert.Equal("SAVEPOINT nonExistentSavePoint does not exist", exception.Message);
+
+        exception = Assert.Throws<MySqlException>(() => session.ReleaseSavepoint("nonExistentSavePoint"));
+        Assert.Equal("SAVEPOINT nonExistentSavePoint does not exist", exception.Message);
+
+        session.Rollback();
+      }
+    }
+
+    [Fact]
+    public void CreateSavepointWithWeirdNames()
+    {
+      using(var session = MySQLX.GetSession(ConnectionString))
+      {
+        string errorMessage = "You have an error in your SQL syntax";
+        session.StartTransaction();
+
+        Exception ex = Assert.Throws<MySqlException>(() => session.SetSavepoint(""));
+        Assert.StartsWith(errorMessage, ex.Message);
+        ex = Assert.Throws<MySqlException>(() => session.SetSavepoint(" "));
+        Assert.StartsWith(errorMessage, ex.Message);
+        ex = Assert.Throws<MySqlException>(() => session.SetSavepoint(null));
+        Assert.StartsWith(errorMessage, ex.Message);
+        ex = Assert.Throws<MySqlException>(() => session.SetSavepoint("-"));
+        Assert.StartsWith(errorMessage, ex.Message);
+        ex = Assert.Throws<MySqlException>(() => session.SetSavepoint("mysp+"));
+        Assert.StartsWith(errorMessage, ex.Message);
+        ex = Assert.Throws<MySqlException>(() => session.SetSavepoint("3306"));
+        Assert.StartsWith(errorMessage, ex.Message);
+
+        var sp = session.SetSavepoint("_");
+        session.RollbackTo(sp);        
+        sp = session.SetSavepoint("mysql3306");
+        session.RollbackTo(sp);
+
+        session.Rollback();
+      }
+    }
+
+    [Fact]
+    public void OverwriteSavepoint()
+    {
+      using(var session = MySQLX.GetSession(ConnectionString))
+      {
+        var schema = session.GetSchema("test");
+        var coll = schema.CreateCollection("collSP");
+
+        session.StartTransaction();
+
+        coll.Add("{ \"test\": \"test\" }").Execute();
+        var sp = session.SetSavepoint("mySP");
+        coll.Add("{ \"test2\": \"test2\" }").Execute();
+        sp = session.SetSavepoint("mySP");
+        coll.Add("{ \"test3\": \"test3\" }").Execute();
+        sp = session.SetSavepoint("mySP");
+        coll.Add("{ \"test4\": \"test4\" }").Execute();
+        sp = session.SetSavepoint("mySP");
+        session.RollbackTo(sp);
+        Assert.Equal(4, coll.Find().Execute().FetchAll().Count);
+
+        session.Rollback();
+      }
+    }
+
+    [Fact]
+    public void MultipleReleasesForSavepoint()
+    {
+      using(var session = MySQLX.GetSession(ConnectionString))
+      {
+        session.StartTransaction();
+
+        var sp = session.SetSavepoint("mySP");
+        session.ReleaseSavepoint(sp);
+        Exception exception = Assert.Throws<MySqlException>(() => session.ReleaseSavepoint(sp));
+        Assert.Equal(string.Format("SAVEPOINT {0} does not exist", sp), exception.Message);
+
+        session.Rollback();
+      }
+    }
+
+    [Fact]
+    public void RollbackAndReleaseAfterTransactionCommit()
+    {
+      using(var session = MySQLX.GetSession(ConnectionString))
+      {
+        var schema = session.GetSchema("test");
+        var coll = schema.CreateCollection("collSP");
+
+        session.StartTransaction();
+
+        var sp = session.SetSavepoint("mySP");
+        coll.Add("{ \"test\": \"test\" }").Execute();
+
+        session.Commit();
+
+        Exception exception = Assert.Throws<MySqlException>(() => session.RollbackTo(sp));
+        Assert.Equal(string.Format("SAVEPOINT {0} does not exist", sp), exception.Message);
+
+        exception = Assert.Throws<MySqlException>(() => session.ReleaseSavepoint(sp));
+        Assert.Equal(string.Format("SAVEPOINT {0} does not exist", sp), exception.Message);
+      }
+    }
+
+    [Fact]
+    public void RollbackAndReleaseAfterTransactionRollback()
+    {
+      using(var session = MySQLX.GetSession(ConnectionString))
+      {
+        var schema = session.GetSchema("test");
+        var coll = schema.CreateCollection("collSP");
+
+        session.StartTransaction();
+
+        var sp = session.SetSavepoint("mySP");
+        coll.Add("{ \"test\": \"test\" }").Execute();
+
+        session.Rollback();
+
+        Exception exception = Assert.Throws<MySqlException>(() => session.RollbackTo(sp));
+        Assert.Equal(string.Format("SAVEPOINT {0} does not exist", sp), exception.Message);
+
+        exception = Assert.Throws<MySqlException>(() => session.ReleaseSavepoint(sp));
+        Assert.Equal(string.Format("SAVEPOINT {0} does not exist", sp), exception.Message);
+      }
+    }
+
+    #endregion
   }
 }
