@@ -265,14 +265,12 @@ namespace MySqlX.XDevAPI
     /// <returns>A <see cref="CreateCollectionIndexStatement"/> object set with the given index definition.</returns>
     /// <remarks>
     /// <para><see cref="CreateCollectionIndexStatement"/>:</para>
-    /// <para>The statement can then be further modified before execution.</para>
+    /// <para>The statement be further modified before execution.</para>
     /// <para>&#160;</para>
     /// <para><paramref name="indexDefinition"/> is a JSON document with the following fields:</para>
     /// <para>
     /// <para />- <c>fields</c>: array of <c>IndexField</c> objects, each describing a single document member to be
     /// included in the index (see below).
-    /// <para />- <c>unique</c>: bool, (optional) true if documents with duplicate values for the indexed fields should
-    /// be rejected. Default false.
     /// <para />- <c>type: string</c>, (optional) the type of index. One of INDEX or SPATIAL. Default is INDEX and may
     /// be omitted.
     /// </para>
@@ -280,13 +278,11 @@ namespace MySqlX.XDevAPI
     /// <para>A single <c>IndexField</c> description consists of the following fields:</para>
     /// <para>
     /// <para />- <c>field</c>: string, the full document path to the document member or field to be indexed.
-    /// <para />- <c>type</c>: string, one of the supported SQL column types to map the field into (see below for a list).
+    /// <para />- <c>type</c>: string, one of the supported SQL column types to map the field into (see the following list).
     /// For numeric types, the optional UNSIGNED keyword may follow. For the TEXT type, the length to consider for
     /// indexing may be added.
     /// <para />- <c>required</c>: bool, (optional) true if the field is required to exist in the document. defaults to
     /// false, except for GEOJSON where it defaults to true.
-    /// <para />- <c>collation</c>: string or int, (optional) collation to be used to compare TEXT values. Either
-    /// collation name or numeric id can be used. This field can be present only if type is set to "TEXT".
     /// <para />- <c>options</c>: int, (optional) special option flags for use when decoding GEOJSON data.
     /// <para />- <c>srid</c>: int, (optional) srid value for use when decoding GEOJSON data.
     /// </para>
@@ -316,7 +312,6 @@ namespace MySqlX.XDevAPI
     {
       return new CreateCollectionIndexStatement(this, indexName, new DbDoc(indexDefinition));
     }
-
 
     /// <summary>
     /// Drops a collection index.

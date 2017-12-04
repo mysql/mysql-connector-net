@@ -69,11 +69,9 @@ namespace MySqlX.Data.Tests
       Schema test = session.GetSchema("test");
       Collection testColl = test.CreateCollection("test");
       Assert.True(testColl.ExistsInDatabase(), "ExistsInDatabase failed");
-      var result = testColl.CreateIndex("testIndex", "{ \"fields\": [ { \"field\":$.myId, \"type\":\"INT\", \"required\":true } ], \"unique\":true }").Execute();
+      var result = testColl.CreateIndex("testIndex", "{ \"fields\": [ { \"field\":$.myId, \"type\":\"INT\", \"required\":true } ] }").Execute();
       result = testColl.Add(new { myId = 1 }).Add(new { myId = 2 }).Execute();
-      Assert.Throws<MySqlException>(() => testColl.Add(new { myId = 1 }).Execute());
-      testColl.DropIndex("testIndex");
-      result = testColl.Add(new { myId = 1 }).Execute();
+      Assert.Equal<ulong>(result.RecordsAffected, 2);
     }
 
     [Fact]
@@ -82,7 +80,7 @@ namespace MySqlX.Data.Tests
       Session session = GetSession();
       Schema test = session.GetSchema("test");
       Collection testColl = test.CreateCollection("test");
-      testColl.CreateIndex("testIndex", "{ \"fields\": [ { \"field\":$.myId, \"type\":\"INT\", \"required\":true } ], \"unique\":true }").Execute();
+      testColl.CreateIndex("testIndex", "{ \"fields\": [ { \"field\":$.myId, \"type\":\"INT\", \"required\":true } ] }").Execute();
 
       // Drop existing index.
       testColl.DropIndex("testIndex");

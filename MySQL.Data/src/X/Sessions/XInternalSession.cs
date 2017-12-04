@@ -226,7 +226,7 @@ namespace MySqlX.Sessions
       args.Add(new KeyValuePair<string, object>("name", statement.createIndexParams.IndexName));
       args.Add(new KeyValuePair<string, object>("collection", statement.Target.Name));
       args.Add(new KeyValuePair<string, object>("schema", statement.Target.Schema.Name));
-      args.Add(new KeyValuePair<string, object>("unique", statement.createIndexParams.IsUnique));
+      args.Add(new KeyValuePair<string, object>("unique", false));
 
       if (statement.createIndexParams.Type != null)
         args.Add(new KeyValuePair<string, object>("type", statement.createIndexParams.Type));

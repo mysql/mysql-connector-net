@@ -36,9 +36,6 @@ namespace MySqlX.XDevAPI.CRUD
     {
       this._indexName = indexName;
 
-      if (indexDefinition.values.ContainsKey("unique"))
-        this._unique = Convert.ToBoolean(indexDefinition.values["unique"]);
-
       if (indexDefinition.values.ContainsKey("type"))
         this._type = indexDefinition.values["type"].ToString();
 
@@ -86,11 +83,6 @@ namespace MySqlX.XDevAPI.CRUD
     public string IndexName
     {
       get { return this._indexName; }
-    }
-
-    public bool IsUnique
-    {
-      get { return this._unique; }
     }
 
     public string Type

@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -117,13 +117,7 @@ namespace MySqlX.Protocol.X
 
     public static Scalar ScalarOf(String str)
     {
-      Scalar.Types.String strValue = new Scalar.Types.String() { Value = ByteString.CopyFromUtf8(str), Collation=3 };
-      return new Scalar() { Type = Scalar.Types.Type.VString, VString = strValue };
-    }
-
-    public static Scalar ScalarOf(String str, ulong collation)
-    {
-      Scalar.Types.String strValue = new Scalar.Types.String() { Value = ByteString.CopyFromUtf8(str), Collation = collation };
+      Scalar.Types.String strValue = new Scalar.Types.String() { Value = ByteString.CopyFromUtf8(str) };
       return new Scalar() { Type = Scalar.Types.Type.VString, VString = strValue };
     }
 
@@ -209,7 +203,7 @@ namespace MySqlX.Protocol.X
         {
           // try to parse expressions
           var stringValue = (string) value;
-          Expr expr = new ExprParser(stringValue.StartsWith("TEXT(") ? "TEXT" : (string)value).Parse();
+          Expr expr = new ExprParser(stringValue.StartsWith("TEXT(") ? "TEXT" : stringValue).Parse();
           if (expr.Identifier != null)
             return BuildLiteralScalar((string)value);
           return expr;

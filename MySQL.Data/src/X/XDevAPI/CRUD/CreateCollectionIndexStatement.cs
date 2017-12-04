@@ -38,7 +38,7 @@ namespace MySqlX.XDevAPI.CRUD
     internal CreateIndexParams createIndexParams;
 
     // Fields allowed at the root level.
-    private readonly string[] allowedFields = new string[]{ "fields", "unique", "type" };
+    private readonly string[] allowedFields = new string[]{ "fields", "type" };
 
     // Fields allowed for embedded documents.
     private readonly string[] allowedInternalFields = new string[] { "field", "type", "required", "options", "srid" };
@@ -66,9 +66,9 @@ namespace MySqlX.XDevAPI.CRUD
       }
 
       // Validate the index type.
-      if (indexDefinition.values.ContainsKey(allowedFields[2]))
+      if (indexDefinition.values.ContainsKey(allowedFields[1]))
       {
-        string indexType = indexDefinition.values[allowedFields[2]].ToString();
+        string indexType = indexDefinition.values[allowedFields[1]].ToString();
         if (!allowedIndexTypes.Contains(indexType))
           throw new FormatException(string.Format(ResourcesX.InvalidIndexType, indexType));
       }

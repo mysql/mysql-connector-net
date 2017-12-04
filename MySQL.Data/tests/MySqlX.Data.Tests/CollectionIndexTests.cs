@@ -36,19 +36,19 @@ namespace MySqlX.Data.Tests
     {
       var collection = CreateCollection("test");
 
-      Exception ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"unique\": true }").Execute());
+      Exception ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"type\": \"INDEX\" }").Execute());
       Assert.Equal("Field 'fields' is mandatory.", ex.Message);
 
-      ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"TEXT\" } ], \"unique\": true, \"unexpectedField\" : false }").Execute());
+      ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"TEXT\" } ], \"unexpectedField\" : false }").Execute());
       Assert.Equal("Field name 'unexpectedField' is not allowed.", ex.Message);
 
-      ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"fields\":$.myField, \"types\":\"TEXT\" } ], \"unique\": true }").Execute());
+      ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"fields\":$.myField, \"types\":\"TEXT\" } ] }").Execute());
       Assert.Equal("Field 'field' is mandatory.", ex.Message);
 
-      ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"types\":\"TEXT\" } ], \"unique\": true }").Execute());
+      ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"types\":\"TEXT\" } ] }").Execute());
       Assert.Equal("Field 'type' is mandatory.", ex.Message);
 
-      ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"TEXT\", \"unexpectedField\" : false } ], \"unique\": true }").Execute());
+      ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"TEXT\", \"unexpectedField\" : false } ] }").Execute());
       Assert.Equal("Field name 'unexpectedField' is not allowed.", ex.Message);
     }
 
@@ -66,8 +66,8 @@ namespace MySqlX.Data.Tests
     {
       var collection = CreateCollection("test");
 
-      collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"INT\", \"required\": true } ], \"unique\": true }").Execute();
-      ValidateIndex("myIndex", "test", "i", true, true, false, 1);
+      collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"INT\", \"required\": true } ] }").Execute();
+      ValidateIndex("myIndex", "test", "i", false, true, false, 1);
     }
 
     [Fact]
@@ -86,10 +86,10 @@ namespace MySqlX.Data.Tests
     {
       var collection = CreateCollection("test");
 
-      collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"INT\" }, { \"field\":$.myField2, \"type\":\"INT\", \"required\":true }, { \"field\":$.myField3, \"type\":\"INT UNSIGNED\", \"required\":false } ], \"unique\":true }").Execute();
-      ValidateIndex("myIndex", "test", "i", true, false, false, 1);
-      ValidateIndex("myIndex", "test", "i", true, true, false, 2);
-      ValidateIndex("myIndex", "test", "i_u", true, false, true, 3);
+      collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"INT\" }, { \"field\":$.myField2, \"type\":\"INT\", \"required\":true }, { \"field\":$.myField3, \"type\":\"INT UNSIGNED\", \"required\":false } ] }").Execute();
+      ValidateIndex("myIndex", "test", "i", false, false, false, 1);
+      ValidateIndex("myIndex", "test", "i", false, true, false, 2);
+      ValidateIndex("myIndex", "test", "i_u", false, false, true, 3);
     }
 
     [Fact]
@@ -169,7 +169,7 @@ namespace MySqlX.Data.Tests
 
       // Geojson index.
       collection.DropIndex("myIndex");
-      collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"GEOJSON\", \"required\":true, \"options\":2, \"srid\":4326 } ], \"unique\":false, \"type\":\"SPATIAL\" }").Execute();
+      collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"GEOJSON\", \"required\":true, \"options\":2, \"srid\":4326 } ], \"type\":\"SPATIAL\" }").Execute();
       ValidateIndex("myIndex", "test", "gj", false, true, false, 1);
     }
 
@@ -178,17 +178,17 @@ namespace MySqlX.Data.Tests
     {
       var collection = CreateCollection("test");
 
-      collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"TEXT\" }, { \"field\":$.myField2, \"type\":\"TEXT(10)\", \"required\":true }, { \"field\":$.myField3, \"type\":\"INT UNSIGNED\", \"required\":false } ], \"unique\":true }").Execute();
-      ValidateIndex("myIndex", "test", "t64", true, false, false, 1, 64);
-      ValidateIndex("myIndex", "test", "t10", true, true, false, 2, 10);
-      ValidateIndex("myIndex", "test", "i_u", true, false, true, 3);
+      collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"TEXT\" }, { \"field\":$.myField2, \"type\":\"TEXT(10)\", \"required\":true }, { \"field\":$.myField3, \"type\":\"INT UNSIGNED\", \"required\":false } ] }").Execute();
+      ValidateIndex("myIndex", "test", "t64", false, false, false, 1, 64);
+      ValidateIndex("myIndex", "test", "t10", false, true, false, 2, 10);
+      ValidateIndex("myIndex", "test", "i_u", false, false, true, 3);
 
       collection.DropIndex("myIndex");
-      Exception ex = Assert.Throws<Exception>(() => ValidateIndex("myIndex", "test", "t10", true, false, false, 1, 10));
+      Exception ex = Assert.Throws<Exception>(() => ValidateIndex("myIndex", "test", "t10", false, false, false, 1, 10));
       Assert.Equal("Index not found.", ex.Message);
-      ex = Assert.Throws<Exception>(() => ValidateIndex("myIndex", "test", "t10", true, true, false, 2, 10));
+      ex = Assert.Throws<Exception>(() => ValidateIndex("myIndex", "test", "t10", false, true, false, 2, 10));
       Assert.Equal("Index not found.", ex.Message);
-      ex = Assert.Throws<Exception>(() => ValidateIndex("myIndex", "test", "i_u", true, false, true, 3));
+      ex = Assert.Throws<Exception>(() => ValidateIndex("myIndex", "test", "i_u", false, false, true, 3));
       Assert.Equal("Index not found.", ex.Message);
     }
 
@@ -239,11 +239,11 @@ namespace MySqlX.Data.Tests
       Assert.Equal("Index type with name 'Index' not found.", ex.Message);
       ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"INT\" } ], \"type\":\"InDeX\" }").Execute());
       Assert.Equal("Index type with name 'InDeX' not found.", ex.Message);
-      ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myGeoJsonField, \"type\":\"GEOJSON\" } ], \"type\":\"Spatial\", \"unique\":true }").Execute());
+      ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myGeoJsonField, \"type\":\"GEOJSON\" } ], \"type\":\"Spatial\" }").Execute());
       Assert.Equal("Index type with name 'Spatial' not found.", ex.Message);
-      ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myGeoJsonField, \"type\":\"GEOJSON\" } ], \"type\":\"spatial\", \"unique\":true }").Execute());
+      ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myGeoJsonField, \"type\":\"GEOJSON\" } ], \"type\":\"spatial\" }").Execute());
       Assert.Equal("Index type with name 'spatial' not found.", ex.Message);
-      ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myGeoJsonField, \"type\":\"GEOJSON\" } ], \"type\":\"sPaTiAl\", \"unique\":true }").Execute());
+      ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myGeoJsonField, \"type\":\"GEOJSON\" } ], \"type\":\"sPaTiAl\" }").Execute());
       Assert.Equal("Index type with name 'sPaTiAl' not found.", ex.Message);
     }
 
