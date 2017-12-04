@@ -22,33 +22,32 @@ namespace Mysqlx.Datatypes {
     static MysqlxDatatypesReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "ChZteXNxbHhfZGF0YXR5cGVzLnByb3RvEhBNeXNxbHguRGF0YXR5cGVzItAD",
+            "ChZteXNxbHhfZGF0YXR5cGVzLnByb3RvEhBNeXNxbHguRGF0YXR5cGVzIu8D",
             "CgZTY2FsYXISKwoEdHlwZRgBIAEoDjIdLk15c3FseC5EYXRhdHlwZXMuU2Nh",
-            "bGFyLlR5cGUSFAoMdl9zaWduZWRfaW50GAIgASgSEhYKDnZfdW5zaWduZWRf",
-            "aW50GAMgASgEEjEKCHZfb2N0ZXRzGAUgASgLMh8uTXlzcWx4LkRhdGF0eXBl",
-            "cy5TY2FsYXIuT2N0ZXRzEhAKCHZfZG91YmxlGAYgASgBEg8KB3ZfZmxvYXQY",
-            "ByABKAISDgoGdl9ib29sGAggASgIEjEKCHZfc3RyaW5nGAkgASgLMh8uTXlz",
-            "cWx4LkRhdGF0eXBlcy5TY2FsYXIuU3RyaW5nGioKBlN0cmluZxINCgV2YWx1",
-            "ZRgBIAEoDBIRCgljb2xsYXRpb24YAiABKAQaLQoGT2N0ZXRzEg0KBXZhbHVl",
-            "GAEgASgMEhQKDGNvbnRlbnRfdHlwZRgCIAEoDSJ3CgRUeXBlEggKBE5PTkUQ",
-            "ABIKCgZWX1NJTlQQARIKCgZWX1VJTlQQAhIKCgZWX05VTEwQAxIMCghWX09D",
-            "VEVUUxAEEgwKCFZfRE9VQkxFEAUSCwoHVl9GTE9BVBAGEgoKBlZfQk9PTBAH",
-            "EgwKCFZfU1RSSU5HEAgifQoGT2JqZWN0EjEKA2ZsZBgBIAMoCzIkLk15c3Fs",
-            "eC5EYXRhdHlwZXMuT2JqZWN0Lk9iamVjdEZpZWxkGkAKC09iamVjdEZpZWxk",
-            "EgsKA2tleRgBIAEoCRIkCgV2YWx1ZRgCIAEoCzIVLk15c3FseC5EYXRhdHlw",
-            "ZXMuQW55Ii0KBUFycmF5EiQKBXZhbHVlGAEgAygLMhUuTXlzcWx4LkRhdGF0",
-            "eXBlcy5Bbnki3QEKA0FueRIoCgR0eXBlGAEgASgOMhouTXlzcWx4LkRhdGF0",
-            "eXBlcy5BbnkuVHlwZRIoCgZzY2FsYXIYAiABKAsyGC5NeXNxbHguRGF0YXR5",
-            "cGVzLlNjYWxhchIlCgNvYmoYAyABKAsyGC5NeXNxbHguRGF0YXR5cGVzLk9i",
-            "amVjdBImCgVhcnJheRgEIAEoCzIXLk15c3FseC5EYXRhdHlwZXMuQXJyYXki",
-            "MwoEVHlwZRIICgROT05FEAASCgoGU0NBTEFSEAESCgoGT0JKRUNUEAISCQoF",
-            "QVJSQVkQAyo4CgtDb250ZW50VHlwZRIICgROT05FEAASDAoIR0VPTUVUUlkQ",
-            "ARIICgRKU09OEAISBwoDWE1MEANCHgocY29tLm15c3FsLmNqLm15c3FseC5w",
-            "cm90b2J1ZmIGcHJvdG8z"));
+            "bGFyLlR5cGUSFgoMdl9zaWduZWRfaW50GAIgASgSSAASGAoOdl91bnNpZ25l",
+            "ZF9pbnQYAyABKARIABIzCgh2X29jdGV0cxgFIAEoCzIfLk15c3FseC5EYXRh",
+            "dHlwZXMuU2NhbGFyLk9jdGV0c0gAEhIKCHZfZG91YmxlGAYgASgBSAASEQoH",
+            "dl9mbG9hdBgHIAEoAkgAEhAKBnZfYm9vbBgIIAEoCEgAEjMKCHZfc3RyaW5n",
+            "GAkgASgLMh8uTXlzcWx4LkRhdGF0eXBlcy5TY2FsYXIuU3RyaW5nSAAaKgoG",
+            "U3RyaW5nEg0KBXZhbHVlGAEgASgMEhEKCWNvbGxhdGlvbhgCIAEoBBotCgZP",
+            "Y3RldHMSDQoFdmFsdWUYASABKAwSFAoMY29udGVudF90eXBlGAIgASgNIncK",
+            "BFR5cGUSCAoETk9ORRAAEgoKBlZfU0lOVBABEgoKBlZfVUlOVBACEgoKBlZf",
+            "TlVMTBADEgwKCFZfT0NURVRTEAQSDAoIVl9ET1VCTEUQBRILCgdWX0ZMT0FU",
+            "EAYSCgoGVl9CT09MEAcSDAoIVl9TVFJJTkcQCEIPCg1kZWZhdWx0X29uZW9m",
+            "In0KBk9iamVjdBIxCgNmbGQYASADKAsyJC5NeXNxbHguRGF0YXR5cGVzLk9i",
+            "amVjdC5PYmplY3RGaWVsZBpACgtPYmplY3RGaWVsZBILCgNrZXkYASABKAkS",
+            "JAoFdmFsdWUYAiABKAsyFS5NeXNxbHguRGF0YXR5cGVzLkFueSItCgVBcnJh",
+            "eRIkCgV2YWx1ZRgBIAMoCzIVLk15c3FseC5EYXRhdHlwZXMuQW55It0BCgNB",
+            "bnkSKAoEdHlwZRgBIAEoDjIaLk15c3FseC5EYXRhdHlwZXMuQW55LlR5cGUS",
+            "KAoGc2NhbGFyGAIgASgLMhguTXlzcWx4LkRhdGF0eXBlcy5TY2FsYXISJQoD",
+            "b2JqGAMgASgLMhguTXlzcWx4LkRhdGF0eXBlcy5PYmplY3QSJgoFYXJyYXkY",
+            "BCABKAsyFy5NeXNxbHguRGF0YXR5cGVzLkFycmF5IjMKBFR5cGUSCAoETk9O",
+            "RRAAEgoKBlNDQUxBUhABEgoKBk9CSkVDVBACEgkKBUFSUkFZEANCGQoXY29t",
+            "Lm15c3FsLmNqLngucHJvdG9idWZiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
-          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Mysqlx.Datatypes.ContentType), }, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Datatypes.Scalar), global::Mysqlx.Datatypes.Scalar.Parser, new[]{ "Type", "VSignedInt", "VUnsignedInt", "VOctets", "VDouble", "VFloat", "VBool", "VString" }, null, new[]{ typeof(global::Mysqlx.Datatypes.Scalar.Types.Type) }, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Datatypes.Scalar.Types.String), global::Mysqlx.Datatypes.Scalar.Types.String.Parser, new[]{ "Value", "Collation" }, null, null, null),
+          new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
+            new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Datatypes.Scalar), global::Mysqlx.Datatypes.Scalar.Parser, new[]{ "Type", "VSignedInt", "VUnsignedInt", "VOctets", "VDouble", "VFloat", "VBool", "VString" }, new[]{ "DefaultOneof" }, new[]{ typeof(global::Mysqlx.Datatypes.Scalar.Types.Type) }, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Datatypes.Scalar.Types.String), global::Mysqlx.Datatypes.Scalar.Types.String.Parser, new[]{ "Value", "Collation" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Datatypes.Scalar.Types.Octets), global::Mysqlx.Datatypes.Scalar.Types.Octets.Parser, new[]{ "Value", "ContentType" }, null, null, null)}),
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Datatypes.Object), global::Mysqlx.Datatypes.Object.Parser, new[]{ "Fld" }, null, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Datatypes.Object.Types.ObjectField), global::Mysqlx.Datatypes.Object.Types.ObjectField.Parser, new[]{ "Key", "Value" }, null, null, null)}),
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Datatypes.Array), global::Mysqlx.Datatypes.Array.Parser, new[]{ "Value" }, null, null, null),
@@ -58,34 +57,6 @@ namespace Mysqlx.Datatypes {
     #endregion
 
   }
-  #region Enums
-  /// <summary>
-  ///  a hint about the higher-level encoding of a BYTES field
-  ///
-  ///  ====== ====== ===========
-  ///  type   value  description
-  ///  ====== ====== ===========
-  ///  BYTES  0x0001 GEOMETRY (WKB encoding)
-  ///  BYTES  0x0002 JSON (text encoding)
-  ///  BYTES  0x0003 XML (text encoding)
-  ///  ====== ====== ===========
-  ///
-  ///  .. note::
-  ///    this list isn't comprehensive. As guideline: the field's value is expected
-  ///    to pass a validator check on client and server if this field is set.
-  ///    If the server adds more internal datatypes that rely on BLOB storage
-  ///    like image manipulation, seeking into complex types in BLOBs, ... more
-  ///    types will be added.
-  /// </summary>
-  internal enum ContentType {
-    [pbr::OriginalName("NONE")] None = 0,
-    [pbr::OriginalName("GEOMETRY")] Geometry = 1,
-    [pbr::OriginalName("JSON")] Json = 2,
-    [pbr::OriginalName("XML")] Xml = 3,
-  }
-
-  #endregion
-
   #region Messages
   /// <summary>
   ///  a scalar
@@ -115,13 +86,30 @@ namespace Mysqlx.Datatypes {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Scalar(Scalar other) : this() {
       type_ = other.type_;
-      vSignedInt_ = other.vSignedInt_;
-      vUnsignedInt_ = other.vUnsignedInt_;
-      VOctets = other.vOctets_ != null ? other.VOctets.Clone() : null;
-      vDouble_ = other.vDouble_;
-      vFloat_ = other.vFloat_;
-      vBool_ = other.vBool_;
-      VString = other.vString_ != null ? other.VString.Clone() : null;
+      switch (other.DefaultOneofCase) {
+        case DefaultOneofOneofCase.VSignedInt:
+          VSignedInt = other.VSignedInt;
+          break;
+        case DefaultOneofOneofCase.VUnsignedInt:
+          VUnsignedInt = other.VUnsignedInt;
+          break;
+        case DefaultOneofOneofCase.VOctets:
+          VOctets = other.VOctets.Clone();
+          break;
+        case DefaultOneofOneofCase.VDouble:
+          VDouble = other.VDouble;
+          break;
+        case DefaultOneofOneofCase.VFloat:
+          VFloat = other.VFloat;
+          break;
+        case DefaultOneofOneofCase.VBool:
+          VBool = other.VBool;
+          break;
+        case DefaultOneofOneofCase.VString:
+          VString = other.VString.Clone();
+          break;
+      }
+
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -145,82 +133,124 @@ namespace Mysqlx.Datatypes {
 
     /// <summary>Field number for the "v_signed_int" field.</summary>
     public const int VSignedIntFieldNumber = 2;
-    private long vSignedInt_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public long VSignedInt {
-      get { return vSignedInt_; }
+      get { return defaultOneofCase_ == DefaultOneofOneofCase.VSignedInt ? (long) defaultOneof_ : 0L; }
       set {
-        vSignedInt_ = value;
+        defaultOneof_ = value;
+        defaultOneofCase_ = DefaultOneofOneofCase.VSignedInt;
       }
     }
 
     /// <summary>Field number for the "v_unsigned_int" field.</summary>
     public const int VUnsignedIntFieldNumber = 3;
-    private ulong vUnsignedInt_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public ulong VUnsignedInt {
-      get { return vUnsignedInt_; }
+      get { return defaultOneofCase_ == DefaultOneofOneofCase.VUnsignedInt ? (ulong) defaultOneof_ : 0UL; }
       set {
-        vUnsignedInt_ = value;
+        defaultOneof_ = value;
+        defaultOneofCase_ = DefaultOneofOneofCase.VUnsignedInt;
       }
     }
 
     /// <summary>Field number for the "v_octets" field.</summary>
     public const int VOctetsFieldNumber = 5;
-    private global::Mysqlx.Datatypes.Scalar.Types.Octets vOctets_;
     /// <summary>
     ///  4 is unused, was Null which doesn't have a storage anymore
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Datatypes.Scalar.Types.Octets VOctets {
-      get { return vOctets_; }
+      get { return defaultOneofCase_ == DefaultOneofOneofCase.VOctets ? (global::Mysqlx.Datatypes.Scalar.Types.Octets) defaultOneof_ : null; }
       set {
-        vOctets_ = value;
+        defaultOneof_ = value;
+        defaultOneofCase_ = value == null ? DefaultOneofOneofCase.None : DefaultOneofOneofCase.VOctets;
       }
     }
 
     /// <summary>Field number for the "v_double" field.</summary>
     public const int VDoubleFieldNumber = 6;
-    private double vDouble_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public double VDouble {
-      get { return vDouble_; }
+      get { return defaultOneofCase_ == DefaultOneofOneofCase.VDouble ? (double) defaultOneof_ : 0D; }
       set {
-        vDouble_ = value;
+        defaultOneof_ = value;
+        defaultOneofCase_ = DefaultOneofOneofCase.VDouble;
       }
     }
 
     /// <summary>Field number for the "v_float" field.</summary>
     public const int VFloatFieldNumber = 7;
-    private float vFloat_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public float VFloat {
-      get { return vFloat_; }
+      get { return defaultOneofCase_ == DefaultOneofOneofCase.VFloat ? (float) defaultOneof_ : 0F; }
       set {
-        vFloat_ = value;
+        defaultOneof_ = value;
+        defaultOneofCase_ = DefaultOneofOneofCase.VFloat;
       }
     }
 
     /// <summary>Field number for the "v_bool" field.</summary>
     public const int VBoolFieldNumber = 8;
-    private bool vBool_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool VBool {
-      get { return vBool_; }
+      get { return defaultOneofCase_ == DefaultOneofOneofCase.VBool ? (bool) defaultOneof_ : false; }
       set {
-        vBool_ = value;
+        defaultOneof_ = value;
+        defaultOneofCase_ = DefaultOneofOneofCase.VBool;
       }
     }
 
     /// <summary>Field number for the "v_string" field.</summary>
     public const int VStringFieldNumber = 9;
-    private global::Mysqlx.Datatypes.Scalar.Types.String vString_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Datatypes.Scalar.Types.String VString {
-      get { return vString_; }
+      get { return defaultOneofCase_ == DefaultOneofOneofCase.VString ? (global::Mysqlx.Datatypes.Scalar.Types.String) defaultOneof_ : null; }
       set {
-        vString_ = value;
+        defaultOneof_ = value;
+        defaultOneofCase_ = value == null ? DefaultOneofOneofCase.None : DefaultOneofOneofCase.VString;
       }
+    }
+
+    private object defaultOneof_;
+    /// <summary>Enum of possible cases for the "default_oneof" oneof.</summary>
+    public enum DefaultOneofOneofCase {
+      None = 0,
+      VSignedInt = 2,
+      VUnsignedInt = 3,
+      VOctets = 5,
+      VDouble = 6,
+      VFloat = 7,
+      VBool = 8,
+      VString = 9,
+    }
+    private DefaultOneofOneofCase defaultOneofCase_ = DefaultOneofOneofCase.None;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public DefaultOneofOneofCase DefaultOneofCase {
+      get { return defaultOneofCase_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void ClearDefaultOneof() {
+      defaultOneofCase_ = DefaultOneofOneofCase.None;
+      defaultOneof_ = null;
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -244,6 +274,7 @@ namespace Mysqlx.Datatypes {
       if (VFloat != other.VFloat) return false;
       if (VBool != other.VBool) return false;
       if (!object.Equals(VString, other.VString)) return false;
+      if (DefaultOneofCase != other.DefaultOneofCase) return false;
       return true;
     }
 
@@ -251,13 +282,14 @@ namespace Mysqlx.Datatypes {
     public override int GetHashCode() {
       int hash = 1;
       if (Type != 0) hash ^= Type.GetHashCode();
-      if (VSignedInt != 0L) hash ^= VSignedInt.GetHashCode();
-      if (VUnsignedInt != 0UL) hash ^= VUnsignedInt.GetHashCode();
-      if (vOctets_ != null) hash ^= VOctets.GetHashCode();
-      if (VDouble != 0D) hash ^= VDouble.GetHashCode();
-      if (VFloat != 0F) hash ^= VFloat.GetHashCode();
-      if (VBool != false) hash ^= VBool.GetHashCode();
-      if (vString_ != null) hash ^= VString.GetHashCode();
+      if (defaultOneofCase_ == DefaultOneofOneofCase.VSignedInt) hash ^= VSignedInt.GetHashCode();
+      if (defaultOneofCase_ == DefaultOneofOneofCase.VUnsignedInt) hash ^= VUnsignedInt.GetHashCode();
+      if (defaultOneofCase_ == DefaultOneofOneofCase.VOctets) hash ^= VOctets.GetHashCode();
+      if (defaultOneofCase_ == DefaultOneofOneofCase.VDouble) hash ^= VDouble.GetHashCode();
+      if (defaultOneofCase_ == DefaultOneofOneofCase.VFloat) hash ^= VFloat.GetHashCode();
+      if (defaultOneofCase_ == DefaultOneofOneofCase.VBool) hash ^= VBool.GetHashCode();
+      if (defaultOneofCase_ == DefaultOneofOneofCase.VString) hash ^= VString.GetHashCode();
+      hash ^= (int) defaultOneofCase_;
       return hash;
     }
 
@@ -272,31 +304,31 @@ namespace Mysqlx.Datatypes {
         output.WriteRawTag(8);
         output.WriteEnum((int) Type);
       }
-      if (VSignedInt != 0L) {
+      if (defaultOneofCase_ == DefaultOneofOneofCase.VSignedInt) {
         output.WriteRawTag(16);
         output.WriteSInt64(VSignedInt);
       }
-      if (VUnsignedInt != 0UL) {
+      if (defaultOneofCase_ == DefaultOneofOneofCase.VUnsignedInt) {
         output.WriteRawTag(24);
         output.WriteUInt64(VUnsignedInt);
       }
-      if (vOctets_ != null) {
+      if (defaultOneofCase_ == DefaultOneofOneofCase.VOctets) {
         output.WriteRawTag(42);
         output.WriteMessage(VOctets);
       }
-      if (VDouble != 0D) {
+      if (defaultOneofCase_ == DefaultOneofOneofCase.VDouble) {
         output.WriteRawTag(49);
         output.WriteDouble(VDouble);
       }
-      if (VFloat != 0F) {
+      if (defaultOneofCase_ == DefaultOneofOneofCase.VFloat) {
         output.WriteRawTag(61);
         output.WriteFloat(VFloat);
       }
-      if (VBool != false) {
+      if (defaultOneofCase_ == DefaultOneofOneofCase.VBool) {
         output.WriteRawTag(64);
         output.WriteBool(VBool);
       }
-      if (vString_ != null) {
+      if (defaultOneofCase_ == DefaultOneofOneofCase.VString) {
         output.WriteRawTag(74);
         output.WriteMessage(VString);
       }
@@ -308,25 +340,25 @@ namespace Mysqlx.Datatypes {
       if (Type != 0) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Type);
       }
-      if (VSignedInt != 0L) {
+      if (defaultOneofCase_ == DefaultOneofOneofCase.VSignedInt) {
         size += 1 + pb::CodedOutputStream.ComputeSInt64Size(VSignedInt);
       }
-      if (VUnsignedInt != 0UL) {
+      if (defaultOneofCase_ == DefaultOneofOneofCase.VUnsignedInt) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(VUnsignedInt);
       }
-      if (vOctets_ != null) {
+      if (defaultOneofCase_ == DefaultOneofOneofCase.VOctets) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(VOctets);
       }
-      if (VDouble != 0D) {
+      if (defaultOneofCase_ == DefaultOneofOneofCase.VDouble) {
         size += 1 + 8;
       }
-      if (VFloat != 0F) {
+      if (defaultOneofCase_ == DefaultOneofOneofCase.VFloat) {
         size += 1 + 4;
       }
-      if (VBool != false) {
+      if (defaultOneofCase_ == DefaultOneofOneofCase.VBool) {
         size += 1 + 1;
       }
-      if (vString_ != null) {
+      if (defaultOneofCase_ == DefaultOneofOneofCase.VString) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(VString);
       }
       return size;
@@ -340,33 +372,30 @@ namespace Mysqlx.Datatypes {
       if (other.Type != 0) {
         Type = other.Type;
       }
-      if (other.VSignedInt != 0L) {
-        VSignedInt = other.VSignedInt;
+      switch (other.DefaultOneofCase) {
+        case DefaultOneofOneofCase.VSignedInt:
+          VSignedInt = other.VSignedInt;
+          break;
+        case DefaultOneofOneofCase.VUnsignedInt:
+          VUnsignedInt = other.VUnsignedInt;
+          break;
+        case DefaultOneofOneofCase.VOctets:
+          VOctets = other.VOctets;
+          break;
+        case DefaultOneofOneofCase.VDouble:
+          VDouble = other.VDouble;
+          break;
+        case DefaultOneofOneofCase.VFloat:
+          VFloat = other.VFloat;
+          break;
+        case DefaultOneofOneofCase.VBool:
+          VBool = other.VBool;
+          break;
+        case DefaultOneofOneofCase.VString:
+          VString = other.VString;
+          break;
       }
-      if (other.VUnsignedInt != 0UL) {
-        VUnsignedInt = other.VUnsignedInt;
-      }
-      if (other.vOctets_ != null) {
-        if (vOctets_ == null) {
-          vOctets_ = new global::Mysqlx.Datatypes.Scalar.Types.Octets();
-        }
-        VOctets.MergeFrom(other.VOctets);
-      }
-      if (other.VDouble != 0D) {
-        VDouble = other.VDouble;
-      }
-      if (other.VFloat != 0F) {
-        VFloat = other.VFloat;
-      }
-      if (other.VBool != false) {
-        VBool = other.VBool;
-      }
-      if (other.vString_ != null) {
-        if (vString_ == null) {
-          vString_ = new global::Mysqlx.Datatypes.Scalar.Types.String();
-        }
-        VString.MergeFrom(other.VString);
-      }
+
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -390,10 +419,12 @@ namespace Mysqlx.Datatypes {
             break;
           }
           case 42: {
-            if (vOctets_ == null) {
-              vOctets_ = new global::Mysqlx.Datatypes.Scalar.Types.Octets();
+            global::Mysqlx.Datatypes.Scalar.Types.Octets subBuilder = new global::Mysqlx.Datatypes.Scalar.Types.Octets();
+            if (defaultOneofCase_ == DefaultOneofOneofCase.VOctets) {
+              subBuilder.MergeFrom(VOctets);
             }
-            input.ReadMessage(vOctets_);
+            input.ReadMessage(subBuilder);
+            VOctets = subBuilder;
             break;
           }
           case 49: {
@@ -409,10 +440,12 @@ namespace Mysqlx.Datatypes {
             break;
           }
           case 74: {
-            if (vString_ == null) {
-              vString_ = new global::Mysqlx.Datatypes.Scalar.Types.String();
+            global::Mysqlx.Datatypes.Scalar.Types.String subBuilder = new global::Mysqlx.Datatypes.Scalar.Types.String();
+            if (defaultOneofCase_ == DefaultOneofOneofCase.VString) {
+              subBuilder.MergeFrom(VString);
             }
-            input.ReadMessage(vString_);
+            input.ReadMessage(subBuilder);
+            VString = subBuilder;
             break;
           }
         }
@@ -488,6 +521,9 @@ namespace Mysqlx.Datatypes {
         /// <summary>Field number for the "collation" field.</summary>
         public const int CollationFieldNumber = 2;
         private ulong collation_;
+        /// <summary>
+        /// optional
+        /// </summary>
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public ulong Collation {
           get { return collation_; }
@@ -588,7 +624,7 @@ namespace Mysqlx.Datatypes {
 
       /// <summary>
       ///  an opaque octet sequence, with an optional content_type
-      ///  See ``Mysqlx.Resultset.ColumnMetadata`` for list of known values.
+      ///  See ``Mysqlx.Resultset.ContentType_BYTES`` for list of known values.
       /// </summary>
       internal sealed partial class Octets : pb::IMessage<Octets> {
         private static readonly pb::MessageParser<Octets> _parser = new pb::MessageParser<Octets>(() => new Octets());
@@ -640,6 +676,9 @@ namespace Mysqlx.Datatypes {
         /// <summary>Field number for the "content_type" field.</summary>
         public const int ContentTypeFieldNumber = 2;
         private uint contentType_;
+        /// <summary>
+        /// optional
+        /// </summary>
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public uint ContentType {
           get { return contentType_; }
@@ -1186,6 +1225,9 @@ namespace Mysqlx.Datatypes {
     /// <summary>Field number for the "scalar" field.</summary>
     public const int ScalarFieldNumber = 2;
     private global::Mysqlx.Datatypes.Scalar scalar_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Datatypes.Scalar Scalar {
       get { return scalar_; }
@@ -1197,6 +1239,9 @@ namespace Mysqlx.Datatypes {
     /// <summary>Field number for the "obj" field.</summary>
     public const int ObjFieldNumber = 3;
     private global::Mysqlx.Datatypes.Object obj_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Datatypes.Object Obj {
       get { return obj_; }
@@ -1208,6 +1253,9 @@ namespace Mysqlx.Datatypes {
     /// <summary>Field number for the "array" field.</summary>
     public const int ArrayFieldNumber = 4;
     private global::Mysqlx.Datatypes.Array array_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Datatypes.Array Array {
       get { return array_; }

@@ -125,6 +125,24 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Field type with name &apos;{0}&apos; not found..
+        /// </summary>
+        public static string InvalidFieldType {
+            get {
+                return ResourceManager.GetString("InvalidFieldType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Index type with name &apos;{0}&apos; not found..
+        /// </summary>
+        public static string InvalidIndexType {
+            get {
+                return ResourceManager.GetString("InvalidIndexType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} is not a valid column name in the row..
         /// </summary>
         public static string InvalidNameIndex {
@@ -184,6 +202,15 @@ namespace MySql.Data {
         public static string KeywordNotSupported {
             get {
                 return ResourceManager.GetString("KeywordNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Field &apos;{0}&apos; is mandatory..
+        /// </summary>
+        public static string MandatoryFieldNotFound {
+            get {
+                return ResourceManager.GetString("MandatoryFieldNotFound", resourceCulture);
             }
         }
         
@@ -337,6 +364,15 @@ namespace MySql.Data {
         public static string UnexpectedEndOfPacketFound {
             get {
                 return ResourceManager.GetString("UnexpectedEndOfPacketFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Field name &apos;{0}&apos; is not allowed..
+        /// </summary>
+        public static string UnexpectedField {
+            get {
+                return ResourceManager.GetString("UnexpectedField", resourceCulture);
             }
         }
         

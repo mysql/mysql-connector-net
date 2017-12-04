@@ -42,8 +42,8 @@ namespace Mysqlx {
             "EQoCT2sSCwoDbXNnGAEgASgJIoEBCgVFcnJvchIoCghzZXZlcml0eRgBIAEo",
             "DjIWLk15c3FseC5FcnJvci5TZXZlcml0eRIMCgRjb2RlGAIgASgNEhEKCXNx",
             "bF9zdGF0ZRgEIAEoCRILCgNtc2cYAyABKAkiIAoIU2V2ZXJpdHkSCQoFRVJS",
-            "T1IQABIJCgVGQVRBTBABQh4KHGNvbS5teXNxbC5jai5teXNxbHgucHJvdG9i",
-            "dWZiBnByb3RvMw=="));
+            "T1IQABIJCgVGQVRBTBABQhkKF2NvbS5teXNxbC5jai54LnByb3RvYnVmYgZw",
+            "cm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
@@ -345,6 +345,9 @@ namespace Mysqlx {
     /// <summary>Field number for the "msg" field.</summary>
     public const int MsgFieldNumber = 1;
     private string msg_ = "";
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Msg {
       get { return msg_; }
@@ -480,6 +483,9 @@ namespace Mysqlx {
     /// <summary>Field number for the "severity" field.</summary>
     public const int SeverityFieldNumber = 1;
     private global::Mysqlx.Error.Types.Severity severity_ = 0;
+    /// <summary>
+    /// optional [ default = ERROR ]
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Error.Types.Severity Severity {
       get { return severity_; }
@@ -491,6 +497,9 @@ namespace Mysqlx {
     /// <summary>Field number for the "code" field.</summary>
     public const int CodeFieldNumber = 2;
     private uint code_;
+    /// <summary>
+    /// required
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public uint Code {
       get { return code_; }
@@ -502,6 +511,9 @@ namespace Mysqlx {
     /// <summary>Field number for the "sql_state" field.</summary>
     public const int SqlStateFieldNumber = 4;
     private string sqlState_ = "";
+    /// <summary>
+    /// required
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string SqlState {
       get { return sqlState_; }
@@ -513,6 +525,9 @@ namespace Mysqlx {
     /// <summary>Field number for the "msg" field.</summary>
     public const int MsgFieldNumber = 3;
     private string msg_ = "";
+    /// <summary>
+    /// required
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Msg {
       get { return msg_; }

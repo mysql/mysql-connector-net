@@ -292,7 +292,7 @@ namespace MySqlX.Data.Tests
       Assert.Equal("value", document["other"]);
 
       // Add unique index.
-      collection.CreateIndex("myPages", true).Field("$.pages", "INT", true).Execute();
+      collection.CreateIndex("myPages", "{ \"fields\": [ { \"field\":$.pages, \"type\":\"INT\", \"required\":true } ], \"unique\":true }").Execute();
       Assert.Throws<MySqlException>(() => collection.AddOrReplaceOne(1, new { title = "Book X", pages = 50, other = "value" }).RecordsAffected);
     }
   }

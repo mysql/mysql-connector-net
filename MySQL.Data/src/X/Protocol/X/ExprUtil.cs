@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2017 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -56,6 +56,14 @@ namespace MySqlX.Protocol.X
     }
 
     /**
+     * Proto-buf helper to build a LITERAL Expr with a Scalar UINT (unsigned int) type (wrapped in Any).
+     */
+    public static Expr BuildLiteralScalar(ulong l)
+    {
+      return BuildLiteralExpr(ScalarOf(l));
+    }
+
+    /**
      * Proto-buf helper to build a LITERAL Expr with a Scalar STRING type (wrapped in Any).
      */
     public static Expr BuildLiteralScalar(String str)
@@ -102,9 +110,20 @@ namespace MySqlX.Protocol.X
       return new Scalar() { Type = Scalar.Types.Type.VSint, VSignedInt = l};
     }
 
+    public static Scalar ScalarOf(ulong ul)
+    {
+      return new Scalar() { Type = Scalar.Types.Type.VUint, VUnsignedInt = ul};
+    }
+
     public static Scalar ScalarOf(String str)
     {
-      Scalar.Types.String strValue = new Scalar.Types.String() { Value = ByteString.CopyFromUtf8(str) };
+      Scalar.Types.String strValue = new Scalar.Types.String() { Value = ByteString.CopyFromUtf8(str), Collation=3 };
+      return new Scalar() { Type = Scalar.Types.Type.VString, VString = strValue };
+    }
+
+    public static Scalar ScalarOf(String str, ulong collation)
+    {
+      Scalar.Types.String strValue = new Scalar.Types.String() { Value = ByteString.CopyFromUtf8(str), Collation = collation };
       return new Scalar() { Type = Scalar.Types.Type.VString, VString = strValue };
     }
 
@@ -133,6 +152,19 @@ namespace MySqlX.Protocol.X
       a.Type = Any.Types.Type.Scalar;
       a.Scalar = s;
       return a;
+    }
+
+    public static Mysqlx.Datatypes.Object.Types.ObjectField BuildObject(string key, object value)
+    {
+      Mysqlx.Datatypes.Object.Types.ObjectField item = new Mysqlx.Datatypes.Object.Types.ObjectField();
+      item.Key = key;
+      item.Value = BuildAny(value);
+      return item;
+    }
+
+    public static Any BuildEmptyAny(Any.Types.Type type)
+    {
+      return new Any() { Type = type, Obj = new Mysqlx.Datatypes.Object() };
     }
 
     public static Any BuildAny(Boolean b)
@@ -167,6 +199,8 @@ namespace MySqlX.Protocol.X
         return BuildLiteralScalar(Convert.ToBoolean(value));
       else if (value is byte || value is short || value is int || value is long)
         return BuildLiteralScalar(Convert.ToInt64(value));
+      else if (value is ushort || value is uint || value is ulong)
+        return BuildLiteralScalar(Convert.ToUInt64(value));
       else if (value is float || value is double)
         return BuildLiteralScalar(Convert.ToDouble(value));
       else if (value is string)
@@ -174,7 +208,8 @@ namespace MySqlX.Protocol.X
         try
         {
           // try to parse expressions
-          Expr expr = new ExprParser((string)value).Parse();
+          var stringValue = (string) value;
+          Expr expr = new ExprParser(stringValue.StartsWith("TEXT(") ? "TEXT" : (string)value).Parse();
           if (expr.Identifier != null)
             return BuildLiteralScalar((string)value);
           return expr;
@@ -187,6 +222,7 @@ namespace MySqlX.Protocol.X
       }
       else if (value is XDevAPI.DbDoc)
         return (BuildLiteralScalar(value.ToString()));
+
       throw new NotSupportedException("Value of type " + value.GetType() + " is not currently supported.");
     }
 

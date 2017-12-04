@@ -32,62 +32,63 @@ namespace Mysqlx.Crud {
             "AiABKAQigwEKBU9yZGVyEh8KBGV4cHIYASABKAsyES5NeXNxbHguRXhwci5F",
             "eHByEi8KCWRpcmVjdGlvbhgCIAEoDjIcLk15c3FseC5DcnVkLk9yZGVyLkRp",
             "cmVjdGlvbiIoCglEaXJlY3Rpb24SCAoETk9ORRAAEgcKA0FTQxABEggKBERF",
-            "U0MQAiKlAgoPVXBkYXRlT3BlcmF0aW9uEi0KBnNvdXJjZRgBIAEoCzIdLk15",
+            "U0MQAiK2AgoPVXBkYXRlT3BlcmF0aW9uEi0KBnNvdXJjZRgBIAEoCzIdLk15",
             "c3FseC5FeHByLkNvbHVtbklkZW50aWZpZXISOgoJb3BlcmF0aW9uGAIgASgO",
             "MicuTXlzcWx4LkNydWQuVXBkYXRlT3BlcmF0aW9uLlVwZGF0ZVR5cGUSIAoF",
-            "dmFsdWUYAyABKAsyES5NeXNxbHguRXhwci5FeHByIoQBCgpVcGRhdGVUeXBl",
+            "dmFsdWUYAyABKAsyES5NeXNxbHguRXhwci5FeHByIpUBCgpVcGRhdGVUeXBl",
             "EggKBE5PTkUQABIHCgNTRVQQARIPCgtJVEVNX1JFTU9WRRACEgwKCElURU1f",
             "U0VUEAMSEAoMSVRFTV9SRVBMQUNFEAQSDgoKSVRFTV9NRVJHRRAFEhAKDEFS",
-            "UkFZX0lOU0VSVBAGEhAKDEFSUkFZX0FQUEVORBAHItgDCgRGaW5kEisKCmNv",
-            "bGxlY3Rpb24YAiABKAsyFy5NeXNxbHguQ3J1ZC5Db2xsZWN0aW9uEioKCmRh",
-            "dGFfbW9kZWwYAyABKA4yFi5NeXNxbHguQ3J1ZC5EYXRhTW9kZWwSKwoKcHJv",
-            "amVjdGlvbhgEIAMoCzIXLk15c3FseC5DcnVkLlByb2plY3Rpb24SIwoIY3Jp",
-            "dGVyaWEYBSABKAsyES5NeXNxbHguRXhwci5FeHByEiYKBGFyZ3MYCyADKAsy",
-            "GC5NeXNxbHguRGF0YXR5cGVzLlNjYWxhchIhCgVsaW1pdBgGIAEoCzISLk15",
-            "c3FseC5DcnVkLkxpbWl0EiEKBW9yZGVyGAcgAygLMhIuTXlzcWx4LkNydWQu",
-            "T3JkZXISIwoIZ3JvdXBpbmcYCCADKAsyES5NeXNxbHguRXhwci5FeHByEiwK",
-            "EWdyb3VwaW5nX2NyaXRlcmlhGAkgASgLMhEuTXlzcWx4LkV4cHIuRXhwchIq",
-            "Cgdsb2NraW5nGAwgASgOMhkuTXlzcWx4LkNydWQuRmluZC5Sb3dMb2NrIjgK",
-            "B1Jvd0xvY2sSCAoETk9ORRAAEg8KC1NIQVJFRF9MT0NLEAESEgoORVhDTFVT",
-            "SVZFX0xPQ0sQAiKbAgoGSW5zZXJ0EisKCmNvbGxlY3Rpb24YASABKAsyFy5N",
-            "eXNxbHguQ3J1ZC5Db2xsZWN0aW9uEioKCmRhdGFfbW9kZWwYAiABKA4yFi5N",
-            "eXNxbHguQ3J1ZC5EYXRhTW9kZWwSJwoKcHJvamVjdGlvbhgDIAMoCzITLk15",
-            "c3FseC5DcnVkLkNvbHVtbhIpCgNyb3cYBCADKAsyHC5NeXNxbHguQ3J1ZC5J",
-            "bnNlcnQuVHlwZWRSb3cSJgoEYXJncxgFIAMoCzIYLk15c3FseC5EYXRhdHlw",
-            "ZXMuU2NhbGFyEg4KBnVwc2VydBgGIAEoCBosCghUeXBlZFJvdxIgCgVmaWVs",
-            "ZBgBIAMoCzIRLk15c3FseC5FeHByLkV4cHIipQIKBlVwZGF0ZRIrCgpjb2xs",
-            "ZWN0aW9uGAIgASgLMhcuTXlzcWx4LkNydWQuQ29sbGVjdGlvbhIqCgpkYXRh",
-            "X21vZGVsGAMgASgOMhYuTXlzcWx4LkNydWQuRGF0YU1vZGVsEiMKCGNyaXRl",
-            "cmlhGAQgASgLMhEuTXlzcWx4LkV4cHIuRXhwchImCgRhcmdzGAggAygLMhgu",
-            "TXlzcWx4LkRhdGF0eXBlcy5TY2FsYXISIQoFbGltaXQYBSABKAsyEi5NeXNx",
-            "bHguQ3J1ZC5MaW1pdBIhCgVvcmRlchgGIAMoCzISLk15c3FseC5DcnVkLk9y",
-            "ZGVyEi8KCW9wZXJhdGlvbhgHIAMoCzIcLk15c3FseC5DcnVkLlVwZGF0ZU9w",
-            "ZXJhdGlvbiL0AQoGRGVsZXRlEisKCmNvbGxlY3Rpb24YASABKAsyFy5NeXNx",
-            "bHguQ3J1ZC5Db2xsZWN0aW9uEioKCmRhdGFfbW9kZWwYAiABKA4yFi5NeXNx",
-            "bHguQ3J1ZC5EYXRhTW9kZWwSIwoIY3JpdGVyaWEYAyABKAsyES5NeXNxbHgu",
-            "RXhwci5FeHByEiYKBGFyZ3MYBiADKAsyGC5NeXNxbHguRGF0YXR5cGVzLlNj",
-            "YWxhchIhCgVsaW1pdBgEIAEoCzISLk15c3FseC5DcnVkLkxpbWl0EiEKBW9y",
-            "ZGVyGAUgAygLMhIuTXlzcWx4LkNydWQuT3JkZXIioQIKCkNyZWF0ZVZpZXcS",
-            "KwoKY29sbGVjdGlvbhgBIAEoCzIXLk15c3FseC5DcnVkLkNvbGxlY3Rpb24S",
-            "DwoHZGVmaW5lchgCIAEoCRItCglhbGdvcml0aG0YAyABKA4yGi5NeXNxbHgu",
-            "Q3J1ZC5WaWV3QWxnb3JpdGhtEi4KCHNlY3VyaXR5GAQgASgOMhwuTXlzcWx4",
-            "LkNydWQuVmlld1NxbFNlY3VyaXR5EisKBWNoZWNrGAUgASgOMhwuTXlzcWx4",
-            "LkNydWQuVmlld0NoZWNrT3B0aW9uEg4KBmNvbHVtbhgGIAMoCRIfCgRzdG10",
-            "GAcgASgLMhEuTXlzcWx4LkNydWQuRmluZBIYChByZXBsYWNlX2V4aXN0aW5n",
-            "GAggASgIIocCCgpNb2RpZnlWaWV3EisKCmNvbGxlY3Rpb24YASABKAsyFy5N",
-            "eXNxbHguQ3J1ZC5Db2xsZWN0aW9uEg8KB2RlZmluZXIYAiABKAkSLQoJYWxn",
-            "b3JpdGhtGAMgASgOMhouTXlzcWx4LkNydWQuVmlld0FsZ29yaXRobRIuCghz",
-            "ZWN1cml0eRgEIAEoDjIcLk15c3FseC5DcnVkLlZpZXdTcWxTZWN1cml0eRIr",
-            "CgVjaGVjaxgFIAEoDjIcLk15c3FseC5DcnVkLlZpZXdDaGVja09wdGlvbhIO",
-            "CgZjb2x1bW4YBiADKAkSHwoEc3RtdBgHIAEoCzIRLk15c3FseC5DcnVkLkZp",
-            "bmQiSgoIRHJvcFZpZXcSKwoKY29sbGVjdGlvbhgBIAEoCzIXLk15c3FseC5D",
-            "cnVkLkNvbGxlY3Rpb24SEQoJaWZfZXhpc3RzGAIgASgIKi4KCURhdGFNb2Rl",
-            "bBIICgROT05FEAASDAoIRE9DVU1FTlQQARIJCgVUQUJMRRACKkQKDVZpZXdB",
-            "bGdvcml0aG0SCgoGVkFOT05FEAASDQoJVU5ERUZJTkVEEAESCQoFTUVSR0UQ",
-            "AhINCglURU1QVEFCTEUQAyo3Cg9WaWV3U3FsU2VjdXJpdHkSCgoGVlNOT05F",
-            "EAASCwoHSU5WT0tFUhABEgsKB0RFRklORVIQAio2Cg9WaWV3Q2hlY2tPcHRp",
-            "b24SCgoGVk9OT05FEAASCQoFTE9DQUwQARIMCghDQVNDQURFRBACQh4KHGNv",
-            "bS5teXNxbC5jai5teXNxbHgucHJvdG9idWZiBnByb3RvMw=="));
+            "UkFZX0lOU0VSVBAGEhAKDEFSUkFZX0FQUEVORBAHEg8KC01FUkdFX1BBVENI",
+            "EAgi2AMKBEZpbmQSKwoKY29sbGVjdGlvbhgCIAEoCzIXLk15c3FseC5DcnVk",
+            "LkNvbGxlY3Rpb24SKgoKZGF0YV9tb2RlbBgDIAEoDjIWLk15c3FseC5DcnVk",
+            "LkRhdGFNb2RlbBIrCgpwcm9qZWN0aW9uGAQgAygLMhcuTXlzcWx4LkNydWQu",
+            "UHJvamVjdGlvbhIjCghjcml0ZXJpYRgFIAEoCzIRLk15c3FseC5FeHByLkV4",
+            "cHISJgoEYXJncxgLIAMoCzIYLk15c3FseC5EYXRhdHlwZXMuU2NhbGFyEiEK",
+            "BWxpbWl0GAYgASgLMhIuTXlzcWx4LkNydWQuTGltaXQSIQoFb3JkZXIYByAD",
+            "KAsyEi5NeXNxbHguQ3J1ZC5PcmRlchIjCghncm91cGluZxgIIAMoCzIRLk15",
+            "c3FseC5FeHByLkV4cHISLAoRZ3JvdXBpbmdfY3JpdGVyaWEYCSABKAsyES5N",
+            "eXNxbHguRXhwci5FeHByEioKB2xvY2tpbmcYDCABKA4yGS5NeXNxbHguQ3J1",
+            "ZC5GaW5kLlJvd0xvY2siOAoHUm93TG9jaxIICgROT05FEAASDwoLU0hBUkVE",
+            "X0xPQ0sQARISCg5FWENMVVNJVkVfTE9DSxACIpsCCgZJbnNlcnQSKwoKY29s",
+            "bGVjdGlvbhgBIAEoCzIXLk15c3FseC5DcnVkLkNvbGxlY3Rpb24SKgoKZGF0",
+            "YV9tb2RlbBgCIAEoDjIWLk15c3FseC5DcnVkLkRhdGFNb2RlbBInCgpwcm9q",
+            "ZWN0aW9uGAMgAygLMhMuTXlzcWx4LkNydWQuQ29sdW1uEikKA3JvdxgEIAMo",
+            "CzIcLk15c3FseC5DcnVkLkluc2VydC5UeXBlZFJvdxImCgRhcmdzGAUgAygL",
+            "MhguTXlzcWx4LkRhdGF0eXBlcy5TY2FsYXISDgoGdXBzZXJ0GAYgASgIGiwK",
+            "CFR5cGVkUm93EiAKBWZpZWxkGAEgAygLMhEuTXlzcWx4LkV4cHIuRXhwciKl",
+            "AgoGVXBkYXRlEisKCmNvbGxlY3Rpb24YAiABKAsyFy5NeXNxbHguQ3J1ZC5D",
+            "b2xsZWN0aW9uEioKCmRhdGFfbW9kZWwYAyABKA4yFi5NeXNxbHguQ3J1ZC5E",
+            "YXRhTW9kZWwSIwoIY3JpdGVyaWEYBCABKAsyES5NeXNxbHguRXhwci5FeHBy",
+            "EiYKBGFyZ3MYCCADKAsyGC5NeXNxbHguRGF0YXR5cGVzLlNjYWxhchIhCgVs",
+            "aW1pdBgFIAEoCzISLk15c3FseC5DcnVkLkxpbWl0EiEKBW9yZGVyGAYgAygL",
+            "MhIuTXlzcWx4LkNydWQuT3JkZXISLwoJb3BlcmF0aW9uGAcgAygLMhwuTXlz",
+            "cWx4LkNydWQuVXBkYXRlT3BlcmF0aW9uIvQBCgZEZWxldGUSKwoKY29sbGVj",
+            "dGlvbhgBIAEoCzIXLk15c3FseC5DcnVkLkNvbGxlY3Rpb24SKgoKZGF0YV9t",
+            "b2RlbBgCIAEoDjIWLk15c3FseC5DcnVkLkRhdGFNb2RlbBIjCghjcml0ZXJp",
+            "YRgDIAEoCzIRLk15c3FseC5FeHByLkV4cHISJgoEYXJncxgGIAMoCzIYLk15",
+            "c3FseC5EYXRhdHlwZXMuU2NhbGFyEiEKBWxpbWl0GAQgASgLMhIuTXlzcWx4",
+            "LkNydWQuTGltaXQSIQoFb3JkZXIYBSADKAsyEi5NeXNxbHguQ3J1ZC5PcmRl",
+            "ciKhAgoKQ3JlYXRlVmlldxIrCgpjb2xsZWN0aW9uGAEgASgLMhcuTXlzcWx4",
+            "LkNydWQuQ29sbGVjdGlvbhIPCgdkZWZpbmVyGAIgASgJEi0KCWFsZ29yaXRo",
+            "bRgDIAEoDjIaLk15c3FseC5DcnVkLlZpZXdBbGdvcml0aG0SLgoIc2VjdXJp",
+            "dHkYBCABKA4yHC5NeXNxbHguQ3J1ZC5WaWV3U3FsU2VjdXJpdHkSKwoFY2hl",
+            "Y2sYBSABKA4yHC5NeXNxbHguQ3J1ZC5WaWV3Q2hlY2tPcHRpb24SDgoGY29s",
+            "dW1uGAYgAygJEh8KBHN0bXQYByABKAsyES5NeXNxbHguQ3J1ZC5GaW5kEhgK",
+            "EHJlcGxhY2VfZXhpc3RpbmcYCCABKAgihwIKCk1vZGlmeVZpZXcSKwoKY29s",
+            "bGVjdGlvbhgBIAEoCzIXLk15c3FseC5DcnVkLkNvbGxlY3Rpb24SDwoHZGVm",
+            "aW5lchgCIAEoCRItCglhbGdvcml0aG0YAyABKA4yGi5NeXNxbHguQ3J1ZC5W",
+            "aWV3QWxnb3JpdGhtEi4KCHNlY3VyaXR5GAQgASgOMhwuTXlzcWx4LkNydWQu",
+            "Vmlld1NxbFNlY3VyaXR5EisKBWNoZWNrGAUgASgOMhwuTXlzcWx4LkNydWQu",
+            "Vmlld0NoZWNrT3B0aW9uEg4KBmNvbHVtbhgGIAMoCRIfCgRzdG10GAcgASgL",
+            "MhEuTXlzcWx4LkNydWQuRmluZCJKCghEcm9wVmlldxIrCgpjb2xsZWN0aW9u",
+            "GAEgASgLMhcuTXlzcWx4LkNydWQuQ29sbGVjdGlvbhIRCglpZl9leGlzdHMY",
+            "AiABKAgqLgoJRGF0YU1vZGVsEggKBE5PTkUQABIMCghET0NVTUVOVBABEgkK",
+            "BVRBQkxFEAIqRAoNVmlld0FsZ29yaXRobRIKCgZWQU5PTkUQABINCglVTkRF",
+            "RklORUQQARIJCgVNRVJHRRACEg0KCVRFTVBUQUJMRRADKjcKD1ZpZXdTcWxT",
+            "ZWN1cml0eRIKCgZWU05PTkUQABILCgdJTlZPS0VSEAESCwoHREVGSU5FUhAC",
+            "KjYKD1ZpZXdDaGVja09wdGlvbhIKCgZWT05PTkUQABIJCgVMT0NBTBABEgwK",
+            "CENBU0NBREVEEAJCGQoXY29tLm15c3FsLmNqLngucHJvdG9idWZiBnByb3Rv",
+            "Mw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Mysqlx.Expr.MysqlxExprReflection.Descriptor, global::Mysqlx.Datatypes.MysqlxDatatypesReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Mysqlx.Crud.DataModel), typeof(global::Mysqlx.Crud.ViewAlgorithm), typeof(global::Mysqlx.Crud.ViewSqlSecurity), typeof(global::Mysqlx.Crud.ViewCheckOption), }, new pbr::GeneratedClrTypeInfo[] {
@@ -208,6 +209,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "name" field.</summary>
     public const int NameFieldNumber = 1;
     private string name_ = "";
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Name {
       get { return name_; }
@@ -219,6 +223,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "alias" field.</summary>
     public const int AliasFieldNumber = 2;
     private string alias_ = "";
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Alias {
       get { return alias_; }
@@ -394,6 +401,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "alias" field.</summary>
     public const int AliasFieldNumber = 2;
     private string alias_ = "";
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Alias {
       get { return alias_; }
@@ -551,6 +561,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "schema" field.</summary>
     public const int SchemaFieldNumber = 2;
     private string schema_ = "";
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Schema {
       get { return schema_; }
@@ -705,6 +718,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "offset" field.</summary>
     public const int OffsetFieldNumber = 2;
     private ulong offset_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public ulong Offset {
       get { return offset_; }
@@ -856,6 +872,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "direction" field.</summary>
     public const int DirectionFieldNumber = 2;
     private global::Mysqlx.Crud.Order.Types.Direction direction_ = 0;
+    /// <summary>
+    /// optional [ default=ASC ]
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.Order.Types.Direction Direction {
       get { return direction_; }
@@ -1034,6 +1053,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "operation" field.</summary>
     public const int OperationFieldNumber = 2;
     private global::Mysqlx.Crud.UpdateOperation.Types.UpdateType operation_ = 0;
+    /// <summary>
+    /// required
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.UpdateOperation.Types.UpdateType Operation {
       get { return operation_; }
@@ -1045,6 +1067,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "value" field.</summary>
     public const int ValueFieldNumber = 3;
     private global::Mysqlx.Expr.Expr value_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Expr.Expr Value {
       get { return value_; }
@@ -1203,6 +1228,10 @@ namespace Mysqlx.Crud {
         ///  append the value on the array at the identified path
         /// </summary>
         [pbr::OriginalName("ARRAY_APPEND")] ArrayAppend = 7,
+        /// <summary>
+        ///  merge JSON object value with the provided patch expression
+        /// </summary>
+        [pbr::OriginalName("MERGE_PATCH")] MergePatch = 8,
       }
 
     }
@@ -1288,6 +1317,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "data_model" field.</summary>
     public const int DataModelFieldNumber = 3;
     private global::Mysqlx.Crud.DataModel dataModel_ = 0;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.DataModel DataModel {
       get { return dataModel_; }
@@ -1309,6 +1341,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "criteria" field.</summary>
     public const int CriteriaFieldNumber = 5;
     private global::Mysqlx.Expr.Expr criteria_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Expr.Expr Criteria {
       get { return criteria_; }
@@ -1330,6 +1365,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "limit" field.</summary>
     public const int LimitFieldNumber = 6;
     private global::Mysqlx.Crud.Limit limit_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.Limit Limit {
       get { return limit_; }
@@ -1361,6 +1399,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "grouping_criteria" field.</summary>
     public const int GroupingCriteriaFieldNumber = 9;
     private global::Mysqlx.Expr.Expr groupingCriteria_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Expr.Expr GroupingCriteria {
       get { return groupingCriteria_; }
@@ -1372,6 +1413,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "locking" field.</summary>
     public const int LockingFieldNumber = 12;
     private global::Mysqlx.Crud.Find.Types.RowLock locking_ = 0;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.Find.Types.RowLock Locking {
       get { return locking_; }
@@ -1678,6 +1722,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "data_model" field.</summary>
     public const int DataModelFieldNumber = 2;
     private global::Mysqlx.Crud.DataModel dataModel_ = 0;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.DataModel DataModel {
       get { return dataModel_; }
@@ -1719,6 +1766,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "upsert" field.</summary>
     public const int UpsertFieldNumber = 6;
     private bool upsert_;
+    /// <summary>
+    /// optional [default = false]
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Upsert {
       get { return upsert_; }
@@ -2049,6 +2099,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "data_model" field.</summary>
     public const int DataModelFieldNumber = 3;
     private global::Mysqlx.Crud.DataModel dataModel_ = 0;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.DataModel DataModel {
       get { return dataModel_; }
@@ -2060,6 +2113,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "criteria" field.</summary>
     public const int CriteriaFieldNumber = 4;
     private global::Mysqlx.Expr.Expr criteria_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Expr.Expr Criteria {
       get { return criteria_; }
@@ -2081,6 +2137,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "limit" field.</summary>
     public const int LimitFieldNumber = 5;
     private global::Mysqlx.Crud.Limit limit_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.Limit Limit {
       get { return limit_; }
@@ -2341,6 +2400,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "data_model" field.</summary>
     public const int DataModelFieldNumber = 2;
     private global::Mysqlx.Crud.DataModel dataModel_ = 0;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.DataModel DataModel {
       get { return dataModel_; }
@@ -2352,6 +2414,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "criteria" field.</summary>
     public const int CriteriaFieldNumber = 3;
     private global::Mysqlx.Expr.Expr criteria_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Expr.Expr Criteria {
       get { return criteria_; }
@@ -2373,6 +2438,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "limit" field.</summary>
     public const int LimitFieldNumber = 4;
     private global::Mysqlx.Crud.Limit limit_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.Limit Limit {
       get { return limit_; }
@@ -2605,6 +2673,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "definer" field.</summary>
     public const int DefinerFieldNumber = 2;
     private string definer_ = "";
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Definer {
       get { return definer_; }
@@ -2616,6 +2687,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "algorithm" field.</summary>
     public const int AlgorithmFieldNumber = 3;
     private global::Mysqlx.Crud.ViewAlgorithm algorithm_ = 0;
+    /// <summary>
+    /// optional [default = UNDEFINED]
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.ViewAlgorithm Algorithm {
       get { return algorithm_; }
@@ -2627,6 +2701,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "security" field.</summary>
     public const int SecurityFieldNumber = 4;
     private global::Mysqlx.Crud.ViewSqlSecurity security_ = 0;
+    /// <summary>
+    /// optional [default = DEFINER]
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.ViewSqlSecurity Security {
       get { return security_; }
@@ -2638,6 +2715,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "check" field.</summary>
     public const int CheckFieldNumber = 5;
     private global::Mysqlx.Crud.ViewCheckOption check_ = 0;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.ViewCheckOption Check {
       get { return check_; }
@@ -2673,6 +2753,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "replace_existing" field.</summary>
     public const int ReplaceExistingFieldNumber = 8;
     private bool replaceExisting_;
+    /// <summary>
+    /// optional [default = false]
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool ReplaceExisting {
       get { return replaceExisting_; }
@@ -2927,6 +3010,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "definer" field.</summary>
     public const int DefinerFieldNumber = 2;
     private string definer_ = "";
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Definer {
       get { return definer_; }
@@ -2938,6 +3024,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "algorithm" field.</summary>
     public const int AlgorithmFieldNumber = 3;
     private global::Mysqlx.Crud.ViewAlgorithm algorithm_ = 0;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.ViewAlgorithm Algorithm {
       get { return algorithm_; }
@@ -2949,6 +3038,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "security" field.</summary>
     public const int SecurityFieldNumber = 4;
     private global::Mysqlx.Crud.ViewSqlSecurity security_ = 0;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.ViewSqlSecurity Security {
       get { return security_; }
@@ -2960,6 +3052,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "check" field.</summary>
     public const int CheckFieldNumber = 5;
     private global::Mysqlx.Crud.ViewCheckOption check_ = 0;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.ViewCheckOption Check {
       get { return check_; }
@@ -2981,6 +3076,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "stmt" field.</summary>
     public const int StmtFieldNumber = 7;
     private global::Mysqlx.Crud.Find stmt_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.Find Stmt {
       get { return stmt_; }
@@ -3214,6 +3312,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "if_exists" field.</summary>
     public const int IfExistsFieldNumber = 2;
     private bool ifExists_;
+    /// <summary>
+    /// optional [ default = false ]
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool IfExists {
       get { return ifExists_; }

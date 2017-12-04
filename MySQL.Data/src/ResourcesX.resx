@@ -216,4 +216,16 @@
   <data name="FunctionalityNotSupported" xml:space="preserve">
     <value>This functionality is only supported from server version {0} onwards.</value>
   </data>
+  <data name="MandatoryFieldNotFound" xml:space="preserve">
+    <value>Field '{0}' is mandatory.</value>
+  </data>
+  <data name="UnexpectedField" xml:space="preserve">
+    <value>Field name '{0}' is not allowed.</value>
+  </data>
+  <data name="InvalidFieldType" xml:space="preserve">
+    <value>Field type with name '{0}' not found.</value>
+  </data>
+  <data name="InvalidIndexType" xml:space="preserve">
+    <value>Index type with name '{0}' not found.</value>
+  </data>
 </root>
