@@ -4,7 +4,7 @@
     <Description>MySql.Data.EntityFrameworkCore for Entity Framework.</Description>
     <Copyright>Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>8.0.9-dmr</Version>
+    <Version>8.0.10-rc</Version>
     <Authors>Oracle</Authors>
     <TargetFrameworks>net452;netstandard1.6</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
