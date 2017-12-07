@@ -256,9 +256,9 @@ namespace MySqlX.Protocol
       return ExprUtil.BuildAny(o);
     }
 
-    private ObjectField CreateObject(string key, object value)
+    private ObjectField CreateObject(string key, object value, bool evaluateStringExpression = true)
     {
-      return ExprUtil.BuildObject(key, value);
+      return ExprUtil.BuildObject(key, value, evaluateStringExpression);
     }
 
     public void SendSessionClose()
@@ -321,12 +321,12 @@ namespace MySqlX.Protocol
           {
             var innerAny = ExprUtil.BuildEmptyAny(Any.Types.Type.Object);
             foreach (var field in arg.Value as Dictionary<string, object>)
-              innerAny.Obj.Fld.Add(CreateObject(field.Key, field.Value));
+              innerAny.Obj.Fld.Add(CreateObject(field.Key, field.Value, field.Key == "member" ? true : false));
 
             array.Value.Add(innerAny);
           }
           else
-            any.Obj.Fld.Add(CreateObject(arg.Key, arg.Value));
+            any.Obj.Fld.Add(CreateObject(arg.Key, arg.Value, false));
         }
 
         if (array.Value.Count>0)

@@ -105,7 +105,7 @@ namespace MySqlX.Data.Tests
       // Timestamp index.
       collection.DropIndex("myIndex");
       collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"TIMESTAMP\" } ] }").Execute();
-      ValidateIndex("myIndex", "test", "ds", false, false, false, 1);
+      ValidateIndex("myIndex", "test", "ds", false, session.InternalSession.GetServerVersion().isAtLeast(8, 0, 4) ? false : true, false, 1);
 
       // Time index.
       collection.DropIndex("myIndex");
@@ -280,6 +280,21 @@ namespace MySqlX.Data.Tests
 
       Exception ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{ \"fields\": [ { \"field\":\"$.myField\", \"type\":\"INT\", \"options\":2, \"srid\":4326 } ] }").Execute());
       Assert.Equal("Unsupported argumet specification for '$.myField'", ex.Message);
+    }
+
+    [Fact]
+    public void ValidIndexNames()
+    {
+      var collection = CreateCollection("test");
+
+      collection.CreateIndex("01myIndex", "{ \"fields\": [ { \"field\":\"$.myField\", \"type\":\"TEXT\" } ] }").Execute();
+      ValidateIndex("01myIndex", "test", "t64", false, false, false, 1, 64);
+
+      collection.CreateIndex("!myIndex", "{ \"fields\": [ { \"field\":\"$.myField\", \"type\":\"TEXT\" } ] }").Execute();
+      ValidateIndex("!myIndex", "test", "t64", false, false, false, 1, 64);
+
+      collection.CreateIndex("-myIndex", "{ \"fields\": [ { \"field\":\"$.myField\", \"type\":\"TEXT\" } ] }").Execute();
+      ValidateIndex("-myIndex", "test", "t64", false, false, false, 1, 64);
     }
 
     private void ValidateIndex(string fieldName, string collectionName, string dataType, bool unique, bool required, bool isUnsigned, int sequence, int? length = null)

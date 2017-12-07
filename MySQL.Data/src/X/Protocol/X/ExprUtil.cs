@@ -148,11 +148,11 @@ namespace MySqlX.Protocol.X
       return a;
     }
 
-    public static Mysqlx.Datatypes.Object.Types.ObjectField BuildObject(string key, object value)
+    public static Mysqlx.Datatypes.Object.Types.ObjectField BuildObject(string key, object value, bool evaluateStringExpression)
     {
       Mysqlx.Datatypes.Object.Types.ObjectField item = new Mysqlx.Datatypes.Object.Types.ObjectField();
       item.Key = key;
-      item.Value = BuildAny(value);
+      item.Value = evaluateStringExpression ? BuildAny(value) : BuildAnyWithoutEvaluationExpression(value);
       return item;
     }
 
@@ -171,17 +171,22 @@ namespace MySqlX.Protocol.X
       return new Any() { Type = Any.Types.Type.Scalar, Scalar = ExprUtil.ArgObjectToScalar(value) };
     }
 
+    public static Any BuildAnyWithoutEvaluationExpression(object value)
+    {
+      return new Any() { Type = Any.Types.Type.Scalar, Scalar = ExprUtil.ArgObjectToScalar(value, false) };
+    }
+
     public static Collection BuildCollection(String schemaName, String collectionName)
     {
       return new Collection() { Schema = schemaName, Name = collectionName };
     }
 
-    public static Scalar ArgObjectToScalar(System.Object value)
+    public static Scalar ArgObjectToScalar(System.Object value, Boolean evaluateStringExpression = true)
     {
-      return ArgObjectToExpr(value, false).Literal;
+      return ArgObjectToExpr(value, false, evaluateStringExpression).Literal;
     }
 
-    public static Expr ArgObjectToExpr(System.Object value, Boolean allowRelationalColumns)
+    public static Expr ArgObjectToExpr(System.Object value, Boolean allowRelationalColumns, Boolean evaluateStringExpresssion = true)
     {
       if (value == null)
         return BuildLiteralNullScalar();
@@ -203,9 +208,11 @@ namespace MySqlX.Protocol.X
         {
           // try to parse expressions
           var stringValue = (string) value;
-          Expr expr = new ExprParser(stringValue.StartsWith("TEXT(") ? "TEXT" : stringValue).Parse();
+          if (!evaluateStringExpresssion) return BuildLiteralScalar((string)value);
+
+          Expr expr = new ExprParser(stringValue).Parse();
           if (expr.Identifier != null)
-            return BuildLiteralScalar((string)value);
+            return BuildLiteralScalar(stringValue);
           return expr;
         }
         catch
