@@ -245,7 +245,9 @@ namespace MySql.Data.MySqlClient
       string authenticationMethod = "";
       if ((serverCaps & ClientFlags.PLUGIN_AUTH) != 0)
       {
-        authenticationMethod = packet.ReadString();
+        // TODO: support reading authenticationMethod and sending password correctly depending on the method.
+        //authenticationMethod = packet.ReadString();
+        authenticationMethod = "mysql_native_password";
       }
       else
       {
