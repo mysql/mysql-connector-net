@@ -110,6 +110,7 @@ namespace MySql.Data.MySqlClient.Authentication
     private byte[] GetRsaPassword(string password, byte[] seedBytes, byte[] rawPublicKey)
     {
       if (password.Length == 0) return new byte[1];
+      if (rawPubkey == null) return null;
 
       // Obfuscate the plain text password with the session scramble.
       byte[] obfuscated = GetXor(AliasText.Encoding.Default.GetBytes(password), seedBytes);
