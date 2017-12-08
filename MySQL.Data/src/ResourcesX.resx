@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="InvalidCollationId" xml:space="preserve">
+    <value>Collation with id '{0}' not found.</value>
+  </data>
+  <data name="InvalidConnectionData" xml:space="preserve">
+    <value>Connection Data is incorrect.</value>
+  </data>
+  <data name="InvalidConnectionStringAttribute" xml:space="preserve">
+    <value>'{0}' is not a valid connection string attribute.</value>
+  </data>
+  <data name="InvalidConnectionString" xml:space="preserve">
+    <value>The connection string is invalid.</value>
+  </data>
+  <data name="InvalidDecimalFormat" xml:space="preserve">
+    <value>Decimal (BCD) format is invalid.</value>
+  </data>
+  <data name="InvalidNameIndex" xml:space="preserve">
+    <value>{0} is not a valid column name in the row.</value>
+  </data>
+  <data name="InvalidRowIndex" xml:space="preserve">
+    <value>{0} is not a valid index for the row.</value>
+  </data>
+  <data name="KeywordNotSupported" xml:space="preserve">
+    <value>Keyword not supported.</value>
+  </data>
+  <data name="MoreThanOneDocumentId" xml:space="preserve">
+    <value>More than one document id was generated.  Please use the DocumentIds property instead.</value>
+  </data>
+  <data name="NoDataAtIndex" xml:space="preserve">
+    <value>There is no data at index {0}</value>
+  </data>
+  <data name="NoMoreData" xml:space="preserve">
+    <value>No more data in resultset.</value>
+  </data>
+  <data name="NoPlaceholders" xml:space="preserve">
+    <value>No placeholders.</value>
+  </data>
+  <data name="PathNotFound" xml:space="preserve">
+    <value>Path not found '{0}'.</value>
+  </data>
+  <data name="RemovingRequiresId" xml:space="preserve">
+    <value>Removing a document from a collection requires an _id property.</value>
+  </data>
+  <data name="ThrowingAwayResults" xml:space="preserve">
+    <value>The process of closing the resultset and resulted in results being lost.</value>
+  </data>
+  <data name="UnableToConnect" xml:space="preserve">
+    <value>Unable to connect to any specified host.</value>
+  </data>
+  <data name="UnableToDecodeDataValue" xml:space="preserve">
+    <value>Unable to read or decode data value.</value>
+  </data>
+  <data name="UnexpectedEndOfPacketFound" xml:space="preserve">
+    <value>Unexpected end of packet found while reading data values</value>
+  </data>
+  <data name="UnknownPlaceholder" xml:space="preserve">
+    <value>Unknown placeholder :{0}</value>
+  </data>
+  <data name="ValueNotCorrectType" xml:space="preserve">
+    <value>Value '{0}' is not of the correct type.</value>
+  </data>
+  <data name="NoObjectFound" xml:space="preserve">
+    <value>Object '{0}' not found</value>
+  </data>
+  <data name="InvalidUriData" xml:space="preserve">
+    <value>Invalid Uri </value>
+  </data>
+  <data name="InvalidUriQuery" xml:space="preserve">
+    <value>Invalid uri query value</value>
+  </data>
+  <data name="ErrorParsingConfigFile" xml:space="preserve">
+    <value>Error parsing configuration file '{0}'.</value>
+  </data>
+  <data name="JsonUriOrHost" xml:space="preserve">
+    <value>Json configuration must contain 'uri' or 'host' but not both.</value>
+  </data>
+  <data name="NoHost" xml:space="preserve">
+    <value>No 'host' has been specified.</value>
+  </data>
+</root>

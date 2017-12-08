@@ -1,4 +1,4 @@
-MySQL Connector/Net 6.x
+MySQL Connector/Net 6.10.x
 
 This is a release of MySQL Connector/Net, Oracle's dual-
 license ADO.Net Driver for MySQL. For the avoidance of
@@ -6,7 +6,7 @@ doubt, this particular copy of the software is released
 under the version 2 of the GNU General Public License.
 MySQL Connector/Net is brought to you by Oracle.
 
-Copyright (c) 2004, 2017 Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2004, 2017, Oracle and/or its affiliates. All rights reserved.
 
 License information can be found in the COPYING file.
 

@@ -1,15 +1,15 @@
-Connector/Net 6.9  Release Notes
+Connector/Net 6.10  Release Notes
 ------------------------------------
+Welcome to the release notes for Connector/Net 6.10
 
-Welcome to the release notes for Connector/Net 6.9
-
-What's new in 6.9
+What's new in 6.10
 --------------------
+Connector/Net has added the support for .NET Core 1.1 & 2.0, which enables
+MySQL Connector/Net 6.10.x to be run in all the platforms supported for this
+framework (Windows, Linux and OSx).
+Compression support is also included in the new core driver version.
 
-- Simple Membership Web Provider
-- Site Map Web Provider
-- Personalization Web Provider
-- MySql Fabric support
+In this version users can start using Entity Framework Core 1.1 and/or 2.0 in 
+their .net core applications with a MySQL database.
 
 
-Be sure and check the documentation for more information on these new features.
