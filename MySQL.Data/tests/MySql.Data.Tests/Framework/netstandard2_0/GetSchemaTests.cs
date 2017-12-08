@@ -155,7 +155,8 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True(dt.Columns["INDEX_LENGTH"].DataType == typeof(UInt64));
       Assert.True(dt.Columns["DATA_FREE"].DataType == typeof(UInt64));
       Assert.True(dt.Columns["AUTO_INCREMENT"].DataType == typeof(UInt64));
-      Assert.True(dt.Columns["CHECKSUM"].DataType == typeof(UInt64));
+      Assert.True(dt.Columns["CHECKSUM"].DataType == typeof(UInt64)
+        || dt.Columns["CHECKSUM"].DataType == typeof(Int64));
       Assert.True(dt.Rows.Count == 1);
       Assert.Equal("Tables", dt.TableName);
       Assert.Equal("test1", dt.Rows[0][2]);
