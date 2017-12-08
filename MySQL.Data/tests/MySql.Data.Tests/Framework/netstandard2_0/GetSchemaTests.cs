@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -146,7 +146,8 @@ namespace MySql.Data.MySqlClient.Tests
       restrictions[1] = Connection.Database;
       restrictions[2] = "test1";
       DataTable dt = Connection.GetSchema("Tables", restrictions);
-      Assert.True(dt.Columns["VERSION"].DataType == typeof(UInt64));
+      Assert.True(dt.Columns["VERSION"].DataType == typeof(UInt64)
+        || dt.Columns["VERSION"].DataType == typeof(Int64));
       Assert.True(dt.Columns["TABLE_ROWS"].DataType == typeof(UInt64));
       Assert.True(dt.Columns["AVG_ROW_LENGTH"].DataType == typeof(UInt64));
       Assert.True(dt.Columns["DATA_LENGTH"].DataType == typeof(UInt64));
@@ -173,10 +174,20 @@ namespace MySql.Data.MySqlClient.Tests
       DataTable dt = Connection.GetSchema("Columns", restrictions);
       Assert.Equal(5, dt.Rows.Count);
       Assert.Equal("Columns", dt.TableName);
-      Assert.True(dt.Columns["ORDINAL_POSITION"].DataType == typeof(UInt64));
-      Assert.True(dt.Columns["CHARACTER_MAXIMUM_LENGTH"].DataType == typeof(UInt64));
-      Assert.True(dt.Columns["NUMERIC_PRECISION"].DataType == typeof(UInt64));
-      Assert.True(dt.Columns["NUMERIC_SCALE"].DataType == typeof(UInt64));
+      if (Connection.driver.Version.isAtLeast(8, 0, 1))
+      {
+        Assert.True(dt.Columns["ORDINAL_POSITION"].DataType == typeof(UInt32));
+        Assert.True(dt.Columns["CHARACTER_MAXIMUM_LENGTH"].DataType == typeof(Int64));
+        Assert.True(dt.Columns["NUMERIC_PRECISION"].DataType == typeof(UInt32));
+        Assert.True(dt.Columns["NUMERIC_SCALE"].DataType == typeof(UInt32));
+      }
+      else
+      {
+        Assert.True(dt.Columns["ORDINAL_POSITION"].DataType == typeof(UInt64));
+        Assert.True(dt.Columns["CHARACTER_MAXIMUM_LENGTH"].DataType == typeof(UInt64));
+        Assert.True(dt.Columns["NUMERIC_PRECISION"].DataType == typeof(UInt64));
+        Assert.True(dt.Columns["NUMERIC_SCALE"].DataType == typeof(UInt64));
+      }
 
       // first column
       Assert.Equal((Connection.Database).ToUpper(), dt.Rows[0]["TABLE_SCHEMA"].ToString().ToUpper());

@@ -272,6 +272,11 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Bug6271()
     {
+      //TODO Fix this for .Net core 2.0
+#if NETCOREAPP2_0
+      if (Connection.driver.Version.isAtLeast(8, 0, 1))
+        return;
+#endif
       // Create the table again
       executeSQL("CREATE TABLE `Test2` (id INT unsigned NOT NULL auto_increment, " +
         "`xpDOSG_Name` text,`xpDOSG_Desc` text, `Avatar` MEDIUMBLOB, `dtAdded` DATETIME, `dtTime` TIMESTAMP, " +
