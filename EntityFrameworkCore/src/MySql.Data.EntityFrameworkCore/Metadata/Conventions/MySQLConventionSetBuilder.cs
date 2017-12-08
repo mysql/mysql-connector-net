@@ -1,4 +1,4 @@
-﻿// Copyright © 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,22 +20,24 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
-using MySQL.Data.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 
 namespace MySql.Data.EntityFrameworkCore.Metadata.Conventions
 {
-  public class MySQLConventionSetBuilder : RelationalConventionSetBuilder
+  internal partial class MySQLConventionSetBuilder : RelationalConventionSetBuilder
   {
-    public MySQLConventionSetBuilder([NotNullAttribute] IRelationalTypeMapper typeMapper, [CanBeNullAttribute] ICurrentDbContext currentContext, [CanBeNullAttribute] IDbSetFinder setFinder) : base(typeMapper, currentContext, setFinder)
+    public override ConventionSet AddConventions(ConventionSet conventionSet)
     {
+      conventionSet.PropertyAddedConventions.Add(new MySqlCharsetAttributeConvention());
+      conventionSet.PropertyAddedConventions.Add(new MySqlCollationAttributeConvention());
+      conventionSet.EntityTypeAddedConventions.Add(new MySqlEntityCharsetAttributeConvention());
+      conventionSet.EntityTypeAddedConventions.Add(new MySqlEntityCollationAttributeConvention());
+      return base.AddConventions(conventionSet);
     }
   }
 }

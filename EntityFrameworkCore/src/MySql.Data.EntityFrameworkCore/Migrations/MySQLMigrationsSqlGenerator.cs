@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -27,31 +27,23 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using System.Linq;
-using MySQL.Data.EntityFrameworkCore.Migrations.Operations;
-using MySQL.Data.EntityFrameworkCore.Metadata.Internal;
+using MySql.Data.EntityFrameworkCore.Migrations.Operations;
+using MySql.Data.EntityFrameworkCore.Metadata.Internal;
+using MySql.Data.EntityFrameworkCore.Storage.Internal;
 
-namespace MySQL.Data.EntityFrameworkCore.Migrations
+namespace MySql.Data.EntityFrameworkCore.Migrations
 {
   /// <summary>
   /// MigrationSqlGenerator implementation for MySQL
   /// </summary>
-  public class MySQLMigrationsSqlGenerator : MigrationsSqlGenerator
+  internal partial class MySQLMigrationsSqlGenerator : MigrationsSqlGenerator
   {
     private readonly ISqlGenerationHelper _sqlGenerationHelper;
-
-    public MySQLMigrationsSqlGenerator(
-        [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
-        [NotNull] ISqlGenerationHelper sqlGenerationHelper,
-        [NotNull] IRelationalTypeMapper typeMapper,
-        [NotNull] IRelationalAnnotationProvider annotations)
-            : base(commandBuilderFactory, sqlGenerationHelper, typeMapper, annotations)
-    {
-      _sqlGenerationHelper = sqlGenerationHelper;
-    }
+    private IRelationalTypeMapper _typeMapper;
 
     protected override void Generate(
-      [NotNull] MigrationOperation operation, 
-      [CanBeNull] IModel model, 
+      [NotNull] MigrationOperation operation,
+      [CanBeNull] IModel model,
       [NotNull] MigrationCommandListBuilder builder)
     {
       ThrowIf.Argument.IsNull(operation, "operation");
@@ -66,8 +58,8 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
     }
 
     protected override void Generate(
-      [NotNull] EnsureSchemaOperation operation, 
-      [CanBeNull] IModel model, 
+      [NotNull] EnsureSchemaOperation operation,
+      [CanBeNull] IModel model,
       [NotNull] MigrationCommandListBuilder builder)
     {
       ThrowIf.Argument.IsNull(operation, "operation");
@@ -82,7 +74,7 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
 
     protected virtual void Generate(
         [NotNull] MySQLCreateDatabaseOperation operation,
-        [CanBeNull] IModel model,       
+        [CanBeNull] IModel model,
         MigrationCommandListBuilder builder)
     {
       ThrowIf.Argument.IsNull(operation, "operation");
@@ -109,7 +101,7 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
 
       EndStatement(builder, suppressTransaction: true);
     }
-    
+
 
     protected override void ColumnDefinition(
        string schema,
@@ -134,33 +126,39 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
       ThrowIf.Argument.IsNull(builder, "builder");
 
 
+      var property = FindProperty(model, schema, table, name);
+
       if (type == null)
       {
         //Any property that maps to the column will work
-        //var property = FindProperties(model, schema, table, name)?.FirstOrDefault();
-        var property = FindProperty(model, schema, table, name);
         type = property != null
-           ? TypeMapper.GetMapping(property).StoreType
-           : TypeMapper.GetMapping(clrType).StoreType;
+           ? _typeMapper.GetMapping(property).StoreType
+           : _typeMapper.GetMapping(clrType).StoreType;
       }
-    
+
+      var charset = property?.FindAnnotation(MySQLAnnotationNames.Charset);
+      if (charset != null)
+      {
+        type += $" CHARACTER SET {charset.Value}";
+      }
+
+      var collation = property?.FindAnnotation(MySQLAnnotationNames.Collation);
+      if (collation != null)
+      {
+        type += $" COLLATE {collation.Value}";
+      }
+
       if (computedColumnSql != null)
       {
-         builder
-              .Append(_sqlGenerationHelper.DelimitIdentifier(name))
-              .Append(string.Format(" {0} AS ", type))
-              .Append(" (" + computedColumnSql + ")");
+        builder
+             .Append(_sqlGenerationHelper.DelimitIdentifier(name))
+             .Append(string.Format(" {0} AS ", type))
+             .Append(" (" + computedColumnSql + ")");
 
-          return;
-              
+        return;
       }
 
-      if (defaultValue != null && clrType == typeof(string))
-      {
-        defaultValue = "'" + defaultValue + "'";
-      }
-            
-      var autoInc = annotatable[MySQLAnnotationNames.Prefix + MySQLAnnotationNames.AutoIncrement];
+      var autoInc = annotatable[MySQLAnnotationNames.AutoIncrement];
 
       base.ColumnDefinition(
                 schema, table, name, clrType, type, unicode, maxLength, rowVersion, nullable,
@@ -169,7 +167,7 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
       if (autoInc != null && (bool)autoInc)
       {
         builder.Append(" AUTO_INCREMENT");
-      }      
+      }
     }
 
 
@@ -184,13 +182,14 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
       {
         builder
             .Append(" DEFAULT ")
-            .Append(defaultValueSql);            
+            .Append(defaultValueSql);
       }
       else if (defaultValue != null)
       {
+        var typeMapping = (MySQLTypeMapping)_typeMapper.GetMappingForValue(defaultValue);
         builder
             .Append(" DEFAULT ")
-            .Append(defaultValue);
+            .Append(typeMapping.GenerateSqlLiteral(defaultValue));
       }
     }
 
@@ -208,7 +207,7 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
 
       //MySQL always assign PRIMARY to the PK name no way to override that.
       // check http://dev.mysql.com/doc/refman/5.1/en/create-table.html
-      
+
       builder
           .Append("PRIMARY KEY ")
           .Append("(")
@@ -239,7 +238,7 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
        .Append(" MODIFY ");
       ColumnDefinition(operationColumn, model, builder);
       builder
-        .AppendLine(SqlGenerationHelper.StatementTerminator);
+        .AppendLine(_sqlGenerationHelper.StatementTerminator);
       EndStatement(builder);
     }
 
@@ -251,8 +250,8 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
 
       builder
       .Append("ALTER TABLE " + operation.Name)
-      .Append(" RENAME " + operation.NewName)      
-      .AppendLine(SqlGenerationHelper.StatementTerminator);
+      .Append(" RENAME " + operation.NewName)
+      .AppendLine(_sqlGenerationHelper.StatementTerminator);
 
       EndStatement(builder);
     }
@@ -266,9 +265,9 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
 
       builder
       .Append("CREATE " + (operation.IsUnique ? "UNIQUE " : "") + "INDEX ");
-      
-      builder.Append(_sqlGenerationHelper.DelimitIdentifier(operation.Name) + " ON " + operation.Table + " (" + string.Join(", ", operation.Columns.Select(_sqlGenerationHelper.DelimitIdentifier)) + ")")      
-             .AppendLine(SqlGenerationHelper.StatementTerminator);
+
+      builder.Append(_sqlGenerationHelper.DelimitIdentifier(operation.Name) + " ON " + operation.Table + " (" + string.Join(", ", operation.Columns.Select(_sqlGenerationHelper.DelimitIdentifier)) + ")")
+             .AppendLine(_sqlGenerationHelper.StatementTerminator);
 
       EndStatement(builder);
     }
@@ -300,8 +299,37 @@ namespace MySQL.Data.EntityFrameworkCore.Migrations
       .Append("DROP INDEX ")
       .Append(operation.Name)
       .Append(" ON " + operation.Table)
-      .AppendLine(SqlGenerationHelper.StatementTerminator);
+      .AppendLine(_sqlGenerationHelper.StatementTerminator);
       EndStatement(builder);
+    }
+
+    protected override void Generate(
+      [NotNull] CreateTableOperation operation,
+      [CanBeNull] IModel model,
+      [NotNull] MigrationCommandListBuilder builder,
+      bool terminate)
+    {
+      base.Generate(operation, model, builder, false);
+
+      var entity = FindEntityTypes(model, operation.Schema, operation.Name).FirstOrDefault();
+
+      var charset = entity?.FindAnnotation(MySQLAnnotationNames.Charset);
+      if (charset != null)
+      {
+        builder.Append($" CHARACTER SET {charset.Value}");
+      }
+
+      var collation = entity?.FindAnnotation(MySQLAnnotationNames.Collation);
+      if (collation != null)
+      {
+        builder.Append($" COLLATE {collation.Value}");
+      }
+
+      if (terminate)
+      {
+        builder.AppendLine(_sqlGenerationHelper.StatementTerminator);
+        EndStatement(builder);
+      }
     }
   }
 }

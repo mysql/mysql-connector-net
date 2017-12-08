@@ -289,7 +289,7 @@ namespace MySqlX.Sessions
             parameters.Add(true);
             break;
         }
-#if NETCORE10
+#if NETSTANDARD1_6
         T t = (T)Activator.CreateInstance(typeof(T), true);
         ((DatabaseObject)t).Schema = s;
         ((DatabaseObject)t).Name = parameters[1].ToString();

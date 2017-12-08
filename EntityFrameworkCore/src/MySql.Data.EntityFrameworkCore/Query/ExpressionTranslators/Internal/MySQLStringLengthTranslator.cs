@@ -1,4 +1,4 @@
-﻿// Copyright © 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -31,7 +31,7 @@ using System.Threading.Tasks;
 
 namespace MySql.Data.EntityFrameworkCore.Query.ExpressionTranslators.Internal
 {
-    public class MySQLStringLengthTranslator : IMemberTranslator
+    internal class MySQLStringLengthTranslator : IMemberTranslator
     {
         public virtual Expression Translate(MemberExpression memberExpression)
                 => (memberExpression.Expression != null)

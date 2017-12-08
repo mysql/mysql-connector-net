@@ -22,7 +22,7 @@
 
 
 using Microsoft.EntityFrameworkCore;
-using MySQL.Data.EntityFrameworkCore.Extensions;
+using MySql.Data.EntityFrameworkCore.Extensions;
 using System;
 
 namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
@@ -44,7 +44,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
       modelBuilder.Entity<Employee>()
              .Property(p => p.Timestamp)
              .HasDefaultValue(DateTime.Now)
-             .ForMySQLHasDefaultValueSql("CURRENT_TIMESTAMP")
+             //.ForMySQLHasDefaultValueSql("CURRENT_TIMESTAMP")
              .ValueGeneratedOnAddOrUpdate();
 
     }    
@@ -134,7 +134,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
 
       modelBuilder.Entity<Car>()
                .Property(b => b.Make)
-               .ForMySQLHasColumnType("varchar(100)");
+               .HasColumnType("varchar(100)");
 
       modelBuilder.Entity<Car>()
                .Property(b => b.Model)

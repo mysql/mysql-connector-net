@@ -22,6 +22,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
+using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -63,6 +64,25 @@ namespace MySql.Data.EntityFrameworkCore.Tests
 
         var continents = await context .Continents.ToListAsync();
         Assert.Equal(4, continents.Count);
+      }
+    }
+
+    [Fact]
+    public void ZeroDatetime()
+    {
+      using (MyContext context = new MyContext())
+      {
+        MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder(context.Database.GetDbConnection().ConnectionString);
+        sb.ConvertZeroDateTime = true;
+
+        context.Database.GetDbConnection().ConnectionString = sb.ToString();
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
+
+        Assert.Equal(1, context.Database.ExecuteSqlCommand("INSERT IGNORE INTO MyTest (`Date`) VALUES('0000-00-00')"));
+
+        var item = context.MyTest.First();
+        Assert.Equal(DateTime.MinValue, item.Date);
       }
     }
   }

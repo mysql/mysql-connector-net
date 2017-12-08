@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -24,20 +24,20 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
-using MySQL.Data.EntityFrameworkCore.Metadata;
-using MySQL.Data.EntityFrameworkCore.Utils;
-using MySQL.Data.EntityFrameworkCore.Metadata.Internal;
+using MySql.Data.EntityFrameworkCore.Metadata;
+using MySql.Data.EntityFrameworkCore.Utils;
+using MySql.Data.EntityFrameworkCore.Metadata.Internal;
 
-namespace MySQL.Data.EntityFrameworkCore.Migrations.Internal
+namespace MySql.Data.EntityFrameworkCore.Migrations.Internal
 {
-    public class MySQLMigrationsAnnotationProvider : MigrationsAnnotationProvider
-    {
-      public override IEnumerable<IAnnotation> For(IProperty property)
+  internal partial class MySQLMigrationsAnnotationProvider : MigrationsAnnotationProvider
+  {
+    public override IEnumerable<IAnnotation> For(IProperty property)
     {
       if (property.ValueGenerated == ValueGenerated.OnAdd &&
           property.ClrType.CanBeAutoIncrement())
       {
-        yield return new Annotation(MySQLAnnotationNames.Prefix + MySQLAnnotationNames.AutoIncrement, true);
+        yield return new Annotation(MySQLAnnotationNames.AutoIncrement, true);
       }
     }
   }

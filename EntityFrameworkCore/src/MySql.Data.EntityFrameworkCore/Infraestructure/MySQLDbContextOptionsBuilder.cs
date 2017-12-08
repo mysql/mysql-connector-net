@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -23,25 +23,17 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using MySQL.Data.EntityFrameworkCore.Infraestructure.Internal;
 
-namespace MySQL.Data.EntityFrameworkCore.Infraestructure
+namespace MySql.Data.EntityFrameworkCore.Infraestructure
 {
   /// <summary>
-  /// RelationalDbContextOptionsBuilder implementation for MySQL
+  /// Represents the <see cref="RelationalDbContextOptionsBuilder{MySQLDbContextOptionsBuilder,MySQLOptionsExtension}" /> implementation for MySQL.
   /// </summary>
-  public class MySQLDbContextOptionsBuilder : RelationalDbContextOptionsBuilder<MySQLDbContextOptionsBuilder, MySQLOptionsExtension>
+  public partial class MySQLDbContextOptionsBuilder : RelationalDbContextOptionsBuilder<MySQLDbContextOptionsBuilder, MySQLOptionsExtension>
+  {
+    public MySQLDbContextOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
+        : base(optionsBuilder)
     {
-        public MySQLDbContextOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
-            : base(optionsBuilder)
-        {
-        }
-
-    protected override MySQLOptionsExtension CloneExtension()
-    {
-      return new MySQLOptionsExtension(OptionsBuilder.Options.GetExtension<MySQLOptionsExtension>());
     }
-
-
   }
 }

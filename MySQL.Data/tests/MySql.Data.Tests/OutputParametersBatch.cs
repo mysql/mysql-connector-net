@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -53,7 +53,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void OutputParameters()
     {
       // we don't want to run this test under no access
-      Assert.True(ConnectionSettings.UseProcedureBodies);
+      Assert.True(ConnectionSettings.CheckParameters);
 
       // create our procedure
       executeSQL("CREATE PROCEDURE spTest(out value VARCHAR(350), OUT intVal INT, " +
@@ -229,7 +229,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.Add("?Table1Id", MySqlDbType.Int32);
       cmd.Parameters["?Table1Id"].Direction = ParameterDirection.Output;
 
-#if NETCORE10
+#if NETCOREAPP1_1
       using (MySqlDataReader dr = cmd.ExecuteReader())
       {
         dr.Read();
@@ -340,7 +340,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(ex.Message, "Attempt to call stored function '`" + (Connection.Database) + "`.`fnTest`' without specifying a return parameter");
     }
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
     /// <summary>
     /// Bug #27668 FillSchema and Stored Proc with an out parameter
     /// </summary>
@@ -372,7 +372,7 @@ namespace MySql.Data.MySqlClient.Tests
           "BEGIN SET inout1 = inout1+2; SET out1=inout1-3; SELECT in1; END", (Connection.Database));
       executeSQL(sql);
       
-      using (MySqlConnection c = new MySqlConnection(Connection.ConnectionString + "; use procedure bodies=false"))
+      using (MySqlConnection c = new MySqlConnection(Connection.ConnectionString + ";check parameters=false"))
       {
         c.Open();
 

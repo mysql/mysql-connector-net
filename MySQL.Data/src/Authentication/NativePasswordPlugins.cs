@@ -1,4 +1,4 @@
-﻿// Copyright © 2012, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2012, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -22,11 +22,6 @@
 
 using System;
 using System.Security.Cryptography;
-#if NET_CORE
-using AliasText = MySql.Data.MySqlClient.Framework.NetCore10;
-#else
-using AliasText = System.Text;
-#endif
 
 namespace MySql.Data.MySqlClient.Authentication
 {
@@ -76,7 +71,7 @@ namespace MySql.Data.MySqlClient.Authentication
       //SHA1 sha = new SHA1CryptoServiceProvider();
       SHA1 sha = SHA1.Create();
 
-      byte[] firstHash = sha.ComputeHash(AliasText.Encoding.Default.GetBytes(password));
+      byte[] firstHash = sha.ComputeHash(this.Encoding.GetBytes(password));
       byte[] secondHash = sha.ComputeHash(firstHash);
 
       byte[] input = new byte[seedBytes.Length + secondHash.Length];

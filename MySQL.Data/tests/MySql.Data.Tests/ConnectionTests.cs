@@ -217,7 +217,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !NET_CORE
+#if !NETCOREAPP1_1
     /// <summary>
     /// Bug #10281 Clone issue with MySqlConnection 
     /// Bug #27269 MySqlConnection.Clone does not mimic SqlConnection.Clone behaviour 
@@ -332,6 +332,8 @@ namespace MySql.Data.MySqlClient.Tests
           closed = true;
       }
     }
+
+#if !(NETCOREAPP2_0 && DEBUG)
     [Fact]
     public void ConnectionCloseByGC()
     {
@@ -351,6 +353,7 @@ namespace MySql.Data.MySqlClient.Tests
       GC.WaitForPendingFinalizers();
       Assert.True(check.closed);
     }
+#endif
 
     //    /// <summary>
     //    /// Bug #30964 StateChange imperfection 
@@ -598,7 +601,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True(dr.HasRows, "No session_connect_attrs found");
       MySqlConnectAttrs connectAttrs = new MySqlConnectAttrs();
       bool isValidated = false;
-      using (dr) 
+      using (dr)
       {
         while (dr.Read())
         {
@@ -770,7 +773,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.NotNull(schemaColl);
     }
 
-#endregion
+    #endregion
 
     [Fact]
     public void SslRequiredByDefault()
@@ -937,5 +940,44 @@ namespace MySql.Data.MySqlClient.Tests
       Exception ex = Assert.Throws<NotSupportedException>(() => new MySqlConnection(Fixture.Settings.ConnectionString + ";auth=PLAIN"));
       Assert.Equal("The option 'Auth' is not currently supported.", ex.Message);
     }
+
+#if NET452
+    /// <summary>
+    ///  Fix for aborted connections MySQL bug 80997 OraBug 23346197
+    /// </summary>
+    [Fact]
+    public void MarkConnectionAsClosedProperlyWhenDisposing()
+    {
+      MySqlConnection con = new MySqlConnection(Connection.ConnectionString);
+      con.Open();
+      var cmd = new MySqlCommand("show global status like 'aborted_clients'", con);
+      MySqlDataReader r = cmd.ExecuteReader();
+      r.Read();
+      int numClientsAborted = r.GetInt32(1);
+      r.Close();
+
+      AppDomain appDomain = FullTrustSandbox.CreateFullTrustDomain();
+      FullTrustSandbox sandbox = (FullTrustSandbox)appDomain.CreateInstanceAndUnwrap(
+          typeof(FullTrustSandbox).Assembly.FullName,
+          typeof(FullTrustSandbox).FullName);
+      try
+      {
+      MySqlConnection connection = sandbox.TryOpenConnection("server=localhost;userid=root;pwd=;port=3305");
+        Assert.NotNull(connection);
+        Assert.True(connection.State == ConnectionState.Open);
+      }
+      finally
+      {
+        AppDomain.Unload(appDomain);
+      }
+
+      r = cmd.ExecuteReader();
+      r.Read();
+      int numClientsAborted2 = r.GetInt32(1);
+      r.Close();
+      Assert.Equal(numClientsAborted, numClientsAborted);
+      con.Close();
+    }
+#endif
   }
 }

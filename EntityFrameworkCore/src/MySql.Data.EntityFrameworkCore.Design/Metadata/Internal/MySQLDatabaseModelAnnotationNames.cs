@@ -27,7 +27,7 @@ using System.Threading.Tasks;
 
 namespace MySql.Data.EntityFrameworkCore.Design.Metadata.Internal
 {
-    public static class MySQLDatabaseModelAnnotationNames
+    internal static class MySQLDatabaseModelAnnotationNames
     {
         public const string Prefix = "MySQLDatabaseModel:";
         public const string DateTimePrecision = Prefix + "DateTimePrecision";

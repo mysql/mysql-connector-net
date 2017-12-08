@@ -1,4 +1,4 @@
-﻿// Copyright © 2014, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2014, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -122,7 +122,7 @@ namespace MySql.Data.MySqlClient.Replication
       {
         bool isRunning = false;
         ReplicationServer server1 = e.Argument as ReplicationServer;
-#if !NETCORE10
+#if !NETSTANDARD1_6
         System.Timers.Timer timer = new System.Timers.Timer(RetryTime * 1000.0);
 
         System.Timers.ElapsedEventHandler elapsedEvent = delegate(object sender1, System.Timers.ElapsedEventArgs e1)

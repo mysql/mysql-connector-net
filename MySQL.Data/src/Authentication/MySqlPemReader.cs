@@ -26,15 +26,15 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-#if NET_CORE
-using AliasText = MySql.Data.MySqlClient.Framework.NetCore10;
+#if NETSTANDARD1_6
+using AliasText = MySql.Data.MySqlClient.Framework.NetStandard1_6;
 #else
 using AliasText = System.Text;
 #endif
 
 public class MySqlPemReader
 {
-#if NETCORE10
+#if NETSTANDARD1_6
     public static RSA ConvertPemToRSAProvider(byte[] rawPublicKey)
 #else
     public static RSACryptoServiceProvider ConvertPemToRSAProvider(byte[] rawPublicKey)
@@ -44,7 +44,7 @@ public class MySqlPemReader
       return DecodeX509Key(decodedKey);
     }
 
-#if NETCORE10
+#if NETSTANDARD1_6
     static RSA DecodeX509Key(byte[] key)
 #else
     static RSACryptoServiceProvider DecodeX509Key(byte[] key)
@@ -126,7 +126,7 @@ public class MySqlPemReader
 
             // Read exponent.
             byte[] exponent = reader.ReadBytes(reader.ReadByte());
-#if NETCORE10
+#if NETSTANDARD1_6
             RSA rsa = RSA.Create();
 #else
             RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();

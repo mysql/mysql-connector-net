@@ -1,4 +1,4 @@
-// Copyright � 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright � 2004, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -30,7 +30,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using MySql.Data.Common;
-#if !NET_CORE
+#if !NETSTANDARD1_6
 using MySql.Data.MySqlClient.Replication;
 #endif
 
@@ -97,10 +97,10 @@ namespace MySql.Data.MySqlClient
         /// <include file='docs/mysqlcommand.xml' path='docs/CommandText/*'/>
         [Category("Data")]
         [Description("Command text to execute")]
-#if !NET_CORE
+#if NET452
         [Editor("MySql.Data.Common.Design.SqlCommandTextEditor,MySqlClient.Design", typeof(System.Drawing.Design.UITypeEditor))]
 #endif
-        public override string CommandText
+    public override string CommandText
         {
             get { return cmdText; }
             set
@@ -384,7 +384,7 @@ namespace MySql.Data.MySqlClient
 
             string sql = cmdText.Trim(';');
 
-#if !NET_CORE
+#if !NETSTANDARD1_6
             // Load balancing getting a new connection
             if (connection.hasBeenOpen && !driver.HasStatus(ServerStatusFlags.InTransaction))
             {
@@ -392,7 +392,7 @@ namespace MySql.Data.MySqlClient
             }
 #endif
 
-            lock (driver)
+      lock (driver)
             {
 
                 // We have to recheck that there is no reader, after we got the lock
@@ -401,7 +401,7 @@ namespace MySql.Data.MySqlClient
                     Throw(new MySqlException(Resources.DataReaderOpen));
                 }
 
-#if !NET_CORE
+#if !NETSTANDARD1_6
                 System.Transactions.Transaction curTrans = System.Transactions.Transaction.Current;
 
                 if (curTrans != null)
@@ -429,7 +429,7 @@ namespace MySql.Data.MySqlClient
                 }
 #endif
 
-                commandTimer = new CommandTimer(connection, CommandTimeout);
+        commandTimer = new CommandTimer(connection, CommandTimeout);
 
                 LastInsertedId = -1;
 
@@ -481,14 +481,14 @@ namespace MySql.Data.MySqlClient
                     connection.HandleTimeoutOrThreadAbort(tex);
                     throw; //unreached
                 }
-#if !NET_CORE
+#if !NETSTANDARD1_6
                 catch (ThreadAbortException taex)
                 {
                     connection.HandleTimeoutOrThreadAbort(taex);
                     throw;
                 }
 #endif
-                catch (IOException ioex)
+        catch (IOException ioex)
                 {
                     connection.Abort(); // Closes connection without returning it to the pool
                     throw new MySqlException(Resources.FatalErrorDuringExecute, ioex);
@@ -626,7 +626,7 @@ namespace MySql.Data.MySqlClient
     #endregion
 
     #region Async Methods
-#if !NET_CORE
+#if !NETSTANDARD1_6
 
     private IAsyncResult asyncResult;
 

@@ -29,48 +29,29 @@ using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
 using MySql.Data.MySqlClient;
 using Microsoft.EntityFrameworkCore.Migrations;
-using MySQL.Data.EntityFrameworkCore.Migrations;
+using MySql.Data.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
-using MySQL.Data.EntityFrameworkCore.Migrations.Operations;
+using MySql.Data.EntityFrameworkCore.Migrations.Operations;
 
-namespace MySQL.Data.EntityFrameworkCore
+namespace MySql.Data.EntityFrameworkCore
 {
   /// <summary>
   /// Relational Database creator implementation in MySQL
   /// </summary>
-  public class MySQLDatabaseCreator : RelationalDatabaseCreator
+  internal partial class MySQLDatabaseCreator : RelationalDatabaseCreator
   {
     private readonly MySQLServerConnection _connection;
     private readonly IMigrationsSqlGenerator _sqlGenerator;
     private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
+    private IMigrationCommandExecutor _migrationCommandExecutor;
 
 
-
-    public MySQLDatabaseCreator(
-        MySQLServerConnection cxn,
-        IMigrationsModelDiffer differ,
-        IMigrationsSqlGenerator generator,
-        IMigrationCommandExecutor migrationCommandExecutor,
-        IModel model,
-        IRawSqlCommandBuilder rawSqlCommandBuilder,
-        IExecutionStrategyFactory executionStrategyFactory)
-        : base(model, cxn, differ, generator, migrationCommandExecutor, executionStrategyFactory)
-    {
-      ThrowIf.Argument.IsNull(cxn, "connection");      
-      ThrowIf.Argument.IsNull(differ, "modelDiffer");
-      ThrowIf.Argument.IsNull(generator, "generator");
-      ThrowIf.Argument.IsNull(rawSqlCommandBuilder, "commandBuilder");
-      
-      _connection = cxn;
-      _sqlGenerator = generator;
-      _rawSqlCommandBuilder = rawSqlCommandBuilder;
-    }
 
     public override void Create()
     {
       using (var workingConnection = _connection.CreateSystemConnection())
       {
-        MigrationCommandExecutor.ExecuteNonQuery(GetCreateOps(), workingConnection);        
+        _migrationCommandExecutor.ExecuteNonQuery(GetCreateOps(), workingConnection);        
         MySqlConnection.ClearPool((MySqlConnection)_connection.DbConnection);
       }      
 
@@ -80,7 +61,7 @@ namespace MySQL.Data.EntityFrameworkCore
     {
       using (var workingConnection = _connection.CreateSystemConnection())
       {
-        await MigrationCommandExecutor.ExecuteNonQueryAsync(GetCreateOps(), workingConnection, cancellationToken);
+        await _migrationCommandExecutor.ExecuteNonQueryAsync(GetCreateOps(), workingConnection, cancellationToken);
         MySqlConnection.ClearPool((MySqlConnection)_connection.DbConnection);
       }
     }
@@ -104,7 +85,7 @@ namespace MySQL.Data.EntityFrameworkCore
       MySqlConnection.ClearAllPools();
       using (var workingConnecton = _connection.CreateSystemConnection())
       {
-        MigrationCommandExecutor.ExecuteNonQuery(GetDropOps(), workingConnecton);
+        _migrationCommandExecutor.ExecuteNonQuery(GetDropOps(), workingConnecton);
       }
     }
 
@@ -113,7 +94,7 @@ namespace MySQL.Data.EntityFrameworkCore
       MySqlConnection.ClearAllPools();
       using (var workingConnecton = _connection.CreateSystemConnection())
       {
-        await MigrationCommandExecutor.ExecuteNonQueryAsync(GetDropOps(), workingConnecton, cancellationToken);
+        await _migrationCommandExecutor.ExecuteNonQueryAsync(GetDropOps(), workingConnecton, cancellationToken);
       }
     }
 

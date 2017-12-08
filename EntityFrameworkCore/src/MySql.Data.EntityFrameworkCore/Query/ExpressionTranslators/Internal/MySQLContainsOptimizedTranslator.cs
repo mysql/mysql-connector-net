@@ -23,8 +23,6 @@
 
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
-using Microsoft.Extensions.Logging;
-using MySQL.Data.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,7 +32,7 @@ using System.Threading.Tasks;
 
 namespace MySql.Data.EntityFrameworkCore.Query.ExpressionTranslators.Internal
 {
-    public class MySQLContainsOptimizedTranslator : IMethodCallTranslator
+    internal class MySQLContainsOptimizedTranslator : IMethodCallTranslator
     {
         
         private static readonly MethodInfo _methodInfo

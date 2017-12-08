@@ -1,4 +1,4 @@
-// Copyright ï¿½ 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -45,7 +45,7 @@ namespace MySql.Data.MySqlClient
     private bool firstResult;
     protected IDriver handler;
     internal MySqlDataReader reader;
-    private bool disposeInProgress;
+    private bool disposed;
 
     /// <summary>
     /// For pooled connections, time when the driver was
@@ -87,7 +87,7 @@ namespace MySql.Data.MySqlClient
       set { encoding = value; }
     }
 
-#if !NET_CORE
+#if !NETSTANDARD1_6
     public MySqlPromotableTransaction currentTransaction { get; set; }
 
     public bool IsInActiveUse { get; set; }
@@ -132,7 +132,7 @@ namespace MySql.Data.MySqlClient
 
       try
       {
-#if !NETCORE10
+#if !NETSTANDARD1_6
         if (MySqlTrace.QueryAnalysisEnabled || settings.Logging || settings.UseUsageAdvisor)
           d = new TracingDriver(settings);
 #endif
@@ -267,6 +267,7 @@ namespace MySql.Data.MySqlClient
         setNamesCmd.InternallyCreated = true;
         setNamesCmd.ExecuteNonQuery();
       }
+      // sets character_set_results to null to return values in their original character set
       charSetCmd.ExecuteNonQuery();
 
       Encoding = CharSetMap.GetEncoding(Version, charSet ?? "utf-8");
@@ -477,31 +478,34 @@ namespace MySql.Data.MySqlClient
 
     protected virtual void Dispose(bool disposing)
     {
-      // Avoid cyclic calls to Dispose.
-      if (disposeInProgress)
+      if (disposed)
         return;
 
-      disposeInProgress = true;
-
+      // Avoid cyclic calls to Dispose.
+      disposed = true;
       try
       {
         ResetTimeout(1000);
-        if (disposing)
-          handler.Close(IsOpen);
+        handler.Close(IsOpen);
         // if we are pooling, then release ourselves
         if (ConnectionString.Pooling)
           MySqlPoolManager.RemoveConnection(this);
       }
-      catch (Exception)
+      catch (Exception ex)
       {
         if (disposing)
-          throw;
+        {
+          MySqlException mysqlEx = ex as MySqlException;
+          if (mysqlEx == null)
+            MySqlTrace.LogError(0, ex.GetBaseException().Message);
+          else
+            MySqlTrace.LogError(mysqlEx.Number, ex.GetBaseException().Message);
+        }
       }
       finally
       {
         reader = null;
         IsOpen = false;
-        disposeInProgress = false;
       }
     }
 

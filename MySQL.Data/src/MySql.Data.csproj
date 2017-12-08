@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Description>MySql.Data.MySqlClient .Net Core Class Library</Description>
@@ -7,7 +7,7 @@
     <Version>8.0.10-rc</Version>
     <Authors>Oracle</Authors>
     <AssemblyName>MySql.Data</AssemblyName>
-    <TargetFrameworks>netstandard1.6;net452</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.0;net452;netstandard1.6;netstandard2.0</TargetFrameworks>
     <PackageId>MySql.Data</PackageId>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET;netcore;.Net Core;MySql Conector/Net Core;coreclr;C/NET;C/Net Core</PackageTags>
     <PackageReleaseNotes>Review ReleaseNotes.txt for details.</PackageReleaseNotes>
@@ -27,7 +27,7 @@
     <SignAssembly>True</SignAssembly>
     <DelaySign>True</DelaySign>
     <AssemblyOriginatorKeyFile>..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
-    <NoWarn>CS1591,CS1587,CS1574</NoWarn>
+    <NoWarn>CS1591,CS1587,CS1574,CS1570</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -42,8 +42,8 @@
     <Content Include="docs\MySqlParameter.xml" />
     <Content Include="docs\MySqlParameterCollection.xml" />
     <Content Include="docs\MySqlTransaction.xml" />
-    <Content Include="..\..\NugetPkgs\transform\Data\app.config.transform" />
-    <Content Include="..\..\NugetPkgs\transform\Data\web.config.transform" />
+    <Content Include="..\..\Nuget\Data\app.config.transform" />
+    <Content Include="..\..\Nuget\Data\web.config.transform" />
   </ItemGroup>
 
   <ItemGroup>
@@ -64,12 +64,8 @@
     </None>
   </ItemGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.6'">
-    <DefineConstants>$(DefineConstants);NET_CORE;NETCORE10</DefineConstants>
-  </PropertyGroup>
-
   <ItemGroup Condition="'$(TargetFramework)'=='net452'">
-    <Compile Remove="**/netstandard/*.cs" />
+    <Compile Remove="Framework/netstandard1_6/*" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -88,7 +84,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.6'">
-    <Compile Remove="**/net452/*.cs;Replication/*.cs" />
+    <Compile Remove="Framework/net452/*;Replication/*.cs;**/netstandard2_0/*" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="1.1.2" />
     <PackageReference Include="System.Collections.NonGeneric" Version="4.3.0" />
     <PackageReference Include="System.ComponentModel" Version="4.3.0" />
@@ -117,6 +113,19 @@
     <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
     <PackageReference Include="System.Runtime.Serialization.Formatters" Version="4.3.0" />
     <PackageReference Include="System.Threading.Tasks" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp2.0' Or '$(TargetFramework)'=='netstandard2.0'">
+    <Compile Remove="Framework/netstandard1_6/*;Framework/net452/*" />
+    <PackageReference Include="System.Configuration.ConfigurationManager">
+      <Version>4.4.0</Version>
+    </PackageReference>
+    <PackageReference Include="System.Security.Permissions">
+      <Version>4.4.0</Version>
+    </PackageReference>
+    <PackageReference Include="System.Text.Encoding.CodePages">
+      <Version>4.0.1</Version>
+    </PackageReference>
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

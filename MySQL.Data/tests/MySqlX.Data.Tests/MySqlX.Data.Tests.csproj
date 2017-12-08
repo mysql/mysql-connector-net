@@ -24,6 +24,7 @@
     <SignAssembly>True</SignAssembly>
     <DelaySign>True</DelaySign>
     <AssemblyOriginatorKeyFile>..\..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
+    <NoWarn>CS1591,CS1587,CS1574,CS1570,CS1701</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

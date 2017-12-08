@@ -1,4 +1,4 @@
-// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -42,7 +42,7 @@ namespace MySql.Data.MySqlClient
     internal static int maxConnectionIdleTime = 180;
 
 
-#if !NET_CORE
+#if !NETSTANDARD1_6
     static MySqlPoolManager()
     {
       AppDomain.CurrentDomain.ProcessExit += EnsureClearingPools;
@@ -56,8 +56,8 @@ namespace MySql.Data.MySqlClient
 #endif
 
 
-      // we add a small amount to the due time to let the cleanup detect
-      //expired connections in the first cleanup.
+    // we add a small amount to the due time to let the cleanup detect
+    //expired connections in the first cleanup.
     private static Timer timer = new Timer(CleanIdleConnections,
       null, (maxConnectionIdleTime * 1000) + 8000, maxConnectionIdleTime * 1000);
  

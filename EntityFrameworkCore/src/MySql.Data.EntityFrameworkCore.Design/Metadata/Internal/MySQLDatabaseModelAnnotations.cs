@@ -28,7 +28,7 @@ using System.Threading.Tasks;
 
 namespace MySql.Data.EntityFrameworkCore.Design.Metadata.Internal
 {
-    public class MySQLDatabaseModelAnnotations
+    internal class MySQLDatabaseModelAnnotations
     {
         readonly DatabaseModel _databaseModel;
 

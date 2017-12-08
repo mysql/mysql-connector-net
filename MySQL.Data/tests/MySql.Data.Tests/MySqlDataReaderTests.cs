@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -23,7 +23,7 @@
 using System;
 using Xunit;
 using System.Data;
-#if !NETCORE10
+#if !NETCOREAPP1_1
 using System.Data.SqlTypes;
 #endif
 
@@ -155,7 +155,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
     /// <summary>
     /// Bug #59989	MysqlDataReader.GetSchemaTable returns incorrect Values an types
     /// </summary>
@@ -307,7 +307,7 @@ namespace MySql.Data.MySqlClient.Tests
         reader.Read();
         Assert.Equal(2, reader.GetValue(0));
         Assert.Equal(DBNull.Value, reader.GetValue(1));
-#if !NETCORE10
+#if !NETCOREAPP1_1
         Exception ex = Assert.Throws<SqlNullValueException>(() => reader.GetString(1));
         Assert.Equal(ex.Message, "Data is Null. This method or property cannot be called on Null values.");
 #endif
@@ -317,7 +317,7 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal("Test2", reader.GetValue(1));
         Assert.Equal("Test2", reader.GetString(1));
         Assert.Equal(DBNull.Value, reader.GetValue(2));
-#if !NETCORE10
+#if !NETCOREAPP1_1
         ex = Assert.Throws<SqlNullValueException>(() => reader.GetMySqlDateTime(2));
         Assert.Equal(ex.Message, "Data is Null. This method or property cannot be called on Null values.");
 #endif
@@ -604,7 +604,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
     /// <summary>
     /// Bug #23538 Exception thrown when GetSchemaTable is called and "fields" is null. 
     /// </summary>
@@ -641,7 +641,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
     /// <summary>
     /// Bug #30204  	Incorrect ConstraintException
     /// </summary>

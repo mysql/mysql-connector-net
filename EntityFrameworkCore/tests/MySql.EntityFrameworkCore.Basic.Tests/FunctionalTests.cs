@@ -24,12 +24,11 @@ using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using System;
 using System.Linq;
 using Xunit;
-using MySQL.Data.EntityFrameworkCore;
-using MySQL.Data.EntityFrameworkCore.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.MySqlClient;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore;
+using MySql.Data.EntityFrameworkCore.Extensions;
 
 namespace MySql.Data.EntityFrameworkCore.Tests
 {
@@ -46,10 +45,10 @@ namespace MySql.Data.EntityFrameworkCore.Tests
      var serviceProvider = serviceCollection.BuildServiceProvider();  
 
       using (var context = serviceProvider.GetRequiredService<ConnStringOnConfiguringContext>())
-      {        
+      {
+        context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
         Assert.False(context.Posts.Any());
-        context.Database.EnsureDeleted();
       }
     }
 

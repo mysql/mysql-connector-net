@@ -29,9 +29,10 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using MySql.Data.EntityFrameworkCore.Design.Internal;
-using EntityFrameworkCore.Basic.Tests.Logging;
 using Microsoft.Extensions.Logging.Abstractions.Internal;
 using MySql.Data.EntityFrameworkCore.Tests;
+using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
+using MySql.Data.EntityFrameworkCore.Scaffolding.Internal;
 
 namespace MySql.EntityFrameworkCore.Design.Tests
 {

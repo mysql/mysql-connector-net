@@ -26,7 +26,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.EntityFrameworkCore.Storage.Internal;
-using MySQL.Data.EntityFrameworkCore.Metadata;
+using MySql.Data.EntityFrameworkCore.Metadata;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,7 +34,7 @@ using System.Threading.Tasks;
 
 namespace MySql.Data.EntityFrameworkCore.Design.Internal
 {
-    public class MySQLDesignTimeServices : IDesignTimeServices
+    internal class MySQLDesignTimeServices : IDesignTimeServices
     {
         public virtual void ConfigureDesignTimeServices(IServiceCollection serviceCollection)
                    => serviceCollection

@@ -21,23 +21,11 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
-using EntityFrameworkCore.Basic.Tests.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-
-using Microsoft.EntityFrameworkCore.Internal;
-
-
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
-
-
-using MySQL.Data.EntityFrameworkCore.Extensions;
+using MySql.Data.EntityFrameworkCore.Extensions;
 using System;
-using MySQL.Data.EntityFrameworkCore;
 
 namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
 {
@@ -479,6 +467,38 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
       {
         e.ToTable("Employees", "03employees");
         e.HasKey(p => p.EmployeeId);
+      });
+    }
+  }
+
+  public class MyContext : MyTestContext
+  {
+    public DbSet<MyTest> MyTest { get; set; }
+  }
+
+  public class CharsetTestContext : MyTestContext
+  {
+    public DbSet<TestCharsetDA> TestCharsetDA { get; set; }
+    public DbSet<TestCharsetFA> TestCharsetFA { get; set; }
+    public DbSet<TestCollationDA> TestCollationDA { get; set; }
+    public DbSet<TestCollationFA> TestCollationFA { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+      modelBuilder.Entity<TestCharsetFA>(e =>
+      {
+        e.ForMySQLHasCharset("utf16");
+        e.Property(p => p.TestCharsetFAId)
+          .ForMySQLHasCharset("latin7")
+          .HasMaxLength(255);
+      });
+
+      modelBuilder.Entity<TestCollationFA>(e =>
+      {
+        e.ForMySQLHasCollation("koi8u_bin");
+        e.Property(p => p.TestCollationFAId)
+          .ForMySQLHasCollation("ucs2_bin")
+          .HasMaxLength(255);
       });
     }
   }

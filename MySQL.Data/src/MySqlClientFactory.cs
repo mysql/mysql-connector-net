@@ -1,4 +1,4 @@
-// Copyright © 2004, 2016 Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -23,19 +23,19 @@
 using System;
 using System.Data.Common;
 using System.Reflection;
-#if !NET_CORE
+#if !NETSTANDARD1_6
 using System.Security.Permissions;
 #endif
 
 namespace MySql.Data.MySqlClient
 {
-	/// <summary>
-	/// DBProviderFactory implementation for MysqlClient.
-	/// </summary>
-#if !NET_CORE
-			[ReflectionPermission(SecurityAction.Assert, MemberAccess = true)]  
+  /// <summary>
+  /// Represents a set of methods for creating instances of the MySQL client implementation of the data source classes.
+  /// </summary>
+#if !NETSTANDARD1_6
+  [ReflectionPermission(SecurityAction.Assert, MemberAccess = true)]  
 #endif
-	public sealed partial class MySqlClientFactory : DbProviderFactory, IServiceProvider
+  public sealed partial class MySqlClientFactory : DbProviderFactory, IServiceProvider
 	{
 		/// <summary>
 		/// Gets an instance of the <see cref="MySqlClientFactory"/>. 
@@ -97,8 +97,8 @@ namespace MySql.Data.MySqlClient
 			{
 				if (_mySqlDbProviderServicesInstance == null)
 				{
-#if NET_CORE
-					string fullName = typeof(MySqlClientFactory).GetTypeInfo().Assembly.FullName;
+#if NETSTANDARD1_6
+          string fullName = typeof(MySqlClientFactory).GetTypeInfo().Assembly.FullName;
 #else
 					string fullName = Assembly.GetExecutingAssembly().FullName;
 #endif

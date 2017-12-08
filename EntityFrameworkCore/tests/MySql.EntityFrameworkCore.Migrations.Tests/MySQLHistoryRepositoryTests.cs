@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -31,105 +31,57 @@ using Microsoft.Extensions.Logging;
 using MySql.Data.EntityFrameworkCore.Storage.Internal;
 using MySql.Data.EntityFrameworkCore.Tests;
 using MySql.EntityFrameworkCore.Migrations.Tests.Utilities;
-using MySQL.Data.EntityFrameworkCore;
-using MySQL.Data.EntityFrameworkCore.Extensions;
-using MySQL.Data.EntityFrameworkCore.Infraestructure.Internal;
-using MySQL.Data.EntityFrameworkCore.Metadata;
-using MySQL.Data.EntityFrameworkCore.Migrations;
-using MySQL.Data.EntityFrameworkCore.Migrations.Internal;
+using MySql.Data.EntityFrameworkCore;
+using MySql.Data.EntityFrameworkCore.Infraestructure;
+using MySql.Data.EntityFrameworkCore.Metadata;
+using MySql.Data.EntityFrameworkCore.Migrations;
+using MySql.Data.EntityFrameworkCore.Migrations.Internal;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
+using MySql.Data.EntityFrameworkCore.Extensions;
 
 namespace MySql.EntityFrameworkCore.Migrations.Tests
 {
-    public class MySQLHistoryRepositoryTests
+  public partial class MySQLHistoryRepositoryTests
+  {
+    [Fact]
+    public void GetBeginIfNotExistsScript_works()
     {
-        [Fact]
-        public void GetBeginIfNotExistsScript_works()
-        {
-            var repository = CreateHistoryRepository();
-            var script = repository.GetBeginIfNotExistsScript("Migration1");            
-        }
+      var repository = CreateHistoryRepository();
+      var script = repository.GetBeginIfNotExistsScript("Migration1");
+    }
 
-        [Fact]
-        public void GetBeginIfExistsScript_works()
-        {
-            var repository = CreateHistoryRepository();
-            var script = repository.GetBeginIfExistsScript("Migration1");            
-        }
+    [Fact]
+    public void GetBeginIfExistsScript_works()
+    {
+      var repository = CreateHistoryRepository();
+      var script = repository.GetBeginIfExistsScript("Migration1");
+    }
 
-        [Fact]
-        public void CanCreateDatabase()
-        {
-            var repository = CreateHistoryRepository();
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddEntityFrameworkMySQL()
-                            .AddDbContext<MyTestContext>();
+    [Fact]
+    public void CanCreateDatabase()
+    {
+      var repository = CreateHistoryRepository();
+      var serviceCollection = new ServiceCollection();
+      serviceCollection.AddEntityFrameworkMySQL()
+                      .AddDbContext<MyTestContext>();
 
-            var serviceProvider = serviceCollection.BuildServiceProvider();
+      var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            var context = serviceProvider.GetRequiredService<MyTestContext>();
+      var context = serviceProvider.GetRequiredService<MyTestContext>();
 
 
-            var creator = context.GetService<MySQLDatabaseCreator>();
-            var cmdBuilder = context.GetService<IRawSqlCommandBuilder>();
-            Assert.False(creator.Exists());
-            Assert.Equal("IF EXISTS(SELECT * FROM `__EFMigrationsHistory` WHERE `MigrationId` = 'MigrationId')\r\nBEGIN", 
-                cmdBuilder.Build(repository.GetBeginIfExistsScript("MigrationId")).CommandText
-                , ignoreLineEndingDifferences: true);
-        }
+      var creator = context.GetService<IRelationalDatabaseCreator>();
 
-        private static IHistoryRepository CreateHistoryRepository()
-        {
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseMySQL(MySQLTestStore.rootConnectionString + "database=test;");
-            var connection = new MySQLServerConnection(optionsBuilder.Options, new Logger<MySQLServerConnection>(new LoggerFactory()));
-
-            var annotationsProvider = new MySQLAnnotationProvider();
-            var sqlGenerator = new MySQLSqlGenerationHelper();
-            var typeMapper = new MySQLTypeMapper();
-
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddEntityFrameworkMySQL()
-                            .AddDbContext<MyTestContext>();
-
-            var serviceProvider = serviceCollection.BuildServiceProvider();
-
-            var context = serviceProvider.GetRequiredService<MyTestContext>();
-            
-
-            var creator = context.GetService<IDatabaseCreator>();
-            var cmdBuilder = context.GetService<IRawSqlCommandBuilder>();
-
-
-            return new MySQLHistoryRepository(
-                creator,
-                cmdBuilder,
-                connection,
-                new DbContextOptions<DbContext>(
-                    new Dictionary<Type, IDbContextOptionsExtension>
-                    {
-                        { typeof(MySQLOptionsExtension), new MySQLOptionsExtension() }
-                    }),
-                new MigrationsModelDiffer(
-                    new MySQLTypeMapper(),
-                    annotationsProvider,
-                    new MySQLMigrationsAnnotationProvider()),
-                new MySQLMigrationsSqlGenerator(
-                    new RelationalCommandBuilderFactory(
-                        new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
-                        new DiagnosticListener("FakeListener"),
-                        typeMapper),
-                    new MySQLSqlGenerationHelper(),
-                    typeMapper,
-                    annotationsProvider),
-                annotationsProvider,
-                sqlGenerator);
-
-        }        
-    }  
+      var cmdBuilder = context.GetService<IRawSqlCommandBuilder>();
+      Assert.False(creator.Exists());
+      Assert.Equal("IF EXISTS(SELECT * FROM `__EFMigrationsHistory` WHERE `MigrationId` = 'MigrationId')\r\nBEGIN",
+          cmdBuilder.Build(repository.GetBeginIfExistsScript("MigrationId")).CommandText
+          , ignoreLineEndingDifferences: true);
+    }
+  }
 }

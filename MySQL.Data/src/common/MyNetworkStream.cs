@@ -232,7 +232,7 @@ namespace MySql.Data.Common
       return t.Result;
     }
 
-//#if NET_CORE
+//#if NETSTANDARD1_6
 //    private static EndPoint CreateUnixEndPoint(string host)
 //    {
 //      // first we need to load the Mono.posix assembly			
@@ -251,7 +251,7 @@ namespace MySql.Data.Common
     private static MyNetworkStream CreateSocketStream(MySqlConnectionStringBuilder settings, IPAddress ip, bool unix)
     {
       EndPoint endPoint;
-//#if NET_CORE
+//#if NETSTANDARD1_6
 //      if (!Platform.IsWindows() && unix)
 //      {
 //        endPoint = CreateUnixEndPoint(settings.Server);
@@ -270,7 +270,7 @@ namespace MySql.Data.Common
         SetKeepAlive(socket, settings.Keepalive);
       }
 
-#if NET_CORE
+#if NETSTANDARD1_6
       try
       {
         Task ias = socket.ConnectAsync(endPoint);

@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -23,15 +23,15 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
-using MySQL.Data.EntityFrameworkCore.Infraestructure.Internal;
+using MySql.Data.EntityFrameworkCore.Infraestructure;
 using System.Linq;
 
-namespace MySQL.Data.EntityFrameworkCore.Update
+namespace MySql.Data.EntityFrameworkCore.Update
 {
   /// <summary>
   /// IModificationCommandBatchFactory implemntation for MySQL
   /// </summary>
-  public class MySQLModificationCommandBatchFactory : IModificationCommandBatchFactory
+  internal class MySQLModificationCommandBatchFactory : IModificationCommandBatchFactory
   {
     private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
     private readonly ISqlGenerationHelper _sqlGenerator;
@@ -42,7 +42,7 @@ namespace MySQL.Data.EntityFrameworkCore.Update
     public MySQLModificationCommandBatchFactory(
         [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
         [NotNull] ISqlGenerationHelper sqlGenerator,
-        [NotNull] MySQLUpdateSqlGenerator updateSqlGenerator,
+        [NotNull] IUpdateSqlGenerator updateSqlGenerator,
         [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
         [NotNull] IDbContextOptions options)
     {
@@ -53,7 +53,7 @@ namespace MySQL.Data.EntityFrameworkCore.Update
 
       _commandBuilderFactory = commandBuilderFactory;
       _sqlGenerator = sqlGenerator;
-      _updateSqlGenerator = updateSqlGenerator;
+      _updateSqlGenerator = (MySQLUpdateSqlGenerator)updateSqlGenerator;
       _valueBufferFactoryFactory = valueBufferFactoryFactory;
       _options = options;
     }

@@ -34,12 +34,12 @@ using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using System.Data;
 using Microsoft.EntityFrameworkCore.Migrations;
-using MySQL.Data.EntityFrameworkCore;
+using MySql.Data.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace MySql.Data.EntityFrameworkCore.Design.Internal
 {
-  public class MySQLDatabaseModelFactory : IInternalDatabaseModelFactory
+  internal class MySQLDatabaseModelFactory : IInternalDatabaseModelFactory
   {
     public virtual ILogger Logger { get; }
 
@@ -136,16 +136,18 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
   rc.delete_rule 
 FROM information_schema.key_column_usage as kc 
 INNER JOIN information_schema.referential_constraints as rc 
-ON kc.constraint_name = rc.constraint_name 
+ON kc.constraint_catalog = rc.constraint_catalog 
+  AND kc.constraint_schema = rc.constraint_schema 
+  AND kc.constraint_name = rc.constraint_name 
 WHERE kc.referenced_table_name IS NOT NULL 
   AND kc.table_schema IN ({_schemaList})
   AND kc.table_name <> '{HistoryRepository.DefaultTableName}'";
 
       using (var reader = command.ExecuteReader())
       {
-        ForeignKeyModel fkModel = null;
         while (reader.Read())
         {
+          ForeignKeyModel fkModel = null;
           var tableSchema = reader.GetValueOrDefault<string>("table_schema");
           var constraintName = reader.GetValueOrDefault<string>("constraint_name");
           var tableName = reader.GetValueOrDefault<string>("table_name");
@@ -168,54 +170,50 @@ WHERE kc.referenced_table_name IS NOT NULL
             Logger.LogDebug("Foreign key column skipped", new string[] { referencedColumnName, constraintName, tableSchema, tableName });
             continue;
           }
-          if (fkModel == null)
+          var table = _tables[TableKey(tableName, tableSchema)];
+
+          TableModel principalTable = null;
+          if (!string.IsNullOrEmpty(tableSchema)
+              && !string.IsNullOrEmpty(referencedTableName))
           {
-            var table = _tables[TableKey(tableName, tableSchema)];
-
-            TableModel principalTable = null;
-            if (!string.IsNullOrEmpty(tableSchema)
-                && !string.IsNullOrEmpty(referencedTableName))
-            {
-              _tables.TryGetValue(TableKey(referencedTableName, tableSchema), out principalTable);
-            }
-
-            if (principalTable == null)
-            {
-              Logger.LogDebug("Foreign key references missing table", new string[] { constraintName, tableName, tableSchema });
-            }
-
-
-            fkModel = new ForeignKeyModel
-            {
-              Name = constraintName,
-              Table = table,
-              PrincipalTable = principalTable,
-              OnDelete = ConvertToReferentialAction(deleteRule)
-            };
-
-            var fkColumn = new ForeignKeyColumnModel
-            {
-              Ordinal = (int)ordinal
-            };
-
-            ColumnModel fromColumn = FindColumnForForeignKey(columnName, fkModel.Table, constraintName);
-            if (fromColumn != null)
-            {
-              fkColumn.Column = fromColumn;
-            }
-
-            if (fkModel.PrincipalTable != null)
-            {
-              ColumnModel toColumn = FindColumnForForeignKey(referencedColumnName, fkModel.PrincipalTable, constraintName);
-              if (toColumn != null)
-              {
-                fkColumn.PrincipalColumn = toColumn;
-              }
-            }
-            fkModel.Columns.Add(fkColumn);
-            table.ForeignKeys.Add(fkModel);
+            _tables.TryGetValue(TableKey(referencedTableName, tableSchema), out principalTable);
           }
 
+          if (principalTable == null)
+          {
+            Logger.LogDebug("Foreign key references missing table", new string[] { constraintName, tableName, tableSchema });
+          }
+
+
+          fkModel = new ForeignKeyModel
+          {
+            Name = constraintName,
+            Table = table,
+            PrincipalTable = principalTable,
+            OnDelete = ConvertToReferentialAction(deleteRule)
+          };
+
+          var fkColumn = new ForeignKeyColumnModel
+          {
+            Ordinal = (int)ordinal
+          };
+
+          ColumnModel fromColumn = FindColumnForForeignKey(columnName, fkModel.Table, constraintName);
+          if (fromColumn != null)
+          {
+            fkColumn.Column = fromColumn;
+          }
+
+          if (fkModel.PrincipalTable != null)
+          {
+            ColumnModel toColumn = FindColumnForForeignKey(referencedColumnName, fkModel.PrincipalTable, constraintName);
+            if (toColumn != null)
+            {
+              fkColumn.PrincipalColumn = toColumn;
+            }
+          }
+          fkModel.Columns.Add(fkColumn);
+          table.ForeignKeys.Add(fkModel);
         }
       }
     }
@@ -282,7 +280,7 @@ ON t.table_schema=s.table_schema
   AND s.index_name=t.constraint_name 
 WHERE s.table_schema IN ({_schemaList}) 
   AND s.table_name <> '{HistoryRepository.DefaultTableName}'
-ORDER BY s.index_name, s.seq_in_index";
+ORDER BY s.table_schema, s.table_name, s.non_unique, s.index_name, s.seq_in_index";
 
       using (var reader = command.ExecuteReader())
       {

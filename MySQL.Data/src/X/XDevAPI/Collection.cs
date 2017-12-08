@@ -26,7 +26,7 @@ using MySqlX.XDevAPI.Common;
 using MySqlX;
 using MySql.Data;
 using MySql.Data.MySqlClient;
-#if NETCORE10
+#if NETSTANDARD1_6
 using System.Reflection;
 #endif
 

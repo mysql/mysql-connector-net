@@ -22,6 +22,7 @@
 
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
+using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.Extensions.Logging;
 using MySql.Data.EntityFrameworkCore.Tests;
 using System;
@@ -87,11 +88,11 @@ CREATE TABLE blogs (
 ";
             var dbModel = _fixture.CreateModel(sql, new TableSelectionSet(new List<string> { "blogs"}));
 
-            var columns = dbModel.Tables.Single().Columns.OrderBy(c => c.Ordinal);
+            var columns = dbModel.Tables.Single().Columns;
 
             Assert.All(columns, c =>
             {
-                Assert.Equal("blogman", c.Table.SchemaName);
+                Assert.Equal("blogman", c.Table.GetSchema());
                 Assert.Equal("blogs", c.Table.Name);
             });
 
@@ -99,41 +100,41 @@ CREATE TABLE blogs (
                            id =>
                            {
                                Assert.Equal("id", id.Name);
-                               Assert.Equal("int(11)", id.DataType);
-                               Assert.Equal(2, id.PrimaryKeyOrdinal);
+                               Assert.Equal("int(11)", id.GetDataType());
+                               Assert.Equal(2, id.GetPrimaryKeyOrdinal(2));
                                Assert.False(id.IsNullable);
-                               Assert.Equal(0, id.Ordinal);
+                               Assert.Equal(0, id.GetOrdinal(0));
                              if (FactOnVersionsAttribute.Version >= new Version("5.7.0"))
-                               Assert.Null(id.DefaultValue);
+                               Assert.Null(id.GetDefaultValue());
                              else
-                               Assert.Equal("0", id.DefaultValue);
+                               Assert.Equal("0", id.GetDefaultValue());
                            },
                         description =>
                         {
                             Assert.Equal("description", description.Name);
-                            Assert.Equal("varchar(100)", description.DataType);
-                            Assert.Equal(1, description.PrimaryKeyOrdinal);
+                            Assert.Equal("varchar(100)", description.GetDataType());
+                            Assert.Equal(1, description.GetPrimaryKeyOrdinal(1));
                             Assert.False(description.IsNullable);
-                            Assert.Equal(1, description.Ordinal);
-                            Assert.Null(description.DefaultValue);
-                            Assert.Equal(100, description.MaxLength);
+                            Assert.Equal(1, description.GetOrdinal(1));
+                            Assert.Null(description.GetDefaultValue());
+                            Assert.Equal(100, description.GetMaxLength(100));
                         },
                         rate =>
                         {
                             Assert.Equal("rate", rate.Name);
-                            Assert.Equal("decimal(5,2)", rate.DataType);
-                            Assert.Null(rate.PrimaryKeyOrdinal);
+                            Assert.Equal("decimal(5,2)", rate.GetDataType());
+                            Assert.Null(rate.GetPrimaryKeyOrdinal(null));
                             Assert.True(rate.IsNullable);
-                            Assert.Equal(2, rate.Ordinal);
-                            Assert.Equal("0.00", rate.DefaultValue);
-                            Assert.Equal(5, rate.Precision);
-                            Assert.Equal(2, rate.Scale);
-                            Assert.Null(rate.MaxLength);
+                            Assert.Equal(2, rate.GetOrdinal(2));
+                            Assert.Equal("0.00", rate.GetDefaultValue());
+                            Assert.Equal(5, rate.GetPrecision(5));
+                            Assert.Equal(2, rate.GetScale(2));
+                            Assert.Null(rate.GetMaxLength(null));
                         },
                     created =>
                     {
                         Assert.Equal("created", created.Name);
-                        Assert.Equal("CURRENT_TIMESTAMP", created.DefaultValue);
+                        Assert.Equal("CURRENT_TIMESTAMP", created.GetDefaultValue());
                     });
         }
 
@@ -166,12 +167,12 @@ CREATE TABLE city (
 
             var fk = Assert.Single(dbModel.Tables.Single(t => t.ForeignKeys.Count > 0).ForeignKeys);
 
-            Assert.Equal("sakiladb", fk.Table.SchemaName);
+            Assert.Equal("sakiladb", fk.Table.GetSchema());
             Assert.Equal("city", fk.Table.Name);
-            Assert.Equal("sakiladb", fk.PrincipalTable.SchemaName);
+            Assert.Equal("sakiladb", fk.PrincipalTable.GetSchema());
             Assert.Equal("country", fk.PrincipalTable.Name);
-            Assert.Equal("country_id", fk.Columns.Single().Column.Name);
-            Assert.Equal("country_id", fk.Columns.Single().PrincipalColumn.Name);
+            Assert.Equal("country_id", fk.GetColumn().Name);
+            Assert.Equal("country_id", fk.GetPrincipalColumn().Name);
             Assert.Equal(ReferentialAction.Restrict, fk.OnDelete);
         }     
 
@@ -198,26 +199,26 @@ CREATE DATABASE sakilaIndex;
 
             Assert.All(indexes, c =>
             {
-                Assert.Equal("sakilaIndex", c.Table.SchemaName, ignoreCase: true);
+                Assert.Equal("sakilaIndex", c.Table.GetSchema(), ignoreCase: true);
                 Assert.Equal("actor", c.Table.Name);
             });
 
             Assert.Collection(indexes,
-                composite =>
-                {
-                  Assert.Equal("idx_actor_first_last_name", composite.Name);
-                  Assert.False(composite.IsUnique);
-                  Assert.Equal(new List<string> { "first_name", "last_name" }, composite.IndexColumns.Select(c => c.Column.Name).ToList());
-                },
                 onecolumn =>
                 {
-                  Assert.Equal("last_name", onecolumn.IndexColumns.Single().Column.Name);
+                  Assert.Equal("last_name", onecolumn.GetColumn().Name);
                   Assert.True(onecolumn.IsUnique);
                 },
                 unique =>
                 {
-                  Assert.Equal("actor_id", unique.IndexColumns.Single().Column.Name);
+                  Assert.Equal("actor_id", unique.GetColumn().Name);
                   Assert.True(unique.IsUnique);
+                },
+                composite =>
+                {
+                  Assert.Equal("idx_actor_first_last_name", composite.Name);
+                  Assert.False(composite.IsUnique);
+                  Assert.Equal(new List<string> { "first_name", "last_name" }, composite.GetColumns().Select(c => c.GetColumn().Name).ToList());
                 });
         }
 

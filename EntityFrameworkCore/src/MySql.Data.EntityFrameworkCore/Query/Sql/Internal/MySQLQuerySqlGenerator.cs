@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,7 +20,6 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -31,10 +30,9 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-
-namespace MySQL.Data.EntityFrameworkCore.Query
+namespace MySql.Data.EntityFrameworkCore.Query
 {
-  public class MySQLQuerySqlGenerator : DefaultQuerySqlGenerator
+  internal partial class MySQLQuerySqlGenerator : DefaultQuerySqlGenerator
   {
     protected override string TypedFalseLiteral
     {
@@ -44,35 +42,12 @@ namespace MySQL.Data.EntityFrameworkCore.Query
       }
     }
 
-    protected override string ConcatOperator
-    {
-        get
-        {
-            return String.Empty;
-        }
-    }
-
     protected override string TypedTrueLiteral
     {
       get
       {
         return "('1')";
       }
-    }
-
-    public MySQLQuerySqlGenerator(
-            [NotNull] IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
-            [NotNull] ISqlGenerationHelper sqlGenerationHelper,
-            [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
-            [NotNull] IRelationalTypeMapper relationalTypeMapper,
-            [NotNull] SelectExpression selectExpression)
-            : base(
-                relationalCommandBuilderFactory,
-                sqlGenerationHelper,
-                parameterNameGeneratorFactory,
-                relationalTypeMapper,
-                selectExpression)
-    {
     }
 
 

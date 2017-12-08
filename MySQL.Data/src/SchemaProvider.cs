@@ -727,7 +727,7 @@ namespace MySql.Data.MySqlClient
       return dt;
     }
 
-#if !NET_CORE
+#if !NETSTANDARD1_6
     private MySqlSchemaCollection GetDataSourceInformation()
     {
       MySqlSchemaCollection dt = new MySqlSchemaCollection("DataSourceInformation");
@@ -872,8 +872,8 @@ namespace MySql.Data.MySqlClient
 
     private static MySqlSchemaCollection GetReservedWords()
     {
-      MySqlSchemaCollection dt = new MySqlSchemaCollection("ReservedWords");      
-#if !NET_CORE
+      MySqlSchemaCollection dt = new MySqlSchemaCollection("ReservedWords");
+#if !NETSTANDARD1_6
       dt.AddColumn(DbMetaDataColumnNames.ReservedWord, typeof(string));
       Stream str = Assembly.GetExecutingAssembly().GetManifestResourceStream(
         "MySql.Data.Properties.ReservedWords.txt");
@@ -1002,7 +1002,7 @@ namespace MySql.Data.MySqlClient
         // common collections
         case "METADATACOLLECTIONS":
           return GetCollections();
-#if !NET_CORE
+#if !NETSTANDARD1_6
         case "DATASOURCEINFORMATION":
           return GetDataSourceInformation();
 #endif

@@ -32,13 +32,13 @@ using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
-using MySQL.Data.EntityFrameworkCore.Extensions;
+using MySql.Data.EntityFrameworkCore.Extensions;
 using MySql.Data.EntityFrameworkCore.Design.Metadata.Internal;
 using Microsoft.EntityFrameworkCore;
 
 namespace MySql.Data.EntityFrameworkCore.Design.Internal
 {
-    public class MySQLScaffoldingModelFactory : RelationalScaffoldingModelFactory
+    internal class MySQLScaffoldingModelFactory : RelationalScaffoldingModelFactory
     {
         public MySQLScaffoldingModelFactory(ILoggerFactory loggerFactory, IRelationalTypeMapper typeMapper, IDatabaseModelFactory databaseModelFactory, CandidateNamingService candidateNamingService) 
                 : base(loggerFactory, typeMapper, databaseModelFactory, candidateNamingService)

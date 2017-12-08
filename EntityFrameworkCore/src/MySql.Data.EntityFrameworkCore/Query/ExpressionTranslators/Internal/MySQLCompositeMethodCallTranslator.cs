@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -24,22 +24,16 @@ using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 using MySql.Data.EntityFrameworkCore.Query.ExpressionTranslators.Internal;
 
-namespace MySQL.Data.EntityFrameworkCore
+namespace MySql.Data.EntityFrameworkCore
 {
   /// <summary>
   /// RelationalCompositeMethodCallTranslator implementation for MySQL
   /// </summary>
-  public class MySQLCompositeMethodCallTranslator : RelationalCompositeMethodCallTranslator
+  internal partial class MySQLCompositeMethodCallTranslator : RelationalCompositeMethodCallTranslator
+  {
+    private static readonly IMethodCallTranslator[] _mysqlTranslators =
     {
-
-        public static readonly IMethodCallTranslator[] _mysqlTranslators =
-        {
-            new MySQLContainsOptimizedTranslator()       
-        };
-
-        public MySQLCompositeMethodCallTranslator(ILogger<MySQLCompositeMethodCallTranslator> logger) : base(logger)
-        {
-            AddTranslators(_mysqlTranslators);
-        }
-    }
+      new MySQLContainsOptimizedTranslator()
+    };
+  }
 }

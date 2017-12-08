@@ -100,7 +100,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
     [Fact]
     public void RespectBinaryFlags()
     {
@@ -374,12 +374,12 @@ namespace MySql.Data.MySqlClient.Tests
       {
         string database = "数据库";
         string user = "用户";
-        string password = "test";
+        string password = "tést€";
 
         rootConnection.Open();
         MySqlCommand rootCommand = new MySqlCommand();
         rootCommand.Connection = rootConnection;
-        rootCommand.CommandText = string.Format("CREATE DATABASE `{0}`;", database);
+        rootCommand.CommandText = string.Format("CREATE DATABASE IF NOT EXISTS `{0}`;", database);
         rootCommand.CommandText += string.Format("GRANT ALL ON `{0}`.* to '{1}'@'localhost' identified by '{2}';", database, user, password);
         rootCommand.ExecuteNonQuery();
 
@@ -422,6 +422,44 @@ namespace MySql.Data.MySqlClient.Tests
           Assert.Equal("utf8mb4", reader.GetString("Value"));
         else
           Assert.Equal("latin1", reader.GetString("Value"));
+      }
+    }
+
+    [Fact]
+    public void CharacterVariablesByDefault()
+    {
+      MySqlConnectionStringBuilder rootSb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
+      rootSb.CharacterSet = string.Empty;
+      using (MySqlConnection rootConnection = new MySqlConnection(rootSb.ToString()))
+      {
+        rootConnection.Open();
+        MySqlCommand cmd = rootConnection.CreateCommand();
+        cmd.CommandText = "SELECT @@character_set_server";
+        string characterSet = cmd.ExecuteScalar().ToString();
+        Assert.False(string.IsNullOrWhiteSpace(characterSet));
+
+        cmd.CommandText = "SHOW VARIABLES LIKE 'character_set_c%'";
+        using (MySqlDataReader dr = cmd.ExecuteReader())
+        {
+          Assert.True(dr.HasRows);
+          while (dr.Read())
+          {
+            switch (dr.GetString(0).ToLowerInvariant())
+            {
+              case "character_set_client":
+                Assert.Equal(characterSet, dr.GetString(1));
+                break;
+              case "character_set_connection":
+                Assert.Equal(characterSet, dr.GetString(1));
+                break;
+              default:
+                throw new InvalidOperationException(string.Format("Variable '{0}' not expected.", dr.GetString(0)));
+            }
+          }
+        }
+
+        cmd.CommandText = "SELECT @@character_set_results";
+        Assert.Equal(DBNull.Value, cmd.ExecuteScalar());
       }
     }
   }

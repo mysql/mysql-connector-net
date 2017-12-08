@@ -25,7 +25,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 
 namespace MySql.Data.EntityFrameworkCore.Design.Metadata.Internal
 {
-    public class MySQLIndexModelAnnotations
+    internal class MySQLIndexModelAnnotations
     {
         readonly IndexModel _index;
 

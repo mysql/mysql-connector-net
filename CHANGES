@@ -4,6 +4,9 @@
 - MySqlX: Removed support for creating, modifying and dropping Views (WL11306).
 - MySqlX: Fixed bug that prevented Plain authentication from setting the default database provided as part
   of the connection string (Bug #88427, Oracle Bug #27098974).
+- Fix for sockets stay in CLOSE_WAIT when using SSL (MySQL Bug #75022, Oracle Bug #20393654).
+- Added support for .Net Core 2.0 (WL-11394).
+- Added support for EF Core 2.0 (WL-11395).
 
 
 8.0.9

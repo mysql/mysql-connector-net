@@ -1,4 +1,4 @@
-﻿// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2004, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -26,7 +26,7 @@ using System.Data;
 using MySql.Data.MySqlClient;
 
 
-#if NETCORE10
+#if NETSTANDARD1_6
 namespace MySql.Data.MySqlClient.Interceptors
 #else
 namespace MySql.Data.MySqlClient
@@ -135,7 +135,7 @@ namespace MySql.Data.MySqlClient
 
     protected override string ResolveType(string nameOrType)
     {
-#if NET_CORE
+#if NETSTANDARD1_6
       return base.ResolveType(nameOrType);
 #else
       if (MySqlConfiguration.Settings == null || MySqlConfiguration.Settings.CommandInterceptors == null)

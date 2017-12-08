@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -25,8 +25,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Security.Cryptography;
-#if NET_CORE
-using AliasText = MySql.Data.MySqlClient.Framework.NetCore10;
+#if NETSTANDARD1_6
+using AliasText = MySql.Data.MySqlClient.Framework.NetStandard1_6;
 #else
 using AliasText = System.Text;
 #endif
@@ -79,7 +79,7 @@ namespace MySql.Data.MySqlClient.Authentication
       // Obfuscate the plain text password with the session scramble
       byte[] obfuscated = GetXor(AliasText.Encoding.Default.GetBytes(password), seedBytes);
       // Encrypt the password and send it to the server
-#if NETCORE10
+#if NETSTANDARD1_6
       RSA rsa = MySqlPemReader.ConvertPemToRSAProvider(rawPublicKey);
       if (rsa == null) throw new MySqlException(Resources.UnableToReadRSAKey);
       return rsa.Encrypt(obfuscated, RSAEncryptionPadding.OaepSHA1);

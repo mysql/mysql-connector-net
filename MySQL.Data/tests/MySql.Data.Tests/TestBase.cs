@@ -76,7 +76,7 @@ namespace MySql.Data.MySqlClient.Tests
       return cmd.ExecuteReader();
     }
 
-#if !NET_CORE
+#if !NETCOREAPP1_1
     public DataTable FillTable(string sql)
     {
       DataTable dt = new DataTable();

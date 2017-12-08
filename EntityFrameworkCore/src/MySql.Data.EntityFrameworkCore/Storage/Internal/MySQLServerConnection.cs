@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -26,59 +26,44 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using Microsoft.EntityFrameworkCore;
-using MySQL.Data.EntityFrameworkCore.Extensions;
+using MySql.Data.EntityFrameworkCore.Extensions;
 using System.Reflection;
 
-namespace MySQL.Data.EntityFrameworkCore
+namespace MySql.Data.EntityFrameworkCore
 {
-  public class MySQLServerConnection : RelationalConnection
+  internal partial class MySQLServerConnection : RelationalConnection
+  {
+    private string _cnnStr
     {
-
-      private string _cnnStr
-      { 
-        get
-          {
-          if (this.DbConnection != null)
-            {
-              var cstr = ((MySqlConnectionStringBuilder)((MySqlConnection)this.DbConnection).GetType().GetProperty("Settings", System.Reflection.BindingFlags.Instance
-                          | System.Reflection.BindingFlags.NonPublic).GetValue(((MySqlConnection)this.DbConnection), null));
-              return cstr.ConnectionString;
-            }
-            return null;
-          }
-      }
-
-  
-      public MySQLServerConnection(
-            [NotNull]IDbContextOptions options, 
-            [NotNull]ILogger<MySQLServerConnection> logger) 
-            : base(options, logger)
-          {
-          }
-
-      public MySQLServerConnection(
-        [NotNull]IDbContextOptions options,
-        [NotNull]ILogger logger)
-        : base(options, logger)
+      get
       {
+        if (this.DbConnection != null)
+        {
+          var cstr = ((MySqlConnectionStringBuilder)((MySqlConnection)this.DbConnection).GetType().GetProperty("Settings", System.Reflection.BindingFlags.Instance
+                      | System.Reflection.BindingFlags.NonPublic).GetValue(((MySqlConnection)this.DbConnection), null));
+          return cstr.ConnectionString;
+        }
+        return null;
       }
-
-      protected override DbConnection CreateDbConnection()
-        {
-          return new MySqlConnection(ConnectionString);
-        }
-
-
-        public MySQLServerConnection CreateSystemConnection()
-        {
-            MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(_cnnStr ?? ConnectionString);
-            builder.Database = "mysql";
-
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseMySQL(builder.ConnectionString);
-
-            MySQLServerConnection c = new MySQLServerConnection(optionsBuilder.Options, Logger);
-            return c;
-        }
     }
+
+
+    protected override DbConnection CreateDbConnection()
+    {
+      return new MySqlConnection(ConnectionString);
+    }
+
+
+    public MySQLServerConnection CreateSystemConnection()
+    {
+      MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(_cnnStr ?? ConnectionString);
+      builder.Database = "mysql";
+
+      var optionsBuilder = new DbContextOptionsBuilder();
+      optionsBuilder.UseMySQL(builder.ConnectionString);
+
+      MySQLServerConnection c = new MySQLServerConnection(optionsBuilder.Options, Logger);
+      return c;
+    }
+  }
 }
