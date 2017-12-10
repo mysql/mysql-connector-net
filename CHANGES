@@ -1,4 +1,6 @@
 8.0.10
+- MySqlX: Added the Patch() method, which provides extended functionality for updating documents and elements
+  within documents (WL11133).
 - MySqlX: Added support for setting transaction savepoints (WL11135).
 - MySqlX: Removed support for the Configuartion API (WL11362).
 - MySqlX: Removed support for creating, modifying and dropping Views (WL11306).

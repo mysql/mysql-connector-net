@@ -59,11 +59,10 @@ namespace MySqlX.XDevAPI
 
     /// <summary>
     /// Gets the value of a document property.
-    /// NOTE: currently this is only supported one level deep.
     /// </summary>
     /// <param name="path">The key path for the property.</param>
     /// <returns></returns>
-    public string this[string path]
+    public object this[string path]
     {
       get { return GetValue(path); }
     }
@@ -102,29 +101,23 @@ namespace MySqlX.XDevAPI
       }
     }
 
-    private string GetValue(string path)
+    private object GetValue(string path)
     {
       string[] levels = path.Split('.');
       Dictionary<string,object> dic = values;
-      string returnValue = null;
+      object returnValue = null;
       foreach(string level in levels)
       {
         if (!dic.ContainsKey(level))
           throw new InvalidOperationException(
             String.Format(ResourcesX.PathNotFound, path));
         if (dic[level] is Dictionary<string, object>)
-        {
-          dic = dic[level] as Dictionary<string, object>;
-          returnValue = DictToString(dic, 2);
-        }
+          returnValue = dic = dic[level] as Dictionary<string, object>;
         else if (dic[level] == null) return null;
         else if (dic[level].GetType().GetTypeInfo().IsGenericType)
-        {
-          dic = ParseObject(dic[level]);
-          returnValue = DictToString(dic, 2);
-        }
+          returnValue = dic = ParseObject(dic[level]);
         else
-          returnValue = dic[level].ToString();
+          returnValue = dic[level];
       }
 
       return returnValue;
@@ -210,8 +203,13 @@ namespace MySqlX.XDevAPI
       }
       if (val is Dictionary<string, object>)
         return DictToString(val as Dictionary<string, object>, ident + 2);
+      else if (val is MySqlExpression)
+      {
+        var expression = (MySqlExpression) val;
+        return expression.value;
+      }
+
       string quoteChar = "";
-      Type type = val.GetType();
       if (val is string || val is DateTime)
       {
         quoteChar = "\"";

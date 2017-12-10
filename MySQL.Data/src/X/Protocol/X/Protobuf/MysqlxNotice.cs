@@ -490,7 +490,7 @@ namespace Mysqlx.Notice {
   /// <summary>
   ///  Notify clients about changes to the current session variables
   ///
-  ///  Every change to a variable that is accessable through:
+  ///  Every change to a variable that is accessible through:
   ///
   ///  .. code-block:: sql
   ///

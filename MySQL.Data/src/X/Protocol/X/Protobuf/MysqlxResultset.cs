@@ -34,11 +34,12 @@ namespace Mysqlx.Resultset {
             "cGUSCAoETk9ORRAAEggKBFNJTlQQARIICgRVSU5UEAISCgoGRE9VQkxFEAUS",
             "CQoFRkxPQVQQBhIJCgVCWVRFUxAHEggKBFRJTUUQChIMCghEQVRFVElNRRAM",
             "EgcKA1NFVBAPEggKBEVOVU0QEBIHCgNCSVQQERILCgdERUNJTUFMEBIiFAoD",
-            "Um93Eg0KBWZpZWxkGAEgAygMQh4KHGNvbS5teXNxbC5jai5teXNxbHgucHJv",
-            "dG9idWZiBnByb3RvMw=="));
+            "Um93Eg0KBWZpZWxkGAEgAygMKj4KEUNvbnRlbnRUeXBlX0JZVEVTEggKBE5P",
+            "TkUQABIMCghHRU9NRVRSWRABEggKBEpTT04QAhIHCgNYTUwQA0IeChxjb20u",
+            "bXlzcWwuY2oubXlzcWx4LnByb3RvYnVmYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
-          new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
+          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Mysqlx.Resultset.ContentType_BYTES), }, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Resultset.FetchDoneMoreOutParams), global::Mysqlx.Resultset.FetchDoneMoreOutParams.Parser, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Resultset.FetchDoneMoreResultsets), global::Mysqlx.Resultset.FetchDoneMoreResultsets.Parser, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Resultset.FetchDone), global::Mysqlx.Resultset.FetchDone.Parser, null, null, null, null),
@@ -49,6 +50,34 @@ namespace Mysqlx.Resultset {
     #endregion
 
   }
+  #region Enums
+  /// <summary>
+  ///  a hint about the higher-level encoding of a BYTES field
+  ///
+  ///  ====== ====== ===========
+  ///  type   value  description
+  ///  ====== ====== ===========
+  ///  BYTES  0x0001 GEOMETRY (WKB encoding)
+  ///  BYTES  0x0002 JSON (text encoding)
+  ///  BYTES  0x0003 XML (text encoding)
+  ///  ====== ====== ===========
+  ///
+  ///  .. note::
+  ///    this list isn't comprehensive. As guideline: the field's value is expected
+  ///    to pass a validator check on client and server if this field is set.
+  ///    If the server adds more internal datatypes that rely on BLOB storage
+  ///    like image manipulation, seeking into complex types in BLOBs, ... more
+  ///    types will be added.
+  /// </summary>
+  internal enum ContentType_BYTES {
+    [pbr::OriginalName("NONE")] None = 0,
+    [pbr::OriginalName("GEOMETRY")] Geometry = 1,
+    [pbr::OriginalName("JSON")] Json = 2,
+    [pbr::OriginalName("XML")] Xml = 3,
+  }
+
+  #endregion
+
   #region Messages
   /// <summary>
   ///  resultsets are finished, OUT paramset is next
@@ -630,7 +659,7 @@ namespace Mysqlx.Resultset {
   ///    default: 0
   ///  :param content_type:
   ///    a hint about the higher-level encoding of a BYTES field, for more informations
-  ///    please refer to Mysqlx.Datatypes.ContentType enum.
+  ///    please refer to Mysqlx.Resultset.ContentType_BYTES enum.
   /// </summary>
   internal sealed partial class ColumnMetaData : pb::IMessage<ColumnMetaData> {
     private static readonly pb::MessageParser<ColumnMetaData> _parser = new pb::MessageParser<ColumnMetaData>(() => new ColumnMetaData());
