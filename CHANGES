@@ -1,5 +1,6 @@
 6.9.11
 - Fix for sockets stay in CLOSE_WAIT when using SSL (MySQL Bug #75022, Oracle Bug #20393654).
+- Fix for unexpected ColumnSize for CHAR(63) and BLOB columns in GetSchemaTable (MySQL Bug #87868, Oracle Bug #26876582)
 
 
 6.9.10

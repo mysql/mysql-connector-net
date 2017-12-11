@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -34,7 +34,8 @@ namespace MySql.Data.MySqlClient.Tests
 
     public void SetFixture(SetUpClass data)
     {
-      st = data;      
+      st = data;
+      st.csAdditions = ";oldguids=True;";
     }
 
     public void Dispose()
@@ -264,7 +265,9 @@ namespace MySql.Data.MySqlClient.Tests
     ///</summary>
     [Fact]
     public void CanGetSchemaInformationGeneratedColumns()
-    {     
+
+
+    {
       if (st.Version < new Version(5, 7, 6)) return;
 
       st.execSQL("DROP TABLE IF EXISTS test");
@@ -279,8 +282,8 @@ namespace MySql.Data.MySqlClient.Tests
       if (st.Version.Major >= 5 && st.Version.Minor >= 7 && st.Version.Build >= 6)
       {
         Assert.Equal("char", dt.Rows[2]["DATA_TYPE"]);
-        Assert.Equal("Name", (dt.Rows[2]["GENERATION_EXPRESSION"]).ToString().Replace("`",""));
-        Assert.Equal("STORED GENERATED", dt.Rows[2]["EXTRA"]);         
+        Assert.Equal("Name", (dt.Rows[2]["GENERATION_EXPRESSION"]).ToString().Replace("`", ""));
+        Assert.Equal("STORED GENERATED", dt.Rows[2]["EXTRA"]);
       }
     }
 
@@ -625,6 +628,59 @@ namespace MySql.Data.MySqlClient.Tests
       DataTable dt = st.conn.GetSchema("ReservedWords");
       foreach (DataRow row in dt.Rows)
         Assert.False(String.IsNullOrEmpty(row[0] as string));
+    }
+
+    /// <summary> 
+    /// Bug #26876582 Unexpected ColumnSize for Char(36) and Blob in GetSchemaTable. 
+    /// Setting OldGuids to True so CHAR(36) is treated as CHAR.
+    /// </summary>
+    [Fact]
+    public void ColumnSizeWithOldGuids()
+     {
+      string connString = st.conn.ConnectionString;
+      connString += st.csAdditions;
+
+      st.execSQL("DROP TABLE IF EXISTS test");
+
+      using (MySqlConnection conn = new MySqlConnection(connString))
+      {
+        conn.Open();
+        MySqlCommand cmd = new MySqlCommand("CREATE TABLE test(char36 char(36) CHARSET utf8mb4, binary16 binary(16), char37 char(37), `tinyblob` tinyblob, `blob` blob);", conn);
+        cmd.ExecuteNonQuery();
+
+        using (MySqlDataReader reader = st.execReader("SELECT * FROM test;"))
+        {
+          DataTable schemaTable = reader.GetSchemaTable();
+
+          Assert.Equal(36, schemaTable.Rows[0]["ColumnSize"]);
+          Assert.Equal(16, schemaTable.Rows[1]["ColumnSize"]);
+          Assert.Equal(37, schemaTable.Rows[2]["ColumnSize"]);
+          Assert.Equal(255, schemaTable.Rows[3]["ColumnSize"]);
+          Assert.Equal(65535, schemaTable.Rows[4]["ColumnSize"]);
+        }
+      }
+    }
+
+    /// <summary> 
+    /// Bug #26876582 Unexpected ColumnSize for Char(36) and Blob in GetSchemaTable.
+    /// OldGuids with default value (false) so CHAR(36) is treated as GUID instead of CHAR.
+    /// </summary>
+    [Fact]
+    public void ColumnSize()
+    {
+      st.execSQL("DROP TABLE IF EXISTS test");
+      st.execSQL("CREATE TABLE test(char36 char(36) CHARSET utf8, binary16 binary(16), char37 char(37), `tinyblob` tinyblob, `blob` blob);");
+
+      using (MySqlDataReader reader = st.execReader("SELECT * FROM test;"))
+      {
+        DataTable schemaTable = reader.GetSchemaTable();
+
+        Assert.Equal(36, schemaTable.Rows[0]["ColumnSize"]);
+        Assert.Equal(16, schemaTable.Rows[1]["ColumnSize"]);
+        Assert.Equal(37, schemaTable.Rows[2]["ColumnSize"]);
+        Assert.Equal(255, schemaTable.Rows[3]["ColumnSize"]);
+        Assert.Equal(65535, schemaTable.Rows[4]["ColumnSize"]);
+      }
     }
   }
 }
