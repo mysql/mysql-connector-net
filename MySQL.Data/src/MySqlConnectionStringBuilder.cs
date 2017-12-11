@@ -153,6 +153,7 @@ namespace MySql.Data.MySqlClient
         }
         ));
       Options.Add(new MySqlConnectionStringOption("auth", null, typeof(MySqlAuthenticationMode), MySqlAuthenticationMode.Default, false));
+      Options.Add(new MySqlConnectionStringOption("allowpublickeyretrieval", null, typeof(bool), false, false));
 
       // Other properties
 #if !NETCORE10
@@ -554,6 +555,16 @@ namespace MySql.Data.MySqlClient
     {
       get { return (MySqlAuthenticationMode) values["auth"]; }
       set { SetValue("auth", value); }
+    }
+
+    [Category("Authentication")]
+    [DisplayName("AllowPublicKeyRetrieval")]
+    [Description("Allow retrieval of RSA public keys when ssl is disabled")]
+    [DefaultValue(false)]
+    public bool AllowPublicKeyRetrieval
+        {
+      get { return (bool) values["allowpublickeyretrieval"]; }
+      set { SetValue("allowpublickeyretrieval", value); }
     }
 
 #endregion

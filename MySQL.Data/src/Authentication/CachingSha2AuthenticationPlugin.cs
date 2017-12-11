@@ -96,6 +96,8 @@ namespace MySql.Data.MySqlClient.Authentication
           _authStage = AuthStage.REQUEST_RSA_KEY;
           return new byte[] { 0x02 };
         }
+        else if (!Settings.AllowPublicKeyRetrieval)
+          throw new MySqlException(Resources.RSAPublicKeyRetrievalNotEnabled);
         // Full authentication.
         else
         {

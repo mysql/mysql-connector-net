@@ -973,6 +973,15 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Retrieval of the RSA public key is not enabled for insecure connections..
+        /// </summary>
+        public static string RSAPublicKeyRetrievalNotEnabled {
+            get {
+                return ResourceManager.GetString("RSAPublicKeyRetrievalNotEnabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Connector/Net no longer supports server versions prior to 5.0.
         /// </summary>
         public static string ServerTooOld {

@@ -64,6 +64,8 @@ namespace MySql.Data.MySqlClient.Authentication
       {
         // send RSA encrypted, since the channel is not protected
         if (rawPubkey == null) return new byte[] { 0x01 };
+        else if (!Settings.AllowPublicKeyRetrieval)
+          throw new MySqlException(Resources.RSAPublicKeyRetrievalNotEnabled);
         else
         {
           byte[] bytes = GetRsaPassword(Settings.Password, AuthenticationData, rawPubkey);

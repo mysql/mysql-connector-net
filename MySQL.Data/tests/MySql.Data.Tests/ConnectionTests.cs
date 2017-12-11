@@ -897,10 +897,21 @@ namespace MySql.Data.MySqlClient.Tests
       {
         if (serverCompiledUsingOpenSsl)
         {
+          Exception ex = Assert.Throws<MySqlException>(() => connection.Open());
+          Assert.Equal("Retrieval of the RSA public key is not enabled for insecure connections.", ex.Message);
+        }
+        else Assert.Throws<MySqlException>(() => connection.Open());
+      }
+
+      if (serverCompiledUsingOpenSsl)
+      {
+        Settings.AllowPublicKeyRetrieval = true;
+        using (MySqlConnection connection = new MySqlConnection(Settings.ConnectionString))
+        {
           connection.Open();
           connection.Close();
         }
-        else Assert.Throws<MySqlException>(() => connection.Open());
+        Settings.AllowPublicKeyRetrieval = false;
       }
 
       // User without password over TLS connection.
@@ -1035,8 +1046,14 @@ namespace MySql.Data.MySqlClient.Tests
         builder.UserID = "testCachingSha2";
         builder.Password = "test";
         builder.SslMode = MySqlSslMode.None;
-        //st.CreateUser(builder.UserID, builder.Password, pluginName);
 
+        using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
+        {
+          ex = Assert.Throws<MySqlException>(() => connection.Open());
+          Assert.Equal("Retrieval of the RSA public key is not enabled for insecure connections.", ex.Message);
+        }
+
+        builder.AllowPublicKeyRetrieval = true;
         using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
         {
           connection.Open();
@@ -1063,6 +1080,194 @@ namespace MySql.Data.MySqlClient.Tests
         builder.Password = "incorrectPassword";
         ex = Assert.Throws<MySqlException>(() => new MySqlConnection(builder.ConnectionString).Open());
         Assert.True(ex.InnerException.Message.StartsWith("Access denied for user"));
+      }
+    }
+
+    [Fact]
+    public void AllowPublicKeyRetrievalForSha256PasswordPlugin()
+    {
+      if (Fixture.Version <= new Version("5.6")) return;
+
+      string userName = "testSha256";
+      string password = "mysql";
+      string pluginName = "sha256_password";
+      MySqlConnectionStringBuilder Settings = new MySqlConnectionStringBuilder(Fixture.Settings.ConnectionString);
+      Settings.UserID = userName;
+      Settings.Password = password;
+      Fixture.CreateUser(userName, password, pluginName);
+
+      bool serverCompiledUsingOpenSsl = false;
+      using (MySqlConnection connection = new MySqlConnection(Settings.ConnectionString))
+      {
+        MySqlCommand command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Rsa_public_key';", Connection);
+
+        using (MySqlDataReader reader = command.ExecuteReader())
+        {
+          if (reader.HasRows)
+          {
+            reader.Read();
+            if (!string.IsNullOrEmpty(reader.GetString(1))) serverCompiledUsingOpenSsl = true;
+          }
+        }
+      }
+
+      Settings.SslMode = MySqlSslMode.None;
+      using (MySqlConnection connection = new MySqlConnection(Settings.ConnectionString))
+      {
+        Exception ex = Assert.Throws<MySqlException>(() => connection.Open()); ;
+        if (serverCompiledUsingOpenSsl)
+          Assert.Equal("Retrieval of the RSA public key is not enabled for insecure connections.", ex.Message);
+        else
+          Assert.StartsWith("Authentication to host", ex.Message);
+      }
+
+      if (serverCompiledUsingOpenSsl)
+      {
+        Settings.AllowPublicKeyRetrieval = true;
+        using (MySqlConnection connection = new MySqlConnection(Settings.ConnectionString))
+        {
+          connection.Open();
+          connection.Close();
+        }
+      }
+    }
+
+    [Fact]
+    public void AllowPublicKeyRetrievalForCachingSha2PasswordPlugin()
+    {
+      if (Fixture.Version < new Version("8.0.3")) return;
+
+      string userName = "testCachingSha2";
+      string password = "mysql";
+      string pluginName = "caching_sha2_password";
+      MySqlConnectionStringBuilder Settings = new MySqlConnectionStringBuilder(Fixture.Settings.ConnectionString);
+      Settings.UserID = userName;
+      Settings.Password = password;
+      Fixture.CreateUser(userName, password, pluginName);
+
+      bool serverCompiledUsingOpenSsl = false;
+      using (MySqlConnection connection = new MySqlConnection(Settings.ConnectionString))
+      {
+        MySqlCommand command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Rsa_public_key';", Connection);
+
+        using (MySqlDataReader reader = command.ExecuteReader())
+        {
+          if (reader.HasRows)
+          {
+            reader.Read();
+            if (!string.IsNullOrEmpty(reader.GetString(1))) serverCompiledUsingOpenSsl = true;
+          }
+        }
+      }
+
+      Settings.SslMode = MySqlSslMode.None;
+      using (MySqlConnection connection = new MySqlConnection(Settings.ConnectionString))
+      {
+        Exception ex = Assert.Throws<MySqlException>(() => connection.Open());
+        if (serverCompiledUsingOpenSsl)
+          Assert.Equal("Retrieval of the RSA public key is not enabled for insecure connections.", ex.Message);
+        else
+          Assert.StartsWith("Authentication to host", ex.Message);
+      }
+
+      if (serverCompiledUsingOpenSsl)
+      {
+        Settings.AllowPublicKeyRetrieval = true;
+        using (MySqlConnection connection = new MySqlConnection(Settings.ConnectionString))
+        {
+          connection.Open();
+          connection.Close();
+        }
+      }
+    }
+
+    [Fact]
+    public void CachingSha2AuthFailsAfterFlushPrivileges()
+    {
+      if (Fixture.Version < new Version("8.0.3")) return;
+
+      string userName = "testCachingSha2";
+      string password = "mysql";
+      string pluginName = "caching_sha2_password";
+      MySqlConnectionStringBuilder Settings = new MySqlConnectionStringBuilder(Fixture.Settings.ConnectionString);
+      Settings.UserID = userName;
+      Settings.Password = password;
+      Fixture.CreateUser(userName, password, pluginName);
+
+      bool serverCompiledUsingOpenSsl = false;
+      using (MySqlConnection connection = new MySqlConnection(Settings.ConnectionString))
+      {
+        MySqlCommand command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Rsa_public_key';", Connection);
+
+        using (MySqlDataReader reader = command.ExecuteReader())
+        {
+          if (reader.HasRows)
+          {
+            reader.Read();
+            if (!string.IsNullOrEmpty(reader.GetString(1))) serverCompiledUsingOpenSsl = true;
+          }
+        }
+      }
+
+      Settings.SslMode = MySqlSslMode.Required;
+      using (MySqlConnection connection = new MySqlConnection(Settings.ConnectionString))
+      {
+        connection.Open();
+        Assert.True(connection.State == ConnectionState.Open);
+        connection.Close();
+      }
+
+      // Success since the user exists in the cache.
+      Settings.SslMode = MySqlSslMode.None;
+      using (MySqlConnection connection = new MySqlConnection(Settings.ConnectionString))
+      {
+        connection.Open();
+        Assert.True(connection.State == ConnectionState.Open);
+        connection.Close();
+      }
+
+      executeSQL("flush privileges");
+
+      // Fail since the user no longer exists in the cache and public key retrieval is disabled by default.
+      Exception ex = null;
+      using (MySqlConnection connection = new MySqlConnection(Settings.ConnectionString))
+      {
+        ex = Assert.Throws<MySqlException>(() => connection.Open());
+        if (serverCompiledUsingOpenSsl)
+          Assert.Equal("Retrieval of the RSA public key is not enabled for insecure connections.", ex.Message);
+        else
+          Assert.StartsWith("Authentication to host", ex.Message);
+      }
+
+      Settings.AllowPublicKeyRetrieval = true;
+      using (MySqlConnection connection = new MySqlConnection(Settings.ConnectionString))
+      {
+        // Success when activating public key retrieval for commercial servers.
+        if (serverCompiledUsingOpenSsl)
+        {
+          connection.Open();
+          Assert.True(connection.State == ConnectionState.Open);
+          connection.Close();
+        }
+        // Fail since AllowPublicKeyRetrieval is ignored in gpl servers.
+        else
+        {
+          ex = Assert.Throws<MySqlException>(() => connection.Open());
+          Assert.StartsWith("Authentication to host", ex.Message);
+        }
+      }
+    }
+
+    [Fact]
+    public void CheckAllowPublicKeyRetrievalOptionIsAvailable()
+    {
+      string connectionString = ConnectionSettings.ConnectionString;
+      connectionString += ";allowpublickeyretrieval=true";
+      using (MySqlConnection connection = new MySqlConnection(connectionString))
+      {
+        connection.Open();
+        Assert.True(connection.Settings.AllowPublicKeyRetrieval);
+        connection.Close();
       }
     }
   }
