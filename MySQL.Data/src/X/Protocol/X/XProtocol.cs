@@ -297,7 +297,17 @@ namespace MySqlX.Protocol
       {
         var any = ExprUtil.BuildEmptyAny(Any.Types.Type.Object);
         foreach (var arg in args)
-          any.Obj.Fld.Add(CreateObject(arg.Key, arg.Value));
+        {
+          switch(stmt)
+          {
+            case "drop_collection_index":
+              any.Obj.Fld.Add(CreateObject(arg.Key, arg.Value, false));
+              break;
+            default:
+              any.Obj.Fld.Add(CreateObject(arg.Key, arg.Value));
+              break;
+          }
+        }
 
         stmtExecute.Args.Add(any);
       }

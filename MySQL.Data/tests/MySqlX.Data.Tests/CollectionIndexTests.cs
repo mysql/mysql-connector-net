@@ -22,6 +22,7 @@
 
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
+using MySqlX.XDevAPI.Common;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -289,12 +290,15 @@ namespace MySqlX.Data.Tests
 
       collection.CreateIndex("01myIndex", "{ \"fields\": [ { \"field\":\"$.myField\", \"type\":\"TEXT\" } ] }").Execute();
       ValidateIndex("01myIndex", "test", "t64", false, false, false, 1, 64);
+      collection.DropIndex("01myIndex");
 
       collection.CreateIndex("!myIndex", "{ \"fields\": [ { \"field\":\"$.myField\", \"type\":\"TEXT\" } ] }").Execute();
       ValidateIndex("!myIndex", "test", "t64", false, false, false, 1, 64);
+      collection.DropIndex("!myIndex");
 
       collection.CreateIndex("-myIndex", "{ \"fields\": [ { \"field\":\"$.myField\", \"type\":\"TEXT\" } ] }").Execute();
       ValidateIndex("-myIndex", "test", "t64", false, false, false, 1, 64);
+      collection.DropIndex("-myIndex");
     }
 
     private void ValidateIndex(string fieldName, string collectionName, string dataType, bool unique, bool required, bool isUnsigned, int sequence, int? length = null)
