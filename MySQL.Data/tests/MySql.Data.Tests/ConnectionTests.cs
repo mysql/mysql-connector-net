@@ -1274,6 +1274,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void EmptypasswordOnSslDisabledSha256Password()
     {
+      if (Fixture.Version <= new Version("5.6")) return;
+
       string userName = "testSha256";
       string password = "";
       string pluginName = "sha256_password";
@@ -1293,6 +1295,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void EmptypasswordOnSslDisableCachingSha2Password()
     {
+      if (Fixture.Version < new Version("8.0.3")) return;
+
       string userName = "testCachingSha256";
       string password = "";
       string pluginName = "caching_sha2_password";
