@@ -1270,5 +1270,43 @@ namespace MySql.Data.MySqlClient.Tests
         connection.Close();
       }
     }
+
+    [Fact]
+    public void EmptypasswordOnSslDisabledSha256Password()
+    {
+      string userName = "testSha256";
+      string password = "";
+      string pluginName = "sha256_password";
+      MySqlConnectionStringBuilder Settings = new MySqlConnectionStringBuilder(Fixture.Settings.ConnectionString);
+      Settings.UserID = userName;
+      Settings.Password = password;
+      Fixture.CreateUser(userName, password, pluginName);
+
+      Settings.SslMode = MySqlSslMode.None;
+      using (MySqlConnection connection = new MySqlConnection(Settings.ConnectionString))
+      {
+       connection.Open();
+       connection.Close();
+      }
+    }
+
+    [Fact]
+    public void EmptypasswordOnSslDisableCachingSha2Password()
+    {
+      string userName = "testCachingSha256";
+      string password = "";
+      string pluginName = "caching_sha2_password";
+      MySqlConnectionStringBuilder Settings = new MySqlConnectionStringBuilder(Fixture.Settings.ConnectionString);
+      Settings.UserID = userName;
+      Settings.Password = password;
+      Fixture.CreateUser(userName, password, pluginName);
+
+      Settings.SslMode = MySqlSslMode.None;
+      using (MySqlConnection connection = new MySqlConnection(Settings.ConnectionString))
+      {
+       connection.Open();
+       connection.Close();
+      }
+    }
   }
 }
