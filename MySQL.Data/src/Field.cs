@@ -1,4 +1,4 @@
-// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -45,7 +45,7 @@ namespace MySql.Data.MySqlClient
     TIMESTAMP = 1024,
     SET = 2048,
     NUMBER = 32768
-  } ;
+  };
 
   /// <summary>
   /// Summary description for Field.
@@ -118,8 +118,14 @@ namespace MySql.Data.MySqlClient
 
     public bool IsUnsigned => (Flags & ColumnFlags.UNSIGNED) > 0;
 
-    public bool IsTextField => Type == MySqlDbType.VarString || Type == MySqlDbType.VarChar ||
-                               Type == MySqlDbType.String || (IsBlob && !IsBinary);
+    public bool IsTextField
+    {
+      get
+      {
+        return Type == MySqlDbType.VarString || Type == MySqlDbType.VarChar ||
+                    Type == MySqlDbType.String || (Type == MySqlDbType.Guid && !driver.Settings.OldGuids);
+      }
+    }
 
     private int CharacterLength => ColumnLength / MaxLength;
 
@@ -310,7 +316,7 @@ namespace MySql.Data.MySqlClient
         case MySqlDbType.JSON:
         case (MySqlDbType)Field_Type.NULL:
           return new MySqlString(type, true);
-        case MySqlDbType.Geometry:        
+        case MySqlDbType.Geometry:
           return new MySqlGeometry(type, true);
         case MySqlDbType.Blob:
         case MySqlDbType.MediumBlob:
@@ -328,24 +334,14 @@ namespace MySql.Data.MySqlClient
 
     private void SetFieldEncoding()
     {
-      Dictionary<int,string> charSets = driver.CharacterSets;
+      Dictionary<int, string> charSets = driver.CharacterSets;
       DBVersion version = driver.Version;
 
       if (charSets == null || charSets.Count == 0 || CharacterSetIndex == -1) return;
       if (charSets[CharacterSetIndex] == null) return;
 
       CharacterSet cs = CharSetMap.GetCharacterSet(version, (string)charSets[CharacterSetIndex]);
-      // starting with 6.0.4 utf8 has a maxlen of 4 instead of 3.  The old
-      // 3 byte utf8 is utf8mb3
-#if !NETSTANDARD1_3
-      if (cs.name.ToLower(System.Globalization.CultureInfo.InvariantCulture) == "utf-8" &&
-#else
-      if (cs.name.ToLowerInvariant() == "utf-8" &&
-#endif
-        version.Major >= 6)
-        MaxLength = 4;
-      else
-        MaxLength = cs.byteCount;
+      MaxLength = cs.byteCount;
       Encoding = CharSetMap.GetEncoding(version, (string)charSets[CharacterSetIndex]);
     }
   }
