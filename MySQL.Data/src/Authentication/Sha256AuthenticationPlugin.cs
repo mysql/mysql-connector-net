@@ -38,7 +38,7 @@ namespace MySql.Data.MySqlClient.Authentication
   /// </summary>
   public class Sha256AuthenticationPlugin : MySqlAuthenticationPlugin
   {
-    private byte[] rawPubkey;
+    protected byte[] rawPubkey;
 
     public override string PluginName => "sha256_password";
 
@@ -62,8 +62,11 @@ namespace MySql.Data.MySqlClient.Authentication
       }
       else
       {
+        if (Settings.Password.Length == 0) return new byte[1];
         // send RSA encrypted, since the channel is not protected
-        if (rawPubkey == null) return new byte[] { 0x01 };
+        else if (rawPubkey == null) return new byte[] { 0x01 };
+        else if (!Settings.AllowPublicKeyRetrieval)
+          throw new MySqlException(Resources.RSAPublicKeyRetrievalNotEnabled);
         else
         {
           byte[] bytes = GetRsaPassword(Settings.Password, AuthenticationData, rawPubkey);
@@ -90,7 +93,7 @@ namespace MySql.Data.MySqlClient.Authentication
 #endif
         }
 
-    private byte[] GetXor( byte[] src, byte[] pattern )
+    protected byte[] GetXor( byte[] src, byte[] pattern )
     {
       byte[] src2 = new byte[src.Length + 1];
       Array.Copy(src, 0, src2, 0, src.Length);

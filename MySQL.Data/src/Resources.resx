@@ -556,4 +556,7 @@
   <data name="UnableToReadRSAKey" xml:space="preserve">
     <value>Error encountered reading the RSA public key.</value>
   </data>
+  <data name="RSAPublicKeyRetrievalNotEnabled" xml:space="preserve">
+    <value>Retrieval of the RSA public key is not enabled for insecure connections.</value>
+  </data>
 </root>
