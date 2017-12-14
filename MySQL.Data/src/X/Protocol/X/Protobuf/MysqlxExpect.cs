@@ -32,8 +32,7 @@ namespace Mysqlx.Expect {
             "RVhJU1QQAiI8ChJDb25kaXRpb25PcGVyYXRpb24SEQoNRVhQRUNUX09QX1NF",
             "VBAAEhMKD0VYUEVDVF9PUF9VTlNFVBABIj4KDEN0eE9wZXJhdGlvbhIYChRF",
             "WFBFQ1RfQ1RYX0NPUFlfUFJFVhAAEhQKEEVYUEVDVF9DVFhfRU1QVFkQASIH",
-            "CgVDbG9zZUIeChxjb20ubXlzcWwuY2oubXlzcWx4LnByb3RvYnVmYgZwcm90",
-            "bzM="));
+            "CgVDbG9zZUIZChdjb20ubXlzcWwuY2oueC5wcm90b2J1ZmIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
@@ -89,6 +88,9 @@ namespace Mysqlx.Expect {
     /// <summary>Field number for the "op" field.</summary>
     public const int OpFieldNumber = 1;
     private global::Mysqlx.Expect.Open.Types.CtxOperation op_ = 0;
+    /// <summary>
+    /// optional [ default = EXPECT_CTX_COPY_PREV ]
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Expect.Open.Types.CtxOperation Op {
       get { return op_; }
@@ -254,6 +256,9 @@ namespace Mysqlx.Expect {
         /// <summary>Field number for the "condition_value" field.</summary>
         public const int ConditionValueFieldNumber = 2;
         private pb::ByteString conditionValue_ = pb::ByteString.Empty;
+        /// <summary>
+        /// optional
+        /// </summary>
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public pb::ByteString ConditionValue {
           get { return conditionValue_; }
@@ -265,6 +270,9 @@ namespace Mysqlx.Expect {
         /// <summary>Field number for the "op" field.</summary>
         public const int OpFieldNumber = 3;
         private global::Mysqlx.Expect.Open.Types.Condition.Types.ConditionOperation op_ = 0;
+        /// <summary>
+        /// optional [ default = EXPECT_OP_SET ]
+        /// </summary>
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public global::Mysqlx.Expect.Open.Types.Condition.Types.ConditionOperation Op {
           get { return op_; }

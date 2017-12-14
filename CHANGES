@@ -1,4 +1,6 @@
 8.0.10
+- MySqlX: Replaced the current implementation of the CreateIndex() method with new syntax that enhances the
+  creation of indexes (WL11131).
 - MySqlX: Added the Patch() method, which provides extended functionality for updating documents and elements
   within documents (WL11133).
 - MySqlX: Added support for setting transaction savepoints (WL11135).

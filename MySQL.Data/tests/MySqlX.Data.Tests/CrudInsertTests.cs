@@ -290,10 +290,6 @@ namespace MySqlX.Data.Tests
       Assert.Equal("Book Y", document["title"]);
       Assert.Equal(9, Convert.ToInt32(document["pages"]));
       Assert.Equal("value", document["other"]);
-
-      // Add unique index.
-      collection.CreateIndex("myPages", true).Field("$.pages", "INT", true).Execute();
-      Assert.Throws<MySqlException>(() => collection.AddOrReplaceOne(1, new { title = "Book X", pages = 50, other = "value" }).RecordsAffected);
     }
   }
 }

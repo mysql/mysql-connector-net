@@ -52,7 +52,7 @@ namespace MySqlX.Sessions
     private XPacketReaderWriter _reader;
     private XPacketReaderWriter _writer;
     private bool serverSupportsTls = false;
-    private const string mysqlxNamespace = "xplugin"; // TODO change to mysqlx
+    private const string mysqlxNamespace = "mysqlx";
 
 
     public XInternalSession(MySqlConnectionStringBuilder settings) : base(settings)
@@ -206,37 +206,62 @@ namespace MySqlX.Sessions
 
     public void CreateCollection(string schemaName, string collectionName)
     {
-      ExecuteCmdNonQuery(XpluginStatementCommand.XPLUGIN_STMT_CREATE_COLLECTION, true, schemaName, collectionName);
+      ExecuteCmdNonQuery(XpluginStatementCommand.XPLUGIN_STMT_CREATE_COLLECTION,
+        true,
+        new KeyValuePair<string, object>("schema", schemaName),
+        new KeyValuePair<string, object>("name", collectionName));
     }
 
     public void DropCollection(string schemaName, string collectionName)
     {
-      ExecuteCmdNonQuery(XpluginStatementCommand.XPLUGIN_STMT_DROP_COLLECTION, true, schemaName, collectionName);
+      ExecuteCmdNonQuery(XpluginStatementCommand.XPLUGIN_STMT_DROP_COLLECTION,
+        true,
+        new KeyValuePair<string, object>("schema", schemaName),
+        new KeyValuePair<string, object>("name", collectionName));
     }
 
     public Result CreateCollectionIndex(CreateCollectionIndexStatement statement)
     {
-      List<object> args = new List<object>();
-      args.Add(statement.Target.Schema.Name);
-      args.Add(statement.Target.Name);
-      args.Add(statement.createIndexParams.IndexName);
-      args.Add(statement.createIndexParams.IsUnique);
-      for(int i = 0; i < statement.createIndexParams.DocPaths.Count; i++)
+      List<KeyValuePair<string, object>> args = new List<KeyValuePair<string, object>>();
+      args.Add(new KeyValuePair<string, object>("name", statement.createIndexParams.IndexName));
+      args.Add(new KeyValuePair<string, object>("collection", statement.Target.Name));
+      args.Add(new KeyValuePair<string, object>("schema", statement.Target.Schema.Name));
+      args.Add(new KeyValuePair<string, object>("unique", false));
+
+      if (statement.createIndexParams.Type != null)
+        args.Add(new KeyValuePair<string, object>("type", statement.createIndexParams.Type));
+
+      for(int i = 0; i < statement.createIndexParams.Fields.Count; i++)
       {
-        args.Add(statement.createIndexParams.DocPaths[i]);
-        args.Add(statement.createIndexParams.Types[i]);
-        args.Add(statement.createIndexParams.NotNulls[i]);
+        var field = statement.createIndexParams.Fields[i];
+        var dictionary = new Dictionary<string, object>();
+        dictionary.Add("member", field.Field);
+        if (field.Type != null)
+          dictionary.Add("type", field.Type == "TEXT" ? "TEXT(64)" : field.Type);
+
+        if (field.Required == null)
+          dictionary.Add("required", field.Type == "GEOJSON" ? true : false);
+        else
+          dictionary.Add("required", (bool) field.Required);
+
+        if (field.Options != null)
+          dictionary.Add("options", (ulong) field.Options);
+
+        if (field.Srid != null)
+          dictionary.Add("srid", (ulong) field.Srid);
+
+        args.Add(new KeyValuePair<string, object>("constraint", dictionary));
       }
 
-      return ExecuteCmdNonQuery(XpluginStatementCommand.XPLUGIN_STMT_CREATE_COLLECTION_INDEX, false, args.ToArray());
+      return ExecuteCreateCollectionIndex(XpluginStatementCommand.XPLUGIN_STMT_CREATE_COLLECTION_INDEX, false, args.ToArray());
     }
 
     public void DropCollectionIndex(string schemaName, string collectionName, string indexName)
     {
-      List<object> args = new List<object>();
-      args.Add(schemaName);
-      args.Add(collectionName);
-      args.Add(indexName);
+      List<KeyValuePair<string, object>> args = new List<KeyValuePair<string, object>>();
+      args.Add(new KeyValuePair<string, object>("schema", schemaName));
+      args.Add(new KeyValuePair<string, object>("collection", collectionName));
+      args.Add(new KeyValuePair<string, object>("name", indexName));
       ExecuteCmdNonQuery(XpluginStatementCommand.XPLUGIN_STMT_DROP_COLLECTION_INDEX, false, args.ToArray());
     }
 
@@ -255,9 +280,15 @@ namespace MySqlX.Sessions
       return count != 0;
     }
 
-    private Result ExecuteCmdNonQuery(string cmd, bool throwOnFail, params object[] args)
+    private Result ExecuteCmdNonQuery(string cmd, bool throwOnFail, params KeyValuePair<string, object>[] args)
     {
       protocol.SendExecuteStatement(mysqlxNamespace, cmd, args);
+      return new Result(this);
+    }
+
+    private Result ExecuteCreateCollectionIndex(string cmd, bool throwOnFail, params KeyValuePair<string, object>[] args)
+    {
+      protocol.SendCreateCollectionIndexStatement(mysqlxNamespace, cmd, args);
       return new Result(this);
     }
 
@@ -265,7 +296,7 @@ namespace MySqlX.Sessions
     {
       for (int i = 0; i < types.Length; i++)
         types[i] = types[i].ToUpperInvariant();
-      RowResult result = GetRowResult("list_objects", s.Name);
+      RowResult result = GetRowResult("list_objects", new KeyValuePair<string,object>("schema", s.Name));
       var rows = result.FetchAll();
 
       List<T> docs = new List<T>();
@@ -307,7 +338,9 @@ namespace MySqlX.Sessions
 
     public string GetObjectType(Schema s, string name)
     {
-      RowResult result = GetRowResult("list_objects", s.Name, name);
+      RowResult result = GetRowResult("list_objects",
+        new KeyValuePair<string, object>("schema", s.Name),
+        new KeyValuePair<string, object>("pattern", name));
       var row = result.FetchOne();
       if (row == null)
         throw new MySqlException(string.Format(ResourcesX.NoObjectFound, name));
@@ -315,7 +348,7 @@ namespace MySqlX.Sessions
       return row.GetString("type");
     }
 
-    public RowResult GetRowResult(string cmd, params object[] args)
+    public RowResult GetRowResult(string cmd, params KeyValuePair<string,object>[] args)
     {
       protocol.SendExecuteStatement(mysqlxNamespace, cmd, args);
       return new RowResult(this);

@@ -26,7 +26,7 @@ namespace Mysqlx.Sql {
             "cGVzLnByb3RvIm0KC1N0bXRFeGVjdXRlEhEKCW5hbWVzcGFjZRgDIAEoCRIM",
             "CgRzdG10GAEgASgMEiMKBGFyZ3MYAiADKAsyFS5NeXNxbHguRGF0YXR5cGVz",
             "LkFueRIYChBjb21wYWN0X21ldGFkYXRhGAQgASgIIg8KDVN0bXRFeGVjdXRl",
-            "T2tCHgocY29tLm15c3FsLmNqLm15c3FseC5wcm90b2J1ZmIGcHJvdG8z"));
+            "T2tCGQoXY29tLm15c3FsLmNqLngucHJvdG9idWZiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Mysqlx.Datatypes.MysqlxDatatypesReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
@@ -96,6 +96,9 @@ namespace Mysqlx.Sql {
     /// <summary>Field number for the "namespace" field.</summary>
     public const int NamespaceFieldNumber = 3;
     private string namespace_ = "";
+    /// <summary>
+    /// optional [ default = "sql" ]
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Namespace {
       get { return namespace_; }
@@ -131,6 +134,9 @@ namespace Mysqlx.Sql {
     /// <summary>Field number for the "compact_metadata" field.</summary>
     public const int CompactMetadataFieldNumber = 4;
     private bool compactMetadata_;
+    /// <summary>
+    /// optional [ default = false ]
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool CompactMetadata {
       get { return compactMetadata_; }

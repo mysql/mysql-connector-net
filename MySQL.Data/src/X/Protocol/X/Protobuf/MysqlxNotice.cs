@@ -40,8 +40,8 @@ namespace Mysqlx.Notice {
             "X0VYUElSRUQQAhIXChNHRU5FUkFURURfSU5TRVJUX0lEEAMSEQoNUk9XU19B",
             "RkZFQ1RFRBAEEg4KClJPV1NfRk9VTkQQBRIQCgxST1dTX01BVENIRUQQBhIR",
             "Cg1UUlhfQ09NTUlUVEVEEAcSEgoOVFJYX1JPTExFREJBQ0sQCRIUChBQUk9E",
-            "VUNFRF9NRVNTQUdFEAoSFgoSQ0xJRU5UX0lEX0FTU0lHTkVEEAtCHgocY29t",
-            "Lm15c3FsLmNqLm15c3FseC5wcm90b2J1ZmIGcHJvdG8z"));
+            "VUNFRF9NRVNTQUdFEAoSFgoSQ0xJRU5UX0lEX0FTU0lHTkVEEAtCGQoXY29t",
+            "Lm15c3FsLmNqLngucHJvdG9idWZiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Mysqlx.Datatypes.MysqlxDatatypesReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
@@ -121,6 +121,9 @@ namespace Mysqlx.Notice {
     /// <summary>Field number for the "scope" field.</summary>
     public const int ScopeFieldNumber = 2;
     private global::Mysqlx.Notice.Frame.Types.Scope scope_ = 0;
+    /// <summary>
+    /// optional [ default = GLOBAL ]
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Notice.Frame.Types.Scope Scope {
       get { return scope_; }
@@ -132,6 +135,9 @@ namespace Mysqlx.Notice {
     /// <summary>Field number for the "payload" field.</summary>
     public const int PayloadFieldNumber = 3;
     private pb::ByteString payload_ = pb::ByteString.Empty;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public pb::ByteString Payload {
       get { return payload_; }
@@ -331,6 +337,9 @@ namespace Mysqlx.Notice {
     /// <summary>Field number for the "level" field.</summary>
     public const int LevelFieldNumber = 1;
     private global::Mysqlx.Notice.Warning.Types.Level level_ = 0;
+    /// <summary>
+    /// optional [ default = WARNING ]
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Notice.Warning.Types.Level Level {
       get { return level_; }
@@ -557,6 +566,9 @@ namespace Mysqlx.Notice {
     /// <summary>Field number for the "value" field.</summary>
     public const int ValueFieldNumber = 2;
     private global::Mysqlx.Datatypes.Scalar value_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Datatypes.Scalar Value {
       get { return value_; }
@@ -724,6 +736,9 @@ namespace Mysqlx.Notice {
     /// <summary>Field number for the "value" field.</summary>
     public const int ValueFieldNumber = 2;
     private global::Mysqlx.Datatypes.Scalar value_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Datatypes.Scalar Value {
       get { return value_; }

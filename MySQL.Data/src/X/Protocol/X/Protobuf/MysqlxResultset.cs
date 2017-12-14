@@ -34,12 +34,13 @@ namespace Mysqlx.Resultset {
             "cGUSCAoETk9ORRAAEggKBFNJTlQQARIICgRVSU5UEAISCgoGRE9VQkxFEAUS",
             "CQoFRkxPQVQQBhIJCgVCWVRFUxAHEggKBFRJTUUQChIMCghEQVRFVElNRRAM",
             "EgcKA1NFVBAPEggKBEVOVU0QEBIHCgNCSVQQERILCgdERUNJTUFMEBIiFAoD",
-            "Um93Eg0KBWZpZWxkGAEgAygMKj4KEUNvbnRlbnRUeXBlX0JZVEVTEggKBE5P",
-            "TkUQABIMCghHRU9NRVRSWRABEggKBEpTT04QAhIHCgNYTUwQA0IeChxjb20u",
-            "bXlzcWwuY2oubXlzcWx4LnByb3RvYnVmYgZwcm90bzM="));
+            "Um93Eg0KBWZpZWxkGAEgAygMKkAKEUNvbnRlbnRUeXBlX0JZVEVTEgoKBkNC",
+            "Tk9ORRAAEgwKCEdFT01FVFJZEAESCAoESlNPThACEgcKA1hNTBADKjoKFENv",
+            "bnRlbnRUeXBlX0RBVEVUSU1FEgoKBkNETk9ORRAAEggKBERBVEUQARIMCghE",
+            "QVRFVElNRRACQhkKF2NvbS5teXNxbC5jai54LnByb3RvYnVmYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
-          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Mysqlx.Resultset.ContentType_BYTES), }, new pbr::GeneratedClrTypeInfo[] {
+          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Mysqlx.Resultset.ContentType_BYTES), typeof(global::Mysqlx.Resultset.ContentType_DATETIME), }, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Resultset.FetchDoneMoreOutParams), global::Mysqlx.Resultset.FetchDoneMoreOutParams.Parser, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Resultset.FetchDoneMoreResultsets), global::Mysqlx.Resultset.FetchDoneMoreResultsets.Parser, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Resultset.FetchDone), global::Mysqlx.Resultset.FetchDone.Parser, null, null, null, null),
@@ -70,10 +71,26 @@ namespace Mysqlx.Resultset {
   ///    types will be added.
   /// </summary>
   internal enum ContentType_BYTES {
-    [pbr::OriginalName("NONE")] None = 0,
+    [pbr::OriginalName("CBNONE")] Cbnone = 0,
     [pbr::OriginalName("GEOMETRY")] Geometry = 1,
     [pbr::OriginalName("JSON")] Json = 2,
     [pbr::OriginalName("XML")] Xml = 3,
+  }
+
+  /// <summary>
+  ///  a hint about the higher-level encoding of a DATETIME field
+  ///
+  ///  ======   ====== ===========
+  ///  type     value  description
+  ///  ======== ====== ===========
+  ///  DATE     0x0001 DATETIME contains only date part
+  ///  DATETIME 0x0002 DATETIME contains both date and time parts
+  ///  ======   ====== ===========
+  /// </summary>
+  internal enum ContentType_DATETIME {
+    [pbr::OriginalName("CDNONE")] Cdnone = 0,
+    [pbr::OriginalName("DATE")] Date = 1,
+    [pbr::OriginalName("DATETIME")] Datetime = 2,
   }
 
   #endregion
@@ -360,7 +377,7 @@ namespace Mysqlx.Resultset {
   ///
   ///  .. note:: the encoding used for the different ``bytes`` fields in the meta data is externally
   ///    controlled.
-  ///    .. seealso:: https://dev.mysql.com/doc/refman/5.0/en/charset-connection.html
+  ///    .. seealso:: https://dev.mysql.com/doc/refman/8.0/en/charset-connection.html
   ///
   ///  .. note::
   ///    The server may not set the ``original_{table|name}`` fields if they are equal to the plain
@@ -431,7 +448,7 @@ namespace Mysqlx.Resultset {
   ///        LONGLONG SIGNED 20
   ///        =============== ==
   ///
-  ///        .. seealso:: definition of ``M`` in https://dev.mysql.com/doc/refman/5.5/en/numeric-type-overview.html
+  ///        .. seealso:: definition of ``M`` in https://dev.mysql.com/doc/refman/8.0/en/numeric-type-overview.html
   ///
   ///      ``value``
   ///        variable length encoded signed 64 integer
@@ -457,7 +474,7 @@ namespace Mysqlx.Resultset {
   ///        LONGLONG UNSIGNED 20
   ///        ================= ==
   ///
-  ///        .. seealso:: definition of ``M`` in https://dev.mysql.com/doc/refman/5.5/en/numeric-type-overview.html
+  ///        .. seealso:: definition of ``M`` in https://dev.mysql.com/doc/refman/8.0/en/numeric-type-overview.html
   ///
   ///      ``value``
   ///        variable length encoded unsigned 64 integer
@@ -468,7 +485,7 @@ namespace Mysqlx.Resultset {
   ///        maximum number of displayable binary digits
   ///
   ///        .. note:: valid range for M of the ``BIT`` type is 1 - 64
-  ///        .. seealso:: https://dev.mysql.com/doc/refman/5.5/en/numeric-type-overview.html
+  ///        .. seealso:: https://dev.mysql.com/doc/refman/8.0/en/numeric-type-overview.html
   ///
   ///      ``value``
   ///        variable length encoded unsigned 64 integer
@@ -721,6 +738,9 @@ namespace Mysqlx.Resultset {
     /// <summary>Field number for the "name" field.</summary>
     public const int NameFieldNumber = 2;
     private pb::ByteString name_ = pb::ByteString.Empty;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public pb::ByteString Name {
       get { return name_; }
@@ -732,6 +752,9 @@ namespace Mysqlx.Resultset {
     /// <summary>Field number for the "original_name" field.</summary>
     public const int OriginalNameFieldNumber = 3;
     private pb::ByteString originalName_ = pb::ByteString.Empty;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public pb::ByteString OriginalName {
       get { return originalName_; }
@@ -743,6 +766,9 @@ namespace Mysqlx.Resultset {
     /// <summary>Field number for the "table" field.</summary>
     public const int TableFieldNumber = 4;
     private pb::ByteString table_ = pb::ByteString.Empty;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public pb::ByteString Table {
       get { return table_; }
@@ -754,6 +780,9 @@ namespace Mysqlx.Resultset {
     /// <summary>Field number for the "original_table" field.</summary>
     public const int OriginalTableFieldNumber = 5;
     private pb::ByteString originalTable_ = pb::ByteString.Empty;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public pb::ByteString OriginalTable {
       get { return originalTable_; }
@@ -765,6 +794,9 @@ namespace Mysqlx.Resultset {
     /// <summary>Field number for the "schema" field.</summary>
     public const int SchemaFieldNumber = 6;
     private pb::ByteString schema_ = pb::ByteString.Empty;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public pb::ByteString Schema {
       get { return schema_; }
@@ -776,6 +808,9 @@ namespace Mysqlx.Resultset {
     /// <summary>Field number for the "catalog" field.</summary>
     public const int CatalogFieldNumber = 7;
     private pb::ByteString catalog_ = pb::ByteString.Empty;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public pb::ByteString Catalog {
       get { return catalog_; }
@@ -787,6 +822,9 @@ namespace Mysqlx.Resultset {
     /// <summary>Field number for the "collation" field.</summary>
     public const int CollationFieldNumber = 8;
     private ulong collation_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public ulong Collation {
       get { return collation_; }
@@ -798,6 +836,9 @@ namespace Mysqlx.Resultset {
     /// <summary>Field number for the "fractional_digits" field.</summary>
     public const int FractionalDigitsFieldNumber = 9;
     private uint fractionalDigits_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public uint FractionalDigits {
       get { return fractionalDigits_; }
@@ -809,6 +850,9 @@ namespace Mysqlx.Resultset {
     /// <summary>Field number for the "length" field.</summary>
     public const int LengthFieldNumber = 10;
     private uint length_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public uint Length {
       get { return length_; }
@@ -820,6 +864,9 @@ namespace Mysqlx.Resultset {
     /// <summary>Field number for the "flags" field.</summary>
     public const int FlagsFieldNumber = 11;
     private uint flags_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public uint Flags {
       get { return flags_; }
@@ -831,6 +878,9 @@ namespace Mysqlx.Resultset {
     /// <summary>Field number for the "content_type" field.</summary>
     public const int ContentTypeFieldNumber = 12;
     private uint contentType_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public uint ContentType {
       get { return contentType_; }

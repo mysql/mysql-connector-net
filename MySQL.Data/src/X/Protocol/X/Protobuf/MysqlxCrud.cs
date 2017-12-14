@@ -87,8 +87,8 @@ namespace Mysqlx.Crud {
             "RklORUQQARIJCgVNRVJHRRACEg0KCVRFTVBUQUJMRRADKjcKD1ZpZXdTcWxT",
             "ZWN1cml0eRIKCgZWU05PTkUQABILCgdJTlZPS0VSEAESCwoHREVGSU5FUhAC",
             "KjYKD1ZpZXdDaGVja09wdGlvbhIKCgZWT05PTkUQABIJCgVMT0NBTBABEgwK",
-            "CENBU0NBREVEEAJCHgocY29tLm15c3FsLmNqLm15c3FseC5wcm90b2J1ZmIG",
-            "cHJvdG8z"));
+            "CENBU0NBREVEEAJCGQoXY29tLm15c3FsLmNqLngucHJvdG9idWZiBnByb3Rv",
+            "Mw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Mysqlx.Expr.MysqlxExprReflection.Descriptor, global::Mysqlx.Datatypes.MysqlxDatatypesReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Mysqlx.Crud.DataModel), typeof(global::Mysqlx.Crud.ViewAlgorithm), typeof(global::Mysqlx.Crud.ViewSqlSecurity), typeof(global::Mysqlx.Crud.ViewCheckOption), }, new pbr::GeneratedClrTypeInfo[] {
@@ -209,6 +209,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "name" field.</summary>
     public const int NameFieldNumber = 1;
     private string name_ = "";
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Name {
       get { return name_; }
@@ -220,6 +223,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "alias" field.</summary>
     public const int AliasFieldNumber = 2;
     private string alias_ = "";
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Alias {
       get { return alias_; }
@@ -395,6 +401,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "alias" field.</summary>
     public const int AliasFieldNumber = 2;
     private string alias_ = "";
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Alias {
       get { return alias_; }
@@ -552,6 +561,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "schema" field.</summary>
     public const int SchemaFieldNumber = 2;
     private string schema_ = "";
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Schema {
       get { return schema_; }
@@ -706,6 +718,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "offset" field.</summary>
     public const int OffsetFieldNumber = 2;
     private ulong offset_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public ulong Offset {
       get { return offset_; }
@@ -857,6 +872,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "direction" field.</summary>
     public const int DirectionFieldNumber = 2;
     private global::Mysqlx.Crud.Order.Types.Direction direction_ = 0;
+    /// <summary>
+    /// optional [ default=ASC ]
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.Order.Types.Direction Direction {
       get { return direction_; }
@@ -1049,6 +1067,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "value" field.</summary>
     public const int ValueFieldNumber = 3;
     private global::Mysqlx.Expr.Expr value_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Expr.Expr Value {
       get { return value_; }
@@ -1296,6 +1317,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "data_model" field.</summary>
     public const int DataModelFieldNumber = 3;
     private global::Mysqlx.Crud.DataModel dataModel_ = 0;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.DataModel DataModel {
       get { return dataModel_; }
@@ -1317,6 +1341,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "criteria" field.</summary>
     public const int CriteriaFieldNumber = 5;
     private global::Mysqlx.Expr.Expr criteria_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Expr.Expr Criteria {
       get { return criteria_; }
@@ -1338,6 +1365,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "limit" field.</summary>
     public const int LimitFieldNumber = 6;
     private global::Mysqlx.Crud.Limit limit_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.Limit Limit {
       get { return limit_; }
@@ -1369,6 +1399,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "grouping_criteria" field.</summary>
     public const int GroupingCriteriaFieldNumber = 9;
     private global::Mysqlx.Expr.Expr groupingCriteria_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Expr.Expr GroupingCriteria {
       get { return groupingCriteria_; }
@@ -1380,6 +1413,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "locking" field.</summary>
     public const int LockingFieldNumber = 12;
     private global::Mysqlx.Crud.Find.Types.RowLock locking_ = 0;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.Find.Types.RowLock Locking {
       get { return locking_; }
@@ -1686,6 +1722,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "data_model" field.</summary>
     public const int DataModelFieldNumber = 2;
     private global::Mysqlx.Crud.DataModel dataModel_ = 0;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.DataModel DataModel {
       get { return dataModel_; }
@@ -1727,6 +1766,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "upsert" field.</summary>
     public const int UpsertFieldNumber = 6;
     private bool upsert_;
+    /// <summary>
+    /// optional [default = false]
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Upsert {
       get { return upsert_; }
@@ -2057,6 +2099,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "data_model" field.</summary>
     public const int DataModelFieldNumber = 3;
     private global::Mysqlx.Crud.DataModel dataModel_ = 0;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.DataModel DataModel {
       get { return dataModel_; }
@@ -2068,6 +2113,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "criteria" field.</summary>
     public const int CriteriaFieldNumber = 4;
     private global::Mysqlx.Expr.Expr criteria_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Expr.Expr Criteria {
       get { return criteria_; }
@@ -2089,6 +2137,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "limit" field.</summary>
     public const int LimitFieldNumber = 5;
     private global::Mysqlx.Crud.Limit limit_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.Limit Limit {
       get { return limit_; }
@@ -2349,6 +2400,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "data_model" field.</summary>
     public const int DataModelFieldNumber = 2;
     private global::Mysqlx.Crud.DataModel dataModel_ = 0;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.DataModel DataModel {
       get { return dataModel_; }
@@ -2360,6 +2414,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "criteria" field.</summary>
     public const int CriteriaFieldNumber = 3;
     private global::Mysqlx.Expr.Expr criteria_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Expr.Expr Criteria {
       get { return criteria_; }
@@ -2381,6 +2438,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "limit" field.</summary>
     public const int LimitFieldNumber = 4;
     private global::Mysqlx.Crud.Limit limit_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.Limit Limit {
       get { return limit_; }
@@ -2613,6 +2673,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "definer" field.</summary>
     public const int DefinerFieldNumber = 2;
     private string definer_ = "";
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Definer {
       get { return definer_; }
@@ -2624,6 +2687,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "algorithm" field.</summary>
     public const int AlgorithmFieldNumber = 3;
     private global::Mysqlx.Crud.ViewAlgorithm algorithm_ = 0;
+    /// <summary>
+    /// optional [default = UNDEFINED]
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.ViewAlgorithm Algorithm {
       get { return algorithm_; }
@@ -2635,6 +2701,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "security" field.</summary>
     public const int SecurityFieldNumber = 4;
     private global::Mysqlx.Crud.ViewSqlSecurity security_ = 0;
+    /// <summary>
+    /// optional [default = DEFINER]
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.ViewSqlSecurity Security {
       get { return security_; }
@@ -2646,6 +2715,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "check" field.</summary>
     public const int CheckFieldNumber = 5;
     private global::Mysqlx.Crud.ViewCheckOption check_ = 0;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.ViewCheckOption Check {
       get { return check_; }
@@ -2681,6 +2753,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "replace_existing" field.</summary>
     public const int ReplaceExistingFieldNumber = 8;
     private bool replaceExisting_;
+    /// <summary>
+    /// optional [default = false]
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool ReplaceExisting {
       get { return replaceExisting_; }
@@ -2935,6 +3010,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "definer" field.</summary>
     public const int DefinerFieldNumber = 2;
     private string definer_ = "";
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Definer {
       get { return definer_; }
@@ -2946,6 +3024,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "algorithm" field.</summary>
     public const int AlgorithmFieldNumber = 3;
     private global::Mysqlx.Crud.ViewAlgorithm algorithm_ = 0;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.ViewAlgorithm Algorithm {
       get { return algorithm_; }
@@ -2957,6 +3038,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "security" field.</summary>
     public const int SecurityFieldNumber = 4;
     private global::Mysqlx.Crud.ViewSqlSecurity security_ = 0;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.ViewSqlSecurity Security {
       get { return security_; }
@@ -2968,6 +3052,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "check" field.</summary>
     public const int CheckFieldNumber = 5;
     private global::Mysqlx.Crud.ViewCheckOption check_ = 0;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.ViewCheckOption Check {
       get { return check_; }
@@ -2989,6 +3076,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "stmt" field.</summary>
     public const int StmtFieldNumber = 7;
     private global::Mysqlx.Crud.Find stmt_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Crud.Find Stmt {
       get { return stmt_; }
@@ -3222,6 +3312,9 @@ namespace Mysqlx.Crud {
     /// <summary>Field number for the "if_exists" field.</summary>
     public const int IfExistsFieldNumber = 2;
     private bool ifExists_;
+    /// <summary>
+    /// optional [ default = false ]
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool IfExists {
       get { return ifExists_; }

@@ -257,7 +257,7 @@ namespace MySqlX.Data.Tests
       {
         session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
         Collection coll = CreateCollection("test");
-        coll.CreateIndex("myIndex", true).Field("$._id", "INT", true).Execute();
+        session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_r_index` INT GENERATED ALWAYS AS (JSON_EXTRACT(doc, '$._id')) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex`(`$ix_i_r_index`)").Execute();
         var docs = new[]
         {
           new {  _id = 1, a = 1 },
@@ -378,7 +378,7 @@ namespace MySqlX.Data.Tests
       {
         session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
         Collection coll = CreateCollection("test");
-        coll.CreateIndex("myIndex", true).Field("$._id", "INT", true).Execute();
+        session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_r_index` INT GENERATED ALWAYS AS (JSON_EXTRACT(doc, '$._id')) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex`(`$ix_i_r_index`)").Execute();
         var docs = new[]
         {
           new {  _id = 1, a = 1 },
@@ -420,7 +420,7 @@ namespace MySqlX.Data.Tests
       {
         session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
         Collection coll = CreateCollection("test");
-        coll.CreateIndex("myIndex", true).Field("$._id", "INT", true).Execute();
+        session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_r_index` INT GENERATED ALWAYS AS (JSON_EXTRACT(doc, '$._id')) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex`(`$ix_i_r_index`)").Execute();
         var docs = new[]
         {
           new {  _id = 1, a = 1 },
@@ -463,7 +463,7 @@ namespace MySqlX.Data.Tests
       {
         session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
         Collection coll = CreateCollection("test");
-        coll.CreateIndex("myIndex", true).Field("$._id", "INT", true).Execute();
+        session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_r_index` INT GENERATED ALWAYS AS (JSON_EXTRACT(doc, '$._id')) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex`(`$ix_i_r_index`)").Execute();
         var docs = new[]
         {
           new {  _id = 1, a = 1 },

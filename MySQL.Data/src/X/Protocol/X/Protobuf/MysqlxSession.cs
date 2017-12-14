@@ -26,8 +26,8 @@ namespace Mysqlx.Session {
             "aGVudGljYXRlU3RhcnQSEQoJbWVjaF9uYW1lGAEgASgJEhEKCWF1dGhfZGF0",
             "YRgCIAEoDBIYChBpbml0aWFsX3Jlc3BvbnNlGAMgASgMIikKFEF1dGhlbnRp",
             "Y2F0ZUNvbnRpbnVlEhEKCWF1dGhfZGF0YRgBIAEoDCIjCg5BdXRoZW50aWNh",
-            "dGVPaxIRCglhdXRoX2RhdGEYASABKAwiBwoFUmVzZXQiBwoFQ2xvc2VCHgoc",
-            "Y29tLm15c3FsLmNqLm15c3FseC5wcm90b2J1ZmIGcHJvdG8z"));
+            "dGVPaxIRCglhdXRoX2RhdGEYASABKAwiBwoFUmVzZXQiBwoFQ2xvc2VCGQoX",
+            "Y29tLm15c3FsLmNqLngucHJvdG9idWZiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
@@ -102,6 +102,9 @@ namespace Mysqlx.Session {
     /// <summary>Field number for the "auth_data" field.</summary>
     public const int AuthDataFieldNumber = 2;
     private pb::ByteString authData_ = pb::ByteString.Empty;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public pb::ByteString AuthData {
       get { return authData_; }
@@ -113,6 +116,9 @@ namespace Mysqlx.Session {
     /// <summary>Field number for the "initial_response" field.</summary>
     public const int InitialResponseFieldNumber = 3;
     private pb::ByteString initialResponse_ = pb::ByteString.Empty;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public pb::ByteString InitialResponse {
       get { return initialResponse_; }
@@ -394,6 +400,9 @@ namespace Mysqlx.Session {
     /// <summary>Field number for the "auth_data" field.</summary>
     public const int AuthDataFieldNumber = 1;
     private pb::ByteString authData_ = pb::ByteString.Empty;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public pb::ByteString AuthData {
       get { return authData_; }

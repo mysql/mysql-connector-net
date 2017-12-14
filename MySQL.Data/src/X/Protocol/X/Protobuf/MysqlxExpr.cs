@@ -49,8 +49,7 @@ namespace Mysqlx.Expr {
             "ZBgBIAMoCzIfLk15c3FseC5FeHByLk9iamVjdC5PYmplY3RGaWVsZBo8CgtP",
             "YmplY3RGaWVsZBILCgNrZXkYASABKAkSIAoFdmFsdWUYAiABKAsyES5NeXNx",
             "bHguRXhwci5FeHByIikKBUFycmF5EiAKBXZhbHVlGAEgAygLMhEuTXlzcWx4",
-            "LkV4cHIuRXhwckIeChxjb20ubXlzcWwuY2oubXlzcWx4LnByb3RvYnVmYgZw",
-            "cm90bzM="));
+            "LkV4cHIuRXhwckIZChdjb20ubXlzcWwuY2oueC5wcm90b2J1ZmIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Mysqlx.Datatypes.MysqlxDatatypesReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
@@ -143,6 +142,9 @@ namespace Mysqlx.Expr {
     /// <summary>Field number for the "identifier" field.</summary>
     public const int IdentifierFieldNumber = 2;
     private global::Mysqlx.Expr.ColumnIdentifier identifier_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Expr.ColumnIdentifier Identifier {
       get { return identifier_; }
@@ -154,6 +156,9 @@ namespace Mysqlx.Expr {
     /// <summary>Field number for the "variable" field.</summary>
     public const int VariableFieldNumber = 3;
     private string variable_ = "";
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Variable {
       get { return variable_; }
@@ -165,6 +170,9 @@ namespace Mysqlx.Expr {
     /// <summary>Field number for the "literal" field.</summary>
     public const int LiteralFieldNumber = 4;
     private global::Mysqlx.Datatypes.Scalar literal_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Datatypes.Scalar Literal {
       get { return literal_; }
@@ -176,6 +184,9 @@ namespace Mysqlx.Expr {
     /// <summary>Field number for the "function_call" field.</summary>
     public const int FunctionCallFieldNumber = 5;
     private global::Mysqlx.Expr.FunctionCall functionCall_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Expr.FunctionCall FunctionCall {
       get { return functionCall_; }
@@ -187,6 +198,9 @@ namespace Mysqlx.Expr {
     /// <summary>Field number for the "operator" field.</summary>
     public const int OperatorFieldNumber = 6;
     private global::Mysqlx.Expr.Operator operator_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Expr.Operator Operator {
       get { return operator_; }
@@ -198,6 +212,9 @@ namespace Mysqlx.Expr {
     /// <summary>Field number for the "position" field.</summary>
     public const int PositionFieldNumber = 7;
     private uint position_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public uint Position {
       get { return position_; }
@@ -209,6 +226,9 @@ namespace Mysqlx.Expr {
     /// <summary>Field number for the "object" field.</summary>
     public const int ObjectFieldNumber = 8;
     private global::Mysqlx.Expr.Object object_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Expr.Object Object {
       get { return object_; }
@@ -220,6 +240,9 @@ namespace Mysqlx.Expr {
     /// <summary>Field number for the "array" field.</summary>
     public const int ArrayFieldNumber = 9;
     private global::Mysqlx.Expr.Array array_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Expr.Array Array {
       get { return array_; }
@@ -542,6 +565,9 @@ namespace Mysqlx.Expr {
     /// <summary>Field number for the "schema_name" field.</summary>
     public const int SchemaNameFieldNumber = 2;
     private string schemaName_ = "";
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string SchemaName {
       get { return schemaName_; }
@@ -700,6 +726,9 @@ namespace Mysqlx.Expr {
     /// <summary>Field number for the "value" field.</summary>
     public const int ValueFieldNumber = 2;
     private string value_ = "";
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Value {
       get { return value_; }
@@ -711,6 +740,9 @@ namespace Mysqlx.Expr {
     /// <summary>Field number for the "index" field.</summary>
     public const int IndexFieldNumber = 3;
     private uint index_;
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public uint Index {
       get { return index_; }
@@ -921,6 +953,9 @@ namespace Mysqlx.Expr {
     /// <summary>Field number for the "name" field.</summary>
     public const int NameFieldNumber = 2;
     private string name_ = "";
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Name {
       get { return name_; }
@@ -932,6 +967,9 @@ namespace Mysqlx.Expr {
     /// <summary>Field number for the "table_name" field.</summary>
     public const int TableNameFieldNumber = 3;
     private string tableName_ = "";
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string TableName {
       get { return tableName_; }
@@ -943,6 +981,9 @@ namespace Mysqlx.Expr {
     /// <summary>Field number for the "schema_name" field.</summary>
     public const int SchemaNameFieldNumber = 4;
     private string schemaName_ = "";
+    /// <summary>
+    /// optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string SchemaName {
       get { return schemaName_; }

@@ -56,6 +56,14 @@ namespace MySqlX.Protocol.X
     }
 
     /**
+     * Proto-buf helper to build a LITERAL Expr with a Scalar UINT (unsigned int) type (wrapped in Any).
+     */
+    public static Expr BuildLiteralScalar(ulong l)
+    {
+      return BuildLiteralExpr(ScalarOf(l));
+    }
+
+    /**
      * Proto-buf helper to build a LITERAL Expr with a Scalar STRING type (wrapped in Any).
      */
     public static Expr BuildLiteralScalar(String str)
@@ -102,6 +110,11 @@ namespace MySqlX.Protocol.X
       return new Scalar() { Type = Scalar.Types.Type.VSint, VSignedInt = l};
     }
 
+    public static Scalar ScalarOf(ulong ul)
+    {
+      return new Scalar() { Type = Scalar.Types.Type.VUint, VUnsignedInt = ul};
+    }
+
     public static Scalar ScalarOf(String str)
     {
       Scalar.Types.String strValue = new Scalar.Types.String() { Value = ByteString.CopyFromUtf8(str) };
@@ -135,6 +148,19 @@ namespace MySqlX.Protocol.X
       return a;
     }
 
+    public static Mysqlx.Datatypes.Object.Types.ObjectField BuildObject(string key, object value, bool evaluateStringExpression)
+    {
+      Mysqlx.Datatypes.Object.Types.ObjectField item = new Mysqlx.Datatypes.Object.Types.ObjectField();
+      item.Key = key;
+      item.Value = evaluateStringExpression ? BuildAny(value) : BuildAnyWithoutEvaluationExpression(value);
+      return item;
+    }
+
+    public static Any BuildEmptyAny(Any.Types.Type type)
+    {
+      return new Any() { Type = type, Obj = new Mysqlx.Datatypes.Object() };
+    }
+
     public static Any BuildAny(Boolean b)
     {
       return new Any() { Type = Any.Types.Type.Scalar, Scalar = ScalarOf(b) };
@@ -145,17 +171,22 @@ namespace MySqlX.Protocol.X
       return new Any() { Type = Any.Types.Type.Scalar, Scalar = ExprUtil.ArgObjectToScalar(value) };
     }
 
+    public static Any BuildAnyWithoutEvaluationExpression(object value)
+    {
+      return new Any() { Type = Any.Types.Type.Scalar, Scalar = ExprUtil.ArgObjectToScalar(value, false) };
+    }
+
     public static Collection BuildCollection(String schemaName, String collectionName)
     {
       return new Collection() { Schema = schemaName, Name = collectionName };
     }
 
-    public static Scalar ArgObjectToScalar(System.Object value)
+    public static Scalar ArgObjectToScalar(System.Object value, Boolean evaluateStringExpression = true)
     {
-      return ArgObjectToExpr(value, false).Literal;
+      return ArgObjectToExpr(value, false, evaluateStringExpression).Literal;
     }
 
-    public static Expr ArgObjectToExpr(System.Object value, Boolean allowRelationalColumns)
+    public static Expr ArgObjectToExpr(System.Object value, Boolean allowRelationalColumns, Boolean evaluateStringExpresssion = true)
     {
       if (value == null)
         return BuildLiteralNullScalar();
@@ -167,6 +198,8 @@ namespace MySqlX.Protocol.X
         return BuildLiteralScalar(Convert.ToBoolean(value));
       else if (value is byte || value is short || value is int || value is long)
         return BuildLiteralScalar(Convert.ToInt64(value));
+      else if (value is ushort || value is uint || value is ulong)
+        return BuildLiteralScalar(Convert.ToUInt64(value));
       else if (value is float || value is double)
         return BuildLiteralScalar(Convert.ToDouble(value));
       else if (value is string)
@@ -174,9 +207,12 @@ namespace MySqlX.Protocol.X
         try
         {
           // try to parse expressions
-          Expr expr = new ExprParser((string)value).Parse();
+          var stringValue = (string) value;
+          if (!evaluateStringExpresssion) return BuildLiteralScalar((string)value);
+
+          Expr expr = new ExprParser(stringValue).Parse();
           if (expr.Identifier != null)
-            return BuildLiteralScalar((string)value);
+            return BuildLiteralScalar(stringValue);
           return expr;
         }
         catch
@@ -187,6 +223,7 @@ namespace MySqlX.Protocol.X
       }
       else if (value is XDevAPI.DbDoc)
         return (BuildLiteralScalar(value.ToString()));
+
       throw new NotSupportedException("Value of type " + value.GetType() + " is not currently supported.");
     }
 

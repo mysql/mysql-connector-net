@@ -44,6 +44,7 @@ using MySql.Data;
 using MySqlX;
 using System.IO;
 using Google.Protobuf;
+using static Mysqlx.Datatypes.Object.Types;
 
 namespace MySqlX.Protocol
 {
@@ -150,7 +151,7 @@ namespace MySqlX.Protocol
 
     public override void SendSQL(string sql, params object[] args)
     {
-      SendExecuteStatement("sql", sql, args);
+      SendExecuteSQLStatement(sql, args);
     }
 
     public override bool HasData(BaseResult rs)
@@ -255,6 +256,11 @@ namespace MySqlX.Protocol
       return ExprUtil.BuildAny(o);
     }
 
+    private ObjectField CreateObject(string key, object value, bool evaluateStringExpression = true)
+    {
+      return ExprUtil.BuildObject(key, value, evaluateStringExpression);
+    }
+
     public void SendSessionClose()
     {
       _writer.Write(ClientMessageId.SESS_CLOSE, new Mysqlx.Session.Close());
@@ -266,7 +272,22 @@ namespace MySqlX.Protocol
       _writer.Write(ClientMessageId.CON_CLOSE, connClose);
     }
 
-    public void SendExecuteStatement(string ns, string stmt, params object[] args)
+    public void SendExecuteSQLStatement(string stmt, params object[] args)
+    {
+      StmtExecute stmtExecute = new StmtExecute();
+      stmtExecute.Namespace = "sql";
+      stmtExecute.Stmt = ByteString.CopyFromUtf8(stmt);
+      stmtExecute.CompactMetadata = false;
+      if (args != null)
+      {
+        foreach (object arg in args)
+          stmtExecute.Args.Add(CreateAny(arg));
+      }
+
+      _writer.Write(ClientMessageId.SQL_STMT_EXECUTE, stmtExecute);
+    }
+
+    public void SendExecuteStatement(string ns, string stmt, params KeyValuePair<string, object>[] args)
     {
       StmtExecute stmtExecute = new StmtExecute();
       stmtExecute.Namespace = ns;
@@ -274,8 +295,61 @@ namespace MySqlX.Protocol
       stmtExecute.CompactMetadata = false;
       if (args != null)
       {
-        foreach (object arg in args)
-          stmtExecute.Args.Add(CreateAny(arg));
+        var any = ExprUtil.BuildEmptyAny(Any.Types.Type.Object);
+        foreach (var arg in args)
+        {
+          switch(stmt)
+          {
+            case "drop_collection_index":
+              any.Obj.Fld.Add(CreateObject(arg.Key, arg.Value, false));
+              break;
+            default:
+              any.Obj.Fld.Add(CreateObject(arg.Key, arg.Value));
+              break;
+          }
+        }
+
+        stmtExecute.Args.Add(any);
+      }
+
+      _writer.Write(ClientMessageId.SQL_STMT_EXECUTE, stmtExecute);
+    }
+
+    public void SendCreateCollectionIndexStatement(string ns, string stmt, params KeyValuePair<string, object>[] args)
+    {
+      StmtExecute stmtExecute = new StmtExecute();
+      stmtExecute.Namespace = ns;
+      stmtExecute.Stmt = ByteString.CopyFromUtf8(stmt);
+      stmtExecute.CompactMetadata = false;
+      if (args != null)
+      {
+        var any = ExprUtil.BuildEmptyAny(Any.Types.Type.Object);
+        var array = new Mysqlx.Datatypes.Array();
+        foreach (var arg in args)
+        {
+          if (arg.Value is Dictionary<string, object> && arg.Key=="constraint")
+          {
+            var innerAny = ExprUtil.BuildEmptyAny(Any.Types.Type.Object);
+            foreach (var field in arg.Value as Dictionary<string, object>)
+              innerAny.Obj.Fld.Add(CreateObject(field.Key, field.Value, field.Key == "member" ? true : false));
+
+            array.Value.Add(innerAny);
+          }
+          else
+            any.Obj.Fld.Add(CreateObject(arg.Key, arg.Value, false));
+        }
+
+        if (array.Value.Count>0)
+        {
+          var constraint = new ObjectField();
+          constraint.Key = "constraint";
+          var constraintAny = ExprUtil.BuildEmptyAny(Any.Types.Type.Array);
+          constraintAny.Array = array;
+          constraint.Value = constraintAny;
+          any.Obj.Fld.Add(constraint);
+        }
+
+        stmtExecute.Args.Add(any);
       }
 
       _writer.Write(ClientMessageId.SQL_STMT_EXECUTE, stmtExecute);
