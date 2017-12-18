@@ -28,6 +28,7 @@ namespace MySqlX.Data.Tests.ResultTests
 {
   public class RelationalGCTests : BaseTest
   {
+#if !NETCOREAPP2_0
     [Fact]
     public void FetchAllNoReference()
     {
@@ -45,5 +46,6 @@ namespace MySqlX.Data.Tests.ResultTests
       Assert.Equal(22, rows[0]["age"]);
       Assert.Equal("Patric", rows[1]["name"]);
     }
+#endif
   }
 }

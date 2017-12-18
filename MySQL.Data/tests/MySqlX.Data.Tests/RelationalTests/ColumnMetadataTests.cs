@@ -34,6 +34,7 @@ namespace MySqlX.Data.Tests.RelationalTests
 {
   public class ColumnMetadataTests : BaseTest
   {
+#if !NETCOREAPP2_0
     [Fact]
     public void ColumnMetadata()
     {
@@ -84,6 +85,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.Equal(false, r.Columns[2].IsPadded);
       Assert.Equal("Δ", rows[0][2]);
     }
+#endif
 
     [Fact]
     public void SchemaDefaultCharset()
@@ -120,7 +122,8 @@ namespace MySqlX.Data.Tests.RelationalTests
       }
     }
 
-    [Fact]
+#if !NETCOREAPP2_0
+        [Fact]
     public void TableDefaultCharset()
     {
       ExecuteSQL("CREATE TABLE test(b VARCHAR(255)) CHARSET greek");
@@ -143,5 +146,6 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.Equal(false, r.Columns[0].IsPadded);
       Assert.Equal("Δ", rows[0][0]);
     }
-  }
+#endif
+    }
 }

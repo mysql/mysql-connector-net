@@ -29,6 +29,7 @@ namespace MySqlX.Data.Tests.ResultTests
 {
   public class CrudGCTests : BaseTest
   {
+#if !NETCOREAPP2_0
     [Fact]
     public void FetchAllNoReference()
     {
@@ -48,5 +49,6 @@ namespace MySqlX.Data.Tests.ResultTests
       Assert.False(wr.IsAlive);
       Assert.Equal(4, docs.Count);
     }
+#endif
   }
 }

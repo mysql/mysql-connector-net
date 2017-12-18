@@ -43,7 +43,7 @@ namespace MySqlX.Data.Tests
 
     static BaseTest()
     {
-#if NETCORE10
+#if NETSTANDARD1_6
       Port = Environment.GetEnvironmentVariable("MYSQL_PORT") ?? "3306";
       XPort = Environment.GetEnvironmentVariable("MYSQLX_PORT") ?? "33060";
 #else

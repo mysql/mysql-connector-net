@@ -93,9 +93,8 @@ namespace MySqlX.Data.Tests
       }
 
       // Single host as an array. Failed connection.
-      Exception ex = Assert.Throws<IOException>(() => MySQLX.GetSession("mysqlx://test:test@[192.1.10.10:" + XPort + "]?connectiontimeout=" + connectionTimeout));
-      Assert.Equal("The operation is not allowed on non-connected sockets.", ex.Message);
-
+      Exception ex = Assert.Throws<ObjectDisposedException>(() => MySQLX.GetSession("mysqlx://test:test@[192.1.10.10:" + XPort + "]?connectiontimeout=" + connectionTimeout));
+      
       // Multiple hosts. First attempt fails, second is succesful.
       using (var session = MySQLX.GetSession("mysqlx://test:test@[192.1.10.10,127.0.0.1:" + XPort + "]?connectiontimeout=" + connectionTimeout))
       {

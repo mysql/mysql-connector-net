@@ -213,6 +213,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.Equal("[\"a\", 1, \"b\", 2]", rows[1][0]);
     }
 
+#if !NETCOREAPP2_0
     [Fact]
     public void Strings()
     {
@@ -226,6 +227,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.Equal(ColumnType.String, r.Columns[0].Type);
       Assert.Equal("表", rows[0][0]);
     }
+#endif
 
     //[Fact]
     public void UnsingedZeroFill()

@@ -106,7 +106,7 @@ namespace MySqlX.Data.Tests
       // Timestamp index.
       collection.DropIndex("myIndex");
       collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"TIMESTAMP\" } ] }").Execute();
-      ValidateIndex("myIndex", "test", "ds", false, session.InternalSession.GetServerVersion().isAtLeast(8, 0, 4) ? false : true, false, 1);
+      ValidateIndex("myIndex", "test", "ds", false, true, false, 1);
 
       // Time index.
       collection.DropIndex("myIndex");

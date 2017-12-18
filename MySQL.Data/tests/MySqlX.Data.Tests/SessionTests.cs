@@ -350,6 +350,9 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void MySqlNativePasswordPlugin()
     {
+      // TODO: Remove when support for caching_sha2_password plugin is included for X DevAPI.
+      if (session.InternalSession.GetServerVersion().isAtLeast(8, 0, 4)) return;
+
       using (var session = MySQLX.GetSession(ConnectionStringUri))
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
@@ -417,6 +420,9 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void ConnectUsingMySQL41Auth()
     {
+      // TODO: Remove when support for caching_sha2_password plugin is included for X DevAPI.
+      if (session.InternalSession.GetServerVersion().isAtLeast(8, 0, 4)) return;
+
       using (var session = MySQLX.GetSession(ConnectionStringUri + "?auth=MySQL41"))
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
@@ -433,6 +439,9 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void DefaultAuth()
     {
+      // TODO: Remove when support for caching_sha2_password plugin is included for X DevAPI.
+      if (session.InternalSession.GetServerVersion().isAtLeast(8, 0, 4)) return;
+
       // Default to PLAIN when TLS is enabled.
       using (var session = MySQLX.GetSession(ConnectionStringUri))
       {
