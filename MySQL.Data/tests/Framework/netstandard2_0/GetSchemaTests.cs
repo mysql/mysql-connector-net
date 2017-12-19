@@ -628,5 +628,35 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal(65535, schemaTable.Rows[4]["ColumnSize"]);
       }
     }
+
+    /// <summary> 
+    /// Bug #26876592 Unexpected ColumnSize, IsLong in GetSChemaTable for LongText and LongBlob column.
+    /// Added validation when ColumnLenght equals -1 that is when lenght exceeds Int max size.
+    /// </summary>
+    [Fact]
+    public void IsLongProperty()
+    {
+      string conn = Connection.ConnectionString;
+      executeSQL("DROP TABLE IF EXISTS test;");
+      executeSQL("CREATE TABLE test(`longtext` longtext, `longblob` longblob, `tinytext` tinytext, `tinyblob` tinyblob, `text` text, `blob` blob);");
+
+      using (MySqlDataReader reader = ExecuteReader("SELECT * FROM test;"))
+      {
+        DataTable schemaTable = reader.GetSchemaTable();
+
+        Assert.Equal(-1, schemaTable.Rows[0]["ColumnSize"]);
+        Assert.True((bool)schemaTable.Rows[0]["IsLong"]);
+        Assert.Equal(-1, schemaTable.Rows[1]["ColumnSize"]);
+        Assert.True((bool)schemaTable.Rows[1]["IsLong"]);
+        Assert.Equal(255, schemaTable.Rows[2]["ColumnSize"]);
+        Assert.False((bool)schemaTable.Rows[2]["IsLong"]);
+        Assert.Equal(255, schemaTable.Rows[3]["ColumnSize"]);
+        Assert.False((bool)schemaTable.Rows[3]["IsLong"]);
+        Assert.Equal(65535, schemaTable.Rows[4]["ColumnSize"]);
+        Assert.True((bool)schemaTable.Rows[4]["IsLong"]);
+        Assert.Equal(65535, schemaTable.Rows[5]["ColumnSize"]);
+        Assert.True((bool)schemaTable.Rows[5]["IsLong"]);
+      }
+    }
   }
 }
