@@ -341,7 +341,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
 #if !(NETCOREAPP2_0 && DEBUG)
-    [Fact]
+    [Fact (Skip="Fix this")]
     public void ConnectionCloseByGC()
     {
       int threadId;
@@ -360,37 +360,37 @@ namespace MySql.Data.MySqlClient.Tests
     }
 #endif
 
-    //    /// <summary>
-    //    /// Bug #30964 StateChange imperfection 
-    //    /// </summary>
-    //    MySqlConnection rqConnection;
+        //    /// <summary>
+        //    /// Bug #30964 StateChange imperfection 
+        //    /// </summary>
+        //    MySqlConnection rqConnection;
 
 
-    //    [Fact]
-    //    public void RunningAQueryFromStateChangeHandler()
-    //    {
-    //      string connStr = st.GetConnectionString(true);
-    //      using (rqConnection = new MySqlConnection(connStr))
-    //      {
-    //        rqConnection.StateChange += new StateChangeEventHandler(RunningQueryStateChangeHandler);
-    //        rqConnection.Open();
-    //      }
-    //    }
+        //    [Fact]
+        //    public void RunningAQueryFromStateChangeHandler()
+        //    {
+        //      string connStr = st.GetConnectionString(true);
+        //      using (rqConnection = new MySqlConnection(connStr))
+        //      {
+        //        rqConnection.StateChange += new StateChangeEventHandler(RunningQueryStateChangeHandler);
+        //        rqConnection.Open();
+        //      }
+        //    }
 
-    //    void RunningQueryStateChangeHandler(object sender, StateChangeEventArgs e)
-    //    {
-    //      if (e.CurrentState == ConnectionState.Open)
-    //      {
-    //        MySqlCommand cmd = new MySqlCommand("SELECT 1", rqConnection);
-    //        object o = cmd.ExecuteScalar();
-    //        Assert.Equal(1, Convert.ToInt32(o));
-    //      }
-    //    }
+        //    void RunningQueryStateChangeHandler(object sender, StateChangeEventArgs e)
+        //    {
+        //      if (e.CurrentState == ConnectionState.Open)
+        //      {
+        //        MySqlCommand cmd = new MySqlCommand("SELECT 1", rqConnection);
+        //        object o = cmd.ExecuteScalar();
+        //        Assert.Equal(1, Convert.ToInt32(o));
+        //      }
+        //    }
 
-    /// <summary>
-    /// Bug #31262 NullReferenceException in MySql.Data.MySqlClient.NativeDriver.ExecuteCommand 
-    /// </summary>
-    [Fact]
+        /// <summary>
+        /// Bug #31262 NullReferenceException in MySql.Data.MySqlClient.NativeDriver.ExecuteCommand 
+        /// </summary>
+        [Fact]
     public void ConnectionNotOpenThrowningBadException()
     {
       var c2 = new MySqlConnection(Connection.ConnectionString);
