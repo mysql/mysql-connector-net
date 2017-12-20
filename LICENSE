@@ -1,14 +1,14 @@
 Licensing Information User Manual
 
-MySQL Connector/Net
+MySQL Connector/NET
      __________________________________________________________________
 
    This is a license book. It contains Oracle's product license and other
    licensing information, including licensing information for third-party
    software which may be included in this GPL release of MySQL
-   Connector/Net.
+   Connector/NET.
 
-   Last updated: December 2017.
+   Last updated: January 2018.
 
 Introduction
 
@@ -33,14 +33,14 @@ Introduction
 
 Licensing Information
 
-Product License - MySQL Connector/Net
+Product License - MySQL Connector/NET
 
-   This is a release of MySQL Connector/Net, the dual-license .NET API for
+   This is a release of MySQL Connector/NET, the dual-license .NET API for
    MySQL . For the avoidance of doubt, this particular copy of the
    software is released under version 2 of the GNU General Public License.
-   MySQL Connector/Net is brought to you by the MySQL team at Oracle.
+   MySQL Connector/NET is brought to you by the MySQL team at Oracle.
 
-   Copyright (c) 2004, 2017, Oracle and/or its affiliates. All rights
+   Copyright (c) 2004, 2018, Oracle and/or its affiliates. All rights
    reserved.
 
 GNU General Public License Version 2.0, June 1991
@@ -416,7 +416,7 @@ the GNU Lesser General Public License instead of this License.
 MySQL FOSS License Exception
 
    We want free and open source software applications under certain
-   licenses to be able to use the GPL-licensed MySQL Connector/Net despite
+   licenses to be able to use the GPL-licensed MySQL Connector/NET despite
    the fact that not all such FOSS licenses are compatible with version 2
    of the GNU General Public License. Therefore there are special
    exceptions to the terms and conditions of the GPLv2 as applied to these
@@ -485,8 +485,8 @@ Written Offer for Source Code
 Licenses for Third-Party Components
 
    The following sections contain licensing information for libraries that
-   we have included with the MySQL Connector/Net source and components
-   used to test MySQL Connector/Net. We are thankful to all individuals
+   we have included with the MySQL Connector/NET source and components
+   used to test MySQL Connector/NET. We are thankful to all individuals
    that have created these.
 
 ANTLR 3.3 License
