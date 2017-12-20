@@ -168,7 +168,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(null, obj);
     }
 
-#if NETCOREAPP1_1
+#if NETCOREAPP1_1 || NETCOREAPP2_0
     [Fact]
     public void DotnetCoreNotCurrentlySupported()
     {
@@ -176,11 +176,13 @@ namespace MySql.Data.MySqlClient.Tests
       {
         "sharedmemoryname",
         "pipe",
+        "useperformancemonitor",
+#if NETCOREAPP1_1
         "logging",
         "useusageadvisor",
-        "useperformancemonitor",
         "interactivesession",
         "replication"
+#endif
       });
       if (Platform.IsWindows())
         options.Add("integratedsecurity");
@@ -198,10 +200,12 @@ namespace MySql.Data.MySqlClient.Tests
       if (Platform.IsWindows())
         Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.IntegratedSecurity = true);
       Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.PipeName = "dummy");
+      Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.UsePerformanceMonitor = true);
+#if NETCOREAPP1_1
       Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.Logging = true);
       Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.UseUsageAdvisor = true);
-      Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.UsePerformanceMonitor = true);
       Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.Replication = true);
+#endif
       csb.ConnectionProtocol = MySqlConnectionProtocol.Tcp;
       Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.ConnectionProtocol = MySqlConnectionProtocol.SharedMemory);
       Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.ConnectionProtocol = MySqlConnectionProtocol.NamedPipe);
