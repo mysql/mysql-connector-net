@@ -1,4 +1,4 @@
-// Copyright � 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright ? 2004, 2017 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -615,9 +615,9 @@ namespace MySql.Data.MySqlClient
 
       if (type == MySqlDbType.Decimal || type == MySqlDbType.NewDecimal)
       {
-        field.Precision = (byte)(field.ColumnLength - 2);
-        if ((colFlags & ColumnFlags.UNSIGNED) != 0)
-          field.Precision++;
+        field.Precision = ((colFlags & ColumnFlags.UNSIGNED) != 0) ? (byte)(field.ColumnLength) : (byte)(--field.ColumnLength);
+        if (field.Scale != 0)
+          field.Precision--;
       }
 
       field.SetTypeAndFlags(type, colFlags);
