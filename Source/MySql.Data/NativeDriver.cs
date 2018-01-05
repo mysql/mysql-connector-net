@@ -197,8 +197,8 @@ namespace MySql.Data.MySqlClient
       {
         baseStream = StreamCreator.GetStream(Settings);
 #if !RT
-         if (Settings.IncludeSecurityAsserts)
-            MySqlSecurityPermission.CreatePermissionSet(false).Assert();
+        if (Settings.IncludeSecurityAsserts)
+          MySqlSecurityPermission.CreatePermissionSet(false).Assert();
 #endif
       }
       catch (System.Security.SecurityException)
@@ -418,16 +418,16 @@ namespace MySql.Data.MySqlClient
     }
 
 
-#endregion
+    #endregion
 
 #endif
 
-      #region Authentication
+    #region Authentication
 
-      /// <summary>
-      /// Return the appropriate set of connection flags for our
-      /// server capabilities and our user requested options.
-      /// </summary>
+    /// <summary>
+    /// Return the appropriate set of connection flags for our
+    /// server capabilities and our user requested options.
+    /// </summary>
     private void SetConnectionFlags(ClientFlags serverCaps)
     {
       // allow load data local infile
@@ -739,9 +739,9 @@ namespace MySql.Data.MySqlClient
 
       if (type == MySqlDbType.Decimal || type == MySqlDbType.NewDecimal)
       {
-        field.Precision = (byte)(field.ColumnLength - 2);
-        if ((colFlags & ColumnFlags.UNSIGNED) != 0)
-          field.Precision++;
+        field.Precision = ((colFlags & ColumnFlags.UNSIGNED) != 0) ? (byte)(field.ColumnLength) : (byte)(--field.ColumnLength);
+        if (field.Scale != 0)
+          field.Precision--;
       }
 
       field.SetTypeAndFlags(type, colFlags);
