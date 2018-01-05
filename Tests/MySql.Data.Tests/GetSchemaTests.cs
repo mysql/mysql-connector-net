@@ -690,8 +690,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void IsLongProperty()
     {
-      st.execSQL("DROP TABLE IF EXISTS test");
-      st.execSQL("CREATE TABLE test(`longtext` longtext, `longblob` longblob, `tinytext` tinytext, `tinyblob` tinyblob, `text` text, `blob` blob");
+      st.execSQL("DROP TABLE IF EXISTS test;");
+      st.execSQL("CREATE TABLE test(`longtext` longtext, `longblob` longblob, `tinytext` tinytext, `tinyblob` tinyblob, `text` text, `blob` blob);");
 
       using (MySqlDataReader reader = st.execReader("SELECT * FROM test;"))
       {
@@ -709,6 +709,30 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.True((bool)schemaTable.Rows[4]["IsLong"]);
         Assert.Equal(65535, schemaTable.Rows[5]["ColumnSize"]);
         Assert.True((bool)schemaTable.Rows[5]["IsLong"]);
+      }
+    }
+
+    /// <summary> 
+    /// Bug #26954812 Decimal with numericScale of 0 has wrong numericPrecision in GetSchemaTable.
+    /// </summary>
+    [Fact]
+    public void NumericPrecisionProperty()
+    {
+      st.execSQL("DROP TABLE IF EXISTS test;");
+      st.execSQL("CREATE TABLE test(decimal0 decimal(8,0), decimal1 decimal(8), decimal2 decimal(8,2), decimal3 decimal(8,1) UNSIGNED);");
+
+      using (MySqlDataReader reader = st.execReader("SELECT * FROM test;"))
+      {
+        DataTable schemaTable = reader.GetSchemaTable();
+
+        Assert.Equal(8, schemaTable.Rows[0]["NumericPrecision"]);
+        Assert.Equal(0, schemaTable.Rows[0]["NumericScale"]);
+        Assert.Equal(8, schemaTable.Rows[1]["NumericPrecision"]);
+        Assert.Equal(0, schemaTable.Rows[1]["NumericScale"]);
+        Assert.Equal(8, schemaTable.Rows[2]["NumericPrecision"]);
+        Assert.Equal(2, schemaTable.Rows[2]["NumericScale"]);
+        Assert.Equal(8, schemaTable.Rows[3]["NumericPrecision"]);
+        Assert.Equal(1, schemaTable.Rows[3]["NumericScale"]);
       }
     }
   }
