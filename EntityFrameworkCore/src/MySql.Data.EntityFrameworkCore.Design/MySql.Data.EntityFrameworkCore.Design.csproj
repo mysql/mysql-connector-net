@@ -13,6 +13,11 @@
     <AssemblyName>MySql.Data.EntityFrameworkCore.Design</AssemblyName>
     <PackageId>MySql.Data.EntityFrameworkCore.Design</PackageId>
     <PackageTags>Entity Framework Core;entity-framework-core;EF;MySQL</PackageTags>
+	<PackageReleaseNotes>Review ReleaseNotes.txt for details.</PackageReleaseNotes>
+    <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
+    <PackageProjectUrl>https://dev.mysql.com/downloads/</PackageProjectUrl>
+    <PackageLicenseUrl>https://downloads.mysql.com/docs/licenses/connector-net-gpl-en.pdf</PackageLicenseUrl>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
