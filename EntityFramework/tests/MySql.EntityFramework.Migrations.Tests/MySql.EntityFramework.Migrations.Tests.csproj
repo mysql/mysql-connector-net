@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>MySql.Data.EntityFramework.Migrations.Tests</Description>
-    <Copyright>Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.</Copyright>
+    <Copyright>Copyright © 2016, 2018, Oracle and/or its affiliates. All rights reserved.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Version>8.0.10-rc</Version>
     <Authors>Oracle</Authors>
