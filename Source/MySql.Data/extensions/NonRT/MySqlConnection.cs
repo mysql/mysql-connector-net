@@ -1,4 +1,4 @@
-﻿// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2004, 2018 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -36,6 +36,8 @@ namespace MySql.Data.MySqlClient
   [ToolboxItem(true)]
   public sealed partial class MySqlConnection : DbConnection, ICloneable
   {
+    private bool disposed = false;
+
     /// <summary>
     /// Returns schema information for the data source of this <see cref="DbConnection"/>. 
     /// </summary>
@@ -99,19 +101,23 @@ namespace MySql.Data.MySqlClient
         PermissionSet set = new PermissionSet(PermissionState.None);
         set.AddPermission(new MySqlClientPermission(ConnectionString));
         set.Demand();
-        MySqlSecurityPermission.CreatePermissionSet(true).Assert(); 
+        MySqlSecurityPermission.CreatePermissionSet(true).Assert();
       }
     }
 
     #region IDisposeable
-
     protected override void Dispose(bool disposing)
     {
+      if (disposed)
+        return;
+
       if (State == ConnectionState.Open)
         Close();
-      base.Dispose(disposing);
-    }
 
+      disposed = true;
+      base.Dispose(disposing);
+
+    }
     #endregion
   }
 }

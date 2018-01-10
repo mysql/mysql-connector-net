@@ -1,4 +1,4 @@
-// Copyright © 2004, 2015, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2018 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -328,7 +328,7 @@ namespace MySql.Data.MySqlClient
 
 #if !RT
       // give our interceptors a shot at it first
-      if ( connection != null && 
+      if (connection != null &&
            connection.commandInterceptor != null &&
            connection.commandInterceptor.ExecuteNonQuery(CommandText, ref records))
         return records;
@@ -402,12 +402,12 @@ namespace MySql.Data.MySqlClient
 #if !RT
       // give our interceptors a shot at it first
       MySqlDataReader interceptedReader = null;
-      if ( connection != null &&
-           connection.commandInterceptor != null && 
+      if (connection != null &&
+           connection.commandInterceptor != null &&
            connection.commandInterceptor.ExecuteReader(CommandText, behavior, ref interceptedReader))
         return interceptedReader;
 #endif
-      
+
       // interceptors didn't handle this so we fall through
       bool success = false;
       CheckState();
@@ -864,7 +864,7 @@ namespace MySql.Data.MySqlClient
 
       string keyword = query.ToUpper();
       int indexChar = keyword.IndexOfAny(new char[] { '(', '"', '@', '\'', '`' });
-      if(indexChar > 0)
+      if (indexChar > 0)
         keyword = keyword.Substring(0, indexChar);
 
       if (keywords == null)
@@ -999,15 +999,13 @@ namespace MySql.Data.MySqlClient
       if (disposed)
         return;
 
-      if (!disposing)
-        return;
-  
-      if (statement != null && statement.IsPrepared)
-        statement.CloseStatement();
+      if (disposing)
+        if (statement != null && statement.IsPrepared)
+          statement.CloseStatement();
 
       base.Dispose(disposing);
-
       disposed = true;
+
     }
 #else
     public void Dispose()

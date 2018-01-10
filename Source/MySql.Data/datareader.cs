@@ -1,4 +1,4 @@
-// Copyright © 2004, 2014 Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2018 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -48,6 +48,7 @@ namespace MySql.Data.MySqlClient
     internal Driver driver;
     private PreparableStatement statement;
     private ResultSet resultSet;
+    private bool disposed = false;
 
     // Used in special circumstances with stored procs to avoid exceptions from DbDataAdapter
     // If set, AffectedRows returns -1 instead of 0.
@@ -75,7 +76,7 @@ namespace MySql.Data.MySqlClient
       this.statement = statement;
 
 #if !RT
-      if (cmd.CommandType == CommandType.StoredProcedure 
+      if (cmd.CommandType == CommandType.StoredProcedure
         && cmd.UpdatedRowSource == UpdateRowSource.FirstReturnedRecord
       )
       {
@@ -1036,12 +1037,15 @@ namespace MySql.Data.MySqlClient
       GC.SuppressFinalize(this);
     }
 
-    internal new void Dispose(bool disposing)
+    protected override void Dispose(bool disposing)
     {
-      if (disposing)
-      {
-        Close();
-      }
+      if (disposed)
+        return;
+
+      Close();
+
+      base.Dispose(disposing);
+      disposed = true;
     }
 
     #region Destructor
