@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -242,11 +242,12 @@ namespace MySqlX.Data.Tests
     {
       string connectionString = ConnectionStringUri;
       // sslmode is valid.
-      using(var connection = MySQLX.GetSession(connectionString + "?sslmode=none"))
+      using(var connection = MySQLX.GetSession(connectionString + "?sslmode=required"))
       {
         Assert.Equal(SessionState.Open, connection.InternalSession.SessionState);
       }
-      using(var connection = MySQLX.GetSession(connectionString + "?ssl-mode=none"))
+
+      using(var connection = MySQLX.GetSession(connectionString + "?ssl-mode=required"))
       {
         Assert.Equal(SessionState.Open, connection.InternalSession.SessionState);
       }
@@ -271,7 +272,7 @@ namespace MySqlX.Data.Tests
       }
 
       // sslmode case insensitive.
-      using(var connection = MySQLX.GetSession(connectionString + "?SsL-mOdE=none"))
+      using(var connection = MySQLX.GetSession(connectionString + "?SsL-mOdE=required"))
       {
         Assert.Equal(SessionState.Open, connection.InternalSession.SessionState);
       }

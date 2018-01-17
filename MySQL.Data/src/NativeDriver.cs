@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -251,9 +251,7 @@ namespace MySql.Data.MySqlClient
       string authenticationMethod = "";
       if ((serverCaps & ClientFlags.PLUGIN_AUTH) != 0)
       {
-        // TODO: support reading authenticationMethod and sending password correctly depending on the method.
-        //authenticationMethod = packet.ReadString();
-        authenticationMethod = "mysql_native_password";
+        authenticationMethod = packet.ReadString();
       }
       else
       {

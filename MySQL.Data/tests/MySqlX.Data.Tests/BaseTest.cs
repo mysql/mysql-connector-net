@@ -53,8 +53,8 @@ namespace MySqlX.Data.Tests
       Port = Environment.GetEnvironmentVariable("MYSQL_PORT") ?? "3306";
       XPort = Environment.GetEnvironmentVariable("MYSQLX_PORT") ?? "33060";
 #else
-      Port = "3305";
-      XPort = "33050";
+      Port = "3306";
+      XPort = "33060";
 #endif
       schemaName = "test";
       ConnectionStringRoot = $"server=localhost;port={Port};uid=root;password=";

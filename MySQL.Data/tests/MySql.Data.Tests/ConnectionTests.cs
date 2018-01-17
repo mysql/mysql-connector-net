@@ -1,4 +1,4 @@
-// Copyright © 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -848,6 +848,48 @@ namespace MySql.Data.MySqlClient.Tests
       // send error if sslmode=None and another ssl parameter exists.
       ex = Assert.Throws<ArgumentException>(() => new MySqlConnection(cstrBuilder.ConnectionString + ";sslmode=None;ssl-ca=../MySql.Data.Tests/client.pfx"));
       Assert.Equal(Resources.InvalidOptionWhenSslDisabled, ex.Message);
+    }
+
+    [Fact]
+    public void ConnectUsingMySqlNativePasswordPlugin()
+    {
+      string userName = "testNativePassword";
+      string password = "mysql";
+      string pluginName = "mysql_native_password";
+      MySqlConnectionStringBuilder Settings = new MySqlConnectionStringBuilder(Fixture.Settings.ConnectionString);
+      Settings.UserID = userName;
+      Settings.Password = password;
+      Fixture.CreateUser(userName, password, pluginName);
+
+      // User with password over TLS connection.
+      using (MySqlConnection connection = new MySqlConnection(Settings.ConnectionString))
+      {
+        connection.Open();
+        MySqlCommand command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Ssl_version';", connection);
+        using (MySqlDataReader reader = command.ExecuteReader())
+        {
+          Assert.True(reader.Read());
+          Assert.StartsWith("TLSv1", reader.GetString(1));
+        }
+
+        command.CommandText = String.Format("SELECT `User`, `plugin` FROM `mysql`.`user` WHERE `User` = '{0}';", userName);
+        using (MySqlDataReader reader = command.ExecuteReader())
+        {
+          Assert.True(reader.Read());
+          Assert.Equal(userName, reader.GetString(0));
+          Assert.Equal(pluginName, reader.GetString(1));
+        }
+
+        connection.Close();
+      }
+
+      // User with password over non-TLS connection.
+      Settings.SslMode = MySqlSslMode.None;
+      using (MySqlConnection connection = new MySqlConnection(Settings.ConnectionString))
+      {
+        connection.Open();
+        connection.Close();
+      }
     }
 
     [Fact]
