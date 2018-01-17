@@ -853,7 +853,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ConnectUsingMySqlNativePasswordPlugin()
     {
-      string userName = "testNativePassword";
+      string userName = "testNtvPass";
       string password = "mysql";
       string pluginName = "mysql_native_password";
       MySqlConnectionStringBuilder Settings = new MySqlConnectionStringBuilder(Fixture.Settings.ConnectionString);
