@@ -1,0 +1,96 @@
+<topic id="connector-net-x-devapi-reference" revisionNumber="1">
+  <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <section address="connector-net">
+      <title>MySQL Connector/NET</title>
+      <content>
+        <autoOutline />
+        <para>
+	      MySQL Connector/NET 6.10 supports the development of .NET Framework
+		  and .NET Core applications that require secure, high-performance data
+		  connectivity with MySQL through the classic protocol. It supports ADO
+		  .NET, Entity Framework and various web providers.
+        </para>
+        <para>
+          To get started, review the following main classes:
+        </para>
+        <list class="bullet">
+          <listItem>
+		    <para>
+              <codeEntityReference qualifyHint="true" linkText="MySqlConnection">T:MySql.Data.MySqlClient.MySqlConnection</codeEntityReference>: Represents an open
+              connection to a MySQL database.
+            </para>
+          </listItem>
+		  <listItem>
+		    <para>
+			  <codeEntityReference qualifyHint="true" linkText="MySqlConnectionStringBuilder">T:MySql.Data.MySqlClient.MySqlConnectionStringBuilder</codeEntityReference>: Aids in the creation of a connection string by exposing the connection options as properties.
+			</para>
+		  </listItem>
+		  <listItem>
+            <para>
+              <codeEntityReference qualifyHint="true" linkText="MySqlCommand">T:MySql.Data.MySqlClient.MySqlCommand</codeEntityReference>: Represents an SQL statement to execute against a MySQL database.
+            </para>
+          </listItem>
+          <listItem>
+            <para>
+              <codeEntityReference qualifyHint="true" linkText="MySqlCommandBuilder">T:MySql.Data.MySqlClient.MySqlCommandBuilder</codeEntityReference>: Automatically generates single-table commands used to reconcile changes made to a DataSet object with the associated MySQL database.
+            </para>
+          </listItem> 
+          <listItem>
+            <para>
+              <codeEntityReference qualifyHint="true" linkText="MySqlDataAdapter">T:MySql.Data.MySqlClient.MySqlDataAdapter</codeEntityReference>: Represents a set of data commands and a database connection that are used to fill a data set and update a MySQL database.
+            </para>
+          </listItem>
+          <listItem>
+            <para>
+              <codeEntityReference qualifyHint="true" linkText="MySqlDataReader">T:MySql.Data.MySqlClient.MySqlDataReader</codeEntityReference>: Provides a means of reading a forward-only stream of rows from a MySQL database.
+           </para>
+          </listItem>
+          <listItem>
+            <para>
+              <codeEntityReference qualifyHint="true" linkText="MySqlException">T:MySql.Data.MySqlClient.MySqlException</codeEntityReference>: The exception that is thrown when MySQL returns an error.
+           </para>
+          </listItem>
+          <listItem>
+            <para>
+              <codeEntityReference qualifyHint="true" linkText="MySqlHelper">T:MySql.Data.MySqlClient.MySqlHelper</codeEntityReference>: Helper class that makes it
+              easier to work with the provider.
+            </para>
+          </listItem>
+          <listItem>
+            <para>
+              <codeEntityReference qualifyHint="true" linkText="MySqlTransaction">T:MySql.Data.MySqlClient.MySqlTransaction</codeEntityReference>: Represents an SQL
+              transaction to be made in a MySQL database.
+           </para>
+          </listItem>
+		  <listItem>
+            <para>
+              <codeEntityReference qualifyHint="true" linkText="MySQLMembershipProvider">T:MySql.Web.Security.MySQLMembershipProvider</codeEntityReference>: Manages storage of membership information for an ASP.NET application in a MySQL database. 
+           </para>
+          </listItem>
+		  <listItem>
+            <para>
+              <codeEntityReference qualifyHint="true" linkText="MySQLRoleProvider">T:MySql.Web.Security.MySQLRoleProvider</codeEntityReference>: Manages storage of role membership information for an ASP.NET application in a MySQL database.
+           </para>
+          </listItem>
+		  <listItem>
+            <para>
+              <codeEntityReference qualifyHint="true" linkText="MySqlEFConfiguration">T:MySql.Data.Entity.MySqlEFConfiguration</codeEntityReference>: Adds the dependency resolvers for MySQL classes.
+           </para>
+          </listItem>
+		  <listItem>
+            <para>
+              <codeEntityReference qualifyHint="true" linkText="MySqlExecutionStrategy">T:MySql.Data.Entity.MySqlExecutionStrategy</codeEntityReference>: Enables automatic recovery from transient connection failures.
+           </para>
+          </listItem>
+        </list>
+		<para>
+	      For additional information about MySQL Connector/NET, see the
+		  <externalLink>
+            <linkText>MySQL Connector/NET Developer Guide</linkText>
+            <linkUri>https://dev.mysql.com/doc/connector-net/en/</linkUri>
+          </externalLink>.
+		</para>
+      </content>
+    </section>
+  </developerConceptualDocument>
+</topic>

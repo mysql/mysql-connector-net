@@ -88,6 +88,15 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
   </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="Overview\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Overview\connector-net.aml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ContentLayout Include="Layout.content" />
+  </ItemGroup>
   <!-- Import the SHFB build targets -->
   <Import Project="$(SHFBROOT)\SandcastleHelpFileBuilder.targets" />
 </Project>
