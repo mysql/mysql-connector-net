@@ -234,6 +234,13 @@ namespace MySql.Data.Entity
       var rename = new RenameTableOperation(TrimSchemaPrefix(renameTableOperation.Name), renameTableOperation.NewName);
       base.Generate(rename, writer);
     }
+#if EF6
+    protected override void Generate(RenameIndexOperation renameIndexOperation, IndentedTextWriter writer)
+    {
+        var rename = new RenameIndexOperation(TrimSchemaPrefix(renameIndexOperation.Table), renameIndexOperation.Name, renameIndexOperation.NewName);
+        base.Generate(rename, writer);
+    }
+#endif
   }
 
 
@@ -272,6 +279,9 @@ namespace MySql.Data.Entity
       _dispatcher.Add("MoveTableOperation", (OpDispatcher)((op) => { return Generate(op as MoveTableOperation); }));
       _dispatcher.Add("RenameColumnOperation", (OpDispatcher)((op) => { return Generate(op as RenameColumnOperation); }));
       _dispatcher.Add("RenameTableOperation", (OpDispatcher)((op) => { return Generate(op as RenameTableOperation); }));
+#if EF6
+      _dispatcher.Add("RenameIndexOperation", (OpDispatcher)((op) => { return Generate(op as RenameIndexOperation); }));
+#endif
       _dispatcher.Add("SqlOperation", (OpDispatcher)((op) => { return Generate(op as SqlOperation); }));
     autoIncrementCols = new List<string>();
       primaryKeyCols = new List<string>();
@@ -751,6 +761,16 @@ namespace MySql.Data.Entity
       };
     }
 
+#if EF6
+    protected virtual MigrationStatement Generate(RenameIndexOperation op)
+    {
+        if (op == null) return null;
+
+        StringBuilder sb = new StringBuilder();
+        sb.AppendFormat("alter table `{0}` rename index `{1}` to `{2}`", TrimSchemaPrefix(op.Table), op.Name, op.NewName);
+        return new MigrationStatement { Sql = sb.ToString() };
+    }
+#endif
 
     protected virtual MigrationStatement Generate(CreateTableOperation op)
     {
