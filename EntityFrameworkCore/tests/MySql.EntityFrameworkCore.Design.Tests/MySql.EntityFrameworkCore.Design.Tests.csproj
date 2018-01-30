@@ -1,8 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Description>MySql.EntityFrameworkCore.Design.Tests Class Library</Description>
-    <Copyright>Copyright © 2017, 2018, Oracle and/or its affiliates. All rights reserved.</Copyright>
+    <Copyright>Copyright © 2017, 2018 Oracle and/or its affiliates. All rights reserved.</Copyright>
     <Version>8.0.10-rc</Version>
     <Authors>Oracle</Authors>
     <TargetFrameworks>netcoreapp2.0;netcoreapp1.1;net452</TargetFrameworks>
@@ -51,13 +51,11 @@
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net452' or '$(TargetFramework)' == 'netcoreapp1.1' ">
     <Compile Remove="Frameworks/efcore20/**/*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="1.1.4" />
     <ProjectReference Include="..\..\src\MySql.Data.EntityFrameworkCore.Design\MySql.Data.EntityFrameworkCore.Design.csproj" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">
     <Compile Remove="Frameworks/efcore10/**/*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.0.1" />
   </ItemGroup>
 
   <ItemGroup>
