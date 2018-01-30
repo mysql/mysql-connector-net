@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>MySql.Data.EntityFrameworkCore for Entity Framework.</Description>
-    <Copyright>Copyright © 2016, 2017 Oracle and/or its affiliates. All rights reserved.</Copyright>
+    <Copyright>Copyright © 2016, 2018, Oracle and/or its affiliates. All rights reserved.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Version>8.0.10-rc</Version>
     <Authors>Oracle</Authors>
@@ -14,8 +14,8 @@
     <PackageTags>MySql;.NET Connector;MySql Entity Framework Core;netcore;.Net Core;MySql Conector/Net Entity Framework Core;coreclr;C/NET;C/Net Core</PackageTags>
     <PackageReleaseNotes>Review ReleaseNotes.txt for details.</PackageReleaseNotes>
     <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
-    <PackageProjectUrl>http://dev.mysql.com/downloads/</PackageProjectUrl>
-    <PackageLicenseUrl>http://www.gnu.org/licenses/old-licenses/gpl-2.0.html</PackageLicenseUrl>
+    <PackageProjectUrl>https://dev.mysql.com/downloads/</PackageProjectUrl>
+    <PackageLicenseUrl>https://downloads.mysql.com/docs/licenses/connector-net-8.0-gpl-en.pdf</PackageLicenseUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>

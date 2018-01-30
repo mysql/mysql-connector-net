@@ -1,4 +1,4 @@
-// Copyright © 2012, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2012, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -121,11 +121,17 @@ namespace MySql.Data.MySqlClient.Authentication
       _driver.SetConnectAttrs();
       _driver.SendPacket(packet);
 
-      //read server response
+      // Read server response.
       packet = ReadPacket();
       byte[] b = packet.Buffer;
 
-      // Auth switch request Protocol::AuthSwitchRequest
+      if (PluginName == "caching_sha2_password" && b[0] == 0x01)
+      {
+        // React to the authentication type set by server: FAST, FULL.
+        ContinueAuthentication(new byte[] { b[1] });
+      }
+
+      // Auth switch request Protocol::AuthSwitchRequest.
       if (b[0] == 0xfe)
       {
         if (packet.IsLastPacket)
@@ -185,15 +191,15 @@ namespace MySql.Data.MySqlClient.Authentication
       Array.Copy(packet.Buffer, packet.Position, authData, 0, authData.Length);
 
       MySqlAuthenticationPlugin plugin = GetPlugin(method, _driver, authData);
-      plugin.AuthenticationChange();
+      plugin.ContinueAuthentication();
     }
 
-    private void AuthenticationChange()
+    private void ContinueAuthentication(byte[] data = null)
     {
       MySqlPacket packet = _driver.Packet;
       packet.Clear();
 
-      byte[] moreData = MoreData(null);
+      byte[] moreData = MoreData(data);
 
       while (moreData != null)
       {
@@ -205,12 +211,12 @@ namespace MySql.Data.MySqlClient.Authentication
         byte prefixByte = packet.Buffer[0];
         if (prefixByte != 1) return;
 
-        // A prefix of 0x01 means need more auth data
+        // A prefix of 0x01 means need more auth data.
         byte[] responseData = new byte[packet.Length - 1];
         Array.Copy(packet.Buffer, 1, responseData, 0, responseData.Length);
         moreData = MoreData(responseData);
       }
-      // We get here if MoreData returned null but the last packet read was a more data packet
+      // We get here if MoreData returned null but the last packet read was a more data packet.
       ReadPacket();
     }
 

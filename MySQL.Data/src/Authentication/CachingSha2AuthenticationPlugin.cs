@@ -1,4 +1,4 @@
-// Copyright © 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -67,8 +67,10 @@ namespace MySql.Data.MySqlClient.Authentication
       // Generate scramble.
       if (data == null)
       {
-        _authStage = AuthStage.GENERATE_SCRAMBLE;
-        return GenerateScramble(Settings.Password, AuthenticationData);
+        byte[] scramble = GetPassword() as byte[];
+        byte[] buffer = new byte[scramble.Length - 1];
+        Array.Copy(scramble, 1, buffer, 0, scramble.Length-1);
+        return buffer;
       }
       // Fast authentication.
       else if (data[0] == 3)
@@ -77,10 +79,10 @@ namespace MySql.Data.MySqlClient.Authentication
         return null;
       }
       else
-        return GetPassword() as byte[];
+        return GeneratePassword() as byte[];
     }
 
-    public override object GetPassword()
+    protected byte[] GeneratePassword()
     {
       // If connection is secure perform full authentication.
       if (Settings.SslMode != MySqlSslMode.None)
@@ -136,26 +138,31 @@ namespace MySql.Data.MySqlClient.Authentication
 #endif
     }
 
-    protected byte[] GenerateScramble(string password, byte[] seedBytes)
+    public override object GetPassword()
     {
+      _authStage = AuthStage.GENERATE_SCRAMBLE;
+
       // If we have no password then we just return 1 zero byte.
-      if (password.Length == 0) return new byte[1];
+      if (Settings.Password.Length == 0) return new byte[1];
 
       SHA256 sha = SHA256.Create();
 
-      byte[] firstHash = sha.ComputeHash(AliasText.Encoding.Default.GetBytes(password));
+      byte[] firstHash = sha.ComputeHash(AliasText.Encoding.Default.GetBytes(Settings.Password));
       byte[] secondHash = sha.ComputeHash(firstHash);
 
-      byte[] input = new byte[seedBytes.Length + secondHash.Length];
+      byte[] input = new byte[AuthenticationData.Length + secondHash.Length];
       Array.Copy(secondHash, 0, input, 0, secondHash.Length);
-      Array.Copy(seedBytes, 0, input, secondHash.Length, seedBytes.Length);
+      Array.Copy(AuthenticationData, 0, input, secondHash.Length, AuthenticationData.Length);
       byte[] thirdHash = sha.ComputeHash(input);
 
       byte[] finalHash = new byte[thirdHash.Length];
       for (int i = 0; i < firstHash.Length; i++)
         finalHash[i] = (byte)(firstHash[i] ^ thirdHash[i]);
 
-      return finalHash;
+      byte[] buffer = new byte[finalHash.Length + 1];
+      Array.Copy(finalHash, 0, buffer, 1, finalHash.Length);
+      buffer[0] = 0x20;
+      return buffer;
     }
   }
 
