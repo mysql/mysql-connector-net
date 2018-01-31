@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2015 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -45,7 +45,10 @@ namespace MySql.Data.MySqlClient.Tests
       string user = Fixture.CreateUser("1", "123");
       executeSQL(String.Format("GRANT EXECUTE ON FUNCTION `{0}`.`MyTwice` TO '{1}'@'localhost';", Connection.Database, user), true);
       executeSQL(String.Format("GRANT EXECUTE ON PROCEDURE `{0}`.`spMyTwice` TO '{1}'@'localhost'", Connection.Database, user), true);
-      executeSQL("GRANT SELECT ON TABLE mysql.proc TO 'user1'@'localhost'", true);
+
+      if (!Connection.driver.Version.isAtLeast(8,0,1))
+        executeSQL("GRANT SELECT ON TABLE mysql.proc TO 'user1'@'localhost'", true);
+
       executeSQL("FLUSH PRIVILEGES", true);
 
       MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Connection.ConnectionString);
