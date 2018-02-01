@@ -20,7 +20,7 @@ namespace MySql.Data {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class Resources {
@@ -946,6 +946,15 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Retrieval of the RSA public key is not enabled for insecure connections..
+        /// </summary>
+        public static string RSAPublicKeyRetrievalNotEnabled {
+            get {
+                return ResourceManager.GetString("RSAPublicKeyRetrievalNotEnabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Connector/Net no longer supports server versions prior to 5.0.
         /// </summary>
         public static string ServerTooOld {
@@ -1302,6 +1311,15 @@ namespace MySql.Data {
         public static string UnableToParseFK {
             get {
                 return ResourceManager.GetString("UnableToParseFK", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error encountered reading the RSA public key..
+        /// </summary>
+        public static string UnableToReadRSAKey {
+            get {
+                return ResourceManager.GetString("UnableToReadRSAKey", resourceCulture);
             }
         }
         

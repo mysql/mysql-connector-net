@@ -1,5 +1,6 @@
 6.10.7
-- Added support for MySQL 8 server features (WL11326).
+- Added support for the caching_sha2_password authentication plugin introduced in server 8.0.3.
+  Added support for RSA key encription in the sha256_password authentication plugin (WL11285).
 
 
 6.10.6

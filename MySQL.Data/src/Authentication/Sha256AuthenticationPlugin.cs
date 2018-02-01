@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,19 +20,15 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-//#define BOUNCY_CASTLE_INCLUDED
-
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Security.Cryptography;
-
-#if BOUNCY_CASTLE_INCLUDED
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.OpenSsl;
-using Org.BouncyCastle.Crypto.Parameters;
+#if NETSTANDARD1_3
+using AliasText = MySql.Data.MySqlClient.Framework.NetStandard1_3;
+#else
+using AliasText = System.Text;
 #endif
 
 namespace MySql.Data.MySqlClient.Authentication
@@ -42,10 +38,7 @@ namespace MySql.Data.MySqlClient.Authentication
   /// </summary>
   public class Sha256AuthenticationPlugin : MySqlAuthenticationPlugin
   {
-#if BOUNCY_CASTLE_INCLUDED
-    private RsaKeyParameters publicKey;
-#endif
-    private byte[] rawPubkey;
+    protected byte[] rawPubkey;
 
     public override string PluginName => "sha256_password";
 
@@ -58,7 +51,6 @@ namespace MySql.Data.MySqlClient.Authentication
 
     public override object GetPassword()
     {
-#if !NETSTANDARD1_3
       if (Settings.SslMode != MySqlSslMode.None)
       {
         // send as clear text, since the channel is already encrypted
@@ -70,52 +62,42 @@ namespace MySql.Data.MySqlClient.Authentication
       }
       else
       {
-#endif
-#if BOUNCY_CASTLE_INCLUDED
-        // send RSA encrypted, since the channel is not protected
-        if (rawPubkey != null)
-        {
-          publicKey = GenerateKeysFromPem(rawPubkey);
-        }
-        if (publicKey == null) return new byte[] { 0x01 }; //RequestPublicKey();
+        if (Settings.Password.Length == 0) return new byte[1];
+        // Send RSA encrypted, since the channel is not protected.
+        else if (rawPubkey == null) return new byte[] { 0x01 };
+        else if (!Settings.AllowPublicKeyRetrieval)
+          throw new MySqlException(Resources.RSAPublicKeyRetrievalNotEnabled);
         else
         {
-          byte[] bytes = GetRsaPassword(Settings.Password, AuthenticationData);
+          byte[] bytes = GetRsaPassword(Settings.Password, AuthenticationData, rawPubkey);
           if (bytes != null && bytes.Length == 1 && bytes[0] == 0) return null;
           return bytes;
         }
-#else
-        throw new NotImplementedException( "You can use sha256 plugin only in SSL connections in this implementation." );
-#endif 
-#if !NETSTANDARD1_3
       }
-#endif
     }
 
-#if BOUNCY_CASTLE_INCLUDED
-    private void RequestPublicKey()
+    private byte[] GetRsaPassword(string password, byte[] seedBytes, byte[] rawPublicKey)
     {
-      RsaKeyParameters keys = GenerateKeysFromPem(rawPubkey);
-      publicKey = keys;
-    }
+      if (password.Length == 0) return new byte[1];
 
-    private RsaKeyParameters GenerateKeysFromPem(byte[] rawData)
-    {
-      PemReader pem = new PemReader(new StreamReader(new MemoryStream( rawData )));
-      RsaKeyParameters keyPair = (RsaKeyParameters)pem.ReadObject();
-      return keyPair;
-    }
-
-    private byte[] GetRsaPassword(string password, byte[] seedBytes)
-    {
       // Obfuscate the plain text password with the session scramble
-      byte[] ofuscated = GetXor(this.Encoding.GetBytes(password), seedBytes);
-      // Encrypt the password and send it to the server
-      byte[] result = Encrypt(ofuscated, publicKey );
-      return result;
-    }
+      byte[] obfuscated = GetXor(AliasText.Encoding.Default.GetBytes(password), seedBytes);
 
-    private byte[] GetXor( byte[] src, byte[] pattern )
+      // Encrypt the password and send it to the server
+#if NETSTANDARD1_3
+      RSA rsa = MySqlPemReader.ConvertPemToRSAProvider(rawPublicKey);
+      if (rsa == null)
+        throw new MySqlException(Resources.UnableToReadRSAKey);
+      return rsa.Encrypt(obfuscated, RSAEncryptionPadding.OaepSHA1);
+#else
+            RSACryptoServiceProvider rsa = MySqlPemReader.ConvertPemToRSAProvider(rawPublicKey);
+      if (rsa == null)
+        throw new MySqlException(Resources.UnableToReadRSAKey);
+      return rsa.Encrypt(obfuscated, true);
+#endif
+        }
+
+    protected byte[] GetXor( byte[] src, byte[] pattern )
     {
       byte[] src2 = new byte[src.Length + 1];
       Array.Copy(src, 0, src2, 0, src.Length);
@@ -127,15 +109,5 @@ namespace MySql.Data.MySqlClient.Authentication
       }
       return result;
     }
-
-    private byte[] Encrypt(byte[] data, RsaKeyParameters key)
-    { 
-      IBufferedCipher c = CipherUtilities.GetCipher("RSA/NONE/OAEPPadding");
-      c.Init(true, key);
-      byte[] result = c.DoFinal(data);
-      return result;
-    }
-#endif
-
   }
 }
