@@ -49,7 +49,7 @@ namespace MySql.Data.MySqlClient
       // Server options
       Options.Add(new MySqlConnectionStringOption("server", "host,data source,datasource,address,addr,network address", typeof(string), "" /*"localhost"*/, false));
       Options.Add(new MySqlConnectionStringOption("database", "initial catalog", typeof(string), string.Empty, false));
-      Options.Add(new MySqlConnectionStringOption("protocol", "connection protocol, connectionprotocol", typeof(MySqlConnectionProtocol), MySqlConnectionProtocol.Sockets, false,
+      Options.Add(new MySqlConnectionStringOption("protocol", "connection protocol,connectionprotocol", typeof(MySqlConnectionProtocol), MySqlConnectionProtocol.Sockets, false,
         (msb, sender, value) =>
         {
 #if NETSTANDARD1_3 || NETSTANDARD2_0 || NETCOREAPP2_0
@@ -152,7 +152,7 @@ namespace MySql.Data.MySqlClient
           return (bool)val;
         }
         ));
-      Options.Add(new MySqlConnectionStringOption("allowpublickeyretrieval", null, typeof(bool), false, false));
+      Options.Add(new MySqlConnectionStringOption("allowpublickeyretrieval", "allow public key retrieval", typeof(bool), false, false));
 
       // Other properties
 #if !NETSTANDARD1_3
@@ -539,7 +539,7 @@ namespace MySql.Data.MySqlClient
     }
 
     [Category("Authentication")]
-    [DisplayName("AllowPublicKeyRetrieval")]
+    [DisplayName("Allow Public Key Retrieval")]
     [Description("Allow retrieval of RSA public keys when SSL is disabled")]
     [DefaultValue(false)]
     public bool AllowPublicKeyRetrieval
