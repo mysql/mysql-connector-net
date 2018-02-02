@@ -232,7 +232,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("blobasutf8excludepattern", null, typeof(string), "", false));
       Options.Add(new MySqlConnectionStringOption("sslmode", "ssl mode", typeof(MySqlSslMode), MySqlSslMode.Preferred, false));
       Options.Add(new MySqlConnectionStringOption("sslenable", "ssl-enable", typeof(bool), false, false,
-        (msb, sender, value) => { msb.SslEnable = bool.Parse(value as string); },
+        (msb, sender, value) => { msb.SslEnable = value is string ? bool.Parse(value as string) : (bool) value; },
         (msb, sender) => { return msb.SslEnable; }));
       Options.Add(new MySqlConnectionStringOption("sslca", "ssl-ca", typeof(string), null, false,
         (msb, sender, value) => { msb.SslCa = value as string; },
@@ -986,7 +986,7 @@ namespace MySql.Data.MySqlClient
 
 #region XProperties
 
-    [Description("X DevApi: enables the use of SSL as required")]
+    [Description("Enables the use of SSL as required")]
     public bool SslEnable
     {
       get { return ((MySqlSslMode)this["sslmode"] != MySqlSslMode.None); }
@@ -999,7 +999,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    [Description("X DevApi: path to a local file that contains a list of trusted TLS/SSL CAs")]
+    [Description("Path to a local file that contains a list of trusted TLS/SSL CAs")]
     public string SslCa
     {
       get { return CertificateFile; }
@@ -1010,7 +1010,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    [Description("X DevApi: path to a local file containing certificate revocation lists")]
+    [Description("Path to a local file containing certificate revocation lists")]
     public string SslCrl
     {
       get { throw new NotSupportedException(); }
