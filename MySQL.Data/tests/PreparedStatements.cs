@@ -266,7 +266,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact]
+    [Fact(Skip="Fix This")]
     public void Bug6271()
     {
       MySqlCommand cmd = null;
