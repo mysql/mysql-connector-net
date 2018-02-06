@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -98,7 +98,10 @@ namespace MySql.Data.MySqlClient.Tests
         using (MySqlConnection myconn = new MySqlConnection(connStr))
         {
           myconn.Open();
-          MySqlCommand cmd = new MySqlCommand("SHOW VARIABLES LIKE 'tx_isolation'", myconn);
+          MySqlCommand cmd = new MySqlCommand(st.conn.driver.Version.isAtLeast(8, 0, 1) ?
+            "SHOW VARIABLES LIKE 'transaction_isolation'":
+            "SHOW VARIABLES LIKE 'tx_isolation'"
+          , myconn);
           using (MySqlDataReader reader = cmd.ExecuteReader())
           {
             reader.Read();

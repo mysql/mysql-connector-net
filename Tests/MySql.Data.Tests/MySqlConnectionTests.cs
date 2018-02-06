@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -513,26 +513,29 @@ namespace MySql.Data.MySqlClient.Tests
       [Fact]
       public void ConnectInVariousWays()
       {
-          // connect with no db
-          string connStr2 = st.GetConnectionString(false);
-          MySqlConnection c = new MySqlConnection(connStr2);
-          c.Open();
-          c.Close();
+        // Fails in 8.0+ since new validation takes place were user does not exist.
+        if (st.conn.driver.Version.isAtLeast(8,0,1 )) return;
 
-          st.suExecSQL("GRANT ALL ON *.* to 'nopass'@'%'");
-          st.suExecSQL("GRANT ALL ON *.* to 'nopass'@'localhost'");
-          st.suExecSQL("FLUSH PRIVILEGES");
+        // connect with no db
+        string connStr2 = st.GetConnectionString(false);
+        MySqlConnection c = new MySqlConnection(connStr2);
+        c.Open();
+        c.Close();
 
-          // connect with no password
-          connStr2 = st.GetConnectionString("nopass", null, false);
-          c = new MySqlConnection(connStr2);
-          c.Open();
-          c.Close();
+        st.suExecSQL("GRANT ALL ON *.* to 'nopass'@'%'");
+        st.suExecSQL("GRANT ALL ON *.* to 'nopass'@'localhost'");
+        st.suExecSQL("FLUSH PRIVILEGES");
 
-          connStr2 = st.GetConnectionString("nopass", "", false);
-          c = new MySqlConnection(connStr2);
-          c.Open();
-          c.Close();
+        // connect with no password
+        connStr2 = st.GetConnectionString("nopass", null, false);
+        c = new MySqlConnection(connStr2);
+        c.Open();
+        c.Close();
+
+        connStr2 = st.GetConnectionString("nopass", "", false);
+        c = new MySqlConnection(connStr2);
+        c.Open();
+        c.Close();
       }
 
       [Fact]

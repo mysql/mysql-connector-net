@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -935,14 +935,12 @@ namespace MySql.Data.MySqlClient.Tests
     {
       if (st.Version < new Version(5, 5, 3)) return;
 
-      st.suExecSQL(String.Format("GRANT ALL ON `{0}`.* to 'simpleuser' identified by 'simpleuser'", st.database0));
-      st.execSQL("DROP PROCEDURE IF EXISTS spTest");
-      st.execSQL(@"CREATE  PROCEDURE spTest(id INT, name VARCHAR(20))
-          BEGIN SELECT name; END");
+      st.execSQL(@"CREATE  PROCEDURE spTest(id INT, name VARCHAR(20)) BEGIN SELECT name; END");
 
-      string connStr = st.GetConnectionString("simpleuser", "simpleuser", true) + ";use procedure bodies=false";
+      MySqlConnectionStringBuilder cb = new MySqlConnectionStringBuilder(st.conn.ConnectionString);
+      cb.CheckParameters = false;
 
-      using (MySqlConnection c = new MySqlConnection(connStr))
+      using (MySqlConnection c = new MySqlConnection(cb.ConnectionString))
       {
         c.Open();
 

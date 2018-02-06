@@ -1,4 +1,4 @@
-// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc., 2009, 2014 Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2009, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -272,7 +272,7 @@ namespace MySql.Data.Types
       if (type != MySqlDbType.Date)
       {
         val = value.Microsecond > 0 ? String.Format("{0} {1:00}:{2:00}:{3:00}.{4:000000}", val,
-          value.Hour, value.Minute, value.Second, value.Microsecond) : String.Format("{0} {1:00}:{2:00}:{3:00} ", val,
+          value.Hour, value.Minute, value.Second, value.Microsecond) : String.Format("{0} {1:00}:{2:00}:{3:00}", val,
           value.Hour, value.Minute, value.Second);
       }
 

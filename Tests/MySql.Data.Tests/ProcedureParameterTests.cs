@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -278,10 +278,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("IN", dt.Rows[0]["PARAMETER_MODE"]);
       Assert.Equal("VARCHAR", dt.Rows[0]["DATA_TYPE"].ToString().ToUpper());
       Assert.Equal(1200, dt.Rows[0]["CHARACTER_MAXIMUM_LENGTH"]);
-      if (st.Version.Major >= 6)
-        Assert.Equal(4800, dt.Rows[0]["CHARACTER_OCTET_LENGTH"]);
-      else
-        Assert.Equal(3600, dt.Rows[0]["CHARACTER_OCTET_LENGTH"]);
+      Assert.Equal(3600, dt.Rows[0]["CHARACTER_OCTET_LENGTH"]);
       Assert.Equal("utf8", dt.Rows[0]["CHARACTER_SET_NAME"]);
       Assert.Equal("utf8_general_ci", dt.Rows[0]["COLLATION_NAME"]);
     }

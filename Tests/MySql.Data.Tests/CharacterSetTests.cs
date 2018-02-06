@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2017 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -291,7 +291,7 @@ namespace MySql.Data.MySqlClient.Tests
    [Fact]
     public void RespectBinaryFlags()
     {
-      if (st.Version.Major >= 5 && st.Version.Minor >= 5) return;
+      if (st.conn.driver.Version.isAtLeast(5,5,0)) return;
 
       string connStr = st.GetConnectionString(true) + ";respect binary flags=true";
       using (MySqlConnection c = new MySqlConnection(connStr))
@@ -383,7 +383,14 @@ namespace MySql.Data.MySqlClient.Tests
      con.Open();
      try
      {
-       MySqlCommand cmd = new MySqlCommand("", con);
+       MySqlCommand cmd = null;
+       if (con.driver.Version.isAtLeast(8,0,1))
+       {
+         cmd = new MySqlCommand("SET SESSION SQL_MODE='ALLOW_INVALID_DATES';", con);
+         cmd.ExecuteNonQuery();
+       }
+
+       cmd = new MySqlCommand("", con);
        cmd.CommandText = "drop table if exists `actor`";
        cmd.ExecuteNonQuery();
        cmd.CommandText = @"CREATE TABLE `actor` (
@@ -442,7 +449,14 @@ namespace MySql.Data.MySqlClient.Tests
      con.Open();
      try
      {
-       MySqlCommand cmd = new MySqlCommand("", con);
+       MySqlCommand cmd = null;
+       if (con.driver.Version.isAtLeast(8,0,1))
+       {
+         cmd = new MySqlCommand("SET SESSION SQL_MODE='ALLOW_INVALID_DATES';", con);
+         cmd.ExecuteNonQuery();
+       }
+
+       cmd = new MySqlCommand("", con);
        cmd.CommandText = "drop table if exists `actor`";
        cmd.ExecuteNonQuery();
        cmd.CommandText = @"CREATE TABLE `actor` (

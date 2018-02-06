@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -163,7 +163,18 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Bug6135()
     {
-      string sql = @"CREATE TABLE `KLANT` (`KlantNummer` int(11) NOT NULL auto_increment, 
+      MySqlCommand cmd = null;
+      string sql = null;
+
+      // Updating the default charset for servers 8.0+.
+      if (st.conn.driver.Version.isAtLeast(8, 0, 1))
+      {
+        sql = "SET NAMES 'latin1' COLLATE 'latin1_swedish_ci'";
+        cmd = new MySqlCommand(sql, st.conn);
+        cmd.ExecuteNonQuery();
+      }
+
+      sql = @"CREATE TABLE `KLANT` (`KlantNummer` int(11) NOT NULL auto_increment, 
         `Username` varchar(50) NOT NULL default '', `Password` varchar(100) NOT NULL default '', 
         `Naam` varchar(100) NOT NULL default '', `Voornaam` varchar(100) NOT NULL default '',
         `Straat` varchar(100) NOT NULL default '', `StraatNr` varchar(10) NOT NULL default '',
@@ -173,9 +184,9 @@ namespace MySql.Data.MySqlClient.Tests
         `LastVisit` timestamp NOT NULL, `Categorie` int(11) NOT NULL default '0',
         PRIMARY KEY  (`KlantNummer`),	UNIQUE KEY `UniqueUsername` (`Username`),
         UNIQUE KEY `UniqueDefaultMail` (`DefaultMail`)	)";
-      st.createTable(sql, "MyISAM");
+      st.execSQL(sql);
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM KLANT", st.conn);
+      cmd = new MySqlCommand("SELECT * FROM KLANT", st.conn);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         while (reader.Read()) { }

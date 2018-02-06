@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2015 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -55,6 +55,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ConvertZeroDateTime()
     {
+      if (st.conn.driver.Version.isAtLeast(8,0,1))
+        st.execSQL("SET SESSION SQL_MODE='ALLOW_INVALID_DATES';");
+
       st.execSQL("INSERT INTO Test VALUES(1, '0000-00-00', '0000-00-00', " +
         "'00:00:00', NULL)");
 
@@ -127,6 +130,9 @@ namespace MySql.Data.MySqlClient.Tests
     public void TestAllowZeroDateTime()
     {
       st.execSQL("TRUNCATE TABLE Test");
+      if (st.conn.driver.Version.isAtLeast(8,0,1))
+        st.execSQL("SET SESSION SQL_MODE='ALLOW_INVALID_DATES';");
+
       st.execSQL("INSERT INTO Test (id, d, dt) VALUES (1, '0000-00-00', '0000-00-00 00:00:00')");
 
       using (MySqlConnection c = new MySqlConnection(
@@ -146,6 +152,12 @@ namespace MySql.Data.MySqlClient.Tests
 
           Exception ex = Assert.Throws<MySqlConversionException>(() =>reader.GetDateTime(1));
           Assert.Equal(ex.Message, "Unable to convert MySQL date/time value to System.DateTime");
+        }
+
+        if (st.conn.driver.Version.isAtLeast(8,0,1))
+        {
+          var command = new MySqlCommand("SET SESSION SQL_MODE='ALLOW_INVALID_DATES';", c);
+          command.ExecuteNonQuery();
         }
 
         DataTable dt = new DataTable();
@@ -345,6 +357,9 @@ namespace MySql.Data.MySqlClient.Tests
     {
       if (st.Version < new Version(4, 1)) return;
 
+      if (st.conn.driver.Version.isAtLeast(8,0,1))
+        st.execSQL("SET SESSION SQL_MODE='ALLOW_INVALID_DATES';");
+
       st.execSQL("INSERT INTO Test VALUES(1, Now(), '0000-00-00', NULL, NULL)");
       MySqlCommand cmd = new MySqlCommand("SELECT d FROM Test WHERE id=?id", st.conn);
       cmd.Parameters.AddWithValue("?id", 1);
@@ -358,6 +373,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void DateTimeInDataTable()
     {
+      if (st.conn.driver.Version.isAtLeast(8,0,1))
+        st.execSQL("SET SESSION SQL_MODE='ALLOW_INVALID_DATES';");
+
       st.execSQL("INSERT INTO Test VALUES(1, Now(), '0000-00-00', NULL, NULL)");
 
       using (MySqlConnection c = new MySqlConnection(
