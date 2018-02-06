@@ -121,21 +121,38 @@ namespace MySql.Data.MySqlClient.Authentication
     {
       if (password.Length == 0) return new byte[1];
       if (rawPubkey == null) return null;
-
       // Obfuscate the plain text password with the session scramble.
       byte[] obfuscated = GetXor(AliasText.Encoding.Default.GetBytes(password), seedBytes);
-      // Encrypt the password and send it to the server.
-#if NETSTANDARD1_6
-      RSA rsa = MySqlPemReader.ConvertPemToRSAProvider(rawPublicKey);
-      if (rsa == null) throw new MySqlException(Resources.UnableToReadRSAKey);
 
-      // TODO in MySQL 8.0.3 the RSA_PKCS1_PADDING is used in caching_sha2_password full auth stage but in 8.0.4 it should be changed to RSA_PKCS1_OAEP_PADDING, the same as in sha256_password.
-      return rsa.Encrypt(obfuscated, RSAEncryptionPadding.Pkcs1);
+      // Encrypt the password and send it to the server.
+      if (this.ServerVersion >= new Version("8.0.5"))
+      {
+#if NETSTANDARD1_6
+        RSA rsa = MySqlPemReader.ConvertPemToRSAProvider(rawPublicKey);
+        if (rsa == null) throw new MySqlException(Resources.UnableToReadRSAKey);
+
+        return rsa.Encrypt(obfuscated, RSAEncryptionPadding.OaepSHA1);
 #else
-      RSACryptoServiceProvider rsa = MySqlPemReader.ConvertPemToRSAProvider(rawPublicKey);
-      if (rsa == null) throw new MySqlException(Resources.UnableToReadRSAKey);
-      return rsa.Encrypt(obfuscated, false);
+        RSACryptoServiceProvider rsa = MySqlPemReader.ConvertPemToRSAProvider(rawPublicKey);
+        if (rsa == null) throw new MySqlException(Resources.UnableToReadRSAKey);
+
+        return rsa.Encrypt(obfuscated, true);
 #endif
+      }
+      else
+      {
+#if NETSTANDARD1_6
+        RSA rsa = MySqlPemReader.ConvertPemToRSAProvider(rawPublicKey);
+        if (rsa == null) throw new MySqlException(Resources.UnableToReadRSAKey);
+
+        return rsa.Encrypt(obfuscated, RSAEncryptionPadding.Pkcs1);
+#else
+        RSACryptoServiceProvider rsa = MySqlPemReader.ConvertPemToRSAProvider(rawPublicKey);
+        if (rsa == null) throw new MySqlException(Resources.UnableToReadRSAKey);
+
+        return rsa.Encrypt(obfuscated, false);
+#endif
+      }
     }
 
     public override object GetPassword()

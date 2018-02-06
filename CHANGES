@@ -1,3 +1,8 @@
+8.0.11
+- Updated the RSA key encryption padding to RSA_PKCS1_OAEP_PADDING for the caching_sha2_password authentication plugin
+  when connecting to server 8.0.5 (or later) (WL11618).
+
+
 8.0.10
 - MySqlX: Replaced the current implementation of the CreateIndex() method with new syntax that enhances the
   creation of indexes (WL11131).
