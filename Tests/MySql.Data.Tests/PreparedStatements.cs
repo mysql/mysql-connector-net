@@ -794,7 +794,9 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters[0].Value = 1;
       cmd.Parameters[1].Value = 20;
       Assert.Equal(0, cmd.ExecuteNonQuery());
-      Assert.Equal(20, cmd.Parameters[1].Value);
+
+      if (!st.conn.driver.Version.isAtLeast(8,0,1))
+        Assert.Equal(20, cmd.Parameters[1].Value);
     }
 
     [Fact]
