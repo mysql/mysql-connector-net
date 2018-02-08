@@ -144,7 +144,7 @@ namespace MySql.Data.Entity.Tests
     public void CommandTimeout()
     {
       string connectionString = String.Format(
-          "metadata=res://*/TestModel.csdl|res://*/TestModel.ssdl|res://*/TestModel.msl;provider=MySql.Data.MySqlClient; provider connection string=\"{0};default command timeout=5\"", st.GetConnectionString(true));
+          "metadata=res://*/v4.x.TestModel.csdl|res://*/v4.x.TestModel.ssdl|res://*/v4.x.TestModel.msl;provider=MySql.Data.MySqlClient; provider connection string=\"{0};default command timeout=5\"", st.GetConnectionString(true));
       EntityConnection connection = new EntityConnection(connectionString);
 
       using (testEntities context = new testEntities(connection))
