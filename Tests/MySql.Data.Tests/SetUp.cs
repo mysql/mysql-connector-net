@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2015 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -242,6 +242,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
             string connStr = GetConnectionString(rootUser, rootPassword, false);
             rootConn = new MySqlConnection(connStr + ";database=mysql");
+            //rootConn = new MySqlConnection("server=localhost;uid=root;port=3305");
             rootConn.Open();
         }
 
@@ -419,6 +420,36 @@ namespace MySql.Data.MySqlClient.Tests
         {
             MySqlScript s = new MySqlScript(rootConn, sql);
             s.Execute();
+        }
+
+        internal protected string CreateUser(string userName, string password, string plugin)
+        {
+          using (var connection = conn)
+          {
+            if (Version >= new Version("5.7"))
+            {
+              ExecuteSQLAsRoot(String.Format("DROP USER IF EXISTS '{0}'@'localhost';", userName));
+              ExecuteSQLAsRoot(
+              String.Format(
+                "CREATE USER '{0}'@'localhost' IDENTIFIED {1} BY '{2}'",
+                userName,
+                (plugin == null ? string.Empty : String.Format("WITH '{0}' ", plugin)), password));
+            }
+            else
+            {
+              var cmd = connection.CreateCommand();
+              cmd.CommandText = String.Format("SELECT count(*) FROM mysql.user WHERE user LIKE '{0}%'", userName);
+              if ((long)cmd.ExecuteScalar() > 0)
+                ExecuteSQLAsRoot(String.Format("DROP USER '{0}'@'localhost';", userName));
+              ExecuteSQLAsRoot(String.Format("CREATE USER '{0}'@'localhost' IDENTIFIED WITH '{1}'", userName, plugin));
+              if (plugin=="sha256_password") execSQL("SET old_passwords = 2");
+              ExecuteSQLAsRoot(String.Format("SET PASSWORD FOR '{0}'@'localhost' = PASSWORD('{1}')", userName, password));
+            }
+
+            ExecuteSQLAsRoot(String.Format("GRANT ALL ON *.* TO '{0}'@'localhost'", userName));
+            ExecuteSQLAsRoot("FLUSH PRIVILEGES");
+            return userName;
+          }
         }
 
         protected virtual void Dispose(bool disposing)

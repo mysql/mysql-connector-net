@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -124,6 +124,7 @@ namespace MySql.Data.MySqlClient
           return (bool)val;
         }
         ));
+      options.Add(new MySqlConnectionStringOption("allowpublickeyretrieval", null, typeof(bool), false, false));
 
       // Other properties
       options.Add(new MySqlConnectionStringOption("allowzerodatetime", "allow zero datetime", typeof(bool), false, false));
@@ -492,6 +493,16 @@ namespace MySql.Data.MySqlClient
 
         SetValue("integratedsecurity", value);
       }
+    }
+    
+    [Category("Authentication")]
+    [DisplayName("AllowPublicKeyRetrieval")]
+    [Description("Allow retrieval of RSA public keys when SSL is disabled")]
+    [DefaultValue(false)]
+    public bool AllowPublicKeyRetrieval
+    {
+      get { return (bool) values["allowpublickeyretrieval"]; }
+      set { SetValue("allowpublickeyretrieval", value); }
     }
 
     #endregion
