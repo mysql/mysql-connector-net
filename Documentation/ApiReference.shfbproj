@@ -52,10 +52,10 @@
       <DocumentationSource sourceFile="..\MySql.Web\src\bin\release\net452\MySql.Web.xml" />
       <DocumentationSource sourceFile="..\EntityFramework6\src\bin\Release\net452\MySql.Data.Entity.EF6.dll" />
       <DocumentationSource sourceFile="..\EntityFramework6\src\bin\Release\net452\MySql.Data.Entity.EF6.xml" />
-      <DocumentationSource sourceFile="..\EntityFrameworkCore\src\MySql.Data.EntityFrameworkCore\bin\Release\net452\MySql.Data.EntityFrameworkCore.dll" />
-      <DocumentationSource sourceFile="..\EntityFrameworkCore\src\MySql.Data.EntityFrameworkCore\bin\Release\net452\MySql.Data.EntityFrameworkCore.xml" />
-      <DocumentationSource sourceFile="..\EntityFrameworkCore\src\MySql.Data.EntityFrameworkCore.Design\bin\Release\net452\MySql.Data.EntityFrameworkCore.Design.dll" />
-      <DocumentationSource sourceFile="..\EntityFrameworkCore\src\MySql.Data.EntityFrameworkCore.Design\bin\Release\net452\MySql.Data.EntityFrameworkCore.Design.xml" />
+      <DocumentationSource sourceFile="..\EFCore\src\MySql.Data.EFCore\bin\Release\net452\MySql.Data.EntityFrameworkCore.dll" />
+      <DocumentationSource sourceFile="..\EFCore\src\MySql.Data.EFCore\bin\Release\net452\MySql.Data.EntityFrameworkCore.xml" />
+      <DocumentationSource sourceFile="..\EFCore\src\MySql.Data.EFCore.Design\bin\Release\net452\MySql.Data.EntityFrameworkCore.Design.dll" />
+      <DocumentationSource sourceFile="..\EFCore\src\MySql.Data.EFCore.Design\bin\Release\net452\MySql.Data.EntityFrameworkCore.Design.xml" />
     </DocumentationSources>
     <NamespaceSummaries>
       <NamespaceSummaryItem name="(global)" isDocumented="False" xmlns="" />

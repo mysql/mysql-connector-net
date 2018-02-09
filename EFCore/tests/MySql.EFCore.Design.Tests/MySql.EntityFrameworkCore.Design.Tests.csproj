@@ -1,36 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>MySql.EntityFrameworkCore.Basic.Tests Class Library</Description>
-    <Copyright>Copyright © 2016, 2018 Oracle and/or its affiliates. All rights reserved.</Copyright>
+    <Description>MySql.EntityFrameworkCore.Design.Tests Class Library</Description>
+    <Copyright>Copyright © 2018 Oracle and/or its affiliates. All rights reserved.</Copyright>
     <Version>6.10.6</Version>
     <Authors>Oracle</Authors>
     <TargetFrameworks>netcoreapp2.0;netcoreapp1.1;net452</TargetFrameworks>
-    <AssemblyName>MySql.EntityFrameworkCore.Basic.Tests</AssemblyName>
-    <PackageId>MySql.EntityFrameworkCore.Basic.Tests</PackageId>
+    <AssemblyName>MySql.EntityFrameworkCore.Design.Tests</AssemblyName>
+    <PackageId>MySql.EntityFrameworkCore.Design.Tests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET;netcore;.Net Core;MySql Conector/Net Core;coreclr;C/NET;C/Net Core;EF;Entity Framework</PackageTags>
     <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
     <PackageProjectUrl>http://dev.mysql.com/downloads/</PackageProjectUrl>
     <PackageLicenseUrl>http://www.gnu.org/licenses/old-licenses/gpl-2.0.html</PackageLicenseUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
     <SignAssembly>True</SignAssembly>
     <DelaySign>True</DelaySign>
-    <AssemblyOriginatorKeyFile>..\..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>  
-    <NoWarn>CS1591,CS1701,CS1702</NoWarn>
+    <AssemblyOriginatorKeyFile>..\..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="Logging\**" />
-    <EmbeddedResource Remove="Logging\**" />
-    <None Remove="Logging\**" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
@@ -41,11 +29,30 @@
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.1' ">
     <DefineConstants>$(DefineConstants);NETCORE10;NET_CORE</DefineConstants>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <PreserveCompilationContext>true</PreserveCompilationContext>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <EmbeddedResource Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" Include="Properties\sakiladb-schema.sql;Properties\world.sql" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
+    <EmbeddedResource Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" Include="Properties\sakiladb-schema.sql;Properties\world.sql" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net452' or '$(TargetFramework)' == 'netcoreapp1.1' ">
     <Compile Remove="Frameworks/efcore20/**/*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="1.1.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="1.1.4" />
+    <ProjectReference Include="..\..\src\MySql.Data.EFCore.Design\MySql.Data.EntityFrameworkCore.Design.csproj" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">
@@ -53,22 +60,10 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.0.1" />
   </ItemGroup>
 
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <PreserveCompilationContext>true</PreserveCompilationContext>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-  </PropertyGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\..\MySQL.Data\src\MySql.Data.csproj" />
-    <ProjectReference Include="..\..\src\MySql.Data.EntityFrameworkCore\MySql.Data.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\..\src\MySql.Data.EFCore\MySql.Data.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\MySql.EFCore.Basic.Tests\MySql.EntityFrameworkCore.Basic.Tests.csproj" />
   </ItemGroup>
 
   <ItemGroup>

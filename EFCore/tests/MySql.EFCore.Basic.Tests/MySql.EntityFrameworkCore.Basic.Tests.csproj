@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>MySql.EntityFrameworkCore.Migrations.Tests Class Library</Description>
+    <Description>MySql.EntityFrameworkCore.Basic.Tests Class Library</Description>
     <Copyright>Copyright © 2016, 2018 Oracle and/or its affiliates. All rights reserved.</Copyright>
     <Version>6.10.6</Version>
     <Authors>Oracle</Authors>
     <TargetFrameworks>netcoreapp2.0;netcoreapp1.1;net452</TargetFrameworks>
-    <AssemblyName>MySql.EntityFrameworkCore.Migrations.Tests</AssemblyName>
-    <PackageId>MySql.EntityFrameworkCore.Migrations.Tests</PackageId>
+    <AssemblyName>MySql.EntityFrameworkCore.Basic.Tests</AssemblyName>
+    <PackageId>MySql.EntityFrameworkCore.Basic.Tests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET;netcore;.Net Core;MySql Conector/Net Core;coreclr;C/NET;C/Net Core;EF;Entity Framework</PackageTags>
     <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
@@ -22,9 +22,15 @@
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
     <SignAssembly>True</SignAssembly>
     <DelaySign>True</DelaySign>
-    <AssemblyOriginatorKeyFile>..\..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
-    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <AssemblyOriginatorKeyFile>..\..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>  
+    <NoWarn>CS1591,CS1701,CS1702</NoWarn>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Logging\**" />
+    <EmbeddedResource Remove="Logging\**" />
+    <None Remove="Logging\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
@@ -35,21 +41,11 @@
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.1' ">
     <DefineConstants>$(DefineConstants);NETCORE10;NET_CORE</DefineConstants>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <PreserveCompilationContext>true</PreserveCompilationContext>
-  </PropertyGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net452' or '$(TargetFramework)' == 'netcoreapp1.1' ">
     <Compile Remove="Frameworks/efcore20/**/*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="1.1.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="1.1.4" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">
@@ -57,10 +53,22 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.0.1" />
   </ItemGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <PreserveCompilationContext>true</PreserveCompilationContext>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\..\MySQL.Data\src\MySql.Data.csproj" />
-    <ProjectReference Include="..\..\src\MySql.Data.EntityFrameworkCore\MySql.Data.EntityFrameworkCore.csproj" />
-    <ProjectReference Include="..\MySql.EntityFrameworkCore.Basic.Tests\MySql.EntityFrameworkCore.Basic.Tests.csproj" />
+    <ProjectReference Include="..\..\src\MySql.Data.EFCore\MySql.Data.EntityFrameworkCore.csproj" />
   </ItemGroup>
 
   <ItemGroup>
