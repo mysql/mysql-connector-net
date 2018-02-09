@@ -1,6 +1,7 @@
 6.10.7
 - Added support for MySQL 8 server features (WL11326).
 - Fix to avoid raising an exception during the DbContext setup. Thanks to Cédric Luthi for his contribution. (MySQL Bug #89134, Oracle Bug #25185319)
+- Fixed a problem in which NuGet packages could not be installed from within Visual Studio 2015 (MySQL Bug #88838, Oracle Bug #27251839).
 
 
 6.10.6

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>MySql.Data.MySqlClient .Net Core Class Library</Description>
-    <Copyright>Copyright © 2016, 2018 Oracle and/or its affiliates. All rights reserved.</Copyright>
+    <Copyright>Copyright © 2016, 2018, Oracle and/or its affiliates. All rights reserved.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Version>6.10.6</Version>
     <Authors>Oracle</Authors>
@@ -31,19 +31,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="docs\MySqlCommand.xml" />
-    <Content Include="docs\MySqlCommandBuilder.xml" />
-    <Content Include="docs\MySqlConnection.xml" />
-    <Content Include="docs\MySqlConnectionStringBuilder.xml" />
-    <Content Include="docs\MySqlDataAdapter.xml" />
-    <Content Include="docs\MySqlDataReader.xml" />
-    <Content Include="docs\MySqlException.xml" />
-    <Content Include="docs\MySqlHelper.xml" />
-    <Content Include="docs\MySqlParameter.xml" />
-    <Content Include="docs\MySqlParameterCollection.xml" />
-    <Content Include="docs\MySqlTransaction.xml" />
-    <Content Include="..\..\Nuget\Data\app.config.transform" />
-    <Content Include="..\..\Nuget\Data\web.config.transform" />
+    <None Remove="Content\ReleaseNotes.txt" />
   </ItemGroup>
 
   <ItemGroup>
@@ -73,7 +61,6 @@
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Management" />
     <Reference Include="System.Xml" />
-    <Reference Include="System.Runtime" />
     <Reference Include="Microsoft.CSharp" />
 
     <EmbeddedResource Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" Include="keywords.txt;Resources.resx;ResourcesX.resx;Properties\ReservedWords.txt" />
