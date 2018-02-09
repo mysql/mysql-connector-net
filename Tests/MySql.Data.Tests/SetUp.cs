@@ -242,7 +242,6 @@ namespace MySql.Data.MySqlClient.Tests
         {
             string connStr = GetConnectionString(rootUser, rootPassword, false);
             rootConn = new MySqlConnection(connStr + ";database=mysql");
-            //rootConn = new MySqlConnection("server=localhost;uid=root;port=3305");
             rootConn.Open();
         }
 

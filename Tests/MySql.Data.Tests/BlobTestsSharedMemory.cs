@@ -38,7 +38,7 @@ namespace MySql.Data.MySqlClient.Tests
   {
     protected override string OnGetConnectionStringInfo()
     {
-      return String.Format("protocol=memory; shared memory name={0};ssl mode=none;", st.memoryName);
+      return String.Format("protocol=memory; shared memory name={0};ssl mode=none;allowpublickeyretrieval=true;", st.memoryName);
     }
   }
   #endregion
