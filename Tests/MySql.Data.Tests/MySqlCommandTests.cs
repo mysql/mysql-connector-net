@@ -52,7 +52,16 @@ namespace MySql.Data.MySqlClient.Tests
       st.execSQL(string.Format("CREATE PROCEDURE `{0}`.`spMyTwice`( out result int, val int ) BEGIN set result = val * 2; END;", st.conn.Database));
       string userName = "user1";
       string password = "123";
-      st.ExecuteSQLAsRoot(string.Format("DROP USER IF EXISTS '{0}'@'localhost'", userName));
+      if (!st.conn.driver.Version.isAtLeast(5,7,0))
+      {
+        st.ExecuteSQLAsRoot(string.Format("GRANT USAGE ON *.* TO '{0}'@'localhost'", st.conn.Settings.UserID));
+        var command = st.conn.CreateCommand();
+        command.CommandText = string.Format("SELECT count(*) FROM mysql.user WHERE user LIKE '{0}%'", userName);
+        if ((long) command.ExecuteScalar() > 0)
+          st.ExecuteSQLAsRoot(string.Format("DROP USER '{0}'@'localhost';", userName));
+      }
+      else
+        st.ExecuteSQLAsRoot(string.Format("DROP USER IF EXISTS '{0}'@'localhost'", userName));
       st.ExecuteSQLAsRoot(string.Format("CREATE USER '{0}'@'localhost' IDENTIFIED BY '{1}'", userName, password));
       st.ExecuteSQLAsRoot(string.Format("GRANT ALL ON *.* TO '{0}'@'localhost'", userName));
       st.ExecuteSQLAsRoot("FLUSH PRIVILEGES");

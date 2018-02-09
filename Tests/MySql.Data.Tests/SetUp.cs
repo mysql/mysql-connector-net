@@ -427,25 +427,26 @@ namespace MySql.Data.MySqlClient.Tests
           {
             if (Version >= new Version("5.7"))
             {
-              ExecuteSQLAsRoot(String.Format("DROP USER IF EXISTS '{0}'@'localhost';", userName));
+              ExecuteSQLAsRoot(string.Format("DROP USER IF EXISTS '{0}'@'localhost';", userName));
               ExecuteSQLAsRoot(
-              String.Format(
+              string.Format(
                 "CREATE USER '{0}'@'localhost' IDENTIFIED {1} BY '{2}'",
                 userName,
                 (plugin == null ? string.Empty : String.Format("WITH '{0}' ", plugin)), password));
             }
             else
             {
+              ExecuteSQLAsRoot(string.Format("GRANT USAGE ON *.* TO '{0}'@'localhost'", connection.Settings.UserID));
               var cmd = connection.CreateCommand();
-              cmd.CommandText = String.Format("SELECT count(*) FROM mysql.user WHERE user LIKE '{0}%'", userName);
+              cmd.CommandText = string.Format("SELECT count(*) FROM mysql.user WHERE user LIKE '{0}%'", userName);
               if ((long)cmd.ExecuteScalar() > 0)
-                ExecuteSQLAsRoot(String.Format("DROP USER '{0}'@'localhost';", userName));
-              ExecuteSQLAsRoot(String.Format("CREATE USER '{0}'@'localhost' IDENTIFIED WITH '{1}'", userName, plugin));
+                ExecuteSQLAsRoot(string.Format("DROP USER '{0}'@'localhost';", userName));
+              ExecuteSQLAsRoot(string.Format("CREATE USER '{0}'@'localhost' IDENTIFIED WITH '{1}'", userName, plugin));
               if (plugin=="sha256_password") execSQL("SET old_passwords = 2");
-              ExecuteSQLAsRoot(String.Format("SET PASSWORD FOR '{0}'@'localhost' = PASSWORD('{1}')", userName, password));
+              ExecuteSQLAsRoot(string.Format("SET PASSWORD FOR '{0}'@'localhost' = PASSWORD('{1}')", userName, password));
             }
 
-            ExecuteSQLAsRoot(String.Format("GRANT ALL ON *.* TO '{0}'@'localhost'", userName));
+            ExecuteSQLAsRoot(string.Format("GRANT ALL ON *.* TO '{0}'@'localhost'", userName));
             ExecuteSQLAsRoot("FLUSH PRIVILEGES");
             return userName;
           }
