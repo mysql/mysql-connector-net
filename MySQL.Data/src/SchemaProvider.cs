@@ -1,4 +1,4 @@
-// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -286,8 +286,10 @@ namespace MySql.Data.MySqlClient
 
         foreach (MySqlSchemaRow index in indexes.Rows)
         {
-          long seq_index = (long)index["SEQ_IN_INDEX"];
-          if (seq_index != 1) continue;
+          if (1 != (connection.driver.Version.isAtLeast(8, 0, 1) ?
+            (uint)index["SEQ_IN_INDEX"] :
+            (long)index["SEQ_IN_INDEX"]))
+            continue;
           if (restrictions != null && restrictions.Length == 4 &&
             restrictions[3] != null &&
             !index["KEY_NAME"].Equals(restrictions[3])) continue;
@@ -296,7 +298,9 @@ namespace MySql.Data.MySqlClient
           row["INDEX_SCHEMA"] = table["TABLE_SCHEMA"];
           row["INDEX_NAME"] = index["KEY_NAME"];
           row["TABLE_NAME"] = index["TABLE"];
-          row["UNIQUE"] = (long)index["NON_UNIQUE"] == 0;
+          row["UNIQUE"] = connection.driver.Version.isAtLeast(8, 0, 1) ?
+            Convert.ToInt64(index["NON_UNIQUE"]) == 0 :
+            (long) index["NON_UNIQUE"] == 0;
           row["PRIMARY"] = index["KEY_NAME"].Equals("PRIMARY");
           row["TYPE"] = index["INDEX_TYPE"];
           row["COMMENT"] = index["COMMENT"];
@@ -598,48 +602,100 @@ namespace MySql.Data.MySqlClient
       dt.AddColumn("ROUTINE_COMMENT", typeof(string));
       dt.AddColumn("DEFINER", typeof(string));
 
-      StringBuilder sql = new StringBuilder("SELECT * FROM mysql.proc WHERE 1=1");
-      if (restrictions != null)
-      {
-        if (restrictions.Length >= 2 && restrictions[1] != null)
-          sql.AppendFormat(CultureInfo.InvariantCulture,
-            " AND db LIKE '{0}'", restrictions[1]);
-        if (restrictions.Length >= 3 && restrictions[2] != null)
-          sql.AppendFormat(CultureInfo.InvariantCulture,
-            " AND name LIKE '{0}'", restrictions[2]);
-        if (restrictions.Length >= 4 && restrictions[3] != null)
-          sql.AppendFormat(CultureInfo.InvariantCulture,
-            " AND type LIKE '{0}'", restrictions[3]);
-      }
+      StringBuilder sql = null;
 
-      MySqlCommand cmd = new MySqlCommand(sql.ToString(), connection);
-      using (MySqlDataReader reader = cmd.ExecuteReader())
+      if (connection.driver.Version.isAtLeast(8,0,1))
       {
-        while (reader.Read())
+        sql = new StringBuilder("SELECT * FROM information_schema.routines WHERE 1=1");
+        if (restrictions != null)
         {
-          MySqlSchemaRow row = dt.AddRow();
-          row["SPECIFIC_NAME"] = reader.GetString("specific_name");
-          row["ROUTINE_CATALOG"] = DBNull.Value;
-          row["ROUTINE_SCHEMA"] = reader.GetString("db");
-          row["ROUTINE_NAME"] = reader.GetString("name");
-          string routineType = reader.GetString("type");
-          row["ROUTINE_TYPE"] = routineType;
-          row["DTD_IDENTIFIER"] = StringUtility.ToLowerInvariant(routineType) == "function" ?
-            (object)reader.GetString("returns") : DBNull.Value;
-          row["ROUTINE_BODY"] = "SQL";
-          row["ROUTINE_DEFINITION"] = reader.GetString("body");
-          row["EXTERNAL_NAME"] = DBNull.Value;
-          row["EXTERNAL_LANGUAGE"] = DBNull.Value;
-          row["PARAMETER_STYLE"] = "SQL";
-          row["IS_DETERMINISTIC"] = reader.GetString("is_deterministic");
-          row["SQL_DATA_ACCESS"] = reader.GetString("sql_data_access");
-          row["SQL_PATH"] = DBNull.Value;
-          row["SECURITY_TYPE"] = reader.GetString("security_type");
-          row["CREATED"] = reader.GetDateTime("created");
-          row["LAST_ALTERED"] = reader.GetDateTime("modified");
-          row["SQL_MODE"] = reader.GetString("sql_mode");
-          row["ROUTINE_COMMENT"] = reader.GetString("comment");
-          row["DEFINER"] = reader.GetString("definer");
+          if (restrictions.Length >= 2 && restrictions[1] != null)
+            sql.AppendFormat(CultureInfo.InvariantCulture,
+              " AND routine_schema LIKE '{0}'", restrictions[1]);
+          if (restrictions.Length >= 3 && restrictions[2] != null)
+            sql.AppendFormat(CultureInfo.InvariantCulture,
+              " AND routine_name LIKE '{0}'", restrictions[2]);
+          if (restrictions.Length >= 4 && restrictions[3] != null)
+            sql.AppendFormat(CultureInfo.InvariantCulture,
+              " AND routine_type LIKE '{0}'", restrictions[3]);
+        }
+
+        MySqlCommand cmd = new MySqlCommand(sql.ToString(), connection);
+        using (MySqlDataReader reader = cmd.ExecuteReader())
+        {
+          while (reader.Read())
+          {
+            MySqlSchemaRow row = dt.AddRow();
+            row["SPECIFIC_NAME"] = reader.GetString("specific_name");
+            row["ROUTINE_CATALOG"] = DBNull.Value;
+            row["ROUTINE_SCHEMA"] = reader.GetString("routine_schema");
+            row["ROUTINE_NAME"] = reader.GetString("routine_name");
+            string routineType = reader.GetString("routine_type");
+            row["ROUTINE_TYPE"] = routineType;
+            row["DTD_IDENTIFIER"] = StringUtility.ToLowerInvariant(routineType) == "function" ?
+              (object)reader.GetString("DTD_IDENTIFIER") : DBNull.Value;
+            row["ROUTINE_BODY"] = "SQL";
+            row["ROUTINE_DEFINITION"] = reader.GetString("routine_definition");
+            row["EXTERNAL_NAME"] = DBNull.Value;
+            row["EXTERNAL_LANGUAGE"] = DBNull.Value;
+            row["PARAMETER_STYLE"] = "SQL";
+            row["IS_DETERMINISTIC"] = reader.GetString("is_deterministic");
+            row["SQL_DATA_ACCESS"] = reader.GetString("sql_data_access");
+            row["SQL_PATH"] = DBNull.Value;
+            row["SECURITY_TYPE"] = reader.GetString("security_type");
+            row["CREATED"] = reader.GetDateTime("created");
+            row["LAST_ALTERED"] = reader.GetDateTime("last_altered");
+            row["SQL_MODE"] = reader.GetString("sql_mode");
+            row["ROUTINE_COMMENT"] = reader.GetString("routine_comment");
+            row["DEFINER"] = reader.GetString("definer");
+          }
+        }
+      }
+      else
+      {
+        sql = new StringBuilder("SELECT * FROM mysql.proc WHERE 1=1");
+        if (restrictions != null)
+        {
+          if (restrictions.Length >= 2 && restrictions[1] != null)
+            sql.AppendFormat(CultureInfo.InvariantCulture,
+              " AND db LIKE '{0}'", restrictions[1]);
+          if (restrictions.Length >= 3 && restrictions[2] != null)
+            sql.AppendFormat(CultureInfo.InvariantCulture,
+              " AND name LIKE '{0}'", restrictions[2]);
+          if (restrictions.Length >= 4 && restrictions[3] != null)
+            sql.AppendFormat(CultureInfo.InvariantCulture,
+              " AND type LIKE '{0}'", restrictions[3]);
+        }
+
+        MySqlCommand cmd = new MySqlCommand(sql.ToString(), connection);
+        using (MySqlDataReader reader = cmd.ExecuteReader())
+        {
+          while (reader.Read())
+          {
+            MySqlSchemaRow row = dt.AddRow();
+            row["SPECIFIC_NAME"] = reader.GetString("specific_name");
+            row["ROUTINE_CATALOG"] = DBNull.Value;
+            row["ROUTINE_SCHEMA"] = reader.GetString("db");
+            row["ROUTINE_NAME"] = reader.GetString("name");
+            string routineType = reader.GetString("type");
+            row["ROUTINE_TYPE"] = routineType;
+            row["DTD_IDENTIFIER"] = StringUtility.ToLowerInvariant(routineType) == "function" ?
+              (object)reader.GetString("returns") : DBNull.Value;
+            row["ROUTINE_BODY"] = "SQL";
+            row["ROUTINE_DEFINITION"] = reader.GetString("body");
+            row["EXTERNAL_NAME"] = DBNull.Value;
+            row["EXTERNAL_LANGUAGE"] = DBNull.Value;
+            row["PARAMETER_STYLE"] = "SQL";
+            row["IS_DETERMINISTIC"] = reader.GetString("is_deterministic");
+            row["SQL_DATA_ACCESS"] = reader.GetString("sql_data_access");
+            row["SQL_PATH"] = DBNull.Value;
+            row["SECURITY_TYPE"] = reader.GetString("security_type");
+            row["CREATED"] = reader.GetDateTime("created");
+            row["LAST_ALTERED"] = reader.GetDateTime("modified");
+            row["SQL_MODE"] = reader.GetString("sql_mode");
+            row["ROUTINE_COMMENT"] = reader.GetString("comment");
+            row["DEFINER"] = reader.GetString("definer");
+          }
         }
       }
 

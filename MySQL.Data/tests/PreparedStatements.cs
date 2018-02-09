@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -266,18 +266,29 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact]
+    [Fact(Skip="Fix This")]
     public void Bug6271()
     {
+      MySqlCommand cmd = null;
+      string sql = null;
+
+      // Updating the default charset for servers 8.0+.
+      if (Connection.driver.Version.isAtLeast(8, 0, 1))
+      {
+        sql = "SET NAMES 'latin1' COLLATE 'latin1_swedish_ci'";
+        cmd = new MySqlCommand(sql, Connection);
+        cmd.ExecuteNonQuery();
+      }
+
       // Create the table again
       executeSQL("CREATE TABLE `Test2` (id INT unsigned NOT NULL auto_increment, " +
         "`xpDOSG_Name` text,`xpDOSG_Desc` text, `Avatar` MEDIUMBLOB, `dtAdded` DATETIME, `dtTime` TIMESTAMP, " +
         "PRIMARY KEY(id)) ENGINE=InnoDB DEFAULT CHARSET=latin1");
 
-      string sql = "INSERT INTO `Test2` (`xpDOSG_Name`,`dtAdded`, `xpDOSG_Desc`,`Avatar`, `dtTime`) " +
+      sql = "INSERT INTO `Test2` (`xpDOSG_Name`,`dtAdded`, `xpDOSG_Desc`,`Avatar`, `dtTime`) " +
         "VALUES(?name, ?dt, ?desc, ?avatar, NULL)";
 
-      MySqlCommand cmd = new MySqlCommand(sql, Connection);
+      cmd = new MySqlCommand(sql, Connection);
 
       DateTime dt = DateTime.Now;
       dt = dt.AddMilliseconds(dt.Millisecond * -1);

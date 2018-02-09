@@ -1,5 +1,7 @@
 6.10.7
+- Added support for MySQL 8 server features (WL11326).
 - Fix to avoid raising an exception during the DbContext setup. Thanks to Cédric Luthi for his contribution. (MySQL Bug #89134, Oracle Bug #25185319)
+
 
 6.10.6
 - Fix for sockets stay in CLOSE_WAIT when using SSL (MySQL Bug #75022, Oracle Bug #20393654).
