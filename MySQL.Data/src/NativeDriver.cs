@@ -620,9 +620,9 @@ namespace MySql.Data.MySqlClient
 
       if (type == MySqlDbType.Decimal || type == MySqlDbType.NewDecimal)
       {
-        field.Precision = (byte)(field.ColumnLength - 2);
-        if ((colFlags & ColumnFlags.UNSIGNED) != 0)
-          field.Precision++;
+        field.Precision = ((colFlags & ColumnFlags.UNSIGNED) != 0) ? (byte)(field.ColumnLength) : (byte)(field.ColumnLength - 1);
+        if (field.Scale != 0)
+          field.Precision--;
       }
 
       field.SetTypeAndFlags(type, colFlags);

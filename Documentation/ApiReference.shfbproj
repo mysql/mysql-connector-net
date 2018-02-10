@@ -22,20 +22,6 @@
       <Filter entryType="Namespace" fullName="MySql.Data.MySqlClient" isExposed="True">
         <Filter entryType="Class" fullName="MySql.Data.MySqlClient.CustomInstaller" filterName="CustomInstaller" isExposed="False" />
       </Filter>
-      <Filter entryType="Namespace" fullName="MySql.Data.EntityFrameworkCore.Design.Internal" isExposed="False" />
-      <Filter entryType="Namespace" fullName="MySql.Data.EntityFrameworkCore.Design.Metadata.Internal" isExposed="False" />
-      <Filter entryType="Namespace" fullName="MySQL.Data.EntityFrameworkCore.Metadata" isExposed="False" />
-      <Filter entryType="Namespace" fullName="MySql.Data.EntityFrameworkCore.Metadata.Conventions" isExposed="False" />
-      <Filter entryType="Namespace" fullName="MySQL.Data.EntityFrameworkCore.Metadata.Internal" isExposed="False" />
-      <Filter entryType="Namespace" fullName="MySQL.Data.EntityFrameworkCore.Migrations" isExposed="False" />
-      <Filter entryType="Namespace" fullName="MySQL.Data.EntityFrameworkCore.Migrations.Internal" isExposed="False" />
-      <Filter entryType="Namespace" fullName="MySQL.Data.EntityFrameworkCore.Migrations.Operations" isExposed="False" />
-      <Filter entryType="Namespace" fullName="MySQL.Data.EntityFrameworkCore.Query" isExposed="False" />
-      <Filter entryType="Namespace" fullName="MySql.Data.EntityFrameworkCore.Query.ExpressionTranslators.Internal" isExposed="False" />
-      <Filter entryType="Namespace" fullName="MySql.Data.EntityFrameworkCore.Query.Internal" isExposed="False" />
-      <Filter entryType="Namespace" fullName="MySql.Data.EntityFrameworkCore.Storage.Internal" isExposed="False" />
-      <Filter entryType="Namespace" fullName="MySQL.Data.EntityFrameworkCore.Update" isExposed="False" />
-      <Filter entryType="Namespace" fullName="MySql.Data.MySqlClient.X.XDevAPI.Common" isExposed="False" />
     </ApiFilter>
     <ProjectSummary>
     </ProjectSummary>

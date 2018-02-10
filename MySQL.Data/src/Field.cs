@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -51,7 +51,7 @@ namespace MySql.Data.MySqlClient
     TIMESTAMP = 1024,
     SET = 2048,
     NUMBER = 32768
-  } ;
+  };
 
   /// <summary>
   /// Summary description for Field.
@@ -124,8 +124,14 @@ namespace MySql.Data.MySqlClient
 
     public bool IsUnsigned => (Flags & ColumnFlags.UNSIGNED) > 0;
 
-    public bool IsTextField => Type == MySqlDbType.VarString || Type == MySqlDbType.VarChar ||
-                               Type == MySqlDbType.String || (IsBlob && !IsBinary);
+    public bool IsTextField
+    {
+      get
+      {
+        return Type == MySqlDbType.VarString || Type == MySqlDbType.VarChar ||
+                    Type == MySqlDbType.String || (Type == MySqlDbType.Guid && !driver.Settings.OldGuids);
+      }
+    }
 
     private int CharacterLength => ColumnLength / MaxLength;
 
@@ -316,7 +322,7 @@ namespace MySql.Data.MySqlClient
         case MySqlDbType.JSON:
         case (MySqlDbType)Field_Type.NULL:
           return new MySqlString(type, true);
-        case MySqlDbType.Geometry:        
+        case MySqlDbType.Geometry:
           return new MySqlGeometry(type, true);
         case MySqlDbType.Blob:
         case MySqlDbType.MediumBlob:
@@ -334,7 +340,7 @@ namespace MySql.Data.MySqlClient
 
     private void SetFieldEncoding()
     {
-      Dictionary<int,string> charSets = driver.CharacterSets;
+      Dictionary<int, string> charSets = driver.CharacterSets;
       DBVersion version = driver.Version;
 
       if (charSets == null || charSets.Count == 0 || CharacterSetIndex == -1) return;

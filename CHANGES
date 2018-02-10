@@ -1,3 +1,10 @@
+8.0.11
+- Fix for sockets stay in CLOSE_WAIT when using SSL (MySQL Bug #75022, Oracle Bug #20393654).
+- Fix for unexpected ColumnSize for CHAR(63) and BLOB columns in GetSchemaTable (MySQL Bug #87868, Oracle Bug #26876582)
+- Fix to correct unexpected ColummSize and IsLong values returned by MySqlDataReader.GetSchemaTable when using LongText and LongBlob data types. (MySQL Bug #87876, Oracle Bug #26876592)
+- Fix to correct the wrong NumericPrecision value returned by MySqlDataReader.GetSchemaTable when NumericScale is 0 for Decimal data types. (MySQL Bug #88058, Oracle Bug #26954812)
+
+
 8.0.10
 - MySqlX: Replaced the current implementation of the CreateIndex() method with new syntax that enhances the
   creation of indexes (WL11131).

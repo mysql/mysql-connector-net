@@ -1,4 +1,4 @@
-// Copyright © 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,5 +30,5 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 
 [assembly: DesignTimeProviderServices(
   typeName: "MySql.Data.EntityFrameworkCore.Design.Internal.MySQLDesignTimeServices",
-  assemblyName: "MySql.Data.EntityFrameworkCore.Design, Version=6.10.5.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d",
+  assemblyName: "MySql.Data.EntityFrameworkCore.Design, Version=8.0.11.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d",
   packageName: "MySql.Data.EntityFrameworkCore.Design")]
