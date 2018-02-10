@@ -3,6 +3,9 @@
 - Fix for unexpected ColumnSize for CHAR(63) and BLOB columns in GetSchemaTable (MySQL Bug #87868, Oracle Bug #26876582)
 - Fix to correct unexpected ColummSize and IsLong values returned by MySqlDataReader.GetSchemaTable when using LongText and LongBlob data types. (MySQL Bug #87876, Oracle Bug #26876592)
 - Fix to correct the wrong NumericPrecision value returned by MySqlDataReader.GetSchemaTable when NumericScale is 0 for Decimal data types. (MySQL Bug #88058, Oracle Bug #26954812)
+- Added support for MySQL 8 server features (WL11326).
+- Fix to avoid raising an exception during the DbContext setup. Thanks to Cédric Luthi for his contribution. (MySQL Bug #89134, Oracle Bug #25185319)
+- Fixed a problem in which NuGet packages could not be installed from within Visual Studio 2015 (MySQL Bug #88838, Oracle Bug #27251839).
 
 
 8.0.10

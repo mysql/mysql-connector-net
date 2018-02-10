@@ -292,8 +292,10 @@ namespace MySql.Data.MySqlClient
 
         foreach (MySqlSchemaRow index in indexes.Rows)
         {
-          var seq_index = connection.driver.Version.isAtLeast(8, 0, 1) ? (uint)index["SEQ_IN_INDEX"] : (long)index["SEQ_IN_INDEX"];
-          if (seq_index != 1) continue;
+          if (1 != (connection.driver.Version.isAtLeast(8, 0, 1) ?
+            (uint)index["SEQ_IN_INDEX"] :
+            (long)index["SEQ_IN_INDEX"]))
+            continue;
           if (restrictions != null && restrictions.Length == 4 &&
             restrictions[3] != null &&
             !index["KEY_NAME"].Equals(restrictions[3])) continue;
@@ -302,7 +304,9 @@ namespace MySql.Data.MySqlClient
           row["INDEX_SCHEMA"] = table["TABLE_SCHEMA"];
           row["INDEX_NAME"] = index["KEY_NAME"];
           row["TABLE_NAME"] = index["TABLE"];
-          row["UNIQUE"] = connection.driver.Version.isAtLeast(8, 0, 1) ? Convert.ToInt64(index["NON_UNIQUE"]) == 0 : (long)index["NON_UNIQUE"] == 0;
+          row["UNIQUE"] = connection.driver.Version.isAtLeast(8, 0, 1) ?
+            Convert.ToInt64(index["NON_UNIQUE"]) == 0 :
+            (long) index["NON_UNIQUE"] == 0;
           row["PRIMARY"] = index["KEY_NAME"].Equals("PRIMARY");
           row["TYPE"] = index["INDEX_TYPE"];
           row["COMMENT"] = index["COMMENT"];

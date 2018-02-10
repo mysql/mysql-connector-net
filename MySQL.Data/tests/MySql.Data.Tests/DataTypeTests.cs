@@ -1,4 +1,4 @@
-// Copyright © 2013, 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -680,20 +680,17 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test (v Geometry NOT NULL)");
 
-      MySqlCommand cmd = null;
-      if (Connection.driver.Version.isAtLeast(8,0,1))
-        cmd = new MySqlCommand("INSERT INTO Test VALUES (ST_GeomFromText(?v))", Connection);
-      else
-        cmd = new MySqlCommand("INSERT INTO Test VALUES (GeomFromText(?v))", Connection);
-      
+      MySqlCommand cmd = new MySqlCommand(Connection.driver.Version.isAtLeast(8, 0, 1) ?
+        "INSERT INTO Test VALUES (ST_GeomFromText(?v))":
+        "INSERT INTO Test VALUES (GeomFromText(?v))"
+      , Connection);
       cmd.Parameters.Add("?v", MySqlDbType.String);
       cmd.Parameters[0].Value = "POINT(47.37 -122.21)";
       cmd.ExecuteNonQuery();
 
-      if (Connection.driver.Version.isAtLeast(8,0,1))
-        cmd.CommandText = "SELECT ST_AsText(v) FROM Test";
-      else
-        cmd.CommandText = "SELECT AsText(v) FROM Test";
+      cmd.CommandText = Connection.driver.Version.isAtLeast(8, 0, 1) ?
+        "SELECT ST_AsText(v) FROM Test":
+        "SELECT AsText(v) FROM Test";
 
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
@@ -717,10 +714,9 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.Add(par);
       cmd.ExecuteNonQuery();
 
-      if (Connection.driver.Version.isAtLeast(8,0,1))
-        cmd.CommandText = "SELECT ST_AsBinary(v) FROM Test";
-      else
-        cmd.CommandText = "SELECT AsBinary(v) FROM Test";
+      cmd.CommandText = Connection.driver.Version.isAtLeast(8, 0, 1) ?
+        "SELECT ST_AsBinary(v) FROM Test":
+        "SELECT AsBinary(v) FROM Test";
 
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
@@ -746,10 +742,9 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.Add(par);
       cmd.ExecuteNonQuery();
 
-      if (Connection.driver.Version.isAtLeast(8,0,1))
-        cmd.CommandText = "SELECT ST_SRID(v) FROM Test";
-      else
-        cmd.CommandText = "SELECT SRID(v) FROM Test";
+      cmd.CommandText = Connection.driver.Version.isAtLeast(8, 0, 1) ?
+        "SELECT ST_SRID(v) FROM Test":
+        "SELECT SRID(v) FROM Test";
 
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
@@ -774,10 +769,9 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.Add(par);
       cmd.ExecuteNonQuery();
 
-      if (Connection.driver.Version.isAtLeast(8,0,1))
-        cmd.CommandText = "SELECT ST_AsText(v) FROM Test";
-      else
-        cmd.CommandText = "SELECT AsText(v) FROM Test";
+      cmd.CommandText = Connection.driver.Version.isAtLeast(8, 0, 1) ?
+        "SELECT ST_AsText(v) FROM Test":
+        "SELECT AsText(v) FROM Test";
 
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
@@ -802,10 +796,9 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.ExecuteNonQuery();
 
       // reading as binary
-      if (Connection.driver.Version.isAtLeast(8,0,1))
-        cmd.CommandText = "SELECT ST_AsBinary(v) as v FROM Test";
-      else
-        cmd.CommandText = "SELECT AsBinary(v) as v FROM Test";
+      cmd.CommandText = Connection.driver.Version.isAtLeast(8, 0, 1) ?
+        "SELECT ST_AsBinary(v) as v FROM Test":
+        "SELECT AsBinary(v) as v FROM Test";
 
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {

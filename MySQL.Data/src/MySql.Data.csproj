@@ -31,19 +31,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="docs\MySqlCommand.xml" />
-    <Content Include="docs\MySqlCommandBuilder.xml" />
-    <Content Include="docs\MySqlConnection.xml" />
-    <Content Include="docs\MySqlConnectionStringBuilder.xml" />
-    <Content Include="docs\MySqlDataAdapter.xml" />
-    <Content Include="docs\MySqlDataReader.xml" />
-    <Content Include="docs\MySqlException.xml" />
-    <Content Include="docs\MySqlHelper.xml" />
-    <Content Include="docs\MySqlParameter.xml" />
-    <Content Include="docs\MySqlParameterCollection.xml" />
-    <Content Include="docs\MySqlTransaction.xml" />
-    <Content Include="..\..\Nuget\Data\app.config.transform" />
-    <Content Include="..\..\Nuget\Data\web.config.transform" />
+    <None Remove="Content\ReleaseNotes.txt" />
   </ItemGroup>
 
   <ItemGroup>
@@ -77,7 +65,6 @@
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Management" />
     <Reference Include="System.Xml" />
-    <Reference Include="System.Runtime" />
     <Reference Include="Microsoft.CSharp" />
 
     <EmbeddedResource Include="keywords.txt;Resources.resx;ResourcesX.resx;Properties\ReservedWords.txt" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
