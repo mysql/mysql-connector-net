@@ -47,10 +47,6 @@ namespace MySql.Data.MySqlClient.Tests
       }
 
       [Fact]
-      public void test()
-      { }
-
-      [Fact]
       public void TestConnectionStrings()
       {
           MySqlConnection c = new MySqlConnection();
@@ -1412,6 +1408,7 @@ namespace MySql.Data.MySqlClient.Tests
           Assert.Contains("TLSv1", reader.GetString(1));
         }
 
+        st.ExecuteSQLAsRoot(string.Format("GRANT SELECT ON mysql.user TO '{0}'@'localhost'", userName));
         command.CommandText = String.Format("SELECT `User`, `plugin` FROM `mysql`.`user` WHERE `User` = '{0}';", userName);
         using (MySqlDataReader reader = command.ExecuteReader())
         {

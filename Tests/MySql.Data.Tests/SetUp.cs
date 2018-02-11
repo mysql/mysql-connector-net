@@ -436,7 +436,7 @@ namespace MySql.Data.MySqlClient.Tests
             }
             else
             {
-              ExecuteSQLAsRoot(string.Format("GRANT USAGE ON *.* TO '{0}'@'localhost'", connection.Settings.UserID));
+              ExecuteSQLAsRoot(string.Format("GRANT SELECT ON mysql.user TO '{0}'@'localhost'", connection.Settings.UserID));
               var cmd = connection.CreateCommand();
               cmd.CommandText = string.Format("SELECT count(*) FROM mysql.user WHERE user LIKE '{0}%'", userName);
               if ((long)cmd.ExecuteScalar() > 0)

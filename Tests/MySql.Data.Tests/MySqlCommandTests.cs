@@ -54,7 +54,7 @@ namespace MySql.Data.MySqlClient.Tests
       string password = "123";
       if (!st.conn.driver.Version.isAtLeast(5,7,0))
       {
-        st.ExecuteSQLAsRoot(string.Format("GRANT USAGE ON *.* TO '{0}'@'localhost'", st.conn.Settings.UserID));
+        st.ExecuteSQLAsRoot(string.Format("GRANT SELECT ON mysql.user TO '{0}'@'localhost'", st.conn.Settings.UserID));
         var command = st.conn.CreateCommand();
         command.CommandText = string.Format("SELECT count(*) FROM mysql.user WHERE user LIKE '{0}%'", userName);
         if ((long) command.ExecuteScalar() > 0)
