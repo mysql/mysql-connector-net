@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2014 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -354,6 +354,10 @@ namespace MySql.Data.MySqlClient.Tests
     {
       if (st.Version < new Version(4, 1))
         return;
+
+      // Removing default only_full_group_by SQL mode in server 8.0+
+      if (st.conn.driver.Version.isAtLeast(8,0,1))
+        st.execSQL("SET SESSION SQL_MODE='';");
 
       st.execSQL("CREATE TABLE Test ( id INT NOT NULL, amount INT )");
       st.execSQL("INSERT INTO Test VALUES (1, 44)");

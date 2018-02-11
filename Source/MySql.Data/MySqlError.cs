@@ -1,4 +1,4 @@
-// Copyright © 2004, 2010, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -1789,7 +1789,7 @@ namespace MySql.Data.MySqlClient
     ///<remarks>ER_WRONG_PARTITION_NAME</remarks>
     WrongPartitionName = 1567,
     ///<summary></summary>
-    ///<remarks>ER_CANT_CHANGE_TX_ISOLATION</remarks>
+    ///<remarks>ER_CANT_CHANGE_TRANSACTION_ISOLATION</remarks>
     CannotChangeTransactionIsolation = 1568,
     ///<summary></summary>
     ///<remarks>ER_DUP_ENTRY_AUTOINCREMENT_CASE</remarks>

@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2015 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -48,58 +48,59 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void InvalidCast()
     {
-      MySqlConnection con = st.rootConn;
-      string sql = @"drop function if exists MyTwice; create function MyTwice( val int ) returns int begin return val * 2; end;";
-      MySqlCommand cmd = new MySqlCommand(sql, con);
-      cmd.ExecuteNonQuery();
-      cmd.CommandText = "drop procedure if exists spMyTwice; create procedure spMyTwice( out result int, val int ) begin set result = val * 2; end;";
-      cmd.ExecuteNonQuery();
-      try
+      st.execSQL(string.Format("CREATE FUNCTION `{0}`.`MyTwice`( val int ) RETURNS INT BEGIN return val * 2; END;", st.conn.Database));
+      st.execSQL(string.Format("CREATE PROCEDURE `{0}`.`spMyTwice`( out result int, val int ) BEGIN set result = val * 2; END;", st.conn.Database));
+      string userName = "user1";
+      string password = "123";
+      if (!st.conn.driver.Version.isAtLeast(5,7,0))
       {
-        cmd.CommandText = "drop user 'tester2'@'localhost'";
-        cmd.ExecuteNonQuery();
+        st.ExecuteSQLAsRoot(string.Format("GRANT SELECT ON mysql.user TO '{0}'@'localhost'", st.conn.Settings.UserID));
+        var command = st.conn.CreateCommand();
+        command.CommandText = string.Format("SELECT count(*) FROM mysql.user WHERE user LIKE '{0}%'", userName);
+        if ((long) command.ExecuteScalar() > 0)
+          st.ExecuteSQLAsRoot(string.Format("DROP USER '{0}'@'localhost';", userName));
       }
-      catch (Exception)
-      {
-      }
-      cmd.CommandText = "CREATE USER 'tester2'@'localhost' IDENTIFIED BY '123';";
-      cmd.ExecuteNonQuery();
-      cmd.CommandText = "grant execute on function `MyTwice` to 'tester2'@'localhost';";
-      cmd.ExecuteNonQuery();
-      cmd.CommandText = "grant execute on procedure `spMyTwice` to 'tester2'@'localhost'";
-      cmd.ExecuteNonQuery();
-      cmd.CommandText = "grant select on table mysql.proc to 'tester2'@'localhost'";
-      cmd.ExecuteNonQuery();
-      cmd.CommandText = "flush privileges";
-      cmd.ExecuteNonQuery();
-      MySqlConnection con2 = new MySqlConnection(st.rootConn.ConnectionString);
-      con2.Settings.UserID = "tester2";
-      con2.Settings.Password = "123";
+      else
+        st.ExecuteSQLAsRoot(string.Format("DROP USER IF EXISTS '{0}'@'localhost'", userName));
+      st.ExecuteSQLAsRoot(string.Format("CREATE USER '{0}'@'localhost' IDENTIFIED BY '{1}'", userName, password));
+      st.ExecuteSQLAsRoot(string.Format("GRANT ALL ON *.* TO '{0}'@'localhost'", userName));
+      st.ExecuteSQLAsRoot("FLUSH PRIVILEGES");
+      st.ExecuteSQLAsRoot(string.Format("GRANT EXECUTE ON FUNCTION `{0}`.`MyTwice` TO '{1}'@'localhost';", st.conn.Database, userName));
+      st.ExecuteSQLAsRoot(string.Format("GRANT EXECUTE ON PROCEDURE `{0}`.`spMyTwice` TO '{1}'@'localhost'", st.conn.Database, userName));
+      if (!st.conn.driver.Version.isAtLeast(8,0,1))
+        st.ExecuteSQLAsRoot("GRANT SELECT ON TABLE mysql.proc TO 'user1'@'localhost'");
+
+      st.ExecuteSQLAsRoot("FLUSH PRIVILEGES");
+
+      MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(st.conn.ConnectionString);
+      connStr.UserID = userName;
+      connStr.Password = password;
+      MySqlConnection con = new MySqlConnection(connStr.GetConnectionString(true));
 
       // Invoke the function
-      cmd.Connection = con2;
-      con2.Open();
-      cmd.CommandText = "MyTwice";
-      cmd.CommandType = CommandType.StoredProcedure;
-      cmd.Parameters.Add(new MySqlParameter("val", System.DBNull.Value));
-      cmd.Parameters.Add("@p", MySqlDbType.Int32);
-      cmd.Parameters[1].Direction = ParameterDirection.ReturnValue;
-      cmd.Parameters[0].Value = 20;
-      cmd.ExecuteNonQuery();
-      con2.Close();
-      Assert.Equal(cmd.Parameters[1].Value, 40);
+      var cmd = con.CreateCommand();
+      using (con)
+      {
+        con.Open();
+        cmd.CommandText = "MyTwice";
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.Add(new MySqlParameter("val", System.DBNull.Value));
+        cmd.Parameters.Add("@p", MySqlDbType.Int32);
+        cmd.Parameters[1].Direction = ParameterDirection.ReturnValue;
+        cmd.Parameters[0].Value = 20;
+        cmd.ExecuteNonQuery();
+        Assert.Equal(cmd.Parameters[1].Value, 40);
 
-      con2.Open();
-      cmd.CommandText = "spMyTwice";
-      cmd.CommandType = CommandType.StoredProcedure;
-      cmd.Parameters.Clear();
-      cmd.Parameters.Add(new MySqlParameter("result", System.DBNull.Value));
-      cmd.Parameters.Add("val", MySqlDbType.Int32);
-      cmd.Parameters[0].Direction = ParameterDirection.Output;
-      cmd.Parameters[1].Value = 20;
-      cmd.ExecuteNonQuery();
-      con2.Close();
-      Assert.Equal(cmd.Parameters[0].Value, 40);
+        cmd.CommandText = "spMyTwice";
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.Clear();
+        cmd.Parameters.Add(new MySqlParameter("result", System.DBNull.Value));
+        cmd.Parameters.Add("val", MySqlDbType.Int32);
+        cmd.Parameters[0].Direction = ParameterDirection.Output;
+        cmd.Parameters[1].Value = 20;
+        cmd.ExecuteNonQuery();
+        Assert.Equal(cmd.Parameters[0].Value, 40);
+      }
     }
 
 
@@ -329,6 +330,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void CloseReaderAfterFailedConvert()
     {
+      if (st.conn.driver.Version.isAtLeast(8,0,1))
+        st.execSQL("SET SESSION SQL_MODE='ALLOW_INVALID_DATES';");
+
       st.execSQL("CREATE TABLE Test (dt DATETIME)");
       st.execSQL("INSERT INTO Test VALUES ('00-00-0000 00:00:00')");
 

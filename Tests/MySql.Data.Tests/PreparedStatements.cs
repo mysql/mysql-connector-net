@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -776,9 +776,9 @@ namespace MySql.Data.MySqlClient.Tests
     {
       if (st.Version < new Version(6, 0, 8)) return;
 
-      st.execSQL("CREATE PROCEDURE spTest(id INT, OUT age INT) BEGIN SET age=id; END");
+      st.execSQL("CREATE PROCEDURE spOutTest(id INT, OUT age INT) BEGIN SET age=id; END");
 
-      MySqlCommand cmd = new MySqlCommand("spTest", st.conn);
+      MySqlCommand cmd = new MySqlCommand("spOutTest", st.conn);
       cmd.Parameters.Add("@id", MySqlDbType.Int32);
       cmd.Parameters.Add("@age", MySqlDbType.Int32).Direction = ParameterDirection.Output;
       cmd.CommandType = CommandType.StoredProcedure;
@@ -788,13 +788,15 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(0, cmd.ExecuteNonQuery());
       Assert.Equal(20, cmd.Parameters[1].Value);
 
-      st.execSQL("DROP PROCEDURE IF EXISTS spTest");
-      st.execSQL("CREATE PROCEDURE spTest(id INT, OUT age INT) BEGIN SET age=age*2; END");
+      st.execSQL("DROP PROCEDURE IF EXISTS spOutTest");
+      st.execSQL("CREATE PROCEDURE spOutTest(id INT, OUT age INT) BEGIN SET age=age*2; END");
 
       cmd.Parameters[0].Value = 1;
       cmd.Parameters[1].Value = 20;
       Assert.Equal(0, cmd.ExecuteNonQuery());
-      Assert.Equal(20, cmd.Parameters[1].Value);
+
+      if (!st.conn.driver.Version.isAtLeast(8,0,1))
+        Assert.Equal(20, cmd.Parameters[1].Value);
     }
 
     [Fact]
