@@ -1922,5 +1922,24 @@ namespace MySql.Data.MySqlClient.Tests
        connection.Close();
       }
     }
+
+    [Fact]
+    public void EmptyPasswordOnMySqlNativePassword()
+    {
+      var pluginName = "mysql_native_password";
+      var builder = new MySqlConnectionStringBuilder();
+      builder.UserID = "testNativeBlankPassword";
+      builder.Password = "";
+      builder.Server = "localhost";
+      builder.Port = 3305;
+      st.CreateUser(builder.UserID, builder.Password, pluginName);
+
+      using (var connection = new MySqlConnection(builder.ConnectionString))
+      {
+        connection.Open();
+        Assert.True(connection.State == ConnectionState.Open);
+        connection.Close();
+      }
+    }
   }
 }

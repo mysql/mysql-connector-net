@@ -207,7 +207,7 @@ namespace MySql.Data.MySqlClient.Authentication
       packet.Clear();
       byte[] moreData = MoreData(data);
 
-      while (moreData != null && moreData.Length > 0)
+      while (moreData != null)
       {
         packet.Clear();
         packet.Write(moreData);
