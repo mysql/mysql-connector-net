@@ -29,29 +29,26 @@ using System.IO;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class Syntax : IUseFixture<SetUpClass>, IDisposable
+  public class Syntax : BaseFixture
   {
-    private SetUpClass st;
-
     private static string fillError = null;
 
-
-    public void SetFixture(SetUpClass data)
+    public override void SetFixture(SetUpClassPerTestInit fixture)
     {
-      st = data;
-     
+      base.SetFixture(fixture);
     }
 
-    public void Dispose()
+    protected override void Dispose(bool disposing)
     {
-      st.execSQL("DROP TABLE IF EXISTS TEST");      
+      _fixture.execSQL("DROP TABLE IF EXISTS TEST");
+      base.Dispose(disposing);
     }
 
     [Fact]
     public void ShowCreateTable()
     {
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
-      MySqlDataAdapter da = new MySqlDataAdapter("SHOW CREATE TABLE Test", st.conn);
+      _fixture.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      MySqlDataAdapter da = new MySqlDataAdapter("SHOW CREATE TABLE Test", _fixture.conn);
       DataTable dt = new DataTable();
       da.Fill(dt);
 
@@ -62,12 +59,12 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ProblemCharsInSQLUTF8()
     {
-      if (st.Version < new Version(4, 1)) return;
+      if (_fixture.Version < new Version(4, 1)) return;
 
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), mt MEDIUMTEXT, " +
+      _fixture.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), mt MEDIUMTEXT, " +
             "PRIMARY KEY(id)) CHAR SET utf8");
 
-      using (MySqlConnection c = new MySqlConnection(st.GetConnectionString(true) + ";charset=utf8"))
+      using (MySqlConnection c = new MySqlConnection(_fixture.GetConnectionString(true) + ";charset=utf8"))
       {
         c.Open();
 
@@ -92,10 +89,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ProblemCharsInSQL()
     {
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), mt MEDIUMTEXT, " +
+      _fixture.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), mt MEDIUMTEXT, " +
             "PRIMARY KEY(id))");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?id, ?text, ?mt)", st.conn);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?id, ?text, ?mt)", _fixture.conn);
       cmd.Parameters.AddWithValue("?id", 1);
       cmd.Parameters.AddWithValue("?text", "This is my;test ? string-'''\"\".");
       cmd.Parameters.AddWithValue("?mt", "My MT string: ?");
@@ -114,38 +111,42 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void LoadDataLocalInfile()
     {
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
-      string connString = st.conn.ConnectionString + ";pooling=false";
-      MySqlConnection c = new MySqlConnection(connString);
-      c.Open();
+      _fixture.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      string connString = _fixture.conn.ConnectionString + ";pooling=false";
+      using (MySqlConnection c = new MySqlConnection(connString))
+      {
+        c.Open();
 
-      string path = Path.GetTempFileName();
-      StreamWriter sw = new StreamWriter(path);
-      for (int i = 0; i < 2000000; i++)
-        sw.WriteLine(i + ",'Test'");
-      sw.Flush();
-      sw.Close();
+        string path = Path.GetTempFileName();
+        using (StreamWriter sw = new StreamWriter(path))
+        {
+          for (int i = 0; i < 2000000; i++)
+            sw.WriteLine(i + ",'Test'");
+          sw.Flush();
+          sw.Close();
+        }
 
-      path = path.Replace(@"\", @"\\");
-      MySqlCommand cmd = new MySqlCommand(
-        "LOAD DATA LOCAL INFILE '" + path + "' INTO TABLE Test FIELDS TERMINATED BY ','", st.conn);
-      cmd.CommandTimeout = 0;
+        path = path.Replace(@"\", @"\\");
+        MySqlCommand cmd = new MySqlCommand(
+          "LOAD DATA LOCAL INFILE '" + path + "' INTO TABLE Test FIELDS TERMINATED BY ','", _fixture.conn);
+        cmd.CommandTimeout = 0;
 
-      object cnt = 0;
-      cnt = cmd.ExecuteNonQuery();
-      Assert.Equal(2000000, Convert.ToInt32(cnt));
+        object cnt = 0;
+        cnt = cmd.ExecuteNonQuery();
+        Assert.Equal(2000000, Convert.ToInt32(cnt));
 
-      cmd.CommandText = "SELECT COUNT(*) FROM Test";
-      cnt = cmd.ExecuteScalar();
-      Assert.Equal(2000000, Convert.ToInt32(cnt));
+        cmd.CommandText = "SELECT COUNT(*) FROM Test";
+        cnt = cmd.ExecuteScalar();
+        Assert.Equal(2000000, Convert.ToInt32(cnt));
 
-      c.Close();
+        c.Close();
+      }
     }
 
     [Fact]
     public void ShowTablesInNonExistentDb()
     {
-      MySqlCommand cmd = new MySqlCommand("SHOW TABLES FROM dummy", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SHOW TABLES FROM dummy", _fixture.conn);
       Assert.Throws<MySqlException>(() => cmd.ExecuteReader());
       //try
       //{
@@ -167,10 +168,10 @@ namespace MySql.Data.MySqlClient.Tests
       string sql = null;
 
       // Updating the default charset for servers 8.0+.
-      if (st.conn.driver.Version.isAtLeast(8, 0, 1))
+      if (_fixture.conn.driver.Version.isAtLeast(8, 0, 1))
       {
         sql = "SET NAMES 'latin1' COLLATE 'latin1_swedish_ci'";
-        cmd = new MySqlCommand(sql, st.conn);
+        cmd = new MySqlCommand(sql, _fixture.conn);
         cmd.ExecuteNonQuery();
       }
 
@@ -184,9 +185,9 @@ namespace MySql.Data.MySqlClient.Tests
         `LastVisit` timestamp NOT NULL, `Categorie` int(11) NOT NULL default '0',
         PRIMARY KEY  (`KlantNummer`),	UNIQUE KEY `UniqueUsername` (`Username`),
         UNIQUE KEY `UniqueDefaultMail` (`DefaultMail`)	)";
-      st.execSQL(sql);
+      _fixture.execSQL(sql);
 
-      cmd = new MySqlCommand("SELECT * FROM KLANT", st.conn);
+      cmd = new MySqlCommand("SELECT * FROM KLANT", _fixture.conn);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         while (reader.Read()) { }
@@ -196,11 +197,11 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Sum()
     {
-      st.execSQL("CREATE TABLE Test (field1 mediumint(9) default '0', field2 float(9,3) " +
+      _fixture.execSQL("CREATE TABLE Test (field1 mediumint(9) default '0', field2 float(9,3) " +
         "default '0.000', field3 double(15,3) default '0.000') engine=innodb ");
-      st.execSQL("INSERT INTO Test values (1,1,1)");
+      _fixture.execSQL("INSERT INTO Test values (1,1,1)");
 
-      MySqlCommand cmd2 = new MySqlCommand("SELECT sum(field2) FROM Test", st.conn);
+      MySqlCommand cmd2 = new MySqlCommand("SELECT sum(field2) FROM Test", _fixture.conn);
       using (MySqlDataReader reader = cmd2.ExecuteReader())
       {
         reader.Read();
@@ -212,13 +213,13 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Sum2()
     {
-      st.execSQL("CREATE TABLE Test (id int, count int)");
-      st.execSQL("INSERT INTO Test VALUES (1, 21)");
-      st.execSQL("INSERT INTO Test VALUES (1, 33)");
-      st.execSQL("INSERT INTO Test VALUES (1, 16)");
-      st.execSQL("INSERT INTO Test VALUES (1, 40)");
+      _fixture.execSQL("CREATE TABLE Test (id int, count int)");
+      _fixture.execSQL("INSERT INTO Test VALUES (1, 21)");
+      _fixture.execSQL("INSERT INTO Test VALUES (1, 33)");
+      _fixture.execSQL("INSERT INTO Test VALUES (1, 16)");
+      _fixture.execSQL("INSERT INTO Test VALUES (1, 40)");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT id, SUM(count) FROM Test GROUP BY id", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT id, SUM(count) FROM Test GROUP BY id", _fixture.conn);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -230,11 +231,11 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ForceWarnings()
     {
-      if (st.Version < new Version(4, 1)) return;
+      if (_fixture.Version < new Version(4, 1)) return;
 
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      _fixture.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
       MySqlCommand cmd = new MySqlCommand(
-        "SELECT * FROM Test; DROP TABLE IF EXISTS test2; SELECT * FROM Test", st.conn);
+        "SELECT * FROM Test; DROP TABLE IF EXISTS test2; SELECT * FROM Test", _fixture.conn);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         while (reader.NextResult()) { }
@@ -244,11 +245,11 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void SettingAutoIncrementColumns()
     {
-      st.execSQL("CREATE TABLE Test (id int auto_increment, name varchar(100), primary key(id))");
-      st.execSQL("INSERT INTO Test VALUES (1, 'One')");
-      st.execSQL("INSERT INTO Test VALUES (3, 'Two')");
+      _fixture.execSQL("CREATE TABLE Test (id int auto_increment, name varchar(100), primary key(id))");
+      _fixture.execSQL("INSERT INTO Test VALUES (1, 'One')");
+      _fixture.execSQL("INSERT INTO Test VALUES (3, 'Two')");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT name FROM Test WHERE id=1", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT name FROM Test WHERE id=1", _fixture.conn);
       object name = cmd.ExecuteScalar();
       Assert.Equal("One", name);
 
@@ -258,7 +259,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       //try
       //{
-        Assert.Throws<MySqlException>(() => st.execSQL("INSERT INTO Test (id, name2) values (5, 'Three')"));
+        Assert.Throws<MySqlException>(() => _fixture.execSQL("INSERT INTO Test (id, name2) values (5, 'Three')"));
       //  Assert.Fail("This should have failed");
       //}
       //catch (MySqlException)
@@ -272,9 +273,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void FoundRows()
     {
-      st.execSQL("CREATE TABLE Test (testID int(11) NOT NULL auto_increment, testName varchar(100) default '', " +
+      _fixture.execSQL("CREATE TABLE Test (testID int(11) NOT NULL auto_increment, testName varchar(100) default '', " +
           "PRIMARY KEY  (testID)) ENGINE=InnoDB DEFAULT CHARSET=latin1");
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (NULL, 'test')", st.conn);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (NULL, 'test')", _fixture.conn);
       for (int i = 0; i < 1000; i++)
         cmd.ExecuteNonQuery();
       cmd.CommandText = "SELECT SQL_CALC_FOUND_ROWS * FROM Test LIMIT 0, 10";
@@ -287,9 +288,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void AutoIncrement()
     {
-      st.execSQL("CREATE TABLE Test (testID int(11) NOT NULL auto_increment, testName varchar(100) default '', " +
+      _fixture.execSQL("CREATE TABLE Test (testID int(11) NOT NULL auto_increment, testName varchar(100) default '', " +
           "PRIMARY KEY  (testID)) ENGINE=InnoDB DEFAULT CHARSET=latin1");
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (NULL, 'test')", st.conn);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (NULL, 'test')", _fixture.conn);
       cmd.ExecuteNonQuery();
       cmd.CommandText = "SELECT @@IDENTITY as 'Identity'";
       using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -306,14 +307,14 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void CommentSymbolInTableName()
     {
-      st.execSQL("CREATE TABLE Test (`PO#` int(11) NOT NULL auto_increment, " +
+      _fixture.execSQL("CREATE TABLE Test (`PO#` int(11) NOT NULL auto_increment, " +
         "`PODate` date default NULL, PRIMARY KEY  (`PO#`))");
-      st.execSQL("INSERT INTO Test ( `PO#`, `PODate` ) " +
+      _fixture.execSQL("INSERT INTO Test ( `PO#`, `PODate` ) " +
         "VALUES ( NULL, '2006-01-01' )");
 
       string sql = "SELECT `PO#` AS PurchaseOrderNumber, " +
         "`PODate` AS OrderDate FROM  Test";
-      MySqlCommand cmd = new MySqlCommand(sql, st.conn);
+      MySqlCommand cmd = new MySqlCommand(sql, _fixture.conn);
       MySqlDataAdapter da = new MySqlDataAdapter(cmd);
       DataTable dt = new DataTable();
       da.Fill(dt);
@@ -326,7 +327,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ErrorMessage()
     {
-      MySqlCommand cmd = new MySqlCommand("SELEKT NOW() as theTime", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELEKT NOW() as theTime", _fixture.conn);
       try
       {
         cmd.ExecuteScalar();
@@ -344,8 +345,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Describe()
     {
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
-      MySqlDataAdapter da = new MySqlDataAdapter("DESCRIBE Test", st.conn);
+      _fixture.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      MySqlDataAdapter da = new MySqlDataAdapter("DESCRIBE Test", _fixture.conn);
       DataTable dt = new DataTable();
       da.Fill(dt);
 
@@ -360,10 +361,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ShowTableStatus()
     {
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      _fixture.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
       MySqlDataAdapter da = new MySqlDataAdapter(
         String.Format("SHOW TABLE STATUS FROM `{0}` LIKE 'Test'",
-        st.database0), st.conn);
+        _fixture.database0), _fixture.conn);
       DataTable dt = new DataTable();
       da.Fill(dt);
 
@@ -378,7 +379,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       MySqlDataAdapter da = new MySqlDataAdapter(
         @"SELECT 'localhost' as SERVER_NAME, 
-        null as CATALOG_NAME, database() as SCHEMA_NAME", st.conn);
+        null as CATALOG_NAME, database() as SCHEMA_NAME", _fixture.conn);
       DataTable dt = new DataTable();
       da.Fill(dt);
       Assert.True(dt.Rows[0][0].GetType() == typeof(string));
@@ -393,21 +394,23 @@ namespace MySql.Data.MySqlClient.Tests
         System.IO.Path.GetTempFileName()) + " x";
       try
       {
-        st.suExecSQL(String.Format("CREATE DATABASE `{0}`", dbName));
-        st.suExecSQL(String.Format("GRANT ALL ON `{0}`.* to 'test'@'localhost' identified by 'test'",
+        _fixture.suExecSQL(String.Format("CREATE DATABASE `{0}`", dbName));
+        _fixture.suExecSQL(String.Format("GRANT ALL ON `{0}`.* to 'test'@'localhost' identified by 'test'",
           dbName));
-        st.suExecSQL(String.Format("GRANT ALL ON `{0}`.* to 'test'@'%' identified by 'test'",
+        _fixture.suExecSQL(String.Format("GRANT ALL ON `{0}`.* to 'test'@'%' identified by 'test'",
           dbName));
-        st.suExecSQL("FLUSH PRIVILEGES");
+        _fixture.suExecSQL("FLUSH PRIVILEGES");
 
-        string connStr = st.GetConnectionString(false) + ";database=" + dbName;
-        MySqlConnection c = new MySqlConnection(connStr);
-        c.Open();
-        c.Close();
+        string connStr = _fixture.GetConnectionString(false) + ";database=" + dbName;
+        using (MySqlConnection c = new MySqlConnection(connStr))
+        {
+          c.Open();
+          c.Close();
+        }
       }
       finally
       {
-        st.suExecSQL(String.Format("DROP DATABASE `{0}`", dbName));
+        _fixture.suExecSQL(String.Format("DROP DATABASE `{0}`", dbName));
       }
     }
 
@@ -417,9 +420,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ShowProcessList()
     {
-      string connStr = st.GetConnectionString(true) + ";respect binary flags=false;";
-      MySqlConnection c = new MySqlConnection(connStr);
-      using (c)
+      string connStr = _fixture.GetConnectionString(true) + ";respect binary flags=false;";
+      using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
 
@@ -441,7 +443,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void SemisAtStartAndEnd()
     {
-      using (MySqlCommand cmd = new MySqlCommand(";;SELECT 1;;;", st.conn))
+      using (MySqlCommand cmd = new MySqlCommand(";;SELECT 1;;;", _fixture.conn))
       {
         Assert.Equal(1, Convert.ToInt32(cmd.ExecuteScalar()));
       }
@@ -453,7 +455,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Bug51610()
     {
-      MySqlCommand cmd = new MySqlCommand("SELECT 'ABC', (0/`QOH`) from (SELECT 1 as `QOH`) `d1`", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT 'ABC', (0/`QOH`) from (SELECT 1 as `QOH`) `d1`", _fixture.conn);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -485,14 +487,14 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void TokenizerBatching()
     {
-      st.execSQL("CREATE TABLE Test (id INT, expr INT,name VARCHAR(20), PRIMARY KEY(id))");
+      _fixture.execSQL("CREATE TABLE Test (id INT, expr INT,name VARCHAR(20), PRIMARY KEY(id))");
 
 
       MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test",
-        st.conn);
+        _fixture.conn);
       MySqlCommand ins = new MySqlCommand(
         "INSERT INTO test (id, expr, name) VALUES(?p1, (?p2 * 2) + 3, ?p3)",
-        st.conn);
+        _fixture.conn);
       da.InsertCommand = ins;
       ins.UpdatedRowSource = UpdateRowSource.None;
       ins.Parameters.Add("?p1", MySqlDbType.Int32).SourceColumn = "id";
@@ -521,13 +523,13 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void NonTerminatedString()
     {
-      st.execSQL("DROP TABLE IF EXISTS Test");
-      st.execSQL("CREATE TABLE Test(id INT, name1 VARCHAR(20), name2 VARCHAR(20))");
+      _fixture.execSQL("DROP TABLE IF EXISTS Test");
+      _fixture.execSQL("CREATE TABLE Test(id INT, name1 VARCHAR(20), name2 VARCHAR(20))");
 
       try
       {
         MySqlCommand cmd = new MySqlCommand(
-          "INSERT INTO test VALUES (1, 'test 2010-03-04 @ 10:14, name2=' joe')", st.conn);
+          "INSERT INTO test VALUES (1, 'test 2010-03-04 @ 10:14, name2=' joe')", _fixture.conn);
         cmd.ExecuteNonQuery();
       }
       catch (MySqlException)
@@ -542,13 +544,13 @@ namespace MySql.Data.MySqlClient.Tests
     public void QueryNormalizerCrash1()
     {
 
-      st.execSQL(
+      _fixture.execSQL(
         "CREATE TABLE  extable_1 (x_coord int, y_coord int, z_coord int," +
         "edge_id int, life_id int)");
-      st.execSQL("CREATE TABLE  extable_2 (daset_id int, sect_id int, " +
+      _fixture.execSQL("CREATE TABLE  extable_2 (daset_id int, sect_id int, " +
         "xyz_id  int, edge_id int, life_id int, another_id int, yetanother_id int)");
 
-      string connStr = st.GetConnectionString(true) + ";logging=true";
+      string connStr = _fixture.GetConnectionString(true) + ";logging=true";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -570,12 +572,12 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void QueryNormalizerCrash2()
     {
-      st.execSQL("CREATE TABLE bug54152 (id INT, expr INT,name VARCHAR(20)," +
+      _fixture.execSQL("CREATE TABLE bug54152 (id INT, expr INT,name VARCHAR(20)," +
         "fld4 VARCHAR(10), fld5 VARCHAR(10), fld6 VARCHAR(10)," +
         "fld7 VARCHAR(10), fld8 VARCHAR(10), fld9 VARCHAR(10)," +
         "fld10 VARCHAR(10), PRIMARY KEY(id))");
 
-      string connStr = st.GetConnectionString(true) + ";logging=true";
+      string connStr = _fixture.GetConnectionString(true) + ";logging=true";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();

@@ -38,6 +38,11 @@ namespace MySql.Data.MySqlClient.Tests
   {
     protected override void Dispose(bool disposing)
     {
+      if (st.conn.State != ConnectionState.Open)
+        Console.Error.WriteLine("conn should be open");
+      if (st.rootConn.State != ConnectionState.Open)
+        Console.Error.WriteLine("rootConn should be open");
+
       st.execSQL("DROP TABLE IF EXISTS TEST");
       base.Dispose(disposing);
     }
@@ -77,7 +82,7 @@ namespace MySql.Data.MySqlClient.Tests
       connStr.Password = password;
       MySqlConnection con = new MySqlConnection(connStr.GetConnectionString(true));
 
-      // Invoke the function
+        // Invoke the function
       var cmd = con.CreateCommand();
       using (con)
       {
@@ -317,10 +322,14 @@ namespace MySql.Data.MySqlClient.Tests
       st.execSQL("INSERT INTO Test VALUES (2, NOW())");
       st.execSQL("INSERT INTO Test VALUES (3, NOW())");
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test WHERE dt = '" +
-        DateTime.Now + "'", st.conn);
-      DataSet ds = new DataSet();
-      da.Fill(ds);
+      using (MySqlConnection conn = (MySqlConnection)st.conn.Clone())
+      {
+        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test WHERE dt = '" +
+          DateTime.Now + "'", conn);
+        DataSet ds = new DataSet();
+        da.Fill(ds);
+        Assert.Equal(ConnectionState.Closed, conn.State);
+      }
     }
 #endif
 
@@ -336,16 +345,15 @@ namespace MySql.Data.MySqlClient.Tests
       st.execSQL("CREATE TABLE Test (dt DATETIME)");
       st.execSQL("INSERT INTO Test VALUES ('00-00-0000 00:00:00')");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", st.conn);
-      try
+      using (MySqlConnection conn = (MySqlConnection)st.conn.Clone())
       {
-        cmd.ExecuteScalar();
-      }
-      catch (Exception)
-      {
-      }
+        conn.Open();
+        MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", conn);
+        Assert.Throws<Types.MySqlConversionException>(() => cmd.ExecuteScalar());
 
-      st.conn.BeginTransaction();
+        MySqlTransaction tran = conn.BeginTransaction();
+        tran.Rollback();
+      }
     }
 
     /// <summary>
@@ -383,6 +391,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand cmd = new MySqlCommand("", c);
       Assert.Equal(30, cmd.CommandTimeout);
 
+      c.Dispose();
       c = new MySqlConnection("server=localhost;default command timeout=47");
       cmd = new MySqlCommand("", c);
       Assert.Equal(47, cmd.CommandTimeout);
@@ -396,8 +405,10 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.CommandTimeout = 0;
       Assert.Equal(0, cmd.CommandTimeout);
 
+      c.Dispose();
       c = new MySqlConnection("server=localhost;default command timeout=0");
       cmd = new MySqlCommand("", c);
+      c.Dispose();
       Assert.Equal(0, cmd.CommandTimeout);
     }
 
@@ -505,12 +516,16 @@ namespace MySql.Data.MySqlClient.Tests
     public void HelperTest()
     {
       string connStr = st.GetConnectionString(true);
+      MySqlConnection conn;
       using (MySqlDataReader reader = MySqlHelper.ExecuteReader(connStr, "SHOW TABLES"))
       {
         while (reader.Read())
         {
         }
+        conn = reader.Command.Connection;
       }
+      if (conn != null)
+        conn.Dispose();
     }
 
     /// <summary>
@@ -719,7 +734,7 @@ alter table longids AUTO_INCREMENT = 2147483640;";
       }
       finally
       {
-        dbConn.Close();
+        dbConn.Dispose();
       }
     }
 

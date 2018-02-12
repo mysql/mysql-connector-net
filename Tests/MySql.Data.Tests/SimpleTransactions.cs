@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -29,48 +29,53 @@ using System.Reflection;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class SimpleTransactions  : IUseFixture<SetUpClass>, IDisposable
+  public class SimpleTransactions  : BaseFixture
   {
-    private SetUpClass st;
-
-    public void SetFixture(SetUpClass data)
+    public override void SetFixture(SetUpClassPerTestInit fixture)
     {
-      st = data;
-      st.createTable("CREATE TABLE Test (key2 VARCHAR(1), name VARCHAR(100), name2 VARCHAR(100))", "INNODB");
+      base.SetFixture(fixture);
+      _fixture.createTable("CREATE TABLE Test (key2 VARCHAR(1), name VARCHAR(100), name2 VARCHAR(100))", "INNODB");
     }
 
-    public void Dispose()
+    protected override void Dispose(bool disposing)
     {
-      st.execSQL("DROP TABLE IF EXISTS TEST");      
+      _fixture.execSQL("DROP TABLE IF EXISTS TEST");
+      base.Dispose(disposing);
     }
 
     [Fact]
     public void TestReader()
     {
-      st.execSQL("INSERT INTO Test VALUES('P', 'Test1', 'Test2')");
+      _fixture.execSQL("INSERT INTO Test VALUES('P', 'Test1', 'Test2')");
 
-      MySqlTransaction txn = st.conn.BeginTransaction();
-      MySqlConnection c = txn.Connection;
-      Assert.Equal(st.conn, c);
-      MySqlCommand cmd = new MySqlCommand("SELECT name, name2 FROM Test WHERE key2='P'",
-        st.conn, txn);
-      MySqlTransaction t2 = cmd.Transaction;
-      Assert.Equal(txn, t2);
-      MySqlDataReader reader = null;
-      try
+      using (MySqlConnection conn = (MySqlConnection)_fixture.conn.Clone())
       {
-        reader = cmd.ExecuteReader();
-        reader.Close();
-        txn.Commit();
-      }
-      catch (Exception ex)
-      {
-        Assert.False(ex.Message != string.Empty, ex.Message);
-        txn.Rollback();
-      }
-      finally
-      {
-        if (reader != null) reader.Close();
+        conn.Open();
+        MySqlTransaction txn = conn.BeginTransaction();
+        using (MySqlConnection c = txn.Connection)
+        {
+          Assert.Equal(conn, c);
+          MySqlCommand cmd = new MySqlCommand("SELECT name, name2 FROM Test WHERE key2='P'",
+            conn, txn);
+          MySqlTransaction t2 = cmd.Transaction;
+          Assert.Equal(txn, t2);
+          MySqlDataReader reader = null;
+          try
+          {
+            reader = cmd.ExecuteReader();
+            reader.Close();
+            txn.Commit();
+          }
+          catch (Exception ex)
+          {
+            Assert.False(ex.Message != string.Empty, ex.Message);
+            txn.Rollback();
+          }
+          finally
+          {
+            if (reader != null) reader.Close();
+          }
+        }
       }
     }
 
@@ -80,10 +85,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void NestedTransactions()
     {
-      MySqlTransaction t1 = st.conn.BeginTransaction();
+      MySqlTransaction t1 = _fixture.conn.BeginTransaction();
       //try
       //{
-        Exception ex = Assert.Throws<InvalidOperationException>(() => { st.conn.BeginTransaction(); });
+        Exception ex = Assert.Throws<InvalidOperationException>(() => { _fixture.conn.BeginTransaction(); });
         Assert.Equal(ex.Message, "Nested transactions are not supported.");
         ////Assert.Fail("Exception should have been thrown");
         //t2.Rollback();
@@ -100,17 +105,19 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void BeginTransactionOnPreviouslyOpenConnection()
     {
-      string connStr = st.GetConnectionString(true);
-      MySqlConnection c = new MySqlConnection(connStr);
-      c.Open();
-      c.Close();
-      try
+      string connStr = _fixture.GetConnectionString(true);
+      using (MySqlConnection c = new MySqlConnection(connStr))
       {
-        c.BeginTransaction();
-      }
-      catch (Exception ex)
-      {
-        Assert.Equal("The connection is not open.", ex.Message);
+        c.Open();
+        c.Close();
+        try
+        {
+          c.BeginTransaction();
+        }
+        catch (Exception ex)
+        {
+          Assert.Equal("The connection is not open.", ex.Message);
+        }
       }
     }
 
@@ -122,10 +129,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact(Skip="Temporary Skip")]
     public void CommitAfterConnectionDead()
     {
-      st.execSQL("DROP TABLE IF EXISTS Test");
-      st.execSQL("CREATE TABLE Test(id INT, name VARCHAR(20))");
+      _fixture.execSQL("DROP TABLE IF EXISTS Test");
+      _fixture.execSQL("CREATE TABLE Test(id INT, name VARCHAR(20))");
 
-      string connStr = st.GetConnectionString(true) + ";pooling=false";
+      string connStr = _fixture.GetConnectionString(true) + ";pooling=false";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -135,7 +142,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           cmd.ExecuteNonQuery();
         }
-        st.KillConnection(c);
+        _fixture.KillConnection(c);
         //try
         //{
         Exception ex = Assert.Throws<InvalidOperationException>(() => trans.Commit());
@@ -155,8 +162,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void DisposingCallsRollback()
     {
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES ('a', 'b', 'c')", st.conn);
-      MySqlTransaction txn = st.conn.BeginTransaction();
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES ('a', 'b', 'c')", _fixture.conn);
+      MySqlTransaction txn = _fixture.conn.BeginTransaction();
       using (txn)
       {
         cmd.ExecuteNonQuery();

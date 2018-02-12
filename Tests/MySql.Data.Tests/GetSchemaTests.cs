@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2017 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -28,25 +28,24 @@ using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class GetSchemaTests : IUseFixture<SetUpClass>, IDisposable
+  public class GetSchemaTests : BaseFixture
   {
-    private SetUpClass st;
-
-    public void SetFixture(SetUpClass data)
+    public override void SetFixture(SetUpClassPerTestInit fixture)
     {
-      st = data;
-      st.csAdditions = ";oldguids=True;";
+      fixture.csAdditions = ";oldguids=True;";
+      base.SetFixture(fixture);
     }
 
-    public void Dispose()
+    protected override void Dispose(bool disposing)
     {
-      st.execSQL("DROP TABLE IF EXISTS TEST");
+      _fixture.execSQL("DROP TABLE IF EXISTS TEST");
+      base.Dispose(disposing);
     }
 
     [Fact]
     public void Collections()
     {
-      DataTable dt = st.conn.GetSchema();
+      DataTable dt = _fixture.conn.GetSchema();
 
       int row = 0;
       Assert.Equal("MetaDataCollections", dt.Rows[row++][0]);
@@ -77,7 +76,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void DataTypes()
     {
-      DataTable dt = st.conn.GetSchema("DataTypes", new string[] { });
+      DataTable dt = _fixture.conn.GetSchema("DataTypes", new string[] { });
 
       foreach (DataRow row in dt.Rows)
       {
@@ -147,7 +146,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Databases()
     {
-      DataTable dt = st.conn.GetSchema("Databases");
+      DataTable dt = _fixture.conn.GetSchema("Databases");
       Assert.Equal("Databases", dt.TableName);
 
       bool foundZero = false;
@@ -155,30 +154,30 @@ namespace MySql.Data.MySqlClient.Tests
       foreach (DataRow row in dt.Rows)
       {
         string dbName = row[1].ToString().ToLower();
-        if (dbName == st.database0.ToLower())
+        if (dbName == _fixture.database0.ToLower())
           foundZero = true;
-        else if (dbName == st.database1.ToLower())
+        else if (dbName == _fixture.database1.ToLower())
           foundOne = true;
       }
       Assert.True(foundZero);
       Assert.True(foundOne);
 
-      dt = st.conn.GetSchema("Databases", new string[1] { st.database0 });
+      dt = _fixture.conn.GetSchema("Databases", new string[1] { _fixture.database0 });
       Assert.Equal(1, dt.Rows.Count);
-      Assert.Equal(st.database0.ToLower(), dt.Rows[0][1].ToString().ToLower());
+      Assert.Equal(_fixture.database0.ToLower(), dt.Rows[0][1].ToString().ToLower());
     }
 
     [Fact]
     public void Tables()
     {
-      st.execSQL("DROP TABLE IF EXISTS test1");
-      st.execSQL("CREATE TABLE test1 (id int)");
+      _fixture.execSQL("DROP TABLE IF EXISTS test1");
+      _fixture.execSQL("CREATE TABLE test1 (id int)");
 
       string[] restrictions = new string[4];
-      restrictions[1] = st.database0;
+      restrictions[1] = _fixture.database0;
       restrictions[2] = "test1";
-      DataTable dt = st.conn.GetSchema("Tables", restrictions);
-      if (st.Version.Major >= 5 && st.Version.Minor >= 1)
+      DataTable dt = _fixture.conn.GetSchema("Tables", restrictions);
+      if (_fixture.Version.Major >= 5 && _fixture.Version.Minor >= 1)
       {
         Assert.True(dt.Columns["VERSION"].DataType == typeof(UInt64));
         Assert.True(dt.Columns["TABLE_ROWS"].DataType == typeof(UInt64));
@@ -198,17 +197,17 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Columns()
     {
-      st.execSQL(@"CREATE TABLE test (col1 int, col2 decimal(20,5), 
+      _fixture.execSQL(@"CREATE TABLE test (col1 int, col2 decimal(20,5), 
         col3 varchar(50) character set utf8, col4 tinyint unsigned, 
         col5 varchar(20) default 'boo')");
 
       string[] restrictions = new string[4];
-      restrictions[1] = st.database0;
+      restrictions[1] = _fixture.database0;
       restrictions[2] = "test";
-      DataTable dt = st.conn.GetSchema("Columns", restrictions);
+      DataTable dt = _fixture.conn.GetSchema("Columns", restrictions);
       Assert.Equal(5, dt.Rows.Count);
       Assert.Equal("Columns", dt.TableName);
-      if (st.Version.Major >= 5 && st.Version.Minor >= 1)
+      if (_fixture.Version.Major >= 5 && _fixture.Version.Minor >= 1)
       {
         Assert.True(dt.Columns["ORDINAL_POSITION"].DataType == typeof(UInt64));
         Assert.True(dt.Columns["CHARACTER_MAXIMUM_LENGTH"].DataType == typeof(UInt64));
@@ -217,14 +216,14 @@ namespace MySql.Data.MySqlClient.Tests
       }
 
       // first column
-      Assert.Equal(st.database0.ToUpper(), dt.Rows[0]["TABLE_SCHEMA"].ToString().ToUpper());
+      Assert.Equal(_fixture.database0.ToUpper(), dt.Rows[0]["TABLE_SCHEMA"].ToString().ToUpper());
       Assert.Equal("COL1", dt.Rows[0]["COLUMN_NAME"].ToString().ToUpper());
       Assert.Equal(1, Convert.ToInt32(dt.Rows[0]["ORDINAL_POSITION"]));
       Assert.Equal("YES", dt.Rows[0]["IS_NULLABLE"]);
       Assert.Equal("INT", dt.Rows[0]["DATA_TYPE"].ToString().ToUpper());
 
       // second column
-      Assert.Equal(st.database0.ToUpper(), dt.Rows[1]["TABLE_SCHEMA"].ToString().ToUpper());
+      Assert.Equal(_fixture.database0.ToUpper(), dt.Rows[1]["TABLE_SCHEMA"].ToString().ToUpper());
       Assert.Equal("COL2", dt.Rows[1]["COLUMN_NAME"].ToString().ToUpper());
       Assert.Equal(2, Convert.ToInt32(dt.Rows[1]["ORDINAL_POSITION"]));
       Assert.Equal("YES", dt.Rows[1]["IS_NULLABLE"]);
@@ -234,7 +233,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(5, Convert.ToInt32(dt.Rows[1]["NUMERIC_SCALE"]));
 
       // third column
-      Assert.Equal(st.database0.ToUpper(), dt.Rows[2]["TABLE_SCHEMA"].ToString().ToUpper());
+      Assert.Equal(_fixture.database0.ToUpper(), dt.Rows[2]["TABLE_SCHEMA"].ToString().ToUpper());
       Assert.Equal("COL3", dt.Rows[2]["COLUMN_NAME"].ToString().ToUpper());
       Assert.Equal(3, Convert.ToInt32(dt.Rows[2]["ORDINAL_POSITION"]));
       Assert.Equal("YES", dt.Rows[2]["IS_NULLABLE"]);
@@ -242,14 +241,14 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("VARCHAR(50)", dt.Rows[2]["COLUMN_TYPE"].ToString().ToUpper());
 
       // fourth column
-      Assert.Equal(st.database0.ToUpper(), dt.Rows[3]["TABLE_SCHEMA"].ToString().ToUpper());
+      Assert.Equal(_fixture.database0.ToUpper(), dt.Rows[3]["TABLE_SCHEMA"].ToString().ToUpper());
       Assert.Equal("COL4", dt.Rows[3]["COLUMN_NAME"].ToString().ToUpper());
       Assert.Equal(4, Convert.ToInt32(dt.Rows[3]["ORDINAL_POSITION"]));
       Assert.Equal("YES", dt.Rows[3]["IS_NULLABLE"]);
       Assert.Equal("TINYINT", dt.Rows[3]["DATA_TYPE"].ToString().ToUpper());
 
       // fifth column
-      Assert.Equal(st.database0.ToUpper(), dt.Rows[4]["TABLE_SCHEMA"].ToString().ToUpper());
+      Assert.Equal(_fixture.database0.ToUpper(), dt.Rows[4]["TABLE_SCHEMA"].ToString().ToUpper());
       Assert.Equal("COL5", dt.Rows[4]["COLUMN_NAME"].ToString().ToUpper());
       Assert.Equal(5, Convert.ToInt32(dt.Rows[4]["ORDINAL_POSITION"]));
       Assert.Equal("YES", dt.Rows[4]["IS_NULLABLE"]);
@@ -268,18 +267,18 @@ namespace MySql.Data.MySqlClient.Tests
 
 
     {
-      if (st.Version < new Version(5, 7, 6)) return;
+      if (_fixture.Version < new Version(5, 7, 6)) return;
 
-      st.execSQL("DROP TABLE IF EXISTS test");
-      st.execSQL("CREATE TABLE `Test` (`ID` int NOT NULL AUTO_INCREMENT PRIMARY KEY, `Name` char(35) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL)");
+      _fixture.execSQL("DROP TABLE IF EXISTS test");
+      _fixture.execSQL("CREATE TABLE `Test` (`ID` int NOT NULL AUTO_INCREMENT PRIMARY KEY, `Name` char(35) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL)");
 
-      var cmd = new MySqlCommand("ALTER TABLE test ADD COLUMN Name_ci char(35) CHARACTER SET utf8 AS (Name) STORED;", st.conn);
+      var cmd = new MySqlCommand("ALTER TABLE test ADD COLUMN Name_ci char(35) CHARACTER SET utf8 AS (Name) STORED;", _fixture.conn);
       cmd.ExecuteNonQuery();
 
-      DataTable dt = st.conn.GetSchema("Columns", new string[] { null, null, "test", null });
+      DataTable dt = _fixture.conn.GetSchema("Columns", new string[] { null, null, "test", null });
       Assert.Equal(3, dt.Rows.Count);
       Assert.Equal("Columns", dt.TableName);
-      if (st.Version.Major >= 5 && st.Version.Minor >= 7 && st.Version.Build >= 6)
+      if (_fixture.Version.Major >= 5 && _fixture.Version.Minor >= 7 && _fixture.Version.Build >= 6)
       {
         Assert.Equal("char", dt.Rows[2]["DATA_TYPE"]);
         Assert.Equal("Name", (dt.Rows[2]["GENERATION_EXPRESSION"]).ToString().Replace("`", ""));
@@ -294,10 +293,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void EnumAndSetColumns()
     {
-      st.execSQL("DROP TABLE IF EXISTS test");
-      st.execSQL("CREATE TABLE test (col1 set('A','B','C'), col2 enum('A','B','C'))");
+      _fixture.execSQL("DROP TABLE IF EXISTS test");
+      _fixture.execSQL("CREATE TABLE test (col1 set('A','B','C'), col2 enum('A','B','C'))");
 
-      DataTable dt = st.conn.GetSchema("Columns", new string[] { null, null, "test", null });
+      DataTable dt = _fixture.conn.GetSchema("Columns", new string[] { null, null, "test", null });
       Assert.Equal(2, dt.Rows.Count);
       Assert.Equal("set", dt.Rows[0]["DATA_TYPE"]);
       Assert.Equal("enum", dt.Rows[1]["DATA_TYPE"]);
@@ -308,15 +307,15 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Procedures()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (_fixture.Version < new Version(5, 0)) return;
 
-      st.execSQL("DROP PROCEDURE IF EXISTS spTest");
-      st.execSQL("CREATE PROCEDURE spTest (id int) BEGIN SELECT 1; END");
+      _fixture.execSQL("DROP PROCEDURE IF EXISTS spTest");
+      _fixture.execSQL("CREATE PROCEDURE spTest (id int) BEGIN SELECT 1; END");
 
       string[] restrictions = new string[4];
-      restrictions[1] = st.database0;
+      restrictions[1] = _fixture.database0;
       restrictions[2] = "spTest";
-      DataTable dt = st.conn.GetSchema("Procedures", restrictions);
+      DataTable dt = _fixture.conn.GetSchema("Procedures", restrictions);
       Assert.True(dt.Rows.Count == 1);
       Assert.Equal("Procedures", dt.TableName);
       Assert.Equal("spTest", dt.Rows[0][3]);
@@ -325,15 +324,15 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ProceduresWithParameters()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (_fixture.Version < new Version(5, 0)) return;
 
-      st.execSQL("DROP PROCEDURE IF EXISTS spTest");
-      st.execSQL("CREATE PROCEDURE spTest (id int) BEGIN SELECT 1; END");
+      _fixture.execSQL("DROP PROCEDURE IF EXISTS spTest");
+      _fixture.execSQL("CREATE PROCEDURE spTest (id int) BEGIN SELECT 1; END");
 
       string[] restrictions = new string[4];
-      restrictions[1] = st.database0;
+      restrictions[1] = _fixture.database0;
       restrictions[2] = "spTest";
-      DataTable dt = st.conn.GetSchema("PROCEDURES WITH PARAMETERS", restrictions);
+      DataTable dt = _fixture.conn.GetSchema("PROCEDURES WITH PARAMETERS", restrictions);
       Assert.True(dt.Rows.Count == 1);
       Assert.Equal("Procedures", dt.TableName);
       Assert.Equal("spTest", dt.Rows[0][3]);
@@ -343,15 +342,15 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Functions()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (_fixture.Version < new Version(5, 0)) return;
 
-      st.execSQL("DROP FUNCTION IF EXISTS spFunc");
-      st.execSQL("CREATE FUNCTION spFunc (id int) RETURNS INT BEGIN RETURN 1; END");
+      _fixture.execSQL("DROP FUNCTION IF EXISTS spFunc");
+      _fixture.execSQL("CREATE FUNCTION spFunc (id int) RETURNS INT BEGIN RETURN 1; END");
 
       string[] restrictions = new string[4];
-      restrictions[1] = st.database0;
+      restrictions[1] = _fixture.database0;
       restrictions[2] = "spFunc";
-      DataTable dt = st.conn.GetSchema("Procedures", restrictions);
+      DataTable dt = _fixture.conn.GetSchema("Procedures", restrictions);
       Assert.True(dt.Rows.Count == 1);
       Assert.Equal("Procedures", dt.TableName);
       Assert.Equal("spFunc", dt.Rows[0][3]);
@@ -360,23 +359,23 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Indexes()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (_fixture.Version < new Version(5, 0)) return;
 
-      st.execSQL("CREATE TABLE test (id int, PRIMARY KEY(id))");
+      _fixture.execSQL("CREATE TABLE test (id int, PRIMARY KEY(id))");
       string[] restrictions = new string[4];
       restrictions[2] = "test";
-      restrictions[1] = st.database0;
-      DataTable dt = st.conn.GetSchema("Indexes", restrictions);
+      restrictions[1] = _fixture.database0;
+      DataTable dt = _fixture.conn.GetSchema("Indexes", restrictions);
       Assert.Equal(1, dt.Rows.Count);
       Assert.Equal("test", dt.Rows[0]["TABLE_NAME"]);
       Assert.Equal(true, dt.Rows[0]["PRIMARY"]);
       Assert.Equal(true, dt.Rows[0]["UNIQUE"]);
 
-      st.execSQL("DROP TABLE IF EXISTS test");
-      st.execSQL("CREATE TABLE test (id int, name varchar(50), " +
+      _fixture.execSQL("DROP TABLE IF EXISTS test");
+      _fixture.execSQL("CREATE TABLE test (id int, name varchar(50), " +
         "UNIQUE KEY key2 (name))");
 
-      dt = st.conn.GetSchema("Indexes", restrictions);
+      dt = _fixture.conn.GetSchema("Indexes", restrictions);
       Assert.Equal(1, dt.Rows.Count);
       Assert.Equal("test", dt.Rows[0]["TABLE_NAME"]);
       Assert.Equal("key2", dt.Rows[0]["INDEX_NAME"]);
@@ -384,7 +383,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(true, dt.Rows[0]["UNIQUE"]);
 
       restrictions[3] = "key2";
-      dt = st.conn.GetSchema("Indexes", restrictions);
+      dt = _fixture.conn.GetSchema("Indexes", restrictions);
       Assert.Equal(1, dt.Rows.Count);
       Assert.Equal("test", dt.Rows[0]["TABLE_NAME"]);
       Assert.Equal("key2", dt.Rows[0]["INDEX_NAME"]);
@@ -394,12 +393,12 @@ namespace MySql.Data.MySqlClient.Tests
       /// <summary> 
       /// Bug #48101	MySqlConnection.GetSchema on "Indexes" throws when there's a table named "b`a`d" 
       /// </summary> 
-      st.execSQL("DROP TABLE IF EXISTS test");
-      st.execSQL(@"CREATE TABLE `te``s``t` (id int, name varchar(50), " +
+      _fixture.execSQL("DROP TABLE IF EXISTS test");
+      _fixture.execSQL(@"CREATE TABLE `te``s``t` (id int, name varchar(50), " +
         "KEY key2 (name))");
 
       restrictions[2] = "te`s`t";
-      dt = st.conn.GetSchema("Indexes", restrictions);
+      dt = _fixture.conn.GetSchema("Indexes", restrictions);
       Assert.Equal(1, dt.Rows.Count);
       Assert.Equal("te`s`t", dt.Rows[0]["TABLE_NAME"]);
       Assert.Equal("key2", dt.Rows[0]["INDEX_NAME"]);
@@ -410,38 +409,38 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void IndexColumns()
     {
-      st.execSQL("CREATE TABLE test (id int, PRIMARY KEY(id))");
+      _fixture.execSQL("CREATE TABLE test (id int, PRIMARY KEY(id))");
       string[] restrictions = new string[5];
       restrictions[2] = "test";
-      restrictions[1] = st.database0;
-      DataTable dt = st.conn.GetSchema("IndexColumns", restrictions);
+      restrictions[1] = _fixture.database0;
+      DataTable dt = _fixture.conn.GetSchema("IndexColumns", restrictions);
       Assert.Equal(1, dt.Rows.Count);
       Assert.Equal("test", dt.Rows[0]["TABLE_NAME"]);
       Assert.Equal("id", dt.Rows[0]["COLUMN_NAME"]);
 
-      st.execSQL("DROP TABLE IF EXISTS test");
-      st.execSQL("CREATE TABLE test (id int, id1 int, id2 int, " +
+      _fixture.execSQL("DROP TABLE IF EXISTS test");
+      _fixture.execSQL("CREATE TABLE test (id int, id1 int, id2 int, " +
         "INDEX key1 (id1, id2))");
       restrictions[2] = "test";
-      restrictions[1] = st.database0;
+      restrictions[1] = _fixture.database0;
       restrictions[4] = "id2";
-      dt = st.conn.GetSchema("IndexColumns", restrictions);
+      dt = _fixture.conn.GetSchema("IndexColumns", restrictions);
       Assert.Equal(1, dt.Rows.Count);
       Assert.Equal("test", dt.Rows[0]["TABLE_NAME"]);
       Assert.Equal("id2", dt.Rows[0]["COLUMN_NAME"]);
       Assert.Equal(2, dt.Rows[0]["ORDINAL_POSITION"]);
 
       restrictions[3] = "key1";
-      dt = st.conn.GetSchema("IndexColumns", restrictions);
+      dt = _fixture.conn.GetSchema("IndexColumns", restrictions);
       Assert.Equal(1, dt.Rows.Count);
       Assert.Equal("test", dt.Rows[0]["TABLE_NAME"]);
       Assert.Equal("id2", dt.Rows[0]["COLUMN_NAME"]);
       Assert.Equal(2, dt.Rows[0]["ORDINAL_POSITION"]);
 
       restrictions = new string[3];
-      restrictions[1] = st.database0;
+      restrictions[1] = _fixture.database0;
       restrictions[2] = "test";
-      dt = st.conn.GetSchema("IndexColumns", restrictions);
+      dt = _fixture.conn.GetSchema("IndexColumns", restrictions);
       Assert.Equal(2, dt.Rows.Count);
       Assert.Equal("test", dt.Rows[0]["TABLE_NAME"]);
       Assert.Equal("id1", dt.Rows[0]["COLUMN_NAME"]);
@@ -451,26 +450,26 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(2, dt.Rows[1]["ORDINAL_POSITION"]);
 
       restrictions = new string[4];
-      st.execSQL("DROP TABLE IF EXISTS test");
-      st.execSQL("CREATE TABLE test (id int primary key, id1 int, KEY key1 (id1))");
+      _fixture.execSQL("DROP TABLE IF EXISTS test");
+      _fixture.execSQL("CREATE TABLE test (id int primary key, id1 int, KEY key1 (id1))");
       restrictions[2] = "test";
-      restrictions[1] = st.database0;
+      restrictions[1] = _fixture.database0;
       restrictions[3] = "PRIMARY";
-      dt = st.conn.GetSchema("IndexColumns", restrictions);
+      dt = _fixture.conn.GetSchema("IndexColumns", restrictions);
     }
 
     [Fact]
     public void Views()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (_fixture.Version < new Version(5, 0)) return;
 
-      st.execSQL("DROP VIEW IF EXISTS vw");
-      st.execSQL("CREATE VIEW vw AS SELECT Now() as theTime");
+      _fixture.execSQL("DROP VIEW IF EXISTS vw");
+      _fixture.execSQL("CREATE VIEW vw AS SELECT Now() as theTime");
 
       string[] restrictions = new string[4];
-      restrictions[1] = st.database0;
+      restrictions[1] = _fixture.database0;
       restrictions[2] = "vw";
-      DataTable dt = st.conn.GetSchema("Views", restrictions);
+      DataTable dt = _fixture.conn.GetSchema("Views", restrictions);
       Assert.True(dt.Rows.Count == 1);
       Assert.Equal("Views", dt.TableName);
       Assert.Equal("vw", dt.Rows[0]["TABLE_NAME"]);
@@ -479,18 +478,18 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ViewColumns()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (_fixture.Version < new Version(5, 0)) return;
 
-      st.execSQL("DROP VIEW IF EXISTS vw");
-      st.execSQL("CREATE VIEW vw AS SELECT Now() as theTime");
+      _fixture.execSQL("DROP VIEW IF EXISTS vw");
+      _fixture.execSQL("CREATE VIEW vw AS SELECT Now() as theTime");
 
       string[] restrictions = new string[4];
-      restrictions[1] = st.database0;
+      restrictions[1] = _fixture.database0;
       restrictions[2] = "vw";
-      DataTable dt = st.conn.GetSchema("ViewColumns", restrictions);
+      DataTable dt = _fixture.conn.GetSchema("ViewColumns", restrictions);
       Assert.True(dt.Rows.Count == 1);
       Assert.Equal("ViewColumns", dt.TableName);
-      Assert.Equal(st.database0.ToLower(), dt.Rows[0]["VIEW_SCHEMA"].ToString().ToLower());
+      Assert.Equal(_fixture.database0.ToLower(), dt.Rows[0]["VIEW_SCHEMA"].ToString().ToLower());
       Assert.Equal("vw", dt.Rows[0]["VIEW_NAME"]);
       Assert.Equal("theTime", dt.Rows[0]["COLUMN_NAME"]);
     }
@@ -498,21 +497,21 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void SingleForeignKey()
     {
-      st.execSQL("CREATE TABLE parent (id INT NOT NULL, PRIMARY KEY (id)) ENGINE=INNODB");
-      st.execSQL("CREATE TABLE child (id INT, parent_id INT, INDEX par_ind (parent_id), " +
+      _fixture.execSQL("CREATE TABLE parent (id INT NOT NULL, PRIMARY KEY (id)) ENGINE=INNODB");
+      _fixture.execSQL("CREATE TABLE child (id INT, parent_id INT, INDEX par_ind (parent_id), " +
         "CONSTRAINT c1 FOREIGN KEY (parent_id) REFERENCES parent(id) ON DELETE CASCADE) ENGINE=INNODB");
       string[] restrictions = new string[4];
       restrictions[0] = null;
-      restrictions[1] = st.database0;
+      restrictions[1] = _fixture.database0;
       restrictions[2] = "child";
-      DataTable dt = st.conn.GetSchema("Foreign Keys", restrictions);
+      DataTable dt = _fixture.conn.GetSchema("Foreign Keys", restrictions);
       Assert.Equal(1, dt.Rows.Count);
       DataRow row = dt.Rows[0];
-      Assert.Equal(st.database0.ToLower(), row["CONSTRAINT_SCHEMA"].ToString().ToLower());
+      Assert.Equal(_fixture.database0.ToLower(), row["CONSTRAINT_SCHEMA"].ToString().ToLower());
       Assert.Equal("c1", row["CONSTRAINT_NAME"]);
-      Assert.Equal(st.database0.ToLower(), row["TABLE_SCHEMA"].ToString().ToLower());
+      Assert.Equal(_fixture.database0.ToLower(), row["TABLE_SCHEMA"].ToString().ToLower());
       Assert.Equal("child", row["TABLE_NAME"]);
-      Assert.Equal(st.database0.ToLower(), row["REFERENCED_TABLE_SCHEMA"].ToString().ToLower());
+      Assert.Equal(_fixture.database0.ToLower(), row["REFERENCED_TABLE_SCHEMA"].ToString().ToLower());
       Assert.Equal("parent", row["REFERENCED_TABLE_NAME"]);
     }
 
@@ -522,35 +521,35 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ForeignKeys()
     {
-      st.execSQL("DROP TABLE IF EXISTS product_order");
-      st.execSQL("DROP TABLE IF EXISTS customer");
-      st.execSQL("DROP TABLE IF EXISTS product");
+      _fixture.execSQL("DROP TABLE IF EXISTS product_order");
+      _fixture.execSQL("DROP TABLE IF EXISTS customer");
+      _fixture.execSQL("DROP TABLE IF EXISTS product");
 
-      st.execSQL("CREATE TABLE product (category INT NOT NULL, id INT NOT NULL, " +
+      _fixture.execSQL("CREATE TABLE product (category INT NOT NULL, id INT NOT NULL, " +
             "price DECIMAL, PRIMARY KEY(category, id)) ENGINE=INNODB");
-      st.execSQL("CREATE TABLE customer (id INT NOT NULL, PRIMARY KEY (id)) ENGINE=INNODB");
-      st.execSQL("CREATE TABLE product_order (no INT NOT NULL AUTO_INCREMENT, " +
+      _fixture.execSQL("CREATE TABLE customer (id INT NOT NULL, PRIMARY KEY (id)) ENGINE=INNODB");
+      _fixture.execSQL("CREATE TABLE product_order (no INT NOT NULL AUTO_INCREMENT, " +
         "product_category INT NOT NULL, product_id INT NOT NULL, customer_id INT NOT NULL, " +
         "PRIMARY KEY(no), INDEX (product_category, product_id), " +
         "FOREIGN KEY (product_category, product_id) REFERENCES product(category, id) " +
         "ON UPDATE CASCADE ON DELETE RESTRICT, INDEX (customer_id), " +
         "FOREIGN KEY (customer_id) REFERENCES customer(id)) ENGINE=INNODB");
 
-      DataTable dt = st.conn.GetSchema("Foreign Keys");
+      DataTable dt = _fixture.conn.GetSchema("Foreign Keys");
       Assert.True(dt.Columns.Contains("REFERENCED_TABLE_CATALOG"));
     }
 
     [Fact]
     public void MultiSingleForeignKey()
     {
-      st.execSQL("DROP TABLE IF EXISTS product_order");
-      st.execSQL("DROP TABLE IF EXISTS customer");
-      st.execSQL("DROP TABLE IF EXISTS product");
+      _fixture.execSQL("DROP TABLE IF EXISTS product_order");
+      _fixture.execSQL("DROP TABLE IF EXISTS customer");
+      _fixture.execSQL("DROP TABLE IF EXISTS product");
 
-      st.execSQL("CREATE TABLE product (category INT NOT NULL, id INT NOT NULL, " +
+      _fixture.execSQL("CREATE TABLE product (category INT NOT NULL, id INT NOT NULL, " +
             "price DECIMAL, PRIMARY KEY(category, id)) ENGINE=INNODB");
-      st.execSQL("CREATE TABLE customer (id INT NOT NULL, PRIMARY KEY (id)) ENGINE=INNODB");
-      st.execSQL("CREATE TABLE product_order (no INT NOT NULL AUTO_INCREMENT, " +
+      _fixture.execSQL("CREATE TABLE customer (id INT NOT NULL, PRIMARY KEY (id)) ENGINE=INNODB");
+      _fixture.execSQL("CREATE TABLE product_order (no INT NOT NULL AUTO_INCREMENT, " +
         "product_category INT NOT NULL, product_id INT NOT NULL, customer_id INT NOT NULL, " +
         "PRIMARY KEY(no), INDEX (product_category, product_id), " +
         "FOREIGN KEY (product_category, product_id) REFERENCES product(category, id) " +
@@ -559,44 +558,44 @@ namespace MySql.Data.MySqlClient.Tests
 
       string[] restrictions = new string[4];
       restrictions[0] = null;
-      restrictions[1] = st.database0;
+      restrictions[1] = _fixture.database0;
       restrictions[2] = "product_order";
-      DataTable dt = st.conn.GetSchema("Foreign Keys", restrictions);
+      DataTable dt = _fixture.conn.GetSchema("Foreign Keys", restrictions);
       Assert.Equal(2, dt.Rows.Count);
       DataRow row = dt.Rows[0];
-      Assert.Equal(st.database0.ToLower(), row["CONSTRAINT_SCHEMA"].ToString().ToLower());
+      Assert.Equal(_fixture.database0.ToLower(), row["CONSTRAINT_SCHEMA"].ToString().ToLower());
       Assert.Equal("product_order_ibfk_1", row["CONSTRAINT_NAME"]);
-      Assert.Equal(st.database0.ToLower(), row["TABLE_SCHEMA"].ToString().ToLower());
+      Assert.Equal(_fixture.database0.ToLower(), row["TABLE_SCHEMA"].ToString().ToLower());
       Assert.Equal("product_order", row["TABLE_NAME"]);
-      Assert.Equal(st.database0.ToLower(), row["REFERENCED_TABLE_SCHEMA"].ToString().ToLower());
+      Assert.Equal(_fixture.database0.ToLower(), row["REFERENCED_TABLE_SCHEMA"].ToString().ToLower());
       Assert.Equal("product", row["REFERENCED_TABLE_NAME"]);
 
       row = dt.Rows[1];
-      Assert.Equal(st.database0.ToLower(), row["CONSTRAINT_SCHEMA"].ToString().ToLower());
+      Assert.Equal(_fixture.database0.ToLower(), row["CONSTRAINT_SCHEMA"].ToString().ToLower());
       Assert.Equal("product_order_ibfk_2", row["CONSTRAINT_NAME"]);
-      Assert.Equal(st.database0.ToLower(), row["TABLE_SCHEMA"].ToString().ToLower());
+      Assert.Equal(_fixture.database0.ToLower(), row["TABLE_SCHEMA"].ToString().ToLower());
       Assert.Equal("product_order", row["TABLE_NAME"]);
-      Assert.Equal(st.database0.ToLower(), row["REFERENCED_TABLE_SCHEMA"].ToString().ToLower());
+      Assert.Equal(_fixture.database0.ToLower(), row["REFERENCED_TABLE_SCHEMA"].ToString().ToLower());
       Assert.Equal("customer", row["REFERENCED_TABLE_NAME"]);
     }
 
     [Fact]
     public void Triggers()
     {
-      if (st.Version < new Version(5, 1, 6)) return;
+      if (_fixture.Version < new Version(5, 1, 6)) return;
 
-      st.execSQL("DROP TABLE IF EXISTS test1");
-      st.execSQL("CREATE TABLE test1 (id int)");
-      st.execSQL("CREATE TABLE test2 (count int)");
-      st.execSQL("INSERT INTO test2 VALUES (0)");
+      _fixture.execSQL("DROP TABLE IF EXISTS test1");
+      _fixture.execSQL("CREATE TABLE test1 (id int)");
+      _fixture.execSQL("CREATE TABLE test2 (count int)");
+      _fixture.execSQL("INSERT INTO test2 VALUES (0)");
       string sql = String.Format("CREATE TRIGGER `{0}`.trigger1 AFTER INSERT ON test1 FOR EACH ROW BEGIN " +
-        "UPDATE test2 SET count = count+1; END", st.database0);
-      st.suExecSQL(sql);
+        "UPDATE test2 SET count = count+1; END", _fixture.database0);
+      _fixture.suExecSQL(sql);
 
       string[] restrictions = new string[4];
-      restrictions[1] = st.database0;
+      restrictions[1] = _fixture.database0;
       restrictions[2] = "test1";
-      DataTable dt = st.rootConn.GetSchema("Triggers", restrictions);
+      DataTable dt = _fixture.rootConn.GetSchema("Triggers", restrictions);
       Assert.True(dt.Rows.Count == 1);
       Assert.Equal("Triggers", dt.TableName);
       Assert.Equal("trigger1", dt.Rows[0]["TRIGGER_NAME"]);
@@ -609,13 +608,13 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void UsingQuotedRestrictions()
     {
-      st.execSQL("DROP TABLE IF EXISTS test1");
-      st.execSQL("CREATE TABLE test1 (id int)");
+      _fixture.execSQL("DROP TABLE IF EXISTS test1");
+      _fixture.execSQL("CREATE TABLE test1 (id int)");
 
       string[] restrictions = new string[4];
-      restrictions[1] = st.database0;
+      restrictions[1] = _fixture.database0;
       restrictions[2] = "`test1`";
-      DataTable dt = st.conn.GetSchema("Tables", restrictions);
+      DataTable dt = _fixture.conn.GetSchema("Tables", restrictions);
       Assert.True(dt.Rows.Count == 1);
       Assert.Equal("Tables", dt.TableName);
       Assert.Equal("test1", dt.Rows[0][2]);
@@ -625,7 +624,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ReservedWords()
     {
-      DataTable dt = st.conn.GetSchema("ReservedWords");
+      DataTable dt = _fixture.conn.GetSchema("ReservedWords");
       foreach (DataRow row in dt.Rows)
         Assert.False(String.IsNullOrEmpty(row[0] as string));
     }
@@ -637,10 +636,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ColumnSizeWithOldGuids()
     {
-      string connString = st.conn.ConnectionString;
-      connString += st.csAdditions;
+      string connString = _fixture.conn.ConnectionString;
+      connString += _fixture.csAdditions;
 
-      st.execSQL("DROP TABLE IF EXISTS test");
+      _fixture.execSQL("DROP TABLE IF EXISTS test");
 
       using (MySqlConnection conn = new MySqlConnection(connString))
       {
@@ -648,7 +647,7 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlCommand cmd = new MySqlCommand("CREATE TABLE test(char36 char(36) CHARSET utf8mb4, binary16 binary(16), char37 char(37), `tinyblob` tinyblob, `blob` blob);", conn);
         cmd.ExecuteNonQuery();
 
-        using (MySqlDataReader reader = st.execReader("SELECT * FROM test;"))
+        using (MySqlDataReader reader = _fixture.execReader("SELECT * FROM test;"))
         {
           DataTable schemaTable = reader.GetSchemaTable();
 
@@ -668,10 +667,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ColumnSize()
     {
-      st.execSQL("DROP TABLE IF EXISTS test");
-      st.execSQL("CREATE TABLE test(char36 char(36) CHARSET utf8, binary16 binary(16), char37 char(37), `tinyblob` tinyblob, `blob` blob);");
+      _fixture.execSQL("DROP TABLE IF EXISTS test");
+      _fixture.execSQL("CREATE TABLE test(char36 char(36) CHARSET utf8, binary16 binary(16), char37 char(37), `tinyblob` tinyblob, `blob` blob);");
 
-      using (MySqlDataReader reader = st.execReader("SELECT * FROM test;"))
+      using (MySqlDataReader reader = _fixture.execReader("SELECT * FROM test;"))
       {
         DataTable schemaTable = reader.GetSchemaTable();
 
@@ -690,10 +689,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void IsLongProperty()
     {
-      st.execSQL("DROP TABLE IF EXISTS test;");
-      st.execSQL("CREATE TABLE test(`longtext` longtext, `longblob` longblob, `tinytext` tinytext, `tinyblob` tinyblob, `text` text, `blob` blob);");
+      _fixture.execSQL("DROP TABLE IF EXISTS test;");
+      _fixture.execSQL("CREATE TABLE test(`longtext` longtext, `longblob` longblob, `tinytext` tinytext, `tinyblob` tinyblob, `text` text, `blob` blob);");
 
-      using (MySqlDataReader reader = st.execReader("SELECT * FROM test;"))
+      using (MySqlDataReader reader = _fixture.execReader("SELECT * FROM test;"))
       {
         DataTable schemaTable = reader.GetSchemaTable();
 
@@ -718,10 +717,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void NumericPrecisionProperty()
     {
-      st.execSQL("DROP TABLE IF EXISTS test;");
-      st.execSQL("CREATE TABLE test(decimal0 decimal(8,0), decimal1 decimal(8), decimal2 decimal(8,2), decimal3 decimal(8,1) UNSIGNED);");
+      _fixture.execSQL("DROP TABLE IF EXISTS test;");
+      _fixture.execSQL("CREATE TABLE test(decimal0 decimal(8,0), decimal1 decimal(8), decimal2 decimal(8,2), decimal3 decimal(8,1) UNSIGNED);");
 
-      using (MySqlDataReader reader = st.execReader("SELECT * FROM test;"))
+      using (MySqlDataReader reader = _fixture.execReader("SELECT * FROM test;"))
       {
         DataTable schemaTable = reader.GetSchemaTable();
 

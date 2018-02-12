@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2014 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -321,9 +321,11 @@ namespace MySql.Data.MySqlClient.Tests
     public async Task OpenAndCloseConnectionAsync()
     {
       string connStr2 = st.GetConnectionString(false);
-      MySqlConnection c = new MySqlConnection(connStr2);
-      await c.OpenAsync();
-      await c.CloseAsync();
+      using (MySqlConnection c = new MySqlConnection(connStr2))
+      {
+        await c.OpenAsync();
+        await c.CloseAsync();
+      }
     }
 
     [Fact]
@@ -337,6 +339,8 @@ namespace MySql.Data.MySqlClient.Tests
       c2.Close();
       await c1.ClearPoolAsync(c1);
       await c2.ClearPoolAsync(c1);
+      c1.Dispose();
+      c2.Dispose();
     }
 
     [Fact]
@@ -350,16 +354,20 @@ namespace MySql.Data.MySqlClient.Tests
       c2.Close();
       await c1.ClearAllPoolsAsync();
       await c2.ClearAllPoolsAsync();
+      c1.Dispose();
+      c2.Dispose();
     }
 
     [Fact]
     public async Task GetSchemaCollectionAsync()
     {
-      MySqlConnection c1 = new MySqlConnection(st.GetConnectionString(true));
-      c1.Open();
-      MySqlSchemaCollection schemaColl = await c1.GetSchemaCollectionAsync(SchemaProvider.MetaCollection, null);
-      c1.Close();
-      Assert.NotNull(schemaColl);
+      using (MySqlConnection c1 = new MySqlConnection(st.GetConnectionString(true)))
+      {
+        c1.Open();
+        MySqlSchemaCollection schemaColl = await c1.GetSchemaCollectionAsync(SchemaProvider.MetaCollection, null);
+        c1.Close();
+        Assert.NotNull(schemaColl);
+      }
     }
 
     #endregion

@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -30,22 +30,17 @@ using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class CultureTests : IUseFixture<SetUpClass>, IDisposable
+  public class CultureTests : BaseFixture
   {
-    private SetUpClass st;
-
-    public void SetFixture(SetUpClass data)
+    public override void SetFixture(SetUpClassPerTestInit fixture)
     {
-      st = data;
+      base.SetFixture(fixture);
     }
 
-    public void Dispose()
+    protected override void Dispose(bool disposing)
     {
-      //st.execSQL("DROP TABLE IF EXISTS bug52187a");
-      //st.execSQL("DROP TABLE IF EXISTS bug52187b");
-      //st.execSQL("DROP TABLE IF EXISTS bug52187a");
-      //st.execSQL("DROP TABLE IF EXISTS bug52187b");
-      st.execSQL("DROP TABLE IF EXISTS TEST");
+      _fixture.execSQL("DROP TABLE IF EXISTS TEST");
+      base.Dispose(disposing);
     }
 
     [Fact]
@@ -57,7 +52,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void TestFloatsPrepared()
     {
-      if (st.Version < new Version(4, 1)) return;
+      if (_fixture.Version < new Version(4, 1)) return;
 
       InternalTestFloats(true);
     }
@@ -70,9 +65,9 @@ namespace MySql.Data.MySqlClient.Tests
       Thread.CurrentThread.CurrentCulture = c;
       Thread.CurrentThread.CurrentUICulture = c;
 
-      st.execSQL("CREATE TABLE Test (fl FLOAT, db DOUBLE, dec1 DECIMAL(5,2))");
+      _fixture.execSQL("CREATE TABLE Test (fl FLOAT, db DOUBLE, dec1 DECIMAL(5,2))");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?fl, ?db, ?dec)", st.conn);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?fl, ?db, ?dec)", _fixture.conn);
       cmd.Parameters.Add("?fl", MySqlDbType.Float);
       cmd.Parameters.Add("?db", MySqlDbType.Double);
       cmd.Parameters.Add("?dec", MySqlDbType.Decimal);
@@ -115,7 +110,7 @@ namespace MySql.Data.MySqlClient.Tests
       Thread.CurrentThread.CurrentCulture = c;
       Thread.CurrentThread.CurrentUICulture = c;
 
-      using (MySqlConnection newConn = new MySqlConnection(st.GetConnectionString(true)))
+      using (MySqlConnection newConn = new MySqlConnection(_fixture.GetConnectionString(true)))
       {
         newConn.Open();
       }
@@ -130,8 +125,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ArabicCalendars()
     {
-      st.execSQL("CREATE TABLE test(dt DATETIME)");
-      st.execSQL("INSERT INTO test VALUES ('2007-01-01 12:30:45')");
+      _fixture.execSQL("CREATE TABLE test(dt DATETIME)");
+      _fixture.execSQL("INSERT INTO test VALUES ('2007-01-01 12:30:45')");
 
       CultureInfo curCulture = Thread.CurrentThread.CurrentCulture;
       CultureInfo curUICulture = Thread.CurrentThread.CurrentUICulture;
@@ -139,7 +134,7 @@ namespace MySql.Data.MySqlClient.Tests
       Thread.CurrentThread.CurrentCulture = c;
       Thread.CurrentThread.CurrentUICulture = c;
 
-      MySqlCommand cmd = new MySqlCommand("SELECT dt FROM test", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT dt FROM test", _fixture.conn);
       DateTime dt = (DateTime)cmd.ExecuteScalar();
       Assert.Equal(2007, dt.Year);
       Assert.Equal(1, dt.Month);
@@ -158,10 +153,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void FunctionsReturnStringAndDecimal()
     {
-      st.execSQL("CREATE TABLE bug52187a (a decimal(5,2) not null)");
-      st.execSQL("CREATE TABLE bug52187b (b decimal(5,2) not null)");
-      st.execSQL("insert into bug52187a values (1.25)");
-      st.execSQL("insert into bug52187b values (5.99)");
+      _fixture.execSQL("CREATE TABLE bug52187a (a decimal(5,2) not null)");
+      _fixture.execSQL("CREATE TABLE bug52187b (b decimal(5,2) not null)");
+      _fixture.execSQL("insert into bug52187a values (1.25)");
+      _fixture.execSQL("insert into bug52187b values (5.99)");
 
       CultureInfo curCulture = Thread.CurrentThread.CurrentCulture;
       CultureInfo curUICulture = Thread.CurrentThread.CurrentUICulture;
@@ -169,7 +164,7 @@ namespace MySql.Data.MySqlClient.Tests
       Thread.CurrentThread.CurrentCulture = c;
       Thread.CurrentThread.CurrentUICulture = c;
 
-      string connStr = st.GetConnectionString(true) + ";functions return string=true";
+      string connStr = _fixture.GetConnectionString(true) + ";functions return string=true";
       try
       {
         using (MySqlConnection con = new MySqlConnection(connStr))

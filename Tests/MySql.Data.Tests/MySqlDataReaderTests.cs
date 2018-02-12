@@ -32,23 +32,22 @@ using System.Data.SqlTypes;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class MySqlDataReaderTests : IUseFixture<SetUpClass>, IDisposable
+  public class MySqlDataReaderTests : BaseFixture
   {
-    private SetUpClass st;
-
-    public void SetFixture(SetUpClass data)
+    public override void SetFixture(SetUpClassPerTestInit fixture)
     {
-      st = data;
+      base.SetFixture(fixture);
     }
 
-    public void Dispose()
+    protected override void Dispose(bool disposing)
     {
-      st.execSQL("DROP TABLE IF EXISTS TEST");
+      _fixture.execSQL("DROP TABLE IF EXISTS TEST");
+      base.Dispose(disposing);
     }
 
     private void CreateDefaultTable()
     {
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100), d DATE, dt DATETIME, b1 LONGBLOB, PRIMARY KEY(id))");
+      _fixture.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100), d DATE, dt DATETIME, b1 LONGBLOB, PRIMARY KEY(id))");
     }
 
     [Fact]
@@ -56,7 +55,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       CreateDefaultTable();
 
-      MySqlCommand cmd = new MySqlCommand("", st.conn);
+      MySqlCommand cmd = new MySqlCommand("", _fixture.conn);
       // insert 100 records
       cmd.CommandText = "INSERT INTO Test (id,name) VALUES (?id, 'test')";
       cmd.Parameters.Add(new MySqlParameter("?id", 1));
@@ -67,7 +66,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
 
       // execute it one time
-      cmd = new MySqlCommand("SELECT id FROM Test WHERE id<50; SELECT * FROM Test WHERE id >= 50;", st.conn);
+      cmd = new MySqlCommand("SELECT id FROM Test WHERE id<50; SELECT * FROM Test WHERE id >= 50;", _fixture.conn);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         Assert.NotNull(reader);
@@ -99,7 +98,7 @@ namespace MySql.Data.MySqlClient.Tests
       int len = 50000;
       byte[] bytes = Utils.CreateBlob(len);
       MySqlCommand cmd = new MySqlCommand(
-        "INSERT INTO Test (id, name, b1) VALUES(1, 'Test', ?b1)", st.conn);
+        "INSERT INTO Test (id, name, b1) VALUES(1, 'Test', ?b1)", _fixture.conn);
       cmd.Parameters.AddWithValue("?b1", bytes);
       cmd.ExecuteNonQuery();
 
@@ -149,11 +148,11 @@ namespace MySql.Data.MySqlClient.Tests
     public void TestSingleResultSetBehavior()
     {
       CreateDefaultTable();
-      st.execSQL("INSERT INTO Test (id, name, b1) VALUES (1, 'Test1', NULL)");
-      st.execSQL("INSERT INTO Test (id, name, b1) VALUES (2, 'Test1', NULL)");
+      _fixture.execSQL("INSERT INTO Test (id, name, b1) VALUES (1, 'Test1', NULL)");
+      _fixture.execSQL("INSERT INTO Test (id, name, b1) VALUES (2, 'Test1', NULL)");
 
       MySqlCommand cmd = new MySqlCommand(
-        "SELECT * FROM Test WHERE id=1; SELECT * FROM Test WHERE id=2", st.conn);
+        "SELECT * FROM Test WHERE id=1; SELECT * FROM Test WHERE id=2", _fixture.conn);
       using (MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.SingleResult))
       {
         bool result = reader.Read();
@@ -177,10 +176,10 @@ namespace MySql.Data.MySqlClient.Tests
         dt DATETIME, `udec` DECIMAL(20,6) unsigned,
         `dec` DECIMAL(44,3), bt boolean, PRIMARY KEY(id))";
 
-      st.execSQL(sql);
-      st.execSQL("INSERT INTO test2 VALUES(1,'Test', 'Test', 1.0, now(), 20.0, 12.324, True)");
+      _fixture.execSQL(sql);
+      _fixture.execSQL("INSERT INTO test2 VALUES(1,'Test', 'Test', 1.0, now(), 20.0, 12.324, True)");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM test2", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM test2", _fixture.conn);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         DataTable dt = reader.GetSchemaTable();
@@ -209,9 +208,9 @@ namespace MySql.Data.MySqlClient.Tests
     public void CloseConnectionBehavior()
     {
       CreateDefaultTable();
-      st.execSQL("INSERT INTO Test(id,name) VALUES(1,'test')");
+      _fixture.execSQL("INSERT INTO Test(id,name) VALUES(1,'test')");
 
-      using (MySqlConnection c2 = new MySqlConnection(st.conn.ConnectionString))
+      using (MySqlConnection c2 = new MySqlConnection(_fixture.conn.ConnectionString))
       {
         c2.Open();
         MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", c2);
@@ -228,11 +227,11 @@ namespace MySql.Data.MySqlClient.Tests
     public void SingleRowBehavior()
     {
       CreateDefaultTable();
-      st.execSQL("INSERT INTO Test(id,name) VALUES(1,'test1')");
-      st.execSQL("INSERT INTO Test(id,name) VALUES(2,'test2')");
-      st.execSQL("INSERT INTO Test(id,name) VALUES(3,'test3')");
+      _fixture.execSQL("INSERT INTO Test(id,name) VALUES(1,'test1')");
+      _fixture.execSQL("INSERT INTO Test(id,name) VALUES(2,'test2')");
+      _fixture.execSQL("INSERT INTO Test(id,name) VALUES(3,'test3')");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", _fixture.conn);
       using (MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.SingleRow))
       {
         Assert.True(reader.Read(), "First read");
@@ -254,11 +253,11 @@ namespace MySql.Data.MySqlClient.Tests
     public void SingleRowBehaviorWithLimit()
     {
       CreateDefaultTable();
-      st.execSQL("INSERT INTO Test(id,name) VALUES(1,'test1')");
-      st.execSQL("INSERT INTO Test(id,name) VALUES(2,'test2')");
-      st.execSQL("INSERT INTO Test(id,name) VALUES(3,'test3')");
+      _fixture.execSQL("INSERT INTO Test(id,name) VALUES(1,'test1')");
+      _fixture.execSQL("INSERT INTO Test(id,name) VALUES(2,'test2')");
+      _fixture.execSQL("INSERT INTO Test(id,name) VALUES(3,'test3')");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test LIMIT 2", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test LIMIT 2", _fixture.conn);
       using (MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.SingleRow))
       {
         Assert.True(reader.Read(), "First read");
@@ -285,9 +284,9 @@ namespace MySql.Data.MySqlClient.Tests
     public void SimpleSingleRow()
     {
       CreateDefaultTable();
-      st.execSQL("INSERT INTO Test(id,name) VALUES(1,'test1')");
+      _fixture.execSQL("INSERT INTO Test(id,name) VALUES(1,'test1')");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", _fixture.conn);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         Assert.True(reader.Read(), "First read");
@@ -302,11 +301,11 @@ namespace MySql.Data.MySqlClient.Tests
     public void ConsecutiveNulls()
     {
       CreateDefaultTable();
-      st.execSQL("INSERT INTO Test (id, name, dt) VALUES (1, 'Test', NULL)");
-      st.execSQL("INSERT INTO Test (id, name, dt) VALUES (2, NULL, now())");
-      st.execSQL("INSERT INTO Test (id, name, dt) VALUES (3, 'Test2', NULL)");
+      _fixture.execSQL("INSERT INTO Test (id, name, dt) VALUES (1, 'Test', NULL)");
+      _fixture.execSQL("INSERT INTO Test (id, name, dt) VALUES (2, NULL, now())");
+      _fixture.execSQL("INSERT INTO Test (id, name, dt) VALUES (3, 'Test2', NULL)");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT id, name, dt FROM Test", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT id, name, dt FROM Test", _fixture.conn);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -339,7 +338,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void HungDataReader()
     {
-      MySqlCommand cmd = new MySqlCommand("USE `" + st.database0 + "`; SHOW TABLES", st.conn);
+      MySqlCommand cmd = new MySqlCommand("USE `" + _fixture.database0 + "`; SHOW TABLES", _fixture.conn);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         while (reader.Read())
@@ -356,9 +355,9 @@ namespace MySql.Data.MySqlClient.Tests
     public void SequentialAccessBehavior()
     {
       CreateDefaultTable();
-      st.execSQL("INSERT INTO Test(id,name) VALUES(1,'test1')");
+      _fixture.execSQL("INSERT INTO Test(id,name) VALUES(1,'test1')");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", _fixture.conn);
       using (MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.SequentialAccess))
       {
         Assert.True(reader.Read());
@@ -378,10 +377,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ReadingTextFields()
     {
-      st.execSQL("CREATE TABLE Test (id int, t1 TEXT)");
-      st.execSQL("INSERT INTO Test VALUES (1, 'Text value')");
+      _fixture.execSQL("CREATE TABLE Test (id int, t1 TEXT)");
+      _fixture.execSQL("INSERT INTO Test VALUES (1, 'Text value')");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", _fixture.conn);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -394,7 +393,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void ReadingFieldsBeforeRead()
     {
       CreateDefaultTable();
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", _fixture.conn);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         try
@@ -411,8 +410,8 @@ namespace MySql.Data.MySqlClient.Tests
     public void GetChar()
     {
       CreateDefaultTable();
-      st.execSQL("INSERT INTO Test (id, name) VALUES (1, 'a')");
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", st.conn);
+      _fixture.execSQL("INSERT INTO Test (id, name) VALUES (1, 'a')");
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", _fixture.conn);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -425,7 +424,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void ReaderOnNonQuery()
     {
       CreateDefaultTable();
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id,name) VALUES (1,'Test')", st.conn);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id,name) VALUES (1,'Test')", _fixture.conn);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         Assert.False(reader.Read());
@@ -441,7 +440,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void TestManyDifferentResultsets()
     {
       CreateDefaultTable();
-      MySqlCommand cmd = new MySqlCommand("", st.conn);
+      MySqlCommand cmd = new MySqlCommand("", _fixture.conn);
       // insert 100 records
       cmd.CommandText = "INSERT INTO Test (id,name,dt,b1) VALUES (?id, 'test','2004-12-05 12:57:00','long blob data')";
       cmd.Parameters.Add(new MySqlParameter("?id", 1));
@@ -457,7 +456,7 @@ namespace MySql.Data.MySqlClient.Tests
         "SELECT id, dt, b1 FROM Test WHERE id = -50; " +
         "SELECT b1 FROM Test WHERE id = -50; " +
         "SELECT id, dt, b1 FROM Test WHERE id < ?param1; " +
-        "SELECT b1 FROM Test WHERE id >= ?param1;", st.conn);
+        "SELECT b1 FROM Test WHERE id >= ?param1;", _fixture.conn);
 
       cmd.Parameters.AddWithValue("?param1", 50);
 
@@ -536,15 +535,15 @@ namespace MySql.Data.MySqlClient.Tests
     public void TestMultipleResultsWithQueryCacheOn()
     {
       //query_cache_type was deprecated in server 5.7.20.
-      if (st.conn.driver.Version.isAtLeast(5,7,20)) return;
+      if (_fixture.conn.driver.Version.isAtLeast(5,7,20)) return;
 
       CreateDefaultTable();
-      st.execSQL("SET SESSION query_cache_type = ON");
-      st.execSQL("INSERT INTO Test (id,name) VALUES (1, 'Test')");
-      st.execSQL("INSERT INTO Test (id,name) VALUES (51, 'Test')");
+      _fixture.execSQL("SET SESSION query_cache_type = ON");
+      _fixture.execSQL("INSERT INTO Test (id,name) VALUES (1, 'Test')");
+      _fixture.execSQL("INSERT INTO Test (id,name) VALUES (51, 'Test')");
 
       // execute it one time
-      MySqlCommand cmd = new MySqlCommand("SELECT id FROM Test WHERE id<50; SELECT * FROM Test	WHERE id >= 50;", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT id FROM Test WHERE id<50; SELECT * FROM Test	WHERE id >= 50;", _fixture.conn);
 
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
@@ -577,11 +576,11 @@ namespace MySql.Data.MySqlClient.Tests
     public void SchemaOnly()
     {
         CreateDefaultTable();
-        st.execSQL("INSERT INTO Test (id,name) VALUES(1,'test1')");
-        st.execSQL("INSERT INTO Test (id,name) VALUES(2,'test2')");
-        st.execSQL("INSERT INTO Test (id,name) VALUES(3,'test3')");
+        _fixture.execSQL("INSERT INTO Test (id,name) VALUES(1,'test1')");
+        _fixture.execSQL("INSERT INTO Test (id,name) VALUES(2,'test2')");
+        _fixture.execSQL("INSERT INTO Test (id,name) VALUES(3,'test3')");
 
-        MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", st.conn);
+        MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", _fixture.conn);
         using (MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.SchemaOnly))
         {
 #if RT
@@ -602,7 +601,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void AffectedRows()
     {
-      MySqlCommand cmd = new MySqlCommand("SHOW TABLES", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SHOW TABLES", _fixture.conn);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -617,10 +616,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void InvalidTimestamp()
     {
-      st.execSQL("CREATE TABLE Test (tm TIMESTAMP)");
-      st.execSQL("INSERT INTO Test VALUES (NULL)");
+      _fixture.execSQL("CREATE TABLE Test (tm TIMESTAMP)");
+      _fixture.execSQL("INSERT INTO Test VALUES (NULL)");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test WHERE tm = '7/1/2005 12:00:00 AM'", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test WHERE tm = '7/1/2005 12:00:00 AM'", _fixture.conn);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
       }
@@ -632,9 +631,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void GetStringOnNull()
     {
-        st.execSQL("CREATE TABLE Test (id int, PRIMARY KEY(id))");
+        _fixture.execSQL("CREATE TABLE Test (id int, PRIMARY KEY(id))");
         MySqlCommand cmd = new MySqlCommand(
-        String.Format("SHOW INDEX FROM Test FROM `{0}`", st.database0), st.conn);
+        String.Format("SHOW INDEX FROM Test FROM `{0}`", _fixture.database0), _fixture.conn);
         using (MySqlDataReader reader = cmd.ExecuteReader())
         {
             reader.Read();
@@ -654,11 +653,11 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void GetSchemaTableOnEmptyResultset()
     {
-      if (st.Version < new Version(5, 0)) return;
+      if (_fixture.Version < new Version(5, 0)) return;
 
-      st.execSQL("CREATE PROCEDURE spTest() BEGIN END");
+      _fixture.execSQL("CREATE PROCEDURE spTest() BEGIN END");
 
-      MySqlCommand cmd = new MySqlCommand("spTest", st.conn);
+      MySqlCommand cmd = new MySqlCommand("spTest", _fixture.conn);
       cmd.CommandType = CommandType.StoredProcedure;
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
@@ -675,9 +674,9 @@ namespace MySql.Data.MySqlClient.Tests
     public void IsDbNullOnNonNullFields()
     {
       CreateDefaultTable();
-      st.execSQL("INSERT INTO Test (id, name) VALUES (1, '')");
+      _fixture.execSQL("INSERT INTO Test (id, name) VALUES (1, '')");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", _fixture.conn);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         Assert.True(reader.Read());
@@ -693,11 +692,11 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ConstraintWithLoadingReader()
     {
-      st.execSQL(@"CREATE TABLE Test (ID_A int(11) NOT NULL,
+      _fixture.execSQL(@"CREATE TABLE Test (ID_A int(11) NOT NULL,
         ID_B int(11) NOT NULL, PRIMARY KEY (ID_A,ID_B)
         ) ENGINE=MyISAM DEFAULT CHARSET=latin1;");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", _fixture.conn);
       DataTable dt = new DataTable();
 
       using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -721,9 +720,9 @@ namespace MySql.Data.MySqlClient.Tests
     public void CloseConnectionBehavior2()
     {
       CreateDefaultTable();
-      st.execSQL("INSERT INTO Test(id,name) VALUES(1,'test')");
+      _fixture.execSQL("INSERT INTO Test(id,name) VALUES(1,'test')");
 
-      using (MySqlConnection c2 = new MySqlConnection(st.conn.ConnectionString))
+      using (MySqlConnection c2 = new MySqlConnection(_fixture.conn.ConnectionString))
       {
         c2.Open();
         MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", c2);
@@ -745,7 +744,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void CommandBehaviorSchemaOnly()
     {
 
-      MySqlCommand cmd = new MySqlCommand("select * from doesnotexist", st.conn);
+      MySqlCommand cmd = new MySqlCommand("select * from doesnotexist", _fixture.conn);
       MySqlDataReader reader;
       Exception ex = Assert.Throws<MySqlException>(() => reader = cmd.ExecuteReader(CommandBehavior.SchemaOnly));
       Assert.True(ex.Message.Contains(".doesnotexist' doesn't exist"));
@@ -778,9 +777,9 @@ namespace MySql.Data.MySqlClient.Tests
     public void ColumnsWithSameName()
     {
       CreateDefaultTable();
-      st.execSQL("INSERT INTO Test (id, name) VALUES (1, 'test')");
+      _fixture.execSQL("INSERT INTO Test (id, name) VALUES (1, 'test')");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT a.name, a.name FROM Test a", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT a.name, a.name FROM Test a", _fixture.conn);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -805,7 +804,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Bug47467()
     {
-      MySqlCommand cmd = new MySqlCommand("SELECT 1 as c1", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT 1 as c1", _fixture.conn);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -822,72 +821,74 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ConstraintExceptionOnLoad()
     {
-      MySqlConnection con = new MySqlConnection();
-      try
+      using (MySqlConnection con = new MySqlConnection())
       {
-        con.ConnectionString = st.GetConnectionString(true);
-        con.Open();
+        try
+        {
+          con.ConnectionString = _fixture.GetConnectionString(true);
+          con.Open();
 
-        MySqlCommand cmd = new MySqlCommand();
+          MySqlCommand cmd = new MySqlCommand();
 
-        cmd.Connection = con;
+          cmd.Connection = con;
 
-        cmd.CommandText = "DROP TABLE IF EXISTS trx";
-        cmd.ExecuteNonQuery();
+          cmd.CommandText = "DROP TABLE IF EXISTS trx";
+          cmd.ExecuteNonQuery();
 
-        cmd.CommandText = "DROP TABLE IF EXISTS camn";
-        cmd.ExecuteNonQuery();
+          cmd.CommandText = "DROP TABLE IF EXISTS camn";
+          cmd.ExecuteNonQuery();
 
-        cmd.CommandText = "CREATE TABLE `camn` (" +
-          "`id_camn` int(10) unsigned NOT NULL AUTO_INCREMENT," +
-          "`no` int(4) unsigned NOT NULL," +
-          "`marq` varchar(45) COLLATE utf8_bin DEFAULT NULL," +
-          "`modl` varchar(45) COLLATE utf8_bin DEFAULT NULL," +
-          "`no_serie` varchar(17) COLLATE utf8_bin DEFAULT NULL," +
-          "`no_plaq` varchar(7) COLLATE utf8_bin DEFAULT NULL," +
-          "PRIMARY KEY (`id_camn`)," +
-          "UNIQUE KEY `id_camn_UNIQUE` (`id_camn`)," +
-          "UNIQUE KEY `no_UNIQUE` (`no`)," +
-          "UNIQUE KEY `no_serie_UNIQUE` (`no_serie`)," +
-          "UNIQUE KEY `no_plaq_UNIQUE` (`no_plaq`)" +
-          ") ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
-        cmd.ExecuteNonQuery();
+          cmd.CommandText = "CREATE TABLE `camn` (" +
+            "`id_camn` int(10) unsigned NOT NULL AUTO_INCREMENT," +
+            "`no` int(4) unsigned NOT NULL," +
+            "`marq` varchar(45) COLLATE utf8_bin DEFAULT NULL," +
+            "`modl` varchar(45) COLLATE utf8_bin DEFAULT NULL," +
+            "`no_serie` varchar(17) COLLATE utf8_bin DEFAULT NULL," +
+            "`no_plaq` varchar(7) COLLATE utf8_bin DEFAULT NULL," +
+            "PRIMARY KEY (`id_camn`)," +
+            "UNIQUE KEY `id_camn_UNIQUE` (`id_camn`)," +
+            "UNIQUE KEY `no_UNIQUE` (`no`)," +
+            "UNIQUE KEY `no_serie_UNIQUE` (`no_serie`)," +
+            "UNIQUE KEY `no_plaq_UNIQUE` (`no_plaq`)" +
+            ") ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
+          cmd.ExecuteNonQuery();
 
-        cmd.CommandText = "CREATE TABLE `trx` (" +
-          "`id_trx` int(10) unsigned NOT NULL AUTO_INCREMENT," +
-          "`mnt` decimal(9,2) NOT NULL," +
-          "`dat_trx` date NOT NULL," +
-          "`typ_trx` varchar(45) COLLATE utf8_bin DEFAULT NULL," +
-          "`descr` tinytext COLLATE utf8_bin," +
-          "`id_camn` int(10) unsigned DEFAULT NULL," +
-          "PRIMARY KEY (`id_trx`)," +
-          "UNIQUE KEY `id_trx_UNIQUE` (`id_trx`)," +
-          "KEY `fk_trx_camn` (`id_camn`)," +
-          "CONSTRAINT `fk_trx_camn` FOREIGN KEY (`id_camn`) REFERENCES `camn` (`id_camn`) ON DELETE NO ACTION ON UPDATE NO ACTION" +
-          ") ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
+          cmd.CommandText = "CREATE TABLE `trx` (" +
+            "`id_trx` int(10) unsigned NOT NULL AUTO_INCREMENT," +
+            "`mnt` decimal(9,2) NOT NULL," +
+            "`dat_trx` date NOT NULL," +
+            "`typ_trx` varchar(45) COLLATE utf8_bin DEFAULT NULL," +
+            "`descr` tinytext COLLATE utf8_bin," +
+            "`id_camn` int(10) unsigned DEFAULT NULL," +
+            "PRIMARY KEY (`id_trx`)," +
+            "UNIQUE KEY `id_trx_UNIQUE` (`id_trx`)," +
+            "KEY `fk_trx_camn` (`id_camn`)," +
+            "CONSTRAINT `fk_trx_camn` FOREIGN KEY (`id_camn`) REFERENCES `camn` (`id_camn`) ON DELETE NO ACTION ON UPDATE NO ACTION" +
+            ") ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
 
-        cmd.ExecuteNonQuery();
+          cmd.ExecuteNonQuery();
 
-        cmd.CommandText = "INSERT INTO camn(id_camn, no, marq, modl, no_serie, no_plaq) VALUES(9, 3327, null, null, null, null);";
-        cmd.ExecuteNonQuery();
+          cmd.CommandText = "INSERT INTO camn(id_camn, no, marq, modl, no_serie, no_plaq) VALUES(9, 3327, null, null, null, null);";
+          cmd.ExecuteNonQuery();
 
-        cmd.CommandText = "INSERT INTO trx(id_trx, mnt, dat_trx, typ_trx, descr, id_camn) VALUES(1, 10, '2012-04-30', null, null, 9);";
-        cmd.ExecuteNonQuery();
-        cmd.CommandText = "INSERT INTO trx(id_trx, mnt, dat_trx, typ_trx, descr, id_camn) VALUES(2, 10, '2012-04-15', null, null, 9);";
-        cmd.ExecuteNonQuery();
-        cmd.CommandText = "INSERT INTO trx(id_trx, mnt, dat_trx, typ_trx, descr, id_camn) VALUES(3, 10, '2012-04-15', null, null, null);";
-        cmd.ExecuteNonQuery();
+          cmd.CommandText = "INSERT INTO trx(id_trx, mnt, dat_trx, typ_trx, descr, id_camn) VALUES(1, 10, '2012-04-30', null, null, 9);";
+          cmd.ExecuteNonQuery();
+          cmd.CommandText = "INSERT INTO trx(id_trx, mnt, dat_trx, typ_trx, descr, id_camn) VALUES(2, 10, '2012-04-15', null, null, 9);";
+          cmd.ExecuteNonQuery();
+          cmd.CommandText = "INSERT INTO trx(id_trx, mnt, dat_trx, typ_trx, descr, id_camn) VALUES(3, 10, '2012-04-15', null, null, null);";
+          cmd.ExecuteNonQuery();
 
-        cmd.CommandText = "SELECT cam.no_serie, t.mnt FROM trx t LEFT JOIN camn cam USING(id_camn) ";
-        MySqlDataReader dr = cmd.ExecuteReader();
-        DataTable dataTable = new DataTable();
-        DataSet ds = new DataSet();
-        dataTable.Load( dr );
-        dr.Close();
-      }
-      finally
-      {
-        con.Close();
+          cmd.CommandText = "SELECT cam.no_serie, t.mnt FROM trx t LEFT JOIN camn cam USING(id_camn) ";
+          MySqlDataReader dr = cmd.ExecuteReader();
+          DataTable dataTable = new DataTable();
+          DataSet ds = new DataSet();
+          dataTable.Load(dr);
+          dr.Close();
+        }
+        finally
+        {
+          con.Close();
+        }
       }
     }
 #endif

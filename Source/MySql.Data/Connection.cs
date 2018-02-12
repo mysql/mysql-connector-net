@@ -1,4 +1,4 @@
-// Copyright © 2004, 2014, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -84,11 +84,7 @@ namespace MySql.Data.MySqlClient
     #region Destructor
     ~MySqlConnection()
     {
-#if !RT
       Dispose(false);
-#else
-      Dispose();
-#endif
     }
     #endregion
 
@@ -798,21 +794,11 @@ namespace MySql.Data.MySqlClient
 #endif
     }
 
-#if !RT
     public void Dispose()
     {
       Dispose(true);
       GC.SuppressFinalize(this);
     }
-#else
-    public void Dispose()
-    {
-      if (State == ConnectionState.Open)
-        Close();
-
-      GC.SuppressFinalize(this);
-    }
-#endif
 
 #if NET_40_OR_GREATER
     #region Async

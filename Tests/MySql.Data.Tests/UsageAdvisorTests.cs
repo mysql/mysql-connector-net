@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -29,33 +29,28 @@ using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class UsageAdvisorTests : IUseFixture<SetUpClass>, IDisposable
+  public class UsageAdvisorTests : BaseFixture
   {
-    private SetUpClass st;
-
-    public void SetFixture(SetUpClass data)
+    public override void SetFixture(SetUpClassPerTestInit fixture)
     {
-      st = data;
-      st.csAdditions = ";Usage Advisor=true;";
-      if (st.conn.connectionState != ConnectionState.Closed)
-        st.conn.Close();
-      st.conn.ConnectionString += st.csAdditions;
-      st.conn.Open();
-      st.createTable("CREATE TABLE Test (id int, name VARCHAR(200))", "INNODB");
+      fixture.csAdditions = ";Usage Advisor=true;";
+      base.SetFixture(fixture);
+      _fixture.createTable("CREATE TABLE Test (id int, name VARCHAR(200))", "INNODB");
     }
 
-    public void Dispose()
+    protected override void Dispose(bool disposing)
     {
-      st.execSQL("DROP TABLE IF EXISTS TEST");
+      _fixture.execSQL("DROP TABLE IF EXISTS TEST");
+      base.Dispose(disposing);
     }
 
     [Fact]
     public void NotReadingEveryField()
     {
-      st.execSQL("INSERT INTO Test VALUES (1, 'Test1')");
-      st.execSQL("INSERT INTO Test VALUES (2, 'Test2')");
-      st.execSQL("INSERT INTO Test VALUES (3, 'Test3')");
-      st.execSQL("INSERT INTO Test VALUES (4, 'Test4')");
+      _fixture.execSQL("INSERT INTO Test VALUES (1, 'Test1')");
+      _fixture.execSQL("INSERT INTO Test VALUES (2, 'Test2')");
+      _fixture.execSQL("INSERT INTO Test VALUES (3, 'Test3')");
+      _fixture.execSQL("INSERT INTO Test VALUES (4, 'Test4')");
 
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
@@ -63,7 +58,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlTrace.Listeners.Add(listener);
 
       string sql = "SELECT * FROM Test; SELECT * FROM Test WHERE id > 2";
-      MySqlCommand cmd = new MySqlCommand(sql, st.conn);
+      MySqlCommand cmd = new MySqlCommand(sql, _fixture.conn);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -93,17 +88,17 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void NotReadingEveryRow()
     {
-      st.execSQL("INSERT INTO Test VALUES (1, 'Test1')");
-      st.execSQL("INSERT INTO Test VALUES (2, 'Test2')");
-      st.execSQL("INSERT INTO Test VALUES (3, 'Test3')");
-      st.execSQL("INSERT INTO Test VALUES (4, 'Test4')");
+      _fixture.execSQL("INSERT INTO Test VALUES (1, 'Test1')");
+      _fixture.execSQL("INSERT INTO Test VALUES (2, 'Test2')");
+      _fixture.execSQL("INSERT INTO Test VALUES (3, 'Test3')");
+      _fixture.execSQL("INSERT INTO Test VALUES (4, 'Test4')");
 
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
       GenericListener listener = new GenericListener();
       MySqlTrace.Listeners.Add(listener);
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test; SELECT * FROM Test WHERE id > 2", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test; SELECT * FROM Test WHERE id > 2", _fixture.conn);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -130,14 +125,14 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void FieldConversion()
     {
-      st.execSQL("INSERT INTO Test VALUES (1, 'Test1')");
+      _fixture.execSQL("INSERT INTO Test VALUES (1, 'Test1')");
 
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
       GenericListener listener = new GenericListener();
       MySqlTrace.Listeners.Add(listener);
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", _fixture.conn);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -157,17 +152,17 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void NoIndexUsed()
     {
-      st.execSQL("INSERT INTO Test VALUES (1, 'Test1')");
-      st.execSQL("INSERT INTO Test VALUES (2, 'Test1')");
-      st.execSQL("INSERT INTO Test VALUES (3, 'Test1')");
-      st.execSQL("INSERT INTO Test VALUES (4, 'Test1')");
+      _fixture.execSQL("INSERT INTO Test VALUES (1, 'Test1')");
+      _fixture.execSQL("INSERT INTO Test VALUES (2, 'Test1')");
+      _fixture.execSQL("INSERT INTO Test VALUES (3, 'Test1')");
+      _fixture.execSQL("INSERT INTO Test VALUES (4, 'Test1')");
 
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
       GenericListener listener = new GenericListener();
       MySqlTrace.Listeners.Add(listener);
 
-      MySqlCommand cmd = new MySqlCommand("SELECT name FROM Test WHERE id=3", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT name FROM Test WHERE id=3", _fixture.conn);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -184,19 +179,19 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void BadIndexUsed()
     {
-      st.execSQL("DROP TABLE IF EXISTS Test");
-      st.execSQL("CREATE TABLE Test(id INT, name VARCHAR(20) PRIMARY KEY)");
-      st.execSQL("INSERT INTO Test VALUES (1, 'Test1')");
-      st.execSQL("INSERT INTO Test VALUES (2, 'Test2')");
-      st.execSQL("INSERT INTO Test VALUES (3, 'Test3')");
-      st.execSQL("INSERT INTO Test VALUES (4, 'Test4')");
+      _fixture.execSQL("DROP TABLE IF EXISTS Test");
+      _fixture.execSQL("CREATE TABLE Test(id INT, name VARCHAR(20) PRIMARY KEY)");
+      _fixture.execSQL("INSERT INTO Test VALUES (1, 'Test1')");
+      _fixture.execSQL("INSERT INTO Test VALUES (2, 'Test2')");
+      _fixture.execSQL("INSERT INTO Test VALUES (3, 'Test3')");
+      _fixture.execSQL("INSERT INTO Test VALUES (4, 'Test4')");
 
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
       GenericListener listener = new GenericListener();
       MySqlTrace.Listeners.Add(listener);
 
-      MySqlCommand cmd = new MySqlCommand("SELECT name FROM Test WHERE id=3", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT name FROM Test WHERE id=3", _fixture.conn);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();

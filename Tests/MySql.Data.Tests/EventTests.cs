@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -28,28 +28,27 @@ using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class EventTests : IUseFixture<SetUpClass>, IDisposable
+  public class EventTests : BaseFixture
   {
-    private SetUpClass st;
-
-    public void SetFixture(SetUpClass data)
+    public override void SetFixture(SetUpClassPerTestInit fixture)
     {
-      st = data;  
+      base.SetFixture(fixture);
     }
 
-    public void Dispose()
+    protected override void Dispose(bool disposing)
     {
-      st.execSQL("DROP TABLE IF EXISTS TEST");
+      _fixture.execSQL("DROP TABLE IF EXISTS TEST");
+      base.Dispose(disposing);
     }
 
     [Fact]
     public void Warnings()
     {
-      if (st.Version < new Version(4, 1)) return;
+      if (_fixture.Version < new Version(4, 1)) return;
 
-      st.execSQL("CREATE TABLE Test (name VARCHAR(10))");
+      _fixture.execSQL("CREATE TABLE Test (name VARCHAR(10))");
 
-      string connStr = st.GetConnectionString(true);
+      string connStr = _fixture.GetConnectionString(true);
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -74,10 +73,11 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void StateChange()
     {
-      MySqlConnection c = new MySqlConnection(st.GetConnectionString(true));
-      c.StateChange += new StateChangeEventHandler(StateChangeHandler);
-      c.Open();
-      c.Close();
+      using (MySqlConnection c = new MySqlConnection(_fixture.GetConnectionString(true)))
+      {
+        c.StateChange += new StateChangeEventHandler(StateChangeHandler);
+        c.Open();
+      }
     }
 
     private void StateChangeHandler(object sender, StateChangeEventArgs e)

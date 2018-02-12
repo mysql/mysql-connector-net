@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -27,28 +27,27 @@ using Xunit;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class LanguageTests : IUseFixture<SetUpClass>, IDisposable
+  public class LanguageTests : BaseFixture
   {
-    private SetUpClass st;
-
-    public void SetFixture(SetUpClass data)
+    public override void SetFixture(SetUpClassPerTestInit fixture)
     {
-      st = data;
+      base.SetFixture(fixture);
     }
 
-    public void Dispose()
+    protected override void Dispose(bool disposing)
     {
-      st.execSQL("DROP TABLE IF EXISTS TEST");
+      _fixture.execSQL("DROP TABLE IF EXISTS TEST");
+      base.Dispose(disposing);
     }
 
     [Fact]
     public void Unicode()
     {
-      if (st.Version < new Version(4, 1)) return;
+      if (_fixture.Version < new Version(4, 1)) return;
 
-      st.execSQL("CREATE TABLE Test (u2 varchar(255) CHARACTER SET ucs2)");
+      _fixture.execSQL("CREATE TABLE Test (u2 varchar(255) CHARACTER SET ucs2)");
 
-      using (MySqlConnection c = new MySqlConnection(st.conn.ConnectionString + ";charset=utf8"))
+      using (MySqlConnection c = new MySqlConnection(_fixture.conn.ConnectionString + ";charset=utf8"))
       {
         c.Open();
 
@@ -71,7 +70,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void CP932()
     {
-      using (MySqlConnection c = new MySqlConnection(st.GetConnectionString(true) + ";charset=cp932"))
+      using (MySqlConnection c = new MySqlConnection(_fixture.GetConnectionString(true) + ";charset=cp932"))
       {
         c.Open();
 
@@ -84,11 +83,11 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void UTF8()
     {
-      if (st.Version < new Version(4, 1)) return;
+      if (_fixture.Version < new Version(4, 1)) return;
 
-      st.execSQL("CREATE TABLE Test (id int, name VARCHAR(200) CHAR SET utf8)");
+      _fixture.execSQL("CREATE TABLE Test (id int, name VARCHAR(200) CHAR SET utf8)");
 
-      using (MySqlConnection c = new MySqlConnection(st.conn.ConnectionString + ";charset=utf8"))
+      using (MySqlConnection c = new MySqlConnection(_fixture.conn.ConnectionString + ";charset=utf8"))
       {
         c.Open();
 
@@ -142,11 +141,11 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void UTF8PreparedAndUsingParameters()
     {
-      if (st.Version < new Version(4, 1)) return;
+      if (_fixture.Version < new Version(4, 1)) return;
 
-      st.execSQL("CREATE TABLE Test (name VARCHAR(200) CHAR SET utf8)");
+      _fixture.execSQL("CREATE TABLE Test (name VARCHAR(200) CHAR SET utf8)");
 
-      using (MySqlConnection c = new MySqlConnection(st.conn.ConnectionString + ";charset=utf8"))
+      using (MySqlConnection c = new MySqlConnection(_fixture.conn.ConnectionString + ";charset=utf8"))
       {
         c.Open();
 
@@ -204,13 +203,13 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Chinese()
     {
-      if (st.Version < new Version(4, 1)) return;
+      if (_fixture.Version < new Version(4, 1)) return;
 
-      using (MySqlConnection c = new MySqlConnection(st.conn.ConnectionString + ";charset=utf8"))
+      using (MySqlConnection c = new MySqlConnection(_fixture.conn.ConnectionString + ";charset=utf8"))
       {
         c.Open();
 
-        st.execSQL("CREATE TABLE Test (id int, name VARCHAR(200) CHAR SET big5, name2 VARCHAR(200) CHAR SET gb2312)");
+        _fixture.execSQL("CREATE TABLE Test (id int, name VARCHAR(200) CHAR SET big5, name2 VARCHAR(200) CHAR SET gb2312)");
 
         MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1, '困巫忘否役', '涝搞谷侪魍' )", c);
         cmd.ExecuteNonQuery();
@@ -228,11 +227,11 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Turkish()
     {
-      if (st.Version < new Version(4, 1)) return;
+      if (_fixture.Version < new Version(4, 1)) return;
 
-      st.execSQL("CREATE TABLE Test (id int, name VARCHAR(200) CHAR SET latin5 )");
+      _fixture.execSQL("CREATE TABLE Test (id int, name VARCHAR(200) CHAR SET latin5 )");
 
-      using (MySqlConnection c = new MySqlConnection(st.conn.ConnectionString + ";charset=utf8"))
+      using (MySqlConnection c = new MySqlConnection(_fixture.conn.ConnectionString + ";charset=utf8"))
       {
         c.Open();
 
@@ -252,11 +251,11 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Russian()
     {
-      if (st.Version < new Version(4, 1)) return;
+      if (_fixture.Version < new Version(4, 1)) return;
 
-      st.execSQL("CREATE TABLE Test (id int, name VARCHAR(200) CHAR SET cp1251)");
+      _fixture.execSQL("CREATE TABLE Test (id int, name VARCHAR(200) CHAR SET cp1251)");
 
-      using (MySqlConnection c = new MySqlConnection(st.conn.ConnectionString + ";charset=utf8"))
+      using (MySqlConnection c = new MySqlConnection(_fixture.conn.ConnectionString + ";charset=utf8"))
       {
         c.Open();
 
@@ -275,13 +274,13 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void VariousCollations()
     {
-      if (st.Version < new Version(4, 1)) return;
+      if (_fixture.Version < new Version(4, 1)) return;
       
-      st.execSQL("DROP TABLE IF EXISTS test_tb");
-      st.createTable(@"CREATE TABLE `test_tbl`(`test` VARCHAR(255) NOT NULL) 
+      _fixture.execSQL("DROP TABLE IF EXISTS test_tb");
+      _fixture.createTable(@"CREATE TABLE `test_tbl`(`test` VARCHAR(255) NOT NULL) 
                             CHARACTER SET utf8 COLLATE utf8_swedish_ci", "MYISAM");
-      st.execSQL("INSERT INTO test_tbl VALUES ('myval')");
-      MySqlCommand cmd = new MySqlCommand("SELECT test FROM test_tbl", st.conn);
+      _fixture.execSQL("INSERT INTO test_tbl VALUES ('myval')");
+      MySqlCommand cmd = new MySqlCommand("SELECT test FROM test_tbl", _fixture.conn);
       cmd.ExecuteScalar();
     }
 
@@ -291,11 +290,11 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void UTF8Parameters()
     {
-      st.execSQL("CREATE TABLE test (id int(11) NOT NULL, " +
+      _fixture.execSQL("CREATE TABLE test (id int(11) NOT NULL, " +
           "value varchar(100) NOT NULL, PRIMARY KEY (id)) " +
           "ENGINE=MyISAM DEFAULT CHARSET=utf8");
 
-      string conString = st.GetConnectionString(true) + ";charset=utf8";
+      string conString = _fixture.GetConnectionString(true) + ";charset=utf8";
       using (MySqlConnection con = new MySqlConnection(conString))
       {
         con.Open();

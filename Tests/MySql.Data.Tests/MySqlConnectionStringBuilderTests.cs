@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -27,18 +27,16 @@ using Xunit;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class MySqlConnectionStringBuilderTests : IUseFixture<SetUpClass>, IDisposable
+  public class MySqlConnectionStringBuilderTests : BaseFixture
   {
-    private SetUpClass st;
-
-    public void SetFixture(SetUpClass data)
+    public override void SetFixture(SetUpClassPerTestInit fixture)
     {
-      st = data;
+      base.SetFixture(fixture);
     }
 
-    public void Dispose()
+    protected override void Dispose(bool disposing)
     {
-       //Nothing to clean
+      base.Dispose(disposing);
     }
 
     [Fact]

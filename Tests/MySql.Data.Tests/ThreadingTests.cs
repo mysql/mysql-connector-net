@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2018 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -29,26 +29,25 @@ using System.Collections;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class ThreadingTests : IUseFixture<SetUpClass>, IDisposable
+  public class ThreadingTests : BaseFixture
   {
-    private SetUpClass st;
-
-    public void SetFixture(SetUpClass data)
+    public override void SetFixture(SetUpClassPerTestInit fixture)
     {
-      st = data;
+      base.SetFixture(fixture);
       TableCache.DumpCache();
     }
 
-    public void Dispose()
+    protected override void Dispose(bool disposing)
     {
-      st.execSQL("DROP TABLE IF EXISTS TEST");
+      _fixture.execSQL("DROP TABLE IF EXISTS TEST");
+      base.Dispose(disposing);
     }
 
     private void MultipleThreadsWorker(object ev)
     {
       (ev as ManualResetEvent).WaitOne();
 
-      using (MySqlConnection c = new MySqlConnection(st.GetConnectionString(true)))
+      using (MySqlConnection c = new MySqlConnection(_fixture.GetConnectionString(true)))
       {
         c.Open();
       }
@@ -95,7 +94,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       try
       {
-        using (MySqlConnection c = new MySqlConnection(st.GetConnectionString(true)))
+        using (MySqlConnection c = new MySqlConnection(_fixture.GetConnectionString(true)))
         {
           c.Open();
           MySqlCommand cmd = new MySqlCommand(

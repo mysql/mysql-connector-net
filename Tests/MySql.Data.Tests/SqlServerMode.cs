@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -29,32 +29,27 @@ using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class SqlServerMode : IUseFixture<SetUpClass>, IDisposable
+  public class SqlServerMode : BaseFixture
   {
-    private SetUpClass st;
-
-    public void SetFixture(SetUpClass data)
+    public override void SetFixture(SetUpClassPerTestInit fixture)
     {
-      st = data;
-      st.csAdditions += ";sqlservermode=yes;";
-      if (st.conn.connectionState == ConnectionState.Open)
-        st.conn.Close();
-      st.conn.ConnectionString += st.csAdditions;
-      st.conn.Open();
+      fixture.csAdditions += ";sqlservermode=yes;";
+      base.SetFixture(fixture);
     }
 
-    public void Dispose()
+    protected override void Dispose(bool disposing)
     {
-      st.execSQL("DROP TABLE IF EXISTS TEST");
-    }    
+      _fixture.execSQL("DROP TABLE IF EXISTS TEST");
+      base.Dispose(disposing);
+    }
 
     [Fact]
     public void Simple()
     {
-      st.execSQL("CREATE TABLE Test (id INT, name VARCHAR(20))");
-      st.execSQL("INSERT INTO Test VALUES (1, 'A')");
+      _fixture.execSQL("CREATE TABLE Test (id INT, name VARCHAR(20))");
+      _fixture.execSQL("INSERT INTO Test VALUES (1, 'A')");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT [id], [name] FROM [Test]", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT [id], [name] FROM [Test]", _fixture.conn);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();

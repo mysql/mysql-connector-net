@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -28,42 +28,36 @@ using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class Syntax2 : IUseFixture<SetUpClass>, IDisposable
+  public class Syntax2 : BaseFixture
   {
-    private SetUpClass st;
-
     private string connString = string.Empty;
 
     public string conn
     {
       get
       {
-        connString = st.conn.ConnectionString;
-        connString += st.csAdditions;
+        connString = _fixture.conn.ConnectionString;
+        connString += _fixture.csAdditions;
         return connString;
       }
     }
 
-
-    public void SetFixture(SetUpClass data)
+    public override void SetFixture(SetUpClassPerTestInit fixture)
     {
-      st = data;
-      st.csAdditions += ";logging=true;";
-      if (st.conn.connectionState != ConnectionState.Closed)
-        st.conn.Close();
-      st.conn.ConnectionString += st.csAdditions;
-      st.conn.Open();
+      fixture.csAdditions += ";logging=true;";
+      base.SetFixture(fixture);
     }
 
-    public void Dispose()
+    protected override void Dispose(bool disposing)
     {
-      st.execSQL("DROP TABLE IF EXISTS TEST");
+      _fixture.execSQL("DROP TABLE IF EXISTS TEST");
+      base.Dispose(disposing);
     }
 
     [Fact]
     public void CommentsInSQL()
     {
-      st.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      _fixture.execSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
       string sql = "INSERT INTO Test /* my table */ VALUES (1 /* this is the id */, 'Test' );" +
         "/* These next inserts are just for testing \r\n" +
         "   comments */\r\n" +
@@ -72,10 +66,10 @@ namespace MySql.Data.MySqlClient.Tests
         "Test VALUES (2, 'Test2')";
 
       
-      MySqlCommand cmd = new MySqlCommand(sql, st.conn);
+      MySqlCommand cmd = new MySqlCommand(sql, _fixture.conn);
       cmd.ExecuteNonQuery();
 
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", st.conn);
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", _fixture.conn);
       DataTable table = new DataTable();
       da.Fill(table);
       Assert.Equal(1, table.Rows[0]["id"]);
@@ -88,8 +82,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void LastInsertid()
     {
-      st.execSQL("CREATE TABLE Test(id int auto_increment, name varchar(20), primary key(id))");
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(NULL, 'test')", st.conn);
+      _fixture.execSQL("CREATE TABLE Test(id int auto_increment, name varchar(20), primary key(id))");
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(NULL, 'test')", _fixture.conn);
       cmd.ExecuteNonQuery();
       Assert.Equal(1, cmd.LastInsertedId);
 
@@ -107,14 +101,14 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ParsingBugTest()
     {
-      if (st.Version.Major < 5) return;
+      if (_fixture.Version.Major < 5) return;
 
-      st.execSQL("DROP FUNCTION IF EXISTS `TestFunction`");
-      st.execSQL(@"CREATE FUNCTION `TestFunction`(A INTEGER (11), B INTEGER (11), C VARCHAR (20)) 
+      _fixture.execSQL("DROP FUNCTION IF EXISTS `TestFunction`");
+      _fixture.execSQL(@"CREATE FUNCTION `TestFunction`(A INTEGER (11), B INTEGER (11), C VARCHAR (20)) 
           RETURNS int(11)
           RETURN 1");
 
-      MySqlCommand command = new MySqlCommand("TestFunction", st.conn);
+      MySqlCommand command = new MySqlCommand("TestFunction", _fixture.conn);
       command.CommandType = CommandType.StoredProcedure;
       command.CommandText = "TestFunction";
       command.Parameters.AddWithValue("@A", 1);
@@ -130,9 +124,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void EscapedBackslash()
     {
-      st.execSQL("CREATE TABLE Test(id INT, name VARCHAR(20))");
+      _fixture.execSQL("CREATE TABLE Test(id INT, name VARCHAR(20))");
 
-      MySqlCommand cmd = new MySqlCommand(@"INSERT INTO Test VALUES (1, '\\=\\')", st.conn);
+      MySqlCommand cmd = new MySqlCommand(@"INSERT INTO Test VALUES (1, '\\=\\')", _fixture.conn);
       cmd.ExecuteNonQuery();
     }
   }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -31,33 +31,33 @@ using System.Data;
 #if !MONO
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class PerfMonTests : IUseFixture<SetUpClass>, IDisposable
+  public class PerfMonTests : BaseFixture
   {
-
-    protected SetUpClass st;
     private string _connString = string.Empty;
 
     public string conn
     {
       get
       {
-        _connString = st.conn.ConnectionString;
-        _connString += st.csAdditions;
+        _connString = _fixture.conn.ConnectionString;
+        _connString += _fixture.csAdditions;
         return _connString;
       }
     }
 
-    public void SetFixture(SetUpClass data)
+    public override void SetFixture(SetUpClassPerTestInit fixture)
     {
-      st = data;
-      st.csAdditions = ";use performance monitor=true;";
-      st.execSQL("CREATE TABLE Test (id INT, name VARCHAR(100))");
+      fixture.csAdditions = ";use performance monitor=true;";
+      base.SetFixture(fixture);
+      _fixture.execSQL("CREATE TABLE Test (id INT, name VARCHAR(100))");
     }
 
-    public void Dispose()
+    protected override void Dispose(bool disposing)
     {
-      st.execSQL("DROP TABLE IF EXISTS TEST");
+      _fixture.execSQL("DROP TABLE IF EXISTS TEST");
+      base.Dispose(disposing);
     }
+
     /// <summary>
     /// This test doesn't work from the CI setup currently
     /// </summary>
@@ -67,10 +67,10 @@ namespace MySql.Data.MySqlClient.Tests
       //TODO: Check this test
       return;
       
-      if (st.Version < new Version(5, 0)) return;      
+      if (_fixture.Version < new Version(5, 0)) return;      
 
-      st.execSQL("DROP PROCEDURE IF EXISTS spTest");
-      st.execSQL("CREATE PROCEDURE spTest(id int) BEGIN END");
+      _fixture.execSQL("DROP PROCEDURE IF EXISTS spTest");
+      _fixture.execSQL("CREATE PROCEDURE spTest(id int) BEGIN END");
 
       PerformanceCounter hardQuery = new PerformanceCounter(
          ".NET Data Provider for MySQL", "HardProcedureQueries", true);
@@ -79,7 +79,7 @@ namespace MySql.Data.MySqlClient.Tests
       long hardCount = hardQuery.RawValue;
       long softCount = softQuery.RawValue;
 
-      MySqlCommand cmd = new MySqlCommand("spTest", st.conn);
+      MySqlCommand cmd = new MySqlCommand("spTest", _fixture.conn);
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.Parameters.AddWithValue("?id", 1);
       cmd.ExecuteScalar();
@@ -88,7 +88,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(softCount, softQuery.RawValue);
       hardCount = hardQuery.RawValue;
 
-      MySqlCommand cmd2 = new MySqlCommand("spTest", st.conn);
+      MySqlCommand cmd2 = new MySqlCommand("spTest", _fixture.conn);
       cmd2.CommandType = CommandType.StoredProcedure;
       cmd2.Parameters.AddWithValue("?id", 1);
       cmd2.ExecuteScalar();

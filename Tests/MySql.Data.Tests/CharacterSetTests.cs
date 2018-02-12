@@ -28,37 +28,43 @@ using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class CharacterSetTests : IUseFixture<SetUpClass>, IDisposable
+  public class CharacterSetTests : BaseFixture
   {
-    private SetUpClass st;
-
-    public void SetFixture(SetUpClass data)
+    public override void SetFixture(SetUpClassPerTestInit data)
     {
-      st = data;
+      base.SetFixture(data);
     }
 
-   [Fact]
+    protected override void Dispose(bool disposing)
+    {
+      _fixture.execSQL("DROP TABLE IF EXISTS TEST");
+      _fixture.execSQL("DROP TABLE IF EXISTS t62094");
+      base.Dispose(disposing);
+    }
+
+    [Fact]
     public void UseFunctions()
     {
-      st.execSQL("CREATE TABLE Test (valid char, UserCode varchar(100), password varchar(100)) CHARSET latin1");
+      _fixture.execSQL("CREATE TABLE Test (valid char, UserCode varchar(100), password varchar(100)) CHARSET latin1");
 
-      MySqlConnection c = new MySqlConnection(st.conn.ConnectionString + ";charset=latin1");
-      c.Open();
-      MySqlCommand cmd = new MySqlCommand("SELECT valid FROM Test WHERE Valid = 'Y' AND " +
-        "UserCode = 'username' AND Password = AES_ENCRYPT('Password','abc')", c);
-      cmd.ExecuteScalar();
-      c.Close();
+      using (MySqlConnection c = new MySqlConnection(_fixture.conn.ConnectionString + ";charset=latin1"))
+      {
+        c.Open();
+        MySqlCommand cmd = new MySqlCommand("SELECT valid FROM Test WHERE Valid = 'Y' AND " +
+          "UserCode = 'username' AND Password = AES_ENCRYPT('Password','abc')", c);
+        cmd.ExecuteScalar();
+      }
     }
 
    [Fact]
     public void VarBinary()
     {
-      if (st.Version < new Version(4, 1)) return;
+      if (_fixture.Version < new Version(4, 1)) return;
 
-      st.createTable("CREATE TABLE test (id int, name varchar(200) collate utf8_bin) charset utf8", "InnoDB");
-      st.execSQL("INSERT INTO test VALUES (1, 'Test1')");
+      _fixture.createTable("CREATE TABLE test (id int, name varchar(200) collate utf8_bin) charset utf8", "InnoDB");
+      _fixture.execSQL("INSERT INTO test VALUES (1, 'Test1')");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM test", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM test", _fixture.conn);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         Assert.True(reader.Read());
@@ -70,18 +76,19 @@ namespace MySql.Data.MySqlClient.Tests
    [Fact]
    public void Latin1Connection()
     {
-      if (st.Version < new Version(4, 1)) return;
+      if (_fixture.Version < new Version(4, 1)) return;
 
-      st.execSQL("CREATE TABLE Test (id INT, name VARCHAR(200)) CHARSET latin1");
-      st.execSQL("INSERT INTO Test VALUES( 1, _latin1 'Test')");
+      _fixture.execSQL("CREATE TABLE Test (id INT, name VARCHAR(200)) CHARSET latin1");
+      _fixture.execSQL("INSERT INTO Test VALUES( 1, _latin1 'Test')");
 
-      MySqlConnection c = new MySqlConnection(st.conn.ConnectionString + ";charset=latin1");
-      c.Open();
+      using (MySqlConnection c = new MySqlConnection(_fixture.conn.ConnectionString + ";charset=latin1"))
+      {
+        c.Open();
 
-      MySqlCommand cmd = new MySqlCommand("SELECT id FROM Test WHERE name LIKE 'Test'", c);
-      object id = cmd.ExecuteScalar();
-      Assert.Equal(1, id);
-      c.Close();
+        MySqlCommand cmd = new MySqlCommand("SELECT id FROM Test WHERE name LIKE 'Test'", c);
+        object id = cmd.ExecuteScalar();
+        Assert.Equal(1, id);
+      }
     }
 
  
@@ -92,11 +99,11 @@ namespace MySql.Data.MySqlClient.Tests
     public void GetSchemaOnUTF8()
     {
 
-      st.execSQL("CREATE TABLE Test(name VARCHAR(40) NOT NULL, name2 VARCHAR(20)) " +
+      _fixture.execSQL("CREATE TABLE Test(name VARCHAR(40) NOT NULL, name2 VARCHAR(20)) " +
         "CHARACTER SET utf8");
-      st.execSQL("INSERT INTO Test VALUES('Test', 'Test')");
+      _fixture.execSQL("INSERT INTO Test VALUES('Test', 'Test')");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM test", st.conn);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM test", _fixture.conn);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         DataTable dt = reader.GetSchemaTable();
@@ -109,13 +116,13 @@ namespace MySql.Data.MySqlClient.Tests
     public void UTF8BlogsTruncating()
     {
 
-      st.execSQL("DROP TABLE IF EXISTS test");
-      st.execSQL("CREATE TABLE test (name LONGTEXT) CHARSET utf8");
+      _fixture.execSQL("DROP TABLE IF EXISTS test");
+      _fixture.execSQL("CREATE TABLE test (name LONGTEXT) CHARSET utf8");
 
       string szParam = "test:éàçùêû";
       string szSQL = "INSERT INTO test Values (?monParametre)";
 
-      string connStr = st.GetConnectionString(true) + ";charset=utf8";
+      string connStr = _fixture.GetConnectionString(true) + ";charset=utf8";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -137,7 +144,7 @@ namespace MySql.Data.MySqlClient.Tests
    [Fact]
     public void BlobAsUtf8()
     {
-      st.execSQL(@"CREATE TABLE Test(include_blob BLOB, include_tinyblob TINYBLOB, 
+      _fixture.execSQL(@"CREATE TABLE Test(include_blob BLOB, include_tinyblob TINYBLOB, 
             include_longblob LONGBLOB, exclude_tinyblob TINYBLOB, exclude_blob BLOB, 
             exclude_longblob LONGBLOB)");
 
@@ -146,7 +153,7 @@ namespace MySql.Data.MySqlClient.Tests
       string utf8_string = utf8.GetString(utf8_bytes, 0, utf8_bytes.Length);
 
       // insert our UTF-8 bytes into the table
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?p1, ?p2, ?p3, ?p4, ?p5, ?p5)", st.conn);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?p1, ?p2, ?p3, ?p4, ?p5, ?p5)", _fixture.conn);
       cmd.Parameters.AddWithValue("?p1", utf8_bytes);
       cmd.Parameters.AddWithValue("?p2", utf8_bytes);
       cmd.Parameters.AddWithValue("?p3", utf8_bytes);
@@ -156,7 +163,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.ExecuteNonQuery();
 
       // now check that the on/off is working
-      string connStr = st.GetConnectionString(true) + ";Treat Blobs As UTF8=yes;BlobAsUTF8IncludePattern=.*";
+      string connStr = _fixture.GetConnectionString(true) + ";Treat Blobs As UTF8=yes;BlobAsUTF8IncludePattern=.*";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -173,7 +180,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
 
       // now check that exclusion works
-      connStr = st.GetConnectionString(true) + ";Treat Blobs As UTF8=yes;BlobAsUTF8ExcludePattern=exclude.*";
+      connStr = _fixture.GetConnectionString(true) + ";Treat Blobs As UTF8=yes;BlobAsUTF8ExcludePattern=exclude.*";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -193,7 +200,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
 
       // now check that inclusion works
-      connStr = st.GetConnectionString(true) + ";Treat Blobs As UTF8=yes;BlobAsUTF8IncludePattern=include.*";
+      connStr = _fixture.GetConnectionString(true) + ";Treat Blobs As UTF8=yes;BlobAsUTF8IncludePattern=include.*";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -220,7 +227,7 @@ namespace MySql.Data.MySqlClient.Tests
    [Fact]
     public void UTF8AsColumnNames()
     {
-      string connStr = st.GetConnectionString(true) + ";charset=utf8;pooling=false";
+      string connStr = _fixture.GetConnectionString(true) + ";charset=utf8;pooling=false";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -246,9 +253,9 @@ namespace MySql.Data.MySqlClient.Tests
    [Fact]
     public void NonLatin1Exception()
     {
-      string connStr = st.GetConnectionString(true) + ";charset=utf8";
+      string connStr = _fixture.GetConnectionString(true) + ";charset=utf8";
 
-      st.execSQL("CREATE TABLE Test (id int)");
+      _fixture.execSQL("CREATE TABLE Test (id int)");
 
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
@@ -272,7 +279,7 @@ namespace MySql.Data.MySqlClient.Tests
    [Fact]
     public void FunctionReturnsStringWithCharSet()
     {
-      string connStr = st.GetConnectionString(true) + ";functions return string=true";
+      string connStr = _fixture.GetConnectionString(true) + ";functions return string=true";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -291,9 +298,9 @@ namespace MySql.Data.MySqlClient.Tests
    [Fact]
     public void RespectBinaryFlags()
     {
-      if (st.conn.driver.Version.isAtLeast(5,5,0)) return;
+      if (_fixture.conn.driver.Version.isAtLeast(5,5,0)) return;
 
-      string connStr = st.GetConnectionString(true) + ";respect binary flags=true";
+      string connStr = _fixture.GetConnectionString(true) + ";respect binary flags=true";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -304,7 +311,7 @@ namespace MySql.Data.MySqlClient.Tests
         da.Fill(dt);
         Assert.True(dt.Rows[0][0] is byte[]);
       }
-      connStr = st.GetConnectionString(true) + ";respect binary flags=false";
+      connStr = _fixture.GetConnectionString(true) + ";respect binary flags=false";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -321,10 +328,10 @@ namespace MySql.Data.MySqlClient.Tests
    [Fact]
     public void RussianErrorMessagesShowCorrectly()
     {
-      if (st.Version < new Version(5, 5))
+      if (_fixture.Version < new Version(5, 5))
         return;
 
-      string connectionString = st.GetConnectionString(true);
+      string connectionString = _fixture.GetConnectionString(true);
       using (MySqlConnection connection = new MySqlConnection(connectionString))
       {
         connection.Open();
@@ -360,10 +367,10 @@ namespace MySql.Data.MySqlClient.Tests
    [Fact]
     public void GetCharLengthInUTF8()
     {
-      st.execSQL(
+      _fixture.execSQL(
         @"CREATE TABLE `t62094` ( `id` int(11) NOT NULL, `name` char(1) DEFAULT NULL, 
                 `longname` char(20) DEFAULT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-      MySqlCommand cmd = new MySqlCommand("select * from t62094", st.conn);
+      MySqlCommand cmd = new MySqlCommand("select * from t62094", _fixture.conn);
       MySqlDataAdapter ad = new MySqlDataAdapter(cmd);
       DataSet ds = new DataSet();
       ad.Fill(ds);
@@ -379,7 +386,7 @@ namespace MySql.Data.MySqlClient.Tests
    [Fact]
    public void UsingUtf16()
    {
-     MySqlConnection con = new MySqlConnection(st.GetConnectionString(true));
+     MySqlConnection con = new MySqlConnection(_fixture.GetConnectionString(true));
      con.Open();
      try
      {
@@ -434,7 +441,7 @@ namespace MySql.Data.MySqlClient.Tests
      finally {
        MySqlCommand cmd = new MySqlCommand("drop table if exists `actor`", con);
        cmd.ExecuteNonQuery();
-       con.Close(); 
+       con.Dispose(); 
      }
    }
 
@@ -445,7 +452,7 @@ namespace MySql.Data.MySqlClient.Tests
    [Fact]
    public void UsingUtf32()
    {
-     MySqlConnection con = new MySqlConnection(st.GetConnectionString(true));
+     MySqlConnection con = new MySqlConnection(_fixture.GetConnectionString(true));
      con.Open();
      try
      {
@@ -500,7 +507,7 @@ namespace MySql.Data.MySqlClient.Tests
      finally {
        MySqlCommand cmd = new MySqlCommand("drop table if exists `actor`", con);
        cmd.ExecuteNonQuery();
-       con.Close(); 
+       con.Dispose(); 
      }
    }
 
@@ -514,12 +521,12 @@ namespace MySql.Data.MySqlClient.Tests
    [Fact]   
    public void CanInsertChineseCharacterSetGB18030()
    {         
-      if (st.Version < new Version(5, 7, 4)) return;
+      if (_fixture.Version < new Version(5, 7, 4)) return;
 
       try
       {
-          st.execSQL("CREATE TABLE Test (id int, name VARCHAR(100) CHAR SET gb18030, KEY(name(20)))");
-          using (MySqlConnection c = new MySqlConnection(st.conn.ConnectionString + ";charset=gb18030"))
+          _fixture.execSQL("CREATE TABLE Test (id int, name VARCHAR(100) CHAR SET gb18030, KEY(name(20)))");
+          using (MySqlConnection c = new MySqlConnection(_fixture.conn.ConnectionString + ";charset=gb18030"))
           {
               c.Open();
               MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1, '㭋玤䂜蚌')", c);
@@ -539,7 +546,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
       finally
       {
-          st.execSQL("drop table if exists `Test`");          
+          _fixture.execSQL("drop table if exists `Test`");          
       }
    }
 
@@ -553,9 +560,9 @@ namespace MySql.Data.MySqlClient.Tests
    [Fact]
    public void CanCreateDbUsingChineseCharacterSetGB18030()
    {
-     if (st.Version < new Version(5, 7, 4)) return;
+     if (_fixture.Version < new Version(5, 7, 4)) return;
 
-     MySqlConnectionStringBuilder rootSb = new MySqlConnectionStringBuilder(st.rootConn.ConnectionString);
+     MySqlConnectionStringBuilder rootSb = new MySqlConnectionStringBuilder(_fixture.rootConn.ConnectionString);
      rootSb.CharacterSet = "gb18030";
      using (MySqlConnection rootConnection = new MySqlConnection(rootSb.ToString()))
      {
@@ -588,20 +595,12 @@ namespace MySql.Data.MySqlClient.Tests
    }
 
 
-
-
-   public void Dispose()
-   {
-     st.execSQL("DROP TABLE IF EXISTS TEST");
-     st.execSQL("DROP TABLE IF EXISTS t62094");   
-   }
-
    [Fact]
    public void UTF16LETest()
    {
-     if (st.Version < new Version(5, 6)) return;
+     if (_fixture.Version < new Version(5, 6)) return;
 
-     using (MySqlDataReader reader = st.execReader("select _utf16le 'utf16le test';"))
+     using (MySqlDataReader reader = _fixture.execReader("select _utf16le 'utf16le test';"))
      {
        while (reader.Read())
        {
@@ -613,7 +612,7 @@ namespace MySql.Data.MySqlClient.Tests
    [Fact]
    public void GEOSTD8Test()
    {
-     MySqlConnection dbconn = new MySqlConnection(st.GetConnectionString(false));
+     MySqlConnection dbconn = new MySqlConnection(_fixture.GetConnectionString(false));
      try
      {
        using (MySqlCommand cmd = new MySqlCommand("select _geostd8 'geostd8 test';", dbconn))
@@ -643,14 +642,14 @@ namespace MySql.Data.MySqlClient.Tests
      }
      finally
      {
-       dbconn.Close();
+       dbconn.Dispose();
      }
    }
 
    [Fact]
    public void ExtendedCharsetOnConnection()
    {
-     MySqlConnectionStringBuilder rootSb = new MySqlConnectionStringBuilder(st.rootConn.ConnectionString);
+     MySqlConnectionStringBuilder rootSb = new MySqlConnectionStringBuilder(_fixture.rootConn.ConnectionString);
      rootSb.CharacterSet = "utf8";
      using (MySqlConnection rootConnection = new MySqlConnection(rootSb.ToString()))
      {
@@ -665,7 +664,7 @@ namespace MySql.Data.MySqlClient.Tests
        rootCommand.CommandText += string.Format("GRANT ALL ON `{0}`.* to '{1}'@'localhost' identified by '{2}';", database, user, password);
        rootCommand.ExecuteNonQuery();
 
-       string connString = st.GetConnectionString(false);
+       string connString = _fixture.GetConnectionString(false);
        MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder(connString);
        sb.Database = database;
        sb.UserID = user;
@@ -693,7 +692,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void CharacterVariablesByDefault()
     {
-      MySqlConnectionStringBuilder rootSb = new MySqlConnectionStringBuilder(st.rootConn.ConnectionString);
+      MySqlConnectionStringBuilder rootSb = new MySqlConnectionStringBuilder(_fixture.rootConn.ConnectionString);
       rootSb.CharacterSet = string.Empty;
       using (MySqlConnection rootConnection = new MySqlConnection(rootSb.ToString()))
       {

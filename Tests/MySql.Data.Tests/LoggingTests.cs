@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2015 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -28,39 +28,39 @@ using System.Diagnostics;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class LoggingTests : IUseFixture<SetUpClass>, IDisposable
+  public class LoggingTests : BaseFixture
   {
-    private SetUpClass st;
     private string connString = string.Empty;
 
     public string conn
     {      
        get { 
-        connString = st.conn.ConnectionString;
-        connString += st.csAdditions;
+        connString = _fixture.conn.ConnectionString;
+        connString += _fixture.csAdditions;
         return connString;
       }
     }
 
-    public void SetFixture(SetUpClass data)
-    {      
-      st = data;
-      st.csAdditions = ";logging=True;";      
-      st.createTable("CREATE TABLE Test (id int, name VARCHAR(200))", "INNODB");      
+    public override void SetFixture(SetUpClassPerTestInit fixture)
+    {
+      fixture.csAdditions = ";logging=True;";
+      base.SetFixture(fixture);
+      _fixture.createTable("CREATE TABLE Test (id int, name VARCHAR(200))", "INNODB");
     }
 
-    public void Dispose()
+    protected override void Dispose(bool disposing)
     {
-      st.execSQL("DROP TABLE IF EXISTS TEST");
+      _fixture.execSQL("DROP TABLE IF EXISTS TEST");
+      base.Dispose(disposing);
     }
 
     [Fact]
     public void SimpleLogging()
     {
-      st.execSQL("INSERT INTO Test VALUES (1, 'Test1')");
-      st.execSQL("INSERT INTO Test VALUES (2, 'Test2')");
-      st.execSQL("INSERT INTO Test VALUES (3, 'Test3')");
-      st.execSQL("INSERT INTO Test VALUES (4, 'Test4')");
+      _fixture.execSQL("INSERT INTO Test VALUES (1, 'Test1')");
+      _fixture.execSQL("INSERT INTO Test VALUES (2, 'Test2')");
+      _fixture.execSQL("INSERT INTO Test VALUES (3, 'Test3')");
+      _fixture.execSQL("INSERT INTO Test VALUES (4, 'Test4')");
 
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
@@ -86,8 +86,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Warnings()
     {
-      st.execSQL("DROP TABLE IF EXISTS Test");
-      st.execSQL("CREATE TABLE Test(id INT, name VARCHAR(5))");
+      _fixture.execSQL("DROP TABLE IF EXISTS Test");
+      _fixture.execSQL("CREATE TABLE Test(id INT, name VARCHAR(5))");
 
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
