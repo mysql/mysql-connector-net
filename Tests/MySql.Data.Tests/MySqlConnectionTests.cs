@@ -47,10 +47,6 @@ namespace MySql.Data.MySqlClient.Tests
       }
 
       [Fact]
-      public void test()
-      { }
-
-      [Fact]
       public void TestConnectionStrings()
       {
           MySqlConnection c = new MySqlConnection();
