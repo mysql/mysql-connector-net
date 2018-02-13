@@ -1,4 +1,4 @@
-// Copyright © 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -531,6 +531,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact(Skip="Fix This")]
     public void TestMultipleResultsWithQueryCacheOn()
     {
+      //query_cache_type was deprecated in server 5.7.20.
+      if (Connection.driver.Version.isAtLeast(5,7,20)) return;
+
       CreateDefaultTable();
       executeSQL("SET SESSION query_cache_type = ON");
       executeSQL("INSERT INTO Test (id,name) VALUES (1, 'Test')");
