@@ -514,7 +514,7 @@ namespace MySql.Data.MySqlClient.Tests
       [Fact]
       public void ConnectInVariousWays()
       {
-        // Fails in 8.0+ since new validation takes place were user does not exist.
+        // Fails in 8.0+ since new validation takes place where user does not exist.
         if (st.conn.driver.Version.isAtLeast(8,0,1 )) return;
 
         // connect with no db
@@ -1408,7 +1408,7 @@ namespace MySql.Data.MySqlClient.Tests
           Assert.Contains("TLSv1", reader.GetString(1));
         }
 
-        command.CommandText = String.Format("SELECT `User`, `plugin` FROM `mysql`.`user` WHERE `User` = '{0}';", userName);
+        command.CommandText = string.Format("SELECT `User`, `plugin` FROM `mysql`.`user` WHERE `User` = '{0}';", userName);
         using (MySqlDataReader reader = command.ExecuteReader())
         {
           Assert.True(reader.Read());
@@ -1928,10 +1928,10 @@ namespace MySql.Data.MySqlClient.Tests
     {
       var pluginName = "mysql_native_password";
       var builder = new MySqlConnectionStringBuilder();
-      builder.UserID = "testNativeBlankPassword";
+      builder.UserID = "testNtvPass";
       builder.Password = "";
-      builder.Server = "localhost";
-      builder.Port = 3305;
+      builder.Server = st.conn.Settings.Server;
+      builder.Port = st.conn.Settings.Port;
       st.CreateUser(builder.UserID, builder.Password, pluginName);
 
       using (var connection = new MySqlConnection(builder.ConnectionString))
