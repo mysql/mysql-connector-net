@@ -1,23 +1,29 @@
-﻿// Copyright © 2017 Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2017, Oracle and/or its affiliates. All rights reserved.
 //
-// MySQL Connector/NET is licensed under the terms of the GPLv2
-// <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
-// MySQL Connectors. There are special exceptions to the terms and 
-// conditions of the GPLv2 as it is applied to this software, see the 
-// FLOSS License Exception
-// <http://www.mysql.com/about/legal/licensing/foss-exception.html>.
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License, version 2.0, as
+// published by the Free Software Foundation.
 //
-// This program is free software; you can redistribute it and/or modify 
-// it under the terms of the GNU General Public License as published 
-// by the Free Software Foundation; version 2 of the License.
+// This program is also distributed with certain software (including
+// but not limited to OpenSSL) that is licensed under separate terms,
+// as designated in a particular file or component or in included license
+// documentation.  The authors of MySQL hereby grant you an
+// additional permission to link the program and your derivative works
+// with the separately licensed software that they have included with
+// MySQL.
 //
-// This program is distributed in the hope that it will be useful, but 
-// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-// or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
-// for more details.
+// Without limiting anything contained in the foregoing, this file,
+// which is part of MySQL Connector/NET, is also subject to the
+// Universal FOSS Exception, version 1.0, a copy of which can be found at
+// http://oss.oracle.com/licenses/universal-foss-exception.
 //
-// You should have received a copy of the GNU General Public License along 
-// with this program; if not, write to the Free Software Foundation, Inc., 
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License, version 2.0, for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
@@ -26,15 +32,15 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-#if NET_CORE
-using AliasText = MySql.Data.MySqlClient.Framework.NetCore10;
+#if NETSTANDARD1_6
+using AliasText = MySql.Data.MySqlClient.Framework.NetStandard1_6;
 #else
 using AliasText = System.Text;
 #endif
 
 public class MySqlPemReader
 {
-#if NETCORE10
+#if NETSTANDARD1_6
     public static RSA ConvertPemToRSAProvider(byte[] rawPublicKey)
 #else
     public static RSACryptoServiceProvider ConvertPemToRSAProvider(byte[] rawPublicKey)
@@ -44,7 +50,7 @@ public class MySqlPemReader
       return DecodeX509Key(decodedKey);
     }
 
-#if NETCORE10
+#if NETSTANDARD1_6
     static RSA DecodeX509Key(byte[] key)
 #else
     static RSACryptoServiceProvider DecodeX509Key(byte[] key)
@@ -126,7 +132,7 @@ public class MySqlPemReader
 
             // Read exponent.
             byte[] exponent = reader.ReadBytes(reader.ReadByte());
-#if NETCORE10
+#if NETSTANDARD1_6
             RSA rsa = RSA.Create();
 #else
             RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();

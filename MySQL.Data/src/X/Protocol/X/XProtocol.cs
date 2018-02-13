@@ -1,23 +1,29 @@
-﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
-// MySQL Connector/NET is licensed under the terms of the GPLv2
-// <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
-// MySQL Connectors. There are special exceptions to the terms and 
-// conditions of the GPLv2 as it is applied to this software, see the 
-// FLOSS License Exception
-// <http://www.mysql.com/about/legal/licensing/foss-exception.html>.
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License, version 2.0, as
+// published by the Free Software Foundation.
 //
-// This program is free software; you can redistribute it and/or modify 
-// it under the terms of the GNU General Public License as published 
-// by the Free Software Foundation; version 2 of the License.
+// This program is also distributed with certain software (including
+// but not limited to OpenSSL) that is licensed under separate terms,
+// as designated in a particular file or component or in included license
+// documentation.  The authors of MySQL hereby grant you an
+// additional permission to link the program and your derivative works
+// with the separately licensed software that they have included with
+// MySQL.
 //
-// This program is distributed in the hope that it will be useful, but 
-// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-// or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
-// for more details.
+// Without limiting anything contained in the foregoing, this file,
+// which is part of MySQL Connector/NET, is also subject to the
+// Universal FOSS Exception, version 1.0, a copy of which can be found at
+// http://oss.oracle.com/licenses/universal-foss-exception.
 //
-// You should have received a copy of the GNU General Public License along 
-// with this program; if not, write to the Free Software Foundation, Inc., 
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License, version 2.0, for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
@@ -44,6 +50,7 @@ using MySql.Data;
 using MySqlX;
 using System.IO;
 using Google.Protobuf;
+using static Mysqlx.Datatypes.Object.Types;
 
 namespace MySqlX.Protocol
 {
@@ -150,7 +157,7 @@ namespace MySqlX.Protocol
 
     public override void SendSQL(string sql, params object[] args)
     {
-      SendExecuteStatement("sql", sql, args);
+      SendExecuteSQLStatement(sql, args);
     }
 
     public override bool HasData(BaseResult rs)
@@ -255,6 +262,11 @@ namespace MySqlX.Protocol
       return ExprUtil.BuildAny(o);
     }
 
+    private ObjectField CreateObject(string key, object value, bool evaluateStringExpression = true)
+    {
+      return ExprUtil.BuildObject(key, value, evaluateStringExpression);
+    }
+
     public void SendSessionClose()
     {
       _writer.Write(ClientMessageId.SESS_CLOSE, new Mysqlx.Session.Close());
@@ -266,7 +278,22 @@ namespace MySqlX.Protocol
       _writer.Write(ClientMessageId.CON_CLOSE, connClose);
     }
 
-    public void SendExecuteStatement(string ns, string stmt, params object[] args)
+    public void SendExecuteSQLStatement(string stmt, params object[] args)
+    {
+      StmtExecute stmtExecute = new StmtExecute();
+      stmtExecute.Namespace = "sql";
+      stmtExecute.Stmt = ByteString.CopyFromUtf8(stmt);
+      stmtExecute.CompactMetadata = false;
+      if (args != null)
+      {
+        foreach (object arg in args)
+          stmtExecute.Args.Add(CreateAny(arg));
+      }
+
+      _writer.Write(ClientMessageId.SQL_STMT_EXECUTE, stmtExecute);
+    }
+
+    public void SendExecuteStatement(string ns, string stmt, params KeyValuePair<string, object>[] args)
     {
       StmtExecute stmtExecute = new StmtExecute();
       stmtExecute.Namespace = ns;
@@ -274,8 +301,61 @@ namespace MySqlX.Protocol
       stmtExecute.CompactMetadata = false;
       if (args != null)
       {
-        foreach (object arg in args)
-          stmtExecute.Args.Add(CreateAny(arg));
+        var any = ExprUtil.BuildEmptyAny(Any.Types.Type.Object);
+        foreach (var arg in args)
+        {
+          switch(stmt)
+          {
+            case "drop_collection_index":
+              any.Obj.Fld.Add(CreateObject(arg.Key, arg.Value, false));
+              break;
+            default:
+              any.Obj.Fld.Add(CreateObject(arg.Key, arg.Value));
+              break;
+          }
+        }
+
+        stmtExecute.Args.Add(any);
+      }
+
+      _writer.Write(ClientMessageId.SQL_STMT_EXECUTE, stmtExecute);
+    }
+
+    public void SendCreateCollectionIndexStatement(string ns, string stmt, params KeyValuePair<string, object>[] args)
+    {
+      StmtExecute stmtExecute = new StmtExecute();
+      stmtExecute.Namespace = ns;
+      stmtExecute.Stmt = ByteString.CopyFromUtf8(stmt);
+      stmtExecute.CompactMetadata = false;
+      if (args != null)
+      {
+        var any = ExprUtil.BuildEmptyAny(Any.Types.Type.Object);
+        var array = new Mysqlx.Datatypes.Array();
+        foreach (var arg in args)
+        {
+          if (arg.Value is Dictionary<string, object> && arg.Key=="constraint")
+          {
+            var innerAny = ExprUtil.BuildEmptyAny(Any.Types.Type.Object);
+            foreach (var field in arg.Value as Dictionary<string, object>)
+              innerAny.Obj.Fld.Add(CreateObject(field.Key, field.Value, field.Key == "member" ? true : false));
+
+            array.Value.Add(innerAny);
+          }
+          else
+            any.Obj.Fld.Add(CreateObject(arg.Key, arg.Value, false));
+        }
+
+        if (array.Value.Count>0)
+        {
+          var constraint = new ObjectField();
+          constraint.Key = "constraint";
+          var constraintAny = ExprUtil.BuildEmptyAny(Any.Types.Type.Array);
+          constraintAny.Array = array;
+          constraint.Value = constraintAny;
+          any.Obj.Fld.Add(constraint);
+        }
+
+        stmtExecute.Args.Add(any);
       }
 
       _writer.Write(ClientMessageId.SQL_STMT_EXECUTE, stmtExecute);
@@ -525,63 +605,6 @@ namespace MySqlX.Protocol
     {
       _reader = reader;
       _writer = writer;
-    }
-
-    internal void SendCreateView(string schema, string name, string definer, ViewAlgorithm algorithm, ViewSqlSecurity security, ViewCheckOption check, string[] columns, bool replace, QueryStatement queryStatement)
-    {
-      var builder = new CreateView();
-      builder.Collection = ExprUtil.BuildCollection(schema, name);
-      builder.Definer = definer;
-      builder.Algorithm = algorithm;
-      builder.Security = security;
-      builder.Check = check;
-      if (columns != null && columns.Length > 0)
-      {
-        foreach (string column in columns)
-        {
-          builder.Column.Add(column);
-        }
-      }
-      if(queryStatement != null)
-      {
-        builder.Stmt = CreateFindMessage(queryStatement.schema,
-          queryStatement.collection, queryStatement.isRelational,
-          queryStatement.filter, queryStatement.findParams);
-      }
-      builder.ReplaceExisting = replace;
-      _writer.Write((int)ClientMessages.Types.Type.CrudCreateView, builder);
-    }
-
-    internal void SendModifyView(string schema, string name, string definer, ViewAlgorithm algorithm, ViewSqlSecurity security, ViewCheckOption check, string[] columns, QueryStatement queryStatement)
-    {
-      var builder = new ModifyView();
-      builder.Collection = ExprUtil.BuildCollection(schema, name);
-      builder.Definer = definer;
-      builder.Algorithm = algorithm;
-      builder.Security = security;
-      builder.Check = check;
-      if (columns != null && columns.Length > 0)
-      {
-        foreach (string column in columns)
-        {
-          builder.Column.Add(column);
-        }
-      }
-      if (queryStatement != null)
-      {
-        builder.Stmt = CreateFindMessage(queryStatement.schema,
-          queryStatement.collection, queryStatement.isRelational,
-          queryStatement.filter, queryStatement.findParams);
-      }
-      _writer.Write((int)ClientMessages.Types.Type.CrudModifyView, builder);
-    }
-
-    internal void SendDropView(string schema, string name, bool ifExists)
-    {
-      var builder = new DropView();
-      builder.Collection = ExprUtil.BuildCollection(schema, name);
-      builder.IfExists = ifExists;
-      _writer.Write((int)ClientMessages.Types.Type.CrudDropView, builder);
     }
   }
 }

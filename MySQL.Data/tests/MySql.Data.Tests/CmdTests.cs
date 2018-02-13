@@ -1,23 +1,29 @@
-﻿// Copyright © 2013, 2015 Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2013, 2017, Oracle and/or its affiliates. All rights reserved.
 //
-// MySQL Connector/NET is licensed under the terms of the GPLv2
-// <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
-// MySQL Connectors. There are special exceptions to the terms and 
-// conditions of the GPLv2 as it is applied to this software, see the 
-// FLOSS License Exception
-// <http://www.mysql.com/about/legal/licensing/foss-exception.html>.
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License, version 2.0, as
+// published by the Free Software Foundation.
 //
-// This program is free software; you can redistribute it and/or modify 
-// it under the terms of the GNU General Public License as published 
-// by the Free Software Foundation; version 2 of the License.
+// This program is also distributed with certain software (including
+// but not limited to OpenSSL) that is licensed under separate terms,
+// as designated in a particular file or component or in included license
+// documentation.  The authors of MySQL hereby grant you an
+// additional permission to link the program and your derivative works
+// with the separately licensed software that they have included with
+// MySQL.
 //
-// This program is distributed in the hope that it will be useful, but 
-// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-// or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
-// for more details.
+// Without limiting anything contained in the foregoing, this file,
+// which is part of MySQL Connector/NET, is also subject to the
+// Universal FOSS Exception, version 1.0, a copy of which can be found at
+// http://oss.oracle.com/licenses/universal-foss-exception.
 //
-// You should have received a copy of the GNU General Public License along 
-// with this program; if not, write to the Free Software Foundation, Inc., 
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License, version 2.0, for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
@@ -121,7 +127,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("INSERT INTO Test (id,name) VALUES(11, 'Test2')");
 
       // do the update
-      MySqlCommand cmd = new MySqlCommand("UPDATE Test SET name='Test3' WHERE id=10 OR id=11", Connection);      
+      MySqlCommand cmd = new MySqlCommand("UPDATE Test SET name='Test3' WHERE id=10 OR id=11", Connection);
       int cnt = cmd.ExecuteNonQuery();
       Assert.Equal(2, cnt);
 
@@ -229,7 +235,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #12245  	using Prepare() on an insert command causes null parameters to convert to "0"
     /// </summary>
-    [Fact(Skip="Fix This")]
+    [Fact(Skip = "Fix This")]
     public virtual void InsertingPreparedNulls()
     {
       // executeSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
@@ -603,7 +609,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("valuein", cmd.Parameters[1].Value);
     }
 
-#if !NET_CORE
+#if NET452
     [Fact]
     public void ThrowingExceptions()
     {
@@ -613,12 +619,9 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("Unknown column 'xxx' in 'field list'", ex.Message);
     }
 #endif
+    #endregion
 
-#endregion
-
-
-#if !NETCORE10
-
+#if !NETCOREAPP1_1
     /// <summary>
     /// Bug #59616	Only INSERTs are batched
     /// </summary>
@@ -633,7 +636,7 @@ namespace MySql.Data.MySqlClient.Tests
       GenericListener listener = new GenericListener();
       MySqlTrace.Listeners.Add(listener);
 
-      var connectionStringCustom = Connection.ConnectionString; 
+      var connectionStringCustom = Connection.ConnectionString;
 
       MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(connectionStringCustom);
       connStr.AllowBatch = true;
@@ -687,7 +690,6 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand newCommand = cmd.Clone() as MySqlCommand;
       IDbCommand newCommand2 = (IDbCommand)(cmd as ICloneable).Clone();
     }
-
 #endif
   }
 }

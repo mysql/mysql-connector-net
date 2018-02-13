@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Design-time Entity Framework Core Functionality for MySQL Server.</Description>
+    <Copyright>Copyright © 2016, 2018 Oracle and/or its affiliates. All rights reserved.</Copyright>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <Version>8.0.10-rc</Version>
+    <Authors>Oracle</Authors>
+    <TargetFrameworks>net452;netstandard1.6</TargetFrameworks>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <AssemblyName>MySql.Data.EntityFrameworkCore.Design</AssemblyName>
+    <PackageId>MySql.Data.EntityFrameworkCore.Design</PackageId>
+    <PackageTags>Entity Framework Core;entity-framework-core;EF;MySQL</PackageTags>
+	<PackageReleaseNotes>Review ReleaseNotes.txt for details.</PackageReleaseNotes>
+    <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
+    <PackageProjectUrl>https://dev.mysql.com/downloads/</PackageProjectUrl>
+    <PackageLicenseUrl>https://downloads.mysql.com/docs/licenses/connector-net-8.0-gpl-en.pdf</PackageLicenseUrl>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <SignAssembly>True</SignAssembly>
+    <DelaySign>True</DelaySign>
+    <AssemblyOriginatorKeyFile>..\..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>  
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational.Design" Version="1.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\MySQL.Data\src\MySql.Data.csproj" />
+    <ProjectReference Include="..\MySql.Data.EFCore\MySql.Data.EntityFrameworkCore.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <PreserveCompilationContext>true</PreserveCompilationContext>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+</Project>

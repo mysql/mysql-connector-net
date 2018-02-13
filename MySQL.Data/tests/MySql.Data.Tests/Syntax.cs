@@ -1,23 +1,29 @@
-﻿// Copyright © 2013, 2017 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
-// MySQL Connector/NET is licensed under the terms of the GPLv2
-// <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
-// MySQL Connectors. There are special exceptions to the terms and 
-// conditions of the GPLv2 as it is applied to this software, see the 
-// FLOSS License Exception
-// <http://www.mysql.com/about/legal/licensing/foss-exception.html>.
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License, version 2.0, as
+// published by the Free Software Foundation.
 //
-// This program is free software; you can redistribute it and/or modify 
-// it under the terms of the GNU General Public License as published 
-// by the Free Software Foundation; version 2 of the License.
+// This program is also distributed with certain software (including
+// but not limited to OpenSSL) that is licensed under separate terms,
+// as designated in a particular file or component or in included license
+// documentation.  The authors of MySQL hereby grant you an
+// additional permission to link the program and your derivative works
+// with the separately licensed software that they have included with
+// MySQL.
 //
-// This program is distributed in the hope that it will be useful, but 
-// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-// or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
-// for more details.
+// Without limiting anything contained in the foregoing, this file,
+// which is part of MySQL Connector/NET, is also subject to the
+// Universal FOSS Exception, version 1.0, a copy of which can be found at
+// http://oss.oracle.com/licenses/universal-foss-exception.
 //
-// You should have received a copy of the GNU General Public License along 
-// with this program; if not, write to the Free Software Foundation, Inc., 
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License, version 2.0, for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
@@ -149,7 +155,18 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Bug6135()
     {
-      string sql = @"CREATE TABLE `KLANT` (`KlantNummer` int(11) NOT NULL auto_increment, 
+      MySqlCommand cmd = null;
+      string sql = null;
+
+      // Updating the default charset for servers 8.0+.
+      if (Connection.driver.Version.isAtLeast(8, 0, 1))
+      {
+        sql = "SET NAMES 'latin1' COLLATE 'latin1_swedish_ci'";
+        cmd = new MySqlCommand(sql, Connection);
+        cmd.ExecuteNonQuery();
+      }
+
+      sql = @"CREATE TABLE `KLANT` (`KlantNummer` int(11) NOT NULL auto_increment, 
         `Username` varchar(50) NOT NULL default '', `Password` varchar(100) NOT NULL default '', 
         `Naam` varchar(100) NOT NULL default '', `Voornaam` varchar(100) NOT NULL default '',
         `Straat` varchar(100) NOT NULL default '', `StraatNr` varchar(10) NOT NULL default '',
@@ -161,7 +178,7 @@ namespace MySql.Data.MySqlClient.Tests
         UNIQUE KEY `UniqueDefaultMail` (`DefaultMail`)	)";
       executeSQL(sql);
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM KLANT", Connection);
+      cmd = new MySqlCommand("SELECT * FROM KLANT", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         while (reader.Read()) { }
@@ -518,12 +535,12 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !NETCORE10
-        /// <summary>
+#if !NETCOREAPP1_1
+    /// <summary>
     /// Bug #54386 : expression with parentheses in INSERT leads to invalid
     /// query when using batching
     /// </summary>
-    [Fact]
+    [Fact(Skip = "Not compatible with netcoreapp2.0")]
     public void TokenizerBatching()
     {
       executeSQL("CREATE TABLE Test (id INT, expr INT,name VARCHAR(20), PRIMARY KEY(id))");

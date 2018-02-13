@@ -1,23 +1,29 @@
-﻿// Copyright © 2013, 2017 Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2013, 2017, Oracle and/or its affiliates. All rights reserved.
 //
-// MySQL Connector/NET is licensed under the terms of the GPLv2
-// <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
-// MySQL Connectors. There are special exceptions to the terms and 
-// conditions of the GPLv2 as it is applied to this software, see the 
-// FLOSS License Exception
-// <http://www.mysql.com/about/legal/licensing/foss-exception.html>.
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License, version 2.0, as
+// published by the Free Software Foundation.
 //
-// This program is free software; you can redistribute it and/or modify 
-// it under the terms of the GNU General Public License as published 
-// by the Free Software Foundation; version 2 of the License.
+// This program is also distributed with certain software (including
+// but not limited to OpenSSL) that is licensed under separate terms,
+// as designated in a particular file or component or in included license
+// documentation.  The authors of MySQL hereby grant you an
+// additional permission to link the program and your derivative works
+// with the separately licensed software that they have included with
+// MySQL.
 //
-// This program is distributed in the hope that it will be useful, but 
-// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-// or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
-// for more details.
+// Without limiting anything contained in the foregoing, this file,
+// which is part of MySQL Connector/NET, is also subject to the
+// Universal FOSS Exception, version 1.0, a copy of which can be found at
+// http://oss.oracle.com/licenses/universal-foss-exception.
 //
-// You should have received a copy of the GNU General Public License along 
-// with this program; if not, write to the Free Software Foundation, Inc., 
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License, version 2.0, for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
@@ -25,7 +31,7 @@ using Xunit;
 using System.Data;
 using System.Globalization;
 using System.Threading;
-#if !NETCORE10
+#if !NETSTANDARD
 using System.Data.Common;
 #endif
 
@@ -184,7 +190,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(false, reader.Read());
       reader.Close();
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
       DataSet ds = new DataSet();
       MySqlCommand cmd2 = new MySqlCommand("multiResults", Connection);
       cmd2.CommandType = CommandType.StoredProcedure;
@@ -201,7 +207,7 @@ namespace MySql.Data.MySqlClient.Tests
 #endif
     }
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
 
     private static string fillError = null;
 
@@ -383,7 +389,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.AddWithValue("?str", "Second record");
       cmd.ExecuteNonQuery();
 
-#if NETCORE10
+#if NETCOREAPP1_1
       MySqlCommand cmdSelect = new MySqlCommand("SELECT * FROM Test", Connection);
       using (MySqlDataReader dr = cmdSelect.ExecuteReader())
       {
@@ -429,7 +435,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.ExecuteNonQuery();
     }
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
     //[Explicit]
     [Fact]
     public void ProcedureCache()
@@ -501,7 +507,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       MySqlCommand c = new MySqlCommand("spTest", Connection);
       c.CommandType = CommandType.StoredProcedure;
-#if NETCORE10
+#if NETCOREAPP1_1
       MySqlParameter p = c.CreateParameter();
 #else
       IDataParameter p = c.CreateParameter();
@@ -519,7 +525,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
 
     /// <summary>
     /// Bug #22452 MySql.Data.MySqlClient.MySqlException: 
@@ -575,7 +581,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
     /// <summary>
     /// Bug #25609 MySqlDataAdapter.FillSchema 
     /// </summary>
@@ -631,7 +637,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL(@"CREATE PROCEDURE spTest(in _val bigint unsigned)
             BEGIN insert into  Test set f1=_val; END");
 
-#if NETCORE10
+#if NETCOREAPP1_1
       MySqlCommand cmd = new MySqlCommand();
       MySqlParameter param = cmd.CreateParameter();
       param.MySqlDbType = MySqlDbType.UInt64;
@@ -685,7 +691,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
     [Fact]
     public void AmbiguousColumns()
     {
@@ -734,7 +740,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       string connStr = Connection.ConnectionString;
       if (!isOwner)
-        connStr += ";use procedure bodies=false";
+        connStr += ";check parameters=false";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -744,7 +750,7 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.Parameters[0].Direction = ParameterDirection.Input;
         cmd.Parameters.AddWithValue("?p_1", ("Hello"));
         cmd.Parameters[1].Direction = ParameterDirection.Input;
-#if NETCORE10
+#if NETCOREAPP1_1
         cmd.Parameters[0].MySqlDbType = MySqlDbType.String;
         cmd.Parameters[1].MySqlDbType = MySqlDbType.String;
 
@@ -794,7 +800,7 @@ namespace MySql.Data.MySqlClient.Tests
       ParametersInReverseOrderInternal(true);
     }
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
     [Fact]
     public void DeriveParameters()
     {
@@ -834,7 +840,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
     /// <summary>
     /// Verifies that GetProcedureParameters does not require SELECT permission on mysql.proc table.
     /// </summary>
@@ -845,7 +851,7 @@ namespace MySql.Data.MySqlClient.Tests
           BEGIN SELECT name; END");
 
       MySqlConnectionStringBuilder cb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
-      cb.UseProcedureBodies = false;
+      cb.CheckParameters = false;
 
       using (MySqlConnection c = new MySqlConnection(cb.ConnectionString))
       {

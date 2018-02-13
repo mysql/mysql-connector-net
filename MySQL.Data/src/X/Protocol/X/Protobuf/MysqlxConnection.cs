@@ -28,8 +28,8 @@ namespace Mysqlx.Connection {
             "QwoMQ2FwYWJpbGl0aWVzEjMKDGNhcGFiaWxpdGllcxgBIAMoCzIdLk15c3Fs",
             "eC5Db25uZWN0aW9uLkNhcGFiaWxpdHkiEQoPQ2FwYWJpbGl0aWVzR2V0IkgK",
             "D0NhcGFiaWxpdGllc1NldBI1CgxjYXBhYmlsaXRpZXMYASABKAsyHy5NeXNx",
-            "bHguQ29ubmVjdGlvbi5DYXBhYmlsaXRpZXMiBwoFQ2xvc2VCHgocY29tLm15",
-            "c3FsLmNqLm15c3FseC5wcm90b2J1ZmIGcHJvdG8z"));
+            "bHguQ29ubmVjdGlvbi5DYXBhYmlsaXRpZXMiBwoFQ2xvc2VCGQoXY29tLm15",
+            "c3FsLmNqLngucHJvdG9idWZiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Mysqlx.Datatypes.MysqlxDatatypesReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {

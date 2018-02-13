@@ -1,0 +1,161 @@
+<topic id="connector-net-x-devapi-reference" revisionNumber="1">
+  <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <section address="connector-net-x-devapi">
+      <title>MySQL Connector/NET and the X DevAPI</title>
+      <content>
+        <autoOutline />
+        <para>
+	      MySQL Connector/NET 8.0 supports the X Protocol, which enables you to use
+		  the X DevAPI with the .NET language of choice to develop applications that
+		  communicate with a MySQL server functioning as a document store, relational
+		  database or both.
+        </para>
+        <para>
+          To get started, review the following main classes:
+        </para>
+        <list class="bullet">
+          <listItem>
+		    <para>
+              <codeEntityReference qualifyHint="true" linkText="MySQLX">T:MySqlX.XDevAPI.MySQLX</codeEntityReference>: Features static methods for creating sessions using the X Protocol.
+            </para>
+          </listItem>
+		  <listItem>
+		    <para>
+              <codeEntityReference qualifyHint="true" linkText="Session">T:MySqlX.XDevAPI.Session</codeEntityReference>: Represents a server session.
+            </para>
+          </listItem>
+		  <listItem>
+		    <para>
+              <codeEntityReference qualifyHint="true" linkText="DbDoc">T:MySqlX.XDevAPI.DbDoc</codeEntityReference>: Represents a generic document.
+            </para>
+          </listItem>
+		  <listItem>
+		    <para>
+              <codeEntityReference qualifyHint="true" linkText="Collection">T:MySqlX.XDevAPI.Collection</codeEntityReference>: Represents a collection of documents.
+            </para>
+          </listItem>
+		  <listItem>
+		    <para>
+              <codeEntityReference qualifyHint="true" linkText="Schema">T:MySqlX.XDevAPI.Schema</codeEntityReference>: Represents a schema or database.
+            </para>
+          </listItem>
+		  <listItem>
+		    <para>
+              <codeEntityReference qualifyHint="true" linkText="Result">T:MySqlX.XDevAPI.Common.Result</codeEntityReference>: Represents a general statement result.
+            </para>
+          </listItem>
+		  <listItem>
+		    <para>
+              <codeEntityReference qualifyHint="true" linkText="DocResult">T:MySqlX.XDevAPI.CRUD.DocResult</codeEntityReference>: Represents the result of an operation that includes a
+			  collection of documents.
+            </para>
+          </listItem>
+	    </list>
+		<para>
+		  For an introduction to X DevAPI concepts, see the
+		  <externalLink>
+            <linkText>X DevAPI User Guide</linkText>
+            <linkUri>https://dev.mysql.com/doc/x-devapi-userguide/en/</linkUri>
+          </externalLink>.
+		  For general information about MySQL Connector/NET, see the
+		  <externalLink>
+            <linkText>MySQL Connector/NET Developer Guide</linkText>
+            <linkUri>https://dev.mysql.com/doc/connector-net/en/</linkUri>
+          </externalLink>.
+		</para>
+	  </content>
+	</section>
+    <section address="connector-net">
+      <title>MySQL Connector/NET</title>
+      <content>
+        <autoOutline />
+        <para>
+	      MySQL Connector/NET 8.0 also supports the development of .NET Framework
+		  and .NET Core applications that require secure, high-performance data
+		  connectivity with MySQL through the classic protocol. It supports ADO
+		  .NET, Entity Framework and various web providers.
+        </para>
+        <para>
+          To get started, review the following main classes:
+        </para>
+        <list class="bullet">
+          <listItem>
+		    <para>
+              <codeEntityReference qualifyHint="true" linkText="MySqlConnection">T:MySql.Data.MySqlClient.MySqlConnection</codeEntityReference>: Represents an open
+              connection to a MySQL database.
+            </para>
+          </listItem>
+		  <listItem>
+		    <para>
+			  <codeEntityReference qualifyHint="true" linkText="MySqlConnectionStringBuilder">T:MySql.Data.MySqlClient.MySqlConnectionStringBuilder</codeEntityReference>: Aids in the creation of a connection string by exposing the connection options as properties.
+			</para>
+		  </listItem>
+		  <listItem>
+            <para>
+              <codeEntityReference qualifyHint="true" linkText="MySqlCommand">T:MySql.Data.MySqlClient.MySqlCommand</codeEntityReference>: Represents an SQL statement to execute against a MySQL database.
+            </para>
+          </listItem>
+          <listItem>
+            <para>
+              <codeEntityReference qualifyHint="true" linkText="MySqlCommandBuilder">T:MySql.Data.MySqlClient.MySqlCommandBuilder</codeEntityReference>: Automatically generates single-table commands used to reconcile changes made to a DataSet object with the associated MySQL database.
+            </para>
+          </listItem> 
+          <listItem>
+            <para>
+              <codeEntityReference qualifyHint="true" linkText="MySqlDataAdapter">T:MySql.Data.MySqlClient.MySqlDataAdapter</codeEntityReference>: Represents a set of data commands and a database connection that are used to fill a data set and update a MySQL database.
+            </para>
+          </listItem>
+          <listItem>
+            <para>
+              <codeEntityReference qualifyHint="true" linkText="MySqlDataReader">T:MySql.Data.MySqlClient.MySqlDataReader</codeEntityReference>: Provides a means of reading a forward-only stream of rows from a MySQL database.
+           </para>
+          </listItem>
+          <listItem>
+            <para>
+              <codeEntityReference qualifyHint="true" linkText="MySqlException">T:MySql.Data.MySqlClient.MySqlException</codeEntityReference>: The exception that is thrown when MySQL returns an error.
+           </para>
+          </listItem>
+          <listItem>
+            <para>
+              <codeEntityReference qualifyHint="true" linkText="MySqlHelper">T:MySql.Data.MySqlClient.MySqlHelper</codeEntityReference>: Helper class that makes it
+              easier to work with the provider.
+            </para>
+          </listItem>
+          <listItem>
+            <para>
+              <codeEntityReference qualifyHint="true" linkText="MySqlTransaction">T:MySql.Data.MySqlClient.MySqlTransaction</codeEntityReference>: Represents an SQL
+              transaction to be made in a MySQL database.
+           </para>
+          </listItem>
+		  <listItem>
+            <para>
+              <codeEntityReference qualifyHint="true" linkText="MySQLMembershipProvider">T:MySql.Web.Security.MySQLMembershipProvider</codeEntityReference>: Manages storage of membership information for an ASP.NET application in a MySQL database. 
+           </para>
+          </listItem>
+		  <listItem>
+            <para>
+              <codeEntityReference qualifyHint="true" linkText="MySQLRoleProvider">T:MySql.Web.Security.MySQLRoleProvider</codeEntityReference>: Manages storage of role membership information for an ASP.NET application in a MySQL database.
+           </para>
+          </listItem>
+		  <listItem>
+            <para>
+              <codeEntityReference qualifyHint="true" linkText="MySqlEFConfiguration">T:MySql.Data.EntityFramework.MySqlEFConfiguration</codeEntityReference>: Adds the dependency resolvers for MySQL classes.
+           </para>
+          </listItem>
+		  <listItem>
+            <para>
+              <codeEntityReference qualifyHint="true" linkText="MySqlExecutionStrategy">T:MySql.Data.EntityFramework.MySqlExecutionStrategy</codeEntityReference>: Enables automatic recovery from transient connection failures.
+           </para>
+          </listItem>
+        </list>
+		<para>
+	      For additional information about MySQL Connector/NET, see the
+		  <externalLink>
+            <linkText>MySQL Connector/NET Developer Guide</linkText>
+            <linkUri>https://dev.mysql.com/doc/connector-net/en/</linkUri>
+          </externalLink>.
+		</para>
+      </content>
+    </section>
+  </developerConceptualDocument>
+</topic>

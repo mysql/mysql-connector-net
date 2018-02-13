@@ -1,23 +1,29 @@
-﻿// Copyright © 2013, 2017 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2017, Oracle and/or its affiliates. All rights reserved.
 //
-// MySQL Connector/NET is licensed under the terms of the GPLv2
-// <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
-// MySQL Connectors. There are special exceptions to the terms and 
-// conditions of the GPLv2 as it is applied to this software, see the 
-// FLOSS License Exception
-// <http://www.mysql.com/about/legal/licensing/foss-exception.html>.
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License, version 2.0, as
+// published by the Free Software Foundation.
 //
-// This program is free software; you can redistribute it and/or modify 
-// it under the terms of the GNU General Public License as published 
-// by the Free Software Foundation; version 2 of the License.
+// This program is also distributed with certain software (including
+// but not limited to OpenSSL) that is licensed under separate terms,
+// as designated in a particular file or component or in included license
+// documentation.  The authors of MySQL hereby grant you an
+// additional permission to link the program and your derivative works
+// with the separately licensed software that they have included with
+// MySQL.
 //
-// This program is distributed in the hope that it will be useful, but 
-// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-// or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
-// for more details.
+// Without limiting anything contained in the foregoing, this file,
+// which is part of MySQL Connector/NET, is also subject to the
+// Universal FOSS Exception, version 1.0, a copy of which can be found at
+// http://oss.oracle.com/licenses/universal-foss-exception.
 //
-// You should have received a copy of the GNU General Public License along 
-// with this program; if not, write to the Free Software Foundation, Inc., 
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License, version 2.0, for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
@@ -52,7 +58,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("protocol", "connection protocol, connectionprotocol", typeof(MySqlConnectionProtocol), MySqlConnectionProtocol.Sockets, false,
         (msb, sender, value) =>
         {
-#if NETCORE10
+#if NETSTANDARD1_6 || NETSTANDARD2_0 || NETCOREAPP2_0
           MySqlConnectionProtocol enumValue;
           if (Enum.TryParse<MySqlConnectionProtocol>(value.ToString(), true, out enumValue))
           {
@@ -67,7 +73,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("pipe", "pipe name,pipename", typeof(string), "MYSQL", false,
         (msb, sender, value) =>
         {
-#if NETCORE10
+#if NETSTANDARD1_6 || NETSTANDARD2_0 || NETCOREAPP2_0
           throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(PipeName)));
 #else
           msb.SetValue("pipe", value);
@@ -79,7 +85,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("logging", null, typeof(bool), false, false,
         (msb, sender, value) =>
         {
-#if NETCORE10
+#if NETSTANDARD1_6
           throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(Logging)));
 #else
           msb.SetValue("logging", value);
@@ -89,7 +95,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("sharedmemoryname", "shared memory name", typeof(string), "MYSQL", false,
         (msb, sender, value) => 
         {
-#if NETCORE10
+#if NETSTANDARD1_6 || NETSTANDARD2_0 || NETCOREAPP2_0
           throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(SharedMemoryName)));
 #else
           msb.SetValue("sharedmemoryname", value);
@@ -140,7 +146,7 @@ namespace MySql.Data.MySqlClient
         {
           if (!Platform.IsWindows())
             throw new MySqlException("IntegratedSecurity is supported on Windows only");
-#if NETCORE10
+#if NETSTANDARD1_6 || NETSTANDARD2_0 || NETCOREAPP2_0
           throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(IntegratedSecurity)));
 #else
           msb.SetValue("Integrated Security", value.ToString().Equals("SSPI", StringComparison.OrdinalIgnoreCase) ? true : value);
@@ -153,9 +159,10 @@ namespace MySql.Data.MySqlClient
         }
         ));
       Options.Add(new MySqlConnectionStringOption("auth", null, typeof(MySqlAuthenticationMode), MySqlAuthenticationMode.Default, false));
+      Options.Add(new MySqlConnectionStringOption("allowpublickeyretrieval", null, typeof(bool), false, false));
 
       // Other properties
-#if !NETCORE10
+#if !NETSTANDARD1_6
       Options.Add(new MySqlConnectionStringOption("autoenlist", "auto enlist", typeof(bool), true, false));
       Options.Add(new MySqlConnectionStringOption("includesecurityasserts", "include security asserts", typeof(bool), false, false));
 #endif
@@ -164,7 +171,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("useusageadvisor", "use usage advisor,usage advisor", typeof(bool), false, false,
         (msb, sender, value) =>
         {
-#if NETCORE10
+#if NETSTANDARD1_6
           throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(UseUsageAdvisor)));
 #else
           msb.SetValue("useusageadvisor", value);
@@ -175,7 +182,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("useperformancemonitor", "use performance monitor,useperfmon,perfmon", typeof(bool), false, false,
         (msb, sender, value) =>
         {
-#if NETCORE10
+#if NETSTANDARD1_6 || NETSTANDARD2_0 || NETCOREAPP2_0
           throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(UsePerformanceMonitor)));
 #else
           msb.SetValue("useperformancemonitor", value);
@@ -183,23 +190,13 @@ namespace MySql.Data.MySqlClient
         },
         (msb, sender) => msb.UsePerformanceMonitor));
       Options.Add(new MySqlConnectionStringOption("ignoreprepare", "ignore prepare", typeof(bool), true, false));
-      Options.Add(new MySqlConnectionStringOption("useprocedurebodies", "use procedure bodies,procedure bodies", typeof(bool), true, true,
-        delegate (MySqlConnectionStringBuilder msb, MySqlConnectionStringOption sender, object value)
-        {
-          sender.ValidateValue(ref value);
-          MySqlTrace.LogWarning(-1, "Use Procedure Bodies is now obsolete.  Use Check Parameters instead");
-          msb.SetValue("checkparameters", value);
-          msb.SetValue("useprocedurebodies", value);
-        },
-        (msb, sender) => (bool)msb.values["useprocedurebodies"]
-        ));
       Options.Add(new MySqlConnectionStringOption("respectbinaryflags", "respect binary flags", typeof(bool), true, false));
       Options.Add(new MySqlConnectionStringOption("treattinyasboolean", "treat tiny as boolean", typeof(bool), true, false));
       Options.Add(new MySqlConnectionStringOption("allowuservariables", "allow user variables", typeof(bool), false, false));
       Options.Add(new MySqlConnectionStringOption("interactivesession", "interactive session,interactive", typeof(bool), false, false,
         (msb, sender, value) =>
         {
-#if NETCORE10
+#if NETSTANDARD1_6
           throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(InteractiveSession)));
 #else
           msb.SetValue("interactivesession", value);
@@ -217,7 +214,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("replication", null, typeof(bool), false, false,
         (msb, sender, value) =>
         {
-#if NETCORE10
+#if NETSTANDARD1_6
           throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(Replication)));
 #else
           msb.SetValue("replication", value);
@@ -455,12 +452,12 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Gets or sets the password that should be used to connect with.
+    /// Gets or sets the password that should be used to make a connection.
     /// </summary>
     [Category("Security")]
     [Description("Indicates the password to be used when connecting to the data source.")]
     [RefreshProperties(RefreshProperties.All)]
-#if !NET_CORE
+#if !NETSTANDARD1_6
     [PasswordPropertyText(true)]
 #endif
     public string Password
@@ -556,6 +553,16 @@ namespace MySql.Data.MySqlClient
       set { SetValue("auth", value); }
     }
 
+    [Category("Authentication")]
+    [DisplayName("AllowPublicKeyRetrieval")]
+    [Description("Allow retrieval of RSA public keys when SSL is disabled")]
+    [DefaultValue(false)]
+    public bool AllowPublicKeyRetrieval
+        {
+      get { return (bool) values["allowpublickeyretrieval"]; }
+      set { SetValue("allowpublickeyretrieval", value); }
+    }
+
 #endregion
 
 #region Other Properties
@@ -647,18 +654,6 @@ namespace MySql.Data.MySqlClient
     }
 
     [Category("Advanced")]
-    [DisplayName("Use Procedure Bodies")]
-    [Description("Indicates if stored procedure bodies will be available for parameter detection.")]
-    [DefaultValue(true)]
-    [Obsolete("Use CheckParameters instead")]
-    public bool UseProcedureBodies
-    {
-      get { return (bool)values["useprocedurebodies"]; }
-      set { SetValue("useprocedurebodies", value); }
-    }
-
-#if !NETCORE10
-    [Category("Advanced")]
     [DisplayName("Auto Enlist")]
     [Description("Should the connetion automatically enlist in the active connection, if there are any.")]
     [RefreshProperties(RefreshProperties.All)]
@@ -678,7 +673,6 @@ namespace MySql.Data.MySqlClient
       get { return (bool)values["includesecurityasserts"]; }
       set { SetValue("includesecurityasserts", value); }
     }
-#endif
 
     [Category("Advanced")]
     [DisplayName("Respect Binary Flags")]

@@ -1,30 +1,36 @@
-﻿// Copyright © 2013, 2017 Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2013, 2017, Oracle and/or its affiliates. All rights reserved.
 //
-// MySQL Connector/NET is licensed under the terms of the GPLv2
-// <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
-// MySQL Connectors. There are special exceptions to the terms and 
-// conditions of the GPLv2 as it is applied to this software, see the 
-// FLOSS License Exception
-// <http://www.mysql.com/about/legal/licensing/foss-exception.html>.
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License, version 2.0, as
+// published by the Free Software Foundation.
 //
-// This program is free software; you can redistribute it and/or modify 
-// it under the terms of the GNU General Public License as published 
-// by the Free Software Foundation; version 2 of the License.
+// This program is also distributed with certain software (including
+// but not limited to OpenSSL) that is licensed under separate terms,
+// as designated in a particular file or component or in included license
+// documentation.  The authors of MySQL hereby grant you an
+// additional permission to link the program and your derivative works
+// with the separately licensed software that they have included with
+// MySQL.
 //
-// This program is distributed in the hope that it will be useful, but 
-// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-// or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
-// for more details.
+// Without limiting anything contained in the foregoing, this file,
+// which is part of MySQL Connector/NET, is also subject to the
+// Universal FOSS Exception, version 1.0, a copy of which can be found at
+// http://oss.oracle.com/licenses/universal-foss-exception.
 //
-// You should have received a copy of the GNU General Public License along 
-// with this program; if not, write to the Free Software Foundation, Inc., 
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License, version 2.0, for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
 using System.Collections.Generic;
 using System.Text;
 using Xunit;
-#if !NET_CORE
+#if !NETCOREAPP1_1
 using System.Transactions;
 using System.Data.Common;
 #endif
@@ -40,7 +46,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
     }        
 
-#if !NET_CORE
+#if !NETCOREAPP1_1
     void TransactionScopeInternal(bool commit)
     {
       executeSQL("DROP TABLE IF EXISTS Test");
@@ -78,7 +84,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #34448 Connector .Net 5.2.0 with Transactionscope doesn´t use specified IsolationLevel 
     /// </summary>
-    [Fact(Skip="Fix This")]
+    [Fact]
     public void TransactionScopeWithIsolationLevel()
     {
       TransactionOptions opts = new TransactionOptions();
@@ -90,7 +96,10 @@ namespace MySql.Data.MySqlClient.Tests
         using (MySqlConnection myconn = new MySqlConnection(connStr))
         {
           myconn.Open();
-          MySqlCommand cmd = new MySqlCommand("SHOW VARIABLES LIKE 'tx_isolation'", myconn);
+          MySqlCommand cmd = new MySqlCommand(Connection.driver.Version.isAtLeast(8, 0, 1) ?
+            "SHOW VARIABLES LIKE 'transaction_isolation'":
+            "SHOW VARIABLES LIKE 'tx_isolation'"
+          , myconn);
           using (MySqlDataReader reader = cmd.ExecuteReader())
           {
             reader.Read();
@@ -101,6 +110,26 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 #endif
+
+    [Fact]
+    public void TransactionReadOnlyIsAvailable()
+    {
+      string connStr = Connection.ConnectionString;
+      using (MySqlConnection myconn = new MySqlConnection(connStr))
+      {
+        myconn.Open();
+        MySqlCommand cmd = new MySqlCommand(Connection.driver.Version.isAtLeast(8, 0, 1) ?
+          "SHOW VARIABLES LIKE 'transaction_read_only'":
+          "SHOW VARIABLES LIKE 'tx_read_only'"
+        , myconn);
+        using (MySqlDataReader reader = cmd.ExecuteReader())
+        {
+          reader.Read();
+          if (Connection.driver.Version.isAtLeast(5, 7, 0))
+            Assert.Equal("OFF", reader.GetString(1));
+        }
+      }
+    }
 
     /// <summary>
     /// Bug #27289 Transaction is not rolledback when connection close 
@@ -141,69 +170,69 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// NullReferenceException thrown on TransactionScope dispose
     /// </summary>
-//    [Fact]
-//    public void LockedTable()
-//    {
+    //    [Fact]
+    //    public void LockedTable()
+    //    {
 
-//      Debug.Print("Enter LockedTable");
+    //      Debug.Print("Enter LockedTable");
 
-//      string connStr = st.GetConnectionString(true);
-      
-//      executeSQL("DROP TABLE IF EXISTS t1");
-//      executeSQL("DROP TABLE IF EXISTS t2");
+    //      string connStr = st.GetConnectionString(true);
 
-//      connStr = String.Format(@"Use Affected Rows=true;allow user variables=yes;Server=localhost;Port={0};
-//            Database={1};Uid=root;Connect Timeout=35;default command timeout=90;charset=utf8", st.port, st.database0);
+    //      executeSQL("DROP TABLE IF EXISTS t1");
+    //      executeSQL("DROP TABLE IF EXISTS t2");
 
-
-//      executeSQL(@"CREATE TABLE `t1` (
-//                `Key` int(10) unsigned NOT NULL auto_increment,
-//                `Val` varchar(100) NOT NULL,
-//                `Val2` varchar(100) NOT NULL default '',
-//                PRIMARY KEY  (`Key`)
-//                ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1");
-//      executeSQL(@"CREATE TABLE `t2` (
-//                `Key` int(10) unsigned NOT NULL auto_increment,
-//                `Val` varchar(100) NOT NULL,
-//                PRIMARY KEY  (`Key`)
-//                ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1");
-
-//      executeSQL("lock tables t2 read");      
-
-//      using (TransactionScope scope = new TransactionScope())
-//      {
-//        using (MySqlConnection conn = new MySqlConnection(connStr))
-//        using (MySqlCommand cmd = conn.CreateCommand())
-//        {
-//          conn.Open();                
-//          cmd.CommandText = @"insert into t1 (Val,Val2) values (?value1, ?value2)"; ;
-//          cmd.CommandTimeout = 5;
-//          cmd.Parameters.AddWithValue("?value1", new Random().Next());
-//          cmd.Parameters.AddWithValue("?value2", new Random().Next());
-//          cmd.ExecuteNonQuery();
-//        }
-
-//        using (MySqlConnection conn = new MySqlConnection(connStr))
-//        using (MySqlCommand cmd = conn.CreateCommand())
-//        {
-//          conn.Open();          
-//          cmd.CommandText = @"insert into t2 (Val) values (?value)";
-//          cmd.CommandTimeout = 5;
-//          cmd.Parameters.AddWithValue("?value", new Random().Next());
-//          Exception ex = Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());
-//          Assert.Equal(ex.Message, "Timeout expired.  The timeout period elapsed prior to completion of the operation or the server is not responding.");         
-//        }               
-
-//        scope.Complete();
-//      }     
-
-//      MySqlPoolManager.ClearAllPools();
-      
-//      Debug.Print("Out LockedTable");
-//    }
+    //      connStr = String.Format(@"Use Affected Rows=true;allow user variables=yes;Server=localhost;Port={0};
+    //            Database={1};Uid=root;Connect Timeout=35;default command timeout=90;charset=utf8", st.port, st.database0);
 
 
-#if !NETCORE10
+    //      executeSQL(@"CREATE TABLE `t1` (
+    //                `Key` int(10) unsigned NOT NULL auto_increment,
+    //                `Val` varchar(100) NOT NULL,
+    //                `Val2` varchar(100) NOT NULL default '',
+    //                PRIMARY KEY  (`Key`)
+    //                ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1");
+    //      executeSQL(@"CREATE TABLE `t2` (
+    //                `Key` int(10) unsigned NOT NULL auto_increment,
+    //                `Val` varchar(100) NOT NULL,
+    //                PRIMARY KEY  (`Key`)
+    //                ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1");
+
+    //      executeSQL("lock tables t2 read");      
+
+    //      using (TransactionScope scope = new TransactionScope())
+    //      {
+    //        using (MySqlConnection conn = new MySqlConnection(connStr))
+    //        using (MySqlCommand cmd = conn.CreateCommand())
+    //        {
+    //          conn.Open();                
+    //          cmd.CommandText = @"insert into t1 (Val,Val2) values (?value1, ?value2)"; ;
+    //          cmd.CommandTimeout = 5;
+    //          cmd.Parameters.AddWithValue("?value1", new Random().Next());
+    //          cmd.Parameters.AddWithValue("?value2", new Random().Next());
+    //          cmd.ExecuteNonQuery();
+    //        }
+
+    //        using (MySqlConnection conn = new MySqlConnection(connStr))
+    //        using (MySqlCommand cmd = conn.CreateCommand())
+    //        {
+    //          conn.Open();          
+    //          cmd.CommandText = @"insert into t2 (Val) values (?value)";
+    //          cmd.CommandTimeout = 5;
+    //          cmd.Parameters.AddWithValue("?value", new Random().Next());
+    //          Exception ex = Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());
+    //          Assert.Equal(ex.Message, "Timeout expired.  The timeout period elapsed prior to completion of the operation or the server is not responding.");         
+    //        }               
+
+    //        scope.Complete();
+    //      }     
+
+    //      MySqlPoolManager.ClearAllPools();
+
+    //      Debug.Print("Out LockedTable");
+    //    }
+
+
+#if !NETCOREAPP1_1
     /// <summary>
     /// Bug #22042 mysql-connector-net-5.0.0-alpha BeginTransaction 
     /// </summary>
@@ -275,7 +304,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact]
+    [Fact(Skip = "Not compatible with netcoreapp2.0")]
     public void ManualEnlistment()
     {
       executeSQL("DROP TABLE IF EXISTS Test");
@@ -600,7 +629,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// bug#35330 - even if transaction scope has expired, rows can be inserted into
     /// the table, due to race condition with the thread doing rollback
     /// </summary>
-    [Fact]
+    [Fact(Skip = "Not compatible with netcoreapp2.0")]
     public void ScopeTimeoutWithMySqlHelper()
     {
       executeSQL("DROP TABLE IF EXISTS Test");

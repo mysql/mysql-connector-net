@@ -1,32 +1,38 @@
-﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
-// MySQL Connector/NET is licensed under the terms of the GPLv2
-// <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
-// MySQL Connectors. There are special exceptions to the terms and 
-// conditions of the GPLv2 as it is applied to this software, see the 
-// FLOSS License Exception
-// <http://www.mysql.com/about/legal/licensing/foss-exception.html>.
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License, version 2.0, as
+// published by the Free Software Foundation.
 //
-// This program is free software; you can redistribute it and/or modify 
-// it under the terms of the GNU General Public License as published 
-// by the Free Software Foundation; version 2 of the License.
+// This program is also distributed with certain software (including
+// but not limited to OpenSSL) that is licensed under separate terms,
+// as designated in a particular file or component or in included license
+// documentation.  The authors of MySQL hereby grant you an
+// additional permission to link the program and your derivative works
+// with the separately licensed software that they have included with
+// MySQL.
 //
-// This program is distributed in the hope that it will be useful, but 
-// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-// or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
-// for more details.
+// Without limiting anything contained in the foregoing, this file,
+// which is part of MySQL Connector/NET, is also subject to the
+// Universal FOSS Exception, version 1.0, a copy of which can be found at
+// http://oss.oracle.com/licenses/universal-foss-exception.
 //
-// You should have received a copy of the GNU General Public License along 
-// with this program; if not, write to the Free Software Foundation, Inc., 
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License, version 2.0, for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
 using MySqlX.XDevAPI.CRUD;
 using MySqlX.XDevAPI.Common;
-using MySqlX;
 using MySql.Data;
 using MySql.Data.MySqlClient;
-#if NETCORE10
+using System.Collections.Generic;
+#if NETSTANDARD1_6
 using System.Reflection;
 #endif
 
@@ -261,12 +267,56 @@ namespace MySqlX.XDevAPI
     /// an index.
     /// </summary>
     /// <param name="indexName">The index name.</param>
-    /// <param name="isUnique">True if the index is unique, false otherwise.</param>
-    /// <returns>A <see cref="CreateCollectionIndexStatement"/> object set with the given index name and the isUnique flag.</returns>
-    /// <remarks>The statement can then be further modified before execution.</remarks>
-    public CreateCollectionIndexStatement CreateIndex(string indexName, bool isUnique)
+    /// <param name="indexDefinition">JSON document describing the index to be created.</param>
+    /// <returns>A <see cref="CreateCollectionIndexStatement"/> object set with the given index definition.</returns>
+    /// <remarks>
+    /// <para><see cref="CreateCollectionIndexStatement"/>:</para>
+    /// <para>The statement be further modified before execution.</para>
+    /// <para>&#160;</para>
+    /// <para><paramref name="indexDefinition"/> is a JSON document with the following fields:</para>
+    /// <para>
+    /// <para />- <c>fields</c>: array of <c>IndexField</c> objects, each describing a single document member to be
+    /// included in the index (see below).
+    /// <para />- <c>type: string</c>, (optional) the type of index. One of INDEX or SPATIAL. Default is INDEX and may
+    /// be omitted.
+    /// </para>
+    /// <para>&#160;</para>
+    /// <para>A single <c>IndexField</c> description consists of the following fields:</para>
+    /// <para>
+    /// <para />- <c>field</c>: string, the full document path to the document member or field to be indexed.
+    /// <para />- <c>type</c>: string, one of the supported SQL column types to map the field into (see the following list).
+    /// For numeric types, the optional UNSIGNED keyword may follow. For the TEXT type, the length to consider for
+    /// indexing may be added.
+    /// <para />- <c>required</c>: bool, (optional) true if the field is required to exist in the document. defaults to
+    /// false, except for GEOJSON where it defaults to true.
+    /// <para />- <c>options</c>: int, (optional) special option flags for use when decoding GEOJSON data.
+    /// <para />- <c>srid</c>: int, (optional) srid value for use when decoding GEOJSON data.
+    /// </para>
+    /// <para>&#160;</para>
+    /// <para>Supported SQL column types:</para>
+    /// <para>
+    /// <para />- INT [UNSIGNED]
+    /// <para />- TINYINT [UNSIGNED]
+    /// <para />- SMALLINT [UNSIGNED]
+    /// <para />- MEDIUMINT [UNSIGNED]
+    /// <para />- INTEGER [UNSIGNED]
+    /// <para />- BIGINT [UNSIGNED]
+    /// <para />- REAL [UNSIGNED]
+    /// <para />- FLOAT [UNSIGNED]
+    /// <para />- DOUBLE [UNSIGNED]
+    /// <para />- DECIMAL [UNSIGNED]
+    /// <para />- NUMERIC [UNSIGNED]
+    /// <para />- DATE
+    /// <para />- TIME
+    /// <para />- TIMESTAMP
+    /// <para />- DATETIME
+    /// <para />- TEXT[(length)]
+    /// <para />- GEOJSON (extra options: options, srid)
+    /// </para>
+    /// </remarks>
+    public CreateCollectionIndexStatement CreateIndex(string indexName, object indexDefinition)
     {
-      return new CreateCollectionIndexStatement(this, indexName, isUnique);
+      return new CreateCollectionIndexStatement(this, indexName, new DbDoc(indexDefinition));
     }
 
     /// <summary>
@@ -277,10 +327,12 @@ namespace MySqlX.XDevAPI
     public void DropIndex(string indexName)
     {
       if (string.IsNullOrWhiteSpace(indexName)) throw new ArgumentNullException(nameof(indexName));
+
       bool indexExists = Convert.ToInt32(Session.XSession.ExecuteQueryAsScalar(
         string.Format("SELECT COUNT(*)>0 FROM information_schema.statistics WHERE table_schema = '{0}' AND table_name = '{1}' AND index_name = '{2}'",
         this.Schema.Name, this.Name, indexName))) == 1;
       if (!indexExists) return;
+
       Session.XSession.DropCollectionIndex(this.Schema.Name, this.Name, indexName);
     }
 

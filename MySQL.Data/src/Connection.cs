@@ -1,23 +1,29 @@
-// Copyright © 2004, 2017 Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2017, Oracle and/or its affiliates. All rights reserved.
 //
-// MySQL Connector/NET is licensed under the terms of the GPLv2
-// <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
-// MySQL Connectors. There are special exceptions to the terms and 
-// conditions of the GPLv2 as it is applied to this software, see the 
-// FLOSS License Exception
-// <http://www.mysql.com/about/legal/licensing/foss-exception.html>.
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License, version 2.0, as
+// published by the Free Software Foundation.
 //
-// This program is free software; you can redistribute it and/or modify 
-// it under the terms of the GNU General Public License as published 
-// by the Free Software Foundation; version 2 of the License.
+// This program is also distributed with certain software (including
+// but not limited to OpenSSL) that is licensed under separate terms,
+// as designated in a particular file or component or in included license
+// documentation.  The authors of MySQL hereby grant you an
+// additional permission to link the program and your derivative works
+// with the separately licensed software that they have included with
+// MySQL.
 //
-// This program is distributed in the hope that it will be useful, but 
-// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-// or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
-// for more details.
+// Without limiting anything contained in the foregoing, this file,
+// which is part of MySQL Connector/NET, is also subject to the
+// Universal FOSS Exception, version 1.0, a copy of which can be found at
+// http://oss.oracle.com/licenses/universal-foss-exception.
 //
-// You should have received a copy of the GNU General Public License along 
-// with this program; if not, write to the Free Software Foundation, Inc., 
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License, version 2.0, for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
@@ -30,10 +36,12 @@ using MySql.Data.Common;
 using System.Security;
 using IsolationLevel = System.Data.IsolationLevel;
 using MySql.Data.MySqlClient.Interceptors;
-#if !NET_CORE
+#if !NETSTANDARD1_6
 using System.Transactions;
-using System.Drawing.Design;
 using MySql.Data.MySqlClient.Replication;
+#endif
+#if NET452
+using System.Drawing.Design;
 #endif
 
 namespace MySql.Data.MySqlClient
@@ -64,10 +72,10 @@ namespace MySql.Data.MySqlClient
       Settings = new MySqlConnectionStringBuilder();
       _database = String.Empty;
 
-#if NET_CORE
+      //#if NETSTANDARD1_6
       //TODO:  what is thi sabout
       //ConnectionString = Startup.ConnectionString;
-#endif
+      //#endif
     }
 
     /// <include file='docs/MySqlConnection.xml' path='docs/Ctor1/*'/>
@@ -115,7 +123,7 @@ namespace MySql.Data.MySqlClient
     {
       get
       {
-#if !NET_CORE
+#if !NETSTANDARD1_6
         return (State == ConnectionState.Closed) &&
                driver != null && driver.currentTransaction != null;
 #else
@@ -161,12 +169,12 @@ namespace MySql.Data.MySqlClient
     [Browsable(false)]
     public override ConnectionState State => connectionState;
 
-    /// <include file='docs/MySqlConnection.xml' path='docs/ServerVersion/*'/>#if !NETCORE10
+    /// <include file='docs/MySqlConnection.xml' path='docs/ServerVersion/*'/>#if !NETSTANDARD1_6
     [Browsable(false)]
     public override string ServerVersion => driver.Version.ToString();
 
     /// <include file='docs/MySqlConnection.xml' path='docs/ConnectionString/*'/>
-#if !NET_CORE
+#if NET452
     [Editor("MySql.Data.MySqlClient.Design.ConnectionStringTypeEditor,MySqlClient.Design", typeof(UITypeEditor))]
 #endif
     [Browsable(true)]
@@ -212,7 +220,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-#if !NET_CORE
+#if !NETSTANDARD1_6
     protected override DbProviderFactory DbProviderFactory => MySqlClientFactory.Instance;
 #endif
     public bool IsPasswordExpired => driver.IsPasswordExpired;
@@ -359,7 +367,7 @@ namespace MySql.Data.MySqlClient
 
       SetState(ConnectionState.Connecting, true);
 
-#if !NET_CORE
+#if !NETSTANDARD1_6
       AssertPermissions();
 
       //TODO: SUPPORT FOR 452 AND 46X
@@ -381,7 +389,7 @@ namespace MySql.Data.MySqlClient
 
         //TODO: SUPPORT FOR 452 AND 46X
         // Load balancing 
-#if !NET_CORE
+#if !NETSTANDARD1_6
         if (ReplicationManager.IsReplicationGroup(Settings.Server))
         {
           if (driver == null)
@@ -429,7 +437,7 @@ namespace MySql.Data.MySqlClient
 
       // if we are opening up inside a current transaction, then autoenlist
       // TODO: control this with a connection string option
-#if !NET_CORE
+#if !NETSTANDARD1_6
       if (Transaction.Current != null && Settings.AutoEnlist)
         EnlistTransaction(Transaction.Current);
 #endif
@@ -468,7 +476,7 @@ namespace MySql.Data.MySqlClient
     {
       if (Settings.Pooling && driver.IsOpen)
       {
-#if !NET_CORE
+#if !NETSTANDARD1_6
         //TODO: SUPPORT FOR 452 AND 46X
         //// if we are in a transaction, roll it back
         if (driver.HasStatus(ServerStatusFlags.InTransaction))
@@ -500,12 +508,12 @@ namespace MySql.Data.MySqlClient
       // will be null on the second time through
       if (driver != null)
       {
-#if !NET_CORE
+#if !NETSTANDARD1_6
         //TODO: Add support for 452 and 46X
         if (driver.currentTransaction == null)
 #endif
         CloseFully();
-#if !NET_CORE
+#if !NETSTANDARD1_6
         //TODO: Add support for 452 and 46X
         else
           driver.IsInActiveUse = false;
@@ -577,7 +585,7 @@ namespace MySql.Data.MySqlClient
       MySqlConnectionStringBuilder cb = new MySqlConnectionStringBuilder(
         Settings.ConnectionString);
       cb.Pooling = false;
-#if !NETCORE10
+#if !NETSTANDARD1_6
       cb.AutoEnlist = false;
 #endif
       cb.ConnectionTimeout = (uint)timeout;
@@ -659,7 +667,7 @@ namespace MySql.Data.MySqlClient
       _commandTimeout = 0;
       driver?.ResetTimeout(0);
     }
-#endregion
+    #endregion
 
     public MySqlSchemaCollection GetSchemaCollection(string collectionName, string[] restrictionValues)
     {
@@ -671,7 +679,7 @@ namespace MySql.Data.MySqlClient
       return c;
     }
 
-#region Pool Routines
+    #region Pool Routines
 
     /// <include file='docs/MySqlConnection.xml' path='docs/ClearPool/*'/>
     public static void ClearPool(MySqlConnection connection)
@@ -685,11 +693,11 @@ namespace MySql.Data.MySqlClient
       MySqlPoolManager.ClearAllPools();
     }
 
-#endregion
+    #endregion
 
     internal void Throw(Exception ex)
     {
-#if !NET_CORE
+#if !NETSTANDARD1_6
       if (_exceptionInterceptor == null)
         throw ex;
       _exceptionInterceptor.Throw(ex);
@@ -704,9 +712,9 @@ namespace MySql.Data.MySqlClient
       GC.SuppressFinalize(this);
     }
 
-#region Async
+    #region Async
     /// <summary>
-    /// Async version of BeginTransaction
+    /// Initiates the asynchronous execution of a transaction.
     /// </summary>
     /// <returns>An object representing the new transaction.</returns>
     public Task<MySqlTransaction> BeginTransactionAsync()
@@ -918,7 +926,7 @@ namespace MySql.Data.MySqlClient
       }
       return result.Task;
     }
-#endregion
+    #endregion
   }
 
   /// <summary>
@@ -956,7 +964,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-#region IDisposable Members
+    #region IDisposable Members
     public void Dispose()
     {
       if (!_timeoutSet) return;
@@ -965,6 +973,6 @@ namespace MySql.Data.MySqlClient
       _connection.ClearCommandTimeout();
       _connection = null;
     }
-#endregion
+    #endregion
   }
 }

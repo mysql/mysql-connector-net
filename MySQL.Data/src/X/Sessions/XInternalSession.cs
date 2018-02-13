@@ -1,23 +1,29 @@
-﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
-// MySQL Connector/NET is licensed under the terms of the GPLv2
-// <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
-// MySQL Connectors. There are special exceptions to the terms and 
-// conditions of the GPLv2 as it is applied to this software, see the 
-// FLOSS License Exception
-// <http://www.mysql.com/about/legal/licensing/foss-exception.html>.
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License, version 2.0, as
+// published by the Free Software Foundation.
 //
-// This program is free software; you can redistribute it and/or modify 
-// it under the terms of the GNU General Public License as published 
-// by the Free Software Foundation; version 2 of the License.
+// This program is also distributed with certain software (including
+// but not limited to OpenSSL) that is licensed under separate terms,
+// as designated in a particular file or component or in included license
+// documentation.  The authors of MySQL hereby grant you an
+// additional permission to link the program and your derivative works
+// with the separately licensed software that they have included with
+// MySQL.
 //
-// This program is distributed in the hope that it will be useful, but 
-// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-// or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
-// for more details.
+// Without limiting anything contained in the foregoing, this file,
+// which is part of MySQL Connector/NET, is also subject to the
+// Universal FOSS Exception, version 1.0, a copy of which can be found at
+// http://oss.oracle.com/licenses/universal-foss-exception.
 //
-// You should have received a copy of the GNU General Public License along 
-// with this program; if not, write to the Free Software Foundation, Inc., 
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License, version 2.0, for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
@@ -52,7 +58,7 @@ namespace MySqlX.Sessions
     private XPacketReaderWriter _reader;
     private XPacketReaderWriter _writer;
     private bool serverSupportsTls = false;
-    private const string mysqlxNamespace = "xplugin"; // TODO change to mysqlx
+    private const string mysqlxNamespace = "mysqlx";
 
 
     public XInternalSession(MySqlConnectionStringBuilder settings) : base(settings)
@@ -206,37 +212,62 @@ namespace MySqlX.Sessions
 
     public void CreateCollection(string schemaName, string collectionName)
     {
-      ExecuteCmdNonQuery(XpluginStatementCommand.XPLUGIN_STMT_CREATE_COLLECTION, true, schemaName, collectionName);
+      ExecuteCmdNonQuery(XpluginStatementCommand.XPLUGIN_STMT_CREATE_COLLECTION,
+        true,
+        new KeyValuePair<string, object>("schema", schemaName),
+        new KeyValuePair<string, object>("name", collectionName));
     }
 
     public void DropCollection(string schemaName, string collectionName)
     {
-      ExecuteCmdNonQuery(XpluginStatementCommand.XPLUGIN_STMT_DROP_COLLECTION, true, schemaName, collectionName);
+      ExecuteCmdNonQuery(XpluginStatementCommand.XPLUGIN_STMT_DROP_COLLECTION,
+        true,
+        new KeyValuePair<string, object>("schema", schemaName),
+        new KeyValuePair<string, object>("name", collectionName));
     }
 
     public Result CreateCollectionIndex(CreateCollectionIndexStatement statement)
     {
-      List<object> args = new List<object>();
-      args.Add(statement.Target.Schema.Name);
-      args.Add(statement.Target.Name);
-      args.Add(statement.createIndexParams.IndexName);
-      args.Add(statement.createIndexParams.IsUnique);
-      for(int i = 0; i < statement.createIndexParams.DocPaths.Count; i++)
+      List<KeyValuePair<string, object>> args = new List<KeyValuePair<string, object>>();
+      args.Add(new KeyValuePair<string, object>("name", statement.createIndexParams.IndexName));
+      args.Add(new KeyValuePair<string, object>("collection", statement.Target.Name));
+      args.Add(new KeyValuePair<string, object>("schema", statement.Target.Schema.Name));
+      args.Add(new KeyValuePair<string, object>("unique", false));
+
+      if (statement.createIndexParams.Type != null)
+        args.Add(new KeyValuePair<string, object>("type", statement.createIndexParams.Type));
+
+      for(int i = 0; i < statement.createIndexParams.Fields.Count; i++)
       {
-        args.Add(statement.createIndexParams.DocPaths[i]);
-        args.Add(statement.createIndexParams.Types[i]);
-        args.Add(statement.createIndexParams.NotNulls[i]);
+        var field = statement.createIndexParams.Fields[i];
+        var dictionary = new Dictionary<string, object>();
+        dictionary.Add("member", field.Field);
+        if (field.Type != null)
+          dictionary.Add("type", field.Type == "TEXT" ? "TEXT(64)" : field.Type);
+
+        if (field.Required == null)
+          dictionary.Add("required", field.Type == "GEOJSON" ? true : false);
+        else
+          dictionary.Add("required", (bool) field.Required);
+
+        if (field.Options != null)
+          dictionary.Add("options", (ulong) field.Options);
+
+        if (field.Srid != null)
+          dictionary.Add("srid", (ulong) field.Srid);
+
+        args.Add(new KeyValuePair<string, object>("constraint", dictionary));
       }
 
-      return ExecuteCmdNonQuery(XpluginStatementCommand.XPLUGIN_STMT_CREATE_COLLECTION_INDEX, false, args.ToArray());
+      return ExecuteCreateCollectionIndex(XpluginStatementCommand.XPLUGIN_STMT_CREATE_COLLECTION_INDEX, false, args.ToArray());
     }
 
     public void DropCollectionIndex(string schemaName, string collectionName, string indexName)
     {
-      List<object> args = new List<object>();
-      args.Add(schemaName);
-      args.Add(collectionName);
-      args.Add(indexName);
+      List<KeyValuePair<string, object>> args = new List<KeyValuePair<string, object>>();
+      args.Add(new KeyValuePair<string, object>("schema", schemaName));
+      args.Add(new KeyValuePair<string, object>("collection", collectionName));
+      args.Add(new KeyValuePair<string, object>("name", indexName));
       ExecuteCmdNonQuery(XpluginStatementCommand.XPLUGIN_STMT_DROP_COLLECTION_INDEX, false, args.ToArray());
     }
 
@@ -255,9 +286,15 @@ namespace MySqlX.Sessions
       return count != 0;
     }
 
-    private Result ExecuteCmdNonQuery(string cmd, bool throwOnFail, params object[] args)
+    private Result ExecuteCmdNonQuery(string cmd, bool throwOnFail, params KeyValuePair<string, object>[] args)
     {
       protocol.SendExecuteStatement(mysqlxNamespace, cmd, args);
+      return new Result(this);
+    }
+
+    private Result ExecuteCreateCollectionIndex(string cmd, bool throwOnFail, params KeyValuePair<string, object>[] args)
+    {
+      protocol.SendCreateCollectionIndexStatement(mysqlxNamespace, cmd, args);
       return new Result(this);
     }
 
@@ -265,7 +302,7 @@ namespace MySqlX.Sessions
     {
       for (int i = 0; i < types.Length; i++)
         types[i] = types[i].ToUpperInvariant();
-      RowResult result = GetRowResult("list_objects", s.Name);
+      RowResult result = GetRowResult("list_objects", new KeyValuePair<string,object>("schema", s.Name));
       var rows = result.FetchAll();
 
       List<T> docs = new List<T>();
@@ -289,7 +326,7 @@ namespace MySqlX.Sessions
             parameters.Add(true);
             break;
         }
-#if NETCORE10
+#if NETSTANDARD1_6
         T t = (T)Activator.CreateInstance(typeof(T), true);
         ((DatabaseObject)t).Schema = s;
         ((DatabaseObject)t).Name = parameters[1].ToString();
@@ -307,7 +344,9 @@ namespace MySqlX.Sessions
 
     public string GetObjectType(Schema s, string name)
     {
-      RowResult result = GetRowResult("list_objects", s.Name, name);
+      RowResult result = GetRowResult("list_objects",
+        new KeyValuePair<string, object>("schema", s.Name),
+        new KeyValuePair<string, object>("pattern", name));
       var row = result.FetchOne();
       if (row == null)
         throw new MySqlException(string.Format(ResourcesX.NoObjectFound, name));
@@ -315,7 +354,7 @@ namespace MySqlX.Sessions
       return row.GetString("type");
     }
 
-    public RowResult GetRowResult(string cmd, params object[] args)
+    public RowResult GetRowResult(string cmd, params KeyValuePair<string,object>[] args)
     {
       protocol.SendExecuteStatement(mysqlxNamespace, cmd, args);
       return new RowResult(this);
@@ -373,35 +412,6 @@ namespace MySqlX.Sessions
     {
       protocol.SendInsert(statement.Target.Schema.Name, true, statement.Target.Name, statement.values.ToArray(), statement.fields, false);
       return new Result(this);
-    }
-
-    public Result ViewCreate(ViewCreateStatement statement)
-    {
-      protocol.SendCreateView(statement.Target.Schema.Name, 
-        statement.name, statement.definer,
-        (Mysqlx.Crud.ViewAlgorithm)statement.algorithm,
-        (Mysqlx.Crud.ViewSqlSecurity)statement.sqlSecurity,
-        (Mysqlx.Crud.ViewCheckOption)statement.checkOption,
-        statement.columns, statement.replace, 
-        statement.queryStatement);
-      return new Result(this);
-    }
-
-    public Result ViewAlter(ViewAlterStatement statement)
-    {
-      protocol.SendModifyView(statement.Target.Schema.Name,
-        statement.name, statement.definer,
-        (Mysqlx.Crud.ViewAlgorithm)statement.algorithm,
-        (Mysqlx.Crud.ViewSqlSecurity)statement.sqlSecurity,
-        (Mysqlx.Crud.ViewCheckOption)statement.checkOption,
-        statement.columns, statement.queryStatement);
-      return new Result(this);
-    }
-
-    public void ViewDrop(Schema schema, string name)
-    {
-      protocol.SendDropView(schema.Name, name, true);
-      new Result(this);
     }
   }
 }

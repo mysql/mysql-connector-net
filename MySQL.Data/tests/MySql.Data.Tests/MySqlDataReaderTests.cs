@@ -1,29 +1,35 @@
-﻿// Copyright © 2013, 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
-// MySQL Connector/NET is licensed under the terms of the GPLv2
-// <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
-// MySQL Connectors. There are special exceptions to the terms and 
-// conditions of the GPLv2 as it is applied to this software, see the 
-// FLOSS License Exception
-// <http://www.mysql.com/about/legal/licensing/foss-exception.html>.
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License, version 2.0, as
+// published by the Free Software Foundation.
 //
-// This program is free software; you can redistribute it and/or modify 
-// it under the terms of the GNU General Public License as published 
-// by the Free Software Foundation; version 2 of the License.
+// This program is also distributed with certain software (including
+// but not limited to OpenSSL) that is licensed under separate terms,
+// as designated in a particular file or component or in included license
+// documentation.  The authors of MySQL hereby grant you an
+// additional permission to link the program and your derivative works
+// with the separately licensed software that they have included with
+// MySQL.
 //
-// This program is distributed in the hope that it will be useful, but 
-// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-// or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
-// for more details.
+// Without limiting anything contained in the foregoing, this file,
+// which is part of MySQL Connector/NET, is also subject to the
+// Universal FOSS Exception, version 1.0, a copy of which can be found at
+// http://oss.oracle.com/licenses/universal-foss-exception.
 //
-// You should have received a copy of the GNU General Public License along 
-// with this program; if not, write to the Free Software Foundation, Inc., 
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License, version 2.0, for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
 using Xunit;
 using System.Data;
-#if !NETCORE10
+#if !NETCOREAPP1_1
 using System.Data.SqlTypes;
 #endif
 
@@ -155,7 +161,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
     /// <summary>
     /// Bug #59989	MysqlDataReader.GetSchemaTable returns incorrect Values an types
     /// </summary>
@@ -307,7 +313,7 @@ namespace MySql.Data.MySqlClient.Tests
         reader.Read();
         Assert.Equal(2, reader.GetValue(0));
         Assert.Equal(DBNull.Value, reader.GetValue(1));
-#if !NETCORE10
+#if !NETCOREAPP1_1
         Exception ex = Assert.Throws<SqlNullValueException>(() => reader.GetString(1));
         Assert.Equal(ex.Message, "Data is Null. This method or property cannot be called on Null values.");
 #endif
@@ -317,7 +323,7 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal("Test2", reader.GetValue(1));
         Assert.Equal("Test2", reader.GetString(1));
         Assert.Equal(DBNull.Value, reader.GetValue(2));
-#if !NETCORE10
+#if !NETCOREAPP1_1
         ex = Assert.Throws<SqlNullValueException>(() => reader.GetMySqlDateTime(2));
         Assert.Equal(ex.Message, "Data is Null. This method or property cannot be called on Null values.");
 #endif
@@ -525,6 +531,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact(Skip="Fix This")]
     public void TestMultipleResultsWithQueryCacheOn()
     {
+      //query_cache_type was deprecated in server 5.7.20.
+      if (Connection.driver.Version.isAtLeast(5,7,20)) return;
+
       CreateDefaultTable();
       executeSQL("SET SESSION query_cache_type = ON");
       executeSQL("INSERT INTO Test (id,name) VALUES (1, 'Test')");
@@ -604,7 +613,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
     /// <summary>
     /// Bug #23538 Exception thrown when GetSchemaTable is called and "fields" is null. 
     /// </summary>
@@ -641,7 +650,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
     /// <summary>
     /// Bug #30204  	Incorrect ConstraintException
     /// </summary>

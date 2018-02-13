@@ -1,23 +1,29 @@
-﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2013, 2017, Oracle and/or its affiliates. All rights reserved.
 //
-// MySQL Connector/NET is licensed under the terms of the GPLv2
-// <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
-// MySQL Connectors. There are special exceptions to the terms and 
-// conditions of the GPLv2 as it is applied to this software, see the 
-// FLOSS License Exception
-// <http://www.mysql.com/about/legal/licensing/foss-exception.html>.
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License, version 2.0, as
+// published by the Free Software Foundation.
 //
-// This program is free software; you can redistribute it and/or modify 
-// it under the terms of the GNU General Public License as published 
-// by the Free Software Foundation; version 2 of the License.
+// This program is also distributed with certain software (including
+// but not limited to OpenSSL) that is licensed under separate terms,
+// as designated in a particular file or component or in included license
+// documentation.  The authors of MySQL hereby grant you an
+// additional permission to link the program and your derivative works
+// with the separately licensed software that they have included with
+// MySQL.
 //
-// This program is distributed in the hope that it will be useful, but 
-// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-// or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
-// for more details.
+// Without limiting anything contained in the foregoing, this file,
+// which is part of MySQL Connector/NET, is also subject to the
+// Universal FOSS Exception, version 1.0, a copy of which can be found at
+// http://oss.oracle.com/licenses/universal-foss-exception.
 //
-// You should have received a copy of the GNU General Public License along 
-// with this program; if not, write to the Free Software Foundation, Inc., 
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License, version 2.0, for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
@@ -100,7 +106,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
 
-#if !NETCORE10
+#if !NETCOREAPP1_1
     [Fact]
     public void RespectBinaryFlags()
     {
@@ -256,8 +262,9 @@ namespace MySql.Data.MySqlClient.Tests
     /// Test for new functionality on 5.7.9 supporting chinese character sets gb18030
     /// WL #4024
     /// (Oracle bug #21098546).
+    /// Disabled due to intermittent failure. Documented under Oracle bug #27010958
     /// </summary>
-    [Fact]
+    [Fact (Skip="Fix this")]
     public void CanInsertChineseCharacterSetGB18030()
     {
       if (Fixture.Version < new Version(5, 7, 4)) return;
@@ -282,14 +289,13 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-
-
     /// <summary>
     /// Test for new functionality on 5.7.9 supporting chinese character sets on gb18030
     /// WL #4024
     /// (Oracle bug #21098546).
+    /// Disabled due to intermittent failure. Documented under Oracle bug #27010958
     /// </summary>
-    [Fact]
+    [Fact (Skip = "Fix this")]
     public void CanCreateDbUsingChineseCharacterSetGB18030()
     {
       if (Fixture.Version < new Version(5, 7, 4)) return;
@@ -374,12 +380,12 @@ namespace MySql.Data.MySqlClient.Tests
       {
         string database = "数据库";
         string user = "用户";
-        string password = "test";
+        string password = "tést€";
 
         rootConnection.Open();
         MySqlCommand rootCommand = new MySqlCommand();
         rootCommand.Connection = rootConnection;
-        rootCommand.CommandText = string.Format("CREATE DATABASE `{0}`;", database);
+        rootCommand.CommandText = string.Format("CREATE DATABASE IF NOT EXISTS `{0}`;", database);
         rootCommand.CommandText += string.Format("GRANT ALL ON `{0}`.* to '{1}'@'localhost' identified by '{2}';", database, user, password);
         rootCommand.ExecuteNonQuery();
 
@@ -422,6 +428,44 @@ namespace MySql.Data.MySqlClient.Tests
           Assert.Equal("utf8mb4", reader.GetString("Value"));
         else
           Assert.Equal("latin1", reader.GetString("Value"));
+      }
+    }
+
+    [Fact]
+    public void CharacterVariablesByDefault()
+    {
+      MySqlConnectionStringBuilder rootSb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
+      rootSb.CharacterSet = string.Empty;
+      using (MySqlConnection rootConnection = new MySqlConnection(rootSb.ToString()))
+      {
+        rootConnection.Open();
+        MySqlCommand cmd = rootConnection.CreateCommand();
+        cmd.CommandText = "SELECT @@character_set_server";
+        string characterSet = cmd.ExecuteScalar().ToString();
+        Assert.False(string.IsNullOrWhiteSpace(characterSet));
+
+        cmd.CommandText = "SHOW VARIABLES LIKE 'character_set_c%'";
+        using (MySqlDataReader dr = cmd.ExecuteReader())
+        {
+          Assert.True(dr.HasRows);
+          while (dr.Read())
+          {
+            switch (dr.GetString(0).ToLowerInvariant())
+            {
+              case "character_set_client":
+                Assert.Equal(characterSet, dr.GetString(1));
+                break;
+              case "character_set_connection":
+                Assert.Equal(characterSet, dr.GetString(1));
+                break;
+              default:
+                throw new InvalidOperationException(string.Format("Variable '{0}' not expected.", dr.GetString(0)));
+            }
+          }
+        }
+
+        cmd.CommandText = "SELECT @@character_set_results";
+        Assert.Equal(DBNull.Value, cmd.ExecuteScalar());
       }
     }
   }

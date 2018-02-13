@@ -1,23 +1,29 @@
-﻿// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
 //
-// MySQL Connector/NET is licensed under the terms of the GPLv2
-// <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
-// MySQL Connectors. There are special exceptions to the terms and 
-// conditions of the GPLv2 as it is applied to this software, see the 
-// FLOSS License Exception
-// <http://www.mysql.com/about/legal/licensing/foss-exception.html>.
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License, version 2.0, as
+// published by the Free Software Foundation.
 //
-// This program is free software; you can redistribute it and/or modify 
-// it under the terms of the GNU General Public License as published 
-// by the Free Software Foundation; version 2 of the License.
+// This program is also distributed with certain software (including
+// but not limited to OpenSSL) that is licensed under separate terms,
+// as designated in a particular file or component or in included license
+// documentation.  The authors of MySQL hereby grant you an
+// additional permission to link the program and your derivative works
+// with the separately licensed software that they have included with
+// MySQL.
 //
-// This program is distributed in the hope that it will be useful, but 
-// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-// or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
-// for more details.
+// Without limiting anything contained in the foregoing, this file,
+// which is part of MySQL Connector/NET, is also subject to the
+// Universal FOSS Exception, version 1.0, a copy of which can be found at
+// http://oss.oracle.com/licenses/universal-foss-exception.
 //
-// You should have received a copy of the GNU General Public License along 
-// with this program; if not, write to the Free Software Foundation, Inc., 
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License, version 2.0, for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Mysqlx.Crud;
@@ -465,7 +471,10 @@ namespace MySqlX.Protocol.X
             else
             {
               // we case-normalize reserved words
-              this.tokens.Add(new Token(reservedWords[valLower], valLower));
+              if (IsReservedWordFunctionCall(valLower, i))
+                this.tokens.Add(new Token(TokenType.IDENT, val));
+              else
+                this.tokens.Add(new Token(reservedWords[valLower], valLower));
             }
           }
           else
@@ -474,6 +483,19 @@ namespace MySqlX.Protocol.X
           }
         }
       }
+    }
+
+    bool IsReservedWordFunctionCall(string reservedWord, int position)
+    {
+      Token token = new Token(reservedWords[reservedWord], reservedWord);
+      if (token.type == TokenType.YEAR || token.type == TokenType.MONTH || token.type == TokenType.WEEK ||
+        token.type == TokenType.DAY || token.type == TokenType.HOUR || token.type == TokenType.MINUTE ||
+        token.type == TokenType.SECOND || token.type == TokenType.MICROSECOND || token.type == TokenType.QUARTER ||
+        token.type == TokenType.TIME || token.type == TokenType.DATE || token.type == TokenType.CHAR ||
+        token.type == TokenType.HEX || token.type == TokenType.BIN)
+        return this.stringValue.Length >= position + 2 && stringValue[position + 1] == '(';
+      else
+        return false;
     }
 
     /**

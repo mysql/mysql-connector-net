@@ -71,15 +71,6 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Error parsing configuration file &apos;{0}&apos;..
-        /// </summary>
-        public static string ErrorParsingConfigFile {
-            get {
-                return ResourceManager.GetString("ErrorParsingConfigFile", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to This functionality is only supported from server version {0} onwards..
         /// </summary>
         public static string FunctionalityNotSupported {
@@ -130,6 +121,24 @@ namespace MySql.Data {
         public static string InvalidDecimalFormat {
             get {
                 return ResourceManager.GetString("InvalidDecimalFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Field type with name &apos;{0}&apos; not found..
+        /// </summary>
+        public static string InvalidFieldType {
+            get {
+                return ResourceManager.GetString("InvalidFieldType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Index type with name &apos;{0}&apos; not found..
+        /// </summary>
+        public static string InvalidIndexType {
+            get {
+                return ResourceManager.GetString("InvalidIndexType", resourceCulture);
             }
         }
         
@@ -193,6 +202,15 @@ namespace MySql.Data {
         public static string KeywordNotSupported {
             get {
                 return ResourceManager.GetString("KeywordNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Field &apos;{0}&apos; is mandatory..
+        /// </summary>
+        public static string MandatoryFieldNotFound {
+            get {
+                return ResourceManager.GetString("MandatoryFieldNotFound", resourceCulture);
             }
         }
         
@@ -346,6 +364,15 @@ namespace MySql.Data {
         public static string UnexpectedEndOfPacketFound {
             get {
                 return ResourceManager.GetString("UnexpectedEndOfPacketFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Field name &apos;{0}&apos; is not allowed..
+        /// </summary>
+        public static string UnexpectedField {
+            get {
+                return ResourceManager.GetString("UnexpectedField", resourceCulture);
             }
         }
         
