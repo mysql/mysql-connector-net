@@ -1923,5 +1923,24 @@ namespace MySql.Data.MySqlClient.Tests
        connection.Close();
       }
     }
+
+    [Fact]
+    public void EmptyPasswordOnMySqlNativePassword()
+    {
+      var pluginName = "mysql_native_password";
+      var builder = new MySqlConnectionStringBuilder();
+      builder.UserID = "testNtvPass";
+      builder.Password = "";
+      builder.Server = st.conn.Settings.Server;
+      builder.Port = st.conn.Settings.Port;
+      st.CreateUser(builder.UserID, builder.Password, pluginName);
+
+      using (var connection = new MySqlConnection(builder.ConnectionString))
+      {
+        connection.Open();
+        Assert.True(connection.State == ConnectionState.Open);
+        connection.Close();
+      }
+    }
   }
 }
