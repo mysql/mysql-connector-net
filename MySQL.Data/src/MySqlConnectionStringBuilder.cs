@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2017 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -49,7 +49,7 @@ namespace MySql.Data.MySqlClient
       // Server options
       Options.Add(new MySqlConnectionStringOption("server", "host,data source,datasource,address,addr,network address", typeof(string), "" /*"localhost"*/, false));
       Options.Add(new MySqlConnectionStringOption("database", "initial catalog", typeof(string), string.Empty, false));
-      Options.Add(new MySqlConnectionStringOption("protocol", "connection protocol, connectionprotocol", typeof(MySqlConnectionProtocol), MySqlConnectionProtocol.Sockets, false,
+      Options.Add(new MySqlConnectionStringOption("protocol", "connection protocol,connectionprotocol", typeof(MySqlConnectionProtocol), MySqlConnectionProtocol.Sockets, false,
         (msb, sender, value) =>
         {
 #if NETSTANDARD1_3 || NETSTANDARD2_0 || NETCOREAPP2_0
@@ -152,6 +152,7 @@ namespace MySql.Data.MySqlClient
           return (bool)val;
         }
         ));
+      Options.Add(new MySqlConnectionStringOption("allowpublickeyretrieval", "allow public key retrieval", typeof(bool), false, false));
 
       // Other properties
 #if !NETSTANDARD1_3
@@ -231,7 +232,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("blobasutf8excludepattern", null, typeof(string), "", false));
       Options.Add(new MySqlConnectionStringOption("sslmode", "ssl mode", typeof(MySqlSslMode), MySqlSslMode.Preferred, false));
       Options.Add(new MySqlConnectionStringOption("sslenable", "ssl-enable", typeof(bool), false, false,
-        (msb, sender, value) => { msb.SslEnable = bool.Parse(value as string); },
+        (msb, sender, value) => { msb.SslEnable = value is string ? bool.Parse(value as string) : (bool) value; },
         (msb, sender) => { return msb.SslEnable; }));
       Options.Add(new MySqlConnectionStringOption("sslca", "ssl-ca", typeof(string), null, false,
         (msb, sender, value) => { msb.SslCa = value as string; },
@@ -535,6 +536,16 @@ namespace MySql.Data.MySqlClient
     {
       get { return (bool)values["integratedsecurity"]; }
       set { SetValue("integratedsecurity", value); }
+    }
+
+    [Category("Authentication")]
+    [DisplayName("Allow Public Key Retrieval")]
+    [Description("Allow retrieval of RSA public keys when SSL is disabled")]
+    [DefaultValue(false)]
+    public bool AllowPublicKeyRetrieval
+    {
+      get { return (bool) values["allowpublickeyretrieval"]; }
+      set { SetValue("allowpublickeyretrieval", value); }
     }
 
 #endregion
@@ -975,7 +986,7 @@ namespace MySql.Data.MySqlClient
 
 #region XProperties
 
-    [Description("X DevApi: enables the use of SSL as required")]
+    [Description("Enables the use of SSL as required")]
     public bool SslEnable
     {
       get { return ((MySqlSslMode)this["sslmode"] != MySqlSslMode.None); }
@@ -988,7 +999,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    [Description("X DevApi: path to a local file that contains a list of trusted TLS/SSL CAs")]
+    [Description("Path to a local file that contains a list of trusted TLS/SSL CAs")]
     public string SslCa
     {
       get { return CertificateFile; }
@@ -999,7 +1010,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    [Description("X DevApi: path to a local file containing certificate revocation lists")]
+    [Description("Path to a local file containing certificate revocation lists")]
     public string SslCrl
     {
       get { throw new NotSupportedException(); }

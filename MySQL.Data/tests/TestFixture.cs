@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, 2017 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -165,6 +165,37 @@ namespace MySql.Data.MySqlClient.Tests
       {
         string userName = String.Format("{0}{1}", BaseUserName, postfix);
         executeSQL(String.Format("CREATE USER '{0}'@'localhost' IDENTIFIED BY '{1}'", userName, password), connection);
+        executeSQL(String.Format("GRANT ALL ON *.* TO '{0}'@'localhost'", userName), connection);
+        executeSQL("FLUSH PRIVILEGES", connection);
+        return userName;
+      }
+    }
+
+    public string CreateUser(string userName, string password, string plugin)
+    {
+      using (var connection = GetConnection(true))
+      {
+        if (Version >= new Version("5.7"))
+        {
+          executeSQL(String.Format("DROP USER IF EXISTS '{0}'@'localhost';", userName), connection);
+          executeSQL(
+          String.Format(
+            "CREATE USER '{0}'@'localhost' IDENTIFIED {1} BY '{2}'",
+            userName,
+            (plugin == null ? string.Empty : String.Format("WITH '{0}' ", plugin)), password),
+          connection);
+        }
+        else
+        {
+          var cmd = connection.CreateCommand();
+          cmd.CommandText = String.Format("SELECT count(*) FROM mysql.user WHERE user LIKE '{0}%'", userName);
+          if ((long)cmd.ExecuteScalar() > 0)
+            executeSQL(String.Format("DROP USER '{0}'@'localhost';", userName), connection);
+          executeSQL(String.Format("CREATE USER '{0}'@'localhost' IDENTIFIED WITH '{1}'", userName, plugin), connection);
+          if (plugin=="sha256_password") executeSQL("SET old_passwords = 2", connection);
+          executeSQL(String.Format("SET PASSWORD FOR '{0}'@'localhost' = PASSWORD('{1}')", userName, password), connection);
+        }
+
         executeSQL(String.Format("GRANT ALL ON *.* TO '{0}'@'localhost'", userName), connection);
         executeSQL("FLUSH PRIVILEGES", connection);
         return userName;
