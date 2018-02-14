@@ -4,7 +4,7 @@
     <Description>MySql.Data.EF6.CodeFirst.Tests</Description>
     <Copyright>Copyright © 2016, 2018 Oracle and/or its affiliates. All rights reserved.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>6.10.6</Version>
+    <Version>6.10.7</Version>
     <Authors>Oracle</Authors>
     <TargetFramework>net452</TargetFramework>
     <AssemblyName>MySql.EntityFramework6.CodeFirst.Tests</AssemblyName>
