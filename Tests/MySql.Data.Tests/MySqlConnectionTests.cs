@@ -43,7 +43,9 @@ namespace MySql.Data.MySqlClient.Tests
 
       public void SetFixture(SetUpClass data)
       {
-          st = data;
+        st = data;
+        if (st.conn.State != ConnectionState.Open && !st.conn.SoftClosed)
+          st.conn.Open();
       }
 
       [Fact]
@@ -1190,6 +1192,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           c.Open();
           Assert.Equal(ConnectionState.Open, c.State);
+          c.Close();
         }
       }
 
@@ -1328,6 +1331,7 @@ namespace MySql.Data.MySqlClient.Tests
           Assert.True(reader.Read());
           Assert.True(reader.GetString(1).StartsWith("TLSv1"));
         }
+        connection.Close();
       }
     }
 
@@ -1344,6 +1348,7 @@ namespace MySql.Data.MySqlClient.Tests
           Assert.True(reader.Read());
           Assert.Equal(string.Empty, reader.GetString(1));
         }
+        connection.Close();
       }
     }
 
@@ -1481,6 +1486,7 @@ namespace MySql.Data.MySqlClient.Tests
             if (!string.IsNullOrEmpty(reader.GetString(1))) serverCompiledUsingOpenSsl = true;
           }
         }
+        connection.Close();
       }
 
       Settings.SslMode = MySqlSslMode.None;
@@ -1633,6 +1639,8 @@ namespace MySql.Data.MySqlClient.Tests
             if (!string.IsNullOrEmpty(reader.GetString(1))) serverCompiledUsingOpenSsl = true;
           }
         }
+
+        connection.Close();
       }
 
       st.ExecuteSQLAsRoot("FLUSH PRIVILEGES");
@@ -1708,6 +1716,8 @@ namespace MySql.Data.MySqlClient.Tests
             if (!string.IsNullOrEmpty(reader.GetString(1))) serverCompiledUsingOpenSsl = true;
           }
         }
+
+        connection.Close();
       }
 
       Settings.SslMode = MySqlSslMode.None;
@@ -1764,6 +1774,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         command.CommandText = "FLUSH PRIVILEGES";
         command.ExecuteNonQuery();
+        connection.Close();
       }
 
       Settings.SslMode = MySqlSslMode.None;
@@ -1817,6 +1828,8 @@ namespace MySql.Data.MySqlClient.Tests
             if (!string.IsNullOrEmpty(reader.GetString(1))) serverCompiledUsingOpenSsl = true;
           }
         }
+
+        connection.Close();
       }
 
       Settings.SslMode = MySqlSslMode.Required;
