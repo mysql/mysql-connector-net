@@ -43,7 +43,9 @@ namespace MySql.Data.MySqlClient.Tests
 
       public void SetFixture(SetUpClass data)
       {
-          st = data;
+        st = data;
+		if (st.conn.State != ConnectionState.Open && !st.conn.SoftClosed)
+          st.conn.Open();  
       }
 
       [Fact]
@@ -1334,7 +1336,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void SslOverrided()
     {
-      string connectionString = st.GetConnectionString(true) + ";Ssl mode=None";
+      string connectionString = st.GetConnectionString(true) + ";Ssl mode=None;AllowPublicKeyRetrieval=true";
       using (MySqlConnection connection = new MySqlConnection(connectionString))
       {
         connection.Open();
@@ -1432,7 +1434,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ConnectUsingSha256PasswordPlugin()
     {
-      if (st.Version <= new Version("5.6")) return;
+      if (st.Version <= new Version("5.7")) return;
 
       string userName = "testSha256";
       string password = "mysql";
@@ -1683,7 +1685,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void AllowPublicKeyRetrievalForSha256PasswordPlugin()
     {
-      if (st.Version <= new Version("5.6")) return;
+      if (st.Version <= new Version("5.7")) return;
 
       string userName = "testSha256";
       string password = "mysql";
@@ -1885,7 +1887,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void EmptyPasswordOnSslDisabledSha256Password()
     {
-      if (st.Version <= new Version("5.6")) return;
+      if (st.Version <= new Version("5.7")) return;
 
       string userName = "testSha256";
       string password = "";
