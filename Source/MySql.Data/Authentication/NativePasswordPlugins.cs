@@ -1,4 +1,4 @@
-﻿// Copyright © 2012, 2017 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2012, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -55,7 +55,7 @@ namespace MySql.Data.MySqlClient.Authentication
 
     protected override byte[] MoreData(byte[] data)
     {
-      byte[] passBytes = GetPassword() as byte[];
+      byte[] passBytes = (GetPassword() ?? new byte[1]) as byte[];
       byte[] buffer = new byte[passBytes.Length - 1];
       Array.Copy(passBytes, 1, buffer, 0, passBytes.Length - 1);
       return buffer;

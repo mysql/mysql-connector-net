@@ -927,6 +927,15 @@ namespace MySql.Data.MySqlClient.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Retrieval of the RSA public key is not enabled for insecure connections..
+        /// </summary>
+        public static string RSAPublicKeyRetrievalNotEnabled {
+            get {
+                return ResourceManager.GetString("RSAPublicKeyRetrievalNotEnabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Connector/Net no longer supports server versions prior to 5.0.
         /// </summary>
         public static string ServerTooOld {
@@ -1274,6 +1283,15 @@ namespace MySql.Data.MySqlClient.Properties {
         public static string UnableToParseFK {
             get {
                 return ResourceManager.GetString("UnableToParseFK", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error encountered reading the RSA public key..
+        /// </summary>
+        public static string UnableToReadRSAKey {
+            get {
+                return ResourceManager.GetString("UnableToReadRSAKey", resourceCulture);
             }
         }
         

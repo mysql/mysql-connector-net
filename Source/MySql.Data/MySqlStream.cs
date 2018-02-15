@@ -1,4 +1,4 @@
-// Copyright © 2004, 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -238,7 +238,7 @@ namespace MySql.Data.MySqlClient
         throw new MySqlException(Resources.QueryTooLarge, (int)MySqlErrorCode.PacketTooLarge);
 
       int offset = 0;
-      while (length > 0)
+      do
       {
         int lenToSend = length > maxBlockSize ? maxBlockSize : length;
         buffer[offset] = (byte)(lenToSend & 0xff);
@@ -250,7 +250,7 @@ namespace MySql.Data.MySqlClient
         outStream.Flush();
         length -= lenToSend;
         offset += lenToSend;
-      }
+      } while (length > 0);
     }
 
     public void SendEntirePacketDirectly(byte[] buffer, int count)

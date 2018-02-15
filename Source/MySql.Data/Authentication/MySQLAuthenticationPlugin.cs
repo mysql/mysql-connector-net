@@ -1,4 +1,4 @@
-﻿// Copyright © 2012, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2012, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -127,9 +127,18 @@ namespace MySql.Data.MySqlClient.Authentication
 
       driver.SetConnectAttrs();
       driver.SendPacket(packet);
-      //read server response
+
+      // Read server response.
       packet = ReadPacket();
       byte[] b = packet.Buffer;
+
+      if (PluginName == "caching_sha2_password" && b[0] == 0x01)
+      {
+        // React to the authentication type set by server: FAST, FULL.
+        ContinueAuthentication(new byte[] { b[1] });
+      }
+
+      // Auth switch request Protocol::AuthSwitchRequest.
       if (b[0] == 0xfe)
       {
         if (packet.IsLastPacket)
@@ -173,7 +182,7 @@ namespace MySql.Data.MySqlClient.Authentication
       }
       catch (MySqlException ex)
       {
-        // make sure this is an auth failed ex
+        // Make sure this is an auth failed ex.
         AuthenticationFailed(ex);
         return null;
       }
@@ -189,15 +198,16 @@ namespace MySql.Data.MySqlClient.Authentication
       Array.Copy(packet.Buffer, packet.Position, authData, 0, authData.Length);
 
       MySqlAuthenticationPlugin plugin = MySqlAuthenticationPlugin.GetPlugin(method, driver, authData);
-      plugin.AuthenticationChange();
+      plugin.ContinueAuthentication();
     }
 
-    private void AuthenticationChange()
+    private void ContinueAuthentication(byte[] data = null)
     {
       MySqlPacket packet = driver.Packet;
       packet.Clear();
-      byte[] moreData = MoreData(null);
-      while (moreData != null && moreData.Length > 0)
+      byte[] moreData = MoreData(data);
+
+      while (moreData != null)
       {
         packet.Clear();
         packet.Write(moreData);
