@@ -262,7 +262,7 @@ namespace MySql.Data.MySqlClient
 				if (version < new Version(5, 6)) return "5.5";
 				if (version < new Version(5, 7)) return "5.6";
                 if (version < new Version(8, 0, 4)) return "5.7";
-                return "8.0";
+                return c.ServerVersion.Substring(0, 5);
 				
 			}
 		}
