@@ -187,7 +187,7 @@
       <DefiningQuery>
         SELECT
         CONCAT(f.SPECIFIC_SCHEMA, '.', f.SPECIFIC_NAME, '.', f.PARAMETER_NAME) AS `Id`,
-        CONCAT(f.SPECIFIC_SCHEMA, '.', f.SPECIFIC_NAME) AS `ParentId`,
+        CONCAT(f.SPECIFIC_SCHEMA, '.', f.SPECIFIC_NAME) COLLATE utf8_tolower_ci AS `ParentId`,
         f.PARAMETER_NAME AS `Name`,
         f.ORDINAL_POSITION `Ordinal`,
         f.DATA_TYPE AS `TypeName`,
