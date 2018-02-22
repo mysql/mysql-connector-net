@@ -1,4 +1,4 @@
-// Copyright © 2008, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2008, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -268,6 +268,23 @@ namespace MySql.Data.EntityFramework
     public override void WriteSql(StringBuilder sql)
     {
       sql.Append("CASE");
+
+      // If CASE clause contains an IS NULL value in WHEN statement and has an Else statement, negate WHEN and invert the CASE, 
+      // otherwise THEN statement will not be considered and the value will be set to NULL.
+      if (When.Count == 1 && When[0] is IsNullFragment && !(((NegatableFragment)When[0]).IsNegated) && Else != null)
+      {
+        sql.Append(" WHEN (");
+        ((NegatableFragment)When[0]).IsNegated = true;
+        When[0].WriteSql(sql);
+        sql.Append(") THEN (");
+        Else.WriteSql(sql);
+        sql.Append(") ");
+        sql.Append(" ELSE (");
+        Then[0].WriteSql(sql);
+        sql.Append(") ");
+      }
+      else
+      {
       for (int i = 0; i < When.Count; i++)
       {
         sql.Append(" WHEN (");
@@ -282,6 +299,8 @@ namespace MySql.Data.EntityFramework
         Else.WriteSql(sql);
         sql.Append(") ");
       }
+      }
+
       sql.Append("END");
     }
 
