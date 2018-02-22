@@ -2,6 +2,7 @@
 - Added support for the caching_sha2_password authentication plugin introduced in server 8.0.3.
   Added support for RSA key encription in the sha256_password authentication plugin (WL11285).
 - Added support for MySQL 8 server features (WL11325).
+- Fix to enable the creation of an Entity Framework model from a database, also called the database-first approach (MySQL Bug 79163, Oracle Bug #22173048).
 
 
 6.9.11

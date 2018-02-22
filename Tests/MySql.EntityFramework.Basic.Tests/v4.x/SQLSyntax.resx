@@ -491,8 +491,8 @@ FROM   (SELECT `Extent1`.`Id`,
                  ELSE ( 1 )
                END           AS `C1`,
                CASE
-                 WHEN ( `Join2`.`Id` IS NULL ) THEN ( NULL )
-                 ELSE ( 1 )
+                 WHEN ( `Join2`.`Id` IS NOT NULL ) THEN ( 1 )
+                 ELSE ( NULL )
                END           AS `C2`
         FROM   `myauthors` AS `Extent1`
                LEFT OUTER JOIN (SELECT `Extent2`.`Id`,
