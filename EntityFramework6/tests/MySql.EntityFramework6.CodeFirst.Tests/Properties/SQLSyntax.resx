@@ -229,7 +229,7 @@ FROM (SELECT
 `Join3`.`CLEARANCEID1` AS `ClearanceId1`, 
 `Join3`.`DESCRIPTION2` AS `Description4`, 
 CASE WHEN (`Join3`.`ShipId` IS  NULL) THEN (NULL)  WHEN (`Join3`.`CrewMemberId` IS  NULL) THEN (NULL)  ELSE (1) END AS `C1`, 
-CASE WHEN (`Join3`.`ShipId` IS  NULL) THEN (NULL)  ELSE (1) END AS `C2`
+CASE WHEN (`Join3`.`ShipId` IS  NOT NULL) THEN (1)  ELSE (NULL) END AS `C2`
 FROM `Harbors` AS `Extent1` LEFT OUTER JOIN (SELECT
 `Extent2`.`ShipId`, 
 `Extent2`.`HarborId`, 
@@ -294,7 +294,7 @@ FROM (SELECT
 `Join3`.`CLEARANCEID1` AS `ClearanceId1`, 
 `Join3`.`DESCRIPTION2` AS `Description4`, 
 CASE WHEN (`Join3`.`ShipId` IS  NULL) THEN (NULL)  WHEN (`Join3`.`CrewMemberId` IS  NULL) THEN (NULL)  ELSE (1) END AS `C1`, 
-CASE WHEN (`Join3`.`ShipId` IS  NULL) THEN (NULL)  ELSE (1) END AS `C2`
+CASE WHEN (`Join3`.`ShipId` IS  NOT NULL) THEN (1)  ELSE (NULL) END AS `C2`
 FROM `Harbors` AS `Extent1` LEFT OUTER JOIN (SELECT
 `Extent2`.`ShipId`, 
 `Extent2`.`HarborId`, 

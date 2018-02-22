@@ -1,4 +1,4 @@
-﻿// Copyright © 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2008, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -122,7 +122,7 @@ namespace MySql.Data.Entity
     }
 
     public void Visit(InFragment f)
-    { 
+    {
     }
 
     public void Visit(BinaryFragment f)
@@ -173,7 +173,7 @@ namespace MySql.Data.Entity
     {
     }
 
-  }  
+  }
 
   internal class BinaryFragment : NegatableFragment
   {
@@ -262,20 +262,39 @@ namespace MySql.Data.Entity
     public override void WriteSql(StringBuilder sql)
     {
       sql.Append("CASE");
-      for (int i = 0; i < When.Count; i++)
+
+      // If CASE clause contains an IS NULL value in WHEN statement and has an Else statement, negate WHEN and invert the CASE, 
+      // otherwise THEN statement will not be considered and the value will be set to NULL.
+      if (When.Count == 1 && When[0] is IsNullFragment && !(((NegatableFragment)When[0]).IsNegated) && Else != null)
       {
         sql.Append(" WHEN (");
-        When[i].WriteSql(sql);
+        ((NegatableFragment)When[0]).IsNegated = true;
+        When[0].WriteSql(sql);
         sql.Append(") THEN (");
-        Then[i].WriteSql(sql);
-        sql.Append(") ");
-      }
-      if (Else != null)
-      {
-        sql.Append(" ELSE (");
         Else.WriteSql(sql);
         sql.Append(") ");
+        sql.Append(" ELSE (");
+        Then[0].WriteSql(sql);
+        sql.Append(") ");
       }
+      else
+      {
+        for (int i = 0; i < When.Count; i++)
+        {
+          sql.Append(" WHEN (");
+          When[i].WriteSql(sql);
+          sql.Append(") THEN (");
+          Then[i].WriteSql(sql);
+          sql.Append(") ");
+        }
+        if (Else != null)
+        {
+          sql.Append(" ELSE (");
+          Else.WriteSql(sql);
+          sql.Append(") ");
+        }
+      }
+
       sql.Append("END");
     }
 
@@ -401,7 +420,7 @@ namespace MySql.Data.Entity
       sql.Append(")");
     }
 
-    internal override void  Accept(SqlFragmentVisitor visitor)
+    internal override void Accept(SqlFragmentVisitor visitor)
     {
       Argument.Accept(visitor);
     }
@@ -436,7 +455,7 @@ namespace MySql.Data.Entity
       if (IsNegated)
         sql.Append(" NOT ");
       sql.Append(" LIKE ");
-      Pattern.WriteSql(sql);      
+      Pattern.WriteSql(sql);
     }
 
     internal override void Accept(SqlFragmentVisitor visitor)
