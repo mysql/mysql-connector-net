@@ -6,6 +6,8 @@
 - Fixed a problem in which NuGet packages could not be installed from within Visual Studio 2015 (MySQL Bug #88838, Oracle Bug #27251839).
 - Fix for bug: could not load file or assembly MySql.ConnectorInstaller when using web providers (MySQL Bug #88544, Oracle Bug #27457398).
 - Fix to enable the creation of an Entity Framework model from a database, also called the database-first approach (MySQL Bug 79163, Oracle Bug #22173048).
+- Fix to prevent the Entity Data Model Wizard from crashing in Visual Studio upon clicking the Next
+button. Thanks to Laurents Meyer for the contribution (MySQL Bug #89338, Oracle Bug #27420311).
 
 
 6.10.6
