@@ -42,7 +42,7 @@ namespace MySql.Data.MySqlClient.Authentication
   /// <summary>
   /// The implementation of the caching_sha2_password authentication plugin.
   /// </summary>
-  public class CachingSha2AuthenticationPlugin : Sha256AuthenticationPlugin
+  internal class CachingSha2AuthenticationPlugin : Sha256AuthenticationPlugin
   {
     internal static AuthStage _authStage;
 

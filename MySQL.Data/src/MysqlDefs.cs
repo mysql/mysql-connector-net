@@ -1,4 +1,4 @@
-// Copyright © 2004, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -429,9 +429,11 @@ namespace MySql.Data.MySqlClient
   public enum MySqlAuthenticationMode
   {
     /// <summary>
-    /// If SSL is enabled or Unix sockets are being used, sets PLAIN as the authentication mechanism; otherwise, uses MYSQL41.
+    /// If SSL is enabled or Unix sockets are being used, sets PLAIN as the authentication mechanism;
+    /// otherwise, it tries to use MYSQL41 and then SHA256_MEMORY.
     /// </summary>
     Default = 0,
+    AUTO = 0,
     /// <summary>
     /// Authenticate using PLAIN.
     /// </summary>
@@ -443,7 +445,11 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Authenticate using EXTERNAL.
     /// </summary>
-    EXTERNAL = 3
+    EXTERNAL = 3,
+    /// <summary>
+    /// Authenticate using SHA256_MEMORY.
+    /// </summary>
+    SHA256_MEMORY = 4
   }
 
   internal class MySqlConnectAttrs
