@@ -45,7 +45,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         st = data;
 		if (st.conn.State != ConnectionState.Open && !st.conn.SoftClosed)
-          st.conn.Open();  
+          st.conn.Open();
       }
 
       [Fact]

@@ -52,7 +52,7 @@ namespace MySql.Data.MySqlClient.Authentication
     protected override byte[] MoreData(byte[] data)
     {
       rawPubkey = data;
-      byte[] buffer = GetPassword() as byte[];
+      byte[] buffer = GetNonLengthEncodedPassword() as byte[];
       return buffer;
     }
 
@@ -60,11 +60,11 @@ namespace MySql.Data.MySqlClient.Authentication
     {
       if (Settings.SslMode != MySqlSslMode.None)
       {
-        // send as clear text, since the channel is already encrypted
         byte[] passBytes = Encoding.GetBytes(Settings.Password);
-        byte[] buffer = new byte[passBytes.Length + 1];
-        Array.Copy(passBytes, 0, buffer, 0, passBytes.Length);
-        buffer[passBytes.Length] = 0;
+        byte[] buffer = new byte[passBytes.Length + 2];
+        Array.Copy(passBytes, 0, buffer, 1, passBytes.Length);
+        buffer[0] = (byte) (passBytes.Length+1);
+        buffer[buffer.Length-1] = 0x00;
         return buffer;
       }
       else
@@ -81,6 +81,21 @@ namespace MySql.Data.MySqlClient.Authentication
           return bytes;
         }
       }
+    }
+
+    private byte[] GetNonLengthEncodedPassword()
+    {
+      // Required for AuthChange requests.
+      if (Settings.SslMode != MySqlSslMode.None)
+      {
+        // Send as clear text, since the channel is already encrypted.
+        byte[] passBytes = Encoding.GetBytes(Settings.Password);
+        byte[] buffer = new byte[passBytes.Length + 1];
+        Array.Copy(passBytes, 0, buffer, 0, passBytes.Length);
+        buffer[passBytes.Length] = 0;
+        return buffer;
+      }
+      else return GetPassword() as byte[];
     }
 
     private byte[] GetRsaPassword(string password, byte[] seedBytes, byte[] rawPublicKey)
@@ -100,7 +115,7 @@ namespace MySql.Data.MySqlClient.Authentication
         throw new MySqlException("RSA2");
       return rsa.Encrypt(obfuscated, RSAEncryptionPadding.OaepSHA1);
 #else
-            RSACryptoServiceProvider rsa = MySqlPemReader.ConvertPemToRSAProvider(rawPublicKey);
+      RSACryptoServiceProvider rsa = MySqlPemReader.ConvertPemToRSAProvider(rawPublicKey);
       if (rsa == null)
         //throw new MySqlException(Resources.UnableToReadRSAKey);
         throw new MySqlException("RSA2");
