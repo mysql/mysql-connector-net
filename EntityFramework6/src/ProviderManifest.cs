@@ -54,12 +54,12 @@ namespace MySql.Data.MySqlClient
 
     protected override XmlReader GetDbInformation(string informationType)
     {
-      if (informationType == DbProviderManifest.StoreSchemaDefinition || informationType == DbProviderManifest.StoreSchemaDefinitionVersion3)
+      if (informationType == DbProviderManifest.StoreSchemaDefinition)
       {
         return GetStoreSchemaDescription();
       }
 
-      if (informationType == DbProviderManifest.StoreSchemaMapping || informationType == DbProviderManifest.StoreSchemaMappingVersion3)
+      if (informationType == DbProviderManifest.StoreSchemaMapping)
       {
         return GetStoreSchemaMapping();
       }

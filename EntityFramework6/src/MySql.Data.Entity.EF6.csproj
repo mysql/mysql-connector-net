@@ -30,6 +30,7 @@
     <None Remove="Properties\SchemaDefinition-5.5.ssdl" />
     <None Remove="Properties\SchemaDefinition-5.6.ssdl" />
     <None Remove="Properties\SchemaDefinition-5.7.ssdl" />
+	<None Remove="Properties\SchemaDefinition-8.0.ssdl" />
     <None Remove="Properties\SchemaMapping.msl" />
     <Content Include="..\..\Nuget\Entity\app.config.transform" />
     <Content Include="..\..\Nuget\Entity\web.config.transform" />
@@ -52,6 +53,9 @@
       <CustomToolNamespace />
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\SchemaDefinition-5.7.ssdl">
+      <CustomToolNamespace />
+    </EmbeddedResource>
+	<EmbeddedResource Include="Properties\SchemaDefinition-8.0.ssdl">
       <CustomToolNamespace />
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\SchemaMapping.msl" />
