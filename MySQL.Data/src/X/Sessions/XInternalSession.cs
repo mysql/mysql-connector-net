@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -363,7 +363,7 @@ namespace MySqlX.Sessions
     public Result Insert(Collection collection, DbDoc[] json, List<string> newIds, bool upsert)
     {
       protocol.SendInsert(collection.Schema.Name, false, collection.Name, json, null, upsert);
-      return new Result(this) { DocumentIds = newIds.AsReadOnly() } ;
+      return new Result(this);
     }
 
     public Result DeleteDocs(RemoveStatement rs)
@@ -412,6 +412,17 @@ namespace MySqlX.Sessions
     {
       protocol.SendInsert(statement.Target.Schema.Name, true, statement.Target.Name, statement.values.ToArray(), statement.fields, false);
       return new Result(this);
+    }
+
+    protected Result ExpectOpen(Mysqlx.Expect.Open.Types.Condition.Types.Key condition)
+    {
+      protocol.SendExpectOpen(condition);
+      return new Result(this);
+    }
+
+    public Result ExpectDocidGenerated()
+    {
+      return ExpectOpen(Mysqlx.Expect.Open.Types.Condition.Types.Key.ExpectDocidGenerated);
     }
   }
 }

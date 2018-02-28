@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -44,33 +44,43 @@ namespace MySqlX.Data.Tests
       Result r = coll.Add(@"{ ""_id"": 1, ""foo"": 1 }").Execute();
       Assert.Equal<ulong>(1, r.RecordsAffected);
       Assert.Equal(1, coll.Count());
-      Assert.False(string.IsNullOrWhiteSpace(r.DocumentId));
-      Assert.Equal(1, r.DocumentIds.Count);
     }
 
     [Fact]
     public void InsertSingleDbDocWithoutId()
     {
       Collection coll = CreateCollection("test");
-      Result r = coll.Add("{ \"foo\": 1 }").Execute();
+      var stmt = coll.Add("{ \"foo\": 1 }");
+      if (!session.Version.isAtLeast(8, 0, 5))
+      {
+        // Code 5115 Document is missing a required field
+        Assert.Equal(5115u, Assert.ThrowsAny<MySqlException>(() => stmt.Execute()).Code);
+        return;
+      }
+      Result r = stmt.Execute();
       Assert.Equal<ulong>(1, r.RecordsAffected);
       Assert.Equal(1, coll.Count());
-      Assert.False(string.IsNullOrWhiteSpace(r.DocumentId));
-      Assert.Equal(1, r.DocumentIds.Count);
+      Assert.Equal(1, r.GeneratedIds.Count);
+      Assert.False(string.IsNullOrWhiteSpace(r.GeneratedIds[0]));
     }
 
     [Fact]
     public void InsertMultipleDbDocWithoutId()
     {
       Collection coll = CreateCollection("test");
-      Result r = coll.Add("{ \"foo\": 1 }")
+      var stmt = coll.Add("{ \"foo\": 1 }")
         .Add("{ \"amber\": 2 }")
-        .Add("{ \"any\": 3 }")
-        .Execute();
+        .Add("{ \"any\": 3 }");
+      if (!session.Version.isAtLeast(8, 0, 5))
+      {
+        // Code 5115 Document is missing a required field
+        Assert.Equal(5115u, Assert.ThrowsAny<MySqlException>(() => stmt.Execute()).Code);
+        return;
+      }
+      Result r = stmt.Execute();
       Assert.Equal<ulong>(3, r.RecordsAffected);
       Assert.Equal(3, coll.Count());
-      Assert.Throws<System.ArgumentOutOfRangeException>(() => r.DocumentId);
-      Assert.Equal(3, r.DocumentIds.Count);
+      Assert.Equal(3, r.GeneratedIds.Count);
     }
 
     [Fact]
@@ -83,8 +93,6 @@ namespace MySqlX.Data.Tests
       Assert.Equal<ulong>(1, r.RecordsAffected);
       //TODO:  pull object and verify data
       Assert.Equal(1, coll.Count());
-      Assert.False(string.IsNullOrWhiteSpace(r.DocumentId));
-      Assert.Equal(1, r.DocumentIds.Count);
     }
 
     [Fact]
@@ -93,12 +101,19 @@ namespace MySqlX.Data.Tests
       var obj = new { name = "Sakila", age = 15 };
 
       Collection coll = CreateCollection("test");
-      Result r = coll.Add(obj).Execute();
+      var stmt = coll.Add(obj);
+      if (!session.Version.isAtLeast(8, 0, 5))
+      {
+        // Code 5115 Document is missing a required field
+        Assert.Equal(5115u, Assert.ThrowsAny<MySqlException>(() => stmt.Execute()).Code);
+        return;
+      }
+      Result r = stmt.Execute();
       Assert.Equal<ulong>(1, r.RecordsAffected);
       //TODO:  pull object and verify data
       Assert.Equal(1, coll.Count());
-      Assert.False(string.IsNullOrWhiteSpace(r.DocumentId));
-      Assert.Equal(1, r.DocumentIds.Count);
+      Assert.Equal(1, r.GeneratedIds.Count);
+      Assert.False(string.IsNullOrWhiteSpace(r.GeneratedIds[0]));
     }
 
     [Fact]
@@ -115,21 +130,25 @@ namespace MySqlX.Data.Tests
       Result r = coll.Add(docs).Execute();
       Assert.Equal<ulong>(4, r.RecordsAffected);
       Assert.Equal(4, coll.Count());
-      Assert.Throws<System.ArgumentOutOfRangeException>(() => r.DocumentId);
-      Assert.Equal(4, r.DocumentIds.Count);
     }
 
     [Fact]
     public void ValidatesDocumentIds()
     {
       Collection coll = CreateCollection("test");
-      Result result = coll.Add(new { name = "Book 1" }).Execute();
+      var stmt = coll.Add(new { name = "Book 1" });
+      if (!session.Version.isAtLeast(8, 0, 5))
+      {
+        // Code 5115 Document is missing a required field
+        Assert.Equal(5115u, Assert.ThrowsAny<MySqlException>(() => stmt.Execute()).Code);
+        return;
+      }
+      Result result = stmt.Execute();
       Assert.Equal<ulong>(1, result.RecordsAffected);
 
-      result = coll.Modify($"_id = '{result.DocumentId}'").Set("pages", "20").Execute();
+      result = coll.Modify($"_id = '{result.GeneratedIds[0]}'").Set("pages", "20").Execute();
       Assert.Equal<ulong>(1, result.RecordsAffected);
-      Assert.Null(result.DocumentId);
-      Assert.Null(result.DocumentIds);
+      Assert.Equal(0, result.GeneratedIds.Count);
     }
 
     [Fact]
@@ -143,7 +162,7 @@ namespace MySqlX.Data.Tests
         new {  _id = 3, title = "Book 3", pages = 40 },
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
-      var stmt = coll.Add(0);
+      var stmt = coll.Add(new { _id = 0 });
       stmt.Execute();
       foreach (var doc in docs)
       {
@@ -256,7 +275,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void AddOrReplaceOne()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
+      if (!session.Version.isAtLeast(8, 0, 3)) return;
 
       Collection collection = CreateCollection("test");
       var docs = new[]

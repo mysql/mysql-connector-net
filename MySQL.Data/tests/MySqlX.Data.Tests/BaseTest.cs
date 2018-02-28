@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -49,13 +49,8 @@ namespace MySqlX.Data.Tests
 
     static BaseTest()
     {
-#if NETSTANDARD1_6
       Port = Environment.GetEnvironmentVariable("MYSQL_PORT") ?? "3306";
       XPort = Environment.GetEnvironmentVariable("MYSQLX_PORT") ?? "33060";
-#else
-      Port = "3306";
-      XPort = "33060";
-#endif
       schemaName = "test";
       ConnectionStringRoot = $"server=localhost;port={Port};uid=root;password=";
       ConnectionString = $"server=localhost;port={XPort};uid=test;password=test";

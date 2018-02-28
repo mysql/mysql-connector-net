@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -71,8 +71,8 @@ namespace MySqlX.XDevAPI.CRUD
         if (_DbDocs.Count == 0)
           return new Result(null);
 
-        List<string> newIds = AssignIds();
-        return Target.Session.XSession.Insert(Target, _DbDocs.ToArray(), newIds, upsert);
+        //List<string> newIds = AssignIds();
+        return Target.Session.XSession.Insert(Target, _DbDocs.ToArray(), null, upsert);
       }
       finally
       {
