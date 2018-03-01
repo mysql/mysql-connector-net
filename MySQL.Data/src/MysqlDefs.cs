@@ -1,4 +1,4 @@
-// Copyright © 2004, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -444,6 +444,27 @@ namespace MySql.Data.MySqlClient
     /// Authenticate using EXTERNAL.
     /// </summary>
     EXTERNAL = 3
+  }
+
+  /// <summary>
+  /// Defines waiting options that may be used with row locking options.
+  /// </summary>
+  public enum LockContention
+  {
+    /// <summary>
+    /// Waits until the blocking transaction releases the row lock.
+    /// </summary>
+    Default = 0,
+    /// <summary>
+    /// Never waits to acquire a row lock. The query executes immediately, 
+    /// failing with an error if a requested row is locked.
+    /// </summary>
+    NoWait = 1,
+    /// <summary>
+    /// Never waits to acquire a row lock. The query executes immediately, 
+    /// removing locked rows from the result set.
+    /// </summary>
+    SkipLock = 2
   }
 
   internal class MySqlConnectAttrs

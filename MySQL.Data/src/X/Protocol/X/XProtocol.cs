@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -554,6 +554,7 @@ namespace MySqlX.Protocol
       builder.Collection = ExprUtil.BuildCollection(schema, collection);
       builder.DataModel = (isRelational ? DataModel.Table : DataModel.Document);
       if (findParams.Locking != 0) builder.Locking = (Find.Types.RowLock) findParams.Locking;
+      if (findParams.LockingOption != 0) builder.LockingOptions =(Find.Types.RowLockOptions)findParams.LockingOption;
       if (findParams.Projection != null && findParams.Projection.Length > 0)
         builder.Projection.Add(new ExprParser(ExprUtil.JoinString(findParams.Projection)).ParseTableSelectProjection());
       ApplyFilter(v => builder.Limit = v, v => builder.Criteria = v, builder.Order.Add, filter, builder.Args.Add);
