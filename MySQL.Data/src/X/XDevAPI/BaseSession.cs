@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -171,7 +171,7 @@ namespace MySqlX.XDevAPI
         {
           var server = value.Value.ToString();
           if (IsUnixSocket(server))
-            Settings.SetValue(value.Key, server=NormalizeUnixSocket(server));
+            Settings.SetValue(value.Key, server = NormalizeUnixSocket(server));
           ParseHostList(server, false);
           if (FailoverManager.FailoverGroup != null) Settings["server"] = FailoverManager.FailoverGroup.ActiveHost.Host;
           hostsParsed = true;
@@ -294,7 +294,7 @@ namespace MySqlX.XDevAPI
     public string SetSavepoint()
     {
       // Autogenerate the name of the savepoint.
-      return SetSavepoint($"savepoint_{Guid.NewGuid().ToString().Replace("-","_")}");
+      return SetSavepoint($"savepoint_{Guid.NewGuid().ToString().Replace("-", "_")}");
     }
 
     /// <summary>
@@ -367,8 +367,8 @@ namespace MySqlX.XDevAPI
           throw ex;
 
         // Identify if multiple hosts were specified.
-        string[] splitUriString = connectionString.Split('@','?');
-        if (splitUriString.Length==1) throw ex;
+        string[] splitUriString = connectionString.Split('@', '?');
+        if (splitUriString.Length == 1) throw ex;
 
         hierPart = splitUriString[1];
         var schema = string.Empty;
@@ -388,11 +388,11 @@ namespace MySqlX.XDevAPI
         {
           updatedUriString = splitUriString[0] + "@localhost" +
             (schema != string.Empty ? "/" + schema : string.Empty) +
-            (splitUriString.Length>2 ? "?" + splitUriString[2] : string.Empty);
+            (splitUriString.Length > 2 ? "?" + splitUriString[2] : string.Empty);
         }
         else if (isArray)
         {
-          hierPart = hierPart.Substring(1, hierPart.Length-2);
+          hierPart = hierPart.Substring(1, hierPart.Length - 2);
           int hostCount = ParseHostList(hierPart, true);
           if (FailoverManager.FailoverGroup != null)
           {
@@ -404,17 +404,17 @@ namespace MySqlX.XDevAPI
               (schema != string.Empty ? "/" + schema : string.Empty) +
               (splitUriString.Length == 3 ? "?" + splitUriString[2] : string.Empty);
           }
-          else if (hostCount==1)
+          else if (hostCount == 1)
             updatedUriString = splitUriString[0] + "@" + hierPart +
               (schema != string.Empty ? "/" + schema : string.Empty) +
-              (splitUriString.Length==3 ? "?" + splitUriString[2] : string.Empty);
+              (splitUriString.Length == 3 ? "?" + splitUriString[2] : string.Empty);
           else
             throw ex;
         }
       }
 
-      if (uri==null)
-        uri = updatedUriString==null ? new Uri(connectionString) : new Uri(updatedUriString);
+      if (uri == null)
+        uri = updatedUriString == null ? new Uri(connectionString) : new Uri(updatedUriString);
 
       return ConvertToBasicConnectionString(uri, hierPart, parseServerAsUnixSocket);
     }
@@ -472,13 +472,13 @@ namespace MySqlX.XDevAPI
       }
       if (!string.IsNullOrWhiteSpace(uri.Query))
       {
-        string[] queries = uri.Query.Substring(1).Split(new char[] { '&' }, StringSplitOptions.RemoveEmptyEntries);
+        string[] queries = Uri.UnescapeDataString(uri.Query).Substring(1).Split(new char[] { '&' }, StringSplitOptions.RemoveEmptyEntries);
         foreach (string query in queries)
         {
           string[] keyValue = query.Split('=');
           if (keyValue.Length > 2)
             throw new ArgumentException(ResourcesX.InvalidUriQuery + ":" + keyValue[0]);
-          string part = Uri.UnescapeDataString(keyValue[0]) + "=" + (keyValue.Length == 2 ? keyValue[1] : "true");
+          string part = keyValue[0] + "=" + (keyValue.Length == 2 ? keyValue[1] : "true").Replace("(", string.Empty).Replace(")", string.Empty);
           connectionParts.Add(part);
         }
       }
@@ -500,10 +500,10 @@ namespace MySqlX.XDevAPI
       foreach (string keyValuePair in keyValuePairs)
       {
         int separatorCharIndex = keyValuePair.IndexOf('=');
-        if (separatorCharIndex==-1) continue;
+        if (separatorCharIndex == -1) continue;
 
-        var keyword = keyValuePair.Substring(0,separatorCharIndex);
-        var value = keyValuePair.Substring(separatorCharIndex+1);
+        var keyword = keyValuePair.Substring(0, separatorCharIndex);
+        var value = keyValuePair.Substring(separatorCharIndex + 1);
         if (keyword != "server" && keyword != "host" && keyword != "data source" && keyword != "datasource" && keyword != "address" && keyword != "addr" && keyword != "network address")
         {
           if (keyword == "port") portProvided = true;
@@ -512,7 +512,7 @@ namespace MySqlX.XDevAPI
         }
 
         if (IsUnixSocket(value)) value = NormalizeUnixSocket(value);
-        if (ParseHostList(value, false) == 1  && FailoverManager.FailoverGroup == null)
+        if (ParseHostList(value, false) == 1 && FailoverManager.FailoverGroup == null)
           updatedConnectionString = "server=" + value + ";" + updatedConnectionString;
       }
 
@@ -539,7 +539,7 @@ namespace MySqlX.XDevAPI
       FailoverMethod failoverMethod = FailoverMethod.Sequential;
       string[] hostArray = null;
       List<XServer> hostList = new List<XServer>();
-      hierPart = hierPart.Replace(" ","");
+      hierPart = hierPart.Replace(" ", "");
 
       if (!hierPart.StartsWith("(") && !hierPart.EndsWith(")"))
       {
@@ -550,7 +550,7 @@ namespace MySqlX.XDevAPI
           else hostList.Add(this.ConvertToXServer(host, connectionStringIsInUriFormat));
         }
 
-        if (hostArray.Length==1) return 1;
+        if (hostArray.Length == 1) return 1;
         hostCount = hostArray.Length;
       }
       else
@@ -563,42 +563,42 @@ namespace MySqlX.XDevAPI
           // Remove leading parenthesis.
           var normalizedGroup = group;
           if (normalizedGroup.StartsWith("(")) normalizedGroup = group.Substring(1);
-          if (normalizedGroup.EndsWith(")")) normalizedGroup = normalizedGroup.Substring(0, group.Length-1);
+          if (normalizedGroup.EndsWith(")")) normalizedGroup = normalizedGroup.Substring(0, group.Length - 1);
           string[] items = normalizedGroup.Split(',');
           string[] keyValuePairs = items[0].Split('=');
-          if (keyValuePairs[0].ToLowerInvariant()!="address")
-            throw new KeyNotFoundException(string.Format(ResourcesX.KeywordNotFound,"address"));
+          if (keyValuePairs[0].ToLowerInvariant() != "address")
+            throw new KeyNotFoundException(string.Format(ResourcesX.KeywordNotFound, "address"));
 
           string host = keyValuePairs[1];
           if (string.IsNullOrWhiteSpace(host))
             throw new ArgumentNullException("server");
 
-          if (items.Length==2)
+          if (items.Length == 2)
           {
-            if (allHavePriority!=null && allHavePriority==false)
+            if (allHavePriority != null && allHavePriority == false)
               throw new ArgumentException(ResourcesX.PriorityForAllOrNoHosts);
             allHavePriority = allHavePriority ?? true;
             keyValuePairs = items[1].Split('=');
-            if (keyValuePairs[0].ToLowerInvariant()!="priority")
-              throw new KeyNotFoundException(string.Format(ResourcesX.KeywordNotFound,"priority"));
+            if (keyValuePairs[0].ToLowerInvariant() != "priority")
+              throw new KeyNotFoundException(string.Format(ResourcesX.KeywordNotFound, "priority"));
 
             if (string.IsNullOrWhiteSpace(keyValuePairs[1]))
               throw new ArgumentNullException("priority");
 
             int priority = -1;
             Int32.TryParse(keyValuePairs[1], out priority);
-            if (priority<0 || priority>100)
+            if (priority < 0 || priority > 100)
               throw new ArgumentException(ResourcesX.PriorityOutOfLimits);
 
             hostList.Add(ConvertToXServer(IsUnixSocket(host) ? NormalizeUnixSocket(host) : host, connectionStringIsInUriFormat, priority));
           }
           else
           {
-            if (allHavePriority!=null && allHavePriority==true)
+            if (allHavePriority != null && allHavePriority == true)
               throw new ArgumentException(ResourcesX.PriorityForAllOrNoHosts);
             allHavePriority = allHavePriority ?? false;
 
-            hostList.Add(ConvertToXServer(host, connectionStringIsInUriFormat, defaultPriority>0 ? defaultPriority-- : 0));
+            hostList.Add(ConvertToXServer(host, connectionStringIsInUriFormat, defaultPriority > 0 ? defaultPriority-- : 0));
           }
         }
 
@@ -618,7 +618,7 @@ namespace MySqlX.XDevAPI
     /// <param name="priority">The priority of the host.</param>
     /// <param name="port">The port number of the host.</param>
     /// <returns></returns>
-    private XServer ConvertToXServer(string host, bool connectionStringIsInUriFormat, int priority=-1, int port=-1)
+    private XServer ConvertToXServer(string host, bool connectionStringIsInUriFormat, int priority = -1, int port = -1)
     {
       host = host.Trim();
       IPAddress address;
@@ -638,12 +638,12 @@ namespace MySqlX.XDevAPI
       }
       else colonIndex = host.IndexOf(":");
 
-      if (colonIndex!=-1)
+      if (colonIndex != -1)
       {
         if (!connectionStringIsInUriFormat)
           throw new ArgumentException(ResourcesX.PortNotSupported);
-        int.TryParse(host.Substring(colonIndex+1),out port);
-        host = host.Substring(0,colonIndex);
+        int.TryParse(host.Substring(colonIndex + 1), out port);
+        host = host.Substring(0, colonIndex);
       }
 
       return new XServer(host, port, priority);
