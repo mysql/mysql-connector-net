@@ -29,6 +29,7 @@
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using System;
+using System.IO;
 using Xunit;
 
 namespace MySqlX.Data.Tests
@@ -174,8 +175,8 @@ namespace MySqlX.Data.Tests
       CheckConnectionStringAsUri("myuser@localhost", "", "", "", 33060);
       Assert.Throws<UriFormatException>(() => CheckConnectionStringAsUri("mysqlx://uid=myuser;server=localhost", "", "", "", 33060));
       CheckConnectionStringAsUri("mysqlx://user:password@server.example.com/", "user", "password", "server.example.com", 33060, "ssl mode", "Required");
-      CheckConnectionStringAsUri("mysqlx://user:password@server.example.com/?ssl-ca=(c:\\client.pfx)", "user", "password", "server.example.com", 33060, "ssl mode", "Required", "ssl-ca", "(c:%5Cclient.pfx)");
-      Assert.Throws<NotSupportedException>(() => CheckConnectionStringAsUri("mysqlx://user:password@server.example.com/?ssl-crl=(c:\\crl.pfx)", "user", "password", "server.example.com", 33060, "ssl mode", "Required", "ssl-crl", "(c:%5Ccrl.pfx)"));
+      CheckConnectionStringAsUri("mysqlx://user:password@server.example.com/?ssl-ca=(c:%5Cclient.pfx)", "user", "password", "server.example.com", 33060, "ssl mode", "Required", "ssl-ca", "c:\\client.pfx");
+      Assert.Throws<NotSupportedException>(() => CheckConnectionStringAsUri("mysqlx://user:password@server.example.com/?ssl-crl=(c:%5Ccrl.pfx)", "user", "password", "server.example.com", 33060, "ssl mode", "Required", "ssl-crl", "(c:\\crl.pfx)"));
     }
 
     [Fact]
@@ -242,12 +243,12 @@ namespace MySqlX.Data.Tests
     {
       string connectionString = ConnectionStringUri;
       // sslmode is valid.
-      using(var connection = MySQLX.GetSession(connectionString + "?sslmode=required"))
+      using (var connection = MySQLX.GetSession(connectionString + "?sslmode=required"))
       {
         Assert.Equal(SessionState.Open, connection.InternalSession.SessionState);
       }
 
-      using(var connection = MySQLX.GetSession(connectionString + "?ssl-mode=required"))
+      using (var connection = MySQLX.GetSession(connectionString + "?ssl-mode=required"))
       {
         Assert.Equal(SessionState.Open, connection.InternalSession.SessionState);
       }
@@ -257,7 +258,7 @@ namespace MySqlX.Data.Tests
       Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionString + "?ssl-enable"));
 
       // sslmode=Required is default value.
-      using(var connection = MySQLX.GetSession(connectionString))
+      using (var connection = MySQLX.GetSession(connectionString))
       {
         Assert.Equal(connection.Settings.SslMode, MySqlSslMode.Required);
       }
@@ -266,17 +267,17 @@ namespace MySqlX.Data.Tests
       Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionString + "?ssl-mode=Preferred"));
 
       // sslmode=Required is default value.
-      using(var connection = MySQLX.GetSession(connectionString))
+      using (var connection = MySQLX.GetSession(connectionString))
       {
         Assert.Equal(MySqlSslMode.Required, connection.Settings.SslMode);
       }
 
       // sslmode case insensitive.
-      using(var connection = MySQLX.GetSession(connectionString + "?SsL-mOdE=required"))
+      using (var connection = MySQLX.GetSession(connectionString + "?SsL-mOdE=required"))
       {
         Assert.Equal(SessionState.Open, connection.InternalSession.SessionState);
       }
-      using(var connection = MySQLX.GetSession(connectionString + "?SsL-mOdE=VeRiFyca&ssl-ca=../../../../MySql.Data.Tests/client.pfx&ssl-ca-pwd=pass"))
+      using (var connection = MySQLX.GetSession(connectionString + "?SsL-mOdE=VeRiFyca&ssl-ca=../../../../MySql.Data.Tests/client.pfx&ssl-ca-pwd=pass"))
       {
         Assert.Equal(SessionState.Open, connection.InternalSession.SessionState);
       }
@@ -309,7 +310,7 @@ namespace MySqlX.Data.Tests
       Assert.True(connString.Contains(certificatePath));
 
       // Connection string in uri format.
-      string connStringUri = ConnectionStringUri + "/?ssl-ca=" + certificatePath  + "& ssl-ca-pwd=pass;";
+      string connStringUri = ConnectionStringUri + "/?ssl-ca=" + certificatePath + "& ssl-ca-pwd=pass;";
       using (var session = MySQLX.GetSession(connStringUri))
       {
         Assert.Equal(certificatePath, session.Settings.CertificateFile);
@@ -319,6 +320,23 @@ namespace MySqlX.Data.Tests
         Assert.True(connString.Contains(certificatePath));
       }
     }
+
+    // Fix Bug 24510329 - UNABLE TO CONNECT USING TLS/SSL OPTIONS FOR THE MYSQLX URI SCHEME
+    [Theory]
+    [InlineData("../../../../MySql.Data.Tests/client.pfx")]
+    [InlineData("(../../../../MySql.Data.Tests/client.pfx)")]
+    [InlineData(@"(..\..\..\..\MySql.Data.Tests\client.pfx")]
+    [InlineData("..\\..\\..\\..\\MySql.Data.Tests\\client.pfx")]
+    public void SSlCertificatePathVariations(string certificatePath)
+    {
+      string connStringUri = ConnectionStringUri + "/?ssl-ca=" + certificatePath + "& ssl-ca-pwd=pass;";
+
+      using (var session = MySQLX.GetSession(connStringUri))
+      {
+        Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
+      }
+    }
+
 
     [Fact]
     public void IPv6()
