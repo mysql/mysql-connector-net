@@ -72,6 +72,7 @@ namespace MySqlX.XDevAPI.CRUD
           return new Result(null);
 
         //List<string> newIds = AssignIds();
+        ValidateNullOrEmptyIds();
         return Target.Session.XSession.Insert(Target, _DbDocs.ToArray(), null, upsert);
       }
       finally
@@ -90,6 +91,15 @@ namespace MySqlX.XDevAPI.CRUD
       }
 
       return newIds;
+    }
+
+    private void ValidateNullOrEmptyIds()
+    {
+      foreach(DbDoc doc in _DbDocs)
+      {
+        if (doc.HasId && string.IsNullOrWhiteSpace(doc.Id?.ToString()))
+          throw new ArgumentException(MySql.Data.ResourcesX.InvalidNullOrEmptyId, "_id");
+      }
     }
   }
 }

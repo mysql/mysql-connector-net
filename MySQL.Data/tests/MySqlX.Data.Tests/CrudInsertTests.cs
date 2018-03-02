@@ -116,6 +116,24 @@ namespace MySqlX.Data.Tests
       Assert.False(string.IsNullOrWhiteSpace(r.GeneratedIds[0]));
     }
 
+    [Theory]
+    [InlineData("", true)]
+    [InlineData(" ", true)]
+    [InlineData(null, true)]
+    [InlineData(0, false)]
+    public void InsertAnonymousObjectWithEmptyId(string id, bool shouldThrowAnError)
+    {
+      var obj = new { _id = id, name = "Sakila", age = 15 };
+
+      Collection coll = CreateCollection("test");
+      var stmt = coll.Add(obj);
+
+      if (shouldThrowAnError)
+        Assert.Equal("_id", Assert.ThrowsAny<ArgumentException>(() => stmt.Execute()).ParamName);
+      else
+        Assert.Equal(1ul, stmt.Execute().RecordsAffected);
+    }
+
     [Fact]
     public void InsertMultipleAnonymousObjectsWithId()
     {
