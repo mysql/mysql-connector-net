@@ -1,4 +1,5 @@
 6.10.7
+- Updated the RSA key encryption padding to RSA_PKCS1_OAEP_PADDING for the caching_sha2_password authentication plugin when connecting to server 8.0.5 (or later) (WL11618).
 - Added support for the caching_sha2_password authentication plugin introduced in server 8.0.3.
   Added support for RSA key encription in the sha256_password authentication plugin (WL11285).
 - Added support for MySQL 8 server features (WL11326).

@@ -45,7 +45,7 @@ namespace MySql.Data.MySqlClient.Authentication
     protected override byte[] MoreData(byte[] data)
     {
       rawPubkey = data;
-      byte[] buffer = GetPassword() as byte[];
+      byte[] buffer = GetNonLengthEncodedPassword();
       return buffer;
     }
 
@@ -53,11 +53,11 @@ namespace MySql.Data.MySqlClient.Authentication
     {
       if (Settings.SslMode != MySqlSslMode.None)
       {
-        // send as clear text, since the channel is already encrypted
         byte[] passBytes = Encoding.GetBytes(Settings.Password);
-        byte[] buffer = new byte[passBytes.Length + 1];
-        Array.Copy(passBytes, 0, buffer, 0, passBytes.Length);
-        buffer[passBytes.Length] = 0;
+        byte[] buffer = new byte[passBytes.Length + 2];
+        Array.Copy(passBytes, 0, buffer, 1, passBytes.Length);
+        buffer[0] = (byte) (passBytes.Length+1);
+        buffer[buffer.Length-1] = 0x00;
         return buffer;
       }
       else
@@ -76,23 +76,39 @@ namespace MySql.Data.MySqlClient.Authentication
       }
     }
 
+    private byte[] GetNonLengthEncodedPassword()
+    {
+      // Required for AuthChange requests.
+      if (Settings.SslMode != MySqlSslMode.None)
+      {
+        // Send as clear text, since the channel is already encrypted.
+        byte[] passBytes = Encoding.GetBytes(Settings.Password);
+        byte[] buffer = new byte[passBytes.Length + 1];
+        Array.Copy(passBytes, 0, buffer, 0, passBytes.Length);
+        buffer[passBytes.Length] = 0;
+        return buffer;
+      }
+      else return GetPassword() as byte[];
+    }
+
     private byte[] GetRsaPassword(string password, byte[] seedBytes, byte[] rawPublicKey)
     {
       if (password.Length == 0) return new byte[1];
 
-      // Obfuscate the plain text password with the session scramble
+      // Obfuscate the plain text password with the session scramble.
       byte[] obfuscated = GetXor(AliasText.Encoding.Default.GetBytes(password), seedBytes);
 
-      // Encrypt the password and send it to the server
+      // Encrypt the password and send it to the server.
 #if NETSTANDARD1_3
       RSA rsa = MySqlPemReader.ConvertPemToRSAProvider(rawPublicKey);
       if (rsa == null)
         throw new MySqlException(Resources.UnableToReadRSAKey);
       return rsa.Encrypt(obfuscated, RSAEncryptionPadding.OaepSHA1);
 #else
-            RSACryptoServiceProvider rsa = MySqlPemReader.ConvertPemToRSAProvider(rawPublicKey);
+      RSACryptoServiceProvider rsa = MySqlPemReader.ConvertPemToRSAProvider(rawPublicKey);
       if (rsa == null)
         throw new MySqlException(Resources.UnableToReadRSAKey);
+
       return rsa.Encrypt(obfuscated, true);
 #endif
         }
