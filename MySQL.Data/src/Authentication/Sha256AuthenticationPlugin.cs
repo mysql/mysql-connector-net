@@ -1,4 +1,4 @@
-// Copyright © 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -51,7 +51,7 @@ namespace MySql.Data.MySqlClient.Authentication
     protected override byte[] MoreData(byte[] data)
     {
       rawPubkey = data;
-      byte[] buffer = GetPassword() as byte[];
+      byte[] buffer = GetNonLengthEncodedPassword();
       return buffer;
     }
 
@@ -61,9 +61,10 @@ namespace MySql.Data.MySqlClient.Authentication
       {
         // send as clear text, since the channel is already encrypted
         byte[] passBytes = Encoding.GetBytes(Settings.Password);
-        byte[] buffer = new byte[passBytes.Length + 1];
-        Array.Copy(passBytes, 0, buffer, 0, passBytes.Length);
-        buffer[passBytes.Length] = 0;
+        byte[] buffer = new byte[passBytes.Length + 2];
+        Array.Copy(passBytes, 0, buffer, 1, passBytes.Length);
+        buffer[0] = (byte) (passBytes.Length+1);
+        buffer[buffer.Length-1] = 0x00;
         return buffer;
       }
       else
@@ -80,6 +81,21 @@ namespace MySql.Data.MySqlClient.Authentication
           return bytes;
         }
       }
+    }
+
+    private byte[] GetNonLengthEncodedPassword()
+    {
+      // Required for AuthChange requests.
+      if (Settings.SslMode != MySqlSslMode.None)
+      {
+        // Send as clear text, since the channel is already encrypted.
+        byte[] passBytes = Encoding.GetBytes(Settings.Password);
+        byte[] buffer = new byte[passBytes.Length + 1];
+        Array.Copy(passBytes, 0, buffer, 0, passBytes.Length);
+        buffer[passBytes.Length] = 0;
+        return buffer;
+      }
+      else return GetPassword() as byte[];
     }
 
     private byte[] GetRsaPassword(string password, byte[] seedBytes, byte[] rawPublicKey)

@@ -1,4 +1,4 @@
-// Copyright © 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -43,7 +43,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Tests for MySql bug #64633 - System.InvalidCastException when executing a stored function.
     /// </summary>
-    [Fact]
+    [Fact (Skip = "Fix for 8.0.5")]
     public void InvalidCast()
     {
       executeSQL(String.Format("CREATE FUNCTION `{0}`.`MyTwice`( val int ) RETURNS INT BEGIN return val * 2; END;", Connection.Database), true);
