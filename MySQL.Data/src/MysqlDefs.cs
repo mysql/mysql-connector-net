@@ -464,7 +464,7 @@ namespace MySql.Data.MySqlClient
     /// Never waits to acquire a row lock. The query executes immediately, 
     /// removing locked rows from the result set.
     /// </summary>
-    SkipLock = 2
+    SkipLocked = 2
   }
 
   internal class MySqlConnectAttrs

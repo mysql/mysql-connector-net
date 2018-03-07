@@ -649,10 +649,10 @@ namespace MySqlX.Data.Tests
     [Theory]
     [InlineData(LockContention.Default, LockMode.Exclusive)]
     [InlineData(LockContention.NoWait, LockMode.Exclusive)]
-    [InlineData(LockContention.SkipLock, LockMode.Exclusive)]
+    [InlineData(LockContention.SkipLocked, LockMode.Exclusive)]
     [InlineData(LockContention.Default, LockMode.Shared)]
     [InlineData(LockContention.NoWait, LockMode.Shared)]
-    [InlineData(LockContention.SkipLock, LockMode.Shared)]
+    [InlineData(LockContention.SkipLocked, LockMode.Shared)]
     public void LockExclusiveAndSharedWithWaitingOptions(LockContention lockOption, LockMode lockMode)
     {
       if (!session.XSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
@@ -695,7 +695,7 @@ namespace MySqlX.Data.Tests
                 expectedError = 3572;
               Assert.Equal(expectedError, Assert.ThrowsAny<MySqlException>(() => stmt2.Execute().FetchAll()).Code);
               break;
-            case LockContention.SkipLock:
+            case LockContention.SkipLocked:
               if (!session.XSession.GetServerVersion().isAtLeast(8, 0, 5))
               {
                 // error 1205 Lock wait timeout exceeded; try restarting transaction
