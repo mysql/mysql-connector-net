@@ -1,4 +1,4 @@
-﻿// Copyright © 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2008, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -81,14 +81,15 @@ namespace MySql.Data.MySqlClient
 
     private XmlReader GetStoreSchemaDescription()
     {
-      double version = double.Parse(manifestToken, CultureInfo.InvariantCulture);
+      var version = new Version(manifestToken);
 
-      if (version < 5.0) throw new NotSupportedException("Your version of MySQL is not currently supported");
-      if (version < 5.1) return GetMappingResource("SchemaDefinition-5.0.ssdl");
-      if (version < 5.5) return GetMappingResource("SchemaDefinition-5.1.ssdl");
-      if (version < 5.6) return GetMappingResource("SchemaDefinition-5.5.ssdl");
-      if (version < 5.7) return GetMappingResource("SchemaDefinition-5.6.ssdl");
-      return GetMappingResource("SchemaDefinition-5.7.ssdl");
+      if (version < new Version(5, 0)) throw new NotSupportedException("Your version of MySQL is not currently supported");
+      if (version < new Version(5, 1)) return GetMappingResource("SchemaDefinition-5.0.ssdl");
+      if (version < new Version(5, 5)) return GetMappingResource("SchemaDefinition-5.1.ssdl");
+      if (version < new Version(5, 6)) return GetMappingResource("SchemaDefinition-5.5.ssdl");
+      if (version < new Version(5, 7)) return GetMappingResource("SchemaDefinition-5.6.ssdl");
+      if (version < new Version(8, 0, 4)) return GetMappingResource("SchemaDefinition-5.7.ssdl");
+      return GetMappingResource("SchemaDefinition-8.0.ssdl");
     }
 
     public override TypeUsage GetEdmType(TypeUsage storeType)

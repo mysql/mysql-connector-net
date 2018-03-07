@@ -1353,7 +1353,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void SslOverrided()
     {
-      string connectionString = _fixture.GetConnectionString(true) + ";Ssl mode=None";
+      string connectionString = _fixture.GetConnectionString(true) + ";Ssl mode=None;AllowPublicKeyRetrieval=true";
       using (MySqlConnection connection = new MySqlConnection(connectionString))
       {
         connection.Open();
