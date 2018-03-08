@@ -228,7 +228,4 @@
   <data name="InvalidIndexType" xml:space="preserve">
     <value>Index type with name '{0}' not found.</value>
   </data>
-  <data name="InvalidNullOrEmptyId" xml:space="preserve">
-    <value>Field '_id' can't be null or empty.</value>
-  </data>
 </root>
