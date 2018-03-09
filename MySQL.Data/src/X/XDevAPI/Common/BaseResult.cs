@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -44,6 +44,7 @@ namespace MySqlX.XDevAPI.Common
     internal InternalSession _session;
     internal bool _hasData;
     internal bool _hasMoreResults = false;
+    internal List<string> _documentIds = new List<string>();
 
     internal BaseResult(InternalSession session)
     {

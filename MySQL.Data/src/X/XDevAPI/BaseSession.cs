@@ -39,6 +39,7 @@ using System.Text.RegularExpressions;
 using MySqlX.Failover;
 using MySqlX.XDevAPI.Common;
 using System.Net;
+using MySql.Data.Common;
 
 namespace MySqlX.XDevAPI
 {
@@ -190,6 +191,14 @@ namespace MySqlX.XDevAPI
       if (!string.IsNullOrWhiteSpace(Settings.Database))
         GetSchema(Settings.Database);
     }
+
+    #region Session status properties
+
+    private DBVersion? _version = null;
+
+    internal DBVersion Version => _version ?? (_version = XSession.GetServerVersion()).Value;
+
+    #endregion
 
     /// <summary>
     /// Drops the database/schema with the given name.

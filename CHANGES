@@ -13,6 +13,7 @@
 - Fixed a bug that prevented making a connection to MySQL when using TLS/SSL for the MySqlX URI scheme (Oracle Bug #24510329).
 - MySqlX: Added support for SHA256_MEMORY authentication (WL11624).
 - MySqlX: Added support for locking read concurrency with NOWAIT and SKIP LOCKED (WL11307).
+- MySqlX: New server document _id generation support for MySQL 8.0.5 server and higher. Removed client-side _id generation (WL11421).
 
 
 8.0.10

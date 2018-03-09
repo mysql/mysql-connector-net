@@ -233,13 +233,17 @@ namespace MySqlX.Protocol
       switch (state.Param)
       {
         case SessionStateChanged.Types.Parameter.RowsAffected:
-            rs._recordsAffected = state.Value.VUnsignedInt;
+            rs._recordsAffected = state.Value[0].VUnsignedInt;
           break;
         case SessionStateChanged.Types.Parameter.GeneratedInsertId:
-            rs._autoIncrementValue = state.Value.VUnsignedInt;
+            rs._autoIncrementValue = state.Value[0].VUnsignedInt;
           break;
         case SessionStateChanged.Types.Parameter.ProducedMessage:
-          rs.AddWarning(new WarningInfo(0, state.Value.VString.Value.ToStringUtf8()));
+          rs.AddWarning(new WarningInfo(0, state.Value[0].VString.Value.ToStringUtf8()));
+          break;
+        case SessionStateChanged.Types.Parameter.GeneratedDocumentIds:
+          foreach (var value in state.Value)
+            rs._documentIds.Add(value.VOctets.Value.ToStringUtf8());
           break;
           // handle the other ones
 //      default: SessionStateChanged(state);
@@ -565,6 +569,15 @@ namespace MySqlX.Protocol
     {
       var builder = CreateFindMessage(schema, collection, isRelational, filter, findParams);
       _writer.Write(ClientMessageId.CRUD_FIND, builder);
+    }
+
+    public void SendExpectOpen(Mysqlx.Expect.Open.Types.Condition.Types.Key condition)
+    {
+      var builder = new Mysqlx.Expect.Open();
+      var cond = new Mysqlx.Expect.Open.Types.Condition();
+      cond.ConditionKey = (uint)condition;
+      builder.Cond.Add(cond);
+      _writer.Write(ClientMessageId.EXPECT_OPEN, builder);
     }
 
     internal void ReadOkClose()

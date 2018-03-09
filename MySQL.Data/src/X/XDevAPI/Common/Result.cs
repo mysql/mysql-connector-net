@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -42,6 +42,7 @@ namespace MySqlX.XDevAPI.Common
     internal Result(InternalSession session) : base(session)
     {
       if (session == null) return;
+      GeneratedIds = new ReadOnlyCollection<string>(_documentIds);
       session.GetProtocol().CloseResult(this);
     }
 
@@ -58,36 +59,12 @@ namespace MySqlX.XDevAPI.Common
     /// </summary>
     public UInt64 AutoIncrementValue
     {
-      get { return _autoIncrementValue;  }
-    }
-
-    /// <summary>
-    /// Gets the generated identifier of the document.
-    /// For multiple document identifiers use DocumentIds.
-    /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">More than 1 document identifier was generated.</exception>
-    public string DocumentId
-    {
-      get
-      {
-        if (DocumentIds == null || DocumentIds.Count == 0)
-          return null;
-        if (DocumentIds.Count > 1)
-          throw new ArgumentOutOfRangeException(ResourcesX.MoreThanOneDocumentId);
-        return DocumentIds[0];
-      }
+      get { return _autoIncrementValue; }
     }
 
     /// <summary>
     /// Gets the list of generated identifiers in the order of the Add() calls.
     /// </summary>
-#if NET_45_OR_GREATER
-    public IReadOnlyList<string> DocumentIds
-#else
-    public ReadOnlyCollection<string> DocumentIds
-#endif
-    {
-      get; internal set;
-    }
+    public ReadOnlyCollection<string> GeneratedIds { get; }
   }
 }
