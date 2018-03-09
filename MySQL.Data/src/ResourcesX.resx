@@ -214,7 +214,7 @@
     <value>{0} must be a value greater than 0.</value>
   </data>
   <data name="FunctionalityNotSupported" xml:space="preserve">
-    <value>This functionality is only supported from server version {0} onwards.</value>
+    <value>This functionality is only supported in MySQL {0} and higher.</value>
   </data>
   <data name="MandatoryFieldNotFound" xml:space="preserve">
     <value>Field '{0}' is mandatory.</value>
@@ -227,5 +227,8 @@
   </data>
   <data name="InvalidIndexType" xml:space="preserve">
     <value>Index type with name '{0}' not found.</value>
+  </data>
+  <data name="AuthenticationFailed" xml:space="preserve">
+    <value>Authentication failed using MYSQL41 and SHA256_MEMORY. Check the user name and password or try using a secure connection.</value>
   </data>
 </root>

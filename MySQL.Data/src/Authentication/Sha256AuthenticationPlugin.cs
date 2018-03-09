@@ -42,7 +42,7 @@ namespace MySql.Data.MySqlClient.Authentication
   /// <summary>
   /// The implementation of the sha256_password authentication plugin.
   /// </summary>
-  public class Sha256AuthenticationPlugin : MySqlAuthenticationPlugin
+  internal class Sha256AuthenticationPlugin : MySqlAuthenticationPlugin
   {
     protected byte[] rawPubkey;
 
