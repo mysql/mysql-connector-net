@@ -4,7 +4,7 @@
     <Description>MySql.Web</Description>
     <Copyright>Copyright © 2016, 2018, Oracle and/or its affiliates. All rights reserved.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>8.0.10-rc</Version>
+    <Version>8.0.11</Version>
     <Authors>Oracle</Authors>
     <TargetFramework>net452</TargetFramework>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
