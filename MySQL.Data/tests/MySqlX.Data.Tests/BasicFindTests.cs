@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -643,6 +643,74 @@ namespace MySqlX.Data.Tests
       // Get a non-existing document.
       document = coll.GetOne(5);
       Assert.Equal(null, document);
+    }
+
+    public enum LockMode { Exclusive, Shared }
+    [Theory]
+    [InlineData(LockContention.Default, LockMode.Exclusive)]
+    [InlineData(LockContention.NoWait, LockMode.Exclusive)]
+    [InlineData(LockContention.SkipLocked, LockMode.Exclusive)]
+    [InlineData(LockContention.Default, LockMode.Shared)]
+    [InlineData(LockContention.NoWait, LockMode.Shared)]
+    [InlineData(LockContention.SkipLocked, LockMode.Shared)]
+    public void LockExclusiveAndSharedWithWaitingOptions(LockContention lockOption, LockMode lockMode)
+    {
+      if (!session.XSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
+
+      string collectionName = "test";
+      var coll = CreateCollection(collectionName);
+      coll.Add(new { _id = 1, name = "Jonh" }).Execute();
+
+      // first session locks the row
+      using (Session s1 = MySQLX.GetSession(ConnectionString))
+      {
+        var coll1 = s1.GetSchema(schemaName).GetCollection(collectionName);
+        s1.StartTransaction();
+        DocResult r1 = coll1.Find("_id = :id").Bind("id", 1).LockExclusive().Execute();
+        Assert.Equal(1, r1.FetchAll().Count);
+
+        // second session tries to read the locked row
+        using (Session s2 = MySQLX.GetSession(ConnectionString))
+        {
+          var coll2 = s2.GetSchema(schemaName).GetCollection(collectionName);
+          s2.SQL("SET innodb_lock_wait_timeout = 1").Execute();
+          s2.StartTransaction();
+          var stmt2 = coll2.Find("_id = :id").Bind("id", 1);
+          if (lockMode == LockMode.Exclusive)
+            stmt2.LockExclusive(lockOption);
+          else
+            stmt2.LockShared(lockOption);
+
+          switch (lockOption)
+          {
+            case LockContention.Default:
+              // error 1205 Lock wait timeout exceeded; try restarting transaction
+              Assert.Equal(1205u, Assert.ThrowsAny<MySqlException>(() => stmt2.Execute().FetchAll()).Code);
+              break;
+            case LockContention.NoWait:
+              // error 1205 Lock wait timeout exceeded; try restarting transaction
+              uint expectedError = 1205;
+              if (session.XSession.GetServerVersion().isAtLeast(8, 0, 5))
+                // error 3572 Statement aborted because lock(s) could not be acquired immediately and NOWAIT is set
+                expectedError = 3572;
+              Assert.Equal(expectedError, Assert.ThrowsAny<MySqlException>(() => stmt2.Execute().FetchAll()).Code);
+              break;
+            case LockContention.SkipLocked:
+              if (!session.XSession.GetServerVersion().isAtLeast(8, 0, 5))
+              {
+                // error 1205 Lock wait timeout exceeded; try restarting transaction
+                Assert.Equal(1205u, Assert.ThrowsAny<MySqlException>(() => stmt2.Execute().FetchAll()).Code);
+                break;
+              }
+              Assert.Equal(0, stmt2.Execute().FetchAll().Count);
+              break;
+            default:
+              throw new NotImplementedException(lockOption.ToString());
+          }
+        }
+        // first session frees the lock
+        s1.Commit();
+      }
     }
   }
 }

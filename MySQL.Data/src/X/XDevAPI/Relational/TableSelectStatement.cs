@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -95,28 +95,32 @@ namespace MySqlX.XDevAPI.Relational
     /// <summary>
     /// Locks matching rows against updates.
     /// </summary>
+    /// <param name="lockOption">Optional row <see cref="LockContention">lock option</see> to use.</param>
     /// <returns>This same <see cref="TableSelectStatement"/> object set with lock shared option.</returns>
     /// <exception cref="MySqlException">The server version is lower than 8.0.3.</exception>
-    public TableSelectStatement LockShared()
+    public TableSelectStatement LockShared(LockContention lockOption = LockContention.Default)
     {
       if (!this.Session.InternalSession.GetServerVersion().isAtLeast(8,0,3))
         throw new MySqlException(string.Format(ResourcesX.FunctionalityNotSupported, "8.0.3"));
 
       findParams.Locking = Protocol.X.RowLock.SharedLock;
+      findParams.LockingOption = lockOption;
       return this;
     }
 
     /// <summary>
     /// Locks matching rows so no other transaction can read or write to it.
     /// </summary>
+    /// <param name="lockOption">Optional row <see cref="LockContention">lock option</see> to use.</param>
     /// <returns>This same <see cref="TableSelectStatement"/> object set with the lock exclusive option.</returns>
     /// <exception cref="MySqlException">The server version is lower than 8.0.3.</exception>
-    public TableSelectStatement LockExclusive()
+    public TableSelectStatement LockExclusive(LockContention lockOption = LockContention.Default)
     {
       if (!this.Session.InternalSession.GetServerVersion().isAtLeast(8,0,3))
         throw new MySqlException(string.Format(ResourcesX.FunctionalityNotSupported, "8.0.3"));
 
       findParams.Locking = Protocol.X.RowLock.ExclusiveLock;
+      findParams.LockingOption = lockOption;
       return this;
     }
   }

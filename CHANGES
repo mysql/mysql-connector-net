@@ -12,6 +12,7 @@
 - Fix to enable the creation of an Entity Framework model from a database, also called the database-first approach (MySQL Bug 79163, Oracle Bug #22173048).
 - Fixed a bug that prevented making a connection to MySQL when using TLS/SSL for the MySqlX URI scheme (Oracle Bug #24510329).
 - MySqlX: Added support for SHA256_MEMORY authentication (WL11624).
+- MySqlX: Added support for locking read concurrency with NOWAIT and SKIP LOCKED (WL11307).
 
 
 8.0.10

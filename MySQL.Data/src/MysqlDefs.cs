@@ -452,6 +452,27 @@ namespace MySql.Data.MySqlClient
     SHA256_MEMORY = 4
   }
 
+  /// <summary>
+  /// Defines waiting options that may be used with row locking options.
+  /// </summary>
+  public enum LockContention
+  {
+    /// <summary>
+    /// Waits until the blocking transaction releases the row lock.
+    /// </summary>
+    Default = 0,
+    /// <summary>
+    /// Never waits to acquire a row lock. The query executes immediately, 
+    /// failing with an error if a requested row is locked.
+    /// </summary>
+    NoWait = 1,
+    /// <summary>
+    /// Never waits to acquire a row lock. The query executes immediately, 
+    /// removing locked rows from the result set.
+    /// </summary>
+    SkipLocked = 2
+  }
+
   internal class MySqlConnectAttrs
   {
     [DisplayName("_client_name")]
