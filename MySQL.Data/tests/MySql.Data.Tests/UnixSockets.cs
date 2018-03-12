@@ -45,7 +45,7 @@ namespace MySql.Data.MySqlClient.Tests
       unixConnectionString = $"server={Fixture.UnixSocket};user={Fixture.Settings.UserID};password={Fixture.Settings.Password};protocol=unix;";
     }
 
-    [Fact(Skip ="")]
+    [Fact]
     public void ConnectionTest()
     {
       if (Platform.IsWindows())
