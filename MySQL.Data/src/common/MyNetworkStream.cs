@@ -271,6 +271,9 @@ namespace MySql.Data.Common
       Socket socket = unix ?
           new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.IP) :
           new Socket(ip.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
+      socket.NoDelay = true;
+
       if (settings.Keepalive > 0)
       {
         SetKeepAlive(socket, settings.Keepalive);
