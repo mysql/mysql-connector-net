@@ -58,12 +58,12 @@ namespace MySql.Data.EntityFrameworkCore.Tests
   {
     public static string baseConnectionString
     {
-        get { return $"server=localhost;user id=root;password=;port={Port()};sslmode=Required;pooling=false;"; }
+        get { return $"server=localhost;user id=root;password=;port={Port()};sslmode=Required;pooling=false;defaultcommandtimeout=50;"; }
     }
 
     public static string rootConnectionString
     {
-        get { return $"server=localhost;user id=root;password=;port={Port()};sslmode=Required;pooling=false;"; }
+        get { return $"server=localhost;user id=root;password=;port={Port()};sslmode=Required;pooling=false;defaultcommandtimeout=50;"; }
     }
 
     private static string Port()
