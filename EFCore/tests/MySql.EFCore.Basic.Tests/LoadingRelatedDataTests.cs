@@ -179,7 +179,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       Assert.Equal("Michigan", address.City);
     }
 
-    [FactOnVersions("5.7.0", null)]
+    [Fact(Skip="")]
     public void JsonDataTest()
     {
       using(JsonContext context = new JsonContext())
