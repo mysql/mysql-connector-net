@@ -32,6 +32,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       settings.ConnectionProtocol = MySqlConnectionProtocol.NamedPipe;
       settings.SslMode = MySqlSslMode.None;
+      settings.AllowPublicKeyRetrieval = true;
     }
   }
 }
