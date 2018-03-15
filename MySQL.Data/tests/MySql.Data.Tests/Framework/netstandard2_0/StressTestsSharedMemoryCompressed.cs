@@ -38,7 +38,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       settings.ConnectionProtocol = MySqlConnectionProtocol.SharedMemory;
       settings.UseCompression = true;
-      settings.SslMode = MySqlSslMode.None;
+      settings.SslMode = MySqlSslMode.Required;
     }
   }
 }
