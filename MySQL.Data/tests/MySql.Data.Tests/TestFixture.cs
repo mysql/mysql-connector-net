@@ -168,7 +168,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (var connection = GetConnection(true))
       {
         string userName = String.Format("{0}{1}", BaseUserName, postfix);
-        executeSQL(String.Format("CREATE USER '{0}'@'localhost' IDENTIFIED BY '{1}'", userName, password), connection);
+        executeSQL(String.Format("CREATE USER '{0}'@'localhost' IDENTIFIED WITH mysql_native_password BY '{1}'", userName, password), connection);
         executeSQL(String.Format("GRANT ALL ON *.* TO '{0}'@'localhost'", userName), connection);
         executeSQL("FLUSH PRIVILEGES", connection);
         return userName;
