@@ -39,7 +39,7 @@ namespace MySql.Data.MySqlClient.Tests
     public override void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
     {
       settings.ConnectionProtocol = MySqlConnectionProtocol.NamedPipe;
-      settings.SslMode = MySqlSslMode.Required;
+      settings.SslMode = MySqlSslMode.None;
       settings.UseCompression = true;
     }
   }
