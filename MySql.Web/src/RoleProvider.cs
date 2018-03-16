@@ -1,4 +1,4 @@
-// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc. 2014, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -40,7 +40,6 @@ using MySql.Data.MySqlClient;
 using System.Collections.Generic;
 using MySql.Web.Common;
 using MySql.Web.General;
-using System.Linq;
 
 namespace MySql.Web.Security
 {
@@ -175,21 +174,10 @@ namespace MySql.Web.Security
         {
           connection.Open();
           txn = connection.BeginTransaction();
-
-          MySqlCommand cmd = new MySqlCommand() { Connection = connection };
-          string serverVersion = new string(connection.ServerVersion.Where(c => c == '.' || Char.IsNumber(c)).ToArray());
-
-          if (new Version(serverVersion) >= new Version("8.0.5"))
-            cmd.CommandText = "INSERT INTO my_aspnet_usersinroles VALUES(@userId, @roleId, @appId, @username, @rolename, @appname)";
-          else
-            cmd.CommandText = "INSERT INTO my_aspnet_usersinroles VALUES(@userId, @roleId)";
-
+          MySqlCommand cmd = new MySqlCommand(
+              "INSERT INTO my_aspnet_usersinroles VALUES(@userId, @roleId)", connection);
           cmd.Parameters.Add("@userId", MySqlDbType.Int32);
           cmd.Parameters.Add("@roleId", MySqlDbType.Int32);
-          cmd.Parameters.Add("@username", MySqlDbType.String);
-          cmd.Parameters.Add("@rolename", MySqlDbType.String);
-          cmd.Parameters.AddWithValue("@appId", app.EnsureId(connection));
-          cmd.Parameters.AddWithValue("@appname", app.Name);
           foreach (string username in usernames)
           {
             // either create a new user or fetch the existing user id
@@ -200,8 +188,6 @@ namespace MySql.Web.Security
               int roleId = GetRoleId(connection, rolename);
               cmd.Parameters[0].Value = userId;
               cmd.Parameters[1].Value = roleId;
-              cmd.Parameters[2].Value = username;
-              cmd.Parameters[3].Value = rolename;
               cmd.ExecuteNonQuery();
             }
           }
@@ -235,17 +221,8 @@ namespace MySql.Web.Security
         {
           connection.Open();
 
-          MySqlCommand cmd = new MySqlCommand() { Connection = connection };
-          string serverVersion = new string(connection.ServerVersion.Where(c => c == '.' || Char.IsNumber(c)).ToArray());
-
-          if (new Version(serverVersion) >= new Version("8.0.5"))
-          {
-            cmd.CommandText = @"INSERT INTO my_aspnet_roles Values(NULL, @appId, @name, @appName)";
-            cmd.Parameters.AddWithValue("@appName", app.Name);
-          }
-          else
-            cmd.CommandText = @"INSERT INTO my_aspnet_roles Values(NULL, @appId, @name)";
-
+          MySqlCommand cmd = new MySqlCommand(
+                  @"INSERT INTO my_aspnet_roles Values(NULL, @appId, @name)", connection);
           cmd.Parameters.AddWithValue("@appId", app.EnsureId(connection));
           cmd.Parameters.AddWithValue("@name", rolename);
           cmd.ExecuteNonQuery();
@@ -280,25 +257,18 @@ namespace MySql.Web.Security
           connection.Open();
           txn = connection.BeginTransaction();
 
-          MySqlCommand cmd = new MySqlCommand() { Connection = connection };
-          string serverVersion = new string(connection.ServerVersion.Where(c => c != '-' && (c < 'a' || c > 'z')).ToArray());
-          string roleNameColumn;
-
-          if (new Version(serverVersion) >= new Version("8.0.5")) roleNameColumn = "rolename";
-          else roleNameColumn = "name";
-
           // first delete all the user/role mappings with that roleid
-          cmd.CommandText = string.Format(@"DELETE uir FROM my_aspnet_usersinroles uir JOIN 
+          MySqlCommand cmd = new MySqlCommand(
+              @"DELETE uir FROM my_aspnet_usersinroles uir JOIN 
                         my_aspnet_roles r ON uir.roleId=r.id 
-                        WHERE r.{0} LIKE @rolename AND r.applicationId=@appId", roleNameColumn);
-
+                        WHERE r.name LIKE @rolename AND r.applicationId=@appId", connection);
           cmd.Parameters.AddWithValue("@rolename", rolename);
           cmd.Parameters.AddWithValue("@appId", app.FetchId(connection));
           cmd.ExecuteNonQuery();
 
           // now delete the role itself
-          cmd.CommandText = string.Format(@"DELETE FROM my_aspnet_roles WHERE {0}=@rolename 
-                        AND applicationId=@appId", roleNameColumn);
+          cmd.CommandText = @"DELETE FROM my_aspnet_roles WHERE name=@rolename 
+                        AND applicationId=@appId";
           cmd.ExecuteNonQuery();
           txn.Commit();
         }
@@ -403,22 +373,12 @@ namespace MySql.Web.Security
         {
           connection.Open();
 
-          MySqlCommand cmd = new MySqlCommand() { Connection = connection };
-          string serverVersion = new string(connection.ServerVersion.Where(c => c == '.' || Char.IsNumber(c)).ToArray());
-
-          if (new Version(serverVersion) >= new Version("8.0.5"))
-            cmd.CommandText = @"SELECT COUNT(*) FROM my_aspnet_usersinroles uir 
-                        JOIN my_aspnet_users u ON uir.userId=u.id
-                        JOIN my_aspnet_roles r ON uir.roleId=r.id
-                        WHERE u.applicationId=@appId AND 
-                        u.name = @userName AND r.Rolename = @roleName";
-          else
-            cmd.CommandText = @"SELECT COUNT(*) FROM my_aspnet_usersinroles uir 
+          string sql = @"SELECT COUNT(*) FROM my_aspnet_usersinroles uir 
                         JOIN my_aspnet_users u ON uir.userId=u.id
                         JOIN my_aspnet_roles r ON uir.roleId=r.id
                         WHERE u.applicationId=@appId AND 
                         u.name = @userName AND r.name = @roleName";
-
+          MySqlCommand cmd = new MySqlCommand(sql, connection);
           cmd.Parameters.AddWithValue("@appId", app.FetchId(connection));
           cmd.Parameters.AddWithValue("@userName", username);
           cmd.Parameters.AddWithValue("@roleName", rolename);
@@ -467,22 +427,13 @@ namespace MySql.Web.Security
           connection.Open();
           txn = connection.BeginTransaction();
 
-          MySqlCommand cmd = new MySqlCommand() { Connection = connection };
-          string serverVersion = new string(connection.ServerVersion.Where(c => c == '.' || Char.IsNumber(c)).ToArray());
-
-          if (new Version(serverVersion) >= new Version("8.0.5"))
-            cmd.CommandText = @"DELETE uir FROM my_aspnet_usersinroles uir
-                            JOIN my_aspnet_users u ON uir.userId=u.id 
-                            JOIN my_aspnet_roles r ON uir.roleId=r.id
-                            WHERE u.name LIKE @username AND r.rolename LIKE @rolename 
-                            AND u.applicationId=@appId AND r.applicationId=@appId";
-          else
-            cmd.CommandText = @"DELETE uir FROM my_aspnet_usersinroles uir
+          string sql = @"DELETE uir FROM my_aspnet_usersinroles uir
                             JOIN my_aspnet_users u ON uir.userId=u.id 
                             JOIN my_aspnet_roles r ON uir.roleId=r.id
                             WHERE u.name LIKE @username AND r.name LIKE @rolename 
                             AND u.applicationId=@appId AND r.applicationId=@appId";
 
+          MySqlCommand cmd = new MySqlCommand(sql, connection);
           cmd.Parameters.Add("@username", MySqlDbType.VarChar, 255);
           cmd.Parameters.Add("@rolename", MySqlDbType.VarChar, 255);
           cmd.Parameters.AddWithValue("@appId", app.FetchId(connection));
@@ -521,16 +472,9 @@ namespace MySql.Web.Security
         using (MySqlConnection connection = new MySqlConnection(connectionString))
         {
           connection.Open();
-          MySqlCommand cmd = new MySqlCommand() { Connection = connection };
-          string serverVersion = new string(connection.ServerVersion.Where(c => c == '.' || Char.IsNumber(c)).ToArray());
-
-          if (new Version(serverVersion) >= new Version("8.0.5"))
-            cmd.CommandText = @"SELECT COUNT(*) FROM my_aspnet_roles WHERE applicationId=@appId 
-                        AND Rolename LIKE @name";
-          else
-            cmd.CommandText = @"SELECT COUNT(*) FROM my_aspnet_roles WHERE applicationId=@appId 
-                        AND name LIKE @name";
-
+          MySqlCommand cmd = new MySqlCommand(
+              @"SELECT COUNT(*) FROM my_aspnet_roles WHERE applicationId=@appId 
+                        AND name LIKE @name", connection);
           cmd.Parameters.AddWithValue("@appId", app.FetchId(connection));
           cmd.Parameters.AddWithValue("@name", rolename);
           int count = Convert.ToInt32(cmd.ExecuteScalar());
@@ -565,24 +509,14 @@ namespace MySql.Web.Security
         {
           connection.Open();
 
-          MySqlCommand cmd = new MySqlCommand() { Connection = connection };
-          string serverVersion = new string(connection.ServerVersion.Where(c => c == '.' || Char.IsNumber(c)).ToArray());
-
-          if (new Version(serverVersion) >= new Version("8.0.5"))
-            cmd.CommandText = @"SELECT u.name FROM my_aspnet_usersinroles uir
-                        JOIN my_aspnet_users u ON uir.userId=u.id
-                        JOIN my_aspnet_roles r ON uir.roleId=r.id
-                        WHERE r.rolename LIKE @rolename AND
-                        u.name LIKE @username AND
-                        u.applicationId=@appId";
-          else
-            cmd.CommandText = @"SELECT u.name FROM my_aspnet_usersinroles uir
+          string sql = @"SELECT u.name FROM my_aspnet_usersinroles uir
                         JOIN my_aspnet_users u ON uir.userId=u.id
                         JOIN my_aspnet_roles r ON uir.roleId=r.id
                         WHERE r.name LIKE @rolename AND
                         u.name LIKE @username AND
                         u.applicationId=@appId";
 
+          MySqlCommand cmd = new MySqlCommand(sql, connection);
           cmd.Parameters.AddWithValue("@username", usernameToMatch);
           cmd.Parameters.AddWithValue("@rolename", rolename);
           cmd.Parameters.AddWithValue("@appId", app.FetchId(connection));
@@ -620,20 +554,12 @@ namespace MySql.Web.Security
 
       try
       {
-        MySqlCommand cmd = new MySqlCommand() { Connection = connection };
-        string serverVersion = new string(connection.ServerVersion.Where(c => c == '.' || Char.IsNumber(c)).ToArray());
-        string sql;
-
-        if (new Version(serverVersion) >= new Version("8.0.5"))
-          sql = "SELECT r.rolename FROM my_aspnet_roles r ";
-        else
-          sql = "SELECT r.name FROM my_aspnet_roles r ";
-          
+        string sql = "SELECT r.name FROM my_aspnet_roles r ";
         if (username != null)
           sql += "JOIN my_aspnet_usersinroles uir ON uir.roleId=r.id AND uir.userId=" +
               GetUserId(connection, username);
         sql += " WHERE r.applicationId=@appId";
-        cmd.CommandText = sql;
+        MySqlCommand cmd = new MySqlCommand(sql, connection);
         cmd.Parameters.AddWithValue("@appId", app.FetchId(connection));
         using (MySqlDataReader reader = cmd.ExecuteReader())
         {
@@ -663,14 +589,9 @@ namespace MySql.Web.Security
 
     private int GetRoleId(MySqlConnection connection, string rolename)
     {
-      MySqlCommand cmd = new MySqlCommand() { Connection = connection };
-      string serverVersion = new string(connection.ServerVersion.Where(c => c == '.' || Char.IsNumber(c)).ToArray());
-
-      if (new Version(serverVersion) >= new Version("8.0.5"))
-        cmd.CommandText = "SELECT id FROM my_aspnet_roles WHERE Rolename=@name AND applicationId=@appId";
-      else
-        cmd.CommandText = "SELECT id FROM my_aspnet_roles WHERE name=@name AND applicationId=@appId";
-
+      MySqlCommand cmd = new MySqlCommand(
+          "SELECT id FROM my_aspnet_roles WHERE name=@name AND applicationId=@appId",
+          connection);
       cmd.Parameters.AddWithValue("@name", rolename);
       cmd.Parameters.AddWithValue("@appId", app.FetchId(connection));
       return (int)cmd.ExecuteScalar();

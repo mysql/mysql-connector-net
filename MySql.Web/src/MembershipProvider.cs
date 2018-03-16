@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2014, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -44,7 +44,6 @@ using MySql.Web.Profile;
 using MySql.Web.Common;
 using System.Text.RegularExpressions;
 using MySql.Web.General;
-using System.Linq;
 
 namespace MySql.Web.Security
 {
@@ -545,33 +544,17 @@ namespace MySql.Web.Security
           long userId = SchemaManager.CreateOrFetchUserId(connection, username,
               app.EnsureId(connection), true);
 
-          MySqlCommand cmd = new MySqlCommand() { Connection = connection };
-          string serverVersion = new string(connection.ServerVersion.Where(c => c == '.' || Char.IsNumber(c)).ToArray());
-
-          if (new Version(serverVersion) >= new Version("8.0.5"))
-            cmd.CommandText = @"INSERT INTO my_aspnet_membership 
-                        VALUES(@userId, @appId, @username, @appname,
-                        @email, @comment, @password, @passwordKey, 
-                        @passwordFormat, @passwordQuestion, @passwordAnswer, 
-                        @isApproved, @lastActivityDate, @lastLoginDate,
-                        @lastPasswordChangedDate, @creationDate, 
-                        @isLockedOut, @lastLockedOutDate, @failedPasswordAttemptCount,
-                        @failedPasswordAttemptWindowStart, @failedPasswordAnswerAttemptCount, 
-                        @failedPasswordAnswerAttemptWindowStart)";
-          else
-            cmd.CommandText = @"INSERT INTO my_aspnet_membership 
+          MySqlCommand cmd = new MySqlCommand(
+              @"INSERT INTO my_aspnet_membership 
                         VALUES(@userId, @email, @comment, @password, @passwordKey, 
                         @passwordFormat, @passwordQuestion, @passwordAnswer, 
                         @isApproved, @lastActivityDate, @lastLoginDate,
                         @lastPasswordChangedDate, @creationDate, 
                         @isLockedOut, @lastLockedOutDate, @failedPasswordAttemptCount,
                         @failedPasswordAttemptWindowStart, @failedPasswordAnswerAttemptCount, 
-                        @failedPasswordAnswerAttemptWindowStart)";
-
+                        @failedPasswordAnswerAttemptWindowStart)",
+              connection);
           cmd.Parameters.AddWithValue("@userId", userId);
-          cmd.Parameters.AddWithValue("@appId", app.EnsureId(connection));
-          cmd.Parameters.AddWithValue("@username", username);
-          cmd.Parameters.AddWithValue("@appname", app.Name);
           cmd.Parameters.AddWithValue("@email", email);
           cmd.Parameters.AddWithValue("@comment", "");
           cmd.Parameters.AddWithValue("@password",
