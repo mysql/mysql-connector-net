@@ -238,14 +238,14 @@ namespace MySql.Data.MySqlClient
 				var v = DBVersion.Parse(c.ServerVersion);
 				serverVersion = new Version(v.Major + "." + v.Minor);
 
-                var version = new Version(c.ServerVersion.Substring(0, 5));
-                if (version < new Version(5, 0)) throw new NotSupportedException("Versions of MySQL prior to 5.0 are not currently supported");
-                if (version < new Version(5, 1)) return "5.0";
-                if (version < new Version(5, 5)) return "5.1";
-                if (version < new Version(5, 6)) return "5.5";
-                if (version < new Version(5, 7)) return "5.6";
-                if (version < new Version(8, 0, 4)) return "5.7";
-                return c.ServerVersion.Substring(0, 5);
+                double version = double.Parse(c.ServerVersion.Substring(0, 3), CultureInfo.InvariantCulture);
+                if (version < 5.0) throw new NotSupportedException("Versions of MySQL prior to 5.0 are not currently supported");
+                if (version < 5.1) return "5.0";
+                if (version < 5.5) return "5.1";
+                if (version < 5.6) return "5.5";
+                if (version < 5.7) return "5.6";
+                if (version < 8.0) return "5.7";
+                return "8.0";
             }
         }
 
