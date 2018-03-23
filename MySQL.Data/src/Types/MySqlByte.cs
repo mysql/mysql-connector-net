@@ -34,18 +34,18 @@ namespace MySql.Data.Types
 {
   internal struct MySqlByte : IMySqlValue
   {
-    public MySqlByte(bool isNull)
+    public MySqlByte(bool isNull, bool treatAsBoolean)
     {
       IsNull = isNull;
       Value = 0;
-      TreatAsBoolean = false;
+      TreatAsBoolean = treatAsBoolean;
     }
 
-    public MySqlByte(sbyte val)
+    public MySqlByte(sbyte val, bool treatAsBoolean)
     {
       IsNull = false;
       Value = val;
-      TreatAsBoolean = false;
+      TreatAsBoolean = treatAsBoolean;
     }
 
     #region IMySqlValue Members
@@ -82,15 +82,13 @@ namespace MySql.Data.Types
     IMySqlValue IMySqlValue.ReadValue(MySqlPacket packet, long length, bool nullVal)
     {
       if (nullVal)
-        return new MySqlByte(true);
+        return new MySqlByte(true, TreatAsBoolean);
 
       if (length == -1)
-        return new MySqlByte((sbyte)packet.ReadByte());
+        return new MySqlByte((sbyte)packet.ReadByte(), TreatAsBoolean);
 
       string s = packet.ReadString(length);
-      MySqlByte b = new MySqlByte(SByte.Parse(s, NumberStyles.Any, CultureInfo.InvariantCulture));
-      b.TreatAsBoolean = TreatAsBoolean;
-      return b;
+      return new MySqlByte(SByte.Parse(s, NumberStyles.Any, CultureInfo.InvariantCulture), TreatAsBoolean);
     }
 
     void IMySqlValue.SkipValue(MySqlPacket packet)
