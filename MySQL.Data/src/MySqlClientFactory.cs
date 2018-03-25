@@ -1,4 +1,4 @@
-// Copyright © 2004, 2016 Oracle and/or its affiliates. All rights reserved.
+// Copyright ?2004, 2016 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -63,11 +63,20 @@ namespace MySql.Data.MySqlClient
 			return new MySqlConnection();
 		}
 
-		/// <summary>
-		/// Returns a strongly typed <see cref="DbParameter"/> instance. 
-		/// </summary>
-		/// <returns>A new strongly typed instance of <b>DbParameter</b>.</returns>
-		public override DbParameter CreateParameter()
+        /// <summary>
+        /// Returns a strongly typed <see cref="DbDataAdapter"/> instance. 
+        /// </summary>
+        /// <returns>A new strongly typed instance of <b>DbDataAdapter</b>.</returns>
+        public override DbDataAdapter CreateDataAdapter()
+        {
+            return new MySqlDataAdapter();
+        }
+
+        /// <summary>
+        /// Returns a strongly typed <see cref="DbParameter"/> instance. 
+        /// </summary>
+        /// <returns>A new strongly typed instance of <b>DbParameter</b>.</returns>
+        public override DbParameter CreateParameter()
 		{
 			return new MySqlParameter();
 		}
