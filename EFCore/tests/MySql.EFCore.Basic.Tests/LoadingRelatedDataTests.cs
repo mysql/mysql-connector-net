@@ -195,8 +195,11 @@ namespace MySql.Data.EntityFrameworkCore.Tests
           string charset = "latin1";
           if (conn.driver.Version.isAtLeast(8, 0, 1))
             charset = "utf8mb4";
-          Assert.Equal($"CREATE TABLE `jsonentity` (\n  `Id` smallint(6) NOT NULL AUTO_INCREMENT,\n  `jsoncol` json DEFAULT NULL,\n  PRIMARY KEY (`Id`)\n) ENGINE=InnoDB DEFAULT CHARSET={charset}", jsonTableDesc
-            , ignoreCase: true, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
+          //Adding "COLLATION" to the string validation at table creation (this happens since MySql 8.0.5 Server)
+          if (jsonTableDesc.Contains("COLLATE=utf8mb4_0900_ai_ci")) Assert.Equal($"CREATE TABLE `jsonentity` (\n  `Id` smallint(6) NOT NULL AUTO_INCREMENT," +
+            $"\n  `jsoncol` json DEFAULT NULL,\n  PRIMARY KEY (`Id`)\n) ENGINE=InnoDB DEFAULT CHARSET={charset} COLLATE=utf8mb4_0900_ai_ci", jsonTableDesc, true, true, true);
+          else Assert.Equal($"CREATE TABLE `jsonentity` (\n  `Id` smallint(6) NOT NULL AUTO_INCREMENT,\n  `jsoncol` json DEFAULT NULL,\n  PRIMARY KEY (`Id`)\n) " +
+            $"ENGINE=InnoDB DEFAULT CHARSET={charset}", jsonTableDesc, true, true, true);
         }
 
         context.JsonEntity.Add(new JsonData()

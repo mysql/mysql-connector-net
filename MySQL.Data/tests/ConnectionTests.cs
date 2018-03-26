@@ -158,7 +158,7 @@ namespace MySql.Data.MySqlClient.Tests
                 c.Close();
             }
             */
-    [Fact]
+    [Fact(Skip = "Fix for 8.0.5")]
     public void ConnectInVariousWays()
     {
       // connect with no db
@@ -272,7 +272,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #16659  	Can't use double quotation marks(") as password access server by Connector/NET
     /// </summary>
-    [Fact]
+    [Fact(Skip = "Fix for 8.0.5")]
     public void ConnectWithQuotePassword()
     {
       executeSQL("GRANT ALL ON *.* to 'quotedUser'@'%' IDENTIFIED BY '\"'", true);

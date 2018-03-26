@@ -370,7 +370,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
 
-    [Fact]
+    [Fact(Skip = "Fix for 8.0.5")]
     public void ExtendedCharsetOnConnection()
     {
       MySqlConnectionStringBuilder rootSb = new MySqlConnectionStringBuilder(Root.ConnectionString);

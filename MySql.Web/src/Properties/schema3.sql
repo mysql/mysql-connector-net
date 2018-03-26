@@ -35,9 +35,9 @@ alter table mysql_UsersInRoles
           add column roleId INT AFTER userId,
           add column applicationId INT AFTER roleId;
 
-ALTER TABLE my_aspnet_membership CONVERT TO CHARACTER SET DEFAULT;
+/*ALTER TABLE my_aspnet_membership CONVERT TO CHARACTER SET DEFAULT;
 ALTER TABLE my_aspnet_roles CONVERT TO CHARACTER SET DEFAULT;
-ALTER TABLE my_aspnet_usersinroles CONVERT TO CHARACTER SET DEFAULT;
+ALTER TABLE my_aspnet_usersinroles CONVERT TO CHARACTER SET DEFAULT;*/
 
 /* these next lines set the application Id on our tables appropriately */          
 update my_aspnet_membership m, my_aspnet_applications a set m.applicationId = a.id where a.name=m.ApplicationName;

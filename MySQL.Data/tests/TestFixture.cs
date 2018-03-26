@@ -35,10 +35,10 @@ namespace MySql.Data.MySqlClient.Tests
 
     private TestBase TestClass { get; set; }
     protected string Namespace { get; set; }
-    public MySqlConnectionStringBuilder Settings { get; set;  }
+    public MySqlConnectionStringBuilder Settings { get; set; }
     public MySqlConnectionStringBuilder RootSettings { get; set; }
     protected string BaseDBName { get; set; }
-    protected string BaseUserName { get; set;  }
+    protected string BaseUserName { get; set; }
     public Version Version { get; set; }
     public int MaxPacketSize { get; set; }
     public string UnixSocket { get; private set; } = Environment.GetEnvironmentVariable("MYSQL_SOCKET") ?? "/tmp/mysql.sock";
@@ -53,7 +53,7 @@ namespace MySql.Data.MySqlClient.Tests
       Namespace = testClass.GetType().Name.ToLower();
       string ns = Namespace.Length > 10 ? Namespace.Substring(0, 10) : Namespace;
       BaseDBName = "db-" + ns + "-";
-      BaseUserName = "u-" + ns + "-"; 
+      BaseUserName = "u-" + ns + "-";
 
       var settings = new MySqlConnectionStringBuilder();
       settings.Server = "localhost";
@@ -164,7 +164,10 @@ namespace MySql.Data.MySqlClient.Tests
       using (var connection = GetConnection(true))
       {
         string userName = String.Format("{0}{1}", BaseUserName, postfix);
-        executeSQL(String.Format("CREATE USER '{0}'@'localhost' IDENTIFIED BY '{1}'", userName, password), connection);
+        if (Version >= new Version("5.7"))
+          executeSQL(String.Format("CREATE USER '{0}'@'localhost' IDENTIFIED WITH mysql_native_password BY '{1}'", userName, password), connection);
+        else
+          executeSQL(String.Format("CREATE USER '{0}'@'localhost' IDENTIFIED BY '{1}'", userName, password), connection);
         executeSQL(String.Format("GRANT ALL ON *.* TO '{0}'@'localhost'", userName), connection);
         executeSQL("FLUSH PRIVILEGES", connection);
         return userName;
@@ -192,7 +195,7 @@ namespace MySql.Data.MySqlClient.Tests
           if ((long)cmd.ExecuteScalar() > 0)
             executeSQL(String.Format("DROP USER '{0}'@'localhost';", userName), connection);
           executeSQL(String.Format("CREATE USER '{0}'@'localhost' IDENTIFIED WITH '{1}'", userName, plugin), connection);
-          if (plugin=="sha256_password") executeSQL("SET old_passwords = 2", connection);
+          if (plugin == "sha256_password") executeSQL("SET old_passwords = 2", connection);
           executeSQL(String.Format("SET PASSWORD FOR '{0}'@'localhost' = PASSWORD('{1}')", userName, password), connection);
         }
 
@@ -225,7 +228,7 @@ namespace MySql.Data.MySqlClient.Tests
       if (disposing)
       {
         MySqlConnection.ClearAllPools();
-        CleanupDatabase();        
+        CleanupDatabase();
       }
 
       disposed = true;
