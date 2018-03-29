@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
 using MySql.Data.Common;
@@ -71,13 +72,14 @@ namespace MySql.Data.MySqlClient
     protected bool binaryOk;
 
     #endregion
-
+    [SecuritySafeCritical]
     public MySqlField(Driver driver)
     {
       this.driver = driver;
       connVersion = driver.Version;
       MaxLength = 1;
       binaryOk = true;
+      Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
     }
 
     #region Properties
