@@ -1,5 +1,7 @@
 8.0.12
-- MySqlX: The RecordsAffected property available in Result objects has been deprecated and replaced with the AffectedItemsCount property. The WarningCount property has been added to Result objects (Oracle Bug #27732235).
+- MySqlX: Added the ColumnCount and ColumnNames properties to SqlResult and RowResult objects (Oracle Bug #27732175).
+- MySqlX: The RecordsAffected property available in Result objects has been deprecated and replaced with the
+  AffectedItemsCount property. The WarningCount property has been added to Result objects (Oracle Bug #27732235).
 
 
 8.0.11

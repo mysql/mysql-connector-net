@@ -1,4 +1,4 @@
-// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -126,6 +126,19 @@ namespace MySqlX.Data.Tests.RelationalTests
         else
           Assert.Equal(255u, r.Columns[0].Length);
       }
+    }
+
+    [Fact]
+    public void ColumnNames()
+    {
+      ExecuteSQL("CREATE TABLE test(columnA VARCHAR(255), columnB INT, columnX BIT)");
+      RowResult r = GetSession().GetSchema(schemaName).GetTable("test").Select().Execute();
+
+      Assert.Equal(3, r.ColumnCount);
+      Assert.Equal(r.Columns.Count, r.ColumnCount);
+      Assert.Equal("columnA", r.ColumnNames[0]);
+      Assert.Equal("columnB", r.ColumnNames[1]);
+      Assert.Equal("columnX", r.ColumnNames[2]);
     }
 
 #if !NETCOREAPP2_0
