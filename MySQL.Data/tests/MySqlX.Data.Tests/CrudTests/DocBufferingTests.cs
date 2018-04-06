@@ -1,4 +1,4 @@
-// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -53,7 +53,7 @@ namespace MySqlX.Data.Tests.CrudTests
       foreach (var doc in docResult)
       {
         var result = test2.Add(doc).Execute();
-        Assert.Equal<ulong>(1, result.RecordsAffected);
+        Assert.Equal<ulong>(1, result.AffectedItemsCount);
       }
     }
   }

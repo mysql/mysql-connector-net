@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -145,14 +145,14 @@ namespace MySqlX.Data.Tests.RelationalTests
       Table table = testSchema.GetTable("test");
       Assert.Equal(10, CountRows());
 
-      Assert.Equal<ulong>(2, table.Update().Where("id IN (1,2)").Set("id", 0).Execute().RecordsAffected);
+      Assert.Equal<ulong>(2, table.Update().Where("id IN (1,2)").Set("id", 0).Execute().AffectedItemsCount);
       Assert.Equal(2, table.Select().Where("id = 0").Execute().FetchAll().Count);
 
-      Assert.Throws<MySqlException>(() => table.Delete().Where("a IN [3]").Execute().RecordsAffected);
-      Assert.Throws<MySqlException>(() => table.Delete().Where("3 IN a").Execute().RecordsAffected);
-      Assert.Throws<MySqlException>(() => table.Update().Where("age IN [3]").Set("id", 0).Execute().RecordsAffected);
+      Assert.Throws<MySqlException>(() => table.Delete().Where("a IN [3]").Execute().AffectedItemsCount);
+      Assert.Throws<MySqlException>(() => table.Delete().Where("3 IN a").Execute().AffectedItemsCount);
+      Assert.Throws<MySqlException>(() => table.Update().Where("age IN [3]").Set("id", 0).Execute().AffectedItemsCount);
 
-      Assert.Equal<ulong>(1, table.Update().Where("age IN (3)").Set("id", 0).Execute().RecordsAffected);
+      Assert.Equal<ulong>(1, table.Update().Where("age IN (3)").Set("id", 0).Execute().AffectedItemsCount);
       Assert.Equal(3, table.Select().Where("id = 0").Execute().FetchAll().Count);
     }
   }

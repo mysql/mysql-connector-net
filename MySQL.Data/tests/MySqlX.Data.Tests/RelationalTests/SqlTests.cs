@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -116,7 +116,7 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       var session = GetSession(true);
       var result = session.SQL("INSERT INTO test VALUES(1, ?), (2, 'B');").Bind(null).Execute();
-      Assert.Equal(2ul, result.RecordsAffected);
+      Assert.Equal(2ul, result.AffectedItemsCount);
 
       var sqlResult = session.SQL("SELECT * FROM test WHERE letter is ?").Bind(null).Execute().FetchAll();
       Assert.Equal(1, sqlResult.Count);

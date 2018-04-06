@@ -42,7 +42,7 @@ namespace MySqlX.Data.Tests
     {
       Collection coll = CreateCollection("test");
       Result r = coll.Add(@"{ ""_id"": 1, ""foo"": 1 }").Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
       Assert.Equal(1, coll.Count());
     }
 
@@ -58,7 +58,7 @@ namespace MySqlX.Data.Tests
         return;
       }
       Result r = stmt.Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
       Assert.Equal(1, coll.Count());
       Assert.Equal(1, r.GeneratedIds.Count);
       Assert.False(string.IsNullOrWhiteSpace(r.GeneratedIds[0]));
@@ -78,7 +78,7 @@ namespace MySqlX.Data.Tests
         return;
       }
       Result r = stmt.Execute();
-      Assert.Equal<ulong>(3, r.RecordsAffected);
+      Assert.Equal<ulong>(3, r.AffectedItemsCount);
       Assert.Equal(3, coll.Count());
       Assert.Equal(3, r.GeneratedIds.Count);
     }
@@ -90,7 +90,7 @@ namespace MySqlX.Data.Tests
 
       Collection coll = CreateCollection("test");
       Result r = coll.Add(obj).Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
       //TODO:  pull object and verify data
       Assert.Equal(1, coll.Count());
     }
@@ -109,7 +109,7 @@ namespace MySqlX.Data.Tests
         return;
       }
       Result r = stmt.Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
       //TODO:  pull object and verify data
       Assert.Equal(1, coll.Count());
       Assert.Equal(1, r.GeneratedIds.Count);
@@ -128,7 +128,7 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result r = coll.Add(docs).Execute();
-      Assert.Equal<ulong>(4, r.RecordsAffected);
+      Assert.Equal<ulong>(4, r.AffectedItemsCount);
       Assert.Equal(4, coll.Count());
     }
 
@@ -144,10 +144,10 @@ namespace MySqlX.Data.Tests
         return;
       }
       Result result = stmt.Execute();
-      Assert.Equal<ulong>(1, result.RecordsAffected);
+      Assert.Equal<ulong>(1, result.AffectedItemsCount);
 
       result = coll.Modify($"_id = '{result.GeneratedIds[0]}'").Set("pages", "20").Execute();
-      Assert.Equal<ulong>(1, result.RecordsAffected);
+      Assert.Equal<ulong>(1, result.AffectedItemsCount);
       Assert.Equal(0, result.GeneratedIds.Count);
     }
 
@@ -167,7 +167,7 @@ namespace MySqlX.Data.Tests
       foreach (var doc in docs)
       {
         Result r = stmt.Add(doc).Execute();
-        Assert.Equal<ulong>(1, r.RecordsAffected);
+        Assert.Equal<ulong>(1, r.AffectedItemsCount);
       }
       Assert.Equal(5, coll.Count());
     }
@@ -178,7 +178,7 @@ namespace MySqlX.Data.Tests
       Collection coll = CreateCollection("test");
 
       var insertResult = coll.Add(new DbDoc[] { }).Execute();
-      Assert.Equal(0ul, insertResult.RecordsAffected);
+      Assert.Equal(0ul, insertResult.AffectedItemsCount);
 
       var result = coll.Find().Execute().FetchAll();
       Assert.Equal(0, result.Count);
@@ -286,7 +286,7 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result result = collection.Add(docs).Execute();
-      Assert.Equal<ulong>(4, result.RecordsAffected);
+      Assert.Equal<ulong>(4, result.AffectedItemsCount);
 
       // Expected exceptions.
       Assert.Throws<ArgumentNullException>(() => collection.AddOrReplaceOne(null, docs[1]));
@@ -295,21 +295,21 @@ namespace MySqlX.Data.Tests
       Assert.Throws<ArgumentNullException>(() => collection.AddOrReplaceOne("1", null));
 
       // Add a document.
-      Assert.Equal<ulong>(1, collection.AddOrReplaceOne(5, new { _id = 5, title = "Book 5", pages = 60 }).RecordsAffected);
+      Assert.Equal<ulong>(1, collection.AddOrReplaceOne(5, new { _id = 5, title = "Book 5", pages = 60 }).AffectedItemsCount);
       Assert.True(collection.GetOne(5) != null);
 
-      Assert.Equal<ulong>(1, collection.AddOrReplaceOne("6", new { title = "Book 6", pages = 70 }).RecordsAffected);
+      Assert.Equal<ulong>(1, collection.AddOrReplaceOne("6", new { title = "Book 6", pages = 70 }).AffectedItemsCount);
       Assert.True(collection.GetOne(6) == null);
       Assert.True(collection.GetOne("6") != null);
 
       // Replace a document.
-      Assert.Equal<ulong>(2, collection.AddOrReplaceOne(1, new { _id = 1, title = "Book X", pages = 10 }).RecordsAffected);
+      Assert.Equal<ulong>(2, collection.AddOrReplaceOne(1, new { _id = 1, title = "Book X", pages = 10 }).AffectedItemsCount);
       DbDoc document = collection.GetOne(1);
       Assert.Equal(1, Convert.ToInt32(document.Id));
       Assert.Equal("Book X", document["title"]);
       Assert.Equal(10, Convert.ToInt32(document["pages"]));
 
-      Assert.Equal<ulong>(2, collection.AddOrReplaceOne(1, new { title = "Book Y", pages = 9, other = "value" }).RecordsAffected);
+      Assert.Equal<ulong>(2, collection.AddOrReplaceOne(1, new { title = "Book Y", pages = 9, other = "value" }).AffectedItemsCount);
       document = collection.GetOne(1);
       Assert.Equal(1, Convert.ToInt32(document.Id));
       Assert.Equal("Book Y", document["title"]);

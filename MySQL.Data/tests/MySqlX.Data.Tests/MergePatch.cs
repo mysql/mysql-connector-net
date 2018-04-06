@@ -1,4 +1,4 @@
-// Copyright © 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -105,9 +105,9 @@ namespace MySqlX.Data.Tests
 
       Collection collection = CreateCollection("test");
       Result r = collection.Add("{ \"_id\": \"123\", \"email\": \"alice@ora.com\", \"startDate\": \"4/1/2017\" }").Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
       r = collection.Add("{ \"_id\": \"124\", \"email\": \"jose@ora.com\", \"startDate\": \"4/1/2017\" }").Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
 
       collection.Modify("email = \"alice@ora.com\"").Patch("{ \"_id\": \"123\", \"email\":\"bob@ora.com\", \"startDate\":null }").Execute();
 
@@ -129,7 +129,7 @@ namespace MySqlX.Data.Tests
 
       Collection collection = CreateCollection("test");
       Result r = collection.Add("{ \"_id\": \"123\", \"email\": \"alice@ora.com\", \"startDate\": \"4/1/2017\" }").Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
 
       var patch = new {
         email = new MySqlExpression("UPPER($.email)")
@@ -147,7 +147,7 @@ namespace MySqlX.Data.Tests
 
       Collection collection = CreateCollection("test");
       Result r = collection.Add(documentsAsJsonStrings).Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
 
       // Add field.
       collection.Modify("language = :lang").Patch("{ \"translations\": [\"Spanish\"] }").Bind("lang", "English").Execute();
@@ -213,7 +213,7 @@ namespace MySqlX.Data.Tests
 
       Collection collection = CreateCollection("test");
       Result r = collection.Add(documentsAsDbDocs).Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
 
       DbDoc document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
       Assert.Equal("AFRICAN EGG", document["title"]);
@@ -246,7 +246,7 @@ namespace MySqlX.Data.Tests
 
       Collection collection = CreateCollection("test");
       Result r = collection.Add(documentsAsDbDocs).Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
 
       DbDoc document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
       Assert.False(document.values.ContainsKey("translations"));
@@ -285,7 +285,7 @@ namespace MySqlX.Data.Tests
 
       Collection collection = CreateCollection("test");
       Result r = collection.Add(documentsAsDbDocs).Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
 
       DbDoc document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
 
@@ -334,7 +334,7 @@ namespace MySqlX.Data.Tests
 
       Collection collection = CreateCollection("test");
       Result r = collection.Add(documentsAsDbDocs).Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
 
       DbDoc document = collection.Find().Execute().FetchOne();
       Assert.False(((Dictionary<string, object>)((object[]) document.values["actors"])[0]).ContainsKey("age"));
@@ -354,7 +354,7 @@ namespace MySqlX.Data.Tests
 
       Collection collection = CreateCollection("test");
       Result r = collection.Add(documentsAsDbDocs).Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
       DbDoc document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
 
       Assert.False(document.values.ContainsKey("audio"));
@@ -370,7 +370,7 @@ namespace MySqlX.Data.Tests
 
       Collection collection = CreateCollection("test");
       Result r = collection.Add(documentsAsDbDocs).Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
 
       // Changes to the _id field are ignored.
       collection.Modify("_id = :id").Patch("{ \"_id\": replace(UUID(), '-', '') }").Bind("id", "a6f4b93e1a264a108393524f29546a8c").Execute();
@@ -385,7 +385,7 @@ namespace MySqlX.Data.Tests
 
       Collection collection = CreateCollection("test");
       Result r = collection.Add(documentsAsDbDocs).Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
 
       DbDoc document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
       Assert.False(((Dictionary<string, object>) document.values["additionalinfo"]).ContainsKey("_id"));
@@ -401,7 +401,7 @@ namespace MySqlX.Data.Tests
 
       Collection collection = CreateCollection("test");
       Result r = collection.Add(documentsAsDbDocs).Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
 
       DbDoc document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
       Assert.False(((Dictionary<string, object>) document.values["additionalinfo"]).ContainsKey("releasedate"));
@@ -416,7 +416,7 @@ namespace MySqlX.Data.Tests
 
       Collection collection = CreateCollection("test");
       Result r = collection.Add(documentsAsDbDocs).Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
 
       DbDoc document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
       Assert.Equal("AFRICAN EGG", document.values["title"]);
@@ -432,7 +432,7 @@ namespace MySqlX.Data.Tests
 
       Collection collection = CreateCollection("test");
       Result r = collection.Add(documentsAsDbDocs).Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
 
       DbDoc document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
       Assert.False(document.values.ContainsKey("docfield"));
@@ -448,7 +448,7 @@ namespace MySqlX.Data.Tests
 
       Collection collection = CreateCollection("test");
       Result r = collection.Add(documentsAsDbDocs).Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
 
       DbDoc document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
       Assert.Equal("Science fiction", document.values["genre"]);
@@ -468,7 +468,7 @@ namespace MySqlX.Data.Tests
 
       Collection collection = CreateCollection("test");
       Result r = collection.Add(documentsAsDbDocs).Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
 
       // Changes to the _id field are ignored.
       collection.Modify("_id = :id").Patch("{ \"_id\": \"b5f4b93e1a264a108393524f29546a9d\" }").Bind("id", "a6f4b93e1a264a108393524f29546a8c").Execute();
@@ -483,7 +483,7 @@ namespace MySqlX.Data.Tests
 
       Collection collection = CreateCollection("test");
       Result r = collection.Add(documentsAsDbDocs).Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
 
       // Add id to nested document is allowed.
       DbDoc document = collection.Find().Execute().FetchOne();
@@ -505,7 +505,7 @@ namespace MySqlX.Data.Tests
 
       Collection collection = CreateCollection("test");
       Result r = collection.Add(documentsAsJsonStrings).Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
 
       // Changes to the _id field are ignored.
       collection.Modify("true").Patch("{ \"_id\": NULL }").Execute();
@@ -519,7 +519,7 @@ namespace MySqlX.Data.Tests
 
       Collection collection = CreateCollection("test");
       Result r = collection.Add(documentsAsJsonStrings).Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
 
       collection.Modify("true").Patch("{ \"nullfield\": NULL }").Execute();
       Assert.False(collection.Find().Execute().FetchOne().values.ContainsKey("nullfield"));
@@ -550,7 +550,7 @@ namespace MySqlX.Data.Tests
 
       Collection collection = CreateCollection("test");
       Result r = collection.Add(documentsAsJsonStrings).Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
 
       collection.Modify("true").Patch("{ \"additionalinfo\": { \"nullfield\": NULL } }").Execute();
       Assert.False(((Dictionary<string, object>) collection.Find().Execute().FetchOne().values["additionalinfo"]).ContainsKey("nullfield"));
@@ -584,7 +584,7 @@ namespace MySqlX.Data.Tests
     {
       Collection collection = CreateCollection("test");
       Result r = collection.Add(documentsAsDbDocs).Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
 
       // Get root string properties.
       DbDoc document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
@@ -618,7 +618,7 @@ namespace MySqlX.Data.Tests
       string t1 = "{\"_id\": \"1\", \"name\": \"Alice\" }";
       Collection collection = CreateCollection("test");
       Result r = collection.Add(t1).Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
 
       collection.Modify("_id = :id").Patch("{ \"dateAndTimeValue\": YEAR('2000-01-01') }").Bind("id", "\"1\"").Execute();
       DbDoc document = collection.GetOne("1");
@@ -671,7 +671,7 @@ namespace MySqlX.Data.Tests
       string t1 = "{\"_id\": \"1\", \"name\": \"Alice\" }";
       Collection collection = CreateCollection("test");
       Result r = collection.Add(t1).Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
 
       collection.Modify("_id = :id").Patch("{ \"otherValue\": CHAR(77, 121, 83, 81, '76') }").Bind("id", "\"1\"").Execute();
       DbDoc document = collection.GetOne("1");

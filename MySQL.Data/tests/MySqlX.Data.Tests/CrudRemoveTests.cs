@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -41,10 +41,10 @@ namespace MySqlX.Data.Tests
       Collection coll = CreateCollection("test");
       var docs = new { _id = 12, title = "Book 1", pages = 20 };
       Result r = coll.Add(docs).Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
 
       r = coll.Remove(12).Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
     }
 
     [Fact]
@@ -59,10 +59,10 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result r = coll.Add(docs).Execute();
-      Assert.Equal<ulong>(4, r.RecordsAffected);
+      Assert.Equal<ulong>(4, r.AffectedItemsCount);
 
       r = coll.Remove("pages > 20").Execute();
-      Assert.Equal<ulong>(3, r.RecordsAffected);
+      Assert.Equal<ulong>(3, r.AffectedItemsCount);
     }
 
     [Fact]
@@ -77,10 +77,10 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result r = coll.Add(docs).Execute();
-      Assert.Equal<ulong>(4, r.RecordsAffected);
+      Assert.Equal<ulong>(4, r.AffectedItemsCount);
 
       r = coll.Remove("pages > 20").Limit(1).Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
 
       // Limit out of range.
       Assert.Throws<ArgumentOutOfRangeException>(() => coll.Remove("True").Limit(0).Execute());
@@ -101,10 +101,10 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result r = coll.Add(docs).Execute();
-      Assert.Equal<ulong>(4, r.RecordsAffected);
+      Assert.Equal<ulong>(4, r.AffectedItemsCount);
 
       r = coll.Remove("pages > 20").Limit(1).Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
     }
 
     [Fact]
@@ -121,10 +121,10 @@ namespace MySqlX.Data.Tests
       Collection coll = CreateCollection("test");
       DbDoc doc = new DbDoc(new { _id = 1, title = "Book 1", pages = 20 });
       Result r = coll.Add(doc).Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
 
       r = coll.Remove(doc).Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
     }
 
     [Fact]
@@ -139,10 +139,10 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result r = coll.Add(docs).Execute();
-      Assert.Equal<ulong>(4, r.RecordsAffected);
+      Assert.Equal<ulong>(4, r.AffectedItemsCount);
 
       r = coll.Remove("pages = :Pages").Bind("pAges", 50).Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
     }
 
     [Fact]
@@ -157,7 +157,7 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result result = collection.Add(docs).Execute();
-      Assert.Equal<ulong>(4, result.RecordsAffected);
+      Assert.Equal<ulong>(4, result.AffectedItemsCount);
 
       // Condition can't be null or empty.
       string errorMessage = "Parameter can't be null or empty.\r\nParameter name: condition";
@@ -172,7 +172,7 @@ namespace MySqlX.Data.Tests
 
       // Sending an expression that evaluates to true applies changes on all documents.
       result = collection.Remove("true").Execute();
-      Assert.Equal<ulong>(4, result.RecordsAffected);
+      Assert.Equal<ulong>(4, result.AffectedItemsCount);
     }
 
     [Fact]
@@ -188,15 +188,15 @@ namespace MySqlX.Data.Tests
         new DbDoc("{ \"a\": 1, \"b\": \"foo3\", \"c\": { \"d\": true, \"e\": [1,4,3] }, \"f\": [ {\"x\":6}, {\"x\":9 } ] }"),
       };
       Result result = collection.Add(docs).Execute();
-      Assert.Equal<ulong>(3, result.RecordsAffected);
+      Assert.Equal<ulong>(3, result.AffectedItemsCount);
 
-      Assert.Equal<ulong>(1, collection.Remove("a IN (2,3)").Execute().RecordsAffected);
+      Assert.Equal<ulong>(1, collection.Remove("a IN (2,3)").Execute().AffectedItemsCount);
       Assert.Equal(2, collection.Find().Execute().FetchAll().Count);
 
-      Assert.Equal<ulong>(0, collection.Remove("a IN [3]").Execute().RecordsAffected);
+      Assert.Equal<ulong>(0, collection.Remove("a IN [3]").Execute().AffectedItemsCount);
       Assert.Equal(2, collection.Find().Execute().FetchAll().Count);
 
-      Assert.Equal<ulong>(2, collection.Remove("1 IN c.e").Execute().RecordsAffected);
+      Assert.Equal<ulong>(2, collection.Remove("1 IN c.e").Execute().AffectedItemsCount);
       Assert.Equal(0, collection.Find().Execute().FetchAll().Count);
     }
 
@@ -212,7 +212,7 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result result = collection.Add(docs).Execute();
-      Assert.Equal<ulong>(4, result.RecordsAffected);
+      Assert.Equal<ulong>(4, result.AffectedItemsCount);
 
       collection.Add(new { title = "Book 5", pages = 60 }).Execute();
       Assert.Equal(5, collection.Find().Execute().FetchAll().Count);
@@ -223,20 +223,20 @@ namespace MySqlX.Data.Tests
       Assert.Throws<ArgumentNullException>(() => collection.RemoveOne(string.Empty));
 
       // Remove sending numeric parameter.
-      Assert.Equal<ulong>(1, collection.RemoveOne(1).RecordsAffected);
+      Assert.Equal<ulong>(1, collection.RemoveOne(1).AffectedItemsCount);
       Assert.Equal(4, collection.Find().Execute().FetchAll().Count);
 
       // Remove sending string parameter.
-      Assert.Equal<ulong>(1, collection.RemoveOne("3").RecordsAffected);
+      Assert.Equal<ulong>(1, collection.RemoveOne("3").AffectedItemsCount);
       Assert.Equal(3, collection.Find().Execute().FetchAll().Count);
 
       // Remove an auto-generated id.
       DbDoc document = collection.Find("pages = 60").Execute().FetchOne();
-      Assert.Equal<ulong>(1, collection.RemoveOne(document.Id).RecordsAffected);
+      Assert.Equal<ulong>(1, collection.RemoveOne(document.Id).AffectedItemsCount);
       Assert.Equal(2, collection.Find().Execute().FetchAll().Count);
 
       // Remove a non-existing document.
-      Assert.Equal<ulong>(0, collection.RemoveOne(5).RecordsAffected);
+      Assert.Equal<ulong>(0, collection.RemoveOne(5).AffectedItemsCount);
       Assert.Equal(2, collection.Find().Execute().FetchAll().Count);
     }
   }

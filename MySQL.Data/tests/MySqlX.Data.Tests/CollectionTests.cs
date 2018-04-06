@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -77,7 +77,7 @@ namespace MySqlX.Data.Tests
       Assert.True(testColl.ExistsInDatabase(), "ExistsInDatabase failed");
       var result = testColl.CreateIndex("testIndex", "{ \"fields\": [ { \"field\":$.myId, \"type\":\"INT\", \"required\":true } ] }").Execute();
       result = testColl.Add(new { myId = 1 }).Add(new { myId = 2 }).Execute();
-      Assert.Equal<ulong>(result.RecordsAffected, 2);
+      Assert.Equal<ulong>(result.AffectedItemsCount, 2);
     }
 
     [Fact]

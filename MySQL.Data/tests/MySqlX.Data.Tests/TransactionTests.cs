@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -54,7 +54,7 @@ namespace MySqlX.Data.Tests
       coll.Session.StartTransaction();
 
       Result r = coll.Add(docs).Execute();
-      Assert.Equal<ulong>(4, r.RecordsAffected);
+      Assert.Equal<ulong>(4, r.AffectedItemsCount);
 
       // now roll it back
       coll.Session.Commit();
@@ -83,7 +83,7 @@ namespace MySqlX.Data.Tests
       coll.Session.StartTransaction();
 
       Result r = coll.Add(docs).Execute();
-      Assert.Equal<ulong>(4, r.RecordsAffected);
+      Assert.Equal<ulong>(4, r.AffectedItemsCount);
 
       // now roll it back
       coll.Session.Rollback();
@@ -105,7 +105,7 @@ namespace MySqlX.Data.Tests
         table.Insert().Values(5).Execute();
         Assert.Throws<MySqlException>(() => { table.Insert().Values(5).Execute(); });
         var result = session.Rollback();
-        Assert.Equal(1, result.Warnings.Count);
+        Assert.Equal(1, result.WarningCount);
         // warning message: Some non-transactional changed tables couldn't be rolled back
         Assert.Equal(1196u, result.Warnings[0].Code);
       }

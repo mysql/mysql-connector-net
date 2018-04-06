@@ -52,7 +52,7 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result r = coll.Add(docs).Execute();
-      Assert.Equal<ulong>(4, r.RecordsAffected);
+      Assert.Equal<ulong>(4, r.AffectedItemsCount);
 
       DocResult foundDocs = coll.Find("pages > 20").Execute();
       Assert.True(foundDocs.Next());
@@ -76,7 +76,7 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result r = coll.Add(docs).Execute();
-      Assert.Equal<ulong>(4, r.RecordsAffected);
+      Assert.Equal<ulong>(4, r.AffectedItemsCount);
 
       DocResult foundDocs = coll.Find("pages > 20").OrderBy("pages DESC").Execute();
       Assert.True(foundDocs.Next());
@@ -100,7 +100,7 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result r = coll.Add(docs).Execute();
-      Assert.Equal<ulong>(4, r.RecordsAffected);
+      Assert.Equal<ulong>(4, r.AffectedItemsCount);
 
       DocResult foundDocs = coll.Find("pages > 20").Limit(1).Execute();
       Assert.True(foundDocs.Next());
@@ -124,7 +124,7 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result r = coll.Add(docs).Execute();
-      Assert.Equal<ulong>(4, r.RecordsAffected);
+      Assert.Equal<ulong>(4, r.AffectedItemsCount);
 
       DocResult foundDocs = coll.Find("pages = :Pages").Bind("pAges", 40).Execute();
       Assert.True(foundDocs.Next());
@@ -144,7 +144,7 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result r = coll.Add(docs).Execute();
-      Assert.Equal<ulong>(4, r.RecordsAffected);
+      Assert.Equal<ulong>(4, r.AffectedItemsCount);
 
       //var s = MySql.Data.ResourcesX.TestingResources;
 
@@ -169,7 +169,7 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result r = coll.Add(docs).Execute();
-      Assert.Equal<ulong>(4, r.RecordsAffected);
+      Assert.Equal<ulong>(4, r.AffectedItemsCount);
 
       var jsonParams = new { pages1 = 30, pages2 = 40 };
       DocResult foundDocs = coll.Find("pages = :Pages1 || pages = :Pages2").Bind(jsonParams).Execute();
@@ -192,7 +192,7 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result r = coll.Add(docs).Execute();
-      Assert.Equal<ulong>(4, r.RecordsAffected);
+      Assert.Equal<ulong>(4, r.AffectedItemsCount);
 
       var jsonParams = "{ \"pages1\" : 30, \"pages2\" : 40 }";
       DocResult foundDocs = coll.Find("pages = :Pages1 || pages = :Pages2").Bind(jsonParams).Execute();
@@ -321,7 +321,7 @@ namespace MySqlX.Data.Tests
 
         // Modify() is allowed for non-locked documents.
         Result result = coll2.Modify("_id = 2").Set("a", 2).Execute();
-        Assert.Equal<ulong>(1, result.RecordsAffected);
+        Assert.Equal<ulong>(1, result.AffectedItemsCount);
         // Session1 blocks, Modify() is not allowed for locked documents.
         session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
         Exception ex = Assert.Throws<MySqlException>(() => coll2.Modify("_id = 1").Set("a", 2).Execute());
@@ -361,7 +361,7 @@ namespace MySqlX.Data.Tests
 
         // Modify() is allowed for non-locked documents.
         Result result = coll2.Modify("_id = 2").Set("a", 2).Execute();
-        Assert.Equal<ulong>(1, result.RecordsAffected);
+        Assert.Equal<ulong>(1, result.AffectedItemsCount);
         // Session1 blocks, Modify() is not allowed for locked documents.
         session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
         Exception ex = Assert.Throws<MySqlException>(() => coll2.Modify("_id = 1").Set("a", 2).Execute());
@@ -621,7 +621,7 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result r = coll.Add(docs).Execute();
-      Assert.Equal<ulong>(4, r.RecordsAffected);
+      Assert.Equal<ulong>(4, r.AffectedItemsCount);
 
       // Expected exceptions.
       Assert.Throws<ArgumentNullException>(() => coll.GetOne(null));

@@ -1,4 +1,4 @@
-// Copyright © 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -42,7 +42,7 @@ namespace MySqlX.Data.Tests
 
       DbDoc document = new DbDoc(@"{ ""_id"": 1, ""isDocument"": true }");
       Result result = collection.Add(document).Execute();
-      Assert.Equal<ulong>(1, result.RecordsAffected);
+      Assert.Equal<ulong>(1, result.AffectedItemsCount);
 
       document = collection.GetOne(1);
       Assert.True(document.values.ContainsKey("isDocument"));
@@ -50,7 +50,7 @@ namespace MySqlX.Data.Tests
 
       document = new DbDoc(new { _id=2, isDocument=false });
       result = collection.Add(document).Execute();
-      Assert.Equal<ulong>(1, result.RecordsAffected);
+      Assert.Equal<ulong>(1, result.AffectedItemsCount);
 
       document = collection.GetOne(2);
       Assert.True(document.values.ContainsKey("isDocument"));
@@ -66,7 +66,7 @@ namespace MySqlX.Data.Tests
 
       DbDoc document = new DbDoc(@"{ ""isDocument"": null }");
       Result result = collection.Add(document).Execute();
-      Assert.Equal<ulong>(1, result.RecordsAffected);
+      Assert.Equal<ulong>(1, result.AffectedItemsCount);
 
       document = collection.Find().Execute().FetchOne();
       Assert.True(document.values.ContainsKey("isDocument"));
@@ -80,7 +80,7 @@ namespace MySqlX.Data.Tests
 
       DbDoc document = new DbDoc(@"{ ""id"": 1, ""list"": [1,2,3] }");
       Result result = collection.Add(document).Execute();
-      Assert.Equal<ulong>(1, result.RecordsAffected);
+      Assert.Equal<ulong>(1, result.AffectedItemsCount);
 
       document = collection.Find().Execute().FetchOne();
       Assert.True(document.values.ContainsKey("list"));
@@ -95,7 +95,7 @@ namespace MySqlX.Data.Tests
       DbDoc document = new DbDoc(@"{ ""id"": 1, ""list"": [1,""a""] }");
       //DbDoc document = new DbDoc(@"{ ""id"": 1, ""list"": [1,""a"",true,null] }");
       Result result = collection.Add(document).Execute();
-      Assert.Equal<ulong>(1, result.RecordsAffected);
+      Assert.Equal<ulong>(1, result.AffectedItemsCount);
 
       document = collection.Find().Execute().FetchOne();
       Assert.True(document.values.ContainsKey("list"));
@@ -110,7 +110,7 @@ namespace MySqlX.Data.Tests
       //DbDoc document = new DbDoc(@"{ ""id"": 1, ""list"": [1,""a"",true,null] }");
       Collection collection = CreateCollection("test");
       Result result = collection.Add(document).Execute();
-      Assert.Equal<ulong>(1, result.RecordsAffected);
+      Assert.Equal<ulong>(1, result.AffectedItemsCount);
 
       document = collection.Find().Execute().FetchOne();
       Assert.True(document.values.ContainsKey("list"));

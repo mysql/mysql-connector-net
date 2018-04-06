@@ -1,4 +1,4 @@
-// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -49,9 +49,18 @@ namespace MySqlX.XDevAPI.Common
     /// <summary>
     /// Gets the number of records affected by the statement that generated this result.
     /// </summary>
+    [Obsolete("RecordsAffected has been deprecated. Use AffectedItemsCount instead.")]
     public UInt64 RecordsAffected
     {
       get { return _recordsAffected; }
+    }
+
+    /// <summary>
+    /// Gets the number of records affected by the statement that generated this result.
+    /// </summary>
+    public UInt64 AffectedItemsCount
+    {
+      get { return _affectedItemsCount; }
     }
 
     /// <summary>

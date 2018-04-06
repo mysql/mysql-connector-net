@@ -233,10 +233,11 @@ namespace MySqlX.Protocol
       switch (state.Param)
       {
         case SessionStateChanged.Types.Parameter.RowsAffected:
-            rs._recordsAffected = state.Value[0].VUnsignedInt;
+          rs._recordsAffected = state.Value[0].VUnsignedInt;
+          rs._affectedItemsCount = rs._recordsAffected;
           break;
         case SessionStateChanged.Types.Parameter.GeneratedInsertId:
-            rs._autoIncrementValue = state.Value[0].VUnsignedInt;
+          rs._autoIncrementValue = state.Value[0].VUnsignedInt;
           break;
         case SessionStateChanged.Types.Parameter.ProducedMessage:
           rs.AddWarning(new WarningInfo(0, state.Value[0].VString.Value.ToStringUtf8()));
@@ -245,8 +246,8 @@ namespace MySqlX.Protocol
           foreach (var value in state.Value)
             rs._documentIds.Add(value.VOctets.Value.ToStringUtf8());
           break;
-          // handle the other ones
-//      default: SessionStateChanged(state);
+        //handle the other ones
+        //default: SessionStateChanged(state);
       }
     }
 

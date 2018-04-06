@@ -1,3 +1,7 @@
+8.0.12
+- MySqlX: The RecordsAffected property available in Result objects has been deprecated and replaced with the AffectedItemsCount property. The WarningCount property has been added to Result objects (Oracle Bug #27732235).
+
+
 8.0.11
 - Updated the RSA key encryption padding to RSA_PKCS1_OAEP_PADDING for the caching_sha2_password authentication plugin
   when connecting to server 8.0.5 (or later) (WL11618).

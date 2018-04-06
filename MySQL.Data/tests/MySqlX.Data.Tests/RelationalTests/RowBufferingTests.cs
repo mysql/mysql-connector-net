@@ -1,4 +1,4 @@
-// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -46,7 +46,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       foreach (var row in rowResult)
       {
         var result = testSchema.GetTable("test2").Update().Where("id=1").Set("val", row["id"]).Execute();
-        Assert.Equal<ulong>(1, result.RecordsAffected);
+        Assert.Equal<ulong>(1, result.AffectedItemsCount);
       }
 
       Row valRow = testSchema.GetTable("test2").Select("val").Execute().FetchOne();

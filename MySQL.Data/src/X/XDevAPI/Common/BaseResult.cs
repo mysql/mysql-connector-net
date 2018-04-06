@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using MySqlX.Protocol;
 using MySqlX.Sessions;
 using System.Collections.ObjectModel;
+using System;
 
 namespace MySqlX.XDevAPI.Common
 {
@@ -40,6 +41,7 @@ namespace MySqlX.XDevAPI.Common
   {
     private List<WarningInfo> _warnings = new List<WarningInfo>();
     internal ulong _recordsAffected;
+    internal ulong _affectedItemsCount;
     internal ulong _autoIncrementValue;
     internal InternalSession _session;
     internal bool _hasData;
@@ -86,6 +88,14 @@ namespace MySqlX.XDevAPI.Common
 #endif
     {
       get { return _warnings.AsReadOnly(); }
+    }
+
+    /// <summary>
+    /// Gets the number of warnings in the <see cref="Warnings"/> collection derived from statement execution.
+    /// </summary>
+    public Int32 WarningCount
+    {
+      get { return _warnings.Count; }
     }
 
     /// <summary>

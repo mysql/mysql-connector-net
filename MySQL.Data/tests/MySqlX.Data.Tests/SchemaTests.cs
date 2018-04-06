@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -89,7 +89,7 @@ namespace MySqlX.Data.Tests
       Collection testCollection = CreateCollection("test");
 
       Result r = testCollection.Add(@"{ ""_id"": 1, ""foo"": 1 }").Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
 
       Table test = testSchema.GetCollectionAsTable("test");
       Assert.True(test.ExistsInDatabase());

@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -268,7 +268,7 @@ namespace MySqlX.Data.Tests.RelationalTests
 
         // Modify() is allowed for non-locked rows.
         Result result = table2.Update().Where("id = 2").Set("age", 2).Execute();
-        Assert.Equal<ulong>(1, result.RecordsAffected);
+        Assert.Equal<ulong>(1, result.AffectedItemsCount);
         // Session1 blocks, Modify() is not allowed for locked rows.
         session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
         Exception ex = Assert.Throws<MySqlException>(() => table2.Update().Where("id = 1").Set("age", 2).Execute());
@@ -301,7 +301,7 @@ namespace MySqlX.Data.Tests.RelationalTests
 
         // Modify() is allowed for non-locked rows.
         Result result = table2.Update().Where("id = 2").Set("age", 2).Execute();
-        Assert.Equal<ulong>(1, result.RecordsAffected);
+        Assert.Equal<ulong>(1, result.AffectedItemsCount);
         // Session1 blocks, Modify() is not allowed for locked rows.
         session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
         Exception ex = Assert.Throws<MySqlException>(() => table2.Update().Where("id = 1").Set("age", 2).Execute());

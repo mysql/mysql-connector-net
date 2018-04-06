@@ -1,4 +1,4 @@
-// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -45,7 +45,7 @@ namespace MySqlX.Data.Tests.ResultTests
       stmt.Add(@"{ ""_id"": 3, ""foo"": 3 }");
       stmt.Add(@"{ ""_id"": 4, ""foo"": 4 }");
       Result result = stmt.Execute();
-      Assert.Equal(4, (int)result.RecordsAffected);
+      Assert.Equal(4, (int)result.AffectedItemsCount);
 
       var docResult = testColl.Find().Execute();
       var docs = docResult.FetchAll();
@@ -56,5 +56,5 @@ namespace MySqlX.Data.Tests.ResultTests
       Assert.Equal(4, docs.Count);
     }
 #endif
-  }
+    }
 }

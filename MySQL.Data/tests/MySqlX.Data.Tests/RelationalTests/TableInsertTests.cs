@@ -1,4 +1,4 @@
-// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -49,7 +49,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         .Values("Henry", "22")
         .Values("Patric", 30)
         .Execute();
-      Assert.Equal<ulong>(2, result.RecordsAffected);
+      Assert.Equal<ulong>(2, result.AffectedItemsCount);
 
       var selectResult = table.Select().Execute();
       while (selectResult.Next()) ;
@@ -71,7 +71,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       var result = table.Insert("name", "age")
         .Values("upper('mark')", "50-16")
         .Execute();
-      Assert.Equal<ulong>(1, result.RecordsAffected);
+      Assert.Equal<ulong>(1, result.AffectedItemsCount);
 
       var selectResult = table.Select().Execute();
       while (selectResult.Next()) ;
@@ -88,10 +88,10 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       var stmt = table.Insert("name", "age");
       var result = stmt.Values("upper('mark')", "50-16").Execute();
-      Assert.Equal<ulong>(1, result.RecordsAffected);
+      Assert.Equal<ulong>(1, result.AffectedItemsCount);
       Assert.Throws<MySqlException>(() => result = stmt.Values("George", 34, 1).Execute());
       result = stmt.Values("George", 34).Execute();
-      Assert.Equal<ulong>(1, result.RecordsAffected);
+      Assert.Equal<ulong>(1, result.AffectedItemsCount);
       Assert.Equal(2, table.Select().Execute().FetchAll().Count);
     }
   }
