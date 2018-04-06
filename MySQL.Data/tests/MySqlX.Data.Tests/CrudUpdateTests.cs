@@ -1,5 +1,4 @@
-// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
-//
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.//
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
 // published by the Free Software Foundation.
@@ -26,9 +25,11 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data;
 using MySqlX.Serialization;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
+using MySqlX.XDevAPI.CRUD;
 using System;
 using System.Collections.Generic;
 using Xunit;
@@ -225,6 +226,57 @@ namespace MySqlX.Data.Tests
       Assert.Equal<ulong>(1, collection.ReplaceOne(1, d_new).AffectedItemsCount);
       document = collection.GetOne(1);
       Assert.Equal(33, ((document.values["person"] as Dictionary<string,object>)["newProp"] as Dictionary<string,object>)["a"] );
+    }
+
+    [Fact]
+    public void ArrayInsert()
+    {
+      Collection collection = CreateCollection("test");
+      collection.Add("{ \"x\":[1,2] }").Execute();
+
+      collection.Modify("true").ArrayInsert("x[1]", 43).Execute();
+      collection.Modify("true").ArrayInsert("x[3]", 44).Execute();
+
+      var result = collection.Find().Execute();
+      var document = result.FetchOne();
+      var x = (object[]) document.values["x"];
+
+      Assert.Equal(4, x.Length);
+      Assert.Equal(1, (int) x[0]);
+      Assert.Equal(43, (int) x[1]);
+      Assert.Equal(2, (int) x[2]);
+      Assert.Equal(44, (int) x[3]);
+    }
+
+    [Fact]
+    public void ArrayAppend()
+    {
+      Collection collection = CreateCollection("test");
+      collection.Add("{ \"x\":[1,2] }").Execute();
+
+      collection.Modify("true").ArrayAppend("x", 43).Execute();
+      collection.Modify("true").ArrayAppend("x", 44).Execute();
+
+      DocResult result = collection.Find().Execute();
+      DbDoc document = result.FetchOne();
+      var x = (object[]) document.values["x"];
+
+      Assert.Equal(4, x.Length);
+      Assert.Equal(1, (int) x[0]);
+      Assert.Equal(2, (int) x[1]);
+      Assert.Equal(43, (int) x[2]);
+      Assert.Equal(44, (int) x[3]);
+    }
+
+    [Fact]
+    public void ArrayDelete()
+    {
+      Collection collection = CreateCollection("test");
+      collection.Add("{ \"x\":[1,2] }").Execute();
+
+      Exception ex = Assert.Throws<NotSupportedException>(() => collection.Modify("true").ArrayDelete("x", 0).Execute());
+
+      Assert.Equal(ResourcesX.FeatureNotSupported, ex.Message);
     }
   }
 }

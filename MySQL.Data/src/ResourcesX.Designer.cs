@@ -80,6 +80,15 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to This feature is currently not supported..
+        /// </summary>
+        public static string FeatureNotSupported {
+            get {
+                return ResourceManager.GetString("FeatureNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to This functionality is only supported in MySQL {0} and higher..
         /// </summary>
         public static string FunctionalityNotSupported {

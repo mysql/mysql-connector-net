@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -31,7 +31,6 @@ using Mysqlx.Crud;
 using MySqlX.XDevAPI.Common;
 using System;
 using MySql.Data;
-using MySql.Data.MySqlClient;
 
 namespace MySqlX.XDevAPI.CRUD
 {
@@ -102,6 +101,41 @@ namespace MySqlX.XDevAPI.CRUD
       Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.MergePatch, string.Empty).SetValue(dbDocument.values));
 
       return this;
+    }
+
+    /// <summary>
+    /// Inserts an item into the specified array.
+    /// </summary>
+    /// <param name="field">The document path key including the index on which the item will be inserted.</param>
+    /// <param name="value">The value to insert into the array.</param>
+    /// <returns>A <see cref="ModifyStatement"/> object containing the updated array.</returns>
+    public ModifyStatement ArrayInsert(string field, object value)
+    {
+      Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ArrayInsert, field).SetValue(value));
+      return this;
+    }
+
+    /// <summary>
+    /// Appends an item to the specified array.
+    /// </summary>
+    /// <param name="docPath">The document path key.</param>
+    /// <param name="value">The value to append to the array.</param>
+    /// <returns>A <see cref="ModifyStatement"/> object containing the updated array.</returns>
+    public ModifyStatement ArrayAppend(string docPath, object value)
+    {
+      Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ArrayAppend, docPath).SetValue(value));
+      return this;
+    }
+
+    /// <summary>
+    /// Deletes an item from the specified array.
+    /// </summary>
+    /// <param name="field">The document path key.</param>
+    /// <param name="position">The index of the element to remove.</param>
+    /// <returns></returns>
+    public ModifyStatement ArrayDelete(string field, int position)
+    {
+      throw new NotSupportedException(ResourcesX.FeatureNotSupported);
     }
 
     /// <summary>

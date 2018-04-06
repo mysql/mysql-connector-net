@@ -231,4 +231,7 @@
   <data name="AuthenticationFailed" xml:space="preserve">
     <value>Authentication failed using MYSQL41 and SHA256_MEMORY. Check the user name and password or try using a secure connection.</value>
   </data>
+  <data name="FeatureNotSupported" xml:space="preserve">
+    <value>This feature is currently not supported.</value>
+  </data>
 </root>
