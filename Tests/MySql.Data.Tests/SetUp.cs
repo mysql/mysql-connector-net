@@ -470,7 +470,7 @@ namespace MySql.Data.MySqlClient.Tests
       disposed = true;
     }
 
-    public void Dispose()
+    public virtual void Dispose()
     {
       Dispose(true);
     }
