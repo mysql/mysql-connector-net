@@ -184,7 +184,7 @@ namespace MySql.Data.Entity.Migrations.Tests
       createForeignkeyOperation.PrincipalColumns.Add("BlogId");
 
       //create index to use
-      migrationOperations.Add(createForeignkeyOperation.CreateCreateIndexOperation());
+      //migrationOperations.Add(createForeignkeyOperation.CreateCreateIndexOperation());
 
       migrationOperations.Add(createForeignkeyOperation);
       
@@ -201,7 +201,7 @@ namespace MySql.Data.Entity.Migrations.Tests
         {
           if (conn.State == System.Data.ConnectionState.Closed) conn.Open(); 
           // check for foreign key creation
-          MySqlCommand query = new MySqlCommand("select Count(*) from information_schema.table_constraints where constraint_type = 'foreign key' and constraint_schema = '" + conn.Database + "' and constraint_name = 'FKBlogs'", conn);
+          MySqlCommand query = new MySqlCommand("select Count(*) from information_schema.table_constraints where constraint_type = 'FOREIGN KEY' and constraint_schema = '" + conn.Database + "' and constraint_name = 'FKBlogs'", conn);
           int rows = Convert.ToInt32(query.ExecuteScalar());
           Assert.Equal(1, rows);
           // check for table creation          

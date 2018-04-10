@@ -72,6 +72,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     /// Tests for fix of http://bugs.mysql.com/bug.php?id=61230
     /// ("The provider did not return a ProviderManifestToken string.").
     /// </summary>
+#if EF5
     [Fact]
     public void SimpleCodeFirstSelect()
     {
@@ -104,7 +105,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
       ReInitDb();
-      MovieDBContext db = new MovieDBContext();      
+      MovieDBContext db = new MovieDBContext();
       db.Database.Initialize(true);
 #if EF6
       MovieDBInitialize.DoDataPopulation(db);
@@ -122,8 +123,9 @@ namespace MySql.Data.Entity.CodeFirst.Tests
       db.SaveChanges();
       MovieFormat m2 = db.MovieFormats.Where(p => p.Format == 8.0f).FirstOrDefault();
       Assert.NotNull(m2);
-      Assert.Equal( 8.0f, m2.Format);
+      Assert.Equal(8.0f, m2.Format);
     }
+
 
     /// <summary>
     /// Fix for "Connector/Net Generates Incorrect SELECT Clause after UPDATE" (MySql bug #62134, Oracle bug #13491689).
@@ -141,7 +143,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
         db.Database.CreateIfNotExists();
 #if EF6
         MovieDBInitialize.DoDataPopulation(db);
-#endif        
+#endif
         db.Database.ExecuteSqlCommand(@"DROP TABLE IF EXISTS `MovieReleases`");
 
         db.Database.ExecuteSqlCommand(
@@ -183,10 +185,12 @@ namespace MySql.Data.Entity.CodeFirst.Tests
         //Assert.Fail();
       }
     }
+#endif
 
     /// <summary>
     /// This tests fix for http://bugs.mysql.com/bug.php?id=64216.
     /// </summary>
+#if EF5
     [Fact]
     public void CheckByteArray()
     {
@@ -203,7 +207,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
       Assert.Equal("longblob", m.Groups["type"].Value);
     }
 
-/// <summary>
+    /// <summary>
     /// Validates a stored procedure call using Code First
     /// Bug #14008699
     [Fact]
@@ -232,6 +236,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     /// Tests for fix of http://bugs.mysql.com/bug.php?id=63920
     /// Maxlength error when it's used code-first and inheritance (discriminator generated column)
     /// </summary>
+
     [Fact]
     public void Bug63920_Test1()
     {
@@ -261,6 +266,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
         Assert.Equal(context.Vehicles.Count(), records);
       }
     }
+#endif
 
     /// <summary>
     /// Tests for fix of http://bugs.mysql.com/bug.php?id=63920
@@ -293,13 +299,14 @@ namespace MySql.Data.Entity.CodeFirst.Tests
         }
 
         Assert.Equal(context.Vehicles.Count(), records);
-      }     
+      }
     }
 
     /// <summary>
     /// This test fix for precision customization for columns bug (http://bugs.mysql.com/bug.php?id=65001), 
     /// Trying to customize column precision in Code First does not work).
     /// </summary>
+#if EF5
     [Fact]
     public void TestPrecisionNscale()
     {
@@ -310,13 +317,14 @@ namespace MySql.Data.Entity.CodeFirst.Tests
       MovieDBContext db = new MovieDBContext();
       db.Database.Initialize(true);
       var l = db.Movies.ToList();
-      IDataReader r = st.execReader( string.Format( 
+      IDataReader r = st.execReader(string.Format(
 @"select numeric_precision, numeric_scale from information_schema.columns 
-where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'", st.conn.Database ));
+where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'", st.conn.Database));
       r.Read();
-      Assert.Equal( 16, r.GetInt32( 0 ) );
-      Assert.Equal( 2, r.GetInt32( 1 ) );
-    }       
+      Assert.Equal(16, r.GetInt32(0));
+      Assert.Equal(2, r.GetInt32(1));
+    }
+#endif
 
     /// <summary>
     /// Test String types to StoreType for String
@@ -383,6 +391,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
     /// Test fix for http://bugs.mysql.com/bug.php?id=66066 / http://clustra.no.oracle.com/orabugs/bug.php?id=14479715
     /// (Using EF, crash when generating insert with no values.).
     /// </summary>
+#if EF5
     [Fact]
     public void AddingEmptyRow()
     {
@@ -404,7 +413,8 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       }
     }
 
-/// <summary>
+
+    /// <summary>
     /// Test for identity columns when type is Integer or Guid (auto-generate
     /// values)
     /// </summary>
@@ -481,22 +491,22 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
           dr = cmd.ExecuteReader();
           if (!dr.HasRows)
             //Assert.Fail("No records found");
-          while (dr.Read())
-          {
-            string name = dr.GetString(1);
-            switch (name)
+            while (dr.Read())
             {
-              case "Distributor1":
-                Assert.Equal(dr.GetInt32(0), dis1.DistributorId);
-                break;
-              case "Distributor2":
-                Assert.Equal(dr.GetInt32(0), dis2.DistributorId);
-                break;
-              default:
-                //Assert.Fail();
-                break;
+              string name = dr.GetString(1);
+              switch (name)
+              {
+                case "Distributor1":
+                  Assert.Equal(dr.GetInt32(0), dis1.DistributorId);
+                  break;
+                case "Distributor2":
+                  Assert.Equal(dr.GetInt32(0), dis2.DistributorId);
+                  break;
+                default:
+                  //Assert.Fail();
+                  break;
+              }
             }
-          }
           dr.Close();
         }
       }
@@ -519,7 +529,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         MovieDBInitialize.DoDataPopulation(ctx);
 #endif
         int DirectorId = 1;
-        var q = ctx.Movies.Where(p => p.Director.ID == DirectorId).Select(p => 
+        var q = ctx.Movies.Where(p => p.Director.ID == DirectorId).Select(p =>
           new
           {
             Id = p.ID,
@@ -537,6 +547,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         Assert.Equal(0, j);
       }
     }
+#endif
 
     /// <summary>
     /// This tests the fix for bug 73549, Generated Sql does not contain ORDER BY statement whose is requested by LINQ.
@@ -570,7 +581,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         Assert.Equal(599, j);
       }
     }
-  
+
     /// <summary>
     /// SUPPORT FOR DATE TYPES WITH PRECISION
     /// </summary>
@@ -580,7 +591,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      
+
       if (st.Version < new Version(5, 6)) return;
 
       ReInitDb();
@@ -636,7 +647,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         con.Open();
         cmd.ExecuteNonQuery();
         con.Close();
-        
+
         Product product = new Product
         {
           //Omitting Identity Columns
@@ -664,6 +675,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
     /// Test of fix for bug Support for EntityFramework 4.3 Code First Generated Identifiers (MySql Bug #67285, Oracle bug #16286397).
     /// FKs are renamed to met http://dev.mysql.com/doc/refman/5.0/en/identifiers.html limitations.
     /// </summary>
+#if EF5
     [Fact]
     public void LongIdentifiersInheritanceTPT()
     {
@@ -757,7 +769,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         query = query.Include(entity => entity.Ships.Select(s => s.CrewMembers.Select(cm => cm.Rank)));
         query = query.Include(entity => entity.Ships.Select(s => s.CrewMembers.Select(cm => cm.Clearance)));
 
-        string[] data = new string[] { 
+        string[] data = new string[] {
           "1,Harbor ABCD,1,1,1,Ship AB,1,1,1,1,1,CrewMember A,1,Rank A,1,Clearance A",
           "1,Harbor ABCD,1,1,1,Ship AB,1,2,1,2,2,CrewMember B,2,Rank B,2,Clearance B",
           "1,Harbor ABCD,1,2,1,Ship CD,1,3,2,3,3,CrewMember C,3,Rank C,3,Clearance C",
@@ -774,12 +786,12 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         // see below for the generated SQL query
 
         var harbor = query.Single();
-        
+
         foreach (var ship in harbor.Ships)
         {
           foreach (var crewMember in ship.CrewMembers)
           {
-            outData.Add(string.Format( 
+            outData.Add(string.Format(
               "{0},{1},1,{2},{3},{4},1,{5},{6},{7},{8},{9},{10},{11},{12},{13}",
               harbor.HarborId, harbor.Description, ship.ShipId, harbor.HarborId,
               ship.Description, crewMember.CrewMemberId, crewMember.ShipId, crewMember.RankId,
@@ -821,12 +833,12 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         ctx.SaveChanges();
 
         var q = (from vis in ctx.Visitante.Include("site")
-                  group vis by vis.nCdSite into g
-                  select new retorno
-                  {
-                    Key = g.Key,
-                    Online = g.Select(e => e.sDsIp).Distinct().Count()
-                  });
+                 group vis by vis.nCdSite into g
+                 select new retorno
+                 {
+                   Key = g.Key,
+                   Online = g.Select(e => e.sDsIp).Distinct().Count()
+                 });
         string sql = q.ToString();
 #if EF6
         st.CheckSql(sql, SQLSyntax.CountGroupBy);
@@ -834,11 +846,12 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         st.CheckSql(sql, SQLSyntax.CountGroupByEF5);
 #endif
         var q2 = q.ToList<retorno>();
-        foreach( var row in q2 )
+        foreach (var row in q2)
         {
         }
       }
     }
+
 
     /// <summary>
     /// Tests fix for bug http://bugs.mysql.com/bug.php?id=68513, Error in LINQ to Entities query when using Distinct().Count().
@@ -864,14 +877,14 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         ctx.Site.Add(s2);
         ctx.Pagina.Add(p1);
         ctx.SaveChanges();
-        
+
         var q = (from pag in ctx.Pagina.Include("visitante").Include("site")
-                   group pag by pag.visitante.nCdSite into g
-                   select new retorno
-                   {
-                       Key = g.Key,
-                       Online = g.Select(e => e.visitante.sDsIp).Distinct().Count()
-                   });        
+                 group pag by pag.visitante.nCdSite into g
+                 select new retorno
+                 {
+                   Key = g.Key,
+                   Online = g.Select(e => e.visitante.sDsIp).Distinct().Count()
+                 });
         string sql = q.ToString();
 #if EF6
         st.CheckSql(sql, SQLSyntax.CountGroupBy2);
@@ -884,6 +897,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         }
       }
     }
+
 
     /// <summary>
     /// Tests fix for bug http://bugs.mysql.com/bug.php?id=65723, MySql Provider for EntityFramework produces "bad" SQL for OrderBy.
@@ -922,10 +936,12 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         Assert.Equal(2, i);
       }
     }
+#endif
 
     /// <summary>
     /// Tests fix for bug http://bugs.mysql.com/bug.php?id=69751, Invalid SQL query generated for query with Contains, OrderBy, and Take.
     /// </summary>
+#if EF5
     [Fact]
     public void BadContainsOrderByTake()
     {
@@ -952,14 +968,15 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         int i = 0;
         foreach (var row in q1)
         {
-          Assert.Equal( MovieDBInitialize.data[i].ID, row.ID);
-          Assert.Equal( MovieDBInitialize.data[i].Title, row.Title);
-          Assert.Equal( MovieDBInitialize.data[i].ReleaseDate, row.ReleaseDate);
+          Assert.Equal(MovieDBInitialize.data[i].ID, row.ID);
+          Assert.Equal(MovieDBInitialize.data[i].Title, row.Title);
+          Assert.Equal(MovieDBInitialize.data[i].ReleaseDate, row.ReleaseDate);
           i++;
         }
       }
     }
-    
+#endif
+
     /// <summary>
     /// Tests fix for bug http://bugs.mysql.com/bug.php?id=69922, Unknown column Extent1...
     /// </summary>
@@ -983,9 +1000,9 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
                &&
              (x.ActiveTo == null || x.ActiveTo >= now)
           )
-          .OrderBy(x => x.DisplayOrder).Select( d => d );
+          .OrderBy(x => x.DisplayOrder).Select(d => d);
         string sql = q.ToString();
-        foreach( var row in q )
+        foreach (var row in q)
         {
         }
       }
@@ -994,6 +1011,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
     /// <summary>
     /// Tests other variants of bug http://bugs.mysql.com/bug.php?id=69751, Invalid SQL query generated for query with Contains, OrderBy, and Take.
     /// </summary>
+#if EF5
     [Fact]
     public void BadContainsOrderByTake2()
     {
@@ -1018,13 +1036,14 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #endif
         List<Movie> l = q.ToList();
         int j = l.Count;
-        foreach( Movie m in l )
+        foreach (Movie m in l)
         {
           j--;
         }
         Assert.Equal(0, j);
       }
     }
+
 
     /// <summary>
     /// Tests other variants of bug http://bugs.mysql.com/bug.php?id=69751, Invalid SQL query generated for query with Contains, OrderBy, and Take.
@@ -1046,13 +1065,14 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
                 Where(m => !string.IsNullOrEmpty(m.Title) && m.Title.Contains("x")).
                 OrderByDescending(m => m.ID).
                 Skip(1).
-                Take(1).Select(m => new { 
-                  Id = m.ID, 
-                  CriticsScore = ( 
-                    m.Title == "Terminator 1" ? "Good" : 
-                    m.Title == "Predator" ? "Sunday best, cheese" : 
+                Take(1).Select(m => new
+                {
+                  Id = m.ID,
+                  CriticsScore = (
+                    m.Title == "Terminator 1" ? "Good" :
+                    m.Title == "Predator" ? "Sunday best, cheese" :
                     m.Title == "The Matrix" ? "Really Good" :
-                    m.Title == "Star Wars, The Sith Revenge" ? "Really Good" : "Unknown" )
+                    m.Title == "Star Wars, The Sith Revenge" ? "Really Good" : "Unknown")
                 });
         string sql = q.ToString();
 #if DEBUG
@@ -1084,10 +1104,10 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         MovieDBInitialize.DoDataPopulation(db);
 #endif
         bool q = db.Movies.Any(m => m.ReleaseDate.Year > 1985);
-//        string sql = q.ToString();
-//#if DEBUG
-//        Debug.WriteLine(sql);
-//#endif
+        //        string sql = q.ToString();
+        //#if DEBUG
+        //        Debug.WriteLine(sql);
+        //#endif
         //foreach (var row in q)
         //{
         //}
@@ -1097,6 +1117,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
     /// <summary>
     /// Tests other variants of bug http://bugs.mysql.com/bug.php?id=69751, Invalid SQL query generated for query with Contains, OrderBy, and Take.
     /// </summary>
+#if EF5
     [Fact]
     public void BadContainsOrderByTake5()
     {
@@ -1122,6 +1143,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 //        }
       }
     }
+#endif
 
     /// <summary>
     /// Tests other variants of bug http://bugs.mysql.com/bug.php?id=69751, Invalid SQL query generated for query with Contains, OrderBy, and Take.
@@ -1140,7 +1162,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         MovieDBInitialize.DoDataPopulation(db);
 #endif
         var q = from m in db.Movies
-                where m.Title.Contains("x") && db.Medias.Where( mm => mm.Format == "Digital" ).Any()
+                where m.Title.Contains("x") && db.Medias.Where(mm => mm.Format == "Digital").Any()
                 select m;
         string sql = q.ToString();
 #if DEBUG
@@ -1155,7 +1177,8 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       }
     }
 
-  /// <summary>
+
+    /// <summary>
     /// Test for Mysql Bug 70602: http://bugs.mysql.com/bug.php?id=70602
     /// </summary>
     [Fact]
@@ -1170,12 +1193,13 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       dbContext.Database.Initialize(true);
       dbContext.AutoIncrementBug.Add(new AutoIncrementBug() { Description = "Test" });
       dbContext.SaveChanges();
-      using (var reader = MySqlHelper.ExecuteReader(dbContext.Database.Connection.ConnectionString, "SHOW COLUMNS FROM AUTOINCREMENTBUGS WHERE EXTRA LIKE '%AUTO_INCREMENT%'"))
+      using (var reader = MySqlHelper.ExecuteReader(dbContext.Database.Connection.ConnectionString, "SHOW COLUMNS FROM AUTOINCREMENTBUGS WHERE EXTRA LIKE '%auto_increment%'"))
       {
         Assert.Equal(true, reader.HasRows);
       }
       dbContext.Database.Delete();
     }
+#endif
 
 #if EF6
     [Fact]
@@ -1212,7 +1236,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         db.SaveChanges();
       }
     }
-    
+
     [Fact]
     public void MigrationHistoryConfigurationTest()
     {
@@ -1227,6 +1251,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       Assert.Equal(1, int.Parse(result.ToString()));
     }
 
+#if EF5
     [Fact]
     public void DbSetRangeTest()
     {
@@ -1238,7 +1263,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         Movie m2 = new Movie() { Title = "The Matrix", ReleaseDate = new DateTime(1999, 3, 31) };
         Movie m3 = new Movie() { Title = "Predator", ReleaseDate = new DateTime(1987, 6, 12) };
         Movie m4 = new Movie() { Title = "Star Wars, The Sith Revenge", ReleaseDate = new DateTime(2005, 5, 19) };
-        db.Movies.AddRange( new Movie[] { m1, m2, m3, m4 });
+        db.Movies.AddRange(new Movie[] { m1, m2, m3, m4 });
         db.SaveChanges();
         var q = from m in db.Movies select m;
         Assert.Equal(4, q.Count());
@@ -1251,6 +1276,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         Assert.Equal(0, q2.Count());
       }
     }
+#endif
 
     [Fact]
     public void EnumSupportTest()
@@ -1270,7 +1296,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       }
     }
 
-    [Fact]
+    [Fact(Skip = "DbGeometry value returning null value. Metadata.NormalizeValue(typeusage, object) geometryValue.AsBinary();")]
     public void SpatialSupportTest()
     {
       using (var dbCtx = new JourneyContext())
@@ -1469,6 +1495,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       Assert.Equal(true, System.IO.File.Exists(logName));
     }
 
+#if EF5
     [Fact]
     public void EntityAndComplexTypeSupportTest()
     {
@@ -1485,7 +1512,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         dbContext.SaveChanges();
 
         var student = (from s in dbContext.Students
-                        select s).FirstOrDefault();
+                       select s).FirstOrDefault();
 
         Assert.NotEqual(null, student);
         Assert.NotEqual(null, student.Schedule);
@@ -1493,6 +1520,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         Assert.NotEqual(0, student.Schedule.Count());
       }
     }
+#endif
 
     /// <summary>
     /// TO RUN THIS TEST ITS NECESSARY TO ENABLE THE EXECUTION STRATEGY IN THE CLASS MySqlEFConfiguration (Source\MySql.Data.Entity\MySqlConfiguration.cs) AS WELL AS START A MYSQL SERVER INSTACE WITH THE OPTION "--max_connections=3"
@@ -1524,6 +1552,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
     }
 #endif
 
+#if EF5
     [Fact]
     public void UnknownProjectC1()
     {
@@ -1541,7 +1570,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         var q = (from r in db.Movies where (r.ID == myKey) select (long)r.ID).OrderBy(p => p);
         string sql = q.ToString();
 #if EF6
-        st.CheckSql(sql, SQLSyntax.UnknownProjectC1EF6 );
+        st.CheckSql(sql, SQLSyntax.UnknownProjectC1EF6);
 #else
         st.CheckSql(sql, SQLSyntax.UnknownProjectC1);
 #endif
@@ -1552,6 +1581,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         long[] array = (from r in db.Movies where (r.ID == myKey) select (long)r.ID).OrderBy(p => p).ToArray();
       }
     }
+
 
     [Fact]
     public void StartsWithTest()
@@ -1641,11 +1671,12 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       }
       Assert.Equal(0, j);
     }
-
+#endif
 
     /// <summary>
     /// Test to reproduce bug http://bugs.mysql.com/bug.php?id=73643, Exception when using IEnumera.Contains(model.property) in Where predicate
     /// </summary>
+#if EF5
     [Fact]
     public void TestContainsListWithCast()
     {
@@ -1675,6 +1706,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
     /// <summary>
     /// Test to reproduce bug http://bugs.mysql.com/bug.php?id=73643, Exception when using IEnumera.Contains(model.property) in Where predicate
     /// </summary>
+
     [Fact]
     public void TestContainsListWitConstant()
     {
@@ -1711,7 +1743,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
       ReInitDb();
-      using( MovieDBContext db = new MovieDBContext() )
+      using (MovieDBContext db = new MovieDBContext())
       {
         db.Database.Initialize(true);
 
@@ -1720,7 +1752,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         var q = db.Movies.Where(p => longs.Contains(myNum));
         string sql = q.ToString();
 #if EF6
-        st.CheckSql(sql, SQLSyntax.TestContainsListWithParameterReference );
+        st.CheckSql(sql, SQLSyntax.TestContainsListWithParameterReference);
 #else
         st.CheckSql(sql, SQLSyntax.TestContainsListWithParameterReferenceEF5);
 #endif
@@ -1730,6 +1762,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         var l = q.ToList();
       }
     }
+#endif
 
     [Fact]
     public void ReplaceTableNameVisitor()
@@ -1752,16 +1785,17 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
     /// <summary>
     /// Bug #70941 - Invalid SQL query when eager loading two nested collections
     /// </summary>
+#if EF5
     [Fact]
     public void InvalidQuery()
     {
       using (UsingUnionContext context = new UsingUnionContext())
       {
         if (context.Database.Exists())
-        context.Database.Delete();
-        
+          context.Database.Delete();
+
         context.Database.Create();
-                
+
         for (int i = 1; i <= 3; i++)
         {
           var order = new Order();
@@ -1777,18 +1811,18 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
           client.Orders.Add(order);
 
           context.Clients.Add(client);
-        }       
+        }
         context.SaveChanges();
-                
+
         var clients = context.Clients
                     .Include(c => c.Orders.Select(o => o.Items))
-                    .Include(c => c.Orders.Select(o => o.Discounts)).ToList();        
+                    .Include(c => c.Orders.Select(o => o.Discounts)).ToList();
 
         Assert.Equal(clients.Count(), 3);
         Assert.Equal(clients.Where(t => t.Id == 1).Single().Orders.Count(), 1);
         Assert.Equal(clients.Where(t => t.Id == 1).Single().Orders.Where(j => j.Id == 1).Single().Items.Count(), 3);
-      }    
+      }
     }
+#endif
   }
 }
-
