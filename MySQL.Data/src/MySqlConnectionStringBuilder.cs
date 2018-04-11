@@ -34,6 +34,9 @@ using System.Runtime.CompilerServices;
 
 namespace MySql.Data.MySqlClient
 {
+  /// <summary>
+  /// Provides a base class for strongly typed connection string builders over MySQL connections.
+  /// </summary>
   public sealed class MySqlConnectionStringBuilder : DbConnectionStringBuilder
   {
     internal Dictionary<string, object> values = new Dictionary<string, object>();
@@ -477,6 +480,10 @@ namespace MySql.Data.MySqlClient
       set { SetValue("persistsecurityinfo", value); }
     }
 
+    /// <summary>
+    /// Gets or sets a boolean value that indicates if the connection should be encrypted.
+    /// </summary>
+    /// <remarks>Obsolte. Use <see cref="SslMode"/> instead.</remarks>
     [Category("Authentication")]
     [Description("Should the connection use SSL.")]
     [Obsolete("Use Ssl Mode instead.")]
@@ -489,6 +496,9 @@ namespace MySql.Data.MySqlClient
       }
     }
 
+    /// <summary>
+    /// Gets or sets the path to a certificate in PKCS#12 format (.pfx).
+    /// </summary>
     [Category("Authentication")]
     [DisplayName("Certificate File")]
     [Description("Certificate file in PKCS#12 format (.pfx)")]
@@ -498,6 +508,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("certificatefile", value); }
     }
 
+    /// <summary>
+    /// Gets or sets the password associated to the certificate file.
+    /// </summary>
     [Category("Authentication")]
     [DisplayName("Certificate Password")]
     [Description("Password for certificate file")]
@@ -507,6 +520,10 @@ namespace MySql.Data.MySqlClient
       set { SetValue("certificatepassword", value); }
     }
 
+    /// <summary>
+    /// Gets or sets the certiciate store location for client certificates.
+    /// </summary>
+    /// <remarks>Enables accesing a certificate held in a personal store. Default value is <see cref="MySqlCertificateStoreLocation.None"/>.</remarks>
     [Category("Authentication")]
     [DisplayName("Certificate Store Location")]
     [Description("Certificate Store Location for client certificates")]
@@ -517,6 +534,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("certificatestorelocation", value); }
     }
 
+    /// <summary>
+    /// Gets or sets a certificate thumbprint that can be used together with a certificate to ensure correct identification.
+    /// </summary>
     [Category("Authentication")]
     [DisplayName("Certificate Thumbprint")]
     [Description("Certificate thumbprint. Can be used together with Certificate " +
@@ -528,6 +548,10 @@ namespace MySql.Data.MySqlClient
       set { SetValue("certificatethumbprint", value); }
     }
 
+    /// <summary>
+    /// Gets or sets a boolean value that indicates if windows authentication should be used.
+    /// </summary>
+    /// <remarks>Default value is <c>false</c>.</remarks>
     [Category("Authentication")]
     [DisplayName("Integrated Security")]
     [Description("Use windows authentication when connecting to server")]
@@ -538,6 +562,10 @@ namespace MySql.Data.MySqlClient
       set { SetValue("integratedsecurity", value); }
     }
 
+    /// <summary>
+    /// Gets or sets the authentication mechanism to use with X Protocol connections.
+    /// </summary>
+    /// <remarks>This option is specific to X Protocol connections. Default value is <see cref="MySqlAuthenticationMode.Default"/>.</remarks>
     [Category("Authentication")]
     [DisplayName("Allow Public Key Retrieval")]
     [Description("Allow retrieval of RSA public keys when SSL is disabled")]
@@ -555,6 +583,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets or sets a boolean value that indicates if zero date time values are supported.
     /// </summary>
+    /// <remarks>Default value is <c>false</c>.</remarks>
     [Category("Advanced")]
     [DisplayName("Allow Zero Datetime")]
     [Description("Should zero datetimes be supported")]
@@ -567,9 +596,10 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Gets or sets a boolean value indicating if zero datetime values should be 
+    /// Gets or sets a boolean value that indicates if zero datetime values should be
     /// converted to DateTime.MinValue.
     /// </summary>
+    /// <remarks>Default value is <c>false</c>.</remarks>
     [Category("Advanced")]
     [DisplayName("Convert Zero Datetime")]
     [Description("Should illegal datetime values be converted to DateTime.MinValue")]
@@ -582,8 +612,9 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Gets or sets a boolean value indicating if the Usage Advisor should be enabled.
+    /// Gets or sets a boolean value that indicates if the Usage Advisor should be enabled.
     /// </summary>
+    /// <remarks>Default value is <c>false</c>.</remarks>
     [Category("Advanced")]
     [DisplayName("Use Usage Advisor")]
     [Description("Logs inefficient database operations")]
@@ -598,6 +629,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets or sets the size of the stored procedure cache.
     /// </summary>
+    /// <remarks>Default value is 25.</remarks>
     [Category("Advanced")]
     [DisplayName("Procedure Cache Size")]
     [Description("Indicates how many stored procedures can be cached at one time. " +
@@ -611,8 +643,9 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Gets or sets a boolean value indicating if the permon hooks should be enabled.
+    /// Gets or sets a boolean value that indicates if the permon hooks should be enabled.
     /// </summary>
+    /// <remarks>Default value is <c>false</c>.</remarks>
     [Category("Advanced")]
     [DisplayName("Use Performance Monitor")]
     [Description("Indicates that performance counters should be updated during execution.")]
@@ -625,8 +658,9 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Gets or sets a boolean value indicating if calls to Prepare() should be ignored.
+    /// Gets or sets a boolean value that indicates if calls to Prepare() should be ignored.
     /// </summary>
+    /// <remarks>Default value is <c>false</c>.</remarks>
     [Category("Advanced")]
     [DisplayName("Ignore Prepare")]
     [Description("Instructs the provider to ignore any attempts to prepare a command.")]
@@ -638,6 +672,10 @@ namespace MySql.Data.MySqlClient
       set { SetValue("ignoreprepare", value); }
     }
 
+    /// <summary>
+    /// Gets or sets a boolean value that indicates if an opened connection should particiapte in the current scope.
+    /// </summary>
+    /// <remarks>Default value is <c>true</c>.</remarks>
     [Category("Advanced")]
     [DisplayName("Auto Enlist")]
     [Description("Should the connetion automatically enlist in the active connection, if there are any.")]
@@ -649,6 +687,12 @@ namespace MySql.Data.MySqlClient
       set { SetValue("autoenlist", value); }
     }
 
+    /// <summary>
+    /// Gets or sets a boolean value that indicates if security asserts must be included.
+    /// </summary>
+    /// <remarks>Must be set to <c>true</c> when using the <see cref="MySqlClientPermission"/> class in a partial trust environment,
+    /// with the library installed in the GAC of the hosting environment. Not supported in .NET Core.
+    /// Default value is <c>false</c>.</remarks>
     [Category("Advanced")]
     [DisplayName("Include Security Asserts")]
     [Description("Include security asserts to support Medium Trust")]
@@ -659,6 +703,10 @@ namespace MySql.Data.MySqlClient
       set { SetValue("includesecurityasserts", value); }
     }
 
+    /// <summary>
+    /// Gets or sets a boolean value that indicates if column binary flags set by the server are ignored.
+    /// </summary>
+    /// <remarks>Default value is <c>true</c>.</remarks>
     [Category("Advanced")]
     [DisplayName("Respect Binary Flags")]
     [Description("Should binary flags on column metadata be respected.")]
@@ -670,6 +718,10 @@ namespace MySql.Data.MySqlClient
       set { SetValue("respectbinaryflags", value); }
     }
 
+    /// <summary>
+    /// Gets or sets a boolean value that indicates if <b>TINYINT(1)</b> shound be treated as a <b>BOOLEAN</b>.
+    /// </summary>
+    /// <remarks>Default value is <c>true</c>.</remarks>
     [Category("Advanced")]
     [DisplayName("Treat Tiny As Boolean")]
     [Description("Should the provider treat TINYINT(1) columns as boolean.")]
@@ -681,6 +733,10 @@ namespace MySql.Data.MySqlClient
       set { SetValue("treattinyasboolean", value); }
     }
 
+    /// <summary>
+    /// Gets or sets a boolean value that indicates if the provider expects user variables in the SQL.
+    /// </summary>
+    /// <remarks>Default value is <c>false</c>.</remarks>
     [Category("Advanced")]
     [DisplayName("Allow User Variables")]
     [Description("Should the provider expect user variables to appear in the SQL.")]
@@ -692,6 +748,10 @@ namespace MySql.Data.MySqlClient
       set { SetValue("allowuservariables", value); }
     }
 
+    /// <summary>
+    /// Gets or sets a boolean value that indicates if the session should be interactive.
+    /// </summary>
+    /// <remarks>Default value is <c>false</c>.</remarks>
     [Category("Advanced")]
     [DisplayName("Interactive Session")]
     [Description("Should this session be considered interactive?")]
@@ -703,6 +763,10 @@ namespace MySql.Data.MySqlClient
       set { SetValue("interactivesession", value); }
     }
 
+    /// <summary>
+    /// Gets or sets a boolean value that indicates if server functions should be treated as returning a string.
+    /// </summary>
+    /// <remarks>Default value is <c>false</c>.</remarks>
     [Category("Advanced")]
     [DisplayName("Functions Return String")]
     [Description("Should all server functions be treated as returning string?")]
@@ -713,6 +777,10 @@ namespace MySql.Data.MySqlClient
       set { SetValue("functionsreturnstring", value); }
     }
 
+    /// <summary>
+    /// Gets or sets a boolean value that indicates if the server should report affected rows instead of found rows.
+    /// </summary>
+    /// <remarks>Default value is <c>false</c>.</remarks>
     [Category("Advanced")]
     [DisplayName("Use Affected Rows")]
     [Description("Should the returned affected row count reflect affected rows instead of found rows?")]
@@ -723,6 +791,10 @@ namespace MySql.Data.MySqlClient
       set { SetValue("useaffectedrows", value); }
     }
 
+    /// <summary>
+    /// Gets or sets a boolean value that indicates if items of data type <b>BINARY(16)</b> should be treated as guids.
+    /// </summary>
+    /// <remarks>Default value is <c>false</c>.</remarks>
     [Category("Advanced")]
     [DisplayName("Old Guids")]
     [Description("Treat binary(16) columns as guids")]
@@ -733,6 +805,10 @@ namespace MySql.Data.MySqlClient
       set { SetValue("oldguids", value); }
     }
 
+    /// <summary>
+    /// Gets or sets the idle connection time measured in seconds.
+    /// </summary>
+    /// <remarks>A value of 0 indicates that <b>Keepalive</b> is not used.</remarks>
     [DisplayName("Keep Alive")]
     [Description("For TCP connections, idle connection time measured in seconds, before the first keepalive packet is sent." +
         "A value of 0 indicates that keepalive is not used.")]
@@ -743,6 +819,11 @@ namespace MySql.Data.MySqlClient
       set { SetValue("keepalive", value); }
     }
 
+    /// <summary>
+    /// Gets or sets a boolean value that indicates if SQL Server syntax should be allowed by supporting square brackets
+    /// around symbols instead of backticks.
+    /// </summary>
+    /// <remarks>Default value is <c>false</c>.</remarks>
     [Category("Advanced")]
     [DisplayName("Sql Server Mode")]
     [Description("Allow Sql Server syntax.  " +
@@ -755,6 +836,10 @@ namespace MySql.Data.MySqlClient
       set { SetValue("sqlservermode", value); }
     }
 
+    /// <summary>
+    /// Gets or sets a boolean value that indicates if caching of TableDirect commands is enabled.
+    /// </summary>
+    /// <remarks>Default value is <c>false</c>.</remarks>
     [Category("Advanced")]
     [DisplayName("Table Cache")]
     [Description(@"Enables or disables caching of TableDirect command.  
@@ -766,6 +851,10 @@ namespace MySql.Data.MySqlClient
       set { SetValue("tablecachig", value); }
     }
 
+    /// <summary>
+    /// Gets or sets the seconds for how long a TableDirect result should be cached.
+    /// </summary>
+    /// <remarks>Default value is 0.</remarks>
     [Category("Advanced")]
     [DisplayName("Default Table Cache Age")]
     [Description(@"Specifies how long a TableDirect result should be cached in seconds.")]
@@ -776,6 +865,10 @@ namespace MySql.Data.MySqlClient
       set { SetValue("defaulttablecacheage", value); }
     }
 
+    /// <summary>
+    /// Gets or sets a boolean value that indicates if stored routine parameters should be checked against the server.
+    /// </summary>
+    /// <remarks>Default value is <c>true</c>.</remarks>
     [Category("Advanced")]
     [DisplayName("Check Parameters")]
     [Description("Indicates if stored routine parameters should be checked against the server.")]
@@ -786,6 +879,10 @@ namespace MySql.Data.MySqlClient
       set { SetValue("checkparameters", value); }
     }
 
+    /// <summary>
+    /// Gets or sets a boolean value that indicates if this connection will use replication.
+    /// </summary>
+    /// <remarks>Default value is <c>false</c>.</remarks>
     [Category("Advanced")]
     [DisplayName("Replication")]
     [Description("Indicates if this connection is to use replicated servers.")]
@@ -796,6 +893,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("replication", value); }
     }
 
+    /// <summary>
+    /// Gets or sets the list of interceptors that can triage thrown MySqlExceptions.
+    /// </summary>
     [Category("Advanced")]
     [DisplayName("Exception Interceptors")]
     [Description("The list of interceptors that can triage thrown MySqlExceptions.")]
@@ -805,6 +905,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("exceptioninterceptors", value); }
     }
 
+    /// <summary>
+    /// Gets or sets the list of interceptors that can intercept command operations.
+    /// </summary>
     [Category("Advanced")]
     [DisplayName("Command Interceptors")]
     [Description("The list of interceptors that can intercept command operations.")]
@@ -821,6 +924,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets or sets the lifetime of a pooled connection.
     /// </summary>
+    /// <remarks>Default value is 0.</remarks>
     [Category("Pooling")]
     [DisplayName("Connection Lifetime")]
     [Description("The minimum amount of time (in seconds) for this connection to " +
@@ -836,6 +940,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets or sets a boolean value indicating if connection pooling is enabled.
     /// </summary>
+    /// <remarks>Default value is <c>true</c>.</remarks>
     [Category("Pooling")]
     [Description("When true, the connection object is drawn from the appropriate " +
                  "pool, or if necessary, is created and added to the appropriate pool.")]
@@ -850,6 +955,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets the minimum connection pool size.
     /// </summary>
+    /// <remarks>Default value is 0.</remarks>
     [Category("Pooling")]
     [DisplayName("Minimum Pool Size")]
     [Description("The minimum number of connections allowed in the pool.")]
@@ -864,6 +970,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets or sets the maximum connection pool setting.
     /// </summary>
+    /// <remarks>Default value is 100.</remarks>
     [Category("Pooling")]
     [DisplayName("Maximum Pool Size")]
     [Description("The maximum number of connections allowed in the pool.")]
@@ -876,9 +983,10 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Gets or sets a boolean value indicating if the connection should be reset when retrieved
+    /// Gets or sets a boolean value that indicates if the connection should be reset when retrieved
     /// from the pool.
     /// </summary>
+    /// <remarks>Default value is <c>false</c>.</remarks>
     [Category("Pooling")]
     [DisplayName("Connection Reset")]
     [Description("When true, indicates the connection state is reset when removed from the pool.")]
@@ -890,6 +998,11 @@ namespace MySql.Data.MySqlClient
       set { SetValue("connectionreset", value); }
     }
 
+    /// <summary>
+    /// Gets or sets a boolean value that indicates whether the server variable settings are updated by a
+    /// SHOW VARIABLES command each time a pooled connection is returned.
+    /// </summary>
+    /// <remarks>Default value is <c>false</c>.</remarks>
     [Category("Pooling")]
     [DisplayName("Cache Server Properties")]
     [Description("When true, server properties will be cached after the first server in the pool is created")]
@@ -908,6 +1021,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets or sets the character set that should be used for sending queries to the server.
     /// </summary>
+    /// <remarks>Default value is an empty string.</remarks>
     [DisplayName("Character Set")]
     [Category("Advanced")]
     [Description("Character set this connection should use")]
@@ -920,8 +1034,9 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Indicates whether the driver should treat binary blobs as UTF8
+    /// Indicates whether the driver should treat binary blobs as UTF8.
     /// </summary>
+    /// <remarks>Default value is <c>false</c>.</remarks>
     [DisplayName("Treat Blobs As UTF8")]
     [Category("Advanced")]
     [Description("Should binary blobs be treated as UTF8")]
@@ -934,7 +1049,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Gets or sets the pattern that matches the columns that should be treated as UTF8
+    /// Gets or sets the pattern that matches the columns that should be treated as UTF8.
     /// </summary>
     [Category("Advanced")]
     [Description("Pattern that matches columns that should be treated as UTF8")]
@@ -946,7 +1061,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Gets or sets the pattern that matches the columns that should not be treated as UTF8
+    /// Gets or sets the pattern that matches the columns that should not be treated as UTF8.
     /// </summary>
     [Category("Advanced")]
     [Description("Pattern that matches columns that should not be treated as UTF8")]
@@ -960,19 +1075,25 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Indicates whether to use SSL connections and how to handle server certificate errors.
     /// </summary>
+    /// <remarks>Default value is <see cref="MySqlSslMode.Prefered"/>.</remarks>
     [DisplayName("Ssl Mode")]
     [Category("Security")]
     [Description("SSL properties for connection")]
-    [DefaultValue(MySqlSslMode.None)]
+    [DefaultValue(MySqlSslMode.Prefered)]
     public MySqlSslMode SslMode
     {
       get { return (MySqlSslMode)values["sslmode"]; }
       set { SetValue("sslmode", value); }
     }
 
-#endregion
+    #endregion
 
-#region Backwards compatibility properties
+    #region Backwards compatibility properties
+    /// <summary>
+    /// Gets or sets a boolean value that indicates if the command timeout of <b>EFMySqlCommand</b> should be
+    /// enforced to the value provided in the <see cref="DefaultCommandTimeout"/> property.
+    /// </summary>
+    /// <remarks>Default value is <c>false</c>.</remarks>
     [DisplayName("Use Default Command Timeout For EF")]
     [Category("Backwards Compatibility")]
     [Description("Enforces the command timeout of EFMySqlCommand to the value provided in 'DefaultCommandTimeout' property")]
@@ -986,6 +1107,10 @@ namespace MySql.Data.MySqlClient
 
 #region XProperties
 
+    /// <summary>
+    /// Gets or sets a boolean value that indicates if SSL is enabled.
+    /// </summary>
+    /// <remarks>Default value is <c>false</c>.</remarks>
     [Description("Enables the use of SSL as required")]
     public bool SslEnable
     {
@@ -999,6 +1124,9 @@ namespace MySql.Data.MySqlClient
       }
     }
 
+    /// <summary>
+    /// Gets or sets the path to a local file that contains a list of trusted CAs.
+    /// </summary>
     [Description("Path to a local file that contains a list of trusted TLS/SSL CAs")]
     public string SslCa
     {
@@ -1010,7 +1138,10 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    [Description("Path to a local file containing certificate revocation lists")]
+    /// <summary>
+    /// Gets or sets the path to a local file that contains certificate revocation lists.
+    /// </summary>
+    [Description("Path to a local file that contains certificate revocation lists")]
     public string SslCrl
     {
       get { throw new NotSupportedException(); }
@@ -1108,6 +1239,11 @@ namespace MySql.Data.MySqlClient
       return true;
     }
 
+    /// <summary>
+    /// Gets the connection string.
+    /// </summary>
+    /// <param name="includePass">A flag indicating if the returned connection string should include the password of the user.</param>
+    /// <returns>The connection string.</returns>
     public string GetConnectionString(bool includePass)
     {
       if (includePass) return ConnectionString;

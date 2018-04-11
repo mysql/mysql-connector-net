@@ -1,4 +1,4 @@
-// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -40,8 +40,19 @@ namespace MySql.Data.MySqlClient
   /// </summary>
   public class MySqlScript
   {
+    /// <summary>
+    /// Handles the event raised whenever a statement is executed.
+    /// </summary>
     public event MySqlStatementExecutedEventHandler StatementExecuted;
+
+    /// <summary>
+    /// Handles the event raised whenever an is raised by the execution of a script.
+    /// </summary>
     public event MySqlScriptErrorEventHandler Error;
+
+    /// <summary>
+    /// Handles the event raised whenever a script execution is completed.
+    /// </summary>
     public event EventHandler ScriptCompleted;
 
     #region Constructors
@@ -339,6 +350,10 @@ namespace MySql.Data.MySqlClient
       return await ExecuteAsync(CancellationToken.None);
     }
 
+    /// <summary>
+    /// Initiates the asynchronous execution of SQL statements.
+    /// </summary>
+    /// <returns>The number of statements executed as part of the script inside.</returns>
     public async Task<int> ExecuteAsync(CancellationToken cancellationToken)
     {
       var result = new TaskCompletionSource<int>();
@@ -397,16 +412,16 @@ namespace MySql.Data.MySqlClient
   }
 
   /// <summary>
-  /// 
+  /// Represents the method that will handle errors when executing mysql statements.
   /// </summary>
   public delegate void MySqlStatementExecutedEventHandler(object sender, MySqlScriptEventArgs args);
   /// <summary>
-  /// 
+  /// Represents the method that will handle errors when executing mysql scripts.
   /// </summary>
   public delegate void MySqlScriptErrorEventHandler(object sender, MySqlScriptErrorEventArgs args);
 
   /// <summary>
-  /// 
+  /// Sets the arguments associated to MySql scripts.
   /// </summary>
   public class MySqlScriptEventArgs : EventArgs
   {
@@ -432,7 +447,7 @@ namespace MySql.Data.MySqlClient
   }
 
   /// <summary>
-  /// 
+  /// Sets the arguments associated to MySql script errors.
   /// </summary>
   public class MySqlScriptErrorEventArgs : MySqlScriptEventArgs
   {
@@ -452,7 +467,7 @@ namespace MySql.Data.MySqlClient
     public Exception Exception { get; }
 
     /// <summary>
-    /// Gets or sets a value indicating whether this <see cref="MySqlScriptErrorEventArgs"/> is ignore.
+    /// Gets or sets a value indicating whether this <see cref="MySqlScriptErrorEventArgs"/> is ignored.
     /// </summary>
     /// <value><c>true</c> if ignore; otherwise, <c>false</c>.</value>
     public bool Ignore { get; set; }

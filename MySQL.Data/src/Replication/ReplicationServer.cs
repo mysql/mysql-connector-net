@@ -1,4 +1,4 @@
-﻿// Copyright © 2014, Oracle and/or its affiliates. All rights reserved.
+// Copyright � 2014, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -27,7 +27,7 @@ using System.Text;
 namespace MySql.Data.MySqlClient.Replication
 {
   /// <summary>
-  /// Represents a server in Replication environment
+  /// Represents a server in Replication environment.
   /// </summary>
   public class ReplicationServer
   {
@@ -40,19 +40,19 @@ namespace MySql.Data.MySqlClient.Replication
     }
 
     /// <summary>
-    /// Server name
+    /// Gets the server name.
     /// </summary>
     public string Name { get; private set; }
     /// <summary>
-    /// Defines if the server is master (True) or slave
+    /// Gets a value indicating if the server is master or slave.
     /// </summary>
     public bool IsMaster { get; private set; }
     /// <summary>
-    /// Connection string used to connect to the server
+    /// Gets the connection string used to connect to the server.
     /// </summary>
     public string ConnectionString { get; internal set; }
     /// <summary>
-    /// Defines if the server is available to be considered in load balancing
+    /// Gets a flag indicating if the server is available to be considered in load balancing.
     /// </summary>
     public bool IsAvailable { get; set; }
   }

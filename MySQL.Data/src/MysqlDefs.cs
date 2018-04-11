@@ -1,4 +1,4 @@
-// Copyright � 2004, 2016 Oracle and/or its affiliates. All rights reserved.
+// Copyright � 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -295,7 +295,7 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     Text = 752,
     /// <summary>
-    /// A guid column
+    /// A guid column.
     /// </summary>
     Guid = 800
   } ;
@@ -373,7 +373,8 @@ namespace MySql.Data.MySqlClient
     Prefered = Preferred,
     /// <summary>
     /// Always use SSL. Deny connection if server does not support SSL.
-    /// Do not perform server certificate validation. 
+    /// Do not perform server certificate validation.
+    /// This is the default SSL mode when the same isn't specified as part of the connection string.
     /// </summary>
     Required,
     /// <summary>
@@ -405,18 +406,21 @@ namespace MySql.Data.MySqlClient
     Embedded
   }
 
+  /// <summary>
+  /// Defines the location of the certificate store.
+  /// </summary>
   public enum MySqlCertificateStoreLocation
   {
     /// <summary>
-    /// Do not use certificate store
+    /// Do not use certificate store.
     /// </summary>
     None,
     /// <summary>
-    /// Use certificate store for the current user
+    /// Use certificate store for the current user.
     /// </summary>
     CurrentUser,
     /// <summary>
-    /// User certificate store for the machine
+    /// User certificate store for the machine.
     /// </summary>
     LocalMachine
   }

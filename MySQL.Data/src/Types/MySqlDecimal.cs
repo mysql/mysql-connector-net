@@ -1,4 +1,4 @@
-// Copyright © 2004, 2016 Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -26,6 +26,9 @@ using MySql.Data.MySqlClient;
 
 namespace MySql.Data.Types
 {
+  /// <summary>
+  /// Represents a decimal data type object in a MySql database.
+  /// </summary>
   public struct MySqlDecimal : IMySqlValue
   {
     private readonly string _value;
@@ -46,19 +49,35 @@ namespace MySql.Data.Types
 
     #region IMySqlValue Members
 
+    /// <summary>
+    /// Gets a boolean value signaling if the type is <c>null</c>.
+    /// </summary>
     public bool IsNull { get; }
 
     MySqlDbType IMySqlValue.MySqlDbType => MySqlDbType.Decimal;
 
+    /// <summary>
+    /// Gets or sets the decimal precision of the type.
+    /// </summary>
     public byte Precision { get; set; }
 
+    /// <summary>
+    /// Gets or sets the scale of the type.
+    /// </summary>
     public byte Scale { get; set; }
 
 
+    /// <summary>
+    /// Gets the decimal value associated to this type.
+    /// </summary>
     object IMySqlValue.Value => Value;
 
     public decimal Value => Convert.ToDecimal(_value, CultureInfo.InvariantCulture);
 
+    /// <summary>
+    /// Converts this decimal value to a double value.
+    /// </summary>
+    /// <returns>The value of this type converted to a dobule value.</returns>
     public double ToDouble()
     {
       return Double.Parse(_value);

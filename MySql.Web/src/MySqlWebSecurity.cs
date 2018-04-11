@@ -1,4 +1,4 @@
-﻿// Copyright © 2014 Oracle and/or its affiliates. All rights reserved.
+// Copyright � 2014, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -33,19 +33,25 @@ using MySql.Web.Properties;
 
 namespace MySql.Web.Security
 {
+  /// <summary>
+  /// Provides security features for web projects implementing a MySql database.
+  /// </summary>
   public static class MySqlWebSecurity
   {
+	/// <summary>
+    /// Name of the key required to enable simple membership.
+    /// </summary>
     public static readonly string EnableSimpleMembershipKey = "enableSimpleMembership";
     private static readonly string MySqlMembershipProviderName = "MySqlMembershipProvider";
     private static readonly string MySqlRoleProviderName = "MySQLRoleProvider";
 
     #region Public
     /// <summary>
-    /// Change the password for the user provided
+    /// Changes the password for the user provided.
     /// </summary>
-    /// <param name="userName">User name</param>
-    /// <param name="oldPassword">Current pasword</param>
-    /// <param name="newPassword">New Password</param>
+    /// <param name="userName">The user name.</param>
+    /// <param name="oldPassword">The current pasword.</param>
+    /// <param name="newPassword">The new Password.</param>
     /// <returns></returns>
     public static bool ChangePassword(string userName, string oldPassword, string newPassword)
     {
@@ -55,10 +61,10 @@ namespace MySql.Web.Security
     }
 
     /// <summary>
-    /// Confirms user by confirmation token
+    /// Confirms user by confirmation token.
     /// </summary>
-    /// <param name="confirmationToken">Confirmation token</param>
-    /// <returns>If user was confirmed</returns>
+    /// <param name="confirmationToken">The confirmation token.</param>
+    /// <returns><c>true</c> if the user was confirmed; otherwise, <c>false</c>.</returns>
     public static bool ConfirmAccount(string confirmationToken)
     {
       var provider = ValidProvider();
@@ -66,11 +72,11 @@ namespace MySql.Web.Security
     }
 
     /// <summary>
-    /// Confirms user by confirmation token and user name
+    /// Confirms user by confirmation token and user name.
     /// </summary>
-    /// <param name="userName">User name</param>
-    /// <param name="confirmationToken">Confirmation token</param>
-    /// <returns>If user was confirmed</returns>
+    /// <param name="userName">The user name.</param>
+    /// <param name="confirmationToken">The confirmation token.</param>
+    /// <returns><c>true</c> if the user was confirmed; otherwise, <c>false</c>.</returns>
     public static bool ConfirmAccount(string userName, string confirmationToken)
     {
       var provider = ValidProvider();
@@ -78,12 +84,12 @@ namespace MySql.Web.Security
     }
 
     /// <summary>
-    /// Create user account
+    /// Creates a user account.
     /// </summary>
-    /// <param name="userName">User Name</param>
-    /// <param name="password">User password</param>
-    /// <param name="requireConfirmationToken">Confirmation token is required?</param>
-    /// <returns>Confirmation token if required</returns>
+    /// <param name="userName">The user name.</param>
+    /// <param name="password">The user password.</param>
+    /// <param name="requireConfirmationToken">Flag to indicate if a confirmation token is required.</param>
+    /// <returns>A confirmation token if required.</returns>
     public static string CreateAccount(string userName, string password, bool requireConfirmationToken = false)
     {
       var provider = ValidProvider();
@@ -91,13 +97,13 @@ namespace MySql.Web.Security
     }
 
     /// <summary>
-    /// Create user and account
+    /// Creates user and account.
     /// </summary>
-    /// <param name="userName">User Name</param>
-    /// <param name="password">User Password</param>
-    /// <param name="additionalUserAttributes">Additional data for user table</param>
-    /// <param name="requireConfirmationToken">Confirmation token is required?</param>
-    /// <returns>Confirmation token if required</returns>
+    /// <param name="userName">The user name.</param>
+    /// <param name="password">The user password.</param>
+    /// <param name="additionalUserAttributes">Additional data for user table.</param>
+    /// <param name="requireConfirmationToken">Flag to indicate if a confirmation token is required.</param>
+    /// <returns>A confirmation token if required.</returns>
     public static string CreateUserAndAccount(string userName, string password, object additionalUserAttributes = null, bool requireConfirmationToken = false)
     {
       var provider = ValidProvider();
@@ -113,10 +119,10 @@ namespace MySql.Web.Security
     }
 
     /// <summary>
-    /// Get the date when the specified user was created
+    /// Gets the date when the specified user was created.
     /// </summary>
-    /// <param name="userName">User Name</param>
-    /// <returns>Date created or minimum date value if the user was not found</returns>
+    /// <param name="userName">The user name.</param>
+    /// <returns>Date created or minimum date value if the user was not found.</returns>
     public static DateTime GetCreateDate(string userName)
     {
       var provider = ValidProvider();
@@ -124,10 +130,10 @@ namespace MySql.Web.Security
     }
 
     /// <summary>
-    /// Get last date when password fails
+    /// Gets the last date when password fails.
     /// </summary>
-    /// <param name="userName">User Name</param>
-    /// <returns>Last failure date or minimum date value if the user was not found</returns>
+    /// <param name="userName">The user name.</param>
+    /// <returns>Last failure date or minimum date value if the user was not found.</returns>
     public static DateTime GetLastPasswordFailureDate(string userName)
     {
       var provider = ValidProvider();
@@ -135,10 +141,10 @@ namespace MySql.Web.Security
     }
 
     /// <summary>
-    /// Get date when password was changed
+    /// Gets the date when password was changed.
     /// </summary>
-    /// <param name="userName">User Name</param>
-    /// <returns>Last password changed date or minimum date value if the user was not found</returns>
+    /// <param name="userName">The user name.</param>
+    /// <returns>Last password changed date or minimum date value if the user was not found.</returns>
     public static DateTime GetPasswordChangedDate(string userName)
     {
       var provider = ValidProvider();
@@ -146,10 +152,10 @@ namespace MySql.Web.Security
     }
 
     /// <summary>
-    /// Password failures since last success
+    /// Gets the password failures since last success.
     /// </summary>
-    /// <param name="userName">User Name</param>
-    /// <returns>Number of failures since last success</returns>
+    /// <param name="userName">The user name.</param>
+    /// <returns>The number of failures since last success.</returns>
     public static int GetPasswordFailuresSinceLastSuccess(string userName)
     {
       var provider = ValidProvider();
@@ -157,11 +163,11 @@ namespace MySql.Web.Security
     }
 
     /// <summary>
-    /// Generates password reset token for confirmed user
+    /// Generates password reset token for a confirmed user.
     /// </summary>
-    /// <param name="userName">User Name</param>
-    /// <param name="tokenExpirationInMinutesFromNow">Time that the token will be valid</param>
-    /// <returns>Token generated or null if the user is not confirmed or does not has a token</returns>
+    /// <param name="userName">The user name.</param>
+    /// <param name="tokenExpirationInMinutesFromNow">The time that the token will be valid.</param>
+    /// <returns>A generated token or <c>null</c> if the user is not confirmed or does not have a token.</returns>
     public static string GeneratePasswordResetToken(string userName, int tokenExpirationInMinutesFromNow = 1440)
     {
       var provider = ValidProvider();
@@ -169,10 +175,10 @@ namespace MySql.Web.Security
     }
 
     /// <summary>
-    /// Get user id
+    /// Gets the user id.
     /// </summary>
-    /// <param name="userName">User Name</param>
-    /// <returns>User Id, -1 if user doesn't exists</returns>
+    /// <param name="userName">The user name.</param>
+    /// <returns>The user id. -1 if the user doesn't exists</returns>
     public static int GetUserId(string userName)
     {
       ValidProvider();
@@ -181,10 +187,10 @@ namespace MySql.Web.Security
     }
 
     /// <summary>
-    /// Get User Id from password reset token
+    /// Gets the user id from the password reset token.
     /// </summary>
-    /// <param name="resetToken">Reset token</param>
-    /// <returns>User Id, 0 if user dosn't exists</returns>
+    /// <param name="resetToken">The reset token.</param>
+    /// <returns>The user id. 0 if the user doesn't exists.</returns>
     public static int GetUserIdFromPasswordResetToken(string resetToken)
     {
       var provider = ValidProvider();
@@ -192,14 +198,14 @@ namespace MySql.Web.Security
     }
 
     /// <summary>
-    /// Initialize the simple membership provider with the values given
+    /// Initializes the simple membership provider with the values given.
     /// </summary>
-    /// <param name="connectionStringName">Connection string name defined in config file</param>
-    /// <param name="userTableName">Table name defined to create new users</param>
-    /// <param name="userIdColumn">Column name defined that will store the user id</param>
-    /// <param name="userNameColumn">Column name defined that will store the user name</param>
-    /// <param name="createTables">Create tables?</param>
-    /// <param name="checkIfInitialized"></param>
+    /// <param name="connectionStringName">The connection string name defined in the config file.</param>
+    /// <param name="userTableName">The table name defined to create new users.</param>
+    /// <param name="userIdColumn">The column name defined to store the user ids.</param>
+    /// <param name="userNameColumn">The column name defined to store the user name.</param>
+    /// <param name="createTables">Flag indicating if the tables should be created.</param>
+    /// <param name="checkIfInitialized">Flag indicating to check if the database has been initialized.</param>
     public static void InitializeDatabaseConnection(string connectionStringName, string userTableName, string userIdColumn, string userNameColumn, bool createTables, bool checkIfInitialized = false)
     {
       InitializeMembershipProvider(connectionStringName, null, null, userTableName, userIdColumn, userNameColumn, createTables, checkIfInitialized);
@@ -207,6 +213,16 @@ namespace MySql.Web.Security
       Initialized = true;
     }
 
+    /// <summary>
+    /// Initializes the simple membership provider with the values given.
+    /// </summary>
+    /// <param name="connectionString">The connection string.</param>
+    /// <param name="providerName">The name of the provider.</param>
+    /// <param name="userTableName">The table name defined to create new users.</param>
+    /// <param name="userIdColumn">The column name defined to store the user ids.</param>
+    /// <param name="userNameColumn">The column name defined to store the user name.</param>
+    /// <param name="createTables">Flag indicating if the tables should be created.</param>
+    /// <param name="checkIfInitialized">Flag indicating to check if the database has been initialized.</param>
     public static void InitializeDatabaseConnection(string connectionString, string providerName, string userTableName, string userIdColumn, string userNameColumn, bool createTables, bool checkIfInitialized = false)
     {
       InitializeMembershipProvider(null, connectionString, providerName, userTableName, userIdColumn, userNameColumn, createTables, checkIfInitialized);
@@ -214,35 +230,69 @@ namespace MySql.Web.Security
       Initialized = true;
     }
 
+    /// <summary>
+    /// Determines if the account is locked out.
+    /// </summary>
+    /// <param name="userName">The name of the user.</param>
+    /// <param name="allowedPasswordAttempts">The number of allowed password attempts.</param>
+    /// <returns><c>true</c> if the account is locked; otherwise, <c>false</c>.</returns>
     public static bool IsAccountLockedOut(string userName, int allowedPasswordAttempts, int intervalInSeconds)
     {
       return IsAccountLockedOut(userName, allowedPasswordAttempts, TimeSpan.FromSeconds(intervalInSeconds));
     }
 
+    /// <summary>
+    /// Determines if the account is locked out.
+    /// </summary>
+    /// <param name="userName">The name of the user.</param>
+    /// <param name="allowedPasswordAttempts">The number of allowed password attempts.</param>
+    /// <returns><c>true</c> if the account is locked; otherwise, <c>false</c>.</returns>
     public static bool IsAccountLockedOut(string userName, int allowedPasswordAttempts, TimeSpan interval)
     {
       var provider = ValidProvider();
       return (provider.GetUser(userName, false) != null && provider.GetPasswordFailuresSinceLastSuccess(userName) > allowedPasswordAttempts && provider.GetLastPasswordFailureDate(userName).Add(interval) > DateTime.UtcNow);
     }
 
+    /// <summary>
+    /// Determines if the user has been confirmed.
+    /// </summary>
+    /// <param name="userName">The user name.</param>
+    /// <returns><c>true</c> if the user is confirmed; otherwise <c>false</c>.</returns>
     public static bool IsConfirmed(string userName)
     {
       var provider = ValidProvider();
       return provider.IsConfirmed(userName);
     }
 
+    /// <summary>
+    /// Determines if the <see cref="CurrentUserName"/> is the same as the provided user name.
+    /// </summary>
+    /// <param name="userName">The user name.</param>
+    /// <returns><c>true</c> if the user matches the <see cref="CurrentUserName"/>; otherwise, <c>false</c>.</returns>
     public static bool IsCurrentUser(string userName)
     {
       ValidProvider();
       return string.Equals(CurrentUserName, userName, StringComparison.OrdinalIgnoreCase);
     }
 
+    /// <summary>
+    /// Determines if the <see cref="CurrentUserId"/> matches the provided user id.
+    /// </summary>
+    /// <param name="userId">The user id to match.</param>
+    /// <returns><c>true</c> if the id matches the <see cref="CurrentUserId"/>; otherwise, <c>false</c>.</returns>
     public static bool IsUseLoggedOn(int userId)
     {
       ValidProvider();
       return CurrentUserId == userId;
     }
 
+    /// <summary>
+    /// Performs a login for the specified user.
+    /// </summary>
+    /// <param name="userName">The user name.</param>
+    /// <param name="password">The user password.</param>
+    /// <param name="createPersistentCookie">Flag to indicate if a persistent cookie should be created.</param>
+    /// <returns><c>true</c> if the login was successful; otherwise, <c>false</c>.</returns>
     public static bool Login(string userName, string password, bool createPersistentCookie = false)
     {
       var curentProvider = ValidProvider();
@@ -259,12 +309,18 @@ namespace MySql.Web.Security
       return loginSuccessful;
     }
 
+    /// <summary>
+    /// Performs a logout for the current item.
+    /// </summary>
     public static void Logout()
     {
       ValidProvider();
       FormsAuthentication.SignOut();
     }
 
+    /// <summary>
+    /// Evalutes if the user is authenticated.
+    /// </summary>
     public static void RequireAuthenticatedUser()
     {
       ValidProvider();
@@ -275,6 +331,10 @@ namespace MySql.Web.Security
       }
     }
 
+    /// <summary>
+    /// Evaluates if the user belongs to the specified roles.
+    /// </summary>
+    /// <param name="roles"></param>
     public static void RequireRoles(params string[] roles)
     {
       ValidProvider();
@@ -287,6 +347,10 @@ namespace MySql.Web.Security
       }
     }
 
+    /// <summary>
+    /// Evaluates if the user is logged on.
+    /// </summary>
+    /// <param name="userId"></param>
     public static void RequiresUser(int userId)
     {
       ValidProvider();
@@ -296,6 +360,10 @@ namespace MySql.Web.Security
       }
     }
 
+    /// <summary>
+    /// Evaluates if the provided user name matches the <see cref="CurrentUserName"/>.
+    /// </summary>
+    /// <param name="userName"></param>
     public static void RequiresUser(string userName)
     {
       ValidProvider();
@@ -305,12 +373,23 @@ namespace MySql.Web.Security
       }
     }
 
+    /// <summary>
+    /// Resets the password identified by the provided password reset token.
+    /// </summary>
+    /// <param name="passwordResetToken">The password reset token.</param>
+    /// <param name="newPassword">The new password.</param>
+    /// <returns><c>true</c> if the password reset was successful; otherwise, <c>false</c>.</returns>
     public static bool ResetPassword(string passwordResetToken, string newPassword)
     {
       var provider = ValidProvider();
       return provider.ResetPasswordWithToken(passwordResetToken, newPassword);
     }
 
+    /// <summary>
+    /// Determines if the user exists.
+    /// </summary>
+    /// <param name="username">The user name.</param>
+    /// <returns><c>true</c> if the user exists; otherwise, <c>false</c>.</returns>
     public static bool UserExists(string username)
     {
       var curentProvider = ValidProvider();
@@ -321,6 +400,9 @@ namespace MySql.Web.Security
     }
     #endregion
 
+    /// <summary>
+    /// Gets the initialized status.
+    /// </summary>
     #region Properties
     public static bool Initialized
     {
@@ -328,21 +410,33 @@ namespace MySql.Web.Security
       private set;
     }
 
+    /// <summary>
+    /// Gets the current user id.
+    /// </summary>
     public static int CurrentUserId
     {
       get { return GetUserId(CurrentUserName); }
     }
 
+    /// <summary>
+    /// Gets the current user name.
+    /// </summary>
     public static string CurrentUserName
     {
       get { return CurrentContext.User.Identity.Name; }
     }
 
+    /// <summary>
+    /// Gets a flag indicating if there is an associated user id.
+    /// </summary>
     public static bool HasUserId
     {
       get { return CurrentUserId != -1; }
     }
 
+    /// <summary>
+    /// Gets a flag indicating if the user is authenticated.
+    /// </summary>
     public static bool IsAuthenticated
     {
       get { return CurrentContext.Request.IsAuthenticated; }
