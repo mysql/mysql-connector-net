@@ -31,7 +31,7 @@ using System.IO;
 namespace MySql.Data.MySqlClient
 {
   /// <summary>
-  /// Allows importing large amounts of data into a database via bulk loading.
+  /// Allows importing large amounts of data into a database with bulk loading.
   /// </summary>
   public class MySqlBulkLoader
   {
@@ -196,7 +196,7 @@ namespace MySql.Data.MySqlClient
 
 #region Async
     /// <summary>
-    /// Async version of Load.
+    /// Asynchronous version of the load operation.
     /// </summary>
     /// <returns>The number of rows inserted.</returns>
     public Task<int> LoadAsync()

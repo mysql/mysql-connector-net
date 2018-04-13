@@ -57,7 +57,7 @@ namespace MySql.Data.MySqlClient
   }
 
   /// <summary>
-  /// Defines the basic operations to be performed on table cache.
+  /// Defines the basic operations to be performed on the table cache.
   /// </summary>
   public class BaseTableCache
   {
@@ -112,7 +112,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Removes the specified command from the cache.
     /// </summary>
-    /// <param name="commandText"></param>
+    /// <param name="commandText">The command to remove from the cache.</param>
     public void RemoveFromCache(string commandText)
     {
       lock (cache)

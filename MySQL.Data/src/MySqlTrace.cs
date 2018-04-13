@@ -67,7 +67,7 @@ namespace MySql.Data.MySqlClient
     /// Enables query analysis.
     /// </summary>
     /// <param name="host">The host on which to enable query analysis.</param>
-    /// <param name="postInterval">The interval of time for logging trace info.</param>
+    /// <param name="postInterval">The interval of time for logging trace information.</param>
     public static void EnableQueryAnalyzer(string host, int postInterval)
     {
       if (QueryAnalysisEnabled) return;

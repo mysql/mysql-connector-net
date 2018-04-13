@@ -521,7 +521,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Gets or sets the certiciate store location for client certificates.
+    /// Gets or sets the certificate store location for client certificates.
     /// </summary>
     /// <remarks>Enables accesing a certificate held in a personal store. Default value is <see cref="MySqlCertificateStoreLocation.None"/>.</remarks>
     [Category("Authentication")]
@@ -549,7 +549,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Gets or sets a boolean value that indicates if windows authentication should be used.
+    /// Gets or sets a boolean value that indicates if Windows authentication should be used.
     /// </summary>
     /// <remarks>Default value is <c>false</c>.</remarks>
     [Category("Authentication")]
@@ -643,7 +643,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Gets or sets a boolean value that indicates if the permon hooks should be enabled.
+    /// Gets or sets a boolean value that indicates if the performance monitor hooks should be enabled.
     /// </summary>
     /// <remarks>Default value is <c>false</c>.</remarks>
     [Category("Advanced")]
@@ -658,7 +658,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Gets or sets a boolean value that indicates if calls to Prepare() should be ignored.
+    /// Gets or sets a boolean value that indicates if calls to the Prepare method should be ignored.
     /// </summary>
     /// <remarks>Default value is <c>false</c>.</remarks>
     [Category("Advanced")]
@@ -1034,7 +1034,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Indicates whether the driver should treat binary blobs as UTF8.
+    /// Indicates whether the driver should treat binary BLOBs as UTF8.
     /// </summary>
     /// <remarks>Default value is <c>false</c>.</remarks>
     [DisplayName("Treat Blobs As UTF8")]
@@ -1049,7 +1049,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Gets or sets the pattern that matches the columns that should be treated as UTF8.
+    /// Gets or sets the pattern to match for the columns that should be treated as UTF8.
     /// </summary>
     [Category("Advanced")]
     [Description("Pattern that matches columns that should be treated as UTF8")]
@@ -1061,7 +1061,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Gets or sets the pattern that matches the columns that should not be treated as UTF8.
+    /// Gets or sets the pattern to match for the columns that should not be treated as UTF8.
     /// </summary>
     [Category("Advanced")]
     [Description("Pattern that matches columns that should not be treated as UTF8")]
@@ -1125,7 +1125,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Gets or sets the path to a local file that contains a list of trusted CAs.
+    /// Gets or sets the path to a local file that contains a list of trusted Certificate Authorities.
     /// </summary>
     [Description("Path to a local file that contains a list of trusted TLS/SSL CAs")]
     public string SslCa

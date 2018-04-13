@@ -374,7 +374,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Always use SSL. Deny connection if server does not support SSL.
     /// Do not perform server certificate validation.
-    /// This is the default SSL mode when the same isn't specified as part of the connection string.
+    /// This is the default SSL mode when not specified as part of the connection string.
     /// </summary>
     Required,
     /// <summary>

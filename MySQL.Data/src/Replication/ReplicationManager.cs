@@ -124,7 +124,7 @@ namespace MySql.Data.MySqlClient.Replication
     /// Validates if the replication group name exists
     /// </summary>
     /// <param name="groupName">Group name to validate</param>
-    /// <returns><c>true</c> if replication group name is found; otherwise, <c>false</c></returns>
+    /// <returns><c>true</c> if the replication group name is found; otherwise, <c>false</c></returns>
     internal static bool IsReplicationGroup(string groupName)
     {
       foreach (ReplicationServerGroup g in groups)

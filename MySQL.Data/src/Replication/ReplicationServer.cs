@@ -27,7 +27,7 @@ using System.Text;
 namespace MySql.Data.MySqlClient.Replication
 {
   /// <summary>
-  /// Represents a server in Replication environment.
+  /// Represents a server in a Replication environment.
   /// </summary>
   public class ReplicationServer
   {
@@ -44,7 +44,7 @@ namespace MySql.Data.MySqlClient.Replication
     /// </summary>
     public string Name { get; private set; }
     /// <summary>
-    /// Gets a value indicating if the server is master or slave.
+    /// Gets a value indicating whether the server is master or slave.
     /// </summary>
     public bool IsMaster { get; private set; }
     /// <summary>

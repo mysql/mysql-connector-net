@@ -31,7 +31,7 @@ using System.Net;
 namespace MySql.Data.MySqlClient
 {
   /// <summary>
-  /// Defines security permissions assigned to a MySql object.
+  /// Defines security permissions assigned to a MySQL object.
   /// </summary>
   public sealed class MySqlSecurityPermission : MarshalByRefObject
   {

@@ -46,12 +46,12 @@ namespace MySql.Data.MySqlClient
     public event MySqlStatementExecutedEventHandler StatementExecuted;
 
     /// <summary>
-    /// Handles the event raised whenever an is raised by the execution of a script.
+    /// Handles the event raised whenever an error is raised by the execution of a script.
     /// </summary>
     public event MySqlScriptErrorEventHandler Error;
 
     /// <summary>
-    /// Handles the event raised whenever a script execution is completed.
+    /// Handles the event raised whenever a script execution is finished.
     /// </summary>
     public event EventHandler ScriptCompleted;
 
@@ -412,16 +412,16 @@ namespace MySql.Data.MySqlClient
   }
 
   /// <summary>
-  /// Represents the method that will handle errors when executing mysql statements.
+  /// Represents the method that will handle errors when executing MySQL statements.
   /// </summary>
   public delegate void MySqlStatementExecutedEventHandler(object sender, MySqlScriptEventArgs args);
   /// <summary>
-  /// Represents the method that will handle errors when executing mysql scripts.
+  /// Represents the method that will handle errors when executing MySQL scripts.
   /// </summary>
   public delegate void MySqlScriptErrorEventHandler(object sender, MySqlScriptErrorEventArgs args);
 
   /// <summary>
-  /// Sets the arguments associated to MySql scripts.
+  /// Sets the arguments associated to MySQL scripts.
   /// </summary>
   public class MySqlScriptEventArgs : EventArgs
   {
@@ -447,7 +447,7 @@ namespace MySql.Data.MySqlClient
   }
 
   /// <summary>
-  /// Sets the arguments associated to MySql script errors.
+  /// Sets the arguments associated to MySQL script errors.
   /// </summary>
   public class MySqlScriptErrorEventArgs : MySqlScriptEventArgs
   {

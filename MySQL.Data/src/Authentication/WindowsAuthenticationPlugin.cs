@@ -449,13 +449,13 @@ namespace MySql.Data.MySqlClient.Authentication
     public uint cbMaxToken;
 
     /// <summary>
-    /// Specifies the maximum size of the signature created by the <b>MakeSignature</b> functio.
+    /// Specifies the maximum size of the signature created by the <b>MakeSignature</b> function.
     /// This member must be zero if integrity services are not requested or available.
     /// </summary>
     public uint cbMaxSignature;
 
     /// <summary>
-    /// Specifies the prefered integral size of the messages.
+    /// Specifies the preferred integral size of the messages.
     /// </summary>
     public uint cbBlockSize;
 

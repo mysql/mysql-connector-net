@@ -69,7 +69,7 @@ namespace MySql.Data.MySqlClient.Authentication
     protected MySqlConnectionStringBuilder Settings => _driver.Settings;
 
     /// <summary>
-    /// Gets the server version associated to this authentication plugin.
+    /// Gets the server version associated with this authentication plugin.
     /// </summary>
     protected Version ServerVersion => new Version(_driver.Version.Major, _driver.Version.Minor, _driver.Version.Build);
 
@@ -81,7 +81,7 @@ namespace MySql.Data.MySqlClient.Authentication
     protected Encoding Encoding => _driver.Encoding;
 
     /// <summary>
-    /// Sets the authentication data required to encode/encrypt/convert the password of the user.
+    /// Sets the authentication data required to encode, encrypt, or convert the password of the user.
     /// </summary>
     /// <param name="data">A byte array containing the authentication data provided by the server.</param>
     /// <remarks>This method may be overriden based on the requirements by the implementing authentication plugin.</remarks>
@@ -267,10 +267,10 @@ namespace MySql.Data.MySqlClient.Authentication
     }
 
     /// <summary>
-    /// Gets the encoded/encrypted/converted password based on the authentication plugin type defined during the creation of this object.
+    /// Gets the encoded, encrypted, or converted password based on the authentication plugin type defined during the creation of this object.
     /// This method is intended to be overriden.
     /// </summary>
-    /// <returns>An object containing the encoded/encrypted/converted password.</returns>
+    /// <returns>An object containing the encoded, encrypted, or converted password.</returns>
     public virtual object GetPassword()
     {
       return null;

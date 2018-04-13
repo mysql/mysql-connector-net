@@ -63,7 +63,7 @@ namespace MySql.Data.MySqlClient.Interceptors
   internal sealed class StandardExceptionInterceptor : BaseExceptionInterceptor
   {
     /// <summary>
-    /// Returns the received exception being this the default action of the standard interceptor.
+    /// Returns the received exception, which is the default action
     /// </summary>
     /// <param name="exception">The exception to be returned.</param>
     /// <returns>The exception originally received.</returns>
