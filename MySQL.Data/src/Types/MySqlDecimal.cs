@@ -67,11 +67,11 @@ namespace MySql.Data.Types
     public byte Scale { get; set; }
 
 
+    object IMySqlValue.Value => Value;
+
     /// <summary>
     /// Gets the decimal value associated to this type.
     /// </summary>
-    object IMySqlValue.Value => Value;
-
     public decimal Value => Convert.ToDecimal(_value, CultureInfo.InvariantCulture);
 
     /// <summary>

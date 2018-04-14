@@ -335,25 +335,40 @@ namespace MySql.Data.MySqlClient
   public enum MySqlConnectionProtocol
   {
     /// <summary>
-    /// TCP/IP style connection.  Works everywhere.
+    /// TCP/IP style connection. Works everywhere.
     /// </summary>
     Sockets = 1,
+    /// <summary>
+    /// TCP/IP style connection. Works everywhere.
+    /// </summary>
     Socket = 1,
+    /// <summary>
+    /// TCP/IP style connection. Works everywhere.
+    /// </summary>
     Tcp = 1,
     /// <summary>
-    /// Named pipe connection.  Works only on Windows systems.
+    /// Named pipe connection. Works only on Windows systems.
     /// </summary>
     Pipe = 2,
+    /// <summary>
+    /// Named pipe connection. Works only on Windows systems.
+    /// </summary>
     NamedPipe = 2,
     /// <summary>
-    /// Unix domain socket connection.  Works only with Unix systems.
+    /// Unix domain socket connection. Works only with Unix systems.
     /// </summary>
     UnixSocket = 3,
+    /// <summary>
+    /// Unix domain socket connection. Works only with Unix systems.
+    /// </summary>
     Unix = 3,
     /// <summary>
-    /// Shared memory connection.  Currently works only with Windows systems.
+    /// Shared memory connection. Currently works only with Windows systems.
     /// </summary>
     SharedMemory = 4,
+    /// <summary>
+    /// Shared memory connection. Currently works only with Windows systems.
+    /// </summary>
     Memory = 4
   }
 
@@ -370,6 +385,9 @@ namespace MySql.Data.MySqlClient
     /// Use SSL, if server supports it.
     /// </summary>
     Preferred,
+    /// <summary>
+    /// Use SSL, if server supports it.
+    /// </summary>
     Prefered = Preferred,
     /// <summary>
     /// Always use SSL. Deny connection if server does not support SSL.

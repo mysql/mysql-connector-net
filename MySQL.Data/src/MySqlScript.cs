@@ -385,6 +385,11 @@ namespace MySql.Data.MySqlClient
       return ExecuteAsync(CancellationToken.None);
     }
 
+    /// <summary>
+    /// Initiates the asynchronous execution of SQL statements.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The number of statements executed as part of the script inside.</returns>
     public Task<int> ExecuteAsync(CancellationToken cancellationToken)
     {
       var result = new TaskCompletionSource<int>();

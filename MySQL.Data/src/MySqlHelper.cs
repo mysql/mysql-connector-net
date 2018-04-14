@@ -58,10 +58,10 @@ namespace MySql.Data.MySqlClient
     /// Executes a single command against a MySQL database.  The <see cref="MySqlConnection"/> is assumed to be
     /// open when the method is called and remains open after the method completes.
     /// </summary>
-    /// <param name="connection"><see cref="MySqlConnection"/> object to use</param>
-    /// <param name="commandText">SQL command to be executed</param>
-    /// <param name="commandParameters">Array of <see cref="MySqlParameter"/> objects to use with the command.</param>
-    /// <returns></returns>
+    /// <param name="connection">The <see cref="MySqlConnection"/> object to use</param>
+    /// <param name="commandText">The SQL command to be executed.</param>
+    /// <param name="commandParameters">An array of <see cref="MySqlParameter"/> objects to use with the command.</param>
+    /// <returns>The number of affected records.</returns>
     public static int ExecuteNonQuery(MySqlConnection connection, string commandText, params MySqlParameter[] commandParameters)
     {
       //create a command and prepare it for execution
@@ -81,13 +81,13 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Executes a single command against a MySQL database.  A new <see cref="MySqlConnection"/> is created
-    /// using the <see cref="MySqlConnection.ConnectionString"/> given.
+    /// Executes a single command against a MySQL database.
     /// </summary>
-    /// <param name="connectionString"><see cref="MySqlConnection.ConnectionString"/> to use</param>
-    /// <param name="commandText">SQL command to be executed</param>
-    /// <param name="parms">Array of <see cref="MySqlParameter"/> objects to use with the command.</param>
-    /// <returns></returns>
+    /// <param name="connectionString"><see cref="MySqlConnection.ConnectionString"/> to use.</param>
+    /// <param name="commandText">The SQL command to be executed.</param>
+    /// <param name="parms">An rray of <see cref="MySqlParameter"/> objects to use with the command.</param>
+    /// <returns>The number of affected records.</returns>
+    /// <remarks>A new <see cref="MySqlConnection"/> is created using the <see cref="MySqlConnection.ConnectionString"/> given.</remarks>
     public static int ExecuteNonQuery(string connectionString, string commandText, params MySqlParameter[] parms)
     {
       //create & open a SqlConnection, and dispose of it after we are done.
@@ -379,17 +379,25 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Async version of ExecuteNonQuery
+    /// Asynchronous version of the ExecuteNonQuery method.
     /// </summary>
-    /// <param name="connectionString"><see cref="MySqlConnection.ConnectionString"/> to use</param>
-    /// <param name="commandText">SQL command to be executed</param>
-    /// <param name="commandParameters">Array of <see cref="MySqlParameter"/> objects to use with the command.</param>
-    /// <returns>Rows affected</returns>
+    /// <param name="connectionString"><see cref="MySqlConnection.ConnectionString"/> to use.</param>
+    /// <param name="commandText">The SQL command to be executed.</param>
+    /// <param name="commandParameters">An array of <see cref="MySqlParameter"/> objects to use with the command.</param>
+    /// <returns>The number of rows affected.</returns>
     public static Task<int> ExecuteNonQueryAsync(string connectionString, string commandText, params MySqlParameter[] commandParameters)
     {
       return ExecuteNonQueryAsync(connectionString, commandText, CancellationToken.None, commandParameters);
     }
 
+    /// <summary>
+    /// Asynchronous version of the ExecuteNonQuery method.
+    /// </summary>
+    /// <param name="connectionString"><see cref="MySqlConnection.ConnectionString"/> to use.</param>
+    /// <param name="commandText">The SQL command to be executed.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="commandParameters">An array of <see cref="MySqlParameter"/> objects to use with the command.</param>
+    /// <returns>The number of rows affected.</returns>
     public static Task<int> ExecuteNonQueryAsync(string connectionString, string commandText, CancellationToken cancellationToken, params MySqlParameter[] commandParameters)
     {
       var result = new TaskCompletionSource<int>();
