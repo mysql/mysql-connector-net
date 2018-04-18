@@ -109,7 +109,7 @@ namespace MySql.Data.MySqlClient.Tests
       string sql = sr.ReadToEnd();
       sr.Close();
 
-      SetAccountPerms(accessToMySqlDb);
+      //SetAccountPerms(accessToMySqlDb);
       sql = sql.Replace("[database0]", database0);
       sql = sql.Replace("[database1]", database1);
       initialSql = sql;
@@ -133,18 +133,17 @@ namespace MySql.Data.MySqlClient.Tests
     protected void SetAccountPerms(bool includeProc)
     {
       // now allow our user to access them
-      suExecSQL(String.Format(@"GRANT ALL ON `{0}`.* to 'test'@'localhost' 
-        identified by 'test'", database0));
-      suExecSQL(String.Format(@"GRANT SELECT ON `{0}`.* to 'test'@'localhost' 
-        identified by 'test'", database1));
+      suExecSQL("DROP USER IF EXISTS 'test'@'localhost'");
+      suExecSQL("CREATE USER 'test'@'localhost' IDENTIFIED BY 'test'");
+      suExecSQL(String.Format(@"GRANT ALL ON `{0}`.* to 'test'@'localhost'", database0));
+      suExecSQL(String.Format(@"GRANT SELECT ON `{0}`.* to 'test'@'localhost'", database1));
       if (Version.Major >= 5)
-        suExecSQL(String.Format(@"GRANT EXECUTE ON `{0}`.* to 'test'@'localhost' 
-          identified by 'test'", database1));
+        suExecSQL(String.Format(@"GRANT EXECUTE ON `{0}`.* to 'test'@'localhost'", database1));
 
       if (includeProc)
       {
         // now allow our user to access them
-        suExecSQL(@"GRANT ALL ON mysql.proc to 'test'@'localhost' identified by 'test'");
+        suExecSQL(@"GRANT ALL ON mysql.proc to 'test'@'localhost'");
       }
 
       suExecSQL("FLUSH PRIVILEGES");

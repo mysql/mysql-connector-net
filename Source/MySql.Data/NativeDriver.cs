@@ -224,7 +224,8 @@ namespace MySql.Data.MySqlClient
       int protocol = packet.ReadByte();
       string versionString = packet.ReadString();
       owner.isFabric = versionString.EndsWith("fabric", StringComparison.OrdinalIgnoreCase);
-      isEnterprise = versionString.ToLowerInvariant().Contains("-enterprise-");
+      isEnterprise = versionString.ToLowerInvariant().Contains("-enterprise") 
+        || versionString.ToLowerInvariant().Contains("-commercial");
       version = DBVersion.Parse(versionString);
       if (!owner.isFabric && !version.isAtLeast(5, 0, 0))
         throw new NotSupportedException(Resources.ServerTooOld);
