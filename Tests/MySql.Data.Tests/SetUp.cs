@@ -109,7 +109,7 @@ namespace MySql.Data.MySqlClient.Tests
       string sql = sr.ReadToEnd();
       sr.Close();
 
-      //SetAccountPerms(accessToMySqlDb);
+      SetAccountPerms(accessToMySqlDb);
       sql = sql.Replace("[database0]", database0);
       sql = sql.Replace("[database1]", database1);
       initialSql = sql;
@@ -126,6 +126,7 @@ namespace MySql.Data.MySqlClient.Tests
       if (conn != null && conn.State == ConnectionState.Open)
         conn.Dispose();
       SetupRootConnection();
+      SetAccountPerms(false);
       ExecuteSQLAsRoot(initialSql);
       Open();
     }
@@ -133,12 +134,24 @@ namespace MySql.Data.MySqlClient.Tests
     protected void SetAccountPerms(bool includeProc)
     {
       // now allow our user to access them
-      suExecSQL("DROP USER IF EXISTS 'test'@'localhost'");
-      suExecSQL("CREATE USER 'test'@'localhost' IDENTIFIED BY 'test'");
-      suExecSQL(String.Format(@"GRANT ALL ON `{0}`.* to 'test'@'localhost'", database0));
-      suExecSQL(String.Format(@"GRANT SELECT ON `{0}`.* to 'test'@'localhost'", database1));
-      if (Version.Major >= 5)
-        suExecSQL(String.Format(@"GRANT EXECUTE ON `{0}`.* to 'test'@'localhost'", database1));
+      try
+      {
+        suExecSQL("DROP USER 'test'@'localhost'");
+      }
+      catch(MySqlException ex)
+      {
+        if (ex.Number != 1396) // Operation DROP USER failed
+          throw;
+      }
+      try
+      {
+        suExecSQL("DROP USER 'test'@'%'");
+      }
+      catch (MySqlException ex)
+      {
+        if (ex.Number != 1396) // Operation DROP USER failed
+          throw;
+      }
 
       if (includeProc)
       {
