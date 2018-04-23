@@ -1,4 +1,4 @@
-// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -300,7 +300,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Escapes the string.
     /// </summary>
-    /// <param name="value">The string to escape</param>
+    /// <param name="value">The string to escape.</param>
     /// <returns>The string with all quotes escaped.</returns>
     public static string EscapeString(string value)
     {
@@ -321,6 +321,11 @@ namespace MySql.Data.MySqlClient
       return sb.ToString();
     }
 
+    /// <summary>
+    /// Replaces quotes with double quotes.
+    /// </summary>
+    /// <param name="value">The string to modidify.</param>
+    /// <returns>A string containing double quotes instead of single quotes.</returns>
     public static string DoubleQuoteString(string value)
     {
       if (!NeedsQuoting(value))

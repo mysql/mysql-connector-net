@@ -99,6 +99,9 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     public string SqlState { get; private set; }
 
+    /// <summary>
+    /// Gets an integer that representes the MySQL error code.
+    /// </summary>
     public UInt32 Code { get; private set; }
   }
 }
