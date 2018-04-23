@@ -29,13 +29,17 @@ namespace MySql.Data.Types
 {
 
   /// <summary>
-  /// 
+  /// Represents a datetime data type object in a MySql database.
   /// </summary>
   [Serializable]
   public struct MySqlDateTime : IMySqlValue, IComparable, IConvertible
   {
     private readonly MySqlDbType _type;
     private int _millisecond, _microsecond;
+
+    /// <summary>
+    /// Defines whether the UTF or local timezone will be used. 
+    /// </summary>
     public int TimezoneOffset;
 
     /// <summary>

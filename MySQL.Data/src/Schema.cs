@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
+// Copyright � 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -28,6 +28,9 @@ using System.Text;
 
 namespace MySql.Data.MySqlClient
 {
+  /// <summary>
+  /// Represents a schema and its contents.
+  /// </summary>
   public partial class MySqlSchemaCollection 
   {
     private readonly List<SchemaColumn> _columns = new List<SchemaColumn>();
@@ -74,8 +77,20 @@ namespace MySql.Data.MySqlClient
 
     internal Dictionary<string, int> Mapping;
     internal Dictionary<int, int> LogicalMappings;
+
+    /// <summary>
+    /// Gets or sets the name of the schema.
+    /// </summary>
     public string Name { get; set; }
+
+    /// <summary>
+    /// Gets the list of columns in the schema.
+    /// </summary>
     public IList<SchemaColumn> Columns => _columns;
+
+    /// <summary>
+    /// Gets the list of rows in the schema.
+    /// </summary>
     public IList<MySqlSchemaRow> Rows => _rows;
 
     internal SchemaColumn AddColumn(string name, Type t)
@@ -152,6 +167,9 @@ namespace MySql.Data.MySqlClient
 #endif
   }
 
+  /// <summary>
+  /// Represents a row within a schema.
+  /// </summary>
   public class MySqlSchemaRow
   {
     private Dictionary<int,object> _data;
@@ -209,9 +227,19 @@ namespace MySql.Data.MySqlClient
     }
   }
 
+  /// <summary>
+  /// Represents a column within a schema.
+  /// </summary>
   public class SchemaColumn
   {
+    /// <summary>
+    /// The name of the column.
+    /// </summary>
     public string Name { get; set; }
+
+    /// <summary>
+    /// The type of the column.
+    /// </summary>
     public Type Type { get; set; }
   }
 }

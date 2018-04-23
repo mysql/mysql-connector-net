@@ -1,4 +1,4 @@
-﻿// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright � 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -30,14 +30,26 @@ namespace MySql.Data.MySqlClient.Interceptors
 {
   /// <summary>
   /// BaseExceptionInterceptor is the base class that should be used for all userland 
-  /// exception interceptors
+  /// exception interceptors.
   /// </summary>
   public abstract class BaseExceptionInterceptor
   {
+    /// <summary>
+    /// Returns the received exception.
+    /// </summary>
+    /// <param name="exception">The exception to be returned.</param>
+    /// <returns>The exception originally received.</returns>
     public abstract Exception InterceptException(Exception exception);
 
+    /// <summary>
+    /// Gets the active connection.
+    /// </summary>
     protected MySqlConnection ActiveConnection { get; private set; }
 
+    /// <summary>
+    /// Initilizes this object by setting the active connection.
+    /// </summary>
+    /// <param name="connection">The connection to become active.</param>
     public virtual void Init(MySqlConnection connection)
     {
       ActiveConnection = connection;
@@ -45,11 +57,16 @@ namespace MySql.Data.MySqlClient.Interceptors
   }
 
   /// <summary>
-  /// StandardExceptionInterceptor is the standard interceptor that simply throws the exception.
+  /// StandardExceptionInterceptor is the standard interceptor that simply returns the exception.
   /// It is the default action.
   /// </summary>
   internal sealed class StandardExceptionInterceptor : BaseExceptionInterceptor
   {
+    /// <summary>
+    /// Returns the received exception, which is the default action
+    /// </summary>
+    /// <param name="exception">The exception to be returned.</param>
+    /// <returns>The exception originally received.</returns>
     public override Exception InterceptException(Exception exception)
     {
       return exception;

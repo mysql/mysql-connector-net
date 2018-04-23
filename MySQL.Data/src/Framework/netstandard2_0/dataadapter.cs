@@ -1,4 +1,4 @@
-// Copyright © 2004, 2014, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -310,15 +310,21 @@ namespace MySql.Data.MySqlClient
     #region Async
     #region Fill
     /// <summary>
-    /// Async version of Fill
+    /// Asynchronous version of the Fill method.
     /// </summary>
-    /// <param name="dataSet">Dataset to use</param>
-    /// <returns>int</returns>
+    /// <param name="dataSet">The <see cref="DataSet"/> to fill records with.</param>
+    /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataSet"/>.</returns>
     public Task<int> FillAsync(DataSet dataSet)
     {
       return FillAsync(dataSet, CancellationToken.None);
     }
 
+    /// <summary>
+    /// Asynchronous version of the Fill method.
+    /// </summary>
+    /// <param name="dataSet">The <see cref="DataSet"/> to fill records with.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataSet"/>.</returns>
     public Task<int> FillAsync(DataSet dataSet, CancellationToken cancellationToken)
     {
       var result = new TaskCompletionSource<int>();
@@ -342,15 +348,21 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Async version of Fill
+    /// Asynchronous version of the Fill method.
     /// </summary>
-    /// <param name="dataTable">Datatable to use</param>
-    /// <returns>int</returns>
+    /// <param name="dataTable">The name of the <see cref="DataTable"/> to use for table mapping.</param>
+    /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataTable"/>.</returns>
     public Task<int> FillAsync(DataTable dataTable)
     {
       return FillAsync(dataTable, CancellationToken.None);
     }
 
+    /// <summary>
+    /// Asynchronous version of the Fill method.
+    /// </summary>
+    /// <param name="dataTable">The name of the <see cref="DataTable"/> to use for table mapping.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataTable"/>.</returns>
     public Task<int> FillAsync(DataTable dataTable, CancellationToken cancellationToken)
     {
       var result = new TaskCompletionSource<int>();
@@ -374,16 +386,23 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Async version of Fill
+    /// Asynchronous version of the Fill method.
     /// </summary>
-    /// <param name="dataSet">DataSet to use</param>
-    /// <param name="srcTable">Source table</param>
-    /// <returns>int</returns>
+    /// <param name="dataSet">The <see cref="DataSet"/> to fill with records.</param>
+    /// <param name="srcTable">The name of the source table to use for table mapping.</param>
+    /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataSet"/>.</returns>
     public Task<int> FillAsync(DataSet dataSet, string srcTable)
     {
       return FillAsync(dataSet, srcTable, CancellationToken.None);
     }
 
+    /// <summary>
+    /// Asynchronous version of the Fill method.
+    /// </summary>
+    /// <param name="dataSet">The <see cref="DataSet"/> to fill with records.</param>
+    /// <param name="srcTable">The name of the source table to use for table mapping.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataSet"/>.</returns>
     public Task<int> FillAsync(DataSet dataSet, string srcTable, CancellationToken cancellationToken)
     {
       var result = new TaskCompletionSource<int>();
@@ -407,16 +426,23 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Async version of Fill
+    /// Asynchronous version of the Fill method.
     /// </summary>
-    /// <param name="dataTable">Datatable to use</param>
-    /// <param name="dataReader">DataReader to use</param>
-    /// <returns>int</returns>
+    /// <param name="dataTable">The <see cref="DataTable"/> to fill with records.</param>
+    /// <param name="dataReader">An instance of <see cref="IDataReader"/>.</param>
+    /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataTable"/>.</returns>
     public Task<int> FillAsync(DataTable dataTable, IDataReader dataReader)
     {
       return FillAsync(dataTable, dataReader, CancellationToken.None);
     }
 
+    /// <summary>
+    /// Asynchronous version of the Fill method.
+    /// </summary>
+    /// <param name="dataTable">The <see cref="DataTable"/> to fill with records.</param>
+    /// <param name="dataReader">An instance of <see cref="IDataReader"/>.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataTable"/>.</returns>
     public Task<int> FillAsync(DataTable dataTable, IDataReader dataReader, CancellationToken cancellationToken)
     {
       var result = new TaskCompletionSource<int>();
@@ -440,17 +466,25 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Async version of Fill
+    /// Asynchronous version of the Fill method.
     /// </summary>
-    /// <param name="dataTable">DataTable to use</param>
-    /// <param name="command">DbCommand to use</param>
-    /// <param name="behavior">Command Behavior</param>
-    /// <returns>int</returns>
+    /// <param name="dataTable">The <see cref="DataTable"/> to fill with records.</param>
+    /// <param name="command">The SQL SELECT statement used to retrieve rows from the data source.</param>
+    /// <param name="behavior">One of the <see cref="CommandBehavior"/> values.</param>
+    /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataTable"/>.</returns>
     public Task<int> FillAsync(DataTable dataTable, IDbCommand command, CommandBehavior behavior)
     {
       return FillAsync(dataTable, command, behavior, CancellationToken.None);
     }
 
+    /// <summary>
+    /// Asynchronous version of the Fill method.
+    /// </summary>
+    /// <param name="dataTable">The <see cref="DataTable"/> to fill with records.</param>
+    /// <param name="command">The SQL SELECT statement used to retrieve rows from the data source.</param>
+    /// <param name="behavior">One of the <see cref="CommandBehavior"/> values.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataTable"/>.</returns>
     public Task<int> FillAsync(DataTable dataTable, IDbCommand command, CommandBehavior behavior, CancellationToken cancellationToken)
     {
       var result = new TaskCompletionSource<int>();
@@ -474,17 +508,25 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Async version of Fill
+    /// Asynchronous version of the Fill method.
     /// </summary>
-    /// <param name="startRecord">Start record</param>
-    /// <param name="maxRecords">Max records</param>
-    /// <param name="dataTables">DataTable[] to use</param>
-    /// <returns>int</returns>
+    /// <param name="startRecord">The start record.</param>
+    /// <param name="maxRecords">The max number of affected records.</param>
+    /// <param name="dataTables">The <see cref="DataTable"/>s to fill with records.</param>
+    /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataTable"/>.</returns>
     public Task<int> FillAsync(int startRecord, int maxRecords, params DataTable[] dataTables)
     {
       return FillAsync(startRecord, maxRecords, CancellationToken.None, dataTables);
     }
 
+    /// <summary>
+    /// Asynchronous version of the Fill method.
+    /// </summary>
+    /// <param name="startRecord">The start record.</param>
+    /// <param name="maxRecords">The max number of affected records.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="dataTables">The <see cref="DataTable"/>s to fill with records.</param>
+    /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataTable"/>.</returns>
     public Task<int> FillAsync(int startRecord, int maxRecords, CancellationToken cancellationToken, params DataTable[] dataTables)
     {
       var result = new TaskCompletionSource<int>();
@@ -508,18 +550,27 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Async version of Fill
+    /// Asynchronous version of the Fill method.
     /// </summary>
-    /// <param name="dataSet">DataSet to use</param>
-    /// <param name="startRecord">Start record</param>
-    /// <param name="maxRecords">Max records</param>
-    /// <param name="srcTable">Source table</param>
-    /// <returns>int</returns>
+    /// <param name="dataSet">The <see cref="DataSet"/> to fill with records.</param>
+    /// <param name="startRecord">The start record.</param>
+    /// <param name="maxRecords">The max number of affected records.</param>
+    /// <param name="srcTable">The name of the source table to use for table mapping.</param>
+    /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataSet"/>.</returns>
     public Task<int> FillAsync(DataSet dataSet, int startRecord, int maxRecords, string srcTable)
     {
       return FillAsync(dataSet, startRecord, maxRecords, srcTable, CancellationToken.None);
     }
 
+    /// <summary>
+    /// Asynchronous version of the Fill method.
+    /// </summary>
+    /// <param name="dataSet">The <see cref="DataSet"/> to fill with records.</param>
+    /// <param name="startRecord">The start record.</param>
+    /// <param name="maxRecords">The max number of affected records.</param>
+    /// <param name="srcTable">The name of the source table to use for table mapping.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataSet"/>.</returns>
     public Task<int> FillAsync(DataSet dataSet, int startRecord, int maxRecords, string srcTable, CancellationToken cancellationToken)
     {
       var result = new TaskCompletionSource<int>();
@@ -543,19 +594,29 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Async version of Fill
+    /// Asynchronous version of the Fill method.
     /// </summary>
-    /// <param name="dataSet">DataSet to use</param>
-    /// <param name="srcTable">Source table</param>
-    /// <param name="dataReader">DataReader to use</param>
-    /// <param name="startRecord">Start record</param>
-    /// <param name="maxRecords">Max records</param>
-    /// <returns></returns>
+    /// <param name="dataSet">The <see cref="DataSet"/> to fill with records.</param>
+    /// <param name="srcTable">The name of the source table to use for table mapping.</param>
+    /// <param name="dataReader">An instance of <see cref="IDataReader"/>.</param>
+    /// <param name="startRecord">The start record.</param>
+    /// <param name="maxRecords">The max number of affected records.</param>
+    /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataSet"/>.</returns>
     public Task<int> FillAsync(DataSet dataSet, string srcTable, IDataReader dataReader, int startRecord, int maxRecords)
     {
       return FillAsync(dataSet, srcTable, dataReader, startRecord, maxRecords, CancellationToken.None);
     }
 
+    /// <summary>
+    /// Asynchronous version of the Fill method.
+    /// </summary>
+    /// <param name="dataSet">The <see cref="DataSet"/> to fill with records.</param>
+    /// <param name="srcTable">The name of the source table to use for table mapping.</param>
+    /// <param name="dataReader">An instance of <see cref="IDataReader"/>.</param>
+    /// <param name="startRecord">The start record.</param>
+    /// <param name="maxRecords">The max number of affected records.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataSet"/>.</returns>
     public Task<int> FillAsync(DataSet dataSet, string srcTable, IDataReader dataReader, int startRecord, int maxRecords, CancellationToken cancellationToken)
     {
       var result = new TaskCompletionSource<int>();
@@ -579,19 +640,29 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Async version of Fill
+    /// Asynchronous version of the Fill method.
     /// </summary>
-    /// <param name="dataTables">DataTable[] to use</param>
-    /// <param name="startRecord">Start record</param>
-    /// <param name="maxRecords">Max records</param>
-    /// <param name="command">DbCommand to use</param>
-    /// <param name="behavior">Command Behavior</param>
-    /// <returns></returns>
+    /// <param name="dataTables">The <see cref="DataTable"/>s to fill with records.</param>
+    /// <param name="startRecord">The start record.</param>
+    /// <param name="maxRecords">The max number of affected records.</param>
+    /// <param name="command">The SQL SELECT statement used to retrieve rows from the data source.</param>
+    /// <param name="behavior">One of the <see cref="CommandBehavior"/> values.</param>
+    /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataTable"/>s.</returns>
     public Task<int> FillAsync(DataTable[] dataTables, int startRecord, int maxRecords, IDbCommand command, CommandBehavior behavior)
     {
       return FillAsync(dataTables, startRecord, maxRecords, command, behavior, CancellationToken.None);
     }
 
+    /// <summary>
+    /// Asynchronous version of the Fill method.
+    /// </summary>
+    /// <param name="dataTables">The <see cref="DataTable"/>s to fill with records.</param>
+    /// <param name="startRecord">The start record.</param>
+    /// <param name="maxRecords">The max number of affected records.</param>
+    /// <param name="command">The SQL SELECT statement used to retrieve rows from the data source.</param>
+    /// <param name="behavior">One of the <see cref="CommandBehavior"/> values.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataTable"/>s.</returns>
     public Task<int> FillAsync(DataTable[] dataTables, int startRecord, int maxRecords, IDbCommand command, CommandBehavior behavior, CancellationToken cancellationToken)
     {
       var result = new TaskCompletionSource<int>();
@@ -615,20 +686,31 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Async version of Fill
+    /// Asynchronous version of the Fill method.
     /// </summary>
-    /// <param name="dataSet">DataSet to use</param>
-    /// <param name="startRecord">Start record</param>
-    /// <param name="maxRecords">Max records</param>
-    /// <param name="srcTable">Source table</param>
-    /// <param name="command">DbCommand to use</param>
-    /// <param name="behavior">Command Behavior</param>
-    /// <returns></returns>
+    /// <param name="dataSet">The <see cref="DataSet"/> to fill with records.</param>
+    /// <param name="startRecord">The start record.</param>
+    /// <param name="maxRecords">The max number of affected records.</param>
+    /// <param name="srcTable">The name of the source table to use for table mapping.</param>
+    /// <param name="command">The SQL SELECT statement used to retrieve rows from the data source.</param>
+    /// <param name="behavior">One of the <see cref="CommandBehavior"/> values.</param>
+    /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataTable"/>.</returns>
     public Task<int> FillAsync(DataSet dataSet, int startRecord, int maxRecords, string srcTable, IDbCommand command, CommandBehavior behavior)
     {
       return FillAsync(dataSet, startRecord, maxRecords, srcTable, command, behavior, CancellationToken.None);
     }
 
+    /// <summary>
+    /// Asynchronous version of the Fill method.
+    /// </summary>
+    /// <param name="dataSet">The <see cref="DataSet"/> to fill with records.</param>
+    /// <param name="startRecord">The start record.</param>
+    /// <param name="maxRecords">The max number of affected records.</param>
+    /// <param name="srcTable">The name of the source table to use for table mapping.</param>
+    /// <param name="command">The SQL SELECT statement used to retrieve rows from the data source.</param>
+    /// <param name="behavior">One of the <see cref="CommandBehavior"/> values.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataTable"/>.</returns>
     public Task<int> FillAsync(DataSet dataSet, int startRecord, int maxRecords, string srcTable, IDbCommand command, CommandBehavior behavior, CancellationToken cancellationToken)
     {
       var result = new TaskCompletionSource<int>();
