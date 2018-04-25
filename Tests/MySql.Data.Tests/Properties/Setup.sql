@@ -1,12 +1,11 @@
 ﻿DROP DATABASE IF EXISTS `[database0]`; CREATE DATABASE `[database0]`;
 CREATE USER 'test'@'localhost' IDENTIFIED BY 'test';
 CREATE USER 'test'@'%' IDENTIFIED BY 'test';
-GRANT ALL ON `[database0]`.* to 'test'@'localhost';
-GRANT ALL ON `[database0]`.* to 'test'@'%';
 
 DROP DATABASE IF EXISTS `[database1]`; CREATE DATABASE `[database1]`;
-GRANT ALL ON `[database1]`.* to 'test'@'localhost';
-GRANT ALL ON `[database1]`.* to 'test'@'%';
+
+GRANT ALL ON *.* to 'test'@'localhost';
+GRANT ALL ON *.* to 'test'@'%';
 
 FLUSH PRIVILEGES;
 
