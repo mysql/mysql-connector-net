@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -29,6 +29,8 @@ using System.Diagnostics;
 using System.Resources;
 using Xunit;
 using System.Linq;
+using System.Reflection;
+using System.IO;
 #if EF6
 using System.Data.Entity.Core.EntityClient;
 using System.Data.Entity.Core.Objects;
@@ -58,23 +60,28 @@ namespace MySql.Data.Entity.Tests
       Trace.Listeners.Clear();
       Trace.Listeners.Add(this.asertFailListener);
 
-      ResourceManager r = new ResourceManager("MySql.Data.Entity.Tests.Properties.Resources", typeof(SetUpEntityTests).Assembly);
-      string schema = r.GetString("schema");
-      MySqlScript script = new MySqlScript(conn);
-      script.Query = schema;
+      Assembly executingAssembly = Assembly.GetExecutingAssembly();
+      Stream stream = executingAssembly.GetManifestResourceStream("MySql.Data.Entity.Tests.Properties.schema.sql");
+      StreamReader sr = new StreamReader(stream);
+      string sql = sr.ReadToEnd();
+      sr.Close();
+      MySqlScript script = new MySqlScript(conn,sql);
       script.Execute();
 
       // now create our procs
-      schema = r.GetString("procs");
-      script = new MySqlScript(conn);
+      stream = executingAssembly.GetManifestResourceStream("MySql.Data.Entity.Tests.Properties.procs.sql");
+      sr = new StreamReader(stream);
+      sql = sr.ReadToEnd();
+      sr.Close();
+      script = new MySqlScript(conn, sql);
       script.Delimiter = "$$";
-      script.Query = schema;
       script.Execute();
 
       //ModelFirstModel1
-      schema = r.GetString("ModelFirstModel1");
+      sql = File.ReadAllText(@"..\..\..\ModelFirstModel1.edmx.sql");
+      //stream = executingAssembly.GetManifestResourceStream("MySql.Data.Entity.Tests.ModelFirstModel1.edmx.sql");
       script = new MySqlScript(conn);
-      script.Query = schema;
+      script.Query = sql;
       script.Execute();
 
       MySqlCommand cmd = new MySqlCommand("DROP DATABASE IF EXISTS `modeldb`", rootConn);

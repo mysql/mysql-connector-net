@@ -1,6 +1,6 @@
 ﻿DROP DATABASE IF EXISTS `[database0]`; CREATE DATABASE `[database0]`;
-CREATE USER 'test'@'localhost' IDENTIFIED BY 'test';
-CREATE USER 'test'@'%' IDENTIFIED BY 'test';
+CREATE USER 'test'@'localhost' IDENTIFIED WITH mysql_native_password BY 'test';
+CREATE USER 'test'@'%' IDENTIFIED WITH mysql_native_password BY 'test';
 
 DROP DATABASE IF EXISTS `[database1]`; CREATE DATABASE `[database1]`;
 

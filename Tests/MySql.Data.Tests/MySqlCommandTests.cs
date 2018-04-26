@@ -67,7 +67,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
       else
         st.ExecuteSQLAsRoot(string.Format("DROP USER IF EXISTS '{0}'@'localhost'", userName));
-      st.ExecuteSQLAsRoot(string.Format("CREATE USER '{0}'@'localhost' IDENTIFIED BY '{1}'", userName, password));
+      st.ExecuteSQLAsRoot(string.Format("CREATE USER '{0}'@'localhost' IDENTIFIED WITH mysql_native_password BY '{1}'", userName, password));
       st.ExecuteSQLAsRoot(string.Format("GRANT ALL ON *.* TO '{0}'@'localhost'", userName));
       st.ExecuteSQLAsRoot("FLUSH PRIVILEGES");
       st.ExecuteSQLAsRoot(string.Format("GRANT EXECUTE ON FUNCTION `{0}`.`MyTwice` TO '{1}'@'localhost';", st.conn.Database, userName));
