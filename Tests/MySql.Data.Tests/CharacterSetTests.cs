@@ -648,7 +648,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact]
+    [Fact(Skip ="Fix for 8.0.11")]
     public void ExtendedCharsetOnConnection()
     {
       MySqlConnectionStringBuilder rootSb = new MySqlConnectionStringBuilder(_fixture.rootConn.ConnectionString);
