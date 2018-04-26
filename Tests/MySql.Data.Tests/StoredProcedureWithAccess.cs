@@ -57,7 +57,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       _fixture.execSQL("CREATE PROCEDURE spTest() BEGIN SELECT 1; END");
       _fixture.execSQL("CREATE PROCEDURE spTest2() BEGIN SELECT 1; END");
-      _fixture.suExecSQL(String.Format("GRANT USAGE ON `{0}`.* TO 'abc'@'%' IDENTIFIED BY 'abc'", _fixture.database0));
+      _fixture.suExecSQL(String.Format("CREATE USER 'abc'@'%' IDENTIFIED BY 'abc'; GRANT USAGE ON `{0}`.* TO 'abc'@'%'", _fixture.database0));
 
       try
       {

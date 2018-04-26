@@ -395,10 +395,21 @@ namespace MySql.Data.MySqlClient.Tests
       try
       {
         _fixture.suExecSQL(String.Format("CREATE DATABASE `{0}`", dbName));
-        _fixture.suExecSQL(String.Format("GRANT ALL ON `{0}`.* to 'test'@'localhost' identified by 'test'",
-          dbName));
-        _fixture.suExecSQL(String.Format("GRANT ALL ON `{0}`.* to 'test'@'%' identified by 'test'",
-          dbName));
+
+        if (_fixture.conn.driver.Version.isAtLeast(5, 7, 0))
+        {
+          _fixture.suExecSQL(String.Format("GRANT ALL ON `{0}`.* to 'test'@'localhost'",
+dbName));
+          _fixture.suExecSQL(String.Format("GRANT ALL ON `{0}`.* to 'test'@'%'",
+            dbName));
+        }
+        else
+        {
+          _fixture.suExecSQL(String.Format("GRANT ALL ON `{0}`.* to 'test'@'localhost' identified by 'test'",
+dbName));
+          _fixture.suExecSQL(String.Format("GRANT ALL ON `{0}`.* to 'test'@'%' identified by 'test'",
+            dbName));
+        }
         _fixture.suExecSQL("FLUSH PRIVILEGES");
 
         string connStr = _fixture.GetConnectionString(false) + ";database=" + dbName;

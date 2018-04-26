@@ -652,8 +652,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ConnectWithQuotePassword()
     {
-      _fixture.suExecSQL("GRANT ALL ON *.* to 'quotedUser'@'%' IDENTIFIED BY '\"'");
-      _fixture.suExecSQL("GRANT ALL ON *.* to 'quotedUser'@'localhost' IDENTIFIED BY '\"'");
+      _fixture.suExecSQL("CREATE USER 'quotedUser'@'%' IDENTIFIED BY '\"'; GRANT ALL ON *.* to 'quotedUser'@'%'");
+      _fixture.suExecSQL("CREATE USER 'quotedUser'@'localhost' IDENTIFIED BY '\"'; GRANT ALL ON *.* to 'quotedUser'@'%'");
       string connStr = _fixture.GetConnectionString("quotedUser", null, false);
       connStr += ";pwd='\"'";
       using (MySqlConnection c = new MySqlConnection(connStr))
@@ -946,7 +946,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void CanAuthenticateUsingOldPasswords()
     {
-      _fixture.suExecSQL(String.Format("GRANT USAGE ON `{0}`.* TO 'oldpassworduser'@'%' IDENTIFIED BY '123456'", _fixture.database0));
+      _fixture.suExecSQL(String.Format("CREATE USER 'oldpassworduser'@'%' IDENTIFIED BY '123456';GRANT USAGE ON `{0}`.* TO 'oldpassworduser'@'%'", _fixture.database0));
       _fixture.suExecSQL(String.Format("GRANT SELECT ON `{0}`.* TO 'oldpassworduser'@'%'", _fixture.database0));
 
       MySqlConnection connection = null;
