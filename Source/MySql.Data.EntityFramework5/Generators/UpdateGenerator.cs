@@ -80,14 +80,48 @@ namespace MySql.Data.Entity
     {
       SelectStatement select = base.GenerateReturningSql(tree, returning);
       ListFragment where = new ListFragment();
-      where.Append(" row_count() > 0 and ");
+      where.Append(" row_count() = 1 and (");
       where.Append( ((DbUpdateCommandTree)tree).Predicate.Accept(this) );
+      where.Append(")");
       select.Where = where;
 
       return select;
     }
 
     private Stack<EdmMember> _columnsVisited = new Stack<EdmMember>();
+
+    public override SqlFragment Visit(DbAndExpression expression)
+    {
+      if (_onReturningSelect)
+      {
+        if (IsExcludedCondition(expression.Left))
+        {
+          return expression.Right.Accept(this);
+        }
+
+        if (IsExcludedCondition(expression.Right))
+        {
+          return expression.Left.Accept(this);
+        }
+      }
+
+      return base.Visit(expression);
+    }
+
+    private bool IsExcludedCondition(DbExpression e)
+    {
+      var expr = e as DbComparisonExpression;
+      if (expr == null) return false;
+      var propExpr = expr.Left as DbPropertyExpression;
+      if (propExpr == null) return false;
+      
+      Facet item = null;
+      if (propExpr.Property.TypeUsage.Facets.TryGetValue("StoreGeneratedPattern", false, out item))
+      {
+        return (StoreGeneratedPattern)item.Value == StoreGeneratedPattern.Computed;
+      }
+      return false;
+    }
 
     protected override SqlFragment VisitBinaryExpression(DbExpression left, DbExpression right, string op)
     {

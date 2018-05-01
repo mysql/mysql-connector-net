@@ -129,7 +129,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     /// Fix for "Connector/Net Generates Incorrect SELECT Clause after UPDATE" (MySql bug #62134, Oracle bug #13491689).
     /// </summary>
     [Fact]
-    public void ConcurrencyCheck()
+    public void ConcurrencyCheckWithNonDbGeneratedColumn()
     {
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
@@ -176,11 +176,93 @@ namespace MySql.Data.Entity.CodeFirst.Tests
           Match m = rx.Match(s);
           if (m.Success)
           {
-            st.CheckSql(m.Groups["item"].Value, SQLSyntax.UpdateWithSelect);
+            st.CheckSql(m.Groups["item"].Value, SQLSyntax.UpdateWithSelectWithNonDbGeneratedLock);
             //Assert.Pass();
           }
         }
         //Assert.Fail();
+      }
+    }
+
+    /// <summary>
+    /// Fix for "Incorrect Sql generated for EF with ConcurrencyCheck and DatabaseGenerated" (MySql bug #73271).
+    /// Database generated optimistic locking is required to support locking with external (non-EF) systems.
+    /// </summary>
+    [Fact]
+    public void ConcurrencyCheckWithDbGeneratedColumn()
+    {
+#if DEBUG
+      Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
+#endif
+      ReInitDb();
+      using (MovieDBContext db = new MovieDBContext())
+      {
+        db.Database.Delete();
+        db.Database.CreateIfNotExists();
+#if EF6
+        db.Database.Log = (e) => Debug.WriteLine(e);
+#endif
+        db.Database.ExecuteSqlCommand(@"DROP TABLE IF EXISTS `MovieReleases2`");
+
+        db.Database.ExecuteSqlCommand(
+          @"CREATE TABLE IF NOT EXISTS `MovieRelease2` (
+          `Id` int(11) NOT NULL,
+          `Name` varchar(45) NOT NULL,
+          `Timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+          `RowVersion` bigint NOT NULL DEFAULT 0,
+          PRIMARY KEY (`Id`)
+          ) ENGINE=InnoDB DEFAULT CHARSET=binary");
+
+        db.Database.ExecuteSqlCommand(
+          @"CREATE TRIGGER `trg_MovieRelease2_before_update` 
+          BEFORE UPDATE ON `MovieRelease2`
+          FOR EACH ROW SET NEW.RowVersion = OLD.RowVersion + 1;");
+
+        MySqlTrace.Listeners.Clear();
+        MySqlTrace.Switch.Level = SourceLevels.All;
+        GenericListener listener = new GenericListener();
+        MySqlTrace.Listeners.Add(listener);
+              
+        try
+        {
+          MovieRelease2 mr = db.MovieReleases2.Create();
+          mr.Id = 1;
+          mr.Name = "Commercial";
+          db.MovieReleases2.Add(mr);
+          Assert.Equal(mr.RowVersion, 0);
+          db.SaveChanges(); // ADD
+          Assert.Equal(mr.RowVersion, 0);
+              
+          mr.Name = "Director's Cut";
+          db.SaveChanges(); // UPDATE #1
+          Assert.Equal(mr.RowVersion, 1);
+
+          mr.Name = "Avengers";
+          db.SaveChanges(); // UPDATE #2
+          Assert.Equal(mr.RowVersion, 2);
+        }
+        finally
+        {
+            db.Database.ExecuteSqlCommand(@"DROP TABLE IF EXISTS `MovieReleases2`");
+        }
+        // Check sql        
+        Regex rx = new Regex(@"Query Opened: (?<item>UPDATE .*)", RegexOptions.Compiled | RegexOptions.Singleline);
+        int n = 0;
+        foreach (string s in listener.Strings)
+        {
+          Match m = rx.Match(s);
+          if (m.Success)
+          {
+            if (n++ == 0)
+            {
+              st.CheckSql(m.Groups["item"].Value, SQLSyntax.UpdateWithSelectWithDbGeneratedLock1);
+            }
+            else
+            {
+              st.CheckSql(m.Groups["item"].Value, SQLSyntax.UpdateWithSelectWithDbGeneratedLock2);
+            }
+          }
+        }
       }
     }
 
