@@ -1,4 +1,4 @@
-// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -46,6 +46,7 @@ namespace MySqlX.Data.Tests
     public static string ConnectionStringUri { get; private set; }
     public static string ConnectionStringNoPassword { get; private set; }
     public static string ConnectionStringRoot { get; private set; }
+    public static string ConnectionStringUriNative { get; private set; }
 
     static BaseTest()
     {
@@ -56,6 +57,7 @@ namespace MySqlX.Data.Tests
       ConnectionString = $"server=localhost;port={XPort};uid=test;password=test";
       ConnectionStringNoPassword = $"server=localhost;port={XPort};uid=testNoPass;";
       ConnectionStringUri = $"mysqlx://test:test@localhost:{XPort}";
+      ConnectionStringUriNative = $"mysqlx://testNative:test@localhost:{XPort}";
     }
 
     protected static string Port
