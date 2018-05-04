@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2018 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -33,7 +33,7 @@ namespace MySql.Data.MySqlClient.Tests
 
     public ParameterTests(TestFixture fixture) : base(fixture)
     {
-    }    
+    }
 
     [Fact]
     public void TestQuoting()
@@ -80,7 +80,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
       catch (Exception ex)
       {
-        Assert.False(ex.Message == String.Empty, ex.Message);        
+        Assert.False(ex.Message == String.Empty, ex.Message);
       }
       finally
       {
@@ -88,7 +88,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact(Skip="Fix This")]
+    [Fact(Skip = "Fix This")]
     public void TestDateTimeParameter()
     {
       executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME, ts TIMESTAMP, PRIMARY KEY(id))");
@@ -578,14 +578,39 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #66060  #14499549  "Parameter '?' must be defined" error, when using unnamed parameters
     /// </summary>
-    [Fact]   
+    [Fact]
     public void CanThrowAnExceptionWhenMixingParameterNaming()
     {
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id,name) VALUES (?Id, ?name, ?)", Connection);
       cmd.Parameters.AddWithValue("?Id", 1);
       cmd.Parameters.AddWithValue("?name", "test");
-      Exception ex = Assert.Throws<MySqlException>(() =>cmd.ExecuteNonQuery());
+      Exception ex = Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());
       Assert.Equal(ex.Message, "Fatal error encountered during command execution.");
+    }
+
+    /// <summary>
+    /// Bug #22101727 CONNECTOR MODIFIES RESULT TYPE AFTER PARENT TINYINT VALUE IS NULL
+    /// </summary>
+    [Fact]
+    public void TreatTinyAsBooleanWhenNull()
+    {
+      executeSQL("CREATE TABLE testbool (id INT (10) UNSIGNED NOT NULL AUTO_INCREMENT, testcol TINYINT(1) DEFAULT NULL, PRIMARY KEY(id))");
+      executeSQL("INSERT INTO testbool(testcol) VALUES(0),(1),(1),(NULL),(0),(0),(1)");
+
+      using (var conn = new MySqlConnection(ConnectionSettings.ConnectionString))
+      {
+        conn.Open();
+        MySqlCommand cmd = conn.CreateCommand();
+        cmd.CommandText = "SELECT * FROM testbool";
+        using (MySqlDataReader reader = cmd.ExecuteReader())
+        {
+          while (reader.Read())
+          {
+            if (!(reader["testcol"] is DBNull))
+              Assert.True(reader["testcol"] is bool);
+          }
+        }
+      }
     }
   }
 }

@@ -1,3 +1,7 @@
+6.10.8
+- Fix to correct wrong result type returned by MySqlDataReader after null found (MySQL Bug #78917, Oracle Bug #22101727).
+
+
 6.10.7
 - Updated the RSA key encryption padding to RSA_PKCS1_OAEP_PADDING for the caching_sha2_password authentication plugin when connecting to server 8.0.5 (or later) (WL11618).
 - Added support for the caching_sha2_password authentication plugin introduced in server 8.0.3.
