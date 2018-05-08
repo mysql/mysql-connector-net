@@ -1,4 +1,4 @@
-// Copyright © 2004, 2017 Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -26,6 +26,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using MySql.Data.Common;
 using MySql.Data.Types;
+using System.Security;
 
 namespace MySql.Data.MySqlClient
 {
@@ -72,12 +73,16 @@ namespace MySql.Data.MySqlClient
 
     #endregion
 
+    [SecuritySafeCritical]
     public MySqlField(Driver driver)
     {
       this.driver = driver;
       connVersion = driver.Version;
       MaxLength = 1;
       binaryOk = true;
+#if !NET452
+      Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+#endif
     }
 
     #region Properties

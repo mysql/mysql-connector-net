@@ -1,3 +1,7 @@
+6.10.8
+- Contribution added: Fixing encoding (MySQL Bug #90316, Oracle Bug #27818822). Thanks to Kleber Syd Moraes da Silva for the contribution.
+
+
 6.10.7
 - Updated the RSA key encryption padding to RSA_PKCS1_OAEP_PADDING for the caching_sha2_password authentication plugin when connecting to server 8.0.5 (or later) (WL11618).
 - Added support for the caching_sha2_password authentication plugin introduced in server 8.0.3.
