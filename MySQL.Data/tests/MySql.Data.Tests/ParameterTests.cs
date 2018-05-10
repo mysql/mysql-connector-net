@@ -1,4 +1,4 @@
-// Copyright © 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -592,6 +592,85 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.AddWithValue("?name", "test");
       Exception ex = Assert.Throws<MySqlException>(() =>cmd.ExecuteNonQuery());
       Assert.Equal(ex.Message, "Fatal error encountered during command execution.");
+    }
+
+    /// <summary>
+    /// Bug #22101727 CONNECTOR MODIFIES RESULT TYPE AFTER PARENT TINYINT VALUE IS NULL
+    /// </summary>
+    [Fact]
+    public void TreatTinyAsBooleanWhenNull()
+    {
+      executeSQL("CREATE TABLE testbool (id INT (10) UNSIGNED NOT NULL AUTO_INCREMENT, testcol TINYINT(1) DEFAULT NULL, PRIMARY KEY(id))");
+      executeSQL("INSERT INTO testbool(testcol) VALUES(0),(1),(1),(NULL),(0),(0),(1)");
+
+      using (var conn = new MySqlConnection(ConnectionSettings.ConnectionString))
+      {
+        conn.Open();
+        MySqlCommand cmd = conn.CreateCommand();
+        cmd.CommandText = "SELECT * FROM testbool";
+        using (MySqlDataReader reader = cmd.ExecuteReader())
+        {
+          while (reader.Read())
+          {
+            if (!(reader["testcol"] is DBNull))
+              Assert.True(reader["testcol"] is bool);
+  }
+}
+      }
+    }
+
+    /// <summary>
+    /// Bug #27113566 MYSQLCOMMAND.PREPARE STOPS TINYINT(1) FROM BEING TREATED AS A .NET BOOL
+    /// </summary>
+    [Fact]
+    public void TreatTinyAsBooleanWhenCallingPrepare()
+    {
+      executeSQL("CREATE TABLE `mysql_bug_test` (`test_key` varchar(10) NOT NULL, `test_val` tinyint(1) NOT NULL, PRIMARY KEY(`test_key`)) ENGINE = InnoDB DEFAULT CHARSET = utf8; ");
+      executeSQL("LOCK TABLES `mysql_bug_test` WRITE;");
+      executeSQL("INSERT INTO `mysql_bug_test` VALUES ('mykey',0);");
+      executeSQL("UNLOCK TABLES;");
+
+      var builder = new MySqlConnectionStringBuilder(ConnectionSettings.ConnectionString);
+      builder.IgnorePrepare = false;
+      builder.CharacterSet = "utf8";
+      builder.UseCompression = true;
+      builder.TreatTinyAsBoolean = false;
+
+      using (var connection = new MySqlConnection(builder.ConnectionString))
+      {
+        connection.Open();
+        using (var cmd = new MySqlCommand("SELECT * FROM mysql_bug_test WHERE test_key = @TestKey", connection))
+        {
+          cmd.Parameters.AddWithValue("@TestKey", "mykey").MySqlDbType = MySqlDbType.VarChar;
+          cmd.Prepare();
+          using (var reader = cmd.ExecuteReader(CommandBehavior.SingleRow))
+          {
+            reader.Read();
+            Assert.False(reader["test_val"] is bool);
+          }
+        }
+
+        connection.Close();
+      }
+
+      builder.TreatTinyAsBoolean = true;
+
+      using (var connection = new MySqlConnection(builder.ConnectionString))
+      {
+        connection.Open();
+        using (var cmd = new MySqlCommand("SELECT * FROM mysql_bug_test WHERE test_key = @TestKey", connection))
+        {
+          cmd.Parameters.AddWithValue("@TestKey", "mykey").MySqlDbType = MySqlDbType.VarChar;
+          cmd.Prepare();
+          using (var reader = cmd.ExecuteReader(CommandBehavior.SingleRow))
+          {
+            reader.Read();
+            Assert.True(reader["test_val"] is bool);
+          }
+        }
+
+        connection.Close();
+      }
     }
   }
 }
