@@ -1,4 +1,6 @@
 6.10.8
+- Fixed a bug that prevented the TreatTinyAsBoolean connection option from being set when calling the
+  MySqlCommand.Prepare method (MySQL Bug #88472, Oracle Bug #27113566).
 - Fix to correct wrong result type returned by MySqlDataReader after null found (MySQL Bug #78917, Oracle Bug #22101727).
 - Contribution added: Fixing encoding (MySQL Bug #90316, Oracle Bug #27818822). Thanks to Kleber Syd Moraes da Silva for the contribution.
 

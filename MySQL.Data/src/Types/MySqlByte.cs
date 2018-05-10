@@ -78,11 +78,15 @@ namespace MySql.Data.Types
       if (nullVal)
         return new MySqlByte(true) { TreatAsBoolean = TreatAsBoolean };
 
+      MySqlByte b;
       if (length == -1)
-        return new MySqlByte((sbyte)packet.ReadByte());
-
-      string s = packet.ReadString(length);
-      MySqlByte b = new MySqlByte(SByte.Parse(s, NumberStyles.Any, CultureInfo.InvariantCulture));
+        b = new MySqlByte((sbyte)packet.ReadByte());
+      else
+      {
+        string s = packet.ReadString(length);
+        b = new MySqlByte(SByte.Parse(s, NumberStyles.Any, CultureInfo.InvariantCulture));  
+      }
+      
       b.TreatAsBoolean = TreatAsBoolean;
       return b;
     }

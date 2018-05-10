@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2018 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -610,6 +610,60 @@ namespace MySql.Data.MySqlClient.Tests
               Assert.True(reader["testcol"] is bool);
           }
         }
+      }
+    }
+
+    /// <summary>
+    /// Bug #27113566 MYSQLCOMMAND.PREPARE STOPS TINYINT(1) FROM BEING TREATED AS A .NET BOOL
+    /// </summary>
+    [Fact]
+    public void TreatTinyAsBooleanWhenCallingPrepare()
+    {
+      executeSQL("CREATE TABLE `mysql_bug_test` (`test_key` varchar(10) NOT NULL, `test_val` tinyint(1) NOT NULL, PRIMARY KEY(`test_key`)) ENGINE = InnoDB DEFAULT CHARSET = utf8; ");
+      executeSQL("LOCK TABLES `mysql_bug_test` WRITE;");
+      executeSQL("INSERT INTO `mysql_bug_test` VALUES ('mykey',0);");
+      executeSQL("UNLOCK TABLES;");
+
+      var builder = new MySqlConnectionStringBuilder(ConnectionSettings.ConnectionString);
+      builder.IgnorePrepare = false;
+      builder.CharacterSet = "utf8";
+      builder.UseCompression = true;
+      builder.TreatTinyAsBoolean = false;
+
+      using (var connection = new MySqlConnection(builder.ConnectionString))
+      {
+        connection.Open();
+        using (var cmd = new MySqlCommand("SELECT * FROM mysql_bug_test WHERE test_key = @TestKey", connection))
+        {
+          cmd.Parameters.AddWithValue("@TestKey", "mykey").MySqlDbType = MySqlDbType.VarChar;
+          cmd.Prepare();
+          using (var reader = cmd.ExecuteReader(CommandBehavior.SingleRow))
+          {
+            reader.Read();
+            Assert.False(reader["test_val"] is bool);
+          }
+        }
+
+        connection.Close();
+      }
+
+      builder.TreatTinyAsBoolean = true;
+
+      using (var connection = new MySqlConnection(builder.ConnectionString))
+      {
+        connection.Open();
+        using (var cmd = new MySqlCommand("SELECT * FROM mysql_bug_test WHERE test_key = @TestKey", connection))
+        {
+          cmd.Parameters.AddWithValue("@TestKey", "mykey").MySqlDbType = MySqlDbType.VarChar;
+          cmd.Prepare();
+          using (var reader = cmd.ExecuteReader(CommandBehavior.SingleRow))
+          {
+            reader.Read();
+            Assert.True(reader["test_val"] is bool);
+          }
+        }
+
+        connection.Close();
       }
     }
   }
