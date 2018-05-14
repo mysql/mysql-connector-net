@@ -111,8 +111,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Encoding()
     {
-      executeSQL("CREATE TABLE test (id int, name VARCHAR(200))");
-      executeSQL("INSERT INTO test VALUES(1, 'äâáàç')");
+      executeSQL("CREATE TABLE Test (id int, name VARCHAR(200))");
+      executeSQL("INSERT INTO Test VALUES(1, 'äâáàç')");
 
       using (var conn = new MySqlConnection(Connection.ConnectionString))
       {
