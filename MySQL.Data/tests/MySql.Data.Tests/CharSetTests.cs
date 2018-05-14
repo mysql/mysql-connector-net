@@ -111,24 +111,19 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Encoding()
     {
-      executeSQL("CREATE TABLE test (id int, name VARCHAR(200) CHAR SET latin1)");
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1, 'äâáàç')", Connection);
-      cmd.ExecuteNonQuery();
+      executeSQL("CREATE TABLE test (id int, name VARCHAR(200))");
+      executeSQL("INSERT INTO test VALUES(1, 'äâáàç')");
 
       using (var conn = new MySqlConnection(Connection.ConnectionString))
       {
         conn.Open();
 
-        using (var command = conn.CreateCommand())
+        MySqlCommand cmd = new MySqlCommand("SELECT name FROM Test", conn);
+
+        using (MySqlDataReader reader = cmd.ExecuteReader())
         {
-          command.CommandText = "SELECT name FROM Test";
-          var reader = command.ExecuteReader();
-          while (reader.Read())
-          {
-            var a = reader.GetString(0);
-            Assert.Equal("äâáàç", a);
-          }
-          reader.Close();
+          reader.Read();
+          Assert.Equal("äâáàç", reader.GetString(0));
         }
       }
     }
@@ -137,7 +132,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void RespectBinaryFlags()
     {
-      if (Connection.driver.Version.isAtLeast(5,5,0)) return;
+      if (Connection.driver.Version.isAtLeast(5, 5, 0)) return;
 
       string connStr = Connection.ConnectionString + ";respect binary flags=true";
       using (MySqlConnection c = new MySqlConnection(connStr))
@@ -291,7 +286,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// (Oracle bug #21098546).
     /// Disabled due to intermittent failure. Documented under Oracle bug #27010958
     /// </summary>
-    [Fact (Skip="Fix this")]
+    [Fact(Skip = "Fix this")]
     public void CanInsertChineseCharacterSetGB18030()
     {
       if (Fixture.Version < new Version(5, 7, 4)) return;
@@ -322,7 +317,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// (Oracle bug #21098546).
     /// Disabled due to intermittent failure. Documented under Oracle bug #27010958
     /// </summary>
-    [Fact (Skip = "Fix this")]
+    [Fact(Skip = "Fix this")]
     public void CanCreateDbUsingChineseCharacterSetGB18030()
     {
       if (Fixture.Version < new Version(5, 7, 4)) return;
@@ -398,7 +393,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.ExecuteScalar();
     }
 
-    [Fact (Skip = "Fix for 8.0.5")]
+    [Fact(Skip = "Fix for 8.0.5")]
     public void ExtendedCharsetOnConnection()
     {
       MySqlConnectionStringBuilder rootSb = new MySqlConnectionStringBuilder(Root.ConnectionString);
@@ -451,7 +446,7 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlDataReader reader = cmd.ExecuteReader();
         reader.Read();
 
-        if (Connection.driver.Version.isAtLeast(8,0,1))
+        if (Connection.driver.Version.isAtLeast(8, 0, 1))
           Assert.Equal("utf8mb4", reader.GetString("Value"));
         else
           Assert.Equal("latin1", reader.GetString("Value"));
