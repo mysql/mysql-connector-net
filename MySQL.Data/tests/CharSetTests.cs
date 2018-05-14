@@ -105,24 +105,19 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Encoding()
     {
-      executeSQL("CREATE TABLE test (id int, name VARCHAR(200) CHAR SET latin1)");
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1, 'äâáàç')", Connection);
-      cmd.ExecuteNonQuery();
+      executeSQL("CREATE TABLE Test (id int, name VARCHAR(200))");
+      executeSQL("INSERT INTO Test VALUES(1, 'äâáàç')");
 
       using (var conn = new MySqlConnection(Connection.ConnectionString))
       {
         conn.Open();
 
-        using (var command = conn.CreateCommand())
+        MySqlCommand cmd = new MySqlCommand("SELECT name FROM Test", conn);
+
+        using (MySqlDataReader reader = cmd.ExecuteReader())
         {
-          command.CommandText = "SELECT name FROM Test";
-          var reader = command.ExecuteReader();
-          while (reader.Read())
-          {
-            var a = reader.GetString(0);
-            Assert.Equal("äâáàç", a);
-          }
-          reader.Close();
+          reader.Read();
+          Assert.Equal("äâáàç", reader.GetString(0));
         }
       }
     }
