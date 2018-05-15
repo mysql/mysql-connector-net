@@ -1,4 +1,4 @@
-// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -47,6 +47,14 @@ namespace MySqlX.XDevAPI.Common
     internal bool _hasData;
     internal bool _hasMoreResults = false;
     internal List<string> _documentIds = new List<string>();
+
+    /// <summary>
+    /// Gets the number of records affected by the statement that generated this result.
+    /// </summary>
+    public UInt64 AffectedItemsCount
+    {
+      get { return _affectedItemsCount; }
+    }
 
     internal BaseResult(InternalSession session)
     {

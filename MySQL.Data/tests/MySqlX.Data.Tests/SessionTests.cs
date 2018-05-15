@@ -514,5 +514,23 @@ namespace MySqlX.Data.Tests
         Assert.Equal(MySqlAuthenticationMode.SHA256_MEMORY, session.Settings.Auth);
       }
     }
+
+    [Fact]
+    public void GetUri()
+    {
+      var connectionUri = session.Uri;
+      using (var internalSession = MySQLX.GetSession(connectionUri))
+      {
+        // Validate that all properties keep their original value.
+        foreach (var connectionOption in session.Settings.values)
+        {
+          // SslCrl connection option is skipped since it isn't currently supported.
+          if (connectionOption.Key == "sslcrl")
+            continue;
+
+          Assert.Equal(session.Settings[connectionOption.Key], internalSession.Settings[connectionOption.Key]);
+        }
+      }
+    }
   }
 }

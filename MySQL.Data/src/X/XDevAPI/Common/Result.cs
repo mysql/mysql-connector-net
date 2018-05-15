@@ -56,14 +56,6 @@ namespace MySqlX.XDevAPI.Common
     }
 
     /// <summary>
-    /// Gets the number of records affected by the statement that generated this result.
-    /// </summary>
-    public UInt64 AffectedItemsCount
-    {
-      get { return _affectedItemsCount; }
-    }
-
-    /// <summary>
     /// Gets the last inserted identifier (if there is one) by the statement that generated this result.
     /// </summary>
     public UInt64 AutoIncrementValue
