@@ -334,8 +334,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !(NETCOREAPP2_0 && DEBUG)
-    [Fact]
+    [Fact(Skip ="dotnet core seems to keep objects alive")] // reference https://github.com/dotnet/coreclr/issues/13490
     public void ConnectionCloseByGC()
     {
       int threadId;
@@ -347,14 +346,17 @@ namespace MySql.Data.MySqlClient.Tests
       c.StateChange += new StateChangeEventHandler(check.stateChangeHandler);
       c.Open();
       threadId = c.ServerThread;
+      WeakReference wr = new WeakReference(c);
+      Assert.True(wr.IsAlive);
       c = null;
       GC.Collect();
       GC.WaitForPendingFinalizers();
-      GC.Collect();
-      GC.WaitForPendingFinalizers();
+      Assert.False(wr.IsAlive);
       Assert.True(check.closed);
+
+      MySqlCommand cmd = new MySqlCommand("KILL " + threadId, Connection);
+      cmd.ExecuteNonQuery();
     }
-#endif
 
     //    /// <summary>
     //    /// Bug #30964 StateChange imperfection 
