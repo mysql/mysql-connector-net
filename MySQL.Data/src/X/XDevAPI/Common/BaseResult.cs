@@ -101,7 +101,16 @@ namespace MySqlX.XDevAPI.Common
     /// <summary>
     /// Gets the number of warnings in the <see cref="Warnings"/> collection derived from statement execution.
     /// </summary>
+    [Obsolete("WarningCount has been deprecated. Use WarningsCount instead.")]
     public Int32 WarningCount
+    {
+      get { return _warnings.Count; }
+    }
+
+    /// <summary>
+    /// Gets the number of warnings in the <see cref="Warnings"/> collection derived from statement execution.
+    /// </summary>
+    public Int32 WarningsCount
     {
       get { return _warnings.Count; }
     }
