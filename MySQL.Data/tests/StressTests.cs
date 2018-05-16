@@ -91,6 +91,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void TestSequence()
     {
+      executeSQL("SET GLOBAL innodb_lru_scan_depth=256");
       executeSQL(@"CREATE TABLE Test (id INT NOT NULL, name varchar(100), blob1 LONGBLOB, text1 TEXT, 
                   PRIMARY KEY(id))");
       MySqlCommand cmd = new MySqlCommand("insert into Test (id, name) values (?id, 'test')", Connection);
