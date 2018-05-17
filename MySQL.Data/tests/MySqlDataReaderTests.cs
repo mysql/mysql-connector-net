@@ -23,6 +23,7 @@
 using System;
 using Xunit;
 using System.Data;
+using MySql.Data.Common;
 #if !NETCOREAPP1_1
 using System.Data.SqlTypes;
 #endif
@@ -596,6 +597,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void GetStringOnNull()
     {
+      // TODO enable this test when xunit Nuget package is fixed
+      // Reference: https://github.com/xunit/xunit/issues/1585
+      if (Platform.IsMacOSX()) return;
+
       executeSQL("CREATE TABLE Test (id int, PRIMARY KEY(id))");
       MySqlCommand cmd = new MySqlCommand(
       String.Format("SHOW INDEX FROM Test FROM `{0}`", Connection.Database), Connection);
