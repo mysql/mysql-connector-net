@@ -58,9 +58,10 @@ namespace MySql.Data.Common
     public static bool IsMacOSX()
     {
 #if NET452
-      return Environment.OSVersion.Platform == PlatformID.MacOSX
-#endif
+      return Environment.OSVersion.Platform == PlatformID.MacOSX;
+#else
       return RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+#endif
     }
 
 
