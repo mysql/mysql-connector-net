@@ -1,4 +1,4 @@
-// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -387,10 +387,10 @@ namespace MySql.Data.MySqlClient.Tests
         //      }
         //    }
 
-        /// <summary>
-        /// Bug #31262 NullReferenceException in MySql.Data.MySqlClient.NativeDriver.ExecuteCommand 
-        /// </summary>
-        [Fact]
+    /// <summary>
+    /// Bug #31262 NullReferenceException in MySql.Data.MySqlClient.NativeDriver.ExecuteCommand
+    /// </summary>
+    [Fact]
     public void ConnectionNotOpenThrowningBadException()
     {
       var c2 = new MySqlConnection(Connection.ConnectionString);

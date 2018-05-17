@@ -1,4 +1,6 @@
 8.0.12
+- MySqlX: Created the MySqlXConnectionStringBuilder class to handle X Protocol/X DevAPI specific connection options.
+  X Protocol/X DevAPI connection options have been removed from the MySqlConnectionStringBuilder class (WL11846).
 - MySqlX: Added the ColumnCount and ColumnNames properties to SqlResult and RowResult objects (Oracle Bug #27732175).
 - MySqlX: The RecordsAffected property available in Result objects has been deprecated and replaced with the
   AffectedItemsCount property. The WarningCount property has been added to Result objects (Oracle Bug #27732235).

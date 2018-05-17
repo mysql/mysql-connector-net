@@ -1,4 +1,4 @@
-// Copyright © 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,6 +29,7 @@
 using MySql.Data;
 using MySql.Data.MySqlClient;
 using MySqlX.Sessions;
+using MySqlX.XDevAPI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -88,14 +89,14 @@ namespace MySqlX.Failover
 
       XServer currentHost = FailoverGroup.ActiveHost;
       string initialHost = currentHost.Host;
-      MySqlConnectionStringBuilder Settings = null;
+      MySqlXConnectionStringBuilder Settings = null;
       InternalSession internalSession = null;
 
       do
       {
         // Attempt to connect to each host by retrieving the next host based on the failover method being used.
         connectionString = "server=" + currentHost.Host +";" + originalConnectionString.Substring(originalConnectionString.IndexOf(';')+1);
-        Settings = new MySqlConnectionStringBuilder(connectionString);
+        Settings = new MySqlXConnectionStringBuilder(connectionString);
         if (currentHost != null && currentHost.Port!=-1)
           Settings.Port = (uint) currentHost.Port;
 

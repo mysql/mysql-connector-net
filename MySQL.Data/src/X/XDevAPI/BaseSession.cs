@@ -1,4 +1,4 @@
-// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -57,7 +57,7 @@ namespace MySqlX.XDevAPI
     /// <summary>
     /// Gets the connection settings for this session.
     /// </summary>
-    public MySqlConnectionStringBuilder Settings { get; private set; }
+    public MySqlXConnectionStringBuilder Settings { get; private set; }
 
     /// <summary>
     /// Gets or sets the currently active schema.
@@ -128,12 +128,12 @@ namespace MySqlX.XDevAPI
       {
         // Multiple hosts were specified.
         _internalSession = FailoverManager.AttemptConnection(this.connectionString, out this.connectionString);
-        Settings = new MySqlConnectionStringBuilder(this.connectionString);
+        Settings = new MySqlXConnectionStringBuilder(this.connectionString);
       }
       else
       {
         // A single host was specified.
-        Settings = new MySqlConnectionStringBuilder(this.connectionString);
+        Settings = new MySqlXConnectionStringBuilder(this.connectionString);
         _internalSession = InternalSession.GetSession(Settings);
       }
 
@@ -161,7 +161,7 @@ namespace MySqlX.XDevAPI
       var values = Tools.GetDictionaryFromAnonymous(connectionData);
       if (!values.Keys.Any(s => s.ToLowerInvariant() == "port"))
         values.Add("port", newDefaultPort);
-      Settings = new MySqlConnectionStringBuilder();
+      Settings = new MySqlXConnectionStringBuilder();
       bool hostsParsed = false;
       foreach (var value in values)
       {
@@ -184,7 +184,7 @@ namespace MySqlX.XDevAPI
       {
         // Multiple hosts were specified.
         _internalSession = FailoverManager.AttemptConnection(this.connectionString, out this.connectionString);
-        Settings = new MySqlConnectionStringBuilder(this.connectionString);
+        Settings = new MySqlXConnectionStringBuilder(this.connectionString);
       }
       else _internalSession = InternalSession.GetSession(Settings);
 

@@ -1,4 +1,4 @@
-// Copyright © 2004, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,6 +28,7 @@
 
 
 using MySql.Data.MySqlClient;
+using MySqlX.XDevAPI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -52,8 +53,22 @@ namespace MySql.Data.Common
       this.settings = settings;
     }
 
+    public Ssl(string server, MySqlSslMode sslMode, string certificateFile, MySqlCertificateStoreLocation certificateStoreLocation,
+        string certificatePassword, string certificateThumbprint)
+    {
+      this.settings = new MySqlConnectionStringBuilder()
+      {
+        Server = server,
+        SslMode = sslMode,
+        CertificateFile = certificateFile,
+        CertificateStoreLocation = certificateStoreLocation,
+        CertificatePassword = certificatePassword,
+        CertificateThumbprint = certificateThumbprint
+      };
+    }
+
     /// <summary>
-    /// Retrieve client SSL certificates. Dependent on connection string 
+    /// Retrieve client SSL certificates. Dependent on connection string
     /// settings we use either file or store based certificates.
     /// </summary>
     private X509CertificateCollection GetClientCertificates()

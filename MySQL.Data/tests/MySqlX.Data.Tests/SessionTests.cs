@@ -128,7 +128,7 @@ namespace MySqlX.Data.Tests
     protected void CheckConnectionStringAsUri(string connectionstring, string user, string password, string server, uint port, params string[] parameters)
     {
       string result = this.session.ParseConnectionString(connectionstring);
-      MySql.Data.MySqlClient.MySqlConnectionStringBuilder csbuilder = new MySql.Data.MySqlClient.MySqlConnectionStringBuilder(result);
+      var csbuilder = new MySqlXConnectionStringBuilder(result);
       Assert.True(user == csbuilder.UserID, string.Format("Expected:{0} Current:{1} in {2}", user, csbuilder.UserID, connectionstring));
       Assert.True(password == csbuilder.Password, string.Format("Expected:{0} Current:{1} in {2}", password, csbuilder.Password, connectionstring));
       Assert.True(server == csbuilder.Server, string.Format("Expected:{0} Current:{1} in {2}", server, csbuilder.Server, connectionstring));
@@ -302,7 +302,7 @@ namespace MySqlX.Data.Tests
       var certificatePath = "../../../../MySql.Data.Tests/client.pfx";
       // Connection string in basic format.
       string connString = ConnectionString + ";ssl-ca=" + certificatePath + ";ssl-ca-pwd=pass;";
-      MySqlConnectionStringBuilder stringBuilder = new MySqlConnectionStringBuilder(connString);
+      var stringBuilder = new MySqlXConnectionStringBuilder(connString);
       Assert.Equal(certificatePath, stringBuilder.CertificateFile);
       Assert.Equal(certificatePath, stringBuilder.SslCa);
       Assert.True(stringBuilder.ConnectionString.Contains(certificatePath));
@@ -341,7 +341,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void IPv6()
     {
-      MySqlConnectionStringBuilder csBuilder = new MySqlConnectionStringBuilder(ConnectionString);
+      var csBuilder = new MySqlXConnectionStringBuilder(ConnectionString);
       csBuilder.Server = "::1";
       csBuilder.Port = uint.Parse(XPort);
 
@@ -354,7 +354,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void IPv6AsUrl()
     {
-      MySqlConnectionStringBuilder csBuilder = new MySqlConnectionStringBuilder(ConnectionString);
+      var csBuilder = new MySqlXConnectionStringBuilder(ConnectionString);
       string connString = $"mysqlx://{csBuilder.UserID}:{csBuilder.Password}@[::1]:{XPort}";
       using (Session session = MySQLX.GetSession(connString))
       {
@@ -365,7 +365,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void IPv6AsAnonymous()
     {
-      MySqlConnectionStringBuilder csBuilder = new MySqlConnectionStringBuilder(ConnectionString);
+      var csBuilder = new MySqlXConnectionStringBuilder(ConnectionString);
       using (Session session = MySQLX.GetSession(new { server = "::1", user = csBuilder.UserID, password = csBuilder.Password, port = XPort }))
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
@@ -513,6 +513,17 @@ namespace MySqlX.Data.Tests
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
         Assert.Equal(MySqlAuthenticationMode.SHA256_MEMORY, session.Settings.Auth);
       }
+    }
+
+    [Fact]
+    public void UnsupportedConnectionOptions()
+    {
+      var connectionUri = string.Format("{0}?", ConnectionStringUri);
+      Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "pipe=x"));
+      Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "allowuservariables=x"));
+      Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "sqlservermode=x"));
+      Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "replication=x"));
+      Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "minpoolsize=x"));
     }
   }
 }
