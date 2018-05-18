@@ -1,10 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Description>Design-time Entity Framework Core Functionality for MySQL Server.</Description>
     <Copyright>Copyright © 2016, 2018 Oracle and/or its affiliates. All rights reserved.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>6.10.7</Version>
+    <Version>6.10.8</Version>
     <Authors>Oracle</Authors>
     <TargetFrameworks>net452;netstandard1.3</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
