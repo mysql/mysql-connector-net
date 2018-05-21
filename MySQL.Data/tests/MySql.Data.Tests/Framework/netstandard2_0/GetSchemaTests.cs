@@ -1,4 +1,4 @@
-// Copyright © 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -72,7 +72,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// Bug #25907 DataType Column of DataTypes collection does'nt contain the correct CLR Datatype 
     /// Bug #25947 CreateFormat/CreateParameters Column of DataTypes collection incorrect for CHAR 
     /// </summary>
-    [Fact(Skip = "Not compatible with netcoreapp2.0")]
+    [Fact]
     public void DataTypes()
     {
       DataTable dt = Connection.GetSchema("DataTypes", new string[] { });
@@ -243,7 +243,7 @@ namespace MySql.Data.MySqlClient.Tests
     ///Testing out schema information about generated columns
     /// only in version 5.7.6 or later    
     ///</summary>
-    [Fact(Skip="Not compatible with netcoreapp2.0")]
+    [Fact]
     public void CanGetSchemaInformationGeneratedColumns()
     {     
       if (Fixture.Version < new Version(5, 7, 6)) return;
@@ -461,7 +461,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("theTime", dt.Rows[0]["COLUMN_NAME"]);
     }
 
-    [Fact(Skip = "Not compatible with netcoreapp2.0")]
+    [Fact]
     public void SingleForeignKey()
     {
       executeSQL("CREATE TABLE parent (id INT NOT NULL, PRIMARY KEY (id)) ENGINE=INNODB");
@@ -485,7 +485,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #26660 MySqlConnection.GetSchema fails with NullReferenceException for Foreign Keys 
     /// </summary>
-    [Fact(Skip = "Not compatible with netcoreapp2.0")]
+    [Fact]
     public void ForeignKeys()
     {
       executeSQL("DROP TABLE IF EXISTS product_order");
@@ -506,7 +506,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True(dt.Columns.Contains("REFERENCED_TABLE_CATALOG"));
     }
 
-    [Fact(Skip = "Not compatible with netcoreapp2.0")]
+    [Fact]
     public void MultiSingleForeignKey()
     {
       executeSQL("DROP TABLE IF EXISTS product_order");

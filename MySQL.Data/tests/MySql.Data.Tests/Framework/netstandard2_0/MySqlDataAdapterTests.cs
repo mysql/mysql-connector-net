@@ -1,4 +1,4 @@
-// Copyright © 2013, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -557,7 +557,7 @@ namespace MySql.Data.MySqlClient.Tests
       da.Fill(0, 2, new DataTable[] { dt });
     }
 
-    [Fact(Skip = "Not compatible with netcoreapp2.0")]
+    [Fact]
     public void TestBatchingInserts()
     {
       executeSQL("CREATE TABLE Test (id INT, name VARCHAR(20), PRIMARY KEY(id))");
@@ -814,7 +814,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #38411, using closed connection with data adapter.
     /// </summary>
-    [Fact(Skip = "Not compatible with netcoreapp2.0")]
+    [Fact]
     public void BatchingConnectionClosed()
     {
       executeSQL("CREATE TABLE Test (id INT, name VARCHAR(20), PRIMARY KEY(id))");

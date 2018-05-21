@@ -161,7 +161,7 @@ namespace MySql.Data.MySqlClient.Tests
 
     }
 
-    [Fact(Skip="Fix This")]
+    [Fact]
     public void DifferentParameterOrder()
     {
       executeSQL("CREATE TABLE Test (id int NOT NULL AUTO_INCREMENT, " +
@@ -426,7 +426,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #19261  	Supplying Input Parameters
     /// </summary>
-    [Fact(Skip="Fix This")]
+    [Fact]
     public void MoreParametersOutOfOrder()
     {
       executeSQL("CREATE TABLE `Test` (`BlackListID` int(11) NOT NULL auto_increment, " +
@@ -627,7 +627,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact(Skip="Fix This")]
+    [Fact]
     public void ClosingCommandsProperly()
     {
       executeSQL("CREATE TABLE Test (id INT, name VARCHAR(50))");
@@ -768,7 +768,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact(Skip ="This one is not currently working")]
+    [Fact]
     public void SprocOutputParams()
     {
       executeSQL("CREATE PROCEDURE spOutTest(id INT, OUT age INT) BEGIN SET age=id; END");
@@ -794,7 +794,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(20, cmd.Parameters[1].Value);
     }
 
-    [Fact(Skip="Fix This")]
+    [Fact]
     public void SprocInputOutputParams()
     {
       executeSQL("CREATE PROCEDURE spInOutTest(id INT, INOUT age INT) BEGIN SET age=age*2; END");

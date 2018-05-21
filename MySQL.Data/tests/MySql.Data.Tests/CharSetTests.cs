@@ -264,7 +264,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// (Oracle bug #21098546).
     /// Disabled due to intermittent failure. Documented under Oracle bug #27010958
     /// </summary>
-    [Fact (Skip="Fix this")]
+    [Fact]
     public void CanInsertChineseCharacterSetGB18030()
     {
       if (Fixture.Version < new Version(5, 7, 4)) return;
@@ -295,7 +295,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// (Oracle bug #21098546).
     /// Disabled due to intermittent failure. Documented under Oracle bug #27010958
     /// </summary>
-    [Fact (Skip = "Fix this")]
+    [Fact]
     public void CanCreateDbUsingChineseCharacterSetGB18030()
     {
       if (Fixture.Version < new Version(5, 7, 4)) return;
@@ -371,7 +371,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.ExecuteScalar();
     }
 
-    [Fact (Skip = "Fix for 8.0.5")]
+    [Fact]
     public void ExtendedCharsetOnConnection()
     {
       MySqlConnectionStringBuilder rootSb = new MySqlConnectionStringBuilder(Root.ConnectionString);
@@ -386,7 +386,8 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlCommand rootCommand = new MySqlCommand();
         rootCommand.Connection = rootConnection;
         rootCommand.CommandText = string.Format("CREATE DATABASE IF NOT EXISTS `{0}`;", database);
-        rootCommand.CommandText += string.Format("GRANT ALL ON `{0}`.* to '{1}'@'localhost' identified by '{2}';", database, user, password);
+        rootCommand.CommandText += string.Format("CREATE USER '{0}'@'localhost' identified by '{1}';", user, password);
+        rootCommand.CommandText += string.Format("GRANT ALL ON `{0}`.* to '{1}'@'localhost';", database, user, password);
         rootCommand.ExecuteNonQuery();
 
         string connString = Connection.ConnectionString;

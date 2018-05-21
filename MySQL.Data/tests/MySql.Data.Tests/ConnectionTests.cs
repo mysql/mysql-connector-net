@@ -164,7 +164,7 @@ namespace MySql.Data.MySqlClient.Tests
                 c.Close();
             }
             */
-    [Fact (Skip = "Fix for 8.0.5")]
+    [Fact]
     public void ConnectInVariousWays()
     {
       // connect with no db
@@ -174,7 +174,9 @@ namespace MySql.Data.MySqlClient.Tests
       c.Open();
       c.Close();
 
+      executeSQL("CREATE USER IF NOT EXISTS 'nopass'@'%'", true);
       executeSQL("GRANT ALL ON *.* to 'nopass'@'%'", true);
+      executeSQL("CREATE USER IF NOT EXISTS 'nopass'@'localhost'", true);
       executeSQL("GRANT ALL ON *.* to 'nopass'@'localhost'", true);
       executeSQL("FLUSH PRIVILEGES", true);
 

@@ -1,4 +1,4 @@
-// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -39,7 +39,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
     }
 
-    [Fact(Skip="Fix This")]
+    [Fact]
     public void TestReader()
     {
       executeSQL("CREATE TABLE Test (key2 VARCHAR(1), name VARCHAR(100), name2 VARCHAR(100))");
@@ -73,7 +73,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #22400 Nested transactions 
     /// </summary>
-    [Fact(Skip="Fix This")]
+    [Fact]
     public void NestedTransactions()
     {
       MySqlTransaction t1 = Connection.BeginTransaction();
@@ -93,7 +93,7 @@ namespace MySql.Data.MySqlClient.Tests
       //}
     }
 
-    [Fact(Skip="Fix This")]
+    [Fact]
     public void BeginTransactionOnPreviouslyOpenConnection()
     {
       string connStr = Connection.ConnectionString;
@@ -115,7 +115,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// This test is not a perfect test of this bug as the kill connection is not quite the
     /// same as unplugging the network but it's the best I've figured out so far
     /// </summary>
-    [Fact(Skip="Temporary Skip")]
+    [Fact]
     public void CommitAfterConnectionDead()
     {
       executeSQL("DROP TABLE IF EXISTS Test");
@@ -148,7 +148,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #39817	Transaction Dispose does not roll back
     /// </summary>
-    [Fact(Skip="Fix This")]
+    [Fact]
     public void DisposingCallsRollback()
     {
       executeSQL("CREATE TABLE Test (key2 VARCHAR(1), name VARCHAR(100), name2 VARCHAR(100))");

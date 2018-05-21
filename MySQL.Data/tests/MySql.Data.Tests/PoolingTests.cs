@@ -1,4 +1,4 @@
-// Copyright © 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -50,7 +50,7 @@ namespace MySql.Data.MySqlClient.Tests
       settings.Pooling = true;
     }
 
-    [Fact(Skip="Fix This")]
+    [Fact]
     public void BasicConnection()
     {
 
@@ -118,7 +118,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.False(threadId == secondThreadId);
     }
 
-    [Fact(Skip="Fix Me")]
+    [Fact]
     public void ReclaimBrokenConnection()
     {
       // now create a new connection string only allowing 1 connection in the pool
@@ -242,7 +242,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #24373 High CPU utilization when no idle connection 
     /// </summary>
-    [Fact(Skip="Fix This")]
+    [Fact]
     public void MultipleThreads()
     {
       string connStr = ConnectionSettings.ConnectionString + ";max pool size=1";

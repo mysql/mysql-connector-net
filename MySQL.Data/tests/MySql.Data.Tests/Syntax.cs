@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -540,7 +540,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// Bug #54386 : expression with parentheses in INSERT leads to invalid
     /// query when using batching
     /// </summary>
-    [Fact(Skip = "Not compatible with netcoreapp2.0")]
+    [Fact]
     public void TokenizerBatching()
     {
       executeSQL("CREATE TABLE Test (id INT, expr INT,name VARCHAR(20), PRIMARY KEY(id))");

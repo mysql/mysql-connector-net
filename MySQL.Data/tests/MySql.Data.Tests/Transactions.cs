@@ -1,4 +1,4 @@
-// Copyright © 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -304,7 +304,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact(Skip = "Not compatible with netcoreapp2.0")]
+    [Fact]
     public void ManualEnlistment()
     {
       executeSQL("DROP TABLE IF EXISTS Test");
@@ -629,7 +629,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// bug#35330 - even if transaction scope has expired, rows can be inserted into
     /// the table, due to race condition with the thread doing rollback
     /// </summary>
-    [Fact(Skip = "Not compatible with netcoreapp2.0")]
+    [Fact]
     public void ScopeTimeoutWithMySqlHelper()
     {
       executeSQL("DROP TABLE IF EXISTS Test");

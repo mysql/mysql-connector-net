@@ -84,6 +84,9 @@ namespace MySql.Data.MySqlClient
       connVersion = driver.Version;
       MaxLength = 1;
       binaryOk = true;
+#if !NET452
+      Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+#endif
     }
 
     #region Properties

@@ -8,7 +8,7 @@
     <Authors>Oracle</Authors>
     <Company>Oracle</Company>
     <Product>MySql.Data.Tests</Product>
-    <TargetFrameworks>netcoreapp2.0;netcoreapp1.1;net452;</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.0;</TargetFrameworks>
     <PackageId>MySql.Data.Tests</PackageId>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET;netcore;.Net Core;MySql Conector/Net Core;coreclr;C/NET;C/Net Core</PackageTags>
     <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>

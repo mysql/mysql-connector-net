@@ -1,4 +1,4 @@
-// Copyright © 2013, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -43,7 +43,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #62585	MySql Connector/NET 6.4.3+ Doesn't escape quotation mark (U+0022)
     /// </summary>
-    [Fact(Skip = "Not compatible with netcoreapp2.0")]
+    [Fact]
     public void EscapeStringMethodCanEscapeQuotationMark()
     {
       executeSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
