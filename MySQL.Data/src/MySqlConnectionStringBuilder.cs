@@ -60,8 +60,10 @@ namespace MySql.Data.MySqlClient
 #endif
         },
         (msb, sender) => msb.PipeName));
-      Options.Add(new MySqlConnectionStringOption("compress", "use compression,usecompression", typeof(bool), false, false));
-      Options.Add(new MySqlConnectionStringOption("allowbatch", "allow batch", typeof(bool), true, false));
+      Options.Add(new MySqlConnectionStringOption("compress", "use compression,usecompression", typeof(bool), false, false,
+        (msb, sender, value) => { msb.SetValue("compress", value); }, (msb, sender) => msb.InteractiveSession));
+      Options.Add(new MySqlConnectionStringOption("allowbatch", "allow batch", typeof(bool), true, false,
+        (msb, sender, value) => { msb.SetValue("allowbatch", value); }, (msb, sender) => msb.InteractiveSession));
       Options.Add(new MySqlConnectionStringOption("logging", null, typeof(bool), false, false,
         (msb, sender, value) =>
         {
@@ -82,11 +84,14 @@ namespace MySql.Data.MySqlClient
 #endif
         },
         (msb, sender) => msb.SharedMemoryName));
-      Options.Add(new MySqlConnectionStringOption("defaultcommandtimeout", "command timeout,default command timeout", typeof(uint), (uint)30, false));
-      Options.Add(new MySqlConnectionStringOption("usedefaultcommandtimeoutforef", "use default command timeout for ef", typeof(bool), false, false));
+      Options.Add(new MySqlConnectionStringOption("defaultcommandtimeout", "command timeout,default command timeout", typeof(uint), (uint)30, false,
+        (msb, sender, value) => { msb.SetValue("defaultcommandtimeout", value); }, (msb, sender) => msb.InteractiveSession));
+      Options.Add(new MySqlConnectionStringOption("usedefaultcommandtimeoutforef", "use default command timeout for ef", typeof(bool), false, false,
+        (msb, sender, value) => { msb.SetValue("usedefaultcommandtimeoutforef", value); }, (msb, sender) => msb.InteractiveSession));
 
       // Authentication options.
-      Options.Add(new MySqlConnectionStringOption("persistsecurityinfo", "persist security info", typeof(bool), false, false));
+      Options.Add(new MySqlConnectionStringOption("persistsecurityinfo", "persist security info", typeof(bool), false, false,
+        (msb, sender, value) => { msb.SetValue("persistsecurityinfo", value); }, (msb, sender) => msb.InteractiveSession));
       Options.Add(new MySqlConnectionStringOption("encrypt", null, typeof(bool), false, true,
         delegate (MySqlConnectionStringBuilder msb, MySqlConnectionStringOption sender, object value)
         {
@@ -114,14 +119,20 @@ namespace MySql.Data.MySqlClient
           return (bool)val;
         }
         ));
+      Options.Add(new MySqlConnectionStringOption("allowpublickeyretrieval", null, typeof(bool), false, false,
+        (msb, sender, value) => { msb.SetValue("allowpublickeyretrieval", value); }, (msb, sender) => msb.InteractiveSession));
 
       // Other properties.
-      #if !NETSTANDARD1_6
-      Options.Add(new MySqlConnectionStringOption("autoenlist", "auto enlist", typeof(bool), true, false));
-      Options.Add(new MySqlConnectionStringOption("includesecurityasserts", "include security asserts", typeof(bool), false, false));
+#if !NETSTANDARD1_6
+      Options.Add(new MySqlConnectionStringOption("autoenlist", "auto enlist", typeof(bool), true, false,
+        (msb, sender, value) => { msb.SetValue("autoenlist", value); }, (msb, sender) => msb.InteractiveSession));
+      Options.Add(new MySqlConnectionStringOption("includesecurityasserts", "include security asserts", typeof(bool), false, false,
+        (msb, sender, value) => { msb.SetValue("includesecurityasserts", value); }, (msb, sender) => msb.InteractiveSession));
 #endif
-      Options.Add(new MySqlConnectionStringOption("allowzerodatetime", "allow zero datetime", typeof(bool), false, false));
-      Options.Add(new MySqlConnectionStringOption("convertzerodatetime", "convert zero datetime", typeof(bool), false, false));
+      Options.Add(new MySqlConnectionStringOption("allowzerodatetime", "allow zero datetime", typeof(bool), false, false,
+        (msb, sender, value) => { msb.SetValue("allowzerodatetime", value); }, (msb, sender) => msb.InteractiveSession));
+      Options.Add(new MySqlConnectionStringOption("convertzerodatetime", "convert zero datetime", typeof(bool), false, false,
+        (msb, sender, value) => { msb.SetValue("convertzerodatetime", value); }, (msb, sender) => msb.InteractiveSession));
       Options.Add(new MySqlConnectionStringOption("useusageadvisor", "use usage advisor,usage advisor", typeof(bool), false, false,
         (msb, sender, value) =>
         {
@@ -132,7 +143,8 @@ namespace MySql.Data.MySqlClient
 #endif
         },
         (msb, sender) => msb.UseUsageAdvisor));
-      Options.Add(new MySqlConnectionStringOption("procedurecachesize", "procedure cache size,procedure cache,procedurecache", typeof(uint), (uint)25, false));
+      Options.Add(new MySqlConnectionStringOption("procedurecachesize", "procedure cache size,procedure cache,procedurecache", typeof(uint), (uint)25, false,
+        (msb, sender, value) => { msb.SetValue("procedurecachesize", value); }, (msb, sender) => msb.InteractiveSession));
       Options.Add(new MySqlConnectionStringOption("useperformancemonitor", "use performance monitor,useperfmon,perfmon", typeof(bool), false, false,
         (msb, sender, value) =>
         {
@@ -143,10 +155,14 @@ namespace MySql.Data.MySqlClient
 #endif
         },
         (msb, sender) => msb.UsePerformanceMonitor));
-      Options.Add(new MySqlConnectionStringOption("ignoreprepare", "ignore prepare", typeof(bool), true, false));
-      Options.Add(new MySqlConnectionStringOption("respectbinaryflags", "respect binary flags", typeof(bool), true, false));
-      Options.Add(new MySqlConnectionStringOption("treattinyasboolean", "treat tiny as boolean", typeof(bool), true, false));
-      Options.Add(new MySqlConnectionStringOption("allowuservariables", "allow user variables", typeof(bool), false, false));
+      Options.Add(new MySqlConnectionStringOption("ignoreprepare", "ignore prepare", typeof(bool), true, false,
+        (msb, sender, value) => { msb.SetValue("ignoreprepare", value); }, (msb, sender) => msb.InteractiveSession));
+      Options.Add(new MySqlConnectionStringOption("respectbinaryflags", "respect binary flags", typeof(bool), true, false,
+        (msb, sender, value) => { msb.SetValue("respectbinaryflags", value); }, (msb, sender) => msb.InteractiveSession));
+      Options.Add(new MySqlConnectionStringOption("treattinyasboolean", "treat tiny as boolean", typeof(bool), true, false,
+        (msb, sender, value) => { msb.SetValue("treattinyasboolean", value); }, (msb, sender) => msb.InteractiveSession));
+      Options.Add(new MySqlConnectionStringOption("allowuservariables", "allow user variables", typeof(bool), false, false,
+        (msb, sender, value) => { msb.SetValue("allowuservariables", value); }, (msb, sender) => msb.InteractiveSession));
       Options.Add(new MySqlConnectionStringOption("interactivesession", "interactive session,interactive", typeof(bool), false, false,
         (msb, sender, value) =>
         {
@@ -157,13 +173,20 @@ namespace MySql.Data.MySqlClient
 #endif
         },
         (msb, sender) => msb.InteractiveSession));
-      Options.Add(new MySqlConnectionStringOption("functionsreturnstring", "functions return string", typeof(bool), false, false));
-      Options.Add(new MySqlConnectionStringOption("useaffectedrows", "use affected rows", typeof(bool), false, false));
-      Options.Add(new MySqlConnectionStringOption("oldguids", "old guids", typeof(bool), false, false));
-      Options.Add(new MySqlConnectionStringOption("sqlservermode", "sql server mode", typeof(bool), false, false));
-      Options.Add(new MySqlConnectionStringOption("tablecaching", "table cache,tablecache", typeof(bool), false, false));
-      Options.Add(new MySqlConnectionStringOption("defaulttablecacheage", "default table cache age", typeof(int), (int)60, false));
-      Options.Add(new MySqlConnectionStringOption("checkparameters", "check parameters", typeof(bool), true, false));
+      Options.Add(new MySqlConnectionStringOption("functionsreturnstring", "functions return string", typeof(bool), false, false,
+        (msb, sender, value) => { msb.SetValue("functionsreturnstring", value); }, (msb, sender) => msb.InteractiveSession));
+      Options.Add(new MySqlConnectionStringOption("useaffectedrows", "use affected rows", typeof(bool), false, false,
+        (msb, sender, value) => { msb.SetValue("useaffectedrows", value); }, (msb, sender) => msb.InteractiveSession));
+      Options.Add(new MySqlConnectionStringOption("oldguids", "old guids", typeof(bool), false, false,
+        (msb, sender, value) => { msb.SetValue("oldguids", value); }, (msb, sender) => msb.InteractiveSession));
+      Options.Add(new MySqlConnectionStringOption("sqlservermode", "sql server mode", typeof(bool), false, false,
+        (msb, sender, value) => { msb.SetValue("sqlservermode", value); }, (msb, sender) => msb.InteractiveSession));
+      Options.Add(new MySqlConnectionStringOption("tablecaching", "table cache,tablecache", typeof(bool), false, false,
+        (msb, sender, value) => { msb.SetValue("tablecaching", value); }, (msb, sender) => msb.InteractiveSession));
+      Options.Add(new MySqlConnectionStringOption("defaulttablecacheage", "default table cache age", typeof(int), (int)60, false,
+        (msb, sender, value) => { msb.SetValue("defaulttablecacheage", value); }, (msb, sender) => msb.InteractiveSession));
+      Options.Add(new MySqlConnectionStringOption("checkparameters", "check parameters", typeof(bool), true, false,
+        (msb, sender, value) => { msb.SetValue("checkparameters", value); }, (msb, sender) => msb.InteractiveSession));
       Options.Add(new MySqlConnectionStringOption("replication", null, typeof(bool), false, false,
         (msb, sender, value) =>
         {
@@ -174,21 +197,32 @@ namespace MySql.Data.MySqlClient
 #endif
         },
         (msb, sender) => msb.Replication));
-      Options.Add(new MySqlConnectionStringOption("exceptioninterceptors", "exception interceptors", typeof(string), null, false));
-      Options.Add(new MySqlConnectionStringOption("commandinterceptors", "command interceptors", typeof(string), null, false));
+      Options.Add(new MySqlConnectionStringOption("exceptioninterceptors", "exception interceptors", typeof(string), null, false,
+        (msb, sender, value) => { msb.SetValue("exceptioninterceptors", value); }, (msb, sender) => msb.InteractiveSession));
+      Options.Add(new MySqlConnectionStringOption("commandinterceptors", "command interceptors", typeof(string), null, false,
+        (msb, sender, value) => { msb.SetValue("commandinterceptors", value); }, (msb, sender) => msb.InteractiveSession));
 
       // Pooling options.
-      Options.Add(new MySqlConnectionStringOption("connectionlifetime", "connection lifetime", typeof(uint), (uint)0, false));
-      Options.Add(new MySqlConnectionStringOption("pooling", null, typeof(bool), true, false));
-      Options.Add(new MySqlConnectionStringOption("minpoolsize", "minimumpoolsize,min pool size,minimum pool size", typeof(uint), (uint)0, false));
-      Options.Add(new MySqlConnectionStringOption("maxpoolsize", "maximumpoolsize,max pool size,maximum pool size", typeof(uint), (uint)100, false));
-      Options.Add(new MySqlConnectionStringOption("connectionreset", "connection reset", typeof(bool), false, false));
-      Options.Add(new MySqlConnectionStringOption("cacheserverproperties", "cache server properties", typeof(bool), false, false));
+      Options.Add(new MySqlConnectionStringOption("connectionlifetime", "connection lifetime", typeof(uint), (uint)0, false,
+        (msb, sender, value) => { msb.SetValue("connectionlifetime", value); }, (msb, sender) => msb.InteractiveSession));
+      Options.Add(new MySqlConnectionStringOption("pooling", null, typeof(bool), true, false,
+        (msb, sender, value) => { msb.SetValue("pooling", value); }, (msb, sender) => msb.InteractiveSession));
+      Options.Add(new MySqlConnectionStringOption("minpoolsize", "minimumpoolsize,min pool size,minimum pool size", typeof(uint), (uint)0, false,
+        (msb, sender, value) => { msb.SetValue("minpoolsize", value); }, (msb, sender) => msb.InteractiveSession));
+      Options.Add(new MySqlConnectionStringOption("maxpoolsize", "maximumpoolsize,max pool size,maximum pool size", typeof(uint), (uint)100, false,
+        (msb, sender, value) => { msb.SetValue("maxpoolsize", value); }, (msb, sender) => msb.InteractiveSession));
+      Options.Add(new MySqlConnectionStringOption("connectionreset", "connection reset", typeof(bool), false, false,
+        (msb, sender, value) => { msb.SetValue("connectionreset", value); }, (msb, sender) => msb.InteractiveSession));
+      Options.Add(new MySqlConnectionStringOption("cacheserverproperties", "cache server properties", typeof(bool), false, false,
+        (msb, sender, value) => { msb.SetValue("cacheserverproperties", value); }, (msb, sender) => msb.InteractiveSession));
 
       // Language and charset options.
-      Options.Add(new MySqlConnectionStringOption("treatblobsasutf8", "treat blobs as utf8", typeof(bool), false, false));
-      Options.Add(new MySqlConnectionStringOption("blobasutf8includepattern", null, typeof(string), "", false));
-      Options.Add(new MySqlConnectionStringOption("blobasutf8excludepattern", null, typeof(string), "", false));
+      Options.Add(new MySqlConnectionStringOption("treatblobsasutf8", "treat blobs as utf8", typeof(bool), false, false,
+        (msb, sender, value) => { msb.SetValue("treatblobsasutf8", value); }, (msb, sender) => msb.InteractiveSession));
+      Options.Add(new MySqlConnectionStringOption("blobasutf8includepattern", null, typeof(string), "", false,
+        (msb, sender, value) => { msb.SetValue("blobasutf8includepattern", value); }, (msb, sender) => msb.InteractiveSession));
+      Options.Add(new MySqlConnectionStringOption("blobasutf8excludepattern", null, typeof(string), "", false,
+        (msb, sender, value) => { msb.SetValue("blobasutf8excludepattern", value); }, (msb, sender) => msb.InteractiveSession));
 
       // X Authentication options.
       Options.Add(new MySqlConnectionStringOption("auth", null, typeof(MySqlAuthenticationMode), MySqlAuthenticationMode.Default, false));
@@ -330,6 +364,16 @@ namespace MySql.Data.MySqlClient
     {
       get { return (bool)values["integratedsecurity"]; }
       set { SetValue("integratedsecurity", value); }
+    }
+
+    [Category("Authentication")]
+    [DisplayName("AllowPublicKeyRetrieval")]
+    [Description("Allow retrieval of RSA public keys when SSL is disabled.")]
+    [DefaultValue(false)]
+    public bool AllowPublicKeyRetrieval
+    {
+      get { return (bool)values["allowpublickeyretrieval"]; }
+      set { SetValue("allowpublickeyretrieval", value); }
     }
 
     #endregion

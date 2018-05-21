@@ -101,7 +101,6 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("certificatepassword", "certificate password,ssl-ca-pwd", typeof(string), null, false));
       Options.Add(new MySqlConnectionStringOption("certificatestorelocation", "certificate store location", typeof(MySqlCertificateStoreLocation), MySqlCertificateStoreLocation.None, false));
       Options.Add(new MySqlConnectionStringOption("certificatethumbprint", "certificate thumb print", typeof(string), null, false));
-      Options.Add(new MySqlConnectionStringOption("allowpublickeyretrieval", null, typeof(bool), false, false));
       Options.Add(new MySqlConnectionStringOption("sslmode", "ssl mode,ssl-mode", typeof(MySqlSslMode), MySqlSslMode.Required, false));
 
       // Other properties.
@@ -285,16 +284,6 @@ namespace MySql.Data.MySqlClient
     {
       get { return (string)values["certificatethumbprint"]; }
       set { SetValue("certificatethumbprint", value); }
-    }
-
-    [Category("Authentication")]
-    [DisplayName("AllowPublicKeyRetrieval")]
-    [Description("Allow retrieval of RSA public keys when SSL is disabled.")]
-    [DefaultValue(false)]
-    public bool AllowPublicKeyRetrieval
-        {
-      get { return (bool) values["allowpublickeyretrieval"]; }
-      set { SetValue("allowpublickeyretrieval", value); }
     }
 
     /// <summary>

@@ -168,7 +168,7 @@ namespace MySqlX.Data.Tests
       CheckConnectionStringAsUri("mysqlx://myuser:password@[(address=[fe80::bd41:e449:45ee:2e1a%17]:3305,priority=100)]", "myuser", "password", "[fe80::bd41:e449:45ee:2e1a]", 3305);
       Assert.Throws<UriFormatException>(() => CheckConnectionStringAsUri("mysqlx://myuser:password@[(address=fe80::bd41:e449:45ee:2e1a%17,priority=100)]", "myuser", "password", "[fe80::bd41:e449:45ee:2e1a]", 33060));
       CheckConnectionStringAsUri("mysqlx://myuser@localhost/test", "myuser", "", "localhost", 33060, "database", "test");
-      CheckConnectionStringAsUri("mysqlx://myuser@localhost/test?ssl%20mode=none&pooling=false", "myuser", "", "localhost", 33060, "database", "test", "ssl mode", "None", "pooling", "False");
+      CheckConnectionStringAsUri("mysqlx://myuser@localhost/test?ssl%20mode=none&connectiontimeout=10", "myuser", "", "localhost", 33060, "database", "test", "ssl mode", "None", "connectiontimeout", "10");
       CheckConnectionStringAsUri("mysqlx+ssh://myuser:password@localhost:33060", "myuser", "password", "localhost", 33060);
       CheckConnectionStringAsUri("mysqlx://_%21%22%23%24s%26%2F%3D-%25r@localhost", "_!\"#$s&/=-%r", "", "localhost", 33060);
       CheckConnectionStringAsUri("mysql://myuser@localhost", "", "", "", 33060);
@@ -519,11 +519,18 @@ namespace MySqlX.Data.Tests
     public void UnsupportedConnectionOptions()
     {
       var connectionUri = string.Format("{0}?", ConnectionStringUri);
-      Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "pipe=x"));
-      Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "allowuservariables=x"));
-      Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "sqlservermode=x"));
-      Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "replication=x"));
-      Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "minpoolsize=x"));
+      var ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "pipe=genericname"));
+      Assert.StartsWith("Option not supported.", ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "allowuservariables=true"));
+      Assert.StartsWith("Option not supported.", ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "sqlservermode=x"));
+      Assert.StartsWith("Option not supported.", ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "replication=x"));
+      Assert.StartsWith("Option not supported.", ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "minpoolsize=10"));
+      Assert.StartsWith("Option not supported.", ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "allowpublickeyretrieval=true"));
+      Assert.StartsWith("Option not supported.", ex.Message);
     }
   }
 }
