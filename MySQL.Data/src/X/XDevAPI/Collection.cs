@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -102,6 +102,7 @@ namespace MySqlX.XDevAPI
     /// <param name="id">The identifier to match the document.</param>
     /// <returns>A <see cref="RemoveStatement"/> object set with the given identifier.</returns>
     /// <remarks>The statement can then be further modified before execution.</remarks>
+    [Obsolete("This method has been deprecated. Use RemoveOne(id) instead.")]
     public RemoveStatement Remove(object id)
     {
       string key = id is string ?
@@ -119,6 +120,7 @@ namespace MySqlX.XDevAPI
     /// <returns>A <see cref="RemoveStatement"/> object set with the given document's identifier.</returns>
     /// <exception cref="InvalidOperationException">No identifier for the document was provided.</exception>
     /// <remarks>The remove statement can then be further modified before execution.</remarks>
+    [Obsolete("This method has been deprecated. Use Remove(condition) instead.")]
     public RemoveStatement Remove(DbDoc doc)
     {
       if (!doc.HasId)
@@ -263,16 +265,11 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Creates a <see cref="CreateCollectionIndexStatement"/> with the given parameters which can be used to create
-    /// an index.
+    /// Creates an index based on the properties provided in the JSON document.
     /// </summary>
     /// <param name="indexName">The index name.</param>
     /// <param name="indexDefinition">JSON document describing the index to be created.</param>
-    /// <returns>A <see cref="CreateCollectionIndexStatement"/> object set with the given index definition.</returns>
     /// <remarks>
-    /// <para><see cref="CreateCollectionIndexStatement"/>:</para>
-    /// <para>The statement be further modified before execution.</para>
-    /// <para>&#160;</para>
     /// <para><paramref name="indexDefinition"/> is a JSON document with the following fields:</para>
     /// <para>
     /// <para />- <c>fields</c>: array of <c>IndexField</c> objects, each describing a single document member to be
@@ -314,9 +311,9 @@ namespace MySqlX.XDevAPI
     /// <para />- GEOJSON (extra options: options, srid)
     /// </para>
     /// </remarks>
-    public CreateCollectionIndexStatement CreateIndex(string indexName, object indexDefinition)
+    public void CreateIndex(string indexName, object indexDefinition)
     {
-      return new CreateCollectionIndexStatement(this, indexName, new DbDoc(indexDefinition));
+      new CreateCollectionIndexStatement(this, indexName, new DbDoc(indexDefinition)).Execute();
     }
 
     /// <summary>

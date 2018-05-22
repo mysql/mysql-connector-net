@@ -99,13 +99,6 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("database=test2", s.ConnectionString);
     }
 
-    [Fact]
-    public void EncryptKeyword()
-    {
-      string connStr = "database=test;uid=root;server=localhost;encrypt=yes";
-      MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder(connStr);
-    }
-
     /// <summary>
     /// Bug #51209	error on parameter without value on connectionstring
     /// </summary>
@@ -138,13 +131,6 @@ namespace MySql.Data.MySqlClient.Tests
     {
       MySqlConnectionStringBuilder s = new MySqlConnectionStringBuilder("server=localhost;check parameters=false");
       Assert.False(s.CheckParameters);
-    }
-
-    [Fact]
-    public void EncrpytSslmode()
-    {
-      MySqlConnectionStringBuilder s = new MySqlConnectionStringBuilder("server=localhost;encrypt=true");
-      Assert.Equal(s.SslMode, MySqlSslMode.Required);
     }
 
     [Fact]

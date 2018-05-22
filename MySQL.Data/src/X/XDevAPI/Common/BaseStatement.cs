@@ -79,7 +79,7 @@ namespace MySqlX.XDevAPI.Common
       },
         CancellationToken.None,
         TaskCreationOptions.None,
-        Session.scheduler);
+        Session._scheduler);
     }
   }
 }

@@ -64,11 +64,23 @@ namespace MySqlX.Data.Tests
     public void RemoveItemInSingleDocument()
     {
       Collection coll = CreateCollection("test");
-      Result result = coll.Add(new { _id = 1, name = "Book 1", pages = 20 }).Execute();
-      Assert.Equal<ulong>(1, result.AffectedItemsCount);
+      Result result = coll
+                .Add(new { _id = 1, name = "Book 1", pages = 20 })
+                .Add(new { _id = 2, name = "Book 2", pages = 30 })
+                .Execute();
+      Assert.Equal<ulong>(2, result.AffectedItemsCount);
 
+      // Unset 1 field.
       result = coll.Modify("_id = 1").Unset("pages").Execute();
       Assert.Equal<ulong>(1, result.AffectedItemsCount);
+      var document = coll.Find("_id = 1").Execute().FetchOne();
+      Assert.Equal(2, document.values.Count);
+
+      // Unset multiple fields.
+      result = coll.Modify("_id = 2").Unset("name", "pages").Execute();
+      Assert.Equal<ulong>(1, result.AffectedItemsCount);
+      document = coll.Find("_id = 2").Execute().FetchOne();
+      Assert.Equal(1, document.values.Count);
     }
 
     [Fact]
@@ -266,17 +278,6 @@ namespace MySqlX.Data.Tests
       Assert.Equal(2, (int) x[1]);
       Assert.Equal(43, (int) x[2]);
       Assert.Equal(44, (int) x[3]);
-    }
-
-    [Fact]
-    public void ArrayDelete()
-    {
-      Collection collection = CreateCollection("test");
-      collection.Add("{ \"x\":[1,2] }").Execute();
-
-      Exception ex = Assert.Throws<NotSupportedException>(() => collection.Modify("true").ArrayDelete("x", 0).Execute());
-
-      Assert.Equal(ResourcesX.FeatureNotSupported, ex.Message);
     }
   }
 }

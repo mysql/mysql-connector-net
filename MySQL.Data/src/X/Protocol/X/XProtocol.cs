@@ -1,4 +1,4 @@
-// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -366,7 +366,6 @@ namespace MySqlX.Protocol
       _writer.Write(ClientMessageId.SQL_STMT_EXECUTE, stmtExecute);
     }
 
-
     private void DecodeAndThrowError(CommunicationPacket p)
     {
       Error e = Error.Parser.ParseFrom(p.Buffer);
@@ -558,10 +557,19 @@ namespace MySqlX.Protocol
       var builder = new Find();
       builder.Collection = ExprUtil.BuildCollection(schema, collection);
       builder.DataModel = (isRelational ? DataModel.Table : DataModel.Document);
+      if (findParams.GroupBy != null && findParams.GroupBy.Length > 0)
+        builder.Grouping.AddRange(new ExprParser(ExprUtil.JoinString(findParams.GroupBy)).ParseExprList());
+      if (findParams.GroupByCritieria != null)
+        builder.GroupingCriteria = new ExprParser(findParams.GroupByCritieria).Parse();
       if (findParams.Locking != 0) builder.Locking = (Find.Types.RowLock) findParams.Locking;
       if (findParams.LockingOption != 0) builder.LockingOptions =(Find.Types.RowLockOptions)findParams.LockingOption;
       if (findParams.Projection != null && findParams.Projection.Length > 0)
-        builder.Projection.Add(new ExprParser(ExprUtil.JoinString(findParams.Projection)).ParseTableSelectProjection());
+      {
+        var parser = new ExprParser(ExprUtil.JoinString(findParams.Projection));
+        builder.Projection.Add(builder.DataModel == DataModel.Document ?
+          parser.ParseDocumentProjection() :
+          parser.ParseTableSelectProjection());
+      }
       ApplyFilter(v => builder.Limit = v, v => builder.Criteria = v, builder.Order.Add, filter, builder.Args.Add);
       return builder;
     }

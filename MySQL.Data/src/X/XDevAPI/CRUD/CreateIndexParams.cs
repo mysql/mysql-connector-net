@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -34,7 +34,6 @@ namespace MySqlX.XDevAPI.CRUD
   internal class CreateIndexParams
   {
     private string _indexName;
-    private bool _unique;
     private string _type;
     private List<IndexField> _fields = new List<IndexField>();
 
@@ -74,12 +73,6 @@ namespace MySqlX.XDevAPI.CRUD
 
     internal class IndexField
     {
-      private string _field;
-      private string _type;
-      private bool? _required;
-      private uint? _options;
-      private uint? _srid;
-
       internal string Field { get; set; }
       internal string Type { get; set; }
       internal bool? Required { get; set; }

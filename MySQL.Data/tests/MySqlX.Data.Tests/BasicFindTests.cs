@@ -1,4 +1,4 @@
-// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -78,7 +78,7 @@ namespace MySqlX.Data.Tests
       Result r = coll.Add(docs).Execute();
       Assert.Equal<ulong>(4, r.AffectedItemsCount);
 
-      DocResult foundDocs = coll.Find("pages > 20").OrderBy("pages DESC").Execute();
+      DocResult foundDocs = coll.Find("pages > 20").Sort("pages DESC").Execute();
       Assert.True(foundDocs.Next());
       Assert.True(foundDocs.Current["title"].ToString() == "Book 4");
       Assert.True(foundDocs.Next());
@@ -711,6 +711,34 @@ namespace MySqlX.Data.Tests
         // first session frees the lock
         s1.Commit();
       }
+    }
+
+    [Fact]
+    public void Grouping()
+    {
+      Collection collection = CreateCollection("test");
+      var docs = new[]
+      {
+        new { _id = 1, name = "jonh doe", age = 38 },
+        new { _id = 2, name = "milton green", age = 45 },
+        new { _id = 3, name = "larry smith", age = 24},
+        new { _id = 4, name = "mary weinstein", age = 24 },
+        new { _id = 5, name = "jerry pratt", age = 45 },
+        new { _id = 6, name = "hugh jackman", age = 20},
+        new { _id = 7, name = "elizabeth olsen", age = 31}
+      };
+      Result r = collection.Add(docs).Execute();
+      Assert.Equal<ulong>(7, r.AffectedItemsCount);
+
+      // GroupBy operation.
+      // GroupBy returns 5 rows since age 45 and 24 is repeated.
+      var result = collection.Find().Fields("_id as ID", "name as Name", "age as Age").GroupBy("age").Execute();
+      Assert.Equal(5, result.FetchAll().Count);
+
+      // Having operation.
+      // Having reduces the original 5 rows to 3 since 2 rows have a cnt=2, due to the repeated names.
+      result = collection.Find().Fields("_id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having("cnt = 1").Execute();
+      Assert.Equal(3, result.FetchAll().Count);
     }
   }
 }

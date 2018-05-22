@@ -1,4 +1,4 @@
-// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -39,10 +39,7 @@ namespace MySqlX.XDevAPI.CRUD
   /// </summary>
   public class FindStatement : FilterableStatement<FindStatement, Collection, DocResult>
   {
-    internal List<string> projection;
-    internal string[] orderBy;
     internal FindParams findParams = new FindParams();
-
 
     internal FindStatement(Collection c, string condition) : base(c, condition)
     {
@@ -55,7 +52,7 @@ namespace MySqlX.XDevAPI.CRUD
     /// <returns>This <see cref="FindStatement"/> object set with the specified columns or fields.</returns>
     public FindStatement Fields(params string[] columns)
     {
-      projection = new List<string>(columns);
+      findParams.Projection = columns;
       return this;
     }
 
@@ -74,6 +71,7 @@ namespace MySqlX.XDevAPI.CRUD
     /// <param name="rows">Number of items to be returned.</param>
     /// <param name="offset">Number of items to be skipped.</param>
     /// <returns>This same <see cref="FindStatement"/> object set with the specified limit.</returns>
+    [Obsolete("This method has been deprecated. Use Limit(rows) and Offset(rows) instead.")]
     public FindStatement Limit(long rows, long offset)
     {
       FilterData.Limit = rows;
@@ -110,6 +108,40 @@ namespace MySqlX.XDevAPI.CRUD
 
       findParams.Locking = Protocol.X.RowLock.ExclusiveLock;
       findParams.LockingOption = lockOption;
+      return this;
+    }
+
+    /// <summary>
+    /// Sets the collection aggregation.
+    /// </summary>
+    /// <param name="groupBy">The field list for aggregation.</param>
+    /// <returns>This same <see cref="TableSelectStatement"/> object set with the specified group-by criteria.</returns>
+    public FindStatement GroupBy(params string[] groupBy)
+    {
+      findParams.GroupBy = groupBy;
+      return this;
+    }
+
+    /// <summary>
+    /// Filters criteria for aggregated groups.
+    /// </summary>
+    /// <param name="having">The filter criteria for aggregated groups.</param>
+    /// <returns>This same <see cref="TableSelectStatement"/> object set with the specified filter criteria.</returns>
+    public FindStatement Having(string having)
+    {
+      findParams.GroupByCritieria = having;
+      return this;
+    }
+
+    /// <summary>
+    /// Sets user-defined sorting criteria for the operation. The strings use normal SQL syntax like
+    /// "order ASC"  or "pages DESC, age ASC".
+    /// </summary>
+    /// <param name="order">The order criteria.</param>
+    /// <returns>A generic object representing the implementing statement type.</returns>
+    public FindStatement Sort(params string[] order)
+    {
+      FilterData.OrderBy = order;
       return this;
     }
   }

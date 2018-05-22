@@ -173,7 +173,7 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlTransaction trans = Connection.BeginTransaction();
         trans.Rollback();
       }
-      catch (Exception ex) { }
+      catch (Exception) { }
     }
   }
 }

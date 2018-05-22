@@ -1,4 +1,4 @@
-// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -449,13 +449,20 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void ConnectUsingMySQL41Auth()
     {
-      using (var session = MySQLX.GetSession(ConnectionStringUri + "?auth=MySQL41"))
+      var connectionStringUri = ConnectionStringUri;  
+      if (session.InternalSession.GetServerVersion().isAtLeast(8, 0, 4))
+      {
+        // Use connection string uri set with a mysql_native_password user.
+        connectionStringUri = ConnectionStringUriNative;
+      }
+
+      using (var session = MySQLX.GetSession(connectionStringUri + "?auth=MySQL41"))
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
         Assert.Equal(MySqlAuthenticationMode.MYSQL41, session.Settings.Auth);
       }
 
-      using (var session = MySQLX.GetSession(ConnectionStringUri + "?auth=mysql41&sslmode=none"))
+      using (var session = MySQLX.GetSession(connectionStringUri + "?auth=mysql41&sslmode=none"))
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
         Assert.Equal(MySqlAuthenticationMode.MYSQL41, session.Settings.Auth);
@@ -505,6 +512,24 @@ namespace MySqlX.Data.Tests
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
         Assert.Equal(MySqlAuthenticationMode.SHA256_MEMORY, session.Settings.Auth);
+      }
+    }
+
+    [Fact]
+    public void GetUri()
+    {
+      var connectionUri = session.Uri;
+      using (var internalSession = MySQLX.GetSession(connectionUri))
+      {
+        // Validate that all properties keep their original value.
+        foreach (var connectionOption in session.Settings.values)
+        {
+          // SslCrl connection option is skipped since it isn't currently supported.
+          if (connectionOption.Key == "sslcrl")
+            continue;
+
+          Assert.Equal(session.Settings[connectionOption.Key], internalSession.Settings[connectionOption.Key]);
+        }
       }
     }
   }
