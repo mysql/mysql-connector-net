@@ -1,4 +1,4 @@
-// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -57,7 +57,6 @@ namespace MySql.Data.EntityFrameworkCore.Tests
             context.Database.EnsureCreated();                        
         }
 
-
         [Fact]
         public void CanUseShadowPropertyWhenUpdatingEntry()
         {
@@ -89,26 +88,25 @@ namespace MySql.Data.EntityFrameworkCore.Tests
 
         [Fact]
         public void CanUseShadowPropertyWhenAddingEntry()
-        {
-                    
-                Assert.False(context.Database.EnsureCreated());
-                var ad = new Address { Street = "New street", City = "Oregon" };
-                var g = new Guest { Name = "Guest number one", Address = ad };
-                context.Set<Guest>().Add(g);   
+        {    
+          Assert.False(context.Database.EnsureCreated());
+          var ad = new Address { Street = "New street", City = "Oregon" };
+          var g = new Guest { Name = "Guest number one", Address = ad };
+          context.Set<Guest>().Add(g);   
 
-                context.SaveChanges();            
+          context.SaveChanges();            
 
-                // check data using MySqlCommand
-                using (var cnn = new MySqlConnection(context.Database.GetDbConnection().ConnectionString))
-                {
-                    if (cnn.State != ConnectionState.Open)
-                        cnn.Open();
+          // check data using MySqlCommand
+          using (var cnn = new MySqlConnection(context.Database.GetDbConnection().ConnectionString))
+          {
+            if (cnn.State != ConnectionState.Open)
+              cnn.Open();
 
-                    var cmd = new MySqlCommand("Select CreatedAt from Guests Limit 1", cnn);
-                    var createdAt = cmd.ExecuteScalar();
-                    Assert.False(createdAt == null);
-                    Assert.True(((DateTime)createdAt).Date.CompareTo(DateTime.Now.Date) == 0);
-                }                   
+            var cmd = new MySqlCommand("Select CreatedAt from Guests Limit 1", cnn);
+            var createdAt = cmd.ExecuteScalar();
+            Assert.False(createdAt == null);
+            Assert.True(((DateTime)createdAt).Date.CompareTo(DateTime.Now.Date) == 0);
+          }                   
         }
 
         public void Dispose()
