@@ -1,4 +1,4 @@
-// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -80,16 +80,16 @@ namespace MySqlX.XDevAPI.CRUD
       }
     }
 
-    private List<string> AssignIds()
-    {
-      List<string> newIds = new List<string>();
-      foreach (DbDoc doc in _DbDocs)
-      {
-        doc.EnsureId();
-        newIds.Add(doc.Id.ToString());
-      }
+    //private List<string> AssignIds()
+    //{
+    //  List<string> newIds = new List<string>();
+    //  foreach (DbDoc doc in _DbDocs)
+    //  {
+    //    doc.EnsureId();
+    //    newIds.Add(doc.Id.ToString());
+    //  }
 
-      return newIds;
-    }
+    //  return newIds;
+    //}
   }
 }

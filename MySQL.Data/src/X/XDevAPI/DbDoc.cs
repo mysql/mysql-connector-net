@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -90,22 +90,22 @@ namespace MySqlX.XDevAPI
       get { return values.ContainsKey("_id"); }
     }
 
-    internal void EnsureId()
-    {
-      if (!HasId)
-      {
-        char separatorChar = '-';
-        string[] token = Guid.NewGuid().ToString().Split(separatorChar);
-        string guid = string.Empty;
-        for (int i = token.Length-1; i >= 0; i--)
-        {
-          guid += token[i];
-          if (i != 0) guid += separatorChar;
-        }
+    //internal void EnsureId()
+    //{
+    //  if (!HasId)
+    //  {
+    //    char separatorChar = '-';
+    //    string[] token = Guid.NewGuid().ToString().Split(separatorChar);
+    //    string guid = string.Empty;
+    //    for (int i = token.Length-1; i >= 0; i--)
+    //    {
+    //      guid += token[i];
+    //      if (i != 0) guid += separatorChar;
+    //    }
 
-        SetValue("_id", guid.Replace(separatorChar.ToString(), string.Empty));
-      }
-    }
+    //    SetValue("_id", guid.Replace(separatorChar.ToString(), string.Empty));
+    //  }
+    //}
 
     private object GetValue(string path)
     {

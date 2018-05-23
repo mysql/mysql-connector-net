@@ -58,6 +58,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     public void FetchOne()
     {
       Table t = testSchema.GetTable("test");
+      Assert.True(t.ExistsInDatabase());
       Assert.Equal(38, t.Select("age").Execute().FetchOne()["age"]);
     }
 
@@ -100,6 +101,8 @@ namespace MySqlX.Data.Tests.RelationalTests
       MultiTableSelectTest(table.Select().Limit(10).Offset(1),
         allRows.Skip(1).Take(10).ToArray());
       MultiTableSelectTest(table.Select().Limit(1).Offset(1),
+        allRows.Skip(1).Take(1).ToArray());
+      MultiTableSelectTest(table.Select().Limit(1, 1),
         allRows.Skip(1).Take(1).ToArray());
       MultiTableSelectTest(table.Select().Where("name like :name").Bind("nAme", "%jon%"),
         allRows.Where(c => c[1].ToString().Contains("jon")).ToArray());

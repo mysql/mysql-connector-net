@@ -43,6 +43,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("INSERT INTO test2 VALUES (1,0)");
 
       var rowResult = testSchema.GetTable("test1").Select("id").Execute();
+      Assert.Equal(0, rowResult.IndexOf("id"));
       foreach (var row in rowResult)
       {
         var result = testSchema.GetTable("test2").Update().Where("id=1").Set("val", row["id"]).Execute();

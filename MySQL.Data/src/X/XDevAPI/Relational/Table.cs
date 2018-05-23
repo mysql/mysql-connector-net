@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -130,9 +130,9 @@ namespace MySqlX.XDevAPI.Relational
     }
 
     /// <summary>
-    /// Verifies if the table exists in database.
+    /// Verifies if the table exists in the database.
     /// </summary>
-    /// <returns>True if table exists, false otherwise.</returns>
+    /// <returns><c>true</c> if the table exists; otherwise, <c>false</c>.</returns>
     public override bool ExistsInDatabase()
     {
       return Session.XSession.TableExists(Schema, Name);

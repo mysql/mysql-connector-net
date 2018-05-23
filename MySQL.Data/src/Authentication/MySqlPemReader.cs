@@ -1,4 +1,4 @@
-// Copyright © 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -175,36 +175,6 @@ public class MySqlPemReader
       try
       {
         binaryKey = Convert.FromBase64String(AliasText.Encoding.Default.GetString(formattedRawPublicKey));
-      }
-      catch (FormatException)
-      {
-        return null;
-      }
-
-      return binaryKey;
-    }
-
-    static byte[] DecodeOpenSslKey2(byte[] rawPublicKey)
-    {
-      if (rawPublicKey == null) return null;
-
-      var pem = AliasText.Encoding.Default.GetString(rawPublicKey);
-      pem = pem.Replace(Environment.NewLine, "");
-      const string header = "-----BEGIN PUBLIC KEY-----";
-      const string footer = "-----END PUBLIC KEY-----";
-      pem = pem.Trim();
-      byte[] binaryKey;
-      if (!pem.StartsWith(header) || !pem.EndsWith(footer))
-        return null;
-
-      StringBuilder builder = new StringBuilder(pem);
-      builder.Replace(header, "");
-      builder.Replace(footer, "");
-      string formattedPem = builder.ToString().Trim();
-
-      try
-      {
-        binaryKey = Convert.FromBase64String(formattedPem);
       }
       catch (FormatException)
       {

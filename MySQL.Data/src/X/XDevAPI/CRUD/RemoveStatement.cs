@@ -42,7 +42,7 @@ namespace MySqlX.XDevAPI.CRUD
 
     /// <summary>
     /// Sets user-defined sorting criteria for the operation. The strings use normal SQL syntax like
-    /// "order ASC"  or "pages DESC, age ASC".
+    /// "order ASC" or "pages DESC, age ASC".
     /// </summary>
     /// <param name="order">The order criteria.</param>
     /// <returns>A generic object representing the implementing statement type.</returns>

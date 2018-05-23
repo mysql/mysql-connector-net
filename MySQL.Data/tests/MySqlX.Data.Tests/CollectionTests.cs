@@ -100,5 +100,14 @@ namespace MySqlX.Data.Tests
       Assert.Throws<ArgumentNullException>(() => testColl.DropIndex("  "));
       Assert.Throws<ArgumentNullException>(() => testColl.DropIndex(null));
     }
+
+    [Fact]
+    public void ValidateExistence()
+    {
+      Session session = GetSession();
+      Schema schema = session.GetSchema("test");
+      var ex = Assert.Throws<MySqlException>(() => schema.GetCollection("nonExistentCollection", true));
+      Assert.Equal("Collection 'nonExistentCollection' does not exist.", ex.Message);
+    }
   }
 }
