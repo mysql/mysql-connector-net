@@ -1,4 +1,4 @@
-// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -262,7 +262,9 @@ namespace MySql.Data.MySqlClient.Tests
     {
       executeSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1, 'Test')", Connection);
+      Assert.False(cmd.IsPrepared);
       cmd.Prepare();
+      Assert.True(cmd.IsPrepared);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
       }
@@ -365,6 +367,14 @@ namespace MySql.Data.MySqlClient.Tests
       c = new MySqlConnection("server=localhost;default command timeout=0");
       cmd = new MySqlCommand("", c);
       Assert.Equal(0, cmd.CommandTimeout);
+
+      // Defaults to Int32.MaxValue/1000 when provided value is larger. 
+      c = new MySqlConnection(Connection.ConnectionString);
+      cmd = new MySqlCommand("", c);
+      c.Open();
+      cmd.CommandTimeout = Int32.MaxValue;
+      Assert.Equal(Int32.MaxValue/1000, cmd.CommandTimeout);
+      c.Close();
     }
 
     /// <summary>

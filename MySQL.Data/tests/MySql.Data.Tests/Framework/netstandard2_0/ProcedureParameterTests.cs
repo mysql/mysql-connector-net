@@ -1,4 +1,4 @@
-// Copyright © 2013, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -340,17 +340,46 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void PossibleValues()
     {
-      using (var conn = new MySqlConnection(Connection.ConnectionString))
+      var builder = new MySqlConnectionStringBuilder(Connection.ConnectionString);
+      using (var conn = new MySqlConnection(builder.ConnectionString))
       {
         conn.Open();
-        var cmd = new MySqlCommand(@"CREATE  PROCEDURE PossibleValues (id INT UNSIGNED ZEROFILL,
+        var cmd = new MySqlCommand(@"CREATE PROCEDURE PossibleValues (id INT UNSIGNED ZEROFILL,
           dec1 DECIMAL(10,2), 
           name VARCHAR(20) /* this is a comment */ CHARACTER SET ascii,
           t1 TINYTEXT BINARY, t2 ENUM('a','b','c'),
           t3 /* comment */ SET(/* comment */'1','2','3'))
           BEGIN SELECT name; END", conn);
         cmd.ExecuteNonQuery();
-        cmd = new MySqlCommand("PossibleValues", Connection);
+        cmd.CommandText = "PossibleValues";
+        cmd.CommandType = CommandType.StoredProcedure;
+        MySqlCommandBuilder.DeriveParameters(cmd);
+        Assert.Null(cmd.Parameters["@id"].PossibleValues);
+        Assert.Null(cmd.Parameters["@dec1"].PossibleValues);
+        Assert.Null(cmd.Parameters["@name"].PossibleValues);
+        Assert.Null(cmd.Parameters["@t1"].PossibleValues);
+        MySqlParameter t2 = cmd.Parameters["@t2"];
+        Assert.NotNull(t2.PossibleValues);
+        Assert.Equal("a", t2.PossibleValues[0]);
+        Assert.Equal("b", t2.PossibleValues[1]);
+        Assert.Equal("c", t2.PossibleValues[2]);
+        MySqlParameter t3 = cmd.Parameters["@t3"];
+        Assert.NotNull(t3.PossibleValues);
+        Assert.Equal("1", t3.PossibleValues[0]);
+        Assert.Equal("2", t3.PossibleValues[1]);
+        Assert.Equal("3", t3.PossibleValues[2]);
+        conn.Close();
+      }
+
+      // Default to the current database when it isn't specified. 
+      var dbName = builder.Database;
+      builder.Database = null;
+      using (var conn = new MySqlConnection(builder.ConnectionString))
+      {
+        conn.Open();
+        var cmd = new MySqlCommand($"USE `{dbName}`", conn);
+        cmd.ExecuteNonQuery();
+        cmd.CommandText = "PossibleValues";
         cmd.CommandType = CommandType.StoredProcedure;
         MySqlCommandBuilder.DeriveParameters(cmd);
         Assert.Null(cmd.Parameters["@id"].PossibleValues);

@@ -108,6 +108,26 @@ namespace MySql.Data.MySqlClient.Tests
           }
         }
       }
+
+      opts.IsolationLevel = System.Transactions.IsolationLevel.ReadUncommitted;
+      using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, opts))
+      {
+        string connStr = Connection.ConnectionString;
+        using (MySqlConnection myconn = new MySqlConnection(connStr))
+        {
+          myconn.Open();
+          MySqlCommand cmd = new MySqlCommand(Connection.driver.Version.isAtLeast(8, 0, 1) ?
+            "SHOW VARIABLES LIKE 'transaction_isolation'" :
+            "SHOW VARIABLES LIKE 'tx_isolation'"
+          , myconn);
+          using (MySqlDataReader reader = cmd.ExecuteReader())
+          {
+            reader.Read();
+            string level = reader.GetString(1);
+            Assert.Equal("READ-UNCOMMITTED", level);
+          }
+        }
+      }
     }
 #endif
 

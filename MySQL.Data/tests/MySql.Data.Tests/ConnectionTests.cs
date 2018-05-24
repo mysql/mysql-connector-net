@@ -460,7 +460,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Test if keepalive parameters work.
     /// </summary>
-    [FactNet452]
+    [Fact]
     public void Keepalive()
     {
       MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Connection.ConnectionString);

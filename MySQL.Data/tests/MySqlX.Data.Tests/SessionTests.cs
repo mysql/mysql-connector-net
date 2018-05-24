@@ -532,5 +532,17 @@ namespace MySqlX.Data.Tests
         }
       }
     }
+
+    [Fact]
+    public void Keepalive()
+    {
+      MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(ConnectionString);
+      builder.Keepalive = 1;
+      using (var session = MySQLX.GetSession(builder.ConnectionString))
+      {
+        Assert.Equal<uint>(1, session.Settings.Keepalive);
+        session.Close();
+      }
+    }
   }
 }
