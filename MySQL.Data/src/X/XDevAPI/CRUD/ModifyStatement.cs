@@ -77,9 +77,13 @@ namespace MySqlX.XDevAPI.CRUD
     /// <returns>This <see cref="ModifyStatement"/> object.</returns>
     public ModifyStatement Unset(params string[] docPath)
     {
+      if (docPath == null)
+        return this;
+
       foreach (var item in docPath)
       {
-        Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ItemRemove, item));
+        if (!string.IsNullOrWhiteSpace(item))
+          Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ItemRemove, item));
       }
 
       return this;
@@ -115,6 +119,9 @@ namespace MySqlX.XDevAPI.CRUD
     /// <returns>A <see cref="ModifyStatement"/> object containing the updated array.</returns>
     public ModifyStatement ArrayInsert(string field, object value)
     {
+      if (value is string && value.ToString()==string.Empty)
+        throw new ArgumentException(nameof(value), Resources.StringEmpty);
+
       Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ArrayInsert, field).SetValue(value));
       return this;
     }
@@ -127,6 +134,9 @@ namespace MySqlX.XDevAPI.CRUD
     /// <returns>A <see cref="ModifyStatement"/> object containing the updated array.</returns>
     public ModifyStatement ArrayAppend(string docPath, object value)
     {
+      if (value is string && value.ToString() == string.Empty)
+        throw new ArgumentException(nameof(value), Resources.StringEmpty);
+
       Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ArrayAppend, docPath).SetValue(value));
       return this;
     }

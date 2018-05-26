@@ -48,6 +48,8 @@ namespace MySqlX.Data.Tests.CrudTests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result r = test.Add(docs).Execute();
+      Assert.Equal(r.Warnings.Count, r.WarningsCount);
+      Assert.Equal(r.WarningsCount, r.WarningCount);
 
       var docResult = test.Find().Execute();
       foreach (var doc in docResult)

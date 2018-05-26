@@ -1063,6 +1063,15 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to String can&apos;t be empty..
+        /// </summary>
+        public static string StringEmpty {
+            get {
+                return ResourceManager.GetString("StringEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Timeout expired.  The timeout period elapsed prior to completion of the operation or the server is not responding..
         /// </summary>
         public static string Timeout {

@@ -26,6 +26,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.Data;
+using MySql.Data.MySqlClient;
 using MySqlX.Serialization;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
@@ -67,8 +68,9 @@ namespace MySqlX.Data.Tests
       Result result = coll
                 .Add(new { _id = 1, name = "Book 1", pages = 20 })
                 .Add(new { _id = 2, name = "Book 2", pages = 30 })
+                .Add(new { _id = 3, name = "Book 3", pages = 40, author = "John", author2 = "Mary" })
                 .Execute();
-      Assert.Equal<ulong>(2, result.AffectedItemsCount);
+      Assert.Equal<ulong>(3, result.AffectedItemsCount);
 
       // Unset 1 field.
       result = coll.Modify("_id = 1").Unset("pages").Execute();
@@ -81,6 +83,18 @@ namespace MySqlX.Data.Tests
       Assert.Equal<ulong>(1, result.AffectedItemsCount);
       document = coll.Find("_id = 2").Execute().FetchOne();
       Assert.Equal(1, document.values.Count);
+
+      // Unsetting nonexistent fields doesn't raise an error.
+      result = coll.Modify("_id = 2").Unset("otherfield").Execute();
+
+      // Null or whitespace items are ignored.
+      result = coll.Modify("_id = 3").Unset(null).Unset("name").Execute();
+      document = coll.Find("_id = 3").Execute().FetchOne();
+      Assert.Equal(4, document.values.Count);
+
+      result = coll.Modify("_id = 3").Unset(null, "", "author", " ", "author2").Execute();
+      document = coll.Find("_id = 3").Execute().FetchOne();
+      Assert.Equal(2, document.values.Count);
     }
 
     [Fact]
@@ -246,18 +260,59 @@ namespace MySqlX.Data.Tests
       Collection collection = CreateCollection("test");
       collection.Add("{ \"x\":[1,2] }").Execute();
 
+      // x[1]=43, x[2]=2. 
       collection.Modify("true").ArrayInsert("x[1]", 43).Execute();
+
+      // x[3]=44.
       collection.Modify("true").ArrayInsert("x[3]", 44).Execute();
+
+      // Since array only contains 4 items the value 46 is assigned to x[4].
+      collection.Modify("true").ArrayInsert("x[5]", 46).Execute();
+
+      // Since array only contains 5 items the value 50 is assigned to x[5].
+      collection.Modify("true").ArrayInsert("x[20]", 50).Execute();
+
+      // Assign an item from different data type.
+      collection.Modify("true").ArrayInsert("x[6]", "string").Execute();
+
+      // Assign a document.
+      collection.Modify("true").ArrayInsert("x[7]", "{ \"name\":\"Mike\" }").Execute();
 
       var result = collection.Find().Execute();
       var document = result.FetchOne();
-      var x = (object[]) document.values["x"];
+      var x = (object[])document.values["x"];
 
-      Assert.Equal(4, x.Length);
-      Assert.Equal(1, (int) x[0]);
-      Assert.Equal(43, (int) x[1]);
-      Assert.Equal(2, (int) x[2]);
-      Assert.Equal(44, (int) x[3]);
+      Assert.Equal(8, x.Length);
+      Assert.Equal(1, (int)x[0]);
+      Assert.Equal(43, (int)x[1]);
+      Assert.Equal(2, (int)x[2]);
+      Assert.Equal(44, (int)x[3]);
+      Assert.Equal(46, (int)x[4]);
+      Assert.Equal(50, (int)x[5]);
+      Assert.Equal("string", x[6]);
+      Assert.True(new DbDoc(x[7]) is DbDoc);
+
+      // No value is inserted if the array doesn't exist.
+      collection.Modify("true").ArrayInsert("y[0]", 1).Execute();
+
+      result = collection.Find().Execute();
+      document = result.FetchOne();
+      Assert.False(document.values.ContainsKey("y"));
+
+      collection.Modify("true").ArrayInsert("x[0]", null).Execute();
+      collection.Modify("true").ArrayInsert("x[1]", " ").Execute();
+
+      result = collection.Find().Execute();
+      document = result.FetchOne();
+      x = (object[])document.values["x"];
+      Assert.Equal(null, x[0]);
+      Assert.Equal(" ", x[1]);
+
+      // Insert an empty string fails
+      var ex = Assert.Throws<ArgumentException>(() => collection.Modify("true").ArrayInsert("x[0]", "").Execute());
+      Assert.Contains("String can't be empty.", ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => collection.Modify("true").ArrayInsert("x[0]", string.Empty).Execute());
+      Assert.Contains("String can't be empty.", ex.Message);
     }
 
     [Fact]
@@ -266,18 +321,37 @@ namespace MySqlX.Data.Tests
       Collection collection = CreateCollection("test");
       collection.Add("{ \"x\":[1,2] }").Execute();
 
+      // Append values of different types, null and spaces.
       collection.Modify("true").ArrayAppend("x", 43).Execute();
-      collection.Modify("true").ArrayAppend("x", 44).Execute();
+      collection.Modify("true").ArrayAppend("x", "string").Execute();
+      collection.Modify("true").ArrayAppend("x", true).Execute();
+      collection.Modify("true").ArrayAppend("x", null).Execute();
+      collection.Modify("true").ArrayAppend("x", " ").Execute();
 
       DocResult result = collection.Find().Execute();
       DbDoc document = result.FetchOne();
       var x = (object[]) document.values["x"];
 
-      Assert.Equal(4, x.Length);
+      Assert.Equal(7, x.Length);
       Assert.Equal(1, (int) x[0]);
       Assert.Equal(2, (int) x[1]);
       Assert.Equal(43, (int) x[2]);
-      Assert.Equal(44, (int) x[3]);
+      Assert.Equal("string", x[3]);
+      Assert.Equal(true, x[4]);
+      Assert.Equal(null, x[5]);
+      Assert.Equal(" ", x[6]);
+
+      // No value is appended if the array doesn't exist.
+      collection.Modify("true").ArrayAppend("y", 45).Execute();
+
+      result = collection.Find().Execute();
+      document = result.FetchOne();
+      Assert.False(document.values.ContainsKey("y"));
+
+      var ex = Assert.Throws<ArgumentException>(() => collection.Modify("true").ArrayAppend("x", "").Execute());
+      Assert.Contains("String can't be empty.", ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => collection.Modify("true").ArrayAppend("x", string.Empty).Execute());
+      Assert.Contains("String can't be empty.", ex.Message);
     }
   }
 }

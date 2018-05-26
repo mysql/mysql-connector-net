@@ -545,7 +545,8 @@ namespace MySqlX.Protocol
         var updateBuilder = new UpdateOperation();
         updateBuilder.Operation = update.Type;
         updateBuilder.Source = update.GetSource(isRelational);
-        if (update.HasValue)
+        if (update.Type != UpdateOperation.Types.UpdateType.ItemRemove
+          || (update.Type == UpdateOperation.Types.UpdateType.ItemRemove && update.HasValue))
           updateBuilder.Value = update.GetValue();
         msg.Operation.Add(updateBuilder);
       }

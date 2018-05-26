@@ -125,6 +125,27 @@ namespace MySqlX.Data.Tests
       }
     }
 
+    [Fact]
+    public void SessionUsingDefaultSchema()
+    {
+      using (Session mySession = MySQLX.GetSession(ConnectionString + $";database={schemaName};"))
+      {
+        Assert.Equal(SessionState.Open, mySession.InternalSession.SessionState);
+        Assert.Equal(schemaName, mySession.DefaultSchema.Name);
+        Assert.Equal(schemaName, mySession.GetCurrentSchema().Name);
+        Assert.True(mySession.Schema.ExistsInDatabase());
+        mySession.SetCurrentSchema("mysql");
+        Assert.NotEqual(mySession.DefaultSchema.Name, mySession.Schema.Name);
+      }
+
+      // DefaultSchema is null because no database was provided in the connection string/URI.
+      using (Session mySession = MySQLX.GetSession(ConnectionString))
+      {
+        Assert.Equal(SessionState.Open, mySession.InternalSession.SessionState);
+        Assert.Equal(null, mySession.DefaultSchema);
+      }
+    }
+
     protected void CheckConnectionStringAsUri(string connectionstring, string user, string password, string server, uint port, params string[] parameters)
     {
       string result = this.session.ParseConnectionString(connectionstring);
@@ -518,8 +539,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void GetUri()
     {
-      var connectionUri = session.Uri;
-      using (var internalSession = MySQLX.GetSession(connectionUri))
+      using (var internalSession = MySQLX.GetSession(session.Uri))
       {
         // Validate that all properties keep their original value.
         foreach (var connectionOption in session.Settings.values)

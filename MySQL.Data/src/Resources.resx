@@ -559,4 +559,7 @@
   <data name="RSAPublicKeyRetrievalNotEnabled" xml:space="preserve">
     <value>Retrieval of the RSA public key is not enabled for insecure connections.</value>
   </data>
+  <data name="StringEmpty" xml:space="preserve">
+    <value>String can't be empty.</value>
+  </data>
 </root>
