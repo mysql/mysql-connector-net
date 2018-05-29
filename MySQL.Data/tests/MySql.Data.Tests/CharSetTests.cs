@@ -1,4 +1,4 @@
-// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -105,6 +105,28 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+    /// <summary>
+    /// Fix Bug #27818822 CONTRIBUTION: FIXING ENCODING FOR ENTITY FRAMEWORK CORE
+    /// </summary>
+    [Fact]
+    public void Encoding()
+    {
+      executeSQL("CREATE TABLE Test (id int, name VARCHAR(200))");
+      executeSQL("INSERT INTO Test VALUES(1, 'äâáàç')");
+
+      using (var conn = new MySqlConnection(Connection.ConnectionString))
+      {
+        conn.Open();
+
+        MySqlCommand cmd = new MySqlCommand("SELECT name FROM Test", conn);
+
+        using (MySqlDataReader reader = cmd.ExecuteReader())
+        {
+          reader.Read();
+          Assert.Equal("äâáàç", reader.GetString(0));
+        }
+      }
+    }
 
 #if !NETCOREAPP1_1
     [Fact]

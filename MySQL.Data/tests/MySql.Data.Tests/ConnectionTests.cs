@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -341,8 +341,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !(NETCOREAPP2_0 && DEBUG)
-    [Fact (Skip="Fix this")]
+    [Fact(Skip ="dotnet core seems to keep objects alive")] // reference https://github.com/dotnet/coreclr/issues/13490
     public void ConnectionCloseByGC()
     {
       int threadId;
@@ -354,12 +353,17 @@ namespace MySql.Data.MySqlClient.Tests
       c.StateChange += new StateChangeEventHandler(check.stateChangeHandler);
       c.Open();
       threadId = c.ServerThread;
+      WeakReference wr = new WeakReference(c);
+      Assert.True(wr.IsAlive);
       c = null;
       GC.Collect();
       GC.WaitForPendingFinalizers();
+      Assert.False(wr.IsAlive);
       Assert.True(check.closed);
+
+      MySqlCommand cmd = new MySqlCommand("KILL " + threadId, Connection);
+      cmd.ExecuteNonQuery();
     }
-#endif
 
         //    /// <summary>
         //    /// Bug #30964 StateChange imperfection 

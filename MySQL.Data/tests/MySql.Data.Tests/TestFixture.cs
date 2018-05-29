@@ -77,6 +77,7 @@ namespace MySql.Data.MySqlClient.Tests
       settings.AllowUserVariables = true;
       settings.Pooling = false;
       settings.IgnorePrepare = false;
+      settings.ConnectionTimeout = 600;
       TestClass.AdjustConnectionSettings(settings);
       MaxPacketSize = 1000 * 1024;
 
@@ -100,6 +101,10 @@ namespace MySql.Data.MySqlClient.Tests
       {
         executeSQL("SET GLOBAL max_allowed_packet=" + MaxPacketSize, root);
         executeSQL("SET GLOBAL SQL_MODE = STRICT_ALL_TABLES", root);
+        executeSQL("SET GLOBAL connect_timeout=600", root);
+        executeSQL("SET GLOBAL net_read_timeout=6000", root);
+        executeSQL("SET GLOBAL net_write_timeout=6000", root);
+
 
         var data = Utils.FillTable("SHOW DATABASES", root);
         foreach (DataRow row in data.Rows)
