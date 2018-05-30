@@ -110,7 +110,17 @@ namespace MySqlX.XDevAPI.Relational
     /// <returns>This same <see cref="TableSelectStatement"/> object set with the specified group-by criteria.</returns>
     public TableSelectStatement GroupBy(params string[] groupBy)
     {
-      findParams.GroupBy = groupBy;
+      if (groupBy == null)
+        return this;
+
+      var groupByList = new List<string>();
+      foreach (var item in groupBy)
+      {
+        if (item != null)
+          groupByList.Add(item);
+      }
+
+      findParams.GroupBy = groupByList.Count > 0 ? groupByList.ToArray() : null;
       return this;
     }
 

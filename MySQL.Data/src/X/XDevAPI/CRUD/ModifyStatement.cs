@@ -82,7 +82,7 @@ namespace MySqlX.XDevAPI.CRUD
 
       foreach (var item in docPath)
       {
-        if (!string.IsNullOrWhiteSpace(item))
+        if (item != null)
           Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ItemRemove, item));
       }
 

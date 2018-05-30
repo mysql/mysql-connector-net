@@ -206,7 +206,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void RowLockingNotSupportedInOlderVersions()
     {
-      if (session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+      if (session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
 
       Collection coll = CreateCollection("test");
 
@@ -220,7 +220,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void SimpleSharedLock()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
 
       session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -256,7 +256,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void SimpleExclusiveLock()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
 
       session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -294,7 +294,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void SharedLockForbidsToModifyDocuments()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
 
       session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -337,7 +337,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void ExclusiveLockForbidsToModifyDocuments()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
 
       session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -377,7 +377,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void SharedLockAfterExclusiveLock()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
 
       session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -419,7 +419,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void ExclusiveLockAfterSharedLock()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
 
       session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -462,7 +462,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void ExclusiveLockAfterExclusiveLock()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
 
       session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -503,7 +503,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void InOperatorWithListOfValues()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
 
       // Validates the IN operator allows expressions of the type
       // ( compExpr ["NOT"] "IN" "(" argsList ")" ) | ( compExpr ["NOT"] "IN" "[" argsList "]" )
@@ -559,7 +559,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void InOperatorWithCompExpr()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
 
       // Validates the IN operator allows expressions of the type: compExpr ["NOT"] "IN" compExpr
       Collection coll = CreateCollection("test");
@@ -597,7 +597,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void InOperatorWithJsonArrays()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
 
       Collection coll = CreateCollection("test");
       var docString = "{ \"_id\": \"1001\", \"ARR\":[1,2,3], \"ARR1\":[\"name\", \"name2\", \"name3\"]}";
@@ -716,6 +716,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void Grouping()
     {
+      GetSession().SQL("SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', '')); ").Execute();
       Collection collection = CreateCollection("test");
       var docs = new[]
       {
@@ -735,10 +736,49 @@ namespace MySqlX.Data.Tests
       var result = collection.Find().Fields("_id as ID", "name as Name", "age as Age").GroupBy("age").Execute();
       Assert.Equal(5, result.FetchAll().Count);
 
+      // GroupBy with null.
+      result = collection.Find().Fields("_id as ID", "name as Name", "age as Age").GroupBy(null).Execute();
+      Assert.Equal(7, result.FetchAll().Count);
+      result = collection.Find().Fields("_id as ID", "name as Name", "age as Age").GroupBy(null, null).Execute();
+      Assert.Equal(7, result.FetchAll().Count);
+      result = collection.Find().Fields("_id as ID", "name as Name", "age as Age").GroupBy(null, "age").Execute();
+      Assert.Equal(5, result.FetchAll().Count);
+
       // Having operation.
       // Having reduces the original 5 rows to 3 since 2 rows have a cnt=2, due to the repeated names.
       result = collection.Find().Fields("_id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having("cnt = 1").Execute();
       Assert.Equal(3, result.FetchAll().Count);
+
+      // Having with null.
+      result = collection.Find().Fields("_id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having(null).Execute();
+      Assert.Equal(5, result.FetchAll().Count);
+
+      // GroupBy with invalid field name.
+      var ex = Assert.Throws<MySqlException>(() => collection.Find().Fields("_id as ID", "name as Name", "age as Age").GroupBy("none").Execute());
+      Assert.Equal("Unknown column 'none' in 'group statement'", ex.Message);
+
+      // GroupBy with empty strings.
+      var ex2 = Assert.Throws<ArgumentException>(() => collection.Find().Fields("_id as ID", "name as Name", "age as Age").GroupBy("").Execute());
+      Assert.Equal("No more tokens when expecting one at token pos 0", ex2.Message);
+      ex2 = Assert.Throws<ArgumentException>(() => collection.Find().Fields("_id as ID", "name as Name", "age as Age").GroupBy(" ").Execute());
+      Assert.Equal("No more tokens when expecting one at token pos 0", ex2.Message);
+      ex2 = Assert.Throws<ArgumentException>(() => collection.Find().Fields("_id as ID", "name as Name", "age as Age").GroupBy(string.Empty).Execute());
+      Assert.Equal("No more tokens when expecting one at token pos 0", ex2.Message);
+
+      // Having with invalid field name.
+      ex = Assert.Throws<MySqlException>(() => collection.Find().Fields("_id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having("none = 1").Execute());
+      Assert.Equal("Invalid expression in grouping criteria", ex.Message);
+
+      // Having with empty strings.
+      ex2 = Assert.Throws<ArgumentException>(() => collection.Find().Fields("_id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having("").Execute());
+      Assert.Equal("Unable to parse query ''", ex2.Message);
+      Assert.Equal("No more tokens when expecting one at token pos 0", ex2.InnerException.Message);
+      ex2 = Assert.Throws<ArgumentException>(() => collection.Find().Fields("_id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having(" ").Execute());
+      Assert.Equal("Unable to parse query ' '", ex2.Message);
+      Assert.Equal("No more tokens when expecting one at token pos 0", ex2.InnerException.Message);
+      ex2 = Assert.Throws<ArgumentException>(() => collection.Find().Fields("_id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having(string.Empty).Execute());
+      Assert.Equal("Unable to parse query ''", ex2.Message);
+      Assert.Equal("No more tokens when expecting one at token pos 0", ex2.InnerException.Message);
     }
   }
 }

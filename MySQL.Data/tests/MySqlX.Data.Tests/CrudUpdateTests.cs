@@ -46,8 +46,30 @@ namespace MySqlX.Data.Tests
       Result result = coll.Add(new { _id = 1, name = "Book 1" }).Execute();
       Assert.Equal<ulong>(1, result.AffectedItemsCount);
 
-      result = coll.Modify("_id = 1").Set("pages", "20").Execute();
+      // Set integer value.
+      result = coll.Modify("_id = 1").Set("pages", 20).Execute();
       Assert.Equal<ulong>(1, result.AffectedItemsCount);
+      Assert.Equal(20, coll.GetOne(1)["pages"]);
+
+      // Set null value.
+      result = coll.Modify("_id = 1").Set("pages", null).Execute();
+      Assert.Equal<ulong>(1, result.AffectedItemsCount);
+      Assert.Equal(null, coll.GetOne(1)["pages"]);
+
+      // Set existing field.
+      result = coll.Modify("_id = 1").Set("name", "Book 2").Execute();
+      Assert.Equal<ulong>(1, result.AffectedItemsCount);
+      Assert.Equal("Book 2", coll.GetOne(1)["name"]);
+
+      // Set alphanumeric field.
+      var document = new DbDoc();
+      document.SetValue("_id", 2);
+      document.SetValue("1a", "other");
+      result = coll.Add(document).Execute();
+      Assert.Equal<ulong>(1, result.AffectedItemsCount);
+      var insertedDocument = coll.GetOne(2);
+
+      //result = coll.Modify("_id = 1").Set("1a", "other").Execute();
     }
 
     [Fact]
@@ -62,7 +84,7 @@ namespace MySqlX.Data.Tests
     }
 
     [Fact]
-    public void RemoveItemInSingleDocument()
+    public void RemoveItemInSingleDocumentUsingUnset()
     {
       Collection coll = CreateCollection("test");
       Result result = coll
@@ -83,18 +105,35 @@ namespace MySqlX.Data.Tests
       Assert.Equal<ulong>(1, result.AffectedItemsCount);
       document = coll.Find("_id = 2").Execute().FetchOne();
       Assert.Equal(1, document.values.Count);
+      result = coll.Modify("_id = 3").Unset(null, "author", "author2").Execute();
+      document = coll.Find("_id = 3").Execute().FetchOne();
+      Assert.Equal(3, document.values.Count);
 
       // Unsetting nonexistent fields doesn't raise an error.
       result = coll.Modify("_id = 2").Unset("otherfield").Execute();
+      Assert.Equal(0ul, result.AffectedItemsCount);
 
-      // Null or whitespace items are ignored.
+      // Unsetting null items combined with valid values are ignored.
       result = coll.Modify("_id = 3").Unset(null).Unset("name").Execute();
-      document = coll.Find("_id = 3").Execute().FetchOne();
-      Assert.Equal(4, document.values.Count);
-
-      result = coll.Modify("_id = 3").Unset(null, "", "author", " ", "author2").Execute();
+      Assert.Equal(1ul, result.AffectedItemsCount);
       document = coll.Find("_id = 3").Execute().FetchOne();
       Assert.Equal(2, document.values.Count);
+
+      // Unsetting single null items raises an error
+      var ex = Assert.Throws<MySqlException>(() => coll.Modify("_id = 3").Unset(null).Execute());
+      Assert.Equal("Invalid update expression list", ex.Message);
+
+      // Unsetting empty strings raises an error.
+      ex = Assert.Throws<MySqlException>(() => coll.Modify("_id = 2").Unset("").Execute());
+      Assert.Equal("The path expression '$' is not allowed in this context.", ex.Message);
+      ex = Assert.Throws<MySqlException>(() => coll.Modify("_id = 2").Unset(string.Empty).Execute());
+      Assert.Equal("The path expression '$' is not allowed in this context.", ex.Message);
+
+      // Unset with special chars.
+      var ex2 = Assert.Throws<ArgumentException>(() => coll.Modify("_id = 3").Unset(null).Unset("@*%#ç").Execute());
+      Assert.Equal("The path expression '$' is not allowed in this context.", ex.Message);
+      ex2 = Assert.Throws<ArgumentException>(() => coll.Modify("_id = 3").Unset(null).Unset("******").Execute());
+      Assert.Equal("The path expression '$' is not allowed in this context.", ex.Message);
     }
 
     [Fact]
@@ -313,6 +352,19 @@ namespace MySqlX.Data.Tests
       Assert.Contains("String can't be empty.", ex.Message);
       ex = Assert.Throws<ArgumentException>(() => collection.Modify("true").ArrayInsert("x[0]", string.Empty).Execute());
       Assert.Contains("String can't be empty.", ex.Message);
+    }
+
+    [Fact]
+    public void ArrayAppendUsesCorrectDataTypes()
+    {
+      Collection collection = CreateCollection("test");
+      collection.Add("{ \"_id\":\"123\", \"email\":[ \"alice@ora.com\"], \"dates\":\"4/1/2017\" }").Execute();
+      collection.Modify("true").ArrayAppend("dates", "\"1\"").Execute();
+      collection.Modify("true").ArrayAppend("dates", 1).Execute();
+      var document = collection.GetOne("123");
+      var dates = document["dates"] as object[];
+      Assert.True(dates[1] is string);
+      Assert.True(dates[2] is int);
     }
 
     [Fact]

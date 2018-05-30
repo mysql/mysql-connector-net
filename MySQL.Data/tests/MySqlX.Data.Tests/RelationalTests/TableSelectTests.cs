@@ -439,6 +439,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Fact]
     public void Grouping()
     {
+      GetSession().SQL("SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', '')); ").Execute();
       Table table = testSchema.GetTable("test");
 
       // Insert additonal users.
@@ -461,10 +462,49 @@ namespace MySqlX.Data.Tests.RelationalTests
       var result = table.Select().GroupBy("age").Execute();
       Assert.Equal(5, result.FetchAll().Count);
 
+      // GroupBy with null.
+      result = table.Select("id as ID", "name as Name", "age as Age").GroupBy(null).Execute();
+      Assert.Equal(7, result.FetchAll().Count);
+      result = table.Select("id as ID", "name as Name", "age as Age").GroupBy(null, null).Execute();
+      Assert.Equal(7, result.FetchAll().Count);
+      result = table.Select("id as ID", "name as Name", "age as Age").GroupBy(null, "age").Execute();
+      Assert.Equal(5, result.FetchAll().Count);
+
       // Having operation.
       // Having reduces the original 5 rows to 3 since 2 rows have a cnt=2, due to the repeated names.
       result = table.Select("id", "count(name) as cnt", "age").GroupBy("age").Having("cnt = 1").Execute();
       Assert.Equal(3, result.FetchAll().Count);
+
+      // Having with null.
+      result = table.Select("id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having(null).Execute();
+      Assert.Equal(5, result.FetchAll().Count);
+
+      // GroupBy with invalid field name.
+      var ex = Assert.Throws<MySqlException>(() => table.Select("id as ID", "name as Name", "age as Age").GroupBy("none").Execute());
+      Assert.Equal("Unknown column 'none' in 'group statement'", ex.Message);
+
+      // GroupBy with empty strings.
+      var ex2 = Assert.Throws<ArgumentException>(() => table.Select("id as ID", "name as Name", "age as Age").GroupBy("").Execute());
+      Assert.Equal("No more tokens when expecting one at token pos 0", ex2.Message);
+      ex2 = Assert.Throws<ArgumentException>(() => table.Select("id as ID", "name as Name", "age as Age").GroupBy(" ").Execute());
+      Assert.Equal("No more tokens when expecting one at token pos 0", ex2.Message);
+      ex2 = Assert.Throws<ArgumentException>(() => table.Select("id as ID", "name as Name", "age as Age").GroupBy(string.Empty).Execute());
+      Assert.Equal("No more tokens when expecting one at token pos 0", ex2.Message);
+
+      // Having with invalid field name.
+      ex = Assert.Throws<MySqlException>(() => table.Select("id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having("none = 1").Execute());
+      Assert.Equal("Unknown column 'none' in 'having clause'", ex.Message);
+
+      // Having with empty strings.
+      ex2 = Assert.Throws<ArgumentException>(() => table.Select("id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having("").Execute());
+      Assert.Equal("Unable to parse query ''", ex2.Message);
+      Assert.Equal("No more tokens when expecting one at token pos 0", ex2.InnerException.Message);
+      ex2 = Assert.Throws<ArgumentException>(() => table.Select("id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having(" ").Execute());
+      Assert.Equal("Unable to parse query ' '", ex2.Message);
+      Assert.Equal("No more tokens when expecting one at token pos 0", ex2.InnerException.Message);
+      ex2 = Assert.Throws<ArgumentException>(() => table.Select("id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having(string.Empty).Execute());
+      Assert.Equal("Unable to parse query ''", ex2.Message);
+      Assert.Equal("No more tokens when expecting one at token pos 0", ex2.InnerException.Message);
     }
   }
 }
