@@ -548,7 +548,7 @@ namespace MySqlX.Protocol
         if (update.Type != UpdateOperation.Types.UpdateType.ItemRemove
           || (update.Type == UpdateOperation.Types.UpdateType.ItemRemove && update.HasValue))
           //updateBuilder.Value = update.GetValue(update.Type == UpdateOperation.Types.UpdateType.MergePatch ? true : false);
-          updateBuilder.Value = update.GetValue();
+          updateBuilder.Value = update.GetValue(update.Type);
         msg.Operation.Add(updateBuilder);
       }
       _writer.Write(ClientMessageId.CRUD_UPDATE, msg);

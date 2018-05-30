@@ -147,12 +147,12 @@ namespace MySqlX.Data.Tests
       var stmt = coll.Modify("_id = :ID");
       result = stmt.Bind("Id", 2).Set("pages", "20").Execute();
       Assert.Equal<ulong>(1, result.AffectedItemsCount);
-      result = stmt.Bind("Id", 1).Set("pages", "10").Execute();
+      result = stmt.Bind("Id", 1).Set("pages", 10).Execute();
       Assert.Equal<ulong>(1, result.AffectedItemsCount);
 
       var docs = coll.Find().Execute().FetchAll();
       Assert.Equal(new DbDoc("{ \"_id\": 1, \"name\": \"Book 1\", \"pages\": 10 }").ToString(), docs[0].ToString());
-      Assert.Equal(new DbDoc("{ \"_id\": 2, \"name\": \"Book 2\", \"pages\": 20 }").ToString(), docs[1].ToString());
+      Assert.Equal(new DbDoc("{ \"_id\": 2, \"name\": \"Book 2\", \"pages\": \"20\" }").ToString(), docs[1].ToString());
     }
 
     [Fact]
@@ -347,11 +347,15 @@ namespace MySqlX.Data.Tests
       Assert.Equal(null, x[0]);
       Assert.Equal(" ", x[1]);
 
-      // Insert an empty string fails
+      // Insert an empty string fails.
       var ex = Assert.Throws<ArgumentException>(() => collection.Modify("true").ArrayInsert("x[0]", "").Execute());
       Assert.Contains("String can't be empty.", ex.Message);
       ex = Assert.Throws<ArgumentException>(() => collection.Modify("true").ArrayInsert("x[0]", string.Empty).Execute());
       Assert.Contains("String can't be empty.", ex.Message);
+
+      // Not specifying an index raises an error.
+      var ex2 = Assert.Throws<MySqlException>(() => collection.Modify("true").ArrayInsert("dates", "5/1/2018").Execute());
+      Assert.Equal("A path expression is not a path to a cell in an array.", ex2.Message);
     }
 
     [Fact]
@@ -359,24 +363,31 @@ namespace MySqlX.Data.Tests
     {
       Collection collection = CreateCollection("test");
 
-      // Use inline expression.
+      // String containing an expression is not evaluted.
       collection.Add("{ \"_id\":\"123\", \"name\":\"alice\", \"email\":[ \"alice@ora.com\" ], \"dates\":\"4/1/2017\" }").Execute();
       collection.Modify("true").ArrayAppend("email", "UPPER($.name)").Execute();
       var document = collection.GetOne("123");
-      Assert.Equal("ALICE", (document["email"] as object[])[1]);
+      Assert.Equal("UPPER($.name)", (document["email"] as object[])[1]);
 
       // Use MySqlExpression.
-      collection.Add("{ \"_id\":\"124\", \"name\":\"alice\", \"email\":[ \"alice@ora.com\" ], \"dates\":\"4/1/2017\" }").Execute();
-      collection.Modify("_id = \"124\"").ArrayAppend("email", new MySqlExpression("UPPER($.name)")).Execute();
+      collection.Add("{ \"_id\":\"124\", \"name\":\"alice\", \"value\":[ \"alice@ora.com\" ], \"dates\":\"4/1/2017\" }").Execute();
+      collection.Modify("_id = \"124\"").ArrayAppend("value", new MySqlExpression("UPPER($.name)")).Execute();
       document = collection.GetOne("124");
-      Assert.Equal("ALICE", (document["email"] as object[])[1]);
+      Assert.Equal("ALICE", (document["value"] as object[])[1]);
 
       // Use embedded MySqlExpression.
-      collection.Add("{ \"_id\":\"125\", \"name\":\"alice\", \"email\":[ \"alice@ora.com\" ], \"dates\":\"4/1/2017\" }").Execute();
-      collection.Modify("_id = \"125\"").ArrayAppend("email", new { other = new MySqlExpression("UPPER($.name)") }).Execute();
+      collection.Add("{ \"_id\":\"125\", \"name\":\"alice\", \"value\":[ \"alice@ora.com\" ], \"dates\":\"4/1/2017\" }").Execute();
+      collection.Modify("_id = \"125\"").ArrayAppend("value", new { expression = new MySqlExpression("UPPER($.name)") }).Execute();
       document = collection.GetOne("125");
-      var item = ((document["email"] as object[])[1] as Dictionary<string, object>);
-      Assert.Equal("ALICE", item["other"]);
+      var item = ((document["value"] as object[])[1] as Dictionary<string, object>);
+      Assert.Equal("ALICE", item["expression"]);
+
+      collection.Add("{ \"_id\":\"126\", \"name\":\"alice\", \"value\":[ \"alice@ora.com\" ], \"dates\":\"4/1/2017\" }").Execute();
+      collection.Modify("_id = \"126\"").ArrayAppend("value", new { expression = new MySqlExpression("UPPER($.name)"), literal = "UPPER($.name)" }).Execute();
+      document = collection.GetOne("126");
+      item = ((document["value"] as object[])[1] as Dictionary<string, object>);
+      Assert.Equal("ALICE", item["expression"]);
+      Assert.Equal("UPPER($.name)", item["literal"]);
     }
 
     [Fact]
@@ -384,7 +395,7 @@ namespace MySqlX.Data.Tests
     {
       Collection collection = CreateCollection("test");
       collection.Add("{ \"_id\":\"123\", \"email\":[ \"alice@ora.com\"], \"dates\":\"4/1/2017\" }").Execute();
-      collection.Modify("true").ArrayAppend("dates", "\"1\"").Execute();
+      collection.Modify("true").ArrayAppend("dates", "1").Execute();
       collection.Modify("true").ArrayAppend("dates", 1).Execute();
       var document = collection.GetOne("123");
       var dates = document["dates"] as object[];
@@ -436,11 +447,11 @@ namespace MySqlX.Data.Tests
     {
       Collection collection = CreateCollection("test");
 
-      // Use inline expression.
+      // String containing an expression is not evaluted.
       collection.Add("{ \"_id\":\"123\", \"name\":\"alice\", \"email\":[ \"alice@ora.com\" ], \"dates\":\"4/1/2017\" }").Execute();
       collection.Modify("true").ArrayInsert("email[0]", "UPPER($.name)").Execute();
       var document = collection.GetOne("123");
-      Assert.Equal("ALICE", (document["email"] as object[])[0]);
+      Assert.Equal("UPPER($.name)", (document["email"] as object[])[0]);
 
       // Use MySqlExpression.
       collection.Add("{ \"_id\":\"124\", \"name\":\"alice\", \"email\":[ \"alice@ora.com\" ], \"dates\":\"4/1/2017\" }").Execute();
@@ -454,6 +465,39 @@ namespace MySqlX.Data.Tests
       document = collection.GetOne("125");
       var item = ((document["email"] as object[])[0] as Dictionary<string, object>);
       Assert.Equal("ALICE", item["other"]);
+
+      collection.Add("{ \"_id\":\"126\", \"name\":\"alice\", \"email\":[ \"alice@ora.com\" ], \"dates\":\"4/1/2017\" }").Execute();
+      collection.Modify("_id = \"126\"").ArrayInsert("email[0]", new { other = new MySqlExpression("UPPER($.name)"), literal = "UPPER($.name)" }).Execute();
+      document = collection.GetOne("126");
+      item = ((document["email"] as object[])[0] as Dictionary<string, object>);
+      Assert.Equal("ALICE", item["other"]);
+      Assert.Equal("UPPER($.name)", item["literal"]);
+    }
+
+    [Fact]
+    public void ArrayOperationsKeepDateValue()
+    {
+      DbDoc document = null;
+      Collection collection = CreateCollection("test");
+      Result r = collection.Add("{ \"_id\": \"123\", \"email\":[\"alice@ora.com\"], \"dates\": \"5/1/2018\" }").Execute();
+      Assert.Equal(1ul, r.AffectedItemsCount);
+
+      // No items are affected since dates isn't an array.
+      r = collection.Modify("true").ArrayInsert("dates[0]", "4/1/2018").Execute();
+      Assert.Equal(0ul, r.AffectedItemsCount);
+
+      // Converts a non array to an array by appending a value.
+      collection.Modify("true").ArrayAppend("dates", "6/1/2018").Execute();
+
+      // Array insert at specified index is now succesful since dates is an array.
+      collection.Modify("true").ArrayInsert("dates[0]", "4/1/2018").Execute();
+
+      document = collection.GetOne("123");
+      object[] dates = document["dates"] as object[];
+      Assert.Equal(3, dates.Length);
+      Assert.Equal("4/1/2018", dates[0]);
+      Assert.Equal("5/1/2018", dates[1]);
+      Assert.Equal("6/1/2018", dates[2]);
     }
   }
 }
