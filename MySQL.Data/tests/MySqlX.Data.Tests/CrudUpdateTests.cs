@@ -355,6 +355,31 @@ namespace MySqlX.Data.Tests
     }
 
     [Fact]
+    public void ArrayAppendWithMySqlExpression()
+    {
+      Collection collection = CreateCollection("test");
+
+      // Use inline expression.
+      collection.Add("{ \"_id\":\"123\", \"name\":\"alice\", \"email\":[ \"alice@ora.com\" ], \"dates\":\"4/1/2017\" }").Execute();
+      collection.Modify("true").ArrayAppend("email", "UPPER($.name)").Execute();
+      var document = collection.GetOne("123");
+      Assert.Equal("ALICE", (document["email"] as object[])[1]);
+
+      // Use MySqlExpression.
+      collection.Add("{ \"_id\":\"124\", \"name\":\"alice\", \"email\":[ \"alice@ora.com\" ], \"dates\":\"4/1/2017\" }").Execute();
+      collection.Modify("_id = \"124\"").ArrayAppend("email", new MySqlExpression("UPPER($.name)")).Execute();
+      document = collection.GetOne("124");
+      Assert.Equal("ALICE", (document["email"] as object[])[1]);
+
+      // Use embedded MySqlExpression.
+      collection.Add("{ \"_id\":\"125\", \"name\":\"alice\", \"email\":[ \"alice@ora.com\" ], \"dates\":\"4/1/2017\" }").Execute();
+      collection.Modify("_id = \"125\"").ArrayAppend("email", new { other = new MySqlExpression("UPPER($.name)") }).Execute();
+      document = collection.GetOne("125");
+      var item = ((document["email"] as object[])[1] as Dictionary<string, object>);
+      Assert.Equal("ALICE", item["other"]);
+    }
+
+    [Fact]
     public void ArrayAppendUsesCorrectDataTypes()
     {
       Collection collection = CreateCollection("test");
@@ -404,6 +429,31 @@ namespace MySqlX.Data.Tests
       Assert.Contains("String can't be empty.", ex.Message);
       ex = Assert.Throws<ArgumentException>(() => collection.Modify("true").ArrayAppend("x", string.Empty).Execute());
       Assert.Contains("String can't be empty.", ex.Message);
+    }
+
+    [Fact]
+    public void ArrayInsertWithMySqlExpression()
+    {
+      Collection collection = CreateCollection("test");
+
+      // Use inline expression.
+      collection.Add("{ \"_id\":\"123\", \"name\":\"alice\", \"email\":[ \"alice@ora.com\" ], \"dates\":\"4/1/2017\" }").Execute();
+      collection.Modify("true").ArrayInsert("email[0]", "UPPER($.name)").Execute();
+      var document = collection.GetOne("123");
+      Assert.Equal("ALICE", (document["email"] as object[])[0]);
+
+      // Use MySqlExpression.
+      collection.Add("{ \"_id\":\"124\", \"name\":\"alice\", \"email\":[ \"alice@ora.com\" ], \"dates\":\"4/1/2017\" }").Execute();
+      collection.Modify("_id = \"124\"").ArrayInsert("email[0]", new MySqlExpression("UPPER($.name)")).Execute();
+      document = collection.GetOne("124");
+      Assert.Equal("ALICE", (document["email"] as object[])[0]);
+
+      // Use embedded MySqlExpression.
+      collection.Add("{ \"_id\":\"125\", \"name\":\"alice\", \"email\":[ \"alice@ora.com\" ], \"dates\":\"4/1/2017\" }").Execute();
+      collection.Modify("_id = \"125\"").ArrayInsert("email[0]", new { other = new MySqlExpression("UPPER($.name)") }).Execute();
+      document = collection.GetOne("125");
+      var item = ((document["email"] as object[])[0] as Dictionary<string, object>);
+      Assert.Equal("ALICE", item["other"]);
     }
   }
 }

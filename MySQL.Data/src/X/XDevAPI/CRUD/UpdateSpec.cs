@@ -49,9 +49,10 @@ namespace MySqlX.XDevAPI.CRUD
       get { return Value != null;  }
     }
 
-    public Expr GetValue(bool evaluateStringExpression = true)
+    public Expr GetValue()
     {
-      return ExprUtil.ArgObjectToExpr(Value, false, evaluateStringExpression);
+      Value = ExprUtil.ParseAnonymousObject(Value) ?? Value;
+      return ExprUtil.ArgObjectToExpr(Value, false);
     }
 
     public ColumnIdentifier GetSource(bool isRelational)
