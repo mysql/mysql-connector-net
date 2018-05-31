@@ -116,7 +116,7 @@ namespace MySqlX.XDevAPI
                 (o.Synonyms!=null && o.Synonyms.Contains(item.Key)));
             var defaultValue = option.DefaultValue;
             // If the default value has been changed then include it in the connection URI.
-            if (value != null && value.ToString() != defaultValue.ToString())
+            if (value!=null && (defaultValue==null || (value.ToString()!=defaultValue.ToString())))
             {
               if (!firstItemAdded)
                 firstItemAdded =true;

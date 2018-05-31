@@ -358,7 +358,6 @@ namespace MySqlX.Data.Tests
       }
     }
 
-
     [Fact]
     public void IPv6()
     {
@@ -428,7 +427,7 @@ namespace MySqlX.Data.Tests
       }
 
       // Connect over non-TLS connection.
-      using(var session = MySQLX.GetSession(connectionStringUri + "?sslmode=none"))
+      using (var session = MySQLX.GetSession(connectionStringUri + "?sslmode=none"))
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
         Assert.Equal(MySqlAuthenticationMode.SHA256_MEMORY, session.Settings.Auth);
@@ -470,7 +469,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void ConnectUsingMySQL41Auth()
     {
-      var connectionStringUri = ConnectionStringUri;  
+      var connectionStringUri = ConnectionStringUri;
       if (session.InternalSession.GetServerVersion().isAtLeast(8, 0, 4))
       {
         // Use connection string uri set with a mysql_native_password user.
@@ -549,6 +548,54 @@ namespace MySqlX.Data.Tests
             continue;
 
           Assert.Equal(session.Settings[connectionOption.Key], internalSession.Settings[connectionOption.Key]);
+        }
+      }
+    }
+
+    [Fact]
+    public void GetUriWithSSLParameters()
+    {
+      var session = GetSession();
+
+      MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder();
+      builder.Server = session.Settings.Server;
+      builder.UserID = session.Settings.UserID;;
+      builder.Password = session.Settings.Password;
+      builder.Port = session.Settings.Port;
+      builder.ConnectionProtocol = MySqlConnectionProtocol.Tcp;
+      builder.Database = session.Settings.Database;
+      builder.CharacterSet = session.Settings.CharacterSet;
+      builder.SslMode = MySqlSslMode.Required;
+      builder.SslCa = "../../../../MySql.Data.Tests/client.pfx";
+      builder.CertificatePassword = "pass";
+      builder.ConnectionTimeout = 10;
+      builder.Keepalive = 10;
+      builder.Auth = MySqlAuthenticationMode.AUTO;
+
+      var connectionString = builder.ConnectionString;
+      string uri = null;
+
+      // Create session with connection string.
+      using (var internalSession = MySQLX.GetSession(connectionString))
+      {
+        uri = internalSession.Uri;
+      }
+
+      // Create session with the uri version of the connection string.
+      using (var internalSession = MySQLX.GetSession(uri))
+      {
+        // Compare values of the connection options.
+        foreach (var connectionOption in builder.values)
+        {
+          // SslCrl connection option is skipped since it isn't currently supported.
+          if (connectionOption.Key == "sslcrl")
+            continue;
+
+          // Authentication mode AUTO/DEFAULT is internally assigned, hence it is expected to be different in this scenario. 
+          if (connectionOption.Key == "auth")
+            Assert.Equal(MySqlAuthenticationMode.PLAIN, internalSession.Settings[connectionOption.Key]);
+          else
+            Assert.Equal(builder[connectionOption.Key], internalSession.Settings[connectionOption.Key]);
         }
       }
     }
