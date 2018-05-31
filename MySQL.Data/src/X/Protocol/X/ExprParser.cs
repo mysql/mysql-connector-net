@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -69,7 +69,7 @@ namespace MySqlX.Protocol.X
     /** Token stream produced by lexer. */
     internal List<Token> tokens = new List<Token>();
     /** Parser's position in token stream. */
-    int tokenPos = 0;
+    internal int tokenPos = 0;
     /**
      * Mapping of names to positions for named placeholders. Used for both string values ":arg" and numeric values ":2".
      */

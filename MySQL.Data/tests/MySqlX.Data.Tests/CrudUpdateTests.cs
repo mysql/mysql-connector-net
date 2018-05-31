@@ -477,7 +477,6 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void ArrayOperationsKeepDateValue()
     {
-      DbDoc document = null;
       Collection collection = CreateCollection("test");
       Result r = collection.Add("{ \"_id\": \"123\", \"email\":[\"alice@ora.com\"], \"dates\": \"5/1/2018\" }").Execute();
       Assert.Equal(1ul, r.AffectedItemsCount);
@@ -492,12 +491,63 @@ namespace MySqlX.Data.Tests
       // Array insert at specified index is now succesful since dates is an array.
       collection.Modify("true").ArrayInsert("dates[0]", "4/1/2018").Execute();
 
-      document = collection.GetOne("123");
+      DbDoc document = collection.GetOne("123");
       object[] dates = document["dates"] as object[];
       Assert.Equal(3, dates.Length);
       Assert.Equal("4/1/2018", dates[0]);
       Assert.Equal("5/1/2018", dates[1]);
       Assert.Equal("6/1/2018", dates[2]);
+    }
+
+    //[Fact]
+    //public void Alphanumeric()
+    //{
+    //  Collection collection = CreateCollection("test");
+    //  var document = new DbDoc();
+
+    //  for (int i = 0; i < 30; i++)
+    //  {
+    //    document.SetValue("_id", i);
+    //    document.SetValue("books", "test" + i);
+    //    document.SetValue("pages", i + 10);
+    //    document.SetValue("reviewers", "reviewers" + i);
+    //    document.SetValue("person", new
+    //    {
+    //      name = "Fred" + i,
+    //      age = i
+    //    });
+    //    document.SetValue("1address", "street" + i);
+    //    collection.Add(document).Execute();
+    //  }
+
+    //  Result result = collection.Modify("_id = 21").Unset("1address").Execute();
+    //}
+
+    [Fact]
+    public void UnsetVariations()
+    {
+      Collection collection = CreateCollection("test");
+      var document = new DbDoc("{ \"_id\":1, \"pages\":1, \"pages2\":2, \"pages3\":3, \"pages4\":{ \"internalPages\":4 } }");
+      collection.Add(document).Execute();
+
+      // Whitespace is ignored.
+      collection.Modify("_id = 1").Unset("pages ").Execute();
+      Assert.False(collection.GetOne(1).values.ContainsKey("pages"));
+      collection.Modify("_id = 1").Unset(" pages2 ").Execute();
+      Assert.False(collection.GetOne(1).values.ContainsKey("pages2"));
+      collection.Modify("_id = 1").Unset(" pages3").Execute();
+      Assert.False(collection.GetOne(1).values.ContainsKey("pages3"));
+      collection.Modify("_id = 1").Unset("  pages4.internalPages  ").Execute();
+      Assert.True(collection.GetOne(1).values.ContainsKey("pages4"));
+      Assert.False(collection.GetOne(1).values.ContainsKey("pages4.internalPages"));
+
+      // Error is raised with incorrect document path.
+      var ex = Assert.Throws<ArgumentException>(() => collection.Modify("_id = 1").Unset("pages*").Execute());
+      Assert.Equal("Invalid document path.", ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => collection.Modify("_id = 1").Unset("pages!").Execute());
+      Assert.Equal("Invalid document path.", ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => collection.Modify("_id = 1").Unset("pages*data").Execute());
+      Assert.Equal("Invalid document path.", ex.Message);
     }
   }
 }
