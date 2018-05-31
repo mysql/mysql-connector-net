@@ -780,6 +780,93 @@ namespace MySqlX.Data.Tests
       Assert.Equal("Unable to parse query ''", ex2.Message);
       Assert.Equal("No more tokens when expecting one at token pos 0", ex2.InnerException.Message);
     }
+
+    [Fact]
+    public void Fields()
+    {
+      Collection coll = CreateCollection("test");
+      var docs = new[]
+      {
+        new {  _id = 1, title = "Book 1", pages = 20 },
+        new {  _id = 2, title = "Book 2", pages = 30 },
+        new {  _id = 3, title = "Book 3", pages = 40 },
+        new {  _id = 4, title = "Book 4", pages = 50 },
+      };
+      Result r = coll.Add(docs).Execute();
+      Assert.Equal(4ul, r.AffectedItemsCount);
+
+      // Single field.
+      var result = coll.Find("pages = :Pages").Bind("pAges", 40).Fields("title").Execute();
+      var document = result.FetchOne();
+      Assert.Equal(1, document.values.Count);
+      Assert.Equal("Book 3", document["title"]);
+
+      // Null values are ignored.
+      result = coll.Find("pages = :Pages").Bind("pAges", 40).Fields(null).Execute();
+      document = result.FetchOne();
+      Assert.Equal(3, document.values.Count);
+
+      // Null values are ignored.
+      result = coll.Find("pages = :Pages").Bind("pAges", 40).Fields("title", null).Execute();
+      document = result.FetchOne();
+      Assert.Equal(1, document.values.Count);
+
+      // Single field in array.
+      result = coll.Find("pages = :Pages").Bind("pAges", 40).Fields(new string[] { "title" }).Execute();
+      document = result.FetchOne();
+      Assert.Equal(1, document.values.Count);
+      Assert.Equal("Book 3", document["title"]);
+
+      // Single field with alias.
+      result = coll.Find("pages = :Pages").Bind("pages", 20).Fields("title as title2").Execute();
+      document = result.FetchOne();
+      Assert.Equal(1, document.values.Count);
+      Assert.Equal("Book 1", document["title2"]);
+      Assert.False(document.values.ContainsKey("title"));
+
+      // Unexistent field returns null.
+      result = coll.Find("pages = :Pages").Bind("pages", 20).Fields("book").Execute();
+      document = result.FetchOne();
+      Assert.Equal(1, document.values.Count);
+      Assert.Equal(null, document["book"]);
+
+      // Unexistent field with alias returns null.
+      result = coll.Find("pages = :Pages").Bind("pages", 20).Fields("book as book1").Execute();
+      document = result.FetchOne();
+      Assert.Equal(1, document.values.Count);
+      Assert.Equal(null, document["book1"]);
+
+      // Multiple fields.
+      result = coll.Find("pages = :Pages").Bind("pAges", 40).Fields("title", "pages", "other").Execute();
+      document = result.FetchOne();
+      Assert.Equal(3, document.values.Count);
+      Assert.Equal("Book 3", document["title"]);
+      Assert.Equal(40, document["pages"]);
+      Assert.Equal(null, document["other"]);
+
+      // Multiple fields in array.
+      result = coll.Find("pages = :Pages").Bind("pAges", 40).Fields(new string[] { "title", "pages" }).Execute();
+      document = result.FetchOne();
+      Assert.Equal(2, document.values.Count);
+      Assert.Equal("Book 3", document["title"]);
+      Assert.Equal(40, document["pages"]);
+
+      // Sending a document doesn't generate an error.
+      result = coll.Find("pages = :Pages").Bind("pages", 20).Fields("{\"_id\":\"1004\",\"F1\": 1234 }").Execute();
+      document = result.FetchOne();
+
+      // Empty string and white space raises error.
+      var ex = Assert.Throws<ArgumentException>(() => coll.Find("pages = :Pages").Bind("pAges", 40).Fields("").Execute());
+      Assert.Equal("No more tokens when expecting one at token pos 0", ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => coll.Find("pages = :Pages").Bind("pAges", 40).Fields("  ").Execute());
+      Assert.Equal("No more tokens when expecting one at token pos 0", ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => coll.Find("pages = :Pages").Bind("pAges", 40).Fields(string.Empty).Execute());
+      Assert.Equal("No more tokens when expecting one at token pos 0", ex.Message);
+
+      // Multiple word field name raises error.
+      ex = Assert.Throws<ArgumentException>(() => result = coll.Find("pages = :Pages").Bind("pAges", 40).Fields("Book 1").Execute());
+      Assert.Equal("Expression has unexpected token '1' at position 1.", ex.Message);
+    }
   }
 }
 

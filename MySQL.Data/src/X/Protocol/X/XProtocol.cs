@@ -571,6 +571,9 @@ namespace MySqlX.Protocol
         builder.Projection.Add(builder.DataModel == DataModel.Document ?
           parser.ParseDocumentProjection() :
           parser.ParseTableSelectProjection());
+
+        if (parser.tokenPos < parser.tokens.Count)
+          throw new ArgumentException(string.Format("Expression has unexpected token '{0}' at position {1}.", parser.tokens[parser.tokenPos].value, parser.tokenPos));
       }
       ApplyFilter(v => builder.Limit = v, v => builder.Criteria = v, builder.Order.Add, filter, builder.Args.Add);
       return builder;

@@ -52,7 +52,17 @@ namespace MySqlX.XDevAPI.CRUD
     /// <returns>This <see cref="FindStatement"/> object set with the specified columns or fields.</returns>
     public FindStatement Fields(params string[] columns)
     {
-      findParams.Projection = columns;
+      if (columns == null)
+        return this;
+
+      var projectionList = new List<string>();
+      foreach (var item in columns)
+      {
+        if (item != null)
+          projectionList.Add(item);
+      }
+
+      findParams.Projection = projectionList.Count > 0 ? projectionList.ToArray() : null;
       return this;
     }
 

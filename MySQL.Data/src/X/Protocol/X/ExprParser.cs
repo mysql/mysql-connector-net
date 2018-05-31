@@ -1290,9 +1290,14 @@ namespace MySqlX.Protocol.X
       {
         Projection builder = new Projection();
         builder.Source = GetExpr();
-        // alias is not optional for document projection
-        ConsumeToken(TokenType.AS);
-        builder.Alias = ConsumeToken(TokenType.IDENT);
+        if (CurrentTokenTypeEquals(TokenType.AS))
+        {
+          ConsumeToken(TokenType.AS);
+          builder.Alias = ConsumeToken(TokenType.IDENT);
+        }
+        else if (builder.Source.Identifier != null)
+          builder.Alias = builder.Source.Identifier.DocumentPath[0].Value;
+
         return builder;
       });
     }
