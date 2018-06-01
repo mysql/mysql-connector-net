@@ -464,6 +464,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void SingleForeignKey()
     {
+      executeSQL("DROP TABLE IF EXISTS child");
+      executeSQL("DROP TABLE IF EXISTS parent");
       executeSQL("CREATE TABLE parent (id INT NOT NULL, PRIMARY KEY (id)) ENGINE=INNODB");
       executeSQL("CREATE TABLE child (id INT, parent_id INT, INDEX par_ind (parent_id), " +
         "CONSTRAINT c1 FOREIGN KEY (parent_id) REFERENCES parent(id) ON DELETE CASCADE) ENGINE=INNODB");
@@ -592,6 +594,40 @@ namespace MySql.Data.MySqlClient.Tests
       DataTable dt = Connection.GetSchema("ReservedWords");
       foreach (DataRow row in dt.Rows)
         Assert.False(String.IsNullOrEmpty(row[0] as string));
+    }
+
+    [Fact]
+    public void GetSchemaCollections()
+    {
+      executeSQL("CREATE TABLE parent (id int, name_parent VARCHAR(20), PRIMARY KEY(id))");
+      executeSQL(@"CREATE TABLE child (id int, name_child VARCHAR(20), parent_id INT, 
+        PRIMARY KEY(id), INDEX par_id (parent_id), FOREIGN KEY (parent_id) REFERENCES parent(id) ON DELETE CASCADE)");
+      executeSQL("INSERT INTO parent VALUES(1, 'parent_1')");
+      executeSQL("INSERT INTO child VALUES(1, 'child_1', 1)");
+
+      SchemaProvider schema = new SchemaProvider(Connection);
+      string[] restrictions = new string[5];
+      restrictions[2] = "parent";
+      restrictions[1] = Connection.Database;
+
+      MySqlSchemaCollection schemaCollection = schema.GetSchema("columns", restrictions);
+
+      Assert.True(schemaCollection.Columns.Count == 20);
+      Assert.True(schemaCollection.Rows.Count == 2);
+      Assert.Equal("parent", schemaCollection.Rows[0]["TABLE_NAME"]);
+      Assert.Equal("id", schemaCollection.Rows[0]["COLUMN_NAME"]);
+
+      schemaCollection = schema.GetForeignKeys(restrictions);
+      Assert.True(schemaCollection.AsDataTable().Columns.Contains("REFERENCED_TABLE_NAME"));
+
+      schemaCollection = schema.GetForeignKeyColumns(restrictions);
+      Assert.True(schemaCollection.AsDataTable().Columns.Contains("REFERENCED_COLUMN_NAME"));
+
+      schemaCollection = schema.GetUDF(restrictions);
+      Assert.True(schemaCollection.AsDataTable().Columns.Contains("RETURN_TYPE"));
+
+      schemaCollection = schema.GetUsers(restrictions);
+      Assert.True(schemaCollection.AsDataTable().Columns.Contains("USERNAME"));
     }
   }
 }
