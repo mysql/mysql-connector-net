@@ -146,6 +146,60 @@ namespace MySqlX.Data.Tests
       }
     }
 
+    [Fact]
+    public void SessionUsingDefaultSchemaWithAnonymousObject()
+    {
+      var globalSession = GetSession();
+
+      using (var session = MySQLX.GetSession(new
+      {
+        server = globalSession.Settings.Server,
+        port = globalSession.Settings.Port,
+        user = globalSession.Settings.UserID,
+        password = globalSession.Settings.Password,
+        sslmode = MySqlSslMode.Required,
+        database = "mysql"
+      }))
+      {
+        Assert.Equal("mysql", session.DefaultSchema.Name);
+      }
+
+      // DefaultSchema is null when no database is provided.
+      using (var session = MySQLX.GetSession(new
+      {
+        server = globalSession.Settings.Server,
+        port = globalSession.Settings.Port,
+        user = globalSession.Settings.UserID,
+        password = globalSession.Settings.Password,
+        sslmode = MySqlSslMode.Required,
+      }))
+      {
+        Assert.Null(session.DefaultSchema);
+      }
+
+      // Access denied error is raised when database does not exist.
+      var exception = Assert.Throws<MySqlException>(() => MySQLX.GetSession(new
+        {
+          server = globalSession.Settings.Server,
+          port = globalSession.Settings.Port,
+          user = globalSession.Settings.UserID,
+          password = globalSession.Settings.Password,
+          sslmode = MySqlSslMode.Required,
+          database = "test1"
+        }
+      ));
+      Assert.StartsWith("Access denied", exception.Message);
+    }
+
+    [Fact]
+    public void SessionUsingDefaultSchemaWithConnectionURI()
+    {
+      using (var session = MySQLX.GetSession(ConnectionStringUri + "?database=mysql"))
+      {
+        Assert.Equal("mysql", session.DefaultSchema.Name);
+      }
+    }
+
     protected void CheckConnectionStringAsUri(string connectionstring, string user, string password, string server, uint port, params string[] parameters)
     {
       string result = this.session.ParseConnectionString(connectionstring);

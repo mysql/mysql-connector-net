@@ -251,7 +251,7 @@ namespace MySqlX.XDevAPI
       else _internalSession = InternalSession.GetSession(Settings);
 
       if (!string.IsNullOrWhiteSpace(Settings.Database))
-        GetSchema(Settings.Database);
+        DefaultSchema = GetSchema(Settings.Database);
     }
 
     /// <summary>
