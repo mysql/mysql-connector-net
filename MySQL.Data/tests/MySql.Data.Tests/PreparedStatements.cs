@@ -275,7 +275,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact(Skip="Fix This")]
+    [Fact(Skip = "Fix This")]
     public void Bug6271()
     {
       MySqlCommand cmd = null;
@@ -426,6 +426,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #19261  	Supplying Input Parameters
     /// </summary>
+#if NETCOREAPP20
     [Fact]
     public void MoreParametersOutOfOrder()
     {
@@ -468,6 +469,7 @@ namespace MySql.Data.MySqlClient.Tests
       int cnt = cmd.ExecuteNonQuery();
       Assert.Equal(1, cnt);
     }
+#endif
 
     /// <summary>
     /// Bug #16627 Index and length must refer to a location within the string." when executing c
@@ -768,6 +770,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+#if NETCOREAPP20
     [Fact]
     public void SprocOutputParams()
     {
@@ -793,6 +796,7 @@ namespace MySql.Data.MySqlClient.Tests
       if (!Connection.driver.Version.isAtLeast(8,0,1))
       Assert.Equal(20, cmd.Parameters[1].Value);
     }
+#endif
 
     [Fact]
     public void SprocInputOutputParams()
