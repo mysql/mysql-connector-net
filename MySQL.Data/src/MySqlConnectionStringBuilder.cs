@@ -985,7 +985,8 @@ namespace MySql.Data.MySqlClient
       get { return CertificateFile; }
       set
       {
-        SslMode = MySqlSslMode.Required;
+        if (SslMode == MySqlSslMode.None)
+          SslMode = MySqlSslMode.Required;
         CertificateFile = value;
       }
     }

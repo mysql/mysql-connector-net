@@ -101,10 +101,15 @@ namespace MySqlX.XDevAPI
             string.Empty :
             "/" + Settings.Database));
         var firstItemAdded = false;
+        var certificateFileAdded = false;
         foreach (var item in Settings.values)
         {
           // Skip connection options already included in the connection URI.
           if (item.Key == "server" || item.Key =="database" || item.Key == "port" )
+            continue;
+
+          // Skip CertificateFile if it has already been included.
+          if ((item.Key == "certificatefile" || item.Key == "sslca") && certificateFileAdded)
             continue;
 
           try
@@ -123,7 +128,13 @@ namespace MySqlX.XDevAPI
               else
                 builder.Append("&");
 
-              builder.Append(item.Key);
+              if (item.Key == "certificatefile" || item.Key == "sslca")
+              {
+                certificateFileAdded = true;
+                builder.Append("sslca");
+              }
+              else
+                builder.Append(item.Key);
               builder.Append("=");
               builder.Append(value is bool ? value.ToString().ToLower() : value.ToString());
             }
