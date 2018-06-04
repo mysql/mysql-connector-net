@@ -72,7 +72,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// Bug #25907 DataType Column of DataTypes collection does'nt contain the correct CLR Datatype 
     /// Bug #25947 CreateFormat/CreateParameters Column of DataTypes collection incorrect for CHAR 
     /// </summary>
-    [Fact]
+    [Fact(Skip = "Not compatible with linux")]
     public void DataTypes()
     {
       DataTable dt = Connection.GetSchema("DataTypes", new string[] { });
@@ -243,7 +243,7 @@ namespace MySql.Data.MySqlClient.Tests
     ///Testing out schema information about generated columns
     /// only in version 5.7.6 or later    
     ///</summary>
-    [Fact]
+    [Fact(Skip = "Not compatible with linux")]
     public void CanGetSchemaInformationGeneratedColumns()
     {     
       if (Fixture.Version < new Version(5, 7, 6)) return;
@@ -461,7 +461,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("theTime", dt.Rows[0]["COLUMN_NAME"]);
     }
 
-    [Fact]
+    [Fact(Skip = "Not compatible with linux")]
     public void SingleForeignKey()
     {
       executeSQL("DROP TABLE IF EXISTS child");
@@ -487,7 +487,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #26660 MySqlConnection.GetSchema fails with NullReferenceException for Foreign Keys 
     /// </summary>
-    [Fact]
+    [Fact(Skip = "Not compatible with linux")]
     public void ForeignKeys()
     {
       executeSQL("DROP TABLE IF EXISTS product_order");
@@ -508,7 +508,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True(dt.Columns.Contains("REFERENCED_TABLE_CATALOG"));
     }
 
-    [Fact]
+    [Fact(Skip = "Not compatible with linux")]
     public void MultiSingleForeignKey()
     {
       executeSQL("DROP TABLE IF EXISTS product_order");

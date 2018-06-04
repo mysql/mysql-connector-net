@@ -557,7 +557,7 @@ namespace MySql.Data.MySqlClient.Tests
       da.Fill(0, 2, new DataTable[] { dt });
     }
 
-    [Fact]
+    [Fact(Skip = "Not compatible with linux")]
     public void TestBatchingInserts()
     {
       executeSQL("CREATE TABLE Test (id INT, name VARCHAR(20), PRIMARY KEY(id))");
@@ -814,7 +814,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #38411, using closed connection with data adapter.
     /// </summary>
-    [Fact]
+    [Fact(Skip = "Not compatible with netcoreapp2.0")]
     public void BatchingConnectionClosed()
     {
       executeSQL("CREATE TABLE Test (id INT, name VARCHAR(20), PRIMARY KEY(id))");

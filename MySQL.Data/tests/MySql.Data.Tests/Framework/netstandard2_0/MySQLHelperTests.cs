@@ -44,7 +44,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #62585	MySql Connector/NET 6.4.3+ Doesn't escape quotation mark (U+0022)
     /// </summary>
-    [Fact]
+    [Fact(Skip = "Not compatible with linux")]
     public void EscapeStringMethodCanEscapeQuotationMark()
     {
       executeSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");

@@ -72,7 +72,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #14592 Wrong column length returned for VARCHAR UTF8 columns 
     /// </summary>
-    [Fact]
+    [Fact(Skip = "Not compatible with linux")]
     public void GetSchemaOnUTF8()
     {
 

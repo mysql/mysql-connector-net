@@ -324,7 +324,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact]
+    [Fact(Skip = "Not compatible with linux")]
     public void ManualEnlistment()
     {
       executeSQL("DROP TABLE IF EXISTS Test");
@@ -649,7 +649,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// bug#35330 - even if transaction scope has expired, rows can be inserted into
     /// the table, due to race condition with the thread doing rollback
     /// </summary>
-    [Fact]
+    [Fact(Skip = "Not compatible with linux")]
     public void ScopeTimeoutWithMySqlHelper()
     {
       executeSQL("DROP TABLE IF EXISTS Test");

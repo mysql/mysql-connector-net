@@ -166,6 +166,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ConnectInVariousWays()
     {
+      if (Fixture.Version < new Version(5, 7, 0)) return;
       // connect with no db
       MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       connStr.Database = null;
@@ -279,7 +280,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #16659  	Can't use double quotation marks(") as password access server by Connector/NET
     /// </summary>
-    [Fact (Skip = "Fix for 8.0.5")]
+    [Fact(Skip = "Fix for 8.0.5")]
     public void ConnectWithQuotePassword()
     {
       executeSQL("GRANT ALL ON *.* to 'quotedUser'@'%' IDENTIFIED BY '\"'", true);
@@ -341,7 +342,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact(Skip ="dotnet core seems to keep objects alive")] // reference https://github.com/dotnet/coreclr/issues/13490
+    [Fact(Skip = "dotnet core seems to keep objects alive")] // reference https://github.com/dotnet/coreclr/issues/13490
     public void ConnectionCloseByGC()
     {
       int threadId;
@@ -365,32 +366,32 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.ExecuteNonQuery();
     }
 
-        //    /// <summary>
-        //    /// Bug #30964 StateChange imperfection 
-        //    /// </summary>
-        //    MySqlConnection rqConnection;
+    //    /// <summary>
+    //    /// Bug #30964 StateChange imperfection 
+    //    /// </summary>
+    //    MySqlConnection rqConnection;
 
 
-        //    [Fact]
-        //    public void RunningAQueryFromStateChangeHandler()
-        //    {
-        //      string connStr = st.GetConnectionString(true);
-        //      using (rqConnection = new MySqlConnection(connStr))
-        //      {
-        //        rqConnection.StateChange += new StateChangeEventHandler(RunningQueryStateChangeHandler);
-        //        rqConnection.Open();
-        //      }
-        //    }
+    //    [Fact]
+    //    public void RunningAQueryFromStateChangeHandler()
+    //    {
+    //      string connStr = st.GetConnectionString(true);
+    //      using (rqConnection = new MySqlConnection(connStr))
+    //      {
+    //        rqConnection.StateChange += new StateChangeEventHandler(RunningQueryStateChangeHandler);
+    //        rqConnection.Open();
+    //      }
+    //    }
 
-        //    void RunningQueryStateChangeHandler(object sender, StateChangeEventArgs e)
-        //    {
-        //      if (e.CurrentState == ConnectionState.Open)
-        //      {
-        //        MySqlCommand cmd = new MySqlCommand("SELECT 1", rqConnection);
-        //        object o = cmd.ExecuteScalar();
-        //        Assert.Equal(1, Convert.ToInt32(o));
-        //      }
-        //    }
+    //    void RunningQueryStateChangeHandler(object sender, StateChangeEventArgs e)
+    //    {
+    //      if (e.CurrentState == ConnectionState.Open)
+    //      {
+    //        MySqlCommand cmd = new MySqlCommand("SELECT 1", rqConnection);
+    //        object o = cmd.ExecuteScalar();
+    //        Assert.Equal(1, Convert.ToInt32(o));
+    //      }
+    //    }
 
     /// <summary>
     /// Bug #31262 NullReferenceException in MySql.Data.MySqlClient.NativeDriver.ExecuteCommand 
@@ -464,7 +465,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Test if keepalive parameters work.
     /// </summary>
-    [Fact]
+    [FactNet452]
     public void Keepalive()
     {
       MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Connection.ConnectionString);
@@ -1450,8 +1451,8 @@ namespace MySql.Data.MySqlClient.Tests
       Settings.SslMode = MySqlSslMode.None;
       using (MySqlConnection connection = new MySqlConnection(Settings.ConnectionString))
       {
-       connection.Open();
-       connection.Close();
+        connection.Open();
+        connection.Close();
       }
     }
 
@@ -1471,8 +1472,8 @@ namespace MySql.Data.MySqlClient.Tests
       Settings.SslMode = MySqlSslMode.None;
       using (MySqlConnection connection = new MySqlConnection(Settings.ConnectionString))
       {
-       connection.Open();
-       connection.Close();
+        connection.Open();
+        connection.Close();
       }
     }
 
