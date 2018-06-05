@@ -72,15 +72,15 @@ namespace MySql.Data.MySqlClient.Tests
     /// Bug #25907 DataType Column of DataTypes collection does'nt contain the correct CLR Datatype 
     /// Bug #25947 CreateFormat/CreateParameters Column of DataTypes collection incorrect for CHAR 
     /// </summary>
-    [Fact(Skip = "Not compatible with linux")]
+    [Fact]
     public void DataTypes()
     {
       DataTable dt = Connection.GetSchema("DataTypes", new string[] { });
 
       foreach (DataRow row in dt.Rows)
       {
-        string type = row["TYPENAME"].ToString();
-        Type systemType = Type.GetType(row["DATATYPE"].ToString());
+        string type = row["TypeName"].ToString();
+        Type systemType = Type.GetType(row["DataType"].ToString());
         if (type == "BIT")
           Assert.Equal(typeof(System.UInt64), systemType);
         else if (type == "DATE" || type == "DATETIME" ||
@@ -106,28 +106,28 @@ namespace MySql.Data.MySqlClient.Tests
           Assert.Equal(typeof(System.Single), systemType);
         else if (type == "TINYINT")
         {
-          if (row["CREATEFORMAT"].ToString().EndsWith("UNSIGNED", StringComparison.OrdinalIgnoreCase))
+          if (row["CreateFormat"].ToString().EndsWith("UNSIGNED", StringComparison.OrdinalIgnoreCase))
             Assert.Equal(typeof(System.Byte), systemType);
           else
             Assert.Equal(typeof(System.SByte), systemType);
         }
         else if (type == "SMALLINT")
         {
-          if (row["CREATEFORMAT"].ToString().EndsWith("UNSIGNED", StringComparison.OrdinalIgnoreCase))
+          if (row["CreateFormat"].ToString().EndsWith("UNSIGNED", StringComparison.OrdinalIgnoreCase))
             Assert.Equal(typeof(System.UInt16), systemType);
           else
             Assert.Equal(typeof(System.Int16), systemType);
         }
         else if (type == "MEDIUMINT" || type == "INT")
         {
-          if (row["CREATEFORMAT"].ToString().EndsWith("UNSIGNED", StringComparison.OrdinalIgnoreCase))
+          if (row["CreateFormat"].ToString().EndsWith("UNSIGNED", StringComparison.OrdinalIgnoreCase))
             Assert.Equal(typeof(System.UInt32), systemType);
           else
             Assert.Equal(typeof(System.Int32), systemType);
         }
         else if (type == "BIGINT")
         {
-          if (row["CREATEFORMAT"].ToString().EndsWith("UNSIGNED", StringComparison.OrdinalIgnoreCase))
+          if (row["CreateFormat"].ToString().EndsWith("UNSIGNED", StringComparison.OrdinalIgnoreCase))
             Assert.Equal(typeof(System.UInt64), systemType);
           else
             Assert.Equal(typeof(System.Int64), systemType);
@@ -461,7 +461,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("theTime", dt.Rows[0]["COLUMN_NAME"]);
     }
 
-    [Fact(Skip = "Not compatible with linux")]
+    [Fact]
     public void SingleForeignKey()
     {
       executeSQL("DROP TABLE IF EXISTS child");
@@ -476,12 +476,12 @@ namespace MySql.Data.MySqlClient.Tests
       DataTable dt = Connection.GetSchema("Foreign Keys", restrictions);
       Assert.Equal(1, dt.Rows.Count);
       DataRow row = dt.Rows[0];
-      Assert.Equal(Connection.Database.ToLower(), row["CONSTRAINT_SCHEMA"].ToString().ToLower());
-      Assert.Equal("c1", row["CONSTRAINT_NAME"]);
-      Assert.Equal(Connection.Database.ToLower(), row["TABLE_SCHEMA"].ToString().ToLower());
-      Assert.Equal("child", row["TABLE_NAME"]);
-      Assert.Equal(Connection.Database.ToLower(), row["REFERENCED_TABLE_SCHEMA"].ToString().ToLower());
-      Assert.Equal("parent", row["REFERENCED_TABLE_NAME"]);
+      Assert.Equal(Connection.Database.ToLower(), row[1].ToString().ToLower());
+      Assert.Equal("c1", row[2]);
+      Assert.Equal(Connection.Database.ToLower(), row[4].ToString().ToLower());
+      Assert.Equal("child", row[5]);
+      Assert.Equal(Connection.Database.ToLower(), row[10].ToString().ToLower());
+      Assert.Equal("parent", row[11]);
     }
 
     /// <summary>
@@ -508,7 +508,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True(dt.Columns.Contains("REFERENCED_TABLE_CATALOG"));
     }
 
-    [Fact(Skip = "Not compatible with linux")]
+    [Fact]
     public void MultiSingleForeignKey()
     {
       executeSQL("DROP TABLE IF EXISTS product_order");
@@ -532,20 +532,20 @@ namespace MySql.Data.MySqlClient.Tests
       DataTable dt = Connection.GetSchema("Foreign Keys", restrictions);
       Assert.Equal(2, dt.Rows.Count);
       DataRow row = dt.Rows[0];
-      Assert.Equal(Connection.Database.ToLower(), row["CONSTRAINT_SCHEMA"].ToString().ToLower());
-      Assert.Equal("product_order_ibfk_1", row["CONSTRAINT_NAME"]);
-      Assert.Equal(Connection.Database.ToLower(), row["TABLE_SCHEMA"].ToString().ToLower());
-      Assert.Equal("product_order", row["TABLE_NAME"]);
-      Assert.Equal(Connection.Database.ToLower(), row["REFERENCED_TABLE_SCHEMA"].ToString().ToLower());
-      Assert.Equal("product", row["REFERENCED_TABLE_NAME"]);
+      Assert.Equal(Connection.Database.ToLower(), row[1].ToString().ToLower());
+      Assert.Equal("product_order_ibfk_1", row[2]);
+      Assert.Equal(Connection.Database.ToLower(), row[4].ToString().ToLower());
+      Assert.Equal("product_order", row[5]);
+      Assert.Equal(Connection.Database.ToLower(), row[10].ToString().ToLower());
+      Assert.Equal("product", row[11]);
 
       row = dt.Rows[1];
-      Assert.Equal(Connection.Database.ToLower(), row["CONSTRAINT_SCHEMA"].ToString().ToLower());
-      Assert.Equal("product_order_ibfk_2", row["CONSTRAINT_NAME"]);
-      Assert.Equal(Connection.Database.ToLower(), row["TABLE_SCHEMA"].ToString().ToLower());
-      Assert.Equal("product_order", row["TABLE_NAME"]);
-      Assert.Equal(Connection.Database.ToLower(), row["REFERENCED_TABLE_SCHEMA"].ToString().ToLower());
-      Assert.Equal("customer", row["REFERENCED_TABLE_NAME"]);
+      Assert.Equal(Connection.Database.ToLower(), row[1].ToString().ToLower());
+      Assert.Equal("product_order_ibfk_2", row[2]);
+      Assert.Equal(Connection.Database.ToLower(), row[4].ToString().ToLower());
+      Assert.Equal("product_order", row[5]);
+      Assert.Equal(Connection.Database.ToLower(), row[10].ToString().ToLower());
+      Assert.Equal("customer", row[11]);
     }
 
     [Fact]

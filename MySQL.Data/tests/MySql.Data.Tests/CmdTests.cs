@@ -238,20 +238,20 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact(Skip = "Fix This")]
     public virtual void InsertingPreparedNulls()
     {
-      executeSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1, ?str)", Connection);
-      cmd.Parameters.Add("?str", MySqlDbType.VarChar);
-      cmd.Prepare();
+      //executeSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
+      //MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1, ?str)", Connection);
+      //cmd.Parameters.Add("?str", MySqlDbType.VarChar);
+      //cmd.Prepare();
 
-      cmd.Parameters[0].Value = null;
-      cmd.ExecuteNonQuery();
+      //cmd.Parameters[0].Value = null;
+      //cmd.ExecuteNonQuery();
 
-      cmd.CommandText = "SELECT * FROM Test";
-      using (MySqlDataReader reader = cmd.ExecuteReader())
-      {
-        Assert.True(reader.Read());
-        Assert.Equal(DBNull.Value, reader[1]);
-      }
+      //cmd.CommandText = "SELECT * FROM Test";
+      //using (MySqlDataReader reader = cmd.ExecuteReader())
+      //{
+      //  Assert.True(reader.Read());
+      //  Assert.Equal(DBNull.Value, reader[1]);
+      //}
     }
 
     /// <summary>
@@ -373,7 +373,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd = new MySqlCommand("", c);
       c.Open();
       cmd.CommandTimeout = Int32.MaxValue;
-      Assert.Equal(Int32.MaxValue/1000, cmd.CommandTimeout);
+      Assert.Equal(Int32.MaxValue / 1000, cmd.CommandTimeout);
       c.Close();
     }
 

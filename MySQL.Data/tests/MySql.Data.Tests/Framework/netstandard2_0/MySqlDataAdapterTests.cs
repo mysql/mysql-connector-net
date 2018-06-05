@@ -31,6 +31,7 @@ using Xunit;
 using System.Data;
 using System.Threading.Tasks;
 using System.Data.Common;
+using System.Threading;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -1012,7 +1013,7 @@ namespace MySql.Data.MySqlClient.Tests
 
     #region Async
     [Fact]
-    public async Task  FillAsyncDataSet()
+    public async Task FillAsyncDataSet()
     {
       executeSQL("CREATE TABLE DAFillAsyncTest (id INT NOT NULL AUTO_INCREMENT, id2 INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME, ts TIMESTAMP, OriginalId INT, PRIMARY KEY(id, id2))");
       executeSQL("INSERT INTO DAFillAsyncTest (id, id2, name, dt) VALUES (NULL, 1, 'Name 1', Now())");
@@ -1150,7 +1151,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       DataSet ds = new DataSet();
       await da.FillSchemaAsync(ds, SchemaType.Source);
-      Assert.Equal(1, ds.Tables.Count);
+      Assert.True(ds.Tables.Count == 1);
       Assert.Equal(2, ds.Tables[0].Columns.Count);
 
       ds.Reset();
@@ -1158,14 +1159,21 @@ namespace MySql.Data.MySqlClient.Tests
       using (reader = cmd.ExecuteReader(CommandBehavior.SchemaOnly))
         await da.FillSchemaAsync(ds, SchemaType.Source, "DAFillSchemaAsyncTest", reader);
 
-      Assert.Equal(1, ds.Tables.Count);
+      Assert.True(ds.Tables.Count == 1);
       Assert.Equal(2, ds.Tables[0].Columns.Count);
 
       ds.Reset();
       using (cmd)
         await da.FillSchemaAsync(ds, SchemaType.Source, cmd, "DAFillSchemaAsyncTest", CommandBehavior.SchemaOnly);
 
-      Assert.Equal(1, ds.Tables.Count);
+      Assert.True(ds.Tables.Count == 1);
+      Assert.Equal(2, ds.Tables[0].Columns.Count);
+
+      ds.Reset();
+      using (cmd)
+        await da.FillSchemaAsync(ds, SchemaType.Source, "DAFillSchemaAsyncTest", CancellationToken.None);
+
+      Assert.True(ds.Tables.Count == 1);
       Assert.Equal(2, ds.Tables[0].Columns.Count);
 
       DataTable dataTable = new DataTable();

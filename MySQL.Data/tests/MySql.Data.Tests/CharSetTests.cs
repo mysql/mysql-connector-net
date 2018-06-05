@@ -286,7 +286,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// (Oracle bug #21098546).
     /// Disabled due to intermittent failure. Documented under Oracle bug #27010958
     /// </summary>
-    [Fact]
+    [Fact(Skip = "Fix this")]
     public void CanInsertChineseCharacterSetGB18030()
     {
       if (Fixture.Version < new Version(5, 7, 4)) return;
@@ -317,7 +317,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// (Oracle bug #21098546).
     /// Disabled due to intermittent failure. Documented under Oracle bug #27010958
     /// </summary>
-    [Fact]
+    [Fact(Skip = "Fix this")]
     public void CanCreateDbUsingChineseCharacterSetGB18030()
     {
       if (Fixture.Version < new Version(5, 7, 4)) return;
