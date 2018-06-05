@@ -127,5 +127,19 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         );
       }
     }
+
+    [Fact]
+    public void LikeFunction()
+    {
+      using (SakilaLiteContext context = new SakilaLiteContext())
+      {
+        var query = context.Actor.Where(c => EF.Functions.Like(c.LastName, "A%")).ToList();
+        Assert.NotEmpty(query);
+        foreach(Actor actor in query)
+        {
+          Assert.StartsWith("A", actor.LastName);
+        }
+      }
+    }
   }
 }
