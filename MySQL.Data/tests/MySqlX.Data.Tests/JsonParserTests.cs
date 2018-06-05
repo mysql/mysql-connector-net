@@ -28,6 +28,7 @@
 
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
+using System;
 using System.Collections.Generic;
 using Xunit;
 
@@ -118,6 +119,39 @@ namespace MySqlX.Data.Tests
       dictionary.Add("b",1);
       Assert.Equal(new object[] { 1, "a", dictionary }, document.values["list"]);
       //Assert.Equal(new object[] { 1, "a", true, null, dictionary }, document.values["list"]);
+    }
+
+    [Fact]
+    public void ParseWithEscapedQuotes()
+    {
+      Collection collection = CreateCollection("test");
+      Result r = collection.Add("{ \"_id\": \"123\", \"email\": [\"alice@ora.com\"], \"dates\": [\"4/1/2017\"] }").Execute();
+      var expr = new
+      {
+        email = new MySqlExpression("UPPER($.email)")
+      };
+      collection.Modify("true").ArrayAppend("email", expr).Execute();
+      var expr2 = new
+      {
+        email = new MySqlExpression("UPPER($.email[0])")
+      };
+      collection.Modify("true").ArrayAppend("email", expr2).Execute();
+
+      var document = collection.GetOne("123");
+      var innerEmail = ((document["email"] as object[])[1]) as Dictionary<string, object>;
+      Assert.Equal("[\\\"ALICE@ORA.COM\\\"]", innerEmail["email"]);
+      innerEmail = ((document["email"] as object[])[2]) as Dictionary<string, object>;
+      Assert.Equal("ALICE@ORA.COM", innerEmail["email"]);
+
+      collection.Add("{ \"_id\": \"124\", \"email\": \"\\\"\"  }").Execute();
+      document = collection.GetOne("124");
+      Assert.Equal("\\\"", document["email"]);
+
+      var ex = Assert.Throws<Exception>(() => collection.Add("{ \"_id\": \"124\", \"email\": \"\"\"  }").Execute());
+      Assert.Equal("Expected token ','", ex.Message);
+
+      ex = Assert.Throws<Exception>(() => collection.Add("{ \"_id\": \"124\", \"email\": \"\\\"  }").Execute());
+      Assert.Equal("Failed to find ending '\"' while reading stream.", ex.Message);
     }
   }
 }

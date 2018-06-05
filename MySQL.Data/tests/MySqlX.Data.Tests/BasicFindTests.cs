@@ -27,13 +27,10 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.Data.MySqlClient;
-using Mysqlx.Expr;
-using MySqlX.Protocol.X;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.CRUD;
 using System;
-using System.Net.Sockets;
 using Xunit;
 
 namespace MySqlX.Data.Tests
@@ -609,6 +606,7 @@ namespace MySqlX.Data.Tests
       Assert.Throws<MySqlException>(() => coll.Find("(1+2) in [1, 2, 3]").Execute().FetchAll().Count);
       Assert.Throws<MySqlException>(() => coll.Find("(1+2) in $.ARR").Execute().FetchAll().Count);
     }
+
     [Fact]
     public void GetOne()
     {
