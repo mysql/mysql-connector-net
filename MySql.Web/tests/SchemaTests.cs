@@ -78,7 +78,7 @@ namespace MySql.Web.Tests
     /// <summary>
     /// Bug #36444 'autogenerateschema' produces tables with 'random' collations 
     /// </summary>
-    [Fact(Skip ="Fix this")]
+    [Fact]
     public void CurrentSchema()
     {
       execSQL("set character_set_database=utf8");
