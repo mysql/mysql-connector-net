@@ -529,7 +529,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
 
-    [Fact(Skip="Fix This")]
+    [Fact]
     public void TestMultipleResultsWithQueryCacheOn()
     {
       //query_cache_type was deprecated in server 5.7.20.

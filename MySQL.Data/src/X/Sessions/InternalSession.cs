@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -49,7 +49,6 @@ namespace MySqlX.Sessions
     internal BaseResult ActiveResult;
     private bool disposed = false;
 
-    
     /// <summary>
     /// Creates a new session object with the values of the settings parameter.
     /// </summary>
@@ -65,13 +64,7 @@ namespace MySqlX.Sessions
     
     internal abstract ProtocolBase GetProtocol();
 
-
     protected MySqlConnectionStringBuilder Settings;
-
-    protected MySqlAuthenticationPlugin GetAuthenticationPlugin()
-    {
-      return AuthenticationPluginManager.GetPlugin("mysql_native_password");
-    }
 
     public SessionState SessionState { get; protected set; }
 
@@ -89,7 +82,7 @@ namespace MySqlX.Sessions
         }
         catch (IOException)
         {
-          // retry ssl connection (manual fallback)
+          // Retry SSL connection (manual fallback).
           if (count++ >= 5) throw;
         }
       } while (true);

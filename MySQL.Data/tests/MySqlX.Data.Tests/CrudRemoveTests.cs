@@ -40,12 +40,27 @@ namespace MySqlX.Data.Tests
     public void RemoveSingleDocumentById()
     {
       Collection coll = CreateCollection("test");
-      var docs = new { _id = 12, title = "Book 1", pages = 20 };
+      var docs = new[]{
+        new { _id = 12, title = "Book 1", pages = 20 },
+        new { _id = 34, title = "Book 2", pages = 30 },
+        new { _id = 56, title = "Book 3", pages = 40 },
+      };
       Result r = coll.Add(docs).Execute();
-      Assert.Equal<ulong>(1, r.AffectedItemsCount);
+      Assert.Equal<ulong>(3, r.AffectedItemsCount);
 
+      // Remove with condition.
       r = coll.Remove("_id = 12").Execute();
       Assert.Equal<ulong>(1, r.AffectedItemsCount);
+
+      // Remove with deprecated method accepting an ID.
+      r = coll.Remove(34).Execute();
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
+
+      // Remove with deprecated method accepting a DbDoc instance.
+      r = coll.Remove(new DbDoc("{ \"_id\":\"56\" }")).Execute();
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
+      var ex = Assert.Throws<InvalidOperationException>(() => coll.Remove(new DbDoc("{ \"title\":\"Book3\" }")).Execute());
+      Assert.Equal("Removing a document from a collection requires an _id property.", ex.Message);
     }
 
     [Fact]
@@ -206,11 +221,6 @@ namespace MySqlX.Data.Tests
       collection.Add(new { title = "Book 5", pages = 60 }).Execute();
       Assert.Equal(5, collection.Find().Execute().FetchAll().Count);
 
-      // Expected exceptions.
-      Assert.Throws<ArgumentNullException>(() => collection.RemoveOne(null));
-      Assert.Throws<ArgumentNullException>(() => collection.RemoveOne(""));
-      Assert.Throws<ArgumentNullException>(() => collection.RemoveOne(string.Empty));
-
       // Remove sending numeric parameter.
       Assert.Equal<ulong>(1, collection.RemoveOne(1).AffectedItemsCount);
       Assert.Equal(4, collection.Find().Execute().FetchAll().Count);
@@ -227,6 +237,11 @@ namespace MySqlX.Data.Tests
       // Remove a non-existing document.
       Assert.Equal<ulong>(0, collection.RemoveOne(5).AffectedItemsCount);
       Assert.Equal(2, collection.Find().Execute().FetchAll().Count);
+
+      // Expected exceptions.
+      Assert.Throws<ArgumentNullException>(() => collection.RemoveOne(null));
+      Assert.Throws<ArgumentNullException>(() => collection.RemoveOne(""));
+      Assert.Throws<ArgumentNullException>(() => collection.RemoveOne(string.Empty));
     }
   }
 }

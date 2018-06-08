@@ -161,7 +161,7 @@ namespace MySql.Data.MySqlClient.Tests
 
     }
 
-    [Fact(Skip="Fix This")]
+    [Fact(Skip = "Fix This")]
     public void DifferentParameterOrder()
     {
       executeSQL("CREATE TABLE Test (id int NOT NULL AUTO_INCREMENT, " +
@@ -275,7 +275,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact(Skip="Fix This")]
+    [Fact(Skip = "Fix This")]
     public void Bug6271()
     {
       MySqlCommand cmd = null;
@@ -426,7 +426,8 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #19261  	Supplying Input Parameters
     /// </summary>
-    [Fact(Skip="Fix This")]
+#if NETCOREAPP20
+    [Fact]
     public void MoreParametersOutOfOrder()
     {
       executeSQL("CREATE TABLE `Test` (`BlackListID` int(11) NOT NULL auto_increment, " +
@@ -468,6 +469,7 @@ namespace MySql.Data.MySqlClient.Tests
       int cnt = cmd.ExecuteNonQuery();
       Assert.Equal(1, cnt);
     }
+#endif
 
     /// <summary>
     /// Bug #16627 Index and length must refer to a location within the string." when executing c
@@ -627,7 +629,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact(Skip="Fix This")]
+    [Fact]
     public void ClosingCommandsProperly()
     {
       executeSQL("CREATE TABLE Test (id INT, name VARCHAR(50))");
@@ -768,7 +770,8 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact(Skip ="This one is not currently working")]
+#if NETCOREAPP20
+    [Fact]
     public void SprocOutputParams()
     {
       executeSQL("CREATE PROCEDURE spOutTest(id INT, OUT age INT) BEGIN SET age=id; END");
@@ -793,8 +796,9 @@ namespace MySql.Data.MySqlClient.Tests
       if (!Connection.driver.Version.isAtLeast(8,0,1))
       Assert.Equal(20, cmd.Parameters[1].Value);
     }
+#endif
 
-    [Fact(Skip="Fix This")]
+    [Fact]
     public void SprocInputOutputParams()
     {
       executeSQL("CREATE PROCEDURE spInOutTest(id INT, INOUT age INT) BEGIN SET age=age*2; END");

@@ -50,6 +50,7 @@ namespace MySqlX.Data.Tests
       };
       Result r = coll.Add(docs).Execute();
       Assert.Equal<ulong>(4, r.AffectedItemsCount);
+      Assert.Equal<ulong>(r.AffectedItemsCount, r.RecordsAffected);
 
       DocResult foundDocs = coll.Find("pages > 20").Execute();
       Assert.True(foundDocs.Next());
@@ -86,7 +87,7 @@ namespace MySqlX.Data.Tests
     }
 
     [Fact]
-    public void SimpleFindWithLimit()
+    public void SimpleFindWithLimitAndOffset()
     {
       Collection coll = CreateCollection("test");
       var docs = new[]
@@ -103,6 +104,10 @@ namespace MySqlX.Data.Tests
       Assert.True(foundDocs.Next());
       Assert.True(foundDocs.Current["title"].ToString() == "Book 2");
       Assert.False(foundDocs.Next());
+
+      var resultDocs = coll.Find("pages > 20").Limit(2, 1).Execute().FetchAll();
+      Assert.Equal(40, resultDocs[0]["pages"]);
+      Assert.Equal(50, resultDocs[1]["pages"]);
 
       // Limit out of range.
       Assert.Throws<ArgumentOutOfRangeException>(() => coll.Find().Limit(0).Execute());

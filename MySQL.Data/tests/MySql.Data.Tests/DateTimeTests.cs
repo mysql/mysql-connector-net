@@ -1,4 +1,4 @@
-// Copyright © 2013, 2015, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -553,7 +553,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #63812	MySqlDateTime.GetDateTime() does not specify Timezone for TIMESTAMP fields
     /// </summary>
-    [Fact(Skip="Fix This")]
+    [Fact]
     public void TimestampValuesAreLocal()
     {
       executeSQL("CREATE TABLE TimestampValuesAreLocal (id INT NOT NULL, dt DATETIME, d DATE, " +
@@ -769,7 +769,7 @@ namespace MySql.Data.MySqlClient.Tests
       reader.Close();
     }
 
-    [Fact(Skip="Fix This")]
+    [Fact]
     public void ReadAndWriteMicroseconds()
     {
       if (Fixture.Version < new Version(5, 6, 5)) return;

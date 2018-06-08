@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -75,7 +75,6 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True(true == c.UseCompression, "Use Compression");
       Assert.True(ConnectionState.Closed == c.State, "State");
     }
-
 
     [Fact]
     public void TestConnectingSocketBadUserName()
@@ -164,9 +163,10 @@ namespace MySql.Data.MySqlClient.Tests
                 c.Close();
             }
             */
-    [Fact (Skip = "Fix for 8.0.5")]
+    [Fact]
     public void ConnectInVariousWays()
     {
+      if (Fixture.Version < new Version(5, 7, 0)) return;
       // connect with no db
       MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       connStr.Database = null;
@@ -174,7 +174,9 @@ namespace MySql.Data.MySqlClient.Tests
       c.Open();
       c.Close();
 
+      executeSQL("CREATE USER IF NOT EXISTS 'nopass'@'%'", true);
       executeSQL("GRANT ALL ON *.* to 'nopass'@'%'", true);
+      executeSQL("CREATE USER IF NOT EXISTS 'nopass'@'localhost'", true);
       executeSQL("GRANT ALL ON *.* to 'nopass'@'localhost'", true);
       executeSQL("FLUSH PRIVILEGES", true);
 
@@ -278,7 +280,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #16659  	Can't use double quotation marks(") as password access server by Connector/NET
     /// </summary>
-    [Fact (Skip = "Fix for 8.0.5")]
+    [Fact(Skip = "Fix for 8.0.5")]
     public void ConnectWithQuotePassword()
     {
       executeSQL("GRANT ALL ON *.* to 'quotedUser'@'%' IDENTIFIED BY '\"'", true);
@@ -340,7 +342,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact(Skip ="dotnet core seems to keep objects alive")] // reference https://github.com/dotnet/coreclr/issues/13490
+    [Fact(Skip = "dotnet core seems to keep objects alive")] // reference https://github.com/dotnet/coreclr/issues/13490
     public void ConnectionCloseByGC()
     {
       int threadId;
@@ -364,37 +366,37 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.ExecuteNonQuery();
     }
 
-        //    /// <summary>
-        //    /// Bug #30964 StateChange imperfection 
-        //    /// </summary>
-        //    MySqlConnection rqConnection;
+    //    /// <summary>
+    //    /// Bug #30964 StateChange imperfection 
+    //    /// </summary>
+    //    MySqlConnection rqConnection;
 
 
-        //    [Fact]
-        //    public void RunningAQueryFromStateChangeHandler()
-        //    {
-        //      string connStr = st.GetConnectionString(true);
-        //      using (rqConnection = new MySqlConnection(connStr))
-        //      {
-        //        rqConnection.StateChange += new StateChangeEventHandler(RunningQueryStateChangeHandler);
-        //        rqConnection.Open();
-        //      }
-        //    }
+    //    [Fact]
+    //    public void RunningAQueryFromStateChangeHandler()
+    //    {
+    //      string connStr = st.GetConnectionString(true);
+    //      using (rqConnection = new MySqlConnection(connStr))
+    //      {
+    //        rqConnection.StateChange += new StateChangeEventHandler(RunningQueryStateChangeHandler);
+    //        rqConnection.Open();
+    //      }
+    //    }
 
-        //    void RunningQueryStateChangeHandler(object sender, StateChangeEventArgs e)
-        //    {
-        //      if (e.CurrentState == ConnectionState.Open)
-        //      {
-        //        MySqlCommand cmd = new MySqlCommand("SELECT 1", rqConnection);
-        //        object o = cmd.ExecuteScalar();
-        //        Assert.Equal(1, Convert.ToInt32(o));
-        //      }
-        //    }
+    //    void RunningQueryStateChangeHandler(object sender, StateChangeEventArgs e)
+    //    {
+    //      if (e.CurrentState == ConnectionState.Open)
+    //      {
+    //        MySqlCommand cmd = new MySqlCommand("SELECT 1", rqConnection);
+    //        object o = cmd.ExecuteScalar();
+    //        Assert.Equal(1, Convert.ToInt32(o));
+    //      }
+    //    }
 
-        /// <summary>
-        /// Bug #31262 NullReferenceException in MySql.Data.MySqlClient.NativeDriver.ExecuteCommand 
-        /// </summary>
-        [Fact]
+    /// <summary>
+    /// Bug #31262 NullReferenceException in MySql.Data.MySqlClient.NativeDriver.ExecuteCommand 
+    /// </summary>
+    [Fact]
     public void ConnectionNotOpenThrowningBadException()
     {
       var c2 = new MySqlConnection(Connection.ConnectionString);
@@ -550,7 +552,6 @@ namespace MySql.Data.MySqlClient.Tests
 
       connection.Close();
     }
-
 
     ///// <summary>
     ///// Fix for bug http://bugs.mysql.com/bug.php?id=63942 (Connections not closed properly when using pooling)
@@ -723,7 +724,6 @@ namespace MySql.Data.MySqlClient.Tests
         if (reader != null) reader.Close();
       }
     }
-
 
     [Fact]
     public async Task ChangeDataBaseAsync()
@@ -900,7 +900,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     [Fact]
-    public void ConnectUsingSha256PasswordPlugin()
+    public void ConnectUsingSha256PasswordPluginWithSSL()
     {
       if (Fixture.Version <= new Version("5.6")) return;
 
@@ -934,44 +934,6 @@ namespace MySql.Data.MySqlClient.Tests
         connection.Close();
       }
 
-      // Connect over non-TLS connection using RSA keys. Only available in servers compiled with OpenSSL (E.g. Commercial)
-      bool serverCompiledUsingOpenSsl = false;
-      using (MySqlConnection connection = new MySqlConnection(Settings.ConnectionString))
-      {
-        MySqlCommand command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Rsa_public_key';", Connection);
-
-        using (MySqlDataReader reader = command.ExecuteReader())
-        {
-          if (reader.HasRows)
-          {
-            reader.Read();
-            if (!string.IsNullOrEmpty(reader.GetString(1))) serverCompiledUsingOpenSsl = true;
-          }
-        }
-      }
-
-      Settings.SslMode = MySqlSslMode.None;
-      using (MySqlConnection connection = new MySqlConnection(Settings.ConnectionString))
-      {
-        if (serverCompiledUsingOpenSsl)
-        {
-          Exception ex = Assert.Throws<MySqlException>(() => connection.Open());
-          Assert.Equal("Retrieval of the RSA public key is not enabled for insecure connections.", ex.Message);
-        }
-        else Assert.Throws<MySqlException>(() => connection.Open());
-      }
-
-      if (serverCompiledUsingOpenSsl)
-      {
-        Settings.AllowPublicKeyRetrieval = true;
-        using (MySqlConnection connection = new MySqlConnection(Settings.ConnectionString))
-        {
-          connection.Open();
-          connection.Close();
-        }
-        Settings.AllowPublicKeyRetrieval = false;
-      }
-
       // User without password over TLS connection.
       password = "";
       Settings.Password = password;
@@ -1000,7 +962,59 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     [Fact]
-    public void ConnectUsingCachingSha2Plugin()
+    public void ConnectUsingSha256PasswordPluginWithoutSSL()
+    {
+      if (Fixture.Version <= new Version("5.6")) return;
+
+      string userName = "testSha256";
+      string password = "mysql";
+      string pluginName = "sha256_password";
+      MySqlConnectionStringBuilder Settings = new MySqlConnectionStringBuilder(Fixture.Settings.ConnectionString);
+      Settings.UserID = userName;
+      Settings.Password = password;
+      Fixture.CreateUser(userName, password, pluginName);
+
+      // Connect over non-TLS connection using RSA keys. Only available in servers compiled with OpenSSL (E.g. Commercial)
+      bool serverCompiledUsingOpenSsl = false;
+      using (MySqlConnection connection = new MySqlConnection(Settings.ConnectionString))
+      {
+        MySqlCommand command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Rsa_public_key';", Connection);
+
+        using (MySqlDataReader reader = command.ExecuteReader())
+        {
+          if (reader.HasRows)
+          {
+            reader.Read();
+            if (!string.IsNullOrEmpty(reader.GetString(1))) serverCompiledUsingOpenSsl = true;
+          }
+        }
+      }
+
+      Settings.SslMode = MySqlSslMode.None;
+      if (serverCompiledUsingOpenSsl)
+      {
+        Settings.AllowPublicKeyRetrieval = true;
+        using (MySqlConnection connection = new MySqlConnection(Settings.ConnectionString))
+        {
+          connection.Open();
+          connection.Close();
+        }
+        Settings.AllowPublicKeyRetrieval = false;
+      }
+
+      using (MySqlConnection connection = new MySqlConnection(Settings.ConnectionString))
+      {
+        if (serverCompiledUsingOpenSsl)
+        {
+          Exception ex = Assert.Throws<MySqlException>(() => connection.Open());
+          Assert.Equal("Retrieval of the RSA public key is not enabled for insecure connections.", ex.Message);
+        }
+        else Assert.Throws<MySqlException>(() => connection.Open());
+      }
+    }
+
+    [Fact]
+    public void ConnectUsingCachingSha2PluginWithSSL()
     {
       if (Fixture.Version < new Version(8, 0, 3)) return;
 
@@ -1139,6 +1153,95 @@ namespace MySql.Data.MySqlClient.Tests
         builder.Password = "incorrectPassword";
         ex = Assert.Throws<MySqlException>(() => new MySqlConnection(builder.ConnectionString).Open());
         Assert.True(ex.InnerException.Message.StartsWith("Access denied for user"));
+      }
+    }
+
+    [Fact]
+    public void ConnectUsingCachingSha2PluginWithoutSSL()
+    {
+      if (Fixture.Version < new Version(8, 0, 3)) return;
+
+      MySqlDataReader pluginReader = ExecuteReader("SELECT * FROM INFORMATION_SCHEMA.PLUGINS WHERE PLUGIN_NAME = 'caching_sha2_password'");
+      if (!pluginReader.HasRows)
+        throw new Exception("The caching_sha2_password plugin isn't available.");
+      pluginReader.Close();
+
+      // Authentication using RSA keys. Only available in servers compiled with OpenSSL (E.g. Commercial).
+      bool serverCompiledUsingOpenSsl = false;
+      MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(Fixture.Settings.ConnectionString);
+      using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
+      {
+        MySqlCommand command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Rsa_public_key';", Connection);
+
+        using (MySqlDataReader reader = command.ExecuteReader())
+        {
+          if (reader.HasRows)
+          {
+            reader.Read();
+            if (!string.IsNullOrEmpty(reader.GetString(1)))
+              serverCompiledUsingOpenSsl = true;
+          }
+        }
+      }
+
+      // Authentication success with empty password – Any connection.
+      string pluginName = "caching_sha2_password";
+      builder.UserID = "testCachingSha2NoPassword";
+      builder.Password = "";
+      builder.Database = null;
+      builder.SslMode = MySqlSslMode.None;
+      Fixture.CreateUser(builder.UserID, builder.Password, pluginName);
+      using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
+      {
+        connection.Open();
+        Assert.Equal(ConnectionState.Open, connection.connectionState);
+        Assert.Equal(AuthStage.GENERATE_SCRAMBLE, CachingSha2AuthenticationPlugin._authStage);
+        connection.Close();
+      }
+
+      Exception ex = null;
+      if (serverCompiledUsingOpenSsl)
+      {
+        builder.UserID = "testCachingSha2";
+        builder.Password = "test";
+        builder.AllowPublicKeyRetrieval = true;
+        Fixture.CreateUser(builder.UserID, builder.Password, pluginName);
+        using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
+        {
+          connection.Open();
+          Assert.Equal(AuthStage.FULL_AUTH, CachingSha2AuthenticationPlugin._authStage);
+          connection.Close();
+        }
+
+        using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
+        {
+          connection.Open();
+          Assert.Equal(AuthStage.FAST_AUTH, CachingSha2AuthenticationPlugin._authStage);
+          connection.Close();
+        }
+
+        // Flush privileges clears the cache.
+        executeSQL("flush privileges");
+        using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
+        {
+          connection.Open();
+          Assert.Equal(AuthStage.FULL_AUTH, CachingSha2AuthenticationPlugin._authStage);
+          connection.Close();
+        }
+
+        builder.Password = "incorrectPassword";
+        ex = Assert.Throws<MySqlException>(() => new MySqlConnection(builder.ConnectionString).Open());
+        Assert.True(ex.InnerException.Message.StartsWith("Access denied for user"));
+
+        // Flush privileges clears the cache.
+        executeSQL("flush privileges");
+        builder.Password = "test";
+        builder.AllowPublicKeyRetrieval = false;
+        using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
+        {
+          ex = Assert.Throws<MySqlException>(() => connection.Open());
+          Assert.Equal("Retrieval of the RSA public key is not enabled for insecure connections.", ex.Message);
+        }
       }
     }
 
@@ -1348,8 +1451,8 @@ namespace MySql.Data.MySqlClient.Tests
       Settings.SslMode = MySqlSslMode.None;
       using (MySqlConnection connection = new MySqlConnection(Settings.ConnectionString))
       {
-       connection.Open();
-       connection.Close();
+        connection.Open();
+        connection.Close();
       }
     }
 
@@ -1369,8 +1472,8 @@ namespace MySql.Data.MySqlClient.Tests
       Settings.SslMode = MySqlSslMode.None;
       using (MySqlConnection connection = new MySqlConnection(Settings.ConnectionString))
       {
-       connection.Open();
-       connection.Close();
+        connection.Open();
+        connection.Close();
       }
     }
 

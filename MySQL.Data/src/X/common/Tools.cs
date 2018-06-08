@@ -1,4 +1,4 @@
-// Copyright © 2014, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2014, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -53,15 +53,15 @@ namespace MySqlX.Common
       return result;
     }
 
-    internal static OS GetOS()
-    {
-      if (Path.DirectorySeparatorChar == '/')
-        return OS.Linux;
-      if (Path.DirectorySeparatorChar == '\\')
-        return OS.Windows;
-      else
-        return OS.MacOS;
-    }
+    //internal static OS GetOS()
+    //{
+    //  if (Path.DirectorySeparatorChar == '/')
+    //    return OS.Linux;
+    //  if (Path.DirectorySeparatorChar == '\\')
+    //    return OS.Windows;
+    //  else
+    //    return OS.MacOS;
+    //}
 
     /// <summary>
     /// Compares two Guids in string format.
@@ -83,6 +83,6 @@ namespace MySqlX.Common
     internal static int CompareGuids(Guid guid1, Guid guid2)
     {
       return CompareGuids(guid1.ToString(), guid2.ToString());
-    }
+    } 
   }
 }

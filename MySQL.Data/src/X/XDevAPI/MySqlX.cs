@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -37,13 +37,6 @@ namespace MySqlX.XDevAPI
 
   public class MySQLX
   {
-    /// <summary>
-    /// Initializes a new instance of the MySQLX class.
-    /// </summary>
-    public MySQLX()
-    {
-    }
-
     /// <summary>
     /// Opens a session to the server given or to the first available server if multiple servers were specified.
     /// </summary>

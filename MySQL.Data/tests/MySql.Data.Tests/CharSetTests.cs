@@ -132,7 +132,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void RespectBinaryFlags()
     {
-      if (Connection.driver.Version.isAtLeast(5, 5, 0)) return;
+      if (Connection.driver.Version.isAtLeast(5,5,0)) return;
 
       string connStr = Connection.ConnectionString + ";respect binary flags=true";
       using (MySqlConnection c = new MySqlConnection(connStr))
@@ -393,7 +393,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.ExecuteScalar();
     }
 
-    [Fact(Skip = "Fix for 8.0.5")]
+    [Fact]
     public void ExtendedCharsetOnConnection()
     {
       MySqlConnectionStringBuilder rootSb = new MySqlConnectionStringBuilder(Root.ConnectionString);
@@ -408,7 +408,8 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlCommand rootCommand = new MySqlCommand();
         rootCommand.Connection = rootConnection;
         rootCommand.CommandText = string.Format("CREATE DATABASE IF NOT EXISTS `{0}`;", database);
-        rootCommand.CommandText += string.Format("GRANT ALL ON `{0}`.* to '{1}'@'localhost' identified by '{2}';", database, user, password);
+        rootCommand.CommandText += string.Format("CREATE USER '{0}'@'localhost' identified by '{1}';", user, password);
+        rootCommand.CommandText += string.Format("GRANT ALL ON `{0}`.* to '{1}'@'localhost';", database, user, password);
         rootCommand.ExecuteNonQuery();
 
         string connString = Connection.ConnectionString;
@@ -446,7 +447,7 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlDataReader reader = cmd.ExecuteReader();
         reader.Read();
 
-        if (Connection.driver.Version.isAtLeast(8, 0, 1))
+        if (Connection.driver.Version.isAtLeast(8,0,1))
           Assert.Equal("utf8mb4", reader.GetString("Value"));
         else
           Assert.Equal("latin1", reader.GetString("Value"));

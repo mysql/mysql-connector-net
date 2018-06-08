@@ -1,4 +1,4 @@
-// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -43,7 +43,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Tests for MySql bug #64633 - System.InvalidCastException when executing a stored function.
     /// </summary>
-    [Fact (Skip = "Fix for 8.0.5")]
+    [Fact]
     public void InvalidCast()
     {
       executeSQL(String.Format("CREATE FUNCTION `{0}`.`MyTwice`( val int ) RETURNS INT BEGIN return val * 2; END;", Connection.Database), true);
@@ -52,10 +52,10 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL(String.Format("GRANT EXECUTE ON FUNCTION `{0}`.`MyTwice` TO '{1}'@'localhost';", Connection.Database, user), true);
       executeSQL(String.Format("GRANT EXECUTE ON PROCEDURE `{0}`.`spMyTwice` TO '{1}'@'localhost'", Connection.Database, user), true);
 
-      if (Connection.driver.Version.isAtLeast(8,0,1))
-        executeSQL("GRANT SELECT ON TABLE mysql.db TO 'user1'@'localhost'", true);
+      if (Connection.driver.Version.isAtLeast(8, 0, 1))
+        executeSQL(string.Format("GRANT SELECT ON TABLE mysql.db TO '{0}'@'localhost'", user), true);
       else
-        executeSQL("GRANT SELECT ON TABLE mysql.proc TO 'user1'@'localhost'", true);
+        executeSQL(string.Format("GRANT SELECT ON TABLE mysql.proc TO '{0}'@'localhost'", user), true);
 
       executeSQL("FLUSH PRIVILEGES", true);
 
@@ -238,20 +238,20 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact(Skip = "Fix This")]
     public virtual void InsertingPreparedNulls()
     {
-      // executeSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
-      // MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1, ?str)", Connection);
-      // cmd.Parameters.Add("?str", MySqlDbType.VarChar);
-      // cmd.Prepare();
+      //executeSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
+      //MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1, ?str)", Connection);
+      //cmd.Parameters.Add("?str", MySqlDbType.VarChar);
+      //cmd.Prepare();
 
-      // cmd.Parameters[0].Value = null;
-      // cmd.ExecuteNonQuery();
+      //cmd.Parameters[0].Value = null;
+      //cmd.ExecuteNonQuery();
 
-      // cmd.CommandText = "SELECT * FROM Test";
-      // using (MySqlDataReader reader = cmd.ExecuteReader())
-      // {
-      //   Assert.True(reader.Read());
-      //   Assert.Equal(DBNull.Value, reader[1]);
-      // }
+      //cmd.CommandText = "SELECT * FROM Test";
+      //using (MySqlDataReader reader = cmd.ExecuteReader())
+      //{
+      //  Assert.True(reader.Read());
+      //  Assert.Equal(DBNull.Value, reader[1]);
+      //}
     }
 
     /// <summary>
@@ -262,7 +262,9 @@ namespace MySql.Data.MySqlClient.Tests
     {
       executeSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1, 'Test')", Connection);
+      Assert.False(cmd.IsPrepared);
       cmd.Prepare();
+      Assert.True(cmd.IsPrepared);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
       }
@@ -365,6 +367,14 @@ namespace MySql.Data.MySqlClient.Tests
       c = new MySqlConnection("server=localhost;default command timeout=0");
       cmd = new MySqlCommand("", c);
       Assert.Equal(0, cmd.CommandTimeout);
+
+      // Defaults to Int32.MaxValue/1000 when provided value is larger. 
+      c = new MySqlConnection(Connection.ConnectionString);
+      cmd = new MySqlCommand("", c);
+      c.Open();
+      cmd.CommandTimeout = Int32.MaxValue;
+      Assert.Equal(Int32.MaxValue / 1000, cmd.CommandTimeout);
+      c.Close();
     }
 
     /// <summary>

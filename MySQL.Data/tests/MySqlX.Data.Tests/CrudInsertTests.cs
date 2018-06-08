@@ -288,12 +288,6 @@ namespace MySqlX.Data.Tests
       Result result = collection.Add(docs).Execute();
       Assert.Equal<ulong>(4, result.AffectedItemsCount);
 
-      // Expected exceptions.
-      Assert.Throws<ArgumentNullException>(() => collection.AddOrReplaceOne(null, docs[1]));
-      Assert.Throws<ArgumentNullException>(() => collection.AddOrReplaceOne("", docs[1]));
-      Assert.Throws<ArgumentNullException>(() => collection.AddOrReplaceOne(string.Empty, docs[1]));
-      Assert.Throws<ArgumentNullException>(() => collection.AddOrReplaceOne("1", null));
-
       // Add a document.
       Assert.Equal<ulong>(1, collection.AddOrReplaceOne(5, new { _id = 5, title = "Book 5", pages = 60 }).AffectedItemsCount);
       Assert.True(collection.GetOne(5) != null);
@@ -315,6 +309,12 @@ namespace MySqlX.Data.Tests
       Assert.Equal("Book Y", document["title"]);
       Assert.Equal(9, Convert.ToInt32(document["pages"]));
       Assert.Equal("value", document["other"]);
+
+      // Expected exceptions.
+      Assert.Throws<ArgumentNullException>(() => collection.AddOrReplaceOne(null, docs[1]));
+      Assert.Throws<ArgumentNullException>(() => collection.AddOrReplaceOne("", docs[1]));
+      Assert.Throws<ArgumentNullException>(() => collection.AddOrReplaceOne(string.Empty, docs[1]));
+      Assert.Throws<ArgumentNullException>(() => collection.AddOrReplaceOne("1", null));
     }
   }
 }

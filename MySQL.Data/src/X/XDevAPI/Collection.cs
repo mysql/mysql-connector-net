@@ -43,10 +43,6 @@ namespace MySqlX.XDevAPI
   /// </summary>
   public class Collection : DatabaseObject
   {
-    internal Collection() :base(null, null)
-    {
-    }
-
     internal Collection(Schema schema, string name)
       : base(schema, name)
     {
