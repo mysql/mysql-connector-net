@@ -281,7 +281,14 @@ namespace MySql.Data.MySqlClient
       else if (Settings.SslMode != MySqlSslMode.None)
       {
         stream.SendPacket(packet);
-        stream = new Ssl(Settings).StartSSL(ref baseStream, Encoding, Settings.ToString());
+        stream = new Ssl(
+          Settings.Server,
+          Settings.SslMode,
+          Settings.CertificateFile,
+          Settings.CertificateStoreLocation,
+          Settings.CertificatePassword,
+          Settings.CertificateThumbprint)
+          .StartSSL(ref baseStream, Encoding, Settings.ToString());
         packet.Clear();
         packet.WriteInteger((int)connectionFlags, 4);
         packet.WriteInteger(maxSinglePacket, 4);

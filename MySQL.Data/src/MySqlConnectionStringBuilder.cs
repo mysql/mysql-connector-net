@@ -224,6 +224,22 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("blobasutf8excludepattern", null, typeof(string), "", false,
         (msb, sender, value) => { msb.SetValue("blobasutf8excludepattern", value); }, (msb, sender) => msb.BlobAsUTF8ExcludePattern));
 
+      // TODO: Remove this conditions when the connection options have been removed from MySqlBaseConnectionStringBuilder.
+      if (Options.ContainsKey("auth"))
+        Options.Remove("auth");
+
+      if (Options.ContainsKey("sslca"))
+        Options.Remove("sslca");
+
+      if (Options.ContainsKey("ssl-ca"))
+        Options.Remove("ssl-ca");
+
+      if (Options.ContainsKey("sslcrl"))
+        Options.Remove("sslcrl");
+
+      if (Options.ContainsKey("ssl-crl"))
+        Options.Remove("ssl-crl");
+
       // X Authentication options.
       Options.Add(new MySqlConnectionStringOption("auth", null, typeof(MySqlAuthenticationMode), MySqlAuthenticationMode.Default, false));
       Options.Add(new MySqlConnectionStringOption("sslca", "ssl-ca", typeof(string), null, false,
@@ -581,7 +597,7 @@ namespace MySql.Data.MySqlClient
     public bool TableCaching
     {
       get { return (bool)values["tablecaching"]; }
-      set { SetValue("tablecachig", value); }
+      set { SetValue("tablecaching", value); }
     }
 
     [Category("Advanced")]

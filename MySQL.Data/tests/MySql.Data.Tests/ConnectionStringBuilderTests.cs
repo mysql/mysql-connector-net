@@ -242,5 +242,14 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
     }
+
+    // Bug #28157737 TABLE CACHING IS NOT SUPPORTED IN THE MYSQLCONNECTIONSTRINGBUILDER CLASS
+    [Fact]
+    public void SettingTableCachingRaisesException()
+    {
+      var builder = new MySqlConnectionStringBuilder();
+      builder.TableCaching = true;
+      Assert.True(builder.TableCaching);
+    }
   }
 }
