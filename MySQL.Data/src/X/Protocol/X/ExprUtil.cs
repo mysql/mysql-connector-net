@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -32,6 +32,7 @@ using Mysqlx.Datatypes;
 using Mysqlx.Crud;
 using Google.Protobuf;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace MySqlX.Protocol.X
 {
@@ -200,6 +201,9 @@ namespace MySqlX.Protocol.X
       if (value is Dictionary<string, object>)
         value = new XDevAPI.DbDoc(value).ToString();
 
+      if (value is XDevAPI.MySqlExpression)
+        value = (value as XDevAPI.MySqlExpression).value;
+
       if (value is bool)
         return BuildLiteralScalar(Convert.ToBoolean(value));
       else if (value is byte || value is short || value is int || value is long)
@@ -237,6 +241,30 @@ namespace MySqlX.Protocol.X
     {
       if (values == null) return string.Empty;
       return string.Join(", ", values);
+    }
+
+    /// <summary>
+    /// Parses an anonymous object into a dictionary.
+    /// </summary>
+    /// <param name="value">The object to parse.</param>
+    /// <returns>A dictionary if the provided object is an anonymous object; otherwise, <c>null</c>.</returns>
+    public static Dictionary<string, object> ParseAnonymousObject(object value)
+    {
+      if (value == null)
+        return null;
+
+      Type type = value.GetType();
+      if (type.Name.Contains("Anonymous"))
+      {
+        Dictionary<string, object> dictionary = new Dictionary<string, object>();
+        PropertyInfo[] props = type.GetProperties();
+        foreach (PropertyInfo prop in props)
+          dictionary.Add(prop.Name, prop.GetValue(value, null));
+
+        return dictionary;
+      }
+
+      return null;
     }
   }
 }

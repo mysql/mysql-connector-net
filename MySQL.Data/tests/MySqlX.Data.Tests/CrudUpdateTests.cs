@@ -26,6 +26,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.Data;
+using MySql.Data.MySqlClient;
 using MySqlX.Serialization;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
@@ -45,8 +46,30 @@ namespace MySqlX.Data.Tests
       Result result = coll.Add(new { _id = 1, name = "Book 1" }).Execute();
       Assert.Equal<ulong>(1, result.AffectedItemsCount);
 
-      result = coll.Modify("_id = 1").Set("pages", "20").Execute();
+      // Set integer value.
+      result = coll.Modify("_id = 1").Set("pages", 20).Execute();
       Assert.Equal<ulong>(1, result.AffectedItemsCount);
+      Assert.Equal(20, coll.GetOne(1)["pages"]);
+
+      // Set null value.
+      result = coll.Modify("_id = 1").Set("pages", null).Execute();
+      Assert.Equal<ulong>(1, result.AffectedItemsCount);
+      Assert.Equal(null, coll.GetOne(1)["pages"]);
+
+      // Set existing field.
+      result = coll.Modify("_id = 1").Set("name", "Book 2").Execute();
+      Assert.Equal<ulong>(1, result.AffectedItemsCount);
+      Assert.Equal("Book 2", coll.GetOne(1)["name"]);
+
+      // Set alphanumeric field.
+      var document = new DbDoc();
+      document.SetValue("_id", 2);
+      document.SetValue("1a", "other");
+      result = coll.Add(document).Execute();
+      Assert.Equal<ulong>(1, result.AffectedItemsCount);
+      var insertedDocument = coll.GetOne(2);
+
+      //result = coll.Modify("_id = 1").Set("1a", "other").Execute();
     }
 
     [Fact]
@@ -61,14 +84,56 @@ namespace MySqlX.Data.Tests
     }
 
     [Fact]
-    public void RemoveItemInSingleDocument()
+    public void RemoveItemInSingleDocumentUsingUnset()
     {
       Collection coll = CreateCollection("test");
-      Result result = coll.Add(new { _id = 1, name = "Book 1", pages = 20 }).Execute();
-      Assert.Equal<ulong>(1, result.AffectedItemsCount);
+      Result result = coll
+                .Add(new { _id = 1, name = "Book 1", pages = 20 })
+                .Add(new { _id = 2, name = "Book 2", pages = 30 })
+                .Add(new { _id = 3, name = "Book 3", pages = 40, author = "John", author2 = "Mary" })
+                .Execute();
+      Assert.Equal<ulong>(3, result.AffectedItemsCount);
 
+      // Unset 1 field.
       result = coll.Modify("_id = 1").Unset("pages").Execute();
       Assert.Equal<ulong>(1, result.AffectedItemsCount);
+      var document = coll.Find("_id = 1").Execute().FetchOne();
+      Assert.Equal(2, document.values.Count);
+
+      // Unset multiple fields.
+      result = coll.Modify("_id = 2").Unset("name", "pages").Execute();
+      Assert.Equal<ulong>(1, result.AffectedItemsCount);
+      document = coll.Find("_id = 2").Execute().FetchOne();
+      Assert.Equal(1, document.values.Count);
+      result = coll.Modify("_id = 3").Unset(null, "author", "author2").Execute();
+      document = coll.Find("_id = 3").Execute().FetchOne();
+      Assert.Equal(3, document.values.Count);
+
+      // Unsetting nonexistent fields doesn't raise an error.
+      result = coll.Modify("_id = 2").Unset("otherfield").Execute();
+      Assert.Equal(0ul, result.AffectedItemsCount);
+
+      // Unsetting null items combined with valid values are ignored.
+      result = coll.Modify("_id = 3").Unset(null).Unset("name").Execute();
+      Assert.Equal(1ul, result.AffectedItemsCount);
+      document = coll.Find("_id = 3").Execute().FetchOne();
+      Assert.Equal(2, document.values.Count);
+
+      // Unsetting single null items raises an error
+      var ex = Assert.Throws<MySqlException>(() => coll.Modify("_id = 3").Unset(null).Execute());
+      Assert.Equal("Invalid update expression list", ex.Message);
+
+      // Unsetting empty strings raises an error.
+      ex = Assert.Throws<MySqlException>(() => coll.Modify("_id = 2").Unset("").Execute());
+      Assert.Equal("The path expression '$' is not allowed in this context.", ex.Message);
+      ex = Assert.Throws<MySqlException>(() => coll.Modify("_id = 2").Unset(string.Empty).Execute());
+      Assert.Equal("The path expression '$' is not allowed in this context.", ex.Message);
+
+      // Unset with special chars.
+      var ex2 = Assert.Throws<ArgumentException>(() => coll.Modify("_id = 3").Unset(null).Unset("@*%#ç").Execute());
+      Assert.Equal("The path expression '$' is not allowed in this context.", ex.Message);
+      ex2 = Assert.Throws<ArgumentException>(() => coll.Modify("_id = 3").Unset(null).Unset("******").Execute());
+      Assert.Equal("The path expression '$' is not allowed in this context.", ex.Message);
     }
 
     [Fact]
@@ -82,12 +147,12 @@ namespace MySqlX.Data.Tests
       var stmt = coll.Modify("_id = :ID");
       result = stmt.Bind("Id", 2).Set("pages", "20").Execute();
       Assert.Equal<ulong>(1, result.AffectedItemsCount);
-      result = stmt.Bind("Id", 1).Set("pages", "10").Execute();
+      result = stmt.Bind("Id", 1).Set("pages", 10).Execute();
       Assert.Equal<ulong>(1, result.AffectedItemsCount);
 
       var docs = coll.Find().Execute().FetchAll();
       Assert.Equal(new DbDoc("{ \"_id\": 1, \"name\": \"Book 1\", \"pages\": 10 }").ToString(), docs[0].ToString());
-      Assert.Equal(new DbDoc("{ \"_id\": 2, \"name\": \"Book 2\", \"pages\": 20 }").ToString(), docs[1].ToString());
+      Assert.Equal(new DbDoc("{ \"_id\": 2, \"name\": \"Book 2\", \"pages\": \"20\" }").ToString(), docs[1].ToString());
     }
 
     [Fact]
@@ -234,18 +299,108 @@ namespace MySqlX.Data.Tests
       Collection collection = CreateCollection("test");
       collection.Add("{ \"x\":[1,2] }").Execute();
 
+      // x[1]=43, x[2]=2. 
       collection.Modify("true").ArrayInsert("x[1]", 43).Execute();
+
+      // x[3]=44.
       collection.Modify("true").ArrayInsert("x[3]", 44).Execute();
+
+      // Since array only contains 4 items the value 46 is assigned to x[4].
+      collection.Modify("true").ArrayInsert("x[5]", 46).Execute();
+
+      // Since array only contains 5 items the value 50 is assigned to x[5].
+      collection.Modify("true").ArrayInsert("x[20]", 50).Execute();
+
+      // Assign an item from different data type.
+      collection.Modify("true").ArrayInsert("x[6]", "string").Execute();
+
+      // Assign a document.
+      collection.Modify("true").ArrayInsert("x[7]", "{ \"name\":\"Mike\" }").Execute();
 
       var result = collection.Find().Execute();
       var document = result.FetchOne();
-      var x = (object[]) document.values["x"];
+      var x = (object[])document.values["x"];
 
-      Assert.Equal(4, x.Length);
-      Assert.Equal(1, (int) x[0]);
-      Assert.Equal(43, (int) x[1]);
-      Assert.Equal(2, (int) x[2]);
-      Assert.Equal(44, (int) x[3]);
+      Assert.Equal(8, x.Length);
+      Assert.Equal(1, (int)x[0]);
+      Assert.Equal(43, (int)x[1]);
+      Assert.Equal(2, (int)x[2]);
+      Assert.Equal(44, (int)x[3]);
+      Assert.Equal(46, (int)x[4]);
+      Assert.Equal(50, (int)x[5]);
+      Assert.Equal("string", x[6]);
+      Assert.True(new DbDoc(x[7]) is DbDoc);
+
+      // No value is inserted if the array doesn't exist.
+      collection.Modify("true").ArrayInsert("y[0]", 1).Execute();
+
+      result = collection.Find().Execute();
+      document = result.FetchOne();
+      Assert.False(document.values.ContainsKey("y"));
+
+      collection.Modify("true").ArrayInsert("x[0]", null).Execute();
+      collection.Modify("true").ArrayInsert("x[1]", " ").Execute();
+
+      result = collection.Find().Execute();
+      document = result.FetchOne();
+      x = (object[])document.values["x"];
+      Assert.Equal(null, x[0]);
+      Assert.Equal(" ", x[1]);
+
+      // Insert an empty string fails.
+      var ex = Assert.Throws<ArgumentException>(() => collection.Modify("true").ArrayInsert("x[0]", "").Execute());
+      Assert.Contains("String can't be empty.", ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => collection.Modify("true").ArrayInsert("x[0]", string.Empty).Execute());
+      Assert.Contains("String can't be empty.", ex.Message);
+
+      // Not specifying an index raises an error.
+      var ex2 = Assert.Throws<MySqlException>(() => collection.Modify("true").ArrayInsert("dates", "5/1/2018").Execute());
+      Assert.Equal("A path expression is not a path to a cell in an array.", ex2.Message);
+    }
+
+    [Fact]
+    public void ArrayAppendWithMySqlExpression()
+    {
+      Collection collection = CreateCollection("test");
+
+      // String containing an expression is not evaluted.
+      collection.Add("{ \"_id\":\"123\", \"name\":\"alice\", \"email\":[ \"alice@ora.com\" ], \"dates\":\"4/1/2017\" }").Execute();
+      collection.Modify("true").ArrayAppend("email", "UPPER($.name)").Execute();
+      var document = collection.GetOne("123");
+      Assert.Equal("UPPER($.name)", (document["email"] as object[])[1]);
+
+      // Use MySqlExpression.
+      collection.Add("{ \"_id\":\"124\", \"name\":\"alice\", \"value\":[ \"alice@ora.com\" ], \"dates\":\"4/1/2017\" }").Execute();
+      collection.Modify("_id = \"124\"").ArrayAppend("value", new MySqlExpression("UPPER($.name)")).Execute();
+      document = collection.GetOne("124");
+      Assert.Equal("ALICE", (document["value"] as object[])[1]);
+
+      // Use embedded MySqlExpression.
+      collection.Add("{ \"_id\":\"125\", \"name\":\"alice\", \"value\":[ \"alice@ora.com\" ], \"dates\":\"4/1/2017\" }").Execute();
+      collection.Modify("_id = \"125\"").ArrayAppend("value", new { expression = new MySqlExpression("UPPER($.name)") }).Execute();
+      document = collection.GetOne("125");
+      var item = ((document["value"] as object[])[1] as Dictionary<string, object>);
+      Assert.Equal("ALICE", item["expression"]);
+
+      collection.Add("{ \"_id\":\"126\", \"name\":\"alice\", \"value\":[ \"alice@ora.com\" ], \"dates\":\"4/1/2017\" }").Execute();
+      collection.Modify("_id = \"126\"").ArrayAppend("value", new { expression = new MySqlExpression("UPPER($.name)"), literal = "UPPER($.name)" }).Execute();
+      document = collection.GetOne("126");
+      item = ((document["value"] as object[])[1] as Dictionary<string, object>);
+      Assert.Equal("ALICE", item["expression"]);
+      Assert.Equal("UPPER($.name)", item["literal"]);
+    }
+
+    [Fact]
+    public void ArrayAppendUsesCorrectDataTypes()
+    {
+      Collection collection = CreateCollection("test");
+      collection.Add("{ \"_id\":\"123\", \"email\":[ \"alice@ora.com\"], \"dates\":\"4/1/2017\" }").Execute();
+      collection.Modify("true").ArrayAppend("dates", "1").Execute();
+      collection.Modify("true").ArrayAppend("dates", 1).Execute();
+      var document = collection.GetOne("123");
+      var dates = document["dates"] as object[];
+      Assert.True(dates[1] is string);
+      Assert.True(dates[2] is int);
     }
 
     [Fact]
@@ -254,29 +409,145 @@ namespace MySqlX.Data.Tests
       Collection collection = CreateCollection("test");
       collection.Add("{ \"x\":[1,2] }").Execute();
 
+      // Append values of different types, null and spaces.
       collection.Modify("true").ArrayAppend("x", 43).Execute();
-      collection.Modify("true").ArrayAppend("x", 44).Execute();
+      collection.Modify("true").ArrayAppend("x", "string").Execute();
+      collection.Modify("true").ArrayAppend("x", true).Execute();
+      collection.Modify("true").ArrayAppend("x", null).Execute();
+      collection.Modify("true").ArrayAppend("x", " ").Execute();
 
       DocResult result = collection.Find().Execute();
       DbDoc document = result.FetchOne();
       var x = (object[]) document.values["x"];
 
-      Assert.Equal(4, x.Length);
+      Assert.Equal(7, x.Length);
       Assert.Equal(1, (int) x[0]);
       Assert.Equal(2, (int) x[1]);
       Assert.Equal(43, (int) x[2]);
-      Assert.Equal(44, (int) x[3]);
+      Assert.Equal("string", x[3]);
+      Assert.Equal(true, x[4]);
+      Assert.Equal(null, x[5]);
+      Assert.Equal(" ", x[6]);
+
+      // No value is appended if the array doesn't exist.
+      collection.Modify("true").ArrayAppend("y", 45).Execute();
+
+      result = collection.Find().Execute();
+      document = result.FetchOne();
+      Assert.False(document.values.ContainsKey("y"));
+
+      var ex = Assert.Throws<ArgumentException>(() => collection.Modify("true").ArrayAppend("x", "").Execute());
+      Assert.Contains("String can't be empty.", ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => collection.Modify("true").ArrayAppend("x", string.Empty).Execute());
+      Assert.Contains("String can't be empty.", ex.Message);
     }
 
     [Fact]
-    public void ArrayDelete()
+    public void ArrayInsertWithMySqlExpression()
     {
       Collection collection = CreateCollection("test");
-      collection.Add("{ \"x\":[1,2] }").Execute();
 
-      Exception ex = Assert.Throws<NotSupportedException>(() => collection.Modify("true").ArrayDelete("x", 0).Execute());
+      // String containing an expression is not evaluted.
+      collection.Add("{ \"_id\":\"123\", \"name\":\"alice\", \"email\":[ \"alice@ora.com\" ], \"dates\":\"4/1/2017\" }").Execute();
+      collection.Modify("true").ArrayInsert("email[0]", "UPPER($.name)").Execute();
+      var document = collection.GetOne("123");
+      Assert.Equal("UPPER($.name)", (document["email"] as object[])[0]);
 
-      Assert.Equal(ResourcesX.FeatureNotSupported, ex.Message);
+      // Use MySqlExpression.
+      collection.Add("{ \"_id\":\"124\", \"name\":\"alice\", \"email\":[ \"alice@ora.com\" ], \"dates\":\"4/1/2017\" }").Execute();
+      collection.Modify("_id = \"124\"").ArrayInsert("email[0]", new MySqlExpression("UPPER($.name)")).Execute();
+      document = collection.GetOne("124");
+      Assert.Equal("ALICE", (document["email"] as object[])[0]);
+
+      // Use embedded MySqlExpression.
+      collection.Add("{ \"_id\":\"125\", \"name\":\"alice\", \"email\":[ \"alice@ora.com\" ], \"dates\":\"4/1/2017\" }").Execute();
+      collection.Modify("_id = \"125\"").ArrayInsert("email[0]", new { other = new MySqlExpression("UPPER($.name)") }).Execute();
+      document = collection.GetOne("125");
+      var item = ((document["email"] as object[])[0] as Dictionary<string, object>);
+      Assert.Equal("ALICE", item["other"]);
+
+      collection.Add("{ \"_id\":\"126\", \"name\":\"alice\", \"email\":[ \"alice@ora.com\" ], \"dates\":\"4/1/2017\" }").Execute();
+      collection.Modify("_id = \"126\"").ArrayInsert("email[0]", new { other = new MySqlExpression("UPPER($.name)"), literal = "UPPER($.name)" }).Execute();
+      document = collection.GetOne("126");
+      item = ((document["email"] as object[])[0] as Dictionary<string, object>);
+      Assert.Equal("ALICE", item["other"]);
+      Assert.Equal("UPPER($.name)", item["literal"]);
+    }
+
+    [Fact]
+    public void ArrayOperationsKeepDateValue()
+    {
+      Collection collection = CreateCollection("test");
+      Result r = collection.Add("{ \"_id\": \"123\", \"email\":[\"alice@ora.com\"], \"dates\": \"5/1/2018\" }").Execute();
+      Assert.Equal(1ul, r.AffectedItemsCount);
+
+      // No items are affected since dates isn't an array.
+      r = collection.Modify("true").ArrayInsert("dates[0]", "4/1/2018").Execute();
+      Assert.Equal(0ul, r.AffectedItemsCount);
+
+      // Converts a non array to an array by appending a value.
+      collection.Modify("true").ArrayAppend("dates", "6/1/2018").Execute();
+
+      // Array insert at specified index is now succesful since dates is an array.
+      collection.Modify("true").ArrayInsert("dates[0]", "4/1/2018").Execute();
+
+      DbDoc document = collection.GetOne("123");
+      object[] dates = document["dates"] as object[];
+      Assert.Equal(3, dates.Length);
+      Assert.Equal("4/1/2018", dates[0]);
+      Assert.Equal("5/1/2018", dates[1]);
+      Assert.Equal("6/1/2018", dates[2]);
+    }
+
+    //[Fact]
+    //public void Alphanumeric()
+    //{
+    //  Collection collection = CreateCollection("test");
+    //  var document = new DbDoc();
+
+    //  for (int i = 0; i < 30; i++)
+    //  {
+    //    document.SetValue("_id", i);
+    //    document.SetValue("books", "test" + i);
+    //    document.SetValue("pages", i + 10);
+    //    document.SetValue("reviewers", "reviewers" + i);
+    //    document.SetValue("person", new
+    //    {
+    //      name = "Fred" + i,
+    //      age = i
+    //    });
+    //    document.SetValue("1address", "street" + i);
+    //    collection.Add(document).Execute();
+    //  }
+
+    //  Result result = collection.Modify("_id = 21").Unset("1address").Execute();
+    //}
+
+    [Fact]
+    public void UnsetVariations()
+    {
+      Collection collection = CreateCollection("test");
+      var document = new DbDoc("{ \"_id\":1, \"pages\":1, \"pages2\":2, \"pages3\":3, \"pages4\":{ \"internalPages\":4 } }");
+      collection.Add(document).Execute();
+
+      // Whitespace is ignored.
+      collection.Modify("_id = 1").Unset("pages ").Execute();
+      Assert.False(collection.GetOne(1).values.ContainsKey("pages"));
+      collection.Modify("_id = 1").Unset(" pages2 ").Execute();
+      Assert.False(collection.GetOne(1).values.ContainsKey("pages2"));
+      collection.Modify("_id = 1").Unset(" pages3").Execute();
+      Assert.False(collection.GetOne(1).values.ContainsKey("pages3"));
+      collection.Modify("_id = 1").Unset("  pages4.internalPages  ").Execute();
+      Assert.True(collection.GetOne(1).values.ContainsKey("pages4"));
+      Assert.False(collection.GetOne(1).values.ContainsKey("pages4.internalPages"));
+
+      // Error is raised with incorrect document path.
+      var ex = Assert.Throws<ArgumentException>(() => collection.Modify("_id = 1").Unset("pages*").Execute());
+      Assert.Equal("Invalid document path.", ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => collection.Modify("_id = 1").Unset("pages!").Execute());
+      Assert.Equal("Invalid document path.", ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => collection.Modify("_id = 1").Unset("pages*data").Execute());
+      Assert.Equal("Invalid document path.", ex.Message);
     }
   }
 }

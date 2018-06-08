@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -162,14 +162,34 @@ namespace MySqlX.Serialization
     private string ReadUntilToken(params char[] end)
     {
       string val = "";
+      bool escapedQuoteExpected = false;
       while (_pos < _input.Length)
       {
         char c = _input[_pos++];
-        if (TokenInGroup(end, c))
+
+        if (!escapedQuoteExpected)
         {
-          _pos--;
-          return val;
+          if (c == 92)
+            escapedQuoteExpected = true;
+          else if (TokenInGroup(end, c))
+          {
+            _pos--;
+            return val;
+          }
         }
+        else if (c == 34)
+          escapedQuoteExpected = false;
+
+        //if (c == 92 && !escapedQuoteExpected)
+        //  escapedQuoteExpected = true;
+        //else if (TokenInGroup(end, c) && !escapedQuoteExpected)
+        //{
+        //  _pos--;
+        //  return val;
+        //}
+        //else if (c == 34 && escapedQuoteExpected)
+        //  escapedQuoteExpected = false;
+
         val += c;
       }
       throw new Exception("Failed to find ending '\"' while reading stream.");

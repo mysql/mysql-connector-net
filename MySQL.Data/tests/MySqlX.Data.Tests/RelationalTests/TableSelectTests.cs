@@ -1,4 +1,4 @@
-// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -97,16 +97,14 @@ namespace MySqlX.Data.Tests.RelationalTests
         allRows.OrderByDescending(c => c[2]).ThenBy(c => c[1]).ToArray());
       MultiTableSelectTest(table.Select().Limit(1),
         allRows.Take(1).ToArray());
-      MultiTableSelectTest(table.Select().Limit(10, 1),
+      MultiTableSelectTest(table.Select().Limit(10).Offset(1),
         allRows.Skip(1).Take(10).ToArray());
-      MultiTableSelectTest(table.Select().Limit(1, 1),
+      MultiTableSelectTest(table.Select().Limit(1).Offset(1),
         allRows.Skip(1).Take(1).ToArray());
       MultiTableSelectTest(table.Select().Where("name like :name").Bind("nAme", "%jon%"),
         allRows.Where(c => c[1].ToString().Contains("jon")).ToArray());
       MultiTableSelectTest(table.Select().Where("name like :name").Bind("naMe", "%on%"),
         allRows.Where(c => c[1].ToString().Contains("on")).ToArray());
-      //MultiTableSelectTest(employees.Select().GroupBy("age"),
-      //allRows.GroupBy(c => new[] { c[2] }).First().ToArray());
     }
 
     [Fact]
@@ -436,6 +434,77 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.Throws<MySqlException>(() => table.Select().Where("name NOT IN [\"jonh doe\", \"milton green\"]").Execute().FetchAll().Count);
       Assert.Throws<MySqlException>(() => table.Select().Where("a IN [3]").Execute().FetchAll().Count);
       Assert.Throws<MySqlException>(() => table.Select().Where("3 IN a").Execute().FetchAll().Count);
+    }
+
+    [Fact]
+    public void Grouping()
+    {
+      GetSession().SQL("SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', '')); ").Execute();
+      Table table = testSchema.GetTable("test");
+
+      // Insert additonal users.
+      object[][] additionalUsers = {
+        new object[] { 4, "mary weinstein", 24 },
+        new object[] { 5, "jerry pratt", 45 },
+        new object[] { 6, "hugh jackman", 20},
+        new object[] { 7, "elizabeth olsen", 31}
+      };
+      var statement = table.Insert();
+      foreach (object[] user in additionalUsers)
+      {
+        statement = statement.Values(user);
+      }
+
+      Assert.Equal<ulong>(4, statement.Execute().AffectedItemsCount);
+
+      // GroupBy operation.
+      // GroupBy returns 5 rows since age 45 and 24 is repeated.
+      var result = table.Select().GroupBy("age").Execute();
+      Assert.Equal(5, result.FetchAll().Count);
+
+      // GroupBy with null.
+      result = table.Select("id as ID", "name as Name", "age as Age").GroupBy(null).Execute();
+      Assert.Equal(7, result.FetchAll().Count);
+      result = table.Select("id as ID", "name as Name", "age as Age").GroupBy(null, null).Execute();
+      Assert.Equal(7, result.FetchAll().Count);
+      result = table.Select("id as ID", "name as Name", "age as Age").GroupBy(null, "age").Execute();
+      Assert.Equal(5, result.FetchAll().Count);
+
+      // Having operation.
+      // Having reduces the original 5 rows to 3 since 2 rows have a cnt=2, due to the repeated names.
+      result = table.Select("id", "count(name) as cnt", "age").GroupBy("age").Having("cnt = 1").Execute();
+      Assert.Equal(3, result.FetchAll().Count);
+
+      // Having with null.
+      result = table.Select("id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having(null).Execute();
+      Assert.Equal(5, result.FetchAll().Count);
+
+      // GroupBy with invalid field name.
+      var ex = Assert.Throws<MySqlException>(() => table.Select("id as ID", "name as Name", "age as Age").GroupBy("none").Execute());
+      Assert.Equal("Unknown column 'none' in 'group statement'", ex.Message);
+
+      // GroupBy with empty strings.
+      var ex2 = Assert.Throws<ArgumentException>(() => table.Select("id as ID", "name as Name", "age as Age").GroupBy("").Execute());
+      Assert.Equal("No more tokens when expecting one at token pos 0", ex2.Message);
+      ex2 = Assert.Throws<ArgumentException>(() => table.Select("id as ID", "name as Name", "age as Age").GroupBy(" ").Execute());
+      Assert.Equal("No more tokens when expecting one at token pos 0", ex2.Message);
+      ex2 = Assert.Throws<ArgumentException>(() => table.Select("id as ID", "name as Name", "age as Age").GroupBy(string.Empty).Execute());
+      Assert.Equal("No more tokens when expecting one at token pos 0", ex2.Message);
+
+      // Having with invalid field name.
+      ex = Assert.Throws<MySqlException>(() => table.Select("id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having("none = 1").Execute());
+      Assert.Equal("Unknown column 'none' in 'having clause'", ex.Message);
+
+      // Having with empty strings.
+      ex2 = Assert.Throws<ArgumentException>(() => table.Select("id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having("").Execute());
+      Assert.Equal("Unable to parse query ''", ex2.Message);
+      Assert.Equal("No more tokens when expecting one at token pos 0", ex2.InnerException.Message);
+      ex2 = Assert.Throws<ArgumentException>(() => table.Select("id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having(" ").Execute());
+      Assert.Equal("Unable to parse query ' '", ex2.Message);
+      Assert.Equal("No more tokens when expecting one at token pos 0", ex2.InnerException.Message);
+      ex2 = Assert.Throws<ArgumentException>(() => table.Select("id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having(string.Empty).Execute());
+      Assert.Equal("Unable to parse query ''", ex2.Message);
+      Assert.Equal("No more tokens when expecting one at token pos 0", ex2.InnerException.Message);
     }
   }
 }

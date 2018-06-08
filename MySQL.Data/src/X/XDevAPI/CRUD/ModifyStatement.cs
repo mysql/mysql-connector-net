@@ -71,13 +71,21 @@ namespace MySqlX.XDevAPI.CRUD
     }
 
     /// <summary>
-    /// Removes a key or value from a document.
+    /// Removes keys or values from a document.
     /// </summary>
-    /// <param name="docPath">The document path key.</param>
+    /// <param name="docPath">An array of document paths representing the keys to be removed.</param>
     /// <returns>This <see cref="ModifyStatement"/> object.</returns>
-    public ModifyStatement Unset(string docPath)
+    public ModifyStatement Unset(params string[] docPath)
     {
-      Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ItemRemove, docPath));
+      if (docPath == null)
+        return this;
+
+      foreach (var item in docPath)
+      {
+        if (item != null)
+          Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ItemRemove, item));
+      }
+
       return this;
     }
 
@@ -111,6 +119,9 @@ namespace MySqlX.XDevAPI.CRUD
     /// <returns>A <see cref="ModifyStatement"/> object containing the updated array.</returns>
     public ModifyStatement ArrayInsert(string field, object value)
     {
+      if (value is string && value.ToString()==string.Empty)
+        throw new ArgumentException(nameof(value), Resources.StringEmpty);
+
       Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ArrayInsert, field).SetValue(value));
       return this;
     }
@@ -123,25 +134,29 @@ namespace MySqlX.XDevAPI.CRUD
     /// <returns>A <see cref="ModifyStatement"/> object containing the updated array.</returns>
     public ModifyStatement ArrayAppend(string docPath, object value)
     {
+      if (value is string && value.ToString() == string.Empty)
+        throw new ArgumentException(nameof(value), Resources.StringEmpty);
+
       Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ArrayAppend, docPath).SetValue(value));
       return this;
     }
 
     /// <summary>
-    /// Deletes an item from the specified array.
+    /// Allows the user to set the sorting criteria for the operation. The strings use normal SQL syntax like
+    /// "order ASC"  or "pages DESC, age ASC".
     /// </summary>
-    /// <param name="field">The document path key.</param>
-    /// <param name="position">The index of the element to remove.</param>
-    /// <returns></returns>
-    public ModifyStatement ArrayDelete(string field, int position)
+    /// <param name="order">The order criteria.</param>
+    /// <returns>A generic object representing the implementing statement type.</returns>
+    public ModifyStatement Sort(params string[] order)
     {
-      throw new NotSupportedException(ResourcesX.FeatureNotSupported);
+      FilterData.OrderBy = order;
+      return this;
     }
 
     /// <summary>
     /// Executes the modify statement.
     /// </summary>
-    /// <returns>A <see cref="Result"/> object containg the results of the execution.</returns>
+    /// <returns>A <see cref="Result"/> object containing the results of the execution.</returns>
     public override Result Execute()
     {
       return Execute(Target.Session.XSession.ModifyDocs, this);

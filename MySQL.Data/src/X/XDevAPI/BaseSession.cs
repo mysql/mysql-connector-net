@@ -1,4 +1,4 @@
-// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -40,6 +40,7 @@ using MySqlX.Failover;
 using MySqlX.XDevAPI.Common;
 using System.Net;
 using MySql.Data.Common;
+using System.Text;
 
 namespace MySqlX.XDevAPI
 {
@@ -49,20 +50,9 @@ namespace MySqlX.XDevAPI
   public abstract class BaseSession : IDisposable
   {
     private InternalSession _internalSession;
-    private string connectionString;
-    private bool disposed = false;
-    private const uint newDefaultPort = 33060;
-    internal QueueTaskScheduler scheduler = new QueueTaskScheduler();
-
-    /// <summary>
-    /// Gets the connection settings for this session.
-    /// </summary>
-    public MySqlConnectionStringBuilder Settings { get; private set; }
-
-    /// <summary>
-    /// Gets or sets the currently active schema.
-    /// </summary>
-    public Schema Schema { get; protected set; }
+    private string _connectionString;
+    private const uint _newDefaultPort = 33060;
+    internal QueueTaskScheduler _scheduler = new QueueTaskScheduler();
 
     internal InternalSession InternalSession
     {
@@ -72,6 +62,89 @@ namespace MySqlX.XDevAPI
     internal XInternalSession XSession
     {
       get { return InternalSession as XInternalSession; }
+    }
+
+    #region Session status properties
+
+    private DBVersion? _version = null;
+
+    internal DBVersion Version => _version ?? (_version = XSession.GetServerVersion()).Value;
+
+    #endregion
+
+    /// <summary>
+    /// Gets the connection settings for this session.
+    /// </summary>
+    public MySqlConnectionStringBuilder Settings { get; private set; }
+
+    /// <summary>
+    /// Gets the currently active schema.
+    /// </summary>
+    public Schema Schema { get; protected set; }
+
+    /// <summary>
+    /// Gets the default schema provided when creating the session.
+    /// </summary>
+    public Schema DefaultSchema { get; private set; }
+
+    /// <summary>
+    /// Gets the connection uri representation of the connection options provided during the creation of the session.
+    /// </summary>
+    public String Uri
+    {
+      get
+      {
+        var builder = new StringBuilder(string.Format("mysqlx://{0}:{1}{2}?",
+          Settings.Server,
+          Settings.Port,
+          string.IsNullOrEmpty(Settings.Database) ?
+            string.Empty :
+            "/" + Settings.Database));
+        var firstItemAdded = false;
+        var certificateFileAdded = false;
+        foreach (var item in Settings.values)
+        {
+          // Skip connection options already included in the connection URI.
+          if (item.Key == "server" || item.Key =="database" || item.Key == "port" )
+            continue;
+
+          // Skip CertificateFile if it has already been included.
+          if ((item.Key == "certificatefile" || item.Key == "sslca") && certificateFileAdded)
+            continue;
+
+          try
+          {
+            var value = Settings[item.Key];
+            // Get the default value of the connection option.
+            var option = MySqlConnectionStringBuilder.Options.Values.First(
+                o=> o.Keyword==item.Key ||
+                (o.Synonyms!=null && o.Synonyms.Contains(item.Key)));
+            var defaultValue = option.DefaultValue;
+            // If the default value has been changed then include it in the connection URI.
+            if (value!=null && (defaultValue==null || (value.ToString()!=defaultValue.ToString())))
+            {
+              if (!firstItemAdded)
+                firstItemAdded =true;
+              else
+                builder.Append("&");
+
+              if (item.Key == "certificatefile" || item.Key == "sslca")
+              {
+                certificateFileAdded = true;
+                builder.Append("sslca");
+              }
+              else
+                builder.Append(item.Key);
+              builder.Append("=");
+              builder.Append(value is bool ? value.ToString().ToLower() : value.ToString());
+            }
+          }
+          // Dismiss any not supported exceptions since they are expected.
+          catch (NotSupportedException) { }
+        }
+
+        return builder.ToString();
+      }
     }
 
     /// <summary>
@@ -122,23 +195,23 @@ namespace MySqlX.XDevAPI
       if (string.IsNullOrWhiteSpace(connectionString))
         throw new ArgumentNullException("connectionString");
 
-      this.connectionString = ParseConnectionString(connectionString);
+      this._connectionString = ParseConnectionString(connectionString);
 
       if (FailoverManager.FailoverGroup != null)
       {
         // Multiple hosts were specified.
-        _internalSession = FailoverManager.AttemptConnection(this.connectionString, out this.connectionString);
-        Settings = new MySqlConnectionStringBuilder(this.connectionString);
+        _internalSession = FailoverManager.AttemptConnection(this._connectionString, out this._connectionString);
+        Settings = new MySqlConnectionStringBuilder(this._connectionString);
       }
       else
       {
         // A single host was specified.
-        Settings = new MySqlConnectionStringBuilder(this.connectionString);
+        Settings = new MySqlConnectionStringBuilder(this._connectionString);
         _internalSession = InternalSession.GetSession(Settings);
       }
 
       if (!string.IsNullOrWhiteSpace(Settings.Database))
-        GetSchema(Settings.Database);
+        DefaultSchema = GetSchema(Settings.Database);
     }
 
     /// <summary>
@@ -160,7 +233,7 @@ namespace MySqlX.XDevAPI
         throw new ArgumentNullException("connectionData");
       var values = Tools.GetDictionaryFromAnonymous(connectionData);
       if (!values.Keys.Any(s => s.ToLowerInvariant() == "port"))
-        values.Add("port", newDefaultPort);
+        values.Add("port", _newDefaultPort);
       Settings = new MySqlConnectionStringBuilder();
       bool hostsParsed = false;
       foreach (var value in values)
@@ -178,27 +251,19 @@ namespace MySqlX.XDevAPI
           hostsParsed = true;
         }
       }
-      this.connectionString = Settings.ToString();
+      this._connectionString = Settings.ToString();
 
       if (FailoverManager.FailoverGroup != null)
       {
         // Multiple hosts were specified.
-        _internalSession = FailoverManager.AttemptConnection(this.connectionString, out this.connectionString);
-        Settings = new MySqlConnectionStringBuilder(this.connectionString);
+        _internalSession = FailoverManager.AttemptConnection(this._connectionString, out this._connectionString);
+        Settings = new MySqlConnectionStringBuilder(this._connectionString);
       }
       else _internalSession = InternalSession.GetSession(Settings);
 
       if (!string.IsNullOrWhiteSpace(Settings.Database))
-        GetSchema(Settings.Database);
+        DefaultSchema = GetSchema(Settings.Database);
     }
-
-    #region Session status properties
-
-    private DBVersion? _version = null;
-
-    internal DBVersion Version => _version ?? (_version = XSession.GetServerVersion()).Value;
-
-    #endregion
 
     /// <summary>
     /// Drops the database/schema with the given name.
@@ -270,17 +335,17 @@ namespace MySqlX.XDevAPI
     /// Commits the current transaction.
     /// </summary>
     /// <returns>A <see cref="Result"/> object containing the results of the commit operation.</returns>
-    public Result Commit()
+    public void Commit()
     {
-      return InternalSession.ExecuteSqlNonQuery("COMMIT");
+      InternalSession.ExecuteSqlNonQuery("COMMIT");
     }
 
     /// <summary>
     /// Rolls back the current transaction.
     /// </summary>
-    public Result Rollback()
+    public void Rollback()
     {
-      return InternalSession.ExecuteSqlNonQuery("ROLLBACK");
+      InternalSession.ExecuteSqlNonQuery("ROLLBACK");
     }
 
     /// <summary>
@@ -469,19 +534,19 @@ namespace MySqlX.XDevAPI
         string[] userData = uri.UserInfo.Split(':');
         if (userData.Length > 2)
           throw new UriFormatException(ResourcesX.InvalidUriData + "user info");
-        connectionParts.Add("uid=" + Uri.UnescapeDataString(userData[0]));
+        connectionParts.Add("uid=" + System.Uri.UnescapeDataString(userData[0]));
         if (userData.Length > 1)
-          connectionParts.Add("password=" + Uri.UnescapeDataString(userData[1]));
+          connectionParts.Add("password=" + System.Uri.UnescapeDataString(userData[1]));
       }
       if (uri.Segments.Length > 2)
         throw new UriFormatException(ResourcesX.InvalidUriData + "segments");
       if (uri.Segments.Length > 1)
       {
-        connectionParts.Add("database=" + Uri.UnescapeDataString(uri.Segments[1]));
+        connectionParts.Add("database=" + System.Uri.UnescapeDataString(uri.Segments[1]));
       }
       if (!string.IsNullOrWhiteSpace(uri.Query))
       {
-        string[] queries = Uri.UnescapeDataString(uri.Query).Substring(1).Split(new char[] { '&' }, StringSplitOptions.RemoveEmptyEntries);
+        string[] queries = System.Uri.UnescapeDataString(uri.Query).Substring(1).Split(new char[] { '&' }, StringSplitOptions.RemoveEmptyEntries);
         foreach (string query in queries)
         {
           string[] keyValue = query.Split('=');
@@ -526,11 +591,11 @@ namespace MySqlX.XDevAPI
       }
 
       if (FailoverManager.FailoverGroup == null)
-        return portProvided ? updatedConnectionString : updatedConnectionString + ";port=" + newDefaultPort;
+        return portProvided ? updatedConnectionString : updatedConnectionString + ";port=" + _newDefaultPort;
 
       return "server=" +
         FailoverManager.FailoverGroup.ActiveHost.Host + ";" +
-        (!portProvided ? "port=" + newDefaultPort + ";" : string.Empty) +
+        (!portProvided ? "port=" + _newDefaultPort + ";" : string.Empty) +
         updatedConnectionString;
     }
 

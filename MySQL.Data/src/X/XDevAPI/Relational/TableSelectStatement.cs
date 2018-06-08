@@ -1,4 +1,4 @@
-// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -49,28 +49,6 @@ namespace MySqlX.XDevAPI.Relational
     }
 
     /// <summary>
-    /// Sets table aggregation.
-    /// </summary>
-    /// <param name="groupBy">The column list for aggregation.</param>
-    /// <returns>This same <see cref="TableSelectStatement"/> object.</returns>
-    public TableSelectStatement GroupBy(params string[] groupBy)
-    {
-      findParams.GroupBy = groupBy;
-      return this;
-    }
-
-    /// <summary>
-    /// Filters criteria for aggregated groups.
-    /// </summary>
-    /// <param name="having">The filter criteria for aggregated groups.</param>
-    /// <returns>This same <see cref="TableSelectStatement"/> object set with the specified group by criteria.</returns>
-    public TableSelectStatement Having(string having)
-    {
-      findParams.GroupByCritieria = having;
-      return this;
-    }
-
-    /// <summary>
     /// Executes the select statement.
     /// </summary>
     /// <returns>A <see cref="Result"/> object containing the results of the execution and data.</returns>
@@ -80,11 +58,12 @@ namespace MySqlX.XDevAPI.Relational
     }
 
     /// <summary>
-    /// Allows the user to set the limit and offset for the operation.
+    /// Sets user-defined limit and offset for the operation.
     /// </summary>
     /// <param name="rows">The number of items to be returned.</param>
     /// <param name="offset">The number of items to be skipped.</param>
     /// <returns>This same <see cref="TableSelectStatement"/> object set with the specified limit.</returns>
+    [Obsolete("This method has been deprecated. Use Limit(rows) and Offset(rows) instead.")]
     public TableSelectStatement Limit(long rows, long offset)
     {
       FilterData.Limit = rows;
@@ -121,6 +100,50 @@ namespace MySqlX.XDevAPI.Relational
 
       findParams.Locking = Protocol.X.RowLock.ExclusiveLock;
       findParams.LockingOption = lockOption;
+      return this;
+    }
+
+    /// <summary>
+    /// Sets the table aggregation.
+    /// </summary>
+    /// <param name="groupBy">The column list for aggregation.</param>
+    /// <returns>This same <see cref="TableSelectStatement"/> object set with the specified group-by criteria.</returns>
+    public TableSelectStatement GroupBy(params string[] groupBy)
+    {
+      if (groupBy == null)
+        return this;
+
+      var groupByList = new List<string>();
+      foreach (var item in groupBy)
+      {
+        if (item != null)
+          groupByList.Add(item);
+      }
+
+      findParams.GroupBy = groupByList.Count > 0 ? groupByList.ToArray() : null;
+      return this;
+    }
+
+    /// <summary>
+    /// Filters criteria for aggregated groups.
+    /// </summary>
+    /// <param name="having">The filter criteria for aggregated groups.</param>
+    /// <returns>This same <see cref="TableSelectStatement"/> object set with the specified filter criteria.</returns>
+    public TableSelectStatement Having(string having)
+    {
+      findParams.GroupByCritieria = having;
+      return this;
+    }
+
+    /// <summary>
+    /// Sets user-defined sorting criteria for the operation. The strings use normal SQL syntax like
+    /// "order ASC"  or "pages DESC, age ASC".
+    /// </summary>
+    /// <param name="order">The order criteria.</param>
+    /// <returns>A generic object that represents the implementing statement type.</returns>
+    public TableSelectStatement OrderBy(params string[] order)
+    {
+      FilterData.OrderBy = order;
       return this;
     }
   }

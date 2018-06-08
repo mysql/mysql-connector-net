@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -48,14 +48,14 @@ namespace MySql.Data.MySqlClient
     //  get { lock (this) { return _values; } }
     //}
 
-    private static readonly MySqlConnectionStringOptionCollection Options = new MySqlConnectionStringOptionCollection();
+    internal static readonly MySqlConnectionStringOptionCollection Options = new MySqlConnectionStringOptionCollection();
 
     static MySqlConnectionStringBuilder()
     {
       // Server options
       Options.Add(new MySqlConnectionStringOption("server", "host,data source,datasource,address,addr,network address", typeof(string), "" /*"localhost"*/, false));
       Options.Add(new MySqlConnectionStringOption("database", "initial catalog", typeof(string), string.Empty, false));
-      Options.Add(new MySqlConnectionStringOption("protocol", "connection protocol, connectionprotocol", typeof(MySqlConnectionProtocol), MySqlConnectionProtocol.Sockets, false,
+      Options.Add(new MySqlConnectionStringOption("protocol", "connection protocol,connectionprotocol", typeof(MySqlConnectionProtocol), MySqlConnectionProtocol.Sockets, false,
         (msb, sender, value) =>
         {
 #if NETSTANDARD1_6 || NETSTANDARD2_0 || NETCOREAPP2_0
@@ -127,16 +127,6 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("user id", "uid,username,user name,user,userid", typeof(string), "", false));
       Options.Add(new MySqlConnectionStringOption("password", "pwd", typeof(string), "", false));
       Options.Add(new MySqlConnectionStringOption("persistsecurityinfo", "persist security info", typeof(bool), false, false));
-      Options.Add(new MySqlConnectionStringOption("encrypt", null, typeof(bool), false, true,
-        delegate (MySqlConnectionStringBuilder msb, MySqlConnectionStringOption sender, object value)
-        {
-          // just for this case, reuse the logic to translate string to bool
-          sender.ValidateValue(ref value);
-          MySqlTrace.LogWarning(-1, "Encrypt is now obsolete. Use Ssl Mode instead");
-          msb.SetValue("Ssl Mode", (bool)value ? MySqlSslMode.Required : MySqlSslMode.None);
-        },
-        (msb, sender) => msb.SslMode != MySqlSslMode.None
-        ));
       Options.Add(new MySqlConnectionStringOption("certificatefile", "certificate file", typeof(string), null, false));
       Options.Add(new MySqlConnectionStringOption("certificatepassword", "certificate password,ssl-ca-pwd", typeof(string), null, false));
       Options.Add(new MySqlConnectionStringOption("certificatestorelocation", "certificate store location", typeof(MySqlCertificateStoreLocation), MySqlCertificateStoreLocation.None, false));
@@ -154,7 +144,7 @@ namespace MySql.Data.MySqlClient
         },
         delegate (MySqlConnectionStringBuilder msb, MySqlConnectionStringOption sender)
         {
-          object val = msb.values["Integrated Security"];
+          object val = msb.values["integratedsecurity"];
           return (bool)val;
         }
         ));
@@ -480,18 +470,6 @@ namespace MySql.Data.MySqlClient
     {
       get { return (bool)values["persistsecurityinfo"]; }
       set { SetValue("persistsecurityinfo", value); }
-    }
-
-    [Category("Authentication")]
-    [Description("Should the connection use SSL.")]
-    [Obsolete("Use Ssl Mode instead.")]
-    internal bool Encrypt
-    {
-      get { return SslMode != MySqlSslMode.None; }
-      set
-      {
-        SetValue("Ssl Mode", value ? MySqlSslMode.Required : MySqlSslMode.None);
-      }
     }
 
     [Category("Authentication")]
@@ -1007,7 +985,8 @@ namespace MySql.Data.MySqlClient
       get { return CertificateFile; }
       set
       {
-        SslMode = MySqlSslMode.Required;
+        if (SslMode == MySqlSslMode.None)
+          SslMode = MySqlSslMode.Required;
         CertificateFile = value;
       }
     }

@@ -1,4 +1,4 @@
-// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -75,8 +75,8 @@ namespace MySqlX.Data.Tests
       Schema test = session.GetSchema("test");
       Collection testColl = test.CreateCollection("test");
       Assert.True(testColl.ExistsInDatabase(), "ExistsInDatabase failed");
-      var result = testColl.CreateIndex("testIndex", "{ \"fields\": [ { \"field\":$.myId, \"type\":\"INT\", \"required\":true } ] }").Execute();
-      result = testColl.Add(new { myId = 1 }).Add(new { myId = 2 }).Execute();
+      testColl.CreateIndex("testIndex", "{ \"fields\": [ { \"field\":$.myId, \"type\":\"INT\", \"required\":true } ] }");
+      var result = testColl.Add(new { myId = 1 }).Add(new { myId = 2 }).Execute();
       Assert.Equal<ulong>(result.AffectedItemsCount, 2);
     }
 
@@ -86,7 +86,7 @@ namespace MySqlX.Data.Tests
       Session session = GetSession();
       Schema test = session.GetSchema("test");
       Collection testColl = test.CreateCollection("test");
-      testColl.CreateIndex("testIndex", "{ \"fields\": [ { \"field\":$.myId, \"type\":\"INT\", \"required\":true } ] }").Execute();
+      testColl.CreateIndex("testIndex", "{ \"fields\": [ { \"field\":$.myId, \"type\":\"INT\", \"required\":true } ] }");
 
       // Drop existing index.
       testColl.DropIndex("testIndex");

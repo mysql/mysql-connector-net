@@ -1,4 +1,4 @@
-// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,13 +27,10 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.Data.MySqlClient;
-using Mysqlx.Expr;
-using MySqlX.Protocol.X;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.CRUD;
 using System;
-using System.Net.Sockets;
 using Xunit;
 
 namespace MySqlX.Data.Tests
@@ -78,7 +75,7 @@ namespace MySqlX.Data.Tests
       Result r = coll.Add(docs).Execute();
       Assert.Equal<ulong>(4, r.AffectedItemsCount);
 
-      DocResult foundDocs = coll.Find("pages > 20").OrderBy("pages DESC").Execute();
+      DocResult foundDocs = coll.Find("pages > 20").Sort("pages DESC").Execute();
       Assert.True(foundDocs.Next());
       Assert.True(foundDocs.Current["title"].ToString() == "Book 4");
       Assert.True(foundDocs.Next());
@@ -206,7 +203,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void RowLockingNotSupportedInOlderVersions()
     {
-      if (session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+      if (session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
 
       Collection coll = CreateCollection("test");
 
@@ -220,7 +217,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void SimpleSharedLock()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
 
       session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -256,7 +253,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void SimpleExclusiveLock()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
 
       session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -294,7 +291,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void SharedLockForbidsToModifyDocuments()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
 
       session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -337,7 +334,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void ExclusiveLockForbidsToModifyDocuments()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
 
       session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -377,7 +374,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void SharedLockAfterExclusiveLock()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
 
       session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -419,7 +416,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void ExclusiveLockAfterSharedLock()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
 
       session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -462,7 +459,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void ExclusiveLockAfterExclusiveLock()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
 
       session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -503,7 +500,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void InOperatorWithListOfValues()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
 
       // Validates the IN operator allows expressions of the type
       // ( compExpr ["NOT"] "IN" "(" argsList ")" ) | ( compExpr ["NOT"] "IN" "[" argsList "]" )
@@ -559,7 +556,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void InOperatorWithCompExpr()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
 
       // Validates the IN operator allows expressions of the type: compExpr ["NOT"] "IN" compExpr
       Collection coll = CreateCollection("test");
@@ -597,7 +594,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void InOperatorWithJsonArrays()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
 
       Collection coll = CreateCollection("test");
       var docString = "{ \"_id\": \"1001\", \"ARR\":[1,2,3], \"ARR1\":[\"name\", \"name2\", \"name3\"]}";
@@ -609,6 +606,7 @@ namespace MySqlX.Data.Tests
       Assert.Throws<MySqlException>(() => coll.Find("(1+2) in [1, 2, 3]").Execute().FetchAll().Count);
       Assert.Throws<MySqlException>(() => coll.Find("(1+2) in $.ARR").Execute().FetchAll().Count);
     }
+
     [Fact]
     public void GetOne()
     {
@@ -711,6 +709,161 @@ namespace MySqlX.Data.Tests
         // first session frees the lock
         s1.Commit();
       }
+    }
+
+    [Fact]
+    public void Grouping()
+    {
+      GetSession().SQL("SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', '')); ").Execute();
+      Collection collection = CreateCollection("test");
+      var docs = new[]
+      {
+        new { _id = 1, name = "jonh doe", age = 38 },
+        new { _id = 2, name = "milton green", age = 45 },
+        new { _id = 3, name = "larry smith", age = 24},
+        new { _id = 4, name = "mary weinstein", age = 24 },
+        new { _id = 5, name = "jerry pratt", age = 45 },
+        new { _id = 6, name = "hugh jackman", age = 20},
+        new { _id = 7, name = "elizabeth olsen", age = 31}
+      };
+      Result r = collection.Add(docs).Execute();
+      Assert.Equal<ulong>(7, r.AffectedItemsCount);
+
+      // GroupBy operation.
+      // GroupBy returns 5 rows since age 45 and 24 is repeated.
+      var result = collection.Find().Fields("_id as ID", "name as Name", "age as Age").GroupBy("age").Execute();
+      Assert.Equal(5, result.FetchAll().Count);
+
+      // GroupBy with null.
+      result = collection.Find().Fields("_id as ID", "name as Name", "age as Age").GroupBy(null).Execute();
+      Assert.Equal(7, result.FetchAll().Count);
+      result = collection.Find().Fields("_id as ID", "name as Name", "age as Age").GroupBy(null, null).Execute();
+      Assert.Equal(7, result.FetchAll().Count);
+      result = collection.Find().Fields("_id as ID", "name as Name", "age as Age").GroupBy(null, "age").Execute();
+      Assert.Equal(5, result.FetchAll().Count);
+
+      // Having operation.
+      // Having reduces the original 5 rows to 3 since 2 rows have a cnt=2, due to the repeated names.
+      result = collection.Find().Fields("_id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having("cnt = 1").Execute();
+      Assert.Equal(3, result.FetchAll().Count);
+
+      // Having with null.
+      result = collection.Find().Fields("_id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having(null).Execute();
+      Assert.Equal(5, result.FetchAll().Count);
+
+      // GroupBy with invalid field name.
+      var ex = Assert.Throws<MySqlException>(() => collection.Find().Fields("_id as ID", "name as Name", "age as Age").GroupBy("none").Execute());
+      Assert.Equal("Unknown column 'none' in 'group statement'", ex.Message);
+
+      // GroupBy with empty strings.
+      var ex2 = Assert.Throws<ArgumentException>(() => collection.Find().Fields("_id as ID", "name as Name", "age as Age").GroupBy("").Execute());
+      Assert.Equal("No more tokens when expecting one at token pos 0", ex2.Message);
+      ex2 = Assert.Throws<ArgumentException>(() => collection.Find().Fields("_id as ID", "name as Name", "age as Age").GroupBy(" ").Execute());
+      Assert.Equal("No more tokens when expecting one at token pos 0", ex2.Message);
+      ex2 = Assert.Throws<ArgumentException>(() => collection.Find().Fields("_id as ID", "name as Name", "age as Age").GroupBy(string.Empty).Execute());
+      Assert.Equal("No more tokens when expecting one at token pos 0", ex2.Message);
+
+      // Having with invalid field name.
+      ex = Assert.Throws<MySqlException>(() => collection.Find().Fields("_id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having("none = 1").Execute());
+      Assert.Equal("Invalid expression in grouping criteria", ex.Message);
+
+      // Having with empty strings.
+      ex2 = Assert.Throws<ArgumentException>(() => collection.Find().Fields("_id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having("").Execute());
+      Assert.Equal("Unable to parse query ''", ex2.Message);
+      Assert.Equal("No more tokens when expecting one at token pos 0", ex2.InnerException.Message);
+      ex2 = Assert.Throws<ArgumentException>(() => collection.Find().Fields("_id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having(" ").Execute());
+      Assert.Equal("Unable to parse query ' '", ex2.Message);
+      Assert.Equal("No more tokens when expecting one at token pos 0", ex2.InnerException.Message);
+      ex2 = Assert.Throws<ArgumentException>(() => collection.Find().Fields("_id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having(string.Empty).Execute());
+      Assert.Equal("Unable to parse query ''", ex2.Message);
+      Assert.Equal("No more tokens when expecting one at token pos 0", ex2.InnerException.Message);
+    }
+
+    [Fact]
+    public void Fields()
+    {
+      Collection coll = CreateCollection("test");
+      var docs = new[]
+      {
+        new {  _id = 1, title = "Book 1", pages = 20 },
+        new {  _id = 2, title = "Book 2", pages = 30 },
+        new {  _id = 3, title = "Book 3", pages = 40 },
+        new {  _id = 4, title = "Book 4", pages = 50 },
+      };
+      Result r = coll.Add(docs).Execute();
+      Assert.Equal(4ul, r.AffectedItemsCount);
+
+      // Single field.
+      var result = coll.Find("pages = :Pages").Bind("pAges", 40).Fields("title").Execute();
+      var document = result.FetchOne();
+      Assert.Equal(1, document.values.Count);
+      Assert.Equal("Book 3", document["title"]);
+
+      // Null values are ignored.
+      result = coll.Find("pages = :Pages").Bind("pAges", 40).Fields(null).Execute();
+      document = result.FetchOne();
+      Assert.Equal(3, document.values.Count);
+
+      // Null values are ignored.
+      result = coll.Find("pages = :Pages").Bind("pAges", 40).Fields("title", null).Execute();
+      document = result.FetchOne();
+      Assert.Equal(1, document.values.Count);
+
+      // Single field in array.
+      result = coll.Find("pages = :Pages").Bind("pAges", 40).Fields(new string[] { "title" }).Execute();
+      document = result.FetchOne();
+      Assert.Equal(1, document.values.Count);
+      Assert.Equal("Book 3", document["title"]);
+
+      // Single field with alias.
+      result = coll.Find("pages = :Pages").Bind("pages", 20).Fields("title as title2").Execute();
+      document = result.FetchOne();
+      Assert.Equal(1, document.values.Count);
+      Assert.Equal("Book 1", document["title2"]);
+      Assert.False(document.values.ContainsKey("title"));
+
+      // Unexistent field returns null.
+      result = coll.Find("pages = :Pages").Bind("pages", 20).Fields("book").Execute();
+      document = result.FetchOne();
+      Assert.Equal(1, document.values.Count);
+      Assert.Equal(null, document["book"]);
+
+      // Unexistent field with alias returns null.
+      result = coll.Find("pages = :Pages").Bind("pages", 20).Fields("book as book1").Execute();
+      document = result.FetchOne();
+      Assert.Equal(1, document.values.Count);
+      Assert.Equal(null, document["book1"]);
+
+      // Multiple fields.
+      result = coll.Find("pages = :Pages").Bind("pAges", 40).Fields("title", "pages", "other").Execute();
+      document = result.FetchOne();
+      Assert.Equal(3, document.values.Count);
+      Assert.Equal("Book 3", document["title"]);
+      Assert.Equal(40, document["pages"]);
+      Assert.Equal(null, document["other"]);
+
+      // Multiple fields in array.
+      result = coll.Find("pages = :Pages").Bind("pAges", 40).Fields(new string[] { "title", "pages" }).Execute();
+      document = result.FetchOne();
+      Assert.Equal(2, document.values.Count);
+      Assert.Equal("Book 3", document["title"]);
+      Assert.Equal(40, document["pages"]);
+
+      // Sending a document doesn't generate an error.
+      result = coll.Find("pages = :Pages").Bind("pages", 20).Fields("{\"_id\":\"1004\",\"F1\": 1234 }").Execute();
+      document = result.FetchOne();
+
+      // Empty string and white space raises error.
+      var ex = Assert.Throws<ArgumentException>(() => coll.Find("pages = :Pages").Bind("pAges", 40).Fields("").Execute());
+      Assert.Equal("No more tokens when expecting one at token pos 0", ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => coll.Find("pages = :Pages").Bind("pAges", 40).Fields("  ").Execute());
+      Assert.Equal("No more tokens when expecting one at token pos 0", ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => coll.Find("pages = :Pages").Bind("pAges", 40).Fields(string.Empty).Execute());
+      Assert.Equal("No more tokens when expecting one at token pos 0", ex.Message);
+
+      // Multiple word field name raises error.
+      ex = Assert.Throws<ArgumentException>(() => result = coll.Find("pages = :Pages").Bind("pAges", 40).Fields("Book 1").Execute());
+      Assert.Equal("Expression has unexpected token '1' at position 1.", ex.Message);
     }
   }
 }

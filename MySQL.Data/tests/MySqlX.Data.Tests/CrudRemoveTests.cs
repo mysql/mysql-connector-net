@@ -1,4 +1,4 @@
-// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,6 +30,7 @@ using System;
 using MySqlX.XDevAPI;
 using Xunit;
 using MySqlX.XDevAPI.Common;
+using System.Collections.Generic;
 
 namespace MySqlX.Data.Tests
 {
@@ -43,7 +44,7 @@ namespace MySqlX.Data.Tests
       Result r = coll.Add(docs).Execute();
       Assert.Equal<ulong>(1, r.AffectedItemsCount);
 
-      r = coll.Remove(12).Execute();
+      r = coll.Remove("_id = 12").Execute();
       Assert.Equal<ulong>(1, r.AffectedItemsCount);
     }
 
@@ -112,19 +113,7 @@ namespace MySqlX.Data.Tests
     {
       Collection coll = CreateCollection("test");
       DbDoc doc = new DbDoc();
-      Exception ex = Assert.Throws<InvalidOperationException>(() => coll.Remove(doc));
-    }
-
-    [Fact]
-    public void RemovingItemUsingDbDoc()
-    {
-      Collection coll = CreateCollection("test");
-      DbDoc doc = new DbDoc(new { _id = 1, title = "Book 1", pages = 20 });
-      Result r = coll.Add(doc).Execute();
-      Assert.Equal<ulong>(1, r.AffectedItemsCount);
-
-      r = coll.Remove(doc).Execute();
-      Assert.Equal<ulong>(1, r.AffectedItemsCount);
+      Exception ex = Assert.Throws<KeyNotFoundException>(() => coll.Remove("_id = :id").Bind("id", doc.Id).Execute());
     }
 
     [Fact]
