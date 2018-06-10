@@ -101,7 +101,12 @@ namespace MySqlX.Serialization
       double doubleValue;
       if (int.TryParse(stringValue, out intValue)) return intValue;
       if (long.TryParse(stringValue, out longValue)) return longValue;
-      if (double.TryParse(stringValue, out doubleValue)) return doubleValue;
+      if (double.TryParse(
+        stringValue,
+        System.Globalization.NumberStyles.Any,
+        System.Globalization.CultureInfo.InvariantCulture,
+        out doubleValue))
+        return doubleValue;
 
       // May be a function.
       int openingParen = 0;
@@ -179,16 +184,6 @@ namespace MySqlX.Serialization
         }
         else if (c == 34)
           escapedQuoteExpected = false;
-
-        //if (c == 92 && !escapedQuoteExpected)
-        //  escapedQuoteExpected = true;
-        //else if (TokenInGroup(end, c) && !escapedQuoteExpected)
-        //{
-        //  _pos--;
-        //  return val;
-        //}
-        //else if (c == 34 && escapedQuoteExpected)
-        //  escapedQuoteExpected = false;
 
         val += c;
       }
