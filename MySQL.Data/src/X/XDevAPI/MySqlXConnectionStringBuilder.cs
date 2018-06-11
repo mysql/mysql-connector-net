@@ -49,34 +49,6 @@ namespace MySqlX.XDevAPI
   /// </summary>
   public sealed class MySqlXConnectionStringBuilder : MySqlBaseConnectionStringBuilder
   {
-    static MySqlXConnectionStringBuilder()
-    {
-      // TODO: Remove this conditions when the connection options have been removed from MySqlBaseConnectionStringBuilder.
-      if (Options.ContainsKey("auth"))
-        Options.Remove("auth");
-
-      if (Options.ContainsKey("sslca"))
-        Options.Remove("sslca");
-
-      if (Options.ContainsKey("ssl-ca"))
-        Options.Remove("ssl-ca");
-
-      if (Options.ContainsKey("sslcrl"))
-        Options.Remove("sslcrl");
-
-      if (Options.ContainsKey("ssl-crl"))
-        Options.Remove("ssl-crl");
-
-      // Authentication options.
-      Options.Add(new MySqlConnectionStringOption("auth", null, typeof(MySqlAuthenticationMode), MySqlAuthenticationMode.Default, false));
-      Options.Add(new MySqlConnectionStringOption("sslca", "ssl-ca", typeof(string), null, false,
-        (XSetterDelegate)((msb, sender, value) => { msb.SslCa = value as string; }),
-        (XGetterDelegate)((msb, sender) => { return msb.SslCa; })));
-      Options.Add(new MySqlConnectionStringOption("sslcrl", "ssl-crl", typeof(string), null, false,
-        (XSetterDelegate)((msb, sender, value) => { msb.SslCrl = value as string; }),
-        (XGetterDelegate)((msb, sender) => { return msb.SslCrl; })));
-    }
-
     public MySqlXConnectionStringBuilder() : base()
     { }
 
@@ -89,14 +61,14 @@ namespace MySqlX.XDevAPI
     [DisplayName("Auth")]
     [Description("Authentication mechanism")]
     [DefaultValue(MySqlAuthenticationMode.Default)]
-    public MySqlAuthenticationMode Auth
+    public new MySqlAuthenticationMode Auth
     {
       get { return (MySqlAuthenticationMode) values["auth"]; }
       set { SetValue("auth", value); }
     }
 
     [Description("Path to a local file that contains a list of trusted TLS/SSL CAs")]
-    public string SslCa
+    public new string SslCa
     {
       get { return CertificateFile; }
       set
@@ -107,7 +79,7 @@ namespace MySqlX.XDevAPI
     }
 
     [Description("Path to a local file containing certificate revocation lists")]
-    public string SslCrl
+    public new string SslCrl
     {
       get { throw new NotSupportedException(); }
       set { throw new NotSupportedException(); }

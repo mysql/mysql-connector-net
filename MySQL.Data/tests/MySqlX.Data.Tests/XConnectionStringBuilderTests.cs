@@ -1,4 +1,32 @@
-﻿using MySql.Data.MySqlClient;
+﻿// Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License, version 2.0, as
+// published by the Free Software Foundation.
+//
+// This program is also distributed with certain software (including
+// but not limited to OpenSSL) that is licensed under separate terms,
+// as designated in a particular file or component or in included license
+// documentation.  The authors of MySQL hereby grant you an
+// additional permission to link the program and your derivative works
+// with the separately licensed software that they have included with
+// MySQL.
+//
+// Without limiting anything contained in the foregoing, this file,
+// which is part of MySQL Connector/NET, is also subject to the
+// Universal FOSS Exception, version 1.0, a copy of which can be found at
+// http://oss.oracle.com/licenses/universal-foss-exception.
+//
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License, version 2.0, for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software Foundation, Inc.,
+// 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
+
+using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using System;
 using System.Collections.Generic;
@@ -14,13 +42,13 @@ namespace MySqlX.Data.Tests
   public class XConnectionStringBuilderTests
   {
     private static string _connectionString;
-    private static string _xConnectionString;
+    private static string _xConnectionURI;
     private static string _connectionStringWithSslMode;
 
     static XConnectionStringBuilderTests()
     {
       _connectionString = "server=localhost;user=root;port=3306;";
-      _xConnectionString = "server=localhost;user=root;port=33060;";
+      _xConnectionURI = "mysqlx://root@localhost:33060";
       _connectionStringWithSslMode = _connectionString + "sslmode=required;";
     }
 
@@ -28,18 +56,21 @@ namespace MySqlX.Data.Tests
     public void SessionCanBeOpened()
     {
       Session session = null;
-      session = MySQLX.GetSession(_xConnectionString);
+      session = MySQLX.GetSession(_xConnectionURI);
     }
 
     [Fact]
     public void ConnectionAfterSessionCanBeOpened()
     {
       Session session = null;
-      session = MySQLX.GetSession(_xConnectionString);
+      session = MySQLX.GetSession(_xConnectionURI);
 
       var connection = new MySqlConnection(_connectionStringWithSslMode);
       connection.Open();
       connection.Close();
+      
+      session = MySQLX.GetSession(_xConnectionURI + "?sslca=../../../../MySql.Data.Tests/client.pfx&certificatepassword=pass");
+      session.Close();
     }
 
     [Fact]
@@ -50,7 +81,7 @@ namespace MySqlX.Data.Tests
       connection.Close();
 
       Session session = null;
-      session = MySQLX.GetSession(_xConnectionString);
+      session = MySQLX.GetSession(_xConnectionURI);
     }
 
     [Fact]
@@ -65,7 +96,7 @@ namespace MySqlX.Data.Tests
     public void Bug28151070_5()
     {
       Session session = null;
-      session = MySQLX.GetSession(_xConnectionString);
+      session = MySQLX.GetSession(_xConnectionURI);
 
       var builder = new MySqlXConnectionStringBuilder();
       builder.Auth = MySqlAuthenticationMode.AUTO;

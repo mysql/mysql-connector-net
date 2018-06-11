@@ -223,31 +223,6 @@ namespace MySql.Data.MySqlClient
         (msb, sender, value) => { msb.SetValue("blobasutf8includepattern", value); }, (msb, sender) => msb.BlobAsUTF8IncludePattern));
       Options.Add(new MySqlConnectionStringOption("blobasutf8excludepattern", null, typeof(string), "", false,
         (msb, sender, value) => { msb.SetValue("blobasutf8excludepattern", value); }, (msb, sender) => msb.BlobAsUTF8ExcludePattern));
-
-      // TODO: Remove this conditions when the connection options have been removed from MySqlBaseConnectionStringBuilder.
-      if (Options.ContainsKey("auth"))
-        Options.Remove("auth");
-
-      if (Options.ContainsKey("sslca"))
-        Options.Remove("sslca");
-
-      if (Options.ContainsKey("ssl-ca"))
-        Options.Remove("ssl-ca");
-
-      if (Options.ContainsKey("sslcrl"))
-        Options.Remove("sslcrl");
-
-      if (Options.ContainsKey("ssl-crl"))
-        Options.Remove("ssl-crl");
-
-      // X Authentication options.
-      Options.Add(new MySqlConnectionStringOption("auth", null, typeof(MySqlAuthenticationMode), MySqlAuthenticationMode.Default, false));
-      Options.Add(new MySqlConnectionStringOption("sslca", "ssl-ca", typeof(string), null, false,
-        (SetterDelegate)((msb, sender, value) => { msb.SslCa = value as string; }),
-        (GetterDelegate)((msb, sender) => { return msb.SslCa; })));
-      Options.Add(new MySqlConnectionStringOption("sslcrl", "ssl-crl", typeof(string), null, false,
-        (SetterDelegate)((msb, sender, value) => { msb.SslCrl = value as string; }),
-        (GetterDelegate)((msb, sender) => { return msb.SslCrl; })));
     }
 
     public MySqlConnectionStringBuilder() : base()
@@ -789,41 +764,6 @@ namespace MySql.Data.MySqlClient
     {
       get { return (bool)values["usedefaultcommandtimeoutforef"]; }
       set { SetValue("usedefaultcommandtimeoutforef", value); }
-    }
-
-    #endregion
-
-    #region XAuthentication Properties
-
-    [Category("Authentication")]
-    [DisplayName("Auth")]
-    [Description("Authentication mechanism")]
-    [DefaultValue(MySqlAuthenticationMode.Default)]
-    [Obsolete("Use MySqlXConnectionStringBuilder.Auth instead.")]
-    public MySqlAuthenticationMode Auth
-    {
-      get { return (MySqlAuthenticationMode) values["auth"]; }
-      set { SetValue("auth", value); }
-    }
-
-    [Description("Path to a local file that contains a list of trusted TLS/SSL CAs")]
-    [Obsolete("Use MySqlXConnectionStringBuilder.SslCa instead.")]
-    public string SslCa
-    {
-      get { return CertificateFile; }
-      set
-      {
-        SslMode = MySqlSslMode.Required;
-        CertificateFile = value;
-      }
-    }
-
-    [Description("Path to a local file containing certificate revocation lists.")]
-    [Obsolete("Use MySqlXConnectionStringBuilder.SslCrl instead.")]
-    public string SslCrl
-    {
-      get { throw new NotSupportedException(); }
-      set { throw new NotSupportedException(); }
     }
 
     #endregion

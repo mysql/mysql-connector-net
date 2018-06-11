@@ -108,6 +108,15 @@ namespace MySql.Data.MySqlClient
 
       // Language and charset options.
       Options.Add(new MySqlConnectionStringOption("characterset", "character set,charset", typeof(string), "", false));
+
+      // X Authentication options.
+      Options.Add(new MySqlConnectionStringOption("auth", null, typeof(MySqlAuthenticationMode), MySqlAuthenticationMode.Default, false));
+      Options.Add(new MySqlConnectionStringOption("sslca", "ssl-ca", typeof(string), null, false,
+        (BaseSetterDelegate)((msb, sender, value) => { msb.SslCa = value as string; }),
+        (BaseGetterDelegate)((msb, sender) => { return msb.SslCa; })));
+      Options.Add(new MySqlConnectionStringOption("sslcrl", "ssl-crl", typeof(string), null, false,
+        (BaseSetterDelegate)((msb, sender, value) => { msb.SslCrl = value as string; }),
+        (BaseGetterDelegate)((msb, sender) => { return msb.SslCrl; })));
     }
 
     public MySqlBaseConnectionStringBuilder()
@@ -329,6 +338,41 @@ namespace MySql.Data.MySqlClient
     {
       get { return (string)values["characterset"]; }
       set { SetValue("characterset", value); }
+    }
+
+#endregion
+
+#region XAuthentication Properties
+
+    [Category("Authentication")]
+    [DisplayName("Auth")]
+    [Description("Authentication mechanism")]
+    [DefaultValue(MySqlAuthenticationMode.Default)]
+    [Obsolete("Use MySqlXConnectionStringBuilder.Auth instead.")]
+    public MySqlAuthenticationMode Auth
+    {
+      get { return (MySqlAuthenticationMode) values["auth"]; }
+      set { SetValue("auth", value); }
+    }
+
+    [Description("Path to a local file that contains a list of trusted TLS/SSL CAs")]
+    [Obsolete("Use MySqlXConnectionStringBuilder.SslCa instead.")]
+    public string SslCa
+    {
+      get { return CertificateFile; }
+      set
+      {
+        SslMode = MySqlSslMode.Required;
+        CertificateFile = value;
+      }
+    }
+
+    [Description("Path to a local file containing certificate revocation lists.")]
+    [Obsolete("Use MySqlXConnectionStringBuilder.SslCrl instead.")]
+    public string SslCrl
+    {
+      get { throw new NotSupportedException(); }
+      set { throw new NotSupportedException(); }
     }
 
 #endregion
