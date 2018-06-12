@@ -474,12 +474,32 @@ namespace MySql.EntityFramework6.CodeFirst.Tests.Properties {
         }
         
         /// <summary>
-        ///    Looks up a localized string similar to UPDATE `MovieReleases` SET `Name`=&apos;Director\&apos;s Cut&apos; WHERE (`Id` = 1) AND (`Name` = &apos;Commercial&apos;); SELECT `Timestamp` FROM `MovieReleases`  WHERE  row_count() &gt; 0 and (`Id` = 1) AND (`Name` = &apos;Director\&apos;s Cut&apos;).
+        ///    Looks up a localized string similar to UPDATE `MovieReleases2` SET `Name`=&apos;Director\&apos;s Cut&apos; WHERE (`Id` = 1) AND (`Name` = &apos;Commercial&apos;); SELECT `Timestamp` FROM `MovieReleases`  WHERE  row_count() &gt; 0 and (`Id` = 1) AND (`Name` = &apos;Director\&apos;s Cut&apos;).
         /// </summary>
-        public static string UpdateWithSelect {
+        public static string UpdateWithSelectWithDbGeneratedLock1 {
             get {
                 return ResourceManager.GetString("UpdateWithSelect", resourceCulture);
             }
         }
-    }
+
+        /// <summary>
+        ///   Looks up a localized string similar to UPDATE `MovieRelease2` SET `Name`=&apos;Avengers&apos; WHERE (`Id` = 1) AND (`RowVersion` = 1); SELECT `RowVersion` FROM `MovieRelease2` WHERE row_count() = 1 and (`Id` = 1).
+        /// </summary>
+        public static string UpdateWithSelectWithDbGeneratedLock2
+        {
+            get {
+                return ResourceManager.GetString("UpdateWithSelectWithDbGeneratedLock2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to UPDATE `MovieReleases` SET `Name`=&apos;Director\&apos;s Cut&apos; WHERE (`Id` = 1) AND (`Name` = &apos;Commercial&apos;); SELECT `Timestamp` FROM `MovieReleases` WHERE row_count() = 1 and ((`Id` = 1) AND (`Name` = &apos;Director\&apos;s Cut&apos;)).
+        /// </summary>
+        public static string UpdateWithSelectWithNonDbGeneratedLock
+        {
+            get {
+                return ResourceManager.GetString("UpdateWithSelectWithNonDbGeneratedLock", resourceCulture);
+            }
+        }
+  }
 }
