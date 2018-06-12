@@ -61,7 +61,7 @@ namespace MySqlX.Sessions
     private const string mysqlxNamespace = "mysqlx";
 
 
-    public XInternalSession(MySqlConnectionStringBuilder settings) : base(settings)
+    public XInternalSession(MySqlXConnectionStringBuilder settings) : base(settings)
     {
     }
 
@@ -69,7 +69,7 @@ namespace MySqlX.Sessions
     {
       bool isUnix = Settings.ConnectionProtocol == MySqlConnectionProtocol.Unix ||
         Settings.ConnectionProtocol == MySqlConnectionProtocol.UnixSocket;
-      _stream = MyNetworkStream.CreateStream(Settings, isUnix);
+      _stream = MyNetworkStream.CreateStream(Settings.Server, Settings.ConnectionTimeout, Settings.Keepalive, Settings.Port, isUnix);
       if (_stream == null)
         throw new MySqlException(ResourcesX.UnableToConnect);
       _reader = new XPacketReaderWriter(_stream);
@@ -89,7 +89,14 @@ namespace MySqlX.Sessions
       {
         if (serverSupportsTls)
         {
-          new Ssl(Settings).StartSSL(ref _stream, encoding, Settings.ToString());
+          new Ssl(
+              Settings.Server,
+              Settings.SslMode,
+              Settings.CertificateFile,
+              Settings.CertificateStoreLocation,
+              Settings.CertificatePassword,
+              Settings.CertificateThumbprint)
+              .StartSSL(ref _stream, encoding, Settings.ToString());
           _reader = new XPacketReaderWriter(_stream);
           _writer = new XPacketReaderWriter(_stream);
           protocol.SetXPackets(_reader, _writer);

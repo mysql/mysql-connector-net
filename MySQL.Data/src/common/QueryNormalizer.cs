@@ -1,4 +1,4 @@
-// Copyright © 2009, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -322,7 +322,11 @@ namespace MySql.Data.Common
         _pos++;
       string word = _fullSql.Substring(startPos, _pos - startPos);
       double v;
-      if (Double.TryParse(word, out v))
+      if (double.TryParse(
+        word,
+        System.Globalization.NumberStyles.Any,
+        System.Globalization.CultureInfo.InvariantCulture,
+        out v))
         _tokens.Add(new Token(TokenType.Number, "?"));
       else
       {

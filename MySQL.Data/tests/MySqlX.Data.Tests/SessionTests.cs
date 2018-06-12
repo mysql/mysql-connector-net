@@ -203,7 +203,7 @@ namespace MySqlX.Data.Tests
     protected void CheckConnectionStringAsUri(string connectionstring, string user, string password, string server, uint port, params string[] parameters)
     {
       string result = this.session.ParseConnectionString(connectionstring);
-      MySql.Data.MySqlClient.MySqlConnectionStringBuilder csbuilder = new MySql.Data.MySqlClient.MySqlConnectionStringBuilder(result);
+      var csbuilder = new MySqlXConnectionStringBuilder(result);
       Assert.True(user == csbuilder.UserID, string.Format("Expected:{0} Current:{1} in {2}", user, csbuilder.UserID, connectionstring));
       Assert.True(password == csbuilder.Password, string.Format("Expected:{0} Current:{1} in {2}", password, csbuilder.Password, connectionstring));
       Assert.True(server == csbuilder.Server, string.Format("Expected:{0} Current:{1} in {2}", server, csbuilder.Server, connectionstring));
@@ -243,7 +243,7 @@ namespace MySqlX.Data.Tests
       CheckConnectionStringAsUri("mysqlx://myuser:password@[(address=[fe80::bd41:e449:45ee:2e1a%17]:3305,priority=100)]", "myuser", "password", "[fe80::bd41:e449:45ee:2e1a]", 3305);
       Assert.Throws<UriFormatException>(() => CheckConnectionStringAsUri("mysqlx://myuser:password@[(address=fe80::bd41:e449:45ee:2e1a%17,priority=100)]", "myuser", "password", "[fe80::bd41:e449:45ee:2e1a]", 33060));
       CheckConnectionStringAsUri("mysqlx://myuser@localhost/test", "myuser", "", "localhost", 33060, "database", "test");
-      CheckConnectionStringAsUri("mysqlx://myuser@localhost/test?ssl%20mode=none&pooling=false", "myuser", "", "localhost", 33060, "database", "test", "ssl mode", "None", "pooling", "False");
+      CheckConnectionStringAsUri("mysqlx://myuser@localhost/test?ssl%20mode=none&connectiontimeout=10", "myuser", "", "localhost", 33060, "database", "test", "ssl mode", "None", "connectiontimeout", "10");
       CheckConnectionStringAsUri("mysqlx+ssh://myuser:password@localhost:33060", "myuser", "password", "localhost", 33060);
       CheckConnectionStringAsUri("mysqlx://_%21%22%23%24s%26%2F%3D-%25r@localhost", "_!\"#$s&/=-%r", "", "localhost", 33060);
       CheckConnectionStringAsUri("mysql://myuser@localhost", "", "", "", 33060);
@@ -378,7 +378,7 @@ namespace MySqlX.Data.Tests
       var certificatePath = "../../../../MySql.Data.Tests/client.pfx";
       // Connection string in basic format.
       string connString = ConnectionString + ";ssl-ca=" + certificatePath + ";ssl-ca-pwd=pass;";
-      MySqlConnectionStringBuilder stringBuilder = new MySqlConnectionStringBuilder(connString);
+      var stringBuilder = new MySqlXConnectionStringBuilder(connString);
       Assert.Equal(certificatePath, stringBuilder.CertificateFile);
       Assert.Equal(certificatePath, stringBuilder.SslCa);
       Assert.True(stringBuilder.ConnectionString.Contains(certificatePath));
@@ -416,7 +416,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void IPv6()
     {
-      MySqlConnectionStringBuilder csBuilder = new MySqlConnectionStringBuilder(ConnectionString);
+      var csBuilder = new MySqlXConnectionStringBuilder(ConnectionString);
       csBuilder.Server = "::1";
       csBuilder.Port = uint.Parse(XPort);
 
@@ -429,7 +429,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void IPv6AsUrl()
     {
-      MySqlConnectionStringBuilder csBuilder = new MySqlConnectionStringBuilder(ConnectionString);
+      var csBuilder = new MySqlXConnectionStringBuilder(ConnectionString);
       string connString = $"mysqlx://{csBuilder.UserID}:{csBuilder.Password}@[::1]:{XPort}";
       using (Session session = MySQLX.GetSession(connString))
       {
@@ -440,7 +440,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void IPv6AsAnonymous()
     {
-      MySqlConnectionStringBuilder csBuilder = new MySqlConnectionStringBuilder(ConnectionString);
+      var csBuilder = new MySqlXConnectionStringBuilder(ConnectionString);
       using (Session session = MySQLX.GetSession(new { server = "::1", user = csBuilder.UserID, password = csBuilder.Password, port = XPort }))
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
@@ -591,6 +591,117 @@ namespace MySqlX.Data.Tests
     }
 
     [Fact]
+    public void CreateSessionWithUnsupportedOptions()
+    {
+      var errorMessage = "Option not supported.";
+      var connectionUri = string.Format("{0}?", ConnectionStringUri);
+
+      // Use a connection URI.
+      var ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "pipe=MYSQL"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "compress=true"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "allow batch=false"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "logging=true"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "sharedmemoryname=MYSQL"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "defaultcommandtimeout=30"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "usedefaultcommandtimeoutforef=true"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "persistsecurityinfo=false"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "encrypt=false"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "integratedsecurity=true"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "allowpublickeyretrieval=false"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "autoenlist=true"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "includesecurityasserts=false"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "allowzerodatetime=true"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "convert zero datetime=false"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "useusageadvisor=true"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "procedurecachesize=50"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "useperformancemonitor=true"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "ignoreprepare=false"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "respectbinaryflags=true"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "treat tiny as boolean=false"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "allowuservariables=true"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "interactive=false"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "functionsreturnstring=true"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "useaffectedrows=false"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "oldguids=true"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "sqlservermode=false"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "tablecaching=true"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "defaulttablecacheage=60"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "checkparameters=true"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "replication=replication_group"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "exceptioninterceptors=none"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "commandinterceptors=none"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "connectionlifetime=100"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "pooling=false"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "minpoolsize=0"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "maxpoolsize=20"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "connectionreset=false"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "cacheserverproperties=true"));
+      Assert.StartsWith(errorMessage, ex.Message);
+
+      // Use a connection string.
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession("treatblobsasutf8=false"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession("blobasutf8includepattern=pattern"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession("blobasutf8excludepattern=pattern"));
+      Assert.StartsWith(errorMessage, ex.Message);
+    }
+
+    [Fact]
+    public void CreateBuilderWithUnsupportedOptions()
+    {
+      var errorMessage = "Option not supported.";
+      var ex = Assert.Throws<ArgumentException>(() => new MySqlXConnectionStringBuilder("pipe=MYSQL"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => new MySqlXConnectionStringBuilder("allow batch=false"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => new MySqlXConnectionStringBuilder("respectbinaryflags=true"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => new MySqlXConnectionStringBuilder("pooling=false"));
+      Assert.StartsWith(errorMessage, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => new MySqlXConnectionStringBuilder("cacheserverproperties=true"));
+      Assert.StartsWith(errorMessage, ex.Message);
+    }
+
+    [Fact]
     public void GetUri()
     {
       using (var internalSession = MySQLX.GetSession(session.Uri))
@@ -602,7 +713,14 @@ namespace MySqlX.Data.Tests
           if (connectionOption.Key == "sslcrl")
             continue;
 
-          Assert.Equal(session.Settings[connectionOption.Key], internalSession.Settings[connectionOption.Key]);
+          try
+          {
+            Assert.Equal(session.Settings[connectionOption.Key], internalSession.Settings[connectionOption.Key]);
+          }
+          catch (ArgumentException ex)
+          {
+            Assert.StartsWith("Option not supported.", ex.Message);
+          }
         }
       }
     }

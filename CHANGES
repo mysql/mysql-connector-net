@@ -1,4 +1,6 @@
 8.0.12
+- MySqlX: Created the MySqlXConnectionStringBuilder class to handle X Protocol/X DevAPI specific connection options.
+  X Protocol/X DevAPI connection options have been removed from the MySqlConnectionStringBuilder class (WL11846).
 - MySqlX: Modified multiple elements as an effort to better standarize MySQL Document Store operations with other
   MySQL connectors (WL11843).
 - MySqlX: Added the ColumnCount and ColumnNames properties to SqlResult and RowResult objects (Oracle Bug #27732175).

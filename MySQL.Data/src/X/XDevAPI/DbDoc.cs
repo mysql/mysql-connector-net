@@ -221,7 +221,13 @@ namespace MySqlX.XDevAPI
         quoteChar = "\"";
       }
 
-      return quoteChar + (val is bool ? val.ToString().ToLowerInvariant() : val.ToString()) + quoteChar;
+      return quoteChar + (
+        val is bool ?
+          val.ToString().ToLowerInvariant() :
+          val is double ?
+            ((double)val).ToString(System.Globalization.CultureInfo.InvariantCulture) :
+            val.ToString()
+      ) + quoteChar;
     }
 
     private bool CompareDictionaries<TKey, TValue>(Dictionary<TKey, TValue> dict1, Dictionary<TKey, TValue> dict2)
