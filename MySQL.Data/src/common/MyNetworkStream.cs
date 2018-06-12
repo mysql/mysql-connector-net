@@ -1,4 +1,4 @@
-// Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -31,7 +31,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Threading.Tasks;
-using MySql.Data.MySqlClient;
 
 namespace MySql.Data.Common
 {
@@ -74,7 +73,6 @@ namespace MySql.Data.Common
       return (e.SocketErrorCode == SocketError.WouldBlock);
     }
 
-
     private void HandleOrRethrowException(Exception e)
     {
       Exception currentException = e;
@@ -100,7 +98,6 @@ namespace MySql.Data.Common
       }
       throw (e);
     }
-
 
     public override int Read(byte[] buffer, int offset, int count)
     {
@@ -189,18 +186,18 @@ namespace MySql.Data.Common
 
     #region Create Code
 
-    public static MyNetworkStream CreateStream(MySqlConnectionStringBuilder settings, bool unix)
+    public static MyNetworkStream CreateStream(string server, uint connectionTimeout, uint keepAlive, uint port, bool unix)
     {
-      if (unix) return new MyNetworkStream(StreamCreator.GetUnixSocket(settings), true);
+      if (unix) return new MyNetworkStream(StreamCreator.GetUnixSocket(server, connectionTimeout, keepAlive), true);
 
       MyNetworkStream stream = null;
 
-      IPHostEntry ipHE = GetHostEntry(settings.Server);
+      IPHostEntry ipHE = GetHostEntry(server);
       foreach (IPAddress address in ipHE.AddressList)
       {
         try
         {
-          stream = CreateSocketStream(settings, address, unix);
+          stream = CreateSocketStream(port, keepAlive, connectionTimeout, address, unix);
           if (stream != null) break;
         }
         catch (Exception ex)
@@ -254,7 +251,7 @@ namespace MySql.Data.Common
 //    }
 //#endif
 
-    private static MyNetworkStream CreateSocketStream(MySqlConnectionStringBuilder settings, IPAddress ip, bool unix)
+    private static MyNetworkStream CreateSocketStream(uint port, uint keepAlive, uint connectionTimeout, IPAddress ip, bool unix)
     {
       EndPoint endPoint;
 //#if NETSTANDARD1_6
@@ -265,7 +262,7 @@ namespace MySql.Data.Common
 //      }
 //      else
 //      {
-        endPoint = new IPEndPoint(ip, (int)settings.Port);
+        endPoint = new IPEndPoint(ip, (int)port);
 //      }
 
       Socket socket = unix ?
@@ -274,16 +271,16 @@ namespace MySql.Data.Common
 
       socket.NoDelay = true;
 
-      if (settings.Keepalive > 0)
+      if (keepAlive > 0)
       {
-        SetKeepAlive(socket, settings.Keepalive);
+        SetKeepAlive(socket, keepAlive);
       }
 
 #if NETSTANDARD1_6
       try
       {
         Task ias = socket.ConnectAsync(endPoint);
-        if (!ias.Wait(((int)settings.ConnectionTimeout * 1000)))
+        if (!ias.Wait(((int)connectionTimeout * 1000)))
         {
           socket.Dispose();
         }
@@ -296,7 +293,7 @@ namespace MySql.Data.Common
 #else
       IAsyncResult ias = socket.BeginConnect(endPoint, null, null);
 
-      if (!ias.AsyncWaitHandle.WaitOne((int)settings.ConnectionTimeout * 1000, false))
+      if (!ias.AsyncWaitHandle.WaitOne((int)connectionTimeout * 1000, false))
       {
         socket.Close();
       }
@@ -316,8 +313,6 @@ namespace MySql.Data.Common
       GC.SuppressFinalize(stream);
       return stream;
     }
-
-
 
     /// <summary>
     /// Set keepalive + timeout on socket.

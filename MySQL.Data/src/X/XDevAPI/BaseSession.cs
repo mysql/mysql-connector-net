@@ -75,7 +75,7 @@ namespace MySqlX.XDevAPI
     /// <summary>
     /// Gets the connection settings for this session.
     /// </summary>
-    public MySqlConnectionStringBuilder Settings { get; private set; }
+    public MySqlXConnectionStringBuilder Settings { get; private set; }
 
     /// <summary>
     /// Gets the currently active schema.
@@ -141,6 +141,7 @@ namespace MySqlX.XDevAPI
           }
           // Dismiss any not supported exceptions since they are expected.
           catch (NotSupportedException) { }
+          catch (ArgumentException) { }
         }
 
         return builder.ToString();
@@ -201,12 +202,12 @@ namespace MySqlX.XDevAPI
       {
         // Multiple hosts were specified.
         _internalSession = FailoverManager.AttemptConnection(this._connectionString, out this._connectionString);
-        Settings = new MySqlConnectionStringBuilder(this._connectionString);
+        Settings = new MySqlXConnectionStringBuilder(this._connectionString);
       }
       else
       {
         // A single host was specified.
-        Settings = new MySqlConnectionStringBuilder(this._connectionString);
+        Settings = new MySqlXConnectionStringBuilder(this._connectionString);
         _internalSession = InternalSession.GetSession(Settings);
       }
 
@@ -234,7 +235,7 @@ namespace MySqlX.XDevAPI
       var values = Tools.GetDictionaryFromAnonymous(connectionData);
       if (!values.Keys.Any(s => s.ToLowerInvariant() == "port"))
         values.Add("port", _newDefaultPort);
-      Settings = new MySqlConnectionStringBuilder();
+      Settings = new MySqlXConnectionStringBuilder();
       bool hostsParsed = false;
       foreach (var value in values)
       {
@@ -257,7 +258,7 @@ namespace MySqlX.XDevAPI
       {
         // Multiple hosts were specified.
         _internalSession = FailoverManager.AttemptConnection(this._connectionString, out this._connectionString);
-        Settings = new MySqlConnectionStringBuilder(this._connectionString);
+        Settings = new MySqlXConnectionStringBuilder(this._connectionString);
       }
       else _internalSession = InternalSession.GetSession(Settings);
 

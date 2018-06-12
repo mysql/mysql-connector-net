@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -163,6 +163,7 @@ namespace MySql.Data.MySqlClient.Tests
                 c.Close();
             }
             */
+
     [Fact]
     public void ConnectInVariousWays()
     {
@@ -370,8 +371,6 @@ namespace MySql.Data.MySqlClient.Tests
     //    /// Bug #30964 StateChange imperfection 
     //    /// </summary>
     //    MySqlConnection rqConnection;
-
-
     //    [Fact]
     //    public void RunningAQueryFromStateChangeHandler()
     //    {
@@ -382,6 +381,7 @@ namespace MySql.Data.MySqlClient.Tests
     //        rqConnection.Open();
     //      }
     //    }
+
 
     //    void RunningQueryStateChangeHandler(object sender, StateChangeEventArgs e)
     //    {
@@ -991,6 +991,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
 
       Settings.SslMode = MySqlSslMode.None;
+      
       if (serverCompiledUsingOpenSsl)
       {
         Settings.AllowPublicKeyRetrieval = true;

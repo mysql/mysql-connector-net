@@ -1,4 +1,4 @@
-// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -281,7 +281,14 @@ namespace MySql.Data.MySqlClient
       else if (Settings.SslMode != MySqlSslMode.None)
       {
         stream.SendPacket(packet);
-        stream = new Ssl(Settings).StartSSL(ref baseStream, Encoding, Settings.ToString());
+        stream = new Ssl(
+          Settings.Server,
+          Settings.SslMode,
+          Settings.CertificateFile,
+          Settings.CertificateStoreLocation,
+          Settings.CertificatePassword,
+          Settings.CertificateThumbprint)
+          .StartSSL(ref baseStream, Encoding, Settings.ToString());
         packet.Clear();
         packet.WriteInteger((int)connectionFlags, 4);
         packet.WriteInteger(maxSinglePacket, 4);

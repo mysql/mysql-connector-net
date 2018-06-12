@@ -1,4 +1,4 @@
-// Copyright © 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,6 +29,7 @@
 using MySql.Data;
 using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.Authentication;
+using MySqlX.XDevAPI;
 using System;
 using System.Security.Cryptography;
 using System.Text;
@@ -40,9 +41,9 @@ namespace MySqlX.Security
   /// </summary>
   internal class PlainAuthenticationPlugin : Sha256AuthenticationPlugin
   {
-    private MySqlConnectionStringBuilder _settings;
+    private MySqlXConnectionStringBuilder _settings;
 
-    public PlainAuthenticationPlugin(MySqlConnectionStringBuilder settings)
+    public PlainAuthenticationPlugin(MySqlXConnectionStringBuilder settings)
     {
       _settings = settings;
     }

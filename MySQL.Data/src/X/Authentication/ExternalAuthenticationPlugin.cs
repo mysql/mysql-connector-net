@@ -29,6 +29,7 @@
 using MySql.Data;
 using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.Authentication;
+using MySqlX.XDevAPI;
 using System;
 using System.Security.Cryptography;
 using System.Text;
@@ -40,9 +41,9 @@ namespace MySqlX.Security
   /// </summary>
   internal class ExternalAuthenticationPlugin
   {
-    private MySqlConnectionStringBuilder _settings;
+    private MySqlXConnectionStringBuilder _settings;
 
-    public ExternalAuthenticationPlugin(MySqlConnectionStringBuilder settings)
+    public ExternalAuthenticationPlugin(MySqlXConnectionStringBuilder settings)
     {
       _settings = settings;
     }

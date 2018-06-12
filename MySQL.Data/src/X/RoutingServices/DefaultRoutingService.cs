@@ -28,20 +28,21 @@
 
 using MySql.Data.MySqlClient;
 using MySqlX.Data;
+using MySqlX.XDevAPI;
 using System;
 
 namespace MySqlX.RoutingServices
 {
   /// <summary>
   /// Class implementation for a default communication kind.
-  /// </summary>  
+  /// </summary>
   internal class DefaultRoutingService : RoutingServiceBase
   {
     /// <summary>
     /// Constructor method for the communication routing service
     /// </summary>
-    /// <param name="settings">A MySqlConnectionStringBuild setted with the information to use in the connection</param>
-    public DefaultRoutingService(MySqlConnectionStringBuilder settings) : base(settings)
+    /// <param name="settings">A MySqlXConnectionStringBuilder setted with the information to use in the connection</param>
+    public DefaultRoutingService(MySqlXConnectionStringBuilder settings) : base(settings)
     {
 
     }
@@ -51,7 +52,7 @@ namespace MySqlX.RoutingServices
     /// </summary>
     /// <param name="mode">One of the values of ConnectionMode  Offline, ReadOnly, WriteOnly, ReadWrite</param>
     /// <returns></returns>
-    public override MySqlConnectionStringBuilder GetCurrentConnection(DataAccess.ConnectionMode mode)
+    public override MySqlXConnectionStringBuilder GetCurrentConnection(DataAccess.ConnectionMode mode)
     {
       return this.settings;
     }

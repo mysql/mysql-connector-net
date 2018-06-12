@@ -29,26 +29,27 @@
 using MySql.Data.MySqlClient;
 using MySqlX.Data;
 using MySqlX.DataAccess;
+using MySqlX.XDevAPI;
 
 namespace MySqlX.RoutingServices
 {
   /// <summary>
   /// Abstract class used to define the kind of server in environments with multiple types of distributed systems.
-  /// </summary>  
+  /// </summary>
   internal abstract class RoutingServiceBase
   {
-    protected MySqlConnectionStringBuilder settings;
+    protected MySqlXConnectionStringBuilder settings;
 
-    public RoutingServiceBase(MySqlConnectionStringBuilder settings)
+    public RoutingServiceBase(MySqlXConnectionStringBuilder settings)
     {
       this.settings = settings;
     }
 
-    public virtual MySqlConnectionStringBuilder GetCurrentConnection()
+    public virtual MySqlXConnectionStringBuilder GetCurrentConnection()
     {
       return settings;
     }
 
-    public abstract MySqlConnectionStringBuilder GetCurrentConnection(ConnectionMode mode);
+    public abstract MySqlXConnectionStringBuilder GetCurrentConnection(ConnectionMode mode);
   }
 }
