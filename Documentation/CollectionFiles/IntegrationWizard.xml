@@ -4,7 +4,7 @@
     <ProjectType>MergeModule</ProjectType>
     <Target>VS_2005_VSIPCC</Target>
     <Namespace>mysql.connectornet.en</Namespace>
-    <Description>MySQL Connector Net Documentation</Description>
+    <Description>MySQL Connector/NET Documentation</Description>
     <ParentNamespaces>
         <ParentNamespace>
             <Name>MS_VSIPCC_v80</Name>

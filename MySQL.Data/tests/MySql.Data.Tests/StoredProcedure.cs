@@ -1,4 +1,4 @@
-// Copyright © 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -257,7 +257,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     /// <summary>
-    /// Bug #11450  	Connector/Net, current database and stored procedures
+    /// Bug #11450  	Connector/NET, current database and stored procedures
     /// </summary>
     [Fact]
     public void NoDefaultDatabase()

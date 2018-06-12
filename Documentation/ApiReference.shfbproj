@@ -40,7 +40,7 @@
     <FrameworkVersion>.NET Framework 4.5</FrameworkVersion>
     <RootNamespaceContainer>True</RootNamespaceContainer>
     <RootNamespaceTitle>Reference</RootNamespaceTitle>
-    <HelpTitle>MySQL Connector/Net 8.0 API Reference</HelpTitle>
+    <HelpTitle>MySQL Connector/NET 8.0 API Reference</HelpTitle>
     <CopyrightHref>http://www.mysql.com</CopyrightHref>
     <CopyrightText>Copyright &amp;#169%3b 2004, 2018, Oracle and/or its affiliates.  All rights reserved.</CopyrightText>
     <PresentationStyle>VS2013</PresentationStyle>

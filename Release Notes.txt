@@ -1,10 +1,10 @@
-Connector/Net 8.0  Release Notes
+Connector/NET 8.0  Release Notes
 ------------------------------------
-Welcome to the release notes for Connector/Net 8.0
+Welcome to the release notes for Connector/NET 8.0
 
 What's new in 8.0
 --------------------
-Connector/Net has implemented the new X DevAPI that enables communication 
+Connector/NET has implemented the new X DevAPI that enables communication 
 using the X Protocol with a MySQL Server running the X Plugin, released 
 with MySQL 5.7.x. With the X DevAPI you can write code that treats 
 MySQL Server as a document database, using a NoSQL-like syntax that does 
@@ -13,7 +13,7 @@ To learn more about how to write applications using X DevAPI see
 http://dev.mysql.com/doc/x-devapi-userguide/en/index.html. 
 
 This version also includes the support for .NET Core Framework, which enables
-MySQL Connector/Net > = 7.0.4 to be run in all the platforms supported for this
+MySQL Connector/NET > = 7.0.4 to be run in all the platforms supported for this
 framework. Entity Framework Core support is also included.
 
 For General documentation about how to get started using MySQL as a document 

@@ -305,7 +305,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to MySQL Connector/Net does not currently support distributed transactions..
+        ///   Looks up a localized string similar to MySQL Connector/NET does not currently support distributed transactions..
         /// </summary>
         public static string DistributedTxnNotSupported {
             get {
@@ -982,7 +982,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Connector/Net no longer supports server versions prior to 5.0.
+        ///   Looks up a localized string similar to Connector/NET no longer supports server versions prior to 5.0.
         /// </summary>
         public static string ServerTooOld {
             get {

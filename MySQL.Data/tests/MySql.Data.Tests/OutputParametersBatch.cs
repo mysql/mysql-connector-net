@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2018 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -190,7 +190,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     /// <summary>
-    /// Bug #10644 Cannot call a stored function directly from Connector/Net 
+    /// Bug #10644 Cannot call a stored function directly from Connector/NET
     /// Bug #25013 Return Value parameter not found 
     /// </summary>
    [Fact]

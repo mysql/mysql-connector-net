@@ -1,4 +1,4 @@
-// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -91,7 +91,7 @@ namespace MySql.Data.MySqlClient.Tests
 #endif
 
     /// <summary>
-    /// Bug #31117  	Connector/Net exceptions do not support server charset
+    /// Bug #31117  	Connector/NET exceptions do not support server charset
     /// </summary>
     [Fact]
     public void NonLatin1Exception()

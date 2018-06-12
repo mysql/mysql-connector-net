@@ -325,7 +325,7 @@
     <value>Multiple simultaneous connections or connections with different connection strings inside the same transaction are not currently supported.</value>
   </data>
   <data name="DistributedTxnNotSupported" xml:space="preserve">
-    <value>MySQL Connector/Net does not currently support distributed transactions.</value>
+    <value>MySQL Connector/NET does not currently support distributed transactions.</value>
   </data>
   <data name="FatalErrorDuringExecute" xml:space="preserve">
     <value>Fatal error encountered during command execution.</value>
@@ -385,7 +385,7 @@
     <value>'{0}' is an illegal value for a boolean option.</value>
   </data>
   <data name="ServerTooOld" xml:space="preserve">
-    <value>Connector/Net no longer supports server versions prior to 5.0</value>
+    <value>Connector/NET no longer supports server versions prior to 5.0</value>
   </data>
   <data name="InvalidConnectionStringValue" xml:space="preserve">
     <value>The requested value '{0}' is invalid for the given keyword '{1}'.</value>
