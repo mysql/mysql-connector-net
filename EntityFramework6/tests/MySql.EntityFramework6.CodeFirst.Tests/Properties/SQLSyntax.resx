@@ -325,9 +325,6 @@ FROM `CrewMembers` AS `Extent3` INNER JOIN `Ranks` AS `Extent4` ON `Extent3`.`Ra
 `Project1`.`ShipId` ASC, 
 `Project1`.`C1` ASC</value>
   </data>
-  <data name="UpdateWithSelect" xml:space="preserve">
-    <value>UPDATE `MovieReleases` SET `Name`='Director\'s Cut' WHERE (`Id` = 1) AND (`Name` = 'Commercial'); SELECT `Timestamp` FROM `MovieReleases`  WHERE  row_count() &gt; 0 and (`Id` = 1) AND (`Name` = 'Director\'s Cut')</value>
-  </data>
   <data name="UnknownProjectC1" xml:space="preserve">
     <value>SELECT
   `Project1`.`ID` AS `C1`
@@ -502,5 +499,14 @@ FROM `Movies` AS `Extent1`
    WHERE (`Project2`.`customer_id` = `Extent2`.`customer_id`) AND (`Extent2`.`rental_date` &lt; @p__linq__0))
    ORDER BY 
   `Project2`.`customer_id` ASC</value>
+  </data>
+  <data name="UpdateWithSelectWithDbGeneratedLock1" xml:space="preserve">
+    <value>UPDATE `MovieRelease2` SET `Name`='Director\'s Cut' WHERE (`Id` = 1) AND (`RowVersion` = 0); SELECT `RowVersion` FROM `MovieRelease2` WHERE row_count() = 1 and (`Id` = 1)</value>
+  </data>
+  <data name="UpdateWithSelectWithDbGeneratedLock2" xml:space="preserve">
+    <value>UPDATE `MovieRelease2` SET `Name`='Avengers' WHERE (`Id` = 1) AND (`RowVersion` = 1); SELECT `RowVersion` FROM `MovieRelease2` WHERE row_count() = 1 and (`Id` = 1)</value>
+  </data>
+  <data name="UpdateWithSelectWithNonDbGeneratedLock" xml:space="preserve">
+    <value>UPDATE `MovieReleases` SET `Name`='Director\'s Cut' WHERE (`Id` = 1) AND (`Name` = 'Commercial'); SELECT `Timestamp` FROM `MovieReleases` WHERE row_count() = 1 and ((`Id` = 1) AND (`Name` = 'Director\'s Cut'))</value>
   </data>
 </root>

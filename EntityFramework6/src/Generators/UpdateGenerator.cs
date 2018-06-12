@@ -1,4 +1,4 @@
-﻿// Copyright © 2008, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2008, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -58,7 +58,7 @@ namespace MySql.Data.Entity
           values.Add(property, valueFragment);
         }
       }
-      
+
       statement.Where = commandTree.Predicate.Accept(this);
 
       _onReturningSelect = true;
@@ -72,14 +72,48 @@ namespace MySql.Data.Entity
     {
       SelectStatement select = base.GenerateReturningSql(tree, returning);
       ListFragment where = new ListFragment();
-      where.Append(" row_count() > 0 and ");
-      where.Append( ((DbUpdateCommandTree)tree).Predicate.Accept(this) );
+      where.Append(" row_count() = 1 and (");
+      where.Append(((DbUpdateCommandTree)tree).Predicate.Accept(this));
+      where.Append(")");
       select.Where = where;
 
       return select;
     }
 
     private Stack<EdmMember> _columnsVisited = new Stack<EdmMember>();
+
+    public override SqlFragment Visit(DbAndExpression expression)
+    {
+      if (_onReturningSelect)
+      {
+        if (IsExcludedCondition(expression.Left))
+        {
+          return expression.Right.Accept(this);
+        }
+
+        if (IsExcludedCondition(expression.Right))
+        {
+          return expression.Left.Accept(this);
+        }
+      }
+
+      return base.Visit(expression);
+    }
+
+    private bool IsExcludedCondition(DbExpression e)
+    {
+      var expr = e as DbComparisonExpression;
+      if (expr == null) return false;
+      var propExpr = expr.Left as DbPropertyExpression;
+      if (propExpr == null) return false;
+
+      Facet item = null;
+      if (propExpr.Property.TypeUsage.Facets.TryGetValue("StoreGeneratedPattern", false, out item))
+      {
+        return (StoreGeneratedPattern)item.Value == StoreGeneratedPattern.Computed;
+      }
+      return false;
+    }
 
     protected override SqlFragment VisitBinaryExpression(DbExpression left, DbExpression right, string op)
     {
@@ -89,7 +123,7 @@ namespace MySql.Data.Entity
       f.WrapLeft = ShouldWrapExpression(left);
       if (f.Left is ColumnFragment)
       {
-        _columnsVisited.Push( (( DbPropertyExpression )left ).Property );
+        _columnsVisited.Push(((DbPropertyExpression)left).Property);
       }
       f.Right = right.Accept(this);
       if (f.Left is ColumnFragment)
@@ -103,11 +137,11 @@ namespace MySql.Data.Entity
     public override SqlFragment Visit(DbConstantExpression expression)
     {
       SqlFragment value = null;
-      if ( _onReturningSelect && values.TryGetValue(_columnsVisited.Peek(), out value))
+      if (_onReturningSelect && values.TryGetValue(_columnsVisited.Peek(), out value))
       {
         if (value is LiteralFragment)
         {
-          MySqlParameter par = Parameters.Find(p => p.ParameterName == ( value as LiteralFragment ).Literal );
+          MySqlParameter par = Parameters.Find(p => p.ParameterName == (value as LiteralFragment).Literal);
           if (par != null)
             return new LiteralFragment(par.ParameterName);
         }

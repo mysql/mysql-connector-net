@@ -1,4 +1,4 @@
-﻿// Copyright © 2014, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2014, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -92,7 +92,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
       ReInitDb();
-      MovieDBContext db = new MovieDBContext();      
+      MovieDBContext db = new MovieDBContext();
       db.Database.Initialize(true);
       MovieDBInitialize.DoDataPopulation(db);
       var l = db.MovieFormats.ToList();
@@ -108,14 +108,14 @@ namespace MySql.Data.Entity.CodeFirst.Tests
       db.SaveChanges();
       MovieFormat m2 = db.MovieFormats.Where(p => p.Format == 8.0f).FirstOrDefault();
       Assert.NotNull(m2);
-      Assert.Equal( 8.0f, m2.Format);
+      Assert.Equal(8.0f, m2.Format);
     }
 
     /// <summary>
     /// Fix for "Connector/Net Generates Incorrect SELECT Clause after UPDATE" (MySql bug #62134, Oracle bug #13491689).
     /// </summary>
     [Fact]
-    public void ConcurrencyCheck()
+    public void ConcurrencyCheckWithNonDbGeneratedColumn()
     {
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
@@ -160,7 +160,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
           Match m = rx.Match(s);
           if (m.Success)
           {
-            st.CheckSql(m.Groups["item"].Value, SQLSyntax.UpdateWithSelect);
+            st.CheckSql(m.Groups["item"].Value, SQLSyntax.UpdateWithSelectWithNonDbGeneratedLock);
             //Assert.Pass();
           }
         }
@@ -187,7 +187,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
       Assert.Equal("longblob", m.Groups["type"].Value);
     }
 
-/// <summary>
+    /// <summary>
     /// Validates a stored procedure call using Code First
     /// Bug #14008699
     [Fact]
@@ -223,7 +223,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
       {
         context.Database.Delete();
         context.Database.Initialize(true);
-        
+
         context.Vehicles.Add(new Car { Id = 1, Name = "Mustang", Year = 2012, CarProperty = "Car" });
         context.Vehicles.Add(new Bike { Id = 101, Name = "Mountain", Year = 2011, BikeProperty = "Bike" });
         context.SaveChanges();
@@ -273,7 +273,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
         }
 
         Assert.Equal(context.Vehicles.Count(), records);
-      }     
+      }
     }
 
     /// <summary>
@@ -290,13 +290,13 @@ namespace MySql.Data.Entity.CodeFirst.Tests
       MovieDBContext db = new MovieDBContext();
       db.Database.Initialize(true);
       var l = db.Movies.ToList();
-      IDataReader r = st.execReader( string.Format( 
+      IDataReader r = st.execReader(string.Format(
 @"select numeric_precision, numeric_scale from information_schema.columns 
-where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'", st.conn.Database ));
+where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'", st.conn.Database));
       r.Read();
-      Assert.Equal( 16, r.GetInt32( 0 ) );
-      Assert.Equal( 2, r.GetInt32( 1 ) );
-    }       
+      Assert.Equal(16, r.GetInt32(0));
+      Assert.Equal(2, r.GetInt32(1));
+    }
 
     /// <summary>
     /// Test String types to StoreType for String
@@ -384,7 +384,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       }
     }
 
-/// <summary>
+    /// <summary>
     /// Test for identity columns when type is Integer or Guid (auto-generate
     /// values)
     /// </summary>
@@ -461,22 +461,22 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
           dr = cmd.ExecuteReader();
           if (!dr.HasRows)
             //Assert.Fail("No records found");
-          while (dr.Read())
-          {
-            string name = dr.GetString(1);
-            switch (name)
+            while (dr.Read())
             {
-              case "Distributor1":
-                Assert.Equal(dr.GetInt32(0), dis1.DistributorId);
-                break;
-              case "Distributor2":
-                Assert.Equal(dr.GetInt32(0), dis2.DistributorId);
-                break;
-              default:
-                //Assert.Fail();
-                break;
+              string name = dr.GetString(1);
+              switch (name)
+              {
+                case "Distributor1":
+                  Assert.Equal(dr.GetInt32(0), dis1.DistributorId);
+                  break;
+                case "Distributor2":
+                  Assert.Equal(dr.GetInt32(0), dis2.DistributorId);
+                  break;
+                default:
+                  //Assert.Fail();
+                  break;
+              }
             }
-          }
           dr.Close();
         }
       }
@@ -497,7 +497,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         ctx.Database.Initialize(true);
         MovieDBInitialize.DoDataPopulation(ctx);
         int DirectorId = 1;
-        var q = ctx.Movies.Where(p => p.Director.ID == DirectorId).Select(p => 
+        var q = ctx.Movies.Where(p => p.Director.ID == DirectorId).Select(p =>
           new
           {
             Id = p.ID,
@@ -548,7 +548,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         Assert.Equal(599, j);
       }
     }
-  
+
     /// <summary>
     /// SUPPORT FOR DATE TYPES WITH PRECISION
     /// </summary>
@@ -558,7 +558,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      
+
       if (st.Version < new Version(5, 6)) return;
 
       ReInitDb();
@@ -614,7 +614,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         con.Open();
         cmd.ExecuteNonQuery();
         con.Close();
-        
+
         Product product = new Product
         {
           //Omitting Identity Columns
@@ -735,7 +735,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         query = query.Include(entity => entity.Ships.Select(s => s.CrewMembers.Select(cm => cm.Rank)));
         query = query.Include(entity => entity.Ships.Select(s => s.CrewMembers.Select(cm => cm.Clearance)));
 
-        string[] data = new string[] { 
+        string[] data = new string[] {
           "1,Harbor ABCD,1,1,1,Ship AB,1,1,1,1,1,CrewMember A,1,Rank A,1,Clearance A",
           "1,Harbor ABCD,1,1,1,Ship AB,1,2,1,2,2,CrewMember B,2,Rank B,2,Clearance B",
           "1,Harbor ABCD,1,2,1,Ship CD,1,3,2,3,3,CrewMember C,3,Rank C,3,Clearance C",
@@ -748,12 +748,12 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         // see below for the generated SQL query
 
         var harbor = query.Single();
-        
+
         foreach (var ship in harbor.Ships)
         {
           foreach (var crewMember in ship.CrewMembers)
           {
-            outData.Add(string.Format( 
+            outData.Add(string.Format(
               "{0},{1},1,{2},{3},{4},1,{5},{6},{7},{8},{9},{10},{11},{12},{13}",
               harbor.HarborId, harbor.Description, ship.ShipId, harbor.HarborId,
               ship.Description, crewMember.CrewMemberId, crewMember.ShipId, crewMember.RankId,
@@ -795,16 +795,16 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         ctx.SaveChanges();
 
         var q = (from vis in ctx.Visitante.Include("site")
-                  group vis by vis.nCdSite into g
-                  select new retorno
-                  {
-                    Key = g.Key,
-                    Online = g.Select(e => e.sDsIp).Distinct().Count()
-                  });
+                 group vis by vis.nCdSite into g
+                 select new retorno
+                 {
+                   Key = g.Key,
+                   Online = g.Select(e => e.sDsIp).Distinct().Count()
+                 });
         string sql = q.ToString();
         st.CheckSql(sql, SQLSyntax.CountGroupBy);
         var q2 = q.ToList<retorno>();
-        foreach( var row in q2 )
+        foreach (var row in q2)
         {
         }
       }
@@ -834,14 +834,14 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         ctx.Site.Add(s2);
         ctx.Pagina.Add(p1);
         ctx.SaveChanges();
-        
+
         var q = (from pag in ctx.Pagina.Include("visitante").Include("site")
-                   group pag by pag.visitante.nCdSite into g
-                   select new retorno
-                   {
-                       Key = g.Key,
-                       Online = g.Select(e => e.visitante.sDsIp).Distinct().Count()
-                   });        
+                 group pag by pag.visitante.nCdSite into g
+                 select new retorno
+                 {
+                   Key = g.Key,
+                   Online = g.Select(e => e.visitante.sDsIp).Distinct().Count()
+                 });
         string sql = q.ToString();
         st.CheckSql(sql, SQLSyntax.CountGroupBy2);
         var q2 = q.ToList<retorno>();
@@ -914,14 +914,14 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         int i = 0;
         foreach (var row in q1)
         {
-          Assert.Equal( MovieDBInitialize.data[i].ID, row.ID);
-          Assert.Equal( MovieDBInitialize.data[i].Title, row.Title);
-          Assert.Equal( MovieDBInitialize.data[i].ReleaseDate, row.ReleaseDate);
+          Assert.Equal(MovieDBInitialize.data[i].ID, row.ID);
+          Assert.Equal(MovieDBInitialize.data[i].Title, row.Title);
+          Assert.Equal(MovieDBInitialize.data[i].ReleaseDate, row.ReleaseDate);
           i++;
         }
       }
     }
-    
+
     /// <summary>
     /// Tests fix for bug http://bugs.mysql.com/bug.php?id=69922, Unknown column Extent1...
     /// </summary>
@@ -945,9 +945,9 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
                &&
              (x.ActiveTo == null || x.ActiveTo >= now)
           )
-          .OrderBy(x => x.DisplayOrder).Select( d => d );
+          .OrderBy(x => x.DisplayOrder).Select(d => d);
         string sql = q.ToString();
-        foreach( var row in q )
+        foreach (var row in q)
         {
         }
       }
@@ -978,7 +978,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #endif
         List<Movie> l = q.ToList();
         int j = l.Count;
-        foreach( Movie m in l )
+        foreach (Movie m in l)
         {
           j--;
         }
@@ -1004,13 +1004,14 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
                 Where(m => !string.IsNullOrEmpty(m.Title) && m.Title.Contains("x")).
                 OrderByDescending(m => m.ID).
                 Skip(1).
-                Take(1).Select(m => new { 
-                  Id = m.ID, 
-                  CriticsScore = ( 
-                    m.Title == "Terminator 1" ? "Good" : 
-                    m.Title == "Predator" ? "Sunday best, cheese" : 
+                Take(1).Select(m => new
+                {
+                  Id = m.ID,
+                  CriticsScore = (
+                    m.Title == "Terminator 1" ? "Good" :
+                    m.Title == "Predator" ? "Sunday best, cheese" :
                     m.Title == "The Matrix" ? "Really Good" :
-                    m.Title == "Star Wars, The Sith Revenge" ? "Really Good" : "Unknown" )
+                    m.Title == "Star Wars, The Sith Revenge" ? "Really Good" : "Unknown")
                 });
         string sql = q.ToString();
 #if DEBUG
@@ -1040,10 +1041,10 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         db.Database.Initialize(true);
         MovieDBInitialize.DoDataPopulation(db);
         bool q = db.Movies.Any(m => m.ReleaseDate.Year > 1985);
-//        string sql = q.ToString();
-//#if DEBUG
-//        Debug.WriteLine(sql);
-//#endif
+        //        string sql = q.ToString();
+        //#if DEBUG
+        //        Debug.WriteLine(sql);
+        //#endif
         //foreach (var row in q)
         //{
         //}
@@ -1066,14 +1067,14 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         MovieDBInitialize.DoDataPopulation(db);
         // TODO: add subquery like
         // var shifts = Shifts.Where(s => !EmployeeShifts.Where(es => es.ShiftID == s.ShiftID).Any());
-        bool q = db.Movies.Where( m => m.ReleaseDate.Month != 10 ).Any(m => m.ReleaseDate.Year > 1985);
-//        string sql = q.ToString();
-//#if DEBUG
-//        Debug.WriteLine(sql);
-//#endif
-//        foreach (var row in q)
-//        {
-//        }
+        bool q = db.Movies.Where(m => m.ReleaseDate.Month != 10).Any(m => m.ReleaseDate.Year > 1985);
+        //        string sql = q.ToString();
+        //#if DEBUG
+        //        Debug.WriteLine(sql);
+        //#endif
+        //        foreach (var row in q)
+        //        {
+        //        }
       }
     }
 
@@ -1092,7 +1093,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         db.Database.Initialize(true);
         MovieDBInitialize.DoDataPopulation(db);
         var q = from m in db.Movies
-                where m.Title.Contains("x") && db.Medias.Where( mm => mm.Format == "Digital" ).Any()
+                where m.Title.Contains("x") && db.Medias.Where(mm => mm.Format == "Digital").Any()
                 select m;
         string sql = q.ToString();
 #if DEBUG
@@ -1107,7 +1108,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       }
     }
 
-  /// <summary>
+    /// <summary>
     /// Test for Mysql Bug 70602: http://bugs.mysql.com/bug.php?id=70602
     /// </summary>
     [Fact]
@@ -1163,7 +1164,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         db.SaveChanges();
       }
     }
-    
+
     [Fact]
     public void MigrationHistoryConfigurationTest()
     {
@@ -1189,7 +1190,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         Movie m2 = new Movie() { Title = "The Matrix", ReleaseDate = new DateTime(1999, 3, 31) };
         Movie m3 = new Movie() { Title = "Predator", ReleaseDate = new DateTime(1987, 6, 12) };
         Movie m4 = new Movie() { Title = "Star Wars, The Sith Revenge", ReleaseDate = new DateTime(2005, 5, 19) };
-        db.Movies.AddRange( new Movie[] { m1, m2, m3, m4 });
+        db.Movies.AddRange(new Movie[] { m1, m2, m3, m4 });
         db.SaveChanges();
         var q = from m in db.Movies select m;
         Assert.Equal(4, q.Count());
@@ -1436,7 +1437,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         dbContext.SaveChanges();
 
         var student = (from s in dbContext.Students
-                        select s).FirstOrDefault();
+                       select s).FirstOrDefault();
 
         Assert.NotEqual(null, student);
         Assert.NotEqual(null, student.Schedule);
@@ -1488,7 +1489,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         long myKey = 20;
         var q = (from r in db.Movies where (r.ID == myKey) select (long)r.ID).OrderBy(p => p);
         string sql = q.ToString();
-        st.CheckSql(sql, SQLSyntax.UnknownProjectC1EF6 );
+        st.CheckSql(sql, SQLSyntax.UnknownProjectC1EF6);
 
 #if DEBUG
         Debug.WriteLine(sql);
@@ -1616,14 +1617,14 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
       ReInitDb();
-      using( MovieDBContext db = new MovieDBContext() )
+      using (MovieDBContext db = new MovieDBContext())
       {
         db.Database.Initialize(true);
 
         List<string> strIds = new List<string>(new string[] { "two" });
         var q = db.Movies.Where(p => strIds.Contains("two"));
         string sql = q.ToString();
-        st.CheckSql(sql, SQLSyntax.TestContainsListWitConstant );
+        st.CheckSql(sql, SQLSyntax.TestContainsListWitConstant);
 #if DEBUG
         Debug.WriteLine(sql);
 #endif
@@ -1641,7 +1642,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
       ReInitDb();
-      using( MovieDBContext db = new MovieDBContext() )
+      using (MovieDBContext db = new MovieDBContext())
       {
         db.Database.Initialize(true);
 
@@ -1649,7 +1650,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         int myNum = 1;
         var q = db.Movies.Where(p => longs.Contains(myNum));
         string sql = q.ToString();
-        st.CheckSql(sql, SQLSyntax.TestContainsListWithParameterReference );
+        st.CheckSql(sql, SQLSyntax.TestContainsListWithParameterReference);
 #if DEBUG
         Debug.WriteLine(sql);
 #endif
@@ -1684,10 +1685,10 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       using (UsingUnionContext context = new UsingUnionContext())
       {
         if (context.Database.Exists())
-        context.Database.Delete();
-        
+          context.Database.Delete();
+
         context.Database.Create();
-                
+
         for (int i = 1; i <= 3; i++)
         {
           var order = new Order();
@@ -1703,17 +1704,98 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
           client.Orders.Add(order);
 
           context.Clients.Add(client);
-        }       
+        }
         context.SaveChanges();
-                
+
         var clients = context.Clients
                     .Include(c => c.Orders.Select(o => o.Items))
-                    .Include(c => c.Orders.Select(o => o.Discounts)).ToList();        
+                    .Include(c => c.Orders.Select(o => o.Discounts)).ToList();
 
         Assert.Equal(clients.Count(), 3);
         Assert.Equal(clients.Where(t => t.Id == 1).Single().Orders.Count(), 1);
         Assert.Equal(clients.Where(t => t.Id == 1).Single().Orders.Where(j => j.Id == 1).Single().Items.Count(), 3);
-      }    
+      }
+    }
+
+    /// <summary>
+    /// Bug #28095165 - CONTRIBUTION: FIX CONCURRENCYCHECK + DATABASEGENERATEDOPTION.COMPUTED
+    /// </summary>
+    [Fact]
+    public void ConcurrencyCheckWithDbGeneratedColumn()
+    {
+#if DEBUG
+      Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
+#endif
+      ReInitDb();
+      using (MovieDBContext db = new MovieDBContext())
+      {
+        db.Database.Delete();
+        db.Database.CreateIfNotExists();
+#if EF6
+        db.Database.Log = (e) => Debug.WriteLine(e);
+#endif
+        db.Database.ExecuteSqlCommand(@"DROP TABLE IF EXISTS `MovieReleases2`");
+
+        db.Database.ExecuteSqlCommand(
+          @"CREATE TABLE IF NOT EXISTS `MovieRelease2` (
+          `Id` int(11) NOT NULL,
+          `Name` varchar(45) NOT NULL,
+          `Timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+          `RowVersion` bigint NOT NULL DEFAULT 0,
+          PRIMARY KEY (`Id`)
+          ) ENGINE=InnoDB DEFAULT CHARSET=binary");
+
+        db.Database.ExecuteSqlCommand(
+          @"CREATE TRIGGER `trg_MovieRelease2_before_update` 
+          BEFORE UPDATE ON `MovieRelease2`
+          FOR EACH ROW SET NEW.RowVersion = OLD.RowVersion + 1;");
+
+        MySqlTrace.Listeners.Clear();
+        MySqlTrace.Switch.Level = SourceLevels.All;
+        GenericListener listener = new GenericListener();
+        MySqlTrace.Listeners.Add(listener);
+
+        try
+        {
+          MovieRelease2 mr = db.MovieReleases2.Create();
+          mr.Id = 1;
+          mr.Name = "Commercial";
+          db.MovieReleases2.Add(mr);
+          Assert.Equal(mr.RowVersion, 0);
+          db.SaveChanges(); // ADD
+          Assert.Equal(mr.RowVersion, 0);
+
+          mr.Name = "Director's Cut";
+          db.SaveChanges(); // UPDATE #1
+          Assert.Equal(mr.RowVersion, 1);
+
+          mr.Name = "Avengers";
+          db.SaveChanges(); // UPDATE #2
+          Assert.Equal(mr.RowVersion, 2);
+        }
+        finally
+        {
+          db.Database.ExecuteSqlCommand(@"DROP TABLE IF EXISTS `MovieReleases2`");
+        }
+        // Check sql        
+        Regex rx = new Regex(@"Query Opened: (?<item>UPDATE .*)", RegexOptions.Compiled | RegexOptions.Singleline);
+        int n = 0;
+        foreach (string s in listener.Strings)
+        {
+          Match m = rx.Match(s);
+          if (m.Success)
+          {
+            if (n++ == 0)
+            {
+              st.CheckSql(m.Groups["item"].Value, SQLSyntax.UpdateWithSelectWithDbGeneratedLock1);
+            }
+            else
+            {
+              st.CheckSql(m.Groups["item"].Value, SQLSyntax.UpdateWithSelectWithDbGeneratedLock2);
+            }
+          }
+        }
+      }
     }
   }
 }
