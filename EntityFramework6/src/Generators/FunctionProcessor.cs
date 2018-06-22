@@ -1,4 +1,4 @@
-﻿// Copyright © 2008, 2017,  Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2008, 2018,  Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -83,7 +83,7 @@ namespace MySql.Data.Entity
       geoFunctions.Add("SpatialEnvelope", "Envelope({0})");
       geoFunctions.Add("IsSimpleGeometry", "IsSimple({0})");
       geoFunctions.Add("SpatialTypeName", "GeometryType({0})");
-      geoFunctions.Add("CoordinateSystemId", "SRID({0})");
+      geoFunctions.Add("CoordinateSystemId", "ST_SRID({0})");
       geoFunctions.Add("Point", "POINT({0}, {1})");
       geoFunctions.Add("XCoordinate", "X({0})");
       geoFunctions.Add("YCoordinate", "Y({0})");
