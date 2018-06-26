@@ -256,6 +256,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("password", value); }
     }
 
+	/// <summary>
+    /// Gets or sets the path to a certificate in PKCS#12 format (.pfx).
+    /// </summary>
     [Category("Authentication")]
     [DisplayName("Certificate File")]
     [Description("Certificate file in PKCS#12 format (.pfx)")]
@@ -265,6 +268,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("certificatefile", value); }
     }
 
+	/// <summary>
+    /// Gets or sets the password associated to the certificate file.
+    /// </summary>
     [Category("Authentication")]
     [DisplayName("Certificate Password")]
     [Description("Password for certificate file")]
@@ -274,6 +280,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("certificatepassword", value); }
     }
 
+	/// <summary>
+    /// Gets or sets the certificate store location for client certificates.
+    /// </summary>
     [Category("Authentication")]
     [DisplayName("Certificate Store Location")]
     [Description("Certificate Store Location for client certificates")]
@@ -284,6 +293,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("certificatestorelocation", value); }
     }
 
+	/// <summary>
+    /// Gets or sets a certificate thumbprint that can be used together with a certificate to ensure correct identification.
+    /// </summary>
     [Category("Authentication")]
     [DisplayName("Certificate Thumbprint")]
     [Description("Certificate thumbprint. Can be used together with Certificate " +
@@ -312,6 +324,9 @@ namespace MySql.Data.MySqlClient
 
 #region Other Properties
 
+    /// <summary>
+    /// Gets or sets the idle connection time measured in seconds.
+    /// </summary>
     [DisplayName("Keep Alive")]
     [Description("For TCP connections, the idle connection time (in seconds) before the first keepalive packet is sent." +
         "A value of 0 indicates that keepalive is not used.")]
@@ -344,6 +359,9 @@ namespace MySql.Data.MySqlClient
 
 #region XAuthentication Properties
 
+    /// <summary>
+    /// Gets or sets the authentication mechanism to use with X Protocol connections.
+    /// </summary>
     [Category("Authentication")]
     [DisplayName("Auth")]
     [Description("Authentication mechanism")]
@@ -355,6 +373,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("auth", value); }
     }
 
+	/// <summary>
+    /// Gets or sets the path to a local file that contains a list of trusted Certificate Authorities.
+    /// </summary>
     [Description("Path to a local file that contains a list of trusted TLS/SSL CAs")]
     [Obsolete("Use MySqlXConnectionStringBuilder.SslCa instead.")]
     public string SslCa
@@ -367,6 +388,9 @@ namespace MySql.Data.MySqlClient
       }
     }
 
+	/// <summary>
+    /// Gets or sets the path to a local file that contains certificate revocation lists.
+    /// </summary>
     [Description("Path to a local file containing certificate revocation lists.")]
     [Obsolete("Use MySqlXConnectionStringBuilder.SslCrl instead.")]
     public string SslCrl
@@ -454,6 +478,11 @@ namespace MySql.Data.MySqlClient
       return true;
     }
 
+    /// <summary>
+    /// Gets the connection string with or without the password.
+    /// </summary>
+    /// <param name="includePass">Flag to indicate if the password should be included in the connection string.</param>
+    /// <returns>The connection string associated to this object.</returns>
     public string GetConnectionString(bool includePass)
     {
       if (includePass) return ConnectionString;

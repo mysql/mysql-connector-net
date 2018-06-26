@@ -1,4 +1,4 @@
-// Copyright © 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,12 +28,19 @@
 
 namespace MySqlX.XDevAPI
 {
+  /// <summary>
+  /// Encapsulates a string that is meant to be a MySQL expression.
+  /// </summary>
   public class MySqlExpression
-    {
-    public string value;
+  {
+    /// <summary>
+    /// Gets the string representation of the MySQL expression.
+    /// </summary>
+    public string Value;
+
     public MySqlExpression(string value)
     {
-     this.value = value;
+     this.Value = value;
     }
   }
 }

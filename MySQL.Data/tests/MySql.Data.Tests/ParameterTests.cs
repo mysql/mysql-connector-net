@@ -97,6 +97,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void TestDateTimeParameter()
     {
+      if (Connection.driver.Version.isAtLeast(8, 0, 1)) return;
+
       executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME, ts TIMESTAMP, PRIMARY KEY(id))");
 
       MySqlCommand cmd = new MySqlCommand("", Connection);

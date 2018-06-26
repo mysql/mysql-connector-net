@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -47,6 +47,9 @@ namespace MySql.Data.Types
   //from 1 through 7 indicate Point, LineString, Polygon, MultiPoint,
   //MultiLineString, MultiPolygon, and GeometryCollection.
 
+  /// <summary>
+  /// Represents a geometry data type object in a MySql database.
+  /// </summary>
   public struct MySqlGeometry : IMySqlValue
   {
     private readonly MySqlDbType _type;
@@ -56,10 +59,19 @@ namespace MySql.Data.Types
 
     private const int GEOMETRY_LENGTH = 25;
 
+    /// <summary>
+    /// Gets the x coordinate.
+    /// </summary>
     public Double? XCoordinate => _xValue;
 
+    /// <summary>
+    /// Gets the y coordinate.
+    /// </summary>
     public Double? YCoordinate => _yValue;
 
+    /// <summary>
+    /// Gets the SRID value.
+    /// </summary>
     public int? SRID => _srid;
 
     public MySqlGeometry(bool isNull):this(MySqlDbType.Geometry, isNull)
@@ -147,11 +159,16 @@ namespace MySql.Data.Types
    
     MySqlDbType IMySqlValue.MySqlDbType => _type;
 
+    /// <summary>
+    /// Gets a boolean value that signals if the type is <c>null</c>.
+    /// </summary>
     public bool IsNull { get; }
-
 
     object IMySqlValue.Value => Value;
 
+    /// <summary>
+    /// Gets the value associated to this type.
+    /// </summary>
     public byte[] Value { get; }
 
     Type IMySqlValue.SystemType => typeof(byte[]);
@@ -319,7 +336,11 @@ namespace MySql.Data.Types
       mySqlGeometryValue = new MySqlGeometry(true);
       return false; 
     }
-    
+
+    /// <summary>
+    /// Sets the DSInfo when GetSchema is called for the DataSourceInformation collection.
+    /// </summary>
+    /// <param name="dsTable">The schema collection.</param>
     public static void SetDSInfo(MySqlSchemaCollection dsTable)
     {
       // we use name indexing because this method will only be called
@@ -351,6 +372,10 @@ namespace MySql.Data.Types
       row["NativeDataType"] = DBNull.Value;
     }
 
+    /// <summary>
+    /// Gets the well-known text representation of the geomtry object.
+    /// </summary>
+    /// <returns>A string representation of the WKT.</returns>
     public string GetWKT()
     {
       if (!this.IsNull)

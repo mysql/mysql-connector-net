@@ -1,4 +1,4 @@
-// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -33,16 +33,25 @@ using System.Configuration;
 
 namespace MySql.Data.MySqlClient
 {
+  /// <summary>
+  /// Represents a section within a configuration file.
+  /// </summary>
   public sealed class MySqlConfiguration : ConfigurationSection
   {
     private static MySqlConfiguration settings
       = ConfigurationManager.GetSection("MySQL") as MySqlConfiguration;
 
+    /// <summary>
+    /// Gets the MySQL configuations associated to the current configuration.
+    /// </summary>
     public static MySqlConfiguration Settings
     {
       get { return settings; }
     }
 
+    /// <summary>
+    /// Gets a collection of the exception interceptors available in the current configuration.
+    /// </summary>
     [ConfigurationProperty("ExceptionInterceptors", IsRequired = false)]
     [ConfigurationCollection(typeof(InterceptorConfigurationElement), AddItemName = "add", ClearItemsName = "clear", RemoveItemName = "remove")]
     public GenericConfigurationElementCollection<InterceptorConfigurationElement> ExceptionInterceptors
@@ -50,6 +59,9 @@ namespace MySql.Data.MySqlClient
       get { return (GenericConfigurationElementCollection<InterceptorConfigurationElement>)this["ExceptionInterceptors"]; }
     }
 
+    /// <summary>
+    /// Gets a collection of the command interceptors available in the current configuration.
+    /// </summary>
     [ConfigurationProperty("CommandInterceptors", IsRequired = false)]
     [ConfigurationCollection(typeof(InterceptorConfigurationElement), AddItemName = "add", ClearItemsName = "clear", RemoveItemName = "remove")]
     public GenericConfigurationElementCollection<InterceptorConfigurationElement> CommandInterceptors
@@ -57,6 +69,9 @@ namespace MySql.Data.MySqlClient
       get { return (GenericConfigurationElementCollection<InterceptorConfigurationElement>)this["CommandInterceptors"]; }
     }
 
+    /// <summary>
+    /// Gets a collection of the authentication plugins available in the current configuration.
+    /// </summary>
     [ConfigurationProperty("AuthenticationPlugins", IsRequired = false)]
     [ConfigurationCollection(typeof(AuthenticationPluginConfigurationElement), AddItemName = "add", ClearItemsName = "clear", RemoveItemName = "remove")]
     public GenericConfigurationElementCollection<AuthenticationPluginConfigurationElement> AuthenticationPlugins
@@ -64,6 +79,9 @@ namespace MySql.Data.MySqlClient
       get { return (GenericConfigurationElementCollection<AuthenticationPluginConfigurationElement>)this["AuthenticationPlugins"]; }
     }
 
+    /// <summary>
+    /// Gets or sets the replication configurations.
+    /// </summary>
     [ConfigurationProperty("Replication", IsRequired = true)]
     public ReplicationConfigurationElement Replication
     {
@@ -80,10 +98,13 @@ namespace MySql.Data.MySqlClient
   }
 
   /// <summary>
-  /// 
+  /// Defines the configurations allowed for an authentication plugin.
   /// </summary>
   public sealed class AuthenticationPluginConfigurationElement : ConfigurationElement
   {
+    /// <summary>
+    /// Gets or sets the name of the authentication plugin.
+    /// </summary>
     [ConfigurationProperty("name", IsRequired = true)]
     public string Name
     {
@@ -97,6 +118,9 @@ namespace MySql.Data.MySqlClient
       }
     }
 
+    /// <summary>
+    /// Gets or sets the type of the authentication plugin.
+    /// </summary>
     [ConfigurationProperty("type", IsRequired = true)]
     public string Type
     {
@@ -112,10 +136,13 @@ namespace MySql.Data.MySqlClient
   }
 
   /// <summary>
-  /// 
+  /// Defines the configurations allowed for an interceptor.
   /// </summary>
   public sealed class InterceptorConfigurationElement : ConfigurationElement
   {
+    /// <summary>
+    /// Gets or sets the name of the interceptor.
+    /// </summary>
     [ConfigurationProperty("name", IsRequired = true)]
     public string Name
     {
@@ -129,6 +156,9 @@ namespace MySql.Data.MySqlClient
       }
     }
 
+    /// <summary>
+    /// Gets or sets the type of the interceptor.
+    /// </summary>
     [ConfigurationProperty("type", IsRequired = true)]
     public string Type
     {
@@ -144,7 +174,7 @@ namespace MySql.Data.MySqlClient
   }
 
   /// <summary>
-  /// 
+  /// Represents a generic configuration element.
   /// </summary>
   /// <typeparam name="T"></typeparam>
   public sealed class GenericConfigurationElementCollection<T> : ConfigurationElementCollection, IEnumerable<T> where T : ConfigurationElement, new()
@@ -163,6 +193,10 @@ namespace MySql.Data.MySqlClient
       return _elements.Find(e => e.Equals(element));
     }
 
+    /// <summary>
+    /// Gets an enumerator that iterates through the returned list.
+    /// </summary>
+    /// <returns>An enumerator that iterates through the returned list.</returns>
     public new IEnumerator<T> GetEnumerator()
     {
       return _elements.GetEnumerator();

@@ -1,4 +1,4 @@
-// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -407,18 +407,21 @@ namespace MySql.Data.MySqlClient
     Embedded
   }
 
+  /// <summary>
+  /// Defines the location of the certificate store.
+  /// </summary>
   public enum MySqlCertificateStoreLocation
   {
     /// <summary>
-    /// Do not use certificate store
+    /// Do not use certificate store.
     /// </summary>
     None,
     /// <summary>
-    /// Use certificate store for the current user
+    /// Use certificate store for the current user.
     /// </summary>
     CurrentUser,
     /// <summary>
-    /// User certificate store for the machine
+    /// User certificate store for the machine.
     /// </summary>
     LocalMachine
   }

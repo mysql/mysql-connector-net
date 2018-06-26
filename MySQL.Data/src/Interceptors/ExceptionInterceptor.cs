@@ -1,4 +1,4 @@
-// Copyright © 2004, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -40,10 +40,22 @@ namespace MySql.Data.MySqlClient.Interceptors
   /// </summary>
   public abstract class BaseExceptionInterceptor
   {
+    /// <summary>
+    /// Returns the received exception.
+    /// </summary>
+    /// <param name="exception">The exception to be returned.</param>
+    /// <returns>The exception originally received.</returns>
     public abstract Exception InterceptException(Exception exception);
 
+    /// <summary>
+    /// Gets the active connection.
+    /// </summary>
     protected MySqlConnection ActiveConnection { get; private set; }
 
+    /// <summary>
+    /// Initilizes this object by setting the active connection.
+    /// </summary>
+    /// <param name="connection">The connection to become active.</param>
     public virtual void Init(MySqlConnection connection)
     {
       ActiveConnection = connection;

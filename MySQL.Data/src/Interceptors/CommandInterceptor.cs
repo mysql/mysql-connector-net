@@ -1,4 +1,4 @@
-// Copyright © 2004, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -44,23 +44,50 @@ namespace MySql.Data.MySqlClient
   /// </summary>
   public abstract class BaseCommandInterceptor
   {
+    /// <summary>
+    /// Gets the active connection.
+    /// </summary>
     protected MySqlConnection ActiveConnection { get; private set; }
 
+    /// <summary>
+    /// Executes an SQL statements that returns a scalar value such as a calculation.
+    /// </summary>
+    /// <param name="sql">The SQL statement to execute.</param>
+    /// <param name="returnValue">A scalar value that represents the result returned by the execution of the SQL statement.</param>
+    /// <returns><c>false.</c></returns>
+    /// <remarks>This method is intended to be overriden.</remarks>
     public virtual bool ExecuteScalar(string sql, ref object returnValue)
     {
       return false;
     }
 
+    /// <summary>
+    /// Executes an SQL statement that returns the number of affected rows.
+    /// </summary>
+    /// <param name="sql">The SQL statement to execute.</param>
+    /// <param name="returnValue">The number of affected rows.</param>
+    /// <returns><c>false</c>.</returns>
     public virtual bool ExecuteNonQuery(string sql, ref int returnValue)
     {
       return false;
     }
 
+    /// <summary>
+    /// Executes an SQL statement that will return a resultset.
+    /// </summary>
+    /// <param name="sql">The SQL statement to execute.</param>
+    /// <param name="behavior">A value that describes the results of the query and its effect on the database.</param>
+    /// <param name="returnValue">A <c>MySqlDataReader</c> object containing the result of the statement execution.</param>
+    /// <returns></returns>
     public virtual bool ExecuteReader(string sql, CommandBehavior behavior, ref MySqlDataReader returnValue)
     {
       return false;
     }
 
+    /// <summary>
+    /// Sets the active connection.
+    /// </summary>
+    /// <param name="connection">The active connection.</param>
     public virtual void Init(MySqlConnection connection)
     {
       ActiveConnection = connection;

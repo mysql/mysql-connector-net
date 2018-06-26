@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -37,8 +37,17 @@ using System.Data.Entity.Infrastructure;
 
 namespace MySql.Data.EntityFramework
 {
+  /// <summary>
+  /// Provides the capability to resolve a dependency.
+  /// </summary>
   public class MySqlDependencyResolver : IDbDependencyResolver
   {
+    /// <summary>
+    /// Attempts to resolve a dependency for a given contract type and optionally a given key.
+    /// </summary>
+    /// <param name="type">The base class that defines the dependency to be resolved.</param>
+    /// <param name="key">Optionally, the key of the dependency to be resolved.</param>
+    /// <returns>The resolved dependency.</returns>
     public object GetService(Type type, object key)
     {
       EServiceType servType;
@@ -71,6 +80,12 @@ namespace MySql.Data.EntityFramework
       return null;
     }
 
+    /// <summary>
+    /// Attempts to resolve a dependency for all of the registered services with the given type and key combination.
+    /// </summary>
+    /// <param name="type">The base class that defines the dependency to be resolved.</param>
+    /// <param name="key">Optionally, the key of the dependency to be resolved.</param>
+    /// <returns>All services that resolve the dependency.</returns>
     public IEnumerable<object> GetServices(Type type, object key)
     {
       var service = GetService(type, key);
@@ -78,23 +93,40 @@ namespace MySql.Data.EntityFramework
     }
   }
 
+  /// <summary>
+  /// Used to resolve a provider invariant name from a provider factory.
+  /// </summary>
   public class MySqlProviderInvariantName : IProviderInvariantName
   {
     private const string _providerName = "MySql.Data.MySqlClient";
 
+    /// <summary>
+    /// Gets the name of the provider.
+    /// </summary>
     public string Name
     {
       get { return _providerName; }
     }
 
+    /// <summary>
+    /// Gets the name of the provider.
+    /// </summary>
     public static string ProviderName
     {
       get { return MySqlProviderInvariantName._providerName; }
     }
   }
 
+  /// <summary>
+  /// Service that obtains the provider factory from a given connection.
+  /// </summary>
   public class MySqlProviderFactoryResolver : IDbProviderFactoryResolver
   {
+    /// <summary>
+    /// Returns the DbProviderFactory for the given connection.
+    /// </summary>
+    /// <param name="connection">The database connection.</param>
+    /// <returns>The provider factory for the connection.</returns>
     public DbProviderFactory ResolveProviderFactory(DbConnection connection)
     {
 #if NET_45_OR_GREATER 
@@ -105,14 +137,25 @@ namespace MySql.Data.EntityFramework
     }
   }
 
+  /// <summary>
+  /// Gets a provider manifest token for the given connection.
+  /// </summary>
   public class MySqlManifestTokenResolver : IManifestTokenResolver
   {
+    /// <summary>
+    /// Returns the manifest token to use for the given connection.
+    /// </summary>
+    /// <param name="connection">The connection for which a manifest token is required.</param>
+    /// <returns>The manifest token to use.</returns>
     public string ResolveManifestToken(System.Data.Common.DbConnection connection)
     {
       return MySqlClient.MySqlProviderServices.GetProviderServices(connection).GetProviderManifestToken(connection);
     }
   }
 
+  /// <summary>
+  /// Represents a key value that uniquely identifies an Entity Framework model that has been loaded into memory.
+  /// </summary>
   public class MySqlModelCacheKey : IDbModelCacheKey
   {
     private readonly Type _ctxType;
@@ -128,6 +171,11 @@ namespace MySql.Data.EntityFramework
       _customKey = customKey;
     }
 
+    /// <summary>
+    /// Determines whether the current cached model key is equal to the specified cached model key.
+    /// </summary>
+    /// <param name="other">The cached model key to compare to the current cached model key.</param>
+    /// <returns><c>true</c> if the current cached model key is equal to the specified cached model key; otherwise, <c>false</c>.</returns>
     public bool Equals(object other)
     {
       if (ReferenceEquals(this, other))
@@ -137,6 +185,10 @@ namespace MySql.Data.EntityFramework
       return (modelCacheKey != null) && Equals(modelCacheKey);
     }
 
+    /// <summary>
+    /// Returns the hash function for this cached model key.
+    /// </summary>
+    /// <returns>The hash function for this cached model key.</returns>
     public int GetHashCode()
     {
       unchecked

@@ -1,4 +1,4 @@
-// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -556,6 +556,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void TimestampValuesAreLocal()
     {
+      if (Connection.driver.Version.isAtLeast(8, 0, 1)) return;
+
       executeSQL("CREATE TABLE TimestampValuesAreLocal (id INT NOT NULL, dt DATETIME, d DATE, " +
         "t TIME, ts TIMESTAMP, PRIMARY KEY(id))");
 

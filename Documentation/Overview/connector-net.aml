@@ -50,6 +50,11 @@
 			  collection of documents.
             </para>
           </listItem>
+		  <listItem>
+		    <para>
+			  <codeEntityReference qualifyHint="true" linkText="MySqlXConnectionStringBuilder">T:MySqlX.XDevAPI.MySqlXConnectionStringBuilder</codeEntityReference>: Aids in the creation of a connection string or URI by exposing the connection options as properties.
+			</para>
+		  </listItem>
 	    </list>
 		<para>
 		  For an introduction to X DevAPI concepts, see the

@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -62,8 +62,14 @@ namespace MySql.Data.MySqlClient
     }
   }
 
+  /// <summary>
+  /// Defines the basic operations to be performed on the table cache.
+  /// </summary>
   public class BaseTableCache
   {
+    /// <summary>
+    /// The max allowed age for the cache entry.
+    /// </summary>
     protected int MaxCacheAge;
     private Dictionary<string, CacheEntry> cache = new Dictionary<string, CacheEntry>();
 
@@ -72,6 +78,11 @@ namespace MySql.Data.MySqlClient
       MaxCacheAge = maxCacheAge;
     }
 
+    /// <summary>
+    /// Adds the given command and result set to the cache.
+    /// </summary>
+    /// <param name="commandText">The command to store in the cache.</param>
+    /// <param name="resultSet">The resultset associated to the stored command.</param>
     public virtual void AddToCache(string commandText, object resultSet)
     {
       CleanCache();
@@ -85,6 +96,12 @@ namespace MySql.Data.MySqlClient
       }
     }
 
+    /// <summary>
+    /// Retrieves the specified command from the cache.
+    /// </summary>
+    /// <param name="commandText">The command to retrieve.</param>
+    /// <param name="cacheAge">The allowed age for the cache entry.</param>
+    /// <returns></returns>
     public virtual object RetrieveFromCache(string commandText, int cacheAge)
     {
       CleanCache();
@@ -97,6 +114,10 @@ namespace MySql.Data.MySqlClient
       }
     }
 
+    /// <summary>
+    /// Removes the specified command from the cache.
+    /// </summary>
+    /// <param name="commandText">The command to remove from the cache.</param>
     public void RemoveFromCache(string commandText)
     {
       lock (cache)
@@ -106,12 +127,18 @@ namespace MySql.Data.MySqlClient
       }
     }
 
+    /// <summary>
+    /// Clears the cache.
+    /// </summary>
     public virtual void Dump()
     {
       lock (cache)
         cache.Clear();
     }
 
+    /// <summary>
+    /// Removes cache entries older than the value defined by <c>MaxCacheAge</c>.
+    /// </summary>
     protected virtual void CleanCache()
     {
       DateTime now = DateTime.Now;

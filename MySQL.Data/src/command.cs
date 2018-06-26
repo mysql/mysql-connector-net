@@ -96,7 +96,9 @@ namespace MySql.Data.MySqlClient
 #region Properties
 
 
-        /// <include file='docs/mysqlcommand.xml' path='docs/LastInseredId/*'/>
+        /// <summary>
+        /// Gets the last inserted id.
+        /// </summary>
         [Browsable(false)]
         public Int64 LastInsertedId { get; internal set; }
 
@@ -155,7 +157,9 @@ namespace MySql.Data.MySqlClient
         [Category("Data")]
         public override CommandType CommandType { get; set; }
 
-        /// <include file='docs/mysqlcommand.xml' path='docs/IsPrepared/*'/>
+        /// <summary>
+        /// Gets a boolean value that indicates whether the Prepared method has been called.
+        /// </summary>
         [Browsable(false)]
         public bool IsPrepared => statement != null && statement.IsPrepared;
 
@@ -203,8 +207,14 @@ namespace MySql.Data.MySqlClient
         [Browsable(false)]
         public new MySqlTransaction Transaction { get; set; }
 
+        /// <summary>
+        /// Gets or sets a boolean value that indicates whether caching is enabled.
+        /// </summary>
         public bool EnableCaching { get; set; }
 
+        /// <summary>
+        /// Gets or sets the seconds for how long a TableDirect result should be cached.
+        /// </summary>
         public int CacheAge { get; set; }
 
         internal List<MySqlCommand> Batch { get; private set; }

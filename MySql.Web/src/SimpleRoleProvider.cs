@@ -1,4 +1,4 @@
-// Copyright © 2014, 2015, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2014, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -40,6 +40,9 @@ using WebMatrix.WebData;
 
 namespace MySql.Web.Security
 {
+  /// <summary>
+  /// Manages storage of simple role membership information for an ASP.NET application in a MySQL database.
+  /// </summary>
   public class MySqlSimpleRoleProvider : SimpleRoleProvider
   {
     #region Private
@@ -383,10 +386,19 @@ namespace MySql.Web.Security
       }
     }
 
+    /// <summary>
+    /// Gets or sets the connection string.
+    /// </summary>
     public string ConnectionString { get; set;  }
 
+    /// <summary>
+    /// Gets or sets the name associated to the connection string when stored in the configuration manager.
+    /// </summary>
     public string ConnectionStringName { get; set; }
 
+    /// <summary>
+    /// Gets the name of the table storing user information.
+    /// </summary>
     public string UserTableName
     {
       get
@@ -402,6 +414,9 @@ namespace MySql.Web.Security
       }
     }
 
+    /// <summary>
+    /// Gets the name of the column storing the user ids.
+    /// </summary>
     public string UserIdColumn
     {
       get
@@ -417,6 +432,9 @@ namespace MySql.Web.Security
       }
     }
 
+    /// <summary>
+    /// Gets the name of the column storing the user names.
+    /// </summary>
     public string UserNameColumn
     {
       get

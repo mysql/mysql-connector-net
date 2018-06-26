@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -463,17 +463,31 @@ namespace MySql.Data.MySqlClient
         return dt.GetDateTime();
     }
 
+    /// <summary>
+    /// Gets the value of the specified column as a <c>MySqlDecimal</c>.
+    /// </summary>
+    /// <param name="column">The name of the colum.</param>
+    /// <returns>The value of the specified column as a <c>MySqlDecimal</c>.</returns>
     public MySqlDecimal GetMySqlDecimal(string column)
     {
       return GetMySqlDecimal(GetOrdinal(column));
     }
 
+    /// <summary>
+    /// Gets the value of the specified column as a <c>MySqlDecimal</c>.
+    /// </summary>
+    /// <param name="i">The index of the colum.</param>
+    /// <returns>The value of the specified column as a <c>MySqlDecimal</c>.</returns>
     public MySqlDecimal GetMySqlDecimal(int i)
     {
       return (MySqlDecimal)GetFieldValue(i, false);
     }
 
-    /// <include file='docs/MySqlDataReader.xml' path='docs/GetDecimalS/*'/>
+    /// <summary>
+    /// Gets the value of the specified column as a <c>MySqlDecimal</c>.
+    /// </summary>
+    /// <param name="column">The name of the colum.</param>
+    /// <returns>The value of the specified column as a <c>MySqlDecimal</c>.</returns>
     public Decimal GetDecimal(string column)
     {
       return GetDecimal(GetOrdinal(column));
@@ -503,6 +517,11 @@ namespace MySql.Data.MySqlClient
       return Convert.ToDouble(v.Value);
     }
 
+    /// <summary>
+    /// Gets the type of the field at the specified column.
+    /// </summary>
+    /// <param name="column">The column name.</param>
+    /// <returns>The data type of the item.</returns>
     public Type GetFieldType(string column)
     {
       return GetFieldType(GetOrdinal(column));
@@ -547,7 +566,11 @@ namespace MySql.Data.MySqlClient
       return Convert.ToSingle(v.Value);
     }
 
-    /// <include file='docs/MySqlDataReader.xml' path='docs/GetGuidS/*'/>
+    /// <summary>
+    /// Gets the value of the specified column as a globally-unique identifier(GUID).
+    /// </summary>
+    /// <param name="column"></param>
+    /// <returns></returns>
     public Guid GetGuid(string column)
     {
       return GetGuid(GetOrdinal(column));
@@ -922,6 +945,11 @@ namespace MySql.Data.MySqlClient
       }
     }
 
+    /// <summary>
+    /// Gets the value of the specified column as a <c>MySqlGeometry</c>.
+    /// </summary>
+    /// <param name="i">The index of the colum.</param>
+    /// <returns>The value of the specified column as a <c>MySqlGeometry</c>.</returns>
     public MySqlGeometry GetMySqlGeometry(int i)
     {
       try
@@ -937,6 +965,11 @@ namespace MySql.Data.MySqlClient
       return new MySqlGeometry(true);
     }
 
+    /// <summary>
+    /// Gets the value of the specified column as a <c>MySqlGeometry</c>.
+    /// </summary>
+    /// <param name="column">The name of the column.</param>
+    /// <returns>The value of the specified column as a <c>MySqlGeometry</c>.</returns>
     public MySqlGeometry GetMySqlGeometry(string column)
     {
       return GetMySqlGeometry(GetOrdinal(column));

@@ -57,6 +57,9 @@ namespace MySqlX.XDevAPI
 
     #region Authentication Properties
 
+	/// <summary>
+    /// Gets or sets the authentication mechanism to use with X Protocol connections.
+    /// </summary>
     [Category("Authentication")]
     [DisplayName("Auth")]
     [Description("Authentication mechanism")]
@@ -67,6 +70,9 @@ namespace MySqlX.XDevAPI
       set { SetValue("auth", value); }
     }
 
+	/// <summary>
+    /// Gets or sets the path to a local file that contains a list of trusted Certificate Authorities.
+    /// </summary>
     [Description("Path to a local file that contains a list of trusted TLS/SSL CAs")]
     public new string SslCa
     {
@@ -78,6 +84,9 @@ namespace MySqlX.XDevAPI
       }
     }
 
+	/// <summary>
+    /// Gets or sets the path to a local file that contains certificate revocation lists.
+    /// </summary>
     [Description("Path to a local file containing certificate revocation lists")]
     public new string SslCrl
     {

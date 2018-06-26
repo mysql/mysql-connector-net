@@ -1,4 +1,4 @@
-// Copyright © 2004, 2010, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -34,6 +34,9 @@ using System.Security.Permissions;
 
 namespace MySql.Data.MySqlClient
 {
+  /// <summary>
+  /// Associates a security action with a custom security attribute.
+  /// </summary>
   [Serializable, AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor | AttributeTargets.Struct | AttributeTargets.Class | AttributeTargets.Assembly, AllowMultiple = true, Inherited = false)]
   public sealed class MySqlClientPermissionAttribute : DBDataPermissionAttribute
   {

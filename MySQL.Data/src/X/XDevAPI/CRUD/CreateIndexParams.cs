@@ -50,7 +50,7 @@ namespace MySqlX.XDevAPI.CRUD
         var field = item as Dictionary<string, object>;
         if (field == null) continue;
 
-        var fieldValue = field["field"] is MySqlExpression ? ((MySqlExpression) field["field"]).value : field["field"].ToString();
+        var fieldValue = field["field"] is MySqlExpression ? ((MySqlExpression) field["field"]).Value : field["field"].ToString();
         var indexField = new IndexField()
         {
           Field = fieldValue

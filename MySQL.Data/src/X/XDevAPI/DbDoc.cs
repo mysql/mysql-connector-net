@@ -212,7 +212,7 @@ namespace MySqlX.XDevAPI
       else if (val is MySqlExpression)
       {
         var expression = (MySqlExpression) val;
-        return expression.value;
+        return expression.Value;
       }
 
       string quoteChar = "";

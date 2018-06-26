@@ -202,7 +202,7 @@ namespace MySqlX.Protocol.X
         value = new XDevAPI.DbDoc(value).ToString();
 
       if (value is XDevAPI.MySqlExpression)
-        value = (value as XDevAPI.MySqlExpression).value;
+        value = (value as XDevAPI.MySqlExpression).Value;
 
       if (value is bool)
         return BuildLiteralScalar(Convert.ToBoolean(value));

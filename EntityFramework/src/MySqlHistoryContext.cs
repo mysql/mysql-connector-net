@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -31,6 +31,9 @@ using System.Data.Entity.Migrations.History;
 
 namespace MySql.Data.EntityFramework
 {
+  /// <summary>
+  /// Reads and writes migration history from the database during code first migrations.
+  /// </summary>
   public class MySqlHistoryContext : HistoryContext
   {
     public MySqlHistoryContext(DbConnection existingConnection, string defaultSchema)

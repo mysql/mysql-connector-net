@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -116,6 +116,12 @@ namespace MySql.Data.MySqlClient
       return Add(new MySqlParameter(parameterName, value));
     }
 
+    /// <summary>
+    /// Adds a parameter and its value.
+    /// </summary>
+    /// <param name="parameterName">The name of the parameter.</param>
+    /// <param name="value">The value of the parameter.</param>
+    /// <returns>A <c>MySqlParameter</c> object representing the provided values.</returns>
     public MySqlParameter AddWithValue(string parameterName, object value)
     {
       return Add(new MySqlParameter(parameterName, value));
