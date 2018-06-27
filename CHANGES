@@ -4,6 +4,7 @@
 - Fix to correct wrong result type returned by MySqlDataReader after null found (MySQL Bug #78917, Oracle Bug #22101727).
 - Contribution added: Fixing encoding (MySQL Bug #90316, Oracle Bug #27818822). Thanks to Kleber Syd Moraes da Silva for the contribution.
 - Contribution added: Fixing CONCURRENCYCHECK and DATABASEGENERATEDOPTION.COMPUTED (MySQL Bug #91064, Oracle Bug #28095165). Thanks to Tony OHagan for the contribution.
+- Fixed an SQL syntax error thrown when a point type is evaluated. Changed SRID() function to ST_SRID() since SRID() is deprecated. (MySQL Bug #27715007) 
 - Removed unused _fieldHashCs field from ResulSet (MySQL Bug #88950, Oracle Bug #27285641).
 
 
