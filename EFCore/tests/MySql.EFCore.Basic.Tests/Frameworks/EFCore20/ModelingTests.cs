@@ -30,18 +30,13 @@ using Xunit;
 
 namespace MySql.Data.EntityFrameworkCore.Tests
 {
-  public class ModelingTests
+  public class ModelingTests : IClassFixture<SakilaLiteFixture>
   {
-    public ModelingTests()
-    {
-      using (SakilaLiteContext context = new SakilaLiteContext())
-      {
-        context.Database.EnsureDeleted();
-        context.Database.EnsureCreated();
+    private SakilaLiteFixture fixture;
 
-        // Populate
-        context.PopulateData();
-      }
+    public ModelingTests(SakilaLiteFixture fixture)
+    {
+      this.fixture = fixture;
     }
 
     [Fact]
@@ -115,6 +110,20 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         Assert.Collection(films,
           film => validate(film, 1, "ACADEMY DINOSAUR", 2006),
           film => validate(film, 2, "ACE GOLDFINGER", 2006)
+        );
+      }
+    }
+
+    [Fact]
+    public void ScalarFunctionMapping()
+    {
+      using (SakilaLiteContext context = new SakilaLiteContext())
+      {
+        context.Database.ExecuteSqlCommand("CREATE FUNCTION FilmsByActorCount(id SMALLINT) RETURNS INT RETURN (SELECT COUNT(*) FROM film_actor WHERE ActorId = id);");
+        var query = context.Actor.Where(c => SakilaLiteContext.FilmsByActorCount(c.ActorId) == 18).ToList();
+        Assert.Collection<Actor>(query,
+          e => { Assert.Equal(31, e.ActorId); },
+          e => { Assert.Equal(71, e.ActorId); }
         );
       }
     }

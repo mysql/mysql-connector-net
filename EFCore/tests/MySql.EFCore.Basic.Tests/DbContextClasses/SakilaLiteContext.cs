@@ -30,7 +30,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
 {
   #region Contexts
 
-  public class SakilaLiteContext : MyTestContext
+  public partial class SakilaLiteContext : MyTestContext
   {
     public DbSet<Actor> Actor { get; set; }
     public DbSet<Film> Film { get; set; }
