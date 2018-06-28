@@ -1,4 +1,4 @@
-// Copyright © 2009, 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2009, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -38,7 +38,6 @@ namespace MySql.Data.MySqlClient
   {
     private Driver _driver;
     private bool[] _uaFieldsUsed;
-    private Dictionary<string, int> _fieldHashCs;
     private Dictionary<string, int> _fieldHashCi;
     private int _rowIndex;
     private bool _readDone;
@@ -108,12 +107,9 @@ namespace MySql.Data.MySqlClient
     /// <returns></returns>
     public int GetOrdinal(string name)
     {
-      // first we try a quick hash lookup
       int ordinal;
-      if (_fieldHashCs.TryGetValue(name, out ordinal))
-        return ordinal;
 
-      // ok that failed so we use our CI hash      
+      // quick hash lookup using CI hash
       if (_fieldHashCi.TryGetValue( name, out ordinal ))
         return ordinal;
 
@@ -294,14 +290,11 @@ namespace MySql.Data.MySqlClient
 
       Values = new IMySqlValue[numCols];
       _uaFieldsUsed = new bool[numCols];
-      _fieldHashCs = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
       _fieldHashCi = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
       for (int i = 0; i < Fields.Length; i++)
       {
         string columnName = Fields[i].ColumnName;
-        if (!_fieldHashCs.ContainsKey(columnName))
-          _fieldHashCs.Add(columnName, i);
         if (!_fieldHashCi.ContainsKey(columnName))
           _fieldHashCi.Add(columnName, i);
         Values[i] = Fields[i].GetValueObject();
