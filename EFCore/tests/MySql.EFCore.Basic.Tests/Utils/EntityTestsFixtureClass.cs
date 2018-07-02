@@ -1,4 +1,4 @@
-// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -112,15 +112,44 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     }
   }
 
-  //public static class ExtensionMethods
-  //{
-  //  public static string ToTraceString<T>(this IQueryable<T> t)
-  //  {
-  //    // try to cast to ObjectQuery<T>
-  //    //ObjectQuery<T> oqt = t as ObjectQuery<T>;
-  //    //if (oqt != null)
-  //    //  return oqt.ToTraceString();
-  //    return "";
-  //  }
-  //}
+  public class SakilaLiteFixture : IDisposable
+  {
+    public SakilaLiteFixture()
+    {
+      using (SakilaLiteContext context = new SakilaLiteContext())
+      {
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
+        context.PopulateData();
+      }
+    }
+
+    #region IDisposable Support
+    private bool disposedValue = false; // To detect redundant calls
+
+    protected virtual void Dispose(bool disposing)
+    {
+      if (!disposedValue)
+      {
+        if (disposing)
+        {
+          using (SakilaLiteContext context = new SakilaLiteContext())
+          {
+            context.Database.EnsureDeleted();
+          }
+        }
+
+        disposedValue = true;
+      }
+    }
+
+    // This code added to correctly implement the disposable pattern.
+    public void Dispose()
+    {
+      // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+      Dispose(true);
+    }
+    #endregion
+
+  }
 }
