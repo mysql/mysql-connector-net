@@ -15,6 +15,7 @@
 - Contribution added: Fixing CONCURRENCYCHECK and DATABASEGENERATEDOPTION.COMPUTED (MySQL Bug #91064, Oracle Bug #28095165). Thanks to Tony OHagan for the contribution.
 - Fixed an SQL syntax error thrown when a point type is evaluated. Changed SRID() function to ST_SRID() since SRID() is deprecated. (MySQL Bug #27715007) 
 - Removed unused _fieldHashCs field from ResulSet (MySQL Bug #88950, Oracle Bug #27285641).
+- Fix to correct exception, "Incorrect usage of spatial/fulltext/hash index and explicit index order", when using the Entity Framework code-first approach with MySQL 8.0 servers (Oracle Bug #27715069).
 
 
 8.0.11
