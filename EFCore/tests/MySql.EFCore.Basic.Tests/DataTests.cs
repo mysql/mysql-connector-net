@@ -1,4 +1,4 @@
-﻿// Copyright © 2017 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -83,6 +83,16 @@ namespace MySql.Data.EntityFrameworkCore.Tests
 
         var item = context.MyTest.First();
         Assert.Equal(DateTime.MinValue, item.Date);
+      }
+    }
+
+    [Fact]
+    public void SakilaLiteTest()
+    {
+      using(SakilaLiteContext context = new SakilaLiteContext())
+      {
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
       }
     }
   }

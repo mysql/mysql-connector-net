@@ -52,6 +52,16 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
 
         e.ToTable("film_actor");
       });
+
+      modelBuilder.Entity<Film>(e =>
+      {
+        e.HasKey(p => p.FilmId);
+
+        e.Property(p => p.Length)
+          .HasColumnName("length")
+          .HasColumnType("smallint unsigned")
+          .HasDefaultValue(null);
+      });
     }
 
     public virtual void PopulateData()
