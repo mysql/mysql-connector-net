@@ -29,6 +29,7 @@ using System.Linq;
 using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using MySql.Data.EntityFrameworkCore;
 using MySql.Data.MySqlClient;
+using Microsoft.EntityFrameworkCore;
 
 namespace MySql.Data.EntityFrameworkCore.Tests
 {
@@ -112,9 +113,15 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     {
       using (SakilaLiteContext context = new SakilaLiteContext())
       {
+        context.InitContext();
+      }
+    }
+
+    private void DeleteDatabase<TDbContext>() where TDbContext : MyTestContext, new()
+    {
+      using(TDbContext context = new TDbContext())
+      {
         context.Database.EnsureDeleted();
-        context.Database.EnsureCreated();
-        context.PopulateData();
       }
     }
 
@@ -127,10 +134,9 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       {
         if (disposing)
         {
-          using (SakilaLiteContext context = new SakilaLiteContext())
-          {
-            context.Database.EnsureDeleted();
-          }
+          DeleteDatabase<SakilaLiteContext>();
+          DeleteDatabase<SakilaLiteTableSplittingContext>();
+          DeleteDatabase<SakilaLiteUpdateContext>();
         }
 
         disposedValue = true;

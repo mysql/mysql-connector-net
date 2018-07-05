@@ -25,6 +25,9 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
 {
@@ -32,10 +35,57 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
 
   public partial class SakilaLiteContext : MyTestContext
   {
+    // Database scalar function mapping
     [DbFunction]
     public static int FilmsByActorCount(short actorId)
     {
       throw new Exception();
+    }
+
+    partial void OnModelCreating20(ModelBuilder modelBuilder)
+    {
+      // Self-contained type configuration for code first
+      modelBuilder.ApplyConfiguration<Customer>(new CustomerConfiguration());
+    }
+  }
+
+  public class SakilaLiteOwnedTypesContext : SakilaLiteContext
+  {
+    protected override void SetCustomerEntity(ModelBuilder modelBuilder)
+    {
+      // configures Address as an owned Customer type
+      base.SetCustomerEntity(modelBuilder);
+      modelBuilder.Entity<Customer>()
+        .OwnsOne(e => e.Address,
+          owned =>
+          {
+            EntityTypeBuilder<SakilaAddress> entity = new EntityTypeBuilder<SakilaAddress>(((IInfrastructure<InternalEntityTypeBuilder>)owned).Instance);
+            base.SetAddressEntity(entity);
+          });
+    }
+
+    protected override void SetAddressEntity(ModelBuilder modelBuilder)
+    {
+      // configuration is set as owned entity
+    }
+
+    public override void PopulateData()
+    {
+      // Customer data
+      this.Database.ExecuteSqlCommand(SakilaLiteData.CustomerData);
+    }
+  }
+
+  #endregion
+
+  #region Configurations
+
+  class CustomerConfiguration : IEntityTypeConfiguration<Customer>
+  {
+    public void Configure(EntityTypeBuilder<Customer> builder)
+    {
+      // defines a model-level query filter
+      builder.HasQueryFilter(e => e.Active);
     }
   }
 
