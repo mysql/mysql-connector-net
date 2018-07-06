@@ -7764,7 +7764,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
 (598,1,'WADE','DELVALLE','WADE.DELVALLE@sakilacustomer.org',604,1,'2006-02-14 22:04:37','2006-02-15 04:57:20'),
 (599,2,'AUSTIN','CINTRON','AUSTIN.CINTRON@sakilacustomer.org',605,1,'2006-02-14 22:04:37','2006-02-15 04:57:20');";
 
-    internal static string AddressData { get; } = @"INSERT INTO `address`(address_id, address, address2, district, city_id, postal_code, phone, location, last_update) VALUES 
+    internal static string AddressData { get; } = @"INSERT INTO `address`(address_id, address, address2, district, city_id, postal_code, phone,/*!50705 location,*/ last_update) VALUES 
 (1,'47 MySakila Drive',NULL,'Alberta',300,'','',/*!50705 0x0000000001010000003E0A325D63345CC0761FDB8D99D94840,*/'2014-09-25 22:30:27'),
 (2,'28 MySQL Boulevard',NULL,'QLD',576,'','',/*!50705 0x0000000001010000008E10D4DF812463404EE08C5022A23BC0,*/'2014-09-25 22:30:09'),
 (3,'23 Workhaven Lane',NULL,'Alberta',300,'','14033335568',/*!50705 0x000000000101000000CDC4196863345CC01DEE7E7099D94840,*/'2014-09-25 22:30:27'),
