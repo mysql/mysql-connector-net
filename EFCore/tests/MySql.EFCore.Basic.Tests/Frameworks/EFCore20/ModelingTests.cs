@@ -119,7 +119,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     {
       using (SakilaLiteContext context = new SakilaLiteContext())
       {
-        context.Database.ExecuteSqlCommand("CREATE FUNCTION FilmsByActorCount(id SMALLINT) RETURNS INT RETURN (SELECT COUNT(*) FROM film_actor WHERE ActorId = id);");
+        context.Database.ExecuteSqlCommand("CREATE FUNCTION FilmsByActorCount(id SMALLINT) RETURNS INT RETURN (SELECT COUNT(*) FROM film_actor WHERE actor_id = id);");
         var query = context.Actor.Where(c => SakilaLiteContext.FilmsByActorCount(c.ActorId) == 18).ToList();
         Assert.Collection<Actor>(query,
           e => { Assert.Equal(31, e.ActorId); },
@@ -139,6 +139,51 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         {
           Assert.StartsWith("A", actor.LastName);
         }
+      }
+    }
+
+    [Fact]
+    public void OwnedEntityTypes()
+    {
+      using (SakilaLiteOwnedTypesContext context = new SakilaLiteOwnedTypesContext())
+      {
+        try
+        {
+          context.InitContext();
+
+          SakilaAddress address = new SakilaAddress
+          {
+            Address = "47 MySakila Drive",
+            Address2 = null,
+            AddressId = 1,
+            CityId = 300,
+            District = "Alberta",
+            Phone = "",
+            PostalCode = "",
+            LastUpdate = DateTime.Parse("2014-09-25 22:30:27")
+          };
+
+          context.Customer.Find((short)1).Address = address;
+          context.SaveChanges();
+
+          var customer = context.Customer.Where(p => p.Address.AddressId == 1).First();
+          Assert.Equal(1, customer.CustomerId);
+          Assert.Equal("47 MySakila Drive", customer.Address.Address);
+        }
+        finally
+        {
+          context.Database.EnsureDeleted();
+        }
+      }
+    }
+
+    [Fact]
+    public void ModelLevelQueryFilter()
+    {
+      using(SakilaLiteContext context = new SakilaLiteContext())
+      {
+        Assert.Equal(584, context.Customer.Count());
+        Assert.Equal(599, context.Customer.IgnoreQueryFilters().Count());
       }
     }
   }

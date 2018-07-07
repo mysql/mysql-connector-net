@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -33,6 +33,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using MySql.Data.EntityFrameworkCore.Metadata;
 using MySql.Data.EntityFrameworkCore.Utils;
 using MySql.Data.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace MySql.Data.EntityFrameworkCore.Migrations.Internal
 {
@@ -40,8 +41,9 @@ namespace MySql.Data.EntityFrameworkCore.Migrations.Internal
   {
     public override IEnumerable<IAnnotation> For(IProperty property)
     {
-      if (property.ValueGenerated == ValueGenerated.OnAdd &&
-          property.ClrType.CanBeAutoIncrement())
+      if (property.ValueGenerated == ValueGenerated.OnAdd
+        && property.ClrType.CanBeAutoIncrement()
+        && ((Property)property).PrimaryKey != null)
       {
         yield return new Annotation(MySQLAnnotationNames.AutoIncrement, true);
       }
