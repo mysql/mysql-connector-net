@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2017 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -137,7 +137,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
    [Fact]
-    public void ExecuteReader()
+    public void ExecuteReaderTest()
     {
       // create our procedure
       executeSQL("CREATE PROCEDURE spTest(OUT p INT) " +

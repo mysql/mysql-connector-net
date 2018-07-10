@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2014 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -31,7 +31,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
     }
 
-    [Fact(Skip="Fix this")]
+    [Fact(Skip = "Fix this")]
     public void TestMultiPacket()
     {
       int len = 20000000;
@@ -91,6 +91,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void TestSequence()
     {
+      if (Fixture.Version > new Version(5, 6, 6))
+        executeSQL("SET GLOBAL innodb_lru_scan_depth=256");
+
       executeSQL(@"CREATE TABLE Test (id INT NOT NULL, name varchar(100), blob1 LONGBLOB, text1 TEXT, 
                   PRIMARY KEY(id))");
       MySqlCommand cmd = new MySqlCommand("insert into Test (id, name) values (?id, 'test')", Connection);

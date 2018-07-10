@@ -1,4 +1,4 @@
-﻿// Copyright © 2014 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2014, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -40,7 +40,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     public string Title { get; set; }
     public DateTime ReleaseDate { get; set; }
     public string Genre { get; set; }
-    public decimal Price { get; set; }    
+    public decimal Price { get; set; }
     public Director Director { get; set; }
     public virtual ICollection<MovieFormat> Formats { get; set; }
     public virtual ICollection<MovieMedia> Medias { get; set; }
@@ -73,6 +73,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     public DbSet<Movie> Movies { get; set; }
     public DbSet<MovieFormat> MovieFormats { get; set; }
     public DbSet<MovieRelease> MovieReleases { get; set; }
+    public DbSet<MovieRelease2> MovieReleases2 { get; set; }
     public DbSet<EntitySingleColumn> EntitySingleColumns { get; set; }
     public DbSet<MovieMedia> Medias { get; set; }
 
@@ -87,8 +88,8 @@ namespace MySql.Data.Entity.CodeFirst.Tests
       modelBuilder.Configurations.AddFromAssembly(System.Reflection.Assembly.GetExecutingAssembly());
       modelBuilder.Entity<Movie>().Property(x => x.Price).HasPrecision(16, 2);
       modelBuilder.Entity<Movie>().HasMany(p => p.Formats);
-      modelBuilder.Entity<Movie>().HasMany( p => p.Medias );
-}
+      modelBuilder.Entity<Movie>().HasMany(p => p.Medias);
+    }
   }
 
   public class EntitySingleColumn
@@ -104,8 +105,27 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
     public virtual DateTime Timestamp { get; set; }
 
+    // Test: ConcurrencyCheck + Not Computed
     [ConcurrencyCheck, Required, MaxLength(45)]
     public virtual string Name { get; set; }
+  }
+
+  public class MovieRelease2
+  {
+    [Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
+    public virtual int Id { get; set; }
+
+    //[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+    //public virtual DateTime Timestamp { get; set; }
+
+    // Test: non computed column
+    [Required, MaxLength(45)]
+    public virtual string Name { get; set; }
+
+    // Test: ConcurrencyCheck + Computed
+    [ConcurrencyCheck, DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+    [Column(TypeName = "bigint")]
+    public virtual long RowVersion { get; set; }
   }
 
   public class MovieDBInitialize : DropCreateDatabaseReallyAlways<MovieDBContext>
@@ -117,7 +137,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
           new Movie() { ID = 1, Title = "Terminator 1", ReleaseDate = new DateTime(1984, 10, 26) }
         };
 
-    internal static void DoDataPopulation( MovieDBContext ctx )
+    internal static void DoDataPopulation(MovieDBContext ctx)
     {
       ctx.Database.ExecuteSqlCommand("CREATE PROCEDURE GetCount() BEGIN SELECT 5; END");
       Movie m1 = new Movie() { Title = "Terminator 1", ReleaseDate = new DateTime(1984, 10, 26) };
@@ -130,8 +150,8 @@ namespace MySql.Data.Entity.CodeFirst.Tests
       ctx.Movies.Add(m4);
       ctx.SaveChanges();
       ctx.Entry(m1).Collection(p => p.Medias).Load();
-      m1.Medias.Add( new MovieMedia() { Format = "DVD" } );
-      m1.Medias.Add( new MovieMedia() { Format = "BlueRay" } );
+      m1.Medias.Add(new MovieMedia() { Format = "DVD" });
+      m1.Medias.Add(new MovieMedia() { Format = "BlueRay" });
       ctx.Entry(m2).Collection(p => p.Medias).Load();
       m2.Medias.Add(new MovieMedia() { Format = "DVD" });
       m2.Medias.Add(new MovieMedia() { Format = "Digital" });
