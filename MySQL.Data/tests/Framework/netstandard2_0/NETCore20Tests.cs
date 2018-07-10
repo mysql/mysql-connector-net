@@ -22,7 +22,6 @@
 
 using System;
 using System.Data;
-using System.Data.Common;
 using Xunit;
 
 namespace MySql.Data.MySqlClient.Tests
@@ -31,7 +30,7 @@ namespace MySql.Data.MySqlClient.Tests
   {
     public NETCore20Tests(TestFixture fixture) : base(fixture) { }
 
-    public void CreateTables()
+    private void CreateTables()
     {
       executeSQL("CREATE TABLE parent (id INT, name VARCHAR(20), PRIMARY KEY (id))");
       executeSQL("CREATE TABLE child (id INT, description VARCHAR(20), parent_id INT, PRIMARY KEY (id))");
@@ -45,6 +44,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void ConstraintsTest()
     {
+      executeSQL("DROP TABLE IF EXISTS parent");
+      executeSQL("DROP TABLE IF EXISTS child");
       CreateTables();
 
       DataSet ds = new DataSet();
@@ -78,6 +79,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void DataTableReaderTest()
     {
+      executeSQL("DROP TABLE IF EXISTS parent");
+      executeSQL("DROP TABLE IF EXISTS child");
       CreateTables();
 
       MySqlDataAdapter childDa = new MySqlDataAdapter("SELECT * FROM child", Connection);
@@ -103,6 +106,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void DataViewSettingsTest()
     {
+      executeSQL("DROP TABLE IF EXISTS parent");
+      executeSQL("DROP TABLE IF EXISTS child");
       CreateTables();
 
       DataSet ds = new DataSet();
@@ -137,6 +142,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void SchemaColumnTest()
     {
+      executeSQL("DROP TABLE IF EXISTS parent");
+      executeSQL("DROP TABLE IF EXISTS child");
       CreateTables();
 
       MySqlDataAdapter parentDa = new MySqlDataAdapter("SELECT * FROM parent", Connection);
