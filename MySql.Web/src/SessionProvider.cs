@@ -1,4 +1,4 @@
-// Copyright © 2004, 2014, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -69,7 +69,7 @@ namespace MySql.Web.SessionState
 
 
     /// <summary>
-    /// Indicates whether if expire callback is on or off
+    /// Indicates whether if expire callback is on or off.
     /// </summary>
     public bool EnableExpireCallback
     {
@@ -78,7 +78,7 @@ namespace MySql.Web.SessionState
     }
 
     /// <summary>
-    /// Indicates whether to write exceptions to event log
+    /// Indicates whether to write exceptions to event log.
     /// </summary>
     public bool WriteExceptionsToEventLog
     {
@@ -86,6 +86,9 @@ namespace MySql.Web.SessionState
       set { writeExceptionsToEventLog = value; }
     }
 
+    /// <summary>
+    /// The name of the ASP .NET application.
+    /// </summary>
     public string ApplicationName
     {
       get { return app.Name; }
@@ -99,13 +102,13 @@ namespace MySql.Web.SessionState
 
 
     /// <summary>
-    /// Handles MySql exception.
-    /// If WriteExceptionsToEventLog is set, will write exception info
-    /// to event log. 
-    /// It throws provider exception (original exception is stored as inner exception)
+    /// Handles a MySql type exception.
     /// </summary>
     /// <param name="e">exception</param>
     /// <param name="action"> name of the function that throwed the exception</param>
+    /// <remarks>If <see cref="WriteExceptionsToEventLog"/> is set it will write exception info to event log.
+    /// </remarks>
+    /// <exception cref="ProviderException"><see cref="WriteExceptionsToEventLog"/> is <c>false</c>.</exception>
     private void HandleMySqlException(MySqlException e, string action)
     {
       if (WriteExceptionsToEventLog)
@@ -127,7 +130,7 @@ namespace MySql.Web.SessionState
 
 
     /// <summary>
-    /// Initializes the provider with the property values specified in the ASP.NET application configuration file
+    /// Initializes the provider with the property values specified in the ASP .NET application configuration file.
     /// </summary>
     /// <param name="name">The name of the provider instance to initialize.</param>
     /// <param name="config">Object that contains the names and values of configuration options for the provider.
@@ -218,7 +221,7 @@ namespace MySql.Web.SessionState
     }
 
     /// <summary>
-    /// This method creates a new SessionStateStoreData object for the current request.
+    /// Creates a new <see cref="SessionStateStoreData"/> object for the current request.
     /// </summary>
     /// <param name="context">
     /// The HttpContext object for the current request.
@@ -234,7 +237,7 @@ namespace MySql.Web.SessionState
     }
 
     /// <summary>
-    /// This method adds a new session state item to the database.
+    /// Adds a new session state item to the database.
     /// </summary>
     /// <param name="context">
     /// The HttpContext object for the current request.
@@ -281,7 +284,7 @@ namespace MySql.Web.SessionState
 
 
     /// <summary>
-    /// This method releases all the resources for this instance.
+    /// Releases all the resources for this instance.
     /// </summary>
     public override void Dispose()
     {
@@ -290,16 +293,16 @@ namespace MySql.Web.SessionState
     }
 
     /// <summary>
-    /// This method allows the MySqlSessionStateStore object to perform any cleanup that may be 
+    /// Allows the <see cref="MySqlSessionStateStore"/> object to perform any cleanup that may be
     /// required for the current request.
     /// </summary>
-    /// <param name="context">The HttpContext object for the current request</param>
+    /// <param name="context">The HttpContext object for the current request.</param>
     public override void EndRequest(System.Web.HttpContext context)
     {
     }
 
     /// <summary>
-    /// This method returns a read-only session item from the database.
+    /// Returns a read-only session item from the database.
     /// </summary>
     public override SessionStateStoreData GetItem(System.Web.HttpContext context, string id, out bool locked, out TimeSpan lockAge, out object lockId, out SessionStateActions actions)
     {
@@ -307,12 +310,12 @@ namespace MySql.Web.SessionState
     }
 
     /// <summary>
-    /// This method locks a session item and returns it from the database
+    /// Locks a session item and returns it from the database.
     /// </summary>
-    /// <param name="context">The HttpContext object for the current request</param>
-    /// <param name="id">The session ID for the current request</param>
+    /// <param name="context">The HttpContext object for the current request.</param>
+    /// <param name="id">The session ID for the current request.</param>
     /// <param name="locked">
-    /// true if the session item is locked in the database; otherwise, it is false.
+    /// <c>true</c> if the session item is locked in the database; otherwise, <c>false</c>.
     /// </param>
     /// <param name="lockAge">
     /// TimeSpan object that indicates the amount of time the session item has been locked in the database.
@@ -321,7 +324,7 @@ namespace MySql.Web.SessionState
     /// A lock identifier object.
     /// </param>
     /// <param name="actions">
-    /// A SessionStateActions enumeration value that indicates whether or
+    /// A <see cref="SessionStateActions"/> enumeration value that indicates whether or
     /// not the session is uninitialized and cookieless.
     /// </param>
     /// <returns></returns>
@@ -332,14 +335,14 @@ namespace MySql.Web.SessionState
     }
 
     /// <summary>
-    ///  This method performs any per-request initializations that the MySqlSessionStateStore provider requires.
+    /// Performs any per-request initializations that the MySqlSessionStateStore provider requires.
     /// </summary>
     public override void InitializeRequest(System.Web.HttpContext context)
     {
     }
 
     /// <summary>
-    /// This method forcibly releases the lock on a session item in the database, if multiple attempts to 
+    /// Forcibly releases the lock on a session item in the database if multiple attempts to
     /// retrieve the session item fail.
     /// </summary>
     /// <param name="context">The HttpContext object for the current request.</param>
@@ -371,10 +374,10 @@ namespace MySql.Web.SessionState
     }
 
     /// <summary>
-    /// This method removes the specified session item from the database
+    /// Removes the specified session item from the database
     /// </summary>
-    /// <param name="context">The HttpContext object for the current request</param>
-    /// <param name="id">The session ID for the current request</param>
+    /// <param name="context">The HttpContext object for the current request.</param>
+    /// <param name="id">The session ID for the current request.</param>
     /// <param name="lockId">The lock identifier for the current request.</param>
     /// <param name="item">The session item to remove from the database.</param>
     public override void RemoveItem(System.Web.HttpContext context, string id, object lockId, SessionStateStoreData item)
@@ -408,10 +411,10 @@ namespace MySql.Web.SessionState
 
 
     /// <summary>
-    /// This method resets the expiration date and timeout for a session item in the database.
+    /// Resets the expiration date and timeout for a session item in the database.
     /// </summary>
-    /// <param name="context">The HttpContext object for the current request</param>
-    /// <param name="id">The session ID for the current request</param>
+    /// <param name="context">The HttpContext object for the current request.</param>
+    /// <param name="id">The session ID for the current request.</param>
     public override void ResetItemTimeout(System.Web.HttpContext context, string id)
     {     
       try
@@ -436,11 +439,11 @@ namespace MySql.Web.SessionState
     }
 
     /// <summary>
-    /// This method updates the session time information in the database with the specified session item,
+    /// Updates the session time information in the database with the specified session item,
     /// and releases the lock.
     /// </summary>
-    /// <param name="context">The HttpContext object for the current request</param>
-    /// <param name="id">The session ID for the current request</param>
+    /// <param name="context">The HttpContext object for the current request.</param>
+    /// <param name="id">The session ID for the current request.</param>
     /// <param name="item">The session item containing new values to update the session item in the database with.
     /// </param>
     /// <param name="lockId">The lock identifier for the current request.</param>
@@ -506,9 +509,9 @@ namespace MySql.Web.SessionState
 
 
     /// <summary>
-    ///  GetSessionStoreItem is called by both the GetItem and  GetItemExclusive methods. GetSessionStoreItem 
+    ///  GetSessionStoreItem is called by both the GetItem and GetItemExclusive methods. GetSessionStoreItem 
     ///  retrieves the session data from the data source. If the lockRecord parameter is true (in the case of 
-    ///  GetItemExclusive), then GetSessionStoreItem  locks the record and sets a New LockId and LockDate.
+    ///  GetItemExclusive), then GetSessionStoreItem locks the record and sets a New LockId and LockDate.
     /// </summary>
     private SessionStateStoreData GetSessionStoreItem(bool lockRecord,
            HttpContext context,
@@ -656,10 +659,10 @@ namespace MySql.Web.SessionState
     }
 
     /// <summary>
-    /// This method sets the reference for the ExpireCallback delegate if setting is enabled.
+    /// Sets the reference for the ExpireCallback delegate if setting is enabled.
     /// </summary>
     /// <param name="expireCallback"></param>
-    /// <returns>false </returns>
+    /// <returns><c>true</c> if <see cref="enableExpireCallback"/> is <c>true</c>; otherwise, <c>false</c>.</returns>
     public override bool SetItemExpireCallback(SessionStateItemExpireCallback expireCallback)
     {
       if (this.enableExpireCallback)
@@ -774,12 +777,12 @@ namespace MySql.Web.SessionState
     }
 
     /// <summary>
-    /// Check storage engine used by my_aspnet_sessions.
-    /// Warn if MyISAM is used - it does not handle concurrent updates well
-    /// which is important for session provider, as each access to session 
-    /// does an update to "expires" field.
+    /// Checks storage engine used by my_aspnet_sessions.
     /// </summary>
-    /// <param name="con"></param>
+    /// <param name="con">The connection object used to check the storage engine.</param>
+    /// <remarks>Warn if MyISAM is used - it does not handle concurrent updates well
+    /// which is important for session provider, as each access to session
+    /// does an update to "expires" field.</remarks>
     private void CheckStorageEngine(MySqlConnection con)
     {
 

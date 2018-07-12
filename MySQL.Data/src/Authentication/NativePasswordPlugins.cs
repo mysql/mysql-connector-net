@@ -1,4 +1,4 @@
-﻿// Copyright © 2012, 2017 Oracle and/or its affiliates. All rights reserved.
+// Copyright � 2012, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -25,6 +25,9 @@ using System.Security.Cryptography;
 
 namespace MySql.Data.MySqlClient.Authentication
 {
+  /// <summary>
+  /// Allows connections to a user account set with the mysql_native_password authentication plugin.
+  /// </summary>
   public class MySqlNativePasswordPlugin : MySqlAuthenticationPlugin
   {
     public override string PluginName => "mysql_native_password";

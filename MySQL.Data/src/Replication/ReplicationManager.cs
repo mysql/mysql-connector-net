@@ -1,4 +1,4 @@
-﻿// Copyright © 2014, 2016 Oracle and/or its affiliates. All rights reserved.
+// Copyright � 2014, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -124,7 +124,7 @@ namespace MySql.Data.MySqlClient.Replication
     /// Validates if the replication group name exists
     /// </summary>
     /// <param name="groupName">Group name to validate</param>
-    /// <returns>True if replication group name is found, otherwise false</returns>
+    /// <returns><c>true</c> if the replication group name is found; otherwise, <c>false</c></returns>
     internal static bool IsReplicationGroup(string groupName)
     {
       foreach (ReplicationServerGroup g in groups)

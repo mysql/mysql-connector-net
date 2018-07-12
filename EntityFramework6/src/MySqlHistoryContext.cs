@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -25,6 +25,9 @@ using System.Data.Entity.Migrations.History;
 
 namespace MySql.Data.Entity
 {
+  /// <summary>
+  /// Reads and writes migration history from the database during code first migrations.
+  /// </summary>
   public class MySqlHistoryContext : HistoryContext
   {
     public MySqlHistoryContext(DbConnection existingConnection, string defaultSchema)

@@ -369,7 +369,7 @@ namespace MySql.Web.Security
     /// <param name="username">The username.</param>
     /// <param name="oldPassword">The old password.</param>
     /// <param name="newPassword">The new password.</param>
-    /// <returns>true if the password was updated successfully, false if the supplied old password
+    /// <returns><c>true</c> if the password was updated successfully; <c>false</c> if the supplied old password
     /// is invalid, the user is locked out, or the user does not exist in the database.</returns>
     public override bool ChangePassword(string username, string oldPassword, string newPassword)
     {
@@ -426,12 +426,12 @@ namespace MySql.Web.Security
     /// <summary>
     /// Changes the password question and answer.
     /// </summary>
-    /// <param name="username">The username.</param>
+    /// <param name="username">The user name.</param>
     /// <param name="password">The password.</param>
     /// <param name="newPwdQuestion">The new password question.</param>
     /// <param name="newPwdAnswer">The new password answer.</param>
-    /// <returns>true if the update was successful; otherwise, false. A value of false is 
-    /// also returned if the password is incorrect, the user is locked out, or the user 
+    /// <returns><c>true</c> if the update was successful; otherwise, <c>false</c>. A value of <c>false</c> is
+    /// also returned if the password is incorrect, the user is locked out, or the user
     /// does not exist in the database.</returns>
     public override bool ChangePasswordQuestionAndAnswer(string username,
         string password, string newPwdQuestion, string newPwdAnswer)
@@ -595,9 +595,9 @@ namespace MySql.Web.Security
     /// Removes a user from the membership data source.
     /// </summary>
     /// <param name="username">The name of the user to delete.</param>
-    /// <param name="deleteAllRelatedData">true to delete data related to the user from the database; false to leave data related to the user in the database.</param>
+    /// <param name="deleteAllRelatedData"><c>true</c> to delete data related to the user from the database; <c>false</c> to leave data related to the user in the database.</param>
     /// <returns>
-    /// true if the user was successfully deleted; otherwise, false.
+    /// <c>true</c> if the user was successfully deleted; otherwise, <c>false</c>.
     /// </returns>
     public override bool DeleteUser(string username, bool deleteAllRelatedData)
     {
@@ -643,7 +643,7 @@ namespace MySql.Web.Security
     /// <param name="pageSize">The size of the page of results to return.</param>
     /// <param name="totalRecords">The total number of matched users.</param>
     /// <returns>
-    /// A <see cref="T:System.Web.Security.MembershipUserCollection"/> collection that contains a page of <paramref name="pageSize"/><see cref="T:System.Web.Security.MembershipUser"/> objects beginning at the page specified by <paramref name="pageIndex"/>.
+    /// A <see cref="T:System.Web.Security.MembershipUserCollection"/> collection that contains a page of <see cref="T:System.Web.Security.MembershipUser"/> objects beginning at the page specified by <paramref name="pageIndex"/>.
     /// </returns>
     public override MembershipUserCollection GetAllUsers(int pageIndex,
         int pageSize, out int totalRecords)
@@ -750,7 +750,7 @@ namespace MySql.Web.Security
     /// Gets information from the data source for a user. Provides an option to update the last-activity date/time stamp for the user.
     /// </summary>
     /// <param name="username">The name of the user to get information for.</param>
-    /// <param name="userIsOnline">true to update the last-activity date/time stamp for the user; false to return user information without updating the last-activity date/time stamp for the user.</param>
+    /// <param name="userIsOnline"><c>true</c> to update the last-activity date/time stamp for the user; <c>false</c> to return user information without updating the last-activity date/time stamp for the user.</param>
     /// <returns>
     /// A <see cref="T:System.Web.Security.MembershipUser"/> object populated with the specified user's information from the data source.
     /// </returns>
@@ -781,7 +781,7 @@ namespace MySql.Web.Security
     /// Gets user information from the data source based on the unique identifier for the membership user. Provides an option to update the last-activity date/time stamp for the user.
     /// </summary>
     /// <param name="providerUserKey">The unique identifier for the membership user to get information for.</param>
-    /// <param name="userIsOnline">true to update the last-activity date/time stamp for the user; false to return user information without updating the last-activity date/time stamp for the user.</param>
+    /// <param name="userIsOnline"><c>true</c> to update the last-activity date/time stamp for the user; <c>false</c> to return user information without updating the last-activity date/time stamp for the user.</param>
     /// <returns>
     /// A <see cref="T:System.Web.Security.MembershipUser"/> object populated with the specified user's information from the data source.
     /// </returns>
@@ -838,8 +838,8 @@ namespace MySql.Web.Security
     /// Unlocks the user.
     /// </summary>
     /// <param name="username">The username.</param>
-    /// <returns>true if the membership user was successfully unlocked; 
-    /// otherwise, false. A value of false is also returned if the user 
+    /// <returns><c>true</c> if the membership user was successfully unlocked;
+    /// otherwise, <c>false</c>. A value of <c>false</c> is also returned if the user
     /// does not exist in the database. </returns>
     public override bool UnlockUser(string username)
     {
@@ -1037,7 +1037,7 @@ namespace MySql.Web.Security
     /// <param name="username">The name of the user to validate.</param>
     /// <param name="password">The password for the specified user.</param>
     /// <returns>
-    /// true if the specified username and password are valid; otherwise, false.
+    /// <c>true</c> if the specified username and password are valid; otherwise, <c>false</c>.
     /// </returns>
     public override bool ValidateUser(string username, string password)
     {

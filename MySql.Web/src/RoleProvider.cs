@@ -1,4 +1,4 @@
-// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc. 2014, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -111,10 +111,10 @@ namespace MySql.Web.Security
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether [write exceptions to event log].
+    /// Gets or sets a value indicating whether exceptions should be written to the event log.
     /// </summary>
     /// <value>
-    /// 	<c>true</c> if exceptions should be written to the event log; otherwise, <c>false</c>.
+    /// <c>true</c> if exceptions should be written to the event log; otherwise, <c>false</c>.
     /// </value>
     /// <example>
     /// <code source="CodeExamples\RoleCodeExample1.xml"/>
@@ -130,10 +130,10 @@ namespace MySql.Web.Security
     #region Public Methods
 
     /// <summary>
-    /// Adds the users to roles.
+    /// Adds the users to the specified roles.
     /// </summary>
-    /// <param name="usernames">The usernames.</param>
-    /// <param name="rolenames">The rolenames.</param>
+    /// <param name="usernames">The user names.</param>
+    /// <param name="rolenames">The role names.</param>
     public override void AddUsersToRoles(string[] usernames, string[] rolenames)
     {
       if (rolenames == null || rolenames.Length == 0) return;
@@ -199,9 +199,9 @@ namespace MySql.Web.Security
     }
 
     /// <summary>
-    /// Creates the role.
+    /// Creates the specified role.
     /// </summary>
-    /// <param name="rolename">The rolename.</param>
+    /// <param name="rolename">The role name.</param>
     public override void CreateRole(string rolename)
     {
       if (rolename.IndexOf(',') != -1)
@@ -231,11 +231,14 @@ namespace MySql.Web.Security
     }
 
     /// <summary>
-    /// Deletes the role.
+    /// Deletes the specified role.
     /// </summary>
-    /// <param name="rolename">The rolename.</param>
-    /// <param name="throwOnPopulatedRole">if set to <c>true</c> [throw on populated role].</param>
-    /// <returns>true if the role was successfully deleted; otherwise, false. </returns>
+    /// <param name="rolename">The role name.</param>
+    /// <param name="throwOnPopulatedRole">If set to <c>true</c> a <see cref="ProviderException"/> will be raised if
+    /// there are users with the specified role.</param>
+    /// <returns><c>true</c> if the role was successfully deleted; otherwise, <c>false</c>. </returns>
+    /// <exception cref="ProviderException">The specified role doesn't exist or <paramref name="throwOnPopulatedRole"/>
+    /// is set to <c>true</c> and there are users with the specified role.</exception>
     public override bool DeleteRole(string rolename, bool throwOnPopulatedRole)
     {
       using (MySqlConnection connection = new MySqlConnection(connectionString))
@@ -310,10 +313,10 @@ namespace MySql.Web.Security
     }
 
     /// <summary>
-    /// Gets the users in role.
+    /// Gets the users with the specified role.
     /// </summary>
-    /// <param name="rolename">The rolename.</param>
-    /// <returns>A string array containing the names of all the users 
+    /// <param name="rolename">The role name.</param>
+    /// <returns>A string array containing the names of all the users
     /// who are members of the specified role. </returns>
     public override string[] GetUsersInRole(string rolename)
     {
@@ -389,10 +392,10 @@ namespace MySql.Web.Security
     }
 
     /// <summary>
-    /// Removes the users from roles.
+    /// Removes the users from the specified roles.
     /// </summary>
-    /// <param name="usernames">The usernames.</param>
-    /// <param name="rolenames">The rolenames.</param>
+    /// <param name="usernames">The user names.</param>
+    /// <param name="rolenames">The role names.</param>
     public override void RemoveUsersFromRoles(string[] usernames, string[] rolenames)
     {
       if (rolenames == null || rolenames.Length == 0) return;
@@ -455,7 +458,7 @@ namespace MySql.Web.Security
     }
 
     /// <summary>
-    /// Roles the exists.
+    /// Determines whether the role exists.
     /// </summary>
     /// <param name="rolename">The rolename.</param>
     /// <returns>true if the role name already exists in the database; otherwise, false. </returns>
@@ -484,11 +487,11 @@ namespace MySql.Web.Security
     }
 
     /// <summary>
-    /// Finds the users in role.
+    /// Finds the users with the specified role.
     /// </summary>
-    /// <param name="rolename">The rolename.</param>
-    /// <param name="usernameToMatch">The username to match.</param>
-    /// <returns>A string array containing the names of all the users where the 
+    /// <param name="rolename">The role name.</param>
+    /// <param name="usernameToMatch">The user name to match.</param>
+    /// <returns>A string array containing the names of all the users where the
     /// user name matches usernameToMatch and the user is a member of the specified role. </returns>
     public override string[] FindUsersInRole(string rolename, string usernameToMatch)
     {

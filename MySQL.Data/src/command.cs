@@ -1,4 +1,4 @@
-// Copyright � 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -89,7 +89,9 @@ namespace MySql.Data.MySqlClient
 
 #region Properties
 
-
+        /// <summary>
+        /// Gets the last inserted id.
+        /// </summary>
         /// <include file='docs/mysqlcommand.xml' path='docs/LastInseredId/*'/>
         [Browsable(false)]
         public Int64 LastInsertedId { get; internal set; }
@@ -149,6 +151,9 @@ namespace MySql.Data.MySqlClient
         [Category("Data")]
         public override CommandType CommandType { get; set; }
 
+        /// <summary>
+        /// Gets a boolean value that indicates whether the Prepared method has been called.
+        /// </summary>
         /// <include file='docs/mysqlcommand.xml' path='docs/IsPrepared/*'/>
         [Browsable(false)]
         public bool IsPrepared => statement != null && statement.IsPrepared;
@@ -197,8 +202,14 @@ namespace MySql.Data.MySqlClient
         [Browsable(false)]
         public new MySqlTransaction Transaction { get; set; }
 
+        /// <summary>
+        /// Gets or sets a boolean value that indicates whether caching is enabled.
+        /// </summary>
         public bool EnableCaching { get; set; }
 
+        /// <summary>
+        /// Gets or sets the seconds for how long a TableDirect result should be cached.
+        /// </summary>
         public int CacheAge { get; set; }
 
         internal List<MySqlCommand> Batch { get; private set; }

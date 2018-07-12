@@ -1,4 +1,4 @@
-﻿// Copyright © 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright � 2011, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -30,12 +30,20 @@ using System.Net;
 
 namespace MySql.Data.MySqlClient
 {
+  /// <summary>
+  /// Defines security permissions assigned to a MySQL object.
+  /// </summary>
   public sealed class MySqlSecurityPermission : MarshalByRefObject
   {
     private MySqlSecurityPermission()
     {
     }
 
+    /// <summary>
+    /// Creates a set of permissions.
+    /// </summary>
+    /// <param name="includeReflectionPermission">A flag indicating if the reflection permission should be included.</param>
+    /// <returns>A <see cref="PermissionSet"/> object representing a collection of permissions.</returns>
     public static PermissionSet CreatePermissionSet(bool includeReflectionPermission)
     {
       PermissionSet permissionsSet = new PermissionSet(null);

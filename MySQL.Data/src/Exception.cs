@@ -1,4 +1,4 @@
-// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -94,8 +94,14 @@ namespace MySql.Data.MySqlClient
     internal bool IsQueryAborted => (Number == (int)MySqlErrorCode.QueryInterrupted ||
                                      Number == (int)MySqlErrorCode.FileSortAborted);
 
+    /// <summary>
+    /// Gets the SQL state.
+    /// </summary>
     public string SqlState { get; private set; }
 
+    /// <summary>
+    /// Gets an integer that representes the MySQL error code.
+    /// </summary>
     public UInt32 Code { get; private set; }
   }
 }
