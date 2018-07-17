@@ -35,8 +35,8 @@ namespace MySql.Data.MySqlClient.Tests
   {
     public DataTypeTests(TestFixture fixture) : base(fixture)
     {
-    }    
-  
+    }
+
     [Fact]
     public void BytesAndBooleans()
     {
@@ -628,7 +628,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL(@"CREATE TABLE Test (ID int(11) NOT NULL, ogc_geom geometry NOT NULL,
         PRIMARY KEY  (`ID`))");
 
-      if (Connection.driver.Version.isAtLeast(8,0,1))
+      if (Connection.driver.Version.isAtLeast(8, 0, 1))
         executeSQL(@"INSERT INTO Test VALUES (1,
           ST_GeomFromText('GeometryCollection(Point(1 1), LineString(2 2, 3 3))'))");
       else
@@ -675,7 +675,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE Test (v Geometry NOT NULL)");
 
       MySqlCommand cmd = new MySqlCommand(Connection.driver.Version.isAtLeast(8, 0, 1) ?
-        "INSERT INTO Test VALUES (ST_GeomFromText(?v))":
+        "INSERT INTO Test VALUES (ST_GeomFromText(?v))" :
         "INSERT INTO Test VALUES (GeomFromText(?v))"
       , Connection);
       cmd.Parameters.Add("?v", MySqlDbType.String);
@@ -683,7 +683,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.ExecuteNonQuery();
 
       cmd.CommandText = Connection.driver.Version.isAtLeast(8, 0, 1) ?
-        "SELECT ST_AsText(v) FROM Test":
+        "SELECT ST_AsText(v) FROM Test" :
         "SELECT AsText(v) FROM Test";
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
@@ -708,7 +708,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.ExecuteNonQuery();
 
       cmd.CommandText = Connection.driver.Version.isAtLeast(8, 0, 1) ?
-        "SELECT ST_AsBinary(v) FROM Test":
+        "SELECT ST_AsBinary(v) FROM Test" :
         "SELECT AsBinary(v) FROM Test";
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
@@ -735,7 +735,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.ExecuteNonQuery();
 
       cmd.CommandText = Connection.driver.Version.isAtLeast(8, 0, 1) ?
-        "SELECT ST_SRID(v) FROM Test":
+        "SELECT ST_SRID(v) FROM Test" :
         "SELECT SRID(v) FROM Test";
 
       using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -762,7 +762,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.ExecuteNonQuery();
 
       cmd.CommandText = Connection.driver.Version.isAtLeast(8, 0, 1) ?
-        "SELECT ST_AsText(v) FROM Test":
+        "SELECT ST_AsText(v) FROM Test" :
         "SELECT AsText(v) FROM Test";
 
       using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -789,7 +789,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       // reading as binary
       cmd.CommandText = Connection.driver.Version.isAtLeast(8, 0, 1) ?
-        "SELECT ST_AsBinary(v) as v FROM Test":
+        "SELECT ST_AsBinary(v) as v FROM Test" :
         "SELECT AsBinary(v) as v FROM Test";
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
@@ -818,6 +818,54 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlGeometry v = new MySqlGeometry(47.37, -122.21);
       var valToString = v.ToString();
       Assert.Equal("POINT(47.37 -122.21)", valToString);
+    }
+
+    /// <summary>
+    /// Bug #86974 Cannot create instance of MySqlGeometry for empty geometry collection 
+    /// </summary>
+    [Fact]
+    public void CanCreateMySqlGeometryFromEmptyGeometryCollection()
+    {
+      var bytes = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x01, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+      MySqlGeometry v = new MySqlGeometry(MySqlDbType.Geometry, bytes);
+      Assert.Equal("POINT(3.45845952088873E-323 0)", v.ToString());
+    }
+
+    /// <summary>
+    /// Bug #86974 Cannot create instance of MySqlGeometry for empty geometry collection 
+    /// </summary>
+    [Fact]
+    public void CanGetMySqlGeometryFromEmptyGeometryCollection()
+    {
+      if (Fixture.Version.Major < 5) return;
+
+      executeSQL("DROP TABLE IF EXISTS Test");
+      executeSQL("CREATE TABLE Test (v Geometry NOT NULL)");
+
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (ST_GeometryCollectionFromText(\"GEOMETRYCOLLECTION()\"))", Connection);
+      cmd.ExecuteNonQuery();
+
+      // reading as binary
+      cmd.CommandText = "SELECT ST_AsBinary(v) as v FROM Test";
+      using (MySqlDataReader reader = cmd.ExecuteReader())
+      {
+        reader.Read();
+        var val = reader.GetMySqlGeometry(0);
+        var valWithName = reader.GetMySqlGeometry("v");
+        Assert.Equal("POINT(0 0)", val.ToString());
+        Assert.Equal("POINT(0 0)", valWithName.ToString());
+      }
+
+      // reading as geometry
+      cmd.CommandText = "SELECT v as v FROM Test";
+      using (MySqlDataReader reader = cmd.ExecuteReader())
+      {
+        reader.Read();
+        var val = reader.GetMySqlGeometry(0);
+        var valWithName = reader.GetMySqlGeometry("v");
+        Assert.Equal("POINT(3.45845952088873E-323 0)", val.ToString());
+        Assert.Equal("POINT(3.45845952088873E-323 0)", valWithName.ToString());
+      }
     }
 
     #endregion
@@ -1113,7 +1161,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       executeSQL("DROP TABLE IF EXISTS test");
       executeSQL("CREATE TABLE test(Id int NOT NULL PRIMARY KEY, jsoncolumn JSON)");
-    
+
       MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES (@id, '[1]')", Connection);
       cmd.Parameters.AddWithValue("@id", 1);
       cmd.ExecuteNonQuery();
@@ -1129,7 +1177,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         Assert.True(reader.Read());
         Assert.Equal("[\"a\", {\"b\": [true, false]}, [10, 20]]", reader.GetString(0));
-      }    
+      }
     }
 
     [Fact]
@@ -1145,7 +1193,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.ExecuteNonQuery();
 
       string command = @"UPDATE test set jsoncolumn = '[""a"", {""b"": [true, false]}, [10, 20]]' where id = 1";
-      cmd = new MySqlCommand(command, Connection);      
+      cmd = new MySqlCommand(command, Connection);
       cmd.ExecuteNonQuery();
 
       cmd = new MySqlCommand("SELECT jsoncolumn from test where id = 1 ", Connection);
@@ -1193,7 +1241,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         Assert.True(reader.Read());
         Assert.True(reader.GetString(0).Equals("Berlin", StringComparison.CurrentCulture));
-      }    
+      }
     }
   }
 }

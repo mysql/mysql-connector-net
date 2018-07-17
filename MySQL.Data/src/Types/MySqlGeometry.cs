@@ -141,8 +141,8 @@ namespace MySql.Data.Types
       var yIndex = val.Length == GEOMETRY_LENGTH ? 17 : 13;
 
       Value = buffValue;
-      _xValue = BitConverter.ToDouble(val, xIndex);
-      _yValue = BitConverter.ToDouble(val, yIndex);
+      _xValue = val.Length >= xIndex + 8 ? BitConverter.ToDouble(val, xIndex) : 0;
+      _yValue = val.Length >= yIndex + 8 ? BitConverter.ToDouble(val, yIndex) : 0;
       this._srid = val.Length == GEOMETRY_LENGTH ? BitConverter.ToInt32(val, 0) : 0;
       this.IsNull = false;
       this._type = type;
