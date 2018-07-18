@@ -837,7 +837,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void CanGetMySqlGeometryFromEmptyGeometryCollection()
     {
-      if (Fixture.Version.Major < 5) return;
+      if (Fixture.Version.CompareTo(new Version(5,7)) == -1) return;
 
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test (v Geometry NOT NULL)");
