@@ -9,6 +9,7 @@
 - Fix to correct exception, "Incorrect usage of spatial/fulltext/hash index and explicit index order", when using the Entity Framework code-first approach with MySQL 8.0 servers (Oracle Bug #27715069).
 - Fixed in EF Core that when an entity property is numeric and not a key, to avoid adding the autoincrement annotation (MySQL Bug #91551, Oracle Bug #28293927).
 - Contribution added: Fix to correct ArgumentOutOfRangeException raised when trying to create an instance of MySqlGeometry for an empty geometry collection (MySQL Bug #86974, Oracle Bug #26421346). Thanks to Peet Whittaker for the contribution.
+- Fixed EF Core 2.0 not supported in .NET framework projects (MySQL Bug #90306, Oracle Bug #27815706).
 
 
 6.10.7
