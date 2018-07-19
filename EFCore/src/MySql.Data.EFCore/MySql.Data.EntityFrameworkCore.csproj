@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Description>MySql.Data.EntityFrameworkCore for Entity Framework.</Description>
@@ -6,7 +6,7 @@
     <NeutralLanguage>en-US</NeutralLanguage>
     <Version>8.0.12</Version>
     <Authors>Oracle</Authors>
-    <TargetFrameworks>netstandard2.0;net452;netstandard1.6;</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net452;netstandard1.3;net461;</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <DelaySign>true</DelaySign>
     <AssemblyName>MySql.Data.EntityFrameworkCore</AssemblyName>
@@ -46,12 +46,12 @@
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net452' or '$(TargetFramework)' == 'netstandard1.6' ">
     <Compile Remove="Frameworks/efcore20/**/*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="1.1.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="1.1.*" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net461' ">
     <Compile Remove="Frameworks/efcore10/**/*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.0.*" />
   </ItemGroup>
 
   <ItemGroup>

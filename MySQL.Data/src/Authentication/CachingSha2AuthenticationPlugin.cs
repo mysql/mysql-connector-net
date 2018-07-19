@@ -82,6 +82,11 @@ namespace MySql.Data.MySqlClient.Authentication
         return GeneratePassword() as byte[];
     }
 
+	/// <summary>
+    /// Generates a byte array set with the password of the user in the expected format based on the
+	/// SSL settings of the current connection.
+    /// </summary>
+	/// <returns>A byte array that contains the password of the user in the expected format.</returns>
     protected byte[] GeneratePassword()
     {
       // If connection is secure perform full authentication.

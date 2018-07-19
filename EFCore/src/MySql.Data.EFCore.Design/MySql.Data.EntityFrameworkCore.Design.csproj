@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Description>Design-time Entity Framework Core Functionality for MySQL Server.</Description>
@@ -35,7 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational.Design" Version="1.1.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="1.1.*" />
   </ItemGroup>
 
   <ItemGroup>

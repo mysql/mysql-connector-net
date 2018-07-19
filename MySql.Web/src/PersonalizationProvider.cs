@@ -1,4 +1,4 @@
-// Copyright Â© 2014, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2014, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -39,9 +39,8 @@ using MySql.Web.General;
 namespace MySql.Web.Personalization
 {
   /// <summary>
-  /// Implementation for Personalization Provider
-  /// to use web parts in ASP.NET websites
-  /// </summary>  
+  /// Implementation for Personalization Provider to use web parts in ASP.NET websites.
+  /// </summary>
   public class MySqlPersonalizationProvider : PersonalizationProvider
   {
 
@@ -54,9 +53,9 @@ namespace MySql.Web.Personalization
     bool writeExceptionsToEventLog = false;
 
     Application app;
-    
+
     /// <summary>
-    /// Set or gets the Application Name 
+    /// Gets or sets the application name.
     /// </summary>
     public override string ApplicationName
     {
@@ -77,10 +76,10 @@ namespace MySql.Web.Personalization
 
 
     /// <summary>
-    /// Initializes settings values for Personalization Provider
+    /// Initializes settings values for Personalization Provider.
     /// </summary>
-    /// <param name="name"></param>
-    /// <param name="config"></param>
+    /// <param name="name">The name of the provider.</param>
+    /// <param name="config">A named value collection representing the configurations for this provider.</param>
     public override void Initialize(string name, System.Collections.Specialized.NameValueCollection config)
     {
       if (config == null)
@@ -131,84 +130,82 @@ namespace MySql.Web.Personalization
       catch (Exception ex)
       {
         if (writeExceptionsToEventLog)
-          WriteToEventLog(ex, "MySQLPersonalizationProvider - Initialize");        
+          WriteToEventLog(ex, "MySQLPersonalizationProvider - Initialize");
         throw;
-      }  
+      }
     }
 
-   /// <summary>
-   /// Returns a collection of PersonalizationStateInfo objects containing administrative information regarding records in the database that match the specified criteria
-   /// -for example, records corresponding to users named Jeff* that have been modified since January 1, 2005. Wildcard support is provider-dependent.
-   /// </summary>
-   /// <param name="scope"></param>
-   /// <param name="query"></param>
-   /// <param name="pageIndex"></param>
-   /// <param name="pageSize"></param>
-   /// <param name="totalRecords"></param>
-   /// <returns></returns>
-   public override PersonalizationStateInfoCollection FindState(PersonalizationScope scope, PersonalizationStateQuery query, int pageIndex, int pageSize, out int totalRecords)
-   {
+    /// <summary>
+    /// Returns a collection of PersonalizationStateInfo objects containing administrative information regarding records in the database that match the specified criteria.
+    /// </summary>
+    /// <param name="scope">The personalization scope.</param>
+    /// <param name="query">The set of query parameters.</param>
+    /// <param name="pageIndex">The index of the page.</param>
+    /// <param name="pageSize">The size of the page.</param>
+    /// <param name="totalRecords">The total number of records to return.</param>
+    /// <remarks>For example, records corresponding to users named Jeff* that have been modified since January 1, 2005. Wildcard support is provider-dependent.</remarks>
+    public override PersonalizationStateInfoCollection FindState(PersonalizationScope scope, PersonalizationStateQuery query, int pageIndex, int pageSize, out int totalRecords)
+    {
 
-     if (query == null)
-       throw new ArgumentNullException("query");
+      if (query == null)
+        throw new ArgumentNullException("query");
 
-     if (pageIndex < 0)
-       throw new ArgumentOutOfRangeException("pageIndex");
+      if (pageIndex < 0)
+        throw new ArgumentOutOfRangeException("pageIndex");
 
-     if (pageSize < 1)
-       throw new ArgumentOutOfRangeException("pageSize");
+      if (pageSize < 1)
+        throw new ArgumentOutOfRangeException("pageSize");
 
-     if (query.PathToMatch == null)
-       throw new ArgumentNullException("query.PathToMatch");
+      if (query.PathToMatch == null)
+        throw new ArgumentNullException("query.PathToMatch");
 
-     if (query.UsernameToMatch == null)
-       throw new ArgumentNullException("query.UserToMatch");
+      if (query.UsernameToMatch == null)
+        throw new ArgumentNullException("query.UserToMatch");
 
-     DateTime inactiveSinceDate = query.UserInactiveSinceDate;     
+      DateTime inactiveSinceDate = query.UserInactiveSinceDate;     
 
-     if (scope == PersonalizationScope.User)
-     {      
-       return FindUserState(query.PathToMatch.Trim(), inactiveSinceDate, query.UsernameToMatch.Trim(), pageIndex, pageSize, out totalRecords);          
-     }
-     else 
-     {
-       return FindSharedState(query.PathToMatch.Trim(), pageIndex, pageSize, out totalRecords);
-     }
-     
-   }
-
-
-  /// <summary>
-  /// Returns the number of records in the database that match the specified criteria-
-  /// for example, records corresponding to users named Jeff* that haven't been modified since January 1, 2005. Wildcard support is provider-dependent.
-  /// </summary>
-  /// <param name="scope"></param>
-  /// <param name="query"></param>
-  /// <returns></returns>
-   public override int GetCountOfState(PersonalizationScope scope, PersonalizationStateQuery query)
-   {
-     if (query == null)
-       throw new ArgumentNullException("query");
-
-     if (scope == PersonalizationScope.User)
-     {
-       return GetCountUserState(query.PathToMatch.Trim(), query.UserInactiveSinceDate, query.UsernameToMatch);
-     }
-     else
-     {
-       return GetCountOfSharedState(query.PathToMatch.Trim());
-     }
-   }
+      if (scope == PersonalizationScope.User)
+      {      
+        return FindUserState(query.PathToMatch.Trim(), inactiveSinceDate, query.UsernameToMatch.Trim(), pageIndex, pageSize, out totalRecords);          
+      }
+      else 
+      {
+        return FindSharedState(query.PathToMatch.Trim(), pageIndex, pageSize, out totalRecords);
+      }
+    }
 
 
     /// <summary>
-    /// Retrieves personalization state as opaque blobs from the data source. Retrieves both shared and user personalization state corresponding to a specified user and a specified page.
+    /// Returns the number of records in the database that match the specified criteria.
     /// </summary>
-    /// <param name="webPartManager"></param>
-    /// <param name="path"></param>
-    /// <param name="userName"></param>
-    /// <param name="sharedDataBlob"></param>
-    /// <param name="userDataBlob"></param>
+    /// <param name="scope">The personalization scope.</param>
+    /// <param name="query">The set of query parameters.</param>
+    /// <remarks>For example, records corresponding to users named Jeff* that haven't been modified since January 1, 2005. Wildcard support is provider-dependent.</remarks>
+    public override int GetCountOfState(PersonalizationScope scope, PersonalizationStateQuery query)
+    {
+      if (query == null)
+        throw new ArgumentNullException("query");
+
+      if (scope == PersonalizationScope.User)
+      {
+        return GetCountUserState(query.PathToMatch.Trim(), query.UserInactiveSinceDate, query.UsernameToMatch);
+      }
+      else
+      {
+        return GetCountOfSharedState(query.PathToMatch.Trim());
+      }
+    }
+
+
+    /// <summary>
+    /// Retrieves personalization state as opaque blobs from the data source.
+    /// </summary>
+    /// <param name="webPartManager">The web part manager.</param>
+    /// <param name="path">The path indicating where to save the data.</param>
+    /// <param name="userName">The user name.</param>
+    /// <param name="sharedDataBlob">A byte array containing the user shared data to loaded.</param>
+    /// <param name="userDataBlob">A byte array containing the user data to be loaded.</param>
+    /// <remarks>Retrieves both shared and user personalization state corresponding to a specified user and a specified page.</remarks>
     protected override void LoadPersonalizationBlobs(WebPartManager webPartManager, string path, string userName, ref Byte[] sharedDataBlob, ref Byte[] userDataBlob)
     {
        sharedDataBlob = null;
@@ -238,12 +235,13 @@ namespace MySql.Web.Personalization
          connection.CloseConnection();       
        }
     }
+
     /// <summary>
     /// Deletes personalization state corresponding to a specified user and a specified page from the database.
     /// </summary>
-    /// <param name="webPartManager"></param>
-    /// <param name="path"></param>
-    /// <param name="userName"></param>
+    /// <param name="webPartManager">The web part manager.</param>
+    /// <param name="path">The path indicating where to save the data.</param>
+    /// <param name="userName">The user name.</param>
     protected override void ResetPersonalizationBlob(WebPartManager webPartManager, string path,  string userName) 
     {
        MySQLPersonalizationConnectionHelper connection = new MySQLPersonalizationConnectionHelper(connectionString);
@@ -272,11 +270,11 @@ namespace MySql.Web.Personalization
     }
 
     /// <summary>
-    /// Deletes personalization state corresponding to the specified users and specified pages from the database
+    /// Deletes personalization state corresponding to the specified users and specified pages from the database.
     /// </summary>
-    /// <param name="scope"></param>
-    /// <param name="paths"></param>
-    /// <param name="usernames"></param>
+    /// <param name="scope">The personalization scope.</param>
+    /// <param name="paths">The paths indicating where to save the data.</param>
+    /// <param name="usernames">The user names.</param>
     /// <returns></returns>
     public override int ResetState(PersonalizationScope scope, string[] paths, string[] usernames)
     {      
@@ -335,8 +333,8 @@ namespace MySql.Web.Personalization
     /// <summary>
     /// Deletes user personalization state corresponding to the specified pages and that hasn't been updated since a specified date from the database.
     /// </summary>
-    /// <param name="path"></param>
-    /// <param name="userInactiveSinceDate"></param>
+    /// <param name="path">The path indicating where to retrieve the user state from.</param>
+    /// <param name="userInactiveSinceDate">A time and date indicating since when the user has been inactive.</param>
     /// <returns></returns>
     public override int ResetUserState(string path, DateTime userInactiveSinceDate)
     {
@@ -357,13 +355,13 @@ namespace MySql.Web.Personalization
     }
 
     /// <summary>
-    /// Writes personalization state corresponding to a specified user and a specified page as an opaque blob to the database. 
-    /// If userName is null, then the personalization state is shared state and is not keyed by user name.
+    /// Writes personalization state corresponding to a specified user and a specified page as an opaque blob to the database.
     /// </summary>
-    /// <param name="webPartManager"></param>
-    /// <param name="path"></param>
-    /// <param name="userName"></param>
-    /// <param name="dataBlob"></param>
+    /// <param name="webPartManager">The web part manager.</param>
+    /// <param name="path">The path indicating where to save the data.</param>
+    /// <param name="userName">The user name.</param>
+    /// <param name="dataBlob">A byte array containing the data to be saved.</param>
+    /// <remarks>If userName is <c>null</c>, then the personalization state is shared state and is not keyed by user name.</remarks>
     protected override void SavePersonalizationBlob(WebPartManager webPartManager, string path, string userName, Byte[] dataBlob)
     {
 
@@ -433,8 +431,6 @@ namespace MySql.Web.Personalization
       }
     }
 
-
-
     private PersonalizationStateInfoCollection FindUserState(string path, DateTime inactiveSinceDate, string userName, int pageIndex, int pageSize, out int totalRecords)
     {
       MySQLPersonalizationConnectionHelper connection = new MySQLPersonalizationConnectionHelper(connectionString);
@@ -476,7 +472,6 @@ namespace MySql.Web.Personalization
         connection.CloseConnection();
       }
     }  
-
 
     private int GetCountOfSharedState(string path)
     {     

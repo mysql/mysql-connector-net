@@ -43,7 +43,7 @@ using System.Text;
 namespace MySql.Web.Common
 {
   /// <summary>
-  /// 
+  /// Provided methods that allow managing a database.
   /// </summary>
   public static class SchemaManager
   {

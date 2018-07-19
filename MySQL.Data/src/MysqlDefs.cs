@@ -1,4 +1,4 @@
-// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright � 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -301,7 +301,7 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     Text = 752,
     /// <summary>
-    /// A guid column
+    /// A guid column.
     /// </summary>
     Guid = 800
   } ;
@@ -341,25 +341,40 @@ namespace MySql.Data.MySqlClient
   public enum MySqlConnectionProtocol
   {
     /// <summary>
-    /// TCP/IP style connection.  Works everywhere.
+    /// TCP/IP style connection. Works everywhere.
     /// </summary>
     Sockets = 1,
+    /// <summary>
+    /// TCP/IP style connection. Works everywhere.
+    /// </summary>
     Socket = 1,
+    /// <summary>
+    /// TCP/IP style connection. Works everywhere.
+    /// </summary>
     Tcp = 1,
     /// <summary>
-    /// Named pipe connection.  Works only on Windows systems.
+    /// Named pipe connection. Works only on Windows systems.
     /// </summary>
     Pipe = 2,
+    /// <summary>
+    /// Named pipe connection. Works only on Windows systems.
+    /// </summary>
     NamedPipe = 2,
     /// <summary>
-    /// Unix domain socket connection.  Works only with Unix systems.
+    /// Unix domain socket connection. Works only with Unix systems.
     /// </summary>
     UnixSocket = 3,
+    /// <summary>
+    /// Unix domain socket connection. Works only with Unix systems.
+    /// </summary>
     Unix = 3,
     /// <summary>
-    /// Shared memory connection.  Currently works only with Windows systems.
+    /// Shared memory connection. Currently works only with Windows systems.
     /// </summary>
     SharedMemory = 4,
+    /// <summary>
+    /// Shared memory connection. Currently works only with Windows systems.
+    /// </summary>
     Memory = 4
   }
 
@@ -407,18 +422,21 @@ namespace MySql.Data.MySqlClient
     Embedded
   }
 
+  /// <summary>
+  /// Defines the location of the certificate store.
+  /// </summary>
   public enum MySqlCertificateStoreLocation
   {
     /// <summary>
-    /// Do not use certificate store
+    /// Do not use certificate store.
     /// </summary>
     None,
     /// <summary>
-    /// Use certificate store for the current user
+    /// Use certificate store for the current user.
     /// </summary>
     CurrentUser,
     /// <summary>
-    /// User certificate store for the machine
+    /// User certificate store for the machine.
     /// </summary>
     LocalMachine
   }

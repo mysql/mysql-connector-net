@@ -1,11 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Description>MySql.EntityFrameworkCore.Design.Tests Class Library</Description>
     <Copyright>Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.</Copyright>
     <Version>8.0.12</Version>
     <Authors>Oracle</Authors>
-    <TargetFrameworks>netcoreapp2.0;netcoreapp1.1;net452</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.0;netcoreapp1.1;net452;net461;</TargetFrameworks>
     <AssemblyName>MySql.EntityFrameworkCore.Design.Tests</AssemblyName>
     <PackageId>MySql.EntityFrameworkCore.Design.Tests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
@@ -51,13 +51,13 @@
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net452' or '$(TargetFramework)' == 'netcoreapp1.1' ">
     <Compile Remove="Frameworks/efcore20/**/*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="1.1.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="1.1.*" />
     <ProjectReference Include="..\..\src\MySql.Data.EFCore.Design\MySql.Data.EntityFrameworkCore.Design.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0' or '$(TargetFramework)' == 'net461' ">
     <Compile Remove="Frameworks/efcore10/**/*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.0.*" />
   </ItemGroup>
 
   <ItemGroup>

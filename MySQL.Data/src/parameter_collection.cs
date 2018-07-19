@@ -116,6 +116,12 @@ namespace MySql.Data.MySqlClient
       return Add(new MySqlParameter(parameterName, value));
     }
 
+    /// <summary>
+    /// Adds a parameter and its value.
+    /// </summary>
+    /// <param name="parameterName">The name of the parameter.</param>
+    /// <param name="value">The value of the parameter.</param>
+    /// <returns>A <see cref="MySqlParameter"/> object representing the provided values.</returns>
     public MySqlParameter AddWithValue(string parameterName, object value)
     {
       return Add(new MySqlParameter(parameterName, value));

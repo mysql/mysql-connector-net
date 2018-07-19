@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -47,19 +47,31 @@ namespace MySql.Data.Types
   //from 1 through 7 indicate Point, LineString, Polygon, MultiPoint,
   //MultiLineString, MultiPolygon, and GeometryCollection.
 
+  /// <summary>
+  /// Represents a geometry data type object in a MySql database.
+  /// </summary>
   public struct MySqlGeometry : IMySqlValue
   {
     private readonly MySqlDbType _type;
-    private readonly Double _xValue; 
+    private readonly Double _xValue;
     private readonly Double _yValue;
     private readonly int _srid;
 
     private const int GEOMETRY_LENGTH = 25;
 
+    /// <summary>
+    /// Gets the x coordinate.
+    /// </summary>
     public Double? XCoordinate => _xValue;
 
+    /// <summary>
+    /// Gets the y coordinate.
+    /// </summary>
     public Double? YCoordinate => _yValue;
 
+    /// <summary>
+    /// Gets the SRID value.
+    /// </summary>
     public int? SRID => _srid;
 
     public MySqlGeometry(bool isNull):this(MySqlDbType.Geometry, isNull)
@@ -135,8 +147,8 @@ namespace MySql.Data.Types
       var yIndex = val.Length == GEOMETRY_LENGTH ? 17 : 13;
 
       Value = buffValue;
-      _xValue = BitConverter.ToDouble(val, xIndex);
-      _yValue = BitConverter.ToDouble(val, yIndex);
+      _xValue = val.Length >= xIndex + 8 ? BitConverter.ToDouble(val, xIndex) : 0;
+      _yValue = val.Length >= yIndex + 8 ? BitConverter.ToDouble(val, yIndex) : 0;
       this._srid = val.Length == GEOMETRY_LENGTH ? BitConverter.ToInt32(val, 0) : 0;
       this.IsNull = false;
       this._type = type;
@@ -144,14 +156,22 @@ namespace MySql.Data.Types
 
     #region IMySqlValue Members
 
-   
+
     MySqlDbType IMySqlValue.MySqlDbType => _type;
 
+    /// <summary>
+    /// Gets a boolean value that signals if the type is <c>null</c>.
+    /// </summary>
     public bool IsNull { get; }
 
-
+    /// <summary>
+    /// Gets the value associated to this type.
+    /// </summary>
     object IMySqlValue.Value => Value;
 
+    /// <summary>
+    /// Gets the value associated to this type.
+    /// </summary>
     public byte[] Value { get; }
 
     Type IMySqlValue.SystemType => typeof(byte[]);
@@ -315,15 +335,18 @@ namespace MySql.Data.Types
       }
       catch
       {  }
-      
+
       mySqlGeometryValue = new MySqlGeometry(true);
-      return false; 
+      return false;
     }
-    
+
+	/// <summary>
+    /// Sets the DSInfo when GetSchema is called for the DataSourceInformation collection.
+    /// </summary>
     public static void SetDSInfo(MySqlSchemaCollection dsTable)
     {
       // we use name indexing because this method will only be called
-      // when GetSchema is called for the DataSourceInformation 
+      // when GetSchema is called for the DataSourceInformation
       // collection and then it wil be cached.
       MySqlSchemaRow row = dsTable.AddRow();
       row["TypeName"] = "GEOMETRY";
@@ -351,6 +374,10 @@ namespace MySql.Data.Types
       row["NativeDataType"] = DBNull.Value;
     }
 
+	/// <summary>
+    /// Gets the well-known text representation of the geomtry object.
+    /// </summary>
+	/// <returns>A string representation of the WKT.</returns>
     public string GetWKT()
     {
       if (!this.IsNull)

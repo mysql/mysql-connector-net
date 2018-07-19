@@ -1,4 +1,4 @@
-// Copyright Â© 2006, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2006, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -37,7 +37,7 @@ using System.IO;
 namespace MySql.Data.MySqlClient
 {
   /// <summary>
-  /// 
+  /// Allows importing large amounts of data into a database with bulk loading.
   /// </summary>
   public class MySqlBulkLoader
   {
@@ -170,7 +170,7 @@ namespace MySql.Data.MySqlClient
 #endregion
 
     /// <summary>
-    /// Execute the load operation
+    /// Executes the load operation.
     /// </summary>
     /// <returns>The number of rows inserted.</returns>
     public int Load()
@@ -202,7 +202,7 @@ namespace MySql.Data.MySqlClient
 
 #region Async
     /// <summary>
-    /// Async version of Load
+    /// Asynchronous version of the load operation.
     /// </summary>
     /// <returns>The number of rows inserted.</returns>
     public Task<int> LoadAsync()
@@ -210,6 +210,11 @@ namespace MySql.Data.MySqlClient
       return LoadAsync(CancellationToken.None);
     }
 
+    /// <summary>
+    /// Executes the load operation asynchronously while the cancellation isn't requested.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The number of rows inserted.</returns>
     public Task<int> LoadAsync(CancellationToken cancellationToken)
     {
       var result = new TaskCompletionSource<int>();
@@ -304,7 +309,7 @@ namespace MySql.Data.MySqlClient
   }
 
   /// <summary>
-  /// 
+  /// Represents the priority set for bulk loading operations.
   /// </summary>
   public enum MySqlBulkLoaderPriority
   {
@@ -327,7 +332,7 @@ namespace MySql.Data.MySqlClient
   }
 
   /// <summary>
-  /// 
+  /// Represents the behavior when conflicts arise during bulk loading operations.
   /// </summary>
   public enum MySqlBulkLoaderConflictOption
   {

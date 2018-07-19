@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -100,8 +100,14 @@ namespace MySql.Data.MySqlClient
     internal bool IsQueryAborted => (Number == (int)MySqlErrorCode.QueryInterrupted ||
                                      Number == (int)MySqlErrorCode.FileSortAborted);
 
+    /// <summary>
+    /// Gets the SQL state.
+    /// </summary>
     public string SqlState { get; private set; }
 
+    /// <summary>
+    /// Gets an integer that representes the MySQL error code.
+    /// </summary>
     public UInt32 Code { get; private set; }
   }
 }

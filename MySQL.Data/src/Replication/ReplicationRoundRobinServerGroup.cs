@@ -1,4 +1,4 @@
-// Copyright Â© 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -33,7 +33,7 @@ using System.Text;
 namespace MySql.Data.MySqlClient.Replication
 {
   /// <summary>
-  /// Class that implements Round Robing Load Balancing technique
+  /// Class that implements Round Robing Load Balancing technique.
   /// </summary>
   public class ReplicationRoundRobinServerGroup : ReplicationServerGroup
   {
@@ -45,10 +45,10 @@ namespace MySql.Data.MySqlClient.Replication
     }
 
     /// <summary>
-    /// Gets an available server based on Round Robin load balancing
+    /// Gets an available server based on Round Robin load balancing.
     /// </summary>
-    /// <param name="isMaster">True if the server to return must be a master</param>
-    /// <returns>Next available server</returns>
+    /// <param name="isMaster">Flag indicating if the server to return must be a master.</param>
+    /// <returns>A <see cref="ReplicationServer"/> object representing the next available server.</returns>
     internal protected override ReplicationServer GetServer(bool isMaster)
     {
       for (int i = 0; i < Servers.Count; i++)

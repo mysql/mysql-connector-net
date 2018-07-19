@@ -44,6 +44,9 @@ namespace MySql.Data.MySqlClient.Authentication
   /// </summary>
   internal class Sha256AuthenticationPlugin : MySqlAuthenticationPlugin
   {
+    /// <summary>
+    /// The byte array representation of the public key provided by the server.
+    /// </summary>
     protected byte[] rawPubkey;
 
     public override string PluginName => "sha256_password";
@@ -115,6 +118,10 @@ namespace MySql.Data.MySqlClient.Authentication
 #endif
     }
 
+    /// <summary>
+    /// Applies XOR to the byte arrays provided as input.
+    /// </summary>
+    /// <returns>A byte array that contains the results of the XOR operation.</returns>
     protected byte[] GetXor( byte[] src, byte[] pattern )
     {
       byte[] src2 = new byte[src.Length + 1];
