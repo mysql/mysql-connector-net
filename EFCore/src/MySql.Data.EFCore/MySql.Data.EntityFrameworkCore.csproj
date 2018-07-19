@@ -6,7 +6,7 @@
     <NeutralLanguage>en-US</NeutralLanguage>
     <Version>8.0.12</Version>
     <Authors>Oracle</Authors>
-    <TargetFrameworks>netstandard2.0;net452;netstandard1.3;net461;</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net452;netstandard1.6;net461;</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <DelaySign>true</DelaySign>
     <AssemblyName>MySql.Data.EntityFrameworkCore</AssemblyName>
