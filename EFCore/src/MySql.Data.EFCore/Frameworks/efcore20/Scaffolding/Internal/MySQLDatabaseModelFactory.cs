@@ -1,4 +1,4 @@
-﻿// Copyright © 2017 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -68,22 +68,24 @@ namespace MySql.Data.EntityFrameworkCore.Scaffolding.Internal
     }
 
 
-    public DatabaseModel Create(string connectionString, TableSelectionSet tableSelectionSet)
+    public DatabaseModel Create(string connectionString, IEnumerable<string> tables, IEnumerable<string> schemas)
     {
-      if (String.IsNullOrEmpty(connectionString))
-        new ArgumentException("Argument is empty", "connectionString");
+      ThrowIf.Argument.IsNull(connectionString, nameof(connectionString));
+      ThrowIf.Argument.IsNull(tables, nameof(tables));
+      ThrowIf.Argument.IsNull(schemas, nameof(schemas));
 
-      if (tableSelectionSet == null)
-        new ArgumentNullException("tableSelectionSet");
-
-      using (var connection = new MySqlConnection(connectionString))
+      using (MySqlConnection connection = new MySqlConnection(connectionString))
       {
-        return Create(connection, tableSelectionSet);
+        return Create(connection, tables, schemas);
       }
     }
 
-    public DatabaseModel Create(DbConnection connection, TableSelectionSet tableSelectionSet)
+    public DatabaseModel Create(DbConnection connection, IEnumerable<string> tables, IEnumerable<string> schemas)
     {
+      ThrowIf.Argument.IsNull(connection, nameof(connection));
+      ThrowIf.Argument.IsNull(tables, nameof(tables));
+      ThrowIf.Argument.IsNull(schemas, nameof(schemas));
+
       ResetState();
 
       _connection = (MySqlConnection)connection;
@@ -96,11 +98,12 @@ namespace MySql.Data.EntityFrameworkCore.Scaffolding.Internal
 
       try
       {
-        _tableSelectionSet = tableSelectionSet;
-        if (tableSelectionSet.Schemas.Count == 0)
+        _tableSelectionSet = new TableSelectionSet(tables, schemas);
+        if (schemas.Count() == 0)
           _schemaList = $"'{_connection.Database}'";
         else
-          _schemaList = tableSelectionSet.Schemas.Select(c => $"'{c.Text}'").Join(", ");
+          _schemaList = schemas.Join(", ");
+
         _databaseModel.DatabaseName = _connection.Database;
         GetTables();
         GetColumns();
@@ -445,22 +448,19 @@ ORDER BY c.table_name,
             ComputedColumnSql = string.IsNullOrWhiteSpace(computedValue) ? null : computedValue
           };
 
+          if (primaryKeyOrdinal.HasValue)
+          {
+            if (table.PrimaryKey == null)
+              table.PrimaryKey = new DatabasePrimaryKey { Table = table };
+            table.PrimaryKey.Columns.Add(column);
+          }
+
           table.Columns.Add(column);
           Logger.LogDebug($"Found column: {tableSchema}.{tableName}.{columnName}");
           if (!_tableColumns.ContainsKey(ColumnKey(table, column.Name)))
             _tableColumns.Add(ColumnKey(table, column.Name), column);
         }
       }
-    }
-
-    public DatabaseModel Create(string connectionString, IEnumerable<string> tables, IEnumerable<string> schemas)
-    {
-      throw new NotImplementedException();
-    }
-
-    public DatabaseModel Create(DbConnection connection, IEnumerable<string> tables, IEnumerable<string> schemas)
-    {
-      throw new NotImplementedException();
     }
   }
 }
