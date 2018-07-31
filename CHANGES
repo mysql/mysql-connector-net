@@ -1,4 +1,7 @@
 6.10.8
+- Improved the performance when opening connections by refactoring the MySqlConnectAttrs class. Improved the performance
+  in Windows environments by optimizing the query that identifies the operating system details
+  (MySQL Bug #80030, Oracle Bug#22580399).
 - Fixed a bug that prevented the TreatTinyAsBoolean connection option from being set when calling the
   MySqlCommand.Prepare method (MySQL Bug #88472, Oracle Bug #27113566).
 - Fix to correct wrong result type returned by MySqlDataReader after null found (MySQL Bug #78917, Oracle Bug #22101727).

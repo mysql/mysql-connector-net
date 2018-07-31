@@ -1,4 +1,4 @@
-// Copyright � 2004, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -445,6 +445,27 @@ namespace MySql.Data.MySqlClient
 
   internal class MySqlConnectAttrs
   {
+    static string _version;
+    static string _os;
+#if !NETSTANDARD1_3
+    static string _platform;
+#endif
+#if NET452
+    static string _osDetails;
+#endif
+
+    static MySqlConnectAttrs()
+    {
+      InitVersion();
+      InitOS();
+#if !NETSTANDARD1_3
+      InitPlatform();
+#endif
+#if NET452
+      InitOSDetails();
+#endif
+    }
+
     [DisplayName("_client_name")]
     public string ClientName => "MySql Connector/NET";
 
@@ -470,77 +491,14 @@ namespace MySql.Data.MySqlClient
     [DisplayName("_client_version")]
     public string ClientVersion
     {
-      get
-      {
-        string version = string.Empty;
-        try
-        {
-          version = typeof(MySqlConnectAttrs).GetTypeInfo().Assembly.GetName().Version.ToString();
-        }
-        catch (Exception ex)
-        {
-          System.Diagnostics.Debug.WriteLine(ex.ToString());
-        }
-        return version;
-      }
+      get { return _version; }
     }
-
-#if !NETSTANDARD1_3
-    [DisplayName("_platform")]
-    public string Platform => Is64BitOS() ? "x86_64" : "x86_32";
-#endif
-
 
     [DisplayName("_os")]
     public string OS
     {
-      get
-      {
-        string os = string.Empty;
-        try
-        {
-          if (MySql.Data.Common.Platform.IsDotNetCore())
-          {
-            return ".Net Core";
-          }
-#if !NETSTANDARD1_3
-          os = Environment.OSVersion.Platform.ToString();
-          if (os == "Win32NT")
-          {
-            os = "Win";
-            os += Is64BitOS() ? "64" : "32";
-          }
-#endif
-        }
-        catch (Exception ex) { System.Diagnostics.Debug.WriteLine(ex.ToString()); }
-
-        return os;
-      }
+      get { return _os; }
     }
-
-#if NET452
-    [DisplayName("_os_details")]
-    public string OSDetails
-    {
-      get
-      {
-        string os = string.Empty;
-        try
-        {
-          var searcher = new System.Management.ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem");
-          var collection = searcher.Get();
-          foreach (var mgtObj in collection)
-          {
-            os = mgtObj.GetPropertyValue("Caption").ToString();
-            break;
-          }
-        }
-        catch (Exception ex) { System.Diagnostics.Debug.WriteLine(ex.ToString()); }
-
-        return os;
-      }
-    }
-#endif
 
     [DisplayName("_thread")]
     public string Thread
@@ -559,7 +517,85 @@ namespace MySql.Data.MySqlClient
     }
 
 #if !NETSTANDARD1_3
-    private bool Is64BitOS()
+    [DisplayName("_platform")]
+    public string Platform
+    {
+      get { return _platform; }
+    }
+#endif
+
+#if NET452
+    [DisplayName("_os_details")]
+    public string OSDetails
+    {
+      get { return _osDetails; }
+    }
+#endif
+
+    private static void InitVersion()
+    {
+      _version = string.Empty;
+      try
+      {
+        _version = typeof(MySqlConnectAttrs).GetTypeInfo().Assembly.GetName().Version.ToString();
+      }
+      catch (Exception ex)
+      {
+        System.Diagnostics.Debug.WriteLine(ex.ToString());
+      }
+    }
+
+    private static void InitOS()
+    {
+      _os = string.Empty;
+      try
+      {
+        if (MySql.Data.Common.Platform.IsDotNetCore())
+        {
+          _os = ".Net Core";
+        }
+#if !NETSTANDARD1_3
+        _os = Environment.OSVersion.Platform.ToString();
+        if (_os == "Win32NT")
+        {
+          _os = "Win";
+          _os += Is64BitOS() ? "64" : "32";
+        }
+#endif
+      }
+      catch (Exception ex)
+      {
+        System.Diagnostics.Debug.WriteLine(ex.ToString());
+      }
+    }
+
+#if !NETSTANDARD1_3
+    private static void InitPlatform()
+    {
+      _platform = Is64BitOS() ? "x86_64" : "x86_32";
+    }
+#endif
+
+#if NET452
+    private static void InitOSDetails()
+    {
+      _osDetails = string.Empty;
+      try
+      {
+        var searcher = new System.Management.ManagementObjectSearcher("SELECT Caption FROM Win32_OperatingSystem");
+        var collection = searcher.Get();
+        foreach (var mgtObj in collection)
+        {
+          _osDetails = mgtObj.GetPropertyValue("Caption").ToString();
+          break;
+        }
+      }
+      catch (Exception ex) { System.Diagnostics.Debug.WriteLine(ex.ToString()); }
+    }
+#endif
+
+#if !NETSTANDARD1_3
+    private static bool Is64BitOS()
     {
 #if CLR4
       return Environment.Is64BitOperatingSystem;
