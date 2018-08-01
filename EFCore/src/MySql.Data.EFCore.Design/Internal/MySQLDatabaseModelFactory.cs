@@ -1,4 +1,4 @@
-﻿// Copyright © 2017 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -140,8 +140,8 @@ ON kc.constraint_catalog = rc.constraint_catalog
   AND kc.constraint_schema = rc.constraint_schema 
   AND kc.constraint_name = rc.constraint_name 
 WHERE kc.referenced_table_name IS NOT NULL 
-  AND kc.table_schema IN ({_schemaList})
-  AND kc.table_name <> '{HistoryRepository.DefaultTableName}'";
+  AND LOWER(kc.table_schema) IN ({_schemaList.ToLowerInvariant()})
+  AND kc.table_name NOT LIKE '{HistoryRepository.DefaultTableName}'";
 
       using (var reader = command.ExecuteReader())
       {
@@ -278,8 +278,9 @@ LEFT OUTER JOIN information_schema.table_constraints t
 ON t.table_schema=s.table_schema 
   AND t.table_name=s.table_name 
   AND s.index_name=t.constraint_name 
-WHERE s.table_schema IN ({_schemaList}) 
-  AND s.table_name <> '{HistoryRepository.DefaultTableName}'
+WHERE LOWER(s.table_schema) IN ({_schemaList.ToLowerInvariant()}) 
+  AND s.table_name NOT LIKE '{HistoryRepository.DefaultTableName}'
+  AND s.index_name <> 'PRIMARY'
 ORDER BY s.table_schema, s.table_name, s.non_unique, s.index_name, s.seq_in_index";
 
       using (var reader = command.ExecuteReader())
@@ -356,7 +357,7 @@ ORDER BY s.table_schema, s.table_name, s.non_unique, s.index_name, s.seq_in_inde
 FROM information_schema.tables 
 WHERE table_schema IN ({_schemaList}) 
   AND table_type LIKE '%BASE%' 
-  AND table_name <> '{HistoryRepository.DefaultTableName}'
+  AND table_name NOT LIKE '{HistoryRepository.DefaultTableName}'
 ORDER BY table_schema, table_name";
 
       using (var reader = command.ExecuteReader())
@@ -418,7 +419,8 @@ ON (k.TABLE_SCHEMA = c.TABLE_SCHEMA
   AND k.COLUMN_NAME = c.COLUMN_NAME 
   AND k.CONSTRAINT_NAME = 'PRIMARY') 
 WHERE t.table_type = 'BASE TABLE' 
-  AND t.table_schema IN ({_schemaList}) 
+  AND LOWER(t.table_schema) IN ({_schemaList.ToLowerInvariant()}) 
+  AND c.table_name NOT LIKE '{HistoryRepository.DefaultTableName}' 
 ORDER BY c.table_name, 
   c.ordinal_position;";
 

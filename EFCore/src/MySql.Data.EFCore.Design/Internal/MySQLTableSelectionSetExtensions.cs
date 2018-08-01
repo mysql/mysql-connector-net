@@ -1,4 +1,4 @@
-﻿// Copyright © 2017 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -46,7 +46,7 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
 
       foreach (var schemaSelection in _tableSelectionSet.Schemas)
       {
-        if (schemaSelection.Text.Equals(schemaName))
+        if (schemaSelection.Text.Equals(schemaName, StringComparison.OrdinalIgnoreCase))
         {
           schemaSelection.IsMatched = true;
           result = true;
@@ -60,8 +60,8 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
         {
           var components = tableSelection.Text.Split('.');
           if (components.Length == 1
-              ? components[0].Equals(tableName)
-              : components[0].Equals(schemaName) && components[1].Equals(tableName))
+              ? components[0].Equals(tableName, StringComparison.OrdinalIgnoreCase)
+              : components[0].Equals(schemaName, StringComparison.OrdinalIgnoreCase) && components[1].Equals(tableName, StringComparison.OrdinalIgnoreCase))
           {
             tableSelection.IsMatched = true;
             result = true;

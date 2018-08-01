@@ -61,7 +61,7 @@ namespace MySql.Data.EntityFrameworkCore.Scaffolding.Internal
           var components = tableSelection.Text.Split('.');
           if (components.Length == 1
               ? components[0].Equals(tableName, StringComparison.OrdinalIgnoreCase)
-              : components[0].Equals(schemaName) && components[1].Equals(tableName, StringComparison.OrdinalIgnoreCase))
+              : components[0].Equals(schemaName, StringComparison.OrdinalIgnoreCase) && components[1].Equals(tableName, StringComparison.OrdinalIgnoreCase))
           {
             tableSelection.IsMatched = true;
             result = true;
