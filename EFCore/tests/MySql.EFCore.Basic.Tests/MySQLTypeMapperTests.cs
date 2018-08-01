@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, 2017 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -33,7 +33,7 @@ using System.Linq;
 using System.Text;
 using Xunit;
 
-namespace EntityFrameworkCore.Basic.Tests
+namespace MySql.Data.EntityFrameworkCore.Tests
 {
   public class MySQLTypeMapperTests
   {

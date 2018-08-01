@@ -102,7 +102,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
     public override void CreateUniqueIndexOperation()
     {
       base.CreateUniqueIndexOperation();
-      Assert.Equal("CREATE UNIQUE INDEX `IXPersonName` ON Person (`FirstName`, `LastName`);" + EOL, Sql);
+      Assert.Equal("CREATE UNIQUE INDEX `IXPersonName` ON `Person` (`FirstName`, `LastName`);" + EOL, Sql);
     }
 
     [Fact]
@@ -110,7 +110,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
     {
       base.CreateNonUniqueIndexOperation();
       
-      Assert.Equal("CREATE INDEX `IXPersonName` ON Person (`Name`);" + EOL, Sql);
+      Assert.Equal("CREATE INDEX `IXPersonName` ON `Person` (`Name`);" + EOL, Sql);
     }
     
     [Fact(Skip = "Rename index not supported yet")]

@@ -209,11 +209,6 @@ CREATE DATABASE sakilaIndex;
                   Assert.Equal("last_name", onecolumn.GetColumn().Name);
                   Assert.True(onecolumn.IsUnique);
                 },
-                unique =>
-                {
-                  Assert.Equal("actor_id", unique.GetColumn().Name);
-                  Assert.True(unique.IsUnique);
-                },
                 composite =>
                 {
                   Assert.Equal("idx_actor_first_last_name", composite.Name);
