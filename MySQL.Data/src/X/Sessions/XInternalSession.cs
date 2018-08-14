@@ -304,10 +304,10 @@ namespace MySqlX.Sessions
         var dictionary = new Dictionary<string, object>();
         dictionary.Add("member", field.Field);
         if (field.Type != null)
-          dictionary.Add("type", field.Type == "TEXT" ? "TEXT(64)" : field.Type);
+          dictionary.Add("type", field.Type);
 
         if (field.Required == null)
-          dictionary.Add("required", field.Type == "GEOJSON" ? true : false);
+          dictionary.Add("required", false);
         else
           dictionary.Add("required", (bool)field.Required);
 

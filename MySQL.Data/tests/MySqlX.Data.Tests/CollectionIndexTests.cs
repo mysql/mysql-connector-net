@@ -27,17 +27,13 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.Data.MySqlClient;
-using MySqlX.XDevAPI;
-using MySqlX.XDevAPI.Common;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 
 namespace MySqlX.Data.Tests
 {
   public class CollectionIndexTests : BaseTest
-  {
+  {  
     [Fact]
     public void IncorrectlyFormatedIndexDefinition()
     {
@@ -100,13 +96,13 @@ namespace MySqlX.Data.Tests
     }
 
     [Fact]
-    public void CreateTypeSpecificIndexes()
+    public void CreateTypeSpecificIndexesCaseInsensitive()
     {
       var collection = CreateCollection("test");
 
       // Datetime index.
       collection.DropIndex("myIndex");
-      collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"DATETIME\" } ] }");
+      collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"daTEtiME\" } ] }");
       ValidateIndex("myIndex", "test", "dd", false, false, false, 1);
 
       // Timestamp index.
@@ -116,7 +112,7 @@ namespace MySqlX.Data.Tests
 
       // Time index.
       collection.DropIndex("myIndex");
-      collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"TIME\" } ] }");
+      collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"time\" } ] }");
       ValidateIndex("myIndex", "test", "dt", false, false, false, 1);
 
       // Date index.
@@ -136,7 +132,7 @@ namespace MySqlX.Data.Tests
 
       // Double index.
       collection.DropIndex("myIndex");
-      collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"DOUBLE UNSIGNED\" } ] }");
+      collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"double UNSIGNED\" } ] }");
       ValidateIndex("myIndex", "test", "fd_u", false, false, true, 1);
 
       // Float index.
@@ -156,7 +152,7 @@ namespace MySqlX.Data.Tests
 
       // Int index.
       collection.DropIndex("myIndex");
-      collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"INTEGER UNSIGNED\" } ] }");
+      collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"INTEGER unsigned\" } ] }");
       ValidateIndex("myIndex", "test", "i_u", false, false, true, 1);
 
       // Mediumint index.
@@ -185,7 +181,7 @@ namespace MySqlX.Data.Tests
     {
       var collection = CreateCollection("test");
 
-      collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"TEXT\" }, { \"field\":$.myField2, \"type\":\"TEXT(10)\", \"required\":true }, { \"field\":$.myField3, \"type\":\"INT UNSIGNED\", \"required\":false } ] }");
+      collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"TEXT(64)\" }, { \"field\":$.myField2, \"type\":\"TEXT(10)\", \"required\":true }, { \"field\":$.myField3, \"type\":\"INT UNSIGNED\", \"required\":false } ] }");
       ValidateIndex("myIndex", "test", "t64", false, false, false, 1, 64);
       ValidateIndex("myIndex", "test", "t10", false, true, false, 2, 10);
       ValidateIndex("myIndex", "test", "i_u", false, false, true, 3);
@@ -215,11 +211,11 @@ namespace MySqlX.Data.Tests
       var collection = CreateCollection("test");
 
       Exception ex = Assert.Throws<Exception>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\" = $.myField, \"type\" = \"TEXT\" } ] }"));
-      Assert.Equal("Expected token ':'", ex.Message);
+      Assert.Equal("The value provided is not a valid Json document. Expected token ':'", ex.Message);
       ex = Assert.Throws<Exception>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"TEXT\" ] }"));
-      Assert.Equal("Expected token ','", ex.Message);
+      Assert.Equal("The value provided is not a valid Json document. Expected token ','", ex.Message);
       ex = Assert.Throws<Exception>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, type:\"TEXT\" } }"));
-      Assert.Equal("Expected token '\"'", ex.Message);
+      Assert.Equal("The value provided is not a valid Json document. Expected token '\"'", ex.Message);
     }
 
     [Fact]
@@ -240,18 +236,10 @@ namespace MySqlX.Data.Tests
     {
       var collection = CreateCollection("test");
 
-      Exception ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"INT\" } ], \"type\":\"index\" }"));
-      Assert.Equal("Index type with name 'index' not found.", ex.Message);
-      ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"INT\" } ], \"type\":\"Index\"}"));
-      Assert.Equal("Index type with name 'Index' not found.", ex.Message);
-      ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"INT\" } ], \"type\":\"InDeX\" }"));
-      Assert.Equal("Index type with name 'InDeX' not found.", ex.Message);
-      ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myGeoJsonField, \"type\":\"GEOJSON\" } ], \"type\":\"Spatial\" }"));
-      Assert.Equal("Index type with name 'Spatial' not found.", ex.Message);
-      ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myGeoJsonField, \"type\":\"GEOJSON\" } ], \"type\":\"spatial\" }"));
-      Assert.Equal("Index type with name 'spatial' not found.", ex.Message);
-      ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myGeoJsonField, \"type\":\"GEOJSON\" } ], \"type\":\"sPaTiAl\" }"));
-      Assert.Equal("Index type with name 'sPaTiAl' not found.", ex.Message);
+      Exception ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"INT\" } ], \"type\":\"indexa\" }"));
+      Assert.Equal("Argument value 'indexa' for index type is invalid", ex.Message);
+      ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"INT\" } ], \"type\":\"OTheR\" }"));
+      Assert.Equal("Argument value 'OTheR' for index type is invalid", ex.Message);
     }
 
     [Fact]
@@ -268,16 +256,15 @@ namespace MySqlX.Data.Tests
     {
       var collection = CreateCollection("test");
 
-      Exception ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{ \"fields\": [ { \"field\":\"$.myField\", \"type\":\"Text\" } ] }"));
-      Assert.Equal("Field type with name 'Text' not found.", ex.Message);
-      ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{ \"fields\": [ { \"field\":\"$.myField\", \"type\":\"Datetime\" } ] }"));
-      Assert.Equal("Field type with name 'Datetime' not found.", ex.Message);
-      ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{ \"fields\": [ { \"field\":\"$.myField\", \"type\":\"Timestamp\" } ] }"));
-      Assert.Equal("Field type with name 'Timestamp' not found.", ex.Message);
-      ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{ \"fields\": [ { \"field\":\"$.myField\", \"type\":\"Time\" } ] }"));
-      Assert.Equal("Field type with name 'Time' not found.", ex.Message);
-      ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{ \"fields\": [ { \"field\":\"$.myField\", \"type\":\"Date\" } ] }"));
-      Assert.Equal("Field type with name 'Date' not found.", ex.Message);
+      // Missing key length for text type.
+      Exception ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{ \"fields\": [ { \"field\":\"$.myField\", \"type\":\"Text\" } ] }"));
+      Assert.EndsWith("used in key specification without a key length", ex.Message);
+
+      // Invalid index types.
+      ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{ \"fields\": [ { \"field\":\"$.myField\", \"type\":\"Texta\" } ] }"));
+      Assert.EndsWith("Invalid or unsupported type specification 'Texta'", ex.Message);
+      ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{ \"fields\": [ { \"field\":\"$.myField\", \"type\":\"INTO\" } ] }"));
+      Assert.EndsWith("Invalid or unsupported type specification 'INTO'", ex.Message);
     }
 
     [Fact]
@@ -287,6 +274,9 @@ namespace MySqlX.Data.Tests
 
       Exception ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{ \"fields\": [ { \"field\":\"$.myField\", \"type\":\"INT\", \"options\":2, \"srid\":4326 } ] }"));
       Assert.Equal("Unsupported argumet specification for '$.myField'", ex.Message);
+
+      ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"GEOJSON\", \"options\":2, \"srid\":4326 } ], \"type\":\"SPATIAL\" }"));
+      Assert.Equal("GEOJSON index requires 'constraint.required: TRUE", ex.Message);
     }
 
     [Fact]
@@ -294,15 +284,15 @@ namespace MySqlX.Data.Tests
     {
       var collection = CreateCollection("test");
 
-      collection.CreateIndex("01myIndex", "{ \"fields\": [ { \"field\":\"$.myField\", \"type\":\"TEXT\" } ] }");
+      collection.CreateIndex("01myIndex", "{ \"fields\": [ { \"field\":\"$.myField\", \"type\":\"TEXT(64)\" } ] }");
       ValidateIndex("01myIndex", "test", "t64", false, false, false, 1, 64);
       collection.DropIndex("01myIndex");
 
-      collection.CreateIndex("!myIndex", "{ \"fields\": [ { \"field\":\"$.myField\", \"type\":\"TEXT\" } ] }");
+      collection.CreateIndex("!myIndex", "{ \"fields\": [ { \"field\":\"$.myField\", \"type\":\"TEXT(64)\" } ] }");
       ValidateIndex("!myIndex", "test", "t64", false, false, false, 1, 64);
       collection.DropIndex("!myIndex");
 
-      collection.CreateIndex("-myIndex", "{ \"fields\": [ { \"field\":\"$.myField\", \"type\":\"TEXT\" } ] }");
+      collection.CreateIndex("-myIndex", "{ \"fields\": [ { \"field\":\"$.myField\", \"type\":\"TEXT(64)\" } ] }");
       ValidateIndex("-myIndex", "test", "t64", false, false, false, 1, 64);
       collection.DropIndex("-myIndex");
     }

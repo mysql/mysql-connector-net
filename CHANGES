@@ -1,4 +1,5 @@
 8.0.13
+- Improved the performance for index creation by removing redundant client-side validations already being done on the server side (MySQL Bug #91631, Oracle Bug #28343828).
 - Improved the performance when opening connections by refactoring the MySqlConnectAttrs class. Improved the performance in Windows environments by optimizing the query that identifies the operating system details (MySQL Bug #80030, Oracle Bug#22580399).
 - Fixed an SQL syntax error thrown when a point type is evaluated. Changed SRID() function to ST_SRID() since SRID() is deprecated. (MySQL Bug #27715007).
 - Removed unused _fieldHashCs field from ResulSet (MySQL Bug #88950, Oracle Bug #27285641).

@@ -148,10 +148,10 @@ namespace MySqlX.Data.Tests
       Assert.Equal("\\\"", document["email"]);
 
       var ex = Assert.Throws<Exception>(() => collection.Add("{ \"_id\": \"124\", \"email\": \"\"\"  }").Execute());
-      Assert.Equal("Expected token ','", ex.Message);
+      Assert.Equal("The value provided is not a valid Json document. Expected token ','", ex.Message);
 
       ex = Assert.Throws<Exception>(() => collection.Add("{ \"_id\": \"124\", \"email\": \"\\\"  }").Execute());
-      Assert.Equal("Failed to find ending '\"' while reading stream.", ex.Message);
+      Assert.Equal("The value provided is not a valid Json document. Failed to find ending '\"' while reading stream.", ex.Message);
     }
   }
 }
