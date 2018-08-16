@@ -200,58 +200,38 @@ namespace MySqlX.Data.Tests
       }
     }
 
-    protected void CheckConnectionStringAsUri(string connectionstring, string user, string password, string server, uint port, params string[] parameters)
-    {
-      string result = this.session.ParseConnectionString(connectionstring);
-      var csbuilder = new MySqlXConnectionStringBuilder(result);
-      Assert.True(user == csbuilder.UserID, string.Format("Expected:{0} Current:{1} in {2}", user, csbuilder.UserID, connectionstring));
-      Assert.True(password == csbuilder.Password, string.Format("Expected:{0} Current:{1} in {2}", password, csbuilder.Password, connectionstring));
-      Assert.True(server == csbuilder.Server, string.Format("Expected:{0} Current:{1} in {2}", server, csbuilder.Server, connectionstring));
-      Assert.True(port == csbuilder.Port, string.Format("Expected:{0} Current:{1} in {2}", port, csbuilder.Port, connectionstring));
-      if (parameters != null)
-      {
-        if (parameters.Length % 2 != 0)
-          throw new ArgumentOutOfRangeException();
-        for (int i = 0; i < parameters.Length; i += 2)
-        {
-          Assert.True(csbuilder.ContainsKey(parameters[i]));
-          Assert.Equal(parameters[i + 1], csbuilder[parameters[i]].ToString());
-        }
-      }
-    }
-
     [Fact]
-    public void ConnectionStringAsUri()
+    public void CheckConnectionUri()
     {
-      CheckConnectionStringAsUri("mysqlx://myuser:password@localhost:33060", "myuser", "password", "localhost", 33060);
-      CheckConnectionStringAsUri("mysqlx://my%3Auser:p%40ssword@localhost:33060", "my:user", "p@ssword", "localhost", 33060);
-      CheckConnectionStringAsUri("mysqlx://my%20user:p%40ss%20word@localhost:33060", "my user", "p@ss word", "localhost", 33060);
-      CheckConnectionStringAsUri("mysqlx:// myuser : p%40ssword@localhost:33060", "myuser", "p@ssword", "localhost", 33060);
-      CheckConnectionStringAsUri("mysqlx://myuser@localhost:33060", "myuser", "", "localhost", 33060);
-      CheckConnectionStringAsUri("mysqlx://myuser:p%40ssword@localhost", "myuser", "p@ssword", "localhost", 33060);
-      CheckConnectionStringAsUri("mysqlx://myuser:p%40ssw%40rd@localhost", "myuser", "p@ssw@rd", "localhost", 33060);
-      CheckConnectionStringAsUri("mysqlx://my%40user:p%40ssword@localhost", "my@user", "p@ssword", "localhost", 33060);
-      CheckConnectionStringAsUri("mysqlx://myuser@localhost", "myuser", "", "localhost", 33060);
-      CheckConnectionStringAsUri("mysqlx://myuser@127.0.0.1", "myuser", "", "127.0.0.1", 33060);
-      CheckConnectionStringAsUri("mysqlx://myuser@[::1]", "myuser", "", "[::1]", 33060);
-      CheckConnectionStringAsUri("mysqlx://myuser:password@[2606:b400:440:1040:bd41:e449:45ee:2e1a]", "myuser", "password", "[2606:b400:440:1040:bd41:e449:45ee:2e1a]", 33060);
-      CheckConnectionStringAsUri("mysqlx://myuser:password@[2606:b400:440:1040:bd41:e449:45ee:2e1a]:33060", "myuser", "password", "[2606:b400:440:1040:bd41:e449:45ee:2e1a]", 33060);
-      Assert.Throws<UriFormatException>(() => CheckConnectionStringAsUri("mysqlx://myuser:password@[2606:b400:440:1040:bd41:e449:45ee:2e1a:33060]", "myuser", "password", "[2606:b400:440:1040:bd41:e449:45ee:2e1a]", 33060));
-      Assert.Throws<UriFormatException>(() => CheckConnectionStringAsUri("mysqlx://myuser:password@2606:b400:440:1040:bd41:e449:45ee:2e1a:33060", "myuser", "password", "[2606:b400:440:1040:bd41:e449:45ee:2e1a]", 33060));
-      CheckConnectionStringAsUri("mysqlx://myuser:password@[fe80::bd41:e449:45ee:2e1a%17]", "myuser", "password", "[fe80::bd41:e449:45ee:2e1a]", 33060);
-      CheckConnectionStringAsUri("mysqlx://myuser:password@[(address=[fe80::bd41:e449:45ee:2e1a%17],priority=100)]", "myuser", "password", "[fe80::bd41:e449:45ee:2e1a]", 33060);
-      CheckConnectionStringAsUri("mysqlx://myuser:password@[(address=[fe80::bd41:e449:45ee:2e1a%17]:3305,priority=100)]", "myuser", "password", "[fe80::bd41:e449:45ee:2e1a]", 3305);
-      Assert.Throws<UriFormatException>(() => CheckConnectionStringAsUri("mysqlx://myuser:password@[(address=fe80::bd41:e449:45ee:2e1a%17,priority=100)]", "myuser", "password", "[fe80::bd41:e449:45ee:2e1a]", 33060));
-      CheckConnectionStringAsUri("mysqlx://myuser@localhost/test", "myuser", "", "localhost", 33060, "database", "test");
-      CheckConnectionStringAsUri("mysqlx://myuser@localhost/test?ssl%20mode=none&connectiontimeout=10", "myuser", "", "localhost", 33060, "database", "test", "ssl mode", "None", "connectiontimeout", "10");
-      CheckConnectionStringAsUri("mysqlx+ssh://myuser:password@localhost:33060", "myuser", "password", "localhost", 33060);
-      CheckConnectionStringAsUri("mysqlx://_%21%22%23%24s%26%2F%3D-%25r@localhost", "_!\"#$s&/=-%r", "", "localhost", 33060);
-      CheckConnectionStringAsUri("mysql://myuser@localhost", "", "", "", 33060);
-      CheckConnectionStringAsUri("myuser@localhost", "", "", "", 33060);
-      Assert.Throws<UriFormatException>(() => CheckConnectionStringAsUri("mysqlx://uid=myuser;server=localhost", "", "", "", 33060));
-      CheckConnectionStringAsUri("mysqlx://user:password@server.example.com/", "user", "password", "server.example.com", 33060, "ssl mode", "Required");
-      CheckConnectionStringAsUri("mysqlx://user:password@server.example.com/?ssl-ca=(c:%5Cclient.pfx)", "user", "password", "server.example.com", 33060, "ssl mode", "Required", "ssl-ca", "c:\\client.pfx");
-      Assert.Throws<NotSupportedException>(() => CheckConnectionStringAsUri("mysqlx://user:password@server.example.com/?ssl-crl=(c:%5Ccrl.pfx)", "user", "password", "server.example.com", 33060, "ssl mode", "Required", "ssl-crl", "(c:\\crl.pfx)"));
+      CheckConnectionData("mysqlx://myuser:password@localhost:33060", "myuser", "password", "localhost", 33060);
+      CheckConnectionData("mysqlx://my%3Auser:p%40ssword@localhost:33060", "my:user", "p@ssword", "localhost", 33060);
+      CheckConnectionData("mysqlx://my%20user:p%40ss%20word@localhost:33060", "my user", "p@ss word", "localhost", 33060);
+      CheckConnectionData("mysqlx:// myuser : p%40ssword@localhost:33060", "myuser", "p@ssword", "localhost", 33060);
+      CheckConnectionData("mysqlx://myuser@localhost:33060", "myuser", "", "localhost", 33060);
+      CheckConnectionData("mysqlx://myuser:p%40ssword@localhost", "myuser", "p@ssword", "localhost", 33060);
+      CheckConnectionData("mysqlx://myuser:p%40ssw%40rd@localhost", "myuser", "p@ssw@rd", "localhost", 33060);
+      CheckConnectionData("mysqlx://my%40user:p%40ssword@localhost", "my@user", "p@ssword", "localhost", 33060);
+      CheckConnectionData("mysqlx://myuser@localhost", "myuser", "", "localhost", 33060);
+      CheckConnectionData("mysqlx://myuser@127.0.0.1", "myuser", "", "127.0.0.1", 33060);
+      CheckConnectionData("mysqlx://myuser@[::1]", "myuser", "", "[::1]", 33060);
+      CheckConnectionData("mysqlx://myuser:password@[2606:b400:440:1040:bd41:e449:45ee:2e1a]", "myuser", "password", "[2606:b400:440:1040:bd41:e449:45ee:2e1a]", 33060);
+      CheckConnectionData("mysqlx://myuser:password@[2606:b400:440:1040:bd41:e449:45ee:2e1a]:33060", "myuser", "password", "[2606:b400:440:1040:bd41:e449:45ee:2e1a]", 33060);
+      Assert.Throws<UriFormatException>(() => CheckConnectionData("mysqlx://myuser:password@[2606:b400:440:1040:bd41:e449:45ee:2e1a:33060]", "myuser", "password", "[2606:b400:440:1040:bd41:e449:45ee:2e1a]", 33060));
+      Assert.Throws<UriFormatException>(() => CheckConnectionData("mysqlx://myuser:password@2606:b400:440:1040:bd41:e449:45ee:2e1a:33060", "myuser", "password", "[2606:b400:440:1040:bd41:e449:45ee:2e1a]", 33060));
+      CheckConnectionData("mysqlx://myuser:password@[fe80::bd41:e449:45ee:2e1a%17]", "myuser", "password", "[fe80::bd41:e449:45ee:2e1a]", 33060);
+      CheckConnectionData("mysqlx://myuser:password@[(address=[fe80::bd41:e449:45ee:2e1a%17],priority=100)]", "myuser", "password", "[fe80::bd41:e449:45ee:2e1a]", 33060);
+      CheckConnectionData("mysqlx://myuser:password@[(address=[fe80::bd41:e449:45ee:2e1a%17]:3305,priority=100)]", "myuser", "password", "[fe80::bd41:e449:45ee:2e1a]", 3305);
+      Assert.Throws<UriFormatException>(() => CheckConnectionData("mysqlx://myuser:password@[(address=fe80::bd41:e449:45ee:2e1a%17,priority=100)]", "myuser", "password", "[fe80::bd41:e449:45ee:2e1a]", 33060));
+      CheckConnectionData("mysqlx://myuser@localhost/test", "myuser", "", "localhost", 33060, "database", "test");
+      CheckConnectionData("mysqlx://myuser@localhost/test?ssl%20mode=none&connectiontimeout=10", "myuser", "", "localhost", 33060, "database", "test", "ssl mode", "None", "connectiontimeout", "10");
+      CheckConnectionData("mysqlx+ssh://myuser:password@localhost:33060", "myuser", "password", "localhost", 33060);
+      CheckConnectionData("mysqlx://_%21%22%23%24s%26%2F%3D-%25r@localhost", "_!\"#$s&/=-%r", "", "localhost", 33060);
+      CheckConnectionData("mysql://myuser@localhost", "", "", "", 33060);
+      CheckConnectionData("myuser@localhost", "", "", "", 33060);
+      Assert.Throws<UriFormatException>(() => CheckConnectionData("mysqlx://uid=myuser;server=localhost", "", "", "", 33060));
+      CheckConnectionData("mysqlx://user:password@server.example.com/", "user", "password", "server.example.com", 33060, "ssl mode", "Required");
+      CheckConnectionData("mysqlx://user:password@server.example.com/?ssl-ca=(c:%5Cclient.pfx)", "user", "password", "server.example.com", 33060, "ssl mode", "Required", "ssl-ca", "c:\\client.pfx");
+      Assert.Throws<NotSupportedException>(() => CheckConnectionData("mysqlx://user:password@server.example.com/?ssl-crl=(c:%5Ccrl.pfx)", "user", "password", "server.example.com", 33060, "ssl mode", "Required", "ssl-crl", "(c:\\crl.pfx)"));
     }
 
     [Fact]
@@ -815,6 +795,26 @@ namespace MySqlX.Data.Tests
         Assert.Equal(builder.ConnectionTimeout, internalSession.Settings.ConnectionTimeout);
         Assert.Equal(builder.Keepalive, internalSession.Settings.Keepalive);
         Assert.Equal(MySqlAuthenticationMode.PLAIN, internalSession.Settings.Auth);
+      }
+    }
+
+    protected void CheckConnectionData(string connectionData, string user, string password, string server, uint port, params string[] parameters)
+    {
+      string result = this.session.ParseConnectionData(connectionData);
+      var csbuilder = new MySqlXConnectionStringBuilder(result);
+      Assert.True(user == csbuilder.UserID, string.Format("Expected:{0} Current:{1} in {2}", user, csbuilder.UserID, connectionData));
+      Assert.True(password == csbuilder.Password, string.Format("Expected:{0} Current:{1} in {2}", password, csbuilder.Password, connectionData));
+      Assert.True(server == csbuilder.Server, string.Format("Expected:{0} Current:{1} in {2}", server, csbuilder.Server, connectionData));
+      Assert.True(port == csbuilder.Port, string.Format("Expected:{0} Current:{1} in {2}", port, csbuilder.Port, connectionData));
+      if (parameters != null)
+      {
+        if (parameters.Length % 2 != 0)
+          throw new ArgumentOutOfRangeException();
+        for (int i = 0; i < parameters.Length; i += 2)
+        {
+          Assert.True(csbuilder.ContainsKey(parameters[i]));
+          Assert.Equal(parameters[i + 1], csbuilder[parameters[i]].ToString());
+        }
       }
     }
   }

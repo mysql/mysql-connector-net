@@ -27,7 +27,6 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
-using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.Relational;
 
 namespace MySqlX.XDevAPI
