@@ -211,11 +211,11 @@ namespace MySqlX.Data.Tests
       var collection = CreateCollection("test");
 
       Exception ex = Assert.Throws<Exception>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\" = $.myField, \"type\" = \"TEXT\" } ] }"));
-      Assert.Equal("The value provided is not a valid Json document. Expected token ':'", ex.Message);
+      Assert.Equal("The value provided is not a valid JSON document. Expected token ':'", ex.Message);
       ex = Assert.Throws<Exception>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"TEXT\" ] }"));
-      Assert.Equal("The value provided is not a valid Json document. Expected token ','", ex.Message);
+      Assert.Equal("The value provided is not a valid JSON document. Expected token ','", ex.Message);
       ex = Assert.Throws<Exception>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, type:\"TEXT\" } }"));
-      Assert.Equal("The value provided is not a valid Json document. Expected token '\"'", ex.Message);
+      Assert.Equal("The value provided is not a valid JSON document. Expected token '\"'", ex.Message);
     }
 
     [Fact]

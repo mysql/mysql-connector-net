@@ -45,21 +45,22 @@ namespace MySqlX.Data.Tests
         new { _id = 34, title = "Book 2", pages = 30 },
         new { _id = 56, title = "Book 3", pages = 40 },
       };
-      Result r = coll.Add(docs).Execute();
+      Result r = ExecuteAddStatement(coll.Add(docs));
       Assert.Equal<ulong>(3, r.AffectedItemsCount);
 
       // Remove with condition.
-      r = coll.Remove("_id = 12").Execute();
+      r = ExecuteRemoveStatement(coll.Remove("_id = 12"));
       Assert.Equal<ulong>(1, r.AffectedItemsCount);
 
       // Remove with deprecated method accepting an ID.
-      r = coll.Remove(34).Execute();
+      r = ExecuteRemoveStatement(coll.Remove(34));
       Assert.Equal<ulong>(1, r.AffectedItemsCount);
 
       // Remove with deprecated method accepting a DbDoc instance.
-      r = coll.Remove(new DbDoc("{ \"_id\":\"56\" }")).Execute();
+      r = ExecuteRemoveStatement(coll.Remove(new DbDoc("{ \"_id\":56 }")));
       Assert.Equal<ulong>(1, r.AffectedItemsCount);
-      var ex = Assert.Throws<InvalidOperationException>(() => coll.Remove(new DbDoc("{ \"title\":\"Book3\" }")).Execute());
+
+      var ex = Assert.Throws<InvalidOperationException>(() => ExecuteRemoveStatement(coll.Remove(new DbDoc("{ \"title\":\"Book3\" }"))));
       Assert.Equal("Removing a document from a collection requires an _id property.", ex.Message);
     }
 
@@ -74,10 +75,10 @@ namespace MySqlX.Data.Tests
         new {  _id = 3, title = "Book 3", pages = 40 },
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
-      Result r = coll.Add(docs).Execute();
+      Result r = ExecuteAddStatement(coll.Add(docs));
       Assert.Equal<ulong>(4, r.AffectedItemsCount);
 
-      r = coll.Remove("pages > 20").Execute();
+      r = ExecuteRemoveStatement(coll.Remove("pages > 20"));
       Assert.Equal<ulong>(3, r.AffectedItemsCount);
     }
 
@@ -92,17 +93,17 @@ namespace MySqlX.Data.Tests
         new {  _id = 3, title = "Book 3", pages = 40 },
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
-      Result r = coll.Add(docs).Execute();
+      Result r = ExecuteAddStatement(coll.Add(docs));
       Assert.Equal<ulong>(4, r.AffectedItemsCount);
 
-      r = coll.Remove("pages > 20").Limit(1).Execute();
+      r = ExecuteRemoveStatement(coll.Remove("pages > 20").Limit(1));
       Assert.Equal<ulong>(1, r.AffectedItemsCount);
 
       // Limit out of range.
-      Assert.Throws<ArgumentOutOfRangeException>(() => coll.Remove("True").Limit(0).Execute());
-      Assert.Throws<ArgumentOutOfRangeException>(() => coll.Remove("True").Limit(-2).Execute());
-      Assert.Throws<ArgumentOutOfRangeException>(() => coll.Remove("pages > 10").Limit(0).Execute());
-      Assert.Throws<ArgumentOutOfRangeException>(() => coll.Remove("pages > 20").Limit(-3).Execute());
+      Assert.Throws<ArgumentOutOfRangeException>(() => ExecuteRemoveStatement(coll.Remove("True").Limit(0)));
+      Assert.Throws<ArgumentOutOfRangeException>(() => ExecuteRemoveStatement(coll.Remove("True").Limit(-2)));
+      Assert.Throws<ArgumentOutOfRangeException>(() => ExecuteRemoveStatement(coll.Remove("pages > 10").Limit(0)));
+      Assert.Throws<ArgumentOutOfRangeException>(() => ExecuteRemoveStatement(coll.Remove("pages > 20").Limit(-3)));
     }
 
     [Fact]
@@ -116,10 +117,10 @@ namespace MySqlX.Data.Tests
         new {  _id = 3, title = "Book 3", pages = 40 },
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
-      Result r = coll.Add(docs).Execute();
+      Result r = ExecuteAddStatement(coll.Add(docs));
       Assert.Equal<ulong>(4, r.AffectedItemsCount);
 
-      r = coll.Remove("pages > 20").Limit(1).Execute();
+      r = ExecuteRemoveStatement(coll.Remove("pages > 20").Limit(1));
       Assert.Equal<ulong>(1, r.AffectedItemsCount);
     }
 
@@ -128,11 +129,10 @@ namespace MySqlX.Data.Tests
     {
       Collection coll = CreateCollection("test");
       DbDoc doc = new DbDoc();
-      Exception ex = Assert.Throws<KeyNotFoundException>(() => coll.Remove("_id = :id").Bind("id", doc.Id).Execute());
+      Exception ex = Assert.Throws<KeyNotFoundException>(() => ExecuteRemoveStatement(coll.Remove("_id = :id").Bind("id", doc.Id)));
     }
 
-    [Fact]
-    public void RemoveBind()
+    [Fact]    public void RemoveBind()
     {
       Collection coll = CreateCollection("test");
       var docs = new[]
@@ -142,10 +142,10 @@ namespace MySqlX.Data.Tests
         new {  _id = 3, title = "Book 3", pages = 40 },
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
-      Result r = coll.Add(docs).Execute();
+      Result r = ExecuteAddStatement(coll.Add(docs));
       Assert.Equal<ulong>(4, r.AffectedItemsCount);
 
-      r = coll.Remove("pages = :Pages").Bind("pAges", 50).Execute();
+      r = ExecuteRemoveStatement(coll.Remove("pages = :Pages").Bind("pAges", 50));
       Assert.Equal<ulong>(1, r.AffectedItemsCount);
     }
 
@@ -160,22 +160,22 @@ namespace MySqlX.Data.Tests
         new {  _id = 3, title = "Book 3", pages = 40 },
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
-      Result result = collection.Add(docs).Execute();
+      Result result = ExecuteAddStatement(collection.Add(docs));
       Assert.Equal<ulong>(4, result.AffectedItemsCount);
 
       // Condition can't be null or empty.
       string errorMessage = "Parameter can't be null or empty.\r\nParameter name: condition";
-      Exception ex = Assert.Throws<ArgumentNullException>(() => collection.Remove(string.Empty).Execute());
+      Exception ex = Assert.Throws<ArgumentNullException>(() => ExecuteRemoveStatement(collection.Remove(string.Empty)));
       Assert.Equal(errorMessage, ex.Message);
-      ex = Assert.Throws<ArgumentNullException>(() => collection.Remove("").Execute());
+      ex = Assert.Throws<ArgumentNullException>(() => ExecuteRemoveStatement(collection.Remove("")));
       Assert.Equal(errorMessage, ex.Message);
-      ex = Assert.Throws<ArgumentNullException>(() => collection.Remove(" ").Execute());
+      ex = Assert.Throws<ArgumentNullException>(() => ExecuteRemoveStatement(collection.Remove(" ")));
       Assert.Equal(errorMessage, ex.Message);
-      ex = Assert.Throws<ArgumentNullException>(() => collection.Remove("  ").Execute());
+      ex = Assert.Throws<ArgumentNullException>(() => ExecuteRemoveStatement(collection.Remove("  ")));
       Assert.Equal(errorMessage, ex.Message);
 
       // Sending an expression that evaluates to true applies changes on all documents.
-      result = collection.Remove("true").Execute();
+      result = ExecuteRemoveStatement(collection.Remove("true"));
       Assert.Equal<ulong>(4, result.AffectedItemsCount);
     }
 
@@ -191,17 +191,17 @@ namespace MySqlX.Data.Tests
         new DbDoc("{ \"a\": 2, \"b\": \"foo2\", \"c\": { \"d\": true, \"e\": [4,5,6] }, \"f\": [ {\"x\":5}, {\"x\":8 } ] }"),
         new DbDoc("{ \"a\": 1, \"b\": \"foo3\", \"c\": { \"d\": true, \"e\": [1,4,3] }, \"f\": [ {\"x\":6}, {\"x\":9 } ] }"),
       };
-      Result result = collection.Add(docs).Execute();
+      Result result = ExecuteAddStatement(collection.Add(docs));
       Assert.Equal<ulong>(3, result.AffectedItemsCount);
 
-      Assert.Equal<ulong>(1, collection.Remove("a IN (2,3)").Execute().AffectedItemsCount);
-      Assert.Equal(2, collection.Find().Execute().FetchAll().Count);
+      Assert.Equal<ulong>(1, ExecuteRemoveStatement(collection.Remove("a IN (2,3)")).AffectedItemsCount);
+      Assert.Equal(2, ExecuteFindStatement(collection.Find()).FetchAll().Count);
 
-      Assert.Equal<ulong>(0, collection.Remove("a IN [3]").Execute().AffectedItemsCount);
-      Assert.Equal(2, collection.Find().Execute().FetchAll().Count);
+      Assert.Equal<ulong>(0, ExecuteRemoveStatement(collection.Remove("a IN [3]")).AffectedItemsCount);
+      Assert.Equal(2, ExecuteFindStatement(collection.Find()).FetchAll().Count);
 
-      Assert.Equal<ulong>(2, collection.Remove("1 IN c.e").Execute().AffectedItemsCount);
-      Assert.Equal(0, collection.Find().Execute().FetchAll().Count);
+      Assert.Equal<ulong>(2, ExecuteRemoveStatement(collection.Remove("1 IN c.e")).AffectedItemsCount);
+      Assert.Equal(0, ExecuteFindStatement(collection.Find()).FetchAll().Count);
     }
 
     [Fact]
@@ -215,28 +215,28 @@ namespace MySqlX.Data.Tests
         new {  _id = 3, title = "Book 3", pages = 40 },
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
-      Result result = collection.Add(docs).Execute();
+      Result result = ExecuteAddStatement(collection.Add(docs));
       Assert.Equal<ulong>(4, result.AffectedItemsCount);
 
-      collection.Add(new { title = "Book 5", pages = 60 }).Execute();
-      Assert.Equal(5, collection.Find().Execute().FetchAll().Count);
+      ExecuteAddStatement(collection.Add(new { title = "Book 5", pages = 60 }));
+      Assert.Equal(5, ExecuteFindStatement(collection.Find()).FetchAll().Count);
 
       // Remove sending numeric parameter.
       Assert.Equal<ulong>(1, collection.RemoveOne(1).AffectedItemsCount);
-      Assert.Equal(4, collection.Find().Execute().FetchAll().Count);
+      Assert.Equal(4, ExecuteFindStatement(collection.Find()).FetchAll().Count);
 
       // Remove sending string parameter.
       Assert.Equal<ulong>(1, collection.RemoveOne("3").AffectedItemsCount);
-      Assert.Equal(3, collection.Find().Execute().FetchAll().Count);
+      Assert.Equal(3, ExecuteFindStatement(collection.Find()).FetchAll().Count);
 
       // Remove an auto-generated id.
-      DbDoc document = collection.Find("pages = 60").Execute().FetchOne();
+      DbDoc document = ExecuteFindStatement(collection.Find("pages = 60")).FetchOne();
       Assert.Equal<ulong>(1, collection.RemoveOne(document.Id).AffectedItemsCount);
-      Assert.Equal(2, collection.Find().Execute().FetchAll().Count);
+      Assert.Equal(2, ExecuteFindStatement(collection.Find()).FetchAll().Count);
 
       // Remove a non-existing document.
       Assert.Equal<ulong>(0, collection.RemoveOne(5).AffectedItemsCount);
-      Assert.Equal(2, collection.Find().Execute().FetchAll().Count);
+      Assert.Equal(2, ExecuteFindStatement(collection.Find()).FetchAll().Count);
 
       // Expected exceptions.
       Assert.Throws<ArgumentNullException>(() => collection.RemoveOne(null));

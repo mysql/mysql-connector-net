@@ -45,13 +45,13 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("CREATE TABLE test.test(name VARCHAR(40), age INT)");
       Table table = testSchema.GetTable("test");
 
-      var result = table.Insert("name", "age")
+      var result = ExecuteInsertStatement(table.Insert("name", "age")
         .Values("Henry", "22")
         .Values("Patric", 30)
-        .Execute();
+        );
       Assert.Equal<ulong>(2, result.AffectedItemsCount);
 
-      var selectResult = table.Select().Execute();
+      var selectResult = ExecuteSelectStatement(table.Select());
       while (selectResult.Next()) ;
       Assert.Equal(2, selectResult.Rows.Count);
       Assert.Equal("Henry", selectResult.Rows.ToArray()[0][0]);
@@ -68,12 +68,12 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("CREATE TABLE test.test(name VARCHAR(40), age INT)");
       Table table = testSchema.GetTable("test");
 
-      var result = table.Insert("name", "age")
+      var result = ExecuteInsertStatement(table.Insert("name", "age")
         .Values("upper('mark')", "50-16")
-        .Execute();
+        );
       Assert.Equal<ulong>(1, result.AffectedItemsCount);
 
-      var selectResult = table.Select().Execute();
+      var selectResult = ExecuteSelectStatement(table.Select());
       while (selectResult.Next()) ;
       Assert.Equal(1, selectResult.Rows.Count);
       Assert.Equal("MARK", selectResult.Rows.ToArray()[0][0]);
@@ -87,12 +87,12 @@ namespace MySqlX.Data.Tests.RelationalTests
       Table table = testSchema.GetTable("test");
 
       var stmt = table.Insert("name", "age");
-      var result = stmt.Values("upper('mark')", "50-16").Execute();
+      var result = ExecuteInsertStatement(stmt.Values("upper('mark')", "50-16"));
       Assert.Equal<ulong>(1, result.AffectedItemsCount);
-      Assert.Throws<MySqlException>(() => result = stmt.Values("George", 34, 1).Execute());
-      result = stmt.Values("George", 34).Execute();
+      Assert.Throws<MySqlException>(() => result = ExecuteInsertStatement(stmt.Values("George", 34, 1)));
+      result = ExecuteInsertStatement(stmt.Values("George", 34));
       Assert.Equal<ulong>(1, result.AffectedItemsCount);
-      Assert.Equal(2, table.Select().Execute().FetchAll().Count);
+      Assert.Equal(2, ExecuteSelectStatement(table.Select()).FetchAll().Count);
     }
   }
 }

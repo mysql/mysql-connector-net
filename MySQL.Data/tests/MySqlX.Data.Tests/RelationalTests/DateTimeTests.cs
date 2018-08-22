@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -43,7 +43,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("CREATE TABLE test.test(DT DATETIME)");
       ExecuteSQL("INSERT INTO test.test VALUES('2001-02-03 04:05:06')");
 
-      RowResult r = GetSession().GetSchema("test").GetTable("test").Select("dt").Execute();
+      RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select("dt"));
       var rows = r.FetchAll();
       Assert.Equal(1, r.Columns.Count);
       Assert.Equal(typeof(DateTime), r.Columns[0].ClrType);
@@ -60,7 +60,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("CREATE TABLE test.test(DT DATE)");
       ExecuteSQL("INSERT INTO test.test VALUES('2001-02-03')");
 
-      RowResult r = GetSession().GetSchema("test").GetTable("test").Select("dt").Execute();
+      RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select("dt"));
       var rows = r.FetchAll();
       Assert.Equal(1, r.Columns.Count);
       Assert.Equal(typeof(DateTime), r.Columns[0].ClrType);
@@ -77,7 +77,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("CREATE TABLE test.test(DT TIMESTAMP)");
       ExecuteSQL("INSERT INTO test.test VALUES('2001-02-03')");
 
-      RowResult r = GetSession().GetSchema("test").GetTable("test").Select("dt").Execute();
+      RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select("dt"));
       var rows = r.FetchAll();
       Assert.Equal(1, r.Columns.Count);
       Assert.Equal(typeof(DateTime), r.Columns[0].ClrType);
@@ -95,7 +95,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("CREATE TABLE test.test(DT TIME)");
       ExecuteSQL("INSERT INTO test.test VALUES('01:02:03')");
 
-      RowResult r = GetSession().GetSchema("test").GetTable("test").Select("dt").Execute();
+      RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select("dt"));
       var rows = r.FetchAll();
       Assert.Equal(1, r.Columns.Count);
       Assert.Equal(typeof(TimeSpan), r.Columns[0].ClrType);
@@ -112,7 +112,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("CREATE TABLE test.test(DT TIME)");
       ExecuteSQL("INSERT INTO test.test VALUES('-01:02:03')");
 
-      RowResult r = GetSession().GetSchema("test").GetTable("test").Select("dt").Execute();
+      RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select("dt"));
       var rows = r.FetchAll();
       Assert.Equal(1, r.Columns.Count);
       Assert.Equal(typeof(TimeSpan), r.Columns[0].ClrType);

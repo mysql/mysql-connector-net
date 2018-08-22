@@ -53,7 +53,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       {
         insertStatement.Values(i, i, i);
       }
-      insertStatement.Execute();
+      ExecuteInsertStatement(insertStatement);
       Assert.Equal(rowsToInsert, CountRows());
     }
 
@@ -72,7 +72,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         statement.FilterData.OrderBy = filter.OrderBy;
         statement.FilterData.Parameters = filter.Parameters;
       }
-      var result = statement.Execute();
+      var result = ExecuteSelectStatement(statement);
       while (result.Next()) ;
       return result.Rows;
     }
@@ -80,7 +80,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     private void ValidateUpdate(TableUpdateStatement statement)
     {
       Dictionary<String, object> parameters = new Dictionary<string, object>(statement.FilterData.Parameters);
-      var result = statement.Execute();
+      var result = ExecuteUpdateStatement(statement);
       statement.FilterData.Parameters = parameters;
       var rows = GetRows(statement.FilterData);
       foreach (var row in rows)
@@ -95,7 +95,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Fact]
     public void EmptyUpdateTest()
     {
-      Assert.Throws<MySqlException>(() => table.Update().Execute());
+      Assert.Throws<MySqlException>(() => ExecuteUpdateStatement(table.Update()));
     }
 
     [Fact]
@@ -145,15 +145,15 @@ namespace MySqlX.Data.Tests.RelationalTests
       Table table = testSchema.GetTable("test");
       Assert.Equal(10, CountRows());
 
-      Assert.Equal<ulong>(2, table.Update().Where("id IN (1,2)").Set("id", 0).Execute().AffectedItemsCount);
-      Assert.Equal(2, table.Select().Where("id = 0").Execute().FetchAll().Count);
+      Assert.Equal<ulong>(2, ExecuteUpdateStatement(table.Update().Where("id IN (1,2)").Set("id", 0)).AffectedItemsCount);
+      Assert.Equal(2, ExecuteSelectStatement(table.Select().Where("id = 0")).FetchAll().Count);
 
-      Assert.Throws<MySqlException>(() => table.Delete().Where("a IN [3]").Execute().AffectedItemsCount);
-      Assert.Throws<MySqlException>(() => table.Delete().Where("3 IN a").Execute().AffectedItemsCount);
-      Assert.Throws<MySqlException>(() => table.Update().Where("age IN [3]").Set("id", 0).Execute().AffectedItemsCount);
+      Assert.Throws<MySqlException>(() => ExecuteDeleteStatement(table.Delete().Where("a IN [3]")).AffectedItemsCount);
+      Assert.Throws<MySqlException>(() => ExecuteDeleteStatement(table.Delete().Where("3 IN a")).AffectedItemsCount);
+      Assert.Throws<MySqlException>(() => ExecuteUpdateStatement(table.Update().Where("age IN [3]").Set("id", 0)).AffectedItemsCount);
 
-      Assert.Equal<ulong>(1, table.Update().Where("age IN (3)").Set("id", 0).Execute().AffectedItemsCount);
-      Assert.Equal(3, table.Select().Where("id = 0").Execute().FetchAll().Count);
+      Assert.Equal<ulong>(1, ExecuteUpdateStatement(table.Update().Where("age IN (3)").Set("id", 0)).AffectedItemsCount);
+      Assert.Equal(3, ExecuteSelectStatement(table.Select().Where("id = 0")).FetchAll().Count);
     }
   }
 }

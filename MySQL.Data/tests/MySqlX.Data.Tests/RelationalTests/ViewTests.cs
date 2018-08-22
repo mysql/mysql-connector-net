@@ -1,4 +1,4 @@
-// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -50,7 +50,7 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       Table view = tables.First(i => i.IsView);
       Assert.Equal("view1", view.Name);
-      MySqlException ex = Assert.Throws<MySqlException>(() => view.Insert().Values(1).Execute());
+      MySqlException ex = Assert.Throws<MySqlException>(() => ExecuteInsertStatement(view.Insert().Values(1)));
       Assert.Equal("Column '1' is not updatable", ex.Message);
     }
 

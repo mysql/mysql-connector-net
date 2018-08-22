@@ -30,6 +30,7 @@ using MySql.Data.MySqlClient;
 using MySqlX.Common;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
+using MySqlX.XDevAPI.CRUD;
 using System;
 using Xunit;
 
@@ -41,7 +42,7 @@ namespace MySqlX.Data.Tests
     public void InsertSingleDbDocWithId()
     {
       Collection coll = CreateCollection("test");
-      Result r = coll.Add(@"{ ""_id"": 1, ""foo"": 1 }").Execute();
+      Result r = ExecuteAddStatement(coll.Add(@"{ ""_id"": 1, ""foo"": 1 }"));
       Assert.Equal<ulong>(1, r.AffectedItemsCount);
       Assert.Equal(1, coll.Count());
     }
@@ -54,10 +55,10 @@ namespace MySqlX.Data.Tests
       if (!session.Version.isAtLeast(8, 0, 5))
       {
         // Code 5115 Document is missing a required field
-        Assert.Equal(5115u, Assert.ThrowsAny<MySqlException>(() => stmt.Execute()).Code);
+        Assert.Equal(5115u, Assert.ThrowsAny<MySqlException>(() => ExecuteAddStatement(stmt)).Code);
         return;
       }
-      Result r = stmt.Execute();
+      Result r = ExecuteAddStatement(stmt);
       Assert.Equal<ulong>(1, r.AffectedItemsCount);
       Assert.Equal(1, coll.Count());
       Assert.Equal(1, r.GeneratedIds.Count);
@@ -74,10 +75,10 @@ namespace MySqlX.Data.Tests
       if (!session.Version.isAtLeast(8, 0, 5))
       {
         // Code 5115 Document is missing a required field
-        Assert.Equal(5115u, Assert.ThrowsAny<MySqlException>(() => stmt.Execute()).Code);
+        Assert.Equal(5115u, Assert.ThrowsAny<MySqlException>(() => ExecuteAddStatement(stmt)).Code);
         return;
       }
-      Result r = stmt.Execute();
+      Result r = ExecuteAddStatement(stmt);
       Assert.Equal<ulong>(3, r.AffectedItemsCount);
       Assert.Equal(3, coll.Count());
       Assert.Equal(3, r.GeneratedIds.Count);
@@ -89,7 +90,7 @@ namespace MySqlX.Data.Tests
       var obj = new { _id = "5", name = "Sakila", age = 15 };
 
       Collection coll = CreateCollection("test");
-      Result r = coll.Add(obj).Execute();
+      Result r = ExecuteAddStatement(coll.Add(obj));
       Assert.Equal<ulong>(1, r.AffectedItemsCount);
       //TODO:  pull object and verify data
       Assert.Equal(1, coll.Count());
@@ -105,10 +106,10 @@ namespace MySqlX.Data.Tests
       if (!session.Version.isAtLeast(8, 0, 5))
       {
         // Code 5115 Document is missing a required field
-        Assert.Equal(5115u, Assert.ThrowsAny<MySqlException>(() => stmt.Execute()).Code);
+        Assert.Equal(5115u, Assert.ThrowsAny<MySqlException>(() => ExecuteAddStatement(stmt)).Code);
         return;
       }
-      Result r = stmt.Execute();
+      Result r = ExecuteAddStatement(stmt);
       Assert.Equal<ulong>(1, r.AffectedItemsCount);
       //TODO:  pull object and verify data
       Assert.Equal(1, coll.Count());
@@ -127,7 +128,7 @@ namespace MySqlX.Data.Tests
         new {  _id = 3, title = "Book 3", pages = 40 },
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
-      Result r = coll.Add(docs).Execute();
+      Result r = ExecuteAddStatement(coll.Add(docs));
       Assert.Equal<ulong>(4, r.AffectedItemsCount);
       Assert.Equal(4, coll.Count());
     }
@@ -140,13 +141,13 @@ namespace MySqlX.Data.Tests
       if (!session.Version.isAtLeast(8, 0, 5))
       {
         // Code 5115 Document is missing a required field
-        Assert.Equal(5115u, Assert.ThrowsAny<MySqlException>(() => stmt.Execute()).Code);
+        Assert.Equal(5115u, Assert.ThrowsAny<MySqlException>(() => ExecuteAddStatement(stmt)).Code);
         return;
       }
-      Result result = stmt.Execute();
+      Result result = ExecuteAddStatement(stmt);
       Assert.Equal<ulong>(1, result.AffectedItemsCount);
 
-      result = coll.Modify($"_id = '{result.GeneratedIds[0]}'").Set("pages", "20").Execute();
+      result = ExecuteModifyStatement(coll.Modify($"_id = '{result.GeneratedIds[0]}'").Set("pages", "20"));
       Assert.Equal<ulong>(1, result.AffectedItemsCount);
       Assert.Equal(0, result.GeneratedIds.Count);
     }
@@ -163,10 +164,10 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       var stmt = coll.Add(new { _id = 0 });
-      stmt.Execute();
+      ExecuteAddStatement(stmt);
       foreach (var doc in docs)
       {
-        Result r = stmt.Add(doc).Execute();
+        Result r = ExecuteAddStatement(stmt.Add(doc));
         Assert.Equal<ulong>(1, r.AffectedItemsCount);
       }
       Assert.Equal(5, coll.Count());
@@ -177,10 +178,10 @@ namespace MySqlX.Data.Tests
     {
       Collection coll = CreateCollection("test");
 
-      var insertResult = coll.Add(new DbDoc[] { }).Execute();
+      var insertResult = ExecuteAddStatement(coll.Add(new DbDoc[] { }));
       Assert.Equal(0ul, insertResult.AffectedItemsCount);
 
-      var result = coll.Find().Execute().FetchAll();
+      var result = ExecuteFindStatement(coll.Find()).FetchAll();
       Assert.Equal(0, result.Count);
     }
 
@@ -189,7 +190,7 @@ namespace MySqlX.Data.Tests
     {
       Collection coll = CreateCollection("test");
 
-      Assert.Throws<ArgumentNullException>(() => coll.Add(null).Execute());
+      Assert.Throws<ArgumentNullException>(() => ExecuteAddStatement(coll.Add(null)));
     }
 
     [Fact]
@@ -206,8 +207,8 @@ namespace MySqlX.Data.Tests
       d2.SetValue("pages", 20);
 
       Collection coll = CreateCollection("test");
-      coll.Add(d2).Execute();
-      var result = coll.Find().Execute().FetchAll();
+      ExecuteAddStatement(coll.Add(d2));
+      var result = ExecuteFindStatement(coll.Find()).FetchAll();
       Assert.Equal(1, result.Count);
       Assert.Equal(d2.ToString(), result[0].ToString());
     }
@@ -240,8 +241,8 @@ namespace MySqlX.Data.Tests
         docs[i].SetValue("_id", (i+1));
       }
 
-      collection.Add(docs).Execute();
-      var result = collection.Find().Execute().FetchAll();
+      ExecuteAddStatement(collection.Add(docs));
+      var result = ExecuteFindStatement(collection.Find()).FetchAll();
       Assert.Equal(docs.Length, result.Count);
 
       for (int i = 0; i < docs.Length; i++)
@@ -260,8 +261,8 @@ namespace MySqlX.Data.Tests
       };
 
       Collection collection = CreateCollection("test");
-      collection.Add(docs).Execute();
-      var result = collection.Find().Execute().FetchAll();
+      ExecuteAddStatement(collection.Add(docs));
+      var result = ExecuteFindStatement(collection.Find()).FetchAll();
       Assert.Equal(docs.Length, result.Count);
       for (int i=0; i < docs.Length; i++)
       {
@@ -285,7 +286,7 @@ namespace MySqlX.Data.Tests
         new {  _id = 3, title = "Book 3", pages = 40 },
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
-      Result result = collection.Add(docs).Execute();
+      Result result = ExecuteAddStatement(collection.Add(docs));
       Assert.Equal<ulong>(4, result.AffectedItemsCount);
 
       // Add a document.

@@ -1,4 +1,4 @@
-// Copyright © 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -126,7 +126,7 @@ namespace MySqlX.Data.Tests
       using (Session session = MySQLX.GetSession(ConnectionString))
       {
         // Search utf8mb4 database.
-        var result = session.SQL("SHOW COLLATION WHERE id = 255").Execute();
+        var result = ExecuteSQLStatement(session.SQL("SHOW COLLATION WHERE id = 255"));
         Assert.True(result.HasData);
         var data = result.FetchOne();
         Assert.Equal("utf8mb4_0900_ai_ci",data.GetString("Collation"));
@@ -144,25 +144,25 @@ namespace MySqlX.Data.Tests
     {
       using (Session session = MySQLX.GetSession(ConnectionString))
       {
-        var result = session.SQL("SHOW COLLATION WHERE `Default` ='Yes';").Execute();
+        var result = ExecuteSQLStatement(session.SQL("SHOW COLLATION WHERE `Default` ='Yes';"));
         Assert.True(result.HasData);
       }
 
       using (Session session = MySQLX.GetSession(ConnectionString + ";charset=latin1"))
       {
-        var result = session.SQL("SHOW COLLATION WHERE `Default` ='Yes';").Execute();
+        var result = ExecuteSQLStatement(session.SQL("SHOW COLLATION WHERE `Default` ='Yes';"));
         Assert.True(result.HasData);
       }
 
       using (Session session = MySQLX.GetSession(ConnectionString + ";charset=utf8mb4"))
       {
-        var result = session.SQL("SHOW COLLATION WHERE `Default` ='Yes';").Execute();
+        var result = ExecuteSQLStatement(session.SQL("SHOW COLLATION WHERE `Default` ='Yes';"));
         Assert.True(result.HasData);
       }
 
       using (Session session = MySQLX.GetSession(ConnectionString + ";charset=utf-8"))
       {
-        var result = session.SQL("SHOW COLLATION WHERE `Default` ='Yes';").Execute();
+        var result = ExecuteSQLStatement(session.SQL("SHOW COLLATION WHERE `Default` ='Yes';"));
         Assert.True(result.HasData);
       }
     }
@@ -193,10 +193,10 @@ namespace MySqlX.Data.Tests
         Assert.Equal(4,tables.Count);
         Assert.Equal(2,tables.FindAll(i => !i.IsView).Count);
         Assert.Equal(2, tables.FindAll(i => i.IsView).Count);
-        tables[0].Select().Execute();
-        tables[1].Select().Execute();
-        tables[2].Select().Execute();
-        tables[3].Select().Execute();
+        ExecuteSelectStatement(tables[0].Select());
+        ExecuteSelectStatement(tables[1].Select());
+        ExecuteSelectStatement(tables[2].Select());
+        ExecuteSelectStatement(tables[3].Select());
         Assert.Equal("test1", tables[0].Name);
         Assert.Equal("test2", tables[1].Name);
         Assert.Equal("view1", tables[2].Name);

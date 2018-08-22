@@ -51,15 +51,15 @@ namespace MySqlX.Data.Tests
       Session s = GetSession();
       Schema test = s.GetSchema("test");
       Collection testColl = test.CreateCollection("test");
-      Assert.True(testColl.ExistsInDatabase());
+      Assert.True(CollectionExistsInDatabase(testColl));
 
       // Drop existing collection.
       test.DropCollection("test");
-      Assert.False(testColl.ExistsInDatabase());
+      Assert.False(CollectionExistsInDatabase(testColl));
 
       // Drop non-existing collection.
       test.DropCollection("test");
-      Assert.False(testColl.ExistsInDatabase());
+      Assert.False(CollectionExistsInDatabase(testColl));
 
       // Empty, whitespace and null schema name.
       Assert.Throws<ArgumentNullException>(() => test.DropCollection(string.Empty));
@@ -74,9 +74,9 @@ namespace MySqlX.Data.Tests
       Session session = GetSession();
       Schema test = session.GetSchema("test");
       Collection testColl = test.CreateCollection("test");
-      Assert.True(testColl.ExistsInDatabase(), "ExistsInDatabase failed");
+      Assert.True(CollectionExistsInDatabase(testColl), "ExistsInDatabase failed");
       testColl.CreateIndex("testIndex", "{ \"fields\": [ { \"field\":$.myId, \"type\":\"INT\", \"required\":true } ] }");
-      var result = testColl.Add(new { myId = 1 }).Add(new { myId = 2 }).Execute();
+      var result = ExecuteAddStatement(testColl.Add(new { myId = 1 }).Add(new { myId = 2 }));
       Assert.Equal<ulong>(result.AffectedItemsCount, 2);
     }
 

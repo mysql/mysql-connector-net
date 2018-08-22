@@ -67,7 +67,7 @@ namespace MySqlX.Data.Tests
     public void CountClosedSession()
     {
       Session nodeSession = MySQLX.GetSession(ConnectionString);
-      int sessions = nodeSession.SQL("show processlist").Execute().FetchAll().Count;
+      int sessions = ExecuteSQLStatement(nodeSession.SQL("show processlist")).FetchAll().Count;
 
       for (int i = 0; i < 20; i++)
       {
@@ -77,7 +77,7 @@ namespace MySqlX.Data.Tests
         Assert.Equal(session.InternalSession.SessionState, SessionState.Closed);
       }
 
-      int newSessions = nodeSession.SQL("show processlist").Execute().FetchAll().Count;
+      int newSessions = ExecuteSQLStatement(nodeSession.SQL("show processlist")).FetchAll().Count;
       nodeSession.Close();
       Assert.Equal(sessions, newSessions);
     }
@@ -121,7 +121,7 @@ namespace MySqlX.Data.Tests
         Assert.Equal(SessionState.Open, mySession.InternalSession.SessionState);
         Assert.Equal(schemaName, mySession.Schema.Name);
         Assert.Equal(schemaName, mySession.GetCurrentSchema().Name);
-        Assert.True(mySession.Schema.ExistsInDatabase());
+        Assert.True(SchemaExistsInDatabase(mySession.Schema));
       }
     }
 
@@ -255,7 +255,7 @@ namespace MySqlX.Data.Tests
       using (var s3 = MySQLX.GetSession(ConnectionStringUri))
       {
         Assert.Equal(SessionState.Open, s3.InternalSession.SessionState);
-        var result = s3.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';").Execute().FetchAll();
+        var result = ExecuteSQLStatement(s3.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';")).FetchAll();
         Assert.StartsWith("TLSv1", result[0][1].ToString());
       }
     }
@@ -268,7 +268,7 @@ namespace MySqlX.Data.Tests
       using (var s3 = MySQLX.GetSession(connstring))
       {
         Assert.Equal(SessionState.Open, s3.InternalSession.SessionState);
-        var result = s3.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';").Execute().FetchAll();
+        var result = ExecuteSQLStatement(s3.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';")).FetchAll();
         Assert.StartsWith("TLSv1", result[0][1].ToString());
       }
     }
@@ -281,7 +281,7 @@ namespace MySqlX.Data.Tests
       using (var s1 = MySQLX.GetSession(connstring))
       {
         Assert.Equal(SessionState.Open, s1.InternalSession.SessionState);
-        var result = s1.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';").Execute().FetchAll();
+        var result = ExecuteSQLStatement(s1.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';")).FetchAll();
         Assert.StartsWith("TLSv1", result[0][1].ToString());
       }
     }
@@ -436,7 +436,7 @@ namespace MySqlX.Data.Tests
       using (var session = MySQLX.GetSession(ConnectionStringUri))
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
-        var result = session.SQL("SELECT `User`, `plugin` FROM `mysql`.`user` WHERE `User` = 'test';").Execute().FetchAll();
+        var result = ExecuteSQLStatement(session.SQL("SELECT `User`, `plugin` FROM `mysql`.`user` WHERE `User` = 'test';")).FetchAll();
         Assert.Equal("test", session.Settings.UserID);
         Assert.Equal(session.Settings.UserID, result[0][0].ToString());
         Assert.Equal("mysql_native_password", result[0][1].ToString());
@@ -455,7 +455,7 @@ namespace MySqlX.Data.Tests
       using (var session = MySQLX.GetSession(connectionStringUri))
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
-        var result = session.SQL(string.Format("SELECT `User`, `plugin` FROM `mysql`.`user` WHERE `User` = '{0}';", userName)).Execute().FetchAll();
+        var result = ExecuteSQLStatement(session.SQL(string.Format("SELECT `User`, `plugin` FROM `mysql`.`user` WHERE `User` = '{0}';", userName))).FetchAll();
         Assert.Equal(userName, session.Settings.UserID);
         Assert.Equal(session.Settings.UserID, result[0][0].ToString());
         Assert.Equal(pluginName, result[0][1].ToString());
@@ -473,7 +473,7 @@ namespace MySqlX.Data.Tests
       using (var session = MySQLX.GetSession(ConnectionStringUri.Replace("test:test", string.Format("{0}:{1}", userName, ""))))
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
-        var result = session.SQL(string.Format("SELECT `User`, `plugin` FROM `mysql`.`user` WHERE `User` = '{0}';", userName)).Execute().FetchAll();
+        var result = ExecuteSQLStatement(session.SQL(string.Format("SELECT `User`, `plugin` FROM `mysql`.`user` WHERE `User` = '{0}';", userName))).FetchAll();
         Assert.Equal(userName, session.Settings.UserID);
         Assert.Equal(session.Settings.UserID, result[0][0].ToString());
         Assert.Equal(pluginName, result[0][1].ToString());
@@ -531,8 +531,8 @@ namespace MySqlX.Data.Tests
 
       string user = "testsha256";
 
-      session.SQL($"DROP USER IF EXISTS {user}@'localhost'").Execute();
-      session.SQL($"CREATE USER {user}@'localhost' IDENTIFIED WITH caching_sha2_password BY '{user}'").Execute();
+      ExecuteSQLStatement(session.SQL($"DROP USER IF EXISTS {user}@'localhost'"));
+      ExecuteSQLStatement(session.SQL($"CREATE USER {user}@'localhost' IDENTIFIED WITH caching_sha2_password BY '{user}'"));
 
       string connString = $"mysqlx://{user}:{user}@localhost:{XPort}";
       // Default to PLAIN when TLS is enabled.
@@ -540,7 +540,7 @@ namespace MySqlX.Data.Tests
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
         Assert.Equal(MySqlAuthenticationMode.PLAIN, session.Settings.Auth);
-        var result = session.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';").Execute().FetchAll();
+        var result = ExecuteSQLStatement(session.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';")).FetchAll();
         Assert.StartsWith("TLSv1", result[0][1].ToString());
       }
 

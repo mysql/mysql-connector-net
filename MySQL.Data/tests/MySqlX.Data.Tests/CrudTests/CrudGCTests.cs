@@ -44,10 +44,10 @@ namespace MySqlX.Data.Tests.ResultTests
       stmt.Add(@"{ ""_id"": 2, ""foo"": 2 }");
       stmt.Add(@"{ ""_id"": 3, ""foo"": 3 }");
       stmt.Add(@"{ ""_id"": 4, ""foo"": 4 }");
-      Result result = stmt.Execute();
+      Result result = ExecuteAddStatement(stmt);
       Assert.Equal(4, (int)result.AffectedItemsCount);
 
-      var docResult = testColl.Find().Execute();
+      var docResult = ExecuteFindStatement(testColl.Find());
       var docs = docResult.FetchAll();
       WeakReference wr = new WeakReference(docResult);
       docResult = null;

@@ -47,14 +47,14 @@ namespace MySqlX.Data.Tests.CrudTests
         new {  _id = 3, title = "Book 3", pages = 40 },
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
-      Result r = test.Add(docs).Execute();
+      Result r = ExecuteAddStatement(test.Add(docs));
       Assert.Equal(r.Warnings.Count, r.WarningsCount);
       Assert.Equal(r.WarningsCount, r.WarningCount);
 
-      var docResult = test.Find().Execute();
+      var docResult = ExecuteFindStatement(test.Find());
       foreach (var doc in docResult)
       {
-        var result = test2.Add(doc).Execute();
+        var result = ExecuteAddStatement(test2.Add(doc));
         Assert.Equal<ulong>(1, result.AffectedItemsCount);
       }
     }
