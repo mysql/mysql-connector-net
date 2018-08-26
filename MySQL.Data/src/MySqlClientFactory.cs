@@ -87,6 +87,26 @@ namespace MySql.Data.MySqlClient
 			return new MySqlConnectionStringBuilder();
 		}
 
+#if !NETSTANDARD1_6
+		/// <summary>
+		/// Returns a strongly typed <see cref="DbCommandBuilder"/> instance. 
+		/// </summary>
+		/// <returns>A new strongly typed instance of <b>DbCommandBuilder</b>.</returns>
+		public override DbCommandBuilder CreateCommandBuilder()
+		{
+			return new MySqlCommandBuilder();
+		}
+		
+		/// <summary>
+		/// Returns a strongly typed <see cref="DbDataAdapter"/> instance. 
+		/// </summary>
+		/// <returns>A new strongly typed instance of <b>DbDataAdapter</b>.</returns>
+		public override DbDataAdapter CreateDataAdapter()
+		{
+			return new MySqlDataAdapter();
+		}
+#endif
+
 		#region IServiceProvider Members
 
 		/// <summary>
