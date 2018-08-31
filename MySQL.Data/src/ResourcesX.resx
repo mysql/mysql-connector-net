@@ -237,4 +237,7 @@
   <data name="InvalidJsonDocument" xml:space="preserve">
     <value>The value provided is not a valid JSON document. {0}</value>
   </data>
+  <data name="InvalidConnectionTimeoutValue" xml:space="preserve">
+    <value>TypeError: The connection timeout value must be a positive integer (including 0).</value>
+  </data>
 </root>

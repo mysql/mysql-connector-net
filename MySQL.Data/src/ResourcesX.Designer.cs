@@ -11,8 +11,8 @@
 namespace MySql.Data {
     using System;
     using System.Reflection;
-
-
+    
+    
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -130,6 +130,15 @@ namespace MySql.Data {
         public static string InvalidConnectionStringAttribute {
             get {
                 return ResourceManager.GetString("InvalidConnectionStringAttribute", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TypeError: The connection timeout value must be a positive integer (including 0)..
+        /// </summary>
+        public static string InvalidConnectionTimeoutValue {
+            get {
+                return ResourceManager.GetString("InvalidConnectionTimeoutValue", resourceCulture);
             }
         }
         

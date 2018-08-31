@@ -75,7 +75,7 @@ namespace MySql.Data.MySqlClient
         },
         (msb, sender) => msb.Logging));
       Options.Add(new MySqlConnectionStringOption("sharedmemoryname", "shared memory name", typeof(string), "MYSQL", false,
-        (msb, sender, value) => 
+        (msb, sender, value) =>
         {
 #if NETSTANDARD1_6 || NETSTANDARD2_0 || NETCOREAPP2_0
           throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(SharedMemoryName)));
@@ -88,6 +88,24 @@ namespace MySql.Data.MySqlClient
         (msb, sender, value) => { msb.SetValue("defaultcommandtimeout", value); }, (msb, sender) => msb.DefaultCommandTimeout));
       Options.Add(new MySqlConnectionStringOption("usedefaultcommandtimeoutforef", "use default command timeout for ef", typeof(bool), false, false,
         (msb, sender, value) => { msb.SetValue("usedefaultcommandtimeoutforef", value); }, (msb, sender) => msb.UseDefaultCommandTimeoutForEF));
+      Options.Add(new MySqlConnectionStringOption("connectiontimeout", "connection timeout,connect timeout", typeof(uint), (uint)15, false,
+        delegate (MySqlBaseConnectionStringBuilder msb, MySqlConnectionStringOption sender, object Value)
+        {
+          uint value = (uint)Convert.ChangeType(Value, sender.BaseType);
+          // Timeout in milliseconds should not exceed maximum for 32 bit
+          // signed integer (~24 days). We truncate the value if it exceeds
+          // maximum (MySqlCommand.CommandTimeout uses the same technique
+          uint timeout = Math.Min(value, Int32.MaxValue / 1000);
+          if (timeout != value)
+          {
+            MySqlTrace.LogWarning(-1, "Connection timeout value too large ("
+                + value + " seconds). Changed to max. possible value" +
+                +timeout + " seconds)");
+          }
+          msb.SetValue("connectiontimeout", timeout);
+        },
+        (msb, sender) => (uint)msb.values["connectiontimeout"]
+        ));
 
       // Authentication options.
       Options.Add(new MySqlConnectionStringOption("persistsecurityinfo", "persist security info", typeof(bool), false, false,
@@ -303,6 +321,34 @@ namespace MySql.Data.MySqlClient
     {
       get { return (uint)values["defaultcommandtimeout"]; }
       set { SetValue("defaultcommandtimeout", value); }
+    }
+
+    /// <summary>
+    /// Gets or sets the connection timeout.
+    /// </summary>
+    [Category("Connection")]
+    [DisplayName("Connect Timeout")]
+    [Description("The length of time (in seconds) to wait for a connection " +
+                 "to the server before terminating the attempt and generating an error.")]
+    [RefreshProperties(RefreshProperties.All)]
+    public uint ConnectionTimeout
+    {
+      get { return (uint)values["connectiontimeout"]; }
+
+      set
+      {
+        // Timeout in milliseconds should not exceed maximum for 32 bit
+        // signed integer (~24 days). We truncate the value if it exceeds
+        // maximum (MySqlCommand.CommandTimeout uses the same technique
+        uint timeout = Math.Min(value, Int32.MaxValue / 1000);
+        if (timeout != value)
+        {
+          MySqlTrace.LogWarning(-1, "Connection timeout value too large ("
+              + value + " seconds). Changed to max. possible value" +
+              +timeout + " seconds)");
+        }
+        SetValue("connectiontimeout", timeout);
+      }
     }
 
     #endregion

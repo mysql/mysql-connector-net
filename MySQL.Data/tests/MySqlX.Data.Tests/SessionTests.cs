@@ -798,6 +798,25 @@ namespace MySqlX.Data.Tests
       }
     }
 
+    [Fact]
+    public void ConnectionTimeout()
+    {
+      var builder = new MySqlXConnectionStringBuilder("user=test;password=test;port=33050;")
+      {
+        Server = "bad_host",
+        ConnectionTimeout = 0
+      };
+
+      DateTime start = DateTime.Now;
+      var exception = Record.Exception(() => MySQLX.GetSession(builder.ConnectionString));
+      Assert.NotNull(exception);
+      TimeSpan diff = DateTime.Now.Subtract(start);
+      Assert.True(diff.TotalSeconds < 10, "Timeout exceeded");
+
+
+    }
+
+
     protected void CheckConnectionData(string connectionData, string user, string password, string server, uint port, params string[] parameters)
     {
       string result = this.session.ParseConnectionData(connectionData);
