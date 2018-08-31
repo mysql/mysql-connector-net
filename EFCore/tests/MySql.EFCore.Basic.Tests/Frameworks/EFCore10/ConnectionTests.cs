@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,28 +26,19 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.EntityFrameworkCore.Storage;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using MySql.Data.EntityFrameworkCore;
-using System.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.Logging;
+using MySql.Data.MySqlClient;
+using Xunit;
 
-namespace MySql.Data.EntityFrameworkCore.Storage.Internal
+namespace MySql.Data.EntityFrameworkCore.Tests
 {
-  internal partial class MySQLBinaryTypeMapping : MySQLTypeMapping
+  public partial class ConnectionTests
   {
-    public MySQLBinaryTypeMapping(
-      [NotNull] string storeType,
-      [CanBeNull] DbType? dbType = System.Data.DbType.Binary,
-      int? size = null,
-      bool fixedLength = false)
-      : base(storeType, typeof(byte[]), dbType, size: size)
+    private static MySQLServerConnection CreateConnection(IDbContextOptions options, ILogger<MySQLServerConnection> logger)
     {
+      return new MySQLServerConnection(options, logger);
     }
-
-    public override RelationalTypeMapping Clone([NotNull] string storeType, int? size)
-      => new MySQLBinaryTypeMapping(storeType, DbType);
   }
 }

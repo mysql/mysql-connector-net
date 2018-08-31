@@ -26,28 +26,27 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using System.Data.Common;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using MySql.Data.EntityFrameworkCore;
-using System.Data;
+using Microsoft.Extensions.Logging;
+using MySql.Data.MySqlClient;
+using Microsoft.EntityFrameworkCore;
+using MySql.Data.EntityFrameworkCore.Extensions;
+using System.Reflection;
+using Microsoft.EntityFrameworkCore.Internal;
+using System.Diagnostics;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 
-namespace MySql.Data.EntityFrameworkCore.Storage.Internal
+namespace MySql.Data.EntityFrameworkCore
 {
-  internal partial class MySQLBinaryTypeMapping : MySQLTypeMapping
+  internal partial class MySQLServerConnection : RelationalConnection
   {
-    public MySQLBinaryTypeMapping(
-      [NotNull] string storeType,
-      [CanBeNull] DbType? dbType = System.Data.DbType.Binary,
-      int? size = null,
-      bool fixedLength = false)
-      : base(storeType, typeof(byte[]), dbType, size: size)
+    public MySQLServerConnection([NotNull] RelationalConnectionDependencies dependencies)
+      : base(dependencies)
     {
     }
 
-    public override RelationalTypeMapping Clone([NotNull] string storeType, int? size)
-      => new MySQLBinaryTypeMapping(storeType, DbType);
+    private MySQLServerConnection CreateConnection(IDbContextOptions options) => new MySQLServerConnection(Dependencies.With(options));
   }
 }

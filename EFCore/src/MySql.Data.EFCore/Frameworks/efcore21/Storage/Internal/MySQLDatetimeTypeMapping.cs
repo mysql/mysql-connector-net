@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,28 +26,25 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using MySql.Data.EntityFrameworkCore;
 using System.Data;
+using System.Data.Common;
+using System.Text;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using MySql.Data.MySqlClient;
 
 namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
-  internal partial class MySQLBinaryTypeMapping : MySQLTypeMapping
+  internal partial class MySQLDatetimeTypeMapping : MySQLTypeMapping
   {
-    public MySQLBinaryTypeMapping(
-      [NotNull] string storeType,
-      [CanBeNull] DbType? dbType = System.Data.DbType.Binary,
-      int? size = null,
-      bool fixedLength = false)
-      : base(storeType, typeof(byte[]), dbType, size: size)
+    protected MySQLDatetimeTypeMapping(RelationalTypeMappingParameters parameters)
+      : base(parameters)
     {
     }
 
-    public override RelationalTypeMapping Clone([NotNull] string storeType, int? size)
-      => new MySQLBinaryTypeMapping(storeType, DbType);
+    public override CoreTypeMapping Clone(ValueConverter converter)
+      => new MySQLDatetimeTypeMapping(Parameters.WithComposedConverter(converter));
   }
 }

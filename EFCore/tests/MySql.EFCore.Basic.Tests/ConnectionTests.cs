@@ -1,4 +1,4 @@
-// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -34,12 +34,12 @@ using Xunit;
 
 namespace MySql.Data.EntityFrameworkCore.Tests
 {
-  public class ConnectionTests
+  public partial class ConnectionTests
   {
     [Fact]
     public void CanCreateConnectionString()
     {
-      using (var connection = new MySQLServerConnection(CreateOptions(), new Logger<MySQLServerConnection>(new LoggerFactory())))
+      using (var connection = CreateConnection(CreateOptions(), new Logger<MySQLServerConnection>(new LoggerFactory())))
       {
         Assert.IsType<MySqlConnection>(connection.DbConnection);
       }
@@ -48,7 +48,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     [Fact]
     public void CanCreateMainConnection()
     {
-      using (var connection = new MySQLServerConnection(CreateOptions(), new Logger<MySQLServerConnection>(new LoggerFactory())))
+      using (var connection = CreateConnection(CreateOptions(), new Logger<MySQLServerConnection>(new LoggerFactory())))
       {
         using (var master = connection.CreateSystemConnection())
         {

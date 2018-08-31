@@ -1,4 +1,4 @@
-// Copyright © 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,25 +26,36 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.EntityFrameworkCore.Design;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.Extensions.DependencyInjection;
-using MySql.Data.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using MySql.Data.EntityFrameworkCore.Scaffolding.Internal;
-using Microsoft.EntityFrameworkCore.Scaffolding;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.Extensions.Logging;
+using MySql.Data.MySqlClient;
+using System.Diagnostics;
+using Xunit;
 
-namespace MySql.Data.EntityFrameworkCore.Design.Internal
+namespace MySql.Data.EntityFrameworkCore.Tests
 {
-  internal class MySQLDesignTimeServices : IDesignTimeServices
+  public partial class ConnectionTests
   {
-    public void ConfigureDesignTimeServices(IServiceCollection serviceCollection)
-      => serviceCollection
-        .AddSingleton<IRelationalTypeMapper, MySQLTypeMapper>()
-        .AddSingleton<IDatabaseModelFactory, MySQLDatabaseModelFactory>()
-        .AddSingleton<IScaffoldingProviderCodeGenerator, MySQLScaffoldingCodeGenerator>()
-        .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>();
+    private static MySQLServerConnection CreateConnection(IDbContextOptions options, ILogger logger)
+    {
+      var dependencies = new RelationalConnectionDependencies(
+        options,
+        new DiagnosticsLogger<DbLoggerCategory.Database.Transaction>(
+          new LoggerFactory(),
+          new LoggingOptions(),
+          new DiagnosticListener("MySqlDiagnosticListener")),
+        new DiagnosticsLogger<DbLoggerCategory.Database.Connection>(
+          new LoggerFactory(),
+          new LoggingOptions(),
+          new DiagnosticListener("MySqlDiagnosticListener")),
+        new NamedConnectionStringResolver(options),
+        new RelationalTransactionFactory(new RelationalTransactionFactoryDependencies()));
+
+      return new MySQLServerConnection(dependencies);
+    }
   }
 }

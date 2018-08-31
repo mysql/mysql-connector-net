@@ -1,4 +1,4 @@
-// Copyright © 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,47 +26,33 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System.Data.Common;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.Extensions.Logging;
-using MySql.Data.MySqlClient;
 using Microsoft.EntityFrameworkCore;
-using MySql.Data.EntityFrameworkCore.Extensions;
-using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using System.Diagnostics;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace MySql.Data.EntityFrameworkCore
+namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
-  internal partial class MySQLServerConnection : RelationalConnection
+  internal class MySQLCommandBuilder : RelationalCommandBuilder, IInfrastructure<IndentedStringBuilder>
   {
-    private object Logger = new object();
-
-    public MySQLServerConnection([NotNull] RelationalConnectionDependencies dependencies)
-      : base(dependencies)
+    public MySQLCommandBuilder(
+        [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
+        [NotNull] IRelationalTypeMappingSource typeMappingSource)
+      : base(logger, typeMappingSource)
     {
     }
 
-    public MySQLServerConnection(
-        [NotNull] IDbContextOptions options,
-        [CanBeNull] object logger)
-      : base(
-          new RelationalConnectionDependencies(
-            options,
-            new DiagnosticsLogger<DbLoggerCategory.Database.Transaction>(
-              new LoggerFactory(),
-              new LoggingOptions(),
-              new DiagnosticListener("MySQLTransactionListener")),
-            new DiagnosticsLogger<DbLoggerCategory.Database.Connection>(
-              new LoggerFactory(),
-              new LoggingOptions(),
-              new DiagnosticListener("MySQLConnectionListener")),
-            new NamedConnectionStringResolver(options)
-          )
-        )
-    {
-    }
+    protected override IRelationalCommand BuildCore(
+        [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
+        [NotNull] string commandText,
+        [NotNull] IReadOnlyList<IRelationalParameter> parameters)
+      => new MySQLRelationalCommand(logger, commandText, parameters);
   }
 }

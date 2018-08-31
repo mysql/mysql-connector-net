@@ -1,4 +1,4 @@
-// Copyright © 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,25 +26,25 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.EntityFrameworkCore.Storage;
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Data;
+using Microsoft.EntityFrameworkCore.Migrations;
+using System.Linq;
+using Microsoft.EntityFrameworkCore.Storage;
 
-namespace MySql.Data.EntityFrameworkCore.Storage.Internal
+namespace MySql.Data.EntityFrameworkCore.Migrations
 {
-  internal abstract partial class MySQLTypeMapping : RelationalTypeMapping
+  /// <summary>
+  /// MigrationSqlGenerator implementation for MySQL
+  /// </summary>
+  internal partial class MySQLMigrationsSqlGenerator : MigrationsSqlGenerator
   {
-    public MySQLTypeMapping(
-        [NotNull] string storeType,
-        [NotNull] Type clrType,
-        [CanBeNull] DbType? dbType = null,
-        bool unicode = false,
-        int? size = null,
-        bool hasNonDefaultUnicode = false)
-      : base(storeType, clrType, dbType, unicode, size)
+    private IRelationalTypeMappingSource _typeMapper;
+
+    public MySQLMigrationsSqlGenerator([NotNull] MigrationsSqlGeneratorDependencies dependencies)
+      : base(dependencies)
     {
+      _sqlGenerationHelper = dependencies.SqlGenerationHelper;
+      _typeMapper = dependencies.TypeMappingSource;
     }
   }
 }

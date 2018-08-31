@@ -26,28 +26,42 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.EntityFrameworkCore.Storage;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+using MySql.Data.EntityFrameworkCore.Storage.Internal;
+using MySql.EntityFrameworkCore.Migrations.Tests.Utilities;
 using MySql.Data.EntityFrameworkCore;
-using System.Data;
+using MySql.Data.EntityFrameworkCore.Metadata;
+using MySql.Data.EntityFrameworkCore.Migrations;
+using System.Diagnostics;
+using Xunit;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.Extensions.Logging;
+using MySql.Data.EntityFrameworkCore.Tests;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using MySql.Data.EntityFrameworkCore.Extensions;
 
-namespace MySql.Data.EntityFrameworkCore.Storage.Internal
+namespace MySql.EntityFrameworkCore.Migrations.Tests
 {
-  internal partial class MySQLBinaryTypeMapping : MySQLTypeMapping
+  public partial class MySQLMigrationsGeneratorTest : MySQLMigrationsGeneratorTestBase
   {
-    public MySQLBinaryTypeMapping(
-      [NotNull] string storeType,
-      [CanBeNull] DbType? dbType = System.Data.DbType.Binary,
-      int? size = null,
-      bool fixedLength = false)
-      : base(storeType, typeof(byte[]), dbType, size: size)
+    protected override IMigrationsSqlGenerator SqlGenerator
     {
-    }
+      get
+      {
+        var optionsBuilder = new DbContextOptionsBuilder();
+        optionsBuilder.UseMySQL(MySQLTestStore.rootConnectionString + "database=test;");
 
-    public override RelationalTypeMapping Clone([NotNull] string storeType, int? size)
-      => new MySQLBinaryTypeMapping(storeType, DbType);
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddEntityFrameworkMySQL()
+          .AddDbContext<MyTestContext>();
+
+        optionsBuilder.UseInternalServiceProvider(serviceCollection.BuildServiceProvider());
+
+        return new DbContext(optionsBuilder.Options).GetService<IMigrationsSqlGenerator>();
+      }
+    }
   }
 }

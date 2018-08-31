@@ -1,4 +1,4 @@
-// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -54,7 +54,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       {
         context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
-        Assert.False(context.Posts.Any());
+        Assert.True(context.Posts.Count() == 0);
       }
     }
 
@@ -158,7 +158,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
                                               new MySqlConnection(MySQLTestStore.CreateConnectionString("db-optionsindbcontext"))))
       {
         context.Database.EnsureCreated();     
-        Assert.False(context.Blogs.Any());
+        Assert.True(context.Blogs.Count() == 0);
         context.Database.EnsureDeleted();
       }
 

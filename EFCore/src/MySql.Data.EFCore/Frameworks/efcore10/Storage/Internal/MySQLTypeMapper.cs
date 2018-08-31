@@ -1,4 +1,4 @@
-// Copyright © 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,33 +26,44 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Data;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage;
+using MySql.Data.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
-  internal class MySQLCommandBuilder : RelationalCommandBuilder, IInfrastructure<IndentedStringBuilder>
+  internal partial class MySQLTypeMapper : RelationalTypeMapper
   {
-    public MySQLCommandBuilder(
-        [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
-        [NotNull] IRelationalTypeMapper typeMapper)
-      : base(logger, typeMapper)
+    public override IStringRelationalTypeMapper StringMapper { get; }
+    public override IByteArrayRelationalTypeMapper ByteArrayMapper { get; }
+
+
+    protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings()
+    => _clrTypeMappings;
+
+    protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetStoreTypeMappings()
+    => _storeTypeMappings;
+
+
+    protected override string GetColumnType(IProperty property)
     {
+      return property.Relational().ColumnType;
     }
 
-    protected override IRelationalCommand BuildCore(
-        [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
-        [NotNull] string commandText,
-        [NotNull] IReadOnlyList<IRelationalParameter> parameters)
-      => new MySQLRelationalCommand(logger, commandText, parameters);
+
+    public override RelationalTypeMapping FindMapping(Type clrType)
+    {
+      ThrowIf.Argument.IsNull(clrType, "clrType");
+      var sType = Nullable.GetUnderlyingType(clrType) ?? clrType;
+      return sType == typeof(string)
+          ? _varchar
+          : (sType == typeof(byte[])
+              ? _varbinary
+              : base.FindMapping(clrType));
+    }
   }
 }

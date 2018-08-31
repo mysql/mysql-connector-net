@@ -1,4 +1,4 @@
-﻿// Copyright © 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -334,7 +334,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
           .HasColumnType("varchar(20)")
           .HasMaxLength(20);
 
-      entity.Property<string>("location")
+      entity.Property<MySql.Data.Types.MySqlGeometry>("location")
           .HasColumnType("geometry");
 
       entity.Property(e => e.LastUpdate)
