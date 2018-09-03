@@ -179,14 +179,14 @@ namespace MySqlX.Data.Tests
 
       // Access denied error is raised when database does not exist.
       var exception = Assert.Throws<MySqlException>(() => MySQLX.GetSession(new
-        {
-          server = globalSession.Settings.Server,
-          port = globalSession.Settings.Port,
-          user = globalSession.Settings.UserID,
-          password = globalSession.Settings.Password,
-          sslmode = MySqlSslMode.Required,
-          database = "test1"
-        }
+      {
+        server = globalSession.Settings.Server,
+        port = globalSession.Settings.Port,
+        user = globalSession.Settings.UserID,
+        password = globalSession.Settings.Password,
+        sslmode = MySqlSslMode.Required,
+        database = "test1"
+      }
       ));
       Assert.StartsWith("Access denied", exception.Message);
     }
@@ -712,7 +712,7 @@ namespace MySqlX.Data.Tests
 
       MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder();
       builder.Server = session.Settings.Server;
-      builder.UserID = session.Settings.UserID;;
+      builder.UserID = session.Settings.UserID; ;
       builder.Password = session.Settings.Password;
       builder.Port = session.Settings.Port;
       builder.ConnectionProtocol = MySqlConnectionProtocol.Tcp;
@@ -721,7 +721,7 @@ namespace MySqlX.Data.Tests
       builder.SslMode = MySqlSslMode.Required;
       builder.SslCa = "../../../../MySql.Data.Tests/client.pfx";
       builder.CertificatePassword = "pass";
-      builder.ConnectionTimeout = 10;
+      builder.ConnectionTimeout = 10000;
       builder.Keepalive = 10;
       builder.Auth = MySqlAuthenticationMode.AUTO;
 
@@ -768,7 +768,7 @@ namespace MySqlX.Data.Tests
       // Setting SslCa will also set CertificateFile.
       builder.SslCa = "../../../../MySql.Data.Tests/client.pfx";
       builder.CertificatePassword = "pass";
-      builder.ConnectionTimeout = 10;
+      builder.ConnectionTimeout = 10000;
       builder.Keepalive = 10;
       // Auth will change to the authentication mode internally used PLAIN, MySQL41, SHA256_MEMORY: 
       builder.Auth = MySqlAuthenticationMode.AUTO;
@@ -796,6 +796,107 @@ namespace MySqlX.Data.Tests
         Assert.Equal(builder.Keepalive, internalSession.Settings.Keepalive);
         Assert.Equal(MySqlAuthenticationMode.PLAIN, internalSession.Settings.Auth);
       }
+    }
+
+    /// <summary>
+    /// WL #12177 Implement connect timeout
+    /// </summary>
+    [Fact]
+    public void ConnectionTimeout()
+    {
+      // Create a session passing the new parameter "connect-timeout" and set it to a valid value.
+      // ConnectionString.
+      using (Session session = MySQLX.GetSession(ConnectionString + ";connect-timeout=5000;"))
+      {
+        Assert.True(session.Settings.ConnectionTimeout == 5000);
+        Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
+      }
+
+      // ConnectionURI.
+      using (Session session = MySQLX.GetSession(ConnectionStringUri + "?connecttimeout=6500"))
+      {
+        Assert.True(session.Settings.ConnectionTimeout == 6500);
+        Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
+      }
+
+      // Anonymous Object using default value, 10000ms.
+      var connstring = new
+      {
+        server = session.Settings.Server,
+        port = session.Settings.Port,
+        user = session.Settings.UserID,
+        password = session.Settings.Password,
+        connecttimeout = session.Settings.ConnectionTimeout
+      };
+
+      using (var testSession = MySQLX.GetSession(connstring))
+      {
+        Assert.True(session.Settings.ConnectionTimeout == 10000);
+        Assert.Equal(SessionState.Open, testSession.InternalSession.SessionState);
+      }
+
+      // Offline host using default value, 10000ms.
+      var conn = "server=143.24.20.36;user=test;password=test;port=33060;";
+      TestConnectTimeoutFailureTimeout(conn, 9, 11, "Offline host default value");
+
+      // Offline host using 15000ms.
+      conn = "server=143.24.20.36;user=test;password=test;port=33060;connecttimeout=15000";
+      TestConnectTimeoutFailureTimeout(conn, 14, 16, "Offline host 15000ms");
+
+      // Offline host timeout disabled.
+      conn = "server=143.24.20.36;user=test;password=test;port=33060;connecttimeout=0";
+      TestConnectTimeoutFailureTimeout(conn, 10, 600, "Offline host timeout disabled");
+
+      // Create a session using the fail over functionality passing two diferrent Server address. Must succeed after 2000ms
+      conn = "server=143.24.20.36,localhost;user=test;password=test;port=33060;connecttimeout=2000;";
+      TestConnectTimeoutSuccessTimeout(conn, 2, 4, "Fail over success");
+
+      // Both servers offline. Connection must time out after 20000ms
+      conn = "server=143.24.20.36,143.24.20.35;user=test;password=test;port=33060;";
+      TestConnectTimeoutFailureTimeout(conn, 19, 21, "Fail over failure");
+
+      // Valid session no time out
+      DateTime start = DateTime.Now;
+      using (Session session = MySQLX.GetSession(ConnectionStringUri + "?connecttimeout=2000"))
+        session.SQL("SELECT SLEEP(10)").Execute();
+      TimeSpan diff = DateTime.Now.Subtract(start);
+      Assert.True(diff.TotalSeconds > 10);
+
+      //Invalid Values for Connection Timeout parameter
+      var ex = Assert.Throws<FormatException>(() => MySQLX.GetSession(ConnectionString + ";connect-timeout=-1;"));
+      Assert.Equal("The connection timeout value must be a positive integer (including 0).", ex.Message);
+
+      ex = Assert.Throws<FormatException>(() => MySQLX.GetSession(ConnectionString + ";connect-timeout=foo;"));
+      Assert.Equal("The connection timeout value must be a positive integer (including 0).", ex.Message);
+
+      ex = Assert.Throws<FormatException>(() => MySQLX.GetSession(ConnectionString + ";connect-timeout='';"));
+      Assert.Equal("The connection timeout value must be a positive integer (including 0).", ex.Message);
+
+      ex = Assert.Throws<FormatException>(() => MySQLX.GetSession(ConnectionString + ";connect-timeout=10.5;"));
+      Assert.Equal("The connection timeout value must be a positive integer (including 0).", ex.Message);
+
+      ex = Assert.Throws<FormatException>(() => MySQLX.GetSession(ConnectionString + ";connect-timeout=" + Int32.MaxValue + 1));
+      Assert.Equal("The connection timeout value must be a positive integer (including 0).", ex.Message);
+
+      // Valid value for ConnectionTimeout, invalid credentials
+      var exception = Assert.Throws<MySqlException>(() => MySQLX.GetSession("server=localhost;user=test;password=noPass;port=33060;connect-timeout=2000;"));
+      Assert.NotNull(exception);
+    }
+
+    private void TestConnectTimeoutFailureTimeout(String connString, int minTime, int maxTime, string test)
+    {
+      DateTime start = DateTime.Now;
+      Assert.Throws<TimeoutException>(() => MySQLX.GetSession(connString));
+      TimeSpan diff = DateTime.Now.Subtract(start);
+      Assert.True(diff.TotalSeconds > minTime && diff.TotalSeconds < maxTime, String.Format("Timeout exceeded ({0}). Actual time: {1}", test, diff));
+    }
+
+    private void TestConnectTimeoutSuccessTimeout(String connString, int minTime, int maxTime, string test)
+    {
+      DateTime start = DateTime.Now;
+      MySQLX.GetSession(connString);
+      TimeSpan diff = DateTime.Now.Subtract(start);
+      Assert.True(diff.TotalSeconds > minTime && diff.TotalSeconds < maxTime, String.Format("Timeout exceeded ({0}). Actual time: {1}", test, diff));
     }
 
     protected void CheckConnectionData(string connectionData, string user, string password, string server, uint port, params string[] parameters)

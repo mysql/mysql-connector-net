@@ -237,4 +237,13 @@
   <data name="InvalidJsonDocument" xml:space="preserve">
     <value>The value provided is not a valid JSON document. {0}</value>
   </data>
+  <data name="InvalidConnectionTimeoutValue" xml:space="preserve">
+    <value>The connection timeout value must be a positive integer (including 0).</value>
+  </data>
+  <data name="TimeOutMultipleHost" xml:space="preserve">
+    <value>All server connection attempts were aborted. Timeout of {0} milliseconds was exceeded for each selected server.</value>
+  </data>
+  <data name="TimeOutSingleHost" xml:space="preserve">
+    <value>Connection attempt to the server was aborted. Timeout of {0} milliseconds was exceeded.</value>
+  </data>
 </root>

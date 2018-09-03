@@ -1,4 +1,4 @@
-// Copyright © 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -40,7 +40,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void SequentialMethodWithBasicFormatConnectionString()
     {
-      int connectionTimeout = 1;
+      int connectionTimeout = 10000;
 
       // Single host.
       using (var session = MySQLX.GetSession(ConnectionString))
@@ -61,8 +61,8 @@ namespace MySqlX.Data.Tests
       }
 
       // Multiple hosts. All attempts fail.
-      Exception ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession("server= 10.10.10.10, 20.20.20.20 ;port=" + XPort + ";uid=test;password=test;connectiontimeout=" + connectionTimeout));
-      Assert.Equal("Unable to connect to any of the specified MySQL hosts.", ex.Message);
+      Exception ex = Assert.Throws<TimeoutException>(() => MySQLX.GetSession("server= 10.10.10.10, 20.20.20.20 ;port=" + XPort + ";uid=test;password=test;connectiontimeout=" + connectionTimeout));
+      Assert.Equal("All server connection attempts were aborted. Timeout of 10000 milliseconds was exceeded for each selected server.", ex.Message);
 
       // Providing port number as part of the host name.
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession("server= 10.10.10.10:33060, 20.20.20.20:33060 ;port=" + XPort + ";uid=test;password=test;connectiontimeout=" + connectionTimeout));
@@ -100,8 +100,8 @@ namespace MySqlX.Data.Tests
       }
 
       // Single host as an array. Failed connection.
-      Exception ex = Assert.Throws<ObjectDisposedException>(() => MySQLX.GetSession("mysqlx://test:test@[192.1.10.10:" + XPort + "]?connectiontimeout=" + connectionTimeout));
-      
+      Exception ex = Assert.Throws<TimeoutException>(() => MySQLX.GetSession("mysqlx://test:test@[192.1.10.10:" + XPort + "]?connectiontimeout=" + connectionTimeout));
+
       // Multiple hosts. First attempt fails, second is succesful.
       using (var session = MySQLX.GetSession("mysqlx://test:test@[192.1.10.10,127.0.0.1:" + XPort + "]?connectiontimeout=" + connectionTimeout))
       {
@@ -124,7 +124,7 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void SequentialMethodWithAnonymousTypes()
     {
-      int connectionTimeout = 1;
+      int connectionTimeout = 1000;
       string uid = "test";
       string password = "test";
 
@@ -153,8 +153,8 @@ namespace MySqlX.Data.Tests
       }
 
       // Multiple hosts. All attempts fail.
-      Exception ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(new { server = "10.10.10.10, 20.20.20.20", port = XPort, uid = uid, password = password, connectiontimeout = connectionTimeout }));
-      Assert.Equal("Unable to connect to any of the specified MySQL hosts.", ex.Message);
+      Exception ex = Assert.Throws<TimeoutException>(() => MySQLX.GetSession(new { server = "10.10.10.10, 20.20.20.20", port = XPort, uid = uid, password = password, connectiontimeout = connectionTimeout }));
+      Assert.Equal("All server connection attempts were aborted. Timeout of 10000 milliseconds was exceeded for each selected server.", ex.Message);
 
       // Providing port number as part of the host name.
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(new { server = "10.10.10.10:33060, 20.20.20.20:33060", port = XPort, uid = uid, password = password, connectiontimeout = connectionTimeout }));
@@ -198,15 +198,15 @@ namespace MySqlX.Data.Tests
       Exception ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession("server=(address=server.example,priority=-20),(address=127.0.0.1,priority=100);port=" + XPort + ";uid=test;password=test;connectiontimeout=" + connectionTimeout));
       Assert.Equal("The priority must be between 0 and 100.", ex.Message);
 
-      ex = Assert.Throws<ArgumentException>(() =>  MySQLX.GetSession("server=(address=server.example,priority=-50),(address=127.0.0.1,priority=101);port=" + XPort + ";uid=test;password=test;connectiontimeout=" + connectionTimeout));
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession("server=(address=server.example,priority=-50),(address=127.0.0.1,priority=101);port=" + XPort + ";uid=test;password=test;connectiontimeout=" + connectionTimeout));
       Assert.Equal("The priority must be between 0 and 100.", ex.Message);
 
       // Set priority for a subset of the hosts.
-      ex = Assert.Throws<ArgumentException>(() =>  MySQLX.GetSession("server=(address=server.example),(address=127.0.0.1,priority=100);port=" + XPort + ";uid=test;password=test;connectiontimeout=" + connectionTimeout));
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession("server=(address=server.example),(address=127.0.0.1,priority=100);port=" + XPort + ";uid=test;password=test;connectiontimeout=" + connectionTimeout));
       Assert.Equal("You must either assign no priority to any of the hosts or give a priority for every host.", ex.Message);
-      ex = Assert.Throws<ArgumentException>(() =>  MySQLX.GetSession("server=(address=server.example,priority=50),(address=127.0.0.1);port=" + XPort + ";uid=test;password=test;connectiontimeout=" + connectionTimeout));
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession("server=(address=server.example,priority=50),(address=127.0.0.1);port=" + XPort + ";uid=test;password=test;connectiontimeout=" + connectionTimeout));
       Assert.Equal("You must either assign no priority to any of the hosts or give a priority for every host.", ex.Message);
-      ex = Assert.Throws<ArgumentException>(() =>  MySQLX.GetSession("server=(address=server.example,priority=50),(address=127.0.0.1,priority=100),(address=server.example);port=" + XPort + ";uid=test;password=test;connectiontimeout=" + connectionTimeout));
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession("server=(address=server.example,priority=50),(address=127.0.0.1,priority=100),(address=server.example);port=" + XPort + ";uid=test;password=test;connectiontimeout=" + connectionTimeout));
       Assert.Equal("You must either assign no priority to any of the hosts or give a priority for every host.", ex.Message);
 
       // Automatically set priority if no priority is given.
@@ -214,8 +214,8 @@ namespace MySqlX.Data.Tests
       int priority = 100;
       for (int i = 1; i <= 105; i++)
       {
-        hostList += "(address=server" + i + ".example,priority=" + ( priority!=0 ? priority-- : 0) + "),";
-        if (i==105) hostList += "(address=localhost,priority=0)";
+        hostList += "(address=server" + i + ".example,priority=" + (priority != 0 ? priority-- : 0) + "),";
+        if (i == 105) hostList += "(address=localhost,priority=0)";
       }
 
       using (var session = MySQLX.GetSession("server=" + hostList + ";port=" + XPort + ";uid=test;password=test;connectiontimeout=" + connectionTimeout))
@@ -224,7 +224,7 @@ namespace MySqlX.Data.Tests
         priority = 100;
         foreach (var host in Failover.FailoverManager.FailoverGroup.Hosts)
         {
-          Assert.Equal(priority!=0 ? priority-- : 0, host.Priority);
+          Assert.Equal(priority != 0 ? priority-- : 0, host.Priority);
         }
       }
     }
@@ -259,15 +259,15 @@ namespace MySqlX.Data.Tests
       Exception ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession("mysqlx://test:test@[(address=server.example,priority=-20),(address=127.0.0.1,priority=100)]?connectiontimeout=" + connectionTimeout));
       Assert.Equal("The priority must be between 0 and 100.", ex.Message);
 
-      ex = Assert.Throws<ArgumentException>(() =>  MySQLX.GetSession("mysqlx://test:test@[(address=server.example,priority=50),(address=127.0.0.1,priority=101)]?connectiontimeout=" + connectionTimeout));
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession("mysqlx://test:test@[(address=server.example,priority=50),(address=127.0.0.1,priority=101)]?connectiontimeout=" + connectionTimeout));
       Assert.Equal("The priority must be between 0 and 100.", ex.Message);
 
       // Set priority for a subset of the hosts.
-      ex = Assert.Throws<ArgumentException>(() =>  MySQLX.GetSession("mysqlx://test:test@[(address=server.example),(address=127.0.0.1,priority=100)]?connectiontimeout=" + connectionTimeout));
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession("mysqlx://test:test@[(address=server.example),(address=127.0.0.1,priority=100)]?connectiontimeout=" + connectionTimeout));
       Assert.Equal("You must either assign no priority to any of the hosts or give a priority for every host.", ex.Message);
-      ex = Assert.Throws<ArgumentException>(() =>  MySQLX.GetSession("mysqlx://test:test@[(address=server.example,priority=100),(address=127.0.0.1)]?connectiontimeout=" + connectionTimeout));
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession("mysqlx://test:test@[(address=server.example,priority=100),(address=127.0.0.1)]?connectiontimeout=" + connectionTimeout));
       Assert.Equal("You must either assign no priority to any of the hosts or give a priority for every host.", ex.Message);
-      ex = Assert.Throws<ArgumentException>(() =>  MySQLX.GetSession("mysqlx://test:test@[(address=server.example),(address=127.0.0.1),(address=server2.example,priority=100)]?connectiontimeout=" + connectionTimeout));
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession("mysqlx://test:test@[(address=server.example),(address=127.0.0.1),(address=server2.example,priority=100)]?connectiontimeout=" + connectionTimeout));
       Assert.Equal("You must either assign no priority to any of the hosts or give a priority for every host.", ex.Message);
 
       // Automatically set priority if no priority is given.
@@ -275,8 +275,8 @@ namespace MySqlX.Data.Tests
       int priority = 100;
       for (int i = 1; i <= 105; i++)
       {
-        hostList += "(address=server" + i + ".example,priority=" + ( priority!=0 ? priority-- : 0) + "),";
-        if (i==105) hostList += "(address=localhost,priority=0)";
+        hostList += "(address=server" + i + ".example,priority=" + (priority != 0 ? priority-- : 0) + "),";
+        if (i == 105) hostList += "(address=localhost,priority=0)";
       }
 
       using (var session = MySQLX.GetSession("mysqlx://test:test@[" + hostList + "]?connectiontimeout=" + connectionTimeout))
@@ -285,7 +285,7 @@ namespace MySqlX.Data.Tests
         priority = 100;
         foreach (var host in Failover.FailoverManager.FailoverGroup.Hosts)
         {
-          Assert.Equal(priority!=0 ? priority-- : 0, host.Priority);
+          Assert.Equal(priority != 0 ? priority-- : 0, host.Priority);
         }
       }
     }
@@ -334,15 +334,15 @@ namespace MySqlX.Data.Tests
       Exception ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(new { server = "(address=server.example,priority=-20),(address=127.0.0.1,priority=100)", port = XPort, uid = uid, password = password, connectiontimeout = connectionTimeout }));
       Assert.Equal("The priority must be between 0 and 100.", ex.Message);
 
-      ex = Assert.Throws<ArgumentException>(() =>  MySQLX.GetSession(new { server = "(address=server.example,priority=-50),(address=127.0.0.1,priority=101)", port = XPort, uid = uid, password = password, connectiontimeout = connectionTimeout }));
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(new { server = "(address=server.example,priority=-50),(address=127.0.0.1,priority=101)", port = XPort, uid = uid, password = password, connectiontimeout = connectionTimeout }));
       Assert.Equal("The priority must be between 0 and 100.", ex.Message);
 
       // Set priority for a subset of the hosts.
-      ex = Assert.Throws<ArgumentException>(() =>  MySQLX.GetSession(new { server = "(address=server.example),(address=127.0.0.1,priority=100)", port = XPort, uid = uid, password = password, connectiontimeout = connectionTimeout }));
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(new { server = "(address=server.example),(address=127.0.0.1,priority=100)", port = XPort, uid = uid, password = password, connectiontimeout = connectionTimeout }));
       Assert.Equal("You must either assign no priority to any of the hosts or give a priority for every host.", ex.Message);
-      ex = Assert.Throws<ArgumentException>(() =>  MySQLX.GetSession(new { server = "(address=server.example,priority=50),(address=127.0.0.1)", port = XPort, uid = uid, password = password, connectiontimeout = connectionTimeout }));
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(new { server = "(address=server.example,priority=50),(address=127.0.0.1)", port = XPort, uid = uid, password = password, connectiontimeout = connectionTimeout }));
       Assert.Equal("You must either assign no priority to any of the hosts or give a priority for every host.", ex.Message);
-      ex = Assert.Throws<ArgumentException>(() =>  MySQLX.GetSession(new { server = "(address=server.example,priority=50),(address=127.0.0.1,priority=100),(address=server.example)", port = XPort, uid = uid, password = password, connectiontimeout = connectionTimeout }));
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(new { server = "(address=server.example,priority=50),(address=127.0.0.1,priority=100),(address=server.example)", port = XPort, uid = uid, password = password, connectiontimeout = connectionTimeout }));
       Assert.Equal("You must either assign no priority to any of the hosts or give a priority for every host.", ex.Message);
 
       // Automatically set priority if no priority is given.
@@ -350,8 +350,8 @@ namespace MySqlX.Data.Tests
       int priority = 100;
       for (int i = 1; i <= 105; i++)
       {
-        hostList += "(address=server" + i + ".example,priority=" + ( priority!=0 ? priority-- : 0) + "),";
-        if (i==105) hostList += "(address=localhost,priority=0)";
+        hostList += "(address=server" + i + ".example,priority=" + (priority != 0 ? priority-- : 0) + "),";
+        if (i == 105) hostList += "(address=localhost,priority=0)";
       }
 
       using (var session = MySQLX.GetSession(new { server = hostList, port = XPort, uid = uid, password = password, connectiontimeout = connectionTimeout }))
@@ -360,7 +360,7 @@ namespace MySqlX.Data.Tests
         priority = 100;
         foreach (var host in Failover.FailoverManager.FailoverGroup.Hosts)
         {
-          Assert.Equal(priority!=0 ? priority-- : 0, host.Priority);
+          Assert.Equal(priority != 0 ? priority-- : 0, host.Priority);
         }
       }
     }
