@@ -269,8 +269,6 @@ namespace MySql.Data.Common
       //      }
       //      else
       //      {
-      //IPAddress iPAddress = new IPAddress(0x2414188f);
-      //endPoint = new IPEndPoint(iPAddress, (int)port);
 
       endPoint = new IPEndPoint(ip, (int)port);
       //      }
@@ -326,7 +324,7 @@ namespace MySql.Data.Common
       {
         socket.EndConnect(ias);
       }
-      catch (Exception)
+      catch (Exception ex)
       {
         socket.Close();
         throw;
