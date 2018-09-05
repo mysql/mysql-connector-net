@@ -45,12 +45,12 @@
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net452' or '$(TargetFramework)' == 'netcoreapp1.1' ">
     <Compile Remove="Frameworks/efcore20/**/*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="1.1.*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="1.1.6" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0' or '$(TargetFramework)' == 'net461' ">
     <Compile Remove="Frameworks/efcore10/**/*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.0.*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.0.3" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
