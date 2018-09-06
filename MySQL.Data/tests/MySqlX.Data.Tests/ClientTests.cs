@@ -231,7 +231,7 @@ namespace MySqlX.Data.Tests
           Stopwatch stopwatch = Stopwatch.StartNew();
           TimeoutException ex = Assert.ThrowsAny<TimeoutException>(() => { Session session2 = client.GetSession(); });
           stopwatch.Stop();
-          Assert.Equal(ResourcesX.PoolingTimeout, ex.Message);
+          Assert.Equal(ResourcesX.PoolingQueueTimeout, ex.Message);
           Assert.True(stopwatch.ElapsedMilliseconds >= timeout);
         }
       }

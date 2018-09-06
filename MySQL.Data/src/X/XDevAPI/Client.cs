@@ -153,7 +153,7 @@ namespace MySqlX.XDevAPI
       }
 
       stopwatch.Stop();
-      throw new TimeoutException(ResourcesX.PoolingTimeout);
+      throw new TimeoutException(ResourcesX.PoolingQueueTimeout);
     }
 
     private Session TryToGetSession()

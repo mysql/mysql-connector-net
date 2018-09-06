@@ -243,8 +243,8 @@
   <data name="ClientOptionNotValid" xml:space="preserve">
     <value>Client option '{0}' is not recognized as valid.</value>
   </data>
-  <data name="PoolingTimeout" xml:space="preserve">
-    <value>QueueTimeout expired. The timeout period elapsed prior to get a session from the pool.</value>
+  <data name="PoolingQueueTimeout" xml:space="preserve">
+    <value>Queue timeout expired. The timeout period elapsed prior to getting a session from the pool.</value>
   </data>
   <data name="InvalidSession" xml:space="preserve">
     <value>Session state is not valid.</value>

@@ -341,11 +341,11 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to QueueTimeout expired. The timeout period elapsed prior to get a session from the pool..
+        ///   Looks up a localized string similar to Queue timeout expired. The timeout period elapsed prior to getting a session from the pool..
         /// </summary>
-        public static string PoolingTimeout {
+        public static string PoolingQueueTimeout {
             get {
-                return ResourceManager.GetString("PoolingTimeout", resourceCulture);
+                return ResourceManager.GetString("PoolingQueueTimeout", resourceCulture);
             }
         }
         
