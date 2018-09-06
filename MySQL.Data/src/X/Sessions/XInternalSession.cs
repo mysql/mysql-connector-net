@@ -110,6 +110,13 @@ namespace MySqlX.Sessions
         }
       }
 
+      Authenticate();
+
+      SetState(SessionState.Open, false);
+    }
+
+    internal void Authenticate()
+    {
       // Default authentication
       if (Settings.Auth == MySqlAuthenticationMode.Default)
       {
@@ -144,7 +151,7 @@ namespace MySqlX.Sessions
               AuthenticateSha256Memory();
               authenticated = true;
             }
-            catch(MySqlException ex)
+            catch (MySqlException ex)
             {
               // code 1045 Invalid user or password
               if (ex.Code == 1045)
@@ -176,8 +183,6 @@ namespace MySqlX.Sessions
             throw new NotImplementedException(Settings.Auth.ToString());
         }
       }
-
-      SetState(SessionState.Open, false);
     }
 
     private void GetAndSetCapabilities()
@@ -479,11 +484,18 @@ namespace MySqlX.Sessions
     {
       protocol.SendExpectOpen(condition);
       return new Result(this);
-  }
+    }
 
     public Result ExpectDocidGenerated()
     {
       return ExpectOpen(Mysqlx.Expect.Open.Types.Condition.Types.Key.ExpectDocidGenerated);
-}
+    }
+
+    public void ResetSession()
+    {
+      protocol.SendResetSession();
+      protocol.ReadOk();
+      //return new Result(this);
+    }
   }
 }

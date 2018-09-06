@@ -594,6 +594,12 @@ namespace MySqlX.Protocol
       _writer.Write(ClientMessageId.EXPECT_OPEN, builder);
     }
 
+    public void SendResetSession()
+    {
+      var builder = new Mysqlx.Session.Reset();
+      _writer.Write(ClientMessageId.SESS_RESET, builder);
+    }
+
     internal void ReadOkClose()
     {
       try

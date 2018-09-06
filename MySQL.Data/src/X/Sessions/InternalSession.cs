@@ -64,7 +64,7 @@ namespace MySqlX.Sessions
 
     internal abstract ProtocolBase GetProtocol();
 
-    protected MySqlXConnectionStringBuilder Settings;
+    protected internal MySqlXConnectionStringBuilder Settings;
 
     public SessionState SessionState { get; protected set; }
 

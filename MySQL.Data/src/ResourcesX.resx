@@ -237,4 +237,16 @@
   <data name="InvalidJsonDocument" xml:space="preserve">
     <value>The value provided is not a valid JSON document. {0}</value>
   </data>
+  <data name="ClientOptionInvalidValue" xml:space="preserve">
+    <value>Client option '{0}' does not support value '{1}'.</value>
+  </data>
+  <data name="ClientOptionNotValid" xml:space="preserve">
+    <value>Client option '{0}' is not recognized as valid.</value>
+  </data>
+  <data name="PoolingTimeout" xml:space="preserve">
+    <value>QueueTimeout expired. The timeout period elapsed prior to get a session from the pool.</value>
+  </data>
+  <data name="InvalidSession" xml:space="preserve">
+    <value>Session state is not valid.</value>
+  </data>
 </root>

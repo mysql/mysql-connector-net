@@ -80,6 +80,24 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Client option &apos;{0}&apos; does not support value &apos;{1}&apos;..
+        /// </summary>
+        public static string ClientOptionInvalidValue {
+            get {
+                return ResourceManager.GetString("ClientOptionInvalidValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Client option &apos;{0}&apos; is not recognized as valid..
+        /// </summary>
+        public static string ClientOptionNotValid {
+            get {
+                return ResourceManager.GetString("ClientOptionNotValid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to This feature is currently not supported..
         /// </summary>
         public static string FeatureNotSupported {
@@ -184,6 +202,15 @@ namespace MySql.Data {
         public static string InvalidRowIndex {
             get {
                 return ResourceManager.GetString("InvalidRowIndex", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Session state is not valid..
+        /// </summary>
+        public static string InvalidSession {
+            get {
+                return ResourceManager.GetString("InvalidSession", resourceCulture);
             }
         }
         
@@ -310,6 +337,15 @@ namespace MySql.Data {
         public static string PathNotFound {
             get {
                 return ResourceManager.GetString("PathNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to QueueTimeout expired. The timeout period elapsed prior to get a session from the pool..
+        /// </summary>
+        public static string PoolingTimeout {
+            get {
+                return ResourceManager.GetString("PoolingTimeout", resourceCulture);
             }
         }
         

@@ -60,6 +60,76 @@ namespace MySqlX.XDevAPI
       return new Session(connectionData);
     }
 
+    /// <summary>
+    /// Creates a new <see cref="Client"/> instance.
+    /// </summary>
+    /// <param name="connectionString">The connection string in basic or URI format.</param>
+    /// <param name="connectionOptions">The connection options in JSON string format.</param>
+    /// <returns>A <see cref="Client"/> object representing session pooling.</returns>
+    public static Client GetClient(string connectionString, string connectionOptions)
+    {
+      return new Client(connectionString, connectionOptions);
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="Client"/> instance.
+    /// </summary>
+    /// <param name="connectionString">The connection string in basic or URI format.</param>
+    /// <param name="connectionOptions">The connection options in object format.
+    /// <example>
+    /// <code>
+    /// new { pooling = new
+    ///   {
+    ///     enabled = true,
+    ///     maxSize = 25,
+    ///     maxIdleTime = 60000,
+    ///     queueTimeout = 60000
+    ///   }
+    /// }
+    /// </code>
+    /// </example>
+    /// </param>
+    /// <returns>A <see cref="Client"/> object representing session pooling.</returns>
+    public static Client GetClient(string connectionString, object connectionOptions)
+    {
+      return new Client(connectionString, connectionOptions);
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="Client"/> instance.
+    /// </summary>
+    /// <param name="connectionData">The connection data.</param>
+    /// <param name="connectionOptions">The connection options in JSON string format.</param>
+    /// <returns>A <see cref="Client"/> object representing session pooling.</returns>
+    public static Client GetClient(object connectionData, string connectionOptions)
+    {
+      return new Client(connectionData, connectionOptions);
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="Client"/> instance.
+    /// </summary>
+    /// <param name="connectionData">The connection data.</param>
+    /// <param name="connectionOptions">The connection options in object format.
+    /// <example>
+    /// <code>
+    /// new { pooling = new
+    ///   {
+    ///     enabled = true,
+    ///     maxSize = 25,
+    ///     maxIdleTime = 60000,
+    ///     queueTimeout = 60000
+    ///   }
+    /// }
+    /// </code>
+    /// </example>
+    /// </param>
+    /// <returns>A <see cref="Client"/> object representing session pooling.</returns>
+    public static Client GetClient(object connectionData, object connectionOptions)
+    {
+      return new Client(connectionData, connectionOptions);
+    }
+
     //public static Iterator CsvFileRowIterator()
     //{
     //  throw new NotImplementedException();

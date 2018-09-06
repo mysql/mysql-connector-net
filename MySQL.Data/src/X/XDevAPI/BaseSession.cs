@@ -55,16 +55,24 @@ namespace MySqlX.XDevAPI
     private const string PORT_CONNECTION_OPTION_KEYWORD = "port";
     private const string SERVER_CONNECTION_OPTION_KEYWORD = "server";
     internal QueueTaskScheduler _scheduler = new QueueTaskScheduler();
+    protected readonly Client _client;
 
     internal InternalSession InternalSession
     {
-      get { return _internalSession; }
+      get
+      {
+        if (_internalSession == null)
+          throw new MySqlException(ResourcesX.InvalidSession);
+        return _internalSession;
+      }
     }
 
     internal XInternalSession XSession
     {
       get { return InternalSession as XInternalSession; }
     }
+
+    internal DateTime IdleSince { get; set; }
 
     #region Session status properties
 
@@ -107,7 +115,7 @@ namespace MySqlX.XDevAPI
         foreach (var item in Settings.values)
         {
           // Skip connection options already included in the connection URI.
-          if (item.Key == "server" || item.Key =="database" || item.Key == "port" )
+          if (item.Key == "server" || item.Key == "database" || item.Key == "port")
             continue;
 
           // Skip CertificateFile if it has already been included.
@@ -119,14 +127,14 @@ namespace MySqlX.XDevAPI
             var value = Settings[item.Key];
             // Get the default value of the connection option.
             var option = MySqlConnectionStringBuilder.Options.Values.First(
-                o=> o.Keyword==item.Key ||
-                (o.Synonyms!=null && o.Synonyms.Contains(item.Key)));
+                o => o.Keyword == item.Key ||
+                (o.Synonyms != null && o.Synonyms.Contains(item.Key)));
             var defaultValue = option.DefaultValue;
             // If the default value has been changed then include it in the connection URI.
-            if (value!=null && (defaultValue==null || (value.ToString()!=defaultValue.ToString())))
+            if (value != null && (defaultValue == null || (value.ToString() != defaultValue.ToString())))
             {
               if (!firstItemAdded)
-                firstItemAdded =true;
+                firstItemAdded = true;
               else
                 builder.Append("&");
 
@@ -193,11 +201,12 @@ namespace MySqlX.XDevAPI
     /// give a priority for every host or no priority to any host.
     /// </para>
     /// </remarks>
-    public BaseSession(string connectionString)
+    internal BaseSession(string connectionString, Client client = null)
     {
       if (string.IsNullOrWhiteSpace(connectionString))
         throw new ArgumentNullException("connectionString");
 
+      _client = client;
       this._connectionString = ParseConnectionData(connectionString);
 
       // Multiple hosts were specified.
@@ -231,10 +240,12 @@ namespace MySqlX.XDevAPI
     /// <see cref="BaseSession(string)"/>. Note that the value of the property must be a string.
     /// </para>
     /// </remarks>
-    public BaseSession(object connectionData)
+    internal BaseSession(object connectionData, Client client = null)
     {
       if (connectionData == null)
         throw new ArgumentNullException("connectionData");
+
+      _client = client;
 
       var values = Tools.GetDictionaryFromAnonymous(connectionData);
       if (!values.Keys.Any(s => s.ToLowerInvariant() == PORT_CONNECTION_OPTION_KEYWORD))
@@ -269,6 +280,19 @@ namespace MySqlX.XDevAPI
 
       if (!string.IsNullOrWhiteSpace(Settings.Database))
         DefaultSchema = GetSchema(Settings.Database);
+    }
+
+    internal BaseSession(InternalSession internalSession, Client client)
+    {
+      _internalSession = internalSession;
+      Settings = internalSession.Settings;
+      _client = client;
+    }
+
+    // Constructor used exclusively to parse connection string or connection data
+    internal BaseSession()
+    {
+
     }
 
     /// <summary>
@@ -345,14 +369,33 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Closes this session.
+    /// Closes this session or releases it to the pool.
     /// </summary>
     public void Close()
     {
       if (XSession.SessionState != SessionState.Closed)
       {
-        XSession.Close();
+        if (_client == null)
+          CloseFully();
+        else
+        {
+          _client.ReleaseSession(this);
+          _internalSession = null;
+        }
       }
+    }
+
+    /// <summary>
+    /// Closes this session
+    /// </summary>
+    internal void CloseFully()
+    {
+      XSession.Close();
+    }
+
+    internal void Reset()
+    {
+      XSession.ResetSession();
     }
 
     #region Savepoints
