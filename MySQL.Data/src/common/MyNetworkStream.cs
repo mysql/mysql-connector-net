@@ -202,7 +202,9 @@ namespace MySql.Data.Common
         }
         catch (Exception ex)
         {
-          if (ex is TimeoutException) throw new TimeoutException(String.Format(ResourcesX.TimeOutSingleHost, connectionTimeout));
+          string exTimeOutMessage = connectionTimeout == 0 ? ResourcesX.TimeOutSingleHost0ms : String.Format(ResourcesX.TimeOutSingleHost, connectionTimeout);
+
+          if (ex is TimeoutException) throw new TimeoutException(exTimeOutMessage);
 
           SocketException socketException = ex as SocketException;
 
@@ -212,7 +214,7 @@ namespace MySql.Data.Common
           // if the exception is a ConnectionRefused then we eat it as we may have other address
           // to attempt
           if (socketException == null) throw;
-          if (socketException.SocketErrorCode == SocketError.TimedOut) throw new TimeoutException(String.Format(ResourcesX.TimeOutSingleHost, connectionTimeout));
+          if (socketException.SocketErrorCode == SocketError.TimedOut) throw new TimeoutException(exTimeOutMessage);
           if (socketException.SocketErrorCode != SocketError.ConnectionRefused) throw;
         }
       }

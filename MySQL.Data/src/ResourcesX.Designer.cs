@@ -10,8 +10,7 @@
 
 namespace MySql.Data {
     using System;
-    using System.Reflection;
-    using System.Reflection;
+  using System.Reflection;
     
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
@@ -386,11 +385,29 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to All server connection attempts were aborted. Timeout was exceeded for each selected server..
+        /// </summary>
+        public static string TimeOutMultipleHost0ms {
+            get {
+                return ResourceManager.GetString("TimeOutMultipleHost0ms", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Connection attempt to the server was aborted. Timeout of {0} milliseconds was exceeded..
         /// </summary>
         public static string TimeOutSingleHost {
             get {
                 return ResourceManager.GetString("TimeOutSingleHost", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connection attempt to the server was aborted. Timeout was exceeded..
+        /// </summary>
+        public static string TimeOutSingleHost0ms {
+            get {
+                return ResourceManager.GetString("TimeOutSingleHost0ms", resourceCulture);
             }
         }
         

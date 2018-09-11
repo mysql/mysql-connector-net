@@ -246,4 +246,10 @@
   <data name="TimeOutSingleHost" xml:space="preserve">
     <value>Connection attempt to the server was aborted. Timeout of {0} milliseconds was exceeded.</value>
   </data>
+  <data name="TimeOutMultipleHost0ms" xml:space="preserve">
+    <value>All server connection attempts were aborted. Timeout was exceeded for each selected server.</value>
+  </data>
+  <data name="TimeOutSingleHost0ms" xml:space="preserve">
+    <value>Connection attempt to the server was aborted. Timeout was exceeded.</value>
+  </data>
 </root>

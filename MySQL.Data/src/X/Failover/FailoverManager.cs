@@ -101,7 +101,10 @@ namespace MySqlX.Failover
         if (currentHost != null && currentHost.Port != -1)
           Settings.Port = (uint)currentHost.Port;
         if (currentHost.Host == initialHost)
-          timeoutException = new TimeoutException(String.Format(ResourcesX.TimeOutMultipleHost, Settings.ConnectionTimeout));
+        {
+          string exTimeOutMessage = Settings.ConnectionTimeout == 0 ? ResourcesX.TimeOutMultipleHost0ms : String.Format(ResourcesX.TimeOutMultipleHost, Settings.ConnectionTimeout);
+          timeoutException = new TimeoutException(exTimeOutMessage);
+        }
 
         try
         {
