@@ -89,7 +89,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("usedefaultcommandtimeoutforef", "use default command timeout for ef", typeof(bool), false, false,
         (msb, sender, value) => { msb.SetValue("usedefaultcommandtimeoutforef", value); }, (msb, sender) => msb.UseDefaultCommandTimeoutForEF));
       Options.Add(new MySqlConnectionStringOption("connectiontimeout", "connection timeout,connect timeout", typeof(uint), (uint)15, false,
-        delegate (MySqlBaseConnectionStringBuilder msb, MySqlConnectionStringOption sender, object Value)
+        delegate (MySqlConnectionStringBuilder msb, MySqlConnectionStringOption sender, object Value)
         {
           uint value = (uint)Convert.ChangeType(Value, sender.BaseType);
           // Timeout in milliseconds should not exceed maximum for 32 bit

@@ -39,30 +39,6 @@ namespace MySqlX.XDevAPI
   /// </summary>
   public sealed class MySqlXConnectionStringBuilder : MySqlBaseConnectionStringBuilder
   {
-    static MySqlXConnectionStringBuilder()
-    {
-      Options.Add(new MySqlConnectionStringOption("connect-timeout", "connecttimeout", typeof(uint), (uint)10000, false,
-        delegate (MySqlXConnectionStringBuilder msb, MySqlConnectionStringOption sender, object Value)
-        {
-          sender.ValidateValue(ref Value, sender.Keyword);
-          uint value = (uint)Convert.ChangeType(Value, sender.BaseType);
-          // Timeout in milliseconds should not exceed maximum for 32 bit
-          // signed integer (~24 days). We truncate the value if it exceeds
-          // maximum (MySqlCommand.CommandTimeout uses the same technique)
-          uint timeout = Math.Min(value, Int32.MaxValue);
-          if (timeout != value)
-          {
-            MySqlTrace.LogWarning(-1, "Connection timeout value too large ("
-                + value + " milliseconds). Changed to max. possible value" +
-                +timeout + " milliseconds)");
-          }
-          msb.SetValue("connect-timeout", timeout);
-
-        },
-        (msb, sender) => (uint)msb.values["connect-timeout"]
-        ));
-    }
-
     public MySqlXConnectionStringBuilder() : base()
     { }
 

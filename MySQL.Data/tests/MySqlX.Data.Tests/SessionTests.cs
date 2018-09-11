@@ -26,6 +26,7 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using System;
@@ -864,19 +865,31 @@ namespace MySqlX.Data.Tests
 
       //Invalid Values for Connection Timeout parameter
       var ex = Assert.Throws<FormatException>(() => MySQLX.GetSession(ConnectionString + ";connect-timeout=-1;"));
-      Assert.Equal("The connection timeout value must be a positive integer (including 0).", ex.Message);
+      Assert.Equal(ResourcesX.InvalidConnectionTimeoutValue, ex.Message);
 
       ex = Assert.Throws<FormatException>(() => MySQLX.GetSession(ConnectionString + ";connect-timeout=foo;"));
-      Assert.Equal("The connection timeout value must be a positive integer (including 0).", ex.Message);
+      Assert.Equal(ResourcesX.InvalidConnectionTimeoutValue, ex.Message);
 
       ex = Assert.Throws<FormatException>(() => MySQLX.GetSession(ConnectionString + ";connect-timeout='';"));
-      Assert.Equal("The connection timeout value must be a positive integer (including 0).", ex.Message);
+      Assert.Equal(ResourcesX.InvalidConnectionTimeoutValue, ex.Message);
 
       ex = Assert.Throws<FormatException>(() => MySQLX.GetSession(ConnectionString + ";connect-timeout=10.5;"));
-      Assert.Equal("The connection timeout value must be a positive integer (including 0).", ex.Message);
+      Assert.Equal(ResourcesX.InvalidConnectionTimeoutValue, ex.Message);
 
       ex = Assert.Throws<FormatException>(() => MySQLX.GetSession(ConnectionString + ";connect-timeout=" + Int32.MaxValue + 1));
-      Assert.Equal("The connection timeout value must be a positive integer (including 0).", ex.Message);
+      Assert.Equal(ResourcesX.InvalidConnectionTimeoutValue, ex.Message);
+
+      ex = Assert.Throws<FormatException>(() => MySQLX.GetSession(ConnectionString + ";connect-timeout=10.5;"));
+      Assert.Equal(ResourcesX.InvalidConnectionTimeoutValue, ex.Message);
+
+      ex = Assert.Throws<FormatException>(() => MySQLX.GetSession(ConnectionString + ";connect-timeout=;"));
+      Assert.Equal(ResourcesX.InvalidConnectionTimeoutValue, ex.Message);
+
+      ex = Assert.Throws<FormatException>(() => MySQLX.GetSession(ConnectionStringUri + "?connect-timeout= "));
+      Assert.Equal(ResourcesX.InvalidConnectionTimeoutValue, ex.Message);
+
+      ex = Assert.Throws<FormatException>(() => MySQLX.GetSession(ConnectionStringUri + "?connecttimeout="));
+      Assert.Equal(ResourcesX.InvalidConnectionTimeoutValue, ex.Message);
 
       // Valid value for ConnectionTimeout, invalid credentials
       var exception = Assert.Throws<MySqlException>(() => MySQLX.GetSession("server=localhost;user=test;password=noPass;port=33060;connect-timeout=2000;"));
