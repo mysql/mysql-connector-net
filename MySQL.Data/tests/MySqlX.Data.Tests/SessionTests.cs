@@ -224,7 +224,7 @@ namespace MySqlX.Data.Tests
       CheckConnectionData("mysqlx://myuser:password@[(address=[fe80::bd41:e449:45ee:2e1a%17]:3305,priority=100)]", "myuser", "password", "[fe80::bd41:e449:45ee:2e1a]", 3305);
       Assert.Throws<UriFormatException>(() => CheckConnectionData("mysqlx://myuser:password@[(address=fe80::bd41:e449:45ee:2e1a%17,priority=100)]", "myuser", "password", "[fe80::bd41:e449:45ee:2e1a]", 33060));
       CheckConnectionData("mysqlx://myuser@localhost/test", "myuser", "", "localhost", 33060, "database", "test");
-      CheckConnectionData("mysqlx://myuser@localhost/test?ssl%20mode=none&connectiontimeout=10", "myuser", "", "localhost", 33060, "database", "test", "ssl mode", "None", "connectiontimeout", "10");
+      CheckConnectionData("mysqlx://myuser@localhost/test?ssl%20mode=none&connecttimeout=10", "myuser", "", "localhost", 33060, "database", "test", "ssl mode", "None", "connecttimeout", "10");
       CheckConnectionData("mysqlx+ssh://myuser:password@localhost:33060", "myuser", "password", "localhost", 33060);
       CheckConnectionData("mysqlx://_%21%22%23%24s%26%2F%3D-%25r@localhost", "_!\"#$s&/=-%r", "", "localhost", 33060);
       CheckConnectionData("mysql://myuser@localhost", "", "", "", 33060);
@@ -711,7 +711,7 @@ namespace MySqlX.Data.Tests
     {
       var session = GetSession();
 
-      MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder();
+      var builder = new MySqlXConnectionStringBuilder();
       builder.Server = session.Settings.Server;
       builder.UserID = session.Settings.UserID; ;
       builder.Password = session.Settings.Password;
@@ -739,17 +739,17 @@ namespace MySqlX.Data.Tests
       using (var internalSession = MySQLX.GetSession(uri))
       {
         // Compare values of the connection options.
-        foreach (var connectionOption in builder.values)
+        foreach (string connectionOption in builder.Keys)
         {
           // SslCrl connection option is skipped since it isn't currently supported.
-          if (connectionOption.Key == "sslcrl")
+          if (connectionOption == "sslcrl")
             continue;
 
           // Authentication mode AUTO/DEFAULT is internally assigned, hence it is expected to be different in this scenario. 
-          if (connectionOption.Key == "auth")
-            Assert.Equal(MySqlAuthenticationMode.PLAIN, internalSession.Settings[connectionOption.Key]);
+          if (connectionOption == "auth")
+            Assert.Equal(MySqlAuthenticationMode.PLAIN, internalSession.Settings[connectionOption]);
           else
-            Assert.Equal(builder[connectionOption.Key], internalSession.Settings[connectionOption.Key]);
+            Assert.Equal(builder[connectionOption], internalSession.Settings[connectionOption]);
         }
       }
     }
@@ -758,7 +758,7 @@ namespace MySqlX.Data.Tests
     public void GetUriKeepsSSLMode()
     {
       var globalSession = GetSession();
-      var builder = new MySqlConnectionStringBuilder();
+      var builder = new MySqlXConnectionStringBuilder();
       builder.Server = globalSession.Settings.Server;
       builder.UserID = globalSession.Settings.UserID;
       builder.Password = globalSession.Settings.Password;

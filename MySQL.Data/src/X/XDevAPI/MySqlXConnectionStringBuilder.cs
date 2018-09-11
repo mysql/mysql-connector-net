@@ -95,7 +95,6 @@ namespace MySqlX.XDevAPI
       get { return CertificateFile; }
       set
       {
-        SslMode = MySqlSslMode.Required;
         CertificateFile = value;
       }
     }
