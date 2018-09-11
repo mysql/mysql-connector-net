@@ -836,23 +836,23 @@ namespace MySqlX.Data.Tests
         Assert.Equal(SessionState.Open, testSession.InternalSession.SessionState);
       }
 
-      // Offline host using default value, 10000ms.
+      // Offline (fake)host using default value, 10000ms.
       var conn = "server=143.24.20.36;user=test;password=test;port=33060;";
       TestConnectTimeoutFailureTimeout(conn, 9, 11, "Offline host default value");
 
-      // Offline host using 15000ms.
+      // Offline (fake)host using 15000ms.
       conn = "server=143.24.20.36;user=test;password=test;port=33060;connecttimeout=15000";
       TestConnectTimeoutFailureTimeout(conn, 14, 16, "Offline host 15000ms");
 
-      // Offline host timeout disabled.
+      // Offline (fake)host timeout disabled.
       conn = "server=143.24.20.36;user=test;password=test;port=33060;connecttimeout=0";
       TestConnectTimeoutFailureTimeout(conn, 10, 600, "Offline host timeout disabled");
 
-      // Create a session using the fail over functionality passing two diferrent Server address. Must succeed after 2000ms
+      // Create a session using the fail over functionality passing two diferrent Server address(one of them is fake host). Must succeed after 2000ms
       conn = "server=143.24.20.36,localhost;user=test;password=test;port=33060;connecttimeout=2000;";
       TestConnectTimeoutSuccessTimeout(conn, 2, 4, "Fail over success");
 
-      // Both servers offline. Connection must time out after 20000ms
+      // Both (fake)servers offline. Connection must time out after 20000ms
       conn = "server=143.24.20.36,143.24.20.35;user=test;password=test;port=33060;";
       TestConnectTimeoutFailureTimeout(conn, 19, 21, "Fail over failure");
 

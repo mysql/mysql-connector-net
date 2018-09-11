@@ -141,7 +141,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void ConnectionTimeout()
     {
       MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Connection.ConnectionString);
-      connStr.Server = "10.15.34.12";
+      connStr.Server = "10.15.34.12"; // fake host
       connStr.ConnectionTimeout = 5;
       MySqlConnection c = new MySqlConnection(connStr.GetConnectionString(true));
 
