@@ -334,8 +334,9 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
           .HasColumnType("varchar(20)")
           .HasMaxLength(20);
 
-      entity.Property<MySql.Data.Types.MySqlGeometry>("location")
-          .HasColumnType("geometry");
+      entity.Property<MySql.Data.Types.MySqlGeometry?>("location")
+          .HasColumnType("geometry")
+          .IsRequired(false);
 
       entity.Property(e => e.LastUpdate)
           .HasColumnName("last_update")
