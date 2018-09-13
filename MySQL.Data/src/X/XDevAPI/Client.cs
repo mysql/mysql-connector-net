@@ -131,13 +131,13 @@ namespace MySqlX.XDevAPI
 
     public Session GetSession()
     {
+      if (_isClosed)
+        throw new MySqlException(ResourcesX.ClientIsClosed);
+
       if (!_connectionOptions.Pooling.Enabled)
       {
         return new Session(_connectionString);
       }
-
-      if (_isClosed)
-        throw new MySqlException(ResourcesX.InvalidSession);
 
       int fullQueueTimeout = _connectionOptions.Pooling.QueueTimeout;
       int queueTimeout = fullQueueTimeout;
@@ -191,6 +191,7 @@ namespace MySqlX.XDevAPI
           try
           {
             session.XSession.Authenticate();
+            session.XSession.SetState(SessionState.Open, false);
           }
           catch
           {

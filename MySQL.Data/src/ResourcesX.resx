@@ -252,4 +252,7 @@
   <data name="UnableToOpenSession" xml:space="preserve">
     <value>Unable to open a session.</value>
   </data>
+  <data name="ClientIsClosed" xml:space="preserve">
+    <value>You can't get more sessions because Client is closed.</value>
+  </data>
 </root>

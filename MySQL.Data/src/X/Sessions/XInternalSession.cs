@@ -244,7 +244,7 @@ namespace MySqlX.Sessions
       protocol.ReadAuthOk();
     }
 
-    protected void SetState(SessionState newState, bool broadcast)
+    protected internal void SetState(SessionState newState, bool broadcast)
     {
       if (newState == SessionState && !broadcast)
         return;

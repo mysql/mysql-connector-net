@@ -244,6 +244,7 @@ namespace MySqlX.XDevAPI
     /// <returns>The number of documents found.</returns>
     public long Count()
     {
+      ValidateOpenSession();
       return Session.XSession.TableCount(Schema, Name);
     }
 
@@ -321,6 +322,8 @@ namespace MySqlX.XDevAPI
     {
       if (string.IsNullOrWhiteSpace(indexName)) throw new ArgumentNullException(nameof(indexName));
 
+      ValidateOpenSession();
+
       bool indexExists = Convert.ToInt32(Session.XSession.ExecuteQueryAsScalar(
         string.Format("SELECT COUNT(*)>0 FROM information_schema.statistics WHERE table_schema = '{0}' AND table_name = '{1}' AND index_name = '{2}'",
         this.Schema.Name, this.Name, indexName))) == 1;
@@ -335,6 +338,7 @@ namespace MySqlX.XDevAPI
     /// <returns><c>true</c> if the collection exists; otherwise, <c>false</c>.</returns>
     public override bool ExistsInDatabase()
     {
+      ValidateOpenSession();
       return Session.XSession.TableExists(Schema, Name);
     }
 

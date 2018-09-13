@@ -284,5 +284,33 @@ namespace MySqlX.Data.Tests
         }
       }
     }
+
+    public static IEnumerable<object[]> CloseData =>
+      new List<object[]>
+      {
+        new object[] { new Action<Session>(s => { s.SQL("SELECT 9").Execute(); }) },
+        new object[] { new Action<Session>(s => { s.Schema.GetCollections(); }) },
+        new object[] { new Action<Session>(s => { s.Schema.GetCollections()[0].Find().Execute(); }) },
+        new object[] { new Action<Session>(s => { s.Schema.GetTables(); }) },
+        new object[] { new Action<Session>(s => { s.Schema.GetTables()[0].Select().Execute(); }) },
+      };
+
+    [Theory]
+    [MemberData(nameof(CloseData))]
+    public void CloseTests(Action<Session> action)
+    {
+      using (Client client = MySQLX.GetClient(ConnectionString, "{ \"pooling\": { \"enabled\": true } }"))
+      {
+        using (Session session = client.GetSession())
+        {
+          session.DropSchema(schemaName);
+          session.CreateSchema(schemaName);
+          client.Close();
+          Assert.Equal(SessionState.Closed, session.XSession.SessionState);
+          MySqlException ex = Assert.ThrowsAny<MySqlException>(() => { action.Invoke(session); });
+          Assert.Equal(ResourcesX.InvalidSession, ex.Message);
+        }
+      }
+    }
   }
 }

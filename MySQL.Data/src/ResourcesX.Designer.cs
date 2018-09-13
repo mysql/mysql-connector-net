@@ -80,6 +80,15 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You can&apos;t get more sessions because Client is closed..
+        /// </summary>
+        public static string ClientIsClosed {
+            get {
+                return ResourceManager.GetString("ClientIsClosed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Client option &apos;{0}&apos; does not support value &apos;{1}&apos;..
         /// </summary>
         public static string ClientOptionInvalidValue {

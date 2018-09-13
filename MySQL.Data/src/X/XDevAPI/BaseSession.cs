@@ -380,6 +380,7 @@ namespace MySqlX.XDevAPI
         else
         {
           _client.ReleaseSession(this);
+          XSession.SetState(SessionState.Closed, false);
           _internalSession = null;
         }
       }

@@ -28,6 +28,8 @@
 
 
 using System;
+using MySql.Data;
+using MySql.Data.MySqlClient;
 using MySqlX.Sessions;
 using MySqlX.XDevAPI.Relational;
 
@@ -60,6 +62,8 @@ namespace MySqlX.XDevAPI
     /// <returns>A <see cref="SqlStatement"/> object set with the provided SQL.</returns>
     public SqlStatement SQL(string sql)
     {
+      if (InternalSession.SessionState != SessionState.Open)
+        throw new MySqlException(ResourcesX.InvalidSession);
       return new SqlStatement(this, sql);
     }
 
