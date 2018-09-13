@@ -42,7 +42,7 @@ namespace MySqlX.XDevAPI
 {
   public class Client : IDisposable
   {
-    private MySqlXConnectionStringBuilder _settings;
+    private string _connectionString;
     private ConnectionOptions _connectionOptions;
 
     private List<Session> _inUse;
@@ -67,17 +67,20 @@ namespace MySqlX.XDevAPI
 
       if (connectionString is string)
       {
-        _settings = new MySqlXConnectionStringBuilder(new ClientSession().ParseConnectionData(connectionString as string));
+        //Validates the connection string or Uri string
+        new MySqlXConnectionStringBuilder(new ClientSession().ParseConnectionData(connectionString as string));
+        _connectionString = connectionString as string;
       }
       else
       {
-        _settings = new MySqlXConnectionStringBuilder();
+        MySqlXConnectionStringBuilder settings = new MySqlXConnectionStringBuilder();
         foreach (var item in Tools.GetDictionaryFromAnonymous(connectionString))
         {
-          if (!_settings.ContainsKey(item.Key))
+          if (!settings.ContainsKey(item.Key))
             throw new KeyNotFoundException(string.Format(ResourcesX.InvalidConnectionStringAttribute, item.Key));
-          _settings.Add(item.Key, item.Value);
+          settings.SetValue(item.Key, item.Value);
         }
+        _connectionString = settings.ToString().Replace("\"", "");
       }
 
       _connectionOptions = ParseConnectionOptions(connectionOptions);
@@ -130,7 +133,7 @@ namespace MySqlX.XDevAPI
     {
       if (!_connectionOptions.Pooling.Enabled)
       {
-        return new Session(_settings.ToString());
+        return new Session(_connectionString);
       }
 
       if (_isClosed)
@@ -209,7 +212,7 @@ namespace MySqlX.XDevAPI
 
     private Session CreateNewSession()
     {
-      return new Session(_settings.ToString(), this);
+      return new Session(_connectionString, this);
     }
 
     internal void ReleaseSession(BaseSession session)

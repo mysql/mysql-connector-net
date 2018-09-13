@@ -251,5 +251,33 @@ namespace MySqlX.Data.Tests
         Assert.Equal(ResourcesX.InvalidSession, ex.Message);
       }
     }
+
+    private const int _connectionTimeout = 1;
+    public static IEnumerable<object[]> MultiHostData =>
+      new List<object[]>
+      {
+        new object[] { $"server=10.10.10.10,127.0.0.1;port={XPort};user=root;connectiontimeout={_connectionTimeout};" },
+        new object[] { $"server=unknown,localhost;port={XPort};user=root;connectiontimeout=2;" },
+        new object[] { $"server=(address=10.10.10.10,priority=20),(address=127.0.0.1,priority=100);port={XPort};user=root;connectiontimeout={_connectionTimeout};" },
+        new object[] { $"mysqlx://root@[10.10.10.10,127.0.0.1:{XPort}]?connectiontimeout={_connectionTimeout}" },
+        new object[] { $"mysqlx://root@[unknown,localhost:{XPort}]?connectiontimeout={_connectionTimeout}" },
+        new object[] { $"mysqlx://root@[(address=10.10.10.10,priority=20),(address=127.0.0.1:{XPort},priority=100)]?connectiontimeout={_connectionTimeout}" },
+        new object[] { new { server = "10.10.10.10,127.0.0.1", user = "root", port = XPort, connectiontimeout = _connectionTimeout } },
+        new object[] { new { server = "unknown,localhost", user = "root", port = XPort, connectiontimeout = _connectionTimeout } },
+        new object[] { new { server = "(address=10.10.10.10,priority=20),(address=127.0.0.1,priority=100)", user = "root", port = XPort, connectiontimeout = _connectionTimeout } }
+      };
+
+    [Theory]
+    [MemberData(nameof(MultiHostData))]
+    public void MultiHostTest(object connectionData)
+    {
+      using (Client client = MySQLX.GetClient(connectionData, "{ \"pooling\": { \"enabled\": true } }"))
+      {
+        using (Session session = client.GetSession())
+        {
+          Assert.Equal((sbyte)8, session.SQL("SELECT 8").Execute().FetchOne()[0]);
+        }
+      }
+    }
   }
 }
