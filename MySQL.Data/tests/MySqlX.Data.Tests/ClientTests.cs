@@ -139,6 +139,11 @@ namespace MySqlX.Data.Tests
           true
         },
         new object[] {
+          new { pooling = new { maxsIzE = 0 } },
+          "pooling.maxsIzE",
+          0
+        },
+        new object[] {
           new { pooling = new { maxsIzE = -25, MAXidleTime = 60000 } },
           "pooling.maxsIzE",
           -25

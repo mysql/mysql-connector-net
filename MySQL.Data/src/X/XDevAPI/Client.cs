@@ -290,7 +290,7 @@ namespace MySqlX.XDevAPI
           get { return _maxSize; }
           set
           {
-            if (value < 0) throw new ArgumentException(nameof(MaxSize));
+            if (value <= 0) throw new ArgumentException(nameof(MaxSize));
             _maxSize = value;
           }
         }
