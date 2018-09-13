@@ -36,6 +36,7 @@ using MySqlX.XDevAPI.Relational;
 using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.Authentication;
 using MySql.Data.Common;
+using MySql.Data;
 
 namespace MySqlX.Sessions
 {
@@ -80,10 +81,11 @@ namespace MySqlX.Sessions
           SetDefaultCollation(session, settings.CharacterSet);
           break;
         }
-        catch (IOException)
+        catch (IOException ex)
         {
           // Retry SSL connection (manual fallback).
-          if (count++ >= 5) throw;
+          if (count++ >= 5)
+            throw new MySqlException(ResourcesX.UnableToOpenSession, ex);
         }
       } while (true);
       return session;
@@ -123,7 +125,7 @@ namespace MySqlX.Sessions
     /// <param name="charset">The character set.</param>
     private static void SetDefaultCollation(InternalSession session, string charset)
     {
-      if (!session.GetServerVersion().isAtLeast(8,0,1)) return;
+      if (!session.GetServerVersion().isAtLeast(8, 0, 1)) return;
 
       session.GetSqlRowResult("SHOW CHARSET WHERE Charset='" + charset + "'");
       RowResult result = session.GetSqlRowResult("SHOW CHARSET WHERE Charset='" + charset + "'");

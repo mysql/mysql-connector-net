@@ -249,4 +249,7 @@
   <data name="InvalidSession" xml:space="preserve">
     <value>Session state is not valid.</value>
   </data>
+  <data name="UnableToOpenSession" xml:space="preserve">
+    <value>Unable to open a session.</value>
+  </data>
 </root>

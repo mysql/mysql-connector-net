@@ -422,6 +422,15 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to open a session..
+        /// </summary>
+        public static string UnableToOpenSession {
+            get {
+                return ResourceManager.GetString("UnableToOpenSession", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unexpected end of packet found while reading data values.
         /// </summary>
         public static string UnexpectedEndOfPacketFound {

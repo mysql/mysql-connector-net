@@ -26,9 +26,11 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Xunit;
 
@@ -179,14 +181,14 @@ namespace MySqlX.Data.Tests
 
       // Access denied error is raised when database does not exist.
       var exception = Assert.Throws<MySqlException>(() => MySQLX.GetSession(new
-        {
-          server = globalSession.Settings.Server,
-          port = globalSession.Settings.Port,
-          user = globalSession.Settings.UserID,
-          password = globalSession.Settings.Password,
-          sslmode = MySqlSslMode.Required,
-          database = "test1"
-        }
+      {
+        server = globalSession.Settings.Server,
+        port = globalSession.Settings.Port,
+        user = globalSession.Settings.UserID,
+        password = globalSession.Settings.Password,
+        sslmode = MySqlSslMode.Required,
+        database = "test1"
+      }
       ));
       Assert.StartsWith("Access denied", exception.Message);
     }
@@ -712,7 +714,7 @@ namespace MySqlX.Data.Tests
 
       MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder();
       builder.Server = session.Settings.Server;
-      builder.UserID = session.Settings.UserID;;
+      builder.UserID = session.Settings.UserID; ;
       builder.Password = session.Settings.Password;
       builder.Port = session.Settings.Port;
       builder.ConnectionProtocol = MySqlConnectionProtocol.Tcp;
@@ -795,6 +797,30 @@ namespace MySqlX.Data.Tests
         Assert.Equal(builder.ConnectionTimeout, internalSession.Settings.ConnectionTimeout);
         Assert.Equal(builder.Keepalive, internalSession.Settings.Keepalive);
         Assert.Equal(MySqlAuthenticationMode.PLAIN, internalSession.Settings.Auth);
+      }
+    }
+
+    [Fact]
+    public void MaxConnections()
+    {
+      try
+      {
+        List<Session> sessions = new List<Session>();
+        ExecuteSqlAsRoot("SET @@global.mysqlx_max_connections = 2");
+        for (int i = 0; i <= 2; i++)
+        {
+          Session newSession = MySQLX.GetSession(ConnectionString);
+          sessions.Add(newSession);
+        }
+        Assert.False(true, "MySqlException should be thrown");
+      }
+      catch(MySqlException ex)
+      {
+        Assert.Equal(ResourcesX.UnableToOpenSession, ex.Message);
+      }
+      finally
+      {
+        ExecuteSqlAsRoot("SET @@global.mysqlx_max_connections = 100");
       }
     }
 
