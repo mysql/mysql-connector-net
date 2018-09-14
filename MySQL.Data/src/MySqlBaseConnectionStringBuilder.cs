@@ -61,38 +61,20 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("server", "host,data source,datasource,address,addr,network address", typeof(string), "" /*"localhost"*/, false));
       Options.Add(new MySqlConnectionStringOption("database", "initial catalog", typeof(string), string.Empty, false));
       Options.Add(new MySqlConnectionStringOption("protocol", "connection protocol, connectionprotocol", typeof(MySqlConnectionProtocol), MySqlConnectionProtocol.Sockets, false,
-        (BaseSetterDelegate) ((msb, sender, value) =>
-        {
+        (BaseSetterDelegate)((msb, sender, value) =>
+       {
 #if NETSTANDARD1_6 || NETSTANDARD2_0 || NETCOREAPP2_0
-          MySqlConnectionProtocol enumValue;
-          if (Enum.TryParse<MySqlConnectionProtocol>(value.ToString(), true, out enumValue))
-          {
-            if (enumValue == MySqlConnectionProtocol.Memory || enumValue == MySqlConnectionProtocol.Pipe)
-              throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, $"Protocol={value}"));
-          }
+         MySqlConnectionProtocol enumValue;
+         if (Enum.TryParse<MySqlConnectionProtocol>(value.ToString(), true, out enumValue))
+         {
+           if (enumValue == MySqlConnectionProtocol.Memory || enumValue == MySqlConnectionProtocol.Pipe)
+             throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, $"Protocol={value}"));
+         }
 #endif
-          msb.SetValue("protocol", value);
-        }),
+         msb.SetValue("protocol", value);
+       }),
         (msb, sender) => msb.ConnectionProtocol));
       Options.Add(new MySqlConnectionStringOption("port", null, typeof(uint), (uint)3306, false));
-      Options.Add(new MySqlConnectionStringOption("connectiontimeout", "connection timeout,connect timeout", typeof(uint), (uint)15, false,
-        delegate (MySqlBaseConnectionStringBuilder msb, MySqlConnectionStringOption sender, object Value)
-        {
-          uint value = (uint)Convert.ChangeType(Value, sender.BaseType);
-          // Timeout in milliseconds should not exceed maximum for 32 bit
-          // signed integer (~24 days). We truncate the value if it exceeds
-          // maximum (MySqlCommand.CommandTimeout uses the same technique
-          uint timeout = Math.Min(value, Int32.MaxValue / 1000);
-          if (timeout != value)
-          {
-            MySqlTrace.LogWarning(-1, "Connection timeout value too large ("
-                + value + " seconds). Changed to max. possible value" +
-                +timeout + " seconds)");
-          }
-          msb.SetValue("connectiontimeout", timeout);
-        },
-        (msb, sender) => (uint)msb.values["connectiontimeout"]
-        ));
 
       // Authentication options.
       Options.Add(new MySqlConnectionStringOption("user id", "uid,username,user name,user,userid", typeof(string), "", false));
@@ -117,6 +99,28 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("sslcrl", "ssl-crl", typeof(string), null, false,
         (BaseSetterDelegate)((msb, sender, value) => { msb.SslCrl = value as string; }),
         (BaseGetterDelegate)((msb, sender) => { return msb.SslCrl; })));
+
+      // X Server options.
+      Options.Add(new MySqlConnectionStringOption("connect-timeout", "connecttimeout", typeof(uint), (uint)10000, false,
+        delegate (MySqlXConnectionStringBuilder msb, MySqlConnectionStringOption sender, object Value)
+        {
+          sender.ValidateValue(ref Value, sender.Keyword);
+          uint value = (uint)Convert.ChangeType(Value, sender.BaseType);
+          // Timeout in milliseconds should not exceed maximum for 32 bit
+          // signed integer (~24 days). We truncate the value if it exceeds
+          // maximum (MySqlCommand.CommandTimeout uses the same technique)
+          uint timeout = Math.Min(value, Int32.MaxValue);
+          if (timeout != value)
+          {
+            MySqlTrace.LogWarning(-1, "Connection timeout value too large ("
+                + value + " milliseconds). Changed to max. possible value " +
+                +timeout + " milliseconds)");
+          }
+          msb.SetValue("connect-timeout", timeout);
+
+        },
+        (msb, sender) => (uint)msb.values["connect-timeout"]
+        ));
     }
 
     public MySqlBaseConnectionStringBuilder()
@@ -142,7 +146,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-#region Server Properties
+    #region Server Properties
 
     /// <summary>
     /// Gets or sets the name of the server.
@@ -196,37 +200,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("port", value); }
     }
 
-    /// <summary>
-    /// Gets or sets the connection timeout.
-    /// </summary>
-    [Category("Connection")]
-    [DisplayName("Connect Timeout")]
-    [Description("The length of time (in seconds) to wait for a connection " +
-                 "to the server before terminating the attempt and generating an error.")]
-    [RefreshProperties(RefreshProperties.All)]
-    public uint ConnectionTimeout
-    {
-      get { return (uint)values["connectiontimeout"]; }
+    #endregion
 
-      set
-      {
-        // Timeout in milliseconds should not exceed maximum for 32 bit
-        // signed integer (~24 days). We truncate the value if it exceeds
-        // maximum (MySqlCommand.CommandTimeout uses the same technique
-        uint timeout = Math.Min(value, Int32.MaxValue / 1000);
-        if (timeout != value)
-        {
-          MySqlTrace.LogWarning(-1, "Connection timeout value too large ("
-              + value + " seconds). Changed to max. possible value" +
-              +timeout + " seconds)");
-        }
-        SetValue("connectiontimeout", timeout);
-      }
-    }
-
-#endregion
-
-#region Authentication Properties
+    #region Authentication Properties
 
     /// <summary>
     /// Gets or sets the user ID that should be used to connect with.
@@ -308,9 +284,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("sslmode", value); }
     }
 
-#endregion
+    #endregion
 
-#region Other Properties
+    #region Other Properties
 
     [DisplayName("Keep Alive")]
     [Description("For TCP connections, the idle connection time (in seconds) before the first keepalive packet is sent." +
@@ -322,9 +298,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("keepalive", value); }
     }
 
-#endregion
+    #endregion
 
-#region Language and Character Set Properties
+    #region Language and Character Set Properties
 
     /// <summary>
     /// Gets or sets the character set that should be used for sending queries to the server.
@@ -340,9 +316,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("characterset", value); }
     }
 
-#endregion
+    #endregion
 
-#region XAuthentication Properties
+    #region XAuthentication Properties
 
     [Category("Authentication")]
     [DisplayName("Auth")]
@@ -351,7 +327,7 @@ namespace MySql.Data.MySqlClient
     [Obsolete("Use MySqlXConnectionStringBuilder.Auth instead.")]
     public MySqlAuthenticationMode Auth
     {
-      get { return (MySqlAuthenticationMode) values["auth"]; }
+      get { return (MySqlAuthenticationMode)values["auth"]; }
       set { SetValue("auth", value); }
     }
 
@@ -362,7 +338,6 @@ namespace MySql.Data.MySqlClient
       get { return CertificateFile; }
       set
       {
-        SslMode = MySqlSslMode.Required;
         CertificateFile = value;
       }
     }
@@ -375,7 +350,7 @@ namespace MySql.Data.MySqlClient
       set { throw new NotSupportedException(); }
     }
 
-#endregion
+    #endregion
 
     internal bool HasProcAccess { get; set; }
 
@@ -520,16 +495,16 @@ namespace MySql.Data.MySqlClient
 
         var keyword = keyValue[0].ToLowerInvariant().Trim();
         var value = keyValue[1].ToLowerInvariant();
-        MySqlConnectionStringOption option = Options.Options.Where(o => o.Keyword == keyword || (o.Synonyms!=null && o.Synonyms.Contains(keyword))).FirstOrDefault();
+        MySqlConnectionStringOption option = Options.Options.Where(o => o.Keyword == keyword || (o.Synonyms != null && o.Synonyms.Contains(keyword))).FirstOrDefault();
         if (option == null || (option.Keyword != "sslmode" && option.Keyword != "certificatepassword" && option.Keyword != "sslcrl" && option.Keyword != "sslca"))
           continue;
 
         // SSL connection options can't be duplicated.
         if (usedSslOptions.Contains(option.Keyword))
-          throw new ArgumentException(string.Format(Resources.DuplicatedSslConnectionOption,keyword));
+          throw new ArgumentException(string.Format(Resources.DuplicatedSslConnectionOption, keyword));
 
         // SSL connection options can't be used if sslmode=None.
-        if (option.Keyword=="sslmode" && (value=="none" || value == "disabled"))
+        if (option.Keyword == "sslmode" && (value == "none" || value == "disabled"))
           sslModeIsNone = true;
 
         if (sslModeIsNone && (option.Keyword == "certificatepassword" || option.Keyword == "sslcrl" || option.Keyword == "sslca"))
@@ -677,6 +652,19 @@ namespace MySql.Data.MySqlClient
       }
 
       throw new ArgumentException(String.Format(Resources.ValueNotCorrectType, value));
+    }
+
+    public void ValidateValue(ref object value, string keyword)
+    {
+      string typeName = BaseType.Name;
+      Type valueType = value.GetType();
+
+      switch (keyword)
+      {
+        case "connect-timeout":
+          if (typeName != valueType.Name  && !uint.TryParse(value.ToString(), out uint uintVal)) throw new FormatException(ResourcesX.InvalidConnectionTimeoutValue);
+          break;
+      }
     }
 
     private bool ParseEnum(string requestedValue, out object value)

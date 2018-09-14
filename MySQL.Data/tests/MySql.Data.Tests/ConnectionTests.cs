@@ -141,13 +141,13 @@ namespace MySql.Data.MySqlClient.Tests
     public void ConnectionTimeout()
     {
       MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Connection.ConnectionString);
-      connStr.Server = "bad_host";
+      connStr.Server = "10.15.34.12"; // fake host
       connStr.ConnectionTimeout = 5;
       MySqlConnection c = new MySqlConnection(connStr.GetConnectionString(true));
 
       DateTime start = DateTime.Now;
-      var exception = Record.Exception(() => c.Open());
-      Assert.NotNull(exception);
+      var ex = Assert.Throws<MySqlException>(() => c.Open());
+      Assert.Equal(Resources.UnableToConnectToHost, ex.Message);
       TimeSpan diff = DateTime.Now.Subtract(start);
       Assert.True(diff.TotalSeconds < 10, "Timeout exceeded");
     }

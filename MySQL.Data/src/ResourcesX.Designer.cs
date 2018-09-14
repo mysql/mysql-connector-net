@@ -10,9 +10,8 @@
 
 namespace MySql.Data {
     using System;
-    using System.Reflection;
-
-
+  using System.Reflection;
+    
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -130,6 +129,15 @@ namespace MySql.Data {
         public static string InvalidConnectionStringAttribute {
             get {
                 return ResourceManager.GetString("InvalidConnectionStringAttribute", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The connection timeout value must be a positive integer (including 0)..
+        /// </summary>
+        public static string InvalidConnectionTimeoutValue {
+            get {
+                return ResourceManager.GetString("InvalidConnectionTimeoutValue", resourceCulture);
             }
         }
         
@@ -364,6 +372,42 @@ namespace MySql.Data {
         public static string ThrowingAwayResults {
             get {
                 return ResourceManager.GetString("ThrowingAwayResults", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to All server connection attempts were aborted. Timeout of {0} milliseconds was exceeded for each selected server..
+        /// </summary>
+        public static string TimeOutMultipleHost {
+            get {
+                return ResourceManager.GetString("TimeOutMultipleHost", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to All server connection attempts were aborted. Timeout was exceeded for each selected server..
+        /// </summary>
+        public static string TimeOutMultipleHost0ms {
+            get {
+                return ResourceManager.GetString("TimeOutMultipleHost0ms", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connection attempt to the server was aborted. Timeout of {0} milliseconds was exceeded..
+        /// </summary>
+        public static string TimeOutSingleHost {
+            get {
+                return ResourceManager.GetString("TimeOutSingleHost", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connection attempt to the server was aborted. Timeout was exceeded..
+        /// </summary>
+        public static string TimeOutSingleHost0ms {
+            get {
+                return ResourceManager.GetString("TimeOutSingleHost0ms", resourceCulture);
             }
         }
         
