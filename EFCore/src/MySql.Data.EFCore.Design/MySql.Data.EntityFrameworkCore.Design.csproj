@@ -13,7 +13,7 @@
     <AssemblyName>MySql.Data.EntityFrameworkCore.Design</AssemblyName>
     <PackageId>MySql.Data.EntityFrameworkCore.Design</PackageId>
     <PackageTags>Entity Framework Core;entity-framework-core;EF;MySQL</PackageTags>
-	<PackageReleaseNotes>Review ReleaseNotes.txt for details.</PackageReleaseNotes>
+    <PackageReleaseNotes>Review ReleaseNotes.txt for details.</PackageReleaseNotes>
     <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
     <PackageProjectUrl>https://dev.mysql.com/downloads/</PackageProjectUrl>
     <PackageLicenseUrl>https://downloads.mysql.com/docs/licenses/connector-net-8.0-gpl-en.pdf</PackageLicenseUrl>
@@ -26,7 +26,7 @@
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
     <SignAssembly>True</SignAssembly>
     <DelaySign>True</DelaySign>
-    <AssemblyOriginatorKeyFile>..\..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>  
+    <AssemblyOriginatorKeyFile>..\..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
@@ -35,7 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="1.1.*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="1.1.6" />
   </ItemGroup>
 
   <ItemGroup>
