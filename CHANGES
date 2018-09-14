@@ -10,6 +10,7 @@
 - Fixed EF Core 2.0 not supported in .NET Framework projects (MySQL Bug #90306, Oracle Bug #27815706).
 - Fixed EF Core 2.0 scaffolding (MySQL Bug #90368, Oracle Bug #27898343).
 - MySqlX: Fixed bug that throws an exception when using Set and Unset for an alphanumeric field (Oracle Bug #28094094).
+- MySqlX: Added support for session pooling (WL-11841).
 
 
 8.0.12

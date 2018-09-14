@@ -27,6 +27,10 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
+using System;
+using MySql.Data;
+using MySql.Data.MySqlClient;
+using MySqlX.Sessions;
 using MySqlX.XDevAPI.Relational;
 
 namespace MySqlX.XDevAPI
@@ -36,16 +40,19 @@ namespace MySqlX.XDevAPI
   /// </summary>
   public class Session : BaseSession
   {
-    internal Session(string connectionString)
-      : base(connectionString)
+    internal Session(string connectionString, Client client = null)
+      : base(connectionString, client)
     {
-
     }
 
-    internal Session(object connectionData)
-      : base(connectionData)
+    internal Session(object connectionData, Client client = null)
+      : base(connectionData, client)
     {
+    }
 
+    internal Session(InternalSession internalSession, Client client)
+      : base(internalSession, client)
+    {
     }
 
     /// <summary>
@@ -55,6 +62,8 @@ namespace MySqlX.XDevAPI
     /// <returns>A <see cref="SqlStatement"/> object set with the provided SQL.</returns>
     public SqlStatement SQL(string sql)
     {
+      if (InternalSession.SessionState != SessionState.Open)
+        throw new MySqlException(ResourcesX.InvalidSession);
       return new SqlStatement(this, sql);
     }
 

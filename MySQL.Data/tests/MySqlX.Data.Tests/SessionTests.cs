@@ -30,6 +30,7 @@ using MySql.Data;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Xunit;
 
@@ -910,6 +911,30 @@ namespace MySqlX.Data.Tests
       MySQLX.GetSession(connString);
       TimeSpan diff = DateTime.Now.Subtract(start);
       Assert.True(diff.TotalSeconds > minTime && diff.TotalSeconds < maxTime, String.Format("Timeout exceeded ({0}). Actual time: {1}", test, diff));
+    }
+
+    [Fact]
+    public void MaxConnections()
+    {
+      try
+      {
+        List<Session> sessions = new List<Session>();
+        ExecuteSqlAsRoot("SET @@global.mysqlx_max_connections = 2");
+        for (int i = 0; i <= 2; i++)
+        {
+          Session newSession = MySQLX.GetSession(ConnectionString);
+          sessions.Add(newSession);
+        }
+        Assert.False(true, "MySqlException should be thrown");
+      }
+      catch(MySqlException ex)
+      {
+        Assert.Equal(ResourcesX.UnableToOpenSession, ex.Message);
+      }
+      finally
+      {
+        ExecuteSqlAsRoot("SET @@global.mysqlx_max_connections = 100");
+      }
     }
 
     protected void CheckConnectionData(string connectionData, string user, string password, string server, uint port, params string[] parameters)

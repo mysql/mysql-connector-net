@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -61,6 +61,7 @@ namespace MySqlX.XDevAPI.Relational
     /// <returns>A <see cref="SqlResult"/> object with the resultset and execution status.</returns>
     public override SqlResult Execute()
     {
+      ValidateOpenSession();
       return Session.XSession.GetSQLResult(SQL, parameters.ToArray());
     }
 

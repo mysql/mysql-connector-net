@@ -68,6 +68,7 @@ namespace MySqlX.XDevAPI.CRUD
     {
       try
       {
+        ValidateOpenSession();
         if (_DbDocs.Count == 0)
           return new Result(null);
 

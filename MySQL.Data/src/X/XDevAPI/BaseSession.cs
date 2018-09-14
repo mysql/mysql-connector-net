@@ -56,16 +56,24 @@ namespace MySqlX.XDevAPI
     private const string SERVER_CONNECTION_OPTION_KEYWORD = "server";
     private const string CONNECT_TIMEOUT_CONNECTION_OPTION_KEYWORD = "connect-timeout";
     internal QueueTaskScheduler _scheduler = new QueueTaskScheduler();
+    protected readonly Client _client;
 
     internal InternalSession InternalSession
     {
-      get { return _internalSession; }
+      get
+      {
+        if (_internalSession == null)
+          throw new MySqlException(ResourcesX.InvalidSession);
+        return _internalSession;
+      }
     }
 
     internal XInternalSession XSession
     {
       get { return InternalSession as XInternalSession; }
     }
+
+    internal DateTime IdleSince { get; set; }
 
     #region Session status properties
 
@@ -194,11 +202,12 @@ namespace MySqlX.XDevAPI
     /// give a priority for every host or no priority to any host.
     /// </para>
     /// </remarks>
-    public BaseSession(string connectionString)
+    internal BaseSession(string connectionString, Client client = null)
     {
       if (string.IsNullOrWhiteSpace(connectionString))
         throw new ArgumentNullException("connectionString");
 
+      _client = client;
       this._connectionString = ParseConnectionData(connectionString);
 
       // Multiple hosts were specified.
@@ -232,10 +241,12 @@ namespace MySqlX.XDevAPI
     /// <see cref="BaseSession(string)"/>. Note that the value of the property must be a string.
     /// </para>
     /// </remarks>
-    public BaseSession(object connectionData)
+    internal BaseSession(object connectionData, Client client = null)
     {
       if (connectionData == null)
         throw new ArgumentNullException("connectionData");
+
+      _client = client;
 
       var values = Tools.GetDictionaryFromAnonymous(connectionData);
       if (!values.Keys.Any(s => s.ToLowerInvariant() == PORT_CONNECTION_OPTION_KEYWORD))
@@ -270,6 +281,19 @@ namespace MySqlX.XDevAPI
 
       if (!string.IsNullOrWhiteSpace(Settings.Database))
         DefaultSchema = GetSchema(Settings.Database);
+    }
+
+    internal BaseSession(InternalSession internalSession, Client client)
+    {
+      _internalSession = internalSession;
+      Settings = internalSession.Settings;
+      _client = client;
+    }
+
+    // Constructor used exclusively to parse connection string or connection data
+    internal BaseSession()
+    {
+
     }
 
     /// <summary>
@@ -346,14 +370,34 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Closes this session.
+    /// Closes this session or releases it to the pool.
     /// </summary>
     public void Close()
     {
       if (XSession.SessionState != SessionState.Closed)
       {
-        XSession.Close();
+        if (_client == null)
+          CloseFully();
+        else
+        {
+          _client.ReleaseSession(this);
+          XSession.SetState(SessionState.Closed, false);
+          _internalSession = null;
+        }
       }
+    }
+
+    /// <summary>
+    /// Closes this session
+    /// </summary>
+    internal void CloseFully()
+    {
+      XSession.Close();
+    }
+
+    internal void Reset()
+    {
+      XSession.ResetSession();
     }
 
     #region Savepoints

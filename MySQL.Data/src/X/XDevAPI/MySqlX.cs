@@ -40,7 +40,7 @@ namespace MySqlX.XDevAPI
     /// <summary>
     /// Opens a session to the server given or to the first available server if multiple servers were specified.
     /// </summary>
-    /// <param name="connectionString">The connection string in basic or URI format.</param>
+    /// <param name="connectionString">The connection string or URI string format.</param>
     /// <returns>A <see cref="Session"/> object representing the established session.</returns>
     /// <remarks>Multiple hosts can be specified as part of the <paramref name="connectionString"/> which
     /// will enable client side failover when trying to establish a connection. For additional details and syntax 
@@ -58,6 +58,76 @@ namespace MySqlX.XDevAPI
     public static Session GetSession(object connectionData)
     {
       return new Session(connectionData);
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="Client"/> instance.
+    /// </summary>
+    /// <param name="connectionString">The connection string or URI string format.</param>
+    /// <param name="connectionOptions">The connection options in JSON string format.</param>
+    /// <returns>A <see cref="Client"/> object representing a session pool.</returns>
+    public static Client GetClient(string connectionString, string connectionOptions)
+    {
+      return new Client(connectionString, connectionOptions);
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="Client"/> instance.
+    /// </summary>
+    /// <param name="connectionString">The connection string or URI string format.</param>
+    /// <param name="connectionOptions">The connection options in object format.
+    /// <example>
+    /// <code>
+    /// new { pooling = new
+    ///   {
+    ///     enabled = true,
+    ///     maxSize = 25,
+    ///     maxIdleTime = 60000,
+    ///     queueTimeout = 60000
+    ///   }
+    /// }
+    /// </code>
+    /// </example>
+    /// </param>
+    /// <returns>A <see cref="Client"/> object representing a session pool.</returns>
+    public static Client GetClient(string connectionString, object connectionOptions)
+    {
+      return new Client(connectionString, connectionOptions);
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="Client"/> instance.
+    /// </summary>
+    /// <param name="connectionData">The connection data.</param>
+    /// <param name="connectionOptions">The connection options in JSON string format.</param>
+    /// <returns>A <see cref="Client"/> object representing a session pool.</returns>
+    public static Client GetClient(object connectionData, string connectionOptions)
+    {
+      return new Client(connectionData, connectionOptions);
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="Client"/> instance.
+    /// </summary>
+    /// <param name="connectionData">The connection data.</param>
+    /// <param name="connectionOptions">The connection options in object format.
+    /// <example>
+    /// <code>
+    /// new { pooling = new
+    ///   {
+    ///     enabled = true,
+    ///     maxSize = 25,
+    ///     maxIdleTime = 60000,
+    ///     queueTimeout = 60000
+    ///   }
+    /// }
+    /// </code>
+    /// </example>
+    /// </param>
+    /// <returns>A <see cref="Client"/> object representing a session pool.</returns>
+    public static Client GetClient(object connectionData, object connectionOptions)
+    {
+      return new Client(connectionData, connectionOptions);
     }
 
     //public static Iterator CsvFileRowIterator()
