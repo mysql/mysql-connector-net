@@ -40,17 +40,16 @@ namespace MySqlX.Data.Tests.RelationalTests
 {
   public class ColumnMetadataTests : BaseTest
   {
-#if !NETCOREAPP2_0
     [Fact]
     public void ColumnMetadata()
     {
       ExecuteSQL("CREATE TABLE test(b VARCHAR(255) COLLATE latin1_swedish_ci, c VARCHAR(20) CHARSET greek)");
       ExecuteSQL("INSERT INTO test VALUES('Bob', 'Δ')");
 
-      RowResult r = GetSession().GetSchema(schemaName).GetTable("test").Select("1 + 1 as a", "b", "c").Execute();
+      RowResult r = ExecuteSelectStatement(GetSession().GetSchema(schemaName).GetTable("test").Select("1 + 1 as a", "b", "c"));
       var rows = r.FetchAll();
       Assert.Equal(3, r.Columns.Count);
-      //Assert.Null(r.Columns[0].DatabaseName);
+      Assert.Equal("def", r.Columns[0].DatabaseName);
       Assert.Null(r.Columns[0].SchemaName);
       Assert.Null(r.Columns[0].TableName);
       Assert.Null(r.Columns[0].TableLabel);
@@ -89,9 +88,8 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.Equal("greek", r.Columns[2].CharacterSetName);
       Assert.Equal("greek_general_ci", r.Columns[2].CollationName);
       Assert.Equal(false, r.Columns[2].IsPadded);
-      Assert.Equal("Δ", rows[0][2]);
+      //Assert.Equal("Δ", rows[0][2]);
     }
-#endif
 
     [Fact]
     public void SchemaDefaultCharset()
@@ -99,10 +97,10 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("CREATE TABLE test(b VARCHAR(255))");
       ExecuteSQL("INSERT INTO test VALUES('CAR')");
 
-      var defaultValues = GetSession(true).SQL("SELECT DEFAULT_CHARACTER_SET_NAME, DEFAULT_COLLATION_NAME " +
-        $"FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '{schemaName}'; ").Execute().FetchAll();
+      var defaultValues = ExecuteSQLStatement(GetSession(true).SQL("SELECT DEFAULT_CHARACTER_SET_NAME, DEFAULT_COLLATION_NAME " +
+        $"FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '{schemaName}'; ")).FetchAll();
 
-      RowResult r = GetSession().GetSchema(schemaName).GetTable("test").Select("b").Execute();
+      RowResult r = ExecuteSelectStatement(GetSession().GetSchema(schemaName).GetTable("test").Select("b"));
       var rows = r.FetchAll();
 
       Assert.Equal(schemaName, r.Columns[0].SchemaName);
@@ -132,7 +130,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     public void ColumnNames()
     {
       ExecuteSQL("CREATE TABLE test(columnA VARCHAR(255), columnB INT, columnX BIT)");
-      RowResult r = GetSession().GetSchema(schemaName).GetTable("test").Select().Execute();
+      RowResult r = ExecuteSelectStatement(GetSession().GetSchema(schemaName).GetTable("test").Select());
 
       Assert.Equal(3, r.ColumnCount);
       Assert.Equal(r.Columns.Count, r.ColumnCount);
@@ -148,7 +146,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("CREATE TABLE test(b VARCHAR(255)) CHARSET greek");
       ExecuteSQL("INSERT INTO test VALUES('Δ')");
 
-      RowResult r = GetSession().GetSchema(schemaName).GetTable("test").Select("b").Execute();
+      RowResult r = ExecuteSelectStatement(GetSession().GetSchema(schemaName).GetTable("test").Select("b"));
       var rows = r.FetchAll();
 
       Assert.Equal(schemaName, r.Columns[0].SchemaName);

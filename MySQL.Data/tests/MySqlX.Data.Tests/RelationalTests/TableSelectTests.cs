@@ -51,20 +51,18 @@ namespace MySqlX.Data.Tests.RelationalTests
       stmt.Values(allRows[0]);
       stmt.Values(allRows[1]);
       stmt.Values(allRows[2]);
-      Result result = stmt.Execute();
+      Result result = ExecuteInsertStatement(stmt);
     }
 
     [Fact]
     public void FetchOne()
     {
       Table t = testSchema.GetTable("test");
-      Assert.True(t.ExistsInDatabase());
-      Assert.Equal(38, t.Select("age").Execute().FetchOne()["age"]);
-    }
+      Assert.Equal(38, ExecuteSelectStatement(t.Select("age")).FetchOne()["age"]);    }
 
     private void MultiTableSelectTest(TableSelectStatement statement, object[][] expectedValues)
     {
-      RowResult result = statement.Execute();
+      RowResult result = ExecuteSelectStatement(statement);
       int rowCount = result.FetchAll().Count;
 
       Assert.Equal(expectedValues.Length, rowCount);
@@ -114,7 +112,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     public void AllColumns()
     {
       var table = testSchema.GetTable("test");
-      var select = table.Select("*, 42 as a_number, '43' as a_string").Execute();
+      var select = ExecuteSelectStatement(table.Select("*, 42 as a_number, '43' as a_string"));
       var rows = select.FetchAll();
       Assert.Equal(5, select.Columns.Count);
       Assert.Equal(allRows.Length, rows.Count);
@@ -129,7 +127,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     public void CountAllColumns()
     {
       var table = testSchema.GetTable("test");
-      var select = table.Select("count(*) + 10").Execute();
+      var select = ExecuteSelectStatement(table.Select("count(*) + 10"));
       var rows = select.FetchAll();
       Assert.Equal(1, select.Columns.Count);
       Assert.Equal(1, rows.Count);
@@ -141,7 +139,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     {
       object[] validationRow = allRows[1];
       var table = testSchema.GetTable("test");
-      var select = table.Select().Where("Name = :nAme && Age = :aGe").Bind("agE", validationRow[2]).Bind("naMe", validationRow[1]).Execute();
+      var select = ExecuteSelectStatement(table.Select().Where("Name = :nAme && Age = :aGe").Bind("agE", validationRow[2]).Bind("naMe", validationRow[1]));
       var rows = select.FetchAll();
       Assert.Equal(1, rows.Count);
       Assert.Equal(validationRow[1], rows[0]["namE"]);
@@ -154,7 +152,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("CREATE TABLE test.testDate (id INT, name VARCHAR(45), birthday DATETIME(6))");
       ExecuteSQL("INSERT INTO test.testDate VALUES(1, 'JOHN', '1985-10-21 16:34:22.123456')");
       ExecuteSQL("INSERT INTO test.testDate VALUES(1, 'BILL', '1985-10-21 10:00:45.987')");
-      var rows = GetSession().GetSchema("test").GetTable("testDate").Select().Execute().FetchAll();
+      var rows = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("testDate").Select()).FetchAll();
       Assert.Equal(2, rows.Count);
       Assert.Equal(new DateTime(1985, 10, 21, 16, 34, 22).AddTicks(1234560), (DateTime)rows[0]["birthday"]);
       Assert.Equal(new DateTime(1985, 10, 21, 10, 0, 45).AddTicks(9870000), (DateTime)rows[1]["birthday"]);
@@ -166,7 +164,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("CREATE TABLE test.testDate (id INT, name VARCHAR(45), birthday DATETIME(3))");
       ExecuteSQL("INSERT INTO test.testDate VALUES(1, 'JOHN', '1985-10-21 16:34:22.123456')");
       ExecuteSQL("INSERT INTO test.testDate VALUES(1, 'BILL', '1985-10-21 10:00:45.098')");
-      var rows = GetSession().GetSchema("test").GetTable("testDate").Select().Execute().FetchAll();
+      var rows = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("testDate").Select()).FetchAll();
       Assert.Equal(2, rows.Count);
       Assert.Equal(new DateTime(1985, 10, 21, 16, 34, 22).AddTicks(1230000), (DateTime)rows[0]["birthday"]);
       Assert.Equal(new DateTime(1985, 10, 21, 10, 0, 45).AddTicks(980000), (DateTime)rows[1]["birthday"]);
@@ -179,10 +177,10 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       Table table = session.Schema.GetTable("test");
 
-      Exception ex = Assert.Throws<MySqlException>(() => table.Select().LockShared().Execute());
+      Exception ex = Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table.Select().LockShared()));
       Assert.Equal("This functionality is only supported from server version 8.0.3 onwards.", ex.Message);
 
-      ex = Assert.Throws<MySqlException>(() => table.Select().LockExclusive().Execute());
+      ex = Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table.Select().LockExclusive()));
       Assert.Equal("This functionality is only supported from server version 8.0.3 onwards.", ex.Message);
     }
 
@@ -191,27 +189,27 @@ namespace MySqlX.Data.Tests.RelationalTests
     {
       if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
 
-      session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
+      ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
       {
-        session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
+        ExecuteSQLStatement(session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
         Table table = session.Schema.GetTable("test");
         Table table2 = session2.GetSchema("test").GetTable("test");
 
-        session.SQL("START TRANSACTION").Execute();
-        RowResult rowResult = table.Select().Where("id = 1").LockShared().Execute();
+        ExecuteSQLStatement(session.SQL("START TRANSACTION"));
+        RowResult rowResult = ExecuteSelectStatement(table.Select().Where("id = 1").LockShared());
         Assert.Equal(1, rowResult.FetchAll().Count);
 
-        session2.SQL("START TRANSACTION").Execute();
+        ExecuteSQLStatement(session2.SQL("START TRANSACTION"));
         // Should return immediately since row isn't locked.
-        rowResult = table2.Select().Where("id = 2").LockShared().Execute();
+        rowResult = ExecuteSelectStatement(table2.Select().Where("id = 2").LockShared());
         Assert.Equal(1, rowResult.FetchAll().Count);
         // Should return immediately due to LockShared() allows reading by other sessions.
-        rowResult = table2.Select().Where("id = 1").LockShared().Execute();
+        rowResult = ExecuteSelectStatement(table2.Select().Where("id = 1").LockShared());
         Assert.Equal(1, rowResult.FetchAll().Count);
 
-        session.SQL("ROLLBACK").Execute();
-        session2.SQL("ROLLBACK").Execute();
+        ExecuteSQLStatement(session.SQL("ROLLBACK"));
+        ExecuteSQLStatement(session2.SQL("ROLLBACK"));
       }
     }
 
@@ -220,29 +218,29 @@ namespace MySqlX.Data.Tests.RelationalTests
     {
       if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
 
-      session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
+      ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
       {
-        session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
+        ExecuteSQLStatement(session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
         Table table = session.Schema.GetTable("test");
-        session.SQL("CREATE UNIQUE INDEX myIndex ON test.test (id)").Execute();
+        ExecuteSQLStatement(session.SQL("CREATE UNIQUE INDEX myIndex ON test.test (id)"));
         Table table2 = session2.GetSchema("test").GetTable("test");
 
-        session.SQL("START TRANSACTION").Execute();
-        RowResult rowResult = table.Select().Where("id = 1").LockExclusive().Execute();
+        ExecuteSQLStatement(session.SQL("START TRANSACTION"));
+        RowResult rowResult = ExecuteSelectStatement(table.Select().Where("id = 1").LockExclusive());
         Assert.Equal(1, rowResult.FetchAll().Count);
 
-        session2.SQL("START TRANSACTION").Execute();
+        ExecuteSQLStatement(session2.SQL("START TRANSACTION"));
         // Should return immediately since row isn't locked.
-        rowResult = table2.Select().Where("id = 2").LockExclusive().Execute();
+        rowResult = ExecuteSelectStatement(table2.Select().Where("id = 2").LockExclusive());
         Assert.Equal(1, rowResult.FetchAll().Count);
         // Session2 blocks due to to LockExclusive() not allowing to read locked rows.
-        session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
-        Exception ex = Assert.Throws<MySqlException>(() => table2.Select().Where("id = 1").LockExclusive().Execute());
+        ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
+        Exception ex = Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table2.Select().Where("id = 1").LockExclusive()));
         Assert.Equal("Lock wait timeout exceeded; try restarting transaction", ex.Message);
 
-        session.SQL("ROLLBACK").Execute();
-        session2.SQL("ROLLBACK").Execute();
+        ExecuteSQLStatement(session.SQL("ROLLBACK"));
+        ExecuteSQLStatement(session2.SQL("ROLLBACK"));
       }
     }
 
@@ -251,34 +249,34 @@ namespace MySqlX.Data.Tests.RelationalTests
     {
       if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
 
-      session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
+      ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
       {
-        session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
+        ExecuteSQLStatement(session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
         Table table = session.Schema.GetTable("test");
         Table table2 = session2.GetSchema("test").GetTable("test");
 
-        session.SQL("START TRANSACTION").Execute();
-        RowResult rowResult = table.Select().Where("id = 1").LockShared().Execute();
+        ExecuteSQLStatement(session.SQL("START TRANSACTION"));
+        RowResult rowResult = ExecuteSelectStatement(table.Select().Where("id = 1").LockShared());
         Assert.Equal(1, rowResult.FetchAll().Count);
 
-        session2.SQL("START TRANSACTION").Execute();
+        ExecuteSQLStatement(session2.SQL("START TRANSACTION"));
         // Reading the same row is allowed with LockShared().
-        rowResult = table2.Select().Where("id = 1").Execute();
+        rowResult = ExecuteSelectStatement(table2.Select().Where("id = 1"));
         Assert.Equal(1, rowResult.FetchAll().Count);
 
         // Modify() is allowed for non-locked rows.
-        Result result = table2.Update().Where("id = 2").Set("age", 2).Execute();
+        Result result = ExecuteUpdateStatement(table2.Update().Where("id = 2").Set("age", 2));
         Assert.Equal<ulong>(1, result.AffectedItemsCount);
         // Session1 blocks, Modify() is not allowed for locked rows.
-        session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
-        Exception ex = Assert.Throws<MySqlException>(() => table2.Update().Where("id = 1").Set("age", 2).Execute());
+        ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
+        Exception ex = Assert.Throws<MySqlException>(() => ExecuteUpdateStatement(table2.Update().Where("id = 1").Set("age", 2)));
         Assert.Equal("Lock wait timeout exceeded; try restarting transaction", ex.Message);
 
-        session.SQL("ROLLBACK").Execute();
+        ExecuteSQLStatement(session.SQL("ROLLBACK"));
         // Modify() is allowed since row isn't locked anymore.
-        table2.Update().Where("id = 1").Set("age", 2).Execute();
-        session2.SQL("COMMIT").Execute();
+        ExecuteUpdateStatement(table2.Update().Where("id = 1").Set("age", 2));
+        ExecuteSQLStatement(session2.SQL("COMMIT"));
       }
     }
 
@@ -287,31 +285,31 @@ namespace MySqlX.Data.Tests.RelationalTests
     {
       if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
 
-      session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
+      ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
       {
-        session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
+        ExecuteSQLStatement(session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
         Table table = session.Schema.GetTable("test");
         Table table2 = session2.GetSchema("test").GetTable("test");
 
-        session.SQL("START TRANSACTION").Execute();
-        RowResult rowResult = table.Select().Where("id = 1").LockExclusive().Execute();
+        ExecuteSQLStatement(session.SQL("START TRANSACTION"));
+        RowResult rowResult = ExecuteSelectStatement(table.Select().Where("id = 1").LockExclusive());
         Assert.Equal(1, rowResult.FetchAll().Count);
 
-        session2.SQL("START TRANSACTION").Execute();
+        ExecuteSQLStatement(session2.SQL("START TRANSACTION"));
 
         // Modify() is allowed for non-locked rows.
-        Result result = table2.Update().Where("id = 2").Set("age", 2).Execute();
+        Result result = ExecuteUpdateStatement(table2.Update().Where("id = 2").Set("age", 2));
         Assert.Equal<ulong>(1, result.AffectedItemsCount);
         // Session1 blocks, Modify() is not allowed for locked rows.
-        session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
-        Exception ex = Assert.Throws<MySqlException>(() => table2.Update().Where("id = 1").Set("age", 2).Execute());
+        ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
+        Exception ex = Assert.Throws<MySqlException>(() => ExecuteUpdateStatement(table2.Update().Where("id = 1").Set("age", 2)));
         Assert.Equal("Lock wait timeout exceeded; try restarting transaction", ex.Message);
 
-        session.SQL("ROLLBACK").Execute();
+        ExecuteSQLStatement(session.SQL("ROLLBACK"));
         // Modify() is allowed since row isn't locked anymore.
-        table2.Update().Where("id = 1").Set("age", 2).Execute();
-        session2.SQL("COMMIT").Execute();
+        ExecuteUpdateStatement(table2.Update().Where("id = 1").Set("age", 2));
+        ExecuteSQLStatement(session2.SQL("COMMIT"));
       }
     }
 
@@ -320,33 +318,33 @@ namespace MySqlX.Data.Tests.RelationalTests
     {
       if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
 
-      session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
+      ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
       {
-        session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
+        ExecuteSQLStatement(session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
         Table table = session.Schema.GetTable("test");
-        session.SQL("CREATE UNIQUE INDEX myIndex ON test.test (id)").Execute();
+        ExecuteSQLStatement(session.SQL("CREATE UNIQUE INDEX myIndex ON test.test (id)"));
         Table table2 = session2.GetSchema("test").GetTable("test");
 
-        session.SQL("START TRANSACTION").Execute();
-        RowResult rowResult = table.Select().Where("id = 1").LockExclusive().Execute();
+        ExecuteSQLStatement(session.SQL("START TRANSACTION"));
+        RowResult rowResult = ExecuteSelectStatement(table.Select().Where("id = 1").LockExclusive());
         Assert.Equal(1, rowResult.FetchAll().Count);
 
-        session2.SQL("START TRANSACTION").Execute();
+        ExecuteSQLStatement(session2.SQL("START TRANSACTION"));
         // Should return immediately since row isn't locked.
-        rowResult = table2.Select().Where("id = 2").LockShared().Execute();
+        rowResult = ExecuteSelectStatement(table2.Select().Where("id = 2").LockShared());
         Assert.Equal(1, rowResult.FetchAll().Count);
         // Session2 blocks due to LockExclusive() not allowing to read locked rows.
-        session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
-        Exception ex = Assert.Throws<MySqlException>(() => table2.Select().Where("id = 1").LockShared().Execute());
+        ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
+        Exception ex = Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table2.Select().Where("id = 1").LockShared()));
         Assert.Equal("Lock wait timeout exceeded; try restarting transaction", ex.Message);
 
         // Session unlocks rows.
-        session.SQL("ROLLBACK").Execute();
+        ExecuteSQLStatement(session.SQL("ROLLBACK"));
         // Row can now be recovered.
-        rowResult = table2.Select().Where("id = 1").LockShared().Execute();
+        rowResult = ExecuteSelectStatement(table2.Select().Where("id = 1").LockShared());
         Assert.Equal(1, rowResult.FetchAll().Count);
-        session2.SQL("ROLLBACK").Execute();
+        ExecuteSQLStatement(session2.SQL("ROLLBACK"));
       }
     }
 
@@ -355,34 +353,34 @@ namespace MySqlX.Data.Tests.RelationalTests
     {
       if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
 
-      session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
+      ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
       {
-        session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
+        ExecuteSQLStatement(session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
         Table table = session.Schema.GetTable("test");
-        session.SQL("CREATE UNIQUE INDEX myIndex ON test.test (id)").Execute();
+        ExecuteSQLStatement(session.SQL("CREATE UNIQUE INDEX myIndex ON test.test (id)"));
         Table table2 = session2.GetSchema("test").GetTable("test");
 
-        session.SQL("START TRANSACTION").Execute();
-        RowResult rowResult = table.Select().Where("id in (1, 3)").LockShared().Execute();
+        ExecuteSQLStatement(session.SQL("START TRANSACTION"));
+        RowResult rowResult = ExecuteSelectStatement(table.Select().Where("id in (1, 3)").LockShared());
         Assert.Equal(2, rowResult.FetchAll().Count);
 
-        session2.SQL("START TRANSACTION").Execute();
+        ExecuteSQLStatement(session2.SQL("START TRANSACTION"));
         // Should return immediately since row isn't locked.
-        rowResult = table2.Select().Where("id = 2").LockExclusive().Execute();
+        rowResult = ExecuteSelectStatement(table2.Select().Where("id = 2").LockExclusive());
         // Should return immediately due to LockShared() allows reading by other sessions.
-        rowResult = table2.Select().Where("id = 2").LockShared().Execute();
+        rowResult = ExecuteSelectStatement(table2.Select().Where("id = 2").LockShared());
         Assert.Equal(1, rowResult.FetchAll().Count);
         // Session2 blocks due to to LockExclusive() not allowing to read locked rows.
-        session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
-        Exception ex = Assert.Throws<MySqlException>(() => table2.Select().Where("id = 1").LockExclusive().Execute());
+        ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
+        Exception ex = Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table2.Select().Where("id = 1").LockExclusive()));
         Assert.Equal("Lock wait timeout exceeded; try restarting transaction", ex.Message);
 
         // Session unlocks rows.
-        session.SQL("ROLLBACK").Execute();
-        rowResult = table2.Select().Where("id = 1").LockExclusive().Execute();
+        ExecuteSQLStatement(session.SQL("ROLLBACK"));
+        rowResult = ExecuteSelectStatement(table2.Select().Where("id = 1").LockExclusive());
         Assert.Equal(1, rowResult.FetchAll().Count);
-        session2.SQL("ROLLBACK").Execute();
+        ExecuteSQLStatement(session2.SQL("ROLLBACK"));
       }
     }
 
@@ -391,32 +389,32 @@ namespace MySqlX.Data.Tests.RelationalTests
     {
       if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
 
-      session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
+      ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
       {
-        session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
+        ExecuteSQLStatement(session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
         Table table = session.Schema.GetTable("test");
-        session.SQL("CREATE UNIQUE INDEX myIndex ON test.test (id)").Execute();
+        ExecuteSQLStatement(session.SQL("CREATE UNIQUE INDEX myIndex ON test.test (id)"));
         Table table2 = session2.GetSchema("test").GetTable("test");
 
-        session.SQL("START TRANSACTION").Execute();
-        RowResult rowResult = table.Select().Where("id = 1").LockExclusive().Execute();
+        ExecuteSQLStatement(session.SQL("START TRANSACTION"));
+        RowResult rowResult = ExecuteSelectStatement(table.Select().Where("id = 1").LockExclusive());
         Assert.Equal(1, rowResult.FetchAll().Count);
 
-        session2.SQL("START TRANSACTION").Execute();
+        ExecuteSQLStatement(session2.SQL("START TRANSACTION"));
         // Should return immediately since row isn't locked.
-        rowResult = table2.Select().Where("id = 2").LockExclusive().Execute();
+        rowResult = ExecuteSelectStatement(table2.Select().Where("id = 2").LockExclusive());
         Assert.Equal(1, rowResult.FetchAll().Count);
         // Session2 blocks due to to LockExclusive() not allowing to read locked rows.
-        session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
-        Exception ex = Assert.Throws<MySqlException>(() => table2.Select().Where("id = 1").LockExclusive().Execute());
+        ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
+        Exception ex = Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table2.Select().Where("id = 1").LockExclusive()));
         Assert.Equal("Lock wait timeout exceeded; try restarting transaction", ex.Message);
 
         // Session unlocks rows.
-        session.SQL("ROLLBACK").Execute();
-        rowResult = table2.Select().Where("id = 1").LockExclusive().Execute();
+        ExecuteSQLStatement(session.SQL("ROLLBACK"));
+        rowResult = ExecuteSelectStatement(table2.Select().Where("id = 1").LockExclusive());
         Assert.Equal(1, rowResult.FetchAll().Count);
-        session2.SQL("ROLLBACK").Execute();
+        ExecuteSQLStatement(session2.SQL("ROLLBACK"));
       }
     }
 
@@ -424,25 +422,25 @@ namespace MySqlX.Data.Tests.RelationalTests
     public void SelectWithInOperator()
     {
       Table table = testSchema.GetTable("test");
-      Assert.Equal(3, table.Select().Execute().FetchAll().Count);
+      Assert.Equal(3, ExecuteSelectStatement(table.Select()).FetchAll().Count);
 
-      Assert.Equal(2, table.Select().Where("name IN (\"jonh doe\", \"milton green\")").Execute().FetchAll().Count);
-      Assert.Equal(1, table.Select().Where("name NOT IN (\"jonh doe\", \"milton green\")").Execute().FetchAll().Count);
-      Assert.Equal(0, table.Select().Where("name IN (\"\", \"\")").Execute().FetchAll().Count);
-      Assert.Equal(0, table.Select().Where("\"\" IN (1,2,3)").Execute().FetchAll().Count);
-      Assert.Equal(0, table.Select().Where("name IN ('', '')").Execute().FetchAll().Count);
-      Assert.Equal(0, table.Select().Where("'' IN (1,2,3)").Execute().FetchAll().Count);
-      Assert.Equal(3, table.Select().Where("'' IN ('')").Execute().FetchAll().Count);
+      Assert.Equal(2, ExecuteSelectStatement(table.Select().Where("name IN (\"jonh doe\", \"milton green\")")).FetchAll().Count);
+      Assert.Equal(1, ExecuteSelectStatement(table.Select().Where("name NOT IN (\"jonh doe\", \"milton green\")")).FetchAll().Count);
+      Assert.Equal(0, ExecuteSelectStatement(table.Select().Where("name IN (\"\", \"\")")).FetchAll().Count);
+      Assert.Equal(0, ExecuteSelectStatement(table.Select().Where("\"\" IN (1,2,3)")).FetchAll().Count);
+      Assert.Equal(0, ExecuteSelectStatement(table.Select().Where("name IN ('', '')")).FetchAll().Count);
+      Assert.Equal(0, ExecuteSelectStatement(table.Select().Where("'' IN (1,2,3)")).FetchAll().Count);
+      Assert.Equal(3, ExecuteSelectStatement(table.Select().Where("'' IN ('')")).FetchAll().Count);
 
-      Assert.Throws<MySqlException>(() => table.Select().Where("name NOT IN [\"jonh doe\", \"milton green\"]").Execute().FetchAll().Count);
-      Assert.Throws<MySqlException>(() => table.Select().Where("a IN [3]").Execute().FetchAll().Count);
-      Assert.Throws<MySqlException>(() => table.Select().Where("3 IN a").Execute().FetchAll().Count);
+      Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table.Select().Where("name NOT IN [\"jonh doe\", \"milton green\"]")).FetchAll().Count);
+      Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table.Select().Where("a IN [3]")).FetchAll().Count);
+      Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table.Select().Where("3 IN a")).FetchAll().Count);
     }
 
     [Fact]
     public void Grouping()
     {
-      GetSession().SQL("SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', '')); ").Execute();
+      ExecuteSQLStatement(GetSession().SQL("SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', '')); "));
       Table table = testSchema.GetTable("test");
 
       // Insert additonal users.
@@ -458,54 +456,54 @@ namespace MySqlX.Data.Tests.RelationalTests
         statement = statement.Values(user);
       }
 
-      Assert.Equal<ulong>(4, statement.Execute().AffectedItemsCount);
+      Assert.Equal<ulong>(4, ExecuteInsertStatement(statement).AffectedItemsCount);
 
       // GroupBy operation.
       // GroupBy returns 5 rows since age 45 and 24 is repeated.
-      var result = table.Select().GroupBy("age").Execute();
+      var result = ExecuteSelectStatement(table.Select().GroupBy("age"));
       Assert.Equal(5, result.FetchAll().Count);
 
       // GroupBy with null.
-      result = table.Select("id as ID", "name as Name", "age as Age").GroupBy(null).Execute();
+      result = ExecuteSelectStatement(table.Select("id as ID", "name as Name", "age as Age").GroupBy(null));
       Assert.Equal(7, result.FetchAll().Count);
-      result = table.Select("id as ID", "name as Name", "age as Age").GroupBy(null, null).Execute();
+      result = ExecuteSelectStatement(table.Select("id as ID", "name as Name", "age as Age").GroupBy(null, null));
       Assert.Equal(7, result.FetchAll().Count);
-      result = table.Select("id as ID", "name as Name", "age as Age").GroupBy(null, "age").Execute();
+      result = ExecuteSelectStatement(table.Select("id as ID", "name as Name", "age as Age").GroupBy(null, "age"));
       Assert.Equal(5, result.FetchAll().Count);
 
       // Having operation.
       // Having reduces the original 5 rows to 3 since 2 rows have a cnt=2, due to the repeated names.
-      result = table.Select("id", "count(name) as cnt", "age").GroupBy("age").Having("cnt = 1").Execute();
+      result = ExecuteSelectStatement(table.Select("id", "count(name) as cnt", "age").GroupBy("age").Having("cnt = 1"));
       Assert.Equal(3, result.FetchAll().Count);
 
       // Having with null.
-      result = table.Select("id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having(null).Execute();
+      result = ExecuteSelectStatement(table.Select("id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having(null));
       Assert.Equal(5, result.FetchAll().Count);
 
       // GroupBy with invalid field name.
-      var ex = Assert.Throws<MySqlException>(() => table.Select("id as ID", "name as Name", "age as Age").GroupBy("none").Execute());
+      var ex = Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table.Select("id as ID", "name as Name", "age as Age").GroupBy("none")));
       Assert.Equal("Unknown column 'none' in 'group statement'", ex.Message);
 
       // GroupBy with empty strings.
-      var ex2 = Assert.Throws<ArgumentException>(() => table.Select("id as ID", "name as Name", "age as Age").GroupBy("").Execute());
+      var ex2 = Assert.Throws<ArgumentException>(() => ExecuteSelectStatement(table.Select("id as ID", "name as Name", "age as Age").GroupBy("")));
       Assert.Equal("No more tokens when expecting one at token pos 0", ex2.Message);
-      ex2 = Assert.Throws<ArgumentException>(() => table.Select("id as ID", "name as Name", "age as Age").GroupBy(" ").Execute());
+      ex2 = Assert.Throws<ArgumentException>(() => ExecuteSelectStatement(table.Select("id as ID", "name as Name", "age as Age").GroupBy(" ")));
       Assert.Equal("No more tokens when expecting one at token pos 0", ex2.Message);
-      ex2 = Assert.Throws<ArgumentException>(() => table.Select("id as ID", "name as Name", "age as Age").GroupBy(string.Empty).Execute());
+      ex2 = Assert.Throws<ArgumentException>(() => ExecuteSelectStatement(table.Select("id as ID", "name as Name", "age as Age").GroupBy(string.Empty)));
       Assert.Equal("No more tokens when expecting one at token pos 0", ex2.Message);
 
       // Having with invalid field name.
-      ex = Assert.Throws<MySqlException>(() => table.Select("id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having("none = 1").Execute());
+      ex = Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table.Select("id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having("none = 1")));
       Assert.Equal("Unknown column 'none' in 'having clause'", ex.Message);
 
       // Having with empty strings.
-      ex2 = Assert.Throws<ArgumentException>(() => table.Select("id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having("").Execute());
+      ex2 = Assert.Throws<ArgumentException>(() => ExecuteSelectStatement(table.Select("id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having("")));
       Assert.Equal("Unable to parse query ''", ex2.Message);
       Assert.Equal("No more tokens when expecting one at token pos 0", ex2.InnerException.Message);
-      ex2 = Assert.Throws<ArgumentException>(() => table.Select("id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having(" ").Execute());
+      ex2 = Assert.Throws<ArgumentException>(() => ExecuteSelectStatement(table.Select("id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having(" ")));
       Assert.Equal("Unable to parse query ' '", ex2.Message);
       Assert.Equal("No more tokens when expecting one at token pos 0", ex2.InnerException.Message);
-      ex2 = Assert.Throws<ArgumentException>(() => table.Select("id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having(string.Empty).Execute());
+      ex2 = Assert.Throws<ArgumentException>(() => ExecuteSelectStatement(table.Select("id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having(string.Empty)));
       Assert.Equal("Unable to parse query ''", ex2.Message);
       Assert.Equal("No more tokens when expecting one at token pos 0", ex2.InnerException.Message);
     }

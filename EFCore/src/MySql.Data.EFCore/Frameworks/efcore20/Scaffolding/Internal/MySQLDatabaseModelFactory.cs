@@ -1,4 +1,4 @@
-// Copyright © 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -40,6 +40,7 @@ using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using System.Data;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace MySql.Data.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -74,22 +75,24 @@ namespace MySql.Data.EntityFrameworkCore.Scaffolding.Internal
     }
 
 
-    public DatabaseModel Create(string connectionString, TableSelectionSet tableSelectionSet)
+    public DatabaseModel Create(string connectionString, IEnumerable<string> tables, IEnumerable<string> schemas)
     {
-      if (String.IsNullOrEmpty(connectionString))
-        new ArgumentException("Argument is empty", "connectionString");
+      ThrowIf.Argument.IsNull(connectionString, nameof(connectionString));
+      ThrowIf.Argument.IsNull(tables, nameof(tables));
+      ThrowIf.Argument.IsNull(schemas, nameof(schemas));
 
-      if (tableSelectionSet == null)
-        new ArgumentNullException("tableSelectionSet");
-
-      using (var connection = new MySqlConnection(connectionString))
+      using (MySqlConnection connection = new MySqlConnection(connectionString))
       {
-        return Create(connection, tableSelectionSet);
+        return Create(connection, tables, schemas);
       }
     }
 
-    public DatabaseModel Create(DbConnection connection, TableSelectionSet tableSelectionSet)
+    public DatabaseModel Create(DbConnection connection, IEnumerable<string> tables, IEnumerable<string> schemas)
     {
+      ThrowIf.Argument.IsNull(connection, nameof(connection));
+      ThrowIf.Argument.IsNull(tables, nameof(tables));
+      ThrowIf.Argument.IsNull(schemas, nameof(schemas));
+
       ResetState();
 
       _connection = (MySqlConnection)connection;
@@ -102,11 +105,12 @@ namespace MySql.Data.EntityFrameworkCore.Scaffolding.Internal
 
       try
       {
-        _tableSelectionSet = tableSelectionSet;
-        if (tableSelectionSet.Schemas.Count == 0)
+        _tableSelectionSet = new TableSelectionSet(tables, schemas);
+        if (schemas.Count() == 0)
           _schemaList = $"'{_connection.Database}'";
         else
-          _schemaList = tableSelectionSet.Schemas.Select(c => $"'{c.Text}'").Join(", ");
+          _schemaList = $"'{schemas.Join("', '")}'";
+
         _databaseModel.DatabaseName = _connection.Database;
         GetTables();
         GetColumns();
@@ -144,8 +148,8 @@ ON kc.constraint_catalog = rc.constraint_catalog
   AND kc.constraint_schema = rc.constraint_schema 
   AND kc.constraint_name = rc.constraint_name 
 WHERE kc.referenced_table_name IS NOT NULL 
-  AND kc.table_schema IN ({_schemaList})
-  AND kc.table_name <> '{HistoryRepository.DefaultTableName}'";
+  AND LOWER(kc.table_schema) IN ({_schemaList.ToLowerInvariant()})
+  AND kc.table_name NOT LIKE '{HistoryRepository.DefaultTableName}'";
 
       using (var reader = command.ExecuteReader())
       {
@@ -276,8 +280,9 @@ LEFT OUTER JOIN information_schema.table_constraints t
 ON t.table_schema=s.table_schema 
   AND t.table_name=s.table_name 
   AND s.index_name=t.constraint_name 
-WHERE s.table_schema IN ({_schemaList}) 
-  AND s.table_name <> '{HistoryRepository.DefaultTableName}'
+WHERE LOWER(s.table_schema) IN ({_schemaList.ToLowerInvariant()}) 
+  AND s.table_name NOT LIKE '{HistoryRepository.DefaultTableName}'
+  AND s.index_name <> 'PRIMARY'
 ORDER BY s.table_schema, s.table_name, s.non_unique, s.index_name, s.seq_in_index";
 
       using (var reader = command.ExecuteReader())
@@ -346,9 +351,9 @@ ORDER BY s.table_schema, s.table_name, s.non_unique, s.index_name, s.seq_in_inde
       var dbName = _connection.Database;
       command.CommandText = $@"SELECT * 
 FROM information_schema.tables 
-WHERE table_schema IN ({_schemaList}) 
+WHERE LOWER(table_schema) IN ({_schemaList.ToLowerInvariant()}) 
   AND table_type LIKE '%BASE%' 
-  AND table_name <> '{HistoryRepository.DefaultTableName}'
+  AND table_name NOT LIKE '{HistoryRepository.DefaultTableName}'
 ORDER BY table_schema, table_name";
 
       using (var reader = command.ExecuteReader())
@@ -399,7 +404,8 @@ ORDER BY table_schema, table_name";
   numeric_scale, 
   character_maximum_length, 
   constraint_name, 
-  k.ordinal_position as primarykeyordinal 
+  k.ordinal_position as primarykeyordinal, 
+  c.extra 
 FROM (information_schema.tables t 
   INNER JOIN information_schema.columns c 
   ON t.table_schema = c.table_schema 
@@ -410,7 +416,8 @@ ON (k.TABLE_SCHEMA = c.TABLE_SCHEMA
   AND k.COLUMN_NAME = c.COLUMN_NAME 
   AND k.CONSTRAINT_NAME = 'PRIMARY') 
 WHERE t.table_type = 'BASE TABLE' 
-  AND t.table_schema IN ({_schemaList}) 
+  AND LOWER(t.table_schema) IN ({_schemaList.ToLowerInvariant()}) 
+  AND c.table_name NOT LIKE '{HistoryRepository.DefaultTableName}' 
 ORDER BY c.table_name, 
   c.ordinal_position;";
 
@@ -438,8 +445,13 @@ ORDER BY c.table_name,
           var maxLength = reader.IsDBNull(reader.GetOrdinal("character_maximum_length")) ? null : (UInt64?)reader.GetUInt64("character_maximum_length");
           var precision = reader.IsDBNull(reader.GetOrdinal("numeric_precision")) ? null : (UInt64?)reader.GetUInt64("numeric_precision");
           var primaryKeyOrdinal = reader.IsDBNull(reader.GetOrdinal("primarykeyordinal")) ? null : (Int32?)reader.GetInt32("primarykeyordinal");
+          var extra = reader.GetValueOrDefault<string>("extra");
 
-          var table = _tables[TableKey(tableName, tableSchema)];
+          DatabaseTable table;
+          if(!_tables.TryGetValue(TableKey(tableName, tableSchema), out table))
+          {
+            continue;
+          }
 
           var column = new DatabaseColumn
           {
@@ -448,8 +460,18 @@ ORDER BY c.table_name,
             StoreType = dataTypeName,
             IsNullable = isNullable,
             DefaultValueSql = string.IsNullOrWhiteSpace(defaultValue) ? null : defaultValue,
-            ComputedColumnSql = string.IsNullOrWhiteSpace(computedValue) ? null : computedValue
+            ComputedColumnSql = string.IsNullOrWhiteSpace(computedValue) ? null : computedValue,
+            ValueGenerated = string.IsNullOrWhiteSpace(computedValue) ? default(ValueGenerated?) : ValueGenerated.OnAddOrUpdate
           };
+
+          if (primaryKeyOrdinal.HasValue)
+          {
+            if (table.PrimaryKey == null)
+              table.PrimaryKey = new DatabasePrimaryKey { Table = table };
+            if (extra.Equals("auto_increment"))
+              column.ValueGenerated = ValueGenerated.OnAdd;
+            table.PrimaryKey.Columns.Add(column);
+          }
 
           table.Columns.Add(column);
           Logger.LogDebug($"Found column: {tableSchema}.{tableName}.{columnName}");
@@ -458,15 +480,5 @@ ORDER BY c.table_name,
         }
       }
     }
-
-    public DatabaseModel Create(string connectionString, IEnumerable<string> tables, IEnumerable<string> schemas)
-    {
-      throw new NotImplementedException();
     }
-
-    public DatabaseModel Create(DbConnection connection, IEnumerable<string> tables, IEnumerable<string> schemas)
-    {
-      throw new NotImplementedException();
-    }
-  }
 }

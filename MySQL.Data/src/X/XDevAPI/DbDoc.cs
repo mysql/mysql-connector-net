@@ -27,7 +27,6 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.Data;
-using MySqlX;
 using MySqlX.Serialization;
 using System;
 using System.Collections;
@@ -50,7 +49,12 @@ namespace MySqlX.XDevAPI
     /// <param name="val">The value for this DbDoc.</param>
     public DbDoc(object val = null)
     {
-      if (val != null)
+      if (val == null)
+      {
+        return;
+      }
+
+      try
       {
         if (val is string)
           values = JsonParser.Parse(val as string);
@@ -60,6 +64,12 @@ namespace MySqlX.XDevAPI
           values = JsonParser.Parse(DictToString((val as DbDoc).values, 2));
         else
           values = ParseObject(val);
+      }
+      catch(Exception exception)
+      {
+        // Throw message indicating the format of the Json document is invalid and append the message
+        // returned by the Json parser.
+        throw(new Exception(string.Format(ResourcesX.InvalidJsonDocument, exception.Message)));
       }
     }
 

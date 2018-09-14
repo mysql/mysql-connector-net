@@ -234,4 +234,7 @@
   <data name="FeatureNotSupported" xml:space="preserve">
     <value>This feature is currently not supported.</value>
   </data>
+  <data name="InvalidJsonDocument" xml:space="preserve">
+    <value>The value provided is not a valid JSON document. {0}</value>
+  </data>
 </root>

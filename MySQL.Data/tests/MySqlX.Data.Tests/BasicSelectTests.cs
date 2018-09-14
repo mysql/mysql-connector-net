@@ -1,4 +1,4 @@
-// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -42,7 +42,7 @@ namespace MySqlX.Data.Tests
       CreateBooksTable();
       Table books = GetTable("test", "books");
 
-      RowResult result = books.Select("name", "pages").Execute();
+      RowResult result = ExecuteSelectStatement(books.Select("name", "pages"));
       var rows = result.FetchAll();
       Assert.True(result.Columns.Count == 2);
       Assert.True(rows.Count == 2);
@@ -54,7 +54,7 @@ namespace MySqlX.Data.Tests
       CreateBooksTable();
       Table books = GetTable("test", "books");
 
-      RowResult result = books.Select("name", "pages").Where("pages > 250").Execute();
+      RowResult result = ExecuteSelectStatement(books.Select("name", "pages").Where("pages > 250"));
       var rows = result.FetchAll();
       Assert.True(result.Columns.Count == 2);
       Assert.True(rows.Count == 1);
@@ -89,7 +89,7 @@ namespace MySqlX.Data.Tests
       {
         var t1 = s1.GetSchema(schemaName).GetTable(tableName);
         s1.StartTransaction();
-        RowResult r1 = t1.Select().Where("id = :id").Bind("id", 1).LockExclusive().Execute();
+        RowResult r1 = ExecuteSelectStatement(t1.Select().Where("id = :id").Bind("id", 1).LockExclusive());
         var rows1 = r1.FetchAll();
         Assert.Equal(1, rows1.Count);
         Assert.Equal(1, rows1[0]["id"]);
@@ -98,7 +98,7 @@ namespace MySqlX.Data.Tests
         using (Session s2 = MySQLX.GetSession(ConnectionString))
         {
           var t2 = s2.GetSchema(schemaName).GetTable(tableName);
-          s2.SQL("SET innodb_lock_wait_timeout = 1").Execute();
+          ExecuteSQLStatement(s2.SQL("SET innodb_lock_wait_timeout = 1"));
           s2.StartTransaction();
           var stmt2 = t2.Select();
           if (lockMode == LockMode.Exclusive)
@@ -110,7 +110,7 @@ namespace MySqlX.Data.Tests
           {
             case LockContention.Default:
               // error 1205 Lock wait timeout exceeded; try restarting transaction
-              Assert.Equal(1205u, Assert.ThrowsAny<MySqlException>(() => stmt2.Execute().FetchAll()).Code);
+              Assert.Equal(1205u, Assert.ThrowsAny<MySqlException>(() => ExecuteSelectStatement(stmt2).FetchAll()).Code);
               break;
             case LockContention.NoWait:
               // error 1205 Lock wait timeout exceeded; try restarting transaction
@@ -118,16 +118,16 @@ namespace MySqlX.Data.Tests
               if (session.XSession.GetServerVersion().isAtLeast(8, 0, 5))
                 // error 3572 Statement aborted because lock(s) could not be acquired immediately and NOWAIT is set
                 expectedError = 3572;
-              Assert.Equal(expectedError, Assert.ThrowsAny<MySqlException>(() => stmt2.Execute().FetchAll()).Code);
+              Assert.Equal(expectedError, Assert.ThrowsAny<MySqlException>(() => ExecuteSelectStatement(stmt2).FetchAll()).Code);
               break;
             case LockContention.SkipLocked:
               if(!session.XSession.GetServerVersion().isAtLeast(8, 0, 5))
               {
                 // error 1205 Lock wait timeout exceeded; try restarting transaction
-                Assert.Equal(1205u, Assert.ThrowsAny<MySqlException>(() => stmt2.Execute().FetchAll()).Code);
+                Assert.Equal(1205u, Assert.ThrowsAny<MySqlException>(() => ExecuteSelectStatement(stmt2).FetchAll()).Code);
                 break;
               }
-              var rows2 = stmt2.Execute().FetchAll();
+              var rows2 = ExecuteSelectStatement(stmt2).FetchAll();
               Assert.Equal(1, rows2.Count);
               Assert.Equal(2, rows2[0]["id"]);
               break;

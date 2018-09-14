@@ -1,4 +1,4 @@
-// Copyright © 2015, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -41,8 +41,8 @@ namespace MySqlX.Data.Tests.ResultTests
       ExecuteSQL("CREATE TABLE test(name VARCHAR(40), age INT)");
       Table table = testSchema.GetTable("test");
 
-      table.Insert("name", "age").Values("Henry", "22").Values("Patric", 30).Execute();
-      var result = table.Select().Execute();
+      ExecuteInsertStatement(table.Insert("name", "age").Values("Henry", "22").Values("Patric", 30));
+      var result = ExecuteSelectStatement(table.Select());
       var rows = result.FetchAll();
       WeakReference wr = new WeakReference(result);
       result = null;

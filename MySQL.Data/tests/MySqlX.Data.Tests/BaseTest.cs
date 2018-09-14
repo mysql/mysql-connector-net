@@ -33,6 +33,8 @@ using MySqlX.XDevAPI.Relational;
 using System.Reflection;
 using System.IO;
 using MySql.Data.MySqlClient;
+using MySqlX.XDevAPI.CRUD;
+using MySqlX.XDevAPI.Common;
 
 namespace MySqlX.Data.Tests
 {
@@ -80,7 +82,7 @@ namespace MySqlX.Data.Tests
       ExecuteSqlAsRoot(sql);
       session = GetSession();
       testSchema = session.GetSchema(schemaName);
-      if (testSchema.ExistsInDatabase())
+      if (SchemaExistsInDatabase(testSchema))
         session.DropSchema(schemaName);
       session.CreateSchema(schemaName);
     }
@@ -94,7 +96,7 @@ namespace MySqlX.Data.Tests
     {
       Session session = GetSession();
       session.SetCurrentSchema(schemaName);
-      SqlResult r = session.SQL(sql).Execute();
+      SqlResult r = ExecuteSQLStatement(session.SQL(sql));
       var rows = r.HasData ? r.FetchAll() : null;
       return r;
     }
@@ -132,10 +134,70 @@ namespace MySqlX.Data.Tests
       using (Session s = GetSession())
       {
         Schema schema = s.GetSchema(schemaName);
-        if(schema.ExistsInDatabase())
+        if(SchemaExistsInDatabase(schema))
             s.DropSchema(schemaName);
-        Assert.False(schema.ExistsInDatabase());
+        Assert.False(SchemaExistsInDatabase(schema));
       }
+    }
+
+    protected Result ExecuteAddStatement(AddStatement stmt)
+    {
+      return stmt.Execute();
+    }
+
+    protected Result ExecuteModifyStatement(ModifyStatement stmt)
+    {
+      return stmt.Execute();
+    }
+
+    protected DocResult ExecuteFindStatement(FindStatement stmt)
+    {
+      return stmt.Execute();
+    }
+
+    protected SqlResult ExecuteSQLStatement(SqlStatement stmt)
+    {
+      return stmt.Execute();
+    }
+
+    protected Result ExecuteRemoveStatement(RemoveStatement stmt)
+    {
+      return stmt.Execute();
+    }
+
+    protected RowResult ExecuteSelectStatement(TableSelectStatement stmt)
+    {
+      return stmt.Execute();
+    }
+
+    protected Result ExecuteInsertStatement(TableInsertStatement stmt)
+    {
+      return stmt.Execute();
+    }
+
+    protected Result ExecuteUpdateStatement(TableUpdateStatement stmt)
+    {
+      return stmt.Execute();
+    }
+
+    protected Result ExecuteDeleteStatement(TableDeleteStatement stmt)
+    {
+      return stmt.Execute();
+    }
+
+    protected bool SchemaExistsInDatabase(Schema schema)
+    {
+      return schema.ExistsInDatabase();
+    }
+
+    protected bool CollectionExistsInDatabase(Collection collection)
+    {
+      return collection.ExistsInDatabase();
+    }
+
+    protected bool TableExistsInDatabase(Table table)
+    {
+      return table.ExistsInDatabase();
     }
   }
 }
