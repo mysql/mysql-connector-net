@@ -130,6 +130,8 @@ namespace MySqlX.Data.Tests
       CheckParseRoundTrip("a + interval 1 hour + 1 + interval 1 * 1 second", "(date_add(a, 1, \"HOUR\") + date_add(1, (1 * 1), \"SECOND\"))");
       CheckParseRoundTrip("now () - interval -2 day", "date_sub(now(), -2, \"DAY\")"); // interval exprs compile to date_add/date_sub calls
       CheckParseRoundTrip("1", "1");
+      CheckParseRoundTrip("1address", "1address");
+      CheckParseRoundTrip("11employee", "11employee");
       CheckParseRoundTrip("1^0", "(1 ^ 0)");
       CheckParseRoundTrip("1e1", "10");
       CheckParseRoundTrip("-1e1", "-10");
