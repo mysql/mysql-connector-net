@@ -81,7 +81,7 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 
     private readonly RelationalTypeMapping _enum = new MySQLStringTypeMapping("enum");
     private readonly RelationalTypeMapping _set = new MySQLStringTypeMapping("set");
-    private readonly RelationalTypeMapping _geometry = new MySQLGeometryTypeMapping("geomety");
+    private readonly RelationalTypeMapping _geometry = new MySQLGeometryTypeMapping("geometry");
 
 
     private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
