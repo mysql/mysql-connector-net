@@ -1,4 +1,4 @@
-// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,6 +28,7 @@
 
 
 using Microsoft.EntityFrameworkCore;
+using MySql.Data.EntityFrameworkCore.Infraestructure;
 using MySql.Data.MySqlClient;
 using System;
 using System.IO;
@@ -41,16 +42,19 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     public MyTestContext()
     {
     }
-  
-    public MyTestContext(DbContextOptions options): base(options)
+
+    public MyTestContext(DbContextOptions options) : base(options)
     {
     }
-        
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-      // get the class name of the caller to get a unique name for the database      
-      string name = $"db-{this.GetType().Name.ToLowerInvariant()}";
-      optionsBuilder.UseMySQL(MySQLTestStore.rootConnectionString + ";database=" + name  + ";");
+      // get the class name of the caller to get a unique name for the database
+      if (!optionsBuilder.IsConfigured 
+        || optionsBuilder.Options.FindExtension<MySQLOptionsExtension>() == null)
+      {
+        optionsBuilder.UseMySQL(MySQLTestStore.GetContextConnectionString(this.GetType()));
+      }
     }
   }
 
@@ -58,66 +62,78 @@ namespace MySql.Data.EntityFrameworkCore.Tests
   {
     public static string baseConnectionString
     {
-        get { return $"server=localhost;user id=root;password=;port={Port()};sslmode=Required;pooling=false;defaultcommandtimeout=50;"; }
+      get { return $"server=localhost;user id=root;password=;port={Port()};sslmode=Required;pooling=false;defaultcommandtimeout=50;"; }
     }
 
     public static string rootConnectionString
     {
-        get { return $"server=localhost;user id=root;password=;port={Port()};sslmode=Required;pooling=false;defaultcommandtimeout=50;"; }
+      get { return $"server=localhost;user id=root;password=;port={Port()};sslmode=Required;pooling=false;defaultcommandtimeout=50;"; }
+    }
+
+    internal static string GetContextConnectionString<T>()
+      where T : DbContext
+    {
+      return GetContextConnectionString(typeof(T));
+    }
+
+    internal static string GetContextConnectionString(Type type)
+    {
+      string name = $"db-{type.Name.ToLowerInvariant()}";
+      return MySQLTestStore.rootConnectionString + $";database={name};";
     }
 
     private static string Port()
     {
       var port = Environment.GetEnvironmentVariable("MYSQL_PORT");
-      return port == null ? "3306" : port;        
+      return port == null ? "3306" : port;
     }
 
     public static void CreateDatabase(string databaseName, bool deleteifExists = false, string script = null)
     {
-        if (script != null)
-        {
-            if (deleteifExists)
-                script = "Drop database if exists [database0];"  + script;
+      if (script != null)
+      {
+        if (deleteifExists)
+          script = "Drop database if exists [database0];" + script;
 
-            script = script.Replace("[database0]", databaseName);
-            //execute
-            using (var cnn = new MySqlConnection(rootConnectionString))
-            {
-                cnn.Open();
-                MySqlScript s = new MySqlScript(cnn, script);
-                s.Execute();
-            }
-        }
-        else
+        script = script.Replace("[database0]", databaseName);
+        //execute
+        using (var cnn = new MySqlConnection(rootConnectionString))
         {
-            using (var cnn = new MySqlConnection(rootConnectionString))
-            {
-                cnn.Open();                    
-                var cmd = new MySqlCommand(string.Format("Drop database {0}; Create Database {0};", databaseName), cnn);
-                cmd.ExecuteNonQuery();                    
-            }
+          cnn.Open();
+          MySqlScript s = new MySqlScript(cnn, script);
+          s.Execute();
         }
+      }
+      else
+      {
+        using (var cnn = new MySqlConnection(rootConnectionString))
+        {
+          cnn.Open();
+          var cmd = new MySqlCommand(string.Format("Drop database {0}; Create Database {0};", databaseName), cnn);
+          cmd.ExecuteNonQuery();
+        }
+      }
     }
 
     public static void Execute(string sql)
     {
-        using (var cnn = new MySqlConnection(rootConnectionString))
-        {
-            cnn.Open();
-            var cmd = new MySqlCommand(sql, cnn);
-            cmd.ExecuteNonQuery();
-        }
+      using (var cnn = new MySqlConnection(rootConnectionString))
+      {
+        cnn.Open();
+        var cmd = new MySqlCommand(sql, cnn);
+        cmd.ExecuteNonQuery();
+      }
     }
 
     public static void ExecuteScript(string sql)
     {
-        using (var cnn = new MySqlConnection(rootConnectionString))
-        {
-            cnn.Open();
-            var scr = new MySqlScript(cnn, sql);
-            scr.Execute();
-        }
-     }
+      using (var cnn = new MySqlConnection(rootConnectionString))
+      {
+        cnn.Open();
+        var scr = new MySqlScript(cnn, sql);
+        scr.Execute();
+      }
+    }
 
     public static string CreateConnectionString(string databasename)
     {
@@ -138,14 +154,14 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       using (var cnn = new MySqlConnection(rootConnectionString))
       {
         cnn.Open();
-        var cmd =  new MySqlCommand(string.Format("DROP DATABASE IF EXISTS {0}", name), cnn);
+        var cmd = new MySqlCommand(string.Format("DROP DATABASE IF EXISTS {0}", name), cnn);
         cmd.ExecuteNonQuery();
       }
     }
 
     public void Dispose()
     {
-     //nothing to do yet
+      //nothing to do yet
     }
 
   }

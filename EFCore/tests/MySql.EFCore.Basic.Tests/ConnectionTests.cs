@@ -29,6 +29,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
+using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using MySql.Data.MySqlClient;
 using Xunit;
 
@@ -69,5 +70,43 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       return optionsBuilder.Options;
     }
 
+    [Fact]
+    public void TransactionTest()
+    {
+      using (var context = new SakilaLiteUpdateContext())
+      {
+        context.InitContext(false);
+      }
+
+      using (MySqlConnection connection = new MySqlConnection(MySQLTestStore.GetContextConnectionString<SakilaLiteUpdateContext>()))
+      {
+        connection.Open();
+
+        using (MySqlTransaction transaction = connection.BeginTransaction())
+        {
+
+          MySqlCommand command = connection.CreateCommand();
+          command.CommandText = "DELETE FROM actor";
+          command.ExecuteNonQuery();
+
+          var options = new DbContextOptionsBuilder<SakilaLiteUpdateContext>()
+            .UseMySQL(connection)
+            .Options;
+
+          using (var context = new SakilaLiteUpdateContext(options))
+          {
+            context.Database.UseTransaction(transaction);
+            context.Actor.Add(new Actor
+            {
+              FirstName = "PENELOPE",
+              LastName = "GUINESS"
+            });
+            context.SaveChanges();
+          }
+
+          transaction.Commit();
+        }
+      }
+    }
   }
 }

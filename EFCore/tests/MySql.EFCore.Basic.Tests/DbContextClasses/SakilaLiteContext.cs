@@ -41,6 +41,12 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
     public DbSet<Customer> Customer { get; set; }
     public DbSet<SakilaAddress> Address { get; set; }
 
+    public SakilaLiteContext()
+      : base() { }
+
+    public SakilaLiteContext(DbContextOptions options)
+      : base(options) { }
+
     partial void OnModelCreating20(ModelBuilder modelBuilder);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -364,6 +370,12 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
 
   public class SakilaLiteUpdateContext : SakilaLiteContext
   {
+    public SakilaLiteUpdateContext()
+      : base() { }
+
+    public SakilaLiteUpdateContext(DbContextOptions options)
+      : base(options) { }
+
     public override void PopulateData()
     {
       // no data loaded

@@ -67,6 +67,10 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
 
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
+    <Reference Include="System.Transactions" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\..\MySQL.Data\src\MySql.Data.csproj" />
     <ProjectReference Include="..\..\src\MySql.Data.EFCore\MySql.Data.EntityFrameworkCore.csproj" />
