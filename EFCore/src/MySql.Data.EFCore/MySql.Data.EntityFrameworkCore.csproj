@@ -26,6 +26,7 @@
     <SignAssembly>True</SignAssembly>
     <DelaySign>True</DelaySign>
     <AssemblyOriginatorKeyFile>..\..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
+    <LangVersion>7.2</LangVersion>
 </PropertyGroup>
 
   <ItemGroup>
@@ -45,13 +46,13 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net452' or '$(TargetFramework)' == 'netstandard1.6' ">
-    <Compile Remove="Frameworks/efcore20/**/*" />
+    <Compile Remove="Frameworks/efcore21/**/*" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="1.1.6" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net461' ">
     <Compile Remove="Frameworks/efcore10/**/*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.1.2" />
   </ItemGroup>
 
   <ItemGroup>

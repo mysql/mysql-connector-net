@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -36,11 +36,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
-  internal partial class MySQLTypeMapper : TypeMapperWrapper
+  internal partial class MySQLTypeMapper
   {
     private static int _longTextMaxLength = int.MaxValue;
     private static int _textMaxLength = 65535;
     private static int _keyMaxLength = 767;
+    private static int CHAR_MAX_LENGTH = 255;
+    private static int VARCHAR_MAX_LENGTH = 4000;
 
     private readonly RelationalTypeMapping _int = new MySQLNumberTypeMapping("int", typeof(Int32), DbType.Int32);
     private readonly RelationalTypeMapping _bigint = new MySQLNumberTypeMapping("bigint", typeof(Int64), DbType.Int64);
@@ -79,15 +81,20 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 
     private readonly RelationalTypeMapping _enum = new MySQLStringTypeMapping("enum");
     private readonly RelationalTypeMapping _set = new MySQLStringTypeMapping("set");
+    private readonly RelationalTypeMapping _geometry = new MySQLGeometryTypeMapping("geometry");
 
 
     private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
     private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;
-    public override IStringRelationalTypeMapper StringMapper { get; }
-    public override IByteArrayRelationalTypeMapper ByteArrayMapper { get; }
 
+#if NETSTANDARD2_0 || NET461
+    public MySQLTypeMapper([NotNull] TypeMappingSourceDependencies dependencies,
+      [NotNull] RelationalTypeMappingSourceDependencies relationalDependencies)
+      : base(dependencies, relationalDependencies)
+#else
     public MySQLTypeMapper()
       : base()
+#endif
     {
       _storeTypeMappings = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
       {
@@ -107,10 +114,9 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
         { "mediumtext", _mediumText},
         { "longtext", _longText},
         { "datetime", _datetime },
-        { "datetimeoffset", _datetimeoffset },
         { "date", _date },
         { "time", _time },
-        { "timestamp", _datetime },
+        { "timestamp", _datetimeoffset },
         { "year", _smallint },
         { "bit", _bit },
         { "string", _varchar },
@@ -122,6 +128,7 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
         { "varbinary", _varbinary },
         { "enum", _enum },
         { "set", _set },
+        { "geometry", _geometry },
         { "json", _varchar }
       };
 
@@ -142,7 +149,7 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
         { typeof(ulong), new MySQLNumberTypeMapping("numeric(20, 0)" ,_decimal.GetType()) },
         { typeof(short), _smallint },
         { typeof(decimal), _decimal },
-        { typeof(byte[]), _varbinary },
+        { typeof(MySql.Data.Types.MySqlGeometry), _geometry },
         { typeof(TimeSpan), _time }
       };
 
@@ -179,31 +186,6 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
               _varbinary,
               _varbinary,
               _rowversion, _ => _varbinary);
-    }
-
-
-    protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings()
-    => _clrTypeMappings;
-
-    protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetStoreTypeMappings()
-    => _storeTypeMappings;
-
-
-    protected override string GetColumnType(IProperty property)
-    {
-      return property.Relational().ColumnType;
-    }
-
-
-    public override RelationalTypeMapping FindMapping(Type clrType)
-    {
-      ThrowIf.Argument.IsNull(clrType, "clrType");
-      var sType = Nullable.GetUnderlyingType(clrType) ?? clrType;
-      return sType == typeof(string)
-          ? _varchar
-          : (sType == typeof(byte[])
-              ? _varbinary
-              : base.FindMapping(clrType));
     }
   }
 }

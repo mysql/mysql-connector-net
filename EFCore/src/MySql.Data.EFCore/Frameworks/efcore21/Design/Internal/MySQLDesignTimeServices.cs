@@ -26,28 +26,25 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Design;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using MySql.Data.EntityFrameworkCore;
-using System.Data;
+using System.Text;
+using Microsoft.Extensions.DependencyInjection;
+using MySql.Data.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
+using MySql.Data.EntityFrameworkCore.Scaffolding.Internal;
+using Microsoft.EntityFrameworkCore.Scaffolding;
 
-namespace MySql.Data.EntityFrameworkCore.Storage.Internal
+namespace MySql.Data.EntityFrameworkCore.Design.Internal
 {
-  internal partial class MySQLBinaryTypeMapping : MySQLTypeMapping
+  internal class MySQLDesignTimeServices : IDesignTimeServices
   {
-    public MySQLBinaryTypeMapping(
-      [NotNull] string storeType,
-      [CanBeNull] DbType? dbType = System.Data.DbType.Binary,
-      int? size = null,
-      bool fixedLength = false)
-      : base(storeType, typeof(byte[]), dbType, size: size)
-    {
-    }
-
-    public override RelationalTypeMapping Clone([NotNull] string storeType, int? size)
-      => new MySQLBinaryTypeMapping(storeType, DbType);
+    public void ConfigureDesignTimeServices(IServiceCollection serviceCollection)
+      => serviceCollection
+        .AddSingleton<IRelationalTypeMappingSource, MySQLTypeMapper>()
+        .AddSingleton<IDatabaseModelFactory, MySQLDatabaseModelFactory>()
+        .AddSingleton<IProviderConfigurationCodeGenerator, MySQLScaffoldingCodeGenerator>()
+        .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>();
   }
 }

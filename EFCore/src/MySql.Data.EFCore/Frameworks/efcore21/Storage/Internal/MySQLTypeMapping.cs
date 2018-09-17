@@ -29,25 +29,28 @@
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using MySql.Data.EntityFrameworkCore;
+using System.Text;
 using System.Data;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
-  internal partial class MySQLBinaryTypeMapping : MySQLTypeMapping
+  internal abstract partial class MySQLTypeMapping : RelationalTypeMapping
   {
-    public MySQLBinaryTypeMapping(
-      [NotNull] string storeType,
-      [CanBeNull] DbType? dbType = System.Data.DbType.Binary,
-      int? size = null,
-      bool fixedLength = false)
-      : base(storeType, typeof(byte[]), dbType, size: size)
+    public MySQLTypeMapping(
+        [NotNull] string storeType,
+        [NotNull] Type clrType,
+        [CanBeNull] DbType? dbType = null,
+        bool unicode = false,
+        int? size = null,
+        bool hasNonDefaultUnicode = false)
+      : base(storeType, clrType, dbType, unicode, size)
     {
     }
 
-    public override RelationalTypeMapping Clone([NotNull] string storeType, int? size)
-      => new MySQLBinaryTypeMapping(storeType, DbType);
+    protected MySQLTypeMapping(RelationalTypeMappingParameters parameters)
+      : base(parameters)
+    {
+    }
   }
 }

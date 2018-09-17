@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,28 +26,29 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.EntityFrameworkCore.Storage;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using MySql.Data.EntityFrameworkCore;
-using System.Data;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using Xunit;
 
-namespace MySql.Data.EntityFrameworkCore.Storage.Internal
-{
-  internal partial class MySQLBinaryTypeMapping : MySQLTypeMapping
-  {
-    public MySQLBinaryTypeMapping(
-      [NotNull] string storeType,
-      [CanBeNull] DbType? dbType = System.Data.DbType.Binary,
-      int? size = null,
-      bool fixedLength = false)
-      : base(storeType, typeof(byte[]), dbType, size: size)
-    {
-    }
+// General Information about an assembly is controlled through the following 
+// set of attributes. Change these attribute values to modify the information
+// associated with an assembly.
+[assembly: AssemblyTitle("MySql.Data.EntityFrameworkCore.Design.Tests")]
+[assembly: AssemblyDescription("")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("Oracle")]
+[assembly: AssemblyProduct("MySql.Data.EntityFrameworkCore.Tests")]
+[assembly: AssemblyCopyright("Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.")]
+[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCulture("")]
 
-    public override RelationalTypeMapping Clone([NotNull] string storeType, int? size)
-      => new MySQLBinaryTypeMapping(storeType, DbType);
-  }
-}
+// Setting ComVisible to false makes the types in this assembly not visible 
+// to COM components.  If you need to access a type in this assembly from 
+// COM, set the ComVisible attribute to true on that type.
+[assembly: ComVisible(false)]
+
+// The following GUID is for the ID of the typelib if this project is exposed to COM
+//[assembly: Guid("a4c0a8f2-5e48-4227-a712-bf8ae7446101")]
+
+[assembly: CollectionBehavior(DisableTestParallelization = true)]

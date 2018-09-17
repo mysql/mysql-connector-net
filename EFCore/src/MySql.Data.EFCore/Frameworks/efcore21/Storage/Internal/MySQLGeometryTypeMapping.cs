@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -33,21 +33,34 @@ using System.Linq;
 using System.Threading.Tasks;
 using MySql.Data.EntityFrameworkCore;
 using System.Data;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using JetBrains.Annotations;
+using System.Data.Common;
+using MySql.Data.Types;
+using MySql.Data.MySqlClient;
+using System.Reflection;
 
 namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
-  internal partial class MySQLBinaryTypeMapping : MySQLTypeMapping
+  internal partial class MySQLGeometryTypeMapping : MySQLTypeMapping
   {
-    public MySQLBinaryTypeMapping(
-      [NotNull] string storeType,
-      [CanBeNull] DbType? dbType = System.Data.DbType.Binary,
-      int? size = null,
-      bool fixedLength = false)
-      : base(storeType, typeof(byte[]), dbType, size: size)
+    protected MySQLGeometryTypeMapping(RelationalTypeMappingParameters parameters)
+      : base(parameters)
     {
     }
 
-    public override RelationalTypeMapping Clone([NotNull] string storeType, int? size)
-      => new MySQLBinaryTypeMapping(storeType, DbType);
+    public override CoreTypeMapping Clone(ValueConverter converter)
+      => new MySQLGeometryTypeMapping(Parameters.WithComposedConverter(converter));
+
+    protected override void ConfigureParameter([NotNull] DbParameter parameter)
+    {
+      MySqlParameter mysqlParameter = parameter as MySqlParameter;
+      mysqlParameter.MySqlDbType = MySqlDbType.Geometry;
+    }
+
+    public override MethodInfo GetDataReaderMethod()
+    {
+      return typeof(MySqlDataReader).GetMethod("GetMySqlGeometry", new Type[] { typeof(int) });
+    }
   }
 }

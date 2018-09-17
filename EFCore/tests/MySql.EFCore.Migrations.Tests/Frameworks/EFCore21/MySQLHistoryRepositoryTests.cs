@@ -1,4 +1,4 @@
-// Copyright © 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,46 +26,48 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
-using MySql.Data.EntityFrameworkCore.Storage.Internal;
-using MySql.EntityFrameworkCore.Migrations.Tests.Utilities;
-using MySql.Data.EntityFrameworkCore;
-using MySql.Data.EntityFrameworkCore.Metadata;
-using MySql.Data.EntityFrameworkCore.Migrations;
-using System.Diagnostics;
-using Xunit;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using MySql.Data.EntityFrameworkCore.Storage.Internal;
+using MySql.Data.EntityFrameworkCore.Tests;
+using MySql.Data.EntityFrameworkCore;
+using MySql.Data.EntityFrameworkCore.Infraestructure;
+using MySql.Data.EntityFrameworkCore.Migrations;
+using MySql.Data.EntityFrameworkCore.Migrations.Internal;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
+using Xunit;
+using MySql.Data.EntityFrameworkCore.Extensions;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Update.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 
 namespace MySql.EntityFrameworkCore.Migrations.Tests
 {
-  public partial class MySQLMigrationsGeneratorTest : MySQLMigrationsGeneratorTestBase
+  public partial class MySQLHistoryRepositoryTests
   {
-    protected override IMigrationsSqlGenerator SqlGenerator
+    private static IHistoryRepository CreateHistoryRepository()
     {
-      get
-      {
-        var typeMapper = new MySQLTypeMapper();
+      var optionsBuilder = new DbContextOptionsBuilder();
+      optionsBuilder.UseMySQL(MySQLTestStore.rootConnectionString + "database=test;");
 
-        var logger = new DiagnosticsLogger<DbLoggerCategory.Database.Command>(
-          new LoggerFactory(),
-          new LoggingOptions(),
-          new DiagnosticListener("Fake"));
+      var serviceCollection = new ServiceCollection();
+      serviceCollection.AddEntityFrameworkMySQL()
+        .AddDbContext<MyTestContext>();
 
-        var commandBuilderFactory = new RelationalCommandBuilderFactory(
-          logger,
-          typeMapper);
+      optionsBuilder.UseInternalServiceProvider(serviceCollection.BuildServiceProvider());
 
-        var dependencies = new MigrationsSqlGeneratorDependencies(
-          commandBuilderFactory,
-          new MySQLSqlGenerationHelper(
-            new Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelperDependencies()),
-          typeMapper);
-
-        return new MySQLMigrationsSqlGenerator(dependencies);
-      }
+      return new DbContext(optionsBuilder.Options).GetService<IHistoryRepository>();
     }
   }
 }

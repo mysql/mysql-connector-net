@@ -26,28 +26,38 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using MySql.Data.EntityFrameworkCore;
-using System.Data;
 
 namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
-  internal partial class MySQLBinaryTypeMapping : MySQLTypeMapping
+  internal class MySQLCommandBuilderFactory : RelationalCommandBuilderFactory
   {
-    public MySQLBinaryTypeMapping(
-      [NotNull] string storeType,
-      [CanBeNull] DbType? dbType = System.Data.DbType.Binary,
-      int? size = null,
-      bool fixedLength = false)
-      : base(storeType, typeof(byte[]), dbType, size: size)
+    private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _logger;
+    private readonly IRelationalTypeMappingSource _typeMappingSource;
+
+    public MySQLCommandBuilderFactory(
+        [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
+        [NotNull] IRelationalTypeMappingSource typeMappingSource)
+      : base(logger, typeMappingSource)
     {
+      _logger = logger;
+      _typeMappingSource = typeMappingSource;
     }
 
-    public override RelationalTypeMapping Clone([NotNull] string storeType, int? size)
-      => new MySQLBinaryTypeMapping(storeType, DbType);
+    protected override IRelationalCommandBuilder CreateCore(
+      [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger, 
+      [NotNull] IRelationalTypeMappingSource typeMappingSource)
+    {
+      return new MySQLCommandBuilder(_logger, _typeMappingSource);
+    }
   }
 }
