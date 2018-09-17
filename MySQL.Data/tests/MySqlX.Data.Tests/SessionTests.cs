@@ -850,7 +850,7 @@ namespace MySqlX.Data.Tests
       TestConnectTimeoutFailureTimeout(conn, 10, 600, "Offline host timeout disabled");
 
       // Create a session using the fail over functionality passing two diferrent Server address(one of them is fake host). Must succeed after 2000ms
-      conn = "server=143.24.20.36,localhost;user=test;password=test;port=33060;connecttimeout=2000;";
+      conn = $"server=143.24.20.36,localhost;user=test;password=test;port={XPort};connecttimeout=2000;";
       TestConnectTimeoutSuccessTimeout(conn, 2, 4, "Fail over success");
 
       // Both (fake)servers offline. Connection must time out after 20000ms
