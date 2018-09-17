@@ -60,7 +60,6 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void TestUnparseables()
     {
-      CheckBadParse("1ee1");
       CheckBadParse("1 + ");
       CheckBadParse("x 1,2,3)");
       CheckBadParse("x(1,2,3");
