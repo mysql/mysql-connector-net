@@ -188,8 +188,8 @@ namespace MySql.Data.MySqlClient
       {
         baseStream = StreamCreator.GetStream(Settings);
 #if !NETSTANDARD1_3
-         if (Settings.IncludeSecurityAsserts)
-            MySqlSecurityPermission.CreatePermissionSet(false).Assert();
+        if (Settings.IncludeSecurityAsserts)
+          MySqlSecurityPermission.CreatePermissionSet(false).Assert();
 #endif
       }
       catch (System.Security.SecurityException)
@@ -298,12 +298,12 @@ namespace MySql.Data.MySqlClient
       stream.MaxBlockSize = maxSinglePacket;
     }
 
-#region Authentication
+    #region Authentication
 
-      /// <summary>
-      /// Return the appropriate set of connection flags for our
-      /// server capabilities and our user requested options.
-      /// </summary>
+    /// <summary>
+    /// Return the appropriate set of connection flags for our
+    /// server capabilities and our user requested options.
+    /// </summary>
     private void SetConnectionFlags(ClientFlags serverCaps)
     {
       // allow load data local infile
@@ -381,7 +381,7 @@ namespace MySql.Data.MySqlClient
       authPlugin.Authenticate(reset);
     }
 
-#endregion
+    #endregion
 
     public void Reset()
     {
@@ -563,7 +563,15 @@ namespace MySql.Data.MySqlClient
 
       packet.Encoding = field.Encoding;
       packet.Version = version;
-      return valObject.ReadValue(packet, length, isNull);
+      var val = valObject.ReadValue(packet, length, isNull);
+
+      if (val is MySqlDateTime d)
+      {
+        d.TimezoneOffset = field.driver.timeZoneOffset;
+        return d;
+      }
+
+      return val;
     }
 
     public void SkipColumnValue(IMySqlValue valObject)
@@ -627,8 +635,8 @@ namespace MySql.Data.MySqlClient
     private void ExecutePacket(MySqlPacket packetToExecute)
     {
       try
-      {      
-        warnings = 0;        
+      {
+        warnings = 0;
         stream.SequenceByte = 0;
         stream.SendPacket(packetToExecute);
       }

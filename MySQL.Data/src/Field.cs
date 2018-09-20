@@ -68,8 +68,10 @@ namespace MySql.Data.MySqlClient
     // protected fields
     protected int charSetIndex;
     protected DBVersion connVersion;
-    protected Driver driver;
     protected bool binaryOk;
+
+    // internal fields
+    internal Driver driver;
 
     #endregion
 
