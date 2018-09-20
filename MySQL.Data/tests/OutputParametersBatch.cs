@@ -49,7 +49,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// Bug #17814 Stored procedure fails unless DbType set explicitly
     /// Bug #23749 VarChar field size over 255 causes a System.OverflowException 
     /// </summary>
-   [Fact]
+    [Fact]
     public void OutputParameters()
     {
       // we don't want to run this test under no access
@@ -95,7 +95,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(66, cmd.Parameters[5].Value);
     }
 
-   [Fact]
+    [Fact]
     public void InputOutputParameters()
     {
       // create our procedure
@@ -118,7 +118,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(99, cmd.Parameters[2].Value);
     }
 
-   [Fact]
+    [Fact]
     public void ExecuteScalar()
     {
       // create our procedure
@@ -136,7 +136,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("valuein", cmd.Parameters[1].Value);
     }
 
-   [Fact]
+    [Fact]
     public void ExecuteReaderTest()
     {
       // create our procedure
@@ -157,7 +157,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(2, cmd.Parameters[0].Value);
     }
 
-   [Fact]
+    [Fact]
     public void FunctionNoParams()
     {
       executeSQL("CREATE FUNCTION fnTest() RETURNS CHAR(50)" +
@@ -170,7 +170,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("Test", result);
     }
 
-   [Fact]
+    [Fact]
     public void FunctionParams()
     {
       executeSQL("CREATE FUNCTION fnTest( val1 INT, val2 CHAR(40) ) RETURNS INT " +
@@ -187,7 +187,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// Bug #10644 Cannot call a stored function directly from Connector/Net 
     /// Bug #25013 Return Value parameter not found 
     /// </summary>
-   [Fact]
+    [Fact]
     public void CallingStoredFunctionasProcedure()
     {
       executeSQL("CREATE FUNCTION fnTest(valin int) RETURNS INT " +
@@ -205,7 +205,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(44, cmd.Parameters[1].Value);
     }
 
-   [Fact]
+    [Fact]
     public void ReturningEmptyResultSet()
     {
       executeSQL("CREATE TABLE test1 (id int AUTO_INCREMENT NOT NULL, " +
@@ -250,7 +250,7 @@ namespace MySql.Data.MySqlClient.Tests
 #endif
     }
 
-   [Fact]
+    [Fact]
     public void UnsignedOutputParameters()
     {
       executeSQL("CREATE TABLE  Test (id INT(10) UNSIGNED AUTO_INCREMENT, PRIMARY KEY (id)) ");
@@ -272,7 +272,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #25625 Crashes when calling with CommandType set to StoredProcedure 
     /// </summary>
-   [Fact]
+    [Fact]
     public void RunWithoutSelectPrivsThrowException()
     {
       // we don't want this test to run in our all access fixture
@@ -325,7 +325,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-   [Fact]
+    [Fact]
     public void CallingFunctionWithoutReturnParameter()
     {
       executeSQL("CREATE FUNCTION fnTest (p_kiosk bigint(20), " +
@@ -344,7 +344,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #27668 FillSchema and Stored Proc with an out parameter
     /// </summary>
-   [Fact]
+    [Fact]
     public void GetSchema2()
     {
       executeSQL(@"CREATE TABLE Test(id INT AUTO_INCREMENT, PRIMARY KEY (id)) ");
@@ -356,22 +356,22 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.Add("?id", MySqlDbType.Int32);
       cmd.Parameters[0].Direction = ParameterDirection.Output;
 
-     MySqlDataAdapter da = new MySqlDataAdapter(cmd);
+      MySqlDataAdapter da = new MySqlDataAdapter(cmd);
       DataTable dt = new DataTable();
       if (prepare) cmd.Prepare();
       cmd.ExecuteNonQuery();
       da.Fill(dt);
       da.FillSchema(dt, SchemaType.Mapped);
     }
-#endif 
+#endif
 
-   [Fact]
+    [Fact]
     public void NoAccessToProcedureBodies()
     {
       string sql = String.Format("CREATE PROCEDURE `{0}`.`spTest`(in1 INT, INOUT inout1 INT, OUT out1 INT ) " +
           "BEGIN SET inout1 = inout1+2; SET out1=inout1-3; SELECT in1; END", (Connection.Database));
       executeSQL(sql);
-      
+
       using (MySqlConnection c = new MySqlConnection(Connection.ConnectionString + ";check parameters=false"))
       {
         c.Open();
@@ -391,7 +391,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-   [Fact]
+    [Fact(Skip = "This test is failing for PreparedStatements in MySQL Server 8.0.13. Bug #92470")]
     public void BinaryAndVarBinaryParameters()
     {
       executeSQL("CREATE PROCEDURE spTest(OUT out1 BINARY(20), OUT out2 VARBINARY(20)) " +
@@ -422,7 +422,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #31930 Stored procedures with "ambiguous column name" error cause lock-ups 
     /// </summary>
-   [Fact]
+    [Fact]
     public void CallingFunction()
     {
       executeSQL(@"CREATE FUNCTION `GetSupplierBalance`(SupplierID_ INTEGER(11))
@@ -444,13 +444,13 @@ namespace MySql.Data.MySqlClient.Tests
 
     /// <summary>
     /// </summary>
-   [Fact]
+    [Fact]
     public void OutputParametersWithNewParamHandling()
     {
       // create our procedure
       executeSQL("CREATE PROCEDURE spTest(out val1 VARCHAR(350)) " +
           "BEGIN  SET val1 = '42';  END");
-      
+
       var connStr = Connection.ConnectionString.Replace("allow user variables=true", "allow user variables=false");
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
@@ -469,13 +469,13 @@ namespace MySql.Data.MySqlClient.Tests
 
     /// <summary>
     /// </summary>
-   [Fact]
+    [Fact]
     public void FunctionWithNewParamHandling()
     {
       // create our procedure
       executeSQL("CREATE FUNCTION fnTest(`value` INT) RETURNS INT " +
           "BEGIN RETURN value; END");
-      
+
       var connStr = Connection.ConnectionString.Replace("allow user variables=true", "allow user variables=false");
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
@@ -496,7 +496,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #56756	Output Parameter MySqlDbType.Bit get a wrong Value (48/49 for false or true)
     /// </summary>
-   [Fact]
+    [Fact]
     public void BitTypeAsOutParameter()
     {
       executeSQL(@"CREATE PROCEDURE `spTest`(out x bit(1))
