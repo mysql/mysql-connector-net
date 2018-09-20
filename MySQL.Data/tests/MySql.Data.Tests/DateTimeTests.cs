@@ -1,4 +1,4 @@
-// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -823,6 +823,35 @@ namespace MySql.Data.MySqlClient.Tests
       finally
       {
         executeSQL("SET @@global.time_zone=@@session.time_zone");
+      }
+    }
+
+    /// <summary>
+    /// Bug 28156187 NET/CONNECTOR MYSQLDATAREADER FETCHES WRONG TIMEZONE
+    /// </summary>
+    [Fact]
+    public void TimeZoneOffsetUsingReader()
+    {
+      executeSQL(@"CREATE TABLE `timeZoneOffsetTable` (`id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+        `name` varchar(40) DEFAULT NULL, `mytimestampcolumn` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY(`id`)) ENGINE = InnoDB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8; ");
+
+      executeSQL("INSERT INTO `timeZoneOffsetTable` (`name`) VALUES ('Name1')");
+
+      using (var conn = Fixture.GetConnection())
+      using (var cmd = new MySqlCommand("SELECT mytimestampcolumn FROM timeZoneOffsetTable;", conn))
+      {
+        var reader = cmd.ExecuteReader();
+        reader.Read();
+        
+        var myTimestampSb = (DateTime)reader["mytimestampcolumn"];
+        var myTimestampGdt = reader.GetDateTime("mytimestampcolumn");
+
+        Assert.True(myTimestampSb.Kind == myTimestampGdt.Kind);
+        Assert.True(conn.driver.timeZoneOffset == ((DateTimeOffset)myTimestampSb).Offset.Hours);
+        Assert.True(conn.driver.timeZoneOffset == ((DateTimeOffset)myTimestampGdt).Offset.Hours);
+
+        reader.Close();
       }
     }
   }
