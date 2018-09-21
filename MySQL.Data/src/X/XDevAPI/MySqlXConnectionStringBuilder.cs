@@ -40,10 +40,16 @@ namespace MySqlX.XDevAPI
   public sealed class MySqlXConnectionStringBuilder : MySqlBaseConnectionStringBuilder
   {
     public MySqlXConnectionStringBuilder() : base()
-    { }
+    {
+      if (SslMode == MySqlSslMode.Preferred)
+        SslMode = MySqlSslMode.Required;
+    }
 
-    public MySqlXConnectionStringBuilder(string connStr) : base(connStr)
-    { }
+    public MySqlXConnectionStringBuilder(string connStr) : base(connStr, true)
+    {
+      if (SslMode == MySqlSslMode.Preferred)
+        SslMode = MySqlSslMode.Required;
+    }
 
     #region Server Properties
 

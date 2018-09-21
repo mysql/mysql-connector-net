@@ -270,7 +270,8 @@ namespace MySql.Data.MySqlClient
 
       if ((serverCaps & ClientFlags.SSL) == 0)
       {
-        if (Settings.SslMode != MySqlSslMode.None)
+        if (Settings.SslMode != MySqlSslMode.None &&
+            Settings.SslMode != MySqlSslMode.Preferred)
         {
           // Client requires SSL connections.
           string message = String.Format(Resources.NoServerSSLSupport,

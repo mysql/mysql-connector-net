@@ -83,7 +83,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("certificatepassword", "certificate password,ssl-ca-pwd", typeof(string), null, false));
       Options.Add(new MySqlConnectionStringOption("certificatestorelocation", "certificate store location", typeof(MySqlCertificateStoreLocation), MySqlCertificateStoreLocation.None, false));
       Options.Add(new MySqlConnectionStringOption("certificatethumbprint", "certificate thumb print", typeof(string), null, false));
-      Options.Add(new MySqlConnectionStringOption("sslmode", "ssl mode,ssl-mode", typeof(MySqlSslMode), MySqlSslMode.Required, false));
+      Options.Add(new MySqlConnectionStringOption("sslmode", "ssl mode,ssl-mode", typeof(MySqlSslMode), MySqlSslMode.Preferred, false));
 
       // Other properties.
       Options.Add(new MySqlConnectionStringOption("keepalive", "keep alive", typeof(uint), (uint)0, false));
@@ -136,10 +136,10 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    public MySqlBaseConnectionStringBuilder(string connStr)
+    public MySqlBaseConnectionStringBuilder(string connStr, bool isXProtocol)
       : this()
     {
-      AnalyzeConnectionString(connStr);
+      AnalyzeConnectionString(connStr, isXProtocol);
       lock (this)
       {
         ConnectionString = connStr;
@@ -281,7 +281,7 @@ namespace MySql.Data.MySqlClient
     public MySqlSslMode SslMode
     {
       get { return (MySqlSslMode)values["sslmode"]; }
-      set { SetValue("sslmode", value); }
+      set {SetValue("sslmode", value); }
     }
 
     #endregion
@@ -482,7 +482,7 @@ namespace MySql.Data.MySqlClient
     /// Analyzes the connection string for potential duplicated or invalid connection options.
     /// </summary>
     /// <param name="connectionString">Connection string.</param>
-    private void AnalyzeConnectionString(string connectionString)
+    private void AnalyzeConnectionString(string connectionString, bool isXProtocol)
     {
       string[] queries = connectionString.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
       List<string> usedSslOptions = new List<string>();
@@ -509,6 +509,10 @@ namespace MySql.Data.MySqlClient
 
         if (sslModeIsNone && (option.Keyword == "certificatepassword" || option.Keyword == "sslcrl" || option.Keyword == "sslca"))
           throw new ArgumentException(Resources.InvalidOptionWhenSslDisabled);
+
+        // Preferred is not allowed for the X Protocol.
+        if (isXProtocol && option.Keyword == "sslmode" && (value == "preferred" || value == "prefered"))
+          throw new ArgumentException(string.Format(Resources.InvalidSslMode, keyValue[1]));
 
         usedSslOptions.Add(option.Keyword);
       }

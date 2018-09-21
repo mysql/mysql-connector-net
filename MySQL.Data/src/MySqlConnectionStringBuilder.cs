@@ -236,7 +236,7 @@ namespace MySql.Data.MySqlClient
     public MySqlConnectionStringBuilder() : base()
     { }
 
-    public MySqlConnectionStringBuilder(string connStr) : base(connStr)
+    public MySqlConnectionStringBuilder(string connStr) : base(connStr, false)
     { }
 
     #region Server Properties

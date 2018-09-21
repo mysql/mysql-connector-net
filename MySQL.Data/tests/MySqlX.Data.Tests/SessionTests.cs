@@ -320,15 +320,6 @@ namespace MySqlX.Data.Tests
         Assert.Equal(connection.Settings.SslMode, MySqlSslMode.Required);
       }
 
-      // sslmode=Preferred is invalid.
-      Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionString + "?ssl-mode=Preferred"));
-
-      // sslmode=Required is default value.
-      using (var connection = MySQLX.GetSession(connectionString))
-      {
-        Assert.Equal(MySqlSslMode.Required, connection.Settings.SslMode);
-      }
-
       // sslmode case insensitive.
       using (var connection = MySQLX.GetSession(connectionString + "?SsL-mOdE=required"))
       {
@@ -352,6 +343,24 @@ namespace MySqlX.Data.Tests
 
       // send error if sslmode=None and another ssl parameter exists.
       Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionString + "?sslmode=None&ssl-ca=../../../../MySql.Data.Tests/certificates/client.pfx").InternalSession.SessionState);
+    }
+
+    [Fact]
+    public void SSLRequiredByDefault()
+    {
+      using (var connection = MySQLX.GetSession(ConnectionStringUri))
+      {
+        Assert.Equal(MySqlSslMode.Required, connection.Settings.SslMode);
+      }
+    }
+
+    [Fact]
+    public void SSLPreferredIsInvalid()
+    {
+      ArgumentException ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(ConnectionStringUri + "?ssl-mode=Preferred"));
+      Assert.Equal("Value 'Preferred' is not of the correct type.", ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(ConnectionStringUri + "?ssl-mode=Prefered"));
+      Assert.Equal("Value 'Prefered' is not of the correct type.", ex.Message);
     }
 
     [Fact]

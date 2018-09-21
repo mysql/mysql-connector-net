@@ -388,6 +388,11 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     None,
     /// <summary>
+    /// Use SSL, if server supports it. This option is only available for the classic protocol.
+    /// </summary>
+    Preferred,
+    Prefered = Preferred,
+    /// <summary>
     /// Always use SSL. Deny connection if server does not support SSL.
     /// Do not perform server certificate validation.
     /// This is the default SSL mode when the same isn't specified as part of the connection string.

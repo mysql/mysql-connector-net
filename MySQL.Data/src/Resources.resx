@@ -562,4 +562,7 @@
   <data name="StringEmpty" xml:space="preserve">
     <value>String can't be empty.</value>
   </data>
+  <data name="InvalidSslMode" xml:space="preserve">
+    <value>Value '{0}' is not of the correct type.</value>
+  </data>
 </root>
