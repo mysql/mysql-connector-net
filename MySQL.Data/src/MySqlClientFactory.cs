@@ -81,7 +81,7 @@ namespace MySql.Data.MySqlClient
       return new MySqlConnectionStringBuilder();
     }
 
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
     /// <summary>
     /// Returns a strongly typed <see cref="DbCommandBuilder"/> instance. 
     /// </summary>
