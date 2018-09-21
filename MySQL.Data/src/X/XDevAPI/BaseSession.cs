@@ -264,8 +264,11 @@ namespace MySqlX.XDevAPI
           var server = value.Value.ToString();
           if (IsUnixSocket(server))
             Settings.SetValue(value.Key, server = NormalizeUnixSocket(server));
+
           ParseHostList(server, false);
-          if (FailoverManager.FailoverGroup != null) Settings[SERVER_CONNECTION_OPTION_KEYWORD] = FailoverManager.FailoverGroup.ActiveHost.Host;
+          if (FailoverManager.FailoverGroup != null)
+            Settings[SERVER_CONNECTION_OPTION_KEYWORD] = null;
+
           hostsParsed = true;
         }
       }
