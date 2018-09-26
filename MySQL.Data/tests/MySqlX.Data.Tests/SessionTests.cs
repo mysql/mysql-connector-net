@@ -813,7 +813,7 @@ namespace MySqlX.Data.Tests
     /// WL #12177 Implement connect timeout
     /// </summary>
     [Fact]
-    public void ConnectionTimeout()
+    public void ConnectTimeout()
     {
       // Create a session passing the new parameter "connect-timeout" and set it to a valid value.
       // ConnectionString.
