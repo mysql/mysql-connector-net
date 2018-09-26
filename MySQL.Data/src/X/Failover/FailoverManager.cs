@@ -102,7 +102,7 @@ namespace MySqlX.Failover
           Settings.Port = (uint)currentHost.Port;
         if (currentHost.Host == initialHost)
         {
-          string exTimeOutMessage = Settings.ConnectionTimeout == 0 ? ResourcesX.TimeOutMultipleHost0ms : String.Format(ResourcesX.TimeOutMultipleHost, Settings.ConnectionTimeout);
+          string exTimeOutMessage = Settings.ConnectTimeout == 0 ? ResourcesX.TimeOutMultipleHost0ms : String.Format(ResourcesX.TimeOutMultipleHost, Settings.ConnectTimeout);
           timeoutException = new TimeoutException(exTimeOutMessage);
         }
 

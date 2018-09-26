@@ -732,7 +732,7 @@ namespace MySqlX.Data.Tests
       builder.SslMode = MySqlSslMode.Required;
       builder.SslCa = "../../../../MySql.Data.Tests/client.pfx";
       builder.CertificatePassword = "pass";
-      builder.ConnectionTimeout = 10000;
+      builder.ConnectTimeout = 10000;
       builder.Keepalive = 10;
       builder.Auth = MySqlAuthenticationMode.AUTO;
 
@@ -779,7 +779,7 @@ namespace MySqlX.Data.Tests
       // Setting SslCa will also set CertificateFile.
       builder.SslCa = "../../../../MySql.Data.Tests/client.pfx";
       builder.CertificatePassword = "pass";
-      builder.ConnectionTimeout = 10000;
+      builder.ConnectTimeout = 10000;
       builder.Keepalive = 10;
       // Auth will change to the authentication mode internally used PLAIN, MySQL41, SHA256_MEMORY: 
       builder.Auth = MySqlAuthenticationMode.AUTO;
@@ -803,7 +803,7 @@ namespace MySqlX.Data.Tests
         Assert.Equal(builder.SslMode, internalSession.Settings.SslMode);
         Assert.Equal(builder.SslCa, internalSession.Settings.SslCa);
         Assert.Equal(builder.CertificatePassword, internalSession.Settings.CertificatePassword);
-        Assert.Equal(builder.ConnectionTimeout, internalSession.Settings.ConnectionTimeout);
+        Assert.Equal(builder.ConnectTimeout, internalSession.Settings.ConnectTimeout);
         Assert.Equal(builder.Keepalive, internalSession.Settings.Keepalive);
         Assert.Equal(MySqlAuthenticationMode.PLAIN, internalSession.Settings.Auth);
       }
@@ -819,14 +819,14 @@ namespace MySqlX.Data.Tests
       // ConnectionString.
       using (Session session = MySQLX.GetSession(ConnectionString + ";connect-timeout=5000;"))
       {
-        Assert.True(session.Settings.ConnectionTimeout == 5000);
+        Assert.True(session.Settings.ConnectTimeout == 5000);
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
       }
 
       // ConnectionURI.
       using (Session session = MySQLX.GetSession(ConnectionStringUri + "?connecttimeout=6500"))
       {
-        Assert.True(session.Settings.ConnectionTimeout == 6500);
+        Assert.True(session.Settings.ConnectTimeout == 6500);
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
       }
 
@@ -837,12 +837,12 @@ namespace MySqlX.Data.Tests
         port = session.Settings.Port,
         user = session.Settings.UserID,
         password = session.Settings.Password,
-        connecttimeout = session.Settings.ConnectionTimeout
+        connecttimeout = session.Settings.ConnectTimeout
       };
 
       using (var testSession = MySQLX.GetSession(connstring))
       {
-        Assert.True(session.Settings.ConnectionTimeout == 10000);
+        Assert.True(session.Settings.ConnectTimeout == 10000);
         Assert.Equal(SessionState.Open, testSession.InternalSession.SessionState);
       }
 

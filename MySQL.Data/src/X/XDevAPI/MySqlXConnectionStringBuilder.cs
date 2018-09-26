@@ -61,7 +61,7 @@ namespace MySqlX.XDevAPI
     [Description("The length of time (in milliseconds) to wait for a connection " +
                  "to the server before terminating the attempt and generating an error.")]
     [RefreshProperties(RefreshProperties.All)]
-    public uint ConnectionTimeout
+    public uint ConnectTimeout
     {
       get { return (uint)values["connect-timeout"]; }
 

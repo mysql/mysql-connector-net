@@ -69,7 +69,7 @@ namespace MySqlX.Sessions
     {
       bool isUnix = Settings.ConnectionProtocol == MySqlConnectionProtocol.Unix ||
         Settings.ConnectionProtocol == MySqlConnectionProtocol.UnixSocket;
-      _stream = MyNetworkStream.CreateStream(Settings.Server, Settings.ConnectionTimeout, Settings.Keepalive, Settings.Port, isUnix);
+      _stream = MyNetworkStream.CreateStream(Settings.Server, Settings.ConnectTimeout, Settings.Keepalive, Settings.Port, isUnix);
       if (_stream == null)
         throw new MySqlException(ResourcesX.UnableToConnect);
       _reader = new XPacketReaderWriter(_stream);
