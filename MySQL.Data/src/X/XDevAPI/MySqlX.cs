@@ -81,7 +81,7 @@ namespace MySqlX.XDevAPI
     /// new { pooling = new
     ///   {
     ///     enabled = true,
-    ///     maxSize = 25,
+    ///     maxSize = 15,
     ///     maxIdleTime = 60000,
     ///     queueTimeout = 60000
     ///   }
@@ -116,7 +116,7 @@ namespace MySqlX.XDevAPI
     /// new { pooling = new
     ///   {
     ///     enabled = true,
-    ///     maxSize = 25,
+    ///     maxSize = 15,
     ///     maxIdleTime = 60000,
     ///     queueTimeout = 60000
     ///   }

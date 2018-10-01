@@ -40,6 +40,9 @@ using System.Threading;
 
 namespace MySqlX.XDevAPI
 {
+  /// <summary>
+  /// Class encapsulating a session pooling functionality.
+  /// </summary>
   public class Client : IDisposable
   {
     private string _connectionString;
@@ -129,6 +132,10 @@ namespace MySqlX.XDevAPI
       }
     }
 
+    /// <summary>
+    /// Get a session from pool or create a new one.
+    /// </summary>
+    /// <returns></returns>
     public Session GetSession()
     {
       if (_isClosed)
@@ -238,6 +245,9 @@ namespace MySqlX.XDevAPI
       _autoResetEvent.Set();
     }
 
+    /// <summary>
+    /// Closes all sessions the Client object created and destroys the managed pool.
+    /// </summary>
     public void Close()
     {
       if (_isClosed) return;
