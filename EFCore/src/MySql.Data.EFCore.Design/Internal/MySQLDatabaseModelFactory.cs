@@ -307,7 +307,10 @@ ORDER BY s.table_schema, s.table_name, s.non_unique, s.index_name, s.seq_in_inde
             continue;
           }
 
-          if (index == null || index.Name != indexName || index.Table.Name != tableName || index.Table.SchemaName != tableSchema)
+          if (index == null
+            || !index.Name.Equals(indexName, StringComparison.OrdinalIgnoreCase)
+            || !index.Table.Name.Equals(tableName, StringComparison.OrdinalIgnoreCase)
+            || !index.Table.SchemaName.Equals(tableSchema, StringComparison.OrdinalIgnoreCase))
           {
             TableModel table = null;
             if (!_tables.TryGetValue(TableKey(tableName, tableSchema), out table))
