@@ -106,6 +106,15 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} &apos;{1}&apos; does not exist in schema &apos;{2}&apos;..
+        /// </summary>
+        public static string CollectionTableDoesNotExist {
+            get {
+                return ResourceManager.GetString("CollectionTableDoesNotExist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to This feature is currently not supported..
         /// </summary>
         public static string FeatureNotSupported {
