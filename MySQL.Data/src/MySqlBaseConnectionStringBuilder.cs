@@ -91,36 +91,10 @@ namespace MySql.Data.MySqlClient
       // Language and charset options.
       Options.Add(new MySqlConnectionStringOption("characterset", "character set,charset", typeof(string), "", false));
 
-      // X Authentication options.
-      Options.Add(new MySqlConnectionStringOption("auth", null, typeof(MySqlAuthenticationMode), MySqlAuthenticationMode.Default, false));
+      // X Authentication options.      
       Options.Add(new MySqlConnectionStringOption("sslca", "ssl-ca", typeof(string), null, false,
         (BaseSetterDelegate)((msb, sender, value) => { msb.SslCa = value as string; }),
-        (BaseGetterDelegate)((msb, sender) => { return msb.SslCa; })));
-      Options.Add(new MySqlConnectionStringOption("sslcrl", "ssl-crl", typeof(string), null, false,
-        (BaseSetterDelegate)((msb, sender, value) => { msb.SslCrl = value as string; }),
-        (BaseGetterDelegate)((msb, sender) => { return msb.SslCrl; })));
-
-      // X Server options.
-      Options.Add(new MySqlConnectionStringOption("connect-timeout", "connecttimeout", typeof(uint), (uint)10000, false,
-        delegate (MySqlXConnectionStringBuilder msb, MySqlConnectionStringOption sender, object Value)
-        {
-          sender.ValidateValue(ref Value, sender.Keyword);
-          uint value = (uint)Convert.ChangeType(Value, sender.BaseType);
-          // Timeout in milliseconds should not exceed maximum for 32 bit
-          // signed integer (~24 days). We truncate the value if it exceeds
-          // maximum (MySqlCommand.CommandTimeout uses the same technique)
-          uint timeout = Math.Min(value, Int32.MaxValue);
-          if (timeout != value)
-          {
-            MySqlTrace.LogWarning(-1, "Connection timeout value too large ("
-                + value + " milliseconds). Changed to max. possible value " +
-                +timeout + " milliseconds)");
-          }
-          msb.SetValue("connect-timeout", timeout);
-
-        },
-        (msb, sender) => (uint)msb.values["connect-timeout"]
-        ));
+        (BaseGetterDelegate)((msb, sender) => { return msb.SslCa; })));      
     }
 
     public MySqlBaseConnectionStringBuilder()
@@ -320,17 +294,6 @@ namespace MySql.Data.MySqlClient
 
     #region XAuthentication Properties
 
-    [Category("Authentication")]
-    [DisplayName("Auth")]
-    [Description("Authentication mechanism")]
-    [DefaultValue(MySqlAuthenticationMode.Default)]
-    [Obsolete("Use MySqlXConnectionStringBuilder.Auth instead.")]
-    public MySqlAuthenticationMode Auth
-    {
-      get { return (MySqlAuthenticationMode)values["auth"]; }
-      set { SetValue("auth", value); }
-    }
-
     [Description("Path to a local file that contains a list of trusted TLS/SSL CAs")]
     [Obsolete("Use MySqlXConnectionStringBuilder.SslCa instead.")]
     public string SslCa
@@ -340,14 +303,6 @@ namespace MySql.Data.MySqlClient
       {
         CertificateFile = value;
       }
-    }
-
-    [Description("Path to a local file containing certificate revocation lists.")]
-    [Obsolete("Use MySqlXConnectionStringBuilder.SslCrl instead.")]
-    public string SslCrl
-    {
-      get { throw new NotSupportedException(); }
-      set { throw new NotSupportedException(); }
     }
 
     #endregion
@@ -482,7 +437,7 @@ namespace MySql.Data.MySqlClient
     /// Analyzes the connection string for potential duplicated or invalid connection options.
     /// </summary>
     /// <param name="connectionString">Connection string.</param>
-    private void AnalyzeConnectionString(string connectionString, bool isXProtocol)
+    internal void AnalyzeConnectionString(string connectionString, bool isXProtocol)
     {
       string[] queries = connectionString.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
       List<string> usedSslOptions = new List<string>();

@@ -83,7 +83,6 @@ namespace MySql.Data.MySqlClient
       : this()
     {
       ConnectionString = connectionString;
-      CheckForUnsuporrtedConnectionOptions();
     }
 
     #region Destructor
@@ -605,14 +604,6 @@ namespace MySql.Data.MySqlClient
         MySqlCommand cmd = new MySqlCommand(commandText, c) { CommandTimeout = timeout };
         cmd.ExecuteNonQuery();
       }
-    }
-
-    private void CheckForUnsuporrtedConnectionOptions()
-    {
-      if (Settings == null) return;
-
-      if (Settings.Auth != MySqlAuthenticationMode.Default)
-        throw new NotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(Settings.Auth)));
     }
 
 #region Routines for timeout support.
