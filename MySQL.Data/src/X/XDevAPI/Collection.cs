@@ -92,39 +92,6 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Creates a <see cref="RemoveStatement"/> with the given identifier that can be used to remove a single
-    /// document from a collection.
-    /// </summary>
-    /// <param name="id">The identifier to match the document.</param>
-    /// <returns>A <see cref="RemoveStatement"/> object set with the given identifier.</returns>
-    /// <remarks>The statement can then be further modified before execution.</remarks>
-    [Obsolete("This method has been deprecated. Use RemoveOne(id) instead.")]
-    public RemoveStatement Remove(object id)
-    {
-      string key = id is string ?
-        "\"" + id.ToString() + "\"" : id.ToString();
-      string condition = String.Format("_id = {0}", key);
-      RemoveStatement stmt = new RemoveStatement(this, condition);
-      return stmt;
-    }
-
-    /// <summary>
-    /// Creates a <see cref="RemoveStatement"/> containing the identifier of the provided document that can
-    /// be used to remove a single document from a collection.
-    /// </summary>
-    /// <param name="doc">The <see cref="DbDoc"/> representing the document to remove.</param>
-    /// <returns>A <see cref="RemoveStatement"/> object set with the given document's identifier.</returns>
-    /// <exception cref="InvalidOperationException">No identifier for the document was provided.</exception>
-    /// <remarks>The remove statement can then be further modified before execution.</remarks>
-    [Obsolete("This method has been deprecated. Use Remove(condition) instead.")]
-    public RemoveStatement Remove(DbDoc doc)
-    {
-      if (!doc.HasId)
-        throw new InvalidOperationException(ResourcesX.RemovingRequiresId);
-      return Remove(doc.Id);
-    }
-
-    /// <summary>
     /// Removes the document with the given identifier.
     /// </summary>
     /// <param name="id">The unique identifier of the document to replace.</param>

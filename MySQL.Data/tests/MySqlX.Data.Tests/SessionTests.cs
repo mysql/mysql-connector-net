@@ -180,6 +180,9 @@ namespace MySqlX.Data.Tests
       }
 
       // Access denied error is raised when database does not exist.
+      // This behavior was fixed since MySql Server 8.0.13 version. Now the error 
+      // shows the proper message, "Unknown database..."
+      if (session.InternalSession.GetServerVersion().isAtLeast(8, 0, 13)) return;
       var exception = Assert.Throws<MySqlException>(() => MySQLX.GetSession(new
       {
         server = globalSession.Settings.Server,

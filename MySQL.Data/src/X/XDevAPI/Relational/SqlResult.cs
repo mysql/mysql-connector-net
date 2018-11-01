@@ -50,24 +50,6 @@ namespace MySqlX.XDevAPI.Relational
     }
 
     /// <summary>
-    /// Gets the number of records affected by the statement that generated this result.
-    /// </summary>
-    [Obsolete("RecordsAffected has been deprecated. Use AffectedItemsCount instead.")]
-    public UInt64 RecordsAffected
-    {
-      get { return _recordsAffected; }
-    }
-
-    /// <summary>
-    /// Gets the last inserted identifier (if there is one) by the statement that generated this result.
-    /// </summary>
-    [Obsolete("AutoIncrementValue has been deprecated.")]
-    public UInt64 AutoIncrementValue
-    {
-      get { return _autoIncrementValue; }
-    }
-
-    /// <summary>
     /// Moves to next resultset.
     /// </summary>
     /// <returns>True if there is a new resultset, false otherwise.</returns>

@@ -50,7 +50,6 @@ namespace MySqlX.Data.Tests
       };
       Result r = ExecuteAddStatement(coll.Add(docs));
       Assert.Equal<ulong>(4, r.AffectedItemsCount);
-      Assert.Equal<ulong>(r.AffectedItemsCount, r.RecordsAffected);
 
       DocResult foundDocs = ExecuteFindStatement(coll.Find("pages > 20"));
       Assert.True(foundDocs.Next());
@@ -105,7 +104,7 @@ namespace MySqlX.Data.Tests
       Assert.True(foundDocs.Current["title"].ToString() == "Book 2");
       Assert.False(foundDocs.Next());
 
-      var resultDocs = ExecuteFindStatement(coll.Find("pages > 20").Limit(2, 1)).FetchAll();
+      var resultDocs = ExecuteFindStatement(coll.Find("pages > 20").Offset(1).Limit(2)).FetchAll();
       Assert.Equal(40, resultDocs[0]["pages"]);
       Assert.Equal(50, resultDocs[1]["pages"]);
 
