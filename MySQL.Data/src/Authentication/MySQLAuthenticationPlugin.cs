@@ -247,10 +247,10 @@ namespace MySql.Data.MySqlClient.Authentication
         _driver.SendPacket(packet);
 
         packet = ReadPacket();
+        // Is it MySQL protocol (0=OK or 254=need old password) packet ?
         byte prefixByte = packet.Buffer[0];
-        if (prefixByte != 1) return;
+        if (prefixByte == 0 || prefixByte == 254) return;
 
-        // A prefix of 0x01 means need more auth data.
         byte[] responseData = new byte[packet.Length - 1];
         Array.Copy(packet.Buffer, 1, responseData, 0, responseData.Length);
         moreData = MoreData(responseData);
