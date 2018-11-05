@@ -270,4 +270,7 @@
   <data name="ClientIsClosed" xml:space="preserve">
     <value>You can't get more sessions because Client is closed.</value>
   </data>
+  <data name="CollectionTableDoesNotExist" xml:space="preserve">
+    <value>{0} '{1}' does not exist in schema '{2}'.</value>
+  </data>
 </root>

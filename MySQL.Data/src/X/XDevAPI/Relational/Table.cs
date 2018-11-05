@@ -128,7 +128,7 @@ namespace MySqlX.XDevAPI.Relational
     public long Count()
     {
       ValidateOpenSession();
-      return Session.XSession.TableCount(Schema, Name);
+      return Session.XSession.TableCount(Schema, Name, "Table");
     }
 
     /// <summary>

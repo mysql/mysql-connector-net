@@ -337,11 +337,18 @@ namespace MySqlX.Sessions
       ExecuteCmdNonQuery(XpluginStatementCommand.XPLUGIN_STMT_DROP_COLLECTION_INDEX, false, args.ToArray());
     }
 
-    public long TableCount(Schema schema, string name)
+    public long TableCount(Schema schema, string name, string type)
     {
-      string sql = String.Format("SELECT COUNT(*) FROM {0}.{1}",
-        ExprUnparser.QuoteIdentifier(schema.Name), ExprUnparser.QuoteIdentifier(name));
-      return (long)ExecuteQueryAsScalar(sql);
+      try
+      {
+        string sql = String.Format("SELECT COUNT(*) FROM {0}.{1}",
+          ExprUnparser.QuoteIdentifier(schema.Name), ExprUnparser.QuoteIdentifier(name));
+        return (long)ExecuteQueryAsScalar(sql);
+      }
+      catch (MySqlException ex) when (ex.Code == 1146)
+      {
+        throw new MySqlException(string.Format(ResourcesX.CollectionTableDoesNotExist, type.ToString(), name, schema.Name));
+      }
     }
 
     public bool TableExists(Schema schema, string name)

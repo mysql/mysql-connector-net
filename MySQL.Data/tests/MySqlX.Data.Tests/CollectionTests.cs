@@ -109,5 +109,43 @@ namespace MySqlX.Data.Tests
       var ex = Assert.Throws<MySqlException>(() => schema.GetCollection("nonExistentCollection", true));
       Assert.Equal("Collection 'nonExistentCollection' does not exist.", ex.Message);
     }
+
+    [Fact]
+    public void CountCollection()
+    {
+      Session session = GetSession();
+      Schema schema = session.GetSchema("test");
+      schema.CreateCollection("testCount");
+      var count = session.SQL("SELECT COUNT(*) FROM test.testCount").Execute().FetchOne()[0];
+
+      // Zero records
+      var collection = schema.GetCollection("testCount");
+      Assert.Equal(count, collection.Count());
+      var table = schema.GetTable("testCount");
+      Assert.Equal(count, table.Count());
+
+      // Insert some records
+      var stm = collection.Add(@"{ ""_id"": 1, ""foo"": 1 }")
+        .Add(@"{ ""_id"": 2, ""foo"": 2 }")
+        .Add(@"{ ""_id"": 3, ""foo"": 3 }");
+      stm.Execute();
+      count = session.SQL("SELECT COUNT(*) FROM test.testCount").Execute().FetchOne()[0];
+      Assert.Equal(count, collection.Count());
+
+      table.Insert("doc").Values(@"{ ""_id"": 4, ""foo"": 4 }").Execute();
+      count = session.SQL("SELECT COUNT(*) FROM test.testCount").Execute().FetchOne()[0];
+      Assert.Equal(count, table.Count());
+
+      collection.RemoveOne(2);
+      count = session.SQL("SELECT COUNT(*) FROM test.testCount").Execute().FetchOne()[0];
+      Assert.Equal(count, collection.Count());
+      Assert.Equal(count, table.Count());
+
+      // Collection/Table does not exist
+      var ex = Assert.Throws<MySqlException>(() => schema.GetCollection("testCount_").Count());
+      Assert.Equal("Collection 'testCount_' does not exist in schema 'test'.", ex.Message);
+      ex = Assert.Throws<MySqlException>(() => schema.GetTable("testCount_").Count());
+      Assert.Equal("Table 'testCount_' does not exist in schema 'test'.", ex.Message);
+    }
   }
 }
