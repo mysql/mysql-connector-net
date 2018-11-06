@@ -179,7 +179,7 @@ namespace MySqlX.Data.Tests
         Assert.Null(internalSession.DefaultSchema);
       }
 
-      // Access denied error is raised when database does not exist.
+      // Access denied error is raised when database does not exist for servers 8.0.12 and below.
       var exception = Assert.Throws<MySqlException>(() => MySQLX.GetSession(new
       {
         server = globalSession.Settings.Server,
@@ -190,7 +190,11 @@ namespace MySqlX.Data.Tests
         database = "test1"
       }
       ));
-      Assert.StartsWith("Access denied", exception.Message);
+
+      if (session.InternalSession.GetServerVersion().isAtLeast(8, 0, 13))
+        Assert.StartsWith(string.Format("Unknown database 'test1'"), exception.Message);
+      else
+        Assert.StartsWith(string.Format("Access denied"), exception.Message);
     }
 
     [Fact]
@@ -936,7 +940,7 @@ namespace MySqlX.Data.Tests
         }
         Assert.False(true, "MySqlException should be thrown");
       }
-      catch(MySqlException ex)
+      catch (MySqlException ex)
       {
         Assert.Equal(ResourcesX.UnableToOpenSession, ex.Message);
       }
