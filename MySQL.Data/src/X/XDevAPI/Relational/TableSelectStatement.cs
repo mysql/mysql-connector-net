@@ -58,20 +58,6 @@ namespace MySqlX.XDevAPI.Relational
     }
 
     /// <summary>
-    /// Sets user-defined limit and offset for the operation.
-    /// </summary>
-    /// <param name="rows">The number of items to be returned.</param>
-    /// <param name="offset">The number of items to be skipped.</param>
-    /// <returns>This same <see cref="TableSelectStatement"/> object set with the specified limit.</returns>
-    [Obsolete("This method has been deprecated. Use Limit(rows) and Offset(rows) instead.")]
-    public TableSelectStatement Limit(long rows, long offset)
-    {
-      FilterData.Limit = rows;
-      FilterData.Offset = offset;
-      return this;
-    }
-
-    /// <summary>
     /// Locks matching rows against updates.
     /// </summary>
     /// <param name="lockOption">Optional row <see cref="LockContention">lock option</see> to use.</param>

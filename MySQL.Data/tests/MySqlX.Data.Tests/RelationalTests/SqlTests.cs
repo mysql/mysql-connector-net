@@ -116,7 +116,6 @@ namespace MySqlX.Data.Tests.RelationalTests
       var session = GetSession(true);
       var result = ExecuteSQLStatement(session.SQL("INSERT INTO test VALUES(1, ?), (2, 'B');").Bind(null));
       Assert.Equal(2ul, result.AffectedItemsCount);
-      Assert.Equal(result.AffectedItemsCount, result.RecordsAffected);
 
       var sqlResult = ExecuteSQLStatement(session.SQL("SELECT * FROM test WHERE letter is ?").Bind(null)).FetchAll();
       Assert.Equal(1, sqlResult.Count);

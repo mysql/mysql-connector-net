@@ -76,20 +76,6 @@ namespace MySqlX.XDevAPI.CRUD
     }
 
     /// <summary>
-    /// Allows the user to set the limit and offset for the operation.
-    /// </summary>
-    /// <param name="rows">Number of items to be returned.</param>
-    /// <param name="offset">Number of items to be skipped.</param>
-    /// <returns>This same <see cref="FindStatement"/> object set with the specified limit.</returns>
-    [Obsolete("This method has been deprecated. Use Limit(rows) and Offset(rows) instead.")]
-    public FindStatement Limit(long rows, long offset)
-    {
-      FilterData.Limit = rows;
-      FilterData.Offset = offset;
-      return this;
-    }
-
-    /// <summary>
     /// Locks matching rows against updates.
     /// </summary>
     /// <param name="lockOption">Optional row <see cref="LockContention">lock option</see> to use.</param>

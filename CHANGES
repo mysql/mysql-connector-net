@@ -1,5 +1,6 @@
 8.0.14
 - MySqlX: Standardize count method for X Protocol (WL12518).
+- MySqlX: Removed class members that were previously deprecated and replaced with types that support the X DevAPI standard (WL12031).
 
 
 8.0.13

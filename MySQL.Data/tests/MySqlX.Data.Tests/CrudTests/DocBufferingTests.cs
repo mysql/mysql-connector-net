@@ -49,7 +49,6 @@ namespace MySqlX.Data.Tests.CrudTests
       };
       Result r = ExecuteAddStatement(test.Add(docs));
       Assert.Equal(r.Warnings.Count, r.WarningsCount);
-      Assert.Equal(r.WarningsCount, r.WarningCount);
 
       var docResult = ExecuteFindStatement(test.Find());
       foreach (var doc in docResult)

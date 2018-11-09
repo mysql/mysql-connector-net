@@ -52,16 +52,12 @@ namespace MySqlX.Data.Tests
       r = ExecuteRemoveStatement(coll.Remove("_id = 12"));
       Assert.Equal<ulong>(1, r.AffectedItemsCount);
 
-      // Remove with deprecated method accepting an ID.
-      r = ExecuteRemoveStatement(coll.Remove(34));
+      // Remove by ID.
+      r = coll.RemoveOne(34);
       Assert.Equal<ulong>(1, r.AffectedItemsCount);
 
-      // Remove with deprecated method accepting a DbDoc instance.
-      r = ExecuteRemoveStatement(coll.Remove(new DbDoc("{ \"_id\":56 }")));
-      Assert.Equal<ulong>(1, r.AffectedItemsCount);
-
-      var ex = Assert.Throws<InvalidOperationException>(() => ExecuteRemoveStatement(coll.Remove(new DbDoc("{ \"title\":\"Book3\" }"))));
-      Assert.Equal("Removing a document from a collection requires an _id property.", ex.Message);
+      var ex = Assert.Throws<ArgumentNullException>(() => coll.Remove(""));
+      Assert.Equal("Parameter can't be null or empty.\r\nParameter name: condition", ex.Message);
     }
 
     [Fact]
