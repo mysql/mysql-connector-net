@@ -224,6 +224,8 @@ namespace MySqlX.Protocol
           break;
         case NoticeType.SessionVariableChanged:
           break;
+        default: // will ignore unknown notices from the server
+          break;
       }
     }
 

@@ -1,3 +1,7 @@
+8.0.14
+- MySqlX: Be prepared for initial notice on connection (WL12517).
+
+
 8.0.13
 - MySqlX: Connect-Timeout connection option implemented for X Protocol.
 - Improved the performance for index creation by removing redundant client-side validations already being done on the server side (MySQL Bug #91631, Oracle Bug #28343828).
