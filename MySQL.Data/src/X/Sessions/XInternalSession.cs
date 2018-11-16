@@ -65,7 +65,6 @@ namespace MySqlX.Sessions
     internal bool _supportsPreparedStatements = true;
     private int _stmtId = 0;
     private List<int> _preparedStatements = new List<int>();
-    private bool disposed = false;
 
 
     public XInternalSession(MySqlXConnectionStringBuilder settings) : base(settings)
@@ -273,6 +272,19 @@ namespace MySqlX.Sessions
     {
       try
       {
+        try
+        {
+          // Deallocate all the remaining prepared statements for current session.
+          foreach (int stmtId in _preparedStatements)
+          {
+            DeallocatePreparedStatement(stmtId);
+            _preparedStatements.Remove(stmtId);
+          }
+        }
+        catch (Exception ex)
+        {
+          //TODO log exception
+        }
         protocol.SendSessionClose();
       }
       finally
@@ -554,32 +566,6 @@ namespace MySqlX.Sessions
     {
       protocol.SendDeallocatePreparedStatement((uint)stmtId);
       _preparedStatements.Remove(stmtId);
-    }
-
-    protected override void Dispose(bool disposing)
-    {
-      if (disposed) return;
-
-      if (disposing)
-      {
-        // Free any other managed objects here. 
-        try
-        {
-          // Deallocate all the remaining prepared statements for current session.
-          foreach(int stmtId in _preparedStatements)
-          {
-            DeallocatePreparedStatement(stmtId);
-          }
-        }
-        catch(Exception ex)
-        {
-          //TODO log exception
-        }
-      }
-
-      disposed = true;
-
-      base.Dispose(disposing);
     }
   }
 }

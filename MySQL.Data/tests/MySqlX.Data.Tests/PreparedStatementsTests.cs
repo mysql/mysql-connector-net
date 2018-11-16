@@ -158,8 +158,10 @@ namespace MySqlX.Data.Tests
         ValidatePreparedStatements(1, 1,
           "SELECT doc FROM `test`.`Books` WHERE (JSON_EXTRACT(doc,'$._id') = 1)",
           threadId);
+
+        mySession.Close();
+        ValidatePreparedStatements(0, 0, null, threadId);
       }
-      ValidatePreparedStatements(0, 0, null, threadId);
     }
   }
 }
