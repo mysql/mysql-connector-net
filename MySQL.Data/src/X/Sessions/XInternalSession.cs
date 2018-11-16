@@ -45,6 +45,9 @@ using MySqlX;
 using System.Linq;
 using MySql.Data;
 using MySql.Data.MySqlClient.Authentication;
+using System.Diagnostics;
+using System.Collections;
+using System.Threading;
 
 namespace MySqlX.Sessions
 {
@@ -59,6 +62,10 @@ namespace MySqlX.Sessions
     private XPacketReaderWriter _writer;
     private bool serverSupportsTls = false;
     private const string mysqlxNamespace = "mysqlx";
+    internal bool _supportsPreparedStatements = true;
+    private int _stmtId = 0;
+    private List<int> _preparedStatements = new List<int>();
+    private bool disposed = false;
 
 
     public XInternalSession(MySqlXConnectionStringBuilder settings) : base(settings)
@@ -503,6 +510,76 @@ namespace MySqlX.Sessions
       protocol.SendResetSession();
       protocol.ReadOk();
       //return new Result(this);
+    }
+
+    public int PrepareStatement<TResult>(BaseStatement<TResult> statement)
+      where TResult : BaseResult
+    {
+      int stmtId = Interlocked.Increment(ref _stmtId);
+      switch (statement.GetType().Name)
+      {
+        case nameof(FindStatement):
+          FindStatement fs = statement as FindStatement;
+          Debug.Assert(fs != null);
+          protocol.SendPrepareStatement(
+            (uint)stmtId,
+            DataAccess.PreparedStatementType.Find,
+            fs.Target.Schema.Name,
+            fs.Target.Name,
+            false,
+            fs.FilterData,
+            fs.findParams);
+          break;
+        default:
+          throw new NotSupportedException(statement.GetType().Name);
+      }
+      _preparedStatements.Add(stmtId);
+      return stmtId;
+    }
+
+    public TResult ExecutePreparedStatement<TResult>(int stmtId, IEnumerable args)
+      where TResult : BaseResult
+    {
+      protocol.SendExecutePreparedStatement((uint)stmtId, args);
+      BaseResult result = null;
+      if (typeof(TResult) == typeof(DocResult))
+        result = new DocResult(this);
+      else if (typeof(TResult) == typeof(InternalRowResult))
+        result = new InternalRowResult(this);
+
+      return (TResult)result;
+    }
+
+    public void DeallocatePreparedStatement(int stmtId)
+    {
+      protocol.SendDeallocatePreparedStatement((uint)stmtId);
+      _preparedStatements.Remove(stmtId);
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+      if (disposed) return;
+
+      if (disposing)
+      {
+        // Free any other managed objects here. 
+        try
+        {
+          // Deallocate all the remaining prepared statements for current session.
+          foreach(int stmtId in _preparedStatements)
+          {
+            DeallocatePreparedStatement(stmtId);
+          }
+        }
+        catch(Exception ex)
+        {
+          //TODO log exception
+        }
+      }
+
+      disposed = true;
+
+      base.Dispose(disposing);
     }
   }
 }

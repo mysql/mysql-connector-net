@@ -31,6 +31,8 @@ using MySqlX.Common;
 using System.Collections.Generic;
 using System;
 using MySql.Data;
+using System.Collections;
+using System.Linq;
 
 namespace MySqlX.XDevAPI.Common
 {
@@ -71,6 +73,7 @@ namespace MySqlX.XDevAPI.Common
     public T Where(string condition)
     {
       filter.Condition = condition;
+      SetChanged();
       return (T)this;
     }
 
@@ -155,7 +158,9 @@ namespace MySqlX.XDevAPI.Common
       try
       {
         ValidateOpenSession();
-        return executeFunc(t);
+        var result = ConvertToPreparedStatement<T>(executeFunc, t, FilterData.Parameters.Values.ToArray());
+        _hasChanged = false;
+        return result;
       }
       finally
       {

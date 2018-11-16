@@ -101,10 +101,12 @@ namespace MySqlX.Data.Tests
       return r;
     }
 
-    protected Collection CreateCollection(string name)
+    protected Collection CreateCollection(string name, string schema = null)
     {
+      if (schema == null)
+        schema = schemaName;
       Session session = GetSession();
-      Schema test = session.GetSchema(schemaName);
+      Schema test = session.GetSchema(schema);
       test.DropCollection(name);
       return test.CreateCollection(name);
     }
