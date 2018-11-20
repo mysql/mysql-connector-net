@@ -127,19 +127,23 @@ namespace MySqlX.Protocol
     {
       _writer.Write(ClientMessageId.CON_CAPABILITIES_GET, new CapabilitiesGet());
       CommunicationPacket packet = ReadPacket();
+
+      if (packet.MessageType == (int)ServerMessageId.NOTICE)
+        packet = ReadPacket();
+
       if (packet.MessageType != (int)ServerMessageId.CONN_CAPABILITIES)
         ThrowUnexpectedMessage(packet.MessageType, (int)ServerMessageId.CONN_CAPABILITIES);
       Capabilities = Capabilities.Parser.ParseFrom(packet.Buffer);
     }
 
-    public void SetCapabilities(Dictionary<string,object> clientCapabilities)
+    public void SetCapabilities(Dictionary<string, object> clientCapabilities)
     {
       if (clientCapabilities == null || clientCapabilities.Count == 0)
         return;
 
       var builder = new CapabilitiesSet();
       var capabilities = new Capabilities();
-      foreach(var cap in clientCapabilities)
+      foreach (var cap in clientCapabilities)
       {
         var capabilityMsg = new Capability() { Name = (cap.Key), Value = ExprUtil.BuildAny(cap.Value) };
         capabilities.Capabilities_.Add(capabilityMsg);
@@ -248,8 +252,8 @@ namespace MySqlX.Protocol
           foreach (var value in state.Value)
             rs._documentIds.Add(value.VOctets.Value.ToStringUtf8());
           break;
-        //handle the other ones
-        //default: SessionStateChanged(state);
+          //handle the other ones
+          //default: SessionStateChanged(state);
       }
     }
 
@@ -311,7 +315,7 @@ namespace MySqlX.Protocol
         var any = ExprUtil.BuildEmptyAny(Any.Types.Type.Object);
         foreach (var arg in args)
         {
-          switch(stmt)
+          switch (stmt)
           {
             case "drop_collection_index":
               any.Obj.Fld.Add(CreateObject(arg.Key, arg.Value, false));
@@ -340,7 +344,7 @@ namespace MySqlX.Protocol
         var array = new Mysqlx.Datatypes.Array();
         foreach (var arg in args)
         {
-          if (arg.Value is Dictionary<string, object> && arg.Key=="constraint")
+          if (arg.Value is Dictionary<string, object> && arg.Key == "constraint")
           {
             var innerAny = ExprUtil.BuildEmptyAny(Any.Types.Type.Object);
             foreach (var field in arg.Value as Dictionary<string, object>)
@@ -352,7 +356,7 @@ namespace MySqlX.Protocol
             any.Obj.Fld.Add(CreateObject(arg.Key, arg.Value, false));
         }
 
-        if (array.Value.Count>0)
+        if (array.Value.Count > 0)
         {
           var constraint = new ObjectField();
           constraint.Key = "constraint";
@@ -442,7 +446,7 @@ namespace MySqlX.Protocol
       XDevAPI.Relational.Column c = new XDevAPI.Relational.Column();
       c._decoder = XValueDecoderFactory.GetValueDecoder(c, colData.Type);
       c._decoder.Column = c;
-      
+
       if (!colData.Name.IsEmpty)
         c.ColumnLabel = colData.Name.ToStringUtf8();
       if (!colData.OriginalName.IsEmpty)
@@ -479,9 +483,9 @@ namespace MySqlX.Protocol
       msg.Collection = ExprUtil.BuildCollection(schema, collection);
       msg.DataModel = (isRelational ? DataModel.Table : DataModel.Document);
       msg.Upsert = upsert;
-      if(columns != null && columns.Length > 0)
+      if (columns != null && columns.Length > 0)
       {
-        foreach(string column in columns)
+        foreach (string column in columns)
         {
           msg.Projection.Add(new ExprParser(column).ParseTableInsertField());
         }
@@ -565,8 +569,8 @@ namespace MySqlX.Protocol
         builder.Grouping.AddRange(new ExprParser(ExprUtil.JoinString(findParams.GroupBy)).ParseExprList());
       if (findParams.GroupByCritieria != null)
         builder.GroupingCriteria = new ExprParser(findParams.GroupByCritieria).Parse();
-      if (findParams.Locking != 0) builder.Locking = (Find.Types.RowLock) findParams.Locking;
-      if (findParams.LockingOption != 0) builder.LockingOptions =(Find.Types.RowLockOptions)findParams.LockingOption;
+      if (findParams.Locking != 0) builder.Locking = (Find.Types.RowLock)findParams.Locking;
+      if (findParams.LockingOption != 0) builder.LockingOptions = (Find.Types.RowLockOptions)findParams.LockingOption;
       if (findParams.Projection != null && findParams.Projection.Length > 0)
       {
         var parser = new ExprParser(ExprUtil.JoinString(findParams.Projection));
