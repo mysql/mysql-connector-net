@@ -53,7 +53,7 @@ namespace MySqlX.XDevAPI.Relational
     /// <summary>
     /// Gets the list of parameters associated to this Sql statement.
     /// </summary>
-    protected List<object> parameters = new List<object>();
+    protected internal List<object> parameters = new List<object>();
 
     /// <summary>
     /// Executes the current Sql statement.
@@ -61,8 +61,22 @@ namespace MySqlX.XDevAPI.Relational
     /// <returns>A <see cref="SqlResult"/> object with the resultset and execution status.</returns>
     public override SqlResult Execute()
     {
-      ValidateOpenSession();
-      return Session.XSession.GetSQLResult(SQL, parameters.ToArray());
+      try
+      {
+        ValidateOpenSession();
+        var result = ConvertToPreparedStatement<SqlStatement>(GetSQLResult, this, parameters.ToArray());
+        _hasChanged = false;
+        return result;
+      }
+      finally
+      {
+        parameters.Clear();
+      }
+    }
+
+    private SqlResult GetSQLResult(SqlStatement statement)
+    {
+      return Session.XSession.GetSQLResult(statement.SQL, parameters.ToArray());
     }
 
     /// <summary>

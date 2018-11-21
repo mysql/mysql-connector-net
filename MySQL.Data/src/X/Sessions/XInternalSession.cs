@@ -542,6 +542,109 @@ namespace MySqlX.Sessions
             fs.FilterData,
             fs.findParams);
           break;
+
+        case nameof(TableSelectStatement):
+          TableSelectStatement ss = statement as TableSelectStatement;
+          Debug.Assert(ss != null);
+          protocol.SendPrepareStatement(
+            (uint)stmtId,
+            DataAccess.PreparedStatementType.Find,
+            ss.Target.Schema.Name,
+            ss.Target.Name,
+            true,
+            ss.FilterData,
+            ss.findParams);
+          break;
+
+        case nameof(ModifyStatement):
+          ModifyStatement ms = statement as ModifyStatement;
+          Debug.Assert(ms != null);
+          protocol.SendPrepareStatement(
+            (uint)stmtId,
+            DataAccess.PreparedStatementType.Update,
+            ms.Target.Schema.Name,
+            ms.Target.Name,
+            false,
+            ms.FilterData,
+            null,
+            ms.Updates);
+          break;
+
+        case nameof(TableUpdateStatement):
+          TableUpdateStatement us = statement as TableUpdateStatement;
+          Debug.Assert(us != null);
+          protocol.SendPrepareStatement(
+            (uint)stmtId,
+            DataAccess.PreparedStatementType.Update,
+            us.Target.Schema.Name,
+            us.Target.Name,
+            true,
+            us.FilterData,
+            null,
+            us.updates);
+          break;
+
+        case nameof(RemoveStatement):
+          RemoveStatement rs = statement as RemoveStatement;
+          Debug.Assert(rs != null);
+          protocol.SendPrepareStatement(
+            (uint)stmtId,
+            DataAccess.PreparedStatementType.Delete,
+            rs.Target.Schema.Name,
+            rs.Target.Name,
+            false,
+            rs.FilterData,
+            null);
+          break;
+
+        case nameof(TableDeleteStatement):
+          TableDeleteStatement ds = statement as TableDeleteStatement;
+          Debug.Assert(ds != null);
+          protocol.SendPrepareStatement(
+            (uint)stmtId,
+            DataAccess.PreparedStatementType.Delete,
+            ds.Target.Schema.Name,
+            ds.Target.Name,
+            true,
+            ds.FilterData,
+            null);
+          break;
+
+        case nameof(TableInsertStatement):
+          TableInsertStatement insert = statement as TableInsertStatement;
+          Debug.Assert(insert != null);
+          protocol.SendPrepareStatement(
+            (uint)stmtId,
+            DataAccess.PreparedStatementType.Insert,
+            insert.Target.Schema.Name,
+            insert.Target.Name,
+            true,
+            null,
+            null,
+            null,
+            insert.values.ToArray(),
+            insert.fields,
+            false);
+          break;
+
+        case nameof(SqlStatement):
+          SqlStatement sqlStatement = statement as SqlStatement;
+          Debug.Assert(sqlStatement != null);
+          protocol.SendPrepareStatement(
+            (uint)stmtId,
+            DataAccess.PreparedStatementType.SqlStatement,
+            null,
+            null,
+            true,
+            null,
+            null,
+            null,
+            sqlStatement.parameters.ToArray(),
+            null,
+            false,
+            sqlStatement.SQL);
+          break;
+
         default:
           throw new NotSupportedException(statement.GetType().Name);
       }
@@ -556,8 +659,14 @@ namespace MySqlX.Sessions
       BaseResult result = null;
       if (typeof(TResult) == typeof(DocResult))
         result = new DocResult(this);
-      else if (typeof(TResult) == typeof(InternalRowResult))
-        result = new InternalRowResult(this);
+      else if (typeof(TResult) == typeof(RowResult))
+        result = new RowResult(this);
+      else if (typeof(TResult) == typeof(SqlResult))
+        result = new SqlResult(this);
+      else if (typeof(TResult) == typeof(Result))
+        result = new Result(this);
+      else
+        throw new ArgumentNullException(typeof(TResult).Name);
 
       return (TResult)result;
     }

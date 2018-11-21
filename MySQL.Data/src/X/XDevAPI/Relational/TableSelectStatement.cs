@@ -70,6 +70,7 @@ namespace MySqlX.XDevAPI.Relational
 
       findParams.Locking = Protocol.X.RowLock.SharedLock;
       findParams.LockingOption = lockOption;
+      SetChanged();
       return this;
     }
 
@@ -86,6 +87,7 @@ namespace MySqlX.XDevAPI.Relational
 
       findParams.Locking = Protocol.X.RowLock.ExclusiveLock;
       findParams.LockingOption = lockOption;
+      SetChanged();
       return this;
     }
 
@@ -107,6 +109,7 @@ namespace MySqlX.XDevAPI.Relational
       }
 
       findParams.GroupBy = groupByList.Count > 0 ? groupByList.ToArray() : null;
+      SetChanged();
       return this;
     }
 
@@ -118,6 +121,7 @@ namespace MySqlX.XDevAPI.Relational
     public TableSelectStatement Having(string having)
     {
       findParams.GroupByCritieria = having;
+      SetChanged();
       return this;
     }
 
@@ -130,6 +134,7 @@ namespace MySqlX.XDevAPI.Relational
     public TableSelectStatement OrderBy(params string[] order)
     {
       FilterData.OrderBy = order;
+      SetChanged();
       return this;
     }
   }

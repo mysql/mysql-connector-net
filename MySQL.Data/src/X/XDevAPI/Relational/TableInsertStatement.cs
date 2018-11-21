@@ -55,7 +55,9 @@ namespace MySqlX.XDevAPI.Relational
       try
       {
         ValidateOpenSession();
-        return Target.Session.XSession.InsertRows(this);
+        var result = ConvertToPreparedStatement<TableInsertStatement>(Target.Session.XSession.InsertRows, this, values.ToArray());
+        _hasChanged = false;
+        return result;
       }
       finally
       {
