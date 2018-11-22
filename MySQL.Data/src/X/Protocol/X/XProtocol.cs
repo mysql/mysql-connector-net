@@ -155,6 +155,8 @@ namespace MySqlX.Protocol
 
     private void ThrowUnexpectedMessage(int received, int expected)
     {
+      if (received == 10) // Connection to XProtocol using ClassicProtocol port
+        throw new MySqlException("Unsupported protocol version.");
       throw new MySqlException(
         String.Format("Expected message id: {0}.  Received message id: {1}", expected, received));
     }
