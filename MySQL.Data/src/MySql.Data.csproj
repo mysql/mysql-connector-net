@@ -1,4 +1,5 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project>
+  <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.props" />
 
   <PropertyGroup>
     <Description>MySql.Data.MySqlClient .Net Core Class Library</Description>
@@ -151,4 +152,9 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>$(ProjectDir)Properties\metadata.sh $(ConfigurationName) $(Version)</PostBuildEvent>
+  </PropertyGroup>
+  
 </Project>
