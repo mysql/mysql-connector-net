@@ -178,7 +178,8 @@ namespace MySql.Data.Common
       if (sslPolicyErrors == SslPolicyErrors.None)
         return true;
 
-      if (settings.SslMode == MySqlSslMode.Required)
+      if (settings.SslMode == MySqlSslMode.Required ||
+          settings.SslMode == MySqlSslMode.Preferred)
       {
         //Tolerate all certificate errors.
         return true;

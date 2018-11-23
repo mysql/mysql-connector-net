@@ -154,6 +154,7 @@ namespace MySqlX.XDevAPI.Common
     {
       try
       {
+        ValidateOpenSession();
         return executeFunc(t);
       }
       finally

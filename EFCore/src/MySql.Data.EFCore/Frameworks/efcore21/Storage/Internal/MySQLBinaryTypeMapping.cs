@@ -1,4 +1,4 @@
-// Copyright © 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,23 +26,35 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using Microsoft.EntityFrameworkCore.Migrations;
-using System.Linq;
 using Microsoft.EntityFrameworkCore.Storage;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using MySql.Data.EntityFrameworkCore;
+using System.Data;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using JetBrains.Annotations;
+using System.Data.Common;
 
-namespace MySql.Data.EntityFrameworkCore.Migrations
+namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
-  /// <summary>
-  /// MigrationSqlGenerator implementation for MySQL
-  /// </summary>
-  internal partial class MySQLMigrationsSqlGenerator : MigrationsSqlGenerator
+  internal partial class MySQLBinaryTypeMapping : MySQLTypeMapping
   {
-    public MySQLMigrationsSqlGenerator([NotNull] MigrationsSqlGeneratorDependencies dependencies)
-      : base(dependencies)
+    protected MySQLBinaryTypeMapping(RelationalTypeMappingParameters parameters)
+      : base(parameters)
     {
-      _sqlGenerationHelper = dependencies.SqlGenerationHelper;
-      _typeMapper = dependencies.TypeMapper;
+    }
+
+    public override CoreTypeMapping Clone(ValueConverter converter)
+      => new MySQLBinaryTypeMapping(Parameters.WithComposedConverter(converter));
+
+    protected override void ConfigureParameter([NotNull] DbParameter parameter)
+    {
+      byte[] value = parameter.Value as byte[];
+      int? length = value?.Length;
+
+      parameter.Size = length.HasValue ? length.Value : -1;
     }
   }
 }

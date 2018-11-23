@@ -4,7 +4,7 @@
     <Description>MySql.Data.EntityFrameworkCore for Entity Framework.</Description>
     <Copyright>Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>8.0.12</Version>
+    <Version>8.0.14</Version>
     <Authors>Oracle</Authors>
     <TargetFrameworks>netstandard2.0;net452;netstandard1.6;net461;</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
@@ -26,6 +26,7 @@
     <SignAssembly>True</SignAssembly>
     <DelaySign>True</DelaySign>
     <AssemblyOriginatorKeyFile>..\..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
+    <LangVersion>7.2</LangVersion>
 </PropertyGroup>
 
   <ItemGroup>
@@ -45,13 +46,13 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net452' or '$(TargetFramework)' == 'netstandard1.6' ">
-    <Compile Remove="Frameworks/efcore20/**/*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="1.1.*" />
+    <Compile Remove="Frameworks/efcore21/**/*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="1.1.6" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net461' ">
     <Compile Remove="Frameworks/efcore10/**/*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.0.*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.1.2" />
   </ItemGroup>
 
   <ItemGroup>

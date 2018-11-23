@@ -69,7 +69,7 @@ namespace MySqlX.Sessions
     {
       bool isUnix = Settings.ConnectionProtocol == MySqlConnectionProtocol.Unix ||
         Settings.ConnectionProtocol == MySqlConnectionProtocol.UnixSocket;
-      _stream = MyNetworkStream.CreateStream(Settings.Server, Settings.ConnectionTimeout, Settings.Keepalive, Settings.Port, isUnix);
+      _stream = MyNetworkStream.CreateStream(Settings.Server, Settings.ConnectTimeout, Settings.Keepalive, Settings.Port, isUnix);
       if (_stream == null)
         throw new MySqlException(ResourcesX.UnableToConnect);
       _reader = new XPacketReaderWriter(_stream);
@@ -110,6 +110,13 @@ namespace MySqlX.Sessions
         }
       }
 
+      Authenticate();
+
+      SetState(SessionState.Open, false);
+    }
+
+    internal void Authenticate()
+    {
       // Default authentication
       if (Settings.Auth == MySqlAuthenticationMode.Default)
       {
@@ -144,7 +151,7 @@ namespace MySqlX.Sessions
               AuthenticateSha256Memory();
               authenticated = true;
             }
-            catch(MySqlException ex)
+            catch (MySqlException ex)
             {
               // code 1045 Invalid user or password
               if (ex.Code == 1045)
@@ -176,8 +183,6 @@ namespace MySqlX.Sessions
             throw new NotImplementedException(Settings.Auth.ToString());
         }
       }
-
-      SetState(SessionState.Open, false);
     }
 
     private void GetAndSetCapabilities()
@@ -239,7 +244,7 @@ namespace MySqlX.Sessions
       protocol.ReadAuthOk();
     }
 
-    protected void SetState(SessionState newState, bool broadcast)
+    protected internal void SetState(SessionState newState, bool broadcast)
     {
       if (newState == SessionState && !broadcast)
         return;
@@ -332,11 +337,18 @@ namespace MySqlX.Sessions
       ExecuteCmdNonQuery(XpluginStatementCommand.XPLUGIN_STMT_DROP_COLLECTION_INDEX, false, args.ToArray());
     }
 
-    public long TableCount(Schema schema, string name)
+    public long TableCount(Schema schema, string name, string type)
     {
-      string sql = String.Format("SELECT COUNT(*) FROM {0}.{1}",
-        ExprUnparser.QuoteIdentifier(schema.Name), ExprUnparser.QuoteIdentifier(name));
-      return (long)ExecuteQueryAsScalar(sql);
+      try
+      {
+        string sql = String.Format("SELECT COUNT(*) FROM {0}.{1}",
+          ExprUnparser.QuoteIdentifier(schema.Name), ExprUnparser.QuoteIdentifier(name));
+        return (long)ExecuteQueryAsScalar(sql);
+      }
+      catch (MySqlException ex) when (ex.Code == 1146)
+      {
+        throw new MySqlException(string.Format(ResourcesX.CollectionTableDoesNotExist, type.ToString(), name, schema.Name));
+      }
     }
 
     public bool TableExists(Schema schema, string name)
@@ -479,11 +491,18 @@ namespace MySqlX.Sessions
     {
       protocol.SendExpectOpen(condition);
       return new Result(this);
-  }
+    }
 
     public Result ExpectDocidGenerated()
     {
       return ExpectOpen(Mysqlx.Expect.Open.Types.Condition.Types.Key.ExpectDocidGenerated);
-}
+    }
+
+    public void ResetSession()
+    {
+      protocol.SendResetSession();
+      protocol.ReadOk();
+      //return new Result(this);
+    }
   }
 }

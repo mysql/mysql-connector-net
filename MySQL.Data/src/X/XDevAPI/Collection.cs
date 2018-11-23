@@ -92,39 +92,6 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Creates a <see cref="RemoveStatement"/> with the given identifier that can be used to remove a single
-    /// document from a collection.
-    /// </summary>
-    /// <param name="id">The identifier to match the document.</param>
-    /// <returns>A <see cref="RemoveStatement"/> object set with the given identifier.</returns>
-    /// <remarks>The statement can then be further modified before execution.</remarks>
-    [Obsolete("This method has been deprecated. Use RemoveOne(id) instead.")]
-    public RemoveStatement Remove(object id)
-    {
-      string key = id is string ?
-        "\"" + id.ToString() + "\"" : id.ToString();
-      string condition = String.Format("_id = {0}", key);
-      RemoveStatement stmt = new RemoveStatement(this, condition);
-      return stmt;
-    }
-
-    /// <summary>
-    /// Creates a <see cref="RemoveStatement"/> containing the identifier of the provided document that can
-    /// be used to remove a single document from a collection.
-    /// </summary>
-    /// <param name="doc">The <see cref="DbDoc"/> representing the document to remove.</param>
-    /// <returns>A <see cref="RemoveStatement"/> object set with the given document's identifier.</returns>
-    /// <exception cref="InvalidOperationException">No identifier for the document was provided.</exception>
-    /// <remarks>The remove statement can then be further modified before execution.</remarks>
-    [Obsolete("This method has been deprecated. Use Remove(condition) instead.")]
-    public RemoveStatement Remove(DbDoc doc)
-    {
-      if (!doc.HasId)
-        throw new InvalidOperationException(ResourcesX.RemovingRequiresId);
-      return Remove(doc.Id);
-    }
-
-    /// <summary>
     /// Removes the document with the given identifier.
     /// </summary>
     /// <param name="id">The unique identifier of the document to replace.</param>
@@ -244,7 +211,8 @@ namespace MySqlX.XDevAPI
     /// <returns>The number of documents found.</returns>
     public long Count()
     {
-      return Session.XSession.TableCount(Schema, Name);
+      ValidateOpenSession();
+      return Session.XSession.TableCount(Schema, Name, "Collection");
     }
 
     /// <summary>
@@ -321,6 +289,8 @@ namespace MySqlX.XDevAPI
     {
       if (string.IsNullOrWhiteSpace(indexName)) throw new ArgumentNullException(nameof(indexName));
 
+      ValidateOpenSession();
+
       bool indexExists = Convert.ToInt32(Session.XSession.ExecuteQueryAsScalar(
         string.Format("SELECT COUNT(*)>0 FROM information_schema.statistics WHERE table_schema = '{0}' AND table_name = '{1}' AND index_name = '{2}'",
         this.Schema.Name, this.Name, indexName))) == 1;
@@ -335,6 +305,7 @@ namespace MySqlX.XDevAPI
     /// <returns><c>true</c> if the collection exists; otherwise, <c>false</c>.</returns>
     public override bool ExistsInDatabase()
     {
+      ValidateOpenSession();
       return Session.XSession.TableExists(Schema, Name);
     }
 

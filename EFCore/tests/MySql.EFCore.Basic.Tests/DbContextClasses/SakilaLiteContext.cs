@@ -1,4 +1,4 @@
-﻿// Copyright © 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -40,6 +40,12 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
     public DbSet<Film> Film { get; set; }
     public DbSet<Customer> Customer { get; set; }
     public DbSet<SakilaAddress> Address { get; set; }
+
+    public SakilaLiteContext()
+      : base() { }
+
+    public SakilaLiteContext(DbContextOptions options)
+      : base(options) { }
 
     partial void OnModelCreating20(ModelBuilder modelBuilder);
 
@@ -334,8 +340,9 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
           .HasColumnType("varchar(20)")
           .HasMaxLength(20);
 
-      entity.Property<string>("location")
-          .HasColumnType("geometry");
+      entity.Property<MySql.Data.Types.MySqlGeometry?>("location")
+          .HasColumnType("geometry")
+          .IsRequired(false);
 
       entity.Property(e => e.LastUpdate)
           .HasColumnName("last_update")
@@ -363,6 +370,12 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
 
   public class SakilaLiteUpdateContext : SakilaLiteContext
   {
+    public SakilaLiteUpdateContext()
+      : base() { }
+
+    public SakilaLiteUpdateContext(DbContextOptions options)
+      : base(options) { }
+
     public override void PopulateData()
     {
       // no data loaded

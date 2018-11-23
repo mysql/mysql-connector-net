@@ -1,4 +1,4 @@
-// Copyright © 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,22 +26,23 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Scaffolding;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Text;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace MySql.Data.EntityFrameworkCore.Scaffolding.Internal
+namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
-  internal class MySQLScaffoldingCodeGenerator : IScaffoldingProviderCodeGenerator
+  internal partial class MySQLNumberTypeMapping : MySQLTypeMapping
   {
-    public string GenerateUseProvider(string connectionString, string language)
-      => language == "CSharp"
-        ? $".{nameof(MySQLDbContextOptionsExtensions.UseMySQL)}({GenerateVerbatimStringLiteral(connectionString)})"
-          : null;
+    protected MySQLNumberTypeMapping(RelationalTypeMappingParameters parameters)
+      : base(parameters)
+    {
+    }
 
-    private static string GenerateVerbatimStringLiteral(string connectionString)
-      => "@\"" + connectionString.Replace("\"", "\"\"") + "\"";
+    public override CoreTypeMapping Clone(ValueConverter converter)
+      => new MySQLNumberTypeMapping(Parameters.WithComposedConverter(converter));
   }
 }

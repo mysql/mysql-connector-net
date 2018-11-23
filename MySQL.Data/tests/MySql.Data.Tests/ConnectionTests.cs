@@ -141,13 +141,13 @@ namespace MySql.Data.MySqlClient.Tests
     public void ConnectionTimeout()
     {
       MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Connection.ConnectionString);
-      connStr.Server = "bad_host";
+      connStr.Server = "10.15.34.12"; // fake host
       connStr.ConnectionTimeout = 5;
       MySqlConnection c = new MySqlConnection(connStr.GetConnectionString(true));
 
       DateTime start = DateTime.Now;
-      var exception = Record.Exception(() => c.Open());
-      Assert.NotNull(exception);
+      var ex = Assert.Throws<MySqlException>(() => c.Open());
+      Assert.Equal(Resources.UnableToConnectToHost, ex.Message);
       TimeSpan diff = DateTime.Now.Subtract(start);
       Assert.True(diff.TotalSeconds < 10, "Timeout exceeded");
     }
@@ -785,18 +785,33 @@ namespace MySql.Data.MySqlClient.Tests
     #endregion
 
     [Fact]
-    public void SslRequiredByDefault()
+    public void SSLPreferredByDefault()
     {
       MySqlCommand command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Ssl_version';", Connection);
       using (MySqlDataReader reader = command.ExecuteReader())
       {
         Assert.True(reader.Read());
         Assert.StartsWith("TLSv1", reader.GetString(1));
+        Assert.Equal(MySqlSslMode.Preferred, command.Connection.Settings.SslMode);
       }
     }
 
     [Fact]
-    public void SslOverrided()
+    public void SSLPreferredVariants()
+    {
+      Assert.Equal(MySqlSslMode.Prefered, MySqlSslMode.Preferred);
+
+      var cstrBuilder = new MySqlConnectionStringBuilder(Connection.ConnectionString);
+      cstrBuilder.SslMode = MySqlSslMode.Prefered;
+      using (MySqlConnection connection = new MySqlConnection(cstrBuilder.ConnectionString))
+      {
+        Assert.Equal(MySqlSslMode.Preferred, connection.Settings.SslMode);
+        Assert.Equal(MySqlSslMode.Prefered, connection.Settings.SslMode);
+      }
+    }
+
+    [Fact]
+    public void SSLOverriden()
     {
       var cstrBuilder = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       cstrBuilder.SslMode = MySqlSslMode.None;
@@ -815,7 +830,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     [Fact]
-    public void SslOptions()
+    public void SSLOptions()
     {
       var connectionString = Fixture.GetConnection(true).ConnectionString;
       var cstrBuilder = new MySqlConnectionStringBuilder(connectionString);
@@ -829,11 +844,9 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.True(!connection.Settings.ContainsKey("sslenable"));
         Assert.True(!connection.Settings.ContainsKey("ssl-enable"));
 
-        // sslmode=Required is default value.
-        Assert.True(connection.Settings.SslMode == MySqlSslMode.Required);
+        // sslmode=Preferred is default value.
+        Assert.True(connection.Settings.SslMode == MySqlSslMode.Preferred);
       }
-      // sslmode=Preferred is invalid.
-      Assert.Throws<ArgumentException>(() => new MySqlConnection(cstrBuilder.ConnectionString + ";sslmode=Preferred"));
 
       // sslmode case insensitive.
       using (var connection = new MySqlConnection(cstrBuilder.ConnectionString + ";SsL-mOdE=NONe"))

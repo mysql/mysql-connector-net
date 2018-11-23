@@ -156,9 +156,6 @@
   <data name="PathNotFound" xml:space="preserve">
     <value>Path not found '{0}'.</value>
   </data>
-  <data name="RemovingRequiresId" xml:space="preserve">
-    <value>Removing a document from a collection requires an _id property.</value>
-  </data>
   <data name="ThrowingAwayResults" xml:space="preserve">
     <value>The process of closing the resultset and resulted in results being lost.</value>
   </data>
@@ -236,5 +233,41 @@
   </data>
   <data name="InvalidJsonDocument" xml:space="preserve">
     <value>The value provided is not a valid JSON document. {0}</value>
+  </data>
+  <data name="InvalidConnectionTimeoutValue" xml:space="preserve">
+    <value>The connection timeout value must be a positive integer (including 0).</value>
+  </data>
+  <data name="TimeOutMultipleHost" xml:space="preserve">
+    <value>All server connection attempts were aborted. Timeout of {0} milliseconds was exceeded for each selected server.</value>
+  </data>
+  <data name="TimeOutSingleHost" xml:space="preserve">
+    <value>Connection attempt to the server was aborted. Timeout of {0} milliseconds was exceeded.</value>
+  </data>
+  <data name="TimeOutMultipleHost0ms" xml:space="preserve">
+    <value>All server connection attempts were aborted. Timeout was exceeded for each selected server.</value>
+  </data>
+  <data name="TimeOutSingleHost0ms" xml:space="preserve">
+    <value>Connection attempt to the server was aborted. Timeout was exceeded.</value>
+  </data>
+  <data name="ClientOptionInvalidValue" xml:space="preserve">
+    <value>Client option '{0}' does not support value '{1}'.</value>
+  </data>
+  <data name="ClientOptionNotValid" xml:space="preserve">
+    <value>Client option '{0}' is not recognized as valid.</value>
+  </data>
+  <data name="PoolingQueueTimeout" xml:space="preserve">
+    <value>Queue timeout expired. The timeout period elapsed prior to getting a session from the pool.</value>
+  </data>
+  <data name="InvalidSession" xml:space="preserve">
+    <value>Session state is not valid.</value>
+  </data>
+  <data name="UnableToOpenSession" xml:space="preserve">
+    <value>Unable to open a session.</value>
+  </data>
+  <data name="ClientIsClosed" xml:space="preserve">
+    <value>You can't get more sessions because Client is closed.</value>
+  </data>
+  <data name="CollectionTableDoesNotExist" xml:space="preserve">
+    <value>{0} '{1}' does not exist in schema '{2}'.</value>
   </data>
 </root>

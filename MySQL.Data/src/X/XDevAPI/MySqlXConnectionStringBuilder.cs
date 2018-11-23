@@ -27,19 +27,9 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Data.Common;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using MySql.Data.Common;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using MySql.Data.MySqlClient;
 using MySql.Data;
-using static MySql.Data.MySqlClient.MySqlConnectionStringOption;
 
 namespace MySqlX.XDevAPI
 {
@@ -49,11 +39,79 @@ namespace MySqlX.XDevAPI
   /// </summary>
   public sealed class MySqlXConnectionStringBuilder : MySqlBaseConnectionStringBuilder
   {
-    public MySqlXConnectionStringBuilder() : base()
-    { }
+    static MySqlXConnectionStringBuilder()
+    {
+      // Server options.
+      Options.Add(new MySqlConnectionStringOption("connect-timeout", "connecttimeout", typeof(uint), (uint)10000, false,
+        delegate (MySqlXConnectionStringBuilder msb, MySqlConnectionStringOption sender, object Value)
+        {
+          sender.ValidateValue(ref Value, sender.Keyword);
+          uint value = (uint)Convert.ChangeType(Value, sender.BaseType);
+          // Timeout in milliseconds should not exceed maximum for 32 bit
+          // signed integer (~24 days). We truncate the value if it exceeds
+          // maximum (MySqlCommand.CommandTimeout uses the same technique)
+          uint timeout = Math.Min(value, Int32.MaxValue);
+          if (timeout != value)
+          {
+            MySqlTrace.LogWarning(-1, "Connection timeout value too large ("
+                + value + " milliseconds). Changed to max. possible value " +
+                +timeout + " milliseconds)");
+          }
+          msb.SetValue("connect-timeout", timeout);
 
-    public MySqlXConnectionStringBuilder(string connStr) : base(connStr)
-    { }
+        },
+        (msb, sender) => (uint)msb.values["connect-timeout"]
+        ));
+
+      // Authentication options.
+      Options.Add(new MySqlConnectionStringOption("auth", null, typeof(MySqlAuthenticationMode), MySqlAuthenticationMode.Default, false));
+      Options.Add(new MySqlConnectionStringOption("sslcrl", "ssl-crl", typeof(string), null, false,
+        (msb, sender, value) => { msb.SslCrl = value as string; }, ((msb, sender) => { return msb.SslCrl; })));
+    }
+
+    public MySqlXConnectionStringBuilder() : base()
+    {
+      if (SslMode == MySqlSslMode.Preferred)
+        SslMode = MySqlSslMode.Required;
+    }
+
+    public MySqlXConnectionStringBuilder(string connStr) : base(connStr, true)
+    {
+      if (SslMode == MySqlSslMode.Preferred)
+        SslMode = MySqlSslMode.Required;
+    }
+
+    #region Server Properties
+
+    /// <summary>
+    /// Gets or sets the connection timeout.
+    /// </summary>
+    [Category("Connection")]
+    [DisplayName("Connect Timeout")]
+    [Description("The length of time (in milliseconds) to wait for a connection " +
+                 "to the server before terminating the attempt and generating an error.")]
+    [RefreshProperties(RefreshProperties.All)]
+    public uint ConnectTimeout
+    {
+      get { return (uint)values["connect-timeout"]; }
+
+      set
+      {
+        // Timeout in milliseconds should not exceed maximum for 32 bit
+        // signed integer (~24 days). We truncate the value if it exceeds
+        // maximum (MySqlCommand.CommandTimeout uses the same technique
+        uint timeout = Math.Min(value, Int32.MaxValue);
+        if (timeout != value)
+        {
+          MySqlTrace.LogWarning(-1, "Connection timeout value too large ("
+              + value + " milliseconds). Changed to max. possible value" +
+              +timeout + " milliseconds)");
+        }
+        SetValue("connect-timeout", timeout);
+      }
+    }
+
+    #endregion
 
     #region Authentication Properties
 
@@ -63,7 +121,7 @@ namespace MySqlX.XDevAPI
     [DefaultValue(MySqlAuthenticationMode.Default)]
     public new MySqlAuthenticationMode Auth
     {
-      get { return (MySqlAuthenticationMode) values["auth"]; }
+      get { return (MySqlAuthenticationMode)values["auth"]; }
       set { SetValue("auth", value); }
     }
 
@@ -73,7 +131,6 @@ namespace MySqlX.XDevAPI
       get { return CertificateFile; }
       set
       {
-        SslMode = MySqlSslMode.Required;
         CertificateFile = value;
       }
     }

@@ -57,6 +57,7 @@ namespace MySqlX.XDevAPI.Relational
     {
       if (!isView.HasValue)
       {
+        ValidateOpenSession();
         string type = Session.XSession.GetObjectType(Schema, Name).ToUpperInvariant();
         isView = (type == "VIEW");
       }
@@ -126,7 +127,8 @@ namespace MySqlX.XDevAPI.Relational
     /// <returns>The number of rows.</returns>
     public long Count()
     {
-      return Session.XSession.TableCount(Schema, Name);
+      ValidateOpenSession();
+      return Session.XSession.TableCount(Schema, Name, "Table");
     }
 
     /// <summary>
@@ -135,6 +137,7 @@ namespace MySqlX.XDevAPI.Relational
     /// <returns><c>true</c> if the table exists; otherwise, <c>false</c>.</returns>
     public override bool ExistsInDatabase()
     {
+      ValidateOpenSession();
       return Session.XSession.TableExists(Schema, Name);
     }
   }

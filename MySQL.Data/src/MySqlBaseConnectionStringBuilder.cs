@@ -61,38 +61,20 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("server", "host,data source,datasource,address,addr,network address", typeof(string), "" /*"localhost"*/, false));
       Options.Add(new MySqlConnectionStringOption("database", "initial catalog", typeof(string), string.Empty, false));
       Options.Add(new MySqlConnectionStringOption("protocol", "connection protocol, connectionprotocol", typeof(MySqlConnectionProtocol), MySqlConnectionProtocol.Sockets, false,
-        (BaseSetterDelegate) ((msb, sender, value) =>
-        {
+        (BaseSetterDelegate)((msb, sender, value) =>
+       {
 #if NETSTANDARD1_6 || NETSTANDARD2_0 || NETCOREAPP2_0
-          MySqlConnectionProtocol enumValue;
-          if (Enum.TryParse<MySqlConnectionProtocol>(value.ToString(), true, out enumValue))
-          {
-            if (enumValue == MySqlConnectionProtocol.Memory || enumValue == MySqlConnectionProtocol.Pipe)
-              throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, $"Protocol={value}"));
-          }
+         MySqlConnectionProtocol enumValue;
+         if (Enum.TryParse<MySqlConnectionProtocol>(value.ToString(), true, out enumValue))
+         {
+           if (enumValue == MySqlConnectionProtocol.Memory || enumValue == MySqlConnectionProtocol.Pipe)
+             throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, $"Protocol={value}"));
+         }
 #endif
-          msb.SetValue("protocol", value);
-        }),
+         msb.SetValue("protocol", value);
+       }),
         (msb, sender) => msb.ConnectionProtocol));
       Options.Add(new MySqlConnectionStringOption("port", null, typeof(uint), (uint)3306, false));
-      Options.Add(new MySqlConnectionStringOption("connectiontimeout", "connection timeout,connect timeout", typeof(uint), (uint)15, false,
-        delegate (MySqlBaseConnectionStringBuilder msb, MySqlConnectionStringOption sender, object Value)
-        {
-          uint value = (uint)Convert.ChangeType(Value, sender.BaseType);
-          // Timeout in milliseconds should not exceed maximum for 32 bit
-          // signed integer (~24 days). We truncate the value if it exceeds
-          // maximum (MySqlCommand.CommandTimeout uses the same technique
-          uint timeout = Math.Min(value, Int32.MaxValue / 1000);
-          if (timeout != value)
-          {
-            MySqlTrace.LogWarning(-1, "Connection timeout value too large ("
-                + value + " seconds). Changed to max. possible value" +
-                +timeout + " seconds)");
-          }
-          msb.SetValue("connectiontimeout", timeout);
-        },
-        (msb, sender) => (uint)msb.values["connectiontimeout"]
-        ));
 
       // Authentication options.
       Options.Add(new MySqlConnectionStringOption("user id", "uid,username,user name,user,userid", typeof(string), "", false));
@@ -101,7 +83,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("certificatepassword", "certificate password,ssl-ca-pwd", typeof(string), null, false));
       Options.Add(new MySqlConnectionStringOption("certificatestorelocation", "certificate store location", typeof(MySqlCertificateStoreLocation), MySqlCertificateStoreLocation.None, false));
       Options.Add(new MySqlConnectionStringOption("certificatethumbprint", "certificate thumb print", typeof(string), null, false));
-      Options.Add(new MySqlConnectionStringOption("sslmode", "ssl mode,ssl-mode", typeof(MySqlSslMode), MySqlSslMode.Required, false));
+      Options.Add(new MySqlConnectionStringOption("sslmode", "ssl mode,ssl-mode", typeof(MySqlSslMode), MySqlSslMode.Preferred, false));
 
       // Other properties.
       Options.Add(new MySqlConnectionStringOption("keepalive", "keep alive", typeof(uint), (uint)0, false));
@@ -109,14 +91,10 @@ namespace MySql.Data.MySqlClient
       // Language and charset options.
       Options.Add(new MySqlConnectionStringOption("characterset", "character set,charset", typeof(string), "", false));
 
-      // X Authentication options.
-      Options.Add(new MySqlConnectionStringOption("auth", null, typeof(MySqlAuthenticationMode), MySqlAuthenticationMode.Default, false));
+      // X Authentication options.      
       Options.Add(new MySqlConnectionStringOption("sslca", "ssl-ca", typeof(string), null, false,
         (BaseSetterDelegate)((msb, sender, value) => { msb.SslCa = value as string; }),
-        (BaseGetterDelegate)((msb, sender) => { return msb.SslCa; })));
-      Options.Add(new MySqlConnectionStringOption("sslcrl", "ssl-crl", typeof(string), null, false,
-        (BaseSetterDelegate)((msb, sender, value) => { msb.SslCrl = value as string; }),
-        (BaseGetterDelegate)((msb, sender) => { return msb.SslCrl; })));
+        (BaseGetterDelegate)((msb, sender) => { return msb.SslCa; })));      
     }
 
     public MySqlBaseConnectionStringBuilder()
@@ -132,17 +110,17 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    public MySqlBaseConnectionStringBuilder(string connStr)
+    public MySqlBaseConnectionStringBuilder(string connStr, bool isXProtocol)
       : this()
     {
-      AnalyzeConnectionString(connStr);
+      AnalyzeConnectionString(connStr, isXProtocol);
       lock (this)
       {
         ConnectionString = connStr;
       }
     }
 
-#region Server Properties
+    #region Server Properties
 
     /// <summary>
     /// Gets or sets the name of the server.
@@ -196,37 +174,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("port", value); }
     }
 
-    /// <summary>
-    /// Gets or sets the connection timeout.
-    /// </summary>
-    [Category("Connection")]
-    [DisplayName("Connect Timeout")]
-    [Description("The length of time (in seconds) to wait for a connection " +
-                 "to the server before terminating the attempt and generating an error.")]
-    [RefreshProperties(RefreshProperties.All)]
-    public uint ConnectionTimeout
-    {
-      get { return (uint)values["connectiontimeout"]; }
+    #endregion
 
-      set
-      {
-        // Timeout in milliseconds should not exceed maximum for 32 bit
-        // signed integer (~24 days). We truncate the value if it exceeds
-        // maximum (MySqlCommand.CommandTimeout uses the same technique
-        uint timeout = Math.Min(value, Int32.MaxValue / 1000);
-        if (timeout != value)
-        {
-          MySqlTrace.LogWarning(-1, "Connection timeout value too large ("
-              + value + " seconds). Changed to max. possible value" +
-              +timeout + " seconds)");
-        }
-        SetValue("connectiontimeout", timeout);
-      }
-    }
-
-#endregion
-
-#region Authentication Properties
+    #region Authentication Properties
 
     /// <summary>
     /// Gets or sets the user ID that should be used to connect with.
@@ -256,6 +206,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("password", value); }
     }
 
+    /// <summary>
+    ///  Gets or sets the path to the certificate file to be used.
+    /// </summary>
     [Category("Authentication")]
     [DisplayName("Certificate File")]
     [Description("Certificate file in PKCS#12 format (.pfx)")]
@@ -265,6 +218,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("certificatefile", value); }
     }
 
+    /// <summary>
+    /// Gets or sets the password to be used in conjunction with the certificate file.
+    /// </summary>
     [Category("Authentication")]
     [DisplayName("Certificate Password")]
     [Description("Password for certificate file")]
@@ -274,6 +230,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("certificatepassword", value); }
     }
 
+    /// <summary>
+    /// Gets or sets the location to a personal store where a certificate is held.
+    /// </summary>
     [Category("Authentication")]
     [DisplayName("Certificate Store Location")]
     [Description("Certificate Store Location for client certificates")]
@@ -284,6 +243,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("certificatestorelocation", value); }
     }
 
+    /// <summary>
+    /// Gets or sets a certificate thumbprint to ensure correct identification of a certificate contained within a personal store.
+    /// </summary>
     [Category("Authentication")]
     [DisplayName("Certificate Thumbprint")]
     [Description("Certificate thumbprint. Can be used together with Certificate " +
@@ -308,10 +270,13 @@ namespace MySql.Data.MySqlClient
       set { SetValue("sslmode", value); }
     }
 
-#endregion
+    #endregion
 
-#region Other Properties
+    #region Other Properties
 
+    /// <summary>
+    /// Gets or sets the idle connection time(seconds) for TCP connections.
+    /// </summary>
     [DisplayName("Keep Alive")]
     [Description("For TCP connections, the idle connection time (in seconds) before the first keepalive packet is sent." +
         "A value of 0 indicates that keepalive is not used.")]
@@ -322,9 +287,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("keepalive", value); }
     }
 
-#endregion
+    #endregion
 
-#region Language and Character Set Properties
+    #region Language and Character Set Properties
 
     /// <summary>
     /// Gets or sets the character set that should be used for sending queries to the server.
@@ -340,20 +305,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("characterset", value); }
     }
 
-#endregion
+    #endregion
 
-#region XAuthentication Properties
-
-    [Category("Authentication")]
-    [DisplayName("Auth")]
-    [Description("Authentication mechanism")]
-    [DefaultValue(MySqlAuthenticationMode.Default)]
-    [Obsolete("Use MySqlXConnectionStringBuilder.Auth instead.")]
-    public MySqlAuthenticationMode Auth
-    {
-      get { return (MySqlAuthenticationMode) values["auth"]; }
-      set { SetValue("auth", value); }
-    }
+    #region XAuthentication Properties
 
     [Description("Path to a local file that contains a list of trusted TLS/SSL CAs")]
     [Obsolete("Use MySqlXConnectionStringBuilder.SslCa instead.")]
@@ -362,20 +316,11 @@ namespace MySql.Data.MySqlClient
       get { return CertificateFile; }
       set
       {
-        SslMode = MySqlSslMode.Required;
         CertificateFile = value;
       }
     }
 
-    [Description("Path to a local file containing certificate revocation lists.")]
-    [Obsolete("Use MySqlXConnectionStringBuilder.SslCrl instead.")]
-    public string SslCrl
-    {
-      get { throw new NotSupportedException(); }
-      set { throw new NotSupportedException(); }
-    }
-
-#endregion
+    #endregion
 
     internal bool HasProcAccess { get; set; }
 
@@ -507,7 +452,7 @@ namespace MySql.Data.MySqlClient
     /// Analyzes the connection string for potential duplicated or invalid connection options.
     /// </summary>
     /// <param name="connectionString">Connection string.</param>
-    private void AnalyzeConnectionString(string connectionString)
+    internal void AnalyzeConnectionString(string connectionString, bool isXProtocol)
     {
       string[] queries = connectionString.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
       List<string> usedSslOptions = new List<string>();
@@ -520,20 +465,24 @@ namespace MySql.Data.MySqlClient
 
         var keyword = keyValue[0].ToLowerInvariant().Trim();
         var value = keyValue[1].ToLowerInvariant();
-        MySqlConnectionStringOption option = Options.Options.Where(o => o.Keyword == keyword || (o.Synonyms!=null && o.Synonyms.Contains(keyword))).FirstOrDefault();
+        MySqlConnectionStringOption option = Options.Options.Where(o => o.Keyword == keyword || (o.Synonyms != null && o.Synonyms.Contains(keyword))).FirstOrDefault();
         if (option == null || (option.Keyword != "sslmode" && option.Keyword != "certificatepassword" && option.Keyword != "sslcrl" && option.Keyword != "sslca"))
           continue;
 
         // SSL connection options can't be duplicated.
         if (usedSslOptions.Contains(option.Keyword))
-          throw new ArgumentException(string.Format(Resources.DuplicatedSslConnectionOption,keyword));
+          throw new ArgumentException(string.Format(Resources.DuplicatedSslConnectionOption, keyword));
 
         // SSL connection options can't be used if sslmode=None.
-        if (option.Keyword=="sslmode" && (value=="none" || value == "disabled"))
+        if (option.Keyword == "sslmode" && (value == "none" || value == "disabled"))
           sslModeIsNone = true;
 
         if (sslModeIsNone && (option.Keyword == "certificatepassword" || option.Keyword == "sslcrl" || option.Keyword == "sslca"))
           throw new ArgumentException(Resources.InvalidOptionWhenSslDisabled);
+
+        // Preferred is not allowed for the X Protocol.
+        if (isXProtocol && option.Keyword == "sslmode" && (value == "preferred" || value == "prefered"))
+          throw new ArgumentException(string.Format(Resources.InvalidSslMode, keyValue[1]));
 
         usedSslOptions.Add(option.Keyword);
       }
@@ -677,6 +626,19 @@ namespace MySql.Data.MySqlClient
       }
 
       throw new ArgumentException(String.Format(Resources.ValueNotCorrectType, value));
+    }
+
+    public void ValidateValue(ref object value, string keyword)
+    {
+      string typeName = BaseType.Name;
+      Type valueType = value.GetType();
+
+      switch (keyword)
+      {
+        case "connect-timeout":
+          if (typeName != valueType.Name  && !uint.TryParse(value.ToString(), out uint uintVal)) throw new FormatException(ResourcesX.InvalidConnectionTimeoutValue);
+          break;
+      }
     }
 
     private bool ParseEnum(string requestedValue, out object value)

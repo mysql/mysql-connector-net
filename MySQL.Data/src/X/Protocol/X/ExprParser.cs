@@ -141,7 +141,7 @@ namespace MySqlX.Protocol.X
 
     /** Mapping of reserved words to token types. */
     static private Dictionary<string, TokenType> reservedWords = new Dictionary<string, TokenType>();
-    static ExprParser ()
+    static ExprParser()
     {
       reservedWords.Add("and", TokenType.AND);
       reservedWords.Add("or", TokenType.OR);
@@ -230,11 +230,14 @@ namespace MySqlX.Protocol.X
           {
             i++;
           }
+          else if (Char.IsLetter(stringValue[i + 1]))
+          {
+            Identifier(ref i, start);
+            return i;
+          }
         }
         else if (!Char.IsDigit(c))
-        {
           break;
-        }
       }
       if (isInt)
       {
@@ -263,7 +266,12 @@ namespace MySqlX.Protocol.X
         }
         else if (Char.IsDigit(c))
         {
-          i = LexNumber(i);
+          if (i != stringValue.Length - 1)
+          {
+            if (!Char.IsLetter(stringValue[i + 1]) || NextCharEquals(i, 'e')) i = LexNumber(i);
+            else Identifier(ref i, start);
+          }
+          else i = LexNumber(i);
         }
         else if (!(c == '_' || Char.IsLetter(c)))
         {
@@ -447,41 +455,49 @@ namespace MySqlX.Protocol.X
         else
         {
           // otherwise, it's an identifier
-          for (; i < this.stringValue.Length && (Char.IsLetterOrDigit(this.stringValue[i]) || this.stringValue[i] == '_'); ++i)
-          {
-          }
-          string val = this.stringValue.Substring(start, i - start);
-          string valLower = val.ToLowerInvariant();
-          if (i < this.stringValue.Length)
-          {
-            // last char, this logic is artifact of the preceding loop
-            --i;
-          }
-          if (reservedWords.ContainsKey(valLower))
-          {
-            // Map operator names to values the server understands
-            if ("and".Equals(valLower))
-            {
-              this.tokens.Add(new Token(reservedWords[valLower], "&&"));
-            }
-            else if ("or".Equals(valLower))
-            {
-              this.tokens.Add(new Token(reservedWords[valLower], "||"));
-            }
-            else
-            {
-              // we case-normalize reserved words
-              if (IsReservedWordFunctionCall(valLower, i))
-                this.tokens.Add(new Token(TokenType.IDENT, val));
-              else
-                this.tokens.Add(new Token(reservedWords[valLower], valLower));
-            }
-          }
-          else
-          {
-            this.tokens.Add(new Token(TokenType.IDENT, val));
-          }
+          Identifier(ref i, start);
         }
+      }
+    }
+
+    /*
+     * Adds a token of type identifier.
+     */
+    void Identifier(ref int i, int start)
+    {
+      for (; i < this.stringValue.Length && (Char.IsLetterOrDigit(this.stringValue[i]) || this.stringValue[i] == '_'); ++i)
+      {
+      }
+      string val = this.stringValue.Substring(start, i - start);
+      string valLower = val.ToLowerInvariant();
+      if (i < this.stringValue.Length)
+      {
+        // last char, this logic is artifact of the preceding loop
+        --i;
+      }
+      if (reservedWords.ContainsKey(valLower))
+      {
+        // Map operator names to values the server understands
+        if ("and".Equals(valLower))
+        {
+          this.tokens.Add(new Token(reservedWords[valLower], "&&"));
+        }
+        else if ("or".Equals(valLower))
+        {
+          this.tokens.Add(new Token(reservedWords[valLower], "||"));
+        }
+        else
+        {
+          // we case-normalize reserved words
+          if (IsReservedWordFunctionCall(valLower, i))
+            this.tokens.Add(new Token(TokenType.IDENT, val));
+          else
+            this.tokens.Add(new Token(reservedWords[valLower], valLower));
+        }
+      }
+      else
+      {
+        this.tokens.Add(new Token(TokenType.IDENT, val));
       }
     }
 
@@ -845,15 +861,15 @@ namespace MySqlX.Protocol.X
           ConsumeToken(TokenType.RPAREN);
           return e;
         case TokenType.LSQBRACKET:
-        {
-          Mysqlx.Expr.Array builder = new Mysqlx.Expr.Array();
-          ParseCommaSeparatedList(() =>
           {
-            return GetExpr();
-          }).ForEach(f => builder.Value.Add(f));
-          ConsumeToken(TokenType.RSQBRACKET);
-          return new Expr() { Type = Expr.Types.Type.Array, Array = builder };
-        }
+            Mysqlx.Expr.Array builder = new Mysqlx.Expr.Array();
+            ParseCommaSeparatedList(() =>
+            {
+              return GetExpr();
+            }).ForEach(f => builder.Value.Add(f));
+            ConsumeToken(TokenType.RSQBRACKET);
+            return new Expr() { Type = Expr.Types.Type.Array, Array = builder };
+          }
         case TokenType.LCURLY:  // JSON object
           {
             Mysqlx.Expr.Object builder = new Mysqlx.Expr.Object();

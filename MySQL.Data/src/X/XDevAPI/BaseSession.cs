@@ -54,17 +54,26 @@ namespace MySqlX.XDevAPI
     private const char CONNECTION_DATA_VALUE_SEPARATOR = '=';
     private const string PORT_CONNECTION_OPTION_KEYWORD = "port";
     private const string SERVER_CONNECTION_OPTION_KEYWORD = "server";
+    private const string CONNECT_TIMEOUT_CONNECTION_OPTION_KEYWORD = "connect-timeout";
     internal QueueTaskScheduler _scheduler = new QueueTaskScheduler();
+    protected readonly Client _client;
 
     internal InternalSession InternalSession
     {
-      get { return _internalSession; }
+      get
+      {
+        if (_internalSession == null)
+          throw new MySqlException(ResourcesX.InvalidSession);
+        return _internalSession;
+      }
     }
 
     internal XInternalSession XSession
     {
       get { return InternalSession as XInternalSession; }
     }
+
+    internal DateTime IdleSince { get; set; }
 
     #region Session status properties
 
@@ -107,7 +116,7 @@ namespace MySqlX.XDevAPI
         foreach (var item in Settings.values)
         {
           // Skip connection options already included in the connection URI.
-          if (item.Key == "server" || item.Key =="database" || item.Key == "port" )
+          if (item.Key == "server" || item.Key == "database" || item.Key == "port")
             continue;
 
           // Skip CertificateFile if it has already been included.
@@ -119,14 +128,14 @@ namespace MySqlX.XDevAPI
             var value = Settings[item.Key];
             // Get the default value of the connection option.
             var option = MySqlConnectionStringBuilder.Options.Values.First(
-                o=> o.Keyword==item.Key ||
-                (o.Synonyms!=null && o.Synonyms.Contains(item.Key)));
+                o => o.Keyword == item.Key ||
+                (o.Synonyms != null && o.Synonyms.Contains(item.Key)));
             var defaultValue = option.DefaultValue;
             // If the default value has been changed then include it in the connection URI.
-            if (value!=null && (defaultValue==null || (value.ToString()!=defaultValue.ToString())))
+            if (value != null && (defaultValue == null || (value.ToString() != defaultValue.ToString())))
             {
               if (!firstItemAdded)
-                firstItemAdded =true;
+                firstItemAdded = true;
               else
                 builder.Append("&");
 
@@ -193,23 +202,28 @@ namespace MySqlX.XDevAPI
     /// give a priority for every host or no priority to any host.
     /// </para>
     /// </remarks>
-    public BaseSession(string connectionString)
+    internal BaseSession(string connectionString, Client client = null): this()
     {
       if (string.IsNullOrWhiteSpace(connectionString))
         throw new ArgumentNullException("connectionString");
 
+      _client = client;
       this._connectionString = ParseConnectionData(connectionString);
 
       // Multiple hosts were specified.
       if (FailoverManager.FailoverGroup != null)
       {
         _internalSession = FailoverManager.AttemptConnection(this._connectionString, out this._connectionString);
-        Settings = new MySqlXConnectionStringBuilder(this._connectionString);
+        Settings.ConnectionString = this._connectionString;
+        Settings.AnalyzeConnectionString(this._connectionString, true);
       }
       // A single host was specified.
       else
       {
-        Settings = new MySqlXConnectionStringBuilder(this._connectionString);
+        Settings.ConnectionString = _connectionString;
+        if (!(_connectionString.Contains("sslmode") || _connectionString.Contains("ssl mode") || _connectionString.Contains("ssl-mode")))
+          Settings.SslMode = MySqlSslMode.Required;
+        Settings.AnalyzeConnectionString(this._connectionString, true);
         _internalSession = InternalSession.GetSession(Settings);
       }
 
@@ -231,16 +245,17 @@ namespace MySqlX.XDevAPI
     /// <see cref="BaseSession(string)"/>. Note that the value of the property must be a string.
     /// </para>
     /// </remarks>
-    public BaseSession(object connectionData)
+    internal BaseSession(object connectionData, Client client = null) : this()
     {
       if (connectionData == null)
         throw new ArgumentNullException("connectionData");
+
+      _client = client;
 
       var values = Tools.GetDictionaryFromAnonymous(connectionData);
       if (!values.Keys.Any(s => s.ToLowerInvariant() == PORT_CONNECTION_OPTION_KEYWORD))
         values.Add(PORT_CONNECTION_OPTION_KEYWORD, X_PROTOCOL_DEFAULT_PORT);
 
-      Settings = new MySqlXConnectionStringBuilder();
       bool hostsParsed = false;
       foreach (var value in values)
       {
@@ -252,8 +267,11 @@ namespace MySqlX.XDevAPI
           var server = value.Value.ToString();
           if (IsUnixSocket(server))
             Settings.SetValue(value.Key, server = NormalizeUnixSocket(server));
+
           ParseHostList(server, false);
-          if (FailoverManager.FailoverGroup != null) Settings[SERVER_CONNECTION_OPTION_KEYWORD] = FailoverManager.FailoverGroup.ActiveHost.Host;
+          if (FailoverManager.FailoverGroup != null)
+            Settings[SERVER_CONNECTION_OPTION_KEYWORD] = null;
+
           hostsParsed = true;
         }
       }
@@ -263,12 +281,26 @@ namespace MySqlX.XDevAPI
       {
         // Multiple hosts were specified.
         _internalSession = FailoverManager.AttemptConnection(this._connectionString, out this._connectionString);
-        Settings = new MySqlXConnectionStringBuilder(this._connectionString);
+        Settings.ConnectionString = _connectionString;
+        Settings.AnalyzeConnectionString(this._connectionString, true);
       }
       else _internalSession = InternalSession.GetSession(Settings);
 
       if (!string.IsNullOrWhiteSpace(Settings.Database))
         DefaultSchema = GetSchema(Settings.Database);
+    }
+
+    internal BaseSession(InternalSession internalSession, Client client)
+    {
+      _internalSession = internalSession;
+      Settings = internalSession.Settings;
+      _client = client;
+    }
+
+    // Constructor used exclusively to parse connection string or connection data
+    internal BaseSession()
+    {
+      Settings = new MySqlXConnectionStringBuilder();
     }
 
     /// <summary>
@@ -345,14 +377,34 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Closes this session.
+    /// Closes this session or releases it to the pool.
     /// </summary>
     public void Close()
     {
       if (XSession.SessionState != SessionState.Closed)
       {
-        XSession.Close();
+        if (_client == null)
+          CloseFully();
+        else
+        {
+          _client.ReleaseSession(this);
+          XSession.SetState(SessionState.Closed, false);
+          _internalSession = null;
+        }
       }
+    }
+
+    /// <summary>
+    /// Closes this session
+    /// </summary>
+    internal void CloseFully()
+    {
+      XSession.Close();
+    }
+
+    internal void Reset()
+    {
+      XSession.ResetSession();
     }
 
     #region Savepoints
@@ -545,6 +597,10 @@ namespace MySqlX.XDevAPI
           string[] keyValue = query.Split('=');
           if (keyValue.Length > 2)
             throw new ArgumentException(ResourcesX.InvalidUriQuery + ":" + keyValue[0]);
+          var connecttimeoutOption = MySqlXConnectionStringBuilder.Options.Options.First(item => item.Keyword == CONNECT_TIMEOUT_CONNECTION_OPTION_KEYWORD);
+          if ((connecttimeoutOption.Keyword == keyValue[0] || connecttimeoutOption.Synonyms.Contains(keyValue[0])) &&
+            String.IsNullOrWhiteSpace(keyValue[1]))
+            throw new FormatException(ResourcesX.InvalidConnectionTimeoutValue);
           string part = keyValue[0] + "=" + (keyValue.Length == 2 ? keyValue[1] : "true").Replace("(", string.Empty).Replace(")", string.Empty);
           connectionParts.Add(part);
         }
@@ -567,11 +623,15 @@ namespace MySqlX.XDevAPI
                 .Where(item => item.Length == 2)
                 .ToDictionary(item => item[0], item => item[1]);
       var serverOption = MySqlXConnectionStringBuilder.Options.Options.First(item => item.Keyword == SERVER_CONNECTION_OPTION_KEYWORD);
+      var connecttimeoutOption = MySqlXConnectionStringBuilder.Options.Options.First(item => item.Keyword == CONNECT_TIMEOUT_CONNECTION_OPTION_KEYWORD);
       foreach (KeyValuePair<string, string> keyValuePair in connectionOptionsDictionary)
       {
         // Key is not server or any of its synonyms.
         if (keyValuePair.Key != serverOption.Keyword && !serverOption.Synonyms.Contains(keyValuePair.Key))
         {
+          if ((connecttimeoutOption.Keyword == keyValuePair.Key || connecttimeoutOption.Synonyms.Contains(keyValuePair.Key)) &&
+            String.IsNullOrWhiteSpace(keyValuePair.Value))
+            throw new FormatException(ResourcesX.InvalidConnectionTimeoutValue);
           if (keyValuePair.Key == PORT_CONNECTION_OPTION_KEYWORD)
             portProvided = true;
 

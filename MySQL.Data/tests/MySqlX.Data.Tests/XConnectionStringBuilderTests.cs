@@ -101,10 +101,6 @@ namespace MySqlX.Data.Tests
       var builder = new MySqlXConnectionStringBuilder();
       builder.Auth = MySqlAuthenticationMode.AUTO;
       builder.SslCa = "";
-
-      var builder2 = new MySqlConnectionStringBuilder();
-      builder2.Auth = MySqlAuthenticationMode.AUTO;
-      builder2.SslCa = "";
     }
   }
 }
