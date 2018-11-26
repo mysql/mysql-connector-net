@@ -4,22 +4,21 @@
 INFO_BIN=INFO_BIN
 BUILD_DATE=$(date '+%Y-%m-%d %H:%M:%S')
 OS=$(uname)
-PLATFORM="unknown"
+PLATFORM=""
 VERSION=""
 BUILD_TYPE=$1
 
 #get OS name from 'uname' (CMAKE_SYSTEM) variable
 case "$OS" in
-  solaris*) PLATFORM "SOLARIS" ;;
-  darwin*)  PLATFORM "OSX" ;; 
-  linux*)   PLATFORM "LINUX" ;;
-  msys*)    PLATFORM "WINDOWS" ;;
+  solaris*) PLATFORM="SOLARIS" ;;
+  darwin*)  PLATFORM="OSX" ;; 
+  linux*)   PLATFORM="LINUX" ;;
+  msys*)    PLATFORM="WINDOWS" ;;
   MINGW*)   PLATFORM="WINDOWS" ;;
-  'OS') ;;
 esac
 
 #get OS version from 'uname' (CMAKE_SYSTEM) variable
-VERSION=$(echo $OS| cut -d'-' -f 2)
+VERSION=$(echo ${OS}| cut -d'-' -f 2)
 
 #write output to INFO_BIN file
 (
