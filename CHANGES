@@ -1,4 +1,5 @@
 8.0.14
+- MySqlX: Added revisions to be prepared for unknown types of initial notices on a connection (WL12517).
 - MySqlX: Standardize count method for X Protocol (WL12518).
 - MySqlX: Removed class members that were previously deprecated and replaced with types that support the X DevAPI standard (WL12031).
 
