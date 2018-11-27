@@ -583,7 +583,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand cmd = new MySqlCommand("", Connection);
       cmd.Prepare();
       Exception ex = Assert.Throws<InvalidOperationException>(() => cmd.ExecuteNonQuery());
-      Assert.Equal(ex.Message, "The CommandText property has not been properly initialized.");
+      Assert.Equal("The CommandText property has not been properly initialized.", ex.Message);
     }
 
     /// <summary>
@@ -602,7 +602,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.Add("?t1", MySqlDbType.Int32);
       cmd.Parameters.Add("?t2", MySqlDbType.Int32);
       Exception ex = Assert.Throws<MySqlException>(() => cmd.Prepare());
-      Assert.True(ex.Message.Contains("You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version"));
+      Assert.Contains("You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version", ex.Message);
     }
 
     [Fact]
@@ -717,7 +717,7 @@ namespace MySql.Data.MySqlClient.Tests
       ReadNegativeTime(false);
     }
 
-    public void NegativeTime(bool prepared)
+    internal void NegativeTime(bool prepared)
     {
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL(@"CREATE TABLE Test(id int, t time)");

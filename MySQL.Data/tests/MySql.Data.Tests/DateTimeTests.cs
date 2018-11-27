@@ -86,7 +86,7 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.False(testDate.IsValidDateTime, "IsZero is false");
 
         Exception ex = Assert.Throws<MySqlConversionException>(() => reader.GetValue(2));
-        Assert.Equal(ex.Message, "Unable to convert MySQL date/time value to System.DateTime");
+        Assert.Equal("Unable to convert MySQL date/time value to System.DateTime", ex.Message);
         
         Assert.True(reader.Read());
 
@@ -132,7 +132,7 @@ namespace MySql.Data.MySqlClient.Tests
       {        
         reader.Read();
         Exception ex = Assert.Throws<MySqlConversionException>(() =>reader.GetDateTime(2));
-        Assert.Equal(ex.Message, "Unable to convert MySQL date/time value to System.DateTime");       
+        Assert.Equal("Unable to convert MySQL date/time value to System.DateTime", ex.Message);       
       }
     }
 
@@ -609,7 +609,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           reader.Read();
           DateTime ts = reader.GetDateTime(1);
-          Assert.Equal(ts.Kind, DateTimeKind.Utc);
+          Assert.Equal(DateTimeKind.Utc, ts.Kind);
         }
         // Now set it to non-UTC
         cmd.CommandText = "set @@global.time_zone = '+5:00'";
@@ -622,7 +622,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           reader.Read();
           DateTime ts = reader.GetDateTime(1);
-          Assert.Equal(ts.Kind, DateTimeKind.Local);
+          Assert.Equal(DateTimeKind.Local, ts.Kind);
         }
       }
       finally

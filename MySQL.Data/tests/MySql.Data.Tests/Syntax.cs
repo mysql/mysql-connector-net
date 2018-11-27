@@ -45,7 +45,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
       TestDataTable dt = Utils.FillTable("SHOW CREATE TABLE Test", Connection);
 
-      Assert.Equal(1, dt.Rows.Count);
+      Assert.Single(dt.Rows);
       Assert.Equal(2, dt.Columns.Count);
     }
 
@@ -304,7 +304,7 @@ namespace MySql.Data.MySqlClient.Tests
       string sql = "SELECT `PO#` AS PurchaseOrderNumber, " +
         "`PODate` AS OrderDate FROM  Test";
       TestDataTable dt = Utils.FillTable(sql, Connection);
-      Assert.Equal(1, dt.Rows.Count);
+      Assert.Single(dt.Rows);
     }
 
     /// <summary>

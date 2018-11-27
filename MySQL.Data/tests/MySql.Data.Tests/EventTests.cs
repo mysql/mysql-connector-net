@@ -58,7 +58,7 @@ namespace MySql.Data.MySqlClient.Tests
 
     private void WarningsInfoMessage(object sender, MySqlInfoMessageEventArgs args)
     {
-      Assert.Equal(1, args.errors.Length);
+      Assert.Single(args.errors);
     }
 
     [Fact]

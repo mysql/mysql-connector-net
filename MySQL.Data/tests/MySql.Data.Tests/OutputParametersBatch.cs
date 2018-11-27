@@ -156,9 +156,9 @@ namespace MySql.Data.MySqlClient.Tests
       if (prepare) cmd.Prepare();
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
-        Assert.Equal(true, reader.Read());
-        Assert.Equal(false, reader.NextResult());
-        Assert.Equal(false, reader.Read());
+        Assert.True(reader.Read());
+        Assert.False(reader.NextResult());
+        Assert.False(reader.Read());
       }
       Assert.Equal(2, cmd.Parameters[0].Value);
     }
@@ -321,7 +321,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
       catch (InvalidOperationException iex)
       {
-        Assert.True(iex.Message.StartsWith("Unable to retrieve", StringComparison.Ordinal));
+        Assert.StartsWith("Unable to retrieve", iex.Message, StringComparison.Ordinal);
       }
       finally
       {

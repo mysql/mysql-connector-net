@@ -68,7 +68,7 @@ namespace MySql.Data.MySqlClient.Tests
       DataRelation dataRelation = new DataRelation("parentChild", parentDt.Columns["id"], childDt.Columns["parent_id"]);
       ds.Relations.Add(dataRelation);
 
-      Assert.Equal(1, ds.Tables[0].Constraints.Count);
+      Assert.Single(ds.Tables[0].Constraints);
       Assert.IsType<UniqueConstraint>(ds.Tables[0].Constraints[0]);
 
       Assert.Equal(2, ds.Tables[1].Constraints.Count);

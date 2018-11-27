@@ -111,7 +111,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("UPDATE Test SET name='Test2' WHERE id=1");
       dt.Rows[0]["name"] = "Test3";
       Exception ex = Assert.Throws<DBConcurrencyException>(() => (da.Update(dt)));
-      Assert.Equal(ex.Message, "Concurrency violation: the UpdateCommand affected 0 of the expected 1 records.");
+      Assert.Equal("Concurrency violation: the UpdateCommand affected 0 of the expected 1 records.", ex.Message);
 
       dt.Rows.Clear();
       da.Fill(dt);

@@ -1074,7 +1074,7 @@ namespace MySql.Data.MySqlClient.Tests
       // Authentication failure - TLS connection.
       builder.Password = "incorrectPassword";
       Exception ex = Assert.Throws<MySqlException>(() => new MySqlConnection(builder.ConnectionString).Open());
-      Assert.True(ex.InnerException.Message.StartsWith("Access denied for user"));
+      Assert.StartsWith("Access denied for user", ex.InnerException.Message);
 
       // Authentication success with empty password – Any connection.
       builder.UserID = "testCachingSha2NoPassword";
@@ -1105,12 +1105,12 @@ namespace MySql.Data.MySqlClient.Tests
       builder.UserID = "testCachingSha2";
       builder.SslMode = MySqlSslMode.Required;
       ex = Assert.Throws<MySqlException>(() => new MySqlConnection(builder.ConnectionString).Open());
-      Assert.True(ex.InnerException.Message.StartsWith("Access denied for user"));
+      Assert.StartsWith("Access denied for user", ex.InnerException.Message);
 
       // TLS not enabled.
       builder.SslMode = MySqlSslMode.None;
       ex = Assert.Throws<MySqlException>(() => new MySqlConnection(builder.ConnectionString).Open());
-      Assert.True(ex.InnerException.Message.StartsWith("Access denied for user"));
+      Assert.StartsWith("Access denied for user", ex.InnerException.Message);
 
       // Authentication using RSA keys. Only available in servers compiled with OpenSSL (E.g. Commercial).
       bool serverCompiledUsingOpenSsl = false;
@@ -1166,7 +1166,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         builder.Password = "incorrectPassword";
         ex = Assert.Throws<MySqlException>(() => new MySqlConnection(builder.ConnectionString).Open());
-        Assert.True(ex.InnerException.Message.StartsWith("Access denied for user"));
+        Assert.StartsWith("Access denied for user", ex.InnerException.Message);
       }
     }
 
@@ -1245,7 +1245,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         builder.Password = "incorrectPassword";
         ex = Assert.Throws<MySqlException>(() => new MySqlConnection(builder.ConnectionString).Open());
-        Assert.True(ex.InnerException.Message.StartsWith("Access denied for user"));
+        Assert.StartsWith("Access denied for user", ex.InnerException.Message);
 
         // Flush privileges clears the cache.
         executeSQL("flush privileges");

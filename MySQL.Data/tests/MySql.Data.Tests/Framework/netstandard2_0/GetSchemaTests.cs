@@ -339,8 +339,8 @@ namespace MySql.Data.MySqlClient.Tests
       DataTable dt = Connection.GetSchema("Indexes", restrictions);
       Assert.Equal(1, dt.Rows.Count);
       Assert.Equal("test", dt.Rows[0]["TABLE_NAME"]);
-      Assert.Equal(true, dt.Rows[0]["PRIMARY"]);
-      Assert.Equal(true, dt.Rows[0]["UNIQUE"]);
+      Assert.True((bool)dt.Rows[0]["PRIMARY"]);
+      Assert.True((bool)dt.Rows[0]["UNIQUE"]);
 
       executeSQL("DROP TABLE IF EXISTS test");
       executeSQL("CREATE TABLE test (id int, name varchar(50), " +
@@ -350,16 +350,16 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(1, dt.Rows.Count);
       Assert.Equal("test", dt.Rows[0]["TABLE_NAME"]);
       Assert.Equal("key2", dt.Rows[0]["INDEX_NAME"]);
-      Assert.Equal(false, dt.Rows[0]["PRIMARY"]);
-      Assert.Equal(true, dt.Rows[0]["UNIQUE"]);
+      Assert.False((bool)dt.Rows[0]["PRIMARY"]);
+      Assert.True((bool)dt.Rows[0]["UNIQUE"]);
 
       restrictions[3] = "key2";
       dt = Connection.GetSchema("Indexes", restrictions);
       Assert.Equal(1, dt.Rows.Count);
       Assert.Equal("test", dt.Rows[0]["TABLE_NAME"]);
       Assert.Equal("key2", dt.Rows[0]["INDEX_NAME"]);
-      Assert.Equal(false, dt.Rows[0]["PRIMARY"]);
-      Assert.Equal(true, dt.Rows[0]["UNIQUE"]);
+      Assert.False((bool)dt.Rows[0]["PRIMARY"]);
+      Assert.True((bool)dt.Rows[0]["UNIQUE"]);
 
       /// <summary> 
       /// Bug #48101	MySqlConnection.GetSchema on "Indexes" throws when there's a table named "b`a`d" 
@@ -373,8 +373,8 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(1, dt.Rows.Count);
       Assert.Equal("te`s`t", dt.Rows[0]["TABLE_NAME"]);
       Assert.Equal("key2", dt.Rows[0]["INDEX_NAME"]);
-      Assert.Equal(false, dt.Rows[0]["PRIMARY"]);
-      Assert.Equal(false, dt.Rows[0]["UNIQUE"]);
+      Assert.False((bool)dt.Rows[0]["PRIMARY"]);
+      Assert.False((bool)dt.Rows[0]["UNIQUE"]);
     }
 
     [Fact]

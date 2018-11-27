@@ -76,7 +76,7 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.Parameters[1].Direction = ParameterDirection.ReturnValue;
         cmd.Parameters[0].Value = 20;
         cmd.ExecuteNonQuery();
-        Assert.Equal(cmd.Parameters[1].Value, 40);
+        Assert.Equal(40, cmd.Parameters[1].Value);
 
         cmd.CommandText = "spMyTwice";
         cmd.CommandType = CommandType.StoredProcedure;
@@ -86,7 +86,7 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.Parameters[0].Direction = ParameterDirection.Output;
         cmd.Parameters[1].Value = 20;
         cmd.ExecuteNonQuery();
-        Assert.Equal(cmd.Parameters[0].Value, 40);
+        Assert.Equal(40, cmd.Parameters[0].Value);
       }
     }
 

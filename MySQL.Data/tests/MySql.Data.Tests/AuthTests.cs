@@ -50,7 +50,7 @@ namespace MySql.Data.MySqlClient.Tests
       TestIntegratedSecurityWithUser(null, true);
     }
 
-    public void TestIntegratedSecurityWithUser(string user, bool pooling)
+    internal void TestIntegratedSecurityWithUser(string user, bool pooling)
     {
       const string PluginName = "authentication_windows";
       string UserName = "auth_windows";
@@ -148,18 +148,18 @@ namespace MySql.Data.MySqlClient.Tests
           threadId = c.ServerThread;
           MySqlCommand command = new MySqlCommand("SELECT 1", c);
           long ret = (long)command.ExecuteScalar();
-          Assert.Equal(ret, 1);
+          Assert.Equal(1, ret);
 
           command.CommandText = "select user()";
           string myUser = (string)command.ExecuteScalar();
           // Check if proxy user is correct
-          Assert.True(myUser.StartsWith(UserName + "@"));
+          Assert.StartsWith(UserName + "@", myUser);
 
           // check if mysql user is correct 
           // (foo_user is mapped to current  OS user)
           command.CommandText = "select current_user()";
           string currentUser = (string)command.ExecuteScalar();
-          Assert.True(currentUser.StartsWith("foo_user@"));
+          Assert.StartsWith("foo_user@", currentUser);
         }
       }
 
@@ -181,7 +181,7 @@ namespace MySql.Data.MySqlClient.Tests
       TestIntegratedSecurityWithUser("myuser1", true);
     }
 
-    public void TestIntegratedSecurityWithoutProxy(string user, bool pooling)
+    internal void TestIntegratedSecurityWithoutProxy(string user, bool pooling)
     {
       const string PluginName = "authentication_windows";
       string UserName = "auth_windows";
@@ -275,18 +275,18 @@ namespace MySql.Data.MySqlClient.Tests
             threadId = c.ServerThread;
             MySqlCommand command = new MySqlCommand("SELECT 1", c);
             long ret = (long)command.ExecuteScalar();
-            Assert.Equal(ret, 1);
+            Assert.Equal(1, ret);
 
             command.CommandText = "select user()";
             string myUser = (string)command.ExecuteScalar();
             // Check if proxy user is correct
-            Assert.True(myUser.StartsWith(UserName + "@"));
+            Assert.StartsWith(UserName + "@", myUser);
 
             // check if mysql user is correct 
             // (foo_user is mapped to current  OS user)
             command.CommandText = "select current_user()";
             string currentUser = (string)command.ExecuteScalar();
-            Assert.True(currentUser.StartsWith(UserName));
+            Assert.StartsWith(UserName, currentUser);
           }
         }
 

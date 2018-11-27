@@ -66,7 +66,7 @@ namespace MySql.Data.MySqlClient.Tests
           Assert.False(reader.GetMySqlDateTime(2).IsValidDateTime);
 
           Exception ex = Assert.Throws<MySqlConversionException>(() =>reader.GetDateTime(1));
-          Assert.Equal(ex.Message, "Unable to convert MySQL date/time value to System.DateTime");
+          Assert.Equal("Unable to convert MySQL date/time value to System.DateTime", ex.Message);
         }
 
         DataTable dt = new DataTable();

@@ -245,8 +245,8 @@ namespace MySql.Data.MySqlClient.Tests
       {
         reader.Read();
         reader.GetChars(1, 0, buf, 0, 2);
-        Assert.Equal(buf[0], 'T');
-        Assert.Equal(buf[1], 'e');
+        Assert.Equal('T', buf[0]);
+        Assert.Equal('e', buf[1]);
       }
     }
 

@@ -80,7 +80,7 @@ namespace MySql.Data.MySqlClient.Tests
       //try
       //{
         Exception ex = Assert.Throws<InvalidOperationException>(() => { Connection.BeginTransaction(); });
-        Assert.Equal(ex.Message, "Nested transactions are not supported.");
+        Assert.Equal("Nested transactions are not supported.", ex.Message);
         ////Assert.Fail("Exception should have been thrown");
         //t2.Rollback();
       //}
@@ -135,7 +135,7 @@ namespace MySql.Data.MySqlClient.Tests
         //try
         //{
         Exception ex = Assert.Throws<InvalidOperationException>(() => trans.Commit());
-        Assert.Equal(ex.Message, "Connection must be valid and open to commit transaction");
+        Assert.Equal("Connection must be valid and open to commit transaction", ex.Message);
         //}
         //catch (Exception)
         //{
