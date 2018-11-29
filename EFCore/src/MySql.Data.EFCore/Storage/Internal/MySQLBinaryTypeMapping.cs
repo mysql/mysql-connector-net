@@ -49,5 +49,16 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 
     public override RelationalTypeMapping Clone([NotNull] string storeType, int? size)
       => new MySQLBinaryTypeMapping(storeType, DbType);
+
+    protected override string GenerateNonNullSqlLiteral([NotNull] object value)
+    {
+      byte[] ba = value as byte[];
+      StringBuilder unhex = new StringBuilder(ba.Length * 2);
+      unhex.Append("unhex('");
+      foreach (byte b in ba)
+        unhex.AppendFormat("{0:x2}", b);
+      unhex.Append("')");
+      return unhex.ToString();
+    }
   }
 }
