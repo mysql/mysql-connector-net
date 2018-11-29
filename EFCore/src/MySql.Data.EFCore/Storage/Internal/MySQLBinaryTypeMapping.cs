@@ -33,6 +33,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MySql.Data.EntityFrameworkCore;
 using System.Data;
+using System.Text;
 
 namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
