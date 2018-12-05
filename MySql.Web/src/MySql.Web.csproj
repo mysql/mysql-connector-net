@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>MySql.Web</Description>
-    <Copyright>Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.</Copyright>
+    <Copyright>Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Version>8.0.14</Version>
     <Authors>Oracle</Authors>
