@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -309,7 +309,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 #endif
 
-    [Fact(Skip = "This test is failing for PreparedStatements in MySQL Server 8.0.13. Bug #92470")]
+    [Fact]
     public void BinaryAndVarBinaryParameters()
     {
       executeSQL("CREATE PROCEDURE spTest(OUT out1 BINARY(20), OUT out2 VARBINARY(20)) " +
@@ -475,7 +475,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         Assert.Equal(6, cmd.Parameters[1].Value);
         Assert.Equal(6, cmd.Parameters[2].Value);
-      }
+  }
       catch (InvalidOperationException iex)
       {
         Assert.True(iex.Message.StartsWith("Unable to retrieve", StringComparison.Ordinal));

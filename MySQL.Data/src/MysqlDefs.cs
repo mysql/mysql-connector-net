@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -272,11 +272,11 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Fixed length binary string.
     /// </summary>
-    Binary = 600,
+    Binary = 754,
     /// <summary>
     /// Variable length binary string.
     /// </summary>
-    VarBinary = 601,
+    VarBinary = 753,
     /// <summary>
     /// A text column with a maximum length of 255 (2^8 - 1) characters.
     /// </summary>
@@ -297,7 +297,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// A guid column.
     /// </summary>
-    Guid = 800
+    Guid = 854
   } ;
 
 
