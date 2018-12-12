@@ -511,32 +511,6 @@ namespace MySql.Data.MySqlClient.Tests
     //      }
     //    }
 
-    /// <summary>
-    /// A client can connect to MySQL server using SSL and a pfx file.
-    /// <remarks>
-    /// This test requires starting the server with SSL support. 
-    /// For instance, the following command line enables SSL in the server:
-    /// mysqld --no-defaults --standalone --console --ssl-ca='MySQLServerDir'\mysql-test\std_data\cacert.pem --ssl-cert='MySQLServerDir'\mysql-test\std_data\server-cert.pem --ssl-key='MySQLServerDir'\mysql-test\std_data\server-key.pem
-    /// </remarks>
-    /// </summary>
-    [Fact]
-    public void CanConnectUsingFileBasedCertificate()
-    {
-      string connstr = Connection.ConnectionString;
-      connstr += ";CertificateFile=client.pfx;CertificatePassword=pass;SSL Mode=Required;";
-      using (MySqlConnection c = new MySqlConnection(connstr))
-      {
-        c.Open();
-        Assert.Equal(ConnectionState.Open, c.State);
-        MySqlCommand command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Ssl_version';", c);
-        using (MySqlDataReader reader = command.ExecuteReader())
-        {
-          Assert.True(reader.Read());
-          Assert.StartsWith("TLSv1", reader.GetString(1));
-        }
-      }
-    }
-
     [Fact]
     public void CanOpenConnectionAfterAborting()
     {
@@ -678,18 +652,6 @@ namespace MySql.Data.MySqlClient.Tests
         conn.Open();
         MySqlHelper.ExecuteNonQuery(conn, String.Format("DROP USER " + expiredfull));
         conn.Close();
-      }
-    }
-
-    [Fact]
-    public void TestNonSupportedOptions()
-    {
-      string connstr = Root.ConnectionString;
-      connstr += ";CertificateFile=client.pfx;CertificatePassword=pass;SSL Mode=Required;";
-      using (MySqlConnection c = new MySqlConnection(connstr))
-      {
-        c.Open();
-        Assert.Equal(ConnectionState.Open, c.State);
       }
     }
 

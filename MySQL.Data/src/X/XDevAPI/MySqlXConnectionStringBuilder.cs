@@ -125,16 +125,6 @@ namespace MySqlX.XDevAPI
       set { SetValue("auth", value); }
     }
 
-    [Description("Path to a local file that contains a list of trusted TLS/SSL CAs")]
-    public new string SslCa
-    {
-      get { return CertificateFile; }
-      set
-      {
-        CertificateFile = value;
-      }
-    }
-
     [Description("Path to a local file containing certificate revocation lists")]
     public new string SslCrl
     {

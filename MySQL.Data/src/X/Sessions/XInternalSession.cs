@@ -84,7 +84,7 @@ namespace MySqlX.Sessions
 
       GetAndSetCapabilities();
 
-      // validates TLS use
+      // Validates use of TLS.
       if (Settings.SslMode != MySqlSslMode.None)
       {
         if (serverSupportsTls)
@@ -95,7 +95,10 @@ namespace MySqlX.Sessions
               Settings.CertificateFile,
               Settings.CertificateStoreLocation,
               Settings.CertificatePassword,
-              Settings.CertificateThumbprint)
+              Settings.CertificateThumbprint,
+              Settings.SslCa,
+              Settings.SslCert,
+              Settings.SslKey)
               .StartSSL(ref _stream, encoding, Settings.ToString());
           _reader = new XPacketReaderWriter(_stream);
           _writer = new XPacketReaderWriter(_stream);

@@ -84,17 +84,17 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("certificatestorelocation", "certificate store location", typeof(MySqlCertificateStoreLocation), MySqlCertificateStoreLocation.None, false));
       Options.Add(new MySqlConnectionStringOption("certificatethumbprint", "certificate thumb print", typeof(string), null, false));
       Options.Add(new MySqlConnectionStringOption("sslmode", "ssl mode,ssl-mode", typeof(MySqlSslMode), MySqlSslMode.Preferred, false));
+      Options.Add(new MySqlConnectionStringOption("sslca", "ssl-ca", typeof(string), null, false,
+        (BaseSetterDelegate)((msb, sender, value) => { msb.SslCa = value as string; }),
+        (BaseGetterDelegate)((msb, sender) => { return msb.SslCa; })));
+      Options.Add(new MySqlConnectionStringOption("sslkey", "ssl-key", typeof(string), null, false));
+      Options.Add(new MySqlConnectionStringOption("sslcert", "ssl-cert", typeof(string), null, false));
 
       // Other properties.
       Options.Add(new MySqlConnectionStringOption("keepalive", "keep alive", typeof(uint), (uint)0, false));
 
       // Language and charset options.
       Options.Add(new MySqlConnectionStringOption("characterset", "character set,charset", typeof(string), "", false));
-
-      // X Authentication options.      
-      Options.Add(new MySqlConnectionStringOption("sslca", "ssl-ca", typeof(string), null, false,
-        (BaseSetterDelegate)((msb, sender, value) => { msb.SslCa = value as string; }),
-        (BaseGetterDelegate)((msb, sender) => { return msb.SslCa; })));      
     }
 
     public MySqlBaseConnectionStringBuilder()
@@ -310,7 +310,6 @@ namespace MySql.Data.MySqlClient
     #region XAuthentication Properties
 
     [Description("Path to a local file that contains a list of trusted TLS/SSL CAs")]
-    [Obsolete("Use MySqlXConnectionStringBuilder.SslCa instead.")]
     public string SslCa
     {
       get { return CertificateFile; }
@@ -318,6 +317,26 @@ namespace MySql.Data.MySqlClient
       {
         CertificateFile = value;
       }
+    }
+
+    /// <summary>
+    /// Gets or sets the path to a local key file in PEM format to use for establishing an encrypted connection.
+    /// </summary>
+    [Description("Name of the SSL key file in PEM format to use for establishing an encrypted connection.")]
+    public string SslKey
+    {
+      get { return (string)values["sslkey"]; }
+      set { SetValue("sslkey", value); }
+    }
+
+    /// <summary>
+    /// Gets or sets the path to a local certificate file in PEM format to use for establishing an encrypted connection.
+    /// </summary>
+    [Description("Name of the SSL certificate file in PEM format to use for establishing an encrypted connection.")]
+    public string SslCert
+    {
+      get { return (string)values["sslcert"]; }
+      set { SetValue("sslcert", value); }
     }
 
     #endregion

@@ -323,6 +323,15 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Encoding error during validation..
+        /// </summary>
+        public static string EncodingError {
+            get {
+                return ResourceManager.GetString("EncodingError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Error creating socket connection.
         /// </summary>
         public static string ErrorCreatingSocket {
@@ -364,6 +373,42 @@ namespace MySql.Data {
         public static string FileBasedCertificateNotSupported {
             get {
                 return ResourceManager.GetString("FileBasedCertificateNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The specified file cannot be converted to a certificate..
+        /// </summary>
+        public static string FileIsNotACertificate {
+            get {
+                return ResourceManager.GetString("FileIsNotACertificate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The specified file cannot be converted to a key..
+        /// </summary>
+        public static string FileIsNotAKey {
+            get {
+                return ResourceManager.GetString("FileIsNotAKey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to read file at the specified location..
+        /// </summary>
+        public static string FileNotFound {
+            get {
+                return ResourceManager.GetString("FileNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No file path has been provided for the connection option {0}..
+        /// </summary>
+        public static string FilePathNotSet {
+            get {
+                return ResourceManager.GetString("FilePathNotSet", resourceCulture);
             }
         }
         
@@ -440,6 +485,15 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The provided key is invalid..
+        /// </summary>
+        public static string InvalidCertificateKey {
+            get {
+                return ResourceManager.GetString("InvalidCertificateKey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to You have specified an invalid column ordinal..
         /// </summary>
         public static string InvalidColumnOrdinal {
@@ -490,6 +544,33 @@ namespace MySql.Data {
         public static string InvalidProcName {
             get {
                 return ResourceManager.GetString("InvalidProcName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The certificate is invalid..
+        /// </summary>
+        public static string InvalidSslCertificate {
+            get {
+                return ResourceManager.GetString("InvalidSslCertificate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to validate the signature..
+        /// </summary>
+        public static string InvalidSslCertificateSignature {
+            get {
+                return ResourceManager.GetString("InvalidSslCertificateSignature", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to verify the signature..
+        /// </summary>
+        public static string InvalidSslCertificateSignatureGeneral {
+            get {
+                return ResourceManager.GetString("InvalidSslCertificateSignatureGeneral", resourceCulture);
             }
         }
         
@@ -1032,6 +1113,33 @@ namespace MySql.Data {
         public static string SPNotSupported {
             get {
                 return ResourceManager.GetString("SPNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The certificate authority (CA) does not match..
+        /// </summary>
+        public static string SslCertificateCAMismatch {
+            get {
+                return ResourceManager.GetString("SslCertificateCAMismatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The host name does not match the name on the certificate..
+        /// </summary>
+        public static string SslCertificateHostNameMismatch {
+            get {
+                return ResourceManager.GetString("SslCertificateHostNameMismatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The certificate is not a certificate authority (CA)..
+        /// </summary>
+        public static string SslCertificateIsNotCA {
+            get {
+                return ResourceManager.GetString("SslCertificateIsNotCA", resourceCulture);
             }
         }
         
