@@ -415,7 +415,7 @@ namespace MySql.Data.Types
       if (this.IsValidDateTime)
       {
         DateTime d = new DateTime(Year, Month, Day, Hour, Minute, Second).AddTicks(_microsecond * 10);
-        return (_type == MySqlDbType.Date) ? d.ToString("d") : d.ToString();
+        return (_type == MySqlDbType.Date) ? d.ToString("d", CultureInfo.InvariantCulture) : d.ToString(CultureInfo.InvariantCulture);
       }
 
       string dateString = FormatDateCustom(

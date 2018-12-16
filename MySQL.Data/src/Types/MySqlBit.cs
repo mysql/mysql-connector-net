@@ -64,7 +64,7 @@ namespace MySql.Data.Types
       if (binary)
         packet.WriteInteger((long)v, 8);
       else
-        packet.WriteStringNoNull(v.ToString());
+        packet.WriteStringNoNull(v.ToString(CultureInfo.InvariantCulture));
     }
 
     public IMySqlValue ReadValue(MySqlPacket packet, long length, bool isNull)
@@ -99,7 +99,7 @@ namespace MySql.Data.Types
       row["ProviderDbType"] = MySqlDbType.Bit;
       row["ColumnSize"] = 64;
       row["CreateFormat"] = "BIT";
-      row["CreateParameters"] = DBNull.Value; ;
+      row["CreateParameters"] = DBNull.Value;
       row["DataType"] = typeof(ulong).ToString();
       row["IsAutoincrementable"] = false;
       row["IsBestMatch"] = true;

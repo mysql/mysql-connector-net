@@ -79,7 +79,7 @@ namespace MySql.Data.Types
       if (binary)
         packet.WriteInteger((long)val, _is24Bit ? 3 : 4);
       else
-        packet.WriteStringNoNull(val.ToString());
+        packet.WriteStringNoNull(val.ToString(CultureInfo.InvariantCulture));
     }
 
     IMySqlValue IMySqlValue.ReadValue(MySqlPacket packet, long length, bool nullVal)

@@ -69,8 +69,7 @@ namespace MySql.Data.Types
       if (binary)
         packet.Write(BitConverter.GetBytes(v));
       else
-        packet.WriteStringNoNull(v.ToString("R",
-   CultureInfo.InvariantCulture));
+        packet.WriteStringNoNull(v.ToString("R", CultureInfo.InvariantCulture));
     }
 
     IMySqlValue IMySqlValue.ReadValue(MySqlPacket packet, long length, bool nullVal)
