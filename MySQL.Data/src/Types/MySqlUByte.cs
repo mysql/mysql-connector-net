@@ -27,6 +27,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
+using System.Globalization;
 using MySql.Data.MySqlClient;
 
 namespace MySql.Data.Types
@@ -76,7 +77,7 @@ namespace MySql.Data.Types
       if (length == -1)
         return new MySqlUByte((byte)packet.ReadByte());
       else
-        return new MySqlUByte(Byte.Parse(packet.ReadString(length)));
+        return new MySqlUByte(Byte.Parse(packet.ReadString(length), CultureInfo.InvariantCulture));
     }
 
     void IMySqlValue.SkipValue(MySqlPacket packet)

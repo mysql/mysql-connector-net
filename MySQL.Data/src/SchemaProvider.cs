@@ -67,7 +67,7 @@ namespace MySql.Data.MySqlClient
     public virtual MySqlSchemaCollection GetDatabases(string[] restrictions)
     {
       Regex regex = null;
-      int caseSetting = Int32.Parse(connection.driver.Property("lower_case_table_names"));
+      int caseSetting = Int32.Parse(connection.driver.Property("lower_case_table_names"), CultureInfo.InvariantCulture);
 
       string sql = "SHOW DATABASES";
 

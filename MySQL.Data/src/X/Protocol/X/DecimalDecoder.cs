@@ -31,6 +31,7 @@ using MySql.Data;
 using MySql.Data.MySqlClient.X.XDevAPI.Common;
 using MySqlX.Data;
 using System;
+using System.Globalization;
 
 namespace MySqlX.Protocol.X
 {
@@ -75,7 +76,7 @@ namespace MySqlX.Protocol.X
       stringValue += lastDigit;
       stringValue = stringValue.Insert(stringValue.Length - scale, ".");
 
-      return Decimal.Parse(stringValue);
+      return Decimal.Parse(stringValue, CultureInfo.InvariantCulture);
     }
   }
 }

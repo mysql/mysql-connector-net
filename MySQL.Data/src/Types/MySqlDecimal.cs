@@ -86,7 +86,7 @@ namespace MySql.Data.Types
     /// <returns>The value of this type converted to a dobule value.</returns>
     public double ToDouble()
     {
-      return Double.Parse(_value);
+      return Double.Parse(_value, CultureInfo.InvariantCulture);
     }
 
     public override string ToString()

@@ -56,7 +56,7 @@ namespace MySql.Data.MySqlClient
 				using (var conn = new MySqlConnection(connectionString.Replace(@"""", "")))
 				{
 					conn.Open();                  
-					var v = DBVersion.Parse(conn.ServerVersion.ToString());        
+					var v = DBVersion.Parse(conn.ServerVersion.ToString());
 					service.serverVersion = new Version(v.Major + "." + v.Minor);
 				}
 			}

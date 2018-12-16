@@ -32,6 +32,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Configuration.Provider;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -111,10 +112,10 @@ namespace MySql.Web.Security
       base.Initialize(name, config);
 
       var appName = GetConfigValue(config["applicationName"], HostingEnvironment.SiteName);
-      _maxPwdAttempts = Int32.Parse(GetConfigValue(config["maxInvalidPasswordAttempts"], "5"));
-      _pwdAttemptWindow = Int32.Parse(GetConfigValue(config["passwordAttemptWindow"], "10"));
-      _minReqNonAlphanumericalChars = Int32.Parse(GetConfigValue(config["minRequiredNonalphanumericCharacters"], "1"));
-      _minReqPwdLength = Int32.Parse(GetConfigValue(config["minRequiredPasswordLength"], "7"));
+      _maxPwdAttempts = Int32.Parse(GetConfigValue(config["maxInvalidPasswordAttempts"], "5"), CultureInfo.InvariantCulture);
+      _pwdAttemptWindow = Int32.Parse(GetConfigValue(config["passwordAttemptWindow"], "10"), CultureInfo.InvariantCulture);
+      _minReqNonAlphanumericalChars = Int32.Parse(GetConfigValue(config["minRequiredNonalphanumericCharacters"], "1"), CultureInfo.InvariantCulture);
+      _minReqPwdLength = Int32.Parse(GetConfigValue(config["minRequiredPasswordLength"], "7"), CultureInfo.InvariantCulture);
       _pwdStrenghtRegex = GetConfigValue(config["passwordStrengthRegularExpression"], "");
       _enablePwdReset = bool.Parse(GetConfigValue(config["enablePasswordReset"], "True"));
       _enablePwdRetrival = bool.Parse(GetConfigValue(config["enablePasswordRetrieval"], "False"));

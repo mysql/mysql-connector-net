@@ -27,6 +27,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
+using System.Globalization;
 using MySql.Data.MySqlClient;
 
 namespace MySql.Data.Types
@@ -177,16 +178,16 @@ namespace MySql.Data.Types
     {
 
       string[] parts = s.Split(':', '.');
-      int hours = Int32.Parse(parts[0]);
-      int mins = Int32.Parse(parts[1]);
-      int secs = Int32.Parse(parts[2]);
+      int hours = Int32.Parse(parts[0], CultureInfo.InvariantCulture);
+      int mins = Int32.Parse(parts[1], CultureInfo.InvariantCulture);
+      int secs = Int32.Parse(parts[2], CultureInfo.InvariantCulture);
       int nanoseconds = 0;
 
       if (parts.Length > 3)
       {
         //if the data is saved in MySql as Time(3) the division by 1000 always returns 0, but handling the data as Time(6) the result is the expected
         parts[3] = parts[3].PadRight(7, '0');
-        nanoseconds = int.Parse(parts[3]);
+        nanoseconds = int.Parse(parts[3], CultureInfo.InvariantCulture);
       }
 
 

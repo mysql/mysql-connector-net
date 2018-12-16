@@ -30,6 +30,7 @@ using Mysqlx.Crud;
 using Mysqlx.Expr;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -676,7 +677,7 @@ namespace MySqlX.Protocol.X
       }
       else if (CurrentTokenTypeEquals(TokenType.LNUM_INT))
       {
-        uint v = uint.Parse(this.tokens[this.tokenPos].value);
+        uint v = uint.Parse(this.tokens[this.tokenPos].value, CultureInfo.InvariantCulture);
         if (v < 0)
         {
           throw new ArgumentException("Array index cannot be negative at " + this.tokenPos);
@@ -966,9 +967,9 @@ namespace MySqlX.Protocol.X
         case TokenType.NULL:
           return ExprUtil.BuildLiteralNullScalar();
         case TokenType.LNUM_INT:
-          return ExprUtil.BuildLiteralScalar(long.Parse(t.value));
+          return ExprUtil.BuildLiteralScalar(long.Parse(t.value, CultureInfo.InvariantCulture));
         case TokenType.LNUM_DOUBLE:
-          return ExprUtil.BuildLiteralScalar(double.Parse(t.value));
+          return ExprUtil.BuildLiteralScalar(double.Parse(t.value, CultureInfo.InvariantCulture));
         case TokenType.TRUE:
         case TokenType.FALSE:
           return ExprUtil.BuildLiteralScalar(t.type == TokenType.TRUE);
