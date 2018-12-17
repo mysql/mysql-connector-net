@@ -279,6 +279,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// Bug #25625 Crashes when calling with CommandType set to StoredProcedure 
     /// </summary>
     [Fact]
+    [Trait("Category", "Security")]
     public void RunWithoutSelectPrivsThrowException()
     {
       // we don't want this test to run in our all access fixture
@@ -372,6 +373,7 @@ namespace MySql.Data.MySqlClient.Tests
 #endif
 
     [Fact]
+    [Trait("Category", "Security")]
     public void NoAccessToProcedureBodies()
     {
       string sql = String.Format("CREATE PROCEDURE `{0}`.`spTest`(in1 INT, INOUT inout1 INT, OUT out1 INT ) " +

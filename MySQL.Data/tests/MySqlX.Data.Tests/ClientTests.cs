@@ -188,6 +188,7 @@ namespace MySqlX.Data.Tests
 
     [Theory]
     [MemberData(nameof(PoolingTestData))]
+    [Trait("Category", "Security")]
     public void PoolingTest(object connectionOptions, int size, int iterations)
     {
       using (Client client = MySQLX.GetClient(ConnectionString, connectionOptions))
@@ -226,6 +227,7 @@ namespace MySqlX.Data.Tests
     }
 
     [Fact]
+    [Trait("Category", "Security")]
     public void QueueTimeoutTest()
     {
       int timeout = 3000;
@@ -297,6 +299,7 @@ namespace MySqlX.Data.Tests
 
     [Theory]
     [MemberData(nameof(CloseData))]
+    [Trait("Category", "Security")]
     public void CloseTests(Action<Session> action)
     {
       using (Client client = MySQLX.GetClient(ConnectionString, "{ \"pooling\": { \"enabled\": true } }"))

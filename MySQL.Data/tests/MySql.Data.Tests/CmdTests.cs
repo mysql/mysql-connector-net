@@ -90,7 +90,6 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-
     [Fact]
     public void InsertTest()
     {
@@ -396,27 +395,6 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     /// <summary>
-    /// Bug #45941	SQL-Injection attack
-    /// </summary>
-    [Fact]
-    public void SqlInjection1()
-    {
-      executeSQL("DROP TABLE IF EXISTS Test");
-      executeSQL("CREATE TABLE Test(name VARCHAR(100)) ENGINE=MyISAM DEFAULT CHARSET=utf8");
-      executeSQL("INSERT INTO Test VALUES ('name1'), ('name2'), ('name3')");
-
-      MySqlCommand cnt = new MySqlCommand("SELECT COUNT(*) FROM Test", Connection);
-      Int64 count = (Int64)cnt.ExecuteScalar();
-
-      MySqlCommand cmd = new MySqlCommand("DELETE FROM Test WHERE name=?name", Connection);
-      cmd.Parameters.Add("?name", MySqlDbType.VarChar);
-      cmd.Parameters[0].Value = "\u2032 OR 1=1;-- --";
-      cmd.ExecuteNonQuery();
-
-      Assert.Equal(count, (Int64)cnt.ExecuteScalar());
-    }
-
-    /// <summary>
     /// Bug #44194	ExecuteNonQuery for update commands does not match actual rows updated
     /// </summary>
     [Fact]
@@ -701,5 +679,31 @@ namespace MySql.Data.MySqlClient.Tests
       IDbCommand newCommand2 = (IDbCommand)(cmd as ICloneable).Clone();
     }
 #endif
+
+    #region SQL Injection
+
+    /// <summary>
+    /// Bug #45941 SQL Injection attack.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Security")]
+    public void SqlInjection1()
+    {
+      executeSQL("DROP TABLE IF EXISTS Test");
+      executeSQL("CREATE TABLE Test(name VARCHAR(100)) ENGINE=MyISAM DEFAULT CHARSET=utf8");
+      executeSQL("INSERT INTO Test VALUES ('name1'), ('name2'), ('name3')");
+
+      MySqlCommand cnt = new MySqlCommand("SELECT COUNT(*) FROM Test", Connection);
+      Int64 count = (Int64)cnt.ExecuteScalar();
+
+      MySqlCommand cmd = new MySqlCommand("DELETE FROM Test WHERE name=?name", Connection);
+      cmd.Parameters.Add("?name", MySqlDbType.VarChar);
+      cmd.Parameters[0].Value = "\u2032 OR 1=1;-- --";
+      cmd.ExecuteNonQuery();
+
+      Assert.Equal(count, (Int64)cnt.ExecuteScalar());
+    }
+
+    #endregion
   }
 }

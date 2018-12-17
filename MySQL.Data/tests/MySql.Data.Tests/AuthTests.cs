@@ -1,4 +1,4 @@
-// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -37,14 +37,17 @@ namespace MySql.Data.MySqlClient.Tests
     {
     }
 
+    #region Windows Authentication Plugin
 
     [Fact]
+    [Trait("Category", "Security")]
     public void TestIntegratedSecurityNoPoolingWithoutUser()
     {
       TestIntegratedSecurityWithUser(null, false);
     }
 
     [Fact]
+    [Trait("Category", "Security")]
     public void TestIntegratedSecurityPoolingWithoutUser()
     {
       TestIntegratedSecurityWithUser(null, true);
@@ -170,12 +173,14 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     [Fact]
+    [Trait("Category", "Security")]
     public void TestIntegratedSecurityNoPoolingWithUser()
     {
       TestIntegratedSecurityWithUser("myuser1", false);
     }
 
     [Fact]
+    [Trait("Category", "Security")]
     public void TestIntegratedSecurityPoolingWithUser()
     {
       TestIntegratedSecurityWithUser("myuser1", true);
@@ -305,28 +310,33 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     [Fact]
+    [Trait("Category", "Security")]
     public void TestWinAuthWithoutProxyNoUserNoPooling()
     {
       TestIntegratedSecurityWithoutProxy(null, false);
     }
 
     [Fact]
+    [Trait("Category", "Security")]
     public void TestWinAuthWithoutProxyNoUserPooling()
     {
       TestIntegratedSecurityWithoutProxy("myuser1", true);
     }
 
     [Fact]
+    [Trait("Category", "Security")]
     public void TestWinAuthWithoutProxyAndUser()
     {
       TestIntegratedSecurityWithoutProxy("myuser1", false);
     }
 
     [Fact]
+    [Trait("Category", "Security")]
     public void TestWinAuthWithoutProxyAndUserPooling()
     {
       TestIntegratedSecurityWithoutProxy("myuser1", true);
     }
 
+    #endregion
   }
 }
