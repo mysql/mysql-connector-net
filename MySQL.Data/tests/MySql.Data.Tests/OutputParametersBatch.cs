@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -315,7 +315,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 #endif
 
-    [Fact(Skip = "This test is failing for PreparedStatements in MySQL Server 8.0.13. Bug #92470")]
+    [Fact]
     public void BinaryAndVarBinaryParameters()
     {
       executeSQL("CREATE PROCEDURE spTest(OUT out1 BINARY(20), OUT out2 VARBINARY(20)) " +
