@@ -46,13 +46,13 @@
 
   <ItemGroup>
     <Reference Include="BouncyCastle.Crypto" Condition="'$(TargetFramework)'=='net452'">
-      <HintPath>..\src\ThirdPartyDependencies\BouncyCastle.NetCore\net20\BouncyCastle.Crypto.dll</HintPath>
+      <HintPath>..\..\Dependencies\BouncyCastle.NetCore\net20\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
     <Reference Include="BouncyCastle.Crypto" Condition="'$(TargetFramework)'=='netstandard1.6'">
-      <HintPath>..\src\ThirdPartyDependencies\BouncyCastle.NetCore\netstandard1.3\BouncyCastle.Crypto.dll</HintPath>
+      <HintPath>..\..\Dependencies\BouncyCastle.NetCore\netstandard1.3\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
     <Reference Include="BouncyCastle.Crypto" Condition="'$(TargetFramework)'=='netcoreapp2.0' Or '$(TargetFramework)'=='netstandard2.0'">
-      <HintPath>..\src\ThirdPartyDependencies\BouncyCastle.NetCore\netstandard2.0\BouncyCastle.Crypto.dll</HintPath>
+      <HintPath>..\..\Dependencies\BouncyCastle.NetCore\netstandard2.0\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
   </ItemGroup>
 
