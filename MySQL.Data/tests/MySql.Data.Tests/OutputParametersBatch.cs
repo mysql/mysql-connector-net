@@ -275,63 +275,6 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(1, Convert.ToInt32(o));
     }
 
-    /// <summary>
-    /// Bug #25625 Crashes when calling with CommandType set to StoredProcedure 
-    /// </summary>
-    [Fact]
-    [Trait("Category", "Security")]
-    public void RunWithoutSelectPrivsThrowException()
-    {
-      // we don't want this test to run in our all access fixture
-      string connInfo = Connection.ConnectionString;
-      if (connInfo.IndexOf("use procedure bodies=false") == -1)
-        return;
-
-      executeSQL(String.Format(
-          "GRANT ALL ON `{0}`.* to 'testuser'@'%' identified by 'testuser'",
-          (Connection.Database)));
-      executeSQL(String.Format(
-          "GRANT ALL ON `{0}`.* to 'testuser'@'localhost' identified by 'testuser'",
-          (Connection.Database)));
-
-      executeSQL("DROP PROCEDURE IF EXISTS spTest");
-      executeSQL("CREATE PROCEDURE spTest(id int, OUT outid int, INOUT inoutid int) " +
-          "BEGIN SET outid=id+inoutid; SET inoutid=inoutid+id; END");
-
-      var csb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
-      csb.UserID = "testuser";
-      csb.Password = "testuser";
-      MySqlConnection c = new MySqlConnection(csb.ConnectionString);
-      c.Open();
-
-      try
-      {
-
-        MySqlCommand cmd = new MySqlCommand("spTest", c);
-        cmd.CommandType = CommandType.StoredProcedure;
-        cmd.Parameters.AddWithValue("?id", 2);
-        cmd.Parameters.AddWithValue("?outid", MySqlDbType.Int32);
-        cmd.Parameters[1].Direction = ParameterDirection.Output;
-        cmd.Parameters.AddWithValue("?inoutid", 4);
-        cmd.Parameters[2].Direction = ParameterDirection.InputOutput;
-        if (prepare) cmd.Prepare();
-        cmd.ExecuteNonQuery();
-
-        Assert.Equal(6, cmd.Parameters[1].Value);
-        Assert.Equal(6, cmd.Parameters[2].Value);
-      }
-      catch (InvalidOperationException iex)
-      {
-        Assert.StartsWith("Unable to retrieve", iex.Message, StringComparison.Ordinal);
-      }
-      finally
-      {
-        if (c != null)
-          c.Close();
-        executeSQL("DELETE FROM mysql.user WHERE user = 'testuser'");
-      }
-    }
-
     [Fact]
     public void CallingFunctionWithoutReturnParameter()
     {
@@ -371,33 +314,6 @@ namespace MySql.Data.MySqlClient.Tests
       da.FillSchema(dt, SchemaType.Mapped);
     }
 #endif
-
-    [Fact]
-    [Trait("Category", "Security")]
-    public void NoAccessToProcedureBodies()
-    {
-      string sql = String.Format("CREATE PROCEDURE `{0}`.`spTest`(in1 INT, INOUT inout1 INT, OUT out1 INT ) " +
-          "BEGIN SET inout1 = inout1+2; SET out1=inout1-3; SELECT in1; END", (Connection.Database));
-      executeSQL(sql);
-
-      using (MySqlConnection c = new MySqlConnection(Connection.ConnectionString + ";check parameters=false"))
-      {
-        c.Open();
-
-        MySqlCommand cmd = new MySqlCommand("spTest", c);
-        cmd.CommandType = CommandType.StoredProcedure;
-        cmd.Parameters.AddWithValue("?in1", 2);
-        cmd.Parameters.AddWithValue("?inout1", 4);
-        cmd.Parameters.Add("?out1", MySqlDbType.Int32);
-        cmd.Parameters[1].Direction = ParameterDirection.InputOutput;
-        cmd.Parameters[2].Direction = ParameterDirection.Output;
-        if (prepare) cmd.Prepare();
-        cmd.ExecuteNonQuery();
-
-        Assert.Equal(6, cmd.Parameters[1].Value);
-        Assert.Equal(3, cmd.Parameters[2].Value);
-      }
-    }
 
     [Fact(Skip = "This test is failing for PreparedStatements in MySQL Server 8.0.13. Bug #92470")]
     public void BinaryAndVarBinaryParameters()
@@ -519,6 +435,90 @@ namespace MySql.Data.MySqlClient.Tests
       if (prepare) cmd.Prepare();
       cmd.ExecuteNonQuery();
       Assert.Equal(0, Convert.ToInt32(cmd.Parameters[0].Value));
+    }
+
+    /// <summary>
+    /// Bug #25625 Crashes when calling with CommandType set to StoredProcedure
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Security")]
+    public void RunWithoutSelectPrivsThrowException()
+    {
+      // we don't want this test to run in our all access fixture
+      string connInfo = Connection.ConnectionString;
+      if (connInfo.IndexOf("use procedure bodies=false") == -1)
+        return;
+
+      executeSQL(String.Format(
+          "GRANT ALL ON `{0}`.* to 'testuser'@'%' identified by 'testuser'",
+          (Connection.Database)));
+      executeSQL(String.Format(
+          "GRANT ALL ON `{0}`.* to 'testuser'@'localhost' identified by 'testuser'",
+          (Connection.Database)));
+
+      executeSQL("DROP PROCEDURE IF EXISTS spTest");
+      executeSQL("CREATE PROCEDURE spTest(id int, OUT outid int, INOUT inoutid int) " +
+          "BEGIN SET outid=id+inoutid; SET inoutid=inoutid+id; END");
+
+      var csb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
+      csb.UserID = "testuser";
+      csb.Password = "testuser";
+      MySqlConnection c = new MySqlConnection(csb.ConnectionString);
+      c.Open();
+
+      try
+      {
+
+        MySqlCommand cmd = new MySqlCommand("spTest", c);
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.AddWithValue("?id", 2);
+        cmd.Parameters.AddWithValue("?outid", MySqlDbType.Int32);
+        cmd.Parameters[1].Direction = ParameterDirection.Output;
+        cmd.Parameters.AddWithValue("?inoutid", 4);
+        cmd.Parameters[2].Direction = ParameterDirection.InputOutput;
+        if (prepare) cmd.Prepare();
+        cmd.ExecuteNonQuery();
+
+        Assert.Equal(6, cmd.Parameters[1].Value);
+        Assert.Equal(6, cmd.Parameters[2].Value);
+  }
+      catch (InvalidOperationException iex)
+      {
+        Assert.True(iex.Message.StartsWith("Unable to retrieve", StringComparison.Ordinal));
+      }
+      finally
+      {
+        if (c != null)
+          c.Close();
+        executeSQL("DELETE FROM mysql.user WHERE user = 'testuser'");
+      }
+    }
+
+    [Fact]
+    [Trait("Category", "Security")]
+    public void NoAccessToProcedureBodies()
+    {
+      string sql = String.Format("CREATE PROCEDURE `{0}`.`spTest`(in1 INT, INOUT inout1 INT, OUT out1 INT ) " +
+          "BEGIN SET inout1 = inout1+2; SET out1=inout1-3; SELECT in1; END", (Connection.Database));
+      executeSQL(sql);
+
+      using (MySqlConnection c = new MySqlConnection(Connection.ConnectionString + ";check parameters=false"))
+      {
+        c.Open();
+
+        MySqlCommand cmd = new MySqlCommand("spTest", c);
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.AddWithValue("?in1", 2);
+        cmd.Parameters.AddWithValue("?inout1", 4);
+        cmd.Parameters.Add("?out1", MySqlDbType.Int32);
+        cmd.Parameters[1].Direction = ParameterDirection.InputOutput;
+        cmd.Parameters[2].Direction = ParameterDirection.Output;
+        if (prepare) cmd.Prepare();
+        cmd.ExecuteNonQuery();
+
+        Assert.Equal(6, cmd.Parameters[1].Value);
+        Assert.Equal(3, cmd.Parameters[2].Value);
+      }
     }
   }
 }
