@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2018, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -44,10 +44,9 @@ namespace MySqlX.Data.Tests
 
     public SslTests()
     {
-      var commonPath = "..\\..\\..\\..\\MySql.Data.Tests\\certificates\\";
-      _sslCa = $"{commonPath}ca.pem";
-      _sslCert = $"{commonPath}client-cert.pem";
-      _sslKey = $"{commonPath}client-key.pem";
+      _sslCa = "ca.pem";
+      _sslCert = "client-cert.pem";
+      _sslKey = "client-key.pem";
 
       // Update the port to the default xport.
       var builder = new MySqlXConnectionStringBuilder(ConnectionString);

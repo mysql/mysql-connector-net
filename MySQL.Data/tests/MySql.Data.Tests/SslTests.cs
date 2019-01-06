@@ -39,9 +39,9 @@ namespace MySql.Data.MySqlClient.Tests
 
     public SslTests(TestFixture fixture) : base(fixture)
     {
-      _sslCa =   @"certificates\ca.pem";
-      _sslCert = @"certificates\client-cert.pem";
-      _sslKey = @"certificates\client-key.pem";
+      _sslCa =   "ca.pem";
+      _sslCert = "client-cert.pem";
+      _sslKey = "client-key.pem";
     }
 
 #region General

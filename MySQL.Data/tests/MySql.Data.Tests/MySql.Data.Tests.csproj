@@ -84,33 +84,42 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="certificates\ca-key.pem">
+    <ContentWithTargetPath Include="certificates\ca-key.pem">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="certificates\ca.pem">
+      <TargetPath>ca-key.pem</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="certificates\ca.pem">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="certificates\ca_dummy.pem">
+      <TargetPath>ca.pem</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="certificates\ca_dummy.pem">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="certificates\client-cert.pem">
+      <TargetPath>ca_dummy.pem</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="certificates\client-cert.pem">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="certificates\client-cert_dummy.pem">
+      <TargetPath>client-cert.pem</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="certificates\client-cert_dummy.pem">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="certificates\client-key.pem">
+      <TargetPath>client-cert_dummy.pem</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="certificates\client-key.pem">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="certificates\client-key_dummy.pem">
+      <TargetPath>client-key.pem</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="certificates\client-key_dummy.pem">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="certificates\server-cert.pem">
+      <TargetPath>client-key_dummy.pem</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="certificates\server-cert.pem">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="certificates\server-key.pem">
+      <TargetPath>server-cert.pem</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="certificates\server-key.pem">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+      <TargetPath>server-key.pem</TargetPath>
+    </ContentWithTargetPath>
     <None Update="client.pfx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
