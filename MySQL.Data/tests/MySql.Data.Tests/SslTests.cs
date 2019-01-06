@@ -39,15 +39,9 @@ namespace MySql.Data.MySqlClient.Tests
 
     public SslTests(TestFixture fixture) : base(fixture)
     {
-#if DEBUG
-      _sslCa = "..\\..\\..\\certificates\\ca.pem";
-      _sslCert = "..\\..\\..\\certificates\\client-cert.pem";
-      _sslKey = "..\\..\\..\\certificates\\client-key.pem";
-#else
       _sslCa = "certificates\\ca.pem";
       _sslCert = "certificates\\client-cert.pem";
       _sslKey = "certificates\\client-key.pem";
-#endif
     }
 
 #region General

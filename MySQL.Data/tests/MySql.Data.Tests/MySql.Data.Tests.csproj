@@ -84,6 +84,33 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="certificates\ca-key.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="certificates\ca.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="certificates\ca_dummy.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="certificates\client-cert.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="certificates\client-cert_dummy.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="certificates\client-key.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="certificates\client-key_dummy.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="certificates\server-cert.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="certificates\server-key.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="client.pfx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
