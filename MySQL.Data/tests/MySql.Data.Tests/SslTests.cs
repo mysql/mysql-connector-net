@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2018, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -149,7 +149,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Null(builder.SslKey);
 
       // Null or whitespace options are ignored.
-      var connectionString = "host=localhost;user=root;port=3306;";
+      var connectionString = $"host={ConnectionSettings.Server};user={ConnectionSettings.UserID};port={ConnectionSettings.Port};password={ConnectionSettings.Password};";
       builder = new MySqlConnectionStringBuilder(connectionString);
       builder.SslCa = null;
       builder.SslCert = string.Empty;
