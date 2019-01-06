@@ -39,12 +39,18 @@ namespace MySql.Data.MySqlClient.Tests
 
     public SslTests(TestFixture fixture) : base(fixture)
     {
+#if DEBUG
       _sslCa = "..\\..\\..\\certificates\\ca.pem";
       _sslCert = "..\\..\\..\\certificates\\client-cert.pem";
       _sslKey = "..\\..\\..\\certificates\\client-key.pem";
+#else
+      _sslCa = "certificates\\ca.pem";
+      _sslCert = "certificates\\client-cert.pem";
+      _sslKey = "certificates\\client-key.pem";
+#endif
     }
 
-    #region General
+#region General
 
     [Fact]
     [Trait("Category", "Security")]
@@ -78,9 +84,9 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    #endregion
+#endregion
 
-    #region PFX
+#region PFX
 
     /// <summary>
     /// A client can connect to MySQL server using SSL and a pfx file.
@@ -122,9 +128,9 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    #endregion
+#endregion
 
-    #region PEM
+#region PEM
 
     [Fact]
     [Trait("Category", "Security")]
@@ -422,6 +428,6 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    #endregion
+#endregion
   }
 }
