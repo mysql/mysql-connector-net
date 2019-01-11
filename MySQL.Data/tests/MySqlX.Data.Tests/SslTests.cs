@@ -57,7 +57,7 @@ namespace MySqlX.Data.Tests
     #region General
 
     [Fact]
-    public void SSLSession()
+    public void SslSession()
     {
       using (var s3 = MySQLX.GetSession(ConnectionStringUri))
       {
@@ -68,7 +68,7 @@ namespace MySqlX.Data.Tests
     }
 
     [Fact]
-    public void SSLEmptyCertificate()
+    public void SslEmptyCertificate()
     {
       string connstring = ConnectionStringUri + $"/?ssl-ca=";
       // if certificate is empty, it connects without a certificate
@@ -81,57 +81,57 @@ namespace MySqlX.Data.Tests
     }
 
     [Fact]
-    public void SSLOptions()
+    public void SslOptions()
     {
-      string connectionString = ConnectionStringUri;
+      string connectionUri = ConnectionStringUri;
       // sslmode is valid.
-      using (var connection = MySQLX.GetSession(connectionString + "?sslmode=required"))
+      using (var connection = MySQLX.GetSession(connectionUri + "?sslmode=required"))
       {
         Assert.Equal(SessionState.Open, connection.InternalSession.SessionState);
       }
 
-      using (var connection = MySQLX.GetSession(connectionString + "?ssl-mode=required"))
+      using (var connection = MySQLX.GetSession(connectionUri + "?ssl-mode=required"))
       {
         Assert.Equal(SessionState.Open, connection.InternalSession.SessionState);
       }
 
       // sslenable is invalid.
-      Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionString + "?sslenable"));
-      Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionString + "?ssl-enable"));
+      Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "?sslenable"));
+      Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "?ssl-enable"));
 
       // sslmode=Required is default value.
-      using (var connection = MySQLX.GetSession(connectionString))
+      using (var connection = MySQLX.GetSession(connectionUri))
       {
         Assert.Equal(connection.Settings.SslMode, MySqlSslMode.Required);
       }
 
       // sslmode case insensitive.
-      using (var connection = MySQLX.GetSession(connectionString + "?SsL-mOdE=required"))
+      using (var connection = MySQLX.GetSession(connectionUri + "?SsL-mOdE=required"))
       {
         Assert.Equal(SessionState.Open, connection.InternalSession.SessionState);
       }
-      using (var connection = MySQLX.GetSession(connectionString + "?SsL-mOdE=VeRiFyca&ssl-ca=../../../../MySql.Data.Tests/client.pfx&ssl-ca-pwd=pass"))
+      using (var connection = MySQLX.GetSession(connectionUri + "?SsL-mOdE=VeRiFyca&ssl-ca=../../../../MySql.Data.Tests/client.pfx&ssl-ca-pwd=pass"))
       {
         Assert.Equal(SessionState.Open, connection.InternalSession.SessionState);
         var uri = connection.Uri;
       }
 
       // Duplicate SSL connection options send error message.
-      ArgumentException ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionString + "?sslmode=Required&ssl mode=None"));
+      ArgumentException ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "?sslmode=Required&ssl mode=None"));
       Assert.EndsWith("is duplicated.", ex.Message);
-      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionString + "?ssl-ca-pwd=pass&ssl-ca-pwd=pass"));
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "?ssl-ca-pwd=pass&ssl-ca-pwd=pass"));
       Assert.EndsWith("is duplicated.", ex.Message);
-      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionString + "?certificatepassword=pass&certificatepassword=pass"));
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "?certificatepassword=pass&certificatepassword=pass"));
       Assert.EndsWith("is duplicated.", ex.Message);
-      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionString + "?certificatepassword=pass&ssl-ca-pwd=pass"));
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "?certificatepassword=pass&ssl-ca-pwd=pass"));
       Assert.EndsWith("is duplicated.", ex.Message);
 
       // Send error if sslmode=None and another ssl parameter exists.
-      Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionString + "?sslmode=None&ssl-ca=../../../../MySql.Data.Tests/certificates/client.pfx").InternalSession.SessionState);
+      Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "?sslmode=None&ssl-ca=../../../../MySql.Data.Tests/certificates/client.pfx").InternalSession.SessionState);
     }
 
     [Fact]
-    public void SSLRequiredByDefault()
+    public void SslRequiredByDefault()
     {
       using (var connection = MySQLX.GetSession(ConnectionStringUri))
       {
@@ -140,7 +140,7 @@ namespace MySqlX.Data.Tests
     }
 
     [Fact]
-    public void SSLPreferredIsInvalid()
+    public void SslPreferredIsInvalid()
     {
       ArgumentException ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(ConnectionStringUri + "?ssl-mode=Preferred"));
       Assert.Equal("Value 'Preferred' is not of the correct type.", ex.Message);
@@ -148,12 +148,39 @@ namespace MySqlX.Data.Tests
       Assert.Equal("Value 'Prefered' is not of the correct type.", ex.Message);
     }
 
+    [Fact]
+    [Trait("Category", "Security")]
+    public void RepeatedSslConnectionOptionsNotAllowed()
+    {
+      var expectedErrorMessage = "SSL connection option '{0}' is duplicated.";
+      var exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"{ConnectionStringUri}?sslca={_sslCa}&sslca={_sslCa}"));
+      Assert.Equal(string.Format(expectedErrorMessage, "sslca"), exception.Message);
+
+      exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"{ConnectionStringUri}?certificatefile={_sslCa}&certificatefile={_sslCa}"));
+      Assert.Equal(string.Format(expectedErrorMessage, "certificatefile"), exception.Message);
+
+      exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"{ConnectionStringUri}?sslca={_sslCa}&certificatefile={_sslCa}"));
+      Assert.Equal(string.Format(expectedErrorMessage, "certificatefile"), exception.Message);
+
+      exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"{ConnectionStringUri}?certificatefile={_sslCa}&sslca={_sslCa}"));
+      Assert.Equal(string.Format(expectedErrorMessage, "sslca"), exception.Message);
+
+      exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"{ConnectionStringUri}?certificatepassword=pass&certificatepassword=pass"));
+      Assert.Equal(string.Format(expectedErrorMessage, "certificatepassword"), exception.Message);
+
+      exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"{ConnectionStringUri}?sslcert={_sslCert}&sslcert={_sslCert}"));
+      Assert.Equal(string.Format(expectedErrorMessage, "sslcert"), exception.Message);
+
+      exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"{ConnectionStringUri}?sslkey={_sslKey}&sslkey={_sslKey}"));
+      Assert.Equal(string.Format(expectedErrorMessage, "sslkey"), exception.Message);
+    }
+
     #endregion
 
     #region PFX Certificates
 
     [Fact]
-    public void SSLCertificate()
+    public void SslCertificate()
     {
       string path = "../../../../MySql.Data.Tests/";
       string connstring = ConnectionStringUri + $"/?ssl-ca={path}client.pfx&ssl-ca-pwd=pass";
@@ -166,14 +193,14 @@ namespace MySqlX.Data.Tests
     }
 
     [Fact]
-    public void SSLCrl()
+    public void SslCrl()
     {
       string connstring = ConnectionStringUri + "/?ssl-crl=crlcert.pfx";
       Assert.Throws<NotSupportedException>(() => MySQLX.GetSession(connstring));
     }
 
     [Fact]
-    public void SSLCertificatePathKeepsCase()
+    public void SslCertificatePathKeepsCase()
     {
       var certificatePath = "../../../../MySql.Data.Tests/client.pfx";
       // Connection string in basic format.
@@ -203,7 +230,7 @@ namespace MySqlX.Data.Tests
     [InlineData("(../../../../MySql.Data.Tests/client.pfx)")]
     [InlineData(@"(..\..\..\..\MySql.Data.Tests\client.pfx")]
     [InlineData("..\\..\\..\\..\\MySql.Data.Tests\\client.pfx")]
-    public void SSLCertificatePathVariations(string certificatePath)
+    public void SslCertificatePathVariations(string certificatePath)
     {
       string connStringUri = ConnectionStringUri + "/?ssl-ca=" + certificatePath + "& ssl-ca-pwd=pass;";
 

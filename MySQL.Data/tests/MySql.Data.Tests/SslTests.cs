@@ -26,6 +26,7 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using System;
 using System.Data;
 using Xunit;
 
@@ -78,9 +79,89 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#endregion
+    [Fact]
+    [Trait("Category", "Security")]
+    public void RepeatedSslConnectionOptionsNotAllowed()
+    {
+      var builder = new MySqlConnectionStringBuilder(ConnectionSettings.ConnectionString);
+      builder.SslCa = _sslCa;
+      var exception = Assert.Throws<ArgumentException>(() => new MySqlConnection($"{builder.ConnectionString};sslca={_sslCa}"));
+      Assert.Equal(string.Format(Resources.DuplicatedSslConnectionOption, "sslca"), exception.Message);
 
-#region PFX
+      builder = new MySqlConnectionStringBuilder(ConnectionSettings.ConnectionString);
+      builder.CertificateFile = _sslCa;
+      exception = Assert.Throws<ArgumentException>(() => new MySqlConnection($"{builder.ConnectionString};certificatefile={_sslCa}"));
+      Assert.Equal(string.Format(Resources.DuplicatedSslConnectionOption, "certificatefile"), exception.Message);
+
+      builder = new MySqlConnectionStringBuilder(ConnectionSettings.ConnectionString);
+      builder.SslCa = _sslCa;
+      exception = Assert.Throws<ArgumentException>(() => new MySqlConnection($"{builder.ConnectionString};certificatefile={_sslCa}"));
+      Assert.Equal(string.Format(Resources.DuplicatedSslConnectionOption, "certificatefile"), exception.Message);
+
+      builder = new MySqlConnectionStringBuilder(ConnectionSettings.ConnectionString);
+      builder.CertificateFile = _sslCa;
+      exception = Assert.Throws<ArgumentException>(() => new MySqlConnection($"{builder.ConnectionString};sslca={_sslCa}"));
+      Assert.Equal(string.Format(Resources.DuplicatedSslConnectionOption, "sslca"), exception.Message);
+
+      builder = new MySqlConnectionStringBuilder(ConnectionSettings.ConnectionString);
+      builder.SslCa = _sslCa;
+      exception = Assert.Throws<ArgumentException>(() => new MySqlConnection($"{builder.ConnectionString};sslcert={_sslCert};sslkey={_sslKey};sslca={_sslCa}"));
+      Assert.Equal(string.Format(Resources.DuplicatedSslConnectionOption, "sslca"), exception.Message);
+
+      builder = new MySqlConnectionStringBuilder(ConnectionSettings.ConnectionString);
+      builder.CertificatePassword = "pass";
+      exception = Assert.Throws<ArgumentException>(() => new MySqlConnection($"{builder.ConnectionString};certificatepassword=pass"));
+      Assert.Equal(string.Format(Resources.DuplicatedSslConnectionOption, "certificatepassword"), exception.Message);
+
+      builder = new MySqlConnectionStringBuilder(ConnectionSettings.ConnectionString);
+      builder.SslCert = _sslCert;
+      exception = Assert.Throws<ArgumentException>(() => new MySqlConnection($"{builder.ConnectionString};sslcert={_sslCert}"));
+      Assert.Equal(string.Format(Resources.DuplicatedSslConnectionOption, "sslcert"), exception.Message);
+
+      builder = new MySqlConnectionStringBuilder(ConnectionSettings.ConnectionString);
+      builder.SslKey = _sslKey;
+      exception = Assert.Throws<ArgumentException>(() => new MySqlConnection($"{builder.ConnectionString};sslkey={_sslKey}"));
+      Assert.Equal(string.Format(Resources.DuplicatedSslConnectionOption, "sslkey"), exception.Message);
+    }
+
+    [Fact]
+    [Trait("Category", "Security")]
+    public void InvalidOptionsWhenSslDisabled()
+    {
+      var builder = new MySqlConnectionStringBuilder(ConnectionSettings.ConnectionString);
+      builder.SslMode = MySqlSslMode.None;
+      builder.SslCa = "value";
+      var exception = Assert.Throws<ArgumentException>(() => new MySqlConnection(builder.ConnectionString));
+      Assert.Equal(Resources.InvalidOptionWhenSslDisabled, exception.Message);
+
+      builder = new MySqlConnectionStringBuilder(ConnectionSettings.ConnectionString);
+      builder.SslMode = MySqlSslMode.None;
+      builder.SslCert = "value";
+      exception = Assert.Throws<ArgumentException>(() => new MySqlConnection(builder.ConnectionString));
+      Assert.Equal(Resources.InvalidOptionWhenSslDisabled, exception.Message);
+
+      builder = new MySqlConnectionStringBuilder(ConnectionSettings.ConnectionString);
+      builder.SslMode = MySqlSslMode.None;
+      builder.SslKey = "value";
+      exception = Assert.Throws<ArgumentException>(() => new MySqlConnection(builder.ConnectionString));
+      Assert.Equal(Resources.InvalidOptionWhenSslDisabled, exception.Message);
+
+      builder = new MySqlConnectionStringBuilder(ConnectionSettings.ConnectionString);
+      builder.SslMode = MySqlSslMode.None;
+      builder.CertificateFile = "value";
+      exception = Assert.Throws<ArgumentException>(() => new MySqlConnection(builder.ConnectionString));
+      Assert.Equal(Resources.InvalidOptionWhenSslDisabled, exception.Message);
+
+      builder = new MySqlConnectionStringBuilder(ConnectionSettings.ConnectionString);
+      builder.SslMode = MySqlSslMode.None;
+      builder.CertificatePassword = "value";
+      exception = Assert.Throws<ArgumentException>(() => new MySqlConnection(builder.ConnectionString));
+      Assert.Equal(Resources.InvalidOptionWhenSslDisabled, exception.Message);
+    }
+
+    #endregion
+
+    #region PFX
 
     /// <summary>
     /// A client can connect to MySQL server using SSL and a pfx file.
@@ -422,6 +503,6 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#endregion
+    #endregion
   }
 }
