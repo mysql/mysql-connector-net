@@ -142,10 +142,36 @@ namespace MySqlX.Data.Tests
     [Fact]
     public void SslPreferredIsInvalid()
     {
-      ArgumentException ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(ConnectionStringUri + "?ssl-mode=Preferred"));
-      Assert.Equal("Value 'Preferred' is not of the correct type.", ex.Message);
-      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(ConnectionStringUri + "?ssl-mode=Prefered"));
-      Assert.Equal("Value 'Prefered' is not of the correct type.", ex.Message);
+      var expectedErrorMessage = "Value '{0}' is not of the correct type.";
+
+      // In connection string.
+      var exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(ConnectionStringUri + "?ssl-mode=Preferred"));
+      Assert.Equal(string.Format(expectedErrorMessage, "Preferred"), exception.Message);
+      exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(ConnectionStringUri + "?ssl-mode=Prefered"));
+      Assert.Equal(string.Format(expectedErrorMessage, "Prefered"), exception.Message);
+
+      // In anonymous object.
+      var builder = new MySqlXConnectionStringBuilder(ConnectionString);
+      var connectionObject = new{
+        server = builder.Server,
+        port = builder.Port,
+        user = builder.UserID,
+        password = builder.Password,
+        sslmode = MySqlSslMode.Prefered
+      };
+      exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionObject));
+      Assert.Equal(string.Format(expectedErrorMessage, "Prefered"), exception.Message);
+
+      // In MySqlXConnectionStringBuilder.
+      builder = new MySqlXConnectionStringBuilder(ConnectionString);
+      builder.SslMode = MySqlSslMode.Prefered;
+      exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionObject));
+      Assert.Equal(string.Format(expectedErrorMessage, "Prefered"), exception.Message);
+
+      builder = new MySqlXConnectionStringBuilder(ConnectionString);
+      builder.SslMode = MySqlSslMode.Preferred;
+      exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionObject));
+      Assert.Equal(string.Format(expectedErrorMessage, "Prefered"), exception.Message);
     }
 
     [Fact]

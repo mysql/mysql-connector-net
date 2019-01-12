@@ -161,7 +161,7 @@ namespace MySql.Data.MySqlClient.Tests
 
     #endregion
 
-    #region PFX
+#region PFX
 
     /// <summary>
     /// A client can connect to MySQL server using SSL and a pfx file.
