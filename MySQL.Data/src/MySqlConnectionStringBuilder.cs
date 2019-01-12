@@ -391,7 +391,7 @@ namespace MySql.Data.MySqlClient
     /// <remarks>This option is only relevant when SSL is disabled. Setting this option to <c>true</c> in
     /// 8.0 servers that have the caching_sha2_password authentication plugin as the default plugin will
     /// cause the connection attempt to fail if the user hasn't successfully connected to the server on a
-    /// previous ocassion.</remarks>
+    /// previous occasion.</remarks>
     [Category("Authentication")]
     [DisplayName("AllowPublicKeyRetrieval")]
     [Description("Allow retrieval of RSA public keys from server when SSL is disabled.")]
