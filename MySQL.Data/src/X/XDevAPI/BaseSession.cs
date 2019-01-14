@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -80,6 +80,11 @@ namespace MySqlX.XDevAPI
     private DBVersion? _version = null;
 
     internal DBVersion Version => _version ?? (_version = XSession.GetServerVersion()).Value;
+
+    /// <summary>
+    /// Flag to set if prepared statements are supported.
+    /// </summary>
+    internal bool SupportsPreparedStatements { get; set; } = true;
 
     #endregion
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -654,7 +654,7 @@ namespace MySqlX.Protocol
       if (p.MessageType == (int)ServerMessageId.ERROR)
       {
         var error = Error.Parser.ParseFrom(p.Buffer);
-        throw new MySqlException(error.Msg);
+        throw new MySqlException(error.Code, error.SqlState, error.Msg);
       }
       if (p.MessageType == (int)ServerMessageId.OK)
       {
@@ -693,6 +693,24 @@ namespace MySqlX.Protocol
           builder.Stmt.Type = Prepare.Types.OneOfMessage.Types.Type.Find;
           var message = CreateFindMessage(schema, collection, isRelational, filter, findParams);
           message.Args.Clear();
+          if (filter.HasLimit)
+          {
+            uint positionFind = (uint)filter.Parameters.Count;
+            message.Limit = null;
+            message.LimitExpr = new LimitExpr
+            {
+              RowCount = new Expr
+              {
+                Type = Expr.Types.Type.Placeholder,
+                Position = positionFind++
+              },
+              Offset = filter.Offset == -1 ? null : new Expr
+              {
+                Type = Expr.Types.Type.Placeholder,
+                Position = positionFind++
+              }
+            };
+          }
           builder.Stmt.Find = message;
           break;
 
@@ -700,6 +718,19 @@ namespace MySqlX.Protocol
           builder.Stmt.Type = Prepare.Types.OneOfMessage.Types.Type.Update;
           var updateMessage = CreateUpdateMessage(schema, collection, isRelational, filter, updateSpecs);
           updateMessage.Args.Clear();
+          if (filter.HasLimit)
+          {
+            uint positionUpdate = (uint)filter.Parameters.Count;
+            updateMessage.Limit = null;
+            updateMessage.LimitExpr = new LimitExpr
+            {
+              RowCount = new Expr
+              {
+                Type = Expr.Types.Type.Placeholder,
+                Position = positionUpdate++
+              }
+            };
+          }
           builder.Stmt.Update = updateMessage;
           break;
 
@@ -707,6 +738,19 @@ namespace MySqlX.Protocol
           builder.Stmt.Type = Prepare.Types.OneOfMessage.Types.Type.Delete;
           var deleteMessage = CreateDeleteMessage(schema, collection, isRelational, filter);
           deleteMessage.Args.Clear();
+          if (filter.HasLimit)
+          {
+            uint positionDelete = (uint)filter.Parameters.Count;
+            deleteMessage.Limit = null;
+            deleteMessage.LimitExpr = new LimitExpr
+            {
+              RowCount = new Expr
+              {
+                Type = Expr.Types.Type.Placeholder,
+                Position = positionDelete++
+              }
+            };
+          }
           builder.Stmt.Delete = deleteMessage;
           break;
 
@@ -715,9 +759,9 @@ namespace MySqlX.Protocol
           var insertMessage = CreateInsertMessage(schema, isRelational, collection, rows, columns, upsert);
           insertMessage.Args.Clear();
           uint position = 0;
-          foreach(var row in insertMessage.Row)
+          foreach (var row in insertMessage.Row)
           {
-             foreach(var field in row.Field)
+            foreach (var field in row.Field)
             {
               if (field.Type == Expr.Types.Type.Literal)
               {
@@ -753,7 +797,7 @@ namespace MySqlX.Protocol
 
     public void AddArgs(Action<Any> addFunction, IEnumerable args)
     {
-      foreach(var arg in args)
+      foreach (var arg in args)
       {
         if (arg.GetType().IsArray)
           AddArgs(addFunction, (System.Array)arg);

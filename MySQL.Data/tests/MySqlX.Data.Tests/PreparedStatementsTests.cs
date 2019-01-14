@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2018, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -76,6 +76,11 @@ namespace MySqlX.Data.Tests
 
     private void ValidatePreparedStatements(int count, ulong executions, string sqlText, string threadId = null)
     {
+      if (!GetSession().SupportsPreparedStatements)
+      {
+        Console.Error.WriteLine("Prepared statements not supported.");
+        return;
+      }
       string condition;
       if (threadId == null)
         condition = "t.processlist_id = @@pseudo_thread_id";
@@ -121,11 +126,11 @@ namespace MySqlX.Data.Tests
       {
         doc = ExecuteFindStatement(findStmt.Bind("id", i).Bind("pages", i * 10 + 10).Limit(1));
         Assert.Equal($"Book {i}", doc.FetchAll()[0]["title"].ToString());
-        Assert.True(findStmt._isPrepared);
+        Assert.True(findStmt._isPrepared || !findStmt.Session.SupportsPreparedStatements);
       }
 
       ValidatePreparedStatements(1, 4,
-        $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_EXTRACT(doc,'$._id') = ?) AND (JSON_EXTRACT(doc,'$.pages') = ?)) LIMIT 1");
+        $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_EXTRACT(doc,'$._id') = ?) AND (JSON_EXTRACT(doc,'$.pages') = ?)) LIMIT ?");
     }
 
     [Fact]
@@ -142,10 +147,10 @@ namespace MySqlX.Data.Tests
 
       foundDoc = ExecuteFindStatement(findStmt.Limit(1));
       Assert.Equal("Book 1", foundDoc.FetchAll()[0]["title"].ToString());
-      Assert.True(findStmt._isPrepared);
+      Assert.True(findStmt._isPrepared || !findStmt.Session.SupportsPreparedStatements);
 
       ValidatePreparedStatements(1, 1,
-        $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE (JSON_EXTRACT(doc,'$._id') = 1) LIMIT 1");
+        $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE (JSON_EXTRACT(doc,'$._id') = 1) LIMIT ?");
 
       for (int i = 1; i <= _docs.Length; i++)
       {
@@ -177,11 +182,14 @@ namespace MySqlX.Data.Tests
 
         foundDoc = ExecuteFindStatement(findStmt.Limit(1));
         Assert.Equal("Book 1", foundDoc.FetchAll()[0]["title"].ToString());
-        Assert.True(findStmt._isPrepared);
+        Assert.True(findStmt._isPrepared || !findStmt.Session.SupportsPreparedStatements);
 
-        ValidatePreparedStatements(1, 1,
-          $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE (JSON_EXTRACT(doc,'$._id') = 1) LIMIT 1",
-          threadId);
+        if (findStmt.Session.SupportsPreparedStatements)
+        {
+          ValidatePreparedStatements(1, 1,
+            $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE (JSON_EXTRACT(doc,'$._id') = 1) LIMIT ?",
+            threadId);
+        }
 
         mySession.Close();
         ValidatePreparedStatements(0, 0, null, threadId);
@@ -203,11 +211,11 @@ namespace MySqlX.Data.Tests
       {
         row = ExecuteSelectStatement(selectStmt.Bind("id", i + 1).Limit(1));
         Assert.Equal(_allRows[i][1], row.FetchAll()[0]["name"].ToString());
-        Assert.True(selectStmt._isPrepared);
+        Assert.True(selectStmt._isPrepared || !selectStmt.Session.SupportsPreparedStatements);
       }
 
       ValidatePreparedStatements(1, 3,
-        $"SELECT * FROM `{schemaName}`.`{_tableName}` WHERE (`id` = ?) LIMIT 1");
+        $"SELECT * FROM `{schemaName}`.`{_tableName}` WHERE (`id` = ?) LIMIT ?");
     }
 
     [Fact]
@@ -224,10 +232,10 @@ namespace MySqlX.Data.Tests
 
       row = ExecuteSelectStatement(selectStmt.Limit(1));
       Assert.Equal(_allRows[0][1], row.FetchAll()[0]["name"].ToString());
-      Assert.True(selectStmt._isPrepared);
+      Assert.True(selectStmt._isPrepared || !selectStmt.Session.SupportsPreparedStatements);
 
       ValidatePreparedStatements(1, 1,
-        $"SELECT * FROM `{schemaName}`.`{_tableName}` WHERE (`id` = 1) LIMIT 1");
+        $"SELECT * FROM `{schemaName}`.`{_tableName}` WHERE (`id` = 1) LIMIT ?");
 
       for (int i = 2; i <= _allRows.Length; i++)
       {
@@ -244,7 +252,7 @@ namespace MySqlX.Data.Tests
     {
       InitCollection();
       Collection coll = GetCollection();
-      var modifyStmt = coll.Modify("_id = :id").Set("title", "Magazine").Bind("id", 1);
+      var modifyStmt = coll.Modify("_id = :id").Set("title", "Magazine 1").Bind("id", 1);
       Result result = ExecuteModifyStatement(modifyStmt);
       Assert.Equal(1ul, result.AffectedItemsCount);
       Assert.False(modifyStmt._isPrepared);
@@ -254,11 +262,11 @@ namespace MySqlX.Data.Tests
       {
         result = ExecuteModifyStatement(modifyStmt.Bind("id", i).Limit(1));
         Assert.Equal(1ul, result.AffectedItemsCount);
-        Assert.True(modifyStmt._isPrepared);
+        Assert.True(modifyStmt._isPrepared || !modifyStmt.Session.SupportsPreparedStatements);
       }
 
       ValidatePreparedStatements(1, 3,
-        $"UPDATE `{schemaName}`.`{_collectionName}` SET doc=JSON_SET(JSON_SET(doc,'$.title','Magazine'),'$._id',JSON_EXTRACT(`doc`,'$._id')) WHERE (JSON_EXTRACT(doc,'$._id') = ?) LIMIT 1");
+        $"UPDATE `{schemaName}`.`{_collectionName}` SET doc=JSON_SET(JSON_SET(doc,'$.title','Magazine 1'),'$._id',JSON_EXTRACT(`doc`,'$._id')) WHERE (JSON_EXTRACT(doc,'$._id') = ?) LIMIT ?");
     }
 
     [Fact]
@@ -266,19 +274,19 @@ namespace MySqlX.Data.Tests
     {
       InitCollection();
       Collection coll = GetCollection();
-      var modifyStmt = coll.Modify("_id = :id").Set("title", "Magazine 1").Bind("id", 1);
+      var modifyStmt = coll.Modify("_id = :id").Set("title", "CONCAT('Magazine ', id)").Bind("id", 1);
       Result result = ExecuteModifyStatement(modifyStmt);
       Assert.Equal(1ul, result.AffectedItemsCount);
       Assert.False(modifyStmt._isPrepared);
       ValidatePreparedStatements(0, 0, null);
 
-      result = ExecuteModifyStatement(modifyStmt.Bind("id", 1).Limit(1));
+      result = ExecuteModifyStatement(modifyStmt.Bind("id", 2).Limit(1));
       Assert.Equal(1ul, result.AffectedItemsCount);
-      Assert.True(modifyStmt._isPrepared);
+      Assert.True(modifyStmt._isPrepared || !modifyStmt.Session.SupportsPreparedStatements);
       ValidatePreparedStatements(1, 1,
-        $"UPDATE `{schemaName}`.`{_collectionName}` SET doc=JSON_SET(JSON_SET(doc,'$.title','Magazine 1'),'$._id',JSON_EXTRACT(`doc`,'$._id')) WHERE (JSON_EXTRACT(doc,'$._id') = ?) LIMIT 1");
+        $"UPDATE `{schemaName}`.`{_collectionName}` SET doc=JSON_SET(JSON_SET(doc,'$.title','CONCAT(\\'Magazine \\', id)'),'$._id',JSON_EXTRACT(`doc`,'$._id')) WHERE (JSON_EXTRACT(doc,'$._id') = ?) LIMIT ?");
 
-      for (int i = 2; i <= _docs.Length; i++)
+      for (int i = 3; i <= _docs.Length; i++)
       {
         result = ExecuteModifyStatement(modifyStmt.Set("title", $"Magazine {i}").Bind("id", i));
         Assert.Equal(1ul, result.AffectedItemsCount);
@@ -303,11 +311,11 @@ namespace MySqlX.Data.Tests
       {
         result = ExecuteUpdateStatement(updateStmt.Bind("id", i).Limit(1));
         Assert.Equal(1ul, result.AffectedItemsCount);
-        Assert.True(updateStmt._isPrepared);
+        Assert.True(updateStmt._isPrepared || !updateStmt.Session.SupportsPreparedStatements);
       }
 
       ValidatePreparedStatements(1, 2,
-        $"UPDATE `{schemaName}`.`{_tableName}` SET `name`='Magazine' WHERE (`id` = ?) LIMIT 1");
+        $"UPDATE `{schemaName}`.`{_tableName}` SET `name`='Magazine' WHERE (`id` = ?) LIMIT ?");
     }
 
     [Fact]
@@ -315,19 +323,19 @@ namespace MySqlX.Data.Tests
     {
       InitTable();
       Table table = GetTable();
-      var updateStmt = table.Update().Where("id = :id").Set("name", "Magazine 1").Bind("id", 1);
+      var updateStmt = table.Update().Where("id = :id").Set("name", "CONCAT('Magazine ', id)").Bind("id", 1);
       Result result = ExecuteUpdateStatement(updateStmt);
       Assert.Equal(1ul, result.AffectedItemsCount);
       Assert.False(updateStmt._isPrepared);
       ValidatePreparedStatements(0, 0, null);
 
-      result = ExecuteUpdateStatement(updateStmt.Bind("id", 1).Limit(1));
+      result = ExecuteUpdateStatement(updateStmt.Bind("id", 2).Limit(1));
       Assert.Equal(1ul, result.AffectedItemsCount);
-      Assert.True(updateStmt._isPrepared);
+      Assert.True(updateStmt._isPrepared || !updateStmt.Session.SupportsPreparedStatements);
       ValidatePreparedStatements(1, 1,
-        $"UPDATE `{schemaName}`.`{_tableName}` SET `name`='Magazine 1' WHERE (`id` = ?) LIMIT 1");
+        $"UPDATE `{schemaName}`.`{_tableName}` SET `name`=CONCAT('Magazine ',`id`) WHERE (`id` = ?) LIMIT ?");
 
-      for (int i = 2; i <= _allRows.Length; i++)
+      for (int i = 3; i <= _allRows.Length; i++)
       {
         result = ExecuteUpdateStatement(updateStmt.Set("name", $"Magazine {i}").Bind("id", i));
         Assert.Equal(1ul, result.AffectedItemsCount);
@@ -352,11 +360,11 @@ namespace MySqlX.Data.Tests
       {
         result = ExecuteRemoveStatement(removeStmt.Bind("id", i).Limit(1));
         Assert.Equal(1ul, result.AffectedItemsCount);
-        Assert.True(removeStmt._isPrepared);
+        Assert.True(removeStmt._isPrepared || !removeStmt.Session.SupportsPreparedStatements);
       }
 
       ValidatePreparedStatements(1, 3,
-        $"DELETE FROM `{schemaName}`.`{_collectionName}` WHERE (JSON_EXTRACT(doc,'$._id') = ?) LIMIT 1");
+        $"DELETE FROM `{schemaName}`.`{_collectionName}` WHERE (JSON_EXTRACT(doc,'$._id') = ?) LIMIT ?");
     }
 
     [Fact]
@@ -372,9 +380,9 @@ namespace MySqlX.Data.Tests
 
       result = ExecuteRemoveStatement(removeStmt.Bind("id", 2).Limit(1));
       Assert.Equal(1ul, result.AffectedItemsCount);
-      Assert.True(removeStmt._isPrepared);
+      Assert.True(removeStmt._isPrepared || !removeStmt.Session.SupportsPreparedStatements);
       ValidatePreparedStatements(1, 1,
-        $"DELETE FROM `{schemaName}`.`{_collectionName}` WHERE (JSON_EXTRACT(doc,'$._id') = ?) LIMIT 1");
+        $"DELETE FROM `{schemaName}`.`{_collectionName}` WHERE (JSON_EXTRACT(doc,'$._id') = ?) LIMIT ?");
 
       for (int i = 3; i <= _docs.Length; i++)
       {
@@ -401,11 +409,11 @@ namespace MySqlX.Data.Tests
       {
         result = ExecuteDeleteStatement(deleteStmt.Bind("id", i).Limit(1));
         Assert.Equal(1ul, result.AffectedItemsCount);
-        Assert.True(deleteStmt._isPrepared);
+        Assert.True(deleteStmt._isPrepared || !deleteStmt.Session.SupportsPreparedStatements);
       }
 
       ValidatePreparedStatements(1, 2,
-        $"DELETE FROM `{schemaName}`.`{_tableName}` WHERE (`id` = ?) LIMIT 1");
+        $"DELETE FROM `{schemaName}`.`{_tableName}` WHERE (`id` = ?) LIMIT ?");
     }
 
     [Fact]
@@ -421,9 +429,9 @@ namespace MySqlX.Data.Tests
 
       result = ExecuteDeleteStatement(deleteStmt.Bind("id", 2).Limit(1));
       Assert.Equal(1ul, result.AffectedItemsCount);
-      Assert.True(deleteStmt._isPrepared);
+      Assert.True(deleteStmt._isPrepared || !deleteStmt.Session.SupportsPreparedStatements);
       ValidatePreparedStatements(1, 1,
-        $"DELETE FROM `{schemaName}`.`{_tableName}` WHERE (`id` = ?) LIMIT 1");
+        $"DELETE FROM `{schemaName}`.`{_tableName}` WHERE (`id` = ?) LIMIT ?");
 
       for (int i = 3; i <= _allRows.Length; i++)
       {
@@ -450,7 +458,7 @@ namespace MySqlX.Data.Tests
       {
         result = ExecuteInsertStatement(insertStmt.Values(i, $"name {i}", i * 5));
         Assert.Equal(1ul, result.AffectedItemsCount);
-        Assert.True(insertStmt._isPrepared);
+        Assert.True(insertStmt._isPrepared || !insertStmt.Session.SupportsPreparedStatements);
         var row = ExecuteSelectStatement(table.Select().Where($"id={i}")).FetchAll();
         Assert.Equal(i, row[0]["id"]);
         Assert.Equal($"name {i}", row[0]["name"]);
@@ -483,7 +491,7 @@ namespace MySqlX.Data.Tests
       {
         result = ExecuteInsertStatement(insertStmt.Values(i, $"name {i}", i * 5).Values(i + 1, $"name {i + 1}", (i + 1) * 5));
         Assert.Equal(2ul, result.AffectedItemsCount);
-        Assert.True(insertStmt._isPrepared);
+        Assert.True(insertStmt._isPrepared || !insertStmt.Session.SupportsPreparedStatements);
         row = ExecuteSelectStatement(table.Select().Where($"id in ({i},{i + 1})")).FetchAll();
         Assert.Equal(i, row[0]["id"]);
         Assert.Equal($"name {i}", row[0]["name"]);
@@ -510,12 +518,103 @@ namespace MySqlX.Data.Tests
       for (int i = 2; i < 10; i++)
       {
         row = ExecuteSQLStatement(sqlStmt.Bind(i, ((char)('@' + i)).ToString())).FetchAll();
-        Assert.Equal((long)i, row[0][0]);
+        Assert.Equal((long)i, Convert.ToInt64(row[0][0]));
         Assert.Equal(((char)('@' + i)).ToString(), row[0][1]);
-        Assert.True(sqlStmt._isPrepared);
+        Assert.True(sqlStmt._isPrepared || !sqlStmt.Session.SupportsPreparedStatements);
       }
 
       ValidatePreparedStatements(1, 8, "SELECT ? as number, ? as letter");
+    }
+
+    [Fact]
+    public void MaxPreparedStmtCount()
+    {
+      InitCollection();
+      Collection coll = GetCollection();
+      try
+      {
+        ((Session)coll.Session).SQL("SET GLOBAL max_prepared_stmt_count=0").Execute();
+        var findStmt = coll.Find("_id = :id and pages = :pages").Bind("id", 1).Bind("pages", 20);
+        DocResult doc = ExecuteFindStatement(findStmt);
+        Assert.Equal("Book 1", doc.FetchAll()[0]["title"].ToString());
+        Assert.False(findStmt._isPrepared);
+        Assert.True(findStmt.Session.SupportsPreparedStatements);
+        ValidatePreparedStatements(0, 0, null);
+
+        doc = ExecuteFindStatement(findStmt.Bind("id", 2).Bind("pages", 30).Limit(1));
+        Assert.Equal($"Book 2", doc.FetchAll()[0]["title"].ToString());
+        Assert.False(findStmt._isPrepared);
+        Assert.False(findStmt.Session.SupportsPreparedStatements);
+
+        doc = ExecuteFindStatement(findStmt.Bind("id", 3).Bind("pages", 40).Limit(1));
+        Assert.Equal($"Book 3", doc.FetchAll()[0]["title"].ToString());
+        Assert.False(findStmt._isPrepared);
+        Assert.False(findStmt.Session.SupportsPreparedStatements);
+      }
+      finally
+      {
+        ((Session)coll.Session).SQL("SET GLOBAL max_prepared_stmt_count=16382").Execute();
+      }
+    }
+
+    [Fact]
+    public void LimitAndOffset()
+    {
+      InitCollection();
+      Collection coll = GetCollection();
+
+      // first execution (normal)
+      var findStmt = coll.Find("pages >= :lower AND pages <= :upper").Bind("lower", 20).Bind("upper", 20);
+      var result = ExecuteFindStatement(findStmt).FetchAll();
+      Assert.Equal(1, result.Count);
+      Assert.Equal("Book 1", result[0]["title"].ToString());
+      Assert.False(findStmt._isPrepared);
+
+      ValidatePreparedStatements(0, 0, null);
+
+      // second execution (prepared statement)
+      result = ExecuteFindStatement(findStmt.Bind("lower", 30).Bind("upper", 30)).FetchAll();
+      Assert.Equal(1, result.Count);
+      Assert.Equal($"Book 2", result[0]["title"].ToString());
+      Assert.True(findStmt._isPrepared || !findStmt.Session.SupportsPreparedStatements);
+
+      ValidatePreparedStatements(1, 1,
+        $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_EXTRACT(doc,'$.pages') >= ?) AND (JSON_EXTRACT(doc,'$.pages') <= ?))");
+
+      // execution adding limit and offset (normal again)
+      result = ExecuteFindStatement(findStmt.Bind("lower", 0).Bind("upper", 100).Limit(1).Offset(0)).FetchAll();
+      Assert.Equal(1, result.Count);
+      Assert.Equal($"Book 1", result[0]["title"].ToString());
+      Assert.False(findStmt._isPrepared);
+
+      ValidatePreparedStatements(0, 0, null);
+
+      // second execution using a different limit and offset (prepared statement)
+      result = ExecuteFindStatement(findStmt.Bind("lower", 0).Bind("upper", 100).Limit(2).Offset(1)).FetchAll();
+      Assert.Equal(2, result.Count);
+      Assert.Equal($"Book 2", result[0]["title"].ToString());
+      Assert.Equal($"Book 3", result[1]["title"].ToString());
+      Assert.True(findStmt._isPrepared || !findStmt.Session.SupportsPreparedStatements);
+
+      ValidatePreparedStatements(1, 1,
+        $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_EXTRACT(doc,'$.pages') >= ?) AND (JSON_EXTRACT(doc,'$.pages') <= ?)) LIMIT ?, ?");
+
+      // execution without limit (normal again)
+      result = ExecuteFindStatement(findStmt.Bind("lower", 0).Bind("upper", 100)).FetchAll();
+      Assert.Equal(4, result.Count);
+      Assert.False(findStmt._isPrepared);
+
+      ValidatePreparedStatements(0, 0, null);
+
+      // second execution with limit and offset (prepared statement)
+      result = ExecuteFindStatement(findStmt.Bind("lower", 0).Bind("upper", 100).Limit(2).Offset(2)).FetchAll();
+      Assert.Equal(2, result.Count);
+      Assert.Equal($"Book 3", result[0]["title"].ToString());
+      Assert.Equal($"Book 4", result[1]["title"].ToString());
+      Assert.True(findStmt._isPrepared || !findStmt.Session.SupportsPreparedStatements);
+
+      ValidatePreparedStatements(1, 1,
+        $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_EXTRACT(doc,'$.pages') >= ?) AND (JSON_EXTRACT(doc,'$.pages') <= ?)) LIMIT ?, ?");
     }
   }
 }

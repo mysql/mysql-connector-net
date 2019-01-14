@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -113,8 +113,14 @@ namespace MySqlX.XDevAPI.Common
     /// without any change but Bind, Limit, or Offset.
     /// </summary>
     protected virtual TResult ConvertToPreparedStatement<T>(Func<T, TResult> executeFunc, T t, IEnumerable args)
-      //where T : FilterableStatement<T, DatabaseObject, TResult>
+    //where T : FilterableStatement<T, DatabaseObject, TResult>
     {
+      if (!Session.SupportsPreparedStatements)
+      {
+        // Normal execution
+        return executeFunc(t);
+      }
+
       if (_hasChanged)
       {
         if (_isPrepared)
@@ -131,8 +137,22 @@ namespace MySqlX.XDevAPI.Common
         if (!_isPrepared)
         {
           // Create prepared statement
-          _stmtId = Session.XSession.PrepareStatement<TResult>(this);
-          _isPrepared = true;
+          try
+          {
+            _stmtId = Session.XSession.PrepareStatement<TResult>(this);
+            _isPrepared = true;
+          }
+          catch (MySqlException ex)
+            when (ex.Code == 1461 // Can't create more than max_prepared_stmt_count statements
+              || ex.Code == 1047) // Unexpected message received
+          {
+            // Set prepared statements not supported to avoid trying it 
+            // on following executions.
+            Session.SupportsPreparedStatements = false;
+            _isPrepared = false;
+            // Normal execution
+            return executeFunc(t);
+          }
         }
         // Execute prepared statement
         return Session.XSession.ExecutePreparedStatement<TResult>(_stmtId, args);

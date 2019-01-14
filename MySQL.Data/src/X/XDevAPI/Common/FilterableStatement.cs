@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -158,13 +158,35 @@ namespace MySqlX.XDevAPI.Common
       try
       {
         ValidateOpenSession();
-        var result = ConvertToPreparedStatement<T>(executeFunc, t, FilterData.Parameters.Values.ToArray());
+        List<object> parameters = new List<object>(FilterData.Parameters.Values);
+        if (_isPrepared && FilterData.hadLimit != FilterData.HasLimit)
+        {
+          SetChanged();
+        }
+        // Add the prepared statement placeholder values for limit and offset
+        if (!_hasChanged)
+        {
+          // Limit and offset placeholder values
+          if (FilterData.HasLimit)
+          {
+            parameters.Add(FilterData.Limit);
+            if (FilterData.Offset != -1)
+            {
+              parameters.Add(FilterData.Offset);
+            }
+          }
+        }
+        var result = ConvertToPreparedStatement<T>(executeFunc, t, parameters);
         _hasChanged = false;
         return result;
       }
       finally
       {
         FilterData.Parameters.Clear();
+        FilterData.hadLimit = FilterData.HasLimit;
+        FilterData.hadOffset = FilterData.Offset != -1;
+        FilterData.Limit = -1;
+        FilterData.Offset = -1;
       }
     }
 
