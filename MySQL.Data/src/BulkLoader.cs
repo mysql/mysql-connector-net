@@ -1,4 +1,4 @@
-// Copyright © 2006, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2006, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -51,7 +51,7 @@ namespace MySql.Data.MySqlClient
     public MySqlBulkLoader(MySqlConnection connection)
     {
       Connection = connection;
-      Local = true;
+      Local = false;
       FieldTerminator = defaultFieldTerminator;
       LineTerminator = defaultLineTerminator;
       FieldQuotationCharacter = Char.MinValue;
@@ -106,7 +106,7 @@ namespace MySql.Data.MySqlClient
 
     /// <summary>
     /// Gets or sets a value indicating whether the filename that is to be loaded
-    /// is local to the client or not
+    /// is local to the client or not. Its default value is False.
     /// </summary>
     /// <value><c>true</c> if local; otherwise, <c>false</c>.</value>
     public bool Local { get; set; }
