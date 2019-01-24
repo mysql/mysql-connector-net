@@ -1,3 +1,7 @@
+8.0.15
+- Bug fix: Disabled Load Data Local Infile by default (Oracle Bug #29259767).
+
+
 8.0.14
 - MySqlX: Added revisions to be prepared for unknown types of initial notices on a connection (WL12517).
 - MySqlX: Standardize count method for X Protocol (WL12518).

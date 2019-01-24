@@ -1,4 +1,4 @@
-// Copyright © 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -56,6 +56,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.TableName = "Test";
       loader.FileName = path;
       loader.Timeout = 0;
+      loader.Local = true;
       int count = loader.Load();
       Assert.Equal(200, count);
 
@@ -86,6 +87,7 @@ namespace MySql.Data.MySqlClient.Tests
         loader.TableName = "Test";
         loader.FileName = path;
         loader.Timeout = 0;
+        loader.Local = true;
         int count = loader.Load();
         Assert.Equal(200, count);
 
@@ -119,6 +121,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.Timeout = 0;
       loader.FieldTerminator = ",";
       loader.LineTerminator = "xxx";
+      loader.Local = true;
       int count = loader.Load();
       Assert.Equal(200, count);
 
@@ -146,6 +149,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.FieldTerminator = ",";
       loader.LineTerminator = "xxx";
       loader.NumberOfLinesToSkip = 50;
+      loader.Local = true;
       int count = loader.Load();
       Assert.Equal(150, count);
 
@@ -179,6 +183,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.FieldTerminator = ",";
       loader.LineTerminator = "xxx";
       loader.LinePrefix = "bbb";
+      loader.Local = true;
       int count = loader.Load();
       Assert.Equal(200, count);
 
@@ -205,6 +210,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.Timeout = 0;
       loader.FieldQuotationCharacter = '`';
       loader.FieldQuotationOptional = true;
+      loader.Local = true;
       int count = loader.Load();
       Assert.Equal(200, count);
 
@@ -233,6 +239,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.Timeout = 0;
       loader.EscapeCharacter = '\t';
       loader.FieldTerminator = ",";
+      loader.Local = true;
       int count = loader.Load();
       Assert.Equal(200, count);
 
@@ -260,6 +267,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.FileName = path;
       loader.Timeout = 0;
       loader.FieldTerminator = ",";
+      loader.Local = true;
       int count = loader.Load();
       Assert.Equal(20, count);
 
@@ -276,6 +284,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.Timeout = 0;
       loader.FieldTerminator = ",";
       loader.ConflictOption = MySqlBulkLoaderConflictOption.Replace;
+      loader.Local = true;
       loader.Load();
 
       TestDataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
@@ -301,6 +310,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.FileName = path;
       loader.Timeout = 0;
       loader.FieldTerminator = ",";
+      loader.Local = true;
       int count = loader.Load();
       Assert.Equal(20, count);
 
@@ -317,6 +327,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.Timeout = 0;
       loader.FieldTerminator = ",";
       loader.ConflictOption = MySqlBulkLoaderConflictOption.Ignore;
+      loader.Local = true;
       loader.Load();
 
       TestDataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
@@ -341,6 +352,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.TableName = "BulkLoadSimpleAsyncTest";
       loader.FileName = path;
       loader.Timeout = 0;
+      loader.Local = true;
 
       loader.LoadAsync().ContinueWith(loadResult => 
       {
@@ -373,6 +385,7 @@ namespace MySql.Data.MySqlClient.Tests
         loader.TableName = "BulkLoadReadOnlyFileAsyncTest";
         loader.FileName = path;
         loader.Timeout = 0;
+        loader.Local = true;
 
         loader.LoadAsync().ContinueWith(loadResult => 
         {
@@ -408,6 +421,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.Timeout = 0;
       loader.FieldQuotationCharacter = '`';
       loader.FieldQuotationOptional = true;
+      loader.Local = true;
 
       loader.LoadAsync().ContinueWith(loadResult => {
         int dataLoaded = loadResult.Result;
@@ -437,6 +451,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.Timeout = 0;
       loader.EscapeCharacter = '\t';
       loader.FieldTerminator = ",";
+      loader.Local = true;
 
       loader.LoadAsync().ContinueWith(loadResult => {
         int dataLoaded = loadResult.Result;
@@ -465,6 +480,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.FileName = path;
       loader.Timeout = 0;
       loader.FieldTerminator = ",";
+      loader.Local = true;
 
       loader.LoadAsync().Wait();
 
@@ -481,6 +497,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.Timeout = 0;
       loader.FieldTerminator = ",";
       loader.ConflictOption = MySqlBulkLoaderConflictOption.Replace;
+      loader.Local = true;
 
       loader.LoadAsync().Wait();
       TestDataTable dt = Utils.FillTable("SELECT * FROM BulkLoadConflictOptionReplaceAsyncTest", Connection);
@@ -505,6 +522,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.FileName = path;
       loader.Timeout = 0;
       loader.FieldTerminator = ",";
+      loader.Local = true;
 
       loader.LoadAsync().ContinueWith(loadResult => {
         int dataLoaded = loadResult.Result;
@@ -522,6 +540,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.Timeout = 0;
       loader.FieldTerminator = ",";
       loader.ConflictOption = MySqlBulkLoaderConflictOption.Ignore;
+      loader.Local = true;
 
       loader.LoadAsync().ContinueWith(loadResult => {
         int dataLoaded = loadResult.Result;
@@ -553,6 +572,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.Columns.Add("n3");
       loader.Columns.Add("n2");
       loader.Columns.Add("n1");
+      loader.Local = true;
 
       loader.LoadAsync().ContinueWith(loadResult => {
         int dataLoaded = loadResult.Result;
@@ -595,6 +615,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.Columns.Add("n3");
       loader.Columns.Add("n2");
       loader.Columns.Add("n1");
+      loader.Local = true;
       int count = loader.Load();
       Assert.Equal(20, count);
 
