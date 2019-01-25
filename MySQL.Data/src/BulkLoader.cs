@@ -105,8 +105,8 @@ namespace MySql.Data.MySqlClient
     public int Timeout { get; set; }
 
     /// <summary>
-    /// Gets or sets a value indicating whether the filename that is to be loaded
-    /// is local to the client or not. Its default value is False.
+    /// Gets or sets a value indicating whether the file name that is to be loaded
+    /// is local to the client or not. The default value is False.
     /// </summary>
     /// <value><c>true</c> if local; otherwise, <c>false</c>.</value>
     public bool Local { get; set; }

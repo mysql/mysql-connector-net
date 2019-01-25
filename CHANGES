@@ -1,5 +1,8 @@
-8.0.15
+8.0.16
 - Bug fix: PREPARED COMMANDS EXECUTE WITH ERROR ON MYSQL SERVER 8.0.13 (MySQL Bug #92912, Oracle Bug #28834253).
+
+
+8.0.15
 - Bug fix: Disabled Load Data Local Infile by default (Oracle Bug #29259767).
 
 
