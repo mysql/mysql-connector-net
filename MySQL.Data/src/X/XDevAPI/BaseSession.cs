@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,19 +26,19 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data;
+using MySql.Data.Common;
+using MySql.Data.MySqlClient;
+using MySqlX.Common;
+using MySqlX.Failover;
+using MySqlX.Sessions;
+using MySqlX.XDevAPI.Relational;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MySqlX.Common;
-using MySqlX.Sessions;
-using MySqlX.XDevAPI.Relational;
-using MySql.Data;
-using MySql.Data.MySqlClient;
-using System.Text.RegularExpressions;
-using MySqlX.Failover;
 using System.Net;
-using MySql.Data.Common;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace MySqlX.XDevAPI
 {
@@ -55,6 +55,7 @@ namespace MySqlX.XDevAPI
     private const string PORT_CONNECTION_OPTION_KEYWORD = "port";
     private const string SERVER_CONNECTION_OPTION_KEYWORD = "server";
     private const string CONNECT_TIMEOUT_CONNECTION_OPTION_KEYWORD = "connect-timeout";
+    private const string CONNECTION_ATTRIBUTES_CONNECTION_OPTION_KEYWORD = "connection-attributes";
     internal QueueTaskScheduler _scheduler = new QueueTaskScheduler();
     protected readonly Client _client;
 
@@ -202,7 +203,7 @@ namespace MySqlX.XDevAPI
     /// give a priority for every host or no priority to any host.
     /// </para>
     /// </remarks>
-    internal BaseSession(string connectionString, Client client = null): this()
+    internal BaseSession(string connectionString, Client client = null) : this()
     {
       if (string.IsNullOrWhiteSpace(connectionString))
         throw new ArgumentNullException("connectionString");
@@ -595,13 +596,22 @@ namespace MySqlX.XDevAPI
         foreach (string query in queries)
         {
           string[] keyValue = query.Split('=');
-          if (keyValue.Length > 2)
-            throw new ArgumentException(ResourcesX.InvalidUriQuery + ":" + keyValue[0]);
-          var connecttimeoutOption = MySqlXConnectionStringBuilder.Options.Options.First(item => item.Keyword == CONNECT_TIMEOUT_CONNECTION_OPTION_KEYWORD);
-          if ((connecttimeoutOption.Keyword == keyValue[0] || connecttimeoutOption.Synonyms.Contains(keyValue[0])) &&
-            String.IsNullOrWhiteSpace(keyValue[1]))
-            throw new FormatException(ResourcesX.InvalidConnectionTimeoutValue);
-          string part = keyValue[0] + "=" + (keyValue.Length == 2 ? keyValue[1] : "true").Replace("(", string.Empty).Replace(")", string.Empty);
+          string part;
+          var connectionAttributesOption = MySqlXConnectionStringBuilder.Options.Options.First(item => item.Keyword == CONNECTION_ATTRIBUTES_CONNECTION_OPTION_KEYWORD);
+
+          if (!((connectionAttributesOption.Keyword == keyValue[0]) || connectionAttributesOption.Synonyms.Contains(keyValue[0]) && keyValue.Count() > 2))
+          {
+            if (keyValue.Length > 2)
+              throw new ArgumentException(ResourcesX.InvalidUriQuery + ":" + keyValue[0]);
+            var connecttimeoutOption = MySqlXConnectionStringBuilder.Options.Options.First(item => item.Keyword == CONNECT_TIMEOUT_CONNECTION_OPTION_KEYWORD);
+            if ((connecttimeoutOption.Keyword == keyValue[0] || connecttimeoutOption.Synonyms.Contains(keyValue[0])) &&
+              String.IsNullOrWhiteSpace(keyValue[1]))
+              throw new FormatException(ResourcesX.InvalidConnectionTimeoutValue);
+            part = keyValue[0] + "=" + (keyValue.Length == 2 ? keyValue[1] : "true").Replace("(", string.Empty).Replace(")", string.Empty);
+          }
+          else
+            part = keyValue[0] + "=" + query.Replace(keyValue[0] + "=", string.Empty);
+
           connectionParts.Add(part);
         }
       }
