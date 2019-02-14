@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,9 +29,10 @@
 using MySql.Data;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
+using MySqlX.XDevAPI.Relational;
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Linq;
 using Xunit;
 
 namespace MySqlX.Data.Tests
@@ -601,6 +602,86 @@ namespace MySqlX.Data.Tests
         {
           Assert.True(csbuilder.ContainsKey(parameters[i]));
           Assert.Equal(parameters[i + 1], csbuilder[parameters[i]].ToString());
+        }
+      }
+    }
+
+    /// <summary>
+    /// WL12514 - DevAPI: Support session-connect-attributes
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Security")]
+    public void ConnectionAttributes()
+    {
+      // Validate that MySQLX.GetSession() supports a new 'connection-attributes' query parameter
+      // with default values and all the client attributes starts with a '_'.
+      TestConnectionAttributes(ConnectionString + ";connection-attributes=true;");
+      TestConnectionAttributes(ConnectionStringUri + "?connectionattributes");
+
+      // Validate that no attributes, client or user defined, are sent to server when the value is "false".
+      TestConnectionAttributes(ConnectionString + ";connection-attributes=false;");
+      TestConnectionAttributes(ConnectionStringUri + "?connectionattributes=false");
+
+      // Validate default behavior with different scenarios.
+      TestConnectionAttributes(ConnectionString + ";connection-attributes;");
+      TestConnectionAttributes(ConnectionStringUri + "?connectionattributes=true");
+      TestConnectionAttributes(ConnectionString + ";connection-attributes=;");
+      TestConnectionAttributes(ConnectionStringUri + "?connectionattributes=[]");
+
+      // Validate user-defined attributes to be sent to server.
+      Dictionary<string, object> userAttrs = new Dictionary<string, object>
+      {
+        { "foo", "bar" },
+        { "quua", "qux" },
+        { "key", null }
+      };
+      TestConnectionAttributes(ConnectionString + ";connection-attributes=[foo=bar,quua=qux,key]", userAttrs);
+      TestConnectionAttributes(ConnectionStringUri + "?connectionattributes=[foo=bar,quua=qux,key=]", userAttrs);
+
+      // Errors
+      var ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionString + ";connection-attributes=[_key=value]"));
+      Assert.Equal(ResourcesX.InvalidUserDefinedAttribute, ex.Message);
+
+      ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionString + ";connection-attributes=123"));
+      Assert.Equal(ResourcesX.InvalidConnectionAttributes, ex.Message);
+
+      ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionString + ";connection-attributes=[key=value,key=value2]"));
+      Assert.Equal(string.Format(ResourcesX.DuplicateUserDefinedAttribute, "key"), ex.Message);
+    }
+
+    private void TestConnectionAttributes(string connString, Dictionary<string, object> userAttrs = null)
+    {
+      string sql = "SELECT * FROM performance_schema.session_account_connect_attrs WHERE PROCESSLIST_ID = connection_id()";
+
+      using (Session session = MySQLX.GetSession(connString))
+      {
+        Assert.Equal(SessionState.Open, session.XSession.SessionState);
+        var result = session.SQL(sql).Execute().FetchAll();
+
+        if (session.Settings.ConnectionAttributes == "false")
+          Assert.Empty(result);
+        else
+        {
+          Assert.NotEmpty(result);
+          MySqlConnectAttrs clientAttrs = new MySqlConnectAttrs();
+
+          if (userAttrs == null)
+          {
+            Assert.Equal(8, result.Count);
+
+            foreach (Row row in result)
+              Assert.StartsWith("_", row[1].ToString());
+          }
+          else
+          {
+            Assert.Equal(11, result.Count);
+
+            for (int i = 0; i < userAttrs.Count; i++)
+            {
+              Assert.True(userAttrs.ContainsKey(result.ElementAt(i)[1].ToString()));
+              Assert.True(userAttrs.ContainsValue(result.ElementAt(i)[2]));
+            }          
+          }
         }
       }
     }

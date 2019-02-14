@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,30 +26,27 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-
-using MySqlX.Communication;
-using MySqlX.Data;
+using Google.Protobuf;
+using MySql.Data;
+using MySql.Data.MySqlClient;
+using Mysqlx;
+using Mysqlx.Connection;
+using Mysqlx.Crud;
+using Mysqlx.Datatypes;
+using Mysqlx.Expr;
+using Mysqlx.Notice;
 using Mysqlx.Resultset;
 using Mysqlx.Session;
 using Mysqlx.Sql;
+using MySqlX.Communication;
+using MySqlX.Data;
 using MySqlX.Protocol.X;
-using Mysqlx.Expr;
-using Mysqlx.Datatypes;
-using Mysqlx;
-using Mysqlx.Crud;
-using Mysqlx.Notice;
-using Mysqlx.Connection;
 using MySqlX.XDevAPI.Common;
-using MySqlX.XDevAPI.Relational;
 using MySqlX.XDevAPI.CRUD;
-using MySql.Data.MySqlClient;
-using MySql.Data;
-using MySqlX;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using Google.Protobuf;
 using static Mysqlx.Datatypes.Object.Types;
 
 namespace MySqlX.Protocol
@@ -145,9 +142,23 @@ namespace MySqlX.Protocol
       var capabilities = new Capabilities();
       foreach (var cap in clientCapabilities)
       {
-        var capabilityMsg = new Capability() { Name = (cap.Key), Value = ExprUtil.BuildAny(cap.Value) };
+        var value = new Any();
+
+        if (cap.Key == "tls")
+          value = ExprUtil.BuildAny(cap.Value);
+        else if (cap.Key == "session_connect_attrs")
+        {
+          Mysqlx.Datatypes.Object obj = new Mysqlx.Datatypes.Object();
+          foreach (var pair in (Dictionary<string, string>)cap.Value)
+            obj.Fld.Add(new ObjectField { Key = pair.Key, Value = ExprUtil.BuildAny(pair.Value) });
+
+          value = new Any { Type = Any.Types.Type.Object, Obj = obj };
+        }
+
+        var capabilityMsg = new Capability() { Name = cap.Key, Value = value };
         capabilities.Capabilities_.Add(capabilityMsg);
       }
+
       builder.Capabilities = capabilities;
       _writer.Write(ClientMessageId.CON_CAPABILITIES_SET, builder);
       ReadOk();
