@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,25 +26,23 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using MySqlX.XDevAPI;
-using MySqlX.Communication;
-using System.Text;
-using MySql.Data.Common;
-using MySqlX.Protocol;
-using System.Collections.Generic;
-using System.Reflection;
-using MySqlX.XDevAPI.Common;
-using MySqlX.XDevAPI.Relational;
-using MySqlX.XDevAPI.CRUD;
-using MySqlX.Protocol.X;
-using Mysqlx.Datatypes;
-using MySql.Data.MySqlClient;
-using MySqlX.Security;
-using MySqlX;
-using System.Linq;
 using MySql.Data;
+using MySql.Data.Common;
+using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.Authentication;
+using MySqlX.Communication;
+using MySqlX.Protocol;
+using MySqlX.Protocol.X;
+using MySqlX.Security;
+using MySqlX.XDevAPI;
+using MySqlX.XDevAPI.Common;
+using MySqlX.XDevAPI.CRUD;
+using MySqlX.XDevAPI.Relational;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 
 namespace MySqlX.Sessions
 {
@@ -201,7 +199,52 @@ namespace MySqlX.Sessions
           clientCapabilities.Add("tls", "1");
         }
       }
+
+      // set connection-attributes
+      if (Settings.ConnectionAttributes.ToLower() != "false")
+        clientCapabilities.Add("session_connect_attrs", GetConnectionAttributes(Settings.ConnectionAttributes));
+
       protocol.SetCapabilities(clientCapabilities);
+    }
+
+    private Dictionary<string, string> GetConnectionAttributes(string connectionAttrs)
+    {
+      Dictionary<string, string> attrs = new Dictionary<string, string>();
+
+      if (connectionAttrs.StartsWith("[") && connectionAttrs.EndsWith("]"))
+      {
+        connectionAttrs = connectionAttrs.Substring(1, connectionAttrs.Length - 2);
+
+        if (!string.IsNullOrWhiteSpace(connectionAttrs))
+        {
+          foreach (var pair in connectionAttrs.Split(','))
+          {
+            string[] keyValue = pair.Split('=');
+            string key = keyValue[0].Trim();
+            string value = keyValue.Length > 1 ? keyValue[1].Trim() : string.Empty;
+
+            if (key.StartsWith("_"))
+              throw new MySqlException(ResourcesX.InvalidUserDefinedAttribute);
+
+            try { attrs.Add(key, value); }
+            catch (ArgumentException) { throw new MySqlException(string.Format(ResourcesX.DuplicateUserDefinedAttribute, key)); }
+          }
+        }
+      }
+      else if (connectionAttrs != "true")
+        throw new MySqlException(ResourcesX.InvalidConnectionAttributes);
+
+      MySqlConnectAttrs clientAttrs = new MySqlConnectAttrs();
+      attrs.Add("_pid", clientAttrs.PID);
+      attrs.Add("_platform", clientAttrs.Platform);
+      attrs.Add("_os", clientAttrs.OSName);
+      attrs.Add("_source_host", Settings.Server);
+      attrs.Add("_client_name", clientAttrs.ClientName);
+      attrs.Add("_client_version", clientAttrs.ClientVersion);
+      attrs.Add("_client_license", clientAttrs.ClientLicence);
+      attrs.Add("_framework", clientAttrs.Framework);
+
+      return attrs;
     }
 
     private void AuthenticateMySQL41()
