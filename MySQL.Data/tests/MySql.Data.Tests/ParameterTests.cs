@@ -364,7 +364,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(-1, cmd.Parameters.IndexOf("@id"));
       cmd.Parameters.AddWithValue("name", "test");
       Exception ex = Assert.Throws<MySqlException>(() => cmd.Parameters.AddWithValue("?id", 2));
-      Assert.Equal(ex.Message, "Parameter '?id' has already been defined.");
+      Assert.Equal("Parameter '?id' has already been defined.", ex.Message);
     }
 
     /// <summary>
@@ -528,7 +528,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlParameter p = new MySqlParameter("?id", MySqlDbType.Decimal, 2,
                                           ParameterDirection.Input, true, 1, 1, "sourceColumn", DataRowVersion.Default, 1);
 
-      Assert.Equal(p.IsNullable, true);
+      Assert.True(p.IsNullable);
     }
 
     /// <summary>
@@ -591,7 +591,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.AddWithValue("?Id", 1);
       cmd.Parameters.AddWithValue("?name", "test");
       Exception ex = Assert.Throws<MySqlException>(() =>cmd.ExecuteNonQuery());
-      Assert.Equal(ex.Message, "Fatal error encountered during command execution.");
+      Assert.Equal("Fatal error encountered during command execution.", ex.Message);
     }
 
     /// <summary>

@@ -183,11 +183,11 @@ namespace MySql.Data.MySqlClient.Tests
       if (prepare) cmd.Prepare();
       cmd.CommandType = CommandType.StoredProcedure;
       MySqlDataReader reader = cmd.ExecuteReader();
-      Assert.Equal(true, reader.Read());
-      Assert.Equal(true, reader.NextResult());
-      Assert.Equal(true, reader.Read());
-      Assert.Equal(false, reader.NextResult());
-      Assert.Equal(false, reader.Read());
+      Assert.True(reader.Read());
+      Assert.True(reader.NextResult());
+      Assert.True(reader.Read());
+      Assert.False(reader.NextResult());
+      Assert.False(reader.Read());
       reader.Close();
 
 #if !NETCOREAPP1_1

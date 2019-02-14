@@ -219,6 +219,8 @@ namespace MySql.Data.MySqlClient
       // read off the welcome packet and parse out it's values
       packet = stream.ReadPacket();
       int protocol = packet.ReadByte();
+      if (protocol != 10)
+        throw new MySqlException("Unsupported protocol version.");
       string versionString = packet.ReadString();
       version = DBVersion.Parse(versionString);
       threadId = packet.ReadInteger(4);

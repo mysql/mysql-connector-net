@@ -62,19 +62,20 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal($"Option not supported.{Environment.NewLine}Parameter name: badkey", ex.Message);        
       sb.Clear();
       Assert.Equal(15, Convert.ToInt32(sb.ConnectionTimeout));
-      Assert.Equal(true, sb.Pooling);
+      Assert.True(sb.Pooling);
+      Assert.True(sb.Pooling);
       Assert.Equal(3306, Convert.ToInt32(sb.Port));
       Assert.Equal(String.Empty, sb.Server);
-      Assert.Equal(false, sb.PersistSecurityInfo);
+      Assert.False(sb.PersistSecurityInfo);
       Assert.Equal(0, Convert.ToInt32(sb.ConnectionLifeTime));
       Assert.False(sb.ConnectionReset);
       Assert.Equal(0, Convert.ToInt32(sb.MinimumPoolSize));
       Assert.Equal(100, Convert.ToInt32(sb.MaximumPoolSize));
       Assert.Equal(String.Empty, sb.UserID);
       Assert.Equal(String.Empty, sb.Password);
-      Assert.Equal(false, sb.UseUsageAdvisor);
+      Assert.False(sb.UseUsageAdvisor);
       Assert.Equal(String.Empty, sb.CharacterSet);
-      Assert.Equal(false, sb.UseCompression);
+      Assert.False(sb.UseCompression);
       Assert.Equal("MYSQL", sb.PipeName);
       Assert.False(sb.Logging);
       Assert.True(sb.AllowBatch);
@@ -152,7 +153,7 @@ namespace MySql.Data.MySqlClient.Tests
       object obj;
       MySqlConnectionStringBuilder s = new MySqlConnectionStringBuilder("server=localhost;");
       s.TryGetValue("unknownproperty", out obj);
-      Assert.Equal(null, obj);
+      Assert.Null(obj);
     }
 
 #if NETCOREAPP1_1 || NETCOREAPP2_0

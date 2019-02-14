@@ -751,7 +751,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           newcon.Open();            
           var ex = Assert.Throws<NotSupportedException>(() => newcon.BeginTransaction(System.Data.IsolationLevel.Snapshot));
-          Assert.Equal(ex.Message, "Snapshot isolation level is not supported.");            
+          Assert.Equal("Snapshot isolation level is not supported.", ex.Message);            
         }
     }
 

@@ -72,7 +72,7 @@ namespace MySql.Data.MySqlClient.Tests
       DataSet ds = new DataSet();
       da.Fill(ds, "Test");
 
-      Assert.Equal(1, ds.Tables.Count);
+      Assert.Single(ds.Tables);
       Assert.Equal(3, ds.Tables[0].Rows.Count);
 
       Assert.Equal(1, ds.Tables[0].Rows[0]["id2"]);
@@ -356,7 +356,7 @@ namespace MySql.Data.MySqlClient.Tests
       DataSet ds = new DataSet();
       da.Fill(ds);
 
-      Assert.Equal(1, ds.Tables.Count);
+      Assert.Single(ds.Tables);
       Assert.Equal(3, ds.Tables[0].Rows.Count);
       Assert.Equal(88, ds.Tables[0].Rows[2]["amount"]);
       Assert.Equal(DBNull.Value, ds.Tables[0].Rows[2]["id"]);
@@ -798,7 +798,7 @@ namespace MySql.Data.MySqlClient.Tests
       table.Rows.Add(r);
       da.Update(table);
 
-      Assert.Equal(r.RowState, DataRowState.Unchanged);
+      Assert.Equal(DataRowState.Unchanged, r.RowState);
 
       table.Rows[0].Delete();
 
@@ -808,8 +808,8 @@ namespace MySql.Data.MySqlClient.Tests
 
       da.Update(table); // here was concurrencyviolation
       da.Fill(ds);
-      Assert.Equal(ds.Tables["T"].Rows.Count, 1);
-      Assert.Equal(ds.Tables["T"].Rows[0]["field"], "row2");
+      Assert.Equal(1, ds.Tables["T"].Rows.Count);
+      Assert.Equal("row2", ds.Tables["T"].Rows[0]["field"]);
     }
 
     /// <summary>
@@ -879,7 +879,7 @@ namespace MySql.Data.MySqlClient.Tests
       da.Update(dt);
       dt.Rows.Clear();
       da.Fill(dt);
-      Assert.Equal(dt.Rows.Count, 0);
+      Assert.Equal(0, dt.Rows.Count);
 
     }
     /// <summary>
@@ -943,13 +943,13 @@ namespace MySql.Data.MySqlClient.Tests
       DataTable table = ds.Tables["bugtable"];
       DataRow row = table.Rows[0];
       row["field"] = "newvalue";
-      Assert.Equal(row.RowState, DataRowState.Modified);
-      Assert.Equal((int)row["counter"], 0);
+      Assert.Equal(DataRowState.Modified, row.RowState);
+      Assert.Equal(0, (int)row["counter"]);
 
       da.Update(table);
 
       // Verify that "counter" field was changed by updating stored procedure.
-      Assert.Equal((int)row["counter"], 1);
+      Assert.Equal(1, (int)row["counter"]);
     }
 
     [Fact]
@@ -1024,7 +1024,7 @@ namespace MySql.Data.MySqlClient.Tests
       DataSet ds = new DataSet();
       await da.FillAsync(ds, "DAFillAsyncTest");
 
-      Assert.Equal(1, ds.Tables.Count);
+      Assert.Single(ds.Tables);
       Assert.Equal(3, ds.Tables[0].Rows.Count);
 
       Assert.Equal(1, ds.Tables[0].Rows[0]["id2"]);
@@ -1038,14 +1038,14 @@ namespace MySql.Data.MySqlClient.Tests
       ds.Reset();
       await da.FillAsync(ds);
 
-      Assert.Equal(1, ds.Tables.Count);
+      Assert.Single(ds.Tables);
       Assert.Equal(3, ds.Tables[0].Rows.Count);
       Assert.Equal("Name 1", ds.Tables[0].Rows[0]["name"]);
 
       ds.Reset();
       await da.FillAsync(ds, 1, 2, "DAFillAsyncTest");
 
-      Assert.Equal(1, ds.Tables.Count);
+      Assert.Single(ds.Tables);
       Assert.Equal(2, ds.Tables[0].Rows.Count);
       Assert.Equal(2, ds.Tables[0].Rows[0]["id2"]);
       Assert.Equal(DBNull.Value, ds.Tables[0].Rows[0]["name"]);
@@ -1056,7 +1056,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader())
         await da.FillAsync(ds, "DAFillAsyncTest", reader, 0, 1);
 
-      Assert.Equal(1, ds.Tables.Count);
+      Assert.Single(ds.Tables);
       Assert.Equal(1, ds.Tables[0].Rows.Count);
       Assert.Equal(1, ds.Tables[0].Rows[0]["id2"]);
       Assert.Equal("Name 1", ds.Tables[0].Rows[0]["name"]);
@@ -1065,7 +1065,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlCommand cmd = new MySqlCommand("select * from DAFillAsyncTest", Connection))
         await da.FillAsync(ds, 0, 2, "DAFillAsyncTest", cmd, CommandBehavior.Default);
 
-      Assert.Equal(1, ds.Tables.Count);
+      Assert.Single(ds.Tables);
       Assert.Equal(2, ds.Tables[0].Rows.Count);
       Assert.Equal(1, ds.Tables[0].Rows[0]["id2"]);
       Assert.Equal(DBNull.Value, ds.Tables[0].Rows[1]["name"]);
@@ -1115,7 +1115,7 @@ namespace MySql.Data.MySqlClient.Tests
       DataTable[] dataTables = { dt };
       await da.FillAsync(0, 1, dataTables);
 
-      Assert.Equal(1, dataTables.Length);
+      Assert.Single(dataTables);
       Assert.Equal(1, dataTables[0].Rows.Count);
       Assert.Equal(1, dataTables[0].Rows[0]["id2"]);
       Assert.Equal("Name 1", dataTables[0].Rows[0]["name"]);
@@ -1124,7 +1124,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlCommand cmd = new MySqlCommand("select * from DAFillAsyncDtTest", Connection))
         await da.FillAsync(dataTables, 1, 2, cmd, CommandBehavior.Default);
 
-      Assert.Equal(1, dataTables.Length);
+      Assert.Single(dataTables);
       Assert.Equal(2, dataTables[0].Rows.Count);
       Assert.Equal(2, dataTables[0].Rows[0]["id2"]);
       Assert.Equal(DBNull.Value, dataTables[0].Rows[0]["name"]);

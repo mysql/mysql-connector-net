@@ -248,18 +248,18 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("INSERT INTO Test VALUES (2, 'name2')");
 
       DataSet ds = MySqlHelper.ExecuteDataset(Connection, "SELECT * FROM Test");
-      Assert.Equal(1, ds.Tables.Count);
+      Assert.Single(ds.Tables);
       Assert.Equal(2, ds.Tables[0].Rows.Count);
       Assert.Equal("name", ds.Tables[0].Rows[0][1]);
 
       MySqlParameter mySqlParameter = new MySqlParameter("@id", 2);
       ds = MySqlHelper.ExecuteDataset(Connection, "SELECT * FROM Test WHERE id = @id", mySqlParameter);
-      Assert.Equal(1, ds.Tables.Count);
+      Assert.Single(ds.Tables);
       Assert.Equal(1, ds.Tables[0].Rows.Count);
       Assert.Equal("name2", ds.Tables[0].Rows[0][1]);
 
       ds = MySqlHelper.ExecuteDataset(Connection.ConnectionString, "SELECT * FROM Test", null);
-      Assert.Equal(1, ds.Tables.Count);
+      Assert.Single(ds.Tables);
       Assert.Equal(2, ds.Tables[0].Rows.Count);
       Assert.Equal("name", ds.Tables[0].Rows[0][1]);
       Assert.Equal("name2", ds.Tables[0].Rows[1][1]);

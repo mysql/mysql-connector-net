@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -76,7 +76,7 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.Parameters[1].Direction = ParameterDirection.ReturnValue;
         cmd.Parameters[0].Value = 20;
         cmd.ExecuteNonQuery();
-        Assert.Equal(cmd.Parameters[1].Value, 40);
+        Assert.Equal(40, cmd.Parameters[1].Value);
 
         cmd.CommandText = "spMyTwice";
         cmd.CommandType = CommandType.StoredProcedure;
@@ -86,10 +86,9 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.Parameters[0].Direction = ParameterDirection.Output;
         cmd.Parameters[1].Value = 20;
         cmd.ExecuteNonQuery();
-        Assert.Equal(cmd.Parameters[0].Value, 40);
+        Assert.Equal(40, cmd.Parameters[0].Value);
       }
     }
-
 
     [Fact]
     public void InsertTest()
@@ -396,27 +395,6 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     /// <summary>
-    /// Bug #45941	SQL-Injection attack
-    /// </summary>
-    [Fact]
-    public void SqlInjection1()
-    {
-      executeSQL("DROP TABLE IF EXISTS Test");
-      executeSQL("CREATE TABLE Test(name VARCHAR(100)) ENGINE=MyISAM DEFAULT CHARSET=utf8");
-      executeSQL("INSERT INTO Test VALUES ('name1'), ('name2'), ('name3')");
-
-      MySqlCommand cnt = new MySqlCommand("SELECT COUNT(*) FROM Test", Connection);
-      Int64 count = (Int64)cnt.ExecuteScalar();
-
-      MySqlCommand cmd = new MySqlCommand("DELETE FROM Test WHERE name=?name", Connection);
-      cmd.Parameters.Add("?name", MySqlDbType.VarChar);
-      cmd.Parameters[0].Value = "\u2032 OR 1=1;-- --";
-      cmd.ExecuteNonQuery();
-
-      Assert.Equal(count, (Int64)cnt.ExecuteScalar());
-    }
-
-    /// <summary>
     /// Bug #44194	ExecuteNonQuery for update commands does not match actual rows updated
     /// </summary>
     [Fact]
@@ -701,5 +679,31 @@ namespace MySql.Data.MySqlClient.Tests
       IDbCommand newCommand2 = (IDbCommand)(cmd as ICloneable).Clone();
     }
 #endif
+
+    #region SQL Injection
+
+    /// <summary>
+    /// Bug #45941	SQL-Injection attack
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Security")]
+    public void SqlInjection1()
+    {
+      executeSQL("DROP TABLE IF EXISTS Test");
+      executeSQL("CREATE TABLE Test(name VARCHAR(100)) ENGINE=MyISAM DEFAULT CHARSET=utf8");
+      executeSQL("INSERT INTO Test VALUES ('name1'), ('name2'), ('name3')");
+
+      MySqlCommand cnt = new MySqlCommand("SELECT COUNT(*) FROM Test", Connection);
+      Int64 count = (Int64)cnt.ExecuteScalar();
+
+      MySqlCommand cmd = new MySqlCommand("DELETE FROM Test WHERE name=?name", Connection);
+      cmd.Parameters.Add("?name", MySqlDbType.VarChar);
+      cmd.Parameters[0].Value = "\u2032 OR 1=1;-- --";
+      cmd.ExecuteNonQuery();
+
+      Assert.Equal(count, (Int64)cnt.ExecuteScalar());
+    }
+
+    #endregion
   }
 }

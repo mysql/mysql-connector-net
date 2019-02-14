@@ -52,7 +52,7 @@ namespace MySql.Data.MySqlClient.Tests
         }
         catch (MySqlException ex)
         {
-          Assert.True(ex.Message.Contains("Replicated"));
+          Assert.Contains("Replicated", ex.Message);
         }
       }
     }

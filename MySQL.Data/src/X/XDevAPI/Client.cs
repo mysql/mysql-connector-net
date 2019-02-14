@@ -110,7 +110,8 @@ namespace MySqlX.XDevAPI
           {
             if (_inIdle.TryDequeue(out Session session2))
             {
-              Debug.Assert(session.Equals(session2), "different sessions in CleanIdleConnections");
+              // TODO: check if there're more than one session open
+              //Debug.Assert(session.Equals(session2), "different sessions in CleanIdleConnections");
               oldSessions.Add(session2);
             }
           }

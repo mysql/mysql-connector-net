@@ -206,6 +206,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("password", value); }
     }
 
+    /// <summary>
+    ///  Gets or sets the path to the certificate file to be used.
+    /// </summary>
     [Category("Authentication")]
     [DisplayName("Certificate File")]
     [Description("Certificate file in PKCS#12 format (.pfx)")]
@@ -215,6 +218,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("certificatefile", value); }
     }
 
+    /// <summary>
+    /// Gets or sets the password to be used in conjunction with the certificate file.
+    /// </summary>
     [Category("Authentication")]
     [DisplayName("Certificate Password")]
     [Description("Password for certificate file")]
@@ -224,6 +230,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("certificatepassword", value); }
     }
 
+    /// <summary>
+    /// Gets or sets the location to a personal store where a certificate is held.
+    /// </summary>
     [Category("Authentication")]
     [DisplayName("Certificate Store Location")]
     [Description("Certificate Store Location for client certificates")]
@@ -234,6 +243,9 @@ namespace MySql.Data.MySqlClient
       set { SetValue("certificatestorelocation", value); }
     }
 
+    /// <summary>
+    /// Gets or sets a certificate thumbprint to ensure correct identification of a certificate contained within a personal store.
+    /// </summary>
     [Category("Authentication")]
     [DisplayName("Certificate Thumbprint")]
     [Description("Certificate thumbprint. Can be used together with Certificate " +
@@ -255,13 +267,16 @@ namespace MySql.Data.MySqlClient
     public MySqlSslMode SslMode
     {
       get { return (MySqlSslMode)values["sslmode"]; }
-      set {SetValue("sslmode", value); }
+      set { SetValue("sslmode", value); }
     }
 
     #endregion
 
     #region Other Properties
 
+    /// <summary>
+    /// Gets or sets the idle connection time(seconds) for TCP connections.
+    /// </summary>
     [DisplayName("Keep Alive")]
     [Description("For TCP connections, the idle connection time (in seconds) before the first keepalive packet is sent." +
         "A value of 0 indicates that keepalive is not used.")]

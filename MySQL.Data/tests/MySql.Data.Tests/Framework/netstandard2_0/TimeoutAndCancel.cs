@@ -112,7 +112,7 @@ namespace MySql.Data.MySqlClient.Tests
         }
         catch (Exception ex)
         {
-          Assert.True(ex.Message.StartsWith("Fatal", StringComparison.OrdinalIgnoreCase));
+          Assert.StartsWith("Fatal", ex.Message, StringComparison.OrdinalIgnoreCase);
         }
 
         Assert.Equal(1, stateChangeCount);

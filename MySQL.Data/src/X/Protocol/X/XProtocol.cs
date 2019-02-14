@@ -130,6 +130,10 @@ namespace MySqlX.Protocol
     {
       _writer.Write(ClientMessageId.CON_CAPABILITIES_GET, new CapabilitiesGet());
       CommunicationPacket packet = ReadPacket();
+
+      if (packet.MessageType == (int)ServerMessageId.NOTICE)
+        packet = ReadPacket();
+
       if (packet.MessageType != (int)ServerMessageId.CONN_CAPABILITIES)
         ThrowUnexpectedMessage(packet.MessageType, (int)ServerMessageId.CONN_CAPABILITIES);
       Capabilities = Capabilities.Parser.ParseFrom(packet.Buffer);
@@ -154,6 +158,8 @@ namespace MySqlX.Protocol
 
     private void ThrowUnexpectedMessage(int received, int expected)
     {
+      if (received == 10) // Connection to XProtocol using ClassicProtocol port
+        throw new MySqlException("Unsupported protocol version.");
       throw new MySqlException(
         String.Format("Expected message id: {0}.  Received message id: {1}", expected, received));
     }
@@ -226,6 +232,8 @@ namespace MySqlX.Protocol
           ProcessSessionStateChanged(rs, frame.Payload.ToByteArray());
           break;
         case NoticeType.SessionVariableChanged:
+          break;
+        default: // will ignore unknown notices from the server
           break;
       }
     }

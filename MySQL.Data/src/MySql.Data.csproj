@@ -1,10 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project>
+  <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.props" />
 
   <PropertyGroup>
     <Description>MySql.Data.MySqlClient .Net Core Class Library</Description>
-    <Copyright>Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.</Copyright>
+    <Copyright>Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>8.0.13</Version>
+    <Version>8.0.14</Version>
     <Authors>Oracle</Authors>
     <AssemblyName>MySql.Data</AssemblyName>
     <TargetFrameworks>netcoreapp2.0;net452;netstandard1.6;netstandard2.0</TargetFrameworks>
@@ -151,4 +152,10 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.targets" />
+  <PropertyGroup>
+    <PostBuildEvent Condition="'$(OS)' == 'Windows_NT' ">$(ProjectDir)Properties\metadata.sh $(ConfigurationName) $(Version)</PostBuildEvent>
+    <PostBuildEvent Condition="'$(OS)' != 'Windows_NT' ">bash $(ProjectDir)Properties/metadata.sh $(ConfigurationName) $(Version)</PostBuildEvent>
+  </PropertyGroup>
+  
 </Project>

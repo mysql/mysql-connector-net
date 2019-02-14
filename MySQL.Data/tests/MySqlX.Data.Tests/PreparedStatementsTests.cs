@@ -616,5 +616,40 @@ namespace MySqlX.Data.Tests
       ValidatePreparedStatements(1, 1,
         $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_EXTRACT(doc,'$.pages') >= ?) AND (JSON_EXTRACT(doc,'$.pages') <= ?)) LIMIT ?, ?");
     }
+
+    [Fact]
+    public void T1()
+    {
+      InitCollection();
+      var coll = GetCollection();
+      GetSession().SQL("SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', '')); ").Execute();
+            var docs1 = new[]
+                                        {
+                                new { _id = 11, name = "jonh doe", age =
+38,profit = 100 },
+                                new { _id = 12, name = "milton green", age =
+45,profit = 200 },
+                                new { _id = 13, name = "larry smith", age =
+24,profit = 300},
+                                new { _id = 14, name = "mary weinstein", age
+= 24 ,profit = 100},
+                                new { _id = 15, name = "jerry pratt", age =
+45 ,profit = 400 },
+                                new { _id = 16, name = "hugh jackman", age =
+20,profit = 500},
+                                new { _id = 117, name = "elizabeth olsen",
+age = 31,profit = 300 },
+                                new { _id = 8, name = "tommy h", age =
+31,profit = 3000}
+                              };
+
+      var r = coll.Add(docs1).Execute();
+      Assert.Equal((ulong)8, r.AffectedItemsCount);
+      var findStmt = coll.Find().Fields("_id as ID", "name as Name",
+          "age as Age", "profit as Profit").GroupBy("age").
+          GroupBy("profit").Sort("profit ASC").Limit(3).Offset(2);
+      ExecuteFindStatement(findStmt);
+      ExecuteFindStatement(findStmt.Offset(0));
+    }
   }
 }

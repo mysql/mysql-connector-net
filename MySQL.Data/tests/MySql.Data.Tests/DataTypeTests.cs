@@ -183,7 +183,7 @@ namespace MySql.Data.MySqlClient.Tests
         reader.Read();
 
         object value = reader["tm"];
-        Assert.Equal(value.GetType(), typeof(TimeSpan));
+        Assert.Equal(typeof(TimeSpan), value.GetType());
         TimeSpan ts = (TimeSpan)reader["tm"];
         Assert.Equal(0, ts.Hours);
         Assert.Equal(0, ts.Minutes);
@@ -191,7 +191,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         reader.Read();
         value = reader["tm"];
-        Assert.Equal(value.GetType(), typeof(TimeSpan));
+        Assert.Equal(typeof(TimeSpan), value.GetType());
         ts = (TimeSpan)reader["tm"];
         Assert.Equal(21, ts.Days);
         Assert.Equal(8, ts.Hours);
@@ -512,11 +512,11 @@ namespace MySql.Data.MySqlClient.Tests
         reader.Read();
         Assert.Equal(typeof(Boolean), reader.GetFieldType(1));
         Assert.Equal(typeof(SByte), reader.GetFieldType(2));
-        Assert.Equal(true, reader.GetBoolean(1));
+        Assert.True(reader.GetBoolean(1));
         Assert.Equal(1, Convert.ToInt32(reader.GetValue(2)));
 
         reader.Read();
-        Assert.Equal(false, reader.GetBoolean(1));
+        Assert.False(reader.GetBoolean(1));
         Assert.Equal(0, Convert.ToInt32(reader.GetValue(2)));
       }
     }
@@ -822,6 +822,7 @@ namespace MySql.Data.MySqlClient.Tests
 
     }
 
+    [Fact]
     public void CanGetToStringFromMySqlGeometry()
     {
       MySqlGeometry v = new MySqlGeometry(47.37, -122.21);
@@ -1098,7 +1099,7 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal(9999999999999999999999999999999999.99, dec.ToDouble());
         Assert.Equal("9999999999999999999999999999999999.99", dec.ToString());
         Exception ex = Assert.Throws<OverflowException>(() => dec.Value);
-        Assert.Equal(ex.Message, "Value was either too large or too small for a Decimal.");
+        Assert.Equal("Value was either too large or too small for a Decimal.", ex.Message);
       }
     }
 

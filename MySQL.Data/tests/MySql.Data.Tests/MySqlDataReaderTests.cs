@@ -68,11 +68,11 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         Assert.NotNull(reader);
-        Assert.Equal(true, reader.HasRows);
+        Assert.True(reader.HasRows);
         Assert.True(reader.Read());
         Assert.Equal(1, reader.FieldCount);
         Assert.True(reader.NextResult());
-        Assert.Equal(true, reader.HasRows);
+        Assert.True(reader.HasRows);
         Assert.Equal(5, reader.FieldCount);
       }
 
@@ -80,11 +80,11 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         Assert.NotNull(reader);
-        Assert.Equal(true, reader.HasRows);
+        Assert.True(reader.HasRows);
         Assert.True(reader.Read());
         Assert.Equal(1, reader.FieldCount);
         Assert.True(reader.NextResult());
-        Assert.Equal(true, reader.HasRows);
+        Assert.True(reader.HasRows);
         Assert.Equal(5, reader.FieldCount);
       }
     }
@@ -154,10 +154,10 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.SingleResult))
       {
         bool result = reader.Read();
-        Assert.Equal(true, result);
+        Assert.True(result);
 
         result = reader.NextResult();
-        Assert.Equal(false, result);
+        Assert.False(result);
       }
     }
 
@@ -316,7 +316,7 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal(DBNull.Value, reader.GetValue(1));
 #if !NETCOREAPP1_1
         Exception ex = Assert.Throws<SqlNullValueException>(() => reader.GetString(1));
-        Assert.Equal(ex.Message, "Data is Null. This method or property cannot be called on Null values.");
+        Assert.Equal("Data is Null. This method or property cannot be called on Null values.", ex.Message);
 #endif
         Assert.False(reader.IsDBNull(2));
         reader.Read();
@@ -326,7 +326,7 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal(DBNull.Value, reader.GetValue(2));
 #if !NETCOREAPP1_1
         ex = Assert.Throws<SqlNullValueException>(() => reader.GetMySqlDateTime(2));
-        Assert.Equal(ex.Message, "Data is Null. This method or property cannot be called on Null values.");
+        Assert.Equal("Data is Null. This method or property cannot be called on Null values.", ex.Message);
 #endif
         Assert.False(reader.Read());
         Assert.False(reader.NextResult());
@@ -367,7 +367,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         // this next line should throw an exception
         Exception ex = Assert.Throws<MySqlException>(() => i = reader.GetInt32(0));
-        Assert.Equal(ex.Message, "Invalid attempt to read a prior column using SequentialAccess");
+        Assert.Equal("Invalid attempt to read a prior column using SequentialAccess", ex.Message);
       }
     }
 
@@ -462,69 +462,69 @@ namespace MySql.Data.MySqlClient.Tests
       {
         //First ResultSet, should have 49 rows.
         //SELECT id FROM Test WHERE id<?param1;
-        Assert.Equal(true, reader.HasRows);
+        Assert.True(reader.HasRows);
         Assert.Equal(1, reader.FieldCount);
         for (int i = 0; i < 49; i++)
         {
           Assert.True(reader.Read());
         }
-        Assert.Equal(false, reader.Read());
+        Assert.False(reader.Read());
 
         //Second ResultSet, should have no rows.
         //SELECT id,name FROM Test WHERE id = -50;
         Assert.True(reader.NextResult());
-        Assert.Equal(false, reader.HasRows);
+        Assert.False(reader.HasRows);
         Assert.Equal(2, reader.FieldCount);
-        Assert.Equal(false, reader.Read());
+        Assert.False(reader.Read());
 
 
         //Third ResultSet, should have 51 rows.
         //SELECT * FROM Test WHERE id >= ?param1;
         Assert.True(reader.NextResult());
-        Assert.Equal(true, reader.HasRows);
+        Assert.True(reader.HasRows);
         Assert.Equal(5, reader.FieldCount);
         for (int i = 0; i < 51; i++)
         {
           Assert.True(reader.Read());
         }
-        Assert.Equal(false, reader.Read());
+        Assert.False(reader.Read());
 
 
         //Fourth ResultSet, should have no rows.
         //SELECT id, dt, b1 FROM Test WHERE id = -50;
         Assert.True(reader.NextResult());
-        Assert.Equal(false, reader.HasRows);
+        Assert.False(reader.HasRows);
         Assert.Equal(3, reader.FieldCount); //Will Fail if uncommented expected 3 returned 5
-        Assert.Equal(false, reader.Read());
+        Assert.False(reader.Read());
 
         //Fifth ResultSet, should have no rows.
         //SELECT b1 FROM Test WHERE id = -50;
         Assert.True(reader.NextResult());
-        Assert.Equal(false, reader.HasRows);
+        Assert.False(reader.HasRows);
         Assert.Equal(1, reader.FieldCount); //Will Fail if uncommented expected 1 returned 5
-        Assert.Equal(false, reader.Read());
+        Assert.False(reader.Read());
 
         //Sixth ResultSet, should have 49 rows.
         //SELECT id, dt, b1 FROM Test WHERE id < ?param1;
         Assert.True(reader.NextResult());
-        Assert.Equal(true, reader.HasRows);
+        Assert.True(reader.HasRows);
         Assert.Equal(3, reader.FieldCount); //Will Fail if uncommented expected 3 returned 5
         for (int i = 0; i < 49; i++)
         {
           Assert.True(reader.Read());
         }
-        Assert.Equal(false, reader.Read());
+        Assert.False(reader.Read());
 
         //Seventh ResultSet, should have 51 rows.
         //SELECT b1 FROM Test WHERE id >= ?param1;
         Assert.True(reader.NextResult());
-        Assert.Equal(true, reader.HasRows);
+        Assert.True(reader.HasRows);
         Assert.Equal(1, reader.FieldCount); //Will Fail if uncommented expected 1 returned 5
         for (int i = 0; i < 51; i++)
         {
           Assert.True(reader.Read());
         }
-        Assert.Equal(false, reader.Read());
+        Assert.False(reader.Read());
       }
     }
 
@@ -546,11 +546,11 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         Assert.NotNull(reader);
-        Assert.Equal(true, reader.HasRows);
+        Assert.True(reader.HasRows);
         Assert.True(reader.Read());
         Assert.Equal(1, reader.FieldCount);
         Assert.True(reader.NextResult());
-        Assert.Equal(true, reader.HasRows);
+        Assert.True(reader.HasRows);
         Assert.Equal(5, reader.FieldCount);
       }
 
@@ -558,11 +558,11 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         Assert.NotNull(reader);
-        Assert.Equal(true, reader.HasRows);
+        Assert.True(reader.HasRows);
         Assert.True(reader.Read());
         Assert.Equal(1, reader.FieldCount);
         Assert.True(reader.NextResult());
-        Assert.Equal(true, reader.HasRows);
+        Assert.True(reader.HasRows);
         Assert.Equal(5, reader.FieldCount);
       }
     }
@@ -717,7 +717,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand cmd = new MySqlCommand("select * from doesnotexist", Connection);
       MySqlDataReader reader;
       Exception ex = Assert.Throws<MySqlException>(() => reader = cmd.ExecuteReader(CommandBehavior.SchemaOnly));
-      Assert.True(ex.Message.Contains(".doesnotexist' doesn't exist"));
+      Assert.Contains(".doesnotexist' doesn't exist", ex.Message);
 
       // Check that failed ExecuteReader did not leave SQL_SELECT_LIMIT
       // set to 0.
@@ -756,7 +756,7 @@ namespace MySql.Data.MySqlClient.Tests
         string name1 = reader.GetString(0);
         string name2 = reader.GetString(1);
         Assert.Equal(name1, name2);
-        Assert.Equal(name1, "test");
+        Assert.Equal("test", name1);
       }
 
       cmd.CommandText = "SELECT 'a' AS XYZ, 'b' as Xyz";
