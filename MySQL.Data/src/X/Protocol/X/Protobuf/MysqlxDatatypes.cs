@@ -12,7 +12,7 @@ using scg = global::System.Collections.Generic;
 namespace Mysqlx.Datatypes {
 
   /// <summary>Holder for reflection information generated from mysqlx_datatypes.proto</summary>
-  internal static partial class MysqlxDatatypesReflection {
+  public static partial class MysqlxDatatypesReflection {
 
     #region Descriptor
     /// <summary>File descriptor for mysqlx_datatypes.proto</summary>
@@ -64,7 +64,7 @@ namespace Mysqlx.Datatypes {
   /// <summary>
   /// a scalar
   /// </summary>
-  internal sealed partial class Scalar : pb::IMessage<Scalar> {
+  public sealed partial class Scalar : pb::IMessage<Scalar> {
     private static readonly pb::MessageParser<Scalar> _parser = new pb::MessageParser<Scalar>(() => new Scalar());
     private pb::UnknownFieldSet _unknownFields;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -837,7 +837,7 @@ namespace Mysqlx.Datatypes {
   /// <summary>
   /// a object
   /// </summary>
-  internal sealed partial class Object : pb::IMessage<Object> {
+  public sealed partial class Object : pb::IMessage<Object> {
     private static readonly pb::MessageParser<Object> _parser = new pb::MessageParser<Object>(() => new Object());
     private pb::UnknownFieldSet _unknownFields;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1137,7 +1137,7 @@ namespace Mysqlx.Datatypes {
   /// <summary>
   /// a Array
   /// </summary>
-  internal sealed partial class Array : pb::IMessage<Array> {
+  public sealed partial class Array : pb::IMessage<Array> {
     private static readonly pb::MessageParser<Array> _parser = new pb::MessageParser<Array>(() => new Array());
     private pb::UnknownFieldSet _unknownFields;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1261,7 +1261,7 @@ namespace Mysqlx.Datatypes {
   /// <summary>
   /// a helper to allow all field types
   /// </summary>
-  internal sealed partial class Any : pb::IMessage<Any> {
+  public sealed partial class Any : pb::IMessage<Any> {
     private static readonly pb::MessageParser<Any> _parser = new pb::MessageParser<Any>(() => new Any());
     private pb::UnknownFieldSet _unknownFields;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
